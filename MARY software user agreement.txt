@@ -101,7 +101,7 @@ http://junit.org or doc/licenses/CPL.txt.
 
 java-diff: A java diff implementation from http://www.incava.org/projects/java-diff for input-output-comparisons in the
 Mary Expert Interface. java-diff is licensed under the GNU Lesser General
-Public License, , see http://www.gnu.org or doc/licenses/LGPL.txt.
+Public License, see http://www.gnu.org or doc/licenses/LGPL.txt.
 (files concerned: java/java-diff.jar)
 
 IT IS YOUR OBLIGATION TO READ AND ACCEPT ALL SUCH TERMS
