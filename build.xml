@@ -1,0 +1,488 @@
+
+<!-- Mary TTS -->
+<!-- This is the main build file for the system. -->
+<!--
+Copyright 2000-2006 DFKI GmbH.
+All Rights Reserved.  Use is subject to license terms.
+
+Permission is hereby granted, free of charge, to use and distribute
+this software and its documentation without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of this work, and to
+permit persons to whom this work is furnished to do so, subject to
+the following conditions:
+
+1. The code must retain the above copyright notice, this list of
+   conditions and the following disclaimer.
+2. Any modifications must be clearly marked as such.
+3. Original authors' names are not deleted.
+4. The authors' names are not used to endorse or promote products
+   derived from this software without specific prior written
+   permission.
+
+DFKI GMBH AND THE CONTRIBUTORS TO THIS WORK DISCLAIM ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL DFKI GMBH NOR THE
+CONTRIBUTORS BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
+DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
+PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
+ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+THIS SOFTWARE.
+-->
+
+<project name="mary" default="compile-debug" basedir=".">
+
+  <!-- set global properties for this build -->
+  <property name="src" value="java"/>
+  <property name="dest" value="java"/>
+  <property name="build" value="build"/>
+  <property name="mary.base" value="."/>
+
+  <path id="project.classpath">
+    <fileset dir="${dest}" includes="*.jar"/>
+  </path>
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <mkdir dir="log"/>
+    <mkdir dir="tmp"/>
+    <mkdir dir="dist"/>
+  </target>
+
+  <target name="version" depends="init">
+    <!-- Determine version information -->
+    <loadfile property="specification.version"
+              srcFile="${src}/de/dfki/lt/mary/specification-version.txt">
+      <filterchain>
+        <striplinebreaks/>
+      </filterchain>
+    </loadfile>
+    <property name="implementation.version"
+              value="${DSTAMP}"/>
+    <echo file="${src}/de/dfki/lt/mary/implementation-version.txt"
+          message="${implementation.version}"/>
+  </target>
+
+  <target name="compile" depends="version">
+    <!-- Compile the java code from ${src} -->
+    <javac srcdir="${src}" classpathref="project.classpath" source="1.4"
+           target="1.4" encoding="UTF-8" optimize="on"/>
+  </target>
+
+  <target name="compile-debug" depends="version">
+    <!-- Compile the java code from ${src} -->
+    <javac srcdir="${src}" classpathref="project.classpath" source="1.4"
+           target="1.4" encoding="UTF-8" debug="on"/>
+  </target>
+
+  <target name="tests" depends="compile-debug">
+    <junit printsummary="yes" showoutput="yes" haltonfailure="no">
+      <sysproperty key="mary.base" value="${mary.base}"/>
+      <sysproperty key="modules.poweronselftest" value="false"/>
+      <sysproperty key="log.tofile" value="true"/>
+      <sysproperty key="log.filename" value="log/junittest.mary.log"/>
+      <formatter type="plain"/>
+      <test name="de.dfki.lt.mary.tests.AllTests" todir="log"/>
+    </junit>
+    <echo>See log/TEST-de.dfki.lt.mary.tests.AllTests.txt and
+    log/junittest.mary.log for details.</echo>
+  </target>
+
+  <target name="javadoc" depends="compile">
+    <!-- Create the javadoc documentation and put it into the -->
+    <!-- javadoc directory -->
+    <property name="javadocdir" value="doc/javadoc"/>
+    <mkdir dir="${javadocdir}"/>
+    <javadoc packagenames="de.dfki.lt.mary.*,de.dfki.lt.signalproc.*"
+             classpath="java/tritonus_share.jar;java/freetts-en_us.jar;java/log4j-1.2.8.jar;java/freetts-mbrola.jar;java/tritonus_mp3.jar;java/junit.jar;java/freetts-cmu_us_kal.jar;java/freetts-de.jar;java/jtok.jar;build/standalone-compiler.jar;java/tritonus_src.jar;java/jl1.0.jar;java/jsresources.jar;java/java-diff.jar;java/tritonus_remaining.jar;java/freetts-cmudict04.jar;java/freetts-germanlex.jar;java/freetts.jar"
+             sourcepath="${src}"
+             destdir="${javadocdir}"
+             author="true"
+             version="true"
+             use="true"
+             source="1.4"
+             access="protected"
+             encoding="UTF-8"
+             overview="${src}/de/dfki/lt/mary/overview.html"
+             doctitle="The Mary Text-to-Speech Synthesis system, version ${specification.version}"
+             windowtitle="Mary Java API"
+     />
+  </target>
+
+  <target name="mary-common.jar" depends="compile,version">
+    <jar destfile="${dest}/mary-common.jar"
+         basedir="${src}"
+         includes="de/dfki/lt/mary/**/*.class
+                   de/dfki/lt/mary/util/normalise-maryxml.xsl
+                   de/dfki/lt/mary/modules/ssml-to-mary.xsl
+                   de/dfki/lt/mary/modules/sable-to-mary.xsl
+                   de/dfki/lt/mary/modules/apml-to-mary.xsl
+                   de/dfki/lt/mary/modules/emotion-to-mary.xsl
+                   de/dfki/lt/mary/specification-version.txt
+                   de/dfki/lt/mary/implementation-version.txt"
+        excludes="de/dfki/lt/mary/modules/synthesis/FreeTTSSynthesizer.class
+		   	  de/dfki/lt/mary/modules/synthesis/FreeTTSVoices.class
+			  de/dfki/lt/mary/modules/DummyFreeTTSVoice.class
+    	      de.dfki.lt.mary.modules.XML2UttAcoustParams.class
+        	  de.dfki.lt.mary.modules.Utt2XMLAcoustParams.class
+	          de.dfki.lt.mary.modules.FreeTTS2FestivalUtt.class
+	    	  de/dfki/lt/mary/modules/en/**/*
+    	      de/dfki/lt/mary/modules/tib/**/*
+    	      de/dfki/lt/mary/datatypes/FREETTS*_Definer.class
+              de/dfki/lt/mary/datatypes/*_EN_Definer.class
+              de/dfki/lt/mary/datatypes/*_TIB_Definer.class
+              **/*Mbrola* **/*MBROLA*">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Specification-Version" value="${specification.version}"/>
+        <attribute name="Implementation-Version" value="${implementation.version}"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="mary-freetts.jar" depends="compile,version">
+    <jar destfile="${dest}/mary-freetts.jar"
+         basedir="${src}"
+         includes="de/dfki/lt/mary/modules/synthesis/FreeTTSSynthesizer.class
+		   	de/dfki/lt/mary/modules/synthesis/FreeTTSVoices.class
+	    	de/dfki/lt/mary/modules/DummyFreeTTSVoice.class
+            de.dfki.lt.mary.modules.XML2UttAcoustParams.class
+            de.dfki.lt.mary.modules.Utt2XMLAcoustParams.class
+            de.dfki.lt.mary.modules.FreeTTS2FestivalUtt.class
+		    de/dfki/lt/mary/datatypes/FREETTS_ACOUSTPARAMS_Definer.class">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Specification-Version" value="${specification.version}"/>
+        <attribute name="Implementation-Version" value="${implementation.version}"/>
+      </manifest>
+    </jar>
+  </target>  	
+
+
+  <target name="mary-mbrola.jar" depends="compile,version">
+    <jar destfile="${dest}/mary-mbrola.jar"
+         basedir="${src}"
+         includes="de/dfki/lt/mary/datatypes/MBROLA_Definer.class
+	           de/dfki/lt/mary/modules/MaryXMLToMbrola.class
+	           de/dfki/lt/mary/modules/MbrolaCaller*.class
+	           de/dfki/lt/mary/modules/MbrolaJniCaller.class
+	           de/dfki/lt/mary/modules/MbrolaPhoneme.class
+                   de/dfki/lt/mary/modules/synthesis/MbrolaSynthesizer.class
+                   de/dfki/lt/mary/modules/synthesis/MbrolaVoiceSectioner.class
+                   de/dfki/lt/mary/modules/synthesis/MBROLAPhoneme.class">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Specification-Version" value="${specification.version}"/>
+        <attribute name="Implementation-Version" value="${implementation.version}"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="mary-english.jar" depends="compile,version">
+    <jar destfile="${dest}/mary-english.jar"
+         basedir="${src}"
+         includes="de/dfki/lt/mary/datatypes/*_EN_Definer.class
+                   de/dfki/lt/mary/modules/en/**/*.class
+		   de/dfki/lt/mary/modules/de/cap/Phoneme.class">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Specification-Version" value="${specification.version}"/>
+        <attribute name="Implementation-Version" value="${implementation.version}"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="mary-tibetan.jar" depends="compile,version">
+    <jar destfile="${dest}/mary-tibetan.jar"
+         basedir="${src}"
+         includes="de/dfki/lt/mary/datatypes/*_TIB_Definer.class
+                   de/dfki/lt/mary/modules/tib/**/*.class
+			       de/dfki/lt/mary/modules/tib/**/*.txt
+                   de/dfki/lt/mary/modules/tib/**/*.xml">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Specification-Version" value="${specification.version}"/>
+        <attribute name="Implementation-Version" value="${implementation.version}"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="maryclient.jar" depends="compile,version">
+    <jar destfile="${dest}/maryclient.jar"
+         basedir="${src}"
+         includes="de/dfki/lt/mary/client/*.class
+                   de/dfki/lt/mary/util/MaryUtils*.class
+    	           de/dfki/lt/signalproc/util/AudioPlayer.class
+                   de/dfki/lt/mary/Version.class
+                   de/dfki/lt/mary/specification-version.txt
+                   de/dfki/lt/mary/implementation-version.txt">
+      <zipfileset src="${src}/freetts.jar"
+          includes="com/sun/speech/freetts/audio/AudioPlayer.class
+			      	com/sun/speech/freetts/util/Utilities.class
+      				com/sun/speech/freetts/util/BulkTimer.class
+					com/sun/speech/freetts/util/Timer.class
+      				com/sun/speech/freetts/audio/JavaStreamingAudioPlayer*.class"/>
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Main-Class"
+                   value="de.dfki.lt.mary.client.MaryExpertInterface"/>
+        <attribute name="Class-Path"
+                   value="java-diff.jar  tritonus_mp3.jar jl1.0.jar"/>
+        <attribute name="Specification-Version"
+                   value="${specification.version}"/>
+        <attribute name="Implementation-Version"
+                   value="${implementation.version}"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="maryjsapiclient.jar" depends="compile,version">
+    <jar destfile="${dest}/maryjsapiclient.jar"
+         basedir="${src}"
+         includes="de/dfki/lt/mary/client/*.class
+                   de/dfki/lt/mary/jsapi/*.class
+                   de/dfki/lt/mary/jsapi/synthesizer.properties
+                   de/dfki/lt/mary/util/MaryUtils.class
+                   de/dfki/lt/mary/Version.class
+                   de/dfki/lt/mary/specification-version.txt
+                   de/dfki/lt/mary/implementation-version.txt">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Class-Path"
+                   value="java-diff.jar freettsjsapi.jar jsapi.jar"/>
+        <attribute name="Specification-Version"
+                   value="${specification.version}"/>
+        <attribute name="Implementation-Version"
+                   value="${implementation.version}"/>
+      </manifest>
+    </jar>
+  </target>
+	
+	  <target name="emospeak.jar" depends="compile">
+	    <jar destfile="${dest}/emospeak.jar"
+	         basedir="${src}"
+	         includes="de/dfki/lt/mary/emospeak/*.class
+	                   de/dfki/lt/mary/emospeak/emotion-to-mary.xsl"
+	         excludes="de/dfki/lt/mary/emospeak/EmoSpeakApplet*.class">
+	      <manifest>
+	        <attribute name="Built-By" value="${user.name}"/>
+		<attribute name="Main-Class"
+	         value="de.dfki.lt.mary.emospeak.EmoSpeak"/>
+		 <attribute name="Class-Path" value="maryclient.jar java-diff.jar tritonus_mp3.jar jl1.0.jar"/>
+	      </manifest>
+	    </jar>
+	  </target>
+
+	  <target name="emospeakapplet.jar" depends="compile">
+	    <jar destfile="${dest}/emospeakapplet.jar"
+	         basedir="${src}"
+	         includes="de/dfki/lt/mary/emospeak/*.class
+	                   de/dfki/lt/mary/modules/emotion-to-mary.xsl"
+	         excludes="de/dfki/lt/mary/emospeak/EmoSpeak.class
+		           de/dfki/lt/mary/emospeak/EmoSpeak$*.class">
+	      <manifest>
+	        <attribute name="Built-By" value="${user.name}"/>
+		<attribute name="Main-Class"
+	         value="de.dfki.lt.mary.emospeak.EmoSpeakApplet"/>
+			 <attribute name="Class-Path" value="maryclient.jar java-diff.jar tritonus_mp3.jar jl1.0.jar"/>
+	      </manifest>
+	    </jar>
+	  </target>
+
+
+  <target name="signalproc.jar" depends="compile,version">
+    <jar destfile="${dest}/signalproc.jar"
+         basedir="${src}"
+         includes="de/dfki/lt/signalproc/**/*.class
+                   de/dfki/lt/util/**/*.class">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Specification-Version"
+                   value="${specification.version}"/>
+        <attribute name="Implementation-Version"
+                   value="${implementation.version}"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="jars" depends="mary-common.jar,mary-freetts.jar,maryclient.jar,mary-english.jar,mary-tibetan.jar,mary-mbrola.jar,signalproc.jar,emospeak.jar,emospeakapplet.jar"/>
+
+  <target name="jars-debug" depends="compile-debug,jars"/>
+
+
+<!-- arctic voice - make binary -->
+    <target name="arctic_voice_bin" 
+	    depends="compile"
+            if="arctic_voice"
+	    description="Make binary for ${arctic_voice}">
+         
+    	<java classname="de.dfki.lt.mary.unitselection.clunits.ClusterUnitDatabase"
+    		      failonerror="true" 
+    		      fork="true">
+       		    <jvmarg value="-Xmx300m"/>
+    		    <arg line="-src ${mary.base}/lib/voices/${arctic_voice}"/>
+    	            <arg line="-dest ${mary.base}/lib/voices/${arctic_voice}"/>
+    	            <arg line="-generate_binary ${arctic_voice}.txt"/>
+    	</java>
+	</target>
+
+  <!-- ====================================================== -->
+
+  <target name="links">
+    <exec executable="./bin/createlinks.sh" dir="."/>
+  </target>
+
+  <target name="native-compile" depends="links,compile,native-mbrolajni">
+    <exec executable="make" dir="src">
+      <arg line="compile"/>
+    </exec>
+  </target>
+
+  <target name="native-mbrolajni">
+    <!-- Mbrola JNI code: -->
+    <javah class="de.dfki.lt.mary.modules.MbrolaJniCaller"
+           destdir="src/modules/synthesis/mbrola"/>
+  </target>
+
+
+  <!-- ====================================================== -->
+
+  <!-- "Puzzle" distribution. These represent the finest granularity of
+       possible distribution parts. They illustrate the fact that the mary
+       system can be decomposed into independent parts.  In addition, they can
+       be used to complement an existing partial installation. -->
+
+  <target name="mary-common.zip" depends="mary-common.jar,maryclient.jar">
+    <zip destfile="dist/mary-common-${specification.version}.zip">
+      <zipfileset prefix="mary-${specification.version}"
+                  dir="." filemode="644">
+        <includesfile name="build/files_common"/>
+      </zipfileset>
+      <zipfileset prefix="mary-${specification.version}"
+                  dir="." filemode="755">
+        <includesfile name="build/executables_common"/>
+      </zipfileset>
+    </zip>
+  </target>
+	
+  <target name="mary-english.zip" depends="mary-english.jar">
+    <zip destfile="dist/mary-english-${specification.version}.zip">
+      <zipfileset prefix="mary-${specification.version}"
+                  dir="." filemode="644">
+        <includesfile name="build/files_english"/>
+      </zipfileset>
+    </zip>
+  </target>
+
+  <target name="mary-tibetan.zip" depends="mary-tibetan.jar">
+    <zip destfile="dist/mary-tibetan-${specification.version}.zip">
+      <zipfileset prefix="mary-${specification.version}"
+                  dir="." filemode="644">
+        <includesfile name="build/files_tibetan"/>
+      </zipfileset>
+    </zip>
+  </target>
+
+
+  <target name="dist" depends="mary-common.zip,mary-english.zip,mary-tibetan.zip,source-dist,client-dist"/>
+
+
+
+  <!-- ====================================================== -->
+
+  <!-- Source distribution of the whole system -->
+
+  <target name="mary-source.zip" depends="version">
+    <zip destfile="dist/mary-source-${specification.version}.zip">
+      <zipfileset prefix="mary-${specification.version}"
+                  dir="." filemode="644">
+        <includesfile name="build/files_source"/>
+      </zipfileset>
+    </zip>
+  </target>
+
+  <target name="source-dist" depends="mary-source.zip"/>
+
+  <!-- ====================================================== -->
+
+  <!-- Client/Interface distribution -->
+
+  <target name="client-dist" depends="maryclient.jar">
+    <delete dir="tmp/maryinterface"/>
+    <mkdir dir="tmp/maryinterface"/>
+    <copy todir="tmp/maryinterface">
+      <fileset dir="${dest}"
+               includes="maryclient.jar bmsi.jar freetts.jar"/>
+    </copy>
+    <echo file="tmp/maryinterface/maryinterface.bat"
+          message="java -jar -Dserver.port=59125 -Dserver.host=cling.dfki.uni-sb.de maryclient.jar"/>
+    <copy file="tmp/maryinterface/maryinterface.bat"
+          tofile="tmp/maryinterface/maryinterface"/>
+    <echo file="tmp/maryinterface/README.txt">How to start the MARY interface
+
+cd &lt;this directory&gt;
+maryinterface
+    </echo>
+    <!--tar destfile="dist/maryinterface-${specification.version}.tar.gz"
+         compression="gzip">
+      <tarfileset prefix="maryinterface-${specification.version}"
+                  dir="tmp/maryinterface" mode="644"
+                  includes="*"
+                  excludes="maryinterface"/>
+      <tarfileset prefix="maryinterface-${specification.version}"
+                  dir="tmp/maryinterface" mode="755"
+                  includes="maryinterface"/>
+    </tar-->
+    <zip destfile="dist/maryinterface-${specification.version}.zip">
+      <zipfileset prefix="maryinterface-${specification.version}"
+                  dir="tmp/maryinterface" filemode="644"
+                  includes="*"
+                  excludes="maryinterface"/>
+      <zipfileset prefix="maryinterface-${specification.version}"
+                  dir="tmp/maryinterface" filemode="755"
+                  includes="maryinterface"/>
+    </zip>
+    <delete dir="tmp/maryinterface"/>
+  </target>
+
+  <!-- ====================================================== -->
+
+  <!-- The default is to build the puzzle distribution. -->
+
+  <target name="all" depends="dist"/>
+
+  <target name="clean">
+    <!-- Delete all .class files -->
+    <delete>
+      <fileset dir="${dest}" includes="**/*.class"/>
+    </delete>
+  </target>
+
+	<target name="de.dfki.lt.izpack.LicensePanel.jar" depends="compile-debug">
+	    <jar destfile="build/bin/panels/de.dfki.lt.izpack.LicensePanel.jar"
+	         basedir="${src}"
+	         includes="de/dfki/lt/izpack/LicensePanel*.class">
+	      <manifest>
+	        <attribute name="Built-By" value="${user.name}"/>
+	        <attribute name="Specification-Version"
+	                   value="${specification.version}"/>
+	        <attribute name="Implementation-Version"
+	                   value="${implementation.version}"/>
+	      </manifest>
+	    </jar>
+	  </target>
+	
+	
+    <target name="installer" depends="jars-debug,de.dfki.lt.izpack.LicensePanel.jar">
+        <echo>Building MARY installer.
+Make sure you have done:
+  - ../dfkimary and ../marybase/mbrola exist with the appropriate content
+  - cd ../dfkimary; ant clean jars)
+  - ant javadoc</echo>
+    	<java dir="build" jar="build/standalone-compiler.jar" fork="true">
+			<arg line="mary-install.xml -b .. -k webdir -o ../dist/mary-install-${specification.version}.jar"/>
+        </java>
+    </target>
+		
+</project>

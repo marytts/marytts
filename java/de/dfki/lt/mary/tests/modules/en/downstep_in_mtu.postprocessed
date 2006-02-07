@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.4" xml:lang="en">
+<voice name="us1">
+<s>
+<phrase>
+<t pos="DT" sampa="'DIs">
+This
+<syllable sampa="'DIs" stress="1">
+<ph d="34" end="34" p="D"/>
+<ph d="51" end="86" p="I"/>
+<ph d="116" end="202" p="s"/>
+</syllable>
+</t>
+<t accent="L+H*" pos="NN" sampa="'kAr">
+car
+<syllable accent="L+H*" sampa="'kAr" stress="1">
+<ph d="127" end="330" p="k"/>
+<ph d="152" end="482" p="A"/>
+<ph d="73" end="556" p="r"/>
+</syllable>
+</t>
+<t pos="VBZ" sampa="'Iz">
+is
+<syllable sampa="'Iz" stress="1">
+<ph d="54" end="610" p="I"/>
+<ph d="104" end="714" p="z"/>
+</syllable>
+</t>
+<t pos="RB" sampa="'nAt">
+not
+<syllable sampa="'nAt" stress="1">
+<ph d="54" end="769" p="n"/>
+<ph d="107" end="876" p="A"/>
+<ph d="36" end="913" p="t"/>
+</syllable>
+</t>
+<t pos="RB" sampa="'tEr-@b-li">
+terribly
+<syllable sampa="'tEr" stress="1">
+<ph d="84" end="997" p="t"/>
+<ph d="108" end="1106" p="E"/>
+<ph d="70" end="1177" p="r"/>
+</syllable>
+<syllable sampa="@b">
+<ph d="30" end="1207" p="@"/>
+<ph d="58" end="1265" p="b"/>
+</syllable>
+<syllable sampa="li">
+<ph d="44" end="1310" p="l"/>
+<ph d="159" end="1469" p="i"/>
+</syllable>
+</t>
+<mtu orig="environmentally-friendly">
+<t pos="RB" sampa="@nv-AIr-@n-'mEnt-@l-i">
+environmentally
+<syllable sampa="@nv">
+<ph d="40" end="1510" p="@"/>
+<ph d="76" end="1586" p="n"/>
+<ph d="44" end="1630" p="v"/>
+</syllable>
+<syllable sampa="AIr">
+<ph d="143" end="1774" p="AI"/>
+<ph d="70" end="1845" p="r"/>
+</syllable>
+<syllable sampa="@n">
+<ph d="26" end="1871" p="@"/>
+<ph d="52" end="1923" p="n"/>
+</syllable>
+<syllable sampa="'mEnt" stress="1">
+<ph d="45" end="1968" p="m"/>
+<ph d="71" end="2040" p="E"/>
+<ph d="53" end="2093" p="n"/>
+<ph d="75" end="2168" p="t"/>
+</syllable>
+<syllable sampa="@l">
+<ph d="48" end="2216" p="@"/>
+<ph d="91" end="2308" p="l"/>
+</syllable>
+<syllable sampa="i">
+<ph d="102" end="2410" p="i"/>
+</syllable>
+</t>
+<t accent="!H*" pos="JJ" sampa="'frEnd-li">
+friendly
+<syllable accent="!H*" sampa="'frEnd" stress="1">
+<ph d="129" end="2539" p="f"/>
+<ph d="35" end="2575" p="r"/>
+<ph d="122" end="2697" p="E"/>
+<ph d="56" end="2753" p="n"/>
+<ph d="35" end="2789" p="d"/>
+</syllable>
+<syllable sampa="li">
+<ph d="52" end="2842" p="l"/>
+<ph d="192" end="3034" p="i"/>
+</syllable>
+</t>
+<boundary breakindex="4" duration="200" tone="L-L%"/>
+</mtu>
+<t pos="$PUNCT">
+.
+</t>
+</phrase>
+</s>
+</voice>
+</maryxml>

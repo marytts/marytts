@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+Copyright 2000-2006 DFKI GmbH.
+All Rights Reserved.  Use is subject to license terms.
+
+Permission is hereby granted, free of charge, to use and distribute
+this software and its documentation without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of this work, and to
+permit persons to whom this work is furnished to do so, subject to
+the following conditions:
+
+1. The code must retain the above copyright notice, this list of
+   conditions and the following disclaimer.
+2. Any modifications must be clearly marked as such.
+3. Original authors' names are not deleted.
+4. The authors' names are not used to endorse or promote products
+   derived from this software without specific prior written
+   permission.
+
+DFKI GMBH AND THE CONTRIBUTORS TO THIS WORK DISCLAIM ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL DFKI GMBH NOR THE
+CONTRIBUTORS BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
+DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
+PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
+ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+THIS SOFTWARE.
+-->
+<!-- This file contains the parameters to the rules for the realisation of
+ ToBI accent and boundary tones, as used in
+ the CAP module of the Mary Text-to-Speech Synthesis system.
+
+ Author: Marc Schröder.
+
+ The parameters are read at program start. Their meaning is described in
+ the accompanying comments.
+
+ Syntax of this file:
+ This is an XML file.
+ Accents and boundaries are defined as a set of target points,
+ some of which are conditional.
+ Each target point is defined by its type, an f0 specification,
+ and a code specifying the position of the time axis.
+
+ a) Types of targetpoints:
+  begin    the very first, default target in a declination phrase
+  interpol relatively unimportant target needed for interpolation
+  plus     the weaker part of a composed accent (the l in l+h*)
+  star     the important part of an accent (the h in l+h*)
+  boundary non-final, but important target in boundary tone
+  final    the very last target in a boundary tone
+
+ b) Generally, f0-axis values (describing the fundamental frequency)
+ are in o/oo, where 0 is the baseline and 1000 is the topline.
+ If the value of the f0 attribute is not numerical, it is an exceptional way
+ to specify f0:
+  last_H_freq same *frequency* value as the preceding target on the topline.
+
+ c) t values (position on the time axis) are coded in the following way:
+   0 start of this declination phrase
+  11 start of the preceding syllable
+  12 start of the nucleus of the preceding syllable
+  21 start of this syllable
+  22 start of the nucleus of this syllable
+  23 middle of the nucleus of this syllable
+  24 end of the nucleus of this syllable
+  25 end of this syllable
+  34 end of the nucleus of the following syllable
+ and some more specific ones:
+  99 middle of the nucleus of the syllable after the (syllable associated
+     with) the previous tone
+  98 middle of the nucleus of the first 1ary or 2ary stressed syllable after
+     the syllable after the (syllable associated with) the previous tone
+     (i.e., skip one syllable and then search for a stressed syllable)
+
+-->
+
+<tobitone-params>
+<accent name="H*">
+  <!-- Target at the beginning of a declination, 62% between top and base,
+       at start of this declination phrase: -->
+  <target condition="first_in_IP" type="begin" f0="620" t_code="0"/>
+  <!-- Interpolation target after an H tone, 20% under top line,
+       at start of the nucleus of the preceding syllable: -->
+  <target condition="prevtone_H" type="interpol" f0="800" t_code="12"/>
+  <!-- Star target on topline,
+       in the middle of the nucleus of this syllable: -->
+  <target type="star" f0="1000" t_code="23"/>
+</accent>
+
+<accent name="!H*">
+  <!-- no target at beginning of the phrase, because a downstep can not
+       occur at start of a declination phrase: -->
+  <!-- Downstep of the topline, if possible at the beginning of
+       this syllable -->
+  <prosody t_code="21" range="-25%"/>
+  <!-- Star target on topline,
+       in the middle of the nucleus of this syllable: -->
+  <target type="star" f0="1000" t_code="23"/>
+</accent>
+
+<accent name="^H*">
+  <!-- no target at beginning of the phrase, because an upstep can not
+       occur at start of a declination phrase: -->
+  <!-- Upstep of the topline, if possible at the beginning of
+       this syllable -->
+  <prosody t_code="21" range="+33%"/>
+  <!-- Star target on topline,
+       in the middle of the nucleus of this syllable: -->
+  <target type="star" f0="1000" t_code="23"/>
+</accent>
+
+<accent name="L*">
+  <!-- Target at the beginning of a declination, 38% between top and base,
+       at start of this declination phrase: -->
+  <target condition="first_in_IP" type="begin" f0="380" t_code="0"/>
+  <!-- Star target on baseline,
+       in the middle of the nucleus of this syllable: -->
+  <target type="star" f0="0" t_code="23"/>
+</accent>
+
+<accent name="L+H*">
+  <!-- Target at the beginning of a declination, 38% between top and base,
+       at start of this declination phrase: -->
+  <target condition="first_in_IP" type="begin" f0="380" t_code="0"/>
+  <!-- Plus-type target on baseline,
+       at the start of the nucleus of the preceding syllable: -->
+  <target type="plus" f0="0" t_code="12"/>
+  <!-- Star target on topline,
+       in the middle of the nucleus of this syllable: -->
+  <target type="star" f0="1000" t_code="23"/>
+</accent>
+
+<accent name="L*+H">
+  <!-- Target at the beginning of a declination, 38% between top and base,
+       at start of this declination phrase: -->
+  <target condition="first_in_IP" type="begin" f0="380" t_code="0"/>
+  <!-- Star target on baseline,
+       at the start of this syllable: -->
+  <target type="star" f0="0" t_code="21"/>
+  <!-- Plus-type target on topline,
+       at the end of the nucleus of the following syllable: -->
+  <target type="plus" f0="1000" t_code="34"/>
+</accent>
+
+<accent name="L+!H*">
+  <!-- Target at the beginning of a declination, 38% between top and base,
+       at start of this declination phrase: -->
+  <target condition="first_in_IP" type="begin" f0="380" t_code="0"/>
+  <!-- Plus-type target on baseline,
+       at the start of the nucleus of the preceding syllable: -->
+  <target type="plus" f0="0" t_code="12"/>
+  <!-- Downstep of the topline, if possible at the beginning of
+       this syllable -->
+  <prosody t_code="21" range="-25%"/>
+  <!-- Star target on topline,
+       in the middle of the nucleus of this syllable: -->
+  <target type="star" f0="1000" t_code="23"/>
+</accent>
+
+<accent name="L*+!H">
+  <!-- Target at the beginning of a declination, 38% between top and base,
+       at start of this declination phrase: -->
+  <target condition="first_in_IP" type="begin" f0="380" t_code="0"/>
+  <!-- Star target on baseline,
+       at the start of this syllable: -->
+  <target type="star" f0="0" t_code="21"/>
+  <!-- Downstep of the topline, if possible at the beginning of
+       the next syllable -->
+  <prosody t_code="31" range="-25%"/>
+  <!-- Plus-type target on topline,
+       at the end of the nucleus of the following syllable: -->
+  <target type="plus" f0="1000" t_code="34"/>
+</accent>
+
+<accent name="L+^H*">
+  <!-- Target at the beginning of a declination, 38% between top and base,
+       at start of this declination phrase: -->
+  <target condition="first_in_IP" type="begin" f0="380" t_code="0"/>
+  <!-- Plus-type target on baseline,
+       at the start of the nucleus of the preceding syllable: -->
+  <target type="plus" f0="0" t_code="12"/>
+  <!-- Upstep of the topline, if possible at the beginning of
+       this syllable -->
+  <prosody t_code="21" range="+33%"/>
+  <!-- Star target on topline,
+       in the middle of the nucleus of this syllable: -->
+  <target type="star" f0="1000" t_code="23"/>
+</accent>
+
+<accent name="L*+^H">
+  <!-- Target at the beginning of a declination, 38% between top and base,
+       at start of this declination phrase: -->
+  <target condition="first_in_IP" type="begin" f0="380" t_code="0"/>
+  <!-- Star target on baseline,
+       at the start of this syllable: -->
+  <target type="star" f0="0" t_code="21"/>
+  <!-- Upstep of the topline, if possible at the beginning of
+       the next syllable -->
+  <prosody t_code="31" range="+33%"/>
+  <!-- Plus-type target on topline,
+       at the end of the nucleus of the following syllable: -->
+  <target type="plus" f0="1000" t_code="34"/>
+</accent>
+
+<accent name="H*+L">
+  <!-- Target at the beginning of a declination, 62% between top and base,
+       at start of this declination phrase: -->
+  <target condition="first_in_IP" type="begin" f0="620" t_code="0"/>
+  <!-- Star target on topline,
+       at the start of this syllable: -->
+  <target type="star" f0="1000" t_code="21"/>
+  <!-- Plus-type target on baseline,
+       at the end of the nucleus of the following syllable: -->
+  <target type="plus" f0="0" t_code="34"/>
+</accent>
+
+<accent name="H+L*">
+  <!-- Target at the beginning of a declination, 62% between top and base,
+       at start of this declination phrase: -->
+  <target condition="first_in_IP" type="begin" f0="620" t_code="0"/>
+  <!-- Plus-type target on topline,
+       at the start of the nucleus of the preceding syllable: -->
+  <target type="plus" f0="1000" t_code="12"/>
+  <!-- Star target on baseline,
+       in the middle of the nucleus of this syllable: -->
+  <target type="star" f0="0" t_code="23"/>
+</accent>
+
+<accent name="H+!H*">
+  <!-- Target at the beginning of a declination, 62% between top and base,
+       at start of this declination phrase: -->
+  <target condition="first_in_IP" type="begin" f0="620" t_code="0"/>
+  <!-- Plus-type target on topline,
+       at the start of the nucleus of the preceding syllable: -->
+  <target type="plus" f0="1000" t_code="12"/>
+  <!-- Downstep of the topline, if possible at the beginning of
+       this syllable -->
+  <prosody t_code="21" range="-25%"/>
+  <!-- Star target on downstepped topline,
+       in the middle of the nucleus of this syllable: -->
+  <target type="star" f0="1000" t_code="23"/>
+</accent>
+
+<accent name="H+^H*">
+  <!-- Target at the beginning of a declination, 62% between top and base,
+       at start of this declination phrase: -->
+  <target condition="first_in_IP" type="begin" f0="620" t_code="0"/>
+  <!-- Plus-type target on topline,
+       at the start of the nucleus of the preceding syllable: -->
+  <target type="plus" f0="1000" t_code="12"/>
+  <!-- Upstep of the topline, if possible at the beginning of
+       this syllable -->
+  <prosody t_code="21" range="+33%"/>
+  <!-- Star target on upstepped topline,
+       in the middle of the nucleus of this syllable: -->
+  <target type="star" f0="1000" t_code="23"/>
+</accent>
+
+<accent name="!H+!H*">
+  <!-- no target at beginning of the phrase, because a downstep can not
+       occur at start of a declination phrase: -->
+  <!-- Downstep of the topline, if possible at the beginning of
+       the previous syllable -->
+  <prosody t_code="11" range="-25%"/>
+  <!-- Plus-type target on topline,
+       at the start of the nucleus of the preceding syllable: -->
+  <target type="plus" f0="1000" t_code="12"/>
+  <!-- Downstep of the topline, if possible at the beginning of
+       this syllable -->
+  <prosody t_code="21" range="-25%"/>
+  <!-- Star target on downstepped topline,
+       in the middle of the nucleus of this syllable: -->
+  <target type="star" f0="1000" t_code="23"/>
+</accent>
+
+<accent name="^H+!H*">
+  <!-- We assume here that the downstep only neutralises the upstep,
+       which means we only have a return to the original topline. -->
+  <!-- no target at beginning of the phrase, because an upstep can not
+       occur at start of a declination phrase: -->
+  <!-- Plus-type target 33% above the normal topline,
+       at the start of the nucleus of the preceding syllable: -->
+  <target type="plus" f0="1333" t_code="12"/>
+  <!-- Star target on normal topline,
+       in the middle of the nucleus of this syllable: -->
+  <target type="star" f0="1000" t_code="23"/>
+</accent>
+
+<accent name="^H+^H*">
+  <!-- no target at beginning of the phrase, because an upstep can not
+       occur at start of a declination phrase: -->
+  <!-- Upstep of the topline, if possible at the beginning of
+       the previous syllable -->
+  <prosody t_code="11" range="+33%"/>
+  <!-- Plus-type target on upstepped topline,
+       at the start of the nucleus of the preceding syllable: -->
+  <target type="plus" f0="1000" t_code="12"/>
+  <!-- Upstep of the topline, if possible at the beginning of
+       this syllable -->
+  <prosody t_code="21" range="+33%"/>
+  <!-- Star target on upstepped topline,
+       in the middle of the nucleus of this syllable: -->
+  <target type="star" f0="1000" t_code="23"/>
+</accent>
+
+
+<boundary size="minor" name="H-">
+  <!-- Interpolation target after an L tone, on topline,
+       in the middle of the nucleus of the syllable after the last
+       L-accent tone: -->
+  <target condition="prevtone_L" type="boundary" f0="1000" t_code="99"/>
+  <!-- Final target at the same *frequency* as preceding target on topline,
+       at the end of this syllable: -->
+  <target type="final" f0="last_H_freq" t_code="25"/>
+</boundary>
+
+<boundary size="minor" name="!H-">
+  <!-- Downstep of the topline, if possible at the syllable
+       after the last accent tone: -->
+  <prosody t_code="99" range="-25%"/>
+  <!-- Interpolation target on the downstepped topline,
+       in the middle of the nucleus of the syllable after the last
+       accent tone: -->
+  <target type="boundary" f0="1000" t_code="99"/>
+  <!-- Final target at the same *frequency* as preceding target on topline,
+       at the end of this syllable: -->
+  <target type="final" f0="last_H_freq" t_code="25"/>
+</boundary>
+
+
+<boundary size="minor" name="L-">
+  <!-- Interpolation target after an H tone, 20% above the baseline,
+       in the middle of the nucleus of the syllable after the last
+       H-accent tone: -->
+  <target condition="prevtone_H" type="interpol" f0="200" t_code="99"/>
+  <!-- Boundary target on baseline,
+       in the middle of the nucleus of the first 1ary or 2ary stressed
+       syllable after the syllable after the last H-accent tone: -->
+  <target type="boundary" f0="0" t_code="98"/>
+  <!-- Final target on baseline,
+       at the end of this syllable: -->
+  <target type="final" f0="0" t_code="25"/>
+</boundary>
+
+<boundary size="major" name="H-L%">
+  <!-- Interpolation target after an L tone, on topline,
+       in the middle of the nucleus of the syllable after the last
+       L-accent tone: -->
+  <target condition="prevtone_L" type="boundary" f0="1000" t_code="99"/>
+  <!-- Final target at the same *frequency* as preceding target on topline,
+       at the end of this syllable: -->
+  <target type="final" f0="last_H_freq" t_code="25"/>
+</boundary>
+
+<boundary size="major" name="!H-L%">
+  <!-- Downstep of the topline, if possible at the syllable
+       after the last accent tone: -->
+  <prosody t_code="99" range="-25%"/>
+  <!-- Interpolation target on downstepped topline,
+       in the middle of the nucleus of the syllable after the last
+       L-accent tone: -->
+  <target type="boundary" f0="1000" t_code="99"/>
+  <!-- Final target at the same *frequency* as preceding target on topline,
+       at the end of this syllable: -->
+  <target type="final" f0="last_H_freq" t_code="25"/>
+</boundary>
+
+<boundary size="major" name="H-H%">
+  <!-- Interpolation target after an L tone, on topline,
+       in the middle of the nucleus of the syllable after the last
+       L-accent tone: -->
+  <target condition="prevtone_L" type="boundary" f0="1000" t_code="99"/>
+  <!-- Boundary target at the same *frequency* as preceding target on topline,
+       at the start of this syllable: -->
+  <target type="boundary" f0="last_H_freq" t_code="21"/>
+  <!-- Final target 100% over the topline,
+       at the end of this syllable, i.e., end of the phrase: -->
+  <target type="final" f0="2000" t_code="25"/>
+</boundary>
+
+<boundary size="major" name="!H-H%">
+  <!-- Downstep of the topline, if possible at the syllable
+       after the last accent tone: -->
+  <prosody t_code="99" range="-25%"/>
+  <!-- Interpolation target on downstepped topline,
+       in the middle of the nucleus of the syllable after the last
+       L-accent tone: -->
+  <target condition="prevtone_L" type="boundary" f0="1000" t_code="99"/>
+  <!-- Boundary target at the same *frequency* as preceding target on topline,
+       at the start of this syllable: -->
+  <target type="boundary" f0="last_H_freq" t_code="21"/>
+  <!-- Final target 100% over the topline,
+       at the end of this syllable, i.e., end of the phrase: -->
+  <target type="final" f0="2000" t_code="25"/>
+</boundary>
+
+<boundary size="major" name="L-L%">
+  <!-- Interpolation target after an H tone, 20% above the baseline,
+       in the middle of the nucleus of the syllable after the last
+       H-accent tone: -->
+  <target condition="prevtone_H" type="interpol" f0="200" t_code="99"/>
+  <!-- Boundary target on baseline,
+       in the middle of the nucleus of the first 1ary or 2ary stressed
+       syllable after the syllable after the last H-accent tone: -->
+  <target type="boundary" f0="0" t_code="98"/>
+  <!-- Final target 10% under the baseline,
+       at the end of this syllable, i.e., end of the phrase: -->
+  <target type="final" f0="-100" t_code="25"/>
+</boundary>
+
+<boundary size="major" name="L-H%">
+  <!-- Interpolation target after an H tone, 20% above the baseline,
+       in the middle of the nucleus of the syllable after the last
+       H-accent tone: -->
+  <target condition="prevtone_H" type="interpol" f0="200" t_code="99"/>
+  <!-- Boundary target on baseline,
+       in the middle of the nucleus of the first 1ary or 2ary stressed
+       syllable after the syllable after the last H-accent tone: -->
+  <target type="boundary" f0="0" t_code="98"/>
+  <!-- Boundary target on baseline,
+       at the start of this syllable (last syllable in decl. phrase) -->
+  <target type="boundary" f0="0" t_code="21"/>
+  <!-- Final target on topline,
+       at the end of this syllable, i.e., end of the phrase: -->
+  <target type="final" f0="1000" t_code="25"/>
+</boundary>
+</tobitone-params>
+
+
+
