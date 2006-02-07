@@ -1,0 +1,4 @@
+#!/bin/sh
+
+java -ea -Dserver.host=localhost -jar "$INSTALL_PATH"/java/emospeak.jar
+

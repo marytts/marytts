@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This contains the number description for german. -->
+<NUMBER_DESCRIPTION>
+
+  <!-- This defines the specific number elements. The regexp -->
+  <!-- attribute is the regular expression used to match -->
+  <!-- the number. -->
+  <!-- ATTENTION! Because the regex package we use always -->
+  <!-- stops at the first disjunct that could be matched, the -->
+  <!-- order of the definition with a class is critical! So make -->
+  <!-- sure that punctuations with the potentially longer match -->
+  <!-- stand BEFORE others, e.g. use the order `abc|ab|a' -->
+  <!-- instead of `a|ab|abc' -->
+  <DEFINITIONS>  
+
+    <!-- simple digits -->
+    <!-- this definition doesn't need a class because -->
+    <!-- identification is done via the other definitions -->
+    <SIMPLE_DIGITS regexp="\d|[¼½¾]"/>    
+
+    <!-- fraction numbers -->
+    <FRACT regexp="\A(\d+)?[¼½¾]\Z" class="FRACTION"/>
+
+    <!-- ordinal numbers, restricted to a range below 100 -->
+    <ORD regexp="\A\d{1,2}\.\Z" class="ORDINAL"/>
+
+    <!-- digit numbers -->
+    <!-- this matches digits that may start or end with -->
+    <!-- non-digits or that might be interrupted by non-digits -->
+    <DIGIT regexp="\A[A-Za-z#$£©®+\-]?\d+([A-Za-z$£\-\.,]{1,3}\d+)*([A-Za-z#$£©®%\-+]{1,2})?\Z" class="DIGITAL"/>
+
+  </DEFINITIONS>
+
+  <!-- These are the mandatory rules defined as -->
+  <!-- regular expressions with the definitions above. -->
+  <!-- Rule names may not be altered! -->
+  <!-- ATTENTION! Because the regex package we use always -->
+  <!-- stops at the first disjunct that could be matched, the -->
+  <!-- order of the disjuncts in the rule is critical! So make -->
+  <!-- sure that punctuations with the potentially longer match -->
+  <!-- stand BEFORE others, e.g. use the order `abc|ab|a' -->
+  <!-- instead of `a|ab|abc' -->
+  <RULES>
+    
+    <!-- this rule checks if closer digits examination is needed -->
+    <SIMPLE_DIGITS_RULE>
+      <SIMPLE_DIGITS/>
+    </SIMPLE_DIGITS_RULE>
+
+    <!-- this rule matches ordinal numbers -->
+    <ORDINAL_RULE class="ORDINAL">
+      <ORD/>
+    </ORDINAL_RULE>
+    
+    <!-- this rules matches all other digits -->
+    <DIGITS_RULE>
+      <FRACT/>|<DIGIT/>
+    </DIGITS_RULE>  
+
+  </RULES>
+    
+</NUMBER_DESCRIPTION>

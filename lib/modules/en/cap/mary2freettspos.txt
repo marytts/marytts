@@ -1,0 +1,62 @@
+*** Map from Mary pos to FreeTTS pos
+*** Map from MARY PoS tags to FreeTTS PoS tags
+***
+*** Mary tags PoS with the Penn Treebank tagset
+*** More Information about it on the Penn Treebank Project homepage:
+*** http://www.cis.upenn.edu/~treebank/home.html
+*** The tagset is documented here:
+*** ftp://ftp.cis.upenn.edu/pub/treebank/doc/tagguide.ps.gz
+***
+*** Preposition or subordinating conjunction
+IN in
+*** to
+TO to
+*** determiner
+DT det
+*** modal
+MD md
+*** coordinating conjunction
+CC cc
+*** w-pronouns 
+WP wp
+*** possive pronouns
+PRP$ pps
+*** auxiliary verbs
+AUX aux
+*** punctuation
+$PUNCT punc
+$, punc
+$( punc
+*** 
+*** the rest of the tags is mapped to content
+*** 
+*** function words
+CARD content
+EX content
+FW content
+LS content
+PDT content
+POS content
+PRP content
+RB content
+RBR content
+RBS content
+RP content
+VBP content
+VBZ content
+WDT content
+WP$ content
+WRB content
+*** "true" content words
+JJ content
+JJR content
+JJS content
+NN content
+NNP content
+NNPS content
+NNS content
+UH content
+VB content
+VBD content
+VBG content
+VBN content

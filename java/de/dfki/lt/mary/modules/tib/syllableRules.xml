@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+Copyright 2000-2006 DFKI GmbH.
+All Rights Reserved.  Use is subject to license terms.
+
+Permission is hereby granted, free of charge, to use and distribute
+this software and its documentation without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of this work, and to
+permit persons to whom this work is furnished to do so, subject to
+the following conditions:
+
+1. The code must retain the above copyright notice, this list of
+   conditions and the following disclaimer.
+2. Any modifications must be clearly marked as such.
+3. Original authors' names are not deleted.
+4. The authors' names are not used to endorse or promote products
+   derived from this software without specific prior written
+   permission.
+
+DFKI GMBH AND THE CONTRIBUTORS TO THIS WORK DISCLAIM ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL DFKI GMBH NOR THE
+CONTRIBUTORS BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
+DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
+PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
+ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+THIS SOFTWARE.
+-->
+<!-- This file contains rules for the articulation of Tibetan syllables.
+It is used in the phonemiser module of the Tibetan MARY-System.
+
+The rules are read at program start. The meaning of the rules is described 
+in the accompanying comments.
+
+The file contains the following parts:
+a) general: defines, which symbols and conditions are allowed
+b) definitions: definitions of lists and maps that are needed for the 
+prosody prediction rules.
+c) rhyme rules: rules that determine the Sampa of the rhyme
+d) onset rules: rules that determine the Sampa of the onset
+
+Every rule may contain excatly one "attribute" statement. Its attributes 
+can also be found in the MARYXML input and refer to the syllable slots 
+(with "slot1" etc), the root or the vowel. The values are either 
+wylie-strings, or refer to wylie-strings in a map or a list.
+If you want to refer to a list, use "INLIST:x" to check if the attribute
+is in list x. Similarily, if you want to refer to a map, use
+"INKEYS:x" to check, if the attribute is in the keys of map x.
+If you want to check, if slot x is empty, use slotx="EMPTY".
+
+To refer to the attributes of the previous and/or the next syllable the
+"nextattributes" and "prevattributes" statements are used. The
+syntax is the same as in the "attributes" statement.  
+
+A rule migth also have a "condition" statement, that checks, 
+if certain conditions are fulfilled. At the moment, you can check the
+position of a syllable: 
+position="hasnext" means that the syllable is not the last one in a word. 
+position="hasprevious" means that the syllable is not the first one.
+
+The last statement of a rule, which can not be ommitted is the "action" 
+statement, that defines which sampa-string is the result. The sampa can 
+also be looked up in one or more Maps. The syntax for this is "MAP:x:y" 
+to tell the programm to look up x in map y.
+If you do this, it is important that the key x is defined in the 
+"attributes" statement.
+For example, consider rule ir1:
+ <rule num="ir1"> 
+   <attributes slot4="g" vowel="INKEYS:vowels"/>
+   <condition position="hasnext"/>
+   <action sampa="MAP:vowel:vowels+k"/>
+ </rule>
+In the "action" statement, the vowel is looked up in the map vowels. This 
+is only possible, because you check if it is in this map in the "attributes" 
+statement. Notice that you can not refer to attributes of the next or
+previous syllable.
+You can connect the lookups and/or the sampa with "+".
+-->
+
+<syllableRules>
+
+<general>
+  <!-- the wylie symbols allowed -->
+  <list name="wylie_symbols" items="k#kh#g#ng#c#ch#j#ny#t#th#d#n#p#ph#b#m#ts#tsh#dz#w#zh#z#'#y#r#l#sh#s#h#a#i#u#e#o#A#I#U#ai#au"/>
+
+  <!-- the sampa symbols allowed -->
+  <list name="sampa_symbols" items="k#k_h#g#N#ts#ts_h#J#t#t_h#n#p#p_h#m#ts#ts_h#w#a#j#r#l#S#s#h#~#o#e#u#i#E#O#@#2#y#y#:#tS_h#tS# #~#_#kj#k_hj"/>
+
+  <!-- the conditions defined -->
+  <list name="conditions" items="position"/>
+</general>
+
+<definitions>
+  <!-- these roots are equally affected by r in slot 3 --> 
+  <list name="dr_list" items="g#b#d"/>
+
+  <!-- the consonants in slot 4 and their sampa-->
+  <map name="slot4_consonants" items="g#g|ng#N|m#m|t# |s# |l#:|n#~|r#r|b#p"/>
+  
+  <!-- the consonants in slot 4 that change vowel quality -->
+  <map name="slot4_changes" items="d# |s# |l#:|n#~|'#:"/>
+  
+  <!-- changes of vowel quality -->
+  <map name="vowel_changes" items="a#E|o#2|u#y|e#e|i#i"/>
+  
+  <!-- all vowels and their sampa -->
+  <map name="vowels" items="a#a|o#o|u#u|e#e|i#i"/>
+  
+  <!-- all consonants and their sampa -->
+  <map name="consonants" items="k#k|kh#k_h|g#k|ng#N|c#tS|ch#tS_h|j#tS|ny#J|t#t|th#t_h|d#t|n#n|p#p|ph#p_h|b#p|m#m|ts#ts|tsh#ts_h|dz#ts|w#w|zh#S|sh#S|z#s|s#s|'#a|a#a|y#j|r#r|l#l|h#h"/>
+  
+  <!-- root letters that are palatized by y in slot 3 and their sampa -->
+  <map name="root_palatalization" items="k#kj|kh#k_hj|g#kj|p#tS|ph#tS_h|b#tS|m#n"/>
+
+  <!-- onset consonants that loose their aspiration between syllables -->
+  <map name="io_asp_cons" items="ph#p|ch#tS|kh#k|tsh#ts"/>
+
+  <!-- slot4 consonants that turn to "ng" through regressive assimilation 
+  between syllables -->
+  <list name="ir_reg_ass_slot4_ng" items="n#m"/>
+
+  <!-- slot1 consonants that are the cause of regressive assimilation 
+  to "ng" between syllables -->
+  <list name="ir_reg_ass_nextslot1_ng" items="g#kh"/>
+
+  <!-- slot1 consonants that are the cause of regressive assimilation 
+  to "m" between syllables -->
+  <list name="ir_reg_ass_nextslot1_m" items="p#ph"/>
+
+  <!-- list of high vowels -->
+  <list name="high_vowels" items="i#u"/>
+
+  <!-- low vowels and there convertions to high vowels -->
+  <map name="low_to_high_vowels" items="a#@|e#i|o#u"/>
+</definitions>
+
+<!-- rhyme rules (rhyme is affected by slot 4)-->
+<rhyme>
+ <rule num="ir1"> <!-- g in intersyl rhyme -->
+   <attributes slot4="g" vowel="INKEYS:vowels"/>
+   <condition position="hasnext"/>
+   <action sampa="MAP:vowel:vowels+g"/>
+ </rule>
+
+ <rule num="ir2"> <!-- ng in intersyl rhyme -->
+   <attributes slot4="ng" vowel="INKEYS:vowels"/>
+   <condition position="hasnext"/>
+   <action sampa="MAP:vowel:vowels+N"/>
+ </rule>
+
+ <rule num="ir3"> <!-- reg ass with m in next syl's slot1 -->
+   <attributes slot4="EMPTY" vowel="INKEYS:vowels"/>
+   <nextattributes slot1="m"/>
+   <action sampa="MAP:vowel:vowels+n"/>
+ </rule>
+
+ <rule num="ir4"> <!-- reg ass with a in next syl's slot1 -->
+   <attributes slot4="EMPTY" vowel="INKEYS:vowels"/>
+   <nextattributes slot1="a"/>
+   <action sampa="MAP:vowel:vowels+n"/>
+ </rule>
+
+ <rule num="ir5"> <!-- reg ass with b in next syl's slot1 -->
+   <attributes slot4="EMPTY" vowel="INKEYS:vowels"/>
+   <nextattributes slot1="b"/>
+   <action sampa="MAP:vowel:vowels+p"/>
+ </rule>
+
+ <rule num="ir6"> <!-- reg ass to ng -->
+   <attributes slot4="INLIST:ir_reg_ass_slot4_ng" vowel="INKEYS:vowels"/>
+   <nextattributes slot1="INLIST:ir_reg_ass_nextslot1_ng"/>
+   <action sampa="MAP:vowel:vowels+N"/>
+ </rule>
+
+ <rule num="ir7"> <!-- reg ass to m -->
+   <attributes slot4="n" vowel="INKEYS:vowels"/>
+   <nextattributes slot1="INLIST:ir_reg_ass_nextslot1_m"/>
+   <action sampa="MAP:vowel:vowels+m"/>
+ </rule>
+
+  <rule num="r1"> <!-- ta, sa, la, na -->
+    <attributes slot4="INKEYS:slot4_changes" 
+    vowel="INKEYS:vowel_changes"/>
+    <action sampa="MAP:vowel:vowel_changes+MAP:slot4:slot4_changes"/>
+  </rule>
+
+ <rule num="r2"> <!-- ba or pa with a-->
+    <attributes slot4="b" vowel="a"/>
+    <action sampa="@p"/>
+  </rule>
+
+ <rule num="r3"> <!-- Ra with o-->
+   <attributes slot4="r" vowel="o"/> 
+   <action sampa="Or"/>
+  </rule>
+
+ <rule num="r4"> <!-- a with i above it -->
+   <attributes slot4="'" slot4vowel="i" 
+   vowel="INKEYS:vowel_changes"/>
+   <action sampa="MAP:vowel:vowel_changes+:"/>
+ </rule>
+
+ <!-- vowel harmony: change low vowels to high, if the next vowel is high -->
+ <rule num="ir8">
+   <attributes slot4="INKEYS:slot4_consonants" 
+   vowel="INKEYS:low_to_high_vowels"/>
+   <nextattributes vowel="INLIST:high_vowels"/>
+   <action sampa="MAP:vowel:low_to_high_vowels+MAP:slot4:slot4_consonants"/>
+ </rule>
+
+ <rule num="r5"> <!-- default rule -->
+    <attributes slot4="INKEYS:slot4_consonants" 
+    vowel="INKEYS:vowels"/>
+    <action sampa="MAP:vowel:vowels+MAP:slot4:slot4_consonants"/>
+  </rule>
+
+  <rule num="r6"> <!-- if no slot4 letter -->
+    <attributes vowel="INKEYS:vowels"/>
+    <action sampa="MAP:vowel:vowels"/>
+  </rule>
+</rhyme>
+
+<!-- onset rules (rules for slot 3) -->
+<onset>
+
+
+  <rule num="lh1"> <!-- l+h as in lha sa -->
+    <attributes slot2="l" root="h"/>
+    <action sampa="l"/>
+  </rule>
+
+
+  <rule num="io1"> <!-- Ra + kha in intersyl onset-->
+    <attributes slot3="r" root="kh"/>
+    <condition position="hasprevious"/>
+    <action sampa="tr"/>
+  </rule>
+
+  <rule num="io2"> <!-- Ra + pha in intersyl onset-->
+    <attributes slot3="r" root="ph"/>
+    <condition position="hasprevious"/>
+    <action sampa="tr"/>
+  </rule>
+
+ <rule num="io3"> <!-- ja + kha in intersyl onset-->
+    <attributes slot3="y" root="kh"/>
+    <condition position="hasprevious"/>
+    <action sampa="kj"/>
+ </rule>
+
+ <rule num="io4"> <!-- ja + ph in intersyl onset-->
+    <attributes slot3="y" root="ph"/>
+    <condition position="hasprevious"/>
+    <action sampa="tS"/>
+ </rule>
+
+  <rule num="io5"> <!-- Root cons. that loose asp. in intersyl onset -->
+   <attributes root="INKEYS:io_asp_cons"/>
+   <condition position="hasprevious"/> 
+   <action sampa="MAP:root:io_asp_cons"/>
+ </rule>
+
+ <rule num="o1"> <!-- ja -->
+    <attributes slot3="y" root="INKEYS:root_palatalization"/>
+    <action sampa="MAP:root:root_palatalization"/>
+ </rule>
+ 
+ <rule num="o2"> <!-- Ra + ka -->
+    <attributes slot3="r" root="k"/>
+    <action sampa="tr"/>
+  </rule>
+ 
+ <rule num="o3"> <!-- Ra + pa-->
+    <attributes slot3="r" root="p"/>
+    <action sampa="tr"/>
+  </rule>
+
+  <rule num="o4"> <!-- Ra + ga,ba,da with empty slot1 and slot2-->
+    <attributes slot3="r" root="INLIST:dr_list" slot1="EMPTY" slot2="EMPTY"/>
+    <action sampa="tr"/>
+  </rule>
+
+  <rule num="o5"> <!-- Ra + ga,ba,da-->
+    <attributes slot3="r" root="INLIST:dr_list"/>
+    <action sampa="tr"/>
+  </rule>
+
+  <rule num="o6"> <!-- Ra + za-->
+    <attributes slot3="r" root="z" slot4="n" vowel="a"/>
+    <action sampa="tr"/>
+  </rule>
+
+  <rule num="o7"> <!-- Ra + za-->
+    <attributes slot3="r" root="z"/>
+    <action sampa="s"/>
+  </rule>
+
+  <rule num="o8"> <!-- Ra + kha-->
+    <attributes slot3="r" root="kh"/>
+    <action sampa="t_hr"/>
+  </rule>
+
+  <rule num="o9"> <!-- Ra + pha-->
+    <attributes slot3="r" root="ph"/>
+    <action sampa="t_hr"/>
+  </rule>
+
+  <rule num="o9a"> <!-- Ra + tha-->
+    <attributes slot3="r" root="th"/>
+    <action sampa="t_hr"/>
+  </rule>
+
+  <rule num="o10"> <!-- Ra + ha-->
+    <attributes slot3="r" root="h"/>
+    <action sampa="hr"/>
+  </rule>
+
+ <rule num="o11"> <!-- la + za-->
+    <attributes slot3="l" root="z"/>
+    <action sampa="t"/>
+  </rule>
+
+  <rule num="o12"> <!-- la -->
+    <attributes slot3="l"/>
+    <action sampa="l"/>
+  </rule>
+
+  <rule num="o13"> <!-- if no slot3 letters -->
+    <attributes root="INKEYS:consonants"/>
+    <action sampa="MAP:root:consonants"/>
+  </rule>
+</onset>
+
+</syllableRules>
+
+
+
+
+
+
+

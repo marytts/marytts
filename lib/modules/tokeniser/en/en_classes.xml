@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This defines the class hierarchy for german -->
+
+<!-- hierarchy root token -->
+<TOKEN tag="TOK">
+
+  <!-- enumerations -->
+  <ENUMERATION tag="ENUM"/>
+  
+  <!-- compounds -->
+  <COMPOUND tag="COMP"/>
+
+  <!-- dates -->
+  <DATE tag="DATE"/>
+
+  <!-- clitics -->
+  <SPLIT tag="SPLIT">
+    <!-- proclitics, items appearing at the beginning of the string -->
+    <LEFTSPLIT tag="LSPLIT"/>
+    <!-- enclitics, items appearing at the end of the string -->
+    <RIGHTSPLIT tag="RSPLIT"/>
+  </SPLIT>  
+
+  <!-- numbers -->
+  <NUMBER tag="NUM">
+    <!-- roman numbers -->
+    <ROMAN tag="ROM"/>
+    <!-- literal numbers -->
+    <LITERAL tag="LIT"/>
+    <!-- digital numbers -->
+    <DIGITAL tag="DIG">
+      <!-- fraction numbers -->
+      <FRACTION tag="FRAC"/>
+      <!-- ordinal numbers -->
+      <ORDINAL tag="ORD"/>
+    </DIGITAL>  
+  </NUMBER>
+
+  <!-- punctuation -->
+  <PUNCTUATION tag="PUNCT">
+    <!-- terminal punctuation -->
+    <TERM_PUNCT tag="PTERM"/>
+    <!-- possible terminal punctuation -->
+    <TERM_PUNCT_P tag="PTERM_P"/>
+    <!-- opening punctuation -->
+    <OPEN_PUNCT tag="OPUNCT"/>
+    <!-- closing punctuation -->
+    <CLOSE_PUNCT tag="CPUNCT"/>
+    <!-- opening and closing punctuation -->
+    <OPENCLOSE_PUNCT tag="OCPUNCT"/>
+  </PUNCTUATION>
+
+  <!-- abbreviations in which the final period could also -->
+  <!-- function as end-of-sentence -->
+  <ABBREVIATION tag="ABBR">
+    <!-- acronym -->
+    <ACRONYM tag="ACR"/>
+    <!-- non-breaking abbreviation, words which are never -->
+    <!-- abbreviated when they appear at the end of a sentence, --> 
+    <!-- thus the period is unambiguous -->
+    <NB_ABBREVIATION tag="NBABBR">
+      <!-- an abbreviation which is a title, thus followed by -->
+      <!-- a proper name -->
+      <TITLE tag="TTL"/>
+      <!-- an abbreviation which is composed with only one -->
+      <!-- upper-case letter -->
+      <INITIAL tag="INIT"/>
+    </NB_ABBREVIATION>
+  </ABBREVIATION>
+
+</TOKEN>
+  
+    

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This contains the abbreviation description for german. -->
+<ABBREVIATION_DESCRIPTION>
+
+  <!-- This defines the abbreviation class for different lists -->
+  <!-- of abbreviations. The file attribute points to a file in -->
+  <!-- the same directory with the list. -->
+  <LISTS>  
+    <NB_ABBREV_LIST file="de_nbabbrev.txt" class="NB_ABBREVIATION" encoding="utf-8"/>
+  </LISTS>
+
+  <DEFINITIONS>  
+    <!-- sequences of single letters, separated by periods -->
+    <ONE_LETTER_SEQ regexp="([a-zA-ZäöüÄÖÜ]\.)+" class="NB_ABBREVIATION"/>
+    <!-- tokens that contain only consonants -->
+    <!-- don't match tokens that consist only of capitals, like CD -->
+    <NO_VOCALS regexp="[^aeiouyAEIOUäöüÄÖÜY0-9][^A-ZaeiouyäöüÄÖÜ0-9]+\." class="NB_ABBREVIATION"/>
+    <!-- suffixes that only stand at the end of abbreviations: -->
+    <!-- -tr. like in `Hauptstr.' or `Stadtztr.' -->
+    <!-- -pl. like in `Marktpl.' -->
+    <!-- -tl. like in `eigentl.' -->
+    <!-- -br. like in `Fabr.' -->
+    <SUFFIXES regexp=".*(tr\.|pl\.|tl\.|br\.)" class="NB_ABBREVIATION"/>
+  </DEFINITIONS>
+    
+  <RULES>
+    <ABBREV_RULE class="NB_ABBREVIATION">
+      <ONE_LETTER_SEQ/>|<NO_VOCALS/>|<SUFFIXES/>
+    </ABBREV_RULE>
+  </RULES>
+    
+</ABBREVIATION_DESCRIPTION>
+
+
+
+
+
+
+

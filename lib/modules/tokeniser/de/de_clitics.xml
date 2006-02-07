@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This contains the clitics description for german. -->
+<!-- If you modify this file, be sure to check if the -->
+<!-- CLITIC_PUNCT_RULE rule in de_punct.xml is still correct. -->
+<CLITICS_DESCRIPTION>
+
+  <DEFINITIONS>
+
+    <!-- This defines the proclitics. -->
+    <PROCLITICS regexp=""
+                class="LEFTSPLIT"/>
+                
+    <!-- This defines the enclitics. -->
+    <ENCLITICS regexp="'[Ss]|'[Nn]" 
+               class="RIGHTSPLIT"/>
+
+  </DEFINITIONS>
+
+  <!-- These are the mandatory rules defined as -->
+  <!-- regular expressions with the definitions above. -->
+  <!-- Rule names may not be altered! -->
+  <RULES>
+
+    <!-- rule for proclitics; -->
+    <!-- use the beginning-of-input matcher \A to easily -->
+    <!-- identify this punctuation -->
+    <PROCLITIC_RULE/>
+
+    <!-- rule for enclitics; -->
+    <!-- use the end-of-input matcher \Z to easily -->
+    <!-- identify this punctuation -->
+    <ENCLITIC_RULE class="RIGHTSPLIT">
+      (<ENCLITICS/>)\Z
+    </ENCLITIC_RULE>
+
+  </RULES>
+
+</CLITICS_DESCRIPTION>
