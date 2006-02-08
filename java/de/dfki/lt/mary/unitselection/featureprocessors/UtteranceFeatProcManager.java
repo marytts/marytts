@@ -65,6 +65,7 @@ public class UtteranceFeatProcManager extends UnitSelectionFeatProcManager{
                 new GenericFeatureProcessors.SylFinal());
         processors.put("lisp_is_pau", 
                 new GenericFeatureProcessors.LispIsPau());
+        processors.put("accented", new GenericFeatureProcessors.Accented());
     
     }
    

@@ -84,6 +84,7 @@ public class UnitSelectionVoiceBuilder{
 	        Gender voiceGender =  new Gender(gender);
 		
 	        String locale = MaryProperties.getProperty(header+".locale");
+	       
 	        Locale voiceLocale = MaryUtils.string2locale(locale);
 		
 	        String domain = MaryProperties.getProperty(header+".domain");
@@ -163,6 +164,7 @@ public class UnitSelectionVoiceBuilder{
                     baseEnd, knownVoiceQualities,lexicon,domain);
 	        return v;
 	    }catch(Exception e){
+	        e.printStackTrace();
 	        throw new Error("Could not build voice "+voice, e);}
 	    
 	}

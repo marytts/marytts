@@ -127,7 +127,7 @@ public class UnitSelectionVoice extends Voice {
     }
     
     public ClusterUnitNamer getUnitNamer(){
-        if (unitNamer == null){
+        if (unitNamer == null && domain.equals("general")){
         unitNamer = new ClusterUnitNamer() {
             public void setUnitName(Item seg) {
             String VOWELS = "aeiou";

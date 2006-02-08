@@ -222,6 +222,7 @@ public class ClusterUnitSelector extends UnitSelector
 	        candidate.setNext(first); // link them reversely: the first in clist will be at the end of the queue
 	        candidate.setTarget(target); // The item is the same for all these candidates in the queue
 	        // remember the actual unit:
+	        logger.debug("For candidate "+i+" setting unit "+database.getUnit(target.getName(), clist[i]));
 	        candidate.setUnit(database.getUnit(target.getName(),  clist[i]));
 	        first = candidate;
 	    }
@@ -242,8 +243,12 @@ public class ClusterUnitSelector extends UnitSelector
 	        for (int e = 0; precedingCandidate!= null && 
 		        (e < database.getExtendSelections());
 		         precedingCandidate = precedingCandidate.getNext()) {
-		        Unit nextUnit = ((ClusterUnit)precedingCandidate.getUnit()).getNext();
-                if (nextUnit == null) {
+	            ClusterUnit nextClusterUnit = ((ClusterUnit)precedingCandidate.getUnit());
+		        if(nextClusterUnit == null){
+		            continue;}
+	            Unit nextUnit = nextClusterUnit.getNext();
+	            
+		        if (nextUnit == null) {
                     continue;
 		        }
 		        // Look through the list of candidates for the current item:
@@ -267,7 +272,8 @@ public class ClusterUnitSelector extends UnitSelector
 		            first = candidate;
 		            e++;
 		       }
-	       }
+	           
+	            }
 	    }
         // TODO: Find a better way to store the candidates for an item?
 	    target.getItem().getFeatures().setObject("clunit_cands", first);
