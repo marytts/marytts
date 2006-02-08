@@ -120,8 +120,8 @@ public class UtteranceFeatProcManager_en extends UtteranceFeatProcManager{
 	    try{
 	        //property is set in english.shprot
 	    String file = 
-	        MaryProperties.getFilename("freetts.posConverterFile").trim();
-	    if (file != null){
+	        MaryProperties.getFilename("english.freetts.posConverterFile", "").trim();
+	    if (!file.equals("")){
 	        Map posConverter = new HashMap();
 	        BufferedReader reader = 
 	            new BufferedReader(new FileReader(new File (file)));
