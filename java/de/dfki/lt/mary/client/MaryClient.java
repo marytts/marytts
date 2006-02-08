@@ -90,7 +90,8 @@ public class MaryClient {
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    public MaryClient() throws IOException, UnknownHostException {
+    public MaryClient() throws IOException
+    {
         String serverHost = System.getProperty("server.host", DEFAULT_HOST);
         int serverPort = 0;
         String helperString = System.getProperty("server.port");
@@ -119,7 +120,8 @@ public class MaryClient {
      * @throws UnknownHostException if the host could not be found
      */
     public MaryClient(String host, int port)
-    throws IOException, UnknownHostException  {
+    throws IOException
+    {
         boolean profile = Boolean.getBoolean("mary.client.profile");
         boolean quiet = Boolean.getBoolean("mary.client.quiet");
         initialise(host, port, profile, quiet);
@@ -138,7 +140,8 @@ public class MaryClient {
      * @throws UnknownHostException if the host could not be found
      */
     public MaryClient(String host, int port, boolean profile, boolean quiet)
-    throws IOException, UnknownHostException {
+    throws IOException
+    {
         initialise(host, port, profile, quiet);
     }
 
@@ -152,7 +155,7 @@ public class MaryClient {
      * @throws UnknownHostException if the host could not be found
      */
     private void initialise(String host, int port, boolean profile, boolean quiet)
-    throws IOException, UnknownHostException {
+    throws IOException {
         // This must work for applets too, so no system property queries here:
         if (host == null || port == 0)
             throw new IllegalArgumentException("Illegal server host or port");
@@ -162,7 +165,17 @@ public class MaryClient {
         beQuiet = quiet;
         if (!beQuiet) {
             System.err.println("Mary TTS client " + Version.specificationVersion() + " (impl. " + Version.implementationVersion() + ")");
-            String[] info = getServerVersionInfo();
+            String[] info;
+            try {
+                info = getServerVersionInfo();
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new IOException("MARY client cannot connect to MARY server at\n"+
+                host+":"+port+"\n"+
+                "Make sure that you have started the mary server\n"+
+                "or specify a different host or port using \n"+
+                "maryclient -Dserver.host=my.host.com -Dserver.port=12345");
+            }
             System.err.print("Connected to " + host + ":" + port + ", ");
             for (int i=0; i<info.length; i++) {
                 System.err.println(info[i]);
