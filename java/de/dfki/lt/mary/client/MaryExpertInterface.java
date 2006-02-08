@@ -149,7 +149,16 @@ public class MaryExpertInterface extends JPanel
         super();
         // First the MaryClient processor class, because it may provide
         // information needed in the GUI creation.
-        processor = new MaryClient();
+        try {
+            processor = new MaryClient();
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null,
+                    e.getMessage(),
+                    "Cannot connect to server",
+                    JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
+        }
         allowSave = true;
         init();
     }
@@ -170,12 +179,9 @@ public class MaryExpertInterface extends JPanel
         try {
             processor = new MaryClient(host, port, false, false);
         } catch (Exception e) {
+            e.printStackTrace();
             JOptionPane.showMessageDialog(null,
-                    "MARY client cannot connect to MARY server at\n"+
-                    host+":"+port+"\n"+
-                    "Make sure that you have started the mary server\n"+
-                    "or specify a different host or port using \n"+
-                    "maryclient -Dserver.host=my.host.com -Dserver.port=12345",
+                    e.getMessage(),
                     "Cannot connect to server",
                     JOptionPane.ERROR_MESSAGE);
             System.exit(1);
