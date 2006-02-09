@@ -135,8 +135,6 @@ public class MaryExpertInterface extends JPanel
     
     //Map of limited Domain Voices and their example Texts
     private Map limDomVoices = new HashMap();
-    private boolean limDom = false;
-    private boolean removedSampleText = true;
 
     /**
      * Create a MaryExpertInterface instance that connects to the server host
@@ -198,6 +196,8 @@ public class MaryExpertInterface extends JPanel
      */
     public void init() throws IOException, UnknownHostException {
         
+        Dimension scrollPaneDimension = new Dimension(250,400);
+        
         gridC.insets = new Insets( 2,2,2,2 );
         gridC.weightx = 0.1;
         gridC.weighty = 0.1;
@@ -224,7 +224,41 @@ public class MaryExpertInterface extends JPanel
         add( cbInputType );
         gridC.gridwidth = 1;
 
+        //Input Text area
+        inputText = new JTextPane();
+        inputText.getDocument().addDocumentListener(this);
+        inputScrollPane = new JScrollPane(inputText);
+        inputScrollPane.setMinimumSize(scrollPaneDimension);
+        inputScrollPane.setPreferredSize(scrollPaneDimension);
+        gridC.gridx = 0;
+        gridC.gridy = 1;
+        gridC.gridwidth = 3;
+        gridC.gridheight = 2;
+        gridC.weightx = 0.4;
+        gridC.weighty = 0.8;
+        //gridC.ipadx = 270;
+        //gridC.ipady = 200;
+        gridC.fill = GridBagConstraints.BOTH;
+        gridBag.setConstraints( inputScrollPane, gridC );
+        add( inputScrollPane );
+        gridC.gridwidth = 1;
+        gridC.gridheight = 1;
+        gridC.weightx = 0.1;
+        gridC.weighty = 0.1;
+        gridC.ipadx = 0;
+        gridC.ipady = 0;
+        gridC.fill = GridBagConstraints.NONE;
+
+        //example text for limDom voices
+        cbVoiceExampleText = new JComboBox();
         
+        cbVoiceExampleText.addItemListener(this);
+        gridC.gridx = 0;
+        gridC.gridy = 3;
+        gridC.gridwidth = 3;
+        gridC.fill = GridBagConstraints.HORIZONTAL;
+        gridBag.setConstraints( cbVoiceExampleText, gridC );
+        add( cbVoiceExampleText );     
 
         // Output type
         JLabel outputTypeLabel = new JLabel( "Output Type: " );
@@ -256,8 +290,8 @@ public class MaryExpertInterface extends JPanel
         //        outputText.setLineWrap(false);
         outputText.setEditable(false);
         outputScrollPane = new JScrollPane(outputText);
-        outputScrollPane.setPreferredSize(new Dimension(300,400));
-        outputScrollPane.setMaximumSize(new Dimension(300,400));
+        outputScrollPane.setMinimumSize(scrollPaneDimension);
+        outputScrollPane.setPreferredSize(scrollPaneDimension);
         gridC.gridx = 4;
         gridC.gridy = 1;
         gridC.gridwidth = 3;
@@ -368,17 +402,13 @@ public class MaryExpertInterface extends JPanel
         add( cbDefaultVoice );
         cbDefaultVoice.addItemListener(this);
         MaryClient.Voice defaultVoice = (MaryClient.Voice)cbDefaultVoice.getItemAt(0);
-        if (defaultVoice.isLimitedDomain()){
-            limDom = true;}
-        //Input Text area
-        inputText = new JTextPane();
         MaryClient.DataType inputType = (MaryClient.DataType) cbInputType.getSelectedItem();
         
-        if (!limDom){
-            paintGeneralDom(inputType);}
-        else{
-            paintLimDom(defaultVoice);}
-            
+        if (defaultVoice.isLimitedDomain()) {
+            paintLimDom(defaultVoice);
+        } else {
+            paintGeneralDom(inputType);
+        }
         
         if (allowSave) {
             // Output Save button
@@ -391,99 +421,30 @@ public class MaryExpertInterface extends JPanel
             gridC.gridy = 4;
             gridBag.setConstraints( bSaveOutput, gridC );
             add( bSaveOutput );
-            setPreferredSize(new Dimension(720,480));            
+            setPreferredSize(new Dimension(720,480));
         }
 
         verifyEnableButtons();
     }
 
     private void paintGeneralDom(MaryClient.DataType inputType) 
-    						throws IOException,UnknownHostException{
+    throws IOException,UnknownHostException
+    {
+        cbVoiceExampleText.setVisible(false);
         String exampleText = processor.getServerExampleText(inputType.name());
-    
         setInputText(exampleText);
-        //        inputText.setLineWrap(false);
-        inputText.getDocument().addDocumentListener(this);
-        boolean firstTime = false;
-        if (inputScrollPane == null){
-        inputScrollPane = new JScrollPane(inputText);
-        	firstTime = true;}
-        inputScrollPane.setPreferredSize(new Dimension(300,400));
-        inputScrollPane.setMaximumSize(new Dimension(300,400));
-        gridC.gridx = 0;
-        gridC.gridy = 1;
-        gridC.gridwidth = 3;
-        gridC.gridheight = 3;
-        gridC.weightx = 0.4;
-        gridC.weighty = 0.8;
-        //gridC.ipadx = 270;
-        //gridC.ipady = 200;
-        gridC.fill = GridBagConstraints.BOTH;
-        gridBag.setConstraints( inputScrollPane, gridC );
-        if (firstTime){
-        add( inputScrollPane );}
-        gridC.gridwidth = 1;
-        gridC.gridheight = 1;
-        gridC.weightx = 0.1;
-        gridC.weighty = 0.1;
-        gridC.ipadx = 0;
-        gridC.ipady = 0;
-        gridC.fill = GridBagConstraints.NONE;
-        remove(cbVoiceExampleText);
-        removedSampleText = true;
     }
     
-    private void paintLimDom(MaryClient.Voice voice){
-        Vector sentences = 
-            (Vector)limDomVoices.get(voice.name());
-        
+    private void paintLimDom(MaryClient.Voice voice)
+    {
+        Vector sentences = (Vector)limDomVoices.get(voice.name());
         setInputText((String)sentences.get(0));
-        inputText.getDocument().addDocumentListener(this);
-        boolean firstTime = false;
-        if (inputScrollPane == null){
-            inputScrollPane = new JScrollPane(inputText);
-            firstTime= true;}
-        inputScrollPane.setPreferredSize(new Dimension(300,400));
-        inputScrollPane.setMaximumSize(new Dimension(300,400));
-        gridC.gridx = 0;
-        gridC.gridy = 1;
-        gridC.gridwidth = 3;
-        gridC.gridheight = 2;
-        gridC.weightx = 0.4;
-        gridC.weighty = 0.8;
-        //gridC.ipadx = 270;
-        //gridC.ipady = 200;
-        gridC.fill = GridBagConstraints.BOTH;
-        gridBag.setConstraints( inputScrollPane, gridC );
-        if (firstTime){
-            add( inputScrollPane );}
-        gridC.gridwidth = 1;
-        gridC.gridheight = 1;
-        gridC.weightx = 0.1;
-        gridC.weighty = 0.1;
-        gridC.ipadx = 0;
-        gridC.ipady = 0;
-        gridC.fill = GridBagConstraints.NONE;
-        //example text for limDom voices
-        if (cbVoiceExampleText == null){
-            cbVoiceExampleText = 
-                new JComboBox();
+        cbVoiceExampleText.removeAllItems();
+        for (int i = 0; i<sentences.size(); i++) {
+            cbVoiceExampleText.addItem(sentences.get(i));
         }
-        else{cbVoiceExampleText.removeAllItems();}
-        
-        for (int i = 0;i<sentences.size();i++){
-            cbVoiceExampleText.addItem(sentences.get(i));}
-        
-        cbVoiceExampleText.addItemListener(this);
         cbVoiceExampleText.setSelectedIndex(0);
-        gridC.gridx = 0;
-        gridC.gridy = 3;
-        gridC.gridwidth = 3;
-        gridC.fill = GridBagConstraints.HORIZONTAL;
-        gridBag.setConstraints( cbVoiceExampleText, gridC );
-        if (removedSampleText){
-            add( cbVoiceExampleText );     
-            removedSampleText = false;}
+        cbVoiceExampleText.setVisible(true);
     }
     
     private void verifyEnableButtons() {
@@ -535,17 +496,6 @@ public class MaryExpertInterface extends JPanel
                     cbDefaultVoice.addItem(v);
             }
             cbDefaultVoice.setSelectedIndex(0);
-        }
-        //locale did not change, but maybe you have to change the display
-        else { MaryClient.DataType newInputType = 
-            (MaryClient.DataType)cbInputType.getSelectedItem();
-            if (limDom){
-                if(newInputType.name().startsWith("TEXT")){
-                MaryClient.Voice defaultVoice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
-                paintLimDom(defaultVoice);}
-                else{paintGeneralDom(newInputType);}
-            }
-            
         }
         	
     }
@@ -685,18 +635,14 @@ public class MaryExpertInterface extends JPanel
                 MaryClient.DataType input = 
                     (MaryClient.DataType)cbInputType.getSelectedItem();
                 try{
-                if (voice.isLimitedDomain()){
-                    limDom = true;
-                    if (input.name().startsWith("TEXT")){
-                        paintLimDom(voice);}
-                    else{paintGeneralDom(input);}
-                }
-                else {
-                    if (limDom){
+                    if (voice.isLimitedDomain() && input.name().startsWith("TEXT")){
+                        paintLimDom(voice);
+                    } else {
                         paintGeneralDom(input);
-                    	limDom = false;}
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
-                }catch (Exception ex){}
             }
         }
         else {if (e.getSource() == cbVoiceExampleText) {
