@@ -114,7 +114,7 @@ public class EmoTransformer extends Thread {
 
     private void createEmotionDocument() {
         emotionDocument = docBuilder.getDOMImplementation().
-            createDocument("http://mary.dfki.de/2003/SEML", "emotion", null);
+            createDocument(null, "emotion", null);
         org.w3c.dom.Element e = emotionDocument.getDocumentElement();
         e.setAttributeNS("http://www.w3.org/XML/1998/namespace", "lang", locale.getLanguage());
         e.setAttribute("activation", String.valueOf(activation));

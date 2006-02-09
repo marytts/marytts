@@ -37,8 +37,14 @@ THIS SOFTWARE.
 
   <!-- emotion -->
   <xsl:template match="/emotion">
+    <xsl:variable name="language">
+      <xsl:choose>
+        <xsl:when test="@xml:lang"><xsl:value-of select="@xml:lang"/></xsl:when>
+        <xsl:otherwise>de</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
     <maryxml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             version="0.3" xml:lang="de">
+             version="0.4" xml:lang="{$language}">
       <xsl:call-template name="acousticParameters">
         <xsl:with-param name="activation" select="@activation"/>
         <xsl:with-param name="evaluation" select="@evaluation"/>
