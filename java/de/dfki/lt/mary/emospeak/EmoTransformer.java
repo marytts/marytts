@@ -28,6 +28,10 @@
  */
 package de.dfki.lt.mary.emospeak;
 
+import java.util.Locale;
+
+import org.w3c.dom.Document;
+
 
 /**
  *
@@ -51,6 +55,7 @@ public class EmoTransformer extends Thread {
     private int power;
     private String text;
     private String maryxmlString;
+    private Locale locale;
     
     private boolean exitRequested = false;
     
@@ -80,6 +85,7 @@ public class EmoTransformer extends Thread {
             );
         stylesheet = tFactory.newTemplates( stylesheetStream );
         dbFactory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
+        dbFactory.setNamespaceAware(true);
         docBuilder = dbFactory.newDocumentBuilder();
         transformer = stylesheet.newTransformer();
 
@@ -89,11 +95,12 @@ public class EmoTransformer extends Thread {
      * Asynchronously set the latest emotion values. Overwrites any
      * previous, unprocessed data.
      */
-    public synchronized void setEmotionValues(int activation, int evaluation, int power, String text, int r) {
+    public synchronized void setEmotionValues(int activation, int evaluation, int power, String text, Locale locale, int r) {
         this.activation = activation;
         this.evaluation = evaluation;
         this.power      = power;
         this.text       = text;
+        this.locale = locale;
         inputAvailable = true;
         this.r = r;
         notifyAll();
@@ -106,9 +113,10 @@ public class EmoTransformer extends Thread {
     }
 
     private void createEmotionDocument() {
-        emotionDocument = docBuilder.newDocument();
-        org.w3c.dom.Element e = emotionDocument.createElement("emotion");
-        emotionDocument.appendChild(e);
+        emotionDocument = docBuilder.getDOMImplementation().
+            createDocument("http://mary.dfki.de/2003/SEML", "emotion", null);
+        org.w3c.dom.Element e = emotionDocument.getDocumentElement();
+        e.setAttributeNS("http://www.w3.org/XML/1998/namespace", "lang", locale.getLanguage());
         e.setAttribute("activation", String.valueOf(activation));
         e.setAttribute("evaluation", String.valueOf(evaluation));
         e.setAttribute("power", String.valueOf(power));

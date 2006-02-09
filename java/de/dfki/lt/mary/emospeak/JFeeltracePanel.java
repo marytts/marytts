@@ -106,20 +106,20 @@ public class JFeeltracePanel extends JPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
         add(slPower, gridBagConstraints);
 
-        lMaxPower.setText("sehr dominant");
+        lMaxPower.setText("very dominant");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 0;
         add(lMaxPower, gridBagConstraints);
 
-        lMinPower.setText("sehr submissiv");
+        lMinPower.setText("very submissive");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 2;
         add(lMinPower, gridBagConstraints);
 
         lMaxActivation.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lMaxActivation.setText("sehr aktiv");
+        lMaxActivation.setText("very active");
         lMaxActivation.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
         lMaxActivation.setAlignmentX(0.5F);
         lMaxActivation.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -131,20 +131,20 @@ public class JFeeltracePanel extends JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
         add(lMaxActivation, gridBagConstraints);
 
-        lMinEvaluation.setText("sehr negativ");
+        lMinEvaluation.setText("<html>very<br>negative</html>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         add(lMinEvaluation, gridBagConstraints);
 
-        lMaxEvaluation.setText("sehr positiv");
+        lMaxEvaluation.setText("<html>very<br>positive</html>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 1;
         add(lMaxEvaluation, gridBagConstraints);
 
         lMinActivation.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lMinActivation.setText("sehr passiv");
+        lMinActivation.setText("very passive");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 2;

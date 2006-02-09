@@ -108,7 +108,13 @@ public class AsynchronousThreadedMaryClient extends Thread {
         latestAudio = AudioSystem.getAudioInputStream(new ByteArrayInputStream(bytes));
     }
 
-    public Vector getServerVoices(Locale locale) throws IOException, UnknownHostException {
+    public Vector getServerVoices() throws IOException
+    {
+        return processor.getVoices();
+    }
+    
+    public Vector getServerVoices(Locale locale) throws IOException
+    {
         return processor.getVoices(locale);
     }
 

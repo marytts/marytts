@@ -28,12 +28,17 @@
  */
 package de.dfki.lt.mary.emospeak;
 
+import java.awt.GridBagConstraints;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.sound.sampled.AudioInputStream;
@@ -44,7 +49,10 @@ import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
 import javax.swing.BoundedRangeModel;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JRootPane;
 
 import de.dfki.lt.mary.client.MaryClient;
@@ -70,6 +78,10 @@ implements AudioFileReceiver, ProsodyXMLDisplayer
     private boolean synthesiseAsynchronously;
     private String maryServerHost;
     private int maryServerPort;
+    private Map voicesByLocale; // map locale to Vectors of MaryClient.Voice objects
+    boolean haveGerman = false;
+    private Map sampleTextsByLocale; // map locale to Vectors of Strings
+    private Map localeByDisplayLanguage; // map display language to locale
     
     
     /** Creates new form EmoSpeakPanel */
@@ -111,7 +123,6 @@ implements AudioFileReceiver, ProsodyXMLDisplayer
         lVoice = new javax.swing.JLabel();
         cbVoice = new javax.swing.JComboBox();
         bPlay = new javax.swing.JButton();
-        bStop = new javax.swing.JButton();
         dimensionValuePanel = new javax.swing.JPanel();
         lActivationValue = new javax.swing.JLabel();
         tfActivationValue = new javax.swing.JTextField();
@@ -133,6 +144,14 @@ implements AudioFileReceiver, ProsodyXMLDisplayer
 
         setLayout(new java.awt.GridBagLayout());
 
+        // Manually added, Feb. 2006:
+        cbLanguage = new JComboBox();
+        cbLanguage.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                cbLanguageItemStateChanged(evt);
+            }
+        });
+        audioPanel.add(cbLanguage);
         lVoice.setText("Voice:");
         audioPanel.add(lVoice);
 
@@ -153,20 +172,11 @@ implements AudioFileReceiver, ProsodyXMLDisplayer
 
         audioPanel.add(bPlay);
 
-        bStop.setText("Stop");
-        bStop.setEnabled(false);
-        bStop.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bStopActionPerformed(evt);
-            }
-        });
-
-        audioPanel.add(bStop);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
+       gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 3;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
+        gridBagConstraints.anchor = GridBagConstraints.WEST;
         add(audioPanel, gridBagConstraints);
 
         dimensionValuePanel.setLayout(new java.awt.GridLayout(3, 2));
@@ -259,7 +269,7 @@ implements AudioFileReceiver, ProsodyXMLDisplayer
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         add(inputTextPanel, gridBagConstraints);
 
@@ -330,20 +340,26 @@ implements AudioFileReceiver, ProsodyXMLDisplayer
         updateFeeltraceModelFromTextFields();
     }//GEN-LAST:event_tfEvaluationValueFocusLost
 
-    private void bPlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bPlayActionPerformed
-        try {
-            preparePlayAudio();
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Cannot play audio", JOptionPane.ERROR_MESSAGE);
-            return;
+    private void bPlayActionPerformed(java.awt.event.ActionEvent evt) {
+        if (bPlay.getText().equals("Play")) {
+            try {
+                preparePlayAudio();
+            } catch (Exception e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, e.getMessage(), "Cannot play audio", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            bPlay.setText("Stop");
+            userRequestedStop = false;
+            playAudio();
+        } else {
+            bPlay.setText("Play");
+            userRequestedStop = true;
+            if (clip != null) {
+                clip.stop();
+            }
         }
-        bPlay.setEnabled(false);
-        bStop.setEnabled(true);
-        getRootPane().setDefaultButton(bStop);
-        userRequestedStop = false;
-        playAudio();
-    }//GEN-LAST:event_bPlayActionPerformed
+    }
 
     private void optionsMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optionsMenuActionPerformed
         // Add your handling code here:
@@ -354,6 +370,63 @@ implements AudioFileReceiver, ProsodyXMLDisplayer
             requestUpdateProsodyXML();
         }
     }//GEN-LAST:event_cbInputTextItemStateChanged
+
+    // Manually added, Feb. 2006
+    private void cbLanguageItemStateChanged(java.awt.event.ItemEvent evt) {
+        if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) { // new item selected
+            updateVoices();
+            updateSampleTexts();
+        }
+    }
+
+    private Vector readSampleTexts(Locale locale)
+    {
+        Vector texts = new Vector();
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("sampletexts_"+locale.getLanguage()+".txt"),"UTF-8"));
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (!line.trim().equals(""))
+                    texts.add(line);
+            }
+        } catch (IOException ioe) {}
+        return texts;
+    }
+
+    private Locale getSelectedLanguage()
+    {
+        String displayLanguage = (String) cbLanguage.getSelectedItem();
+        return (Locale) localeByDisplayLanguage.get(displayLanguage);
+    }
+
+    private void updateVoices()
+    {
+        Locale locale = getSelectedLanguage();
+        cbVoice.removeAllItems();
+        Vector voices = (Vector) voicesByLocale.get(locale);
+        assert voices != null;
+        for (Iterator it = voices.iterator(); it.hasNext(); ) {
+            MaryClient.Voice v = (MaryClient.Voice) it.next();
+            cbVoice.addItem(v);
+            if (v.name().equals("de7") || v.name().equals("de6") || v.name().equals("us1")) {
+                cbVoice.setSelectedItem(v);
+            }
+        }
+    }
+    
+    private void updateSampleTexts()
+    {
+        Locale locale = getSelectedLanguage();
+        cbInputText.removeAllItems();
+        Vector texts = (Vector) sampleTextsByLocale.get(locale);
+        assert texts != null;
+        for (Iterator it = texts.iterator(); it.hasNext(); ) {
+            String s = (String) it.next();
+            cbInputText.addItem(s);
+        }
+        cbInputText.removeItemAt(0);
+        cbInputText.setSelectedIndex(0);
+    }
 
     private void showPowerMenuItemItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_showPowerMenuItemItemStateChanged
         if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) { // new item selected
@@ -402,16 +475,6 @@ implements AudioFileReceiver, ProsodyXMLDisplayer
         updateFeeltraceModelFromTextFields();
     }//GEN-LAST:event_tfActivationValueFocusLost
 
-    private void bStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bStopActionPerformed
-        bStop.setEnabled(false);
-        bPlay.setEnabled(true);
-        getRootPane().setDefaultButton(bPlay);
-        userRequestedStop = true;
-        if (clip != null) {
-            clip.stop();
-        }
-    }//GEN-LAST:event_bStopActionPerformed
-
     private void tfPowerValueFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_tfPowerValueFocusLost
         updatePowerModelFromTextFields();
     }//GEN-LAST:event_tfPowerValueFocusLost
@@ -438,6 +501,7 @@ implements AudioFileReceiver, ProsodyXMLDisplayer
             } else {
                 synchronousSynthesiser = new MaryClient(maryServerHost, maryServerPort, false, false);
             }
+            synchronousSynthesiser.getVoices();
         }
         
         try {
@@ -462,45 +526,38 @@ implements AudioFileReceiver, ProsodyXMLDisplayer
                 }
             });
         }
-        cbInputText.addItem("Das habe ich jetzt schon drei Mal gesagt!");
-        cbInputText.addItem("Ach bin ich aufgeregt! Ich kann's kaum erwarten!");
-        cbInputText.addItem("Hilfe, da hinten kommt ein Monster!");
-        cbInputText.addItem("Hau endlich ab! Ich habe die Nase voll von dir!");
-        cbInputText.addItem("Mensch, jetzt lass mich halt in Ruhe!");
-        cbInputText.addItem("Ach Mensch, ich freue mich so für dich!");
-        cbInputText.addItem("Heute ist wirklich ein schöner Tag!");
-        cbInputText.addItem("Und dann lebten sie glücklich und zufrieden, bis an ihr Lebensende.");
-        cbInputText.addItem("Ach lass mich doch in Frieden mit diesem Schwachsinn.");
-        cbInputText.addItem("Jetzt ist alles zu spät. Ich gebe auf.");
-        cbInputText.addItem("Mensch, ist das so langweilig hier!");        
-        
+
         Vector voiceInfo;
         if (synthesiseAsynchronously) {
-            voiceInfo = asynchronousSynthesiser.getServerVoices(Locale.GERMAN);
+            voiceInfo = asynchronousSynthesiser.getServerVoices();
         } else {
-            voiceInfo = synchronousSynthesiser.getVoices(Locale.GERMAN);
+            voiceInfo = synchronousSynthesiser.getVoices();
         }
         
-        if (voiceInfo == null) {
-            JOptionPane.showMessageDialog(null,
-                    "EmoSpeak is currently designed for German only.\n"+
-                    "Please connect to a MARY server with German voices installed.\n"+
-                    "You can get the German modules under a research license\n"+
-                    "from http://mary.dfki.de. "+
-                    "(the source code for EmoSpeak is available --\n"+
-                    "feel free to extend it to other languages and share the code ;-)",
-                    "No German voices installed",
-                    JOptionPane.ERROR_MESSAGE);
-            System.exit(1);
-
-        }
-        
+        voicesByLocale = new HashMap();
+        sampleTextsByLocale = new HashMap();
+        localeByDisplayLanguage = new HashMap();
         for (Iterator it = voiceInfo.iterator(); it.hasNext(); ) {
             MaryClient.Voice v = (MaryClient.Voice) it.next();
-            cbVoice.addItem(v);
+            if (!voicesByLocale.containsKey(v.getLocale())) {
+                voicesByLocale.put(v.getLocale(), new Vector());
+            }
+            Vector localeVoices = (Vector) voicesByLocale.get(v.getLocale());
+            localeVoices.add(v);
+            if (v.getLocale().equals(Locale.GERMAN)) haveGerman = true;
         }
+                
+        for (Iterator it = voicesByLocale.keySet().iterator(); it.hasNext(); ) {
+            Locale locale = (Locale) it.next();
+            sampleTextsByLocale.put(locale, readSampleTexts(locale));
+            localeByDisplayLanguage.put(locale.getDisplayLanguage(), locale);
+            cbLanguage.addItem(locale.getDisplayLanguage());
+        }
+        if (haveGerman) cbLanguage.setSelectedItem(Locale.GERMAN);
+        updateVoices();
+        updateSampleTexts();
     }
-
+    
     private void updateFeeltraceModelFromTextFields() {
         boolean validA = false;
         boolean validE = false;
@@ -563,9 +620,12 @@ implements AudioFileReceiver, ProsodyXMLDisplayer
     }
     
     private void requestUpdateProsodyXML() {
+        Object selectedText = cbInputText.getSelectedItem();
+        if (selectedText == null) return;
+        String text = selectedText.toString();
         emoTransformer.setEmotionValues(feeltraceModel().getY(),
                 feeltraceModel().getX(), powerModel().getValue(),
-                cbInputText.getSelectedItem().toString(), r++);
+                text, getSelectedLanguage(), r++);
     }
     
     public synchronized void updateProsodyXML(String prosodyxmlString, int r1) {
@@ -626,9 +686,7 @@ implements AudioFileReceiver, ProsodyXMLDisplayer
     }
     
     private void closeAudio() {
-        bPlay.setEnabled(true);
-        bStop.setEnabled(false);
-        getRootPane().setDefaultButton(bPlay);
+        bPlay.setText("Play");
     }
     
     private void closeClip() {
@@ -650,7 +708,6 @@ implements AudioFileReceiver, ProsodyXMLDisplayer
     
     
     
-    // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField tfPowerValue;
     private javax.swing.JCheckBoxMenuItem showPowerMenuItem;
     private javax.swing.JComboBox cbInputText;
@@ -672,8 +729,6 @@ implements AudioFileReceiver, ProsodyXMLDisplayer
     private javax.swing.JLabel lInputText;
     private javax.swing.JLabel lEvaluationValue;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JButton bStop;
     private javax.swing.JTextField tfEvaluationValue;
-    // End of variables declaration//GEN-END:variables
-    
+    private JComboBox cbLanguage;    
 }
