@@ -1,6 +1,10 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<!--
-Copyright 2000-2006 DFKI GmbH.
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://mary.dfki.de/2002/MaryXML">
+    <xsd:annotation>
+       <xsd:documentation>MaryXML v0.4.2, 2006-02-09</xsd:documentation>
+    </xsd:annotation>
+    <xsd:annotation>
+        <xsd:documentation>Portions Copyright 2000-2006 DFKI GmbH.
 All Rights Reserved.  Use is subject to license terms.
 
 Permission is hereby granted, free of charge, to use and distribute
@@ -26,17 +30,6 @@ DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
 PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
 ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
 THIS SOFTWARE.
--->
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-xmlns="http://mary.dfki.de/2002/MaryXML"
-targetNamespace="http://mary.dfki.de/2002/MaryXML"
-elementFormDefault="qualified">
-    <xsd:annotation>
-       <xsd:documentation>MaryXML v0.4.1, 2004-09-10</xsd:documentation>
-    </xsd:annotation>
-    <xsd:annotation>
-        <xsd:documentation>Portions Copyright 2002-2004 DFKI GmbH.
-            All rights reserved.
         </xsd:documentation>
     </xsd:annotation>
     <xsd:annotation>
@@ -61,8 +54,7 @@ elementFormDefault="qualified">
             *********************************************
         </xsd:documentation>
     </xsd:annotation>
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"
-    schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
 
     <xsd:annotation>
         <xsd:documentation>
@@ -308,13 +300,13 @@ elementFormDefault="qualified">
             *********************************************
         </xsd:documentation>
     </xsd:annotation>
-    <xsd:element name="struct" abstract="true"/>
+    <xsd:element abstract="true" name="struct"/>
     <xsd:group name="structure">
         <xsd:choice>
             <xsd:element ref="struct"/>
         </xsd:choice>
     </xsd:group>
-    <xsd:element name="aws" abstract="true">
+    <xsd:element abstract="true" name="aws">
         <xsd:annotation>
             <xsd:documentation>The 'allowed-within-sentence'
             group uses this abstract element. Elements with aws as
@@ -328,7 +320,7 @@ elementFormDefault="qualified">
 	    <xsd:element ref="awp"/>
         </xsd:choice>
     </xsd:group>
-    <xsd:element name="awp" abstract="true">
+    <xsd:element abstract="true" name="awp">
         <xsd:annotation>
             <xsd:documentation>The 'allowed-within-phrase'
             group uses this abstract element. Elements with awp as
@@ -351,7 +343,7 @@ elementFormDefault="qualified">
     </xsd:annotation>
     <xsd:element name="maryxml" type="maryxml"/>
     <xsd:complexType name="maryxml">
-        <xsd:choice minOccurs="0" maxOccurs="unbounded">
+        <xsd:choice maxOccurs="unbounded" minOccurs="0">
             <xsd:group ref="allowed-within-sentence"/>
             <xsd:group ref="structure"/>
         </xsd:choice>
@@ -362,17 +354,17 @@ elementFormDefault="qualified">
         </xsd:attribute>
         <xsd:attribute ref="xml:lang"/>
     </xsd:complexType>
-    <xsd:element name="p" type="paragraph" substitutionGroup="struct"/>
+    <xsd:element name="p" substitutionGroup="struct" type="paragraph"/>
     <xsd:complexType name="paragraph">
-        <xsd:choice minOccurs="0" maxOccurs="unbounded">
+        <xsd:choice maxOccurs="unbounded" minOccurs="0">
             <xsd:group ref="allowed-within-sentence"/>
             <xsd:element ref="s"/>
         </xsd:choice>
         <xsd:attribute ref="xml:lang"/>
     </xsd:complexType>
-    <xsd:element name="s" type="sentence" substitutionGroup="struct"/>
+    <xsd:element name="s" substitutionGroup="struct" type="sentence"/>
     <xsd:complexType name="sentence">
-        <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+        <xsd:sequence maxOccurs="unbounded" minOccurs="0">
             <xsd:group ref="allowed-within-sentence"/>
         </xsd:sequence>
         <xsd:attribute ref="xml:lang"/>
@@ -387,9 +379,9 @@ elementFormDefault="qualified">
         </xsd:documentation>
     </xsd:annotation>
 
-    <xsd:element name="voice" type="voice" substitutionGroup="aws"/>
+    <xsd:element name="voice" substitutionGroup="aws" type="voice"/>
     <xsd:complexType name="voice">
-        <xsd:choice minOccurs="0" maxOccurs="unbounded">
+        <xsd:choice maxOccurs="unbounded" minOccurs="0">
             <xsd:group ref="allowed-within-sentence"/>
             <xsd:group ref="structure"/>
         </xsd:choice>
@@ -408,9 +400,9 @@ elementFormDefault="qualified">
         <xsd:attribute ref="xml:lang"/>
     </xsd:complexType>
 
-    <xsd:element name="phrase" type="phrase" substitutionGroup="aws"/>
+    <xsd:element name="phrase" substitutionGroup="aws" type="phrase"/>
     <xsd:complexType name="phrase">
-        <xsd:choice minOccurs="0" maxOccurs="unbounded">
+        <xsd:choice maxOccurs="unbounded" minOccurs="0">
             <xsd:group ref="allowed-within-phrase"/>
         </xsd:choice>
     </xsd:complexType>
@@ -428,19 +420,19 @@ elementFormDefault="qualified">
         </xsd:documentation>
     </xsd:annotation>
 
-    <xsd:element name="mark" type="mark" substitutionGroup="awp"/>
+    <xsd:element name="mark" substitutionGroup="awp" type="mark"/>
     <xsd:complexType name="mark">
       <xsd:attribute name="name" type="xsd:ID" use="required"/>
     </xsd:complexType>
 
-    <xsd:element name="say-as" type="say-as" substitutionGroup="awp"/>
+    <xsd:element name="say-as" substitutionGroup="awp" type="say-as"/>
     <xsd:complexType name="say-as">
         <xsd:attribute name="type" type="Say-as.datatype" use="required"/>
     </xsd:complexType>
 
-    <xsd:element name="phonology" type="phonology" substitutionGroup="awp"/>
+    <xsd:element name="phonology" substitutionGroup="awp" type="phonology"/>
     <xsd:complexType name="phonology">
-        <xsd:choice minOccurs="0" maxOccurs="unbounded">
+        <xsd:choice maxOccurs="unbounded" minOccurs="0">
             <xsd:group ref="allowed-within-sentence"/>
             <xsd:group ref="structure"/>
         </xsd:choice>
@@ -449,16 +441,15 @@ elementFormDefault="qualified">
         <xsd:attribute name="nasal-assimilation" type="onoff.type"/>
     </xsd:complexType>
 
-    <xsd:element name="prosody" type="prosody" substitutionGroup="awp"/>
+    <xsd:element name="prosody" substitutionGroup="awp" type="prosody"/>
     <xsd:complexType name="prosody">
-        <xsd:choice minOccurs="0" maxOccurs="unbounded">
+        <xsd:choice maxOccurs="unbounded" minOccurs="0">
             <xsd:group ref="allowed-within-sentence"/>
             <xsd:group ref="structure"/>
         </xsd:choice>
         <xsd:attribute name="pitch">
             <xsd:simpleType>
-                <xsd:union memberTypes="xsd:positiveInteger
-                relative.change relative.change.st"/>
+                <xsd:union memberTypes="xsd:positiveInteger                 relative.change relative.change.st"/>
             </xsd:simpleType>
         </xsd:attribute>
         <xsd:attribute name="pitch-dynamics">
@@ -475,8 +466,7 @@ elementFormDefault="qualified">
         </xsd:attribute>
         <xsd:attribute name="range">
             <xsd:simpleType>
-                <xsd:union memberTypes="relative.change relative.change.st
-		                        absolute.value.st"/>
+                <xsd:union memberTypes="relative.change relative.change.st                           absolute.value.st"/>
             </xsd:simpleType>
         </xsd:attribute>
         <xsd:attribute name="range-dynamics">
@@ -515,8 +505,7 @@ elementFormDefault="qualified">
 
         <xsd:attribute name="rate">
             <xsd:simpleType>
-                <xsd:union memberTypes="xsd:positiveInteger
-                relative.change"/>
+                <xsd:union memberTypes="xsd:positiveInteger                 relative.change"/>
             </xsd:simpleType>
         </xsd:attribute>
         <xsd:attribute name="number-of-pauses" type="relative.change"/>
@@ -531,8 +520,7 @@ elementFormDefault="qualified">
 
         <xsd:attribute name="volume">
             <xsd:simpleType>
-                <xsd:union memberTypes="float.range1
-                relative.change volume.scale"/>
+                <xsd:union memberTypes="float.range1                 relative.change volume.scale"/>
             </xsd:simpleType>
         </xsd:attribute>
 
@@ -549,19 +537,18 @@ elementFormDefault="qualified">
         <xsd:attribute name="duration" type="duration"/>
     </xsd:complexType>
 
-    <xsd:element name="audio" type="audio" substitutionGroup="aws"/>
+    <xsd:element name="audio" substitutionGroup="aws" type="audio"/>
     <xsd:complexType name="audio">
-        <xsd:choice minOccurs="0" maxOccurs="unbounded">
+        <xsd:choice maxOccurs="unbounded" minOccurs="0">
             <xsd:group ref="allowed-within-sentence"/>
             <xsd:group ref="structure"/>
         </xsd:choice>
         <xsd:attribute name="src" type="xsd:anyURI"/>
     </xsd:complexType>
 
-    <xsd:element name="boundary" type="boundary" substitutionGroup="awp"/>
+    <xsd:element name="boundary" substitutionGroup="awp" type="boundary"/>
     <xsd:complexType name="boundary">
-        <xsd:attribute name="tone" type="tobi_boundarytone.type"
-                       use="optional"/>
+        <xsd:attribute name="tone" type="tobi_boundarytone.type" use="optional"/>
         <xsd:attribute name="breakindex" use="required">
             <xsd:simpleType>
                 <xsd:restriction base="xsd:string">
@@ -575,45 +562,43 @@ elementFormDefault="qualified">
                 </xsd:restriction>
             </xsd:simpleType>
         </xsd:attribute>
-        <xsd:attribute name="duration" type="xsd:positiveInteger"
-                       use="optional"/>
+        <xsd:attribute name="duration" type="xsd:positiveInteger" use="optional"/>
     </xsd:complexType>
 
 
-    <xsd:element name="mtu" type="mtu" substitutionGroup="awp"/>
+    <xsd:element name="mtu" substitutionGroup="awp" type="mtu"/>
     <xsd:complexType name="mtu">
-        <xsd:choice minOccurs="0" maxOccurs="unbounded">
+        <xsd:choice maxOccurs="unbounded" minOccurs="0">
             <xsd:group ref="allowed-within-phrase"/>
         </xsd:choice>
         <xsd:attribute name="orig" type="xsd:string"/>
         <xsd:attribute name="accent" type="accentposition.type"/>
     </xsd:complexType>
 
-    <xsd:element name="t" type="token" substitutionGroup="awp"/>
-    <xsd:complexType name="token" mixed="true">
+    <xsd:element name="t" substitutionGroup="awp" type="token"/>
+    <xsd:complexType mixed="true" name="token">
         <xsd:sequence>
-            <xsd:element name="syllable" type="syllable"
-                         minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="syllable" type="syllable"/>
         </xsd:sequence>
-        <xsd:attribute name="accent"      type="gtobi_accent.type"/>
-        <xsd:attribute name="ending"      type="ending.type"/>
-        <xsd:attribute name="g2p_method"  type="g2pmethod.type"/>
-        <xsd:attribute name="pos"         type="xsd:string"/>
-        <xsd:attribute name="sampa"       type="xsd:string"/>
+        <xsd:attribute name="accent" type="gtobi_accent.type"/>
+        <xsd:attribute name="ending" type="ending.type"/>
+        <xsd:attribute name="g2p_method" type="g2pmethod.type"/>
+        <xsd:attribute name="pos" type="xsd:string"/>
+        <xsd:attribute name="sampa" type="xsd:string"/>
         <xsd:attribute name="sounds_like" type="xsd:string"/>
-        <xsd:attribute name="syn_attach"  type="xsd:string"/>
-        <xsd:attribute name="syn_phrase"  type="xsd:string"/>
-        <xsd:attribute name="given"       type="givenness.type"/>
-        <xsd:attribute name="contrast"    type="contrast.type"/>
+        <xsd:attribute name="syn_attach" type="xsd:string"/>
+        <xsd:attribute name="syn_phrase" type="xsd:string"/>
+        <xsd:attribute name="given" type="givenness.type"/>
+        <xsd:attribute name="contrast" type="contrast.type"/>
     </xsd:complexType>
 
     <xsd:complexType name="syllable">
         <xsd:sequence>
             <!-- The phonemes composing the syllable -->
-            <xsd:element name="ph" maxOccurs="unbounded" type="ph"/>
+            <xsd:element maxOccurs="unbounded" name="ph" type="ph"/>
         </xsd:sequence>
         <xsd:attribute name="sampa" type="xsd:string"/>
-        <xsd:attribute name="stress" default="0">
+        <xsd:attribute default="0" name="stress">
             <xsd:simpleType>
                 <xsd:restriction base="xsd:nonNegativeInteger">
                     <xsd:maxInclusive value="2"/>
