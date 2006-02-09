@@ -39,6 +39,7 @@ public class EmoSpeak extends javax.swing.JFrame
 {    
     /** Creates new form EmoSpeak */
     public EmoSpeak() throws Exception {
+        super("OpenMary EmoSpeak");
         initComponents();
         emoSpeakPanel1.initialiseMenu();
     }
@@ -61,8 +62,8 @@ public class EmoSpeak extends javax.swing.JFrame
 
         pack();
         java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-        setSize(new java.awt.Dimension(550, 608));
-        setLocation((screenSize.width-550)/2,(screenSize.height-608)/2);
+        setSize(new java.awt.Dimension(550, 630));
+        setLocation((screenSize.width-550)/2,(screenSize.height-630)/2);
     }
                                                 
     /** Exit the Application */
