@@ -41,7 +41,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -51,17 +50,10 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.UnknownHostException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Vector;
+import java.util.*;
 
 import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.LineEvent;
-import javax.sound.sampled.LineListener;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -85,7 +77,6 @@ import org.incava.util.diff.Difference;
 import com.sun.speech.freetts.audio.AudioPlayer;
 import com.sun.speech.freetts.audio.JavaStreamingAudioPlayer;
 
-import de.dfki.lt.mary.RequestHandler.StreamingOutputWriter;
 import de.dfki.lt.mary.util.MaryUtils;
 
 
@@ -126,6 +117,11 @@ public class MaryExpertInterface extends JPanel
     private JButton bEdit;
     private JButton bCompare;
     private JComboBox cbDefaultVoice;
+    private JComboBox cbVoiceExampleText;
+    
+    // Layout
+    private GridBagLayout gridBag = new GridBagLayout();
+    private GridBagConstraints gridC = new GridBagConstraints();
 
     /* -------------------- Data and Processing stuff -------------------- */
     private MaryClient processor;
@@ -136,6 +132,11 @@ public class MaryExpertInterface extends JPanel
     private Vector outputTypes = null;
     private boolean allowSave;
     private boolean streamMp3 = Boolean.getBoolean("stream.mp3");
+    
+    //Map of limited Domain Voices and their example Texts
+    private Map limDomVoices = new HashMap();
+    private boolean limDom = false;
+    private boolean removedSampleText = true;
 
     /**
      * Create a MaryExpertInterface instance that connects to the server host
@@ -196,8 +197,7 @@ public class MaryExpertInterface extends JPanel
      * and initialise the GUI.
      */
     public void init() throws IOException, UnknownHostException {
-        GridBagLayout gridBag = new GridBagLayout();
-        GridBagConstraints gridC = new GridBagConstraints();
+        
         gridC.insets = new Insets( 2,2,2,2 );
         gridC.weightx = 0.1;
         gridC.weighty = 0.1;
@@ -224,35 +224,7 @@ public class MaryExpertInterface extends JPanel
         add( cbInputType );
         gridC.gridwidth = 1;
 
-        // Input Text area
-        inputText = new JTextPane();
-        MaryClient.DataType inputType = (MaryClient.DataType) cbInputType.getSelectedItem();
-        String exampleText = processor.getServerExampleText(inputType.name());
-        setInputText(exampleText);
-
-        //        inputText.setLineWrap(false);
-        inputText.getDocument().addDocumentListener(this);
-        inputScrollPane = new JScrollPane(inputText);
-        inputScrollPane.setPreferredSize(new Dimension(300,400));
-        inputScrollPane.setMaximumSize(new Dimension(300,400));
-        gridC.gridx = 0;
-        gridC.gridy = 1;
-        gridC.gridwidth = 3;
-        gridC.gridheight = 3;
-        gridC.weightx = 0.4;
-        gridC.weighty = 0.8;
-        //gridC.ipadx = 270;
-        //gridC.ipady = 200;
-        gridC.fill = GridBagConstraints.BOTH;
-        gridBag.setConstraints( inputScrollPane, gridC );
-        add( inputScrollPane );
-        gridC.gridwidth = 1;
-        gridC.gridheight = 1;
-        gridC.weightx = 0.1;
-        gridC.weighty = 0.1;
-        gridC.ipadx = 0;
-        gridC.ipady = 0;
-        gridC.fill = GridBagConstraints.NONE;
+        
 
         // Output type
         JLabel outputTypeLabel = new JLabel( "Output Type: " );
@@ -372,21 +344,42 @@ public class MaryExpertInterface extends JPanel
         gridBag.setConstraints( voiceLabel, gridC );
         add( voiceLabel );
         Locale inputLocale = ((MaryClient.DataType)cbInputType.getSelectedItem()).getLocale();
+        // Get the voices 
         availableVoices = processor.getVoices();
         cbDefaultVoice = new JComboBox();
+        
         Iterator it = availableVoices.iterator();
         while (it.hasNext()) {
             MaryClient.Voice v = (MaryClient.Voice) it.next();
             if (v.getLocale().equals(inputLocale))
                 cbDefaultVoice.addItem(v);
+            if (v.isLimitedDomain()){
+                String exampleText = processor.getVoiceExampleText(v.name());
+                limDomVoices.put(v.name(),
+                        processVoiceExampleText(exampleText));
+            }
         }
+        
         // First in list is default voice:
         cbDefaultVoice.setSelectedIndex(0);
         gridC.gridx = 2;
         gridC.gridy = 4;
         gridBag.setConstraints( cbDefaultVoice, gridC );
         add( cbDefaultVoice );
-
+        cbDefaultVoice.addItemListener(this);
+        MaryClient.Voice defaultVoice = (MaryClient.Voice)cbDefaultVoice.getItemAt(0);
+        if (defaultVoice.isLimitedDomain()){
+            limDom = true;}
+        //Input Text area
+        inputText = new JTextPane();
+        MaryClient.DataType inputType = (MaryClient.DataType) cbInputType.getSelectedItem();
+        
+        if (!limDom){
+            paintGeneralDom(inputType);}
+        else{
+            paintLimDom(defaultVoice);}
+            
+        
         if (allowSave) {
             // Output Save button
             ImageIcon saveIcon = new ImageIcon("save.gif");
@@ -404,6 +397,95 @@ public class MaryExpertInterface extends JPanel
         verifyEnableButtons();
     }
 
+    private void paintGeneralDom(MaryClient.DataType inputType) 
+    						throws IOException,UnknownHostException{
+        String exampleText = processor.getServerExampleText(inputType.name());
+    
+        setInputText(exampleText);
+        //        inputText.setLineWrap(false);
+        inputText.getDocument().addDocumentListener(this);
+        boolean firstTime = false;
+        if (inputScrollPane == null){
+        inputScrollPane = new JScrollPane(inputText);
+        	firstTime = true;}
+        inputScrollPane.setPreferredSize(new Dimension(300,400));
+        inputScrollPane.setMaximumSize(new Dimension(300,400));
+        gridC.gridx = 0;
+        gridC.gridy = 1;
+        gridC.gridwidth = 3;
+        gridC.gridheight = 3;
+        gridC.weightx = 0.4;
+        gridC.weighty = 0.8;
+        //gridC.ipadx = 270;
+        //gridC.ipady = 200;
+        gridC.fill = GridBagConstraints.BOTH;
+        gridBag.setConstraints( inputScrollPane, gridC );
+        if (firstTime){
+        add( inputScrollPane );}
+        gridC.gridwidth = 1;
+        gridC.gridheight = 1;
+        gridC.weightx = 0.1;
+        gridC.weighty = 0.1;
+        gridC.ipadx = 0;
+        gridC.ipady = 0;
+        gridC.fill = GridBagConstraints.NONE;
+        remove(cbVoiceExampleText);
+        removedSampleText = true;
+    }
+    
+    private void paintLimDom(MaryClient.Voice voice){
+        Vector sentences = 
+            (Vector)limDomVoices.get(voice.name());
+        
+        setInputText((String)sentences.get(0));
+        inputText.getDocument().addDocumentListener(this);
+        boolean firstTime = false;
+        if (inputScrollPane == null){
+            inputScrollPane = new JScrollPane(inputText);
+            firstTime= true;}
+        inputScrollPane.setPreferredSize(new Dimension(300,400));
+        inputScrollPane.setMaximumSize(new Dimension(300,400));
+        gridC.gridx = 0;
+        gridC.gridy = 1;
+        gridC.gridwidth = 3;
+        gridC.gridheight = 2;
+        gridC.weightx = 0.4;
+        gridC.weighty = 0.8;
+        //gridC.ipadx = 270;
+        //gridC.ipady = 200;
+        gridC.fill = GridBagConstraints.BOTH;
+        gridBag.setConstraints( inputScrollPane, gridC );
+        if (firstTime){
+            add( inputScrollPane );}
+        gridC.gridwidth = 1;
+        gridC.gridheight = 1;
+        gridC.weightx = 0.1;
+        gridC.weighty = 0.1;
+        gridC.ipadx = 0;
+        gridC.ipady = 0;
+        gridC.fill = GridBagConstraints.NONE;
+        //example text for limDom voices
+        if (cbVoiceExampleText == null){
+            cbVoiceExampleText = 
+                new JComboBox();
+        }
+        else{cbVoiceExampleText.removeAllItems();}
+        
+        for (int i = 0;i<sentences.size();i++){
+            cbVoiceExampleText.addItem(sentences.get(i));}
+        
+        cbVoiceExampleText.addItemListener(this);
+        cbVoiceExampleText.setSelectedIndex(0);
+        gridC.gridx = 0;
+        gridC.gridy = 3;
+        gridC.gridwidth = 3;
+        gridC.fill = GridBagConstraints.HORIZONTAL;
+        gridBag.setConstraints( cbVoiceExampleText, gridC );
+        if (removedSampleText){
+            add( cbVoiceExampleText );     
+            removedSampleText = false;}
+    }
+    
     private void verifyEnableButtons() {
         if (((MaryClient.DataType)cbOutputType.getSelectedItem()).isTextType()) {
             bProcess.setVisible(true);
@@ -440,8 +522,7 @@ public class MaryExpertInterface extends JPanel
      * Verify if the language of the input format has changed. If so,
      * adapt the value of cbDefaultVoices.
      */
-    private void verifyDefaultVoices()
-    {
+    private void verifyDefaultVoices() throws IOException{
         Locale inputLocale = ((MaryClient.DataType)cbInputType.getSelectedItem()).getLocale();
         Locale voiceLocale = ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).getLocale();
         if (inputLocale == null
@@ -455,8 +536,34 @@ public class MaryExpertInterface extends JPanel
             }
             cbDefaultVoice.setSelectedIndex(0);
         }
+        //locale did not change, but maybe you have to change the display
+        else { MaryClient.DataType newInputType = 
+            (MaryClient.DataType)cbInputType.getSelectedItem();
+            if (limDom){
+                if(newInputType.name().startsWith("TEXT")){
+                MaryClient.Voice defaultVoice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
+                paintLimDom(defaultVoice);}
+                else{paintGeneralDom(newInputType);}
+            }
+            
+        }
+        	
     }
 
+    /**
+     * Divides the example text of a voice into
+     * sentences in a vector
+     * @param text the example text
+     * @return vector of example sentences
+     */
+    private Vector processVoiceExampleText(String text){
+        StringTokenizer st = new StringTokenizer(text,"#");
+        Vector sentences = new Vector();
+        while (st.hasMoreTokens()){
+            sentences.add(st.nextToken());}
+        return sentences;
+    }
+    
     private void setOutputTypeItems()
     {
         MaryClient.DataType inputType = (MaryClient.DataType) cbInputType.getSelectedItem();
@@ -517,9 +624,10 @@ public class MaryExpertInterface extends JPanel
      * This item listener cares for the changes in input/output type
      * combo boxes. It erases the text areas as appropriate.
      */
-    public void itemStateChanged(ItemEvent e) {
+    public void itemStateChanged(ItemEvent e){
         if (e.getSource() == cbInputType) {
             if (e.getStateChange() == ItemEvent.SELECTED) {
+                
                 if (doReplaceInput == false) {
                     // nothing to be done
                     doReplaceInput = true;
@@ -539,10 +647,12 @@ public class MaryExpertInterface extends JPanel
                             // ignore
                         }
                     }
+                    try{
                     verifyDefaultVoices();
+                    }catch(IOException ioe){}
                 }
                 setOutputTypeItems();
-		verifyEnableButtons();
+                verifyEnableButtons();
             }
         } else if (e.getSource() == cbOutputType) {
             // We only care for the newly selected item.
@@ -567,6 +677,33 @@ public class MaryExpertInterface extends JPanel
                 }
 		verifyEnableButtons();
             } // SELECTED
+        }
+        else {if (e.getSource() == cbDefaultVoice) {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                MaryClient.Voice voice= 
+                    (MaryClient.Voice) cbDefaultVoice.getSelectedItem();
+                MaryClient.DataType input = 
+                    (MaryClient.DataType)cbInputType.getSelectedItem();
+                try{
+                if (voice.isLimitedDomain()){
+                    limDom = true;
+                    if (input.name().startsWith("TEXT")){
+                        paintLimDom(voice);}
+                    else{paintGeneralDom(input);}
+                }
+                else {
+                    if (limDom){
+                        paintGeneralDom(input);
+                    	limDom = false;}
+                }
+                }catch (Exception ex){}
+            }
+        }
+        else {if (e.getSource() == cbVoiceExampleText) {
+            	if (e.getStateChange() == ItemEvent.SELECTED) {                
+            	    setInputText((String)cbVoiceExampleText.getSelectedItem());}
+        		}
+        	}
         }
     }
 
@@ -685,7 +822,9 @@ public class MaryExpertInterface extends JPanel
                         audioPlayer,
                         this);
                 bPlay.setText("Stop");
-            } catch (Exception e) {
+            } catch (NullPointerException e){
+                System.out.println("ups");}
+              catch (Exception e) {
                 e.printStackTrace();
                 showErrorMessage(e.getClass().getName(), e.getMessage());
                 playerFinished();

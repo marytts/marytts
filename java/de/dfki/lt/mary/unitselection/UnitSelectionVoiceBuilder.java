@@ -88,6 +88,11 @@ public class UnitSelectionVoiceBuilder{
 	        Locale voiceLocale = MaryUtils.string2locale(locale);
 		
 	        String domain = MaryProperties.getProperty(header+".domain");
+	        String exampleTextFile = null;
+	        if (!domain.equals("general")){
+	            exampleTextFile = MaryProperties.getFilename(header+".exampleTextFile");
+	        }
+	        
 	        String lexicon = MaryProperties.getProperty(header+".lexicon");
 			
 	        String featureProcessorsClass = 
@@ -161,7 +166,8 @@ public class UnitSelectionVoiceBuilder{
                     nameArray, voiceLocale, dbAudioFormat, 
                     synth, voiceGender,
                     topStart, topEnd, baseStart, 
-                    baseEnd, knownVoiceQualities,lexicon,domain);
+                    baseEnd, knownVoiceQualities,lexicon,domain,
+                    exampleTextFile);
 	        return v;
 	    }catch(Exception e){
 	        e.printStackTrace();

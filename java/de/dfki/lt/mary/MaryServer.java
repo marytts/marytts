@@ -228,6 +228,7 @@ public class MaryServer {
                 logger.info("Client seems to have disconnected - cannot read.");
                 return;
             }
+            
             // A: General information request, no synthesis.
             // This may consist of one or several lines of info requests and
             // may either stand alone or precede another request.
@@ -237,6 +238,7 @@ public class MaryServer {
                 if (line == null)
                     return;
             }
+           
             // VARIANT B1: Synthesis request.
             if (handleSynthesisRequest(line, outputWriter)) {
                 return;
@@ -254,6 +256,7 @@ public class MaryServer {
                         + "or a line containing only a number identifying a request.");
 
             }
+       
         }
 
         private boolean handleInfoRequest(String inputLine, PrintWriter outputWriter) {
@@ -289,7 +292,17 @@ public class MaryServer {
                 List voices = Voice.getAvailableVoices();
                 for (Iterator it = voices.iterator(); it.hasNext();) {
                     Voice v = (Voice) it.next();
-                    outputWriter.println(v.getName() + " " + v.getLocale() + " " + v.gender().toString());
+                    if (v instanceof de.dfki.lt.mary.unitselection.UnitSelectionVoice){
+                        outputWriter.println(v.getName() + " " 
+                                			+ v.getLocale() + " " 
+                                			+ v.gender().toString()
+                                			+ " " 
+                                			+((de.dfki.lt.mary.unitselection.UnitSelectionVoice)v).getDomain());}
+                    else {
+                        	outputWriter.println(v.getName() + " " 
+                        	        			+ v.getLocale()+ " " 
+                        	        			+ v.gender().toString());
+                    }
                 }
                 // Empty line marks end of info:
                 outputWriter.println();
@@ -311,8 +324,31 @@ public class MaryServer {
                 // upon failure, simply return nothing
                 outputWriter.println();
                 return true;
+            } else { 
+                //the request is about the example text of 
+                //a limited domain unit selection voice
+                if (inputLine.startsWith("MARY VOICE EXAMPLETEXT")) {
+                logger.debug("InfoRequest " + inputLine);
+                // send an example text for a given data type
+                StringTokenizer st = new StringTokenizer(inputLine);
+                // discard three tokens (MARY, VOICE, and EXAMPLETEXT)
+                st.nextToken();
+                st.nextToken();
+                st.nextToken();
+                if (st.hasMoreTokens()) {
+                    String voiceName = st.nextToken();
+                    Voice v = Voice.getVoice(voiceName);
+                    if (v != null) {
+                        String text = ((de.dfki.lt.mary.unitselection.UnitSelectionVoice) v).getExampleText();
+                        outputWriter.println(text);
+                    }
+                }
+                // upon failure, simply return nothing
+                outputWriter.println();
+                return true; 
             } else {
                 return false;
+            }
             }
         }
 
