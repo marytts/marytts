@@ -29,6 +29,7 @@ THIS SOFTWARE.
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0"
+                xmlns:seml="http://mary.dfki.de/2003/SEML"
                 xmlns="http://mary.dfki.de/2002/MaryXML">
   <xsl:output method="xml"
               encoding="UTF-8"
@@ -36,9 +37,15 @@ THIS SOFTWARE.
   <xsl:strip-space elements="*|text()"/>
 
   <!-- emotion -->
-  <xsl:template match="/emotion">
+  <xsl:template match="/seml:emotion">
+    <xsl:variable name="language">
+      <xsl:choose>
+        <xsl:when test="@xml:lang"><xsl:value-of select="@xml:lang"/></xsl:when>
+        <xsl:otherwise>de</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
     <maryxml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             version="0.3" xml:lang="de">
+             version="0.4" xml:lang="{$language}">
       <xsl:call-template name="acousticParameters">
         <xsl:with-param name="activation" select="@activation"/>
         <xsl:with-param name="evaluation" select="@evaluation"/>
