@@ -264,6 +264,7 @@ THIS SOFTWARE.
 	    <jar destfile="${dest}/emospeak.jar"
 	         basedir="${src}"
 	         includes="de/dfki/lt/mary/emospeak/*.class
+	    			   de/dfki/lt/mary/emospeak/*.txt
 	                   de/dfki/lt/mary/emospeak/emotion-to-mary.xsl"
 	         excludes="de/dfki/lt/mary/emospeak/EmoSpeakApplet*.class">
 	      <manifest>
@@ -279,9 +280,9 @@ THIS SOFTWARE.
 	    <jar destfile="${dest}/emospeakapplet.jar"
 	         basedir="${src}"
 	         includes="de/dfki/lt/mary/emospeak/*.class
+			   		   de/dfki/lt/mary/emospeak/*.txt
 	                   de/dfki/lt/mary/modules/emotion-to-mary.xsl"
-	         excludes="de/dfki/lt/mary/emospeak/EmoSpeak.class
-		           de/dfki/lt/mary/emospeak/EmoSpeak$*.class">
+	         excludes="de/dfki/lt/mary/emospeak/EmoSpeak*.class">
 	      <manifest>
 	        <attribute name="Built-By" value="${user.name}"/>
 		<attribute name="Main-Class"

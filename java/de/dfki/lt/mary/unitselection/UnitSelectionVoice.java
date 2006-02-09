@@ -94,7 +94,8 @@ public class UnitSelectionVoice extends Voice {
         this.lexicon = lexicon;
         this.domain = domain;
         this.name = nameArray[0];
-        readExampleText(exampleTextFile);
+        if (exampleTextFile != null)
+            readExampleText(exampleTextFile);
     }
     
     /**
