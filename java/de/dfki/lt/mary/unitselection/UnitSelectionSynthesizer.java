@@ -182,13 +182,13 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
         UnitDatabase database = ((UnitSelectionVoice)voice).getDatabase();
         logger.debug("Selecting units with a "+unitSel.getClass().getName()+" from a "+database.getClass().getName());
         List selectedUnits = unitSel.selectUnits(tokensAndBoundaries, voice, database, ((UnitSelectionVoice)voice).getUnitNamer());
-        if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            for (Iterator selIt=selectedUnits.iterator(); selIt.hasNext(); )
-                pw.println(selIt.next());
-            logger.debug("Units selected:\n"+sw.toString());
-        }
+        //if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
+          //  StringWriter sw = new StringWriter();
+           // PrintWriter pw = new PrintWriter(sw);
+            //for (Iterator selIt=selectedUnits.iterator(); selIt.hasNext(); )
+              //  pw.println(selIt.next());
+            //logger.debug("Units selected:\n"+sw.toString());
+        //}
         // Concatenate:
         unitConcatenator = ((UnitSelectionVoice) voice).getConcatenator();
         logger.debug("Now creating audio with a "+unitConcatenator.getClass().getName());

@@ -82,6 +82,7 @@ public class MaryClient {
     private Vector inputDataTypes = null;
     private Vector outputDataTypes = null;
     private Map serverExampleTexts = new HashMap();
+    private Map voiceExampleTexts = new HashMap();
     private String[] serverVersionInfo = null;
 
     /**
@@ -416,7 +417,9 @@ public class MaryClient {
                             System.err.println("Processed request in " + processingTime + " ms.");
                         }
 
-                    } catch (Exception e) {
+                    
+                   
+                    }catch (Exception e) {
                         e.printStackTrace();
                     }                    
                 }
@@ -424,7 +427,9 @@ public class MaryClient {
             if (streamingAudio) {
                 t.start();
             } else {
+                
                 t.run(); // execute code in the current thread
+                
             }
         } else { // output is an OutputStream
             OutputStream os = (OutputStream) output;
@@ -662,6 +667,7 @@ public class MaryClient {
         // Expect a variable number of lines of the kind
         // de7 de female
         // us2 en male
+        // dfki-stadium-emo de male limited
         String info = getServerInfo(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
             new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
             "MARY LIST VOICES");
@@ -679,7 +685,12 @@ public class MaryClient {
             assert locale != null;
             if (!st.hasMoreTokens()) continue; // ignore entry
             String gender = st.nextToken();
-            Voice voice = new Voice(name, locale, gender);
+            Voice voice;
+            if (!st.hasMoreTokens()){ //assume domain is general
+                voice = new Voice(name, locale, gender,"general");}
+            else{ //read in the domain
+                String domain = st.nextToken();
+                voice = new Voice(name, locale, gender,domain);}
             allVoices.add(voice);
             Vector localeVoices = null;
             if (voicesByLocaleMap.containsKey(locale)) {
@@ -692,6 +703,31 @@ public class MaryClient {
         }
     }
 
+    /**
+     * Request the example text of a limited domain
+     * unit selection voice from the server
+     * @param voicename the voice
+     * @return the example text
+     * @throws IOException
+     * @throws UnknownHostException
+     */
+    public String getVoiceExampleText(String voicename) 
+    								throws IOException, UnknownHostException {
+          if (!voiceExampleTexts.containsKey(voicename)) {
+                Socket marySocket = new Socket(host, port);
+                String info = getServerInfo(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
+                    new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
+                    "MARY VOICE EXAMPLETEXT " + voicename);
+                if (info.length() == 0)
+                    throw new IOException("Could not get example text from Mary server");
+                
+                voiceExampleTexts.put(voicename, info.replaceAll("\n", System.getProperty("line.separator")));
+                marySocket.close();
+                
+            }
+          
+            return (String) voiceExampleTexts.get(voicename);
+        }
     /**
      * Request an example text for a given data type from the server.
      * @param dataType the string representation of the data type,
@@ -829,16 +865,21 @@ public class MaryClient {
         private String name;
         private Locale locale;
         private String gender;
-        Voice(String name, Locale locale, String gender)
+        private boolean isLimitedDomain;
+        Voice(String name, Locale locale, String gender, String domain)
         {
             this.name = name;
             this.locale = locale;
             this.gender = gender;
+            if (domain.equals("general")){
+                isLimitedDomain = false;}
+            else {isLimitedDomain = true;}
         }
         public Locale getLocale() { return locale; }
         public String name() { return name; }
         public String gender() { return gender; }
-        public String toString() { return name + " (" + gender + ")"; }
+        public String toString() { return name + " (" + gender + ")";}
+        public boolean isLimitedDomain() { return isLimitedDomain; }
     }
     
     /**

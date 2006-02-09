@@ -32,6 +32,7 @@
 package de.dfki.lt.mary.unitselection;
 
 import java.util.Locale;
+import java.io.*;
 
 import javax.sound.sampled.AudioFormat;
 
@@ -53,7 +54,9 @@ public class UnitSelectionVoice extends Voice {
     protected UnitConcatenator concatenator;
     protected String lexicon;
     protected String domain;
+    protected String name;
     protected ClusterUnitNamer unitNamer;
+    protected String exampleText;
     
     
     /**
@@ -74,12 +77,15 @@ public class UnitSelectionVoice extends Voice {
      * @param knownVoiceQualities ?
      * @param lexicon the name of the lexicon of this voice
      * @param domain the domain of this voice
+     * @param exampleTextFile name of file containing example text for
+     * 						  this voice (null for general domain voice)
      */
     public UnitSelectionVoice(UnitDatabase database, UnitSelector unitSelector,
             UnitConcatenator concatenator, String path, String[] nameArray, Locale locale, 
             AudioFormat dbAudioFormat, WaveformSynthesizer synthesizer, 
             Gender gender, int topStart, int topEnd, int baseStart, int baseEnd, 
-            String[] knownVoiceQualities, String lexicon, String domain)
+            String[] knownVoiceQualities, String lexicon, String domain,
+            String exampleTextFile)
     {
         super(path, nameArray, locale, dbAudioFormat, synthesizer, gender, topStart, topEnd, baseStart, baseEnd, knownVoiceQualities, null);
         this.database = database; 
@@ -87,6 +93,8 @@ public class UnitSelectionVoice extends Voice {
         this.concatenator = concatenator;
         this.lexicon = lexicon;
         this.domain = domain;
+        this.name = nameArray[0];
+        readExampleText(exampleTextFile);
     }
     
     /**
@@ -125,6 +133,33 @@ public class UnitSelectionVoice extends Voice {
     {
         return domain;
     }
+    
+    public String getExampleText(){
+        if (exampleText == null){
+            return ("Leider gibt es hier keine Beispiele#"+
+            		"Tut uns leid");}
+        else {return exampleText;}
+    }
+    
+    public void readExampleText(String file){
+        try{BufferedReader reader =
+            	new BufferedReader(new InputStreamReader(new FileInputStream(new File(file)),"UTF-8"));
+        	StringBuffer sb = new StringBuffer();
+        	String line = reader.readLine();
+        	while (line != null){
+        	    if (!line.startsWith("***")){
+        	        sb.append(line+"#");
+        	    }
+        	    line = reader.readLine();
+        	}
+            exampleText = sb.toString();            
+        }catch(Exception e){
+            e.printStackTrace();
+            throw new Error("Can not read in example text for voice "+name);
+        }
+    }
+        
+        
     
     public ClusterUnitNamer getUnitNamer(){
         if (unitNamer == null && domain.equals("general")){
