@@ -391,7 +391,7 @@ public class MaryClient {
                 public void run() 
                 {
                     try {
-                        AudioPlayerWriter apw = new AudioPlayerWriter(player, fromServerStream);
+                        AudioPlayerWriter apw = new AudioPlayerWriter(player, fromServerStream, startTime);
                         apw.write();
                         if (timer != null) {
                             timer.cancel();
@@ -908,24 +908,34 @@ public class MaryClient {
         public String toString() { return name; }
     }
 
-    public static class AudioPlayerWriter
+    public class AudioPlayerWriter
     {
         protected AudioPlayer player;
         protected InputStream in;
+        protected long startTime;
         public AudioPlayerWriter(AudioPlayer player, InputStream in)
         {
             this.player = player;
             this.in = in;
+            this.startTime = System.currentTimeMillis();
+        }
+        public AudioPlayerWriter(AudioPlayer player, InputStream in, long startTime)
+        {
+            this.player = player;
+            this.in = in;
+            this.startTime = startTime;
         }
         
         public void write() throws IOException, UnsupportedAudioFileException
         {
             // Read from Server and copy into audio player:
-            //System.err.println("Trying to read data from server");
+            if (doProfile)
+                System.err.println("After "+(System.currentTimeMillis()-startTime)+" ms: Trying to read data from server");
             while (false && in.available() < 46) { // at least the audio header should be there
                 Thread.yield();
             }
-            //System.err.println("Got at least the header");
+            if (doProfile)
+                System.err.println("After "+(System.currentTimeMillis()-startTime)+" ms: Got at least the header");
             in = new BufferedInputStream(in);
             in.mark(1000);
              AudioInputStream fromServerAudio = AudioSystem.getAudioInputStream(in);
@@ -936,7 +946,8 @@ public class MaryClient {
              //System.out.println("Audio framelength: "+fromServerAudio.getFrameLength());
              //System.out.println("Audio frame size: "+fromServerAudio.getFormat().getFrameSize());
              //System.out.println("Audio format: "+fromServerAudio.getFormat());
-             //System.out.println("Audio available: "+fromServerAudio.available());
+             if (doProfile)
+                 System.err.println("After "+(System.currentTimeMillis()-startTime)+" ms: Audio available: "+fromServerAudio.available());
              AudioFormat audioFormat = fromServerAudio.getFormat();
              if (!audioFormat.getEncoding().equals(Encoding.PCM_SIGNED)) { // need conversion, e.g. for mp3
                  audioFormat = new AudioFormat(fromServerAudio.getFormat().getSampleRate(), 16, 1, true, false);
@@ -950,9 +961,14 @@ public class MaryClient {
              int nr;
              byte[] bbuf = new byte[1024];
              boolean ok = true;
-             //System.err.println("Now playing");
+             if (doProfile)
+                 System.err.println("After "+(System.currentTimeMillis()-startTime)+" ms: Start playing");
+             boolean first = true;
              while (ok && (nr = fromServerAudio.read(bbuf, 0, bbuf.length)) != -1) {
-                 //System.err.println("Read " + nr + " bytes from server.");
+                 if (doProfile && first) {
+                     first = false;
+                     System.err.println("Time to audio: "+(System.currentTimeMillis()-startTime)+" ms");
+                 }
                  ok = player.write(bbuf, 0, nr);
              }
              if (ok) {

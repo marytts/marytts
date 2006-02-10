@@ -31,7 +31,9 @@ package de.dfki.lt.mary.client;
 // General Java Classes
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -54,6 +56,8 @@ import java.util.*;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioSystem;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -94,9 +98,14 @@ public class MaryExpertInterface extends JPanel
     /* -------------------- GUI stuff -------------------- */
 
     // Input
+    private JPanel inputTypePanel;
     private JComboBox cbInputType;
+    private JPanel inputPanel;
     private JScrollPane inputScrollPane;
     private JTextPane inputText;
+    private JPanel voicePanel;
+    private JComboBox cbDefaultVoice;
+    private JComboBox cbVoiceExampleText;
     private boolean doReplaceInput = true;
     // When the user changes input type, he is offered an example text for
     // the new input type. In order to prevent this when setting a new input
@@ -105,23 +114,21 @@ public class MaryExpertInterface extends JPanel
 
     // Output
     private boolean showingTextOutput = true;
+    private JPanel outputTypePanel;
     private JComboBox cbOutputType;
     private JButton bSaveOutput;
     private JTextPane outputText;
     private JScrollPane outputScrollPane;
     private JPanel audioPanel;
     private JButton bPlay;
+    private JPanel savePanel;
 
     // Processing Buttons
+    private JPanel buttonPanel;
     private JButton bProcess;
     private JButton bEdit;
     private JButton bCompare;
-    private JComboBox cbDefaultVoice;
-    private JComboBox cbVoiceExampleText;
     
-    // Layout
-    private GridBagLayout gridBag = new GridBagLayout();
-    private GridBagConstraints gridC = new GridBagConstraints();
 
     /* -------------------- Data and Processing stuff -------------------- */
     private MaryClient processor;
@@ -196,19 +203,29 @@ public class MaryExpertInterface extends JPanel
      */
     public void init() throws IOException, UnknownHostException {
         
-        Dimension scrollPaneDimension = new Dimension(250,400);
-        
+        Dimension paneDimension = new Dimension(250,400);
+        // Layout
+        GridBagLayout gridBagLayout = new GridBagLayout();
+        GridBagConstraints gridC = new GridBagConstraints();
+
         gridC.insets = new Insets( 2,2,2,2 );
         gridC.weightx = 0.1;
         gridC.weighty = 0.1;
-        setLayout( gridBag );
+        setLayout( gridBagLayout );
 
+        //////////////// Left Column: Input /////////////////////
         // Input type
-        JLabel inputTypeLabel = new JLabel( "Input Type: " );
+        inputTypePanel = new JPanel();
+        inputTypePanel.setLayout(new FlowLayout(FlowLayout.LEADING));
         gridC.gridx = 0;
         gridC.gridy = 0;
-        gridBag.setConstraints( inputTypeLabel, gridC );
-        add( inputTypeLabel );
+        gridC.gridwidth = 3;
+        gridC.fill = GridBagConstraints.HORIZONTAL;
+        gridBagLayout.setConstraints( inputTypePanel, gridC );
+        add( inputTypePanel );
+        gridC.gridwidth = 1;
+        JLabel inputTypeLabel = new JLabel( "Input Type: " );
+        inputTypePanel.add(inputTypeLabel);
         inputTypes = processor.getInputDataTypes();
         outputTypes = processor.getOutputDataTypes();
         assert inputTypes.size() > 0;
@@ -217,30 +234,24 @@ public class MaryExpertInterface extends JPanel
         cbInputType.setToolTipText( "Specify the type of data contained " +
                                     "in the input text area below." );
         cbInputType.addItemListener(this);
-        gridC.gridx = 1;
-        gridC.gridy = 0;
-        gridC.gridwidth = 2;
-        gridBag.setConstraints( cbInputType, gridC );
-        add( cbInputType );
-        gridC.gridwidth = 1;
+        inputTypePanel.add( cbInputType );
 
         //Input Text area
-        inputText = new JTextPane();
-        inputText.getDocument().addDocumentListener(this);
-        inputScrollPane = new JScrollPane(inputText);
-        inputScrollPane.setMinimumSize(scrollPaneDimension);
-        inputScrollPane.setPreferredSize(scrollPaneDimension);
+        inputPanel = new JPanel();
+        inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
+        inputPanel.setMinimumSize(paneDimension);
+        inputPanel.setPreferredSize(paneDimension);
         gridC.gridx = 0;
         gridC.gridy = 1;
         gridC.gridwidth = 3;
-        gridC.gridheight = 2;
+        gridC.gridheight = 3;
         gridC.weightx = 0.4;
         gridC.weighty = 0.8;
         //gridC.ipadx = 270;
         //gridC.ipady = 200;
         gridC.fill = GridBagConstraints.BOTH;
-        gridBag.setConstraints( inputScrollPane, gridC );
-        add( inputScrollPane );
+        gridBagLayout.setConstraints( inputPanel, gridC );
+        add( inputPanel );
         gridC.gridwidth = 1;
         gridC.gridheight = 1;
         gridC.weightx = 0.1;
@@ -248,24 +259,108 @@ public class MaryExpertInterface extends JPanel
         gridC.ipadx = 0;
         gridC.ipady = 0;
         gridC.fill = GridBagConstraints.NONE;
-
+        inputText = new JTextPane();
+        inputText.getDocument().addDocumentListener(this);
+        inputScrollPane = new JScrollPane(inputText);
+        inputPanel.add(inputScrollPane);
+        inputScrollPane.setPreferredSize(new Dimension(inputPanel.getPreferredSize().width, 1000));
         //example text for limDom voices
         cbVoiceExampleText = new JComboBox();
-        
         cbVoiceExampleText.addItemListener(this);
+        cbVoiceExampleText.setPreferredSize(new Dimension(inputPanel.getPreferredSize().width, 25));
+        inputPanel.add(cbVoiceExampleText);
+        
+        // Input related action buttons
+        voicePanel = new JPanel();
+        voicePanel.setLayout(new FlowLayout(FlowLayout.LEADING));
         gridC.gridx = 0;
-        gridC.gridy = 3;
+        gridC.gridy = 4;
         gridC.gridwidth = 3;
         gridC.fill = GridBagConstraints.HORIZONTAL;
-        gridBag.setConstraints( cbVoiceExampleText, gridC );
-        add( cbVoiceExampleText );     
+        gridBagLayout.setConstraints( voicePanel, gridC );
+        add( voicePanel );
+        gridC.gridwidth = 1;
+        JLabel voiceLabel = new JLabel("default voice:");
+        voicePanel.add( voiceLabel );
+        Locale inputLocale = ((MaryClient.DataType)cbInputType.getSelectedItem()).getLocale();
+        // Get the voices 
+        availableVoices = processor.getVoices();
+        cbDefaultVoice = new JComboBox();
+        Iterator it = availableVoices.iterator();
+        while (it.hasNext()) {
+            MaryClient.Voice v = (MaryClient.Voice) it.next();
+            if (v.getLocale().equals(inputLocale))
+                cbDefaultVoice.addItem(v);
+            if (v.isLimitedDomain()){
+                String exampleText = processor.getVoiceExampleText(v.name());
+                limDomVoices.put(v.name(),
+                        processVoiceExampleText(exampleText));
+            }
+        }
+        // First in list is default voice:
+        cbDefaultVoice.setSelectedIndex(0);
+        voicePanel.add( cbDefaultVoice );
+        cbDefaultVoice.addItemListener(this);
+        MaryClient.Voice defaultVoice = (MaryClient.Voice)cbDefaultVoice.getItemAt(0);
+        MaryClient.DataType inputType = (MaryClient.DataType) cbInputType.getSelectedItem();
+        if (defaultVoice.isLimitedDomain()) {
+            paintLimDom(defaultVoice);
+        } else {
+            paintGeneralDom(inputType);
+        }
 
+        //////////////// Centre Column: Buttons /////////////////////
+        // Action buttons in centre
+        buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+        gridC.gridx = 3;
+        gridC.gridy = 1;
+        gridC.gridheight = 3;
+        gridC.fill = GridBagConstraints.BOTH;
+        gridBagLayout.setConstraints( buttonPanel, gridC );
+        add( buttonPanel );
+        bProcess = new JButton( "Process ->" );
+        bProcess.setToolTipText( "Call the Mary Server." +
+                                 "The input will be transformed into the specified output type." );
+        bProcess.setActionCommand( "process" );
+        bProcess.addActionListener( this );
+        buttonPanel.add(Box.createVerticalGlue());
+        buttonPanel.add( bProcess );
+        bProcess.setAlignmentX(Component.CENTER_ALIGNMENT);
+        buttonPanel.add(Box.createVerticalGlue());
+
+        bEdit = new JButton( "<- Edit" );
+        bEdit.setToolTipText( "Edit the content of the output text area as the new input." +
+                              " The current content of the input text area will be discarded." );
+        bEdit.setActionCommand( "edit" );
+        bEdit.addActionListener( this );
+        buttonPanel.add( bEdit );
+        bEdit.setAlignmentX(Component.CENTER_ALIGNMENT);
+        buttonPanel.add(Box.createVerticalGlue());
+
+        bCompare = new JButton( "<- Compare ->" );
+        bCompare.setToolTipText( "Compare input and output" +
+                               "(available only if both are MaryXML types)." );
+        bCompare.setActionCommand( "compare" );
+        bCompare.addActionListener( this );
+        buttonPanel.add( bCompare );
+        bCompare.setAlignmentX(Component.CENTER_ALIGNMENT);
+        buttonPanel.add(Box.createVerticalGlue());
+        buttonPanel.setPreferredSize(new Dimension(buttonPanel.getPreferredSize().width, paneDimension.height));
+
+        //////////////// Right Column: Output /////////////////////
         // Output type
-        JLabel outputTypeLabel = new JLabel( "Output Type: " );
+        outputTypePanel = new JPanel();
+        outputTypePanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
         gridC.gridx = 4;
         gridC.gridy = 0;
-        gridBag.setConstraints( outputTypeLabel, gridC );
-        add( outputTypeLabel );
+        gridC.gridwidth = 3;
+        gridC.fill = GridBagConstraints.HORIZONTAL;
+        gridBagLayout.setConstraints( outputTypePanel, gridC );
+        add( outputTypePanel );
+        gridC.gridwidth = 1;
+        JLabel outputTypeLabel = new JLabel( "Output Type: " );
+        outputTypePanel.add( outputTypeLabel );
         cbOutputType = new JComboBox();
         setOutputTypeItems();
         // The last possible output type (= audio) is the default
@@ -274,12 +369,7 @@ public class MaryExpertInterface extends JPanel
         cbOutputType.setToolTipText( "Specify the output type for the next " +
                                      "processing action (Process button)." );
         cbOutputType.addItemListener(this);
-        gridC.gridx = 5;
-        gridC.gridy = 0;
-        gridC.gridwidth = 2;
-        gridBag.setConstraints( cbOutputType, gridC );
-        add( cbOutputType );
-        gridC.gridwidth = 1;
+        outputTypePanel.add( cbOutputType );
 
         // Output Text area
         if (((MaryClient.DataType)cbOutputType.getSelectedItem()).isTextType())
@@ -290,8 +380,8 @@ public class MaryExpertInterface extends JPanel
         //        outputText.setLineWrap(false);
         outputText.setEditable(false);
         outputScrollPane = new JScrollPane(outputText);
-        outputScrollPane.setMinimumSize(scrollPaneDimension);
-        outputScrollPane.setPreferredSize(scrollPaneDimension);
+        outputScrollPane.setMinimumSize(paneDimension);
+        outputScrollPane.setPreferredSize(paneDimension);
         gridC.gridx = 4;
         gridC.gridy = 1;
         gridC.gridwidth = 3;
@@ -301,7 +391,7 @@ public class MaryExpertInterface extends JPanel
         //gridC.ipadx = 270;
         //gridC.ipady = 200;
         gridC.fill = GridBagConstraints.BOTH;
-        gridBag.setConstraints( outputScrollPane, gridC );
+        gridBagLayout.setConstraints( outputScrollPane, gridC );
         if (!showingTextOutput)
             outputScrollPane.setVisible(false);
         add( outputScrollPane );
@@ -314,8 +404,8 @@ public class MaryExpertInterface extends JPanel
         gridC.fill = GridBagConstraints.NONE;
         // Overlapping location: Audio play button
         audioPanel = new JPanel();
-        //audioPanel.setPreferredSize(new Dimension(300,400));
-        audioPanel.setLayout( new BorderLayout() );
+        audioPanel.setPreferredSize(paneDimension);
+        audioPanel.setLayout( new BoxLayout(audioPanel, BoxLayout.Y_AXIS) );
         bPlay = new JButton( "Play" );
         bPlay.setToolTipText( "Synthesize and play the resulting audio stream." );
         bPlay.setActionCommand( "play" );
@@ -331,98 +421,40 @@ public class MaryExpertInterface extends JPanel
 
             }
         });
-        audioPanel.add(bPlay, BorderLayout.CENTER);
-        bPlay.setMaximumSize(bPlay.getPreferredSize());
+        audioPanel.add(Box.createVerticalGlue());
+        audioPanel.add(bPlay);
+        audioPanel.add(Box.createVerticalGlue());
+        bPlay.setAlignmentX(Component.CENTER_ALIGNMENT);
+        //bPlay.setMaximumSize(bPlay.getPreferredSize());
         if (showingTextOutput)
             audioPanel.setVisible(false);
         gridC.gridx = 4;
-        gridC.gridy = 2;
+        gridC.gridy = 1;
         gridC.gridwidth = 3;
-        gridBag.setConstraints( audioPanel, gridC );
+        gridC.gridheight = 3;
+        gridC.fill = GridBagConstraints.BOTH;
+        gridBagLayout.setConstraints( audioPanel, gridC );
         add( audioPanel );
         gridC.gridwidth = 1;
 
-        // Action buttons in centre
-        bProcess = new JButton( "Process ->" );
-        bProcess.setToolTipText( "Call the Mary Server." +
-                                 "The input will be transformed into the specified output type." );
-        bProcess.setActionCommand( "process" );
-        bProcess.addActionListener( this );
-        gridC.gridx = 3;
-        gridC.gridy = 1;
-        gridBag.setConstraints( bProcess, gridC );
-        add( bProcess );
-        bEdit = new JButton( "<- Edit" );
-        bEdit.setToolTipText( "Edit the content of the output text area as the new input." +
-                              " The current content of the input text area will be discarded." );
-        bEdit.setActionCommand( "edit" );
-        bEdit.addActionListener( this );
-        gridC.gridx = 3;
-        gridC.gridy = 2;
-        gridBag.setConstraints( bEdit, gridC );
-        add( bEdit );
-        bCompare = new JButton( "<- Compare ->" );
-        bCompare.setToolTipText( "Compare input and output" +
-                               "(available only if both are MaryXML types)." );
-        bCompare.setActionCommand( "compare" );
-        bCompare.addActionListener( this );
-        gridC.gridx = 3;
-        gridC.gridy = 3;
-        gridBag.setConstraints( bCompare, gridC );
-        add( bCompare );
 
-        // Input related action buttons
-        JLabel voiceLabel = new JLabel("default voice:");
-        gridC.gridx = 1;
-        gridC.gridy = 4;
-        gridBag.setConstraints( voiceLabel, gridC );
-        add( voiceLabel );
-        Locale inputLocale = ((MaryClient.DataType)cbInputType.getSelectedItem()).getLocale();
-        // Get the voices 
-        availableVoices = processor.getVoices();
-        cbDefaultVoice = new JComboBox();
-        
-        Iterator it = availableVoices.iterator();
-        while (it.hasNext()) {
-            MaryClient.Voice v = (MaryClient.Voice) it.next();
-            if (v.getLocale().equals(inputLocale))
-                cbDefaultVoice.addItem(v);
-            if (v.isLimitedDomain()){
-                String exampleText = processor.getVoiceExampleText(v.name());
-                limDomVoices.put(v.name(),
-                        processVoiceExampleText(exampleText));
-            }
-        }
-        
-        // First in list is default voice:
-        cbDefaultVoice.setSelectedIndex(0);
-        gridC.gridx = 2;
-        gridC.gridy = 4;
-        gridBag.setConstraints( cbDefaultVoice, gridC );
-        add( cbDefaultVoice );
-        cbDefaultVoice.addItemListener(this);
-        MaryClient.Voice defaultVoice = (MaryClient.Voice)cbDefaultVoice.getItemAt(0);
-        MaryClient.DataType inputType = (MaryClient.DataType) cbInputType.getSelectedItem();
-        
-        if (defaultVoice.isLimitedDomain()) {
-            paintLimDom(defaultVoice);
-        } else {
-            paintGeneralDom(inputType);
-        }
-        
+        // Output Save button        
         if (allowSave) {
-            // Output Save button
+            savePanel = new JPanel();
+            savePanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
+            gridC.gridx = 4;
+            gridC.gridy = 4;
+            gridC.fill = GridBagConstraints.HORIZONTAL;
+            gridBagLayout.setConstraints( savePanel, gridC );
+            add(savePanel);
             ImageIcon saveIcon = new ImageIcon("save.gif");
             bSaveOutput = new JButton( "Save...", saveIcon );
             bSaveOutput.setToolTipText( "Save the output as a file." );
             bSaveOutput.setActionCommand( "saveOutput" );
             bSaveOutput.addActionListener(this);
-            gridC.gridx = 4;
-            gridC.gridy = 4;
-            gridBag.setConstraints( bSaveOutput, gridC );
-            add( bSaveOutput );
-            setPreferredSize(new Dimension(720,480));
+            savePanel.add( bSaveOutput );
         }
+        setPreferredSize(new Dimension(720,480));
 
         verifyEnableButtons();
     }
@@ -449,13 +481,9 @@ public class MaryExpertInterface extends JPanel
     
     private void verifyEnableButtons() {
         if (((MaryClient.DataType)cbOutputType.getSelectedItem()).isTextType()) {
-            bProcess.setVisible(true);
-            bEdit.setVisible(true);
-            bCompare.setVisible(true);
+            buttonPanel.setVisible(true);
         } else { // do not show these three buttons for audio output:
-            bProcess.setVisible(false);
-            bEdit.setVisible(false);
-            bCompare.setVisible(false);
+            buttonPanel.setVisible(false);
         }
         // Edit button:
         if (showingTextOutput) {
