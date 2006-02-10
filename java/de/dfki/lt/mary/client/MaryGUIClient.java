@@ -91,8 +91,7 @@ import de.dfki.lt.mary.util.MaryUtils;
  * @see MaryClient The client implementation
  */
 
-public class MaryExpertInterface extends JPanel
-    implements ActionListener, DocumentListener, ItemListener, MaryClient.AudioPlayerListener
+public class MaryGUIClient extends JPanel
 {
 
     /* -------------------- GUI stuff -------------------- */
@@ -144,13 +143,13 @@ public class MaryExpertInterface extends JPanel
     private Map limDomVoices = new HashMap();
 
     /**
-     * Create a MaryExpertInterface instance that connects to the server host
+     * Create a MaryGUIClient instance that connects to the server host
      * and port as specified in the system properties "server.host" and "server.port",
      * which default to "cling.dfki.uni-sb.de" and 59125, respectively.
      * @throws IOException
      * @throws UnknownHostException
      */
-    public MaryExpertInterface() throws IOException, UnknownHostException
+    public MaryGUIClient() throws IOException, UnknownHostException
     {
         super();
         // First the MaryClient processor class, because it may provide
@@ -170,14 +169,14 @@ public class MaryExpertInterface extends JPanel
     }
 
     /**
-     * Create a MaryExpertInterface instance that connects to the given server host
+     * Create a MaryGUIClient instance that connects to the given server host
      * and port. This is meant to be used from Applets.
      * @param host
      * @param port
      * @throws IOException
      * @throws UnknownHostException
      */
-    public MaryExpertInterface(String host, int port) throws IOException, UnknownHostException
+    public MaryGUIClient(String host, int port) throws IOException, UnknownHostException
     {
         super();
         // First the MaryClient processor class, because it may provide
@@ -233,7 +232,21 @@ public class MaryExpertInterface extends JPanel
         cbInputType = new JComboBox( inputTypes );
         cbInputType.setToolTipText( "Specify the type of data contained " +
                                     "in the input text area below." );
-        cbInputType.addItemListener(this);
+        cbInputType.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    verifyDefaultVoices();
+                    verifyExamplesVisible();
+                    if (doReplaceInput) {
+                        setExampleInputText();
+                    } else {
+                        // input text was set by other code
+                        doReplaceInput = true;
+                    }
+                    setOutputTypeItems();
+                }
+            }
+        });
         inputTypePanel.add( cbInputType );
 
         //Input Text area
@@ -260,17 +273,22 @@ public class MaryExpertInterface extends JPanel
         gridC.ipady = 0;
         gridC.fill = GridBagConstraints.NONE;
         inputText = new JTextPane();
-        inputText.getDocument().addDocumentListener(this);
         inputScrollPane = new JScrollPane(inputText);
         inputPanel.add(inputScrollPane);
         inputScrollPane.setPreferredSize(new Dimension(inputPanel.getPreferredSize().width, 1000));
         //example text for limDom voices
         cbVoiceExampleText = new JComboBox();
-        cbVoiceExampleText.addItemListener(this);
+        cbVoiceExampleText.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    setInputText((String)cbVoiceExampleText.getSelectedItem());
+                }
+            }
+        });
         cbVoiceExampleText.setPreferredSize(new Dimension(inputPanel.getPreferredSize().width, 25));
         inputPanel.add(cbVoiceExampleText);
         
-        // Input related action buttons
+        // Select voice
         voicePanel = new JPanel();
         voicePanel.setLayout(new FlowLayout(FlowLayout.LEADING));
         gridC.gridx = 0;
@@ -282,32 +300,31 @@ public class MaryExpertInterface extends JPanel
         gridC.gridwidth = 1;
         JLabel voiceLabel = new JLabel("default voice:");
         voicePanel.add( voiceLabel );
-        Locale inputLocale = ((MaryClient.DataType)cbInputType.getSelectedItem()).getLocale();
-        // Get the voices 
-        availableVoices = processor.getVoices();
         cbDefaultVoice = new JComboBox();
+        voicePanel.add( cbDefaultVoice );
+        cbDefaultVoice.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    fillExampleTexts();
+                    verifyExamplesVisible();
+                    setExampleInputText();
+                }
+            }
+        });
+        // For the limited domain voices, get example texts: 
+        availableVoices = processor.getVoices();
         Iterator it = availableVoices.iterator();
         while (it.hasNext()) {
             MaryClient.Voice v = (MaryClient.Voice) it.next();
-            if (v.getLocale().equals(inputLocale))
-                cbDefaultVoice.addItem(v);
             if (v.isLimitedDomain()){
                 String exampleText = processor.getVoiceExampleText(v.name());
-                limDomVoices.put(v.name(),
-                        processVoiceExampleText(exampleText));
+                limDomVoices.put(v.name(), processVoiceExampleText(exampleText));
             }
         }
-        // First in list is default voice:
-        cbDefaultVoice.setSelectedIndex(0);
-        voicePanel.add( cbDefaultVoice );
-        cbDefaultVoice.addItemListener(this);
-        MaryClient.Voice defaultVoice = (MaryClient.Voice)cbDefaultVoice.getItemAt(0);
-        MaryClient.DataType inputType = (MaryClient.DataType) cbInputType.getSelectedItem();
-        if (defaultVoice.isLimitedDomain()) {
-            paintLimDom(defaultVoice);
-        } else {
-            paintGeneralDom(inputType);
-        }
+        verifyDefaultVoices();
+        fillExampleTexts();
+        verifyExamplesVisible();
+        setExampleInputText();
 
         //////////////// Centre Column: Buttons /////////////////////
         // Action buttons in centre
@@ -323,7 +340,12 @@ public class MaryExpertInterface extends JPanel
         bProcess.setToolTipText( "Call the Mary Server." +
                                  "The input will be transformed into the specified output type." );
         bProcess.setActionCommand( "process" );
-        bProcess.addActionListener( this );
+        bProcess.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                processInput();
+                verifyEnableButtons();
+            }
+        });
         buttonPanel.add(Box.createVerticalGlue());
         buttonPanel.add( bProcess );
         bProcess.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -333,7 +355,12 @@ public class MaryExpertInterface extends JPanel
         bEdit.setToolTipText( "Edit the content of the output text area as the new input." +
                               " The current content of the input text area will be discarded." );
         bEdit.setActionCommand( "edit" );
-        bEdit.addActionListener( this );
+        bEdit.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                editOutput();
+                verifyEnableButtons();
+            }
+        });
         buttonPanel.add( bEdit );
         bEdit.setAlignmentX(Component.CENTER_ALIGNMENT);
         buttonPanel.add(Box.createVerticalGlue());
@@ -342,7 +369,12 @@ public class MaryExpertInterface extends JPanel
         bCompare.setToolTipText( "Compare input and output" +
                                "(available only if both are MaryXML types)." );
         bCompare.setActionCommand( "compare" );
-        bCompare.addActionListener( this );
+        bCompare.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                compareTexts();
+                verifyEnableButtons();
+            }
+        });
         buttonPanel.add( bCompare );
         bCompare.setAlignmentX(Component.CENTER_ALIGNMENT);
         buttonPanel.add(Box.createVerticalGlue());
@@ -368,7 +400,14 @@ public class MaryExpertInterface extends JPanel
         cbOutputType.setSelectedIndex(cbOutputType.getItemCount() - 1);
         cbOutputType.setToolTipText( "Specify the output type for the next " +
                                      "processing action (Process button)." );
-        cbOutputType.addItemListener(this);
+        cbOutputType.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    verifyOutputDisplay();
+                    verifyEnableButtons();
+                }
+            }
+        });
         outputTypePanel.add( cbOutputType );
 
         // Output Text area
@@ -451,7 +490,11 @@ public class MaryExpertInterface extends JPanel
             bSaveOutput = new JButton( "Save...", saveIcon );
             bSaveOutput.setToolTipText( "Save the output as a file." );
             bSaveOutput.setActionCommand( "saveOutput" );
-            bSaveOutput.addActionListener(this);
+            bSaveOutput.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    saveOutput();
+                }
+            });
             savePanel.add( bSaveOutput );
         }
         setPreferredSize(new Dimension(720,480));
@@ -459,24 +502,45 @@ public class MaryExpertInterface extends JPanel
         verifyEnableButtons();
     }
 
-    private void paintGeneralDom(MaryClient.DataType inputType) 
-    throws IOException,UnknownHostException
+    private void setExampleInputText()
     {
-        cbVoiceExampleText.setVisible(false);
-        String exampleText = processor.getServerExampleText(inputType.name());
-        setInputText(exampleText);
+        MaryClient.Voice defaultVoice = (MaryClient.Voice) cbDefaultVoice.getSelectedItem();
+        MaryClient.DataType inputType = (MaryClient.DataType) cbInputType.getSelectedItem();
+        if (defaultVoice.isLimitedDomain() && inputType.name().startsWith("TEXT")) {
+            setInputText((String) cbVoiceExampleText.getSelectedItem());
+        } else {
+            try {
+                setInputText(processor.getServerExampleText(inputType.name()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
     
-    private void paintLimDom(MaryClient.Voice voice)
+    private void fillExampleTexts()
     {
-        Vector sentences = (Vector)limDomVoices.get(voice.name());
-        setInputText((String)sentences.get(0));
+        MaryClient.Voice defaultVoice = (MaryClient.Voice) cbDefaultVoice.getSelectedItem();
+        if (!defaultVoice.isLimitedDomain()) return;
+        Vector sentences = (Vector)limDomVoices.get(defaultVoice.name());
+        assert sentences != null;
         cbVoiceExampleText.removeAllItems();
         for (int i = 0; i<sentences.size(); i++) {
             cbVoiceExampleText.addItem(sentences.get(i));
         }
         cbVoiceExampleText.setSelectedIndex(0);
-        cbVoiceExampleText.setVisible(true);
+    }
+
+   
+    private void verifyExamplesVisible()
+    {
+        MaryClient.Voice defaultVoice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
+        MaryClient.DataType inputType = (MaryClient.DataType) cbInputType.getSelectedItem();
+        
+        if (defaultVoice.isLimitedDomain() && inputType.name().startsWith("TEXT")) {
+            cbVoiceExampleText.setVisible(true);
+        } else {
+            cbVoiceExampleText.setVisible(false);
+        }
     }
     
     private void verifyEnableButtons() {
@@ -511,21 +575,36 @@ public class MaryExpertInterface extends JPanel
      * Verify if the language of the input format has changed. If so,
      * adapt the value of cbDefaultVoices.
      */
-    private void verifyDefaultVoices() throws IOException{
-        Locale inputLocale = ((MaryClient.DataType)cbInputType.getSelectedItem()).getLocale();
-        Locale voiceLocale = ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).getLocale();
-        if (inputLocale == null
-            || !inputLocale.equals(voiceLocale)) {
-            cbDefaultVoice.removeAllItems();
-            Iterator it = availableVoices.iterator();
-            while (it.hasNext()) {
-                MaryClient.Voice v = (MaryClient.Voice) it.next();
-                if (inputLocale == null || v.getLocale().equals(inputLocale))
-                    cbDefaultVoice.addItem(v);
+    private void verifyDefaultVoices() 
+    {
+        MaryClient.DataType inputType = (MaryClient.DataType)cbInputType.getSelectedItem(); 
+        Locale inputLocale = null;
+        if (inputType != null) inputLocale = inputType.getLocale();
+        MaryClient.Voice defaultVoice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
+        Locale voiceLocale = null;
+        if (defaultVoice != null) voiceLocale = defaultVoice.getLocale();
+        MaryClient.Voice preferredVoice = null;
+        if (inputLocale != null && voiceLocale != null && voiceLocale.equals(inputLocale)) return;
+        // Locale change -- need to reset the list
+        cbDefaultVoice.removeAllItems();
+        Iterator it = availableVoices.iterator();
+        while (it.hasNext()) {
+            MaryClient.Voice v = (MaryClient.Voice) it.next();
+            if (inputLocale == null || v.getLocale().equals(inputLocale)) {
+                cbDefaultVoice.addItem(v);
+                if (v.name().equals("de7") || v.name().equals("us1")) {
+                    // TODO: these are my hard-coded preferences that others might not actually share...
+                    preferredVoice = v;
+                } else if (preferredVoice == null && !v.isLimitedDomain()) { // prefer general-domain voices
+                    preferredVoice = v;
+                }
             }
+        }
+        if (preferredVoice != null) {
+            cbDefaultVoice.setSelectedItem(preferredVoice);
+        } else { // First in list is default voice:
             cbDefaultVoice.setSelectedIndex(0);
         }
-        	
     }
 
     /**
@@ -560,126 +639,28 @@ public class MaryExpertInterface extends JPanel
         cbOutputType.setSelectedItem(selectedItem);
     }
 
-    /**
-     * This action listener registers to all button pushes.
-     * It dispatches the work to the appropriate classes,
-     * providing them with the data they need.
-     */
-    public void actionPerformed(ActionEvent e)
+    private void verifyOutputDisplay()
     {
-        if (e.getActionCommand().equals("saveOutput")) {
-            saveOutput();
-        } else if (e.getActionCommand().equals("process")) {
-            processInput();
-        } else if (e.getActionCommand().equals("edit")) {
-            editOutput();
-        } else if (e.getActionCommand().equals("compare")) {
-            compareTexts();
-        }
-        verifyEnableButtons();
-    }
-
-    /**
-     * This document listener notices all changes in the input text area.
-     */
-    public void insertUpdate(DocumentEvent e)
-    {
-        showUnverifiedInput();
-    }
-    public void removeUpdate(DocumentEvent e)
-    {
-        showUnverifiedInput();
-    }
-    public void changedUpdate(DocumentEvent e)
-    {
-        showUnverifiedInput();
-    }
-    private void showUnverifiedInput()
-    {
-    }
-
-    /**
-     * This item listener cares for the changes in input/output type
-     * combo boxes. It erases the text areas as appropriate.
-     */
-    public void itemStateChanged(ItemEvent e){
-        if (e.getSource() == cbInputType) {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-                
-                if (doReplaceInput == false) {
-                    // nothing to be done
-                    doReplaceInput = true;
-                } else {
-                    // confirm before changing input text to example text for
-                    // current type
-                    int answer = JOptionPane.showConfirmDialog(this,
-                         "Do you want to discard the current contents of the input text area?",
-                         "Discard input?",
-                         JOptionPane.YES_NO_OPTION);
-                    if (answer == JOptionPane.YES_OPTION) {
-                        // Do replace the input text
-                        try {
-                            String exampleText = processor.getServerExampleText(((MaryClient.DataType)e.getItem()).name());
-                            setInputText(exampleText);
-                        } catch (Exception uhe) {
-                            // ignore
-                        }
-                    }
-                    try{
-                    verifyDefaultVoices();
-                    }catch(IOException ioe){}
-                }
-                setOutputTypeItems();
-                verifyEnableButtons();
+        if (((MaryClient.DataType)cbOutputType.getSelectedItem()).isTextType()) {
+            setOutputText(""); // erase the output text
+            if (!showingTextOutput) { // showing Audio Output
+                // need to change output display
+                audioPanel.setVisible(false);
+                outputScrollPane.setVisible(true);
+                showingTextOutput = true;
+                revalidate();
             }
-        } else if (e.getSource() == cbOutputType) {
-            // We only care for the newly selected item.
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-                if (((MaryClient.DataType)e.getItem()).isTextType()) {
-                    setOutputText(""); // erase the output text
-                    if (!showingTextOutput) { // showing Audio Output
-                        // need to change output display
-                        audioPanel.setVisible(false);
-                        outputScrollPane.setVisible(true);
-                        showingTextOutput = true;
-                        revalidate();
-                    }
-                } else { // Audio output
-                    if (showingTextOutput) {
-                        // change output display
-                        outputScrollPane.setVisible(false);
-                        audioPanel.setVisible(true);
-                        showingTextOutput = false;
-                        revalidate();
-                    }
-                }
-		verifyEnableButtons();
-            } // SELECTED
-        }
-        else {if (e.getSource() == cbDefaultVoice) {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-                MaryClient.Voice voice= 
-                    (MaryClient.Voice) cbDefaultVoice.getSelectedItem();
-                MaryClient.DataType input = 
-                    (MaryClient.DataType)cbInputType.getSelectedItem();
-                try{
-                    if (voice.isLimitedDomain() && input.name().startsWith("TEXT")){
-                        paintLimDom(voice);
-                    } else {
-                        paintGeneralDom(input);
-                    }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
+        } else { // Audio output
+            if (showingTextOutput) {
+                // change output display
+                outputScrollPane.setVisible(false);
+                audioPanel.setVisible(true);
+                showingTextOutput = false;
+                revalidate();
             }
         }
-        else {if (e.getSource() == cbVoiceExampleText) {
-            	if (e.getStateChange() == ItemEvent.SELECTED) {                
-            	    setInputText((String)cbVoiceExampleText.getSelectedItem());}
-        		}
-        	}
-        }
     }
+    
 
     /* -------------------- Processing callers -------------------- */
     private void saveOutput()
@@ -794,14 +775,22 @@ public class MaryExpertInterface extends JPanel
                         streamMp3 ? "MP3":"WAVE",
                         ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
                         audioPlayer,
-                        this);
+                        new MaryClient.AudioPlayerListener() {
+                            public void playerFinished()
+                            {
+                                resetPlayButton();
+                            }
+                            public void playerException(Exception e)
+                            {
+                                showErrorMessage(e.getClass().getName(), e.getMessage());
+                                resetPlayButton();
+                            }
+                        });
                 bPlay.setText("Stop");
-            } catch (NullPointerException e){
-                System.out.println("ups");}
-              catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 showErrorMessage(e.getClass().getName(), e.getMessage());
-                playerFinished();
+                resetPlayButton();
             }
             
         } else {
@@ -831,23 +820,16 @@ public class MaryExpertInterface extends JPanel
         MaryClient.DataType type = (MaryClient.DataType) cbOutputType.getSelectedItem();
         if (type == null || !type.isTextType() || !type.isInputType())
             return;
-        // Ask for confirmation before doing anything
-        int answer = JOptionPane.showConfirmDialog(this,
-                         "Replace current input text?",
-                         "Replace input?",
-                         JOptionPane.YES_NO_OPTION);
-        if (answer == JOptionPane.YES_OPTION) {
-            setInputText(outputText.getText());
-            setOutputText("");
-            // We need to make sure the item handler doesn't try to replace
-            // the input with a default example:
-            if (cbInputType.getSelectedItem().equals(cbOutputType.getSelectedItem())) {
-                // No problem, type won't change anyway
-            } else {
-                // Signal to the item handler that we don't want replacement
-                doReplaceInput = false;
-                cbInputType.setSelectedItem(cbOutputType.getSelectedItem());
-            }
+        setInputText(outputText.getText());
+        setOutputText("");
+        // We need to make sure the item handler doesn't try to replace
+        // the input with a default example:
+        if (cbInputType.getSelectedItem().equals(cbOutputType.getSelectedItem())) {
+            // No problem, type won't change anyway
+        } else {
+            // Signal to the item handler that we don't want replacement
+            doReplaceInput = false;
+            cbInputType.setSelectedItem(cbOutputType.getSelectedItem());
         }
     }
 
@@ -932,7 +914,7 @@ public class MaryExpertInterface extends JPanel
         outputText.setCaretPosition(0);
     }
     
-    public void playerFinished()
+    public void resetPlayButton()
     {
         bPlay.setText("Play");
         if (audioPlayer != null) {
@@ -948,7 +930,7 @@ public class MaryExpertInterface extends JPanel
                 "\n\nIf you think this is a bug in the MARY system,\n" +
                 "please help improve the system by filing a bug report\n" +
                 "on the MARY development page: \n" +
-                "https://mary.opendfki.de/newticket\n",
+                "http://mary.opendfki.de/newticket\n",
                 title,
                 JOptionPane.ERROR_MESSAGE);
 
@@ -960,7 +942,7 @@ public class MaryExpertInterface extends JPanel
         mainFrame.addWindowListener(new WindowAdapter() {
                 public void windowClosing(WindowEvent e) {System.exit(0);}
             });
-        MaryExpertInterface m = new MaryExpertInterface();
+        MaryGUIClient m = new MaryGUIClient();
         mainFrame.setContentPane(m);
         mainFrame.pack();
         mainFrame.setVisible(true);

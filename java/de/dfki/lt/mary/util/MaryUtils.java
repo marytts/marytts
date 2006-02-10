@@ -668,4 +668,21 @@ public class MaryUtils {
         return result;
     }
 
+    
+    /**
+     * Apply the toString() method recursively to this throwable and all its causes.
+     * The idea is to get cause information as in printStackTrace() without the stack trace.
+     * @param t the throwable to print.
+     * @return
+     */
+    public static String getThrowableAndCausesAsString(Throwable t)
+    {
+       StringBuffer buf = new StringBuffer();
+       buf.append(t.toString());
+       if (t.getCause() != null) {
+           buf.append("\nCaused by: ");
+           buf.append(getThrowableAndCausesAsString(t.getCause()));
+       }
+       return buf.toString();
+    }
 }

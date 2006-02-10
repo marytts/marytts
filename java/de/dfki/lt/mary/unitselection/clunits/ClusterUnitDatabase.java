@@ -76,8 +76,10 @@ public class ClusterUnitDatabase extends UnitDatabase
     private final static int VERSION = 0x2000;
     private ClusterUnitType[] unitTypesArray;
     
-    public ClusterUnitDatabase(){
-        super();}
+    public ClusterUnitDatabase()
+    {
+        super();
+    }
     
     /**
      * Load the database from the given file
@@ -382,7 +384,7 @@ public class ClusterUnitDatabase extends UnitDatabase
      * @return the extend selections setting
      */
     public int getExtendSelections() {
-	return extendSelections;
+        return extendSelections;
     }
     
     /**
@@ -390,23 +392,16 @@ public class ClusterUnitDatabase extends UnitDatabase
      *
      * @param unitType the type of cart
      *
-     * @return the cart 
+     * @return the cart
+     * @throws IllegalArgumentException if the unit type does not exist 
      */
     public CART getTree(String unitType) {
-	CART cart =  (CART) cartMap.get(unitType);
-
-	if (cart == null) {
-	    logger.warn("ClusterUnitDatabase: can't find tree for " 
-		    + unitType);
-	    //if (defaultCart != null){
-	      //  return defaultCart;} 	// "graceful" failrue
-	    //else {
-	        throw new NullPointerException("Unit type "
-	                						+unitType
-	                						+" not in database");
-	        //}
-	}
-	return cart;
+    	CART cart =  (CART) cartMap.get(unitType);
+    
+    	if (cart == null) {
+    	    throw new IllegalArgumentException("ClusterUnitDatabase: can't find tree for " + unitType);
+    	}
+    	return cart;
     }
     
     /**
