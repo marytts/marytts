@@ -30,7 +30,7 @@ ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
 THIS SOFTWARE.
 -->
 
-<project name="mary" default="compile-debug" basedir=".">
+<project name="mary" default="jars-debug" basedir=".">
 
   <!-- set global properties for this build -->
   <property name="src" value="java"/>
@@ -227,7 +227,7 @@ THIS SOFTWARE.
       <manifest>
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Main-Class"
-                   value="de.dfki.lt.mary.client.MaryExpertInterface"/>
+                   value="de.dfki.lt.mary.client.MaryGUIClient"/>
         <attribute name="Class-Path"
                    value="java-diff.jar  tritonus_mp3.jar jl1.0.jar"/>
         <attribute name="Specification-Version"
@@ -264,6 +264,7 @@ THIS SOFTWARE.
 	    <jar destfile="${dest}/emospeak.jar"
 	         basedir="${src}"
 	         includes="de/dfki/lt/mary/emospeak/*.class
+					   de/dfki/lt/mary/emospeak/*.txt
 	                   de/dfki/lt/mary/emospeak/emotion-to-mary.xsl"
 	         excludes="de/dfki/lt/mary/emospeak/EmoSpeakApplet*.class">
 	      <manifest>
@@ -279,9 +280,9 @@ THIS SOFTWARE.
 	    <jar destfile="${dest}/emospeakapplet.jar"
 	         basedir="${src}"
 	         includes="de/dfki/lt/mary/emospeak/*.class
+					   de/dfki/lt/mary/emospeak/*.txt
 	                   de/dfki/lt/mary/modules/emotion-to-mary.xsl"
-	         excludes="de/dfki/lt/mary/emospeak/EmoSpeak.class
-		           de/dfki/lt/mary/emospeak/EmoSpeak$*.class">
+	         excludes="de/dfki/lt/mary/emospeak/EmoSpeak*.class">
 	      <manifest>
 	        <attribute name="Built-By" value="${user.name}"/>
 		<attribute name="Main-Class"

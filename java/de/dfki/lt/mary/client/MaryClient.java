@@ -64,7 +64,7 @@ import de.dfki.lt.mary.Version;
  * A socket client implementing the MARY protocol.
  * It can be used as a command line client or from within java code.
  * @author Marc Schr&ouml;der
- * @see MaryExpertInterface A GUI interface to this client
+ * @see MaryGUIClient A GUI interface to this client
  * @see de.dfki.lt.mary.MaryServer Description of the MARY protocol
  */
 
@@ -358,7 +358,8 @@ public class MaryClient {
 
         // Check for warnings from server:
         final WarningReader warningReader = new WarningReader(fromServerInfo);
-
+        warningReader.start();
+        
         // Read from Server and copy into OutputStream output:
         // (as we only do low-level copying of bytes here,
         //  we do not need to distinguish between text and audio)
@@ -396,20 +397,25 @@ public class MaryClient {
                         if (timer != null) {
                             timer.cancel();
                         }
-                        if (listener != null) {
-                            listener.playerFinished();
-                        }
+                        if (listener != null) listener.playerFinished();
 
                         toServerInfo.close();
                         fromServerInfo.close();
                         maryInfoSocket.close();
                         toServerData.close();
                         maryDataSocket.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }                    
 
+                    try {
                         warningReader.join();
-                        if (warningReader.getWarnings().length() > 0) // there are warnings
-                            throw new IOException(warningReader.getWarnings());
-                        
+                    } catch (InterruptedException ie) {}
+                    if (warningReader.getWarnings().length() > 0) { // there are warnings
+                        String warnings = warningReader.getWarnings(); 
+                        System.err.println(warnings);
+                        if (listener != null) listener.playerException(new IOException(warnings));
+                    }
 
                         if (doProfile) {
                             long endTime = System.currentTimeMillis();
@@ -419,9 +425,6 @@ public class MaryClient {
 
                     
                    
-                    }catch (Exception e) {
-                        e.printStackTrace();
-                    }                    
                 }
             };
             if (streamingAudio) {
@@ -992,6 +995,12 @@ public class MaryClient {
          *
          */
         public void playerFinished();
+        
+        /**
+         * Inform the listener that the audio player has thrown an exception.
+         * @param e the exception thrown
+         */
+        public void playerException(Exception e);
     }
     
     public static class WarningReader extends Thread

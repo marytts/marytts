@@ -56,7 +56,7 @@ public abstract class UnitDatabase
     protected Logger logger;
     
     public UnitDatabase(){
-        logger = Logger.getLogger(this.toString());
+        logger = Logger.getLogger(this.getClass().getName());
     }
     
     

@@ -39,7 +39,7 @@ import javax.swing.JApplet;
  */
 public class MaryInterfaceApplet extends JApplet
 {
-    private MaryExpertInterface maryExpertInterface;
+    private MaryGUIClient maryExpertInterface;
 
     public void init()
     {
@@ -49,7 +49,7 @@ public class MaryInterfaceApplet extends JApplet
         }
         int port = 59125;
         try {
-            maryExpertInterface = new MaryExpertInterface(host, port);
+            maryExpertInterface = new MaryGUIClient(host, port);
             getContentPane().setLayout(new FlowLayout());
             getContentPane().add(maryExpertInterface);
         } catch (IOException ioe) {

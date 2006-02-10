@@ -116,10 +116,8 @@ public class RequestHandler extends Thread {
         // Only print to client if there is one;
         // do not print TransformerException and SAXParseException
         // (that has been done by the LoggingErrorHander already).
-        if (!(clientLogger == null
-            || e instanceof TransformerException
-            || e instanceof SAXParseException))
-            clientLogger.error(message + "\n" + e.toString());
+        if (!(clientLogger == null || e instanceof TransformerException || e instanceof SAXParseException))
+            clientLogger.error(message + "\n" + MaryUtils.getThrowableAndCausesAsString(e));
         // No stack trace on clientLogger
     }
 
@@ -155,14 +153,14 @@ public class RequestHandler extends Thread {
         }
 
         boolean streamingOutput = false;
-        StreamingOutputWriter sow = null;
+        StreamingOutputWriter rw = null;
         // Process input data to output data
         if (ok)
             try {
                 if (request.getOutputType().equals(MaryDataType.get("AUDIO"))) {
                     streamingOutput = true;
-                    sow = new StreamingOutputWriter(request, dataSocket.getOutputStream());
-                    sow.start();
+                    rw = new StreamingOutputWriter(request, dataSocket.getOutputStream());
+                    rw.start();
                 }
                 
                 request.process();
@@ -198,7 +196,7 @@ public class RequestHandler extends Thread {
                 }
             } else { // streaming output
                 try {
-                    sow.join();
+                    rw.join();
                 } catch (InterruptedException ie) {
                     logger.warn(ie);
                 }
