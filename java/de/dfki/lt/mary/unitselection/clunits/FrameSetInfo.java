@@ -71,6 +71,21 @@ public class FrameSetInfo {
 	residualFold = bb.getInt();
     }
 
+    /**
+     * Creates a new FrameSetInfo from the given parameters
+     * This constructor is only used for the conversion from FreeTTS
+     * text format to Mary binary format
+     */
+    public FrameSetInfo(int sampleRate, int numberOfChannels,
+	    int residualFold, float coeffMin, 
+	    float coeffRange, float postEmphasis) {
+	this.sampleRate = sampleRate;
+	this.numberOfChannels = numberOfChannels;
+	this.residualFold = residualFold;
+	this.coeffMin = coeffMin;
+	this.coeffRange = coeffRange;
+	this.postEmphasis = postEmphasis;
+    }
     
     /**
      * Returns the sample rate.

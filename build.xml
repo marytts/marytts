@@ -264,7 +264,6 @@ THIS SOFTWARE.
 	    <jar destfile="${dest}/emospeak.jar"
 	         basedir="${src}"
 	         includes="de/dfki/lt/mary/emospeak/*.class
-	    			   de/dfki/lt/mary/emospeak/*.txt
 	                   de/dfki/lt/mary/emospeak/emotion-to-mary.xsl"
 	         excludes="de/dfki/lt/mary/emospeak/EmoSpeakApplet*.class">
 	      <manifest>
@@ -280,9 +279,9 @@ THIS SOFTWARE.
 	    <jar destfile="${dest}/emospeakapplet.jar"
 	         basedir="${src}"
 	         includes="de/dfki/lt/mary/emospeak/*.class
-			   		   de/dfki/lt/mary/emospeak/*.txt
 	                   de/dfki/lt/mary/modules/emotion-to-mary.xsl"
-	         excludes="de/dfki/lt/mary/emospeak/EmoSpeak*.class">
+	         excludes="de/dfki/lt/mary/emospeak/EmoSpeak.class
+		           de/dfki/lt/mary/emospeak/EmoSpeak$*.class">
 	      <manifest>
 	        <attribute name="Built-By" value="${user.name}"/>
 		<attribute name="Main-Class"
@@ -313,19 +312,20 @@ THIS SOFTWARE.
   <target name="jars-debug" depends="compile-debug,jars"/>
 
 
-<!-- arctic voice - make binary -->
-    <target name="arctic_voice_bin" 
+<!-- cluster unit voice - make binary -->
+    <target name="clunit_voice_bin" 
 	    depends="compile"
-            if="arctic_voice"
-	    description="Make binary for ${arctic_voice}">
+            if="clunit_voice"
+	    description="Make binary for ${clunit_voice}">
          
-    	<java classname="de.dfki.lt.mary.unitselection.clunits.ClusterUnitDatabase"
+    	<java classpathref="project.classpath" classname="de.dfki.lt.mary.unitselection.clunits.ClusterUnitDatabase"
+    		
     		      failonerror="true" 
     		      fork="true">
        		    <jvmarg value="-Xmx300m"/>
-    		    <arg line="-src ${mary.base}/lib/voices/${arctic_voice}"/>
-    	            <arg line="-dest ${mary.base}/lib/voices/${arctic_voice}"/>
-    	            <arg line="-generate_binary ${arctic_voice}.txt"/>
+    		    <arg line="-src ${mary.base}/lib/voices/${clunit_voice}"/>
+    	            <arg line="-dest ${mary.base}/lib/voices/${clunit_voice}"/>
+    	            <arg line="-generate_binary ${clunit_voice}.txt"/>
     	</java>
 	</target>
 

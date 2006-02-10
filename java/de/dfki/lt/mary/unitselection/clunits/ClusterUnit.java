@@ -31,6 +31,7 @@
  */
 package de.dfki.lt.mary.unitselection.clunits;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
@@ -95,6 +96,39 @@ public class ClusterUnit extends Unit
        this.prev = raf.readInt();
        this.next = raf.readInt();
     }   
+    
+    /**
+     * Build a new ClusterUnit with the given parameters.
+     * This constructor is only used for the conversion from FreeTTS
+     * text format to Mary binary format
+     */
+    public ClusterUnit(int type, int phone, int start, 
+            		   int end, int prev, int next){
+        super(null, "");
+        this.type = type;
+       this.phone = phone;
+       this.start = start;
+       this.end = end;
+       this.prev = prev;
+       this.next = next;
+    }
+    
+    /**
+	 * Dumps this unit to the given output stream
+	 * in Mary binary format
+	 * @param os the output stream
+	 *
+	 * @throws IOException if an error occurs.
+	 */
+	void dumpBinary(DataOutputStream os) throws IOException {
+	    os.writeInt(type);
+	    os.writeInt(phone);
+	    os.writeInt(start);
+	    os.writeInt(end);
+	    os.writeInt(prev);
+	    os.writeInt(next);
+	}
+    
     
     public void setInstanceNumber(int instanceNumber)
     {

@@ -31,32 +31,70 @@
  */
 package de.dfki.lt.mary.unitselection.clunits;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.DataOutputStream;
+import java.util.StringTokenizer;
+
+import com.sun.speech.freetts.relp.Sample;
+import com.sun.speech.freetts.relp.SampleInfo;
 
 /**
  * Represents the frame and residual data
  * used by the diphone database
  * used Residual Excited Linear Predictive synthesizer
  */
-public abstract class FrameSet {
+public class FrameSet {
 	//an Array containing all samples
     protected Frame[] frames;
     //general info about all samples
     protected FrameSetInfo frameSetInfo;
+    
+    //for converting from .txt to .bin
 
     /** Empty Constructor for inheritance**/
     public FrameSet(){}
     
     /**
+     * Reads a SampleSet from the input reader. 
+     *
+     * @param tok tokenizer that holds parameters for this SampleSet
+     * @param reader the input reader to read the data from
+     */
+    public FrameSet(StringTokenizer tok, BufferedReader reader) {
+    	try {
+    		
+    	    int numSamples = Integer.parseInt(tok.nextToken());
+    	    int numChannels = Integer.parseInt(tok.nextToken());
+    	    int sampleRate = Integer.parseInt(tok.nextToken());
+    	    float coeffMin = Float.parseFloat(tok.nextToken());
+    	    float coeffRange = Float.parseFloat(tok.nextToken());
+    	    float postEmphasis = Float.parseFloat(tok.nextToken());
+    	    int residualFold = Integer.parseInt(tok.nextToken());
+    	    
+    	    frames = new Frame[numSamples];
+	    	frameSetInfo = new FrameSetInfo(sampleRate, numChannels,
+	    			residualFold, coeffMin, coeffRange, postEmphasis);
+    	  
+    	    for (int i = 0; i < numSamples; i++) {
+    		    frames[i] = new Frame(reader, numChannels);
+    	    }
+    	    
+    	    } catch (Exception nse) {
+    	    	throw new Error("Parsing sample error " + nse.getMessage());
+    	    }
+        }
+    
+    
+    /**
      * Dumps this frame set to the given stream
-     * writes the new .bin file format
+     * writes the Mary .bin file format
      *
      * @param os the output stream
      *
      * @throws IOException if an error occurs.
      */
-    public void dumpBinary_new(DataOutputStream os) throws IOException {
+    public void dumpBinary(DataOutputStream os) throws IOException {
 	frameSetInfo.dumpBinary(os);
 	int samplesLength = frames.length;
 	os.writeInt(samplesLength);
@@ -84,7 +122,8 @@ public abstract class FrameSet {
      *
      * @return the frame.
      */
-    public abstract Frame getFrame(int index) ;
+    public Frame getFrame(int index) {
+        return frames[index];}
 
     /**
      * Retrieves the info on this FrameSet
@@ -105,7 +144,10 @@ public abstract class FrameSet {
      *
      * @return the size of the unit
      */
-    public abstract int getUnitSize(int start, int end) ;
+    public int getUnitSize(int start, int end) 
+    {
+        return -1;
+    }
 
 
     /**
@@ -115,7 +157,10 @@ public abstract class FrameSet {
      *
      * @return the size of the frame
      */
-    public abstract int getFrameSize(int frame);
+    public int getFrameSize(int frame)
+    {
+        return -1;
+    }
     
     /**
      * Retrieves the nearest frame.

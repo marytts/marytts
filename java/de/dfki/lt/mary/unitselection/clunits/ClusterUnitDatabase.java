@@ -32,6 +32,7 @@
 package de.dfki.lt.mary.unitselection.clunits;
 
 import java.io.*;
+import java.net.URL;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.*;
@@ -41,6 +42,7 @@ import org.apache.log4j.Level;
 import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.mary.unitselection.cart.CART;
 
+import com.sun.speech.freetts.clunits.UnitType;
 import com.sun.speech.freetts.util.Utilities;
 
 import de.dfki.lt.mary.unitselection.*;
@@ -69,8 +71,10 @@ public class ClusterUnitDatabase extends UnitDatabase
     private ClusterUnit[] units;
     private Map unitTypesMap; // Map unit names to unit type objects  
     
+    //needed for converting from .txt to .bin
     private final static int MAGIC = 0xf0cacc1a;
     private final static int VERSION = 0x2000;
+    private ClusterUnitType[] unitTypesArray;
     
     public ClusterUnitDatabase(){
         super();}
@@ -292,6 +296,8 @@ public class ClusterUnitDatabase extends UnitDatabase
         }
     }
     
+    
+    
     /**
      * Retrieves the index for the name given a name. 
      *
@@ -390,11 +396,297 @@ public class ClusterUnitDatabase extends UnitDatabase
 	CART cart =  (CART) cartMap.get(unitType);
 
 	if (cart == null) {
-	    System.err.println("ClusterUnitDatabase: can't find tree for " 
+	    logger.warn("ClusterUnitDatabase: can't find tree for " 
 		    + unitType);
-	    return defaultCart; 	// "graceful" failrue
+	    //if (defaultCart != null){
+	      //  return defaultCart;} 	// "graceful" failrue
+	    //else {
+	        throw new NullPointerException("Unit type "
+	                						+unitType
+	                						+" not in database");
+	        //}
 	}
 	return cart;
     }
+    
+    /**
+     * Loads the text file of a voice.
+     * This method is used when converting the FreeTTS
+     * voice data into Mary binary format
+     * @param is the input stream
+     */
+    private void loadText(String file) {
+        try {
+            if (file == null) {
+                throw new Error("Can't load cluster db file.");
+            }
+            URL fileURL = new URL("file:" + file);
+            FileInputStream fis = new FileInputStream(fileURL.getFile());
+            
+            BufferedReader reader =
+                new BufferedReader(new 
+                        InputStreamReader(fis));
+                                //new 
+                                //FileInputStream(new 
+                                  //      File(file)),"UTF-8"));
+            List unitList = new ArrayList();
+            List unitTypes = new ArrayList();
+            String line = reader.readLine();
+            while (line != null) {
+                if (!line.startsWith("***")) {
+                    parseAndAdd(line, reader,unitList, unitTypes);
+                }
+                line = reader.readLine();
+            }
+            reader.close();
+
+            units = new ClusterUnit[unitList.size()];
+            units = (ClusterUnit[]) unitList.toArray(units);
+            unitList = null;
+            unitTypesArray = new ClusterUnitType[unitTypes.size()];
+    	    unitTypesArray = (ClusterUnitType[]) unitTypes.toArray(unitTypesArray);
+    	    unitTypes = null;
+        } catch (IOException e) {
+            throw new Error(e.getMessage());
+        } finally {
+	}
+    }
+    
+    /**
+     * Parses and process the given line.
+     *
+     * @param line the line to process
+     * @param reader the source for the lines
+     *
+     * @throws IOException if an error occurs while reading
+     */
+    private void parseAndAdd(String line, 
+            				BufferedReader reader, 
+            				List units,
+            				List unitTypes)
+	throws IOException {
+	try {
+	    StringTokenizer tokenizer = new StringTokenizer(line," ");
+	    String tag = tokenizer.nextToken();
+	    if (tag.equals("CONTINUITY_WEIGHT")) {
+		continuityWeight = Integer.parseInt(tokenizer.nextToken());
+	    } else if (tag.equals("OPTIMAL_COUPLING")) {
+		optimalCoupling = Integer.parseInt(tokenizer.nextToken());
+	    }  else if (tag.equals("EXTEND_SELECTIONS")) {
+		extendSelections = Integer.parseInt(tokenizer.nextToken());
+	    }  else if (tag.equals("JOIN_METHOD")) {
+		joinMethod = Integer.parseInt(tokenizer.nextToken());
+	    }  else if (tag.equals("JOIN_WEIGHTS")) {
+		int numWeights = Integer.parseInt(tokenizer.nextToken());
+    		joinWeights = new int[numWeights];
+		for (int i = 0; i < numWeights; i++) {
+		    joinWeights[i]  = Integer.parseInt(tokenizer.nextToken());
+		}
+
+		joinWeightShift = calcJoinWeightShift(joinWeights);
+
+	    } else if (tag.equals("STS")) {
+		String name = tokenizer.nextToken();
+		if (name.equals("STS")) {
+		    audioFrames = new FrameSet(tokenizer, reader);
+		} else {
+		    joinCostFeatureVectors = new FrameSet(tokenizer, reader);
+		}
+	    } else if (tag.equals("UNITS")) {
+		int type = Integer.parseInt(tokenizer.nextToken());
+		int phone = Integer.parseInt(tokenizer.nextToken());
+		int start = Integer.parseInt(tokenizer.nextToken());
+		int end = Integer.parseInt(tokenizer.nextToken());
+		int prev = Integer.parseInt(tokenizer.nextToken());
+		int next = Integer.parseInt(tokenizer.nextToken());
+		ClusterUnit unit 
+		      = new ClusterUnit(type, phone, start, 
+			      end, prev, next);
+		units.add(unit);
+	    } else if (tag.equals("CART")) {
+		String name = tokenizer.nextToken();
+		int nodes = Integer.parseInt(tokenizer.nextToken());
+		CART cart = new CARTImpl(reader, nodes);
+		cartMap.put(name, cart);
+		if (defaultCart == null) {
+		    defaultCart = cart;
+		}
+	    } else if (tag.equals("UNIT_TYPE")) {
+		String name = tokenizer.nextToken();
+		int start = Integer.parseInt(tokenizer.nextToken());
+		int count = Integer.parseInt(tokenizer.nextToken());
+		ClusterUnitType unitType = new ClusterUnitType(name, start, count);
+		unitTypes.add(unitType);
+	    } else {
+		throw new Error("Unsupported tag " + tag + " in db line `" + line + "'");
+	    }
+	
+	} catch (NoSuchElementException nse) {
+	    throw new Error("Error parsing db " + nse.getMessage());
+	} catch (NumberFormatException nfe) {
+	    throw new Error("Error parsing numbers in db line `" + line + "':" + nfe.getMessage());
+	}
+    }
+    
+    /**
+     * Calculates the join weight shift.
+     *
+     * @param joinWeights the weights to check
+     *
+     * @return the amount to right shift (or zero if not possible)
+     */
+    private int calcJoinWeightShift(int[] joinWeights) {
+	int first = joinWeights[0];
+	for (int i = 1; i < joinWeights.length; i++) {
+	    if (joinWeights[i] != first) {
+		return 0;
+	    }
+	}
+
+	int divisor = 65536 / first;
+	if (divisor == 2) {
+	    return 1;
+	} else if (divisor == 4) {
+	    return 2;
+	}
+	return 0;
+    }
+    
+    
+    /**
+     * Dumps the binary form of the database.
+     *
+     * @param path the path to dump the file to
+     */
+    void dumpBinary(String path) {
+	try {
+	    FileOutputStream fos = new FileOutputStream(path);
+	    DataOutputStream os = new DataOutputStream(new
+		    BufferedOutputStream(fos));
+
+	    os.writeInt(MAGIC);
+	    os.writeInt(VERSION);
+	    os.writeInt(continuityWeight);
+	    os.writeInt(optimalCoupling);
+	    os.writeInt(extendSelections);
+	    os.writeInt(joinMethod);
+	    os.writeInt(joinWeightShift);
+	    os.writeInt(joinWeights.length);
+	    for (int i = 0; i < joinWeights.length; i++) {
+		os.writeInt(joinWeights[i]);
+	    }
+
+	    os.writeInt(units.length);
+	    for (int i = 0; i < units.length; i++) {
+		units[i].dumpBinary(os);
+	    }
+
+	    os.writeInt(unitTypesArray.length);
+	    for (int i = 0; i < unitTypesArray.length; i++) {
+		unitTypesArray[i].dumpBinary(os);
+	    }
+	    audioFrames.dumpBinary(os);
+	    joinCostFeatureVectors.dumpBinary(os);
+
+	    os.writeInt(cartMap.size());
+	    for (Iterator i = cartMap.keySet().iterator(); i.hasNext();) {
+		String name = (String) i.next();
+		CART cart =  (CART) cartMap.get(name);
+
+		Utilities.outString(os, name);
+		cart.dumpBinary(os);
+	    }
+	    os.close();
+
+	    // note that we are not currently saving the state
+	    // of the default cart
+
+	} catch (FileNotFoundException fe) {
+	    throw new Error("Can't dump binary database " +
+		    fe.getMessage());
+	} catch (IOException ioe) {
+	    throw new Error("Can't write binary database " +
+		    ioe.getMessage());
+	}
+    }
+
+    
+    /**
+     *  Manipulates a ClusterUnitDatabase.  
+     *
+     * <p>
+     * <b> Usage </b>
+     * <p>
+     *  <code> java com.sun.speech.freetts.clunits.ClusterUnitDatabase
+     *  [options]</code> 
+     * <p>
+     * <b> Options </b>
+     * <p>
+     *    <ul>
+     *          <li> <code> -src path </code> provides a directory
+     *          path to the source text for the database
+     *          <li> <code> -dest path </code> provides a directory
+     *          for where to place the resulting binaries
+     *		<li> <code> -generate_binary [filename]</code> reads
+     *		in the text version of the database and generates
+     *		the binary version of the database.
+     *		<li> <code> -compare </code>  Loads the text and
+     *		binary versions of the database and compares them to
+     *		see if they are equivalent.
+     *		<li> <code> -showTimes </code> shows timings for any
+     *		loading, comparing or dumping operation
+     *    </ul>
+     * 
+     */
+    public static void main(String[] args) 
+    {
+        boolean showTimes = false;
+        String srcPath = ".";
+        String destPath = ".";
+
+        try {
+            if (args.length > 0) {
+                for (int i = 0 ; i < args.length; i++) {
+                    if (args[i].equals("-src")) {
+                        srcPath = args[++i];
+                    } else if (args[i].equals("-dest")) {
+                        destPath = args[++i];
+                    } else if (args[i].equals("-generate_binary")) {
+                        	String name = "clunits.txt";
+                        	if (i + 1 < args.length) {
+                        	    String nameArg = args[++i];
+                        	    if (!nameArg.startsWith("-")) {
+                        	        name = nameArg;
+                        	    }
+                        	}
+
+                        	int suffixPos = name.lastIndexOf(".txt");
+
+                        	String binaryName = "clunits.bin";
+                        	if (suffixPos != -1) {
+                        	    binaryName = name.substring(0, suffixPos) + ".bin";
+                        	}
+                        	System.out.println("Loading " + name);
+			 
+			 //srcPath = "/home/cl-home/hunecke/mary/anna/marydata/clunitvoices/lib/voices/dfki_time_marc";
+			  //destPath = "/home/cl-home/hunecke/mary/anna/marydata/clunitvoices/lib/voices/dfki_time_marc";
+                        	ClusterUnitDatabase db = new ClusterUnitDatabase();
+                        	db.loadText(srcPath + "/" + name);
+                        	System.out.println("Dumping " + binaryName);
+                        	db.dumpBinary(destPath + "/" + binaryName);
+                    }else {System.out.println("Unknown option " + args[i]);}
+		    }
+            } else {
+                System.out.println("Options: ");
+                System.out.println("    -src path");
+                System.out.println("    -dest path");
+                System.out.println("    -generate_binary");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println(e);
+        }
+    }
+
     
 }
