@@ -32,7 +32,6 @@
 
 package de.dfki.lt.mary.unitselection.clunits;
 
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -97,6 +96,17 @@ public class ClusterUnitType {
     	this.count = raf.readInt();
     }
 
+    /**
+     * Constructs a UnitType from the given parameters
+     * This constructor is only used for the conversion from FreeTTS
+     * text format to Mary binary format
+     */
+    ClusterUnitType(String name, int start, int count) {
+	this.name = name;
+	this.start = start;
+	this.count = count;
+    }
+    
     /**
      * Gets the name for this unit type
      * 

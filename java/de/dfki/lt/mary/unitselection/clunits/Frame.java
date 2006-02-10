@@ -34,6 +34,8 @@ package de.dfki.lt.mary.unitselection.clunits;
 import java.io.*;
 
 import java.nio.ByteBuffer;
+import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
 
 /**
  * A single short term sample containing Residual Excited Linear Predictive
@@ -105,6 +107,59 @@ public class Frame {
     	haveFrameData = false;
     	haveResData = false;		  
     }    
+    
+    /**
+     * Reads a sample from the input reader. 
+     * This constructor is only used for the conversion from FreeTTS
+     * text format to Mary binary format
+     * @param reader the input reader to read the data from
+     * @param numChannels the number of channels per frame
+     */
+    public Frame(BufferedReader reader, int numChannels) {
+    	try {   		
+    		//read the FRAME data
+    	    String line = reader.readLine();
+    	    StringTokenizer tok = new StringTokenizer(line);
+    	    //first token has to be "FRAME"
+    	    if (!tok.nextToken().equals("FRAME")) {
+    	    	throw new Error("frame Parsing sample error");
+    	    }
+    	    //the other tokens are frame data
+    	    frameData = new short[numChannels];
+    	    for (int i = 0; i < numChannels; i++) {
+    	    	int svalue = Integer.parseInt(tok.nextToken()) - 32768;
+    	
+    	    	if ( svalue <  -32768 || svalue > 32767) {
+    	    		throw new Error("data out of short range");
+    	    	}
+    	    	frameData[i] = (short) svalue;
+    	    }
+
+    	    //read the residual data
+    	    line = reader.readLine();
+    	    tok = new StringTokenizer(line);
+    	    //first token has to be "RESIDUAL"
+    	    if (!tok.nextToken().equals("RESIDUAL")) {
+    	    	throw new Error("residual Parsing sample error");
+    	    }
+    	    //second token is the number of residuals
+    	    residualSize = Integer.parseInt(tok.nextToken());
+    	    //the other tokens are the residuals
+    	    residualData = new byte[residualSize];
+    	    for (int i = 0; i < residualSize; i++) {
+    	    	int bvalue = Integer.parseInt(tok.nextToken()) - 128;
+    	    	if ( bvalue < -128 || bvalue > 127) {
+    	    		throw new Error("data out of byte range");
+    	    	}
+    	    	residualData[i] = (byte) bvalue;
+    	    }
+    	} catch (NoSuchElementException nse) {
+    	    throw new Error("Parsing sample error " + nse.getMessage());
+    	} catch (IOException ioe) {
+    	    throw new Error("IO error while parsing sample" + ioe.getMessage());
+    	}
+        }
+    
     
     /**
      * Gets the frame data associated with this frame
@@ -240,13 +295,6 @@ public class Frame {
     						int resSize, 
 							int frameSize) 
     					throws IOException {
-    	if (!haveResData){
-    		residualData = getResidualData();
-    	}
-    	if (!haveFrameData){
-    		frameData = getFrameData();
-    	}
-    	
     	os.writeInt(frameSize);
     	for (int i = 0; i < frameData.length; i++) {
     		os.writeShort(frameData[i]);

@@ -137,8 +137,8 @@ public class UnitSelectionVoice extends Voice {
     
     public String getExampleText(){
         if (exampleText == null){
-            return ("Leider gibt es hier keine Beispiele#"+
-            		"Tut uns leid");}
+            return ("Sorry, no example text here#"+
+            		"Hier gibt es leider keine Beispiele");}
         else {return exampleText;}
     }
     
