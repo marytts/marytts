@@ -42,6 +42,7 @@ import de.dfki.lt.mary.modules.synthesis.WaveformSynthesizer;
 import de.dfki.lt.freetts.ClusterUnitNamer;
 
 import com.sun.speech.freetts.Item;
+import com.sun.speech.freetts.lexicon.Lexicon;
 
 /**
  * A Unit Selection Voice
@@ -52,7 +53,7 @@ public class UnitSelectionVoice extends Voice {
     protected UnitDatabase database;
     protected UnitSelector unitSelector;
     protected UnitConcatenator concatenator;
-    protected String lexicon;
+    protected Lexicon lexicon;
     protected String domain;
     protected String name;
     protected ClusterUnitNamer unitNamer;
@@ -84,7 +85,7 @@ public class UnitSelectionVoice extends Voice {
             UnitConcatenator concatenator, String path, String[] nameArray, Locale locale, 
             AudioFormat dbAudioFormat, WaveformSynthesizer synthesizer, 
             Gender gender, int topStart, int topEnd, int baseStart, int baseEnd, 
-            String[] knownVoiceQualities, String lexicon, String domain,
+            String[] knownVoiceQualities, Lexicon lexicon, String domain,
             String exampleTextFile)
     {
         super(path, nameArray, locale, dbAudioFormat, synthesizer, gender, topStart, topEnd, baseStart, baseEnd, knownVoiceQualities, null);
@@ -96,6 +97,15 @@ public class UnitSelectionVoice extends Voice {
         this.name = nameArray[0];
         if (exampleTextFile != null)
             readExampleText(exampleTextFile);
+    }
+    
+    /**
+     * Return the lexicon associated to this voice
+     * @return
+     */
+    public Lexicon getLexicon()
+    {
+        return lexicon;
     }
     
     /**

@@ -40,7 +40,7 @@ import de.dfki.lt.mary.unitselection.viterbi.ViterbiCandidate;
  public class ViterbiPath {
 	private int score = 0;
 	private ViterbiCandidate candidate = null;
-	private static LinkedHashMap f = null;
+	private LinkedHashMap f = null;
 	private ViterbiPath previous = null;
 	private ViterbiPath next = null;
 	

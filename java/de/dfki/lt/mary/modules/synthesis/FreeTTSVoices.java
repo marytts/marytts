@@ -43,6 +43,7 @@ import de.dfki.lt.freetts.de.GermanLexicon;
 import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.mary.NoSuchPropertyException;
 import de.dfki.lt.mary.modules.DummyFreeTTSVoice;
+import de.dfki.lt.mary.unitselection.UnitSelectionVoice;
 
 /**
  * Instantiate and manage FreeTTS voices.
@@ -111,10 +112,17 @@ public class FreeTTSVoices
         if (mary2freettsVoices == null) mary2freettsVoices = new HashMap();
         if (freetts2maryVoices == null) freetts2maryVoices = new HashMap();
         if (mary2freettsVoices.containsKey(maryVoice)) return; // already known
+        Lexicon voiceLexicon = null;
+        if (maryVoice instanceof UnitSelectionVoice) {
+            voiceLexicon = ((UnitSelectionVoice)maryVoice).getLexicon();
+        }
         DummyFreeTTSVoice freeTTSVoice;
         if (maryVoice.getLocale().equals(Locale.US)) {
             if (!MaryProperties.needAutoBoolean("freetts.lexicon.preload")) return;
-            if (usenLexicon == null) usenLexicon = new CMULexicon("cmudict04");
+            if (voiceLexicon == null) {
+                if (usenLexicon == null) usenLexicon = new CMULexicon("cmudict04");
+                voiceLexicon = usenLexicon;
+            }
             try {
                 freeTTSVoice = (DummyFreeTTSVoice) Class.forName("de.dfki.lt.mary.modules.en.DummyFreeTTSVoice").newInstance();
             } catch (InstantiationException e) {
@@ -125,14 +133,16 @@ public class FreeTTSVoices
                 throw new RuntimeException(e);
             }
             freeTTSVoice.initialise(maryVoice, null);
-            freeTTSVoice.setLexicon(usenLexicon);            
         } else if (maryVoice.getLocale().equals(Locale.GERMAN)) {
-            if (deLexicon == null) deLexicon = new GermanLexicon();
+            if (voiceLexicon == null) {
+                if (deLexicon == null) deLexicon = new GermanLexicon();
+                voiceLexicon = deLexicon;
+            }
             freeTTSVoice = new DummyFreeTTSVoice(maryVoice, null);
-            freeTTSVoice.setLexicon(deLexicon);
         } else {
             freeTTSVoice = new DummyFreeTTSVoice(maryVoice, null);
         }
+        freeTTSVoice.setLexicon(voiceLexicon);
         freeTTSVoice.allocate();
         mary2freettsVoices.put(maryVoice, freeTTSVoice);
         freetts2maryVoices.put(freeTTSVoice, maryVoice);

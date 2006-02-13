@@ -93,6 +93,7 @@ public class ClusterUnitConcatenator extends UnitConcatenator
     	    SelectedUnit unit = (SelectedUnit) it.next();
     	    unitStart = unit.getUnitStart();
     	    unitEnd = unit.getUnitEnd();
+            assert unitEnd >= unitStart;
     	    uttSize += sts.getUnitSize(unitStart, unitEnd);
     	    pitchmarks += unitEnd - unitStart;
     	    //unit.setTargetEnd(uttSize);

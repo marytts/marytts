@@ -42,6 +42,7 @@ import de.dfki.lt.mary.unitselection.featureprocessors.UnitSelectionFeatProcMana
 import de.dfki.lt.mary.util.MaryUtils;
 
 import com.sun.speech.freetts.en.us.CMULexicon;
+import com.sun.speech.freetts.lexicon.Lexicon;
 
 import java.util.*;
 
@@ -58,14 +59,15 @@ import javax.sound.sampled.AudioFormat;
 
 public class UnitSelectionVoiceBuilder{ 
 	
-	//the lexicon
-	private CMULexicon cmuLexicon;
+
+    private Map lexicons; // administrate lexicons by name
     private WaveformSynthesizer synth;
     private Map featureProcessors;
 	
 	public UnitSelectionVoiceBuilder(WaveformSynthesizer synth){
         this.synth = synth;  
        featureProcessors = new HashMap();
+       lexicons = new HashMap();
 	}
 	
 	/**
@@ -93,8 +95,20 @@ public class UnitSelectionVoiceBuilder{
 	            exampleTextFile = MaryProperties.getFilename(header+".exampleTextFile");
 	        }
 	        
-	        String lexicon = MaryProperties.getProperty(header+".lexicon");
-			
+	        String lexiconName = MaryProperties.getProperty(header+".lexicon");
+            Lexicon lexicon;
+            if (lexicons.containsKey(lexiconName)) {
+                lexicon = (Lexicon) lexicons.get(lexiconName);
+            } else {
+                // Need to create a new lexicon
+                if (lexiconName.indexOf(".") == -1) {
+                    lexicon = new CMULexicon(lexiconName);
+                } else { // lexiconName is a class
+                    lexicon = (Lexicon) Class.forName(lexiconName).newInstance();
+                }
+                lexicons.put(lexiconName, lexicon);
+            }
+            			
 	        String featureProcessorsClass = 
 	            MaryProperties.getFilename(header+".featureProcessorsClass");
 	        UnitSelectionFeatProcManager featProcManager;
