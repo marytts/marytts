@@ -1,0 +1,33 @@
+The MARY TTS system has now been installed in $INSTALL_PATH !
+
+Now, to run the system, you need to start TWO programs:
+
+1. The MARY server
+   The server is the core of the system, doing the actual work.
+   A shortcut for starting it should have been created for you on your desktop.
+   You can also find the program at $INSTALL_PATH/bin/maryserver
+   
+   The MARY server will verify the integrity of the installation prior
+   to startup. If it detects a misconfiguration, it will report it
+   and refuse to start. It may also propose to download a missing component
+   from the internet.
+   When you see a message like the following, you can proceed to step 2:
+   "Mary server 3.x.x starting... started in 3.51 s"
+   
+2. The MARY client
+   Start the MARY client to convert text into speech.
+   A shortcut for starting it should have been created for you on your desktop.
+   You can also find the program at $INSTALL_PATH/bin/maryclient
+
+   The MARY client will fail if no MARY server could be found. Make sure your
+   server was correctly started prior to starting the client!
+   
+   Of course, the MARY system can be used in various client-server setups,
+   e.g. for web applications. See $INSTALL_PATH/examples/client
+   for a number of implementations in various programming languages.
+   
+There is a lot of tweaking possible, and much to be known about the insides
+of the MARY TTS system. A good starting point for knowing more is the README:
+$INSTALL_PATH/README.txt
+
+Have fun! :-)
