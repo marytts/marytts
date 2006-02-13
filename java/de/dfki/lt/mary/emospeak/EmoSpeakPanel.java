@@ -501,7 +501,6 @@ implements AudioFileReceiver, ProsodyXMLDisplayer
             } else {
                 synchronousSynthesiser = new MaryClient(maryServerHost, maryServerPort, false, false);
             }
-            synchronousSynthesiser.getVoices();
         }
         
         try {
@@ -531,7 +530,22 @@ implements AudioFileReceiver, ProsodyXMLDisplayer
         if (synthesiseAsynchronously) {
             voiceInfo = asynchronousSynthesiser.getServerVoices();
         } else {
-            voiceInfo = synchronousSynthesiser.getVoices();
+            voiceInfo = synchronousSynthesiser.getGeneralDomainVoices();
+        }
+        
+        if (voiceInfo == null) {
+            String host;
+            int port;
+            if (synthesiseAsynchronously) {
+                host = asynchronousSynthesiser.getHost();
+                port = asynchronousSynthesiser.getPort();
+            } else {
+                host = synchronousSynthesiser.getHost();
+                port = synchronousSynthesiser.getPort();
+            }
+            JOptionPane.showMessageDialog(null, "Cannot start EmoSpeak: Server "+host+":"+port+" has no general domain voices!",
+                    "No voices available", JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
         }
         
         voicesByLocale = new HashMap();
