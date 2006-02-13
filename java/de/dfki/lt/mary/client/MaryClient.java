@@ -43,6 +43,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -649,6 +650,7 @@ public class MaryClient {
      * This is optional information
      * which is not required for the normal operation of the client, but
      * may help to avoid incompatibilities.
+     * @param locale the requested voice locale
      * @return a Vector of MaryClient.Voice objects, or null if no voices exist for
      * that locale.
      * @throws IOException if communication with the server fails
@@ -660,6 +662,112 @@ public class MaryClient {
             fillVoices();
         }
         return (Vector) voicesByLocaleMap.get(locale);
+    }
+
+    /**
+     * Provide a list of general domain voices known to the server.
+     * If the information is not yet available, query the server for it.
+     * This is optional information
+     * which is not required for the normal operation of the client, but
+     * may help to avoid incompatibilities.
+     * @return a Vector of MaryClient.Voice objects, or null if no such voices exist.
+     * @throws IOException if communication with the server fails
+     * @throws UnknownHostException if the host could not be found
+     */
+    public Vector getGeneralDomainVoices() throws IOException, UnknownHostException
+    {
+        Vector voices = getVoices();
+        Vector requestedVoices = new Vector();
+        for (Iterator it = voices.iterator(); it.hasNext(); ) {
+            Voice v = (Voice) it.next();
+            if (!v.isLimitedDomain()) {
+                requestedVoices.add(v);
+            }
+        }
+        if (!requestedVoices.isEmpty())
+            return requestedVoices;
+        else
+            return null;
+    }
+
+    /**
+     * Provide a list of limited domain voices known to the server.
+     * If the information is not yet available, query the server for it.
+     * This is optional information
+     * which is not required for the normal operation of the client, but
+     * may help to avoid incompatibilities.
+     * @return a Vector of MaryClient.Voice objects, or null if no such voices exist.
+     * @throws IOException if communication with the server fails
+     * @throws UnknownHostException if the host could not be found
+     */
+    public Vector getLimitedDomainVoices() throws IOException, UnknownHostException
+    {
+        Vector voices = getVoices();
+        Vector requestedVoices = new Vector();
+        for (Iterator it = voices.iterator(); it.hasNext(); ) {
+            Voice v = (Voice) it.next();
+            if (v.isLimitedDomain()) {
+                requestedVoices.add(v);
+            }
+        }
+        if (!requestedVoices.isEmpty())
+            return requestedVoices;
+        else
+            return null;
+    }
+
+    /**
+     * Provide a list of general domain voices known to the server.
+     * If the information is not yet available, query the server for it.
+     * This is optional information
+     * which is not required for the normal operation of the client, but
+     * may help to avoid incompatibilities.
+     * @param locale the requested voice locale
+     * @return a Vector of MaryClient.Voice objects, or null if no such voices exist.
+     * @throws IOException if communication with the server fails
+     * @throws UnknownHostException if the host could not be found
+     */
+    public Vector getGeneralDomainVoices(Locale locale) throws IOException, UnknownHostException
+    {
+        Vector voices = getVoices(locale);
+        Vector requestedVoices = new Vector();
+        for (Iterator it = voices.iterator(); it.hasNext(); ) {
+            Voice v = (Voice) it.next();
+            if (!v.isLimitedDomain()) {
+                requestedVoices.add(v);
+            }
+        }
+        if (!requestedVoices.isEmpty())
+            return requestedVoices;
+        else
+            return null;
+    }
+
+    /**
+     * Provide a list of limited domain voices known to the server.
+     * If the information is not yet available, query the server for it.
+     * This is optional information
+     * which is not required for the normal operation of the client, but
+     * may help to avoid incompatibilities.
+     * @param locale the requested voice locale
+     * @return a Vector of MaryClient.Voice objects, or null if no such voices exist.
+     * @throws IOException if communication with the server fails
+     * @throws UnknownHostException if the host could not be found
+     */
+    public Vector getLimitedDomainVoices(Locale locale) throws IOException, UnknownHostException
+    {
+        Vector voices = getVoices(locale);
+        Vector requestedVoices = new Vector();
+        for (Iterator it = voices.iterator(); it.hasNext(); ) {
+            Voice v = (Voice) it.next();
+            if (v.isLimitedDomain()) {
+                requestedVoices.add(v);
+            }
+        }
+        if (!requestedVoices.isEmpty())
+            return requestedVoices;
+        else
+            return null;
     }
 
     private void fillVoices() throws IOException, UnknownHostException

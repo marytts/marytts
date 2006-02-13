@@ -107,15 +107,25 @@ public class AsynchronousThreadedMaryClient extends Thread {
         byte[] bytes = os.toByteArray();
         latestAudio = AudioSystem.getAudioInputStream(new ByteArrayInputStream(bytes));
     }
+    
+    public String getHost()
+    {
+        return processor.getHost();
+    }
+    
+    public int getPort()
+    {
+        return processor.getPort();
+    }
 
     public Vector getServerVoices() throws IOException
     {
-        return processor.getVoices();
+        return processor.getGeneralDomainVoices();
     }
     
     public Vector getServerVoices(Locale locale) throws IOException
     {
-        return processor.getVoices(locale);
+        return processor.getGeneralDomainVoices(locale);
     }
 
     private synchronized void doWait() {

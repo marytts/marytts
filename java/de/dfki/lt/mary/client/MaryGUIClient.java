@@ -281,7 +281,8 @@ public class MaryGUIClient extends JPanel
         cbVoiceExampleText.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
-                    setInputText((String)cbVoiceExampleText.getSelectedItem());
+                    if (doReplaceInput)
+                        setInputText((String)cbVoiceExampleText.getSelectedItem());
                 }
             }
         });
@@ -307,7 +308,8 @@ public class MaryGUIClient extends JPanel
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     fillExampleTexts();
                     verifyExamplesVisible();
-                    setExampleInputText();
+                    if (doReplaceInput)
+                        setExampleInputText();
                 }
             }
         });
@@ -592,7 +594,9 @@ public class MaryGUIClient extends JPanel
             MaryClient.Voice v = (MaryClient.Voice) it.next();
             if (inputLocale == null || v.getLocale().equals(inputLocale)) {
                 cbDefaultVoice.addItem(v);
-                if (v.name().equals("de7") || v.name().equals("us1")) {
+                if (v.equals(defaultVoice)) { // previously set voice is again in the list
+                    preferredVoice = defaultVoice;
+                } else if (v.name().equals("de7") || v.name().equals("us1")) {
                     // TODO: these are my hard-coded preferences that others might not actually share...
                     preferredVoice = v;
                 } else if (preferredVoice == null && !v.isLimitedDomain()) { // prefer general-domain voices
@@ -938,7 +942,7 @@ public class MaryGUIClient extends JPanel
     
     
     public static void main(String[] args) throws Exception {
-        JFrame mainFrame = new JFrame("Mary Expert Interface");
+        JFrame mainFrame = new JFrame("Mary GUI Client");
         mainFrame.addWindowListener(new WindowAdapter() {
                 public void windowClosing(WindowEvent e) {System.exit(0);}
             });
