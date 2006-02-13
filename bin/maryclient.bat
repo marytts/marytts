@@ -33,4 +33,4 @@
 set MARY_BASE=$INSTALL_PATH
 set CLASSPATH="%MARY_BASE%\java\maryclient.jar;%MARY_BASE%\java\java-diff.jar"
 
-java -ea -cp %CLASSPATH% -Dserver.host=localhost %1 %2 %3 %4 %5 %6 %7 %8 %9 de.dfki.lt.mary.client.MaryExpertInterface
+java -ea -cp %CLASSPATH% -Dserver.host=localhost %1 %2 %3 %4 %5 %6 %7 %8 %9 de.dfki.lt.mary.client.MaryGUIClient

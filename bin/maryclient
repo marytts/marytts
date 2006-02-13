@@ -49,4 +49,4 @@ if [ $cygwin = 1 ] ; then
   CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
 fi
 
-java -ea -Dserver.host=localhost $* de.dfki.lt.mary.client.MaryExpertInterface
+java -ea -Dserver.host=localhost $* de.dfki.lt.mary.client.MaryGUIClient

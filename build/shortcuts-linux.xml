@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+
+<shortcuts>
+
+  <programGroup defaultName="OpenMary" location="applications"/>
+
+   <shortcut
+    name="MARY server"
+    target="$INSTALL_PATH/bin/maryserver"
+    commandLine=""
+    workingDirectory="$INSTALL_PATH/"
+    description="Start the MARY server"
+    initialState="normal"
+    encoding="UTF-8"
+    type="Application"
+    terminal="true"
+    programGroup="yes"
+    desktop="yes"
+    applications="no"
+    startMenu="no"
+    startup="no">
+    <createForPack name="marybase"/>
+  </shortcut>
+  
+  <shortcut
+    name="MARY client"
+    target="$INSTALL_PATH/bin/maryclient"
+    commandLine=""
+    workingDirectory="$INSTALL_PATH/"
+    description="Start the MARY client (server must be started first!)"
+    initialState="normal"
+     encoding="UTF-8"
+     type="Application"
+     terminal="true"
+    programGroup="yes"
+    desktop="yes"
+    applications="no"
+    startMenu="no"
+    startup="no">
+    <createForPack name="maryclient"/>
+  </shortcut>
+
+  <shortcut
+    name="EmoSpeak"
+    target="$INSTALL_PATH/bin/emospeak"
+    commandLine=""
+    workingDirectory="$INSTALL_PATH/"
+    description="Emotional speech synthesis (server must be started first!)"
+    initialState="normal"
+     encoding="UTF-8"
+     type="Application"
+     terminal="true"
+    programGroup="yes"
+    desktop="yes"
+    applications="no"
+    startMenu="no"
+    startup="no">
+    <createForPack name="emospeak"/>
+  </shortcut>
+  
+   <shortcut
+     name="MARY Uninstaller"
+     programGroup="yes"
+     desktop="no"
+     applications="no"
+     startMenu="no"
+     startup="no"
+     target="$JAVA_HOME/bin/java"
+     commandLine="-jar &quot;$INSTALL_PATH/Uninstaller/uninstaller.jar&quot;"
+     initialState="noShow"
+     iconFile="trashcan_full"
+     iconIndex="0"
+     workingDirectory=""
+     encoding="UTF-8"
+     type="Application"
+     terminal="false"
+     description="MARY Uninstaller">
+     <createForPack name="marybase" />
+   </shortcut>
+  
+
+</shortcuts>
