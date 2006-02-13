@@ -2,7 +2,7 @@
 
 <shortcuts>
 
-  <programGroup defaultName="OpenMary" location="applications"/>
+  <programGroup defaultName="OpenMary/OpenMary" location="applications"/>
 
    <shortcut
     name="MARY server"
