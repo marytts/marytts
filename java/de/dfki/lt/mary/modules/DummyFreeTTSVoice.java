@@ -51,8 +51,8 @@ public class DummyFreeTTSVoice extends com.sun.speech.freetts.Voice {
     protected de.dfki.lt.mary.modules.synthesis.Voice maryVoice;
     protected PhoneSet phoneSet;
     protected boolean useBinaryIO =
-	System.getProperty("com.sun.speech.freetts.useBinaryIO",
-		"true").equals("true");
+    System.getProperty("com.sun.speech.freetts.useBinaryIO",
+        "true").equals("true");
 
     /**
      * Creates a simple voice containing a reference to a
@@ -132,28 +132,28 @@ public class DummyFreeTTSVoice extends com.sun.speech.freetts.Voice {
      * utterance processors.
      */
     public void allocate() {
-	if (isLoaded()) {
-	    return;
-	}
-	BulkTimer.LOAD.start();
+    if (isLoaded()) {
+        return;
+    }
+    BulkTimer.LOAD.start();
 
 
-	Lexicon lexicon = getLexicon();
+    Lexicon lexicon = getLexicon();
     if (lexicon != null && !lexicon.isLoaded()) {
-	    try {
-		lexicon.load();
-	    } catch (IOException ioe) {
-		error("Can't load voice");
-	    }
-	}
+        try {
+        lexicon.load();
+        } catch (IOException ioe) {
+        throw new Error("Can't load voice", ioe);
+        }
+    }
 
-	loader();
-	BulkTimer.LOAD.stop();
-	if (isMetrics()) {
-	    BulkTimer.LOAD.show("loading " + toString() + " for " +
-		    getRunTitle());
-	}
-	setLoaded(true);
+    loader();
+    BulkTimer.LOAD.stop();
+    if (isMetrics()) {
+        BulkTimer.LOAD.show("loading " + toString() + " for " +
+            getRunTitle());
+    }
+    setLoaded(true);
     }
 
 
@@ -163,11 +163,11 @@ public class DummyFreeTTSVoice extends com.sun.speech.freetts.Voice {
      * @throws IOException if an I/O error occurs
      */
     protected void setupFeatureSet() throws IOException {
-	BulkTimer.LOAD.start("FeatureSet");
+    BulkTimer.LOAD.start("FeatureSet");
         FeatureSet features = getFeatures();
-	features.setString(FEATURE_SILENCE, "pau");
-	features.setString("join_type", "simple_join");
-	BulkTimer.LOAD.stop("FeatureSet");
+    features.setString(FEATURE_SILENCE, "pau");
+    features.setString("join_type", "simple_join");
+    BulkTimer.LOAD.stop("FeatureSet");
     }
 
     /**
@@ -203,7 +203,7 @@ public class DummyFreeTTSVoice extends com.sun.speech.freetts.Voice {
      *     processor
      */
     protected UtteranceProcessor getAudioOutput() throws IOException {
-	return null; // no audio output needed in dummy voice
+    return null; // no audio output needed in dummy voice
     }
 
 
@@ -213,7 +213,7 @@ public class DummyFreeTTSVoice extends com.sun.speech.freetts.Voice {
      * @return null
      */
     public Tokenizer getTokenizer() {
-	return null;
+    return null;
     }
 
     /**
@@ -231,7 +231,7 @@ public class DummyFreeTTSVoice extends com.sun.speech.freetts.Voice {
      * @return a string representation of this object
      */
     public String toString() {
-	return "DummyFreeTTSVoice";
+    return "DummyFreeTTSVoice";
     }
 }
 
