@@ -105,6 +105,7 @@ public class MaryProperties
         if (maryBase == null)
             throw new Exception("System property mary.base not defined");
         maryBase = expandPath(maryBase);
+        
         File confDir = new File(maryBase+"/conf");
         if (!confDir.exists()) {
             throw new FileNotFoundException("Configuration directory not found: "+ confDir.getPath());
@@ -118,97 +119,9 @@ public class MaryProperties
         if (configFiles.length == 0) {
             throw new FileNotFoundException("No configuration files found in directory: "+ confDir.getPath()); 
         }
-        
-        /////////////////// Read config files ////////////////////
-        // Keep track of "requires" and "provides" settings, in order to check if
-        // all requirements are satisfied.
-        Map requiresMap = new HashMap(); // map a requirement to a list of components that have it
-        Map providesMap = new HashMap(); // map a provided item to a list of components providing it
-        List allConfigs = new LinkedList();
-        for (int i=0; i<configFiles.length; i++) {
-            // Ignore config file?
-            if (System.getProperty("ignore."+configFiles[i].getName()) != null) 
-                continue;
-            String path = configFiles[i].getPath();
-            // Properties for one config file
-            Properties oneP = new Properties();
-            oneP.setProperty("configfile", path);
-            oneP.load(new FileInputStream(configFiles[i]));
-            allConfigs.add(oneP);
-            // Build up dependency lists
-            String name = oneP.getProperty("name");
-            if (name == null) {
-                throw new NoSuchPropertyException("In config file `"+path+"': property `name' missing.");
-            }
-            addToMapList(providesMap, name, oneP);
-            String provides = oneP.getProperty("provides");
-            if (provides != null) {
-                StringTokenizer st = new StringTokenizer(provides);
-                while (st.hasMoreTokens()) {
-                    addToMapList(providesMap, st.nextToken(), oneP);
-                }
-            }
-            String requires = oneP.getProperty("requires");
-            if (requires != null) {
-                StringTokenizer st = new StringTokenizer(requires);
-                while (st.hasMoreTokens()) {
-                    addToMapList(requiresMap, st.nextToken(), oneP);
-                }
-            }
-        }
-
-        // Resolve dependencies
-        boolean allthere = true;
-        for (Iterator it = requiresMap.keySet().iterator(); it.hasNext(); ) {
-            String requirement = (String) it.next();
-            //System.out.println("Requirement: "+requirement);
-            List requirers = (List) requiresMap.get(requirement);
-            for (Iterator requirerIt = requirers.iterator(); requirerIt.hasNext(); ) {
-                Properties requirer = (Properties) requirerIt.next();
-                //System.out.println("Requirer: "+requirer.getProperty("name"));
-                if (!providesMap.containsKey(requirement)) {
-                    // Missing dependency
-                    tryToSolveDependencyProblem(requirement, requirer, "component is missing");
-                    allthere = false;
-                } else {
-                    // Check version
-                    String reqVersion = requirer.getProperty("requires."+requirement+".version");
-                    //System.out.println("Required version: "+reqVersion);
-                    List providers = (List) providesMap.get(requirement);
-                    for (Iterator providersIt = providers.iterator(); providersIt.hasNext(); ) {
-                        Properties provider = (Properties) providersIt.next();
-                        if (reqVersion != null) {
-                            String version =  provider.getProperty(requirement+".version");
-                            //System.out.println(provider.getProperty("name")+" provides version "+ version);
-                            String problem = null;
-                            if (version == null) { // bad configuration
-                                problem = "no version number";
-                            } else if (version.compareTo(reqVersion) < 0) { // version too small
-                                problem = "version `"+version+"'"; 
-                            } // else version OK
-                            if (problem != null) {
-                                tryToSolveDependencyProblem(requirement, requirer,
-                                        "version number "+reqVersion+" is required, and component `"+provider.getProperty("name")+"' provides "+problem);
-                                allthere = false;
-                            }
-                        }
-                        // Try to make sure that each provider is listed *before*
-                        // the requirer in allConfigs -- this will affect the order
-                        // in which modules are loaded.
-                        int iProvider = allConfigs.indexOf(provider);
-                        int iRequirer = allConfigs.indexOf(requirer);
-                        assert iProvider >= 0;
-                        assert iRequirer >= 0;
-                        if (iProvider > iRequirer) {
-                            allConfigs.remove(provider);
-                            allConfigs.add(iRequirer, provider);
-                        }
-                    }
-                }
-            }
-        }
-        if (!allthere)
-            System.exit(1);
+        List allConfigs = readConfigFiles(configFiles);
+        boolean allThere = checkDependencies(allConfigs);
+        if (!allThere) System.exit(1);
 
         // Add properties from individual config files to global properties:
         // Global mary properties
@@ -296,6 +209,149 @@ public class MaryProperties
     }
 
     /**
+     * Read the config files from the config directory and return them
+     * as a list of Property objects
+     * @return a list of property objects, each representing a config file.
+     * Each property object has one key/value pair added: "configfile", which
+     * points to the path on the filesystem from where the config file was loaded.
+     * @throws Exception if problem occurred that impairs a proper system startup 
+     */
+    private static List readConfigFiles(File[] configFiles) throws Exception
+    {
+        
+        /////////////////// Read config files ////////////////////
+        List allConfigs = new LinkedList();
+        for (int i=0; i<configFiles.length; i++) {
+            // Ignore config file?
+            if (System.getProperty("ignore."+configFiles[i].getName()) != null) 
+                continue;
+            String path = configFiles[i].getPath();
+            // Properties for one config file
+            Properties oneP = new Properties();
+            oneP.setProperty("configfile", path);
+            oneP.load(new FileInputStream(configFiles[i]));
+            allConfigs.add(oneP);
+        }
+        return allConfigs;
+    }
+
+    /**
+     * Check dependencies between components, and try to download and install components
+     * that are missing.
+     * @param allConfigs a list of Properties objects as loaded by readConfigFiles().
+     * @return true if all dependencies are OK
+     * @throws Exception if a problem occurs
+     */
+    private static boolean checkDependencies(List allConfigs)
+    throws Exception
+    {
+        // Keep track of "requires" and "provides" settings, in order to check if
+        // all requirements are satisfied.
+        Map requiresMap = new HashMap(); // map a requirement to a list of components that have it
+        Map providesMap = new HashMap(); // map a provided item to a list of components providing it
+        for (Iterator it = allConfigs.iterator(); it.hasNext(); ) {
+            Properties oneP = (Properties) it.next();
+            // Build up dependency lists
+            String name = oneP.getProperty("name");
+            if (name == null) {
+                throw new NoSuchPropertyException("In config file `"+oneP.getProperty("configfile")+"': property `name' missing.");
+            }
+            addToMapList(providesMap, name, oneP);
+            String provides = oneP.getProperty("provides");
+            if (provides != null) {
+                StringTokenizer st = new StringTokenizer(provides);
+                while (st.hasMoreTokens()) {
+                    addToMapList(providesMap, st.nextToken(), oneP);
+                }
+            }
+            String requires = oneP.getProperty("requires");
+            if (requires != null) {
+                StringTokenizer st = new StringTokenizer(requires);
+                while (st.hasMoreTokens()) {
+                    addToMapList(requiresMap, st.nextToken(), oneP);
+                }
+            }
+        }
+
+        // Resolve dependencies
+        boolean allThere = true;
+        for (Iterator it = requiresMap.keySet().iterator(); it.hasNext(); ) {
+            String requirement = (String) it.next();
+            List requirers = (List) requiresMap.get(requirement);
+            for (Iterator requirerIt = requirers.iterator(); requirerIt.hasNext(); ) {
+                Properties requirer = (Properties) requirerIt.next();
+                if (!providesMap.containsKey(requirement)) {
+                    // Missing dependency
+                    String component = tryToSolveDependencyProblem(requirement, requirer, "component is missing");
+                    // TODO: The following code is untested because
+                    // IzPack AutomatedInstaller will not return.
+                    // If we ever replace it with something that returns,
+                    // the following code is intended to recursively solve
+                    // all dependencies in one go and then start the server:
+                    if (component != null) { // could solve one
+                        // add new config file, re-check
+                        File configFile = new File(maryBase+"/conf/"+component+".config");
+                        assert configFile.exists();
+                        allConfigs.add(readConfigFiles(new File[] {configFile}));
+                        // recursive call
+                        allThere = checkDependencies(allConfigs);
+                    } else { // failed, cannot solve
+                        allThere = false;
+                    }
+                } else { // Component is there
+                    // Check version
+                    String reqVersion = requirer.getProperty("requires."+requirement+".version");
+                    List providers = (List) providesMap.get(requirement);
+                    for (Iterator providersIt = providers.iterator(); providersIt.hasNext(); ) {
+                        Properties provider = (Properties) providersIt.next();
+                        if (reqVersion != null) {
+                            String version =  provider.getProperty(requirement+".version");
+                            String problem = null;
+                            if (version == null) { // bad configuration
+                                problem = "no version number";
+                            } else if (version.compareTo(reqVersion) < 0) { // version too small
+                                problem = "version `"+version+"'"; 
+                            } // else version OK
+                            if (problem != null) {
+                                String component = tryToSolveDependencyProblem(requirement, requirer,
+                                        "version number "+reqVersion+" is required, and component `"+provider.getProperty("name")+"' provides "+problem);
+                                // TODO: The following code is untested because
+                                // IzPack AutomatedInstaller will not return.
+                                // If we ever replace it with something that returns,
+                                // the following code is intended to recursively solve
+                                // all dependencies in one go and then start the server:
+                                if (component != null) { // could solve one
+                                    // add new config file, re-check
+                                    File configFile = new File(maryBase+"/conf/"+component+".config");
+                                    assert configFile.exists();
+                                    allConfigs.add(readConfigFiles(new File[] {configFile}));
+                                    // recursive call
+                                    allThere = checkDependencies(allConfigs);
+                                } else { // failed, cannot solve
+                                    allThere = false;
+                                }
+                            }
+                        }
+                        // Try to make sure that each provider is listed *before*
+                        // the requirer in allConfigs -- this will affect the order
+                        // in which modules are loaded.
+                        int iProvider = allConfigs.indexOf(provider);
+                        int iRequirer = allConfigs.indexOf(requirer);
+                        assert iProvider >= 0;
+                        assert iRequirer >= 0;
+                        if (iProvider > iRequirer) {
+                            allConfigs.remove(provider);
+                            allConfigs.add(iRequirer, provider);
+                        }
+                    }
+                }
+            }
+        }
+        return allThere;
+    }
+
+    
+    /**
      * Helper to map one key to a list of values.
      * @param map
      * @param key
@@ -318,10 +374,10 @@ public class MaryProperties
      * @param missing name of the missing component
      * @param reqProps properties of the requirer
      * @param message description of the problem
-     * @return a boolean indicating whether the problem could be fixed, e.g. by
-     * installing the missing component.
+     * @return a String representing the new component name if the problem could be fixed, e.g. by
+     * installing the missing component; null on failure.
      */
-    private static final boolean tryToSolveDependencyProblem(String missing, Properties reqProps, String message)
+    private static final String tryToSolveDependencyProblem(String missing, Properties reqProps, String message)
     {
         String requirer = reqProps.getProperty("name");
         String problem = "Component `"+missing+"' is required by `"+requirer+"',\n"+
@@ -336,26 +392,31 @@ public class MaryProperties
             String component = reqProps.getProperty("requires."+missing+".download.package-name", missing).trim();
             int answer = JOptionPane.showConfirmDialog(null,
                     problem+"\n"+
-                    "Should I try to download `"+ component +"' from\n" + download + "?",
+                    "Try to download `"+ component +"' from\n" + download + "?\n"
+                    + "After installation, please re-start the MARY server.",
                     "Dependency problem",
                     JOptionPane.YES_NO_OPTION);
             if (answer == JOptionPane.YES_OPTION) {
                 System.getProperties().setProperty("licensepanel.title", "Installing "+component);
                 try {
+                    // TODO: The AutomatedInstaller in IzPack calls System.exit(),
+                    // so this does not return -- replace with own AutomatedInstaller?
                     InstallationUtils.directRunInstaller(new URL(download), component);
+                    
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                    return false;
+                    return null;
                 }
                 //InstallationUtils.downloadAndRunInstaller(new URL(download), missing);
                 if (new File(maryBase()+"/conf/"+component+".config").exists()) {
                     // apparently, the component has now been installed
-                    return true;
+                    return component;
                 }
             }
         }
-        return false;
+        return null;
     }
+    
     
 	/**
 	 * From a path entry in the properties, create an expanded form.

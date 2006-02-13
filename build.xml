@@ -333,5 +333,10 @@ THIS SOFTWARE.
 			<arg line="openmary-install.xml -b .. -k webdir -o ../dist/openmary-install-${specification.version}.jar"/>
         </java>
     </target>
+    <target name="standalone-installer" depends="jars,de.dfki.lt.izpack.LicensePanel.jar">
+    	<java dir="build" jar="build/standalone-compiler.jar" fork="true">
+			<arg line="openmary-install.xml -b .. -k standard -o ../dist/openmary-standalone-install-${specification.version}.jar"/>
+        </java>
+    </target>
 		
 </project>
