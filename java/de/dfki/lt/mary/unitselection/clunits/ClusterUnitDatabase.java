@@ -279,7 +279,9 @@ public class ClusterUnitDatabase extends UnitDatabase
         try{
         String file = 
             MaryProperties.getFilename("voice."+voice+".unitCatalogue");
-        if (file == null) return; // no catalogue
+        if (file == null){
+            logger.debug("Can not load catalogue file for voice "+voice);
+            return;}
         BufferedReader reader = 
             new BufferedReader(new FileReader(new File(file)));
         String line = reader.readLine();

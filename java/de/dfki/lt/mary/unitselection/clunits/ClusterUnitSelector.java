@@ -142,8 +142,12 @@ public class ClusterUnitSelector extends UnitSelector
                 pw.println(selUnit);
                 UnitOriginInfo origin = 
                     ((ClusterUnit) selUnit.getUnit()).getOriginInfo();
-                if (origin != null)
+                if (origin != null){
+                    
                     origin.printInfo(pw);
+                } else {
+                    logger.debug("No origin info for selected unit ");
+                    }
             }
             logger.debug("Selected units:\n"+sw.toString());
         }
