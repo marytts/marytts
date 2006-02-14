@@ -41,9 +41,9 @@ import de.dfki.lt.mary.unitselection.clunits.ClusterUnitConcatenator;
 import de.dfki.lt.mary.unitselection.featureprocessors.UnitSelectionFeatProcManager;
 import de.dfki.lt.mary.util.MaryUtils;
 
-import com.sun.speech.freetts.en.us.CMULexicon;
 import com.sun.speech.freetts.lexicon.Lexicon;
 
+import java.lang.reflect.Constructor;
 import java.util.*;
 
 import javax.sound.sampled.AudioFormat;
@@ -95,18 +95,23 @@ public class UnitSelectionVoiceBuilder{
 	            exampleTextFile = MaryProperties.getFilename(header+".exampleTextFile");
 	        }
 	        
-	        String lexiconName = MaryProperties.getProperty(header+".lexicon");
-            Lexicon lexicon;
-            if (lexicons.containsKey(lexiconName)) {
-                lexicon = (Lexicon) lexicons.get(lexiconName);
-            } else {
-                // Need to create a new lexicon
-                if (lexiconName.indexOf(".") == -1) {
-                    lexicon = new CMULexicon(lexiconName);
-                } else { // lexiconName is a class
-                    lexicon = (Lexicon) Class.forName(lexiconName).newInstance();
+            String lexiconClass = MaryProperties.getProperty(header+".lexiconClass");
+            Lexicon lexicon = null;
+            if (lexiconClass != null) {
+                String lexiconName = MaryProperties.getProperty(header+".lexicon");
+                if (lexicons.containsKey(lexiconClass+lexiconName)) {
+                    lexicon = (Lexicon) lexicons.get(lexiconClass+lexiconName);
+                } else { // need to create a new lexicon instance
+                    if (lexiconName == null) {
+                        lexicon = (Lexicon) Class.forName(lexiconClass).newInstance();
+                    } else { // lexiconName is String argument to constructor 
+                        Class lexCl = Class.forName(lexiconClass);
+                        Constructor lexConstr = lexCl.getConstructor(new Class[] {String.class});
+                        // will throw a NoSuchMethodError if constructor does not exist
+                        lexicon = (Lexicon) lexConstr.newInstance(new Object[] {lexiconName});
+                    }
+                    lexicons.put(lexiconClass+lexiconName, lexicon);
                 }
-                lexicons.put(lexiconName, lexicon);
             }
             			
 	        String featureProcessorsClass = 
