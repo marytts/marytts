@@ -1166,7 +1166,6 @@ public class MaryClient {
                     warnings.append(cbuf, 0, nr);
                 }
             } catch (IOException ioe) {
-                ioe.printStackTrace();
             }
         }
     }
