@@ -32,6 +32,8 @@ package de.dfki.lt.mary.client;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,6 +53,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
+import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -438,13 +441,43 @@ public class MaryClient {
         } else { // output is an OutputStream
             OutputStream os = (OutputStream) output;
             InputStream bis = new BufferedInputStream(fromServerStream);
-            byte[] bbuf = new byte[1024];
-            int nr;
-            while ((nr = bis.read(bbuf, 0, bbuf.length)) != -1) {
-                //System.err.println("Read " + nr + " bytes from server.");
-                os.write(bbuf, 0, nr);
+            // Treat audio specially: need to fix audio header, due to the fact
+            // that server is streaming audio, and thus does not know
+            // how long the audio is.
+            if (outputType.equals("AUDIO") && !audioType.equals("MP3")) {
+                try {
+                    AudioFileFormat aff = AudioSystem.getAudioFileFormat(bis);
+                    File tempAudioFile = File.createTempFile("mary", "."+aff.getType().getExtension());
+                    tempAudioFile.deleteOnExit();
+                    OutputStream taos = new FileOutputStream(tempAudioFile);
+                    byte[] bbuf = new byte[1024];
+                    int nr;
+                    int total = 0;
+                    while ((nr = bis.read(bbuf, 0, bbuf.length)) != -1) {
+                        //System.err.println("Read " + nr + " bytes from server.");
+                        taos.write(bbuf, 0, nr);
+                        total += nr;
+                    }
+                    taos.close();
+                    BufferedInputStream audioIn = new BufferedInputStream(new FileInputStream(tempAudioFile));
+                    // Let audio system read the header, but discard the result which is junk anyway:
+                    AudioSystem.getAudioInputStream(audioIn);
+                    // Now create the audio input stream with the correct length set:
+                    AudioInputStream ais = new AudioInputStream(audioIn, aff.getFormat(), total/aff.getFormat().getFrameSize());
+                    AudioSystem.write(ais, aff.getType(), os);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else { // mp3 and all other data is simply copied
+                byte[] bbuf = new byte[1024];
+                int nr;
+                while ((nr = bis.read(bbuf, 0, bbuf.length)) != -1) {
+                    //System.err.println("Read " + nr + " bytes from server.");
+                    os.write(bbuf, 0, nr);
+                }
+                os.flush();
             }
-            os.flush();
+            
 
             if (timeout > 0) {
                 timer.cancel();
