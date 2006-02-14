@@ -39,36 +39,7 @@ import de.dfki.lt.mary.MaryXML;
 public class ACOUSTPARAMS_Definer extends MaryDataType {
     static {
         define("ACOUSTPARAMS", null, true, true, MARYXML, MaryXML.MARYXML, null,
-                         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                         "<maryxml xmlns=\"http://mary.dfki.de/2002/MaryXML\"\n" +
-                         "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"0.4\"\n" +
-                         "xml:lang=\"de\">\n" +
-                         "<s>\n" +
-                         "<phrase>\n" +
-                         "<t accent=\"H+L*\" g2p_method=\"lexicon\" pos=\"ADJD\" sampa=\"vIl-\'kO-m@n\" syn_attach=\"1\" syn_phrase=\"_\">\n" +
-                         "Willkommen\n" +
-                         "<syllable sampa=\"vIl\">\n" +
-                         "<ph d=\"65\" end=\"65\" f0=\"(0,106)\" p=\"v\"/>\n" +
-                         "<ph d=\"52\" end=\"117\" p=\"I\"/>\n" +
-                         "<ph d=\"46\" end=\"163\" f0=\"(61,113)\" p=\"l\"/>\n" +
-                         "</syllable>\n" +
-                         "<syllable accent=\"H+L*\" sampa=\"kO\" stress=\"1\">\n" +
-                         "<ph d=\"88\" end=\"251\" p=\"k\"/>\n" +
-                         "<ph d=\"80\" end=\"331\" f0=\"(50,80)\" p=\"O\"/>\n" +
-                         "</syllable>\n" +
-                         "<syllable sampa=\"m@n\">\n" +
-                         "<ph d=\"70\" end=\"401\" p=\"m\"/>\n" +
-                         "<ph d=\"99\" end=\"500\" p=\"@\"/>\n" +
-                         "<ph d=\"71\" end=\"571\" f0=\"(100,74)\" p=\"n\"/>\n" +
-                         "</syllable>\n" +
-                         "</t>\n" +
-                         "<t pos=\"$.\" syn_attach=\"2\" syn_phrase=\"_\">\n" +
-                         "!\n" +
-                         "</t>\n" +
-                         "<boundary breakindex=\"6\" duration=\"410\" tone=\"L-%\"/>\n" +
-                         "</phrase>\n" +
-                         "</s>\n" +
-                         "</maryxml>\n");
+                         null);
 
     }
 }
