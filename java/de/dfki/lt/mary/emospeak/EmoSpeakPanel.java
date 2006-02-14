@@ -389,7 +389,7 @@ implements AudioFileReceiver, ProsodyXMLDisplayer
                 if (!line.trim().equals(""))
                     texts.add(line);
             }
-        } catch (IOException ioe) {}
+        } catch (Exception e) {}
         return texts;
     }
 
