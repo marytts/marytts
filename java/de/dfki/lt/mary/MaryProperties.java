@@ -392,7 +392,7 @@ public class MaryProperties
             String component = reqProps.getProperty("requires."+missing+".download.package-name", missing).trim();
             int answer = JOptionPane.showConfirmDialog(null,
                     problem+"\n"+
-                    "Try to download `"+ component +"' from\n" + download + "?\n"
+                    "Do you want to download `"+ component +"' from\n" + download + "?\n"
                     + "After installation, please re-start the MARY server.",
                     "Dependency problem",
                     JOptionPane.YES_NO_OPTION);

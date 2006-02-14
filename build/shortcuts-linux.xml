@@ -2,7 +2,7 @@
 
 <shortcuts>
 
-  <programGroup defaultName="OpenMary/OpenMary" location="applications"/>
+  <programGroup defaultName="OpenMary" location="applications"/>
 
    <shortcut
     name="MARY server"
@@ -75,7 +75,7 @@
      type="Application"
      terminal="false"
      description="MARY Uninstaller">
-     <createForPack name="marybase" />
+     <createForPack name="maryclient" />
    </shortcut>
   
 
