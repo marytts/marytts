@@ -254,8 +254,9 @@ THIS SOFTWARE.
          basedir="${src}"
          includes="de/dfki/lt/mary/emospeak/*.class
 				   de/dfki/lt/mary/emospeak/*.txt
-                   de/dfki/lt/mary/modules/emotion-to-mary.xsl"
-         excludes="de/dfki/lt/mary/emospeak/EmoSpeak*.class">
+                   de/dfki/lt/mary/emospeak/emotion-to-mary.xsl"
+         excludes="de/dfki/lt/mary/emospeak/EmoSpeak.class
+    	de/dfki/lt/mary/emospeak/EmoSpeak$*.class">
       <manifest>
         <attribute name="Built-By" value="${user.name}"/>
 	<attribute name="Main-Class"

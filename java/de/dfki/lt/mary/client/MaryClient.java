@@ -31,6 +31,8 @@ package de.dfki.lt.mary.client;
 // General Java Classes
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -447,19 +449,33 @@ public class MaryClient {
             if (outputType.equals("AUDIO") && !audioType.equals("MP3")) {
                 try {
                     AudioFileFormat aff = AudioSystem.getAudioFileFormat(bis);
-                    File tempAudioFile = File.createTempFile("mary", "."+aff.getType().getExtension());
-                    tempAudioFile.deleteOnExit();
-                    OutputStream taos = new FileOutputStream(tempAudioFile);
+                    File tempAudioFile = null;
+                    ByteArrayOutputStream baos = null;
+                    OutputStream tempOut;
+                    try {
+                        tempAudioFile = File.createTempFile("mary", "."+aff.getType().getExtension());
+                        tempAudioFile.deleteOnExit();
+                        tempOut = new FileOutputStream(tempAudioFile);
+                    } catch (SecurityException se) {
+                        baos = new ByteArrayOutputStream();
+                        tempOut = baos;
+                    }
                     byte[] bbuf = new byte[1024];
                     int nr;
                     int total = 0;
                     while ((nr = bis.read(bbuf, 0, bbuf.length)) != -1) {
                         //System.err.println("Read " + nr + " bytes from server.");
-                        taos.write(bbuf, 0, nr);
+                        tempOut.write(bbuf, 0, nr);
                         total += nr;
                     }
-                    taos.close();
-                    BufferedInputStream audioIn = new BufferedInputStream(new FileInputStream(tempAudioFile));
+                    tempOut.close();
+                    BufferedInputStream audioIn;
+                    if (tempAudioFile != null) {
+                        audioIn = new BufferedInputStream(new FileInputStream(tempAudioFile));
+                    } else {
+                        assert baos != null;
+                        audioIn = new BufferedInputStream(new ByteArrayInputStream(baos.toByteArray()));
+                    }
                     // Let audio system read the header, but discard the result which is junk anyway:
                     AudioSystem.getAudioInputStream(audioIn);
                     // Now create the audio input stream with the correct length set:
