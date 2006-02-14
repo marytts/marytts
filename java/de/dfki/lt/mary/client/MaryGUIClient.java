@@ -137,7 +137,7 @@ public class MaryGUIClient extends JPanel
     private Vector inputTypes = null;
     private Vector outputTypes = null;
     private boolean allowSave;
-    private boolean streamMp3 = Boolean.getBoolean("stream.mp3");
+    private boolean streamMp3 = false;
     
     //Map of limited Domain Voices and their example Texts
     private Map limDomVoices = new HashMap();
@@ -156,6 +156,7 @@ public class MaryGUIClient extends JPanel
         // information needed in the GUI creation.
         try {
             processor = new MaryClient();
+            streamMp3 = Boolean.getBoolean("stream.mp3");
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null,
