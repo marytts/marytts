@@ -38,7 +38,37 @@ import de.dfki.lt.mary.MaryDataType;
 public class FESTIVAL_UTT_Definer extends MaryDataType {
     static {
         define("FESTIVAL_UTT", null, true, true, PLAIN_TEXT, null, null,
-                  "");
+                "===Utterance===\n"+
+                "voice=kevin16\n"+
+                "==Segment==\n"+
+                "#\n"+
+                "0.055000003 100 w\n"+
+                "0.163 100 eh\n"+
+                "0.255 100 l\n"+
+                "0.341 100 k\n"+
+                "0.394 100 ax\n"+
+                "0.488 100 m\n"+
+                "0.688 100 pau\n"+
+                "==Target==\n"+
+                "#\n"+
+                "0.109 100 106.0\n"+
+                "0.3675 100 93.0\n"+
+                "0.488 100 89.0\n"+
+                "0.688 100 89.0\n"+
+                "==Syllable==\n"+
+                "#\n"+
+                "0.341 100 wehlk ; stress 1\n"+
+                "0.488 100 axm ; stress 0\n"+
+                "==Word==\n"+
+                "#\n"+
+                "0.488 100 welcome\n"+
+                "==IntEvent==\n"+
+                "#\n"+
+                "0.488 100 L-L%\n"+
+                "0.488 100 !H*\n"+
+                "==Phrase==\n"+
+                "#\n"+
+                "0.488 100 4\n");
 
     }
 }
