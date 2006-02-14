@@ -39,13 +39,7 @@ import de.dfki.lt.mary.MaryXML;
 public class RAWMARYXML_Definer extends MaryDataType {
     static {
         define("RAWMARYXML", null, true, true, MARYXML, MaryXML.MARYXML, null,
-                         "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
-                         "<maryxml version=\"0.4\"\n" +
-                         "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                         "xmlns=\"http://mary.dfki.de/2002/MaryXML\"\n" +
-                         "xml:lang=\"de\">\n" +
-                         "Willkommen<boundary breakindex=\"4\"/>in der Welt der Sprachsynthese!\n" +
-                         "</maryxml>\n");
+                         null);
 
     }
 }

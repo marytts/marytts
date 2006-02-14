@@ -32,9 +32,13 @@ package de.dfki.lt.mary;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
+
+import de.dfki.lt.mary.modules.synthesis.Voice;
 
 /**
  * A representation of the data types available as input/output of (partial)
@@ -83,7 +87,40 @@ public class MaryDataType
         else
             return endMarker;
     }
-    public String exampleText() { return exampleText; }
+    
+    /**
+     * Provide a sensible example text for this data type.
+     * For most data types, this is simply a string provided when the data type
+     * is defined. However, for some language-independent datatypes, no
+     * example text is defined. In these cases, the following logic is applied
+     * to obtain a working example text:
+     * 1. From the list of installed voices, a locale is obtained;
+     * 2. a language-specific version of the current data type is obtained;
+     * 3. the example text of that language-specific version is returned.
+     * @return an example text string, or null if none could be obtained.
+     */
+    public String exampleText()
+    {
+        if (exampleText != null)
+            return exampleText;
+        // No example text in current data type
+        if (getLocale() == null) {
+            List voices = Voice.getAvailableVoices();
+            for (Iterator it = voices.iterator(); it.hasNext(); ) {
+                Voice v = (Voice) it.next();
+                Locale locale = v.getLocale();
+                MaryDataType specific = getLanguageSpecificVersion(this, locale);
+                if (specific != null) {
+                    assert specific.getLocale() != null;
+                    return specific.exampleText();
+                } // else, try next voice's locale
+            }
+            // no specific data type for any of the voices' locales
+            return null;
+        } else { // locale, but no example text
+            return null;
+        }
+    }
 
     public String toString() { return name; }
 
