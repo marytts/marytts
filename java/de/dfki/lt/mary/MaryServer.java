@@ -224,6 +224,7 @@ public class MaryServer {
             buffReader = new BufferedReader(new InputStreamReader(client.getInputStream(), "UTF-8"));
             outputWriter = new PrintWriter(new OutputStreamWriter(client.getOutputStream(), "UTF-8"), true);
             line = buffReader.readLine();
+            logger.debug("read request: `"+line+"'");
             if (line == null) {
                 logger.info("Client seems to have disconnected - cannot read.");
                 return;
