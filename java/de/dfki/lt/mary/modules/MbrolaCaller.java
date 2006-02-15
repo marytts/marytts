@@ -96,7 +96,11 @@ public class MbrolaCaller extends SynthesisCallerBase {
             nrAttempts++;
             AudioDestination audioDestination = new AudioDestination();
             logger.debug("Keeping audio data in " + (audioDestination.isInRam() ? "RAM" : " a temp file"));
-            logger.info("Starting Synthesis with command: " + cmd.toString());
+            StringBuffer cmdString = new StringBuffer();
+            for (int i=0; i<cmd.length; i++) {
+                cmdString.append(cmd[i]); cmdString.append(" ");
+            }
+            logger.info("Starting Synthesis with command: " + cmdString.toString().trim());
             Process process = Runtime.getRuntime().exec(cmd);
             // Workaround for Java 1.4.1 bug:
             if (System.getProperty("java.vendor").startsWith("Sun")
