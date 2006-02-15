@@ -140,7 +140,9 @@ public class MbrolaSynthesizer implements WaveformSynthesizer {
                         topStart, topEnd, baseStart, baseEnd,
                         voiceQualities,
                         missingDiphones);
-                if (Voice.getAvailableVoices(locale).isEmpty()) {
+                if (/*TODO: Hack this in for the moment: */
+                        v.getName().equals("de7") || v.getName().equals("us1") ||
+                        Voice.getAvailableVoices(locale).isEmpty()) {
                     // The first voice for each locale is registered
                     // as the default voice for that locale
                     Voice.registerDefaultVoice(locale, v);
