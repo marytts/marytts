@@ -29,7 +29,6 @@
 package de.dfki.lt.mary.client;
 
 // General Java Classes
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -43,6 +42,11 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.KeyEvent;
+import java.awt.KeyboardFocusManager;
+import java.awt.FocusTraversalPolicy;
+import java.awt.Container;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -68,12 +72,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+import javax.swing.KeyStroke;
 
 import org.incava.util.diff.Diff;
 import org.incava.util.diff.Difference;
@@ -82,6 +85,7 @@ import com.sun.speech.freetts.audio.AudioPlayer;
 import com.sun.speech.freetts.audio.JavaStreamingAudioPlayer;
 
 import de.dfki.lt.mary.util.MaryUtils;
+
 
 
 /**
@@ -129,6 +133,8 @@ public class MaryGUIClient extends JPanel
     private JButton bCompare;
     
 
+    static JFrame mainFrame;
+
     /* -------------------- Data and Processing stuff -------------------- */
     private MaryClient processor;
 
@@ -141,6 +147,8 @@ public class MaryGUIClient extends JPanel
     
     //Map of limited Domain Voices and their example Texts
     private Map limDomVoices = new HashMap();
+
+    static FocusTraversalPolicy maryGUITraversal;
 
     /**
      * Create a MaryGUIClient instance that connects to the server host
@@ -202,7 +210,10 @@ public class MaryGUIClient extends JPanel
      * and initialise the GUI.
      */
     public void init() throws IOException, UnknownHostException {
-        
+    
+	maryGUITraversal = new MaryGUIFocusTraversalPolicy();
+	mainFrame.setFocusTraversalPolicy(maryGUITraversal);
+
         Dimension paneDimension = new Dimension(250,400);
         // Layout
         GridBagLayout gridBagLayout = new GridBagLayout();
@@ -231,6 +242,8 @@ public class MaryGUIClient extends JPanel
         assert inputTypes.size() > 0;
         assert outputTypes.size() > 0;
         cbInputType = new JComboBox( inputTypes );
+        cbInputType.setName("Input Type");
+	cbInputType.getAccessibleContext().setAccessibleName("Input Type selection");
         cbInputType.setToolTipText( "Specify the type of data contained " +
                                     "in the input text area below." );
         cbInputType.addItemListener(new ItemListener() {
@@ -274,11 +287,24 @@ public class MaryGUIClient extends JPanel
         gridC.ipady = 0;
         gridC.fill = GridBagConstraints.NONE;
         inputText = new JTextPane();
+	
+	inputText.getAccessibleContext().setAccessibleName("Input Text Area");
+	
+	//Set Tab and Shift-Tab for Keyboard movement
+        Set forwardKeys = new HashSet();
+        forwardKeys.add(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0, false));
+        inputText.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,forwardKeys);
+        Set backwardKeys = new HashSet();
+        backwardKeys.add(KeyStroke.getKeyStroke(KeyEvent.VK_TAB,KeyEvent.SHIFT_MASK+KeyEvent.SHIFT_DOWN_MASK, false));
+        inputText.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS,backwardKeys);
+	
         inputScrollPane = new JScrollPane(inputText);
         inputPanel.add(inputScrollPane);
         inputScrollPane.setPreferredSize(new Dimension(inputPanel.getPreferredSize().width, 1000));
         //example text for limDom voices
         cbVoiceExampleText = new JComboBox();
+	cbVoiceExampleText.setName("Example Text");
+	cbVoiceExampleText.getAccessibleContext().setAccessibleName("Example text selection");
         cbVoiceExampleText.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -303,6 +329,8 @@ public class MaryGUIClient extends JPanel
         JLabel voiceLabel = new JLabel("default voice:");
         voicePanel.add( voiceLabel );
         cbDefaultVoice = new JComboBox();
+	cbDefaultVoice.setName("Voice selection");
+	cbDefaultVoice.getAccessibleContext().setAccessibleName("Voice selection");
         voicePanel.add( cbDefaultVoice );
         cbDefaultVoice.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
@@ -342,6 +370,7 @@ public class MaryGUIClient extends JPanel
         bProcess = new JButton( "Process ->" );
         bProcess.setToolTipText( "Call the Mary Server." +
                                  "The input will be transformed into the specified output type." );
+	bProcess.getAccessibleContext().setAccessibleName("Process button");
         bProcess.setActionCommand( "process" );
         bProcess.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -357,6 +386,7 @@ public class MaryGUIClient extends JPanel
         bEdit = new JButton( "<- Edit" );
         bEdit.setToolTipText( "Edit the content of the output text area as the new input." +
                               " The current content of the input text area will be discarded." );
+	bEdit.getAccessibleContext().setAccessibleName("Edit button");
         bEdit.setActionCommand( "edit" );
         bEdit.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -371,6 +401,7 @@ public class MaryGUIClient extends JPanel
         bCompare = new JButton( "<- Compare ->" );
         bCompare.setToolTipText( "Compare input and output" +
                                "(available only if both are MaryXML types)." );
+	bCompare.getAccessibleContext().setAccessibleName("Compare button");
         bCompare.setActionCommand( "compare" );
         bCompare.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -397,6 +428,8 @@ public class MaryGUIClient extends JPanel
         JLabel outputTypeLabel = new JLabel( "Output Type: " );
         outputTypePanel.add( outputTypeLabel );
         cbOutputType = new JComboBox();
+	cbOutputType.setName("Output type");
+	cbOutputType.getAccessibleContext().setAccessibleName("Output type selection");
         setOutputTypeItems();
         // The last possible output type (= audio) is the default
         // output type:
@@ -419,6 +452,12 @@ public class MaryGUIClient extends JPanel
         else
             showingTextOutput = false;
         outputText = new JTextPane();
+	outputText.getAccessibleContext().setAccessibleName("Output text");
+
+        //set tab and shift-tab for keyboard movement
+        outputText.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,forwardKeys);
+        outputText.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS,backwardKeys);
+	
         //        outputText.setLineWrap(false);
         outputText.setEditable(false);
         outputScrollPane = new JScrollPane(outputText);
@@ -450,6 +489,7 @@ public class MaryGUIClient extends JPanel
         audioPanel.setLayout( new BoxLayout(audioPanel, BoxLayout.Y_AXIS) );
         bPlay = new JButton( "Play" );
         bPlay.setToolTipText( "Synthesize and play the resulting audio stream." );
+	bPlay.getAccessibleContext().setAccessibleName("Play button");
         bPlay.setActionCommand( "play" );
         bPlay.addActionListener( new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -492,6 +532,7 @@ public class MaryGUIClient extends JPanel
             ImageIcon saveIcon = new ImageIcon("save.gif");
             bSaveOutput = new JButton( "Save...", saveIcon );
             bSaveOutput.setToolTipText( "Save the output as a file." );
+	    bSaveOutput.getAccessibleContext().setAccessibleName("Save Output button");
             bSaveOutput.setActionCommand( "saveOutput" );
             bSaveOutput.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -942,8 +983,9 @@ public class MaryGUIClient extends JPanel
     }
     
     
-    public static void main(String[] args) throws Exception {
-        JFrame mainFrame = new JFrame("Mary GUI Client");
+    public static void main(String[] args) throws Exception 
+    {
+        mainFrame = new JFrame("Mary GUI Client");
         mainFrame.addWindowListener(new WindowAdapter() {
                 public void windowClosing(WindowEvent e) {System.exit(0);}
             });
@@ -952,6 +994,107 @@ public class MaryGUIClient extends JPanel
         mainFrame.pack();
         mainFrame.setVisible(true);
 
+    }
+
+    class MaryGUIFocusTraversalPolicy
+                 extends FocusTraversalPolicy {
+
+        public Component getComponentAfter(Container focusCycleRoot,
+                                           Component aComponent) 
+        {
+            if (aComponent.equals(cbInputType)) {
+                return cbOutputType;
+            } else if (aComponent.equals(cbOutputType)) {
+                return cbDefaultVoice;
+            } else if (aComponent.equals(cbDefaultVoice)) {
+                		if (cbVoiceExampleText.isVisible()){
+                		    return cbVoiceExampleText;
+                		} else {
+                		    return inputText;
+                		}
+            } else if (aComponent.equals(cbVoiceExampleText)) {
+                return inputText;
+            } else if (aComponent.equals(inputText)) {
+                		if (audioPanel.isVisible()){
+                		    return bPlay;
+                		} else {
+                		    return bProcess;
+                		}
+            } else if (aComponent.equals(bProcess)) {
+                return outputText;
+            } else if (aComponent.equals(bPlay)) {
+                return bSaveOutput;
+            } else if (aComponent.equals(outputText)) {
+	         		if (bEdit.isEnabled()){
+	         		    return bEdit;
+	         		} else {
+	         		    return cbInputType;
+	         		}
+            } else if (aComponent.equals(bEdit)) {
+                return bCompare;
+            } else if (aComponent.equals(bCompare)) {
+                return bSaveOutput;
+            } else if (aComponent.equals(bSaveOutput)) {
+                return cbInputType;
+            }
+            return cbInputType;
+        }
+
+        public Component getComponentBefore(Container focusCycleRoot,
+                                            Component aComponent) 
+        {
+            if (aComponent.equals(bSaveOutput)) {
+                if (bPlay.isVisible()){
+                    return bPlay;
+                } else {
+                    return bCompare;
+                }
+            } else if (aComponent.equals(bCompare)) {
+                return bEdit;
+            } else if (aComponent.equals(bEdit)) {
+                return outputText;
+            } else if (aComponent.equals(outputText)) {
+                return bProcess;
+            } else if (aComponent.equals(bPlay)) {
+                return inputText;
+            } else if (aComponent.equals(bProcess)) {
+                return inputText;
+            } else if (aComponent.equals(inputText)) {
+                		if (cbVoiceExampleText.isVisible()){
+                		    return cbVoiceExampleText;
+                		} else {
+                		    return cbDefaultVoice;
+                		}
+            } else if (aComponent.equals(cbVoiceExampleText)) {
+                return cbDefaultVoice;
+            } else if (aComponent.equals(cbDefaultVoice)) {
+                return cbOutputType;
+            } else if (aComponent.equals(cbOutputType)) {
+                return cbInputType;
+            } else if (aComponent.equals(cbInputType)) {
+                		if (bSaveOutput.isEnabled()){
+                		    return bSaveOutput;
+                		} else {
+                		    return outputText;
+                		}
+            }
+            return cbInputType;
+        }
+
+        public Component getDefaultComponent(Container focusCycleRoot) 
+        {
+            return cbInputType;
+        }
+
+        public Component getLastComponent(Container focusCycleRoot) 
+        {
+            return bSaveOutput;
+        }
+
+        public Component getFirstComponent(Container focusCycleRoot) 
+        {
+            return cbInputType;
+        }
     }
 
 }
