@@ -225,7 +225,7 @@ Bug reports
 
 The system was tested before the release, but clearly you can never test enough.
 If any problems should occur, please submit bug reports via the ticketing system
-operating under https://mary.opendfki.de 
+operating under http://mary.opendfki.de 
 * check "view tickets" first to see if your bug is already known;
 * if your bug is not listed yet, go to "new ticket" to submit a new bug report.
 
