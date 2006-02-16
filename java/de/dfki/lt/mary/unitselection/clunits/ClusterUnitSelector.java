@@ -77,6 +77,7 @@ public class ClusterUnitSelector extends UnitSelector
     throws Exception
     {
         super(targetCostFunction, joinCostFunction);
+        
         // Try to get instances of our tools from Mary; if we cannot get them,
         // instantiate new objects.
         x2u = (XML2UttAcoustParams) Mary.getModule(XML2UttAcoustParams.class);
@@ -117,6 +118,7 @@ public class ClusterUnitSelector extends UnitSelector
 
         this.database = (ClusterUnitDatabase) db;
         this.unitNamer = unitNamer;
+        ((PathExtractorImpl)DNAME).setFeatureProcessors(database.getFeatProcManager());
         ((ClusterJoinCostFunction) joinCostFunction).setDatabase(database);
         Relation segs = utt.getRelation(Relation.SEGMENT);
         List targets = new ArrayList();

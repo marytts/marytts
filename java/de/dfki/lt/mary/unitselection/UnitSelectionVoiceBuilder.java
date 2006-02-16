@@ -38,6 +38,7 @@ import de.dfki.lt.mary.modules.synthesis.WaveformSynthesizer;
 
 import de.dfki.lt.mary.unitselection.clunits.ClusterUnitSelector;
 import de.dfki.lt.mary.unitselection.clunits.ClusterUnitConcatenator;
+import de.dfki.lt.mary.unitselection.FeatureReader;
 import de.dfki.lt.mary.unitselection.featureprocessors.UnitSelectionFeatProcManager;
 import de.dfki.lt.mary.util.MaryUtils;
 
@@ -134,10 +135,27 @@ public class UnitSelectionVoiceBuilder{
 	        
 	        unitDatabase.load(databaseFile, featProcManager, voice);
 		
+	        //try to load the features into the units
+	        String featuresDefs = 
+	            MaryProperties.getFilename(header+".featureDefsFile");
+	       String unitFeaturesDir = 
+	           MaryProperties.getFilename(header+".unitsFeaturesDir");
+	       List features = null;
+	       Map weights = null;
+	       if (featuresDefs != null &&
+	           unitFeaturesDir != null){
+	           FeatureReader fr = new FeatureReader(unitDatabase, 
+	                    							featuresDefs,
+	                    							unitFeaturesDir);
+	           features = fr.readFeatures();
+	           weights = fr.readWeights();
+	        }
+	        
 	        String targetCostClass = 
 	            MaryProperties.getProperty(header+".targetCostClass");
 	        TargetCostFunction targetFunction = 
 		        (TargetCostFunction) Class.forName(targetCostClass).newInstance();
+	        targetFunction.setFeatsAndWeights(features,weights,featProcManager);
 	        String joinCostClass = 
 	            MaryProperties.getProperty(header+".joinCostClass");
 	        JoinCostFunction joinFunction = 

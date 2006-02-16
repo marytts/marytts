@@ -501,7 +501,7 @@ public class CARTImpl implements CART {
                             int qfalse) {
             super(value);
             this.path = new PathExtractorImpl(feature, true);
-            PathExtractorImpl.setFeatureProcessors(featureProcessors);
+            ((PathExtractorImpl)path).setFeatureProcessors(featureProcessors);
             this.qtrue = qtrue;
             this.qfalse = qfalse;
         }
