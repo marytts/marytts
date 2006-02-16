@@ -118,6 +118,8 @@ public class ClusterUnitDatabase extends UnitDatabase
                 e2.printStackTrace();
                 throw new Error ("Cannot load database "+databaseFile);}
         }
+        
+        
         //when in debug mode, load information about unit orgins
         if (logger.getEffectiveLevel().equals(Level.DEBUG)){
             loadCatalogue();
@@ -371,7 +373,7 @@ public class ClusterUnitDatabase extends UnitDatabase
     public Unit getUnit(String unitTypeName, int instance) {
         ClusterUnitType unitType = (ClusterUnitType) unitTypesMap.get(unitTypeName);
         if (unitType == null) {
-            logger.debug("getUnit(type,instance): can't find unit type " + unitType);
+            logger.debug("getUnit("+unitTypeName+","+instance+"): can't find unit type " + unitType);
             return null;
         }
         return unitType.getInstance(instance);
@@ -411,6 +413,11 @@ public class ClusterUnitDatabase extends UnitDatabase
             throw new IllegalArgumentException("ClusterUnitDatabase: can't find tree for " + unitType);
         }
         return cart;
+    }
+    
+    public UtteranceFeatProcManager getFeatProcManager()
+    {
+        return featureProcessors;
     }
     
     /**

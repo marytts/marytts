@@ -88,7 +88,9 @@ public abstract class UnitDatabase
         return joinCostFeatureVectors;
     }
 
-    
+    public Unit getUnit(String unitType, int index){
+        return null;
+    }
     
     
     /**

@@ -28,6 +28,11 @@
  */
 package de.dfki.lt.mary.unitselection;
 
+import java.util.List;
+import java.util.Map;
+
+import de.dfki.lt.mary.unitselection.featureprocessors.UnitSelectionFeatProcManager;
+
 /**
  * A dummy Target Cost Function, always giving back cost 0
  * 
@@ -47,4 +52,7 @@ public class ZeroTargetCostFunction implements TargetCostFunction
         return 0;
     }
 
+    public void setFeatsAndWeights(List features,Map features2Weights,
+			UnitSelectionFeatProcManager featProc){}
+    
 }

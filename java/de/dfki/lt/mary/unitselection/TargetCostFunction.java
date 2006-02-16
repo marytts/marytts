@@ -28,6 +28,11 @@
  */
 package de.dfki.lt.mary.unitselection;
 
+import java.util.List;
+import java.util.Map;
+
+import de.dfki.lt.mary.unitselection.featureprocessors.UnitSelectionFeatProcManager;
+
 
 /**
  * A target cost function for evaluating the goodness-of-fit of 
@@ -44,4 +49,12 @@ public interface TargetCostFunction
      * @return a non-negative number; smaller values mean better fit, i.e. smaller cost.
      */
     public int cost(Target target, Unit unit);
+    
+    /**
+     * Set the features of the cost function
+     * @param features the features
+     */
+    public void setFeatsAndWeights(java.util.List features,Map features2Weights,
+			UnitSelectionFeatProcManager featProc);
+    
 }

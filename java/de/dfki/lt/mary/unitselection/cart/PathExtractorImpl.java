@@ -63,7 +63,7 @@ import com.sun.speech.freetts.ProcessException;
  * to extract a feature or an item based upon a path.
  */
 public class PathExtractorImpl implements PathExtractor {
-    private static UtteranceFeatProcManager featureProcessors;
+    private UtteranceFeatProcManager featureProcessors;
     private Logger logger;
     /**
       * If this system property is set to true, paths will
@@ -122,7 +122,7 @@ public class PathExtractorImpl implements PathExtractor {
 	}
     }
 
-    public static void setFeatureProcessors(UtteranceFeatProcManager fp){
+    public void setFeatureProcessors(UtteranceFeatProcManager fp){
         featureProcessors = fp;
     }
     
