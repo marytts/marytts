@@ -66,7 +66,8 @@ import de.dfki.lt.mary.util.dom.MaryDomUtils;
 import de.dfki.lt.mary.util.dom.NameNodeFilter;
 
 /**
- * The generic prosody module
+ * The generic prosody module.
+ * @author Stephanie Becker
  */
 
 public class ProsodyGeneric extends InternalModule {
