@@ -64,9 +64,11 @@ public class ClusterTargetCostFunction implements TargetCostFunction
      */
     public int cost(Target target, Unit unit)
     {
+        //if you have no features, you can not calculate
         if (features2Extractor == null){
             return 0;
         } else {
+            //if the unit has no features, you can not calculate
             if (!unit.hasFeaturesMap()){
                 logger.debug("Could not calculate cost for unit "
                         +unit.getName()+", returning 0");
@@ -77,23 +79,35 @@ public class ClusterTargetCostFunction implements TargetCostFunction
                 Set features = features2Extractor.keySet();
                 for (Iterator it= features.iterator(); it.hasNext();){
                     String nextFeature = (String) it.next();
-                    String targetValue = (String)
+                    //extract the targets value
+                    String targetValue = target.getValueForFeature(nextFeature);
+                    if (targetValue == null){
+                        targetValue = (String)
                     	((PathExtractorImpl)features2Extractor.get(nextFeature)).findFeature(target.getItem());
+                        target.setFeatureAndValue(nextFeature,targetValue);
+                    }
+                    //extract the units value
                     String unitValue = unit.getValueForFeature(nextFeature);
                     if (unitValue != null || targetValue != null){
+                        //extract the weight and compare
                         Integer weight = (Integer) features2Weights.get(nextFeature);
                         cost += compare(targetValue, unitValue, weight);
-                        logger.debug("Succesfully calculated cost for unit "+unit.getName());
-                    } else {
-                        logger.debug("Could not calculate cost for unit "
-                            +unit.getName()+", returning 0");
                     }
                 }
+                logger.debug("Succesfully calculated cost for unit "+unit.getName()
+                        +" and target "+target.toString());
                 return cost;
             }
         }
     }
     
+    /**
+     * Compare two values considering a weight
+     * @param targetValue the target Value
+     * @param unitValue the unit Value
+     * @param weight the weight
+     * @return the resulting cost
+     */
     private int compare(String targetValue, 
             			String unitValue, 
             			Integer weight)
@@ -114,11 +128,13 @@ public class ClusterTargetCostFunction implements TargetCostFunction
             						UnitSelectionFeatProcManager featProc)
     {
         this.features2Weights = features2Weights;
+        //if you did not get any features, do nothing
         if (features == null){
             this.features2Extractor = null;
             logger.warn("Did not get any features, " +
             			"can not calculate target costs"); 
         } else {
+            //build a PathExtractor for each feature
             features2Extractor = new HashMap();
             for (Iterator it = features.iterator();it.hasNext();){
                 String nextFeature = (String)it.next();
