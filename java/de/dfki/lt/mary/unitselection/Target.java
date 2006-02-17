@@ -30,6 +30,8 @@ package de.dfki.lt.mary.unitselection;
 
 import org.w3c.dom.Element;
 
+import java.util.*;
+
 import com.sun.speech.freetts.Item;
 
 /**
@@ -43,6 +45,8 @@ public class Target
     protected String name;
     protected Element maryxmlElement;
     protected Item item;
+    //a map containing this targets features
+    protected Map features2Values = null;
     
     public Target(String name)
     {
@@ -78,6 +82,25 @@ public class Target
             return end - prev_end;
         }
     }
+    
+    public void setFeatureAndValue(String feature, String value)
+    {
+        if (features2Values == null){
+            features2Values = new HashMap();
+        }
+        features2Values.put(feature,value);
+    }
+    
+    public String getValueForFeature(String feature)
+    {
+        if (features2Values != null 
+                && features2Values.containsKey(feature)){
+            return (String) features2Values.get(feature);
+        } else {
+            return null;
+        }
+    }
+    
     
     public String toString()
     {
