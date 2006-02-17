@@ -77,6 +77,7 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import javax.swing.KeyStroke;
+import javax.swing.JApplet;
 
 import org.incava.util.diff.Diff;
 import org.incava.util.diff.Difference;
@@ -134,6 +135,7 @@ public class MaryGUIClient extends JPanel
     
 
     static JFrame mainFrame;
+    static JApplet mainApplet;
 
     /* -------------------- Data and Processing stuff -------------------- */
     private MaryClient processor;
@@ -185,7 +187,7 @@ public class MaryGUIClient extends JPanel
      * @throws IOException
      * @throws UnknownHostException
      */
-    public MaryGUIClient(String host, int port) throws IOException, UnknownHostException
+    public MaryGUIClient(String host, int port, JApplet applet) throws IOException, UnknownHostException
     {
         super();
         // First the MaryClient processor class, because it may provide
@@ -200,7 +202,7 @@ public class MaryGUIClient extends JPanel
                     JOptionPane.ERROR_MESSAGE);
             System.exit(1);
         }
-
+        mainApplet = applet;
         allowSave = false;
         init();
     }
@@ -212,7 +214,12 @@ public class MaryGUIClient extends JPanel
     public void init() throws IOException, UnknownHostException {
     
 	maryGUITraversal = new MaryGUIFocusTraversalPolicy();
-	mainFrame.setFocusTraversalPolicy(maryGUITraversal);
+	//if this is a normal gui
+	if (mainFrame != null){
+	    mainFrame.setFocusTraversalPolicy(maryGUITraversal);
+	} else { //this is an applet
+	    mainApplet.setFocusTraversalPolicy(maryGUITraversal);
+	}
 
         Dimension paneDimension = new Dimension(250,400);
         // Layout
@@ -372,6 +379,7 @@ public class MaryGUIClient extends JPanel
                                  "The input will be transformed into the specified output type." );
 	bProcess.getAccessibleContext().setAccessibleName("Process button");
         bProcess.setActionCommand( "process" );
+        bProcess.setMnemonic('P');
         bProcess.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 processInput();
@@ -388,6 +396,7 @@ public class MaryGUIClient extends JPanel
                               " The current content of the input text area will be discarded." );
 	bEdit.getAccessibleContext().setAccessibleName("Edit button");
         bEdit.setActionCommand( "edit" );
+        bEdit.setMnemonic('E');
         bEdit.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 editOutput();
@@ -403,6 +412,7 @@ public class MaryGUIClient extends JPanel
                                "(available only if both are MaryXML types)." );
 	bCompare.getAccessibleContext().setAccessibleName("Compare button");
         bCompare.setActionCommand( "compare" );
+        bCompare.setMnemonic('C');
         bCompare.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 compareTexts();
@@ -491,6 +501,7 @@ public class MaryGUIClient extends JPanel
         bPlay.setToolTipText( "Synthesize and play the resulting audio stream." );
 	bPlay.getAccessibleContext().setAccessibleName("Play button");
         bPlay.setActionCommand( "play" );
+        bPlay.setMnemonic('P');
         bPlay.addActionListener( new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (audioPlayer != null) { // an audioPlayer is currently playing
@@ -534,6 +545,7 @@ public class MaryGUIClient extends JPanel
             bSaveOutput.setToolTipText( "Save the output as a file." );
 	    bSaveOutput.getAccessibleContext().setAccessibleName("Save Output button");
             bSaveOutput.setActionCommand( "saveOutput" );
+            bSaveOutput.setMnemonic('S');
             bSaveOutput.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     saveOutput();
@@ -544,6 +556,7 @@ public class MaryGUIClient extends JPanel
         setPreferredSize(new Dimension(720,480));
 
         verifyEnableButtons();
+        cbInputType.requestFocusInWindow();
     }
 
     private void setExampleInputText()
@@ -590,8 +603,10 @@ public class MaryGUIClient extends JPanel
     private void verifyEnableButtons() {
         if (((MaryClient.DataType)cbOutputType.getSelectedItem()).isTextType()) {
             buttonPanel.setVisible(true);
+            if (!cbOutputType.hasFocus()) bProcess.requestFocusInWindow();
         } else { // do not show these three buttons for audio output:
             buttonPanel.setVisible(false);
+            if (!cbOutputType.hasFocus()) bPlay.requestFocusInWindow();
         }
         // Edit button:
         if (showingTextOutput) {
@@ -1023,7 +1038,11 @@ public class MaryGUIClient extends JPanel
             } else if (aComponent.equals(bProcess)) {
                 return outputText;
             } else if (aComponent.equals(bPlay)) {
-                return bSaveOutput;
+                if (allowSave){
+                    return bSaveOutput;
+                } else {
+                    return cbInputType;
+                }
             } else if (aComponent.equals(outputText)) {
 	         		if (bEdit.isEnabled()){
 	         		    return bEdit;
@@ -1031,9 +1050,13 @@ public class MaryGUIClient extends JPanel
 	         		    return cbInputType;
 	         		}
             } else if (aComponent.equals(bEdit)) {
-                return bCompare;
+                	return bCompare;
             } else if (aComponent.equals(bCompare)) {
-                return bSaveOutput;
+                if (allowSave){
+                    return bSaveOutput;
+                } else {
+                    return cbInputType;
+                }
             } else if (aComponent.equals(bSaveOutput)) {
                 return cbInputType;
             }
@@ -1044,10 +1067,14 @@ public class MaryGUIClient extends JPanel
                                             Component aComponent) 
         {
             if (aComponent.equals(bSaveOutput)) {
-                if (bPlay.isVisible()){
+                if (bPlay.isEnabled()){
                     return bPlay;
                 } else {
-                    return bCompare;
+                    if (bCompare.isEnabled()){
+                        return bCompare;
+                    } else {
+                        return bProcess;
+                    }
                 }
             } else if (aComponent.equals(bCompare)) {
                 return bEdit;
@@ -1072,10 +1099,14 @@ public class MaryGUIClient extends JPanel
             } else if (aComponent.equals(cbOutputType)) {
                 return cbInputType;
             } else if (aComponent.equals(cbInputType)) {
-                		if (bSaveOutput.isEnabled()){
+                		if (allowSave){
                 		    return bSaveOutput;
                 		} else {
-                		    return outputText;
+                		   if (buttonPanel.isVisible()){
+                               return bProcess;
+                		   } else {
+                		       return bPlay;
+                		   }
                 		}
             }
             return cbInputType;

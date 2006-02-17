@@ -49,7 +49,7 @@ public class MaryInterfaceApplet extends JApplet
         }
         int port = 59125;
         try {
-            maryExpertInterface = new MaryGUIClient(host, port);
+            maryExpertInterface = new MaryGUIClient(host, port, this);
             getContentPane().setLayout(new FlowLayout());
             getContentPane().add(maryExpertInterface);
         } catch (IOException ioe) {
