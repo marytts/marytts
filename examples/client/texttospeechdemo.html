@@ -1,0 +1,110 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link rel=stylesheet type="text/css" href="mary.css">
+<script type="text/javascript">
+<!--
+  function setLanguage()
+  {
+    var opt = document.InputForm.language.options[document.InputForm.language.selectedIndex];
+    switch (opt.value) {
+      case "German":
+        setGerman();
+        break;
+      case "English":
+        setEnglish();
+        break;
+      default:
+        break;
+    }
+  }
+
+  function setGerman()
+  {
+    document.InputForm.inputtext.value =
+      "Willkommen in der Welt der Sprachsynthese!";
+    document.InputForm.elements[0].value = "TEXT_DE";
+    document.InputForm.language.selectedIndex = 0;
+    var vOpts = document.InputForm.voice.options;
+    vOpts.length = 0; // erase current content
+    addOption(vOpts, "de7", "de7 (female, soft/modal/loud voice, 22050 Hz)");
+    addOption(vOpts, "de1", "de1 (female, 16000 Hz)");
+    addOption(vOpts, "de2", "de2 (male, 16000 Hz)");
+    addOption(vOpts, "de3", "de3 (female, 22050 Hz)");
+    addOption(vOpts, "de4", "de4 (male, 16000 Hz)");
+    addOption(vOpts, "de5", "de5 (female, 22050 Hz)");
+    addOption(vOpts, "de6", "de6 (male, soft/modal/loud voice, 22050 Hz)");
+  }    
+
+  function setEnglish()
+  {
+    document.InputForm.inputtext.value =
+      "Welcome to the world of speech synthesis!";
+    document.InputForm.elements[0].value = "TEXT_EN";
+    document.InputForm.language.selectedIndex = 1;
+    var vOpts = document.InputForm.voice.options;
+    vOpts.length = 0; // erase current content
+    addOption(vOpts, "us1", "us1 (female, 16000 Hz)");
+    addOption(vOpts, "us2", "us2 (male, 16000 Hz)");
+    addOption(vOpts, "us3", "us3 (male, 16000 Hz)");
+  }    
+
+  function addOption(opts, value, text)
+  {
+    opts[opts.length] = new Option(text, value);
+  }
+//-->
+</script>
+</head>
+<body onLoad="setGerman()">
+<h1 align="center">The MARY Text-to-Speech System: Online Demo</h1>
+<div align="center">
+<p>Synthesise any text online (max. 5000 characters):
+</p>
+<form name="InputForm" method="get" action="../cgi-bin/say.cgi">
+  <input type="hidden" name="in" value="TEXT"/>
+  <input type="hidden" name="out" value="AUDIO"/>
+  Language:
+  <select name="language" onChange="setLanguage()">
+    <option value="German">German</option>
+    <option value="English">English</option>
+  </select>
+  <p>Input text:</p>
+  <textarea name="inputtext" rows=8 cols=50 wrap=virtual>
+Welcome to the world of speech synthesis!
+
+Willkommen in der Welt der Sprachsynthese!
+  </textarea><br>
+  <table align="center">
+  <tr>
+  <td>
+    Voice:
+    <select name="voice">
+      <option value="v">t</option>
+    </select>
+  </td><td>
+    Audio format:
+    <select name="audiotype">
+      <option value="AU">Sun Audio, 16 bit</option>
+      <option value="AIFF">AIFF, 16 bit</option>
+      <option value="WAVE" selected>WAV, 16 bit</option>
+      <option value="MP3">mp3</option>
+    </select>
+  </td>
+  </tr>
+  <tr>
+  <td align="right">
+    <input type=submit value="Speak">
+  </td><td align="left">
+    <input type=reset value="Reset">
+  </td>
+  </tr>
+  </table>
+  <p>
+  <input type=radio name="save_to_disk" value="0" checked>Hear directly
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <input type=radio name="save_to_disk" value="1">Save to disk
+</form>
+</div>
+</body>
+</html>
