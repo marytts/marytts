@@ -1,86 +1,57 @@
 <html>
+<!--
+Copyright 2000-2006 DFKI GmbH.
+All Rights Reserved.  Use is subject to license terms.
+
+Permission is hereby granted, free of charge, to use and distribute
+this software and its documentation without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of this work, and to
+permit persons to whom this work is furnished to do so, subject to
+the following conditions:
+
+1. The code must retain the above copyright notice, this list of
+   conditions and the following disclaimer.
+2. Any modifications must be clearly marked as such.
+3. Original authors' names are not deleted.
+4. The authors' names are not used to endorse or promote products
+   derived from this software without specific prior written
+   permission.
+
+DFKI GMBH AND THE CONTRIBUTORS TO THIS WORK DISCLAIM ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL DFKI GMBH NOR THE
+CONTRIBUTORS BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
+DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
+PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
+ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+THIS SOFTWARE.
+-->
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <link rel=stylesheet type="text/css" href="mary.css">
 <script type="text/javascript">
-<!--
-  function setLanguage()
-  {
-    var opt = document.InputForm.language.options[document.InputForm.language.selectedIndex];
-    switch (opt.value) {
-      case "German":
-        setGerman();
-        break;
-      case "English":
-        setEnglish();
-        break;
-      default:
-        break;
-    }
-  }
-
-  function setGerman()
-  {
-    document.InputForm.inputtext.value =
-      "Willkommen in der Welt der Sprachsynthese!";
-    document.InputForm.elements[0].value = "TEXT_DE";
-    document.InputForm.language.selectedIndex = 0;
-    var vOpts = document.InputForm.voice.options;
-    vOpts.length = 0; // erase current content
-    addOption(vOpts, "de7", "de7 (female, soft/modal/loud voice, 22050 Hz)");
-    addOption(vOpts, "de1", "de1 (female, 16000 Hz)");
-    addOption(vOpts, "de2", "de2 (male, 16000 Hz)");
-    addOption(vOpts, "de3", "de3 (female, 22050 Hz)");
-    addOption(vOpts, "de4", "de4 (male, 16000 Hz)");
-    addOption(vOpts, "de5", "de5 (female, 22050 Hz)");
-    addOption(vOpts, "de6", "de6 (male, soft/modal/loud voice, 22050 Hz)");
-  }    
-
-  function setEnglish()
-  {
-    document.InputForm.inputtext.value =
-      "Welcome to the world of speech synthesis!";
-    document.InputForm.elements[0].value = "TEXT_EN";
-    document.InputForm.language.selectedIndex = 1;
-    var vOpts = document.InputForm.voice.options;
-    vOpts.length = 0; // erase current content
-    addOption(vOpts, "us1", "us1 (female, 16000 Hz)");
-    addOption(vOpts, "us2", "us2 (male, 16000 Hz)");
-    addOption(vOpts, "us3", "us3 (male, 16000 Hz)");
-  }    
-
-  function addOption(opts, value, text)
-  {
-    opts[opts.length] = new Option(text, value);
-  }
-//-->
-</script>
 </head>
-<body onLoad="setGerman()">
+<body>
 <h1 align="center">The MARY Text-to-Speech System: Online Demo</h1>
 <div align="center">
 <p>Synthesise any text online (max. 5000 characters):
 </p>
-<form name="InputForm" method="get" action="../cgi-bin/say.cgi">
+<form name="InputForm" method="get" action="maryclient.cgi">
+  <!-- Set the language of your input here: TEXT_DE=German, TEXT_EN=English... -->
   <input type="hidden" name="in" value="TEXT"/>
   <input type="hidden" name="out" value="AUDIO"/>
-  Language:
-  <select name="language" onChange="setLanguage()">
-    <option value="German">German</option>
-    <option value="English">English</option>
-  </select>
   <p>Input text:</p>
   <textarea name="inputtext" rows=8 cols=50 wrap=virtual>
 Welcome to the world of speech synthesis!
-
-Willkommen in der Welt der Sprachsynthese!
   </textarea><br>
   <table align="center">
   <tr>
   <td>
     Voice:
     <select name="voice">
-      <option value="v">t</option>
+      <option value="us1">us1 (American English, female)</option>
+      <option value="us2">us2 (American English, male)</option>
     </select>
   </td><td>
     Audio format:
