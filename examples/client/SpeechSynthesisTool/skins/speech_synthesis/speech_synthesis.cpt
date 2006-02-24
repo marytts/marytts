@@ -1,0 +1,156 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      i18n:domain="plone"
+      metal:use-macro="here/main_template/macros/master">
+
+<body>
+
+<metal:block fill-slot="top_slot"
+             tal:define="dummy python:request.set('enable_border',1)" />
+
+  <div metal:fill-slot="main"
+       tal:define="insideTTS python:request.get('insideTTS', None);
+                   availableLanguages context/speech_synthesis_tool/getAvailableLanguages;
+                   selectedLanguage python:request.get('lang', availableLanguages[0][0]);
+                   prevLanguage python:request.get('prevLanguage', None);
+                   availableVoices python:context.speech_synthesis_tool.getVoices(unicode(selectedLanguage));
+                   selectedVoice python:request.get('voice', availableVoices[0]['name']);
+                   inputTypes python:context.speech_synthesis_tool.getInputDataTypes(unicode(selectedLanguage));
+                   inputType python:test(insideTTS, request.get('inputType', context.texttype(selectedLanguage)), None);
+                   prevInputType python:request.get('prevInputType', None);
+                   outputTypes python:context.speech_synthesis_tool.getOutputDataTypes(unicode(selectedLanguage));
+                   outputType python:request.get('outputType', None);
+                   inputFromRequest python:request.get('input', None);
+                   input python:context.synth_input(inputFromRequest, inputType, prevInputType, selectedLanguage, prevLanguage);
+                   errors options/state/getErrors;">
+
+  <form method="post"
+        tal:attributes="action template/id;">
+
+    <h1>
+      Online Speech Synthesis
+    </h1>
+
+    <fieldset>
+
+  <span tal:condition="not: insideTTS">
+    <input type="hidden" name="outputType" value="AUDIO"/>
+  </span>
+  <span tal:condition="insideTTS">
+    <!-- Track changes in input type so we can update the sample text if user changed input type: -->
+    <input type="hidden" name="prevInputType" value="" tal:attributes="value inputType;"/>
+  </span>
+  <input type="hidden" name="prevLanguage" value="" tal:attributes="value selectedLanguage;"/>
+
+  <table>
+  <tr>
+  <td>Language:
+    <select name="lang">
+      <tal:block tal:repeat="language availableLanguages">
+        <option value=""
+                tal:attributes="value python:language[0];
+                                selected python:test(language[0]==selectedLanguage, 'selected', None);"
+                tal:content="python:language[1]">
+          Language
+        </option>
+      </tal:block>
+    </select>
+  </td>
+  <td tal:condition="insideTTS">Input type:
+    <select name="inputType">
+      <tal:block tal:repeat="inType inputTypes">
+        <option value=""
+                tal:attributes="value python:inType['name'];
+                                selected python:test(inType['name']==inputType, 'selected', None);"
+                tal:content="python:inType['name']">
+          Input type
+        </option>
+      </tal:block>
+    </select>
+  </td>
+  <td tal:condition="insideTTS">Output type:
+    <select name="outputType">
+      <tal:block tal:repeat="outType outputTypes">
+        <option value=""
+                tal:attributes="value python:outType['name'];
+                                selected python:test(outType['name']==outputType, 'selected', None);"
+                tal:content="python:outType['name']">
+          Output type
+        </option>
+      </tal:block>
+    </select>
+  </td>
+  <td>
+	  <input class="noborder"
+	    tabindex=""
+	    type="checkbox"
+	    value="look inside TTS"
+	    name="insideTTS"
+	    tal:attributes="tabindex tabindex/next;
+	                    checked python:test(insideTTS, 'checked', '');"
+	    />
+	    look inside TTS
+  </td>
+  <td>
+    <div class="formControls">
+      <input class="context" type="submit" name="form.button.Update" value="Update"
+             tal:attributes="tabindex tabindex/next;" />
+    </div>
+  </td>
+  </tr>
+  </table>
+  <p>Input text:</p>
+  <textarea name="input" rows="8" cols="50" wrap="virtual">
+<tal:block replace="input">
+Welcome to the world of speech synthesis!
+</tal:block>
+  </textarea><br>
+
+  <table align="center">
+  <tr>
+  <td>
+    Voice:
+    <select name="voice">
+    <tal:block tal:repeat="v availableVoices">
+      <option value=""
+              tal:attributes="value python:v['name'];
+                              selected python:test(v['name']==selectedVoice, 'selected', None);"
+              tal:content="python:v['toString']">
+                        Voice
+      </option>
+    </tal:block>
+    </select>
+  </td><td>
+    Audio format:
+    <select name="audioType">
+      <option value="WAVE" selected>WAV, 16 bit</option>
+      <option value="MP3">mp3</option>
+      <option value="AU">Sun Audio, 16 bit</option>
+      <option value="AIFF">AIFF, 16 bit</option>
+    </select>
+  </td>
+  </tr>
+
+  </table>
+  <p>
+
+    <div class="formControls">
+      <input class="context" type="submit" name="form.button.Submit" value="Speak"
+             tal:attributes="tabindex tabindex/next;" />
+    </div>
+
+    </fieldset>
+
+
+    <input type="hidden" name="form.submitted" value="1" />
+
+  </form>
+  <div style="font-size:x-small; text-align:right;">Powered by 
+    <a href="http://mary.dfki.de" tal:content="context/speech_synthesis_tool/getServerVersionInfo">MARY TTS</a>
+  </div>
+
+  </div>
+
+</body>
+
+</html>
