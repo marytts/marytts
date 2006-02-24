@@ -1,0 +1,7 @@
+[default]
+title=Online Speech Synthesis
+
+
+[actions]
+action.success..Update=traverse_to:string:speech_synthesis
+action.success=traverse_to:string:speech_synthesis_process
