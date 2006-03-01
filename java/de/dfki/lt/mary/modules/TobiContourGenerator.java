@@ -1281,6 +1281,7 @@ public class TobiContourGenerator extends InternalModule {
                 }
             }
             tbConf = (TopBaseConfiguration) topBaseConfMap.get(topBaseRef);
+            assert tbConf != null;
             int d = 0;
             try {
                 d = Integer.parseInt(target.segment().getAttribute("d"));

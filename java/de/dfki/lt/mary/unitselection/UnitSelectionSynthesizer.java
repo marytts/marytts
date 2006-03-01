@@ -32,6 +32,7 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -112,11 +113,11 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
      {
         try {
             MaryData in = new MaryData(MaryDataType.get("ACOUSTPARAMS"));
-            List myVoices = Voice.getAvailableVoices(this);
+            Collection myVoices = Voice.getAvailableVoices(this);
             if (myVoices.size() == 0) {
                 return;
             }
-            UnitSelectionVoice unitSelVoice = (UnitSelectionVoice) myVoices.get(0);
+            UnitSelectionVoice unitSelVoice = (UnitSelectionVoice) myVoices.iterator().next();
             assert unitSelVoice != null;
             if (!unitSelVoice.getDomain().equals("general")) {
                 logger.info("Cannot perform power-on self test using limited-domain voice '" + unitSelVoice.getName() + "' - skipping.");
