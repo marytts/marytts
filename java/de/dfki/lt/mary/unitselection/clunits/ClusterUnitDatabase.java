@@ -277,47 +277,53 @@ public class ClusterUnitDatabase extends UnitDatabase
      * Load the information about the units origin
      *
      */
-    private void loadCatalogue(){
-        try{
-        String file = 
-            MaryProperties.getFilename("voice."+voice+".unitCatalogue");
-        if (file == null){
-            logger.debug("Can not load catalogue file for voice "+voice);
-            return;}
-        BufferedReader reader = 
-            new BufferedReader(new FileReader(new File(file)));
-        String line = reader.readLine();
-        //skip the header
-        while ((line = reader.readLine()) != null) {
-            if (line.startsWith("EST_Header_End")) break;
-        }
-        while ((line = reader.readLine()) != null) {
-            String[] tokens = line.split(" ");
-            String name = tokens[0];
-            int index = getUnitIndexName(name);
-            try {
-                UnitOriginInfo unitOrigin = new UnitOriginInfo();
-                unitOrigin.originFile = tokens[1];
-                unitOrigin.originStart = Float.valueOf(tokens[2]).floatValue();
-                unitOrigin.originEnd = Float.valueOf(tokens[4]).floatValue();
-                getUnit(index).setOriginInfo(unitOrigin);
-            } catch (NumberFormatException nfe) {}
-        }
-        }catch(Throwable e){
-            e.printStackTrace();
-            logger.debug("Error reading catalogue of voice "+voice);
-        }
-    }
+    private void loadCatalogue()
+    {
+		try {
+			String file = MaryProperties.getFilename("voice." + voice
+					+ ".unitCatalogue");
+			if (file == null) {
+				logger.debug("No catalogue file given for voice " + voice);
+				return;
+			}
+			BufferedReader reader = new BufferedReader(new FileReader(new File(
+					file)));
+			String line = reader.readLine();
+			// skip the header
+			while ((line = reader.readLine()) != null) {
+				if (line.startsWith("EST_Header_End"))
+					break;
+			}
+			while ((line = reader.readLine()) != null) {
+				String[] tokens = line.split(" ");
+				String name = tokens[0];
+				int index = getUnitIndexName(name);
+				try {
+					UnitOriginInfo unitOrigin = new UnitOriginInfo();
+					unitOrigin.originFile = tokens[1];
+					unitOrigin.originStart = Float.valueOf(tokens[2])
+							.floatValue();
+					unitOrigin.originEnd = Float.valueOf(tokens[4])
+							.floatValue();
+					getUnit(index).setOriginInfo(unitOrigin);
+				} catch (NumberFormatException nfe) {
+				}
+			}
+		} catch (Throwable e) {
+			logger.debug("Error reading catalogue of voice " + voice, e);
+		}
+	}
     
     
     
     /**
-     * Retrieves the index for the name given a name. 
-     *
-     * @param name the name
-     *
-     * @return the index for the name
-     */
+	 * Retrieves the index for the name given a name.
+	 * 
+	 * @param name
+	 *            the name
+	 * 
+	 * @return the index for the name
+	 */
     private int getUnitIndexName(String name) {
     int lastIndex = name.lastIndexOf('_');
     if (lastIndex == -1) {
