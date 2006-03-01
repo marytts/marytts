@@ -28,15 +28,28 @@
  */
 package de.dfki.lt.mary.datatypes;
 
+import java.util.Locale;
+
 import de.dfki.lt.mary.MaryDataType;
 
 /**
  * @author Hannes Pirker
  *
  */
-public class APML_Definer extends MaryDataType {
+public class APML_EN_Definer extends MaryDataType {
     static {
-        define("APML", null, true, false, EXTERNAL_MARKUP, "apml", null,
-        null);
+        define("APML_EN", Locale.US, false, false, EXTERNAL_MARKUP, "apml", null,
+        "<?xml version=\"1.0\" ?>\n" +
+        "<!DOCTYPE apml SYSTEM \"http://mary.dfki.de/lib/apml.dtd\" []>\n" +
+        "<apml xml:lang=\"en\">\n" +
+	"<performative  type=\"announce\">\n" +
+        "<theme affect=\"joy\">\n" +
+        "Welcome<boundary type=\"H\"/>" +
+        "to the <emphasis level=\"strong\">wonderful</emphasis> world of\n" +
+        "<emphasis x-pitchaccent=\"Hstar\">speech</emphasis> synthesis\n" +
+        "<boundary type=\"LL\"/>!\n" +
+        "</theme>\n" +
+        "</performative>\n" +
+         "</apml>\n");
     }
 }
