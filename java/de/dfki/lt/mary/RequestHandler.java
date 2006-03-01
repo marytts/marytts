@@ -157,7 +157,8 @@ public class RequestHandler extends Thread {
         // Process input data to output data
         if (ok)
             try {
-                if (request.getOutputType().equals(MaryDataType.get("AUDIO"))) {
+                if (request.getOutputType().equals(MaryDataType.get("AUDIO"))
+                		&& request.getStreamAudio()) {
                     streamingOutput = true;
                     rw = new StreamingOutputWriter(request, dataSocket.getOutputStream());
                     rw.start();
