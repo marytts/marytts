@@ -56,6 +56,8 @@ public class TextToMaryXML extends InternalModule
     public TextToMaryXML(MaryDataType inputType, MaryDataType outputType)
     {
         super("TextToMaryXML", inputType, outputType);
+        // Just to activate the generic data type, "the" default input type:
+        MaryDataType.get("TEXT");
         splitIntoParagraphs = MaryProperties.getBoolean("texttomaryxml.splitintoparagraphs");
     }
 
