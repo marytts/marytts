@@ -28,6 +28,8 @@
  */
 package de.dfki.lt.mary.datatypes;
 
+import java.util.Locale;
+
 import de.dfki.lt.mary.MaryDataType;
 
 /**
@@ -35,10 +37,13 @@ import de.dfki.lt.mary.MaryDataType;
  *
  *
  */
-public class SABLE_Definer extends MaryDataType {
+public class SABLE_EN_Definer extends MaryDataType {
     static {
-        define("SABLE", null, true, false, EXTERNAL_MARKUP, "SABLE", null,
-                         null);
-
+        define("SABLE_EN", Locale.US, false, false, EXTERNAL_MARKUP, "SABLE", null,
+                         "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
+                         "<!DOCTYPE SABLE SYSTEM \"http://mary.dfki.de/lib/Sable.v0_2.dtd\">\n" +
+                         "<SABLE xml:lang=\"en\">\n" +
+                         "Welcome<BREAK/>to the world of speech synthesis!\n" +
+                         "</SABLE>\n");
     }
 }

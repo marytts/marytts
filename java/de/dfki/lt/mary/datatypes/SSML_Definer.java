@@ -38,13 +38,7 @@ import de.dfki.lt.mary.MaryDataType;
 public class SSML_Definer extends MaryDataType {
     static {
         define("SSML", null, true, false, EXTERNAL_MARKUP, "speak", null,
-            "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
-        "<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\"\n" +
-         "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-         "  xsi:schemaLocation=\"http://www.w3.org/2001/10/synthesis http://www.w3.org/TR/speech-synthesis/synthesis.xsd\"\n" +
-         "  xml:lang=\"de\">\n" +
-         "Willkommen<break/>in der Welt der Sprachsynthese!\n" +
-         "</speak>\n");
+            null);
 
     }
 }
