@@ -315,7 +315,8 @@ public class MaryGUIClient extends JPanel
         cbVoiceExampleText.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
-                    if (doReplaceInput)
+                    if (doReplaceInput
+                    		&& ((MaryClient.DataType)cbInputType.getSelectedItem()).name().startsWith("TEXT"))
                         setInputText((String)cbVoiceExampleText.getSelectedItem());
                 }
             }
@@ -344,7 +345,9 @@ public class MaryGUIClient extends JPanel
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     fillExampleTexts();
                     verifyExamplesVisible();
-                    if (doReplaceInput)
+                    if (doReplaceInput
+                    		&& ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).isLimitedDomain()
+                    		&& ((MaryClient.DataType)cbInputType.getSelectedItem()).name().startsWith("TEXT"))
                         setExampleInputText();
                 }
             }
@@ -561,9 +564,10 @@ public class MaryGUIClient extends JPanel
 
     private void setExampleInputText()
     {
+
         MaryClient.Voice defaultVoice = (MaryClient.Voice) cbDefaultVoice.getSelectedItem();
         MaryClient.DataType inputType = (MaryClient.DataType) cbInputType.getSelectedItem();
-        if (defaultVoice.isLimitedDomain() && inputType.name().startsWith("TEXT")) {
+    	if (defaultVoice.isLimitedDomain() && inputType.name().startsWith("TEXT")) {
             setInputText((String) cbVoiceExampleText.getSelectedItem());
         } else {
             try {
@@ -631,38 +635,30 @@ public class MaryGUIClient extends JPanel
     }
 
     /**
-     * Verify if the language of the input format has changed. If so,
-     * adapt the value of cbDefaultVoices.
+     * Verify that the list of voices in cbDefaultVoices matches the language of the input format.
      */
     private void verifyDefaultVoices() 
     {
-        MaryClient.DataType inputType = (MaryClient.DataType)cbInputType.getSelectedItem(); 
+        MaryClient.DataType inputType = (MaryClient.DataType)cbInputType.getSelectedItem();
         Locale inputLocale = null;
         if (inputType != null) inputLocale = inputType.getLocale();
+        // Is the default voice still suitable for the input locale?
         MaryClient.Voice defaultVoice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
         Locale voiceLocale = null;
         if (defaultVoice != null) voiceLocale = defaultVoice.getLocale();
-        MaryClient.Voice preferredVoice = null;
-        if (inputLocale != null && voiceLocale != null && voiceLocale.equals(inputLocale)) return;
-        // Locale change -- need to reset the list
+        if (inputLocale != null && voiceLocale != null && !voiceLocale.equals(inputLocale))
+        	defaultVoice = null;
+        // Reset the list, just in case
         cbDefaultVoice.removeAllItems();
         Iterator it = availableVoices.iterator();
         while (it.hasNext()) {
             MaryClient.Voice v = (MaryClient.Voice) it.next();
             if (inputLocale == null || v.getLocale().equals(inputLocale)) {
                 cbDefaultVoice.addItem(v);
-                if (v.equals(defaultVoice)) { // previously set voice is again in the list
-                    preferredVoice = defaultVoice;
-                } else if (v.name().equals("de7") || v.name().equals("us1")) {
-                    // TODO: these are my hard-coded preferences that others might not actually share...
-                    preferredVoice = v;
-                } else if (preferredVoice == null && !v.isLimitedDomain()) { // prefer general-domain voices
-                    preferredVoice = v;
-                }
             }
         }
-        if (preferredVoice != null) {
-            cbDefaultVoice.setSelectedItem(preferredVoice);
+        if (defaultVoice != null) {
+            cbDefaultVoice.setSelectedItem(defaultVoice);
         } else { // First in list is default voice:
             cbDefaultVoice.setSelectedIndex(0);
         }
@@ -749,6 +745,10 @@ public class MaryGUIClient extends JPanel
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File saveFile = fc.getSelectedFile();
                     String ext = MaryUtils.getExtension(saveFile);
+                    if (ext == null) { // no extension in the file name, append from filefilter
+                    	ext = ((SimpleFileFilter)fc.getFileFilter()).getExtension();
+                    	saveFile = new File(saveFile.getAbsolutePath()+"."+ext);
+                    }
                     AudioFileFormat.Type audioType = null;
                     for (int i=0; i<knownAudioTypes.length; i++) {
                         if (knownAudioTypes[i].getExtension().equals(ext)) {
