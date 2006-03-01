@@ -986,20 +986,23 @@ public class MaryClient {
         private String name;
         private Locale locale;
         private String gender;
+        private String domain;
         private boolean isLimitedDomain;
         Voice(String name, Locale locale, String gender, String domain)
         {
             this.name = name;
             this.locale = locale;
             this.gender = gender;
-            if (domain.equals("general")){
+            this.domain = domain;
+            if (domain == null || domain.equals("general")){
                 isLimitedDomain = false;}
             else {isLimitedDomain = true;}
         }
         public Locale getLocale() { return locale; }
         public String name() { return name; }
         public String gender() { return gender; }
-        public String toString() { return name + " (" + gender + ")";}
+        public String toString() { return name + " (" + locale.getDisplayLanguage() + ", " + gender
+        	+ (isLimitedDomain ? ", " + domain : "") +")";}
         public boolean isLimitedDomain() { return isLimitedDomain; }
     }
     
