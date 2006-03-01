@@ -91,6 +91,7 @@ public class Request {
     private Logger logger;
     private MaryData inputData;
     private MaryData outputData;
+    private boolean streamAudio = false;;
     private boolean abortRequested = false;
 
     // Keep track of timing info for each module
@@ -101,6 +102,12 @@ public class Request {
     public Request(MaryDataType inputType, MaryDataType outputType, Voice defaultVoice,
                    int id, AudioFileFormat audioFileFormat)
     {
+    	this(inputType, outputType, defaultVoice, id, audioFileFormat, false);
+    }
+    
+    public Request(MaryDataType inputType, MaryDataType outputType, Voice defaultVoice,
+            int id, AudioFileFormat audioFileFormat, boolean streamAudio)
+    {
         if (!inputType.isInputType())
             throw new IllegalArgumentException("not an input type: " + inputType.name());
         if (!outputType.isOutputType())
@@ -109,6 +116,7 @@ public class Request {
         this.outputType = outputType;
         this.defaultVoice = defaultVoice;
         this.id = id;
+        this.streamAudio = streamAudio;
         if (outputType == MaryDataType.get("AUDIO")) {
             if (audioFileFormat == null)
                 throw new NullPointerException("audio file format is needed for output type AUDIO");
@@ -127,8 +135,10 @@ public class Request {
         if (defaultVoice != null)
             info.append("\", voice \"" + defaultVoice.getName());
         if (audioFileFormat != null)
-            info.append("\", audio \"" + audioFileFormat.getType().toString());
-        info.append("\")");
+            info.append("\", audio \"" + audioFileFormat.getType().toString()+ "\"");
+        if (streamAudio)
+        	info.append(", streaming");
+        info.append(")");
         logger.info(info.toString());
         
         // Keep track of timing info for each module
@@ -157,6 +167,11 @@ public class Request {
         return appendableAudioStream;
     }
 
+    public boolean getStreamAudio()
+    {
+    	return streamAudio;
+    }
+    
     /**
      * Inform this request that any further processing does not make sense.
      */
@@ -589,22 +604,28 @@ public class Request {
      */
     private Locale determineLocale(MaryData data) {
         Locale locale = data.type().getLocale();
-        if (locale == null && data.type().isXMLType()) {
-            // We can determine the locale if the document element
-            // has an xml:lang attribute.
-            Document doc = data.getDocument();
-            if (doc != null) {
-                Element docEl = doc.getDocumentElement();
-                if (docEl != null) {
-                    String langCode = docEl.getAttribute("xml:lang");
-                    if (langCode.equals("")) {
-                        throw new IllegalArgumentException("XML root element does not have an xml:lang attribute");
-                    } else {
-                        locale = MaryUtils.string2locale(langCode);
-                    }
-                }
-            }
+        if (locale == null) {
+        	if (data.type().isXMLType()) {
+	            // We can determine the locale if the document element
+	            // has an xml:lang attribute.
+	            Document doc = data.getDocument();
+	            if (doc != null) {
+	                Element docEl = doc.getDocumentElement();
+	                if (docEl != null) {
+	                    String langCode = docEl.getAttribute("xml:lang");
+	                    if (langCode.equals("")) {
+	                        throw new IllegalArgumentException("XML root element does not have an xml:lang attribute");
+	                    } else {
+	                        locale = MaryUtils.string2locale(langCode);
+	                    }
+	                }
+	            }
+        	} else if (data.type().name().equals("TEXT")) {
+	            Voice voice = data.getDefaultVoice();
+	            if (voice != null) locale = voice.getLocale();
+        	}
         }
+
         // If we get here and still do not have a locale, it is usually
         // an error (but not always, e.g. not for MBROLA input data)
         if (locale == null) {
