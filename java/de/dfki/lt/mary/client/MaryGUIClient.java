@@ -577,12 +577,20 @@ public class MaryGUIClient extends JPanel
         } else {
             try {
             	String key = inputType.name();
+            	String exampleText;
             	if (inputType.getLocale() == null) {
-            		// for data types without locale, cannot get example text. Try to get
-            		// example text with voice locale:
-            		key = inputType.name() + "_" + defaultVoice.getLocale().getLanguage().toUpperCase();
+            		// for data types without locale, test if we can get example text.
+            		// If not, try to get example text with voice locale.
+            		try {
+            			exampleText = processor.getServerExampleText(key);
+            		} catch (IOException err) {
+                		key = inputType.name() + "_" + defaultVoice.getLocale().getLanguage().toUpperCase();
+                		exampleText = processor.getServerExampleText(key);
+            		}
+            	} else {
+            		exampleText = processor.getServerExampleText(key);
             	}
-                setInputText(processor.getServerExampleText(key));
+                setInputText(exampleText);
             } catch (IOException e) {
                 e.printStackTrace();
             }
