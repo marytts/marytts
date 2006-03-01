@@ -146,6 +146,7 @@ public class MaryGUIClient extends JPanel
     private Vector outputTypes = null;
     private boolean allowSave;
     private boolean streamMp3 = false;
+    private MaryClient.Voice prevVoice = null;
     
     //Map of limited Domain Voices and their example Texts
     private Map limDomVoices = new HashMap();
@@ -345,10 +346,14 @@ public class MaryGUIClient extends JPanel
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     fillExampleTexts();
                     verifyExamplesVisible();
+                    MaryClient.Voice voice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
+                    MaryClient.DataType dataType = (MaryClient.DataType)cbInputType.getSelectedItem(); 
                     if (doReplaceInput
-                    		&& ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).isLimitedDomain()
-                    		&& ((MaryClient.DataType)cbInputType.getSelectedItem()).name().startsWith("TEXT"))
+                        && (voice.isLimitedDomain() && dataType.name().startsWith("TEXT")
+                    	    || getPrevVoice() == null
+                    	    || !getPrevVoice().getLocale().equals(voice.getLocale())))
                         setExampleInputText();
+                    setPrevVoice(voice);
                 }
             }
         });
@@ -571,7 +576,13 @@ public class MaryGUIClient extends JPanel
             setInputText((String) cbVoiceExampleText.getSelectedItem());
         } else {
             try {
-                setInputText(processor.getServerExampleText(inputType.name()));
+            	String key = inputType.name();
+            	if (inputType.getLocale() == null) {
+            		// for data types without locale, cannot get example text. Try to get
+            		// example text with voice locale:
+            		key = inputType.name() + "_" + defaultVoice.getLocale().getLanguage().toUpperCase();
+            	}
+                setInputText(processor.getServerExampleText(key));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -973,6 +984,11 @@ public class MaryGUIClient extends JPanel
         outputText.setText(text);
         makeTextPlain(outputText.getStyledDocument());
         outputText.setCaretPosition(0);
+    }
+
+    private MaryClient.Voice getPrevVoice() { return prevVoice; }
+    private void setPrevVoice(MaryClient.Voice prevVoice) {
+    	this.prevVoice = prevVoice;
     }
     
     public void resetPlayButton()
