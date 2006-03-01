@@ -28,6 +28,7 @@
  */
 package de.dfki.lt.mary.modules.synthesis;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -84,7 +85,7 @@ public class FreeTTSVoices
             Logger logger = Logger.getLogger("FreeTTSVoices");
             logger.info("Loading US English FreeTTS voices...");
             // create all voices at startup time
-            List maryVoices = de.dfki.lt.mary.modules.synthesis.Voice.
+            Collection maryVoices = de.dfki.lt.mary.modules.synthesis.Voice.
                 getAvailableVoices(Locale.US);
             Iterator it = maryVoices.iterator();
             while (it.hasNext()) {

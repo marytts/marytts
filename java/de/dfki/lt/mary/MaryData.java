@@ -380,6 +380,7 @@ public class MaryData {
         } else if (type.isTextType()) { // caution: XML types are text types!
             writeTo(new OutputStreamWriter(os, "UTF-8"));
         } else { // audio
+        	logger.debug("Writing audio output, frame length "+audio.getFrameLength());
             AudioSystem.write(audio, audioFileFormat.getType(), os);
             os.flush();
         }

@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -140,13 +141,6 @@ public class MbrolaSynthesizer implements WaveformSynthesizer {
                         topStart, topEnd, baseStart, baseEnd,
                         voiceQualities,
                         missingDiphones);
-                if (/*TODO: Hack this in for the moment: */
-                        v.getName().equals("de7") || v.getName().equals("us1") ||
-                        Voice.getAvailableVoices(locale).isEmpty()) {
-                    // The first voice for each locale is registered
-                    // as the default voice for that locale
-                    Voice.registerDefaultVoice(locale, v);
-                }
                 Voice.registerVoice(v);
             } else { // voice not present
                 logger.debug("Voice `"+voiceName+"' is not present. Skipping.");
@@ -164,10 +158,10 @@ public class MbrolaSynthesizer implements WaveformSynthesizer {
          logger.info("Starting power-on self test.");
          try {
              MaryDataType inType = maryxmlToMbrola.inputType();
-             List voices = Voice.getAvailableVoices(this);
+             Collection voices = Voice.getAvailableVoices(this);
              if (voices.isEmpty())
                  throw new Error("No MBROLA voices present");
-             Voice v = (Voice) voices.get(0);
+             Voice v = (Voice) voices.iterator().next();
              assert v != null;
              MaryData in = new MaryData(inType);
              MaryDataType langSpecType = MaryDataType.getLanguageSpecificVersion(inType, v.getLocale());

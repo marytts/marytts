@@ -29,6 +29,7 @@
 package de.dfki.lt.mary;
 
 // General Java Classes
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -105,7 +106,7 @@ public class MaryDataType
             return exampleText;
         // No example text in current data type
         if (getLocale() == null) {
-            List voices = Voice.getAvailableVoices();
+            Collection voices = Voice.getAvailableVoices();
             for (Iterator it = voices.iterator(); it.hasNext(); ) {
                 Voice v = (Voice) it.next();
                 Locale locale = v.getLocale();

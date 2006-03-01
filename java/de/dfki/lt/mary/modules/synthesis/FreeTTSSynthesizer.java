@@ -33,6 +33,7 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -195,12 +196,12 @@ public class FreeTTSSynthesizer implements WaveformSynthesizer {
      {
          try {
              MaryData in = new MaryData(x2u.inputType());
-             List myVoices = Voice.getAvailableVoices(this);
+             Collection myVoices = Voice.getAvailableVoices(this);
              if (myVoices.size() == 0) {
                  return;
              }
              
-             Voice v = (Voice) myVoices.get(0);
+             Voice v = (Voice) myVoices.iterator().next();
              com.sun.speech.freetts.Voice freettsVoice = FreeTTSVoices.getFreeTTSVoice(v);
              assert freettsVoice != null;
              if (!freettsVoice.getDomain().equals("general")) {

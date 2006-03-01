@@ -30,6 +30,7 @@ package de.dfki.lt.mary.modules.synthesis;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Collection;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -125,11 +126,11 @@ public class FestivalSynthesizer implements WaveformSynthesizer {
      {
          try {
              MaryData in = new MaryData(x2u.inputType());
-             List myVoices = Voice.getAvailableVoices(this);
+             Collection myVoices = Voice.getAvailableVoices(this);
              if (myVoices.size() == 0) {
                  return;
              }
-             Voice v = (Voice) myVoices.get(0);
+             Voice v = (Voice) myVoices.iterator().next();
              in.readFrom(new StringReader(MaryDataType.get("ACOUSTPARAMS_EN").exampleText()));
              in.setDefaultVoice(v);
              MaryData d1 = x2u.process(in);

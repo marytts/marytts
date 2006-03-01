@@ -35,6 +35,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -43,7 +46,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.StringTokenizer;
+import java.util.TreeSet;
 import java.util.Vector;
 
 import javax.sound.sampled.AudioFormat;
@@ -107,8 +112,16 @@ public class Voice
           System.getProperty("os.arch").equals("i386")) ? // byteorder
          false // little-endian
          : true); // big-endian
-    /** List all registered voices */
-    private static LinkedList allVoices = new LinkedList();
+    /** List all registered voices. This set will always return the voices in the order of their
+     * wantToBeDefault value, highest first. */
+    private static Set allVoices = new TreeSet(new Comparator() {
+    	public int compare(Object o1, Object o2) {
+    		Voice v1 = (Voice) o1;
+    		Voice v2 = (Voice) o2;
+    		// Return negative number if v1 should be listed before v2
+    		return v2.wantToBeDefault - v1.wantToBeDefault;
+    	}
+    });
     /** This map associates a value de.dfki.lt.mary.modules.synthesis.Voice to
      * a key Locale: */
     private static Map defaultVoices = new HashMap();
@@ -132,6 +145,7 @@ public class Voice
     private Map voice2sampaMap;
     private boolean useVoicePAInOutput;
     private Set missingDiphones;
+    private int wantToBeDefault;
 
     
     public Voice(String path, String[] nameArray, Locale locale, 
@@ -175,6 +189,7 @@ public class Voice
                 missingDiphones = null;
             }
         }
+        this.wantToBeDefault = MaryProperties.getInteger("voice."+getName()+".want.to.be.default.voice", 0);
     }
 
     /**
@@ -218,6 +233,7 @@ public class Voice
         this.baseEnd   = (int) (freeTTSVoice.getPitch() - freeTTSVoice.getPitchRange());
         this.knownVoiceQualities = new ArrayList(0);
         fillSampaMap();
+        this.wantToBeDefault = MaryProperties.getInteger("voice."+getName()+".want.to.be.default.voice", 0);
     }
     
     private void fillSampaMap()
@@ -592,6 +608,13 @@ public class Voice
 
     ////////// static stuff //////////
 
+    /**
+     * Register the given voice. It will be contained in the list of available voices returned
+     * by any subsequent calls to getAvailableVoices(). If the voice has the highest value of
+     * <code>wantToBeDefault</code> for its locale it will be registered as the default voice for
+     * its locale.
+     * This value is set in the config file setting <code>voice.(name).want.to.be.default.voice</code>.
+     */
     public static void registerVoice(Voice voice)
     {
         if (voice == null)
@@ -602,8 +625,17 @@ public class Voice
             allVoices.add(voice);
             FreeTTSVoices.load(voice);
         }
+        checkIfDefaultVoice(voice);
     }
 
+
+    /**
+     * Register the given voice along with the corresponding freetts voice. It will be contained in the list of available voices returned
+     * by any subsequent calls to getAvailableVoices(). If the voice has the highest value of
+     * <code>wantToBeDefault</code> for its locale it will be registered as the default voice for
+     * its locale.
+     * This value is set in the config file setting <code>voice.(name).want.to.be.default.voice</code>.
+     */    
     public static void registerVoice(Voice maryVoice, com.sun.speech.freetts.Voice freettsVoice)
     {
         if (maryVoice == null || freettsVoice == null)
@@ -614,29 +646,23 @@ public class Voice
             allVoices.add(maryVoice);
             FreeTTSVoices.load(maryVoice, freettsVoice);
         }
+        checkIfDefaultVoice(maryVoice);
     }
 
-    public static void registerDefaultVoice(Locale locale, Voice voice)
-    {
-        if (locale == null || voice == null)
-            throw new NullPointerException("Need non-null locale and voice in order to register default voice.");
-        if (!MaryUtils.subsumes(locale, voice.getLocale()))
-            throw new IllegalArgumentException
-                ("Cannot register voice " + voice.getName() +
-                 " as default for wrong locale " + locale.toString());
-        // Make sure default voice is the first (of its locale) in the list of all voices:
-        if (allVoices.contains(voice)) allVoices.remove(voice);
-        allVoices.addFirst(voice);
-        try {
-            FreeTTSVoices.load(voice);
-        } catch (NoClassDefFoundError ncdfe) {
-            logger.debug(ncdfe);
+    /**
+     * Check if this voice should be registered as default.
+     * @param voice
+     */
+	private static void checkIfDefaultVoice(Voice voice)
+	{
+		
+        Locale locale = voice.getLocale();
+        Voice currentDefault = (Voice) defaultVoices.get(locale);
+        if (currentDefault == null || currentDefault.wantToBeDefault < voice.wantToBeDefault) {
+            logger.info("New default voice for locale " + locale + ": " + voice.getName() + " (desire " + voice.wantToBeDefault + ")");
+        	defaultVoices.put(locale, voice);
         }
-        logger.info("New default voice for locale " + locale + ": " +
-                     voice.getName());
-        defaultVoices.put(locale, voice);
-    }
-
+	}
 
     public static Voice getVoice(String name)
     {
@@ -647,15 +673,19 @@ public class Voice
         return null; // no such voice found
     }
 
-    public static List getAvailableVoices() { return (List) allVoices.clone(); }
+    /**
+     * Get the list of all available voices. The iterator of the collection returned
+     * will return the voices in decreasing order of their "wantToBeDefault" value.
+     */
+    public static Collection getAvailableVoices() { return Collections.unmodifiableSet(allVoices); }
 
     /**
-     * Return all available voices for a given locale. The default voice for the locale
-     * will be the first in the list.
+     * Get the list of all available voices for a given locale. The iterator of the collection returned
+     * will return the voices in decreasing order of their "wantToBeDefault" value.
      * @param locale
-     * @return a list of Voice objects, or an empty list if no voice is available for the given locale.
+     * @return a collection of Voice objects, or an empty collection if no voice is available for the given locale.
      */
-    public static List getAvailableVoices(Locale locale)
+    public static Collection getAvailableVoices(Locale locale)
     {
         ArrayList list = new ArrayList();
         Iterator it = allVoices.iterator();
@@ -669,11 +699,11 @@ public class Voice
     }
 
     /**
-     * Return all available voices for a given waveform synthesizer.
-     * @param synth
-     * @return a list of Voice objects, or an empty list if no voice is available for the given locale.
+     * Get the list of all available voices for a given waveform synthesizer. The iterator of the collection returned
+     * will return the voices in decreasing order of their "wantToBeDefault" value.
+     * @return a collection of Voice objects, or an empty collection if no voice is available for the given waveform synthesizer.
      */
-    public static List getAvailableVoices(WaveformSynthesizer synth)
+    public static Collection getAvailableVoices(WaveformSynthesizer synth)
     {
         if (synth == null) {
             throw new NullPointerException("Got null WaveformSynthesizer");
@@ -690,11 +720,11 @@ public class Voice
     }
 
     /**
-     * Return all available voices for a given waveform synthesizer and locale.
-     * @param synth
-     * @return a list of Voice objects, or an empty list if no voice is available for the given locale.
+     * Get the list of all available voices for a given waveform synthesizer and locale. The iterator of the collection returned
+     * will return the voices in decreasing order of their "wantToBeDefault" value.
+     * @return a collection of Voice objects, or an empty collection if no voice is available for the given locale.
      */
-    public static List getAvailableVoices(WaveformSynthesizer synth, Locale locale)
+    public static Collection getAvailableVoices(WaveformSynthesizer synth, Locale locale)
     {
         ArrayList list = new ArrayList();
         Iterator it = allVoices.iterator();
@@ -768,9 +798,9 @@ public class Voice
             guessedVoice = Voice.getDefaultVoice(docLocale);
         } else {
             // get any voice
-            List allVoices = Voice.getAvailableVoices();
+            Collection allVoices = Voice.getAvailableVoices();
             if (allVoices.size() != 0) 
-                guessedVoice = (Voice) allVoices.get(0);
+                guessedVoice = (Voice) allVoices.iterator().next();
         }
         if (guessedVoice != null)
             logger.debug("Guessing default voice `"+guessedVoice.getName()+"'");

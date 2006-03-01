@@ -36,6 +36,7 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -108,6 +109,8 @@ import de.dfki.lt.mary.util.MaryAudioUtils;
  *   <li> AIFF </li>
  *   <li> AIFC </li>
  *   <li> MP3 </li>
+ *   <li> STREAMING_AU</li>
+ *   <li> STREAMING_MP3</li>
  * </ul>
  * <p>
  * The optional VOICE=VOICENAME specifies the default voice with which
@@ -290,7 +293,7 @@ public class MaryServer {
             } else if (inputLine.startsWith("MARY LIST VOICES")) {
                 logger.debug("InfoRequest " + inputLine);
                 // list all known voices
-                List voices = Voice.getAvailableVoices();
+                Collection voices = Voice.getAvailableVoices();
                 for (Iterator it = voices.iterator(); it.hasNext();) {
                     Voice v = (Voice) it.next();
                     if (v instanceof de.dfki.lt.mary.unitselection.UnitSelectionVoice){
@@ -363,6 +366,7 @@ public class MaryServer {
                 MaryDataType outputType = null;
                 Voice voice = null;
                 AudioFileFormat.Type audioFileFormatType = null;
+                boolean streamingAudio = false;
 
                 if (t.hasMoreTokens())
                     t.nextToken(); // discard MARY head
@@ -409,7 +413,13 @@ public class MaryServer {
                         tokenConsumed = true;
                         if (outputType == MaryDataType.get("AUDIO")) {
                             // The value of AUDIO=
-                            audioFileFormatType = MaryAudioUtils.getAudioFileFormatType(tt.nextToken());
+                        	String typeString = tt.nextToken();
+                        	if (typeString.startsWith("STREAMING_")) {
+                        		streamingAudio = true;
+                        		audioFileFormatType = MaryAudioUtils.getAudioFileFormatType(typeString.substring(10));
+                        	} else {
+                        		audioFileFormatType = MaryAudioUtils.getAudioFileFormatType(typeString);
+                        	}
                         }
                     } else { // no AUDIO field
                         if (outputType == MaryDataType.get("AUDIO")) {
@@ -492,7 +502,7 @@ public class MaryServer {
                     audioFileFormat = new AudioFileFormat(audioFileFormatType, audioFormat, AudioSystem.NOT_SPECIFIED);
                 }
 
-                Request request = new Request(inputType, outputType, voice, id, audioFileFormat);
+                Request request = new Request(inputType, outputType, voice, id, audioFileFormat, streamingAudio);
                 outputWriter.println(id);
                 //   -- create new clientMap entry
                 Object[] value = new Object[2];
