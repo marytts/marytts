@@ -206,18 +206,20 @@ public class MaryDataType
     }
 
     /**
-     * Test whether the type with the given name has already been used.
-     * Note that this method does not attempt to initialize the corresponding
-     * definer class, as get() does, so this will return false even if a get()
-     * could return a valid type object. A positive reply, on the other hand,
-     * means that this data type has already been used. 
+     * Test whether the type with the given name exists.
+     * This method will return true under exactly the same circumstances as a call to get()
+     * would return a data type without throwing an error. 
      * @param typeName the type name in question
-     * @return true if the type has already been used, false if it is unknown 
-     * or has not yet been used.
+     * @return true if the type exists, false if it is unknown.
      */
-    public static boolean exists(String typeName) {
-        // TODO: maybe change this to work like get()? Check if that would make sense.
-        return nameMap.containsKey(typeName);
+    public static boolean exists(String typeName)
+    {
+    	try {
+    		get(typeName);
+    		return true;
+    	} catch (Error err) {
+    		return false;
+    	}
     }
 
     /**
@@ -282,6 +284,11 @@ public class MaryDataType
                 } else if (two.isMaryXML() && one.isXMLType() && !one.isMaryXML()) {
                     return -1; // xml input format one is first
                 }
+                if (one.name().equals("TEXT") && !two.name().equals("TEXT")) {
+                    return -1; // one is first
+                } else if (two.name().equals("TEXT") && !one.name().equals("TEXT")) {
+                    return 1; // two is first
+                }                
                 if (one.name().startsWith("TEXT") && !two.name().startsWith("TEXT")) {
                     return -1; // one is first
                 } else if (two.name().startsWith("TEXT") && !one.name().startsWith("TEXT")) {
