@@ -119,7 +119,10 @@ public class Voice
     		Voice v1 = (Voice) o1;
     		Voice v2 = (Voice) o2;
     		// Return negative number if v1 should be listed before v2
-    		return v2.wantToBeDefault - v1.wantToBeDefault;
+    		int desireDelta = v2.wantToBeDefault - v1.wantToBeDefault; 
+    		if (desireDelta != 0) return desireDelta;
+    		// same desire -- sort alphabetically
+    		return v2.getName().compareTo(v1.getName());
     	}
     });
     /** This map associates a value de.dfki.lt.mary.modules.synthesis.Voice to
@@ -189,7 +192,7 @@ public class Voice
                 missingDiphones = null;
             }
         }
-        this.wantToBeDefault = MaryProperties.getInteger("voice."+getName()+".want.to.be.default.voice", 0);
+        this.wantToBeDefault = MaryProperties.getInteger("voice."+getName()+".wants.to.be.default", 0);
     }
 
     /**
@@ -233,7 +236,7 @@ public class Voice
         this.baseEnd   = (int) (freeTTSVoice.getPitch() - freeTTSVoice.getPitchRange());
         this.knownVoiceQualities = new ArrayList(0);
         fillSampaMap();
-        this.wantToBeDefault = MaryProperties.getInteger("voice."+getName()+".want.to.be.default.voice", 0);
+        this.wantToBeDefault = MaryProperties.getInteger("voice."+getName()+".wants.to.be.default", 0);
     }
     
     private void fillSampaMap()
