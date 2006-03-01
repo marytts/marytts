@@ -64,4 +64,6 @@ public class SimpleFileFilter extends FileFilter
     }
 
     public String getDescription() { return description; }
+    
+    public String getExtension() { return extension; }
 }
