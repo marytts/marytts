@@ -2,6 +2,12 @@
 # -*- coding: utf-8 -*-
 import socket, sys, types, getopt
 
+
+languageNames = {'de':'German',
+                 'en':'English',
+                 'en_US':'US English',
+                 'tib':'Tibetan'}
+
 class MaryClient:
     specificationVersion = "0.1"
     
@@ -18,12 +24,12 @@ class MaryClient:
         self.outputDataTypes = None # array of DataType objects
         self.serverExampleTexts = {}
         self.voiceExampleTexts = {}
-        self.serverVersionInfo = ""
+        self.serverVersionInfo = u''
         
         if not self.quiet:
             sys.stderr.write( "MARY TTS Python Client %s\n" % ( self.specificationVersion ) )
             try:
-                info = self.__getServerVersionInfo()
+                info = self.getServerVersionInfo()
             except:
                 sys.stderr.write( "Problem connecting to mary server at %s:%i\n" % ( self.host, self.port ) )
                 raise
@@ -32,13 +38,15 @@ class MaryClient:
             sys.stderr.write( '\n' )
 
     def __getServerInfo( self, request="", marySocket=None ):
-        "Get answer to request from mary server. Returns a list of unicode strings"
+        """Get answer to request from mary server. Returns a list of unicode strings,
+        each representing a line without the line break.
+        """
         closeSocket = False
         if marySocket is None:
             closeSocket = True
             marySocket = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
             marySocket.connect( ( self.host, self.port ) )
-        assert type( marySocket ) is socket.SocketType
+        assert isinstance(marySocket, socket.SocketType)
         maryFile = marySocket.makefile( 'rwb', 1 ) # read-write, line-buffered
         maryFile.write( unicode( request+"\n" ).encode( 'utf-8' ) )
         result = []
@@ -51,26 +59,30 @@ class MaryClient:
             marySocket.close()
         return result
 
-    def __getServerVersionInfo( self ):
-        "Get version info from server. Returns a string"
-        if self.serverVersionInfo == "":
+    def getServerVersionInfo( self ):
+        "Get version info from server. Returns a unicode string"
+        if self.serverVersionInfo == u'':
             # need to get it from server
-            self.serverVersionInfo = '\n'.join(self.__getServerInfo("MARY VERSION"))
+            self.serverVersionInfo = u'\n'.join(self.__getServerInfo("MARY VERSION"))
         return self.serverVersionInfo
 
-    def getAllDataTypes( self ):
+    def getAllDataTypes(self, locale=None):
         """Obtain a list of all data types known to the server. If the information is not
         yet available, the server is queried. This is optional information
         which is not required for the normal operation of the client, but
         may help to avoid incompatibilities.
-        Returns an arry of DataType objects
+        Returns an array of DataType objects
         """
         if self.allDataTypes is None:
             self.__fillDataTypes()
         assert self.allDataTypes is not None and len( self.allDataTypes ) > 0
-        return self.allDataTypes
-         
-    def getInputDataTypes( self ):
+        if locale is None:
+            return self.allDataTypes
+        else:
+            assert isinstance(locale, types.UnicodeType), "Unexpected type for locale: '%s'" % (type(locale))
+            return [d for d in self.allDataTypes if d.locale is None or d.locale == locale]
+
+    def getInputDataTypes(self,locale=None):
         """Obtain a list of input data types known to the server. If the information is not
         yet available, the server is queried. This is optional information
         which is not required for the normal operation of the client, but
@@ -80,9 +92,13 @@ class MaryClient:
         if self.inputDataTypes is None:
             self.__fillDataTypes()
         assert self.inputDataTypes is not None and len( self.inputDataTypes ) > 0
-        return self.inputDataTypes
+        if locale is None:
+            return self.inputDataTypes
+        else:
+            assert isinstance(locale, types.UnicodeType), "Unexpected type for locale: '%s'" % (type(locale))
+            return [d for d in self.inputDataTypes if d.locale is None or d.locale == locale]
 
-    def getOutputDataTypes( self ):
+    def getOutputDataTypes(self, locale=None):
         """Obtain a list of output data types known to the server. If the information is not
         yet available, the server is queried. This is optional information
         which is not required for the normal operation of the client, but
@@ -92,7 +108,11 @@ class MaryClient:
         if self.outputDataTypes is None:
             self.__fillDataTypes()
         assert self.outputDataTypes is not None and len( self.outputDataTypes ) > 0
-        return self.outputDataTypes
+        if locale is None:
+            return self.outputDataTypes
+        else:
+            assert isinstance(locale, types.UnicodeType), "Unexpected type for locale: '%s'" % (type(locale))
+            return [d for d in self.outputDataTypes if d.locale is None or d.locale == locale]
 
 
     def __fillDataTypes( self ):
@@ -118,7 +138,7 @@ class MaryClient:
             isOutputType = False
             locale = None
             for part in parts[1:]:
-                if part[:6] == "LOCALE=":
+                if part[:7] == "LOCALE=":
                     locale = part[7:]
                 elif part == "INPUT":
                     isInputType = True
@@ -143,7 +163,12 @@ class MaryClient:
         assert self.allVoices is not None and len( self.allVoices ) > 0
         if locale is None:
             return self.allVoices
-        return self.voicesByLocaleMap[locale]
+        else:
+            assert isinstance(locale, types.UnicodeType), "Unexpected type for locale: '%s'" % (type(locale))
+            if self.voicesByLocaleMap.has_key(locale):
+                return self.voicesByLocaleMap[locale]
+            else:
+                raise Exception("No voices for locale '%s'" % (locale))
 
     def __fillVoices( self ):
         self.allVoices = []
@@ -196,6 +221,21 @@ class MaryClient:
         """
         return [v for v in self.getVoices( locale ) if v.isLimitedDomain]
 
+    def getAvailableLanguages(self):
+        """ Check available voices and return a list of tuples (abbrev, name)
+        representing the available languages -- e.g. [('en', 'English'),('de', 'German')].
+        """
+        if self.allVoices is None:
+            self.__fillVoices()
+        assert self.allVoices is not None and len( self.allVoices ) > 0
+        languages = []
+        for l in self.voicesByLocaleMap.keys():
+            if languageNames.has_key(l):
+                languages.append((l,languageNames[l]))
+            else:
+                languages.append((l, l))
+        return languages
+
     def getServerExampleText( self, dataType ):
         """Request an example text for a given data type from the server.
         dataType the string representation of the data type,
@@ -203,9 +243,10 @@ class MaryClient:
         which is not required for the normal operation of the client, but
         may help to avoid incompatibilities."""
         if not self.serverExampleTexts.has_key( dataType ):
-            exampleText = self.__getServerInfo( "MARY EXAMPLETEXT %s" % ( dataType ) )[0]
-            if not exampleText:
-                raise IOError( "Could not get example text from Mary server" )
+            exampleTexts = self.__getServerInfo( "MARY EXAMPLETEXT %s" % ( dataType ) )
+            if not exampleTexts or len(exampleTexts) == 0:
+                raise IOError( "Could not get example text for type '%s' from Mary server" % (dataType))
+            exampleText = u'\n'.join(exampleTexts)
             self.serverExampleTexts[dataType] = exampleText
         return self.serverExampleTexts[dataType]
 
@@ -269,6 +310,7 @@ class DataType:
         return self.name != "AUDIO"
 
 class Voice:
+
     def __init__( self, name, locale, gender, domain="general" ):
         self.name = name
         self.locale = locale
@@ -279,7 +321,16 @@ class Voice:
         else:
             self.isLimitedDomain = True
             
-    
+    def __str__(self):
+        if languageNames.has_key(self.locale):
+            langName = languageNames[self.locale]
+        else:
+            langName = self.locale
+        if self.isLimitedDomain:
+            return "%s (%s, %s %s)" % (self.name, self.domain, langName, self.gender)
+        else:
+            return "%s (%s %s)" % (self.name, langName, self.gender)
+
 ##################### Main #########################
 
 if __name__ == '__main__':
