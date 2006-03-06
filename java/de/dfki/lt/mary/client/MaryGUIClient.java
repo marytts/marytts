@@ -1060,7 +1060,15 @@ public class MaryGUIClient extends JPanel
                 		    return bProcess;
                 		}
             } else if (aComponent.equals(bProcess)) {
-                return outputText;
+                if (bEdit.isEnabled()){
+         		    return bEdit;
+                } else {
+                    if (allowSave && bSaveOutput.isEnabled()){
+                        return bSaveOutput;
+                    } else {
+                        return cbInputType;
+                    }
+                }
             } else if (aComponent.equals(bPlay)) {
                 if (allowSave){
                     return bSaveOutput;
@@ -1091,19 +1099,22 @@ public class MaryGUIClient extends JPanel
                                             Component aComponent) 
         {
             if (aComponent.equals(bSaveOutput)) {
-                if (bPlay.isEnabled()){
+                if (!buttonPanel.isVisible()){
+                    System.out.println("Returning bPlay");
                     return bPlay;
                 } else {
                     if (bCompare.isEnabled()){
+                        System.out.println("bCompare enabled");
                         return bCompare;
                     } else {
+                        System.out.println("returning bProcess");
                         return bProcess;
                     }
                 }
             } else if (aComponent.equals(bCompare)) {
                 return bEdit;
             } else if (aComponent.equals(bEdit)) {
-                return outputText;
+                return bProcess;
             } else if (aComponent.equals(outputText)) {
                 return bProcess;
             } else if (aComponent.equals(bPlay)) {
@@ -1123,7 +1134,7 @@ public class MaryGUIClient extends JPanel
             } else if (aComponent.equals(cbOutputType)) {
                 return cbInputType;
             } else if (aComponent.equals(cbInputType)) {
-                		if (allowSave){
+                		if (allowSave  && bSaveOutput.isEnabled()){
                 		    return bSaveOutput;
                 		} else {
                 		   if (buttonPanel.isVisible()){
