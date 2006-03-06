@@ -164,6 +164,7 @@ implements AudioFileReceiver, ProsodyXMLDisplayer
         audioPanel.add(cbVoice);
 
         bPlay.setText("Play");
+        bPlay.setMnemonic('P');
         bPlay.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bPlayActionPerformed(evt);
@@ -304,6 +305,7 @@ implements AudioFileReceiver, ProsodyXMLDisplayer
         add(jScrollPane1, gridBagConstraints);
 
         optionsMenu.setText("Options");
+        optionsMenu.setMnemonic('O');
         optionsMenu.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 optionsMenuActionPerformed(evt);
@@ -432,7 +434,8 @@ implements AudioFileReceiver, ProsodyXMLDisplayer
         if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) { // new item selected
             ftPanel.setShowPower(true);
         } else { // deselected
-            ftPanel.setShowPower(false);            
+            ftPanel.setShowPower(false);
+            bPlay.requestFocusInWindow();
         }
             ftPanel.verifyPowerVisible();
             verifyPowerVisible();
@@ -445,6 +448,7 @@ implements AudioFileReceiver, ProsodyXMLDisplayer
         } else { // deselected
             jScrollPane1.setVisible(false);
             lProsodyXML.setVisible(false);
+            bPlay.requestFocusInWindow();
         }
     }//GEN-LAST:event_showMaryXMLMenuItemItemStateChanged
 
