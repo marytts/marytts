@@ -330,12 +330,12 @@ public class MaryGUIClient extends JPanel
         voicePanel.setLayout(new FlowLayout(FlowLayout.LEADING));
         gridC.gridx = 0;
         gridC.gridy = 4;
-        gridC.gridwidth = 3;
+        gridC.gridwidth = 4;
         gridC.fill = GridBagConstraints.HORIZONTAL;
         gridBagLayout.setConstraints( voicePanel, gridC );
         add( voicePanel );
         gridC.gridwidth = 1;
-        JLabel voiceLabel = new JLabel("default voice:");
+        JLabel voiceLabel = new JLabel("Voice:");
         voicePanel.add( voiceLabel );
         cbDefaultVoice = new JComboBox();
 	cbDefaultVoice.setName("Voice selection");
@@ -459,6 +459,7 @@ public class MaryGUIClient extends JPanel
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     verifyOutputDisplay();
                     verifyEnableButtons();
+                    revalidate();
                 }
             }
         });
@@ -1021,6 +1022,7 @@ public class MaryGUIClient extends JPanel
 
     }
     
+   
     
     public static void main(String[] args) throws Exception 
     {
