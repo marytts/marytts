@@ -1100,14 +1100,14 @@ public class MaryGUIClient extends JPanel
         {
             if (aComponent.equals(bSaveOutput)) {
                 if (!buttonPanel.isVisible()){
-                    System.out.println("Returning bPlay");
+                   
                     return bPlay;
                 } else {
                     if (bCompare.isEnabled()){
-                        System.out.println("bCompare enabled");
+                        
                         return bCompare;
                     } else {
-                        System.out.println("returning bProcess");
+                       
                         return bProcess;
                     }
                 }
