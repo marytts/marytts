@@ -322,7 +322,10 @@ public class MaryServer {
                     String typeName = st.nextToken();
                     if (MaryDataType.exists(typeName)) {
                         MaryDataType type = MaryDataType.get(typeName);
-                        outputWriter.println(type.exampleText().trim());
+                        assert type != null;
+                        String exampleText = type.exampleText();
+                        if (exampleText != null)
+                            outputWriter.println(exampleText.trim());
                     }
                 }
                 // upon failure, simply return nothing

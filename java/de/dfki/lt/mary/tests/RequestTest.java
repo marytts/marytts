@@ -156,7 +156,7 @@ public class RequestTest extends TestCase {
     public void testWriteOutputData1() throws Exception {
         Request r = new Request(MaryDataType.get("RAWMARYXML"), MaryDataType.get("RAWMARYXML"), null, 1, null);
         MaryData md = new MaryData(MaryDataType.get("RAWMARYXML"));
-        md.readFrom(new StringReader(MaryDataType.get("RAWMARYXML").exampleText()), null);
+        md.readFrom(new StringReader(MaryDataType.get("RAWMARYXML_EN").exampleText()), null);
         r.setInputData(md);
         r.process();
         try {
