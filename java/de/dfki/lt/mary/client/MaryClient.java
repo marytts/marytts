@@ -80,6 +80,8 @@ public class MaryClient {
     private final int DEFAULT_PORT = 59125;
     private String host;
     private int port;
+    private String serverVersion = "unknown";
+    private boolean serverCanStream = false;
     private boolean doProfile = false;
     private boolean beQuiet = false;
     private Vector allVoices = null;
@@ -170,22 +172,40 @@ public class MaryClient {
         this.port = port;
         doProfile = profile;
         beQuiet = quiet;
+        String[] info;
+        try {
+            info = getServerVersionInfo();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new IOException("MARY client cannot connect to MARY server at\n"+
+            host+":"+port+"\n"+
+            "Make sure that you have started the mary server\n"+
+            "or specify a different host or port using \n"+
+            "maryclient -Dserver.host=my.host.com -Dserver.port=12345");
+        }
+        // Version number is, on the first line, the first token that starts with a digit:
+        StringTokenizer st = new StringTokenizer(info[0]);
+        while (st.hasMoreTokens()) {
+            String t = st.nextToken();
+            if (t.matches("^[0-9].*")) {
+                this.serverVersion = t;
+                break;
+            }
+        }
+        if (serverVersion.equals("unknown")
+                || serverVersion.compareTo("3.0.1") < 0) {
+            serverCanStream = false;
+        } else {
+            serverCanStream = true;
+        }
         if (!beQuiet) {
             System.err.println("Mary TTS client " + Version.specificationVersion() + " (impl. " + Version.implementationVersion() + ")");
-            String[] info;
-            try {
-                info = getServerVersionInfo();
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new IOException("MARY client cannot connect to MARY server at\n"+
-                host+":"+port+"\n"+
-                "Make sure that you have started the mary server\n"+
-                "or specify a different host or port using \n"+
-                "maryclient -Dserver.host=my.host.com -Dserver.port=12345");
-            }
             System.err.print("Connected to " + host + ":" + port + ", ");
             for (int i=0; i<info.length; i++) {
                 System.err.println(info[i]);
+            }
+            if (!serverCanStream) {
+                System.err.println("Server version "+serverVersion+" cannot stream audio, defaulting to non-streaming");
             }
         }
     }
@@ -327,7 +347,7 @@ public class MaryClient {
         //System.err.println("Writing request to server.");
         toServerInfo.print("MARY IN=" + inputType + " OUT=" + outputType);
         if (audioType != null) {
-        	if (streamingAudio) {
+        	if (streamingAudio && serverCanStream) {
         		toServerInfo.print(" AUDIO=STREAMING_"+audioType);
         	} else {
         		toServerInfo.print(" AUDIO=" + audioType);
