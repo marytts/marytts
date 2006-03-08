@@ -342,10 +342,10 @@ public class CARTImpl implements CART {
 	    StringTokenizer tok = new StringTokenizer(value, ",");
 	    int size = tok.countTokens();
 
-	    List values = new ArrayList();
+	    int[] values = new int[size];
 	    for (int i = 0; i < size; i++) {
 	    	  float fval = Float.parseFloat(tok.nextToken());
-	    	  values.add(new Integer(Math.round(fval)));	
+	    	  values[i] = Math.round(fval);	
 	    }
 	    return values;
 	} else {
@@ -371,46 +371,57 @@ public class CARTImpl implements CART {
         int nodeIndex = start;
         Stack nodeIndices = new Stack();
         DecisionNode decision;
-        //logger.debug(" ---- start cart on "+item.toString());
+        try{
+            //logger.debug("Starting cart at "+nodeIndex);
         while (!(cart[nodeIndex] instanceof LeafNode)) {
             nodeIndices.push(new Integer(nodeIndex));
             decision = (DecisionNode) cart[nodeIndex];
             nodeIndex = decision.getNextNode(item);
-            
-	    //logger.debug(decision.toString() + " result '"+ decision.findFeature(item) + "' => "+ nodeIndex);
+	        //logger.debug(decision.toString() + " result '"+ decision.findFeature(item) + "' => "+ nodeIndex);
         }
-        //logger.debug(cart[nodeIndex]);
-        List result = (List)((LeafNode) cart[nodeIndex]).getValue();
+        
+        
+        int[] result = (int[])((LeafNode) cart[nodeIndex]).getValue();
         boolean backtrace = false;
-        while (result.size()<limit && !nodeIndices.empty()){
+        while (result.length<limit && !nodeIndices.empty()){
             backtrace = true;
-            logger.debug("Selected "+result.size()
-                    +" units. Selecting more units...");
+            //logger.debug("Selected "+result.length
+              //      +" units. Selecting more units...");
             int previousNode = ((Integer)nodeIndices.pop()).intValue(); 
             result = backtrace(result,(DecisionNode)cart[previousNode],limit,item);
         }
         if (backtrace){
-            logger.debug("Selected "+result.size()+" units on backtrace");
+            logger.debug("Selected "+result.length+" units on backtrace");
         } else {
-            logger.debug("Selected "+result.size()+" units, no backtrace");
+            logger.debug("Selected "+result.length+" units, no backtrace");
         }
         return result;
+        }catch (ArrayIndexOutOfBoundsException e){
+            logger.warn("Error in Cart: Node "+nodeIndex+" not in Cart");
+            return null;
+        }
     }
 
-    private List backtrace(List result, DecisionNode node, int limit, Object object){
+    private int[] backtrace(int[] oldItems, DecisionNode node, int limit, Object object){
+        int[] result, newItems;
         //get the node that was not used
         int unusedNodeIndex = node.getUnusedNode();
         Node unusedNode = (Node) cart[unusedNodeIndex];
         //if node is a leaf, add all units in leaf
         if (unusedNode instanceof LeafNode){
-            result.addAll(0,(List)unusedNode.getValue());
+            newItems = (int[]) unusedNode.getValue();
         } //else go in recursion
         else {
-            List newResult = 
-                (List) interpret(object,limit-result.size(),unusedNodeIndex);
-            result.addAll(0,newResult);
+            newItems = 
+                (int[]) interpret(object,unusedNodeIndex,limit-oldItems.length);
         }
-        //result.add(new Integer(0));   
+        if (newItems !=null){
+            result = new int[oldItems.length+newItems.length];
+            System.arraycopy(oldItems,0,result,0, oldItems.length);
+            System.arraycopy(newItems,0,result,oldItems.length, newItems.length);  
+        } else {
+            result = oldItems;
+        }
         return result;
     }
     
@@ -450,10 +461,10 @@ public class CARTImpl implements CART {
                 return "Float(" + value.toString() + ")";
             } else if (value instanceof Integer) {
                 return "Integer(" + value.toString() + ")";
-            } else if (value instanceof List) {
-                List vals = (List)value;
+            } else if (value instanceof int[]) {
+                int[] vals = (int[])value;
                 StringBuffer sb = new StringBuffer();
-                for (int i=0; i<vals.size(); i++) sb.append(vals.get(i)+" ");
+                for (int i=0; i<vals.length; i++) sb.append(vals[i]+" ");
                 return "List<Integer> (" + sb.toString().trim() + ")";
             } else {
                 return value.getClass().toString() + "(" + value.toString() + ")";
@@ -482,6 +493,7 @@ public class CARTImpl implements CART {
      * A decision node that determines the next Node to go to in the CART.
      */
     abstract static class DecisionNode extends Node {
+        private static Logger logger = Logger.getLogger("Decision Node");
         /**
          * The feature used to find a value from an Item.
          */
@@ -508,8 +520,11 @@ public class CARTImpl implements CART {
 
         public int getUnusedNode(){
             if (lastDecision){
+                //logger.debug("UnusedNode is qfalse: "+qfalse);
                 return qfalse;
-            } else { return qtrue; }
+            } else { 
+                //logger.debug("UnusedNode is qtrue: "+qtrue);
+                return qtrue; }
         }
        
 	/**

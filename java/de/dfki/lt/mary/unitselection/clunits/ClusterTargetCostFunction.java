@@ -78,8 +78,6 @@ public class ClusterTargetCostFunction implements TargetCostFunction
                         +unit.getName()+" since it has no features, returning 0");
                 return 0;
             } else {
-                
-                
                 //set an index to target if you have not seen it before
                 if (target.setIndexIfNew(targetIndex)){ 
                     targetIndex++; 
@@ -90,8 +88,9 @@ public class ClusterTargetCostFunction implements TargetCostFunction
                 UnitTargetPair utp = new UnitTargetPair(unitType,unitInstance,target.getIndex());
                 //if you've already calculated this pair, return the cost
                 if (unitTargetPairs2cost.containsKey(utp)){
-                    logger.debug("Already calculated cost for "+unitType+" "
-                            +unitInstance+" "+target.getIndex());
+                    logger.debug("Already calculated cost for unit type "+unitType
+                        +", unit instance "+unitInstance
+                        +", and target "+target.getIndex());
                     return ((Integer)unitTargetPairs2cost.get(utp)).intValue();
                 }
                 //logger.debug("Now calculating cost for "+unitType+" "
@@ -117,8 +116,9 @@ public class ClusterTargetCostFunction implements TargetCostFunction
                     }
                 }
                 unitTargetPairs2cost.put(utp,new Integer(cost));
-                logger.debug("Succesfully calculated cost for unit "+unit.getName()
-                        +" and target "+target.toString());
+                logger.debug("Succesfully calculated cost for unit type "+unitType
+                        +", unit instance "+unitInstance
+                        +", and target "+target.getIndex());
                 return cost;
             }
         }

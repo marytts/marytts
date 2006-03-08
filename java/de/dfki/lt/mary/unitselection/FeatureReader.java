@@ -32,9 +32,6 @@ package de.dfki.lt.mary.unitselection;
 import java.util.*;
 import java.io.*;
 
-//import org.apache.log4j.Logger;
-//import org.apache.log4j.Level;
-
 import de.dfki.lt.mary.unitselection.Unit;
 
 /**
