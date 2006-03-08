@@ -38,9 +38,11 @@ import de.dfki.lt.mary.modules.synthesis.WaveformSynthesizer;
 
 import de.dfki.lt.mary.unitselection.clunits.ClusterUnitSelector;
 import de.dfki.lt.mary.unitselection.clunits.ClusterUnitConcatenator;
-import de.dfki.lt.mary.unitselection.FeatureReader;
 import de.dfki.lt.mary.unitselection.featureprocessors.UnitSelectionFeatProcManager;
 import de.dfki.lt.mary.util.MaryUtils;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 import com.sun.speech.freetts.lexicon.Lexicon;
 
@@ -60,6 +62,7 @@ import javax.sound.sampled.AudioFormat;
 
 public class UnitSelectionVoiceBuilder{ 
 	
+    private Logger logger;
 
     private Map lexicons; // administrate lexicons by name
     private WaveformSynthesizer synth;
@@ -69,6 +72,7 @@ public class UnitSelectionVoiceBuilder{
         this.synth = synth;  
        featureProcessors = new HashMap();
        lexicons = new HashMap();
+       logger = Logger.getLogger("UnitSelectionVoiceBuilder");
 	}
 	
 	/**
@@ -81,7 +85,7 @@ public class UnitSelectionVoiceBuilder{
 	public Voice buildVoice(String voice){
 	    try{
 	        String header ="voice."+voice;
-	        
+	        logger.debug("Loading voice "+voice+"...");
 	        //read in the parameters from the .config file
 	        String gender = MaryProperties.getProperty(header+".gender");
 	        Gender voiceGender =  new Gender(gender);
@@ -135,21 +139,7 @@ public class UnitSelectionVoiceBuilder{
 	        
 	        unitDatabase.load(databaseFile, featProcManager, voice);
 		
-	        /**try to load the features into the units
-	        String featuresDefs = 
-	            MaryProperties.getFilename(header+".featureDefsFile");
-	       String unitFeaturesDir = 
-	           MaryProperties.getFilename(header+".unitsFeaturesDir");
-	       
-	       Map features2Weights = null;
-	       if (featuresDefs != null &&
-	           unitFeaturesDir != null){
-	           FeatureReader fr = new FeatureReader(unitDatabase, 
-	                    							featuresDefs,
-	                    							unitFeaturesDir);
-	           features2Weights = fr.readFeatures();
-	        }
-	        **/
+	        
 	        String targetCostClass = 
 	            MaryProperties.getProperty(header+".targetCostClass");
 	        TargetCostFunction targetFunction = 
