@@ -47,6 +47,7 @@ public class Target
     protected Item item;
     //a map containing this targets features
     protected Map features2Values = null;
+    protected int index = -1;
     
     public Target(String name)
     {
@@ -101,6 +102,18 @@ public class Target
         }
     }
     
+    public boolean setIndexIfNew(int newIndex){
+        if (index == -1){
+            this.index = newIndex;
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    public int getIndex(){
+        return index;
+    }
     
     public String toString()
     {

@@ -135,27 +135,26 @@ public class UnitSelectionVoiceBuilder{
 	        
 	        unitDatabase.load(databaseFile, featProcManager, voice);
 		
-	        //try to load the features into the units
+	        /**try to load the features into the units
 	        String featuresDefs = 
 	            MaryProperties.getFilename(header+".featureDefsFile");
 	       String unitFeaturesDir = 
 	           MaryProperties.getFilename(header+".unitsFeaturesDir");
-	       List features = null;
-	       Map weights = null;
+	       
+	       Map features2Weights = null;
 	       if (featuresDefs != null &&
 	           unitFeaturesDir != null){
 	           FeatureReader fr = new FeatureReader(unitDatabase, 
 	                    							featuresDefs,
 	                    							unitFeaturesDir);
-	           features = fr.readFeatures();
-	           weights = fr.readWeights();
+	           features2Weights = fr.readFeatures();
 	        }
-	        
+	        **/
 	        String targetCostClass = 
 	            MaryProperties.getProperty(header+".targetCostClass");
 	        TargetCostFunction targetFunction = 
 		        (TargetCostFunction) Class.forName(targetCostClass).newInstance();
-	        targetFunction.setFeatsAndWeights(features,weights,featProcManager);
+	        targetFunction.setFeatsAndWeights(unitDatabase.getFeats2Weights(),featProcManager);
 	        String joinCostClass = 
 	            MaryProperties.getProperty(header+".joinCostClass");
 	        JoinCostFunction joinFunction = 

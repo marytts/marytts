@@ -37,8 +37,6 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
-import com.sun.speech.freetts.util.Utilities;
-
 import de.dfki.lt.mary.unitselection.Unit;
 
 /**
@@ -72,7 +70,12 @@ public class ClusterUnitType {
      */
     ClusterUnitType(ByteBuffer bb, ClusterUnitDatabase database) throws IOException {
         this.database = database;
-        this.name = Utilities.getString(bb);
+        int size = bb.getShort();
+    	char[] charBuffer = new char[size];
+    	for (int i = 0; i < size; i++) {
+    	    charBuffer[i] = bb.getChar();
+    	}
+    	this.name = new String(charBuffer, 0, size);
         this.start = bb.getInt();
         this.count = bb.getInt();
     }
@@ -133,16 +136,16 @@ public class ClusterUnitType {
      *
      * @return the start index
      */
-    int getStart() {
+    public int getStart() {
 	return start;
     }
-
+    
     /**
      * Gets the count for this type
      *
      * @return the  count for this type
      */
-    int getCount() {
+    public int getCount() {
 	return count;
     }
 
@@ -153,9 +156,12 @@ public class ClusterUnitType {
      *
      * @throws IOException if an error occurs.
      */
-    void dumpBinary(DataOutputStream os) throws IOException {
-	Utilities.outString(os, name);
-	os.writeInt(start);
-	os.writeInt(count);
+    public void dumpBinary(DataOutputStream os) throws IOException {
+        os.writeShort((short) name.length());
+    	for (int i = 0; i < name.length(); i++) {
+    	    os.writeChar(name.charAt(i));
+    	}
+    	os.writeInt(start);
+    	os.writeInt(count);
     }
 }

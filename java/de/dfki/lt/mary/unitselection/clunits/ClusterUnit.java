@@ -35,6 +35,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
+import java.util.*;
 import de.dfki.lt.mary.unitselection.Unit;
 
 
@@ -70,7 +71,10 @@ public class ClusterUnit extends Unit
      * @param name the name of this unit
      * @throws IOException
      */
-    public ClusterUnit(MappedByteBuffer bb, ClusterUnitDatabase database, String name) throws IOException{
+    public ClusterUnit(MappedByteBuffer bb, 
+            		   ClusterUnitDatabase database, 
+            		   String name,
+            		   boolean readFeatures) throws IOException{
         super(database, name);
         this.type = bb.getInt();
         this.phone = bb.getInt();
@@ -78,6 +82,34 @@ public class ClusterUnit extends Unit
         this.end = bb.getInt();
         this.prev = bb.getInt();
         this.next = bb.getInt();
+        if (readFeatures){
+            // read in the features and their values
+            int numberOfFeats = bb.getInt();
+            if (numberOfFeats != 0){
+                featuresMap = new HashMap();
+                for (int i=0;i<numberOfFeats;i++){
+                    int featsize = bb.getShort();
+                    //System.out.println(featsize);
+                    char[] charBufferFeat = new char[featsize];
+                    for (int j = 0; j < featsize; j++) {
+                        charBufferFeat[j] = bb.getChar();
+                    }
+                    String feature = new String(charBufferFeat, 0, featsize);
+                    int valsize = bb.getShort();
+                    char[] charBufferVal = new char[valsize];
+                    for (int k = 0; k < valsize; k++) {
+                        charBufferVal[k] = bb.getChar();
+                    }
+                    String value = new String(charBufferVal, 0, valsize);
+                    featuresMap.put(feature,value);
+                    //System.out.println("Feature: "+feature+" Value: "+value);
+                }
+                haveFeaturesMap = true;
+            } else {
+                featuresMap = null;
+                System.out.println("No features for unit "+name);
+            }
+        }
     }
     
     /**
@@ -87,7 +119,10 @@ public class ClusterUnit extends Unit
      * @param name the name of this unit
      * @throws IOException
      */
-    public ClusterUnit(RandomAccessFile raf, ClusterUnitDatabase database, String name) throws IOException{
+    public ClusterUnit(RandomAccessFile raf, 
+            		   ClusterUnitDatabase database, 
+            		   String name,
+            		   boolean readFeatures) throws IOException{
         super(database, name);
         this.type = raf.readInt();
        this.phone = raf.readInt();
@@ -95,6 +130,33 @@ public class ClusterUnit extends Unit
        this.end = raf.readInt();
        this.prev = raf.readInt();
        this.next = raf.readInt();
+       if (readFeatures){
+           //read in the features and their values
+           
+           int numberOfFeats = raf.readInt();
+           if (numberOfFeats != 0){
+               featuresMap = new HashMap();
+               for (int i=0;i<numberOfFeats;i++){
+                   int featsize = raf.readShort();
+                   char[] charBufferFeat = new char[featsize];
+                   for (int j = 0; j < featsize; j++) {
+                       charBufferFeat[j] = raf.readChar();
+                   }
+                   String feature = new String(charBufferFeat, 0, featsize);
+                   int valsize = raf.readShort();
+                   char[] charBufferVal = new char[valsize];
+                   for (int k = 0; k < valsize; k++) {
+                       charBufferVal[k] = raf.readChar();
+                   }
+                   String value = new String(charBufferVal, 0, valsize);
+                   featuresMap.put(feature,value);
+               }
+               haveFeaturesMap = true;
+           } else {
+               featuresMap = null;
+               System.out.println("No features for unit "+name);
+           }
+       }
     }   
     
     /**
@@ -120,13 +182,34 @@ public class ClusterUnit extends Unit
 	 *
 	 * @throws IOException if an error occurs.
 	 */
-	void dumpBinary(DataOutputStream os) throws IOException {
+	public boolean dumpBinary(DataOutputStream os, boolean dumpFeatures) throws IOException {
 	    os.writeInt(type);
 	    os.writeInt(phone);
 	    os.writeInt(start);
 	    os.writeInt(end);
 	    os.writeInt(prev);
 	    os.writeInt(next);
+	    if (dumpFeatures){
+	        if (featuresMap != null){
+	            Set features = featuresMap.keySet();
+	            os.writeInt(features.size());
+	            for (Iterator it = features.iterator(); it.hasNext();){
+	                String nextFeat = (String)it.next();
+	                os.writeShort((short)nextFeat.length());
+	                os.writeChars(nextFeat);
+	                String nextValue = (String)featuresMap.get(nextFeat);
+	                os.writeShort((short)nextValue.length());
+	                os.writeChars(nextValue);
+	                //System.out.println(start+": Feature: "+nextFeat+" Value: "+nextValue);
+	            } 
+	            return true;
+	        } else {
+	            os.writeInt(0);
+	            return false;
+	            
+	        }
+	    }
+	    return true;
 	}
     
     
@@ -209,6 +292,10 @@ public class ClusterUnit extends Unit
      */
     public UnitOriginInfo getOriginInfo(){
         return origin;
+    }
+    
+    public int getType(){
+        return type;
     }
     
     public String toString()

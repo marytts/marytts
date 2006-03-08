@@ -215,22 +215,23 @@ public class ClusterUnitSelector extends UnitSelector
     public ViterbiCandidate getCandidates(Target target){
         CART cart = database.getTree(target.getName());
     	// Here, the unit candidates are selected.
-    	int[] clist = (int[]) cart.interpret(target.getItem());
+    	List clist = (List) cart.interpret(target.getItem());
     	
-    	 // Now, clist is an array of instance numbers for the units of type
+    	 // Now, clist is a List of instance numbers for the units of type
         // unitType that belong to the best cluster according to the CART.
         
 	    ViterbiCandidate candidate;
 	    ViterbiCandidate first;
 	
 	    first = null;
-	    for (int i = 0; i < clist.length; i++) {
+	    for (int i = 0; i < clist.size(); i++) {
 	        candidate = new ViterbiCandidate();
 	        candidate.setNext(first); // link them reversely: the first in clist will be at the end of the queue
 	        candidate.setTarget(target); // The item is the same for all these candidates in the queue
 	        // remember the actual unit:
-	        logger.debug("For candidate "+i+" setting unit "+database.getUnit(target.getName(), clist[i]));
-	        candidate.setUnit(database.getUnit(target.getName(),  clist[i]));
+	        int unitIndex = ((Integer) clist.get(i)).intValue();
+	        logger.debug("For candidate "+i+" setting unit "+database.getUnit(target.getName(), unitIndex));
+	        candidate.setUnit(database.getUnit(target.getName(), unitIndex));
 	        first = candidate;
 	    }
 	
