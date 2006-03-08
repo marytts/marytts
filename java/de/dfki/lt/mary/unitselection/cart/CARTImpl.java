@@ -43,6 +43,7 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.regex.Pattern;
 import java.util.StringTokenizer;
+import java.util.*;
 
 /**
  * Implementation of a Classification and Regression Tree (CART) that is
@@ -341,10 +342,10 @@ public class CARTImpl implements CART {
 	    StringTokenizer tok = new StringTokenizer(value, ",");
 	    int size = tok.countTokens();
 
-	    int[] values = new int[size];
+	    List values = new ArrayList();
 	    for (int i = 0; i < size; i++) {
 	    	  float fval = Float.parseFloat(tok.nextToken());
-	    	  values[i] = Math.round(fval);	
+	    	  values.add(new Integer(Math.round(fval)));	
 	    }
 	    return values;
 	} else {
@@ -361,21 +362,58 @@ public class CARTImpl implements CART {
      * @return the interpretation
      */
     public Object interpret(Object object) {
+        return interpret(object,0,100);        
+    }
+    
+    public Object interpret(Object object, int start, int limit){
         // TODO: Generalise?:
         Item item = (Item) object;
-        int nodeIndex = 0;
+        int nodeIndex = start;
+        Stack nodeIndices = new Stack();
         DecisionNode decision;
         //logger.debug(" ---- start cart on "+item.toString());
         while (!(cart[nodeIndex] instanceof LeafNode)) {
+            nodeIndices.push(new Integer(nodeIndex));
             decision = (DecisionNode) cart[nodeIndex];
-                nodeIndex = decision.getNextNode(item);
+            nodeIndex = decision.getNextNode(item);
             
 	    //logger.debug(decision.toString() + " result '"+ decision.findFeature(item) + "' => "+ nodeIndex);
         }
         //logger.debug(cart[nodeIndex]);
-        return ((LeafNode) cart[nodeIndex]).getValue();
+        List result = (List)((LeafNode) cart[nodeIndex]).getValue();
+        boolean backtrace = false;
+        while (result.size()<limit && !nodeIndices.empty()){
+            backtrace = true;
+            logger.debug("Selected "+result.size()
+                    +" units. Selecting more units...");
+            int previousNode = ((Integer)nodeIndices.pop()).intValue(); 
+            result = backtrace(result,(DecisionNode)cart[previousNode],limit,item);
+        }
+        if (backtrace){
+            logger.debug("Selected "+result.size()+" units on backtrace");
+        } else {
+            logger.debug("Selected "+result.size()+" units, no backtrace");
+        }
+        return result;
     }
 
+    private List backtrace(List result, DecisionNode node, int limit, Object object){
+        //get the node that was not used
+        int unusedNodeIndex = node.getUnusedNode();
+        Node unusedNode = (Node) cart[unusedNodeIndex];
+        //if node is a leaf, add all units in leaf
+        if (unusedNode instanceof LeafNode){
+            result.addAll(0,(List)unusedNode.getValue());
+        } //else go in recursion
+        else {
+            List newResult = 
+                (List) interpret(object,limit-result.size(),unusedNodeIndex);
+            result.addAll(0,newResult);
+        }
+        //result.add(new Integer(0));   
+        return result;
+    }
+    
     /**
      * A node for the CART.
      */
@@ -412,11 +450,11 @@ public class CARTImpl implements CART {
                 return "Float(" + value.toString() + ")";
             } else if (value instanceof Integer) {
                 return "Integer(" + value.toString() + ")";
-            } else if (value instanceof int[]) {
-                int[] vals = (int[])value;
+            } else if (value instanceof List) {
+                List vals = (List)value;
                 StringBuffer sb = new StringBuffer();
-                for (int i=0; i<vals.length; i++) sb.append(vals[i]+" ");
-                return "int[] (" + sb.toString().trim() + ")";
+                for (int i=0; i<vals.size(); i++) sb.append(vals.get(i)+" ");
+                return "List<Integer> (" + sb.toString().trim() + ")";
             } else {
                 return value.getClass().toString() + "(" + value.toString() + ")";
             }
@@ -447,7 +485,7 @@ public class CARTImpl implements CART {
         /**
          * The feature used to find a value from an Item.
          */
-	private PathExtractor path;
+        private PathExtractor path;
 
         /**
          * Index of Node to go to if the comparison doesn't match.
@@ -459,6 +497,8 @@ public class CARTImpl implements CART {
          */
         protected int qtrue;
 
+        protected boolean lastDecision = false;
+        
         /**
          * The feature used to find a value from an Item.
          */
@@ -466,7 +506,12 @@ public class CARTImpl implements CART {
             return path.toString();
         }
 
-
+        public int getUnusedNode(){
+            if (lastDecision){
+                return qfalse;
+            } else { return qtrue; }
+        }
+       
 	/**
 	 * Find the feature associated with this DecisionNode
 	 * and the given item
@@ -599,14 +644,17 @@ public class CARTImpl implements CART {
                 String cart_sval = value.toString();
                 yes = sval.equals(cart_sval);
             }
-	    if (yes) {
-		ret = qtrue;
+            if (yes) {
+                ret = qtrue;
+                lastDecision = true;
+            } else {
+                ret = qfalse;
+                lastDecision = false;
+            }
 	    } else {
-		ret = qfalse;
+	        	ret = qfalse;
+	        	lastDecision = false;
 	    }
-	    }else{
-	        ret = qfalse;
-	        }
 
 	    Utilities.debug(trace(val, yes, ret));
 

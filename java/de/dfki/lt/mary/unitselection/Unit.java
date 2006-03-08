@@ -84,13 +84,11 @@ public class Unit
 
     public String getValueForFeature(String feature)
     {
-        if (haveFeaturesMap){
-            if (featuresMap.containsKey(feature)){
+        if (haveFeaturesMap && featuresMap.containsKey(feature)){
                 return (String) featuresMap.get(feature);
-            } else {
+        } else {
                 return null;
-            }
-        } else { return null;}
+        }
     }
 
     public void setFeaturesMap(Map featuresMap)

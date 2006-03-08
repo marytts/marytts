@@ -28,11 +28,7 @@
  */
 package de.dfki.lt.mary.unitselection;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 
@@ -92,6 +88,17 @@ public abstract class UnitDatabase
         return null;
     }
     
+    public Unit getUnit(int which){
+        return null;
+    }
+    
+    public int getUnitTypeIndex(String unitType){
+        return 0;
+    }
+    
+    public Map getFeats2Weights(){
+        return null;
+    }
     
     /**
      * Determine the chain of candidate sets that could be used to realise the
