@@ -85,10 +85,9 @@ public class FeatureReader
                 }
                 line = reader.readLine();
             }
-            if (debug){
-                for (int k =0; k<definitions.size();k++){
-                    //logger.debug("Feature "+k+": "+definitions.get(k));
-                }
+            
+            for (int k =0; k<definitions.size();k++){
+                System.out.println("Feature "+k+": "+definitions.get(k));
             }
             //Read in the each unit type with all its units and their features
             File featsDir = new File(unitsFeatsDir);
@@ -104,7 +103,9 @@ public class FeatureReader
                     //determine the name of the file = unit type
                     String unitType = entries[i].toString();
                     int endIndex = unitType.length()-6;
+                   
                     unitType = unitType.substring(startIndex+1, endIndex);
+                    //System.out.println("unitType is "+unitType);
                     int typeStartIndex = database.getUnitTypeIndex(unitType);
                     if (typeStartIndex != -1){
                         //open the file
@@ -134,7 +135,8 @@ public class FeatureReader
                                                 nextValue);
                                     } else {
                                         throw new Error ("Mismatch in feature file "
-                                                +unitType+", feature "+j
+                                                +unitType+", unit "+unitIndex
+                                                +"; feature "+definitions.get(j)
                                                 +" is missing");}
                             		}
                                 unit.setFeaturesMap(featuresMap);
@@ -151,10 +153,10 @@ public class FeatureReader
             return weights;
         }catch (FileNotFoundException fe){
             System.out.println("Can not read features: "+fe.getMessage());
-            return null;
+            throw new Error("Error reading features");
         }catch(Exception e){
             e.printStackTrace();
-            throw new Error ("Mecker mecker...");
+            throw new Error ("Error reading features");
         }
     }
 

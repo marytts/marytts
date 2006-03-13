@@ -220,7 +220,9 @@ public class CARTImpl implements CART {
      * Note that cart nodes are really saved as strings that
      * have to be parsed.
      */
-    public static CART loadBinary(RandomAccessFile raf) throws IOException {
+    public static CART loadBinary(RandomAccessFile raf,
+            UtteranceFeatProcManager fp) throws IOException {
+    	featureProcessors = fp;
 	int numNodes = raf.readInt();
 	CARTImpl cart = new CARTImpl(numNodes);
 
@@ -248,8 +250,10 @@ public class CARTImpl implements CART {
      * Note that cart nodes are really saved as strings that
      * have to be parsed.
      */
-    public static CART loadBinary(ByteBuffer bb) throws IOException {
-	int numNodes = bb.getInt();
+    public static CART loadBinary(ByteBuffer bb, 
+            UtteranceFeatProcManager fp) throws IOException {
+	featureProcessors = fp;
+        int numNodes = bb.getInt();
 	CARTImpl cart = new CARTImpl(numNodes);
 
 	for (int i = 0; i < numNodes; i++) {

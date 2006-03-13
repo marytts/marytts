@@ -77,11 +77,16 @@ public class FrameSet {
 	    			residualFold, coeffMin, coeffRange, postEmphasis);
     	  
     	    for (int i = 0; i < numSamples; i++) {
+    	        try{
     		    frames[i] = new Frame(reader, numChannels);
+    	        } catch (Exception e){
+    	            e.printStackTrace();
+    	            throw new Error("Error parsing frame "+i);
+    	        }
     	    }
     	    
     	    } catch (Exception nse) {
-    	    	throw new Error("Parsing sample error " + nse.getMessage());
+    	    	throw new Error("Parsing frame error " + nse.getMessage());
     	    }
         }
     
@@ -111,6 +116,8 @@ public class FrameSet {
 	for (int i = 0; i < samplesLength; i++) {
 	    frames[i].dumpBinary(os, residualSize, frameSize);
 	}
+	frames = null;
+	System.gc();
     }
 
    

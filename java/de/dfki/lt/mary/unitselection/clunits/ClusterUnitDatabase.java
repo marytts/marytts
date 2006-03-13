@@ -77,7 +77,9 @@ public class ClusterUnitDatabase extends UnitDatabase
     private final static int VERSION = 0x2000;
     private final static int VERSIONWITHFEATURES = 0x2001;
     private ClusterUnitType[] unitTypesArray;
-    private static boolean featuresLoaded = false;
+    private static boolean loadFeatures = false;
+    private static String featDef;
+    private static String valDir;
     
     
     public ClusterUnitDatabase()
@@ -95,9 +97,9 @@ public class ClusterUnitDatabase extends UnitDatabase
                      UnitSelectionFeatProcManager featureProcessors,
                      String voice){
         boolean retrySlow = false;
+        this.voice = voice;
+        this.featureProcessors = (UtteranceFeatProcManager) featureProcessors;
         try{
-            this.voice = voice;
-            this.featureProcessors = (UtteranceFeatProcManager) featureProcessors;
             //try loading the database with MappedByteBuffer
             RandomAccessFile raf = new RandomAccessFile(databaseFile, "r");
             FileChannel fc = raf.getChannel();
@@ -146,7 +148,7 @@ public class ClusterUnitDatabase extends UnitDatabase
             if (!(version == VERSIONWITHFEATURES)){
                 throw new Error("Wrong version of database file");
             } else { 
-                featuresLoaded = true;
+                loadFeatures = true;
             }
         }
         continuityWeight = bb.getInt();
@@ -161,6 +163,9 @@ public class ClusterUnitDatabase extends UnitDatabase
             joinWeights[i] = bb.getInt();
         }
 
+        audioFrames = new BufferedFrameSet(bb);
+        joinCostFeatureVectors = new BufferedFrameSet(bb);
+        
         int unitsLength = bb.getInt();
         units = new ClusterUnit[unitsLength];
         
@@ -175,28 +180,24 @@ public class ClusterUnitDatabase extends UnitDatabase
             int firstUnitIdx = unitType.getStart();
             int lastUnitIdx = firstUnitIdx + unitType.getCount();
             for (int unitIdx=firstUnitIdx; unitIdx<lastUnitIdx; unitIdx++) {
-                units[unitIdx] = new ClusterUnit(bb, this, unitType.getName(),featuresLoaded);
+                units[unitIdx] = new ClusterUnit(bb, this, unitType.getName(),loadFeatures);
                 units[unitIdx].setInstanceNumber(unitIdx-firstUnitIdx);
             }
         }
 
-        audioFrames = new BufferedFrameSet(bb);
-        joinCostFeatureVectors = new BufferedFrameSet(bb);
-
-        
         int numCarts = bb.getInt();
         cartMap = new HashMap();
         for (int i = 0; i < numCarts; i++) {
             String name = Utilities.getString(bb);
-            CART cart = CARTImpl.loadBinary(bb);
-            ((CARTImpl) cart).setFeatureProcessors(featureProcessors);
+            CART cart = CARTImpl.loadBinary(bb, featureProcessors);
+            //((CARTImpl) cart).setFeatureProcessors(featureProcessors);
             cartMap.put(name, cart);
 
             if (defaultCart == null) {
                 defaultCart = cart;
             }
         }
-        if (featuresLoaded){
+        if (loadFeatures){
             //load features and weights
             int numberOfFeats = bb.getInt();
             features2weights = new HashMap();
@@ -231,7 +232,7 @@ public class ClusterUnitDatabase extends UnitDatabase
             if (!(version == VERSIONWITHFEATURES)){
                 throw new Error("Wrong version of database file");
             } else { 
-                featuresLoaded = true;
+                loadFeatures = true;
             }
         }
         
@@ -247,6 +248,9 @@ public class ClusterUnitDatabase extends UnitDatabase
             joinWeights[i] = raf.readInt();
         }
 
+        audioFrames = new FiledFrameSet(raf);
+        joinCostFeatureVectors = new FiledFrameSet(raf);
+        
         int unitsLength = raf.readInt();
         units = new ClusterUnit[unitsLength];
         
@@ -260,14 +264,11 @@ public class ClusterUnitDatabase extends UnitDatabase
             int firstUnitIdx = unitType.getStart();
             int lastUnitIdx = firstUnitIdx + unitType.getCount();
             for (int unitIdx=firstUnitIdx; unitIdx<lastUnitIdx; unitIdx++) {
-                units[unitIdx] = new ClusterUnit(raf, this, unitType.getName(),featuresLoaded);
+                units[unitIdx] = new ClusterUnit(raf, this, unitType.getName(),loadFeatures);
                 units[unitIdx].setInstanceNumber(unitIdx-firstUnitIdx);
             }
         }
 
-        audioFrames = new FiledFrameSet(raf);
-        joinCostFeatureVectors = new FiledFrameSet(raf);
-        
         int numCarts = raf.readInt();
         cartMap = new HashMap();
         for (int i = 0; i < numCarts; i++) {
@@ -277,8 +278,8 @@ public class ClusterUnitDatabase extends UnitDatabase
                 charBuffer[j] = raf.readChar();
             }
             String name = new String(charBuffer, 0, size);
-            CART cart = CARTImpl.loadBinary(raf);
-            ((CARTImpl)cart).setFeatureProcessors(featureProcessors);
+            CART cart = CARTImpl.loadBinary(raf,featureProcessors);
+            //((CARTImpl)cart).setFeatureProcessors(featureProcessors);
             cartMap.put(name, cart);
 
             if (defaultCart == null) {
@@ -286,7 +287,7 @@ public class ClusterUnitDatabase extends UnitDatabase
             }
         }
         
-        if (featuresLoaded){
+        if (loadFeatures){
             //read in features and weights
             int numberOfFeats = raf.readInt();
             features2weights = new HashMap();
@@ -648,7 +649,7 @@ public class ClusterUnitDatabase extends UnitDatabase
             BufferedOutputStream(fos));
 
         os.writeInt(MAGIC);
-        if (featuresLoaded){
+        if (loadFeatures){
             os.writeInt(VERSIONWITHFEATURES);
         } else {
             os.writeInt(VERSION);
@@ -663,6 +664,14 @@ public class ClusterUnitDatabase extends UnitDatabase
         os.writeInt(joinWeights[i]);
         }
 
+        audioFrames.dumpBinary(os);
+        joinCostFeatureVectors.dumpBinary(os);
+        
+        if (loadFeatures){
+            loadFeatures(featDef,valDir);
+            System.out.println("Continue dumping .bin file...");
+        }
+        
         os.writeInt(units.length);
         os.writeInt(unitTypesArray.length);
         for (int i = 0; i < unitTypesArray.length; i++) {
@@ -670,13 +679,12 @@ public class ClusterUnitDatabase extends UnitDatabase
             int start = unitTypesArray[i].getStart();
             int end = start+unitTypesArray[i].getCount();
             for (int j =start; j<end;j++){
-                if (!units[j].dumpBinary(os, featuresLoaded)){
+                if (!units[j].dumpBinary(os, loadFeatures)){
                     System.out.println("No features for unit starting at"+j);
                 }
             }
         }
-        audioFrames.dumpBinary(os);
-        joinCostFeatureVectors.dumpBinary(os);
+        
 
         os.writeInt(cartMap.size());
         for (Iterator i = cartMap.keySet().iterator(); i.hasNext();) {
@@ -686,7 +694,7 @@ public class ClusterUnitDatabase extends UnitDatabase
         Utilities.outString(os, name);
         cart.dumpBinary(os);
         }
-        if (featuresLoaded){
+        if (loadFeatures){
             
             Set features = features2weights.keySet();
             os.writeInt(features.size());
@@ -771,7 +779,7 @@ public class ClusterUnitDatabase extends UnitDatabase
                                 if (suffixPos != -1) {
                                     binaryName = name.substring(0, suffixPos) + ".bin";
                                 }
-                                System.out.println("Loading " + name);
+                                System.out.println("Loading " + name+"...");
                                 ClusterUnitDatabase db = new ClusterUnitDatabase();
                                 db.loadText(srcPath + "/" + name);
                                 if (i+2<args.length){
@@ -781,12 +789,14 @@ public class ClusterUnitDatabase extends UnitDatabase
                                         System.out.println("Loading features from " 
                                             + featureDefFile + " and values from dir "
                                             + valueDir);
-                                        db.loadFeatures(srcPath + "/" + featureDefFile, 
-                                            		srcPath + "/" + valueDir);
-                                        featuresLoaded = true;
+                                        featDef = srcPath + "/" + featureDefFile;
+                                        valDir = srcPath + "/" + valueDir;
+                                        //db.loadFeatures(srcPath + "/" + featureDefFile, 
+                                          //  		srcPath + "/" + valueDir);
+                                        loadFeatures = true;
                                     }
                                 }
-                                System.out.println("Dumping " + binaryName);
+                                System.out.println("Dumping " + binaryName+"...");
                                 db.dumpBinary(destPath + "/" + binaryName);
                             } else {
                                 System.out.println("Need a voice name");

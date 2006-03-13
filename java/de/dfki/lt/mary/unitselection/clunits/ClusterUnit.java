@@ -107,7 +107,7 @@ public class ClusterUnit extends Unit
                 haveFeaturesMap = true;
             } else {
                 featuresMap = null;
-                System.out.println("No features for unit "+name);
+                //System.out.println("No features for unit "+name);
             }
         }
     }
@@ -154,7 +154,7 @@ public class ClusterUnit extends Unit
                haveFeaturesMap = true;
            } else {
                featuresMap = null;
-               System.out.println("No features for unit "+name);
+               //System.out.println("No features for unit "+name);
            }
        }
     }   
