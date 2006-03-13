@@ -213,6 +213,7 @@ public class ClusterUnitSelector extends UnitSelector
      *@return the head of the candidate queue
      */
     public ViterbiCandidate getCandidates(Target target){
+        //logger.debug("Looking for candidates in cart "+target.getName());
         CART cart = database.getTree(target.getName());
     	// Here, the unit candidates are selected.
     	int[] clist = (int[]) cart.interpret(target.getItem());

@@ -157,7 +157,7 @@ public class Frame {
     	    throw new Error("Parsing sample error " + nse.getMessage());
     	} catch (IOException ioe) {
     	    throw new Error("IO error while parsing sample" + ioe.getMessage());
-    	}
+    	} 
         }
     
     
@@ -308,6 +308,9 @@ public class Frame {
     	for(int i = residualSize; i<resSize;i++){
     			os.writeByte(dummyByte);
     	}
+    	//clean up 
+    	frameData = null;
+    	residualData = null;
     }
     
 

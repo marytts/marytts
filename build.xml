@@ -300,7 +300,7 @@ THIS SOFTWARE.
        		    <jvmarg value="-Xmx300m"/>
     		    <arg line="-src ${mary.base}/lib/voices/${clunit_voice}"/>
     	            <arg line="-dest ${mary.base}/lib/voices/${clunit_voice}"/>
-    	            <arg line="-generate_binary ${clunit_voice}.txt"/>
+    	            <arg line="-generate_binary ${clunit_voice}.txt ${feature_def} ${value_dir}"/>
     	</java>
 	</target>
 
