@@ -47,17 +47,15 @@ import java.util.*;
 public class ClusterTargetCostFunction implements TargetCostFunction
 {
     private Map features2Extractor;
-    private Map features2Weights;
+    private List features;
+    private List weights;
     private int targetIndex;
-    private Hashtable unitTargetPairs2cost;
-    private List unitTargetPairs;
     
     private Logger logger;
     
     public ClusterTargetCostFunction() {
         this.logger = Logger.getLogger("ClusterTargetCostFunction");
         targetIndex = 0;
-        unitTargetPairs2cost = new Hashtable();
     }
     
     /**
@@ -69,37 +67,21 @@ public class ClusterTargetCostFunction implements TargetCostFunction
     public int cost(Target target, Unit unit)
     {
         //if you have no features, you can not calculate
-        if (features2Extractor == null){
+        if (features == null){
             return 0;
         } else {
             //if the unit has no features, you can not calculate
-            if (!unit.hasFeaturesMap()){
+            if (!unit.hasValues()){
                 logger.debug("Could not calculate cost for unit "
                         +unit.getName()+" since it has no features, returning 0");
                 return 0;
             } else {
-                //set an index to target if you have not seen it before
-                if (target.setIndexIfNew(targetIndex)){ 
-                    targetIndex++; 
-                }
-                
-                int unitInstance = ((ClusterUnit) unit).getInstanceNumber();
-                int unitType = ((ClusterUnit) unit).getType();
-                UnitTargetPair utp = new UnitTargetPair(unitType,unitInstance,target.getIndex());
-                //if you've already calculated this pair, return the cost
-                if (unitTargetPairs2cost.containsKey(utp)){
-                    logger.debug("Already calculated cost for unit type "+unitType
-                        +", unit instance "+unitInstance
-                        +", and target "+target.getIndex());
-                    return ((Integer)unitTargetPairs2cost.get(utp)).intValue();
-                }
+                // else go through the features and compare
                 //logger.debug("Now calculating cost for "+unitType+" "
                 //        +unitInstance+" "+target.getIndex());               
-                //else go through the features and compare
                 int cost = 0;
-                Set features = features2Extractor.keySet();
-                for (Iterator it= features.iterator(); it.hasNext();){
-                    String nextFeature = (String) it.next();
+                for (int i = 0;i < features.size(); i++){
+                    String nextFeature = (String) features.get(i);
                     //extract the targets value
                     String targetValue = target.getValueForFeature(nextFeature);
                     if (targetValue == null){
@@ -108,17 +90,16 @@ public class ClusterTargetCostFunction implements TargetCostFunction
                         target.setFeatureAndValue(nextFeature,targetValue);
                     }
                     //extract the units value
-                    String unitValue = unit.getValueForFeature(nextFeature);
+                    String unitValue = unit.getValueForFeature(i);
                     if (unitValue != null || targetValue != null){
                         //extract the weight and compare
-                        Integer weight = (Integer) features2Weights.get(nextFeature);
+                        Integer weight = (Integer) weights.get(i);
                         cost += compare(targetValue, unitValue, weight);
                     }
                 }
-                unitTargetPairs2cost.put(utp,new Integer(cost));
-                logger.debug("Succesfully calculated cost for unit type "+unitType
-                        +", unit instance "+unitInstance
-                        +", and target "+target.getIndex());
+                //logger.debug("Succesfully calculated cost for unit type "+unit.getType
+                  //      +", unit instance "+unitInstance
+                    //    +", and target "+target.getIndex());
                 return cost;
             }
         }
@@ -147,19 +128,19 @@ public class ClusterTargetCostFunction implements TargetCostFunction
      * Set the features of the cost function
      * @param features the features
      */
-    public void setFeatsAndWeights(Map features2Weights,
+    public void setFeatsAndWeights(List features, List weights,
             						UnitSelectionFeatProcManager featProc)
     {
-        this.features2Weights = features2Weights;
+        this.features = features;
+        this.weights = weights;
         //if you did not get any features, do nothing
-        if (features2Weights == null){
+        if (features == null){
             this.features2Extractor = null;
             logger.warn("Did not get any features, " +
             			"can not calculate target costs"); 
         } else {
             //build a PathExtractor for each feature
             features2Extractor = new HashMap();
-            Set features = features2Weights.keySet();
             for (Iterator it = features.iterator();it.hasNext();){
                 String nextFeature = (String)it.next();
                 if (!nextFeature.equals("occurid")){

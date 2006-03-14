@@ -33,6 +33,7 @@ package de.dfki.lt.mary.unitselection.viterbi;
 
 import de.dfki.lt.mary.unitselection.Target;
 import de.dfki.lt.mary.unitselection.Unit;
+import de.dfki.lt.mary.unitselection.TargetCostFunction;
  /**
   * Represents a candidate for the Viterbi algorthm.
   * Each candidate knows about its next candidate, i.e. they can form
@@ -43,9 +44,19 @@ public class ViterbiCandidate {
 	private int pos = 0;
 	private Target target = null;
 	private ViterbiCandidate next = null;
-
+	private int targetCost = -1;
 	
-	
+	/**
+	 * Calculates and returns the target cost for this candidate
+	 * @param tcf the target cost function 
+	 * @return the target cost
+	 */
+	public int getTargetCost(TargetCostFunction tcf){
+	    if (targetCost == -1){
+	        targetCost = tcf.cost(target,unit);
+	    }
+	    return targetCost;
+	}
 	/**
 	 * Gets the next candidate in the queue
 	 * @return the next candidate

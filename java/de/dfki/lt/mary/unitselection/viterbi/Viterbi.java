@@ -369,7 +369,8 @@ public  class Viterbi {
         cost *= 5;	// magic number ("continuity weight") from flite
 
         // Target costs:
-        cost += targetCostFunction.cost(target, candidateUnit); 
+        cost += candidate.getTargetCost(targetCostFunction);
+        //cost += targetCostFunction.cost(target, candidateUnit); 
         if (path == null) {
             newPath.setScore(cost);
         } else {

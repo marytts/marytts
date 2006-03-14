@@ -61,6 +61,10 @@ public class ClusterUnit extends Unit
     public int next;
     
     private UnitOriginInfo origin;
+    private long valsStart;
+    private MappedByteBuffer bb = null;
+    private RandomAccessFile raf = null;
+    private boolean canReadInVals = false;
     
     protected int instanceNumber; // identifies the instances of a given type
     
@@ -83,32 +87,17 @@ public class ClusterUnit extends Unit
         this.prev = bb.getInt();
         this.next = bb.getInt();
         if (readFeatures){
-            // read in the features and their values
-            int numberOfFeats = bb.getInt();
-            if (numberOfFeats != 0){
-                featuresMap = new HashMap();
-                for (int i=0;i<numberOfFeats;i++){
-                    int featsize = bb.getShort();
-                    //System.out.println(featsize);
-                    char[] charBufferFeat = new char[featsize];
-                    for (int j = 0; j < featsize; j++) {
-                        charBufferFeat[j] = bb.getChar();
-                    }
-                    String feature = new String(charBufferFeat, 0, featsize);
-                    int valsize = bb.getShort();
-                    char[] charBufferVal = new char[valsize];
-                    for (int k = 0; k < valsize; k++) {
-                        charBufferVal[k] = bb.getChar();
-                    }
-                    String value = new String(charBufferVal, 0, valsize);
-                    featuresMap.put(feature,value);
-                    //System.out.println("Feature: "+feature+" Value: "+value);
-                }
-                haveFeaturesMap = true;
-            } else {
-                featuresMap = null;
-                //System.out.println("No features for unit "+name);
+            //remember the current position 
+            int valSizeInBytes = bb.getInt();
+            valsStart = bb.position();
+            this.bb = bb;
+            if (valSizeInBytes != 0){
+                canReadInVals = true;
+                // skip the values
+                bb.position((int)valsStart+valSizeInBytes);
             }
+        } else {
+            values = null;
         }
     }
     
@@ -131,31 +120,17 @@ public class ClusterUnit extends Unit
        this.prev = raf.readInt();
        this.next = raf.readInt();
        if (readFeatures){
-           //read in the features and their values
-           
-           int numberOfFeats = raf.readInt();
-           if (numberOfFeats != 0){
-               featuresMap = new HashMap();
-               for (int i=0;i<numberOfFeats;i++){
-                   int featsize = raf.readShort();
-                   char[] charBufferFeat = new char[featsize];
-                   for (int j = 0; j < featsize; j++) {
-                       charBufferFeat[j] = raf.readChar();
-                   }
-                   String feature = new String(charBufferFeat, 0, featsize);
-                   int valsize = raf.readShort();
-                   char[] charBufferVal = new char[valsize];
-                   for (int k = 0; k < valsize; k++) {
-                       charBufferVal[k] = raf.readChar();
-                   }
-                   String value = new String(charBufferVal, 0, valsize);
-                   featuresMap.put(feature,value);
-               }
-               haveFeaturesMap = true;
-           } else {
-               featuresMap = null;
-               //System.out.println("No features for unit "+name);
+           //remember current position
+           int valSizeInBytes = raf.readInt();
+           valsStart = raf.getFilePointer();
+           this.raf = raf;
+           if (valSizeInBytes != 0){
+               canReadInVals = true;
+               // skip the values
+               raf.skipBytes(valSizeInBytes);
            }
+       } else {
+           values = null;
        }
     }   
     
@@ -190,28 +165,88 @@ public class ClusterUnit extends Unit
 	    os.writeInt(prev);
 	    os.writeInt(next);
 	    if (dumpFeatures){
-	        if (featuresMap != null){
-	            Set features = featuresMap.keySet();
-	            os.writeInt(features.size());
-	            for (Iterator it = features.iterator(); it.hasNext();){
-	                String nextFeat = (String)it.next();
-	                os.writeShort((short)nextFeat.length());
-	                os.writeChars(nextFeat);
-	                String nextValue = (String)featuresMap.get(nextFeat);
-	                os.writeShort((short)nextValue.length());
-	                os.writeChars(nextValue);
-	                //System.out.println(start+": Feature: "+nextFeat+" Value: "+nextValue);
+	        if (values != null){
+	            //calculate the size of values in bytes
+	            int valSizeInBytes = 4;
+	            for (int i = 0; i<values.size();i++){
+	                valSizeInBytes += 2 + 2*((String)values.get(i)).length();
+	            }
+	            os.writeInt(valSizeInBytes);
+	            os.writeInt(values.size());
+	            for (int i = 0; i<values.size();i++){
+	                String nextVal = (String)values.get(i);
+	                os.writeShort((short)nextVal.length());
+	                os.writeChars(nextVal);
+	                //System.out.println(start+": Value: "+nextValue);
 	            } 
 	            return true;
 	        } else {
 	            os.writeInt(0);
 	            return false;
-	            
 	        }
 	    }
 	    return true;
 	}
     
+	public String getValueForFeature(int index)
+    {
+	    //if you already have the values, return the right one
+        if (haveValues){
+                return (String) values.get(index);
+        } else { // if you dont have any values
+            if (bb != null && canReadInVals){ 
+                // read in the values from byteBuffer
+                bb.position((int) valsStart);
+                int numberOfVals = bb.getInt();
+                values = new ArrayList();
+                for (int i=0;i<numberOfVals;i++){
+                    int valsize = bb.getShort();
+                    //System.out.println(featsize);
+                    char[] charBufferFeat = new char[valsize];
+                    for (int j = 0; j < valsize; j++) {
+                        charBufferFeat[j] = bb.getChar();
+                    }
+                    values.add(new String(charBufferFeat, 0, valsize));
+                    //System.out.println("Value: "+value);
+                }
+                haveValues = true;
+                return (String) values.get(index);
+            } else {
+                if (raf != null && canReadInVals){ 
+                    // read in the values from RandomAccessFile
+                    try{
+                        raf.seek(valsStart);
+                        int numberOfVals = raf.readInt();
+                        values = new ArrayList();
+                        for (int i=0;i<numberOfVals;i++){
+                            int valsize = raf.readShort();
+                            char[] charBufferVal = new char[valsize];
+                            for (int k = 0; k < valsize; k++) {
+                                charBufferVal[k] = raf.readChar();
+                            }
+                            values.add(new String(charBufferVal, 0, valsize));
+                         }
+                        haveValues = true;
+                        return (String) values.get(index);
+                    }catch (IOException e){
+                        throw new Error ("IOException: Can not read values; "
+                                +e.getMessage());
+                    }
+                } else {
+                    return null;
+                }
+            }
+        }
+    }
+
+	public boolean hasValues()
+    {
+	    if (haveValues || canReadInVals){
+	        return true;
+	    } else {
+	        return false;
+	    }
+    }
     
     public void setInstanceNumber(int instanceNumber)
     {

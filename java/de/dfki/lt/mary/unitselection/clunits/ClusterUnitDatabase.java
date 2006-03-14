@@ -70,7 +70,8 @@ public class ClusterUnitDatabase extends UnitDatabase
     private ClusterUnit[] units;
     private Map unitTypesMap; // Map unit names to unit type objects  
     
-    private Map features2weights = null;
+    private List features = null;
+    private List weights = null;
     
     //needed for converting from .txt to .bin
     private final static int MAGIC = 0xf0cacc1a;
@@ -200,17 +201,17 @@ public class ClusterUnitDatabase extends UnitDatabase
         if (loadFeatures){
             //load features and weights
             int numberOfFeats = bb.getInt();
-            features2weights = new HashMap();
+            features = new ArrayList();
+            weights = new ArrayList();
             for (int i=0;i<numberOfFeats;i++){
                 int featsize = bb.getShort();
                 char[] charBufferFeat = new char[featsize];
                 for (int j = 0; j < featsize; j++) {
                     charBufferFeat[j] = bb.getChar();
                 }
-                String feature = new String(charBufferFeat, 0, featsize);
-                int weight = bb.getInt();
-                features2weights.put(feature,new Integer(weight));
-                //logger.debug("Feature: "+feature+" Weight: "+weight);
+                features.add(new String(charBufferFeat, 0, featsize));
+                weights.add(new Integer(bb.getInt()));
+                //logger.debug("Feature: "+features.get(i)+" Weight: "+weights.get(i));
             }
         }
         
@@ -290,17 +291,17 @@ public class ClusterUnitDatabase extends UnitDatabase
         if (loadFeatures){
             //read in features and weights
             int numberOfFeats = raf.readInt();
-            features2weights = new HashMap();
+            features = new ArrayList();
+            weights = new ArrayList();
             for (int i=0;i<numberOfFeats;i++){
                 int featsize = raf.readShort();
                 char[] charBufferFeat = new char[featsize];
                 for (int j = 0; j < featsize; j++) {
                     charBufferFeat[j] = raf.readChar();
                 }
-                String feature = new String(charBufferFeat, 0, featsize);
-                int weight = raf.readInt();
-                features2weights.put(feature,new Integer(weight));
-                //logger.debug("Feature: "+feature+" Weight: "+weight);
+                features.add(new String(charBufferFeat, 0, featsize));
+                weights.add(new Integer(raf.readInt()));
+                //logger.debug("Feature: "+features.get(i)+" Weight: "+weights.get(i));
             }
         }
         
@@ -459,8 +460,12 @@ public class ClusterUnitDatabase extends UnitDatabase
         return featureProcessors;
     }
     
-    public Map getFeats2Weights(){
-        return features2weights;
+    public List getFeats(){
+        return features;
+    }
+    
+    public List getWeights(){
+        return weights;
     }
     
     // methods for reading in text file of the voice
@@ -680,7 +685,8 @@ public class ClusterUnitDatabase extends UnitDatabase
             int end = start+unitTypesArray[i].getCount();
             for (int j =start; j<end;j++){
                 if (!units[j].dumpBinary(os, loadFeatures)){
-                    System.out.println("No features for unit starting at"+j);
+                    System.out.println("No features for unit of type "
+                            +unitTypesArray[i].getName()+", starting at"+j);
                 }
             }
         }
@@ -695,27 +701,21 @@ public class ClusterUnitDatabase extends UnitDatabase
         cart.dumpBinary(os);
         }
         if (loadFeatures){
-            
-            Set features = features2weights.keySet();
             os.writeInt(features.size());
-            for (Iterator it = features.iterator(); it.hasNext();){
-                String nextFeat = (String)it.next();
+            for (int i = 0; i<features.size(); i++){
+                String nextFeat = (String)features.get(i);
 	            os.writeShort((short)nextFeat.length());
 	            os.writeChars(nextFeat);
-	            os.writeInt(((Integer)features2weights.get(nextFeat)).intValue());
+	            os.writeInt(((Integer)weights.get(i)).intValue());
             } 
         }
         
         os.close();
-
-        // note that we are not currently saving the state
-        // of the default cart
-
     } catch (FileNotFoundException fe) {
         throw new Error("Can't dump binary database " +
             fe.getMessage());
     } catch (IOException ioe) {
-        throw new Error("Can't write binary database " +
+        throw new Error("Can't dump binary database " +
             ioe.getMessage());
     }
     }
@@ -723,7 +723,9 @@ public class ClusterUnitDatabase extends UnitDatabase
     private void loadFeatures(String featureDefs, String valuesDir){
         FeatureReader featureReader = 
             new FeatureReader(this, featureDefs, valuesDir);
-        features2weights = featureReader.readFeatures();
+        featureReader.readFeatures();
+        features = featureReader.getFeats();
+        weights = featureReader.getWeights();
     }
     
     /**
@@ -786,9 +788,9 @@ public class ClusterUnitDatabase extends UnitDatabase
                                     String featureDefFile = args[++i];
                                     String valueDir = args[++i];
                                     if (!(featureDefFile.equals("${feature_def}"))){
-                                        System.out.println("Loading features from " 
-                                            + featureDefFile + " and values from dir "
-                                            + valueDir);
+                                        //System.out.println("Loading features from " 
+                                          //  + featureDefFile + " and values from dir "
+                                            //+ valueDir);
                                         featDef = srcPath + "/" + featureDefFile;
                                         valDir = srcPath + "/" + valueDir;
                                         //db.loadFeatures(srcPath + "/" + featureDefFile, 
@@ -798,6 +800,7 @@ public class ClusterUnitDatabase extends UnitDatabase
                                 }
                                 System.out.println("Dumping " + binaryName+"...");
                                 db.dumpBinary(destPath + "/" + binaryName);
+                                System.out.println("Successfully dumped "+binaryName);
                             } else {
                                 System.out.println("Need a voice name");
                             }

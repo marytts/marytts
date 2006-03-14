@@ -144,7 +144,9 @@ public class UnitSelectionVoiceBuilder{
 	            MaryProperties.getProperty(header+".targetCostClass");
 	        TargetCostFunction targetFunction = 
 		        (TargetCostFunction) Class.forName(targetCostClass).newInstance();
-	        targetFunction.setFeatsAndWeights(unitDatabase.getFeats2Weights(),featProcManager);
+	        targetFunction.setFeatsAndWeights(unitDatabase.getFeats(),
+	                						unitDatabase.getWeights(),
+	                						featProcManager);
 	        String joinCostClass = 
 	            MaryProperties.getProperty(header+".joinCostClass");
 	        JoinCostFunction joinFunction = 
