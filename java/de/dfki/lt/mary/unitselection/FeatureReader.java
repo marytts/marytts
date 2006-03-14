@@ -44,10 +44,11 @@ import de.dfki.lt.mary.unitselection.Unit;
 public class FeatureReader
 {
     
-    private Map weights = null;
     private UnitDatabase database;
     private String featsDefsFile;
     private String unitsFeatsDir;
+    private List feats = null;
+    private List weights = null;
    //private Logger logger;
     private boolean debug = false;   
     
@@ -58,37 +59,45 @@ public class FeatureReader
         this.unitsFeatsDir = unitsFeatsDir;
     }
     
+    public List getFeats(){
+        return feats;
+    }
+    
+    public List getWeights(){
+        return weights;
+    }
+    
     /**
      * Read in the features and the feature values of
      * the units. Then map features to values and store 
      * them in the individual units.
      * @return the features
      */
-    public Map readFeatures()
+    public void readFeatures()
     {	
         try{
             //Read in the feature definitions
-            List definitions = new ArrayList();
+            feats = new ArrayList();
             System.out.println("Reading features from "+featsDefsFile);
             BufferedReader reader =
                 new BufferedReader(new InputStreamReader(new 
                         FileInputStream(new 
                                 File(featsDefsFile)),"UTF-8"));
             String line = reader.readLine();
-            weights = new HashMap();
+            weights = new ArrayList();
             while (line!=null){
                 StringTokenizer tok = new StringTokenizer(line, " ");
                 if (tok.countTokens() == 2){
                     String feature = tok.nextToken();
-                    definitions.add(feature);
-                    weights.put(feature,new Integer(tok.nextToken()));
+                    feats.add(feature);
+                    weights.add(new Integer(tok.nextToken()));
                 }
                 line = reader.readLine();
             }
-            
+            /**
             for (int k =0; k<definitions.size();k++){
                 System.out.println("Feature "+k+": "+definitions.get(k));
-            }
+            } **/
             //Read in the each unit type with all its units and their features
             File featsDir = new File(unitsFeatsDir);
             System.out.println("Reading values from directory "+unitsFeatsDir);
@@ -96,7 +105,7 @@ public class FeatureReader
                 File[] entries = featsDir.listFiles();
                 int startIndex = (unitsFeatsDir).length();
                 boolean ignoreFirst = true;
-                if (!((String)definitions.get(0)).equals("occurid")){
+                if (!((String)feats.get(0)).equals("occurid")){
                     ignoreFirst = false;
                 }
                 for (int i = 0; i<entries.length;i++){
@@ -123,23 +132,22 @@ public class FeatureReader
                             Unit unit;
                             unit = database.getUnit(typeStartIndex+unitIndex);
                             if (unit!=null){
-                                Map featuresMap = new HashMap();
+                                List values = new ArrayList();
                                 int j = 1;
                                 if (!ignoreFirst){
                                     j=0;
                                 }
-                                for (;j<definitions.size(); j++){
+                                for (;j<feats.size(); j++){
                                     if (tok.hasMoreTokens()){
                                         String nextValue = tok.nextToken();
-                                        featuresMap.put(definitions.get(j),
-                                                nextValue);
+                                        values.add(nextValue);
                                     } else {
                                         throw new Error ("Mismatch in feature file "
                                                 +unitType+", unit "+unitIndex
-                                                +"; feature "+definitions.get(j)
+                                                +"; feature "+feats.get(j)
                                                 +" is missing");}
                             		}
-                                unit.setFeaturesMap(featuresMap);
+                                unit.setValues(values);
                                 nextUnit=unitsReader.readLine();
                             } else {
                                 nextUnit = null;
@@ -150,7 +158,6 @@ public class FeatureReader
                    }
                 }
             }    
-            return weights;
         }catch (FileNotFoundException fe){
             System.out.println("Can not read features: "+fe.getMessage());
             throw new Error("Error reading features");

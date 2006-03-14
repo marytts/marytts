@@ -29,7 +29,7 @@
 package de.dfki.lt.mary.unitselection;
 
 import de.dfki.lt.mary.unitselection.clunits.Frame;
-import java.util.Map;
+import java.util.List;
 
 /**
  * Representation of a unit from a unit database. This gives access to
@@ -47,8 +47,8 @@ public class Unit
 
     protected UnitDatabase database;
     protected String name;
-    protected Map featuresMap;
-    protected boolean haveFeaturesMap = false;
+    protected List values;
+    protected boolean haveValues = false;
 
     public Unit(UnitDatabase database, String name)
     {
@@ -82,26 +82,26 @@ public class Unit
         return database;
     }
 
-    public String getValueForFeature(String feature)
+    public String getValueForFeature(int index)
     {
-        if (haveFeaturesMap && featuresMap.containsKey(feature)){
-                return (String) featuresMap.get(feature);
+        if (haveValues){
+                return (String) values.get(index);
         } else {
                 return null;
         }
     }
 
-    public void setFeaturesMap(Map featuresMap)
+    public void setValues(List values)
     {
-        this.featuresMap = featuresMap;
-        if (featuresMap != null){
-            haveFeaturesMap = true;
+        this.values = values;
+        if (values != null){
+            haveValues = true;
         }
     }
     
-    public boolean hasFeaturesMap()
+    public boolean hasValues()
     {
-       return haveFeaturesMap;
+       return haveValues;
     }
     
 }

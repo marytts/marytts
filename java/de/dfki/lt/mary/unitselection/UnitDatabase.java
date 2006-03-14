@@ -96,7 +96,11 @@ public abstract class UnitDatabase
         return 0;
     }
     
-    public Map getFeats2Weights(){
+    public List getFeats(){
+        return null;
+    }
+    
+    public List getWeights(){
         return null;
     }
     
