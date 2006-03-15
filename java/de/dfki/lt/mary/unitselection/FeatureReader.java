@@ -86,12 +86,13 @@ public class FeatureReader
             String line = reader.readLine();
             weights = new ArrayList();
             while (line!=null){
+                if (!(line.startsWith("***"))){
                 StringTokenizer tok = new StringTokenizer(line, " ");
                 if (tok.countTokens() == 2){
                     String feature = tok.nextToken();
                     feats.add(feature);
-                    weights.add(new Integer(tok.nextToken()));
-                }
+                    weights.add(new Float(tok.nextToken()));
+                }}
                 line = reader.readLine();
             }
             /**

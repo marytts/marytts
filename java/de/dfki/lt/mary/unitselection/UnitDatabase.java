@@ -104,6 +104,8 @@ public abstract class UnitDatabase
         return null;
     }
     
+    public void overwriteWeights(String file){}
+    
     /**
      * Determine the chain of candidate sets that could be used to realise the
      * given list of targets.

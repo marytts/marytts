@@ -138,7 +138,13 @@ public class UnitSelectionVoiceBuilder{
 	            (UnitDatabase) Class.forName(databaseClass).newInstance();
 	        
 	        unitDatabase.load(databaseFile, featProcManager, voice);
-		
+	        
+	        //overwrite target cost weights if defined
+	        String targetCostWeights = 
+	            MaryProperties.getFilename(header+".targetCostWeights");
+	        if (targetCostWeights != null){
+	            unitDatabase.overwriteWeights(targetCostWeights);
+	        }
 	        
 	        String targetCostClass = 
 	            MaryProperties.getProperty(header+".targetCostClass");

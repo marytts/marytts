@@ -677,7 +677,7 @@ public class GenericFeatureProcessors {
     }
 
     /**
-     * Checks, if segment is sylfinal
+     * Checks if segment is sylfinal
      * This is a feature processor. A feature processor takes an item,
      * performs some sort of processing on the item and returns an object.
      */
@@ -685,14 +685,14 @@ public class GenericFeatureProcessors {
         
         public String process (Item seg) throws ProcessException{
             Item sylItem = seg.getItemAs(Relation.SYLLABLE_STRUCTURE); 
-    		if (sylItem.getNext() != null){
+    		if (sylItem == null || sylItem.getNext() != null){
     		    return "0";
     		}else{ return "1";}
         }
     }
     
     /**
-     * Checks, if segment is a pause
+     * Checks if segment is a pause
      * This is a feature processor. A feature processor takes an item,
      * performs some sort of processing on the item and returns an object.
      */
@@ -700,9 +700,9 @@ public class GenericFeatureProcessors {
         
         public String process (Item seg) throws ProcessException{
             Item segItem = seg.getItemAs(Relation.SEGMENT);
-            if (segItem.toString().equals("pau")){
-                return "1";}
-            else{return "0";}
+            if (segItem == null || !(segItem.toString().equals("pau"))){
+                return "0";}
+            else{return "1";}
         }
     }
     

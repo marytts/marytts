@@ -252,7 +252,7 @@ public  class Viterbi {
      *
      * return true if a is better than b.
      */
-    private boolean isBetterThan(int a, int b) {
+    private boolean isBetterThan(float a, float b) {
 	if (bigIsGood) {
 	    return a > b;
 	} else {
@@ -347,7 +347,7 @@ public  class Viterbi {
      */
     private ViterbiPath getPath(ViterbiPath path, 
 				ViterbiCandidate candidate) {
-        int cost;
+        float cost;
         ViterbiPath newPath = new ViterbiPath();
 
         Target target = candidate.getTarget();
@@ -387,14 +387,14 @@ public  class Viterbi {
      */
     private ViterbiPath findBestPath() {
         
-        int best;
-        int worst;
+        float best;
+        float worst;
         ViterbiPath bestPath = null;
 	
         if (bigIsGood) {
-            worst = Integer.MIN_VALUE;
+            worst = Float.MIN_VALUE;
         } else {
-            worst = Integer.MAX_VALUE;
+            worst = Float.MAX_VALUE;
         }
 	
         best = worst;

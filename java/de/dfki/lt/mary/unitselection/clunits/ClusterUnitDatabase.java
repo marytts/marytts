@@ -210,7 +210,7 @@ public class ClusterUnitDatabase extends UnitDatabase
                     charBufferFeat[j] = bb.getChar();
                 }
                 features.add(new String(charBufferFeat, 0, featsize));
-                weights.add(new Integer(bb.getInt()));
+                weights.add(new Float(bb.getFloat()));
                 //logger.debug("Feature: "+features.get(i)+" Weight: "+weights.get(i));
             }
         }
@@ -300,7 +300,7 @@ public class ClusterUnitDatabase extends UnitDatabase
                     charBufferFeat[j] = raf.readChar();
                 }
                 features.add(new String(charBufferFeat, 0, featsize));
-                weights.add(new Integer(raf.readInt()));
+                weights.add(new Float(raf.readFloat()));
                 //logger.debug("Feature: "+features.get(i)+" Weight: "+weights.get(i));
             }
         }
@@ -348,7 +348,33 @@ public class ClusterUnitDatabase extends UnitDatabase
 		}
 	}
     
-    
+    /**
+     * Reads in new weights from the given file
+     * 
+     *@param file
+     */
+    public void overwriteWeights(String file){
+        try{
+        BufferedReader reader =
+            new BufferedReader(new InputStreamReader(new 
+                    FileInputStream(new 
+                            File(file)),"UTF-8"));
+        String line = reader.readLine();
+        while (line!=null){
+            if (!(line.startsWith("***"))){
+                StringTokenizer tok = new StringTokenizer(line, " ");
+                if (tok.countTokens() == 2){
+                    int index = features.indexOf(tok.nextToken());
+                    weights.set(index,new Float(tok.nextToken()));
+                }
+            }
+            line = reader.readLine();
+        }
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new Error("Error reading target cost weights");
+        }    
+    }
     
     /**
 	 * Retrieves the index for the name given a name.
@@ -706,7 +732,7 @@ public class ClusterUnitDatabase extends UnitDatabase
                 String nextFeat = (String)features.get(i);
 	            os.writeShort((short)nextFeat.length());
 	            os.writeChars(nextFeat);
-	            os.writeInt(((Integer)weights.get(i)).intValue());
+	            os.writeFloat(((Float)weights.get(i)).floatValue());
             } 
         }
         

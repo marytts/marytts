@@ -47,8 +47,7 @@ public class Target
     protected Item item;
     //a map containing this targets features
     protected Map features2Values = null;
-    protected int index = -1;
-    
+        
     public Target(String name)
     {
         this.name = name;
@@ -84,6 +83,11 @@ public class Target
         }
     }
     
+    /**
+     * Add value and features to the featuresMap
+     * @param feature the feature
+     * @param value the value
+     */
     public void setFeatureAndValue(String feature, String value)
     {
         if (features2Values == null){
@@ -92,6 +96,11 @@ public class Target
         features2Values.put(feature,value);
     }
     
+    /**
+     * Get the value for a feature if present
+     * @param feature the feature
+     * @return the value
+     */
     public String getValueForFeature(String feature)
     {
         if (features2Values != null 
@@ -100,19 +109,6 @@ public class Target
         } else {
             return null;
         }
-    }
-    
-    public boolean setIndexIfNew(int newIndex){
-        if (index == -1){
-            this.index = newIndex;
-            return true;
-        } else {
-            return false;
-        }
-    }
-    
-    public int getIndex(){
-        return index;
     }
     
     public String toString()

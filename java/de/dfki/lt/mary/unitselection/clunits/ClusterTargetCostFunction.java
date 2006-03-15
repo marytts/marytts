@@ -48,6 +48,7 @@ public class ClusterTargetCostFunction implements TargetCostFunction
 {
     private Map features2Extractor;
     private List features;
+    private List types;
     private List weights;
     private int targetIndex;
     
@@ -64,7 +65,7 @@ public class ClusterTargetCostFunction implements TargetCostFunction
      * @param unit
      * @return a non-negative number; smaller values mean better fit, i.e. smaller cost.
      */
-    public int cost(Target target, Unit unit)
+    public float cost(Target target, Unit unit)
     {
         //if you have no features, you can not calculate
         if (features == null){
@@ -79,27 +80,31 @@ public class ClusterTargetCostFunction implements TargetCostFunction
                 // else go through the features and compare
                 //logger.debug("Now calculating cost for "+unitType+" "
                 //        +unitInstance+" "+target.getIndex());               
-                int cost = 0;
+                float cost = 0;
                 for (int i = 0;i < features.size(); i++){
-                    String nextFeature = (String) features.get(i);
-                    //extract the targets value
-                    String targetValue = target.getValueForFeature(nextFeature);
-                    if (targetValue == null){
-                        targetValue = (String)
-                    	((PathExtractorImpl)features2Extractor.get(nextFeature)).findFeature(target.getItem());
-                        target.setFeatureAndValue(nextFeature,targetValue);
-                    }
-                    //extract the units value
-                    String unitValue = unit.getValueForFeature(i);
-                    if (unitValue != null || targetValue != null){
-                        //extract the weight and compare
-                        Integer weight = (Integer) weights.get(i);
-                        cost += compare(targetValue, unitValue, weight);
+                    float weight = ((Float) weights.get(i)).floatValue();
+                    if (weight != 0){
+                        String nextFeature = (String) features.get(i);
+                        //extract the targets value
+                        String targetValue = target.getValueForFeature(nextFeature);
+                        if (targetValue == null){
+                            targetValue = (String)
+                            ((PathExtractorImpl)features2Extractor.get(nextFeature)).findFeature(target.getItem());
+                            target.setFeatureAndValue(nextFeature,targetValue);
+                        }
+                        //extract the units value
+                        String unitValue = unit.getValueForFeature(i);
+                        if (unitValue != null || targetValue != null){
+                            //extract the weight and compare
+                            //logger.debug("Comparing feature "+features.get(i)
+                              //      +" with weight "+weights.get(i));
+                            cost += compare((String) types.get(i),targetValue, unitValue, weight);
+                        } else {
+                            cost += weight;
+                        }                        
                     }
                 }
-                //logger.debug("Succesfully calculated cost for unit type "+unit.getType
-                  //      +", unit instance "+unitInstance
-                    //    +", and target "+target.getIndex());
+                logger.debug("Succesfully calculated cost: "+cost);
                 return cost;
             }
         }
@@ -112,33 +117,51 @@ public class ClusterTargetCostFunction implements TargetCostFunction
      * @param weight the weight
      * @return the resulting cost
      */
-    private int compare(String targetValue, 
+    private float compare(String featureType,
+            			String targetValue, 
             			String unitValue, 
-            			Integer weight)
+            			float weight)
     {
-        int weightInt = weight.intValue();
-        int resultInt = 0;
-        if (!targetValue.equals(unitValue)){
-            resultInt = 1;
+        if (featureType.equals("String")){
+           float result = 1;
+           if (targetValue.equals(unitValue)){
+                result = 0;
+           }
+           return (weight*result);
+        } else { //featureType is Float
+            float targetFloat = Float.parseFloat(targetValue);
+            float unitFloat = Float.parseFloat(unitValue);
+            float result = Math.abs(targetFloat-unitFloat)*weight;
+            //logger.debug("Multiplying "+targetFloat+" minus "+unitFloat
+              //      +" with "+weight+" equals "+result);
+            return result;
         }
-        return (weightInt*resultInt);
     }
     
     /**
      * Set the features of the cost function
      * @param features the features
      */
-    public void setFeatsAndWeights(List features, List weights,
+    public void setFeatsAndWeights(List feats, List weights,
             						UnitSelectionFeatProcManager featProc)
     {
-        this.features = features;
         this.weights = weights;
         //if you did not get any features, do nothing
-        if (features == null){
+        if (feats == null){
             this.features2Extractor = null;
+            this.features = null;
             logger.warn("Did not get any features, " +
             			"can not calculate target costs"); 
         } else {
+            //split features and feature types
+            types = new ArrayList();
+            features = new ArrayList();
+            for (int i=0; i<feats.size();i++){
+                StringTokenizer tok = 
+                    new StringTokenizer((String)feats.get(i),"#");
+                features.add(tok.nextToken());
+                types.add(tok.nextToken());
+            }
             //build a PathExtractor for each feature
             features2Extractor = new HashMap();
             for (Iterator it = features.iterator();it.hasNext();){

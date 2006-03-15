@@ -47,7 +47,7 @@ public class ZeroTargetCostFunction implements TargetCostFunction
     {
     }
 
-    public int cost(Target target, Unit unit)
+    public float cost(Target target, Unit unit)
     {
         return 0;
     }
