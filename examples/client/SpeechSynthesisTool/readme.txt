@@ -5,7 +5,10 @@ a plone-based access to speech synthesis.
 
 1. <h2>Installation</h2>
 
-	The installation can be done quickly by using the Plone 	portal_quickinstaller tool in the Zope Management Interface.
+	First, install MARY TTS and run the server -- see http://mary.dfki.de
+
+	Then, unpack SpeechSynthesisTool in your portal's Products/ folder; restart zope; install product using the portal_quickinstaller (in the Zope Management Interface); and configure the location of your MARY TTS server under "site setup"->"SpeechSynthesisTool Setup".
+
 
 2. <h2>What is this product about?</h2>
 
