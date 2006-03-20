@@ -314,6 +314,20 @@ THIS SOFTWARE.
     </delete>
   </target>
 
+	<target name="SpeechSynthesisTool">
+		<loadfile property="speechsynthesistool.version"
+        srcFile="examples/client/SpeechSynthesisTool/version.txt">
+			<filterchain>
+			  <striplinebreaks/>
+			</filterchain>
+		</loadfile>
+	    <zip destfile="dist/SpeechSynthesisTool-${speechsynthesistool.version}.zip">
+	      <zipfileset prefix="SpeechSynthesisTool"
+	                  dir="examples/client/SpeechSynthesisTool"
+	                  excludes="**/.svn/*"/>
+	    </zip>
+	</target>
+
 	<target name="de.dfki.lt.izpack.LicensePanel.jar" depends="compile">
 	    <jar destfile="build/bin/panels/de.dfki.lt.izpack.LicensePanel.jar"
 	         basedir="${src}"
