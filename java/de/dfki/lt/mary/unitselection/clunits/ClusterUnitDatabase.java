@@ -70,8 +70,7 @@ public class ClusterUnitDatabase extends UnitDatabase
     private ClusterUnit[] units;
     private Map unitTypesMap; // Map unit names to unit type objects  
     
-    private List features = null;
-    private List weights = null;
+    private List featsNWeights = null;
     
     //needed for converting from .txt to .bin
     private final static int MAGIC = 0xf0cacc1a;
@@ -201,16 +200,14 @@ public class ClusterUnitDatabase extends UnitDatabase
         if (loadFeatures){
             //load features and weights
             int numberOfFeats = bb.getInt();
-            features = new ArrayList();
-            weights = new ArrayList();
+            featsNWeights = new ArrayList();
             for (int i=0;i<numberOfFeats;i++){
                 int featsize = bb.getShort();
                 char[] charBufferFeat = new char[featsize];
                 for (int j = 0; j < featsize; j++) {
                     charBufferFeat[j] = bb.getChar();
                 }
-                features.add(new String(charBufferFeat, 0, featsize));
-                weights.add(new Float(bb.getFloat()));
+                featsNWeights.add(new String(charBufferFeat, 0, featsize));
                 //logger.debug("Feature: "+features.get(i)+" Weight: "+weights.get(i));
             }
         }
@@ -291,16 +288,14 @@ public class ClusterUnitDatabase extends UnitDatabase
         if (loadFeatures){
             //read in features and weights
             int numberOfFeats = raf.readInt();
-            features = new ArrayList();
-            weights = new ArrayList();
+            featsNWeights = new ArrayList();
             for (int i=0;i<numberOfFeats;i++){
                 int featsize = raf.readShort();
                 char[] charBufferFeat = new char[featsize];
                 for (int j = 0; j < featsize; j++) {
                     charBufferFeat[j] = raf.readChar();
                 }
-                features.add(new String(charBufferFeat, 0, featsize));
-                weights.add(new Float(raf.readFloat()));
+                featsNWeights.add(new String(charBufferFeat, 0, featsize));
                 //logger.debug("Feature: "+features.get(i)+" Weight: "+weights.get(i));
             }
         }
@@ -362,11 +357,8 @@ public class ClusterUnitDatabase extends UnitDatabase
         String line = reader.readLine();
         while (line!=null){
             if (!(line.startsWith("***"))){
-                StringTokenizer tok = new StringTokenizer(line, " ");
-                if (tok.countTokens() == 2){
-                    int index = features.indexOf(tok.nextToken());
-                    weights.set(index,new Float(tok.nextToken()));
-                }
+                int index = featsNWeights.indexOf(line);
+                featsNWeights.set(index,line);
             }
             line = reader.readLine();
         }
@@ -486,12 +478,8 @@ public class ClusterUnitDatabase extends UnitDatabase
         return featureProcessors;
     }
     
-    public List getFeats(){
-        return features;
-    }
-    
-    public List getWeights(){
-        return weights;
+    public List getFeatsNWeights(){
+        return featsNWeights;
     }
     
     // methods for reading in text file of the voice
@@ -727,12 +715,11 @@ public class ClusterUnitDatabase extends UnitDatabase
         cart.dumpBinary(os);
         }
         if (loadFeatures){
-            os.writeInt(features.size());
-            for (int i = 0; i<features.size(); i++){
-                String nextFeat = (String)features.get(i);
-	            os.writeShort((short)nextFeat.length());
-	            os.writeChars(nextFeat);
-	            os.writeFloat(((Float)weights.get(i)).floatValue());
+            os.writeInt(featsNWeights.size());
+            for (int i = 0; i<featsNWeights.size(); i++){
+                String next = (String)featsNWeights.get(i);
+	            os.writeShort((short)next.length());
+	            os.writeChars(next);
             } 
         }
         
@@ -750,8 +737,7 @@ public class ClusterUnitDatabase extends UnitDatabase
         FeatureReader featureReader = 
             new FeatureReader(this, featureDefs, valuesDir);
         featureReader.readFeatures();
-        features = featureReader.getFeats();
-        weights = featureReader.getWeights();
+        featsNWeights = featureReader.getFeatsNWeights();
     }
     
     /**

@@ -96,11 +96,7 @@ public abstract class UnitDatabase
         return 0;
     }
     
-    public List getFeats(){
-        return null;
-    }
-    
-    public List getWeights(){
+    public List getFeatsNWeights(){
         return null;
     }
     
