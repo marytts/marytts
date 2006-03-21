@@ -47,8 +47,7 @@ public class FeatureReader
     private UnitDatabase database;
     private String featsDefsFile;
     private String unitsFeatsDir;
-    private List feats = null;
-    private List weights = null;
+    private List featsNWeights = null;
    //private Logger logger;
     private boolean debug = false;   
     
@@ -59,12 +58,8 @@ public class FeatureReader
         this.unitsFeatsDir = unitsFeatsDir;
     }
     
-    public List getFeats(){
-        return feats;
-    }
-    
-    public List getWeights(){
-        return weights;
+    public List getFeatsNWeights(){
+        return featsNWeights;
     }
     
     /**
@@ -77,22 +72,17 @@ public class FeatureReader
     {	
         try{
             //Read in the feature definitions
-            feats = new ArrayList();
+            featsNWeights = new ArrayList();
             System.out.println("Reading features from "+featsDefsFile);
             BufferedReader reader =
                 new BufferedReader(new InputStreamReader(new 
                         FileInputStream(new 
                                 File(featsDefsFile)),"UTF-8"));
             String line = reader.readLine();
-            weights = new ArrayList();
             while (line!=null){
                 if (!(line.startsWith("***"))){
-                StringTokenizer tok = new StringTokenizer(line, " ");
-                if (tok.countTokens() == 2){
-                    String feature = tok.nextToken();
-                    feats.add(feature);
-                    weights.add(new Float(tok.nextToken()));
-                }}
+                    featsNWeights.add(line);
+                }
                 line = reader.readLine();
             }
             /**
@@ -105,10 +95,6 @@ public class FeatureReader
             if (featsDir.isDirectory()){
                 File[] entries = featsDir.listFiles();
                 int startIndex = (unitsFeatsDir).length();
-                boolean ignoreFirst = true;
-                if (!((String)feats.get(0)).equals("occurid")){
-                    ignoreFirst = false;
-                }
                 for (int i = 0; i<entries.length;i++){
                     //determine the name of the file = unit type
                     String unitType = entries[i].toString();
@@ -134,18 +120,14 @@ public class FeatureReader
                             unit = database.getUnit(typeStartIndex+unitIndex);
                             if (unit!=null){
                                 List values = new ArrayList();
-                                int j = 1;
-                                if (!ignoreFirst){
-                                    j=0;
-                                }
-                                for (;j<feats.size(); j++){
+                                for (int j=0;j<featsNWeights.size(); j++){
                                     if (tok.hasMoreTokens()){
                                         String nextValue = tok.nextToken();
                                         values.add(nextValue);
                                     } else {
                                         throw new Error ("Mismatch in feature file "
                                                 +unitType+", unit "+unitIndex
-                                                +"; feature "+feats.get(j)
+                                                +"; feature "+featsNWeights.get(j)
                                                 +" is missing");}
                             		}
                                 unit.setValues(values);

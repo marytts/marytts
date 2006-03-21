@@ -52,7 +52,7 @@ public class ZeroTargetCostFunction implements TargetCostFunction
         return 0;
     }
 
-    public void setFeatsAndWeights(List features, List weights,
+    public void setFeatsAndWeights(List featsNWeights,
 			UnitSelectionFeatProcManager featProc){
         //do nothing
     }

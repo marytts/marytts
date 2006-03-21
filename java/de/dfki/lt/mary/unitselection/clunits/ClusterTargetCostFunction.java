@@ -132,8 +132,8 @@ public class ClusterTargetCostFunction implements TargetCostFunction
             float targetFloat = Float.parseFloat(targetValue);
             float unitFloat = Float.parseFloat(unitValue);
             float result = Math.abs(targetFloat-unitFloat)*weight;
-            //logger.debug("Multiplying "+targetFloat+" minus "+unitFloat
-              //      +" with "+weight+" equals "+result);
+            logger.debug("Multiplying "+targetFloat+" minus "+unitFloat
+                    +" with "+weight+" equals "+result);
             return result;
         }
     }
@@ -142,12 +142,11 @@ public class ClusterTargetCostFunction implements TargetCostFunction
      * Set the features of the cost function
      * @param features the features
      */
-    public void setFeatsAndWeights(List feats, List weights,
+    public void setFeatsAndWeights(List featsNWeights,
             						UnitSelectionFeatProcManager featProc)
     {
-        this.weights = weights;
         //if you did not get any features, do nothing
-        if (feats == null){
+        if (featsNWeights == null){
             this.features2Extractor = null;
             this.features = null;
             logger.warn("Did not get any features, " +
@@ -156,11 +155,13 @@ public class ClusterTargetCostFunction implements TargetCostFunction
             //split features and feature types
             types = new ArrayList();
             features = new ArrayList();
-            for (int i=0; i<feats.size();i++){
+            weights = new ArrayList();
+            for (int i=0; i<featsNWeights.size();i++){
                 StringTokenizer tok = 
-                    new StringTokenizer((String)feats.get(i),"#");
+                    new StringTokenizer((String)featsNWeights.get(i)," ");
                 features.add(tok.nextToken());
                 types.add(tok.nextToken());
+                weights.add(new Float(tok.nextToken()));
             }
             //build a PathExtractor for each feature
             features2Extractor = new HashMap();
