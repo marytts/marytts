@@ -71,6 +71,11 @@ import de.dfki.lt.mary.util.dom.NameNodeFilter;
 
 public abstract class XML2UttBase extends InternalModule
 {
+
+    protected int lastTargetIndex = 0;
+    protected int nextTargetIndex = 1;
+    
+    
     public XML2UttBase(String name, MaryDataType input, MaryDataType output)
     {
         super(name, input, output);
@@ -251,6 +256,8 @@ public abstract class XML2UttBase extends InternalModule
             assert segmentRelation != null;
             Item lastSegment = segmentRelation.getTail();
             if (lastSegment != null && lastSegment.getFeatures().isPresent("end")) {
+                lastTargetIndex++;
+                nextTargetIndex++;
                 float pos = lastSegment.getFeatures().getFloat("end");
                 float f0;
                 Item lastTarget = targetRelation.getTail();
@@ -260,7 +267,13 @@ public abstract class XML2UttBase extends InternalModule
                 finalTarget.getFeatures().setFloat("pos", pos);
                 finalTarget.getFeatures().setFloat("f0", f0);
             }
+            
+            if (!lastSegment.getFeatures().isPresent("lastTarget")){
+            	lastSegment.getFeatures().setInt("lastTarget",lastTargetIndex);
+                lastSegment.getFeatures().setInt("nextTarget",nextTargetIndex);
+            }
         }
+        
     }
 
 
@@ -277,7 +290,8 @@ public abstract class XML2UttBase extends InternalModule
     protected String addOneElement(Utterance utterance, Element element,
         boolean createWordRelation,
         boolean createSylStructRelation,
-        boolean createTargetRelation) 
+        boolean createTargetRelation)
+         
     {
         Voice maryVoice = FreeTTSVoices.getMaryVoice(utterance.getVoice());
         StringBuffer sentenceBuf = new StringBuffer();
@@ -300,6 +314,7 @@ public abstract class XML2UttBase extends InternalModule
             if (phraseRelation != null) {
                 Item phraseItem = phraseRelation.getTail();
                 if (phraseItem != null) {
+                //what about 5 and 6 ?
                     if (element.getAttribute("breakindex").equals("4")) {
                         phraseItem.getFeatures().setString("name", "BB"); // big break
                     } else if (element.getAttribute("breakindex").equals("3")) {
@@ -337,6 +352,8 @@ public abstract class XML2UttBase extends InternalModule
                         segItem.getFeatures().setString("name", silence);
                         segItem.getFeatures().setInt("mbr_dur", dur);
                         segItem.getFeatures().setFloat("end", end);
+                        segItem.getFeatures().setInt("lastTarget",lastTargetIndex);
+                        segItem.getFeatures().setInt("nextTarget",nextTargetIndex);
                     }
                 }                
             }
@@ -397,7 +414,13 @@ public abstract class XML2UttBase extends InternalModule
             Element t = element;
             String mark = searchPrecedingMarks(t);
             String tokenText = MaryDomUtils.tokenText(t);
-            if (tokenText.matches("[.,!?:;]+")) { // it's a punctuation
+            String pos = "";
+            if (t.hasAttribute("pos")){
+            	pos = t.getAttribute("pos");
+            	}
+            	//why is ( and ) not in here?
+            if (tokenText.matches("[.,!?:;]+") ||
+            	pos.equals("punc")) { // it's a punctuation
                 sentenceBuf.append(tokenText);
                 Item lastToken = tokenRelation.getTail();
                 if (lastToken != null) {
@@ -523,6 +546,7 @@ public abstract class XML2UttBase extends InternalModule
         NodeIterator sylIt = ((DocumentTraversal)doc).createNodeIterator
             (t, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(MaryXML.SYLLABLE), false);
         Element sylElement = null;
+        
         while ((sylElement = (Element) sylIt.nextNode()) != null) {
             Item sylItem = sylRelation.appendItem();
             Item sylStructSylItem = sylStructWordItem.addDaughter(sylItem);
@@ -558,12 +582,17 @@ public abstract class XML2UttBase extends InternalModule
                     segItem.getFeatures().setInt("mbr_dur", dur);
                     totalDur += dur * 0.001f;
                     segItem.getFeatures().setFloat("end", totalDur);
+                    
                 }
                 String mbrTargets = null;
                 if (segElement.hasAttribute("f0")) {
                     mbrTargets = segElement.getAttribute("f0");
                     segItem.getFeatures().setString("mbr_targets", mbrTargets);
+                    lastTargetIndex++;
+                    nextTargetIndex++;
                 }
+                segItem.getFeatures().setInt("lastTarget",lastTargetIndex);
+                segItem.getFeatures().setInt("nextTarget",nextTargetIndex);
                 if (createTargetRelation && dur != 0 && mbrTargets != null) {
                     // mbrTargets contains one or more pairs of numbers, 
                     // either enclosed by (a,b) or just separated by whitespace.
@@ -572,12 +601,14 @@ public abstract class XML2UttBase extends InternalModule
                         String posString = "";
                         while (st.hasMoreTokens() && posString.equals("")) posString = st.nextToken();
                         String f0String = "";
-                        while (st.hasMoreTokens() && f0String.equals("")) f0String = st.nextToken();                            
+                        while (st.hasMoreTokens() && f0String.equals("")) f0String = st.nextToken();      
+                        
                         float pos = totalDur - (1 - Float.parseFloat(posString) * 0.01f) * ((float) dur)*0.001f; 
                         float f0 = Float.parseFloat(f0String);
+                        System.out.println("PosString = "+posString+", pos = "+pos+" F0String = "+f0String+", f0 = "+f0);
                         Item item = targetRelation.appendItem();
                         item.getFeatures().setFloat("pos", pos);
-                        if (f0 > 500.0) {
+                        if (f0 > 500.0) { //<ph d="55" end="55" f0="(0,-1)" p="w"/>
                             item.getFeatures().setFloat("f0", 500.0f);
                         } else if (f0 < 50.0)  {
                             item.getFeatures().setFloat("f0", 50.0f);

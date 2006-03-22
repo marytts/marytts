@@ -706,4 +706,70 @@ public class GenericFeatureProcessors {
         }
     }
     
+    /**
+     * Calculates the pitch of a segment
+     * This processor should be used by target items only
+     * This is a feature processor. A feature processor takes an item,
+     * performs some sort of processing on the item and returns an object.
+     */
+    public static class Seg_Pitch implements FeatureProcessor{
+        
+        public String process (Item seg) throws ProcessException{
+            //System.out.println("Looking for pitch...");
+            try{
+            float mid;
+            float end = seg.getFeatures().getFloat("end"); 
+            Item prev = seg.getPrevious();
+            if (prev == null) {
+                mid = end/2;
+            } else {
+                float prev_end = prev.getFeatures().getFloat("end");
+                mid = (end - prev_end)/2;
+            }
+            Relation targetRelation = seg.getUtterance().getRelation("Target");
+            if (targetRelation == null){
+                return "0.0";
+            }
+            int lastTarget = seg.getFeatures().getInt("lastTarget");
+            int nextTarget = seg.getFeatures().getInt("nextTarget");
+            Item lastTargetItem = getTargetItem(targetRelation,lastTarget);
+            Item nextTargetItem = getTargetItem(targetRelation,nextTarget);
+            if (lastTargetItem == null || nextTargetItem == null){
+                return "0.0";
+            }
+            float lastF0 = lastTargetItem.getFeatures().getFloat("f0");
+            float lastPos = lastTargetItem.getFeatures().getFloat("pos");
+            float nextF0 = nextTargetItem.getFeatures().getFloat("f0");
+            float nextPos = nextTargetItem.getFeatures().getFloat("pos");
+            //System.out.println("lastPos: "+lastPos+" lastF0: "+lastF0+" nextPos: "+nextPos
+              //         +" nextF0: "+nextF0);
+            float slope = (nextF0 - lastF0) / (nextPos - lastPos);
+            float intersectionYAxis = lastF0 - slope*lastPos;
+            float pitch = slope*mid+intersectionYAxis;
+            //System.out.println("slope: "+slope+" intersection: "+
+              //     intersectionYAxis+" mid: "+mid+" pitch: "+pitch);
+            return Float.toString(pitch);
+            } catch (NullPointerException npe){
+                //npe.printStackTrace();
+                System.out.println("Problem calculating pitch");
+                return "0.0";
+            }
+            
+            }
+    
+            
+            private Item getTargetItem(Relation targetRelation, int index){
+                Item first = targetRelation.getHead();
+                if (index>0 && first != null){
+                    while (index != 1){
+                        Item next = first.getNext();
+                        if (next != null)
+                            first = next;
+                        index--;
+                    }
+                }
+                return first;
+            }
+        
+    }
 }
