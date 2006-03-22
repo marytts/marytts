@@ -189,7 +189,7 @@ public class ClusterUnitDatabase extends UnitDatabase
         cartMap = new HashMap();
         for (int i = 0; i < numCarts; i++) {
             String name = Utilities.getString(bb);
-            CART cart = CARTImpl.loadBinary(bb, featureProcessors);
+            CART cart = CARTImpl.loadBinary(bb, featureProcessors,name);
             //((CARTImpl) cart).setFeatureProcessors(featureProcessors);
             cartMap.put(name, cart);
 
@@ -276,7 +276,7 @@ public class ClusterUnitDatabase extends UnitDatabase
                 charBuffer[j] = raf.readChar();
             }
             String name = new String(charBuffer, 0, size);
-            CART cart = CARTImpl.loadBinary(raf,featureProcessors);
+            CART cart = CARTImpl.loadBinary(raf,featureProcessors,name);
             //((CARTImpl)cart).setFeatureProcessors(featureProcessors);
             cartMap.put(name, cart);
 
@@ -354,11 +354,12 @@ public class ClusterUnitDatabase extends UnitDatabase
             new BufferedReader(new InputStreamReader(new 
                     FileInputStream(new 
                             File(file)),"UTF-8"));
+        int index = 0;
         String line = reader.readLine();
         while (line!=null){
             if (!(line.startsWith("***"))){
-                int index = featsNWeights.indexOf(line);
                 featsNWeights.set(index,line);
+                index++;
             }
             line = reader.readLine();
         }

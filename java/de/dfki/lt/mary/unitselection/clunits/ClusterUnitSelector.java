@@ -218,7 +218,7 @@ public class ClusterUnitSelector extends UnitSelector
     	// Here, the unit candidates are selected.
     	int[] clist = (int[]) cart.interpret(target.getItem());
     	
-    	 // Now, clist is a List of instance numbers for the units of type
+    	// Now, clist is a List of instance numbers for the units of type
         // unitType that belong to the best cluster according to the CART.
         
 	    ViterbiCandidate candidate;

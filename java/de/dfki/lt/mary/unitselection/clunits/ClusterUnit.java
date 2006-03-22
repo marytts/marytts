@@ -192,7 +192,11 @@ public class ClusterUnit extends Unit
     {
 	    //if you already have the values, return the right one
         if (haveValues){
+            if (index < values.size()){
                 return (String) values.get(index);
+            } else {
+                return "0";
+            }
         } else { // if you dont have any values
             if (bb != null && canReadInVals){ 
                 // read in the values from byteBuffer
@@ -201,13 +205,13 @@ public class ClusterUnit extends Unit
                 values = new ArrayList();
                 for (int i=0;i<numberOfVals;i++){
                     int valsize = bb.getShort();
-                    //System.out.println(featsize);
+                    //System.out.print(valsize);
                     char[] charBufferFeat = new char[valsize];
                     for (int j = 0; j < valsize; j++) {
                         charBufferFeat[j] = bb.getChar();
                     }
                     values.add(new String(charBufferFeat, 0, valsize));
-                    //System.out.println("Value: "+value);
+                    //System.out.println(" Value: "+value);
                 }
                 haveValues = true;
                 return (String) values.get(index);

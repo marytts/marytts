@@ -86,11 +86,18 @@ public class ClusterTargetCostFunction implements TargetCostFunction
                     if (weight != 0){
                         String nextFeature = (String) features.get(i);
                         //extract the targets value
-                        String targetValue = target.getValueForFeature(nextFeature);
+                        String targetValue;
+                        
+                            targetValue = target.getValueForFeature(nextFeature);
                         if (targetValue == null){
                             targetValue = (String)
                             ((PathExtractorImpl)features2Extractor.get(nextFeature)).findFeature(target.getItem());
                             target.setFeatureAndValue(nextFeature,targetValue);
+                            /**
+                            if (nextFeature.endsWith("seg_pitch")){
+                                System.out.println("TargetValue : "+targetValue+", target : "+
+                                        target.toString());
+                            }**/
                         }
                         //extract the units value
                         String unitValue = unit.getValueForFeature(i);
@@ -104,7 +111,7 @@ public class ClusterTargetCostFunction implements TargetCostFunction
                         }                        
                     }
                 }
-                logger.debug("Succesfully calculated cost: "+cost);
+                //logger.debug("Succesfully calculated cost: "+cost);
                 return cost;
             }
         }
@@ -132,8 +139,8 @@ public class ClusterTargetCostFunction implements TargetCostFunction
             float targetFloat = Float.parseFloat(targetValue);
             float unitFloat = Float.parseFloat(unitValue);
             float result = Math.abs(targetFloat-unitFloat)*weight;
-            logger.debug("Multiplying "+targetFloat+" minus "+unitFloat
-                    +" with "+weight+" equals "+result);
+            //logger.debug("Multiplying "+targetFloat+" minus "+unitFloat
+              //      +" with "+weight+" equals "+result);
             return result;
         }
     }

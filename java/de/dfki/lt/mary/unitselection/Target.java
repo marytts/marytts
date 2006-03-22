@@ -33,6 +33,13 @@ import org.w3c.dom.Element;
 import java.util.*;
 
 import com.sun.speech.freetts.Item;
+import com.sun.speech.freetts.Relation;
+import com.sun.speech.freetts.Utterance;
+
+import org.apache.log4j.Logger;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 /**
  * A representation of a target representing the ideal properties of
@@ -47,14 +54,19 @@ public class Target
     protected Item item;
     //a map containing this targets features
     protected Map features2Values = null;
+    protected float end = -1;
+    protected float duration = -1;
+    protected Logger logger;
         
     public Target(String name)
     {
+        logger = Logger.getLogger("Target");
         this.name = name;
     }
     
     public Target(String name, Item item)
     {
+        logger = Logger.getLogger("Target");
         this.name = name;
         this.item = item;
     }
@@ -65,21 +77,27 @@ public class Target
     
     public float getTargetDurationInSeconds()
     {
+        if (duration != -1){
+            return duration;
+        } else {
         if (item == null)
             throw new NullPointerException("Target "+name+" does not have an item.");
         if (!item.getFeatures().isPresent("end")) {
             throw new IllegalStateException("Item "+item+" does not have an 'end' feature");
         }
-        float end = item.getFeatures().getFloat("end"); 
+        end = item.getFeatures().getFloat("end"); 
         Item prev = item.getPrevious();
         if (prev == null) {
-            return end;
+            duration = end;
+            return duration;
         } else {
             if (!prev.getFeatures().isPresent("end")) {
                 throw new IllegalStateException("Item "+prev+" does not have an 'end' feature");
             }
             float prev_end = prev.getFeatures().getFloat("end");
-            return end - prev_end;
+            duration = end - prev_end;
+            return duration;
+        }
         }
     }
     
@@ -111,6 +129,7 @@ public class Target
         }
     }
     
+   
     public String toString()
     {
         return name +  " " + (item != null ? item.toString() : "");
