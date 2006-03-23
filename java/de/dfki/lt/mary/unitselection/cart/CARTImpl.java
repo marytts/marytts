@@ -102,6 +102,7 @@ public class CARTImpl implements CART {
 
     private static UtteranceFeatProcManager featureProcessors;
     private Logger logger = Logger.getLogger("CARTImpl");
+    private String name = null;
     /**
      * Entry in file represents the total number of nodes in the
      * file.  This should be at the top of the file.  The format
@@ -192,6 +193,17 @@ public class CARTImpl implements CART {
     private CARTImpl(int numNodes) {
 	cart = new Node[numNodes];
     }
+    
+    /**
+     * Creates a new CART that will be populated with nodes later
+     * and has a name
+     *
+     * @param numNodes the number of nodes
+     */
+    private CARTImpl(int numNodes,String name) {
+        this.name = name;
+	cart = new Node[numNodes];
+    }
 
     /**
      * Dumps this CART to the output stream.
@@ -221,10 +233,11 @@ public class CARTImpl implements CART {
      * have to be parsed.
      */
     public static CART loadBinary(RandomAccessFile raf,
-            UtteranceFeatProcManager fp) throws IOException {
+            UtteranceFeatProcManager fp,
+            String name) throws IOException {
     	featureProcessors = fp;
 	int numNodes = raf.readInt();
-	CARTImpl cart = new CARTImpl(numNodes);
+	CARTImpl cart = new CARTImpl(numNodes,name);
 
 	for (int i = 0; i < numNodes; i++) {
 		int size = raf.readShort();
@@ -251,10 +264,11 @@ public class CARTImpl implements CART {
      * have to be parsed.
      */
     public static CART loadBinary(ByteBuffer bb, 
-            UtteranceFeatProcManager fp) throws IOException {
+            UtteranceFeatProcManager fp, 
+            String name) throws IOException {
 	featureProcessors = fp;
         int numNodes = bb.getInt();
-	CARTImpl cart = new CARTImpl(numNodes);
+	CARTImpl cart = new CARTImpl(numNodes,name);
 
 	for (int i = 0; i < numNodes; i++) {
 	    String nodeCreationLine = Utilities.getString(bb);
@@ -395,9 +409,9 @@ public class CARTImpl implements CART {
             result = backtrace(result,(DecisionNode)cart[previousNode],limit,item);
         }
         if (backtrace){
-            logger.debug("Selected "+result.length+" units on backtrace");
+            logger.debug("Selected "+result.length+" units on backtrace in cart "+name);
         } else {
-            logger.debug("Selected "+result.length+" units, no backtrace");
+            logger.debug("Selected "+result.length+" units, no backtrace in cart "+name);
         }
         return result;
         }catch (ArrayIndexOutOfBoundsException e){
