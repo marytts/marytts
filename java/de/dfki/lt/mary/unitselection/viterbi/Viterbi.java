@@ -408,12 +408,12 @@ public  class Viterbi {
             // sufficient to find the best path from among the
             // paths for lastPoint.
             ViterbiPath[] statePaths = lastPoint.getStatePaths();
-            System.out.println("StatePaths length: "+statePaths.length);
+            //System.out.println("StatePaths length: "+statePaths.length);
             for (int i = 0; i < statePaths.length; i++) {
                 if (statePaths[i] != null && 
                         (isBetterThan(statePaths[i].getScore(), best))) {
-                    System.out.println("StatePaths["+i+"]: "+statePaths[i]+
-                            " score: "+statePaths[i].getScore());
+                    //System.out.println("StatePaths["+i+"]: "+statePaths[i]+
+                      //      " score: "+statePaths[i].getScore());
                     best = statePaths[i].getScore();
                     bestPath = statePaths[i];
                 }
