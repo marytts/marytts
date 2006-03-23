@@ -187,10 +187,10 @@ public class UnitSelectionVoiceBuilder{
 	        
 	        //dummy values for the other parameters
 	        String path = null;
-	        int topStart = -1;
-	        int topEnd = -1;
-	        int baseStart = -1;
-	        int baseEnd = -1;
+	        int topStart = MaryProperties.getInteger(header+".topline.start", -1);
+	        int topEnd = MaryProperties.getInteger(header+".topline.end", -1);
+	        int baseStart = MaryProperties.getInteger(header+".baseline.start", -1);
+	        int baseEnd = MaryProperties.getInteger(header+".baseline.end", -1);
 	        String[] knownVoiceQualities = null;
 			
 	        Voice v = 
