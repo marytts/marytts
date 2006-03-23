@@ -54,7 +54,7 @@ public interface TargetCostFunction
      * Set the features of the cost function
      * @param features the features
      */
-    public void setFeatsAndWeights(List features, List weights,
+    public void setFeatsAndWeights(List featsNWeights,
 			UnitSelectionFeatProcManager featProc);
     
 }
