@@ -724,7 +724,7 @@ public class GenericFeatureProcessors {
                 mid = end/2;
             } else {
                 float prev_end = prev.getFeatures().getFloat("end");
-                mid = (end - prev_end)/2;
+                mid = prev_end + (end - prev_end)/2;
             }
             Relation targetRelation = seg.getUtterance().getRelation("Target");
             if (targetRelation == null){
@@ -746,8 +746,8 @@ public class GenericFeatureProcessors {
             float slope = (nextF0 - lastF0) / (nextPos - lastPos);
             float intersectionYAxis = lastF0 - slope*lastPos;
             float pitch = slope*mid+intersectionYAxis;
-            //System.out.println("slope: "+slope+" intersection: "+
-              //     intersectionYAxis+" mid: "+mid+" pitch: "+pitch);
+            //System.out.println("last:"+lastF0+"@"+lastPos+", next:"+nextF0+"@"+nextPos+", slope: "+slope+" intersection: "+
+            //       intersectionYAxis+" mid: "+mid+" pitch: "+pitch);
             return Float.toString(pitch);
             } catch (NullPointerException npe){
                 //npe.printStackTrace();
