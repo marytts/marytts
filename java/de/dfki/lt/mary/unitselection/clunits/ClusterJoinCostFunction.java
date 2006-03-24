@@ -225,8 +225,8 @@ public class ClusterJoinCostFunction implements JoinCostFunction
    {
     	int r, i;
     	
-    	short[] bv = b.getFrameData();
-    	short[] av = a.getFrameData();
+    	short[] bv = b.getCoefficients();
+    	short[] av = a.getCoefficients();
     	
     	for (r = 0, i = 0; i < av.length; i++) {
     	    	int diff = av[i] - bv[i];

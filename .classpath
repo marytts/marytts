@@ -20,5 +20,6 @@
 	<classpathentry kind="lib" path="java/freetts-de.jar"/>
 	<classpathentry sourcepath="C:/Program Files/IzPack/src/lib" kind="lib" path="build/standalone-compiler.jar"/>
 	<classpathentry kind="lib" path="java/jl1.0.jar"/>
+	<classpathentry kind="lib" path="/DFKIMary/java"/>
 	<classpathentry kind="output" path="java"/>
 </classpath>
