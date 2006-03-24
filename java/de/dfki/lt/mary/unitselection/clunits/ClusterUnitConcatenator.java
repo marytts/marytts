@@ -41,8 +41,14 @@ import javax.sound.sampled.AudioSystem;
 
 import de.dfki.lt.mary.unitselection.LPCResult;
 import de.dfki.lt.mary.unitselection.SelectedUnit;
+import de.dfki.lt.mary.unitselection.Target;
 import de.dfki.lt.mary.unitselection.UnitConcatenator;
 import de.dfki.lt.mary.unitselection.UnitDatabase;
+import de.dfki.lt.mary.unitselection.cart.PathExtractorImpl;
+import de.dfki.lt.signalproc.process.PSOLAProcessor;
+import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
+import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
+import de.dfki.lt.signalproc.util.DDSAudioInputStream;
 
 /**
  * Concatenates ClusterUnits and returns
@@ -79,128 +85,95 @@ public class ClusterUnitConcatenator extends UnitConcatenator
     protected AudioInputStream getAudio(List units){
         logger.debug("Getting audio for "+units.size()+" units");
         //List audioStreams = new ArrayList(units.size());
-        ClusterUnitDatabase db = database;
-        FrameSet sts = db.getAudioFrames();
-        LPCResult lpcResult;
-    	int pitchmarks = 0;
-    	int uttSize = 0;
-    	int unitStart;
-    	int unitEnd;
+        FrameSet sts = database.getAudioFrames();
+    	int nPitchmarks = 0;
 
-    	lpcResult = new LPCResult();
-    	
+        // First of all: how many pitchmarks do we have?
     	for (Iterator it = units.iterator();it.hasNext();){
     	    SelectedUnit unit = (SelectedUnit) it.next();
-    	    unitStart = unit.getUnitStart();
-    	    unitEnd = unit.getUnitEnd();
+    	    int unitStart = unit.getUnitStart();
+    	    int unitEnd = unit.getUnitEnd();
             assert unitEnd >= unitStart;
-    	    uttSize += sts.getUnitSize(unitStart, unitEnd);
-    	    pitchmarks += unitEnd - unitStart;
-    	    //unit.setTargetEnd(uttSize);
+    	    nPitchmarks += unitEnd - unitStart;
     	}
-    	
-    	lpcResult.resizeFrames(pitchmarks);
+        LPCResult lpcResult = new LPCResult(nPitchmarks);
 
-    	pitchmarks = 0;
-    	uttSize = 0;
+        int nSamples = 0;
 
-    	int[] targetTimes = lpcResult.getTimes();
-
+    	int[] pitchmarkPositionsInSamples = lpcResult.getTimes();
+    	int ipm = 0;
     	for (Iterator it = units.iterator();it.hasNext();){
     	    SelectedUnit unit = (SelectedUnit) it.next();
-    	    unitStart = unit.getUnitStart();
-    	    unitEnd = unit.getUnitEnd();
-    	    for (int i = unitStart; i < unitEnd; i++,pitchmarks++) {
-    	        uttSize += sts.getFrame(i).getResidualSize();
-    	        targetTimes[pitchmarks] = uttSize;
+            // TODO: proper pause identification:
+            //if (unit.getTarget().getName().equals("pau")) {
+            //    nSamples += unit.targetDurationInSamples();
+            //}
+    	    int unitStart = unit.getUnitStart();
+    	    int unitEnd = unit.getUnitEnd();
+    	    for (int idb = unitStart; idb < unitEnd; idb++,ipm++) {
+                // idb: index in database frames; ipm: index in locally created pitchmarks
+    	        nSamples += sts.getFrameSize(idb);
+    	        pitchmarkPositionsInSamples[ipm] = nSamples;
     	    }
     	}
-    	
-    	float uIndex = 0, m;
-    	int pmI = 0, targetResidualPosition = 0, targetStart = 0, targetEnd, residualSize, numberFrames;
-    	
-    	FrameSetInfo frameSetInfo;
-    	
+        lpcResult.resizeResiduals(nSamples);
 
-    	int addResidualMethod = ADD_RESIDUAL;
-    	/**
-    	String residualType = utterance.getString("residual_type");
-    	if (residualType != null) {
-    	    if (residualType.equals("pulse")) {
-    		addResidualMethod = ADD_RESIDUAL_PULSE;
-    	    } else if (residualType.equals("windowed")) {
-    		addResidualMethod = ADD_RESIDUAL_WINDOWED;
-    	    }
-    	}
-    	**/
-    	frameSetInfo = (FrameSetInfo) sts.getFrameSetInfo();
-    	if (frameSetInfo == null) {
-    	    throw new IllegalStateException
-    		("UnitConcatenator: FrameSetInfo does not exist");
-    	}
-
-    	lpcResult.setValues(frameSetInfo.getNumberOfChannels(),
-    	        frameSetInfo.getSampleRate(),
-    	        frameSetInfo.getResidualFold(),
-    	        frameSetInfo.getCoeffMin(),
-    	        frameSetInfo.getCoeffRange());
+    	
+    	
 
     	// create the array of final residual sizes
+        int targetResidualPosition = 0;
+        int targetStart = 0;
+        int targetEnd;
     	int[] residualSizes = lpcResult.getResidualSizes();
-
-    	int samplesSize = 0;
-    	if (lpcResult.getNumberOfFrames() > 0) {
-    		samplesSize = targetTimes[lpcResult.getNumberOfFrames() - 1];
-    	}
-    	lpcResult.resizeResiduals(samplesSize);
-    	
+        ipm = 0;
     	for (Iterator it = units.iterator();it.hasNext();) {
     	    SelectedUnit unit = (SelectedUnit) it.next();
-    	    
-    	    int unitSize = 
-    	        sts.getUnitSize(unit.getUnitStart(), unit.getUnitEnd());
-            // If we just force target duration, we basically lose intonation:
-            // targetEnd = targetStart + unit.targetDurationInSamples();
-    	    // So we use the unit durations from the DB:
-            targetEnd = targetStart + unitSize;
+    	    int unitSize = sts.getUnitSize(unit.getUnitStart(), unit.getUnitEnd());
+            // TODO: proper pause identification:
+            //if (unit.getTarget().getName().equals("pau")) {
+            //    targetEnd = targetStart + unit.targetDurationInSamples();
+            //} else {
+                // If we just force target duration, we basically lose intonation:
+                //targetEnd = targetStart + unit.targetDurationInSamples();
+                // So we use the unit durations from the DB:
+                targetEnd = targetStart + unitSize;                
+            //}
+
             
-    	    uIndex = 0;
-    	    m = (float)unitSize/(float)(targetEnd - targetStart);
-    	    numberFrames = lpcResult.getNumberOfFrames();
+    	    float uIndex = 0;
+    	    float m = (float)unitSize/(float)(targetEnd - targetStart);
     	    
     	    // for all the pitchmarks that are required
-    	    for (; (pmI < numberFrames) &&
-    	    (targetTimes[pmI] <= targetEnd); pmI++) {
-    	    	
-    	    	Frame nextFrame = 
-    	    	    sts.getNearestFrame(uIndex, 
+    	    for (; ipm < nPitchmarks && pitchmarkPositionsInSamples[ipm] <= targetEnd; ipm++) {
+    	    	Frame nextFrame = sts.getNearestFrame(uIndex, 
                             ((ClusterUnit)(unit.getUnit())).start,
                             ((ClusterUnit)(unit.getUnit())).end);
-    	    	lpcResult.setFrame(pmI, nextFrame.getFrameData());
-    	    	
+    	    	lpcResult.setFrame(ipm, nextFrame.getCoefficients());
     	    	// Get residual by copying
-    	    	residualSize = lpcResult.getFrameShift(pmI);
-    	    	
-    	    	residualSizes[pmI] = residualSize;
-    	    	//sampleFile.skipBytes((int) 1);
-    	    	byte[] residualData2 = nextFrame.getResidualData();
-    	    			
-    	    	if (addResidualMethod == ADD_RESIDUAL_PULSE) {
-    	    		lpcResult.copyResidualsPulse
-    				(residualData2, targetResidualPosition, residualSize);
-    	    	} else {
-    	    		lpcResult.copyResiduals
-    				(residualData2, targetResidualPosition, residualSize);
-    	    	}	
-    		
-    	    	targetResidualPosition += residualSize;
-    	    	uIndex += ((float) residualSize * m);
-    	    	}
-    	    	targetStart = targetEnd;
-    	    
+    	    	int targetResidualSize = lpcResult.getFrameShift(ipm);
+    	    	residualSizes[ipm] = targetResidualSize;
+    	    	byte[] residual = nextFrame.getResidualData();
+	    		lpcResult.copyResiduals(residual, targetResidualPosition, targetResidualSize);
+    	    	targetResidualPosition += targetResidualSize;
+                assert targetResidualPosition == pitchmarkPositionsInSamples[ipm];
+    	    	uIndex += ((float) targetResidualSize * m);
+    	    }
+    	    targetStart = targetEnd;
     	}
-    	lpcResult.setNumberOfFrames(pmI);
+        assert targetResidualPosition == nSamples;
     	
+        
+        // Information for LPC resynthesis:
+        FrameSetInfo frameSetInfo = sts.getFrameSetInfo();
+        if (frameSetInfo == null) {
+            throw new IllegalStateException("UnitConcatenator: FrameSetInfo does not exist");
+        }
+        lpcResult.setValues(frameSetInfo.getNumberOfChannels(),
+                frameSetInfo.getSampleRate(),
+                frameSetInfo.getResidualFold(),
+                frameSetInfo.getCoeffMin(),
+                frameSetInfo.getCoeffRange());
     	
     	byte[] audio = lpcResult.getWaveSamples();
         ByteArrayInputStream bais = new ByteArrayInputStream(audio);
@@ -211,6 +184,8 @@ public class ClusterUnitConcatenator extends UnitConcatenator
         long lengthInSamples = audio.length / (samplesize/8);
         AudioInputStream ais = new AudioInputStream(bais, af, lengthInSamples);
     	
+        
+        
     	return ais;
     }
 }

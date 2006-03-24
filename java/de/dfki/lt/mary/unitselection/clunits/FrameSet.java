@@ -172,23 +172,23 @@ public class FrameSet {
     /**
      * Retrieves the nearest frame.
      *
-     * @param index the ideal index
+     * @param index the ideal sample position for the frame start, relative to unit start, in samples
+     * @param start first frame belonging to the relevant unit
+     * @param end frame after the last frame belonging to the relevant unit
      *
      * @return the nearest frame
      */
     public Frame getNearestFrame(float index, int start, int end) {
-    	int i, iSize = 0, nSize;
+    	int frameIndex = 0, nextFrameIndex;
+        // frame index positions are in samples relative to unit start
 
-    	// loop through all the Samples in this unit
-    	for (i = start; i < end; i++) {
-    		Frame frame = getFrame(i);
-    		nSize = iSize + frame.getResidualSize();
-
-    		if (Math.abs(index - (float) iSize) <
-    				Math.abs(index - (float) nSize)) {
-    			return frame;
+    	// loop through all the Frames in this unit
+    	for (int i = start; i < end; i++) {
+    		nextFrameIndex = frameIndex + getFrameSize(i);
+    		if (Math.abs(index - frameIndex) < Math.abs(index - nextFrameIndex)) {
+    			return getFrame(i);
     		}
-    		iSize = nSize;
+    		frameIndex = nextFrameIndex;
     	}
     	return getFrame(end - 1);
     }

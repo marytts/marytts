@@ -95,19 +95,13 @@ public class LPCResult
         residualToFloatMap[128] = (float) WaveUtils.ulawToShort((short) 255);
     }
 
-    public LPCResult()
+    /**
+     * Create an LPCResult object with the given number of frames.
+     * @param numberOfFrames
+     */
+    public LPCResult(int numberOfFrames)
     {
         residualFold = 1;
-    }
-
-    /**
-     * Resets the number of frames in this LPCResult.
-     * 
-     * @param numberOfFrames
-     *            the number of frames in this LPC result
-     */
-    public void resizeFrames(int numberOfFrames)
-    {
         times = new int[numberOfFrames];
         frames = new short[numberOfFrames][];
         sizes = new int[numberOfFrames];

@@ -166,7 +166,7 @@ public class Frame {
      *
      * @return the frame data associated with this frame
      */
-    public short[] getFrameData() {
+    public short[] getCoefficients() {
     	
     	//if the data is not read in yet, read it in
     	if (!haveFrameData){
@@ -328,9 +328,9 @@ public class Frame {
     		residualData = getResidualData();
     	}
     	if (!haveFrameData){
-    		frameData = getFrameData();
+    		frameData = getCoefficients();
     	}
-    	if (frameData.length != other.getFrameData().length) {
+    	if (frameData.length != other.getCoefficients().length) {
     		return false;
     	}
 
