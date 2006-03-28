@@ -284,9 +284,8 @@ THIS SOFTWARE.
 
   <target name="jars" depends="mary-common.jar,mary-freetts.jar,maryclient.jar,mary-english.jar,mary-tibetan.jar,mary-mbrola.jar,signalproc.jar,emospeak.jar,emospeakapplet.jar"/>
 
-
-
-
+	
+	
 <!-- cluster unit voice - make binary 
 	Builds the .bin file from the .txt file of a Clunit Voice.
 	The arguments are:
@@ -322,7 +321,20 @@ THIS SOFTWARE.
     	</java>
 	</target>
 
-
+	 
+	<target name="SpeechSynthesisTool"> 
+	   <loadfile property="speechsynthesistool.version" 
+	 	        srcFile="examples/client/SpeechSynthesisTool/version.txt"> 
+	         <filterchain> 
+	               <striplinebreaks/> 
+	         </filterchain> 
+	   </loadfile> 
+	   <zip destfile="dist/SpeechSynthesisTool-${speechsynthesistool.version}.zip"> 
+		   <zipfileset prefix="SpeechSynthesisTool" 
+				   dir="examples/client/SpeechSynthesisTool" 
+	                excludes="**/.svn/*"/> 
+	   </zip> 
+	</target> 
 
 
   <target name="clean">
