@@ -104,4 +104,9 @@ public class Unit
        return haveValues;
     }
     
+    public int durationInSamples()
+    {
+        return -1;
+    }
+    
 }

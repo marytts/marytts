@@ -88,6 +88,11 @@ public class SelectedUnit
         return (int) (target.getTargetDurationInSeconds()*unit.getDatabase().getSamplingRate());
     }
     
+    public int unitDurationInSamples()
+    {
+        return unit.durationInSamples();
+    }
+    
     public String toString()
     {
         return "Target: "+target.toString() + " Unit: " + unit.toString()

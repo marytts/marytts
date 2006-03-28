@@ -337,6 +337,11 @@ public class ClusterUnit extends Unit
         return type;
     }
     
+    public int durationInSamples()
+    {
+        return ((ClusterUnitDatabase)database).getAudioFrames().getUnitSize(start, end);
+    }
+    
     public String toString()
     {
         return name+" "+instanceNumber+" (frames "+start+" - "+end+")";
