@@ -36,6 +36,9 @@ import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.Relation;
 import com.sun.speech.freetts.Utterance;
 
+import de.dfki.lt.mary.modules.synthesis.FreeTTSVoices;
+import de.dfki.lt.mary.modules.synthesis.Voice;
+
 import org.apache.log4j.Logger;
 
 import java.io.PrintWriter;
@@ -127,6 +130,37 @@ public class Target
         } else {
             return null;
         }
+    }
+    
+    /**
+     * Determine whether this target is a silence target
+     * @return true if the target represents silence, false otherwise
+     */
+    public boolean isSilence()
+    {
+        String isSilenceString = getValueForFeature("isSilence"); 
+        if (isSilenceString != null) {
+            return Boolean.parseBoolean(isSilenceString);
+        }
+        boolean isSilence;
+        if (item != null) {
+            Voice v = FreeTTSVoices.getMaryVoice(item.getUtterance().getVoice());
+            String silenceSymbol = v.sampa2voice("_");
+            if (name.equals(silenceSymbol)) {
+                isSilence = true;
+            } else {
+                isSilence = false;
+            }
+        } else { // compare to typical silence symbol names
+            if (name.equals("pau") || name.equals("_")) {
+                isSilence = true;
+            } else {
+                isSilence = false;
+            }
+        }
+        setFeatureAndValue("isSilence", String.valueOf(isSilence));
+        return isSilence;
+        
     }
     
    

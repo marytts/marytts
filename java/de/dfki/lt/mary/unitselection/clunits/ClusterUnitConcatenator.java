@@ -88,13 +88,24 @@ public class ClusterUnitConcatenator extends UnitConcatenator
         FrameSet sts = database.getAudioFrames();
     	int nPitchmarks = 0;
 
-        // First of all: how many pitchmarks do we have?
-    	for (Iterator it = units.iterator();it.hasNext();){
+        // First of all: Set target pitchmarks,
+        // either by copying from units (data-driven)
+        // or by computing from target (model-driven)
+    	for (Iterator it = units.iterator();it.hasNext();) {
     	    SelectedUnit unit = (SelectedUnit) it.next();
-    	    int unitStart = unit.getUnitStart();
-    	    int unitEnd = unit.getUnitEnd();
+            int unitStart = unit.getUnitStart();
+            int unitEnd = unit.getUnitEnd();
             assert unitEnd >= unitStart;
-    	    nPitchmarks += unitEnd - unitStart;
+            int pitchmarksInUnit = unitEnd - unitStart;
+            if (unit.getTarget().isSilence()) {
+                int targetLength = unit.targetDurationInSamples();
+                int unitLength = unit.unitDurationInSamples();
+                int avgPeriodLength = unitLength / pitchmarksInUnit; // there will be rounding errors here
+                int nTargetPitchmarks = Math.round((float)targetLength / avgPeriodLength); // round to the nearest integer
+                nPitchmarks += nTargetPitchmarks;
+            } else {
+                nPitchmarks += pitchmarksInUnit;
+            }
     	}
         LPCResult lpcResult = new LPCResult(nPitchmarks);
 
@@ -102,19 +113,38 @@ public class ClusterUnitConcatenator extends UnitConcatenator
 
     	int[] pitchmarkPositionsInSamples = lpcResult.getTimes();
     	int ipm = 0;
-    	for (Iterator it = units.iterator();it.hasNext();){
+    	for (Iterator it = units.iterator();it.hasNext();) {
+            int unitStartSample; // for debugging, remember at which sample unit starts
+            if (ipm == 0) unitStartSample = 0;
+            else unitStartSample = pitchmarkPositionsInSamples[ipm-1];
     	    SelectedUnit unit = (SelectedUnit) it.next();
-            // TODO: proper pause identification:
-            //if (unit.getTarget().getName().equals("pau")) {
-            //    nSamples += unit.targetDurationInSamples();
-            //}
-    	    int unitStart = unit.getUnitStart();
-    	    int unitEnd = unit.getUnitEnd();
-    	    for (int idb = unitStart; idb < unitEnd; idb++,ipm++) {
-                // idb: index in database frames; ipm: index in locally created pitchmarks
-    	        nSamples += sts.getFrameSize(idb);
-    	        pitchmarkPositionsInSamples[ipm] = nSamples;
-    	    }
+            int unitStart = unit.getUnitStart();
+            int unitEnd = unit.getUnitEnd();
+            int pitchmarksInUnit = unitEnd - unitStart;
+            // For silence, roughly maintain average period length of unit
+            // but force target pause duration by adjusting number of pitch marks.
+            if (unit.getTarget().isSilence()) {
+                int targetLength = unit.targetDurationInSamples();
+                int unitLength = unit.unitDurationInSamples();
+                int avgPeriodLength = unitLength / pitchmarksInUnit; // there will be rounding errors here
+                int nTargetPitchmarks = Math.round((float)targetLength / avgPeriodLength); // round to the nearest integer
+                for (int i=0; i<nTargetPitchmarks-1; i++, ipm++) {
+                    nSamples += avgPeriodLength;
+                    pitchmarkPositionsInSamples[ipm] = nSamples;
+                }
+                // last pitchmark compensates for rounding errors
+                nSamples += targetLength - (nTargetPitchmarks-1)*avgPeriodLength;
+                pitchmarkPositionsInSamples[ipm] = nSamples;
+                ipm++;
+                assert pitchmarkPositionsInSamples[ipm-1] - unitStartSample == unit.targetDurationInSamples();
+            } else {
+                for (int idb = unitStart; idb < unitEnd; idb++,ipm++) {
+                    // idb: index in database frames; ipm: index in locally created pitchmarks
+                    nSamples += sts.getFrameSize(idb);
+                    pitchmarkPositionsInSamples[ipm] = nSamples;
+                }
+                assert pitchmarkPositionsInSamples[ipm-1] - unitStartSample == unit.unitDurationInSamples(); 
+            }
     	}
         lpcResult.resizeResiduals(nSamples);
 
@@ -129,17 +159,14 @@ public class ClusterUnitConcatenator extends UnitConcatenator
         ipm = 0;
     	for (Iterator it = units.iterator();it.hasNext();) {
     	    SelectedUnit unit = (SelectedUnit) it.next();
-    	    int unitSize = sts.getUnitSize(unit.getUnitStart(), unit.getUnitEnd());
-            // TODO: proper pause identification:
-            //if (unit.getTarget().getName().equals("pau")) {
-            //    targetEnd = targetStart + unit.targetDurationInSamples();
-            //} else {
+    	    int unitSize = unit.unitDurationInSamples();
+            if (unit.getTarget().isSilence()) {
+                targetEnd = targetStart + unit.targetDurationInSamples();
+            } else { // non-silence units
                 // If we just force target duration, we basically lose intonation:
-                //targetEnd = targetStart + unit.targetDurationInSamples();
                 // So we use the unit durations from the DB:
-                targetEnd = targetStart + unitSize;                
-            //}
-
+                targetEnd = targetStart + unitSize;
+            }
             
     	    float uIndex = 0;
     	    float m = (float)unitSize/(float)(targetEnd - targetStart);
@@ -184,7 +211,6 @@ public class ClusterUnitConcatenator extends UnitConcatenator
         long lengthInSamples = audio.length / (samplesize/8);
         AudioInputStream ais = new AudioInputStream(bais, af, lengthInSamples);
     	
-        
         
     	return ais;
     }
