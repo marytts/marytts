@@ -748,6 +748,9 @@ public class GenericFeatureProcessors {
             float pitch = slope*mid+intersectionYAxis;
             //System.out.println("last:"+lastF0+"@"+lastPos+", next:"+nextF0+"@"+nextPos+", slope: "+slope+" intersection: "+
             //       intersectionYAxis+" mid: "+mid+" pitch: "+pitch);
+            if (Float.isNaN(pitch)){
+                pitch = (float) 0.0;
+            }
             return Float.toString(pitch);
             } catch (NullPointerException npe){
                 //npe.printStackTrace();
