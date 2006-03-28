@@ -176,7 +176,7 @@ public class ClusterJoinCostFunction implements JoinCostFunction
         // u1Move is the new start for u1
         cost.u0Move = u0.start + best_u0;
         cost.u1Move = u1_prev.start + best_u1_prev;
-        cost.cost = 30000 + best_val;
+        cost.cost = best_val;
         return cost;
     }
     

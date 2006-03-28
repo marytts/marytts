@@ -605,10 +605,9 @@ public abstract class XML2UttBase extends InternalModule
                         
                         float pos = totalDur - (1 - Float.parseFloat(posString) * 0.01f) * ((float) dur)*0.001f; 
                         float f0 = Float.parseFloat(f0String);
-                        System.out.println("PosString = "+posString+", pos = "+pos+" F0String = "+f0String+", f0 = "+f0);
                         Item item = targetRelation.appendItem();
                         item.getFeatures().setFloat("pos", pos);
-                        if (f0 > 500.0) { //<ph d="55" end="55" f0="(0,-1)" p="w"/>
+                        if (f0 > 500.0) { 
                             item.getFeatures().setFloat("f0", 500.0f);
                         } else if (f0 < 50.0)  {
                             item.getFeatures().setFloat("f0", 50.0f);

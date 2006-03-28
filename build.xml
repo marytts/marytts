@@ -287,7 +287,25 @@ THIS SOFTWARE.
 
 
 
-<!-- cluster unit voice - make binary -->
+<!-- cluster unit voice - make binary 
+	Builds the .bin file from the .txt file of a Clunit Voice.
+	The arguments are:
+	- clunit_voice : the voice name and, at the same time, the name
+	  of the voice's directory
+	- feature_def : the name of the file defining the features 
+	  and their weights. This file should be in the directory of
+	  the voice 
+	- value_dir : the directory containing the features. This should 
+	  also be in the voice's directory 
+	
+	Target can be called with or without the last two arguments.
+	When called without, the voice will be synthesized with cluster
+	unit selection and without target costs:
+	ant clunit_voice_bin -Dclunit_voice=cmu_us_slt_arctic 
+	When called with the last to arguments, unit selection synthesis 
+	is used:
+	ant clunit_voice_bin -Dclunit_voice=cmu_us_slt_arctic -Dfeature_def=featsNWeights.txt -Dvalue_dir=feats
+-->
     <target name="clunit_voice_bin" 
 	    depends="compile"
             if="clunit_voice"
@@ -313,20 +331,6 @@ THIS SOFTWARE.
       <fileset dir="${dest}" includes="**/*.class"/>
     </delete>
   </target>
-
-	<target name="SpeechSynthesisTool">
-		<loadfile property="speechsynthesistool.version"
-        srcFile="examples/client/SpeechSynthesisTool/version.txt">
-			<filterchain>
-			  <striplinebreaks/>
-			</filterchain>
-		</loadfile>
-	    <zip destfile="dist/SpeechSynthesisTool-${speechsynthesistool.version}.zip">
-	      <zipfileset prefix="SpeechSynthesisTool"
-	                  dir="examples/client/SpeechSynthesisTool"
-	                  excludes="**/.svn/*"/>
-	    </zip>
-	</target>
 
 	<target name="de.dfki.lt.izpack.LicensePanel.jar" depends="compile">
 	    <jar destfile="build/bin/panels/de.dfki.lt.izpack.LicensePanel.jar"
