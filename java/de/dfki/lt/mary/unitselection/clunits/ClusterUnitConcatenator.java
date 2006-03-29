@@ -45,11 +45,12 @@ import de.dfki.lt.mary.unitselection.Target;
 import de.dfki.lt.mary.unitselection.UnitConcatenator;
 import de.dfki.lt.mary.unitselection.UnitDatabase;
 import de.dfki.lt.mary.unitselection.cart.PathExtractorImpl;
-import de.dfki.lt.signalproc.process.PSOLAProcessor;
-import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
-import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
-import de.dfki.lt.signalproc.util.DDSAudioInputStream;
-
+/**
+ * import de.dfki.lt.signalproc.process.PSOLAProcessor;
+ * import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
+ * import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
+ * import de.dfki.lt.signalproc.util.DDSAudioInputStream;
+**/
 /**
  * Concatenates ClusterUnits and returns
  * an audio stream

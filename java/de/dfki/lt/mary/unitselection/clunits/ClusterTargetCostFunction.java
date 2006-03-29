@@ -164,11 +164,16 @@ public class ClusterTargetCostFunction implements TargetCostFunction
             features = new ArrayList();
             weights = new ArrayList();
             for (int i=0; i<featsNWeights.size();i++){
+                try{
                 StringTokenizer tok = 
                     new StringTokenizer((String)featsNWeights.get(i)," ");
                 features.add(tok.nextToken());
                 types.add(tok.nextToken());
                 weights.add(new Float(tok.nextToken()));
+                }catch (Exception e){
+                    e.printStackTrace();
+                    throw new Error("Error in line "+(String)featsNWeights.get(i));
+                }
             }
             //build a PathExtractor for each feature
             features2Extractor = new HashMap();

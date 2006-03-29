@@ -45,9 +45,12 @@ public abstract class UnitDatabase
 {
     protected FrameSet audioFrames;
     protected FrameSet joinCostFeatureVectors;
-    
+    public static final int PHONE = 1;
+    public static final int DIPHONE = 2;
+    public static final int HALFPHONE = 3;
+    public static final int PHRASE = 100;
+    protected int unitSize = DIPHONE; 
 
-    protected int unitType; // e.g., Unit.PHONE or Unit.DIPHONE
     protected Set unitNames;
     protected Logger logger;
     
@@ -62,9 +65,9 @@ public abstract class UnitDatabase
     
     public abstract int getSamplingRate();
     
-    public int getUnitType()
+    public int getUnitSize()
     {
-        return unitType;
+        return unitSize;
     }
     
     /**

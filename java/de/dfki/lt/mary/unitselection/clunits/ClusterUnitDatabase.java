@@ -53,7 +53,7 @@ import de.dfki.lt.mary.unitselection.featureprocessors.UnitSelectionFeatProcMana
 public class ClusterUnitDatabase extends UnitDatabase
 { 
     public final static int CLUNIT_NONE = 65535;
-    
+        
     private UtteranceFeatProcManager featureProcessors;
     private String voice;
     
@@ -151,6 +151,7 @@ public class ClusterUnitDatabase extends UnitDatabase
                 loadFeatures = true;
             }
         }
+        unitSize = bb.getInt();
         continuityWeight = bb.getInt();
         optimalCoupling = bb.getInt();
         extendSelections = bb.getInt();
@@ -171,8 +172,9 @@ public class ClusterUnitDatabase extends UnitDatabase
         
         int unitTypesLength = bb.getInt();
         unitTypesMap = new HashMap(unitTypesLength);
+        ClusterUnitType unitType = null;
         for (int i = 0; i < unitTypesLength; i++) {
-            ClusterUnitType unitType = new ClusterUnitType(bb, this);
+            unitType = new ClusterUnitType(bb, this);
             unitTypesMap.put(unitType.getName(), unitType);
             int currentUnitTypePos = bb.position();
 
@@ -184,18 +186,22 @@ public class ClusterUnitDatabase extends UnitDatabase
                 units[unitIdx].setInstanceNumber(unitIdx-firstUnitIdx);
             }
         }
-
+        
         int numCarts = bb.getInt();
         cartMap = new HashMap();
         for (int i = 0; i < numCarts; i++) {
             String name = Utilities.getString(bb);
             CART cart = CARTImpl.loadBinary(bb, featureProcessors,name);
-            //((CARTImpl) cart).setFeatureProcessors(featureProcessors);
-            cartMap.put(name, cart);
-
+            if (unitSize == HALFPHONE){    
+                cartMap.put(name+"left", cart);
+                cartMap.put(name+"right", cart);
+            } else {
+                cartMap.put(name, cart);
+            }
             if (defaultCart == null) {
                 defaultCart = cart;
             }
+           
         }
         if (loadFeatures){
             //load features and weights
@@ -233,7 +239,7 @@ public class ClusterUnitDatabase extends UnitDatabase
                 loadFeatures = true;
             }
         }
-        
+        unitSize = raf.readInt();
         continuityWeight = raf.readInt();
         optimalCoupling = raf.readInt();
         extendSelections = raf.readInt();
@@ -277,9 +283,12 @@ public class ClusterUnitDatabase extends UnitDatabase
             }
             String name = new String(charBuffer, 0, size);
             CART cart = CARTImpl.loadBinary(raf,featureProcessors,name);
-            //((CARTImpl)cart).setFeatureProcessors(featureProcessors);
-            cartMap.put(name, cart);
-
+            if (unitSize == HALFPHONE){    
+                cartMap.put(name+"left", cart);
+                cartMap.put(name+"right", cart);
+            } else {
+                cartMap.put(name, cart);
+            }
             if (defaultCart == null) {
                 defaultCart = cart;
             }
@@ -519,9 +528,14 @@ public class ClusterUnitDatabase extends UnitDatabase
 
             units = new ClusterUnit[unitList.size()];
             units = (ClusterUnit[]) unitList.toArray(units);
+            
             unitList = null;
             unitTypesArray = new ClusterUnitType[unitTypes.size()];
             unitTypesArray = (ClusterUnitType[]) unitTypes.toArray(unitTypesArray);
+            if (unitTypesArray[0].getName().endsWith("left") 
+                    || unitTypesArray[0].getName().endsWith("right")){
+                unitSize = HALFPHONE;
+            }
             unitTypes = null;
         } catch (IOException e) {
             throw new Error(e.getMessage());
@@ -674,6 +688,7 @@ public class ClusterUnitDatabase extends UnitDatabase
         } else {
             os.writeInt(VERSION);
         }
+        os.writeInt(unitSize);
         os.writeInt(continuityWeight);
         os.writeInt(optimalCoupling);
         os.writeInt(extendSelections);
