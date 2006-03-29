@@ -40,16 +40,18 @@ import java.util.List;
  */
 public class Unit
 {
-    public static final int PHONE = 1;
-    public static final int DIPHONE = 2;
-    public static final int HALFPHONE = 3;
-    public static final int PHRASE = 100;
-
     protected UnitDatabase database;
     protected String name;
     protected List values;
     protected boolean haveValues = false;
 
+    public int type;
+    public int phone;
+    public int start;
+    public int end;
+    public int prev;
+    public int next;
+    
     public Unit(UnitDatabase database, String name)
     {
         this.database = database;

@@ -71,16 +71,33 @@ public class SelectedUnit
     
     public int getUnitStart()
     {
-        if (unitStart != -1) return unitStart;
-        else return ((ClusterUnit)unit).start;
-        // TODO: disentangle!
+        if (unitStart != -1) {
+            return unitStart;
+        } else {
+            int start = unit.start;
+            // TODO: uncomment the following and remove resulting incompabilities
+            /**if (target.getUnitSize() == UnitDatabase.HALFPHONE &&
+                target.getName().endsWith("right")){
+                      start = start + ((((ClusterUnit)unit).end-start)/2);
+            } **/
+            return start;
+        }
     }
     
     public int getUnitEnd()
     {
-        if (unitEnd != -1) return unitEnd;
-        else return ((ClusterUnit)unit).end;
-        // TODO: disentangle!
+        if (unitEnd != -1) {
+            return unitEnd;
+        } else {
+            int end = unit.end;
+            //TODO: uncomment the following and remove resulting incompabilities
+             /** if (target.getUnitSize() == UnitDatabase.HALFPHONE &&
+                target.getName().endsWith("left")){
+                      end = end - ((((ClusterUnit)unit).start-end)/2);
+              } **/
+            
+            return end;
+        }
     }
     
     public int targetDurationInSamples()

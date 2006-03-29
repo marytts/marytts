@@ -32,17 +32,12 @@ import org.w3c.dom.Element;
 
 import java.util.*;
 
-import com.sun.speech.freetts.Item;
-import com.sun.speech.freetts.Relation;
-import com.sun.speech.freetts.Utterance;
-
 import de.dfki.lt.mary.modules.synthesis.FreeTTSVoices;
 import de.dfki.lt.mary.modules.synthesis.Voice;
 
-import org.apache.log4j.Logger;
+import com.sun.speech.freetts.Item;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import org.apache.log4j.Logger;
 
 /**
  * A representation of a target representing the ideal properties of
@@ -60,6 +55,7 @@ public class Target
     protected float end = -1;
     protected float duration = -1;
     protected Logger logger;
+    protected int unitSize;
         
     public Target(String name)
     {
@@ -67,12 +63,15 @@ public class Target
         this.name = name;
     }
     
-    public Target(String name, Item item)
+    public Target(String name, Item item, int unitSize)
     {
         logger = Logger.getLogger("Target");
         this.name = name;
         this.item = item;
+        this.unitSize = unitSize;
     }
+    
+    public int getUnitSize() { return unitSize; }
     
     public Item getItem() { return item; }
     
@@ -92,15 +91,17 @@ public class Target
         Item prev = item.getPrevious();
         if (prev == null) {
             duration = end;
-            return duration;
         } else {
             if (!prev.getFeatures().isPresent("end")) {
                 throw new IllegalStateException("Item "+prev+" does not have an 'end' feature");
             }
             float prev_end = prev.getFeatures().getFloat("end");
             duration = end - prev_end;
-            return duration;
         }
+        if (unitSize == UnitDatabase.HALFPHONE){
+           duration = duration/2; 
+        }
+        return duration;
         }
     }
     
@@ -140,7 +141,7 @@ public class Target
     {
         String isSilenceString = getValueForFeature("isSilence"); 
         if (isSilenceString != null) {
-            return Boolean.parseBoolean(isSilenceString);
+            return Boolean.getBoolean(isSilenceString);
         }
         boolean isSilence;
         if (item != null) {

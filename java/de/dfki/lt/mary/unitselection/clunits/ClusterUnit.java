@@ -48,17 +48,7 @@ import de.dfki.lt.mary.unitselection.Unit;
  */
 public class ClusterUnit extends Unit
 {
-    public static final int PHONE = 1;
-    public static final int DIPHONE = 2;
-    public static final int HALFPHONE = 3;
-    public static final int PHRASE = 100;
     
-    public int type;
-    public int phone;
-    public int start;
-    public int end;
-    public int prev;
-    public int next;
     
     private UnitOriginInfo origin;
     private long valsStart;

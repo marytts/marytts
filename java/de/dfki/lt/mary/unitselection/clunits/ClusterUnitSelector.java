@@ -65,6 +65,8 @@ public class ClusterUnitSelector extends UnitSelector
     private final static PathExtractor DNAME = new PathExtractorImpl(
     	    "R:SylStructure.parent.parent.name", true);
     
+    private int unitSize;
+    
     /**
      * Initialise the unit selector with the given cost functions. 
      * If they are null, a default cost function will be used 
@@ -117,6 +119,7 @@ public class ClusterUnitSelector extends UnitSelector
         }
 
         this.database = (ClusterUnitDatabase) db;
+        unitSize = database.getUnitSize();
         this.unitNamer = unitNamer;
         ((PathExtractorImpl)DNAME).setFeatureProcessors(database.getFeatProcManager());
         ((ClusterJoinCostFunction) joinCostFunction).setDatabase(database);
@@ -124,7 +127,12 @@ public class ClusterUnitSelector extends UnitSelector
         List targets = new ArrayList();
         for (Item s = segs.getHead(); s != null; s = s.getNext()) {
             setUnitName(s);       
-            targets.add(new Target(s.getFeatures().getString("clunit_name"), s));
+            if (unitSize == UnitDatabase.HALFPHONE){
+                targets.add(new Target(s.getFeatures().getString("clunit_name")+"left", s, unitSize));
+                targets.add(new Target(s.getFeatures().getString("clunit_name")+"right", s, unitSize));
+            } else {
+                targets.add(new Target(s.getFeatures().getString("clunit_name"), s, unitSize));
+            }
         }
         //Select the best candidates using Viterbi and the join cost function.
         Viterbi viterbi = new Viterbi(targets, database, this, targetCostFunction, joinCostFunction);
@@ -141,7 +149,7 @@ public class ClusterUnitSelector extends UnitSelector
             for (int i=0; i<selectedUnits.size(); i++) {
                 SelectedUnit selUnit = 
                     (SelectedUnit)selectedUnits.get(i);
-                pw.println(selUnit);
+                pw.println(selUnit.toString());
                 UnitOriginInfo origin = 
                     ((ClusterUnit) selUnit.getUnit()).getOriginInfo();
                 if (origin != null){
@@ -231,9 +239,11 @@ public class ClusterUnitSelector extends UnitSelector
 	        candidate.setTarget(target); // The item is the same for all these candidates in the queue
 	        // remember the actual unit:
 	        int unitIndex = (int) clist[i];
+	        
 	        logger.debug("For candidate "+i+" setting unit "+database.getUnit(target.getName(), unitIndex));
 	        candidate.setUnit(database.getUnit(target.getName(), unitIndex));
 	        first = candidate;
+	        
 	    }
 	
         // Take into account candidates for previous item?
