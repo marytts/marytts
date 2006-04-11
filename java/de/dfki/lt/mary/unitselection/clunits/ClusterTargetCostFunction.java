@@ -50,13 +50,11 @@ public class ClusterTargetCostFunction implements TargetCostFunction
     private List features;
     private List types;
     private List weights;
-    private int targetIndex;
     
     private Logger logger;
     
     public ClusterTargetCostFunction() {
         this.logger = Logger.getLogger("ClusterTargetCostFunction");
-        targetIndex = 0;
     }
     
     /**
@@ -129,19 +127,25 @@ public class ClusterTargetCostFunction implements TargetCostFunction
             			String unitValue, 
             			float weight)
     {
-        if (featureType.equals("String")){
+        if (featureType.equals("String") || featureType.equals("string")){
            float result = 1;
            if (targetValue.equals(unitValue)){
                 result = 0;
            }
            return (weight*result);
         } else { //featureType is Float
-            float targetFloat = Float.parseFloat(targetValue);
-            float unitFloat = Float.parseFloat(unitValue);
-            float result = Math.abs(targetFloat-unitFloat)*weight;
-            //logger.debug("Multiplying "+targetFloat+" minus "+unitFloat
-              //      +" with "+weight+" equals "+result);
-            return result;
+            if (featureType.equals("Float") || featureType.equals("float")){
+                float targetFloat = Float.parseFloat(targetValue);
+                float unitFloat = Float.parseFloat(unitValue);
+                float result = Math.abs(targetFloat-unitFloat)*weight;
+                //logger.debug("Multiplying "+targetFloat+" minus "+unitFloat
+                //      +" with "+weight+" equals "+result);
+                return result;
+            } else { // wrong type
+                throw new Error("Wrong Feature Type \""+featureType+
+                        "\" in feature-weights file. Feature type has"+
+                        " to be Float or String");
+            }
         }
     }
     
@@ -171,8 +175,9 @@ public class ClusterTargetCostFunction implements TargetCostFunction
                 types.add(tok.nextToken());
                 weights.add(new Float(tok.nextToken()));
                 }catch (Exception e){
-                    e.printStackTrace();
-                    throw new Error("Error in line "+(String)featsNWeights.get(i));
+                    //e.printStackTrace();
+                    throw new Error("There is something wrong in line "+(String)featsNWeights.get(i)
+                            +" in your feature-weights file");
                 }
             }
             //build a PathExtractor for each feature
