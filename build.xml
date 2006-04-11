@@ -306,7 +306,6 @@ THIS SOFTWARE.
 	ant clunit_voice_bin -Dclunit_voice=cmu_us_slt_arctic -Dfeature_def=featsNWeights.txt -Dvalue_dir=feats
 -->
     <target name="clunit_voice_bin" 
-	    depends="compile"
             if="clunit_voice"
 	    description="Make binary for ${clunit_voice}">
          

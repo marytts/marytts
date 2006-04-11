@@ -47,10 +47,10 @@ public class Unit
 
     public int type;
     public int phone;
-    public int start;
-    public int end;
-    public int prev;
-    public int next;
+    protected int start;
+    protected int end;
+    protected int prev;
+    protected int next;
     
     public Unit(UnitDatabase database, String name)
     {
@@ -68,6 +68,21 @@ public class Unit
         return name;
     }
 
+    public int getStart(){
+        return start;
+    }
+    
+    public int getEnd(){
+        return end;
+    }
+    
+    public int getNextInstance(){
+        return next;
+    }
+    
+    public int getPrevInstance(){
+        return prev;
+    }
     
     public Object getTargetCostFeatures()
     {

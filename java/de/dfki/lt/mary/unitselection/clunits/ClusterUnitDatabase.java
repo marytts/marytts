@@ -192,12 +192,12 @@ public class ClusterUnitDatabase extends UnitDatabase
         for (int i = 0; i < numCarts; i++) {
             String name = Utilities.getString(bb);
             CART cart = CARTImpl.loadBinary(bb, featureProcessors,name);
-            if (unitSize == HALFPHONE){    
-                cartMap.put(name+"left", cart);
-                cartMap.put(name+"right", cart);
-            } else {
+            //if (unitSize == HALFPHONE){    
+              //  cartMap.put(name+"left", cart);
+               // cartMap.put(name+"right", cart);
+            //} else {
                 cartMap.put(name, cart);
-            }
+            //}
             if (defaultCart == null) {
                 defaultCart = cart;
             }

@@ -98,11 +98,15 @@ public class FeatureReader
                 for (int i = 0; i<entries.length;i++){
                     //determine the name of the file = unit type
                     String unitType = entries[i].toString();
+                    
                     int endIndex = unitType.length()-6;
                    
                     unitType = unitType.substring(startIndex+1, endIndex);
                     //System.out.println("unitType is "+unitType);
                     int typeStartIndex = database.getUnitTypeIndex(unitType);
+                    if (unitType.endsWith("something")){
+                            typeStartIndex = -1;
+                    }
                     if (typeStartIndex != -1){
                         //open the file
                         //System.out.println("Opening file "+entries[i].toString());
