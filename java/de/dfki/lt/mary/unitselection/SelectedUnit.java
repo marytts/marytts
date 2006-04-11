@@ -91,7 +91,7 @@ public class SelectedUnit
         } else {
             int end = unit.end;
             //TODO: uncomment the following and remove resulting incompabilities
-             /** if (target.getUnitSize() == UnitDatabase.HALFPHONE &&
+              /**if (target.getUnitSize() == UnitDatabase.HALFPHONE &&
                 target.getName().endsWith("left")){
                       end = end - ((((ClusterUnit)unit).start-end)/2);
               } **/
@@ -113,8 +113,9 @@ public class SelectedUnit
     public String toString()
     {
         return "Target: "+target.toString() + " Unit: " + unit.toString()
-        + (unitStart != -1 ? " unitStart shifted to "+unitStart : "")
-        + (unitEnd != -1 ? " unitEnd shifted to "+unitEnd : "")
-        + " target duration " + targetDurationInSamples();
+        + (unitStart != -1 ? " unitStart shifted to "+unitStart : " start: " + unit.getStart())
+        + (unitEnd != -1 ? " unitEnd shifted to "+unitEnd : " end: " + unit.getEnd())
+        + " target duration " + targetDurationInSamples()
+        + " prev unit "+ unit.getPrevInstance() + ", next unit " + unit.getNextInstance();
     }
 }

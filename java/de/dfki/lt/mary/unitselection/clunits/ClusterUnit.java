@@ -37,6 +37,7 @@ import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.util.*;
 import de.dfki.lt.mary.unitselection.Unit;
+import de.dfki.lt.mary.unitselection.UnitDatabase;
 
 
 /**
@@ -74,6 +75,15 @@ public class ClusterUnit extends Unit
         this.phone = bb.getInt();
         this.start = bb.getInt();
         this.end = bb.getInt();
+        /**
+        if (database.getUnitSize() == UnitDatabase.HALFPHONE &&
+                name.endsWith("left")){
+            end = end - ((start-end)/2);
+        } 
+        if (database.getUnitSize() == UnitDatabase.HALFPHONE &&
+            name.endsWith("right")){
+            start = start + ((end-start)/2);
+        } **/
         this.prev = bb.getInt();
         this.next = bb.getInt();
         if (readFeatures){

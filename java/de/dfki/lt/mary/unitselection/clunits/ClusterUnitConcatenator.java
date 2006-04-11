@@ -175,8 +175,8 @@ public class ClusterUnitConcatenator extends UnitConcatenator
     	    // for all the pitchmarks that are required
     	    for (; ipm < nPitchmarks && pitchmarkPositionsInSamples[ipm] <= targetEnd; ipm++) {
     	    	Frame nextFrame = sts.getNearestFrame(uIndex, 
-                            ((ClusterUnit)(unit.getUnit())).start,
-                            ((ClusterUnit)(unit.getUnit())).end);
+                            ((ClusterUnit)(unit.getUnit())).getStart(),
+                            ((ClusterUnit)(unit.getUnit())).getEnd());
     	    	lpcResult.setFrame(ipm, nextFrame.getCoefficients());
     	    	// Get residual by copying
     	    	int targetResidualSize = lpcResult.getFrameShift(ipm);
