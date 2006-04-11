@@ -239,7 +239,7 @@ public class PathExtractorImpl implements PathExtractor {
 	    String token = tok.nextToken();
 	    OpEnum op = OpEnum.getInstance(token);
 	    if (op == null) {
-		throw new Error("Bad path compiled " + path);
+		throw new Error("Bad path: " + path);
 	    } 
 
 	    list.add(op);

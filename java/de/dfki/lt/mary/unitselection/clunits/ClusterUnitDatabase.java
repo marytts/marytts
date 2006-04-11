@@ -192,12 +192,7 @@ public class ClusterUnitDatabase extends UnitDatabase
         for (int i = 0; i < numCarts; i++) {
             String name = Utilities.getString(bb);
             CART cart = CARTImpl.loadBinary(bb, featureProcessors,name);
-            //if (unitSize == HALFPHONE){    
-              //  cartMap.put(name+"left", cart);
-               // cartMap.put(name+"right", cart);
-            //} else {
                 cartMap.put(name, cart);
-            //}
             if (defaultCart == null) {
                 defaultCart = cart;
             }
@@ -214,7 +209,6 @@ public class ClusterUnitDatabase extends UnitDatabase
                     charBufferFeat[j] = bb.getChar();
                 }
                 featsNWeights.add(new String(charBufferFeat, 0, featsize));
-                //logger.debug("Feature: "+features.get(i)+" Weight: "+weights.get(i));
             }
         }
         
@@ -283,12 +277,7 @@ public class ClusterUnitDatabase extends UnitDatabase
             }
             String name = new String(charBuffer, 0, size);
             CART cart = CARTImpl.loadBinary(raf,featureProcessors,name);
-            if (unitSize == HALFPHONE){    
-                cartMap.put(name+"left", cart);
-                cartMap.put(name+"right", cart);
-            } else {
                 cartMap.put(name, cart);
-            }
             if (defaultCart == null) {
                 defaultCart = cart;
             }
@@ -305,7 +294,6 @@ public class ClusterUnitDatabase extends UnitDatabase
                     charBufferFeat[j] = raf.readChar();
                 }
                 featsNWeights.add(new String(charBufferFeat, 0, featsize));
-                //logger.debug("Feature: "+features.get(i)+" Weight: "+weights.get(i));
             }
         }
         
@@ -363,19 +351,28 @@ public class ClusterUnitDatabase extends UnitDatabase
             new BufferedReader(new InputStreamReader(new 
                     FileInputStream(new 
                             File(file)),"UTF-8"));
-        int index = 0;
+        ArrayList newFeatsNWeights = new ArrayList();
         String line = reader.readLine();
         while (line!=null){
             if (!(line.startsWith("***"))){
-                featsNWeights.set(index,line);
-                index++;
+                newFeatsNWeights.add(line);
             }
             line = reader.readLine();
         }
-        }catch (Exception e){
+        // the database does not care if the lines in
+        // the file are right, only the number of lines has to be the same 
+        // bad lines throw errors in the TargetCostFunction
+        if (newFeatsNWeights.size() != featsNWeights.size()){
+            logger.warn("Error reading target cost weights, assigning default weights");
+        } else {
+            featsNWeights = newFeatsNWeights;
+        }
+        } catch (Exception e){
             e.printStackTrace();
-            throw new Error("Error reading target cost weights");
-        }    
+            throw new Error ("Error reading target cost weights");
+        }
+        
+        
     }
     
     /**
