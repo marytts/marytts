@@ -37,7 +37,6 @@ import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.util.*;
 import de.dfki.lt.mary.unitselection.Unit;
-import de.dfki.lt.mary.unitselection.UnitDatabase;
 
 
 /**

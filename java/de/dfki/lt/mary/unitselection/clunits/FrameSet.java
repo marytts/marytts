@@ -36,9 +36,6 @@ import java.io.IOException;
 import java.io.DataOutputStream;
 import java.util.StringTokenizer;
 
-import com.sun.speech.freetts.relp.Sample;
-import com.sun.speech.freetts.relp.SampleInfo;
-
 /**
  * Represents the frame and residual data
  * used by the diphone database

@@ -41,10 +41,8 @@ import javax.sound.sampled.AudioSystem;
 
 import de.dfki.lt.mary.unitselection.LPCResult;
 import de.dfki.lt.mary.unitselection.SelectedUnit;
-import de.dfki.lt.mary.unitselection.Target;
 import de.dfki.lt.mary.unitselection.UnitConcatenator;
 import de.dfki.lt.mary.unitselection.UnitDatabase;
-import de.dfki.lt.mary.unitselection.cart.PathExtractorImpl;
 /**
  * import de.dfki.lt.signalproc.process.PSOLAProcessor;
  * import de.dfki.lt.signalproc.util.AudioDoubleDataSource;

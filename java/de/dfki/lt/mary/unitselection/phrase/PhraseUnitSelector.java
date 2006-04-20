@@ -35,7 +35,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 
-import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.Relation;
 import com.sun.speech.freetts.Utterance;
 
@@ -76,7 +75,7 @@ public class PhraseUnitSelector extends UnitSelector
     protected List getTargetChain(List tokensAndBoundaries, UnitDatabase database)
     {
         List targetList = new ArrayList();
-        assert database.getUnitType() == Unit.PHRASE;
+        assert database.getUnitSize() == UnitDatabase.PHRASE;
         assert database instanceof PhraseUnitDatabase;
         PhraseUnitDatabase pDatabase = (PhraseUnitDatabase) database;
         Set phrases = pDatabase.getUnitNames();
