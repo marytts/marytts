@@ -37,6 +37,7 @@ import de.dfki.lt.mary.unitselection.Unit;
 /**
  * Reads in the feature of the units 
  * so that a target cost function can be used
+ * This class is used when building a .bin file of the database
  * 
  * @author Anna Hunecke
  *
@@ -48,9 +49,16 @@ public class FeatureReader
     private String featsDefsFile;
     private String unitsFeatsDir;
     private List featsNWeights = null;
-   //private Logger logger;
     private boolean debug = false;   
     
+    /**
+     * Build a new FeatureReader
+     * @param database the database
+     * @param featsDefsFile the file containing 
+     *        the feature/weight definitions
+     * @param unitsFeatsDir the directory containing 
+     *        the features of the units
+     */
     public FeatureReader(UnitDatabase database,String featsDefsFile,
 			 String unitsFeatsDir){
         this.database = database;
@@ -58,15 +66,19 @@ public class FeatureReader
         this.unitsFeatsDir = unitsFeatsDir;
     }
     
+    /**
+     * Get the features and weights
+     * @return features and weights
+     */
     public List getFeatsNWeights(){
         return featsNWeights;
     }
     
     /**
      * Read in the features and the feature values of
-     * the units. Then map features to values and store 
+     * the units. Then read in the values of all units and store 
      * them in the individual units.
-     * @return the features
+     * @return the features/weights
      */
     public void readFeatures()
     {	
@@ -85,16 +97,13 @@ public class FeatureReader
                 }
                 line = reader.readLine();
             }
-            /**
-            for (int k =0; k<definitions.size();k++){
-                System.out.println("Feature "+k+": "+definitions.get(k));
-            } **/
             //Read in the each unit type with all its units and their features
             File featsDir = new File(unitsFeatsDir);
             System.out.println("Reading values from directory "+unitsFeatsDir);
             if (featsDir.isDirectory()){
                 File[] entries = featsDir.listFiles();
                 int startIndex = (unitsFeatsDir).length();
+                //go through all files in directory
                 for (int i = 0; i<entries.length;i++){
                     //determine the name of the file = unit type
                     String unitType = entries[i].toString();
@@ -107,6 +116,7 @@ public class FeatureReader
                     if (unitType.endsWith("something")){
                             typeStartIndex = -1;
                     }
+                    //if the unit type is in the database
                     if (typeStartIndex != -1){
                         //open the file
                         //System.out.println("Opening file "+entries[i].toString());
@@ -122,7 +132,9 @@ public class FeatureReader
                             int unitIndex = Integer.parseInt(tok.nextToken());
                             Unit unit;
                             unit = database.getUnit(typeStartIndex+unitIndex);
+                            //if the unit is in the database
                             if (unit!=null){
+                                //read in the values and store them in the unit
                                 List values = new ArrayList();
                                 for (int j=0;j<featsNWeights.size(); j++){
                                     if (tok.hasMoreTokens()){

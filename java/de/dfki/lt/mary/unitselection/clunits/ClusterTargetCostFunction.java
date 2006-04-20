@@ -41,7 +41,7 @@ import java.util.*;
 /**
  * A target cost function for evaluating the goodness-of-fit of 
  * a given unit for a given target. 
- * @author Marc Schr&ouml;der
+ * @author Marc Schr&ouml;der, Anna Hunecke
  *
  */
 public class ClusterTargetCostFunction implements TargetCostFunction
@@ -85,17 +85,11 @@ public class ClusterTargetCostFunction implements TargetCostFunction
                         String nextFeature = (String) features.get(i);
                         //extract the targets value
                         String targetValue;
-                        
-                            targetValue = target.getValueForFeature(nextFeature);
+                        targetValue = target.getValueForFeature(nextFeature);
                         if (targetValue == null){
                             targetValue = (String)
                             ((PathExtractorImpl)features2Extractor.get(nextFeature)).findFeature(target.getItem());
                             target.setFeatureAndValue(nextFeature,targetValue);
-                            /**
-                            if (nextFeature.endsWith("seg_pitch")){
-                                System.out.println("TargetValue : "+targetValue+", target : "+
-                                        target.toString());
-                            }**/
                         }
                         //extract the units value
                         String unitValue = unit.getValueForFeature(i);
@@ -122,36 +116,33 @@ public class ClusterTargetCostFunction implements TargetCostFunction
      * @param weight the weight
      * @return the resulting cost
      */
-    private float compare(String featureType,
+    private float compare(String valueType,
             			String targetValue, 
             			String unitValue, 
             			float weight)
     {
-        if (featureType.equals("String") || featureType.equals("string")){
+        //if the value is a String, just check for String equality 
+        if (valueType.equals("String") || valueType.equals("string")){
            float result = 1;
            if (targetValue.equals(unitValue)){
                 result = 0;
            }
            return (weight*result);
-        } else { //featureType is Float
-            if (featureType.equals("Float") || featureType.equals("float")){
-                float targetFloat = Float.parseFloat(targetValue);
-                float unitFloat = Float.parseFloat(unitValue);
-                float result = Math.abs(targetFloat-unitFloat)*weight;
-                //logger.debug("Multiplying "+targetFloat+" minus "+unitFloat
-                //      +" with "+weight+" equals "+result);
-                return result;
-            } else { // wrong type
-                throw new Error("Wrong Feature Type \""+featureType+
-                        "\" in feature-weights file. Feature type has"+
-                        " to be Float or String");
-            }
+        } else { //featureType is Float, take abs of the two values 
+            float targetFloat = Float.parseFloat(targetValue);
+            float unitFloat = Float.parseFloat(unitValue);
+            float result = Math.abs(targetFloat-unitFloat)*weight;
+            //logger.debug("Multiplying "+targetFloat+" minus "+unitFloat
+            //      +" with "+weight+" equals "+result);
+            return result;
         }
     }
     
     /**
      * Set the features of the cost function
-     * @param features the features
+     * @param featusNWeights a List of Strings containing
+     * 		  a feature, weight and type
+     * @param featProc a feature processors manager
      */
     public void setFeatsAndWeights(List featsNWeights,
             						UnitSelectionFeatProcManager featProc)
@@ -172,12 +163,23 @@ public class ClusterTargetCostFunction implements TargetCostFunction
                 StringTokenizer tok = 
                     new StringTokenizer((String)featsNWeights.get(i)," ");
                 features.add(tok.nextToken());
-                types.add(tok.nextToken());
+                String type = tok.nextToken();
+                //check, if value type is String of Float
+                if (!(type.equals("String") || type.equals("string")
+                        || type.equals("Float") || type.equals("float"))){
+                    throw new Error("Wrong Value Type \""+type+
+                            "\" in line \""+(String)featsNWeights.get(i)
+                            +"\" of feature-weights file. Value type has"+
+                            " to be Float or String");
+                }
+                types.add(type);
                 weights.add(new Float(tok.nextToken()));
+                }catch (NumberFormatException nfe){
+                    throw new Error("Wrong Weight Type in line \""+(String)featsNWeights.get(i)
+                            +"\" in your feature-weights file. Weight has to be a float number.");
                 }catch (Exception e){
-                    //e.printStackTrace();
-                    throw new Error("There is something wrong in line "+(String)featsNWeights.get(i)
-                            +" in your feature-weights file");
+                    throw new Error("There is something wrong in line \""+(String)featsNWeights.get(i)
+                            +"\" in your feature-weights file");
                 }
             }
             //build a PathExtractor for each feature

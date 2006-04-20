@@ -124,6 +124,7 @@ public class ClusterUnitSelector extends UnitSelector
         ((PathExtractorImpl)DNAME).setFeatureProcessors(database.getFeatProcManager());
         ((ClusterJoinCostFunction) joinCostFunction).setDatabase(database);
         Relation segs = utt.getRelation(Relation.SEGMENT);
+        //build targets for the items
         List targets = new ArrayList();
         for (Item s = segs.getHead(); s != null; s = s.getNext()) {
             setUnitName(s);       
@@ -137,9 +138,9 @@ public class ClusterUnitSelector extends UnitSelector
         //Select the best candidates using Viterbi and the join cost function.
         Viterbi viterbi = new Viterbi(targets, database, this, targetCostFunction, joinCostFunction);
         viterbi.apply();
+        List selectedUnits = viterbi.getSelectedUnits();
         // If you can not associate the candidate units in the best path 
         // with the items in the segment relation, there is no best path
-    	List selectedUnits = viterbi.getSelectedUnits();
         if (selectedUnits == null) {
     	    throw new IllegalStateException("clunits: can't find path");
     	}
@@ -172,7 +173,6 @@ public class ClusterUnitSelector extends UnitSelector
     protected void setUnitName(Item seg) {
         //general domain should have a unitNamer
         if (unitNamer != null) {
-            
             unitNamer.setUnitName(seg);
             return;
         }
@@ -222,8 +222,8 @@ public class ClusterUnitSelector extends UnitSelector
      */
     public ViterbiCandidate getCandidates(Target target){
         //logger.debug("Looking for candidates in cart "+target.getName());
+        //get the cart tree and extract the candidates
         CART cart = database.getTree(target.getName());
-    	// Here, the unit candidates are selected.
     	int[] clist = (int[]) cart.interpret(target.getItem());
     	
     	// Now, clist is a List of instance numbers for the units of type
