@@ -43,7 +43,7 @@ import de.dfki.lt.mary.unitselection.Unit;
  * Representation of a unit from a unit database. This gives access to
  * everything that is known about a given unit, including all sorts of 
  * features and the actual audio data.
- * @author Marc Schr&ouml;der
+ * @author Marc Schr&ouml;der, Anna Hunecke
  *
  */
 public class ClusterUnit extends Unit

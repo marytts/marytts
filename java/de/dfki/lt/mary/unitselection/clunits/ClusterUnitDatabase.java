@@ -509,9 +509,6 @@ public class ClusterUnitDatabase extends UnitDatabase
             BufferedReader reader =
                 new BufferedReader(new 
                         InputStreamReader(fis));
-                                //new 
-                                //FileInputStream(new 
-                                  //      File(file)),"UTF-8"));
             List unitList = new ArrayList();
             List unitTypes = new ArrayList();
             String line = reader.readLine();
@@ -536,8 +533,7 @@ public class ClusterUnitDatabase extends UnitDatabase
             unitTypes = null;
         } catch (IOException e) {
             throw new Error(e.getMessage());
-        } finally {
-    }
+        } 
     }
     
     /**
@@ -673,7 +669,7 @@ public class ClusterUnitDatabase extends UnitDatabase
      *
      * @param path the path to dump the file to
      */
-    void dumpBinary(String path) {
+    private void dumpBinary(String path) {
     try {
         FileOutputStream fos = new FileOutputStream(path);
         DataOutputStream os = new DataOutputStream(new
@@ -699,6 +695,7 @@ public class ClusterUnitDatabase extends UnitDatabase
         audioFrames.dumpBinary(os);
         joinCostFeatureVectors.dumpBinary(os);
         
+        //load features only after dumping frames to save memory
         if (loadFeatures){
             loadFeatures(featDef,valDir);
             System.out.println("Continue dumping .bin file...");
@@ -746,6 +743,11 @@ public class ClusterUnitDatabase extends UnitDatabase
     }
     }
 
+    /**
+     * Load the features
+     * @param featureDefs the file containing feature definitions
+     * @param valuesDir the directory containing the files of values
+     */
     private void loadFeatures(String featureDefs, String valuesDir){
         FeatureReader featureReader = 
             new FeatureReader(this, featureDefs, valuesDir);
@@ -755,6 +757,8 @@ public class ClusterUnitDatabase extends UnitDatabase
     
     /**
      *  Manipulates a ClusterUnitDatabase.  
+     *  Can be used to build a .bin file from a .txt file.
+     *  Called by target clunit_voice_bin in build.xml
      *
      * <p>
      * <b> Usage </b>

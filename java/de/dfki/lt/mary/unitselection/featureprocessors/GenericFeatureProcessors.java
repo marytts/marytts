@@ -698,6 +698,12 @@ public class GenericFeatureProcessors {
      */
     public static class LispIsPau implements FeatureProcessor{
         
+        /**
+         * Check if segment is a pause 
+         *@param seg the segment
+         *@return 0 if false, 1 if true
+         *@throws ProcessException
+         */
         public String process (Item seg) throws ProcessException{
             Item segItem = seg.getItemAs(Relation.SEGMENT);
             if (segItem == null || !(segItem.toString().equals("pau"))){
@@ -709,49 +715,50 @@ public class GenericFeatureProcessors {
     /**
      * Calculates the pitch of a segment
      * This processor should be used by target items only
-     * This is a feature processor. A feature processor takes an item,
-     * performs some sort of processing on the item and returns an object.
      */
     public static class Seg_Pitch implements FeatureProcessor{
         
         public String process (Item seg) throws ProcessException{
             //System.out.println("Looking for pitch...");
             try{
-            float mid;
-            float end = seg.getFeatures().getFloat("end"); 
-            Item prev = seg.getPrevious();
-            if (prev == null) {
-                mid = end/2;
-            } else {
-                float prev_end = prev.getFeatures().getFloat("end");
-                mid = prev_end + (end - prev_end)/2;
-            }
-            Relation targetRelation = seg.getUtterance().getRelation("Target");
-            if (targetRelation == null){
-                return "0.0";
-            }
-            int lastTarget = seg.getFeatures().getInt("lastTarget");
-            int nextTarget = seg.getFeatures().getInt("nextTarget");
-            Item lastTargetItem = getTargetItem(targetRelation,lastTarget);
-            Item nextTargetItem = getTargetItem(targetRelation,nextTarget);
-            if (lastTargetItem == null || nextTargetItem == null){
-                return "0.0";
-            }
-            float lastF0 = lastTargetItem.getFeatures().getFloat("f0");
-            float lastPos = lastTargetItem.getFeatures().getFloat("pos");
-            float nextF0 = nextTargetItem.getFeatures().getFloat("f0");
-            float nextPos = nextTargetItem.getFeatures().getFloat("pos");
-            //System.out.println("lastPos: "+lastPos+" lastF0: "+lastF0+" nextPos: "+nextPos
-              //         +" nextF0: "+nextF0);
-            float slope = (nextF0 - lastF0) / (nextPos - lastPos);
-            float intersectionYAxis = lastF0 - slope*lastPos;
-            float pitch = slope*mid+intersectionYAxis;
-            //System.out.println("last:"+lastF0+"@"+lastPos+", next:"+nextF0+"@"+nextPos+", slope: "+slope+" intersection: "+
-            //       intersectionYAxis+" mid: "+mid+" pitch: "+pitch);
-            if (Float.isNaN(pitch)){
-                pitch = (float) 0.0;
-            }
-            return Float.toString(pitch);
+                //get mid position of segment
+                float mid;
+                float end = seg.getFeatures().getFloat("end"); 
+                Item prev = seg.getPrevious();
+                if (prev == null) {
+                    mid = end/2;
+                } else {
+                    float prev_end = prev.getFeatures().getFloat("end");
+                    mid = prev_end + (end - prev_end)/2;
+                }
+                Relation targetRelation = seg.getUtterance().getRelation("Target");
+                //if segment has no target relation, you can not calculate
+                //the segment pitch
+                if (targetRelation == null){
+                    return "0.0";
+                }
+                //get F0 and pos of previous and next target
+                int lastTargetIndex = seg.getFeatures().getInt("lastTarget");
+                int nextTargetIndex = seg.getFeatures().getInt("nextTarget");
+                Item lastTargetItem = getTargetItem(targetRelation,lastTargetIndex);
+                Item nextTargetItem = getTargetItem(targetRelation,nextTargetIndex);
+                if (lastTargetItem == null || nextTargetItem == null){
+                    return "0.0";
+                }
+                float lastF0 = lastTargetItem.getFeatures().getFloat("f0");
+                float lastPos = lastTargetItem.getFeatures().getFloat("pos");
+                float nextF0 = nextTargetItem.getFeatures().getFloat("f0");
+                float nextPos = nextTargetItem.getFeatures().getFloat("pos");
+                //build a linear function (f(x) = slope*x+intersectionYAxis)
+                float slope = (nextF0 - lastF0) / (nextPos - lastPos);
+                float intersectionYAxis = lastF0 - slope*lastPos;
+                //calculate the pitch
+                float pitch = slope*mid+intersectionYAxis;
+ 
+                if (Float.isNaN(pitch)){
+                    pitch = (float) 0.0;
+                }
+                return Float.toString(pitch);
             } catch (NullPointerException npe){
                 //npe.printStackTrace();
                 System.out.println("Problem calculating pitch");
@@ -760,7 +767,12 @@ public class GenericFeatureProcessors {
             
             }
     
-            
+            /**
+             * Get targetItem at index from targetRelation
+             * @param targetRelation
+             * @param index
+             * @return the targetItem
+             */
             private Item getTargetItem(Relation targetRelation, int index){
                 Item first = targetRelation.getHead();
                 if (index>0 && first != null){
