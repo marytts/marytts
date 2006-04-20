@@ -41,7 +41,6 @@ import de.dfki.lt.mary.unitselection.clunits.ClusterUnitConcatenator;
 import de.dfki.lt.mary.unitselection.featureprocessors.UnitSelectionFeatProcManager;
 import de.dfki.lt.mary.util.MaryUtils;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import com.sun.speech.freetts.lexicon.Lexicon;
@@ -86,20 +85,19 @@ public class UnitSelectionVoiceBuilder{
 	    try{
 	        String header ="voice."+voice;
 	        logger.debug("Loading voice "+voice+"...");
+	        
 	        //read in the parameters from the .config file
 	        String gender = MaryProperties.getProperty(header+".gender");
 	        Gender voiceGender =  new Gender(gender);
-		
 	        String locale = MaryProperties.getProperty(header+".locale");
-	       
 	        Locale voiceLocale = MaryUtils.string2locale(locale);
-		
 	        String domain = MaryProperties.getProperty(header+".domain");
 	        String exampleTextFile = null;
 	        if (!domain.equals("general")){
 	            exampleTextFile = MaryProperties.getFilename(header+".exampleTextFile");
 	        }
 	        
+	        //build the lexicon of not already built
             String lexiconClass = MaryProperties.getProperty(header+".lexiconClass");
             Lexicon lexicon = null;
             if (lexiconClass != null) {
@@ -118,7 +116,8 @@ public class UnitSelectionVoiceBuilder{
                     lexicons.put(lexiconClass+lexiconName, lexicon);
                 }
             }
-            			
+            
+            // build the feature processors if not already built	
 	        String featureProcessorsClass = 
 	            MaryProperties.getFilename(header+".featureProcessorsClass");
 	        UnitSelectionFeatProcManager featProcManager;
@@ -128,15 +127,16 @@ public class UnitSelectionVoiceBuilder{
 	        else {
 	            featProcManager = 
 	                (UnitSelectionFeatProcManager) Class.forName(featureProcessorsClass).newInstance();
-	            featureProcessors.put(locale,featProcManager);}
-	            
+	            featureProcessors.put(locale,featProcManager);
+	        }
+	        
+	        //build and load database
 	        String databaseFile = 
 	            MaryProperties.getFilename(header+".databaseFile");
 	        String databaseClass = 
 	            MaryProperties.getProperty(header+".databaseClass");
 	        UnitDatabase unitDatabase = 
 	            (UnitDatabase) Class.forName(databaseClass).newInstance();
-	        
 	        unitDatabase.load(databaseFile, featProcManager, voice);
 	        
 	        //overwrite target cost weights if defined
@@ -146,16 +146,21 @@ public class UnitSelectionVoiceBuilder{
 	            unitDatabase.overwriteWeights(targetCostWeights);
 	        }
 	        
+	        //build and load targetCostFunction
 	        String targetCostClass = 
 	            MaryProperties.getProperty(header+".targetCostClass");
 	        TargetCostFunction targetFunction = 
 		        (TargetCostFunction) Class.forName(targetCostClass).newInstance();
 	        targetFunction.setFeatsAndWeights(unitDatabase.getFeatsNWeights(),
 	                						featProcManager);
+	        
+	        //build joinCostFunction
 	        String joinCostClass = 
 	            MaryProperties.getProperty(header+".joinCostClass");
 	        JoinCostFunction joinFunction = 
 		        (JoinCostFunction) Class.forName(joinCostClass).newInstance();
+	        
+	        //build Selector
 	        String selectorClass = 
 	            MaryProperties.getProperty(header+".selectorClass");
 	        UnitSelector unitSelector = null;
@@ -163,11 +168,7 @@ public class UnitSelectionVoiceBuilder{
 	            unitSelector = 
 	                new ClusterUnitSelector(targetFunction,joinFunction);}
 	       
-		
-	        String[] nameArray = new String[1];
-	        nameArray[0] = voice;
-	        
-	       
+	        //build AudioFormat
 	        int samplingRate = 
 	            Integer.parseInt(MaryProperties.getProperty(header+".samplingRate"));
 	        AudioFormat dbAudioFormat = 
@@ -178,21 +179,28 @@ public class UnitSelectionVoiceBuilder{
 	                    2, // nr. of bytes per frame
 	                    samplingRate, // nr. of frames per second
 	                    true); // big-endian;
+	        
+	        //build Concatenator
 	        String concatenatorClass = 
 	            MaryProperties.getFilename(header+".concatenatorClass");
 	        UnitConcatenator unitConcatenator = null;
 	        if (concatenatorClass.equals("de.dfki.lt.mary.unitselection.clunits.ClusterUnitConcatenator")){
 	            unitConcatenator = 
 	                new ClusterUnitConcatenator(unitDatabase, dbAudioFormat);}
-	        
-	        //dummy values for the other parameters
-	        String path = null;
+    
+	        //standard values for some parameters
+	        String[] nameArray = new String[1];
+	        nameArray[0] = voice;
 	        int topStart = MaryProperties.getInteger(header+".topline.start", -1);
 	        int topEnd = MaryProperties.getInteger(header+".topline.end", -1);
 	        int baseStart = MaryProperties.getInteger(header+".baseline.start", -1);
 	        int baseEnd = MaryProperties.getInteger(header+".baseline.end", -1);
+	        
+	        //dummy values for the rest of the parameters
 	        String[] knownVoiceQualities = null;
+	        String path = null;
 			
+	        //build the voice
 	        Voice v = 
 	            new UnitSelectionVoice(unitDatabase, unitSelector, 
 	                    unitConcatenator, path, 

@@ -28,8 +28,6 @@
  */
 package de.dfki.lt.mary.unitselection;
 
-import de.dfki.lt.mary.unitselection.clunits.ClusterUnit;
-
 /**
  * A unit selected from Viterbi
  * 

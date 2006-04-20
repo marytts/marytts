@@ -29,7 +29,6 @@
 package de.dfki.lt.mary.unitselection;
 
 import java.util.List;
-import java.util.Map;
 
 import de.dfki.lt.mary.unitselection.featureprocessors.UnitSelectionFeatProcManager;
 

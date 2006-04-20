@@ -174,8 +174,8 @@ public class ClusterJoinCostFunction implements JoinCostFunction
 	
         // u0Move is the new end for u0
         // u1Move is the new start for u1
-        cost.u0Move = u0.start + best_u0;
-        cost.u1Move = u1_prev.start + best_u1_prev;
+        cost.u0Move = u0.getStart() + best_u0;
+        cost.u1Move = u1_prev.getStart() + best_u1_prev;
         cost.cost = best_val;
         return cost;
     }
@@ -206,8 +206,8 @@ public class ClusterJoinCostFunction implements JoinCostFunction
     	return getFrameDistance(u0.getJoinCostFeatureVector(a),
                 u1.getJoinCostFeatureVector(b), 
     			unitDB.getJoinWeights())
-    	    + Math.abs( unitDB.getAudioFrames().getFrameSize(u0.start+a) - 
-    			unitDB.getAudioFrames().getFrameSize(u1.start+b)) * 
+    	    + Math.abs( unitDB.getAudioFrames().getFrameSize(u0.getStart()+a) - 
+    			unitDB.getAudioFrames().getFrameSize(u1.getStart()+b)) * 
     	    unitDB.getContinuityWeight();
     }
     
