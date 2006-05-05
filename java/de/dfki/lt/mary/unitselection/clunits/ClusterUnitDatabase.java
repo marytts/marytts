@@ -347,6 +347,7 @@ public class ClusterUnitDatabase extends UnitDatabase
      */
     public void overwriteWeights(String file){
         try{
+            logger.debug("Overwriting weights for features");
         BufferedReader reader =
             new BufferedReader(new InputStreamReader(new 
                     FileInputStream(new 
@@ -443,8 +444,6 @@ public class ClusterUnitDatabase extends UnitDatabase
         }
         return (Unit) unitType.getInstance(instance);
     }
-    
-    
     
     public int[] getJoinWeights(){
         return joinWeights;

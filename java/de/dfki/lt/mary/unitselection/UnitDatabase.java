@@ -94,7 +94,7 @@ public abstract class UnitDatabase
     public Unit getUnit(int which){
         return null;
     }
-    
+        
     public int getUnitTypeIndex(String unitType){
         return 0;
     }
