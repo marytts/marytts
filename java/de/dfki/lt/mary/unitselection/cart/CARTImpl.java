@@ -36,6 +36,7 @@ import com.sun.speech.freetts.util.Utilities;
 
 import org.apache.log4j.Logger;
 
+import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.mary.unitselection.featureprocessors.UtteranceFeatProcManager;
 
 import java.io.*;
@@ -142,6 +143,12 @@ public class CARTImpl implements CART {
      * The number of nodes in the CART.
      */
     transient int curNode = 0;
+    
+    /**
+     * Defines how many units should be selected
+     * on backtrace
+     */
+    private int backtrace = 500;
 
     /**
      * Creates a new CART by reading from the given URL.
@@ -200,8 +207,9 @@ public class CARTImpl implements CART {
      *
      * @param numNodes the number of nodes
      */
-    private CARTImpl(int numNodes,String name) {
+    private CARTImpl(int numNodes,String name, int backtrace) {
         this.name = name;
+        this.backtrace = backtrace;
 	cart = new Node[numNodes];
     }
 
@@ -236,8 +244,14 @@ public class CARTImpl implements CART {
             UtteranceFeatProcManager fp,
             String name) throws IOException {
     	featureProcessors = fp;
+    	String backtrace = 
+    	    MaryProperties.getProperty("english.cart.backtrace");
+    	int backtraceInt = 100;
+    	if (backtrace != null){
+    	    backtraceInt = Integer.parseInt(backtrace.trim());
+    	}
 	int numNodes = raf.readInt();
-	CARTImpl cart = new CARTImpl(numNodes,name);
+	CARTImpl cart = new CARTImpl(numNodes,name,backtraceInt);
 
 	for (int i = 0; i < numNodes; i++) {
 		int size = raf.readShort();
@@ -267,8 +281,14 @@ public class CARTImpl implements CART {
             UtteranceFeatProcManager fp, 
             String name) throws IOException {
 	featureProcessors = fp;
+	String backtrace = 
+	    MaryProperties.getProperty("english.cart.backtrace");
+	int backtraceInt = 100;
+	if (backtrace != null){
+	    backtraceInt = Integer.parseInt(backtrace.trim());
+	}
         int numNodes = bb.getInt();
-	CARTImpl cart = new CARTImpl(numNodes,name);
+	CARTImpl cart = new CARTImpl(numNodes,name,backtraceInt);
 
 	for (int i = 0; i < numNodes; i++) {
 	    String nodeCreationLine = Utilities.getString(bb);
@@ -380,7 +400,7 @@ public class CARTImpl implements CART {
      * @return the interpretation
      */
     public Object interpret(Object object) {
-        return interpret(object,0,100);        
+        return interpret(object,0,backtrace);        
     }
     
     public Object interpret(Object object, int start, int limit){

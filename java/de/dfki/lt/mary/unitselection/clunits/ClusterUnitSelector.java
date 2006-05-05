@@ -240,7 +240,8 @@ public class ClusterUnitSelector extends UnitSelector
 	        // remember the actual unit:
 	        int unitIndex = (int) clist[i];
 	        
-	        logger.debug("For candidate "+i+" setting unit "+database.getUnit(target.getName(), unitIndex));
+	        logger.debug("For candidate "+i+" setting unit "
+	                +database.getUnit(target.getName(), unitIndex));
 	        candidate.setUnit(database.getUnit(target.getName(), unitIndex));
 	        first = candidate;
 	        

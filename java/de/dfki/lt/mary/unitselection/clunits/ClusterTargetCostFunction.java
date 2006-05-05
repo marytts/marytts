@@ -34,6 +34,7 @@ import de.dfki.lt.mary.unitselection.Target;
 import de.dfki.lt.mary.unitselection.cart.PathExtractorImpl;
 import de.dfki.lt.mary.unitselection.featureprocessors.*;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import java.util.*;
@@ -79,6 +80,7 @@ public class ClusterTargetCostFunction implements TargetCostFunction
                 //logger.debug("Now calculating cost for "+unitType+" "
                 //        +unitInstance+" "+target.getIndex());               
                 float cost = 0;
+                float[] costEnum = new float[features.size()];
                 for (int i = 0;i < features.size(); i++){
                     float weight = ((Float) weights.get(i)).floatValue();
                     if (weight != 0){
@@ -97,13 +99,29 @@ public class ClusterTargetCostFunction implements TargetCostFunction
                             //extract the weight and compare
                             //logger.debug("Comparing feature "+features.get(i)
                               //      +" with weight "+weights.get(i));
-                            cost += compare((String) types.get(i),targetValue, unitValue, weight);
+                            float result = compare((String) types.get(i),targetValue, unitValue, weight);
+                            cost+= result;
+                            if (logger.getEffectiveLevel().equals(Level.DEBUG)){
+                                costEnum[i] = result;
+                            }
                         } else {
                             cost += weight;
                         }                        
                     }
                 }
-                //logger.debug("Succesfully calculated cost: "+cost);
+                if (logger.getEffectiveLevel().equals(Level.DEBUG)){
+                    StringBuffer sb = new StringBuffer();
+                    sb.append("Succesfully calculated cost: "+cost
+                        +" for target "+target.getName()
+                        +" and unit "+unit.toString());                    
+                    sb.append("Values for the features:\n ");
+                    for (int i = 0; i<costEnum.length;i++){
+                        if (costEnum[i] != 0){
+                            sb.append(i+": "+costEnum[i]+" ");
+                        }
+                    }
+                    logger.debug(sb.toString());
+                }
                 return cost;
             }
         }
