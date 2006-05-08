@@ -78,8 +78,6 @@ public class XML2UttAcoustParams extends XML2UttBase
         utterance.createRelation(Relation.SEGMENT);
         utterance.createRelation(Relation.TARGET);
         utterance.createRelation(Relation.PHRASE);
-        lastTargetIndex = 0;
-        nextTargetIndex = 1;
         for (Iterator it = tokensAndBoundaries.iterator(); it.hasNext(); ) {
             Element el = (Element) it.next();
             addOneElement(utterance, el,
@@ -100,8 +98,6 @@ public class XML2UttAcoustParams extends XML2UttBase
         assert targetRelation != null;
         Item lastSegment = segmentRelation.getTail();
         if (lastSegment != null && lastSegment.getFeatures().isPresent("end")) {
-            //lastTargetIndex++;
-            //nextTargetIndex++;
             float pos = lastSegment.getFeatures().getFloat("end");
             float f0;
             Item lastTarget = targetRelation.getTail();
@@ -110,10 +106,6 @@ public class XML2UttAcoustParams extends XML2UttBase
             Item finalTarget = targetRelation.appendItem();
             finalTarget.getFeatures().setFloat("pos", pos);
             finalTarget.getFeatures().setFloat("f0", f0);
-        }
-        if (!lastSegment.getFeatures().isPresent("lastTarget")){
-        	lastSegment.getFeatures().setInt("lastTarget",lastTargetIndex);
-            lastSegment.getFeatures().setInt("nextTarget",nextTargetIndex);
         }
         return utterance;
     }
