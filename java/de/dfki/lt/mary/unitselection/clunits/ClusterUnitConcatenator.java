@@ -44,17 +44,10 @@ import org.jsresources.SequenceAudioInputStream;
 
 import com.sun.speech.freetts.util.WaveUtils;
 
-import de.dfki.lt.mary.unitselection.LPCResult;
 import de.dfki.lt.mary.unitselection.SelectedUnit;
-import de.dfki.lt.mary.unitselection.Target;
 import de.dfki.lt.mary.unitselection.UnitConcatenator;
 import de.dfki.lt.mary.unitselection.UnitDatabase;
-import de.dfki.lt.mary.unitselection.cart.PathExtractorImpl;
 import de.dfki.lt.mary.util.FloatList;
-import de.dfki.lt.signalproc.process.PSOLAProcessor;
-import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
-import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
-import de.dfki.lt.signalproc.util.DDSAudioInputStream;
 
 /**
  * Concatenates ClusterUnits and returns
