@@ -751,10 +751,11 @@ public class GenericFeatureProcessors {
             assert lastPos <= mid && mid <= nextPos;
             //build a linear function (f(x) = slope*x+intersectionYAxis)
             float slope = (nextF0 - lastF0) / (nextPos - lastPos);
-            float intersectionYAxis = lastF0 - slope*lastPos;
             //calculate the pitch
-            float pitch = slope*mid+intersectionYAxis;
-            assert lastF0 <= pitch && pitch <= nextF0 || nextF0 <= pitch && pitch <= lastF0;
+            float pitch = lastF0 + slope*(mid-lastPos);
+            if (!(lastF0 <= pitch && pitch <= nextF0 || nextF0 <= pitch && pitch <= lastF0)) {
+                throw new NullPointerException();
+            }
 
             if (Float.isNaN(pitch)){
                 pitch = (float) 0.0;
