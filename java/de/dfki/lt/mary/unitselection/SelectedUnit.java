@@ -28,6 +28,8 @@
  */
 package de.dfki.lt.mary.unitselection;
 
+import javax.sound.sampled.AudioInputStream;
+
 /**
  * A unit selected from Viterbi
  * 
@@ -40,11 +42,14 @@ public class SelectedUnit
     protected Target target;
     protected int unitStart = -1;
     protected int unitEnd = -1;
-
+    protected Object concatenationData;
+    protected AudioInputStream audio;
+    
     public SelectedUnit(Unit unit, Target target)
     {
         this.unit = unit;
         this.target = target;
+        this.audio = null;
     }
 
     public Unit getUnit()
@@ -107,6 +112,39 @@ public class SelectedUnit
     {
         return unit.durationInSamples();
     }
+    
+    /**
+     * Remember data about this selected unit which is relevant for unit concatenation.
+     * What type of data is saved here depends on the UnitConcatenator used.
+     * @param concatenationData
+     */
+    public void setConcatenationData(Object concatenationData)
+    {
+        this.concatenationData = concatenationData;
+    }
+    
+    public Object getConcatenationData()
+    {
+        return concatenationData;
+    }
+    
+    public void setAudio(AudioInputStream audio)
+    {
+        this.audio = audio;
+    }
+    
+    public AudioInputStream getAudio()
+    {
+        return audio;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
     
     public String toString()
     {
