@@ -720,71 +720,46 @@ public class GenericFeatureProcessors {
         
         public String process (Item seg) throws ProcessException{
             //System.out.println("Looking for pitch...");
-            try{
-                //get mid position of segment
-                float mid;
-                float end = seg.getFeatures().getFloat("end"); 
-                Item prev = seg.getPrevious();
-                if (prev == null) {
-                    mid = end/2;
-                } else {
-                    float prev_end = prev.getFeatures().getFloat("end");
-                    mid = prev_end + (end - prev_end)/2;
-                }
-                Relation targetRelation = seg.getUtterance().getRelation("Target");
-                //if segment has no target relation, you can not calculate
-                //the segment pitch
-                if (targetRelation == null){
-                    return "0.0";
-                }
-                //get F0 and pos of previous and next target
-                int lastTargetIndex = seg.getFeatures().getInt("lastTarget");
-                int nextTargetIndex = seg.getFeatures().getInt("nextTarget");
-                Item lastTargetItem = getTargetItem(targetRelation,lastTargetIndex);
-                Item nextTargetItem = getTargetItem(targetRelation,nextTargetIndex);
-                if (lastTargetItem == null || nextTargetItem == null){
-                    return "0.0";
-                }
-                float lastF0 = lastTargetItem.getFeatures().getFloat("f0");
-                float lastPos = lastTargetItem.getFeatures().getFloat("pos");
-                float nextF0 = nextTargetItem.getFeatures().getFloat("f0");
-                float nextPos = nextTargetItem.getFeatures().getFloat("pos");
-                //build a linear function (f(x) = slope*x+intersectionYAxis)
-                float slope = (nextF0 - lastF0) / (nextPos - lastPos);
-                float intersectionYAxis = lastF0 - slope*lastPos;
-                //calculate the pitch
-                float pitch = slope*mid+intersectionYAxis;
- 
-                if (Float.isNaN(pitch)){
-                    pitch = (float) 0.0;
-                }
-                return Float.toString(pitch);
-            } catch (NullPointerException npe){
-                //npe.printStackTrace();
-                System.out.println("Problem calculating pitch");
+            //get mid position of segment
+            float mid;
+            float end = seg.getFeatures().getFloat("end"); 
+            Item prev = seg.getPrevious();
+            if (prev == null) {
+                mid = end/2;
+            } else {
+                float prev_end = prev.getFeatures().getFloat("end");
+                mid = prev_end + (end - prev_end)/2;
+            }
+            Relation targetRelation = seg.getUtterance().getRelation("Target");
+            //if segment has no target relation, you can not calculate
+            //the segment pitch
+            if (targetRelation == null){
                 return "0.0";
             }
-            
+            //get F0 and position of previous and next target
+            Item nextTargetItem = targetRelation.getHead();
+            while (nextTargetItem != null && nextTargetItem.getFeatures().getFloat("pos") < mid) {
+                nextTargetItem = nextTargetItem.getNext();
             }
-    
-            /**
-             * Get targetItem at index from targetRelation
-             * @param targetRelation
-             * @param index
-             * @return the targetItem
-             */
-            private Item getTargetItem(Relation targetRelation, int index){
-                Item first = targetRelation.getHead();
-                if (index>0 && first != null){
-                    while (index != 1){
-                        Item next = first.getNext();
-                        if (next != null)
-                            first = next;
-                        index--;
-                    }
-                }
-                return first;
+            if (nextTargetItem == null) return "0.0";
+            Item lastTargetItem = nextTargetItem.getPrevious();
+            if (lastTargetItem == null) return "0.0";
+            float lastF0 = lastTargetItem.getFeatures().getFloat("f0");
+            float lastPos = lastTargetItem.getFeatures().getFloat("pos");
+            float nextF0 = nextTargetItem.getFeatures().getFloat("f0");
+            float nextPos = nextTargetItem.getFeatures().getFloat("pos");
+            assert lastPos <= mid && mid <= nextPos;
+            //build a linear function (f(x) = slope*x+intersectionYAxis)
+            float slope = (nextF0 - lastF0) / (nextPos - lastPos);
+            float intersectionYAxis = lastF0 - slope*lastPos;
+            //calculate the pitch
+            float pitch = slope*mid+intersectionYAxis;
+            assert lastF0 <= pitch && pitch <= nextF0 || nextF0 <= pitch && pitch <= lastF0;
+
+            if (Float.isNaN(pitch)){
+                pitch = (float) 0.0;
             }
-        
+            return Float.toString(pitch);
+        }
     }
 }
