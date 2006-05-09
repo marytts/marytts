@@ -61,7 +61,8 @@ import de.dfki.lt.mary.unitselection.viterbi.ViterbiCandidate;
 	}
 	
 	/**
-	 * Get the candidate of this path
+	 * Get the candidate of this path.
+     * Each path leads to exactly one candidate.
 	 * @return the candidate
 	 */
 	public ViterbiCandidate getCandidate(){
@@ -69,7 +70,8 @@ import de.dfki.lt.mary.unitselection.viterbi.ViterbiCandidate;
 	}
 	
 	/**
-	 * Set the candidate of this path
+	 * Set the candidate of this path.
+     * Each path leads to exactly one candidate.
 	 * @param candidate the new candidate
 	 */
 	public void setCandidate(ViterbiCandidate candidate){
@@ -159,7 +161,7 @@ import de.dfki.lt.mary.unitselection.viterbi.ViterbiCandidate;
 	 * @return the string form of this object
 	 */
 	public String toString() {
-	    return "ViterbiPath score " + score + " state " + candidate.getPos();
+	    return "ViterbiPath score " + score + " leads to candidate unit " + candidate.getUnit();
 	}
  }
    

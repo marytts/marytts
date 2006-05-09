@@ -41,7 +41,7 @@ import de.dfki.lt.mary.unitselection.TargetCostFunction;
   */
 public class ViterbiCandidate {
 	private Unit unit;
-	private int pos = 0;
+    private ViterbiPath bestPath = null;
 	private Target target = null;
 	private ViterbiCandidate next = null;
 	private int targetCost = -1;
@@ -100,19 +100,21 @@ public class ViterbiCandidate {
 	}
 	
 	/**
-	 * Sets the pos of this candidate
-	 * @param pos the new pos
+	 * Sets the currently best path leading to this candidate.
+     * Each path leads to exactly one candidate; in the candidate,
+     * we only remember the best path leading to it.
+	 * @param bestPath
 	 */
-	public void setPos(int pos){
-	    this.pos = pos;
+	public void setBestPath(ViterbiPath bestPath){
+	    this.bestPath = bestPath;
 	}
 	
 	/**
-	 * Gets the pos of this candidate
-	 * @return the pos
+	 * Gets the best path leading to this candidate
+	 * @return the best path, or null
 	 */
-	public int getPos(){
-	    return pos;
+	public ViterbiPath getBestPath(){
+	    return bestPath;
 	}
 	
 	/**
@@ -130,7 +132,7 @@ public class ViterbiCandidate {
 	 * @return the string form of this object
 	 */
 	public String toString() {
-	    return "ViterbiCandidate: target "+ target + ", unit " + unit + ", Pos " + pos;
+	    return "ViterbiCandidate: target "+ target + ", unit " + unit + (bestPath != null ? ", best path score "+bestPath.getScore() : ", no best path");
 	}
  }
  
