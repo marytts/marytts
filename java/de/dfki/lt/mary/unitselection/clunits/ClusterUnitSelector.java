@@ -34,7 +34,9 @@ package de.dfki.lt.mary.unitselection.clunits;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Level;
 
@@ -215,12 +217,15 @@ public class ClusterUnitSelector extends UnitSelector
     }
     
     /**
-     * Get the candidates for a given target
+     * Finds the best candidates for a given (segment) target.
+     * This traverses a CART tree for target cluster selection as described in 
+     * the paper introducing the clunits algorithm. This is a first pre-selection,
+     * linked to the "target costs" described for general unit selection.
      * 
      *@param target the target
      *@return the head of the candidate queue
      */
-    public ViterbiCandidate getCandidates(Target target){
+    public ViterbiCandidate[] getCandidates(Target target){
         //logger.debug("Looking for candidates in cart "+target.getName());
         //get the cart tree and extract the candidates
         CART cart = database.getTree(target.getName());
@@ -229,21 +234,18 @@ public class ClusterUnitSelector extends UnitSelector
     	// Now, clist is a List of instance numbers for the units of type
         // unitType that belong to the best cluster according to the CART.
         
-	    ViterbiCandidate candidate;
-	    ViterbiCandidate first;
-	
-	    first = null;
+	    ViterbiCandidate[] candidates = new ViterbiCandidate[clist.length+database.getExtendSelections()];
+        int extendSelections = database.getExtendSelections();
+        Set candidateUnits = null;
+        if (extendSelections > 0) candidateUnits = new HashSet(candidates.length);
 	    for (int i = 0; i < clist.length; i++) {
-	        candidate = new ViterbiCandidate();
-	        candidate.setNext(first); // link them reversely: the first in clist will be at the end of the queue
-	        candidate.setTarget(target); // The item is the same for all these candidates in the queue
+	        candidates[i] = new ViterbiCandidate();
+	        candidates[i].setTarget(target); // The item is the same for all these candidates in the queue
 	        // remember the actual unit:
-	        int unitIndex = (int) clist[i];
-	        
-	        //logger.debug("For candidate "+i+" setting unit "+database.getUnit(target.getName(), unitIndex));
-	        candidate.setUnit(database.getUnit(target.getName(), unitIndex));
-	        first = candidate;
-	        
+	        int unitIndex = clist[i];
+            Unit unit = database.getUnit(target.getName(), unitIndex);
+	        candidates[i].setUnit(unit);
+            if (candidateUnits != null) candidateUnits.add(unit);
 	    }
 	
         // Take into account candidates for previous item?
@@ -254,49 +256,43 @@ public class ClusterUnitSelector extends UnitSelector
         // are added. A high setting will add candidates which don't fit the
         // target well, but which can be smoothly concatenated with the context.
         // In a sense, this means trading target costs against join costs.
-	    if (database.getExtendSelections() > 0 &&
-	        target.getItem().getPrevious() != null) {
+        int index = clist.length;
+	    if (extendSelections > 0 && target.getItem().getPrevious() != null) {
             // Get the candidates for the preceding (segment) item
-	        ViterbiCandidate precedingCandidate = 
-		           (ViterbiCandidate) (target.getItem().getPrevious().getFeatures().getObject("clunit_cands"));
-	        for (int e = 0; precedingCandidate!= null && 
-		        (e < database.getExtendSelections());
-		         precedingCandidate = precedingCandidate.getNext()) {
-	            ClusterUnit nextClusterUnit = ((ClusterUnit)precedingCandidate.getUnit());
-		        if(nextClusterUnit == null){
-		            continue;}
+	        ViterbiCandidate[] precedingCandidates = 
+		           (ViterbiCandidate[]) (target.getItem().getPrevious().getFeatures().getObject("clunit_cands"));
+            String targetName = target.getName();
+	        for (int pi = 0, piLength = precedingCandidates.length, e = 0;
+                 pi < piLength && e < extendSelections;
+		         pi++) {
+                assert precedingCandidates[pi] != null;
+	            ClusterUnit nextClusterUnit = ((ClusterUnit)precedingCandidates[pi].getUnit());
+		        if (nextClusterUnit == null) continue;
 	            Unit nextUnit = nextClusterUnit.getNext();
-	            
-		        if (nextUnit == null) {
-                    continue;
-		        }
-		        // Look through the list of candidates for the current item:
-		        // if this loop is not aborted, gt=null at the end of the loop
-		        for (candidate = first; candidate != null; candidate = candidate.getNext()) {
-		            //if the candidates unit is the same as nextUnitIndex
-		            if (nextUnit.equals(candidate.getUnit())) {
-		                // The unit following one of the candidates for the preceding
-		                // item already is a candidate for the current item.
-		                break;
-		            }
-		        }
-
-		        if ((candidate == null)&&nextUnit.getName().equals(first.getUnit().getName())) {
-		           // nextUnitIndex is of the right unit type and is not yet one of the candidates.
-		           // add it to the queue of candidates for the current item:
-		            candidate = new ViterbiCandidate();
-		            candidate.setNext(first);
-		            candidate.setTarget(target);
-		            candidate.setUnit(nextUnit);
-		            first = candidate;
+		        if (nextUnit == null || !nextUnit.getName().equals(targetName)) continue;
+		        if (!candidateUnits.contains(nextUnit)) {
+		           // nextUnit is of the right unit type and is not yet one of the candidates.
+		           // add it to the candidates for the current item:
+		            candidates[index] = new ViterbiCandidate();
+		            candidates[index].setTarget(target);
+		            candidates[index].setUnit(nextUnit);
+                    candidateUnits.add(nextUnit);
 		            e++;
+                    index++;
 		       }
-	           
-	            }
+	        }
 	    }
-        // TODO: Find a better way to store the candidates for an item?
-	    target.getItem().getFeatures().setObject("clunit_cands", first);
-	    return first;
+        if (index < candidates.length) {
+            // could not find extendSelections units to add.
+            // Copy the array to avoid having null candidates:
+            ViterbiCandidate[] vcs = new ViterbiCandidate[index];
+            System.arraycopy(candidates, 0, vcs, 0, index);
+            candidates = vcs;
+        }
+        assert candidates[candidates.length-1] != null;
+        // TODO: Find a better way to store the candidates for an item? This is needed only for getting the preceding candidates in the extend-selections code above.
+	    target.getItem().getFeatures().setObject("clunit_cands", candidates);
+	    return candidates;
     }
     
 }

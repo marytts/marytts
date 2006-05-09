@@ -168,7 +168,7 @@ public  class Viterbi
         for (ViterbiPoint point = firstPoint; point.getNext() != null; point = point.getNext()) {
             // The candidates for the current item:
             // candidate selection is carried out by UnitSelector
-            point.setCandidates(getCandidates(point.getTarget()));
+            point.setCandidates(unitSelector.getCandidates(point.getTarget()));
             assert searchStrategy != 0; // general beam search not implemented
     
             // Now go through all existing paths and all candidates 
@@ -188,12 +188,13 @@ public  class Viterbi
                 assert pp != null;
                 // We are at the very beginning of the search, 
                 // or have a usable path to extend
-                for (ViterbiCandidate c = point.getCandidates(); 
-                    c != null; c = c.getNext()) {
+                ViterbiCandidate[] candidates = point.getCandidates();
+                assert candidates != null;
+                for (int c=0, cMax = candidates.length; c<cMax ; c++) {
                     // For the candidate c, create a path extending the 
                     // previous path pp to that candidate, taking into
                     // account the target and join costs:
-                    ViterbiPath np = getPath(pp, c);
+                    ViterbiPath np = getPath(pp, candidates[c]);
                     // Compare this path to the existing best path 
                     // (if any) leading to candidate c; only retain 
                     // the one with the better score.
@@ -268,17 +269,6 @@ public  class Viterbi
             }
         }
         return selectedUnits;
-    }
-    
-    /**
-     * Finds the best (queue of) candidate(s) for a given (segment) item.
-     * This traverses a CART tree for target cluster selection as described in 
-     * the paper introducing the clunits algorithm. This corresponds to the
-     * "target costs" described for general unit selection.
-     * @return the first candidate in the queue of candidate units for this item.
-     */
-    private ViterbiCandidate getCandidates(Target target) {
-	    return unitSelector.getCandidates(target);
     }
     
     /**

@@ -77,6 +77,6 @@ public abstract class UnitSelector
             ClusterUnitNamer unitNamer);
     
     
-	public abstract ViterbiCandidate getCandidates(Target target);
+	public abstract ViterbiCandidate[] getCandidates(Target target);
  
 }

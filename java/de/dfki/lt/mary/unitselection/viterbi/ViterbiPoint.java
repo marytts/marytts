@@ -44,7 +44,7 @@ import de.dfki.lt.mary.unitselection.Target;
   */
  public class ViterbiPoint {
      private Target target = null;
-     private ViterbiCandidate cands = null;
+     private ViterbiCandidate[] candidates = null;
      private SortedSet paths = new TreeSet(new Comparator() {
          public int compare(Object o1, Object o2)
          {
@@ -76,16 +76,17 @@ import de.dfki.lt.mary.unitselection.Target;
  	 * Gets the candidates of this point
  	 * @return the candidates
  	 */
-     public ViterbiCandidate getCandidates(){
- 	    return cands;
+     public ViterbiCandidate[] getCandidates()
+     {
+ 	    return candidates;
  	}
  	
      /**
       * Sets the candidates of this point
       * @param cands the candidates
       */
- 	public void setCandidates(ViterbiCandidate cands){
- 	    this.cands = cands;
+ 	public void setCandidates(ViterbiCandidate[] candidates){
+ 	    this.candidates = candidates;
  	}
     
 	 /**
