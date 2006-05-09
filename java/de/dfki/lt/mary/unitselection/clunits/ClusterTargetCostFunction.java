@@ -64,7 +64,7 @@ public class ClusterTargetCostFunction implements TargetCostFunction
      * @param unit
      * @return a non-negative number; smaller values mean better fit, i.e. smaller cost.
      */
-    public float cost(Target target, Unit unit)
+    public int cost(Target target, Unit unit)
     {
         //if you have no features, you can not calculate
         if (features == null){
@@ -79,8 +79,8 @@ public class ClusterTargetCostFunction implements TargetCostFunction
                 // else go through the features and compare
                 //logger.debug("Now calculating cost for "+unitType+" "
                 //        +unitInstance+" "+target.getIndex());               
-                float cost = 0;
-                float[] costEnum = new float[features.size()];
+                int cost = 0;
+                int[] costEnum = new int[features.size()];
                 for (int i = 0;i < features.size(); i++){
                     float weight = ((Float) weights.get(i)).floatValue();
                     if (weight != 0){
@@ -99,17 +99,17 @@ public class ClusterTargetCostFunction implements TargetCostFunction
                             //extract the weight and compare
                             //logger.debug("Comparing feature "+features.get(i)
                               //      +" with weight "+weights.get(i));
-                            float result = compare((String) types.get(i),targetValue, unitValue, weight);
+                            int result = compare((String) types.get(i),targetValue, unitValue, weight);
                             cost+= result;
-                            if (logger.getEffectiveLevel().equals(Level.DEBUG)){
-                                costEnum[i] = result;
-                            }
+                            //if (logger.getEffectiveLevel().equals(Level.DEBUG)){
+                            //    costEnum[i] = result;
+                            //}
                         } else {
                             cost += weight;
                         }                        
                     }
                 }
-                if (logger.getEffectiveLevel().equals(Level.DEBUG)){
+                /*if (logger.getEffectiveLevel().equals(Level.DEBUG)){
                     StringBuffer sb = new StringBuffer();
                     sb.append("Succesfully calculated cost: "+cost
                         +" for target "+target.getName()
@@ -121,7 +121,7 @@ public class ClusterTargetCostFunction implements TargetCostFunction
                         }
                     }
                     logger.debug(sb.toString());
-                }
+                }*/
                 return cost;
             }
         }
@@ -134,22 +134,23 @@ public class ClusterTargetCostFunction implements TargetCostFunction
      * @param weight the weight
      * @return the resulting cost
      */
-    private float compare(String valueType,
+    private int compare(String valueType,
             			String targetValue, 
             			String unitValue, 
             			float weight)
     {
         //if the value is a String, just check for String equality 
         if (valueType.equals("String") || valueType.equals("string")){
-           float result = 1;
+           int result = 1;
            if (targetValue.equals(unitValue)){
                 result = 0;
            }
-           return (weight*result);
+           return (int) weight*result;
         } else { //featureType is Float, take abs of the two values 
             float targetFloat = Float.parseFloat(targetValue);
             float unitFloat = Float.parseFloat(unitValue);
-            float result = Math.abs(targetFloat-unitFloat)*weight;
+            // rounding errors are negligible for costs usually above 100.000
+            int result = (int) (Math.abs(targetFloat-unitFloat)*weight);
             //logger.debug("Multiplying "+targetFloat+" minus "+unitFloat
             //      +" with "+weight+" equals "+result);
             return result;
