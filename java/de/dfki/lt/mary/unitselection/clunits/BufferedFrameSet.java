@@ -36,106 +36,121 @@ import java.nio.ByteBuffer;
 
 /**
  * 
- * Represents the frame and residual data
- * used by the diphone database
- * used Residual Excited Linear Predictive synthesizer
- * currently only reading .bin file from MappedByteBuffer
+ * Represents the frame and residual data used by the diphone database used
+ * Residual Excited Linear Predictive synthesizer currently only reading .bin
+ * file from MappedByteBuffer
  * 
  * @author Anna Hunecke, DFKI Saarbruecken
  * 
  */
-public class BufferedFrameSet extends FrameSet{
-	
-    
+public class BufferedFrameSet extends FrameSet
+{
+
     private int framesStart;
+
     private int framePlusResidualSize;
+
     private int frameSize;
+
     private ByteBuffer bb;
+
     private int[] residualSizes;
-    
+
     /**
      * Creates a FrameSet by reading it from the given byte buffer
-     *
-     * @param bb source of the Unit data
      * 
-     * @throws IOException if an IO error occurs
+     * @param bb
+     *            source of the Unit data
+     * 
+     * @throws IOException
+     *             if an IO error occurs
      */
-    public BufferedFrameSet(ByteBuffer bb) throws IOException {
-    	super();
-    	
-    	this.bb = bb;
-    	
-    	frameSetInfo = new FrameSetInfo(bb);
-    	int numFrames = bb.getInt();
-    	
-    	frameSize = bb.getInt();
-    	int residualSizeInBB = bb.getInt();
-    	
-    	//frames = new Frame[numFrames];
-    	residualSizes = new int[numFrames];
-    	framesStart = bb.position();
-    	framePlusResidualSize = 8+frameSize*2+residualSizeInBB;
-    	int lastPosition = framesStart+4+frameSize*2;
-    	bb.position(lastPosition);
-    	for (int i=0;i<numFrames;i++){
-    		residualSizes[i]=bb.getInt();
-    		lastPosition += framePlusResidualSize;
-    		bb.position(lastPosition);
-    	}
-    	
-    	int newPosition = framesStart + (numFrames*framePlusResidualSize);
-    	bb.position(newPosition);
-    } 
-    
+    public BufferedFrameSet(ByteBuffer bb) throws IOException
+    {
+        super();
+
+        this.bb = bb;
+
+        frameSetInfo = new FrameSetInfo(bb);
+        int numFrames = bb.getInt();
+        frames = new Frame[numFrames];
+
+        frameSize = bb.getInt();
+        int residualSizeInBB = bb.getInt();
+
+        // frames = new Frame[numFrames];
+        residualSizes = new int[numFrames];
+        framesStart = bb.position();
+        framePlusResidualSize = 8 + frameSize * 2 + residualSizeInBB;
+        int lastPosition = framesStart + 4 + frameSize * 2;
+        bb.position(lastPosition);
+        for (int i = 0; i < numFrames; i++) {
+            residualSizes[i] = bb.getInt();
+            lastPosition += framePlusResidualSize;
+            bb.position(lastPosition);
+        }
+
+        int newPosition = framesStart + (numFrames * framePlusResidualSize);
+        bb.position(newPosition);
+    }
+
     /**
      * return the frame associated with the index
-     *
-     * @param index the index of the frame
-     *
+     * 
+     * @param index
+     *            the index of the frame
+     * 
      * @return the frame.
      */
-    public Frame getFrame(int index) {
-    	try{
-    	int start = framesStart + framePlusResidualSize*index+4;
-    	int startRes = start+frameSize*2+4;
-    	Frame sample = new Frame(bb, start,startRes,residualSizes[index],frameSize);
-    	return sample;
-    	}catch(Exception e){
-    		e.printStackTrace();
-    		throw new Error ("Error building sample "+index);}
+    public Frame getFrame(int index)
+    {
+        if (frames[index] == null) {
+            try {
+                int start = framesStart + framePlusResidualSize * index + 4;
+                int startRes = start + frameSize * 2 + 4;
+                frames[index] = new Frame(bb, start, startRes, residualSizes[index],
+                        frameSize);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new Error("Error building sample " + index);
+            }
+        }
+        return frames[index];
     }
 
     /**
-     * Returns the size of the unit represented
-     * by the given start and end points
-     *
-     * @param start the start of the unit
-     * @param end the end of the unit
-     *
+     * Returns the size of the unit represented by the given start and end
+     * points
+     * 
+     * @param start
+     *            the start of the unit
+     * @param end
+     *            the end of the unit
+     * 
      * @return the size of the unit
      */
-    public int getUnitSize(int start, int end) {
-    	
-    	int size = 0;
+    public int getUnitSize(int start, int end)
+    {
 
-    	for (int i = start; i < end; i++) {
-    	    size += residualSizes[i];
-    	}
-    	return size;
+        int size = 0;
+
+        for (int i = start; i < end; i++) {
+            size += residualSizes[i];
+        }
+        return size;
     }
-
 
     /**
      * Gets the size of the given frame
-     *
-     * @param frame the frame of interest
-     *
+     * 
+     * @param frame
+     *            the frame of interest
+     * 
      * @return the size of the frame
      */
-    public int getFrameSize(int frame) {
-	return  residualSizes[frame];
+    public int getFrameSize(int frame)
+    {
+        return residualSizes[frame];
     }
-    
-    
+
 }
-    

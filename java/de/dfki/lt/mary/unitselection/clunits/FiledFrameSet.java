@@ -101,18 +101,18 @@ public class FiledFrameSet extends FrameSet{
      * @return the frame.
      */
     public Frame getFrame(int index) {
-    	try{
-    		if (frames[index] ==null){
+        if (frames[index] == null) {
+            try {
     			int start = samplesStart + sampleSize*index+4;
     			int startRes = start+frameSize*2+4;
-    			Frame frame = 
+    			frames[index] =
     				new Frame(raf, start,startRes,residualSizes[index],frameSize);
-    			frames[index] = frame;
-    			return frame;}
-    		else{ return frames[index];}
-    	}catch(Exception e){
-    		e.printStackTrace();
-    		throw new Error ("Error building sample "+index);}
+            }catch(Exception e){
+                e.printStackTrace();
+                throw new Error ("Error building sample "+index);
+            }
+        }
+        return frames[index];
     }
 
   

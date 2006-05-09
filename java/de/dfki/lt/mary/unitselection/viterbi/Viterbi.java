@@ -33,6 +33,8 @@ package de.dfki.lt.mary.unitselection.viterbi;
 
 import java.util.*;
 
+import org.apache.log4j.Logger;
+
 import de.dfki.lt.mary.unitselection.*;
 
 
@@ -66,7 +68,7 @@ public  class Viterbi {
     
     //a general flag indicating which type of viterbi search
 	//to use (only -1 seems to be implemented);
-    protected int searchStrategy = -1;
+    protected int searchStrategy = 50;
     
     protected boolean bigIsGood = false;
     protected ViterbiPoint firstPoint = null;
@@ -76,6 +78,12 @@ public  class Viterbi {
     private UnitSelector unitSelector;
     protected TargetCostFunction targetCostFunction;
     protected JoinCostFunction joinCostFunction;
+    protected Logger logger;
+    // for debugging, try to get an idea of the average effect of join vs. target costs:
+    protected double cumulJoinCosts;
+    protected int nJoinCosts;
+    protected double cumulTargetCosts;
+    protected int nTargetCosts;
     
     /**
      * Creates a Viterbi class to process the given utterance.
@@ -90,6 +98,11 @@ public  class Viterbi {
 	    this.unitSelector = selector;
 	    this.targetCostFunction = tcf;
 	    this.joinCostFunction = jcf;
+        this.logger = Logger.getLogger("Viterbi");
+        this.cumulJoinCosts = 0;
+        this.nJoinCosts = 0;
+        this.cumulTargetCosts = 0;
+        this.nTargetCosts = 0;
         ViterbiPoint last = null;
         f = new LinkedHashMap();
         //for each segment, build a ViterbiPoint
@@ -198,7 +211,8 @@ public  class Viterbi {
                 System.err.println("Viterbi.decode: general beam search not implemented");
             }
         }
-	
+        logger.debug("Computed "+nTargetCosts+" target costs (avg. "+ (cumulTargetCosts/nTargetCosts)+")");
+        logger.debug("Computed "+nJoinCosts+" join costs (avg. "+ (cumulJoinCosts/nJoinCosts)+")");
     }
     
     
@@ -350,32 +364,34 @@ public  class Viterbi {
      */
     private ViterbiPath getPath(ViterbiPath path, 
 				ViterbiCandidate candidate) {
-        float cost;
+        int cost;
         ViterbiPath newPath = new ViterbiPath();
 
-        Target target = candidate.getTarget();
         Unit candidateUnit = candidate.getUnit();
         
         newPath.setCandidate(candidate);
         newPath.setPrevious(path);
-    
+        int joinCost;
+        int targetCost;
+        // Target costs:
+        targetCost = candidate.getTargetCost(targetCostFunction);
+        
         if (path == null || path.getCandidate() == null) {
-            cost = 0;
+            joinCost = 0;
         } else {
             // Join costs:
             Unit prevUnit = path.getCandidate().getUnit();
-            cost = joinCostFunction.cost(prevUnit, candidateUnit, newPath);
+            joinCost = joinCostFunction.cost(prevUnit, candidateUnit, newPath);
+            // TODO: clean this up
+            joinCost *= 5;  // magic number ("continuity weight") from flite
         }
-	
-        // cost *= clunitDB.getContinuityWeight();
-        // TODO: clean this up
-        cost *= 5;	// magic number ("continuity weight") from flite
+        cost = joinCost + targetCost;
+        cumulJoinCosts += joinCost;
+        nJoinCosts++;
+        cumulTargetCosts += targetCost;
+        nTargetCosts++;
+        //logger.debug(candidateUnit+": target cost "+targetCost+", join cost "+joinCost);
 
-        // Target costs:
-        //System.out.print("Before Target Cost: "+cost);
-        cost += candidate.getTargetCost(targetCostFunction);
-        //System.out.print(", then : "+cost+"\n");
-        //cost += targetCostFunction.cost(target, candidateUnit); 
         if (path == null) {
             newPath.setScore(cost);
         } else {

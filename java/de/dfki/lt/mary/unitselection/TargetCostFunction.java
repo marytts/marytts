@@ -47,7 +47,7 @@ public interface TargetCostFunction
      * @param unit
      * @return a non-negative number; smaller values mean better fit, i.e. smaller cost.
      */
-    public float cost(Target target, Unit unit);
+    public int cost(Target target, Unit unit);
     
     /**
      * Set the features of the cost function
