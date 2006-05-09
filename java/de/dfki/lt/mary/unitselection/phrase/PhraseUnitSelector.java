@@ -68,8 +68,9 @@ public class PhraseUnitSelector extends UnitSelector
         return null;}
     
     
-	public ViterbiCandidate getCandidates(Target target){
-	    return null;}
+	public ViterbiCandidate[] getCandidates(Target target){
+	    return null;
+    }
     
     
     protected List getTargetChain(List tokensAndBoundaries, UnitDatabase database)
