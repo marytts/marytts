@@ -64,13 +64,14 @@ import de.dfki.lt.mary.unitselection.*;
  * 
  * Move to the next unit and repeat the process.
  */
-public  class Viterbi {
-    
+public  class Viterbi
+{
     //a general flag indicating which type of viterbi search
-	//to use (only -1 seems to be implemented);
-    protected int searchStrategy = 50;
+	//to use:
+    //-1: unlimited search
+    // n>0: beam search, retain only the n best paths at each step.
+    protected int searchStrategy = 25;
     
-    protected boolean bigIsGood = false;
     protected ViterbiPoint firstPoint = null;
     protected ViterbiPoint lastPoint = null;
     protected LinkedHashMap f = null;
@@ -109,26 +110,19 @@ public  class Viterbi {
         for (Iterator it = targets.iterator(); it.hasNext(); ) {
             Target target = (Target) it.next();
             ViterbiPoint nextPoint = new ViterbiPoint(target);
-            //since searchStrategy=-1, this is never used:
-            if (searchStrategy > 0) {
-                nextPoint.initPathArray(searchStrategy);
-            }
             
             if (last != null) { // continue to build up the queue
                 last.setNext(nextPoint);
             } else { // firstPoint is the start of the queue
                 firstPoint = nextPoint;
+                // dummy start path:
+                firstPoint.getPaths().add(new ViterbiPath());
             }
             last = nextPoint;
         }
         lastPoint = last;
-        if (searchStrategy == 0) {    	
-            // its a  general beam search (not implemented)
-            firstPoint.setPaths(new ViterbiPath());
-    	}
-    	
-    	if (searchStrategy == -1) {	// dynamic number of states (# cands)
-    	    firstPoint.initPathArray(1);
+        if (searchStrategy == 0) {
+            throw new IllegalStateException("General beam search not implemented");
     	}
     }
    
@@ -175,59 +169,40 @@ public  class Viterbi {
             // The candidates for the current item:
             // candidate selection is carried out by UnitSelector
             point.setCandidates(getCandidates(point.getTarget()));
-            if (searchStrategy != 0) {
-                if (searchStrategy == -1) {
-                    // put as many (empty) path elements into point.next
-                    // as there are candidates in point
-                    // the paths are stored in global value statePaths
-                    // of the next point
-                    point.getNext().initDynamicPathArray(point.getCandidates());
+            assert searchStrategy != 0; // general beam search not implemented
+    
+            // Now go through all existing paths and all candidates 
+            // for the current item;
+            // tentatively extend each existing path to each of 
+            // the candidates, but only retain the best one
+            SortedSet paths = point.getPaths();
+            int nPaths = paths.size();
+            if (searchStrategy != -1 && searchStrategy < nPaths) {
+                // beam search, look only at the best n paths:
+                nPaths = searchStrategy;
+            }
+            // for searchStrategy == -1, no beam -- look at all candidates.
+            Iterator pathIt = paths.iterator();
+            for (int i = 0; i < nPaths; i++) {
+                ViterbiPath pp = (ViterbiPath) pathIt.next();
+                assert pp != null;
+                // We are at the very beginning of the search, 
+                // or have a usable path to extend
+                for (ViterbiCandidate c = point.getCandidates(); 
+                    c != null; c = c.getNext()) {
+                    // For the candidate c, create a path extending the 
+                    // previous path pp to that candidate, taking into
+                    // account the target and join costs:
+                    ViterbiPath np = getPath(pp, c);
+                    // Compare this path to the existing best path 
+                    // (if any) leading to candidate c; only retain 
+                    // the one with the better score.
+                    addPath(point.getNext(), np);
                 }
-		
-                // Now go through all existing paths and all candidates 
-                // for the current item;
-                // tentatively extend each existing path to each of 
-                // the candidates, but only retain the best one
-                ViterbiPath[] statePaths = point.getStatePaths();
-                for (int i = 0; i < statePaths.length; i++) {
-                    if ((point == firstPoint && i == 0) 
-                            || (statePaths[i] != null)) {
-                        // We are at the very beginning of the search, 
-                        // or have a usable path to extend
-                        for (ViterbiCandidate c = point.getCandidates(); 
-                        	c != null; c = c.getNext()) {
-                            // For the candidate c, create a path 
-                            // extending the previous path
-                            // p.statePaths[i] to that candidate: 
-                            ViterbiPath np = getPath(statePaths[i], c);
-                            // Compare this path to the existing best path 
-                            // (if any) leading to candidate c; only retain 
-                            // the one with the better score.
-                            addPaths(point.getNext(), np);
-                        }
-                    }
-                }
-            } else {
-                System.err.println("Viterbi.decode: general beam search not implemented");
             }
         }
         logger.debug("Computed "+nTargetCosts+" target costs (avg. "+ (cumulTargetCosts/nTargetCosts)+")");
         logger.debug("Computed "+nJoinCosts+" join costs (avg. "+ (cumulJoinCosts/nJoinCosts)+")");
-    }
-    
-    
-    /**
-     * Try to add paths to the given point.
-     *
-     * @param point the point to add the paths to
-     * @param paths the path
-     */
-    void addPaths(ViterbiPoint point, ViterbiPath path) {
-        ViterbiPath nextPath;
-        for (ViterbiPath p = path; p != null; p = nextPath) {
-            nextPath = p.getNext();
-            addPath(point, p);
-        }
     }
     
     /**
@@ -246,61 +221,20 @@ public  class Viterbi {
     void addPath(ViterbiPoint point, ViterbiPath newPath) {
         //get the position of newPath's candidate 
         //in path array statePath of point
-        int candidatePos = newPath.getCandidate().getPos();
-        ViterbiPath[] statePaths = point.getStatePaths();
-        if (statePaths[candidatePos] == null) {
+        ViterbiCandidate candidate = newPath.getCandidate();
+        assert candidate != null;
+        ViterbiPath bestPathSoFar = candidate.getBestPath();
+        SortedSet paths = point.getPaths();
+        if (bestPathSoFar == null) {
             // we don't have a path for the candidate yet, so this is best
-            statePaths[candidatePos] = newPath;
-        } else if (isBetterThan(newPath.getScore(),
-								statePaths[candidatePos].getScore())) {
-            		// newPath is a better path for the candidate 
-            		statePaths[candidatePos] = newPath;}
-    }
-    
-    /**
-     * See if a is better than b. Goodness is defined
-     * by 'bigIsGood'.
-     *
-     * @param a value to check
-     * @param b value to check.
-     *
-     * return true if a is better than b.
-     */
-    private boolean isBetterThan(float a, float b) {
-	if (bigIsGood) {
-	    return a > b;
-	} else {
-	    return a < b;
-	}
-    }
-    
-    /**
-     * Find the best path through the decoder, adding the feature
-     * name to the candidate.
-     *
-     * @param feature the feature to add
-     * @return true if a best path was found
-     */
-    public boolean  result(String feature) {
-        ViterbiPath path;
-	
-        if (firstPoint == null || firstPoint.getNext() == null) {
-            return true; // null case succeeds
+            paths.add(newPath);
+            candidate.setBestPath(newPath);
+        } else if (newPath.getScore() < bestPathSoFar.getScore()) {
+            // newPath is a better path for the candidate
+            paths.remove(bestPathSoFar);
+            paths.add(newPath);
+            candidate.setBestPath(newPath);
         }
-        path = findBestPath();
-	
-        if (path == null) {
-            //we did not find a path
-            return false;
-        }
-	
-        for (; path != null; path = path.getPrevious()) {
-            if (path.getCandidate() != null) {
-                path.getCandidate().getTarget().getItem().getFeatures().setObject(feature,
-							    path.getCandidate().getUnit());
-            }
-        }
-        return true;
     }
     
     /**
@@ -406,38 +340,15 @@ public  class Viterbi {
      *
      * @return the best path.
      */
-    private ViterbiPath findBestPath() {
-        
-        float best;
-        float worst;
-        ViterbiPath bestPath = null;
-	
-        if (bigIsGood) {
-            worst = Float.MIN_VALUE;
-        } else {
-            worst = Float.MAX_VALUE;
-        }
-	
-        best = worst;
-	
-        if (searchStrategy != 0) {
-            // All paths end in lastPoint, and take into account
-            // previous path segment's scores. Therefore, it is
-            // sufficient to find the best path from among the
-            // paths for lastPoint.
-            ViterbiPath[] statePaths = lastPoint.getStatePaths();
-            //System.out.println("StatePaths length: "+statePaths.length);
-            for (int i = 0; i < statePaths.length; i++) {
-                if (statePaths[i] != null && 
-                        (isBetterThan(statePaths[i].getScore(), best))) {
-                    //System.out.println("StatePaths["+i+"]: "+statePaths[i]+
-                      //      " score: "+statePaths[i].getScore());
-                    best = statePaths[i].getScore();
-                    bestPath = statePaths[i];
-                }
-            }
-        }
-        return bestPath;
+    private ViterbiPath findBestPath()
+    {
+        assert searchStrategy != 0;
+        // All paths end in lastPoint, and take into account
+        // previous path segment's scores. Therefore, it is
+        // sufficient to find the best path from among the
+        // paths for lastPoint.
+        SortedSet paths = lastPoint.getPaths();
+        return (ViterbiPath) paths.first();
     }
     
  

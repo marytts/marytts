@@ -31,6 +31,10 @@
  */
 package de.dfki.lt.mary.unitselection.viterbi;
 
+import java.util.Comparator;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
 import de.dfki.lt.mary.unitselection.Target;
  /**
   * Represents a point in the Viterbi path. A point corresponds to an item,
@@ -40,10 +44,16 @@ import de.dfki.lt.mary.unitselection.Target;
   */
  public class ViterbiPoint {
      private Target target = null;
-     private int numPaths = 0;
      private ViterbiCandidate cands = null;
-     private ViterbiPath paths = null;
-     private ViterbiPath[] statePaths = null;
+     private SortedSet paths = new TreeSet(new Comparator() {
+         public int compare(Object o1, Object o2)
+         {
+             ViterbiPath p1 = (ViterbiPath) o1;
+             ViterbiPath p2 = (ViterbiPath) o2;
+             // big is bad:
+             return Float.compare(p1.getScore(), p2.getScore());
+         }
+     });
      private ViterbiPoint next = null;
 	
      /**
@@ -78,37 +88,14 @@ import de.dfki.lt.mary.unitselection.Target;
  	    this.cands = cands;
  	}
     
- 	 /**
- 	 * Gets the paths of this point
- 	 * @return the paths
- 	 */
- 	public ViterbiPath getPaths(){
-	    return paths;
-	}
-	
- 	/**
- 	 * Sets the paths of this point
- 	 * @param paths the paths
- 	 */
-	public void setPaths(ViterbiPath paths){
-	    this.paths = paths;
-	}
-	
 	 /**
- 	 * Gets the array containting the paths of the candidates of this point
- 	 * @return the array
+ 	 * Gets the sorted set containting the paths of the candidates of this point,
+     * sorted by score. getPaths().first() will return the path with the lowest
+     * score, i.e. the best path.
+ 	 * @return a sorted set.
  	 */
-	public ViterbiPath[] getStatePaths(){
-	    return statePaths;
-	}
-	
-	/**
-	 * Sets the array with the paths of the candidates
-	 * of this point
-	 * @param statePaths the array
-	 */
-	public void setStatePaths(ViterbiPath[] statePaths){
-	    this.statePaths = statePaths;
+	public SortedSet getPaths(){
+	    return paths;
 	}
 	
 	/**
@@ -137,36 +124,10 @@ import de.dfki.lt.mary.unitselection.Target;
 	    this.target = target;
 	}
 	
-	/**
-	 * Initialize the path array to the given size.
-	 *
-	 * @param size the size of the path array
-	 */
-	public void initPathArray(int size) {
-	    statePaths = new ViterbiPath[size];
-	}
 	
-	/**
-	 * Initializes the dynamic path array. The path array will have
-	 * as many ViterbiPath members as there are candidates in the
-	 * queue starting with candidate.
-	 * Side effect on parameter: This will set the pos member of the
-	 * candidates in the queue starting with candidate to the position
-	 * in the queue.  
-	 *
-	 * @param candidate the first candidate of interest
-	 */
-	public void initDynamicPathArray(ViterbiCandidate candidate) {
-	    int i = 0;
-	    for (ViterbiCandidate cc = candidate; cc != null; 
-		 i++, cc = cc.getNext()) {
-	        cc.setPos(i);
-	    }
-	    initPathArray(i);
-	}
 	
 	public String toString() {
-	    return "ViterbiPoint: " + statePaths.length + " paths " + numPaths;
+	    return "ViterbiPoint: target " + target + "; " + paths.size() + " paths";
 		}
  }
  
