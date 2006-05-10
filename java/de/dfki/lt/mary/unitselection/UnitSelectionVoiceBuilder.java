@@ -38,8 +38,6 @@ import de.dfki.lt.mary.modules.synthesis.WaveformSynthesizer;
 
 import de.dfki.lt.mary.unitselection.clunits.ClusterUnitSelector;
 import de.dfki.lt.mary.unitselection.clunits.ClusterUnitConcatenator;
-import de.dfki.lt.mary.unitselection.clunits.PitchShiftingUnitConcatenator;
-import de.dfki.lt.mary.unitselection.clunits.TargetApproximatingClusterUnitConcatenator;
 import de.dfki.lt.mary.unitselection.featureprocessors.UnitSelectionFeatProcManager;
 import de.dfki.lt.mary.util.MaryUtils;
 
@@ -188,7 +186,7 @@ public class UnitSelectionVoiceBuilder{
 	        UnitConcatenator unitConcatenator = null;
 	        if (concatenatorClass.equals("de.dfki.lt.mary.unitselection.clunits.ClusterUnitConcatenator")){
 	            unitConcatenator = 
-	                new PitchShiftingUnitConcatenator(unitDatabase, dbAudioFormat);}
+	                new ClusterUnitConcatenator(unitDatabase, dbAudioFormat);}
     
 	        //standard values for some parameters
 	        String[] nameArray = new String[1];
