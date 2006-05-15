@@ -179,15 +179,21 @@ public class UnitSelectionVoiceBuilder{
 	                    2, // nr. of bytes per frame
 	                    samplingRate, // nr. of frames per second
 	                    true); // big-endian;
-	        
+	        //samplingRate -> bin, audioformat -> concatenator
 	        //build Concatenator
 	        String concatenatorClass = 
 	            MaryProperties.getFilename(header+".concatenatorClass");
+	        /**
 	        UnitConcatenator unitConcatenator = null;
 	        if (concatenatorClass.equals("de.dfki.lt.mary.unitselection.clunits.ClusterUnitConcatenator")){
 	            unitConcatenator = 
 	                new ClusterUnitConcatenator(unitDatabase, dbAudioFormat);}
-    
+	        **/
+	        Class unitConcatCl = Class.forName(concatenatorClass);
+            Constructor unitConcatConstr = unitConcatCl.getConstructor(new Class[] {UnitDatabase.class, AudioFormat.class});
+            // will throw a NoSuchMethodError if constructor does not exist
+            UnitConcatenator unitConcatenator = (UnitConcatenator) unitConcatConstr.newInstance(new Object[] {unitDatabase, dbAudioFormat});
+        
 	        //standard values for some parameters
 	        String[] nameArray = new String[1];
 	        nameArray[0] = voice;
