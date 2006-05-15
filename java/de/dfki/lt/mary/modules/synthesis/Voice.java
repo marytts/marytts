@@ -149,6 +149,7 @@ public class Voice
     private boolean useVoicePAInOutput;
     private Set missingDiphones;
     private int wantToBeDefault;
+    private PhonemeSet phonemeSet;
 
     
     public Voice(String path, String[] nameArray, Locale locale, 
@@ -193,6 +194,20 @@ public class Voice
             }
         }
         this.wantToBeDefault = MaryProperties.getInteger("voice."+getName()+".wants.to.be.default", 0);
+        String phonemesetFilename = MaryProperties.getFilename("voice."+getName()+".phonemeset");
+        if (phonemesetFilename == null) {
+            // No specific phoneme set for voice, use locale default
+            phonemesetFilename = MaryProperties.getFilename(MaryProperties.localePrefix(getLocale())+".phonemeset");
+        }
+        if (phonemesetFilename == null) {
+            phonemeSet = null;
+        } else {
+            try {
+                phonemeSet = PhonemeSet.getPhonemeSet(phonemesetFilename);
+            } catch (Exception e) {
+                phonemeSet = null;
+            }
+        }
     }
 
     /**
@@ -386,6 +401,28 @@ public class Voice
         return sampaBuf.toString();
     }
 
+    /**
+     * Get the SAMPA phoneme set associated with this voice.
+     * @return
+     */
+    public PhonemeSet getSampaPhonemeSet()
+    {
+        return phonemeSet;
+    }
+
+    /**
+     * If a phoneme set is available, return a Phoneme object
+     * for the given sampa symbol.
+     * @param sampaSymbol sampa symbol for one phoneme -- use voice2sampa() to
+     * create this from a voice phoneme symbol.
+     * @return a Phoneme object, or null.
+     */
+    public Phoneme getSampaPhoneme(String sampaSymbol)
+    {
+        if (phonemeSet == null) return null;
+        return phonemeSet.getPhoneme(sampaSymbol);
+    }
+    
 
     public String path() { return path; }
     public boolean hasName(String name) { return names.contains(name); }
@@ -596,6 +633,7 @@ public class Voice
         }
         return phonemes;
     }
+    
 
     /**
      * Synthesize a list of tokens and boundaries with the waveform synthesizer

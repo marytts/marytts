@@ -260,19 +260,19 @@ public class ClusterUnitConcatenator extends UnitConcatenator
         short[][] frameCoefficients;
         byte[] residuals;
 
-        UnitLPCData()
+        public UnitLPCData()
         {
         }
         /**
          * Set the array of to-be-realised pitchmarks for the realisation of the selected unit.
          * @param pitchmarks
          */
-        void setPitchmarks(int[] pitchmarks)
+        public void setPitchmarks(int[] pitchmarks)
         {
             this.pitchmarks = pitchmarks;
         }
         
-        int[] getPitchmarks()
+        public int[] getPitchmarks()
         {
             return pitchmarks;
         }
@@ -282,7 +282,7 @@ public class ClusterUnitConcatenator extends UnitConcatenator
          * @param periodIndex
          * @return the pitchmark position, in samples
          */
-        int getPitchmark(int periodIndex)
+        public int getPitchmark(int periodIndex)
         {
             return pitchmarks[periodIndex];
         }
@@ -292,7 +292,7 @@ public class ClusterUnitConcatenator extends UnitConcatenator
          * @param periodIndex
          * @return the period length, in samples
          */
-        int getPeriodLength(int periodIndex)
+        public int getPeriodLength(int periodIndex)
         {
             if (0 <= periodIndex && periodIndex < pitchmarks.length) {
                 if (periodIndex > 0) {
@@ -305,22 +305,22 @@ public class ClusterUnitConcatenator extends UnitConcatenator
             }
         }
 
-        void setFrameCoefficients(short[][] coefficients)
+        public void setFrameCoefficients(short[][] coefficients)
         {
             this.frameCoefficients = coefficients; 
         }
         
-        short[] getFrameCoefficients(int frameIndex)
+        public short[] getFrameCoefficients(int frameIndex)
         {
             return frameCoefficients[frameIndex];
         }
         
-        void setResiduals(byte[] residuals)
+        public void setResiduals(byte[] residuals)
         {
             this.residuals = residuals;
         }
         
-        byte[] getResiduals()
+        public byte[] getResiduals()
         {
             return residuals;
         }
