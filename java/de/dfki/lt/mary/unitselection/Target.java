@@ -28,16 +28,17 @@
  */
 package de.dfki.lt.mary.unitselection;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
-
-import java.util.*;
-
-import de.dfki.lt.mary.modules.synthesis.FreeTTSVoices;
-import de.dfki.lt.mary.modules.synthesis.Voice;
 
 import com.sun.speech.freetts.Item;
 
-import org.apache.log4j.Logger;
+import de.dfki.lt.mary.modules.synthesis.FreeTTSVoices;
+import de.dfki.lt.mary.modules.synthesis.Voice;
+import de.dfki.lt.mary.modules.phonemiser.Phoneme;
 
 /**
  * A representation of a target representing the ideal properties of
@@ -164,7 +165,16 @@ public class Target
         
     }
     
-   
+    public Phoneme getSampaPhoneme()
+    {
+        if (item != null) {
+            Voice v = FreeTTSVoices.getMaryVoice(item.getUtterance().getVoice());
+            return v.getSampaPhoneme(v.voice2sampa(item.toString()));
+        }
+        return null;
+    }
+    
+    
     public String toString()
     {
         return name +  " " + (item != null ? item.toString() : "");

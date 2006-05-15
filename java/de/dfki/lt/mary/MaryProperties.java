@@ -39,6 +39,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -48,6 +49,7 @@ import java.util.Vector;
 import javax.swing.JOptionPane;
 
 import de.dfki.lt.mary.util.InstallationUtils;
+import de.dfki.lt.mary.util.MaryUtils;
 
 /**
  * A static class reading once, at program start, properties
@@ -741,5 +743,20 @@ public class MaryProperties
 		}
 		return c;
 	}
+    
+    /**
+     * Provide the config file prefix used for different locales in the
+     * config files. Will return "german" for Locale.GERMAN, "english" for
+     * Locale.US and Locale.ENGLISH, and "tibetan" for Locale("tib").
+     * @param locale
+     * @return
+     */
+    public static String localePrefix(Locale locale)
+    {
+        if (locale.equals(Locale.GERMAN)) return "german";
+        if (MaryUtils.subsumes(Locale.ENGLISH, locale)) return "english";
+        if (locale.equals(new Locale("tib"))) return "tibetan";
+        return null;
+    }
 
 }
