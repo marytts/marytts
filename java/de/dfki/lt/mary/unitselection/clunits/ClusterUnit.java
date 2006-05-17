@@ -55,6 +55,7 @@ public class ClusterUnit extends Unit
     private MappedByteBuffer bb = null;
     private RandomAccessFile raf = null;
     private boolean canReadInVals = false;
+   
     
     protected int instanceNumber; // identifies the instances of a given type
     
@@ -147,6 +148,12 @@ public class ClusterUnit extends Unit
        this.end = end;
        this.prev = prev;
        this.next = next;
+    }
+    
+    public boolean isValid(){
+        int diff = end - start;
+        float samplingRate = database.getSamplingRate();
+        return (diff > 0.002*samplingRate && diff < samplingRate);        
     }
     
     /**
