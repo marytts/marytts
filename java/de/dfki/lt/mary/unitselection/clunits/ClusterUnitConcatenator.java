@@ -111,9 +111,14 @@ public class ClusterUnitConcatenator extends UnitConcatenator
     public ClusterUnitConcatenator(UnitDatabase database, AudioFormat audioformat){
         super();
         this.database = (ClusterUnitDatabase) database;
+        //int samplingRate = database.getSamplingRate();
         this.audioformat = audioformat;
     }
     
+    
+    public AudioFormat getAudioFormat(){
+        return audioformat;
+    }
     /**
      * Build the audio stream from the units
      * 

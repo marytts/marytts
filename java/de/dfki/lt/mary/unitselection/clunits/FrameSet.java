@@ -75,7 +75,8 @@ public class FrameSet {
     	  
     	    for (int i = 0; i < numSamples; i++) {
     	        try{
-    		    frames[i] = new Frame(reader, numChannels);
+    		    frames[i] = new Frame(reader, numChannels,i);
+    		    
     	        } catch (Exception e){
     	            e.printStackTrace();
     	            throw new Error("Error parsing frame "+i);
@@ -110,6 +111,7 @@ public class FrameSet {
 	}
 	os.writeInt(frameSize);
 	os.writeInt(residualSize);
+	
 	for (int i = 0; i < samplesLength; i++) {
 	    frames[i].dumpBinary(os, residualSize, frameSize);
 	}

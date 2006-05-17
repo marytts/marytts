@@ -125,7 +125,10 @@ public class FreeTTSPartOfSpeechTagger extends InternalModule
         	word != null; word = word.getNext()){
             String pos = null;
             if (posMap.containsKey(word.toString())){
-                pos = (String) posMap.get(word.toString());}
+                pos = (String) posMap.get(word.toString());
+                logger.debug("Assigning pos \""+pos+"\" to word \""
+                        +word.toString()+"\"");
+                }
             else {pos = "content";}
             word.getFeatures().setString("pos",pos);
             

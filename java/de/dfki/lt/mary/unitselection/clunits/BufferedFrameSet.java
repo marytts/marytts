@@ -73,11 +73,12 @@ public class BufferedFrameSet extends FrameSet
 
         frameSetInfo = new FrameSetInfo(bb);
         int numFrames = bb.getInt();
+        
         frames = new Frame[numFrames];
 
         frameSize = bb.getInt();
         int residualSizeInBB = bb.getInt();
-
+        
         // frames = new Frame[numFrames];
         residualSizes = new int[numFrames];
         framesStart = bb.position();
@@ -86,6 +87,7 @@ public class BufferedFrameSet extends FrameSet
         bb.position(lastPosition);
         for (int i = 0; i < numFrames; i++) {
             residualSizes[i] = bb.getInt();
+            //System.out.print(residualSizes[i]+" ");
             lastPosition += framePlusResidualSize;
             bb.position(lastPosition);
         }

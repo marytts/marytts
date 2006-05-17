@@ -33,10 +33,7 @@ package de.dfki.lt.mary.unitselection.clunits;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.log4j.Level;
 
@@ -149,19 +146,50 @@ public class ClusterUnitSelector extends UnitSelector
         if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
+            UnitOriginInfo lastOrigin = null;
+            Map unitsFromSameFile = new HashMap();
             for (int i=0; i<selectedUnits.size(); i++) {
                 SelectedUnit selUnit = 
                     (SelectedUnit)selectedUnits.get(i);
-                pw.println(selUnit.toString());
+                
                 UnitOriginInfo origin = 
                     ((ClusterUnit) selUnit.getUnit()).getOriginInfo();
                 if (origin != null){
-                    
-                    origin.printInfo(pw);
+                    if (lastOrigin != null){
+                        String originFile = origin.getFile();
+                         if (origin.getFile().equals(lastOrigin.getFile())
+                                && origin.getStart() == lastOrigin.getEnd()){
+                            if (unitsFromSameFile.containsKey(originFile)){
+                                ((List)unitsFromSameFile.get(originFile)).add(new Integer(i));
+                            } else {
+                                List successiveUnits = new ArrayList();
+                                successiveUnits.add(new Integer(i-1));
+                                successiveUnits.add(new Integer(i));
+                                unitsFromSameFile.put(originFile, successiveUnits);
+                            }
+                         }
+                    }
+                    lastOrigin = origin;
+                    pw.println("Unit "+i+": "+selUnit.toString()+"\n"
+                            +origin.toString());
                 } else {
-                    logger.debug("No origin info for selected unit ");
+                    pw.println("Unit "+i+": "+selUnit.toString()
+                            +"\nNo origin info for selected unit\n ");
                     }
             }
+            Set originFiles = unitsFromSameFile.keySet();
+            if (originFiles.size() > 0){
+                pw.println("Successive units:");
+            }
+            for (Iterator it = originFiles.iterator(); it.hasNext();){
+                String originFile = (String)it.next();
+                List successiveUnits = (List)unitsFromSameFile.get(originFile);
+                pw.print("\nUnits from file "+originFile+": ");
+                for (int i = 0; i < successiveUnits.size(); i++){
+                    pw.print((Integer)successiveUnits.get(i)+" ");
+                }
+                pw.println();
+            }                
             logger.debug("Selected units:\n"+sw.toString());
         }
         return selectedUnits;

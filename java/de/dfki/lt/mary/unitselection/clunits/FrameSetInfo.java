@@ -69,6 +69,7 @@ public class FrameSetInfo {
 	coeffRange = bb.getFloat();
 	postEmphasis = bb.getFloat();
 	residualFold = bb.getInt();
+	
     }
 
     /**
@@ -85,6 +86,7 @@ public class FrameSetInfo {
 	this.coeffMin = coeffMin;
 	this.coeffRange = coeffRange;
 	this.postEmphasis = postEmphasis;
+	
     }
     
     /**
@@ -151,6 +153,7 @@ public class FrameSetInfo {
      * @throws IOException if an error occurs
      */
     public void dumpBinary(DataOutputStream os) throws IOException {
+   
 	os.writeInt(numberOfChannels);
 	os.writeInt(sampleRate);
 	os.writeFloat(coeffMin);
