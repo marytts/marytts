@@ -183,6 +183,8 @@ public class ClusterUnitDatabase extends UnitDatabase
         int unitTypesLength = bb.getInt();
         unitTypesMap = new HashMap(unitTypesLength);
         ClusterUnitType unitType = null;
+        int numberInvalidUnits = 0;
+        int numberValidUnits = 0;
         for (int i = 0; i < unitTypesLength; i++) {
             unitType = new ClusterUnitType(bb, this);
             unitTypesMap.put(unitType.getName(), unitType);
@@ -192,12 +194,21 @@ public class ClusterUnitDatabase extends UnitDatabase
             int firstUnitIdx = unitType.getStart();
             int lastUnitIdx = firstUnitIdx + unitType.getCount();
             for (int unitIdx=firstUnitIdx; unitIdx<lastUnitIdx; unitIdx++) {
-                
-                units[unitIdx] = new ClusterUnit(bb, this, unitType.getName(),loadFeatures);
-                units[unitIdx].setInstanceNumber(unitIdx-firstUnitIdx);
+                ClusterUnit nextUnit = new ClusterUnit(bb, this, unitType.getName(),loadFeatures);
+                if (nextUnit.isValid()){
+                    nextUnit.setInstanceNumber(unitIdx-firstUnitIdx);
+                    units[unitIdx] = nextUnit;
+                    numberValidUnits++;
+                    //logger.debug("Unit "+nextUnit.toString()+" is valid");
+                } else {
+                    units[unitIdx] = null;
+                    numberInvalidUnits++;
+                    logger.debug("Unit "+nextUnit.toString()+" is not valid");
+                }
             }
         }
-        
+        logger.debug("Valid units: "+numberValidUnits+
+                "\nInvalid units: "+numberInvalidUnits);
         int numCarts = bb.getInt();
         cartMap = new HashMap();
         for (int i = 0; i < numCarts; i++) {
@@ -413,7 +424,7 @@ public class ClusterUnitDatabase extends UnitDatabase
     
     public int getSamplingRate()
     {
-        return audioFrames.getFrameSetInfo().getSampleRate();
+        return audioFrames.getSamplingRate();
     }
     
     /**

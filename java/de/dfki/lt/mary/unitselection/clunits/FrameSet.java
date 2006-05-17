@@ -140,7 +140,11 @@ public class FrameSet {
     	return frameSetInfo;
     }
 
-
+    public int getSamplingRate(){
+        return frameSetInfo.getSampleRate();
+    }
+    
+    
     /**
      * Returns the size of the unit represented
      * by the given start and end points
