@@ -131,7 +131,14 @@ public class FeatureReader
                                 new StringTokenizer(nextUnit," ");
                             int unitIndex = Integer.parseInt(tok.nextToken());
                             Unit unit;
+                            try{
                             unit = database.getUnit(typeStartIndex+unitIndex);
+                            }catch (ArrayIndexOutOfBoundsException e){
+                                System.out.println("Index out of bounds of unit "
+                                        +unitIndex+" of type "+unitType
+                                        +" with start index "+typeStartIndex);
+                                unit = null;
+                            }
                             //if the unit is in the database
                             if (unit!=null){
                                 //read in the values and store them in the unit

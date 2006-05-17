@@ -31,19 +31,38 @@
  */
 package de.dfki.lt.mary.unitselection.clunits;
 
-import java.io.PrintWriter;
+//import java.io.PrintWriter;
 
 /**
  * Represents debug information about the origin of a unit.
  */
 public class UnitOriginInfo {
-    String originFile;
-    float originStart;
-    float originEnd;
+    private String originFile;
+    private float originStart;
+    private float originEnd;
     
-    public void printInfo(PrintWriter pw){
-        pw.print("Unit origin: file "+originFile
+    public UnitOriginInfo(String originFile, float originStart,
+            float originEnd){
+        this.originFile = originFile;
+        this.originStart = originStart;
+        this.originEnd = originEnd;
+    }
+    
+    public String toString(){
+        return ("Unit origin: file "+originFile
                 +", start "+originStart+", end "
                 +originEnd+"\n");
+    }
+    
+    public String getFile(){
+        return originFile;
+    }
+    
+    public float getStart(){
+        return originStart;
+    }
+    
+    public float getEnd(){
+        return originEnd;
     }
 }

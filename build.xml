@@ -313,7 +313,7 @@ THIS SOFTWARE.
     		
     		      failonerror="true" 
     		      fork="true">
-       		    <jvmarg value="-Xmx300m"/>
+       		    <jvmarg value="-Xmx900m"/>
     		    <arg line="-src ${mary.base}/lib/voices/${clunit_voice}"/>
     	            <arg line="-dest ${mary.base}/lib/voices/${clunit_voice}"/>
     	            <arg line="-generate_binary ${clunit_voice}.txt ${feature_def} ${value_dir}"/>

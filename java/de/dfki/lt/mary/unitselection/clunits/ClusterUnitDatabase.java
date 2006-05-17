@@ -42,6 +42,7 @@ import org.apache.log4j.Level;
 import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.mary.unitselection.cart.CART;
 
+import com.sun.rsasign.b;
 import com.sun.speech.freetts.util.Utilities;
 
 import de.dfki.lt.mary.unitselection.*;
@@ -67,10 +68,14 @@ public class ClusterUnitDatabase extends UnitDatabase
     private Map cartMap = new HashMap();
     private CART defaultCart = null;
     
+    private float[] unitsPosition;
     private ClusterUnit[] units;
     private Map unitTypesMap; // Map unit names to unit type objects  
     
     private List featsNWeights = null;
+    
+    private MappedByteBuffer bb = null;
+    private RandomAccessFile raf = null;
     
     //needed for converting from .txt to .bin
     private final static int MAGIC = 0xf0cacc1a;
@@ -151,24 +156,29 @@ public class ClusterUnitDatabase extends UnitDatabase
                 loadFeatures = true;
             }
         }
-        unitSize = bb.getInt();
+        
         continuityWeight = bb.getInt();
         optimalCoupling = bb.getInt();
         extendSelections = bb.getInt();
+        //System.out.println(continuityWeight+" "+optimalCoupling+" "
+        //        +extendSelections);
+        //System.out.println("Building Audio Frames");
+        audioFrames = new BufferedFrameSet(bb);
+        //System.out.println("Building join cost Feature Vectors");
+        joinCostFeatureVectors = new BufferedFrameSet(bb);
         joinMethod = bb.getInt();
         joinWeightShift = bb.getInt();
-
         int weightLength = bb.getInt();
+        //System.out.println(joinMethod+" "+joinWeightShift+" "+weightLength);
         joinWeights = new int[weightLength];
         for (int i = 0; i < joinWeights.length; i++) {
             joinWeights[i] = bb.getInt();
+            //System.out.print(joinWeights[i]+" ");
         }
-
-        audioFrames = new BufferedFrameSet(bb);
-        joinCostFeatureVectors = new BufferedFrameSet(bb);
-        
+        unitSize = bb.getInt();
         int unitsLength = bb.getInt();
         units = new ClusterUnit[unitsLength];
+        unitsPosition = new float[unitsLength];
         
         int unitTypesLength = bb.getInt();
         unitTypesMap = new HashMap(unitTypesLength);
@@ -182,6 +192,7 @@ public class ClusterUnitDatabase extends UnitDatabase
             int firstUnitIdx = unitType.getStart();
             int lastUnitIdx = firstUnitIdx + unitType.getCount();
             for (int unitIdx=firstUnitIdx; unitIdx<lastUnitIdx; unitIdx++) {
+                
                 units[unitIdx] = new ClusterUnit(bb, this, unitType.getName(),loadFeatures);
                 units[unitIdx].setInstanceNumber(unitIdx-firstUnitIdx);
             }
@@ -211,6 +222,7 @@ public class ClusterUnitDatabase extends UnitDatabase
                 featsNWeights.add(new String(charBufferFeat, 0, featsize));
             }
         }
+        this.bb = bb;
         
     }
     
@@ -233,10 +245,14 @@ public class ClusterUnitDatabase extends UnitDatabase
                 loadFeatures = true;
             }
         }
-        unitSize = raf.readInt();
+        
         continuityWeight = raf.readInt();
         optimalCoupling = raf.readInt();
         extendSelections = raf.readInt();
+
+        audioFrames = new FiledFrameSet(raf);
+        joinCostFeatureVectors = new FiledFrameSet(raf);
+        
         joinMethod = raf.readInt();
         joinWeightShift = raf.readInt();
 
@@ -245,10 +261,7 @@ public class ClusterUnitDatabase extends UnitDatabase
         for (int i = 0; i < joinWeights.length; i++) {
             joinWeights[i] = raf.readInt();
         }
-
-        audioFrames = new FiledFrameSet(raf);
-        joinCostFeatureVectors = new FiledFrameSet(raf);
-        
+        unitSize = raf.readInt();
         int unitsLength = raf.readInt();
         units = new ClusterUnit[unitsLength];
         
@@ -296,6 +309,7 @@ public class ClusterUnitDatabase extends UnitDatabase
                 featsNWeights.add(new String(charBufferFeat, 0, featsize));
             }
         }
+        this.raf = raf;
         
     }
     
@@ -325,12 +339,14 @@ public class ClusterUnitDatabase extends UnitDatabase
 				String name = tokens[0];
 				int index = getUnitIndexName(name);
 				try {
-					UnitOriginInfo unitOrigin = new UnitOriginInfo();
-					unitOrigin.originFile = tokens[1];
-					unitOrigin.originStart = Float.valueOf(tokens[2])
+					String originFile = tokens[1];
+					float originStart = Float.valueOf(tokens[2])
 							.floatValue();
-					unitOrigin.originEnd = Float.valueOf(tokens[4])
+					float originEnd = Float.valueOf(tokens[4])
 							.floatValue();
+					UnitOriginInfo unitOrigin = 
+					    new UnitOriginInfo(originFile,originStart,
+					            originEnd);
 					((ClusterUnit)getUnit(index)).setOriginInfo(unitOrigin);
 				} catch (NumberFormatException nfe) {
 				}
@@ -497,8 +513,10 @@ public class ClusterUnitDatabase extends UnitDatabase
      * voice data into Mary binary format
      * @param is the input stream
      */
-    private void loadText(String file) {
+    private void loadTextAndDump(String file, String desFile) {
         try {
+            //Open source file
+            System.out.println("Opening source file ...");
             if (file == null) {
                 throw new Error("Can't load cluster db file.");
             }
@@ -508,17 +526,43 @@ public class ClusterUnitDatabase extends UnitDatabase
             BufferedReader reader =
                 new BufferedReader(new 
                         InputStreamReader(fis));
+            //Open destination file
+            System.out.println("Opening destination file ...");
+            FileOutputStream fos = new FileOutputStream(desFile);
+            DataOutputStream os = new DataOutputStream(new
+                BufferedOutputStream(fos));
+            System.out.println("Dumping header ...");
+            os.writeInt(MAGIC);
+            if (loadFeatures){
+                os.writeInt(VERSIONWITHFEATURES);
+            } else {
+                os.writeInt(VERSION);
+            }
+            
+            
+            //start to read the source file
+            System.out.println("Reading source file ...");
             List unitList = new ArrayList();
             List unitTypes = new ArrayList();
             String line = reader.readLine();
             while (line != null) {
+                if (line.startsWith("STS STS")){
+                    //by the time we reach this line, we have
+                    //definitely read the 3 ints in the top section
+                    //of the FreeTTS file and can dump then before
+                    //dumping the audio data
+                    os.writeInt(continuityWeight);
+                    os.writeInt(optimalCoupling);
+                    os.writeInt(extendSelections);
+                    System.out.println("Processing audio data ...");
+                } 
                 if (!line.startsWith("***")) {
-                    parseAndAdd(line, reader,unitList, unitTypes);
+                    parseAndAdd(line, reader,unitList, unitTypes, os);
                 }
                 line = reader.readLine();
             }
             reader.close();
-
+            System.out.println("Done reading source file");
             units = new ClusterUnit[unitList.size()];
             units = (ClusterUnit[]) unitList.toArray(units);
             
@@ -530,6 +574,7 @@ public class ClusterUnitDatabase extends UnitDatabase
                 unitSize = HALFPHONE;
             }
             unitTypes = null;
+            dumpBinary(os);
         } catch (IOException e) {
             throw new Error(e.getMessage());
         } 
@@ -546,7 +591,8 @@ public class ClusterUnitDatabase extends UnitDatabase
     private void parseAndAdd(String line, 
                             BufferedReader reader, 
                             List units,
-                            List unitTypes)
+                            List unitTypes,
+                            DataOutputStream os)
     throws IOException {
     try {
         StringTokenizer tokenizer = new StringTokenizer(line," ");
@@ -572,8 +618,16 @@ public class ClusterUnitDatabase extends UnitDatabase
         String name = tokenizer.nextToken();
         if (name.equals("STS")) {
             audioFrames = new FrameSet(tokenizer, reader);
+            System.out.println("Dumping STS");
+            audioFrames.dumpBinary(os);
+            
+            audioFrames = null;
         } else {
             joinCostFeatureVectors = new FrameSet(tokenizer, reader);
+            System.out.println("Dumping MCEP");
+            joinCostFeatureVectors.dumpBinary(os);
+
+            joinCostFeatureVectors = null;
         }
         } else if (tag.equals("UNITS")) {
         int type = Integer.parseInt(tokenizer.nextToken());
@@ -668,36 +722,20 @@ public class ClusterUnitDatabase extends UnitDatabase
      *
      * @param path the path to dump the file to
      */
-    private void dumpBinary(String path) {
+    private void dumpBinary(DataOutputStream os) {
     try {
-        FileOutputStream fos = new FileOutputStream(path);
-        DataOutputStream os = new DataOutputStream(new
-            BufferedOutputStream(fos));
-
-        os.writeInt(MAGIC);
-        if (loadFeatures){
-            os.writeInt(VERSIONWITHFEATURES);
-        } else {
-            os.writeInt(VERSION);
-        }
-        os.writeInt(unitSize);
-        os.writeInt(continuityWeight);
-        os.writeInt(optimalCoupling);
-        os.writeInt(extendSelections);
+        System.out.println("Dumping unit data ...");
         os.writeInt(joinMethod);
         os.writeInt(joinWeightShift);
         os.writeInt(joinWeights.length);
         for (int i = 0; i < joinWeights.length; i++) {
-        os.writeInt(joinWeights[i]);
+            os.writeInt(joinWeights[i]);
         }
-
-        audioFrames.dumpBinary(os);
-        joinCostFeatureVectors.dumpBinary(os);
-        
-        //load features only after dumping frames to save memory
+        os.writeInt(unitSize);
+        //load features if specified
         if (loadFeatures){
             loadFeatures(featDef,valDir);
-            System.out.println("Continue dumping .bin file...");
+            System.out.println("Continue dumping unit data ...");
         }
         
         os.writeInt(units.length);
@@ -809,9 +847,8 @@ public class ClusterUnitDatabase extends UnitDatabase
                                 if (suffixPos != -1) {
                                     binaryName = name.substring(0, suffixPos) + ".bin";
                                 }
-                                System.out.println("Loading " + name+"...");
                                 ClusterUnitDatabase db = new ClusterUnitDatabase();
-                                db.loadText(srcPath + "/" + name);
+                                
                                 if (i+2<args.length){
                                     String featureDefFile = args[++i];
                                     String valueDir = args[++i];
@@ -826,8 +863,8 @@ public class ClusterUnitDatabase extends UnitDatabase
                                         loadFeatures = true;
                                     }
                                 }
-                                System.out.println("Dumping " + binaryName+"...");
-                                db.dumpBinary(destPath + "/" + binaryName);
+                               
+                                db.loadTextAndDump(srcPath + "/" + name, destPath + "/" + binaryName);
                                 System.out.println("Successfully dumped "+binaryName);
                             } else {
                                 System.out.println("Need a voice name");

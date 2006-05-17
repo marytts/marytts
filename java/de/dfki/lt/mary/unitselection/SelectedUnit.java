@@ -78,11 +78,6 @@ public class SelectedUnit
             return unitStart;
         } else {
             int start = unit.start;
-            // TODO: uncomment the following and remove resulting incompabilities
-            /**if (target.getUnitSize() == UnitDatabase.HALFPHONE &&
-                target.getName().endsWith("right")){
-                      start = start + ((((ClusterUnit)unit).end-start)/2);
-            } **/
             return start;
         }
     }
@@ -93,12 +88,6 @@ public class SelectedUnit
             return unitEnd;
         } else {
             int end = unit.end;
-            //TODO: uncomment the following and remove resulting incompabilities
-              /**if (target.getUnitSize() == UnitDatabase.HALFPHONE &&
-                target.getName().endsWith("left")){
-                      end = end - ((((ClusterUnit)unit).start-end)/2);
-              } **/
-            
             return end;
         }
     }

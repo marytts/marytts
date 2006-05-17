@@ -127,7 +127,7 @@ public class Frame
      * @param numChannels
      *            the number of channels per frame
      */
-    public Frame(BufferedReader reader, int numChannels)
+    public Frame(BufferedReader reader, int numChannels, int index)
     {
         try {
             // read the FRAME data
@@ -135,7 +135,8 @@ public class Frame
             StringTokenizer tok = new StringTokenizer(line);
             // first token has to be "FRAME"
             if (!tok.nextToken().equals("FRAME")) {
-                throw new Error("frame Parsing sample error");
+                throw new Error("frame Parsing sample error in line "+line
+                        +" of frame "+index);
             }
             // the other tokens are frame data
             frameData = new short[numChannels];
