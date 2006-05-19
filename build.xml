@@ -301,9 +301,9 @@ THIS SOFTWARE.
 	When called without, the voice will be synthesized with cluster
 	unit selection and without target costs:
 	ant clunit_voice_bin -Dclunit_voice=cmu_us_slt_arctic 
-	When called with the last to arguments, unit selection synthesis 
+	When called with the last two arguments, unit selection synthesis 
 	is used:
-	ant clunit_voice_bin -Dclunit_voice=cmu_us_slt_arctic -Dfeature_def=featsNWeights.txt -Dvalue_dir=feats
+	ant clunit_voice_bin -Dclunit_voice=cmu_us_slt_arctic -Dfeature_def=feats2Weights.txt -Dvalue_dir=feats
 -->
     <target name="clunit_voice_bin" 
             if="clunit_voice"
