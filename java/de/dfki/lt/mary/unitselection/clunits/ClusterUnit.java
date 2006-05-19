@@ -273,28 +273,9 @@ public class ClusterUnit extends Unit
         return instanceNumber;
     }
     
-    /**
-     * The number of frames that belong to this unit.
-     * @return the number of frames.
-     */
-    public int getNumberOfFrames()
-    {
-        return end-start;
-    }
-    
-    /**
-     * Return the audio frame with the given index number. 
-     * @param frameNumber index number of the required frame, ranging from 0 to
-     * getNumberOfFrames()-1.
-     * @return a Frame object representing an audio frame.
-     * @throws IllegalArgumentException if a unit out of range is requested.
-     */
-    public Frame getAudioFrame(int frameNumber)
-    {
-        if (frameNumber < 0 || frameNumber > end-start) throw new IllegalArgumentException("Unit has "+(end-start)+" frames, requested no. "+frameNumber);
-        return database.getAudioFrames().getFrame(start+frameNumber);
-    }
-    
+   
+
+
     /**
      * Return the join cost feature vector belonging to the given frame number. 
      * @param frameNumber index number of the required frame, ranging from 0 to

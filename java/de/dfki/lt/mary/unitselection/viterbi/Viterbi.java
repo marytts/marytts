@@ -261,10 +261,10 @@ public  class Viterbi
                 selectedUnits.addFirst(sel);
                                 
                 if (path.isPresent("unit_this_move")) {
-                    sel.setUnitStart(((Integer)path.getFeature("unit_this_move")).intValue());
+                    sel.setUnitStartShift(((Integer)path.getFeature("unit_this_move")).intValue());
                 }
                 if (path.getNext() != null && path.getNext().isPresent("unit_prev_move")) {
-                    sel.setUnitEnd(((Integer)path.getFeature("unit_prev_move")).intValue());
+                    sel.setUnitEndShift(((Integer)path.getNext().getFeature("unit_prev_move")).intValue());
                 }
             }
         }
@@ -327,6 +327,7 @@ public  class Viterbi
     
     /**
      * Find the best path. This requires apply() to have been run.
+     * For this best path, we set the pointers to the *next* path elements correctly.
      *
      * @return the best path.
      */
@@ -338,7 +339,15 @@ public  class Viterbi
         // sufficient to find the best path from among the
         // paths for lastPoint.
         SortedSet paths = lastPoint.getPaths();
-        return (ViterbiPath) paths.first();
+        ViterbiPath best = (ViterbiPath) paths.first();
+        // Set *next* pointers correctly:
+        ViterbiPath path = best;
+        while (path != null) {
+            ViterbiPath prev = path.getPrevious();
+            if (prev != null) prev.setNext(path);
+            path = prev;
+        }
+        return best;
     }
     
  

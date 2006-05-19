@@ -144,10 +144,8 @@ public class ClusterUnitConcatenator extends UnitConcatenator
     	    SelectedUnit unit = (SelectedUnit) it.next();
             UnitLPCData lpcData = new UnitLPCData();
             unit.setConcatenationData(lpcData);
-            int unitStart = unit.getUnitStart();
-            int unitEnd = unit.getUnitEnd();
-            assert unitEnd >= unitStart;
-            int pitchmarksInUnit = unitEnd - unitStart;
+            int pitchmarksInUnit = unit.getNumberOfFrames();
+            assert pitchmarksInUnit > 0;
             int nSamples = 0;
             // First of all: Set target pitchmarks,
             // either by copying from units (data-driven)
@@ -172,10 +170,11 @@ public class ClusterUnitConcatenator extends UnitConcatenator
                 pitchmarks = new int[pitchmarksInUnit];
                 lpcData.setPitchmarks(pitchmarks);
                 for (int i = 0; i < pitchmarks.length; i++) {
-                    nSamples += sts.getFrameSize(unitStart + i);
+                    nSamples += unit.getAudioFrameSize(i);
                     pitchmarks[i] = nSamples;
                 }
-                assert pitchmarks[pitchmarks.length-1] == unit.unitDurationInSamples(); 
+                // the following can be assumed only if there is no start or end shift:
+                // assert pitchmarks[pitchmarks.length-1] == unit.unitDurationInSamples(); 
             }
             int nPitchmarks = pitchmarks.length;
             short[][] frames = new short[nPitchmarks][];
@@ -183,12 +182,12 @@ public class ClusterUnitConcatenator extends UnitConcatenator
             byte[] residuals = new byte[nSamples];
             lpcData.setResiduals(residuals);
             int unitSize = unit.unitDurationInSamples();
-            float uIndex = 0;
-            float m = (float)unitSize/(float)(nSamples);
+            float m = (float)unitSize/(float)(nSamples); // if m==1, copy unit as it is; if != 1, skip or duplicate frames
             int targetResidualPosition = 0;
+            float uIndex = 0; // counter of imaginary sample position in the unit 
             // for each pitchmark, get frame coefficients and residual
             for (int i=0; i < nPitchmarks && pitchmarks[i] <= nSamples; i++) {
-                Frame nextFrame = sts.getNearestFrame(uIndex, unit.getUnit().getStart(), unit.getUnit().getEnd());
+                Frame nextFrame = unit.getNearestAudioFrame(uIndex);
                 frames[i] = nextFrame.getCoefficients();
                 // Get residual by copying, adapting residual length if necessary
                 byte[] residual = nextFrame.getResidualData();
