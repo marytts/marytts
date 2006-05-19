@@ -72,7 +72,7 @@ public class ClusterUnit extends Unit
             		   boolean readFeatures) throws IOException{
         super(database, name);
         this.type = bb.getInt();
-        this.phone = bb.getInt();
+        this.index = bb.getInt();
         this.start = bb.getInt();
         this.end = bb.getInt();
         /**
@@ -114,7 +114,7 @@ public class ClusterUnit extends Unit
             		   boolean readFeatures) throws IOException{
         super(database, name);
         this.type = raf.readInt();
-       this.phone = raf.readInt();
+       this.index = raf.readInt();
        this.start = raf.readInt();
        this.end = raf.readInt();
        this.prev = raf.readInt();
@@ -143,7 +143,7 @@ public class ClusterUnit extends Unit
             		   int end, int prev, int next){
         super(null, "");
         this.type = type;
-       this.phone = phone;
+       this.index = phone;
        this.start = start;
        this.end = end;
        this.prev = prev;
@@ -151,9 +151,14 @@ public class ClusterUnit extends Unit
     }
     
     public boolean isValid(){
-        int diff = end - start;
-        float samplingRate = database.getSamplingRate();
-        return (diff > 0.002*samplingRate && diff < samplingRate);        
+        int nPeriods = end - start;
+        // on average, a period is between 50 and 200 Hz, i.e. between
+        // 5 ms and 20 ms long.
+        // Treat units with one frame or less as too short, 
+        // and units with more than 50 frames (250 ms - 1 second) as too long
+        int lowerLimit = 1;
+        int upperLimit = 50;
+        return (nPeriods > lowerLimit && nPeriods < upperLimit);        
     }
     
     /**
@@ -165,7 +170,7 @@ public class ClusterUnit extends Unit
 	 */
 	public boolean dumpBinary(DataOutputStream os, boolean dumpFeatures) throws IOException {
 	    os.writeInt(type);
-	    os.writeInt(phone);
+	    os.writeInt(index);
 	    os.writeInt(start);
 	    os.writeInt(end);
 	    os.writeInt(prev);
@@ -299,7 +304,7 @@ public class ClusterUnit extends Unit
      */
     public Frame getJoinCostFeatureVector(int frameNumber)
     {
-        if (frameNumber < 0 || frameNumber > end-start) throw new IllegalArgumentException("Unit has "+(end-start)+" frames, requested no. "+frameNumber);
+        if (frameNumber < 0 || frameNumber > end-start) throw new IllegalArgumentException("Unit "+this.toString()+" has "+(end-start)+" frames, requested no. "+frameNumber);
         return database.getJoinCostFeatureVectors().getFrame(start+frameNumber);
     }
 
