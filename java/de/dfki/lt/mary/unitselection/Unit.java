@@ -28,6 +28,7 @@
  */
 package de.dfki.lt.mary.unitselection;
 
+import de.dfki.lt.mary.unitselection.clunits.ClusterUnitDatabase;
 import de.dfki.lt.mary.unitselection.clunits.Frame;
 import java.util.List;
 
@@ -124,6 +125,60 @@ public class Unit
     public int durationInSamples()
     {
         return -1;
+    }
+    
+    /**
+     * Get the unit that in the original recordings follows this one.
+     * @return the next unit, or null if this unit is final.
+     */
+    public Unit getNext()
+    {
+        return null;
+    }
+
+    /**
+     * Get the unit that in the original recordings precedes this one.
+     * @return the previous unit, or null if this unit is initial.
+     */
+    public Unit getPrevious()
+    {
+        return null;
+    }
+
+
+    /**
+     * The number of frames that belong to this unit.
+     * @return the number of frames.
+     */
+    public int getNumberOfFrames()
+    {
+        return end-start;
+    }
+
+    /**
+     * Return the audio frame with the given index number. 
+     * @param frameNumber index number of the required frame, ranging from 0 to
+     * getNumberOfFrames()-1.
+     * @return a Frame object representing an audio frame.
+     * @throws IllegalArgumentException if a unit out of range is requested.
+     */
+    public Frame getAudioFrame(int frameNumber)
+    {
+        if (frameNumber < 0 || frameNumber > end-start) throw new IllegalArgumentException("Unit has "+(end-start)+" frames, requested no. "+frameNumber);
+        return database.getAudioFrames().getFrame(start+frameNumber);
+    }
+ 
+    /**
+     * Return the size of the audio frame with the given index number. 
+     * @param frameNumber index number of the required frame, ranging from 0 to
+     * getNumberOfFrames()-1.
+     * @return an integer, giving the length of the audio frame in samples
+     * @throws IllegalArgumentException if a unit out of range is requested.
+     */
+    public int getAudioFrameSize(int frameNumber)
+    {
+        if (frameNumber < 0 || frameNumber > end-start) throw new IllegalArgumentException("Unit has "+(end-start)+" frames, requested no. "+frameNumber);
+        return database.getAudioFrames().getFrameSize(start+frameNumber);
     }
     
 }

@@ -71,13 +71,15 @@ public class ClusterJoinCostFunction implements JoinCostFunction
         if (unitDB.getOptimalCoupling() == 1) {
             //logger.debug("Optimal coupling 1");
     		Cost oCost = getOptimalCouple(u0, u1);
-    		if (oCost.u0Move != -1) {
+    		if (oCost.u0Move != 0) {
     		    newPath.setFeature("unit_prev_move", 
     				               new Integer(oCost.u0Move));
+                //logger.debug("unit "+u0+" shifted end by "+oCost.u0Move);
     		}
-    		if (oCost.u1Move != -1) { 
+    		if (oCost.u1Move != 0) { 
     		    newPath.setFeature("unit_this_move", 
     				               new Integer(oCost.u1Move));
+                //logger.debug("unit "+u1+" shifted start by "+oCost.u1Move);
     		}
     		cost = oCost.cost;
     	} else if (unitDB.getOptimalCoupling() == 2) {
@@ -125,6 +127,8 @@ public class ClusterJoinCostFunction implements JoinCostFunction
         // If u1 has a valid previous unit, try to find the optimal
         // couple point between u0 and that previous unit, u1_prev.
         
+        //logger.debug("Searching for optimal couple frame between "+u0+" and left neighbor of "+u1);
+        
         // Find out which of u1_prev and u0 is shorter.
         // In both units, we plan to start from one third of the unit length,
         // and to compare frame coupling frame by frame until the end of the
@@ -139,13 +143,13 @@ public class ClusterJoinCostFunction implements JoinCostFunction
             fcount = u0_length - u0_start;
             // We could now shift the starting point for coupling in the longer unit
             // so that the distance from the end is the same in both units:
-            u1_prev_start = u1_prev_length - fcount;
+            //u1_prev_start = u1_prev_length - fcount;
         } 
         else {
             fcount = u1_prev_length - u1_prev_start;
             // We could now shift the starting point for coupling in the longer unit
             // so that the distance from the end is the same in both units:
-            u0_start = u0_length - fcount;
+            // u0_start = u0_length - fcount;
         }
 	
         // Now go through the two units, and search for the frame pair where
@@ -162,8 +166,8 @@ public class ClusterJoinCostFunction implements JoinCostFunction
                     unitDB.getJoinWeights());
             int f0Dist = Math.abs( unitDB.getAudioFrames().getFrameSize(a) - 
 				            unitDB.getAudioFrames().getFrameSize(b)) * 
-				            100000;//unitDB.getContinuityWeight();
-            logger.debug("Frames "+a+" and "+b+": frameDist "+frameDist+", f0Dist "+f0Dist);
+				            5000;//unitDB.getContinuityWeight();
+            //logger.debug("Frames "+a+" and "+b+": frameDist "+frameDist+", f0Dist "+f0Dist);
             dist = frameDist + f0Dist;
             if (dist < best_val) {
                 best_val = dist;
@@ -173,10 +177,11 @@ public class ClusterJoinCostFunction implements JoinCostFunction
         }
         //logger.debug("Best frame distance: "+best_val+" between "+best_u0+" and "+best_u1_prev);
 	
-        // u0Move is the new end for u0
-        // u1Move is the new start for u1
-        cost.u0Move = u0.getStart() + best_u0;
-        cost.u1Move = u1_prev.getStart() + best_u1_prev;
+        // u0Move is the change end for u0
+        // u1Move is the change to the start for u1 -- as this is negative,
+        // it will mean looking into the frames for the previous unit of u1
+        cost.u0Move = -(u0_length - best_u0);
+        cost.u1Move = -(u1_prev_length - best_u1_prev);
         cost.cost = best_val;
         return cost;
     }

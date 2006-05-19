@@ -38,6 +38,6 @@ package de.dfki.lt.mary.unitselection.viterbi;
  */
 public class Cost {
     public int cost = 0;
-    public int u0Move = -1;
-    public int u1Move = -1;
+    public int u0Move = 0;
+    public int u1Move = 0;
 }

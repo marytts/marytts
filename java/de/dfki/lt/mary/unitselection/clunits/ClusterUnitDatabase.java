@@ -42,7 +42,6 @@ import org.apache.log4j.Level;
 import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.mary.unitselection.cart.CART;
 
-import com.sun.rsasign.b;
 import com.sun.speech.freetts.util.Utilities;
 
 import de.dfki.lt.mary.unitselection.*;
@@ -358,7 +357,8 @@ public class ClusterUnitDatabase extends UnitDatabase
 					UnitOriginInfo unitOrigin = 
 					    new UnitOriginInfo(originFile,originStart,
 					            originEnd);
-					((ClusterUnit)getUnit(index)).setOriginInfo(unitOrigin);
+                    ClusterUnit unit = (ClusterUnit)getUnit(index); 
+					if (unit != null) unit.setOriginInfo(unitOrigin);
 				} catch (NumberFormatException nfe) {
 				}
 			}

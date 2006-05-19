@@ -266,14 +266,18 @@ public class ClusterUnitSelector extends UnitSelector
         int extendSelections = database.getExtendSelections();
         Set candidateUnits = null;
         if (extendSelections > 0) candidateUnits = new HashSet(candidates.length);
+        int icand = 0; // index in candidates -- is separate because there may be null units
 	    for (int i = 0; i < clist.length; i++) {
 	        candidates[i] = new ViterbiCandidate();
 	        candidates[i].setTarget(target); // The item is the same for all these candidates in the queue
 	        // remember the actual unit:
 	        int unitIndex = clist[i];
             Unit unit = database.getUnit(target.getName(), unitIndex);
-	        candidates[i].setUnit(unit);
-            if (candidateUnits != null) candidateUnits.add(unit);
+            if (unit != null) {
+                candidates[icand].setUnit(unit);
+                if (candidateUnits != null) candidateUnits.add(unit);
+                icand++;
+            }
 	    }
 	
         // Take into account candidates for previous item?
@@ -284,7 +288,6 @@ public class ClusterUnitSelector extends UnitSelector
         // are added. A high setting will add candidates which don't fit the
         // target well, but which can be smoothly concatenated with the context.
         // In a sense, this means trading target costs against join costs.
-        int index = clist.length;
 	    if (extendSelections > 0 && target.getItem().getPrevious() != null) {
             // Get the candidates for the preceding (segment) item
 	        ViterbiCandidate[] precedingCandidates = 
@@ -301,20 +304,21 @@ public class ClusterUnitSelector extends UnitSelector
 		        if (!candidateUnits.contains(nextUnit)) {
 		           // nextUnit is of the right unit type and is not yet one of the candidates.
 		           // add it to the candidates for the current item:
-		            candidates[index] = new ViterbiCandidate();
-		            candidates[index].setTarget(target);
-		            candidates[index].setUnit(nextUnit);
+		            candidates[icand] = new ViterbiCandidate();
+		            candidates[icand].setTarget(target);
+		            candidates[icand].setUnit(nextUnit);
                     candidateUnits.add(nextUnit);
 		            e++;
-                    index++;
+                    icand++;
 		       }
 	        }
 	    }
-        if (index < candidates.length) {
+        if (icand < candidates.length) {
+            // found null units, or 
             // could not find extendSelections units to add.
             // Copy the array to avoid having null candidates:
-            ViterbiCandidate[] vcs = new ViterbiCandidate[index];
-            System.arraycopy(candidates, 0, vcs, 0, index);
+            ViterbiCandidate[] vcs = new ViterbiCandidate[icand];
+            System.arraycopy(candidates, 0, vcs, 0, icand);
             candidates = vcs;
         }
         assert candidates[candidates.length-1] != null;
