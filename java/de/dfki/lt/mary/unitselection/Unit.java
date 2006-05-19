@@ -46,7 +46,7 @@ public class Unit
     protected boolean haveValues = false;
 
     public int type;
-    public int phone;
+    public int index;
     protected int start;
     protected int end;
     protected int prev;
