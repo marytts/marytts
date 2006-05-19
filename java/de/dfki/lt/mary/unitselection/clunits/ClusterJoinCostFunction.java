@@ -115,9 +115,9 @@ public class ClusterJoinCostFunction implements JoinCostFunction
         }
 	
         // If u1 does not have a previous unit, or that previous
-        // unit does not belong to the same phone, the optimal
+        // unit does not belong to the same unit type, the optimal
         // couple frame must be found between u0 and u1.
-        if (u1_prev == null || u0.phone != u1_prev.phone ) {
+        if (u1_prev == null || u0.type != u1_prev.type ) {
             cost.cost = 10 * getOptimalCoupleFrame(u0, u1);
             return cost;
         }
@@ -157,13 +157,14 @@ public class ClusterJoinCostFunction implements JoinCostFunction
         for (i = 0; i < fcount; ++i) {
             a = u0_start + i;
             b = u1_prev_start + i;
-            dist = getFrameDistance(u0.getJoinCostFeatureVector(a),
+            int frameDist = getFrameDistance(u0.getJoinCostFeatureVector(a),
                     u1_prev.getJoinCostFeatureVector(b),
-                    unitDB.getJoinWeights())
-				    + Math.abs( unitDB.getAudioFrames().getFrameSize(a) - 
+                    unitDB.getJoinWeights());
+            int f0Dist = Math.abs( unitDB.getAudioFrames().getFrameSize(a) - 
 				            unitDB.getAudioFrames().getFrameSize(b)) * 
-				            unitDB.getContinuityWeight();
-            //logger.debug("Frames "+a+" and "+b+": dist "+dist);
+				            100000;//unitDB.getContinuityWeight();
+            logger.debug("Frames "+a+" and "+b+": frameDist "+frameDist+", f0Dist "+f0Dist);
+            dist = frameDist + f0Dist;
             if (dist < best_val) {
                 best_val = dist;
                 best_u0 = a;
