@@ -1,7 +1,10 @@
 import java.io.BufferedReader;
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -75,11 +78,11 @@ public class UnitDatabase {
     /**
      * Gets the LPC metadata
      */
-    static void getLPCParams() throws IOException {
+    static void getLPCParams(String workingDirectory) throws IOException {
         BufferedReader reader =
             new BufferedReader(
                 new InputStreamReader(
-                    new FileInputStream("lpc/lpc.params")));
+                    new FileInputStream(workingDirectory+"/lpc/lpc.params")));
         String line = reader.readLine();
         while (line != null) {
             if (line.startsWith("LPC_MIN=")) {
@@ -95,11 +98,11 @@ public class UnitDatabase {
     /**
      * Gets the MCEP metadata
      */
-    static void getMCEPParams() throws IOException {
+    static void getMCEPParams(String workingDirectory) throws IOException {
         BufferedReader reader =
             new BufferedReader(
                 new InputStreamReader(
-                    new FileInputStream("mcep/mcep.params")));
+                    new FileInputStream(workingDirectory+"/mcep/mcep.params")));
         String line = reader.readLine();
         while (line != null) {
             if (line.startsWith("MCEP_MIN=")) {
@@ -115,7 +118,7 @@ public class UnitDatabase {
     /**
      * Dumps the sts and mcep data.
      */
-    public void dumpVoiceData(PrintStream stsOut, PrintStream mcepOut)
+    public void dumpVoiceData(String workingDirectory, PrintStream stsOut, PrintStream mcepOut)
         throws IOException {
         System.out.println("   Dumping Voice Data ...");
         int sampleRate = 0;
@@ -132,13 +135,13 @@ public class UnitDatabase {
         while (keys.hasNext()) {
             
             String filename = (String) keys.next();
-            Track track = new Track("sts/" + filename + ".sts",
+            Track track = new Track(workingDirectory+"/sts/" + filename + ".sts",
                     Track.STS);
             sampleRate = track.sampleRate;
             numFrames += track.numFrames;
             if (i==0){
                 numLPCChannels = track.numChannels;
-                track = new Track("mcep/" + filename + ".mcep.txt",
+                track = new Track(workingDirectory+"/mcep/" + filename + ".mcep.txt",
                                       Track.MCEP,
                                       mcepMin,
                                       mcepRange);
@@ -167,12 +170,12 @@ public class UnitDatabase {
         while (keys.hasNext()) {
             String filename = (String) keys.next();
             
-            Track track = new Track("sts/" + filename + ".sts",
+            Track track = new Track(workingDirectory+"/sts/" + filename + ".sts",
                     Track.STS);
             track.startIndex = currentIndex;
             track.dumpData(stsOut);
             
-            track = new Track("mcep/" + filename + ".mcep.txt",
+            track = new Track(workingDirectory+"/mcep/" + filename + ".mcep.txt",
                     Track.MCEP,
                     mcepMin,
                     mcepRange);
@@ -187,12 +190,12 @@ public class UnitDatabase {
     /**
      * Dumps the unit index.
      */
-    public void dumpUnitIndex(PrintStream unitIndexOut,
+    public void dumpUnitIndex(String workingDirectory, PrintStream unitIndexOut,
                               PrintStream stsOut,
                               PrintStream mcepOut) throws IOException {
 
         System.out.println("  Dumping STS and MCEP tracks");        
-        dumpVoiceData(stsOut, mcepOut);
+        dumpVoiceData(workingDirectory, stsOut, mcepOut);
 
         System.out.println("  Dumping unit index");
         
@@ -225,7 +228,7 @@ public class UnitDatabase {
             for (int i = 0; i < units.size(); i++) {
                 Unit unit = (Unit) units.get(i);
                 
-                Track track = new Track("sts/" + unit.filename + ".sts",
+                Track track = new Track(workingDirectory+"/sts/" + unit.filename + ".sts",
                         Track.STS);
                 int startIndex = track.findTrackFrameIndex(unit.start);
                 int endIndex = track.findTrackFrameIndex(unit.end);
@@ -261,7 +264,8 @@ public class UnitDatabase {
         }       
     }
 
-    public void dumpUnitIndex(String unitIndexFilename,
+    public void dumpUnitIndex(String workingDirectory,
+                              String unitIndexFilename,
                               String stsFilename,
                               String mcepFilename) throws IOException {
         PrintStream unitIndexOut = new PrintStream(
@@ -276,7 +280,7 @@ public class UnitDatabase {
 	  new BufferedOutputStream(
             new FileOutputStream(mcepFilename)));
         
-        dumpUnitIndex(unitIndexOut, stsOut, mcepOut);
+        dumpUnitIndex(workingDirectory, unitIndexOut, stsOut, mcepOut);
         
         unitIndexOut.close();
         stsOut.close();
@@ -291,14 +295,23 @@ public class UnitDatabase {
      */
     static public void main(String[] args) {
         try {
-            System.out.println("Version 1.0");
-            System.out.println("Reading " + args[0]);
+            System.out.println("Version 1.1mary");
+            File workingDirectory;
+            if (args.length > 0) workingDirectory = new File(args[0]);
+            else workingDirectory = new File(".");
+            File catalogueDir = new File(workingDirectory.getPath() + "/festival/clunits");
+            File catalogueFile = catalogueDir.listFiles(new FilenameFilter() {
+                public boolean accept(File dir, String name) {
+                    return name.endsWith(".catalogue");
+                }
+            })[0];
+            System.out.println("Reading " + catalogueFile.getPath());
             UnitDatabase database = new UnitDatabase();
             
-            System.out.println("Creating FreeTTS/unit_catalog");
-            UnitCatalog unitCatalog = new UnitCatalog(args[0]);
+            System.out.println("Creating "+workingDirectory.getPath()+"/FreeTTS/unit_catalog");
+            UnitCatalog unitCatalog = new UnitCatalog(catalogueFile.getPath());
             database.setUnitCatalog(unitCatalog);
-            database.dumpUnitCatalog("FreeTTS/unit_catalog.txt");
+            database.dumpUnitCatalog(workingDirectory.getPath()+"/FreeTTS/unit_catalog.txt");
             
             
             /* Store the TrackFile in the sts and mcep HashMaps
@@ -306,14 +319,14 @@ public class UnitDatabase {
              */
             
             System.out.println(
-                "Creating FreeTTS/unit_index.txt, FreeTTS/sts.txt, and "
-                + "FreeTTS/mcep.txt");
+                "Creating "+workingDirectory.getPath()+"/FreeTTS/unit_index.txt, "+workingDirectory.getPath()+"/FreeTTS/sts.txt, and "
+                + workingDirectory.getPath()+"/FreeTTS/mcep.txt");
             
             
             
             //System.out.println("Reading and dumping STS");
-            getLPCParams();
-            getMCEPParams();
+            getLPCParams(workingDirectory.getPath());
+            getMCEPParams(workingDirectory.getPath());
             //HashMap sts = new HashMap();
             
             //for (int i = 1; i < args.length; i++) {
@@ -335,13 +348,15 @@ public class UnitDatabase {
             //database.setSTS(sts);
             
             Map filenames = new HashMap();
-            for (int i = 1; i < args.length; i++){
-                filenames.put(args[i],null);
+            BufferedReader filenameReader = new BufferedReader(new FileReader(workingDirectory.getPath()+"/FreeTTS/filenames.txt"));
+            String line = null;
+            while ((line = filenameReader.readLine()) != null) {
+                filenames.put(line.trim(),null);
             }
             database.setFilenames(filenames);
-            database.dumpUnitIndex("FreeTTS/unit_index.txt",
-                    "FreeTTS/sts.txt",
-                    "FreeTTS/mcep.txt");
+            database.dumpUnitIndex(workingDirectory.getPath(), workingDirectory.getPath()+"/FreeTTS/unit_index.txt",
+                    workingDirectory.getPath()+"/FreeTTS/sts.txt",
+                    workingDirectory.getPath()+"/FreeTTS/mcep.txt");
             
             
 
