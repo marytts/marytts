@@ -109,9 +109,10 @@ $FESTIVALDIR/bin/festival -b --heap 1500000 \
 
 # UnitDatabase outputs its own info...
  echo "Building Database..."
+ find wav -type f | cut -f2 -d/ | cut -f1 -d. > FreeTTS/filenames.txt
+ 
  java $JAVAHEAP -cp $HELPERDIR/classes UnitDatabase \
-    festival/clunits/${FV_VOICENAME}.catalogue \
-    `find wav -type f | cut -f2 -d/ | cut -f1 -d.`
+    .
 
 
 echo Creating FreeTTS/trees.txt

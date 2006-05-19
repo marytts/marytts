@@ -5,15 +5,17 @@ import java.io.PrintStream;
 import java.util.StringTokenizer;
 
 public class STSFrame extends Frame {
-    public int[] residuals;
+    String paramsLine;
+    String residualsLine;
 
     public STSFrame(int numChannels, BufferedReader reader)
         throws IOException {
         String line = reader.readLine();
         pitchmarkTime = Float.parseFloat(line);
 
-        parameters = new int[numChannels];
-        
+        // If we wanted to have an explicit representation of the data,
+        // we could use the following:
+        /*
         line = reader.readLine();
         StringTokenizer tokenizer = new StringTokenizer(line);
         for (int i = 0; i < numChannels; i++) {
@@ -26,21 +28,17 @@ public class STSFrame extends Frame {
         for (int i = 0; i < residuals.length; i++) {
             residuals[i] = Integer.parseInt(tokenizer.nextToken());
         }
+        */
+        // Instead, we just blindly copy the entire line:
+        paramsLine = reader.readLine();
+        residualsLine = reader.readLine();
     }
 
     /**
      * Dumps the ASCII form of this Frame.
      */
     public void dumpData(PrintStream out) {
-        out.print("FRAME");
-        for (int i = 0; i < parameters.length; i++) {
-            out.print(" " + parameters[i]);
-        }
-        out.println();
-        out.print("RESIDUAL " + residuals.length);
-        for (int i = 0; i < residuals.length; i++) {
-            out.print(" " + residuals[i]);
-        }
-        out.println();
+        out.println("FRAME "+paramsLine);
+        out.println("RESIDUAL " + residualsLine);
     }    
 }
