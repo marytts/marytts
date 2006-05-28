@@ -20,7 +20,9 @@ export ESTDIR=/project/cl/mary/Festival-1.4.3-suse/speech_tools
 export FESTIVALDIR=$ESTDIR/../festival
 export FESTVOXDIR=$ESTDIR/../festvox
 
-export HELPERDIR=~/mary/openmary/lib/ArcticToFreeTTS
+#export HELPERDIR=~/mary/openmary/lib/ArcticToFreeTTS
+export HELPERDIR=~/anna/openmary/lib/festvox
+
 
 export JAVAHEAP=-Xmx912m
 

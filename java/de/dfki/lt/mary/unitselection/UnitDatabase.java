@@ -105,6 +105,8 @@ public abstract class UnitDatabase
     
     public void overwriteWeights(String file){}
     
+    public void setOptimalCoupling(String method){}
+    
     /**
      * Determine the chain of candidate sets that could be used to realise the
      * given list of targets.

@@ -146,6 +146,13 @@ public class UnitSelectionVoiceBuilder{
 	            unitDatabase.overwriteWeights(targetCostWeights);
 	        }
 	        
+	        //overwrite optimal coupling method if defined
+	        String optimalCoupling = 
+	            MaryProperties.getFilename(header+".optimalCoupling");
+	        if (optimalCoupling != null){
+	            unitDatabase.setOptimalCoupling(optimalCoupling);
+	        }
+	        
 	        //build and load targetCostFunction
 	        String targetCostClass = 
 	            MaryProperties.getProperty(header+".targetCostClass");
