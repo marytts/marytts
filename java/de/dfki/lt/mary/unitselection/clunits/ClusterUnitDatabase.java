@@ -403,6 +403,13 @@ public class ClusterUnitDatabase extends UnitDatabase
         
     }
     
+    
+    public void setOptimalCoupling(String method){
+        optimalCoupling = Integer.parseInt(method);
+        logger.debug("Set optimal coupling to "+optimalCoupling);
+    }
+    
+    
     /**
 	 * Retrieves the index for the name given a name.
 	 * 

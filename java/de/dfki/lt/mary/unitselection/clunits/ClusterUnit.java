@@ -158,7 +158,7 @@ public class ClusterUnit extends Unit
         // and units with more than 50 frames (250 ms - 1 second) as too long
         int lowerLimit = 1;
         int upperLimit = 50;
-        return (nPeriods > lowerLimit && nPeriods < upperLimit);        
+        return (nPeriods > lowerLimit && nPeriods < upperLimit);    
     }
     
     /**

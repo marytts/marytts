@@ -213,7 +213,7 @@ public class UnitDatabase {
             
             for (int i = 0; i < units.size(); i++) {
                 Unit unit = (Unit) units.get(i);
-		unit.index = phoneNumber;
+                unit.index = phoneNumber;
                 phoneNumber++;
             }
 	}
