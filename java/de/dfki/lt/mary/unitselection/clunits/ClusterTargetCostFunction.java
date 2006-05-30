@@ -101,14 +101,15 @@ public class ClusterTargetCostFunction implements TargetCostFunction
                               //      +" with weight "+weights.get(i));
                             int result = compare((String) types.get(i),targetValue, unitValue, weight);
                             cost+= result;
-                            if (logger.getEffectiveLevel().equals(Level.DEBUG)){
-                                costEnum[i] = result;
-                            }
+                            //if (logger.getEffectiveLevel().equals(Level.DEBUG)){
+                             //   costEnum[i] = result;
+                            //}
                         } else {
                             cost += weight;
                         }                        
                     }
                 }
+                /**
                 if (logger.getEffectiveLevel().equals(Level.DEBUG)){
                     StringBuffer sb = new StringBuffer();
                     sb.append("Succesfully calculated cost: "+cost
@@ -122,6 +123,7 @@ public class ClusterTargetCostFunction implements TargetCostFunction
                     }
                     logger.debug(sb.toString());
                 }
+                **/
                 return cost;
             }
         }
