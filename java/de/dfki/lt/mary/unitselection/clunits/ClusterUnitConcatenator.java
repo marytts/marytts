@@ -308,6 +308,11 @@ public class ClusterUnitConcatenator extends UnitConcatenator
                 return 0;
             }
         }
+        
+        public int getNumberOfPitchmarks()
+        {
+            return pitchmarks.length;
+        }
 
         public void setFrameCoefficients(short[][] coefficients)
         {

@@ -37,6 +37,7 @@ import de.dfki.lt.mary.unitselection.JoinCostFunction;
 import de.dfki.lt.mary.unitselection.Unit;
 import de.dfki.lt.mary.unitselection.viterbi.Cost;
 import de.dfki.lt.mary.unitselection.viterbi.ViterbiPath;
+import de.dfki.lt.mary.util.MaryUtils;
 
 /**
  * A join cost function for evaluating the goodness-of-fit of 
@@ -136,8 +137,9 @@ public class ClusterJoinCostFunction implements JoinCostFunction
 	
         int u0_length = u0.getNumberOfFrames();
         int u1_prev_length = u1_prev.getNumberOfFrames();
-        int u0_start = u0_length / 3;
-        int u1_prev_start = u1_prev_length / 3;
+        double fractionLookback = 8./10;
+        int u0_start = (int) (u0_length * fractionLookback);
+        int u1_prev_start = (int) (u1_prev_length * fractionLookback);
 	
         if (u0_length < u1_prev_length) {
             fcount = u0_length - u0_start;
@@ -198,23 +200,34 @@ public class ClusterJoinCostFunction implements JoinCostFunction
      */
     int getOptimalCoupleFrame(ClusterUnit u0, ClusterUnit u1)
     {
-        int a;
-        int b;
+        Frame u0JoinCostFeatures;
     	if (u0.getNext() != null) {
-    	    a = u0.getNumberOfFrames();
+    	    u0JoinCostFeatures = u0.getNext().getJoinCostFeatureVector(0);
     	} else if (u0.getNumberOfFrames() > 0) {
-    	    a = u0.getNumberOfFrames()-1; 
+    	    u0JoinCostFeatures = u0.getJoinCostFeatureVector(u0.getNumberOfFrames()-1);
     	} else {
     	    // we have a zero-length unit -- this fits badly in any case
             return 65535; // very bad
         }
-    	b = 0;
-    	return getFrameDistance(u0.getJoinCostFeatureVector(a),
-                u1.getJoinCostFeatureVector(b), 
-    			unitDB.getJoinWeights())
-    	    + Math.abs( unitDB.getAudioFrames().getFrameSize(u0.getStart()+a) - 
-    			unitDB.getAudioFrames().getFrameSize(u1.getStart()+b)) * 
-    	    unitDB.getContinuityWeight();
+    	Frame u1JoinCostFeatures = u1.getJoinCostFeatureVector(0);
+        int frameDist = getFrameDistance(u0JoinCostFeatures, u1JoinCostFeatures,
+                unitDB.getJoinWeights());
+        // For f0 join costs, compute median f0 over several periods:
+        int nPeriods = 5;
+        int[] u0Periods = new int[Math.min(nPeriods, u0.getNumberOfFrames())];
+        int[] u1Periods = new int[Math.min(nPeriods, u1.getNumberOfFrames())];
+        int u0N = u0.getNumberOfFrames()-1;
+        for (int i=0; i<u0Periods.length; i++) {
+            u0Periods[i] = u0.getAudioFrameSize(u0N-i);
+        }
+        for (int i=0; i<u1Periods.length; i++) {
+            u1Periods[i] = u1.getAudioFrameSize(i);
+        }
+        int f0Dist = Math.abs( MaryUtils.median(u0Periods) - 
+                        MaryUtils.median(u1Periods)) * 
+                        1000;//unitDB.getContinuityWeight();
+        //logger.debug("Units "+u0+" and "+u1+": frameDist "+frameDist+", f0Dist "+f0Dist);
+        return frameDist + f0Dist;
     }
     
     /**
