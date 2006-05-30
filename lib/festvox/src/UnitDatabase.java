@@ -288,10 +288,7 @@ public class UnitDatabase {
     }
     
     /**
-     * Testing.  args[0] = *.catalog file
-     *           args[1..n] = * files (no path or suffix - the code
-     *                        will add sts/file.sts and
-     *                        mcep/file.mcep.txt                        
+     *   args[0] = the directory containing the festvox voice
      */
     static public void main(String[] args) {
         try {

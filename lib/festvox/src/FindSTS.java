@@ -10,6 +10,8 @@
  */
 import java.io.BufferedReader;
 import java.io.DataInputStream;
+import java.io.File;
+import java.io.FilenameFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
@@ -43,11 +45,11 @@ public strictfp class FindSTS {
     /**
      * Gets the lpc parameters from lpc/lpc.params
      */
-    static private void getLpcParams() throws IOException {
+    static private void getLpcParams(String workingDirectory) throws IOException {
         BufferedReader reader =
             new BufferedReader(
                 new InputStreamReader(
-                    new FileInputStream("lpc/lpc.params")));
+                    new FileInputStream(workingDirectory+"/lpc/lpc.params")));
         
         String line = reader.readLine();
         while (line != null) {
@@ -74,15 +76,26 @@ public strictfp class FindSTS {
      */
     public static void main(String[] args) {
         try {
-            getLpcParams();
-            for (int i = 0; i < args.length; i++) {
-                System.out.println(args[i] + " STS");
-                FileInputStream lpcFile = new FileInputStream(
-                    "lpc/" + args[i] + ".lpc");
-                FileInputStream waveFile = new FileInputStream(
-                    "wav/" + args[i] + ".wav");
-                FileOutputStream stsFile = new FileOutputStream(
-                    "sts/" + args[i] + ".sts");
+            File workingDirectory;
+            if (args.length > 0) workingDirectory = new File(args[0]);
+            else workingDirectory = new File(".");
+            getLpcParams(workingDirectory.getPath());
+            File wavDir = new File(workingDirectory.getPath() + "/wav");
+            File[] wavFiles = wavDir.listFiles(new FilenameFilter() {
+                public boolean accept(File dir, String name) {
+                    return name.endsWith(".wav");
+                }
+            });
+
+            for (int i = 0; i < wavFiles.length; i++) {
+                String basename = wavFiles[i].getName().substring(0, wavFiles[i].getName().length()-4);
+                System.out.println(basename + " STS");
+                FileInputStream lpcFile = new FileInputStream(workingDirectory.getPath() +
+                    "/lpc/" + basename + ".lpc");
+                FileInputStream waveFile = new FileInputStream(workingDirectory.getPath() +
+                    "/wav/" + basename + ".wav");
+                FileOutputStream stsFile = new FileOutputStream(workingDirectory.getPath() +
+                    "/sts/" + basename + ".sts");
                 
                 // Read input
                 LPC lpc = new LPC(new DataInputStream(lpcFile));
