@@ -281,6 +281,8 @@ public class ClusterUnitDatabase extends UnitDatabase
         
         int unitTypesLength = raf.readInt();
         unitTypesMap = new HashMap(unitTypesLength);
+        int numberInvalidUnits = 0;
+        int numberValidUnits = 0;
         for (int i = 0; i < unitTypesLength; i++) {
             ClusterUnitType unitType = new ClusterUnitType(raf, this);
             unitTypesMap.put(unitType.getName(), unitType);
@@ -289,10 +291,21 @@ public class ClusterUnitDatabase extends UnitDatabase
             int firstUnitIdx = unitType.getStart();
             int lastUnitIdx = firstUnitIdx + unitType.getCount();
             for (int unitIdx=firstUnitIdx; unitIdx<lastUnitIdx; unitIdx++) {
-                units[unitIdx] = new ClusterUnit(raf, this, unitType.getName(),loadFeatures);
-                units[unitIdx].setInstanceNumber(unitIdx-firstUnitIdx);
+                ClusterUnit nextUnit = new ClusterUnit(raf, this, unitType.getName(),loadFeatures);
+                if (nextUnit.isValid()){
+                    nextUnit.setInstanceNumber(unitIdx-firstUnitIdx);
+                    units[unitIdx] = nextUnit;
+                    numberValidUnits++;
+                    //logger.debug("Unit "+nextUnit.toString()+" is valid");
+                } else {
+                    units[unitIdx] = null;
+                    numberInvalidUnits++;
+                    logger.debug("Unit "+nextUnit.toString()+" is not valid");
+                }
             }
         }
+        logger.debug("Valid units: "+numberValidUnits+
+                "\nInvalid units: "+numberInvalidUnits);
 
         int numCarts = raf.readInt();
         cartMap = new HashMap();
