@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -685,4 +686,39 @@ public class MaryUtils {
        }
        return buf.toString();
     }
+    
+    /**
+     * Given an array of values, compute the median of these values.
+     * @param values
+     * @return
+     */
+    public static double median(double[] values)
+    {
+        double[] a = (double[]) values.clone();
+        Arrays.sort(a);
+        int len = a.length;
+        if (len % 2 == 0) {
+            return (a[len/2-1]+a[len/2])/2;
+        } else {
+            return a[(len-1)/2];
+        }
+    }
+
+    /**
+     * Given an array of values, compute the median of these values.
+     * @param values
+     * @return
+     */
+    public static int median(int[] values)
+    {
+        int[] a = (int[]) values.clone();
+        Arrays.sort(a);
+        int len = a.length;
+        if (len % 2 == 0) {
+            return (a[len/2-1]+a[len/2])/2;
+        } else {
+            return a[(len-1)/2];
+        }
+    }
+
 }

@@ -285,7 +285,7 @@ public class ClusterUnit extends Unit
      */
     public Frame getJoinCostFeatureVector(int frameNumber)
     {
-        if (frameNumber < 0 || frameNumber > end-start) throw new IllegalArgumentException("Unit "+this.toString()+" has "+(end-start)+" frames, requested no. "+frameNumber);
+        if (frameNumber < 0 || frameNumber >= end-start) throw new IllegalArgumentException("Unit "+this.toString()+" has "+(end-start)+" frames, requested no. "+frameNumber);
         return database.getJoinCostFeatureVectors().getFrame(start+frameNumber);
     }
 
