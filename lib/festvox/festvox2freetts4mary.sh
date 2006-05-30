@@ -20,8 +20,8 @@ export ESTDIR=/project/cl/mary/Festival-1.4.3-suse/speech_tools
 export FESTIVALDIR=$ESTDIR/../festival
 export FESTVOXDIR=$ESTDIR/../festvox
 
-#export HELPERDIR=~/mary/openmary/lib/ArcticToFreeTTS
-export HELPERDIR=~/anna/openmary/lib/festvox
+export HELPERDIR=~/mary/openmary/lib/festvox
+#export HELPERDIR=~/anna/openmary/lib/festvox
 
 
 export JAVAHEAP=-Xmx912m
@@ -94,10 +94,10 @@ mkdir -p FreeTTS
 #     }' > mcep/mcep.params
 
 
-#echo "Creating short term signal (STS) files in sts/*.sts"
-#mkdir -p sts
-#java -cp $HELPERDIR/classes FindSTS \
-#    `find wav -type f | cut -f2 -d/ | cut -f1 -d.`
+echo "Creating short term signal (STS) files in sts/*.sts"
+mkdir -p sts
+java -cp $HELPERDIR/classes FindSTS .
+    `find wav -type f | cut -f2 -d/ | cut -f1 -d.`
 
 
 echo Creating FreeTTS/misc.txt
@@ -113,8 +113,7 @@ $FESTIVALDIR/bin/festival -b --heap 1500000 \
  echo "Building Database..."
  find wav -type f | cut -f2 -d/ | cut -f1 -d. > FreeTTS/filenames.txt
  
- java $JAVAHEAP -cp $HELPERDIR/classes UnitDatabase \
-    .
+ java $JAVAHEAP -cp $HELPERDIR/classes UnitDatabase .
 
 
 echo Creating FreeTTS/trees.txt
