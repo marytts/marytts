@@ -55,6 +55,8 @@ public class BufferedFrameSet extends FrameSet
     private ByteBuffer bb;
 
     private int[] residualSizes;
+    
+    private ClusterUnitDatabase database;
 
     /**
      * Creates a FrameSet by reading it from the given byte buffer
@@ -65,10 +67,11 @@ public class BufferedFrameSet extends FrameSet
      * @throws IOException
      *             if an IO error occurs
      */
-    public BufferedFrameSet(ByteBuffer bb) throws IOException
+    public BufferedFrameSet(ByteBuffer bb, 
+            			    ClusterUnitDatabase database) throws IOException
     {
         super();
-
+        this.database = database;
         this.bb = bb;
 
         frameSetInfo = new FrameSetInfo(bb);
@@ -110,14 +113,19 @@ public class BufferedFrameSet extends FrameSet
             try {
                 int start = framesStart + framePlusResidualSize * index + 4;
                 int startRes = start + frameSize * 2 + 4;
-                frames[index] = new Frame(bb, start, startRes, residualSizes[index],
+                Frame newFrame = new Frame(bb, start, startRes, residualSizes[index],
                         frameSize);
+                if (database.getMemoryRequirement().equals("high")){
+                    frames[index] = newFrame; 
+                }
+                return newFrame;
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new Error("Error building sample " + index);
             }
+        } else {
+            return frames[index];
         }
-        return frames[index];
     }
 
     /**

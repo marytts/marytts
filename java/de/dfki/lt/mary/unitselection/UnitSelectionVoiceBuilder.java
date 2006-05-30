@@ -153,6 +153,13 @@ public class UnitSelectionVoiceBuilder{
 	            unitDatabase.setOptimalCoupling(optimalCoupling);
 	        }
 	        
+	        //set memory policy if definde
+	        String memoryRequirement = 
+	            MaryProperties.getFilename(header+".memoryRequirement");
+	        if (memoryRequirement != null){
+	            unitDatabase.setMemoryRequirement(memoryRequirement);
+	        }
+	        
 	        //build and load targetCostFunction
 	        String targetCostClass = 
 	            MaryProperties.getProperty(header+".targetCostClass");

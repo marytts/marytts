@@ -107,6 +107,8 @@ public abstract class UnitDatabase
     
     public void setOptimalCoupling(String method){}
     
+    public void setMemoryRequirement(String requirement){}
+    
     /**
      * Determine the chain of candidate sets that could be used to realise the
      * given list of targets.

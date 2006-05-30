@@ -76,6 +76,10 @@ public class ClusterUnitDatabase extends UnitDatabase
     private MappedByteBuffer bb = null;
     private RandomAccessFile raf = null;
     
+    //defines, if audio data is thrown away after use (low)
+    // or not (high)
+    private String memoryRequirement = "low";
+    
     //needed for converting from .txt to .bin
     private final static int MAGIC = 0xf0cacc1a;
     private final static int VERSION = 0x2000;
@@ -162,9 +166,9 @@ public class ClusterUnitDatabase extends UnitDatabase
         //System.out.println(continuityWeight+" "+optimalCoupling+" "
         //        +extendSelections);
         //System.out.println("Building Audio Frames");
-        audioFrames = new BufferedFrameSet(bb);
+        audioFrames = new BufferedFrameSet(bb, this);
         //System.out.println("Building join cost Feature Vectors");
-        joinCostFeatureVectors = new BufferedFrameSet(bb);
+        joinCostFeatureVectors = new BufferedFrameSet(bb,this);
         joinMethod = bb.getInt();
         joinWeightShift = bb.getInt();
         int weightLength = bb.getInt();
@@ -409,6 +413,10 @@ public class ClusterUnitDatabase extends UnitDatabase
         logger.debug("Set optimal coupling to "+optimalCoupling);
     }
     
+    public void setMemoryRequirement(String requirement){
+        memoryRequirement = requirement;
+        logger.debug("Set Memory Policy to "+memoryRequirement);
+    }
     
     /**
 	 * Retrieves the index for the name given a name.
@@ -448,6 +456,9 @@ public class ClusterUnitDatabase extends UnitDatabase
         return optimalCoupling;
     }
     
+    public String getMemoryRequirement(){
+        return memoryRequirement;
+    }
     
     /**
      * Gets a unit
