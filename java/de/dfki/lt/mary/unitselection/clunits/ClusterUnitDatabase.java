@@ -111,6 +111,7 @@ public class ClusterUnitDatabase extends UnitDatabase
             //try loading the database with MappedByteBuffer
             RandomAccessFile raf = new RandomAccessFile(databaseFile, "r");
             FileChannel fc = raf.getChannel();
+            //if (true) throw new IOException();
             logger.debug("Loading in quick mode...");
             MappedByteBuffer bb = 
                 fc.map(FileChannel.MapMode.READ_ONLY, 0, (int) fc.size());
@@ -532,7 +533,31 @@ public class ClusterUnitDatabase extends UnitDatabase
         CART cart =  (CART) cartMap.get(unitType);
     
         if (cart == null) {
-            throw new IllegalArgumentException("ClusterUnitDatabase: can't find tree for " + unitType);
+            logger.warn("ClusterUnitDatabase: can't find tree for " + unitType);
+            // try to recover as best as we can:
+            String fallbackUnitType = null;
+            if (unitType.endsWith("coda")) {
+                fallbackUnitType = unitType.substring(0, unitType.length()-4) + "onset";
+            } else if (unitType.endsWith("onset")) {
+                fallbackUnitType = unitType.substring(0, unitType.length()-5) + "coda";
+            } else if (unitType.endsWith("1")) {
+                fallbackUnitType = unitType.substring(0, unitType.length()-1) + "0";
+            } else if (unitType.endsWith("0")) {
+                fallbackUnitType = unitType.substring(0, unitType.length()-1) + "1";
+            }
+            if (fallbackUnitType != null)
+                cart = (CART) cartMap.get(fallbackUnitType);
+            if (cart != null) {
+                logger.warn("Using tree for "+fallbackUnitType+" instead");
+            } else {
+                cart = (CART) cartMap.get("pau");
+                if (cart != null) {
+                    logger.warn("Using tree for pau instead");
+                } else {
+                    throw new IllegalArgumentException("No tree or replacement for "+unitType);
+                }
+            }
+            
         }
         return cart;
     }

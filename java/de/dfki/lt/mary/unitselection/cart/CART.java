@@ -58,6 +58,11 @@ public interface CART {
      * @throws IOException if an error occurs during output
      */
     public void dumpBinary(DataOutputStream os) throws IOException ;
+    
+    /**
+     * The name of this cart.
+     */
+    public String getName();
 }
 
 

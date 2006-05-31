@@ -464,6 +464,15 @@ public class CARTImpl implements CART {
     }
     
     /**
+     * Return the name of this cart.
+     * @return
+     */
+    public String getName()
+    {
+        return name;
+    }
+    
+    /**
      * A node for the CART.
      */
     static abstract class Node {
