@@ -257,6 +257,9 @@ public class ClusterUnitSelector extends UnitSelector
         //logger.debug("Looking for candidates in cart "+target.getName());
         //get the cart tree and extract the candidates
         CART cart = database.getTree(target.getName());
+        // When a cart for target.getName() does not exist, a fallback
+        // for a "similar" unit type may be returned.
+        String unitType = cart.getName();
     	int[] clist = (int[]) cart.interpret(target.getItem());
     	
     	// Now, clist is a List of instance numbers for the units of type
@@ -272,7 +275,7 @@ public class ClusterUnitSelector extends UnitSelector
 	        candidates[i].setTarget(target); // The item is the same for all these candidates in the queue
 	        // remember the actual unit:
 	        int unitIndex = clist[i];
-            Unit unit = database.getUnit(target.getName(), unitIndex);
+            Unit unit = database.getUnit(unitType, unitIndex);
             if (unit != null) {
                 candidates[icand].setUnit(unit);
                 if (candidateUnits != null) candidateUnits.add(unit);
