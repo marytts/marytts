@@ -345,10 +345,15 @@ public class UnitDatabase {
             //database.setSTS(sts);
             
             Map filenames = new HashMap();
-            BufferedReader filenameReader = new BufferedReader(new FileReader(workingDirectory.getPath()+"/FreeTTS/filenames.txt"));
-            String line = null;
-            while ((line = filenameReader.readLine()) != null) {
-                filenames.put(line.trim(),null);
+            File wavDir = new File(workingDirectory.getPath() + "/wav");
+            File[] wavFiles = wavDir.listFiles(new FilenameFilter() {
+                public boolean accept(File dir, String name) {
+                    return name.endsWith(".wav");
+                }
+            });
+	    for (int i=0; i<wavFiles.length; i++) {
+                String basename = wavFiles[i].getName().substring(0, wavFiles[i].getName().length()-4);
+                filenames.put(basename,null);
             }
             database.setFilenames(filenames);
             database.dumpUnitIndex(workingDirectory.getPath(), workingDirectory.getPath()+"/FreeTTS/unit_index.txt",

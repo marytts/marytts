@@ -76,43 +76,42 @@ mkdir -p FreeTTS
 
 
 
-#echo Creating mcep/mcep.params and converting mcep files to text
-#for file in mcep/*.mcep; do
-#    echo $file MCEP
+echo Creating mcep/mcep.params and converting mcep files to text
+for file in mcep/*.mcep; do
+    echo $file MCEP
 #    $ESTDIR/bin/ch_track -otype est_ascii $file > $file.txt
-#    cat $file.txt
-#done | sed '1,/EST_Header_End/d' |
-#awk 'BEGIN {min=0; max=0;} {
-#         for (i=4; i<=NF; i++) {
-#             if ($i < min) min = $i;
-#             if ($i > max) max = $i;
-#         }
-#     } END {
-#         printf("MCEP_MIN=%f\n",min);
-#         printf("MCEP_MAX=%f\n",max);
-#         printf("MCEP_RANGE=%f\n",max-min);
-#     }' > mcep/mcep.params
+    cat $file.txt
+done | sed '1,/EST_Header_End/d' |
+awk 'BEGIN {min=0; max=0;} {
+         for (i=3; i<=NF; i++) {
+             if ($i < min) min = $i;
+             if ($i > max) max = $i;
+         }
+     } END {
+         printf("MCEP_MIN=%f\n",min);
+         printf("MCEP_MAX=%f\n",max);
+         printf("MCEP_RANGE=%f\n",max-min);
+     }' > mcep/mcep.params
 
 
-echo "Creating short term signal (STS) files in sts/*.sts"
-mkdir -p sts
-java -cp $HELPERDIR/classes FindSTS .
-    `find wav -type f | cut -f2 -d/ | cut -f1 -d.`
+#echo "Creating short term signal (STS) files in sts/*.sts"
+#mkdir -p sts
+#java -cp $HELPERDIR/classes FindSTS .
 
 
-echo Creating FreeTTS/misc.txt
-$FESTIVALDIR/bin/festival -b --heap 1500000 \
-    festvox/$FV_FULLVOICENAME.scm \
-    $HELPERDIR/scheme/dump_misc.scm \
-    "(begin (voice_${FV_FULLVOICENAME}) (dump_misc))" > \
-    FreeTTS/misc.txt
+#
+#echo Creating FreeTTS/misc.txt
+#$FESTIVALDIR/bin/festival -b --heap 1500000 \
+#    festvox/$FV_FULLVOICENAME.scm \
+#    $HELPERDIR/scheme/dump_misc.scm \
+#    "(begin (voice_${FV_FULLVOICENAME}) (dump_misc))" > \
+#    FreeTTS/misc.txt
 
 
 
 # UnitDatabase outputs its own info...
  echo "Building Database..."
- find wav -type f | cut -f2 -d/ | cut -f1 -d. > FreeTTS/filenames.txt
- 
+  
  java $JAVAHEAP -cp $HELPERDIR/classes UnitDatabase .
 
 
