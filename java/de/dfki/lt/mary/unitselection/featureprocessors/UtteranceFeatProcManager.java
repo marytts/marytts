@@ -68,6 +68,8 @@ public class UtteranceFeatProcManager extends UnitSelectionFeatProcManager{
         processors.put("accented", new GenericFeatureProcessors.Accented());
         processors.put("seg_pitch",
                 new GenericFeatureProcessors.Seg_Pitch());
+        processors.put("tobi_accent", new GenericFeatureProcessors.TobiAccent());
+        processors.put("tobi_endtone", new GenericFeatureProcessors.TobiEndtone());
     
     }
    
