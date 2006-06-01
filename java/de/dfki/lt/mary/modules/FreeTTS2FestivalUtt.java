@@ -122,7 +122,6 @@ public class FreeTTS2FestivalUtt extends InternalModule
         Item syllStrucItem = syllStrucRelation.getHead();
         while (syllStrucItem != null){
         	Item syllItem = syllStrucItem.getDaughter();
-        	String accent = null;
         	float end = 0;
         	while(syllItem != null){
         		end = syllItem.getLastDaughter().getFeatures().getFloat("end");
@@ -133,19 +132,16 @@ public class FreeTTS2FestivalUtt extends InternalModule
         			segItem = segItem.getNext();
         		}
         		String stress = syllItem.getFeatures().getString("stress");
-        		if(syllItem.getFeatures().isPresent("accent")){
-        			accent = syllItem.getFeatures().getString("accent");
-        		}
         		buf.append(String.valueOf(end) + " 100 "+ syllable.toString() +" ; stress " + stress + "\n");
+                if(syllItem.getFeatures().isPresent("accent")){
+                    iE.append(String.valueOf(end) + " 100 " + syllItem.getFeatures().getString("accent") + "\n");
+                }
         		if(syllItem.getFeatures().isPresent("endtone")){
         			iE.append(String.valueOf(end) + " 100 " +syllItem.getFeatures().getString("endtone") + "\n");
         		}
         		syllItem = syllItem.getNext();
         	}
         	word.append(String.valueOf(end) + " 100 " + syllStrucItem.toString() + "\n");
-        	if(accent != null){ 
-        		iE.append(String.valueOf(end) + " 100 " + accent + "\n");
-        	}
         	syllStrucItem = syllStrucItem.getNext();
         }
         buf.append(word.toString());

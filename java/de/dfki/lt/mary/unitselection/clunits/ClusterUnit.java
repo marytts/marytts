@@ -216,6 +216,7 @@ public class ClusterUnit extends Unit
                 values = new ArrayList();
                 for (int i=0;i<numberOfVals;i++){
                     int valsize = bb.getShort();
+                    assert valsize > 0;
                     //System.out.print(valsize);
                     char[] charBufferFeat = new char[valsize];
                     for (int j = 0; j < valsize; j++) {
