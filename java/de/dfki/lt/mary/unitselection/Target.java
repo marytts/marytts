@@ -142,7 +142,7 @@ public class Target
     {
         String isSilenceString = getValueForFeature("isSilence"); 
         if (isSilenceString != null) {
-            return Boolean.getBoolean(isSilenceString);
+            return Boolean.valueOf(isSilenceString).booleanValue();
         }
         boolean isSilence;
         if (item != null) {
