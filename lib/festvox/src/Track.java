@@ -83,9 +83,9 @@ public class Track {
                 numFrames = Integer.parseInt(line.substring(10));
             } else if (line.startsWith("NumChannels")) {
                 /* With MCEP, the first channel is the energy.  We
-                 * keep this because it is used to select units.
+                 * drop this because it is not used to select units.
                  */
-                numChannels = Integer.parseInt(line.substring(12));
+                numChannels = Integer.parseInt(line.substring(12)) - 1;
             }
         }
 
@@ -96,15 +96,22 @@ public class Track {
             line = reader.readLine();
             StringTokenizer tokenizer = new StringTokenizer(line);
             float pitchmarkTime = Float.parseFloat(tokenizer.nextToken());
-            tokenizer.nextToken(); /* skip dummy second column (old xwaves format) */
+            tokenizer.nextToken(); /* no clue what 1 means in the file */
             int mcepParameters[] = new int[numChannels];
-            for (int j = 0; j < numChannels; j++) {
+            for (int j = 0; j < numChannels + 1; j++) {
                 float mcepParameter = Float.parseFloat(tokenizer.nextToken());
 
+                /* With MCEP, the first channel is the energy.  We
+                 * drop this because it is not used to select units.
+                 */
+                if (j == 0) {
+                    continue;
+                } else {
                     /* Normalize the parameter to 0 - 65535.
                      */
-                    mcepParameters[j] = (int)
+                    mcepParameters[j - 1] = (int)
                         (65535.0f * (mcepParameter - min) / range);
+                }
             }
             frames[i] = new Frame(pitchmarkTime, mcepParameters);
         }
