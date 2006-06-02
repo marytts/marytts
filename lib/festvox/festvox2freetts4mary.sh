@@ -16,12 +16,23 @@
 # your environment.
 #
 export JAVA_HOME=/lt
-export ESTDIR=/project/cl/mary/Festival-1.4.3-suse/speech_tools
+export ESTDIR=/cygdrive/c/schroed/Festival-1.95/speech_tools
 export FESTIVALDIR=$ESTDIR/../festival
 export FESTVOXDIR=$ESTDIR/../festvox
 
-export HELPERDIR=~/mary/openmary/lib/festvox
+export HELPERDIR=/d/mary/trunk/openmary/lib/festvox
 #export HELPERDIR=~/anna/openmary/lib/festvox
+export HELPERCLASSES=$HELPERDIR/classes
+
+# CYGWIN support:
+cygwin=0;
+case "`uname`" in
+CYGWIN*) cygwin=1;;
+esac
+
+if [ $cygwin = 1 ] ; then
+  export HELPERCLASSES=`cygpath --windows "$HELPERCLASSES"`
+fi
 
 
 export JAVAHEAP=-Xmx912m
@@ -76,43 +87,41 @@ mkdir -p FreeTTS
 
 
 
-echo Creating mcep/mcep.params and converting mcep files to text
-for file in mcep/*.mcep; do
-    echo $file MCEP
+#echo Creating mcep/mcep.params and converting mcep files to text
+#for file in mcep/*.mcep; do
+#    echo $file MCEP
 #    $ESTDIR/bin/ch_track -otype est_ascii $file > $file.txt
-    cat $file.txt
-done | sed '1,/EST_Header_End/d' |
-awk 'BEGIN {min=0; max=0;} {
-         for (i=3; i<=NF; i++) {
-             if ($i < min) min = $i;
-             if ($i > max) max = $i;
-         }
-     } END {
-         printf("MCEP_MIN=%f\n",min);
-         printf("MCEP_MAX=%f\n",max);
-         printf("MCEP_RANGE=%f\n",max-min);
-     }' > mcep/mcep.params
+#    cat $file.txt
+#done | sed '1,/EST_Header_End/d' |
+#awk 'BEGIN {min=0; max=0;} {
+#         for (i=4; i<=NF; i++) {
+#             if ($i < min) min = $i;
+#             if ($i > max) max = $i;
+#         }
+#     } END {
+#         printf("MCEP_MIN=%f\n",min);
+#         printf("MCEP_MAX=%f\n",max);
+#         printf("MCEP_RANGE=%f\n",max-min);
+#     }' > mcep/mcep.params
 
 
 #echo "Creating short term signal (STS) files in sts/*.sts"
 #mkdir -p sts
-#java -cp $HELPERDIR/classes FindSTS .
+#java -cp $HELPERCLASSES FindSTS .
 
 
-#
-#echo Creating FreeTTS/misc.txt
-#$FESTIVALDIR/bin/festival -b --heap 1500000 \
-#    festvox/$FV_FULLVOICENAME.scm \
-#    $HELPERDIR/scheme/dump_misc.scm \
-#    "(begin (voice_${FV_FULLVOICENAME}) (dump_misc))" > \
-#    FreeTTS/misc.txt
+echo Creating FreeTTS/misc.txt
+$FESTIVALDIR/bin/festival -b --heap 1500000 \
+    festvox/$FV_FULLVOICENAME.scm \
+    $HELPERDIR/scheme/dump_misc.scm \
+    "(begin (voice_${FV_FULLVOICENAME}) (dump_misc))" > \
+    FreeTTS/misc.txt
 
 
 
 # UnitDatabase outputs its own info...
  echo "Building Database..."
-  
- java $JAVAHEAP -cp $HELPERDIR/classes UnitDatabase .
+ java $JAVAHEAP -cp $HELPERCLASSES UnitDatabase .
 
 
 echo Creating FreeTTS/trees.txt
