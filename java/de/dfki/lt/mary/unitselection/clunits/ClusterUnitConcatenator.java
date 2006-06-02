@@ -319,6 +319,11 @@ public class ClusterUnitConcatenator extends UnitConcatenator
             this.frameCoefficients = coefficients; 
         }
         
+        public void setFrameCoefficients(int frameIndex, short[] coefficients)
+        {
+            this.frameCoefficients[frameIndex] = coefficients;
+        }
+        
         public short[] getFrameCoefficients(int frameIndex)
         {
             return frameCoefficients[frameIndex];
