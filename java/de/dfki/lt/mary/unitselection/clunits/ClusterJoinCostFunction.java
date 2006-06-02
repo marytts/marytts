@@ -223,11 +223,17 @@ public class ClusterJoinCostFunction implements JoinCostFunction
         for (int i=0; i<u1Periods.length; i++) {
             u1Periods[i] = u1.getAudioFrameSize(i);
         }
-        int f0Dist = Math.abs( MaryUtils.median(u0Periods) - 
-                        MaryUtils.median(u1Periods)) * 
-                        1000;//unitDB.getContinuityWeight();
+        double u0med = MaryUtils.median(u0Periods);
+        double u1med = MaryUtils.median(u1Periods);
+        // f0 delta is the relation of the frequencies: 
+        // f0 delta = f0_u0 / f0_u1 - 1 = u0med / u1med - 1
+        double percentDist = Math.abs(u0med/u1med - 1);
+        // Low penalty for f0 distances below 10%; high penalty for higher f0 distances:
+        int f0Dist;
+        if (percentDist < .2) f0Dist = 0;
+        else f0Dist = 50000;
         //logger.debug("Units "+u0+" and "+u1+": frameDist "+frameDist+", f0Dist "+f0Dist);
-        return frameDist + f0Dist;
+        return 2*(frameDist + f0Dist);
     }
     
     /**
