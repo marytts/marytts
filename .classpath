@@ -20,7 +20,7 @@
 	<classpathentry kind="lib" path="java/freetts-de.jar"/>
 	<classpathentry kind="lib" path="build/standalone-compiler.jar"/>
 	<classpathentry kind="lib" path="java/jl1.0.jar"/>
-	<classpathentry kind="lib" path="../dfkimary/java/signalproc.jar"/>
-	<classpathentry kind="lib" path="../dfkimary/java/mary-dfki-unitselection.jar"/>
+	<classpathentry kind="lib" path="C:/cygwin/home/marc/mary/trunk/dfkimary/java/signalproc.jar"/>
+	<classpathentry kind="lib" path="C:/cygwin/home/marc/mary/trunk/dfkimary/java/mary-dfki-unitselection.jar"/>
 	<classpathentry kind="output" path="java"/>
 </classpath>

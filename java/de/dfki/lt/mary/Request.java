@@ -614,7 +614,8 @@ public class Request {
 	                if (docEl != null) {
 	                    String langCode = docEl.getAttribute("xml:lang");
 	                    if (langCode.equals("")) {
-	                        throw new IllegalArgumentException("XML root element does not have an xml:lang attribute");
+	                        logger.debug("XML root element does not have an xml:lang attribute -- assuming English");
+	                        locale = Locale.ENGLISH;
 	                    } else {
 	                        locale = MaryUtils.string2locale(langCode);
 	                    }
