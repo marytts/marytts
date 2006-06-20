@@ -197,9 +197,10 @@ public class MaryData {
                     } catch (FileNotFoundException e) {
                         logger.warn("Cannot find local sable-latin.ent");
                     }
-                } else if (systemId.equals("http://mary.dfki.de/lib/apml.dtd")) {
+                } else if (systemId.equals("http://mary.dfki.de/lib/apml.dtd")
+                		|| !systemId.startsWith("http")&&systemId.endsWith("apml.dtd")) {
                     try {
-                        // return a local copy of the sable dtd:
+                        // return a local copy of the apml dtd:
                         String localFilename = MaryProperties.maryBase() +
                             File.separator + "lib" +
                             File.separator + "apml.dtd";
