@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://mary.dfki.de/2002/MaryXML">
     <xsd:annotation>
-       <xsd:documentation>MaryXML v0.4.2, 2006-02-09</xsd:documentation>
+       <xsd:documentation>MaryXML v0.4.3, 2006-06-20</xsd:documentation>
     </xsd:annotation>
     <xsd:annotation>
         <xsd:documentation>Portions Copyright 2000-2006 DFKI GmbH.
@@ -227,6 +227,17 @@ THIS SOFTWARE.
             <xsd:enumeration value="none"/>
         </xsd:restriction>
     </xsd:simpleType>
+    <xsd:simpleType name="etobi_accent.type">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="H*+L"/>
+            <xsd:enumeration value="h*+l"/>
+            <xsd:enumeration value="!H*+L"/>
+            <xsd:enumeration value="!h*+l"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="tobi_accent.type">
+        <xsd:union memberTypes="gtobi_accent.type etobi_accent.type"/>
+    </xsd:simpleType>
     <xsd:simpleType name="ending.type">
         <xsd:restriction base="xsd:string">
             <xsd:enumeration value="ordinal"/>
@@ -240,6 +251,7 @@ THIS SOFTWARE.
             <xsd:enumeration value="compound"/>
             <xsd:enumeration value="rules"/>
             <xsd:enumeration value="foreign:en"/>
+            <xsd:enumeration value="phonemiseDenglish"/>
         </xsd:restriction>
     </xsd:simpleType>
     <xsd:simpleType name="givenness.type">
@@ -427,6 +439,10 @@ THIS SOFTWARE.
 
     <xsd:element name="say-as" substitutionGroup="awp" type="say-as"/>
     <xsd:complexType name="say-as">
+        <xsd:choice maxOccurs="unbounded" minOccurs="0">
+            <xsd:group ref="allowed-within-sentence"/>
+            <xsd:group ref="structure"/>
+        </xsd:choice>
         <xsd:attribute name="type" type="Say-as.datatype" use="required"/>
     </xsd:complexType>
 
@@ -580,7 +596,7 @@ THIS SOFTWARE.
         <xsd:sequence>
             <xsd:element maxOccurs="unbounded" minOccurs="0" name="syllable" type="syllable"/>
         </xsd:sequence>
-        <xsd:attribute name="accent" type="gtobi_accent.type"/>
+        <xsd:attribute name="accent" type="tobi_accent.type"/>
         <xsd:attribute name="ending" type="ending.type"/>
         <xsd:attribute name="g2p_method" type="g2pmethod.type"/>
         <xsd:attribute name="pos" type="xsd:string"/>

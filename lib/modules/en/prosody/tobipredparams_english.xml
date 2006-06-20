@@ -244,6 +244,11 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
     <action accent="H*"/>
   </rule>
   
+  <rule> <!-- catchall rule in case none of the others fired -->
+    <attributes accent="tone"/>
+    <action accent="H*"/>
+  </rule>
+  
   <rule> <!-- nuclear accent in wh-question, at end of paragraph -->
     <sentence type="interrogW"/>
     <prosodicPosition type="nuclearParagraphFinal"/>
