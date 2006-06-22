@@ -72,6 +72,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
@@ -740,26 +741,42 @@ public class MaryGUIClient extends JPanel
     
 
     /* -------------------- Processing callers -------------------- */
+    private File lastDirectory = null;
+    private String lastExtension = null;
     private void saveOutput()
     {
         if (!allowSave) return;
         try {
             if (showingTextOutput) {
                 JFileChooser fc = new JFileChooser();
+                if (lastDirectory != null) {
+                    fc.setCurrentDirectory(lastDirectory);
+                }
                 int returnVal = fc.showSaveDialog(this);
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File saveFile = fc.getSelectedFile();
+                    lastDirectory = saveFile.getParentFile();
                     PrintWriter w = new PrintWriter(new FileWriter(saveFile));
                     w.print(outputText.getText());
                     w.close();
                 }
             } else { // audio data
                 JFileChooser fc = new JFileChooser();
+                if (lastDirectory != null) {
+                    fc.setCurrentDirectory(lastDirectory);
+                }
                 AudioFileFormat.Type[] knownAudioTypes = AudioSystem.getAudioFileTypes();
+                FileFilter defaultFilter = null;
                 for (int i=0; i<knownAudioTypes.length; i++) {
-                    fc.addChoosableFileFilter(new SimpleFileFilter
-                        (knownAudioTypes[i].getExtension(),
-                         knownAudioTypes[i].toString() + "(." + knownAudioTypes[i].getExtension() + ")"));
+                    FileFilter ff = new SimpleFileFilter(knownAudioTypes[i].getExtension(),
+                            knownAudioTypes[i].toString() + "(." + knownAudioTypes[i].getExtension() + ")");
+                    fc.addChoosableFileFilter(ff);
+                    if (lastExtension != null && lastExtension.equals(knownAudioTypes[i].getExtension())) {
+                        defaultFilter = ff;
+                    }
+                    if (defaultFilter != null) {
+                        fc.setFileFilter(defaultFilter);
+                    }
                 }
                 int returnVal = fc.showSaveDialog(this);
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -769,6 +786,8 @@ public class MaryGUIClient extends JPanel
                     	ext = ((SimpleFileFilter)fc.getFileFilter()).getExtension();
                     	saveFile = new File(saveFile.getAbsolutePath()+"."+ext);
                     }
+                    lastDirectory = saveFile.getParentFile();
+                    lastExtension = ext;
                     AudioFileFormat.Type audioType = null;
                     for (int i=0; i<knownAudioTypes.length; i++) {
                         if (knownAudioTypes[i].getExtension().equals(ext)) {
