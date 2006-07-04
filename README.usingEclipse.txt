@@ -58,8 +58,8 @@ a) Under linux, add to the file ~/.bashrc:
    In the "Arguments" tab, add the following lines into the "VM Arguments"
    field:
    
-   -Dmary.base=/path/to/MARY TTS
-
+   -Xmx256m -Dmary.base=/path/to/MARY TTS -ea
+   
    If you don't use Java 1.5, you also have to add the following into the same
    field:
 
