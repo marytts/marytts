@@ -40,6 +40,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
+import org.apache.log4j.Logger;
 import org.jsresources.SequenceAudioInputStream;
 
 import com.sun.speech.freetts.util.WaveUtils;
@@ -56,8 +57,9 @@ import de.dfki.lt.mary.util.FloatList;
  * @author Anna Hunecke
  *
  */
-public class ClusterUnitConcatenator extends UnitConcatenator
+public class ClusterUnitConcatenator implements UnitConcatenator
 {
+    protected Logger logger;
     protected ClusterUnitDatabase database;
     protected AudioFormat audioformat;
     
@@ -109,10 +111,11 @@ public class ClusterUnitConcatenator extends UnitConcatenator
      * @param audioformat the audioformat of the audio stream
      */
     public ClusterUnitConcatenator(UnitDatabase database, AudioFormat audioformat){
-        super();
         this.database = (ClusterUnitDatabase) database;
         //int samplingRate = database.getSamplingRate();
         this.audioformat = audioformat;
+        logger = Logger.getLogger(this.getClass());
+
     }
     
     
@@ -125,7 +128,7 @@ public class ClusterUnitConcatenator extends UnitConcatenator
      * @param units the units
      * @return the resulting audio stream
      */
-    protected AudioInputStream getAudio(List units){
+    public AudioInputStream getAudio(List units){
         logger.debug("Getting audio for "+units.size()+" units");
         List audioStreams = new ArrayList(units.size());
         FrameSet sts = database.getAudioFrames();

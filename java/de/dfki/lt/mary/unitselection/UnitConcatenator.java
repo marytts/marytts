@@ -43,36 +43,17 @@ import com.sun.speech.freetts.Utterance;
  * @author Marc Schr&ouml;der, Anna Hunecke
  *
  */
-public class UnitConcatenator
+public interface UnitConcatenator
 {
-    protected Logger logger;
     
-    public UnitConcatenator()
-    {
-        logger = Logger.getLogger(this.getClass());
-    }
-    
-    /**
-     * Takes the selected units of the utterance and builds 
-     * an audio stream
-     * @param utt the utterance
-     * @return the audio stream
-     */
-    public AudioInputStream getAudio(Utterance utt){
-        List units = (List) utt.getObject("selected_units");
-        return getAudio(units);
-    }
-    
+   
     /**
      * Build the audio stream from the units
      * 
      * @param units the units
      * @return the resulting audio stream
      */
-    protected AudioInputStream getAudio(List units)
-    {
-        return null;
-    }
+    public AudioInputStream getAudio(List units);
     
     
 }

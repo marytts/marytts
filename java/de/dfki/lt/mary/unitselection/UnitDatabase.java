@@ -87,44 +87,22 @@ public abstract class UnitDatabase
         return joinCostFeatureVectors;
     }
 
-    public Unit getUnit(String unitType, int index){
-        return null;
-    }
+    // TODO: for the following abstract methods, check which are needed with new database format
     
-    public Unit getUnit(int which){
-        return null;
-    }
+    public abstract Unit getUnit(String unitType, int index);
+    
+    public abstract Unit getUnit(int which);
         
-    public int getUnitTypeIndex(String unitType){
-        return 0;
-    }
+    public abstract int getUnitTypeIndex(String unitType);
     
-    public List getFeatsNWeights(){
-        return null;
-    }
+    public abstract List getFeatsNWeights();
     
-    public void overwriteWeights(String file){}
+    public abstract void overwriteWeights(String file);
     
-    public void setOptimalCoupling(String method){}
+    public abstract void setOptimalCoupling(String method);
     
-    public void setMemoryRequirement(String requirement){}
+    public abstract void setMemoryRequirement(String requirement);
     
-    /**
-     * Determine the chain of candidate sets that could be used to realise the
-     * given list of targets.
-     * @param targets a list of Target objects defining the optimal utterance
-     * @return a list of Candidate Sets
-     */
-    public List getCandidates(List targets)
-    {
-        List candidates = new ArrayList(targets.size());
-        for (Iterator it = targets.iterator(); it.hasNext(); ) {
-            Target target = (Target) it.next();
-            candidates.add(getCandidates(target));
-        }
-        return candidates;
-    }
-
     /**
      * Preselect a set of candidates that could be used to realise the
      * given target.
