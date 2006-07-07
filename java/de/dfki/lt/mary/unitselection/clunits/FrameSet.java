@@ -37,141 +37,148 @@ import java.io.DataOutputStream;
 import java.util.StringTokenizer;
 
 /**
- * Represents the frame and residual data
- * used by the diphone database
- * used Residual Excited Linear Predictive synthesizer
+ * Represents the frame and residual data used by the diphone database used
+ * Residual Excited Linear Predictive synthesizer
  */
-public class FrameSet {
-	//an Array containing all samples
+public class FrameSet
+{
+    // an Array containing all samples
     protected Frame[] frames;
-    //general info about all samples
-    protected FrameSetInfo frameSetInfo;
-    
-    //for converting from .txt to .bin
 
-    /** Empty Constructor for inheritance**/
-    public FrameSet(){}
-    
+    // general info about all samples
+    protected FrameSetInfo frameSetInfo;
+
+    // for converting from .txt to .bin
+
+    /** Empty Constructor for inheritance* */
+    public FrameSet() {}
+
     /**
-     * Reads a SampleSet from the input reader. 
-     *
-     * @param tok tokenizer that holds parameters for this SampleSet
-     * @param reader the input reader to read the data from
+     * Reads a SampleSet from the input reader.
+     * 
+     * @param tok
+     *            tokenizer that holds parameters for this SampleSet
+     * @param reader
+     *            the input reader to read the data from
      */
-    public FrameSet(StringTokenizer tok, BufferedReader reader) {
-    	try {
-    		
-    	    int numSamples = Integer.parseInt(tok.nextToken());
-    	    int numChannels = Integer.parseInt(tok.nextToken());
-    	    int sampleRate = Integer.parseInt(tok.nextToken());
-    	    float coeffMin = Float.parseFloat(tok.nextToken());
-    	    float coeffRange = Float.parseFloat(tok.nextToken());
-    	    float postEmphasis = Float.parseFloat(tok.nextToken());
-    	    int residualFold = Integer.parseInt(tok.nextToken());
-    	    
-    	    frames = new Frame[numSamples];
-	    	frameSetInfo = new FrameSetInfo(sampleRate, numChannels,
-	    			residualFold, coeffMin, coeffRange, postEmphasis);
-    	  
-    	    for (int i = 0; i < numSamples; i++) {
-    	        try{
-    		    frames[i] = new Frame(reader, numChannels,i);
-    		    
-    	        } catch (Exception e){
-    	            e.printStackTrace();
-    	            throw new Error("Error parsing frame "+i);
-    	        }
-    	    }
-    	    
-    	    } catch (Exception nse) {
-    	    	throw new Error("Parsing frame error " + nse.getMessage());
-    	    }
+    public FrameSet(StringTokenizer tok, BufferedReader reader)
+    {
+        try {
+            int numSamples = Integer.parseInt(tok.nextToken());
+            int numChannels = Integer.parseInt(tok.nextToken());
+            int sampleRate = Integer.parseInt(tok.nextToken());
+            float coeffMin = Float.parseFloat(tok.nextToken());
+            float coeffRange = Float.parseFloat(tok.nextToken());
+            float postEmphasis = Float.parseFloat(tok.nextToken());
+            int residualFold = Integer.parseInt(tok.nextToken());
+
+            frames = new Frame[numSamples];
+            frameSetInfo = new FrameSetInfo(sampleRate, numChannels,
+                    residualFold, coeffMin, coeffRange, postEmphasis);
+
+            for (int i = 0; i < numSamples; i++) {
+                try {
+                    frames[i] = new Frame(reader, numChannels, i);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new Error("Error parsing frame " + i);
+                }
+            }
+
+        } catch (Exception nse) {
+            throw new Error("Parsing frame error " + nse.getMessage());
         }
-    
-    
-    /**
-     * Dumps this frame set to the given stream
-     * writes the Mary .bin file format
-     *
-     * @param os the output stream
-     *
-     * @throws IOException if an error occurs.
-     */
-    public void dumpBinary(DataOutputStream os) throws IOException {
-	frameSetInfo.dumpBinary(os);
-	int samplesLength = frames.length;
-	os.writeInt(samplesLength);
-	int residualSize = 0;
-	int frameSize = 0;
-	for (int i = 0; i<samplesLength; i++){
-		 if (frames[i].getResidualSize()>residualSize){
-	    	residualSize = frames[i].getResidualSize();}
-		 if (frames[i].getFrameSize()>frameSize){
-	    	frameSize = frames[i].getFrameSize();}
-	}
-	os.writeInt(frameSize);
-	os.writeInt(residualSize);
-	
-	for (int i = 0; i < samplesLength; i++) {
-	    frames[i].dumpBinary(os, residualSize, frameSize);
-	}
-	frames = null;
-	System.gc();
     }
 
-   
+    /**
+     * Dumps this frame set to the given stream writes the Mary .bin file format
+     * 
+     * @param os
+     *            the output stream
+     * 
+     * @throws IOException
+     *             if an error occurs.
+     */
+    public void dumpBinary(DataOutputStream os) throws IOException
+    {
+        frameSetInfo.dumpBinary(os);
+        int samplesLength = frames.length;
+        os.writeInt(samplesLength);
+        int residualSize = 0;
+        int frameSize = 0;
+        for (int i = 0; i < samplesLength; i++) {
+            if (frames[i].getResidualSize() > residualSize) {
+                residualSize = frames[i].getResidualSize();
+            }
+            if (frames[i].getFrameSize() > frameSize) {
+                frameSize = frames[i].getFrameSize();
+            }
+        }
+        os.writeInt(frameSize);
+        os.writeInt(residualSize);
+
+        for (int i = 0; i < samplesLength; i++) {
+            frames[i].dumpBinary(os, residualSize, frameSize);
+        }
+        frames = null;
+        System.gc();
+    }
 
     /**
      * return the frame associated with the index
-     *
-     * @param index the index of the frame
-     *
+     * 
+     * @param index
+     *            the index of the frame
+     * 
      * @return the frame.
      */
-    public Frame getFrame(int index) {
-        return frames[index];}
+    public Frame getFrame(int index)
+    {
+        return frames[index];
+    }
 
     /**
      * Retrieves the info on this FrameSet
-     *
+     * 
      * @return the frame set info
      */
-    public FrameSetInfo getFrameSetInfo() {
-    	return frameSetInfo;
+    public FrameSetInfo getFrameSetInfo()
+    {
+        return frameSetInfo;
     }
 
-    public int getSamplingRate(){
+    public int getSamplingRate()
+    {
         return frameSetInfo.getSampleRate();
     }
-    
-    
+
     /**
-     * Returns the size of the unit represented
-     * by the given start and end points
-     *
-     * @param start the start of the unit
-     * @param end the end of the unit
-     *
+     * Returns the size of the unit represented by the given start and end
+     * points
+     * 
+     * @param start
+     *            the start of the unit
+     * @param end
+     *            the end of the unit
+     * 
      * @return the size of the unit
      */
-    public int getUnitSize(int start, int end) 
+    public int getUnitSize(int start, int end)
     {
         return -1;
     }
 
-
     /**
      * Gets the size of the given frame
-     *
-     * @param frame the frame of interest
-     *
+     * 
+     * @param frame
+     *            the frame of interest
+     * 
      * @return the size of the frame
      */
     public int getFrameSize(int frame)
     {
         return -1;
     }
-    
-    
+
 }
-    
