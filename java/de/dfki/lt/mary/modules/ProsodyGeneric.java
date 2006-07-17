@@ -350,12 +350,11 @@ public class ProsodyGeneric extends InternalModule {
                 	
                	/*** begin user input check,accent position ***/
                	String forceAccent = getForceAccent(token);
-               	if(forceAccent.equals("word") || forceAccent.equals("syllable")) {
+               	if(forceAccent.equals("word") || forceAccent.equals("syllable")
+                        || token.getAttribute("accent").equals("unknown")) {
                		setAccent(token, "tone"); // the token receives an accent according to user input
                	} else if(token.getAttribute("accent").equals("none") || forceAccent.equals("none")) {
-               		token.removeAttribute("accent"); // no accent according to user input
-               	} else if(token.getAttribute("accent").equals("unknown")) { 
-               		setAccent(token, "tone"); // the token receives an accent according to user input
+               	    // no accent according to user input
                	} else if(!token.getAttribute("accent").equals("")) {
                		// accent type is already assigned by the user, f.e. accent="L+H*"
                		/*** end user input check, accent position ***/
@@ -364,37 +363,44 @@ public class ProsodyGeneric extends InternalModule {
                	} else if(token.getAttribute("sampa").equals("")) { // test if token is punctuation
                		token.removeAttribute("accent"); // doesn't receive an accent
                	} else getAccentPosition(token, tokens, i, sentenceType, specialPositionType);
+
+                // check if the phrase has an accent (avoid intermediate phrases without accent)
+                if(token.getAttribute("accent").equals("tone")) {
+                    hasAccent = true;
+                }
+                // if not, check if current token is the best candidate
+                if(hasAccent == false &&
+                        !(token.getAttribute("accent").equals("none") || forceAccent.equals("none")) &&
+                        !token.getAttribute("sampa").equals("")) {
+                    if(bestCandidate == null) { // no candidate yet
+                        bestCandidate=token;
+                    } else {
+                        int priorToken = -1;
+                        int priorBestCandidate = -1;
+                        // search for pos in accentPriorities property list
+                        // first check priority for current token
+                        String posCurrentToken = token.getAttribute("pos");
+                        try {
+                            priorToken = Integer.parseInt(priorities.getProperty(posCurrentToken));
+                        } catch (NumberFormatException e) { }
+                        // now check priority for bestCandidate
+                        String posBestCandidate = bestCandidate.getAttribute("pos");
+                        try {
+                            priorBestCandidate = Integer.parseInt(priorities.getProperty(posBestCandidate));
+                        } catch (NumberFormatException e) { }
+                        // if the current token has higher priority than the best candidate,
+                        // current token becomes the best candidate for accentuation
+                        if(priorToken != -1 && priorBestCandidate != -1) {
+                            if(priorToken <= priorBestCandidate) bestCandidate = token;
+                        }
+                    }
+                }
+                if(token.getAttribute("accent").equals("none") || forceAccent.equals("none")) {
+                    token.removeAttribute("accent");
+                }
+
             } // end of accent position assignment
             
-            // check if the phrase has an accent (avoid intermediate phrases without accent)
-            if(token.getAttribute("accent").equals("tone")) hasAccent = true;
-            // if not, check if current token is the best candidate
-            if(hasAccent == false) {
-            	if(!token.getAttribute("sampa").equals("")) {
-            		if(bestCandidate == null) { // no candidate yet
-            			bestCandidate=token;
-            		} else {
-            			int priorToken = -1;
-            			int priorBestCandidate = -1;
-            			// search for pos in accentPriorities property list
-            			// first check priority for current token
-            			String posCurrentToken = token.getAttribute("pos");
-            			try {
-            				priorToken = Integer.parseInt(priorities.getProperty(posCurrentToken));
-            			} catch (NumberFormatException e) { }
-            			// now check priority for bestCandidate
-            			String posBestCandidate = bestCandidate.getAttribute("pos");
-            			try {
-            				priorBestCandidate = Integer.parseInt(priorities.getProperty(posBestCandidate));
-            			} catch (NumberFormatException e) { }
-            			// if the current token has higher priority than the best candidate,
-            			// current token becomes the best candidate for accentuation
-            			if(priorToken != -1 && priorBestCandidate != -1) {
-            				if(priorToken <= priorBestCandidate) bestCandidate = token;
-            			}
-            		}
-            	}
-            }
             
             // now the informations relevant only for boundary assignment
             boolean invalidXML = false;
