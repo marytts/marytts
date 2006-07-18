@@ -350,8 +350,8 @@ public class ProsodyGeneric extends InternalModule {
                 	
                	/*** begin user input check,accent position ***/
                	String forceAccent = getForceAccent(token);
-               	if(forceAccent.equals("word") || forceAccent.equals("syllable")
-                        || token.getAttribute("accent").equals("unknown")) {
+               	if (token.getAttribute("accent").equals("unknown")
+                    || !token.hasAttribute("accent") && (forceAccent.equals("word") || forceAccent.equals("syllable"))) {
                		setAccent(token, "tone"); // the token receives an accent according to user input
                	} else if(token.getAttribute("accent").equals("none") || forceAccent.equals("none")) {
                	    // no accent according to user input
@@ -362,10 +362,12 @@ public class ProsodyGeneric extends InternalModule {
                		// the rules in the xml file are applied
                	} else if(token.getAttribute("sampa").equals("")) { // test if token is punctuation
                		token.removeAttribute("accent"); // doesn't receive an accent
-               	} else getAccentPosition(token, tokens, i, sentenceType, specialPositionType);
+               	} else { // default behaviour: determine by rule whether to assign an accent
+                    getAccentPosition(token, tokens, i, sentenceType, specialPositionType);
+                }
 
                 // check if the phrase has an accent (avoid intermediate phrases without accent)
-                if(token.getAttribute("accent").equals("tone")) {
+                if(token.hasAttribute("accent") && !token.getAttribute("accent").equals("none")) {
                     hasAccent = true;
                 }
                 // if not, check if current token is the best candidate
