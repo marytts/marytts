@@ -14,7 +14,8 @@ as MARY_BASE.
    menu, select "Windows"->"Preferences...". In the dialogue window that opens,
    verify/adapt the following settings:
    - Source file encoding: "Workbench"->"Editors"->"Text file encoding"
-     must be UTF-8
+     must be UTF-8 (Note: may be under "General"->"Editors"->"Text file encoding"
+     on the Linux version of Eclipse)
    - Java version used: "Java"->"installed JREs" must be 1.4 or 1.5
    - Java source compatibility: "Java"->"Compiler"->"Compliance and Classfiles"
      "Use default compliance settings" must NOT be ticked; all of the following
@@ -69,6 +70,10 @@ a) Under linux, add to the file ~/.bashrc:
    following:
 
    -Dlog.tofile=false -Dlog.level=debug
+   
+   If you don't plan to use the Tibetan voice, add:
+   
+    -Dignore.tibetan.config
 
    Click "Apply" to save these settings.
 
