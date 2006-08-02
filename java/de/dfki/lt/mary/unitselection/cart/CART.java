@@ -33,6 +33,7 @@ package de.dfki.lt.mary.unitselection.cart;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Generic interface for Classification and Regression Trees (CARTs) based
@@ -49,6 +50,13 @@ public interface CART {
      * @return the interpretation
      */
     public Object interpret(Object object);
+    
+    /**
+     * Correct the instance numbers  given in the CART
+     * to index numbers stored in the unit catalog
+     * @param catalog the catalog
+     */
+    public void correctNumbers(List units);
 
     /**
      * Dumps this CART to the output stream.

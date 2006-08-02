@@ -1,0 +1,33 @@
+How to import the unit selection voice
+
+- svn update
+
+- delete files: ClusterUnit, ClusterUnitType in package de.dfki.lt.mary.unitselection.clunits
+
+- compile
+
+- run the script festvox2MARYTTS: 
+  - adapt the variables HELPERDIR and ESTDIR to your own paths
+  - go to festvox directory of voice and call the script
+ 
+- create voice directory:
+  - create a new directory MARY_BASE/lib/voices/<voicename>
+  - copy target feature textfile and join feature textfile
+    (from mary/anna/openmary/lib/voices/cmu_us_bdl_arctic)
+
+- run the ant target:
+ant import_unitsel_voice -Dvoice=<voicename> -Dfestvox_dir=<festvox-dir of voice> -Dtarget_feats=<target feature textfile> -Djoin_feats=<join feature textfile>
+
+- modify the config file
+  - copy file from mary/anna/openmary/config/english-bdl-arctic or
+    modify config file of another voice
+  - targetCostWeights has to point to your target cost file
+  - joinCostWeights has to point to your join cost file
+  - concatenatorClass has to be ClusterUnitConcatenator 
+    (PitchShiftingConcatenator does not work yet)
+  - add/modify ressources:
+    voice.<mary-voicename>.unitsFile = MARY_BASE/lib/voices/<voicename>/units.bin
+    voice.<mary-voicename>.CARTsFile = MARY_BASE/lib/voices/<voicename>/CARTS.bin
+    voice.<mary-voicename>.targetCostFile = MARY_BASE/lib/voices/<voicename>/targetFeatures.bin
+    voice.<mary-voicename>.joinCostFile = MARY_BASE/lib/voices/<voicename>/joinFeatures.bin
+    voice.<mary-voicename>.timelineFile = MARY_BASE/lib/voices/<voicename>/audio.bin

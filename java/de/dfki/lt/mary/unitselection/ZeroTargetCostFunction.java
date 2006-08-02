@@ -28,7 +28,9 @@
  */
 package de.dfki.lt.mary.unitselection;
 
-import java.util.List;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 
 import de.dfki.lt.mary.unitselection.featureprocessors.UnitSelectionFeatProcManager;
 
@@ -50,10 +52,11 @@ public class ZeroTargetCostFunction implements TargetCostFunction
     {
         return 0;
     }
-
-    public void setFeatsAndWeights(List featsNWeights,
-			UnitSelectionFeatProcManager featProc){
-        //do nothing
-    }
     
+     public void load(RandomAccessFile raf,
+            UnitSelectionFeatProcManager featProc) throws IOException{
+     }
+    
+    public void overwriteWeights(BufferedReader reader)throws IOException{
+    }
 }

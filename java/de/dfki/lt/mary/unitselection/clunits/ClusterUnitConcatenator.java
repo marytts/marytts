@@ -48,6 +48,7 @@ import com.sun.speech.freetts.util.WaveUtils;
 import de.dfki.lt.mary.unitselection.SelectedUnit;
 import de.dfki.lt.mary.unitselection.UnitConcatenator;
 import de.dfki.lt.mary.unitselection.UnitDatabase;
+import de.dfki.lt.mary.unitselection.Unit;
 import de.dfki.lt.mary.util.FloatList;
 
 /**
@@ -131,33 +132,38 @@ public class ClusterUnitConcatenator implements UnitConcatenator
     public AudioInputStream getAudio(List units){
         logger.debug("Getting audio for "+units.size()+" units");
         List audioStreams = new ArrayList(units.size());
-        FrameSet sts = database.getAudioFrames();
+        LPCTimeLine sts = (LPCTimeLine)database.getAudio();
         // Information for LPC resynthesis:
-        FrameSetInfo frameSetInfo = sts.getFrameSetInfo();
-        if (frameSetInfo == null) {
-            throw new IllegalStateException("UnitConcatenator: FrameSetInfo does not exist");
-        }
-        int lpcOrder = frameSetInfo.getNumberOfChannels();
+        
+        int lpcOrder = sts.getNumChannels()-1;
         FloatList globalLPCHistory = FloatList.createList(lpcOrder + 1);
-        double lpcRangeFactor = (double) frameSetInfo.getCoeffRange() / 65535.0;
-        float lpcMinimum = frameSetInfo.getCoeffMin();
+        double lpcRangeFactor = (double) sts.getCoeffRange() / 65535.0;
+        float lpcMinimum = sts.getCoeffMin();
         
         // First loop through all units: collect information and build up preparatory structures
     	for (Iterator it = units.iterator();it.hasNext();) {
     	    SelectedUnit unit = (SelectedUnit) it.next();
             UnitLPCData lpcData = new UnitLPCData();
             unit.setConcatenationData(lpcData);
-            int pitchmarksInUnit = unit.getNumberOfFrames();
-            assert pitchmarksInUnit > 0;
             int nSamples = 0;
+            int unitSize = unit.getNumberOfSamples();
+            long unitStart = unit.getStart();
+            //System.out.println("Unit size "+unitSize+", pitchmarksInUnit "+pitchmarksInUnit);
+            LPCDatagram[] datagrams = (LPCDatagram[]) sts.getDatagrams(unitStart,unitSize);
+                        Unit prevUnit = database.getUnit(unit.getIndex()-1);
+            int pitchmarksInUnit = datagrams.length;
+            assert pitchmarksInUnit > 0;
+            LPCDatagram[] prevDatagrams = 
+                 (LPCDatagram[]) sts.getDatagrams(prevUnit.getStart(),prevUnit.getDuration());
+            
             // First of all: Set target pitchmarks,
             // either by copying from units (data-driven)
             // or by computing from target (model-driven)
             int[] pitchmarks;
             if (unit.getTarget().isSilence()) {
                 int targetLength = unit.targetDurationInSamples();
-                int unitLength = unit.unitDurationInSamples();
-                int avgPeriodLength = unitLength / pitchmarksInUnit; // there will be rounding errors here
+                
+                int avgPeriodLength = unitSize / pitchmarksInUnit; // there will be rounding errors here
                 int nTargetPitchmarks = Math.round((float)targetLength / avgPeriodLength); // round to the nearest integer
                 pitchmarks = new int[nTargetPitchmarks];
                 lpcData.setPitchmarks(pitchmarks);
@@ -173,27 +179,41 @@ public class ClusterUnitConcatenator implements UnitConcatenator
                 pitchmarks = new int[pitchmarksInUnit];
                 lpcData.setPitchmarks(pitchmarks);
                 for (int i = 0; i < pitchmarks.length; i++) {
-                    nSamples += unit.getAudioFrameSize(i);
+                    if (i<0 || i>=pitchmarksInUnit) 
+                        throw new IllegalArgumentException("Have "+pitchmarksInUnit+" frames, requested number "+i);
+                    int translatedI = unit.getUnitStartShift()+i; // remember, unitStartShift <= 0
+                    if (translatedI<0) { // we must look to the left of this unit
+            
+                        nSamples += prevDatagrams[prevUnit.getDuration()+translatedI].getNumResiduals();
+                    } else {
+                        nSamples += datagrams[translatedI].getNumResiduals();
+                    }
                     pitchmarks[i] = nSamples;
                 }
                 // the following can be assumed only if there is no start or end shift:
                 // assert pitchmarks[pitchmarks.length-1] == unit.unitDurationInSamples(); 
             }
             int nPitchmarks = pitchmarks.length;
+            //System.out.println("Unit size "+unitSize+", pitchmarks length "
+              //      +nPitchmarks);
             short[][] frames = new short[nPitchmarks][];
             lpcData.setFrameCoefficients(frames);
             byte[] residuals = new byte[nSamples];
             lpcData.setResiduals(residuals);
-            int unitSize = unit.unitDurationInSamples();
+            
             float m = (float)unitSize/(float)(nSamples); // if m==1, copy unit as it is; if != 1, skip or duplicate frames
             int targetResidualPosition = 0;
-            float uIndex = 0; // counter of imaginary sample position in the unit 
+            int testIndex=0;
+            //float uIndex = 0; // counter of imaginary sample position in the unit 
             // for each pitchmark, get frame coefficients and residual
             for (int i=0; i < nPitchmarks && pitchmarks[i] <= nSamples; i++) {
-                Frame nextFrame = unit.getNearestAudioFrame(uIndex);
+                //TODO: re-implement method for selecting the right frame given 
+                //a sample index
+                //LPCDatagram nextFrame = datagrams[(int)uIndex];
+                LPCDatagram nextFrame = datagrams[testIndex];
                 frames[i] = nextFrame.getCoefficients();
                 // Get residual by copying, adapting residual length if necessary
-                byte[] residual = nextFrame.getResidualData();
+                byte[] residual = nextFrame.getResiduals();
                 int targetResidualSize = lpcData.getPeriodLength(i);
                 if (residual.length < targetResidualSize) {
                     int targetResidualStart = (targetResidualSize - residual.length) / 2;
@@ -206,7 +226,8 @@ public class ClusterUnitConcatenator implements UnitConcatenator
                 }
                 targetResidualPosition += targetResidualSize;
                 assert targetResidualPosition == pitchmarks[i];
-                uIndex += ((float) targetResidualSize * m);
+               testIndex++;
+                //uIndex += ((float) targetResidualSize * m);
             }
             assert targetResidualPosition == nSamples;
         }

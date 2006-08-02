@@ -115,9 +115,7 @@ public class BufferedFrameSet extends FrameSet
                 int startRes = start + frameSize * 2 + 4;
                 Frame newFrame = new Frame(bb, start, startRes, residualSizes[index],
                         frameSize);
-                if (database.getMemoryRequirement().equals("high")){
-                    frames[index] = newFrame; 
-                }
+                
                 return newFrame;
             } catch (Exception e) {
                 e.printStackTrace();

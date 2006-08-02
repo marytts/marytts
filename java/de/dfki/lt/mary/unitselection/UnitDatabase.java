@@ -30,9 +30,10 @@ package de.dfki.lt.mary.unitselection;
 
 import java.util.*;
 
+import javax.sound.sampled.AudioFormat;
+
 import org.apache.log4j.Logger;
 
-import de.dfki.lt.mary.unitselection.clunits.FrameSet;
 import de.dfki.lt.mary.unitselection.featureprocessors.UnitSelectionFeatProcManager;
 
 /**
@@ -43,8 +44,7 @@ import de.dfki.lt.mary.unitselection.featureprocessors.UnitSelectionFeatProcMana
  */
 public abstract class UnitDatabase
 {
-    protected FrameSet audioFrames;
-    protected FrameSet joinCostFeatureVectors;
+    
     public static final int PHONE = 1;
     public static final int DIPHONE = 2;
     public static final int HALFPHONE = 3;
@@ -58,17 +58,16 @@ public abstract class UnitDatabase
         logger = Logger.getLogger(this.getClass().getName());
     }
     
-    
-    public abstract void load(String databaseFile, 
-            			UnitSelectionFeatProcManager featureProcessors,
-            			String voice);
+     public abstract void loadDatabase(String unitsFile, String cartsFile, 
+                                String targetFeatsFile, String joinFeatsFile,
+                                String audioFile,
+                                UnitSelectionFeatProcManager featureProcessors,
+                                String voice,
+                                TargetCostFunction targetCostFunc,
+                                JoinCostFunction joinCostFunc);
     
     public abstract int getSamplingRate();
     
-    public int getUnitSize()
-    {
-        return unitSize;
-    }
     
     /**
      * The list of all names that units can have in the database. 
@@ -79,30 +78,20 @@ public abstract class UnitDatabase
         return Collections.unmodifiableSet(unitNames);
     }
     
-    public FrameSet getAudioFrames(){
-        return audioFrames;
-    }
-    
-    public FrameSet getJoinCostFeatureVectors(){
-        return joinCostFeatureVectors;
-    }
-
     // TODO: for the following abstract methods, check which are needed with new database format
     
-    public abstract Unit getUnit(String unitType, int index);
+    //public abstract Unit getUnit(String unitType, int index);
     
     public abstract Unit getUnit(int which);
-        
-    public abstract int getUnitTypeIndex(String unitType);
+     
+    public abstract void overwriteTargetWeights(String file);
     
-    public abstract List getFeatsNWeights();
+    public abstract void overwriteJoinWeights(String file);
     
-    public abstract void overwriteWeights(String file);
-    
-    public abstract void setOptimalCoupling(String method);
-    
-    public abstract void setMemoryRequirement(String requirement);
-    
+    public abstract AudioFormat getAudioFormat();
+     
+    public abstract int getExtendSelections();
+     
     /**
      * Preselect a set of candidates that could be used to realise the
      * given target.

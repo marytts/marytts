@@ -257,7 +257,7 @@ public  class Viterbi
         for (; path != null; path = path.getPrevious()) {
             if (path.getCandidate() != null) {
                 SelectedUnit sel = new SelectedUnit(path.getCandidate().getUnit(),
-                        path.getCandidate().getTarget());
+                        path.getCandidate().getTarget(),unitDB);
                 selectedUnits.addFirst(sel);
                                 
                 if (path.isPresent("unit_this_move")) {
@@ -305,7 +305,7 @@ public  class Viterbi
         } else {
             // Join costs:
             Unit prevUnit = path.getCandidate().getUnit();
-            joinCost = joinCostFunction.cost(prevUnit, candidateUnit, newPath);
+            joinCost = joinCostFunction.cost(prevUnit, candidateUnit);
             // TODO: clean this up
             joinCost *= 5;  // magic number ("continuity weight") from flite
         }

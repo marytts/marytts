@@ -28,9 +28,6 @@
  */
 package de.dfki.lt.mary.unitselection;
 
-import de.dfki.lt.mary.unitselection.clunits.ClusterUnitDatabase;
-import de.dfki.lt.mary.unitselection.clunits.Frame;
-import java.util.List;
 
 /**
  * Representation of a unit from a unit database. This gives access to
@@ -42,143 +39,63 @@ import java.util.List;
 public class Unit
 {
     protected UnitDatabase database;
-    protected String name;
-    protected List values;
-    protected boolean haveValues = false;
+     
 
-    public int type;
-    public int index;
-    protected int start;
-    protected int end;
-    protected int prev;
-    protected int next;
-    
-    public Unit(UnitDatabase database, String name)
-    {
-        this.database = database;
-        this.name = name;
-    }
+    protected long startTime;
+    protected int duration;
+    protected int index;
     
     
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-    public String getName()
-    {
-        return name;
-    }
-
-    public int getStart(){
-        return start;
+    public Unit(long startTime, int duration, int index){
+        this.startTime = startTime;
+        this.duration = duration;
+        this.index = index;
     }
     
-    public int getEnd(){
-        return end;
+    public int getIndex(){
+        return index;
     }
     
-    public int getNextInstance(){
-        return next;
+    public long getStart(){
+        return startTime;
     }
     
-    public int getPrevInstance(){
-        return prev;
+    public int getDuration(){
+        return duration;
     }
     
-    public Object getTargetCostFeatures()
-    {
-        return null;
-    }
     
-    public Frame getJoinCostFeatureVector(int frameNumber)
-    {
-        return null;
-    }
-    
-    public UnitDatabase getDatabase()
-    {
-        return database;
-    }
-   
-    public String getValueForFeature(int index)
-    {
-        if (haveValues){
-                return (String) values.get(index);
-        } else {
-                return null;
-        }
-    }
-
-    public void setValues(List values)
-    {
-        this.values = values;
-        if (values != null){
-            haveValues = true;
-        }
-    }
-    
-    public boolean hasValues()
-    {
-       return haveValues;
-    }
-    
-    public int durationInSamples()
-    {
-        return -1;
-    }
-    
-    /**
-     * Get the unit that in the original recordings follows this one.
-     * @return the next unit, or null if this unit is final.
-     */
-    public Unit getNext()
-    {
-        return null;
-    }
-
-    /**
-     * Get the unit that in the original recordings precedes this one.
-     * @return the previous unit, or null if this unit is initial.
-     */
-    public Unit getPrevious()
-    {
-        return null;
-    }
-
-
-    /**
-     * The number of frames that belong to this unit.
-     * @return the number of frames.
-     */
-    public int getNumberOfFrames()
-    {
-        return end-start;
-    }
-
-    /**
-     * Return the audio frame with the given index number. 
-     * @param frameNumber index number of the required frame, ranging from 0 to
-     * getNumberOfFrames()-1.
-     * @return a Frame object representing an audio frame.
-     * @throws IllegalArgumentException if a unit out of range is requested.
-     */
-    public Frame getAudioFrame(int frameNumber)
-    {
-        if (frameNumber < 0 || frameNumber > end-start) throw new IllegalArgumentException("Unit has "+(end-start)+" frames, requested no. "+frameNumber);
-        return database.getAudioFrames().getFrame(start+frameNumber);
-    }
  
-    /**
-     * Return the size of the audio frame with the given index number. 
-     * @param frameNumber index number of the required frame, ranging from 0 to
-     * getNumberOfFrames()-1.
-     * @return an integer, giving the length of the audio frame in samples
-     * @throws IllegalArgumentException if a unit out of range is requested.
-     */
-    public int getAudioFrameSize(int frameNumber)
+    
+    protected int instanceNumber; // identifies the instances of a given type
+    
+    
+    public boolean isValid(){
+       
+        // on average, a period is between 50 and 200 Hz, i.e. between
+        // 5 ms and 20 ms long.
+        // Treat units with one frame or less as too short, 
+        // and units with more than 50 frames (250 ms - 1 second) as too long
+        int lowerLimit = 1;
+        int upperLimit = 50;
+        return (duration > lowerLimit && duration < upperLimit);    
+    }
+    
+    
+    
+    public void setInstanceNumber(int instanceNumber)
     {
-        if (frameNumber < 0 || frameNumber > end-start) throw new IllegalArgumentException("Unit has "+(end-start)+" frames, requested no. "+frameNumber);
-        return database.getAudioFrames().getFrameSize(start+frameNumber);
+        this.instanceNumber = instanceNumber;
+    }
+    
+    public int getInstanceNumber()
+    {
+        return instanceNumber;
+    }
+
+    public String toString()
+    {
+        return "unit start : "+startTime+", duration : "+duration;
     }
     
 }
