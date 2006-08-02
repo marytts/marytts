@@ -43,7 +43,6 @@ import de.dfki.lt.mary.modules.XML2UttAcoustParams;
 import de.dfki.lt.mary.unitselection.*;
 import de.dfki.lt.mary.unitselection.viterbi.Viterbi;
 import de.dfki.lt.mary.unitselection.viterbi.ViterbiCandidate;
-import de.dfki.lt.mary.unitselection.clunits.ClusterUnit;
 import de.dfki.lt.freetts.ClusterUnitNamer;
 import de.dfki.lt.mary.unitselection.cart.PathExtractor;
 import de.dfki.lt.mary.unitselection.cart.PathExtractorImpl;
@@ -109,6 +108,7 @@ public class ClusterUnitSelector extends UnitSelector
             UnitDatabase db, 
             ClusterUnitNamer unitNamer)
     {
+        long time = System.currentTimeMillis();
         Utterance utt = x2u.convert(tokensAndBoundaries, voice);
         if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
             StringWriter sw = new StringWriter();
@@ -118,21 +118,22 @@ public class ClusterUnitSelector extends UnitSelector
         }
 
         this.database = (ClusterUnitDatabase) db;
-        unitSize = database.getUnitSize();
+        
         this.unitNamer = unitNamer;
         ((PathExtractorImpl)DNAME).setFeatureProcessors(database.getFeatProcManager());
-        ((ClusterJoinCostFunction) joinCostFunction).setDatabase(database);
+        
         Relation segs = utt.getRelation(Relation.SEGMENT);
         //build targets for the items
         List targets = new ArrayList();
         for (Item s = segs.getHead(); s != null; s = s.getNext()) {
             setUnitName(s);       
+            /**
             if (unitSize == UnitDatabase.HALFPHONE){
                 targets.add(new Target(s.getFeatures().getString("clunit_name")+"left", s, unitSize));
                 targets.add(new Target(s.getFeatures().getString("clunit_name")+"right", s, unitSize));
-            } else {
+            } else { **/
                 targets.add(new Target(s.getFeatures().getString("clunit_name"), s, unitSize));
-            }
+            //}
         }
         //Select the best candidates using Viterbi and the join cost function.
         Viterbi viterbi = new Viterbi(targets, database, this, targetCostFunction, joinCostFunction);
@@ -146,52 +147,11 @@ public class ClusterUnitSelector extends UnitSelector
         if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
-            UnitOriginInfo lastOrigin = null;
-            Map unitsFromSameFile = new HashMap();
-            for (int i=0; i<selectedUnits.size(); i++) {
-                SelectedUnit selUnit = 
-                    (SelectedUnit)selectedUnits.get(i);
-                
-                UnitOriginInfo origin = 
-                    ((ClusterUnit) selUnit.getUnit()).getOriginInfo();
-                if (origin != null){
-                    if (lastOrigin != null){
-                        String originFile = origin.getFile();
-                         if (origin.getFile().equals(lastOrigin.getFile())
-                                && origin.getStart() == lastOrigin.getEnd()){
-                            if (unitsFromSameFile.containsKey(originFile)){
-                                ((List)unitsFromSameFile.get(originFile)).add(new Integer(i));
-                            } else {
-                                List successiveUnits = new ArrayList();
-                                successiveUnits.add(new Integer(i-1));
-                                successiveUnits.add(new Integer(i));
-                                unitsFromSameFile.put(originFile, successiveUnits);
-                            }
-                         }
-                    }
-                    lastOrigin = origin;
-                    pw.println("Unit "+i+": "+selUnit.toString()+"\n"
-                            +origin.toString());
-                } else {
-                    pw.println("Unit "+i+": "+selUnit.toString()
-                            +"\nNo origin info for selected unit\n ");
-                    }
-            }
-            Set originFiles = unitsFromSameFile.keySet();
-            if (originFiles.size() > 0){
-                pw.println("Successive units:");
-            }
-            for (Iterator it = originFiles.iterator(); it.hasNext();){
-                String originFile = (String)it.next();
-                List successiveUnits = (List)unitsFromSameFile.get(originFile);
-                pw.print("\nUnits from file "+originFile+": ");
-                for (int i = 0; i < successiveUnits.size(); i++){
-                    pw.print((Integer)successiveUnits.get(i)+" ");
-                }
-                pw.println();
-            }                
+            //TODO: Write debug output that detects if selected units belong together            
             logger.debug("Selected units:\n"+sw.toString());
         }
+        long newtime = System.currentTimeMillis() - time;
+        System.out.println("Selection took "+newtime+" milliseconds");
         return selectedUnits;
     }
     
@@ -259,7 +219,7 @@ public class ClusterUnitSelector extends UnitSelector
         CART cart = database.getTree(target.getName());
         // When a cart for target.getName() does not exist, a fallback
         // for a "similar" unit type may be returned.
-        String unitType = cart.getName();
+       
     	int[] clist = (int[]) cart.interpret(target.getItem());
     	
     	// Now, clist is a List of instance numbers for the units of type
@@ -275,7 +235,7 @@ public class ClusterUnitSelector extends UnitSelector
 	        candidates[i].setTarget(target); // The item is the same for all these candidates in the queue
 	        // remember the actual unit:
 	        int unitIndex = clist[i];
-            Unit unit = database.getUnit(unitType, unitIndex);
+            Unit unit = database.getUnit(unitIndex);
             if (unit != null) {
                 candidates[icand].setUnit(unit);
                 if (candidateUnits != null) candidateUnits.add(unit);
@@ -291,6 +251,8 @@ public class ClusterUnitSelector extends UnitSelector
         // are added. A high setting will add candidates which don't fit the
         // target well, but which can be smoothly concatenated with the context.
         // In a sense, this means trading target costs against join costs.
+        //TODO: In the new format, units have no name, therefore extendsSelctions will
+        //not work. Either re-implement, change format or drop 
 	    if (extendSelections > 0 && target.getItem().getPrevious() != null) {
             // Get the candidates for the preceding (segment) item
 	        ViterbiCandidate[] precedingCandidates = 
@@ -300,10 +262,10 @@ public class ClusterUnitSelector extends UnitSelector
                  pi < piLength && e < extendSelections;
 		         pi++) {
                 assert precedingCandidates[pi] != null;
-	            ClusterUnit nextClusterUnit = ((ClusterUnit)precedingCandidates[pi].getUnit());
-		        if (nextClusterUnit == null) continue;
-	            Unit nextUnit = nextClusterUnit.getNext();
-		        if (nextUnit == null || !nextUnit.getName().equals(targetName)) continue;
+	            Unit nextUnit = ((Unit)precedingCandidates[pi].getUnit());
+		        if (nextUnit == null) continue;
+	                nextUnit = database.getUnit(nextUnit.getIndex()+1);
+		        //if (nextUnit == null || !nextUnit.getName().equals(targetName)) continue;
 		        if (!candidateUnits.contains(nextUnit)) {
 		           // nextUnit is of the right unit type and is not yet one of the candidates.
 		           // add it to the candidates for the current item:

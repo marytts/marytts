@@ -30,7 +30,6 @@ package de.dfki.lt.mary.unitselection;
 
 import javax.sound.sampled.AudioInputStream;
 
-import de.dfki.lt.mary.unitselection.clunits.Frame;
 
 /**
  * A unit selected from Viterbi
@@ -46,12 +45,14 @@ public class SelectedUnit
     protected int unitEndShift = 0;
     protected Object concatenationData;
     protected AudioInputStream audio;
+    protected UnitDatabase database;
     
-    public SelectedUnit(Unit unit, Target target)
+    public SelectedUnit(Unit unit, Target target,UnitDatabase database)
     {
         this.unit = unit;
         this.target = target;
         this.audio = null;
+        this.database = database;
     }
 
     public Unit getUnit()
@@ -84,19 +85,20 @@ public class SelectedUnit
         return unitEndShift;
     }
     
-    public int getNumberOfFrames()
+    public int getNumberOfSamples()
     {
-        return unit.getNumberOfFrames()-unitStartShift+unitEndShift;
+        return unit.getDuration();
     }
     
     public int targetDurationInSamples()
     {
-        return (int) (target.getTargetDurationInSeconds()*unit.getDatabase().getSamplingRate());
+        return (int) (target.getTargetDurationInSeconds()*database.getSamplingRate());
     }
     
-    public int unitDurationInSamples()
-    {
-        return unit.durationInSamples();
+
+    
+    public int getIndex(){
+        return unit.getIndex();
     }
     
     /**
@@ -124,74 +126,16 @@ public class SelectedUnit
         return audio;
     }
     
-    
-    /**
-     * Retrieves the nearest frame.
-     *
-     * @param index the ideal sample position for the frame start, relative to (possibly shifted) unit start, in samples
-     * @param start first frame belonging to the relevant unit
-     * @param end frame after the last frame belonging to the relevant unit
-     *
-     * @return the nearest frame
-     */
-    public Frame getNearestAudioFrame(float index) {
-        int frameIndex = 0, nextFrameIndex;
-        // frame index positions are in samples relative to unit start
-
-        // loop through all the Frames in this unit
-        for (int i = 0, iMax = getNumberOfFrames(); i < iMax; i++) {
-            nextFrameIndex = frameIndex + getAudioFrameSize(i);
-            if (Math.abs(index - frameIndex) < Math.abs(index - nextFrameIndex)) {
-                return getAudioFrame(i);
-            }
-            frameIndex = nextFrameIndex;
-        }
-        return getAudioFrame(getNumberOfFrames() - 1);
+    public long getStart(){
+        return unit.getStart();
     }
-
-    
-    /**
-     * For this selected unit, get the audio frame with the given index number,
-     * taking into account any start or end shifts.
-     * @param i the index number, between 0 and getNumberOfFrames()-1.
-     * @return the corresponding frame.
-     */
-    public Frame getAudioFrame(int i)
-    {
-        if (i<0 || i>=getNumberOfFrames()) throw new IllegalArgumentException("Have "+getNumberOfFrames()+" frames, requested number "+i);
-        int translatedI = unitStartShift+i; // remember, unitStartShift <= 0
-        if (translatedI<0) { // we must look to the left of this unit
-            Unit prev = unit.getPrevious();
-            return prev.getAudioFrame(prev.getNumberOfFrames()+translatedI);
-        }
-        return unit.getAudioFrame(translatedI);
-    }
-    
-    /**
-     * For this selected unit, get the size of the audio frame with the given index number,
-     * taking into account any start or end shifts.
-     * @param i the index number, between 0 and getNumberOfFrames()-1.
-     * @return the corresponding frame size, in samples.
-     */
-    public int getAudioFrameSize(int i)
-    {
-        if (i<0 || i>=getNumberOfFrames()) throw new IllegalArgumentException("Have "+getNumberOfFrames()+" frames, requested number "+i);
-        int translatedI = unitStartShift+i; // remember, unitStartShift <= 0
-        if (translatedI<0) { // we must look to the left of this unit
-            Unit prev = unit.getPrevious();
-            return prev.getAudioFrameSize(prev.getNumberOfFrames()+translatedI);
-        }
-        return unit.getAudioFrameSize(translatedI);
-    }
-    
-    
+   
     
     public String toString()
     {
         return "Target: "+target.toString() + " Unit: " + unit.toString()
         + (unitStartShift != 0 ? " start shifted by "+unitStartShift : "")
         + (unitEndShift != 0 ? " end shifted by "+unitEndShift : "")
-        + " target duration " + targetDurationInSamples()
-        + " prev unit "+ unit.getPrevInstance() + ", next unit " + unit.getNextInstance();
+        + " target duration " + targetDurationInSamples();
     }
 }

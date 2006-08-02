@@ -41,7 +41,6 @@ import de.dfki.lt.mary.unitselection.featureprocessors.UtteranceFeatProcManager;
 
 import java.io.*;
 import java.net.URL;
-import java.nio.ByteBuffer;
 import java.util.regex.Pattern;
 import java.util.StringTokenizer;
 import java.util.*;
@@ -182,10 +181,12 @@ public class CARTImpl implements CART {
      * @throws IOException if errors occur while reading the data
      */ 
     public CARTImpl(BufferedReader reader, int nodes) throws IOException {
-	this(nodes);
+        this(nodes);
+        //System.out.println("Loading CART with "+nodes+" nodes");
         String line;
 	for (int i = 0; i < nodes; i++) {
 	    line = reader.readLine();
+	    //System.out.println(line);
 	    if (!line.startsWith("***")) {
 		parseAndAdd(line);
 	    }
@@ -207,24 +208,9 @@ public class CARTImpl implements CART {
      *
      * @param numNodes the number of nodes
      */
-    private CARTImpl(int numNodes,String name, int backtrace) {
+    private CARTImpl(int numNodes,String name) {
         this.name = name;
-        this.backtrace = backtrace;
-	cart = new Node[numNodes];
-    }
-
-    /**
-     * Dumps this CART to the output stream.
-     *
-     * @param os the output stream
-     *
-     * @throws IOException if an error occurs during output
-     */
-    public void dumpBinary(DataOutputStream os) throws IOException {
-	os.writeInt(cart.length);
-	for (int i = 0; i < cart.length; i++) {
-	    cart[i].dumpBinary(os);
-	}
+        cart = new Node[numNodes];
     }
 
     /**
@@ -240,62 +226,62 @@ public class CARTImpl implements CART {
      * Note that cart nodes are really saved as strings that
      * have to be parsed.
      */
-    public static CART loadBinary(RandomAccessFile raf,
-            UtteranceFeatProcManager fp,
-            String name) throws IOException {
+    public CARTImpl(RandomAccessFile raf, int numNodes,
+           			UtteranceFeatProcManager fp,
+           			String name) throws IOException {
+        this(numNodes,name);
     	featureProcessors = fp;
-    	String backtrace = 
+    	String backtraceString = 
     	    MaryProperties.getProperty("english.cart.backtrace");
-    	int backtraceInt = 100;
-    	if (backtrace != null){
-    	    backtraceInt = Integer.parseInt(backtrace.trim());
+    	backtrace = 100;
+    	if (backtraceString != null){
+    	    backtrace = Integer.parseInt(backtraceString.trim());
     	}
-	int numNodes = raf.readInt();
-	CARTImpl cart = new CARTImpl(numNodes,name,backtraceInt);
 
-	for (int i = 0; i < numNodes; i++) {
-		int size = raf.readShort();
-    	char[] charBuffer = new char[size];
-    	for (int j = 0; j < size; j++) {
-    	    charBuffer[j] = raf.readChar();
+    	for (int i = 0; i < numNodes; i++) {
+    	    
+    	    String nodeCreationLine = raf.readUTF();
+    	    parseAndAdd(nodeCreationLine);
     	}
-		String nodeCreationLine = new String(charBuffer, 0, size);
-	    cart.parseAndAdd(nodeCreationLine);
-	}
-	return cart;
+	
     }
-
+    
     /**
-     * Loads a CART from the input byte buffer.
+     * Dumps this CART to the output stream.
      *
-     * @param bb the byte buffer
-     *
-     * @return the CART
+     * @param os the output stream
      *
      * @throws IOException if an error occurs during output
-     *
-     * Note that cart nodes are really saved as strings that
-     * have to be parsed.
      */
-    public static CART loadBinary(ByteBuffer bb, 
-            UtteranceFeatProcManager fp, 
-            String name) throws IOException {
-	featureProcessors = fp;
-	String backtrace = 
-	    MaryProperties.getProperty("english.cart.backtrace");
-	int backtraceInt = 100;
-	if (backtrace != null){
-	    backtraceInt = Integer.parseInt(backtrace.trim());
+    public void dumpBinary(DataOutputStream os) throws IOException {
+	os.writeInt(cart.length);
+	for (int i = 0; i < cart.length; i++) {
+	    cart[i].dumpBinary(os);
 	}
-        int numNodes = bb.getInt();
-	CARTImpl cart = new CARTImpl(numNodes,name,backtraceInt);
-
-	for (int i = 0; i < numNodes; i++) {
-	    String nodeCreationLine = Utilities.getString(bb);
-	    cart.parseAndAdd(nodeCreationLine);
-	}
-	return cart;
     }
+    
+    /**
+     * Correct the instance numbers  given in the CART
+     * to index numbers stored in the unit catalog
+     * @param catalog the catalog
+     */
+    public void correctNumbers(List units){
+        //go through all leaf nodes and replace the numbers
+        for (int i=0; i<cart.length;i++){
+            if (cart[i] instanceof LeafNode) {
+                int[] instances = ((LeafNode)cart[i]).getValues();
+                int[] indices = new int[instances.length];
+                for (int j=0; j<instances.length; j++){
+                    indices[j] = ((Integer)units.get(j)).intValue();
+                }
+                ((LeafNode) cart[i]).setValues(indices);
+            }
+        }
+    }
+
+    
+
+    
     
     
     public void setFeatureProcessors(UtteranceFeatProcManager fp){
@@ -319,7 +305,7 @@ public class CARTImpl implements CART {
             cart = new Node[Integer.parseInt(tokenizer.nextToken())];
             curNode = 0;
         } else {
-            throw new Error("Invalid CART type: " + type);
+            throw new Error("Invalid CART type: " + type +" in line "+line);
         }
     }
 
@@ -480,7 +466,7 @@ public class CARTImpl implements CART {
          * The value of this node.
          */
         protected Object value;
-	private String creationLine;
+        protected String creationLine;
 
         /**
          * Create a new Node with the given value.
@@ -531,8 +517,8 @@ public class CARTImpl implements CART {
 	 * @param os the output stream to output the node on
 	 * @throws IOException if an IO error occurs
 	 */
-	final public void dumpBinary(DataOutputStream os) throws IOException {
-	    Utilities.outString(os, creationLine);
+	public void dumpBinary(DataOutputStream os) throws IOException {
+	    os.writeUTF(creationLine);
 	}
     }
 
@@ -808,6 +794,35 @@ public class CARTImpl implements CART {
         public String toString() {
             return "LEAF " + getValueString();
         }
+        
+        public int[] getValues(){
+            return (int[]) value;
+        }
+        
+        public void setValues(int[] value){
+            this.value = value;
+        }
+        
+       /**
+   	 	* Dumps the binary form of this node.
+   	 	* @param os the output stream to output the node on
+   	 	* @throws IOException if an IO error occurs
+   	 	*/
+        public void dumpBinary(DataOutputStream os) throws IOException {
+            StringBuffer sb = new StringBuffer();
+            sb.append("LEAF List(");
+            int[] values = (int[])value;
+            for (int i=0; i<values.length; i++){
+                if (i<values.length-1){
+                sb.append(values[i]+",");
+                } else {
+                    sb.append(values[i]+")");
+                }
+            }
+            //System.out.println(sb.toString());
+            os.writeUTF(sb.toString());
+        }
+        
     }
 }
 

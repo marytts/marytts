@@ -84,7 +84,7 @@ public class UnitSelectionVoiceBuilder{
 	public Voice buildVoice(String voice){
 	    try{
 	        String header ="voice."+voice;
-	        logger.debug("Loading voice "+voice+"...");
+	        logger.info("Loading voice "+voice+"...");
 	        
 	        //read in the parameters from the .config file
 	        String gender = MaryProperties.getProperty(header+".gender");
@@ -130,49 +130,52 @@ public class UnitSelectionVoiceBuilder{
 	            featureProcessors.put(locale,featProcManager);
 	        }
 	        
-	        //build and load database
-	        String databaseFile = 
-	            MaryProperties.getFilename(header+".databaseFile");
-	        String databaseClass = 
-	            MaryProperties.getProperty(header+".databaseClass");
-	        UnitDatabase unitDatabase = 
-	            (UnitDatabase) Class.forName(databaseClass).newInstance();
-	        unitDatabase.load(databaseFile, featProcManager, voice);
+            //build and load targetCostFunction
+            String targetCostClass = 
+                MaryProperties.getProperty(header+".targetCostClass");
+            TargetCostFunction targetFunction = 
+                (TargetCostFunction) Class.forName(targetCostClass).newInstance();
+                       
+            //build joinCostFunction
+            String joinCostClass = 
+                MaryProperties.getProperty(header+".joinCostClass");
+            JoinCostFunction joinFunction = 
+                (JoinCostFunction) Class.forName(joinCostClass).newInstance();
+            
+	        //get the names of the voice files
+            String unitsFile = 
+                MaryProperties.getFilename(header+".unitsFile");
+            String CARTsFile = 
+                MaryProperties.getFilename(header+".CARTsFile");
+            String targetCostFile = 
+                MaryProperties.getFilename(header+".targetCostFile");
+            String joinCostFile = 
+                MaryProperties.getFilename(header+".joinCostFile");
+            String timelineFile = 
+                MaryProperties.getFilename(header+".timelineFile");
+                
+            //build and load database
+            String databaseClass = 
+                MaryProperties.getProperty(header+".databaseClass");
+            UnitDatabase unitDatabase = 
+                (UnitDatabase) Class.forName(databaseClass).newInstance();
+            unitDatabase.loadDatabase(unitsFile, CARTsFile, targetCostFile, joinCostFile, timelineFile, featProcManager, voice, targetFunction, joinFunction);
 	        
 	        //overwrite target cost weights if defined
 	        String targetCostWeights = 
 	            MaryProperties.getFilename(header+".targetCostWeights");
 	        if (targetCostWeights != null){
-	            unitDatabase.overwriteWeights(targetCostWeights);
+	            unitDatabase.overwriteTargetWeights(targetCostWeights);
 	        }
+            
+            //overwrite target cost weights if defined
+            String joinCostWeights = 
+                MaryProperties.getFilename(header+".joinCostWeights");
+            if (joinCostWeights != null){
+                unitDatabase.overwriteJoinWeights(joinCostWeights);
+            }
+	             
 	        
-	        //overwrite optimal coupling method if defined
-	        String optimalCoupling = 
-	            MaryProperties.getFilename(header+".optimalCoupling");
-	        if (optimalCoupling != null){
-	            unitDatabase.setOptimalCoupling(optimalCoupling);
-	        }
-	        
-	        //set memory policy if definde
-	        String memoryRequirement = 
-	            MaryProperties.getFilename(header+".memoryRequirement");
-	        if (memoryRequirement != null){
-	            unitDatabase.setMemoryRequirement(memoryRequirement);
-	        }
-	        
-	        //build and load targetCostFunction
-	        String targetCostClass = 
-	            MaryProperties.getProperty(header+".targetCostClass");
-	        TargetCostFunction targetFunction = 
-		        (TargetCostFunction) Class.forName(targetCostClass).newInstance();
-	        targetFunction.setFeatsAndWeights(unitDatabase.getFeatsNWeights(),
-	                						featProcManager);
-	        
-	        //build joinCostFunction
-	        String joinCostClass = 
-	            MaryProperties.getProperty(header+".joinCostClass");
-	        JoinCostFunction joinFunction = 
-		        (JoinCostFunction) Class.forName(joinCostClass).newInstance();
 	        
 	        //build Selector
 	        String selectorClass = 
@@ -183,16 +186,9 @@ public class UnitSelectionVoiceBuilder{
 	                new ClusterUnitSelector(targetFunction,joinFunction);}
 	       
 	        //build AudioFormat
-	        int samplingRate = 
-	            Integer.parseInt(MaryProperties.getProperty(header+".samplingRate"));
 	        AudioFormat dbAudioFormat = 
-	            new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-	                    samplingRate, // samples per second
-	                    16, // bits per sample
-	                    1, // mono
-	                    2, // nr. of bytes per frame
-	                    samplingRate, // nr. of frames per second
-	                    true); // big-endian;
+	            unitDatabase.getAudioFormat();
+           
 	        //samplingRate -> bin, audioformat -> concatenator
 	        //build Concatenator
 	        String concatenatorClass = 

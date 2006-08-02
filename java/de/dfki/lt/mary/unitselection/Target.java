@@ -52,11 +52,14 @@ public class Target
     protected Element maryxmlElement;
     protected Item item;
     //a map containing this targets features
-    protected Map features2Values = null;
+    protected String[] byteVals = null;
+    protected String[] shortVals = null;
+    protected float[] floatVals = null;
     protected float end = -1;
     protected float duration = -1;
     protected Logger logger;
     protected int unitSize;
+    protected int isSilence =-1;
         
     public Target(String name)
     {
@@ -111,12 +114,54 @@ public class Target
      * @param feature the feature
      * @param value the value
      */
-    public void setFeatureAndValue(String feature, String value)
+    public void addByteValue(String val, int numVals, int pos)
     {
-        if (features2Values == null){
-            features2Values = new HashMap();
+        if (byteVals == null){
+            byteVals = new String[numVals];
         }
-        features2Values.put(feature,value);
+        byteVals[pos] = val;
+    }
+    
+    /**
+     * Add value and features to the featuresMap
+     * @param feature the feature
+     * @param value the value
+     */
+    public void addShortValue(String val, int numVals, int pos)
+    {
+        if (shortVals == null){
+            shortVals = new String[numVals];
+        }
+        shortVals[pos] = val;
+    }
+    
+    /**
+     * Add value and features to the featuresMap
+     * @param feature the feature
+     * @param value the value
+     */
+    public void addFloatValue(float val, int numVals, int pos)
+    {
+        if (floatVals == null){
+            floatVals = new float[numVals];
+        }
+        floatVals[pos] = val;
+    }
+    
+    
+    /**
+     * Get the value for a feature if present
+     * @param feature the feature
+     * @return the value
+     */
+    public String getValueForByteFeature(int index)
+    {
+        if (byteVals != null && 
+                (index>-1 || index < byteVals.length)){
+            return byteVals[index];
+    	} else {
+    	    return null;
+    	}
     }
     
     /**
@@ -124,15 +169,31 @@ public class Target
      * @param feature the feature
      * @return the value
      */
-    public String getValueForFeature(String feature)
+    public String getValueForShortFeature(int index)
     {
-        if (features2Values != null 
-                && features2Values.containsKey(feature)){
-            return (String) features2Values.get(feature);
-        } else {
-            return null;
-        }
+        if (shortVals != null && 
+                (index>-1 || index < byteVals.length)){
+            return shortVals[index];
+    	} else {
+    	    return null;
+    	}
     }
+    /**
+     * Get the value for a feature if present
+     * @param feature the feature
+     * @return the value
+     */
+    public float getValueForFloatFeature(int index)
+    {
+        if (floatVals != null && 
+                (index>-1 || index < byteVals.length)){
+            return floatVals[index];
+    	} else {
+    	    return -1;
+    	}
+    }
+    
+    
     
     /**
      * Determine whether this target is a silence target
@@ -140,28 +201,31 @@ public class Target
      */
     public boolean isSilence()
     {
-        String isSilenceString = getValueForFeature("isSilence"); 
-        if (isSilenceString != null) {
-            return Boolean.valueOf(isSilenceString).booleanValue();
-        }
-        boolean isSilence;
-        if (item != null) {
-            Voice v = FreeTTSVoices.getMaryVoice(item.getUtterance().getVoice());
-            String silenceSymbol = v.sampa2voice("_");
-            if (name.equals(silenceSymbol)) {
-                isSilence = true;
-            } else {
-                isSilence = false;
+        
+        if (isSilence == -1) {
+        
+            if (item != null) {
+                Voice v = FreeTTSVoices.getMaryVoice(item.getUtterance().getVoice());
+                String silenceSymbol = v.sampa2voice("_");
+                if (name.equals(silenceSymbol)) {
+                    isSilence = 1; //true
+                } else {
+                    isSilence = 0; //false
+                }
+            } else { // compare to typical silence symbol names
+                if (name.equals("pau") || name.equals("_")) {
+                    isSilence = 1; //true
+                } else {
+                    isSilence = 0; //false
+                }
             }
-        } else { // compare to typical silence symbol names
-            if (name.equals("pau") || name.equals("_")) {
-                isSilence = true;
-            } else {
-                isSilence = false;
-            }
         }
-        setFeatureAndValue("isSilence", String.valueOf(isSilence));
-        return isSilence;
+        if (isSilence == 1){
+            return true;
+        } else {
+            return false;
+        }
+       
         
     }
     

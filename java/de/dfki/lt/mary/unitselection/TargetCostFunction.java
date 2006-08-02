@@ -28,10 +28,12 @@
  */
 package de.dfki.lt.mary.unitselection;
 
-import java.util.List;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 
 import de.dfki.lt.mary.unitselection.featureprocessors.UnitSelectionFeatProcManager;
-
+import de.dfki.lt.mary.unitselection.UnitDatabase;
 
 /**
  * A target cost function for evaluating the goodness-of-fit of 
@@ -49,11 +51,10 @@ public interface TargetCostFunction
      */
     public int cost(Target target, Unit unit);
     
-    /**
-     * Set the features of the cost function
-     * @param features the features
-     */
-    public void setFeatsAndWeights(List featsNWeights,
-			UnitSelectionFeatProcManager featProc);
+    public void load(RandomAccessFile raf,
+			UnitSelectionFeatProcManager featProc) throws IOException;
+    
+    public void overwriteWeights(BufferedReader reader) throws IOException ;
+    
     
 }

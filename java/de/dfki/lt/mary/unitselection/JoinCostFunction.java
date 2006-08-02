@@ -29,6 +29,7 @@
 package de.dfki.lt.mary.unitselection;
 
 import de.dfki.lt.mary.unitselection.viterbi.ViterbiPath;
+import java.io.*;
 
 /**
  * A join cost function for evaluating the goodness-of-fit of 
@@ -44,6 +45,14 @@ public interface JoinCostFunction
      * @param u1 the proposed right unit
      * @return a non-negative number; smaller values mean better fit, i.e. smaller cost.
      */
-    public int cost(Unit u0, Unit u1, ViterbiPath newPath);
+    public int cost(Unit u0, Unit u1);
 
+    /**
+     * Load weights and values from RandomAccessFile
+     * @param raf
+     */
+    public void load(RandomAccessFile raf) throws IOException;
+    
+    public void overwriteWeights(BufferedReader reader) throws IOException;
+    
 }
