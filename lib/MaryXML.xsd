@@ -242,6 +242,8 @@ THIS SOFTWARE.
         <xsd:restriction base="xsd:string">
             <xsd:enumeration value="ordinal"/>
             <xsd:enumeration value="adjadv"/>
+            <xsd:enumeration value="noun"/>
+            <xsd:enumeration value="noun_in"/>
         </xsd:restriction>
     </xsd:simpleType>
     <xsd:simpleType name="g2pmethod.type">
