@@ -506,11 +506,9 @@ public void readAndDumpCARTS(){
         }
         
         //dump the audio data
-        FileWriter outTxt = new FileWriter( "/home/cl-home/sacha/disk/cmu_us_bdl_arctic/CONTROL.txt" );
         for (int l=0;l<tracks.length;l++){
-            //tracks[l].dumpBinary(out);            
-            ((STSTrack)tracks[l]).dumpBinary_HACK(out,outTxt);            
-       }
+            tracks[l].dumpBinary(out);            
+        }
         out.close();
         System.out.println("Done\n");
     }
