@@ -225,14 +225,14 @@ public strictfp class FindSTS {
             for (int j = 1; j < order; j++) {
                 r -= frame[j] * ((double) wave[start + (i - j)]);
             }
-            residual[i] = Utility.shortToUlaw((short) r);
+            residual[i] = General.shortToUlaw((short) r);
         }
         for (int i = order; i < size; i++) {
             r = wave[start + i];
             for (int j = 1; j < order; j++) {
                 r -= frame[j] * ((double) wave[start + (i - j)]);
             } 
-            residual[i] = Utility.shortToUlaw((short) r);
+            residual[i] = General.shortToUlaw((short) r);
         }
         return residual;
     }
@@ -258,8 +258,8 @@ class LPC {
      */
     public LPC(DataInputStream dis) {
         try {
-            if (!Utility.readWord(dis).equals("EST_File") ||
-                    !Utility.readWord(dis).equals("Track")) {
+            if (!General.readWord(dis).equals("EST_File") ||
+                    !General.readWord(dis).equals("Track")) {
                 throw new Error("Lpc file not EST Track file");
             }
 
@@ -267,28 +267,28 @@ class LPC {
             boolean isBigEndian = false;
 
             // Read Header
-            String token = Utility.readWord(dis);
+            String token = General.readWord(dis);
             while (!token.equals("EST_Header_End")) {
                 if (token.equals("DataType")) {
-                    if (Utility.readWord(dis).equals("binary")) {
+                    if (General.readWord(dis).equals("binary")) {
                         isBinary = true;
                     } else {
                         isBinary = false;
                     }
                 } else if (token.equals("ByteOrder")) {
-                    if (Utility.readWord(dis).equals("10")) {
+                    if (General.readWord(dis).equals("10")) {
                         isBigEndian = true;
                     } else {
                         isBigEndian = false;
                     }
                 } else if (token.equals("NumFrames")) {
-                    numFrames = Integer.parseInt(Utility.readWord(dis));
+                    numFrames = Integer.parseInt(General.readWord(dis));
                 } else if (token.equals("NumChannels")) {
-                    numChannels = Integer.parseInt(Utility.readWord(dis));
+                    numChannels = Integer.parseInt(General.readWord(dis));
                 }
                 // Ignore all other content in header
 
-                token = Utility.readWord(dis);
+                token = General.readWord(dis);
             }
 
             times = new float[numFrames];
@@ -315,10 +315,10 @@ class LPC {
      */
     private void loadTextData(DataInputStream dis) throws IOException {
         for (int f=0; f < numFrames; f++) {
-            times[f] = Float.parseFloat(Utility.readWord(dis));
-            Utility.readWord(dis);  // can be only 1
+            times[f] = Float.parseFloat(General.readWord(dis));
+            General.readWord(dis);  // can be only 1
             for (int c=0; c < numChannels; c++) {
-                    frames[f][c] = Float.parseFloat(Utility.readWord(dis));
+                    frames[f][c] = Float.parseFloat(General.readWord(dis));
             }
         }
     }
@@ -335,13 +335,13 @@ class LPC {
     private void loadBinaryData(DataInputStream dis, boolean isBigEndian)
             throws IOException {
         for (int f=0; f < numFrames; f++) {
-            times[f] = Utility.readFloat(dis, isBigEndian);
+            times[f] = General.readFloat(dis, isBigEndian);
 
             // Ignore the 'breaks' field
-            Utility.readFloat(dis, isBigEndian);
+            General.readFloat(dis, isBigEndian);
 
             for (int c=0; c < numChannels; c++) {
-                frames[f][c] = Utility.readFloat(dis, isBigEndian);
+                frames[f][c] = General.readFloat(dis, isBigEndian);
             }
         }
     }
@@ -439,13 +439,13 @@ class Wave {
 
             // Bunch of potential random headers
             while (true) {
-                String s = new String(Utility.readChars(dis, 4));
+                String s = new String(General.readChars(dis, 4));
 
                 if (s.equals("data")) {
-                    numSamples = Utility.readInt(dis, false) / 2;
+                    numSamples = General.readInt(dis, false) / 2;
                     break;
                 } else if (s.equals("fact")) {
-                    int i = Utility.readInt(dis, false);
+                    int i = General.readInt(dis, false);
                     if (dis.skipBytes(i) != i) {
                         throw new Error("Unexpected error parsing wave file.");
                     }
@@ -458,7 +458,7 @@ class Wave {
             samples = new short[numSamples];
 
             for (int i = 0; i < dataLength; i++) {
-                samples[i] = Utility.readShort(dis, false);
+                samples[i] = General.readShort(dis, false);
             }
 
         } catch (IOException ioe) {
@@ -477,25 +477,25 @@ class Wave {
         if (!checkChars(dis, "RIFF")) {
             throw new Error("Invalid wave file format.");
         }
-        numBytes = Utility.readInt(dis,false);
+        numBytes = General.readInt(dis,false);
         if (!checkChars(dis, "WAVEfmt ")) {
             throw new Error("Invalid wave file format.");
         }
 
-        headerSize = Utility.readInt(dis, false);
+        headerSize = General.readInt(dis, false);
 
-        if (Utility.readShort(dis, false) != RIFF_FORMAT_PCM) {
+        if (General.readShort(dis, false) != RIFF_FORMAT_PCM) {
             throw new Error("Invalid wave file format.");
         }
 
-        if (Utility.readShort(dis, false) != 1) {
+        if (General.readShort(dis, false) != 1) {
             throw new Error("Only mono wave files supported.");
         }
         
-        sampleRate = Utility.readInt(dis, false);
-        Utility.readInt(dis, false);
-        Utility.readShort(dis, false);
-        Utility.readShort(dis, false);
+        sampleRate = General.readInt(dis, false);
+        General.readInt(dis, false);
+        General.readShort(dis, false);
+        General.readShort(dis, false);
     }
 
     /**
@@ -560,7 +560,7 @@ class Wave {
             // resynthesize the signal
             for (int j = 0; j < pm_size_samps; j++, r++) {
                 outbuf[o] = (float)
-                    Utility.ulawToShort(lpcResResidual[r/* /residual_fold */]);
+                    General.ulawToShort(lpcResResidual[r/* /residual_fold */]);
 
                 cr = (o == 0 ? lpcResNumChannels : o-1);
                 for (ci = 0; ci < lpcResNumChannels; ci++) {
