@@ -141,7 +141,7 @@ public class Frame
             // the other tokens are frame data
             frameData = new short[numChannels];
             for (int i = 0; i < numChannels; i++) {
-                int svalue = Integer.parseInt(tok.nextToken()) - 32768;
+                int svalue = Integer.parseInt(tok.nextToken());
 
                 if (svalue < -32768 || svalue > 32767) {
                     throw new Error("data out of short range");
@@ -161,7 +161,7 @@ public class Frame
             // the other tokens are the residuals
             residualData = new byte[residualSize];
             for (int i = 0; i < residualSize; i++) {
-                int bvalue = Integer.parseInt(tok.nextToken()) - 128;
+                int bvalue = Integer.parseInt(tok.nextToken());
                 if (bvalue < -128 || bvalue > 127) {
                     throw new Error("data out of byte range");
                 }
@@ -291,7 +291,7 @@ public class Frame
         if (frameData == null) {
             byteBuffer.position(start + which);
             return ((int) byteBuffer.getShort()) + 128;
-        }
+       }
         return ((int) frameData[which]) + 32768;
     }
 

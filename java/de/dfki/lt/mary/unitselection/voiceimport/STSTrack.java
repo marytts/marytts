@@ -1,10 +1,6 @@
 package de.dfki.lt.mary.unitselection.voiceimport;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.io.IOException;
-import java.io.DataOutputStream;
+import java.io.*;
 
 import java.util.*;
 
@@ -223,6 +219,12 @@ public class STSTrack extends Track{
     public void dumpBinary(DataOutputStream out) {
         for (int i = 0; i < frames.length; i++) {
             frames[i].dumpBinary(out);
+        }
+    }
+    
+    public void dumpBinary_HACK(DataOutputStream out, FileWriter outTxt ) {
+        for (int i = 0; i < frames.length; i++) {
+            frames[i].dumpBinary_HACK( out, outTxt );
         }
     }
     

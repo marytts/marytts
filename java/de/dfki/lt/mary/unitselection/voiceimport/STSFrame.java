@@ -1,8 +1,6 @@
 package de.dfki.lt.mary.unitselection.voiceimport;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.DataOutputStream;
+import java.io.*;
 
 import java.util.StringTokenizer;
 
@@ -73,6 +71,9 @@ public class STSFrame extends Frame {
         }
     }
     
+    public void dumpBinary_HACK(DataOutputStream out, FileWriter outTxt ) {    
+    }
+
     public int getNumSamples(){
         return numRes;
         }
