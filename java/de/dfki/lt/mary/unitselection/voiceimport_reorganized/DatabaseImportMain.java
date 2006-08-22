@@ -36,7 +36,7 @@ import java.io.File;
 import de.dfki.lt.mary.unitselection.voiceimport_reorganized.DatabaseLayout;
 import de.dfki.lt.mary.unitselection.voiceimport_reorganized.LPCTimelineMaker;
 
-public class databaseImportMain 
+public class DatabaseImportMain 
 { 
     /**
      *  Imports a database from a set of wav files:
@@ -68,7 +68,7 @@ public class databaseImportMain
         boolean recompute = false;
         
         if ( args.length > 0 ){
-            if ( args[0].contentEquals("-r") || args[0].contentEquals("--recompute") ) {
+            if ( args[0].equals("-r") || args[0].equals("--recompute") ) {
                 recompute = true;
             }
             else {
@@ -99,7 +99,6 @@ public class databaseImportMain
         if ( !db.timelineDir().exists() ) {
             db.timelineDir().mkdir();
             System.out.println("Created output directory [" + db.timelineDirName() + "] to store the timelines." );
-            return;
         }
         
         /* List the wav files: */
@@ -108,7 +107,7 @@ public class databaseImportMain
         
         /* If recomputation is asked for, launch the EST utilities */
         if ( recompute ) {
-            ESTCaller caller = new ESTCaller( "/home/cl-home/sacha/temp/speech_tools/", db );
+            ESTCaller caller = new ESTCaller( db, "/home/cl-home/sacha/temp/speech_tools/" );
             caller.make_pm_wave( baseNameArray );
             caller.make_lpc( baseNameArray );
             caller.make_mcep( baseNameArray );

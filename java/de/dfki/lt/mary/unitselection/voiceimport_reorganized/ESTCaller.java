@@ -47,33 +47,106 @@ import de.dfki.lt.mary.unitselection.voiceimport_reorganized.DatabaseLayout;
  * @author sacha
  *
  */
+/* Note: some Java 5.0 compliant code, using a ProcessBuilder instead of
+ * a Runtime.exec() to call the external processes, has been commented out
+ * but kept in case we change this design spec. */
 public class ESTCaller
 { 
     /* Fields */
-    private String ESTDIR = "/home/cl-home/sacha/temp/speech_tools/";
-    private ProcessBuilder pb;
-    private DatabaseLayout db;
- 
+    private DatabaseLayout db = null;
+    private String ESTDIR = "/project/mary/Festival/speech_tools/";
+    // private ProcessBuilder pb = null; // JAVA 5.0 compliant code
+    
     /****************/
     /* CONSTRUCTORS */
     /****************/
     
-    public ESTCaller( String newESTDir, DatabaseLayout newDb ) {
+    /**
+     * Constructor which automatically finds the location of the EST speech tools
+     * from the system' s environmant variable ESTDIR
+     * 
+     * @param newDb a database layout, please refer to the DatabaseLayout
+     * class for more info.
+     */
+    public ESTCaller( DatabaseLayout newDb ) {
         
-        ESTDIR = newESTDir;
         db = newDb;
         
-        pb = new ProcessBuilder( new String[]{" "} );
-        Map env = pb.environment();
-        env.put("ESTDIR", ESTDIR );
-        pb.directory( db.baseDir() );
-        pb.redirectErrorStream( true );
+        /* Read the environment variable ESTDIR from the system: */
+        String getESTDIR = System.getenv("ESTDIR");
+        if ( getESTDIR == null ) {
+            System.out.println( "Warning: The environment variable ESTDIR was not found on your system." );
+            System.out.println( "         Defaulting ESTDIR to [" + ESTDIR + "]." );
+        }
+        else ESTDIR = getESTDIR;
+        
+        /* Check if the ESTs can be found in ESTDIR: */
+        checkEST();
+        /* (This will throw a RuntimeException if the ESTs can't be found.) */
+        
+        /* Java 5.0 compliant code below. */
+        /* pb = new ProcessBuilder( new String[]{" "} );
+         Map env = pb.environment();
+         env.put("ESTDIR", ESTDIR );
+         pb.directory( db.baseDir() );
+         pb.redirectErrorStream( true ); */
+        
+    }
+    
+    /**
+     * Constructor which specifies the location of the EST speech tools
+     * 
+     * @param newDb a database layout, please refer to the DatabaseLayout
+     * class for more info.
+     */
+    public ESTCaller( DatabaseLayout newDb, String newESTDir ) {
+        
+        db = newDb;
+        ESTDIR = newESTDir;
+        
+        /* Check if the ESTs can be found in ESTDIR: */
+        checkEST();
+        /* (This will throw a RuntimeException if the ESTs can't be found.) */
+        
+        /* Java 5.0 compliant code below. */
+        /* pb = new ProcessBuilder( new String[]{" "} );
+         Map env = pb.environment();
+         env.put("ESTDIR", ESTDIR );
+         pb.directory( db.baseDir() );
+         pb.redirectErrorStream( true ); */
         
     }
     
     /*****************/
     /* OTHER METHODS */
     /*****************/
+    
+    /**
+     * Checks if the EST can be found with the given ESTDIR directory
+     * 
+     * @returns false if ESTDIR can be found and ch_wave can be run, true otherwise.
+     * 
+     * @throws RuntimeException if the execution of ch_wave fails with an IOException
+     * (meaning ch_wave can't be found or executed).
+     */
+    private void checkEST() {
+        
+        /* Check if ch_wave is present and executes with the given ESTDIR path */
+        try {
+            Runtime.getRuntime().exec( ESTDIR + "/bin/ch_wave -version" );
+        }
+        catch ( IOException e ) {
+            /* This IOException is thrown by exec when ch_wave can't be found or can't be run. */
+            throw new RuntimeException( "Running ch_wave from [" + ESTDIR + "] failed.\n"
+                    + "Please check your ESTDIR environment variable, your specific EST path"
+                    + " or the execution rights in this path.", e );
+        }
+        
+        /* TODO: check for ALL the individual EST binaries that we use ?
+         * (i.e. pitchmark, sig2fv, etc.) */
+       
+        return;
+    }
     
     /**
      * A general process launcher for the various tasks
@@ -87,14 +160,18 @@ public class ESTCaller
         Process proc = null;
         BufferedReader procStdout = null;
         String line = null;
-        String[] cmd = null;
+        // String[] cmd = null; // Java 5.0 compliant code
         
         try {
+            /* Java 5.0 compliant code below. */
             /* Hook the command line to the process builder: */
-            cmd = cmdLine.split( " " );
-            pb.command( cmd );
+            /* cmd = cmdLine.split( " " );
+            pb.command( cmd ); /*
             /* Launch the process: */
-            proc = pb.start();
+            /*proc = pb.start(); */
+            
+            /* Java 1.0 equivalent: */
+            proc = Runtime.getRuntime().exec( cmdLine );
             
             /* Collect stdout and send it to System.out: */
             procStdout = new BufferedReader( new InputStreamReader( proc.getInputStream() ) );
@@ -106,14 +183,15 @@ public class ESTCaller
             /* Wait and check the exit value */
             proc.waitFor();
             if ( proc.exitValue() != 0 ) {
-                new Error( task + " computation failed on file [" + baseName + "]!" );
+                throw new RuntimeException( task + " computation failed on file [" + baseName + "]!\n"
+                        + "Command line was: [" + cmdLine + "]." );
             }
         }
         catch ( IOException e ) {
-            new Error( task + " computation provoked an IOException on file [" + baseName + "]." );
+            throw new RuntimeException( task + " computation provoked an IOException on file [" + baseName + "].", e );
         }
         catch ( InterruptedException e ) {
-            new Error( task + " computation interrupted on file [" + baseName + "]." );
+            throw new RuntimeException( task + " computation interrupted on file [" + baseName + "].", e );
         }
         
     }
@@ -154,7 +232,7 @@ public class ESTCaller
         }
         System.out.println("---- Pitchmarks done." );
     }
-
+    
     /**
      * An equivalent to the make_lpc shell script
      * 
@@ -173,10 +251,10 @@ public class ESTCaller
             
             /* Make the command line */
             cmdLine = ESTDIR + "/bin/sig2fv "
-                + "-window_type hamming -factor 3 -otype est_binary -preemph 0.95 -coefs lpc -lpc_order 16 "
-                + "-pm " + db.pitchmarksDirName() + baseNameArray[i] + ".pm "
-                + "-o " + db.lpcDirName() + baseNameArray[i] + ".lpc "
-                + db.wavDirName() + baseNameArray[i] + ".wav ";
+            + "-window_type hamming -factor 3 -otype est_binary -preemph 0.95 -coefs lpc -lpc_order 16 "
+            + "-pm " + db.pitchmarksDirName() + baseNameArray[i] + ".pm "
+            + "-o " + db.lpcDirName() + baseNameArray[i] + ".lpc "
+            + db.wavDirName() + baseNameArray[i] + ".wav ";
             // System.out.println( cmdLine );
             
             /* Launch the relevant process */
@@ -184,7 +262,7 @@ public class ESTCaller
         }
         System.out.println("---- LPC coefficients done." );
     }
-
+    
     /**
      * An equivalent to the make_mcep shell script
      * 
@@ -202,22 +280,22 @@ public class ESTCaller
         for ( int i = 0; i < baseNameArray.length; i++ ) {
             
             /* Make the command line */
-           cmdLine = ESTDIR + "/bin/sig2fv "
-                + "-window_type hamming -factor 2.5 -otype est_binary -coefs melcep -melcep_order 12 -fbank_order 24 -shift 0.01 -preemph 0.97 "
-                + "-pm " + db.pitchmarksDirName() + baseNameArray[i] + ".pm "
-                + "-o " + db.melcepDirName() + baseNameArray[i] + ".mcep "
-                + db.wavDirName() + baseNameArray[i] + ".wav ";
+            cmdLine = ESTDIR + "/bin/sig2fv "
+            + "-window_type hamming -factor 2.5 -otype est_binary -coefs melcep -melcep_order 12 -fbank_order 24 -shift 0.01 -preemph 0.97 "
+            + "-pm " + db.pitchmarksDirName() + baseNameArray[i] + ".pm "
+            + "-o " + db.melcepDirName() + baseNameArray[i] + ".mcep "
+            + db.wavDirName() + baseNameArray[i] + ".wav ";
             // System.out.println( cmdLine );
-           /* Note: parameter "-delta melcep" has been commented out in the original script.
-            * Refer to the EST docs on http://www.cstr.ed.ac.uk/projects/speech_tools/manual-1.2.0/
-            * for the meaning of the command line parameters. */
+            /* Note: parameter "-delta melcep" has been commented out in the original script.
+             * Refer to the EST docs on http://www.cstr.ed.ac.uk/projects/speech_tools/manual-1.2.0/
+             * for the meaning of the command line parameters. */
             
             /* Launch the relevant process */
             launchProc( cmdLine, "Mel-Cepstrum ", baseNameArray[i] );
         }
         System.out.println("---- Mel-Cepstrum coefficients done." );
     }
-
     
     
- }
+    
+}
