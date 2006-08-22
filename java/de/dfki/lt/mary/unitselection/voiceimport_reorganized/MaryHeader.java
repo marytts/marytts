@@ -71,11 +71,11 @@ public class MaryHeader
      * @param newType The standard type of the Mary file, to be chosen among:
      * MaryHeader.CARTS, MaryHeader.UNITS, MaryHeader.TARGETFEATS, MaryHeader.JOINFEATS, MaryHeader.TIMELINE.
      * 
-     * @throws IOException if the input type is unknown.
+     * @throws RuntimeException if the input type is unknown.
      */
-    public MaryHeader( int newType ) throws IOException {
+    public MaryHeader( int newType ) {
         if ( (newType > TIMELINE) || (newType < UNKNOWN) ) {
-            throw new IOException( "Unauthorized Mary file type [" + type + "]." );
+            throw new RuntimeException( "Unauthorized Mary file type [" + type + "]." );
         }
         type = newType;    
     }
@@ -89,7 +89,7 @@ public class MaryHeader
      */
     public MaryHeader( RandomAccessFile raf ) throws IOException {
         byteSize = this.read( raf );
-        if ( !isMaryHeader() ) { throw new IOException( "Ill-formed Mary header!" ); }
+        if ( !isMaryHeader() ) { throw new RuntimeException( "Ill-formed Mary header!" ); }
     }
     
     /*****************/
@@ -111,7 +111,7 @@ public class MaryHeader
         long nBytes = 0;
         
         if ( !this.hasLegalType() ) {
-            throw new IOException( "Unknown Mary file type [" + type + "]." );
+            throw new RuntimeException( "Unknown Mary file type [" + type + "]." );
         }
         
         raf.writeInt( magic );   nBytes += 4;
@@ -151,7 +151,8 @@ public class MaryHeader
     /* Checkers */
     public boolean hasLegalMagic() { return( magic == MAGIC ); }
     public boolean hasCurrentVersion() { return( version == VERSION ); }
-    public boolean hasLegalType() { return( (type > TIMELINE) || (type <= UNKNOWN) ); }
+    public boolean hasBadType() { return( (type > TIMELINE) || (type <= UNKNOWN) ); }
+    public boolean hasLegalType() { return( !hasBadType() ); }
     public boolean isMaryHeader() { return( hasLegalMagic() && hasLegalType() ); }
 
 }
