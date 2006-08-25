@@ -36,8 +36,10 @@ public class UnitCatalog extends HashMap {
      *
      * @param filename the festival unit catalog file
      */
-    public UnitCatalog(String filename) throws IOException {
+    public UnitCatalog(String filename) {
         super();
+        try{
+        
 
         BufferedReader reader =
             new BufferedReader(
@@ -78,6 +80,10 @@ public class UnitCatalog extends HashMap {
         //output info
         System.out.println("Number of units : "+unitsList.size()
                 +",\nNumber of null-units : "+nullUnits.size());
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new Error("Error reading catalogue");
+        }
     }
 
     /**
@@ -234,11 +240,9 @@ public class UnitCatalog extends HashMap {
      * For testing.  args[0] = festival/clunits/*.catalogue.
      */
     public static void main(String[] args) {        
-        try {
+        
             UnitCatalog catalog = new UnitCatalog(args[0]);
             catalog.checkCatalog();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        
     }
 }
