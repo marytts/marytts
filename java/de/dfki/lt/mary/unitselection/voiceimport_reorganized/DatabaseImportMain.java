@@ -32,6 +32,7 @@
 package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 
 import java.io.File;
+import java.io.FilenameFilter;
 
 import de.dfki.lt.mary.unitselection.voiceimport_reorganized.DatabaseLayout;
 import de.dfki.lt.mary.unitselection.voiceimport_reorganized.LPCTimelineMaker;
@@ -115,6 +116,24 @@ public class DatabaseImportMain
         
         /* Invoke the LPC timeline maker */
         LPCTimelineMaker.run( db, baseNameArray, recompute );
+        
+        /* Read in the units into a catalogue */
+        //Get the catalog file
+        File catalogDir = new File(databaseBaseName + "/festival/clunits");
+        File catalogFile = catalogDir.listFiles(new FilenameFilter() {
+        public boolean accept(File dir, String name) {
+               return name.endsWith(".catalogue");
+        }
+        })[0];
+        //Read in the catalogue 
+        System.out.println("Reading Catalog : " + catalogFile.getPath());
+        UnitCatalog unitCatalog = new UnitCatalog(catalogFile.getPath());
+        
+        /* Read and dump the CARTs */
+        //TODO: Get destination path in here:
+        String destPath = marybase + "/lib/voices/" + voiceName + "/";
+        CARTImporter cp = new CARTImporter();
+        cp.importCARTS(databaseBaseName, destPath, unitCatalog);
 
         /* Close the shop */
         System.out.println( "----\n" + "---- Rock'n Roll!" );
