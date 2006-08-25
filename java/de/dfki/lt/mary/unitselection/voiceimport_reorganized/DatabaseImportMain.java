@@ -43,7 +43,8 @@ public class DatabaseImportMain
      *  Imports a database from a set of wav files:
      *  - launches the EST tools to compute the LPCs
      *  - reads and concatenates the LPC EST tracks into one single timeline file.
-     *
+     *  - reads the unit catalog from the .catalogue file
+     *  - reads and dumps the CARTs 
      * <p>
      * <b> Usage </b>
      * <p>
@@ -54,6 +55,14 @@ public class DatabaseImportMain
      *    <ul>
      *          <li> <code> [ -r | --recompute ] </code> Re-compute the LPC parameters from the wav files,
      *          using the Festvox/EST shell scripts.
+     *          
+     *          <li> <code> <voiceName> </code> The name of the new voice 
+     *          
+     *          <li> <code> <targetFeatureFile> </code> The file defining the
+     *          names, weights and types of the target features
+     *          
+     *          <li> <code> <joinFeatureFile> </code> The file defining the
+     *          weights of the join features
      *          
      *          <li> <code> <databaseBaseName> </code> The location of the base directory
      *          holding the database. <dataBaseDir>/wav/ should hold the corresponding initial
@@ -66,6 +75,9 @@ public class DatabaseImportMain
         
         /* Read in the args */
         String databaseBaseName = ".";
+        String voiceName;
+        String targetFeaturesFile;
+        String joinFeaturesFile;
         boolean recompute = false;
         
         if ( args.length > 0 ){
@@ -76,16 +88,30 @@ public class DatabaseImportMain
                 databaseBaseName = args[0];
             }
         }
-        if ( args.length > 1 ){
-            databaseBaseName = args[1];
+        if ( args.length > 3 ){
+            voiceName = args[1];
+            targetFeaturesFile = args[2];
+            joinFeaturesFile = args[3];
+        } else {
+            System.out.println("Need voicename, targetFeatureFile, joinFeatureFile.\n" 
+                            +" Usage:\n java ImportDatabase [-r|--recompute]"
+                            +" <voicename> <targetFeaturesFile>" 
+                            +" <joinFeaturesFile> <databaseDir>.\n");
+            return;
         }
-        if ( args.length > 2 ){
-            System.out.println("Usage:\n java ImportDatabase [-r|--recompute] <databaseDir>.\n" +
+        if ( args.length > 4 ){
+            databaseBaseName = args[4];
+        }
+        if ( args.length > 5 ){
+            System.out.println("Usage:\n java ImportDatabase [-r|--recompute]"
+                            +" <voicename> <targetFeaturesFile>" 
+                            +" <joinFeaturesFile> <databaseDir>.\n" +
             "Ignoring additional arguments after <databaseDir>." );
         }
         
         /* Invoke a new database layout, starting in the database directory */
-        DatabaseLayout db = new DatabaseLayout( databaseBaseName, "wav", "lpc", "timelines", "pm", "mcep" );
+        DatabaseLayout db = new DatabaseLayout( databaseBaseName, "wav", "lpc", "timelines", "pm", "mcep", voiceName,
+                                                targetFeaturesFile, joinFeaturesFile);
         
         /* Sum up the argument parsing results */
         System.out.println("Importing Voice in base directory [" + db.baseName() + "]." );
@@ -125,15 +151,14 @@ public class DatabaseImportMain
                return name.endsWith(".catalogue");
         }
         })[0];
-        //Read in the catalogue 
+        //Read in the catalog 
         System.out.println("Reading Catalog : " + catalogFile.getPath());
         UnitCatalog unitCatalog = new UnitCatalog(catalogFile.getPath());
         
         /* Read and dump the CARTs */
-        //TODO: Get destination path in here:
-        String destPath = marybase + "/lib/voices/" + voiceName + "/";
+        
         CARTImporter cp = new CARTImporter();
-        cp.importCARTS(databaseBaseName, destPath, unitCatalog);
+        cp.importCARTS(databaseBaseName, db.destinationName(), unitCatalog);
 
         /* Close the shop */
         System.out.println( "----\n" + "---- Rock'n Roll!" );

@@ -33,6 +33,8 @@ package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 
 import java.io.File;
 
+import de.dfki.lt.mary.MaryProperties;
+
 public class DatabaseLayout 
 { 
     /* Private fields with default values */
@@ -42,6 +44,9 @@ public class DatabaseLayout
     private String timelineSubDir = "timelines";
     private String pitchmarksSubDir = "pm";
     private String melcepSubDir = "mcep";
+    private String destinationName = ".";
+    private String targetFeaturesFileName = "";
+    private String joinFeaturesFileName = "";
     
     private File baseDir = null;
     private File wavDir = null;
@@ -49,6 +54,9 @@ public class DatabaseLayout
     private File timelineDir = null;
     private File pitchmarksDir = null;
     private File melcepDir = null;
+    private File destinationDir = null;
+    private File targetFeaturesFile = null;
+    private File joinFeaturesFile = null;
     
     /****************/
     /* CONSTRUCTORS */
@@ -65,7 +73,8 @@ public class DatabaseLayout
      * @param newMelcepSubDir the name of the Mel-cepstrum files sub-directory, e.g., "mcep"
      */
     public DatabaseLayout( String newBaseName, String newWavSubDir, String newLpcSubDir, String newTLSubDir,
-            String newPitchmarksSubDir, String newMelcepSubDir ) {
+            String newPitchmarksSubDir, String newMelcepSubDir , String voiceName, 
+            String targetFeatFile, String joinFeatFile ) {
         
         /* TODO: make this interface more flexible by using a name/value model
          * (through a hash map?), so that the order of the parameters becomes
@@ -77,6 +86,9 @@ public class DatabaseLayout
         timelineSubDir = newTLSubDir;
         pitchmarksSubDir = newPitchmarksSubDir;
         melcepSubDir = newMelcepSubDir;
+        destinationName = MaryProperties.maryBase() + "/lib/voices/" + voiceName + "/";
+        targetFeaturesFileName = targetFeatFile;
+        joinFeaturesFileName = joinFeatFile;
         
         baseDir = new File(baseName);
         wavDir = new File( wavDirName() );
@@ -84,6 +96,14 @@ public class DatabaseLayout
         timelineDir = new File( timelineDirName() );
         pitchmarksDir = new File( pitchmarksDirName() );
         melcepDir = new File( melcepDirName() );
+        destinationDir = new File ( destinationName );
+        targetFeaturesFile = new File ( targetFeaturesFileName );
+        joinFeaturesFile = new File ( joinFeaturesFileName );
+        
+        //make destination directory if it does not exist
+        if (!destinationDir().exists()) {
+            destinationDir().mkdir();
+        }
     }
     
     /*****************/
@@ -109,5 +129,13 @@ public class DatabaseLayout
 
     public String melcepDirName() { return( baseName + "/" + melcepSubDir + "/" ); }
     public File melcepDir()       { return( melcepDir ); }
-
+    
+    public String destinationName() { return( destinationName ); }
+    public File destinationDir()    { return( destinationDir  ); }
+    
+    public String targetFeaturesName() { return( targetFeaturesFileName ); }
+    public File targetFeaturesDir()    { return( targetFeaturesFile  ); }
+    
+    public String joinFeaturesName() { return( joinFeaturesFileName ); }
+    public File joinFeaturesDir()    { return( joinFeaturesFile  ); }
 }
