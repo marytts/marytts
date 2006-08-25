@@ -33,6 +33,7 @@ package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 
 import java.io.RandomAccessFile;
 import java.io.IOException;
+import java.io.DataOutputStream;
 
 /**
  * Common utility to write a standard Mary header
@@ -119,6 +120,27 @@ public class MaryHeader
         raf.writeInt( type );    nBytes += 4;
         
         return( nBytes );
+    }
+    
+    
+    /** Static Mary header writer
+     * 
+     * @param out The DataOutputStream to write to
+     *  
+     * @throws IOException if the file type is unknown.
+     * 
+     * @author sacha, anna
+     */
+    public void write( DataOutputStream out ) throws IOException {
+        
+        if ( !this.hasLegalType() ) {
+            throw new IOException( "Unknown Mary file type [" + type + "]." );
+        }
+        
+        out.writeInt( magic );   
+        out.writeInt( version ); 
+        out.writeInt( type );    
+        
     }
     
     
