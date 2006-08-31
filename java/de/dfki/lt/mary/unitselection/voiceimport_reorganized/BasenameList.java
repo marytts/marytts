@@ -34,6 +34,9 @@ package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Arrays;
+import java.util.Vector;
+import java.io.RandomAccessFile;
+import java.io.IOException;
 
 /**
  * This class produces an alphabetically-sorted array of basenames
@@ -44,8 +47,9 @@ import java.util.Arrays;
  */
 public class BasenameList 
 { 
-    private String[] bList = null;
+    private Vector bList = null;
     private String fromDir = null;
+    private static final int DEFAULT_INCREMENT = 128;
     
     /****************/
     /* CONSTRUCTORS */
@@ -75,12 +79,61 @@ public class BasenameList
             }
         });
         
-        /* Extract the basenames and store them in an alphabetically sorted array */
-        bList = new String[ wavFiles.length ];
+        /* Sort the file names alphabetically */
+        Arrays.sort( wavFiles );
+        
+        /* Extract the basenames and store them in a vector of strings */
+        bList = new Vector( wavFiles.length, DEFAULT_INCREMENT );
+        String str = null;
         for ( int i = 0; i < wavFiles.length; i++ ) {
-            bList[i] = wavFiles[i].getName().substring( 0, wavFiles[i].getName().length() - 4 );
+            str = wavFiles[i].getName().substring( 0, wavFiles[i].getName().length() - 4 );
+            bList.add( str );
         }
-        Arrays.sort( bList );
+    }
+    
+    /**
+     * This constructor loads the basename list from a random access file.
+     * 
+     * @param raf the RandomAccessFile to read from.
+     */
+    public BasenameList( RandomAccessFile raf ) throws IOException {
+        load( raf );
+    }
+    
+    /*****************/
+    /* I/O METHODS   */
+    /*****************/
+
+    /**
+     * Write the basenameList to a RandomAccessFile
+     */
+    public long dump( RandomAccessFile raf ) throws IOException {
+        long nBytes = 0l;
+        String str = null;
+        raf.writeUTF(fromDir);        nBytes += fromDir.length()*2 + 2;
+        raf.writeInt( bList.size() ); nBytes += 4;
+        for ( int i = 0; i < bList.size(); i++ ) {
+            str = (String)(bList.elementAt(i));
+            raf.writeUTF( str ); nBytes += str.length()*2 + 2;
+        }
+        return( nBytes );
+    }
+    
+    /**
+     * Read the basenameList from a RandomAccessFile
+     */
+    public long load( RandomAccessFile raf ) throws IOException {
+        long nBytes = 0l;
+        fromDir = raf.readUTF();          nBytes += fromDir.length()*2 + 2;
+        int numBasenames = raf.readInt(); nBytes += 4;
+        String str = null;
+        bList = new Vector( numBasenames, DEFAULT_INCREMENT );
+        for ( int i = 0; i < numBasenames; i++ ) {
+            str= raf.readUTF();
+            bList.add( str );
+            nBytes += str.length()*2 + 2;
+        }
+        return( nBytes );
     }
     
     /*****************/
@@ -88,9 +141,18 @@ public class BasenameList
     /*****************/
 
     /**
-     * An accessor for the list of basenames
+     * An accessor for the list of basenames, returned as an array of strings
      */
-    public String[] getList() {
+    public String[] getListAsArray() {
+        String[] ret = new String[bList.size()];
+        bList.toArray( ret );
+        return( (String[])( ret ) );
+    }
+    
+    /**
+     * Another accessor for the list of basenames, returned as a vector of strings
+     */
+    public Vector getListAsVector() {
         return( bList );
     }
     
@@ -98,7 +160,7 @@ public class BasenameList
      * An accessor for the list's length
      */
     public int getLength() {
-        return( bList.length );
+        return( bList.size() );
     }
     
    /**

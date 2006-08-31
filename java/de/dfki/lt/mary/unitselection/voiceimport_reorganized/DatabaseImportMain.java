@@ -129,7 +129,7 @@ public class DatabaseImportMain
         }
         
         /* List the wav files: */
-        String[] baseNameArray = new BasenameList( db.wavDirName() ).getList();
+        String[] baseNameArray = new BasenameList( db.wavDirName() ).getListAsArray();
         System.out.println("Found [" + baseNameArray.length + "] wav files to convert." );
         
         /* If recomputation is asked for, launch the EST utilities */
