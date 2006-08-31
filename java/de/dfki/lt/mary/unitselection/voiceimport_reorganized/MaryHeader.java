@@ -60,7 +60,7 @@ public class MaryHeader
     private int magic = MAGIC;
     private int version = VERSION;
     private int type = UNKNOWN;
-    public long byteSize = 12l; // 3 int with 4 bytes each.
+    private long byteSize = 12l; // 3 int with 4 bytes each.
 
     /****************/
     /* CONSTRUCTORS */
@@ -89,7 +89,7 @@ public class MaryHeader
      * @throws IOException if the input type is unknown.
      */
     public MaryHeader( RandomAccessFile raf ) throws IOException {
-        byteSize = this.read( raf );
+        this.load( raf );
         if ( !isMaryHeader() ) { throw new RuntimeException( "Ill-formed Mary header!" ); }
     }
     
@@ -154,13 +154,14 @@ public class MaryHeader
      * 
      * @author sacha
      */
-    public long read( RandomAccessFile raf ) throws IOException {
+    public long load( RandomAccessFile raf ) throws IOException {
         
         long nBytes = 0;
         
         magic = raf.readInt();   nBytes += 4;
         version = raf.readInt(); nBytes += 4;
         type = raf.readInt();    nBytes += 4;
+        byteSize = nBytes;
         
         return( nBytes );
     }
@@ -169,6 +170,7 @@ public class MaryHeader
     public int getMagic() { return(magic); }
     public int getVersion() { return(version); }
     public int getType() { return(type); }
+    public long getByteSize() { return(byteSize); }
 
     /* Checkers */
     public boolean hasLegalMagic() { return( magic == MAGIC ); }

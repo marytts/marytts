@@ -32,6 +32,8 @@
 package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 
 import java.io.RandomAccessFile;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 
 import de.dfki.lt.mary.unitselection.voiceimport_reorganized.General;
 import de.dfki.lt.mary.unitselection.voiceimport_reorganized.MaryHeader;
@@ -120,54 +122,29 @@ public class LPCTimelineMaker
             
             System.out.println("---- Filtering the EST LPC tracks..." );
             
-            /* 3) Prepare the index */
-            int numIdx = (int)java.lang.Math.floor( totalDuration / TimelineIO.DEFAULTIDXINTERVAL );
-            int idxInterval = (int)java.lang.Math.floor( TimelineIO.DEFAULTIDXINTERVAL * (float)(globSampleRate) );
-            long[] begin = new long[numIdx];
-            long[] offset = new long[numIdx];
+            /* 3) Open the destination timeline file */
             
-            /* 4) Open the destination timeline file, output the header and reserve space for the index */
+            /* Make the file name */
             String lpcTimelineName = db.timelineDirName() + "/timeline_lpc_res.bin";
             System.out.println( "Will create the LPC timeline in file [" + lpcTimelineName + "]." );
-            RandomAccessFile timeLineRaf = new RandomAccessFile( lpcTimelineName, "rw" );
-            long byteNow = 0; // Counter for the file position
             
-            /* Mary header */
-            MaryHeader hdr = new MaryHeader( MaryHeader.TIMELINE );
-            byteNow += hdr.write( timeLineRaf );
+            /* An example of processing header: */
+            String cmdLine = "$ESTDIR/bin/sig2fv "
+            + "-window_type hamming -factor 3 -otype est_binary -preemph 0.95 -coefs lpc -lpc_order 16 "
+            + "-pm PITCHMARKFILE.pm -o LPCDIR/LPCFILE.lpc WAVDIR/WAVFILE.wav ";
             
-            /* Text header for processing parameters */
-            String audioInfo = "AudioType LPC Channels "+ numLPC +" LPCMin "+ lpcMin +" LPCRange "+ lpcRange;
-            timeLineRaf.writeShort( audioInfo.length() * 2 ); // Note: this string size is in bytes and Unicode chars take 2 bytes.
-            byteNow += 2;
-            timeLineRaf.writeUTF( audioInfo ); byteNow += (audioInfo.length() * 2);
-            /* Data header */
-            timeLineRaf.writeInt( globSampleRate ); byteNow += 4;
-            timeLineRaf.writeLong( numDatagrams );  byteNow += 8;
-            timeLineRaf.writeByte( TimelineIO.VARIABLE ); byteNow += 1;
+            /* Instantiate the TimelineWriter: */
+            TimelineWriter lpcTimeline = new TimelineWriter( lpcTimelineName, "c", cmdLine, globSampleRate, TimelineIO.VARIABLE );
             
-            /* Write a blank index */
-            long IDXPOSITION = byteNow;
-            timeLineRaf.writeInt( numIdx );      // 4 bytes
-            timeLineRaf.writeInt( idxInterval ); // 4 bytes
-            for(int i = 0; i < numIdx; i++ ) {
-                timeLineRaf.writeLong( begin[i] );
-                timeLineRaf.writeLong( offset[i] );
-            }                                    // numIdx * (8+8) bytes
-            long IDXSIZE = 8 + numIdx*16 ; byteNow += IDXSIZE;
             
-            /* 5) Write the datagrams and feed the index */
+            /* 4) Write the datagrams and feed the index */
             
             long totalTime = 0l;
-            long timeNow = 0l;
-            int idxNow = 0;
-            long nextIdxLimit = idxInterval;
-            int datagramSize = 0;
             
             /* For each EST track file: */
             for ( int i = 0; i < baseNameArray.length; i++ ) {
                 /* - open+load */
-                System.out.println( baseNameArray[i] + "\r" );
+                System.out.println( baseNameArray[i] );
                 lpcFile = new ESTTrackReader( db.lpcDirName() + "/" + baseNameArray[i] + ".lpc" );
                 wav = new WavReader( db.wavDirName() + "/" + baseNameArray[i] + ".wav" );
                 /* - Reset the frame locations in the local file */
@@ -182,38 +159,29 @@ public class LPCTimelineMaker
                     frameEnd = (int)( lpcFile.getTime( f ) * (float)(globSampleRate) );
                     frameSize = frameEnd - frameStart;
                     
-                    /* Update the index: */
-                    /* if the current time passes the current index time, */
-                    timeNow = totalTime + frameEnd;
-                    if ( timeNow > nextIdxLimit ) {
-                        /* then register the current time and file position */
-                        begin[idxNow]  = byteNow;
-                        offset[idxNow] = timeNow;
-                        /* and move to the next index field. */
-                        idxNow++;
-                        nextIdxLimit += idxInterval;
-                    }
-
-                    /* Start outputing the datagram  */
-                    datagramSize = numLPC*2 + (frameSize+numLPC);
-                    timeLineRaf.writeInt( datagramSize ); byteNow += 4;
-                    timeLineRaf.writeLong( frameSize );   byteNow += 8;
-                    
-                    /* Quantize and output the LPC coeffs: */
+                    /* Quantize the LPC coeffs: */
                     short[] quantizedFrame = General.quantize( lpcFile.getFrame( f ), lpcMin, lpcRange );
                     float[] unQuantizedFrame = General.unQuantize( quantizedFrame, lpcMin, lpcRange );
-                    for ( int k = 0; k < numLPC; k++ ) {
-                        timeLineRaf.writeShort( quantizedFrame[k+1] ); byteNow += 2; // k+1 => ignore the energy channel
-                    }
                     /* Note: for inverse filtering (below), we will use the un-quantized values
                      *       of the LPC coefficients, so that the quantization noise is registered
                      *       into the residual (for better reconstruction of the waveform from
-                     *       quantized coeffs). */
+                     *       quantized coeffs).
+                     * Warning: in the EST format, the first LPC coefficient is the filter gain,
+                     *       which should not be used for the inverse filtering. */
                     
-                    /* PERFORM THE INVERSE FILTERING with quantized LPCs, and output the residual */
+                    /* Start the resulting datagram with the LPC coefficients: */
+                    ByteArrayOutputStream byteBuff = new ByteArrayOutputStream();
+                    DataOutputStream datagram = new DataOutputStream( byteBuff );
+                    for ( int k = 1; k < quantizedFrame.length; k++ ) { /* i starts at 1 to skip the gain coefficient */
+                        datagram.writeShort( quantizedFrame[k] );
+                    }
+                    
+                    
+                    /* PERFORM THE INVERSE FILTERING with the quantized LPCs, and write the residual to the datagram: */
                     double r;
                     short[] wave = wav.getSamples();
-                    for (int k = 0; k < (frameSize-numLPC); k++) {
+                    int numRes = frameSize - numLPC;
+                    for (int k = 0; k < numRes; k++) {
                         // try {
                         r = (double)( wave[frameStart + k] );
                         /* } catch ( ArrayIndexOutOfBoundsException e ) {
@@ -232,38 +200,28 @@ public class LPCTimelineMaker
                                 return;
                             } */
                         }
-                        timeLineRaf.writeByte( General.shortToUlaw((short) r) ); byteNow += 1;
+                        datagram.writeByte( General.shortToUlaw((short) r) );
                     }
                     
-                    /* Update the byte position and the number of output datagrams: */
-                    numDatagrams++;
-                    
+                    /* Feed the datagram to the timeline */
+                    lpcTimeline.feed( byteBuff.toByteArray(), numRes );
+                    totalTime += numRes;
                 }
-                /* - Update the global time cursor by adding the position of the last frame */
-                totalTime += frameEnd;
                 
             }
             
             System.out.println("---- Done." );
             
-            /* 6) Come back and write the correct index */
-            timeLineRaf.seek( IDXPOSITION );
-            for(int i = 0; i < numIdx; i++ ) {
-                timeLineRaf.writeLong( begin[i] );
-                timeLineRaf.writeLong( offset[i] );
-            }
-            
-            /* 7) Close the file and print some stats */
-            timeLineRaf.close();
-            
+            /* 7) Print some stats and close the file */
             System.out.println( "---- LPC timeline result:");
             System.out.println( "Number of files scanned: " + baseNameArray.length );
-            System.out.println( "Total speech duration: [" + totalTime + "] frames / [" + ((float)(totalTime) / (float)(globSampleRate)) + "] seconds." );
+            System.out.println( "Total speech duration: [" + totalTime + "] samples / [" + ((float)(totalTime) / (float)(globSampleRate)) + "] seconds." );
             System.out.println( "(Speech duration approximated from EST Track float times: [" + totalDuration + "] seconds.)" );
             System.out.println( "Number of frames: [" + numDatagrams + "]." );
-            System.out.println( "Size of the index: [" + numIdx + "]." );
+            System.out.println( "Size of the index: [" + lpcTimeline.idx.getNumIdx() + "]." );
             System.out.println( "---- LPC timeline done.");
             
+            lpcTimeline.close();
         }
         catch ( SecurityException e ) {
             System.err.println( "Error: you don't have write access to the target database directory." );
