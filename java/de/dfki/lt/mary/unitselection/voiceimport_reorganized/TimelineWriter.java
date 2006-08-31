@@ -138,7 +138,7 @@ public class TimelineWriter extends TimelineIO {
 //        baseNameIdxBytePos = 0; raf.writeLong( 0l );
         
         /* Make a new time index */
-        idx = new Index( sampleRate );
+        idx = new Index( sampleRate, datagramsBytePos );
         
         /* Now we can output the datagrams. */
         

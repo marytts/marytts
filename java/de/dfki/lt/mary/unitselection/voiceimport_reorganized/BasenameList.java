@@ -69,8 +69,7 @@ public class BasenameList
         File wavDir = new File( dir );
         /* Check if the directory exists */
         if ( !wavDir.exists() ) {
-            System.out.println("Directory [" + dir + "] does not exist. Can't find the .wav files." );
-            return;
+            throw new RuntimeException( "Directory [" + dir + "] does not exist. Can't find the .wav files." );
         }
         /* List the .wav files */
         File[] wavFiles = wavDir.listFiles(new FilenameFilter() {

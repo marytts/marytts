@@ -281,6 +281,10 @@ class Index {
     private static final int INCREMENT_SIZE = 512; // The field vector's capacityIncrement
                                                    // (see the Vector object in the Java reference).
     
+    /* Memory of the location of the previous unit (see feed() below.) */
+    private long prevBytePos = 0;
+    private long prevTimePos = 0;
+    
     /****************/
     /* CONSTRUCTORS */
     /****************/
@@ -298,15 +302,18 @@ class Index {
      * at a given sample rate
      * 
      * @param setSampleRate the requested sample rate
+     * @param setInitialBytePosition the byte position of the first possible datagram
+     * (i.e., the position of the datagram zone)
      */
-    public Index( int setSampleRate ) {
+    public Index( int setSampleRate, long setInitialBytePosition ) {
         if ( setSampleRate <= 0 ) {
             throw new RuntimeException( "The sample rate can't be negative or null when building a timeline index." );
         }
         idxInterval = (int)Math.round( DEFAULTIDXINTERVAL_IN_SECONDS * (double)(setSampleRate) );
         field = new Vector( 1, INCREMENT_SIZE );
-        field.add( new IdxField(0,Long.MAX_VALUE) ); /* Initialize the first field with an arbitrary big time value.
-                                                      * (See how the feed() method works, below.) */
+        field.add( new IdxField(setInitialBytePosition,0) ); /* Initialize the first field */
+        prevBytePos = setInitialBytePosition;
+        prevTimePos = 0;
         byteSize = 24l; /* Pre-set the byte-size to the size of the dimensioning fields
                          * numIdx (int, 4 bytes) and idxInterval (int, 4 bytes), plus the first
                          * null index field (16 bytes). */
@@ -318,8 +325,10 @@ class Index {
      * 
      * @param setIdxIntervalInSeconds the requested index interval, in seconds
      * @param setSampleRate the requested sample rate
+     * @param setInitialBytePosition the byte position of the first possible datagram
+     * (i.e., the position of the datagram zone)
      */
-    public Index( double setIdxIntervalInSeconds, int setSampleRate ) {
+    public Index( double setIdxIntervalInSeconds, int setSampleRate, long setInitialBytePosition ) {
         if ( setSampleRate <= 0 ) {
             throw new RuntimeException( "The index interval can't be negative or null when building a timeline index." );
         }
@@ -328,8 +337,9 @@ class Index {
         }
         idxInterval = (int)Math.round( setIdxIntervalInSeconds * (double)(setSampleRate) );
         field = new Vector( 1, INCREMENT_SIZE );
-        field.add( new IdxField(0,Long.MAX_VALUE) ); /* Initialize the first field with an arbitrary big time value.
-                                                      * (See how the feed() method works, below.) */
+        field.add( new IdxField(setInitialBytePosition,0) ); /* Initialize the first field */
+        prevBytePos = setInitialBytePosition;
+        prevTimePos = 0;
         byteSize = 24l; /* Pre-set the byte-size to the size of the dimensioning fields
                          * numIdx (int, 4 bytes) and idxInterval (int, 4 bytes), plus the first
                          * null index field (16 bytes). */
@@ -355,6 +365,9 @@ class Index {
             nBytes += buffer[i].read( raf );
             field.add( buffer[i] );
         }
+        /* Read the "last datagram" memory */
+        prevBytePos = raf.readLong();
+        prevTimePos = raf.readLong();
         
         byteSize = nBytes;
         
@@ -374,6 +387,11 @@ class Index {
             buffer = (IdxField)( field.elementAt(i) );
             nBytes += buffer.write( raf );
         }
+        /* Register the "last datagram" memory as an additional field */
+        raf.writeLong(prevBytePos);
+        raf.writeLong(prevTimePos);
+        nBytes += 16l;
+        
         return( nBytes );
     }
     
@@ -408,35 +426,50 @@ class Index {
      * @return the number of index fields after the feed.
      */
     public int feed( long bytePosition, long timePosition ) {
-        /* Get the time associated with the current and the next regularly
-         * spaced index 'ticks' */
+        /* Get the time associated with the yet to come index field */
         int currentNumIdx = field.size();
         long nextIdxTime = currentNumIdx * idxInterval;
-        long currentIdxTime = nextIdxTime - idxInterval;
-        /* Get the time difference between the regular index and the variable position
-         * that is currently indexed by the last field */
-        IdxField currentField = (IdxField)( field.lastElement() );
-        long currentIdxTimeDiff = Math.abs( currentIdxTime - currentField.timePtr );
-        /* Get the time difference between the regular index and the variable position
-         * that is given as input */
-        long nextIdxTimeDiff = Math.abs( currentIdxTime - timePosition );
-//        System.out.println( "numFields=" + currentNumIdx + " Interval=" + idxInterval
-//                + " Current time=" + timePosition + " currentIdxTime: [" + currentIdxTime + "] Diff=" + currentIdxTimeDiff + " "
-//                + "- nextIdxTime: [" + nextIdxTime + "]" + " Diff=" + nextIdxTimeDiff );
-        /* If the input is closer to the regular index tick, register it in the current index field. */
-        if ( nextIdxTimeDiff < currentIdxTimeDiff ) {
-            currentField.timePtr = timePosition;
-            currentField.bytePtr = bytePosition;
+        /* If the current time position passes the next possible index field,
+         * register the PREVIOUS datagram position in the new index field */
+        if ( nextIdxTime < timePosition ) {
+            System.out.println( "Hitting a new index at position\t[" + bytePosition + "," + timePosition + "]." );
+            System.out.println( "The crossed index is [" + nextIdxTime + "]." );
+            System.out.println( "The registered (previous) position is\t[" + prevBytePos + "," + prevTimePos + "]." );
+            IdxField testField = (IdxField)field.elementAt(currentNumIdx-1);
+            System.out.println( "The previously indexed position was\t[" + testField.bytePtr + "," + testField.timePtr + "]." );
+            
+            field.add( new IdxField(prevBytePos,prevTimePos) );
         }
-        /* Else, if the input gets further from the current index tick, make a new index field
-         * to register it. */
-        else {
-            System.out.println( "Hitting a new index at time position [" + timePosition + "]." );
-            System.out.println( "The expected index crossing is [" + nextIdxTime + "]." );
-            System.out.println( "Previous index was [" + currentField.timePtr + "," + currentField.bytePtr + "]." );
-            field.add( new IdxField(bytePosition,timePosition) );
-        }
+        /* Note:
+         * If one would store the location of the datagram which comes just after the index
+         * position (the currently tested datagram), there would be a possibility that
+         * a particular time request falls between the index and the datagram:
+         * 
+         * time axis --------------------------------->
+         *             INDEX <-- REQUEST
+         *               |
+         *                ---------------> DATAGRAM
+         *                
+         * This would require a subsequent backwards time hopping, which is impossible
+         * because the datagrams are a singly linked list.
+         * 
+         * By registering the location of the previous datagram, any time request will find
+         * an index which points to a datagram falling BEFORE on ON the index location:
+         * 
+         * time axis --------------------------------->
+         *             INDEX <-- REQUEST
+         *               |
+         *  DATAGRAM <---
+         * 
+         * Thus, forward hopping is always possible and the requested time can always be reached.
+         * 
+         * */
         
+        /* Memorize the observed datagram */
+        prevBytePos = bytePosition;
+        prevTimePos = timePosition;
+        
+        /* Return the (possibly new) index size */
         return( field.size() );
     }
     
