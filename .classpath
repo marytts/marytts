@@ -2,10 +2,8 @@
 <classpath>
 	<classpathentry kind="src" path="java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/home/cl-home/hunecke/anna/dfkimary/trunk/java/signalproc.jar"/>
-	<classpathentry kind="lib" path="/home/cl-home/hunecke/anna/dfkimary/trunk/java/mary-dfki-unitselection.jar"/>
 	<classpathentry kind="lib" path="java/log4j-1.2.8.jar"/>
-	<classpathentry sourcepath="Z:/FreeTTS" kind="lib" path="java/freetts.jar"/>
+	<classpathentry kind="lib" path="java/freetts.jar"/>
 	<classpathentry sourcepath="java/jsresources.jar" kind="lib" path="java/jsresources.jar"/>
 	<classpathentry kind="lib" path="java/junit.jar"/>
 	<classpathentry kind="lib" path="java/freetts-cmu_us_kal.jar"/>
@@ -20,7 +18,9 @@
 	<classpathentry kind="lib" path="java/java-diff.jar"/>
 	<classpathentry kind="lib" path="java/freetts-germanlex.jar"/>
 	<classpathentry kind="lib" path="java/freetts-de.jar"/>
-	<classpathentry sourcepath="C:/Program Files/IzPack/src/lib" kind="lib" path="build/standalone-compiler.jar"/>
+	<classpathentry kind="lib" path="build/standalone-compiler.jar"/>
 	<classpathentry kind="lib" path="java/jl1.0.jar"/>
+	<classpathentry kind="lib" path="/home/cl-home/sacha/workspace/dfkimary/java/mary-dfki-unitselection.jar"/>
+	<classpathentry kind="lib" path="/home/cl-home/sacha/workspace/dfkimary/java/signalproc.jar"/>
 	<classpathentry kind="output" path="java"/>
 </classpath>
