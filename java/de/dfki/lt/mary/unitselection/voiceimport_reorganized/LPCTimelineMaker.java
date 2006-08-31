@@ -36,7 +36,7 @@ import java.io.RandomAccessFile;
 import de.dfki.lt.mary.unitselection.voiceimport_reorganized.General;
 import de.dfki.lt.mary.unitselection.voiceimport_reorganized.MaryHeader;
 import de.dfki.lt.mary.unitselection.voiceimport_reorganized.DatabaseLayout;
-import de.dfki.lt.mary.unitselection.voiceimport_reorganized.TimelineReader;
+import de.dfki.lt.mary.unitselection.voiceimport_reorganized.TimelineIO;
 
 /**
  * This class takes a database root directory and a list of basenames,
@@ -121,8 +121,8 @@ public class LPCTimelineMaker
             System.out.println("---- Filtering the EST LPC tracks..." );
             
             /* 3) Prepare the index */
-            int numIdx = (int)java.lang.Math.floor( totalDuration / TimelineReader.DEFAULTIDXINTERVAL );
-            int idxInterval = (int)java.lang.Math.floor( TimelineReader.DEFAULTIDXINTERVAL * (float)(globSampleRate) );
+            int numIdx = (int)java.lang.Math.floor( totalDuration / TimelineIO.DEFAULTIDXINTERVAL );
+            int idxInterval = (int)java.lang.Math.floor( TimelineIO.DEFAULTIDXINTERVAL * (float)(globSampleRate) );
             long[] begin = new long[numIdx];
             long[] offset = new long[numIdx];
             
@@ -144,7 +144,7 @@ public class LPCTimelineMaker
             /* Data header */
             timeLineRaf.writeInt( globSampleRate ); byteNow += 4;
             timeLineRaf.writeLong( numDatagrams );  byteNow += 8;
-            timeLineRaf.writeByte( TimelineReader.VARIABLE ); byteNow += 1;
+            timeLineRaf.writeByte( TimelineIO.VARIABLE ); byteNow += 1;
             
             /* Write a blank index */
             long IDXPOSITION = byteNow;
