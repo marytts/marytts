@@ -39,8 +39,8 @@ import java.io.RandomAccessFile;
 import java.io.IOException;
 
 /**
- * This class produces an alphabetically-sorted array of basenames
- * issued from the .wav files present in a given directory.
+ * The BasenameList class produces and stores an alphabetically-sorted
+ * array of basenames issued from the .wav files present in a given directory.
  * 
  * @author sacha
  *

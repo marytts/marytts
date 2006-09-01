@@ -40,7 +40,7 @@ import java.lang.Process;
 import de.dfki.lt.mary.unitselection.voiceimport_reorganized.DatabaseLayout;
 
 /**
- * This class emulates the behaviour of the EST-calling shell scripts
+ * The ESTCaller class emulates the behaviour of the EST-calling shell scripts
  * for the calculation of pitchmarks, lpc, mel-cepstrum etc.
  * 
  * @author sacha

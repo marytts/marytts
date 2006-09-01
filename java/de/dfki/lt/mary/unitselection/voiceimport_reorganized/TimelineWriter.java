@@ -36,6 +36,14 @@ import java.io.File;
 import java.io.RandomAccessFile;
 import java.io.FileNotFoundException;
 
+/**
+ * The TimelineWriter class provides an interface to create or update
+ * a Timeline data file in Mary format, and to feed new datagrams
+ * to the timeline file.
+ * 
+ * @author sacha
+ *
+ */
 public class TimelineWriter extends TimelineIO {
 
     /****************/
