@@ -41,7 +41,7 @@ import de.dfki.lt.mary.unitselection.voiceimport_reorganized.DatabaseLayout;
 import de.dfki.lt.mary.unitselection.voiceimport_reorganized.TimelineIO;
 
 /**
- * This class takes a database root directory and a list of basenames,
+ * The LPCTimelineMaker class takes a database root directory and a list of basenames,
  * and converts the related wav files into a LPC timeline in Mary format.
  * 
  * @author sacha

@@ -37,6 +37,13 @@ import java.io.FilenameFilter;
 import de.dfki.lt.mary.unitselection.voiceimport_reorganized.DatabaseLayout;
 import de.dfki.lt.mary.unitselection.voiceimport_reorganized.LPCTimelineMaker;
 
+/**
+ * The single purpose of the DatabaseImportMain class is to provide a main
+ * which executes the sequence of database import and conversion operations.
+ * 
+ * @author sacha
+ *
+ */
 public class DatabaseImportMain 
 { 
     /**

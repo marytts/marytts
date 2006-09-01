@@ -36,7 +36,13 @@ import java.io.RandomAccessFile;
 import java.io.FileNotFoundException;
 import java.util.Vector;
 
-
+/**
+ * The TimelineReader class provides an interface to read regularly or variably spaced
+ * datagrams from a Timeline data file in Mary format.
+ * 
+ * @author sacha
+ *
+ */
 public class TimelineReader extends TimelineIO {
     
     /****************/

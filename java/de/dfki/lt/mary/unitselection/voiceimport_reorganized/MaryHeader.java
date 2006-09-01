@@ -36,7 +36,8 @@ import java.io.IOException;
 import java.io.DataOutputStream;
 
 /**
- * Common utility to write a standard Mary header
+ * Common helper class to read/write a standard Mary header to/from the various
+ * Mary data files.
  * 
  * @author sacha
  *

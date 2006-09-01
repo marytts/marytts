@@ -35,6 +35,14 @@ import java.io.File;
 
 import de.dfki.lt.mary.MaryProperties;
 
+/**
+ * The DatabaseLayout class registers the base directory of a voice database,
+ * as well as the various subdirectories where the various voice database
+ * components should be stored or read from.
+ * 
+ * @author sacha
+ *
+ */
 public class DatabaseLayout 
 { 
     /* Private fields with default values */
