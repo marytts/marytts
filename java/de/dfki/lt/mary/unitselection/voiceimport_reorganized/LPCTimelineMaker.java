@@ -134,7 +134,7 @@ public class LPCTimelineMaker
             + "-pm PITCHMARKFILE.pm -o LPCDIR/LPCFILE.lpc WAVDIR/WAVFILE.wav ";
             
             /* Instantiate the TimelineWriter: */
-            TimelineWriter lpcTimeline = new TimelineWriter( lpcTimelineName, "c", cmdLine, globSampleRate, TimelineIO.VARIABLE );
+            TimelineWriter lpcTimeline = new TimelineWriter( lpcTimelineName, cmdLine, globSampleRate, 30.0 );
             
             
             /* 4) Write the datagrams and feed the index */
@@ -171,9 +171,9 @@ public class LPCTimelineMaker
                     
                     /* Start the resulting datagram with the LPC coefficients: */
                     ByteArrayOutputStream byteBuff = new ByteArrayOutputStream();
-                    DataOutputStream datagram = new DataOutputStream( byteBuff );
+                    DataOutputStream datagramContents = new DataOutputStream( byteBuff );
                     for ( int k = 1; k < quantizedFrame.length; k++ ) { /* i starts at 1 to skip the gain coefficient */
-                        datagram.writeShort( quantizedFrame[k] );
+                        datagramContents.writeShort( quantizedFrame[k] );
                     }
                     
                     
@@ -200,11 +200,11 @@ public class LPCTimelineMaker
                                 return;
                             } */
                         }
-                        datagram.writeByte( General.shortToUlaw((short) r) );
+                        datagramContents.writeByte( General.shortToUlaw((short) r) );
                     }
                     
                     /* Feed the datagram to the timeline */
-                    lpcTimeline.feed( byteBuff.toByteArray(), numRes );
+                    lpcTimeline.feed( new Datagram( numRes, byteBuff.toByteArray() ) );
                     totalTime += numRes;
                 }
                 

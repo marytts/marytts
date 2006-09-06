@@ -51,10 +51,6 @@ public class TimelineIO
     /* DATA FIELDS  */
     /****************/
     
-    /* Timeline modes */
-    public final static byte REGULAR  = 0;
-    public final static byte VARIABLE = 1;
-    
     public final static int DEFAULT_INCREMENT = 128; // Default capacityIncrement for vectors
     
     /* Protected fields */
@@ -64,22 +60,12 @@ public class TimelineIO
     
     protected Index idx = null; // A global time index for the variable-sized datagrams
 
-    /* A global index for basename-based indexation: */
-    // protected BasenameList baseName = null;  // The list of basenames for the basename index
-    // protected Vector baseNameBytePos = null; // The vector of file positions in bytes
-    // protected Vector baseNameTimePos = null; // The vector ot file positions in time
-    
     /* Some specific header fields: */
     protected int sampleRate = 0;
     protected long numDatagrams = 0;
-    protected byte timeSpacingMode = -1;
     
     protected long datagramsBytePos = 0;
     protected long timeIdxBytePos = 0;
-    // protected long baseNameIdxBytePos = 0;
-    
-    protected int datagramSize = 0;
-    protected long datagramDuration = 0;
     
     /* Pointers to navigate the file: */
     protected long timePtr = 0; // A time pointer to keep track of the time position in the file
@@ -90,6 +76,13 @@ public class TimelineIO
     /*****************/
     /* ACCESSORS     */
     /*****************/
+    
+    /**
+     * Return the content of the processing header as a String
+     */
+    public String getProcHeaderContents() {
+        return( procHdr.getString() );
+    }
     
     /**
      * Get the current byte position in the file
@@ -119,12 +112,35 @@ public class TimelineIO
         timePtr = timePosition;
     }
     
+    /**
+     * Returns the current number of datagrams in the timeline.
+     * 
+     * @return the number of datagrams, as a long. Warning: you may have to cast this
+     * value into an int if you want to use it to create an array.
+     */
+    public long getNumDatagrams() {
+        return( numDatagrams );
+    }
+    
+    /**
+     * Returns the position of the datagram zone
+     */
+    public long getDatagramsBytePos() {
+        return( datagramsBytePos );
+    }
+    
+    /* A secret function for testign purposes... */
+    public void printIdx() {
+        idx.print();
+    }
+    
     /*****************/
     /* I/O METHODS   */
     /*****************/
     
     /**
-     * Load the headers and the info, the position the file pointer to the beginning of the datagram zone.
+     * Load the headers and the info, the position the file pointer to the beginning of the datagram zone
+     * and the time pointer to 0.
      * 
      * @throws IOException
      */
@@ -139,50 +155,16 @@ public class TimelineIO
         /* Load the timeline dimensions */
         sampleRate = raf.readInt();
         numDatagrams = raf.readLong();
-        timeSpacingMode = raf.readByte();
-        
-        /* Load the datagrams size and datagramDuration */
-        datagramSize = raf.readInt();
-        datagramDuration = raf.readLong();
         
         /* Load the positions of the various subsequent components */
         datagramsBytePos = raf.readLong();
         timeIdxBytePos = raf.readLong();
-        // baseNameIdxBytePos = raf.readLong();
         
-        /* Go fetch the time index (at the end of the file) */
-        if ( timeIdxBytePos != 0 ) {
-            raf.seek( timeIdxBytePos );
-            idx = new Index( raf );
-        }
-        
-        /* Go fetch the basenames index (at the end of the file) */
-//        if ( baseNameIdxBytePos != 0 ) {
-//            raf.seek( baseNameIdxBytePos );
-//            /* - Load a BaseNameList: */
-//            baseName = new BasenameList( raf );
-//            int numNames = baseName.getLength();
-//            /* - Load a corresponding vector of byte positions:*/
-//            baseNameBytePos = new Vector( numNames, DEFAULT_INCREMENT );
-//            for ( int i = 0; i < numNames; i++ ) {
-//                baseNameBytePos.add( new Long( raf.readLong() ) );
-//            }
-//            /* - Load a corresponding vector of time positions:*/
-//            baseNameTimePos = new Vector( baseName.getLength(), DEFAULT_INCREMENT );
-//            for ( int i = 0; i < numNames; i++ ) {
-//                baseNameTimePos.add( new Long( raf.readLong() ) );
-//            }
-//        }
-        
-        /* Go back to the datagrams zone */
+        /* Go fetch the time index at the end of the file, and come back to the datagram zone */
+        raf.seek( timeIdxBytePos );
+        idx = new Index( raf );
         raf.seek( datagramsBytePos );
-        if ( timeSpacingMode == REGULAR ) {
-            datagramSize = raf.readInt();
-            datagramDuration = raf.readLong();
-        }
-        else if ( timeSpacingMode == VARIABLE ) {
-            idx = new Index( raf );
-        }
+        
         /* Make sure the time pointer is zero */
         setTimePointer( 0l );
         
@@ -275,8 +257,6 @@ class Index {
     public final static double DEFAULTIDXINTERVAL_IN_SECONDS = 30.0d; // seconds
     
     private int idxInterval = 0;  // The fixed time interval (in samples) separating two index fields
-    private long byteSize = 0;    // The total byte size of the index, as written in a file,
-                                  // including the dimensioning fields numIdx (int, 4 bytes) and idxInterval (int, 4 bytes)
     private Vector field = null;  // The actual index fields
     private static final int INCREMENT_SIZE = 512; // The field vector's capacityIncrement
                                                    // (see the Vector object in the Java reference).
@@ -314,9 +294,6 @@ class Index {
         field.add( new IdxField(setInitialBytePosition,0) ); /* Initialize the first field */
         prevBytePos = setInitialBytePosition;
         prevTimePos = 0;
-        byteSize = 24l; /* Pre-set the byte-size to the size of the dimensioning fields
-                         * numIdx (int, 4 bytes) and idxInterval (int, 4 bytes), plus the first
-                         * null index field (16 bytes). */
     }
     
     /**
@@ -340,10 +317,7 @@ class Index {
         field.add( new IdxField(setInitialBytePosition,0) ); /* Initialize the first field */
         prevBytePos = setInitialBytePosition;
         prevTimePos = 0;
-        byteSize = 24l; /* Pre-set the byte-size to the size of the dimensioning fields
-                         * numIdx (int, 4 bytes) and idxInterval (int, 4 bytes), plus the first
-                         * null index field (16 bytes). */
-    }
+   }
     
     
     /*****************/
@@ -353,25 +327,18 @@ class Index {
     /**
      * Method which loads an index from a random access file.
      * */
-    public long load( RandomAccessFile raf ) throws IOException {
-        long nBytes = 0;
-        int numIdx = raf.readInt();  nBytes += 4;
-        idxInterval = raf.readInt(); nBytes += 4;
-        IdxField[] buffer = new IdxField[numIdx];
+    public void load( RandomAccessFile raf ) throws IOException {
+        int numIdx = raf.readInt();
+        idxInterval = raf.readInt();
         
         field = new Vector( numIdx, INCREMENT_SIZE );
         
         for( int i = 0; i < numIdx; i++ ) {
-            nBytes += buffer[i].read( raf );
-            field.add( buffer[i] );
-        }
+            field.add( new IdxField(raf) );
+       }
         /* Read the "last datagram" memory */
         prevBytePos = raf.readLong();
         prevTimePos = raf.readLong();
-        
-        byteSize = nBytes;
-        
-        return( nBytes );
     }
     
     /**
@@ -380,8 +347,8 @@ class Index {
     public long dump( RandomAccessFile raf ) throws IOException {
         long nBytes = 0;
         int numIdx = getNumIdx();
-        raf.writeInt( numIdx );      nBytes += 8;
-        raf.writeInt( idxInterval ); nBytes += 8;
+        raf.writeInt( numIdx );      nBytes += 4;
+        raf.writeInt( idxInterval ); nBytes += 4;
         IdxField buffer = null;
         for( int i = 0; i < numIdx; i++ ) {
             buffer = (IdxField)( field.elementAt(i) );
@@ -395,6 +362,25 @@ class Index {
         return( nBytes );
     }
     
+    /**
+     * Method which writes an index to stdout
+     * */
+    public void print() {
+        System.out.println( "<INDEX>" );
+        int numIdx = getNumIdx();
+        System.out.println( "interval = " + idxInterval );
+        System.out.println( "numIdx = " + numIdx );
+        IdxField buffer = null;
+        for( int i = 0; i < numIdx; i++ ) {
+            buffer = (IdxField)( field.elementAt(i) );
+            System.out.println( "( " + buffer.bytePtr + " , " + buffer.timePtr + " )" );
+        }
+        /* Register the "last datagram" memory as an additional field */
+        System.out.println( "Last datagram: "
+                + "( " + prevBytePos + " , " + prevTimePos + " )" );
+        System.out.println( "</INDEX>" );
+    }
+    
     /*****************/
     /* ACCESSORS     */
     /*****************/
@@ -404,14 +390,14 @@ class Index {
     public int getIdxInterval() {
         return( idxInterval );
     }
-    public long getByteSize() {
-        return( byteSize );
-    }
     public IdxField getIdxField( int i ) {
         if ( i < 0 ) {
             throw new RuntimeException( "Negative index." );
         }
         return( (IdxField)(field.elementAt(i)) );
+    }
+    public long getPrevTimePos() {
+        return( prevTimePos );
     }
     
     
@@ -432,14 +418,15 @@ class Index {
         /* If the current time position passes the next possible index field,
          * register the PREVIOUS datagram position in the new index field */
         if ( nextIdxTime < timePosition ) {
-            System.out.println( "Hitting a new index at position\t[" + bytePosition + "," + timePosition + "]." );
-            System.out.println( "The crossed index is [" + nextIdxTime + "]." );
-            System.out.println( "The registered (previous) position is\t[" + prevBytePos + "," + prevTimePos + "]." );
-            IdxField testField = (IdxField)field.elementAt(currentNumIdx-1);
-            System.out.println( "The previously indexed position was\t[" + testField.bytePtr + "," + testField.timePtr + "]." );
+//            System.out.println( "Hitting a new index at position\t[" + bytePosition + "," + timePosition + "]." );
+//            System.out.println( "The crossed index is [" + nextIdxTime + "]." );
+//            System.out.println( "The registered (previous) position is\t[" + prevBytePos + "," + prevTimePos + "]." );
+//            IdxField testField = (IdxField)field.elementAt(currentNumIdx-1);
+//            System.out.println( "The previously indexed position was\t[" + testField.bytePtr + "," + testField.timePtr + "]." );
             
             field.add( new IdxField(prevBytePos,prevTimePos) );
         }
+        
         /* Note:
          * If one would store the location of the datagram which comes just after the index
          * position (the currently tested datagram), there would be a possibility that
@@ -465,7 +452,7 @@ class Index {
          * 
          * */
         
-        /* Memorize the observed datagram */
+        /* Memorize the observed datagram position */
         prevBytePos = bytePosition;
         prevTimePos = timePosition;
         
@@ -480,8 +467,8 @@ class Index {
      * @return
      */
     public IdxField getIdxFieldBefore( long timePosition ) {
-        int idx = (int)( (long)timePosition / (long)idxInterval ); /* The castings aim at preventing an automatic cast to double,
-                                                                    * I'm not sure that they are needed. */
+        int idx = (int)Math.floor( (long)(timePosition) / (long)(idxInterval) ); /* The castings aim at preventing an automatic cast to double,
+                                                                                  * I'm not sure that they are needed. */
         if ( idx < 0 ) {
             throw new RuntimeException( "Negative index field: [" + idx
                     + "] encountered when getting index before time=[" + timePosition
@@ -510,11 +497,10 @@ class IdxField {
         bytePtr = setBytePtr;
         timePtr = setTimePtr;
     }
-    public long read( RandomAccessFile raf ) throws IOException {
+    public IdxField( RandomAccessFile raf ) throws IOException {
         bytePtr = raf.readLong();
         timePtr = raf.readLong();
-        return( 16l ); // 8+8 bytes have been read.
-    }
+     }
     public long write( RandomAccessFile raf ) throws IOException {
         raf.writeLong( bytePtr );
         raf.writeLong( timePtr );

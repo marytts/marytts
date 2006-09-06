@@ -45,6 +45,7 @@ public class AllTests {
         suite.addTest(new TestSuite(MaryTest.class));
         suite.addTest(new TestSuite(RequestTest.class));
         suite.addTest(new TestSuite(EnvironmentTests.class));
+        suite.addTest(new TestSuite(TimelineTest.class));
         return suite;
     }
 }
