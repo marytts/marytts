@@ -53,7 +53,8 @@ public class TimelineTest extends TestCase {
         
         Random rand = new Random(); // New random number generator
         
-        final int NUMDATAGRAMS = 10; // Fixed number of datagrams to test with.
+        final int NUMDATAGRAMS = rand.nextInt( 87 ) + 4; // Number of datagrams to test with, between 4 and 100.
+        System.out.println( "Testing with [" + NUMDATAGRAMS + "] random datagrams." );
         final int MAXDATAGRAMBYTESIZE = 64; // Maximum datagram length in bytes
         final int MAXDATAGRAMDURATION = 20; // Maximum datagram duration (in samples)
         final String hdrContents = "Blah This is the procHeader Blah";
@@ -92,7 +93,7 @@ public class TimelineTest extends TestCase {
         System.out.println( "Opening new timeline file..." );
         TimelineWriter tlw = new TimelineWriter( tlFileName , hdrContents, sampleRate, 0.1d );
         System.out.println( "Feeding..." );
-        tlw.feed( origDatagrams );
+        tlw.feed( origDatagrams, sampleRate );
         System.out.println( "Closing..." );
         tlw.close();
         System.out.println( "Done." );
@@ -233,6 +234,15 @@ public class TimelineTest extends TestCase {
         Assert.assertTrue( D[0].equals( origDatagrams[testIdx] ) );
         Assert.assertTrue( D[1].equals( origDatagrams[testIdx+1] ) );
         Assert.assertTrue( D[2].equals( origDatagrams[testIdx+2] ) );
+        
+        
+        /* Testing time-spanned access with alternate sample rate */
+        System.out.println( "Testing getDatagrams with alternate sample rate ..." );
+        span = origDatagrams[testIdx].duration;
+        tlr.rewind();
+        D = tlr.getDatagrams( onTime*2, span*2, sampleRate/2 );
+        Assert.assertEquals( 1, D.length );
+        Assert.assertTrue( D[0].equals( origDatagrams[testIdx] ) );
         
         
         /* Delete the test file */

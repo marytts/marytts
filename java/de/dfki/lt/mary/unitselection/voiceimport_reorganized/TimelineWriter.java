@@ -55,11 +55,11 @@ public class TimelineWriter extends TimelineIO {
     /****************/
     
     /**
-     * Constructor to create a timeline
+     * Constructor to create a timeline.
      * 
-     * @param fileName The file to read the timeline from
-     * @param procHdrString the string to use as a processing header
-     * @param reqSampleRate the sample rate requested to measure time in this timeline
+     * @param fileName The file to read the timeline from.
+     * @param procHdrString the string to use as a processing header.
+     * @param reqSampleRate the sample rate requested to measure time in this timeline.
      */
     public TimelineWriter( String fileName, String procHdrString, int reqSampleRate, double setIdxInterval ) {
         
@@ -122,9 +122,9 @@ public class TimelineWriter extends TimelineIO {
     
     
     /**
-     * Constructor to open a timeline for appending datagrams
+     * Constructor to open a timeline for appending datagrams.
      * 
-     * @param fileName The file to append the datagrams to
+     * @param fileName The file to append the datagrams to.
      */
     public TimelineWriter( String fileName ) {
         
@@ -187,17 +187,20 @@ public class TimelineWriter extends TimelineIO {
     
     
     /**
-     * Write one datagram to the timeline
+     * Write one datagram to the timeline.
      * 
-     * @param newDatagram the datagram to write
+     * @param newDatagram the datagram to write.
+     * @param reqSampleTime the sample rate at which the datagram duration is expressed.
      * 
      * @throws IOException
      */
-    public void feed( Datagram d ) throws IOException {
+    public void feed( Datagram d, int reqSampleRate ) throws IOException {
 //        System.out.println( "Feeding datagram [ " + d.data.length + " , " + d.duration + " ] at pos ( "
 //                + getBytePointer() + " , " + getTimePointer() + " )" );
         /* Filter the datagram through the index (to automatically add an index field if needed) */
         idx.feed( getBytePointer(), getTimePointer() );
+        /* Check if the datagram needs resampling */
+        if ( reqSampleRate != sampleRate ) d = new Datagram( scaleTime(reqSampleRate,d.duration), d.data );
         /* Then write the datagram on disk */
         d.write( raf ); // This implicitely advances the bytePointer
         /* Then advance various other pointers */
@@ -208,15 +211,16 @@ public class TimelineWriter extends TimelineIO {
     }
 
     /**
-     * Write a series of datagrams to the timeline
+     * Write a series of datagrams to the timeline.
      * 
-     * @param newDatagrams an array of datagrams
+     * @param newDatagrams an array of datagrams.
+     * @param reqSampleTime the sample rate at which the datagram durations are expressed.
      * 
      * @throws IOException
      */
-    public void feed( Datagram[] dArray ) throws IOException {
+    public void feed( Datagram[] dArray, int reqSampleTime ) throws IOException {
         for ( int i = 0; i < dArray.length; i++ ) {
-            feed( dArray[i] );
+            feed( dArray[i], reqSampleTime );
         }
     }
 

@@ -134,6 +134,18 @@ public class TimelineIO
         idx.print();
     }
     
+    /*******************/
+    /* MISC. METHODS   */
+    /*******************/
+    
+    /**
+     * Rescales a discrete time to the timeline's sample rate.
+     */
+    protected long scaleTime( int reqSampleRate, long targetTimeInSamples ) {
+        if ( reqSampleRate == sampleRate ) return( targetTimeInSamples );
+        /* else */ return( (long)Math.round( (double)(reqSampleRate) * (double)(targetTimeInSamples) / (double)(sampleRate) ) );
+    }
+    
     /*****************/
     /* I/O METHODS   */
     /*****************/

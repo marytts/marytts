@@ -204,7 +204,7 @@ public class LPCTimelineMaker
                     }
                     
                     /* Feed the datagram to the timeline */
-                    lpcTimeline.feed( new Datagram( numRes, byteBuff.toByteArray() ) );
+                    lpcTimeline.feed( new Datagram( numRes, byteBuff.toByteArray() ) , globSampleRate );
                     totalTime += numRes;
                 }
                 
