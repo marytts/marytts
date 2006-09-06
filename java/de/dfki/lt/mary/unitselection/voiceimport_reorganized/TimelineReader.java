@@ -22,7 +22,7 @@ public class TimelineReader extends TimelineIO {
     /****************/
     
     /**
-     * Constructor from an externally open random access file
+     * Constructor from an externally open random access file.
      * 
      * @param raf The random access file to read the timeline from.
      */
@@ -31,7 +31,7 @@ public class TimelineReader extends TimelineIO {
     }
     
     /**
-     * Constructor from a file name
+     * Constructor from a file name.
      * 
      * @param fileName The file to read the timeline from
      */
@@ -51,17 +51,6 @@ public class TimelineReader extends TimelineIO {
         catch ( IOException e ) {
             throw new Error("IO Exception caught when closing file [" + fileName + "]: " + e.getMessage() );
         }
-    }
-    
-    /*****************/
-    /* I/O METHODS   */
-    /*****************/
-    
-    /*******************/
-    /* MISC. METHODS   */
-    /*******************/
-    private long scaleTime( int reqSampleRate, long targetTimeInSamples ) {
-        return( (long)Math.round( (double)(sampleRate) / (double)(reqSampleRate) * (double)(targetTimeInSamples) ) );
     }
     
     /******************/
@@ -110,7 +99,7 @@ public class TimelineReader extends TimelineIO {
     }
     
     /**
-     * Read and return the upcoming datagram
+     * Read and return the upcoming datagram.
      * 
      * @return the current datagram, or null if EOF was encountered; internally updates the time pointer.
      * 
@@ -150,11 +139,11 @@ public class TimelineReader extends TimelineIO {
     
     
     /**
-     * Return an array of datagrams
+     * Return an array of datagrams.
      * 
-     * @param numDatagrams the number of datagrams to read
+     * @param numDatagrams the number of datagrams to read.
      * 
-     * @return an array of datagrams; internally updates the time pointer
+     * @return an array of datagrams; internally updates the time pointer.
      * 
      * @throws IOException
      */
@@ -171,25 +160,26 @@ public class TimelineReader extends TimelineIO {
      * Hop the datagrams until the one which begins or contains the desired time
      * (time is in samples; the sample rate is assumed to be that of the timeline).
      * 
-     * @param targetTimeInSamples the time location to reach
+     * @param targetTimeInSamples the time location to reach.
      * 
      * @return true if the requested time comes before the current time location in the timeline
-     *         (this is an error case, because one can only hop forward), false otherwise
+     *         (this is an error case, because one can only hop forward), false otherwise.
      * 
      * @throws IOException
      */
     private boolean hopToTime( long targetTimeInSamples ) throws IOException {
         /* If the requested time is before the current time location, we cannot hop backwards to reach it;
          * send an error case. */
-        if ( targetTimeInSamples < getTimePointer() ) {
+        if ( getTimePointer() > targetTimeInSamples ) {
             return( true );
         }
         
-        /* If the current time position is the requested time [implicitely, if (targetTimeInSample == getTimePointer())],
+        /* If the current time position is the requested time
+         * [implicitely, if (getTimePointer() == targetTimeInSample)],
          * do nothing, you are already at the right position */
         
         /* Else hop: */
-        if ( targetTimeInSamples > getTimePointer() ) {
+        if ( getTimePointer() < targetTimeInSamples ) {
             long byteBefore = 0;
             long timeBefore = 0;
             /* Hop until the datagram which comes just after the requested time */
@@ -213,28 +203,27 @@ public class TimelineReader extends TimelineIO {
     /**
      * Hop the datagrams until the desired time.
      * 
-     * @param reqSampleRate the sample rate for the time specification
-     * @param targetTimeInSamples the desired target time, in samples relative to the above sample rate
+     * @param targetTimeInSamples the desired target time, in samples relative to the above sample rate.
+     * @param reqSampleRate the sample rate for the time specification.
      * 
      * @throws IOException
      */
-    private boolean hopToTime( int reqSampleRate, long targetTimeInSamples ) throws IOException {
-        /* Resample the requested time location, in case the sample times are different between
-         * the request and the timeline */
-        long resampledTime = scaleTime(reqSampleRate,targetTimeInSamples);
-        /* Then call the regular hopToTime() function */
-        return( hopToTime( resampledTime ) );
+    private boolean hopToTime( long targetTimeInSamples, int reqSampleRate ) throws IOException {
+        /* Resample the requested time location, and call the regular hopToTime() function */
+        return( hopToTime( scaleTime(reqSampleRate,targetTimeInSamples) ) );
     }
     
     
     /**
      * Hop the datagrams until the time closest to the desired time
      * (time is in samples; the sample rate is assumed to be that of the timeline).
+     * THIS ROUTINE IS UNTESTED and is mostly unused, kept there in case we change our
+     * datagram accessing policy.
      * 
-     * @param targetTimeInSamples the time location to reach
+     * @param targetTimeInSamples the time location to reach.
      * 
      * @return true if the requested time comes before the current time location in the timeline
-     *         (this is an error case, because one can only hop forward), false otherwise
+     *         (this is an error case, because one can only hop forward), false otherwise.
      * 
      * @throws IOException
      */
@@ -272,27 +261,22 @@ public class TimelineReader extends TimelineIO {
     
     
     /**
-     * Go to the datagram which contains the requested time location,
-     * across the whole timeline (as opposed to within a local time in a file)
+     * Go to the datagram which contains the requested time location
+     * (time is in samples; the sample rate is assumed to be that of the timeline).
      * 
-     * @param targetTimeInSamples the requested time location, in samples relative to reqSampleRate
-     * @param reqSampleRate the sample rate for the requested time
+     * @param targetTimeInSamples the requested time location, in samples relative to the timeline's sample rate.
      * 
      * @throws IOException
      */
-    public void gotoTime( long targetTimeInSamples, int reqSampleRate ) throws IOException {
-        
-        /* Resample the requested time location, in case the sample times are different between
-         * the request and the timeline */
-        long scaledTargetTime = scaleTime(reqSampleRate,targetTimeInSamples);
+    private void gotoTime( long targetTimeInSamples ) throws IOException {
         /* Seek for the time index which comes just before the requested time */
-        IdxField idxFieldBefore = idx.getIdxFieldBefore( scaledTargetTime );
+        IdxField idxFieldBefore = idx.getIdxFieldBefore( targetTimeInSamples );
         // System.out.println( "IDXFIELDBEF = ( " + idxFieldBefore.bytePtr + " , " + idxFieldBefore.timePtr + " )" );
         /* Then jump to the indexed datagram */
         setTimePointer( idxFieldBefore.timePtr );
         setBytePointer( idxFieldBefore.bytePtr );
         /* Then hop until the closest datagram: */
-        if ( hopToTime( scaledTargetTime ) ) {
+        if ( hopToTime( targetTimeInSamples ) ) {
             throw new RuntimeException( "Trying to hop to a time location before the current time position."
                     + " Can't hop backwards. (This should never happen!)" );
         }
@@ -301,24 +285,44 @@ public class TimelineReader extends TimelineIO {
     }
     
     /**
-     * Get the datagrams spanning a particular time range from a particular time location
+     * Go to the datagram which contains the requested time location.
      * 
-     * @param targetTimeInSamples the requested position, in samples
-     * @param timeSpanInSamples the requested time span, in samples
-     * @param reqSampleRate the sample rate for the requested times
+     * @param targetTimeInSamples the requested time location, in samples relative to reqSampleRate.
+     * @param reqSampleRate the sample rate for the requested time.
+     * 
+     * @throws IOException
+     */
+    public void gotoTime( long targetTimeInSamples, int reqSampleRate ) throws IOException {
+        /* Resample the requested time location, in case the sample times are different between
+         * the request and the timeline */
+        long scaledTargetTime = scaleTime(reqSampleRate,targetTimeInSamples);
+        /* Then go to the requested location */
+        gotoTime( scaledTargetTime );
+    }
+    
+    /**
+     * Get the datagrams spanning a particular time range from a particular time location.
+     * 
+     * @param targetTimeInSamples the requested position, in samples.
+     * @param timeSpanInSamples the requested time span, in samples.
+     * @param reqSampleRate the sample rate for the requested times.
      * 
      * @return an array of datagrams
      */
     public Datagram[] getDatagrams( long targetTimeInSamples, long timeSpanInSamples, int reqSampleRate ) throws IOException {
+        /* Resample the requested time location, in case the sample times are different between
+         * the request and the timeline */
+        long scaledTargetTime = scaleTime( reqSampleRate, targetTimeInSamples );
+        long endTime = scaleTime( reqSampleRate, (targetTimeInSamples+timeSpanInSamples) );
+//        System.out.println( "Asked: (" + targetTimeInSamples + "," + (targetTimeInSamples+timeSpanInSamples) + ")@" + reqSampleRate
+//                + " == (" + scaledTargetTime + "," + endTime + ")@" + sampleRate );
         /* We are going to store the datagrams first in a vector, because we don't know how many datagrams we will
          * end up with, and vectors are easier to grow in size than arrays. */
         Vector v = new Vector( 32, 32 );
         /* Let's go to the requested time... */
-        gotoTime( targetTimeInSamples, reqSampleRate );
+        gotoTime( scaledTargetTime );
         /* ... and read datagrams across the requested timeSpan: */
-        long endTimeInSamples = targetTimeInSamples + timeSpanInSamples;
-        endTimeInSamples = scaleTime(reqSampleRate,endTimeInSamples);
-        while( getTimePointer() < endTimeInSamples ) {
+        while( getTimePointer() < endTime ) {
             v.add( getNextDatagram() );
         }
         

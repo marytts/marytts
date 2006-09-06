@@ -43,7 +43,13 @@ public class Datagram  {
     /* DATA FIELDS  */
     /****************/
     
+    /**
+     * The datagram duration, in samples.
+     */
     public long duration = 0l; // The (time) duration of the datagram, in samples
+    /**
+     * The datagram's contents, as a generic byte array.
+     */
     public byte[] data = null;
     
     /****************/
@@ -53,22 +59,22 @@ public class Datagram  {
     /**
      * Data constructor.
      * 
-     * @param setDuration the datagram duration, in samples
+     * @param setDuration the datagram duration, in samples.
      * @param setBuff the address of a byte buffer to use as the datagram's data field.
-     * WARNING: the contents of the given byte buffer is NOT deep-copied.
+     * WARNING: the contents of the given byte array is NOT deep-copied.
      */
-    public Datagram( long setDuration, byte[] setBuff ) {
+    public Datagram( long setDuration, byte[] setData ) {
         if ( setDuration < 0 ) {
             throw new IllegalArgumentException( "Can't create a datagram with the negative duration [" + setDuration + "]." );
         }
         duration = setDuration;
-        data = setBuff;
+        data = setData;
     }
     
     /**
      * File constructor.
      * 
-     * @param raf the random access file to pop the datagram from
+     * @param raf the random access file to pop the datagram from.
      * 
      * @throws IOException
      * @throws EOFException
@@ -91,7 +97,7 @@ public class Datagram  {
     /****************/
     
     /**
-     * Write a datagram to a random acces file.
+     * Write this datagram to a random access file.
      */
     public void write( RandomAccessFile raf ) throws IOException {
         raf.writeLong( duration );
