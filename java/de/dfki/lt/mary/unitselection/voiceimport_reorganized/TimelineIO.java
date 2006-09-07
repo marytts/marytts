@@ -149,11 +149,29 @@ public class TimelineIO
     /*******************/
     
     /**
-     * Rescales a discrete time to the timeline's sample rate.
+     * Scales a discrete time to the timeline's sample rate.
+     * 
+     * @param reqSampleRate the externally given sample rate.
+     * @param targetTimeInSamples a discrete time, with respect to the externally given sample rate.
+     * 
+     * @return a discrete time, in samples with respect to the timeline's sample rate.
      */
     protected long scaleTime( int reqSampleRate, long targetTimeInSamples ) {
         if ( reqSampleRate == sampleRate ) return( targetTimeInSamples );
         /* else */ return( (long)Math.round( (double)(reqSampleRate) * (double)(targetTimeInSamples) / (double)(sampleRate) ) );
+    }
+    
+    /**
+     * Unscales a discrete time from the timeline's sample rate.
+      * 
+     * @param reqSampleRate the externally given sample rate.
+     * @param timelineTimeInSamples a discrete time, with respect to the timeline sample rate.
+     * 
+     * @return a discrete time, in samples with respect to the externally given sample rate.
+    */
+    protected long unScaleTime( int reqSampleRate, long timelineTimeInSamples ) {
+        if ( reqSampleRate == sampleRate ) return( timelineTimeInSamples );
+        /* else */ return( (long)Math.round( (double)(sampleRate) * (double)(timelineTimeInSamples) / (double)(reqSampleRate) ) );
     }
     
     /*****************/
