@@ -46,18 +46,18 @@ public class Datagram  {
     /**
      * The datagram duration, in samples.
      */
-    public long duration = 0l; // The (time) duration of the datagram, in samples
+    protected long duration = 0l; // The (time) duration of the datagram, in samples
     /**
      * The datagram's contents, as a generic byte array.
      */
-    public byte[] data = null;
+    protected byte[] data = null;
     
     /****************/
     /* CONSTRUCTORS */
     /****************/
     
     /**
-     * Data constructor.
+     * Constructor from external data.
      * 
      * @param setDuration the datagram duration, in samples.
      * @param setBuff the address of a byte buffer to use as the datagram's data field.
@@ -72,7 +72,7 @@ public class Datagram  {
     }
     
     /**
-     * File constructor.
+     * Constructor which pops a datagram from a random access file.
      * 
      * @param raf the random access file to pop the datagram from.
      * 
@@ -103,6 +103,32 @@ public class Datagram  {
         raf.writeLong( duration );
         raf.writeInt( data.length );
         raf.write( data );
+    }
+    
+    /****************/
+    /* ACCESSORS    */
+    /****************/
+    
+    /**
+     * Get the datagram duration, in samples. Note: the sample rate has to be provided  externally.
+     */
+    public long getDuration() {
+        return( duration );
+    }
+    
+    /**
+     * Get the length, in bytes, of the datagram's data field.
+     */
+    public int getLength() {
+        return( data.length );
+    }
+    
+    /**
+     * Get the address of the datagram's data field. Warning: the returned byte array is NOT newly allocated,
+     * and keeps on pointing at the datagram's data field.
+     */
+    public byte[] getData() {
+        return( data );
     }
     
     /****************/
