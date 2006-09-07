@@ -130,8 +130,8 @@ public class TimelineTest extends TestCase {
             tlr.skipNextDatagram();
             timeNow = tlr.getTimePointer();
             byteNow = tlr.getBytePointer();
-            Assert.assertEquals( "Skipping fails on datagram [" + i + "].", (long)(origDatagrams[i].data.length) + 12l, (byteNow - byteBefore) );
-            Assert.assertEquals( "Time is out of sync after skipping datagram [" + i + "].", origDatagrams[i].duration, (timeNow - timeBefore) );
+            Assert.assertEquals( "Skipping fails on datagram [" + i + "].", (long)(origDatagrams[i].getLength()) + 12l, (byteNow - byteBefore) );
+            Assert.assertEquals( "Time is out of sync after skipping datagram [" + i + "].", origDatagrams[i].getDuration(), (timeNow - timeBefore) );
         }
         /* Testing the EOF trap for skip */
         Assert.assertTrue( tlr.skipNextDatagram() );
@@ -150,8 +150,8 @@ public class TimelineTest extends TestCase {
             timeBefore = timeNow;
             readDatagrams[i] = tlr.getNextDatagram();
             timeNow = tlr.getTimePointer();
-            Assert.assertTrue( "Datagram [" + i + "] is out of sync.", areEqual( origDatagrams[i].data, readDatagrams[i].data ) );
-            Assert.assertEquals( "Time for datagram [" + i + "] is out of sync.", readDatagrams[i].duration,(timeNow - timeBefore)  );
+            Assert.assertTrue( "Datagram [" + i + "] is out of sync.", areEqual( origDatagrams[i].getData(), readDatagrams[i].getData() ) );
+            Assert.assertEquals( "Time for datagram [" + i + "] is out of sync.", readDatagrams[i].getDuration(),(timeNow - timeBefore)  );
         }
         /* Testing the EOF trap for get */
         Assert.assertEquals( null, tlr.getNextDatagram() );
@@ -160,9 +160,9 @@ public class TimelineTest extends TestCase {
         final int testIdx = NUMDATAGRAMS / 2;
         long onTime = 0l;
         for( int i = 0; i < testIdx; i++ ) {
-            onTime += origDatagrams[i].duration;
+            onTime += origDatagrams[i].getDuration();
         }
-        long afterTime = onTime + origDatagrams[testIdx].duration;
+        long afterTime = onTime + origDatagrams[testIdx].getDuration();
         long midTime = onTime + ((afterTime - onTime) / 2);
         
         System.out.println( "Testing gotoTime 1 ..." );
@@ -190,28 +190,28 @@ public class TimelineTest extends TestCase {
         /* Testing time-spanned access */
         System.out.println( "Testing getDatagrams  1 ..." );
         Datagram[] D = null;
-        long span = origDatagrams[testIdx].duration;
+        long span = origDatagrams[testIdx].getDuration();
         tlr.rewind();
         D = tlr.getDatagrams( onTime, span, sampleRate );
         Assert.assertEquals( 1, D.length );
         Assert.assertTrue( D[0].equals( origDatagrams[testIdx] ) );
         
         System.out.println( "Testing getDatagrams  2 ..." );
-        span = origDatagrams[testIdx].duration / 2;
+        span = origDatagrams[testIdx].getDuration() / 2;
         tlr.rewind();
         D = tlr.getDatagrams( onTime, span, sampleRate );
         Assert.assertEquals( 1, D.length );
         Assert.assertTrue( D[0].equals( origDatagrams[testIdx] ) );
         
         System.out.println( "Testing getDatagrams  3 ..." );
-        span = origDatagrams[testIdx].duration / 2;
+        span = origDatagrams[testIdx].getDuration() / 2;
         tlr.rewind();
         D = tlr.getDatagrams( midTime, span, sampleRate );
         Assert.assertEquals( 1, D.length );
         Assert.assertTrue( D[0].equals( origDatagrams[testIdx] ) );
         
         System.out.println( "Testing getDatagrams  4 ..." );
-        span = origDatagrams[testIdx].duration + 1;
+        span = origDatagrams[testIdx].getDuration() + 1;
         tlr.rewind();
         D = tlr.getDatagrams( onTime, span, sampleRate );
         Assert.assertEquals( 2, D.length );
@@ -219,7 +219,7 @@ public class TimelineTest extends TestCase {
         Assert.assertTrue( D[1].equals( origDatagrams[testIdx+1] ) );
         
         System.out.println( "Testing getDatagrams  5 ..." );
-        span = origDatagrams[testIdx].duration + origDatagrams[testIdx+1].duration;
+        span = origDatagrams[testIdx].getDuration() + origDatagrams[testIdx+1].getDuration();
         tlr.rewind();
         D = tlr.getDatagrams( onTime, span, sampleRate );
         Assert.assertEquals( 2, D.length );
@@ -227,7 +227,7 @@ public class TimelineTest extends TestCase {
         Assert.assertTrue( D[1].equals( origDatagrams[testIdx+1] ) );
         
         System.out.println( "Testing getDatagrams  6 ..." );
-        span = origDatagrams[testIdx].duration + origDatagrams[testIdx+1].duration;
+        span = origDatagrams[testIdx].getDuration() + origDatagrams[testIdx+1].getDuration();
         tlr.rewind();
         D = tlr.getDatagrams( onTime+1, span, sampleRate );
         Assert.assertEquals( 3, D.length );
@@ -238,7 +238,7 @@ public class TimelineTest extends TestCase {
         
         /* Testing time-spanned access with alternate sample rate */
         System.out.println( "Testing getDatagrams with alternate sample rate ..." );
-        span = origDatagrams[testIdx].duration;
+        span = origDatagrams[testIdx].getDuration();
         tlr.rewind();
         D = tlr.getDatagrams( onTime*2, span*2, sampleRate/2 );
         Assert.assertEquals( 1, D.length );

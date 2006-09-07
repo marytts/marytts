@@ -129,7 +129,17 @@ public class TimelineIO
         return( datagramsBytePos );
     }
     
-    /* A secret function for testign purposes... */
+    /**
+     * Returns the timeline's sample rate.
+     */
+    public int getSampleRate() {
+        return( sampleRate );
+    }
+    
+    /**
+     * Prints the index to System.out. (For testing purposes.))
+     *
+     */
     public void printIdx() {
         idx.print();
     }
