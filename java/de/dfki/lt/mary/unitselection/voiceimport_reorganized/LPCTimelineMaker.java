@@ -52,7 +52,7 @@ public class LPCTimelineMaker
      *  Reads and concatenates a list of LPC EST tracks into one single timeline file.
      *
      */
-    public static void run( DatabaseLayout db, String[] baseNameArray, boolean recompute )
+    public static void run( DatabaseLayout db, String[] baseNameArray )
     {
         System.out.println("---- Importing LPC coefficients\n\n");
         System.out.println("Base directory: " + db.baseName() + "\n");
@@ -129,9 +129,9 @@ public class LPCTimelineMaker
             System.out.println( "Will create the LPC timeline in file [" + lpcTimelineName + "]." );
             
             /* An example of processing header: */
-            String cmdLine = "$ESTDIR/bin/sig2fv "
+            String cmdLine = "\n$ESTDIR/bin/sig2fv "
             + "-window_type hamming -factor 3 -otype est_binary -preemph 0.95 -coefs lpc -lpc_order 16 "
-            + "-pm PITCHMARKFILE.pm -o LPCDIR/LPCFILE.lpc WAVDIR/WAVFILE.wav ";
+            + "-pm PITCHMARKFILE.pm -o LPCDIR/LPCFILE.lpc WAVDIR/WAVFILE.wav\n";
             
             /* Instantiate the TimelineWriter: */
             TimelineWriter lpcTimeline = new TimelineWriter( lpcTimelineName, cmdLine, globSampleRate, 30.0 );
@@ -204,8 +204,8 @@ public class LPCTimelineMaker
                     }
                     
                     /* Feed the datagram to the timeline */
-                    lpcTimeline.feed( new Datagram( numRes, byteBuff.toByteArray() ) , globSampleRate );
-                    totalTime += numRes;
+                    lpcTimeline.feed( new Datagram( frameSize, byteBuff.toByteArray() ) , globSampleRate );
+                    totalTime += frameSize;
                 }
                 
             }

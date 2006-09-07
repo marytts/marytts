@@ -148,7 +148,10 @@ public class DatabaseImportMain
         }
         
         /* Invoke the LPC timeline maker */
-        LPCTimelineMaker.run( db, baseNameArray, recompute );
+        LPCTimelineMaker.run( db, baseNameArray );
+        
+        /* Invoke the MCep timeline maker */
+        MCepTimelineMaker.run( db, baseNameArray );
         
         /* Read in the units into a catalogue */
         //Get the catalog file
