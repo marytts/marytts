@@ -375,7 +375,9 @@ public class TimelineReader extends TimelineIO {
     }
     
     /**
-     * Get a given number of datagrams from a particular time location.
+     * Get a given number of datagrams from a particular time location,
+     * and return the time offset between the time request and the actual location of the first
+     * returned datagram.
      * 
      * @param targetTimeInSamples the requested position, in samples.
      * @param number the requested number of datagrams.
