@@ -65,7 +65,7 @@ public class ClusterUnitDatabase extends UnitDatabase
     private AudioFormat audioFormat;
     
     //header values
-    private final static int MAGIC = 0x4d41525;
+    private final static int MAGIC = 0x4d415259; // "MARY"
     private final static int VERSION = 1;
     private final static int CARTS = 1;
     private final static int UNITS = 2;
