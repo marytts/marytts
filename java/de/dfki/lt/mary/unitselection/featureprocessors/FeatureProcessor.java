@@ -1,5 +1,8 @@
 /**
- * Copyright 2006 DFKI GmbH.
+ * Portions Copyright 2006 DFKI GmbH.
+ * Portions Copyright 2001 Sun Microsystems, Inc.
+ * Portions Copyright 1999-2001 Language Technologies Institute, 
+ * Carnegie Mellon University.
  * All Rights Reserved.  Use is subject to license terms.
  * 
  * Permission is hereby granted, free of charge, to use and distribute
@@ -26,28 +29,24 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-
 package de.dfki.lt.mary.unitselection.featureprocessors;
 
-import java.util.*;
-
+import com.sun.speech.freetts.Item;
+import com.sun.speech.freetts.ProcessException;
 
 /**
- * Abstract super class of all Feature Processors Managers
- * 
- * @author Anna Hunecke
- *
+ * Performs a specific type of processing on an item and returns an
+ * object.   
  */
-public abstract class UnitSelectionFeatProcManager{
-    
-    public static Map processors;
-    
-    public UnitSelectionFeatProcManager(){}
-    
-    public FeatureProcessor getFeatureProcessor(String feature){
-        return (FeatureProcessor) processors.get(feature);
-    }
-    
-    
-    
+public interface FeatureProcessor {
+
+    /**
+     * Performs some processing on the given item.
+     * @param  item  the item to process
+     *
+     * @throws ProcessException if an exception occurred during the
+     *   processing
+     */
+    public String process(Item item) throws ProcessException;
 }
+

@@ -52,7 +52,7 @@ public class CentralDatabase
     public final static int CLUNIT_NONE = 65535;
     
     //header values
-    private final static int MAGIC = 0x4d41525;
+    private final static int MAGIC = 0x4d415259; // "MARY"
     private final static int VERSION = 1;
     private final static int CARTS = 1;
     private final static int UNITS = 2;
@@ -525,7 +525,7 @@ public void readAndDumpCARTS(){
      */
     public void dumpUnitsAndAudio() throws IOException {
         if (audioEncoding == LPC){
-            readAndDumpLPCData();
+            //readAndDumpLPCData();
         } else {
             throw new Error("Unsupported Audio type : "+audioEncoding);
         }

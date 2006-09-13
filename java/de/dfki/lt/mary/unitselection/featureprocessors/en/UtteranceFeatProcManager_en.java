@@ -41,9 +41,6 @@ import java.util.*;
 import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.mary.unitselection.featureprocessors.*;
 
-import com.sun.speech.freetts.PhoneSet;
-import com.sun.speech.freetts.PhoneSetImpl;
-import com.sun.speech.freetts.FeatureProcessor;
 
 public class UtteranceFeatProcManager_en extends UtteranceFeatProcManager{
     

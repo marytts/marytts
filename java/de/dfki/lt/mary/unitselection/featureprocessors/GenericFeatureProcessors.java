@@ -33,10 +33,9 @@ package de.dfki.lt.mary.unitselection.featureprocessors;
 
 import com.sun.speech.freetts.en.us.USEnglish;
 import com.sun.speech.freetts.util.Utilities;
-import com.sun.speech.freetts.FeatureProcessor;
 import com.sun.speech.freetts.Item;
-import com.sun.speech.freetts.Relation;
 import com.sun.speech.freetts.ProcessException;
+import com.sun.speech.freetts.Relation;
 
 import de.dfki.lt.mary.unitselection.cart.PathExtractor;
 import de.dfki.lt.mary.unitselection.cart.PathExtractorImpl;
