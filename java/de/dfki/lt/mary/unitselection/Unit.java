@@ -71,7 +71,7 @@ public class Unit
     
     
     public boolean isValid(){
-       
+        // FIXME: This cannot work -- this was intended to be used with frames, and is now applied to samples. If needed, use more sensible duration estimates, otherwise remove.
         // on average, a period is between 50 and 200 Hz, i.e. between
         // 5 ms and 20 ms long.
         // Treat units with one frame or less as too short, 
