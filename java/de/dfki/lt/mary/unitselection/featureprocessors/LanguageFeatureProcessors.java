@@ -32,9 +32,7 @@
 package de.dfki.lt.mary.unitselection.featureprocessors;
 
 import com.sun.speech.freetts.en.us.USEnglish;
-import com.sun.speech.freetts.FeatureProcessor;
 import com.sun.speech.freetts.Item;
-import com.sun.speech.freetts.PhoneSet;
 import com.sun.speech.freetts.ProcessException;
 import com.sun.speech.freetts.Relation;
 

@@ -43,7 +43,7 @@ import de.dfki.lt.mary.unitselection.featureprocessors.UtteranceFeatProcManager;
 
 import com.sun.speech.freetts.util.Utilities;
 import com.sun.speech.freetts.Item;
-import com.sun.speech.freetts.FeatureProcessor;
+import de.dfki.lt.mary.unitselection.featureprocessors.FeatureProcessor;
 import com.sun.speech.freetts.ProcessException;
 
 
