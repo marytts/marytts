@@ -34,22 +34,24 @@ package de.dfki.lt.mary.unitselection.featureprocessors;
 import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.ProcessException;
 
+import de.dfki.lt.mary.unitselection.Target;
+
 /**
  * Performs a specific type of processing on an item and returns an
  * object.   
  */
-public interface FeatureProcessor {
-
+public interface ShortValuedFeatureProcessor extends MaryFeatureProcessor
+{
     /**
-     * Performs some processing on the given item.
-     * TODO: remove? see ByteValuedFeatureProcessor etc.
-     * @param  item  the item to process
-     *
-     * @throws ProcessException if an exception occurred during the
-     *   processing
+     * List the possible values of the feature processor, as
+     * clear-text values. Short values as returned by process()
+     * can be translated into their string equivalent by using
+     * the short value as an index in the String[] returned.
+     * @return an array containing the possible return values
+     * of this feature processor, in String representation.
      */
-    public String process(Item item) throws ProcessException;
+    public String[] getValues();
     
-    public String getName();
+    public short process(Target target);
 }
 

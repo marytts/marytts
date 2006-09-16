@@ -36,10 +36,13 @@ import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.NoSuchElementException;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.TreeSet;
 import java.net.URL;
 
 /**
@@ -71,6 +74,11 @@ public class PhoneSetImpl implements PhoneSet {
     private Map phonesetMap;
 
     /**
+     * The set of phoneme symbols known by this phoneset.
+     */
+    private Set phonemes;
+    
+    /**
      * Create a new <code>PhoneSetImpl</code> by reading from the
      * given URL.
      *
@@ -83,6 +91,7 @@ public class PhoneSetImpl implements PhoneSet {
         String line;
 
 	phonesetMap = new HashMap();
+    phonemes = new TreeSet();
 	reader = new BufferedReader(new
 		InputStreamReader(url.openStream()));
 	line = reader.readLine();
@@ -106,7 +115,8 @@ public class PhoneSetImpl implements PhoneSet {
 	try {
 	    String phoneme = tokenizer.nextToken();
 	    String feature = tokenizer.nextToken();        
-	    String value = tokenizer.nextToken();        
+	    String value = tokenizer.nextToken();
+        phonemes.add(phoneme);
 	    phonesetMap.put(getKey(phoneme, feature), value);
 	} catch (NoSuchElementException nse) {
 	    throw new Error("part of speech data in bad format at line " 
@@ -137,5 +147,14 @@ public class PhoneSetImpl implements PhoneSet {
      */
     public String getPhoneFeature(String phone, String featureName) {
 	return (String) phonesetMap.get(getKey(phone, featureName));
+    }
+    
+    /**
+     * Return a list of phonemes, in alphabetical order.
+     * @return an array of strings, each string is the name of one phoneme.
+     */
+    public String[] listPhonemes()
+    {
+        return (String[]) phonemes.toArray(new String[0]);
     }
 }

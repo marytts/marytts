@@ -34,22 +34,15 @@ package de.dfki.lt.mary.unitselection.featureprocessors;
 import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.ProcessException;
 
+import de.dfki.lt.mary.unitselection.Target;
+
 /**
  * Performs a specific type of processing on an item and returns an
  * object.   
  */
-public interface FeatureProcessor {
+public interface ContinuousFeatureProcessor extends MaryFeatureProcessor
+{
 
-    /**
-     * Performs some processing on the given item.
-     * TODO: remove? see ByteValuedFeatureProcessor etc.
-     * @param  item  the item to process
-     *
-     * @throws ProcessException if an exception occurred during the
-     *   processing
-     */
-    public String process(Item item) throws ProcessException;
-    
-    public String getName();
+    public float process(Target target);
 }
 
