@@ -1,8 +1,5 @@
 /**
- * Portions Copyright 2006 DFKI GmbH.
- * Portions Copyright 2001 Sun Microsystems, Inc.
- * Portions Copyright 1999-2001 Language Technologies Institute, 
- * Carnegie Mellon University.
+ * Copyright 2000-2006 DFKI GmbH.
  * All Rights Reserved.  Use is subject to license terms.
  * 
  * Permission is hereby granted, free of charge, to use and distribute
@@ -29,27 +26,19 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-package de.dfki.lt.mary.unitselection.featureprocessors;
+package de.dfki.lt.mary.datatypes;
 
-import com.sun.speech.freetts.Item;
-import com.sun.speech.freetts.ProcessException;
+import de.dfki.lt.mary.MaryDataType;
 
 /**
- * Performs a specific type of processing on an item and returns an
- * object.   
+ * @author Marc Schr&ouml;der
+ *
+ *
  */
-public interface FeatureProcessor {
+public class TARGETFEATURES_Definer extends MaryDataType {
+    static {
+        define("TARGETFEATURES", null, false, true, PLAIN_TEXT, null, null,
+                         "(no example text)");
 
-    /**
-     * Performs some processing on the given item.
-     * TODO: remove? see ByteValuedFeatureProcessor etc.
-     * @param  item  the item to process
-     *
-     * @throws ProcessException if an exception occurred during the
-     *   processing
-     */
-    public String process(Item item) throws ProcessException;
-    
-    public String getName();
+    }
 }
-

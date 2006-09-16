@@ -38,7 +38,7 @@ import com.sun.speech.freetts.ProcessException;
  * Performs a specific type of processing on an item and returns an
  * object.   
  */
-public interface FeatureProcessor {
+public interface MaryFeatureProcessor {
 
     /**
      * Performs some processing on the given item.
@@ -48,7 +48,7 @@ public interface FeatureProcessor {
      * @throws ProcessException if an exception occurred during the
      *   processing
      */
-    public String process(Item item) throws ProcessException;
+    //public String process(Item item) throws ProcessException;
     
     public String getName();
 }

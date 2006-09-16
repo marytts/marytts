@@ -163,7 +163,8 @@ public class GenericFeatureProcessors
      */
     public static class WordNumSyls implements FeatureProcessor
     {
-
+        public String getName() { return "word_numsyls"; }
+        
         /**
          * Performs some processing on the given item.
          * 
@@ -195,6 +196,7 @@ public class GenericFeatureProcessors
      */
     public static class AccentedSylIn implements FeatureProcessor
     {
+        public String getName() { return "asyl_in"; }
 
         /**
          * Performs some processing on the given item.
@@ -232,6 +234,7 @@ public class GenericFeatureProcessors
      */
     public static class StressedSylIn implements FeatureProcessor
     {
+        public String getName() { return "ssyl_in"; }
 
         /**
          * Performs some processing on the given item.
@@ -270,6 +273,7 @@ public class GenericFeatureProcessors
      */
     public static class SylIn implements FeatureProcessor
     {
+        public String getName() { return "syl_in"; }
 
         /**
          * Performs some processing on the given item.
@@ -304,6 +308,7 @@ public class GenericFeatureProcessors
      */
     public static class SylOut implements FeatureProcessor
     {
+        public String getName() { return "syl_out"; }
 
         /**
          * Performs some processing on the given item.
@@ -340,6 +345,7 @@ public class GenericFeatureProcessors
      */
     public static class StressedSylOut implements FeatureProcessor
     {
+        public String getName() { return "ssyl_out"; }
 
         /**
          * Performs some processing on the given item.
@@ -377,6 +383,7 @@ public class GenericFeatureProcessors
      */
     public static class NumDigits implements FeatureProcessor
     {
+        public String getName() { return "num_digits"; }
 
         /**
          * Performs some processing on the given item.
@@ -404,6 +411,7 @@ public class GenericFeatureProcessors
      */
     public static class MonthRange implements FeatureProcessor
     {
+        public String getName() { return "month_range"; }
 
         /**
          * Performs some processing on the given item.
@@ -435,6 +443,7 @@ public class GenericFeatureProcessors
      */
     public static class Accented implements FeatureProcessor
     {
+        public String getName() { return "accented"; }
 
         /**
          * Performs some processing on the given item.
@@ -464,6 +473,7 @@ public class GenericFeatureProcessors
      */
     public static class LastAccent implements FeatureProcessor
     {
+        public String getName() { return "last_accent"; }
 
         /**
          * Performs some processing on the given item.
@@ -497,6 +507,7 @@ public class GenericFeatureProcessors
      */
     public static class PosInSyl implements FeatureProcessor
     {
+        public String getName() { return "pos_in_syl"; }
 
         /**
          * Performs some processing on the given item.
@@ -528,6 +539,7 @@ public class GenericFeatureProcessors
      */
     public static class PositionType implements FeatureProcessor
     {
+        public String getName() { return "position_type"; }
 
         /**
          * Performs some processing on the given item.
@@ -570,6 +582,7 @@ public class GenericFeatureProcessors
      */
     public static class SylBreak implements FeatureProcessor
     {
+        public String getName() { return "syl_break"; }
 
         /**
          * Performs some processing on the given item.
@@ -612,6 +625,7 @@ public class GenericFeatureProcessors
      */
     public static class WordBreak implements FeatureProcessor
     {
+        public String getName() { return "word_break"; }
 
         /**
          * Performs some processing on the given item.
@@ -637,6 +651,7 @@ public class GenericFeatureProcessors
      */
     public static class WordPunc implements FeatureProcessor
     {
+        public String getName() { return "word_punc"; }
 
         /**
          * Performs some processing on the given item.
@@ -662,6 +677,7 @@ public class GenericFeatureProcessors
      */
     public static class SubPhrases implements FeatureProcessor
     {
+        public String getName() { return "sub_phrases"; }
 
         /**
          * Performs some processing on the given item.
@@ -693,6 +709,7 @@ public class GenericFeatureProcessors
      */
     public static class SegmentDuration implements FeatureProcessor
     {
+        public String getName() { return "segment_duration"; }
 
         /**
          * Performs some processing on the given item.
@@ -725,6 +742,7 @@ public class GenericFeatureProcessors
      */
     public static class SylFinal implements FeatureProcessor
     {
+        public String getName() { return "syl_final"; }
 
         public String process(Item seg) throws ProcessException
         {
@@ -744,6 +762,7 @@ public class GenericFeatureProcessors
      */
     public static class LispIsPau implements FeatureProcessor
     {
+        public String getName() { return "lisp_is_pau"; }
 
         /**
          * Check if segment is a pause
@@ -770,6 +789,7 @@ public class GenericFeatureProcessors
      */
     public static class Seg_Pitch implements FeatureProcessor
     {
+        public String getName() { return "seg_pitch"; }
 
         public String process(Item seg) throws ProcessException
         {
@@ -830,6 +850,8 @@ public class GenericFeatureProcessors
      */
     public static class TobiAccent implements FeatureProcessor
     {
+        public String getName() { return "tobi_accent"; }
+
         /**
          * For the given syllable item, return its tobi accent, 
          * or NONE if there is none.
@@ -851,6 +873,7 @@ public class GenericFeatureProcessors
      */
     public static class TobiEndtone implements FeatureProcessor
     {
+        public String getName() { return "tobi_endtone"; }
         /**
          * For the given syllable item, return its tobi end tone, 
          * or NONE if there is none.

@@ -44,6 +44,11 @@ public abstract class UnitSelectionFeatProcManager{
     
     public UnitSelectionFeatProcManager(){}
     
+    /**
+     * Return the feature processor with the given name.
+     * @param feature the name of the feature processor, e.g. "word_break".
+     * @return the Feature Processor, or null if no feature processor with that name is known.
+     */
     public FeatureProcessor getFeatureProcessor(String feature){
         return (FeatureProcessor) processors.get(feature);
     }

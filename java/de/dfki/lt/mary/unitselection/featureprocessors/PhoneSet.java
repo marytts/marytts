@@ -92,4 +92,11 @@ public interface PhoneSet  {
      * @return the feature with the given name
      */
     public String getPhoneFeature(String phone, String featureName);
+    
+    /**
+     * Return a list of phonemes, in alphabetical order.
+     * @return an array of strings, each string is the name of one phoneme.
+     */
+    public String[] listPhonemes();
+
 }
