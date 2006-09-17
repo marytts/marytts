@@ -305,7 +305,7 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
     
     /**
      * Return consonant cplace 
-     *   0-n/a l-labial a-alveolar p-palatal b-labio_dental d-dental v-velar
+     *   0-n/a l-labial a-alveolar p-palatal b-labio_dental d-dental v-velar g-?
      *
      * This is a feature processor. A feature processor takes an item,
      * performs some sort of processing on the item and returns an object.
@@ -321,7 +321,7 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
         public PH_CPlace(PhoneSet phoneSet){
             this.phoneSet = phoneSet;
             this.values = new ByteStringTranslator(new String[] {
-                    "0", "l", "a", "p", "b", "d", "v"
+                    "0", "l", "a", "p", "b", "d", "v", "g"
             });
         }
     	/**
