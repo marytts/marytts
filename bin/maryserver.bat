@@ -1,4 +1,4 @@
-@echo off
+::@echo off
 
 :: ####################################################################
 :: Copyright (C) 2000-2006 DFKI GmbH.
@@ -31,7 +31,8 @@
 :: MARY TTS server
 ::#########################################################################
 :: Set the Mary base installation directory in an environment variable:
-set MARY_BASE=$INSTALL_PATH
+:: set MARY_BASE=$INSTALL_PATH
+
 
 set SHPROT_BASE=%MARY_BASE%\lib\modules\shprot
 set PATH=%MARY_BASE%\lib\windows;%PATH%
