@@ -60,7 +60,7 @@ public class MCepTimelineMaker
         try{
             /* 1) Determine the reference sampling rate as being the sample rate of the first encountered
              *    wav file */
-            WavReader wav = new WavReader( db.wavDirName() + baseNameArray[0] + ".wav" );
+            WavReader wav = new WavReader( db.wavDirName() + baseNameArray[0] + db.wavExt() );
             int globSampleRate = wav.getSampleRate();
             System.out.println("---- Detected a global sample rate of: [" + globSampleRate + "] Hz." );
             
@@ -78,7 +78,7 @@ public class MCepTimelineMaker
             /* Initialize with the first file: */
             /* - open and load */
             // System.out.println( baseNameArray[0] );
-            mcepFile = new ESTTrackReader( db.melcepDirName() + baseNameArray[0] + ".mcep" );
+            mcepFile = new ESTTrackReader( db.melcepDirName() + baseNameArray[0] + db.melcepExt() );
             /* - get the min and the max */
             current = mcepFile.getMinMax();
             mcepMin = current[0];
@@ -95,7 +95,7 @@ public class MCepTimelineMaker
             for ( int i = 1; i < baseNameArray.length; i++ ) {
                 /* - open+load */
                 // System.out.println( baseNameArray[i] );
-                mcepFile = new ESTTrackReader( db.melcepDirName() + baseNameArray[i] + ".mcep" );
+                mcepFile = new ESTTrackReader( db.melcepDirName() + baseNameArray[i] + db.melcepExt() );
                 /* - get min and max */
                 current = mcepFile.getMinMax();
                 if ( current[0] < mcepMin ) { mcepMin = current[0]; }
@@ -121,7 +121,7 @@ public class MCepTimelineMaker
             /* 3) Open the destination timeline file */
             
             /* Make the file name */
-            String mcepTimelineName = db.timelineDirName() + "/timeline_mcep.bin";
+            String mcepTimelineName = db.timelineDirName() + "timeline_mcep" + db.timelineExt();
             System.out.println( "Will create the mcep timeline in file [" + mcepTimelineName + "]." );
             
             /* An example of processing header: */
@@ -141,7 +141,7 @@ public class MCepTimelineMaker
             for ( int i = 0; i < baseNameArray.length; i++ ) {
                 /* - open+load */
                 System.out.println( baseNameArray[i] );
-                mcepFile = new ESTTrackReader( db.melcepDirName() + "/" + baseNameArray[i] + ".mcep" );
+                mcepFile = new ESTTrackReader( db.melcepDirName() + baseNameArray[i] + db.melcepExt() );
                 /* - For each frame in the mcep file: */
                 float timeBefore = 0.0f;
                 float timeNow = 0.0f;

@@ -81,10 +81,6 @@ public class DatabaseImportMain
     {
         
         /* Read in the args */
-        String databaseBaseName = ".";
-        String voiceName;
-        String targetFeaturesFile;
-        String joinFeaturesFile;
         boolean recompute = false;
         
         if ( args.length > 0 ){
@@ -92,13 +88,12 @@ public class DatabaseImportMain
                 recompute = true;
             }
             else {
-                databaseBaseName = args[0];
+                System.setProperty( "db.baseName", args[0] );
             }
         }
         if ( args.length > 3 ){
-            voiceName = args[1];
-            targetFeaturesFile = args[2];
-            joinFeaturesFile = args[3];
+            System.setProperty( "db.targetFeaturesFileName", args[2] );
+            System.setProperty( "db.joinCostFeaturesFileName", args[2] );
         } else {
             System.out.println("Need voicename, targetFeatureFile, joinFeatureFile.\n" 
                             +" Usage:\n java ImportDatabase [-r|--recompute]"
@@ -107,7 +102,7 @@ public class DatabaseImportMain
             return;
         }
         if ( args.length > 4 ){
-            databaseBaseName = args[4];
+            System.setProperty( "db.baseName", args[4] );
         }
         if ( args.length > 5 ){
             System.out.println("Usage:\n java ImportDatabase [-r|--recompute]"
@@ -117,8 +112,7 @@ public class DatabaseImportMain
         }
         
         /* Invoke a new database layout, starting in the database directory */
-        DatabaseLayout db = new DatabaseLayout( databaseBaseName, "wav", "lpc", "timelines", "pm", "mcep", voiceName,
-                                                targetFeaturesFile, joinFeaturesFile);
+        DatabaseLayout db = new DatabaseLayout();
         
         /* Sum up the argument parsing results */
         System.out.println("Importing Voice in base directory [" + db.baseName() + "]." );
@@ -130,8 +124,9 @@ public class DatabaseImportMain
         }
         
         /* Prepare the output directory for the timelines */
-        if ( !db.timelineDir().exists() ) {
-            db.timelineDir().mkdir();
+        File timelineDir = new File( db.timelineDirName() );
+        if ( !timelineDir.exists() ) {
+            timelineDir.mkdir();
             System.out.println("Created output directory [" + db.timelineDirName() + "] to store the timelines." );
         }
         
@@ -155,7 +150,7 @@ public class DatabaseImportMain
         
         /* Read in the units into a catalogue */
         //Get the catalog file
-        File catalogDir = new File(databaseBaseName + "/festival/clunits");
+        File catalogDir = new File( db.baseName() + "/festival/clunits");
         File catalogFile = catalogDir.listFiles(new FilenameFilter() {
         public boolean accept(File dir, String name) {
                return name.endsWith(".catalogue");
@@ -168,7 +163,7 @@ public class DatabaseImportMain
         /* Read and dump the CARTs */
         
         CARTImporter cp = new CARTImporter();
-        cp.importCARTS(databaseBaseName, db.destinationName(), unitCatalog);
+        cp.importCARTS( db.baseName(), db.cartsDirName(), unitCatalog);
 
         /* Close the shop */
         System.out.println( "----\n" + "---- Rock'n Roll!" );
