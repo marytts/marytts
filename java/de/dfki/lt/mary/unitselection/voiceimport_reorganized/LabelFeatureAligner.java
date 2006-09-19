@@ -1,17 +1,36 @@
 package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 import java.util.Vector;
+
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JEditorPane;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import de.dfki.lt.mary.util.FileUtils;
 
@@ -26,6 +45,12 @@ import de.dfki.lt.mary.util.FileUtils;
  */
 public class LabelFeatureAligner
 {
+    public static final String MARYXML_HEADER =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
+        "<maryxml version=\"0.4\"\n" +
+        "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+        "xmlns=\"http://mary.dfki.de/2002/MaryXML\"\n" +
+        "xml:lang=\""; // need to append locale + "\">"
     protected File unitlabelDir;
     protected File unitfeatureDir;
     protected UnitFeatureComputer featureComputer;
@@ -43,36 +68,43 @@ public class LabelFeatureAligner
     {
         String[] basenames = FileUtils.listBasenames(unitlabelDir, ".unitlab");
         System.out.println("Verifying feature-label alignment for "+basenames.length+" files");
-        List problems = new ArrayList();
+        Map problems = new TreeMap();
         for (int i=0; i<basenames.length; i++) {
-            boolean correct = verifyAlignment(basenames[i]);
+            String errorMessage = verifyAlignment(basenames[i]);
             System.out.print("    "+basenames[i]);
-            if (correct) {
+            if (errorMessage == null) {
                 System.out.println(" OK");
             } else {
-                problems.add(basenames[i]);
-                System.out.println(" does not align properly");
+                problems.put(basenames[i], errorMessage);
+                System.out.println(errorMessage);
             }
         }
         System.out.println("Found "+problems.size() + " problems");
         
-        for (int i=0, len = problems.size(); i<len; i++) {
-            String basename = (String) problems.get(i);
-            boolean correct;
+        for (Iterator it = problems.keySet().iterator(); it.hasNext(); ) {
+            String basename = (String) it.next();
+            String errorMessage;
+            boolean tryAgain;
             do {
-                System.out.print("    "+basename);
-                letUserCorrect(basename);
-                correct = verifyAlignment(basename);
-                if (correct) {
-                    System.out.println(" OK");
+                System.out.print("    "+basename+": ");
+                tryAgain = letUserCorrect(basename, (String)problems.get(basename));
+                errorMessage = verifyAlignment(basename);
+                if (errorMessage == null) {
+                    System.out.println("OK");
                 } else {
-                    System.out.println(" still does not align properly");
+                    System.out.println(errorMessage);
                 }
-            } while (!correct);
+            } while (tryAgain && errorMessage != null);
         }
     }
     
-    protected boolean verifyAlignment(String basename) throws IOException
+    /**
+     * Verify if the feature and label files for basename align OK.
+     * @param basename
+     * @return null if the alignment was OK, or a String containing an error message.
+     * @throws IOException
+     */
+    protected String verifyAlignment(String basename) throws IOException
     {
         BufferedReader labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File(unitlabelDir, basename+".unitlab")), "UTF-8"));
         BufferedReader features = new BufferedReader(new InputStreamReader(new FileInputStream(new File(unitfeatureDir, basename+".feats")), "UTF-8"));
@@ -90,17 +122,18 @@ public class LabelFeatureAligner
         // Skip initial pauses in label file:
         do {
             firstLabelUnit = getLabelUnit(labels);
+            if (firstLabelUnit == null) return "Cannot read any unit from label file";
         } while (firstLabelUnit.equals(pauseSymbol));
 
         String firstFeatureUnit = null;
         // Skip initial pauses in features file (in the unexpected case there are any):
         do {
             firstFeatureUnit = getFeatureUnit(features);
+            if (firstFeatureUnit == null) return "Cannot read any unit from features file";
         } while (firstFeatureUnit.equals(pauseSymbol));
         
         if (firstLabelUnit == null || !firstLabelUnit.equals(firstFeatureUnit)) {
-            System.out.println("Non-matching initial units found: '"+firstLabelUnit+"' vs. '"+firstFeatureUnit+"'");
-            return false;
+            return "Non-matching initial units found: feature file '"+firstFeatureUnit+"' vs. label file '"+firstLabelUnit+"'";
         }
         // Now go through all feature file units
         boolean correct = true;
@@ -110,11 +143,10 @@ public class LabelFeatureAligner
             // when featureUnit is the empty string, we have found an empty line == end of feature section
             if ("".equals(featureUnit)) break;
             if (!labelUnit.equals(featureUnit)) {
-                System.out.println("Non-matching units found: '"+labelUnit+"' vs. '"+featureUnit+"'");
-                return false;
+                return "Non-matching units found: feature file '"+featureUnit+"' vs. label file '"+labelUnit+"'";
             }
         }
-        return true;
+        return null; // success
     }
     
     private String getLabelUnit(BufferedReader labelReader)
@@ -142,14 +174,53 @@ public class LabelFeatureAligner
         
     }
     
-    protected void letUserCorrect(String basename)
+    protected boolean letUserCorrect(String basename, String errorMessage) throws IOException
     {
-        try {
-            Thread.sleep(10000);
-        }catch (InterruptedException e) {}
+        int choice = JOptionPane.showOptionDialog(null,
+                "Misalignment problem for "+basename+":\n"+
+                errorMessage,
+                "Correct alignment for "+basename,
+                JOptionPane.YES_NO_CANCEL_OPTION, 
+                JOptionPane.QUESTION_MESSAGE, 
+                null,
+                new String[] {"Edit RAWMARYXML", "Edit unit labels", "Skip"},
+                null);
+        switch (choice) {
+        case 0: 
+            editMaryXML(basename);
+            break;
+        case 1:
+            editUnitLabels(basename);
+            break;
+        default: // case 2 and JOptionPane.CLOSED_OPTION
+            return false; // don't verify again.
+        }
+        return true; // verify again
     }
     
+    private void editMaryXML(String basename) throws IOException
+    {
+        File textDir = featureComputer.getTextDir();
+        final File maryxmlFile = new File(textDir, basename+".rawmaryxml");
+        if (!maryxmlFile.exists()) {
+            // need to create it
+            String text = FileUtils.getFileAsString(new File(textDir, basename+".txt"), "UTF-8");
+            PrintWriter pw = new PrintWriter(maryxmlFile, "UTF-8");
+            pw.println(MARYXML_HEADER+featureComputer.getLocale()+"\">");
+            pw.println(text);
+            pw.println("</maryxml>");
+            pw.close();
+        }
+        boolean edited = new EditFrameShower(maryxmlFile).display();
+        if (edited)
+            featureComputer.computeFeaturesFor(basename);
+    }
+
     
+    private void editUnitLabels(String basename) throws IOException
+    {
+        new EditFrameShower(new File(unitlabelDir, basename+".unitlab")).display();
+    }
 
     public static void main(String[] args) throws IOException
     {
@@ -163,4 +234,85 @@ public class LabelFeatureAligner
         lfa.compute();
     }
 
+    public static class EditFrameShower
+    {
+        protected final File file;
+        protected boolean saved;
+        public EditFrameShower(File file)
+        {
+            this.file = file;
+            this.saved = false;
+        }
+
+        /**
+         * Show a frame allowing the user to edit the file.
+         * @param file the file to edit
+         * @return a boolean indicating whether the file was saved.
+         * @throws IOException
+         * @throws UnsupportedEncodingException
+         * @throws FileNotFoundException
+         */
+        public boolean display() throws IOException, UnsupportedEncodingException, FileNotFoundException
+        {
+            final JFrame frame = new JFrame("Edit "+file.getName());
+            GridBagLayout gridBagLayout = new GridBagLayout();
+            GridBagConstraints gridC = new GridBagConstraints();
+            frame.setLayout( gridBagLayout );
+
+            final JEditorPane editPane = new JEditorPane();
+            editPane.setPreferredSize(new Dimension(500, 500));
+            editPane.read(new InputStreamReader(new FileInputStream(file), "UTF-8"), null);
+            JButton saveButton = new JButton("Save & Exit");
+            saveButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        PrintWriter pw = new PrintWriter(file);
+                        editPane.write(pw);
+                        pw.close();
+                        frame.setVisible(false);
+                        setSaved(true);
+                    } catch (IOException ioe) {
+                        ioe.printStackTrace();
+                    }
+                }
+            });
+            JButton cancelButton = new JButton("Cancel");
+            cancelButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    frame.setVisible(false);
+                    setSaved(false);
+                }
+            });
+
+            gridC.gridx = 0;
+            gridC.gridy = 0;
+            gridC.fill = GridBagConstraints.HORIZONTAL;
+            JScrollPane scrollPane = new JScrollPane(editPane);
+            scrollPane.setPreferredSize(editPane.getPreferredSize());
+            gridBagLayout.setConstraints( scrollPane, gridC );
+            frame.add(scrollPane);
+            gridC.gridy = 1;
+            JPanel buttonPanel = new JPanel();
+            buttonPanel.setLayout(new FlowLayout());
+            buttonPanel.add(saveButton);
+            buttonPanel.add(cancelButton);
+            gridBagLayout.setConstraints( buttonPanel, gridC );
+            frame.add(buttonPanel);
+            frame.pack();
+            frame.setVisible(true);
+            do {
+                try {
+                    Thread.sleep(10); // OK, this is ugly, but I don't mind today...
+                } catch (InterruptedException e) {}
+            } while (frame.isVisible());
+            frame.dispose();
+            return saved;
+        }
+        
+        protected void setSaved(boolean saved)
+        {
+            this.saved = saved;
+        }
+
+    }
 }

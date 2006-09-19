@@ -34,7 +34,28 @@ public class UnitFeatureComputer {
         this.textDir = textDir;
         this.unitfeatureDir = unitfeatureDir;
         this.locale = locale;
-        this.mary = new MaryClient();
+        this.mary = null; // initialised only if needed
+    }
+    
+    public File getTextDir()
+    {
+        return textDir;
+    }
+    
+    public File getUnitFeatureDir()
+    {
+        return unitfeatureDir;
+    }
+    
+    public String getLocale()
+    {
+        return locale;
+    }
+    
+    public MaryClient getMaryClient() throws IOException
+    {
+        if (mary == null) mary = new MaryClient();
+        return mary;
     }
 
     public void compute() throws IOException
@@ -63,7 +84,8 @@ public class UnitFeatureComputer {
         }
         String outputFormat = "TARGETFEATURES";
         OutputStream os = new BufferedOutputStream(new FileOutputStream(new File(unitfeatureDir, basename+".feats")));
-        mary.process(text, inputFormat, outputFormat, null, null, os);
+        MaryClient maryClient = getMaryClient();
+        maryClient.process(text, inputFormat, outputFormat, null, null, os);
         os.flush();
         os.close();
     }
