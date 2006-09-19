@@ -64,7 +64,7 @@ public class LPCTimelineMaker
             
             /* 1) Determine the reference sampling rate as being the sample rate of the first encountered
              *    wav file */
-            WavReader wav = new WavReader( db.wavDirName() + baseNameArray[0] + ".wav" );
+            WavReader wav = new WavReader( db.wavDirName() + baseNameArray[0] + db.wavExt() );
             int globSampleRate = wav.getSampleRate();
             System.out.println("---- Detected a global sample rate of: [" + globSampleRate + "] Hz." );
             
@@ -82,7 +82,7 @@ public class LPCTimelineMaker
             /* Initialize with the first file: */
             /* - open and load */
             // System.out.println( baseNameArray[0] );
-            lpcFile = new ESTTrackReader( db.lpcDirName() + baseNameArray[0] + ".lpc" );
+            lpcFile = new ESTTrackReader( db.lpcDirName() + baseNameArray[0] + db.lpcExt() );
             /* - get the min and the max */
             current = lpcFile.getMinMaxNo1st();
             lpcMin = current[0];
@@ -99,7 +99,7 @@ public class LPCTimelineMaker
             for ( int i = 1; i < baseNameArray.length; i++ ) {
                 /* - open+load */
                 // System.out.println( baseNameArray[i] );
-                lpcFile = new ESTTrackReader( db.lpcDirName() + baseNameArray[i] + ".lpc" );
+                lpcFile = new ESTTrackReader( db.lpcDirName() + baseNameArray[i] + db.lpcExt() );
                 /* - get min and max */
                 current = lpcFile.getMinMaxNo1st();
                 if ( current[0] < lpcMin ) { lpcMin = current[0]; }
@@ -125,7 +125,7 @@ public class LPCTimelineMaker
             /* 3) Open the destination timeline file */
             
             /* Make the file name */
-            String lpcTimelineName = db.timelineDirName() + "/timeline_lpc_res.bin";
+            String lpcTimelineName = db.timelineDirName() + "timeline_lpc_res" + db.timelineExt() ;
             System.out.println( "Will create the LPC timeline in file [" + lpcTimelineName + "]." );
             
             /* An example of processing header: */
@@ -145,8 +145,8 @@ public class LPCTimelineMaker
             for ( int i = 0; i < baseNameArray.length; i++ ) {
                 /* - open+load */
                 System.out.println( baseNameArray[i] );
-                lpcFile = new ESTTrackReader( db.lpcDirName() + "/" + baseNameArray[i] + ".lpc" );
-                wav = new WavReader( db.wavDirName() + "/" + baseNameArray[i] + ".wav" );
+                lpcFile = new ESTTrackReader( db.lpcDirName() + "/" + baseNameArray[i] + db.lpcExt() );
+                wav = new WavReader( db.wavDirName() + baseNameArray[i] + db.wavExt() );
                 /* - Reset the frame locations in the local file */
                 int frameStart = 0;
                 int frameEnd = 0;

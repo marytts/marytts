@@ -32,6 +32,7 @@
 package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 
 import java.io.File;
+import java.util.Properties;
 
 import de.dfki.lt.mary.MaryProperties;
 
@@ -44,28 +45,7 @@ import de.dfki.lt.mary.MaryProperties;
  *
  */
 public class DatabaseLayout 
-{ 
-    /* Private fields with default values */
-    private String baseName = ".";
-    private String wavSubDir = "wav";
-    private String lpcSubDir = "lpc";
-    private String timelineSubDir = "timelines";
-    private String pitchmarksSubDir = "pm";
-    private String melcepSubDir = "mcep";
-    private String destinationName = ".";
-    private String targetFeaturesFileName = "";
-    private String joinFeaturesFileName = "";
-    
-    private File baseDir = null;
-    private File wavDir = null;
-    private File lpcDir = null;
-    private File timelineDir = null;
-    private File pitchmarksDir = null;
-    private File melcepDir = null;
-    private File destinationDir = null;
-    private File targetFeaturesFile = null;
-    private File joinFeaturesFile = null;
-    
+{   
     /****************/
     /* CONSTRUCTORS */
     /****************/
@@ -73,77 +53,101 @@ public class DatabaseLayout
     /**
      * Constructor for a new database layout.
      * 
-     * @param newBaseName the root directory of the database tree
-     * @param newWavSubDir the name of the wav files sub-directory, e.g., "wav"
-     * @param newLpcSubDir the name of the lpc files sub-directory, e.g., "lpc"
-     * @param newTLSubDir the name of the timeline files sub-directory, e.g., "timelines"
-     * @param newPitchmarkSubDir the name of the pitchmarks files sub-directory, e.g., "pm"
-     * @param newMelcepSubDir the name of the Mel-cepstrum files sub-directory, e.g., "mcep"
      */
-    public DatabaseLayout( String newBaseName, String newWavSubDir, String newLpcSubDir, String newTLSubDir,
-            String newPitchmarksSubDir, String newMelcepSubDir , String voiceName, 
-            String targetFeatFile, String joinFeatFile ) {
+    public DatabaseLayout() {
+        initDefaultProps();
+    }
+    
+    /**
+     * Initializes a default database layout.
+     *
+     */
+    private void initDefaultProps() {
         
-        /* TODO: make this interface more flexible by using a name/value model
-         * (through a hash map?), so that the order of the parameters becomes
-         *  arbitrary, and so that some default values can be preserved. */
+        /* baseName : the name of the root directory for the database */
+        setIfDoesntExist( "db.baseName", "." );
         
-        baseName = newBaseName;
-        wavSubDir = newWavSubDir;
-        lpcSubDir = newLpcSubDir;
-        timelineSubDir = newTLSubDir;
-        pitchmarksSubDir = newPitchmarksSubDir;
-        melcepSubDir = newMelcepSubDir;
-        destinationName = MaryProperties.maryBase() + "/lib/voices/" + voiceName + "/";
-        targetFeaturesFileName = targetFeatFile;
-        joinFeaturesFileName = joinFeatFile;
+        setIfDoesntExist( "db.wavSubDir", "wav" );
+        setIfDoesntExist( "db.wavExtension", ".wav" );
         
-        baseDir = new File(baseName);
-        wavDir = new File( wavDirName() );
-        lpcDir = new File( lpcDirName() );
-        timelineDir = new File( timelineDirName() );
-        pitchmarksDir = new File( pitchmarksDirName() );
-        melcepDir = new File( melcepDirName() );
-        destinationDir = new File ( destinationName );
-        targetFeaturesFile = new File ( targetFeaturesFileName );
-        joinFeaturesFile = new File ( joinFeaturesFileName );
+        setIfDoesntExist( "db.lpcSubDir", "lpc" );
+        setIfDoesntExist( "db.lpcExtension", ".lpc" );
         
-        //make destination directory if it does not exist
-        if (!destinationDir().exists()) {
-            destinationDir().mkdir();
-        }
+        setIfDoesntExist( "db.pitchmarksSubDir", "pm" );
+        setIfDoesntExist( "db.pitchmarksExtension", ".pm" );
+        
+        setIfDoesntExist( "db.melcepSubDir", "mcep" );
+        setIfDoesntExist( "db.melcepExtension", ".mcep" );
+        
+        setIfDoesntExist( "db.timelineSubDir", "mary_timelines" );
+        setIfDoesntExist( "db.timelineExtension", ".bin" );
+        
+        setIfDoesntExist( "db.featuresSubDir", "mary_features" );
+        setIfDoesntExist( "db.featuresExtension", ".bin" );
+        
+        setIfDoesntExist( "db.cartsSubDir", "mary_carts" );
+        
+        setIfDoesntExist( "db.targetFeaturesBaseName", "targetFeatures" );
+        setIfDoesntExist( "db.joinCostFeaturesBaseName", "joinCostFeatures" );
+    }
+    
+    /**
+     * Sets a property if this property has not been set before. This is used to preserve
+     * user overrides if they were produced before the instanciation of the databaseLayout.
+     * 
+     * @param propertyName The property name.
+     * @param propertyVal The property value.
+     */
+    public static void setIfDoesntExist( String propertyName, String propertyVal ) {
+        if ( System.getProperty( propertyName ) == null ) System.setProperty( propertyName, propertyVal );
     }
     
     /*****************/
     /* OTHER METHODS */
     /*****************/
     
-    /* Various accessors: */
+    /* Various accessors and absolute path makers: */
 
-    public String baseName() { return( baseName ); }
-    public File baseDir()    { return( baseDir  ); }
-
-    public String wavDirName() { return( baseName + "/" + wavSubDir + "/" ); }
-    public File wavDir()       { return( wavDir ); }
-
-    public String lpcDirName() { return( baseName + "/" + lpcSubDir + "/" ); }
-    public File lpcDir()       { return( lpcDir ); }
-
-    public String timelineDirName() { return( baseName + "/" + timelineSubDir + "/" ); }
-    public File timelineDir()       { return( timelineDir ); }
-
-    public String pitchmarksDirName() { return( baseName + "/" + pitchmarksSubDir + "/" ); }
-    public File pitchmarksDir()       { return( pitchmarksDir ); }
-
-    public String melcepDirName() { return( baseName + "/" + melcepSubDir + "/" ); }
-    public File melcepDir()       { return( melcepDir ); }
+    public String baseName() { return( System.getProperty( "db.baseName") ); }
     
-    public String destinationName() { return( destinationName ); }
-    public File destinationDir()    { return( destinationDir  ); }
+    public String wavDirName() { return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
+            + System.getProperty( "db.wavSubDir" ) + System.getProperty( "file.separator" ) ); }
+    public String wavExt() { return( System.getProperty( "db.wavExtension") ); }
     
-    public String targetFeaturesName() { return( targetFeaturesFileName ); }
-    public File targetFeaturesDir()    { return( targetFeaturesFile  ); }
     
-    public String joinFeaturesName() { return( joinFeaturesFileName ); }
-    public File joinFeaturesDir()    { return( joinFeaturesFile  ); }
+    public String lpcDirName() { return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
+            + System.getProperty( "db.lpcSubDir" ) + System.getProperty( "file.separator" ) ); }
+    public String lpcExt() { return( System.getProperty( "db.lpcExtension") ); }
+    
+    public String timelineDirName() { return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
+            + System.getProperty( "db.timelineSubDir" ) + System.getProperty( "file.separator" ) ); }
+    public String timelineExt() { return( System.getProperty( "db.timelineExtension") ); }
+    
+    public String pitchmarksDirName() { return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
+            + System.getProperty( "db.pitchmarksSubDir" ) + System.getProperty( "file.separator" ) ); }
+    public String pitchmarksExt() { return( System.getProperty( "db.pitchmarksExtension") ); }
+    
+    public String melcepDirName() { return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
+            + System.getProperty( "db.melcepSubDir" ) + System.getProperty( "file.separator" ) ); }
+    public String melcepExt() { return( System.getProperty( "db.melcepExtension") ); }
+    
+    public String cartsDirName() { return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
+            + System.getProperty( "db.cartsSubDir") ); }
+    
+    public String targetFeaturesFileName() {
+            String ret = System.getProperty( "db.targetFeaturesFileName" );
+            if ( ret != null ) return( ret );
+            /* else: */
+            return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
+            + System.getProperty( "db.featuresSubDir" ) + System.getProperty( "file.separator" )
+            + System.getProperty( "db.targetFeaturesBaseName" ) + System.getProperty( "db.featuresExtension" ) ); }
+    
+    public String joinCostFeaturesFileName() {
+        String ret = System.getProperty( "db.joinCostFeaturesFileName" );
+        if ( ret != null ) return( ret );
+        /* else: */
+        return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
+            + System.getProperty( "db.featuresSubDir" ) + System.getProperty( "file.separator" )
+            + System.getProperty( "db.joinCostFeaturesBaseName" ) + System.getProperty( "db.featuresExtension" ) ); }
+    
 }
