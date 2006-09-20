@@ -39,6 +39,7 @@ import com.sun.speech.freetts.Item;
 import de.dfki.lt.mary.modules.synthesis.FreeTTSVoices;
 import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.modules.phonemiser.Phoneme;
+import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 
 /**
  * A representation of a target representing the ideal properties of
@@ -51,14 +52,12 @@ public class Target
     protected String name;
     protected Element maryxmlElement;
     protected Item item;
-    //a map containing this targets features
-    protected String[] byteVals = null;
-    protected String[] shortVals = null;
-    protected float[] floatVals = null;
+    
+    protected FeatureVector featureVector;
+    
     protected float end = -1;
     protected float duration = -1;
     protected Logger logger;
-    protected int unitSize;
     protected int isSilence =-1;
         
     public Target(String name)
@@ -67,19 +66,23 @@ public class Target
         this.name = name;
     }
     
-    public Target(String name, Item item, int unitSize)
+    public Target(String name, Item item)
     {
         logger = Logger.getLogger("Target");
         this.name = name;
         this.item = item;
-        this.unitSize = unitSize;
     }
-    
-    public int getUnitSize() { return unitSize; }
     
     public Item getItem() { return item; }
     
     public String getName() { return name; }
+    
+    public FeatureVector getFeatureVector() { return featureVector; }
+    
+    public void setFeatureVector(FeatureVector featureVector)
+    {
+        this.featureVector = featureVector;
+    }
     
     public float getTargetDurationInSeconds()
     {
@@ -102,96 +105,11 @@ public class Target
             float prev_end = prev.getFeatures().getFloat("end");
             duration = end - prev_end;
         }
-        if (unitSize == UnitDatabase.HALFPHONE){
-           duration = duration/2; 
-        }
         return duration;
         }
     }
     
-    /**
-     * Add value and features to the featuresMap
-     * @param feature the feature
-     * @param value the value
-     */
-    public void addByteValue(String val, int numVals, int pos)
-    {
-        if (byteVals == null){
-            byteVals = new String[numVals];
-        }
-        byteVals[pos] = val;
-    }
-    
-    /**
-     * Add value and features to the featuresMap
-     * @param feature the feature
-     * @param value the value
-     */
-    public void addShortValue(String val, int numVals, int pos)
-    {
-        if (shortVals == null){
-            shortVals = new String[numVals];
-        }
-        shortVals[pos] = val;
-    }
-    
-    /**
-     * Add value and features to the featuresMap
-     * @param feature the feature
-     * @param value the value
-     */
-    public void addFloatValue(float val, int numVals, int pos)
-    {
-        if (floatVals == null){
-            floatVals = new float[numVals];
-        }
-        floatVals[pos] = val;
-    }
-    
-    
-    /**
-     * Get the value for a feature if present
-     * @param feature the feature
-     * @return the value
-     */
-    public String getValueForByteFeature(int index)
-    {
-        if (byteVals != null && 
-                (index>-1 || index < byteVals.length)){
-            return byteVals[index];
-    	} else {
-    	    return null;
-    	}
-    }
-    
-    /**
-     * Get the value for a feature if present
-     * @param feature the feature
-     * @return the value
-     */
-    public String getValueForShortFeature(int index)
-    {
-        if (shortVals != null && 
-                (index>-1 || index < byteVals.length)){
-            return shortVals[index];
-    	} else {
-    	    return null;
-    	}
-    }
-    /**
-     * Get the value for a feature if present
-     * @param feature the feature
-     * @return the value
-     */
-    public float getValueForFloatFeature(int index)
-    {
-        if (floatVals != null && 
-                (index>-1 || index < byteVals.length)){
-            return floatVals[index];
-    	} else {
-    	    return -1;
-    	}
-    }
+
     
     
     
