@@ -41,13 +41,19 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
@@ -65,12 +71,17 @@ public class DatabaseImportMain extends JFrame
 {
     protected VoiceImportComponent[] components;
     protected JCheckBox[] checkboxes;
+    protected DatabaseLayout db;
+    protected BasenameList basenames;
     
-    public DatabaseImportMain(String title, VoiceImportComponent[] components)
+    public DatabaseImportMain(String title, VoiceImportComponent[] components,
+            DatabaseLayout db, BasenameList basenames)
     {
         super(title);
         this.components = components;
         this.checkboxes = new JCheckBox[components.length];
+        this.db = db;
+        this.basenames = basenames;
         setupGUI();
     }
     
@@ -105,16 +116,33 @@ public class DatabaseImportMain extends JFrame
                 runSelectedComponents();
             }
         });
+        JButton quitButton = new JButton("Quit");
+        quitButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ae) {
+                try {
+                    askIfSave();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+                System.exit(0);
+            }
+        });
         gridC.gridy = 1;
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout());
         buttonPanel.add(runButton);
+        buttonPanel.add(quitButton);
         gridBagLayout.setConstraints( buttonPanel, gridC );
         add(buttonPanel);
 
         // End program when closing window:
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent evt) {
+                try {
+                    askIfSave();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
                 System.exit(0);
             }
         });
@@ -138,6 +166,32 @@ public class DatabaseImportMain extends JFrame
                 }
             }
         }
+    }
+    
+    protected void askIfSave() throws IOException
+    {
+        int answer = JOptionPane.showOptionDialog(this,
+                "Do you want to save the list of basenames?",
+                "Save?",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null, null, null);
+        if (answer == JOptionPane.YES_OPTION) {
+            JFileChooser fc = new JFileChooser();
+            fc.setSelectedFile(new File(db.baseName(), "basenames.lst"));
+            int returnVal = fc.showSaveDialog(this);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                File saveFile = fc.getSelectedFile();
+                PrintWriter w = new PrintWriter(new OutputStreamWriter(new FileOutputStream(saveFile), "UTF-8"));
+                String[] bnames = basenames.getListAsArray();
+                for (int i=0; i<bnames.length; i++) {
+                    w.println(bnames[i]);
+                }
+                w.close();
+            }
+            
+        }
+
     }
     
     /**
@@ -230,7 +284,7 @@ public class DatabaseImportMain extends JFrame
                 new MCepTimelineMaker( db, bnl ),
                 new JoinCostFileMaker( db, bnl )
         };
-        DatabaseImportMain importer = new DatabaseImportMain("Database import", components);
+        DatabaseImportMain importer = new DatabaseImportMain("Database import", components, db, bnl);
         importer.pack();
         // Center window on screen:
         importer.setLocationRelativeTo(null); 
