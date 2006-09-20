@@ -125,7 +125,7 @@ public class LPCTimelineMaker
             /* 3) Open the destination timeline file */
             
             /* Make the file name */
-            String lpcTimelineName = db.timelineDirName() + "timeline_lpc_res" + db.timelineExt() ;
+            String lpcTimelineName = db.lpcTimelineFileName() ;
             System.out.println( "Will create the LPC timeline in file [" + lpcTimelineName + "]." );
             
             /* An example of processing header: */

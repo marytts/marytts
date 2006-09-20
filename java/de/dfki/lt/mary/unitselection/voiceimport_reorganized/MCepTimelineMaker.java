@@ -121,7 +121,7 @@ public class MCepTimelineMaker
             /* 3) Open the destination timeline file */
             
             /* Make the file name */
-            String mcepTimelineName = db.timelineDirName() + "timeline_mcep" + db.timelineExt();
+            String mcepTimelineName = db.melcepTimelineFileName();
             System.out.println( "Will create the mcep timeline in file [" + mcepTimelineName + "]." );
             
             /* An example of processing header: */
@@ -152,12 +152,16 @@ public class MCepTimelineMaker
                     duration = (long)Math.round( ((double)(timeNow) - (double)(timeBefore)) * (double)(globSampleRate) );
                     timeBefore = timeNow;
                     /* Quantize the mcep coeffs: */
-                    short[] quantizedFrame = General.quantize( mcepFile.getFrame( f ), mcepMin, mcepRange );
+                    // short[] quantizedFrame = General.quantize( mcepFile.getFrame( f ), mcepMin, mcepRange );
+                    float[] frame = mcepFile.getFrame( f );
                     /* Make a datagram from the quantized mcep coefficients: */
                     ByteArrayOutputStream byteBuff = new ByteArrayOutputStream();
                     DataOutputStream datagramContents = new DataOutputStream( byteBuff );
-                    for ( int k = 0; k < quantizedFrame.length; k++ ) {
+                    /* for ( int k = 0; k < quantizedFrame.length; k++ ) {
                         datagramContents.writeShort( quantizedFrame[k] );
+                    } */
+                    for ( int k = 0; k < frame.length; k++ ) {
+                        datagramContents.writeFloat( frame[k] );
                     }
                     /* Feed the datagram to the timeline */
                     mcepTimeline.feed( new Datagram( duration, byteBuff.toByteArray() ) , globSampleRate );
