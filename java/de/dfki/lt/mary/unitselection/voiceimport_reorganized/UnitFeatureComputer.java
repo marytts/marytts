@@ -19,22 +19,34 @@ import de.dfki.lt.mary.util.FileUtils;
  * @author schroed
  *
  */
-public class UnitFeatureComputer {
-
+public class UnitFeatureComputer implements VoiceImportComponent
+{
     protected File textDir;
     protected File unitfeatureDir;
     protected String locale;
     protected MaryClient mary;
     
-    public UnitFeatureComputer(File textDir, File unitfeatureDir, String locale)
+    public static String getMaryXMLHeaderWithInitialBoundary(String locale)
+    {
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
+            "<maryxml version=\"0.4\"\n" +
+            "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+            "xmlns=\"http://mary.dfki.de/2002/MaryXML\"\n" +
+            "xml:lang=\"" + locale + "\">\n" +
+            "<boundary duration=\"100\"/>\n";
+        
+    }
+    
+    public UnitFeatureComputer()
     throws IOException
     {
+        textDir = new File(System.getProperty("text.dir", "text"));
         if (!textDir.exists()) throw new IOException("No such directory: "+ textDir);
+        unitfeatureDir = new File(System.getProperty("unitfeatures.dir", "unitfeatures"));
         if (!unitfeatureDir.exists()) unitfeatureDir.mkdir();
-        this.textDir = textDir;
-        this.unitfeatureDir = unitfeatureDir;
-        this.locale = locale;
-        this.mary = null; // initialised only if needed
+        locale = System.getProperty("locale", "en");
+
+        mary = null; // initialised only if needed
     }
     
     public File getTextDir()
@@ -54,11 +66,19 @@ public class UnitFeatureComputer {
     
     public MaryClient getMaryClient() throws IOException
     {
-        if (mary == null) mary = new MaryClient();
+        if (mary == null) {
+            if (System.getProperty("server.host") == null) {
+                System.setProperty("server.host", "localhost");
+            }
+            if (System.getProperty("server.port") == null) {
+                System.setProperty("server.port", "59125");
+            }
+            mary = new MaryClient();
+        }
         return mary;
     }
 
-    public void compute() throws IOException
+    public boolean compute() throws IOException
     {
         String[] basenames = FileUtils.listBasenames(textDir, ".txt");
         System.out.println("Computing unit features for "+basenames.length+" files");
@@ -67,21 +87,22 @@ public class UnitFeatureComputer {
             System.out.println("    "+basenames[i]);
         }
         System.out.println("Finished computing unit features");
+        return true;
     }
 
     public void computeFeaturesFor(String basename) throws IOException
     {
         String text;
-        String inputFormat;
         // First, test if there is a corresponding .rawmaryxml file in textdir:
         File rawmaryxmlFile = new File(textDir, basename+".rawmaryxml");
         if (rawmaryxmlFile.exists()) {
             text = FileUtils.getFileAsString(rawmaryxmlFile, "UTF-8");
-            inputFormat = "RAWMARYXML";
         } else {
-            text = FileUtils.getFileAsString(new File(textDir, basename+".txt"), "UTF-8");
-            inputFormat = "TEXT_"+locale.toUpperCase();
+            text = getMaryXMLHeaderWithInitialBoundary(locale)
+                + FileUtils.getFileAsString(new File(textDir, basename+".txt"), "UTF-8")
+                + "</maryxml>";
         }
+        String inputFormat = "RAWMARYXML";
         String outputFormat = "TARGETFEATURES";
         OutputStream os = new BufferedOutputStream(new FileOutputStream(new File(unitfeatureDir, basename+".feats")));
         MaryClient maryClient = getMaryClient();
@@ -92,10 +113,6 @@ public class UnitFeatureComputer {
 
     public static void main(String[] args) throws IOException
     {
-        String text = System.getProperty("text.dir", "text");
-        String unitfeatures = System.getProperty("unitfeatures.dir", "unitfeatures");
-        String locale = System.getProperty("locale", "en");
-        UnitFeatureComputer ufc = new UnitFeatureComputer(new File(text), new File(unitfeatures), locale);
-        ufc.compute();
+        new UnitFeatureComputer().compute();
     }
 }

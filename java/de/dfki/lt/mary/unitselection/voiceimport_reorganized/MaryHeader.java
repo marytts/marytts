@@ -31,6 +31,8 @@
  */
 package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.RandomAccessFile;
 import java.io.IOException;
 import java.io.DataOutputStream;
@@ -45,7 +47,7 @@ import java.io.DataOutputStream;
 public class MaryHeader 
 { 
     /* Global constants */
-    private final static int MAGIC = 0x4d41525;
+    private final static int MAGIC = 0x4d415259; // "MARY"
     private final static int VERSION = 1; /* TODO: this constant should be somehow automatically
                                             updated by the build process */
     
@@ -85,12 +87,12 @@ public class MaryHeader
     /**
      * File constructor
      * 
-     * @param raf a random access file to read the header from.
+     * @param input a DataInputStream or RandomAccessFile to read the header from.
      * 
      * @throws IOException if the input type is unknown.
      */
-    public MaryHeader( RandomAccessFile raf ) throws IOException {
-        this.load( raf );
+    public MaryHeader( DataInput input ) throws IOException {
+        this.load( input );
         if ( !isMaryHeader() ) { throw new RuntimeException( "Ill-formed Mary header!" ); }
     }
     
@@ -100,7 +102,7 @@ public class MaryHeader
     
     /** Static Mary header writer
      * 
-     * @param raf The random access file to write to
+     * @param output The DataOutputStream or RandomAccessFile to write to
      * 
      * @return the number of written bytes.
      * 
@@ -108,7 +110,7 @@ public class MaryHeader
      * 
      * @author sacha
      */
-    public long write( RandomAccessFile raf ) throws IOException {
+    public long write( DataOutput output ) throws IOException {
         
         long nBytes = 0;
         
@@ -116,38 +118,16 @@ public class MaryHeader
             throw new RuntimeException( "Unknown Mary file type [" + type + "]." );
         }
         
-        raf.writeInt( magic );   nBytes += 4;
-        raf.writeInt( version ); nBytes += 4;
-        raf.writeInt( type );    nBytes += 4;
+        output.writeInt( magic );   nBytes += 4;
+        output.writeInt( version ); nBytes += 4;
+        output.writeInt( type );    nBytes += 4;
         
         return( nBytes );
     }
-    
-    
+        
     /** Static Mary header writer
      * 
-     * @param out The DataOutputStream to write to
-     *  
-     * @throws IOException if the file type is unknown.
-     * 
-     * @author sacha, anna
-     */
-    public void write( DataOutputStream out ) throws IOException {
-        
-        if ( !this.hasLegalType() ) {
-            throw new IOException( "Unknown Mary file type [" + type + "]." );
-        }
-        
-        out.writeInt( magic );   
-        out.writeInt( version ); 
-        out.writeInt( type );    
-        
-    }
-    
-    
-    /** Static Mary header writer
-     * 
-     * @param raf The random access file to read from.
+     * @param input The data input (DataInputStream or RandomAccessFile) to read from.
      * 
      * @return the number of read bytes.
      * 
@@ -155,13 +135,13 @@ public class MaryHeader
      * 
      * @author sacha
      */
-    public long load( RandomAccessFile raf ) throws IOException {
+    public long load( DataInput input ) throws IOException {
         
         long nBytes = 0;
         
-        magic = raf.readInt();   nBytes += 4;
-        version = raf.readInt(); nBytes += 4;
-        type = raf.readInt();    nBytes += 4;
+        magic = input.readInt();   nBytes += 4;
+        version = input.readInt(); nBytes += 4;
+        type = input.readInt();    nBytes += 4;
         byteSize = nBytes;
         
         return( nBytes );
