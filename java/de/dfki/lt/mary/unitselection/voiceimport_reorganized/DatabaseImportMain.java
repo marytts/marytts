@@ -31,14 +31,21 @@
  */
 package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -77,22 +84,61 @@ public class DatabaseImportMain extends JFrame
 
         JPanel checkboxPane = new JPanel();
         checkboxPane.setLayout(new BoxLayout(checkboxPane, BoxLayout.Y_AXIS));
-        checkboxPane.setPreferredSize(new Dimension(500, 500));
+        //checkboxPane.setPreferredSize(new Dimension(250, 300));
         for (int i=0; i<components.length; i++) {
-            checkboxes[i] = new JCheckBox(components[i].getClass().getName());
+            System.out.println("Adding checkbox for "+components[i].getClass().getName());
+            checkboxes[i] = new JCheckBox(components[i].getClass().getSimpleName());
+            //checkboxes[i].setPreferredSize(new Dimension(200, 30));
             checkboxPane.add(checkboxes[i]);
         }
         gridC.gridx = 0;
         gridC.gridy = 0;
-        gridC.fill = GridBagConstraints.HORIZONTAL;
-        JScrollPane scrollPane = new JScrollPane();
-        scrollPane.add(checkboxPane);
-        scrollPane.setPreferredSize(editPane.getPreferredSize());
+        gridC.fill = GridBagConstraints.BOTH;
+        JScrollPane scrollPane = new JScrollPane(checkboxPane);
+        scrollPane.setPreferredSize(new Dimension(300,300));
         gridBagLayout.setConstraints( scrollPane, gridC );
-        frame.add(scrollPane);
+        add(scrollPane);
 
+        JButton runButton = new JButton("Run selected components");
+        runButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ae) {
+                runSelectedComponents();
+            }
+        });
+        gridC.gridy = 1;
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout());
+        buttonPanel.add(runButton);
+        gridBagLayout.setConstraints( buttonPanel, gridC );
+        add(buttonPanel);
+
+        // End program when closing window:
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent evt) {
+                System.exit(0);
+            }
+        });
     }
     
+    protected void runSelectedComponents()
+    {
+        for (int i=0; i<components.length; i++) {
+            if (checkboxes[i].isSelected()) {
+                boolean success = false;
+                try {
+                    success = components[i].compute();
+                } catch (Exception exc) {
+                    exc.printStackTrace();
+                    success = false;
+                }
+                if (success) {
+                    checkboxes[i].setBackground(Color.GREEN);
+                } else {
+                    checkboxes[i].setBackground(Color.RED);
+                }
+            }
+        }
+    }
     
     /**
      *  Imports a database from a set of wav files:
@@ -136,6 +182,8 @@ public class DatabaseImportMain extends JFrame
         };
         DatabaseImportMain importer = new DatabaseImportMain("Database import", components);
         importer.pack();
+        // Center window on screen:
+        importer.setLocationRelativeTo(null); 
         importer.setVisible(true);
         
         // The following code is independent of the GUI; both are running in separate threads.
