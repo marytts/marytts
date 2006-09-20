@@ -31,6 +31,7 @@
  */
 package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 
+import java.io.File;
 import java.io.RandomAccessFile;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -69,11 +70,14 @@ public class LPCTimelineMaker implements VoiceImportComponent
         /* Export the basename list into an array of strings */
         String[] baseNameArray = bnl.getListAsArray();
         
+        /* Prepare the output directory for the timelines if it does not exist */
+        File timelineDir = new File( db.timelineDirName() );
+        if ( !timelineDir.exists() ) {
+            timelineDir.mkdir();
+            System.out.println("Created output directory [" + db.timelineDirName() + "] to store the timelines." );
+        }
+        
         try{
-            /******************/
-            /* LPC conversion */
-            /******************/
-            
             /* 1) Determine the reference sampling rate as being the sample rate of the first encountered
              *    wav file */
             WavReader wav = new WavReader( db.wavDirName() + baseNameArray[0] + db.wavExt() );
