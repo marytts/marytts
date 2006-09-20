@@ -46,16 +46,28 @@ import de.dfki.lt.mary.unitselection.voiceimport_reorganized.TimelineIO;
  * 
  * @author sacha
  */
-public class LPCTimelineMaker 
+public class LPCTimelineMaker implements VoiceImportComponent
 { 
+
+    protected DatabaseLayout db = null;
+    protected BasenameList bnl = null;
+    
+    public LPCTimelineMaker( DatabaseLayout setdb, BasenameList setbnl ) {
+        this.db = setdb;
+        this.bnl = setbnl;
+    }
+    
     /**
      *  Reads and concatenates a list of LPC EST tracks into one single timeline file.
      *
      */
-    public static void run( DatabaseLayout db, String[] baseNameArray )
+    public boolean compute()
     {
         System.out.println("---- Importing LPC coefficients\n\n");
         System.out.println("Base directory: " + db.baseName() + "\n");
+        
+        /* Export the basename list into an array of strings */
+        String[] baseNameArray = bnl.getListAsArray();
         
         try{
             /******************/
@@ -231,6 +243,7 @@ public class LPCTimelineMaker
             System.err.println(e);
         }
         
+        return( true );
     }
 
 }

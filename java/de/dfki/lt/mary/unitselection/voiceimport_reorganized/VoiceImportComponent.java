@@ -37,6 +37,7 @@ public interface VoiceImportComponent
 {
     /**
      * Do the computations required by this component.
+     * 
      * @return true on success, false on failure
      */
     public boolean compute() throws Exception;

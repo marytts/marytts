@@ -19,8 +19,14 @@ public class FestvoxTextfileConverter implements VoiceImportComponent
     protected File textFile;
     protected File textDir;
     
-    public FestvoxTextfileConverter() throws IOException
+    protected DatabaseLayout db = null;
+    protected BasenameList bnl = null;
+    
+    public FestvoxTextfileConverter( DatabaseLayout setdb, BasenameList setbnl ) throws IOException
     {
+        this.db = setdb;
+        this.bnl = setbnl;
+    
         textFile = new File(System.getProperty("text.file", "etc/domain.data"));
         if (!textFile.exists()) throw new IOException("No such file: "+ textFile);
         textDir = new File(System.getProperty("text.dir", "text"));
@@ -49,7 +55,7 @@ public class FestvoxTextfileConverter implements VoiceImportComponent
      */
     public static void main(String[] args) throws IOException 
     {
-        new FestvoxTextfileConverter().compute();
+        new FestvoxTextfileConverter( null, null ).compute();
     }
 
 }
