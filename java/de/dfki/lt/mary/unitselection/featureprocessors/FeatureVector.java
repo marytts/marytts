@@ -17,16 +17,31 @@ public class FeatureVector {
         return byteValuedDiscreteFeatures;
     }
 
+    public byte getByteValuedDiscreteFeature(int index)
+    {
+        return byteValuedDiscreteFeatures[index];
+    }
+    
     public short[] getShortValuedDiscreteFeatures()
     {
         return shortValuedDiscreteFeatures;
+    }
+
+    public short getShortValuedDiscreteFeature(int index)
+    {
+        return shortValuedDiscreteFeatures[index];
     }
 
     public float[] getContinuousFeatures()
     {
         return continuousFeatures;
     }
-    
+
+    public float getContinuousFeature(int index)
+    {
+        return continuousFeatures[index];
+    }
+
     /** 
      * Return a string representation of this set of target features; feature values separated by spaces.
      */
