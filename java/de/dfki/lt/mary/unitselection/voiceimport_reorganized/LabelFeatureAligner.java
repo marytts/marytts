@@ -278,12 +278,18 @@ public class LabelFeatureAligner implements VoiceImportComponent
 
             gridC.gridx = 0;
             gridC.gridy = 0;
+            // resize scroll pane:
+            gridC.weightx = 1;
+            gridC.weighty = 1;
             gridC.fill = GridBagConstraints.HORIZONTAL;
             JScrollPane scrollPane = new JScrollPane(editPane);
             scrollPane.setPreferredSize(editPane.getPreferredSize());
             gridBagLayout.setConstraints( scrollPane, gridC );
             frame.add(scrollPane);
             gridC.gridy = 1;
+            // do not resize buttons:
+            gridC.weightx = 0;
+            gridC.weighty = 0;
             JPanel buttonPanel = new JPanel();
             buttonPanel.setLayout(new FlowLayout());
             buttonPanel.add(saveButton);
