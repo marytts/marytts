@@ -43,32 +43,36 @@ import de.dfki.lt.mary.util.FileUtils;
  * @author schroed
  *
  */
-public class LabelFeatureAligner
+public class LabelFeatureAligner implements VoiceImportComponent
 {
-    public static final String MARYXML_HEADER =
-        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
-        "<maryxml version=\"0.4\"\n" +
-        "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-        "xmlns=\"http://mary.dfki.de/2002/MaryXML\"\n" +
-        "xml:lang=\""; // need to append locale + "\">"
     protected File unitlabelDir;
     protected File unitfeatureDir;
     protected UnitFeatureComputer featureComputer;
     protected String pauseSymbol;
     
-    public LabelFeatureAligner(File unitlabelDir, File unitfeatureDir, UnitFeatureComputer featureComputer, String pauseSymbol)
+    public LabelFeatureAligner() throws IOException
     {
-        this.unitlabelDir = unitlabelDir;
-        this.unitfeatureDir = unitfeatureDir;
-        this.featureComputer = featureComputer;
-        this.pauseSymbol = pauseSymbol;
+        this.unitlabelDir = new File(System.getProperty("unitlab.dir", "unitlab"));
+        this.unitfeatureDir = new File(System.getProperty("unitfeatures.dir", "unitfeatures"));
+        this.featureComputer = new UnitFeatureComputer();
+        this.pauseSymbol = System.getProperty("pause.symbol", "pau");
     }
     
-    public void compute() throws IOException
+    /**
+     * Align labels and features. For each .unitlab file in the unit label
+     * directory, verify whether the chain of units given is identical to
+     * the chain of units in the corresponding unit feature file.
+     * For those files that are not perfectly aligned, give the user the
+     * opportunity to correct alignment.
+     * @return a boolean indicating whether or not the database is fully aligned.
+     * @throws IOException
+     */
+    public boolean compute() throws IOException
     {
         String[] basenames = FileUtils.listBasenames(unitlabelDir, ".unitlab");
         System.out.println("Verifying feature-label alignment for "+basenames.length+" files");
         Map problems = new TreeMap();
+        
         for (int i=0; i<basenames.length; i++) {
             String errorMessage = verifyAlignment(basenames[i]);
             System.out.print("    "+basenames[i]);
@@ -80,7 +84,8 @@ public class LabelFeatureAligner
             }
         }
         System.out.println("Found "+problems.size() + " problems");
-        
+
+        int remainingProblems = 0;
         for (Iterator it = problems.keySet().iterator(); it.hasNext(); ) {
             String basename = (String) it.next();
             String errorMessage;
@@ -93,9 +98,13 @@ public class LabelFeatureAligner
                     System.out.println("OK");
                 } else {
                     System.out.println(errorMessage);
+                    problems.put(basename, errorMessage);
+                    if (!tryAgain) remainingProblems++;
                 }
             } while (tryAgain && errorMessage != null);
         }
+        
+        return remainingProblems == 0; // true exactly if all problems have been solved
     }
     
     /**
@@ -118,23 +127,6 @@ public class LabelFeatureAligner
             if (line.trim().equals("")) break; // empty line marks end of header
         }
 
-        String firstLabelUnit = null;
-        // Skip initial pauses in label file:
-        do {
-            firstLabelUnit = getLabelUnit(labels);
-            if (firstLabelUnit == null) return "Cannot read any unit from label file";
-        } while (firstLabelUnit.equals(pauseSymbol));
-
-        String firstFeatureUnit = null;
-        // Skip initial pauses in features file (in the unexpected case there are any):
-        do {
-            firstFeatureUnit = getFeatureUnit(features);
-            if (firstFeatureUnit == null) return "Cannot read any unit from features file";
-        } while (firstFeatureUnit.equals(pauseSymbol));
-        
-        if (firstLabelUnit == null || !firstLabelUnit.equals(firstFeatureUnit)) {
-            return "Non-matching initial units found: feature file '"+firstFeatureUnit+"' vs. label file '"+firstLabelUnit+"'";
-        }
         // Now go through all feature file units
         boolean correct = true;
         while (correct) {
@@ -142,7 +134,7 @@ public class LabelFeatureAligner
             String featureUnit = getFeatureUnit(features);
             // when featureUnit is the empty string, we have found an empty line == end of feature section
             if ("".equals(featureUnit)) break;
-            if (!labelUnit.equals(featureUnit)) {
+            if (!featureUnit.equals(labelUnit)) {
                 return "Non-matching units found: feature file '"+featureUnit+"' vs. label file '"+labelUnit+"'";
             }
         }
@@ -206,7 +198,7 @@ public class LabelFeatureAligner
             // need to create it
             String text = FileUtils.getFileAsString(new File(textDir, basename+".txt"), "UTF-8");
             PrintWriter pw = new PrintWriter(maryxmlFile, "UTF-8");
-            pw.println(MARYXML_HEADER+featureComputer.getLocale()+"\">");
+            pw.println(UnitFeatureComputer.getMaryXMLHeaderWithInitialBoundary(featureComputer.getLocale()));
             pw.println(text);
             pw.println("</maryxml>");
             pw.close();
@@ -224,14 +216,8 @@ public class LabelFeatureAligner
 
     public static void main(String[] args) throws IOException
     {
-        String text = System.getProperty("text.dir", "text");
-        String unitfeatures = System.getProperty("unitfeatures.dir", "unitfeatures");
-        String locale = System.getProperty("locale", "en");
-        UnitFeatureComputer ufc = new UnitFeatureComputer(new File(text), new File(unitfeatures), locale);
-        String unitlab = System.getProperty("unitlab.dir", "unitlab");
-        String pauseSymbol = System.getProperty("pause.symbol", "pau");
-        LabelFeatureAligner lfa = new LabelFeatureAligner(new File(unitlab), new File(unitfeatures), ufc, pauseSymbol);
-        lfa.compute();
+        boolean isAligned = new LabelFeatureAligner().compute();
+        System.out.println("The database is "+(isAligned?"":"NOT")+" perfectly aligned");
     }
 
     public static class EditFrameShower

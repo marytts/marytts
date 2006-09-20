@@ -14,20 +14,20 @@ import java.util.StringTokenizer;
  * @author schroed
  *
  */
-public class FestvoxTextfileConverter
+public class FestvoxTextfileConverter implements VoiceImportComponent
 {
     protected File textFile;
     protected File textDir;
     
-    public FestvoxTextfileConverter(File textFile, File textDir) throws IOException
+    public FestvoxTextfileConverter() throws IOException
     {
+        textFile = new File(System.getProperty("text.file", "etc/domain.data"));
         if (!textFile.exists()) throw new IOException("No such file: "+ textFile);
+        textDir = new File(System.getProperty("text.dir", "text"));
         if (!textDir.exists()) textDir.mkdir();
-        this.textFile = textFile;
-        this.textDir = textDir;
     }
     
-    public void compute() throws IOException
+    public boolean compute() throws IOException
     {
         BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(textFile), "UTF-8"));
         String line;
@@ -41,6 +41,7 @@ public class FestvoxTextfileConverter
             out.flush();
             out.close();
         }
+        return true;
     }
     
     /**
@@ -48,10 +49,7 @@ public class FestvoxTextfileConverter
      */
     public static void main(String[] args) throws IOException 
     {
-        String textfile = System.getProperty("text.file", "etc/domain.data");
-        String textdir = System.getProperty("text.dir", "text");
-        FestvoxTextfileConverter ftc = new FestvoxTextfileConverter(new File(textfile), new File(textdir));
-        ftc.compute();
+        new FestvoxTextfileConverter().compute();
     }
 
 }

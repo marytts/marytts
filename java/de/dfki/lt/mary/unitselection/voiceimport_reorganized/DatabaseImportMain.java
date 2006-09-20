@@ -31,8 +31,18 @@
  */
 package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
+
+import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import de.dfki.lt.mary.unitselection.voiceimport_reorganized.DatabaseLayout;
 import de.dfki.lt.mary.unitselection.voiceimport_reorganized.LPCTimelineMaker;
@@ -44,8 +54,46 @@ import de.dfki.lt.mary.unitselection.voiceimport_reorganized.LPCTimelineMaker;
  * @author sacha
  *
  */
-public class DatabaseImportMain 
+public class DatabaseImportMain extends JFrame 
 { 
+    protected VoiceImportComponent[] components;
+    protected JCheckBox[] checkboxes;
+    
+    public DatabaseImportMain(String title, VoiceImportComponent[] components)
+    {
+        super(title);
+        this.components = components;
+        this.checkboxes = new JCheckBox[components.length];
+        setupGUI();
+    }
+    
+    protected void setupGUI()
+    {
+        // A scroll pane containing one labelled checkbox per component,
+        // and a "run selected components" button below.
+        GridBagLayout gridBagLayout = new GridBagLayout();
+        GridBagConstraints gridC = new GridBagConstraints();
+        setLayout( gridBagLayout );
+
+        JPanel checkboxPane = new JPanel();
+        checkboxPane.setLayout(new BoxLayout(checkboxPane, BoxLayout.Y_AXIS));
+        checkboxPane.setPreferredSize(new Dimension(500, 500));
+        for (int i=0; i<components.length; i++) {
+            checkboxes[i] = new JCheckBox(components[i].getClass().getName());
+            checkboxPane.add(checkboxes[i]);
+        }
+        gridC.gridx = 0;
+        gridC.gridy = 0;
+        gridC.fill = GridBagConstraints.HORIZONTAL;
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.add(checkboxPane);
+        scrollPane.setPreferredSize(editPane.getPreferredSize());
+        gridBagLayout.setConstraints( scrollPane, gridC );
+        frame.add(scrollPane);
+
+    }
+    
+    
     /**
      *  Imports a database from a set of wav files:
      *  - launches the EST tools to compute the LPCs
@@ -77,8 +125,21 @@ public class DatabaseImportMain
      *    </ul>
      * 
      */
-    public static void main( String[] args ) 
+    public static void main( String[] args ) throws IOException
     {
+        VoiceImportComponent[] components = new VoiceImportComponent[] {
+            new FestvoxTextfileConverter(),
+            new UnitLabelComputer(),
+            new UnitFeatureComputer(),
+            new LabelFeatureAligner(),
+            new UnitfileWriter()
+        };
+        DatabaseImportMain importer = new DatabaseImportMain("Database import", components);
+        importer.pack();
+        importer.setVisible(true);
+        
+        // The following code is independent of the GUI; both are running in separate threads.
+        // TODO: This might be confusing and should be cleaned up.
         
         /* Read in the args */
         boolean recompute = false;
