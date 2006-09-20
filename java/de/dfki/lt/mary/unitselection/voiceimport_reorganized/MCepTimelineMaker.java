@@ -34,6 +34,7 @@ package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 import java.io.RandomAccessFile;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 
 import de.dfki.lt.mary.unitselection.voiceimport_reorganized.General;
 import de.dfki.lt.mary.unitselection.voiceimport_reorganized.MaryHeader;
@@ -68,6 +69,13 @@ public class MCepTimelineMaker implements VoiceImportComponent
         
         /* Export the basename list into an array of strings */
         String[] baseNameArray = bnl.getListAsArray();
+        
+        /* Prepare the output directory for the timelines if it does not exist */
+        File timelineDir = new File( db.timelineDirName() );
+        if ( !timelineDir.exists() ) {
+            timelineDir.mkdir();
+            System.out.println("Created output directory [" + db.timelineDirName() + "] to store the timelines." );
+        }
         
         try{
             /* 1) Determine the reference sampling rate as being the sample rate of the first encountered
