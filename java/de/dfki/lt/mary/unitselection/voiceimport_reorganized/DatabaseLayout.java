@@ -82,6 +82,9 @@ public class DatabaseLayout
         setIfDoesntExist( "db.timelineSubDir", "mary_timelines" );
         setIfDoesntExist( "db.timelineExtension", ".bin" );
         
+        setIfDoesntExist( "db.lpcTimelineBaseName", "timeline_quantized_lpc+res" );
+        setIfDoesntExist( "db.melcepTimelineBaseName", "timeline_mcep" );
+        
         setIfDoesntExist( "db.featuresSubDir", "mary_features" );
         setIfDoesntExist( "db.featuresExtension", ".bin" );
         
@@ -89,6 +92,7 @@ public class DatabaseLayout
         
         setIfDoesntExist( "db.targetFeaturesBaseName", "targetFeatures" );
         setIfDoesntExist( "db.joinCostFeaturesBaseName", "joinCostFeatures" );
+        setIfDoesntExist( "db.unitFileBaseName", "units" );
     }
     
     /**
@@ -134,20 +138,50 @@ public class DatabaseLayout
     public String cartsDirName() { return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
             + System.getProperty( "db.cartsSubDir") ); }
     
-    public String targetFeaturesFileName() {
-            String ret = System.getProperty( "db.targetFeaturesFileName" );
-            if ( ret != null ) return( ret );
-            /* else: */
-            return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
-            + System.getProperty( "db.featuresSubDir" ) + System.getProperty( "file.separator" )
-            + System.getProperty( "db.targetFeaturesBaseName" ) + System.getProperty( "db.featuresExtension" ) ); }
+    /* File name for the LPC+residual timeline */
+    public String lpcTimelineFileName() {
+        String ret = System.getProperty( "db.lpcTimelineFileName" );
+        if ( ret != null ) return( ret );
+        /* else: */
+        return( timelineDirName() + System.getProperty( "db.lpcTimelineBaseName" ) + timelineExt() );
+    }
     
+    /* File name for the mel cepstrum timeline */
+    public String melcepTimelineFileName() {
+        String ret = System.getProperty( "db.melcepTimelineFileName" );
+        if ( ret != null ) return( ret );
+        /* else: */
+        return( timelineDirName() + System.getProperty( "db.melcepTimelineBaseName" ) + timelineExt() );
+    }
+    
+    /* File name for the target features file */
+    public String targetFeaturesFileName() {
+        String ret = System.getProperty( "db.targetFeaturesFileName" );
+        if ( ret != null ) return( ret );
+        /* else: */
+        return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
+                + System.getProperty( "db.featuresSubDir" ) + System.getProperty( "file.separator" )
+                + System.getProperty( "db.targetFeaturesBaseName" ) + System.getProperty( "db.featuresExtension" ) );
+    }
+    
+    /* File name for the join cost features file */
     public String joinCostFeaturesFileName() {
         String ret = System.getProperty( "db.joinCostFeaturesFileName" );
         if ( ret != null ) return( ret );
         /* else: */
         return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
-            + System.getProperty( "db.featuresSubDir" ) + System.getProperty( "file.separator" )
-            + System.getProperty( "db.joinCostFeaturesBaseName" ) + System.getProperty( "db.featuresExtension" ) ); }
+                + System.getProperty( "db.featuresSubDir" ) + System.getProperty( "file.separator" )
+                + System.getProperty( "db.joinCostFeaturesBaseName" ) + System.getProperty( "db.featuresExtension" ) );
+    }
+
+    /* File name for the unit file */
+    public String unitFileName() {
+        String ret = System.getProperty( "db.unitFileName" );
+        if ( ret != null ) return( ret );
+        /* else: */
+        return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
+                + System.getProperty( "db.featuresSubDir" ) + System.getProperty( "file.separator" )
+                + System.getProperty( "db.unitFileBaseName" ) + System.getProperty( "db.featuresExtension" ) );
+    }
     
 }
