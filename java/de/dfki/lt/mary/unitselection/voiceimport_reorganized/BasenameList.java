@@ -65,8 +65,27 @@ public class BasenameList
     /****************/
     
     /**
-     * This constructor lists the .wav files from directory dir,
-     * and initializes an an array with their of alphabetically
+     * Default constructor for an empty list.
+     */
+    public BasenameList() {
+        fromDir = null;
+        fromExt = null;
+        bList = new Vector( DEFAULT_INCREMENT, DEFAULT_INCREMENT );
+    }
+    
+    /**
+     * Constructor from an array of strings.
+     */
+    public BasenameList( String[] str ) {
+        fromDir = null;
+        fromExt = null;
+        bList = new Vector( DEFAULT_INCREMENT, DEFAULT_INCREMENT );
+        add( str );
+    }
+    
+    /**
+     * This constructor lists the .<extension> files from directory dir,
+     * and initializes an an array with their list of alphabetically
      * sorted basenames.
      * 
      * @param dir The name of the directory to list the files from.
@@ -75,7 +94,8 @@ public class BasenameList
      */
     public BasenameList( String dirName, final String extension ) {
         fromDir = dirName;
-        fromExt = extension;
+        if ( extension.indexOf(".") != 0 ) fromExt = "." + extension; // If the dot was not included, add it.
+        else                               fromExt = extension;
         /* Turn the directory name into a file, to allow for checking and listing */
         File dir = new File( dirName );
         /* Check if the directory exists */
@@ -97,7 +117,7 @@ public class BasenameList
         String str = null;
         for ( int i = 0; i < selectedFiles.length; i++ ) {
             str = selectedFiles[i].getName().substring( 0, selectedFiles[i].getName().length() - 4 );
-            bList.add( str );
+            add( str );
         }
     }
     
@@ -146,10 +166,10 @@ public class BasenameList
             fromDir = parts[0];
             fromExt = parts[1];
         }
-        else if ( !(line.matches("^\\s*$")) ) bList.add( line );
+        else if ( !(line.matches("^\\s*$")) ) add( line );
         /* Add the lines to the vector, ignoring the blank ones. */
         while ( (line = bfr.readLine()) != null ) {
-            if ( !(line.matches("^\\s*$")) ) bList.add( line );
+            if ( !(line.matches("^\\s*$")) ) add( line );
         }
     }
     
@@ -158,10 +178,24 @@ public class BasenameList
     /*****************/
 
     /**
+     * Adds a basename to the list.
+     */
+    public void add( String str ) {
+        bList.add( new String( str ) );
+    }
+    
+    /**
+     * Adds an array of basenames to the list.
+     */
+    public void add( String[] str ) {
+        for ( int i = 0; i < str.length; i++ ) add( str[i] );
+    }
+    
+    /**
      * An accessor for the list of basenames, returned as an array of strings
      */
     public String[] getListAsArray() {
-        String[] ret = new String[bList.size()];
+        String[] ret = new String[0];
         bList.toArray( ret );
         return( (String[])( ret ) );
     }
@@ -195,4 +229,75 @@ public class BasenameList
     public String getExt() {
         return( fromExt );
     }
+    
+    /**
+     * Return a copy of the basename at index i.
+     * 
+     * @param i The index of the basename to consider.
+     * @return The corresponding basename.
+     */
+    public String getName( int i ) {
+        return( new String( (String)(bList.elementAt(i)) ) );
+    }
+    
+    /**
+     * Check if the given basename is part of the list.
+     * 
+     * @param str The basename to check for.
+     * @return true if yes, false if no.
+     */
+    public boolean contains( String str ) {
+        return( bList.contains( str ) );
+    }
+    
+    /**
+     * Check if the list contains another given one.
+     * 
+     * @param bnl The list of basenames to check for.
+     * @return true if yes, false if no.
+     */
+    public boolean contains( BasenameList bnl ) {
+        /* The list cannot contain a bigger one: */
+        if ( bnl.getLength() > this.getLength() ) return( false );
+        for ( int i = 0; i < bnl.getLength(); i++ ) {
+            if ( !this.contains( bnl.getName(i) ) ) return( false );
+        }
+        return( true );
+    }
+    
+    /**
+     * Check if two lists are equal.
+     * 
+     * @param bnl The list of basenames to check for.
+     * @return true if yes, false if no.
+     */
+    public boolean equals( BasenameList bnl ) {
+        if ( bnl.getLength() != this.getLength() ) return( false );
+        for ( int i = 0; i < bnl.getLength(); i++ ) {
+            if ( !this.contains( bnl.getName(i) ) ) return( false );
+        }
+        return( true );
+    }
+    
+    /**
+     * Ensure that the list is alphabetically sorted.
+     *
+     */
+    public void sort() {
+        String[] str = getListAsArray();
+        Arrays.sort( str );
+        bList.removeAllElements();
+        add( str );
+    }
+    
+    /**
+     * Clear the list.
+     *
+     */
+    public void clear() {
+        fromDir = null;
+        fromExt = null;
+        bList.removeAllElements();
+    }
+    
 }
