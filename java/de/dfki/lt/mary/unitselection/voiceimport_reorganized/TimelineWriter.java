@@ -143,7 +143,7 @@ public class TimelineWriter extends TimelineIO {
         /* Load an existing header or make a new one */
         try {
             /* Load the existing header and index */
-            loadHeaderAndIndex();
+            loadHeaderAndIndex( fileName );
             /* strip the index from the end of the file
              * and position the pointers after the last datagram */
             setBytePointer( timeIdxBytePos );
