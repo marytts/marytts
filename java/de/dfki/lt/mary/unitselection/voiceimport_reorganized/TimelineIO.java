@@ -184,11 +184,17 @@ public class TimelineIO
      * 
      * @throws IOException
      */
-    protected long loadHeaderAndIndex() throws IOException {
+    protected long loadHeaderAndIndex( String fileName ) throws IOException {
         
         /* Load the Mary header */
         maryHdr = new MaryHeader( raf );
-        
+        if ( !maryHdr.isMaryHeader() ) {
+            throw new RuntimeException( "File [" + fileName + "] is not a valid Mary format file." );
+        }
+        if ( maryHdr.getType() != MaryHeader.UNITS ) {
+            throw new RuntimeException( "File [" + fileName + "] is not a valid Mary Units file." );
+        }
+
         /* Load the processing info header */
         procHdr = new ProcHeader( raf );
         
