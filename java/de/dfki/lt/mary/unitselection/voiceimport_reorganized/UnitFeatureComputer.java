@@ -25,6 +25,9 @@ public class UnitFeatureComputer implements VoiceImportComponent
     protected File unitfeatureDir;
     protected String locale;
     protected MaryClient mary;
+
+    protected DatabaseLayout db = null;
+    protected BasenameList bnl = null;
     
     public static String getMaryXMLHeaderWithInitialBoundary(String locale)
     {
@@ -37,9 +40,12 @@ public class UnitFeatureComputer implements VoiceImportComponent
         
     }
     
-    public UnitFeatureComputer()
+    public UnitFeatureComputer( DatabaseLayout setdb, BasenameList setbnl )
     throws IOException
     {
+        this.db = setdb;
+        this.bnl = setbnl;
+
         textDir = new File(System.getProperty("text.dir", "text"));
         if (!textDir.exists()) throw new IOException("No such directory: "+ textDir);
         unitfeatureDir = new File(System.getProperty("unitfeatures.dir", "unitfeatures"));
@@ -113,6 +119,6 @@ public class UnitFeatureComputer implements VoiceImportComponent
 
     public static void main(String[] args) throws IOException
     {
-        new UnitFeatureComputer().compute();
+        new UnitFeatureComputer( null, null ).compute();
     }
 }

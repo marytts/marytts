@@ -50,11 +50,17 @@ public class LabelFeatureAligner implements VoiceImportComponent
     protected UnitFeatureComputer featureComputer;
     protected String pauseSymbol;
     
-    public LabelFeatureAligner() throws IOException
+    protected DatabaseLayout db = null;
+    protected BasenameList bnl = null;
+    
+    public LabelFeatureAligner( DatabaseLayout setdb, BasenameList setbnl ) throws IOException
     {
+        this.db = setdb;
+        this.bnl = setbnl;
+    
         this.unitlabelDir = new File(System.getProperty("unitlab.dir", "unitlab"));
         this.unitfeatureDir = new File(System.getProperty("unitfeatures.dir", "unitfeatures"));
-        this.featureComputer = new UnitFeatureComputer();
+        this.featureComputer = new UnitFeatureComputer( db, bnl );
         this.pauseSymbol = System.getProperty("pause.symbol", "pau");
     }
     
@@ -216,7 +222,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
 
     public static void main(String[] args) throws IOException
     {
-        boolean isAligned = new LabelFeatureAligner().compute();
+        boolean isAligned = new LabelFeatureAligner( null, null ).compute();
         System.out.println("The database is "+(isAligned?"":"NOT")+" perfectly aligned");
     }
 

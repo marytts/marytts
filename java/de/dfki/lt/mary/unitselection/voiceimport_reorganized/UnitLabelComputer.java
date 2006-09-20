@@ -26,8 +26,14 @@ public class UnitLabelComputer implements VoiceImportComponent
     protected File unitlabelDir;
     protected String pauseSymbol;
     
-    public UnitLabelComputer() throws IOException
+    protected DatabaseLayout db = null;
+    protected BasenameList bnl = null;
+    
+    public UnitLabelComputer( DatabaseLayout setdb, BasenameList setbnl ) throws IOException
     {
+        this.db = setdb;
+        this.bnl = setbnl;
+
         phonelabelDir = new File(System.getProperty("phonelab.dir", "lab"));
         if (!phonelabelDir.exists()) throw new IOException("No such directory: "+ phonelabelDir);
         unitlabelDir = new File(System.getProperty("unitlab.dir", "unitlab"));
@@ -83,7 +89,7 @@ public class UnitLabelComputer implements VoiceImportComponent
     
     public static void main(String[] args) throws IOException
     {
-        new UnitLabelComputer().compute();
+        new UnitLabelComputer( null, null ).compute();
     }
 
 }

@@ -48,8 +48,14 @@ public class UnitfileWriter implements VoiceImportComponent
     protected int samplingRate;
     protected String pauseSymbol;
 
-    public UnitfileWriter() throws IOException
+    protected DatabaseLayout db = null;
+    protected BasenameList bnl = null;
+    
+    public UnitfileWriter( DatabaseLayout setdb, BasenameList setbnl ) throws IOException
     {
+        this.db = setdb;
+        this.bnl = setbnl;
+
         unitlabelDir = new File(System.getProperty("unitlabel.dir", "unitlab"));
         if (!unitlabelDir.exists())
             throw new IOException("Unit label directory '"+unitlabelDir.getPath()+"' does not exist");
@@ -63,7 +69,7 @@ public class UnitfileWriter implements VoiceImportComponent
     {
         System.out.println("Unitfile writer started.");
         System.out.println("Verifying that unit feature and label files are perfectly aligned...");
-        LabelFeatureAligner aligner = new LabelFeatureAligner();
+        LabelFeatureAligner aligner = new LabelFeatureAligner( db, bnl );
         if (!aligner.compute()) throw new IllegalStateException("Database is NOT perfectly aligned. Cannot create unit file.");
         System.out.println("OK, alignment verified.");
         String[] basenames = FileUtils.listBasenames(unitlabelDir, ".unitlab");
@@ -117,7 +123,7 @@ public class UnitfileWriter implements VoiceImportComponent
      */
     public static void main(String[] args) throws IOException
     {
-        new UnitfileWriter().compute();
+        new UnitfileWriter( null, null ).compute();
     }
 
 }

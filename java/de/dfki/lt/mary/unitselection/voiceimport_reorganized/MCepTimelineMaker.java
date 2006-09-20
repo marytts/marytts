@@ -46,16 +46,28 @@ import de.dfki.lt.mary.unitselection.voiceimport_reorganized.TimelineIO;
  * 
  * @author sacha
  */
-public class MCepTimelineMaker 
+public class MCepTimelineMaker implements VoiceImportComponent
 { 
+
+    protected DatabaseLayout db = null;
+    protected BasenameList bnl = null;
+    
+    public MCepTimelineMaker( DatabaseLayout setdb, BasenameList setbnl ) {
+        this.db = setdb;
+        this.bnl = setbnl;
+    }
+    
     /**
      *  Reads and concatenates a list of mcep EST tracks into one single timeline file.
      *
      */
-    public static void run( DatabaseLayout db, String[] baseNameArray )
+    public boolean compute()
     {
         System.out.println("---- Importing Mel Cepstrum coefficients\n\n");
         System.out.println("Base directory: " + db.baseName() + "\n");
+        
+        /* Export the basename list into an array of strings */
+        String[] baseNameArray = bnl.getListAsArray();
         
         try{
             /* 1) Determine the reference sampling rate as being the sample rate of the first encountered
@@ -191,6 +203,7 @@ public class MCepTimelineMaker
             System.err.println(e);
         }
         
+        return( true );
     }
 
 }

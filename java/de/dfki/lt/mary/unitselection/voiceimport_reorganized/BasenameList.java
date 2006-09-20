@@ -63,29 +63,29 @@ public class BasenameList
      * @param dir The name of the directory to list the .wav files from.
      * 
      */
-    public BasenameList( String dir ) {
-        fromDir = dir;
+    public BasenameList( String dirName, final String extension ) {
+        fromDir = dirName;
         /* Turn the directory name into a file, to allow for checking and listing */
-        File wavDir = new File( dir );
+        File dir = new File( dirName );
         /* Check if the directory exists */
-        if ( !wavDir.exists() ) {
-            throw new RuntimeException( "Directory [" + dir + "] does not exist. Can't find the .wav files." );
+        if ( !dir.exists() ) {
+            throw new RuntimeException( "Directory [" + dirName + "] does not exist. Can't find the [" + extension + "] files." );
         }
-        /* List the .wav files */
-        File[] wavFiles = wavDir.listFiles(new FilenameFilter() {
+        /* List the .extension files */
+        File[] selectedFiles = dir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
-                return name.endsWith(".wav");
+                return name.endsWith( extension );
             }
         });
         
         /* Sort the file names alphabetically */
-        Arrays.sort( wavFiles );
+        Arrays.sort( selectedFiles );
         
         /* Extract the basenames and store them in a vector of strings */
-        bList = new Vector( wavFiles.length, DEFAULT_INCREMENT );
+        bList = new Vector( selectedFiles.length, DEFAULT_INCREMENT );
         String str = null;
-        for ( int i = 0; i < wavFiles.length; i++ ) {
-            str = wavFiles[i].getName().substring( 0, wavFiles[i].getName().length() - 4 );
+        for ( int i = 0; i < selectedFiles.length; i++ ) {
+            str = selectedFiles[i].getName().substring( 0, selectedFiles[i].getName().length() - 4 );
             bList.add( str );
         }
     }

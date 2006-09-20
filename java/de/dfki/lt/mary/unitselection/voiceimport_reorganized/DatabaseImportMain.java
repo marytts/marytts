@@ -62,7 +62,7 @@ import de.dfki.lt.mary.unitselection.voiceimport_reorganized.LPCTimelineMaker;
  *
  */
 public class DatabaseImportMain extends JFrame 
-{ 
+{
     protected VoiceImportComponent[] components;
     protected JCheckBox[] checkboxes;
     
@@ -173,64 +173,43 @@ public class DatabaseImportMain extends JFrame
      */
     public static void main( String[] args ) throws IOException
     {
-        VoiceImportComponent[] components = new VoiceImportComponent[] {
-            new FestvoxTextfileConverter(),
-            new UnitLabelComputer(),
-            new UnitFeatureComputer(),
-            new LabelFeatureAligner(),
-            new UnitfileWriter()
-        };
-        DatabaseImportMain importer = new DatabaseImportMain("Database import", components);
-        importer.pack();
-        // Center window on screen:
-        importer.setLocationRelativeTo(null); 
-        importer.setVisible(true);
         
-        // The following code is independent of the GUI; both are running in separate threads.
-        // TODO: This might be confusing and should be cleaned up.
+        // ARGUMENT PASSING SHOULD BE DONE VIA THE SYSTEM PROPERTIES.
         
-        /* Read in the args */
-        boolean recompute = false;
+//        if ( args.length > 0 ){
+//            if ( args[0].equals("-r") || args[0].equals("--recompute") ) {
+//                recompute = true;
+//            }
+//            else {
+//                System.setProperty( "db.baseName", args[0] );
+//            }
+//        }
+//        if ( args.length > 3 ){
+//            System.setProperty( "db.targetFeaturesFileName", args[2] );
+//            System.setProperty( "db.joinCostFeaturesFileName", args[2] );
+//        } else {
+//            System.out.println("Need voicename, targetFeatureFile, joinFeatureFile.\n" 
+//                            +" Usage:\n java ImportDatabase [-r|--recompute]"
+//                            +" <voicename> <targetFeaturesFile>" 
+//                            +" <joinFeaturesFile> <databaseDir>.\n");
+//            return;
+//        }
+//        if ( args.length > 4 ){
+//            System.setProperty( "db.baseName", args[4] );
+//        }
+//        if ( args.length > 5 ){
+//            System.out.println("Usage:\n java ImportDatabase [-r|--recompute]"
+//                            +" <voicename> <targetFeaturesFile>" 
+//                            +" <joinFeaturesFile> <databaseDir>.\n" +
+//            "Ignoring additional arguments after <databaseDir>." );
+//        }
         
-        if ( args.length > 0 ){
-            if ( args[0].equals("-r") || args[0].equals("--recompute") ) {
-                recompute = true;
-            }
-            else {
-                System.setProperty( "db.baseName", args[0] );
-            }
-        }
-        if ( args.length > 3 ){
-            System.setProperty( "db.targetFeaturesFileName", args[2] );
-            System.setProperty( "db.joinCostFeaturesFileName", args[2] );
-        } else {
-            System.out.println("Need voicename, targetFeatureFile, joinFeatureFile.\n" 
-                            +" Usage:\n java ImportDatabase [-r|--recompute]"
-                            +" <voicename> <targetFeaturesFile>" 
-                            +" <joinFeaturesFile> <databaseDir>.\n");
-            return;
-        }
-        if ( args.length > 4 ){
-            System.setProperty( "db.baseName", args[4] );
-        }
-        if ( args.length > 5 ){
-            System.out.println("Usage:\n java ImportDatabase [-r|--recompute]"
-                            +" <voicename> <targetFeaturesFile>" 
-                            +" <joinFeaturesFile> <databaseDir>.\n" +
-            "Ignoring additional arguments after <databaseDir>." );
-        }
-        
-        /* Invoke a new database layout, starting in the database directory */
+        /* Make a database layout with default values. */
         DatabaseLayout db = new DatabaseLayout();
-        
-        /* Sum up the argument parsing results */
-        System.out.println("Importing Voice in base directory [" + db.baseName() + "]." );
-        if ( recompute ) {
-            System.out.println("EST files WILL be recomputed." );
-        }
-        else {
-            System.out.println("EST files WILL NOT be recomputed." );
-        }
+        /* Make a bootstrap basename list from the wav files. */
+        BasenameList bnl = new BasenameList( db.wavDirName(), db.wavExt() );
+        String[] baseNameArray = bnl.getListAsArray();
+        System.out.println("Found [" + baseNameArray.length + "] wav files to convert." );
         
         /* Prepare the output directory for the timelines */
         File timelineDir = new File( db.timelineDirName() );
@@ -239,23 +218,27 @@ public class DatabaseImportMain extends JFrame
             System.out.println("Created output directory [" + db.timelineDirName() + "] to store the timelines." );
         }
         
-        /* List the wav files: */
-        String[] baseNameArray = new BasenameList( db.wavDirName() ).getListAsArray();
-        System.out.println("Found [" + baseNameArray.length + "] wav files to convert." );
+        /* Invoke the GUI, now that the arguments and layouts are all set */
+        VoiceImportComponent[] components = new VoiceImportComponent[] {
+                new FestvoxTextfileConverter( db, bnl ),
+                new UnitLabelComputer( db, bnl ),
+                new UnitFeatureComputer( db, bnl ),
+                new LabelFeatureAligner( db, bnl ),
+                new UnitfileWriter( db, bnl ),
+                new ESTCallMaker( db, bnl ),
+                new LPCTimelineMaker( db, bnl ),
+                new MCepTimelineMaker( db, bnl ),
+                new JoinCostFileMaker( db, bnl )
+        };
+        DatabaseImportMain importer = new DatabaseImportMain("Database import", components);
+        importer.pack();
+        // Center window on screen:
+        importer.setLocationRelativeTo(null); 
+        importer.setVisible(true);
         
-        /* If recomputation is asked for, launch the EST utilities */
-        if ( recompute ) {
-            ESTCaller caller = new ESTCaller( db, "/home/cl-home/sacha/temp/speech_tools/" );
-            caller.make_pm_wave( baseNameArray );
-            caller.make_lpc( baseNameArray );
-            caller.make_mcep( baseNameArray );
-        }
         
-        /* Invoke the LPC timeline maker */
-        LPCTimelineMaker.run( db, baseNameArray );
-        
-        /* Invoke the MCep timeline maker */
-        MCepTimelineMaker.run( db, baseNameArray );
+        // The following code is independent of the GUI; both are running in separate threads.
+        // TODO: This might be confusing and should be cleaned up.
         
         /* Read in the units into a catalogue */
         //Get the catalog file
