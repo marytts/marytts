@@ -38,6 +38,14 @@ import java.util.Vector;
 import java.io.RandomAccessFile;
 import java.io.IOException;
 
+import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
+import java.io.FileOutputStream;
+
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
+
 /**
  * The BasenameList class produces and stores an alphabetically-sorted
  * array of basenames issued from the .wav files present in a given directory.
@@ -49,6 +57,7 @@ public class BasenameList
 { 
     private Vector bList = null;
     private String fromDir = null;
+    private String fromExt = null;
     private static final int DEFAULT_INCREMENT = 128;
     
     /****************/
@@ -60,11 +69,13 @@ public class BasenameList
      * and initializes an an array with their of alphabetically
      * sorted basenames.
      * 
-     * @param dir The name of the directory to list the .wav files from.
+     * @param dir The name of the directory to list the files from.
+     * @param extension The extension of the files to list.
      * 
      */
     public BasenameList( String dirName, final String extension ) {
         fromDir = dirName;
+        fromExt = extension;
         /* Turn the directory name into a file, to allow for checking and listing */
         File dir = new File( dirName );
         /* Check if the directory exists */
@@ -93,10 +104,10 @@ public class BasenameList
     /**
      * This constructor loads the basename list from a random access file.
      * 
-     * @param raf the RandomAccessFile to read from.
+     * @param fileName The file to read from.
      */
-    public BasenameList( RandomAccessFile raf ) throws IOException {
-        load( raf );
+    public BasenameList( String fileName ) throws IOException {
+        load( fileName );
     }
     
     /*****************/
@@ -104,35 +115,42 @@ public class BasenameList
     /*****************/
 
     /**
-     * Write the basenameList to a RandomAccessFile
+     * Write the basenameList to a file.
      */
-    public long dump( RandomAccessFile raf ) throws IOException {
-        long nBytes = 0l;
+    public void write( String fileName ) throws IOException {
+        PrintWriter pw = new PrintWriter( new OutputStreamWriter( new FileOutputStream( fileName ), "UTF-8" ), true );
+        if ( fromDir != null ) {
+            pw.println( "FROM: " + fromDir + "*" + fromExt );
+        }
         String str = null;
-        raf.writeUTF(fromDir);        nBytes += fromDir.length()*2 + 2;
-        raf.writeInt( bList.size() ); nBytes += 4;
         for ( int i = 0; i < bList.size(); i++ ) {
             str = (String)(bList.elementAt(i));
-            raf.writeUTF( str ); nBytes += str.length()*2 + 2;
+            pw.println( str );
         }
-        return( nBytes );
     }
     
     /**
-     * Read the basenameList from a RandomAccessFile
+     * Read the basenameList from a file
      */
-    public long load( RandomAccessFile raf ) throws IOException {
-        long nBytes = 0l;
-        fromDir = raf.readUTF();          nBytes += fromDir.length()*2 + 2;
-        int numBasenames = raf.readInt(); nBytes += 4;
-        String str = null;
-        bList = new Vector( numBasenames, DEFAULT_INCREMENT );
-        for ( int i = 0; i < numBasenames; i++ ) {
-            str= raf.readUTF();
-            bList.add( str );
-            nBytes += str.length()*2 + 2;
+    public void load( String fileName ) throws IOException {
+        /* Open the file */
+        BufferedReader bfr = new BufferedReader( new InputStreamReader( new FileInputStream("fileName"), "UTF-8" ) );
+        /* Make the vector */
+        if ( bList == null ) bList = new Vector( DEFAULT_INCREMENT, DEFAULT_INCREMENT );
+        /* Check if the first line contains the origin information (directory+ext) */
+        String line = bfr.readLine();
+        if ( line.indexOf("FROM: ") != -1 ) {
+            line = line.substring( 6 );
+            String[] parts = new String[2];
+            parts = line.split( "\\*", 2 );
+            fromDir = parts[0];
+            fromExt = parts[1];
         }
-        return( nBytes );
+        else if ( !(line.matches("^\\s*$")) ) bList.add( line );
+        /* Add the lines to the vector, ignoring the blank ones. */
+        while ( (line = bfr.readLine()) != null ) {
+            if ( !(line.matches("^\\s*$")) ) bList.add( line );
+        }
     }
     
     /*****************/
@@ -163,10 +181,18 @@ public class BasenameList
     }
     
    /**
-     * An accessor for the original directory
+     * An accessor for the original directory. Returns null if the original
+     * directory is undefined.
      */
     public String getDir() {
         return( fromDir );
     }
     
+    /**
+     * An accessor for the original extension. Returns null if the original
+     * extension is undefined.
+     */
+    public String getExt() {
+        return( fromExt );
+    }
 }
