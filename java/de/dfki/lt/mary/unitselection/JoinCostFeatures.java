@@ -64,13 +64,16 @@ public class JoinCostFeatures implements JoinCostFunction {
         /* Open the file */
         File fid = new File( fileName );
         RandomAccessFile raf = new RandomAccessFile( fid, "r" );
-        /* Load it */
-        try {
-            this.load( raf );
+        /* Read the Mary header */
+        hdr = new MaryHeader( raf );
+        if ( !hdr.isMaryHeader() ) {
+            throw new RuntimeException( "File [" + fileName + "] is not a valid Mary format file." );
         }
-        catch ( EOFException e ) {
-            throw new RuntimeException( "The Join Cost File [" + fileName + "] appears to be corrupted.", e );
+        if ( hdr.getType() != MaryHeader.UNITS ) {
+            throw new RuntimeException( "File [" + fileName + "] is not a valid Mary Units file." );
         }
+        /* Load the rest */
+        this.load( raf );
     }
     
     /**
@@ -78,16 +81,17 @@ public class JoinCostFeatures implements JoinCostFunction {
      */
     public void load( RandomAccessFile raf ) throws IOException {
         try {
-            /* Read the Mary header */
-            hdr = new MaryHeader( raf );
             /* Read the feature weights and feature processors */
             int numberOfFeatures = raf.readInt();
             featureWeight = new float[numberOfFeatures];
             weightFunction = new WeightFunc[numberOfFeatures];
             WeightFunctionManager wfm = new WeightFunctionManager();
+            String wfStr = null;
             for ( int i = 0; i < numberOfFeatures; i++ ) {
                 featureWeight[i] = raf.readFloat();
-                weightFunction[i] = wfm.getWeightFunction( raf.readUTF() );
+                wfStr = raf.readUTF();
+                if ( "".equals( wfStr ) ) weightFunction[i] = wfm.getWeightFunction( "linear" );
+                else                      weightFunction[i] = wfm.getWeightFunction(  wfStr   );
             }
             /* Read the left and right Join Cost Features */
             int numberOfUnits = raf.readInt();
