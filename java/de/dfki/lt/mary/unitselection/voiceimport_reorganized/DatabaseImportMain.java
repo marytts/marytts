@@ -227,58 +227,31 @@ public class DatabaseImportMain extends JFrame
      */
     public static void main( String[] args ) throws IOException
     {
-        
-        // ARGUMENT PASSING SHOULD BE DONE VIA THE SYSTEM PROPERTIES.
-        
-//        if ( args.length > 0 ){
-//            if ( args[0].equals("-r") || args[0].equals("--recompute") ) {
-//                recompute = true;
-//            }
-//            else {
-//                System.setProperty( "db.baseName", args[0] );
-//            }
-//        }
-//        if ( args.length > 3 ){
-//            System.setProperty( "db.targetFeaturesFileName", args[2] );
-//            System.setProperty( "db.joinCostFeaturesFileName", args[2] );
-//        } else {
-//            System.out.println("Need voicename, targetFeatureFile, joinFeatureFile.\n" 
-//                            +" Usage:\n java ImportDatabase [-r|--recompute]"
-//                            +" <voicename> <targetFeaturesFile>" 
-//                            +" <joinFeaturesFile> <databaseDir>.\n");
-//            return;
-//        }
-//        if ( args.length > 4 ){
-//            System.setProperty( "db.baseName", args[4] );
-//        }
-//        if ( args.length > 5 ){
-//            System.out.println("Usage:\n java ImportDatabase [-r|--recompute]"
-//                            +" <voicename> <targetFeaturesFile>" 
-//                            +" <joinFeaturesFile> <databaseDir>.\n" +
-//            "Ignoring additional arguments after <databaseDir>." );
-//        }
-        
         /* Make a database layout with default values. */
         DatabaseLayout db = new DatabaseLayout();
-        /* Make a bootstrap basename list from the wav files. */
-        BasenameList bnl = new BasenameList( db.wavDirName(), db.wavExt() );
-        String[] baseNameArray = bnl.getListAsArray();
-        System.out.println("Found [" + baseNameArray.length + "] wav files to convert." );
         
-        /* Prepare the output directory for the timelines */
-        File timelineDir = new File( db.timelineDirName() );
-        if ( !timelineDir.exists() ) {
-            timelineDir.mkdir();
-            System.out.println("Created output directory [" + db.timelineDirName() + "] to store the timelines." );
+        /* Make the basename list */
+        BasenameList bnl = null;
+        String fName = null;
+        /* If a list file is specified, use it... */
+        if ( (fName = System.getProperty( "db.baseNameListFile" )) != null ) {
+            bnl = new BasenameList( fName );
         }
+        /* ...otherwise make a bootstrap basename list from the wav files. */
+        else bnl = new BasenameList( db.wavDirName(), db.wavExt() );
+        
+        System.out.println("Found [" + bnl.getLength() + "] files to convert in the list of basenames." );
         
         /* Invoke the GUI, now that the arguments and layouts are all set */
         VoiceImportComponent[] components = new VoiceImportComponent[] {
+                
                 new FestvoxTextfileConverter( db, bnl ),
                 new UnitLabelComputer( db, bnl ),
                 new UnitFeatureComputer( db, bnl ),
+                
                 new LabelFeatureAligner( db, bnl ),
                 new UnitfileWriter( db, bnl ),
+                
                 new ESTCallMaker( db, bnl ),
                 new LPCTimelineMaker( db, bnl ),
                 new MCepTimelineMaker( db, bnl ),
