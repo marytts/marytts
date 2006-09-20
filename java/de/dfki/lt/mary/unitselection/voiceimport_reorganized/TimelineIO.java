@@ -80,21 +80,21 @@ public class TimelineIO
     /**
      * Return the content of the processing header as a String
      */
-    public String getProcHeaderContents() {
+    public synchronized String getProcHeaderContents() {
         return( procHdr.getString() );
     }
     
     /**
      * Get the current byte position in the file
      */
-    public long getBytePointer() throws IOException {
+    public synchronized long getBytePointer() throws IOException {
         return( raf.getFilePointer() );
     }
     
     /**
      * Get the current time position in the file
      */
-    public long getTimePointer() {
+    public synchronized long getTimePointer() {
         return( timePtr );
     }
     
@@ -118,21 +118,21 @@ public class TimelineIO
      * @return the number of datagrams, as a long. Warning: you may have to cast this
      * value into an int if you want to use it to create an array.
      */
-    public long getNumDatagrams() {
+    public synchronized long getNumDatagrams() {
         return( numDatagrams );
     }
     
     /**
      * Returns the position of the datagram zone
      */
-    public long getDatagramsBytePos() {
+    public synchronized long getDatagramsBytePos() {
         return( datagramsBytePos );
     }
     
     /**
      * Returns the timeline's sample rate.
      */
-    public int getSampleRate() {
+    public synchronized int getSampleRate() {
         return( sampleRate );
     }
     
@@ -140,7 +140,7 @@ public class TimelineIO
      * Prints the index to System.out. (For testing purposes.))
      *
      */
-    public void printIdx() {
+    public synchronized void printIdx() {
         idx.print();
     }
     
