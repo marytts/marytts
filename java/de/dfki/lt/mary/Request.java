@@ -530,7 +530,9 @@ public class Request {
         // Now move any leading boundaries to the left of into the first paragraph 
         Element boundary = null;
         while ((boundary = (Element) tw.previousNode()) != null) {
+            assert boundary.getTagName().equals(MaryXML.BOUNDARY);
             firstParagraph.insertBefore(boundary, firstParagraph.getFirstChild());
+            tw.setCurrentNode(firstParagraph);
         }
         // Now, for each paragraph, all the boundaries following it are shifted inside it
         tw.setCurrentNode(firstParagraph);
