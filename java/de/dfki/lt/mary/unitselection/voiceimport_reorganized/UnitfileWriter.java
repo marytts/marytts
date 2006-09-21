@@ -43,7 +43,7 @@ import de.dfki.lt.mary.util.FileUtils;
 
 public class UnitfileWriter implements VoiceImportComponent
 {
-    protected File unitlabelDir;
+    protected File maryDir;
     protected File unitFile;
     protected int samplingRate;
     protected String pauseSymbol;
@@ -56,11 +56,13 @@ public class UnitfileWriter implements VoiceImportComponent
         this.db = setdb;
         this.bnl = setbnl;
 
-        unitlabelDir = new File(System.getProperty("unitlabel.dir", "unitlab"));
-        if (!unitlabelDir.exists())
-            throw new IOException("Unit label directory '"+unitlabelDir.getPath()+"' does not exist");
-        unitFile = new File(System.getProperty("unit.file", "units.bin"));
-        samplingRate = Integer.getInteger("unit.file.samplingrate", 16000).intValue();
+        maryDir = new File( db.maryDirName() );
+        if (!maryDir.exists()) {
+            maryDir.mkdir();
+            System.out.println("Created the output directory [" + db.maryDirName() + "] to store the unit file." );
+        }
+        unitFile = new File( db.unitFileName() );
+        samplingRate = Integer.getInteger("unit.file.samplingrate", 16000).intValue(); // TODO: make a better passing of the sampling rate
         pauseSymbol = System.getProperty("pause.symbol", "pau");
 
     }
@@ -72,7 +74,6 @@ public class UnitfileWriter implements VoiceImportComponent
         LabelFeatureAligner aligner = new LabelFeatureAligner( db, bnl );
         if (!aligner.compute()) throw new IllegalStateException("Database is NOT perfectly aligned. Cannot create unit file.");
         System.out.println("OK, alignment verified.");
-        String[] basenames = FileUtils.listBasenames(unitlabelDir, ".unitlab");
         DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(unitFile)));
         long posNumUnits = new MaryHeader(MaryHeader.UNITS).write(out);
         out.writeInt(-1); // number of units; needs to be corrected later.
@@ -81,11 +82,11 @@ public class UnitfileWriter implements VoiceImportComponent
         long start = 0; // time, given as sample position with samplingRate
         
         // Loop over all utterances
-        for (int i=0; i<basenames.length; i++) {
+        for (int i=0; i<bnl.getLength(); i++) {
             // Utterance start marker: "null" unit
-            out.writeLong(start); out.writeInt(0);
+            out.writeLong(start); out.writeInt(-1);
             index++;
-            BufferedReader labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File(unitlabelDir, basenames[i]+".unitlab")), "UTF-8"));
+            BufferedReader labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitLabDirName() + bnl.getName(i) + db.unitLabExt() )), "UTF-8"));
             String line;
             // Skip label file header
             while ((line = labels.readLine()) != null) {
@@ -104,10 +105,10 @@ public class UnitfileWriter implements VoiceImportComponent
                 start += duration; index++;
             }
             // Utterance end marker: "null" unit
-            out.writeLong(start); out.writeInt(0);
+            out.writeLong(start); out.writeInt(-1);
             index++;
             labels.close();
-            System.out.println("    "+basenames[i]+" ("+index+")");
+            System.out.println( "    " + bnl.getName(i) + " (" + index + ")" );
         }
         out.close();
         // Now index is the number of units. Set this in the file:

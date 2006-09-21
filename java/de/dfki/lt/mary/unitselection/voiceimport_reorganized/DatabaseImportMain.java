@@ -240,6 +240,10 @@ public class DatabaseImportMain extends JFrame
         /* ...otherwise make a bootstrap basename list from the wav files. */
         else bnl = new BasenameList( db.wavDirName(), db.wavExt() );
         
+        /* TESTING HACK: process only the 20 first files. */
+        bnl = bnl.subList( 0, 20 );
+        /* END HACK */
+        
         System.out.println("Found [" + bnl.getLength() + "] files to convert in the list of basenames." );
         
         /* Invoke the GUI, now that the arguments and layouts are all set */

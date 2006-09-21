@@ -69,6 +69,7 @@ public class LPCTimelineMaker implements VoiceImportComponent
         
         /* Export the basename list into an array of strings */
         String[] baseNameArray = bnl.getListAsArray();
+        System.out.println("Processing [" + baseNameArray.length + "] utterances.\n");
         
         /* Prepare the output directory for the timelines if it does not exist */
         File timelineDir = new File( db.timelineDirName() );

@@ -31,6 +31,8 @@
  */
 package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 
+import de.dfki.lt.mary.util.MaryUtils;
+
 import java.io.DataOutputStream;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
@@ -38,6 +40,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
+import java.util.Vector;
 
 public class JoinCostFileMaker implements VoiceImportComponent {
     
@@ -102,7 +105,7 @@ public class JoinCostFileMaker implements VoiceImportComponent {
         for ( int i = 0; i < (numberOfMelcep); i++ ) {
             wfun[i] = "linear";
         }
-        wfun[numberOfMelcep+1] = "step 20%"; // This one is for F0
+        wfun[numberOfMelcep] = "step 20%"; // This one is for F0
         /* Output those vectors */
         try {
             jcf.writeInt( fw.length );
@@ -133,46 +136,135 @@ public class JoinCostFileMaker implements VoiceImportComponent {
             /* - write the number of features: */
             jcf.writeInt( ufr.getNumberOfUnits() );
             /* - for each unit, write the left and right features: */
-            Datagram[] buff = null;
-            long[] periods = new long[5];
+            Vector buff = new Vector( 0, 5 );
+            // final int F0_HORIZON = 5;
+            final int F0_HORIZON = 1;
+            long[] periods = new long[F0_HORIZON];
             long median = 0;
-            float F0 = 0;
+            double leftF0 = 0.0d;
+            double prevRightF0 = 0.0d;
+            double F0 = 0.0d;
             int unitSampleFreq = ufr.getSampleRate();
             long unitPosition = 0l;
             int unitDuration = 0;
+            long endPoint = 0l;
+            long targetEndPoint = 0l;
+            Datagram dat = null;
+            
             for ( int i = 0; i < ufr.getNumberOfUnits(); i++ ) {
                 
-                /* LEFT */
-                /* Get the left join cost feature datagram and pipe it out */
-                buff = mcep.getDatagrams( unitPosition, 5, unitSampleFreq );
-                jcf.write( buff[0].getData(), 0, buff[0].getData().length );
-                /* Make the left F0 and write it out */
-                for ( int j = 0; j < 5; j++ ) {
-                    periods[j] = buff[i].duration;
-                }
-                Arrays.sort( periods );
-                median = periods[2];
-                F0 = (float)( (double)(unitSampleFreq) / (double)(median) );
-                jcf.writeFloat( F0 );
-                System.out.print( "At unit [" + i + "] Left F0 is [" + F0 + "]" );
+                /* Read the unit */
+                unitPosition = ufr.getStartTime( i );
+                unitDuration = ufr.getDuration( i );
                 
-                /* RIGHT*/
-                /* Get the right join cost feature datagram and pipe it out */
-                buff = mcep.getDatagrams( unitPosition + unitDuration - 1, 1, unitSampleFreq );
-                /* Note: in the above line, the -1 insures that we are getting the last melcep frame
-                 * of the current unit and not the first melcep frame of the next one. */
-                jcf.write( buff[0].getData(), 0, buff[0].getData().length );
-                /* Make the right F0 and write it out */
-                for ( int j = 0; j < 5; j++ ) {
-                    periods[j] = buff[i].duration;
+                /* If the unit is not a START or END marker: */
+                if ( unitDuration != -1 ) {
+                    
+                    /* Reset the datagram buffer */
+                    buff.removeAllElements();
+                    
+                    /* -- COMPUTE the LEFT join cost features: */
+                    /* Grow the datagram vector to F0_HORIZON datagram, but stop if it trespasses the unit boundary: */
+                    targetEndPoint = unitPosition + unitDuration;
+                    dat = mcep.getDatagram( unitPosition, unitSampleFreq );
+                    buff.add( dat );
+                    endPoint = unitPosition + dat.duration;
+                    for ( int j = 1; j < F0_HORIZON; j++ ) {
+                        dat = mcep.getDatagram( endPoint, unitSampleFreq );
+                        if ( (endPoint + dat.duration) > targetEndPoint ) break;
+                        else {
+                            buff.add( dat );
+                            endPoint += dat.duration;
+                        }
+                    }
+                    /* Compute the left F0 from the datagram durations: */
+                    for ( int j = 0; j < buff.size(); j++ ) {
+                        dat = (Datagram) buff.elementAt( j );
+                        periods[j] = dat.duration;
+                    }
+                    median = MaryUtils.median( periods );
+                    leftF0 = (double)(unitSampleFreq) / (double)(median);
+                    /* Compute the F0 joining this unit to the preceding one: */
+                    F0 = (prevRightF0 + leftF0) / 2.0d;
+                    
+                    
+                    /* -- WRITE: */
+                    /* Complete the unfinished preceding unit by writing the join F0: */
+                    jcf.writeFloat( (float)( F0 ) );
+                    System.out.println( " and Right F0 is [" + F0 + "]Hz." );
+                    /* Get the datagram corresponding to the left mel cepstra and pipe it out: */
+                    dat = (Datagram) buff.elementAt( 0 );
+                    jcf.write( dat.getData(), 0, dat.getData().length );
+                    /* Write the left join F0, which is the same than at the end of the preceding unit: */
+                    jcf.writeFloat( (float)( F0 ) );
+                    System.out.print( "At unit [" + i + "] :  (Buffsize " + buff.size() + ") Left F0 is [" + F0 + "]Hz" );
+                    
+                    
+                    /* -- COMPUTE the RIGHT JCFs: */
+                    /* Crawl along the datagrams until we trespass the end of the unit: */
+                    if ( buff.size() == F0_HORIZON ) { /* => If the buffer is F0_HORIZON frames long,
+                                                        *    it means we have not trespassed the unit yet,
+                                                        *    so we can crawl further. */
+                        dat = mcep.getDatagram( endPoint, unitSampleFreq );
+                        while ( (endPoint+dat.duration) <= targetEndPoint ) {
+                            buff.removeElementAt( 0 );
+                            buff.add( dat );
+                            endPoint += dat.duration;
+                            dat = mcep.getDatagram( endPoint, unitSampleFreq );
+                        }
+                        /* Compute the right F0 from the datagram durations: */
+                        for ( int j = 0; j < buff.size(); j++ ) {
+                            dat = (Datagram) buff.elementAt( j );
+                            periods[j] = dat.duration;
+                        }
+                        median = MaryUtils.median( periods );
+                        prevRightF0 = (double)(unitSampleFreq) / (double)(median);
+                    }
+                    /* Else, if we can't crawl any further, keep the same value for the left F0: */
+                    else prevRightF0 = leftF0;
+                    
+                    
+                    /* -- WRITE: */
+                    /* Get the datagram corresponding to the right join cost feature and pipe it out: */
+                    dat = (Datagram) buff.lastElement();
+                    jcf.write( dat.getData(), 0, dat.getData().length );
+                    /* But DO NOT WRITE the trailing join F0, because we don't know it yet. */
                 }
-                Arrays.sort( periods );
-                median = periods[2];
-                F0 = (float)( (double)(unitSampleFreq) / (double)(median) );
-                jcf.writeFloat( F0 );
-                System.out.println( "and Right F0 is [" + F0 + "]" );
+                
+                /* If the unit is a START or END marker, output dummy zeros
+                 * for the left and right Join Cost Features, and assume F0= 0.0 across the unit: */
+                else {
+                    /* Compute the F0 joining this unit to the preceding one: */
+                    F0 = prevRightF0 / 2.0d; // (Assuming that leftF0 is 0 for a null unit.)
+                    
+                    /* Write the preceding right F0 join, except if
+                     * this is the very first unit in the file: */
+                    if ( i != 0 ) {
+                        jcf.writeFloat( (float)(F0) );
+                        System.out.println( " and Right F0 is [" + F0 + "]Hz." );
+                    }
+                    /* Write the left mel cepstra for the current unit: */
+                    for ( int j = 0; j < numberOfMelcep; j++ ) {
+                        jcf.writeFloat( 0.0f );
+                    }
+                    /* Write the left F0 join: */
+                    jcf.writeFloat( (float)(F0) ); // (Assuming that leftF0 is 0.0 here.)
+                    System.out.print( "At unit [" + i + "] : START/END unit. (Buffsize 0) Left F0 is [" + F0 + "]Hz" );
+                    /* Write the right mel cepstra for the current unit: */
+                    for ( int j = 0; j < numberOfMelcep; j++ ) {
+                        jcf.writeFloat( 0.0f );
+                    }
+                    /* DO NOT write the right F0 join, but do register the right F0 value: */
+                    prevRightF0 = 0.0d;
+                }
                 
             }
+            
+            /* Complete the very last unit by flushing the right join F0: */
+            F0 = prevRightF0 / 2.0d; // (Assuming that leftF0 is 0 for a null unit.)
+            jcf.writeFloat( (float)( F0 ) );
+            System.out.println( " and Right F0 is [" + F0 + "]Hz." );
+            
         }
         catch ( IOException e ) {
             throw new RuntimeException( "An IOException happened when writing the features to the Join Cost file.", e );
