@@ -705,13 +705,30 @@ public class MaryUtils {
     }
 
     /**
-     * Given an array of values, compute the median of these values.
+     * Given an array of int values, compute the median of these values.
      * @param values
      * @return
      */
     public static int median(int[] values)
     {
         int[] a = (int[]) values.clone();
+        Arrays.sort(a);
+        int len = a.length;
+        if (len % 2 == 0) {
+            return (a[len/2-1]+a[len/2])/2;
+        } else {
+            return a[(len-1)/2];
+        }
+    }
+
+    /**
+     * Given an array of long values, compute the median of these values.
+     * @param values
+     * @return
+     */
+    public static long median(long[] values)
+    {
+        long[] a = (long[]) values.clone();
         Arrays.sort(a);
         int len = a.length;
         if (len % 2 == 0) {
