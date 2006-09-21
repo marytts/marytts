@@ -71,8 +71,8 @@ public class DatabaseImportMain extends JFrame
 {
     protected VoiceImportComponent[] components;
     protected JCheckBox[] checkboxes;
-    protected DatabaseLayout db;
-    protected BasenameList basenames;
+    protected DatabaseLayout db = null;
+    protected BasenameList bnl = null;
     
     public DatabaseImportMain(String title, VoiceImportComponent[] components,
             DatabaseLayout db, BasenameList basenames)
@@ -81,7 +81,7 @@ public class DatabaseImportMain extends JFrame
         this.components = components;
         this.checkboxes = new JCheckBox[components.length];
         this.db = db;
-        this.basenames = basenames;
+        this.bnl = basenames;
         setupGUI();
     }
     
@@ -119,8 +119,14 @@ public class DatabaseImportMain extends JFrame
         JButton quitButton = new JButton("Quit");
         quitButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
+                System.exit(0);
+            }
+        });
+        JButton quitAndSaveButton = new JButton("Quit and save");
+        quitAndSaveButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ae) {
                 try {
-                    askIfSave();
+                    doSave();
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
                 }
@@ -132,6 +138,7 @@ public class DatabaseImportMain extends JFrame
         buttonPanel.setLayout(new FlowLayout());
         buttonPanel.add(runButton);
         buttonPanel.add(quitButton);
+        buttonPanel.add(quitAndSaveButton);
         gridBagLayout.setConstraints( buttonPanel, gridC );
         add(buttonPanel);
 
@@ -177,24 +184,28 @@ public class DatabaseImportMain extends JFrame
                 JOptionPane.QUESTION_MESSAGE,
                 null, null, null);
         if (answer == JOptionPane.YES_OPTION) {
-            JFileChooser fc = new JFileChooser();
-            fc.setSelectedFile(new File(db.baseName(), "basenames.lst"));
-            int returnVal = fc.showSaveDialog(this);
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                File saveFile = fc.getSelectedFile();
-                PrintWriter w = new PrintWriter(new OutputStreamWriter(new FileOutputStream(saveFile), "UTF-8"));
-                String[] bnames = basenames.getListAsArray();
-                for (int i=0; i<bnames.length; i++) {
-                    w.println(bnames[i]);
-                }
-                w.close();
+            try {
+                doSave();
+            } catch (IOException ioe) {
+                    ioe.printStackTrace();
             }
-            
         }
 
     }
     
+    protected void doSave() throws IOException
+    {
+        JFileChooser fc = new JFileChooser();
+        fc.setSelectedFile(new File( db.basenameFile() ));
+        int returnVal = fc.showSaveDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            bnl.write( fc.getSelectedFile() );
+        }
+    }
+    
     /**
+     * TODO: THIS JAVADOC IS OBSOLETE.
+     * 
      *  Imports a database from a set of wav files:
      *  - launches the EST tools to compute the LPCs
      *  - reads and concatenates the LPC EST tracks into one single timeline file.
@@ -273,7 +284,7 @@ public class DatabaseImportMain extends JFrame
         
         /* Read in the units into a catalogue */
         //Get the catalog file
-        File catalogDir = new File( db.baseName() + "/festival/clunits");
+        File catalogDir = new File( db.rootDirName() + "/festival/clunits");
         File catalogFile = catalogDir.listFiles(new FilenameFilter() {
         public boolean accept(File dir, String name) {
                return name.endsWith(".catalogue");
@@ -286,7 +297,7 @@ public class DatabaseImportMain extends JFrame
         /* Read and dump the CARTs */
         
         CARTImporter cp = new CARTImporter();
-        cp.importCARTS( db.baseName(), db.cartsDirName(), unitCatalog);
+        cp.importCARTS( db.rootDirName(), db.cartsDirName(), unitCatalog);
 
         /* Close the shop */
         System.out.println( "----\n" + "---- Rock'n Roll!" );

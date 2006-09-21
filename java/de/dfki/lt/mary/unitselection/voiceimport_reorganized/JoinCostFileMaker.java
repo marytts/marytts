@@ -55,7 +55,7 @@ public class JoinCostFileMaker implements VoiceImportComponent {
     public boolean compute()
     {
         System.out.println("---- Making the join cost file\n\n");
-        System.out.println("Base directory: " + db.baseName() + "\n");
+        System.out.println("Base directory: " + db.rootDirName() + "\n");
         System.out.println("Mel Cepstrum timeline: " + db.melcepTimelineFileName() + "\n");
         System.out.println("Outputting join cost file to: " + db.joinCostFeaturesFileName() + "\n");
         

@@ -65,7 +65,7 @@ public class LPCTimelineMaker implements VoiceImportComponent
     public boolean compute()
     {
         System.out.println("---- Importing LPC coefficients\n\n");
-        System.out.println("Base directory: " + db.baseName() + "\n");
+        System.out.println("Base directory: " + db.rootDirName() + "\n");
         
         /* Export the basename list into an array of strings */
         String[] baseNameArray = bnl.getListAsArray();
