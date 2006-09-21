@@ -191,8 +191,8 @@ public class TimelineIO
         if ( !maryHdr.isMaryHeader() ) {
             throw new RuntimeException( "File [" + fileName + "] is not a valid Mary format file." );
         }
-        if ( maryHdr.getType() != MaryHeader.UNITS ) {
-            throw new RuntimeException( "File [" + fileName + "] is not a valid Mary Units file." );
+        if ( maryHdr.getType() != MaryHeader.TIMELINE ) {
+            throw new RuntimeException( "File [" + fileName + "] is not a valid timeline file." );
         }
 
         /* Load the processing info header */

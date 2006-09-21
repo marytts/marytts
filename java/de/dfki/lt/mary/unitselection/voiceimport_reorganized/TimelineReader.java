@@ -297,6 +297,9 @@ public class TimelineReader extends TimelineIO {
      * @throws IOException
      */
     private void gotoTime( long targetTimeInSamples ) throws IOException {
+        /* If we are already there, do nothing: */
+        if ( getTimePointer() == targetTimeInSamples ) return;
+        /* Else: */
         /* Seek for the time index which comes just before the requested time */
         IdxField idxFieldBefore = idx.getIdxFieldBefore( targetTimeInSamples );
         // System.out.println( "IDXFIELDBEF = ( " + idxFieldBefore.bytePtr + " , " + idxFieldBefore.timePtr + " )" );
@@ -369,7 +372,9 @@ public class TimelineReader extends TimelineIO {
         if ( returnOffset != null ) returnOffset[0] = unScaleTime( reqSampleRate, (scaledTargetTime - getTimePointer()) );
         /* ... and read datagrams across the requested timeSpan: */
         while( getTimePointer() < endTime ) {
-            v.add( getNextDatagram() );
+            Datagram dat = getNextDatagram();
+            if ( reqSampleRate != sampleRate ) dat.duration = unScaleTime( reqSampleRate, dat.duration ); // => Don't forget to stay time-consistent!
+            v.add( dat );
         }
         
         /* Cast the vector into an array of datagrams (an array of byte arrays),
@@ -393,7 +398,33 @@ public class TimelineReader extends TimelineIO {
         /* Let's go to the requested time... */
         gotoTime( scaledTargetTime );
         /* ... and return the requested number of datagrams. */
-        return( getNextDatagrams(number) );
+        Datagram[] buff = getNextDatagrams(number);
+        if ( reqSampleRate != sampleRate ) {
+            for ( int i = 0; i < buff.length; i++ ) {
+                buff[i].duration = unScaleTime( reqSampleRate, buff[i].duration ); // => Don't forget to stay time-consistent!
+            }
+        }
+        return( buff );
+    }
+    
+    /**
+     * Get a single datagram from a particular time location.
+     * 
+     * @param targetTimeInSamples the requested position, in samples.
+     * @param reqSampleRate the sample rate for the requested times.
+     * 
+     * @return a datagram.
+     */
+    public synchronized Datagram getDatagram( long targetTimeInSamples, int reqSampleRate ) throws IOException {
+        /* Resample the requested time location, in case the sample times are different between
+         * the request and the timeline */
+        long scaledTargetTime = scaleTime( reqSampleRate, targetTimeInSamples );
+        /* Let's go to the requested time... */
+        gotoTime( scaledTargetTime );
+        /* ... and return a single datagram. */
+        Datagram dat = getNextDatagram();
+        if ( reqSampleRate != sampleRate ) dat.duration = unScaleTime( reqSampleRate, dat.duration ); // => Don't forget to stay time-consistent!
+        return( dat );
     }
     
     /**
@@ -417,7 +448,13 @@ public class TimelineReader extends TimelineIO {
         gotoTime( scaledTargetTime );
         if ( returnOffset != null ) returnOffset[0] = unScaleTime( reqSampleRate, (scaledTargetTime - getTimePointer()) );
         /* ... and return the requested number of datagrams. */
-        return( getNextDatagrams(number) );
+        Datagram[] buff = getNextDatagrams(number);
+        if ( reqSampleRate != sampleRate ) {
+            for ( int i = 0; i < buff.length; i++ ) {
+                buff[i].duration = unScaleTime( reqSampleRate, buff[i].duration ); // => Don't forget to stay time-consistent!
+            }
+        }
+        return( buff );
     }
     
 }

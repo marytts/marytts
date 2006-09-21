@@ -46,9 +46,9 @@ public class UnitFeatureComputer implements VoiceImportComponent
         this.db = setdb;
         this.bnl = setbnl;
 
-        textDir = new File(System.getProperty("text.dir", "text"));
+        textDir = new File( db.txtDirName() );
         if (!textDir.exists()) throw new IOException("No such directory: "+ textDir);
-        unitfeatureDir = new File(System.getProperty("unitfeatures.dir", "unitfeatures"));
+        unitfeatureDir = new File( db.unitFeaDirName() );
         if (!unitfeatureDir.exists()) unitfeatureDir.mkdir();
         locale = System.getProperty("locale", "en");
 
@@ -86,13 +86,14 @@ public class UnitFeatureComputer implements VoiceImportComponent
 
     public boolean compute() throws IOException
     {
-        String[] basenames = FileUtils.listBasenames(textDir, ".txt");
-        System.out.println("Computing unit features for "+basenames.length+" files");
-        for (int i=0; i<basenames.length; i++) {
-            computeFeaturesFor(basenames[i]);
-            System.out.println("    "+basenames[i]);
+        //String[] basenames = FileUtils.listBasenames(textDir, ".txt");
+        //System.out.println("Computing unit features for "+basenames.length+" files");
+        System.out.println( "Computing unit features for " + bnl.getLength() + " files" );
+        for (int i=0; i<bnl.getLength(); i++) {
+            computeFeaturesFor( bnl.getName(i) );
+            System.out.println( "    " + bnl.getName(i) );
         }
-        System.out.println("Finished computing unit features");
+        System.out.println("Finished computing the unit features.");
         return true;
     }
 
@@ -100,17 +101,17 @@ public class UnitFeatureComputer implements VoiceImportComponent
     {
         String text;
         // First, test if there is a corresponding .rawmaryxml file in textdir:
-        File rawmaryxmlFile = new File(textDir, basename+".rawmaryxml");
+        File rawmaryxmlFile = new File( db.rmxDirName() + basename + db.rmxExt() );
         if (rawmaryxmlFile.exists()) {
             text = FileUtils.getFileAsString(rawmaryxmlFile, "UTF-8");
         } else {
             text = getMaryXMLHeaderWithInitialBoundary(locale)
-                + FileUtils.getFileAsString(new File(textDir, basename+".txt"), "UTF-8")
+                + FileUtils.getFileAsString(new File( db.txtDirName() + basename + db.txtExt() ), "UTF-8")
                 + "</maryxml>";
         }
         String inputFormat = "RAWMARYXML";
         String outputFormat = "TARGETFEATURES";
-        OutputStream os = new BufferedOutputStream(new FileOutputStream(new File(unitfeatureDir, basename+".feats")));
+        OutputStream os = new BufferedOutputStream(new FileOutputStream(new File( db.unitFeaDirName() + basename + db.unitFeaExt() )));
         MaryClient maryClient = getMaryClient();
         maryClient.process(text, inputFormat, outputFormat, null, null, os);
         os.flush();

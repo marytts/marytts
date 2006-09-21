@@ -74,6 +74,15 @@ public class BasenameList
     }
     
     /**
+     * Default constructor from an existing vector and fields.
+     */
+    public BasenameList( String setFromDir, String setFromExt, Vector setVec ) {
+        fromDir = setFromDir;
+        fromExt = setFromExt;
+        bList = setVec;
+    }
+    
+    /**
      * Constructor from an array of strings.
      */
     public BasenameList( String[] str ) {
@@ -181,7 +190,7 @@ public class BasenameList
      * Adds a basename to the list.
      */
     public void add( String str ) {
-        bList.add( new String( str ) );
+        if ( !bList.contains( str ) ) bList.add( new String( str ) );
     }
     
     /**
@@ -192,11 +201,51 @@ public class BasenameList
     }
     
     /**
+     * Removes a basename from the list, if it was present.
+     * 
+     * @param str The basename to remove.
+     * @return true if the list was containing the basename.
+     */
+    public boolean remove( String str ) {
+        return( bList.remove( str ) );
+    }
+    
+    /**
+     * Removes a list from another list.
+     * 
+     * @param bnl The basename list to remove.
+     * @return true if the list was containing any element of the list to remove.
+     */
+    public boolean remove( BasenameList bnl ) {
+        boolean ret = true;
+        for ( int i = 0; i < bnl.getLength(); i++ ) {
+            bList.remove( bnl.getName(i) );
+        }
+        return( ret );
+    }
+    
+    /**
+     * Duplicates the list (i.e., emits an autonomous copy of it).
+     */
+    public BasenameList duplicate() {
+        return( new BasenameList( this.fromDir, this.fromExt, (Vector)(this.bList.clone()) ) );
+    }
+    
+    /**
+     * Returns an autonomous sublist between fromIndex, inclusive, and toIndex, exclusive.
+     */
+    public BasenameList subList( int fromIndex, int toIndex ) {
+        Vector subVec = new Vector( toIndex - fromIndex, DEFAULT_INCREMENT );
+        for ( int i = fromIndex; i < toIndex; i++ ) subVec.add( this.getName(i) );
+        return( new BasenameList( this.fromDir, this.fromExt, subVec ) );
+    }
+    
+    /**
      * An accessor for the list of basenames, returned as an array of strings
      */
     public String[] getListAsArray() {
-        String[] ret = new String[0];
-        bList.toArray( ret );
+        String[] ret = new String[this.getLength()];
+        ret = (String[]) bList.toArray( ret );
         return( (String[])( ret ) );
     }
     
