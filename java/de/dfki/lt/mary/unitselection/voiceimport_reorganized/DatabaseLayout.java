@@ -64,8 +64,11 @@ public class DatabaseLayout
      */
     private void initDefaultProps() {
         
-        /* baseName : the name of the root directory for the database */
-        setIfDoesntExist( "db.baseName", "." );
+        /* root : the name of the root directory for the database */
+        setIfDoesntExist( "db.rootDir", "." );
+        
+        /* The file for the list of utterances */
+        setIfDoesntExist( "db.basenameFile", "basenames.lst" );
         
         /* Default text.data file */
         setIfDoesntExist( "db.text.baseFile", "etc/txt.done.data" );
@@ -140,50 +143,60 @@ public class DatabaseLayout
     
     /* Various accessors and absolute path makers: */
 
-    public String baseName() { return( System.getProperty( "db.baseName") ); }
+    /* Database root directory */
+    public String rootDirName() { return( System.getProperty( "db.rootDir") ); }
+    
+    /* List of basenames */
+    public String basenameFile() {
+        String ret = System.getProperty( "db.basename.file" );
+        if ( ret != null ) return( ret );
+        /* else: */
+        return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
+                + System.getProperty( "db.basenameFile" ) );
+    }
     
     /* BASE TEXT FILE */
     public String baseTxtFileName() {
         String ret = System.getProperty( "db.text.file" );
         if ( ret != null ) return( ret );
         /* else: */
-        return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
+        return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
                 + System.getProperty( "db.text.baseFile" ) );
     }
     
     
     /* TXT */
-    public String txtDirName() { return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
+    public String txtDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
             + System.getProperty( "db.text.subDir" ) + System.getProperty( "file.separator" ) ); }
     public String txtExt() { return( System.getProperty( "db.text.extension") ); }
     
     /* LAB */
-    public String labDirName() { return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
+    public String labDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
             + System.getProperty( "db.phonelab.subDir" ) + System.getProperty( "file.separator" ) ); }
     public String labExt() { return( System.getProperty( "db.phonelab.extension") ); }
     
     /* UNITLAB */
-    public String unitLabDirName() { return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
+    public String unitLabDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
             + System.getProperty( "db.unitlab.subDir" ) + System.getProperty( "file.separator" ) ); }
     public String unitLabExt() { return( System.getProperty( "db.unitlab.extension") ); }
     
     /* UNIT FEATURES */
-    public String unitFeaDirName() { return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
+    public String unitFeaDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
             + System.getProperty( "db.unitfeatures.subDir" ) + System.getProperty( "file.separator" ) ); }
     public String unitFeaExt() { return( System.getProperty( "db.unitfeatures.extension") ); }
     
     /* RAW MARY XML */
-    public String rmxDirName() { return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
+    public String rmxDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
             + System.getProperty( "db.rawmaryxml.subDir" ) + System.getProperty( "file.separator" ) ); }
     public String rmxExt() { return( System.getProperty( "db.rawmaryxml.extension") ); }
     
     /* WAV */
-    public String wavDirName() { return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
+    public String wavDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
             + System.getProperty( "db.wavSubDir" ) + System.getProperty( "file.separator" ) ); }
     public String wavExt() { return( System.getProperty( "db.wavExtension") ); }
     
     /* LPC */
-    public String lpcDirName() { return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
+    public String lpcDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
             + System.getProperty( "db.lpcSubDir" ) + System.getProperty( "file.separator" ) ); }
     public String lpcExt() { return( System.getProperty( "db.lpcExtension") ); }
     /* File name for the LPC+residual timeline */
@@ -195,17 +208,17 @@ public class DatabaseLayout
     }
     
     /* TIMELINES */
-    public String timelineDirName() { return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
+    public String timelineDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
             + System.getProperty( "db.timelineSubDir" ) + System.getProperty( "file.separator" ) ); }
     public String timelineExt() { return( System.getProperty( "db.timelineExtension") ); }
     
     /* PITCHMARKS */
-    public String pitchmarksDirName() { return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
+    public String pitchmarksDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
             + System.getProperty( "db.pitchmarksSubDir" ) + System.getProperty( "file.separator" ) ); }
     public String pitchmarksExt() { return( System.getProperty( "db.pitchmarksExtension") ); }
     
     /* MELCEP */
-    public String melcepDirName() { return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
+    public String melcepDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
             + System.getProperty( "db.melcepSubDir" ) + System.getProperty( "file.separator" ) ); }
     public String melcepExt() { return( System.getProperty( "db.melcepExtension") ); }
     /* File name for the mel cepstrum timeline */
@@ -218,10 +231,10 @@ public class DatabaseLayout
     
     
     /* MARY FILES */
-    public String maryDirName() { return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
+    public String maryDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
             + System.getProperty( "db.marySubDir") ); }
     
-    public String cartsDirName() { return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
+    public String cartsDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
             + System.getProperty( "db.cartsSubDir") ); }
     
     
@@ -230,7 +243,7 @@ public class DatabaseLayout
         String ret = System.getProperty( "db.targetFeaturesFileName" );
         if ( ret != null ) return( ret );
         /* else: */
-        return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
+        return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
                 + System.getProperty( "db.marySubDir" ) + System.getProperty( "file.separator" )
                 + System.getProperty( "db.targetFeaturesBaseName" ) + System.getProperty( "db.maryExtension" ) );
     }
@@ -240,7 +253,7 @@ public class DatabaseLayout
         String ret = System.getProperty( "db.joinCostFeaturesFileName" );
         if ( ret != null ) return( ret );
         /* else: */
-        return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
+        return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
                 + System.getProperty( "db.marySubDir" ) + System.getProperty( "file.separator" )
                 + System.getProperty( "db.joinCostFeaturesBaseName" ) + System.getProperty( "db.maryExtension" ) );
     }
@@ -250,7 +263,7 @@ public class DatabaseLayout
         String ret = System.getProperty( "db.unitFileName" );
         if ( ret != null ) return( ret );
         /* else: */
-        return( System.getProperty( "db.baseName" ) + System.getProperty( "file.separator" )
+        return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
                 + System.getProperty( "db.marySubDir" ) + System.getProperty( "file.separator" )
                 + System.getProperty( "db.unitFileBaseName" ) + System.getProperty( "db.maryExtension" ) );
     }

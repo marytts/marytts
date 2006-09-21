@@ -144,10 +144,17 @@ public class BasenameList
     /*****************/
 
     /**
-     * Write the basenameList to a file.
+     * Write the basenameList to a file, identified by its name.
      */
     public void write( String fileName ) throws IOException {
-        PrintWriter pw = new PrintWriter( new OutputStreamWriter( new FileOutputStream( fileName ), "UTF-8" ), true );
+        write( new File( fileName ) );
+    }
+    
+    /**
+     * Write the basenameList to a File.
+     */
+    public void write( File file ) throws IOException {
+        PrintWriter pw = new PrintWriter( new OutputStreamWriter( new FileOutputStream( file ), "UTF-8" ), true );
         if ( fromDir != null ) {
             pw.println( "FROM: " + fromDir + "*" + fromExt );
         }
