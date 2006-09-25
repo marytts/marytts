@@ -61,7 +61,7 @@ public class FestivalCARTImporter {
                     BufferedReader reader =
                         new BufferedReader(new 
                                 InputStreamReader(new FileInputStream(entries[i])));
-                    CART cart = new CARTWagonFormat(reader,name);
+                    CARTWagonFormat cart = new CARTWagonFormat(reader);
                     //store CART in map
                     cartMap.put(name, cart);
                     reader.close();
@@ -86,7 +86,7 @@ public class FestivalCARTImporter {
                 for (Iterator i = carts.iterator(); i.hasNext();) {
                     //get name and CART,
                     String name = (String) i.next();
-                    CART cart =  (CART) cartMap.get(name);
+                    CARTWagonFormat cart =  (CARTWagonFormat) cartMap.get(name);
                     //dump name and CART
                     out.writeUTF(name);
                     cart.dumpBinary(out);
