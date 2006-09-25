@@ -57,8 +57,7 @@ public class FeaturefileReader
         if ( hdr.getType() != MaryHeader.TARGETFEATS ) {
             throw new IOException( "File [" + fileName + "] is not a valid Mary Features file." );
         }
-        featureDefinition = new FeatureDefinition();
-        featureDefinition.readBinary(dis);
+        featureDefinition = new FeatureDefinition(dis);
         int numberOfUnits = dis.readInt();
         featureVectors = new FeatureVector[numberOfUnits];
         for (int i=0; i<numberOfUnits; i++) {

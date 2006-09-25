@@ -91,6 +91,7 @@ public class WeightFunctionManager {
                     + funcName + "]. Known types are: " + strKnown );
         }
         /* If the function has a parameter, parse and set it */
+        // TODO: This is not thread-safe! What if several threads call wf.setParam() with different values?
         if ( strPart.length > 1 ) wf.setParam( strPart[1] );
         /* Return the functionś interface */
         return( wf );
