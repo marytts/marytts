@@ -140,4 +140,16 @@ public class UnitFileReader {
         return( duration[i] );
     }
     
+    /**
+     * Determine whether the unit number i is an "edge" unit, i.e.
+     * a unit marking the start or the end of an utterance.
+     * 
+     * @param i The index of the considered unit.
+     * @return true if the unit is an edge unit in the unit file, false otherwise
+     */
+    public boolean isEdgeUnit(int i) {
+        if (duration[i] == 0) return true;
+        else return false;
+    }
+    
 }

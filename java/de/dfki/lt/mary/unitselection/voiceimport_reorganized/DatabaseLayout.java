@@ -88,7 +88,10 @@ public class DatabaseLayout
         /* Unit feature files */
         setIfDoesntExist( "db.unitfeatures.subDir", "unitfeatures" );
         setIfDoesntExist( "db.unitfeatures.extension", ".feats" );
-        
+
+        /* Default feature weights file */
+        setIfDoesntExist( "db.featureweights.file", unitFeaDirName()+"/weights.txt");
+
         /* Raw Mary XML files */
         setIfDoesntExist( "db.rawmaryxml.subDir", "text" );
         setIfDoesntExist( "db.rawmaryxml.extension", ".rawmaryxml" );
@@ -184,6 +187,8 @@ public class DatabaseLayout
     public String unitFeaDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
             + System.getProperty( "db.unitfeatures.subDir" ) + System.getProperty( "file.separator" ) ); }
     public String unitFeaExt() { return( System.getProperty( "db.unitfeatures.extension") ); }
+    public String weightsFileName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
+            + System.getProperty( "db.featureweights.file" ) ); }
     
     /* RAW MARY XML */
     public String rmxDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
