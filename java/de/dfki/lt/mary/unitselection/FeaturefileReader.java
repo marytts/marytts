@@ -61,7 +61,7 @@ public class FeaturefileReader
         int numberOfUnits = dis.readInt();
         featureVectors = new FeatureVector[numberOfUnits];
         for (int i=0; i<numberOfUnits; i++) {
-            featureVectors[i] = featureDefinition.readFeatureVector(dis);
+            featureVectors[i] = featureDefinition.readFeatureVector(i,dis);
         }
     }
     

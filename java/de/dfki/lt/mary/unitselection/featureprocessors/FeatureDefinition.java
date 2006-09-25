@@ -478,7 +478,7 @@ public class FeatureDefinition
      * @param input a DataInputStream or RandomAccessFile to read the feature values from.
      * @return a FeatureVector.
      */
-    public FeatureVector readFeatureVector(DataInput input) throws IOException
+    public FeatureVector readFeatureVector(int currentUnitIndex, DataInput input) throws IOException
     {
         byte[] bytes = new byte[numberOfByteValues];
         input.readFully(bytes);
@@ -490,7 +490,7 @@ public class FeatureDefinition
         for (int i=0; i<floats.length; i++) {
             floats[i] = input.readFloat();
         }
-        return new FeatureVector(bytes, shorts, floats);
+        return new FeatureVector(bytes, shorts, floats, currentUnitIndex);
     }
     
     public FeatureVector getEmptyFeatureVector()

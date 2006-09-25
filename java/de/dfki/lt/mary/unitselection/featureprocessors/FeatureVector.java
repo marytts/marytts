@@ -21,15 +21,21 @@ import java.io.IOException;
  */
 public class FeatureVector
 {
+    int unitIndex;
     protected byte[] byteValuedDiscreteFeatures;
     protected short[] shortValuedDiscreteFeatures;
     protected float[] continuousFeatures;
     
-    public FeatureVector(byte[] byteValuedDiscreteFeatures, short[] shortValuedDiscreteFeatures, float[] continuousFeatures)
+    public FeatureVector(byte[] byteValuedDiscreteFeatures, short[] shortValuedDiscreteFeatures, float[] continuousFeatures,
+            int setUnitIndex )
     {
         this.byteValuedDiscreteFeatures = byteValuedDiscreteFeatures;
         this.shortValuedDiscreteFeatures = shortValuedDiscreteFeatures;
         this.continuousFeatures = continuousFeatures;
+        if ( setUnitIndex < 0 ) {
+            throw new RuntimeException( "The unit index can't be negative or null when instanciating a new feature vector." );
+        }
+        this.unitIndex = setUnitIndex;
     }
 
     /**
@@ -41,6 +47,14 @@ public class FeatureVector
         return byteValuedDiscreteFeatures.length + shortValuedDiscreteFeatures.length + continuousFeatures.length;
     }
 
+    /**
+     * Get the index of the unit to which the current feature vector applies.
+     * @return The related unit index.
+     */
+    public int getUnitIndex() {
+        return( unitIndex );
+    }
+    
     /**
      * The number of byte features in this feature vector.
      * @return a number of byte features, possibly 0.
