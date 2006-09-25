@@ -1,0 +1,71 @@
+package de.dfki.lt.mary.util;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
+/**
+ * A helper class converting between a given set of shorts and strings.
+ * @author schroed
+ *
+ */
+public class ShortStringTranslator
+{
+    ArrayList list;
+    
+    /**
+     * Initialize empty short-string two-way translator.
+     *
+     */
+    public ShortStringTranslator()
+    {
+        list = new ArrayList();
+    }
+
+    public ShortStringTranslator(short initialRange)
+    {
+        list = new ArrayList(initialRange);
+    }
+
+    /**
+     * Initialize a short-string two-way translator,
+     * setting short values according to the position of strings
+     * in the array.
+     * @param strings
+     */
+    public ShortStringTranslator(String[] strings)
+    {
+        if (strings.length > Short.MAX_VALUE) throw new IllegalArgumentException("Too many strings for a short-string translator");
+        list = new ArrayList(Arrays.asList(strings));
+    }
+    
+    public void set(short b, String s)
+    {
+        list.add(b, s);
+    }
+    
+    public short get(String s)
+    {
+        int index = list.indexOf(s);
+        if (index == -1) throw new IllegalArgumentException("No short value known for string "+s);
+        return (short)index;
+    }
+    
+    public String get(short b)
+    {
+        int index = (int) b;
+        if (index < 0 || index > list.size())
+            throw new IndexOutOfBoundsException("Short value out of range: "+index);
+        return (String) list.get(index);
+    }
+    
+    public String[] getStringValues()
+    {
+        return (String[]) list.toArray(new String[0]);
+    }
+    
+    public short getHighestValue()
+    {
+        return (short) list.size();
+    }
+
+}

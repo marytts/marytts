@@ -21,6 +21,11 @@ public class ByteStringTranslator
         list = new ArrayList();
     }
 
+    public ByteStringTranslator(byte initialRange)
+    {
+        list = new ArrayList(initialRange);
+    }
+
     /**
      * Initialize a byte-string two-way translator,
      * setting byte values according to the position of strings
@@ -29,7 +34,7 @@ public class ByteStringTranslator
      */
     public ByteStringTranslator(String[] strings)
     {
-        if (strings.length >= 128) throw new IllegalArgumentException("Too many strings for a byte-string translator");
+        if (strings.length > Byte.MAX_VALUE) throw new IllegalArgumentException("Too many strings for a byte-string translator");
         list = new ArrayList(Arrays.asList(strings));
     }
     
@@ -49,7 +54,7 @@ public class ByteStringTranslator
     {
         int index = (int) b;
         if (index < 0 || index > list.size())
-            throw new IllegalArgumentException("Byte value out of range: "+index);
+            throw new IndexOutOfBoundsException("Byte value out of range: "+index);
         return (String) list.get(index);
     }
     
@@ -57,4 +62,10 @@ public class ByteStringTranslator
     {
         return (String[]) list.toArray(new String[0]);
     }
+    
+    public byte getHighestValue()
+    {
+        return (byte) list.size();
+    }
+
 }

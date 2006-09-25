@@ -68,8 +68,7 @@ public class FeaturefileWriter implements VoiceImportComponent
         unitFileReader = new UnitFileReader( db.unitFileName() );
         unitfeatureDir = new File(db.unitFeaDirName());
         File weightsFile = new File(db.weightsFileName());
-        featureDefinition = new FeatureDefinition();
-        featureDefinition.readTextWithWeights(new BufferedReader(new InputStreamReader(new FileInputStream(weightsFile), "UTF-8")));
+        featureDefinition = new FeatureDefinition(new BufferedReader(new InputStreamReader(new FileInputStream(weightsFile), "UTF-8")), true); // true: read weights
 
     }
     
@@ -89,8 +88,7 @@ public class FeaturefileWriter implements VoiceImportComponent
         // Loop over all utterances
         for (int i=0; i<bnl.getLength(); i++) {
             BufferedReader uttFeats = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitFeaDirName() + bnl.getName(i) + db.unitFeaExt() )), "UTF-8"));
-            FeatureDefinition uttFeatDefinition = new FeatureDefinition();
-            uttFeatDefinition.readTextWithoutWeights(uttFeats);
+            FeatureDefinition uttFeatDefinition = new FeatureDefinition(uttFeats, false); // false: do not read weights
             if (!uttFeatDefinition.featureEquals(featureDefinition)) {
                 throw new IllegalArgumentException("Features in file "+bnl.getName(i)+" do not match definition file "+db.weightsFileName());
             }
