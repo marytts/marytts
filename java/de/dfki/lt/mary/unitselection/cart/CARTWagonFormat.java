@@ -36,6 +36,7 @@ import org.apache.log4j.Logger;
 
 import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.mary.unitselection.Target;
+import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 
 import java.io.*;
 import java.net.URL;
@@ -62,15 +63,6 @@ import java.util.*;
  *
  * <ul>
  *   <li>&lt; - the feature is less than value 
- *   <li>= - the feature is equal to the value 
- *   <li>> - the feature is greater than the value 
- *   <li>MATCHES - the feature matches the regular expression stored in value 
- *   <li>IN - [[[TODO: still guessing because none of the CART's in
- *     Flite seem to use IN]]] the value is in the list defined by the
- *     feature.
- * </ul>
- *
- * <p>[[[TODO: provide support for the IN operator.]]]
  *
  * <p>For &lt; and >, this CART coerces the value and feature to
  * float's. For =, this CART coerces the value and feature to string and
@@ -95,23 +87,9 @@ import java.util.*;
  * Reaching a final node indicates the interpretation is over and the
  * value of the node is the interpretation result.
  */
-public class CARTWagonFormat implements CART {
+public class CARTWagonFormat{
 
-    private Logger logger = Logger.getLogger("CARTImpl");
-    private String name = null;
-   
-    /**
-     * The CART. Entries can be DecisionNode or LeafNode.  An
-     * ArrayList could be used here -- I chose not to because I
-     * thought it might be quicker to avoid dealing with the dynamic
-     * resizing.
-     */
-    Node[] cart = null;
-
-    /**
-     * The number of nodes in the CART.
-     */
-    transient int curNode = 0;
+    private Logger logger = Logger.getLogger("CARTWagonFormat");
     
     /**
      * Defines how many units should be selected
@@ -129,11 +107,9 @@ public class CARTWagonFormat implements CART {
      * Creates a new CART by reading from the given reader.
      *
      * @param reader the source of the CART data
-     * @param nodes the number of nodes to read for this cart
-     *
      * @throws IOException if errors occur while reading the data
      */ 
-    public CARTWagonFormat(BufferedReader reader, String name) throws IOException {
+    public CARTWagonFormat(BufferedReader reader) throws IOException {
         openBrackets = 0;
         String line = reader.readLine(); // first line is empty, read again 
         line = reader.readLine(); 
@@ -157,8 +133,6 @@ public class CARTWagonFormat implements CART {
      * @param raf the random access file from which to read, with its 
      * file pointer properly positioned.
      *
-     * @return the CART
-     *
      * @throws IOException if an error occurs during output
      *
      * Note that cart nodes are really saved as strings that
@@ -173,52 +147,46 @@ public class CARTWagonFormat implements CART {
     	    backtrace = Integer.parseInt(backtraceString.trim());
     	}
     	openBrackets = 0;
-    	for (int i = 0; i < numNodes; i++) {
-    	    
-    	    String nodeCreationLine = raf.readUTF();
-    	    parseAndAdd(nodeCreationLine);
+        String cart = raf.readUTF();
+        StringTokenizer tok = new StringTokenizer("\n");
+    	while (tok.hasMoreTokens()) {
+    	   
+    	    parseAndAdd(tok.nextToken());
     	}
 	
     }
   
     /**
-     * Dumps this CART to the output stream.
+     * Dumps this CART to the output stream in WagonFormat.
      *
      * @param os the output stream
      *
      * @throws IOException if an error occurs during output
      */
     public void dumpBinary(DataOutputStream os) throws IOException {
-	os.writeInt(cart.length);
-	for (int i = 0; i < cart.length; i++) {
-	    cart[i].dumpBinary(os);
-	}
+        StringBuffer sb = new StringBuffer();
+        rootNode.toWagonFormat(sb);
+        os.writeUTF(sb.toString());
     }
     
     
     
     /**
      * Creates a node from the given input line and add it to the CART.
-     * It expects the TOTAL line to come before any of the nodes.
-     *
+     * 
      * @param line a line of input to parse
      */
     protected void parseAndAdd(String line) {
-        //go through beginning of String and count opening brackets
-        
-        int index = 0; 
-        char nextChar = line.charAt(index);
-        while (nextChar == '('){
-            openBrackets++;
-          
-            nextChar = line.charAt(index);
+        //at beginning of String there should be at least two opening brackets
+        if (! (line.startsWith("(("))){
+            throw new Error("Invalid input line for CART: "+line);
         }
-        if (Character.isLetter(nextChar)){ // we have a node
-            openBrackets--; //do not count first bracket
+        if (Character.isLetter(line.charAt(2))){ // we have a node
+            openBrackets++; //do not count first bracket
             
             //get the properties of the node
             StringTokenizer tokenizer = new StringTokenizer(line," ");
-            String feature = tokenizer.nextToken().substring(index);
+            String feature = tokenizer.nextToken().substring(2);
             String type = tokenizer.nextToken();
             String value = tokenizer.nextToken();
             value = value.substring(0,value.length()-1);
@@ -226,16 +194,22 @@ public class CARTWagonFormat implements CART {
             //build new node depending on type
             Node nextNode;
             if (type.equals("is")){
-                nextNode = new BinaryStringDecisionNode(feature,value,line);
+                int featureIndex = Integer.parseInt(feature.substring(1));
+                if (feature.startsWith("b")){
+                    nextNode = new BinaryByteDecisionNode(featureIndex,Byte.parseByte(value));
+                } else {
+                    nextNode = new BinaryShortDecisionNode(featureIndex,Short.parseShort(value));
+                }
             } else {
+                int featureIndex = Integer.parseInt(feature);
                 if (type.equals("<")){
-                    nextNode = new BinaryFloatDecisionNode(feature,Float.parseFloat(value),line);
+                    nextNode = new BinaryFloatDecisionNode(featureIndex,Float.parseFloat(value));
                 } else {
                     if (type.equals("isShortOf")){
-                        nextNode = new UnaryShortDecisionNode(feature,Integer.parseInt(value),line);
+                        nextNode = new ShortDecisionNode(featureIndex,Integer.parseInt(value));
                     } else {
                         if (type.equals("isByteOf")){
-                            nextNode = new UnaryByteDecisionNode(feature,Integer.parseInt(value),line);
+                            nextNode = new ByteDecisionNode(featureIndex,Integer.parseInt(value));
                         } else {
                             throw new Error ("Unknown type : "+type);
                         }
@@ -250,24 +224,24 @@ public class CARTWagonFormat implements CART {
             } else {
                 //this is the rootNode
                 rootNode = nextNode;
+                nextNode.setIsRoot(true);
             }
             
             //go on step down
             lastNode = nextNode;
             
         } else { // we have a leaf
-            openBrackets-=2; //do not count first two brackets
-            
             StringTokenizer tokenizer = new StringTokenizer(line," ");      
             //build new leaf node
-            Node nextNode = new LeafNode(tokenizer, index,line);
+            Node nextNode = new LeafNode(tokenizer);
             
-            //this node is a daughter of lastNode
-            if (lastNode == null){
+            //set the relations of this node to the others
+            if (lastNode == null){ //this node is the root
                 rootNode = nextNode;
-            } else {
-            nextNode.setMother(lastNode);
-            ((DecisionNode) lastNode).addDaughter(nextNode);
+                nextNode.setIsRoot(true);
+            } else { //this node is a daughter of lastNode
+                nextNode.setMother(lastNode);
+                ((DecisionNode) lastNode).addDaughter(nextNode);
             }
             
             //look at the bracketing at the end of the line:            
@@ -277,27 +251,37 @@ public class CARTWagonFormat implements CART {
             //lastToken should look like "0))"
             //more than two brackets mean that this is 
             //the last daughter of one or more nodes
-            int length = lastToken.length()-3;
-            while (length > 0){
-                nextChar = lastToken.charAt(1); 
-                if (nextChar == ')'){
+            int length = lastToken.length();
+            int index = 3; //start looking at the characters after "0))"
+            while (index < length){ //while we have more characters
+                char nextChar = lastToken.charAt(index); 
+                if (nextChar == ')'){ 
+                    //if the next character is a closing bracket
                     openBrackets--;
-                    //this is the last daughter of lastNode, go one step up
-                    lastNode = lastNode.getMother();
-                }    
-                length--;
+                    //this is the last daughter of lastNode, 
+                    //try going one step up
+                    if (lastNode.isRoot()){
+                        if (index+1 != length){
+                            //lastNode should not be the root,
+                            //unless we are at the last bracket
+                            throw new Error("Too many closing brackets in line "
+                                            +line);
+                        }
+                    } else { //you can go one step up
+                        lastNode = lastNode.getMother();
+                    }
+                } else {
+                    //nextChar is not a closing bracket;
+                    //something went wrong here
+                    throw new Error("Expected closing bracket in line "
+                                   +line+", but found "+nextChar);
+                }
+                index++;
             }
             
         }
     }
-    
-    //only there for compatibility, to be removed later
-    public Object interpret(Object object){
-        return null;
-    }
-    //only there for compatibility, to be removed later
-    public void correctNumbers(List units){}
-    
+   
     /**
      * Passes the given target through this CART and returns the
      * interpretation.
@@ -307,112 +291,54 @@ public class CARTWagonFormat implements CART {
      * @return the interpretation
      */
     public int[] interpret(Target target) {
-        //start interpretation from the root
-        return interpret(target,rootNode, backtrace);        
-    }
-    
-    public int[] interpret(Target target, Node currentNode, int limit){
+        Node currentNode = rootNode;
+        
+        FeatureVector featureVector = target.getFeatureVector();
+        
         //logger.debug("Starting cart at "+nodeIndex);
         while (!(currentNode instanceof LeafNode)) { 
             //while we have not reached the bottom,
             //get the next node based on the features of the target
-           currentNode = ((DecisionNode)currentNode).getNextNode(target);
+           currentNode = ((DecisionNode)currentNode).getNextNode(featureVector);
 	        //logger.debug(decision.toString() + " result '"+ decision.findFeature(item) + "' => "+ nodeIndex);
         }
         
         //get the indices from the leaf node
-        int[] result = ((LeafNode) currentNode).getValues();
+        int[] result = ((LeafNode) currentNode).getAllIndices();
         
+        int limit = backtrace;
         //set backtrace to false (default)
         boolean backtrace = false;
         while (result.length<limit){
             //set backtrace to true if we have not enough units
             backtrace = true;
             
-            //logger.debug("Selected "+result.length
-            //      +" units. Selecting more units...");
-            
             //get the mother node
             Node motherNode = currentNode.getMother(); 
-            if (motherNode instanceof BinaryDecisionNode){
-                //if the mother is a binary node, get the sister node
-                //of the node selected before
-                Node unusedNode = ((BinaryDecisionNode)motherNode).getUnusedNode();
-                //go down the node and add the indices you find to result
-                result = backtrace(result,unusedNode,limit,target);
-            } else {
-                //if the node is a unary node, get all sisters
-                //of the node selected before
-                Node[] unusedNodes = ((UnaryDecisionNode)motherNode).getUnusedNodes();
-                int index = 0;
-                while (result.length<limit 
-                        && index<unusedNodes.length){ 
-                    //while we need more units and have more nodes,
-                    //go down a sister node and add the indices you find to result
-                    result = backtrace(result,unusedNodes[index],limit,target);
-                    index++;
-                }
-            }
-            //result = backtrace(result,(DecisionNode)cart[previousNode],limit,item);
+            
+            result = ((DecisionNode) motherNode).getAllIndices();
         }
         if (backtrace){
-            logger.debug("Selected "+result.length+" units on backtrace in cart "+name);
+            logger.debug("Selected "+result.length+" units on backtrace");
         } else {
-            logger.debug("Selected "+result.length+" units, no backtrace in cart "+name);
+            logger.debug("Selected "+result.length+" units without backtrace");
         }
         return result;
         
-    }
-
-    private int[] backtrace(int[] oldItems, Node unusedNode, int limit, Target target){
-        int[] result, newItems;
-       
-        //if node is a leaf, new items are all unit indices in leaf
-        if (unusedNode instanceof LeafNode){
-            newItems = ((LeafNode) unusedNode).getValues();
-        } else { //else go down the node 
-            newItems = 
-                interpret(target,unusedNode,limit-oldItems.length);
-        }
-        
-        if (newItems !=null){ //if we have found more unit indices
-            //make a new array containing old and new items
-            result = new int[oldItems.length+newItems.length];
-            System.arraycopy(oldItems,0,result,0, oldItems.length);
-            System.arraycopy(newItems,0,result,oldItems.length, newItems.length);  
-        } else { //if we do not have new indices, return old indices
-            result = oldItems;
-        }
-        return result;
-    }
-    
-    /**
-     * Return the name of this cart.
-     * @return
-     */
-    public String getName()
-    {
-        return name;
     }
     
     /**
      * A node for the CART.
+     * All node types inherit from this class
      */
     static abstract class Node {
         
+        //isRoot should be set to true if this node is the root node
+        protected boolean isRoot;
+        
         //every node except the root node has a mother
         protected Node mother;
-        //the string that defines the node
-        protected String line;
         
-        /**
-         * Dumps the binary form of this node.
-         * @param os the output stream to output the node on
-         * @throws IOException if an IO error occurs
-	    */
-        public void dumpBinary(DataOutputStream os) throws IOException{
-            os.writeUTF(line);
-        }
     
         /**
          * set the mother node of this node
@@ -430,202 +356,61 @@ public class CARTWagonFormat implements CART {
             return mother;
         }
         
+        /**
+         * Set isRoot to the given value
+         * @param isRoot the new value of isRoot
+         */
+        public void setIsRoot(boolean isRoot){
+            this.isRoot = isRoot;
+        }
+        
+        /**
+         * Get the setting of isRoot
+         * @return the setting of isRoot
+         */
+        public boolean isRoot(){
+            return isRoot;
+        }
+        
+        /**
+         * Get all unit indices from all leaves below this node
+         * @return an int array containing the indices
+         */
+        public abstract int[] getAllIndices();
+        
+        
+        /**
+         * Writes the Cart to the given StringBuffer in Wagon Format
+         * @param sb the StringBuffer
+        */
+        public abstract void toWagonFormat(StringBuffer sb);
+        
         
     }
 
     /**
      * A decision node that determines the next Node to go to in the CART.
+     * All decision nodes inherit from this class
      */
     static abstract class DecisionNode extends Node {
         
-        /**
-         * Add a daughter to the node
-         * @param daughter the new daughter
-         */
-        public abstract void addDaughter(Node daughter);
-        
-        /**
-         * select a daughter node according to the value
-         * in the given target
-         * @param target the target
-         * @return a daughter
-         */
-        public abstract Node getNextNode(Target target);
-    }
-    
-    /**
-     * A binary decision node 
-     */
-    abstract static class BinaryDecisionNode extends DecisionNode {
-        
-        //a binary decision node has two daughters
-        protected Node daughter0;
-        protected Node daughter1;
-        //the feature
-        protected String feature;
-        //remember the last decision
-        protected int lastDecision;
-        //remember the last added daughter
-        protected int lastDaughter;
-        
-        /**
-         * Build a new binary decision node
-         * @param line the String representation of this node
-         */
-        public BinaryDecisionNode (String line){
-            super();
-            this.line = line;
-            lastDaughter = 0;
-            lastDecision = 1;
-      
-        }
-        
-        /**
-         * Add a daughter to the node
-         * @param daughter the new daughter
-         */
-        public void addDaughter(Node daughter){
-            if (lastDaughter>1){
-                throw new Error("Can not add a third daughter to binary node");
-            }
-            if (lastDaughter == 0){
-                daughter0 = daughter;
-            } else {
-                daughter1 = daughter;
-            }
-            lastDaughter++;
-        }
-        
-        /**
-         * Get the node that was not selected
-         * the last time 
-         * @return the unused node
-         */
-        public Node getUnusedNode(){
-            //get the daughter that was not used
-            if (lastDecision == 0){
-                return daughter1;
-            } else { 
-                return daughter0; }
-        }            
-    }
-        
-    /**
-     * A binary decision Node that compares two string values.
-     */
-    static class BinaryStringDecisionNode extends BinaryDecisionNode {
-        
-        //the value of this node
-        private String value;
-        
-         /**
-         * Create a new binary String DecisionNode.
-         * @param feature the string used to get a value from an Item
-         * @param value the value to compare to
-         * @param line the String representation of this node
-         */
-        public BinaryStringDecisionNode(String feature,
-                                String value, String line) {
-            super(line);
-            this.feature = feature;
-            this.value = value;
-        }
-        
-        
-        /**
-         * Select a daughter node according to the value
-         * in the given target
-         * @param target the target
-         * @return a daughter
-         */
-        public Node getNextNode(Target target) {
-            String val = target.getStringValue(feature);
-            Node returnNode;
-            if (val.equals(value)){
-                returnNode = daughter0;
-                lastDecision = 0;
-            } else {
-                returnNode = daughter1;
-                lastDecision = 1;
-            } 
-            return returnNode;
-        }
-       
-    }
-    
-        
-    /**
-     * A binary decision Node that compares two float values.
-     */
-    static class BinaryFloatDecisionNode extends BinaryDecisionNode {
-        
-        //the value of this node
-        private float value;
-        
-         /**
-         * Create a new binary Float DecisionNode.
-         * @param feature the string used to get a value from an Item
-         * @param value the value to compare to
-         * @param line the String representation of this node
-         */
-        public BinaryFloatDecisionNode(String feature,
-                                float value, String line) {
-            super(line);
-            this.feature = feature;
-            this.value = value;
-        }
-        
-        
-        /**
-         * Select a daughter node according to the value
-         * in the given target
-         * @param target the target
-         * @return a daughter
-         */
-        public Node getNextNode(Target target) {
-            float val = target.getFloatValue(feature);
-            Node returnNode;
-            if (val < value){
-                returnNode = daughter0;
-                lastDecision = 0;
-            } else {
-                returnNode = daughter1;
-                lastDecision = 1;
-            } 
-            return returnNode;
-        }
-        
-    }
-
-    /**
-     * An unary decision node 
-     */
-    abstract static class UnaryDecisionNode extends DecisionNode {
-        
-        //a unary decision node has several daughters
+        //a decision node has an array of daughters
         protected Node[] daughters;
-        //the feature
-        protected String feature;
-        //remember the last decision
-        protected int lastDecision;
+        //the feature index
+        protected int featureIndex;
         //remember last added daughter
         protected int lastDaughter;
         
-        
         /**
-         * Build a new unary decision node 
-         * @param feature the feature name
+         * Construct a new DecisionNode
+         * @param featureIndex the feature index 
          * @param numDaughters the number of daughters
-         * @param line the String representation of this node
          */
-        public UnaryDecisionNode (String feature,
-                                 int numDaughters,
-                                 String line){
-            super();
+        public DecisionNode (int featureIndex,
+                            int numDaughters){
+            this.featureIndex = featureIndex;
             daughters = new Node[numDaughters];
-            lastDecision = 1;
-            this.feature = feature;
-             this.line = line;
+            isRoot = false;
         }
         
         /**
@@ -643,39 +428,229 @@ public class CARTWagonFormat implements CART {
         }
         
         /**
-         * Get all daughters that were not selected
-         * last time
-         * @return the unused daughters
+         * Get all unit indices from all leaves below this node
+         * @return an int array containing the indices
          */
-        public Node[] getUnusedNodes(){
-            Node[] unusedNodes = new Node[daughters.length-1];
-            int index=0;
-            for (int i =0; i<daughters.length;i++){
-                if (i!= lastDecision){
-                    unusedNodes[index] = (Node) daughters[i];
-                    index++;
+        public int[] getAllIndices(){
+            int[] result = null;
+            if (daughters.length == 2){
+                //if we have just two daughters, merging the indices is trivial
+                int[] indices1 = daughters[0].getAllIndices();
+                int[] indices2 = daughters[1].getAllIndices();
+                result = new int[indices1.length+indices2.length];
+                System.arraycopy(indices1,0,result,0, indices1.length);
+                System.arraycopy(indices2,0,result,indices1.length, indices2.length);  
+            } else {
+                //we have more than two daughters 
+                //for each daughter, get her indices 
+                //and merge them with the other indices 
+                int[] indices1 = new int[0];
+                for (int i=0;i<daughters.length;i++){
+                    int[] indices2 = daughters[i].getAllIndices();
+                    result = new int[indices1.length+indices2.length];
+                    System.arraycopy(indices1,0,result,0, indices1.length);
+                    System.arraycopy(indices2,0,result,indices1.length, indices2.length);  
+                    indices1 = result;
                 }
             }
-            return unusedNodes;
+            return result;
         }
-           
+        
+         /**
+         * Writes the Cart to the given StringBuffer in Wagon Format
+         * @param sb the StringBuffer
+        */
+        public void toWagonFormat(StringBuffer sb){
+            //first add two open brackets
+            sb.append("((");
+            //now the values of the node
+            sb.append(getNodeDefinition());
+            //add the daughters
+            for (int i=0;i<daughters.length;i++){
+                daughters[i].toWagonFormat(sb);
+                if (i+1!=daughters.length){
+                    sb.append("\n");
+                }
+            }
+            //add a closing bracket
+            sb.append(")");
+        }
+        
+    
+        /**
+         * Gets the String that defines the decision done in the node
+         * @return the node definition
+         */
+        public abstract String getNodeDefinition();
+        
+        /**
+         * Select a daughter node according to the value
+         * in the given target
+         * @param target the target
+         * @return a daughter
+         */
+        public abstract Node getNextNode(FeatureVector featureVector);
+        
     }
+   
         
     /**
-     * An unary decision Node that compares two byte values.
+     * A binary decision Node that compares two byte values.
      */
-    static class UnaryByteDecisionNode extends UnaryDecisionNode {
+    static class BinaryByteDecisionNode extends DecisionNode {
+        
+        //the value of this node
+        private byte value;
+        
+         /**
+         * Create a new binary String DecisionNode.
+         * @param feature the string used to get a value from an Item
+         * @param value the value to compare to
+         */
+        public BinaryByteDecisionNode(int feature,
+                                    byte value) {
+            super(feature,2);
+            this.value = value;
+        }
+        
+        
+        /**
+         * Select a daughter node according to the value
+         * in the given target
+         * @param target the target
+         * @return a daughter
+         */
+        public Node getNextNode(FeatureVector featureVector) {
+            byte val = featureVector.getByteValuedDiscreteFeature(featureIndex);
+            Node returnNode;
+            if (val == value){
+                returnNode = daughters[0];
+            } else {
+                returnNode = daughters[1];
+            } 
+            return returnNode;
+        }
+       
+         /**
+         * Gets the String that defines the decision done in the node
+         * @return the node definition
+         */
+        public String getNodeDefinition(){
+            return "b"+featureIndex+" is "+value+")\n";
+        }
+        
+    }
+    
+    /**
+     * A binary decision Node that compares two short values.
+     */
+    static class BinaryShortDecisionNode extends DecisionNode {
+        
+        //the value of this node
+        private short value;
+        
+         /**
+         * Create a new binary String DecisionNode.
+         * @param feature the string used to get a value from an Item
+         * @param value the value to compare to
+         */
+        public BinaryShortDecisionNode(int feature,
+                                    short value) {
+            super(feature,2);
+            this.value = value;
+        }
+        
+        
+        /**
+         * Select a daughter node according to the value
+         * in the given target
+         * @param target the target
+         * @return a daughter
+         */
+        public Node getNextNode(FeatureVector featureVector) {
+            short val = featureVector.getShortValuedDiscreteFeature(featureIndex);
+            Node returnNode;
+            if (val == value){
+                returnNode = daughters[0];
+            } else {
+                returnNode = daughters[1];
+            } 
+            return returnNode;
+        }
+        
+        /**
+         * Gets the String that defines the decision done in the node
+         * @return the node definition
+         */
+        public String getNodeDefinition(){
+            return "s"+featureIndex+" is "+value+")\n";
+        }
+       
+    }
+    
+    /**
+     * A binary decision Node that compares two float values.
+     */
+    static class BinaryFloatDecisionNode extends DecisionNode {
+        
+        //the value of this node
+        private float value;
+        
+         /**
+         * Create a new binary String DecisionNode.
+         * @param feature the string used to get a value from an Item
+         * @param value the value to compare to
+         */
+        public BinaryFloatDecisionNode(int feature,
+                                    float value) {
+            super(feature,2);
+            this.value = value;
+        }
+        
+        
+        /**
+         * Select a daughter node according to the value
+         * in the given target
+         * @param target the target
+         * @return a daughter
+         */
+        public Node getNextNode(FeatureVector featureVector) {
+            float val = featureVector.getContinuousFeature(featureIndex);
+            Node returnNode;
+            if (val < value){
+                returnNode = daughters[0];
+            } else {
+                returnNode = daughters[1];
+            } 
+            return returnNode;
+        }
+        
+        /**
+         * Gets the String that defines the decision done in the node
+         * @return the node definition
+         */
+        public String getNodeDefinition(){
+            return "f"+featureIndex+" < "+value+")\n";
+        }
+        
+       
+    }
+      
+        
+    /**
+     * An decision Node with an arbitrary number of daughters.
+     * Value of the target corresponds to the index number of next daughter.
+     */
+    static class ByteDecisionNode extends DecisionNode {
         
         /**
          * Build a new unary byte decision node 
          * @param feature the feature name
          * @param numDaughters the number of daughters
-         * @param line the String representation of this node
          */
-        public UnaryByteDecisionNode(String feature,
-                                    int numDaughters,
-                                    String line){
-            super(feature, numDaughters,line);           
+        public ByteDecisionNode(int feature,
+                               int numDaughters){
+            super(feature, numDaughters);           
         }
         
         
@@ -685,30 +660,34 @@ public class CARTWagonFormat implements CART {
          * @param target the target
          * @return a daughter
          */
-        public Node getNextNode(Target target) {
-            lastDecision = target.getByteValue(feature);
-            return daughters[lastDecision];
+        public Node getNextNode(FeatureVector featureVector) {
+            return daughters[featureVector.getByteValuedDiscreteFeature(featureIndex)];
+        }
+        
+        /**
+         * Gets the String that defines the decision done in the node
+         * @return the node definition
+         */
+        public String getNodeDefinition(){
+            return featureIndex+" isByteOf "+daughters.length+")\n";
         }
         
     }
     
-        
     /**
-     * An unary decision Node that compares two short values.
+     * An decision Node with an arbitrary number of daughters.
+     * Value of the target corresponds to the index number of next daughter.
      */
-    static class UnaryShortDecisionNode extends UnaryDecisionNode {
+    static class ShortDecisionNode extends DecisionNode {
         
         /**
-         * Build a new unary short decision node 
+         * Build a new unary byte decision node 
          * @param feature the feature name
          * @param numDaughters the number of daughters
-         * @param line the String representation of this node
          */
-        public UnaryShortDecisionNode(String feature,
-                                int numDaughters,
-                                String line) {
-            super(feature,numDaughters,line);
-           
+        public ShortDecisionNode(int feature,
+                               int numDaughters){
+            super(feature, numDaughters);           
         }
         
         
@@ -718,15 +697,21 @@ public class CARTWagonFormat implements CART {
          * @param target the target
          * @return a daughter
          */
-        public Node getNextNode(Target target) {
-            lastDecision = target.getShortValue(feature);
-            return daughters[lastDecision];
+        public Node getNextNode(FeatureVector featureVector) {
+            return daughters[featureVector.getShortValuedDiscreteFeature(featureIndex)];
         }
         
-
-    
+        /**
+         * Gets the String that defines the decision done in the node
+         * @return the node definition
+         */
+        public String getNodeDefinition(){
+            return featureIndex+" isShortOf "+daughters.length+")\n";
+        }
+        
     }
-
+        
+   
     
 
     /**
@@ -734,35 +719,34 @@ public class CARTWagonFormat implements CART {
      */
     static class LeafNode extends Node {
         
-        private int[] values;
+        private int[] indices;
         
         /**
          * Create a new LeafNode.
          * @param tok the String Tokenizer containing the String with the indices
          * @param openBrackets the number of opening brackets at the first token
-         * @param line the String representation of this node
          */
-        public LeafNode(StringTokenizer tok, int openBrackets, String line) {
+        public LeafNode(StringTokenizer tok) {
             super();
-            this.line = line;
+            isRoot = false;
             //read the indices from the tokenized String
             //lines are of form 
             //((<index1> <float1>)...(<indexN> <floatN>)) 0))
             int numTokens = tok.countTokens();
             int index = 0;
-            values = new int[(numTokens-1)/2];
+            indices = new int[(numTokens-1)/2];
            
             while (index*2<numTokens-1){ //while we are not at the last token
                 String nextToken = tok.nextToken();
                 if (index == 0){ 
                     // we are at first token, discard all open brackets
-                    nextToken = nextToken.substring(openBrackets-1);
+                    nextToken = nextToken.substring(4);
                 } else { 
                     //we are not at first token, only one open bracket
                     nextToken = nextToken.substring(1);   
                 }
                 //store the index of the unit
-                values[index] = Integer.parseInt(nextToken);
+                indices[index] = Integer.parseInt(nextToken);
                 //discard next token
                 tok.nextToken();
                 //increase index
@@ -770,14 +754,30 @@ public class CARTWagonFormat implements CART {
             }
         }
         
-        /**
-         * Get the unit indices
-         * @return the indices
-         */
-        public int[] getValues(){
-            return values;
-        }
        
+        /**
+         * Get all unit indices
+         * @return an int array containing the indices
+         */
+        public int[] getAllIndices(){
+            return indices;
+        }
+        
+         /**
+         * Writes the Cart to the given StringBuffer in Wagon Format
+         * @param sb the StringBuffer
+        */
+        public void toWagonFormat(StringBuffer sb){
+            //open three brackets
+            sb.append("(((");
+            //for each index, write the index and then a pseudo float
+            for (int i=0;i<indices.length;i++){
+                sb.append("("+indices[i]+" 0)");
+            }
+            //write the ending
+            sb.append(") 0))");
+        }
+        
         
     }
 }

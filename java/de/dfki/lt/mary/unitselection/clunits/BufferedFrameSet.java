@@ -56,7 +56,7 @@ public class BufferedFrameSet extends FrameSet
 
     private int[] residualSizes;
     
-    private ClusterUnitDatabase database;
+
 
     /**
      * Creates a FrameSet by reading it from the given byte buffer

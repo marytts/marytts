@@ -526,7 +526,7 @@ public class CARTImpl implements CART {
      * A decision node that determines the next Node to go to in the CART.
      */
     abstract static class DecisionNode extends Node {
-        private static Logger logger = Logger.getLogger("Decision Node");
+        
         /**
          * The feature used to find a value from an Item.
          */
@@ -610,7 +610,7 @@ public class CARTImpl implements CART {
      * A decision Node that compares two values.
      */
     static class ComparisonNode extends DecisionNode {
-        private static Logger logger = Logger.getLogger("Comparison Node");
+        
         /**
          * LESS_THAN
          */
