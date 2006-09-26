@@ -37,140 +37,105 @@ import java.io.IOException;
 
 public class FeatureFileIndexer extends FeaturefileReader {
     
-    Node tree = null;
+    private Node tree = null;
+    private int[] featureSequence = null;
+    private FeatureComparator c = new FeatureComparator( -1 );
+    private UnitIndexComparator cui = new UnitIndexComparator();
 
     /**
-     * Constructor which loads the feature file.
+     * Constructor which loads the feature file and launches an indexing
+     * operation.
      * 
      * @param fileName The name of the file to load.
+     * @param setFeatureSequence An array of indexes indicating the hierarchical order
+     * (or, equivalently, the sequence) of the features to use for the indexing.
+     * 
      * @throws IOException
      * @see FeaturefileReader
      */
-    public FeatureFileIndexer( String fileName ) throws IOException {
+    public FeatureFileIndexer( String fileName, int[] setFeatureSequence ) throws IOException {
         super( fileName );
+        deepSort( setFeatureSequence );
     }
     
     /**
-     * Sort the array of feature vectors according to a particular feature.
+     * A local sort at a particular node along the deep sorting operation.
+     * This is a recursive function.
      * 
-     * @param featureIdx The index of the feature to use for the sorting operation.
-     */
-    public void sort( int featureIdx ) {
-        Comparator c = new FeatureComparator( featureIdx );
-        Arrays.sort( featureVectors, c );
-    }
-    
-    /**
-     * Sort the array of feature vectors according to the values of a particular feature,
-     * between index fromIndex (inclusive) and index toIndex (exclusive).
-     * 
-     * @param fromIndex The beginning of the zone to sort, inclusive.
-     * @param toIndex The end of the zone to sort, exclusive.
-     * @param featureIdx The index of the feature to use for the sorting operation.
-     */
-    public void sort( int fromIndex, int toIndex, int featureIdx ) {
-        Comparator c = new FeatureComparator( featureIdx );
-        Arrays.sort( featureVectors, fromIndex, toIndex, c );
-    }
-    
-    /**
-     * Sort an array of feature vectors according to an externally defined
-     * feature comparator.
-     * 
-     * @param c The feature comparator to use.
-     * 
-     * @see FeatureComparator.
-     */
-    public void sort( FeatureComparator c ) {
-        Arrays.sort( featureVectors, c );
-    }
-    
-    /**
-     * Sort the array of feature vectors according to an externally defined
-     * feature comparator, between index fromIndex (inclusive) and index
-     * toIndex (exclusive).
-     * 
-     * @param fromIndex The beginning of the zone to sort, inclusive.
-     * @param toIndex The end of the zone to sort, exclusive.
-     * @param c The feature comparator to use.
-     * 
-     * @see FeatureComparator.
-     */
-    public void sort( int fromIndex, int toIndex,
-            FeatureComparator c ) {
-        Arrays.sort( featureVectors, fromIndex, toIndex, c );
-    }
-    
-    /**
-     * A local sort at a particular node of the deep sorting operation.
-     * 
-     * @param fromIndex The beginning of the array zone to be sorted (inclusive).
-     * @param toIndex The end of the array zone to be sorted (exclusive).
      * @param currentFeatureIdx The currently tested feature.
-     * @param featureIdx The sequence of features to test.
-     * @param c An externally declared comparator.
+     * @param currentNode The current node, holding the currently processed
+     * zone in the array of feature vectors.
      */
-    private void sortNode( int fromIndex, int toIndex,
-            int currentFeatureIdx, int featureIdx[], FeatureComparator c,
-            Node currentNode ) {
-        /* If we have reached a leaf, do a final sort according to the unit index
-         * and then save the leaf and return: */
-        if ( currentFeatureIdx == featureIdx.length ) {
-            int[] ui = new int[toIndex-fromIndex];
-            for ( int i = fromIndex, j = 0; i < toIndex; i++, j++ ) {
-                ui[j] = featureVectors[i].getUnitIndex();
-            }
-            Arrays.sort( ui );
-            currentNode.blossom( ui );
+    private void sortNode( int currentFeatureIdx, Node currentNode ) {
+        /* If we have reached a leaf, do a final sort according to the unit index and return: */
+        if ( currentFeatureIdx == featureSequence.length ) {
+            Arrays.sort( featureVectors, cui );
             return;
         }
         /* Else: */
-        /* Perform the sorting according to the currently considered feature. */
-        c.setFeatureIdx( featureIdx[currentFeatureIdx] );
-        sort( fromIndex, toIndex, c );
-        /* Seek for the zones where the feature value is the same, and launch the next
-         * sort level on these. */
-        int nVal = featureDefinition.getNumberOfValues(currentFeatureIdx);
+        /* Perform the sorting according to the currently considered feature: */
+        /* 1) position the comparator onto the right feature */
+        c.setFeatureIdx( featureSequence[currentFeatureIdx] );
+        /* 2) do the sorting */
+        Arrays.sort( featureVectors, currentNode.from, currentNode.to, c );
+        
+        /* Then, seek for the zones where the feature value is the same,
+         * and launch the next sort level on these. */
+        int nVal = featureDefinition.getNumberOfValues( currentFeatureIdx );
         currentNode.split( nVal );
-        int nextFrom = fromIndex;
-        int nextTo = fromIndex;
+        int nextFrom = currentNode.from;
+        int nextTo = currentNode.from;
         for ( int i = 0; i < nVal; i++ ) {
             nextFrom = nextTo;
-            while ( featureVectors[nextTo].getFeature( currentFeatureIdx ).intValue() == i ) nextTo++;
-            Node n = new Node( nextFrom, nextTo );
-            currentNode.setChild( i, n );
-            sortNode( nextFrom, nextTo, currentFeatureIdx+1, featureIdx, c, n );
+            while ( featureVectors[nextTo].getFeatureAsInt( currentFeatureIdx ) == i ) nextTo++;
+            Node nod = new Node( nextFrom, nextTo );
+            currentNode.setChild( i, nod );
+            sortNode( currentFeatureIdx+1, nod );
         }
     }
     
     /**
-     * Launches a deep sort on the array of feature vectors.
+     * Launches a deep sort on the array of feature vectors. This is public because
+     * it can be used to re-index the previously read feature file.
      * 
       * @param featureIdx An array of feature indexes, indicating the sequence of
      * features according to which the sorting should be performed.
      */
-    public void deepSort( int[] featureIdx ) {
-        FeatureComparator c = new FeatureComparator( featureIdx[0] );
+    public void deepSort( int[] setFeatureSequence ) {
+        featureSequence = setFeatureSequence;
         tree = new Node( 0, featureVectors.length );
-        sortNode( 0, featureVectors.length, 0, featureIdx, c, tree );
+        sortNode( 0, tree );
     }
     
     /**
-     * Retrieve an array of indexes of units which comply with a specific sequence of
-     * feature values. For this to work, a preliminary indexing should be performed
-     * with the deepSort( int f[] ) method.
+     * Retrieve an array of unit features which complies with a specific target specification.
+     * For this to work, a preliminary indexing should be performed with the deepSort( int f[] )
+     * method.
      * 
      * @param v A feature vector for which to send back an array of complying unit indexes. 
-     * @param f The sequence of indexes indicating the order along which the values
-     * of v should be considered. This sequence should be the same as the one used for
-     * the mandatory preliminary call to deepSort( f ).
-     * @return An array of unit indexes.
+     * @return An array of feature vectors.
      * 
      * @see FeatureFileIndexer#deepSort(int[])
      */
-    public int[] retrieve( FeatureVector v, int[] f ) {
-        Node leaf = tree.dive( v, f, 0 );
-        return( leaf.getUnitIndexes() );
+    public FeatureVector[] retrieve( FeatureVector v ) {
+        /* Walk down the tree */
+        Node n = tree;
+        for ( int i = 0; i < featureSequence.length; i++ ) {
+            n = n.getChild( v.getFeatureAsInt( featureSequence[i] ) );
+        }
+        /* Check if we actually reached a leaf (this is more a debug check) */
+        if ( !n.isLeaf() ) {
+            throw new RuntimeException( "Something went wrong:"
+                    + " the retrieve operation did not lead to a leaf node." );
+        }
+        /* Dereference the leaf */
+        int retFrom = n.from;
+        int retTo = n.to;
+        FeatureVector[] ret = new FeatureVector[retTo - retFrom];
+        for ( int i = retFrom; i < retTo; i++ ) {
+            ret[i-retFrom] = featureVectors[i];
+        }
+        return( ret );
     }
     
 }
@@ -179,10 +144,9 @@ public class FeatureFileIndexer extends FeaturefileReader {
  * A local helper class to make a node of a tree.
  * */
 class Node {
-   private int from = 0;
-   private int to = 0;
+   protected int from = 0;
+   protected int to = 0;
    private Node[] kids = null;
-   private int[] uIndexes = null;
    
    /***************************/
    /* Constructor             */
@@ -190,7 +154,6 @@ class Node {
        from = setFrom;
        to = setTo;
        kids = null;
-       uIndexes = null;
    }
    
    /******************************/
@@ -205,10 +168,6 @@ class Node {
    
    public int getNumChildren() {
        return( kids.length );
-   }
-   
-   public int[] getUnitIndexes() {
-       return( uIndexes );
    }
    
    public Node[] getChildren() {
@@ -229,47 +188,13 @@ class Node {
        return( kids[i] );
    }
    
-   /***************************/
-   /* Turn a node into a leaf */
-   public void blossom( int numIdx ) {
-       uIndexes = new int[numIdx];
-   }
-   
-   public void setUnitIdx( int i, int ui ) {
-       uIndexes[i] = ui;
-   }
-
-   public int getUnitIdx( int i ) {
-       return( uIndexes[i] );
-   }
-   
-   public void blossom( int[] ui ) {
-       uIndexes = ui;
-   }
-   
    /*************************************/
    /* Check if this is a node or a leaf */
    public boolean isNode() {
-       return( (uIndexes == null) && (kids != null) );
+       return( kids != null );
    }
    public boolean isLeaf() {
-       return( (uIndexes != null) && (kids == null) );
-   }
-   
-   /*************************************************/
-   /* Mine the tree for a particular feature vector */
-   public Node dive( FeatureVector v, int[] f, int i ) {
-       if ( this.isLeaf() ) return( this );
-       /* If we are not a leaf, continue branching: */
-       
-       /*                At the current node, branch to the node           */
-       /*                corresponding to the value of the current feature */
-       /*                      |                                           */
-       /*                      v                                           */
-       else return( kids[v.getFeature(f[i]).intValue()].dive( v, f, i+1 ) );
-       /*                                                            ^     */
-       /*                                                            |     */
-       /*                 From the next node, explore the next feature     */
+       return( kids == null );
    }
    
 }
