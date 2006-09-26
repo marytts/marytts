@@ -33,6 +33,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,6 +58,10 @@ public class FeatureDefinition
     public static final String SHORTFEATURES = "ShortValuedFeatureProcessors";
     public static final String CONTINUOUSFEATURES = "ContinuousFeatureProcessors";
     public static final char WEIGHT_SEPARATOR = '|';
+    public static final String EDGEFEATURE = "mary_edge";
+    public static final String EDGEFEATURE_START = "start";
+    public static final String EDGEFEATURE_END = "end";
+    public static final String NULLVALUE = "0";
 
     private int numByteFeatures;
     private int numShortFeatures;
@@ -174,7 +179,7 @@ public class FeatureDefinition
                 String weightDef = line.substring(0, seppos).trim();
                 featureDef = line.substring(seppos+1).trim();
                 // The weight definition is the float number plus a definition of a weight function:
-                String[] weightAndFunction = line.split("\\s+", 2);
+                String[] weightAndFunction = weightDef.split("\\s+", 2);
                 featureWeights[numByteFeatures+numShortFeatures+i] = Float.parseFloat(weightAndFunction[0]);
                 if (featureWeights[numByteFeatures+numShortFeatures+i] < 0) throw new IOException("Negative weight found in line '"+line+"'");
                 floatWeightFuncts[i] = weightAndFunction[1];
@@ -267,32 +272,33 @@ public class FeatureDefinition
         out.writeInt(numByteFeatures);
         for (int i=0; i<numByteFeatures; i++) {
             out.writeFloat(featureWeights[i]);
-            out.writeUTF(featureNames.get(i));
+            out.writeUTF(getFeatureName(i));
             byte numValues = (byte) getNumberOfValues(i);
             out.writeByte(numValues);
             for (byte b=0; b<numValues; b++) {
-                String value = byteFeatureValues[i].get(b);
+                String value = getFeatureValueAsString(i, b);
                 out.writeUTF(value);
             }
         }
         // Section SHORTFEATURES
         out.writeInt(numShortFeatures);
-        for (int i=0; i<numShortFeatures; i++) {
-            out.writeFloat(featureWeights[numByteFeatures+i]);
-            out.writeUTF(featureNames.get(numByteFeatures+i));
-            short numValues = (short) getNumberOfValues(numByteFeatures+i);
+        for (int i=numByteFeatures; i<numByteFeatures+numShortFeatures; i++) {
+            out.writeFloat(featureWeights[i]);
+            out.writeUTF(getFeatureName(i));
+            short numValues = (short) getNumberOfValues(i);
             out.writeShort(numValues);
             for (short b=0; b<numValues; b++) {
-                String value = shortFeatureValues[i].get(b);
+                String value = getFeatureValueAsString(i, b);
                 out.writeUTF(value);
             }
         }
         // Section CONTINUOUSFEATURES
         out.writeInt(numContinuousFeatures);
-        for (int i=0; i<numContinuousFeatures; i++) {
-            out.writeFloat(featureWeights[numByteFeatures+numShortFeatures+i]);
-            out.writeUTF(floatWeightFuncts[i]);
-            out.writeUTF(featureNames.get(numByteFeatures+numShortFeatures+i));
+        for (int i=numByteFeatures+numShortFeatures;
+                i<numByteFeatures+numShortFeatures+numContinuousFeatures; i++) {
+            out.writeFloat(featureWeights[i]);
+            out.writeUTF(floatWeightFuncts[i-numByteFeatures-numShortFeatures]);
+            out.writeUTF(getFeatureName(i));
         }
     }
     
@@ -344,6 +350,93 @@ public class FeatureDefinition
         return featureNames.get(index);
     }
     
+    /**
+     * Determine whether the feature with the given name is a byte feature.
+     * @param featureName
+     * @return true if the feature is a byte feature, false if the feature
+     * is not known or is not a byte feature 
+     */
+    public boolean isByteFeature(String featureName)
+    {
+        try {
+            int index = getFeatureIndex(featureName);
+            return isByteFeature(index);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    /**
+     * Determine whether the feature with the given index number is a byte feature.
+     * @param featureIndex
+     * @return true if the feature is a byte feature, false if the feature
+     * is not a byte feature or is invalid 
+     */
+    public boolean isByteFeature(int index)
+    {
+        if (0<=index && index < numByteFeatures) return true;
+        else return false;
+    }
+
+    /**
+     * Determine whether the feature with the given name is a short feature.
+     * @param featureName
+     * @return true if the feature is a short feature, false if the feature
+     * is not known or is not a short feature 
+     */
+    public boolean isShortFeature(String featureName)
+    {
+        try {
+            int index = getFeatureIndex(featureName);
+            return isShortFeature(index);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    /**
+     * Determine whether the feature with the given index number is a short feature.
+     * @param featureIndex
+     * @return true if the feature is a short feature, false if the feature
+     * is not a short feature or is invalid 
+     */
+    public boolean isShortFeature(int index)
+    {
+        index -= numByteFeatures;
+        if (0<=index && index < numShortFeatures) return true;
+        else return false;
+    }
+
+    /**
+     * Determine whether the feature with the given name is a continuous feature.
+     * @param featureName
+     * @return true if the feature is a continuous feature, false if the feature
+     * is not known or is not a continuous feature 
+     */
+    public boolean isContinuousFeature(String featureName)
+    {
+        try {
+            int index = getFeatureIndex(featureName);
+            return isContinuousFeature(index);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    /**
+     * Determine whether the feature with the given index number is a continuous feature.
+     * @param featureIndex
+     * @return true if the feature is a continuous feature, false if the feature
+     * is not a continuous feature or is invalid 
+     */
+    public boolean isContinuousFeature(int index)
+    {
+        index -= numByteFeatures;
+        index -= numShortFeatures;
+        if (0<=index && index < numContinuousFeatures) return true;
+        else return false;
+    }
+
     /**
      * Translate between a feature name and a feature index.
      * @param featureName a valid feature name
@@ -441,6 +534,26 @@ public class FeatureDefinition
     }
 
     /**
+     * For the feature with the given index number, translate its String value
+     * to its byte value.
+     * This method must only be called for byte-valued features.
+     * @param featureName the name of the feature.
+     * @param value the feature value. This must be among the acceptable values for
+     * the given feature.
+     * @return for byte-valued features, return the byte representation 
+     * of the feature value.
+     * @throws IllegalArgumentException if featureName is not a valid feature name,
+     * or if featureName is not a byte-valued feature.
+     * @throws IllegalArgumentException if value is not a legal value for this feature
+     */
+    public byte getFeatureValueAsByte(int featureIndex, String value)
+    {
+        if (featureIndex < numByteFeatures)
+            return byteFeatureValues[featureIndex].get(value);
+        throw new IndexOutOfBoundsException("Feature no. "+featureIndex+" is not a byte-valued feature");
+    }
+
+    /**
      * For the feature with the given name, translate its String value
      * to its short value.
      * This method must only be called for short-valued features.
@@ -461,15 +574,129 @@ public class FeatureDefinition
             return shortFeatureValues[featureIndex].get(value);
         throw new IndexOutOfBoundsException("Feature '"+featureName+"' is not a short-valued feature");
     }
+    
+    /**
+     * For the feature with the given name, translate its String value
+     * to its short value.
+     * This method must only be called for short-valued features.
+     * @param featureName the name of the feature.
+     * @param value the feature value. This must be among the acceptable values for
+     * the given feature.
+     * @return for short-valued features, return the short representation 
+     * of the feature value.
+     * @throws IllegalArgumentException if featureName is not a valid feature name,
+     * or if featureName is not a short-valued feature.
+     * @throws IllegalArgumentException if value is not a legal value for this feature
+     */
+    public short getFeatureValueAsShort(int featureIndex, String value)
+    {
+        featureIndex -= numByteFeatures;
+        if (featureIndex < numShortFeatures)
+            return shortFeatureValues[featureIndex].get(value);
+        throw new IndexOutOfBoundsException("Feature no. "+featureIndex+" is not a short-valued feature");
+    }
+        
 
+    /**
+     * Determine whether two feature definitions are equal, with respect
+     * to number, names, and possible values of the three kinds of features
+     * (byte-valued, short-valued, continuous). This method does not compare
+     * any weights.
+     * @param other the feature definition to compare to
+     * @return true if all features and values are identical, false otherwise
+     */
     public boolean featureEquals(FeatureDefinition other)
     {
-        
+        if (numByteFeatures != other.numByteFeatures
+                || numShortFeatures != other.numShortFeatures
+                || numContinuousFeatures != other.numContinuousFeatures)
+            return false;
+        // Compare the feature names and values for byte and short features:
+        for (int i=0; i<numByteFeatures+numShortFeatures+numContinuousFeatures; i++) {
+            if (!getFeatureName(i).equals(other.getFeatureName(i)))
+                return false;
+        }
+        // Compare the values for byte and short features:
+        for (int i=0; i<numByteFeatures+numShortFeatures; i++) {
+            if (getNumberOfValues(i) != other.getNumberOfValues(i))
+                return false;
+            for (int v=0, n=getNumberOfValues(i); v<n; v++) {
+                if (!getFeatureValueAsString(i, v).equals(other.getFeatureValueAsString(i, v)))
+                    return false;
+            }
+        }
+        return true;
     }
     
-    public FeatureVector toFeatureVector(String featureString)
+    /**
+     * Determine whether two feature definitions are equal, regarding both
+     * the actual feature definitions and the weights.
+     * The comparison of weights will succeed if both have no weights or
+     * if both have exactly the same weights
+     * @param other the feature definition to compare to
+     * @return true if all features, values and weights are identical, false otherwise
+     * @see #featureEquals(FeatureDefinition)
+     */
+    public boolean equals(FeatureDefinition other)
     {
-        throw new IllegalArgumentException("Feature string '"+featureString+"' is inconsistent with feature definition");
+        if (featureWeights == null) {
+            if (other.featureWeights != null) return false;
+            // Both are null
+        } else { // featureWeights != null
+            if (other.featureWeights == null) return false;
+            // Both != null
+            if (featureWeights.length != other.featureWeights.length) return false;
+            for (int i=0; i<featureWeights.length; i++) {
+                if (featureWeights[i] != other.featureWeights[i]) return false;
+            }
+            assert floatWeightFuncts != null;
+            assert other.floatWeightFuncts != null;
+            if (floatWeightFuncts.length != other.floatWeightFuncts.length) return false;
+            for (int i=0; i<floatWeightFuncts.length; i++) {
+                if (floatWeightFuncts[i] == null) {
+                    if (other.floatWeightFuncts[i] != null) return false;
+                    // Both are null
+                } else { // != null
+                    if (other.floatWeightFuncts[i] == null) return false;
+                    // Both != null
+                    if (!floatWeightFuncts[i].equals(other.floatWeightFuncts[i])) return false;
+                }
+            }
+        }
+        // OK, weights are equal
+        return featureEquals(other);
+    }
+    
+    /**
+     * Create a feature vector consistent with this feature definition
+     * by reading the data from a String representation. In that String,
+     * the String values for each feature must be separated by white space.
+     * For example, this format is created by toFeatureString(FeatureVector).
+     * @param unitIndex an index number to assign to the feature vector
+     * @param featureString the string representation of a feature vector.
+     * @return the feature vector created from the String.
+     * @throws IllegalArgumentException if the feature values listed are not
+     * consistent with the feature definition.
+     * @see #toFeatureString(FeatureVector)
+     */
+    public FeatureVector toFeatureVector(int unitIndex, String featureString)
+    {
+        String[] featureValues = featureString.split("\\s+");
+        if (featureValues.length != numByteFeatures+numShortFeatures+numContinuousFeatures)
+            throw new IllegalArgumentException("Expected "+(numByteFeatures+numShortFeatures+numContinuousFeatures)+" features, got "+featureValues.length);
+        byte[] bytes = new byte[numByteFeatures];
+        short[] shorts = new short[numShortFeatures];
+        float[] floats = new float[numContinuousFeatures];
+        for (int i=0; i<numByteFeatures; i++) {
+            bytes[i] = getFeatureValueAsByte(i, featureValues[i]);
+        }
+        for (int i=0; i<numShortFeatures; i++) {
+            shorts[i] = getFeatureValueAsShort(numByteFeatures+i, featureValues[numByteFeatures+i]);
+        }
+        for (int i=0; i<numContinuousFeatures; i++) {
+            floats[i] = Float.parseFloat(featureValues[numByteFeatures+numShortFeatures+i]);
+        }
+        return new FeatureVector(bytes, shorts, floats, unitIndex);
     }
     
     /**
@@ -480,27 +707,105 @@ public class FeatureDefinition
      */
     public FeatureVector readFeatureVector(int currentUnitIndex, DataInput input) throws IOException
     {
-        byte[] bytes = new byte[numberOfByteValues];
+        byte[] bytes = new byte[numByteFeatures];
         input.readFully(bytes);
-        short[] shorts = new short[numberOfShortValues];
+        short[] shorts = new short[numShortFeatures];
         for (int i=0; i<shorts.length; i++) {
             shorts[i] = input.readShort();
         }
-        float[] floats = new float[numberOfFloatValues];
+        float[] floats = new float[numContinuousFeatures];
         for (int i=0; i<floats.length; i++) {
             floats[i] = input.readFloat();
         }
         return new FeatureVector(bytes, shorts, floats, currentUnitIndex);
     }
     
-    public FeatureVector getEmptyFeatureVector()
+    /**
+     * Create a feature vector that marks a start or end of a unit.
+     * All feature values are set to the neutral value "0", except for
+     * the EDGEFEATURE, which is set to start if start == true, to end otherwise. 
+     * @param unitIndex index of the unit
+     * @param start true creates a start vector, false creates an end vector. 
+     * @return a feature vector representing an edge.
+     */
+    public FeatureVector createEdgeFeatureVector(int unitIndex, boolean start)
     {
-        
+        int edgeFeature = getFeatureIndex(EDGEFEATURE);
+        assert edgeFeature < numByteFeatures; // we can assume this is byte-valued
+        byte edge;
+        if (start) edge = getFeatureValueAsByte(edgeFeature, EDGEFEATURE_START);
+        else edge = getFeatureValueAsByte(edgeFeature, EDGEFEATURE_END);
+        byte[] bytes = new byte[numByteFeatures];
+        short[] shorts = new short[numShortFeatures];
+        float[] floats = new float[numContinuousFeatures];
+        for (int i=0; i<numByteFeatures; i++) {
+            bytes[i] = getFeatureValueAsByte(i, NULLVALUE);
+        }
+        for (int i=0; i<numShortFeatures; i++) {
+            shorts[i] = getFeatureValueAsShort(numByteFeatures+i, NULLVALUE);
+        }
+        for (int i=0; i<numContinuousFeatures; i++) {
+            floats[i] = 0;
+        }
+        bytes[edgeFeature] = edge;
+        return new FeatureVector(bytes, shorts, floats, unitIndex); 
     }
     
+    /**
+     * Convert a feature vector into a String representation. 
+     * @param fv a feature vector which must be consistent with this feature definition.
+     * @return a String containing the String values of all features, separated by white space.
+     * @throws IllegalArgumentException if the feature vector is not consistent with this
+     * feature definition
+     * @throws IndexOutOfBoundsException if any value of the feature vector is not consistent with this
+     * feature definition 
+     */
     public String toFeatureString(FeatureVector fv)
     {
-        throw new IllegalArgumentException("Feature vector '"+fv+"' is inconsistent with feature definition");
-        
+        if (numByteFeatures != fv.getNumberOfByteFeatures()
+                || numShortFeatures != fv.getNumberOfShortFeatures()
+                || numContinuousFeatures != fv.getNumberOfContinuousFeatures())
+            throw new IllegalArgumentException("Feature vector '"+fv+"' is inconsistent with feature definition");
+        StringBuffer buf = new StringBuffer();
+        for (int i=0; i<numByteFeatures; i++) {
+            if (buf.length()>0) buf.append(" ");
+            buf.append(getFeatureValueAsString(i, fv.getByteFeature(i)));
+        }
+        for (int i=numByteFeatures; i<numByteFeatures+numShortFeatures; i++) {
+            if (buf.length()>0) buf.append(" ");
+            buf.append(getFeatureValueAsString(i, fv.getShortFeature(i)));
+        }
+        for (int i=numByteFeatures+numShortFeatures; i<numByteFeatures+numShortFeatures+numContinuousFeatures; i++) {
+            if (buf.length()>0) buf.append(" ");
+            buf.append(fv.getContinuousFeature(i));
+        }
+        return buf.toString();
+    }
+    
+    /**
+     * Export this feature definition in the "all.desc" format which can be
+     * read by wagon.
+     * @param out the destination of the data
+     */
+    public void generateAllDotDesc(PrintWriter out)
+    {
+        out.println("(");
+        out.println("(occurid cluster)");
+        for (int i=0, n=getNumberOfFeatures(); i<n; i++) {
+            out.print("( ");
+            out.print(getFeatureName(i));
+            if (i<numByteFeatures+numShortFeatures) { // list values
+                out.println();
+                for (int v=0, vmax=getNumberOfValues(i); v<vmax; v++) {
+                    out.print("  ");
+                    out.print(getFeatureValueAsString(i, v));
+                }
+                out.println();
+                out.println(")");
+            } else { // float feature
+                out.println(" float )");
+            }
+        }
+        out.println(")");
     }
 }
