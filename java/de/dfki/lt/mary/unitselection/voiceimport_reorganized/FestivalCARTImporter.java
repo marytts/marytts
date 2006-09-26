@@ -8,16 +8,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import de.dfki.lt.mary.unitselection.cart.CARTWagonFormat;
-import de.dfki.lt.mary.unitselection.cart.CART;
 
 /**
  * Class for importing CARTs from Festival Text-Format to Mary Bin-Format
@@ -26,27 +23,22 @@ import de.dfki.lt.mary.unitselection.cart.CART;
  *
  */
 public class FestivalCARTImporter {
-
+    
+    private Map cartMap;
     
     /**
-     * Read in the CARTs from FreeTTS/trees.txt,
-     * correct the instance numbers of the units
-     * to the real indices, 
-     * and dump the CARTs in destination/CARTS.bin
+     * Read in the CARTs from festival/trees/ directory,
+     * and store them in a CARTMap
      * 
      * @param festvoxDirectory the festvox directory of a voice
-     * @param destDir the destination directory
-     * @param unitCatalog the unitCatalog for substituting the
-     * 					  instance numbers for indices
      */
     public void importCARTS(String festvoxDirectory, 
-        					String destDir, 
-        					UnitCatalog unitCatalog){
+        					String destDir){
         try{
         
             //open CART-File
-            System.out.println("Reading CARTS");
-            File treesDir = new File(festvoxDirectory + "/festival/trees");
+            System.out.println("Reading CARTS from "+festvoxDirectory);
+            File treesDir = new File(festvoxDirectory + "/festival/trees/");
      
             if (treesDir.isDirectory()){
                 File[] entries = treesDir.listFiles();
@@ -56,7 +48,7 @@ public class FestivalCARTImporter {
                     
                     String name = entries[i].getName();
                     System.out.print(name);
-                    name = name.substring(0,name.length()-3);
+                    name = name.substring(0,name.length()-5);
                     System.out.print(" "+name+"\n");
                     BufferedReader reader =
                         new BufferedReader(new 
@@ -67,14 +59,30 @@ public class FestivalCARTImporter {
                     reader.close();
                     
                 }
+            } else {
+                throw new Error(treesDir.getPath() + " is no directory!");
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+            throw new Error("Error reading CARTS");
+        }
+    }
            
+    /**
+     * Dump the CARTs in the cart map
+     * to destinationDir/CARTS.bin
+     * 
+     * @param destDir the destination directory
+     */
+    public void dumpCARTS(String destDir){
+           try {
                 //dump CARTS to binary file
-                System.out.println("Dumping CARTS");
+                System.out.println("Dumping CARTS to "+destDir+"/CARTs.bin");
         
                 //Open the destination file (CARTS.bin) and output the header
                 DataOutputStream out = new DataOutputStream(new
                 		BufferedOutputStream(new 
-                        FileOutputStream(destDir+"CARTS.bin")));
+                        FileOutputStream(destDir+"/CARTS.bin")));
                 //create new CART-header and write it to output file
                 MaryHeader hdr = new MaryHeader(MaryHeader.CARTS);
                 hdr.write(out);
@@ -90,17 +98,14 @@ public class FestivalCARTImporter {
                     //dump name and CART
                     out.writeUTF(name);
                     cart.dumpBinary(out);
+                    cart.toStandardOut();
                 }
                 //finish
                 out.close();
                 System.out.println("Done\n");
-             } else {
-                throw new Error(treesDir.getPath() + " is no directory!");
-            }
-        } catch (Exception e){
-            e.printStackTrace();
-            throw new Error("Error reading CARTS");
-        }
-    
+            } catch (IOException e){
+                    e.printStackTrace();
+                    throw new Error("Error dumping CARTS");
+            }    
     }     
 }
