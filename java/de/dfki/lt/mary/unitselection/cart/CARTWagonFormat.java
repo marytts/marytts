@@ -37,6 +37,7 @@ import org.apache.log4j.Logger;
 import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.mary.unitselection.Target;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
+import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 
 import java.io.*;
 import java.util.*;
@@ -59,6 +60,8 @@ import java.util.*;
  * (daughter) is either a node (see above) or a leaf:
  * ((<index1> <float1>)...(<indexN> <floatN>)) : leaf with unit indices 
  * 												 and (dummy) floats
+ * 
+ * @author Anna Hunecke
  */
 public class CARTWagonFormat{
 
@@ -74,6 +77,9 @@ public class CARTWagonFormat{
     
     private Node lastNode;
     private int openBrackets;
+    
+    //knows the index numbers of the features
+    private static FeatureDefinition featDef;
   
     
     /**
@@ -82,7 +88,9 @@ public class CARTWagonFormat{
      * @param reader the source of the CART data
      * @throws IOException if errors occur while reading the data
      */ 
-    public CARTWagonFormat(BufferedReader reader) throws IOException {
+    public CARTWagonFormat(BufferedReader reader, 
+            				FeatureDefinition featDefinition) throws IOException {
+        featDef = featDefinition;
         openBrackets = 0;
         String line = reader.readLine(); // first line is empty, read again 
         line = reader.readLine(); 
@@ -111,8 +119,9 @@ public class CARTWagonFormat{
      * Note that cart nodes are really saved as strings that
      * have to be parsed.
      */
-    public CARTWagonFormat(RandomAccessFile raf) throws IOException {
-        
+    public CARTWagonFormat(RandomAccessFile raf,
+            				FeatureDefinition featDefinition) throws IOException {
+        featDef = featDefinition;
     	String backtraceString = 
     	    MaryProperties.getProperty("english.cart.backtrace");
     	backtrace = 100;
@@ -181,22 +190,20 @@ public class CARTWagonFormat{
             //build new node depending on type
             Node nextNode;
             if (type.equals("is")){
-                int featureIndex = Integer.parseInt(feature.substring(1));
-                if (feature.startsWith("b")){
-                    nextNode = new BinaryByteDecisionNode(featureIndex,Byte.parseByte(value));
+                if (featDef.isByteFeature(feature)){
+                    nextNode = new BinaryByteDecisionNode(feature,value);
                 } else {
-                    nextNode = new BinaryShortDecisionNode(featureIndex,Short.parseShort(value));
+                    nextNode = new BinaryShortDecisionNode(feature,value);
                 }
             } else {
-                int featureIndex = Integer.parseInt(feature);
                 if (type.equals("<")){
-                    nextNode = new BinaryFloatDecisionNode(featureIndex,Float.parseFloat(value));
+                    nextNode = new BinaryFloatDecisionNode(feature,Float.parseFloat(value));
                 } else {
                     if (type.equals("isShortOf")){
-                        nextNode = new ShortDecisionNode(featureIndex,Integer.parseInt(value));
+                        nextNode = new ShortDecisionNode(feature,Integer.parseInt(value));
                     } else {
                         if (type.equals("isByteOf")){
-                            nextNode = new ByteDecisionNode(featureIndex,Integer.parseInt(value));
+                            nextNode = new ByteDecisionNode(feature,Integer.parseInt(value));
                         } else {
                             throw new Error ("Unknown type : "+type);
                         }
@@ -393,9 +400,9 @@ public class CARTWagonFormat{
          * @param featureIndex the feature index 
          * @param numDaughters the number of daughters
          */
-        public DecisionNode (int featureIndex,
+        public DecisionNode (String feature,
                             int numDaughters){
-            this.featureIndex = featureIndex;
+            this.featureIndex = featDef.getFeatureIndex(feature);
             daughters = new Node[numDaughters];
             isRoot = false;
         }
@@ -494,10 +501,10 @@ public class CARTWagonFormat{
          * @param feature the string used to get a value from an Item
          * @param value the value to compare to
          */
-        public BinaryByteDecisionNode(int feature,
-                                    byte value) {
+        public BinaryByteDecisionNode(String feature,
+                                    String value) {
             super(feature,2);
-            this.value = value;
+            this.value = featDef.getFeatureValueAsByte(value,feature);
         }
         
         
@@ -541,10 +548,10 @@ public class CARTWagonFormat{
          * @param feature the string used to get a value from an Item
          * @param value the value to compare to
          */
-        public BinaryShortDecisionNode(int feature,
-                                    short value) {
+        public BinaryShortDecisionNode(String feature,
+                					String value) {
             super(feature,2);
-            this.value = value;
+            this.value = featDef.getFeatureValueAsShort(value,feature);
         }
         
         
@@ -588,8 +595,8 @@ public class CARTWagonFormat{
          * @param feature the string used to get a value from an Item
          * @param value the value to compare to
          */
-        public BinaryFloatDecisionNode(int feature,
-                                    float value) {
+        public BinaryFloatDecisionNode(String feature,
+                					float value) {
             super(feature,2);
             this.value = value;
         }
@@ -635,7 +642,7 @@ public class CARTWagonFormat{
          * @param feature the feature name
          * @param numDaughters the number of daughters
          */
-        public ByteDecisionNode(int feature,
+        public ByteDecisionNode(String feature,
                                int numDaughters){
             super(feature, numDaughters);           
         }
@@ -672,7 +679,7 @@ public class CARTWagonFormat{
          * @param feature the feature name
          * @param numDaughters the number of daughters
          */
-        public ShortDecisionNode(int feature,
+        public ShortDecisionNode(String feature,
                                int numDaughters){
             super(feature, numDaughters);           
         }
