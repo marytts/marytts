@@ -71,7 +71,6 @@ public class BufferedFrameSet extends FrameSet
             			    ClusterUnitDatabase database) throws IOException
     {
         super();
-        this.database = database;
         this.bb = bb;
 
         frameSetInfo = new FrameSetInfo(bb);

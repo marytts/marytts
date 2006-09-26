@@ -39,53 +39,26 @@ import de.dfki.lt.mary.unitselection.Target;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 
 import java.io.*;
-import java.net.URL;
-import java.util.regex.Pattern;
 import java.util.*;
 
 /**
- * Implementation of a Classification and Regression Tree (CART) that is
- * used more like a binary decision tree, with each node containing a
- * decision or a final value.  The decision nodes in the CART trees
- * operate on an Item and have the following format:
- *
- * <pre>
- *   NODE feat operand value qfalse 
- * </pre>
- *
- * <p>Where <code>feat</code> is an string that represents a feature
- * to pass to the <code>findFeature</code> method of an item.
- *
- * <p>The <code>value</code> represents the value to be compared against
- * the feature obtained from the item via the <code>feat</code> string.
- * The <code>operand</code> is the operation to do the comparison.  The
- * available operands are as follows:
- *
- * <ul>
- *   <li>&lt; - the feature is less than value 
- *
- * <p>For &lt; and >, this CART coerces the value and feature to
- * float's. For =, this CART coerces the value and feature to string and
- * checks for string equality. For MATCHES, this CART uses the value as a
- * regular expression and compares the obtained feature to that.
- *
- * <p>A CART is represented by an array in this implementation. The
- * <code>qfalse</code> value represents the index of the array to go to if
- * the comparison does not match. In this implementation, qtrue index
- * is always implied, and represents the next element in the
- * array. The root node of the CART is the first element in the array.
- *
- * <p>The interpretations always start at the root node of the CART
- * and continue until a final node is found.  The final nodes have the
- * following form:
- *
- * <pre>
- *   LEAF value
- * </pre>
- *
- * <p>Where <code>value</code> represents the value of the node.
- * Reaching a final node indicates the interpretation is over and the
- * value of the node is the interpretation result.
+ * This class can build a CART either reading from a text file
+ * or from a binary file. 
+ * The format is an extended Wagon format:
+ * A node looks like this:
+ * ((comparison)(daughter1)(daugther2)(daughter3)...(daughterN))
+ * 
+ * (comparison) is of form:
+ * (<feature-index> is <value>) : binary decision node; a feature-index beginning
+ * 								  with b means byte feature; beginning with 
+ * 								  s means short feature
+ * (<feature-index> < <value>) : binary float decision node
+ * (<feature-index> oneByteOf <n>) : n-ary byte decision node
+ * (<feature-index> oneShortOf <n>) : n-ary short decision node
+ * 
+ * (daughter) is either a node (see above) or a leaf:
+ * ((<index1> <float1>)...(<indexN> <floatN>)) : leaf with unit indices 
+ * 												 and (dummy) floats
  */
 public class CARTWagonFormat{
 
@@ -138,7 +111,7 @@ public class CARTWagonFormat{
      * Note that cart nodes are really saved as strings that
      * have to be parsed.
      */
-    public CARTWagonFormat(RandomAccessFile raf, int numNodes, String name) throws IOException {
+    public CARTWagonFormat(RandomAccessFile raf) throws IOException {
         
     	String backtraceString = 
     	    MaryProperties.getProperty("english.cart.backtrace");
@@ -148,12 +121,14 @@ public class CARTWagonFormat{
     	}
     	openBrackets = 0;
         String cart = raf.readUTF();
-        StringTokenizer tok = new StringTokenizer("\n");
+        StringTokenizer tok = new StringTokenizer(cart,"\n");
     	while (tok.hasMoreTokens()) {
     	   
     	    parseAndAdd(tok.nextToken());
     	}
-	
+    	if (openBrackets != 0){
+            throw new Error("Something went wrong here");
+        }
     }
   
     /**
@@ -169,6 +144,16 @@ public class CARTWagonFormat{
         os.writeUTF(sb.toString());
     }
     
+    /**
+     * Dumps this CART to the standard out in WagonFormat.
+     *
+     * @throws IOException if an error occurs during output
+     */
+    public void toStandardOut() {
+        StringBuffer sb = new StringBuffer();
+        rootNode.toWagonFormat(sb);
+        System.out.println(sb.toString());
+    }
     
     
     /**
@@ -177,6 +162,8 @@ public class CARTWagonFormat{
      * @param line a line of input to parse
      */
     protected void parseAndAdd(String line) {
+        //remove whitespace at beginning of string
+        line = line.trim();
         //at beginning of String there should be at least two opening brackets
         if (! (line.startsWith("(("))){
             throw new Error("Invalid input line for CART: "+line);
@@ -521,7 +508,7 @@ public class CARTWagonFormat{
          * @return a daughter
          */
         public Node getNextNode(FeatureVector featureVector) {
-            byte val = featureVector.getByteValuedDiscreteFeature(featureIndex);
+            byte val = featureVector.getByteFeature(featureIndex);
             Node returnNode;
             if (val == value){
                 returnNode = daughters[0];
@@ -568,7 +555,7 @@ public class CARTWagonFormat{
          * @return a daughter
          */
         public Node getNextNode(FeatureVector featureVector) {
-            short val = featureVector.getShortValuedDiscreteFeature(featureIndex);
+            short val = featureVector.getShortFeature(featureIndex);
             Node returnNode;
             if (val == value){
                 returnNode = daughters[0];
@@ -661,7 +648,7 @@ public class CARTWagonFormat{
          * @return a daughter
          */
         public Node getNextNode(FeatureVector featureVector) {
-            return daughters[featureVector.getByteValuedDiscreteFeature(featureIndex)];
+            return daughters[featureVector.getByteFeature(featureIndex)];
         }
         
         /**
@@ -698,7 +685,7 @@ public class CARTWagonFormat{
          * @return a daughter
          */
         public Node getNextNode(FeatureVector featureVector) {
-            return daughters[featureVector.getShortValuedDiscreteFeature(featureIndex)];
+            return daughters[featureVector.getShortFeature(featureIndex)];
         }
         
         /**
@@ -773,6 +760,9 @@ public class CARTWagonFormat{
             //for each index, write the index and then a pseudo float
             for (int i=0;i<indices.length;i++){
                 sb.append("("+indices[i]+" 0)");
+                if (i+1!=indices.length){
+                    sb.append(" ");
+                }
             }
             //write the ending
             sb.append(") 0))");
