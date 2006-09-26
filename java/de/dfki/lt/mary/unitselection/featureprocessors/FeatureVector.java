@@ -102,6 +102,19 @@ public class FeatureVector
     }
     
     /**
+     * A wrapper to getFeature(), to get the result as an int value, e.g.,
+     * for subsequent array indexing.
+     * 
+     * @param index A feature index between 0 and getLength()-1.
+     * @return The feature value, as an int.
+     * 
+     * @see FeatureVector#getFeature(int)
+     */
+    public int getFeatureAsInt( int index ) {
+        return( getFeature( index ).intValue() );
+    }
+    
+    /**
      * An efficient way to access byte-valued features in this feature vector.
      * @param index the index number of the byte-valued feature in this feature vector.
      * @return the byte value of the feature with the given index.

@@ -43,7 +43,7 @@ public class FeatureComparator implements Comparator {
      * run of the comparator.
      */
     public FeatureComparator( int setI ) {
-        I = setI;
+        setFeatureIdx( setI );
     }
     
     /**
@@ -95,3 +95,18 @@ public class FeatureComparator implements Comparator {
         return( true );
     }
 }
+
+/**
+ * An additional comparator for the unit indexes in the feature vectors.
+ * 
+ */
+class UnitIndexComparator implements Comparator {
+    
+    public int compare( Object v1, Object v2 ) {
+        FeatureVector a = (FeatureVector)v1;
+        FeatureVector b = (FeatureVector)v2;
+        return( a.getUnitIndex() - b.getUnitIndex() );
+    }
+
+}
+
