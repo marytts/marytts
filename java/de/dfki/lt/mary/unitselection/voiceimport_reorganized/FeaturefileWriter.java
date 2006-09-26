@@ -36,13 +36,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.RandomAccessFile;
-import java.util.StringTokenizer;
 
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
-import de.dfki.lt.mary.util.FileUtils;
 
 public class FeaturefileWriter implements VoiceImportComponent
 {
@@ -84,7 +80,8 @@ public class FeaturefileWriter implements VoiceImportComponent
         out.writeInt(unitFileReader.getNumberOfUnits());
         int index = 0; // the unique index number of units in the unit file
         // Dummy feature vector corresponding to an edge unit:
-        FeatureVector edge = featureDefinition.getEmptyFeatureVector();
+        FeatureVector start = featureDefinition.createEdgeFeatureVector(0, true);
+        FeatureVector end = featureDefinition.createEdgeFeatureVector(0, false);
         // Loop over all utterances
         for (int i=0; i<bnl.getLength(); i++) {
             BufferedReader uttFeats = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitFeaDirName() + bnl.getName(i) + db.unitFeaExt() )), "UTF-8"));
@@ -103,12 +100,12 @@ public class FeaturefileWriter implements VoiceImportComponent
                         +index+" should correspond to start of file "+bnl.getName(i)
                         +", but is not an edge unit!");
             }
-            edge.write(out);
+            start.write(out);
             index++;
             // read the binary section, and write it
             while ((line = uttFeats.readLine()) != null) {
                 if (line.trim().equals("")) break;
-                FeatureVector fv = featureDefinition.toFeatureVector(line);
+                FeatureVector fv = featureDefinition.toFeatureVector(0, line);
                 if (unitFileReader.isEdgeUnit(index)) {
                     throw new IOException("Inconsistency between feature files and unit file: Unit "
                             +index+" should correspond to feature line '"+line+"' of file "+bnl.getName(i)
@@ -122,7 +119,7 @@ public class FeaturefileWriter implements VoiceImportComponent
                         +index+" should correspond to end of file "+bnl.getName(i)
                         +", but is not an edge unit!");
             }
-            edge.write(out);
+            end.write(out);
             index++;
             System.out.println( "    " + bnl.getName(i) + " (" + index + ")" );
         }

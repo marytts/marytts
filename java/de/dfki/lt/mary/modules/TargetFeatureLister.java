@@ -97,7 +97,7 @@ public class TargetFeatureLister extends InternalModule
                 String segName = s.getFeatures().getString("name");
                 // Not sure if this is needed:
                 s.getFeatures().setString("clunit_name", segName);
-                targets.add(new Target(segName, s, -999)); //-999: value for unit size is not used
+                targets.add(new Target(segName, s));
             }
             // create target feature string for the target chain
             for (int j=0, nTargets = targets.size(); j<nTargets; j++) {
