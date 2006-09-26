@@ -1,14 +1,10 @@
 package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 
 import de.dfki.lt.mary.client.MaryClient;
 import de.dfki.lt.mary.util.FileUtils;
