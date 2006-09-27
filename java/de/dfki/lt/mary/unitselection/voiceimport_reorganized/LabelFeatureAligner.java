@@ -53,6 +53,12 @@ public class LabelFeatureAligner implements VoiceImportComponent
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
     
+    protected static final int TRYAGAIN = 0;
+    protected static final int SKIP = 1;
+    protected static final int SKIPALL = 2;
+    protected static final int REMOVE = 3;
+    protected static final int REMOVEALL = 4;
+    
     public LabelFeatureAligner( DatabaseLayout setdb, BasenameList setbnl ) throws IOException
     {
         this.db = setdb;
@@ -75,7 +81,8 @@ public class LabelFeatureAligner implements VoiceImportComponent
      */
     public boolean compute() throws IOException
     {
-        System.out.println( "Verifying feature-label alignment for "+ bnl.getLength() + " files" );
+        int bnlLengthIn = bnl.getLength();
+        System.out.println( "Verifying feature-label alignment for "+ bnlLengthIn + " utterances." );
         Map problems = new TreeMap();
         
         for (int i=0; i<bnl.getLength(); i++) {
@@ -90,24 +97,82 @@ public class LabelFeatureAligner implements VoiceImportComponent
         }
         System.out.println("Found "+problems.size() + " problems");
 
-        int remainingProblems = 0;
+        int remainingProblems = problems.keySet().size();
+        int guiReturn = SKIP;
+        boolean removeAll = false;
+        boolean skipAll = false;
         for (Iterator it = problems.keySet().iterator(); it.hasNext(); ) {
             String basename = (String) it.next();
             String errorMessage;
             boolean tryAgain;
             do {
                 System.out.print("    "+basename+": ");
-                tryAgain = letUserCorrect(basename, (String)problems.get(basename));
+                
+                /* Let the user make a first correction */
+                if ( (!removeAll) && (!skipAll) ) // These may be set true after a previous call to letUserCorrect()
+                    guiReturn = letUserCorrect(basename, (String)problems.get(basename));
+                /* Check if an error remains */
                 errorMessage = verifyAlignment(basename);
+                /* If there is no error, proceed with the next file. */
                 if (errorMessage == null) {
                     System.out.println("OK");
-                } else {
-                    System.out.println(errorMessage);
-                    problems.put(basename, errorMessage);
-                    if (!tryAgain) remainingProblems++;
+                    remainingProblems--;
+                    tryAgain = false;
                 }
-            } while (tryAgain && errorMessage != null);
+                /* If the error message is (still) not null, print the error and manage the GUI return code: */
+                else {
+                    System.out.print(errorMessage);
+                    //problems.put(basename, errorMessage);
+                    /* Manage the error according to the GUI return: */
+                    switch ( guiReturn ) {
+                    case TRYAGAIN:
+                        tryAgain = true;
+                        break;
+                        
+                    case SKIP:
+                        tryAgain = false;
+                        System.out.println( " -> Skipping this utterance ! This problem remains." );
+                        break;
+                        
+                    case SKIPALL:
+                        tryAgain = false;
+                        skipAll = true;
+                        break;
+                        
+                    case REMOVE:
+                        tryAgain = false;
+                        bnl.remove( basename );
+                        remainingProblems--;
+                        System.out.println( " -> Removed from the utterance list. OK" );
+                        break;
+                        
+                    case REMOVEALL:
+                        tryAgain = false;
+                        removeAll = true;
+                        break;
+                        
+                    default:
+                        throw new RuntimeException( "The letUserCorrect() GUI returned an unknown return code." );
+                    }
+                    /* Additional management for the skipAll and removeAll options: */
+                    if (skipAll ) {
+                        System.out.println( " -> Skipping this utterance ! This problem remains." );
+                        continue;
+                    }
+                    if (removeAll) {
+                        bnl.remove( basename );
+                        remainingProblems--;
+                        System.out.println( " -> Removed from the utterance list. OK" );
+                        continue;
+                    }
+                }
+                
+            } while (tryAgain );
         }
+        
+        System.out.println( "Removed [" + (bnlLengthIn-bnl.getLength()) + "/" + bnlLengthIn
+                + "] utterances from the list, [" + bnl.getLength() + "] utterances remain,"+
+                " among which [" + remainingProblems + "/" + bnl.getLength() + "] still have problems." );
         
         return remainingProblems == 0; // true exactly if all problems have been solved
     }
@@ -171,7 +236,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
         
     }
     
-    protected boolean letUserCorrect(String basename, String errorMessage) throws IOException
+    protected int letUserCorrect(String basename, String errorMessage) throws IOException
     {
         int choice = JOptionPane.showOptionDialog(null,
                 "Misalignment problem for "+basename+":\n"+
@@ -180,22 +245,26 @@ public class LabelFeatureAligner implements VoiceImportComponent
                 JOptionPane.YES_NO_CANCEL_OPTION, 
                 JOptionPane.QUESTION_MESSAGE, 
                 null,
-                new String[] {"Edit RAWMARYXML", "Edit unit labels", "Remove from utterance list", "Skip"},
+                new String[] {"Edit RAWMARYXML", "Edit unit labels", "Remove utterance from list", "Remove all upcoming wrong", "Skip", "Skip all"},
                 null);
         switch (choice) {
         case 0: 
             editMaryXML(basename);
-            break;
+            return TRYAGAIN;
         case 1:
             editUnitLabels(basename);
-            break;
+            return TRYAGAIN;
         case 2:
-            bnl.remove( basename );
-            return false;
-        default: // case 3 and JOptionPane.CLOSED_OPTION
-            return false; // don't verify again.
+            return REMOVE;
+        case 3:
+            return REMOVEALL;
+        case 4:
+            return SKIP;
+        case 5:
+            return SKIPALL;
+        default: // JOptionPane.CLOSED_OPTION
+            return SKIP; // don't verify again.
         }
-        return true; // verify again
     }
     
     private void editMaryXML(String basename) throws IOException
