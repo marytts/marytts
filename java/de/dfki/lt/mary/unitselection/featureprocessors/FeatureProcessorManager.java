@@ -12,10 +12,34 @@ public class FeatureProcessorManager
     public FeatureProcessorManager()
     {
         processors = new HashMap();
-        addFeatureProcessor(new MaryGenericFeatureProcessors.Accented());
+
+        MaryGenericFeatureProcessors.TargetItemNavigator segment = new MaryGenericFeatureProcessors.SegmentNavigator();
+        MaryGenericFeatureProcessors.TargetItemNavigator prevSegment = new MaryGenericFeatureProcessors.PrevSegmentNavigator();
+        MaryGenericFeatureProcessors.TargetItemNavigator nextSegment = new MaryGenericFeatureProcessors.NextSegmentNavigator();
+        MaryGenericFeatureProcessors.TargetItemNavigator syllable = new MaryGenericFeatureProcessors.SyllableNavigator();
+        MaryGenericFeatureProcessors.TargetItemNavigator prevSyllable = new MaryGenericFeatureProcessors.PrevSyllableNavigator();
+        MaryGenericFeatureProcessors.TargetItemNavigator nextSyllable = new MaryGenericFeatureProcessors.NextSyllableNavigator();
+        MaryGenericFeatureProcessors.TargetItemNavigator nextNextSyllable = new MaryGenericFeatureProcessors.NextNextSyllableNavigator();
+
+        addFeatureProcessor(new MaryGenericFeatureProcessors.Edge());
+        addFeatureProcessor(new MaryGenericFeatureProcessors.Accented("mary_accented", syllable));
+        addFeatureProcessor(new MaryGenericFeatureProcessors.Stressed("mary_stressed", syllable));
+        addFeatureProcessor(new MaryGenericFeatureProcessors.Stressed("mary_prev_stressed", prevSyllable));
+        addFeatureProcessor(new MaryGenericFeatureProcessors.Stressed("mary_next_stressed", nextSyllable));
         addFeatureProcessor(new MaryGenericFeatureProcessors.AccentedSylIn());
         addFeatureProcessor(new MaryGenericFeatureProcessors.WordNumSyls());
-        // TODO: add all relevant generic feature processors
+        addFeatureProcessor(new MaryGenericFeatureProcessors.PosInSyl());
+        addFeatureProcessor(new MaryGenericFeatureProcessors.SylBreak("mary_syl_break", syllable));
+        addFeatureProcessor(new MaryGenericFeatureProcessors.SylBreak("mary_prev_syl_break", prevSyllable));
+        addFeatureProcessor(new MaryGenericFeatureProcessors.PositionType());
+        addFeatureProcessor(new MaryGenericFeatureProcessors.IsPause("mary_prev_is_pause", prevSegment));
+        addFeatureProcessor(new MaryGenericFeatureProcessors.IsPause("mary_next_is_pause", nextSegment));
+        addFeatureProcessor(new MaryGenericFeatureProcessors.TobiAccent("mary_tobi_accent", syllable));
+        addFeatureProcessor(new MaryGenericFeatureProcessors.TobiAccent("mary_next_tobi_accent", nextSyllable));
+        addFeatureProcessor(new MaryGenericFeatureProcessors.TobiAccent("mary_nextnext_tobi_accent", nextNextSyllable));
+        addFeatureProcessor(new MaryGenericFeatureProcessors.TobiEndtone("mary_tobi_endtone", syllable));
+        addFeatureProcessor(new MaryGenericFeatureProcessors.TobiEndtone("mary_next_tobi_endtone", nextSyllable));
+        addFeatureProcessor(new MaryGenericFeatureProcessors.TobiEndtone("mary_nextnext_tobi_endtone", nextNextSyllable));
 
     }
     

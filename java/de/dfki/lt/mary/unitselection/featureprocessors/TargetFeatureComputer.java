@@ -68,7 +68,7 @@ public class TargetFeatureComputer
         for (int i=0; i<continuousFeatureProcessors.length; i++) {
             floatFeatures[i] = continuousFeatureProcessors[i].process(target);
         }
-        return new FeatureVector(byteFeatures, shortFeatures, floatFeatures);
+        return new FeatureVector(byteFeatures, shortFeatures, floatFeatures, 0);
     }
 
     /**
