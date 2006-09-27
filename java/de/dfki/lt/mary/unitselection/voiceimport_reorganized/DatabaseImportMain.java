@@ -164,7 +164,7 @@ public class DatabaseImportMain extends JFrame
                     success = components[i].compute();
                 } catch (Exception exc) {
                     exc.printStackTrace();
-                    success = false;
+                    throw new RuntimeException( "The component " + checkboxes[i].getText() + " produced the following exception: ", exc );
                 }
                 if (success) {
                     checkboxes[i].setBackground(Color.GREEN);
@@ -252,7 +252,7 @@ public class DatabaseImportMain extends JFrame
         else bnl = new BasenameList( db.wavDirName(), db.wavExt() );
         
         /* TESTING HACK: process only the 20 first files. */
-        bnl = bnl.subList( 0, 20 );
+        // bnl = bnl.subList( 0, 20 );
         /* END HACK */
         
         System.out.println("Found [" + bnl.getLength() + "] files to convert in the list of basenames." );
@@ -266,6 +266,7 @@ public class DatabaseImportMain extends JFrame
                 
                 new LabelFeatureAligner( db, bnl ),
                 new UnitfileWriter( db, bnl ),
+                new FeaturefileWriter( db, bnl ),
                 
                 new ESTCallMaker( db, bnl ),
                 new LPCTimelineMaker( db, bnl ),

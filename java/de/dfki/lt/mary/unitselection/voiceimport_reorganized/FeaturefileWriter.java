@@ -76,32 +76,46 @@ public class FeaturefileWriter implements VoiceImportComponent
         new MaryHeader(MaryHeader.TARGETFEATS).write(out);
         featureDefinition.writeBinary(out);
         
-        
-        out.writeInt(unitFileReader.getNumberOfUnits());
+        int numUnits = unitFileReader.getNumberOfUnits();
+        out.writeInt( numUnits );
         int index = 0; // the unique index number of units in the unit file
         // Dummy feature vector corresponding to an edge unit:
         FeatureVector start = featureDefinition.createEdgeFeatureVector(0, true);
         FeatureVector end = featureDefinition.createEdgeFeatureVector(0, false);
         // Loop over all utterances
         for (int i=0; i<bnl.getLength(); i++) {
+            System.out.print( "    " + bnl.getName(i) + " : Entering at index (" + index + ") -- " );
             BufferedReader uttFeats = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitFeaDirName() + bnl.getName(i) + db.unitFeaExt() )), "UTF-8"));
             FeatureDefinition uttFeatDefinition = new FeatureDefinition(uttFeats, false); // false: do not read weights
             if (!uttFeatDefinition.featureEquals(featureDefinition)) {
-                throw new IllegalArgumentException("Features in file "+bnl.getName(i)+" do not match definition file "+db.weightsFileName());
+                throw new IllegalArgumentException("Features in file "+bnl.getName(i)+" do not match definition file "+db.weightsFileName()
+                        + " because:\n"
+                        + uttFeatDefinition.featureEqualsAnalyse(featureDefinition) );
             }
             // skip the clear text section: read until an empty line occurs
             String line;
             while ((line = uttFeats.readLine()) != null) {
                 if (line.trim().equals("")) break;
             }
+            // Check the index consistency
+            if ( index > numUnits ) {
+                throw new IOException("Inconsistency between feature files and unit file: " +
+                        "the reached index [" + index+"] is bigger than the number of units in the unit file [" + numUnits + "] !");
+            }
             // Empty entry corresponding to start of utterance:
             if (!unitFileReader.isEdgeUnit(index)) {
+                // System.out.println( "Unit [" + index + "] : StarTime [" + unitFileReader.getStartTime(i) + "] Duration [" + unitFileReader.getDuration(i) + "]." );
                 throw new IOException("Inconsistency between feature files and unit file: Unit "
                         +index+" should correspond to start of file "+bnl.getName(i)
                         +", but is not an edge unit!");
             }
             start.write(out);
             index++;
+            // Check the index consistency
+            if ( index > numUnits ) {
+                throw new IOException("Inconsistency between feature files and unit file: " +
+                        "the reached index [" + index+"] is bigger than the number of units in the unit file [" + numUnits + "] !");
+            }
             // read the binary section, and write it
             while ((line = uttFeats.readLine()) != null) {
                 if (line.trim().equals("")) break;
@@ -114,6 +128,11 @@ public class FeaturefileWriter implements VoiceImportComponent
                 fv.write(out);
                 index++;
             }
+            // Check the index consistency
+            if ( index > numUnits ) {
+                throw new IOException("Inconsistency between feature files and unit file: " +
+                        "the reached index [" + index+"] is bigger than the number of units in the unit file [" + numUnits + "] !");
+            }
             if (!unitFileReader.isEdgeUnit(index)) {
                 throw new IOException("Inconsistency between feature files and unit file: Unit "
                         +index+" should correspond to end of file "+bnl.getName(i)
@@ -121,7 +140,8 @@ public class FeaturefileWriter implements VoiceImportComponent
             }
             end.write(out);
             index++;
-            System.out.println( "    " + bnl.getName(i) + " (" + index + ")" );
+            System.out.println( "Exiting at index (" + index + ")." );
+            System.out.flush();
         }
         out.close();
         return true;
