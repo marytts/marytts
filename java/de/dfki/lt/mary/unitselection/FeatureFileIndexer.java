@@ -30,6 +30,7 @@ package de.dfki.lt.mary.unitselection;
 
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 import de.dfki.lt.mary.unitselection.FeatureComparator;
+import de.dfki.lt.mary.unitselection.MaryNode;
 
 import java.util.Comparator;
 import java.util.Arrays;
@@ -37,7 +38,7 @@ import java.io.IOException;
 
 public class FeatureFileIndexer extends FeaturefileReader {
     
-    private Node tree = null;
+    private MaryNode tree = null;
     private int[] featureSequence = null;
     private FeatureComparator c = new FeatureComparator( -1 );
     private UnitIndexComparator cui = new UnitIndexComparator();
@@ -66,13 +67,15 @@ public class FeatureFileIndexer extends FeaturefileReader {
      * @param currentNode The current node, holding the currently processed
      * zone in the array of feature vectors.
      */
-    private void sortNode( int currentFeatureIdx, Node currentNode ) {
+    private void sortNode( int currentFeatureIdx, MaryNode currentNode ) {
         /* If we have reached a leaf, do a final sort according to the unit index and return: */
         if ( currentFeatureIdx == featureSequence.length ) {
             Arrays.sort( featureVectors, cui );
             return;
         }
         /* Else: */
+        /* Register the feature currently used for the splitting */
+        currentNode.setFeatureIndex( currentFeatureIdx );
         /* Perform the sorting according to the currently considered feature: */
         /* 1) position the comparator onto the right feature */
         c.setFeatureIdx( featureSequence[currentFeatureIdx] );
@@ -88,7 +91,7 @@ public class FeatureFileIndexer extends FeaturefileReader {
         for ( int i = 0; i < nVal; i++ ) {
             nextFrom = nextTo;
             while ( featureVectors[nextTo].getFeatureAsInt( currentFeatureIdx ) == i ) nextTo++;
-            Node nod = new Node( nextFrom, nextTo );
+            MaryNode nod = new MaryNode( nextFrom, nextTo );
             currentNode.setChild( i, nod );
             sortNode( currentFeatureIdx+1, nod );
         }
@@ -103,14 +106,13 @@ public class FeatureFileIndexer extends FeaturefileReader {
      */
     public void deepSort( int[] setFeatureSequence ) {
         featureSequence = setFeatureSequence;
-        tree = new Node( 0, featureVectors.length );
+        tree = new MaryNode( 0, featureVectors.length );
         sortNode( 0, tree );
     }
     
     /**
-     * Retrieve an array of unit features which complies with a specific target specification.
-     * For this to work, a preliminary indexing should be performed with the deepSort( int f[] )
-     * method.
+     * Retrieve an array of unit features which complies with a specific target specification,
+     * according to an underlying tree.
      * 
      * @param v A feature vector for which to send back an array of complying unit indexes. 
      * @return An array of feature vectors.
@@ -119,14 +121,9 @@ public class FeatureFileIndexer extends FeaturefileReader {
      */
     public FeatureVector[] retrieve( FeatureVector v ) {
         /* Walk down the tree */
-        Node n = tree;
-        for ( int i = 0; i < featureSequence.length; i++ ) {
-            n = n.getChild( v.getFeatureAsInt( featureSequence[i] ) );
-        }
-        /* Check if we actually reached a leaf (this is more a debug check) */
-        if ( !n.isLeaf() ) {
-            throw new RuntimeException( "Something went wrong:"
-                    + " the retrieve operation did not lead to a leaf node." );
+        MaryNode n = tree;
+        while ( !n.isLeaf() ) {
+            n = n.getChild( v.getFeatureAsInt( n.getFeatureIndex() ) );
         }
         /* Dereference the leaf */
         int retFrom = n.from;
@@ -139,70 +136,42 @@ public class FeatureFileIndexer extends FeaturefileReader {
     }
     
     /**
-     * Get the feature sequence
+     * Retrieve an array of unit features which complies with a specific target specification,
+     * given an underlying tree, but only down to a certain number of levels.
+     * 
+     * @param v A feature vector for which to send back an array of complying unit indexes.
+     * @param numLevels A limit on the number of levels to cross.
+     * 
+     * @return An array of feature vectors.
+     * 
+     * @see FeatureFileIndexer#deepSort(int[])
+     */
+    public FeatureVector[] retrieve( FeatureVector v, int numLevels ) {
+        if ( numLevels > featureSequence.length ) {
+            throw new RuntimeException( "Can't walk down to a tree further than the length of the underlying feature sequence." );
+        }
+        /* Walk down the tree */
+        MaryNode n = tree;
+        for ( int i = 0; i < numLevels; i++ ) {
+            n = n.getChild( v.getFeatureAsInt( n.getFeatureIndex() ) );
+        }
+        /* Dereference the leaf */
+        int retFrom = n.from;
+        int retTo = n.to;
+        FeatureVector[] ret = new FeatureVector[retTo - retFrom];
+        for ( int i = retFrom; i < retTo; i++ ) {
+            ret[i-retFrom] = featureVectors[i];
+        }
+        return( ret );
+    }
+    
+    /**
+     * Get the feature sequence, as an information about the underlying tree structure.
+     * 
      * @return the feature sequence
      */
     public int[] getFeatureSequence(){
         return featureSequence;
     }
     
-}
-
-/**
- * A local helper class to make a node of a tree.
- * */
-class Node {
-   protected int from = 0;
-   protected int to = 0;
-   private Node[] kids = null;
-   
-   /***************************/
-   /* Constructor             */
-   public Node( int setFrom, int setTo ) {
-       from = setFrom;
-       to = setTo;
-       kids = null;
-   }
-   
-   /******************************/
-   /* Getters for various fields */
-   public int getFrom() {
-       return( from );
-   }
-   
-   public int getTo() {
-       return( to );
-   }
-   
-   public int getNumChildren() {
-       return( kids.length );
-   }
-   
-   public Node[] getChildren() {
-       return( kids );
-   }
-   
-   /***************************/
-   /* Node splitting          */
-   public void split( int numKids ) {
-       kids = new Node[numKids];
-   }
-   
-   public void setChild( int i, Node n ) {
-       kids[i] = n;
-   }
-   
-   public Node getChild( int i ) {
-       return( kids[i] );
-   }
-   
-   /*************************************/
-   /* Check if this is a node or a leaf */
-   public boolean isNode() {
-       return( kids != null );
-   }
-   public boolean isLeaf() {
-       return( kids == null );
-   }
-   
 }
