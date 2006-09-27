@@ -88,6 +88,9 @@ public class FeatureDefinition
         // Section BYTEFEATURES
         String line = input.readLine();
         if (line == null) throw new IOException("Could not read from input");
+        while ( line.matches("^\\s*#.*") || line.matches("\\s*") ) {
+            line = input.readLine();
+        }
         if (!line.trim().equals(BYTEFEATURES)) {
             throw new IOException("Unexpected input: expected '"+BYTEFEATURES+"', read '"+line+"'");
         }
@@ -181,7 +184,16 @@ public class FeatureDefinition
                 String[] weightAndFunction = weightDef.split("\\s+", 2);
                 featureWeights[numByteFeatures+numShortFeatures+i] = Float.parseFloat(weightAndFunction[0]);
                 if (featureWeights[numByteFeatures+numShortFeatures+i] < 0) throw new IOException("Negative weight found in line '"+line+"'");
-                floatWeightFuncts[i] = weightAndFunction[1];
+                try {
+                    floatWeightFuncts[i] = weightAndFunction[1];
+                }
+                catch ( ArrayIndexOutOfBoundsException e ) {
+//                    System.out.println( "weightDef string was: '" + weightDef + "'." );
+//                    System.out.println( "Splitting part 1: '" + weightAndFunction[0] + "'." );
+//                    System.out.println( "Splitting part 2: '" + weightAndFunction[1] + "'." );
+                    throw new RuntimeException( "The string [" + weightDef + "] appears to be a badly formed"
+                            + " weight plus weighting function definition." );
+              }
             } else {
                 featureDef = line;
             }
@@ -628,6 +640,44 @@ public class FeatureDefinition
     }
     
     /**
+     * An extension of the previous method.
+     */
+    public String featureEqualsAnalyse(FeatureDefinition other)
+    {
+        if (numByteFeatures != other.numByteFeatures) {
+            return( "The number of BYTE features differs: " + numByteFeatures + " versus " + other.numByteFeatures );
+        }
+        if (numShortFeatures != other.numShortFeatures) {
+            return( "The number of SHORT features differs: " + numShortFeatures + " versus " + other.numShortFeatures );
+        }
+        if (numContinuousFeatures != other.numContinuousFeatures) {
+            return( "The number of CONTINUOUS features differs: " + numContinuousFeatures + " versus " + other.numContinuousFeatures );
+        }
+        // Compare the feature names and values for byte and short features:
+        for (int i=0; i<numByteFeatures+numShortFeatures+numContinuousFeatures; i++) {
+            if (!getFeatureName(i).equals(other.getFeatureName(i))) {
+                return( "The feature name differs at position [" + i + "]: " + getFeatureName(i)
+                        + " versus " + other.getFeatureName(i) );
+            }
+        }
+        // Compare the values for byte and short features:
+        for (int i=0; i<numByteFeatures+numShortFeatures; i++) {
+            if (getNumberOfValues(i) != other.getNumberOfValues(i)) {
+                return( "The number of values differs at position [" + i + "]: " + getNumberOfValues(i)
+                    + " versus " + other.getNumberOfValues(i) );
+            }
+            for (int v=0, n=getNumberOfValues(i); v<n; v++) {
+                if (!getFeatureValueAsString(i, v).equals(other.getFeatureValueAsString(i, v))) {
+                    return( "The feature value differs at position [" + i + "] for feature value [" + v + "]: "
+                            + getFeatureValueAsString(i, v)
+                            + " versus " + other.getFeatureValueAsString(i, v) );
+                }
+            }
+        }
+        return "";
+    }
+    
+    /**
      * Determine whether two feature definitions are equal, regarding both
      * the actual feature definitions and the weights.
      * The comparison of weights will succeed if both have no weights or
@@ -687,10 +737,10 @@ public class FeatureDefinition
         short[] shorts = new short[numShortFeatures];
         float[] floats = new float[numContinuousFeatures];
         for (int i=0; i<numByteFeatures; i++) {
-            bytes[i] = getFeatureValueAsByte(i, featureValues[i]);
+            bytes[i] = Byte.parseByte( featureValues[i] );
         }
         for (int i=0; i<numShortFeatures; i++) {
-            shorts[i] = getFeatureValueAsShort(numByteFeatures+i, featureValues[numByteFeatures+i]);
+            shorts[i] = Short.parseShort( featureValues[numByteFeatures+i] );
         }
         for (int i=0; i<numContinuousFeatures; i++) {
             floats[i] = Float.parseFloat(featureValues[numByteFeatures+numShortFeatures+i]);

@@ -300,6 +300,8 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
             Item word = navigator.getItem(target);
             if (word == null) return values.get("0");
     	    String pos = word.getFeatures().getString("pos");
+            if (pos == null) return values.get("0");
+            pos = pos.trim();
     	    if (posConverter.containsKey(pos)){
     	        pos = (String)posConverter.get(pos);}
     	    return values.get(pos);
