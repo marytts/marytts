@@ -42,6 +42,13 @@ public class FeatureFileIndexer extends FeaturefileReader {
     private int[] featureSequence = null;
     private FeatureComparator c = new FeatureComparator( -1 );
     private UnitIndexComparator cui = new UnitIndexComparator();
+    
+//    long tic = 0;
+//    long toc = 0;
+//    long nol = 0;
+//    long nextNol = 0;
+    
+    long totnol = 0;
 
     /**
      * Constructor which loads the feature file and launches an indexing
@@ -60,6 +67,19 @@ public class FeatureFileIndexer extends FeaturefileReader {
     }
     
     /**
+     * Constructor which loads the feature file and but does not launch an indexing
+     * operation.
+     * 
+     * @param fileName The name of the file to load.
+     * 
+     * @throws IOException
+     * @see FeaturefileReader
+     */
+    public FeatureFileIndexer( String fileName ) throws IOException {
+        super( fileName );
+    }
+    
+    /**
      * A local sort at a particular node along the deep sorting operation.
      * This is a recursive function.
      * 
@@ -71,26 +91,36 @@ public class FeatureFileIndexer extends FeaturefileReader {
         /* If we have reached a leaf, do a final sort according to the unit index and return: */
         if ( currentFeatureIdx == featureSequence.length ) {
             Arrays.sort( featureVectors, cui );
+//            nol++;
+//            if ( nol == nextNol ) {
+//                long localtic = toc;
+//                toc = System.currentTimeMillis();
+//                System.out.println( "Reached leaf [" + nol + "/" + totnol + "] in [" + (toc-localtic)
+//                        + " milliseconds (Elapsed time : [" + (toc-tic) + "] milliseconds.)" );
+//                System.out.flush();
+//                nextNol += 1000;
+//            }
             return;
         }
         /* Else: */
+        int currentFeature = featureSequence[currentFeatureIdx];
         /* Register the feature currently used for the splitting */
-        currentNode.setFeatureIndex( currentFeatureIdx );
+        currentNode.setFeatureIndex( currentFeature );
         /* Perform the sorting according to the currently considered feature: */
         /* 1) position the comparator onto the right feature */
-        c.setFeatureIdx( featureSequence[currentFeatureIdx] );
+        c.setFeatureIdx( currentFeature );
         /* 2) do the sorting */
         Arrays.sort( featureVectors, currentNode.from, currentNode.to, c );
         
         /* Then, seek for the zones where the feature value is the same,
          * and launch the next sort level on these. */
-        int nVal = featureDefinition.getNumberOfValues( currentFeatureIdx );
+        int nVal = featureDefinition.getNumberOfValues( currentFeature );
         currentNode.split( nVal );
         int nextFrom = currentNode.from;
         int nextTo = currentNode.from;
         for ( int i = 0; i < nVal; i++ ) {
             nextFrom = nextTo;
-            while ( featureVectors[nextTo].getFeatureAsInt( currentFeatureIdx ) == i ) nextTo++;
+            while ( featureVectors[nextTo].getFeatureAsInt( currentFeature ) == i ) nextTo++;
             MaryNode nod = new MaryNode( nextFrom, nextTo );
             currentNode.setChild( i, nod );
             sortNode( currentFeatureIdx+1, nod );
@@ -106,6 +136,15 @@ public class FeatureFileIndexer extends FeaturefileReader {
      */
     public void deepSort( int[] setFeatureSequence ) {
         featureSequence = setFeatureSequence;
+        totnol = getNumberOfLeaves();
+        System.out.println( "Building a tree with [" + totnol + "] leaves..." ); System.out.flush();
+        if ( totnol == -1 ) {
+            throw new RuntimeException( "The number of leaves blows the capacity of the long type!"
+                    + " -> The given feature sequence is too big to build a tree." );
+        }
+//        nol = 0;
+//        nextNol = 1000;
+//        tic = System.currentTimeMillis();
         tree = new MaryNode( 0, featureVectors.length );
         sortNode( 0, tree );
     }
@@ -120,6 +159,9 @@ public class FeatureFileIndexer extends FeaturefileReader {
      * @see FeatureFileIndexer#deepSort(int[])
      */
     public FeatureVector[] retrieve( FeatureVector v ) {
+        if ( featureSequence == null ) {
+            throw new RuntimeException( "Can't retrieve candidate units if a tree has not been built. (Run this.deepSort(int[]) first.)" );
+        }
         /* Walk down the tree */
         MaryNode n = tree;
         while ( !n.isLeaf() ) {
@@ -147,6 +189,9 @@ public class FeatureFileIndexer extends FeaturefileReader {
      * @see FeatureFileIndexer#deepSort(int[])
      */
     public FeatureVector[] retrieve( FeatureVector v, int numLevels ) {
+        if ( featureSequence == null ) {
+            throw new RuntimeException( "Can't retrieve candidate units if a tree has not been built. (Run this.deepSort(int[]) first.)" );
+        }
         if ( numLevels > featureSequence.length ) {
             throw new RuntimeException( "Can't walk down to a tree further than the length of the underlying feature sequence." );
         }
@@ -174,4 +219,19 @@ public class FeatureFileIndexer extends FeaturefileReader {
         return featureSequence;
     }
     
+    /**
+     * Get the number of leaves.
+     * 
+     * @return The number of leaves.
+     */
+    public long getNumberOfLeaves() {
+        long ret = 1;
+        for ( int i = 0; i < featureSequence.length; i++ ) {
+//            System.out.println( "Feature [" + i + "] has [" + featureDefinition.getNumberOfValues( featureSequence[i] ) + "] values."
+//                    + "(Number of leaves = [" + ret + "].)" );
+            ret *= featureDefinition.getNumberOfValues( featureSequence[i] );
+            if ( ret < 0 ) return( -1 );
+        }
+        return( ret );
+    }
 }
