@@ -90,4 +90,8 @@ public class FeaturefileReader
     {
         return featureDefinition;
     }
+    
+    public int getNumberOfUnits() {
+        return( featureVectors.length );
+    }
 }
