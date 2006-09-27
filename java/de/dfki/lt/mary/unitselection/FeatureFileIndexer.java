@@ -138,6 +138,14 @@ public class FeatureFileIndexer extends FeaturefileReader {
         return( ret );
     }
     
+    /**
+     * Get the feature sequence
+     * @return the feature sequence
+     */
+    public int[] getFeatureSequence(){
+        return featureSequence;
+    }
+    
 }
 
 /**
