@@ -191,13 +191,13 @@ public class JoinCostFileMaker implements VoiceImportComponent {
                     /* -- WRITE: */
                     /* Complete the unfinished preceding unit by writing the join F0: */
                     jcf.writeFloat( (float)( F0 ) );
-                    System.out.println( " and Right F0 is [" + F0 + "]Hz." );
+                    // System.out.println( " and Right F0 is [" + F0 + "]Hz." );
                     /* Get the datagram corresponding to the left mel cepstra and pipe it out: */
                     dat = (Datagram) buff.elementAt( 0 );
                     jcf.write( dat.getData(), 0, dat.getData().length );
                     /* Write the left join F0, which is the same than at the end of the preceding unit: */
                     jcf.writeFloat( (float)( F0 ) );
-                    System.out.print( "At unit [" + i + "] :  (Buffsize " + buff.size() + ") Left F0 is [" + F0 + "]Hz" );
+                    // System.out.print( "At unit [" + i + "] :  (Buffsize " + buff.size() + ") Left F0 is [" + F0 + "]Hz" );
                     
                     
                     /* -- COMPUTE the RIGHT JCFs: */
@@ -241,7 +241,7 @@ public class JoinCostFileMaker implements VoiceImportComponent {
                      * this is the very first unit in the file: */
                     if ( i != 0 ) {
                         jcf.writeFloat( (float)(F0) );
-                        System.out.println( " and Right F0 is [" + F0 + "]Hz." );
+                        // System.out.println( " and Right F0 is [" + F0 + "]Hz." );
                     }
                     /* Write the left mel cepstra for the current unit: */
                     for ( int j = 0; j < numberOfMelcep; j++ ) {
@@ -249,7 +249,7 @@ public class JoinCostFileMaker implements VoiceImportComponent {
                     }
                     /* Write the left F0 join: */
                     jcf.writeFloat( (float)(F0) ); // (Assuming that leftF0 is 0.0 here.)
-                    System.out.print( "At unit [" + i + "] : START/END unit. (Buffsize 0) Left F0 is [" + F0 + "]Hz" );
+                    // System.out.print( "At unit [" + i + "] : START/END unit. (Buffsize 0) Left F0 is [" + F0 + "]Hz" );
                     /* Write the right mel cepstra for the current unit: */
                     for ( int j = 0; j < numberOfMelcep; j++ ) {
                         jcf.writeFloat( 0.0f );
@@ -263,7 +263,7 @@ public class JoinCostFileMaker implements VoiceImportComponent {
             /* Complete the very last unit by flushing the right join F0: */
             F0 = prevRightF0 / 2.0d; // (Assuming that leftF0 is 0 for a null unit.)
             jcf.writeFloat( (float)( F0 ) );
-            System.out.println( " and Right F0 is [" + F0 + "]Hz." );
+            // System.out.println( " and Right F0 is [" + F0 + "]Hz." );
             
         }
         catch ( IOException e ) {
