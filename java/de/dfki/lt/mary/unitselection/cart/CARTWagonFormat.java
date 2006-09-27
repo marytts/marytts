@@ -38,6 +38,7 @@ import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.mary.unitselection.Target;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
+import de.dfki.lt.mary.unitselection.FeatureFileIndexer;
 
 import java.io.*;
 import java.util.*;
@@ -78,7 +79,7 @@ public class CARTWagonFormat{
     private Node lastNode;
     private int openBrackets;
     
-    //knows the index numbers of the features
+    //knows the index numbers´and types of the features
     private static FeatureDefinition featDef;
   
     
@@ -140,6 +141,64 @@ public class CARTWagonFormat{
         }
     }
   
+    /**
+     * Build a new CART for the feature sequence in the 
+     * FeatureFileIndexer
+     * 
+     * @param ffi the feature file indexer
+     */
+    public CARTWagonFormat(FeatureFileIndexer ffi){
+        int[] featSeq = ffi.getFeatureSequence();
+        addDaughters(null,featSeq,0);
+    }
+    
+    /**
+     * Add daughters to the given mother node
+     * according to the given feature sequence
+     * 
+     * @param motherNode the mother node
+     * @param featSeq the feature sequence
+     * @param index the current index position in the sequence
+     */
+    public void addDaughters(DecisionNode motherNode, int[] featSeq, int index){
+       //the next daughter
+       DecisionNode daughterNode;
+       //the number of daughters of the next daughter
+       int numDaughters;
+       //the index of the next feature
+       int nextFeatIndex = featSeq[index];
+       if (featDef.isByteFeature(nextFeatIndex)){
+           numDaughters = featDef.getNumberOfValues(nextFeatIndex);
+           daughterNode = new ByteDecisionNode(nextFeatIndex,numDaughters);
+       } else {
+           if (featDef.isShortFeature(nextFeatIndex)){
+               numDaughters = featDef.getNumberOfValues(nextFeatIndex);
+               daughterNode = new ShortDecisionNode(nextFeatIndex,numDaughters);
+            } else {
+                //feature is of type float, currently not supported in ffi
+                throw new Error("Found float feature in FeatureFileIndexer!");
+            }
+       }
+       if (motherNode == null){
+           rootNode = daughterNode;
+       } else {
+           motherNode.addDaughter(daughterNode);
+           daughterNode.setMother(motherNode);
+       }
+       //if we are not at the last feature
+       if (index+1 != featSeq.length){
+           //for each daughter, go in recursion
+           for (int i = 0; i<numDaughters; i++){
+               addDaughters(daughterNode,featSeq,index+1);
+           }     
+       } else {
+           //add empty leaves
+           for (int i=0;i<numDaughters;i++){
+               daughterNode.addDaughter(new LeafNode());
+           }
+       }           
+    }
+    
     /**
      * Dumps this CART to the output stream in WagonFormat.
      *
@@ -275,7 +334,7 @@ public class CARTWagonFormat{
             
         }
     }
-   
+    
     /**
      * Passes the given target through this CART and returns the
      * interpretation.
@@ -320,6 +379,48 @@ public class CARTWagonFormat{
         return result;
         
     }
+    
+    /**
+     * Replace a leaf by a CART
+     * @param cart the new CART
+     */
+    public void replaceLeafByCart(CARTWagonFormat cart, FeatureVector vector){
+        //find the mother node of the leaf you want to replace
+        DecisionNode motherNode;
+        Node currentNode = rootNode;
+        while (!(currentNode instanceof LeafNode)) { 
+            //while we have not reached the bottom,
+            //get the next node based on the feature vector
+           currentNode = ((DecisionNode)currentNode).getNextNode(vector);
+        }
+        //now we are at the leaf that we want to replace
+        //get the mother
+        motherNode = (DecisionNode) currentNode.getMother();
+        //replace the leaf by the CART
+        motherNode.replaceLeafByCart(cart,vector);
+        //clean up
+        currentNode.setMother(null);
+        cart.setRootNode(null);
+    }
+    
+     /**
+     * Set the root node of this CART
+     * 
+     * @param newRoot the new root node
+     */
+    public void setRootNode(Node newRoot){
+        rootNode = newRoot;
+    }
+    
+    /**
+     * Get the root node of this CART
+     * 
+     * @return the root node
+     */
+    public Node getRootNode(){
+        return rootNode;
+    }
+    
     
     /**
      * A node for the CART.
@@ -397,12 +498,24 @@ public class CARTWagonFormat{
         
         /**
          * Construct a new DecisionNode
-         * @param featureIndex the feature index 
+         * @param feature the feature  
          * @param numDaughters the number of daughters
          */
         public DecisionNode (String feature,
                             int numDaughters){
             this.featureIndex = featDef.getFeatureIndex(feature);
+            daughters = new Node[numDaughters];
+            isRoot = false;
+        }
+        
+        /**
+         * Construct a new DecisionNode
+         * @param featureIndex the feature index 
+         * @param numDaughters the number of daughters
+         */
+        public DecisionNode (int featureIndex,
+                            int numDaughters){
+            this.featureIndex = featureIndex;
             daughters = new Node[numDaughters];
             isRoot = false;
         }
@@ -484,7 +597,15 @@ public class CARTWagonFormat{
          * @return a daughter
          */
         public abstract Node getNextNode(FeatureVector featureVector);
-        
+     
+        /**
+         * Replace the leaf you select according to the feature
+         * vector by the given cart
+         * @param cart the cart
+         * @param featureVector the feature vector
+         */
+        public abstract void replaceLeafByCart(CARTWagonFormat cart, FeatureVector featureVector);
+       
     }
    
         
@@ -525,6 +646,24 @@ public class CARTWagonFormat{
             return returnNode;
         }
        
+         /**
+         * Replace the leaf you select according to the feature
+         * vector by the given cart
+         * @param cart the cart
+         * @param featureVector the feature vector
+         */
+        public void replaceLeafByCart(CARTWagonFormat cart, FeatureVector featureVector){
+            byte val = featureVector.getByteFeature(featureIndex);
+            Node cartRootNode = cart.getRootNode();
+            if (val == value){
+                daughters[0] = cartRootNode;
+            } else {
+                daughters[1] = cartRootNode;
+            } 
+            cartRootNode.setMother(mother);
+            cartRootNode.setIsRoot(false);
+        }
+        
          /**
          * Gets the String that defines the decision done in the node
          * @return the node definition
@@ -570,6 +709,24 @@ public class CARTWagonFormat{
                 returnNode = daughters[1];
             } 
             return returnNode;
+        }
+        
+        /**
+         * Replace the leaf you select according to the feature
+         * vector by the given cart
+         * @param cart the cart
+         * @param featureVector the feature vector
+         */
+        public void replaceLeafByCart(CARTWagonFormat cart, FeatureVector featureVector){
+            short val = featureVector.getShortFeature(featureIndex);
+            Node cartRootNode = cart.getRootNode();
+            if (val == value){
+                daughters[0] = cartRootNode;
+            } else {
+                daughters[1] = cartRootNode;
+            } 
+            cartRootNode.setMother(mother);
+            cartRootNode.setIsRoot(false);
         }
         
         /**
@@ -620,6 +777,24 @@ public class CARTWagonFormat{
         }
         
         /**
+         * Replace the leaf you select according to the feature
+         * vector by the given cart
+         * @param cart the cart
+         * @param featureVector the feature vector
+         */
+        public void replaceLeafByCart(CARTWagonFormat cart, FeatureVector featureVector){
+            float val = featureVector.getContinuousFeature(featureIndex);
+            Node cartRootNode = cart.getRootNode();
+            if (val < value){
+                daughters[0] = cartRootNode;
+            } else {
+                daughters[1] = cartRootNode;
+            } 
+            cartRootNode.setMother(mother);
+            cartRootNode.setIsRoot(false);
+        }
+        
+        /**
          * Gets the String that defines the decision done in the node
          * @return the node definition
          */
@@ -638,13 +813,23 @@ public class CARTWagonFormat{
     static class ByteDecisionNode extends DecisionNode {
         
         /**
-         * Build a new unary byte decision node 
+         * Build a new byte decision node 
          * @param feature the feature name
          * @param numDaughters the number of daughters
          */
         public ByteDecisionNode(String feature,
                                int numDaughters){
             super(feature, numDaughters);           
+        }
+        
+        /**
+         * Build a new byte decision node 
+         * @param feature the feature name
+         * @param numDaughters the number of daughters
+         */
+        public ByteDecisionNode(int featureIndex,
+                               int numDaughters){
+            super(featureIndex, numDaughters);           
         }
         
         
@@ -656,6 +841,20 @@ public class CARTWagonFormat{
          */
         public Node getNextNode(FeatureVector featureVector) {
             return daughters[featureVector.getByteFeature(featureIndex)];
+        }
+        
+        /**
+         * Replace the leaf you select according to the feature
+         * vector by the given cart
+         * @param cart the cart
+         * @param featureVector the feature vector
+         */
+        public void replaceLeafByCart(CARTWagonFormat cart, FeatureVector featureVector){
+            byte index = featureVector.getByteFeature(featureIndex);
+            Node cartRootNode = cart.getRootNode();
+            daughters[index] = cartRootNode;
+            cartRootNode.setMother(mother);
+            cartRootNode.setIsRoot(false);
         }
         
         /**
@@ -675,13 +874,23 @@ public class CARTWagonFormat{
     static class ShortDecisionNode extends DecisionNode {
         
         /**
-         * Build a new unary byte decision node 
+         * Build a new short decision node 
          * @param feature the feature name
          * @param numDaughters the number of daughters
          */
         public ShortDecisionNode(String feature,
                                int numDaughters){
             super(feature, numDaughters);           
+        }
+        
+         /**
+         * Build a new short decision node 
+         * @param featureIndex the feature index
+         * @param numDaughters the number of daughters
+         */
+        public ShortDecisionNode(int featureIndex,
+                               int numDaughters){
+            super(featureIndex, numDaughters);           
         }
         
         
@@ -693,6 +902,20 @@ public class CARTWagonFormat{
          */
         public Node getNextNode(FeatureVector featureVector) {
             return daughters[featureVector.getShortFeature(featureIndex)];
+        }
+        
+        /**
+         * Replace the leaf you select according to the feature
+         * vector by the given cart
+         * @param cart the cart
+         * @param featureVector the feature vector
+         */
+        public void replaceLeafByCart(CARTWagonFormat cart, FeatureVector featureVector){
+            short index = featureVector.getShortFeature(featureIndex);
+            Node cartRootNode = cart.getRootNode();
+            daughters[index] = cartRootNode;
+            cartRootNode.setMother(mother);
+            cartRootNode.setIsRoot(false);
         }
         
         /**
@@ -749,6 +972,8 @@ public class CARTWagonFormat{
         }
         
        
+        public LeafNode(){}
+        
         /**
          * Get all unit indices
          * @return an int array containing the indices
