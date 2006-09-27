@@ -13,6 +13,7 @@ import com.sun.speech.freetts.util.Utilities;
 import de.dfki.lt.mary.unitselection.Target;
 import de.dfki.lt.mary.unitselection.cart.PathExtractor;
 import de.dfki.lt.mary.unitselection.cart.PathExtractorImpl;
+import de.dfki.lt.mary.util.ByteStringTranslator;
 
 /**
  * A collection of feature processors that operate on Target objects.
@@ -22,33 +23,225 @@ import de.dfki.lt.mary.unitselection.cart.PathExtractorImpl;
  */
 public class MaryGenericFeatureProcessors
 {
-    protected static Item getSegment(Target target)
+    /**
+     * Navigate from a target to an item.
+     * Classes implementing this interface will retrieve
+     * meaningful items given the target.
+     * @author Marc Schr&ouml;der
+     */
+    public static interface TargetItemNavigator
     {
-        Item segment = target.getItem();
-        return segment;
+        /**
+         * Given the target, retrieve an item.
+         * @param target
+         * @return an item selected according to this navigator,
+         * or null if there is no such item.
+         */
+        public Item getItem(Target target);
     }
 
-    protected static Item getSyllable(Target target)
+    /**
+     * Retrieve the segment belonging to this target.
+     * @author Marc Schr&ouml;der
+     *
+     */
+    public static class SegmentNavigator implements TargetItemNavigator
     {
-        Item segment = target.getItem();
-        if (segment == null) return null;
-        segment = segment.getItemAs(Relation.SYLLABLE_STRUCTURE);
-        if (segment == null) return null;
-        Item syllable = segment.getParent();
-        return syllable;
+        public Item getItem(Target target)
+        {
+            Item segment = target.getItem();
+            return segment;
+        }
     }
 
-    protected static Item getWord(Target target)
+    /**
+     * Retrieve the segment preceding the segment which belongs to this target.
+     * @author Marc Schr&ouml;der
+     *
+     */
+    public static class PrevSegmentNavigator implements TargetItemNavigator
     {
-        Item segment = target.getItem();
-        if (segment == null) return null;
-        segment = segment.getItemAs(Relation.SYLLABLE_STRUCTURE);
-        if (segment == null) return null;
-        Item syllable = segment.getParent();
-        if (syllable == null) return null;
-        Item word = syllable.getParent();
-        return word;
+        public Item getItem(Target target)
+        {
+            Item segment = target.getItem();
+            if (segment == null) return null;
+            return segment.getPrevious();
+        }
     }
+
+    /**
+     * Retrieve the segment two before the segment which belongs to this target.
+     * @author Marc Schr&ouml;der
+     *
+     */
+    public static class PrevPrevSegmentNavigator implements TargetItemNavigator
+    {
+        public Item getItem(Target target)
+        {
+            Item segment = target.getItem();
+            if (segment == null) return null;
+            Item prev = segment.getPrevious();
+            if (prev == null) return null;
+            return prev.getPrevious();
+        }
+    }
+
+    /**
+     * Retrieve the segment following the segment which belongs to this target.
+     * @author Marc Schr&ouml;der
+     *
+     */
+    public static class NextSegmentNavigator implements TargetItemNavigator
+    {
+        public Item getItem(Target target)
+        {
+            Item segment = target.getItem();
+            if (segment == null) return null;
+            return segment.getNext();
+        }
+    }
+
+    /**
+     * Retrieve the segment two after the segment which belongs to this target.
+     * @author Marc Schr&ouml;der
+     *
+     */
+    public static class NextNextSegmentNavigator implements TargetItemNavigator
+    {
+        public Item getItem(Target target)
+        {
+            Item segment = target.getItem();
+            if (segment == null) return null;
+            Item next = segment.getNext();
+            if (next == null) return null;
+            return next.getNext();
+        }
+    }
+
+    /**
+     * Retrieve the syllable belonging to this target.
+     * @author Marc Schr&ouml;der
+     *
+     */
+    public static class SyllableNavigator implements TargetItemNavigator
+    {
+        public Item getItem(Target target)
+        {
+            Item segment = target.getItem();
+            if (segment == null) return null;
+            segment = segment.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (segment == null) return null;
+            Item syllable = segment.getParent();
+            return syllable;
+        }
+    }
+
+    /**
+     * Retrieve the syllable before the syllable belonging to this target.
+     * @author Marc Schr&ouml;der
+     *
+     */
+    public static class PrevSyllableNavigator implements TargetItemNavigator
+    {
+        public Item getItem(Target target)
+        {
+            Item segment = target.getItem();
+            if (segment == null) return null;
+            segment = segment.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (segment == null) return null;
+            Item syllable = segment.getParent();
+            if (syllable == null) return null;
+            syllable = syllable.getItemAs(Relation.SYLLABLE);
+            Item prevSyllable = syllable.getPrevious();
+            return prevSyllable;
+        }
+    }
+
+    /**
+     * Retrieve the syllable two before the syllable belonging to this target.
+     * @author Marc Schr&ouml;der
+     *
+     */
+    public static class PrevPrevSyllableNavigator implements TargetItemNavigator
+    {
+        public Item getItem(Target target)
+        {
+            Item segment = target.getItem();
+            if (segment == null) return null;
+            segment = segment.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (segment == null) return null;
+            Item syllable = segment.getParent();
+            if (syllable == null) return null;
+            syllable = syllable.getItemAs(Relation.SYLLABLE);
+            Item prevSyllable = syllable.getPrevious();
+            if (prevSyllable == null) return null;
+            return prevSyllable.getPrevious();
+        }
+    }
+
+    /**
+     * Retrieve the syllable following the syllable belonging to this target.
+     * @author Marc Schr&ouml;der
+     *
+     */
+    public static class NextSyllableNavigator implements TargetItemNavigator
+    {
+        public Item getItem(Target target)
+        {
+            Item segment = target.getItem();
+            if (segment == null) return null;
+            segment = segment.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (segment == null) return null;
+            Item syllable = segment.getParent();
+            if (syllable == null) return null;
+            syllable = syllable.getItemAs(Relation.SYLLABLE);
+            Item nextSyllable = syllable.getNext();
+            return nextSyllable;
+        }
+    }
+
+    /**
+     * Retrieve the syllable two after the syllable belonging to this target.
+     * @author Marc Schr&ouml;der
+     *
+     */
+    public static class NextNextSyllableNavigator implements TargetItemNavigator
+    {
+        public Item getItem(Target target)
+        {
+            Item segment = target.getItem();
+            if (segment == null) return null;
+            segment = segment.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (segment == null) return null;
+            Item syllable = segment.getParent();
+            if (syllable == null) return null;
+            syllable = syllable.getItemAs(Relation.SYLLABLE);
+            Item nextSyllable = syllable.getNext();
+            if (nextSyllable == null) return null;
+            return nextSyllable.getNext();
+        }
+    }
+
+    /**
+     * Retrieve the word belonging to this target.
+     * @author Marc Schr&ouml;der
+     *
+     */
+    public static class WordNavigator implements TargetItemNavigator
+    {
+        public Item getItem(Target target)
+        {
+            Item segment = target.getItem();
+            if (segment == null) return null;
+            segment = segment.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (segment == null) return null;
+            Item syllable = segment.getParent();
+            if (syllable == null) return null;
+            Item word = syllable.getParent();
+            return word;
+        }
+    }
+
 
     protected final static PathExtractor FIRST_SYLLABLE_PATH = new PathExtractorImpl(
             "R:SylStructure.parent.R:Phrase.parent.daughter.R:SylStructure.daughter",
@@ -76,72 +269,8 @@ public class MaryGenericFeatureProcessors
     {
     }
 
-    /**
-     * Classifies the type of word break
-     * 
-     * @param item
-     *            the item to process
-     * 
-     * @return "4" for a big break, "3" for a break; otherwise "1"
-     * 
-     * @throws ProcessException
-     *             if an exception occurred during the processing
-     */
-    public static String wordBreak(Item item) throws ProcessException
-    {
-        Item ww = item.getItemAs(Relation.PHRASE);
-        if (ww == null || ww.getNext() != null) {
-            return "1";
-        } else {
-            String pname = ww.getParent().toString();
-            if (pname.equals("BB")) {
-                return "4";
-            } else if (pname.equals("B")) {
-                return "3";
-            } else {
-                return "1";
-            }
-        }
-    }
 
-    /**
-     * Gets the punctuation associated with the word
-     * 
-     * @param item
-     *            the word to process
-     * 
-     * @return the punctuation associated with the word
-     * 
-     * @throws ProcessException
-     *             if an exception occurred during the processing
-     */
-    public static String wordPunc(Item item) throws ProcessException
-    {
-        Item ww = item.getItemAs(Relation.TOKEN);
-        if (ww != null && ww.getNext() != null) {
-            return "";
-        } else {
-            if (ww != null && ww.getParent() != null) {
-                return ww.getParent().getFeatures().getString("punc");
-            } else {
-                return "";
-            }
-        }
-    }
 
-    /**
-     * Determines if the given item is accented
-     * 
-     * @param item
-     *            the item of interest
-     * 
-     * @return <code>true</code> if the item is accented, otherwise
-     *         <code>false</code>
-     */
-    private static boolean isAccented(Item item)
-    {
-        return item.getFeatures().isPresent("accent");
-    }
 
     /**
      * Rails an int. flite never returns an int more than 19 from a feature
@@ -158,6 +287,90 @@ public class MaryGenericFeatureProcessors
     }
 
     
+    public static class Edge implements ByteValuedFeatureProcessor
+    {
+        public String getName() { return "mary_edge"; }
+        public String[] getValues()
+        {
+            return new String[] {"0", "start", "end" };
+        }
+        
+        /**
+         * This processor always returns 0 for targets.
+         */
+        public byte process(Target target)
+        {
+            return (byte)0;
+        }
+        
+    }
+
+    /**
+     * Checks to see if the given syllable is accented. 
+     */
+    public static class Accented implements ByteValuedFeatureProcessor
+    {
+        protected String name; 
+        protected TargetItemNavigator navigator;
+        public Accented(String name, TargetItemNavigator syllableNavigator)
+        {
+            this.name = name;
+            this.navigator = syllableNavigator;
+        }
+        public String getName() { return name; }
+        public String[] getValues() {
+            return new String[] {"0", "1"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return "1" if the syllable is accented; otherwise "0"
+         */
+        public byte process(Target target)
+        {
+            Item syllable = navigator.getItem(target);
+            if (syllable != null && syllable.getFeatures().isPresent("accent")) {
+                return (byte)1;
+            } else {
+                return (byte)0;
+            }
+        }
+    }
+
+    /**
+     * Checks to see if the given syllable is stressed.
+     */
+    public static class Stressed implements ByteValuedFeatureProcessor
+    {
+        protected String name;
+        protected TargetItemNavigator navigator;
+        public Stressed(String name, TargetItemNavigator syllableNavigator)
+        {
+            this.name = name;
+            this.navigator = syllableNavigator;
+        }
+        public String getName() { return name; }
+        public String[] getValues() {
+            return new String[] {"0", "1"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return "1" if the syllable is stressed; otherwise "0"
+         */
+        public byte process(Target target)
+        {
+            Item syllable = navigator.getItem(target);
+            if (syllable == null) return 0;
+            String value = syllable.getFeatures().getString("stress");
+            if (value == null) return 0;
+            return Byte.parseByte(value);
+        }
+    }
+
+    
     /**
      * Returns as an Integer the number of syllables in the given word. This is
      * a feature processor. A feature processor takes an item, performs some
@@ -165,6 +378,10 @@ public class MaryGenericFeatureProcessors
      */
     public static class WordNumSyls implements ByteValuedFeatureProcessor
     {
+        TargetItemNavigator navigator;
+        public WordNumSyls() {
+            this.navigator = new WordNavigator();
+        }
         public String getName() { return "mary_word_numsyls"; }
         public String[] getValues() {
             return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
@@ -181,7 +398,7 @@ public class MaryGenericFeatureProcessors
          */
         public byte process(Target target)
         {
-            Item word = getWord(target);
+            Item word = navigator.getItem(target);
             if (word == null) return (byte)0;
             word = word.getItemAs(Relation.SYLLABLE_STRUCTURE);
             if (word == null) return (byte)0;
@@ -202,6 +419,11 @@ public class MaryGenericFeatureProcessors
      */
     public static class AccentedSylIn implements ByteValuedFeatureProcessor
     {
+        TargetItemNavigator navigator;
+        public AccentedSylIn() {
+            this.navigator = new SyllableNavigator();
+        }
+
         public String getName() { return "mary_asyl_in"; }
         public String[] getValues() {
             return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
@@ -211,26 +433,20 @@ public class MaryGenericFeatureProcessors
 
         /**
          * Performs some processing on the given item.
-         * 
-         * @param item
-         *            the item to process
-         * 
+         * @param target the target to process
          * @return the number of accented syllables since the last major break
-         * 
-         * @throws ProcessException
-         *             if an exception occurred during the processing
          */
         public byte process(Target target)
         {
             int count = 0;
-            Item ss = getSyllable(target);
+            Item ss = navigator.getItem(target);
             if (ss == null) return (byte)0;
             ss = ss.getItemAs(Relation.SYLLABLE);
             if (ss == null) return (byte)0;
             Item firstSyllable = (Item) FIRST_SYLLABLE_PATH.findTarget(ss);
 
             for (Item p = ss; p != null; p = p.getPrevious()) {
-                if (isAccented(p)) {
+                if (p.getFeatures().isPresent("accent")) {
                     count++;
                 }
                 if (p.equalsShared(firstSyllable)) {
@@ -241,6 +457,266 @@ public class MaryGenericFeatureProcessors
         }
     }
 
+    /**
+     * Finds the position of the phoneme in the syllable.
+     */
+    public static class PosInSyl implements ByteValuedFeatureProcessor
+    {
+        protected TargetItemNavigator navigator;
+        public PosInSyl() {
+            this.navigator = new SegmentNavigator();
+        }
+        public String getName() { return "mary_pos_in_syl"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return the position of the phoneme in the syllable
+         */
+        public byte process(Target target)
+        {
+            byte count = 0;
+            Item segment = navigator.getItem(target);
+            for (Item p = segment.getItemAs(Relation.SYLLABLE_STRUCTURE); p != null; p = p.getPrevious()) {
+                count++;
+            }
+            return (byte)rail(count);
+        }
+    }
+
+    /**
+     * Determines the break level after this syllable.
+     */
+    public static class SylBreak implements ByteValuedFeatureProcessor
+    {
+        protected String name;
+        protected TargetItemNavigator navigator;
+        public SylBreak(String name, TargetItemNavigator syllableNavigator)
+        {
+            this.name = name;
+            this.navigator = syllableNavigator;
+        }
+        public String getName() { return name; }
+        /**
+         * "4" for a big break, "3" for a break; "1" = word-final; "0" = within-word
+         */
+        public String[] getValues() {
+            return new String[] {"0", "1", "unused", "3", "4"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return the break level after the syllable returned by syllableNavigator
+         */
+        public byte process(Target target)
+        {
+            Item syllable = navigator.getItem(target);
+            if (syllable == null) return 0;
+            Item ss = syllable.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (ss == null) {
+                return 0;
+            } else if (ss.getNext() != null) {
+                // this is not the last syllable in this word
+                return 0;
+            } else if (ss.getParent() == null) {
+                // syllable which is not part of a word?!
+                return 1;
+            }
+            // this is word-final, calculate the wordBreak
+            Item word = ss.getParent();
+            Item ww = word.getItemAs(Relation.PHRASE);
+            if (ww == null || ww.getNext() != null) {
+                return 1;
+            }
+            String pname = ww.getParent().toString();
+            if (pname.equals("BB")) {
+                return 4;
+            } else if (pname.equals("B")) {
+                return 3;
+            } else {
+                return 1;
+            }
+        }
+    }
+    
+    /**
+     * Classifies the the syllable as single, initial, mid or final.
+     */
+    public static class PositionType implements ByteValuedFeatureProcessor
+    {
+        protected TargetItemNavigator navigator;
+        protected ByteStringTranslator values;
+        public PositionType()
+        {
+            values = new ByteStringTranslator(new String[] {
+                    "0", "single", "final", "initial", "mid"
+            });
+            navigator = new SyllableNavigator();
+        }
+        public String getName() { return "mary_position_type"; }
+        public String[] getValues() { return values.getStringValues(); }
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return classifies the syllable as "single", "final", "initial" or
+         *         "mid"
+         */
+        public byte process(Target target)
+        {
+            Item syllable = navigator.getItem(target);
+            if (syllable == null) return 0;
+
+            String type;
+            Item s = syllable.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (s == null) {
+                type = "single";
+            } else if (s.getNext() == null) {
+                if (s.getPrevious() == null) {
+                    type = "single";
+                } else {
+                    type = "final";
+                }
+            } else if (s.getPrevious() == null) {
+                type = "initial";
+            } else {
+                type = "mid";
+            }
+            return values.get(type);
+        }
+    }
+
+    /**
+     * Checks if segment is a pause.
+     */
+    public static class IsPause implements ByteValuedFeatureProcessor
+    {
+        protected TargetItemNavigator navigator;
+        protected String name;
+        public IsPause(String name, TargetItemNavigator segmentNavigator)
+        {
+            this.name = name;
+            this.navigator = segmentNavigator;
+        }
+        public String getName() { return name; }
+        public String[] getValues() { return new String[] {"0", "1"}; }
+        /**
+         * Check if segment is a pause
+         * @param target the target to process
+         * @return 0 if false, 1 if true
+         */
+        public byte process(Target target)
+        {
+            Item seg = navigator.getItem(target);
+            if (seg == null) return 0;
+            Item segItem = seg.getItemAs(Relation.SEGMENT);
+            // TODO: "pau" or "_" is hard-coded here as the pause symbol
+            if (segItem == null
+                || !(segItem.toString().equals("pau") || segItem.toString().equals("_"))) {
+                return 0;
+            } else {
+                return 1;
+            }
+        }
+    }
+
+    /**
+     * The ToBI accent of the current syllable.
+     */
+    public static class TobiAccent implements ByteValuedFeatureProcessor
+    {
+        protected String name;
+        protected TargetItemNavigator navigator;
+        protected ByteStringTranslator values;
+        
+        public TobiAccent(String name, TargetItemNavigator syllableNavigator)
+        {
+            this.name = name;
+            this.navigator = syllableNavigator;
+            this.values = new ByteStringTranslator(new String[] {
+                    "0", "*", "H*", "!H*", "^H*", "L*", "L+H*", "L*+H", "L+!H*",
+                    "L*+!H", "L+^H*", "L*+^H", "H+L*", "H+!H*", "H+^H*",
+                    "!H+!H*", "^H+!H*", "^H+^H*", "H*+L", "!H*+L"
+            });
+        }
+        
+        public String getName() { return name; }
+        public String[] getValues() { return values.getStringValues(); }
+        
+        /**
+         * For the given syllable item, return its tobi accent, 
+         * or 0 if there is none.
+         */
+        public byte process(Target target)
+        {
+            Item syllable = navigator.getItem(target);
+            if (syllable == null) return 0;
+            String accent = syllable.getFeatures().getString("accent");
+            if (accent == null) {
+                return 0;
+            }
+            return values.get(accent);
+        }
+    }
+
+    /**
+     * The ToBI endtone associated with the current syllable.
+     */
+    public static class TobiEndtone implements ByteValuedFeatureProcessor
+    {
+        protected String name;
+        protected TargetItemNavigator navigator;
+        protected ByteStringTranslator values;
+        
+        public TobiEndtone(String name, TargetItemNavigator syllableNavigator)
+        {
+            this.name = name;
+            this.navigator = syllableNavigator;
+            this.values = new ByteStringTranslator(new String[] {
+                    "0", "H-", "!H-", "L-", "H-%", "!H-%", "H-^H%",
+                    "!H-^H%", "L-H%", "L-%", "L-L%", "H-H%", "H-L%"
+            });
+        }
+        
+        public String getName() { return name; }
+        public String[] getValues() { return values.getStringValues(); }
+
+        /**
+         * For the given syllable item, return its tobi end tone, 
+         * or 0 if there is none.
+         */
+        public byte process(Target target)
+        {
+            Item syllable = navigator.getItem(target);
+            if (syllable == null) return 0;
+            String endtone = syllable.getFeatures().getString("endtone");
+            if (endtone == null) {
+                return 0;
+            }
+            return values.get(endtone);
+        }
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    ////////////////////////////////////////////////////////
+    // TODO: Remove or convert old feature processors below.
+    ////////////////////////////////////////////////////////
+    
     /**
      * Counts the number of stressed syllables since the last major break. This
      * is a feature processor. A feature processor takes an item, performs some
@@ -450,39 +926,6 @@ public class MaryGenericFeatureProcessors
         }
     }
 
-    /**
-     * Checks to see if the given syllable is accented. This is a feature
-     * processor. A feature processor takes an item, performs some sort of
-     * processing on the item and returns an object.
-     */
-    public static class Accented implements ByteValuedFeatureProcessor
-    {
-        public String getName() { return "mary_accented"; }
-        public String[] getValues() {
-            return new String[] {"0", "1"};
-        }
-
-        /**
-         * Performs some processing on the given item.
-         * 
-         * @param item
-         *            the item to process
-         * 
-         * @return "1" if the syllable is accented; otherwise "0"
-         * 
-         * @throws ProcessException
-         *             if an exception occurred during the processing
-         */
-        public byte process(Target target)
-        {
-            Item syllable = getSyllable(target);
-            if (syllable != null && isAccented(syllable)) {
-                return (byte)1;
-            } else {
-                return (byte)0;
-            }
-        }
-    }
 
     /**
      * Find the last accented syllable This is a feature processor. A feature
@@ -510,7 +953,7 @@ public class MaryGenericFeatureProcessors
 
             for (Item p = item.getItemAs(Relation.SYLLABLE); p != null; p = p
                     .getPrevious(), count++) {
-                if (isAccented(p)) {
+                if (p.getFeatures().isPresent("accent")) {
                     break;
                 }
             }
@@ -518,149 +961,6 @@ public class MaryGenericFeatureProcessors
         }
     }
 
-    /**
-     * Finds the position of the phoneme in the syllable This is a feature
-     * processor. A feature processor takes an item, performs some sort of
-     * processing on the item and returns an object.
-     */
-    public static class PosInSyl implements FeatureProcessor
-    {
-        public String getName() { return "pos_in_syl"; }
-
-        /**
-         * Performs some processing on the given item.
-         * 
-         * @param item
-         *            the item to process
-         * 
-         * @return the position of the phoneme in the syllable
-         * 
-         * @throws ProcessException
-         *             if an exception occurred during the processing
-         */
-        public String process(Item item) throws ProcessException
-        {
-            int count = -1;
-
-            for (Item p = item.getItemAs(Relation.SYLLABLE_STRUCTURE); p != null; p = p
-                    .getPrevious()) {
-                count++;
-            }
-            return Integer.toString(rail(count));
-        }
-    }
-
-    /**
-     * Classifies the the syllable as single, initial, mid or final. This is a
-     * feature processor. A feature processor takes an item, performs some sort
-     * of processing on the item and returns an object.
-     */
-    public static class PositionType implements FeatureProcessor
-    {
-        public String getName() { return "position_type"; }
-
-        /**
-         * Performs some processing on the given item.
-         * 
-         * @param item
-         *            the item to process
-         * 
-         * @return classifies the syllable as "single", "final", "initial" or
-         *         "mid"
-         * 
-         * @throws ProcessException
-         *             if an exception occurred during the processing
-         */
-        public String process(Item item) throws ProcessException
-        {
-            String type;
-
-            Item s = item.getItemAs(Relation.SYLLABLE_STRUCTURE);
-            if (s == null) {
-                type = "single";
-            } else if (s.getNext() == null) {
-                if (s.getPrevious() == null) {
-                    type = "single";
-                } else {
-                    type = "final";
-                }
-            } else if (s.getPrevious() == null) {
-                type = "initial";
-            } else {
-                type = "mid";
-            }
-            return type;
-        }
-    }
-
-    /**
-     * Determines the break level after this syllable This is a feature
-     * processor. A feature processor takes an item, performs some sort of
-     * processing on the item and returns an object.
-     */
-    public static class SylBreak implements FeatureProcessor
-    {
-        public String getName() { return "syl_break"; }
-
-        /**
-         * Performs some processing on the given item.
-         * 
-         * @param syl
-         *            the item to process
-         * 
-         * @return the break level after this syllable
-         * 
-         * @throws ProcessException
-         *             if an exception occurred during the processing
-         */
-        public String process(Item syl) throws ProcessException
-        {
-            Utilities.debug("SylBreak: Got item '" + syl + "' in the '"
-                    + syl.getOwnerRelation().getName() + "' relation.");
-            Item ss = syl.getItemAs(Relation.SYLLABLE_STRUCTURE);
-            if (ss == null) {
-                Utilities
-                        .debug("SylBreak: Cannot get this as SYLLABLE_STRUCTURE item");
-                return "1";
-            } else if (ss.getNext() != null) {
-                Utilities
-                        .debug("SylBreak: this is not the last syllable in this word");
-                return "0";
-            } else if (ss.getParent() == null) {
-                return "1";
-            } else {
-                Utilities
-                        .debug("SylBreak: this is word-final, calculate the wordBreak.");
-                return wordBreak(ss.getParent());
-            }
-        }
-    }
-
-    /**
-     * Determines the word break. This is a feature processor. A feature
-     * processor takes an item, performs some sort of processing on the item and
-     * returns an object.
-     */
-    public static class WordBreak implements FeatureProcessor
-    {
-        public String getName() { return "word_break"; }
-
-        /**
-         * Performs some processing on the given item.
-         * 
-         * @param word
-         *            the item to process
-         * 
-         * @return the break level for this word
-         * 
-         * @throws ProcessException
-         *             if an exception occurred during the processing
-         */
-        public String process(Item word) throws ProcessException
-        {
-            return wordBreak(word);
-        }
-    }
 
     /**
      * Determines the word punctuation. This is a feature processor. A feature
@@ -684,7 +984,16 @@ public class MaryGenericFeatureProcessors
          */
         public String process(Item word) throws ProcessException
         {
-            return wordPunc(word);
+            Item ww = word.getItemAs(Relation.TOKEN);
+            if (ww != null && ww.getNext() != null) {
+                return "";
+            } else {
+                if (ww != null && ww.getParent() != null) {
+                    return ww.getParent().getFeatures().getString("punc");
+                } else {
+                    return "";
+                }
+            }
         }
     }
 
@@ -773,33 +1082,6 @@ public class MaryGenericFeatureProcessors
         }
     }
 
-    /**
-     * Checks if segment is a pause This is a feature processor. A feature
-     * processor takes an item, performs some sort of processing on the item and
-     * returns an object.
-     */
-    public static class LispIsPau implements FeatureProcessor
-    {
-        public String getName() { return "lisp_is_pau"; }
-
-        /**
-         * Check if segment is a pause
-         * 
-         * @param seg
-         *            the segment
-         * @return 0 if false, 1 if true
-         * @throws ProcessException
-         */
-        public String process(Item seg) throws ProcessException
-        {
-            Item segItem = seg.getItemAs(Relation.SEGMENT);
-            if (segItem == null || !(segItem.toString().equals("pau"))) {
-                return "0";
-            } else {
-                return "1";
-            }
-        }
-    }
 
     /**
      * Calculates the pitch of a segment This processor should be used by target
@@ -861,49 +1143,4 @@ public class MaryGenericFeatureProcessors
     }
     
     
-    /**
-     * The ToBI accent of the current syllable. This is a feature processor. A feature
-     * processor takes an item, performs some sort of processing on the item and
-     * returns an object.
-     */
-    public static class TobiAccent implements FeatureProcessor
-    {
-        public String getName() { return "tobi_accent"; }
-
-        /**
-         * For the given syllable item, return its tobi accent, 
-         * or NONE if there is none.
-         */
-        public String process(Item syllable) throws ProcessException
-        {
-            String accent = syllable.getFeatures().getString("accent");
-            if (accent == null) {
-                return "NONE";
-            }
-            return accent;
-        }
-    }
-
-    /**
-     * The ToBI accent of the current syllable. This is a feature processor. A feature
-     * processor takes an item, performs some sort of processing on the item and
-     * returns an object.
-     */
-    public static class TobiEndtone implements FeatureProcessor
-    {
-        public String getName() { return "tobi_endtone"; }
-        /**
-         * For the given syllable item, return its tobi end tone, 
-         * or NONE if there is none.
-         */
-        public String process(Item syllable) throws ProcessException
-        {
-            String endtone = syllable.getFeatures().getString("endtone");
-            if (endtone == null) {
-                return "NONE";
-            }
-            return endtone;
-        }
-    }
-
 }

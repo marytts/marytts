@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import de.dfki.lt.mary.MaryProperties;
+import de.dfki.lt.mary.unitselection.featureprocessors.MaryGenericFeatureProcessors;
 import de.dfki.lt.mary.unitselection.featureprocessors.MaryLanguageFeatureProcessors;
 import de.dfki.lt.mary.unitselection.featureprocessors.PhoneSet;
 import de.dfki.lt.mary.unitselection.featureprocessors.PhoneSetImpl;
@@ -26,6 +27,9 @@ public class FeatureProcessorManager extends
     {
         super();
         try{
+            MaryGenericFeatureProcessors.TargetItemNavigator segment = new MaryGenericFeatureProcessors.SegmentNavigator();
+            MaryGenericFeatureProcessors.TargetItemNavigator prevSegment = new MaryGenericFeatureProcessors.PrevSegmentNavigator();
+            MaryGenericFeatureProcessors.TargetItemNavigator nextSegment = new MaryGenericFeatureProcessors.NextSegmentNavigator();
 
             Map posConverter = loadPosConverter();
             addFeatureProcessor(new MaryLanguageFeatureProcessors.Gpos(posConverter));
@@ -34,15 +38,86 @@ public class FeatureProcessorManager extends
             URL phoneSetURL = new URL("file:"
                 +MaryProperties.needFilename("english.freetts.phoneSetFile"));
             PhoneSet phoneSet  = new PhoneSetImpl(phoneSetURL);
-            addFeatureProcessor(new MaryLanguageFeatureProcessors.Phoneme(phoneSet));
-            addFeatureProcessor(new MaryLanguageFeatureProcessors.PH_CPlace(phoneSet));
-            addFeatureProcessor(new MaryLanguageFeatureProcessors.PH_CType(phoneSet));
-            addFeatureProcessor(new MaryLanguageFeatureProcessors.PH_CVox(phoneSet));
-            addFeatureProcessor(new MaryLanguageFeatureProcessors.PH_VC(phoneSet));
-            addFeatureProcessor(new MaryLanguageFeatureProcessors.PH_VFront(phoneSet));
-            addFeatureProcessor(new MaryLanguageFeatureProcessors.PH_VHeight(phoneSet));
-            addFeatureProcessor(new MaryLanguageFeatureProcessors.PH_VLength(phoneSet));
-            addFeatureProcessor(new MaryLanguageFeatureProcessors.PH_VRnd(phoneSet));
+            
+            // Phonetic features of the current segment:
+            String[] phonemes = phoneSet.listPhonemes();
+            String[] phonemeValues = new String[phonemes.length+1];
+            phonemeValues[0] = "0";
+            System.arraycopy(phonemes, 0, phonemeValues, 1, phonemes.length);
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.Phoneme(
+                    "mary_phoneme", phonemeValues, segment));
+            // cplace: 0-n/a l-labial a-alveolar p-palatal b-labio_dental d-dental v-velar g-?
+            String[] cplaceValues = new String[] { "0", "l", "a", "p", "b", "d", "v", "g"};
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature(phoneSet,
+                    "mary_ph_cplace", "cplace", cplaceValues, segment));
+            // ctype: 0-n/a s-stop f-fricative a-affricative n-nasal l-liquid r-r
+            String[] ctypeValues = new String[] {"0", "s", "f", "a", "n", "l", "r"};
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature(phoneSet,
+                    "mary_ph_ctype", "ctype", ctypeValues, segment));
+            // cvox: 0=n/a +=on -=off
+            String[] cvoxValues = new String[] {"0", "+", "-"};
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature(phoneSet,
+                    "mary_ph_cvox", "cvox", cvoxValues, segment));
+            // vc: 0=n/a +=vowel -=consonant
+            String[] vcValues = new String[] {"0", "+", "-"};
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature(phoneSet,
+                    "mary_ph_vc", "vc", vcValues, segment));
+            // vfront: 0-n/a 1-front  2-mid 3-back
+            String[] vfrontValues = new String[] {"0", "1", "2", "3"};
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature(phoneSet,
+                    "mary_ph_vfront", "vfront", vfrontValues, segment));
+            // vheight: 0-n/a 1-high 2-mid 3-low
+            String[] vheightValues = new String[] {"0", "1", "2", "3"};
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature(phoneSet,
+                    "mary_ph_vheight", "vheight", vheightValues, segment));
+            // vlng: 0-n/a s-short l-long d-dipthong a-schwa
+            String[] vlngValues = new String[] {"0", "s", "l", "d", "a"};
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature(phoneSet,
+                    "mary_ph_vlng", "vlng", vlngValues, segment));
+            // vrnd: 0=n/a +=on -=off
+            String[] vrndValues = new String[] {"0", "+", "-"};
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature(phoneSet,
+                    "mary_ph_vrnd", "vrnd", vrndValues, segment));
+
+            // Phonetic features of the previous segment:
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.Phoneme(
+                    "mary_prev_phoneme", phonemeValues, prevSegment));
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature(phoneSet,
+                    "mary_prev_cplace", "cplace", cplaceValues, prevSegment));
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature(phoneSet,
+                    "mary_prev_ctype", "ctype", ctypeValues, prevSegment));
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature(phoneSet,
+                    "mary_prev_cvox", "cvox", cvoxValues, prevSegment));
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature(phoneSet,
+                    "mary_prev_vc", "vc", vcValues, prevSegment));
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature(phoneSet,
+                    "mary_prev_vfront", "vfront", vfrontValues, prevSegment));
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature(phoneSet,
+                    "mary_prev_vheight", "vheight", vheightValues, prevSegment));
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature(phoneSet,
+                    "mary_prev_vlng", "vlng", vlngValues, prevSegment));
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature(phoneSet,
+                    "mary_prev_vrnd", "vrnd", vrndValues, prevSegment));
+
+            // Phonetic features of the following segment:
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.Phoneme(
+                    "mary_next_phoneme", phonemeValues, nextSegment));
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature(phoneSet,
+                    "mary_next_cplace", "cplace", cplaceValues, nextSegment));
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature(phoneSet,
+                    "mary_next_ctype", "ctype", ctypeValues, nextSegment));
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature(phoneSet,
+                    "mary_next_cvox", "cvox", cvoxValues, nextSegment));
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature(phoneSet,
+                    "mary_next_vc", "vc", vcValues, nextSegment));
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature(phoneSet,
+                    "mary_next_vfront", "vfront", vfrontValues, nextSegment));
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature(phoneSet,
+                    "mary_next_vheight", "vheight", vheightValues, nextSegment));
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature(phoneSet,
+                    "mary_next_vlng", "vlng", vlngValues, nextSegment));
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature(phoneSet,
+                    "mary_next_vrnd", "vrnd", vrndValues, nextSegment));
 
 /*
         processors_en.put("seg_coda_fric", 
@@ -109,7 +184,7 @@ public class FeatureProcessorManager extends
         }else{
             //if file name is not given,
             //the english tagger is not loaded
-            //and we do not need a conversion map
+            //and we do not need a conversion map;
             return new HashMap();}
     }catch(Exception e){
         e.printStackTrace();

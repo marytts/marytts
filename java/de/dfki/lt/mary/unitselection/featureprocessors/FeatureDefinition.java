@@ -31,7 +31,6 @@ package de.dfki.lt.mary.unitselection.featureprocessors;
 import java.io.BufferedReader;
 import java.io.DataInput;
 import java.io.DataOutput;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;

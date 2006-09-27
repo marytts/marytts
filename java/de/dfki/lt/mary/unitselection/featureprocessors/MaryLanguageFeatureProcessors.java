@@ -156,9 +156,7 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
      * @return "1" on match "0" on no match
      */
     private static String segCodaCtype(Item seg, String ctype, PhoneSet phoneSet) {
-        Item daughter 
-	    	= seg.getItemAs(
-	    	        Relation.SYLLABLE_STRUCTURE).getParent().getLastDaughter();
+        Item daughter = seg.getItemAs(Relation.SYLLABLE_STRUCTURE).getParent().getLastDaughter();
 
         while (daughter != null) {
             if ("+".equals(phoneSet.getPhoneFeature(daughter.toString(), "vc"))) {
@@ -189,402 +187,155 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
     
     
     /**
-     * Returns as an Integer the number of syllables in the given word. This is
-     * a feature processor. A feature processor takes an item, performs some
-     * sort of processing on the item and returns an object.
+     * The phoneme symbol for the given target.
+     * @author Marc Schr&ouml;der
+     *
      */
     public static class Phoneme implements ByteValuedFeatureProcessor
     {
-        public String getName() { return "mary_phoneme"; }
-        public String[] getValues() { return values.getStringValues(); }
-        private ByteStringTranslator values;
-        
-        public Phoneme(PhoneSet phoneSet){
-            this.values = new ByteStringTranslator(phoneSet.listPhonemes());
-        }
+        protected String name;
+        protected ByteStringTranslator values;
+        protected TargetItemNavigator navigator;
         /**
-         * Performs some processing on the given item.
-         *
-         * @param  item  the item to process
-         *
-         * @return consonant cplace
+         * Initialise a phoneme feature processor. 
+         * @param name the name of the feature
+         * @param possibleValues the list of possible phoneme values for the phonetic alphabet used,
+         * plus the value "0"=n/a.
+         * @param segmentNavigator a navigator returning a segment with respect to the target.
          */
+        public Phoneme(String name, String[] possibleValues, TargetItemNavigator segmentNavigator)
+        {
+            this.name = name;
+            this.values = new ByteStringTranslator(possibleValues);
+            this.navigator = segmentNavigator;
+        }
+        public String getName() { return name; }
+        public String[] getValues() { return values.getStringValues(); }
         public byte process(Target target)
         {
-            Item segment = getSegment(target);
-            return values.get(segment.getFeatures().getString("name"));
+            Item segment = navigator.getItem(target);
+            if (segment == null) return values.get("0");
+            String value = segment.getFeatures().getString("name");
+            if (value == null) return values.get("0");
+            return values.get(value);
         }
     }
 
-
-    
     /**
-     * Attempts to guess the part of speech.
-     * This is a feature processor. A feature processor takes an item,
-     * performs some sort of processing on the item and returns an object.
+     * A parametrisable class which can retrieve all sorts of phone features,
+     * given a phone set.
+     * @author Marc Schr&ouml;der
+     *
      */
-    public static class TokenPosGuess implements FeatureProcessor {
-        public String getName() { return "token_pos_guess"; }
-    /**
-	 * Performs some processing on the given item.
-	 *
-	 * @param  item  the item to process
-	 *
-	 * @return  a guess at the part of speech
-	 *
-	 * @throws ProcessException if an exception occurred during the
-	 * processing
-	 */
-	public String process(Item item) throws ProcessException {
-	    String name = item.getFeatures().getString("name");
-	    String dc = name.toLowerCase();
-	    if (DIGITS_PATTERN.matcher(dc).matches()) {
-		return "numeric";
-	    } else if (DOUBLE_PATTERN.matcher(dc).matches()) {
-		return "number";
-	    } else if (englishMonths.contains(dc)) {
-		return "month";
-	    } else if (englishDays.contains(dc)) {
-		return "day";
-	    } else if (dc.equals("a")) {
-		return "a";
-	    } else if (dc.equals("flight")) {
-		return "flight";
-	    } else if (dc.equals("to")) {
-		return "to";
-	    } else {
-		return "_other_";
-	    }
-	}
+    public static class PhoneFeature implements ByteValuedFeatureProcessor
+    {
+        protected PhoneSet phoneSet;
+        protected String name;
+        protected String phonesetQuery;
+        protected ByteStringTranslator values;
+        protected TargetItemNavigator navigator;
+        public PhoneFeature(PhoneSet phoneSet, String name, String phonesetQuery,
+                String[] possibleValues, TargetItemNavigator segmentNavigator)
+        {
+            this.phoneSet = phoneSet;
+            this.name = name;
+            this.phonesetQuery = phonesetQuery;
+            this.values = new ByteStringTranslator(possibleValues);
+            this.navigator = segmentNavigator;
+        }
+        public String getName() { return name; }
+        public String[] getValues() { return values.getStringValues(); }
+        public byte process(Target target)
+        {
+            Item segment = navigator.getItem(target);
+            if (segment == null) return values.get("0");
+            String value = phoneSet.getPhoneFeature(segment.toString(), phonesetQuery);
+            if (value == null) return values.get("0");
+            return values.get(value);
+        }
     }
-    
 
+    
     /**
      * Returns a guess of the part-of-speech.
      *
      * This is a feature processor. A feature processor takes an item,
      * performs some sort of processing on the item and returns an object.
      */
-    public static class Gpos implements ByteValuedFeatureProcessor {
-        public String getName() { return "mary_gpos"; }
-        public String[] getValues() { return values.getStringValues(); }
+    public static class Gpos implements ByteValuedFeatureProcessor
+    {
         private Map posConverter;
         private ByteStringTranslator values;
-        
-        public Gpos(Map posConverter){
-            this.posConverter = posConverter;
-            this.values = new ByteStringTranslator();
-            Collection valueCollection = posConverter.values();
-            byte count = 0;
-            for (Iterator it = valueCollection.iterator(); it.hasNext(); ) {
-                String val = (String) it.next();
-                values.set(count, val);
-                count++;
-            }
-        }
-        
-	/**
-	 * Performs some processing on the given item.
-	 *
-	 * @param  item  the item to process
-	 *
-	 * @return a guess at the part-of-speech for the item
-	 *
-	 * @throws ProcessException if an exception occurred during the
-	 * processing
-	 */
-	public byte process(Target target)
-    {
-        Item word = getWord(target);
-	    String pos = word.getFeatures().getString("pos");
-	    if (posConverter.containsKey(pos)){
-	        pos = (String)posConverter.get(pos);}
-	    return values.get(pos);
-	}
-    }
-    
-    /**
-     * Return consonant cplace 
-     *   0-n/a l-labial a-alveolar p-palatal b-labio_dental d-dental v-velar g-?
-     *
-     * This is a feature processor. A feature processor takes an item,
-     * performs some sort of processing on the item and returns an object.
-     */
-    public static class PH_CPlace implements ByteValuedFeatureProcessor
-    {
-        public String getName() { return "mary_ph_cplace"; }
-        public String[] getValues() { return values.getStringValues(); }
-        private ByteStringTranslator values;
+        private TargetItemNavigator navigator;
 
-        private PhoneSet phoneSet;
+        public String getName() { return "mary_gpos"; }
+        public String[] getValues() { return values.getStringValues(); }
         
-        public PH_CPlace(PhoneSet phoneSet){
-            this.phoneSet = phoneSet;
+        public Gpos(Map posConverter)
+        {
+            this.posConverter = posConverter;
             this.values = new ByteStringTranslator(new String[] {
-                    "0", "l", "a", "p", "b", "d", "v", "g"
+                    "0",
+                    "in", // Preposition or subordinating conjunction
+                    "to", // to
+                    "det", // determiner
+                    "md", // modal
+                    "cc", // coordinating conjunction
+                    "wp", // w-pronouns 
+                    "pps", // possive pronouns
+                    "aux", // auxiliary verbs
+                    "punc", // punctuation
+                    "content" // content words
             });
+            this.navigator = new WordNavigator();
         }
+        
     	/**
     	 * Performs some processing on the given item.
-    	 *
     	 * @param  item  the item to process
-    	 *
-    	 * @return consonant cplace
+    	 * @return a guess at the part-of-speech for the item
     	 */
     	public byte process(Target target)
         {
-            Item segment = getSegment(target);
-    	    return values.get(phoneSet.getPhoneFeature(segment.toString(), "cplace"));
+            Item word = navigator.getItem(target);
+            if (word == null) return values.get("0");
+    	    String pos = word.getFeatures().getString("pos");
+    	    if (posConverter.containsKey(pos)){
+    	        pos = (String)posConverter.get(pos);}
+    	    return values.get(pos);
     	}
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    ////////////////////////////////////////////////////////
+    // TODO: Remove or convert old feature processors below.
+    ////////////////////////////////////////////////////////
 
-    /**
-     * Return consonant type 
-     *   0-n/a s-stop f-fricative a-affricative n-nasal l-liquid r-r
-     *
-     * This is a feature processor. A feature processor takes an item,
-     * performs some sort of processing on the item and returns an object.
-     */
-    public static class PH_CType implements ByteValuedFeatureProcessor {
-        public String getName() { return "mary_ph_ctype"; }
-        public String[] getValues() { return values.getStringValues(); }
-        private ByteStringTranslator values;
-        
-        private PhoneSet phoneSet;
-        
-        public PH_CType(PhoneSet phoneSet){
-            this.phoneSet = phoneSet;
-            this.values = new ByteStringTranslator(new String[] {
-                    "0", "s", "f", "a", "n", "l", "r"
-            });
-        }
-    	/**
-    	 * Performs some processing on the given item.
-    	 *
-    	 * @param  item  the item to process
-    	 *
-    	 * @return consonant type
-    	 */
-    	public byte process(Target target) 
-        {
-            Item segment = getSegment(target);
-            return values.get(phoneSet.getPhoneFeature(segment.toString(), "ctype"));
-    	}
-    }
-
-    /**
-     * Return consonant voicing 
-     *   0=n/a +=on -=off
-     *
-     * This is a feature processor. A feature processor takes an item,
-     * performs some sort of processing on the item and returns an object.
-     */
-    public static class PH_CVox implements ByteValuedFeatureProcessor {
-        public String getName() { return "mary_ph_cvox"; }
-        public String[] getValues() { return values.getStringValues(); }
-        private ByteStringTranslator values;
-        
-        private PhoneSet phoneSet;
-        
-        public PH_CVox(PhoneSet phoneSet){
-            this.phoneSet = phoneSet;
-            this.values = new ByteStringTranslator(new String[] {
-                    "0", "+", "-"
-            });
-        }
-        /**
-         * Performs some processing on the given item.
-         *
-         * @param  item  the item to process
-         *
-         * @return consonant voicing
-         */
-        public byte process(Target target) 
-        {
-            Item segment = getSegment(target);
-            return values.get(phoneSet.getPhoneFeature(segment.toString(), "cvox"));
-        }
-    }
-
-    /**
-     * Return vowel or consonant
-     *   +=on -=off
-     *
-     * This is a feature processor. A feature processor takes an item,
-     * performs some sort of processing on the item and returns an object.
-     */
-    public static class PH_VC implements ByteValuedFeatureProcessor {
-        public String getName() { return "mary_ph_vc"; }
-        public String[] getValues() { return values.getStringValues(); }
-        private ByteStringTranslator values;
-        
-        private PhoneSet phoneSet;
-        
-        public PH_VC(PhoneSet phoneSet){
-            this.phoneSet = phoneSet;
-            this.values = new ByteStringTranslator(new String[] {
-                    "+", "-"
-            });
-        }
-        /**
-         * Performs some processing on the given item.
-         *
-         * @param  item  the item to process
-         *
-         * @return consonant voicing
-         */
-        public byte process(Target target) 
-        {
-            Item segment = getSegment(target);
-            return values.get(phoneSet.getPhoneFeature(segment.toString(), "vc"));
-        }
-    }
-
-    /**
-     * Return vowel frontness
-     *  0-n/a 1-front  2-mid 3-back
-     *
-     * This is a feature processor. A feature processor takes an item,
-     * performs some sort of processing on the item and returns an object.
-     */
-    public static class PH_VFront implements ByteValuedFeatureProcessor {
-        public String getName() { return "mary_ph_vfront"; }
-        public String[] getValues() { return values.getStringValues(); }
-        private ByteStringTranslator values;
-        
-        private PhoneSet phoneSet;
-        
-        public PH_VFront(PhoneSet phoneSet){
-            this.phoneSet = phoneSet;
-            this.values = new ByteStringTranslator(new String[] {
-                    "0", "1", "2", "3"
-            });
-        }
-        /**
-         * Performs some processing on the given item.
-         *
-         * @param  item  the item to process
-         *
-         * @return vowel frontness
-         */
-        public byte process(Target target) 
-        {
-            Item segment = getSegment(target);
-            return values.get(phoneSet.getPhoneFeature(segment.toString(), "vfront"));
-        }
-    }
-
-    /**
-     * Return vowel height
-     *   0-n/a 1-high 2-mid 3-low
-     *
-     * This is a feature processor. A feature processor takes an item,
-     * performs some sort of processing on the item and returns an object.
-     */
-    public static class PH_VHeight implements ByteValuedFeatureProcessor {
-        public String getName() { return "mary_ph_vheight"; }
-        public String[] getValues() { return values.getStringValues(); }
-        private ByteStringTranslator values;
-        
-        private PhoneSet phoneSet;
-        
-        public PH_VHeight(PhoneSet phoneSet){
-            this.phoneSet = phoneSet;
-            this.values = new ByteStringTranslator(new String[] {
-                    "0", "1", "2", "3"
-            });
-        }
-        /**
-         * Performs some processing on the given item.
-         *
-         * @param  item  the item to process
-         *
-         * @return vowel height
-         */
-        public byte process(Target target) 
-        {
-            Item segment = getSegment(target);
-            return values.get(phoneSet.getPhoneFeature(segment.toString(), "vheight"));
-        }
-    }
-
-
-    /**
-     * Return vowel length
-     *   0-n/a s-short l-long d-dipthong a-schwa
-     *
-     * This is a feature processor. A feature processor takes an item,
-     * performs some sort of processing on the item and returns an object.
-     */
-    public static class PH_VLength implements ByteValuedFeatureProcessor {
-        public String getName() { return "mary_ph_vlng"; }
-        public String[] getValues() { return values.getStringValues(); }
-        private ByteStringTranslator values;
-        
-        private PhoneSet phoneSet;
-        
-        public PH_VLength(PhoneSet phoneSet){
-            this.phoneSet = phoneSet;
-            this.values = new ByteStringTranslator(new String[] {
-                    "0", "s", "l", "d", "a"
-            });
-        }
-        /**
-         * Performs some processing on the given item.
-         *
-         * @param  item  the item to process
-         *
-         * @return vowel length
-         */
-        public byte process(Target target) 
-        {
-            Item segment = getSegment(target);
-            return values.get(phoneSet.getPhoneFeature(segment.toString(), "vlng"));
-        }
-    }
-
-
-
-    /**
-     * Return vowel rnd (lip rounding)
-     *   lip rounding  0=n/a +=on -=off
-     *
-     * This is a feature processor. A feature processor takes an item,
-     * performs some sort of processing on the item and returns an object.
-     */
-    public static class PH_VRnd implements ByteValuedFeatureProcessor {
-        public String getName() { return "mary_ph_vrnd"; }
-        public String[] getValues() { return values.getStringValues(); }
-        private ByteStringTranslator values;
-        
-        private PhoneSet phoneSet;
-        
-        public PH_VRnd(PhoneSet phoneSet){
-            this.phoneSet = phoneSet;
-            this.values = new ByteStringTranslator(new String[] {
-                    "0", "+", "-"
-            });
-        }
-        /**
-         * Performs some processing on the given item.
-         *
-         * @param  item  the item to process
-         *
-         * @return lip rounding for vowels
-         */
-        public byte process(Target target) 
-        {
-            Item segment = getSegment(target);
-            return values.get(phoneSet.getPhoneFeature(segment.toString(), "vrnd"));
-        }
-    }
-
+    
+    
     /**
      * Determines the onset size of this syllable
      * This is a feature processor. A feature processor takes an item,
      * performs some sort of processing on the item and returns an object.
      */
-    public static class SylOnsetSize implements FeatureProcessor {
+    public static class SylOnsetSize implements FeatureProcessor 
+    {
         public String getName() { return "syl_onsetsize"; }
 
         private PhoneSet phoneSet;
@@ -592,29 +343,29 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
         public SylOnsetSize(PhoneSet phoneSet){
             this.phoneSet = phoneSet;
         }
-	/**
-	 * Performs some processing on the given item.
-	 *
-	 * @param  syl  the item to process
-	 *
-	 * @return onset size of this syllable
-	 *
-	 * @throws ProcessException if an exception occurred during the
-	 * processing
-	 */
-	public String process(Item syl) throws ProcessException {
-	    int count = 0;
-	    Item daughter = syl.getItemAs(
-                Relation.SYLLABLE_STRUCTURE).getDaughter();
-	    while (daughter != null) {
-		if ("+".equals(phoneSet.getPhoneFeature(daughter.toString(), "vc"))) {
-		    break;
-		}
-		count++;
-		daughter = daughter.getNext();
-	    }
-	    return Integer.toString(rail(count));
-	}
+    	/**
+    	 * Performs some processing on the given item.
+    	 *
+    	 * @param  syl  the item to process
+    	 *
+    	 * @return onset size of this syllable
+    	 *
+    	 * @throws ProcessException if an exception occurred during the
+    	 * processing
+    	 */
+    	public String process(Item syl) throws ProcessException {
+    	    int count = 0;
+    	    Item daughter = syl.getItemAs(
+                    Relation.SYLLABLE_STRUCTURE).getDaughter();
+    	    while (daughter != null) {
+    		if ("+".equals(phoneSet.getPhoneFeature(daughter.toString(), "vc"))) {
+    		    break;
+    		}
+    		count++;
+    		daughter = daughter.getNext();
+    	    }
+    	    return Integer.toString(rail(count));
+    	}
     }
 
 
@@ -631,31 +382,32 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
         public SylCodaSize(PhoneSet phoneSet){
             this.phoneSet = phoneSet;
         }
-	/**
-	 * Performs some processing on the given item.
-	 *
-	 * @param  syl  the item to process
-	 *
-	 * @return coda size
-	 *
-	 * @throws ProcessException if an exception occurred during the
-	 * processing
-	 */
-	public String process(Item syl) throws ProcessException {
-	    int count = 0;
-	    Item daughter = syl.getItemAs(
-                Relation.SYLLABLE_STRUCTURE).getLastDaughter();
-
-	    while (daughter != null) {
-		if ("+".equals(phoneSet.getPhoneFeature(daughter.toString(), "vc"))) {
-		    break;
-		}
-
-		daughter = daughter.getPrevious();
-		count++;
-	    }
-	    return Integer.toString(rail(count));
-	}
+    	/**
+    	 * Performs some processing on the given item.
+    	 *
+    	 * @param  syl  the item to process
+    	 *
+    	 * @return coda size
+    	 *
+    	 * @throws ProcessException if an exception occurred during the
+    	 * processing
+    	 */
+    	public String process(Item syl) throws ProcessException 
+        {
+    	    int count = 0;
+    	    Item daughter = syl.getItemAs(
+                    Relation.SYLLABLE_STRUCTURE).getLastDaughter();
+    
+    	    while (daughter != null) {
+    		if ("+".equals(phoneSet.getPhoneFeature(daughter.toString(), "vc"))) {
+    		    break;
+    		}
+    
+    		daughter = daughter.getPrevious();
+    		count++;
+    	    }
+    	    return Integer.toString(rail(count));
+    	}
     }
 
 
@@ -664,7 +416,8 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
      * This is a feature processor. A feature processor takes an item,
      * performs some sort of processing on the item and returns an object.
      */
-    public static class SegCodaFric implements FeatureProcessor {
+    public static class SegCodaFric implements FeatureProcessor 
+    {
         public String getName() { return "seg_coda_fric"; }
 
         private PhoneSet phoneSet;
@@ -672,19 +425,20 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
         public SegCodaFric(PhoneSet phoneSet){
             this.phoneSet = phoneSet;
         }
-	/**
-	 * Performs some processing on the given item.
-	 *
-	 * @param  seg  the item to process
-	 * 
-	 * @return "1" if fricative; else "0"
-	 *
-	 * @throws ProcessException if an exception occurred during the
-	 * processing
-	 */
-	public String process(Item seg) throws ProcessException {
-	    return segCodaCtype(seg, "f",phoneSet);
-	}
+    	/**
+    	 * Performs some processing on the given item.
+    	 *
+    	 * @param  seg  the item to process
+    	 * 
+    	 * @return "1" if fricative; else "0"
+    	 *
+    	 * @throws ProcessException if an exception occurred during the
+    	 * processing
+    	 */
+    	public String process(Item seg) throws ProcessException
+        {
+    	    return segCodaCtype(seg, "f",phoneSet);
+    	}
     }
 
     /**
@@ -692,7 +446,8 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
      * This is a feature processor. A feature processor takes an item,
      * performs some sort of processing on the item and returns an object.
      */
-    public static class SegOnsetFric implements FeatureProcessor {
+    public static class SegOnsetFric implements FeatureProcessor 
+    {
         public String getName() { return "seg_onset_fric"; }
 
         private PhoneSet phoneSet;
@@ -700,19 +455,20 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
         public SegOnsetFric(PhoneSet phoneSet){
             this.phoneSet = phoneSet;
         }
-	/**
-	 * Performs some processing on the given item.
-	 *
-	 * @param  seg  the item to process
-	 * 
-	 * @return "1" if fricative; else "0"
-	 *
-	 * @throws ProcessException if an exception occurred during the
-	 * processing
-	 */
-	public String process(Item seg) throws ProcessException {
-	    return segOnsetCtype(seg, "f",phoneSet);
-	}
+    	/**
+    	 * Performs some processing on the given item.
+    	 *
+    	 * @param  seg  the item to process
+    	 * 
+    	 * @return "1" if fricative; else "0"
+    	 *
+    	 * @throws ProcessException if an exception occurred during the
+    	 * processing
+    	 */
+    	public String process(Item seg) throws ProcessException 
+        {
+    	    return segOnsetCtype(seg, "f",phoneSet);
+    	}
     }
 
 
@@ -722,7 +478,8 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
      * This is a feature processor. A feature processor takes an item,
      * performs some sort of processing on the item and returns an object.
      */
-    public static class SegCodaStop implements FeatureProcessor {
+    public static class SegCodaStop implements FeatureProcessor 
+    {
         public String getName() { return "seg_coda_stop"; }
 
         private PhoneSet phoneSet;
@@ -730,19 +487,20 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
         public SegCodaStop(PhoneSet phoneSet){
             this.phoneSet = phoneSet;
         }
-	/**
-	 * Performs some processing on the given item.
-	 *
-	 * @param  seg  the item to process
-	 *
-	 * @return if coda stop "1"; otherwise "0"
-	 *
-	 * @throws ProcessException if an exception occurred during the
-	 * processing
-	 */
-	public String process(Item seg) throws ProcessException {
-	    return segCodaCtype(seg, "s",phoneSet);
-	}
+    	/**
+    	 * Performs some processing on the given item.
+    	 *
+    	 * @param  seg  the item to process
+    	 *
+    	 * @return if coda stop "1"; otherwise "0"
+    	 *
+    	 * @throws ProcessException if an exception occurred during the
+    	 * processing
+    	 */
+    	public String process(Item seg) throws ProcessException
+        {
+    	    return segCodaCtype(seg, "s",phoneSet);
+    	}
     }
 
     /**
@@ -750,7 +508,8 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
      * This is a feature processor. A feature processor takes an item,
      * performs some sort of processing on the item and returns an object.
      */
-    public static class SegOnsetStop implements FeatureProcessor {
+    public static class SegOnsetStop implements FeatureProcessor
+    {
         public String getName() { return "seg_onset_stop"; }
 
         private PhoneSet phoneSet;
@@ -758,19 +517,20 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
         public SegOnsetStop(PhoneSet phoneSet){
             this.phoneSet = phoneSet;
         }
-	/**
-	 * Performs some processing on the given item.
-	 *
-	 * @param  seg  the item to process
-	 *
-	 * @return if Onset Stop "1"; otherwise "0"
-	 *
-	 * @throws ProcessException if an exception occurred during the
-	 * processing
-	 */
-	public String process(Item seg) throws ProcessException {
-	    return segOnsetCtype(seg, "s",phoneSet);
-	}
+    	/**
+    	 * Performs some processing on the given item.
+    	 *
+    	 * @param  seg  the item to process
+    	 *
+    	 * @return if Onset Stop "1"; otherwise "0"
+    	 *
+    	 * @throws ProcessException if an exception occurred during the
+    	 * processing
+    	 */
+    	public String process(Item seg) throws ProcessException 
+        {
+    	    return segOnsetCtype(seg, "s",phoneSet);
+    	}
     }
 
     /**
@@ -778,7 +538,8 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
      * This is a feature processor. A feature processor takes an item,
      * performs some sort of processing on the item and returns an object.
      */
-    public static class SegCodaNasal implements FeatureProcessor {
+    public static class SegCodaNasal implements FeatureProcessor 
+    {
         public String getName() { return "seg_coda_nasal"; }
 
         private PhoneSet phoneSet;
@@ -786,19 +547,20 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
         public SegCodaNasal(PhoneSet phoneSet){
             this.phoneSet = phoneSet;
         }
-	/**
-	 * Performs some processing on the given item.
-	 *
-	 * @param  seg  the item to process
-	 *
-	 * @return if coda stop "1"; otherwise "0"
-	 *
-	 * @throws ProcessException if an exception occurred during the
-	 * processing
-	 */
-	public String process(Item seg) throws ProcessException {
-	    return segCodaCtype(seg, "n",phoneSet);
-	}
+    	/**
+    	 * Performs some processing on the given item.
+    	 *
+    	 * @param  seg  the item to process
+    	 *
+    	 * @return if coda stop "1"; otherwise "0"
+    	 *
+    	 * @throws ProcessException if an exception occurred during the
+    	 * processing
+    	 */
+    	public String process(Item seg) throws ProcessException
+        {
+    	    return segCodaCtype(seg, "n",phoneSet);
+    	}
     }
 
     /**
@@ -806,7 +568,8 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
      * This is a feature processor. A feature processor takes an item,
      * performs some sort of processing on the item and returns an object.
      */
-    public static class SegOnsetNasal implements FeatureProcessor {
+    public static class SegOnsetNasal implements FeatureProcessor
+    {
         public String getName() { return "seg_onset_nasal"; }
 
         private PhoneSet phoneSet;
@@ -814,19 +577,20 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
         public SegOnsetNasal(PhoneSet phoneSet){
             this.phoneSet = phoneSet;
         }
-	/**
-	 * Performs some processing on the given item.
-	 *
-	 * @param  seg  the item to process
-	 *
-	 * @return if Onset Stop "1"; otherwise "0"
-	 *
-	 * @throws ProcessException if an exception occurred during the
-	 * processing
-	 */
-	public String process(Item seg) throws ProcessException {
-	    return segOnsetCtype(seg, "n",phoneSet);
-	}
+    	/**
+    	 * Performs some processing on the given item.
+    	 *
+    	 * @param  seg  the item to process
+    	 *
+    	 * @return if Onset Stop "1"; otherwise "0"
+    	 *
+    	 * @throws ProcessException if an exception occurred during the
+    	 * processing
+    	 */
+    	public String process(Item seg) throws ProcessException
+        {
+    	    return segOnsetCtype(seg, "n",phoneSet);
+    	}
     }
 
     /**
@@ -834,7 +598,8 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
      * This is a feature processor. A feature processor takes an item,
      * performs some sort of processing on the item and returns an object.
      */
-    public static class SegCodaGlide implements FeatureProcessor {
+    public static class SegCodaGlide implements FeatureProcessor
+    {
         public String getName() { return "seg_coda_glide"; }
 
         private PhoneSet phoneSet;
@@ -842,22 +607,22 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
         public SegCodaGlide(PhoneSet phoneSet){
             this.phoneSet = phoneSet;
         }
-	/**
-	 * Performs some processing on the given item.
-	 *
-	 * @param  seg  the item to process
-	 *
-	 * @return if coda stop "1"; otherwise "0"
-	 *
-	 * @throws ProcessException if an exception occurred during the
-	 * processing
-	 */
-	public String process(Item seg) throws ProcessException {
-	    if (segCodaCtype(seg, "r",phoneSet).equals("0")) {
-		return segCodaCtype(seg, "l",phoneSet);
-	    }
-	    return "1";
-	}
+    	/**
+    	 * Performs some processing on the given item.
+    	 *
+    	 * @param  seg  the item to process
+    	 *
+    	 * @return if coda stop "1"; otherwise "0"
+    	 *
+    	 * @throws ProcessException if an exception occurred during the
+    	 * processing
+    	 */
+    	public String process(Item seg) throws ProcessException {
+    	    if (segCodaCtype(seg, "r",phoneSet).equals("0")) {
+    		return segCodaCtype(seg, "l",phoneSet);
+    	    }
+    	    return "1";
+    	}
     }
 
     /**
@@ -865,7 +630,8 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
      * This is a feature processor. A feature processor takes an item,
      * performs some sort of processing on the item and returns an object.
      */
-    public static class SegOnsetGlide implements FeatureProcessor {
+    public static class SegOnsetGlide implements FeatureProcessor
+    {
         public String getName() { return "seg_onset_glide"; }
 
         private PhoneSet phoneSet;
@@ -873,22 +639,22 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
         public SegOnsetGlide(PhoneSet phoneSet){
             this.phoneSet = phoneSet;
         }
-	/**
-	 * Performs some processing on the given item.
-	 *
-	 * @param  seg  the item to process
-	 *
-	 * @return if coda stop "1"; otherwise "0"
-	 *
-	 * @throws ProcessException if an exception occurred during the
-	 * processing
-	 */
-	public String process(Item seg) throws ProcessException {
-	    if (segOnsetCtype(seg, "r",phoneSet).equals("0")) {
-		return segOnsetCtype(seg, "l",phoneSet);
-	    }
-	    return "1";
-	}
+    	/**
+    	 * Performs some processing on the given item.
+    	 *
+    	 * @param  seg  the item to process
+    	 *
+    	 * @return if coda stop "1"; otherwise "0"
+    	 *
+    	 * @throws ProcessException if an exception occurred during the
+    	 * processing
+    	 */
+    	public String process(Item seg) throws ProcessException {
+    	    if (segOnsetCtype(seg, "r",phoneSet).equals("0")) {
+    		return segOnsetCtype(seg, "l",phoneSet);
+    	    }
+    	    return "1";
+    	}
     }
 
 
@@ -897,41 +663,45 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
      * This is a feature processor. A feature processor takes an item,
      * performs some sort of processing on the item and returns an object.
      */
-    public static class SegOnsetCoda implements FeatureProcessor {
+    public static class SegOnsetCoda implements FeatureProcessor
+    {
         public String getName() { return "seg_onsetcoda"; }
 
         private PhoneSet phoneSet;
         
-        public SegOnsetCoda(PhoneSet phoneSet){
+        public SegOnsetCoda(PhoneSet phoneSet)
+        {
             this.phoneSet = phoneSet;
         }
-	/**
-	 * Performs some processing on the given item.
-	 *
-	 * @param  seg  the item to process
-	 *
-	 * @return if onset coda "1"; otherwise "0"
-	 *
-	 * @throws ProcessException if an exception occurred during the
-	 * processing
-	 */
-	public String process(Item seg) throws ProcessException {
-	    Item s = seg.getItemAs(Relation.SYLLABLE_STRUCTURE);
+        
+    	/**
+    	 * Performs some processing on the given item.
+    	 *
+    	 * @param  seg  the item to process
+    	 *
+    	 * @return if onset coda "1"; otherwise "0"
+    	 *
+    	 * @throws ProcessException if an exception occurred during the
+    	 * processing
+    	 */
+    	public String process(Item seg) throws ProcessException 
+        {
+    	    Item s = seg.getItemAs(Relation.SYLLABLE_STRUCTURE);
             if (s == null) {
                 return "coda";
             }
-
+    
             s = s.getNext();
-	    while (s != null) {
-		if ("+".equals(phoneSet.getPhoneFeature(s.toString(), "vc"))) {
-		    return "onset";
-		}
-
-		s = s.getNext();
-	    }
-            
-	    return "coda";
-	}
+    	    while (s != null) {
+        		if ("+".equals(phoneSet.getPhoneFeature(s.toString(), "vc"))) {
+        		    return "onset";
+        		}
+        
+        		s = s.getNext();
+    	    }
+                
+    	    return "coda";
+    	}
     }
 
 }
