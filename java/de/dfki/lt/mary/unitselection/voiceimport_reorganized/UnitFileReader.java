@@ -148,7 +148,7 @@ public class UnitFileReader {
      * @return true if the unit is an edge unit in the unit file, false otherwise
      */
     public boolean isEdgeUnit(int i) {
-        if (duration[i] == 0) return true;
+        if (duration[i] == -1) return true;
         else return false;
     }
     
