@@ -36,7 +36,7 @@ import java.util.Comparator;
 import java.util.Arrays;
 import java.io.IOException;
 
-public class FeatureFileIndexer extends FeaturefileReader {
+public class FeatureFileIndexer extends FeatureFileReader {
     
     private MaryNode tree = null;
     private int[] featureSequence = null;
@@ -59,7 +59,7 @@ public class FeatureFileIndexer extends FeaturefileReader {
      * (or, equivalently, the sequence) of the features to use for the indexing.
      * 
      * @throws IOException
-     * @see FeaturefileReader
+     * @see FeatureFileReader
      */
     public FeatureFileIndexer( String fileName, int[] setFeatureSequence ) throws IOException {
         super( fileName );
@@ -73,7 +73,7 @@ public class FeatureFileIndexer extends FeaturefileReader {
      * @param fileName The name of the file to load.
      * 
      * @throws IOException
-     * @see FeaturefileReader
+     * @see FeatureFileReader
      */
     public FeatureFileIndexer( String fileName ) throws IOException {
         super( fileName );

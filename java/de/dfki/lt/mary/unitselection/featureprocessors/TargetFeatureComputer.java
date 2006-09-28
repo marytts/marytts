@@ -54,6 +54,12 @@ public class TargetFeatureComputer
         this.continuousFeatureProcessors = (ContinuousFeatureProcessor[])continuousFeatureProcessors.toArray(new ContinuousFeatureProcessor[0]);
     }
     
+    /**
+     * Using the set of feature processors defined when creating the target feature computer,
+     * compute a feature vector for the target
+     * @param target 
+     * @return a feature vector for the target
+     */
     public FeatureVector computeFeatureVector(Target target)
     {
         byte[] byteFeatures = new byte[byteValuedDiscreteFeatureProcessors.length];

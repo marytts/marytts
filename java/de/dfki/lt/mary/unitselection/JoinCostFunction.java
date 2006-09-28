@@ -29,6 +29,8 @@
 package de.dfki.lt.mary.unitselection;
 
 import de.dfki.lt.mary.unitselection.viterbi.ViterbiPath;
+import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunctionManager;
+
 import java.io.*;
 
 /**
@@ -45,14 +47,14 @@ public interface JoinCostFunction
      * @param u1 the proposed right unit
      * @return a non-negative number; smaller values mean better fit, i.e. smaller cost.
      */
-    public int cost(Unit u0, Unit u1);
+    public double cost(Unit u0, Unit u1);
 
     /**
-     * Load weights and values from RandomAccessFile
-     * @param raf
+     * Load weights and values from the given file
+     * @param joinFileName the file from which to read default weights and join cost features
+     * @param weightsFileName an optional file from which to read weights, taking precedence over
+     * the ones given in the join file
      */
-    public void load(RandomAccessFile raf) throws IOException;
-    
-    public void overwriteWeights(BufferedReader reader) throws IOException;
+    public void load(String joinFileName, String weightsFileName) throws IOException;
     
 }
