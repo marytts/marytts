@@ -220,6 +220,29 @@ public class FeatureFileIndexer extends FeaturefileReader {
     }
     
     /**
+     * Get the tree
+     * @return the tree
+     */
+    public MaryNode getTree(){
+        return tree;
+    }
+    
+    /**
+     * Get the feature vectors from the big array 
+     * according to the given indices
+     * @param from the start index
+     * @param to the end index
+     * @return the feature vectors
+     */
+    public FeatureVector[] getFeatureVectors(int from, int to){
+        FeatureVector[] vectors = new FeatureVector[to-from];
+        for ( int i = from; i < to; i++ ) {
+            vectors[i-from] = featureVectors[i];
+        }
+        return vectors;
+    }
+    
+    /**
      * Get the number of leaves.
      * 
      * @return The number of leaves.

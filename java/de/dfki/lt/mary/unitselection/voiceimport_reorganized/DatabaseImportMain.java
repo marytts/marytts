@@ -271,34 +271,14 @@ public class DatabaseImportMain extends JFrame
                 new ESTCallMaker( db, bnl ),
                 new LPCTimelineMaker( db, bnl ),
                 new MCepTimelineMaker( db, bnl ),
-                new JoinCostFileMaker( db, bnl )
+                new JoinCostFileMaker( db, bnl ),
+                new CARTBuilder ( db )
         };
         DatabaseImportMain importer = new DatabaseImportMain("Database import", components, db, bnl);
         importer.pack();
         // Center window on screen:
         importer.setLocationRelativeTo(null); 
-        importer.setVisible(true);
-        
-        
-        // The following code is independent of the GUI; both are running in separate threads.
-        // TODO: This might be confusing and should be cleaned up.
-        
-        /* Read in the units into a catalogue */
-        //Get the catalog file
-        File catalogDir = new File( db.rootDirName() + "/festival/clunits");
-        File catalogFile = catalogDir.listFiles(new FilenameFilter() {
-        public boolean accept(File dir, String name) {
-               return name.endsWith(".catalogue");
-        }
-        })[0];
-        //Read in the catalog 
-        System.out.println("Reading Catalog : " + catalogFile.getPath());
-        UnitCatalog unitCatalog = new UnitCatalog(catalogFile.getPath());
-        
-        /* Read and dump the CARTs */
-        
-        CARTImporter cp = new CARTImporter();
-        cp.importCARTS( db.rootDirName(), db.cartsDirName(), unitCatalog);
+        importer.setVisible(true);   
 
         /* Close the shop */
         System.out.println( "----\n" + "---- Rock'n Roll!" );
