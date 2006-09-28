@@ -127,6 +127,7 @@ public class DatabaseLayout
         setIfDoesntExist( "db.targetFeaturesBaseName", "targetFeatures" );
         setIfDoesntExist( "db.joinCostFeaturesBaseName", "joinCostFeatures" );
         setIfDoesntExist( "db.unitFileBaseName", "units" );
+        setIfDoesntExist( "db.cartFileBaseName", "cart" );
     }
     
     /**
@@ -271,6 +272,16 @@ public class DatabaseLayout
         return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
                 + System.getProperty( "db.marySubDir" ) + System.getProperty( "file.separator" )
                 + System.getProperty( "db.unitFileBaseName" ) + System.getProperty( "db.maryExtension" ) );
+    }
+    
+    /* File name for the cart file */
+    public String cartFileName() {
+        String ret = System.getProperty( "db.cartFileName" );
+        if ( ret != null ) return( ret );
+        /* else: */
+        return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
+                + System.getProperty( "db.marySubDir" ) + System.getProperty( "file.separator" )
+                + System.getProperty( "db.cartFileBaseName" ) + System.getProperty( "db.maryExtension" ) );
     }
     
 }

@@ -38,6 +38,7 @@ import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.mary.unitselection.Target;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
+import de.dfki.lt.mary.unitselection.MaryNode;
 import de.dfki.lt.mary.unitselection.FeatureFileIndexer;
 
 import java.io.*;
@@ -142,94 +143,11 @@ public class CARTWagonFormat{
     }
   
     /**
-     * Build a new CART for the feature sequence in the 
-     * FeatureFileIndexer
-     * 
-     * @param ffi the feature file indexer
-     */
-    public CARTWagonFormat(FeatureFileIndexer ffi){
-        int[] featSeq = ffi.getFeatureSequence();
-        addDaughters(null,featSeq,0);
-    }
-    
-    /**
-     * Add daughters to the given mother node
-     * according to the given feature sequence
-     * 
-     * @param motherNode the mother node
-     * @param featSeq the feature sequence
-     * @param index the current index position in the sequence
-     */
-    public void addDaughters(DecisionNode motherNode, int[] featSeq, int index){
-       //the next daughter
-       DecisionNode daughterNode;
-       //the number of daughters of the next daughter
-       int numDaughters;
-       //the index of the next feature
-       int nextFeatIndex = featSeq[index];
-       if (featDef.isByteFeature(nextFeatIndex)){
-           numDaughters = featDef.getNumberOfValues(nextFeatIndex);
-           daughterNode = new ByteDecisionNode(nextFeatIndex,numDaughters);
-       } else {
-           if (featDef.isShortFeature(nextFeatIndex)){
-               numDaughters = featDef.getNumberOfValues(nextFeatIndex);
-               daughterNode = new ShortDecisionNode(nextFeatIndex,numDaughters);
-            } else {
-                //feature is of type float, currently not supported in ffi
-                throw new Error("Found float feature in FeatureFileIndexer!");
-            }
-       }
-       if (motherNode == null){
-           rootNode = daughterNode;
-       } else {
-           motherNode.addDaughter(daughterNode);
-           daughterNode.setMother(motherNode);
-       }
-       //if we are not at the last feature
-       if (index+1 != featSeq.length){
-           //for each daughter, go in recursion
-           for (int i = 0; i<numDaughters; i++){
-               addDaughters(daughterNode,featSeq,index+1);
-           }     
-       } else {
-           //add empty leaves
-           for (int i=0;i<numDaughters;i++){
-               daughterNode.addDaughter(new LeafNode());
-           }
-       }           
-    }
-    
-    /**
-     * Dumps this CART to the output stream in WagonFormat.
-     *
-     * @param os the output stream
-     *
-     * @throws IOException if an error occurs during output
-     */
-    public void dumpBinary(DataOutputStream os) throws IOException {
-        StringBuffer sb = new StringBuffer();
-        rootNode.toWagonFormat(sb);
-        os.writeUTF(sb.toString());
-    }
-    
-    /**
-     * Dumps this CART to the standard out in WagonFormat.
-     *
-     * @throws IOException if an error occurs during output
-     */
-    public void toStandardOut() {
-        StringBuffer sb = new StringBuffer();
-        rootNode.toWagonFormat(sb);
-        System.out.println(sb.toString());
-    }
-    
-    
-    /**
      * Creates a node from the given input line and add it to the CART.
      * 
      * @param line a line of input to parse
      */
-    protected void parseAndAdd(String line) {
+    private void parseAndAdd(String line) {
         //remove whitespace at beginning of string
         line = line.trim();
         //at beginning of String there should be at least two opening brackets
@@ -336,6 +254,85 @@ public class CARTWagonFormat{
     }
     
     /**
+     * Convert the given tree into a CART with the
+     * leaves containing featureVectors
+     * 
+     * @param tree the tree
+     * @param ffi the feature file indexer containing the feature vectors
+     */
+    public CARTWagonFormat(MaryNode tree, FeatureFileIndexer ffi){
+        addDaughters(null,tree,ffi);
+    }
+    
+    /**
+     * Add the given tree node as a daughter
+     * to the given mother node
+     * 
+     * @param motherCARTNode the mother node
+     * @param currentTreeNode the tree node that we want to add
+     * @param ffi the feature file indexer containing the feature vectors
+     */
+    private void addDaughters(DecisionNode motherCARTNode,
+                        MaryNode currentTreeNode,
+                        FeatureFileIndexer ffi){
+      
+       if (currentTreeNode.isNode()){ //if we are not at a leaf
+            //the next daughter
+           DecisionNode daughterNode = null;
+           //the number of daughters of the next daughter
+           int numDaughters;
+           //the index of the next feature
+           int nextFeatIndex = currentTreeNode.getFeatureIndex();
+           if (featDef.isByteFeature(nextFeatIndex)){
+               //if we have a byte feature, build a byte decision node
+               numDaughters = featDef.getNumberOfValues(nextFeatIndex);
+               daughterNode = new ByteDecisionNode(nextFeatIndex,numDaughters);
+           } else {
+               if (featDef.isShortFeature(nextFeatIndex)){
+                   //if we have a short feature, build a short decision node
+                   numDaughters = featDef.getNumberOfValues(nextFeatIndex);
+                   daughterNode = new ShortDecisionNode(nextFeatIndex,numDaughters);
+               } else {
+                   //feature is of type float, currently not supported in ffi
+                   throw new Error("Found float feature in FeatureFileIndexer!");
+               }
+           }
+           
+           if (motherCARTNode == null){
+               //if the mother is null, the current node is the root
+               rootNode = daughterNode; 
+           } else {
+               //if the current node is not the root,
+               //set mother and daughter accordingly
+               motherCARTNode.addDaughter(daughterNode);
+               daughterNode.setMother(motherCARTNode);
+           }
+           //for every daughter go in recursion
+           for (int i = 0; i<numDaughters; i++){
+               addDaughters(daughterNode,currentTreeNode.getChild(i),ffi);
+           } 
+       } else {
+           //we are at a leaf node
+           //get the feature vectors
+           FeatureVector[] featureVectors = 
+               ffi.getFeatureVectors(currentTreeNode.getFrom(),currentTreeNode.getTo());
+           //build a new leaf
+           LeafNode leaf = new LeafNode(featureVectors);
+           
+           if (motherCARTNode == null){
+               //if the mother is null, the current node is the root
+               rootNode = leaf; 
+           } else {
+               //set mother and daughter 
+               leaf.setMother(motherCARTNode);
+               motherCARTNode.addDaughter(leaf);
+           }
+       }           
+    }
+    
+    
+    
+    /**
      * Passes the given target through this CART and returns the
      * interpretation.
      *
@@ -419,6 +416,30 @@ public class CARTWagonFormat{
      */
     public Node getRootNode(){
         return rootNode;
+    }
+   
+    /**
+     * Dumps this CART to the output stream in WagonFormat.
+     *
+     * @param os the output stream
+     *
+     * @throws IOException if an error occurs during output
+     */
+    public void dumpBinary(DataOutputStream os) throws IOException {
+        StringBuffer sb = new StringBuffer();
+        rootNode.toWagonFormat(sb);
+        os.writeUTF(sb.toString());
+    }
+    
+    /**
+     * Dumps this CART to the standard out in WagonFormat.
+     *
+     * @throws IOException if an error occurs during output
+     */
+    public void toStandardOut() {
+        StringBuffer sb = new StringBuffer();
+        rootNode.toWagonFormat(sb);
+        System.out.println(sb.toString());
     }
     
     
@@ -937,6 +958,7 @@ public class CARTWagonFormat{
     static class LeafNode extends Node {
         
         private int[] indices;
+        private FeatureVector[] featureVectors;
         
         /**
          * Create a new LeafNode.
@@ -972,7 +994,22 @@ public class CARTWagonFormat{
         }
         
        
-        public LeafNode(){}
+        /**
+         * Build a new leaf node containing
+         * the given feature vectors
+         * @param featureVectors the feature vectors
+         */
+        public LeafNode(FeatureVector[] featureVectors){
+            this.featureVectors = featureVectors;
+        }
+        
+        /**
+         * Get the feature vectors of this node
+         * @return the feature vectors
+         */
+        public FeatureVector[] getFeatureVectors(){
+            return featureVectors;
+        }
         
         /**
          * Get all unit indices
@@ -982,11 +1019,26 @@ public class CARTWagonFormat{
             return indices;
         }
         
+        /**
+         * Retrieve the indices from the feature vectors
+         * and store them in the indices field
+         */
+        private void retrieveIndices(){
+            indices = new int[featureVectors.length];
+            for (int i=0;i<indices.length;i++){
+                indices[i] = featureVectors[i].getUnitIndex();
+            }
+        }
+        
          /**
          * Writes the Cart to the given StringBuffer in Wagon Format
          * @param sb the StringBuffer
         */
         public void toWagonFormat(StringBuffer sb){
+            if (indices == null){
+                //get the indices from the feature vectors
+                retrieveIndices();
+            }
             //open three brackets
             sb.append("(((");
             //for each index, write the index and then a pseudo float
