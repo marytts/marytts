@@ -38,7 +38,9 @@ import de.dfki.lt.mary.modules.synthesis.WaveformSynthesizer;
 
 import de.dfki.lt.mary.unitselection.clunits.ClusterUnitSelector;
 import de.dfki.lt.mary.unitselection.clunits.ClusterUnitConcatenator;
+import de.dfki.lt.mary.unitselection.featureprocessors.FeatureProcessorManager;
 import de.dfki.lt.mary.unitselection.featureprocessors.UnitSelectionFeatProcManager;
+import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunctionManager;
 import de.dfki.lt.mary.util.MaryUtils;
 
 import org.apache.log4j.Logger;
@@ -59,7 +61,8 @@ import javax.sound.sampled.AudioFormat;
  *
  */
 
-public class UnitSelectionVoiceBuilder{ 
+public class UnitSelectionVoiceBuilder
+{ 
 	
     private Logger logger;
 
@@ -81,7 +84,8 @@ public class UnitSelectionVoiceBuilder{
 	 * @param voice the name of the voice
 	 * @return the voice
 	 */
-	public Voice buildVoice(String voice){
+	public Voice buildVoice(String voice)
+    {
 	    try{
 	        String header ="voice."+voice;
 	        logger.info("Loading voice "+voice+"...");
@@ -118,92 +122,50 @@ public class UnitSelectionVoiceBuilder{
             }
             
             // build the feature processors if not already built	
-	        String featureProcessorsClass = 
-	            MaryProperties.getFilename(header+".featureProcessorsClass");
-	        UnitSelectionFeatProcManager featProcManager;
-	        if (featureProcessors.containsKey(locale)){
-	            featProcManager = 
-	                (UnitSelectionFeatProcManager)featureProcessors.get(locale);}
-	        else {
-	            featProcManager = 
-	                (UnitSelectionFeatProcManager) Class.forName(featureProcessorsClass).newInstance();
+	        String featureProcessorsClass = MaryProperties.needFilename(header+".featureProcessorsClass");
+	        FeatureProcessorManager featProcManager;
+	        if (featureProcessors.containsKey(locale)) {
+	            featProcManager = (FeatureProcessorManager) featureProcessors.get(locale);
+            } else {
+	            featProcManager = (FeatureProcessorManager) Class.forName(featureProcessorsClass).newInstance();
 	            featureProcessors.put(locale,featProcManager);
 	        }
-	        
-            //build and load targetCostFunction
-            String targetCostClass = 
-                MaryProperties.getProperty(header+".targetCostClass");
-            TargetCostFunction targetFunction = 
-                (TargetCostFunction) Class.forName(targetCostClass).newInstance();
-                       
+            
+            // build and load targetCostFunction
+            String featureFileName = MaryProperties.needFilename(header+".featureFile");
+            String targetWeightFile = MaryProperties.getFilename(header + ".targetCostWeights");
+            String targetCostClass = MaryProperties.needProperty(header+".targetCostClass");
+            TargetCostFunction targetFunction = (TargetCostFunction) Class.forName(targetCostClass).newInstance();
+            targetFunction.load(featureFileName, targetWeightFile, featProcManager);
+            
             //build joinCostFunction
-            String joinCostClass = 
-                MaryProperties.getProperty(header+".joinCostClass");
-            JoinCostFunction joinFunction = 
-                (JoinCostFunction) Class.forName(joinCostClass).newInstance();
+            String joinFileName = MaryProperties.needFilename(header+".joinCostFile");
+            String joinWeightFile = MaryProperties.getFilename(header + ".joinCostWeights");
+            String joinCostClass = MaryProperties.needProperty(header+".joinCostClass");
+            JoinCostFunction joinFunction = (JoinCostFunction) Class.forName(joinCostClass).newInstance();
+            joinFunction.load(joinFileName, joinWeightFile);
             
 	        //get the names of the voice files
-            String unitsFile = 
-                MaryProperties.getFilename(header+".unitsFile");
-            String CARTsFile = 
-                MaryProperties.getFilename(header+".CARTsFile");
-            String targetCostFile = 
-                MaryProperties.getFilename(header+".targetCostFile");
-            String joinCostFile = 
-                MaryProperties.getFilename(header+".joinCostFile");
-            String timelineFile = 
-                MaryProperties.getFilename(header+".timelineFile");
+            String unitsFile = MaryProperties.needFilename(header+".unitsFile");
+            String CARTsFile = MaryProperties.getFilename(header+".CARTsFile");
+            String timelineFile = MaryProperties.needFilename(header+".audioTimelineFile");
                 
             //build and load database
-            String databaseClass = 
-                MaryProperties.getProperty(header+".databaseClass");
-            UnitDatabase unitDatabase = 
-                (UnitDatabase) Class.forName(databaseClass).newInstance();
-            unitDatabase.loadDatabase(unitsFile, CARTsFile, targetCostFile, joinCostFile, timelineFile, featProcManager, voice, targetFunction, joinFunction);
-	        
-	        //overwrite target cost weights if defined
-	        String targetCostWeights = 
-	            MaryProperties.getFilename(header+".targetCostWeights");
-	        if (targetCostWeights != null){
-	            unitDatabase.overwriteTargetWeights(targetCostWeights);
-	        }
-            
-            //overwrite target cost weights if defined
-            String joinCostWeights = 
-                MaryProperties.getFilename(header+".joinCostWeights");
-            if (joinCostWeights != null){
-                unitDatabase.overwriteJoinWeights(joinCostWeights);
-            }
-	             
-	        
+            String databaseClass = MaryProperties.needProperty(header+".databaseClass");
+            UnitDatabase unitDatabase = (UnitDatabase) Class.forName(databaseClass).newInstance();
+            unitDatabase.load(voice, targetFunction, joinFunction, unitsFile, CARTsFile, timelineFile );
 	        
 	        //build Selector
-	        String selectorClass = 
-	            MaryProperties.getProperty(header+".selectorClass");
-	        UnitSelector unitSelector = null;
-	        if (selectorClass.equals("de.dfki.lt.mary.unitselection.clunits.ClusterUnitSelector")){
-	            unitSelector = 
-	                new ClusterUnitSelector(targetFunction,joinFunction);}
-	       
-	        //build AudioFormat
-	        AudioFormat dbAudioFormat = 
-	            unitDatabase.getAudioFormat();
-           
+	        String selectorClass = MaryProperties.needProperty(header+".selectorClass");
+	        UnitSelector unitSelector = (UnitSelector) Class.forName(databaseClass).newInstance();
+	        unitSelector.load(unitDatabase);
+            
 	        //samplingRate -> bin, audioformat -> concatenator
 	        //build Concatenator
-	        String concatenatorClass = 
-	            MaryProperties.getFilename(header+".concatenatorClass");
-	        /**
-	        UnitConcatenator unitConcatenator = null;
-	        if (concatenatorClass.equals("de.dfki.lt.mary.unitselection.clunits.ClusterUnitConcatenator")){
-	            unitConcatenator = 
-	                new ClusterUnitConcatenator(unitDatabase, dbAudioFormat);}
-	        **/
-	        Class unitConcatCl = Class.forName(concatenatorClass);
-            Constructor unitConcatConstr = unitConcatCl.getConstructor(new Class[] {UnitDatabase.class, AudioFormat.class});
-            // will throw a NoSuchMethodError if constructor does not exist
-            UnitConcatenator unitConcatenator = (UnitConcatenator) unitConcatConstr.newInstance(new Object[] {unitDatabase, dbAudioFormat});
-        
+	        String concatenatorClass = MaryProperties.needProperty(header+".concatenatorClass");
+	        UnitConcatenator unitConcatenator = (UnitConcatenator) Class.forName(databaseClass).newInstance();
+	        unitConcatenator.load(unitDatabase);
+            
 	        //standard values for some parameters
 	        String[] nameArray = new String[1];
 	        nameArray[0] = voice;
@@ -217,10 +179,9 @@ public class UnitSelectionVoiceBuilder{
 	        String path = null;
 			
 	        //build the voice
-	        Voice v = 
-	            new UnitSelectionVoice(unitDatabase, unitSelector, 
+	        Voice v = new UnitSelectionVoice(unitDatabase, unitSelector, 
 	                    unitConcatenator, path, 
-                    nameArray, voiceLocale, dbAudioFormat, 
+                    nameArray, voiceLocale, unitDatabase.getAudioFormat(), 
                     synth, voiceGender,
                     topStart, topEnd, baseStart, 
                     baseEnd, knownVoiceQualities,lexicon,domain,

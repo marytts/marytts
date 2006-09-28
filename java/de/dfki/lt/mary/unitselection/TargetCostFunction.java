@@ -30,10 +30,9 @@ package de.dfki.lt.mary.unitselection;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 
-import de.dfki.lt.mary.unitselection.featureprocessors.UnitSelectionFeatProcManager;
-import de.dfki.lt.mary.unitselection.UnitDatabase;
+import de.dfki.lt.mary.unitselection.featureprocessors.FeatureProcessorManager;
+import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunctionManager;
 
 /**
  * A target cost function for evaluating the goodness-of-fit of 
@@ -49,12 +48,20 @@ public interface TargetCostFunction
      * @param unit
      * @return a non-negative number; smaller values mean better fit, i.e. smaller cost.
      */
-    public int cost(Target target, Unit unit);
+    public double cost(Target target, Unit unit);
     
-    public void load(RandomAccessFile raf,
-			UnitSelectionFeatProcManager featProc) throws IOException;
+    /**
+     * Initialise the data needed to do a target cost computation.
+     * @param featureFileName name of a file containing the unit features
+     * @param weightsFile an optional weights file -- if non-null, contains
+     * feature weights that override the ones present in the feature file.
+     * @param featProc a feature processor manager which can provide feature processors
+     * to compute the features for a target at run time
+     * @throws IOException
+     */
+    public void load(String featureFileName, String weightsFile,
+			FeatureProcessorManager featProc) throws IOException;
     
-    public void overwriteWeights(BufferedReader reader) throws IOException ;
     
     
 }

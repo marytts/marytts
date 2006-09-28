@@ -63,8 +63,6 @@ public class ClusterUnitSelector extends UnitSelector
     private final static PathExtractor DNAME = new PathExtractorImpl(
     	    "R:SylStructure.parent.parent.name", true);
     
-    private int unitSize;
-    
     /**
      * Initialise the unit selector with the given cost functions. 
      * If they are null, a default cost function will be used 
@@ -132,7 +130,7 @@ public class ClusterUnitSelector extends UnitSelector
                 targets.add(new Target(s.getFeatures().getString("clunit_name")+"left", s, unitSize));
                 targets.add(new Target(s.getFeatures().getString("clunit_name")+"right", s, unitSize));
             } else { **/
-                targets.add(new Target(s.getFeatures().getString("clunit_name"), s, unitSize));
+                targets.add(new Target(s.getFeatures().getString("clunit_name"), s));
             //}
         }
         //Select the best candidates using Viterbi and the join cost function.

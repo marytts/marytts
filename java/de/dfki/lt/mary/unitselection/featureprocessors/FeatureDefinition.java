@@ -349,6 +349,33 @@ public class FeatureDefinition
         return numContinuousFeatures;
     }
 
+    
+    /**
+     * For the feature with the given index, return the weight.
+     * @param featureIndex
+     * @return a non-negative weight.
+     */
+    public float getWeight(int featureIndex)
+    {
+        return featureWeights[featureIndex];
+    }
+    
+    /**
+     * Get the name of any weighting function associated with the
+     * given feature index. For byte-valued and short-valued features,
+     * this method will always return null; for continuous features,
+     * the method will return the name of a weighting function, or null.  
+     * @param featureIndex
+     * @return the name of a weighting function, or null
+     */
+    public String getWeightFunctionName(int featureIndex)
+    {
+        return floatWeightFuncts[featureIndex-numByteFeatures-numShortFeatures];
+    }
+    
+    
+    ////////////////////// META-INFORMATION METHODS ///////////////////////
+    
     /**
      * Translate between a feature index and a feature name.
      * @param index a feature index, as could be used to access
@@ -359,6 +386,20 @@ public class FeatureDefinition
     public String getFeatureName(int index)
     {
         return featureNames.get(index);
+    }
+    
+    /**
+     * List all feature names, separated by white space.
+     * @return
+     */
+    public String getFeatureNames()
+    {
+        StringBuffer buf = new StringBuffer();
+        for (int i=0, n=getNumberOfFeatures(); i<n; i++) {
+            if (buf.length() > 0) buf.append(" ");
+            buf.append(featureNames.get(i));
+        }
+        return buf.toString();
     }
     
     /**

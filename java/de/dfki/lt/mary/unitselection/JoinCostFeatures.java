@@ -56,30 +56,44 @@ public class JoinCostFeatures implements JoinCostFunction {
     /****************/
     /* CONSTRUCTORS */
     /****************/
+
+    /**
+     * Empty constructor; when using this, call load() separately to 
+     * initialise this class.
+     * @see #load(String)
+     */
+    public JoinCostFeatures()
+    {
+    }
     
     /**
      * Constructor which read a Mary Join Cost file.
      */
-    public JoinCostFeatures( String fileName ) throws IOException {
+    public JoinCostFeatures( String fileName ) throws IOException
+    {
+        load(fileName, null);
+    }
+    
+    /**
+     * Load weights and values from the given file
+     * @param joinFileName the file from which to read default weights and join cost features
+     * @param weightsFileName an optional file from which to read weights, taking precedence over
+     * the ones given in the join file
+     */
+    public void load(String joinFileName, String weightsFileName)
+    throws IOException
+    {
         /* Open the file */
-        File fid = new File( fileName );
+        File fid = new File( joinFileName );
         RandomAccessFile raf = new RandomAccessFile( fid, "r" );
         /* Read the Mary header */
         hdr = new MaryHeader( raf );
         if ( !hdr.isMaryHeader() ) {
-            throw new RuntimeException( "File [" + fileName + "] is not a valid Mary format file." );
+            throw new IOException( "File [" + joinFileName + "] is not a valid Mary format file." );
         }
-        if ( hdr.getType() != MaryHeader.UNITS ) {
-            throw new RuntimeException( "File [" + fileName + "] is not a valid Mary Units file." );
+        if ( hdr.getType() != MaryHeader.JOINFEATS ) {
+            throw new IOException( "File [" + joinFileName + "] is not a valid Mary join features file." );
         }
-        /* Load the rest */
-        this.load( raf );
-    }
-    
-    /**
-     * Loader to read a Mary Join Cost file through a random Access file.
-     */
-    public void load( RandomAccessFile raf ) throws IOException {
         try {
             /* Read the feature weights and feature processors */
             int numberOfFeatures = raf.readInt();
@@ -240,8 +254,8 @@ public class JoinCostFeatures implements JoinCostFunction {
      * of the left unit with the left Join Cost Features
      * of the right unit, as an int value.
      */
-    public int cost( Unit u1, Unit u2 ) {
-        return( (int)Math.round( cost( u1.index, u2.index ) ) );
+    public double cost( Unit u1, Unit u2 ) {
+        return cost( u1.index, u2.index );
     }
     
     /**

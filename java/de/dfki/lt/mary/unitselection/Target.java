@@ -53,7 +53,7 @@ public class Target
     protected Element maryxmlElement;
     protected Item item;
     
-    protected FeatureVector featureVector;
+    protected FeatureVector featureVector = null;
     
     protected float end = -1;
     protected float duration = -1;
