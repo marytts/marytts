@@ -98,7 +98,9 @@ public class DatabaseImportMain extends JFrame
         //checkboxPane.setPreferredSize(new Dimension(250, 300));
         for (int i=0; i<components.length; i++) {
             System.out.println("Adding checkbox for "+components[i].getClass().getName());
-            checkboxes[i] = new JCheckBox(components[i].getClass().getSimpleName());
+            String classname = components[i].getClass().getName();
+            classname = classname.substring(classname.lastIndexOf('.'));
+            checkboxes[i] = new JCheckBox(classname);
             //checkboxes[i].setPreferredSize(new Dimension(200, 30));
             checkboxPane.add(checkboxes[i]);
         }

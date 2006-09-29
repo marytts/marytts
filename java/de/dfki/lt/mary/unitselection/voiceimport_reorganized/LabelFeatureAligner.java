@@ -10,9 +10,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -273,7 +275,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
         if (!maryxmlFile.exists()) {
             // need to create it
             String text = FileUtils.getFileAsString(new File( db.txtDirName() + basename + db.txtDirName() ), "UTF-8");
-            PrintWriter pw = new PrintWriter(maryxmlFile, "UTF-8");
+            PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(maryxmlFile), "UTF-8"));
             pw.println(UnitFeatureComputer.getMaryXMLHeaderWithInitialBoundary(featureComputer.getLocale()));
             pw.println(text);
             pw.println("</maryxml>");
@@ -328,7 +330,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
             saveButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     try {
-                        PrintWriter pw = new PrintWriter(file);
+                        PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));
                         editPane.write(pw);
                         pw.close();
                         frame.setVisible(false);
