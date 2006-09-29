@@ -188,8 +188,7 @@ public class DatabaseLayout
     public String unitFeaDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
             + System.getProperty( "db.unitfeatures.subDir" ) + System.getProperty( "file.separator" ) ); }
     public String unitFeaExt() { return( System.getProperty( "db.unitfeatures.extension") ); }
-    public String weightsFileName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-            + System.getProperty( "db.featureweights.file" ) ); }
+    public String weightsFileName() { return( System.getProperty( "db.featureweights.file" ) ); }
     
     /* RAW MARY XML */
     public String rmxDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )

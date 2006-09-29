@@ -39,28 +39,52 @@ public class CARTBuilder implements VoiceImportComponent {
     
     private DatabaseLayout databaseLayout;
     
+    private String testFeatureFile = "";
+    private String testDestinationFile = "/home/cl-home/hunecke/anna/openmary/CART.bin";
+    
     public CARTBuilder(DatabaseLayout databaseLayout){
         this.databaseLayout = databaseLayout;
+    }
+    
+    //for testing
+    public static void main(String[] args){
+        //build database layout
+        DatabaseLayout db = new DatabaseLayout();
+        //build CARTBuilder and run compute
+        CARTBuilder cartBuilder = new CARTBuilder(db);
+        try {
+            cartBuilder.compute();
+        } catch (Exception e){
+            e.printStackTrace();
+            throw new Error("Something went wrong");
+        }
     }
     
      public boolean compute() throws Exception{
          
          //read in the features with feature file indexer
+         System.out.println("Reading feature file ...");
          String featureFile = databaseLayout.targetFeaturesFileName();
          FeatureFileIndexer ffi = new FeatureFileIndexer(featureFile);
+         System.out.println(" ... done!");
          //TODO: find a way to define the feature sequence
+         FeatureDefinition featureDefinition = ffi.getFeatureDefinition();
          int[] featureSequence = new int[3];
-         featureSequence[0] = 0;
-         featureSequence[1] = 1 ;
-         featureSequence[2] = 2 ;
+         featureSequence[0] = featureDefinition.getFeatureIndex("mary_phoneme");
+         featureSequence[1] = featureDefinition.getFeatureIndex("mary_next_is_pause"); 
+         featureSequence[2] = featureDefinition.getFeatureIndex("mary_stressed"); 
+         
          //sort the features according to feature sequence
+         System.out.println("Sorting features ...");
          ffi.deepSort(featureSequence);
+         System.out.println(" ... done!");
          //get the resulting tree
          MaryNode topLevelTree = ffi.getTree();
          
          //convert the top-level CART to Wagon Format
+         System.out.println("Building CART from tree ...");
          CARTWagonFormat topLevelCART = new CARTWagonFormat(topLevelTree,ffi);
-         
+         System.out.println(" ... done!");
          //TODO: For each leaf of the top-level CART, call Wagon and replace leaf by new Wagon CART
          
          //dump big CART to binary file
