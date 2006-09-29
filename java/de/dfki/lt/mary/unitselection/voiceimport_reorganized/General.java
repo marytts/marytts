@@ -38,7 +38,8 @@ import java.io.IOException;
  * This class is for general purpose functions such as reading and
  * writing from files, or converting formats of numbers.
  */
-class General {
+public class General
+{
 
     /**
      * Reads the next word (text separated by whitespace) from the
@@ -215,7 +216,7 @@ class General {
      * @return a short containing an unsigned 8-bit quantity
      *          representing the ulaw
      */
-    public static short shortToUlaw(short sample) {
+    public static byte shortToUlaw(short sample) {
         final int[] exp_lut = {0,0,1,1,2,2,2,2,3,3,3,3,3,3,3,3,
                                    4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
                                    5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
@@ -253,18 +254,21 @@ class General {
         ulawbyte = (short)
             ((~ ( sign | ( exponent << 4 ) | mantissa)) & 0x00FF);
         if ( ulawbyte == 0 ) ulawbyte = 0x02; /* optional CCITT trap */
-        return ulawbyte;
+        // Now ulawbyte is an unsigned 8-bit entity.
+        // Return as a (signed) byte:
+        return (byte) (ulawbyte-128);
     }
 
     /**
      * Convert a ulaw format to short
      * 
-     * @param ulawbyte a short containing an unsigned 8-but quantity
-     *          representing a ulaw
+     * @param ulaw a (signed) byte which, after converting into a short and
+     * adding 128, will be an unsigned 8-but quantity representing a ulaw
      *
      * @return the short equivalent of the ulaw
      */
-    public static short ulawToShort(short ulawbyte) {
+    public static short ulawToShort(byte ulaw) {
+        short ulawbyte = (short) (ulaw + 128);
         final int[] exp_lut = { 0, 132, 396, 924, 1980, 4092, 8316, 16764 };
         int sign, exponent, mantissa;
         short sample;
@@ -280,6 +284,37 @@ class General {
         return sample;
     }
 
+    /**
+     * Convert an array from short to ulaw.
+     * @param samples an array in linear representation
+     * @return an array in ulaw representation.
+     * @see #shortToUlaw(short)
+     */
+    public static byte[] shortToUlaw(short[] samples)
+    {
+        if (samples == null) return null;
+        byte[] ulaw = new byte[samples.length];
+        for (int i=0; i<samples.length; i++) {
+            ulaw[i] = shortToUlaw(samples[i]);
+        }
+        return ulaw;
+    }
+    
+    /**
+     * Convert an array from ulaw to short.
+     * @param samples an array in ulaw representation
+     * @return an array in linear representation.
+     * @see #ulawToShort(byte)
+     */
+    public static short[] ulawToShort(byte[] ulaw)
+    {
+        if (ulaw == null) return null;
+        short[] samples = new short[ulaw.length];
+        for (int i=0; i<ulaw.length; i++) {
+            samples[i] = ulawToShort(ulaw[i]);
+        }
+        return samples;
+    }
 
     /**
      * Print a float type's internal bit representation in hex

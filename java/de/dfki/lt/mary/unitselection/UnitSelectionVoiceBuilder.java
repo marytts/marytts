@@ -30,27 +30,26 @@
 package de.dfki.lt.mary.unitselection;
 
 
+import java.lang.reflect.Constructor;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+
 import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.modules.synthesis.Voice.Gender;
 
 import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.mary.modules.synthesis.WaveformSynthesizer;
 
-import de.dfki.lt.mary.unitselection.clunits.ClusterUnitSelector;
-import de.dfki.lt.mary.unitselection.clunits.ClusterUnitConcatenator;
+import de.dfki.lt.mary.unitselection.cart.CART;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureProcessorManager;
-import de.dfki.lt.mary.unitselection.featureprocessors.UnitSelectionFeatProcManager;
-import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunctionManager;
 import de.dfki.lt.mary.util.MaryUtils;
 
 import org.apache.log4j.Logger;
 
 import com.sun.speech.freetts.lexicon.Lexicon;
 
-import java.lang.reflect.Constructor;
-import java.util.*;
 
-import javax.sound.sampled.AudioFormat;
 
 /**
  * Builds the arctic voices
@@ -138,32 +137,43 @@ public class UnitSelectionVoiceBuilder
             TargetCostFunction targetFunction = (TargetCostFunction) Class.forName(targetCostClass).newInstance();
             targetFunction.load(featureFileName, targetWeightFile, featProcManager);
             
-            //build joinCostFunction
+            // build joinCostFunction
             String joinFileName = MaryProperties.needFilename(header+".joinCostFile");
             String joinWeightFile = MaryProperties.getFilename(header + ".joinCostWeights");
             String joinCostClass = MaryProperties.needProperty(header+".joinCostClass");
             JoinCostFunction joinFunction = (JoinCostFunction) Class.forName(joinCostClass).newInstance();
             joinFunction.load(joinFileName, joinWeightFile);
             
-	        //get the names of the voice files
+	        // Build the various file readers
+            String unitReaderClass = MaryProperties.needProperty(header+".unitReaderClass");
             String unitsFile = MaryProperties.needFilename(header+".unitsFile");
-            String CARTsFile = MaryProperties.getFilename(header+".CARTsFile");
+            UnitFileReader unitReader = (UnitFileReader) Class.forName(unitReaderClass).newInstance();
+            unitReader.load(unitsFile);
+            
+            String cartReaderClass = MaryProperties.needProperty(header+".cartReaderClass");
+            String cartFile = MaryProperties.getFilename(header+".cartFile");
+            CART cart = (CART) Class.forName(cartReaderClass).newInstance();
+            cart.load(cartFile);
+            
+            String timelineReaderClass = MaryProperties.needProperty(header+".audioTimelineReaderClass");
             String timelineFile = MaryProperties.needFilename(header+".audioTimelineFile");
+            TimelineReader timelineReader = (TimelineReader) Class.forName(timelineReaderClass).newInstance();
+            timelineReader.load(timelineFile);
                 
             //build and load database
             String databaseClass = MaryProperties.needProperty(header+".databaseClass");
             UnitDatabase unitDatabase = (UnitDatabase) Class.forName(databaseClass).newInstance();
-            unitDatabase.load(voice, targetFunction, joinFunction, unitsFile, CARTsFile, timelineFile );
+            unitDatabase.load(targetFunction, joinFunction, unitReader, cart, timelineReader );
 	        
 	        //build Selector
 	        String selectorClass = MaryProperties.needProperty(header+".selectorClass");
-	        UnitSelector unitSelector = (UnitSelector) Class.forName(databaseClass).newInstance();
+	        UnitSelector unitSelector = (UnitSelector) Class.forName(selectorClass).newInstance();
 	        unitSelector.load(unitDatabase);
             
 	        //samplingRate -> bin, audioformat -> concatenator
 	        //build Concatenator
 	        String concatenatorClass = MaryProperties.needProperty(header+".concatenatorClass");
-	        UnitConcatenator unitConcatenator = (UnitConcatenator) Class.forName(databaseClass).newInstance();
+	        UnitConcatenator unitConcatenator = (UnitConcatenator) Class.forName(concatenatorClass).newInstance();
 	        unitConcatenator.load(unitDatabase);
             
 	        //standard values for some parameters
@@ -181,7 +191,7 @@ public class UnitSelectionVoiceBuilder
 	        //build the voice
 	        Voice v = new UnitSelectionVoice(unitDatabase, unitSelector, 
 	                    unitConcatenator, path, 
-                    nameArray, voiceLocale, unitDatabase.getAudioFormat(), 
+                    nameArray, voiceLocale, unitConcatenator.getAudioFormat(), 
                     synth, voiceGender,
                     topStart, topEnd, baseStart, 
                     baseEnd, knownVoiceQualities,lexicon,domain,

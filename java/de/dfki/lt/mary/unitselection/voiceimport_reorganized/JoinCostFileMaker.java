@@ -31,6 +31,9 @@
  */
 package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 
+import de.dfki.lt.mary.unitselection.Datagram;
+import de.dfki.lt.mary.unitselection.TimelineReader;
+import de.dfki.lt.mary.unitselection.UnitFileReader;
 import de.dfki.lt.mary.util.MaryUtils;
 
 import java.io.DataOutputStream;

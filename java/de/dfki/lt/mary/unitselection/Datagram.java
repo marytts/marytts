@@ -29,9 +29,9 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
+package de.dfki.lt.mary.unitselection;
 
-import java.io.ByteArrayOutputStream;
+import java.io.DataOutput;
 import java.io.RandomAccessFile;
 import java.io.IOException;
 import java.io.EOFException;
@@ -55,7 +55,16 @@ public class Datagram  {
     /****************/
     /* CONSTRUCTORS */
     /****************/
-    
+    /**
+     * Constructor for subclasses which want to represent data in a different format.
+     */
+    public Datagram(long duration)
+    {
+        if ( duration < 0 ) {
+            throw new IllegalArgumentException( "Can't create a datagram with the negative duration [" + duration + "]." );
+        }
+        this.duration = duration;
+    }
     /**
      * Constructor from external data.
      * 
@@ -92,14 +101,28 @@ public class Datagram  {
         raf.readFully( data );
     }
     
+    
+    /****************/
+    /* SETTERS      */
+    /****************/
+    
+    /**
+     * Set the new duration.
+     */
+    public void setDuration(long duration)
+    {
+        this.duration = duration;
+    }
+    
+    
     /****************/
     /* I/O METHODS  */
     /****************/
     
     /**
-     * Write this datagram to a random access file.
+     * Write this datagram to a random access file or data output stream.
      */
-    public void write( RandomAccessFile raf ) throws IOException {
+    public void write( DataOutput raf ) throws IOException {
         raf.writeLong( duration );
         raf.writeInt( data.length );
         raf.write( data );

@@ -41,18 +41,15 @@ public class SelectedUnit
 {
     protected Unit unit;
     protected Target target;
-    protected int unitStartShift = 0;
-    protected int unitEndShift = 0;
     protected Object concatenationData;
     protected AudioInputStream audio;
     protected UnitDatabase database;
     
-    public SelectedUnit(Unit unit, Target target,UnitDatabase database)
+    public SelectedUnit(Unit unit, Target target)
     {
         this.unit = unit;
         this.target = target;
         this.audio = null;
-        this.database = database;
     }
 
     public Unit getUnit()
@@ -65,42 +62,8 @@ public class SelectedUnit
         return target;
     }
 
-    public void setUnitStartShift(int unitStart)
-    {
-        this.unitStartShift = unitStart;
-    }
-    
-    public void setUnitEndShift(int unitEnd)
-    {
-        this.unitEndShift = unitEnd;
-    }
-    
-    public int getUnitStartShift()
-    {
-        return unitStartShift;
-    }
-    
-    public int getUnitEndShift()
-    {
-        return unitEndShift;
-    }
-    
-    public int getNumberOfSamples()
-    {
-        return unit.getDuration();
-    }
-    
-    public int targetDurationInSamples()
-    {
-        return (int) (target.getTargetDurationInSeconds()*database.getSamplingRate());
-    }
     
 
-    
-    public int getIndex(){
-        return unit.getIndex();
-    }
-    
     /**
      * Remember data about this selected unit which is relevant for unit concatenation.
      * What type of data is saved here depends on the UnitConcatenator used.
@@ -126,16 +89,9 @@ public class SelectedUnit
         return audio;
     }
     
-    public long getStart(){
-        return unit.getStart();
-    }
-   
-    
     public String toString()
     {
         return "Target: "+target.toString() + " Unit: " + unit.toString()
-        + (unitStartShift != 0 ? " start shifted by "+unitStartShift : "")
-        + (unitEndShift != 0 ? " end shifted by "+unitEndShift : "")
-        + " target duration " + targetDurationInSamples();
+        + " target duration " + target.getTargetDurationInSeconds();
     }
 }

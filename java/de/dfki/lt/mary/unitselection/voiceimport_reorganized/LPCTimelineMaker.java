@@ -32,10 +32,15 @@
 package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 
 import java.io.File;
+import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.StringWriter;
+import java.util.Properties;
 
+import de.dfki.lt.mary.unitselection.Datagram;
+import de.dfki.lt.mary.unitselection.LPCDatagram;
 import de.dfki.lt.mary.unitselection.voiceimport_reorganized.General;
 import de.dfki.lt.mary.unitselection.voiceimport_reorganized.MaryHeader;
 import de.dfki.lt.mary.unitselection.voiceimport_reorganized.DatabaseLayout;
@@ -145,13 +150,21 @@ public class LPCTimelineMaker implements VoiceImportComponent
             String lpcTimelineName = db.lpcTimelineFileName() ;
             System.out.println( "Will create the LPC timeline in file [" + lpcTimelineName + "]." );
             
-            /* An example of processing header: */
-            String cmdLine = "\n$ESTDIR/bin/sig2fv "
-            + "-window_type hamming -factor 3 -otype est_binary -preemph 0.95 -coefs lpc -lpc_order 16 "
-            + "-pm PITCHMARKFILE.pm -o LPCDIR/LPCFILE.lpc WAVDIR/WAVFILE.wav\n";
+            /* Processing header: */
+            Properties props = new Properties();
+            String hdrCmdLine = "$ESTDIR/bin/sig2fv "
+                + "-window_type hamming -factor 3 -otype est_binary -preemph 0.95 -coefs lpc -lpc_order 16 "
+                + "-pm PITCHMARKFILE.pm -o LPCDIR/LPCFILE.lpc WAVDIR/WAVFILE.wav\n";
+            props.setProperty("command", hdrCmdLine);
+            props.setProperty("lpc.order", String.valueOf(numLPC));
+            props.setProperty("lpc.min", String.valueOf(lpcMin));
+            props.setProperty("lpc.range", String.valueOf(lpcRange));
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            props.store(baos, null);
+            String processingHeader = new String(baos.toString("latin1"));
             
             /* Instantiate the TimelineWriter: */
-            TimelineWriter lpcTimeline = new TimelineWriter( lpcTimelineName, cmdLine, globSampleRate, 30.0 );
+            TimelineWriter lpcTimeline = new TimelineWriter( lpcTimelineName, processingHeader, globSampleRate, 30.0 );
             
             
             /* 4) Write the datagrams and feed the index */
@@ -186,18 +199,11 @@ public class LPCTimelineMaker implements VoiceImportComponent
                      * Warning: in the EST format, the first LPC coefficient is the filter gain,
                      *       which should not be used for the inverse filtering. */
                     
-                    /* Start the resulting datagram with the LPC coefficients: */
-                    ByteArrayOutputStream byteBuff = new ByteArrayOutputStream();
-                    DataOutputStream datagramContents = new DataOutputStream( byteBuff );
-                    for ( int k = 1; k < quantizedFrame.length; k++ ) { /* i starts at 1 to skip the gain coefficient */
-                        datagramContents.writeShort( quantizedFrame[k] );
-                    }
-                    
-                    
                     /* PERFORM THE INVERSE FILTERING with the quantized LPCs, and write the residual to the datagram: */
                     double r;
                     short[] wave = wav.getSamples();
                     int numRes = frameSize - numLPC;
+                    byte[] residual = new byte[numRes];
                     for (int k = 0; k < numRes; k++) {
                         // try {
                         r = (double)( wave[frameStart + k] );
@@ -217,11 +223,11 @@ public class LPCTimelineMaker implements VoiceImportComponent
                                 return;
                             } */
                         }
-                        datagramContents.writeByte( General.shortToUlaw((short) r) );
+                        residual[k] = General.shortToUlaw((short) r);
                     }
                     
                     /* Feed the datagram to the timeline */
-                    lpcTimeline.feed( new Datagram( frameSize, byteBuff.toByteArray() ) , globSampleRate );
+                    lpcTimeline.feed( new LPCDatagram(frameSize, quantizedFrame, residual) , globSampleRate );
                     totalTime += frameSize;
                 }
                 
