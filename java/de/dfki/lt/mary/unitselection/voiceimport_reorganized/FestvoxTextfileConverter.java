@@ -3,8 +3,10 @@ package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.StringTokenizer;
 
@@ -47,7 +49,7 @@ public class FestvoxTextfileConverter implements VoiceImportComponent
             /* If the basename list asks to process this file, then write the text file */
             if ( bnl.contains( basename ) ) {
                 checkList.add( basename );
-                PrintWriter out = new PrintWriter( new File( textDir, basename + db.txtExt() ), "UTF-8" );
+                PrintWriter out = new PrintWriter( new OutputStreamWriter(new FileOutputStream(new File( textDir, basename + db.txtExt() )), "UTF-8" ));
                 String text = line.substring(line.indexOf("\"")+1, line.lastIndexOf("\""));
                 out.print(text);
                 out.flush();

@@ -3,9 +3,11 @@ package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,7 +60,7 @@ public class UnitLabelComputer implements VoiceImportComponent
             }
             else {
                 BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream( labFile ), "UTF-8"));
-                PrintWriter out = new PrintWriter(new File( db.unitLabDirName() + bnl.getName(i) + db.unitLabExt() ), "UTF-8");
+                PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File( db.unitLabDirName() + bnl.getName(i) + db.unitLabExt() )), "UTF-8"));
                 // Merge adjacent pauses into one: In a sequence of pauses,
                 // only remember the last one.
                 String pauseLine = null;
