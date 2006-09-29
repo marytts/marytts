@@ -32,9 +32,7 @@
 package de.dfki.lt.mary.unitselection.cart;
 
 import java.io.DataOutput;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.List;
 
 import de.dfki.lt.mary.unitselection.Target;
 

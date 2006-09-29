@@ -261,6 +261,7 @@ public class CARTWagonFormat{
      * @param ffi the feature file indexer containing the feature vectors
      */
     public CARTWagonFormat(MaryNode tree, FeatureFileIndexer ffi){
+        featDef = ffi.getFeatureDefinition();
         addDaughters(null,tree,ffi);
     }
     
@@ -277,12 +278,14 @@ public class CARTWagonFormat{
                         FeatureFileIndexer ffi){
       
        if (currentTreeNode.isNode()){ //if we are not at a leaf
+           System.out.print("Adding node, ");
             //the next daughter
            DecisionNode daughterNode = null;
            //the number of daughters of the next daughter
            int numDaughters;
            //the index of the next feature
            int nextFeatIndex = currentTreeNode.getFeatureIndex();
+           System.out.print("featureIndex = "+nextFeatIndex+"\n");
            if (featDef.isByteFeature(nextFeatIndex)){
                //if we have a byte feature, build a byte decision node
                numDaughters = featDef.getNumberOfValues(nextFeatIndex);
@@ -313,6 +316,7 @@ public class CARTWagonFormat{
            } 
        } else {
            //we are at a leaf node
+           System.out.println("Adding leaf");
            //get the feature vectors
            FeatureVector[] featureVectors = 
                ffi.getFeatureVectors(currentTreeNode.getFrom(),currentTreeNode.getTo());
@@ -340,7 +344,7 @@ public class CARTWagonFormat{
      *
      * @return the interpretation
      */
-    public int[] interpret(Target target) {
+    public Object interpret(Target target) {
         Node currentNode = rootNode;
         
         FeatureVector featureVector = target.getFeatureVector();
@@ -425,7 +429,7 @@ public class CARTWagonFormat{
      *
      * @throws IOException if an error occurs during output
      */
-    public void dumpBinary(DataOutputStream os) throws IOException {
+    public void dumpBinary(DataOutput os) throws IOException {
         StringBuffer sb = new StringBuffer();
         rootNode.toWagonFormat(sb);
         os.writeUTF(sb.toString());
@@ -973,23 +977,29 @@ public class CARTWagonFormat{
             //((<index1> <float1>)...(<indexN> <floatN>)) 0))
             int numTokens = tok.countTokens();
             int index = 0;
-            indices = new int[(numTokens-1)/2];
-           
-            while (index*2<numTokens-1){ //while we are not at the last token
-                String nextToken = tok.nextToken();
-                if (index == 0){ 
-                    // we are at first token, discard all open brackets
-                    nextToken = nextToken.substring(4);
-                } else { 
-                    //we are not at first token, only one open bracket
-                    nextToken = nextToken.substring(1);   
-                }
-                //store the index of the unit
-                indices[index] = Integer.parseInt(nextToken);
-                //discard next token
+            if (numTokens == 2){ //we do not have any indices
+                //discard useless token
                 tok.nextToken();
-                //increase index
-                index++;
+                indices = new int[0];
+            } else {
+                indices = new int[(numTokens-1)/2];
+           
+                while (index*2<numTokens-1){ //while we are not at the last token
+                    String nextToken = tok.nextToken();
+                    if (index == 0){ 
+                        // we are at first token, discard all open brackets
+                        nextToken = nextToken.substring(4);
+                    } else { 
+                        //we are not at first token, only one open bracket
+                        nextToken = nextToken.substring(1);   
+                    }
+                    //store the index of the unit
+                    indices[index] = Integer.parseInt(nextToken);
+                    //discard next token
+                    tok.nextToken();
+                    //increase index
+                    index++;
+                }
             }
         }
         

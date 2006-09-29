@@ -91,7 +91,7 @@ public class DatabaseImportMain extends JFrame
         // and a "run selected components" button below.
         GridBagLayout gridBagLayout = new GridBagLayout();
         GridBagConstraints gridC = new GridBagConstraints();
-        setLayout( gridBagLayout );
+        getContentPane().setLayout( gridBagLayout );
 
         JPanel checkboxPane = new JPanel();
         checkboxPane.setLayout(new BoxLayout(checkboxPane, BoxLayout.Y_AXIS));
@@ -110,7 +110,7 @@ public class DatabaseImportMain extends JFrame
         JScrollPane scrollPane = new JScrollPane(checkboxPane);
         scrollPane.setPreferredSize(new Dimension(300,300));
         gridBagLayout.setConstraints( scrollPane, gridC );
-        add(scrollPane);
+        getContentPane().add(scrollPane);
 
         JButton runButton = new JButton("Run selected components");
         runButton.addActionListener(new ActionListener() {
@@ -142,7 +142,7 @@ public class DatabaseImportMain extends JFrame
         buttonPanel.add(quitButton);
         buttonPanel.add(quitAndSaveButton);
         gridBagLayout.setConstraints( buttonPanel, gridC );
-        add(buttonPanel);
+        getContentPane().add(buttonPanel);
 
         // End program when closing window:
         addWindowListener(new WindowAdapter() {
