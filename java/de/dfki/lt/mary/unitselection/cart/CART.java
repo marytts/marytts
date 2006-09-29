@@ -31,46 +31,47 @@
  */
 package de.dfki.lt.mary.unitselection.cart;
 
+import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.List;
+
+import de.dfki.lt.mary.unitselection.Target;
 
 /**
  * Generic interface for Classification and Regression Trees (CARTs) based
  * on the Breiman, Friedman, Olshen, and Stone document "Classification and
  * Regression Trees."  Wadsworth, Belmont, CA, 1984.
  */
-public interface CART {
+public interface CART
+{
+    /**
+     * Load the cart from the given file
+     * @param fileName the file to load the cart from
+     * @throws IOException if a problem occurs while loading
+     */
+    public void load(String fileName) throws IOException;
+    
     /**
      * Passes the given item through this CART and returns the
      * interpretation.
      *
-     * @param object the object(=item or target) to analyze
+     * @param target the target to analyze
      *
      * @return the interpretation
      */
-    public Object interpret(Object object);
+    public Object interpret(Target target);
     
-    /**
-     * Correct the instance numbers  given in the CART
-     * to index numbers stored in the unit catalog
-     * @param catalog the catalog
-     */
-    public void correctNumbers(List units);
 
     /**
-     * Dumps this CART to the output stream.
+     * Dumps this CART to the output
      *
-     * @param os the output stream
+     * @param os the DataOutputStream or RandomAccessFile to write to.
      *
      * @throws IOException if an error occurs during output
      */
-    public void dumpBinary(DataOutputStream os) throws IOException ;
+    public void dumpBinary(DataOutput os) throws IOException ;
     
-    /**
-     * The name of this cart.
-     */
-    public String getName();
 }
 
 
