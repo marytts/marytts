@@ -29,14 +29,15 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
+package de.dfki.lt.mary.unitselection;
 
 
 import java.io.IOException;
 import java.io.EOFException;
 import java.io.RandomAccessFile;
-import java.io.FileNotFoundException;
 import java.util.Vector;
+
+import de.dfki.lt.mary.unitselection.voiceimport_reorganized.TimelineIO;
 
 
 /**
@@ -46,39 +47,44 @@ import java.util.Vector;
  * @author sacha
  *
  */
-public class TimelineReader extends TimelineIO {
+public class TimelineReader extends TimelineIO 
+{
     
     /****************/
     /* CONSTRUCTORS */
     /****************/
     
     /**
-     * Dummy void constructor to prevent the derived TimelineTest class from complaining.
+     * Empty constructor; need to call load() separately.
+     * @see #load(String)
      */
-    protected TimelineReader() {
+    public TimelineReader()
+    {
     }
     
     /**
      * Constructor from a file name.
      * 
      * @param fileName The file to read the timeline from
+     * @throws IOException if a problem occurs during reading
      */
-    public TimelineReader( String fileName ) {
-        try {
-            /* Open the file */
-            raf = new RandomAccessFile( fileName, "r" );
-            /* Load the header and indexes */
-            loadHeaderAndIndex( fileName );
-        }
-        catch ( FileNotFoundException e ) {
-            throw new Error("Timeline file [" + fileName + "] was not found." );
-        }
-        catch ( SecurityException e ) {
-            throw new Error("You do not have read access to the file [" + fileName + "]." );
-        }
-        catch ( IOException e ) {
-            throw new Error("IO Exception caught when closing file [" + fileName + "]: " + e.getMessage() );
-        }
+    public TimelineReader( String fileName ) throws IOException
+    {
+        load(fileName);
+    }
+    
+    /**
+     * Load a timeline from a file.
+     * 
+     * @param fileName The file to read the timeline from
+     * @throws IOException if a problem occurs during reading
+     */
+    public void load(String fileName) throws IOException
+    {
+        /* Open the file */
+        raf = new RandomAccessFile( fileName, "r" );
+        /* Load the header and indexes */
+        loadHeaderAndIndex( fileName );
     }
     
     /******************/
@@ -150,7 +156,7 @@ public class TimelineReader extends TimelineIO {
         }
         
         /* If the read was successful, update the time pointer */
-        timePtr += d.duration;
+        timePtr += d.getDuration();
         
         return( d );
     }
@@ -343,7 +349,23 @@ public class TimelineReader extends TimelineIO {
     public synchronized Datagram[] getDatagrams( long targetTimeInSamples, long timeSpanInSamples, int reqSampleRate ) throws IOException {
         return( getDatagrams( targetTimeInSamples, timeSpanInSamples, reqSampleRate, null ) );
     }
-    
+
+    /**
+     * Get the datagrams spanning a particular time range from a particular time location,
+     * given in the timeline's sampling rate.
+     * 
+     * @param targetTimeInSamples the requested position, in samples given
+     * the timeline's sample rate.
+     * @param timeSpanInSamples the requested time span, in samples given
+     * the timeline's sample rate.
+     * 
+     * @return an array of datagrams
+     * @see TimelineIO#getSampleRate()
+     */
+    public synchronized Datagram[] getDatagrams( long targetTimeInSamples, long timeSpanInSamples) throws IOException {
+        return( getDatagrams( targetTimeInSamples, timeSpanInSamples, sampleRate, null ) );
+    }
+
     /**
      * Get the datagrams spanning a particular time range from a particular time location,
      * and return the time offset between the time request and the actual location of the first
@@ -373,7 +395,7 @@ public class TimelineReader extends TimelineIO {
         /* ... and read datagrams across the requested timeSpan: */
         while( getTimePointer() < endTime ) {
             Datagram dat = getNextDatagram();
-            if ( reqSampleRate != sampleRate ) dat.duration = unScaleTime( reqSampleRate, dat.duration ); // => Don't forget to stay time-consistent!
+            if ( reqSampleRate != sampleRate ) dat.setDuration(unScaleTime( reqSampleRate, dat.getDuration() )); // => Don't forget to stay time-consistent!
             v.add( dat );
         }
         
@@ -401,7 +423,7 @@ public class TimelineReader extends TimelineIO {
         Datagram[] buff = getNextDatagrams(number);
         if ( reqSampleRate != sampleRate ) {
             for ( int i = 0; i < buff.length; i++ ) {
-                buff[i].duration = unScaleTime( reqSampleRate, buff[i].duration ); // => Don't forget to stay time-consistent!
+                buff[i].setDuration( unScaleTime( reqSampleRate, buff[i].getDuration() )); // => Don't forget to stay time-consistent!
             }
         }
         return( buff );
@@ -423,7 +445,7 @@ public class TimelineReader extends TimelineIO {
         gotoTime( scaledTargetTime );
         /* ... and return a single datagram. */
         Datagram dat = getNextDatagram();
-        if ( reqSampleRate != sampleRate ) dat.duration = unScaleTime( reqSampleRate, dat.duration ); // => Don't forget to stay time-consistent!
+        if ( reqSampleRate != sampleRate ) dat.setDuration(unScaleTime( reqSampleRate, dat.getDuration() )); // => Don't forget to stay time-consistent!
         return( dat );
     }
     
@@ -451,7 +473,7 @@ public class TimelineReader extends TimelineIO {
         Datagram[] buff = getNextDatagrams(number);
         if ( reqSampleRate != sampleRate ) {
             for ( int i = 0; i < buff.length; i++ ) {
-                buff[i].duration = unScaleTime( reqSampleRate, buff[i].duration ); // => Don't forget to stay time-consistent!
+                buff[i].setDuration(unScaleTime( reqSampleRate, buff[i].getDuration() )); // => Don't forget to stay time-consistent!
             }
         }
         return( buff );

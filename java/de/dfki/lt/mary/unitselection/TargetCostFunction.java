@@ -32,6 +32,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureProcessorManager;
+import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunctionManager;
 
 /**
@@ -43,14 +44,6 @@ import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunctionManager;
 public interface TargetCostFunction
 {
     /**
-     * Compute the goodness-of-fit of a given unit for a given target.
-     * @param target 
-     * @param unit
-     * @return a non-negative number; smaller values mean better fit, i.e. smaller cost.
-     */
-    public double cost(Target target, Unit unit);
-    
-    /**
      * Initialise the data needed to do a target cost computation.
      * @param featureFileName name of a file containing the unit features
      * @param weightsFile an optional weights file -- if non-null, contains
@@ -60,8 +53,23 @@ public interface TargetCostFunction
      * @throws IOException
      */
     public void load(String featureFileName, String weightsFile,
-			FeatureProcessorManager featProc) throws IOException;
+            FeatureProcessorManager featProc) throws IOException;
+
+    /**
+     * Compute the goodness-of-fit of a given unit for a given target.
+     * @param target 
+     * @param unit
+     * @return a non-negative number; smaller values mean better fit, i.e. smaller cost.
+     */
+    public double cost(Target target, Unit unit);
     
-    
-    
+    /**
+     * Compute the features for a given target. A typical use case is to
+     * call this method once for every target, and store the resulting
+     * feature vector in the target using target.setFeatureVector().
+     * @param target the target for which to compute the features
+     * @return a feature vector
+     * @see Target#setFeatureVector(FeatureVector)
+     */
+    public FeatureVector computeTargetFeatures(Target target);
 }

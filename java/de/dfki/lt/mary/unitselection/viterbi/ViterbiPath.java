@@ -38,7 +38,7 @@ import de.dfki.lt.mary.unitselection.viterbi.ViterbiCandidate;
   * Describes a Viterbi path.
   */
  public class ViterbiPath {
-	private float score = 0;
+	private double score = 0;
 	private ViterbiCandidate candidate = null;
 	private LinkedHashMap f = null;
 	private ViterbiPath previous = null;
@@ -48,7 +48,7 @@ import de.dfki.lt.mary.unitselection.viterbi.ViterbiCandidate;
 	 * Get the score of this path
 	 * @return the score
 	 */
-	public float getScore(){
+	public double getScore(){
 	    return score;
 	}
 	
@@ -56,7 +56,7 @@ import de.dfki.lt.mary.unitselection.viterbi.ViterbiCandidate;
 	 * Set the score of this path
 	 * @param score the new score
 	 */
-	public void setScore(float score){
+	public void setScore(double score){
 	    this.score = score;
 	}
 	

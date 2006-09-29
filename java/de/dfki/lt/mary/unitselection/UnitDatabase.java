@@ -28,13 +28,10 @@
  */
 package de.dfki.lt.mary.unitselection;
 
-import java.util.*;
 
-import javax.sound.sampled.AudioFormat;
 
-import org.apache.log4j.Logger;
-
-import de.dfki.lt.mary.unitselection.featureprocessors.UnitSelectionFeatProcManager;
+import de.dfki.lt.mary.unitselection.cart.CART;
+import de.dfki.lt.mary.unitselection.viterbi.ViterbiCandidate;
 
 /**
  * The unit database of a voice
@@ -42,63 +39,77 @@ import de.dfki.lt.mary.unitselection.featureprocessors.UnitSelectionFeatProcMana
  * @author Marc Schr&ouml;der
  *
  */
-public abstract class UnitDatabase
+public class UnitDatabase
 {
-    
-    public static final int PHONE = 1;
-    public static final int DIPHONE = 2;
-    public static final int HALFPHONE = 3;
-    public static final int PHRASE = 100;
-    protected int unitSize = DIPHONE; 
-
-    protected Set unitNames;
-    protected Logger logger;
-    
-    public UnitDatabase(){
-        logger = Logger.getLogger(this.getClass().getName());
-    }
-    
-     public abstract void loadDatabase(String unitsFile, String cartsFile, 
-                                String targetFeatsFile, String joinFeatsFile,
-                                String audioFile,
-                                UnitSelectionFeatProcManager featureProcessors,
-                                String voice,
-                                TargetCostFunction targetCostFunc,
-                                JoinCostFunction joinCostFunc);
-    
-    public abstract int getSamplingRate();
+    protected TargetCostFunction targetCostFunction;
+    protected JoinCostFunction joinCostFunction;
+    protected UnitFileReader unitReader;
+    protected CART preselectionCART;
+    protected TimelineReader audioTimeline;
     
     
-    /**
-     * The list of all names that units can have in the database. 
-     * @return a Set of Strings
-     */
-    public Set getUnitNames()
+    public UnitDatabase()
     {
-        return Collections.unmodifiableSet(unitNames);
     }
     
-    // TODO: for the following abstract methods, check which are needed with new database format
-    
-    //public abstract Unit getUnit(String unitType, int index);
-    
-    public abstract Unit getUnit(int which);
+     public void load(TargetCostFunction targetCostFunciton,
+                      JoinCostFunction joinCostFunction,
+                      UnitFileReader unitReader,
+                      CART preselectionCART,
+                      TimelineReader audioTimeline)
+     {
+         this.targetCostFunction = targetCostFunciton;
+         this.joinCostFunction = joinCostFunction;
+         this.unitReader = unitReader;
+         this.preselectionCART = preselectionCART;
+         this.audioTimeline = audioTimeline;
+     }
+
+     public TargetCostFunction getTargetCostFunction()
+     {
+         return targetCostFunction;
+     }
      
-    public abstract void overwriteTargetWeights(String file);
-    
-    public abstract void overwriteJoinWeights(String file);
-    
-    public abstract AudioFormat getAudioFormat();
+     public JoinCostFunction getJoinCostFunction()
+     {
+         return joinCostFunction;
+     }
      
-    public abstract int getExtendSelections();
+     public UnitFileReader getUnitFileReader()
+     {
+         return unitReader;
+     }
+     
+     public TimelineReader getAudioTimeline()
+     {
+         return audioTimeline;
+     }
+
+     
      
     /**
      * Preselect a set of candidates that could be used to realise the
      * given target.
      * @param target a Target object representing an optimal unit
-     * @return a Set containing the Unit objects
+     * @return an array of ViterbiCandidates, each containing the (same) target and a (different) Unit object
      */
-    public abstract Set getCandidates(Target target);
+    public ViterbiCandidate[] getCandidates(Target target)
+    {
+        //logger.debug("Looking for candidates in cart "+target.getName());
+        //get the cart tree and extract the candidates
+        int[] clist = (int[]) preselectionCART.interpret(target);
+        
+        // Now, clist is an array of unit indexes.
+        ViterbiCandidate[] candidates = new ViterbiCandidate[clist.length];
+        for (int i = 0; i < clist.length; i++) {
+            candidates[i] = new ViterbiCandidate();
+            candidates[i].setTarget(target); // The target is the same for all these candidates in the queue
+            // remember the actual unit:
+            Unit unit = unitReader.getUnit(clist[i]);
+            candidates[i].setUnit(unit);
+        }
+        return candidates;
+    }
 
 
 }

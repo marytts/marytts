@@ -72,9 +72,6 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
      */
     private Logger logger;
 
-    protected UnitSelector unitSelector;
-    protected UnitConcatenator unitConcatenator;
-
     public UnitSelectionSynthesizer() {}
     
     
@@ -177,11 +174,14 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
         throws SynthesisException
     {
         assert voice instanceof UnitSelectionVoice;
+        UnitSelectionVoice v = (UnitSelectionVoice) voice;
         // Select:
-        UnitSelector unitSel = ((UnitSelectionVoice)voice).getUnitSelector();
-        UnitDatabase database = ((UnitSelectionVoice)voice).getDatabase();
+        UnitSelector unitSel = v.getUnitSelector();
+        UnitConcatenator unitConcatenator = v.getConcatenator();
+        // TODO: check if we actually need to access v.getDatabase() here
+        UnitDatabase database = v.getDatabase();
         logger.debug("Selecting units with a "+unitSel.getClass().getName()+" from a "+database.getClass().getName());
-        List selectedUnits = unitSel.selectUnits(tokensAndBoundaries, voice, database, ((UnitSelectionVoice)voice).getUnitNamer());
+        List selectedUnits = unitSel.selectUnits(tokensAndBoundaries, voice);
         //if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
           //  StringWriter sw = new StringWriter();
            // PrintWriter pw = new PrintWriter(sw);
@@ -190,7 +190,6 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
             //logger.debug("Units selected:\n"+sw.toString());
         //}
         // Concatenate:
-        unitConcatenator = ((UnitSelectionVoice) voice).getConcatenator();
         logger.debug("Now creating audio with a "+unitConcatenator.getClass().getName());
         return unitConcatenator.getAudio(selectedUnits);
     }

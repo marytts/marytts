@@ -52,50 +52,26 @@ public class Unit
         this.index = index;
     }
     
-    public int getIndex(){
+    public int getIndex()
+    {
         return index;
     }
     
-    public long getStart(){
+    public long getStart()
+    {
         return startTime;
     }
     
-    public int getDuration(){
+    public int getDuration()
+    {
         return duration;
     }
     
     
  
-    
-    protected int instanceNumber; // identifies the instances of a given type
-    
-    
-    public boolean isValid(){
-        // FIXME: This cannot work -- this was intended to be used with frames, and is now applied to samples. If needed, use more sensible duration estimates, otherwise remove.
-        // on average, a period is between 50 and 200 Hz, i.e. between
-        // 5 ms and 20 ms long.
-        // Treat units with one frame or less as too short, 
-        // and units with more than 50 frames (250 ms - 1 second) as too long
-        int lowerLimit = 1;
-        int upperLimit = 50;
-        return (duration > lowerLimit && duration < upperLimit);    
-    }
-    
-    
-    
-    public void setInstanceNumber(int instanceNumber)
-    {
-        this.instanceNumber = instanceNumber;
-    }
-    
-    public int getInstanceNumber()
-    {
-        return instanceNumber;
-    }
-
     public String toString()
     {
-        return "unit start : "+startTime+", duration : "+duration;
+        return "unit "+index+" start: "+startTime+", duration: "+duration;
     }
     
 }

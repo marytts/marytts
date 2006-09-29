@@ -29,7 +29,7 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
+package de.dfki.lt.mary.unitselection;
 
 import java.io.DataInputStream;
 import java.io.BufferedInputStream;
@@ -37,26 +37,51 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import de.dfki.lt.mary.unitselection.voiceimport_reorganized.MaryHeader;
+
 /**
  * Loads a unit file in memory and provides accessors to the start times and durations.
  * 
  * @author sacha
  *
  */
-public class UnitFileReader {
+public class UnitFileReader
+{
 
     private MaryHeader hdr = null;
     private int numberOfUnits = 0;
     private int sampleRate = 0;
-    private long[] startTime = null;
-    private int[] duration = null;
+    private Unit[] units;
     
     /****************/
     /* CONSTRUCTORS */
     /****************/
+
+    /**
+     * Empty constructor; need to call load() separately.
+     * @see #load(String)
+     */
+    public UnitFileReader()
+    {
+    }
     
-    public UnitFileReader( String fileName ) {
-        
+    /**
+     * Create a unit file reader from the given unit file
+     * @param fileName the unit file to read
+     * @throws IOException if a problem occurs while reading
+     */
+    public UnitFileReader( String fileName ) throws IOException 
+    {
+        load(fileName);
+    }
+    
+    /**
+     * Load the given unit file
+     * @param fileName the unit file to read
+     * @throws IOException if a problem occurs while reading
+     */
+    public void load(String fileName) throws IOException
+    {
         /* Open the file */
         DataInputStream dis = null;
         try {
@@ -69,7 +94,7 @@ public class UnitFileReader {
             /* Load the Mary header */
             hdr = new MaryHeader( dis );
             if ( !hdr.isMaryHeader() ) {
-                throw new RuntimeException( "File [" + fileName + "] is not a valid Mary format file." );
+                throw new IOException( "File [" + fileName + "] is not a valid Mary format file." );
             }
             if ( hdr.getType() != MaryHeader.UNITS ) {
                 throw new RuntimeException( "File [" + fileName + "] is not a valid Mary Units file." );
@@ -84,12 +109,12 @@ public class UnitFileReader {
             if ( sampleRate < 0 ) {
                 throw new RuntimeException( "File [" + fileName + "] has a negative number sample rate. Aborting." );
             }
+            units = new Unit[numberOfUnits];
             /* Read the start times and durations */
-            startTime = new long[numberOfUnits];
-            duration = new int[numberOfUnits];
             for ( int i = 0; i < numberOfUnits; i++ ) {
-                startTime[i] = dis.readLong();
-                duration[i] = dis.readInt();
+                long startTime = dis.readLong();
+                int duration = dis.readInt();
+                units[i] = new Unit(startTime, duration, i);
             }
         }
         catch ( IOException e ) {
@@ -125,20 +150,10 @@ public class UnitFileReader {
      * @return The start time of the considered unit, in samples with respect
      * to the file's sample rate.
       */
-    public long getStartTime( int i ) {
-        return( startTime[i] );
+    public Unit getUnit( int i ) {
+        return units[i];
     }
     
-    /**
-     * Return the duration of unit number i.
-     * 
-     * @param i The index of the considered unit.
-     * @return The duration of the considered unit, in samples with respect
-     * to the file's sample rate.
-     */
-    public int getDuration( int i ) {
-        return( duration[i] );
-    }
     
     /**
      * Determine whether the unit number i is an "edge" unit, i.e.
@@ -148,7 +163,7 @@ public class UnitFileReader {
      * @return true if the unit is an edge unit in the unit file, false otherwise
      */
     public boolean isEdgeUnit(int i) {
-        if (duration[i] == -1) return true;
+        if (units[i].getDuration() == -1) return true;
         else return false;
     }
     

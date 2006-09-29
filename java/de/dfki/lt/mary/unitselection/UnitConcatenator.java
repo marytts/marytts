@@ -30,6 +30,7 @@ package de.dfki.lt.mary.unitselection;
 
 import java.util.List;
 
+import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 
 import org.apache.log4j.Logger;
@@ -45,7 +46,11 @@ import com.sun.speech.freetts.Utterance;
  */
 public interface UnitConcatenator
 {
-    
+    /**
+     * Initialise the unit concatenator from the database.
+     * @param database
+     */
+   public void load(UnitDatabase database);
    
     /**
      * Build the audio stream from the units
@@ -55,5 +60,11 @@ public interface UnitConcatenator
      */
     public AudioInputStream getAudio(List units);
     
+    /**
+     * Provide the audio format which will be produced by this
+     * unit concatenator.
+     * @return the audio format
+     */
+    public AudioFormat getAudioFormat();
     
 }

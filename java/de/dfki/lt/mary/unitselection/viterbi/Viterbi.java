@@ -75,8 +75,7 @@ public  class Viterbi
     protected ViterbiPoint firstPoint = null;
     protected ViterbiPoint lastPoint = null;
     protected LinkedHashMap f = null;
-    private UnitDatabase unitDB;
-    private UnitSelector unitSelector;
+    private UnitDatabase database;
     protected TargetCostFunction targetCostFunction;
     protected JoinCostFunction joinCostFunction;
     protected Logger logger;
@@ -92,13 +91,11 @@ public  class Viterbi
      * is built up.
      * 
      */
-	public Viterbi(List targets, UnitDatabase database, 
-	        		UnitSelector selector, TargetCostFunction tcf,
-	        		JoinCostFunction jcf){
-	    this.unitDB = database;
-	    this.unitSelector = selector;
-	    this.targetCostFunction = tcf;
-	    this.joinCostFunction = jcf;
+	public Viterbi(List targets, UnitDatabase database)
+    {
+	    this.database = database;
+	    this.targetCostFunction = database.getTargetCostFunction();
+	    this.joinCostFunction = database.getJoinCostFunction();
         this.logger = Logger.getLogger("Viterbi");
         this.cumulJoinCosts = 0;
         this.nJoinCosts = 0;
@@ -168,7 +165,7 @@ public  class Viterbi
         for (ViterbiPoint point = firstPoint; point.getNext() != null; point = point.getNext()) {
             // The candidates for the current item:
             // candidate selection is carried out by UnitSelector
-            point.setCandidates(unitSelector.getCandidates(point.getTarget()));
+            point.setCandidates(database.getCandidates(point.getTarget()));
             assert searchStrategy != 0; // general beam search not implemented
     
             // Now go through all existing paths and all candidates 
@@ -257,15 +254,8 @@ public  class Viterbi
         for (; path != null; path = path.getPrevious()) {
             if (path.getCandidate() != null) {
                 SelectedUnit sel = new SelectedUnit(path.getCandidate().getUnit(),
-                        path.getCandidate().getTarget(),unitDB);
+                        path.getCandidate().getTarget());
                 selectedUnits.addFirst(sel);
-                                
-                if (path.isPresent("unit_this_move")) {
-                    sel.setUnitStartShift(((Integer)path.getFeature("unit_this_move")).intValue());
-                }
-                if (path.getNext() != null && path.getNext().isPresent("unit_prev_move")) {
-                    sel.setUnitEndShift(((Integer)path.getNext().getFeature("unit_prev_move")).intValue());
-                }
             }
         }
         return selectedUnits;
@@ -288,15 +278,15 @@ public  class Viterbi
      */
     private ViterbiPath getPath(ViterbiPath path, 
 				ViterbiCandidate candidate) {
-        int cost;
+        double cost;
         ViterbiPath newPath = new ViterbiPath();
 
         Unit candidateUnit = candidate.getUnit();
         
         newPath.setCandidate(candidate);
         newPath.setPrevious(path);
-        int joinCost;
-        int targetCost;
+        double joinCost;
+        double targetCost;
         // Target costs:
         targetCost = candidate.getTargetCost(targetCostFunction);
         
@@ -306,8 +296,6 @@ public  class Viterbi
             // Join costs:
             Unit prevUnit = path.getCandidate().getUnit();
             joinCost = joinCostFunction.cost(prevUnit, candidateUnit);
-            // TODO: clean this up
-            joinCost *= 5;  // magic number ("continuity weight") from flite
         }
         cost = joinCost + targetCost;
         cumulJoinCosts += joinCost;

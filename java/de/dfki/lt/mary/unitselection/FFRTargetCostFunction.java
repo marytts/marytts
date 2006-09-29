@@ -59,10 +59,7 @@ public class FFRTargetCostFunction extends FeatureFileReader implements TargetCo
     public double cost(Target target, Unit unit)
     {
         FeatureVector targetFeatures = target.getFeatureVector(); 
-        if (targetFeatures == null) {
-            targetFeatures = targetFeatureComputer.computeFeatureVector(target);
-            target.setFeatureVector(targetFeatures);
-        }
+        assert targetFeatures != null: "Target "+target+" does not have pre-computed feature vector";
         FeatureVector unitFeatures = featureVectors[unit.getIndex()];
         int nBytes = targetFeatures.getNumberOfByteFeatures();
         int nShorts = targetFeatures.getNumberOfShortFeatures();
@@ -130,5 +127,16 @@ public class FFRTargetCostFunction extends FeatureFileReader implements TargetCo
         this.targetFeatureComputer = new TargetFeatureComputer(featProc, featureDefinition.getFeatureNames());
     }
 
-
+    /**
+     * Compute the features for a given target. A typical use case is to
+     * call this method once for every target, and store the resulting
+     * feature vector in the target using target.setFeatureVector().
+     * @param target the target for which to compute the features
+     * @return a feature vector
+     * @see Target#setFeatureVector(FeatureVector)
+     */
+    public FeatureVector computeTargetFeatures(Target target)
+    {
+        return targetFeatureComputer.computeFeatureVector(target);
+    }
 }

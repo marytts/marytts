@@ -36,6 +36,8 @@ import java.io.File;
 import java.io.RandomAccessFile;
 import java.io.FileNotFoundException;
 
+import de.dfki.lt.mary.unitselection.Datagram;
+
 /**
  * The TimelineWriter class provides an interface to create or update
  * a Timeline data file in Mary format, and to feed new datagrams
@@ -200,11 +202,11 @@ public class TimelineWriter extends TimelineIO {
         /* Filter the datagram through the index (to automatically add an index field if needed) */
         idx.feed( getBytePointer(), getTimePointer() );
         /* Check if the datagram needs resampling */
-        if ( reqSampleRate != sampleRate ) d = new Datagram( scaleTime(reqSampleRate,d.duration), d.data );
+        if ( reqSampleRate != sampleRate ) d.setDuration(scaleTime(reqSampleRate,d.getDuration()));
         /* Then write the datagram on disk */
         d.write( raf ); // This implicitely advances the bytePointer
         /* Then advance various other pointers */
-        setTimePointer( getTimePointer() + d.duration );
+        setTimePointer( getTimePointer() + d.getDuration() );
         numDatagrams++;
 //        System.out.println( "Reached pos ( " + getBytePointer() + " , " + getTimePointer() + " )" );
         
