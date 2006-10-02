@@ -35,6 +35,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import de.dfki.lt.mary.unitselection.Target;
+import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 
 /**
  * Generic interface for Classification and Regression Trees (CARTs) based
@@ -46,9 +47,11 @@ public interface CART
     /**
      * Load the cart from the given file
      * @param fileName the file to load the cart from
+     * @param featDefinition the feature definition
      * @throws IOException if a problem occurs while loading
      */
-    public void load(String fileName) throws IOException;
+    public void load(String fileName, FeatureDefinition featDefinition) throws IOException;
+    
     
     /**
      * Passes the given item through this CART and returns the
