@@ -65,9 +65,13 @@ import java.util.*;
  * 
  * @author Anna Hunecke
  */
-public class CARTWagonFormat{
+public class CARTWagonFormat implements CART{
 
     private Logger logger = Logger.getLogger("CARTWagonFormat");
+    
+     private final static int MAGIC = 0x4d415259; // "MARY"
+    private final static int VERSION = 1;
+    private final static int CARTS = 1;
     
     /**
      * Defines how many units should be selected
@@ -86,6 +90,8 @@ public class CARTWagonFormat{
     
     /**
      * Creates a new CART by reading from the given reader.
+     * This method is to be called when a CART created by Wagon
+     * is read in.
      *
      * @param reader the source of the CART data
      * @throws IOException if errors occur while reading the data
@@ -95,51 +101,79 @@ public class CARTWagonFormat{
         featDef = featDefinition;
         openBrackets = 0;
         String line = reader.readLine(); // first line is empty, read again 
+        //each line corresponds to a node
         line = reader.readLine(); 
+        //for each line
         while (line != null) {
-            //System.out.println(line);
             if (!line.startsWith(";;")) {
+                //parse the line and add the node
                 parseAndAdd(line);
             }
             line = reader.readLine();
         }
+        //make sure we closed as many brackets as we opened
         if (openBrackets != 0){
-            throw new Error("Something went wrong here");
+            throw new Error("Error loading CART: bracket mismatch");
         }
     }
     
-    
-
     /**
-     * Loads a CART from the input random access file.
+     * Build a new empty cart
      *
-     * @param raf the random access file from which to read, with its 
-     * file pointer properly positioned.
-     *
-     * @throws IOException if an error occurs during output
-     *
-     * Note that cart nodes are really saved as strings that
-     * have to be parsed.
      */
-    public CARTWagonFormat(RandomAccessFile raf,
-            				FeatureDefinition featDefinition) throws IOException {
+    public CARTWagonFormat(){}
+    
+    /**
+     * Load the cart from the given file
+     * @param fileName the file to load the cart from
+     * @param featDefinition the feature definition
+     * @throws IOException if a problem occurs while loading
+     */
+    public void load(String fileName, FeatureDefinition featDefinition) throws IOException
+    {
+        //open the CART-File and read the header
+        //TODO: MAGIC, VERSION and CARTS should not be defined in this class,
+        //should be statics in a database class
+        RandomAccessFile raf = new RandomAccessFile(new File(fileName), "r");
+        if (raf.readInt() != MAGIC)  {
+            throw new Error("No MARY database file!");
+        }
+        if (raf.readInt() != VERSION)  {
+             throw new Error("Wrong version of database file");
+        }
+        if (raf.readInt() != CARTS)  {
+            throw new Error("No CARTs file");
+        } 
+        //discard number of CARTs and CART name
+        //TODO: Change format of CART-File
+        raf.readInt();
+        raf.readUTF();
+      
+
+        //load the CART
         featDef = featDefinition;
+        //get the backtrace information
     	String backtraceString = 
     	    MaryProperties.getProperty("english.cart.backtrace");
-    	backtrace = 100;
+    	backtrace = 100; //default backtrace value
     	if (backtraceString != null){
     	    backtrace = Integer.parseInt(backtraceString.trim());
     	}
     	openBrackets = 0;
+        //Read in the Cart as one long String
         String cart = raf.readUTF();
+        //the nodes are devided by linebreaks
         StringTokenizer tok = new StringTokenizer(cart,"\n");
+        //for each line
     	while (tok.hasMoreTokens()) {
-    	   
+    	   //parse the line and add the node
     	    parseAndAdd(tok.nextToken());
     	}
+        //make sure we closed as many brackets as we opened
     	if (openBrackets != 0){
-            throw new Error("Something went wrong here");
+            throw new Error("Error loading CART: bracket mismatch");
         }
+        
     }
   
     /**
