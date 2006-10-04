@@ -37,17 +37,10 @@ import com.sun.speech.freetts.ProcessException;
 import com.sun.speech.freetts.Relation;
 
 import de.dfki.lt.mary.unitselection.Target;
-import de.dfki.lt.mary.unitselection.cart.PathExtractor;
-import de.dfki.lt.mary.unitselection.cart.PathExtractorImpl;
 import de.dfki.lt.mary.util.ByteStringTranslator;
 
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.util.Set;
 
