@@ -512,10 +512,10 @@ public class FeatureDefinition
     public int getNumberOfValues(int featureIndex)
     {
         if (featureIndex < numByteFeatures)
-            return byteFeatureValues[featureIndex].getHighestValue();
+            return byteFeatureValues[featureIndex].getNumberOfValues();
         featureIndex -= numByteFeatures;
         if (featureIndex < numShortFeatures)
-            return shortFeatureValues[featureIndex].getHighestValue();
+            return shortFeatureValues[featureIndex].getNumberOfValues();
         throw new IndexOutOfBoundsException("Feature no. "+featureIndex+" is not a byte-valued or short-valued feature");
     }
 
