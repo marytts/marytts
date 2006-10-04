@@ -153,8 +153,7 @@ public class UnitSelectionVoiceBuilder
             String cartReaderClass = MaryProperties.needProperty(header+".cartReaderClass");
             String cartFile = MaryProperties.getFilename(header+".cartFile");
             CART cart = (CART) Class.forName(cartReaderClass).newInstance();
-            //TODO: For building the CART, a FeatureDefinition object is needed
-            cart.load(cartFile,featDef);
+            cart.load(cartFile, targetFunction.getFeatureDefinition());
             
             String timelineReaderClass = MaryProperties.needProperty(header+".audioTimelineReaderClass");
             String timelineFile = MaryProperties.needFilename(header+".audioTimelineFile");

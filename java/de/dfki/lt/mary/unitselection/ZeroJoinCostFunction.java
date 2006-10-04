@@ -28,10 +28,6 @@
  */
 package de.dfki.lt.mary.unitselection;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-
 /**
  * A dummy Join Cost Function, always giving back cost 0
  * 
@@ -45,15 +41,13 @@ public class ZeroJoinCostFunction implements JoinCostFunction
     {
     }
 
-    public int cost(Unit u0, Unit u1)
+    public double cost(Unit u0, Unit u1)
     {
         return 0;
     }
     
-    public void load(RandomAccessFile raf){
-    }
-    
-    public void overwriteWeights(BufferedReader reader)throws IOException{
+    public void load(String joinFileName, String weightsFileName)
+    {
     }
 
 }

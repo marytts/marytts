@@ -28,11 +28,13 @@
  */
 package de.dfki.lt.mary.unitselection;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
@@ -191,7 +193,15 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
         //}
         // Concatenate:
         logger.debug("Now creating audio with a "+unitConcatenator.getClass().getName());
-        return unitConcatenator.getAudio(selectedUnits);
+        try {
+            return unitConcatenator.getAudio(selectedUnits);
+        } catch (IOException ioe) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            for (Iterator selIt=selectedUnits.iterator(); selIt.hasNext(); )
+                pw.println(selIt.next());
+            throw new SynthesisException("Problems generating audio for unit chain: "+sw.toString(), ioe);
+        }
     }
     
 }

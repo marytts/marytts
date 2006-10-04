@@ -38,15 +38,13 @@ package de.dfki.lt.mary.unitselection;
  */
 public class Unit
 {
-    protected UnitDatabase database;
-     
-
     protected long startTime;
     protected int duration;
     protected int index;
     
     
-    public Unit(long startTime, int duration, int index){
+    public Unit(long startTime, int duration, int index)
+    {
         this.startTime = startTime;
         this.duration = duration;
         this.index = index;
@@ -68,7 +66,19 @@ public class Unit
     }
     
     
- 
+    /**
+     * Determine whether the unit is an "edge" unit, i.e.
+     * a unit marking the start or the end of an utterance.
+     * 
+     * @param i The index of the considered unit.
+     * @return true if the unit is an edge unit, false otherwise
+     */
+    public boolean isEdgeUnit()
+    {
+        if (duration == -1) return true;
+        else return false;
+    }
+
     public String toString()
     {
         return "unit "+index+" start: "+startTime+", duration: "+duration;
