@@ -63,7 +63,7 @@ public class ShortStringTranslator
         return (String[]) list.toArray(new String[0]);
     }
     
-    public short getHighestValue()
+    public short getNumberOfValues()
     {
         return (short) list.size();
     }
