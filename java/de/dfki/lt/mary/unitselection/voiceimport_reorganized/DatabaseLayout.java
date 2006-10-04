@@ -119,7 +119,7 @@ public class DatabaseLayout
         setIfDoesntExist( "db.timelineExtension", ".bin" );
         
         /* Mary format files */
-        setIfDoesntExist( "db.marySubDir", "mary" );
+        setIfDoesntExist( "db.marySubDir", "maryfiles" );
         setIfDoesntExist( "db.maryExtension", ".bin" );
         
         setIfDoesntExist( "db.cartsSubDir", "mary" );

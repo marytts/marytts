@@ -44,7 +44,8 @@ public class ESTCallMaker implements VoiceImportComponent {
     public boolean compute() {
         String[] baseNameArray = bnl.getListAsArray();
         System.out.println( "Recomputing pitchmarks, LPC coefficients and Mel cepstra for [" + baseNameArray.length + "] utterances." );
-        ESTCaller caller = new ESTCaller( db, "/home/cl-home/sacha/temp/speech_tools/" );
+        ESTCaller caller = new ESTCaller( db );
+        //ESTCaller caller = new ESTCaller( db, "/home/cl-home/sacha/temp/speech_tools/" );
         caller.make_pm_wave( baseNameArray );
         caller.make_lpc( baseNameArray );
         caller.make_mcep( baseNameArray );
