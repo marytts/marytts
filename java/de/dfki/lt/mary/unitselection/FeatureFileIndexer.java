@@ -90,7 +90,7 @@ public class FeatureFileIndexer extends FeatureFileReader {
     private void sortNode( int currentFeatureIdx, MaryNode currentNode ) {
         /* If we have reached a leaf, do a final sort according to the unit index and return: */
         if ( currentFeatureIdx == featureSequence.length ) {
-            Arrays.sort( featureVectors, cui );
+            Arrays.sort( featureVectors, currentNode.from, currentNode.to, cui );
 //            nol++;
 //            if ( nol == nextNol ) {
 //                long localtic = toc;
@@ -100,6 +100,13 @@ public class FeatureFileIndexer extends FeatureFileReader {
 //                System.out.flush();
 //                nextNol += 1000;
 //            }
+            
+            /*System.out.print( "LEAF ! " );
+            for ( int i = currentNode.from; i < currentNode.to; i++ ) {
+                System.out.print( " (" + featureVectors[i].getUnitIndex() + " 0)" );
+            }
+            System.out.println( "" ); */
+            
             return;
         }
         /* Else: */
@@ -120,9 +127,15 @@ public class FeatureFileIndexer extends FeatureFileReader {
         int nextTo = currentNode.from;
         for ( int i = 0; i < nVal; i++ ) {
             nextFrom = nextTo;
-            while ( featureVectors[nextTo].getFeatureAsInt( currentFeature ) == i ) nextTo++;
+            // System.out.println( "BEGIN ZONE at " + nextFrom );
+            while ( (nextTo < featureVectors.length) && (featureVectors[nextTo].getFeatureAsInt( currentFeature ) == i)  ) {
+                // System.out.print( " " + featureVectors[nextTo].getFeatureAsInt( currentFeature ) );
+                nextTo++;
+            }
+            // System.out.println( "END ZONE at " + nextTo );
             MaryNode nod = new MaryNode( nextFrom, nextTo );
             currentNode.setChild( i, nod );
+            // System.out.print("(" + i + " isByteOf " + currentFeature + ")" );
             sortNode( currentFeatureIdx+1, nod );
         }
     }
