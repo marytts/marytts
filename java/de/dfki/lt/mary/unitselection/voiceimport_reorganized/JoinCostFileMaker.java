@@ -32,6 +32,8 @@
 package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 
 import de.dfki.lt.mary.unitselection.Datagram;
+import de.dfki.lt.mary.unitselection.JoinCostFeatures;
+import de.dfki.lt.mary.unitselection.JoinCostFunction;
 import de.dfki.lt.mary.unitselection.TimelineReader;
 import de.dfki.lt.mary.unitselection.UnitFileReader;
 import de.dfki.lt.mary.util.MaryUtils;
@@ -100,6 +102,7 @@ public class JoinCostFileMaker implements VoiceImportComponent {
         float[] fw = new float[numberOfFeatures]; // +1 accounts for the addition of F0
         for ( int i = 0; i < fw.length; i++ ) {
             fw[i] = 1.0f;
+            // TODO: add proper join feature weights here
         }
         /* Make a weighting function vector */
         String[] wfun = new String[numberOfFeatures];
@@ -153,7 +156,10 @@ public class JoinCostFileMaker implements VoiceImportComponent {
             Datagram dat = null;
             
             for ( int i = 0; i < ufr.getNumberOfUnits(); i++ ) {
-                
+                int percent = 10*i/ufr.getNumberOfUnits();
+                if (percent % 10 == 0) {
+                    System.out.println(percent+"% of "+ufr.getNumberOfUnits()+" units done...");
+                }
                 /* Read the unit */
                 unitPosition = ufr.getUnit(i).getStart();
                 unitDuration = ufr.getUnit(i).getDuration();
@@ -265,7 +271,8 @@ public class JoinCostFileMaker implements VoiceImportComponent {
             F0 = prevRightF0 / 2.0d; // (Assuming that leftF0 is 0 for a null unit.)
             jcf.writeFloat( (float)( F0 ) );
             // System.out.println( " and Right F0 is [" + F0 + "]Hz." );
-            
+            jcf.close();
+            System.out.println("100% done!");
         }
         catch ( IOException e ) {
             throw new RuntimeException( "An IOException happened when writing the features to the Join Cost file.", e );
@@ -274,7 +281,15 @@ public class JoinCostFileMaker implements VoiceImportComponent {
         System.out.println("---- Join Cost file done.\n\n");
         System.out.println("Number of processed units: " + ufr.getNumberOfUnits() );
         
-        return( true );
+        JoinCostFeatures tester = new JoinCostFeatures(db.joinCostFeaturesFileName());
+        int unitsOnDisk = tester.getNumberOfUnits();
+        if (unitsOnDisk == ufr.getNumberOfUnits()) {
+            System.out.println("Can read right number of units");
+            return true;
+        } else {
+            System.out.println("Read wrong number of units: "+unitsOnDisk);
+            return false;
+        }
     }
 
 }
