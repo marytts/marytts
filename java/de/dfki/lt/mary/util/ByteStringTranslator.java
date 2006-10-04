@@ -63,7 +63,7 @@ public class ByteStringTranslator
         return (String[]) list.toArray(new String[0]);
     }
     
-    public byte getHighestValue()
+    public byte getNumberOfValues()
     {
         return (byte) list.size();
     }
