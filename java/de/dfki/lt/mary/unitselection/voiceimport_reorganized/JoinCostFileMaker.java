@@ -41,8 +41,6 @@ import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.ByteArrayInputStream;
-import java.util.Arrays;
 import java.util.Vector;
 
 public class JoinCostFileMaker implements VoiceImportComponent {
@@ -55,7 +53,7 @@ public class JoinCostFileMaker implements VoiceImportComponent {
         this.bnl = setbnl;
     }
     
-    public boolean compute()
+    public boolean compute() throws IOException
     {
         System.out.println("---- Making the join cost file\n\n");
         System.out.println("Base directory: " + db.rootDirName() + "\n");
@@ -157,8 +155,8 @@ public class JoinCostFileMaker implements VoiceImportComponent {
             for ( int i = 0; i < ufr.getNumberOfUnits(); i++ ) {
                 
                 /* Read the unit */
-                unitPosition = ufr.getStartTime( i );
-                unitDuration = ufr.getDuration( i );
+                unitPosition = ufr.getUnit(i).getStart();
+                unitDuration = ufr.getUnit(i).getDuration();
                 
                 /* If the unit is not a START or END marker: */
                 if ( unitDuration != -1 ) {
@@ -171,19 +169,19 @@ public class JoinCostFileMaker implements VoiceImportComponent {
                     targetEndPoint = unitPosition + unitDuration;
                     dat = mcep.getDatagram( unitPosition, unitSampleFreq );
                     buff.add( dat );
-                    endPoint = unitPosition + dat.duration;
+                    endPoint = unitPosition + dat.getDuration();
                     for ( int j = 1; j < F0_HORIZON; j++ ) {
                         dat = mcep.getDatagram( endPoint, unitSampleFreq );
-                        if ( (endPoint + dat.duration) > targetEndPoint ) break;
+                        if ( (endPoint + dat.getDuration()) > targetEndPoint ) break;
                         else {
                             buff.add( dat );
-                            endPoint += dat.duration;
+                            endPoint += dat.getDuration();
                         }
                     }
                     /* Compute the left F0 from the datagram durations: */
                     for ( int j = 0; j < buff.size(); j++ ) {
                         dat = (Datagram) buff.elementAt( j );
-                        periods[j] = dat.duration;
+                        periods[j] = dat.getDuration();
                     }
                     median = MaryUtils.median( periods );
                     leftF0 = (double)(unitSampleFreq) / (double)(median);
@@ -209,16 +207,16 @@ public class JoinCostFileMaker implements VoiceImportComponent {
                                                         *    it means we have not trespassed the unit yet,
                                                         *    so we can crawl further. */
                         dat = mcep.getDatagram( endPoint, unitSampleFreq );
-                        while ( (endPoint+dat.duration) <= targetEndPoint ) {
+                        while ( (endPoint+dat.getDuration()) <= targetEndPoint ) {
                             buff.removeElementAt( 0 );
                             buff.add( dat );
-                            endPoint += dat.duration;
+                            endPoint += dat.getDuration();
                             dat = mcep.getDatagram( endPoint, unitSampleFreq );
                         }
                         /* Compute the right F0 from the datagram durations: */
                         for ( int j = 0; j < buff.size(); j++ ) {
                             dat = (Datagram) buff.elementAt( j );
-                            periods[j] = dat.duration;
+                            periods[j] = dat.getDuration();
                         }
                         median = MaryUtils.median( periods );
                         prevRightF0 = (double)(unitSampleFreq) / (double)(median);

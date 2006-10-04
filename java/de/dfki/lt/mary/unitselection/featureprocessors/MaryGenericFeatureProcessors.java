@@ -1,18 +1,11 @@
 package de.dfki.lt.mary.unitselection.featureprocessors;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.regex.Pattern;
 
 import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.ProcessException;
 import com.sun.speech.freetts.Relation;
-import com.sun.speech.freetts.en.us.USEnglish;
-import com.sun.speech.freetts.util.Utilities;
 
 import de.dfki.lt.mary.unitselection.Target;
-import de.dfki.lt.mary.unitselection.cart.PathExtractor;
-import de.dfki.lt.mary.unitselection.cart.PathExtractorImpl;
 import de.dfki.lt.mary.util.ByteStringTranslator;
 
 /**
@@ -242,27 +235,78 @@ public class MaryGenericFeatureProcessors
         }
     }
 
+    public static class FirstSyllableNavigator implements TargetItemNavigator
+    {
+        public Item getItem(Target target)
+        {
+            Item segment = target.getItem();
+            if (segment == null) return null;
+            segment = segment.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (segment == null) return null;
+            Item syllable = segment.getParent();
+            if (syllable == null) return null;
+            Item word = syllable.getParent();
+            if (word == null) return null;
+            word = word.getItemAs(Relation.PHRASE);
+            if (word == null) return null;
+            Item phrase = word.getParent();
+            if (phrase == null) return null;
+            Item firstWord = phrase.getDaughter();
+            if (firstWord == null) return null;
+            firstWord = firstWord.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (firstWord == null) return null;
+            Item firstSyllable = firstWord.getDaughter();
+            return firstSyllable;
+            
+        }
+    }
 
-    protected final static PathExtractor FIRST_SYLLABLE_PATH = new PathExtractorImpl(
-            "R:SylStructure.parent.R:Phrase.parent.daughter.R:SylStructure.daughter",
-            false);
+    public static class LastSyllableNavigator implements TargetItemNavigator
+    {
+        public Item getItem(Target target)
+        {
+            Item segment = target.getItem();
+            if (segment == null) return null;
+            segment = segment.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (segment == null) return null;
+            Item syllable = segment.getParent();
+            if (syllable == null) return null;
+            Item word = syllable.getParent();
+            if (word == null) return null;
+            word = word.getItemAs(Relation.PHRASE);
+            if (word == null) return null;
+            Item phrase = word.getParent();
+            if (phrase == null) return null;
+            Item lastWord = phrase.getLastDaughter();
+            if (lastWord == null) return null;
+            lastWord = lastWord.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (lastWord == null) return null;
+            Item lastSyllable = lastWord.getLastDaughter();
+            return lastSyllable;
+        }
+    }
 
-    protected final static PathExtractor LAST_SYLLABLE_PATH = new PathExtractorImpl(
-            "R:SylStructure.parent.R:Phrase.parent.daughtern.R:SylStructure.daughter",
-            false);
+    public static class PhraseNavigator implements TargetItemNavigator
+    {
+        public Item getItem(Target target)
+        {
+            Item segment = target.getItem();
+            if (segment == null) return null;
+            segment = segment.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (segment == null) return null;
+            Item syllable = segment.getParent();
+            if (syllable == null) return null;
+            Item word = syllable.getParent();
+            if (word == null) return null;
+            word = word.getItemAs(Relation.PHRASE);
+            if (word == null) return null;
+            Item phrase = word.getParent();
+            return phrase;
+        }
+    }
 
-    protected final static PathExtractor LAST_LAST_SYLLABLE_PATH = new PathExtractorImpl(
-            "R:SylStructure.parent.R:Phrase.parent.daughtern.R:SylStructure.daughtern",
-            false);
 
-    protected final static PathExtractor SUB_PHRASE_PATH = new PathExtractorImpl(
-            "R:SylStructure.parent.R:Phrase.parent.p", false);
 
-    protected final static Pattern DOUBLE_PATTERN = Pattern
-            .compile(USEnglish.RX_DOUBLE);
-
-    protected final static Pattern DIGITS_PATTERN = Pattern
-            .compile(USEnglish.RX_DIGITS);
 
     // no instances
     protected MaryGenericFeatureProcessors()
@@ -420,8 +464,10 @@ public class MaryGenericFeatureProcessors
     public static class AccentedSylIn implements ByteValuedFeatureProcessor
     {
         TargetItemNavigator navigator;
+        TargetItemNavigator firstSyllableNavigator;
         public AccentedSylIn() {
             this.navigator = new SyllableNavigator();
+            this.firstSyllableNavigator = new FirstSyllableNavigator();
         }
 
         public String getName() { return "mary_asyl_in"; }
@@ -443,7 +489,7 @@ public class MaryGenericFeatureProcessors
             if (ss == null) return (byte)0;
             ss = ss.getItemAs(Relation.SYLLABLE);
             if (ss == null) return (byte)0;
-            Item firstSyllable = (Item) FIRST_SYLLABLE_PATH.findTarget(ss);
+            Item firstSyllable = firstSyllableNavigator.getItem(target);
 
             for (Item p = ss; p != null; p = p.getPrevious()) {
                 if (p.getFeatures().isPresent("accent")) {
@@ -739,7 +785,7 @@ public class MaryGenericFeatureProcessors
          */
         public String process(Item item) throws ProcessException
         {
-            int count = 0;
+/*            int count = 0;
             Item ss = item.getItemAs(Relation.SYLLABLE);
             Item firstSyllable = (Item) FIRST_SYLLABLE_PATH.findTarget(item);
 
@@ -753,6 +799,7 @@ public class MaryGenericFeatureProcessors
                 }
             }
             return Integer.toString(rail(count));
+*/          return null;
         }
     }
 
@@ -778,7 +825,7 @@ public class MaryGenericFeatureProcessors
          */
         public String process(Item item) throws ProcessException
         {
-            int count = 0;
+/*            int count = 0;
             Item ss = item.getItemAs(Relation.SYLLABLE);
             Item firstSyllable = (Item) FIRST_SYLLABLE_PATH.findTarget(item);
 
@@ -788,6 +835,7 @@ public class MaryGenericFeatureProcessors
                 }
             }
             return Integer.toString(rail(count));
+*/          return null;
         }
     }
 
@@ -813,7 +861,7 @@ public class MaryGenericFeatureProcessors
          */
         public String process(Item item) throws ProcessException
         {
-            int count = 0;
+/*            int count = 0;
             Item ss = item.getItemAs(Relation.SYLLABLE);
             Item firstSyllable = (Item) LAST_LAST_SYLLABLE_PATH
                     .findTarget(item);
@@ -825,6 +873,7 @@ public class MaryGenericFeatureProcessors
                 count++;
             }
             return Integer.toString(rail(count));
+*/          return null;
         }
     }
 
@@ -850,7 +899,7 @@ public class MaryGenericFeatureProcessors
          */
         public String process(Item item) throws ProcessException
         {
-            int count = 0;
+/*            int count = 0;
             Item ss = item.getItemAs(Relation.SYLLABLE);
             Item lastSyllable = (Item) LAST_SYLLABLE_PATH.findTarget(item);
 
@@ -863,6 +912,7 @@ public class MaryGenericFeatureProcessors
                 }
             }
             return Integer.toString(rail(count));
+*/          return null;
         }
     }
 
@@ -1019,13 +1069,15 @@ public class MaryGenericFeatureProcessors
          */
         public String process(Item item) throws ProcessException
         {
-            int count = 0;
+/*            int count = 0;
             Item inPhrase = (Item) SUB_PHRASE_PATH.findTarget(item);
+            // Item inPhrase = new PhraseNavigator().getItem(target).getPrevious();
 
             for (Item p = inPhrase; p != null; p = p.getPrevious()) {
                 count++;
             }
             return Integer.toString(rail(count));
+*/          return null;
         }
     }
 

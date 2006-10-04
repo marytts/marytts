@@ -44,14 +44,14 @@ public class ViterbiCandidate {
     private ViterbiPath bestPath = null;
 	private Target target = null;
 	private ViterbiCandidate next = null;
-	private int targetCost = -1;
+	private double targetCost = -1;
 	
 	/**
 	 * Calculates and returns the target cost for this candidate
 	 * @param tcf the target cost function 
 	 * @return the target cost
 	 */
-	public int getTargetCost(TargetCostFunction tcf){
+	public double getTargetCost(TargetCostFunction tcf){
 	    if (targetCost == -1){
 	        targetCost = tcf.cost(target,unit);
 	        //System.out.println("Candidate with target "+target.getName()

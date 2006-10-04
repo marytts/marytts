@@ -51,7 +51,7 @@ import de.dfki.lt.mary.unitselection.Target;
              ViterbiPath p1 = (ViterbiPath) o1;
              ViterbiPath p2 = (ViterbiPath) o2;
              // big is bad:
-             return Float.compare(p1.getScore(), p2.getScore());
+             return Double.compare(p1.getScore(), p2.getScore());
          }
      });
      private ViterbiPoint next = null;
