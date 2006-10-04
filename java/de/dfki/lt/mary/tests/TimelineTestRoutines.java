@@ -29,12 +29,10 @@
 package de.dfki.lt.mary.tests;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
 
-import de.dfki.lt.mary.unitselection.voiceimport_reorganized.TimelineIO;
 import de.dfki.lt.mary.unitselection.voiceimport_reorganized.TimelineWriter;
-import de.dfki.lt.mary.unitselection.voiceimport_reorganized.TimelineReader;
-import de.dfki.lt.mary.unitselection.voiceimport_reorganized.Datagram;
+import de.dfki.lt.mary.unitselection.TimelineReader;
+import de.dfki.lt.mary.unitselection.Datagram;
 
 import java.util.Random;
 import java.io.IOException;
@@ -45,7 +43,8 @@ import java.io.File;
  */
 public class TimelineTestRoutines extends TimelineReader {
     
-    public TimelineTestRoutines( String fileName ) {
+    public TimelineTestRoutines( String fileName ) throws IOException 
+    {
         super( fileName );
     }
     

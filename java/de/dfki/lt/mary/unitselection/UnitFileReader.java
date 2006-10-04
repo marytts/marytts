@@ -153,8 +153,29 @@ public class UnitFileReader
     public Unit getUnit( int i ) {
         return units[i];
     }
+
+    /**
+     * Return the unit following the given unit in the original database.
+     * @param u a unit
+     * @return the next unit in the database, or null if there is no such unit.
+     */
+    public Unit getNextUnit(Unit u)
+    {
+        if (u == null || u.getIndex() >= units.length-1 || u.getIndex() < 0) return null;
+        return units[u.getIndex()+1];
+    }
     
-    
+    /**
+     * Return the unit preceding the given unit in the original database.
+     * @param u a unit
+     * @return the previous unit in the database, or null if there is no such unit.
+     */
+    public Unit getPreviousUnit(Unit u)
+    {
+        if (u == null || u.getIndex()>=units.length || u.getIndex() <= 0) return null;
+        return units[u.getIndex()-1];
+    }
+
     /**
      * Determine whether the unit number i is an "edge" unit, i.e.
      * a unit marking the start or the end of an utterance.
@@ -163,8 +184,7 @@ public class UnitFileReader
      * @return true if the unit is an edge unit in the unit file, false otherwise
      */
     public boolean isEdgeUnit(int i) {
-        if (units[i].getDuration() == -1) return true;
-        else return false;
+        return units[i].isEdgeUnit();
     }
     
 }

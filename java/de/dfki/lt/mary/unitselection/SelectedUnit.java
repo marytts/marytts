@@ -42,7 +42,7 @@ public class SelectedUnit
     protected Unit unit;
     protected Target target;
     protected Object concatenationData;
-    protected AudioInputStream audio;
+    protected double[] audio;
     protected UnitDatabase database;
     
     public SelectedUnit(Unit unit, Target target)
@@ -79,12 +79,12 @@ public class SelectedUnit
         return concatenationData;
     }
     
-    public void setAudio(AudioInputStream audio)
+    public void setAudio(double[] audio)
     {
         this.audio = audio;
     }
     
-    public AudioInputStream getAudio()
+    public double[] getAudio()
     {
         return audio;
     }

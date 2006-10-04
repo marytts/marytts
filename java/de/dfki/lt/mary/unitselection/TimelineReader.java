@@ -450,6 +450,20 @@ public class TimelineReader extends TimelineIO
     }
     
     /**
+     * Get a single datagram from a particular time location,
+     * given in the timeline's sampling rate.
+     * 
+     * @param targetTimeInSamples the requested position, in samples.
+     * 
+     * @return a datagram.
+     */
+    public synchronized Datagram getDatagram( long targetTimeInSamples) throws IOException {
+        /* Resample the requested time location, in case the sample times are different between
+         * the request and the timeline */
+        return getDatagram(targetTimeInSamples, sampleRate);
+    }
+
+    /**
      * Get a given number of datagrams from a particular time location,
      * and return the time offset between the time request and the actual location of the first
      * returned datagram.

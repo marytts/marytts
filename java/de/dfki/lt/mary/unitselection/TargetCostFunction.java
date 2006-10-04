@@ -28,12 +28,11 @@
  */
 package de.dfki.lt.mary.unitselection;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 
+import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureProcessorManager;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
-import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunctionManager;
 
 /**
  * A target cost function for evaluating the goodness-of-fit of 
@@ -72,4 +71,11 @@ public interface TargetCostFunction
      * @see Target#setFeatureVector(FeatureVector)
      */
     public FeatureVector computeTargetFeatures(Target target);
+    
+    /**
+     * Provide access to the Feature Definition used.
+     * @return the feature definition object.
+     */
+    public FeatureDefinition getFeatureDefinition();
+    
 }

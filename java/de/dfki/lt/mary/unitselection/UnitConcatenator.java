@@ -28,6 +28,7 @@
  */
 package de.dfki.lt.mary.unitselection;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.sound.sampled.AudioFormat;
@@ -58,7 +59,7 @@ public interface UnitConcatenator
      * @param units the units
      * @return the resulting audio stream
      */
-    public AudioInputStream getAudio(List units);
+    public AudioInputStream getAudio(List units) throws IOException;
     
     /**
      * Provide the audio format which will be produced by this
