@@ -156,7 +156,7 @@ public class JoinCostFileMaker implements VoiceImportComponent {
             Datagram dat = null;
             
             for ( int i = 0; i < ufr.getNumberOfUnits(); i++ ) {
-                int percent = 10*i/ufr.getNumberOfUnits();
+                int percent = 100*i/ufr.getNumberOfUnits();
                 if (percent % 10 == 0) {
                     System.out.println(percent+"% of "+ufr.getNumberOfUnits()+" units done...");
                 }
