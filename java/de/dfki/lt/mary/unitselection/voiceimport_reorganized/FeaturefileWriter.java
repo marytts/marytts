@@ -55,6 +55,11 @@ public class FeaturefileWriter implements VoiceImportComponent
     {
         this.db = setdb;
         this.bnl = setbnl;
+    }
+    
+    public boolean compute() throws IOException
+    {
+        System.out.println("Featurefile writer started.");
 
         maryDir = new File( db.maryDirName() );
         if (!maryDir.exists()) {
@@ -66,12 +71,6 @@ public class FeaturefileWriter implements VoiceImportComponent
         unitfeatureDir = new File(db.unitFeaDirName());
         File weightsFile = new File(db.weightsFileName());
         featureDefinition = new FeatureDefinition(new BufferedReader(new InputStreamReader(new FileInputStream(weightsFile), "UTF-8")), true); // true: read weights
-
-    }
-    
-    public boolean compute() throws IOException
-    {
-        System.out.println("Featurefile writer started.");
 
         DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(featureFile)));
         new MaryHeader(MaryHeader.TARGETFEATS).write(out);

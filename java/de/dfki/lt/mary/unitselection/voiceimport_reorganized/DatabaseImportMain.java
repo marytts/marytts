@@ -99,7 +99,7 @@ public class DatabaseImportMain extends JFrame
         for (int i=0; i<components.length; i++) {
             System.out.println("Adding checkbox for "+components[i].getClass().getName());
             String classname = components[i].getClass().getName();
-            classname = classname.substring(classname.lastIndexOf('.'));
+            classname = classname.substring(classname.lastIndexOf('.')+1);
             checkboxes[i] = new JCheckBox(classname);
             //checkboxes[i].setPreferredSize(new Dimension(200, 30));
             checkboxPane.add(checkboxes[i]);
@@ -198,7 +198,7 @@ public class DatabaseImportMain extends JFrame
     protected void doSave() throws IOException
     {
         JFileChooser fc = new JFileChooser();
-        fc.setSelectedFile(new File( db.basenameFile() ));
+        fc.setSelectedFile(new File( db.basenameFile() ).getAbsoluteFile() );
         int returnVal = fc.showSaveDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             bnl.write( fc.getSelectedFile() );
