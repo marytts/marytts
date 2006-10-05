@@ -41,7 +41,7 @@ import de.dfki.lt.mary.unitselection.UnitFileReader;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 
-public class FeatureFileWriter_tmp implements VoiceImportComponent
+public class FeatureFileWriter implements VoiceImportComponent
 {
     protected File maryDir;
     protected File featureFile;
@@ -51,7 +51,7 @@ public class FeatureFileWriter_tmp implements VoiceImportComponent
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
     
-    public FeatureFileWriter_tmp( DatabaseLayout setdb, BasenameList setbnl ) throws IOException
+    public FeatureFileWriter( DatabaseLayout setdb, BasenameList setbnl ) throws IOException
     {
         this.db = setdb;
         this.bnl = setbnl;
@@ -152,7 +152,7 @@ public class FeatureFileWriter_tmp implements VoiceImportComponent
      */
     public static void main(String[] args) throws IOException
     {
-        new FeatureFileWriter_tmp( null, null ).compute();
+        new FeatureFileWriter( null, null ).compute();
     }
 
 }
