@@ -43,12 +43,12 @@ public class FeatureFileIndexer extends FeatureFileReader {
     private FeatureComparator c = new FeatureComparator( -1 );
     private UnitIndexComparator cui = new UnitIndexComparator();
     
-//    long tic = 0;
-//    long toc = 0;
-//    long nol = 0;
-//    long nextNol = 0;
+    private long numberOfLeaves = 0;
     
-    long totnol = 0;
+    
+    /****************/
+    /* CONSTRUCTORS */
+    /****************/
 
     /**
      * Constructor which loads the feature file and launches an indexing
@@ -79,7 +79,11 @@ public class FeatureFileIndexer extends FeatureFileReader {
         super( fileName );
     }
     
-    /**
+    /********************/
+    /* INDEXING METHODS */
+    /********************/
+
+   /**
      * A local sort at a particular node along the deep sorting operation.
      * This is a recursive function.
      * 
@@ -91,22 +95,12 @@ public class FeatureFileIndexer extends FeatureFileReader {
         /* If we have reached a leaf, do a final sort according to the unit index and return: */
         if ( currentFeatureIdx == featureSequence.length ) {
             Arrays.sort( featureVectors, currentNode.from, currentNode.to, cui );
-//            nol++;
-//            if ( nol == nextNol ) {
-//                long localtic = toc;
-//                toc = System.currentTimeMillis();
-//                System.out.println( "Reached leaf [" + nol + "/" + totnol + "] in [" + (toc-localtic)
-//                        + " milliseconds (Elapsed time : [" + (toc-tic) + "] milliseconds.)" );
-//                System.out.flush();
-//                nextNol += 1000;
-//            }
-            
+            numberOfLeaves++;
             /*System.out.print( "LEAF ! (" + (currentNode.to-currentNode.from) + " units)" );
             for ( int i = currentNode.from; i < currentNode.to; i++ ) {
                 System.out.print( " (" + featureVectors[i].getUnitIndex() + " 0)" );
             }
             System.out.println( "" );*/
-            
             return;
         }
         /* Else: */
@@ -152,81 +146,177 @@ public class FeatureFileIndexer extends FeatureFileReader {
      */
     public void deepSort( int[] setFeatureSequence ) {
         featureSequence = setFeatureSequence;
-        totnol = getNumberOfLeaves();
-        // System.out.println( "Building a tree with [" + totnol + "] leaves..." ); System.out.flush();
-        if ( totnol == -1 ) {
-            throw new RuntimeException( "The number of leaves blows the capacity of the long type!"
-                    + " -> The given feature sequence is too big to build a tree." );
-        }
-//        nol = 0;
-//        nextNol = 1000;
-//        tic = System.currentTimeMillis();
+        numberOfLeaves = 0;
         tree = new MaryNode( 0, featureVectors.length );
         sortNode( 0, tree );
     }
     
     /**
+     * Fill a particular node of a pre-specified tree.
+     * This is a recursive function.
+     * 
+     * @param currentNode The current node, holding the currently processed
+     * zone in the array of feature vectors.
+     */
+    private void fillNode( MaryNode currentNode ) {
+        /* If we have reached a leaf, do a final sort according to the unit index and return: */
+        if ( currentNode.isLeaf() ) {
+            Arrays.sort( featureVectors, currentNode.from, currentNode.to, cui );
+            numberOfLeaves++;
+            /*System.out.print( "LEAF ! (" + (currentNode.to-currentNode.from) + " units)" );
+            for ( int i = currentNode.from; i < currentNode.to; i++ ) {
+                System.out.print( " (" + featureVectors[i].getUnitIndex() + " 0)" );
+            }
+            System.out.println( "" );*/
+            return;
+        }
+        /* Else: */
+        int currentFeature = currentNode.featureIndex;
+        /* Perform the sorting according to the currently considered feature: */
+        /* 1) position the comparator onto the right feature */
+        c.setFeatureIdx( currentFeature );
+        /* 2) do the sorting */
+        Arrays.sort( featureVectors, currentNode.from, currentNode.to, c );
+        
+        /* Then, seek for the zones where the feature value is the same,
+         * and launch the next sort level on these. */
+        int nVal = featureDefinition.getNumberOfValues( currentFeature );
+        int nextFrom = currentNode.from;
+        int nextTo = currentNode.from;
+        for ( int i = 0; i < nVal; i++ ) {
+            nextFrom = nextTo;
+            // System.out.print( "Next node begins at " + nextFrom );
+            while ( (nextTo < currentNode.to) && (featureVectors[nextTo].getFeatureAsInt( currentFeature ) == i)  ) {
+                // System.out.print( " " + featureVectors[nextTo].getFeatureAsInt( currentFeature ) );
+                nextTo++;
+            }
+            // System.out.println( " and ends at " + nextTo + " for a total of " + (nextTo-nextFrom) + " units." );
+            if ( (nextTo-nextFrom) != 0 ) {
+                MaryNode nod = currentNode.getChild( i );
+                if ( nod != null ) {
+                    nod.from = nextFrom;
+                    nod.to = nextTo;
+                    fillNode( nod );
+                }
+            }
+            else currentNode.setChild( i, null );
+        }
+    }
+    
+    /**
+     * Fill a tree which specifies a feature hierarchy but no corresponding units.
+     * 
+      * @param featureIdx An array of feature indexes, indicating the sequence of
+     * features according to which the sorting should be performed.
+     */
+    public void deepFill( MaryNode specTree ) {
+        tree = specTree;
+        numberOfLeaves = 0;
+        sortNode( 0, tree );
+    }
+    
+    
+    /***************************/
+    /* QUERY/RETRIEVAL METHODS */
+    /***************************/
+    
+    /**
      * Retrieve an array of unit features which complies with a specific target specification,
      * according to an underlying tree.
      * 
-     * @param v A feature vector for which to send back an array of complying unit indexes. 
-     * @return An array of feature vectors.
+     * @param v A feature vector for which to send back an array of complying unit indexes.
+     * @return A query result, comprising an array of feature vectors and the depth level which was actually reached.
      * 
      * @see FeatureFileIndexer#deepSort(int[])
+     * @see FeatureFileIndexer#deepFill(MaryNode)
      */
-    public FeatureVector[] retrieve( FeatureVector v ) {
-        if ( featureSequence == null ) {
-            throw new RuntimeException( "Can't retrieve candidate units if a tree has not been built. (Run this.deepSort(int[]) first.)" );
+    public QueryResult retrieve( FeatureVector v ) {
+        int level = 0;
+        /* Check if the tree is there */
+        if ( tree == null ) {
+            throw new RuntimeException( "Can't retrieve candidate units if a tree has not been built." +
+            " (Run this.deepSort(int[]) or this.deepFill(MaryNode) first.)" );
         }
         /* Walk down the tree */
         MaryNode n = tree;
+        MaryNode next = null;
         while ( !n.isLeaf() ) {
-            n = n.getChild( v.getFeatureAsInt( n.getFeatureIndex() ) );
+            next = n.getChild( v.getFeatureAsInt( n.getFeatureIndex() ) );
+            /* Check if the next node is a dead branch */
+            if ( next != null ) {
+                n = next;
+                level++;
+            }
+            else break;
         }
-        /* Dereference the leaf */
-        int retFrom = n.from;
-        int retTo = n.to;
-        FeatureVector[] ret = new FeatureVector[retTo - retFrom];
-        for ( int i = retFrom; i < retTo; i++ ) {
-            ret[i-retFrom] = featureVectors[i];
-        }
-        return( ret );
+        /* Dereference the reached node or leaf */
+        QueryResult qr = new QueryResult( getFeatureVectors(n.from,n.to), level );
+        return( qr );
     }
+    
     
     /**
      * Retrieve an array of unit features which complies with a specific target specification,
-     * given an underlying tree, but only down to a certain number of levels.
+     * according to an underlying tree, and given a stopping condition.
      * 
      * @param v A feature vector for which to send back an array of complying unit indexes.
-     * @param numLevels A limit on the number of levels to cross.
+     * @param condition A constant indicating a stopping criterion, among:
+     * FeatureFileIndexer.MAXDEPTH : walk the tree until its leaves (maximum depth);
+     * FeatureFileIndexer.MAXLEVEL : walk the tree until a certain depth level;
+     * FeatureFileIndexer.MINUNITS : walk the tree until a certain number of units is reached.
+     * @param parameter A parameter interpreted according to the above condition:
+     * MAXDEPTH -> parameter is ignored; MAXLEVEL -> parameter = maximum level to reach;
+     * MINUNITS -> parameter = lower bound on the number of units to return.
      * 
-     * @return An array of feature vectors.
+     * @return A query result, comprising an array of feature vectors and the depth level which was actually reached.
      * 
      * @see FeatureFileIndexer#deepSort(int[])
+     * @see FeatureFileIndexer#deepFill(MaryNode)
      */
-    public FeatureVector[] retrieve( FeatureVector v, int numLevels ) {
-        if ( featureSequence == null ) {
-            throw new RuntimeException( "Can't retrieve candidate units if a tree has not been built. (Run this.deepSort(int[]) first.)" );
-        }
-        if ( numLevels > featureSequence.length ) {
-            throw new RuntimeException( "Can't walk down to a tree further than the length of the underlying feature sequence." );
-        }
-        /* Walk down the tree */
-        MaryNode n = tree;
-        for ( int i = 0; i < numLevels; i++ ) {
-            n = n.getChild( v.getFeatureAsInt( n.getFeatureIndex() ) );
-        }
-        /* Dereference the leaf */
-        int retFrom = n.from;
-        int retTo = n.to;
-        FeatureVector[] ret = new FeatureVector[retTo - retFrom];
-        for ( int i = retFrom; i < retTo; i++ ) {
-            ret[i-retFrom] = featureVectors[i];
-        }
-        return( ret );
-    }
+    public static final int MAXDEPTH = 0;
+    public static final int MAXLEVEL = 1;
+    public static final int MINUNITS = 2;
     
-    /**
+    public QueryResult retrieve( FeatureVector v, int condition, int parameter ) {
+        int level = 0;
+        /* Check if the tree is there */
+        if ( tree == null ) {
+            throw new RuntimeException( "Can't retrieve candidate units if a tree has not been built." +
+                    " (Run this.deepSort(int[]) or this.deepFill(MaryNode) first.)" );
+        }
+//      /**/
+//      /* TODO: Do we want the warning below? */
+//      /*if ( (condition == MAXLEVEL) && (featureSequence != null) && (parameter > featureSequence.length) ) {
+//          System.out.println( "WARNING: you asked for more levels [" + maxLevel
+//                  + "] than the length of the underlying feature sequence[" + featureSequence.length + "]. Proceeding anyways." );
+//      }*/
+       /* Walk down the tree */
+        MaryNode n = tree;
+        MaryNode next = null;
+        while ( !n.isLeaf() ) {
+            next = n.getChild( v.getFeatureAsInt( n.getFeatureIndex() ) );
+            /* Check for the number of units in the next node */
+            if ( (condition == MINUNITS) && ( (next.to - next.from) < parameter) ) break;
+            /* Check if the next node is a dead branch */
+            if ( next != null ) {
+                n = next;
+                level++;
+            }
+            else break;
+            /* Check for the current level */
+            if ( (condition == MAXLEVEL) && (level == parameter) ) break;
+        }
+        /* Dereference the reached node or leaf */
+        QueryResult qr = new QueryResult( getFeatureVectors(n.from,n.to), level );
+        return( qr );
+    }
+        
+    
+    /***************************/
+    /* MISCELLANEOUS ACCESSORS */
+    /***************************/
+
+   /**
      * Get the feature sequence, as an information about the underlying tree structure.
      * 
      * @return the feature sequence
@@ -261,16 +351,39 @@ public class FeatureFileIndexer extends FeatureFileReader {
     /**
      * Get the number of leaves.
      * 
-     * @return The number of leaves.
+     * @return The number of leaves, or -1 if the tree has not been computed.
      */
     public long getNumberOfLeaves() {
+        if ( tree == null ) return( -1 );
+        return( numberOfLeaves );
+    }
+    
+    /**
+     * Get the theoretical number of leaves, given a feature sequence.
+     * 
+     * @return The number of leaves, or -1 if the capacity of the long integer was blown.
+     */
+    public long getTheoreticalNumberOfLeaves( int[] feaSeq ) {
         long ret = 1;
-        for ( int i = 0; i < featureSequence.length; i++ ) {
-//            System.out.println( "Feature [" + i + "] has [" + featureDefinition.getNumberOfValues( featureSequence[i] ) + "] values."
-//                    + "(Number of leaves = [" + ret + "].)" );
-            ret *= featureDefinition.getNumberOfValues( featureSequence[i] );
+        for ( int i = 0; i < feaSeq.length; i++ ) {
+//          System.out.println( "Feature [" + i + "] has [" + featureDefinition.getNumberOfValues( featureSequence[i] ) + "] values."
+//          + "(Number of leaves = [" + ret + "].)" );
+            ret *= featureDefinition.getNumberOfValues( feaSeq[i] );
             if ( ret < 0 ) return( -1 );
         }
         return( ret );
+    }
+}
+
+/**
+ * Helper class to return the results of a unit retrieval.
+ */
+class QueryResult {
+    public FeatureVector[] v = null;
+    public int level = -1;
+    
+    public QueryResult( FeatureVector[] setV, int setLevel ) {
+        this.v = setV;
+        this.level = setLevel;
     }
 }
