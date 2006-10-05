@@ -177,6 +177,7 @@ public class LPCTimelineMaker implements VoiceImportComponent
                 System.out.println( baseNameArray[i] );
                 lpcFile = new ESTTrackReader( db.lpcDirName() + "/" + baseNameArray[i] + db.lpcExt() );
                 wav = new WavReader( db.wavDirName() + baseNameArray[i] + db.wavExt() );
+                short[] wave = wav.getSamples();
                 /* - Reset the frame locations in the local file */
                 int frameStart = 0;
                 int frameEnd = 0;
@@ -201,7 +202,6 @@ public class LPCTimelineMaker implements VoiceImportComponent
                     
                     /* PERFORM THE INVERSE FILTERING with the quantized LPCs, and write the residual to the datagram: */
                     double r;
-                    short[] wave = wav.getSamples();
                     int numRes = frameSize - numLPC;
                     byte[] residual = new byte[numRes];
                     for (int k = 0; k < numRes; k++) {
