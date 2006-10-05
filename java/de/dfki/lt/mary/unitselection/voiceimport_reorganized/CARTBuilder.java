@@ -61,7 +61,7 @@ public class CARTBuilder implements VoiceImportComponent {
     }
     
      public boolean compute() throws Exception{
-         
+         long time = System.currentTimeMillis();
          //read in the features with feature file indexer
          System.out.println("Reading feature file ...");
          String featureFile = databaseLayout.targetFeaturesFileName();
@@ -70,27 +70,30 @@ public class CARTBuilder implements VoiceImportComponent {
          //TODO: find a way to define the feature sequence
          FeatureDefinition featureDefinition = ffi.getFeatureDefinition();
          int[] featureSequence = new int[3];
-         featureSequence[0] = featureDefinition.getFeatureIndex("mary_phoneme");
+         featureSequence[0] = featureDefinition.getFeatureIndex("mary_ph_vc");
          featureSequence[1] = featureDefinition.getFeatureIndex("mary_next_is_pause"); 
          featureSequence[2] = featureDefinition.getFeatureIndex("mary_stressed"); 
-         
          //sort the features according to feature sequence
          System.out.println("Sorting features ...");
          ffi.deepSort(featureSequence);
          System.out.println(" ... done!");
          //get the resulting tree
          MaryNode topLevelTree = ffi.getTree();
+         //topLevelTree.toStandardOut(ffi);
          
          //convert the top-level CART to Wagon Format
          System.out.println("Building CART from tree ...");
          CARTWagonFormat topLevelCART = new CARTWagonFormat(topLevelTree,ffi);
          System.out.println(" ... done!");
+        
          //TODO: For each leaf of the top-level CART, call Wagon and replace leaf by new Wagon CART
          
          //dump big CART to binary file
          String destinationFile = databaseLayout.cartFileName();
          dumpCART(destinationFile,topLevelCART);
-         
+         //say how long you took
+         long timeDiff = System.currentTimeMillis() - time;
+         System.out.println("Processing took "+timeDiff+" milliseconds.");
          return true;
      }
     
@@ -105,13 +108,13 @@ public class CARTBuilder implements VoiceImportComponent {
                             FeatureDefinition featDef){
         try{
             //open CART-File
-            System.out.println("Reading CART from "+filename);
-            File cartFile = new File(filename);
-            BufferedReader reader =
-                        new BufferedReader(new 
-                                InputStreamReader(new FileInputStream(cartFile)));
+            System.out.println("Reading CART from "+filename+" ...");
             //build and return CART
-            return new CARTWagonFormat(reader,featDef);
+            CARTWagonFormat cart = new CARTWagonFormat();
+            cart.load(filename,featDef);
+            //cart.toStandardOut();
+            System.out.println(" ... done!");
+            return cart;
         } catch (Exception e){
             e.printStackTrace();
             throw new Error("Error reading CARTS");
@@ -127,7 +130,7 @@ public class CARTBuilder implements VoiceImportComponent {
     public void dumpCART(String destFile,
                         CARTWagonFormat cart){
            try {
-                System.out.println("Dump CART to "+destFile);
+                System.out.println("Dumping CART to "+destFile+" ...");
         
                 //Open the destination file (cart.bin) and output the header
                 DataOutputStream out = new DataOutputStream(new
@@ -137,20 +140,20 @@ public class CARTBuilder implements VoiceImportComponent {
                 MaryHeader hdr = new MaryHeader(MaryHeader.CARTS);
                 hdr.write(out);
         
-                //write number of CARTs
-                out.writeInt(1);
+                //write number of nodes
+                out.writeInt(cart.getNumNodes());
                 String name = "";
                 //dump name and CART
                 out.writeUTF(name);
+                //dump CART
                 cart.dumpBinary(out);
-                //for debugging
-                cart.toStandardOut();
+                
               
                 //finish
                 out.close();
-                System.out.println("Done\n");
+                System.out.println(" ... done\n");
             } catch (IOException e){
-                    e.printStackTrace();
+                    //e.printStackTrace();
                     throw new Error("Error dumping CARTS");
             }    
     }     

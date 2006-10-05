@@ -28,6 +28,8 @@
  */
 package de.dfki.lt.mary.unitselection;
 
+import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
+
 /**
  * A generic node class for the tree structures.
  * 
@@ -98,6 +100,31 @@ public class MaryNode {
     }
     public boolean isLeaf() {
         return( kids == null );
+    }
+    
+    //debug output
+    public void toStandardOut(FeatureFileIndexer ffi){
+     if (kids != null){
+         String featureName = ffi.getFeatureDefinition().getFeatureName(featureIndex);
+         System.out.println("Node "+featureName+" "+kids.length);
+         for (int i=0;i<kids.length;i++){
+             kids[i].toStandardOut(ffi);
+         }         
+     } else {
+         //get the unit indices
+         FeatureVector[] featureVectors = 
+             ffi.getFeatureVectors(from,to);
+         int[] indices = new int[featureVectors.length];
+         for (int i=0;i<indices.length;i++){
+             indices[i] = featureVectors[i].getUnitIndex();
+         }
+         System.out.print("LEAF ");
+         for (int i=0;i<indices.length;i++){
+             System.out.print(indices[i]+" ");
+         }
+         System.out.print("\n");
+     }
+        
     }
     
 }
