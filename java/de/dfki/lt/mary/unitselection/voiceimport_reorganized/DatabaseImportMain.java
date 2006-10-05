@@ -173,6 +173,8 @@ public class DatabaseImportMain extends JFrame
                 } else {
                     checkboxes[i].setBackground(Color.RED);
                 }
+                checkboxes[i].setSelected(false);
+                checkboxes[i].revalidate();
             }
         }
     }
