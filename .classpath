@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="java/log4j-1.2.8.jar"/>
-	<classpathentry sourcepath="/FreeTTS" kind="lib" path="java/freetts.jar"/>
+	<classpathentry kind="lib" path="java/freetts.jar"/>
 	<classpathentry sourcepath="java/jsresources.jar" kind="lib" path="java/jsresources.jar"/>
 	<classpathentry kind="lib" path="java/junit.jar"/>
 	<classpathentry kind="lib" path="java/freetts-cmu_us_kal.jar"/>
@@ -20,7 +20,6 @@
 	<classpathentry kind="lib" path="java/freetts-de.jar"/>
 	<classpathentry kind="lib" path="build/standalone-compiler.jar"/>
 	<classpathentry kind="lib" path="java/jl1.0.jar"/>
-	<classpathentry kind="lib" path="D:/mary/trunk/dfkimary/java/signalproc.jar"/>
-	<classpathentry kind="lib" path="D:/mary/trunk/dfkimary/java/mary-dfki-unitselection.jar"/>
 	<classpathentry kind="output" path="java"/>
 </classpath>
+
