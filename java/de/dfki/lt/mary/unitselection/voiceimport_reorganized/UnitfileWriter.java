@@ -39,6 +39,8 @@ import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.util.StringTokenizer;
 
+import de.dfki.lt.mary.unitselection.FeatureFileReader;
+import de.dfki.lt.mary.unitselection.UnitFileReader;
 import de.dfki.lt.mary.util.FileUtils;
 
 public class UnitfileWriter implements VoiceImportComponent
@@ -116,6 +118,19 @@ public class UnitfileWriter implements VoiceImportComponent
         raf.seek(posNumUnits);
         raf.writeInt(index);
         raf.close();
+        System.out.println("Number of processed units: " + index );
+
+        
+        UnitFileReader tester = new UnitFileReader(db.unitFileName());
+        int unitsOnDisk = tester.getNumberOfUnits();
+        if (unitsOnDisk == index) {
+            System.out.println("Can read right number of units");
+            return true;
+        } else {
+            System.out.println("Read wrong number of units: "+unitsOnDisk);
+            return false;
+        }
+
         return true;
     }
 

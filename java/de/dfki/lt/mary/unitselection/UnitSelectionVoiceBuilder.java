@@ -121,7 +121,7 @@ public class UnitSelectionVoiceBuilder
             }
             
             // build the feature processors if not already built	
-	        String featureProcessorsClass = MaryProperties.needFilename(header+".featureProcessorsClass");
+	        String featureProcessorsClass = MaryProperties.needProperty(header+".featureProcessorsClass");
 	        FeatureProcessorManager featProcManager;
 	        if (featureProcessors.containsKey(locale)) {
 	            featProcManager = (FeatureProcessorManager) featureProcessors.get(locale);
