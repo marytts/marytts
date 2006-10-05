@@ -38,7 +38,7 @@ import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 import de.dfki.lt.mary.unitselection.voiceimport_reorganized.MaryHeader;
 
-public class FeatureFileReader
+public class FeatureFileReader_tmp
 {
     protected MaryHeader hdr;
     protected FeatureDefinition featureDefinition;
@@ -48,11 +48,11 @@ public class FeatureFileReader
      * Empty constructor; need to call load() separately when using this.
      * @see load(String)
      */
-    public FeatureFileReader()
+    public FeatureFileReader_tmp()
     {
     }
     
-    public FeatureFileReader( String fileName ) throws IOException
+    public FeatureFileReader_tmp( String fileName ) throws IOException
     {
         load(fileName);
     }
