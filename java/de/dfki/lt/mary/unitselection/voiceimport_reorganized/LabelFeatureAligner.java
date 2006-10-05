@@ -204,6 +204,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
         while (correct) {
             String labelUnit = getLabelUnit(labels);
             String featureUnit = getFeatureUnit(features);
+            if (featureUnit == null) throw new IOException("Incomplete feature file: "+basename);
             // when featureUnit is the empty string, we have found an empty line == end of feature section
             if ("".equals(featureUnit)) break;
             if (!featureUnit.equals(labelUnit)) {

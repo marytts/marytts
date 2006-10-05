@@ -71,6 +71,7 @@ public class DatabaseImportMain extends JFrame
 {
     protected VoiceImportComponent[] components;
     protected JCheckBox[] checkboxes;
+    protected JButton runButton;
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
     
@@ -112,7 +113,7 @@ public class DatabaseImportMain extends JFrame
         gridBagLayout.setConstraints( scrollPane, gridC );
         getContentPane().add(scrollPane);
 
-        JButton runButton = new JButton("Run selected components");
+        runButton = new JButton("Run selected components");
         runButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
                 runSelectedComponents();
@@ -157,26 +158,37 @@ public class DatabaseImportMain extends JFrame
         });
     }
     
+    /**
+     * Run the selected components in a different thread.
+     *
+     */
     protected void runSelectedComponents()
     {
-        for (int i=0; i<components.length; i++) {
-            if (checkboxes[i].isSelected()) {
-                boolean success = false;
-                try {
-                    success = components[i].compute();
-                } catch (Exception exc) {
-                    exc.printStackTrace();
-                    throw new RuntimeException( "The component " + checkboxes[i].getText() + " produced the following exception: ", exc );
+        new Thread("RunSelectedComponentsThread") {
+            public void run() {
+                runButton.setEnabled(false);
+                for (int i=0; i<components.length; i++) {
+                    if (checkboxes[i].isSelected()) {
+                        boolean success = false;
+                        try {
+                            success = components[i].compute();
+                        } catch (Exception exc) {
+                            checkboxes[i].setBackground(Color.RED);
+                            checkboxes[i].setSelected(false);
+                            runButton.setEnabled(true);
+                            throw new RuntimeException( "The component " + checkboxes[i].getText() + " produced the following exception: ", exc );
+                        }
+                        if (success) {
+                            checkboxes[i].setBackground(Color.GREEN);
+                        } else {
+                            checkboxes[i].setBackground(Color.RED);
+                        }
+                        checkboxes[i].setSelected(false);
+                    }
                 }
-                if (success) {
-                    checkboxes[i].setBackground(Color.GREEN);
-                } else {
-                    checkboxes[i].setBackground(Color.RED);
-                }
-                checkboxes[i].setSelected(false);
-                checkboxes[i].revalidate();
+                runButton.setEnabled(true);
             }
-        }
+        }.start();
     }
     
     protected void askIfSave() throws IOException
