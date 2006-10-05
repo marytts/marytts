@@ -103,27 +103,34 @@ public class MaryNode {
     }
     
     //debug output
-    public void toStandardOut(FeatureFileIndexer ffi){
-     if (kids != null){
-         String featureName = ffi.getFeatureDefinition().getFeatureName(featureIndex);
-         System.out.println("Node "+featureName+" "+kids.length);
-         for (int i=0;i<kids.length;i++){
-             kids[i].toStandardOut(ffi);
-         }         
-     } else {
-         //get the unit indices
-         FeatureVector[] featureVectors = 
-             ffi.getFeatureVectors(from,to);
-         int[] indices = new int[featureVectors.length];
-         for (int i=0;i<indices.length;i++){
-             indices[i] = featureVectors[i].getUnitIndex();
-         }
-         System.out.print("LEAF ");
-         for (int i=0;i<indices.length;i++){
-             System.out.print(indices[i]+" ");
-         }
-         System.out.print("\n");
-     }
+    public void toStandardOut(FeatureFileIndexer ffi, int level ){
+        
+        String blanks = "";
+        for ( int i = 0; i < level; i++ ) blanks += "   ";
+        
+        if (kids != null){
+            String featureName = ffi.getFeatureDefinition().getFeatureName(featureIndex);
+            System.out.println( "Node "+ featureName + " has " + (to-from) + " units divided into " + kids.length + " branches." );
+            for (int i=0;i<kids.length;i++){
+                if ( kids[i] != null ) {
+                    System.out.print( blanks + "Branch " + i + "/" + kids.length + " ( " + ffi.getFeatureDefinition().getFeatureName(featureIndex)
+                            + " is " + ffi.getFeatureDefinition().getFeatureValueAsString(featureIndex,i) + " )" + " -> " );
+                    kids[i].toStandardOut(ffi, level+1 );
+                }
+                else {
+                    System.out.println( blanks + "Branch " + i + "/" + kids.length + " ( " + ffi.getFeatureDefinition().getFeatureName(featureIndex)
+                            + " is " + ffi.getFeatureDefinition().getFeatureValueAsString(featureIndex,i) + " )" + " -> DEAD BRANCH (0 units)" );
+                }
+            }         
+        } else {
+            //get the unit indices
+            FeatureVector[] fv = ffi.getFeatureVectors(from,to);
+            System.out.print("LEAF has " + (to-from) + " units : " );
+            for (int i=0;i<fv.length;i++){
+                System.out.print( fv[i].getUnitIndex() + " " );
+            }
+            System.out.print("\n");
+        }
         
     }
     
