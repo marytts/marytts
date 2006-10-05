@@ -30,7 +30,7 @@ package de.dfki.lt.mary.tests;
 
 import de.dfki.lt.mary.unitselection.FeatureFileIndexer;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
-import de.dfki.lt.mary.unitselection.featureprocessors.Signature;
+//import de.dfki.lt.mary.unitselection.featureprocessors.Signature;
 
 import junit.framework.TestCase;
 
@@ -94,7 +94,7 @@ public class FeatureFileIndexerTest extends TestCase {
             feaSeq[i1] = feaSeq[i2];
             feaSeq[i2] = dummy;
         }
-        final int NUMFEATS = 7;
+        final int NUMFEATS = 42;
         int[] feaFinalSeq = new int[NUMFEATS];
         System.arraycopy( feaSeq, 0, feaFinalSeq, 0, NUMFEATS );
         check = 1;
@@ -102,13 +102,19 @@ public class FeatureFileIndexerTest extends TestCase {
         
         // CHEATS
         
-        feaFinalSeq[0] = 0; // Cheat this value to force phoneme ID
+        // feaFinalSeq[0] = 0; // Cheat this value to force phoneme ID
         
+        // ALL features
+        feaFinalSeq = new int[42];
+        for ( int i = 0; i < 42; i++ ) {
+            feaFinalSeq[i] = i;
+        }
+
         // CART top level
-        feaFinalSeq = new int[3];
-        feaFinalSeq[0] = 0; // Cheat this value to force phoneme ID
-        feaFinalSeq[1] = 3; // c_place
-        feaFinalSeq[2] = 28;
+//        feaFinalSeq = new int[3];
+//        feaFinalSeq[0] = 0; // Cheat this value to force phoneme ID
+//        feaFinalSeq[1] = 3; // c_place
+//        feaFinalSeq[2] = 28;
         
 //        feaFinalSeq = new int[2];
 //        feaFinalSeq[0] = 0; // Cheat this value to force phoneme ID
@@ -158,9 +164,9 @@ public class FeatureFileIndexerTest extends TestCase {
         System.out.println( "Average indexing time over [" + NUMITER + "] iterations : [" + ((toc-tic)/NUMITER) + "] milliseconds." );
         System.out.flush();
         
-        System.out.println( "TREE DEBUG OUT" );
-        ffi.getTree().toStandardOut( ffi, 0 );
-        System.out.flush();
+//        System.out.println( "TREE DEBUG OUT" );
+//        ffi.getTree().toStandardOut( ffi, 0 );
+//        System.out.flush();
         
         /* Measure the retrieval time */
         
