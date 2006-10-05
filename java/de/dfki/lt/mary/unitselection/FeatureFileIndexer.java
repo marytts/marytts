@@ -101,11 +101,11 @@ public class FeatureFileIndexer extends FeatureFileReader {
 //                nextNol += 1000;
 //            }
             
-            /*System.out.print( "LEAF ! " );
+            /*System.out.print( "LEAF ! (" + (currentNode.to-currentNode.from) + " units)" );
             for ( int i = currentNode.from; i < currentNode.to; i++ ) {
                 System.out.print( " (" + featureVectors[i].getUnitIndex() + " 0)" );
             }
-            System.out.println( "" ); */
+            System.out.println( "" );*/
             
             return;
         }
@@ -127,16 +127,19 @@ public class FeatureFileIndexer extends FeatureFileReader {
         int nextTo = currentNode.from;
         for ( int i = 0; i < nVal; i++ ) {
             nextFrom = nextTo;
-            // System.out.println( "BEGIN ZONE at " + nextFrom );
-            while ( (nextTo < featureVectors.length) && (featureVectors[nextTo].getFeatureAsInt( currentFeature ) == i)  ) {
+            // System.out.print( "Next node begins at " + nextFrom );
+            while ( (nextTo < currentNode.to) && (featureVectors[nextTo].getFeatureAsInt( currentFeature ) == i)  ) {
                 // System.out.print( " " + featureVectors[nextTo].getFeatureAsInt( currentFeature ) );
                 nextTo++;
             }
-            // System.out.println( "END ZONE at " + nextTo );
-            MaryNode nod = new MaryNode( nextFrom, nextTo );
-            currentNode.setChild( i, nod );
-            // System.out.print("(" + i + " isByteOf " + currentFeature + ")" );
-            sortNode( currentFeatureIdx+1, nod );
+            // System.out.println( " and ends at " + nextTo + " for a total of " + (nextTo-nextFrom) + " units." );
+            if ( (nextTo-nextFrom) != 0 ) {
+                MaryNode nod = new MaryNode( nextFrom, nextTo );
+                currentNode.setChild( i, nod );
+                // System.out.print("(" + i + " isByteOf " + currentFeature + ")" );
+                sortNode( currentFeatureIdx+1, nod );
+            }
+            else currentNode.setChild( i, null );
         }
     }
     
@@ -150,7 +153,7 @@ public class FeatureFileIndexer extends FeatureFileReader {
     public void deepSort( int[] setFeatureSequence ) {
         featureSequence = setFeatureSequence;
         totnol = getNumberOfLeaves();
-        System.out.println( "Building a tree with [" + totnol + "] leaves..." ); System.out.flush();
+        // System.out.println( "Building a tree with [" + totnol + "] leaves..." ); System.out.flush();
         if ( totnol == -1 ) {
             throw new RuntimeException( "The number of leaves blows the capacity of the long type!"
                     + " -> The given feature sequence is too big to build a tree." );
