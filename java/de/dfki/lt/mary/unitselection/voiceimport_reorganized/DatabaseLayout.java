@@ -99,7 +99,8 @@ public class DatabaseLayout
         /* Wav files */
         setIfDoesntExist( "db.wavSubDir", "wav" );
         setIfDoesntExist( "db.wavExtension", ".wav" );
-        
+        setIfDoesntExist( "db.waveTimelineBaseName", "timeline_waveforms" );
+       
         /* LPC files */
         setIfDoesntExist( "db.lpcSubDir", "lpc" );
         setIfDoesntExist( "db.lpcExtension", ".lpc" );
@@ -234,6 +235,13 @@ public class DatabaseLayout
         return( timelineDirName() + System.getProperty( "db.melcepTimelineBaseName" ) + timelineExt() );
     }
     
+    /* File name for the waveform timeline */
+    public String waveTimelineFileName() {
+        String ret = System.getProperty( "db.waveTimelineFileName" );
+        if ( ret != null ) return( ret );
+        /* else: */
+        return( timelineDirName() + System.getProperty( "db.waveTimelineBaseName" ) + timelineExt() );
+    }
     
     /* MARY FILES */
     public String maryDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
