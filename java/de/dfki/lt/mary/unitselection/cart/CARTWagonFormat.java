@@ -84,6 +84,8 @@ public class CARTWagonFormat implements CART{
     private Node lastNode;
     private int openBrackets;
     
+    private int numNodes;
+    
     //knows the index numbers´and types of the features
     private static FeatureDefinition featDef;
   
@@ -103,11 +105,13 @@ public class CARTWagonFormat implements CART{
         String line = reader.readLine(); // first line is empty, read again 
         //each line corresponds to a node
         line = reader.readLine(); 
+        numNodes = 0;
         //for each line
         while (line != null) {
             if (!line.startsWith(";;")) {
                 //parse the line and add the node
                 parseAndAdd(line);
+                numNodes++;
             }
             line = reader.readLine();
         }
@@ -131,9 +135,8 @@ public class CARTWagonFormat implements CART{
      */
     public void load(String fileName, FeatureDefinition featDefinition) throws IOException
     {
+        System.out.println("Loading file");
         //open the CART-File and read the header
-        //TODO: MAGIC, VERSION and CARTS should not be defined in this class,
-        //should be statics in a database class
         RandomAccessFile raf = new RandomAccessFile(new File(fileName), "r");
         if (raf.readInt() != MAGIC)  {
             throw new Error("No MARY database file!");
@@ -144,9 +147,10 @@ public class CARTWagonFormat implements CART{
         if (raf.readInt() != CARTS)  {
             throw new Error("No CARTs file");
         } 
+        System.out.println("Reading CART");
         //discard number of CARTs and CART name
         //TODO: Change format of CART-File
-        raf.readInt();
+        numNodes = raf.readInt();
         raf.readUTF();
       
 
@@ -160,20 +164,22 @@ public class CARTWagonFormat implements CART{
     	    backtrace = Integer.parseInt(backtraceString.trim());
     	}
     	openBrackets = 0;
-        //Read in the Cart as one long String
-        String cart = raf.readUTF();
-        //the nodes are devided by linebreaks
-        StringTokenizer tok = new StringTokenizer(cart,"\n");
-        //for each line
-    	while (tok.hasMoreTokens()) {
+        //Read in the first node
+        String cart;
+        int nodeIndex = 0;
+        //for each node
+    	while (nodeIndex < numNodes) {
     	   //parse the line and add the node
-    	    parseAndAdd(tok.nextToken());
+    	    cart = raf.readUTF();
+    	    parseAndAdd(cart);
+    	    
+    	    nodeIndex++;
     	}
         //make sure we closed as many brackets as we opened
     	if (openBrackets != 0){
             throw new Error("Error loading CART: bracket mismatch");
         }
-        
+    	System.out.println("Done");
     }
   
     /**
@@ -182,7 +188,7 @@ public class CARTWagonFormat implements CART{
      * @param line a line of input to parse
      */
     private void parseAndAdd(String line) {
-        //remove whitespace at beginning of string
+        //remove whitespace
         line = line.trim();
         //at beginning of String there should be at least two opening brackets
         if (! (line.startsWith("(("))){
@@ -199,6 +205,7 @@ public class CARTWagonFormat implements CART{
             value = value.substring(0,value.length()-1);
             
             //build new node depending on type
+            
             Node nextNode;
             if (type.equals("is")){
                 if (featDef.isByteFeature(feature)){
@@ -296,6 +303,7 @@ public class CARTWagonFormat implements CART{
      */
     public CARTWagonFormat(MaryNode tree, FeatureFileIndexer ffi){
         featDef = ffi.getFeatureDefinition();
+        numNodes = 0;
         addDaughters(null,tree,ffi);
     }
     
@@ -310,16 +318,17 @@ public class CARTWagonFormat implements CART{
     private void addDaughters(DecisionNode motherCARTNode,
                         MaryNode currentTreeNode,
                         FeatureFileIndexer ffi){
-      
+        numNodes++;
        if (currentTreeNode.isNode()){ //if we are not at a leaf
-           System.out.print("Adding node, ");
+           
+           //System.out.print("Adding node, ");
             //the next daughter
            DecisionNode daughterNode = null;
            //the number of daughters of the next daughter
            int numDaughters;
            //the index of the next feature
            int nextFeatIndex = currentTreeNode.getFeatureIndex();
-           System.out.print("featureIndex = "+nextFeatIndex+"\n");
+           //System.out.print("featureIndex = "+nextFeatIndex+"\n");
            if (featDef.isByteFeature(nextFeatIndex)){
                //if we have a byte feature, build a byte decision node
                numDaughters = featDef.getNumberOfValues(nextFeatIndex);
@@ -348,9 +357,10 @@ public class CARTWagonFormat implements CART{
            for (int i = 0; i<numDaughters; i++){
                addDaughters(daughterNode,currentTreeNode.getChild(i),ffi);
            } 
+           
        } else {
            //we are at a leaf node
-           System.out.println("Adding leaf");
+           //System.out.println("Adding leaf");
            //get the feature vectors
            FeatureVector[] featureVectors = 
                ffi.getFeatureVectors(currentTreeNode.getFrom(),currentTreeNode.getTo());
@@ -457,6 +467,15 @@ public class CARTWagonFormat implements CART{
     }
    
     /**
+     * Get the number of nodes in this CART
+     * @return the number of nodes
+     */
+    public int getNumNodes(){
+        return numNodes;
+    }
+        
+    
+    /**
      * Dumps this CART to the output stream in WagonFormat.
      *
      * @param os the output stream
@@ -464,9 +483,11 @@ public class CARTWagonFormat implements CART{
      * @throws IOException if an error occurs during output
      */
     public void dumpBinary(DataOutput os) throws IOException {
-        StringBuffer sb = new StringBuffer();
-        rootNode.toWagonFormat(sb);
-        os.writeUTF(sb.toString());
+        try{
+            rootNode.toWagonFormat((DataOutputStream)os,null);
+        } catch (IOException ioe){
+            throw new Error("Error dumping CART to output stream");
+        }
     }
     
     /**
@@ -475,9 +496,12 @@ public class CARTWagonFormat implements CART{
      * @throws IOException if an error occurs during output
      */
     public void toStandardOut() {
-        StringBuffer sb = new StringBuffer();
-        rootNode.toWagonFormat(sb);
-        System.out.println(sb.toString());
+        try{
+            rootNode.toWagonFormat(null,null);
+        } catch (Exception e){
+            e.printStackTrace();
+            throw new Error("Error dumping CART to Standard out");
+        }
     }
     
     
@@ -534,10 +558,12 @@ public class CARTWagonFormat implements CART{
         
         
         /**
-         * Writes the Cart to the given StringBuffer in Wagon Format
-         * @param sb the StringBuffer
+         * Writes the Cart to the given DataOut in Wagon Format
+         * @param out the outputStream
+         * @param extension the extension that is added to the last daughter
         */
-        public abstract void toWagonFormat(StringBuffer sb);
+        public abstract void toWagonFormat(DataOutputStream out, String extension)
+										throws IOException;
         
         
     }
@@ -552,6 +578,8 @@ public class CARTWagonFormat implements CART{
         protected Node[] daughters;
         //the feature index
         protected int featureIndex;
+        //the feature name
+        protected String feature;
         //remember last added daughter
         protected int lastDaughter;
         
@@ -562,6 +590,7 @@ public class CARTWagonFormat implements CART{
          */
         public DecisionNode (String feature,
                             int numDaughters){
+            this.feature = feature;
             this.featureIndex = featDef.getFeatureIndex(feature);
             daughters = new Node[numDaughters];
             isRoot = false;
@@ -575,6 +604,7 @@ public class CARTWagonFormat implements CART{
         public DecisionNode (int featureIndex,
                             int numDaughters){
             this.featureIndex = featureIndex;
+            this.feature = featDef.getFeatureName(featureIndex);
             daughters = new Node[numDaughters];
             isRoot = false;
         }
@@ -623,23 +653,35 @@ public class CARTWagonFormat implements CART{
         }
         
          /**
-         * Writes the Cart to the given StringBuffer in Wagon Format
-         * @param sb the StringBuffer
+         * Writes the Cart to the given DataOut in Wagon Format
+         * @param out the outputStream
+         * @param extension the extension that is added to the last daughter
         */
-        public void toWagonFormat(StringBuffer sb){
-            //first add two open brackets
-            sb.append("((");
-            //now the values of the node
-            sb.append(getNodeDefinition());
+        public void toWagonFormat(DataOutputStream out, String extension) 
+        											throws IOException{
+            if (out != null){
+                //dump to output stream
+	            //two open brackets + definition of node
+	            out.writeUTF("(("+getNodeDefinition());
+            } else {
+                //dump to Standard out
+                //two open brackets + definition of node
+	            System.out.println("(("+getNodeDefinition());
+            }
             //add the daughters
             for (int i=0;i<daughters.length;i++){
-                daughters[i].toWagonFormat(sb);
-                if (i+1!=daughters.length){
-                    sb.append("\n");
+                    if (i+1!=daughters.length){
+                            daughters[i].toWagonFormat(out,"");
+                    } else { 
+                        //extension must be added to last daughter
+                        if (extension != null){
+                            	daughters[i].toWagonFormat(out,")"+extension);
+                        } else {
+                            //we are in the root node, add a closing bracket 
+                            daughters[i].toWagonFormat(out,")");
+                        }
                 }
             }
-            //add a closing bracket
-            sb.append(")");
         }
         
     
@@ -728,7 +770,7 @@ public class CARTWagonFormat implements CART{
          * @return the node definition
          */
         public String getNodeDefinition(){
-            return "b"+featureIndex+" is "+value+")\n";
+            return feature+" is "+value+")";
         }
         
     }
@@ -793,7 +835,7 @@ public class CARTWagonFormat implements CART{
          * @return the node definition
          */
         public String getNodeDefinition(){
-            return "s"+featureIndex+" is "+value+")\n";
+            return feature+" is "+value+")";
         }
        
     }
@@ -858,7 +900,7 @@ public class CARTWagonFormat implements CART{
          * @return the node definition
          */
         public String getNodeDefinition(){
-            return "f"+featureIndex+" < "+value+")\n";
+            return feature+" < "+value+")";
         }
         
        
@@ -921,7 +963,7 @@ public class CARTWagonFormat implements CART{
          * @return the node definition
          */
         public String getNodeDefinition(){
-            return featureIndex+" isByteOf "+daughters.length+")\n";
+            return feature+" isByteOf "+daughters.length+")";
         }
         
     }
@@ -982,7 +1024,7 @@ public class CARTWagonFormat implements CART{
          * @return the node definition
          */
         public String getNodeDefinition(){
-            return featureIndex+" isShortOf "+daughters.length+")\n";
+            return feature+" isShortOf "+daughters.length+")";
         }
         
     }
@@ -1074,15 +1116,18 @@ public class CARTWagonFormat implements CART{
             }
         }
         
-         /**
-         * Writes the Cart to the given StringBuffer in Wagon Format
-         * @param sb the StringBuffer
+        /**
+         * Writes the Cart to the given DataOut in Wagon Format
+         * @param out the outputStream
+         * @param extension the extension that is added to the last daughter
         */
-        public void toWagonFormat(StringBuffer sb){
+        public void toWagonFormat(DataOutputStream out, String extension) 
+        											throws IOException{
             if (indices == null){
                 //get the indices from the feature vectors
                 retrieveIndices();
             }
+            StringBuffer sb = new StringBuffer();
             //open three brackets
             sb.append("(((");
             //for each index, write the index and then a pseudo float
@@ -1093,7 +1138,15 @@ public class CARTWagonFormat implements CART{
                 }
             }
             //write the ending
-            sb.append(") 0))");
+            sb.append(") 0))"+extension);
+            //dump the whole stuff
+            if (out != null){
+                //write to output stream
+                out.writeUTF(sb.toString());
+            } else {
+                //write to Standard out
+                System.out.println(sb.toString());
+            }
         }
         
         
