@@ -37,6 +37,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import de.dfki.lt.mary.unitselection.FeatureFileReader;
 import de.dfki.lt.mary.unitselection.UnitFileReader;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
@@ -144,7 +145,17 @@ public class FeatureFileWriter implements VoiceImportComponent
             System.out.flush();
         }
         out.close();
-        return true;
+        System.out.println("Number of processed units: " + unitFileReader.getNumberOfUnits() );
+
+        FeatureFileReader tester = new FeatureFileReader(db.targetFeaturesFileName());
+        int unitsOnDisk = tester.getNumberOfUnits();
+        if (unitsOnDisk == unitFileReader.getNumberOfUnits()) {
+            System.out.println("Can read right number of units");
+            return true;
+        } else {
+            System.out.println("Read wrong number of units: "+unitsOnDisk);
+            return false;
+        }
     }
 
     /**

@@ -112,6 +112,7 @@ public class JoinCostFeatures implements JoinCostFunction {
             leftJCF = new float[numberOfUnits][];
             rightJCF = new float[numberOfUnits][];
             for ( int i = 0; i < numberOfUnits; i++ ) {
+                //System.out.println("Reading join features for unit "+i+" out of "+numberOfUnits);
                 leftJCF[i] = new float[numberOfFeatures];
                 rightJCF[i] = new float[numberOfFeatures];
                 for ( int j = 0; j < numberOfFeatures; j++ ) {
@@ -121,7 +122,10 @@ public class JoinCostFeatures implements JoinCostFunction {
             }
         }
         catch ( EOFException e ) {
-            throw new EOFException( "The currently read Join Cost File has prematurely reached EOF." );
+            IOException ioe = new IOException( "The currently read Join Cost File has prematurely reached EOF.");
+            ioe.initCause(e);
+            throw ioe;
+            
         }
     }
     
