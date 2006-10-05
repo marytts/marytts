@@ -130,8 +130,6 @@ public class UnitfileWriter implements VoiceImportComponent
             System.out.println("Read wrong number of units: "+unitsOnDisk);
             return false;
         }
-
-        return true;
     }
 
     /**
