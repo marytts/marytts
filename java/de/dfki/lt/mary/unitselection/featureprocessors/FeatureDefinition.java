@@ -898,4 +898,58 @@ public class FeatureDefinition
         }
         out.println(")");
     }
+    
+    
+    /**
+     * Compares two feature vectors in terms of how many discrete features they have in common.
+     * WARNING: this assumes that the feature vectors are issued from the same
+     * FeatureDefinition; only the number of features is checked for compatibility.
+     * 
+     * @param v1 A feature vector.
+     * @param v2 Another feature vector to compare v1 with.
+     * @return The number of common features.
+     */
+    public static int diff( FeatureVector v1, FeatureVector v2 ) {
+        
+        int ret = 0;
+        
+        /* Byte valued features */
+        if ( v1.byteValuedDiscreteFeatures.length < v2.byteValuedDiscreteFeatures.length ) {
+            throw new RuntimeException( "v1 and v2 don't have the same number of byte-valued features: ["
+                    + v1.byteValuedDiscreteFeatures.length + "] versus [" + v2.byteValuedDiscreteFeatures.length
+                    + "]." );
+        }
+        for ( int i = 0; i < v1.byteValuedDiscreteFeatures.length; i++ ) {
+            if ( v1.byteValuedDiscreteFeatures[i] == v2.byteValuedDiscreteFeatures[i] ) ret++;
+        }
+        
+        /* Short valued features */
+        if ( v1.shortValuedDiscreteFeatures.length < v2.shortValuedDiscreteFeatures.length ) {
+            throw new RuntimeException( "v1 and v2 don't have the same number of short-valued features: ["
+                    + v1.shortValuedDiscreteFeatures.length + "] versus [" + v2.shortValuedDiscreteFeatures.length
+                    + "]." );
+        }
+        for ( int i = 0; i < v1.shortValuedDiscreteFeatures.length; i++ ) {
+            if ( v1.shortValuedDiscreteFeatures[i] == v2.shortValuedDiscreteFeatures[i] ) ret++;
+        }
+        
+        /* TODO: would checking float-valued features make sense ? (Code below.) */
+        /* float valued features */
+        /* if ( v1.continuousFeatures.length < v2.continuousFeatures.length ) {
+            throw new RuntimeException( "v1 and v2 don't have the same number of continuous features: ["
+                    + v1.continuousFeatures.length + "] versus [" + v2.continuousFeatures.length
+                    + "]." );
+        }
+        float epsilon = 1.0e-6f;
+        float d = 0.0f;
+        for ( int i = 0; i < v1.continuousFeatures.length; i++ ) {
+            d = ( v1.continuousFeatures[i] > v2.continuousFeatures[i] ?
+                    (v1.continuousFeatures[i] - v2.continuousFeatures[i]) :
+                    (v2.continuousFeatures[i] - v1.continuousFeatures[i]) ); // => this avoids Math.abs()
+            if ( d < epsilon ) ret++;
+        } */
+        
+        return( ret );
+    }
+
 }
