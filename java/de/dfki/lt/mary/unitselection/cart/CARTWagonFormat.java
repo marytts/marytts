@@ -319,6 +319,10 @@ public class CARTWagonFormat implements CART{
                         MaryNode currentTreeNode,
                         FeatureFileIndexer ffi){
         numNodes++;
+        if (currentTreeNode == null){
+            motherCARTNode.addDaughter(null);
+            return;
+        } 
        if (currentTreeNode.isNode()){ //if we are not at a leaf
            
            //System.out.print("Adding node, ");
@@ -355,9 +359,10 @@ public class CARTWagonFormat implements CART{
            }
            //for every daughter go in recursion
            for (int i = 0; i<numDaughters; i++){
-               addDaughters(daughterNode,currentTreeNode.getChild(i),ffi);
-           } 
-           
+               MaryNode nextChild = currentTreeNode.getChild(i);
+               addDaughters(daughterNode,nextChild,ffi);
+               
+           }            
        } else {
            //we are at a leaf node
            //System.out.println("Adding leaf");
@@ -670,17 +675,27 @@ public class CARTWagonFormat implements CART{
             }
             //add the daughters
             for (int i=0;i<daughters.length;i++){
-                    if (i+1!=daughters.length){
+                    if (daughters[i] == null){
+                         if (out != null){
+                             //dump to output stream
+                             out.writeUTF("((() 0))");
+                         } else {
+                             //dump to Standard out
+                             System.out.println("((() 0))");
+                         }
+                    } else {
+                        if (i+1!=daughters.length){
                             daughters[i].toWagonFormat(out,"");
-                    } else { 
-                        //extension must be added to last daughter
-                        if (extension != null){
+                        } else { 
+                            //extension must be added to last daughter
+                            if (extension != null){
                             	daughters[i].toWagonFormat(out,")"+extension);
-                        } else {
-                            //we are in the root node, add a closing bracket 
-                            daughters[i].toWagonFormat(out,")");
+                            } else {
+                                //we are in the root node, add a closing bracket 
+                                daughters[i].toWagonFormat(out,")");
+                            }
                         }
-                }
+                    }
             }
         }
         
