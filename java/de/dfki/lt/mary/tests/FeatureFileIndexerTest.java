@@ -105,26 +105,30 @@ public class FeatureFileIndexerTest extends TestCase {
         // feaFinalSeq[0] = 0; // Cheat this value to force phoneme ID
         
         // ALL features
-        feaFinalSeq = new int[42];
-        for ( int i = 0; i < 42; i++ ) {
-            feaFinalSeq[i] = i;
-        }
-
-        // CART top level
-//        feaFinalSeq = new int[3];
-//        feaFinalSeq[0] = 0; // Cheat this value to force phoneme ID
-//        feaFinalSeq[1] = 3; // c_place
-//        feaFinalSeq[2] = 28;
+//      feaFinalSeq = new int[42];
+//      for ( int i = 0; i < 42; i++ ) {
+//      feaFinalSeq[i] = i;
+//      }
         
-//        feaFinalSeq = new int[2];
-//        feaFinalSeq[0] = 0; // Cheat this value to force phoneme ID
-//        feaFinalSeq[1] = 3; // c_place
-       
+        // CART top level
+//      feaFinalSeq = new int[3];
+//      feaFinalSeq[0] = 0; // Cheat this value to force phoneme ID
+//      feaFinalSeq[1] = 3; // ph_cplace
+//      feaFinalSeq[2] = 28;
+        
+//      feaFinalSeq = new int[2];
+//      feaFinalSeq[0] = 0; // Cheat this value to force phoneme ID
+//      feaFinalSeq[1] = 3; // c_place
+        
+        //String[] feaList = { "mary_phoneme", "mary_ph_cplace" };
+        String[] feaList = { "mary_ph_cplace", "mary_phoneme" };
+        feaFinalSeq = ffi.getFeatureDefinition().getFeatureIndexArray( feaList );
+        
         // Phonemes in context
-//        feaFinalSeq = new int[3];
-//        feaFinalSeq[0] = 0; // Cheat this value to force phoneme ID
-//        feaFinalSeq[1] = 10; // c_place
-//        feaFinalSeq[2] = 19;
+//      feaFinalSeq = new int[3];
+//      feaFinalSeq[0] = 0; // Cheat this value to force phoneme ID
+//      feaFinalSeq[1] = 10; // c_place
+//      feaFinalSeq[2] = 19;
         
         // END CHEATS
         
@@ -153,7 +157,8 @@ public class FeatureFileIndexerTest extends TestCase {
         for ( int i = 0; i < (NUMITER+1); i++ ) {
         //for ( int i = 0; i < 1; i++ ) {
             subtic = subtoc;
-            ffi.deepSort( feaFinalSeq );
+            //ffi.deepSort( feaFinalSeq );
+            ffi.deepSort( feaList );
             subtoc = System.currentTimeMillis();
             System.out.println( "Iteration [" + i + "] took [" + (subtoc-subtic) + "] milliseconds." );
             System.out.flush();
@@ -164,9 +169,9 @@ public class FeatureFileIndexerTest extends TestCase {
         System.out.println( "Average indexing time over [" + NUMITER + "] iterations : [" + ((toc-tic)/NUMITER) + "] milliseconds." );
         System.out.flush();
         
-//        System.out.println( "TREE DEBUG OUT" );
-//        ffi.getTree().toStandardOut( ffi, 0 );
-//        System.out.flush();
+        System.out.println( "TREE DEBUG OUT" );
+        ffi.getTree().toStandardOut( ffi, 0 );
+        System.out.flush();
         
         /* Measure the retrieval time */
         

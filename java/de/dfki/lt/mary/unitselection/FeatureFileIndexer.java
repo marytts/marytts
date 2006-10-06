@@ -52,7 +52,7 @@ public class FeatureFileIndexer extends FeatureFileReader {
 
     /**
      * Constructor which loads the feature file and launches an indexing
-     * operation.
+     * operation according to a feature sequence constraint.
      * 
      * @param fileName The name of the file to load.
      * @param setFeatureSequence An array of indexes indicating the hierarchical order
@@ -62,6 +62,22 @@ public class FeatureFileIndexer extends FeatureFileReader {
      * @see FeatureFileReader
      */
     public FeatureFileIndexer( String fileName, int[] setFeatureSequence ) throws IOException {
+        super( fileName );
+        deepSort( setFeatureSequence );
+    }
+    
+    /**
+     * Constructor which loads the feature file and launches an indexing
+     * operation according to a feature sequence constraint.
+     * 
+     * @param fileName The name of the file to load.
+     * @param setFeatureSequence An array of feature names indicating the hierarchical order
+     * (or, equivalently, the sequence) of the features to use for the indexing.
+     * 
+     * @throws IOException
+     * @see FeatureFileReader
+     */
+    public FeatureFileIndexer( String fileName, String[] setFeatureSequence ) throws IOException {
         super( fileName );
         deepSort( setFeatureSequence );
     }
@@ -146,6 +162,20 @@ public class FeatureFileIndexer extends FeatureFileReader {
      */
     public void deepSort( int[] setFeatureSequence ) {
         featureSequence = setFeatureSequence;
+        numberOfLeaves = 0;
+        tree = new MaryNode( 0, featureVectors.length );
+        sortNode( 0, tree );
+    }
+    
+    /**
+     * Launches a deep sort on the array of feature vectors. This is public because
+     * it can be used to re-index the previously read feature file.
+     * 
+      * @param featureIdx An array of feature names, indicating the sequence of
+     * features according to which the sorting should be performed.
+     */
+    public void deepSort( String[] setFeatureSequence ) {
+        featureSequence = featureDefinition.getFeatureIndexArray( setFeatureSequence );
         numberOfLeaves = 0;
         tree = new MaryNode( 0, featureVectors.length );
         sortNode( 0, tree );
