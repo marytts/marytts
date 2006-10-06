@@ -389,7 +389,24 @@ public class FeatureDefinition
     }
     
     /**
-     * List all feature names, separated by white space.
+     * Translate between an array of feature indexes and an array of feature names.
+     * @param index an array of feature indexes, as could be used to access
+     * a feature value in a FeatureVector.
+     * @return an array with the name of the features corresponding to the index
+     * @throws IndexOutOfBoundsException if any of the indexes is <0 or >getNumberOfFeatures() 
+     */
+    public String[] getFeatureNameArray(int[] index)
+    {
+        String[] ret = new String[index.length];
+        for ( int i = 0; i < index.length; i++ ) {
+            ret[i] = getFeatureName( index[i] );
+        }
+        return( ret );
+    }
+    
+    /**
+     * List all feature names, separated by white space,
+     * in their order of definition.
      * @return
      */
     public String getFeatureNames()
@@ -492,13 +509,29 @@ public class FeatureDefinition
     /**
      * Translate between a feature name and a feature index.
      * @param featureName a valid feature name
-     * @return a feature index, , as could be used to access
+     * @return a feature index, as could be used to access
      * a feature value in a FeatureVector.
      * @throws IllegalArgumentException if the feature name is unknown. 
      */
     public int getFeatureIndex(String featureName)
     {
         return featureNames.get(featureName);
+    }
+    
+    /**
+     * Translate between an array of feature names and an array of feature indexes.
+     * @param featureName an array of valid feature names
+     * @return an array of feature indexes, as could be used to access
+     * a feature value in a FeatureVector.
+     * @throws IllegalArgumentException if one of the feature names is unknown. 
+     */
+    public int[] getFeatureIndexArray(String[] featureName)
+    {
+        int[] ret = new int[featureName.length];
+        for ( int i = 0; i < featureName.length; i++ ) {
+            ret[i] = getFeatureIndex( featureName[i] );
+        }
+        return( ret );
     }
     
     /**
