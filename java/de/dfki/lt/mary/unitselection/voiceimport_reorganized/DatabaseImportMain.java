@@ -261,8 +261,11 @@ public class DatabaseImportMain extends JFrame
         BasenameList bnl = null;
         String fName = null;
         /* If a list file is specified, use it... */
-        if ( (fName = System.getProperty( "db.baseNameListFile" )) != null ) {
-            bnl = new BasenameList( fName );
+        if ( (fName = System.getProperty( "db.basenameFile" )) != null ) {
+            System.out.println( "Using basename list from the system properties. The file name is:\n"
+                    + "[" + db.basenameFile() + "]" );
+            // bnl = new BasenameList( fName );
+            bnl = new BasenameList( db.basenameFile() );
         }
         /* ...otherwise make a bootstrap basename list from the wav files. */
         else bnl = new BasenameList( db.wavDirName(), db.wavExt() );
@@ -284,11 +287,14 @@ public class DatabaseImportMain extends JFrame
                 new UnitfileWriter( db, bnl ),
                 new FeatureFileWriter( db, bnl ),
                 
-                new ESTCallMaker( db, bnl ),
                 new WaveTimelineMaker( db, bnl ),
+                new BasenameTimelineMaker( db, bnl ),
+                
+                new ESTCallMaker( db, bnl ),
                 new LPCTimelineMaker( db, bnl ),
                 new MCepTimelineMaker( db, bnl ),
                 new JoinCostFileMaker( db, bnl ),
+                
                 new CARTBuilder ( db )
         };
         DatabaseImportMain importer = new DatabaseImportMain("Database import", components, db, bnl);

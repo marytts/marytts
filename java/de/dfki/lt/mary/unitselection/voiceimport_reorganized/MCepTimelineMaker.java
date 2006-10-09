@@ -163,15 +163,18 @@ public class MCepTimelineMaker implements VoiceImportComponent
                 /* - open+load */
                 System.out.println( baseNameArray[i] );
                 mcepFile = new ESTTrackReader( db.melcepDirName() + baseNameArray[i] + db.melcepExt() );
+                wav = new WavReader( db.wavDirName() + baseNameArray[i] + db.wavExt() );
                 /* - For each frame in the mcep file: */
-                float timeBefore = 0.0f;
-                float timeNow = 0.0f;
-                long duration = 0l;
+                int frameStart = 0;
+                int frameEnd = 0;
+                int duration = 0;
+                long localTime = 0l;
                 for ( int f = 0; f < mcepFile.getNumFrames(); f++ ) {
                     /* Get the datagram duration */
-                    timeNow = mcepFile.getTime( f );
-                    duration = (long)Math.round( ((double)(timeNow) - (double)(timeBefore)) * (double)(globSampleRate) );
-                    timeBefore = timeNow;
+                    frameStart = frameEnd;
+                    frameEnd = (int)( (double)mcepFile.getTime( f ) * (double)(globSampleRate) );
+                    duration = frameEnd - frameStart;
+                    /* NOTE: quantization is no more performed below, code&comments kept for archiving. */
                     /* Quantize the mcep coeffs: */
                     // short[] quantizedFrame = General.quantize( mcepFile.getFrame( f ), mcepMin, mcepRange );
                     float[] frame = mcepFile.getFrame( f );
@@ -187,7 +190,9 @@ public class MCepTimelineMaker implements VoiceImportComponent
                     /* Feed the datagram to the timeline */
                     mcepTimeline.feed( new Datagram( duration, byteBuff.toByteArray() ) , globSampleRate );
                     totalTime += duration;
+                    localTime += duration;
                 }
+                System.out.println( baseNameArray[i] + " -> mcep file says [" + localTime + "] samples, wav file says ["+ wav.getNumSamples() + "] samples." );
                 
             }
             

@@ -144,14 +144,27 @@ public class UnitFileReader
     }
     
     /**
-     * Return the duration of unit number i.
+     * Return the unit number i.
      * 
      * @param i The index of the considered unit.
-     * @return The start time of the considered unit, in samples with respect
-     * to the file's sample rate.
+     * @return The considered unit.
       */
     public Unit getUnit( int i ) {
         return units[i];
+    }
+
+    /**
+     * Return an array of units from their indexes.
+     * 
+     * @param i The indexes of the considered units.
+     * @return The array of considered units.
+      */
+    public Unit[] getUnit( int[] i ) {
+        Unit[] ret = new Unit[i.length];
+        for ( int k = 0; k < i.length; k++ ) {
+            ret[k] = getUnit( i[k] );
+        }
+        return( ret );
     }
 
     /**

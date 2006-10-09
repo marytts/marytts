@@ -47,29 +47,29 @@ import de.dfki.lt.mary.unitselection.voiceimport_reorganized.DatabaseLayout;
 import de.dfki.lt.mary.unitselection.voiceimport_reorganized.TimelineIO;
 
 /**
- * The WaveTimelineMaker class takes a database root directory and a list of basenames,
- * and split the waveforms as datagrams to be stored in a timeline in Mary format.
+ * The BasenameTimelineMaker class takes a database root directory and a list of basenames,
+ * and associates the basenames with absolute times in a timeline in Mary format.
  * 
  * @author sacha
  */
-public class WaveTimelineMaker implements VoiceImportComponent
+public class BasenameTimelineMaker implements VoiceImportComponent
 { 
 
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
     
-    public WaveTimelineMaker( DatabaseLayout setdb, BasenameList setbnl ) {
+    public BasenameTimelineMaker( DatabaseLayout setdb, BasenameList setbnl ) {
         this.db = setdb;
         this.bnl = setbnl;
     }
     
     /**
-     *  Reads and concatenates a list of waveforms into one single timeline file.
+     *  Reads and concatenates a list of LPC EST tracks into one single timeline file.
      *
      */
     public boolean compute()
     {
-        System.out.println("---- Making a pitch synchronous waveform timeline\n\n");
+        System.out.println("---- Making a timeline for the base names\n\n");
         System.out.println("Base directory: " + db.rootDirName() + "\n");
         
         /* Export the basename list into an array of strings */
@@ -90,19 +90,19 @@ public class WaveTimelineMaker implements VoiceImportComponent
             int globSampleRate = wav.getSampleRate();
             System.out.println("---- Detected a global sample rate of: [" + globSampleRate + "] Hz." );
             
-            System.out.println("---- Folding the wav files according to the pitchmarks..." );
+            System.out.println("---- Folding the basenames according to the pitchmarks tics..." );
             
             /* 2) Open the destination timeline file */
             
             /* Make the file name */
-            String waveTimelineName = db.waveTimelineFileName() ;
-            System.out.println( "Will create the waveform timeline in file [" + waveTimelineName + "]." );
+            String bnTimelineName = db.basenameTimelineFileName() ;
+            System.out.println( "Will create the basename timeline in file [" + bnTimelineName + "]." );
             
             /* Processing header: */
             String processingHeader = "\n";
             
             /* Instantiate the TimelineWriter: */
-            TimelineWriter waveTimeline = new TimelineWriter( waveTimelineName, processingHeader, globSampleRate, 30.0 );
+            TimelineWriter bnTimeline = new TimelineWriter( bnTimelineName, processingHeader, globSampleRate, 30.0 );
             
             /* 3) Write the datagrams and feed the index */
             
@@ -110,54 +110,34 @@ public class WaveTimelineMaker implements VoiceImportComponent
             long totalTime = 0l;
             int numDatagrams = 0;
             
-            /* For each EST track file: */
+            /* For each EST pitchmarks track file: */
             ESTTrackReader pmFile = null;
+            int duration = 0;
             for ( int i = 0; i < baseNameArray.length; i++ ) {
                 /* - open+load */
-                System.out.println( baseNameArray[i] );
                 pmFile = new ESTTrackReader( db.pitchmarksDirName() + "/" + baseNameArray[i] + db.pitchmarksExt() );
-                totalDuration += pmFile.getTimeSpan();
                 wav = new WavReader( db.wavDirName() + baseNameArray[i] + db.wavExt() );
-                short[] wave = wav.getSamples();
-                /* - Reset the frame locations in the local file */
-                int frameStart = 0;
-                int frameEnd = 0;
-                int duration = 0;
-                long localTime = 0l;
-                /* - For each frame in the WAV file: */
-                for ( int f = 0; f < pmFile.getNumFrames(); f++ ) {
-                    
-                    /* Locate the corresponding segment in the wave file */
-                    frameStart = frameEnd;
-                    frameEnd = (int)( (double)pmFile.getTime( f ) * (double)(globSampleRate) );
-                    duration = frameEnd - frameStart;
-                    ByteArrayOutputStream buff =  new ByteArrayOutputStream(2*duration);
-                    DataOutputStream subWave = new DataOutputStream( buff );
-                    for (int k = 0; k < duration; k++) {
-                        subWave.writeShort( wave[frameStart+k] );
-                    }
-                    
-                    /* Feed the datagram to the timeline */
-                    waveTimeline.feed( new Datagram(duration,buff.toByteArray()) , globSampleRate );
-                    totalTime += duration;
-                    localTime += duration;
-                    numDatagrams++;
-                }
-                System.out.println( baseNameArray[i] + " -> pm file says [" + localTime + "] samples, wav file says ["+ wav.getNumSamples() + "] samples." );
+                totalDuration += pmFile.getTimeSpan();
+                duration = (int)( (double)pmFile.getTimeSpan() * (double)(globSampleRate) );
+                // System.out.println( baseNameArray[i] + " -> [" + frameSize + "] samples." );
+                System.out.println( baseNameArray[i] + " -> pm file says [" + duration + "] samples, wav file says ["+ wav.getNumSamples() + "] samples." );
+                bnTimeline.feed( new Datagram( duration, baseNameArray[i].getBytes("UTF-8") ) , globSampleRate );
+                totalTime += duration;
+                numDatagrams++;
             }
             
             System.out.println("---- Done." );
             
             /* 7) Print some stats and close the file */
-            System.out.println( "---- Waveform timeline result:");
+            System.out.println( "---- Basename timeline result:");
             System.out.println( "Number of files scanned: " + baseNameArray.length );
             System.out.println( "Total speech duration: [" + totalTime + "] samples / [" + ((float)(totalTime) / (float)(globSampleRate)) + "] seconds." );
             System.out.println( "(Speech duration approximated from EST Track float times: [" + totalDuration + "] seconds.)" );
             System.out.println( "Number of frames: [" + numDatagrams + "]." );
-            System.out.println( "Size of the index: [" + waveTimeline.idx.getNumIdx() + "]." );
-            System.out.println( "---- Waveform timeline done.");
+            System.out.println( "Size of the index: [" + bnTimeline.idx.getNumIdx() + "]." );
+            System.out.println( "---- Basename timeline done.");
             
-            waveTimeline.close();
+            bnTimeline.close();
         }
         catch ( SecurityException e ) {
             System.err.println( "Error: you don't have write access to the target database directory." );
