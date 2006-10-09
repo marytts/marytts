@@ -190,13 +190,14 @@ public class CARTWagonFormat implements CART{
     private void parseAndAdd(String line) {
         //remove whitespace
         line = line.trim();
+        
         //at beginning of String there should be at least two opening brackets
         if (! (line.startsWith("(("))){
             throw new Error("Invalid input line for CART: "+line);
         }
         if (Character.isLetter(line.charAt(2))){ // we have a node
             openBrackets++; //do not count first bracket
-            
+          
             //get the properties of the node
             StringTokenizer tokenizer = new StringTokenizer(line," ");
             String feature = tokenizer.nextToken().substring(2);
@@ -243,6 +244,7 @@ public class CARTWagonFormat implements CART{
             lastNode = nextNode;
             
         } else { // we have a leaf
+            
             StringTokenizer tokenizer = new StringTokenizer(line," ");      
             //build new leaf node
             Node nextNode = new LeafNode(tokenizer);
@@ -614,6 +616,10 @@ public class CARTWagonFormat implements CART{
             isRoot = false;
         }
         
+        public String getFeatureName(){
+            return feature;
+        }
+        
         /**
          * Add a daughter to the node
          * @param daughter the new daughter
@@ -621,7 +627,7 @@ public class CARTWagonFormat implements CART{
         public void addDaughter(Node daughter){
             if (lastDaughter > daughters.length-1){
                 throw new Error("Can not add daughter number "
-                        +lastDaughter+1+", since node has only "
+                        +(lastDaughter+1)+", since node has only "
                         +daughters.length+" daughters!");
             }
             daughters[lastDaughter] = daughter;
@@ -675,13 +681,29 @@ public class CARTWagonFormat implements CART{
             }
             //add the daughters
             for (int i=0;i<daughters.length;i++){
+                
                     if (daughters[i] == null){
-                         if (out != null){
+                        String nullDaughter = "";
+                        if (i+1!=daughters.length){
+                            nullDaughter = "((() 0))";
+                            
+                        } else { 
+                            //extension must be added to last daughter
+                            if (extension != null && !(extension.equals(""))){
+                                nullDaughter = "((() 0))"+extension;
+                                
+                            } else {
+                                //we are in the root node, add a closing bracket 
+                                nullDaughter = "((() 0)))";
+                            }
+                        }
+                        
+                        if (out != null){
                              //dump to output stream
-                             out.writeUTF("((() 0))");
+                             out.writeUTF(nullDaughter);
                          } else {
                              //dump to Standard out
-                             System.out.println("((() 0))");
+                             System.out.println(nullDaughter);
                          }
                     } else {
                         if (i+1!=daughters.length){

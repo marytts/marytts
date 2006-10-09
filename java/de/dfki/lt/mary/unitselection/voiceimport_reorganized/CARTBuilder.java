@@ -87,7 +87,7 @@ public class CARTBuilder implements VoiceImportComponent {
          System.out.println(" ... done!");
         
          //TODO: For each leaf of the top-level CART, call Wagon and replace leaf by new Wagon CART
-         
+         //replaceLeafs(topLevelCART,featureDefinition);
          //dump big CART to binary file
          String destinationFile = databaseLayout.cartFileName();
          dumpCART(destinationFile,topLevelCART);
@@ -147,7 +147,6 @@ public class CARTBuilder implements VoiceImportComponent {
                 out.writeUTF(name);
                 //dump CART
                 cart.dumpBinary(out);
-                
               
                 //finish
                 out.close();
@@ -158,5 +157,24 @@ public class CARTBuilder implements VoiceImportComponent {
             }    
     }     
     
+    /**
+     * For each leaf in the CART, 
+     * run Wagon on the feature vectors in this CART,
+     * and replace leaf by resulting CART
+     *  
+     * @param topLevelCART the CART
+     * @param featureDefinition the definition of the features
+     */
+    public void replaceLeaves(CARTWagonFormat topLevelCART,
+            				FeatureDefinition featureDefinition){
+        //dump the feature definitions
+        //go through the CART
+        //get the next leaf
+        //dump the feature vectors
+        //dump the distance tables
+        //call Wagon
+        //read in the resulting CART
+        //replace the leaf by the CART
+    }
     
 }
