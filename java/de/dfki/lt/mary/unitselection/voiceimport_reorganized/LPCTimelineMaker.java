@@ -181,14 +181,15 @@ public class LPCTimelineMaker implements VoiceImportComponent
                 /* - Reset the frame locations in the local file */
                 int frameStart = 0;
                 int frameEnd = 0;
-                int frameSize = 0;
+                int duration = 0;
+                long localTime = 0l;
                 /* - For each frame in the LPC file: */
                 for ( int f = 0; f < lpcFile.getNumFrames(); f++ ) {
                     
                     /* Locate the corresponding segment in the wave file */
                     frameStart = frameEnd;
-                    frameEnd = (int)( lpcFile.getTime( f ) * (float)(globSampleRate) );
-                    frameSize = frameEnd - frameStart;
+                    frameEnd = (int)( (double)lpcFile.getTime( f ) * (double)(globSampleRate) );
+                    duration = frameEnd - frameStart;
                     
                     /* Quantize the LPC coeffs: */
                     short[] quantizedFrame = General.quantize( lpcFile.getFrame( f ), lpcMin, lpcRange );
@@ -202,7 +203,7 @@ public class LPCTimelineMaker implements VoiceImportComponent
                     
                     /* PERFORM THE INVERSE FILTERING with the quantized LPCs, and write the residual to the datagram: */
                     double r;
-                    int numRes = frameSize - numLPC;
+                    int numRes = duration - numLPC;
                     byte[] residual = new byte[numRes];
                     for (int k = 0; k < numRes; k++) {
                         // try {
@@ -227,10 +228,11 @@ public class LPCTimelineMaker implements VoiceImportComponent
                     }
                     
                     /* Feed the datagram to the timeline */
-                    lpcTimeline.feed( new LPCDatagram(frameSize, quantizedFrame, residual) , globSampleRate );
-                    totalTime += frameSize;
+                    lpcTimeline.feed( new LPCDatagram(duration, quantizedFrame, residual) , globSampleRate );
+                    totalTime += duration;
+                    localTime += duration;
                 }
-                
+                System.out.println( baseNameArray[i] + " -> lpc file says [" + localTime + "] samples, wav file says ["+ wav.getNumSamples() + "] samples." );
             }
             
             System.out.println("---- Done." );

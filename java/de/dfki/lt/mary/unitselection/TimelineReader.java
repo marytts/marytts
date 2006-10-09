@@ -380,6 +380,15 @@ public class TimelineReader extends TimelineIO
      * @return an array of datagrams
      */
     public synchronized Datagram[] getDatagrams( long targetTimeInSamples, long timeSpanInSamples, int reqSampleRate, long[] returnOffset ) throws IOException {
+        /* Check the input arguments */
+        if ( targetTimeInSamples < 0 ) {
+            throw new IllegalArgumentException( "Can't get a datagram from a negative time position (given time position was [" + targetTimeInSamples + "])." );
+        }
+        if ( timeSpanInSamples < 0 ) {
+            /* If the timeSapn is negative, return one datagram nonetheless,
+             * the one beginning at targetTimeInSamples */
+            timeSpanInSamples = 1;
+        }
         /* Resample the requested time location, in case the sample times are different between
          * the request and the timeline */
         long scaledTargetTime = scaleTime( reqSampleRate, targetTimeInSamples );
@@ -404,6 +413,33 @@ public class TimelineReader extends TimelineIO
         return( (Datagram[])( v.toArray( new Datagram[0] ) ) );
     }
     
+    /**
+     * Get the datagrams spanning a particular unit.
+     * 
+     * @param unit The requested speech unit, containing its own position and duration.
+     * @param reqSampleRate the sample rate for the requested times, as specified in the "unit space".
+     * 
+     * @return an array of datagrams
+     */
+    public synchronized Datagram[] getDatagrams( Unit unit, int reqSampleRate ) throws IOException {
+        return( getDatagrams( unit, reqSampleRate, null ) );
+    }
+
+    /**
+     * Get the datagrams spanning a particular unit, and return the time offset between the unit request
+     * and the actual location of the first returned datagram.
+     * 
+     * @param unit The requested speech unit, containing its own position and duration.
+     * @param reqSampleRate the sample rate for the requested times, as specified in the "unit space".
+     * @param returnOffset the time difference, in samples, between the requested unit
+     * and the actual beginning of the first returned datagram.
+     * 
+     * @return an array of datagrams
+     */
+    public synchronized Datagram[] getDatagrams( Unit unit, int reqSampleRate, long[] returnOffset ) throws IOException {
+        return( getDatagrams( unit.getStart(), (long)(unit.getDuration()), reqSampleRate, returnOffset ) );
+    }
+
     /**
      * Get a given number of datagrams from a particular time location.
      * 

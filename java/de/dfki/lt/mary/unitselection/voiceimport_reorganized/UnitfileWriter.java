@@ -80,37 +80,64 @@ public class UnitfileWriter implements VoiceImportComponent
         long posNumUnits = new MaryHeader(MaryHeader.UNITS).write(out);
         out.writeInt(-1); // number of units; needs to be corrected later.
         out.writeInt(samplingRate);
-        int index = 0; // the unique index number of units in the unit file
-        long start = 0; // time, given as sample position with samplingRate
         
         // Loop over all utterances
+        int index = 0; // the unique index number of units in the unit file
+        long globalStart = 0l; // time, given as sample position with samplingRate
+        long localStart = 0l; // time, given as sample position with samplingRate
+        long totalNbrSamples = 0l;
+        long localNbrSamples = 0l;
+        long localNbrSamplesFromPM = 0l;
+        ESTTrackReader pmFile = null;
         for (int i=0; i<bnl.getLength(); i++) {
-            // Utterance start marker: "null" unit
-            out.writeLong(start); out.writeInt(-1);
+            /* Open the relevant pitchmark file */
+            pmFile = new ESTTrackReader( db.pitchmarksDirName() + "/" + bnl.getName(i) + db.pitchmarksExt() );
+            // Output the utterance start marker: "null" unit
+            out.writeLong( globalStart ); out.writeInt(-1);
             index++;
+            // Open the label file and reset the local time pointer
             BufferedReader labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitLabDirName() + bnl.getName(i) + db.unitLabExt() )), "UTF-8"));
             String line;
+            localNbrSamples = 0l;
+            localStart = 0l;
             // Skip label file header
             while ((line = labels.readLine()) != null) {
                 if (line.startsWith("#")) break; // line starting with "#" marks end of header
             }
             // Now read the actual units
             while ((line = labels.readLine()) != null) {
+                // Get the line and the double value in first position
                 line = line.trim();
                 if (line.equals("")) continue; // ignore empty lines
-                StringTokenizer st = new StringTokenizer(line);
-                String startTime = st.nextToken();
-                double endTime = Double.valueOf(startTime).doubleValue();
-                long end = (long) Math.round(endTime * samplingRate);
-                int duration = (int) (end - start);
-                out.writeLong(start); out.writeInt(duration);
-                start += duration; index++;
+                String[] parts = line.split( "\\s", 2 );
+                double endTime = Double.valueOf(parts[0]).doubleValue();
+                /* Relocate the label-specific end time on the nearest pitchmark */
+                endTime = (double)( pmFile.getClosestTime( endTime ) );
+                long end = (long)( endTime * (double)(samplingRate) );
+                // Output the unit
+                int duration = (int) (end - localStart);
+                out.writeLong( globalStart + localStart ); out.writeInt(duration);
+                // System.out.println( "Unit [" + index + "] starts at [" + localStart + "] and has duration [" + duration + "]." );
+                // Update various pointers
+                localStart = end;
+                index++;
+                localNbrSamples += duration;
+                totalNbrSamples += duration;
             }
-            // Utterance end marker: "null" unit
-            out.writeLong(start); out.writeInt(-1);
+            // Output the utterance end marker: "null" unit
+            out.writeLong( globalStart + localStart ); out.writeInt(-1);
             index++;
+            /* Locate the global start of the next file:
+             * this corrects the discrpancy between the duration of the label file and the duration
+             * of the pitchmark file (which is considered as the authority). */
+            localNbrSamplesFromPM = (long)( (double)( pmFile.getTimeSpan() ) * (double)(samplingRate) );
+            globalStart += localNbrSamplesFromPM;
+            /* Clean the house */
             labels.close();
-            System.out.println( "    " + bnl.getName(i) + " (" + index + ")" );
+            System.out.println( "    " + bnl.getName(i) + " (" + index + ") (This file has [" + localNbrSamples
+                    + "] samples from .lab, rectified to [" + localNbrSamplesFromPM
+                    + "] from the pitchmarks, diff [" + (localNbrSamplesFromPM - localNbrSamples) + "], cumul [" + globalStart + "])" );
+            if ( (localNbrSamplesFromPM - localNbrSamples) < 0 ) System.out.println( "BORK BORK BORK: .lab file longer than pitchmarks !" );
         }
         out.close();
         // Now index is the number of units. Set this in the file:

@@ -52,7 +52,8 @@ class ESTTrackReader {
     private int numChannels;
     float[] times;
     float[][] frames;
-
+    
+    
     /****************/
     /* CONSTRUCTORS */
     /****************/
@@ -235,6 +236,35 @@ class ESTTrackReader {
      */
     public float getTime(int index) {
         return times[index];
+    }
+    
+    /**
+     * Internal time pointer for the getClosestTime(double) method.
+     */
+    private int timeIdx = 0;
+    /**
+     * Get the frame time which is closest to a certain time specification.
+     * Time specifications falling after the last frame return the position of the last frame.
+     * 
+     * @param seconds A time point, in seconds.
+     * @return
+     */
+    public float getClosestTime( double seconds ) {
+        /* Obvious conditions */
+        if ( seconds < 0.0 ) return( 0.0f );
+        if ( seconds > getTimeSpan() ) return( getTimeSpan() );
+        /* If the internal pointer is after the requested time, rewind */
+        if ( getTime(timeIdx) > seconds ) timeIdx = 0;
+        float t1 = 0.0f;
+        float t2 = getTime(timeIdx);
+        /* Advance the internal time pointer until the requested time is crossed */
+        while( (t2 < seconds) && (timeIdx < numFrames) ) {
+            timeIdx++;
+            t1 = t2;
+            t2 = getTime(timeIdx);
+        }
+        /* Find and return the closest time */
+        return( (seconds - t1) < (t2 - seconds) ? t1 : t2 );
     }
 
     /**

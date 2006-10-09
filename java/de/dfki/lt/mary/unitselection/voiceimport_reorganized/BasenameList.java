@@ -170,7 +170,7 @@ public class BasenameList
      */
     public void load( String fileName ) throws IOException {
         /* Open the file */
-        BufferedReader bfr = new BufferedReader( new InputStreamReader( new FileInputStream("fileName"), "UTF-8" ) );
+        BufferedReader bfr = new BufferedReader( new InputStreamReader( new FileInputStream( fileName ), "UTF-8" ) );
         /* Make the vector */
         if ( bList == null ) bList = new Vector( DEFAULT_INCREMENT, DEFAULT_INCREMENT );
         /* Check if the first line contains the origin information (directory+ext) */

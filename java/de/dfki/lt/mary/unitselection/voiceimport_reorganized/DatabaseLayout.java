@@ -69,6 +69,7 @@ public class DatabaseLayout
         
         /* The file for the list of utterances */
         setIfDoesntExist( "db.basenameFile", "basenames.lst" );
+        setIfDoesntExist( "db.basenameTimelineBaseName", "timeline_basenames" );
         
         /* Default text.data file */
         setIfDoesntExist( "db.text.baseFile", "etc/txt.done.data" );
@@ -158,6 +159,12 @@ public class DatabaseLayout
         /* else: */
         return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
                 + System.getProperty( "db.basenameFile" ) );
+    }
+    public String basenameTimelineFileName() {
+        String ret = System.getProperty( "db.basename.timeline.file" );
+        if ( ret != null ) return( ret );
+        /* else: */
+        return( timelineDirName() + System.getProperty( "db.basenameTimelineBaseName" ) + timelineExt() );
     }
     
     /* BASE TEXT FILE */
