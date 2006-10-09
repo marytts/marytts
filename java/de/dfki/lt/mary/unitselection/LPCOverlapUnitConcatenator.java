@@ -162,14 +162,14 @@ public class LPCOverlapUnitConcatenator implements UnitConcatenator
             int unitSize = unitToTimeline(unit.getUnit().getDuration()); // convert to timeline samples
             long unitStart = unitToTimeline(unit.getUnit().getStart()); // convert to timeline samples
             //System.out.println("Unit size "+unitSize+", pitchmarksInUnit "+pitchmarksInUnit);
-            LPCDatagram[] datagrams = (LPCDatagram[]) timeline.getDatagrams(unitStart,(long)unitSize);
+            Datagram[] datagrams = (Datagram[]) timeline.getDatagrams(unitStart,(long)unitSize);
             // one right context period for windowing:
             LPCDatagram rightContextFrame = null;
             Unit next = database.getUnitFileReader().getNextUnit(unit.getUnit());
             if (next != null && !next.isEdgeUnit()) {
                 rightContextFrame = (LPCDatagram)timeline.getDatagram(unitStart+unitSize);
             } else { // no right context: add a zero frame as long as the last frame in the unit
-                int length = datagrams[datagrams.length-1].getQuantizedResidual().length;
+                int length = ((LPCDatagram)datagrams[datagrams.length-1]).getQuantizedResidual().length;
                 rightContextFrame = new LPCDatagram(length, new float[lpcOrder], new short[length], lpcMin, lpcRange);
             }
             int rightContextFrameLength;
@@ -199,10 +199,8 @@ public class LPCOverlapUnitConcatenator implements UnitConcatenator
             } else {
                 pitchmarks = new int[pitchmarksInUnit+1];
                 lpcData.setPitchmarks(pitchmarks);
-                for (int i = 0; i < pitchmarks.length; i++) {
-                    if (i<0 || i>=pitchmarksInUnit) 
-                        throw new IllegalArgumentException("Have "+pitchmarksInUnit+" frames, requested number "+i);
-                    nSamples += datagrams[i].getResidual().length;
+                for (int i = 0; i < pitchmarksInUnit; i++) {
+                    nSamples += ((LPCDatagram)datagrams[i]).getQuantizedResidual().length;
                     pitchmarks[i] = nSamples;
                 }
                 assert pitchmarks[pitchmarks.length-2] == unitToTimeline(unit.getUnit().getDuration()):
@@ -228,7 +226,7 @@ public class LPCOverlapUnitConcatenator implements UnitConcatenator
             //float uIndex = 0; // counter of imaginary sample position in the unit 
             // for each pitchmark, get frame coefficients and residual
             for (int i=0; i < nPitchmarks-1; i++) {
-                frames[i] = datagrams[Math.round(frameIndex)];
+                frames[i] = (LPCDatagram) datagrams[Math.round(frameIndex)];
                 frameIndex += timeStretch; // i.e., increment by less than 1 for stretching, by more than 1 for shrinking
                 // FreeTTS did this time stretching on the samples level, and retrieved the frame closest to the resulting sample position:
                 // uIndex += ((float) targetResidualSize * m);

@@ -140,7 +140,7 @@ public class UnitSelector
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             int prevIndex = -1; // index number of the previous unit
-            List lengthHistogram = new ArrayList();
+            int[] lengthHistogram = new int[10];
             int length = 1;
             int numUnits = selectedUnits.size();
             //TODO: Write debug output that detects if selected units belong together
@@ -150,12 +150,12 @@ public class UnitSelector
                 if (prevIndex+1==index) { // adjacent units
                     length++;
                 } else {
-                    Integer num = (Integer) lengthHistogram.get(length);
-                    if (num != null) {
-                        lengthHistogram.set(length, new Integer(num.intValue()+1));
-                    } else {
-                        lengthHistogram.set(length, new Integer(1));
+                    if (lengthHistogram.length <= length) {
+                        int[] dummy = new int[length+1];
+                        System.arraycopy(lengthHistogram, 0, dummy, 0, lengthHistogram.length);
+                        lengthHistogram = dummy;
                     }
+                    lengthHistogram[length]++;
                     length = 1;
                     pw.println();
                 }
@@ -167,13 +167,10 @@ public class UnitSelector
             // Compute average length of stretches:
             int total = 0;
             int nStretches = 0;
-            for (int l=1, lmax=lengthHistogram.size(); l<lmax; l++) {
-                // lengthHistogram.get(0) will be null anyway
-                Integer num = (Integer) lengthHistogram.get(l);
-                if (num != null) {
-                    total += num.intValue() * l;
-                    nStretches += num.intValue();
-                }
+            for (int l=1; l<lengthHistogram.length; l++) {
+                // lengthHistogram[0] will be 0 anyway
+                total += lengthHistogram[l] * l;
+                nStretches += lengthHistogram[l];
             }
             float avgLength = total / (float) nStretches;
             logger.debug("Average length of a stretch (of adjacent units): "+avgLength+" units");
