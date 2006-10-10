@@ -103,8 +103,11 @@ public class TimelineReader extends TimelineIO
         long datagramDuration = 0;
         int datagramSize = 0;
         
-        /* If the end of the datagram zone is reached, gracefully refuse to skip */
-        if ( getBytePointer() == timeIdxBytePos ) return( true );
+        /* If the end of the datagram zone is reached, refuse to skip */
+        if ( getBytePointer() == timeIdxBytePos ) {
+            throw new IndexOutOfBoundsException( "Time out of bounds: you are trying to reach a time which is" +
+                    " bigger than the total timeline duration." );
+        }
         /* else: */
         try {
             datagramDuration = raf.readLong();
@@ -143,8 +146,11 @@ public class TimelineReader extends TimelineIO
         
         Datagram d = null;
         
-        /* If the end of the datagram zone is reached, gracefully refuse to read */
-        if ( getBytePointer() == timeIdxBytePos ) return( null );
+        /* If the end of the datagram zone is reached, refuse to read */
+        if ( getBytePointer() == timeIdxBytePos ) {
+            throw new IndexOutOfBoundsException( "Time out of bounds: you are trying to read a datagram at" +
+                    " a time which is bigger than the total timeline duration." );
+        }
         /* Else, pop the datagram out of the file */
         try {
             d = new Datagram( raf );
@@ -314,7 +320,8 @@ public class TimelineReader extends TimelineIO
         setBytePointer( idxFieldBefore.bytePtr );
         /* Then hop until the closest datagram: */
         if ( hopToTime( targetTimeInSamples ) ) {
-            throw new RuntimeException( "Trying to hop to a time location before the current time position."
+            throw new RuntimeException( "Trying to hop to a time location [" + targetTimeInSamples
+                    + "] located before the current time position [" + getTimePointer() + "]."
                     + " Can't hop backwards. (This should never happen!)" );
         }
         // System.out.println( "Position after hopping: ( " + getBytePointer() + " , " + getTimePointer() + " )" );
