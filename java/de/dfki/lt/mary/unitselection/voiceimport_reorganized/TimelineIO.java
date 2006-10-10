@@ -300,15 +300,12 @@ public class TimelineIO
      */
     public  class Index 
     {
-        
-        /* Default interval between index values
-         * (in SECONDS, it will be converted to samples later on) */
-        public final static double DEFAULTIDXINTERVAL_IN_SECONDS = 30.0d; // seconds
-        
-        private int idxInterval = 0;  // The fixed time interval (in samples) separating two index fields
+        private int idxInterval = 0;  // The fixed time interval (in samples) separating two index fields.
         private Vector field = null;  // The actual index fields
         private static final int INCREMENT_SIZE = 512; // The field vector's capacityIncrement
                                                        // (see the Vector object in the Java reference).
+        private int size = 0; // The size of the field vector, to avoid resorting to the field.size() method.
+                              // (This saves a function call in speed critical parts of the code.)
         
         /* Memory of the location of the previous unit (see feed() below.) */
         private long prevBytePos = 0;
@@ -327,27 +324,8 @@ public class TimelineIO
         }
         
         /**
-         * Constructor which builds a new index with the default index interval (30 seconds)
-         * at a given sample rate
-         * 
-         * @param setSampleRate the requested sample rate
-         * @param setInitialBytePosition the byte position of the first possible datagram
-         * (i.e., the position of the datagram zone)
-         */
-        public Index( int setSampleRate, long setInitialBytePosition ) {
-            if ( setSampleRate <= 0 ) {
-                throw new RuntimeException( "The sample rate can't be negative or null when building a timeline index." );
-            }
-            idxInterval = (int)Math.round( DEFAULTIDXINTERVAL_IN_SECONDS * (double)(setSampleRate) );
-            field = new Vector( 1, INCREMENT_SIZE );
-            field.add( new IdxField(setInitialBytePosition,0) ); /* Initialize the first field */
-            prevBytePos = setInitialBytePosition;
-            prevTimePos = 0;
-        }
-        
-        /**
-         * Constructor which builds a new index with the default index interval (30 seconds)
-         * at a given sample rate
+         * Constructor which builds a new index with a specific index interval
+         * and a given sample rate
          * 
          * @param setIdxIntervalInSeconds the requested index interval, in seconds
          * @param setSampleRate the requested sample rate
@@ -364,6 +342,7 @@ public class TimelineIO
             idxInterval = (int)Math.round( setIdxIntervalInSeconds * (double)(setSampleRate) );
             field = new Vector( 1, INCREMENT_SIZE );
             field.add( new IdxField(setInitialBytePosition,0) ); /* Initialize the first field */
+            size = 1;
             prevBytePos = setInitialBytePosition;
             prevTimePos = 0;
        }
@@ -384,7 +363,8 @@ public class TimelineIO
             
             for( int i = 0; i < numIdx; i++ ) {
                 field.add( new IdxField(raf) );
-           }
+            }
+            size = field.size();
             /* Read the "last datagram" memory */
             prevBytePos = raf.readLong();
             prevTimePos = raf.readLong();
@@ -434,7 +414,7 @@ public class TimelineIO
         /* ACCESSORS     */
         /*****************/
         public int getNumIdx() {
-            return( field.size() );
+            return( size );
         }
         public int getIdxInterval() {
             return( idxInterval );
@@ -462,8 +442,7 @@ public class TimelineIO
          */
         public int feed( long bytePosition, long timePosition ) {
             /* Get the time associated with the yet to come index field */
-            int currentNumIdx = field.size();
-            long nextIdxTime = currentNumIdx * idxInterval;
+            long nextIdxTime = size * idxInterval;
             /* If the current time position passes the next possible index field,
              * register the PREVIOUS datagram position in the new index field */
             while ( nextIdxTime < timePosition ) {
@@ -474,6 +453,7 @@ public class TimelineIO
 //                System.out.println( "The previously indexed position was\t[" + testField.bytePtr + "," + testField.timePtr + "]." );
                 
                 field.add( new IdxField(prevBytePos,prevTimePos) );
+                size++;
                 nextIdxTime += idxInterval;
             }
             
@@ -491,7 +471,7 @@ public class TimelineIO
              * because the datagrams are a singly linked list.
              * 
              * By registering the location of the previous datagram, any time request will find
-             * an index which points to a datagram falling BEFORE on ON the index location:
+             * an index which points to a datagram falling BEFORE or ON the index location:
              * 
              * time axis --------------------------------->
              *             INDEX <-- REQUEST
@@ -507,7 +487,7 @@ public class TimelineIO
             prevTimePos = timePosition;
             
             /* Return the (possibly new) index size */
-            return( field.size() );
+            return( size );
         }
         
         /**
@@ -519,11 +499,14 @@ public class TimelineIO
         public IdxField getIdxFieldBefore( long timePosition ) {
             int idx = (int)( timePosition / idxInterval ); /* <= This is an integer division between two longs,
                                                             *    implying a flooring operation on the decimal result. */
+            // System.out.println( "TIMEPOS=" + timePosition + " IDXINT=" + idxInterval + " IDX=" + idx );
+            // System.out.flush();
             if ( idx < 0 ) {
                 throw new RuntimeException( "Negative index field: [" + idx
                         + "] encountered when getting index before time=[" + timePosition
                         + "] (idxInterval=[" + idxInterval + "])." );
             }
+            if ( idx >= size ) { idx = size - 1; } // <= Protection against ArrayIndexOutOfBounds exception due to "time out of bounds"
             return( (IdxField)( field.elementAt( idx ) ) );
         }
     }
