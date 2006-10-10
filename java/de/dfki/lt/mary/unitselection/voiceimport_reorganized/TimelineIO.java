@@ -466,7 +466,7 @@ public class TimelineIO
             long nextIdxTime = currentNumIdx * idxInterval;
             /* If the current time position passes the next possible index field,
              * register the PREVIOUS datagram position in the new index field */
-            if ( nextIdxTime < timePosition ) {
+            while ( nextIdxTime < timePosition ) {
 //                System.out.println( "Hitting a new index at position\t[" + bytePosition + "," + timePosition + "]." );
 //                System.out.println( "The crossed index is [" + nextIdxTime + "]." );
 //                System.out.println( "The registered (previous) position is\t[" + prevBytePos + "," + prevTimePos + "]." );
@@ -474,6 +474,7 @@ public class TimelineIO
 //                System.out.println( "The previously indexed position was\t[" + testField.bytePtr + "," + testField.timePtr + "]." );
                 
                 field.add( new IdxField(prevBytePos,prevTimePos) );
+                nextIdxTime += idxInterval;
             }
             
             /* Note:
@@ -516,8 +517,8 @@ public class TimelineIO
          * @return
          */
         public IdxField getIdxFieldBefore( long timePosition ) {
-            int idx = (int)Math.floor( (long)(timePosition) / (long)(idxInterval) ); /* The castings aim at preventing an automatic cast to double,
-                                                                                      * I'm not sure that they are needed. */
+            int idx = (int)( timePosition / idxInterval ); /* <= This is an integer division between two longs,
+                                                            *    implying a flooring operation on the decimal result. */
             if ( idx < 0 ) {
                 throw new RuntimeException( "Negative index field: [" + idx
                         + "] encountered when getting index before time=[" + timePosition
