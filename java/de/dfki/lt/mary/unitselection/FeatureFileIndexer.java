@@ -29,6 +29,7 @@
 package de.dfki.lt.mary.unitselection;
 
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
+import de.dfki.lt.mary.unitselection.FeatureFileIndexingResult;
 import de.dfki.lt.mary.unitselection.FeatureComparator;
 import de.dfki.lt.mary.unitselection.MaryNode;
 
@@ -260,7 +261,7 @@ public class FeatureFileIndexer extends FeatureFileReader {
      * @see FeatureFileIndexer#deepSort(int[])
      * @see FeatureFileIndexer#deepFill(MaryNode)
      */
-    public QueryResult retrieve( FeatureVector v ) {
+    public FeatureFileIndexingResult retrieve( FeatureVector v ) {
         int level = 0;
         /* Check if the tree is there */
         if ( tree == null ) {
@@ -280,7 +281,7 @@ public class FeatureFileIndexer extends FeatureFileReader {
             else break;
         }
         /* Dereference the reached node or leaf */
-        QueryResult qr = new QueryResult( getFeatureVectors(n.from,n.to), level );
+        FeatureFileIndexingResult qr = new FeatureFileIndexingResult( getFeatureVectors(n.from,n.to), level );
         return( qr );
     }
     
@@ -307,7 +308,7 @@ public class FeatureFileIndexer extends FeatureFileReader {
     public static final int MAXLEVEL = 1;
     public static final int MINUNITS = 2;
     
-    public QueryResult retrieve( FeatureVector v, int condition, int parameter ) {
+    public FeatureFileIndexingResult retrieve( FeatureVector v, int condition, int parameter ) {
         int level = 0;
         /* Check if the tree is there */
         if ( tree == null ) {
@@ -337,7 +338,7 @@ public class FeatureFileIndexer extends FeatureFileReader {
             if ( (condition == MAXLEVEL) && (level == parameter) ) break;
         }
         /* Dereference the reached node or leaf */
-        QueryResult qr = new QueryResult( getFeatureVectors(n.from,n.to), level );
+        FeatureFileIndexingResult qr = new FeatureFileIndexingResult( getFeatureVectors(n.from,n.to), level );
         return( qr );
     }
         
@@ -402,18 +403,5 @@ public class FeatureFileIndexer extends FeatureFileReader {
             if ( ret < 0 ) return( -1 );
         }
         return( ret );
-    }
-}
-
-/**
- * Helper class to return the results of a unit retrieval.
- */
-class QueryResult {
-    public FeatureVector[] v = null;
-    public int level = -1;
-    
-    public QueryResult( FeatureVector[] setV, int setLevel ) {
-        this.v = setV;
-        this.level = setLevel;
     }
 }
