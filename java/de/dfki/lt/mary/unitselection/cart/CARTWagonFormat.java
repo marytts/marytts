@@ -83,10 +83,13 @@ public class CARTWagonFormat implements CART{
     
     private Node lastNode;
     private int openBrackets;
+  
+    private Node lastMotherNode = null;
+    private int nextDaughterIndex;
     
     private int numNodes;
     
-    //knows the index numbers´and types of the features
+    //knows the index numbers and types of the features
     private static FeatureDefinition featDef;
   
     
@@ -353,6 +356,7 @@ public class CARTWagonFormat implements CART{
            if (motherCARTNode == null){
                //if the mother is null, the current node is the root
                rootNode = daughterNode; 
+               daughterNode.setIsRoot(true);
            } else {
                //if the current node is not the root,
                //set mother and daughter accordingly
@@ -431,36 +435,69 @@ public class CARTWagonFormat implements CART{
         
     }
     
+    
+    
+    /**
+     * Get the feature vectors of the leaf 
+     * that is to the right of last leaf
+     * (Each call of the method gives back the next leaf)
+     * @return the next leaf or null, if no more leafs are there
+     */
+    public FeatureVector[] getNextFeatureVectors(){
+        if (lastMotherNode == null){
+            //if this method has not been called before
+            //set lastMotherNode to root node 
+            //(mother of the last pseudo-leaf)
+            lastMotherNode = rootNode;
+            //set index to 0 
+            //(index of the last pseudo-leaf)
+            nextDaughterIndex = -1;
+        }
+        //increase the index to index of next daughter
+        nextDaughterIndex += 1;
+        
+        //set return value to null
+        FeatureVector[] featureVectors = null;
+        
+        //test, if mother node has any daughters left
+        if (!((DecisionNode)lastMotherNode).hasMoreDaughters(nextDaughterIndex)){
+            //mother has no more daughters
+            if (! (lastMotherNode.isRoot())){
+                //if lastMother is not the root, go one step up
+                nextDaughterIndex = lastMotherNode.getNodeIndex();
+                lastMotherNode = lastMotherNode.getMother();
+                featureVectors = getNextFeatureVectors();               
+            } 
+            //else do nothing (return null)
+        } else {
+            //get the next daughter
+            Node nextDaughter = ((DecisionNode)lastMotherNode).getDaughter(nextDaughterIndex);
+            if (nextDaughter == null){
+                //null-daughter; call again
+                featureVectors = getNextFeatureVectors();
+            } else {
+                if (nextDaughter instanceof DecisionNode){
+                    //the next leaf is the leftmost daughter of nextDaughter
+                    //go one step down
+                    lastMotherNode = nextDaughter;
+                    nextDaughterIndex = -1;
+                    featureVectors = getNextFeatureVectors();
+                } else {
+                    //the next leaf is the sister of the last leaf
+                    featureVectors = ((LeafNode)nextDaughter).getFeatureVectors();
+                }
+            }
+        }
+        return featureVectors;
+    }
+    
     /**
      * Replace a leaf by a CART
      * @param cart the new CART
      */
-    public void replaceLeafByCart(CARTWagonFormat cart, FeatureVector vector){
-        //find the mother node of the leaf you want to replace
-        DecisionNode motherNode;
-        Node currentNode = rootNode;
-        while (!(currentNode instanceof LeafNode)) { 
-            //while we have not reached the bottom,
-            //get the next node based on the feature vector
-           currentNode = ((DecisionNode)currentNode).getNextNode(vector);
-        }
-        //now we are at the leaf that we want to replace
-        //get the mother
-        motherNode = (DecisionNode) currentNode.getMother();
+    public void replaceLeafByCart(CARTWagonFormat cart){
         //replace the leaf by the CART
-        motherNode.replaceLeafByCart(cart,vector);
-        //clean up
-        currentNode.setMother(null);
-        cart.setRootNode(null);
-    }
-    
-     /**
-     * Set the root node of this CART
-     * 
-     * @param newRoot the new root node
-     */
-    public void setRootNode(Node newRoot){
-        rootNode = newRoot;
+        ((DecisionNode)lastMotherNode).replaceDaughter(cart.getRootNode(),nextDaughterIndex);
     }
     
     /**
@@ -523,6 +560,8 @@ public class CARTWagonFormat implements CART{
         //every node except the root node has a mother
         protected Node mother;
         
+        protected int index;
+        
     
         /**
          * set the mother node of this node
@@ -554,6 +593,22 @@ public class CARTWagonFormat implements CART{
          */
         public boolean isRoot(){
             return isRoot;
+        }
+        
+        /**
+         * Set the index of this node
+         * @param index the index
+         */
+        public void setNodeIndex(int index){
+            this.index = index;
+        }
+        
+        /** 
+         * Get the index of this node
+         * @return the index
+         */
+        public int getNodeIndex(){
+            return index;
         }
         
         /**
@@ -630,7 +685,48 @@ public class CARTWagonFormat implements CART{
                         +daughters.length+" daughters!");
             }
             daughters[lastDaughter] = daughter;
+            if (daughter != null){
+                daughter.setNodeIndex(lastDaughter);
+            }
             lastDaughter++;
+        }
+        
+        /**
+         * Get the daughter at the specified index
+         * @param index the index of the daughter
+         * @return the daughter (potentially null);
+         * if index out of range: null
+         */
+        public Node getDaughter(int index){
+            if (index > daughters.length-1 || index < 0){
+                return null;
+            }
+            return daughters[index];
+        }
+        
+        /**
+         * Replace daughter at given index with 
+         * another daughter
+         * 
+         * @param newDaughter the new daughter
+         * @param index the index of the daughter to replace
+         */
+        public void replaceDaughter(Node newDaughter, int index){
+            if (index > daughters.length-1 || index < 0){
+                throw new Error("Can not replace daughter number "
+                        +index+", since daughter index goes from 0 to "
+                        +(daughters.length-1)+"!");
+            }
+            daughters[index] = newDaughter;
+        }
+        
+        /**
+         * Tests, if the given index refers to a daughter 
+         * @param index the index
+         * @return true, if the index is in range of the daughters array
+         */
+        public boolean hasMoreDaughters(int index){
+            return (index > -1 && index < daughters.length);
         }
         
         /**
@@ -735,14 +831,6 @@ public class CARTWagonFormat implements CART{
          */
         public abstract Node getNextNode(FeatureVector featureVector);
      
-        /**
-         * Replace the leaf you select according to the feature
-         * vector by the given cart
-         * @param cart the cart
-         * @param featureVector the feature vector
-         */
-        public abstract void replaceLeafByCart(CARTWagonFormat cart, FeatureVector featureVector);
-       
     }
    
         
@@ -783,24 +871,6 @@ public class CARTWagonFormat implements CART{
             return returnNode;
         }
        
-         /**
-         * Replace the leaf you select according to the feature
-         * vector by the given cart
-         * @param cart the cart
-         * @param featureVector the feature vector
-         */
-        public void replaceLeafByCart(CARTWagonFormat cart, FeatureVector featureVector){
-            byte val = featureVector.getByteFeature(featureIndex);
-            Node cartRootNode = cart.getRootNode();
-            if (val == value){
-                daughters[0] = cartRootNode;
-            } else {
-                daughters[1] = cartRootNode;
-            } 
-            cartRootNode.setMother(mother);
-            cartRootNode.setIsRoot(false);
-        }
-        
          /**
          * Gets the String that defines the decision done in the node
          * @return the node definition
@@ -849,24 +919,6 @@ public class CARTWagonFormat implements CART{
         }
         
         /**
-         * Replace the leaf you select according to the feature
-         * vector by the given cart
-         * @param cart the cart
-         * @param featureVector the feature vector
-         */
-        public void replaceLeafByCart(CARTWagonFormat cart, FeatureVector featureVector){
-            short val = featureVector.getShortFeature(featureIndex);
-            Node cartRootNode = cart.getRootNode();
-            if (val == value){
-                daughters[0] = cartRootNode;
-            } else {
-                daughters[1] = cartRootNode;
-            } 
-            cartRootNode.setMother(mother);
-            cartRootNode.setIsRoot(false);
-        }
-        
-        /**
          * Gets the String that defines the decision done in the node
          * @return the node definition
          */
@@ -911,24 +963,6 @@ public class CARTWagonFormat implements CART{
                 returnNode = daughters[1];
             } 
             return returnNode;
-        }
-        
-        /**
-         * Replace the leaf you select according to the feature
-         * vector by the given cart
-         * @param cart the cart
-         * @param featureVector the feature vector
-         */
-        public void replaceLeafByCart(CARTWagonFormat cart, FeatureVector featureVector){
-            float val = featureVector.getContinuousFeature(featureIndex);
-            Node cartRootNode = cart.getRootNode();
-            if (val < value){
-                daughters[0] = cartRootNode;
-            } else {
-                daughters[1] = cartRootNode;
-            } 
-            cartRootNode.setMother(mother);
-            cartRootNode.setIsRoot(false);
         }
         
         /**
@@ -981,20 +1015,6 @@ public class CARTWagonFormat implements CART{
         }
         
         /**
-         * Replace the leaf you select according to the feature
-         * vector by the given cart
-         * @param cart the cart
-         * @param featureVector the feature vector
-         */
-        public void replaceLeafByCart(CARTWagonFormat cart, FeatureVector featureVector){
-            byte index = featureVector.getByteFeature(featureIndex);
-            Node cartRootNode = cart.getRootNode();
-            daughters[index] = cartRootNode;
-            cartRootNode.setMother(mother);
-            cartRootNode.setIsRoot(false);
-        }
-        
-        /**
          * Gets the String that defines the decision done in the node
          * @return the node definition
          */
@@ -1039,20 +1059,6 @@ public class CARTWagonFormat implements CART{
          */
         public Node getNextNode(FeatureVector featureVector) {
             return daughters[featureVector.getShortFeature(featureIndex)];
-        }
-        
-        /**
-         * Replace the leaf you select according to the feature
-         * vector by the given cart
-         * @param cart the cart
-         * @param featureVector the feature vector
-         */
-        public void replaceLeafByCart(CARTWagonFormat cart, FeatureVector featureVector){
-            short index = featureVector.getShortFeature(featureIndex);
-            Node cartRootNode = cart.getRootNode();
-            daughters[index] = cartRootNode;
-            cartRootNode.setMother(mother);
-            cartRootNode.setIsRoot(false);
         }
         
         /**
