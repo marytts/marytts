@@ -102,7 +102,8 @@ public class WaveTimelineMaker implements VoiceImportComponent
             String processingHeader = "\n";
             
             /* Instantiate the TimelineWriter: */
-            TimelineWriter waveTimeline = new TimelineWriter( waveTimelineName, processingHeader, globSampleRate, 30.0 );
+            //TimelineWriter waveTimeline = new TimelineWriter( waveTimelineName, processingHeader, globSampleRate, 30.0 );
+            TimelineWriter waveTimeline = new TimelineWriter( waveTimelineName, processingHeader, globSampleRate, 1.0 );
             
             /* 3) Write the datagrams and feed the index */
             
