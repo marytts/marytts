@@ -139,4 +139,38 @@ public class FFRTargetCostFunction extends FeatureFileReader implements TargetCo
     {
         return targetFeatureComputer.computeFeatureVector(target);
     }
+    
+    
+    /**
+     * Look up the features for a given unit.
+     * @param unit a unit in the database
+     * @return the FeatureVector for target cost computation associated to this unit
+     */
+    public FeatureVector getUnitFeatures(Unit unit)
+    {
+        return featureVectors[unit.getIndex()];
+    }
+    
+    /**
+     * Get the string representation of the feature value associated with
+     * the given unit 
+     * @param unit the unit whose feature value is requested
+     * @param featureName name of the feature requested
+     * @return a string representation of the feature value
+     * @throws IllegalArgumentException if featureName is not a known feature
+     */
+    public String getFeature(Unit unit, String featureName)
+    {
+        int featureIndex = featureDefinition.getFeatureIndex(featureName);
+        if (featureDefinition.isByteFeature(featureIndex)) {
+            byte value = featureVectors[unit.getIndex()].getByteFeature(featureIndex);
+            return featureDefinition.getFeatureValueAsString(featureIndex, value);
+        } else if (featureDefinition.isShortFeature(featureIndex)) {
+            short value = featureVectors[unit.getIndex()].getShortFeature(featureIndex);
+            return featureDefinition.getFeatureValueAsString(featureIndex, value);
+        } else { // continuous -- return float as string
+            float value = featureVectors[unit.getIndex()].getContinuousFeature(featureIndex);
+            return String.valueOf(value);
+        }
+    }
 }

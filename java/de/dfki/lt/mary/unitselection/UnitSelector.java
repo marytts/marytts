@@ -159,7 +159,7 @@ public class UnitSelector
                     length = 1;
                     pw.println();
                 }
-                pw.print(u.getUnit());
+                pw.print(database.targetCostFunction.getFeature(u.getUnit(), "mary_phoneme") + "("+ u.getUnit().getIndex()+ ")");
                 prevIndex = index;
             }
             pw.println();

@@ -77,5 +77,15 @@ public interface TargetCostFunction
      * @return the feature definition object.
      */
     public FeatureDefinition getFeatureDefinition();
-    
+
+    /**
+     * Get the string representation of the feature value associated with
+     * the given unit 
+     * @param unit the unit whose feature value is requested
+     * @param featureName name of the feature requested
+     * @return a string representation of the feature value
+     * @throws IllegalArgumentException if featureName is not a known feature
+     */
+    public String getFeature(Unit unit, String featureName);
+ 
 }
