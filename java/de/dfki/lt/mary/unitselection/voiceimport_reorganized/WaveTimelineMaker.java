@@ -102,8 +102,7 @@ public class WaveTimelineMaker implements VoiceImportComponent
             String processingHeader = "\n";
             
             /* Instantiate the TimelineWriter: */
-            //TimelineWriter waveTimeline = new TimelineWriter( waveTimelineName, processingHeader, globSampleRate, 30.0 );
-            TimelineWriter waveTimeline = new TimelineWriter( waveTimelineName, processingHeader, globSampleRate, 1.0 );
+            TimelineWriter waveTimeline = new TimelineWriter( waveTimelineName, processingHeader, globSampleRate, 0.01 );
             
             /* 3) Write the datagrams and feed the index */
             
@@ -144,7 +143,7 @@ public class WaveTimelineMaker implements VoiceImportComponent
                     localTime += duration;
                     numDatagrams++;
                 }
-                System.out.println( baseNameArray[i] + " -> pm file says [" + localTime + "] samples, wav file says ["+ wav.getNumSamples() + "] samples." );
+                // System.out.println( baseNameArray[i] + " -> pm file says [" + localTime + "] samples, wav file says ["+ wav.getNumSamples() + "] samples." );
             }
             
             System.out.println("---- Done." );
@@ -155,7 +154,9 @@ public class WaveTimelineMaker implements VoiceImportComponent
             System.out.println( "Total speech duration: [" + totalTime + "] samples / [" + ((float)(totalTime) / (float)(globSampleRate)) + "] seconds." );
             System.out.println( "(Speech duration approximated from EST Track float times: [" + totalDuration + "] seconds.)" );
             System.out.println( "Number of frames: [" + numDatagrams + "]." );
-            System.out.println( "Size of the index: [" + waveTimeline.idx.getNumIdx() + "]." );
+            System.out.println( "Size of the index: [" + waveTimeline.idx.getNumIdx() + "] ("
+                    + (waveTimeline.idx.getNumIdx() * 16) + " bytes, i.e. "
+                    + ( (double)(waveTimeline.idx.getNumIdx()) * 16.0 / 1048576.0) + " megs)." );
             System.out.println( "---- Waveform timeline done.");
             
             waveTimeline.close();

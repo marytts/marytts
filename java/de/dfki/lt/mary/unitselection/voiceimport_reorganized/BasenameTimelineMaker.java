@@ -102,7 +102,7 @@ public class BasenameTimelineMaker implements VoiceImportComponent
             String processingHeader = "\n";
             
             /* Instantiate the TimelineWriter: */
-            TimelineWriter bnTimeline = new TimelineWriter( bnTimelineName, processingHeader, globSampleRate, 30.0 );
+            TimelineWriter bnTimeline = new TimelineWriter( bnTimelineName, processingHeader, globSampleRate, 2.0 );
             
             /* 3) Write the datagrams and feed the index */
             
@@ -119,7 +119,7 @@ public class BasenameTimelineMaker implements VoiceImportComponent
                 wav = new WavReader( db.wavDirName() + baseNameArray[i] + db.wavExt() );
                 totalDuration += pmFile.getTimeSpan();
                 duration = (int)( (double)pmFile.getTimeSpan() * (double)(globSampleRate) );
-                // System.out.println( baseNameArray[i] + " -> [" + frameSize + "] samples." );
+                // System.out.println( baseNameArray[i] + " -> [" + duration + "] samples." );
                 System.out.println( baseNameArray[i] + " -> pm file says [" + duration + "] samples, wav file says ["+ wav.getNumSamples() + "] samples." );
                 bnTimeline.feed( new Datagram( duration, baseNameArray[i].getBytes("UTF-8") ) , globSampleRate );
                 totalTime += duration;
@@ -134,7 +134,9 @@ public class BasenameTimelineMaker implements VoiceImportComponent
             System.out.println( "Total speech duration: [" + totalTime + "] samples / [" + ((float)(totalTime) / (float)(globSampleRate)) + "] seconds." );
             System.out.println( "(Speech duration approximated from EST Track float times: [" + totalDuration + "] seconds.)" );
             System.out.println( "Number of frames: [" + numDatagrams + "]." );
-            System.out.println( "Size of the index: [" + bnTimeline.idx.getNumIdx() + "]." );
+            System.out.println( "Size of the index: [" + bnTimeline.idx.getNumIdx() + "] ("
+                    + (bnTimeline.idx.getNumIdx() * 16) + " bytes, i.e. "
+                    + ( (double)(bnTimeline.idx.getNumIdx()) * 16.0 / 1048576.0) + " megs)." );
             System.out.println( "---- Basename timeline done.");
             
             bnTimeline.close();

@@ -151,7 +151,7 @@ public class MCepTimelineMaker implements VoiceImportComponent
                 + "-pm PITCHMARKFILE.pm -o melcepDir/mcepFile.mcep WAVDIR/WAVFILE.wav\n";
             
             /* Instantiate the TimelineWriter: */
-            TimelineWriter mcepTimeline = new TimelineWriter( mcepTimelineName, cmdLine, globSampleRate, 30.0 );
+            TimelineWriter mcepTimeline = new TimelineWriter( mcepTimelineName, cmdLine, globSampleRate, 0.01 );
             
             
             /* 4) Write the datagrams and feed the index */
@@ -192,7 +192,7 @@ public class MCepTimelineMaker implements VoiceImportComponent
                     totalTime += duration;
                     localTime += duration;
                 }
-                System.out.println( baseNameArray[i] + " -> mcep file says [" + localTime + "] samples, wav file says ["+ wav.getNumSamples() + "] samples." );
+                // System.out.println( baseNameArray[i] + " -> mcep file says [" + localTime + "] samples, wav file says ["+ wav.getNumSamples() + "] samples." );
                 
             }
             
@@ -204,7 +204,9 @@ public class MCepTimelineMaker implements VoiceImportComponent
             System.out.println( "Total speech duration: [" + totalTime + "] samples / [" + ((double)(totalTime) / (double)(globSampleRate)) + "] seconds." );
             System.out.println( "(Speech duration approximated from EST Track float times: [" + totalDuration + "] seconds.)" );
             System.out.println( "Number of frames: [" + numDatagrams + "]." );
-            System.out.println( "Size of the index: [" + mcepTimeline.idx.getNumIdx() + "]." );
+            System.out.println( "Size of the index: [" + mcepTimeline.idx.getNumIdx() + "] ("
+                    + (mcepTimeline.idx.getNumIdx() * 16) + " bytes, i.e. "
+                    + ( (double)(mcepTimeline.idx.getNumIdx()) * 16.0 / 1048576.0) + " megs)." );
             System.out.println( "---- mcep timeline done.");
             
             mcepTimeline.close();
