@@ -41,7 +41,7 @@ import de.dfki.lt.mary.unitselection.voiceimport_reorganized.General;
 /**
  * File reader for a wave (RIFF) waveform
  */
-class WavReader {
+public class WavReader {
     
     private int numSamples;
     private int sampleRate;
