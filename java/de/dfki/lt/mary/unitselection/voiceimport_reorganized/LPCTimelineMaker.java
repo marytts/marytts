@@ -164,7 +164,7 @@ public class LPCTimelineMaker implements VoiceImportComponent
             String processingHeader = new String(baos.toString("latin1"));
             
             /* Instantiate the TimelineWriter: */
-            TimelineWriter lpcTimeline = new TimelineWriter( lpcTimelineName, processingHeader, globSampleRate, 30.0 );
+            TimelineWriter lpcTimeline = new TimelineWriter( lpcTimelineName, processingHeader, globSampleRate, 0.01 );
             
             
             /* 4) Write the datagrams and feed the index */
@@ -232,7 +232,7 @@ public class LPCTimelineMaker implements VoiceImportComponent
                     totalTime += duration;
                     localTime += duration;
                 }
-                System.out.println( baseNameArray[i] + " -> lpc file says [" + localTime + "] samples, wav file says ["+ wav.getNumSamples() + "] samples." );
+                // System.out.println( baseNameArray[i] + " -> lpc file says [" + localTime + "] samples, wav file says ["+ wav.getNumSamples() + "] samples." );
             }
             
             System.out.println("---- Done." );
@@ -243,7 +243,9 @@ public class LPCTimelineMaker implements VoiceImportComponent
             System.out.println( "Total speech duration: [" + totalTime + "] samples / [" + ((float)(totalTime) / (float)(globSampleRate)) + "] seconds." );
             System.out.println( "(Speech duration approximated from EST Track float times: [" + totalDuration + "] seconds.)" );
             System.out.println( "Number of frames: [" + numDatagrams + "]." );
-            System.out.println( "Size of the index: [" + lpcTimeline.idx.getNumIdx() + "]." );
+            System.out.println( "Size of the index: [" + lpcTimeline.idx.getNumIdx() + "] ("
+                    + (lpcTimeline.idx.getNumIdx() * 16) + " bytes, i.e. "
+                    + ( (double)(lpcTimeline.idx.getNumIdx()) * 16.0 / 1048576.0) + " megs)." );
             System.out.println( "---- LPC timeline done.");
             
             lpcTimeline.close();
