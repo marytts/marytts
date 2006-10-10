@@ -39,73 +39,41 @@ import java.util.List;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
 
 import org.apache.log4j.Logger;
-import org.jsresources.SequenceAudioInputStream;
 
-import com.sun.speech.freetts.util.WaveUtils;
 
 import de.dfki.lt.mary.unitselection.SelectedUnit;
 import de.dfki.lt.mary.unitselection.UnitConcatenator;
 import de.dfki.lt.mary.unitselection.UnitDatabase;
 import de.dfki.lt.mary.unitselection.Unit;
-import de.dfki.lt.mary.util.FloatList;
+import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
 import de.dfki.lt.signalproc.util.DDSAudioInputStream;
 import de.dfki.lt.signalproc.window.HannWindow;
 import de.dfki.lt.signalproc.window.Window;
 
 /**
- * Concatenates ClusterUnits and returns
+ * Concatenates Units and returns
  * an audio stream
  * 
- * @author Anna Hunecke
  *
  */
-public class LPCOverlapUnitConcatenator implements UnitConcatenator
+public class WaveOverlapUnitConcatenator implements UnitConcatenator
 {
     protected Logger logger;
     protected UnitDatabase database;
-    protected LPCTimelineReader timeline;
+    protected TimelineReader timeline;
     protected AudioFormat audioformat;
     protected double unitToTimelineSampleRateFactor;
     
     
-    /**
-     * Given a 16 bit value (represented as an int), extract the high eight bits
-     * and return them
-     * 
-     * @param val
-     *            the 16 bit value
-     * 
-     * @return the high eight bits
-     */
-    protected final static byte hibyte(int val)
-    {
-        return (byte) (val >>> 8);
-    }
 
     /**
-     * Given a 16 bit value (represented as an int), extract the low eight bits
-     * and return them
-     * 
-     * @param val
-     *            the 16 bit value
-     * 
-     * @return the low eight bits
-     */
-    protected final static byte lobyte(int val)
-    {
-        return (byte) (val & 0x000000FF);
-    }
-    ////////////////////// LPC helpers end /////////////////////////
-
-    /**
-     * Empty Constructor; need to call load(UnitDatabase separately)
+     * Empty Constructor; need to call load(UnitDatabase) separately
      * @see #load(UnitDatabase)
      */
-    public LPCOverlapUnitConcatenator()
+    public WaveOverlapUnitConcatenator()
     {
         logger = Logger.getLogger(this.getClass());
     }
@@ -113,7 +81,7 @@ public class LPCOverlapUnitConcatenator implements UnitConcatenator
     public void load(UnitDatabase database)
     {
         this.database = database;
-        this.timeline = (LPCTimelineReader)database.getAudioTimeline();
+        this.timeline = database.getAudioTimeline();
         int sampleRate = timeline.getSampleRate();
         this.audioformat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
                 sampleRate, // samples per second
@@ -146,31 +114,26 @@ public class LPCOverlapUnitConcatenator implements UnitConcatenator
     public AudioInputStream getAudio(List units) throws IOException
     {
         logger.debug("Getting audio for "+units.size()+" units");
-        List audioStreams = new ArrayList(units.size());
-        LPCTimelineReader timeline = (LPCTimelineReader) database.getAudioTimeline();
-        int lpcOrder = timeline.getLPCOrder();
-        float lpcMin = timeline.getLPCMin();
-        float lpcRange = timeline.getLPCRange();
         
         int totalNSamples = 0;
         // First loop through all units: collect information and build up preparatory structures
     	for (Iterator it = units.iterator();it.hasNext();) {
     	    SelectedUnit unit = (SelectedUnit) it.next();
-            UnitLPCData lpcData = new UnitLPCData();
-            unit.setConcatenationData(lpcData);
+            UnitData unitData = new UnitData();
+            unit.setConcatenationData(unitData);
             int nSamples = 0;
             int unitSize = unitToTimeline(unit.getUnit().getDuration()); // convert to timeline samples
             long unitStart = unitToTimeline(unit.getUnit().getStart()); // convert to timeline samples
             //System.out.println("Unit size "+unitSize+", pitchmarksInUnit "+pitchmarksInUnit);
-            Datagram[] datagrams = (Datagram[]) timeline.getDatagrams(unitStart,(long)unitSize);
+            Datagram[] datagrams = timeline.getDatagrams(unitStart,(long)unitSize);
             // one right context period for windowing:
-            LPCDatagram rightContextFrame = null;
+            Datagram rightContextFrame = null;
             Unit next = database.getUnitFileReader().getNextUnit(unit.getUnit());
             if (next != null && !next.isEdgeUnit()) {
-                rightContextFrame = (LPCDatagram)timeline.getDatagram(unitStart+unitSize);
+                rightContextFrame = timeline.getDatagram(unitStart+unitSize);
             } else { // no right context: add a zero frame as long as the last frame in the unit
-                int length = ((LPCDatagram)datagrams[datagrams.length-1]).getQuantizedResidual().length;
-                rightContextFrame = new LPCDatagram(length, new float[lpcOrder], new short[length], lpcMin, lpcRange);
+                int length = datagrams[datagrams.length-1].getLength() / 2; // length = number of samples
+                rightContextFrame = new Datagram(length, new byte[2*length]);
             }
             int rightContextFrameLength;
 
@@ -186,7 +149,7 @@ public class LPCOverlapUnitConcatenator implements UnitConcatenator
                 int avgPeriodLength = unitSize / pitchmarksInUnit; // there will be rounding errors here
                 int nTargetPitchmarks = Math.round((float)targetLength / avgPeriodLength); // round to the nearest integer
                 pitchmarks = new int[nTargetPitchmarks];
-                lpcData.setPitchmarks(pitchmarks);
+                unitData.setPitchmarks(pitchmarks);
                 for (int i=0; i<nTargetPitchmarks-1; i++) {
                     nSamples += avgPeriodLength;
                     pitchmarks[i] = nSamples;
@@ -198,15 +161,15 @@ public class LPCOverlapUnitConcatenator implements UnitConcatenator
                 rightContextFrameLength = 0;
             } else {
                 pitchmarks = new int[pitchmarksInUnit+1];
-                lpcData.setPitchmarks(pitchmarks);
+                unitData.setPitchmarks(pitchmarks);
                 for (int i = 0; i < pitchmarksInUnit; i++) {
-                    nSamples += ((LPCDatagram)datagrams[i]).getQuantizedResidual().length;
+                    nSamples += datagrams[i].getLength() / 2; // length in samples
                     pitchmarks[i] = nSamples;
                 }
                 assert pitchmarks[pitchmarks.length-2] == unitToTimeline(unit.getUnit().getDuration()):
                     "Unexpected difference: for unit "+unit+", expected "+unitToTimeline(unit.getUnit().getDuration())+" samples, found "+pitchmarks[pitchmarks.length-2]; 
                 // And the last pitchmark for windowing the right context frame:
-                rightContextFrameLength = rightContextFrame.getQuantizedResidual().length;
+                rightContextFrameLength = rightContextFrame.getLength() / 2; // length in samples
                 pitchmarks[pitchmarks.length-1] = nSamples+rightContextFrameLength;
 
             }
@@ -214,51 +177,46 @@ public class LPCOverlapUnitConcatenator implements UnitConcatenator
             int nPitchmarks = pitchmarks.length;
             //System.out.println("Unit size "+unitSize+", pitchmarks length "
               //      +nPitchmarks);
-            LPCDatagram[] frames = new LPCDatagram[nPitchmarks];
-            lpcData.setFrames(frames);
+            Datagram[] frames = new Datagram[nPitchmarks];
+            unitData.setFrames(frames);
             
             float timeStretch = (float)unitSize/(float)(nSamples); 
             // if timeStretch == 1, copy unit as it is; 
             // if timeStretch < 1, lengthen by duplicating frames
             // if timeStretch > 1, shorten by skipping frames
-            int targetResidualPosition = 0;
             float frameIndex = 0;
+            int realisedDuration = 0;
             //float uIndex = 0; // counter of imaginary sample position in the unit 
             // for each pitchmark, get frame coefficients and residual
-            for (int i=0; i < nPitchmarks-1; i++) {
-                frames[i] = (LPCDatagram) datagrams[Math.round(frameIndex)];
+            for (int i=0; i < nPitchmarks && Math.round(frameIndex) < datagrams.length; i++) {
+                frames[i] = datagrams[Math.round(frameIndex)];
                 frameIndex += timeStretch; // i.e., increment by less than 1 for stretching, by more than 1 for shrinking
                 // FreeTTS did this time stretching on the samples level, and retrieved the frame closest to the resulting sample position:
                 // uIndex += ((float) targetResidualSize * m);
+                realisedDuration += frames[i].getDuration();
             }
             if (!unit.getTarget().isSilence()) {
                 assert rightContextFrame != null;
                 frames[nPitchmarks-1] = rightContextFrame;
+                realisedDuration += rightContextFrame.getDuration();
+            }
+            if (nSamples+rightContextFrameLength != realisedDuration) {
+                logger.debug("Expected duration: "+(nSamples+rightContextFrameLength)+"; realised duration: "+realisedDuration+" for unit "+unit);
             }
 
             // Generate audio: Residual-excited linear prediction
-            FloatList outBuffer = FloatList.createList(timeline.getLPCOrder() + 1);
-            double[] audio = new double[nSamples+rightContextFrameLength];
-            int s = 0;
-            // For each frame:
-            for (int i = 0; i < nPitchmarks; i++) {
-                // get the unquantized lpc coefficients and the unquantized residual:
-                float[] lpcCoeffs = frames[i].getCoeffs(lpcMin, lpcRange);
-                short[] residual = frames[i].getResidual();
-                int nSamplesInFrame = residual.length;
-                // For each sample:
-                for (int j = 0; j < nSamplesInFrame; j++) {
-                    FloatList backBuffer = outBuffer.prev;
-                    float ob = residual[j];
-                    for (int k=0; k<lpcOrder; k++) {
-                        ob += lpcCoeffs[k] * backBuffer.value;
-                        backBuffer = backBuffer.prev;
-                    }
-                    audio[s++] = ob;
-                    outBuffer.value = ob;
-                    outBuffer = outBuffer.next;
+            byte[] audioData = new byte[2*realisedDuration];
+            for (int i=0,pos=0; i<nPitchmarks; i++) {
+                assert frames[i] != null: "Frame "+i+" of "+nPitchmarks+" is null: Unit "+unit;
+                byte[] frameAudio = frames[i].getData();
+                if (frameAudio.length + pos > audioData.length) {
+                    logger.debug("Attempt to copy "+frameAudio.length+" bytes to pos "+pos+" of "+audioData.length);                    
                 }
+                System.arraycopy(frameAudio, 0, audioData, pos, frameAudio.length);
+                pos += frameAudio.length;
             }
+            double[] audio = new AudioDoubleDataSource(new AudioInputStream(new ByteArrayInputStream(audioData), audioformat, audioData.length/2)).getAllData();
+            
             // Now audio is the resynthesized audio signal for the unit plus the right context frame,
             // without any post-processing.
             unit.setAudio(audio);
@@ -269,17 +227,17 @@ public class LPCOverlapUnitConcatenator implements UnitConcatenator
         int iTotal = 0; // write position in totalAudio
         for (Iterator it = units.iterator();it.hasNext();) {
             SelectedUnit unit = (SelectedUnit) it.next();
-            UnitLPCData lpcData = (UnitLPCData) unit.getConcatenationData();
-            int nPitchmarks = lpcData.getPitchmarks().length;
+            UnitData unitData = (UnitData) unit.getConcatenationData();
+            int nPitchmarks = unitData.getPitchmarks().length;
             int rightContextFrameLength;
             if (unit.getTarget().isSilence()) rightContextFrameLength = 0;
-            else rightContextFrameLength = lpcData.getPeriodLength(nPitchmarks-1);
+            else rightContextFrameLength = unitData.getPeriodLength(nPitchmarks-1);
             double[] audio = unit.getAudio();
             int nSamples = audio.length-rightContextFrameLength;
             
             // Now apply the left half of a Hann window to the first frame and 
             // the right half of a Hann window to the right context frame:
-            int firstPeriodLength = lpcData.getPeriodLength(0);
+            int firstPeriodLength = unitData.getPeriodLength(0);
             Window hannWindow = new HannWindow(2*firstPeriodLength);
             // start overlap at iTotal:
             for (int i=0; i<firstPeriodLength; i++, iTotal++) {
@@ -290,7 +248,6 @@ public class LPCOverlapUnitConcatenator implements UnitConcatenator
                 audio[nSamples+i] *= hannWindow.value(rightContextFrameLength+i);
             }
             int toCopy = Math.min(nSamples+rightContextFrameLength-firstPeriodLength, totalAudio.length-iTotal);
-            System.out.println("Copying "+ toCopy +" from audio (total length "+audio.length+") position "+firstPeriodLength+" into totalAudio (total length "+totalAudio.length+") at position "+iTotal);
             System.arraycopy(audio, firstPeriodLength, totalAudio, iTotal, toCopy);
             iTotal += nSamples - firstPeriodLength;
             // TODO: or should this be iTotal += nSamples - rightContextFrameLength; ???
@@ -309,12 +266,12 @@ public class LPCOverlapUnitConcatenator implements UnitConcatenator
         return (long) (time*unitToTimelineSampleRateFactor);
     }
 
-    protected static class UnitLPCData
+    protected static class UnitData
     {
         int[] pitchmarks;
-        LPCDatagram[] frames;
+        Datagram[] frames;
 
-        public UnitLPCData()
+        public UnitData()
         {
         }
         /**
@@ -364,17 +321,17 @@ public class LPCOverlapUnitConcatenator implements UnitConcatenator
             return pitchmarks.length;
         }
 
-        public void setFrames(LPCDatagram[] frames)
+        public void setFrames(Datagram[] frames)
         {
             this.frames = frames; 
         }
         
-        public void setFrame(int frameIndex, LPCDatagram frame)
+        public void setFrame(int frameIndex, Datagram frame)
         {
             this.frames[frameIndex] = frame;
         }
         
-        public LPCDatagram getFrame(int frameIndex)
+        public Datagram getFrame(int frameIndex)
         {
             return frames[frameIndex];
         }
