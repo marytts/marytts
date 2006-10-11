@@ -26,7 +26,7 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-package de.dfki.lt.mary.tests;
+package de.dfki.lt.mary.gizmos;
 
 import de.dfki.lt.mary.unitselection.*;
 import de.dfki.lt.mary.unitselection.Unit;
@@ -45,22 +45,6 @@ import java.util.Vector;
 
 public class ListenToPreselection {
     
-    private static int byteswap( int val ) {
-       return( ( (val & 0xff000000) >>> 24)
-                + ( (val & 0x00ff0000) >>> 8)
-                + ( (val & 0x0000ff00) << 8)
-                + ( (val & 0x000000ff) << 24) );
-    }
-    
-    private static short byteswap( short val ) {
-        return( (short)(
-                ( ((int)(val) & 0xff00) >>> 8 )
-                +
-                ( ((int)(val) & 0x00ff) << 8)
-                )
-              );
-    }
-    
     /**
      * @param args
      */
@@ -72,6 +56,7 @@ public class ListenToPreselection {
         //TimelineReader tlr = new TimelineReader( dbl.lpcTimelineFileName() );
         FeatureFileIndexer ffi = new FeatureFileIndexer( dbl.targetFeaturesFileName() );
         FeatureDefinition feaDef = ffi.getFeatureDefinition();
+        WavWriter ww = new WavWriter();
         
         System.out.println( "Indexing the phonemes..." );
         String[] feaSeq = { "mary_phoneme" }; // Sort by phoneme name
@@ -102,31 +87,9 @@ public class ListenToPreselection {
             /* Get the bytes as an array */
             byte[] buf = bbis.toByteArray();
             /* Output the header of the wav file */
-            System.out.println( "Outputting file [" + ( dbl.rootDirName() + "/tests/" + phonID + ".wav" ) + "]..." );
-            DataOutputStream dos = new DataOutputStream( new BufferedOutputStream(
-                    new FileOutputStream( dbl.rootDirName() + "/tests/" + phonID + ".wav" ) ) );
-            dos.writeBytes( "RIFF" ); // "RIFF" in ascii
-            dos.writeInt( byteswap(36 + buf.length) ); // Chunk size
-            dos.writeBytes( "WAVEfmt " );
-            dos.writeInt( byteswap(16) ); // chunk size, 16 for PCM
-            dos.writeShort( byteswap( (short)1 ) ); // PCM format
-            dos.writeShort( byteswap( (short)1 ) ); // Mono, one channel
-            dos.writeInt( byteswap( 16000 ) ); // Samplerate
-            dos.writeInt( byteswap( 16000 * 2 ) ); // Byte-rate
-            dos.writeShort( byteswap(  (short)2 ) ); // Nbr of bytes per samples x nbr of channels
-            dos.writeShort( byteswap( (short)16 ) ); // nbr of bits per sample
-            dos.writeBytes( "data" );
-            dos.writeInt( byteswap(buf.length) );
-            System.out.println("NB BYTES IN DATA=" + buf.length + " meaning " + (buf.length/2) + " samples." );
-            /* Byte-swap the buffer: */
-            byte b = 0;
-            for ( int j = 0; j < buf.length; j += 2 ) {
-                b = buf[j];
-                buf[j] = buf[j+1];
-                buf[j+1] = b;
-            }
-            dos.write( buf );
-            dos.close();
+            String fName = ( dbl.rootDirName() + "/tests/" + phonID + ".wav" );
+            System.out.println( "Outputting file [" + fName + "]..." );
+            ww.export( fName, 16000, buf );
             /* Sanity check */
             /* WavReader wr = new WavReader( dbl.rootDirName() + "/tests/" + phonID + ".wav" );
             System.out.println( "File [" + ( dbl.rootDirName() + "/tests/" + phonID + ".wav" )
