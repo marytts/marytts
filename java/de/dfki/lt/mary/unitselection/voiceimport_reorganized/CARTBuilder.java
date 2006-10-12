@@ -48,17 +48,13 @@ public class CARTBuilder implements VoiceImportComponent {
     }
     
     //for testing
-    public static void main(String[] args){
+    public static void main(String[] args) throws Exception
+    {
         //build database layout
         DatabaseLayout db = new DatabaseLayout();
         //build CARTBuilder and run compute
         CARTBuilder cartBuilder = new CARTBuilder(db);
-        try {
-            cartBuilder.compute();
-        } catch (Exception e){
-            e.printStackTrace();
-            throw new Error("Something went wrong");
-        }
+        cartBuilder.compute();
     }
     
      public boolean compute() throws Exception{
@@ -109,7 +105,9 @@ public class CARTBuilder implements VoiceImportComponent {
      * @param festvoxDirectory the festvox directory of a voice
      */
     public CARTWagonFormat importCART(String filename,
-                            FeatureDefinition featDef){
+                            FeatureDefinition featDef)
+    throws IOException
+    {
         try{
             //open CART-File
             System.out.println("Reading CART from "+filename+" ...");
@@ -119,9 +117,10 @@ public class CARTBuilder implements VoiceImportComponent {
             //cart.toStandardOut();
             System.out.println(" ... done!");
             return cart;
-        } catch (Exception e){
-            e.printStackTrace();
-            throw new Error("Error reading CARTS");
+        } catch (IOException ioe){
+            IOException newIOE = new IOException("Error reading CART");
+            newIOE.initCause(ioe);
+            throw newIOE;
         }
     }
        
@@ -132,33 +131,30 @@ public class CARTBuilder implements VoiceImportComponent {
      * @param destDir the destination directory
      */
     public void dumpCART(String destFile,
-                        CARTWagonFormat cart){
-           try {
-                System.out.println("Dumping CART to "+destFile+" ...");
+                        CARTWagonFormat cart)
+    throws IOException
+    {
+        System.out.println("Dumping CART to "+destFile+" ...");
         
-                //Open the destination file (cart.bin) and output the header
-                DataOutputStream out = new DataOutputStream(new
-                        BufferedOutputStream(new 
-                        FileOutputStream(destFile)));
-                //create new CART-header and write it to output file
-                MaryHeader hdr = new MaryHeader(MaryHeader.CARTS);
-                hdr.write(out);
-        
-                //write number of nodes
-                out.writeInt(cart.getNumNodes());
-                String name = "";
-                //dump name and CART
-                out.writeUTF(name);
-                //dump CART
-                cart.dumpBinary(out);
-              
-                //finish
-                out.close();
-                System.out.println(" ... done\n");
-            } catch (IOException e){
-                    //e.printStackTrace();
-                    throw new Error("Error dumping CARTS");
-            }    
+        //Open the destination file (cart.bin) and output the header
+        DataOutputStream out = new DataOutputStream(new
+                BufferedOutputStream(new 
+                FileOutputStream(destFile)));
+        //create new CART-header and write it to output file
+        MaryHeader hdr = new MaryHeader(MaryHeader.CARTS);
+        hdr.write(out);
+
+        //write number of nodes
+        out.writeInt(cart.getNumNodes());
+        String name = "";
+        //dump name and CART
+        out.writeUTF(name);
+        //dump CART
+        cart.dumpBinary(out);
+      
+        //finish
+        out.close();
+        System.out.println(" ... done\n");
     }     
     
     /**
@@ -170,7 +166,9 @@ public class CARTBuilder implements VoiceImportComponent {
      * @param featureDefinition the definition of the features
      */
     public void replaceLeaves(CARTWagonFormat cart,
-            				FeatureDefinition featureDefinition){
+            				FeatureDefinition featureDefinition)
+    throws IOException
+    {
         try {
             //TODO: enter meaningful file names; probably get them from DatabaseLayout 
             String featureDefFile = "enter Definition here";
@@ -211,9 +209,10 @@ public class CARTBuilder implements VoiceImportComponent {
                     cart.getNextFeatureVectors();
             }
             
-        } catch (Exception e){
-            e.printStackTrace();
-            throw new Error("Error replacing leaves");
+        } catch (IOException ioe) {
+            IOException newIOE = new IOException("Error replacing leaves");
+            newIOE.initCause(ioe);
+            throw newIOE;
         }
     }
     
