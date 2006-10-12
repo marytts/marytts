@@ -107,6 +107,7 @@ public class CARTBuilder implements VoiceImportComponent {
         
          //TODO: Write a dump method for the featureVectors; import and dump distance tables
          //replaceLeaves(topLevelCART,featureDefinition);
+         
          //dump big CART to binary file
          String destinationFile = databaseLayout.cartFileName();
          dumpCART(destinationFile,topLevelCART);
