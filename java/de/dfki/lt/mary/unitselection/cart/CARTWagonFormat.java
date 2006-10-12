@@ -173,14 +173,20 @@ public class CARTWagonFormat implements CART{
         //for each node
     	while (nodeIndex < numNodes) {
     	   //parse the line and add the node
-    	    cart = raf.readUTF();
+    	    int length = raf.readInt();
+    	    char[] cartChars = new char[length];
+    	    for (int i=0; i<length;i++){
+    	        cartChars[i] = raf.readChar();
+    	    }
+    	    cart = new String(cartChars);
+    	    System.out.println(cart);
     	    parseAndAdd(cart);
     	    
     	    nodeIndex++;
     	}
         //make sure we closed as many brackets as we opened
     	if (openBrackets != 0){
-            throw new IOException("Error loading CART: bracket mismatch");
+            throw new IOException("Error loading CART: bracket mismatch: "+openBrackets);
         }
     	System.out.println("Done");
     }
@@ -245,7 +251,7 @@ public class CARTWagonFormat implements CART{
                 nextNode.setIsRoot(true);
             }
             
-            //go on step down
+            //go one step down
             lastNode = nextNode;
             
         } else { // we have a leaf
@@ -302,7 +308,7 @@ public class CARTWagonFormat implements CART{
     }
     
     /**
-     * Convert the given tree into a CART with the
+     * Convert the given Mary node tree into a CART with the
      * leaves containing featureVectors
      * 
      * @param tree the tree
@@ -553,6 +559,18 @@ public class CARTWagonFormat implements CART{
         }
     }
     
+    /**
+     * Write the given String to the given data output
+     * (Replacement for writeUTF)
+     * @param str the String
+     * @param out the data output
+     */
+    public static void writeStringToOutput(String str, DataOutput out)
+    								throws IOException{
+        out.writeInt(str.length());
+        out.writeChars(str);
+    }
+    
     
     /**
      * A node for the CART.
@@ -779,7 +797,7 @@ public class CARTWagonFormat implements CART{
             if (out != null){
                 //dump to output stream
 	            //two open brackets + definition of node
-	            out.writeUTF("(("+getNodeDefinition());
+                writeStringToOutput("(("+getNodeDefinition(),out);
             } else {
                 //dump to Standard out
                 //two open brackets + definition of node
@@ -787,9 +805,10 @@ public class CARTWagonFormat implements CART{
             }
             //add the daughters
             for (int i=0;i<daughters.length;i++){
-                
+                System.out.println("Adding daughter "+i);
                     if (daughters[i] == null){
                         String nullDaughter = "";
+                        System.out.println("null daughter");
                         if (i+1!=daughters.length){
                             nullDaughter = "((() 0))";
                             
@@ -806,15 +825,17 @@ public class CARTWagonFormat implements CART{
                         
                         if (out != null){
                              //dump to output stream
-                             out.writeUTF(nullDaughter);
+                            writeStringToOutput(nullDaughter,out);
                          } else {
                              //dump to Standard out
                              System.out.println(nullDaughter);
                          }
                     } else {
                         if (i+1!=daughters.length){
+                            System.out.println("normal daughter");
                             daughters[i].toWagonFormat(out,"");
                         } else { 
+                            System.out.println("last daughter");
                             //extension must be added to last daughter
                             if (extension != null){
                             	daughters[i].toWagonFormat(out,")"+extension);
@@ -1195,7 +1216,8 @@ public class CARTWagonFormat implements CART{
             //dump the whole stuff
             if (out != null){
                 //write to output stream
-                out.writeUTF(sb.toString());
+                
+                writeStringToOutput(sb.toString(),out);
             } else {
                 //write to Standard out
                 System.out.println(sb.toString());
