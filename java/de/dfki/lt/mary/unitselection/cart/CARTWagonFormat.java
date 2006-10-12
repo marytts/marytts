@@ -566,6 +566,7 @@ public class CARTWagonFormat implements CART{
         //every node except the root node has a mother
         protected Node mother;
         
+        //the index of the node in the daughters array of its mother
         protected int index;
         
     
@@ -676,6 +677,10 @@ public class CARTWagonFormat implements CART{
             isRoot = false;
         }
         
+        /** 
+         * Get the name of the feature
+         * @return the name of the feature
+         */
         public String getFeatureName(){
             return feature;
         }
@@ -687,7 +692,7 @@ public class CARTWagonFormat implements CART{
         public void addDaughter(Node daughter){
             if (lastDaughter > daughters.length-1){
                 throw new RuntimeException("Can not add daughter number "
-                        +(lastDaughter+1)+", since node has only "
+                       +(lastDaughter+1)+", since node has only "
                         +daughters.length+" daughters!");
             }
             daughters[lastDaughter] = daughter;
@@ -718,7 +723,7 @@ public class CARTWagonFormat implements CART{
          * @param index the index of the daughter to replace
          */
         public void replaceDaughter(Node newDaughter, int index){
-            if (index > daughters.length-1 || index < 0){
+            if (index > daughters.length-1 || index < 0){	
                 throw new RuntimeException("Can not replace daughter number "
                         +index+", since daughter index goes from 0 to "
                         +(daughters.length-1)+"!");
