@@ -529,7 +529,9 @@ public class CARTWagonFormat implements CART{
         try{
             rootNode.toWagonFormat((DataOutputStream)os,null);
         } catch (IOException ioe){
-            throw new Error("Error dumping CART to output stream");
+            IOException newIOE = new IOException("Error dumping CART to output stream");
+            newIOE.initCause(ioe);
+            throw newIOE;
         }
     }
     
