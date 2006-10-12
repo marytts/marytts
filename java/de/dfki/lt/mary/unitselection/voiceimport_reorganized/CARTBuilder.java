@@ -79,7 +79,8 @@ public class CARTBuilder implements VoiceImportComponent {
          //collect features in a list
          List features = new ArrayList();
          while (line != null){
-             if (!line.startsWith("#")){
+             // Skip empty lines and lines starting with #:
+             if (!(line.trim().equals("") || line.startsWith("#"))){
                  features.add(line.trim());
              }
              line = buf.readLine();
