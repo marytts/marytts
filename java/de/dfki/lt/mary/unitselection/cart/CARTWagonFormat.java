@@ -179,7 +179,7 @@ public class CARTWagonFormat implements CART{
     	        cartChars[i] = raf.readChar();
     	    }
     	    cart = new String(cartChars);
-    	    System.out.println(cart);
+    	    //System.out.println(cart);
     	    parseAndAdd(cart);
     	    
     	    nodeIndex++;
@@ -805,10 +805,10 @@ public class CARTWagonFormat implements CART{
             }
             //add the daughters
             for (int i=0;i<daughters.length;i++){
-                System.out.println("Adding daughter "+i);
+               
                     if (daughters[i] == null){
                         String nullDaughter = "";
-                        System.out.println("null daughter");
+                        
                         if (i+1!=daughters.length){
                             nullDaughter = "((() 0))";
                             
@@ -832,10 +832,10 @@ public class CARTWagonFormat implements CART{
                          }
                     } else {
                         if (i+1!=daughters.length){
-                            System.out.println("normal daughter");
+                            
                             daughters[i].toWagonFormat(out,"");
                         } else { 
-                            System.out.println("last daughter");
+                            
                             //extension must be added to last daughter
                             if (extension != null){
                             	daughters[i].toWagonFormat(out,")"+extension);
