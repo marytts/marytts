@@ -46,7 +46,7 @@ public class ShortStringTranslator
     public short get(String s)
     {
         int index = list.indexOf(s);
-        if (index == -1) throw new IllegalArgumentException("No short value known for string "+s);
+        if (index == -1) throw new IllegalArgumentException("No short value known for string ["+s+"]");
         return (short)index;
     }
     
