@@ -120,7 +120,7 @@ public class CARTWagonFormat implements CART{
         }
         //make sure we closed as many brackets as we opened
         if (openBrackets != 0){
-            throw new Error("Error loading CART: bracket mismatch");
+            throw new IOException("Error loading CART: bracket mismatch");
         }
     }
     
@@ -142,13 +142,13 @@ public class CARTWagonFormat implements CART{
         //open the CART-File and read the header
         RandomAccessFile raf = new RandomAccessFile(new File(fileName), "r");
         if (raf.readInt() != MAGIC)  {
-            throw new Error("No MARY database file!");
+            throw new IOException("No MARY database file!");
         }
         if (raf.readInt() != VERSION)  {
-             throw new Error("Wrong version of database file");
+             throw new IOException("Wrong version of database file");
         }
         if (raf.readInt() != CARTS)  {
-            throw new Error("No CARTs file");
+            throw new IOException("No CARTs file");
         } 
         System.out.println("Reading CART");
         //discard number of CARTs and CART name
@@ -180,7 +180,7 @@ public class CARTWagonFormat implements CART{
     	}
         //make sure we closed as many brackets as we opened
     	if (openBrackets != 0){
-            throw new Error("Error loading CART: bracket mismatch");
+            throw new IOException("Error loading CART: bracket mismatch");
         }
     	System.out.println("Done");
     }
@@ -189,14 +189,16 @@ public class CARTWagonFormat implements CART{
      * Creates a node from the given input line and add it to the CART.
      * 
      * @param line a line of input to parse
+     * @throws IOException if the line has an unexpected format
      */
-    private void parseAndAdd(String line) {
+    private void parseAndAdd(String line) throws IOException 
+    {
         //remove whitespace
         line = line.trim();
         
         //at beginning of String there should be at least two opening brackets
         if (! (line.startsWith("(("))){
-            throw new Error("Invalid input line for CART: "+line);
+            throw new IOException("Invalid input line for CART: "+line);
         }
         if (Character.isLetter(line.charAt(2))){ // we have a node
             openBrackets++; //do not count first bracket
@@ -227,7 +229,7 @@ public class CARTWagonFormat implements CART{
                         if (type.equals("isByteOf")){
                             nextNode = new ByteDecisionNode(feature,Integer.parseInt(value));
                         } else {
-                            throw new Error ("Unknown type : "+type);
+                            throw new IOException ("Unknown node type : "+type);
                         }
                     }
                 }
@@ -281,7 +283,7 @@ public class CARTWagonFormat implements CART{
                         if (index+1 != length){
                             //lastNode should not be the root,
                             //unless we are at the last bracket
-                            throw new Error("Too many closing brackets in line "
+                            throw new IOException("Too many closing brackets in line "
                                             +line);
                         }
                     } else { //you can go one step up
@@ -290,7 +292,7 @@ public class CARTWagonFormat implements CART{
                 } else {
                     //nextChar is not a closing bracket;
                     //something went wrong here
-                    throw new Error("Expected closing bracket in line "
+                    throw new IOException("Expected closing bracket in line "
                                    +line+", but found "+nextChar);
                 }
                 index++;
@@ -349,7 +351,7 @@ public class CARTWagonFormat implements CART{
                    daughterNode = new ShortDecisionNode(nextFeatIndex,numDaughters);
                } else {
                    //feature is of type float, currently not supported in ffi
-                   throw new Error("Found float feature in FeatureFileIndexer!");
+                   throw new IllegalArgumentException("Found float feature in FeatureFileIndexer!");
                }
            }
            
@@ -540,12 +542,14 @@ public class CARTWagonFormat implements CART{
      *
      * @throws IOException if an error occurs during output
      */
-    public void toStandardOut() {
+    public void toStandardOut() throws IOException 
+    {
         try{
             rootNode.toWagonFormat(null,null);
-        } catch (Exception e){
-            e.printStackTrace();
-            throw new Error("Error dumping CART to Standard out");
+        } catch (IOException ioe){
+            IOException newIOE = new IOException("Error dumping CART to standard output");
+            newIOE.initCause(ioe);
+            throw newIOE;
         }
     }
     
@@ -682,7 +686,7 @@ public class CARTWagonFormat implements CART{
          */
         public void addDaughter(Node daughter){
             if (lastDaughter > daughters.length-1){
-                throw new Error("Can not add daughter number "
+                throw new RuntimeException("Can not add daughter number "
                         +(lastDaughter+1)+", since node has only "
                         +daughters.length+" daughters!");
             }
@@ -715,7 +719,7 @@ public class CARTWagonFormat implements CART{
          */
         public void replaceDaughter(Node newDaughter, int index){
             if (index > daughters.length-1 || index < 0){
-                throw new Error("Can not replace daughter number "
+                throw new RuntimeException("Can not replace daughter number "
                         +index+", since daughter index goes from 0 to "
                         +(daughters.length-1)+"!");
             }
