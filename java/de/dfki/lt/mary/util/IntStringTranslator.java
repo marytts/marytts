@@ -45,7 +45,7 @@ public class IntStringTranslator
     public int get(String s)
     {
         int index = list.indexOf(s);
-        if (index == -1) throw new IllegalArgumentException("No byte value known for string "+s);
+        if (index == -1) throw new IllegalArgumentException("No byte value known for string ["+s+"]");
         return index;
     }
     
