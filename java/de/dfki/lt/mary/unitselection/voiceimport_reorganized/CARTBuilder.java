@@ -29,6 +29,7 @@
 package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 
 import java.io.*;
+import java.util.*;
 
 import de.dfki.lt.mary.unitselection.FeatureFileIndexer;
 import de.dfki.lt.mary.unitselection.MaryNode;
@@ -64,12 +65,33 @@ public class CARTBuilder implements VoiceImportComponent {
          String featureFile = databaseLayout.targetFeaturesFileName();
          FeatureFileIndexer ffi = new FeatureFileIndexer(featureFile);
          System.out.println(" ... done!");
-         //TODO: find a way to define the feature sequence
+        
          FeatureDefinition featureDefinition = ffi.getFeatureDefinition();
-         int[] featureSequence = new int[3];
-         featureSequence[0] = featureDefinition.getFeatureIndex("mary_ph_vc");
-         featureSequence[1] = featureDefinition.getFeatureIndex("mary_next_is_pause"); 
-         featureSequence[2] = featureDefinition.getFeatureIndex("mary_stressed"); 
+         
+         //read in the feature sequence
+         //open the file
+         System.out.println("Reading feature sequence ...");
+         String featSeqFile = databaseLayout.featSequenceFileName();
+         BufferedReader buf = new BufferedReader(
+                 new FileReader(new File(featSeqFile)));
+         //each line contains one feature
+         String line = buf.readLine();
+         //collect features in a list
+         List features = new ArrayList();
+         while (line != null){
+             if (!line.startsWith("#")){
+                 features.add(line.trim());
+             }
+             line = buf.readLine();
+         }
+         //convert list to int array
+         int[] featureSequence = new int[features.size()];
+         for (int i=0;i<features.size();i++){
+             featureSequence[i] = 
+                 featureDefinition.getFeatureIndex((String)features.get(i));
+         }
+         System.out.println(" ... done!"); 
+         
          //sort the features according to feature sequence
          System.out.println("Sorting features ...");
          ffi.deepSort(featureSequence);
@@ -81,7 +103,6 @@ public class CARTBuilder implements VoiceImportComponent {
          //convert the top-level CART to Wagon Format
          System.out.println("Building CART from tree ...");
          CARTWagonFormat topLevelCART = new CARTWagonFormat(topLevelTree,ffi);
-         System.out.println(" ... CART has "+topLevelCART.getNumNodes()+" nodes ...");
          System.out.println(" ... done!");
         
          //TODO: Write a dump method for the featureVectors; import and dump distance tables

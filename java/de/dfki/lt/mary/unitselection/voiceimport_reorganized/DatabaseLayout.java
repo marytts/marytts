@@ -93,6 +93,9 @@ public class DatabaseLayout
         /* Default feature weights file */
         setIfDoesntExist( "db.featureweights.file", unitFeaDirName()+"/weights.txt");
 
+        /* Default feature sequence file */
+        setIfDoesntExist( "db.featuresequence.file", "featureSequence.txt" );
+        
         /* Raw Mary XML files */
         setIfDoesntExist( "db.rawmaryxml.subDir", "text" );
         setIfDoesntExist( "db.rawmaryxml.extension", ".rawmaryxml" );
@@ -248,6 +251,12 @@ public class DatabaseLayout
         if ( ret != null ) return( ret );
         /* else: */
         return( timelineDirName() + System.getProperty( "db.waveTimelineBaseName" ) + timelineExt() );
+    }
+    
+    /* Feature Sequence for top-level CART */
+    public String featSequenceFileName () {
+        return ( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
+                + System.getProperty( "db.featuresequence.file") ); 
     }
     
     /* MARY FILES */
