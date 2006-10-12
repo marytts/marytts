@@ -278,6 +278,8 @@ public class CARTWagonFormat implements CART{
             //the last daughter of one or more nodes
             int length = lastToken.length();
             int index = 3; //start looking at the characters after "0))"
+            
+            
             while (index < length){ //while we have more characters
                 char nextChar = lastToken.charAt(index); 
                 if (nextChar == ')'){ 
@@ -293,6 +295,7 @@ public class CARTWagonFormat implements CART{
                                             +line);
                         }
                     } else { //you can go one step up
+                        nextNode = lastNode;
                         lastNode = lastNode.getMother();
                     }
                 } else {
@@ -302,6 +305,11 @@ public class CARTWagonFormat implements CART{
                                    +line+", but found "+nextChar);
                 }
                 index++;
+            }
+            //for debugging
+            int nodeIndex = nextNode.getNodeIndex();
+            if (! ((DecisionNode)lastNode).hasMoreDaughters(nodeIndex+1)){
+                System.out.println("Node is last node, but has no closing brackets");
             }
             
         }
@@ -535,7 +543,7 @@ public class CARTWagonFormat implements CART{
      */
     public void dumpBinary(DataOutput os) throws IOException {
         try{
-            rootNode.toWagonFormat((DataOutputStream)os,null);
+            rootNode.toWagonFormat((DataOutputStream)os,null,null);
         } catch (IOException ioe){
             IOException newIOE = new IOException("Error dumping CART to output stream");
             newIOE.initCause(ioe);
@@ -544,14 +552,16 @@ public class CARTWagonFormat implements CART{
     }
     
     /**
-     * Dumps this CART to the standard out in WagonFormat.
-     *
-     * @throws IOException if an error occurs during output
+     * Debug output to a text file
+     * @param pw the print writer of the text file
+     * @throws IOException
      */
-    public void toStandardOut() throws IOException 
+    public void toTextOut(PrintWriter pw) throws IOException 
     {
         try{
-            rootNode.toWagonFormat(null,null);
+            rootNode.toWagonFormat(null,null,pw);
+            pw.flush();
+            pw.close();
         } catch (IOException ioe){
             IOException newIOE = new IOException("Error dumping CART to standard output");
             newIOE.initCause(ioe);
@@ -648,7 +658,9 @@ public class CARTWagonFormat implements CART{
          * @param out the outputStream
          * @param extension the extension that is added to the last daughter
         */
-        public abstract void toWagonFormat(DataOutputStream out, String extension)
+        public abstract void toWagonFormat(DataOutputStream out, 
+                					String extension,
+                					PrintWriter pw)
 										throws IOException;
         
         
@@ -792,7 +804,9 @@ public class CARTWagonFormat implements CART{
          * @param out the outputStream
          * @param extension the extension that is added to the last daughter
         */
-        public void toWagonFormat(DataOutputStream out, String extension) 
+        public void toWagonFormat(DataOutputStream out, 
+                				String extension,
+                				PrintWriter pw) 
         											throws IOException{
             if (out != null){
                 //dump to output stream
@@ -801,7 +815,12 @@ public class CARTWagonFormat implements CART{
             } else {
                 //dump to Standard out
                 //two open brackets + definition of node
-	            System.out.println("(("+getNodeDefinition());
+	            //System.out.println("(("+getNodeDefinition());
+            }
+            if (pw != null){
+                //dump to print writer
+	            //two open brackets + definition of node
+                pw.println("(("+getNodeDefinition());
             }
             //add the daughters
             for (int i=0;i<daughters.length;i++){
@@ -814,8 +833,8 @@ public class CARTWagonFormat implements CART{
                             
                         } else { 
                             //extension must be added to last daughter
-                            if (extension != null && !(extension.equals(""))){
-                                nullDaughter = "((() 0))"+extension;
+                            if (extension != null){
+                                nullDaughter = "((() 0)))"+extension;
                                 
                             } else {
                                 //we are in the root node, add a closing bracket 
@@ -828,20 +847,23 @@ public class CARTWagonFormat implements CART{
                             writeStringToOutput(nullDaughter,out);
                          } else {
                              //dump to Standard out
-                             System.out.println(nullDaughter);
+                             //System.out.println(nullDaughter);
                          }
+                        if (pw != null){
+                            pw.print(" "+nullDaughter);
+                        }
                     } else {
                         if (i+1!=daughters.length){
                             
-                            daughters[i].toWagonFormat(out,"");
+                            daughters[i].toWagonFormat(out,"",pw);
                         } else { 
                             
                             //extension must be added to last daughter
                             if (extension != null){
-                            	daughters[i].toWagonFormat(out,")"+extension);
+                            	daughters[i].toWagonFormat(out,")"+extension,pw);
                             } else {
                                 //we are in the root node, add a closing bracket 
-                                daughters[i].toWagonFormat(out,")");
+                                daughters[i].toWagonFormat(out,")",pw);
                             }
                         }
                     }
@@ -1195,7 +1217,9 @@ public class CARTWagonFormat implements CART{
          * @param out the outputStream
          * @param extension the extension that is added to the last daughter
         */
-        public void toWagonFormat(DataOutputStream out, String extension) 
+        public void toWagonFormat(DataOutputStream out, 
+                				String extension,
+                				PrintWriter pw) 
         											throws IOException{
             if (indices == null){
                 //get the indices from the feature vectors
@@ -1220,7 +1244,11 @@ public class CARTWagonFormat implements CART{
                 writeStringToOutput(sb.toString(),out);
             } else {
                 //write to Standard out
-                System.out.println(sb.toString());
+                //System.out.println(sb.toString());
+            }
+            if (pw != null){
+                //dump to printwriter
+                pw.print(" ((() 0))"+extension);
             }
         }
         
