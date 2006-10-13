@@ -148,31 +148,31 @@ public class WaveOverlapUnitConcatenator implements UnitConcatenator
                 
                 int avgPeriodLength = unitSize / pitchmarksInUnit; // there will be rounding errors here
                 int nTargetPitchmarks = Math.round((float)targetLength / avgPeriodLength); // round to the nearest integer
-                pitchmarks = new int[nTargetPitchmarks];
+                pitchmarks = new int[nTargetPitchmarks+1];
                 unitData.setPitchmarks(pitchmarks);
                 for (int i=0; i<nTargetPitchmarks-1; i++) {
                     nSamples += avgPeriodLength;
                     pitchmarks[i] = nSamples;
                 }
-                // last pitchmark compensates for rounding errors
+                // last regular pitchmark compensates for rounding errors
                 nSamples += targetLength - (nTargetPitchmarks-1)*avgPeriodLength;
                 pitchmarks[nTargetPitchmarks-1] = nSamples;
                 assert pitchmarks[nTargetPitchmarks-1] == targetLength;
-                rightContextFrameLength = 0;
+                // empty right context
+                rightContextFrame = new Datagram(0, new byte[0]);
             } else {
                 pitchmarks = new int[pitchmarksInUnit+1];
                 unitData.setPitchmarks(pitchmarks);
                 for (int i = 0; i < pitchmarksInUnit; i++) {
-                    nSamples += datagrams[i].getLength() / 2; // length in samples
+                    nSamples += datagrams[i].getDuration(); // length in samples
                     pitchmarks[i] = nSamples;
                 }
                 assert pitchmarks[pitchmarks.length-2] == unitToTimeline(unit.getUnit().getDuration()):
                     "Unexpected difference: for unit "+unit+", expected "+unitToTimeline(unit.getUnit().getDuration())+" samples, found "+pitchmarks[pitchmarks.length-2]; 
-                // And the last pitchmark for windowing the right context frame:
-                rightContextFrameLength = rightContextFrame.getLength() / 2; // length in samples
-                pitchmarks[pitchmarks.length-1] = nSamples+rightContextFrameLength;
-
             }
+            // And the last pitchmark for windowing the right context frame:
+            rightContextFrameLength = (int) rightContextFrame.getDuration(); // length in samples
+            pitchmarks[pitchmarks.length-1] = nSamples+rightContextFrameLength;
             totalNSamples += nSamples;
             int nPitchmarks = pitchmarks.length;
             //System.out.println("Unit size "+unitSize+", pitchmarks length "
@@ -188,18 +188,18 @@ public class WaveOverlapUnitConcatenator implements UnitConcatenator
             int realisedDuration = 0;
             //float uIndex = 0; // counter of imaginary sample position in the unit 
             // for each pitchmark, get frame coefficients and residual
-            for (int i=0; i < nPitchmarks && Math.round(frameIndex) < datagrams.length; i++) {
-                frames[i] = datagrams[Math.round(frameIndex)];
+            for (int i=0; i < nPitchmarks - 1; i++) {
+                int datagramIndex = Math.round(frameIndex);
+                if (datagramIndex >= datagrams.length) datagramIndex = datagrams.length - 1;
+                frames[i] = datagrams[datagramIndex];
                 frameIndex += timeStretch; // i.e., increment by less than 1 for stretching, by more than 1 for shrinking
                 // FreeTTS did this time stretching on the samples level, and retrieved the frame closest to the resulting sample position:
                 // uIndex += ((float) targetResidualSize * m);
                 realisedDuration += frames[i].getDuration();
             }
-            if (!unit.getTarget().isSilence()) {
-                assert rightContextFrame != null;
-                frames[nPitchmarks-1] = rightContextFrame;
-                realisedDuration += rightContextFrame.getDuration();
-            }
+            assert rightContextFrame != null;
+            frames[nPitchmarks-1] = rightContextFrame;
+            realisedDuration += rightContextFrame.getDuration();
             if (nSamples+rightContextFrameLength != realisedDuration) {
                 logger.debug("Expected duration: "+(nSamples+rightContextFrameLength)+"; realised duration: "+realisedDuration+" for unit "+unit);
             }
@@ -229,9 +229,7 @@ public class WaveOverlapUnitConcatenator implements UnitConcatenator
             SelectedUnit unit = (SelectedUnit) it.next();
             UnitData unitData = (UnitData) unit.getConcatenationData();
             int nPitchmarks = unitData.getPitchmarks().length;
-            int rightContextFrameLength;
-            if (unit.getTarget().isSilence()) rightContextFrameLength = 0;
-            else rightContextFrameLength = unitData.getPeriodLength(nPitchmarks-1);
+            int rightContextFrameLength = unitData.getPeriodLength(nPitchmarks-1);
             double[] audio = unit.getAudio();
             int nSamples = audio.length-rightContextFrameLength;
             
@@ -241,6 +239,8 @@ public class WaveOverlapUnitConcatenator implements UnitConcatenator
             Window hannWindow = new HannWindow(2*firstPeriodLength);
             // start overlap at iTotal:
             for (int i=0; i<firstPeriodLength; i++, iTotal++) {
+                assert iTotal < totalNSamples: 
+                    "Trying to write sample "+iTotal+" of "+totalNSamples+" (i="+i+" of "+firstPeriodLength+", unit"+unit;
                 totalAudio[iTotal] += audio[i] * hannWindow.value(i);
             }
             hannWindow = new HannWindow(2*rightContextFrameLength);

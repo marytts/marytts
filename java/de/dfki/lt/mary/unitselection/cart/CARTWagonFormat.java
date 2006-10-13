@@ -454,9 +454,9 @@ public class CARTWagonFormat implements CART {
             motherNode = motherNode.getMother();
         }
         if (backtrace) {
-            logger.debug("Selected " + result.length + " units on backtrace");
+            logger.debug("For target "+target+", selected " + result.length + " units on backtrace");
         } else {
-            logger.debug("Selected " + result.length
+            logger.debug("For target "+target+", selected " + result.length
                     + " units without backtrace");
         }
         return result;

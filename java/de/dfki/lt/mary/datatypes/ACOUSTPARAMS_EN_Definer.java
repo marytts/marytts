@@ -47,7 +47,7 @@ public class ACOUSTPARAMS_EN_Definer extends MaryDataType {
 	       "xml:lang=\"en\">\n" +
 	       "<s>\n" +
 	       "<phrase>\n" +
-	       "<t accent=\"H*\" pos=\"UH\" sampa=\"'wElk-@m\">\n" +
+	       "<t accent=\"H*\" pos=\"content\" sampa=\"'wElk-@m\">\n" +
 	       "Welcome\n" +
 	       "<syllable accent=\"H*\" sampa=\"'wElk\" stress=\"1\">\n" +
 	       "<ph d=\"61\" end=\"61\" f0=\"(0,221)\" p=\"w\"/>\n" +
