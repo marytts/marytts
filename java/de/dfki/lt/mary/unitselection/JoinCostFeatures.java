@@ -32,6 +32,10 @@ import de.dfki.lt.mary.unitselection.voiceimport_reorganized.MaryHeader;
 import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunc;
 import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunctionManager;
 
+import java.io.BufferedInputStream;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
 import java.io.RandomAccessFile;
 import java.io.File;
 import java.io.IOException;
@@ -85,7 +89,7 @@ public class JoinCostFeatures implements JoinCostFunction {
     {
         /* Open the file */
         File fid = new File( joinFileName );
-        RandomAccessFile raf = new RandomAccessFile( fid, "r" );
+        DataInput raf = new DataInputStream(new BufferedInputStream(new FileInputStream( fid )));
         /* Read the Mary header */
         hdr = new MaryHeader( raf );
         if ( !hdr.isMaryHeader() ) {
