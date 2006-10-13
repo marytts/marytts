@@ -301,6 +301,45 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
     	}
     }
     
+    /**
+     * Checks for onset coda 
+     * This is a feature processor. A feature processor takes an item,
+     * performs some sort of processing on the item and returns an object.
+     */
+    public static class SegOnsetCoda implements ByteValuedFeatureProcessor
+    {
+        protected TargetItemNavigator navigator;
+        protected ByteStringTranslator values;
+        private PhoneSet phoneSet;
+
+        public SegOnsetCoda(PhoneSet phoneSet)
+        {
+            this.phoneSet = phoneSet;
+            this.navigator = new SegmentNavigator();
+            this.values = new ByteStringTranslator(new String[] {"0", "onset", "coda"});
+        }
+        
+        public String getName() { return "mary_onsetcoda"; }
+        public String[] getValues() { return values.getStringValues(); }
+
+        public byte process(Target target)
+        {
+            Item s = navigator.getItem(target);
+            if (s == null) {
+                return values.get("coda");
+            }
+    
+            s = s.getNext();
+            while (s != null) {
+                if ("+".equals(phoneSet.getPhoneFeature(s.toString(), "vc"))) {
+                    return values.get("onset");
+                }
+        
+                s = s.getNext();
+            }
+            return values.get("coda");
+        }
+    }
     
     
     
@@ -329,9 +368,15 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
      * This is a feature processor. A feature processor takes an item,
      * performs some sort of processing on the item and returns an object.
      */
-    public static class SylOnsetSize implements FeatureProcessor 
+    public static class SylOnsetSize implements ByteValuedFeatureProcessor 
     {
         public String getName() { return "syl_onsetsize"; }
+        public String[] getValues() { return null; }
+
+        public byte process(Target target)
+        {
+            return 0;
+        }
 
         private PhoneSet phoneSet;
         
@@ -369,8 +414,14 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
      * This is a feature processor. A feature processor takes an item,
      * performs some sort of processing on the item and returns an object.
      */
-    public static class SylCodaSize implements FeatureProcessor {
+    public static class SylCodaSize implements ByteValuedFeatureProcessor {
         public String getName() { return "syl_codasize"; }
+        public String[] getValues() { return null; }
+
+        public byte process(Target target)
+        {
+            return 0;
+        }
 
         private PhoneSet phoneSet;
         
@@ -411,9 +462,15 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
      * This is a feature processor. A feature processor takes an item,
      * performs some sort of processing on the item and returns an object.
      */
-    public static class SegCodaFric implements FeatureProcessor 
+    public static class SegCodaFric implements ByteValuedFeatureProcessor 
     {
         public String getName() { return "seg_coda_fric"; }
+        public String[] getValues() { return null; }
+
+        public byte process(Target target)
+        {
+            return 0;
+        }
 
         private PhoneSet phoneSet;
         
@@ -441,9 +498,15 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
      * This is a feature processor. A feature processor takes an item,
      * performs some sort of processing on the item and returns an object.
      */
-    public static class SegOnsetFric implements FeatureProcessor 
+    public static class SegOnsetFric implements ByteValuedFeatureProcessor 
     {
         public String getName() { return "seg_onset_fric"; }
+        public String[] getValues() { return null; }
+
+        public byte process(Target target)
+        {
+            return 0;
+        }
 
         private PhoneSet phoneSet;
         
@@ -473,9 +536,15 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
      * This is a feature processor. A feature processor takes an item,
      * performs some sort of processing on the item and returns an object.
      */
-    public static class SegCodaStop implements FeatureProcessor 
+    public static class SegCodaStop implements ByteValuedFeatureProcessor 
     {
         public String getName() { return "seg_coda_stop"; }
+        public String[] getValues() { return null; }
+
+        public byte process(Target target)
+        {
+            return 0;
+        }
 
         private PhoneSet phoneSet;
         
@@ -503,9 +572,15 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
      * This is a feature processor. A feature processor takes an item,
      * performs some sort of processing on the item and returns an object.
      */
-    public static class SegOnsetStop implements FeatureProcessor
+    public static class SegOnsetStop implements ByteValuedFeatureProcessor
     {
         public String getName() { return "seg_onset_stop"; }
+        public String[] getValues() { return null; }
+
+        public byte process(Target target)
+        {
+            return 0;
+        }
 
         private PhoneSet phoneSet;
         
@@ -533,9 +608,15 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
      * This is a feature processor. A feature processor takes an item,
      * performs some sort of processing on the item and returns an object.
      */
-    public static class SegCodaNasal implements FeatureProcessor 
+    public static class SegCodaNasal implements ByteValuedFeatureProcessor 
     {
         public String getName() { return "seg_coda_nasal"; }
+        public String[] getValues() { return null; }
+
+        public byte process(Target target)
+        {
+            return 0;
+        }
 
         private PhoneSet phoneSet;
         
@@ -563,9 +644,15 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
      * This is a feature processor. A feature processor takes an item,
      * performs some sort of processing on the item and returns an object.
      */
-    public static class SegOnsetNasal implements FeatureProcessor
+    public static class SegOnsetNasal implements ByteValuedFeatureProcessor
     {
         public String getName() { return "seg_onset_nasal"; }
+        public String[] getValues() { return null; }
+
+        public byte process(Target target)
+        {
+            return 0;
+        }
 
         private PhoneSet phoneSet;
         
@@ -593,9 +680,15 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
      * This is a feature processor. A feature processor takes an item,
      * performs some sort of processing on the item and returns an object.
      */
-    public static class SegCodaGlide implements FeatureProcessor
+    public static class SegCodaGlide implements ByteValuedFeatureProcessor
     {
         public String getName() { return "seg_coda_glide"; }
+        public String[] getValues() { return null; }
+
+        public byte process(Target target)
+        {
+            return 0;
+        }
 
         private PhoneSet phoneSet;
         
@@ -625,9 +718,15 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
      * This is a feature processor. A feature processor takes an item,
      * performs some sort of processing on the item and returns an object.
      */
-    public static class SegOnsetGlide implements FeatureProcessor
+    public static class SegOnsetGlide implements ByteValuedFeatureProcessor
     {
         public String getName() { return "seg_onset_glide"; }
+        public String[] getValues() { return null; }
+
+        public byte process(Target target)
+        {
+            return 0;
+        }
 
         private PhoneSet phoneSet;
         
@@ -653,50 +752,5 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
     }
 
 
-    /**
-     * Checks for onset coda 
-     * This is a feature processor. A feature processor takes an item,
-     * performs some sort of processing on the item and returns an object.
-     */
-    public static class SegOnsetCoda implements FeatureProcessor
-    {
-        public String getName() { return "seg_onsetcoda"; }
-
-        private PhoneSet phoneSet;
-        
-        public SegOnsetCoda(PhoneSet phoneSet)
-        {
-            this.phoneSet = phoneSet;
-        }
-        
-    	/**
-    	 * Performs some processing on the given item.
-    	 *
-    	 * @param  seg  the item to process
-    	 *
-    	 * @return if onset coda "1"; otherwise "0"
-    	 *
-    	 * @throws ProcessException if an exception occurred during the
-    	 * processing
-    	 */
-    	public String process(Item seg) throws ProcessException 
-        {
-    	    Item s = seg.getItemAs(Relation.SYLLABLE_STRUCTURE);
-            if (s == null) {
-                return "coda";
-            }
-    
-            s = s.getNext();
-    	    while (s != null) {
-        		if ("+".equals(phoneSet.getPhoneFeature(s.toString(), "vc"))) {
-        		    return "onset";
-        		}
-        
-        		s = s.getNext();
-    	    }
-                
-    	    return "coda";
-    	}
-    }
 
 }
