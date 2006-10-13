@@ -72,9 +72,9 @@ public class WaveOverlapUnitConcatenator implements UnitConcatenator
         logger = Logger.getLogger(this.getClass());
     }
 
-    public void load(UnitDatabase database)
+    public void load(UnitDatabase unitDatabase)
     {
-        this.database = database;
+        this.database = unitDatabase;
         this.timeline = database.getAudioTimeline();
         int sampleRate = timeline.getSampleRate();
         this.audioformat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
@@ -138,7 +138,7 @@ public class WaveOverlapUnitConcatenator implements UnitConcatenator
             // or by computing from target (model-driven)
             int[] pitchmarks;
             if (unit.getTarget().isSilence()) {
-                int targetLength = (int) Math.round(unit.getTarget().getTargetDurationInSeconds()*audioformat.getSampleRate());
+                int targetLength = Math.round(unit.getTarget().getTargetDurationInSeconds()*audioformat.getSampleRate());
                 
                 int avgPeriodLength = unitSize / pitchmarksInUnit; // there will be rounding errors here
                 int nTargetPitchmarks = Math.round((float)targetLength / avgPeriodLength); // round to the nearest integer

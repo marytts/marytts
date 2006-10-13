@@ -185,7 +185,8 @@ public class Tokeniser extends InternalModule {
      * Store the lists in the definitions section of the 
      * xml file in listMap
      */
-    public void buildListMap() throws IOException {
+    public void buildListMap()
+    {
     		Element listDefinitions = (Element) slotList.get("definitions");
     		// get all entries with tag "list"
     		TreeWalker tw =

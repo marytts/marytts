@@ -200,7 +200,7 @@ public class DemandingClient {
     }
 
     public static void main(String[] args)
-    throws IllegalAccessException, IOException, UnknownHostException {
+    throws IOException, UnknownHostException {
         // This code is copied from MaryClient.main(),
         // except for the loop around the processing:
 

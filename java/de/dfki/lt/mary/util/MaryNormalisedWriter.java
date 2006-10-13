@@ -70,7 +70,8 @@ public class MaryNormalisedWriter {
      *  @see #startup().
      */
     public MaryNormalisedWriter()
-        throws TransformerFactoryConfigurationError, TransformerConfigurationException, FileNotFoundException {
+    throws TransformerFactoryConfigurationError, TransformerConfigurationException
+    {
         // startup every time:
         //if (tFactory == null) { // need to startup()
         startup();
@@ -90,7 +91,8 @@ public class MaryNormalisedWriter {
      *      if the templates stylesheet cannot be generated.
      */
     public static void startup()
-        throws TransformerFactoryConfigurationError, TransformerConfigurationException, FileNotFoundException {
+    throws TransformerFactoryConfigurationError, TransformerConfigurationException
+    {
         // only start the stuff if it hasn't been started yet.
         if (tFactory == null) {
             tFactory = TransformerFactory.newInstance();

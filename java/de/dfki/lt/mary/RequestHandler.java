@@ -236,7 +236,7 @@ public class RequestHandler extends Thread {
         public void run()
         {
             try {
-                int n = AudioSystem.write(request.getAudio(), request.getAudioFileFormat().getType(), output);
+                AudioSystem.write(request.getAudio(), request.getAudioFileFormat().getType(), output);
                 output.flush();
                 logger.info("Finished writing output");
             } catch (IOException ioe) {

@@ -29,7 +29,6 @@
 package de.dfki.lt.mary.unitselection;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.EOFException;
@@ -245,7 +244,7 @@ public class JoinCostFeatures implements JoinCostFunction {
         float[] v1 = rightJCF[u1];
         float[] v2 = leftJCF[u2];
         for ( int i = 0; i < v1.length; i++ ) {
-            res += featureWeight[i] * weightFunction[i].cost( (double)v1[i], (double)v2[i] );
+            res += featureWeight[i] * weightFunction[i].cost( v1[i], v2[i] );
         }
         return( res );
     }
@@ -264,10 +263,4 @@ public class JoinCostFeatures implements JoinCostFunction {
         return cost( u1.index, u2.index );
     }
     
-    /**
-     * Dummy function to respect the JoinCostFunction interface.
-     */
-    public void overwriteWeights(BufferedReader reader) throws IOException {
-        throw new RuntimeException( "This method is not implemented for the JoinCostFeatures object." );
-    }
 }

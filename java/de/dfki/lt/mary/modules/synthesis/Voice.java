@@ -390,9 +390,9 @@ public class Voice
             assert sampa != null;
             sampaBuf.append(sampa);
         }
-        PhonemeSet phonemeSet = PAConverter.sampa(getLocale());
-        if (phonemeSet != null) {
-            Syllabifier syllabifier = phonemeSet.getSyllabifier();
+        PhonemeSet sampaPhonemeSet = PAConverter.sampa(getLocale());
+        if (sampaPhonemeSet != null) {
+            Syllabifier syllabifier = sampaPhonemeSet.getSyllabifier();
             return syllabifier.syllabify(sampaBuf.toString());
         }
         // Fallback if we have no syllabifier:
@@ -837,7 +837,6 @@ public class Voice
             guessedVoice = Voice.getDefaultVoice(docLocale);
         } else {
             // get any voice
-            Collection allVoices = Voice.getAvailableVoices();
             if (allVoices.size() != 0) 
                 guessedVoice = (Voice) allVoices.iterator().next();
         }

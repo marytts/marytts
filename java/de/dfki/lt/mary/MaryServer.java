@@ -158,7 +158,6 @@ import de.dfki.lt.mary.util.MaryAudioUtils;
 
 public class MaryServer {
     private ServerSocket server;
-    private Socket client;
     private Logger logger;
     private int runningNumber = 1;
     private Map clientMap;
@@ -174,7 +173,7 @@ public class MaryServer {
 
         while (true) {
             logger.info("Waiting for client to connect on port " + server.getLocalPort());
-            client = server.accept();
+            Socket client = server.accept();
             logger.info(
                 "Connection from "
                     + client.getInetAddress().getHostName()
@@ -246,7 +245,7 @@ public class MaryServer {
             if (handleSynthesisRequest(line, outputWriter)) {
                 return;
                 // VARIANT B2: Second connection of synthesis request.
-            } else if (handleNumberRequest(line, buffReader, outputWriter)) {
+            } else if (handleNumberRequest(line, buffReader)) {
                 return;
             } else {
                 // complain
@@ -379,7 +378,7 @@ public class MaryServer {
                     if (tt.countTokens() == 2 && tt.nextToken().equals("IN")) {
                         // The value of IN=
                         helper = tt.nextToken(); // the input type
-                        inputType = (MaryDataType) MaryDataType.get(helper);
+                        inputType = MaryDataType.get(helper);
                         if (inputType == null) {
                             throw new Exception("Invalid input type: " + helper);
                         }
@@ -396,7 +395,7 @@ public class MaryServer {
                     if (tt.countTokens() == 2 && tt.nextToken().equals("OUT")) {
                         // The value of OUT=
                         helper = tt.nextToken(); // the output type
-                        outputType = (MaryDataType) MaryDataType.get(helper);
+                        outputType = MaryDataType.get(helper);
                         if (outputType == null) {
                             throw new Exception("Invalid output type: " + helper);
                         }
@@ -516,7 +515,7 @@ public class MaryServer {
             return false;
         }
 
-        private boolean handleNumberRequest(String inputLine, Reader reader, PrintWriter outputWriter)
+        private boolean handleNumberRequest(String inputLine, Reader reader)
             throws Exception {
             // * if number
             int id = 0;

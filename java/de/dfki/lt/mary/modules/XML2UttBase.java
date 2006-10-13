@@ -170,18 +170,14 @@ public abstract class XML2UttBase extends InternalModule
     {
         Document doc = sentence.getOwnerDocument();
         Relation tokenRelation = utterance.createRelation(Relation.TOKEN);
-        Relation wordRelation = null;
         Relation phraseRelation = null;
-        Relation sylStructRelation = null;
-        Relation syllableRelation = null;
         Relation segmentRelation = null;
         Relation targetRelation = null;
         if (createWordRelation)
-            wordRelation = utterance.createRelation(Relation.WORD);
+            utterance.createRelation(Relation.WORD);
         if (createSylStructRelation) {
-            sylStructRelation =
-                utterance.createRelation(Relation.SYLLABLE_STRUCTURE);
-            syllableRelation = utterance.createRelation(Relation.SYLLABLE);
+            utterance.createRelation(Relation.SYLLABLE_STRUCTURE);
+            utterance.createRelation(Relation.SYLLABLE);
             segmentRelation = utterance.createRelation(Relation.SEGMENT);
         }
         if (createTargetRelation)

@@ -52,7 +52,7 @@ public class FeatureFileWriter implements VoiceImportComponent
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
     
-    public FeatureFileWriter( DatabaseLayout setdb, BasenameList setbnl ) throws IOException
+    public FeatureFileWriter( DatabaseLayout setdb, BasenameList setbnl )
     {
         this.db = setdb;
         this.bnl = setbnl;

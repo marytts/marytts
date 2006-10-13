@@ -78,13 +78,13 @@ public class AsynchronousThreadedMaryClient extends Thread {
      * are deleted.
      * @param prosodyxmlString the maryxml data to be synthesised.
      * @param voice the synthesis voice to use
-     * @param r request number
+     * @param requestNumber request number
      */
-    public synchronized void scheduleRequest(String prosodyxmlString, MaryClient.Voice voice, int r) {
+    public synchronized void scheduleRequest(String prosodyxmlString, MaryClient.Voice voice, int requestNumber) {
         latestRequest = prosodyxmlString;
         latestRequestVoice = voice;
         inputAvailable = true;
-        this.r = r;
+        this.r = requestNumber;
         notifyAll();
     }
     

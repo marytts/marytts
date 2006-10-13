@@ -158,7 +158,8 @@ public class ToneBuilder extends InternalModule {
      * Store the lists of the xml file in listMap
      * and the maps in mapMap
      */
-    private void buildListMap() throws IOException {
+    private void buildListMap()
+    {
     		Element listDefinitions = (Element) slotMap.get("definitions");
     		// search for entries with tag "list"
     		TreeWalker tw =
@@ -208,7 +209,8 @@ public class ToneBuilder extends InternalModule {
      * Store the list of possible contents of the xml file in listMap
      * and the maps in mapMap
      */
-    private void buildListMap2() throws IOException {
+    private void buildListMap2()
+    {
 		Element listDefinitions = (Element) slotMap.get("listsPossibleContents");
 		// search for entries with tag "list"
 		TreeWalker tw =
@@ -238,7 +240,8 @@ public class ToneBuilder extends InternalModule {
      * Store the list of listRuleContents of the xml file in listMap
      * and the maps in mapMap
      */
-	private void buildListMap3() throws IOException {
+	private void buildListMap3()
+    {
 		Element listDefinitions = (Element) slotMap.get("listsRuleContents");
 		// search for entries with tag "list"
 		TreeWalker tw =
@@ -336,7 +339,7 @@ public class ToneBuilder extends InternalModule {
     	NodeList rules = e.getElementsByTagName("rule");
     	//iterate over the rules
     	for (int i = 0; i< rules.getLength(); i++){
-    		Node next = (Node) rules.item(i);
+    		Node next = rules.item(i);
     		//found is set to false, if the syllable does not fulfill the conditions
     		boolean found  = true;
     		//get the attributes-node
@@ -399,7 +402,7 @@ public class ToneBuilder extends InternalModule {
     	if (!(syllable==null)){
     		//iterate over the attributes
     		for(int z=0; z<attNodes.getLength(); z++) {
-    			Node el = (Node)attNodes.item(z);
+    			Node el = attNodes.item(z);
     			//get name and value of current attribute
     			String currentAtt = el.getNodeName();
     			String currentVal = el.getNodeValue();
@@ -552,7 +555,7 @@ public class ToneBuilder extends InternalModule {
     		for (Element attributes = DomUtils.getFirstChildElement(next);attributes!=null;attributes = DomUtils.getNextSiblingElement(attributes)){
     			NamedNodeMap attNodes = attributes.getAttributes(); // map of all attributes
     			for(int z=0; z<attNodes.getLength(); z++) { // loop over MaryXML attributes in rule part
-    				Node el = (Node)attNodes.item(z);
+    				Node el = attNodes.item(z);
     				String currentAtt = el.getNodeName();  // e.g. slot1, root
     				String currentVal = el.getNodeValue(); // e.g. "2", "INLIST:defaultHighTone"
     				
@@ -693,12 +696,10 @@ public class ToneBuilder extends InternalModule {
     		if (DomUtils.getFirstElementByTagName(next,tag) == null) {  //tag not found
     			throw new IllegalArgumentException ("Possible typo in XML rules at rule numer: "+num+ " : "+tag);
     		}
-    		else {
-    			NamedNodeMap attNodes = DomUtils.getFirstElementByTagName(next,tag).getAttributes(); // map of all attributes
-    			if(attNodes.getNamedItem(attr) == null){	   		// attribute = slot1, slot2...
-    				throw new IllegalArgumentException ("Possible typo in XML rules at rule numer: "+num+ " : "+attr);
-    			}
-    		}
+            NamedNodeMap attNodes = DomUtils.getFirstElementByTagName(next,tag).getAttributes(); // map of all attributes
+            if(attNodes.getNamedItem(attr) == null){            // attribute = slot1, slot2...
+                throw new IllegalArgumentException ("Possible typo in XML rules at rule numer: "+num+ " : "+attr);
+            }
     	}
     	catch (NullPointerException e1){
     		throw new IllegalArgumentException ("Syntax Error :\n "+e1.getCause());

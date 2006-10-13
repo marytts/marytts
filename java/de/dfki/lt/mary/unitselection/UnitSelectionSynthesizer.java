@@ -41,14 +41,11 @@ import java.util.StringTokenizer;
 
 import javax.sound.sampled.AudioInputStream;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.TreeWalker;
-
-import com.sun.speech.freetts.Utterance;
 
 import de.dfki.lt.mary.MaryData;
 import de.dfki.lt.mary.MaryDataType;
@@ -147,20 +144,6 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
         }
         logger.info("Power-on self test complete.");
     }
-        
-     private void verifyDebugLog(Utterance utt, String moduleName)
-     {
-         if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
-             StringWriter sw = new StringWriter();
-             PrintWriter pw = new PrintWriter(sw);
-             utt.dump(pw, 2, moduleName, true); // padding, justRelations
-             logger.debug("Constructed the following Utterance:");
-             logger.debug(sw.toString());
-         }
-
-     }
-     
-     
 
     /**
      * Synthesize a given part of a MaryXML document. This method is expected

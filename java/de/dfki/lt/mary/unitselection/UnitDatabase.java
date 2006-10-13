@@ -52,17 +52,17 @@ public class UnitDatabase
     {
     }
     
-     public void load(TargetCostFunction targetCostFunciton,
-                      JoinCostFunction joinCostFunction,
-                      UnitFileReader unitReader,
-                      CART preselectionCART,
-                      TimelineReader audioTimeline)
+     public void load(TargetCostFunction aTargetCostFunction,
+                      JoinCostFunction aJoinCostFunction,
+                      UnitFileReader aUnitReader,
+                      CART aPreselectionCART,
+                      TimelineReader anAudioTimeline)
      {
-         this.targetCostFunction = targetCostFunciton;
-         this.joinCostFunction = joinCostFunction;
-         this.unitReader = unitReader;
-         this.preselectionCART = preselectionCART;
-         this.audioTimeline = audioTimeline;
+         this.targetCostFunction = aTargetCostFunction;
+         this.joinCostFunction = aJoinCostFunction;
+         this.unitReader = aUnitReader;
+         this.preselectionCART = aPreselectionCART;
+         this.audioTimeline = anAudioTimeline;
      }
 
      public TargetCostFunction getTargetCostFunction()

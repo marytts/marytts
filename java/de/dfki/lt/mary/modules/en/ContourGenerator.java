@@ -28,7 +28,6 @@
  */
 package de.dfki.lt.mary.modules.en;
 
-import java.io.IOException;
 
 import de.dfki.lt.mary.MaryDataType;
 import de.dfki.lt.mary.modules.TobiContourGenerator;
@@ -40,7 +39,8 @@ import de.dfki.lt.mary.modules.TobiContourGenerator;
  */
 
 public class ContourGenerator extends TobiContourGenerator {
-    public ContourGenerator() throws IOException {
+    public ContourGenerator()
+    {
         super(MaryDataType.get("DURATIONS_EN"), MaryDataType.get("ACOUSTPARAMS"),
         "english.phonemeset", "english.contourgenerator.tobirulefile");
     }

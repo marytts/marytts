@@ -39,9 +39,6 @@ import com.sun.speech.freetts.util.Utilities;
  */
 public class TokenToWords implements UtteranceProcessor {
 
-    /** Regular expression for something that has a vowel */
-    private static final String RX_HAS_VOWEL = ".*[aeiouAEIOU].*";    
-                            
     // Patterns for regular expression matching
     private static final Pattern alphabetPattern;
     private static final Pattern commaIntPattern;
@@ -52,7 +49,6 @@ public class TokenToWords implements UtteranceProcessor {
     private static final Pattern doublePattern;
     private static final Pattern drStPattern;
     private static final Pattern fourDigitsPattern;
-    private static final Pattern hasVowelPattern;
     private static final Pattern illionPattern;
     private static final Pattern numberTimePattern;
     private static final Pattern numessPattern;
@@ -72,7 +68,6 @@ public class TokenToWords implements UtteranceProcessor {
 	doublePattern = Pattern.compile(USEnglish.RX_DOUBLE);
 	drStPattern = Pattern.compile(USEnglish.RX_DRST);
 	fourDigitsPattern = Pattern.compile(USEnglish.RX_FOUR_DIGIT);
-	hasVowelPattern = Pattern.compile(USEnglish.RX_HAS_VOWEL);
 	illionPattern = Pattern.compile(USEnglish.RX_ILLION);
 	numberTimePattern = Pattern.compile(USEnglish.RX_NUMBER_TIME);
 	numessPattern = Pattern.compile(USEnglish.RX_NUMESS);
@@ -303,7 +298,6 @@ public class TokenToWords implements UtteranceProcessor {
 		("TokenToWords: Token relation does not exist");
 	}
 	
-	Item wordItem;
 	wordRelation = WordRelation.createWordRelation(utterance, this);
 	
 	for (tokenItem = tokenRelation.getHead();

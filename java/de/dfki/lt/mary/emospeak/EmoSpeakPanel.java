@@ -72,7 +72,6 @@ implements AudioFileReceiver, ProsodyXMLDisplayer
     private AudioInputStream currentAudio = null;
     private AudioInputStream nextAudio = null;
     private Clip clip = null;
-    private boolean userRequestedStop = false;
     private boolean synthesiseAsynchronously;
     private String maryServerHost;
     private int maryServerPort;
@@ -350,11 +349,9 @@ implements AudioFileReceiver, ProsodyXMLDisplayer
                 return;
             }
             bPlay.setText("Stop");
-            userRequestedStop = false;
             playAudio();
         } else {
             bPlay.setText("Play");
-            userRequestedStop = true;
             if (clip != null) {
                 clip.stop();
             }

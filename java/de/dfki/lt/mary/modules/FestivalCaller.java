@@ -70,7 +70,7 @@ public class FestivalCaller extends SynthesisCallerBase
     protected File uttsDir;
     private static int timeout;
     
-    public FestivalCaller() throws IOException
+    public FestivalCaller()
     {
         super("FestivalCaller",
               MaryDataType.get("FESTIVAL_UTT"),

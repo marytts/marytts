@@ -451,17 +451,17 @@ public class CARTWagonFormat implements CART {
         int[] result = ((LeafNode) currentNode).getAllIndices();
 
         int limit = backtrace;
-        // set backtrace to false (default)
-        boolean backtrace = false;
+        // set usedBacktrace to false (default)
+        boolean usedBacktrace = false;
         Node motherNode = currentNode.getMother();
         while (result.length < limit && motherNode != null) {
             // set backtrace to true if we have not enough units
-            backtrace = true;
+            usedBacktrace = true;
             result = ((DecisionNode) motherNode).getAllIndices();
             // get the mother node
             motherNode = motherNode.getMother();
         }
-        if (backtrace) {
+        if (usedBacktrace) {
             logger.debug("For target "+target+", selected " + result.length + " units on backtrace");
         } else {
             logger.debug("For target "+target+", selected " + result.length

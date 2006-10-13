@@ -29,7 +29,6 @@
 package de.dfki.lt.mary.modules.tib;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -77,7 +76,8 @@ public class KlattDurationModeller extends InternalModule {
      * anymore. */
     private WeakHashMap prosodyMap;
 
-    public KlattDurationModeller() throws IOException {
+    public KlattDurationModeller()
+    {
         super("KlattDurationModeller", MaryDataType.get("PHRASES_TIB"), MaryDataType.get("DURATIONS_TIB"));
     }
 

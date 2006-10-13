@@ -37,7 +37,6 @@ public class JFeeltraceCircle extends javax.swing.JPanel {
     private boolean isCircular = true; // global setting
     private int circleSize;
 
-    private boolean moveFeeltraceCursor = false; // enabled/disabled by user
     private int cursorDiameter = 30;
     public int getCursorDiameter() { return cursorDiameter; }
     public void setCursorDiameter(int d) { cursorDiameter = d; }

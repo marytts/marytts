@@ -94,7 +94,7 @@ public class TobiContourGenerator extends InternalModule {
     private String tobirulefilePropertyName;
 
     public TobiContourGenerator(MaryDataType inputType, MaryDataType outputType, String phonemeSetPropertyName, String tobirulefilePropertyName)
-    throws IOException {
+    {
         super("ContourGenerator", inputType, outputType);
         this.phonemeSetPropertyName = phonemeSetPropertyName;
         this.tobirulefilePropertyName = tobirulefilePropertyName;
