@@ -31,19 +31,18 @@
  */
 package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Vector;
+
 import de.dfki.lt.mary.unitselection.Datagram;
 import de.dfki.lt.mary.unitselection.JoinCostFeatures;
-import de.dfki.lt.mary.unitselection.JoinCostFunction;
 import de.dfki.lt.mary.unitselection.TimelineReader;
 import de.dfki.lt.mary.unitselection.UnitFileReader;
 import de.dfki.lt.mary.util.MaryUtils;
-
-import java.io.DataOutputStream;
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Vector;
 
 public class JoinCostFileMaker implements VoiceImportComponent {
     

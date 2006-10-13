@@ -35,19 +35,17 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import de.dfki.lt.mary.modules.synthesis.Voice;
-import de.dfki.lt.mary.modules.synthesis.Voice.Gender;
-
-import de.dfki.lt.mary.MaryProperties;
-import de.dfki.lt.mary.modules.synthesis.WaveformSynthesizer;
-
-import de.dfki.lt.mary.unitselection.cart.CART;
-import de.dfki.lt.mary.unitselection.featureprocessors.FeatureProcessorManager;
-import de.dfki.lt.mary.util.MaryUtils;
-
 import org.apache.log4j.Logger;
 
 import com.sun.speech.freetts.lexicon.Lexicon;
+
+import de.dfki.lt.mary.MaryProperties;
+import de.dfki.lt.mary.modules.synthesis.Voice;
+import de.dfki.lt.mary.modules.synthesis.WaveformSynthesizer;
+import de.dfki.lt.mary.modules.synthesis.Voice.Gender;
+import de.dfki.lt.mary.unitselection.cart.CART;
+import de.dfki.lt.mary.unitselection.featureprocessors.FeatureProcessorManager;
+import de.dfki.lt.mary.util.MaryUtils;
 
 
 

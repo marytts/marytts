@@ -41,12 +41,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -56,9 +51,6 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-
-import de.dfki.lt.mary.unitselection.voiceimport_reorganized.DatabaseLayout;
-import de.dfki.lt.mary.unitselection.voiceimport_reorganized.LPCTimelineMaker;
 
 /**
  * The single purpose of the DatabaseImportMain class is to provide a main

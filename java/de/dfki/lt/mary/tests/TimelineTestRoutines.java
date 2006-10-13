@@ -28,15 +28,14 @@
  */
 package de.dfki.lt.mary.tests;
 
-import junit.framework.Assert;
-
-import de.dfki.lt.mary.unitselection.voiceimport_reorganized.TimelineWriter;
-import de.dfki.lt.mary.unitselection.TimelineReader;
-import de.dfki.lt.mary.unitselection.Datagram;
-
-import java.util.Random;
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
+import java.util.Random;
+
+import junit.framework.Assert;
+import de.dfki.lt.mary.unitselection.Datagram;
+import de.dfki.lt.mary.unitselection.TimelineReader;
+import de.dfki.lt.mary.unitselection.voiceimport_reorganized.TimelineWriter;
 
 /**
  * Provides the actual timeline test case for the timeline reading/writing symmetry.

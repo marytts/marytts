@@ -28,9 +28,9 @@
  */
 package de.dfki.lt.mary.unitselection;
 
-import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
-
 import java.util.Comparator;
+
+import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 
 public class FeatureComparator implements Comparator {
  

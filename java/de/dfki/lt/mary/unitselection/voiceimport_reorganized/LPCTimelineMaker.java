@@ -31,20 +31,11 @@
  */
 package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 
-import java.io.File;
-import java.io.PrintWriter;
-import java.io.RandomAccessFile;
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.StringWriter;
+import java.io.File;
 import java.util.Properties;
 
-import de.dfki.lt.mary.unitselection.Datagram;
 import de.dfki.lt.mary.unitselection.LPCDatagram;
-import de.dfki.lt.mary.unitselection.voiceimport_reorganized.General;
-import de.dfki.lt.mary.unitselection.voiceimport_reorganized.MaryHeader;
-import de.dfki.lt.mary.unitselection.voiceimport_reorganized.DatabaseLayout;
-import de.dfki.lt.mary.unitselection.voiceimport_reorganized.TimelineIO;
 
 /**
  * The LPCTimelineMaker class takes a database root directory and a list of basenames,

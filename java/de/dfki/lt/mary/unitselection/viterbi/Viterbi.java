@@ -31,11 +31,20 @@
  */
 package de.dfki.lt.mary.unitselection.viterbi;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
 
-import de.dfki.lt.mary.unitselection.*;
+import de.dfki.lt.mary.unitselection.JoinCostFunction;
+import de.dfki.lt.mary.unitselection.SelectedUnit;
+import de.dfki.lt.mary.unitselection.Target;
+import de.dfki.lt.mary.unitselection.TargetCostFunction;
+import de.dfki.lt.mary.unitselection.Unit;
+import de.dfki.lt.mary.unitselection.UnitDatabase;
 
 
 

@@ -11,11 +11,9 @@
 package de.dfki.lt.mary.modules.en;
 
 import com.sun.speech.freetts.FeatureSet;
-import com.sun.speech.freetts.FeatureSetImpl;
 import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.Relation;
 import com.sun.speech.freetts.Utterance;
-import com.sun.speech.freetts.en.us.*;
 
 /**
  * Helper class to add words and breaks into a Relation object.

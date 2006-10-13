@@ -32,8 +32,8 @@
 package de.dfki.lt.mary.unitselection;
 
 
-import java.io.IOException;
 import java.io.EOFException;
+import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Vector;
 

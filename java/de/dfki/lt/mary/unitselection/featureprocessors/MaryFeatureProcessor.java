@@ -31,7 +31,6 @@
  */
 package de.dfki.lt.mary.unitselection.featureprocessors;
 
-import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.ProcessException;
 
 /**

@@ -35,12 +35,9 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
-import java.io.RandomAccessFile;
 import java.io.IOException;
-import java.io.FileNotFoundException;
+import java.io.RandomAccessFile;
 import java.util.Vector;
-
-import de.dfki.lt.mary.unitselection.voiceimport_reorganized.MaryHeader;
 
 /**
  * Base class for the TimelineReader and TimelineWriter classes.

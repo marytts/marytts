@@ -34,10 +34,6 @@ import java.util.List;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 
-import org.apache.log4j.Logger;
-
-import com.sun.speech.freetts.Utterance;
-
 /**
  * Concatenates the units of an utterance
  * and returns an audio stream

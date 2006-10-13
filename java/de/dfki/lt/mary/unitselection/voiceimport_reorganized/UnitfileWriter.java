@@ -37,11 +37,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
-import java.util.StringTokenizer;
 
-import de.dfki.lt.mary.unitselection.FeatureFileReader;
 import de.dfki.lt.mary.unitselection.UnitFileReader;
-import de.dfki.lt.mary.util.FileUtils;
 
 public class UnitfileWriter implements VoiceImportComponent
 {

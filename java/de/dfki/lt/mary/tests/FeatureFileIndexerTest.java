@@ -28,15 +28,12 @@
  */
 package de.dfki.lt.mary.tests;
 
-import de.dfki.lt.mary.unitselection.FeatureFileIndexer;
-import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
-//import de.dfki.lt.mary.unitselection.featureprocessors.Signature;
-
-import junit.framework.TestCase;
-
 import java.io.IOException;
 import java.util.Random;
-import java.util.BitSet;
+
+import junit.framework.TestCase;
+import de.dfki.lt.mary.unitselection.FeatureFileIndexer;
+import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 
 /**
  * Test case for the FeatureFileIndexer.

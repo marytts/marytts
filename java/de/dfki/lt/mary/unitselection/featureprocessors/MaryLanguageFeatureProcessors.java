@@ -31,18 +31,18 @@
  */
 package de.dfki.lt.mary.unitselection.featureprocessors;
 
-import com.sun.speech.freetts.en.us.USEnglish;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
+
 import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.ProcessException;
 import com.sun.speech.freetts.Relation;
+import com.sun.speech.freetts.en.us.USEnglish;
 
 import de.dfki.lt.mary.unitselection.Target;
 import de.dfki.lt.mary.util.ByteStringTranslator;
-
-import java.util.HashSet;
-import java.util.Map;
-import java.util.regex.Pattern;
-import java.util.Set;
 
 
 

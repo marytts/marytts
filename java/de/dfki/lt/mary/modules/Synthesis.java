@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Vector;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -53,7 +52,6 @@ import de.dfki.lt.mary.MaryXML;
 import de.dfki.lt.mary.modules.synthesis.SynthesisException;
 import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.modules.synthesis.WaveformSynthesizer;
-import de.dfki.lt.mary.util.MaryAudioUtils;
 import de.dfki.lt.mary.util.dom.MaryDomUtils;
 import de.dfki.lt.mary.util.dom.NameNodeFilter;
 

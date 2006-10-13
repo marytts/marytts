@@ -32,12 +32,8 @@
 package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.IOException;
-import java.util.Map;
-import java.lang.Process;
-
-import de.dfki.lt.mary.unitselection.voiceimport_reorganized.DatabaseLayout;
+import java.io.InputStreamReader;
 
 /**
  * The ESTCaller class emulates the behaviour of the EST-calling shell scripts
