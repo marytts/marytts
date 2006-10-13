@@ -28,7 +28,6 @@
  */
 package de.dfki.lt.mary.unitselection;
 
-import javax.sound.sampled.AudioInputStream;
 
 
 /**

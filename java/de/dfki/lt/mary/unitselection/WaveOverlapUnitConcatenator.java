@@ -33,7 +33,6 @@ package de.dfki.lt.mary.unitselection;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -42,11 +41,6 @@ import javax.sound.sampled.AudioInputStream;
 
 import org.apache.log4j.Logger;
 
-
-import de.dfki.lt.mary.unitselection.SelectedUnit;
-import de.dfki.lt.mary.unitselection.UnitConcatenator;
-import de.dfki.lt.mary.unitselection.UnitDatabase;
-import de.dfki.lt.mary.unitselection.Unit;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
 import de.dfki.lt.signalproc.util.DDSAudioInputStream;

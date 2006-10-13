@@ -1,9 +1,9 @@
 package de.dfki.lt.mary.gizmos;
 
-import de.dfki.lt.mary.unitselection.*;
-import de.dfki.lt.mary.unitselection.voiceimport_reorganized.*;
-
 import java.io.IOException;
+
+import de.dfki.lt.mary.unitselection.TimelineReader;
+import de.dfki.lt.mary.unitselection.voiceimport_reorganized.DatabaseLayout;
 
 public class ExportPitchPeriods {
 

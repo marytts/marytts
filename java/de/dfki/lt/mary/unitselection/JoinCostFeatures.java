@@ -28,20 +28,18 @@
  */
 package de.dfki.lt.mary.unitselection;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
 import de.dfki.lt.mary.unitselection.voiceimport_reorganized.MaryHeader;
 import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunc;
 import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunctionManager;
-
-import java.io.BufferedInputStream;
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.RandomAccessFile;
-import java.io.File;
-import java.io.IOException;
-import java.io.BufferedReader;
-import java.lang.RuntimeException;
-import java.io.EOFException;
 
 public class JoinCostFeatures implements JoinCostFunction {
 

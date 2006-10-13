@@ -28,10 +28,7 @@
  */
 package de.dfki.lt.mary.unitselection;
 
-import de.dfki.lt.mary.unitselection.viterbi.ViterbiPath;
-import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunctionManager;
-
-import java.io.*;
+import java.io.IOException;
 
 /**
  * A join cost function for evaluating the goodness-of-fit of 

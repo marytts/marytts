@@ -31,10 +31,6 @@
  */
 package de.dfki.lt.mary.unitselection.featureprocessors;
 
-import java.util.Map;
-import java.util.LinkedHashMap;
-import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * Maintains a list of phones with various features for those phones.

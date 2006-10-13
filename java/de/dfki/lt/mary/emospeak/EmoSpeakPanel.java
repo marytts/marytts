@@ -50,9 +50,7 @@ import javax.sound.sampled.LineListener;
 import javax.swing.BoundedRangeModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JRootPane;
 
 import de.dfki.lt.mary.client.MaryClient;

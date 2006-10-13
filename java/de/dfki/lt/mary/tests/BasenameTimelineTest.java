@@ -28,12 +28,15 @@
  */
 package de.dfki.lt.mary.tests;
 
-import de.dfki.lt.mary.unitselection.*;
-import de.dfki.lt.mary.unitselection.Unit;
-import de.dfki.lt.mary.unitselection.voiceimport_reorganized.*;
-import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
-
 import java.io.IOException;
+
+import de.dfki.lt.mary.unitselection.Datagram;
+import de.dfki.lt.mary.unitselection.FeatureFileReader;
+import de.dfki.lt.mary.unitselection.TimelineReader;
+import de.dfki.lt.mary.unitselection.Unit;
+import de.dfki.lt.mary.unitselection.UnitFileReader;
+import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
+import de.dfki.lt.mary.unitselection.voiceimport_reorganized.DatabaseLayout;
 
 public class BasenameTimelineTest {
 

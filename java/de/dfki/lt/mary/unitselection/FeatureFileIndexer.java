@@ -28,14 +28,10 @@
  */
 package de.dfki.lt.mary.unitselection;
 
-import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
-import de.dfki.lt.mary.unitselection.FeatureFileIndexingResult;
-import de.dfki.lt.mary.unitselection.FeatureComparator;
-import de.dfki.lt.mary.unitselection.MaryNode;
-
-import java.util.Comparator;
-import java.util.Arrays;
 import java.io.IOException;
+import java.util.Arrays;
+
+import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 
 public class FeatureFileIndexer extends FeatureFileReader {
     

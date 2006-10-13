@@ -28,17 +28,20 @@
  */
 package de.dfki.lt.mary.modules.en;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 
+import org.apache.log4j.Logger;
 
 import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.Relation;
 import com.sun.speech.freetts.Utterance;
-//import com.sun.speech.freetts.UtteranceProcessor;
-//import com.sun.speech.freetts.en.PartOfSpeechTagger;
-
-import org.apache.log4j.Logger;
 
 import de.dfki.lt.mary.MaryData;
 import de.dfki.lt.mary.MaryDataType;

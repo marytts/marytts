@@ -39,7 +39,6 @@ import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-
 import de.dfki.lt.mary.MaryProperties;
 
 public class InstallationUtils

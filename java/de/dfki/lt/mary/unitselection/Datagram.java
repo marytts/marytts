@@ -32,10 +32,9 @@
 package de.dfki.lt.mary.unitselection;
 
 import java.io.DataOutput;
-import java.io.RandomAccessFile;
-import java.io.IOException;
 import java.io.EOFException;
-import java.lang.IllegalArgumentException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 
 public class Datagram  {
 

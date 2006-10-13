@@ -30,8 +30,6 @@ package de.dfki.lt.mary.emospeak;
 
 import java.util.Locale;
 
-import org.w3c.dom.Document;
-
 
 /**
  *

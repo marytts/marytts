@@ -37,8 +37,8 @@ import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureProcessorManager;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 import de.dfki.lt.mary.unitselection.featureprocessors.TargetFeatureComputer;
-import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunctionManager;
 import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunc;
+import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunctionManager;
 
 public class FFRTargetCostFunction extends FeatureFileReader implements TargetCostFunction 
 {

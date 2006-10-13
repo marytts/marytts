@@ -32,8 +32,6 @@
 package de.dfki.lt.mary.unitselection.viterbi;
 
 import java.util.LinkedHashMap;
-
-import de.dfki.lt.mary.unitselection.viterbi.ViterbiCandidate;
  /**
   * Describes a Viterbi path.
   */

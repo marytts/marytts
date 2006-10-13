@@ -32,11 +32,8 @@
 
 package de.dfki.lt.mary.unitselection.weightingfunctions;
 
-import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunc;
-
-import java.util.Map;
 import java.util.HashMap;
-import java.util.StringTokenizer;
+import java.util.Map;
 
 /**
  * This class connects weighting function names with the actual

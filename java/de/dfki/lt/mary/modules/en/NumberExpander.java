@@ -13,9 +13,6 @@ package de.dfki.lt.mary.modules.en;
 import com.sun.speech.freetts.FeatureSet;
 import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.util.Utilities;
-import java.util.List;
-import java.util.LinkedList;
-import com.sun.speech.freetts.en.us.*;
 
 /**
  * Expands Strings containing digits characters into

@@ -29,17 +29,12 @@
 package de.dfki.lt.mary;
 
 // General Java Classes
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
-
-import de.dfki.lt.mary.modules.synthesis.Voice;
 
 /**
  * A representation of the data types available as input/output of (partial)

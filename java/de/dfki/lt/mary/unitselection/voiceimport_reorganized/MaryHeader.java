@@ -33,9 +33,7 @@ package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 
 import java.io.DataInput;
 import java.io.DataOutput;
-import java.io.RandomAccessFile;
 import java.io.IOException;
-import java.io.DataOutputStream;
 
 /**
  * Common helper class to read/write a standard Mary header to/from the various

@@ -28,10 +28,9 @@
  */
 package de.dfki.lt.mary.tests;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
 import java.io.IOException;
+
+import junit.framework.TestCase;
 
 /**
  * Provides a test case for timeline reading/writing symmetry.

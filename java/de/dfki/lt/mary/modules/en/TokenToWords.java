@@ -10,26 +10,20 @@
  */
 package de.dfki.lt.mary.modules.en;
 
-import java.io.*;
 import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.LinkedList;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.sun.speech.freetts.FeatureSet;
-import com.sun.speech.freetts.FeatureSetImpl;
 import com.sun.speech.freetts.Item;
-import com.sun.speech.freetts.PathExtractor;
-import com.sun.speech.freetts.PathExtractorImpl;
 import com.sun.speech.freetts.ProcessException;
 import com.sun.speech.freetts.Relation;
 import com.sun.speech.freetts.Utterance;
 import com.sun.speech.freetts.UtteranceProcessor;
 import com.sun.speech.freetts.cart.CART;
+import com.sun.speech.freetts.en.us.PronounceableFSM;
+import com.sun.speech.freetts.en.us.USEnglish;
 import com.sun.speech.freetts.util.Utilities;
-import com.sun.speech.freetts.en.us.*;
-import com.sun.speech.freetts.en.us.TokenToWords.*;
 
 
 /**

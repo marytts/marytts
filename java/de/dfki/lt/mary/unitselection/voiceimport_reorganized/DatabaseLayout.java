@@ -31,10 +31,6 @@
  */
 package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 
-import java.io.File;
-import java.util.Properties;
-
-import de.dfki.lt.mary.MaryProperties;
 
 /**
  * The DatabaseLayout class registers the base directory of a voice database,

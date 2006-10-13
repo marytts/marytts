@@ -31,7 +31,6 @@
  */
 package de.dfki.lt.mary.unitselection.weightingfunctions;
 
-import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunc;
 
 /**
  * Defines the applicable weighting functions.

@@ -1,11 +1,13 @@
 package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 
-import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  * Reads in the units-catalog. The units are stored in a List according

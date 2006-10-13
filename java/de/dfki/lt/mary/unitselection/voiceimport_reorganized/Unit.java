@@ -1,6 +1,7 @@
 package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 
-import java.io.*;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * Simple Unit entry for the Catalog.

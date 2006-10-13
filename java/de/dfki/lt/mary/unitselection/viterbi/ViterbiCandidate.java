@@ -32,8 +32,8 @@
 package de.dfki.lt.mary.unitselection.viterbi;
 
 import de.dfki.lt.mary.unitselection.Target;
-import de.dfki.lt.mary.unitselection.Unit;
 import de.dfki.lt.mary.unitselection.TargetCostFunction;
+import de.dfki.lt.mary.unitselection.Unit;
  /**
   * Represents a candidate for the Viterbi algorthm.
   * Each candidate knows about its next candidate, i.e. they can form
