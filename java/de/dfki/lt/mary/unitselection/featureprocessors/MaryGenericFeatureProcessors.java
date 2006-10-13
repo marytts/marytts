@@ -749,12 +749,322 @@ public class MaryGenericFeatureProcessors
     }
 
     
+    /**
+     * Counts the number of stressed syllables since the last major break. This
+     * is a feature processor. A feature processor takes an item, performs some
+     * sort of processing on the item and returns an object.
+     */
+    public static class StressedSylIn implements ByteValuedFeatureProcessor
+    {
+        TargetItemNavigator navigator;
+        TargetItemNavigator firstSyllableNavigator;
+        public StressedSylIn() {
+            this.navigator = new SyllableNavigator();
+            this.firstSyllableNavigator = new FirstSyllableNavigator();
+        }
+
+        public String getName() { return "mary_ssyl_in"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return the number of accented syllables since the last major break
+         */
+        public byte process(Target target)
+        {
+            int count = 0;
+            Item ss = navigator.getItem(target);
+            if (ss == null) return (byte)0;
+            ss = ss.getItemAs(Relation.SYLLABLE);
+            if (ss == null) return (byte)0;
+            Item firstSyllable = firstSyllableNavigator.getItem(target);
+
+            for (Item p = ss; p != null; p = p.getPrevious()) {
+                if ("1".equals(p.getFeatures().getString("stress"))) {
+                    count++;
+                }
+                if (p.equalsShared(firstSyllable)) {
+                    break;
+                }
+            }
+            return (byte)rail(count);
+        }
+    }
+
+    /**
+     * Counts the number of syllables since the last major break. This
+     * is a feature processor. A feature processor takes an item, performs some
+     * sort of processing on the item and returns an object.
+     */
+    public static class SylIn implements ByteValuedFeatureProcessor
+    {
+        TargetItemNavigator navigator;
+        TargetItemNavigator firstSyllableNavigator;
+        public SylIn() {
+            this.navigator = new SyllableNavigator();
+            this.firstSyllableNavigator = new FirstSyllableNavigator();
+        }
+
+        public String getName() { return "mary_syl_in"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return the number of accented syllables since the last major break
+         */
+        public byte process(Target target)
+        {
+            int count = 0;
+            Item ss = navigator.getItem(target);
+            if (ss == null) return (byte)0;
+            ss = ss.getItemAs(Relation.SYLLABLE);
+            if (ss == null) return (byte)0;
+            Item firstSyllable = firstSyllableNavigator.getItem(target);
+
+            for (Item p = ss; p != null; p = p.getPrevious()) {
+                count++;
+                if (p.equalsShared(firstSyllable)) {
+                    break;
+                }
+            }
+            return (byte)rail(count);
+        }
+    }
+    
+    /**
+     * Counts the number of syllables until the next major break. This
+     * is a feature processor. A feature processor takes an item, performs some
+     * sort of processing on the item and returns an object.
+     */
+    public static class SylOut implements ByteValuedFeatureProcessor
+    {
+        TargetItemNavigator navigator;
+        TargetItemNavigator lastSyllableNavigator;
+        public SylOut() {
+            this.navigator = new SyllableNavigator();
+            this.lastSyllableNavigator = new LastSyllableNavigator();
+        }
+
+        public String getName() { return "mary_syl_out"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return the number of accented syllables since the last major break
+         */
+        public byte process(Target target)
+        {
+            int count = 0;
+            Item ss = navigator.getItem(target);
+            if (ss == null) return (byte)0;
+            ss = ss.getItemAs(Relation.SYLLABLE);
+            if (ss == null) return (byte)0;
+            Item lastSyllable = lastSyllableNavigator.getItem(target);
+
+            for (Item p = ss; p != null; p = p.getNext()) {
+                count++;
+                if (p.equalsShared(lastSyllable)) {
+                    break;
+                }
+            }
+            return (byte)rail(count);
+        }
+    }
+    
+    /**
+     * Counts the number of stressed syllables until the next major break. This
+     * is a feature processor. A feature processor takes an item, performs some
+     * sort of processing on the item and returns an object.
+     */
+    public static class StressedSylOut implements ByteValuedFeatureProcessor
+    {
+        TargetItemNavigator navigator;
+        TargetItemNavigator lastSyllableNavigator;
+        public StressedSylOut() {
+            this.navigator = new SyllableNavigator();
+            this.lastSyllableNavigator = new LastSyllableNavigator();
+        }
+
+        public String getName() { return "mary_ssyl_out"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return the number of accented syllables since the last major break
+         */
+        public byte process(Target target)
+        {
+            int count = 0;
+            Item ss = navigator.getItem(target);
+            if (ss == null) return (byte)0;
+            ss = ss.getItemAs(Relation.SYLLABLE);
+            if (ss == null) return (byte)0;
+            Item lastSyllable = lastSyllableNavigator.getItem(target);
+
+            for (Item p = ss; p != null; p = p.getNext()) {
+                if ("1".equals(p.getFeatures().getString("stress"))) {
+                    count++;
+                }
+                if (p.equalsShared(lastSyllable)) {
+                    break;
+                }
+            }
+            return (byte)rail(count);
+        }
+    }
+    
+    /**
+     * Counts the number of stressed syllables until the next major break. This
+     * is a feature processor. A feature processor takes an item, performs some
+     * sort of processing on the item and returns an object.
+     */
+    public static class AccentedSylOut implements ByteValuedFeatureProcessor
+    {
+        TargetItemNavigator navigator;
+        TargetItemNavigator lastSyllableNavigator;
+        public AccentedSylOut() {
+            this.navigator = new SyllableNavigator();
+            this.lastSyllableNavigator = new LastSyllableNavigator();
+        }
+
+        public String getName() { return "mary_asyl_out"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return the number of accented syllables since the last major break
+         */
+        public byte process(Target target)
+        {
+            int count = 0;
+            Item ss = navigator.getItem(target);
+            if (ss == null) return (byte)0;
+            ss = ss.getItemAs(Relation.SYLLABLE);
+            if (ss == null) return (byte)0;
+            Item lastSyllable = lastSyllableNavigator.getItem(target);
+
+            for (Item p = ss; p != null; p = p.getNext()) {
+                if (p.getFeatures().isPresent("accent")) {
+                    count++;
+                }
+                if (p.equalsShared(lastSyllable)) {
+                    break;
+                }
+            }
+            return (byte)rail(count);
+        }
+    }
+  
     
     
-    
-    
-    
-    
+    /**
+     * Counts the number of stressed syllables until the next major break. This
+     * is a feature processor. A feature processor takes an item, performs some
+     * sort of processing on the item and returns an object.
+     */
+    public static class LastAccent implements ByteValuedFeatureProcessor
+    {
+        TargetItemNavigator navigator;
+        public LastAccent() {
+            this.navigator = new SyllableNavigator();
+        }
+
+        public String getName() { return "mary_last_accent"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return the number of accented syllables since the last major break
+         */
+        public byte process(Target target)
+        {
+            int count = 0;
+            Item ss = navigator.getItem(target);
+            if (ss == null) return (byte)0;
+            ss = ss.getItemAs(Relation.SYLLABLE);
+            if (ss == null) return (byte)0;
+
+            for (Item p = ss; p != null; p = p.getPrevious(), count++) {
+                if (p.getFeatures().isPresent("accent")) {
+                    break;
+                }
+            }
+            return (byte)rail(count);
+        }
+    }
+  
+    /**
+     * Counts the number of stressed syllables until the next major break. This
+     * is a feature processor. A feature processor takes an item, performs some
+     * sort of processing on the item and returns an object.
+     */
+    public static class NextAccent implements ByteValuedFeatureProcessor
+    {
+        TargetItemNavigator navigator;
+        public NextAccent() {
+            this.navigator = new SyllableNavigator();
+        }
+
+        public String getName() { return "mary_next_accent"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return the number of accented syllables since the last major break
+         */
+        public byte process(Target target)
+        {
+            int count = 0;
+            Item ss = navigator.getItem(target);
+            if (ss == null) return (byte)0;
+            ss = ss.getItemAs(Relation.SYLLABLE);
+            if (ss == null) return (byte)0;
+
+            for (Item p = ss; p != null; p = p.getNext(), count++) {
+                if (p.getFeatures().isPresent("accent")) {
+                    break;
+                }
+            }
+            return (byte)rail(count);
+        }
+    }
+  
+  
     
     
     
@@ -763,253 +1073,8 @@ public class MaryGenericFeatureProcessors
     // TODO: Remove or convert old feature processors below.
     ////////////////////////////////////////////////////////
     
-    /**
-     * Counts the number of stressed syllables since the last major break. This
-     * is a feature processor. A feature processor takes an item, performs some
-     * sort of processing on the item and returns an object.
-     */
-    public static class StressedSylIn implements FeatureProcessor
-    {
-        public String getName() { return "ssyl_in"; }
-
-        /**
-         * Performs some processing on the given item.
-         * 
-         * @param item
-         *            the item to process
-         * 
-         * @return the number of stresses syllables since the last major break
-         * 
-         * @throws ProcessException
-         *             if an exception occurred during the processing
-         */
-        public String process(Item item) throws ProcessException
-        {
-/*            int count = 0;
-            Item ss = item.getItemAs(Relation.SYLLABLE);
-            Item firstSyllable = (Item) FIRST_SYLLABLE_PATH.findTarget(item);
-
-            // this should include the first syllable, but
-            // flite 1.1 and festival don't.
-
-            for (Item p = ss.getPrevious(); p != null
-                    && !p.equalsShared(firstSyllable); p = p.getPrevious()) {
-                if ("1".equals(p.getFeatures().getString("stress"))) {
-                    count++;
-                }
-            }
-            return Integer.toString(rail(count));
-*/          return null;
-        }
-    }
-
-    /**
-     * Counts the number of stressed syllables since the last major break. This
-     * is a feature processor. A feature processor takes an item, performs some
-     * sort of processing on the item and returns an object.
-     */
-    public static class SylIn implements FeatureProcessor
-    {
-        public String getName() { return "syl_in"; }
-
-        /**
-         * Performs some processing on the given item.
-         * 
-         * @param item
-         *            the item to process
-         * 
-         * @return the number of stressed syllables since the last major break
-         * 
-         * @throws ProcessException
-         *             if an exception occurred during the processing
-         */
-        public String process(Item item) throws ProcessException
-        {
-/*            int count = 0;
-            Item ss = item.getItemAs(Relation.SYLLABLE);
-            Item firstSyllable = (Item) FIRST_SYLLABLE_PATH.findTarget(item);
-
-            for (Item p = ss; p != null; p = p.getPrevious(), count++) {
-                if (p.equalsShared(firstSyllable)) {
-                    break;
-                }
-            }
-            return Integer.toString(rail(count));
-*/          return null;
-        }
-    }
-
-    /**
-     * Counts the number of stressed syllables since the last major break. This
-     * is a feature processor. A feature processor takes an item, performs some
-     * sort of processing on the item and returns an object.
-     */
-    public static class SylOut implements FeatureProcessor
-    {
-        public String getName() { return "syl_out"; }
-
-        /**
-         * Performs some processing on the given item.
-         * 
-         * @param item
-         *            the item to process
-         * 
-         * @return the number of stressed syllables since the last major break
-         * 
-         * @throws ProcessException
-         *             if an exception occurred during the processing
-         */
-        public String process(Item item) throws ProcessException
-        {
-/*            int count = 0;
-            Item ss = item.getItemAs(Relation.SYLLABLE);
-            Item firstSyllable = (Item) LAST_LAST_SYLLABLE_PATH
-                    .findTarget(item);
-
-            for (Item p = ss; p != null; p = p.getNext()) {
-                if (p.equalsShared(firstSyllable)) {
-                    break;
-                }
-                count++;
-            }
-            return Integer.toString(rail(count));
-*/          return null;
-        }
-    }
-
-    /**
-     * Counts the number of stressed syllables until the next major break. This
-     * is a feature processor. A feature processor takes an item, performs some
-     * sort of processing on the item and returns an object.
-     */
-    public static class StressedSylOut implements FeatureProcessor
-    {
-        public String getName() { return "ssyl_out"; }
-
-        /**
-         * Performs some processing on the given item.
-         * 
-         * @param item
-         *            the item to process
-         * 
-         * @return the number of stressed syllables until the next major break
-         * 
-         * @throws ProcessException
-         *             if an exception occurred during the processing
-         */
-        public String process(Item item) throws ProcessException
-        {
-/*            int count = 0;
-            Item ss = item.getItemAs(Relation.SYLLABLE);
-            Item lastSyllable = (Item) LAST_SYLLABLE_PATH.findTarget(item);
-
-            for (Item p = ss.getNext(); p != null; p = p.getNext()) {
-                if ("1".equals(p.getFeatures().getString("stress"))) {
-                    count++;
-                }
-                if (p.equalsShared(lastSyllable)) {
-                    break;
-                }
-            }
-            return Integer.toString(rail(count));
-*/          return null;
-        }
-    }
-
-    /**
-     * Returns the length of the string. (generally this is a digit string) This
-     * is a feature processor. A feature processor takes an item, performs some
-     * sort of processing on the item and returns an object.
-     */
-    public static class NumDigits implements FeatureProcessor
-    {
-        public String getName() { return "num_digits"; }
-
-        /**
-         * Performs some processing on the given item.
-         * 
-         * @param item
-         *            the item to process
-         * 
-         * @return the length of the string
-         * 
-         * @throws ProcessException
-         *             if an exception occurred during the processing
-         */
-        public String process(Item item) throws ProcessException
-        {
-            String name = item.getFeatures().getString("name");
-            return Integer.toString(rail(name.length()));
-        }
-    }
-
-    /**
-     * Returns true ("1") if the given item is a number between 0 and 32
-     * exclusive, otherwise, returns "0". string) This is a feature processor. A
-     * feature processor takes an item, performs some sort of processing on the
-     * item and returns an object.
-     */
-    public static class MonthRange implements FeatureProcessor
-    {
-        public String getName() { return "month_range"; }
-
-        /**
-         * Performs some processing on the given item.
-         * 
-         * @param item
-         *            the item to process
-         * 
-         * @return returns "1" if the given item is a number between 0 and 32
-         *         (exclusive) otherwise returns "0"
-         * 
-         * @throws ProcessException
-         *             if an exception occurred during the processing
-         */
-        public String process(Item item) throws ProcessException
-        {
-            int v = Integer.parseInt(item.getFeatures().getString("name"));
-            if ((v > 0) && (v < 32)) {
-                return "1";
-            } else {
-                return "0";
-            }
-        }
-    }
 
 
-    /**
-     * Find the last accented syllable This is a feature processor. A feature
-     * processor takes an item, performs some sort of processing on the item and
-     * returns an object.
-     */
-    public static class LastAccent implements FeatureProcessor
-    {
-        public String getName() { return "last_accent"; }
-
-        /**
-         * Performs some processing on the given item.
-         * 
-         * @param item
-         *            the item to process
-         * 
-         * @return the count of the last accented syllable
-         * 
-         * @throws ProcessException
-         *             if an exception occurred during the processing
-         */
-        public String process(Item item) throws ProcessException
-        {
-            int count = 0;
-
-            for (Item p = item.getItemAs(Relation.SYLLABLE); p != null; p = p
-                    .getPrevious(), count++) {
-                if (p.getFeatures().isPresent("accent")) {
-                    break;
-                }
-            }
-            return Integer.toString(rail(count));
-        }
-    }
 
 
     /**
@@ -1017,9 +1082,15 @@ public class MaryGenericFeatureProcessors
      * processor takes an item, performs some sort of processing on the item and
      * returns an object.
      */
-    public static class WordPunc implements FeatureProcessor
+    public static class WordPunc implements ByteValuedFeatureProcessor
     {
         public String getName() { return "word_punc"; }
+        public String[] getValues() { return null; }
+
+        public byte process(Target target)
+        {
+            return 0;
+        }
 
         /**
          * Performs some processing on the given item.
@@ -1052,9 +1123,15 @@ public class MaryGenericFeatureProcessors
      * processor. A feature processor takes an item, performs some sort of
      * processing on the item and returns an object.
      */
-    public static class SubPhrases implements FeatureProcessor
+    public static class SubPhrases implements ByteValuedFeatureProcessor
     {
         public String getName() { return "sub_phrases"; }
+        public String[] getValues() { return null; }
+
+        public byte process(Target target)
+        {
+            return 0;
+        }
 
         /**
          * Performs some processing on the given item.
@@ -1086,9 +1163,15 @@ public class MaryGenericFeatureProcessors
      * feature processor takes an item, performs some sort of processing on the
      * item and returns an object.
      */
-    public static class SegmentDuration implements FeatureProcessor
+    public static class SegmentDuration implements ContinuousFeatureProcessor
     {
         public String getName() { return "segment_duration"; }
+        public String[] getValues() { return null; }
+
+        public float process(Target target)
+        {
+            return 0;
+        }
 
         /**
          * Performs some processing on the given item.
@@ -1119,9 +1202,15 @@ public class MaryGenericFeatureProcessors
      * processor takes an item, performs some sort of processing on the item and
      * returns an object.
      */
-    public static class SylFinal implements FeatureProcessor
+    public static class SylFinal implements ByteValuedFeatureProcessor
     {
         public String getName() { return "syl_final"; }
+        public String[] getValues() { return null; }
+
+        public byte process(Target target)
+        {
+            return 0;
+        }
 
         public String process(Item seg) throws ProcessException
         {
@@ -1139,10 +1228,15 @@ public class MaryGenericFeatureProcessors
      * Calculates the pitch of a segment This processor should be used by target
      * items only
      */
-    public static class Seg_Pitch implements FeatureProcessor
+    public static class Seg_Pitch implements ContinuousFeatureProcessor
     {
         public String getName() { return "seg_pitch"; }
+        public String[] getValues() { return null; }
 
+        public float process(Target target)
+        {
+            return 0;
+        }
         public String process(Item seg) throws ProcessException
         {
             // System.out.println("Looking for pitch...");
