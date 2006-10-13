@@ -39,6 +39,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.HashMap;
 import java.util.Map;
@@ -131,7 +132,7 @@ public class FestivalCARTImporter {
                     //dump name and CART
                     out.writeUTF(name);
                     cart.dumpBinary(out);
-                    cart.toStandardOut();
+                    cart.toTextOut(new PrintWriter(System.out));
                 }
                 //finish
                 out.close();
