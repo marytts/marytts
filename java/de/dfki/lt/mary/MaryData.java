@@ -524,14 +524,14 @@ public class MaryData {
     /**
      * For audio data, append more audio data to the one currently present. If no audio data is set yet,
      * this call is equivalent to setAudio().
-     * @param audio the new audio data to append
+     * @param audioToAppend the new audio data to append
      */
-    public void appendAudio(AudioInputStream audio)
+    public void appendAudio(AudioInputStream audioToAppend)
     {
-        if (this.audio == null) setAudio(audio);
+        if (this.audio == null) setAudio(audioToAppend);
         else if (this.audio instanceof AppendableSequenceAudioInputStream)
-            ((AppendableSequenceAudioInputStream)this.audio).append(audio);
+            ((AppendableSequenceAudioInputStream)this.audio).append(audioToAppend);
         else
-            this.audio = new SequenceAudioInputStream(this.audio.getFormat(), Arrays.asList(new AudioInputStream[] {this.audio, audio}));
+            this.audio = new SequenceAudioInputStream(this.audio.getFormat(), Arrays.asList(new AudioInputStream[] {this.audio, audioToAppend}));
     }
 }

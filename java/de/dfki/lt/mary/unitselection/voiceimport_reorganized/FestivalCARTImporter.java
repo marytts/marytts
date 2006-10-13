@@ -75,7 +75,7 @@ public class FestivalCARTImporter {
      
             if (treesDir.isDirectory()){
                 File[] entries = treesDir.listFiles();
-                    Map cartMap = new HashMap();
+                cartMap = new HashMap();
                 for (int i=0;i<entries.length;i++){
                     //get the name of the CART
                     

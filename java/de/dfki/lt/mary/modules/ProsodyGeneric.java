@@ -87,7 +87,7 @@ public class ProsodyGeneric extends InternalModule {
 	protected HashMap listMap = new HashMap(); // map that will contain the lists defined in the xml rule file
 	
     public ProsodyGeneric(MaryDataType inputType,MaryDataType outputType,String tobipredFileName,String accentPriorities, String syllableAccents, String paragraphDeclination)
-    throws IOException {
+    {
         super("Prosody",inputType,outputType);
         
         this.tobiPredFilename = tobipredFileName;
@@ -601,7 +601,7 @@ public class ProsodyGeneric extends InternalModule {
     
     protected void getAccentPosition(Element token, NodeList tokens, int position, String sentenceType, String specialPositionType) {
     	
-    	String tokenText = MaryDomUtils.tokenText((Element) token); // text of current token
+    	String tokenText = MaryDomUtils.tokenText(token); // text of current token
     	
     	Element ruleList = null;
     	// only the "accentposition" rules are relevant
@@ -662,10 +662,10 @@ public class ProsodyGeneric extends InternalModule {
      * @return nucleusAssigned 
      */
     
-    protected boolean getAccentShape(Element token,NodeList tokens,int position,String sentenceType,
-    	String specialPositionType,boolean nucleusAssigned) {
-    	   
-        String tokenText = MaryDomUtils.tokenText((Element) token); // text of current token
+    protected boolean getAccentShape(Element token, NodeList tokens, int position, String sentenceType,
+    	String specialPositionType, boolean nucleusAssigned) 
+    {
+        String tokenText = MaryDomUtils.tokenText(token); // text of current token
           
         // prosodic position (prenuclear, nuclear, postnuclear)
         String prosodicPositionType = null;
@@ -748,10 +748,10 @@ public class ProsodyGeneric extends InternalModule {
      * @return firstTokenInPhrase (if a boundary was inserted, firstTokenInPhrase gets null)
      */
     
-    protected Element getBoundary(Element token,NodeList tokens,int position, String sentenceType, String specialPositionType,
-    	boolean invalidXML, Element firstTokenInPhrase) {
-    	
-        String tokenText = MaryDomUtils.tokenText((Element) token); // text of current token
+    protected Element getBoundary(Element token, NodeList tokens, int position, String sentenceType, String specialPositionType,
+    	boolean invalidXML, Element firstTokenInPhrase) 
+    {
+        String tokenText = MaryDomUtils.tokenText(token); // text of current token
     	
     	Element ruleList = null;
     	// only the "boundaries" rules are relevant
@@ -836,23 +836,23 @@ public class ProsodyGeneric extends InternalModule {
 		   nextPlusXTextPattern.matcher(currentRulePartTagName).find() ||
 		   currentRulePartTagName.equals("previousText") ||
 		   previousMinusXTextPattern.matcher(currentRulePartTagName).find())) { 
-			return checkTextOfOtherToken(currentRulePartTagName,currentRulePart,token,position,tokens);
+			return checkTextOfOtherToken(currentRulePartTagName,currentRulePart,position,tokens);
 		}
 		// check number of following tokens
     	else if(currentRulePartTagName.equals("folTokens") && currentRulePart.hasAttribute("num")) {
-			return checkFolTokens(currentRulePart,token,position,tokens);
+			return checkFolTokens(currentRulePart,position,tokens);
 		}
 		// check number of preceding tokens
 		else if(currentRulePartTagName.equals("prevTokens") && currentRulePart.hasAttribute("num")) {
-			return checkPrevTokens(currentRulePart,token,position,tokens);
+			return checkPrevTokens(currentRulePart,position,tokens);
 		}
 		// check number of following words
 		else if(currentRulePartTagName.equals("folWords") && currentRulePart.hasAttribute("num")) {
-			return checkFolWords(currentRulePart,token,position,tokens);
+			return checkFolWords(currentRulePart,position,tokens);
 		}
 		// check number of preceding words
 		else if(currentRulePartTagName.equals("prevWords") && currentRulePart.hasAttribute("num")) {
-			return checkPrevWords(currentRulePart,token,position,tokens);
+			return checkPrevWords(currentRulePart,position,tokens);
 		}
 		// check sentence type (f.e. declarative sentence)
 		else if(currentRulePartTagName.equals("sentence") && currentRulePart.hasAttribute("type")) { 
@@ -873,7 +873,7 @@ public class ProsodyGeneric extends InternalModule {
 		   nextPlusXAttributesPattern.matcher(currentRulePart.getTagName()).find() ||
 		   currentRulePartTagName.equals("previousAttributes") ||
 		   previousMinusXAttributesPattern.matcher(currentRulePart.getTagName()).find()) {
-			return checkAttributesOfOtherToken(currentRulePart.getTagName(),currentRulePart,token,position,tokens);
+			return checkAttributesOfOtherToken(currentRulePart.getTagName(),currentRulePart,position,tokens);
 		}
 		else {
             // unknown rules always match
@@ -890,7 +890,7 @@ public class ProsodyGeneric extends InternalModule {
     	NamedNodeMap attNodes = currentRulePart.getAttributes();
 	
     	for(int z=0; z<attNodes.getLength(); z++) { 
-    		Node el = (Node)attNodes.item(z);
+    		Node el = attNodes.item(z);
     		String currentAtt = el.getNodeName();
     		String currentVal = el.getNodeValue();
 		
@@ -913,7 +913,7 @@ public class ProsodyGeneric extends InternalModule {
      * there is only the "word" attribute right now: checks if text of a token is the same 
      * as the value of the word attribute in the rule 
      */
-    protected boolean checkTextOfOtherToken(String tag, Element currentRulePart, Element token, int position, NodeList tokens) {
+    protected boolean checkTextOfOtherToken(String tag, Element currentRulePart, int position, NodeList tokens) {
     	
     	Element otherToken = null;
 		
@@ -952,12 +952,12 @@ public class ProsodyGeneric extends InternalModule {
      *  is the same as the value of the num attribute;
      * 	f.e. the value "3+" means: at least 3 following tokens, "3-": not more than 3, "3": exactly 3 
      */
-    protected boolean checkFolTokens(Element currentRulePart, Element token, int position, NodeList tokens) {
+    protected boolean checkFolTokens(Element currentRulePart, int position, NodeList tokens) {
     	
     	NamedNodeMap attNodes = currentRulePart.getAttributes();
 	
     	for(int z=0; z<attNodes.getLength(); z++) {
-    		Node el = (Node)attNodes.item(z);
+    		Node el = attNodes.item(z);
     		String currentAtt = el.getNodeName();
     		String currentVal = el.getNodeValue();
 		
@@ -982,12 +982,12 @@ public class ProsodyGeneric extends InternalModule {
      *  is the same as the value of the num attribute;
      * 	f.e. the value "3+" means: at least 3 preceding tokens, "3-": not more than 3, "3": exactly 3 
      */
-    protected boolean checkPrevTokens(Element currentRulePart, Element token, int position, NodeList tokens) {
+    protected boolean checkPrevTokens(Element currentRulePart, int position, NodeList tokens) {
     	
     	NamedNodeMap attNodes = currentRulePart.getAttributes();
 	
     	for(int z=0; z<attNodes.getLength(); z++) {
-    		Node el = (Node)attNodes.item(z);
+    		Node el = attNodes.item(z);
     		String currentAtt = el.getNodeName();
     		String currentVal = el.getNodeValue();
 		
@@ -1012,12 +1012,12 @@ public class ProsodyGeneric extends InternalModule {
      *  is the same as the value of the num attribute;
      * 	f.e. the value "3+" means: at least 3 following tokens, "3-": not more than 3, "3": exactly 3 
      */
-    protected boolean checkFolWords(Element currentRulePart, Element token, int position, NodeList tokens) {
+    protected boolean checkFolWords(Element currentRulePart, int position, NodeList tokens) {
     	
     	NamedNodeMap attNodes = currentRulePart.getAttributes();
     	
     	for(int z=0; z<attNodes.getLength(); z++) {
-    		Node el = (Node)attNodes.item(z);
+    		Node el = attNodes.item(z);
     		String currentAtt = el.getNodeName();
     		String currentVal = el.getNodeValue();
 		
@@ -1044,12 +1044,12 @@ public class ProsodyGeneric extends InternalModule {
      *  is the same as the value of the num attribute;
      * 	f.e. the value "3+" means: at least 3 preceding tokens, "3-": not more than 3, "3": exactly 3 
      */
-    protected boolean checkPrevWords(Element currentRulePart, Element token, int position, NodeList tokens) {
+    protected boolean checkPrevWords(Element currentRulePart, int position, NodeList tokens) {
     	
     	NamedNodeMap attNodes = currentRulePart.getAttributes();
     	
     	for(int z=0; z<attNodes.getLength(); z++) {
-    		Node el = (Node)attNodes.item(z);
+    		Node el = attNodes.item(z);
     		String currentAtt = el.getNodeName();
     		String currentVal = el.getNodeValue();
 		
@@ -1079,7 +1079,7 @@ public class ProsodyGeneric extends InternalModule {
     	NamedNodeMap attNodes = currentRulePart.getAttributes();
 	
     	for(int z=0; z<attNodes.getLength(); z++) {
-    		Node el = (Node)attNodes.item(z);
+    		Node el = attNodes.item(z);
     		String currentAtt = el.getNodeName();
     		String currentVal = el.getNodeValue();
 		
@@ -1104,7 +1104,7 @@ public class ProsodyGeneric extends InternalModule {
     	NamedNodeMap attNodes = currentRulePart.getAttributes();
 	
     	for(int z=0; z<attNodes.getLength(); z++) {
-    		Node el = (Node)attNodes.item(z);
+    		Node el = attNodes.item(z);
     		String currentAtt = el.getNodeName();
     		String currentVal = el.getNodeValue();
 		
@@ -1129,7 +1129,7 @@ public class ProsodyGeneric extends InternalModule {
     	NamedNodeMap attNodes = currentRulePart.getAttributes();
 	
     	for(int z=0; z<attNodes.getLength(); z++) {
-    		Node el = (Node)attNodes.item(z);
+    		Node el = attNodes.item(z);
     		String currentAtt = el.getNodeName();
     		String currentVal = el.getNodeValue();
 		
@@ -1157,7 +1157,7 @@ public class ProsodyGeneric extends InternalModule {
 		if(token == null) return false; // token doesn't exist
 		
 		for(int z=0; z<attNodes.getLength(); z++) { // loop over MaryXML attributes in rule part
-			Node el = (Node)attNodes.item(z);
+			Node el = attNodes.item(z);
 			String currentAtt = el.getNodeName();
 			String currentVal = el.getNodeValue();
 			
@@ -1165,36 +1165,34 @@ public class ProsodyGeneric extends InternalModule {
 			if(!token.hasAttribute(currentAtt)) { // token doesn't have attribute
 				if(currentVal.equals("!")) { // rule says that token shouldn't have it --> return true
 					return true;
-				} else { // rule says that token should have it --> return false
-					return false;
-				}
-			} else { // token has attribute ...
-				if(currentVal.equals("!")) { // .. but rule says that token shouldn't have it --> return false
-					return false;
-				} else {
-					if(currentVal.equals("")) { // rule says that value doesn't matter, but attribute has to be present --> return true
-						return true;
-					} else {
-						// first case: the value of the rule attribute is not a list
-						if(!currentVal.startsWith("INLIST") && !currentVal.startsWith("INFSTLIST") 
-							&& !currentVal.startsWith("!INLIST") && !currentVal.startsWith("!INFSTLIST")) {
-							
-							if(!currentVal.startsWith("!")) {
-								if(!token.getAttribute(currentAtt).equals(currentVal)) { // condition violated
-									return false;
-								}
-							} else { // value is negated --> token shouldn't have the value in currentVal
-								currentVal = currentVal.substring(1,currentVal.length());
-								if(token.getAttribute(currentAtt).equals(currentVal)) { // condition violated
-									return false;
-								}
-							}
-						} else { //second case: the value of the rule attribute is a list
-							return checkList(currentVal,token.getAttribute(currentAtt));
-						}
-					}
-				}
+				} 
+                // rule says that token should have it --> return false
+				return false;
 			}
+            // token has attribute ...
+            if(currentVal.equals("!")) { // .. but rule says that token shouldn't have it --> return false
+                return false;
+            }
+            if(currentVal.equals("")) { // rule says that value doesn't matter, but attribute has to be present --> return true
+                return true;
+            }
+            // first case: the value of the rule attribute is not a list
+            if(!currentVal.startsWith("INLIST") && !currentVal.startsWith("INFSTLIST") 
+                && !currentVal.startsWith("!INLIST") && !currentVal.startsWith("!INFSTLIST")) {
+                
+                if(!currentVal.startsWith("!")) {
+                    if(!token.getAttribute(currentAtt).equals(currentVal)) { // condition violated
+                        return false;
+                    }
+                } else { // value is negated --> token shouldn't have the value in currentVal
+                    currentVal = currentVal.substring(1,currentVal.length());
+                    if(token.getAttribute(currentAtt).equals(currentVal)) { // condition violated
+                        return false;
+                    }
+                }
+            } else { //second case: the value of the rule attribute is a list
+                return checkList(currentVal,token.getAttribute(currentAtt));
+            }
 		}  // for-loop
 		return true;
     }
@@ -1203,7 +1201,7 @@ public class ProsodyGeneric extends InternalModule {
      *  checks if the MaryXML attributes and values of other token than the current one
      * are the same as in rule (f.e. the 3th token after current token)
      */
-    protected boolean checkAttributesOfOtherToken(String tag, Element currentRulePart, Element token, int position, NodeList tokens) {
+    protected boolean checkAttributesOfOtherToken(String tag, Element currentRulePart, int position, NodeList tokens) {
     	
     	Element otherToken = null;
 		
@@ -1529,7 +1527,7 @@ public class ProsodyGeneric extends InternalModule {
     protected String getForceAccent(Element token) {
         // Search for the closest ancestor <prosody> element
         // which has a "force-accent" attribute:
-        Element p = (Element) MaryDomUtils.getClosestAncestorWithAttribute(token, MaryXML.PROSODY, "force-accent");
+        Element p = MaryDomUtils.getClosestAncestorWithAttribute(token, MaryXML.PROSODY, "force-accent");
         if (p != null)
             return p.getAttribute("force-accent");
         else
@@ -1547,7 +1545,7 @@ public class ProsodyGeneric extends InternalModule {
         if (!token.getTagName().equals(MaryXML.TOKEN))
             throw new IllegalArgumentException("Expected <" + MaryXML.TOKEN + "> element, got <" + token.getTagName() + ">");
         
-        String tokenText = MaryDomUtils.tokenText((Element) token);
+        String tokenText = MaryDomUtils.tokenText(token);
         
         if (tokenText.equals(",") || tokenText.equals(".") || tokenText.equals("?") || tokenText.equals("!") || tokenText.equals(":")
         		|| tokenText.equals(";"))

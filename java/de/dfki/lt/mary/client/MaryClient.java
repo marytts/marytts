@@ -151,20 +151,20 @@ public class MaryClient {
 
     /**
      * Initialise a connection to the MARY server at the specified host and port.
-     * @param host the host where to contact a MARY server
-     * @param port the socket port where to contact a MARY server
+     * @param serverHost the host where to contact a MARY server
+     * @param serverPort the socket port where to contact a MARY server
      * @param profile whether to do profiling
      * @param quiet whether to refrain from printing information to stderr
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    private void initialise(String host, int port, boolean profile, boolean quiet)
+    private void initialise(String serverHost, int serverPort, boolean profile, boolean quiet)
     throws IOException {
         // This must work for applets too, so no system property queries here:
-        if (host == null || port == 0)
+        if (serverHost == null || serverPort == 0)
             throw new IllegalArgumentException("Illegal server host or port");
-        this.host = host;
-        this.port = port;
+        this.host = serverHost;
+        this.port = serverPort;
         doProfile = profile;
         beQuiet = quiet;
         String[] info;
@@ -173,7 +173,7 @@ public class MaryClient {
         } catch (Exception e) {
             e.printStackTrace();
             throw new IOException("MARY client cannot connect to MARY server at\n"+
-            host+":"+port+"\n"+
+            serverHost+":"+serverPort+"\n"+
             "Make sure that you have started the mary server\n"+
             "or specify a different host or port using \n"+
             "maryclient -Dserver.host=my.host.com -Dserver.port=12345");
@@ -195,7 +195,7 @@ public class MaryClient {
         }
         if (!beQuiet) {
             System.err.println("Mary TTS client " + Version.specificationVersion() + " (impl. " + Version.implementationVersion() + ")");
-            System.err.print("Connected to " + host + ":" + port + ", ");
+            System.err.print("Connected to " + serverHost + ":" + serverPort + ", ");
             for (int i=0; i<info.length; i++) {
                 System.err.println(info[i]);
             }
@@ -918,7 +918,7 @@ public class MaryClient {
         System.err.println("The output is written to standard output, so redirect or pipe as appropriate.");
     }
 
-    public static void main(String[] args) throws ClassNotFoundException, IllegalAccessException, IOException {
+    public static void main(String[] args) throws IOException {
         if (args.length > 0 && args[0].equals("-h")) {
             usage();
             System.exit(1);

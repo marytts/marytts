@@ -88,10 +88,10 @@ public class DummyFreeTTSVoice extends
      * @throws RuntimeException if the class specified by lexiconClassName
      * cannot be instantiated.
      */
-    public void initialise(de.dfki.lt.mary.modules.synthesis.Voice maryVoice,
+    public void initialise(de.dfki.lt.mary.modules.synthesis.Voice aMaryVoice,
             String lexiconClassName) {
-        super.initialise(maryVoice, lexiconClassName);
-        if (!maryVoice.getLocale().equals(Locale.US)) {
+        super.initialise(aMaryVoice, lexiconClassName);
+        if (!aMaryVoice.getLocale().equals(Locale.US)) {
             throw new IllegalArgumentException("This dummy freetts voice is meant for US English voices only!");
         }
     }

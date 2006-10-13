@@ -50,7 +50,7 @@ public class UnitfileWriter implements VoiceImportComponent
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
     
-    public UnitfileWriter( DatabaseLayout setdb, BasenameList setbnl ) throws IOException
+    public UnitfileWriter( DatabaseLayout setdb, BasenameList setbnl )
     {
         this.db = setdb;
         this.bnl = setbnl;

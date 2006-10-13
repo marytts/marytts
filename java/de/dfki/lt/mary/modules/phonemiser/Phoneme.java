@@ -93,6 +93,7 @@ public class Phoneme
     public boolean isPlosive() { return isPlosive; }
     public boolean isPause() { return isPause; }
     public int sonority() { return sonority; }
+    public String getExample() { return example; }
 
     public boolean isFricative()
     { return !isVowel() && !isSonorant() && !isPlosive(); }

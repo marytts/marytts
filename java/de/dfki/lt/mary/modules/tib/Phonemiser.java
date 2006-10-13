@@ -173,7 +173,8 @@ public class Phonemiser extends InternalModule {
      * Store the lists in the definitions section of the 
      * xml file in listMap and the maps in mapMap
      */
-    private void buildListMap() throws IOException {
+    private void buildListMap()
+    {
     	//get the definitions
     	Element listDefinitions = (Element) slotMap.get("definitions");
     	// search for entries with tag "list"
@@ -263,7 +264,7 @@ public class Phonemiser extends InternalModule {
     public void testFailRules(NodeList rules){
     	//iterate over the rules
     	for (int i = 0; i< rules.getLength(); i++){
-    		Node rule = (Node) rules.item(i);
+    		Node rule = rules.item(i);
     		//if the rule has no number, throw an error
     		if (!((Element)rule).hasAttribute("num")){
     			throw new IllegalArgumentException ("Missing rule number");}
@@ -311,7 +312,7 @@ public class Phonemiser extends InternalModule {
     		NamedNodeMap attNodes = att.getAttributes();
     		//loop over attributes in attributes node
     		for(int z=0; z<attNodes.getLength(); z++) { 
-    			Node el = (Node)attNodes.item(z);
+    			Node el = attNodes.item(z);
     			String val = el.getNodeValue();
     			String name = el.getNodeName();
     			//if the attribute refers to a map, verify that this map exists
@@ -362,7 +363,7 @@ public class Phonemiser extends InternalModule {
 	   		NamedNodeMap attNodes = cond.getAttributes();
 	  	    //loop over the attributes of the condition node
 	    	for(int z=0; z<attNodes.getLength(); z++){
-    			Node el = (Node)attNodes.item(z);
+    			Node el = attNodes.item(z);
     			String name = el.getNodeName();
     			//check, if the condition is valid
     			if (!conditions.contains(name)){
@@ -506,7 +507,7 @@ public class Phonemiser extends InternalModule {
     	String[] result = lookUp(text);
         assert result == null || result.length > 0;
     	//get the syllables
-    	NodeList syllables = ((Element) token).getElementsByTagName(MaryXML.SYLLABLE);
+    	NodeList syllables = token.getElementsByTagName(MaryXML.SYLLABLE);
     	//build a new buffer to store the sound of the entire token
     	StringBuffer tokenSound = new StringBuffer();
     	//store the length of the word
@@ -590,7 +591,7 @@ public class Phonemiser extends InternalModule {
     	NodeList rules = e.getElementsByTagName("rule");
 	//iterate over the rules
     	for (int i = 0; i< rules.getLength(); i++){
-    		Node next = (Node) rules.item(i);
+    		Node next = rules.item(i);
 		//found is set to false, if the syllable does not fulfill the conditions
     		boolean found  = true;
     		//get the attributes-node
@@ -654,7 +655,7 @@ public class Phonemiser extends InternalModule {
 	if (!(syllable==null)){
 	    //iterate over the attributes
 	    for(int z=0; z<attNodes.getLength(); z++) { 
-		Node el = (Node)attNodes.item(z);
+		Node el = attNodes.item(z);
 		//get name and value of current attribute
 		String currentAtt = el.getNodeName();
 		String currentVal = el.getNodeValue();

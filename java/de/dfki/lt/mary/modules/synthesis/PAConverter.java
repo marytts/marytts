@@ -95,13 +95,6 @@ public class PAConverter
         sampaEn2sampaDe.put("OI", "OY");
     }
 
-    private static void addPair(Map first2second, Map second2first,
-                                String first, String second)
-    {
-        first2second.put(first, second);
-        second2first.put(second, first);
-    }
-
     
     /**Converts a single phonetic symbol in English sampa representation
      * into its equivalent in German sampa representation.

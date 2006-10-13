@@ -31,7 +31,7 @@ public class TargetFeatureComputer
     {
         List byteValuedFeatureProcessors = new ArrayList();
         List shortValuedFeatureProcessors = new ArrayList();
-        List continuousFeatureProcessors = new ArrayList();
+        List continuousValuedFeatureProcessors = new ArrayList();
 
         StringTokenizer st = new StringTokenizer(featureProcessorNames);
         while (st.hasMoreTokens()) {
@@ -44,14 +44,14 @@ public class TargetFeatureComputer
             } else if (fp instanceof ShortValuedFeatureProcessor) {
                 shortValuedFeatureProcessors.add(fp);
             } else if (fp instanceof ContinuousFeatureProcessor) {
-                continuousFeatureProcessors.add(fp);
+                continuousValuedFeatureProcessors.add(fp);
             } else {
                 throw new IllegalArgumentException("Unknown feature processor type "+fp.getClass()+" for feature processor: "+name);
             }
         }
         this.byteValuedDiscreteFeatureProcessors = (ByteValuedFeatureProcessor[])byteValuedFeatureProcessors.toArray(new ByteValuedFeatureProcessor[0]);
         this.shortValuedDiscreteFeatureProcessors = (ShortValuedFeatureProcessor[])shortValuedFeatureProcessors.toArray(new ShortValuedFeatureProcessor[0]);
-        this.continuousFeatureProcessors = (ContinuousFeatureProcessor[])continuousFeatureProcessors.toArray(new ContinuousFeatureProcessor[0]);
+        this.continuousFeatureProcessors = (ContinuousFeatureProcessor[])continuousValuedFeatureProcessors.toArray(new ContinuousFeatureProcessor[0]);
     }
     
     /**

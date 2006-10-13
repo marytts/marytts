@@ -250,7 +250,8 @@ public class TimelineIO
         /**
          *  Constructor which makes the procHeader from a String
          *  */
-        public ProcHeader( String procStr )  throws IOException {
+        public ProcHeader( String procStr ) 
+        {
             procHeader = procStr;
         }
         

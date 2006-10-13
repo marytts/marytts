@@ -81,9 +81,9 @@ public class UnitSelector
 
     }
     
-    public void load(UnitDatabase database)
+    public void load(UnitDatabase unitDatabase)
     {
-        this.database = database;
+        this.database = unitDatabase;
     }
     
     /**

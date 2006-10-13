@@ -88,9 +88,9 @@ public class DummyFreeTTSVoice extends com.sun.speech.freetts.Voice {
      * @throws RuntimeException if the class specified by lexiconClassName
      * cannot be instantiated.
      */
-    public void initialise(de.dfki.lt.mary.modules.synthesis.Voice maryVoice,
+    public void initialise(de.dfki.lt.mary.modules.synthesis.Voice aMaryVoice,
             String lexiconClassName) {
-        this.maryVoice = maryVoice;
+        this.maryVoice = aMaryVoice;
         if (lexiconClassName != null) {
             try {
                 Lexicon lex = (Lexicon)Class.forName(lexiconClassName).newInstance();
@@ -104,8 +104,8 @@ public class DummyFreeTTSVoice extends com.sun.speech.freetts.Voice {
             }
         }
         setRate(135f);
-            float topMean  = (maryVoice.topStart()  + maryVoice.topEnd())  * 0.5f;
-            float baseMean = (maryVoice.baseStart() + maryVoice.baseEnd()) * 0.5f;
+            float topMean  = (aMaryVoice.topStart()  + aMaryVoice.topEnd())  * 0.5f;
+            float baseMean = (aMaryVoice.baseStart() + aMaryVoice.baseEnd()) * 0.5f;
         setPitch     ( (baseMean + topMean) / 2);
         setPitchRange( (topMean - baseMean) / 2);
     }
@@ -162,7 +162,8 @@ public class DummyFreeTTSVoice extends com.sun.speech.freetts.Voice {
      *
      * @throws IOException if an I/O error occurs
      */
-    protected void setupFeatureSet() throws IOException {
+    protected void setupFeatureSet()
+    {
     BulkTimer.LOAD.start("FeatureSet");
         FeatureSet features = getFeatures();
     features.setString(FEATURE_SILENCE, "pau");
@@ -175,7 +176,8 @@ public class DummyFreeTTSVoice extends com.sun.speech.freetts.Voice {
      *
      * @throws IOException if an I/O error occurs
      */
-    protected void setupFeatureProcessors() throws IOException {
+    protected void setupFeatureProcessors() throws IOException
+    {
     }
 
     /**

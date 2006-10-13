@@ -50,7 +50,7 @@ public class WordRelation {
      * Adds a break as a feature to the last item in the list.
      */
     public void addBreak() {
-	Item wordItem = (Item) relation.getTail();
+	Item wordItem = relation.getTail();
 	if (wordItem != null) {
 	    FeatureSet featureSet = wordItem.getFeatures();
 	    featureSet.setString("break", "1");

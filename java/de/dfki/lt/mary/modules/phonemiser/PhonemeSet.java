@@ -64,8 +64,14 @@ public class PhonemeSet
     }
 
 
+
+    ////////////////////////////////////////////////////////////////////
+
+    // The map of segment objects, indexed by their phonetic symbol:
+    private Map phonemes = null;
+
     private PhonemeSet(String filename)
-        throws SAXException, IOException, ParserConfigurationException
+    throws SAXException, IOException, ParserConfigurationException
     {
         phonemes = new HashMap();
         // parse the xml file:
@@ -83,17 +89,12 @@ public class PhonemeSet
             String phonology = seg.getAttribute("phonology");
             int sonority = Integer.parseInt(seg.getAttribute("sonority"));
             String example = seg.getAttribute("ex");
-
+    
             phonemes.put(name, new Phoneme(name, inherentDuration,
                                            minimalDuration, phonology,
                                            sonority, example));
         }
     }
-
-    ////////////////////////////////////////////////////////////////////
-
-    // The map of segment objects, indexed by their phonetic symbol:
-    private Map phonemes = null;
 
     public Syllabifier getSyllabifier()
     {
@@ -117,7 +118,7 @@ public class PhonemeSet
      */
     public Phoneme[] splitIntoPhonemes(String phonemeString)
     {
-        Vector phonemes = new Vector();
+        Vector phones = new Vector();
         boolean haveSeenNucleus = false;
         for (int i=0; i<phonemeString.length(); i++) {
             // Try to cut off individual segments, 
@@ -152,7 +153,7 @@ public class PhonemeSet
                     ph = getPhoneme("=6");
                     haveSeenNucleus = true;
                 }
-                phonemes.add(ph);
+                phones.add(ph);
             } else {
                 //logger.warn("Found unknown phoneme `" +
                 //            phonemeString.substring(i,i+1) +
@@ -160,6 +161,6 @@ public class PhonemeSet
                 //            "' -- ignoring.");
             }
         }
-        return (Phoneme[]) phonemes.toArray(new Phoneme[0]);
+        return (Phoneme[]) phones.toArray(new Phoneme[0]);
     }
 }

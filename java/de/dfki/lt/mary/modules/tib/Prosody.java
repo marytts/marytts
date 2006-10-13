@@ -28,8 +28,6 @@
  */
 package de.dfki.lt.mary.modules.tib;
 
-import java.io.IOException;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.traversal.DocumentTraversal;
@@ -44,7 +42,7 @@ import de.dfki.lt.mary.util.dom.NameNodeFilter;
 
 public class Prosody extends ProsodyGeneric
 {
-    public Prosody() throws IOException
+    public Prosody()
     {
         super(MaryDataType.get("TONES_TIB"), MaryDataType.get("PHRASES_TIB"),
             "tibetan.prosody.tobipredparams", null, null, "tibetan.prosody.paragraphdeclination");
@@ -77,7 +75,7 @@ public class Prosody extends ProsodyGeneric
             boolean invalidXML, Element firstTokenInPhrase)
     {
 
-        String tokenText = MaryDomUtils.tokenText((Element) token); // text of current token
+        String tokenText = MaryDomUtils.tokenText(token); // text of current token
 
         Element ruleList = null;
         // only the "boundaries" rules are relevant

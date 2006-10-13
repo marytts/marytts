@@ -83,6 +83,12 @@ public class MbrolaJniCaller extends MbrolaCaller {
         super.startup();
     }
 
+    public synchronized void shutdown()
+    {
+        mbrolaShutdown();
+        super.shutdown();
+    }
+
     private void setVoice(Voice voice) {
         // This is what we would like to have done in order to have fast synthesis;
         // unfortunately, it leads to small deviations in the length of the audio data

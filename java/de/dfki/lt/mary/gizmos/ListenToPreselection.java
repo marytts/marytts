@@ -78,7 +78,7 @@ public class ListenToPreselection {
                 /* Concatenate the datagrams from the instances */
                 Datagram[] dat = tlr.getDatagrams( ufr.getUnit(ui[i]), ufr.getSampleRate() );
                 for ( int k = 0; k < dat.length; k++ ) {
-                    bbis.write( (byte[])dat[k].getData() );
+                    bbis.write( dat[k].getData() );
                 }
             }
             /* Get the bytes as an array */

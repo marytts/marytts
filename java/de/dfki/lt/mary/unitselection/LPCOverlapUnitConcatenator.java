@@ -32,7 +32,6 @@
 package de.dfki.lt.mary.unitselection;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -101,10 +100,10 @@ public class LPCOverlapUnitConcatenator implements UnitConcatenator
         logger = Logger.getLogger(this.getClass());
     }
 
-    public void load(UnitDatabase database)
+    public void load(UnitDatabase unitDatabase)
     {
-        this.database = database;
-        this.timeline = (LPCTimelineReader)database.getAudioTimeline();
+        this.database = unitDatabase;
+        this.timeline = (LPCTimelineReader)unitDatabase.getAudioTimeline();
         int sampleRate = timeline.getSampleRate();
         this.audioformat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
                 sampleRate, // samples per second
@@ -113,7 +112,7 @@ public class LPCOverlapUnitConcatenator implements UnitConcatenator
                 2, // nr. of bytes per frame
                 sampleRate, // nr. of frames per second
                 true); // big-endian;
-        this.unitToTimelineSampleRateFactor =  sampleRate / (double) database.getUnitFileReader().getSampleRate();
+        this.unitToTimelineSampleRateFactor =  sampleRate / (double) unitDatabase.getUnitFileReader().getSampleRate();
     }
     
     /**
@@ -137,8 +136,6 @@ public class LPCOverlapUnitConcatenator implements UnitConcatenator
     public AudioInputStream getAudio(List units) throws IOException
     {
         logger.debug("Getting audio for "+units.size()+" units");
-        List audioStreams = new ArrayList(units.size());
-        LPCTimelineReader timeline = (LPCTimelineReader) database.getAudioTimeline();
         int lpcOrder = timeline.getLPCOrder();
         float lpcMin = timeline.getLPCMin();
         float lpcRange = timeline.getLPCRange();
@@ -153,7 +150,7 @@ public class LPCOverlapUnitConcatenator implements UnitConcatenator
             int unitSize = unitToTimeline(unit.getUnit().getDuration()); // convert to timeline samples
             long unitStart = unitToTimeline(unit.getUnit().getStart()); // convert to timeline samples
             //System.out.println("Unit size "+unitSize+", pitchmarksInUnit "+pitchmarksInUnit);
-            Datagram[] datagrams = (Datagram[]) timeline.getDatagrams(unitStart,(long)unitSize);
+            Datagram[] datagrams = timeline.getDatagrams(unitStart,(long)unitSize);
             // one right context period for windowing:
             LPCDatagram rightContextFrame = null;
             Unit next = database.getUnitFileReader().getNextUnit(unit.getUnit());
@@ -172,7 +169,7 @@ public class LPCOverlapUnitConcatenator implements UnitConcatenator
             // or by computing from target (model-driven)
             int[] pitchmarks;
             if (unit.getTarget().isSilence()) {
-                int targetLength = (int) Math.round(unit.getTarget().getTargetDurationInSeconds()*audioformat.getSampleRate());
+                int targetLength = Math.round(unit.getTarget().getTargetDurationInSeconds()*audioformat.getSampleRate());
                 
                 int avgPeriodLength = unitSize / pitchmarksInUnit; // there will be rounding errors here
                 int nTargetPitchmarks = Math.round((float)targetLength / avgPeriodLength); // round to the nearest integer
@@ -212,7 +209,6 @@ public class LPCOverlapUnitConcatenator implements UnitConcatenator
             // if timeStretch == 1, copy unit as it is; 
             // if timeStretch < 1, lengthen by duplicating frames
             // if timeStretch > 1, shorten by skipping frames
-            int targetResidualPosition = 0;
             float frameIndex = 0;
             //float uIndex = 0; // counter of imaginary sample position in the unit 
             // for each pitchmark, get frame coefficients and residual

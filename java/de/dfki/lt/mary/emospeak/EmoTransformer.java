@@ -30,6 +30,9 @@ package de.dfki.lt.mary.emospeak;
 
 import java.util.Locale;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerConfigurationException;
+
 
 /**
  *
@@ -60,8 +63,7 @@ public class EmoTransformer extends Thread {
     
     /** Creates new EmoTransformer */
     public EmoTransformer(ProsodyXMLDisplayer emoSpeak)
-    throws java.io.FileNotFoundException, javax.xml.transform.TransformerConfigurationException,
-    javax.xml.parsers.ParserConfigurationException
+    throws TransformerConfigurationException, ParserConfigurationException
     {
         this.emoSpeak = emoSpeak;
         // Try to find a suitable XSLT transformer

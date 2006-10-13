@@ -50,9 +50,6 @@ public class CARTBuilder implements VoiceImportComponent {
     
     private DatabaseLayout databaseLayout;
     
-    private String testFeatureFile = "";
-    private String testDestinationFile = "/home/cl-home/hunecke/anna/openmary/CART.bin";
-    
     public CARTBuilder(DatabaseLayout databaseLayout){
         this.databaseLayout = databaseLayout;
     }
