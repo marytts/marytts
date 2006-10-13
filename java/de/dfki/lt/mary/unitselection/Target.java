@@ -159,6 +159,6 @@ public class Target
     
     public String toString()
     {
-        return name +  " " + (item != null ? item.toString() : "");
+        return name;
     }
 }
