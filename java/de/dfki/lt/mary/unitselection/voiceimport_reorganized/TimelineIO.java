@@ -31,6 +31,10 @@
  */
 package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.RandomAccessFile;
 import java.io.IOException;
 import java.io.FileNotFoundException;
@@ -316,10 +320,10 @@ public class TimelineIO
         /****************/
         
         /**
-         * File constructor: load the index from a random access file.
+         * File constructor: load the index from a data input stream or random access file.
          * 
          * */
-        public Index( RandomAccessFile raf ) throws IOException {
+        public Index( DataInput raf ) throws IOException {
             load( raf );
         }
         
@@ -353,21 +357,25 @@ public class TimelineIO
         /*****************/
         
         /**
-         * Method which loads an index from a random access file.
+         * Method which loads an index from a data input (random access file or data input stream).
          * */
-        public void load( RandomAccessFile raf ) throws IOException {
+        public void load( DataInput raf ) throws IOException {
             int numIdx = raf.readInt();
             idxInterval = raf.readInt();
             
             field = new Vector( numIdx, INCREMENT_SIZE );
+            int numBytesToRead = IdxField.numBytesOnDisk() * (numIdx + 1);
+            byte[] data = new byte[numBytesToRead];
+            raf.readFully(data);
+            DataInput bufIn = new DataInputStream(new ByteArrayInputStream(data));
             
             for( int i = 0; i < numIdx; i++ ) {
-                field.add( new IdxField(raf) );
+                field.add( new IdxField(bufIn) );
             }
             size = field.size();
             /* Read the "last datagram" memory */
-            prevBytePos = raf.readLong();
-            prevTimePos = raf.readLong();
+            prevBytePos = bufIn.readLong();
+            prevTimePos = bufIn.readLong();
         }
         
         /**
@@ -518,7 +526,7 @@ public class TimelineIO
      * @author sacha
      *
      */
-    public  class IdxField
+    public static class IdxField
     {
         // TODO: rethink if these should be public fields or if we should add accessors.
         public long bytePtr = 0;
@@ -531,14 +539,23 @@ public class TimelineIO
             bytePtr = setBytePtr;
             timePtr = setTimePtr;
         }
-        public IdxField( RandomAccessFile raf ) throws IOException {
+        public IdxField( DataInput raf ) throws IOException {
             bytePtr = raf.readLong();
             timePtr = raf.readLong();
          }
-        public long write( RandomAccessFile raf ) throws IOException {
+        public long write( DataOutput raf ) throws IOException {
             raf.writeLong( bytePtr );
             raf.writeLong( timePtr );
             return( 16l ); // 8+8 bytes written.
+        }
+        
+        /**
+         * Number of bytes needed to represent this IdxField on disk. 
+         * @return
+         */
+        public static int numBytesOnDisk()
+        {
+            return 16; // 8+8 bytes == two longs
         }
     }
 

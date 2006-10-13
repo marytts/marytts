@@ -108,6 +108,7 @@ public class UnitSelectionVoiceBuilder
                 if (lexicons.containsKey(lexiconClass+lexiconName)) {
                     lexicon = (Lexicon) lexicons.get(lexiconClass+lexiconName);
                 } else { // need to create a new lexicon instance
+                    logger.debug("...loading lexicon...");
                     if (lexiconName == null) {
                         lexicon = (Lexicon) Class.forName(lexiconClass).newInstance();
                     } else { // lexiconName is String argument to constructor 
@@ -126,11 +127,13 @@ public class UnitSelectionVoiceBuilder
 	        if (featureProcessors.containsKey(locale)) {
 	            featProcManager = (FeatureProcessorManager) featureProcessors.get(locale);
             } else {
+                logger.debug("...instantiating feature processors...");
 	            featProcManager = (FeatureProcessorManager) Class.forName(featureProcessorsClass).newInstance();
 	            featureProcessors.put(locale,featProcManager);
 	        }
             
             // build and load targetCostFunction
+            logger.debug("...loading target cost function...");
             String featureFileName = MaryProperties.needFilename(header+".featureFile");
             String targetWeightFile = MaryProperties.getFilename(header + ".targetCostWeights");
             String targetCostClass = MaryProperties.needProperty(header+".targetCostClass");
@@ -138,6 +141,7 @@ public class UnitSelectionVoiceBuilder
             targetFunction.load(featureFileName, targetWeightFile, featProcManager);
             
             // build joinCostFunction
+            logger.debug("...loading join cost function...");
             String joinFileName = MaryProperties.needFilename(header+".joinCostFile");
             String joinWeightFile = MaryProperties.getFilename(header + ".joinCostWeights");
             String joinCostClass = MaryProperties.needProperty(header+".joinCostClass");
@@ -145,33 +149,39 @@ public class UnitSelectionVoiceBuilder
             joinFunction.load(joinFileName, joinWeightFile);
             
 	        // Build the various file readers
+            logger.debug("...loading units file...");
             String unitReaderClass = MaryProperties.needProperty(header+".unitReaderClass");
             String unitsFile = MaryProperties.needFilename(header+".unitsFile");
             UnitFileReader unitReader = (UnitFileReader) Class.forName(unitReaderClass).newInstance();
             unitReader.load(unitsFile);
             
+            logger.debug("...loading cart file...");
             String cartReaderClass = MaryProperties.needProperty(header+".cartReaderClass");
             String cartFile = MaryProperties.getFilename(header+".cartFile");
             CART cart = (CART) Class.forName(cartReaderClass).newInstance();
             cart.load(cartFile, targetFunction.getFeatureDefinition());
             
+            logger.debug("...loading audio time line...");
             String timelineReaderClass = MaryProperties.needProperty(header+".audioTimelineReaderClass");
             String timelineFile = MaryProperties.needFilename(header+".audioTimelineFile");
             TimelineReader timelineReader = (TimelineReader) Class.forName(timelineReaderClass).newInstance();
             timelineReader.load(timelineFile);
                 
             //build and load database
+            logger.debug("...instantiating database...");
             String databaseClass = MaryProperties.needProperty(header+".databaseClass");
             UnitDatabase unitDatabase = (UnitDatabase) Class.forName(databaseClass).newInstance();
             unitDatabase.load(targetFunction, joinFunction, unitReader, cart, timelineReader );
 	        
 	        //build Selector
-	        String selectorClass = MaryProperties.needProperty(header+".selectorClass");
+            logger.debug("...instantiating unit selector...");
+            String selectorClass = MaryProperties.needProperty(header+".selectorClass");
 	        UnitSelector unitSelector = (UnitSelector) Class.forName(selectorClass).newInstance();
 	        unitSelector.load(unitDatabase);
             
 	        //samplingRate -> bin, audioformat -> concatenator
 	        //build Concatenator
+            logger.debug("...instantiating unit concatenator...");
 	        String concatenatorClass = MaryProperties.needProperty(header+".concatenatorClass");
 	        UnitConcatenator unitConcatenator = (UnitConcatenator) Class.forName(concatenatorClass).newInstance();
 	        unitConcatenator.load(unitDatabase);
@@ -189,6 +199,7 @@ public class UnitSelectionVoiceBuilder
 	        String path = null;
 			
 	        //build the voice
+            logger.debug("...instantiating voice...");
 	        Voice v = new UnitSelectionVoice(unitDatabase, unitSelector, 
 	                    unitConcatenator, path, 
                     nameArray, voiceLocale, unitConcatenator.getAudioFormat(), 
