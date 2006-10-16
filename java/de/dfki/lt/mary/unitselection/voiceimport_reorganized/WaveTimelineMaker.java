@@ -106,7 +106,7 @@ public class WaveTimelineMaker implements VoiceImportComponent
             for ( int i = 0; i < baseNameArray.length; i++ ) {
                 /* - open+load */
                 System.out.println( baseNameArray[i] );
-                pmFile = new ESTTrackReader( db.pitchmarksDirName() + "/" + baseNameArray[i] + db.pitchmarksExt() );
+                pmFile = new ESTTrackReader( db.correctedPitchmarksDirName() + "/" + baseNameArray[i] + db.correctedPitchmarksExt() );
                 totalDuration += pmFile.getTimeSpan();
                 wav = new WavReader( db.wavDirName() + baseNameArray[i] + db.wavExt() );
                 short[] wave = wav.getSamples();

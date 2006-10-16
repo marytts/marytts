@@ -109,6 +109,8 @@ public class DatabaseLayout
         /* Pitchmark files*/
         setIfDoesntExist( "db.pitchmarksSubDir", "pm" );
         setIfDoesntExist( "db.pitchmarksExtension", ".pm" );
+        setIfDoesntExist( "db.correctedPitchmarksSubDir", "pm" );
+        setIfDoesntExist( "db.correctedPitchmarksExtension", ".pm.corrected" );
         
         /* Mel Cepstrum files */
         setIfDoesntExist( "db.melcepSubDir", "mcep" );
@@ -228,6 +230,9 @@ public class DatabaseLayout
     public String pitchmarksDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
             + System.getProperty( "db.pitchmarksSubDir" ) + System.getProperty( "file.separator" ) ); }
     public String pitchmarksExt() { return( System.getProperty( "db.pitchmarksExtension") ); }
+    public String correctedPitchmarksDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
+            + System.getProperty( "db.correctedPitchmarksSubDir" ) + System.getProperty( "file.separator" ) ); }
+    public String correctedPitchmarksExt() { return( System.getProperty( "db.correctedPitchmarksExtension") ); }
     
     /* MELCEP */
     public String melcepDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
