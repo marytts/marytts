@@ -282,10 +282,11 @@ public class DatabaseImportMain extends JFrame
                 new UnitfileWriter( db, bnl ),
                 new FeatureFileWriter( db, bnl ),
                 
+                new ESTCallMaker( db, bnl ),
+                
                 new WaveTimelineMaker( db, bnl ),
                 new BasenameTimelineMaker( db, bnl ),
                 
-                new ESTCallMaker( db, bnl ),
                 new LPCTimelineMaker( db, bnl ),
                 new MCepTimelineMaker( db, bnl ),
                 new JoinCostFileMaker( db, bnl ),
