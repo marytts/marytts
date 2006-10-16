@@ -58,10 +58,11 @@ public interface CART
      * interpretation.
      *
      * @param target the target to analyze
+     * @param backtrace the backtrace setting
      *
      * @return the interpretation
      */
-    public Object interpret(Target target);
+    public Object interpret(Target target,int backtrace);
     
 
     /**

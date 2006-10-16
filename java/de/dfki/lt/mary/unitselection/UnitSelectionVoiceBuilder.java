@@ -165,11 +165,19 @@ public class UnitSelectionVoiceBuilder
             TimelineReader timelineReader = (TimelineReader) Class.forName(timelineReaderClass).newInstance();
             timelineReader.load(timelineFile);
                 
+            //get the backtrace information
+            String backtraceString = MaryProperties
+                    .getProperty(voice+"cart.backtrace");
+            int backtrace = 100; // default backtrace value
+            if (backtraceString != null) {
+                backtrace = Integer.parseInt(backtraceString.trim());
+            }
+            
             //build and load database
             logger.debug("...instantiating database...");
             String databaseClass = MaryProperties.needProperty(header+".databaseClass");
             UnitDatabase unitDatabase = (UnitDatabase) Class.forName(databaseClass).newInstance();
-            unitDatabase.load(targetFunction, joinFunction, unitReader, cart, timelineReader );
+            unitDatabase.load(targetFunction, joinFunction, unitReader, cart, timelineReader ,backtrace);
 	        
 	        //build Selector
             logger.debug("...instantiating unit selector...");
