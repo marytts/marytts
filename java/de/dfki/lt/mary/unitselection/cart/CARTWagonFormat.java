@@ -44,7 +44,6 @@ import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
 
-import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.mary.unitselection.FeatureFileIndexer;
 import de.dfki.lt.mary.unitselection.MaryNode;
 import de.dfki.lt.mary.unitselection.Target;
@@ -76,11 +75,6 @@ public class CARTWagonFormat implements CART {
     private final static int VERSION = 1;
 
     private final static int CARTS = 1;
-
-    /**
-     * Defines how many units should be selected on backtrace
-     */
-    private int backtrace = 500;
 
     private Node rootNode;
 
@@ -148,7 +142,7 @@ public class CARTWagonFormat implements CART {
      */
     public void load(String fileName, FeatureDefinition featDefinition)
             throws IOException {
-        System.out.println("Loading file");
+        //System.out.println("Loading file");
         // open the CART-File and read the header
         DataInput raf = new DataInputStream(new BufferedInputStream(new FileInputStream(fileName)));
         if (raf.readInt() != MAGIC) {
@@ -160,7 +154,7 @@ public class CARTWagonFormat implements CART {
         if (raf.readInt() != CARTS) {
             throw new IOException("No CARTs file");
         }
-        System.out.println("Reading CART");
+        //System.out.println("Reading CART");
         // discard number of CARTs and CART name
         // TODO: Change format of CART-File
         numNodes = raf.readInt();
@@ -169,12 +163,6 @@ public class CARTWagonFormat implements CART {
         // load the CART
         featDef = featDefinition;
         // get the backtrace information
-        String backtraceString = MaryProperties
-                .getProperty("english.cart.backtrace");
-        backtrace = 100; // default backtrace value
-        if (backtraceString != null) {
-            backtrace = Integer.parseInt(backtraceString.trim());
-        }
         openBrackets = 0;
         // Read in the first node
         String cart;
@@ -198,7 +186,7 @@ public class CARTWagonFormat implements CART {
             throw new IOException("Error loading CART: bracket mismatch: "
                     + openBrackets);
         }
-        System.out.println("Done");
+        //System.out.println("Done");
     }
 
     /**
@@ -321,9 +309,8 @@ public class CARTWagonFormat implements CART {
             }
             // for debugging
             int nodeIndex = nextNode.getNodeIndex();
-            if (!((DecisionNode) lastNode).hasMoreDaughters(nodeIndex + 1)) {
-                System.out
-                        .println("Node is last node, but has no closing brackets");
+           if (!((DecisionNode) lastNode).hasMoreDaughters(nodeIndex + 1)) {
+                logger.debug("Node is last node, but has no closing brackets");
             }
 
         }
@@ -425,14 +412,15 @@ public class CARTWagonFormat implements CART {
     }
 
     /**
-     * Passes the given target through this CART and returns the interpretation.
-     * 
-     * @param object
-     *            the item to analyze
-     * 
+     * Passes the given item through this CART and returns the
+     * interpretation.
+     *
+     * @param target the target to analyze
+     * @param backtrace the backtrace setting
+     *
      * @return the interpretation
      */
-    public Object interpret(Target target) {
+    public Object interpret(Target target,int backtrace) {
         Node currentNode = rootNode;
 
         FeatureVector featureVector = target.getFeatureVector();
@@ -449,12 +437,11 @@ public class CARTWagonFormat implements CART {
 
         // get the indices from the leaf node
         int[] result = ((LeafNode) currentNode).getAllIndices();
-
-        int limit = backtrace;
+        
         // set usedBacktrace to false (default)
         boolean usedBacktrace = false;
         Node motherNode = currentNode.getMother();
-        while (result.length < limit && motherNode != null) {
+        while (result.length < backtrace && motherNode != null) {
             // set backtrace to true if we have not enough units
             usedBacktrace = true;
             result = ((DecisionNode) motherNode).getAllIndices();

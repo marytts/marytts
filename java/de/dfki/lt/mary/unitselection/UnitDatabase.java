@@ -46,6 +46,7 @@ public class UnitDatabase
     protected UnitFileReader unitReader;
     protected CART preselectionCART;
     protected TimelineReader audioTimeline;
+    protected int backtrace;
     
     
     public UnitDatabase()
@@ -56,13 +57,15 @@ public class UnitDatabase
                       JoinCostFunction aJoinCostFunction,
                       UnitFileReader aUnitReader,
                       CART aPreselectionCART,
-                      TimelineReader anAudioTimeline)
+                      TimelineReader anAudioTimeline,
+                      int backtrace)
      {
          this.targetCostFunction = aTargetCostFunction;
          this.joinCostFunction = aJoinCostFunction;
          this.unitReader = aUnitReader;
          this.preselectionCART = aPreselectionCART;
          this.audioTimeline = anAudioTimeline;
+         this.backtrace = backtrace;
      }
 
      public TargetCostFunction getTargetCostFunction()
@@ -97,7 +100,7 @@ public class UnitDatabase
     {
         //logger.debug("Looking for candidates in cart "+target.getName());
         //get the cart tree and extract the candidates
-        int[] clist = (int[]) preselectionCART.interpret(target);
+        int[] clist = (int[]) preselectionCART.interpret(target,backtrace);
         
         // Now, clist is an array of unit indexes.
         ViterbiCandidate[] candidates = new ViterbiCandidate[clist.length];
