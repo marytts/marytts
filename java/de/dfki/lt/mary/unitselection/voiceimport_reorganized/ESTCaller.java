@@ -31,6 +31,7 @@
  */
 package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 
+import java.io.File;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -210,18 +211,25 @@ public class ESTCaller
             /* Make the command lines and launch them */
             /* - Scaling + resampling: */
             cmdLine = ESTDIR + "/bin/ch_wave -scaleN 0.9 -F 16000 "
-            + "-o tmp" + baseNameArray[i] + ".wav "
-            + db.wavDirName() + baseNameArray[i] + ".wav";
+            + "-o tmp" + baseNameArray[i] + db.wavExt() + " "
+            + db.wavDirName() + baseNameArray[i] + db.wavExt();
             launchProc( cmdLine, "Pitchmarks ", baseNameArray[i] );
+            
+            /* Ensure the existence of the target pitchmark directory */
+            File dir = new File( db.pitchmarksDirName() );
+            if (!dir.exists()) {
+                System.out.println( "Creating the directory [" + db.pitchmarksDirName() + "]." );
+                dir.mkdir();
+            }
             
             /* - Pitchmarks extraction: */
             cmdLine = ESTDIR + "/bin/pitchmark -min 0.0057 -max 0.012 -def 0.01 -wave_end -lx_lf 140 -lx_lo 111 -lx_hf 80 -lx_ho 51 -med_o 0 -fill -otype est "
-            + "-o " + db.pitchmarksDirName() + baseNameArray[i] + ".pm "
-            + "tmp" + baseNameArray[i] + ".wav";
+            + "-o " + db.pitchmarksDirName() + baseNameArray[i] + db.pitchmarksExt()
+            + " tmp" + baseNameArray[i] + db.wavExt();
             launchProc( cmdLine, "Pitchmarks ", baseNameArray[i] );
             
-            /* - Cleanup of temporary file: */
-            cmdLine = "rm -f tmp" + baseNameArray[i] + ".wav";
+            /* - Cleanup the temporary file: */
+            cmdLine = "rm -f tmp" + baseNameArray[i] + db.wavExt();
             launchProc( cmdLine, "Pitchmarks ", baseNameArray[i] );
             
         }
@@ -244,12 +252,19 @@ public class ESTCaller
         /* For each file (or each basename): */
         for ( int i = 0; i < baseNameArray.length; i++ ) {
             
+            /* Ensure the existence of the target directory */
+            File dir = new File( db.lpcDirName() );
+            if (!dir.exists()) {
+                System.out.println( "Creating the directory [" + db.lpcDirName() + "]." );
+                dir.mkdir();
+            }
+            
             /* Make the command line */
             cmdLine = ESTDIR + "/bin/sig2fv "
             + "-window_type hamming -factor 3 -otype est_binary -preemph 0.95 -coefs lpc -lpc_order 16 "
-            + "-pm " + db.pitchmarksDirName() + baseNameArray[i] + ".pm "
-            + "-o " + db.lpcDirName() + baseNameArray[i] + ".lpc "
-            + db.wavDirName() + baseNameArray[i] + ".wav ";
+            + "-pm " + db.correctedPitchmarksDirName() + baseNameArray[i] + db.correctedPitchmarksExt()
+            + " -o " + db.lpcDirName() + baseNameArray[i] + db.lpcExt() + " "
+            + db.wavDirName() + baseNameArray[i] + db.wavExt();
             // System.out.println( cmdLine );
             
             /* Launch the relevant process */
@@ -274,12 +289,19 @@ public class ESTCaller
         /* For each file (or each basename): */
         for ( int i = 0; i < baseNameArray.length; i++ ) {
             
+            /* Ensure the existence of the target mel cepstrum directory */
+            File dir = new File( db.melcepDirName() );
+            if (!dir.exists()) {
+                System.out.println( "Creating the directory [" + db.melcepDirName() + "]." );
+                dir.mkdir();
+            }
+            
             /* Make the command line */
             cmdLine = ESTDIR + "/bin/sig2fv "
             + "-window_type hamming -factor 2.5 -otype est_binary -coefs melcep -melcep_order 12 -fbank_order 24 -shift 0.01 -preemph 0.97 "
-            + "-pm " + db.pitchmarksDirName() + baseNameArray[i] + ".pm "
-            + "-o " + db.melcepDirName() + baseNameArray[i] + ".mcep "
-            + db.wavDirName() + baseNameArray[i] + ".wav ";
+            + "-pm " + db.correctedPitchmarksDirName() + baseNameArray[i] + db.correctedPitchmarksExt()
+            + " -o " + db.melcepDirName() + baseNameArray[i] + db.melcepExt() + " "
+            + db.wavDirName() + baseNameArray[i] + db.wavExt();
             // System.out.println( cmdLine );
             /* Note: parameter "-delta melcep" has been commented out in the original script.
              * Refer to the EST docs on http://www.cstr.ed.ac.uk/projects/speech_tools/manual-1.2.0/
