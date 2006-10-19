@@ -34,8 +34,9 @@ package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.util.Properties;
 
-import de.dfki.lt.mary.unitselection.Datagram;
+import de.dfki.lt.mary.unitselection.MCepDatagram;
 
 /**
  * The mcepTimelineMaker class takes a database root directory and a list of basenames,
@@ -141,12 +142,21 @@ public class MCepTimelineMaker implements VoiceImportComponent
             System.out.println( "Will create the mcep timeline in file [" + mcepTimelineName + "]." );
             
             /* An example of processing header: */
-            String cmdLine = "\n$ESTDIR/bin/sig2fv "
+            Properties props = new Properties();
+            String hdrCmdLine = "\n$ESTDIR/bin/sig2fv "
                 + "-window_type hamming -factor 2.5 -otype est_binary -coefs melcep -melcep_order 12 -fbank_order 24 -shift 0.01 -preemph 0.97 "
                 + "-pm PITCHMARKFILE.pm -o melcepDir/mcepFile.mcep WAVDIR/WAVFILE.wav\n";
+            props.setProperty("command", hdrCmdLine);
+            props.setProperty("mcep.order", String.valueOf(numMCep));
+            props.setProperty("mcep.min", String.valueOf(mcepMin));
+            props.setProperty("mcep.range", String.valueOf(mcepRange));
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            props.store(baos, null);
+            String processingHeader = new String(baos.toString("latin1"));
+            
             
             /* Instantiate the TimelineWriter: */
-            TimelineWriter mcepTimeline = new TimelineWriter( mcepTimelineName, cmdLine, globSampleRate, 0.01 );
+            TimelineWriter mcepTimeline = new TimelineWriter( mcepTimelineName, processingHeader, globSampleRate, 0.01 );
             
             
             /* 4) Write the datagrams and feed the index */
@@ -172,18 +182,12 @@ public class MCepTimelineMaker implements VoiceImportComponent
                     /* NOTE: quantization is no more performed below, code&comments kept for archiving. */
                     /* Quantize the mcep coeffs: */
                     // short[] quantizedFrame = General.quantize( mcepFile.getFrame( f ), mcepMin, mcepRange );
-                    float[] frame = mcepFile.getFrame( f );
                     /* Make a datagram from the quantized mcep coefficients: */
-                    ByteArrayOutputStream byteBuff = new ByteArrayOutputStream();
-                    DataOutputStream datagramContents = new DataOutputStream( byteBuff );
                     /* for ( int k = 0; k < quantizedFrame.length; k++ ) {
                         datagramContents.writeShort( quantizedFrame[k] );
                     } */
-                    for ( int k = 0; k < frame.length; k++ ) {
-                        datagramContents.writeFloat( frame[k] );
-                    }
                     /* Feed the datagram to the timeline */
-                    mcepTimeline.feed( new Datagram( duration, byteBuff.toByteArray() ) , globSampleRate );
+                    mcepTimeline.feed( new MCepDatagram( duration, mcepFile.getFrame( f ) ) , globSampleRate );
                     totalTime += duration;
                     localTime += duration;
                 }
