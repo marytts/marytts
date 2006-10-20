@@ -63,6 +63,19 @@ public class DatabaseLayout
         /* root : the name of the root directory for the database */
         setIfDoesntExist( "db.rootDir", "." );
         
+        /* Output directory for Mary format files */
+        setIfDoesntExist( "db.marySubDir", "mary_files" );
+        setIfDoesntExist( "db.maryExtension", ".mry" );
+        
+        /* Input directory for Mary (database import) config files */
+        setIfDoesntExist( "db.maryConfigSubDir", "mary_configs" );
+        /* Default feature weights file */
+        setIfDoesntExist( "db.featureweights.file", "unitFeatureDefinition.txt");
+        /* Default feature sequence file */
+        setIfDoesntExist( "db.featuresequence.file", "featureSequence.txt" );
+        /* Default join cost feature weights file */
+        setIfDoesntExist( "db.joinCostWeights.file", "joinCostWeights.txt" );
+        
         /* The file for the list of utterances */
         setIfDoesntExist( "db.basenameFile", "basenames.lst" );
         setIfDoesntExist( "db.basenameTimelineBaseName", "timeline_basenames" );
@@ -86,12 +99,6 @@ public class DatabaseLayout
         setIfDoesntExist( "db.unitfeatures.subDir", "unitfeatures" );
         setIfDoesntExist( "db.unitfeatures.extension", ".feats" );
 
-        /* Default feature weights file */
-        setIfDoesntExist( "db.featureweights.file", unitFeaDirName()+"/weights.txt");
-
-        /* Default feature sequence file */
-        setIfDoesntExist( "db.featuresequence.file", "featureSequence.txt" );
-        
         /* Raw Mary XML files */
         setIfDoesntExist( "db.rawmaryxml.subDir", "text" );
         setIfDoesntExist( "db.rawmaryxml.extension", ".rawmaryxml" );
@@ -118,16 +125,14 @@ public class DatabaseLayout
         setIfDoesntExist( "db.melcepTimelineBaseName", "timeline_mcep" );
         
         /* Timeline files */
-        setIfDoesntExist( "db.timelineSubDir", "mary_timelines" );
-        setIfDoesntExist( "db.timelineExtension", ".bin" );
+        setIfDoesntExist( "db.timelineSubDir", System.getProperty("db.marySubDir") );
+        setIfDoesntExist( "db.timelineExtension", ".mry" );
         
-        /* Mary format files */
-        setIfDoesntExist( "db.marySubDir", "maryfiles" );
-        setIfDoesntExist( "db.maryExtension", ".bin" );
+        /* CART files */
+        setIfDoesntExist( "db.cartsSubDir", System.getProperty("db.marySubDir") );
         
-        setIfDoesntExist( "db.cartsSubDir", "mary" );
-        
-        setIfDoesntExist( "db.targetFeaturesBaseName", "targetFeatures" );
+        /* Other Mary files */
+        setIfDoesntExist( "db.targetFeaturesBaseName", "unitFeatures" );
         setIfDoesntExist( "db.joinCostFeaturesBaseName", "joinCostFeatures" );
         setIfDoesntExist( "db.unitFileBaseName", "units" );
         setIfDoesntExist( "db.cartFileBaseName", "cart" );
@@ -197,7 +202,6 @@ public class DatabaseLayout
     public String unitFeaDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
             + System.getProperty( "db.unitfeatures.subDir" ) + System.getProperty( "file.separator" ) ); }
     public String unitFeaExt() { return( System.getProperty( "db.unitfeatures.extension") ); }
-    public String weightsFileName() { return( System.getProperty( "db.featureweights.file" ) ); }
     
     /* RAW MARY XML */
     public String rmxDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
@@ -261,12 +265,46 @@ public class DatabaseLayout
     }
     
     /* MARY FILES */
+    
+    /* - Directories: */
+    
     public String maryDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
             + System.getProperty( "db.marySubDir") ); }
+    
+    public String maryConfigDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
+            + System.getProperty( "db.maryConfigSubDir") ); }
     
     public String cartsDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
             + System.getProperty( "db.cartsSubDir") ); }
     
+    /* - Configs:*/
+    
+    /* File name for the unit feature definition and unit feature weights */
+    public String unitFeatureDefinitionFileName() {
+        String ret = System.getProperty( "db.unitFeatureDefinitionFileName" );
+        if ( ret != null ) return( ret );
+        /* else: */
+        return( maryConfigDirName() + System.getProperty( "file.separator" ) + System.getProperty( "db.featureweights.file" ) );
+    }
+    public String weightsFileName() { return( unitFeatureDefinitionFileName() ); }
+    
+    /* File name for the unit feature definition and unit feature weights */
+    public String featureSequenceFileName() {
+        String ret = System.getProperty( "db.featureSequenceFileName" );
+        if ( ret != null ) return( ret );
+        /* else: */
+        return( maryConfigDirName() + System.getProperty( "file.separator" ) + System.getProperty( "db.featuresequence.file" ) );
+    }
+    
+    /* File name for the unit feature definition and unit feature weights */
+    public String joinCostWeightsFileName() {
+        String ret = System.getProperty( "db.joinCostWeightsFileName" );
+        if ( ret != null ) return( ret );
+        /* else: */
+        return( maryConfigDirName() + System.getProperty( "file.separator" ) + System.getProperty( "db.joinCostWeights.file" ) );
+    }
+    
+    /* - Mary format files:*/
     
     /* File name for the target features file */
     public String targetFeaturesFileName() {
