@@ -32,6 +32,8 @@
 package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -49,24 +51,58 @@ public class JoinCostFileMaker implements VoiceImportComponent {
     private DatabaseLayout db = null;
     private BasenameList bnl = null;
     
+    private int numberOfFeatures = 0;
+    private Float[] fw = null;
+    private String[] wfun = null;
+    
+    /** Constructor */
     public JoinCostFileMaker( DatabaseLayout setdb, BasenameList setbnl ) {
         this.db = setdb;
         this.bnl = setbnl;
     }
     
+    /**
+     * Read the join cost weight specifications from the relevant file.
+     * */
+    private void readJoinCostWeightsFile( String fileName ) throws IOException, FileNotFoundException {
+        Vector v = new Vector( 16, 16 );
+        Vector vf = new Vector( 16, 16 );
+        /* Open the file */
+        BufferedReader in = new BufferedReader( new FileReader( fileName ) );
+        /* Loop through the lines */
+        String line = null;
+        String[] fields = null;
+        while ((line = in.readLine()) != null) {
+            // System.out.println( line );
+            line = line.split( "#", 2 )[0];  // Remove possible trailing comments
+            line = line.trim();              // Remove leading and trailing blanks
+            if ( line.equals("") ) continue; // Empty line: don't parse
+            line = line.split( ":", 2 )[1].trim();  // Remove the line number and :
+            // System.out.print( "CLEANED: [" + line + "]" );
+            fields = line.split( "\\s", 2 ); // Separate the weight value from the function name
+            v.add( new Float( fields[0] ) ); // Push the weight
+            vf.add( fields[1] );             // Push the function
+            numberOfFeatures++;
+            // System.out.println( "NBFEA=" + numberOfFeatures );
+        }
+        // System.out.flush();
+        /* Export the vectors as arrays */
+        fw = (Float[]) v.toArray( new Float[v.size()] );
+        wfun = (String[]) vf.toArray( new String[vf.size()] );
+    }
+    
     public boolean compute() throws IOException
     {
-        System.out.println("---- Making the join cost file\n\n");
-        System.out.println("Base directory: " + db.rootDirName() + "\n");
-        System.out.println("Mel Cepstrum timeline: " + db.melcepTimelineFileName() + "\n");
+        System.out.print("---- Making the join cost file\n");
+        System.out.print("Base directory: " + db.rootDirName() + "\n");
+        System.out.print("Mel Cepstrum timeline: " + db.melcepTimelineFileName() + "\n");
+        System.out.print("Using join cost weights config: " + db.joinCostWeightsFileName() + "\n");
         System.out.println("Outputting join cost file to: " + db.joinCostFeaturesFileName() + "\n");
         
         /* Export the basename list into an array of strings */
         String[] baseNameArray = bnl.getListAsArray();
         
         /* Read the number of mel cepstra from the first melcep file */
-        /* TODO: this is a horrible hack, the number of mel cepstrum coeffs should be passed
-         * in a more intelligent way. */
         ESTTrackReader firstMcepFile = new ESTTrackReader( db.melcepDirName() + baseNameArray[0] + db.melcepExt());
         int numberOfMelcep = firstMcepFile.getNumChannels();
         firstMcepFile = null; // Free the memory taken by the file
@@ -96,24 +132,13 @@ public class JoinCostFileMaker implements VoiceImportComponent {
         /****************************/
         /* WEIGHTING FUNCTION SPECS */
         /****************************/
-        /* Make a weight vector */
-        int numberOfFeatures = numberOfMelcep + 1;
-        float[] fw = new float[numberOfFeatures]; // +1 accounts for the addition of F0
-        for ( int i = 0; i < fw.length; i++ ) {
-            fw[i] = 1.0f;
-            // TODO: add proper join feature weights here
-        }
-        /* Make a weighting function vector */
-        String[] wfun = new String[numberOfFeatures];
-        for ( int i = 0; i < (numberOfMelcep); i++ ) {
-            wfun[i] = "linear";
-        }
-        wfun[numberOfMelcep] = "step 20%"; // This one is for F0
+        /* Load the weight vectors */
+        readJoinCostWeightsFile( db.joinCostWeightsFileName() );
         /* Output those vectors */
         try {
             jcf.writeInt( fw.length );
             for ( int i = 0; i < fw.length; i++ ) {
-                jcf.writeFloat( fw[i] );
+                jcf.writeFloat( fw[i].floatValue() );
                 jcf.writeUTF( wfun[i] );
             }
         }
@@ -154,10 +179,25 @@ public class JoinCostFileMaker implements VoiceImportComponent {
             long targetEndPoint = 0l;
             Datagram dat = null;
             
+            /* Check the consistency between the number of join cost features
+             * and the number of Mel-cepstrum coefficients */
+            dat = mcep.getDatagram( 0, unitSampleFreq );
+            if ( dat.getData().length != (4*(numberOfFeatures-1)) ) {
+                throw new RuntimeException( "The number of join cost features [" + numberOfFeatures
+                        + "] read from the join cost weight config file [" + db.joinCostWeightsFileName()
+                        + "] does not match the number of Mel Cepstra [" + (dat.getData().length / 4)
+                        + "] found in the Mel-Cepstrum timeline file [" + db.melcepTimelineFileName()
+                        + "], plus [1] for the F0 feature." );
+            }
+            
+            /* Loop through the units */
+            int nextPercentHit = 0;
+            int percent = 0;
             for ( int i = 0; i < ufr.getNumberOfUnits(); i++ ) {
-                int percent = 100*i/ufr.getNumberOfUnits();
-                if (percent % 10 == 0) {
+                percent = 100*i/ufr.getNumberOfUnits();
+                if ( percent >= nextPercentHit ) {
                     System.out.println(percent+"% of "+ufr.getNumberOfUnits()+" units done...");
+                    nextPercentHit += 10;
                 }
                 /* Read the unit */
                 unitPosition = ufr.getUnit(i).getStart();
