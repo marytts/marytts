@@ -181,15 +181,15 @@ public class TimelineReader extends TimelineIO
     /**
      * Return an array of datagrams.
      * 
-     * @param numDatagrams the number of datagrams to read.
+     * @param nDatagrams the number of datagrams to read.
      * 
      * @return an array of datagrams; internally updates the time pointer.
      * 
      * @throws IOException
      */
-    protected Datagram[] getNextDatagrams( int numDatagrams ) throws IOException {
-        Datagram[] buff = new Datagram[numDatagrams];
-        for ( int i = 0; i < numDatagrams; i++ ) {
+    protected Datagram[] getNextDatagrams( int nDatagrams ) throws IOException {
+        Datagram[] buff = new Datagram[nDatagrams];
+        for ( int i = 0; i < nDatagrams; i++ ) {
             buff[i] = getNextDatagram();
         }
         return( buff );
