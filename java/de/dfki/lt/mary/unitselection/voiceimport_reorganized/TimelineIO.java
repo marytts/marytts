@@ -273,10 +273,10 @@ public class TimelineIO
         /**
          *  Method which loads the header from a RandomAccessFile.
          *  */
-        public long loadProcHeader( RandomAccessFile raf ) throws IOException {
-            long before = raf.getFilePointer();
-            procHeader = raf.readUTF();
-            long after = raf.getFilePointer();
+        public long loadProcHeader( RandomAccessFile rafIn ) throws IOException {
+            long before = rafIn.getFilePointer();
+            procHeader = rafIn.readUTF();
+            long after = rafIn.getFilePointer();
             return after-before;
         }
         
@@ -285,10 +285,10 @@ public class TimelineIO
          *  
          *  @return the number of written bytes.
          *  */
-        public long dump( RandomAccessFile raf ) throws IOException {
-            long before = raf.getFilePointer();
-            raf.writeUTF( procHeader );
-            long after = raf.getFilePointer();
+        public long dump( RandomAccessFile rafIn ) throws IOException {
+            long before = rafIn.getFilePointer();
+            rafIn.writeUTF( procHeader );
+            long after = rafIn.getFilePointer();
             return after-before;
         }
     }
@@ -357,14 +357,14 @@ public class TimelineIO
         /**
          * Method which loads an index from a data input (random access file or data input stream).
          * */
-        public void load( DataInput raf ) throws IOException {
-            int numIdx = raf.readInt();
-            idxInterval = raf.readInt();
+        public void load( DataInput rafIn ) throws IOException {
+            int numIdx = rafIn.readInt();
+            idxInterval = rafIn.readInt();
             
             field = new Vector( numIdx, INCREMENT_SIZE );
             int numBytesToRead = IdxField.numBytesOnDisk() * (numIdx + 1);
             byte[] data = new byte[numBytesToRead];
-            raf.readFully(data);
+            rafIn.readFully(data);
             DataInput bufIn = new DataInputStream(new ByteArrayInputStream(data));
             
             for( int i = 0; i < numIdx; i++ ) {
@@ -379,19 +379,19 @@ public class TimelineIO
         /**
          * Method which writes an index to a RandomAccessFile
          * */
-        public long dump( RandomAccessFile raf ) throws IOException {
+        public long dump( RandomAccessFile rafIn ) throws IOException {
             long nBytes = 0;
             int numIdx = getNumIdx();
-            raf.writeInt( numIdx );      nBytes += 4;
-            raf.writeInt( idxInterval ); nBytes += 4;
+            rafIn.writeInt( numIdx );      nBytes += 4;
+            rafIn.writeInt( idxInterval ); nBytes += 4;
             IdxField buffer = null;
             for( int i = 0; i < numIdx; i++ ) {
                 buffer = (IdxField)( field.elementAt(i) );
-                nBytes += buffer.write( raf );
+                nBytes += buffer.write( rafIn );
             }
             /* Register the "last datagram" memory as an additional field */
-            raf.writeLong(prevBytePos);
-            raf.writeLong(prevTimePos);
+            rafIn.writeLong(prevBytePos);
+            rafIn.writeLong(prevTimePos);
             nBytes += 16l;
             
             return( nBytes );
@@ -503,17 +503,17 @@ public class TimelineIO
          * @return
          */
         public IdxField getIdxFieldBefore( long timePosition ) {
-            int idx = (int)( timePosition / idxInterval ); /* <= This is an integer division between two longs,
+            int index = (int)( timePosition / idxInterval ); /* <= This is an integer division between two longs,
                                                             *    implying a flooring operation on the decimal result. */
             // System.out.println( "TIMEPOS=" + timePosition + " IDXINT=" + idxInterval + " IDX=" + idx );
             // System.out.flush();
-            if ( idx < 0 ) {
-                throw new RuntimeException( "Negative index field: [" + idx
+            if ( index < 0 ) {
+                throw new RuntimeException( "Negative index field: [" + index
                         + "] encountered when getting index before time=[" + timePosition
                         + "] (idxInterval=[" + idxInterval + "])." );
             }
-            if ( idx >= size ) { idx = size - 1; } // <= Protection against ArrayIndexOutOfBounds exception due to "time out of bounds"
-            return( (IdxField)( field.elementAt( idx ) ) );
+            if ( index >= size ) { index = size - 1; } // <= Protection against ArrayIndexOutOfBounds exception due to "time out of bounds"
+            return( (IdxField)( field.elementAt( index ) ) );
         }
     }
 
