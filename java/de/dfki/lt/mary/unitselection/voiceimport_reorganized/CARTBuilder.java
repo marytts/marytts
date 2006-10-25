@@ -206,10 +206,14 @@ public class CARTBuilder implements VoiceImportComponent {
     {
         try {
             //TODO: enter meaningful file names; probably get them from DatabaseLayout 
-            String featureDefFile = "enter Definition here";
-            String featureVectorsFile = "enter Definition here";
-            String cartFile = "enter Definition here";
-            String distanceTableFile = "enter Definition here";
+            String featureDefFile = databaseLayout.wagonDirName() + "/" 
+                                + databaseLayout.wagonDescFile();
+            String featureVectorsFile = databaseLayout.wagonDirName() + "/" 
+                                + databaseLayout.wagonFeatsFile();
+            String cartFile = databaseLayout.wagonDirName() + "/" 
+                                + databaseLayout.wagonCartFile();
+            String distanceTableFile = databaseLayout.wagonDirName() + "/" 
+                                + databaseLayout.wagonDistTabsFile();
             //dump the feature definitions
             PrintWriter out = new PrintWriter(new 
                 			FileOutputStream(new 
