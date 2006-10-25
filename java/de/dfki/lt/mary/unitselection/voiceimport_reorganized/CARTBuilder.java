@@ -205,7 +205,12 @@ public class CARTBuilder implements VoiceImportComponent {
     throws IOException
     {
         try {
-            //TODO: enter meaningful file names; probably get them from DatabaseLayout 
+            //create wagon dir if it does not exist
+            File wagonDir = new File(databaseLayout.wagonDirName());
+            if (!wagonDir.exists()){
+                wagonDir.mkdir();
+            }
+            //get the filenames for the various files used by wagon
             String featureDefFile = databaseLayout.wagonDirName() + "/" 
                                 + databaseLayout.wagonDescFile();
             String featureVectorsFile = databaseLayout.wagonDirName() + "/" 
