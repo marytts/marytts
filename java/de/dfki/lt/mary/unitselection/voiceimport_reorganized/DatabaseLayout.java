@@ -131,6 +131,13 @@ public class DatabaseLayout
         /* CART files */
         setIfDoesntExist( "db.cartsSubDir", System.getProperty("db.marySubDir") );
         
+        /* Wagon files */
+        setIfDoesntExist( "db.wagonSubDir", "wagon" ); 
+        setIfDoesntExist( "db.wagonDesc", "wagon.desc" );
+        setIfDoesntExist( "db.wagonFeats", "wagon.feats" );
+        setIfDoesntExist( "db.wagonDistTabs", "wagon.distTabs" );
+        setIfDoesntExist( "db.wagonCart", "wagon.cart" );
+        
         /* Other Mary files */
         setIfDoesntExist( "db.targetFeaturesBaseName", "unitFeatures" );
         setIfDoesntExist( "db.joinCostFeaturesBaseName", "joinCostFeatures" );
@@ -262,6 +269,24 @@ public class DatabaseLayout
     public String featSequenceFileName () {
         return ( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
                 + System.getProperty( "db.featuresequence.file") ); 
+    }
+    
+    /* Wagon files */
+    public String wagonDirName(){
+        return ( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
+            + System.getProperty( "db.wagonSubDir" ) );
+    }
+    public String wagonDescFile(){
+        return  System.getProperty( "db.wagonDesc" );
+    }
+    public String wagonFeatsFile(){
+        return  System.getProperty( "db.wagonFeats" );
+    }
+      public String wagonDistTabsFile(){
+        return  System.getProperty( "db.wagonDistTabs" );
+    }
+     public String wagonCartFile(){
+        return  System.getProperty( "db.wagonCart" );
     }
     
     /* MARY FILES */
