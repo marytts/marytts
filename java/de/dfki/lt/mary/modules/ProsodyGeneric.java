@@ -1333,7 +1333,9 @@ public class ProsodyGeneric extends InternalModule {
     /**
      * Insert a boundary after token, with the given tone and breakindex.
      * If a boundary element already exists after token (but before the
-     * following token), it is used.
+     * following token), it is reused, if both token and boundary have the 
+     * same parent node. In addition, if token is punctuation, a boundary 
+     * preceding token can be reused, if both have the same parent node.
      * When choosing between the values already given in the existing element
      * and the ones passed as arguments to this function, the higher /
      * more concrete values are taken:
@@ -1364,8 +1366,9 @@ public class ProsodyGeneric extends InternalModule {
                 boundary = prev;
             }
         }
-
-        if (boundary != null) { // there is a boundary tag after token
+        // Reuse a boundary tag if it has the same parent as the token
+        if (boundary != null
+            && boundary.getParentNode().equals(token.getParentNode())) {
             // the tone:
             if (tone != null) {
                 String tagTone = boundary.getAttribute("tone");
