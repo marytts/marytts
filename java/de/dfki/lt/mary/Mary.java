@@ -60,6 +60,7 @@ import org.apache.log4j.PatternLayout;
 import org.apache.log4j.WriterAppender;
 
 import de.dfki.lt.mary.modules.MaryModule;
+import de.dfki.lt.mary.modules.Synthesis;
 import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.util.MaryAudioUtils;
 
@@ -252,7 +253,8 @@ public class Mary {
         for (Iterator it = allModules.iterator(); it.hasNext();) {
             MaryModule m = (MaryModule) it.next();
             // Only start the modules here if in server mode: 
-            if (MaryProperties.getBoolean("server") && m.getState() == MaryModule.MODULE_OFFLINE) {
+            if ((MaryProperties.getBoolean("server") || m instanceof Synthesis) 
+                    && m.getState() == MaryModule.MODULE_OFFLINE) {
                 try {
                     m.startup();
                 } catch (Throwable t) {
@@ -456,8 +458,18 @@ public class Mary {
             new MaryServer().run();
         } else { // command-line mode
             startup();
-            MaryDataType inputType = MaryDataType.get(MaryProperties.getProperty("input.type"));
-            MaryDataType outputType = MaryDataType.get(MaryProperties.getProperty("output.type"));
+            String inputTypeName = MaryProperties.getProperty("input.type");
+            if (inputTypeName == null) {
+                inputTypeName = "TEXT_EN";
+                logger.warn("-Dinput.type not set! Assuming default -Dinput.type="+inputTypeName);
+            }
+            String outputTypeName = MaryProperties.getProperty("output.type");
+            if (outputTypeName == null) {
+                outputTypeName = "AUDIO";
+                logger.warn("-Doutput.type not set! Assuming default -Doutput.type="+outputTypeName);
+            }
+            MaryDataType inputType = MaryDataType.get(inputTypeName);
+            MaryDataType outputType = MaryDataType.get(outputTypeName);
             Voice voice = null;
             String voiceName = MaryProperties.getProperty("voice");
             if (voiceName != null)
@@ -466,8 +478,12 @@ public class Mary {
                 voice = Voice.getDefaultVoice(inputType.getLocale());
             AudioFileFormat audioFileFormat = null;
             if (outputType.equals(MaryDataType.get("AUDIO"))) {
-                AudioFileFormat.Type audioType = MaryAudioUtils.getAudioFileFormatType(
-                    MaryProperties.needProperty("audio.type"));
+                String audioTypeName = MaryProperties.getProperty("audio.type");
+                if (audioTypeName == null) {
+                    audioTypeName = "WAVE";
+                    logger.warn("-Daudio.type not set! Assuming default -Daudio.type="+audioTypeName);
+                }
+                AudioFileFormat.Type audioType = MaryAudioUtils.getAudioFileFormatType(audioTypeName);
                 AudioFormat audioFormat = null;
                 if (audioType.toString().equals("MP3")) {
                     if (!MaryAudioUtils.canCreateMP3())

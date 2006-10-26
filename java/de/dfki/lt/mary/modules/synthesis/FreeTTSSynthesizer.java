@@ -156,7 +156,7 @@ public class FreeTTSSynthesizer implements WaveformSynthesizer {
             for (int j = 0; j < va.length; j++) {
                 com.sun.speech.freetts.Voice freettsVoice = va[j];
                 logger.debug("Voice '" + freettsVoice + "'");
-                if (!freettsVoice.isLoaded()) {
+                if (MaryProperties.needAutoBoolean("freetts.lexicon.preload") && !freettsVoice.isLoaded()) {
                     logger.debug("...allocating");
                     freettsVoice.allocate();
                 }

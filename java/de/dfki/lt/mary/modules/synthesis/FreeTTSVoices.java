@@ -69,19 +69,22 @@ public class FreeTTSVoices
     private static Map freetts2maryVoices = null;
     private static Lexicon usenLexicon = null;
     private static Lexicon deLexicon = null;
+    
+    protected static Logger logger = Logger.getLogger("FreeTTSVoices");
+
 
     /**
      * Ascertain that the FreeTTS voices are loaded.
-     * This depends on the mary property "freetts.lexicon.preload" setting --
-     * if that results to false, nothing will be loaded; if the setting is missing,
+     * Whether the resources for them will also be allocated 
+     * depends on the mary property "freetts.lexicon.preload" setting --
+     * if that results to false, no resources will be loaded; if the setting is missing,
      * a NoSuchPropertyException will be thrown.
      * This method can safely be called more than once; any subsequent calls
      * will have no effect.
      */
     public static void load() throws NoSuchPropertyException
     {
-        if (mary2freettsVoices == null && MaryProperties.needAutoBoolean("freetts.lexicon.preload")) {
-            Logger logger = Logger.getLogger("FreeTTSVoices");
+        if (mary2freettsVoices == null) {
             logger.info("Loading US English FreeTTS voices...");
             // create all voices at startup time
             Collection maryVoices = de.dfki.lt.mary.modules.synthesis.Voice.
@@ -109,20 +112,19 @@ public class FreeTTSVoices
     public static void load(de.dfki.lt.mary.modules.synthesis.Voice maryVoice)
     throws NoSuchPropertyException
     {
-        if (mary2freettsVoices == null) mary2freettsVoices = new HashMap();
-        if (freetts2maryVoices == null) freetts2maryVoices = new HashMap();
         if (mary2freettsVoices.containsKey(maryVoice)) return; // already known
-        Lexicon voiceLexicon = null;
-        if (maryVoice instanceof UnitSelectionVoice) {
-            voiceLexicon = ((UnitSelectionVoice)maryVoice).getLexicon();
-        }
+        load(maryVoice, createFreeTTSVoice(maryVoice));
+    }
+       
+    /**
+     * Depending on the locale of the mary voice, create a suitable FreeTTS dummy voice.
+     * @param maryVoice
+     * @return a newly created FreeTTS dummy voice
+     */
+    private static DummyFreeTTSVoice createFreeTTSVoice(Voice maryVoice)
+    {
         DummyFreeTTSVoice freeTTSVoice;
         if (maryVoice.getLocale().equals(Locale.US)) {
-            if (!MaryProperties.needAutoBoolean("freetts.lexicon.preload")) return;
-            if (voiceLexicon == null) {
-                if (usenLexicon == null) usenLexicon = new CMULexicon("cmudict04");
-                voiceLexicon = usenLexicon;
-            }
             try {
                 freeTTSVoice = (DummyFreeTTSVoice) Class.forName("de.dfki.lt.mary.modules.en.DummyFreeTTSVoice").newInstance();
             } catch (InstantiationException e) {
@@ -133,24 +135,33 @@ public class FreeTTSVoices
                 throw new RuntimeException(e);
             }
             freeTTSVoice.initialise(maryVoice, null);
-        } else if (maryVoice.getLocale().equals(Locale.GERMAN)) {
-            if (voiceLexicon == null) {
-                if (deLexicon == null) deLexicon = new GermanLexicon();
-                voiceLexicon = deLexicon;
-            }
-            freeTTSVoice = new DummyFreeTTSVoice(maryVoice, null);
         } else {
             freeTTSVoice = new DummyFreeTTSVoice(maryVoice, null);
         }
-        freeTTSVoice.setLexicon(voiceLexicon);
-        freeTTSVoice.allocate();
-        mary2freettsVoices.put(maryVoice, freeTTSVoice);
-        freetts2maryVoices.put(freeTTSVoice, maryVoice);
-        Logger logger = Logger.getLogger("FreeTTSVoices");
-        logger.debug("added freetts voice for mary voice " + maryVoice.toString());
-
+        return freeTTSVoice;
     }
-        
+    
+    /**
+     * Depending on the maryVoice and its locale, associate an existing
+     * or create a new lexicon.
+     * @param maryVoice
+     * @return a Lexicon; if it was freshly created, it is not yet loaded.
+     */
+    private static Lexicon getLexicon(Voice maryVoice)
+    {
+        if (maryVoice instanceof UnitSelectionVoice) {
+            return ((UnitSelectionVoice)maryVoice).getLexicon();
+        }
+        if (maryVoice.getLocale().equals(Locale.US)) {
+            if (usenLexicon == null) usenLexicon = new CMULexicon("cmudict04");
+            return usenLexicon;
+        } else if (maryVoice.getLocale().equals(Locale.GERMAN)) {
+            if (deLexicon == null) deLexicon = new GermanLexicon();
+            return deLexicon;
+        }
+        return null;
+    }
+    
     /**
      * Add a given freetts voice for a given mary voice.
      * Repeated
@@ -165,29 +176,27 @@ public class FreeTTSVoices
     public static void load(de.dfki.lt.mary.modules.synthesis.Voice maryVoice, com.sun.speech.freetts.Voice freeTTSVoice)
     throws NoSuchPropertyException
     {
-        if (!MaryProperties.needAutoBoolean("freetts.lexicon.preload")) return;
         if (mary2freettsVoices == null) mary2freettsVoices = new HashMap();
         if (freetts2maryVoices == null) freetts2maryVoices = new HashMap();
         if (mary2freettsVoices.containsKey(maryVoice)) return; // already known
-        if (maryVoice.getLocale().equals(Locale.US)) {
-            if (freeTTSVoice.getLexicon() == null) {
-                if (usenLexicon == null) usenLexicon = new CMULexicon("cmudict04");
-                freeTTSVoice.setLexicon(usenLexicon);            
-            }
-        } else if (maryVoice.getLocale().equals(Locale.GERMAN)) {
-            if (deLexicon == null) deLexicon = new GermanLexicon();
-            freeTTSVoice.setLexicon(deLexicon);
+        if (freeTTSVoice.getLexicon() == null) {
+            Lexicon lex = getLexicon(maryVoice);
+            freeTTSVoice.setLexicon(lex);
         }
-        freeTTSVoice.allocate();
+        if (MaryProperties.needAutoBoolean("freetts.lexicon.preload") && !freeTTSVoice.isLoaded()) {
+            logger.debug("Allocating resources for voice "+freeTTSVoice.getName()+"...");
+            freeTTSVoice.allocate();
+            logger.debug("... done.");
+        }
         mary2freettsVoices.put(maryVoice, freeTTSVoice);
         freetts2maryVoices.put(freeTTSVoice, maryVoice);
-        Logger logger = Logger.getLogger("FreeTTSVoices");
         logger.debug("added freetts voice for mary voice " + maryVoice.toString());
 
     }
 
     /**
      * For a given MARY voice, get the corresponding FreeTTS voice.
+     * This method will load/allocate a voice if it had not been loaded before.
      * @throws NoSuchPropertyException if the property <code>freetts.lexicon.preload</code>
      * is not defined in the MARY properties file.
      */
@@ -196,33 +205,23 @@ public class FreeTTSVoices
     throws NoSuchPropertyException
     {
         if (maryVoice == null) {
-            maryVoice = de.dfki.lt.mary.modules.synthesis.Voice.
-                getDefaultVoice(Locale.US);
+            maryVoice = de.dfki.lt.mary.modules.synthesis.Voice.getDefaultVoice(Locale.US);
         }
-        if (MaryProperties.needAutoBoolean("freetts.lexicon.preload")) {
-            assert mary2freettsVoices != null; // called before startup()?
-            return (com.sun.speech.freetts.Voice) mary2freettsVoices.get(maryVoice);
-        } else {
-            DummyFreeTTSVoice voice;
-            // Special treatment for US English dummy voices,
-            // because FreeTTS provides US English synthesis:
-            if (maryVoice.getLocale().equals(Locale.US)) {
-                try {
-                    voice = (DummyFreeTTSVoice) Class.forName("de.dfki.lt.mary.modules.en.DummyFreeTTSVoice").newInstance();
-                } catch (InstantiationException e) {
-                    throw new RuntimeException(e);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                } catch (ClassNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
-                voice.initialise(maryVoice, "com.sun.speech.freetts.en.us.CMULexicon");
-            } else {
-                voice = new DummyFreeTTSVoice(maryVoice, null);
-            }
-            voice.allocate();
-            return voice;
+        assert mary2freettsVoices != null; // called before startup()?
+        com.sun.speech.freetts.Voice freeTTSVoice = (com.sun.speech.freetts.Voice) mary2freettsVoices.get(maryVoice);
+        if (freeTTSVoice == null) {
+            // need to create dummy freetts voice for mary voice 
+            load(maryVoice);
+            freeTTSVoice = (com.sun.speech.freetts.Voice) mary2freettsVoices.get(maryVoice);
         }
+        assert freeTTSVoice != null;
+        // At this stage, make sure the voice is loaded:
+        if (!freeTTSVoice.isLoaded()) {
+            logger.debug("Allocating resources for voice "+freeTTSVoice.getName()+"...");
+            freeTTSVoice.allocate();
+            logger.debug("... done.");
+        }
+        return freeTTSVoice;
     }
 
     /**
