@@ -4,7 +4,7 @@ Mary:             Modular
                   Research on
           speech sYnthesis
 
-     Release 3.0, February 2006
+     Release 3.0.3, October 2006
           Marc Schroeder, DFKI
 ----------------------------------------
 README
@@ -41,7 +41,7 @@ New in this release
 
 This is the first open source release of the MARY TTS system. Please be
 patient and constructive should you find any bugs. And do report them
-on the ticketing system at https://mary.opendfki.de !
+on the ticketing system at http://mary.opendfki.de !
 
 This release brings noticeable improvements over previous, closed-source
 releases, including:
