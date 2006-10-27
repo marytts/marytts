@@ -42,6 +42,20 @@ public class IntStringTranslator
         list.add(i, s);
     }
     
+    public boolean contains(String s)
+    {
+        int index = list.indexOf(s);
+        if (index == -1) return false;
+        return true;
+    }
+    
+    public boolean contains(int b)
+    {
+        int index = b;
+        if (index < 0 || index >= list.size()) return false;
+        return true;
+    }
+
     public int get(String s)
     {
         int index = list.indexOf(s);
@@ -51,7 +65,7 @@ public class IntStringTranslator
     
     public String get(int i)
     {
-        if (i < 0 || i > list.size())
+        if (i < 0 || i >= list.size())
             throw new IndexOutOfBoundsException("Int value out of range: "+i);
         return (String) list.get(i);
     }

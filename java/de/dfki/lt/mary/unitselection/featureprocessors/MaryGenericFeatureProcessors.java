@@ -286,6 +286,28 @@ public class MaryGenericFeatureProcessors
         }
     }
 
+    public static class LastWordNavigator implements TargetItemNavigator
+    {
+        public Item getItem(Target target)
+        {
+            Item segment = target.getItem();
+            if (segment == null) return null;
+            segment = segment.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (segment == null) return null;
+            Item syllable = segment.getParent();
+            if (syllable == null) return null;
+            Item word = syllable.getParent();
+            if (word == null) return null;
+            word = word.getItemAs(Relation.PHRASE);
+            if (word == null) return null;
+            Item phrase = word.getParent();
+            if (phrase == null) return null;
+            Item lastWord = phrase.getLastDaughter();
+            return lastWord;
+        }
+    }
+
+    
     public static class PhraseNavigator implements TargetItemNavigator
     {
         public Item getItem(Target target)
@@ -1066,7 +1088,49 @@ public class MaryGenericFeatureProcessors
   
   
     
-    
+    /**
+     * Determines the word punctuation. This is a feature processor. A feature
+     * processor takes an item, performs some sort of processing on the item and
+     * returns an object.
+     */
+    public static class WordPunc implements ByteValuedFeatureProcessor
+    {
+        protected String name;
+        protected TargetItemNavigator navigator;
+        protected ByteStringTranslator values;
+        
+        /**
+         * @param name name of this feature processor
+         * @param wordNavigator a navigator which returns a word for a target.
+         * This navigator decides the word for which the punctuation will be computed.
+         */
+        public WordPunc(String name, TargetItemNavigator wordNavigator)
+        {
+            this.name = name;
+            this.navigator = wordNavigator;
+            this.values = new ByteStringTranslator(new String[] {
+                    "0", ".", ",", ";", ":", "(", ")", "?", "!", "\""
+            });
+        }
+
+        public String getName() { return name; }
+        public String[] getValues() { return values.getStringValues(); }
+
+        public byte process(Target target)
+        {
+            Item word = navigator.getItem(target);
+            if (word == null) return values.get("0");
+            Item tokenWord = word.getItemAs(Relation.TOKEN);
+            if (tokenWord == null) return values.get("0");
+            Item token = tokenWord.getParent();
+            if (token == null) return values.get("0");
+            String punc = token.getFeatures().getString("punc");
+            if (values.contains(punc)) return values.get(punc);
+            // unknown punctuation: return "0"
+            return values.get("0");
+        }
+    }
+
     
     
     ////////////////////////////////////////////////////////
@@ -1077,46 +1141,6 @@ public class MaryGenericFeatureProcessors
 
 
 
-    /**
-     * Determines the word punctuation. This is a feature processor. A feature
-     * processor takes an item, performs some sort of processing on the item and
-     * returns an object.
-     */
-    public static class WordPunc implements ByteValuedFeatureProcessor
-    {
-        public String getName() { return "word_punc"; }
-        public String[] getValues() { return null; }
-
-        public byte process(Target target)
-        {
-            return 0;
-        }
-
-        /**
-         * Performs some processing on the given item.
-         * 
-         * @param word
-         *            the item to process
-         * 
-         * @return the punctuation for this word
-         * 
-         * @throws ProcessException
-         *             if an exception occurred during the processing
-         */
-        public String process(Item word) throws ProcessException
-        {
-            Item ww = word.getItemAs(Relation.TOKEN);
-            if (ww != null && ww.getNext() != null) {
-                return "";
-            } else {
-                if (ww != null && ww.getParent() != null) {
-                    return ww.getParent().getFeatures().getString("punc");
-                } else {
-                    return "";
-                }
-            }
-        }
-    }
 
     /**
      * Counts the number of phrases before this one. This is a feature

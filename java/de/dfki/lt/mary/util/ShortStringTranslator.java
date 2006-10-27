@@ -43,6 +43,20 @@ public class ShortStringTranslator
         list.add(b, s);
     }
     
+    public boolean contains(String s)
+    {
+        int index = list.indexOf(s);
+        if (index == -1) return false;
+        return true;
+    }
+    
+    public boolean contains(short b)
+    {
+        int index = (int) b;
+        if (index < 0 || index >= list.size()) return false;
+        return true;
+    }
+
     public short get(String s)
     {
         int index = list.indexOf(s);
@@ -53,7 +67,7 @@ public class ShortStringTranslator
     public String get(short b)
     {
         int index = (int) b;
-        if (index < 0 || index > list.size())
+        if (index < 0 || index >= list.size())
             throw new IndexOutOfBoundsException("Short value out of range: "+index);
         return (String) list.get(index);
     }

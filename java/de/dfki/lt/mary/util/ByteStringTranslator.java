@@ -43,6 +43,21 @@ public class ByteStringTranslator
         list.add(b, s);
     }
     
+    public boolean contains(String s)
+    {
+        int index = list.indexOf(s);
+        if (index == -1) return false;
+        return true;
+    }
+    
+    public boolean contains(byte b)
+    {
+        int index = (int) b;
+        if (index < 0 || index >= list.size()) return false;
+        return true;
+    }
+    
+    
     public byte get(String s)
     {
         int index = list.indexOf(s);
@@ -53,7 +68,7 @@ public class ByteStringTranslator
     public String get(byte b)
     {
         int index = (int) b;
-        if (index < 0 || index > list.size())
+        if (index < 0 || index >= list.size())
             throw new IndexOutOfBoundsException("Byte value out of range: "+index);
         return (String) list.get(index);
     }
