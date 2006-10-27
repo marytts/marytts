@@ -40,6 +40,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.log4j.Logger;
+import org.jsresources.AppendableSequenceAudioInputStream;
 import org.xml.sax.SAXException;
 
 import de.dfki.lt.mary.MaryData;
@@ -116,6 +118,17 @@ public abstract class SynthesisCallerBase extends InternalModule
             logger.info("No default voice associated with data. Assuming global default " +
                          defaultVoice.getName());
         }
+        
+        MaryData result = new MaryData(outputType());
+        result.setAudioFileFormat(d.getAudioFileFormat());
+        AudioFormat targetFormat = d.getAudioFileFormat().getFormat();
+        if (d.getAudio() != null) {
+            // This (empty) AppendableSequenceAudioInputStream object allows a 
+            // thread reading the audio data on the other "end" to get to our data as we are producing it.
+            assert d.getAudio() instanceof AppendableSequenceAudioInputStream;
+            result.setAudio(d.getAudio());
+        }
+        
         VoiceSectioner sectioner = null;
         if (MaryDataType.exists("FESTIVAL_UTT") && inputType().equals(MaryDataType.get("FESTIVAL_UTT"))) {
             sectioner = new FestivalUttSectioner(input, defaultVoice);
@@ -133,7 +146,6 @@ public abstract class SynthesisCallerBase extends InternalModule
                 commonAudioFormat = section.voice().dbAudioFormat();
         }
         // And second pass:
-        Vector audioInputStreams = new Vector();
         if (MaryDataType.exists("FESTIVAL_UTT") && inputType().equals(MaryDataType.get("FESTIVAL_UTT"))) {
             sectioner = new FestivalUttSectioner(input, defaultVoice);
         } else {
@@ -141,62 +153,35 @@ public abstract class SynthesisCallerBase extends InternalModule
         }
         section = null;
         while ((section = sectioner.nextSection()) != null) {
-            AudioInputStream ais = synthesiseOneSection
-                (section.text(), section.voice());
-            // Conversion required?
-            if (!ais.getFormat().equals(commonAudioFormat)) {
-                // Attempt conversion; if not supported, log a warning
-                // and provide the non-converted stream.
-                logger.info("Conversion required for voice " +
-                             section.voice().getName());
-                if (AudioSystem.isConversionSupported
-                    (commonAudioFormat, ais.getFormat())) {
-                    AudioInputStream intermedStream = AudioSystem.
-                        getAudioInputStream(commonAudioFormat, ais);
-                    ais = intermedStream;
-                } else { // conversion not supported
-                    logger.warn
-                        ("Conversion to common audio format " +
-                         commonAudioFormat +
-                         " not supported. Providing voice default instead: " +
-                         ais.getFormat());
-                }
+            AudioInputStream ais = synthesiseOneSection(section.text(), section.voice());
+            if (ais != null) {
+                // Conversion required?
+                ais = convertIfNeededAndPossible(ais, commonAudioFormat, section.voice().getName());
+                ais = convertIfNeededAndPossible(ais, targetFormat, section.voice().getName());
+                result.appendAudio(ais);
             }
-			audioInputStreams.add(ais);
         }
-        // Create a single audio input stream:
-        AudioInputStream singleStream = MaryAudioUtils.createSingleAudioInputStream(audioInputStreams);
 
-        // Conversion to target format needed?
-        // Attempt conversion; if not supported, log a warning
-        // and provide the non-converted stream.
-        AudioInputStream convertedStream = null;
-        AudioFormat targetFormat = d.getAudioFileFormat().getFormat();
-        if (targetFormat.matches(commonAudioFormat)) {
-            // requested audio format is the default format
-            logger.info("Conversion not required.");
-            convertedStream = singleStream;
-        } else { // conversion required
-            logger.info("Conversion required.");
-            if (AudioSystem.isConversionSupported
-                (targetFormat, commonAudioFormat)) {
-                convertedStream = AudioSystem.getAudioInputStream
-                    (targetFormat, singleStream);
-            } else { // conversion not supported
-                logger.warn("Requested audio format not supported: " +
-                            targetFormat +
-                            ". Providing default instead: " +
-                            commonAudioFormat);
-                convertedStream = singleStream;
-            }
-        }
-        MaryData result = new MaryData(MaryDataType.get("AUDIO"));
-        result.setAudioFileFormat(d.getAudioFileFormat());
-        result.readFrom(convertedStream, null);
         return result;
     }
     
-
+    protected AudioInputStream convertIfNeededAndPossible(AudioInputStream input, AudioFormat format, String voiceName)
+    {
+        if (input.getFormat().equals(format)) {
+            return input;
+        }
+        // Attempt conversion; if not supported, log a warning
+        // and provide the non-converted stream.
+        logger.info("Conversion required for voice " + voiceName);
+        if (AudioSystem.isConversionSupported(format, input.getFormat())) {
+            return  AudioSystem.getAudioInputStream(format, input);
+        }
+        // conversion not supported
+        logger.warn("Conversion to audio format " + format +
+                 " not supported. Providing voice default instead: " +
+                 input.getFormat());
+            return input;
+    }
 
     /**
      * Synthesise one chunk of synthesis markup with a given voice.
