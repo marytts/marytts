@@ -1,5 +1,7 @@
 package de.dfki.lt.mary.unitselection.featureprocessors;
 
+import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
+
 import java.io.DataOutput;
 import java.io.IOException;
 
@@ -112,6 +114,22 @@ public class FeatureVector
      */
     public int getFeatureAsInt( int index ) {
         return( getFeature( index ).intValue() );
+    }
+    
+    /**
+     * A wrapper to getFeature(), to get the result as an String value, e.g.,
+     * for subsequent System.out output.
+     * 
+     * @param index A feature index between 0 and getLength()-1.
+     * @param feaDef A FeatureDefinition object allowing to decode the feature value.
+     * @return The feature value, as a String.
+     * 
+     * @see FeatureVector#getFeature(int)
+     */
+    public String getFeatureAsString( int index, FeatureDefinition feaDef ) {
+        if (index < byteValuedDiscreteFeatures.length)
+            return feaDef.getFeatureValueAsString( index, byteValuedDiscreteFeatures[index] );
+        throw new IndexOutOfBoundsException();
     }
     
     /**
