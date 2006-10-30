@@ -47,6 +47,7 @@ import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 import de.dfki.lt.mary.unitselection.MCepTimelineReader;
 import de.dfki.lt.mary.unitselection.UnitFileReader;
+import de.dfki.lt.mary.unitselection.Datagram;
 import de.dfki.lt.mary.unitselection.MCepDatagram;
 
 import de.dfki.lt.mary.MaryProperties;
@@ -270,7 +271,7 @@ public class CARTBuilder implements VoiceImportComponent {
                     //dump the feature vectors
                     dumpFeatureVectors(featureVectors, featureDefinition,filePrefix+featureVectorsFile);
                     //dump the distance tables
-                    buildAndDumpDistanceTables(featureVectors,filePrefix+distanceTableFile);
+                    buildAndDumpDistanceTables(featureVectors,filePrefix+distanceTableFile,featureDefinition);
                     //call Wagon and store the process
                     wagonProcesses[index] = wagonCaller.callWagon(filePrefix+featureVectorsFile,filePrefix+distanceTableFile,filePrefix+cartFile);
                     //store the leaf we want to replace
@@ -289,7 +290,7 @@ public class CARTBuilder implements VoiceImportComponent {
                     //dump the feature vectors
                     dumpFeatureVectors(featureVectors, featureDefinition,featureVectorsFile);
                     //dump the distance tables
-                    buildAndDumpDistanceTables(featureVectors,distanceTableFile);
+                    buildAndDumpDistanceTables(featureVectors,distanceTableFile,featureDefinition);
                     //call Wagon
                     wagonCaller.callWagon(featureVectorsFile,distanceTableFile,cartFile);
                     //read in the resulting CART
@@ -366,7 +367,8 @@ public class CARTBuilder implements VoiceImportComponent {
      * @param featureVectors the feature vectors of the units
      * @param filename the filename
      */
-    public void buildAndDumpDistanceTables (FeatureVector[] featureVectors, String filename) throws FileNotFoundException {
+    public void buildAndDumpDistanceTables (FeatureVector[] featureVectors, String filename,
+            FeatureDefinition featDef ) throws FileNotFoundException {
         
         System.out.println( "Computing the distance matrix for file[" + filename + "]...");
         
@@ -399,15 +401,21 @@ public class CARTBuilder implements VoiceImportComponent {
         double N = 0.0;
         for ( int i = 0; i < numUnits; i++ ) {
             /* Read the datagrams for the current unit */
+            Datagram[] buff = null;
             MCepDatagram[] dat = null;
             try {
-                dat = (MCepDatagram[]) tlr.getDatagrams( ufr.getUnit(featureVectors[i].getUnitIndex()), ufr.getSampleRate() );
+                buff = tlr.getDatagrams( ufr.getUnit(featureVectors[i].getUnitIndex()), ufr.getSampleRate() );
+                dat = new MCepDatagram[buff.length];
+                for ( int d = 0; d < buff.length; d++ ) {
+                    dat[d] = (MCepDatagram)( buff[d] );
+                }
             }
             catch ( IOException e ) {
                 throw new RuntimeException( "Failed to read the datagrams for unit number [" + featureVectors[i].getUnitIndex()
                         + "] from the Mel-cepstrum timeline due to the following IOException: ", e );
             }
             N += (double)(dat.length); // Update the frame counter
+            melCep[i] = new double[dat.length][];
             for ( int j = 0; j < dat.length; j++ ) {
                 melCep[i][j] = dat[j].getCoeffsAsDouble();
                 /* Cumulate the sufficient statistics */
@@ -429,6 +437,13 @@ public class CARTBuilder implements VoiceImportComponent {
             dist[i][i] = 0.0; // <= Set the diagonal to 0.0
             for ( int j = 1; j < numUnits; j++ ) {
                 /* Get the DTW distance between the two sequences: */
+                System.out.println( "Entering DTW : "
+                        //+ featDef.getFeatureName( featureVectors[i].getByteFeature(featDef.getFeatureIndex("mary_phoneme")) )
+                        + featureVectors[i].getFeatureAsString( 0, featDef )
+                        + ".length=" + melCep[i].length + " ; "
+                        + featureVectors[j].getFeatureAsString( 0, featDef )
+                        + ".length=" + melCep[j].length + " ." );
+                System.out.flush();
                 dist[i][j] = dist[j][i] = dtwDist( melCep[i], melCep[j], sigma2 );
             } 
         }
