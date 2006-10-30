@@ -278,6 +278,8 @@ public class DatabaseImportMain extends JFrame
                 new UnitLabelComputer( db, bnl ),
                 new UnitFeatureComputer( db, bnl ),
                 
+                new SphinxLabelingPreparator( db, bnl ),
+                
                 new LabelFeatureAligner( db, bnl ),
                 new UnitfileWriter( db, bnl ),
                 new FeatureFileWriter( db, bnl ),
