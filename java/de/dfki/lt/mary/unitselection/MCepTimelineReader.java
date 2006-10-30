@@ -55,7 +55,7 @@ public class MCepTimelineReader extends TimelineReader
         ByteArrayInputStream bais = new ByteArrayInputStream(procHdr.getString().getBytes("latin1"));
         props.load(bais);
         ensurePresent(props, "mcep.order");
-        order = Integer.parseInt(props.getProperty("lpc.order"));
+        order = Integer.parseInt(props.getProperty("mcep.order"));
     }
     
     
