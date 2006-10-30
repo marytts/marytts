@@ -49,6 +49,8 @@ import de.dfki.lt.mary.unitselection.MCepTimelineReader;
 import de.dfki.lt.mary.unitselection.UnitFileReader;
 import de.dfki.lt.mary.unitselection.MCepDatagram;
 
+import de.dfki.lt.mary.MaryProperties;
+
 public class CARTBuilder implements VoiceImportComponent {
     
     private DatabaseLayout databaseLayout;
@@ -80,31 +82,28 @@ public class CARTBuilder implements VoiceImportComponent {
          //read in the feature sequence
          //open the file
          System.out.println("Reading feature sequence ...");
-//         String featSeqFile = databaseLayout.featSequenceFileName();
-//         BufferedReader buf = new BufferedReader(
-//                 new FileReader(new File(featSeqFile)));
-//         //each line contains one feature
-//         String line = buf.readLine();
-//         //collect features in a list
-//         List features = new ArrayList();
-//         while (line != null){
-//             // Skip empty lines and lines starting with #:
-//             if (!(line.trim().equals("") || line.startsWith("#"))){
-//                 features.add(line.trim());
-//             }
-//             line = buf.readLine();
-//         }
-//         //convert list to int array
-//         int[] featureSequence = new int[features.size()];
-//         for (int i=0;i<features.size();i++){
-//             featureSequence[i] = 
-//                 featureDefinition.getFeatureIndex((String)features.get(i));
-//         }
-//         System.out.println(" ... done!"); 
-//       
-         // TODO: THIS IS A HACK:
-         String[] featureSequence = { "mary_phoneme", "mary_stressed" };
-         
+         String featSeqFile = databaseLayout.featSequenceFileName();
+         BufferedReader buf = new BufferedReader(
+                 new FileReader(new File(featSeqFile)));
+         //each line contains one feature
+         String line = buf.readLine();
+         //collect features in a list
+         List features = new ArrayList();
+         while (line != null){
+             // Skip empty lines and lines starting with #:
+             if (!(line.trim().equals("") || line.startsWith("#"))){
+                 features.add(line.trim());
+             }
+             line = buf.readLine();
+         }
+         //convert list to int array
+         int[] featureSequence = new int[features.size()];
+         for (int i=0;i<features.size();i++){
+             featureSequence[i] = 
+                 featureDefinition.getFeatureIndex((String)features.get(i));
+         }
+       System.out.println(" ... done!"); 
+
          //sort the features according to feature sequence
          System.out.println("Sorting features ...");
          ffi.deepSort(featureSequence);
@@ -119,7 +118,7 @@ public class CARTBuilder implements VoiceImportComponent {
          System.out.println(" ... done!");
         
          //TODO: Write a dump method for the featureVectors; import and dump distance tables
-         //replaceLeaves(topLevelCART,featureDefinition);
+         replaceLeaves(topLevelCART,featureDefinition);
          
          //dump big CART to binary file
          String destinationFile = databaseLayout.cartFileName();
@@ -211,14 +210,12 @@ public class CARTBuilder implements VoiceImportComponent {
                 wagonDir.mkdir();
             }
             //get the filenames for the various files used by wagon
-            String featureDefFile = databaseLayout.wagonDirName() + "/" 
+            String wagonDirName = databaseLayout.wagonDirName();
+            String featureDefFile = wagonDirName + "/" 
                                 + databaseLayout.wagonDescFile();
-            String featureVectorsFile = databaseLayout.wagonDirName() + "/" 
-                                + databaseLayout.wagonFeatsFile();
-            String cartFile = databaseLayout.wagonDirName() + "/" 
-                                + databaseLayout.wagonCartFile();
-            String distanceTableFile = databaseLayout.wagonDirName() + "/" 
-                                + databaseLayout.wagonDistTabsFile();
+            String featureVectorsFile = databaseLayout.wagonFeatsFile();
+            String cartFile = databaseLayout.wagonCartFile();
+            String distanceTableFile = databaseLayout.wagonDistTabsFile();
             //dump the feature definitions
             PrintWriter out = new PrintWriter(new 
                 			FileOutputStream(new 
@@ -228,31 +225,86 @@ public class CARTBuilder implements VoiceImportComponent {
 
             //build new WagonCaller
             WagonCaller wagonCaller = new WagonCaller(featureDefFile);
-            
-            //go through the CART
-            FeatureVector[] featureVectors = 
-                cart.getNextFeatureVectors();
-            int index = 1;
-            while (featureVectors != null){
-                index++;
-                //dump the feature vectors
-                dumpFeatureVectors(featureVectors, featureDefinition,featureVectorsFile);
-                //dump the distance tables
-                buildAndDumpDistanceTables(featureVectors,distanceTableFile);
-                //call Wagon
-                wagonCaller.callWagon(featureVectorsFile,distanceTableFile,cartFile);
-                //read in the resulting CART
-                BufferedReader buf = new BufferedReader(
-                        new FileReader(new File(cartFile)));
-                CARTWagonFormat newCART = 
-                    new CARTWagonFormat(buf,featureDefinition);
-                //replace the leaf by the CART
-                cart.replaceLeafByCart(newCART);
-                //get the next featureVectors
-                featureVectors = 
-                    cart.getNextFeatureVectors();
+           
+            int numProcesses = 1;
+            String np = MaryProperties.getProperty("numProcesses");
+            if (np != null){
+                numProcesses = Integer.parseInt(np);
             }
-            
+            if (numProcesses > 1){
+                /* run several Wagon calls in parallel */
+                Process[] wagonProcesses = new Process[numProcesses];
+                CARTWagonFormat.LeafNode[] leaves = new CARTWagonFormat.LeafNode[numProcesses];
+                int index = 0;
+                //go through the CART
+                FeatureVector[] featureVectors = 
+                    cart.getNextFeatureVectors();
+                while (featureVectors != null){
+                    //reset index if out of array range
+                    if (index == wagonProcesses.length){
+                        index =0;
+                    }
+                    //determine if there is a process running
+                    if (!(wagonProcesses[index] == null)){
+                        //we already have a Process
+                        //determine the state of the Process
+                        Process p = wagonProcesses[index];
+                        try {
+                            p.exitValue();
+                            //the process has finished,
+                            //read in the resulting CART
+                            BufferedReader buf = new BufferedReader(
+                                new FileReader(new File(wagonDirName+"/"+index+"_"+cartFile)));
+                            CARTWagonFormat newCART = 
+                                new CARTWagonFormat(buf,featureDefinition);
+                            //replace the leaf by the CART
+                            cart.replaceLeafByCart(newCART,leaves[index]);
+                            //now we can start a new process in this slot
+                        } catch (IllegalThreadStateException e){
+                            //the process has not finished, try the next array slot
+                            index++;
+                            continue;
+                        }
+                    } 
+                    String filePrefix = wagonDirName+"/"+index+"_";
+                    //dump the feature vectors
+                    dumpFeatureVectors(featureVectors, featureDefinition,filePrefix+featureVectorsFile);
+                    //dump the distance tables
+                    buildAndDumpDistanceTables(featureVectors,filePrefix+distanceTableFile);
+                    //call Wagon and store the process
+                    wagonProcesses[index] = wagonCaller.callWagon(filePrefix+featureVectorsFile,filePrefix+distanceTableFile,filePrefix+cartFile);
+                    //store the leaf we want to replace
+                    leaves[index] = cart.getNextLeafToReplace();
+                    //get the next featureVectors
+                    featureVectors = 
+                        cart.getNextFeatureVectors();
+                    index++;
+                } 
+            } else {
+                /* call Wagon successively */
+                //go through the CART
+                FeatureVector[] featureVectors = 
+                    cart.getNextFeatureVectors();
+                while (featureVectors != null){
+                    //dump the feature vectors
+                    dumpFeatureVectors(featureVectors, featureDefinition,featureVectorsFile);
+                    //dump the distance tables
+                    buildAndDumpDistanceTables(featureVectors,distanceTableFile);
+                    //call Wagon
+                    wagonCaller.callWagon(featureVectorsFile,distanceTableFile,cartFile);
+                    //read in the resulting CART
+                    BufferedReader buf = new BufferedReader(
+                            new FileReader(new File(cartFile)));
+                    CARTWagonFormat newCART = 
+                        new CARTWagonFormat(buf,featureDefinition);
+                    //replace the leaf by the CART
+                    cart.replaceLeafByCart(newCART);
+                    //get the next featureVectors
+                    featureVectors = 
+                        cart.getNextFeatureVectors();    
+                }
+            }
+              
         } catch (IOException ioe) {
             IOException newIOE = new IOException("Error replacing leaves");
             newIOE.initCause(ioe);

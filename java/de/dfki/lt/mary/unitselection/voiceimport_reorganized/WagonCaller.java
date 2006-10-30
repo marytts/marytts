@@ -105,11 +105,11 @@ public class WagonCaller {
      * @param distanceTableFile the distance tables for the units
      * @param destinationFile the file to dump the tree to
      */
-    public void callWagon(String valueFile, 
+    public Process callWagon(String valueFile, 
             			String distanceTableFile,
             			String destinationFile){
         try {
-            Runtime.getRuntime().exec( ESTDIR + "/bin/wagon "
+            return Runtime.getRuntime().exec( ESTDIR + "/bin/wagon "
                 				+ "-desc " + featureDefFile
                 				+ " -data " + valueFile
                 				+ " -balance 0" 

@@ -50,6 +50,8 @@ import de.dfki.lt.mary.unitselection.Target;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 
+import de.dfki.lt.mary.unitselection.voiceimport_reorganized.MaryHeader;
+
 /**
  * This class can build a CART either reading from a text file or from a binary
  * file. The format is an extended Wagon format: A node looks like this:
@@ -69,12 +71,6 @@ import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 public class CARTWagonFormat implements CART {
 
     private Logger logger = Logger.getLogger("CARTWagonFormat");
-
-    private final static int MAGIC = 0x4d415259; // "MARY"
-
-    private final static int VERSION = 1;
-
-    private final static int CARTS = 1;
 
     private Node rootNode;
 
@@ -145,13 +141,14 @@ public class CARTWagonFormat implements CART {
         //System.out.println("Loading file");
         // open the CART-File and read the header
         DataInput raf = new DataInputStream(new BufferedInputStream(new FileInputStream(fileName)));
-        if (raf.readInt() != MAGIC) {
+        MaryHeader maryHeader = new MaryHeader(raf);
+        if (!maryHeader.hasLegalMagic()) {
             throw new IOException("No MARY database file!");
         }
-        if (raf.readInt() != VERSION) {
+        if (!maryHeader.hasCurrentVersion()) {
             throw new IOException("Wrong version of database file");
         }
-        if (raf.readInt() != CARTS) {
+        if (maryHeader.getType() != MaryHeader.CARTS) {
             throw new IOException("No CARTs file");
         }
         //System.out.println("Reading CART");
@@ -526,7 +523,27 @@ public class CARTWagonFormat implements CART {
         ((DecisionNode) lastMotherNode).replaceDaughter(cart.getRootNode(),
                 nextDaughterIndex);
     }
-
+   
+    /**
+     * In this tree, replace the given leaf with the given CART
+     * @param cart the CART
+     * @param leaf the leaf
+     */
+    public void replaceLeafByCart(CARTWagonFormat cart, LeafNode leaf){
+        DecisionNode mother = (DecisionNode) leaf.getMother();
+        mother.replaceDaughter(cart.getRootNode(),leaf.getNodeIndex());
+    }
+    
+    /**
+     * Get the next leaf that is to be replaced
+     * @return the leaf
+     */
+    public LeafNode getNextLeafToReplace(){
+        return (LeafNode) ((DecisionNode)lastMotherNode).getDaughter(nextDaughterIndex);
+    }
+   
+   
+    
     /**
      * Get the root node of this CART
      * 
@@ -695,7 +712,7 @@ public class CARTWagonFormat implements CART {
      * A decision node that determines the next Node to go to in the CART. All
      * decision nodes inherit from this class
      */
-    static abstract class DecisionNode extends Node {
+   static abstract class DecisionNode extends Node {
 
         // a decision node has an array of daughters
         protected Node[] daughters;
@@ -1189,7 +1206,7 @@ public class CARTWagonFormat implements CART {
     /**
      * The leaf of a CART.
      */
-    static class LeafNode extends Node {
+    public static class LeafNode extends Node {
 
         private int[] indices;
 
