@@ -31,7 +31,7 @@
  */
 package de.dfki.lt.mary.unitselection.voiceimport_reorganized;
 
-import java.io.IOException;
+import java.io.*;
 
 /**
  * Class to call Wagon
@@ -109,13 +109,28 @@ public class WagonCaller {
             			String distanceTableFile,
             			String destinationFile){
         try {
-            return Runtime.getRuntime().exec( ESTDIR + "/bin/wagon "
+            Process p = Runtime.getRuntime().exec( ESTDIR + "/bin/wagon "
                 				+ "-desc " + featureDefFile
                 				+ " -data " + valueFile
                 				+ " -balance 0" 
-                				+ " -dismatrix " + distanceTableFile
+                				+ " -distmatrix " + distanceTableFile
                 				+ " -stop 10"
                 				+ " -output " + destinationFile);
+            /**BufferedReader inbuf = new BufferedReader(
+                    new InputStreamReader(p.getInputStream()));
+            String line = inbuf.readLine();
+            while (line!=null){
+                System.out.println(line);
+                line = inbuf.readLine();
+            }
+            BufferedReader errbuf = new BufferedReader(
+                    new InputStreamReader(p.getErrorStream()));
+            line = errbuf.readLine();
+            while (line!=null){
+                System.out.println(line);
+                line = errbuf.readLine();
+            }**/
+            return p;
         } catch (IOException e){
             e.printStackTrace();
             throw new RuntimeException("Exception running wagon");
@@ -145,7 +160,7 @@ public class WagonCaller {
                 				+ "-desc " + featureDefFile
                 				+ " -data " + valueFile
                 				+ " -balance " + balance 
-                				+ " -dismatrix " + distanceTableFile
+                				+ " -distmatrix " + distanceTableFile
                 				+ " -stop " + stop 
                 				+ " -output " + destinationFile);
         } catch (IOException e){

@@ -276,7 +276,14 @@ public class CARTWagonFormat implements CART {
             // more than two brackets mean that this is
             // the last daughter of one or more nodes
             int length = lastToken.length();
-            int index = 3; // start looking at the characters after "0))"
+            //start looking at the characters after "0))"
+            int index = lastToken.indexOf(')')+2;
+                         
+            //check
+            if (lastToken.startsWith("0))") &&
+                    index != 3){
+                throw new Error("Index "+index+" is not 3 for "+lastToken);
+            }
 
             while (index < length) { // while we have more characters
                 char nextChar = lastToken.charAt(index);
@@ -306,9 +313,7 @@ public class CARTWagonFormat implements CART {
             }
             // for debugging
             int nodeIndex = nextNode.getNodeIndex();
-           if (!((DecisionNode) lastNode).hasMoreDaughters(nodeIndex + 1)) {
-                logger.debug("Node is last node, but has no closing brackets");
-            }
+           
 
         }
     }
@@ -967,7 +972,7 @@ public class CARTWagonFormat implements CART {
          */
         public BinaryByteDecisionNode(String feature, String value) {
             super(feature, 2);
-            this.value = featDef.getFeatureValueAsByte(value, feature);
+            this.value = featDef.getFeatureValueAsByte(feature,value);
         }
 
         /**
@@ -1017,7 +1022,7 @@ public class CARTWagonFormat implements CART {
          */
         public BinaryShortDecisionNode(String feature, String value) {
             super(feature, 2);
-            this.value = featDef.getFeatureValueAsShort(value, feature);
+            this.value = featDef.getFeatureValueAsShort(feature, value);
         }
 
         /**

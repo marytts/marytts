@@ -267,6 +267,7 @@ public class CARTBuilder implements VoiceImportComponent {
                             continue;
                         }
                     } 
+                    System.out.println("Starting process at slot "+index);
                     String filePrefix = wagonDirName+"/"+index+"_";
                     //dump the feature vectors
                     dumpFeatureVectors(featureVectors, featureDefinition,filePrefix+featureVectorsFile);
@@ -288,14 +289,14 @@ public class CARTBuilder implements VoiceImportComponent {
                     cart.getNextFeatureVectors();
                 while (featureVectors != null){
                     //dump the feature vectors
-                    dumpFeatureVectors(featureVectors, featureDefinition,featureVectorsFile);
+                    dumpFeatureVectors(featureVectors, featureDefinition,wagonDirName+"/"+featureVectorsFile);
                     //dump the distance tables
-                    buildAndDumpDistanceTables(featureVectors,distanceTableFile,featureDefinition);
+                    buildAndDumpDistanceTables(featureVectors,wagonDirName+"/"+distanceTableFile,featureDefinition);
                     //call Wagon
-                    wagonCaller.callWagon(featureVectorsFile,distanceTableFile,cartFile);
+                    wagonCaller.callWagon(wagonDirName+"/"+featureVectorsFile,wagonDirName+"/"+distanceTableFile,wagonDirName+"/"+cartFile);
                     //read in the resulting CART
                     BufferedReader buf = new BufferedReader(
-                            new FileReader(new File(cartFile)));
+                            new FileReader(new File(wagonDirName+"/"+cartFile)));
                     CARTWagonFormat newCART = 
                         new CARTWagonFormat(buf,featureDefinition);
                     //replace the leaf by the CART
@@ -438,13 +439,21 @@ public class CARTBuilder implements VoiceImportComponent {
             for ( int j = 1; j < numUnits; j++ ) {
                 /* Get the DTW distance between the two sequences: */
                 System.out.println( "Entering DTW : "
-                        //+ featDef.getFeatureName( featureVectors[i].getByteFeature(featDef.getFeatureIndex("mary_phoneme")) )
+                        + featDef.getFeatureName( 0 ) + " "
                         + featureVectors[i].getFeatureAsString( 0, featDef )
                         + ".length=" + melCep[i].length + " ; "
                         + featureVectors[j].getFeatureAsString( 0, featDef )
                         + ".length=" + melCep[j].length + " ." );
                 System.out.flush();
-                dist[i][j] = dist[j][i] = dtwDist( melCep[i], melCep[j], sigma2 );
+                if (melCep[i].length<3 || melCep[j].length<3){
+                    dist[i][j] = dist[j][i] = euclidian(melCep[i],melCep[j]);
+                    System.out.println("Using Euclidean distance\n"+
+                            			"Distance is "+dist[i][j]);
+                } else {
+                    dist[i][j] = dist[j][i] = dtwDist( melCep[i], melCep[j], sigma2 );
+                    System.out.println("Using Mahalanobis distance\n"+
+                            			"Distance is "+dist[i][j]);
+                }
             } 
         }
         /* Write the matrix to disk */
@@ -484,7 +493,7 @@ public class CARTBuilder implements VoiceImportComponent {
      * @param sigma2 The variance of the vectors.
      * @return The average Mahalanobis distance along the optimal DTW path.
      */
-    double dtwDist( double[][] seq1, double[][] seq2, double[] sigma2 ) {
+    private double dtwDist( double[][] seq1, double[][] seq2, double[] sigma2 ) {
         double[][] d = new double[seq1.length][seq2.length];
         double[][] D = new double[seq1.length][seq2.length];
         int[][] Nd = new int[seq1.length][seq2.length]; // <= Number of cumulated distances, for the final averaging
@@ -500,10 +509,18 @@ public class CARTBuilder implements VoiceImportComponent {
         /* Compute the optimal DTW distance: */
         /* - 1st row/column: */
         D[0][0] = 2*d[0][0];
-        for ( int i = 1; i < seq1.length; i++ ) {
+        /**for ( int i = 1; i < seq1.length; i++ ) {
             D[i][0] = d[i][0];
             D[0][i] = d[0][i];
             Nd[0][i] = Nd[i][0] = 1;
+        }**/
+        for ( int i = 1; i < seq1.length; i++ ) {
+            D[i][0] = d[i][0];
+            Nd[i][0] = 1;
+        } 
+        for ( int i = 1; i < seq2.length; i++ ) {
+                D[0][i] = d[0][i];
+                Nd[0][i] = 1;
         }
         /* - 2nd row/column: */
         /* corner: i==1, j==1 */
@@ -515,8 +532,9 @@ public class CARTBuilder implements VoiceImportComponent {
         D[1][1] = minV[minIdx];
         Nd[1][1] = minNd[minIdx];
         /* 2nd row: j==1 ; 2nd col: i==1 */
+        /**
         for ( int i = 2; i < seq1.length; i++ ) {
-            /* Row: */
+            // Row: 
             minV[0] = D[i-2][0] + 2*d[i-1][1] + d[i][1];  minNd[0] = Nd[i-2][0] + 3;
             minV[1] = D[i-1][0] + 2*d[i][1];              minNd[1] = Nd[i-1][0] + 2;
             minV[2] = 2*d[i][0] + d[i][1];                minNd[2] = 3;
@@ -524,7 +542,27 @@ public class CARTBuilder implements VoiceImportComponent {
             minIdx = minV[2] < minV[minIdx] ? 2 : minIdx;
             D[i][1] = minV[minIdx];
             Nd[i][1] = minNd[minIdx];
-            /* Column: */
+            // Column: 
+            minV[0] = 2*d[0][i] + d[1][i];                minNd[0] = 3;
+            minV[1] = D[0][i-1] + 2*d[1][i];              minNd[1] = Nd[0][i-1] + 2;
+            minV[2] = D[0][i-2] + 2*d[1][i-1] + d[1][i];  minNd[2] = Nd[0][i-2] + 3;
+            minIdx = minV[0] < minV[1] ? 0 : 1;
+            minIdx = minV[2] < minV[minIdx] ? 2 : minIdx;
+            D[1][i] = minV[minIdx];
+            Nd[1][i] = minNd[minIdx];
+        } **/
+        for ( int i = 2; i < seq1.length; i++ ) {
+            // Row: 
+            minV[0] = D[i-2][0] + 2*d[i-1][1] + d[i][1];  minNd[0] = Nd[i-2][0] + 3;
+            minV[1] = D[i-1][0] + 2*d[i][1];              minNd[1] = Nd[i-1][0] + 2;
+            minV[2] = 2*d[i][0] + d[i][1];                minNd[2] = 3;
+            minIdx = minV[0] < minV[1] ? 0 : 1;
+            minIdx = minV[2] < minV[minIdx] ? 2 : minIdx;
+            D[i][1] = minV[minIdx];
+            Nd[i][1] = minNd[minIdx];
+            }
+        for ( int i = 2; i < seq2.length; i++ ) {
+            // Column: 
             minV[0] = 2*d[0][i] + d[1][i];                minNd[0] = 3;
             minV[1] = D[0][i-1] + 2*d[1][i];              minNd[1] = Nd[0][i-1] + 2;
             minV[2] = D[0][i-2] + 2*d[1][i-1] + d[1][i];  minNd[2] = Nd[0][i-2] + 3;
@@ -557,7 +595,7 @@ public class CARTBuilder implements VoiceImportComponent {
      * @param sigma2 The variance of the distribution of the considered feature vectors.
      * @return The mahalanobis distance between v1 and v2.
      */
-    double mahalanobis( double[] v1, double[] v2, double[] sigma2 ) {
+    private double mahalanobis( double[] v1, double[] v2, double[] sigma2 ) {
         double sum = 0.0;
         double diff = 0.0;
         for ( int i = 0; i < v1.length; i++ ) {
@@ -565,6 +603,21 @@ public class CARTBuilder implements VoiceImportComponent {
             sum += ( (diff*diff) / sigma2[i] );
         }
         return( sum );
+    }
+    
+    private double euclidian (double[][] unit1, double[][] unit2 ){
+        double dist = 0.0;
+        if (! (unit1.length == unit2.length) && (unit1.length == 1)){
+            //we have a problem
+            System.out.println("Problem calculating Eucledian distance");
+        } else {
+            for (int i=0;i<unit1[0].length;i++){
+                double c = unit1[0][i]-unit2[0][i];
+                dist += c*c;
+            }
+            dist = Math.sqrt(dist);
+        }
+        return dist;
     }
     
 }
