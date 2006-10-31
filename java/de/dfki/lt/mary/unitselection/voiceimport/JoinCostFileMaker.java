@@ -122,7 +122,7 @@ public class JoinCostFileMaker implements VoiceImportComponent {
         /* Make a new mary header and ouput it */
         MaryHeader hdr = new MaryHeader( MaryHeader.JOINFEATS );
         try {
-            hdr.write( jcf );
+            hdr.writeTo( jcf );
         }
         catch ( IOException e ) {
             throw new RuntimeException( "An IOException happened when writing the Mary header to the Join Cost file.", e );

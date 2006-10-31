@@ -45,6 +45,8 @@ import de.dfki.lt.mary.unitselection.MaryNode;
 import de.dfki.lt.mary.unitselection.cart.CARTWagonFormat;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
+import de.dfki.lt.mary.unitselection.FeatureArrayIndexer;
+import de.dfki.lt.mary.unitselection.FeatureFileReader;
 import de.dfki.lt.mary.unitselection.MCepTimelineReader;
 import de.dfki.lt.mary.unitselection.UnitFileReader;
 import de.dfki.lt.mary.unitselection.Datagram;
@@ -75,11 +77,12 @@ public class CARTBuilder implements VoiceImportComponent {
          //read in the features with feature file indexer
          System.out.println("Reading feature file ...");
          String featureFile = databaseLayout.targetFeaturesFileName();
-         FeatureFileIndexer ffi = new FeatureFileIndexer(featureFile);
+         FeatureFileReader ffr = FeatureFileReader.getFeatureFileReader(featureFile);
+         FeatureVector[] featureVectors = ffr.getCopyOfFeatureVectors();
+         FeatureDefinition featureDefinition = ffr.getFeatureDefinition();
+         FeatureArrayIndexer fai = new FeatureArrayIndexer(featureVectors, featureDefinition);
          System.out.println(" ... done!");
         
-         FeatureDefinition featureDefinition = ffi.getFeatureDefinition();
-         
          //read in the feature sequence
          //open the file
          System.out.println("Reading feature sequence ...");
@@ -107,15 +110,15 @@ public class CARTBuilder implements VoiceImportComponent {
 
          //sort the features according to feature sequence
          System.out.println("Sorting features ...");
-         ffi.deepSort(featureSequence);
+         fai.deepSort(featureSequence);
          System.out.println(" ... done!");
          //get the resulting tree
-         MaryNode topLevelTree = ffi.getTree();
+         MaryNode topLevelTree = fai.getTree();
          //topLevelTree.toStandardOut(ffi);
          
          //convert the top-level CART to Wagon Format
          System.out.println("Building CART from tree ...");
-         CARTWagonFormat topLevelCART = new CARTWagonFormat(topLevelTree,ffi);
+         CARTWagonFormat topLevelCART = new CARTWagonFormat(topLevelTree,fai);
          System.out.println(" ... done!");
         
          //TODO: Write a dump method for the featureVectors; import and dump distance tables
@@ -177,7 +180,7 @@ public class CARTBuilder implements VoiceImportComponent {
                 FileOutputStream(destFile)));
         //create new CART-header and write it to output file
         MaryHeader hdr = new MaryHeader(MaryHeader.CARTS);
-        hdr.write(out);
+        hdr.writeTo(out);
 
         //write number of nodes
         out.writeInt(cart.getNumNodes());

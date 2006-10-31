@@ -30,12 +30,15 @@ package de.dfki.lt.mary.unitselection.voiceimport;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 
 import de.dfki.lt.mary.unitselection.FeatureFileReader;
 import de.dfki.lt.mary.unitselection.UnitFileReader;
@@ -70,13 +73,45 @@ public class FeatureFileWriter implements VoiceImportComponent
         featureFile = new File( db.targetFeaturesFileName() );
         unitFileReader = new UnitFileReader( db.unitFileName() );
         unitfeatureDir = new File(db.unitFeaDirName());
-        File weightsFile = new File(db.weightsFileName());
-        featureDefinition = new FeatureDefinition(new BufferedReader(new InputStreamReader(new FileInputStream(weightsFile), "UTF-8")), true); // true: read weights
+        readFeatureDefinition();
+        assert featureDefinition != null : "Feature definition not set!";
 
         DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(featureFile)));
-        new MaryHeader(MaryHeader.TARGETFEATS).write(out);
-        featureDefinition.writeBinary(out);
-        
+        writeHeaderTo(out);
+        writeUnitFeaturesTo(out);
+        out.close();
+        System.out.println("Number of processed units: " + unitFileReader.getNumberOfUnits() );
+
+        FeatureFileReader tester = FeatureFileReader.getFeatureFileReader(db.targetFeaturesFileName());
+        int unitsOnDisk = tester.getNumberOfUnits();
+        if (unitsOnDisk == unitFileReader.getNumberOfUnits()) {
+            System.out.println("Can read right number of units");
+            return true;
+        } else {
+            System.out.println("Read wrong number of units: "+unitsOnDisk);
+            return false;
+        }
+    }
+
+
+
+    /**
+     * Read a feature definition from a file.
+     * @throws IOException
+     */
+    protected void readFeatureDefinition() throws IOException
+    {
+        File weightsFile = new File(db.weightsFileName());
+        featureDefinition = new FeatureDefinition(new BufferedReader(new InputStreamReader(new FileInputStream(weightsFile), "UTF-8")), true); // true: read weights
+    }
+    
+    /**
+     * @param out
+     * @throws IOException
+     * @throws UnsupportedEncodingException
+     * @throws FileNotFoundException
+     */
+    protected void writeUnitFeaturesTo(DataOutput out) throws IOException, UnsupportedEncodingException, FileNotFoundException {
         int numUnits = unitFileReader.getNumberOfUnits();
         out.writeInt( numUnits );
         int index = 0; // the unique index number of units in the unit file
@@ -110,7 +145,7 @@ public class FeatureFileWriter implements VoiceImportComponent
                         +index+" should correspond to start of file "+bnl.getName(i)
                         +", but is not an edge unit!");
             }
-            start.write(out);
+            start.writeTo(out);
             index++;
             // Check the index consistency
             if ( index > numUnits ) {
@@ -126,7 +161,7 @@ public class FeatureFileWriter implements VoiceImportComponent
                             +index+" should correspond to feature line '"+line+"' of file "+bnl.getName(i)
                             +", but is an edge unit!");
                 }
-                fv.write(out);
+                fv.writeTo(out);
                 index++;
             }
             // Check the index consistency
@@ -139,23 +174,21 @@ public class FeatureFileWriter implements VoiceImportComponent
                         +index+" should correspond to end of file "+bnl.getName(i)
                         +", but is not an edge unit!");
             }
-            end.write(out);
+            end.writeTo(out);
             index++;
             System.out.println( "Exiting at index (" + index + ")." );
             System.out.flush();
         }
-        out.close();
-        System.out.println("Number of processed units: " + unitFileReader.getNumberOfUnits() );
+    }
 
-        FeatureFileReader tester = new FeatureFileReader(db.targetFeaturesFileName());
-        int unitsOnDisk = tester.getNumberOfUnits();
-        if (unitsOnDisk == unitFileReader.getNumberOfUnits()) {
-            System.out.println("Can read right number of units");
-            return true;
-        } else {
-            System.out.println("Read wrong number of units: "+unitsOnDisk);
-            return false;
-        }
+    /**
+     * Write the header of this feature file to the given DataOutput
+     * @param out
+     * @throws IOException
+     */
+    protected void writeHeaderTo(DataOutput out) throws IOException {
+        new MaryHeader(MaryHeader.UNITFEATS).writeTo(out);
+        featureDefinition.writeBinaryTo(out);
     }
 
     /**

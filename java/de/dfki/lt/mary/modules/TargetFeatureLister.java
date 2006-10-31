@@ -81,13 +81,7 @@ public class TargetFeatureLister extends InternalModule
             Utterance utt = (Utterance)uttList.get(i);
             // Create target chain for the utterance
             Relation segs = utt.getRelation(Relation.SEGMENT);
-            List targets = new ArrayList();
-            for (Item s = segs.getHead(); s != null; s = s.getNext()) {
-                String segName = s.getFeatures().getString("name");
-                // Not sure if this is needed:
-                s.getFeatures().setString("clunit_name", segName);
-                targets.add(new Target(segName, s));
-            }
+            List targets = createTargets(segs);
             // create target feature string for the target chain
             for (int j=0, nTargets = targets.size(); j<nTargets; j++) {
                 Target target = (Target) targets.get(j);
@@ -103,5 +97,21 @@ public class TargetFeatureLister extends InternalModule
         MaryData result = new MaryData(outputType());
         result.setPlainText(out);
         return result;
+    }
+
+    /**
+     * Create the list of targets from the Segments in the utterance.
+     * @param segs the Segment relation
+     * @return a list of Target objects
+     */
+    protected List createTargets(Relation segs) {
+        List targets = new ArrayList();
+        for (Item s = segs.getHead(); s != null; s = s.getNext()) {
+            String segName = s.getFeatures().getString("name");
+            // Not sure if this is needed:
+            //s.getFeatures().setString("clunit_name", segName);
+            targets.add(new Target(segName, s));
+        }
+        return targets;
     }
 }

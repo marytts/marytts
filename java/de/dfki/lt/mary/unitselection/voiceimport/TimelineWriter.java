@@ -92,7 +92,7 @@ public class TimelineWriter extends TimelineIO {
         try {
             /* Make a new Mary header and write it */
             maryHdr = new MaryHeader( MaryHeader.TIMELINE );
-            maryHdr.write( raf );
+            maryHdr.writeTo( raf );
             
             /* Make a new processing header and write it */
             procHdr = new ProcHeader( procHdrString );

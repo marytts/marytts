@@ -233,7 +233,7 @@ public class FeatureVector
      * representation of the feature vector. 
      * @return
      */
-    public void write(DataOutput out) throws IOException
+    public void writeTo(DataOutput out) throws IOException
     {
         if (byteValuedDiscreteFeatures != null) {
             out.write(byteValuedDiscreteFeatures);

@@ -39,6 +39,7 @@ public class FeatureProcessorManager extends
                 +MaryProperties.needFilename("english.freetts.phoneSetFile"));
             PhoneSet phoneSet  = new PhoneSetImpl(phoneSetURL);
             
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.HalfPhoneUnitName(phoneSet));
             // Phonetic features of the current segment:
             String[] phonemes = phoneSet.listPhonemes();
             String[] phonemeValues = new String[phonemes.length+1];

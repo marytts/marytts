@@ -23,6 +23,7 @@ public class FeatureProcessorManager
         MaryGenericFeatureProcessors.TargetItemNavigator lastWord = new MaryGenericFeatureProcessors.LastWordNavigator();
 
         addFeatureProcessor(new MaryGenericFeatureProcessors.Edge());
+        addFeatureProcessor(new MaryGenericFeatureProcessors.HalfPhoneLeftRight());
         addFeatureProcessor(new MaryGenericFeatureProcessors.Accented("mary_accented", syllable));
         addFeatureProcessor(new MaryGenericFeatureProcessors.Stressed("mary_stressed", syllable));
         addFeatureProcessor(new MaryGenericFeatureProcessors.Stressed("mary_prev_stressed", prevSyllable));

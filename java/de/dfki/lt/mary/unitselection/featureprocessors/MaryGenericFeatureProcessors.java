@@ -5,6 +5,7 @@ import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.ProcessException;
 import com.sun.speech.freetts.Relation;
 
+import de.dfki.lt.mary.unitselection.HalfPhoneTarget;
 import de.dfki.lt.mary.unitselection.Target;
 import de.dfki.lt.mary.util.ByteStringTranslator;
 
@@ -352,7 +353,10 @@ public class MaryGenericFeatureProcessors
         return val > 19 ? 19 : val;
     }
 
-    
+
+    /**
+     * Indicate whether a unit is an edge unit, which is never the case for a target.
+     */
     public static class Edge implements ByteValuedFeatureProcessor
     {
         public String getName() { return "mary_edge"; }
@@ -369,6 +373,37 @@ public class MaryGenericFeatureProcessors
             return (byte)0;
         }
         
+    }
+
+    /**
+     * Is the given half phone target a left or a right half?
+     * @author Marc Schr&ouml;der
+     *
+     */
+    public static class HalfPhoneLeftRight implements ByteValuedFeatureProcessor
+    {
+        protected ByteStringTranslator values;
+        protected TargetItemNavigator navigator;
+        /**
+         * Initialise a HalfPhoneLeftRight feature processor. 
+         */
+        public HalfPhoneLeftRight()
+        {
+            this.values = new ByteStringTranslator(new String[] {
+                    "0", "L", "R"
+            });
+            this.navigator = new SegmentNavigator();
+        }
+        public String getName() { return "mary_halfphone_lr"; }
+        public String[] getValues() { return values.getStringValues(); }
+        public byte process(Target target)
+        {
+            if (!(target instanceof HalfPhoneTarget))
+                throw new IllegalArgumentException("This feature processor should only be called for half-phone unit targets!");
+            HalfPhoneTarget hpTarget = (HalfPhoneTarget) target;
+            String value = (hpTarget.isLeftHalf() ? "L" : "R");
+            return values.get(value);
+        }
     }
 
     /**
