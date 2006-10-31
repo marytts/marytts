@@ -56,13 +56,14 @@ public class Target
     protected float duration = -1;
     protected Logger logger;
     protected int isSilence =-1;
-        
-    public Target(String name)
-    {
-        logger = Logger.getLogger("Target");
-        this.name = name;
-    }
-    
+
+    /**
+     * Create a target associated to the given segment item.
+     * @param name a name for the target, which may or may not
+     * coincide with the segment name.
+     * @param item the phone segment item in the Utterance structure,
+     * to be associated to this target 
+     */
     public Target(String name, Item item)
     {
         logger = Logger.getLogger("Target");

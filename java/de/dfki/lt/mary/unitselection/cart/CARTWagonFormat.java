@@ -44,6 +44,7 @@ import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
 
+import de.dfki.lt.mary.unitselection.FeatureArrayIndexer;
 import de.dfki.lt.mary.unitselection.FeatureFileIndexer;
 import de.dfki.lt.mary.unitselection.MaryNode;
 import de.dfki.lt.mary.unitselection.Target;
@@ -321,7 +322,7 @@ public class CARTWagonFormat implements CART {
      * @param ffi
      *            the feature file indexer containing the feature vectors
      */
-    public CARTWagonFormat(MaryNode tree, FeatureFileIndexer ffi) {
+    public CARTWagonFormat(MaryNode tree, FeatureArrayIndexer ffi) {
         featDef = ffi.getFeatureDefinition();
         numNodes = 0;
         addDaughters(null, tree, ffi);
@@ -338,7 +339,7 @@ public class CARTWagonFormat implements CART {
      *            the feature file indexer containing the feature vectors
      */
     private void addDaughters(DecisionNode motherCARTNode,
-            MaryNode currentTreeNode, FeatureFileIndexer ffi) {
+            MaryNode currentTreeNode, FeatureArrayIndexer ffi) {
         numNodes++;
         if (currentTreeNode == null) {
             motherCARTNode.addDaughter(null);

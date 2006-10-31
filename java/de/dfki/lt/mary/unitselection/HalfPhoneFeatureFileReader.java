@@ -37,37 +37,21 @@ import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 import de.dfki.lt.mary.unitselection.voiceimport.MaryHeader;
 
-public class FeatureFileReader
+public class HalfPhoneFeatureFileReader extends FeatureFileReader
 {
-    protected MaryHeader hdr;
-    protected FeatureDefinition featureDefinition;
-    protected FeatureVector[] featureVectors;
-    
-    
-    public static FeatureFileReader getFeatureFileReader(String fileName) throws IOException
+    protected FeatureDefinition leftWeights;
+    protected FeatureDefinition rightWeights;
+
+    public HalfPhoneFeatureFileReader()
     {
-        int fileType = MaryHeader.peekFileType(fileName);
-        if (fileType == MaryHeader.UNITFEATS)
-            return new FeatureFileReader(fileName);
-        else if (fileType == MaryHeader.HALFPHONE_UNITFEATS)
-            return new HalfPhoneFeatureFileReader(fileName);
-        throw new IOException("File "+fileName+": Type "+fileType+" is not a known unit feature file type");
+        super();
     }
-    
-    
-    /**
-     * Empty constructor; need to call load() separately when using this.
-     * @see load(String)
-     */
-    public FeatureFileReader()
+
+    public HalfPhoneFeatureFileReader(String fileName) throws IOException
     {
+        super(fileName);
     }
-    
-    public FeatureFileReader( String fileName ) throws IOException
-    {
-        load(fileName);
-    }
-    
+
     public void load(String fileName) throws IOException
     {
         /* Open the file */
@@ -78,53 +62,19 @@ public class FeatureFileReader
         if ( !hdr.isMaryHeader() ) {
             throw new IOException( "File [" + fileName + "] is not a valid Mary format file." );
         }
-        if ( hdr.getType() != MaryHeader.UNITFEATS ) {
-            throw new IOException( "File [" + fileName + "] is not a valid Mary Features file." );
+        if ( hdr.getType() != MaryHeader.HALFPHONE_UNITFEATS ) {
+            throw new IOException( "File [" + fileName + "] is not a valid Mary Halfphone Features file." );
         }
-        featureDefinition = new FeatureDefinition(dis);
+        leftWeights = new FeatureDefinition(dis);
+        rightWeights = new FeatureDefinition(dis);
+        assert leftWeights.featureEquals(rightWeights) :
+            "Halfphone unit feature file contains incompatible feature definitions for left and right units -- this should not happen!";
+        featureDefinition = leftWeights; // one of them, for super class
         int numberOfUnits = dis.readInt();
         featureVectors = new FeatureVector[numberOfUnits];
         for (int i=0; i<numberOfUnits; i++) {
             featureVectors[i] = featureDefinition.readFeatureVector(i,dis);
         }
     }
-    
 
-    /**
-     * Get the unit feature vector for the given unit index number. 
-     * @param unitIndex the absolute index number of a unit in the database
-     * @return the corresponding feature vector
-     */
-    public FeatureVector getFeatureVector(int unitIndex)
-    {
-        return featureVectors[unitIndex];
-    }
-    
-    /**
-     * Return a shallow copy of the array of feature vectors.
-     * @return a new array containing the internal feature vectors
-     */
-    public FeatureVector[] getCopyOfFeatureVectors()
-    {
-       return (FeatureVector[]) featureVectors.clone(); 
-    }
-    
-    /**
-     * Get the unit feature vector for the given unit. 
-     * @param unit a unit in the database
-     * @return the corresponding feature vector
-     */
-    public FeatureVector getFeatureVector(Unit unit)
-    {
-        return featureVectors[unit.getIndex()];
-    }
-
-    public FeatureDefinition getFeatureDefinition()
-    {
-        return featureDefinition;
-    }
-    
-    public int getNumberOfUnits() {
-        return( featureVectors.length );
-    }
 }

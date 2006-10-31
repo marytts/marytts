@@ -267,7 +267,7 @@ public class DatabaseLayout
     
     /* Feature Sequence for top-level CART */
     public String featSequenceFileName () {
-        return ( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
+        return ( maryConfigDirName() + System.getProperty( "file.separator" )
                 + System.getProperty( "db.featuresequence.file") ); 
     }
     
@@ -313,6 +313,22 @@ public class DatabaseLayout
     }
     public String weightsFileName() { return( unitFeatureDefinitionFileName() ); }
     
+    /** For halfphone synthesis, the name of the feature definition file containing
+     * the weights for the left halves.
+     */
+    public String halfPhoneLeftWeightsFileName()
+    {
+        return maryConfigDirName() + "/" + System.getProperty("db.featureweights.left.file", "weights.left.txt");
+    }
+
+    /** For halfphone synthesis, the name of the feature definition file containing
+     * the weights for the right halves.
+     */
+    public String halfPhoneRightWeightsFileName()
+    {
+        return maryConfigDirName() + "/" + System.getProperty("db.featureweights.right.file", "weights.right.txt");
+    }
+
     /* File name for the unit feature definition and unit feature weights */
     public String featureSequenceFileName() {
         String ret = System.getProperty( "db.featureSequenceFileName" );

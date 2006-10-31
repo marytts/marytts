@@ -74,7 +74,7 @@ public class UnitfileWriter implements VoiceImportComponent
         if (!aligner.compute()) throw new IllegalStateException("Database is NOT perfectly aligned. Cannot create unit file.");
         System.out.println("OK, alignment verified.");
         DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(unitFile)));
-        long posNumUnits = new MaryHeader(MaryHeader.UNITS).write(out);
+        long posNumUnits = new MaryHeader(MaryHeader.UNITS).writeTo(out);
         out.writeInt(-1); // number of units; needs to be corrected later.
         out.writeInt(samplingRate);
         

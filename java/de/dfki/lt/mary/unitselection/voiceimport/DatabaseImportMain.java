@@ -285,6 +285,7 @@ public class DatabaseImportMain extends JFrame
                 new LabelFeatureAligner( db, bnl ),
                 new UnitfileWriter( db, bnl ),
                 new FeatureFileWriter( db, bnl ),
+                new HalfPhoneFeatureFileWriter(db, bnl),
                 
                 new ESTCallMaker( db, bnl ),
                 

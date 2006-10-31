@@ -41,6 +41,7 @@ import com.sun.speech.freetts.ProcessException;
 import com.sun.speech.freetts.Relation;
 import com.sun.speech.freetts.en.us.USEnglish;
 
+import de.dfki.lt.mary.unitselection.HalfPhoneTarget;
 import de.dfki.lt.mary.unitselection.Target;
 import de.dfki.lt.mary.util.ByteStringTranslator;
 
@@ -213,6 +214,52 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
             return values.get(value);
         }
     }
+
+    /**
+     * The unit name for the given half phone target.
+     * @author Marc Schr&ouml;der
+     *
+     */
+    public static class HalfPhoneUnitName implements ByteValuedFeatureProcessor
+    {
+        protected String name;
+        protected ByteStringTranslator values;
+        protected TargetItemNavigator navigator;
+        /**
+         * Initialise a UnitName feature processor. 
+         * @param name the name of the feature
+         * @param phoneset the phonetic alphabet used
+         * @param segmentNavigator a navigator returning a segment with respect to the target.
+         */
+        public HalfPhoneUnitName(PhoneSet phoneset)
+        {
+            this.name = "mary_halfphone_unitname";
+            String[] possiblePhonemes = phoneset.listPhonemes();
+            String[] possibleValues = new String[2*possiblePhonemes.length+1];
+            possibleValues[0] = "0"; // the "n/a" value
+            for (int i=0; i<possiblePhonemes.length; i++) {
+                possibleValues[2*i+1] = possiblePhonemes[i]+"_L";
+                possibleValues[2*i+2] = possiblePhonemes[i]+"_R";
+            }
+            this.values = new ByteStringTranslator(possibleValues);
+            this.navigator = new SegmentNavigator();
+        }
+        public String getName() { return name; }
+        public String[] getValues() { return values.getStringValues(); }
+        public byte process(Target target)
+        {
+            if (!(target instanceof HalfPhoneTarget))
+                throw new IllegalArgumentException("This feature processor should only be called for half-phone unit targets!");
+            HalfPhoneTarget hpTarget = (HalfPhoneTarget) target;
+            Item segment = navigator.getItem(target);
+            if (segment == null) return values.get("0");
+            String phoneLabel = segment.getFeatures().getString("name");
+            if (phoneLabel == null) return values.get("0");
+            String unitLabel = phoneLabel + (hpTarget.isLeftHalf() ? "_L" : "_R");
+            return values.get(unitLabel);
+        }
+    }
+
 
     /**
      * A parametrisable class which can retrieve all sorts of phone features,

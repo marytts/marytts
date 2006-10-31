@@ -31,8 +31,11 @@
  */
 package de.dfki.lt.mary.unitselection.voiceimport;
 
+import java.io.BufferedInputStream;
 import java.io.DataInput;
+import java.io.DataInputStream;
 import java.io.DataOutput;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 /**
@@ -51,11 +54,13 @@ public class MaryHeader
     
     /* List of authorized file type identifier constants */
     public final static int UNKNOWN = 0;
-    public final static int CARTS = 1;
-    public final static int UNITS = 2;
-    public final static int TARGETFEATS = 3;
-    public final static int JOINFEATS = 4;
-    public final static int TIMELINE = 5;
+    public final static int CARTS = 100;
+    public final static int UNITS = 200;
+    public final static int UNITFEATS = 300;
+    public final static int HALFPHONE_UNITFEATS = 301; 
+    public final static int JOINFEATS = 400;
+    public final static int TIMELINE = 500;
+
     
     /* Private fields */
     private int magic = MAGIC;
@@ -63,6 +68,30 @@ public class MaryHeader
     private int type = UNKNOWN;
     private long byteSize = 12l; // 3 int with 4 bytes each.
 
+    
+    // STATIC CODE
+
+    /**
+     * For the given file, look inside and determine the file type.
+     * @param fileName
+     * @throws IOException if the file is not a MARY file.
+     */
+    public static int peekFileType(String fileName) throws IOException
+    {
+        DataInputStream dis = null;
+        dis = new DataInputStream( new BufferedInputStream( new FileInputStream( fileName ) ) );
+        /* Load the Mary header */
+        MaryHeader hdr = new MaryHeader( dis );
+        if ( !hdr.isMaryHeader() ) {
+            throw new IOException( "File [" + fileName + "] is not a valid Mary format file." );
+        }
+        int type = hdr.getType();
+        dis.close();
+        return type;
+
+    }
+    
+    
     /****************/
     /* CONSTRUCTORS */
     /****************/
@@ -71,7 +100,7 @@ public class MaryHeader
      * Plain constructor
      * 
      * @param newType The standard type of the Mary file, to be chosen among:
-     * MaryHeader.CARTS, MaryHeader.UNITS, MaryHeader.TARGETFEATS, MaryHeader.JOINFEATS, MaryHeader.TIMELINE.
+     * MaryHeader.CARTS, MaryHeader.UNITS, MaryHeader.UNITFEATS, MaryHeader.JOINFEATS, MaryHeader.TIMELINE.
      * 
      * @throws RuntimeException if the input type is unknown.
      */
@@ -108,7 +137,7 @@ public class MaryHeader
      * 
      * @author sacha
      */
-    public long write( DataOutput output ) throws IOException {
+    public long writeTo( DataOutput output ) throws IOException {
         
         long nBytes = 0;
         

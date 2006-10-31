@@ -277,7 +277,7 @@ public class FeatureDefinition
      * FeatureDefinition should be written.
      * @throws IOException if a problem occurs while writing.
      */
-    public void writeBinary(DataOutput out) throws IOException
+    public void writeBinaryTo(DataOutput out) throws IOException
     {
         // Section BYTEFEATURES
         out.writeInt(numByteFeatures);

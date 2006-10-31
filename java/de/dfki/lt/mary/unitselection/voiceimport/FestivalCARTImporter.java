@@ -119,7 +119,7 @@ public class FestivalCARTImporter {
                         FileOutputStream(destDir+"/CARTS.bin")));
                 //create new CART-header and write it to output file
                 MaryHeader hdr = new MaryHeader(MaryHeader.CARTS);
-                hdr.write(out);
+                hdr.writeTo(out);
         
                 //write number of CARTs
                 out.writeInt(cartMap.size());
