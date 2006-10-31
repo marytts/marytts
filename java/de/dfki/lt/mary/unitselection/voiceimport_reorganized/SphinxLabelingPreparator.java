@@ -149,6 +149,10 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         convertMFCCs();
         System.out.println(" ... done.");
         
+        /* rewrite the config file */
+        System.out.println("Rewriting config file ...");
+        rewriteConfigFile();
+        System.out.println(" ... done.");
         //exit
         System.out.println("All done!");
         return true;
@@ -165,9 +169,20 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         File lab = new File(st.getAbsolutePath()+"/lab");
         //call setup of sphinxtrain in this directory
         Runtime rtime = Runtime.getRuntime();
-        Process process = rtime.exec("/bin/bash { cd "+st.getAbsolutePath()
-                +"; "+sphinxtraindir+"/scripts_pl/setup_SphinxTrain "+voicename
-                +" }");
+        //get a shell
+        Process process = rtime.exec("/bin/bash");
+        //get an output stream to write to the shell
+        PrintWriter pw = new PrintWriter(
+                new OutputStreamWriter(process.getOutputStream()));
+        //go to st directory and call sphinx train setup script
+        pw.print("( cd "+st.getAbsolutePath()
+                +"; "+sphinxtraindir+"/scripts_pl/setup_SphinxTrain.pl -task "+voicename
+                +" )");
+        pw.flush();
+        //shut down
+        pw.print("exit\n");
+        pw.flush();
+        pw.close();
         process.waitFor();
         process.exitValue();
         }
@@ -179,7 +194,7 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
     private void dumpFilenames()throws IOException{
         //open filename file
         PrintWriter baseNameOut = new PrintWriter(
-                new FileOutputStream (new File(outputDir+"/"+voicename+".train_fileids")));
+                new FileOutputStream (new File(outputDir+"/"+voicename+".fileids")));
         //dump the filenames        
         for (int i=0;i<filenames.length;i++){
          baseNameOut.print("\n"+filenames[i]);   
@@ -201,7 +216,7 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         String outputFormat = "ACOUSTPARAMS";
         //open transcription out
         PrintWriter transcriptionOut = new PrintWriter(
-                new FileOutputStream (new File(outputDir+"/"+voicename+".train_transcription")));
+                new FileOutputStream (new File(outputDir+"/"+voicename+".transcription")));
         //open etc/txt.done.data (transcription in)
         BufferedReader transcriptionIn = new BufferedReader(
                 new FileReader(new File(dbLayout.baseTxtFileName())));
@@ -369,11 +384,20 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         Runtime rtime = Runtime.getRuntime();
         for (int i=0;i<filenames.length;i++){
             String wavFileName = filenames[i];            
-            //call ch_wave 
-            Process process = rtime.exec("/bin/bash { cd "+rootDir.getAbsolutePath()
+            //get a shell
+            Process process = rtime.exec("/bin/bash");
+            //get an output stream to write to the shell
+            PrintWriter pw = new PrintWriter(
+                    new OutputStreamWriter(process.getOutputStream()));
+            //go to voicedir and call ch_wave
+            pw.print("( cd "+rootDir.getCanonicalPath()
                 +"; "+estdir+"/bin/ch_wave -otype nist -o st/"+wavFileName
                 +" "+wavDir+wavFileName
-                +" }");
+                +" )");
+            //shut down
+            pw.print("exit\n");
+            pw.flush();
+            pw.close();
             process.waitFor();
             process.exitValue();
         }
@@ -401,14 +425,83 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         
         //call make_feats.pl
         rtime = Runtime.getRuntime();
-        Process process = rtime.exec("/bin/bash { cd "+st.getAbsolutePath()
+        Process process = rtime.exec("/bin/bash");
+        //get an output stream to write to the shell
+        PrintWriter pw = new PrintWriter(
+                new OutputStreamWriter(process.getOutputStream()));
+        //go to voicedir and call ch_wave
+        pw.print("(cd "+st.getAbsolutePath()
                 +"; ./bin/make_feats -ctl etc/"+voicename+".fileids"
-                +" }");
+                +" )");
+        //shut down
+        pw.print("exit\n");
+        pw.flush();
+        pw.close();
         process.waitFor();
         process.exitValue();
         }
     
-    
+    /**
+     * Rewrite the config file so that 
+     * it matches the voice database
+     * 
+     * @throws Exception
+     */
+    private void rewriteConfigFile() throws Exception {
+        //open the config file
+        BufferedReader reader = new BufferedReader(
+                new FileReader(outputDir+"/sphinx_train.cfg"));
+        //StringBuffer to rewrite the file
+        StringBuffer sb = new StringBuffer();
+        String line;
+        //go through lines of config file
+        while ((line = reader.readLine()) != null){
+            if (line.startsWith("$CFG_DB_NAME")){
+                //overwrite db_name with voicename
+                sb.append("$CFG_DB_NAME = \'"+voicename+"\';\n");
+                continue;
+            } 
+            if (line.startsWith("$CFG_DICTIONARY")){
+                //overwrite with dictionary file name
+                sb.append("$CFG_DICTIONARY     = \"$CFG_BASE_DIR/etc/$CFG_DB_NAME.dic\";\n");
+                continue;
+            } 
+            if (line.startsWith("$CFG_RAWPHONEFILE")){
+                //overwrite with phone set file name
+                sb.append("$CFG_RAWPHONEFILE   = \"$CFG_BASE_DIR/etc/$CFG_DB_NAME.phone\";\n");
+                continue;
+            }
+            if (line.startsWith("$CFG_FILLERDICT")){
+                //overwrite with filler dictionary file name
+                sb.append("$CFG_FILLERDICT     = \"$CFG_BASE_DIR/etc/$CFG_DB_NAME.filler\";\n");
+                continue;
+            }
+            if (line.startsWith("$CFG_LISTOFFILES")){
+                //overwrite with basename list file name
+                sb.append("$CFG_LISTOFFILES    = \"$CFG_BASE_DIR/etc/$CFG_DB_NAME.fileids\";\n");
+                continue;
+            }
+            if (line.startsWith("$CFG_TRANSCRIPTFILE")){
+                //overwrite with transcription file name
+                sb.append("$CFG_TRANSCRIPTFILE = \"$CFG_BASE_DIR/etc/$CFG_DB_NAME.transcription\";\n");
+                continue;
+            }
+            if (line.startsWith("$CFG_HMM_TYPE")){
+                //set HMM_type to semi
+                sb.append("$CFG_HMM_TYPE  = '.semi.'; # Sphinx II\n");
+                continue;
+            }
+            //no special line, just append it as it is
+            sb.append(line+"\n");
+        }
+        reader.close();
+        //overwrite config file with contents of StringBuffer
+        PrintWriter writer = new PrintWriter(
+                new FileWriter(outputDir+"/sphinx_train.cfg"));
+        writer.print(sb.toString());
+        writer.flush();
+        writer.close();
+    }
    
     
 }

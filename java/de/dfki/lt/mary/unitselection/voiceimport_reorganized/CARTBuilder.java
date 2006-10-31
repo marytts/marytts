@@ -609,7 +609,7 @@ public class CARTBuilder implements VoiceImportComponent {
         double dist = 0.0;
         if (! (unit1.length == unit2.length) && (unit1.length == 1)){
             //we have a problem
-            System.out.println("Problem calculating Eucledian distance");
+            System.out.println("Problem calculating Euclidian distance");
         } else {
             for (int i=0;i<unit1[0].length;i++){
                 double c = unit1[0][i]-unit2[0][i];
