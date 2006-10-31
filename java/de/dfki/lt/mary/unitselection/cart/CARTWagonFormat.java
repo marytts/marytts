@@ -278,12 +278,6 @@ public class CARTWagonFormat implements CART {
             int length = lastToken.length();
             //start looking at the characters after "0))"
             int index = lastToken.indexOf(')')+2;
-                         
-            //check
-            if (lastToken.startsWith("0))") &&
-                    index != 3){
-                throw new Error("Index "+index+" is not 3 for "+lastToken);
-            }
 
             while (index < length) { // while we have more characters
                 char nextChar = lastToken.charAt(index);
