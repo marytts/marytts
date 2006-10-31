@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 /**
@@ -58,21 +60,41 @@ public class UnitLabelComputer implements VoiceImportComponent
                 // only remember the last one.
                 String pauseLine = null;
                 String line;
+                List header = new ArrayList();
+                boolean readingHeader = true;
+                List phoneLabels = new ArrayList();
                 while ((line = in.readLine())!= null) {
-                    // Verify if this is a pause unit
-                    String unit = getUnit(line);
-                    if (pauseSymbol.equals(unit)) {
-                        pauseLine = line; // remember only the latest pause line
-                    } else { // a non-pause symbol
-                        if (pauseLine != null) {
-                            out.println(pauseLine);
-                            pauseLine = null;
+                    if (readingHeader) {
+                        header.add(line);
+                        if (line.trim().equals("#")) {
+                            // found end of header
+                            readingHeader = false;
                         }
-                        out.println(line);
+                    } else {
+                        // Not reading header
+                        // Verify if this is a pause unit
+                        String phone = getPhone(line);
+                        if (pauseSymbol.equals(phone)) {
+                            pauseLine = line; // remember only the latest pause line
+                        } else { // a non-pause symbol
+                            if (pauseLine != null) {
+                                phoneLabels.add(pauseLine);
+                                pauseLine = null;
+                            }
+                            phoneLabels.add(line);
+                        }
                     }
                 }
                 if (pauseLine != null) {
-                    out.println(pauseLine);
+                    phoneLabels.add(pauseLine);
+                }
+                String[] phoneLabelLines = (String[]) phoneLabels.toArray(new String[0]);
+                String[] unitLabelLines = toUnitLabels(phoneLabelLines);
+                for (int h=0, hMax = header.size(); h<hMax; h++) {
+                    out.println(header.get(h));
+                }
+                for (int u=0; u<unitLabelLines.length; u++) {
+                    out.println(unitLabelLines[u]);
                 }
                 out.flush();
                 out.close();
@@ -84,7 +106,7 @@ public class UnitLabelComputer implements VoiceImportComponent
     }
     
     /**/
-    protected String getUnit(String line)
+    private String getPhone(String line)
     {
         StringTokenizer st = new StringTokenizer(line.trim());
         // The third token in each line is the label
@@ -92,6 +114,23 @@ public class UnitLabelComputer implements VoiceImportComponent
         if (st.hasMoreTokens()) st.nextToken();
         if (st.hasMoreTokens()) return st.nextToken();
         return null;
+    }
+    
+    /**
+     * Convert phone labels to unit labels. This base implementation
+     * returns the phone labels; subclasses may want to override that
+     * behaviour.
+     * @param phoneLabels the phone labels, one phone per line, with each
+     * line containing three fields: 1. the end time of the current phone,
+     * in seconds, since the beginning of the file; 2. a number to be ignored;
+     * 3. the phone symbol.
+     * @return an array of lines, in the same format as the phoneLabels input
+     * array, but with unit symbols instead of phone symbols. This array may
+     * or may not have the same number of lines as phoneLabels.
+     */
+    protected String[] toUnitLabels(String[] phoneLabels)
+    {
+        return phoneLabels; 
     }
     
     public static void main(String[] args) throws IOException
