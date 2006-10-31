@@ -37,7 +37,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import de.dfki.lt.mary.unitselection.voiceimport_reorganized.MaryHeader;
+import de.dfki.lt.mary.unitselection.voiceimport.MaryHeader;
 
 /**
  * Loads a unit file in memory and provides accessors to the start times and durations.

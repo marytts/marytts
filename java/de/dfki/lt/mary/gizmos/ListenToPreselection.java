@@ -38,7 +38,7 @@ import de.dfki.lt.mary.unitselection.TimelineReader;
 import de.dfki.lt.mary.unitselection.UnitFileReader;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
-import de.dfki.lt.mary.unitselection.voiceimport_reorganized.DatabaseLayout;
+import de.dfki.lt.mary.unitselection.voiceimport.DatabaseLayout;
 
 public class ListenToPreselection {
     

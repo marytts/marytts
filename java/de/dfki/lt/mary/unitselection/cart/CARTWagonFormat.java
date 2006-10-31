@@ -50,7 +50,7 @@ import de.dfki.lt.mary.unitselection.Target;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 
-import de.dfki.lt.mary.unitselection.voiceimport_reorganized.MaryHeader;
+import de.dfki.lt.mary.unitselection.voiceimport.MaryHeader;
 
 /**
  * This class can build a CART either reading from a text file or from a binary

@@ -35,7 +35,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import de.dfki.lt.mary.unitselection.voiceimport_reorganized.General;
+import de.dfki.lt.mary.unitselection.voiceimport.General;
 
 public class MCepDatagram extends Datagram {
     
