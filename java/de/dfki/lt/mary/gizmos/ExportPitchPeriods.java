@@ -3,7 +3,7 @@ package de.dfki.lt.mary.gizmos;
 import java.io.IOException;
 
 import de.dfki.lt.mary.unitselection.TimelineReader;
-import de.dfki.lt.mary.unitselection.voiceimport_reorganized.DatabaseLayout;
+import de.dfki.lt.mary.unitselection.voiceimport.DatabaseLayout;
 
 public class ExportPitchPeriods {
 

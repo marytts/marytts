@@ -37,7 +37,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Vector;
 
-import de.dfki.lt.mary.unitselection.voiceimport_reorganized.TimelineIO;
+import de.dfki.lt.mary.unitselection.voiceimport.TimelineIO;
 
 
 /**

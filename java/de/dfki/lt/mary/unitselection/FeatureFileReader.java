@@ -35,7 +35,7 @@ import java.io.IOException;
 
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
-import de.dfki.lt.mary.unitselection.voiceimport_reorganized.MaryHeader;
+import de.dfki.lt.mary.unitselection.voiceimport.MaryHeader;
 
 public class FeatureFileReader
 {
