@@ -274,13 +274,14 @@ public class DatabaseImportMain extends JFrame
         /* Invoke the GUI, now that the arguments and layouts are all set */
         VoiceImportComponent[] components = new VoiceImportComponent[] {
                 
+                new SphinxLabelingPreparator( db, bnl ),
+                new SphinxTrainer ( db ),
+                new SphinxLabeler ( db ),
+                
                 new FestvoxTextfileConverter( db, bnl ),
                 new UnitLabelComputer( db, bnl ),
                 new HalfPhoneUnitLabelComputer( db, bnl ),
-                new UnitFeatureComputer( db, bnl ),
-                
-                new SphinxLabelingPreparator( db, bnl ),
-                new SphinxTrainer ( db ),
+                new UnitFeatureComputer( db, bnl ),                
                 
                 new LabelFeatureAligner( db, bnl ),
                 new UnitfileWriter( db, bnl ),
