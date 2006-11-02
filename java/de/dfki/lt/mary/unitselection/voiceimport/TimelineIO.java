@@ -137,13 +137,7 @@ public class TimelineIO
         return( sampleRate );
     }
     
-    /**
-     * Returns the timeline's total time duration (i.e., the position
-     * of the last datagram ever observed by the index).
-     */
-    public synchronized long getTotalTime() {
-        return( idx.prevTimePos );
-    }
+
     
     /**
      * Prints the index to System.out. (For testing purposes.))
@@ -441,6 +435,10 @@ public class TimelineIO
         }
         public long getPrevTimePos() {
             return( prevTimePos );
+        }
+        
+        public long getPrevBytePos() {
+            return( prevBytePos );
         }
         
         
