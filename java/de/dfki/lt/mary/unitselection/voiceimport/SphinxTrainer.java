@@ -55,6 +55,7 @@ public class SphinxTrainer implements VoiceImportComponent {
      * @return true on success, false on failure
      */
     public boolean compute() throws Exception{
+        System.out.println("Training HMMs for Sphinx labeling ...");
         //Run the sphinxtrain scripts
         Runtime rtime = Runtime.getRuntime();
         String rootDirName = new File(dbLayout.rootDirName()).getCanonicalPath();
@@ -65,29 +66,32 @@ public class SphinxTrainer implements VoiceImportComponent {
         PrintWriter pw = new PrintWriter(
                 new OutputStreamWriter(process.getOutputStream()));
         //go to directory where the scripts are
-        pw.print("cd "+rootDirName+"/st/scripts_pl/\n");
+        pw.print("cd "+rootDirName+"/st\n");
         pw.flush();
-        //call the scripts
-        pw.print("(00.verify/verify_all.pl "
-                +"; 01.vector_quantize/slave.VQ.pl "
-                +"; 02.ci_schmm/slave_convg.pl "
-                +"; 03.makeuntiedmdef/make_untied_mdef.pl "
-                +"; 04.cd_schmm_untied/slave_convg.pl "
-                +"; 05.buildtrees/make_questions.pl "
-                +"; 05.buildtrees/slave.treebuilder.pl "
-                +"; 06.prunetree/slave.state-tie-er.pl "
-                +"; 07.cd-schmm/slave_convg.pl "
-                +"; 08.deleted-interpolation/deleted_interpolation.pl "
-                +"; 09.make_s2_models/make_s2_models.pl "        
-                +")\n");
+        //call the scripts and exit
+        pw.print("(scripts_pl/00.verify/verify_all.pl "
+                +"; scripts_pl/01.vector_quantize/slave.VQ.pl "
+                +"; scripts_pl/02.ci_schmm/slave_convg.pl "
+                +"; scripts_pl/03.makeuntiedmdef/make_untied_mdef.pl "
+                +"; scripts_pl/04.cd_schmm_untied/slave_convg.pl "
+                +"; scripts_pl/05.buildtrees/make_questions.pl "
+                +"; scripts_pl/05.buildtrees/slave.treebuilder.pl "
+                +"; scripts_pl/06.prunetree/slave.state-tie-er.pl "
+                +"; scripts_pl/07.cd-schmm/slave_convg.pl "
+                +"; scripts_pl/08.deleted-interpolation/deleted_interpolation.pl "
+                +"; scripts_pl/09.make_s2_models/make_s2_models.pl "        
+                +"; exit)\n");
         pw.flush();
+        pw.close();
+        
         //collect the output
-        String line;
+        
         BufferedReader inReader = new BufferedReader(
                 new InputStreamReader(process.getInputStream()));
-        
-        while((line = inReader.readLine()) != null){
+        String line = inReader.readLine();
+        while(line!= null ) {
             System.out.println(line);
+            line = inReader.readLine();
         }
         BufferedReader errReader = new BufferedReader(
                 new InputStreamReader(process.getErrorStream()));
@@ -97,12 +101,9 @@ public class SphinxTrainer implements VoiceImportComponent {
         //close everything down
         errReader.close();
         inReader.close();
-        pw.print("exit\n");
-        pw.flush();
-        pw.close();
         process.waitFor();
         process.exitValue();
-        
+        System.out.println("... done.");
         return true;
     }
     
