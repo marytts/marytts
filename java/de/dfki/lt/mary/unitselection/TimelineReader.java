@@ -536,4 +536,12 @@ public class TimelineReader extends TimelineIO
         return( buff );
     }
     
+    /**
+     * Returns the timeline's total time duration (i.e., the position
+     * of the last datagram ever observed by the index).
+     */
+    public synchronized long getTotalTime() throws IOException {
+        setBytePointer( idx.getPrevBytePos() );
+        return( idx.getPrevTimePos() + getNextDatagram().duration );
+    }
 }
