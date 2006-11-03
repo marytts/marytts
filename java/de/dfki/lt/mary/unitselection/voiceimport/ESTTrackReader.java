@@ -44,7 +44,7 @@ import java.io.IOException;
  * to reach each individual frame or each individual track value.
  *
  */
-class ESTTrackReader {
+public class ESTTrackReader {
     
     private int numFrames;
     private int numChannels;
