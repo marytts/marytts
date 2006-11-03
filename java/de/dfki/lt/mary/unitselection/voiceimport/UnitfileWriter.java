@@ -88,7 +88,7 @@ public class UnitfileWriter implements VoiceImportComponent
         ESTTrackReader pmFile = null;
         for (int i=0; i<bnl.getLength(); i++) {
             /* Open the relevant pitchmark file */
-            pmFile = new ESTTrackReader( db.pitchmarksDirName() + "/" + bnl.getName(i) + db.pitchmarksExt() );
+            pmFile = new ESTTrackReader( db.correctedPitchmarksDirName() + "/" + bnl.getName(i) + db.correctedPitchmarksExt() );
             // Output the utterance start marker: "null" unit
             out.writeLong( globalStart ); out.writeInt(-1);
             index++;
