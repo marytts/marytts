@@ -112,6 +112,8 @@ public class FreeTTSVoices
     public static void load(de.dfki.lt.mary.modules.synthesis.Voice maryVoice)
     throws NoSuchPropertyException
     {
+        if (mary2freettsVoices == null) mary2freettsVoices = new HashMap();
+        if (freetts2maryVoices == null) freetts2maryVoices = new HashMap();
         if (mary2freettsVoices.containsKey(maryVoice)) return; // already known
         load(maryVoice, createFreeTTSVoice(maryVoice));
     }

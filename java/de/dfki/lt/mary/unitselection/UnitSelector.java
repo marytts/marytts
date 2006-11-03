@@ -113,13 +113,7 @@ public class UnitSelector
 
         // Create target chain for the utterance
         Relation segs = utt.getRelation(Relation.SEGMENT);
-        List targets = new ArrayList();
-        for (Item s = segs.getHead(); s != null; s = s.getNext()) {
-            String segName = s.getFeatures().getString("name");
-            // Not sure if this is needed:
-            s.getFeatures().setString("clunit_name", segName);
-            targets.add(new Target(segName, s));
-        }
+        List targets = createTargets(segs);
         // compute target features for each target in the chain
         for (int j=0, nTargets = targets.size(); j<nTargets; j++) {
             Target target = (Target) targets.get(j);
@@ -178,6 +172,24 @@ public class UnitSelector
         long newtime = System.currentTimeMillis() - time;
         logger.debug("Selection took "+newtime+" milliseconds");
         return selectedUnits;
+    }
+    
+    /**
+     * Create the list of targets from the Segments in the utterance.
+     * @param segs the Segment relation
+     * @return a list of Target objects
+     */
+    protected List createTargets(Relation segs)
+    {
+        List targets = new ArrayList();
+        for (Item s = segs.getHead(); s != null; s = s.getNext()) {
+            String segName = s.getFeatures().getString("name");
+            // Not sure if this is needed:
+            s.getFeatures().setString("clunit_name", segName);
+            targets.add(new Target(segName, s));
+        }
+        return targets;
+
     }
 
  
