@@ -541,7 +541,10 @@ public class TimelineReader extends TimelineIO
      * of the last datagram ever observed by the index).
      */
     public synchronized long getTotalTime() throws IOException {
+        long bptr = getBytePointer();
         setBytePointer( idx.getPrevBytePos() );
-        return( idx.getPrevTimePos() + getNextDatagram().duration );
+        long ret = idx.getPrevTimePos() + getNextDatagram().duration;
+        setBytePointer( bptr );
+        return( ret );
     }
 }
