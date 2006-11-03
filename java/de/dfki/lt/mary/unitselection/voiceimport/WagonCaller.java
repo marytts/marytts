@@ -60,7 +60,7 @@ public class WagonCaller {
         //try out if wagon runs
         try {
             System.out.print("Test call of wagon ... ");
-            Runtime.getRuntime().exec( ESTDIR + "/bin/wagon -version" );
+            Runtime.getRuntime().exec( ESTDIR + "/main/wagon -version" );
             System.out.print("Ok!\n");
         }
         catch ( IOException e ) {
@@ -78,7 +78,7 @@ public class WagonCaller {
     public WagonCaller(String featureDescFile){
         // Read the environment variable ESTDIR from the system: 
         this.featureDefFile = featureDescFile;
-        String getESTDIR = System.getProperty("ESTDIR");
+        String getESTDIR = System.getenv("ESTDIR");
         if ( getESTDIR == null ) {
             System.out.println( "Warning: The environment variable ESTDIR was not found on your system." );
             System.out.println( "         Defaulting ESTDIR to [" + ESTDIR + "]." );
@@ -88,7 +88,7 @@ public class WagonCaller {
         //try out if wagon runs
         try {
             System.out.print("Test call of wagon ... ");
-            Runtime.getRuntime().exec( ESTDIR + "/bin/wagon -version" );
+            Runtime.getRuntime().exec( ESTDIR + "/main/wagon -version" );
             System.out.print("Ok!\n");
         }
         catch ( IOException e ) {
@@ -109,7 +109,7 @@ public class WagonCaller {
             			String distanceTableFile,
             			String destinationFile){
         try {
-            Process p = Runtime.getRuntime().exec( ESTDIR + "/bin/wagon "
+            Process p = Runtime.getRuntime().exec( ESTDIR + "/main/wagon "
                 				+ "-desc " + featureDefFile
                 				+ " -data " + valueFile
                 				+ " -balance 0" 
@@ -156,7 +156,7 @@ public class WagonCaller {
             			int balance,
             			int stop){
         try {
-            Runtime.getRuntime().exec( ESTDIR + "/bin/wagon "
+            Runtime.getRuntime().exec( ESTDIR + "/main/wagon "
                 				+ "-desc " + featureDefFile
                 				+ " -data " + valueFile
                 				+ " -balance " + balance 

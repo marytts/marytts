@@ -122,7 +122,10 @@ public class CARTBuilder implements VoiceImportComponent {
          System.out.println(" ... done!");
         
          //TODO: Write a dump method for the featureVectors; import and dump distance tables
-         replaceLeaves(topLevelCART,featureDefinition);
+         boolean callWagon = System.getProperty("db.cartbuilder.callwagon", "true").equals("true");
+         if (callWagon) {
+             replaceLeaves(topLevelCART,featureDefinition);
+         }
          
          //dump big CART to binary file
          String destinationFile = databaseLayout.cartFileName();
