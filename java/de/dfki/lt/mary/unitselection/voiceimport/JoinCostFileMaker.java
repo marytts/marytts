@@ -61,35 +61,6 @@ public class JoinCostFileMaker implements VoiceImportComponent {
         this.bnl = setbnl;
     }
     
-    /**
-     * Read the join cost weight specifications from the relevant file.
-     * */
-    private void readJoinCostWeightsFile( String fileName ) throws IOException, FileNotFoundException {
-        Vector v = new Vector( 16, 16 );
-        Vector vf = new Vector( 16, 16 );
-        /* Open the file */
-        BufferedReader in = new BufferedReader( new FileReader( fileName ) );
-        /* Loop through the lines */
-        String line = null;
-        String[] fields = null;
-        while ((line = in.readLine()) != null) {
-            // System.out.println( line );
-            line = line.split( "#", 2 )[0];  // Remove possible trailing comments
-            line = line.trim();              // Remove leading and trailing blanks
-            if ( line.equals("") ) continue; // Empty line: don't parse
-            line = line.split( ":", 2 )[1].trim();  // Remove the line number and :
-            // System.out.print( "CLEANED: [" + line + "]" );
-            fields = line.split( "\\s", 2 ); // Separate the weight value from the function name
-            v.add( new Float( fields[0] ) ); // Push the weight
-            vf.add( fields[1] );             // Push the function
-            numberOfFeatures++;
-            // System.out.println( "NBFEA=" + numberOfFeatures );
-        }
-        // System.out.flush();
-        /* Export the vectors as arrays */
-        fw = (Float[]) v.toArray( new Float[v.size()] );
-        wfun = (String[]) vf.toArray( new String[vf.size()] );
-    }
     
     public boolean compute() throws IOException
     {
@@ -133,7 +104,10 @@ public class JoinCostFileMaker implements VoiceImportComponent {
         /* WEIGHTING FUNCTION SPECS */
         /****************************/
         /* Load the weight vectors */
-        readJoinCostWeightsFile( db.joinCostWeightsFileName() );
+        Object[] weightData = JoinCostFeatures.readJoinCostWeightsFile( db.joinCostWeightsFileName() );
+        fw = (Float[]) weightData[0];
+        wfun = (String[]) weightData[1];
+        numberOfFeatures = fw.length;
         /* Output those vectors */
         try {
             jcf.writeInt( fw.length );
