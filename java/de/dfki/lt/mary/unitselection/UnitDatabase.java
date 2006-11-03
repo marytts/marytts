@@ -30,8 +30,11 @@ package de.dfki.lt.mary.unitselection;
 
 
 
+import java.io.IOException;
+
 import de.dfki.lt.mary.unitselection.cart.CART;
 import de.dfki.lt.mary.unitselection.viterbi.ViterbiCandidate;
+import de.dfki.lt.mary.unitselection.voiceimport.BasenameList;
 
 /**
  * The unit database of a voice
@@ -46,6 +49,7 @@ public class UnitDatabase
     protected UnitFileReader unitReader;
     protected CART preselectionCART;
     protected TimelineReader audioTimeline;
+    protected TimelineReader basenameTimeline;
     protected int backtrace;
     
     
@@ -58,6 +62,7 @@ public class UnitDatabase
                       UnitFileReader aUnitReader,
                       CART aPreselectionCART,
                       TimelineReader anAudioTimeline,
+                      TimelineReader aBasenameTimeline,
                       int backtrace)
      {
          this.targetCostFunction = aTargetCostFunction;
@@ -65,6 +70,7 @@ public class UnitDatabase
          this.unitReader = aUnitReader;
          this.preselectionCART = aPreselectionCART;
          this.audioTimeline = anAudioTimeline;
+         this.basenameTimeline = aBasenameTimeline;
          this.backtrace = backtrace;
      }
 
@@ -112,6 +118,30 @@ public class UnitDatabase
             candidates[i].setUnit(unit);
         }
         return candidates;
+    }
+    
+    /**
+     * For debugging, return the basename of the original audio file from which
+     * the unit is coming, as well as the start time in that file. 
+     * @param unit
+     * @return a String containing basename followed by a space and the 
+     * unit's start time, in seconds, from the beginning of the file. If 
+     * no basenameTimeline was specified for this voice, returns the string
+     * "unknown origin".
+     */
+    public String getFilenameAndTime(Unit unit)
+    {
+       if (basenameTimeline == null) return "unknown origin";
+       long[] offset = new long[1];
+       try {
+           Datagram[] datagrams = basenameTimeline.getDatagrams(unit.getStart(), 1, unitReader.getSampleRate(), offset);
+           Datagram filenameData = datagrams[0];
+           float time = (float)offset[0]/basenameTimeline.getSampleRate();
+           String filename = new String(filenameData.getData(), "UTF-8");
+           return filename + " " + time;
+       } catch (IOException ioe) {
+           return "unknown origin";
+       }
     }
 
 
