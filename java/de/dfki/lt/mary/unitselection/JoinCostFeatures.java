@@ -29,12 +29,18 @@
 package de.dfki.lt.mary.unitselection;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.Vector;
+
+import org.apache.log4j.Logger;
 
 import de.dfki.lt.mary.unitselection.voiceimport.MaryHeader;
 import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunc;
@@ -108,6 +114,21 @@ public class JoinCostFeatures implements JoinCostFunction {
                 if ( "".equals( wfStr ) ) weightFunction[i] = wfm.getWeightFunction( "linear" );
                 else                      weightFunction[i] = wfm.getWeightFunction(  wfStr   );
             }
+            // Overwrite weights and weight functions from file?
+            if (weightsFileName != null) {
+                Logger.getLogger("JoinCostFeatures").debug("Overwriting join cost weights from file "+weightsFileName);
+                Object[] weightData = readJoinCostWeightsFile(weightsFileName);
+                Float[] w = (Float[]) weightData[0];
+                String[] wf = (String[])weightData[1];
+                if (w.length != numberOfFeatures)
+                    throw new IllegalArgumentException("Join cost file contains "+numberOfFeatures+" features, but weight file contains "+w.length+" feature weights!");
+                for (int i=0; i<numberOfFeatures; i++) {
+                    featureWeight[i] = w[i].floatValue();
+                    weightFunction[i] = wfm.getWeightFunction(wf[i]);
+                }
+            }
+            
+            
             /* Read the left and right Join Cost Features */
             int numberOfUnits = raf.readInt();
             leftJCF = new float[numberOfUnits][];
@@ -130,6 +151,37 @@ public class JoinCostFeatures implements JoinCostFunction {
         }
     }
     
+    /**
+     * Read the join cost weight specifications from the relevant file.
+     * */
+    public static Object[] readJoinCostWeightsFile( String fileName ) throws IOException, FileNotFoundException {
+        // TODO: code duplication: merge with code in JoinCostFileMaker
+        Vector v = new Vector( 16, 16 );
+        Vector vf = new Vector( 16, 16 );
+        /* Open the file */
+        BufferedReader in = new BufferedReader( new FileReader( fileName ) );
+        /* Loop through the lines */
+        String line = null;
+        String[] fields = null;
+        while ((line = in.readLine()) != null) {
+            // System.out.println( line );
+            line = line.split( "#", 2 )[0];  // Remove possible trailing comments
+            line = line.trim();              // Remove leading and trailing blanks
+            if ( line.equals("") ) continue; // Empty line: don't parse
+            line = line.split( ":", 2 )[1].trim();  // Remove the line number and :
+            // System.out.print( "CLEANED: [" + line + "]" );
+            fields = line.split( "\\s", 2 ); // Separate the weight value from the function name
+            v.add( new Float( fields[0] ) ); // Push the weight
+            vf.add( fields[1] );             // Push the function
+            // System.out.println( "NBFEA=" + numberOfFeatures );
+        }
+        // System.out.flush();
+        /* Export the vectors as arrays, and return these as an Object[2].*/
+        Float[] fw = (Float[]) v.toArray( new Float[v.size()] );
+        String[] wfun = (String[]) vf.toArray( new String[vf.size()] );
+        return new Object[] {fw, wfun};
+    }
+
     /*****************/
     /* ACCESSORS     */
     /*****************/
@@ -148,27 +200,7 @@ public class JoinCostFeatures implements JoinCostFunction {
         return( leftJCF.length );
     }
     
-    /**
-     * Overwrites a particular weight.
-     * 
-     * @param weightIdx The index of the weight to overwrite.
-     * @param newWeight The new weight value.
-     */
-    public void overwriteWeight( int weightIdx, float newWeight ) {
-        featureWeight[weightIdx] = newWeight;
-    }
-    
-    /**
-     * Overwrites a particular weighting function.
-     * 
-     * @param weightIdx The index of the weighting function to overwrite.
-     * @param newWeight The identifier of the new weighting function.
-     */
-    public void overwriteWeightFunc( int weightIdx, String funcName ) {
-        WeightFunctionManager wfm = new WeightFunctionManager();
-        weightFunction[weightIdx] = wfm.getWeightFunction( funcName );
-    }
-    
+        
     /**
      * Gets the array of left join cost features for a particular unit index.
      * 
@@ -260,6 +292,10 @@ public class JoinCostFeatures implements JoinCostFunction {
      * of the right unit, as an int value.
      */
     public double cost( Unit u1, Unit u2 ) {
+        // If the two are neighbors, joining them is for free:
+        if (u1.index+1 == u2.index) return 0;
+        // Units of length 0 cannot be joined:
+        if (u1.getDuration() == 0 || u2.getDuration() == 0) return Double.POSITIVE_INFINITY;
         return cost( u1.index, u2.index );
     }
     

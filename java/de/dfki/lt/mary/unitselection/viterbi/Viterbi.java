@@ -307,7 +307,8 @@ public  class Viterbi
             joinCost = joinCostFunction.cost(prevUnit, candidateUnit);
         }
         cost = joinCost + targetCost;
-        cumulJoinCosts += joinCost;
+        if (joinCost < Float.POSITIVE_INFINITY)
+            cumulJoinCosts += joinCost;
         nJoinCosts++;
         cumulTargetCosts += targetCost;
         nTargetCosts++;
