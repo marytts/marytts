@@ -105,8 +105,8 @@ public class TimelineReader extends TimelineIO
         
         /* If the end of the datagram zone is reached, refuse to skip */
         if ( getBytePointer() == timeIdxBytePos ) {
-            throw new IndexOutOfBoundsException( "Time out of bounds: you are trying to reach a time which is" +
-                    " bigger than the total timeline duration." );
+            throw new IndexOutOfBoundsException( "Byte pointer out of bounds: you are trying to skip further" +
+                    " than the end of the datagram zone." );
         }
         /* else: */
         try {
