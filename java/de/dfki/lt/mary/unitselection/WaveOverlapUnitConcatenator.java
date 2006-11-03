@@ -132,7 +132,8 @@ public class WaveOverlapUnitConcatenator implements UnitConcatenator
             int rightContextFrameLength;
 
             int pitchmarksInUnit = datagrams.length;
-            assert pitchmarksInUnit > 0;
+            //assert pitchmarksInUnit > 0 :
+            //    "Unit contains no pitchmarks: "+unit + "("+database.getFilenameAndTime(unit.getUnit())+")";
             // First of all: Set target pitchmarks,
             // either by copying from units (data-driven)
             // or by computing from target (model-driven)
@@ -161,8 +162,8 @@ public class WaveOverlapUnitConcatenator implements UnitConcatenator
                     nSamples += datagrams[i].getDuration(); // length in samples
                     pitchmarks[i] = nSamples;
                 }
-                assert pitchmarks[pitchmarks.length-2] == unitToTimeline(unit.getUnit().getDuration()):
-                    "Unexpected difference: for unit "+unit+", expected "+unitToTimeline(unit.getUnit().getDuration())+" samples, found "+pitchmarks[pitchmarks.length-2]; 
+                //assert pitchmarks[pitchmarks.length-2] == unitToTimeline(unit.getUnit().getDuration()):
+                //    "Unexpected difference: for unit "+unit+", expected "+unitToTimeline(unit.getUnit().getDuration())+" samples, found "+pitchmarks[pitchmarks.length-2]; 
             }
             // And the last pitchmark for windowing the right context frame:
             rightContextFrameLength = (int) rightContextFrame.getDuration(); // length in samples

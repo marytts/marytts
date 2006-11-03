@@ -42,7 +42,6 @@ public class SelectedUnit
     protected Target target;
     protected Object concatenationData;
     protected double[] audio;
-    protected UnitDatabase database;
     
     public SelectedUnit(Unit unit, Target target)
     {

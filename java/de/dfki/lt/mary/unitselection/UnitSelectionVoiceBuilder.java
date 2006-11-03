@@ -167,17 +167,25 @@ public class UnitSelectionVoiceBuilder
                 
             //get the backtrace information
             String backtraceString = MaryProperties
-                    .getProperty(voice+"cart.backtrace");
+                    .getProperty(header+".cart.backtrace");
             int backtrace = 100; // default backtrace value
             if (backtraceString != null) {
                 backtrace = Integer.parseInt(backtraceString.trim());
+            }
+            
+            // optionally, get basename timeline
+            String basenameTimelineFile = MaryProperties.getFilename(header+".basenameTimeline");
+            TimelineReader basenameTimelineReader = null;
+            if (basenameTimelineFile != null) {
+                logger.debug("...loading basename time line...");
+                basenameTimelineReader = new TimelineReader(basenameTimelineFile);
             }
             
             //build and load database
             logger.debug("...instantiating database...");
             String databaseClass = MaryProperties.needProperty(header+".databaseClass");
             UnitDatabase unitDatabase = (UnitDatabase) Class.forName(databaseClass).newInstance();
-            unitDatabase.load(targetFunction, joinFunction, unitReader, cart, timelineReader ,backtrace);
+            unitDatabase.load(targetFunction, joinFunction, unitReader, cart, timelineReader, basenameTimelineReader, backtrace);
 	        
 	        //build Selector
             logger.debug("...instantiating unit selector...");
