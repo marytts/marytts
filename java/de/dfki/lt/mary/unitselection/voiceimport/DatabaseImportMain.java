@@ -284,12 +284,13 @@ public class DatabaseImportMain extends JFrame
                 new UnitFeatureComputer( db, bnl ),                
                 
                 new LabelFeatureAligner( db, bnl ),
+                
+                new ESTCallMaker( db, bnl ),
+
                 new UnitfileWriter( db, bnl ),
                 new FeatureFileWriter( db, bnl ),
                 new HalfPhoneFeatureFileWriter(db, bnl),
-                
-                new ESTCallMaker( db, bnl ),
-                
+
                 new WaveTimelineMaker( db, bnl ),
                 new BasenameTimelineMaker( db, bnl ),
                 
