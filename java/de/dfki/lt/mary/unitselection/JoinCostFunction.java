@@ -30,6 +30,8 @@ package de.dfki.lt.mary.unitselection;
 
 import java.io.IOException;
 
+import de.dfki.lt.mary.modules.phonemiser.PhonemeSet;
+
 /**
  * A join cost function for evaluating the goodness-of-fit of 
  * a given pair of left and right unit.
@@ -39,18 +41,21 @@ import java.io.IOException;
 public interface JoinCostFunction
 {
     /**
-     * Compute the goodness-of-fit of joining two units. 
+     * Compute the goodness-of-fit of joining two units.
+     * In the general case, a join cost function can take
+     * into account both unit and target properties.
+     * @param t0 the left target
      * @param u0 the proposed left unit
+     * @param t1 the right target
      * @param u1 the proposed right unit
      * @return a non-negative number; smaller values mean better fit, i.e. smaller cost.
      */
-    public double cost(Unit u0, Unit u1);
+    public double cost(Target t0, Unit u0, Target t1, Unit u1);
 
     /**
      * Load weights and values from the given file
      * @param joinFileName the file from which to read default weights and join cost features
      * @param weightsFileName an optional file from which to read weights, taking precedence over
-     * the ones given in the join file
      */
     public void load(String joinFileName, String weightsFileName) throws IOException;
     

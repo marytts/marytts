@@ -42,12 +42,17 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
+import de.dfki.lt.mary.MaryProperties;
+import de.dfki.lt.mary.modules.phonemiser.Phoneme;
+import de.dfki.lt.mary.modules.phonemiser.PhonemeSet;
 import de.dfki.lt.mary.unitselection.voiceimport.MaryHeader;
 import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunc;
 import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunctionManager;
 
 public class JoinCostFeatures implements JoinCostFunction {
 
+    protected final float wSignal = Float.parseFloat(MaryProperties.getProperty("joincostfunction.wSignal", "1.0"));
+    protected final float wPhonetic = 1 - wSignal;
     
     /****************/
     /* DATA FIELDS  */
@@ -55,7 +60,7 @@ public class JoinCostFeatures implements JoinCostFunction {
     private MaryHeader hdr = null;
     
     private float[] featureWeight = null;
-    private WeightFunc[] weightFunction = null;
+    private WeightFunc[] weightFunction = null;    
     
     private float[][] leftJCF = null;
     private float[][] rightJCF = null;
@@ -118,12 +123,11 @@ public class JoinCostFeatures implements JoinCostFunction {
             if (weightsFileName != null) {
                 Logger.getLogger("JoinCostFeatures").debug("Overwriting join cost weights from file "+weightsFileName);
                 Object[] weightData = readJoinCostWeightsFile(weightsFileName);
-                Float[] w = (Float[]) weightData[0];
+                featureWeight = (float[]) weightData[0];
                 String[] wf = (String[])weightData[1];
-                if (w.length != numberOfFeatures)
-                    throw new IllegalArgumentException("Join cost file contains "+numberOfFeatures+" features, but weight file contains "+w.length+" feature weights!");
+                if (featureWeight.length != numberOfFeatures)
+                    throw new IllegalArgumentException("Join cost file contains "+numberOfFeatures+" features, but weight file contains "+featureWeight.length+" feature weights!");
                 for (int i=0; i<numberOfFeatures; i++) {
-                    featureWeight[i] = w[i].floatValue();
                     weightFunction[i] = wfm.getWeightFunction(wf[i]);
                 }
             }
@@ -152,10 +156,11 @@ public class JoinCostFeatures implements JoinCostFunction {
     }
     
     /**
-     * Read the join cost weight specifications from the relevant file.
+     * Read the join cost weight specifications from the given file.
+     * The weights will be normalized such that they sum to one.
+     * @param fileName the text file containing the join weights
      * */
     public static Object[] readJoinCostWeightsFile( String fileName ) throws IOException, FileNotFoundException {
-        // TODO: code duplication: merge with code in JoinCostFileMaker
         Vector v = new Vector( 16, 16 );
         Vector vf = new Vector( 16, 16 );
         /* Open the file */
@@ -163,6 +168,7 @@ public class JoinCostFeatures implements JoinCostFunction {
         /* Loop through the lines */
         String line = null;
         String[] fields = null;
+        float sumOfWeights = 0;
         while ((line = in.readLine()) != null) {
             // System.out.println( line );
             line = line.split( "#", 2 )[0];  // Remove possible trailing comments
@@ -171,14 +177,23 @@ public class JoinCostFeatures implements JoinCostFunction {
             line = line.split( ":", 2 )[1].trim();  // Remove the line number and :
             // System.out.print( "CLEANED: [" + line + "]" );
             fields = line.split( "\\s", 2 ); // Separate the weight value from the function name
-            v.add( new Float( fields[0] ) ); // Push the weight
+            float aWeight = Float.parseFloat(fields[0]);
+            sumOfWeights += aWeight;
+            v.add( new Float(aWeight) ); // Push the weight
             vf.add( fields[1] );             // Push the function
             // System.out.println( "NBFEA=" + numberOfFeatures );
         }
         // System.out.flush();
-        /* Export the vectors as arrays, and return these as an Object[2].*/
-        Float[] fw = (Float[]) v.toArray( new Float[v.size()] );
+        /* Export the vector of weighting function names as a String array: */
         String[] wfun = (String[]) vf.toArray( new String[vf.size()] );
+        /* For the weights, create a float array containing the weights,
+         * normalized such that they sum to one: */
+        float[] fw = new float[v.size()];
+        for (int i=0; i<fw.length; i++) {
+            Float aWeight = (Float) v.get(i);
+            fw[i] = aWeight.floatValue() / sumOfWeights;
+        }
+        /* Return these as an Object[2].*/
         return new Object[] {fw, wfun};
     }
 
@@ -282,21 +297,50 @@ public class JoinCostFeatures implements JoinCostFunction {
     }
     
     /**
-     * A cast of the cost() method to respect the JoinCostFunction interface.
+     * A combined cost computation, as a weighted sum
+     * of the signal-based cost (computed from the units)
+     * and the phonetics-based cost (computed from the targets).
      * 
+     * @param t1 The left target.
      * @param u1 The left unit.
+     * @param t2 The right target.
      * @param u2 The right unit.
      * 
-     * @return the cost of joining the right Join Cost features
-     * of the left unit with the left Join Cost Features
-     * of the right unit, as an int value.
+     * @return the cost of joining the left unit with the right unit, as a non-negative value.
      */
-    public double cost( Unit u1, Unit u2 ) {
+    public double cost( Target t1, Unit u1, Target t2, Unit u2 ) {
         // If the two are neighbors, joining them is for free:
         if (u1.index+1 == u2.index) return 0;
         // Units of length 0 cannot be joined:
         if (u1.getDuration() == 0 || u2.getDuration() == 0) return Double.POSITIVE_INFINITY;
-        return cost( u1.index, u2.index );
+        return wSignal * cost( u1.index, u2.index ) + wPhonetic * cost(t1, t2);
     }
     
+    /**
+     * A phonetic join cost, computed solely from the target.
+     * @param t1 the left target
+     * @param t2 the right target
+     * @return a non-negative join cost, usually between 0 (best) and 1 (worst).
+     */
+    protected double cost(Target t1, Target t2)
+    {
+        // TODO: This is really ad hoc for the moment. Redo once we know what we are doing.
+        // Add penalties for a number of criteria.
+        double cost = 0;
+        if (t1 instanceof HalfPhoneTarget) {
+            assert t2 instanceof HalfPhoneTarget;
+            HalfPhoneTarget h1 = (HalfPhoneTarget) t1;
+            // Try to avoid joining at phoneme boundaries:
+            if (h1.isRightHalf()) cost += 0.5;
+        }
+        Phoneme p1 = t1.getSampaPhoneme();
+        Phoneme p2 = t2.getSampaPhoneme();
+        if (p1.isVowel()) cost += 0.7;
+        else if (p1.isNasal()) cost += 0.3;
+        else if (p1.isLiquid()) cost += 0.3;
+        else if (p1.isGlide()) cost += 0.5;
+        else if (p1.isFricative()) cost += 0.1;
+        // add 0 cost for plosives and pauses
+        return cost;
+    }
 }
