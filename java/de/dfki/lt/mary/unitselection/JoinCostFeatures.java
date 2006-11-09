@@ -42,9 +42,12 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
+import com.sun.speech.freetts.Item;
+
 import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.mary.modules.phonemiser.Phoneme;
 import de.dfki.lt.mary.modules.phonemiser.PhonemeSet;
+import de.dfki.lt.mary.unitselection.featureprocessors.MaryGenericFeatureProcessors;
 import de.dfki.lt.mary.unitselection.voiceimport.MaryHeader;
 import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunc;
 import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunctionManager;
@@ -140,9 +143,11 @@ public class JoinCostFeatures implements JoinCostFunction {
             for ( int i = 0; i < numberOfUnits; i++ ) {
                 //System.out.println("Reading join features for unit "+i+" out of "+numberOfUnits);
                 leftJCF[i] = new float[numberOfFeatures];
-                rightJCF[i] = new float[numberOfFeatures];
                 for ( int j = 0; j < numberOfFeatures; j++ ) {
                     leftJCF[i][j] = raf.readFloat();
+                }
+                rightJCF[i] = new float[numberOfFeatures];
+                for ( int j = 0; j < numberOfFeatures; j++ ) {
                     rightJCF[i][j] = raf.readFloat();
                 }
             }
@@ -327,20 +332,46 @@ public class JoinCostFeatures implements JoinCostFunction {
         // TODO: This is really ad hoc for the moment. Redo once we know what we are doing.
         // Add penalties for a number of criteria.
         double cost = 0;
-        if (t1 instanceof HalfPhoneTarget) {
-            assert t2 instanceof HalfPhoneTarget;
-            HalfPhoneTarget h1 = (HalfPhoneTarget) t1;
-            // Try to avoid joining at phoneme boundaries:
-            if (h1.isRightHalf()) cost += 0.5;
+        // Stressed?
+        boolean stressed1 = false;
+        Item syllable1 = new MaryGenericFeatureProcessors.SyllableNavigator().getItem(t1);
+        if (syllable1 != null) {
+            String value = syllable1.getFeatures().getString("stress");
+            if (value != null && value.equals("1")) stressed1 = true;
         }
+        boolean stressed2 = false;
+        Item syllable2 = new MaryGenericFeatureProcessors.SyllableNavigator().getItem(t2);
+        if (syllable2 != null) {
+            String value = syllable2.getFeatures().getString("stress");
+            if (value != null && value.equals("1")) stressed2 = true;
+        }
+        // Try to avoid joining in a stressed syllable:
+        if (stressed1 || stressed2) cost += 0.2;
         Phoneme p1 = t1.getSampaPhoneme();
         Phoneme p2 = t2.getSampaPhoneme();
-        if (p1.isVowel()) cost += 0.7;
-        else if (p1.isNasal()) cost += 0.3;
-        else if (p1.isLiquid()) cost += 0.3;
-        else if (p1.isGlide()) cost += 0.5;
-        else if (p1.isFricative()) cost += 0.1;
-        // add 0 cost for plosives and pauses
+        if (!(t1 instanceof HalfPhoneTarget) // phone synthesis
+            || ((HalfPhoneTarget)t1).isRightHalf())    { // half phone synthesis
+            // We are at a phoneme boundary
+            // Try to avoid joining at phoneme boundaries:
+            cost += 1;
+        }
+                
+        // Discourage joining vowels:
+        if (p1.isVowel() || p2.isVowel()) cost += 0.2;
+        // Discourage joining glides:
+        if (p1.isGlide() || p2.isGlide()) cost += 0.2;
+        // Discourage joining voiced segments:
+        if (p1.isVoiced() || p2.isVoiced()) cost += 0.1;
+        // If both are voiced, it's really bad
+        if (p1.isVoiced() && p2.isVoiced()) cost += 0.1;
+        // Slightly penalize nasals and liquids
+        if (p1.isNasal() || p2.isNasal()) cost += 0.05;
+        if (p1.isLiquid() || p2.isLiquid()) cost += 0.05;
+        // Fricatives -- nothing?
+        // Plosives -- nothing?
+        
+        if (cost > 1) cost = 1;
         return cost;
     }
+    
 }
