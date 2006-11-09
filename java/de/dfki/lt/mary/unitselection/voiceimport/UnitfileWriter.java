@@ -157,11 +157,13 @@ public class UnitfileWriter implements VoiceImportComponent
     }
 
     /**
-     * @param args
+     * Provide the progress of computation, in percent, or -1 if
+     * that feature is not implemented.
+     * @return -1 if not implemented, or an integer between 0 and 100.
      */
-    public static void main(String[] args) throws IOException
+    public int getProgress()
     {
-        new UnitfileWriter( null, null ).compute();
+        return -1;
     }
 
 }

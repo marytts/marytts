@@ -32,6 +32,7 @@
 package de.dfki.lt.mary.unitselection.voiceimport;
 
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
@@ -50,6 +51,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 
 /**
@@ -95,7 +97,10 @@ public class DatabaseImportMain extends JFrame
             classname = classname.substring(classname.lastIndexOf('.')+1);
             checkboxes[i] = new JCheckBox(classname);
             //checkboxes[i].setPreferredSize(new Dimension(200, 30));
-            checkboxPane.add(checkboxes[i]);
+            JPanel line = new JPanel();
+            line.setLayout(new FlowLayout(FlowLayout.LEFT));
+            line.add(checkboxes[i]);
+            checkboxPane.add(line);
         }
         gridC.gridx = 0;
         gridC.gridy = 0;
@@ -162,12 +167,35 @@ public class DatabaseImportMain extends JFrame
                 for (int i=0; i<components.length; i++) {
                     if (checkboxes[i].isSelected()) {
                         boolean success = false;
+                        Container parent = checkboxes[i].getParent();
+                        final JProgressBar progress = new JProgressBar();
+                        final VoiceImportComponent currentComponent = components[i];
+                        if (currentComponent.getProgress() != -1) {
+                            progress.setStringPainted(true);
+                            new Thread("ProgressThread") {
+                                public void run() {
+                                    int percent = 0;
+                                    while (percent < 100) {
+                                        progress.setValue(percent);
+                                        try { Thread.sleep(500); }
+                                        catch (InterruptedException ie) {}
+                                        percent = currentComponent.getProgress();
+                                    }
+                                }
+                            }.start();
+                        } else {
+                            progress.setIndeterminate(true);
+                        }
+                        parent.add(progress);
+                        progress.setVisible(true);
+                        parent.validate();
                         try {
-                            success = components[i].compute();
+                            success = currentComponent.compute();
                         } catch (Exception exc) {
                             checkboxes[i].setBackground(Color.RED);
                             checkboxes[i].setSelected(false);
                             runButton.setEnabled(true);
+                            progress.setVisible(false);
                             throw new RuntimeException( "The component " + checkboxes[i].getText() + " produced the following exception: ", exc );
                         }
                         if (success) {
@@ -176,6 +204,7 @@ public class DatabaseImportMain extends JFrame
                             checkboxes[i].setBackground(Color.RED);
                         }
                         checkboxes[i].setSelected(false);
+                        progress.setVisible(false);
                     }
                 }
                 runButton.setEnabled(true);

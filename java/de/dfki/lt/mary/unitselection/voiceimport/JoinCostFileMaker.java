@@ -50,6 +50,7 @@ public class JoinCostFileMaker implements VoiceImportComponent {
     
     private DatabaseLayout db = null;
     private BasenameList bnl = null;
+    private int percent = 0;
     
     private int numberOfFeatures = 0;
     private float[] fw = null;
@@ -165,14 +166,10 @@ public class JoinCostFileMaker implements VoiceImportComponent {
             }
             
             /* Loop through the units */
-            int nextPercentHit = 0;
-            int percent = 0;
+
             for ( int i = 0; i < ufr.getNumberOfUnits(); i++ ) {
                 percent = 100*i/ufr.getNumberOfUnits();
-                if ( percent >= nextPercentHit ) {
-                    System.out.println(percent+"% of "+ufr.getNumberOfUnits()+" units done...");
-                    nextPercentHit += 10;
-                }
+
                 /* Read the unit */
                 unitPosition = ufr.getUnit(i).getStart();
                 unitDuration = ufr.getUnit(i).getDuration();
@@ -304,5 +301,16 @@ public class JoinCostFileMaker implements VoiceImportComponent {
             return false;
         }
     }
+    
+    /**
+     * Provide the progress of computation, in percent, or -1 if
+     * that feature is not implemented.
+     * @return -1 if not implemented, or an integer between 0 and 100.
+     */
+    public int getProgress()
+    {
+        return percent;
+    }
+
 
 }
