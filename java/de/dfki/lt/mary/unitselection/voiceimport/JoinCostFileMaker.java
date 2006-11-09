@@ -52,7 +52,7 @@ public class JoinCostFileMaker implements VoiceImportComponent {
     private BasenameList bnl = null;
     
     private int numberOfFeatures = 0;
-    private Float[] fw = null;
+    private float[] fw = null;
     private String[] wfun = null;
     
     /** Constructor */
@@ -105,14 +105,14 @@ public class JoinCostFileMaker implements VoiceImportComponent {
         /****************************/
         /* Load the weight vectors */
         Object[] weightData = JoinCostFeatures.readJoinCostWeightsFile( db.joinCostWeightsFileName() );
-        fw = (Float[]) weightData[0];
+        fw = (float[]) weightData[0];
         wfun = (String[]) weightData[1];
         numberOfFeatures = fw.length;
         /* Output those vectors */
         try {
             jcf.writeInt( fw.length );
             for ( int i = 0; i < fw.length; i++ ) {
-                jcf.writeFloat( fw[i].floatValue() );
+                jcf.writeFloat( fw[i] );
                 jcf.writeUTF( wfun[i] );
             }
         }

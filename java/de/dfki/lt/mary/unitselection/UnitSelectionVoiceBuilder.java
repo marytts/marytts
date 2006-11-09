@@ -40,6 +40,7 @@ import org.apache.log4j.Logger;
 import com.sun.speech.freetts.lexicon.Lexicon;
 
 import de.dfki.lt.mary.MaryProperties;
+import de.dfki.lt.mary.modules.phonemiser.PhonemeSet;
 import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.modules.synthesis.WaveformSynthesizer;
 import de.dfki.lt.mary.modules.synthesis.Voice.Gender;

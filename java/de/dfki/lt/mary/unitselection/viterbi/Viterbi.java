@@ -39,6 +39,7 @@ import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
 
+import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.mary.unitselection.JoinCostFunction;
 import de.dfki.lt.mary.unitselection.SelectedUnit;
 import de.dfki.lt.mary.unitselection.Target;
@@ -80,6 +81,8 @@ public  class Viterbi
     //-1: unlimited search
     // n>0: beam search, retain only the n best paths at each step.
     protected int searchStrategy = 25;
+    protected final float wTargetCosts = Float.parseFloat(MaryProperties.getProperty("viterbi.wTargetCosts", "0.5"));
+    protected final float wJoinCosts = 1 - wTargetCosts;
     
     protected ViterbiPoint firstPoint = null;
     protected ViterbiPoint lastPoint = null;
@@ -303,10 +306,15 @@ public  class Viterbi
             joinCost = 0;
         } else {
             // Join costs:
+            Target target = candidate.getTarget();
+            Target prevTarget = path.getCandidate().getTarget();
             Unit prevUnit = path.getCandidate().getUnit();
-            joinCost = joinCostFunction.cost(prevUnit, candidateUnit);
+            joinCost = joinCostFunction.cost(prevTarget, prevUnit, target, candidateUnit);
         }
-        cost = joinCost + targetCost;
+        // Total cost is a weighted sum of join cost and target cost:
+        //     cost = (1-r) * joinCost + r * targetCost,
+        // where r is given as the property "viterbi.wTargetCost" in a config file.
+        cost = wJoinCosts * joinCost + wTargetCosts * targetCost;
         if (joinCost < Float.POSITIVE_INFINITY)
             cumulJoinCosts += joinCost;
         nJoinCosts++;

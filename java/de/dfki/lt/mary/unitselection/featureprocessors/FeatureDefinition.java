@@ -78,7 +78,8 @@ public class FeatureDefinition
      * @param input a BufferedReader from which a textual feature definition
      * can be read.
      * @param readWeights a boolean indicating whether or not to read
-     * weights from input.
+     * weights from input. If weights are read, they will be normalized
+     * so that they sum to one.
      * @throws IOException if a reading problem occurs
      *
      */
@@ -125,6 +126,7 @@ public class FeatureDefinition
         featureNames = new IntStringTranslator(total);
         byteFeatureValues = new ByteStringTranslator[numByteFeatures];
         shortFeatureValues = new ShortStringTranslator[numShortFeatures];
+        float sumOfWeights = 0; // for normalisation of weights
         if (readWeights) {
             featureWeights = new float[total];
             floatWeightFuncts = new String[numContinuousFeatures];
@@ -140,6 +142,7 @@ public class FeatureDefinition
                 featureDef = line.substring(seppos+1).trim();
                 // The weight definition is simply the float number:
                 featureWeights[i] = Float.parseFloat(weightDef);
+                sumOfWeights += featureWeights[i];
                 if (featureWeights[i] < 0) throw new IOException("Negative weight found in line '"+line+"'");
             } else {
                 featureDef = line;
@@ -161,6 +164,7 @@ public class FeatureDefinition
                 featureDef = line.substring(seppos+1).trim();
                 // The weight definition is simply the float number:
                 featureWeights[numByteFeatures+i] = Float.parseFloat(weightDef);
+                sumOfWeights += featureWeights[numByteFeatures+i];
                 if (featureWeights[numByteFeatures+i] < 0) throw new IOException("Negative weight found in line '"+line+"'");
             } else {
                 featureDef = line;
@@ -183,6 +187,7 @@ public class FeatureDefinition
                 // The weight definition is the float number plus a definition of a weight function:
                 String[] weightAndFunction = weightDef.split("\\s+", 2);
                 featureWeights[numByteFeatures+numShortFeatures+i] = Float.parseFloat(weightAndFunction[0]);
+                sumOfWeights += featureWeights[numByteFeatures+numShortFeatures+i];
                 if (featureWeights[numByteFeatures+numShortFeatures+i] < 0) throw new IOException("Negative weight found in line '"+line+"'");
                 try {
                     floatWeightFuncts[i] = weightAndFunction[1];
@@ -200,7 +205,12 @@ public class FeatureDefinition
             // Now featureDef is the feature name. 
             featureNames.set(numByteFeatures+numShortFeatures+i, featureDef);
         }
-
+        // Normalize weights to sum to one:
+        if (readWeights) {
+            for (int i=0; i<total; i++) {
+                featureWeights[i] /= sumOfWeights;
+            }
+        }
     }
     
     
@@ -223,6 +233,9 @@ public class FeatureDefinition
         // to be done by hand for featureWeights.
         featureNames = new IntStringTranslator(numByteFeatures);
         featureWeights = new float[numByteFeatures];
+        // There is no need to normalise weights here, because
+        // they have already been normalized before the binary
+        // file was written.
         for (int i=0; i<numByteFeatures; i++) {
             featureWeights[i] = input.readFloat();
             String featureName = input.readUTF();
