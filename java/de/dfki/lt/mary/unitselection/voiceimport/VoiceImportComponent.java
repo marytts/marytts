@@ -41,4 +41,12 @@ public interface VoiceImportComponent
      * @return true on success, false on failure
      */
     public boolean compute() throws Exception;
+    
+    /**
+     * Provide the progress of computation, in percent, or -1 if
+     * that feature is not implemented.
+     * @return -1 if not implemented, or an integer between 0 and 100.
+     */
+    public int getProgress();
+    
 }
