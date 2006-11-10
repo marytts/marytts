@@ -48,6 +48,7 @@ public class LPCTimelineMaker implements VoiceImportComponent
 
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
+    protected int percent = 0;
     
     public LPCTimelineMaker( DatabaseLayout setdb, BasenameList setbnl ) {
         this.db = setdb;
@@ -110,6 +111,7 @@ public class LPCTimelineMaker implements VoiceImportComponent
             
             /* Then, browse the remaining files: */
             for ( int i = 1; i < baseNameArray.length; i++ ) {
+                percent = 100*i/baseNameArray.length;
                 /* - open+load */
                 // System.out.println( baseNameArray[i] );
                 lpcFile = new ESTTrackReader( db.lpcDirName() + baseNameArray[i] + db.lpcExt() );
@@ -259,7 +261,7 @@ public class LPCTimelineMaker implements VoiceImportComponent
      */
     public int getProgress()
     {
-        return -1;
+        return percent;
     }
 
 }

@@ -25,6 +25,7 @@ public class UnitLabelComputer implements VoiceImportComponent
     
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
+    protected int percent = 0;
     
     /**/
     public UnitLabelComputer( DatabaseLayout setdb, BasenameList setbnl ) throws IOException
@@ -47,6 +48,7 @@ public class UnitLabelComputer implements VoiceImportComponent
         System.out.println( "From phonetic label files: " + db.labDirName() + "*" + db.labExt() );
         System.out.println( "To       unit label files: " + db.unitLabDirName() + "*" + db.unitLabExt() );
         for (int i=0; i<bnl.getLength(); i++) {
+            percent = 100*i/bnl.getLength();
             File labFile = new File( db.labDirName() + bnl.getName(i) + db.labExt() );
             if ( !labFile.exists() ) {
                 System.out.println( "Utterance [" + bnl.getName(i) + "] does not have a phonetic label file." );
@@ -140,7 +142,7 @@ public class UnitLabelComputer implements VoiceImportComponent
      */
     public int getProgress()
     {
-        return -1;
+        return percent;
     }
 
 }

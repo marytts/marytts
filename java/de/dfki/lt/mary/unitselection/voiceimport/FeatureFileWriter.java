@@ -54,6 +54,7 @@ public class FeatureFileWriter implements VoiceImportComponent
     protected FeatureDefinition featureDefinition;
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
+    protected int percent = 0;
     
     public FeatureFileWriter( DatabaseLayout setdb, BasenameList setbnl )
     {
@@ -120,6 +121,7 @@ public class FeatureFileWriter implements VoiceImportComponent
         FeatureVector end = featureDefinition.createEdgeFeatureVector(0, false);
         // Loop over all utterances
         for (int i=0; i<bnl.getLength(); i++) {
+            percent = 100*i/bnl.getLength();
             System.out.print( "    " + bnl.getName(i) + " : Entering at index (" + index + ") -- " );
             BufferedReader uttFeats = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitFeaDirName() + bnl.getName(i) + db.unitFeaExt() )), "UTF-8"));
             FeatureDefinition uttFeatDefinition = new FeatureDefinition(uttFeats, false); // false: do not read weights
@@ -198,7 +200,7 @@ public class FeatureFileWriter implements VoiceImportComponent
      */
     public int getProgress()
     {
-        return -1;
+        return percent;
     }
 
     /**

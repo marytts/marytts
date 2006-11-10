@@ -49,6 +49,7 @@ public class MCepTimelineMaker implements VoiceImportComponent
 
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
+    protected int percent = 0;
     
     public MCepTimelineMaker( DatabaseLayout setdb, BasenameList setbnl ) {
         this.db = setdb;
@@ -110,6 +111,7 @@ public class MCepTimelineMaker implements VoiceImportComponent
             
             /* Then, browse the remaining files: */
             for ( int i = 1; i < baseNameArray.length; i++ ) {
+                percent = 100*i/baseNameArray.length;
                 /* - open+load */
                 // System.out.println( baseNameArray[i] );
                 mcepFile = new ESTTrackReader( db.melcepDirName() + baseNameArray[i] + db.melcepExt() );
@@ -228,7 +230,7 @@ public class MCepTimelineMaker implements VoiceImportComponent
      */
     public int getProgress()
     {
-        return -1;
+        return percent;
     }
 
 }

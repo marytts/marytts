@@ -49,6 +49,7 @@ public class UnitfileWriter implements VoiceImportComponent
 
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
+    protected int percent = 0;
     
     public UnitfileWriter( DatabaseLayout setdb, BasenameList setbnl )
     {
@@ -87,6 +88,7 @@ public class UnitfileWriter implements VoiceImportComponent
         long localNbrSamplesFromPM = 0l;
         ESTTrackReader pmFile = null;
         for (int i=0; i<bnl.getLength(); i++) {
+            percent = 100*i/bnl.getLength();
             /* Open the relevant pitchmark file */
             pmFile = new ESTTrackReader( db.correctedPitchmarksDirName() + "/" + bnl.getName(i) + db.correctedPitchmarksExt() );
             // Output the utterance start marker: "null" unit
@@ -163,7 +165,7 @@ public class UnitfileWriter implements VoiceImportComponent
      */
     public int getProgress()
     {
-        return -1;
+        return percent;
     }
 
 }

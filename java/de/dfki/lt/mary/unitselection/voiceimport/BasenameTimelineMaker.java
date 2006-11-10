@@ -46,6 +46,7 @@ public class BasenameTimelineMaker implements VoiceImportComponent
 
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
+    protected int percent = 0;
     
     public BasenameTimelineMaker( DatabaseLayout setdb, BasenameList setbnl ) {
         this.db = setdb;
@@ -103,6 +104,7 @@ public class BasenameTimelineMaker implements VoiceImportComponent
             ESTTrackReader pmFile = null;
             int duration = 0;
             for ( int i = 0; i < baseNameArray.length; i++ ) {
+                percent = 100*i/baseNameArray.length;                
                 /* - open+load */
                 pmFile = new ESTTrackReader( db.pitchmarksDirName() + "/" + baseNameArray[i] + db.pitchmarksExt() );
                 wav = new WavReader( db.wavDirName() + baseNameArray[i] + db.wavExt() );
@@ -148,7 +150,7 @@ public class BasenameTimelineMaker implements VoiceImportComponent
      */
     public int getProgress()
     {
-        return -1;
+        return percent;
     }
 
 }

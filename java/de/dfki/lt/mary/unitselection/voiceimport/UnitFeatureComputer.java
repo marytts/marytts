@@ -24,6 +24,7 @@ public class UnitFeatureComputer implements VoiceImportComponent
 
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
+    protected int percent = 0;
     
     public static String getMaryXMLHeaderWithInitialBoundary(String locale)
     {
@@ -86,6 +87,7 @@ public class UnitFeatureComputer implements VoiceImportComponent
         //System.out.println("Computing unit features for "+basenames.length+" files");
         System.out.println( "Computing unit features for " + bnl.getLength() + " files" );
         for (int i=0; i<bnl.getLength(); i++) {
+            percent = 100*i/bnl.getLength();
             computeFeaturesFor( bnl.getName(i) );
             System.out.println( "    " + bnl.getName(i) );
         }
@@ -121,7 +123,7 @@ public class UnitFeatureComputer implements VoiceImportComponent
      */
     public int getProgress()
     {
-        return -1;
+        return percent;
     }
 
 }
