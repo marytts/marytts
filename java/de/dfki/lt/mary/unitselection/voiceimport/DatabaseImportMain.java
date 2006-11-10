@@ -31,6 +31,7 @@
  */
 package de.dfki.lt.mary.unitselection.voiceimport;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -98,8 +99,8 @@ public class DatabaseImportMain extends JFrame
             checkboxes[i] = new JCheckBox(classname);
             //checkboxes[i].setPreferredSize(new Dimension(200, 30));
             JPanel line = new JPanel();
-            line.setLayout(new FlowLayout(FlowLayout.LEFT));
-            line.add(checkboxes[i]);
+            line.setLayout(new BorderLayout(5, 0));
+            line.add(checkboxes[i], BorderLayout.WEST);
             checkboxPane.add(line);
         }
         gridC.gridx = 0;
@@ -186,7 +187,7 @@ public class DatabaseImportMain extends JFrame
                         } else {
                             progress.setIndeterminate(true);
                         }
-                        parent.add(progress);
+                        parent.add(progress, BorderLayout.EAST);
                         progress.setVisible(true);
                         parent.validate();
                         try {
