@@ -142,7 +142,7 @@ public class JoinCostFileMaker implements VoiceImportComponent {
             Vector buff = new Vector( 0, 5 );
             // final int F0_HORIZON = 5;
             final int F0_HORIZON = 1;
-            long[] periods = new long[F0_HORIZON];
+            boolean averageF0AcrossUnitBoundary = true;
             long median = 0;
             double leftF0 = 0.0d;
             double prevRightF0 = 0.0d;
@@ -174,8 +174,9 @@ public class JoinCostFileMaker implements VoiceImportComponent {
                 unitPosition = ufr.getUnit(i).getStart();
                 unitDuration = ufr.getUnit(i).getDuration();
                 
-                /* If the unit is not a START or END marker: */
-                if ( unitDuration != -1 ) {
+                /* If the unit is not a START or END marker
+                 * and has length > 0: */
+                if ( unitDuration != -1 && unitDuration > 0 ) {
                     
                     /* Reset the datagram buffer */
                     buff.removeAllElements();
@@ -183,18 +184,18 @@ public class JoinCostFileMaker implements VoiceImportComponent {
                     /* -- COMPUTE the LEFT join cost features: */
                     /* Grow the datagram vector to F0_HORIZON datagram, but stop if it trespasses the unit boundary: */
                     targetEndPoint = unitPosition + unitDuration;
-                    dat = mcep.getDatagram( unitPosition, unitSampleFreq );
-                    buff.add( dat );
-                    endPoint = unitPosition + dat.getDuration();
-                    for ( int j = 1; j < F0_HORIZON; j++ ) {
+                    endPoint = unitPosition;
+                    for ( int j = 0; j < F0_HORIZON; j++ ) {
+                        if ( endPoint >= targetEndPoint ) break;
                         dat = mcep.getDatagram( endPoint, unitSampleFreq );
-                        if ( (endPoint + dat.getDuration()) > targetEndPoint ) break;
-                        else {
-                            buff.add( dat );
-                            endPoint += dat.getDuration();
-                        }
+                        buff.add( dat );
+                        endPoint += dat.getDuration();
                     }
                     /* Compute the left F0 from the datagram durations: */
+                    assert buff.size() > 0 : "Unit seems to be shorter than one pitch period?!";
+                    // number of periods is <= F0_HORIZON --
+                    // usually ==, but < if unit is too short
+                    long[] periods = new long[buff.size()];
                     for ( int j = 0; j < buff.size(); j++ ) {
                         dat = (Datagram) buff.elementAt( j );
                         periods[j] = dat.getDuration();
@@ -207,13 +208,19 @@ public class JoinCostFileMaker implements VoiceImportComponent {
                     
                     /* -- WRITE: */
                     /* Complete the unfinished preceding unit by writing the join F0: */
-                    jcf.writeFloat( (float)( F0 ) );
+                    if (averageF0AcrossUnitBoundary)
+                        jcf.writeFloat( (float)( F0 ) );
+                    else 
+                        jcf.writeFloat( (float)( prevRightF0 ) );
                     // System.out.println( " and Right F0 is [" + F0 + "]Hz." );
                     /* Get the datagram corresponding to the left mel cepstra and pipe it out: */
                     dat = (Datagram) buff.elementAt( 0 );
                     jcf.write( dat.getData(), 0, dat.getData().length );
                     /* Write the left join F0, which is the same than at the end of the preceding unit: */
-                    jcf.writeFloat( (float)( F0 ) );
+                    if (averageF0AcrossUnitBoundary)
+                        jcf.writeFloat( (float)( F0 ) );
+                    else
+                        jcf.writeFloat( (float)( leftF0 ) );
                     // System.out.print( "At unit [" + i + "] :  (Buffsize " + buff.size() + ") Left F0 is [" + F0 + "]Hz" );
                     
                     
@@ -257,7 +264,10 @@ public class JoinCostFileMaker implements VoiceImportComponent {
                     /* Write the preceding right F0 join, except if
                      * this is the very first unit in the file: */
                     if ( i != 0 ) {
-                        jcf.writeFloat( (float)(F0) );
+                        if (averageF0AcrossUnitBoundary)
+                            jcf.writeFloat( (float)(F0) );
+                        else
+                            jcf.writeFloat( (float)( prevRightF0 ) );
                         // System.out.println( " and Right F0 is [" + F0 + "]Hz." );
                     }
                     /* Write the left mel cepstra for the current unit: */
@@ -265,7 +275,10 @@ public class JoinCostFileMaker implements VoiceImportComponent {
                         jcf.writeFloat( 0.0f );
                     }
                     /* Write the left F0 join: */
-                    jcf.writeFloat( (float)(F0) ); // (Assuming that leftF0 is 0.0 here.)
+                    if (averageF0AcrossUnitBoundary)
+                        jcf.writeFloat( (float)(F0) ); // (Assuming that leftF0 is 0.0 here.)
+                    else
+                        jcf.writeFloat( 0.0f );
                     // System.out.print( "At unit [" + i + "] : START/END unit. (Buffsize 0) Left F0 is [" + F0 + "]Hz" );
                     /* Write the right mel cepstra for the current unit: */
                     for ( int j = 0; j < numberOfMelcep; j++ ) {
@@ -279,7 +292,10 @@ public class JoinCostFileMaker implements VoiceImportComponent {
             
             /* Complete the very last unit by flushing the right join F0: */
             F0 = prevRightF0 / 2.0d; // (Assuming that leftF0 is 0 for a null unit.)
-            jcf.writeFloat( (float)( F0 ) );
+            if (averageF0AcrossUnitBoundary)
+                jcf.writeFloat( (float)( F0 ) );
+            else
+                jcf.writeFloat( (float)( prevRightF0 ) );
             // System.out.println( " and Right F0 is [" + F0 + "]Hz." );
             jcf.close();
         }
