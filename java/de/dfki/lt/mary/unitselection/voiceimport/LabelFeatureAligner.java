@@ -48,6 +48,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
     
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
+    protected int percent = 0;
     
     protected static final int TRYAGAIN = 0;
     protected static final int SKIP = 1;
@@ -82,6 +83,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
         Map problems = new TreeMap();
         
         for (int i=0; i<bnl.getLength(); i++) {
+            percent = 100*i/bnl.getLength();
             String errorMessage = verifyAlignment(bnl.getName(i));
             System.out.print( "    " + bnl.getName(i) );
             if (errorMessage == null) {
@@ -388,7 +390,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
      */
     public int getProgress()
     {
-        return -1;
+        return percent;
     }
 
 }

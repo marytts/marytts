@@ -48,6 +48,7 @@ public class WaveTimelineMaker implements VoiceImportComponent
 
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
+    protected int percent = 0;
     
     public WaveTimelineMaker( DatabaseLayout setdb, BasenameList setbnl ) {
         this.db = setdb;
@@ -104,6 +105,8 @@ public class WaveTimelineMaker implements VoiceImportComponent
             /* For each EST track file: */
             ESTTrackReader pmFile = null;
             for ( int i = 0; i < baseNameArray.length; i++ ) {
+                percent = 100*i/baseNameArray.length;
+
                 /* - open+load */
                 System.out.println( baseNameArray[i] );
                 pmFile = new ESTTrackReader( db.correctedPitchmarksDirName() + "/" + baseNameArray[i] + db.correctedPitchmarksExt() );
@@ -170,7 +173,7 @@ public class WaveTimelineMaker implements VoiceImportComponent
      */
     public int getProgress()
     {
-        return -1;
+        return percent;
     }
 
 }
