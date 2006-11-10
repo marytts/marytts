@@ -61,6 +61,7 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
     private String voicename;
     private String outputDir;
     private String[] filenames;
+    private int progress;
     
     /**
      * Create new LabelingPreparator
@@ -72,6 +73,7 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
             				BasenameList baseNames){
         this.dbLayout = dbLayout;
         this.baseNames = baseNames;
+        progress = 0;
     }
     
     /**
@@ -81,7 +83,7 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
      * @return true on success, false on failure
      */
     public boolean compute() throws Exception{
-        
+        progress = 0;
         System.out.println("Preparing voice database for labelling");
         /* get the directories of sphinxtrain and edinburgh speech tools */
         sphinxtraindir = System.getProperty("SPHINXTRAINDIR");
@@ -99,7 +101,8 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         
         //get the root dir and the voicename
         rootDir = new File(dbLayout.rootDirName());
-        voicename = rootDir.getName();
+        voicename = rootDir.getCanonicalPath();
+        voicename = voicename.substring(voicename.lastIndexOf("/")+1);
         //make new directories st and lab
         st = new File(rootDir.getAbsolutePath()+"/st");
         // get the output directory of files used by sphinxtrain 
@@ -111,11 +114,13 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         System.out.println("Setting up sphinx directory ...");
         setup();
         System.out.println(" ... done.");
+        progress = 10;
         
         /* dump the filenames */
         System.out.println("Dumping the filenames ...");
         dumpFilenames();
         System.out.println(" ... done.");
+        progress = 20;
         
         /* read in the transcriptions, 
          * build up dictionary and phone set; 
@@ -126,28 +131,33 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         Set phones = new HashSet();
         //fill dictionary and phone set, dump transcriptions   
         System.out.println("Building dictionary, phone set and dumping transcriptions ...");
-        //buildDictAndDumpTrans(dictionary,phones);
+        buildDictAndDumpTrans(dictionary,phones);
         System.out.println(" ... done.");
+        progress = 40;
         
         /* dump phone file */
         System.out.println("Dumping phone set ...");
-        //dumpPhoneFile(phones);
+        dumpPhoneFile(phones);
         System.out.println(" ... done.");
+        progress = 50;
         
         /* dump dictionary file */
         System.out.println("Dumping dictionary ...");
-        //dumpDictFile(dictionary);
+        dumpDictFile(dictionary);
         System.out.println(" ... done.");
+        progress = 60;
         
         /* dump filler dictionary file */
         System.out.println("Dumping filler dictionary ...");
-        //dumpFillerDictFile();
+        dumpFillerDictFile();
         System.out.println(" ... done.");
+        progress = 70;
         
         /* Convert MFCCs for Sphinxtrain */
         System.out.println("Converting MFCCs ...");
         convertMFCCs();
         System.out.println(" ... done.");
+        progress = 90;
         
         /* rewrite the config file */
         System.out.println("Rewriting config file ...");
@@ -155,6 +165,8 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         System.out.println(" ... done.");
         //exit
         System.out.println("All done!");
+        progress = 100;
+        
         return true;
     }
     
@@ -192,10 +204,10 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
     private void dumpFilenames()throws IOException{
         //open filename file
         PrintWriter baseNameOut = new PrintWriter(
-                new FileOutputStream (new File(outputDir+"/"+voicename+".fileids")));
+                new FileOutputStream (new File(outputDir+"/"+voicename+"_train.fileids")));
         //dump the filenames        
         for (int i=0;i<filenames.length;i++){
-         baseNameOut.print("\n"+filenames[i]);   
+                baseNameOut.println(filenames[i]); 
         }
         baseNameOut.flush();
         baseNameOut.close();
@@ -219,7 +231,7 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         
         //open transcription file used for training
         PrintWriter transTrainOut = new PrintWriter(
-                new FileOutputStream (new File(outputDir+"/"+voicename+".transcription")));
+                new FileOutputStream (new File(outputDir+"/"+voicename+"_train.transcription")));
         
         //open transcription file used for labeling
         PrintWriter transLabelOut = new PrintWriter(
@@ -234,6 +246,7 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         //and collect words and phones 
         //for dictionary and phone set
         String line = transIn.readLine();
+        boolean first = true;
         while (line != null){
             StringTokenizer tok = new StringTokenizer(line);
             //discard first token
@@ -241,8 +254,9 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
             //next token is filename, check if it is in the baseNames
             String nextFilename = tok.nextToken();
             if (baseNames.contains(nextFilename)){
-                //next token is transcription
-                String nextTrans = tok.nextToken();
+                //transcription is everything between " "
+                String nextTrans = line.substring(line.indexOf("\"")+1,line.lastIndexOf("\""));
+                System.out.println(nextTrans);
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
                 //process and dump
                 mary.process(nextTrans, inputFormat, outputFormat, null, null, os);
@@ -258,17 +272,22 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
                 	    false);
                 Element token = null;
                 //collect the words
+                int numTokens = 0;
                 StringBuffer transBuff = new StringBuffer();
                 while ((token = (Element) tokensIt.nextNode()) != null) {
                     //get the word 
                     String word = MaryDomUtils.tokenText(token).toUpperCase();
                     //if the word is a punctuation, ignore it
-                    if (!Character.isLetter(word.charAt(0))){
+                    if ((word.equals("")) || 
+                            ((!Character.isLetter(word.charAt(0)))
+                                    && word.length()<2)){
                         continue;
                     }
+                    //Convert ' to Q
+                    word = word.replace('\'','Q');
                     //append word to transcription string
                     transBuff.append(" "+word);
-            
+                    
                     if (!dictionary.containsKey(word)){
                         //store word and pronounciation in dictionary:
                         //build new pronounciation List
@@ -290,12 +309,22 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
                             phones.add(phone);
                         }
                     }//end of if not word in dictionary
+                    numTokens++;
                 } //end of loop through tokens
-    
+                System.out.println("NumTokens: "+numTokens);
                 //print transcription to transcription out
-                transTrainOut.println("<s>"+transBuff.toString()+" </s>"
+                if (first){
+                    transTrainOut.print("<s>"+transBuff.toString()+" </s>"
                         +" ("+nextFilename+")");
-                transLabelOut.println(transBuff.toString());
+                    transLabelOut.print(transBuff.toString());
+                    System.out.println(transBuff.toString());
+                    first = false;
+                } else {
+                    transTrainOut.print("\n<s>"+transBuff.toString()+" </s>"
+                            +" ("+nextFilename+")");
+                    transLabelOut.print("\n"+transBuff.toString());
+                    System.out.println(transBuff.toString());
+                }
             } //end of if filename is in basename
             line = transIn.readLine();
         } //end of loop through lines of txt.done.data
@@ -340,6 +369,7 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         for (Iterator it = phones.iterator();it.hasNext();){
             phoneOut.println((String) it.next());
         }
+        phoneOut.print("SIL");
         phoneOut.flush();
         phoneOut.close();
         }
@@ -391,7 +421,11 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         String wavExt = dbLayout.wavExt();
         //loop through wav files
         Runtime rtime = Runtime.getRuntime();
-        /**
+        File wavDestDir = new File(st.getCanonicalPath()+"/wav");
+        if (!wavDestDir.exists()){
+            wavDestDir.mkdir();
+        }
+        
         for (int i=0;i<filenames.length;i++){
             String wavFileName = filenames[i];            
             //get a shell
@@ -401,7 +435,7 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
                     new OutputStreamWriter(process.getOutputStream()));
             //go to voicedir and call ch_wave
             pw.print("( cd "+rootDir.getCanonicalPath()
-                +"; "+estdir+"/bin/ch_wave -otype nist -o st/"+wavFileName
+                +"; "+estdir+"/bin/ch_wave -otype nist -o st/wav/"+wavFileName+wavExt
                 +" "+wavDir+wavFileName+wavExt
                 +"; exit )\n");
             pw.close();
@@ -409,7 +443,7 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
             process.waitFor();
             process.exitValue();
         }
-       **/
+       
         
         //correct st/bin/make_feats.pl
         File make_feats = new File(rootDir+"/st/bin/make_feats.pl");
@@ -432,7 +466,6 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         printOut.flush();
         printOut.close();
         
-        //TODO: make_feats.pl throws errors, fix them
         //call make_feats.pl
         rtime = Runtime.getRuntime();
         Process process = rtime.exec("/bin/bash");
@@ -441,22 +474,27 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
                 new OutputStreamWriter(process.getOutputStream()));
         //go to voicedir and call make_feats
         pw.print("(cd "+st.getAbsolutePath()
-                +"; bin/make_feats.pl -ctl etc/"+voicename+".fileids"
+                +"; bin/make_feats.pl -ctl etc/"+voicename+"_train.fileids"
+                +" -cfg etc/sphinx_train.cfg"
                 +"; exit )\n");
+        pw.flush();
         pw.close();
         //collect the output
-        BufferedReader inReader = new BufferedReader(
-                new InputStreamReader(process.getInputStream()));
-        line = inReader.readLine();
-        while(line!= null ) {
-            System.out.println(line);
-            line = inReader.readLine();
-        }
         BufferedReader errReader = new BufferedReader(
                 new InputStreamReader(process.getErrorStream()));
         while((line = errReader.readLine()) != null){
             System.out.println(line);
         }
+        BufferedReader inReader = new BufferedReader(
+                new InputStreamReader(process.getInputStream()));
+        
+        line = inReader.readLine();
+        while(line!= null ) {
+            System.out.println(line);
+            line = inReader.readLine();
+        }
+        
+        
         //shut down
         errReader.close();
         inReader.close();
@@ -501,12 +539,12 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
             }
             if (line.startsWith("$CFG_LISTOFFILES")){
                 //overwrite with basename list file name
-                sb.append("$CFG_LISTOFFILES    = \"$CFG_BASE_DIR/etc/$CFG_DB_NAME.fileids\";\n");
+                sb.append("$CFG_LISTOFFILES    = \"$CFG_BASE_DIR/etc/${CFG_DB_NAME}_train.fileids\";\n");
                 continue;
             }
             if (line.startsWith("$CFG_TRANSCRIPTFILE")){
                 //overwrite with transcription file name
-                sb.append("$CFG_TRANSCRIPTFILE = \"$CFG_BASE_DIR/etc/$CFG_DB_NAME.transcription\";\n");
+                sb.append("$CFG_TRANSCRIPTFILE = \"$CFG_BASE_DIR/etc/${CFG_DB_NAME}_train.transcription\";\n");
                 continue;
             }
             if (line.startsWith("$CFG_HMM_TYPE")){
@@ -533,7 +571,8 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
      */
     public int getProgress()
     {
-        return -1;
+        //TODO: Make progress counter more incremental
+        return progress;
     }
 
 }
