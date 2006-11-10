@@ -47,6 +47,7 @@ public class FeatureProcessorManager extends
             System.arraycopy(phonemes, 0, phonemeValues, 1, phonemes.length);
             addFeatureProcessor(new MaryLanguageFeatureProcessors.Phoneme(
                     "mary_phoneme", phonemeValues, segment));
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.SegOnsetCoda(phoneSet));
             // cplace: 0-n/a l-labial a-alveolar p-palatal b-labio_dental d-dental v-velar g-?
             String[] cplaceValues = new String[] { "0", "l", "a", "p", "b", "d", "v", "g"};
             addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature(phoneSet,
@@ -141,8 +142,6 @@ public class FeatureProcessorManager extends
         processors_en.put("seg_onset_glide", 
                 new LanguageFeatureProcessors.SegOnsetGlide(phoneSet));
 
-        processors_en.put("seg_onsetcoda", 
-                new LanguageFeatureProcessors.SegOnsetCoda(phoneSet));
         processors_en.put("syl_codasize", 
                 new LanguageFeatureProcessors.SylCodaSize(phoneSet));
         processors_en.put("syl_onsetsize", 

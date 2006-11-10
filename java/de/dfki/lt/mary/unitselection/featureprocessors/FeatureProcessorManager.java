@@ -28,7 +28,6 @@ public class FeatureProcessorManager
         addFeatureProcessor(new MaryGenericFeatureProcessors.Stressed("mary_stressed", syllable));
         addFeatureProcessor(new MaryGenericFeatureProcessors.Stressed("mary_prev_stressed", prevSyllable));
         addFeatureProcessor(new MaryGenericFeatureProcessors.Stressed("mary_next_stressed", nextSyllable));
-        addFeatureProcessor(new MaryGenericFeatureProcessors.AccentedSylIn());
         addFeatureProcessor(new MaryGenericFeatureProcessors.WordNumSyls());
         addFeatureProcessor(new MaryGenericFeatureProcessors.PosInSyl());
         addFeatureProcessor(new MaryGenericFeatureProcessors.SylBreak("mary_syl_break", syllable));
@@ -43,7 +42,14 @@ public class FeatureProcessorManager
         addFeatureProcessor(new MaryGenericFeatureProcessors.TobiEndtone("mary_next_tobi_endtone", nextSyllable));
         addFeatureProcessor(new MaryGenericFeatureProcessors.TobiEndtone("mary_nextnext_tobi_endtone", nextNextSyllable));
         addFeatureProcessor(new MaryGenericFeatureProcessors.WordPunc("mary_sentence_punc", lastWord));
-
+        addFeatureProcessor(new MaryGenericFeatureProcessors.NextAccent());
+        addFeatureProcessor(new MaryGenericFeatureProcessors.LastAccent());
+        addFeatureProcessor(new MaryGenericFeatureProcessors.SylIn());
+        addFeatureProcessor(new MaryGenericFeatureProcessors.SylOut());
+        addFeatureProcessor(new MaryGenericFeatureProcessors.StressedSylIn());
+        addFeatureProcessor(new MaryGenericFeatureProcessors.StressedSylOut());
+        addFeatureProcessor(new MaryGenericFeatureProcessors.AccentedSylIn());
+        addFeatureProcessor(new MaryGenericFeatureProcessors.AccentedSylOut());
     }
     
     protected void addFeatureProcessor(MaryFeatureProcessor fp)

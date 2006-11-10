@@ -1040,7 +1040,7 @@ public class MaryGenericFeatureProcessors
     
     
     /**
-     * Counts the number of stressed syllables until the next major break. This
+     * Counts the number of syllables since the last accent. This
      * is a feature processor. A feature processor takes an item, performs some
      * sort of processing on the item and returns an object.
      */
@@ -1061,7 +1061,7 @@ public class MaryGenericFeatureProcessors
         /**
          * Performs some processing on the given item.
          * @param target the target to process
-         * @return the number of accented syllables since the last major break
+         * @return the number of syllables since the last accent
          */
         public byte process(Target target)
         {
@@ -1081,7 +1081,7 @@ public class MaryGenericFeatureProcessors
     }
   
     /**
-     * Counts the number of stressed syllables until the next major break. This
+     * Counts the number of syllables until the next accent. This
      * is a feature processor. A feature processor takes an item, performs some
      * sort of processing on the item and returns an object.
      */
@@ -1102,7 +1102,7 @@ public class MaryGenericFeatureProcessors
         /**
          * Performs some processing on the given item.
          * @param target the target to process
-         * @return the number of accented syllables since the last major break
+         * @return the number of syllables until the next accent
          */
         public byte process(Target target)
         {
