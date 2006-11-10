@@ -31,12 +31,15 @@
  */
 package de.dfki.lt.mary.unitselection.viterbi;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedSet;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import de.dfki.lt.mary.MaryProperties;
@@ -46,6 +49,7 @@ import de.dfki.lt.mary.unitselection.Target;
 import de.dfki.lt.mary.unitselection.TargetCostFunction;
 import de.dfki.lt.mary.unitselection.Unit;
 import de.dfki.lt.mary.unitselection.UnitDatabase;
+import de.dfki.lt.util.PrintfFormat;
 
 
 
@@ -211,8 +215,6 @@ public  class Viterbi
                 }
             }
         }
-        logger.debug("Computed "+nTargetCosts+" target costs (avg. "+ (cumulTargetCosts/nTargetCosts)+")");
-        logger.debug("Computed "+nJoinCosts+" join costs (avg. "+ (cumulJoinCosts/nJoinCosts)+")");
     }
     
     /**
@@ -258,18 +260,71 @@ public  class Viterbi
         if (firstPoint == null || firstPoint.getNext() == null) {
             return selectedUnits; // null case
         }
-        ViterbiPath path = findBestPath();
-        if (path == null){
+        ViterbiPath best = findBestPath();
+        if (best == null){
             //System.out.println("No best path found");
             return null;
         }
-        for (; path != null; path = path.getPrevious()) {
+        for (ViterbiPath path = best; path != null; path = path.getPrevious()) {
             if (path.getCandidate() != null) {
                 SelectedUnit sel = new SelectedUnit(path.getCandidate().getUnit(),
                         path.getCandidate().getTarget());
                 selectedUnits.addFirst(sel);
             }
         }
+        if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            int prevIndex = -1; // index number of the previous unit
+            int[] lengthHistogram = new int[10];
+            int length = 0;
+            int numUnits = selectedUnits.size();
+            //TODO: Write debug output that detects if selected units belong together
+            for (int i=0; i<numUnits; i++) {
+                SelectedUnit u = (SelectedUnit) selectedUnits.get(i);
+                int index = u.getUnit().getIndex();
+                if (prevIndex+1==index) { // adjacent units
+                    length++;
+                } else {
+                    if (lengthHistogram.length <= length) {
+                        int[] dummy = new int[length+1];
+                        System.arraycopy(lengthHistogram, 0, dummy, 0, lengthHistogram.length);
+                        lengthHistogram = dummy;
+                    }
+                    lengthHistogram[length]++;
+                    length = 1;
+                    pw.println();
+                }
+                pw.print(database.getTargetCostFunction().getFeature(u.getUnit(), "mary_phoneme") + "("+ u.getUnit().getIndex()+ ")");
+                prevIndex = index;
+            }
+            if (lengthHistogram.length <= length) {
+                int[] dummy = new int[length+1];
+                System.arraycopy(lengthHistogram, 0, dummy, 0, lengthHistogram.length);
+                lengthHistogram = dummy;
+            }
+            lengthHistogram[length]++;
+            pw.println();
+            logger.debug("Selected units:\n"+sw.toString());
+            // Compute average length of stretches:
+            int total = 0;
+            int nStretches = 0;
+            for (int l=1; l<lengthHistogram.length; l++) {
+                // lengthHistogram[0] will be 0 anyway
+                total += lengthHistogram[l] * l;
+                nStretches += lengthHistogram[l];
+            }
+            float avgLength = total / (float) nStretches;
+            logger.debug("Avg. consecutive length: "+avgLength+" units");
+            // Cost of best path
+            double totalCost = best.getScore();
+            int elements = selectedUnits.size();
+            logger.debug("Avg. cost: best path "+new PrintfFormat("%.3f").sprintf(totalCost/(elements-1))
+                    +", avg. target "+new PrintfFormat("%.3f").sprintf(cumulTargetCosts/nTargetCosts)
+                    +", join "+new PrintfFormat("%.3f").sprintf(cumulJoinCosts/nJoinCosts)
+                    +" (n="+nTargetCosts+")");
+        }
+
         return selectedUnits;
     }
     
@@ -314,7 +369,9 @@ public  class Viterbi
         // Total cost is a weighted sum of join cost and target cost:
         //     cost = (1-r) * joinCost + r * targetCost,
         // where r is given as the property "viterbi.wTargetCost" in a config file.
-        cost = wJoinCosts * joinCost + wTargetCosts * targetCost;
+        targetCost *= wTargetCosts;
+        joinCost *= wJoinCosts;
+        cost = joinCost + targetCost;
         if (joinCost < Float.POSITIVE_INFINITY)
             cumulJoinCosts += joinCost;
         nJoinCosts++;
@@ -348,7 +405,10 @@ public  class Viterbi
         ViterbiPath best = (ViterbiPath) paths.first();
         // Set *next* pointers correctly:
         ViterbiPath path = best;
+        double totalCost = best.getScore();
+        int elements = 0;
         while (path != null) {
+            elements++;
             ViterbiPath prev = path.getPrevious();
             if (prev != null) prev.setNext(path);
             path = prev;
