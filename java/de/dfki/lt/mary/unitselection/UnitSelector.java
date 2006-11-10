@@ -130,45 +130,6 @@ public class UnitSelector
         if (selectedUnits == null) {
             throw new IllegalStateException("Viterbi: can't find path");
         }
-        if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            int prevIndex = -1; // index number of the previous unit
-            int[] lengthHistogram = new int[10];
-            int length = 1;
-            int numUnits = selectedUnits.size();
-            //TODO: Write debug output that detects if selected units belong together
-            for (int i=0; i<numUnits; i++) {
-                SelectedUnit u = (SelectedUnit) selectedUnits.get(i);
-                int index = u.getUnit().getIndex();
-                if (prevIndex+1==index) { // adjacent units
-                    length++;
-                } else {
-                    if (lengthHistogram.length <= length) {
-                        int[] dummy = new int[length+1];
-                        System.arraycopy(lengthHistogram, 0, dummy, 0, lengthHistogram.length);
-                        lengthHistogram = dummy;
-                    }
-                    lengthHistogram[length]++;
-                    length = 1;
-                    pw.println();
-                }
-                pw.print(database.targetCostFunction.getFeature(u.getUnit(), "mary_phoneme") + "("+ u.getUnit().getIndex()+ ")");
-                prevIndex = index;
-            }
-            pw.println();
-            logger.debug("Selected units:\n"+sw.toString());
-            // Compute average length of stretches:
-            int total = 0;
-            int nStretches = 0;
-            for (int l=1; l<lengthHistogram.length; l++) {
-                // lengthHistogram[0] will be 0 anyway
-                total += lengthHistogram[l] * l;
-                nStretches += lengthHistogram[l];
-            }
-            float avgLength = total / (float) nStretches;
-            logger.debug("Average length of a stretch (of adjacent units): "+avgLength+" units");
-        }
         long newtime = System.currentTimeMillis() - time;
         logger.debug("Selection took "+newtime+" milliseconds");
         return selectedUnits;
