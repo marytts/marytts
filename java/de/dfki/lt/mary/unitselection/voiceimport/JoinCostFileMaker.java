@@ -223,7 +223,7 @@ public class JoinCostFileMaker implements VoiceImportComponent {
                                                         *    it means we have not trespassed the unit yet,
                                                         *    so we can crawl further. */
                         dat = mcep.getDatagram( endPoint, unitSampleFreq );
-                        while ( (endPoint+dat.getDuration()) <= targetEndPoint ) {
+                        while ( (endPoint+dat.getDuration()) < targetEndPoint ) {
                             buff.removeElementAt( 0 );
                             buff.add( dat );
                             endPoint += dat.getDuration();
@@ -282,7 +282,6 @@ public class JoinCostFileMaker implements VoiceImportComponent {
             jcf.writeFloat( (float)( F0 ) );
             // System.out.println( " and Right F0 is [" + F0 + "]Hz." );
             jcf.close();
-            System.out.println("100% done!");
         }
         catch ( IOException e ) {
             throw new RuntimeException( "An IOException happened when writing the features to the Join Cost file.", e );
