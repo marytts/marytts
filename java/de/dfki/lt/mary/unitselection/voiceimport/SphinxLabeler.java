@@ -32,6 +32,8 @@ import java.io.*;
 import java.util.*;
 import java.text.DecimalFormat;
 
+import de.dfki.lt.mary.unitselection.voiceimport.SphinxTrainer.StreamGobbler;
+
 
 /**
  * Preparate the directory of the voice for sphinx labelling
@@ -60,17 +62,19 @@ public class SphinxLabeler implements VoiceImportComponent {
         
         System.out.println("Preparing voice database for labelling");
         /* get the directories of sphinxtrain and edinburgh speech tools */
-        String sphinx2dir = System.getProperty("SPHINXTRAINDIR");
+        String sphinx2dir = System.getProperty("SPHINX2DIR");
         if ( sphinx2dir == null ) {
-            System.out.println( "Warning: The environment variable SPHINXTRAINDIR was not found on your system." );
-            System.out.println( "         Defaulting SPHINXTRAINDIR to [ /project/mary/anna/sphinx/SphinxTrain/ ]." );
+            System.out.println( "Warning: The environment variable SPHINX2DIR was not found on your system." );
+            System.out.println( "         Defaulting SPHINX2DIR to [ /project/mary/anna/sphinx/sphinx2/ ]." );
             sphinx2dir = "/project/mary/anna/sphinx/sphinx2/";
         }
         
         //get voicename and root dir name
+        //get the root dir and the voicename
         File rootDirFile = new File(dbLayout.rootDirName());
-        String voicename = rootDirFile.getName();
         String rootDirName = rootDirFile.getCanonicalPath();
+        String voicename = rootDirName.substring(rootDirName.lastIndexOf("/")+1);
+        
         
         /* Sphinx2 variables */
         System.out.println("Calling Sphinx2 ...");
@@ -118,22 +122,20 @@ public class SphinxLabeler implements VoiceImportComponent {
         pw.flush();
         pw.close();
         
-        //collect the output
-        BufferedReader inReader = new BufferedReader(
-                new InputStreamReader(process.getInputStream()));
-        String line = inReader.readLine();
-        while(line!= null ) {
-            System.out.println(line);
-            line = inReader.readLine();
-        }
-        BufferedReader errReader = new BufferedReader(
-                new InputStreamReader(process.getErrorStream()));
-        while((line = errReader.readLine()) != null){
-            System.out.println(line);
-        }
+//      collect the output
+        //any error message?
+        StreamGobbler errorGobbler = new 
+            StreamGobbler(process.getErrorStream(), "err");            
+        
+        //any output?
+        StreamGobbler outputGobbler = new 
+            StreamGobbler(process.getInputStream(), "out");
+            
+        //kick them off
+        errorGobbler.start();
+        outputGobbler.start();
+        
         //shut down
-        errReader.close();
-        inReader.close();
         process.waitFor();
         process.exitValue();    
         System.out.println("... done.");
@@ -145,7 +147,7 @@ public class SphinxLabeler implements VoiceImportComponent {
         String labExtension = dbLayout.labExt();
         //used to prune the times to 5 positions behind .
         DecimalFormat df = new DecimalFormat( "0.00000" );
-        
+        String line;
         //go through original lab files
         File[] labFiles = new File(rootDirName+"/st/lab").listFiles();
         for (int i=0;i<labFiles.length;i++){
@@ -181,12 +183,15 @@ public class SphinxLabeler implements VoiceImportComponent {
                    
                     //next token is the phone
                     String phone = tok.nextToken();
+                    
                     if (phone.equals("SIL")){
                         //replace silence symbol
                         phone = "pau";
                     } else {
                         //cut off the stuff behind the phone
                         phone = phone.substring(0,phone.indexOf("("));
+                        //convert phone back to SAMPA
+                        phone = convertPhone(phone);
                     }
                     labOut.println(timeString+" "+mysteriousNumber+" "+phone);
                 }
@@ -203,8 +208,46 @@ public class SphinxLabeler implements VoiceImportComponent {
         return true;
     }
     
-    
+    /**
+     * Convert the given phone from Sphinx-readable format
+     * back to SAMPA
+     * 
+     * @param phone the phone
+     * @return the converted phone
+     */
+     private String convertPhone(String phone){
+         boolean uppercase = false;
+         char[] phoneChars = phone.toCharArray();
+         StringBuffer convertedPhone = new StringBuffer();
+         for (int i=0;i<phoneChars.length;i++){
+             char phoneChar = phoneChars[i];
+             if (Character.isLetter(phoneChar)){
+                 if (uppercase){
+                     //character originally was uppercase
+                     //append the phone as it is
+                     convertedPhone.append(phoneChar);
+                     uppercase = false;
+                 } else {
+                     //character originally was lowercase
+                     //convert back to lowercase
+                     convertedPhone.append(Character.toLowerCase(phoneChar));
+                 }
+             } else {
+                 if (phoneChar == '*'){
+                     //next letter was uppercase, set uppercase to true
+                     uppercase = true;
+                 } else {
+                     //just append other non-letter signs
+                     convertedPhone.append(phoneChar);
+                 }
+             }
+         }
+         return convertedPhone.toString();
+     }
+     
    
+    
+    
     /**
      * Provide the progress of computation, in percent, or -1 if
      * that feature is not implemented.
@@ -214,5 +257,33 @@ public class SphinxLabeler implements VoiceImportComponent {
     {
         return -1;
     }
+    
+    class StreamGobbler extends Thread
+    {
+        InputStream is;
+        String type;
+        
+        StreamGobbler(InputStream is, String type)
+        {
+            this.is = is;
+            this.type = type;
+        }
+        
+        public void run()
+        {
+            try
+            {
+                InputStreamReader isr = new InputStreamReader(is);
+                BufferedReader br = new BufferedReader(isr);
+                String line=null;
+                while ( (line = br.readLine()) != null)
+                    System.out.println(type + ">" + line);    
+                } catch (IOException ioe)
+                  {
+                    ioe.printStackTrace();  
+                  }
+        }
+    }
+    
 
 }
