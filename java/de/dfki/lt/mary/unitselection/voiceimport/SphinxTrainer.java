@@ -85,22 +85,19 @@ public class SphinxTrainer implements VoiceImportComponent {
         pw.close();
         
         //collect the output
+        //any error message?
+        StreamGobbler errorGobbler = new 
+            StreamGobbler(process.getErrorStream(), "ERROR");            
         
-        BufferedReader inReader = new BufferedReader(
-                new InputStreamReader(process.getInputStream()));
-        String line = inReader.readLine();
-        while(line!= null ) {
-            System.out.println(line);
-            line = inReader.readLine();
-        }
-        BufferedReader errReader = new BufferedReader(
-                new InputStreamReader(process.getErrorStream()));
-        while((line = errReader.readLine()) != null){
-            System.out.println(line);
-        }
+        //any output?
+        StreamGobbler outputGobbler = new 
+            StreamGobbler(process.getInputStream(), "OUTPUT");
+            
+        //kick them off
+        errorGobbler.start();
+        outputGobbler.start();
+        
         //close everything down
-        errReader.close();
-        inReader.close();
         process.waitFor();
         process.exitValue();
         System.out.println("... done.");
@@ -117,4 +114,33 @@ public class SphinxTrainer implements VoiceImportComponent {
         return -1;
     }
 
+    
+    class StreamGobbler extends Thread
+    {
+        InputStream is;
+        String type;
+        
+        StreamGobbler(InputStream is, String type)
+        {
+            this.is = is;
+            this.type = type;
+        }
+        
+        public void run()
+        {
+            try
+            {
+                InputStreamReader isr = new InputStreamReader(is);
+                BufferedReader br = new BufferedReader(isr);
+                String line=null;
+                while ( (line = br.readLine()) != null)
+                    System.out.println(type + ">" + line);    
+                } catch (IOException ioe)
+                  {
+                    ioe.printStackTrace();  
+                  }
+        }
+    }
+    
+    
 }

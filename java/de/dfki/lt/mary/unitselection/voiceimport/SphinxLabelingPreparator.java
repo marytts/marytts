@@ -114,13 +114,13 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         System.out.println("Setting up sphinx directory ...");
         setup();
         System.out.println(" ... done.");
-        progress = 10;
+        progress = 1;
         
         /* dump the filenames */
         System.out.println("Dumping the filenames ...");
         dumpFilenames();
         System.out.println(" ... done.");
-        progress = 20;
+        progress = 2;
         
         /* read in the transcriptions, 
          * build up dictionary and phone set; 
@@ -133,31 +133,31 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         System.out.println("Building dictionary, phone set and dumping transcriptions ...");
         buildDictAndDumpTrans(dictionary,phones);
         System.out.println(" ... done.");
-        progress = 40;
+        progress = 50;
         
         /* dump phone file */
         System.out.println("Dumping phone set ...");
         dumpPhoneFile(phones);
         System.out.println(" ... done.");
-        progress = 50;
+        progress = 51;
         
         /* dump dictionary file */
         System.out.println("Dumping dictionary ...");
         dumpDictFile(dictionary);
         System.out.println(" ... done.");
-        progress = 60;
+        progress = 52;
         
         /* dump filler dictionary file */
         System.out.println("Dumping filler dictionary ...");
         dumpFillerDictFile();
         System.out.println(" ... done.");
-        progress = 70;
+        progress = 53;
         
         /* Convert MFCCs for Sphinxtrain */
         System.out.println("Converting MFCCs ...");
         convertMFCCs();
         System.out.println(" ... done.");
-        progress = 90;
+        progress = 99;
         
         /* rewrite the config file */
         System.out.println("Rewriting config file ...");
@@ -202,7 +202,7 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
      * @throws IOException
      */
     private void dumpFilenames()throws IOException{
-        //open filename file
+        //for training: open filename file
         PrintWriter baseNameOut = new PrintWriter(
                 new FileOutputStream (new File(outputDir+"/"+voicename+"_train.fileids")));
         //dump the filenames        
@@ -211,7 +211,18 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         }
         baseNameOut.flush();
         baseNameOut.close();
+        
+        //for labeling: open filename file
+        baseNameOut = new PrintWriter(
+                new FileOutputStream (new File(outputDir+"/"+voicename+".fileids")));
+        //dump the filenames        
+        for (int i=0;i<filenames.length;i++){
+                baseNameOut.println(filenames[i]); 
         }
+        baseNameOut.flush();
+        baseNameOut.close();
+        }
+        
     
     /**
      * Build a dictionary and dump the transcription file
@@ -239,7 +250,10 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         //write beginning of labeling transcription file
         transLabelOut.println("*align_all*");
 
-
+        //for the progress bar: calculate the progress of each transcription
+        long nextPercentAfter = Math.round(1/(48.0/filenames.length));
+        int index = 1;
+        
         //loop through the transcriptions in txt.done.data;
         //for each transcription, get a segment representation with MARY client
         //then go through segment representation 
@@ -256,7 +270,7 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
             if (baseNames.contains(nextFilename)){
                 //transcription is everything between " "
                 String nextTrans = line.substring(line.indexOf("\"")+1,line.lastIndexOf("\""));
-                System.out.println(nextTrans);
+                //System.out.println(nextTrans);
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
                 //process and dump
                 mary.process(nextTrans, inputFormat, outputFormat, null, null, os);
@@ -303,6 +317,8 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
                             Element phoneNode = (Element) phoneNodes.item(j);
                             //get the phone
                             String phone = phoneNode.getAttribute("p");
+                            //convert the phone to Sphinx format
+                            phone = convertPhone(phone);
                             //append the phone to the other phones 
                             phoneList.add(phone);
                             //add the phone to the phone set if not already there
@@ -311,22 +327,28 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
                     }//end of if not word in dictionary
                     numTokens++;
                 } //end of loop through tokens
-                System.out.println("NumTokens: "+numTokens);
+                //System.out.println("NumTokens: "+numTokens);
                 //print transcription to transcription out
-                if (first){
-                    transTrainOut.print("<s>"+transBuff.toString()+" </s>"
+                transTrainOut.println("<s>"+transBuff.toString()+" </s>"
                         +" ("+nextFilename+")");
-                    transLabelOut.print(transBuff.toString());
-                    System.out.println(transBuff.toString());
+                if (first){
+                    transLabelOut.print(transBuff.toString().trim());
+                    //System.out.println(transBuff.toString());
                     first = false;
                 } else {
-                    transTrainOut.print("\n<s>"+transBuff.toString()+" </s>"
-                            +" ("+nextFilename+")");
-                    transLabelOut.print("\n"+transBuff.toString());
-                    System.out.println(transBuff.toString());
+                    transLabelOut.print("\n"+transBuff.toString().trim());
+                    //System.out.println(transBuff.toString());
                 }
             } //end of if filename is in basename
             line = transIn.readLine();
+            //for the progress bar
+            if (index == nextPercentAfter){
+                //next percent is due
+                progress++;
+                index = 1;
+            } else {
+                index++;
+            }
         } //end of loop through lines of txt.done.data
 
         //close the streams
@@ -347,7 +369,7 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
     {
         if (mary == null) {
             if (System.getProperty("server.host") == null) {
-                System.setProperty("server.host", "attila");
+                System.setProperty("server.host", "cling");
             }
             if (System.getProperty("server.port") == null) {
                 System.setProperty("server.port", "59125");
@@ -369,10 +391,41 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         for (Iterator it = phones.iterator();it.hasNext();){
             phoneOut.println((String) it.next());
         }
-        phoneOut.print("SIL");
+        //add silence symbol
+        phoneOut.println("SIL");
         phoneOut.flush();
         phoneOut.close();
         }
+    
+   /**
+    * Convert the given phone to Sphinx-readable format
+    * 
+    * @param phone the phone
+    * @return the converted phone
+    */
+    private String convertPhone(String phone){
+        //since Sphinx is not case sensitive, 
+        //convert everything to uppercase
+        //and mark originally uppercase characters with *
+        char[] phoneChars = phone.toCharArray();
+        StringBuffer convertedPhone = new StringBuffer();
+        for (int i=0;i<phoneChars.length;i++){
+            char phoneChar = phoneChars[i];
+            if (Character.isLetter(phoneChar)){
+                if (Character.isLowerCase(phoneChar)){
+                    //convert to uppercase
+                    convertedPhone.append(Character.toUpperCase(phoneChar));
+                } else {
+                    //insert * before the char
+                    convertedPhone.append("*"+phoneChar);
+                }
+            } else {
+                //just append non-letter signs
+                convertedPhone.append(phoneChar);
+            }
+        }
+        return convertedPhone.toString();
+    }
     
     /** 
      * Dump the dictionary
@@ -425,7 +478,11 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         if (!wavDestDir.exists()){
             wavDestDir.mkdir();
         }
+        //for the progress bar
+        long nextPercentAfter = Math.round(1/(23.0/filenames.length));
+        int index = 1;
         
+        //loop through filenames
         for (int i=0;i<filenames.length;i++){
             String wavFileName = filenames[i];            
             //get a shell
@@ -442,6 +499,15 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
             
             process.waitFor();
             process.exitValue();
+            
+            //for the progress bar
+            if (index == nextPercentAfter){
+                //next percent is due
+                progress++;
+                index = 1;
+            } else {
+                index++;
+            }
         }
        
         
@@ -465,6 +531,7 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         printOut.print(stBuf.toString());
         printOut.flush();
         printOut.close();
+        progress++;
         
         //call make_feats.pl
         rtime = Runtime.getRuntime();
@@ -571,7 +638,6 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
      */
     public int getProgress()
     {
-        //TODO: Make progress counter more incremental
         return progress;
     }
 
