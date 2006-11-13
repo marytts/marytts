@@ -176,7 +176,7 @@ public class DatabaseImportMain extends JFrame
                             new Thread("ProgressThread") {
                                 public void run() {
                                     int percent = 0;
-                                    while (percent < 100) {
+                                    while (progress.isVisible()) {
                                         progress.setValue(percent);
                                         try { Thread.sleep(500); }
                                         catch (InterruptedException ie) {}
