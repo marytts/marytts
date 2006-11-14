@@ -66,13 +66,16 @@ public class DiphoneUnitDatabase extends UnitDatabase {
         int[] clist = (int[]) preselectionCART.interpret(left,backtrace);
         // Now, clist is an array of halfphone unit indexes.
         for (int i = 0; i < clist.length; i++) {
+            Unit unit = unitReader.getUnit(clist[i]);
+            String unitName = targetCostFunction.getFeature(unit, "mary_phoneme");
+            // force correct phoneme symbol:
+            if (!unitName.equals(leftName)) continue;
             int iRightNeighbour = clist[i]+1;
             if (iRightNeighbour < unitReader.getNumberOfUnits()) {
                 Unit rightNeighbour = unitReader.getUnit(iRightNeighbour);
-                String unitName = targetCostFunction.getFeature(rightNeighbour, "mary_phoneme");
-                if (unitName.equals(rightName)) {
+                String rightUnitName = targetCostFunction.getFeature(rightNeighbour, "mary_phoneme");
+                if (rightUnitName.equals(rightName)) {
                     // Found a diphone -- add it to candidates
-                    Unit unit = unitReader.getUnit(clist[i]);
                     DiphoneUnit diphoneUnit = new DiphoneUnit(unit, rightNeighbour);
                     ViterbiCandidate c = new ViterbiCandidate();
                     c.setTarget(diphoneTarget);
@@ -86,13 +89,16 @@ public class DiphoneUnitDatabase extends UnitDatabase {
         clist = (int[]) preselectionCART.interpret(right,backtrace);
         // Now, clist is an array of halfphone unit indexes.
         for (int i = 0; i < clist.length; i++) {
+            Unit unit = unitReader.getUnit(clist[i]);
+            String unitName = targetCostFunction.getFeature(unit, "mary_phoneme");
+            // force correct phoneme symbol:
+            if (!unitName.equals(rightName)) continue;
             int iLeftNeighbour = clist[i]-1;
             if (iLeftNeighbour >= 0) {
                 Unit leftNeighbour = unitReader.getUnit(iLeftNeighbour);
-                String unitName = targetCostFunction.getFeature(leftNeighbour, "mary_phoneme");
-                if (unitName.equals(leftName)) {
+                String leftUnitName = targetCostFunction.getFeature(leftNeighbour, "mary_phoneme");
+                if (leftUnitName.equals(leftName)) {
                     // Found a diphone -- add it to candidates
-                    Unit unit = unitReader.getUnit(clist[i]);
                     DiphoneUnit diphoneUnit = new DiphoneUnit(leftNeighbour, unit);
                     ViterbiCandidate c = new ViterbiCandidate();
                     c.setTarget(diphoneTarget);
