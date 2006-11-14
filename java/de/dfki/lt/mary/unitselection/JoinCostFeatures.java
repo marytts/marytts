@@ -40,6 +40,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Vector;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import com.sun.speech.freetts.Item;
@@ -47,15 +48,21 @@ import com.sun.speech.freetts.Item;
 import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.mary.modules.phonemiser.Phoneme;
 import de.dfki.lt.mary.modules.phonemiser.PhonemeSet;
+import de.dfki.lt.mary.unitselection.HalfPhoneFFRTargetCostFunction.TargetCostReporter;
 import de.dfki.lt.mary.unitselection.featureprocessors.MaryGenericFeatureProcessors;
 import de.dfki.lt.mary.unitselection.voiceimport.MaryHeader;
 import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunc;
 import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunctionManager;
+import de.dfki.lt.signalproc.display.Histogram;
 
 public class JoinCostFeatures implements JoinCostFunction {
 
     protected final float wSignal = Float.parseFloat(MaryProperties.getProperty("joincostfunction.wSignal", "1.0"));
     protected final float wPhonetic = 1 - wSignal;
+    
+    protected boolean debugShowCostGraph = false;
+    protected double[] cumulWeightedSignalCosts = null;
+    protected int nCostComputations = 0;
     
     /****************/
     /* DATA FIELDS  */
@@ -158,6 +165,14 @@ public class JoinCostFeatures implements JoinCostFunction {
             throw ioe;
             
         }
+        if (MaryProperties.getBoolean("debug.show.cost.graph")) {
+            debugShowCostGraph = true;
+            cumulWeightedSignalCosts = new double[featureWeight.length];
+            JoinCostReporter jcr = new JoinCostReporter(cumulWeightedSignalCosts);
+            jcr.showInJFrame("Average signal join costs", false, false);
+            jcr.start();
+        }
+
     }
     
     /**
@@ -291,12 +306,17 @@ public class JoinCostFeatures implements JoinCostFunction {
             throw new RuntimeException( "The right unit index [" + u2 +
                     "] is out of range: this file contains [" + getNumberOfUnits() + "] units." );
         }
+        nCostComputations++; // for debug
         /* Cumulate the join costs for each feature */
         double res = 0.0;
         float[] v1 = rightJCF[u1];
         float[] v2 = leftJCF[u2];
         for ( int i = 0; i < v1.length; i++ ) {
-            res += featureWeight[i] * weightFunction[i].cost( v1[i], v2[i] );
+            double c = featureWeight[i] * weightFunction[i].cost( v1[i], v2[i] ); 
+            res += c;
+            if (debugShowCostGraph) {
+                cumulWeightedSignalCosts[i] += wSignal * c;
+            }
         }
         return( res );
     }
@@ -390,4 +410,41 @@ public class JoinCostFeatures implements JoinCostFunction {
         return cost;
     }
     
+    public class JoinCostReporter extends Histogram
+    {
+        private double[] data;
+        private int lastN = 0;
+        public JoinCostReporter(double[] data)
+        {
+            super(0, 1, data);
+            this.data = data;
+        }
+        
+        public void start()
+        {
+            new Thread() {
+                public void run() {
+                    while (isVisible()) {
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException ie) {}
+                        updateGraph();
+                    }
+                }
+            }.start();
+        }
+        
+        protected void updateGraph()
+        {
+            if (nCostComputations == lastN) return;
+            lastN = nCostComputations;
+            double[] newCosts = new double[data.length];
+            for (int i=0; i<newCosts.length; i++) {
+                newCosts[i] = data[i] / nCostComputations;
+            }
+            updateData(0, 1, newCosts);
+            repaint();
+        }
+    }
+
 }

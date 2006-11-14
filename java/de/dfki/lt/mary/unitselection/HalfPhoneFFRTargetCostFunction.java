@@ -34,12 +34,17 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
+import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureProcessorManager;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 import de.dfki.lt.mary.unitselection.featureprocessors.TargetFeatureComputer;
 import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunc;
 import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunctionManager;
+import de.dfki.lt.signalproc.display.Histogram;
 
 public class HalfPhoneFFRTargetCostFunction extends HalfPhoneFeatureFileReader implements TargetCostFunction 
 {
@@ -47,6 +52,9 @@ public class HalfPhoneFFRTargetCostFunction extends HalfPhoneFeatureFileReader i
     protected WeightFunc[] rightWeightFunction;
     protected TargetFeatureComputer targetFeatureComputer;
     
+    protected boolean debugShowCostGraph = false;
+    protected double[] cumulWeightedCosts = null;
+    protected int nCostComputations = 0;
     
     public HalfPhoneFFRTargetCostFunction()
     {
@@ -60,6 +68,7 @@ public class HalfPhoneFFRTargetCostFunction extends HalfPhoneFeatureFileReader i
      */
     public double cost(Target target, Unit unit)
     {
+        nCostComputations++; // for debug
         FeatureVector targetFeatures = target.getFeatureVector(); 
         if (targetFeatures == null)
             throw new IllegalArgumentException("Target "+target+" does not have pre-computed feature vector");
@@ -84,19 +93,36 @@ public class HalfPhoneFFRTargetCostFunction extends HalfPhoneFeatureFileReader i
             float weight = weights.getWeight(i);
             if (targetFeatures.getByteFeature(i) != unitFeatures.getByteFeature(i))
                 cost += weight;
+            if (debugShowCostGraph) {
+                if (targetFeatures.getByteFeature(i) != unitFeatures.getByteFeature(i)) {
+                    cumulWeightedCosts[i] += weight;
+                }
+            }
+            
         }
         // short-valued features:
         for (int i=nBytes, n=nBytes+nShorts; i<n; i++) {
             float weight = weights.getWeight(i);
             if (targetFeatures.getShortFeature(i) != unitFeatures.getShortFeature(i))
                 cost += weight;
+            if (debugShowCostGraph) {
+                if (targetFeatures.getShortFeature(i) != unitFeatures.getShortFeature(i)) {
+                    cumulWeightedCosts[i] += weight;
+                }
+            }
+
         }
         // continuous features:
         for (int i=nBytes+nShorts, n=nBytes+nShorts+nFloats; i<n; i++) {
             float weight = weights.getWeight(i);
             float a = targetFeatures.getContinuousFeature(i);
             float b = unitFeatures.getContinuousFeature(i);
-            cost += weight * weightFunction[i-nBytes-nShorts].cost(a, b);
+            double myCost = weightFunction[i-nBytes-nShorts].cost(a, b); 
+            cost += weight * myCost;
+            if (debugShowCostGraph) {
+                cumulWeightedCosts[i] += weight * myCost;
+            }
+            
         }
         return cost;
     }
@@ -163,6 +189,13 @@ public class HalfPhoneFFRTargetCostFunction extends HalfPhoneFeatureFileReader i
         }
         // TODO: If the target feature computer had direct access to the feature definition, it could do some consistency checking
         this.targetFeatureComputer = new TargetFeatureComputer(featProc, leftWeights.getFeatureNames());
+        if (MaryProperties.getBoolean("debug.show.cost.graph")) {
+            debugShowCostGraph = true;
+            cumulWeightedCosts = new double[featureDefinition.getNumberOfFeatures()];
+            TargetCostReporter tcr2 = new TargetCostReporter(cumulWeightedCosts);
+            tcr2.showInJFrame("Average weighted target costs", false, false);
+            tcr2.start();
+        }
     }
 
     /**
@@ -207,6 +240,43 @@ public class HalfPhoneFFRTargetCostFunction extends HalfPhoneFeatureFileReader i
         } else { // continuous -- return float as string
             float value = featureVectors[unit.getIndex()].getContinuousFeature(featureIndex);
             return String.valueOf(value);
+        }
+    }
+    
+    public class TargetCostReporter extends Histogram
+    {
+        private double[] data;
+        private int lastN = 0;
+        public TargetCostReporter(double[] data)
+        {
+            super(0, 1, data);
+            this.data = data;
+        }
+        
+        public void start()
+        {
+            new Thread() {
+                public void run() {
+                    while (isVisible()) {
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException ie) {}
+                        updateGraph();
+                    }
+                }
+            }.start();
+        }
+        
+        protected void updateGraph()
+        {
+            if (nCostComputations == lastN) return;
+            lastN = nCostComputations;
+            double[] newCosts = new double[data.length];
+            for (int i=0; i<newCosts.length; i++) {
+                newCosts[i] = data[i] / nCostComputations;
+            }
+            updateData(0, 1, newCosts);
+            repaint();
         }
     }
 }
