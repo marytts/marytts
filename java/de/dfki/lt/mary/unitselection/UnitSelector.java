@@ -43,6 +43,7 @@ import com.sun.speech.freetts.Utterance;
 import de.dfki.lt.mary.Mary;
 import de.dfki.lt.mary.modules.MaryModule;
 import de.dfki.lt.mary.modules.XML2UttAcoustParams;
+import de.dfki.lt.mary.modules.synthesis.SynthesisException;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 import de.dfki.lt.mary.unitselection.viterbi.Viterbi;
 import de.dfki.lt.util.PrintfFormat;
@@ -102,6 +103,7 @@ public class UnitSelector
      */
     public List selectUnits(List tokensAndBoundaries,
             de.dfki.lt.mary.modules.synthesis.Voice voice)
+    throws SynthesisException
     {
         long time = System.currentTimeMillis();
         Utterance utt = x2u.convert(tokensAndBoundaries, voice);
