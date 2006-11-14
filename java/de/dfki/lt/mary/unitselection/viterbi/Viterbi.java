@@ -43,6 +43,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import de.dfki.lt.mary.MaryProperties;
+import de.dfki.lt.mary.modules.synthesis.SynthesisException;
 import de.dfki.lt.mary.unitselection.DiphoneTarget;
 import de.dfki.lt.mary.unitselection.DiphoneUnit;
 import de.dfki.lt.mary.unitselection.JoinCostFunction;
@@ -177,15 +178,39 @@ public  class Viterbi
      * leading to each Candidate is retained, viz. the Path with the best Score.
      * All that is left to do is to call result() to get the best-rated
      * path from among the paths associated with the last Point, and to associate
-     * the resulting Candidates with the segment items they will realise. 
+     * the resulting Candidates with the segment items they will realise.
+     * @throws SynthesisException if for any part of the target chain, no
+     * candidates can be found 
      */
-    public void apply() {
+    public void apply() throws SynthesisException 
+    {
         //go through all but the last point
         //(since last point has no item)
         for (ViterbiPoint point = firstPoint; point.getNext() != null; point = point.getNext()) {
             // The candidates for the current item:
             // candidate selection is carried out by UnitSelector
-            point.setCandidates(database.getCandidates(point.getTarget()));
+            Target target = point.getTarget();
+            ViterbiCandidate[] candidates = database.getCandidates(target);
+            if (candidates.length == 0) {
+                if (target instanceof DiphoneTarget) {
+                    logger.debug("No diphone '"+target.getName()+"' -- will build from halfphones");
+                    DiphoneTarget dt = (DiphoneTarget) target;
+                    // replace diphone viterbi point with two half-phone viterbi points
+                    Target left = dt.getLeft();
+                    Target right = dt.getRight();
+                    point.setTarget(left);
+                    ViterbiPoint newP = new ViterbiPoint(right);
+                    newP.setNext(point.getNext());
+                    point.setNext(newP);
+                    candidates = database.getCandidates(left);
+                    if (candidates.length == 0) 
+                        throw new SynthesisException("Cannot even find any halfphone unit for target "+left);
+                } else {
+                    throw new SynthesisException("Cannot find any units for target "+target);
+                }
+            }
+            assert candidates.length > 0;
+            point.setCandidates(candidates);
             assert searchStrategy != 0; // general beam search not implemented
     
             // Now go through all existing paths and all candidates 
@@ -205,7 +230,7 @@ public  class Viterbi
                 assert pp != null;
                 // We are at the very beginning of the search, 
                 // or have a usable path to extend
-                ViterbiCandidate[] candidates = point.getCandidates();
+                candidates = point.getCandidates();
                 assert candidates != null;
                 for (int c=0, cMax = candidates.length; c<cMax ; c++) {
                     // For the candidate c, create a path extending the 
