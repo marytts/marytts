@@ -28,31 +28,24 @@
  */
 package de.dfki.lt.mary.unitselection;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureProcessorManager;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
+import de.dfki.lt.mary.unitselection.featureprocessors.TargetFeatureComputer;
+import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunc;
+import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunctionManager;
 
-/**
- * A target cost function for evaluating the goodness-of-fit of 
- * a given unit for a given target. 
- * @author Marc Schr&ouml;der
- *
- */
-public interface TargetCostFunction
+public class DiphoneFFRTargetCostFunction extends HalfPhoneFFRTargetCostFunction implements TargetCostFunction 
 {
-    /**
-     * Initialise the data needed to do a target cost computation.
-     * @param featureFileName name of a file containing the unit features
-     * @param weightsFile an optional weights file -- if non-null, contains
-     * feature weights that override the ones present in the feature file.
-     * @param featProc a feature processor manager which can provide feature processors
-     * to compute the features for a target at run time
-     * @throws IOException
-     */
-    public void load(String featureFileName, String weightsFile,
-            FeatureProcessorManager featProc) throws IOException;
+    public DiphoneFFRTargetCostFunction()
+    {
+    }
 
     /**
      * Compute the goodness-of-fit of a given unit for a given target.
@@ -60,29 +53,33 @@ public interface TargetCostFunction
      * @param unit
      * @return a non-negative number; smaller values mean better fit, i.e. smaller cost.
      */
-    public double cost(Target target, Unit unit);
-    
+    public double cost(Target target, Unit unit)
+    {
+        if (target instanceof HalfPhoneTarget)
+            return super.cost(target, unit);
+        if (!(target instanceof DiphoneTarget))
+            throw new IllegalArgumentException("This target cost function can only be called for diphone and half-phone targets!");
+        if (!(unit instanceof DiphoneUnit))
+            throw new IllegalArgumentException("Diphone targets need diphone units!");
+        DiphoneTarget dt = (DiphoneTarget) target;
+        DiphoneUnit du = (DiphoneUnit) unit;
+        return super.cost(dt.getLeft(), du.getLeft()) + super.cost(dt.getRight(), du.getRight());
+    }
+
+
     /**
      * Compute the features for a given target, and store them in the target.
      * @param target the target for which to compute the features
      * @see Target#getFeatureVector()
      */
-    public void computeTargetFeatures(Target target);
+    public void computeTargetFeatures(Target target)
+    {
+        if (!(target instanceof DiphoneTarget))
+            super.computeTargetFeatures(target);
+        DiphoneTarget dt = (DiphoneTarget) target;
+        super.computeTargetFeatures(dt.getLeft());
+        super.computeTargetFeatures(dt.getRight());
+    }
     
-    /**
-     * Provide access to the Feature Definition used.
-     * @return the feature definition object.
-     */
-    public FeatureDefinition getFeatureDefinition();
-
-    /**
-     * Get the string representation of the feature value associated with
-     * the given unit 
-     * @param unit the unit whose feature value is requested
-     * @param featureName name of the feature requested
-     * @return a string representation of the feature value
-     * @throws IllegalArgumentException if featureName is not a known feature
-     */
-    public String getFeature(Unit unit, String featureName);
- 
+    
 }

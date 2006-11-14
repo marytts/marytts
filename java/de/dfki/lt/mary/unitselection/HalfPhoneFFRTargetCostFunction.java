@@ -29,6 +29,7 @@
 package de.dfki.lt.mary.unitselection;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -117,18 +118,29 @@ public class HalfPhoneFFRTargetCostFunction extends HalfPhoneFeatureFileReader i
     {
         super.load(featureFileName);
         if (weightsFile != null) {
-            String[] weightsFiles = weightsFile.split("|");
+            String[] weightsFiles = weightsFile.split("\\|");
             if (weightsFiles.length != 2)
                 throw new IllegalArgumentException("Parameter weightsFile should contain exactly two fields separated by a '|' character -- instead, it is: '"+weightsFile+"'");
+            File leftF = new File(weightsFiles[0]);
+            File rightF;
+            // If the second weights file has no path, it is in the same directory as the first
+            if (weightsFiles[1].indexOf("/") == -1
+                && weightsFiles[1].indexOf("\\") == -1) {
+                File dir = leftF.getParentFile();
+                rightF = new File(dir, weightsFiles[1]);
+            } else {
+                rightF = new File(weightsFiles[1]);
+            }
+            
             // overwrite weights from files
-            FeatureDefinition newLeftWeights = new FeatureDefinition(new BufferedReader(new InputStreamReader(new FileInputStream(weightsFiles[0]), "UTF-8")), true);
+            FeatureDefinition newLeftWeights = new FeatureDefinition(new BufferedReader(new InputStreamReader(new FileInputStream(leftF), "UTF-8")), true);
             if (!newLeftWeights.featureEquals(leftWeights)) {
-                throw new IOException("Weights file '"+weightsFiles[0]+"': feature definition incompatible with feature file '"+featureFileName+"'");
+                throw new IOException("Weights file '"+leftF+"': feature definition incompatible with feature file '"+featureFileName+"'");
             }
             leftWeights = newLeftWeights;
-            FeatureDefinition newRightWeights = new FeatureDefinition(new BufferedReader(new InputStreamReader(new FileInputStream(weightsFiles[1]), "UTF-8")), true);
+            FeatureDefinition newRightWeights = new FeatureDefinition(new BufferedReader(new InputStreamReader(new FileInputStream(rightF), "UTF-8")), true);
             if (!newRightWeights.featureEquals(rightWeights)) {
-                throw new IOException("Weights file '"+weightsFiles[1]+"': feature definition incompatible with feature file '"+featureFileName+"'");
+                throw new IOException("Weights file '"+rightF+"': feature definition incompatible with feature file '"+featureFileName+"'");
             }
             rightWeights = newRightWeights;
         }
@@ -154,16 +166,14 @@ public class HalfPhoneFFRTargetCostFunction extends HalfPhoneFeatureFileReader i
     }
 
     /**
-     * Compute the features for a given target. A typical use case is to
-     * call this method once for every target, and store the resulting
-     * feature vector in the target using target.setFeatureVector().
+     * Compute the features for a given target, and store them in the target.
      * @param target the target for which to compute the features
-     * @return a feature vector
-     * @see Target#setFeatureVector(FeatureVector)
+     * @see Target#getFeatureVector()
      */
-    public FeatureVector computeTargetFeatures(Target target)
+    public void computeTargetFeatures(Target target)
     {
-        return targetFeatureComputer.computeFeatureVector(target);
+        FeatureVector fv = targetFeatureComputer.computeFeatureVector(target);
+        target.setFeatureVector(fv);
     }
     
     

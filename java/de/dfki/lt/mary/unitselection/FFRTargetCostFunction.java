@@ -128,16 +128,14 @@ public class FFRTargetCostFunction extends FeatureFileReader implements TargetCo
     }
 
     /**
-     * Compute the features for a given target. A typical use case is to
-     * call this method once for every target, and store the resulting
-     * feature vector in the target using target.setFeatureVector().
+     * Compute the features for a given target, and store them in the target.
      * @param target the target for which to compute the features
-     * @return a feature vector
-     * @see Target#setFeatureVector(FeatureVector)
+     * @see Target#getFeatureVector()
      */
-    public FeatureVector computeTargetFeatures(Target target)
+    public void computeTargetFeatures(Target target)
     {
-        return targetFeatureComputer.computeFeatureVector(target);
+        FeatureVector fv = targetFeatureComputer.computeFeatureVector(target);
+        target.setFeatureVector(fv);
     }
     
     

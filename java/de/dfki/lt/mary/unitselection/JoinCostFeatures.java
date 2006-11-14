@@ -314,11 +314,33 @@ public class JoinCostFeatures implements JoinCostFunction {
      * @return the cost of joining the left unit with the right unit, as a non-negative value.
      */
     public double cost( Target t1, Unit u1, Target t2, Unit u2 ) {
-        // If the two are neighbors, joining them is for free:
-        if (u1.index+1 == u2.index) return 0;
         // Units of length 0 cannot be joined:
         if (u1.getDuration() == 0 || u2.getDuration() == 0) return Double.POSITIVE_INFINITY;
-        return wSignal * cost( u1.index, u2.index ) + wPhonetic * cost(t1, t2);
+        // In the case of diphones, replace them with the relevant part:
+        if (u1 instanceof DiphoneUnit) {
+            assert t1 instanceof DiphoneTarget;
+            t1 = ((DiphoneTarget)t1).getRight();
+            u1 = ((DiphoneUnit)u1).getRight();
+        }
+        if (u2 instanceof DiphoneUnit) {
+            assert t2 instanceof DiphoneTarget;
+            t2 = ((DiphoneTarget)t2).getLeft();
+            u2 = ((DiphoneUnit)u2).getLeft();
+        }
+        
+        if (u1.index+1 == u2.index) return 0;
+        if (t1 instanceof HalfPhoneTarget // half phone synthesis
+            && ((HalfPhoneTarget)t1).isRightHalf()) { // We are at a phoneme boundary
+            // Try to avoid joining at phoneme boundaries:
+            return 10;
+        }
+        // Either not half phone synthesis, or at a diphone boundary
+        double cost = 1; // basic penalty for joins of non-contiguous units. 
+        if (wSignal > 0)
+            cost += wSignal * cost( u1.index, u2.index );
+        if (wPhonetic > 0)
+            cost += wPhonetic * cost(t1, t2);
+        return cost;
     }
     
     /**
@@ -349,12 +371,6 @@ public class JoinCostFeatures implements JoinCostFunction {
         if (stressed1 || stressed2) cost += 0.2;
         Phoneme p1 = t1.getSampaPhoneme();
         Phoneme p2 = t2.getSampaPhoneme();
-        if (!(t1 instanceof HalfPhoneTarget) // phone synthesis
-            || ((HalfPhoneTarget)t1).isRightHalf())    { // half phone synthesis
-            // We are at a phoneme boundary
-            // Try to avoid joining at phoneme boundaries:
-            cost += 1;
-        }
                 
         // Discourage joining vowels:
         if (p1.isVowel() || p2.isVowel()) cost += 0.2;

@@ -45,6 +45,7 @@ import de.dfki.lt.mary.modules.MaryModule;
 import de.dfki.lt.mary.modules.XML2UttAcoustParams;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 import de.dfki.lt.mary.unitselection.viterbi.Viterbi;
+import de.dfki.lt.util.PrintfFormat;
 
 /**
  * Selects the units for an utterance
@@ -117,8 +118,8 @@ public class UnitSelector
         // compute target features for each target in the chain
         for (int j=0, nTargets = targets.size(); j<nTargets; j++) {
             Target target = (Target) targets.get(j);
-            FeatureVector features = database.getTargetCostFunction().computeTargetFeatures(target);
-            target.setFeatureVector(features);
+            database.getTargetCostFunction().computeTargetFeatures(target);
+
         }
 
         //Select the best candidates using Viterbi and the join cost function.
@@ -150,8 +151,8 @@ public class UnitSelector
             targets.add(new Target(segName, s));
         }
         return targets;
-
     }
+    
 
  
 }

@@ -63,7 +63,7 @@ public class UnitDatabase
                       CART aPreselectionCART,
                       TimelineReader anAudioTimeline,
                       TimelineReader aBasenameTimeline,
-                      int backtrace)
+                      int backtraceLeafSize)
      {
          this.targetCostFunction = aTargetCostFunction;
          this.joinCostFunction = aJoinCostFunction;
@@ -71,7 +71,7 @@ public class UnitDatabase
          this.preselectionCART = aPreselectionCART;
          this.audioTimeline = anAudioTimeline;
          this.basenameTimeline = aBasenameTimeline;
-         this.backtrace = backtrace;
+         this.backtrace = backtraceLeafSize;
      }
 
      public TargetCostFunction getTargetCostFunction()
