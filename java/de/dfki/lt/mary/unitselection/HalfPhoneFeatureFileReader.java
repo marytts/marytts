@@ -76,5 +76,15 @@ public class HalfPhoneFeatureFileReader extends FeatureFileReader
             featureVectors[i] = featureDefinition.readFeatureVector(i,dis);
         }
     }
+    
+    public FeatureDefinition getLeftWeights()
+    {
+        return leftWeights;
+    }
+    
+    public FeatureDefinition getRightWeights()
+    {
+        return rightWeights;
+    }
 
 }
