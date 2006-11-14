@@ -108,7 +108,16 @@ public class FeatureFileReader
     {
        return (FeatureVector[]) featureVectors.clone(); 
     }
-    
+
+    /**
+     * Return the internal array of feature vectors.
+     * @return the internal array of feature vectors.
+     */
+    public FeatureVector[] getFeatureVectors()
+    {
+       return featureVectors; 
+    }
+
     /**
      * Get the unit feature vector for the given unit. 
      * @param unit a unit in the database

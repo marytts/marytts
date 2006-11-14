@@ -41,11 +41,65 @@ import de.dfki.lt.mary.unitselection.featureprocessors.TargetFeatureComputer;
 import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunc;
 import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunctionManager;
 
-public class DiphoneFFRTargetCostFunction extends HalfPhoneFFRTargetCostFunction implements TargetCostFunction 
+public class DiphoneFFRTargetCostFunction implements TargetCostFunction 
 {
+    protected TargetCostFunction tcfForHalfphones;
+    
     public DiphoneFFRTargetCostFunction()
     {
     }
+    
+    
+    /**
+     * Initialise the data needed to do a target cost computation.
+     * @param featureFileName name of a file containing the unit features
+     * @param weightsFile an optional weights file -- if non-null, contains
+     * feature weights that override the ones present in the feature file.
+     * @param featProc a feature processor manager which can provide feature processors
+     * to compute the features for a target at run time
+     * @throws IOException
+     */
+    public void load(String featureFileName, String weightsFile,
+            FeatureProcessorManager featProc) throws IOException
+    {
+        FeatureFileReader ffr = FeatureFileReader.getFeatureFileReader(featureFileName);
+        load(ffr, weightsFile, featProc);
+    }
+    
+    public void load(FeatureFileReader ffr, String weightsFile, FeatureProcessorManager featProc)
+    throws IOException
+    {
+        if (ffr instanceof HalfPhoneFeatureFileReader) {
+            tcfForHalfphones = new HalfPhoneFFRTargetCostFunction();
+        } else {
+            tcfForHalfphones = new FFRTargetCostFunction();
+        }
+        tcfForHalfphones.load(ffr, weightsFile, featProc);
+    }
+
+    
+    /**
+     * Provide access to the Feature Definition used.
+     * @return the feature definition object.
+     */
+    public FeatureDefinition getFeatureDefinition()
+    {
+        return tcfForHalfphones.getFeatureDefinition();
+    }
+
+    /**
+     * Get the string representation of the feature value associated with
+     * the given unit 
+     * @param unit the unit whose feature value is requested
+     * @param featureName name of the feature requested
+     * @return a string representation of the feature value
+     * @throws IllegalArgumentException if featureName is not a known feature
+     */
+    public String getFeature(Unit unit, String featureName)
+    {
+        return tcfForHalfphones.getFeature(unit, featureName);
+    }
+
 
     /**
      * Compute the goodness-of-fit of a given unit for a given target.
@@ -56,14 +110,14 @@ public class DiphoneFFRTargetCostFunction extends HalfPhoneFFRTargetCostFunction
     public double cost(Target target, Unit unit)
     {
         if (target instanceof HalfPhoneTarget)
-            return super.cost(target, unit);
+            return tcfForHalfphones.cost(target, unit);
         if (!(target instanceof DiphoneTarget))
             throw new IllegalArgumentException("This target cost function can only be called for diphone and half-phone targets!");
         if (!(unit instanceof DiphoneUnit))
             throw new IllegalArgumentException("Diphone targets need diphone units!");
         DiphoneTarget dt = (DiphoneTarget) target;
         DiphoneUnit du = (DiphoneUnit) unit;
-        return super.cost(dt.getLeft(), du.getLeft()) + super.cost(dt.getRight(), du.getRight());
+        return tcfForHalfphones.cost(dt.getLeft(), du.getLeft()) + tcfForHalfphones.cost(dt.getRight(), du.getRight());
     }
 
 
@@ -75,10 +129,10 @@ public class DiphoneFFRTargetCostFunction extends HalfPhoneFFRTargetCostFunction
     public void computeTargetFeatures(Target target)
     {
         if (!(target instanceof DiphoneTarget))
-            super.computeTargetFeatures(target);
+            tcfForHalfphones.computeTargetFeatures(target);
         DiphoneTarget dt = (DiphoneTarget) target;
-        super.computeTargetFeatures(dt.getLeft());
-        super.computeTargetFeatures(dt.getRight());
+        tcfForHalfphones.computeTargetFeatures(dt.getLeft());
+        tcfForHalfphones.computeTargetFeatures(dt.getRight());
     }
     
     

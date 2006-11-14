@@ -55,6 +55,18 @@ public interface TargetCostFunction
             FeatureProcessorManager featProc) throws IOException;
 
     /**
+     * Initialise the data needed to do a target cost computation.
+     * @param featureFileReader a reader for the file containing the unit features
+     * @param weightsFile an optional weights file -- if non-null, contains
+     * feature weights that override the ones present in the feature file.
+     * @param featProc a feature processor manager which can provide feature processors
+     * to compute the features for a target at run time
+     * @throws IOException
+     */
+    public void load(FeatureFileReader featureFileReader, String weightsFile,
+            FeatureProcessorManager featProc) throws IOException;
+
+    /**
      * Compute the goodness-of-fit of a given unit for a given target.
      * @param target 
      * @param unit

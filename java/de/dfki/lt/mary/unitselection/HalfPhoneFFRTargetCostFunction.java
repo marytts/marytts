@@ -46,15 +46,12 @@ import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunc;
 import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunctionManager;
 import de.dfki.lt.signalproc.display.Histogram;
 
-public class HalfPhoneFFRTargetCostFunction extends HalfPhoneFeatureFileReader implements TargetCostFunction 
+public class HalfPhoneFFRTargetCostFunction extends FFRTargetCostFunction
 {
+    protected FeatureDefinition leftWeights;
+    protected FeatureDefinition rightWeights;
     protected WeightFunc[] leftWeightFunction;
     protected WeightFunc[] rightWeightFunction;
-    protected TargetFeatureComputer targetFeatureComputer;
-    
-    protected boolean debugShowCostGraph = false;
-    protected double[] cumulWeightedCosts = null;
-    protected int nCostComputations = 0;
     
     public HalfPhoneFFRTargetCostFunction()
     {
@@ -68,63 +65,13 @@ public class HalfPhoneFFRTargetCostFunction extends HalfPhoneFeatureFileReader i
      */
     public double cost(Target target, Unit unit)
     {
-        nCostComputations++; // for debug
-        FeatureVector targetFeatures = target.getFeatureVector(); 
-        if (targetFeatures == null)
-            throw new IllegalArgumentException("Target "+target+" does not have pre-computed feature vector");
         if (!(target instanceof HalfPhoneTarget))
             throw new IllegalArgumentException("This target cost function can only be called for half-phone targets!");
         HalfPhoneTarget hpTarget = (HalfPhoneTarget) target;
         boolean isLeftHalf = hpTarget.isLeftHalf();
         FeatureDefinition weights = isLeftHalf ? leftWeights : rightWeights;
-        WeightFunc[] weightFunction = isLeftHalf ? leftWeightFunction : rightWeightFunction;
-        
-        FeatureVector unitFeatures = featureVectors[unit.getIndex()];
-        int nBytes = targetFeatures.getNumberOfByteFeatures();
-        int nShorts = targetFeatures.getNumberOfShortFeatures();
-        int nFloats = targetFeatures.getNumberOfContinuousFeatures();
-        assert nBytes == unitFeatures.getNumberOfByteFeatures();
-        assert nShorts == unitFeatures.getNumberOfShortFeatures();
-        assert nFloats == unitFeatures.getNumberOfContinuousFeatures();
-        // Now the actual computation
-        double cost = 0;
-        // byte-valued features:
-        for (int i=0; i<nBytes; i++) {
-            float weight = weights.getWeight(i);
-            if (targetFeatures.getByteFeature(i) != unitFeatures.getByteFeature(i))
-                cost += weight;
-            if (debugShowCostGraph) {
-                if (targetFeatures.getByteFeature(i) != unitFeatures.getByteFeature(i)) {
-                    cumulWeightedCosts[i] += weight;
-                }
-            }
-            
-        }
-        // short-valued features:
-        for (int i=nBytes, n=nBytes+nShorts; i<n; i++) {
-            float weight = weights.getWeight(i);
-            if (targetFeatures.getShortFeature(i) != unitFeatures.getShortFeature(i))
-                cost += weight;
-            if (debugShowCostGraph) {
-                if (targetFeatures.getShortFeature(i) != unitFeatures.getShortFeature(i)) {
-                    cumulWeightedCosts[i] += weight;
-                }
-            }
-
-        }
-        // continuous features:
-        for (int i=nBytes+nShorts, n=nBytes+nShorts+nFloats; i<n; i++) {
-            float weight = weights.getWeight(i);
-            float a = targetFeatures.getContinuousFeature(i);
-            float b = unitFeatures.getContinuousFeature(i);
-            double myCost = weightFunction[i-nBytes-nShorts].cost(a, b); 
-            cost += weight * myCost;
-            if (debugShowCostGraph) {
-                cumulWeightedCosts[i] += weight * myCost;
-            }
-            
-        }
-        return cost;
+        WeightFunc[] weightFunctions = isLeftHalf ? leftWeightFunction : rightWeightFunction;
+        return cost(target, unit, weights, weightFunctions);
     }
 
     /**
@@ -142,7 +89,21 @@ public class HalfPhoneFFRTargetCostFunction extends HalfPhoneFeatureFileReader i
             FeatureProcessorManager featProc)
     throws IOException
     {
-        super.load(featureFileName);
+        HalfPhoneFeatureFileReader ffr = new HalfPhoneFeatureFileReader(featureFileName);
+        load(ffr, weightsFile, featProc);
+    }
+    
+    public void load(FeatureFileReader featureFileReader, String weightsFile, FeatureProcessorManager featProc)
+    throws IOException
+    {
+        if (!(featureFileReader instanceof HalfPhoneFeatureFileReader))
+            throw new IllegalArgumentException("Featurefilereader must be a HalfPhoneFeatureFileReader");
+        HalfPhoneFeatureFileReader ffr = (HalfPhoneFeatureFileReader) featureFileReader;
+        this.leftWeights = ffr.getLeftWeights();
+        this.featureDefinition = this.leftWeights;
+        this.rightWeights = ffr.getRightWeights();
+        this.featureVectors = ffr.getFeatureVectors();
+
         if (weightsFile != null) {
             String[] weightsFiles = weightsFile.split("\\|");
             if (weightsFiles.length != 2)
@@ -161,12 +122,12 @@ public class HalfPhoneFFRTargetCostFunction extends HalfPhoneFeatureFileReader i
             // overwrite weights from files
             FeatureDefinition newLeftWeights = new FeatureDefinition(new BufferedReader(new InputStreamReader(new FileInputStream(leftF), "UTF-8")), true);
             if (!newLeftWeights.featureEquals(leftWeights)) {
-                throw new IOException("Weights file '"+leftF+"': feature definition incompatible with feature file '"+featureFileName+"'");
+                throw new IOException("Weights file '"+leftF+"': feature definition incompatible with feature file");
             }
             leftWeights = newLeftWeights;
             FeatureDefinition newRightWeights = new FeatureDefinition(new BufferedReader(new InputStreamReader(new FileInputStream(rightF), "UTF-8")), true);
             if (!newRightWeights.featureEquals(rightWeights)) {
-                throw new IOException("Weights file '"+rightF+"': feature definition incompatible with feature file '"+featureFileName+"'");
+                throw new IOException("Weights file '"+rightF+"': feature definition incompatible with feature file");
             }
             rightWeights = newRightWeights;
         }
