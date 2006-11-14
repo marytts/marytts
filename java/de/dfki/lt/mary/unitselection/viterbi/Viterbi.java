@@ -43,6 +43,8 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import de.dfki.lt.mary.MaryProperties;
+import de.dfki.lt.mary.unitselection.DiphoneTarget;
+import de.dfki.lt.mary.unitselection.DiphoneUnit;
 import de.dfki.lt.mary.unitselection.JoinCostFunction;
 import de.dfki.lt.mary.unitselection.SelectedUnit;
 import de.dfki.lt.mary.unitselection.Target;
@@ -133,7 +135,9 @@ public  class Viterbi
             }
             last = nextPoint;
         }
-        lastPoint = last;
+        // And add one point where the paths from the last candidate can end:
+        lastPoint = new ViterbiPoint(null);
+        last.setNext(lastPoint);
         if (searchStrategy == 0) {
             throw new IllegalStateException("General beam search not implemented");
     	}
@@ -267,9 +271,17 @@ public  class Viterbi
         }
         for (ViterbiPath path = best; path != null; path = path.getPrevious()) {
             if (path.getCandidate() != null) {
-                SelectedUnit sel = new SelectedUnit(path.getCandidate().getUnit(),
-                        path.getCandidate().getTarget());
-                selectedUnits.addFirst(sel);
+                Unit u = path.getCandidate().getUnit();
+                Target t = path.getCandidate().getTarget();
+                if (u instanceof DiphoneUnit) {
+                    assert t instanceof DiphoneTarget;
+                    DiphoneUnit du = (DiphoneUnit) u;
+                    DiphoneTarget dt = (DiphoneTarget) t;
+                    selectedUnits.addFirst(new SelectedUnit(du.getRight(), dt.getRight()));
+                    selectedUnits.addFirst(new SelectedUnit(du.getLeft(), dt.getLeft()));
+                } else {
+                    selectedUnits.addFirst(new SelectedUnit(u, t));
+                }
             }
         }
         if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
@@ -279,6 +291,7 @@ public  class Viterbi
             int[] lengthHistogram = new int[10];
             int length = 0;
             int numUnits = selectedUnits.size();
+            StringBuffer line = new StringBuffer();
             //TODO: Write debug output that detects if selected units belong together
             for (int i=0; i<numUnits; i++) {
                 SelectedUnit u = (SelectedUnit) selectedUnits.get(i);
@@ -292,10 +305,22 @@ public  class Viterbi
                         lengthHistogram = dummy;
                     }
                     lengthHistogram[length]++;
-                    length = 1;
+                    pw.print(line);
+                    // Find filename from which the stretch that just finished
+                    // stems:
+                    if (i>0) {
+                        assert i >= length;
+                        Unit firstUnitInStretch = ((SelectedUnit)selectedUnits.get(i-length)).getUnit();
+                        String origin = database.getFilenameAndTime(firstUnitInStretch);
+                        // Print origin from column 80:
+                        for (int col=line.length();col<80; col++) pw.print(" ");
+                        pw.print(origin);
+                    }
                     pw.println();
+                    length = 1;
+                    line = new StringBuffer();
                 }
-                pw.print(database.getTargetCostFunction().getFeature(u.getUnit(), "mary_phoneme") + "("+ u.getUnit().getIndex()+ ")");
+                line.append(database.getTargetCostFunction().getFeature(u.getUnit(), "mary_phoneme") + "("+ u.getUnit().getIndex()+ ")");
                 prevIndex = index;
             }
             if (lengthHistogram.length <= length) {
@@ -304,6 +329,14 @@ public  class Viterbi
                 lengthHistogram = dummy;
             }
             lengthHistogram[length]++;
+            pw.print(line);
+            // Find filename from which the stretch that just finished
+            // stems:
+            Unit firstUnitInStretch = ((SelectedUnit)selectedUnits.get(numUnits-length)).getUnit();
+            String origin = database.getFilenameAndTime(firstUnitInStretch);
+            // Print origin from column 80:
+            for (int col=line.length();col<80; col++) pw.print(" ");
+            pw.print(origin);
             pw.println();
             logger.debug("Selected units:\n"+sw.toString());
             // Compute average length of stretches:
