@@ -60,20 +60,14 @@ public class DiphoneUnitSelector extends UnitSelector
     protected List createTargets(Relation segs)
     {
         List targets = new ArrayList();
-        String silenceSymbol;
-        try {
-            Voice v = FreeTTSVoices.getMaryVoice(segs.getHead().getUtterance().getVoice());
-            silenceSymbol = v.sampa2voice("_");
-        } catch (Exception e) {
-            silenceSymbol = "pau"; // guess
-            logger.warn("Cannot determine silence symbol -- guessing '"+silenceSymbol+"'");
-        }
+        String silenceSymbol = "_"; // in sampa
 
         HalfPhoneTarget prev = new HalfPhoneTarget(silenceSymbol+"_R", new Item(segs, new ItemContents()), false);
         for (Item s = segs.getHead(); s != null; s = s.getNext()) {
             String segName = s.getFeatures().getString("name");
-            HalfPhoneTarget leftHalfPhone = new HalfPhoneTarget(segName+"_L", s, true); // left half
-            HalfPhoneTarget rightHalfPhone = new HalfPhoneTarget(segName+"_R", s, false); // right half
+            String sampa = FreeTTSVoices.getMaryVoice(s.getUtterance().getVoice()).voice2sampa(segName);
+            HalfPhoneTarget leftHalfPhone = new HalfPhoneTarget(sampa+"_L", s, true); // left half
+            HalfPhoneTarget rightHalfPhone = new HalfPhoneTarget(sampa+"_R", s, false); // right half
             targets.add(new DiphoneTarget(prev, leftHalfPhone));
             prev = rightHalfPhone;
         }
