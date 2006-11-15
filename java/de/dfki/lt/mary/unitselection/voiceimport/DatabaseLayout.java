@@ -141,6 +141,7 @@ public class DatabaseLayout
         /* Other Mary files */
         setIfDoesntExist( "db.targetFeaturesBaseName", "unitFeatures" );
         setIfDoesntExist( "db.joinCostFeaturesBaseName", "joinCostFeatures" );
+        setIfDoesntExist( "db.precomputedJoinCostsBaseName", "joinCosts" );
         setIfDoesntExist( "db.unitFileBaseName", "units" );
         setIfDoesntExist( "db.cartFileBaseName", "cart" );
     }
@@ -365,6 +366,15 @@ public class DatabaseLayout
         return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
                 + System.getProperty( "db.marySubDir" ) + System.getProperty( "file.separator" )
                 + System.getProperty( "db.joinCostFeaturesBaseName" ) + System.getProperty( "db.maryExtension" ) );
+    }
+
+    public String precomputedJoinCostsFileName() {
+        String ret = System.getProperty( "db.precomputedJoinCostsFileName" );
+        if ( ret != null ) return( ret );
+        /* else: */
+        return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
+                + System.getProperty( "db.marySubDir" ) + System.getProperty( "file.separator" )
+                + System.getProperty( "db.precomptedJoinCostsBaseName" ) + System.getProperty( "db.maryExtension" ) );
     }
 
     /* File name for the unit file */
