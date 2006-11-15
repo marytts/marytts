@@ -94,6 +94,12 @@ public class SphinxLabeler implements VoiceImportComponent {
         //the transcription file
         String tactlfn = "st/etc/"+voicename+".align";
         
+        //make lab-directory if it does not exist
+        File stLabDir = new File(rootDirName+"/st/lab");
+        if (!stLabDir.exists()){
+            stLabDir.mkdir();
+        }
+        
         /* Run Sphinx2 */
         Runtime rtime = Runtime.getRuntime();        
         //get a shell
@@ -122,16 +128,16 @@ public class SphinxLabeler implements VoiceImportComponent {
         pw.flush();
         pw.close();
         
-//      collect the output
-        //any error message?
+        //collect the output
+        //collect error messages
         StreamGobbler errorGobbler = new 
             StreamGobbler(process.getErrorStream(), "err");            
         
-        //any output?
+        //collect output messages
         StreamGobbler outputGobbler = new 
             StreamGobbler(process.getInputStream(), "out");
             
-        //kick them off
+        //start the stream readers
         errorGobbler.start();
         outputGobbler.start();
         
@@ -145,11 +151,11 @@ public class SphinxLabeler implements VoiceImportComponent {
         //lab destination directory
         String labDestDir = dbLayout.labDirName();
         String labExtension = dbLayout.labExt();
-        //used to prune the times to 5 positions behind .
+        //used to prune the times to 5 positions behind .	
         DecimalFormat df = new DecimalFormat( "0.00000" );
         String line;
         //go through original lab files
-        File[] labFiles = new File(rootDirName+"/st/lab").listFiles();
+        File[] labFiles = stLabDir.listFiles();
         for (int i=0;i<labFiles.length;i++){
             
             //open original lab file
