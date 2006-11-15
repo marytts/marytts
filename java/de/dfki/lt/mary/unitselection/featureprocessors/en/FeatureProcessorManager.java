@@ -39,7 +39,6 @@ public class FeatureProcessorManager extends
                 +MaryProperties.needFilename("english.freetts.phoneSetFile"));
             PhoneSet phoneSet  = new PhoneSetImpl(phoneSetURL);
             
-            addFeatureProcessor(new MaryLanguageFeatureProcessors.HalfPhoneUnitName(phoneSet));
             // List of SAMPA phoneme values, this will be the result of calling
             // voice.voice2sampa(String mrpaSymbol).
             String[] phonemeValues = new String[] {
@@ -50,6 +49,7 @@ public class FeatureProcessorManager extends
             };
             addFeatureProcessor(new MaryLanguageFeatureProcessors.Phoneme(
                     "mary_phoneme", phonemeValues, segment));
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.HalfPhoneUnitName(phonemeValues));
             addFeatureProcessor(new MaryLanguageFeatureProcessors.SegOnsetCoda(phoneSet));
             // cplace: 0-n/a l-labial a-alveolar p-palatal b-labio_dental d-dental v-velar g-?
             String[] cplaceValues = new String[] { "0", "l", "a", "p", "b", "d", "v", "g"};
