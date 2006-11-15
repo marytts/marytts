@@ -69,7 +69,7 @@ public class ESTCaller
         db = newDb;
         
         /* Read the environment variable ESTDIR from the system: */
-        String getESTDIR = System.getenv("ESTDIR");
+        String getESTDIR = System.getProperty("ESTDIR");
         if ( getESTDIR == null ) {
             System.out.println( "Warning: The environment variable ESTDIR was not found on your system." );
             System.out.println( "         Defaulting ESTDIR to [" + ESTDIR + "]." );

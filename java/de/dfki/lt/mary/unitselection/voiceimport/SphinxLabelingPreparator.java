@@ -381,15 +381,28 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
      */
     private MaryClient getMaryClient() throws IOException
     {
-        //TODO: default connect to localhost, fallback connect to cling
         if (mary == null) {
             if (System.getProperty("server.host") == null) {
-                System.setProperty("server.host", "cling");
+                System.setProperty("server.host", "localhost");
             }
             if (System.getProperty("server.port") == null) {
                 System.setProperty("server.port", "59125");
             }
-            mary = new MaryClient();
+            try {
+                System.out.println("Connecting to Mary server at "
+                        +System.getProperty("server.host")+" on port "
+                        +System.getProperty("server.port")+":");
+                mary = new MaryClient();
+            } catch (IOException ioe){
+                //client could not connect with server
+                System.out.println("Connection failed!");
+                //try to connect to MARY server on cling
+                System.out.println("Connecting to Mary server at"
+                        +" cling.dfki.uni-sb.de on port 59125:");
+                System.setProperty("server.host", "cling.dfki.uni-sb.de");
+                System.setProperty("server.port", "59125");
+                mary = new MaryClient();
+            }
         }
         return mary;
     }

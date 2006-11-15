@@ -101,6 +101,7 @@ public class SphinxLabeler implements VoiceImportComponent {
         }
         
         /* Run Sphinx2 */
+        /**
         Runtime rtime = Runtime.getRuntime();        
         //get a shell
         Process process = rtime.exec("/bin/bash");
@@ -145,7 +146,7 @@ public class SphinxLabeler implements VoiceImportComponent {
         process.waitFor();
         process.exitValue();    
         System.out.println("... done.");
-        
+        **/
         /* Write the labels into lab directory */
         System.out.println("Exporting Labels ...");
         //lab destination directory
@@ -157,15 +158,19 @@ public class SphinxLabeler implements VoiceImportComponent {
         //go through original lab files
         File[] labFiles = stLabDir.listFiles();
         for (int i=0;i<labFiles.length;i++){
+            File nextFile = labFiles[i];
+            System.out.println(nextFile.getName());
             
             //open original lab file
             BufferedReader labIn = new BufferedReader(
-                    new FileReader(labFiles[i]));
+                    new FileReader(nextFile));
             
             //open destination lab file
             PrintWriter labOut = new PrintWriter(
                     new FileWriter(new File(labDestDir
-                            +labFiles[i].getName())));
+                            +nextFile.getName())));
+            
+            String pauseString = null;
             
             //go through original lab file 
             while ((line = labIn.readLine()) != null){
@@ -192,17 +197,32 @@ public class SphinxLabeler implements VoiceImportComponent {
                     
                     if (phone.equals("SIL")){
                         //replace silence symbol
-                        phone = "pau";
-                    } else {
+                        phone = "_";
+                        //store the pause in pause string; to be written later
+                        //(this has the effect that if two pauses follow 
+                        //each other, only the last one is printed)
+                        pauseString = timeString+" "+mysteriousNumber+" "+phone;
+                   } else {
+                       if (pauseString != null){
+                           //there is still a pause to print
+                           labOut.println(pauseString);
+                           //remove the pause
+                           pauseString = null;
+                       }
                         //cut off the stuff behind the phone
                         phone = phone.substring(0,phone.indexOf("("));
                         //convert phone back to SAMPA
                         phone = convertPhone(phone);
+                        labOut.println(timeString+" "+mysteriousNumber+" "+phone);
                     }
-                    labOut.println(timeString+" "+mysteriousNumber+" "+phone);
+                    
                 }
             }
         
+            if (pauseString != null){
+                //print last pause
+                labOut.println(pauseString);
+            }
             //close files     
             labIn.close();
             labOut.flush();
