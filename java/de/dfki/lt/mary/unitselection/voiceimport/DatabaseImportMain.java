@@ -327,6 +327,7 @@ public class DatabaseImportMain extends JFrame
                 new LPCTimelineMaker( db, bnl ),
                 new MCepTimelineMaker( db, bnl ),
                 new JoinCostFileMaker( db, bnl ),
+                new JoinCostPrecomputer( db, bnl ),
                 
                 new CARTBuilder ( db )
         };

@@ -39,14 +39,22 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.Vector;
 
 import de.dfki.lt.mary.unitselection.Datagram;
 import de.dfki.lt.mary.unitselection.FeatureFileReader;
 import de.dfki.lt.mary.unitselection.JoinCostFeatures;
+import de.dfki.lt.mary.unitselection.PrecompiledJoinCostReader;
 import de.dfki.lt.mary.unitselection.TimelineReader;
 import de.dfki.lt.mary.unitselection.Unit;
 import de.dfki.lt.mary.unitselection.UnitFileReader;
@@ -80,6 +88,9 @@ public class JoinCostPrecomputer implements VoiceImportComponent
         System.out.println("Reading unit feature file from: " + db.targetFeaturesFileName());
         System.out.println("Reading unit file from: " + db.unitFileName());
         System.out.println("Writing precomputed join costs file to: " + db.precomputedJoinCostsFileName());
+        int retainPercent = Integer.getInteger("joincostprecomputer.retainpercent", 10).intValue();
+        int retainMin = Integer.getInteger("joincostprecomputer.retainmin", 20).intValue();
+        System.out.println("Will retain the top "+retainPercent+"% (but at least "+retainMin+") of all joins within a phoneme");
         
         /* Make a new join cost file to write to */
         DataOutputStream jc = null;
@@ -141,28 +152,74 @@ public class JoinCostPrecomputer implements VoiceImportComponent
         for (int i=0; i<nPhonemes; i++) {
             totalLeftUnits += left[i].size();
         }
-        // TODO: write to jc
+        jc.writeInt(totalLeftUnits);
         for (int i=0; i<nPhonemes; i++) {
+            String phoneSymbol = def.getFeatureValueAsString(iPhoneme, i);
             int nLeftPhoneme = left[i].size();
             int nRightPhoneme = right[i].size();
+            System.out.println(phoneSymbol+": "+nLeftPhoneme+" left, "+nRightPhoneme+" right half phones");
             for (int j=0; j<nLeftPhoneme; j++) {
                 Unit uleft = (Unit) left[i].get(j);
+                SortedMap sortedCosts = new TreeMap();
                 int ileft = uleft.getIndex();
-                // TODO: write to jc
+                //System.out.println("Left unit "+j+" (index "+ileft+")");
+                jc.writeInt(ileft);
                 // Now for this left halfphone, compute the cost of joining to each
                 // right halfphones of the same phoneme, and remember only the best.
                 for (int k=0; k<nRightPhoneme; k++) {
                     Unit uright = (Unit) right[i].get(k);
                     int iright = uright.getIndex();
+                    //System.out.println("right unit "+k+" (index "+iright+")");
                     double cost = joinFeatures.cost(ileft, iright);
-                    // TODO: Now save the cost somewhere.
+                    Double dCost = new Double(cost);
+                    // make sure we don't overwrite any existing entry:
+                    if (!sortedCosts.containsKey(dCost)) {
+                        sortedCosts.put(dCost, uright);
+                    } else {
+                        Object value = sortedCosts.get(dCost);
+                        List newVal = new ArrayList();
+                        if (value instanceof List)
+                            newVal.addAll((List)value);
+                        else
+                            newVal.add(value);
+                        newVal.add(uright);
+                        sortedCosts.put(dCost, newVal);
+                    }
                 }
-                // TODO: for this left phoneme, save acceptable right units with their join costs 
+                // Number of joins we will retain:
+                int nRetain = nRightPhoneme * retainPercent / 100;
+                if (nRetain < retainMin) nRetain = retainMin;
+                if (nRetain > nRightPhoneme) nRetain = nRightPhoneme;
+                jc.writeInt(nRetain);
+                Iterator it=sortedCosts.keySet().iterator();
+                for (int k=0; k<nRetain; ) {
+                    Double cost = (Double) it.next();
+                    float fcost = cost.floatValue();
+                    Object ob = sortedCosts.get(cost);
+                    if (ob instanceof Unit) {
+                        Unit u = (Unit) ob;
+                        int iright = u.getIndex();
+                        jc.writeInt(iright);
+                        jc.writeFloat(fcost);
+                        k++;
+                    } else {
+                        assert ob instanceof List;
+                        List l = (List) ob;
+                        for (Iterator li = l.iterator(); k<nRetain && li.hasNext(); ) {
+                            Unit u = (Unit) li.next();
+                            int iright = u.getIndex();
+                            jc.writeInt(iright);
+                            jc.writeFloat(fcost);
+                            k++;
+                        }
+                    }
+                }
             }
             percent += 100*nLeftPhoneme/totalLeftUnits;
         }
         jc.close();
-        return false;
+        PrecompiledJoinCostReader tester = new PrecompiledJoinCostReader(db.precomputedJoinCostsFileName());
+        return true;
     }
     
     /**
