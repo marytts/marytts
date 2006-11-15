@@ -271,7 +271,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
         final File maryxmlFile = new File( db.rmxDirName() + basename + db.rmxExt() );
         if (!maryxmlFile.exists()) {
             // need to create it
-            String text = FileUtils.getFileAsString(new File( db.txtDirName() + basename + db.txtDirName() ), "UTF-8");
+            String text = FileUtils.getFileAsString(new File( db.txtDirName() + basename + db.txtExt() ), "UTF-8");
             PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(maryxmlFile), "UTF-8"));
             pw.println(UnitFeatureComputer.getMaryXMLHeaderWithInitialBoundary(featureComputer.getLocale()));
             pw.println(text);
@@ -318,7 +318,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
             final JFrame frame = new JFrame("Edit "+file.getName());
             GridBagLayout gridBagLayout = new GridBagLayout();
             GridBagConstraints gridC = new GridBagConstraints();
-            frame.setLayout( gridBagLayout );
+            frame.getContentPane().setLayout( gridBagLayout );
 
             final JEditorPane editPane = new JEditorPane();
             editPane.setPreferredSize(new Dimension(500, 500));
@@ -354,7 +354,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
             JScrollPane scrollPane = new JScrollPane(editPane);
             scrollPane.setPreferredSize(editPane.getPreferredSize());
             gridBagLayout.setConstraints( scrollPane, gridC );
-            frame.add(scrollPane);
+            frame.getContentPane().add(scrollPane);
             gridC.gridy = 1;
             // do not resize buttons:
             gridC.weightx = 0;
@@ -364,7 +364,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
             buttonPanel.add(saveButton);
             buttonPanel.add(cancelButton);
             gridBagLayout.setConstraints( buttonPanel, gridC );
-            frame.add(buttonPanel);
+            frame.getContentPane().add(buttonPanel);
             frame.pack();
             frame.setVisible(true);
             do {
