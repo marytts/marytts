@@ -374,7 +374,7 @@ public class DatabaseLayout
         /* else: */
         return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
                 + System.getProperty( "db.marySubDir" ) + System.getProperty( "file.separator" )
-                + System.getProperty( "db.precomptedJoinCostsBaseName" ) + System.getProperty( "db.maryExtension" ) );
+                + System.getProperty( "db.precomputedJoinCostsBaseName" ) + System.getProperty( "db.maryExtension" ) );
     }
 
     /* File name for the unit file */

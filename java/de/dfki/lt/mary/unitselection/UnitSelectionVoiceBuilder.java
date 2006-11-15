@@ -144,8 +144,9 @@ public class UnitSelectionVoiceBuilder
             String joinFileName = MaryProperties.needFilename(header+".joinCostFile");
             String joinWeightFile = MaryProperties.getFilename(header + ".joinCostWeights");
             String joinCostClass = MaryProperties.needProperty(header+".joinCostClass");
+            String precomputedJoinCostFileName = MaryProperties.getFilename(header+".precomputedJoinCostFile");
             JoinCostFunction joinFunction = (JoinCostFunction) Class.forName(joinCostClass).newInstance();
-            joinFunction.load(joinFileName, joinWeightFile);
+            joinFunction.load(joinFileName, joinWeightFile, precomputedJoinCostFileName);
             
 	        // Build the various file readers
             logger.debug("...loading units file...");

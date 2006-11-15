@@ -55,7 +55,8 @@ import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunc;
 import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunctionManager;
 import de.dfki.lt.signalproc.display.Histogram;
 
-public class JoinCostFeatures implements JoinCostFunction {
+public class JoinCostFeatures implements JoinCostFunction
+{
 
     protected final float wSignal = Float.parseFloat(MaryProperties.getProperty("joincostfunction.wSignal", "1.0"));
     protected final float wPhonetic = 1 - wSignal;
@@ -63,6 +64,8 @@ public class JoinCostFeatures implements JoinCostFunction {
     protected boolean debugShowCostGraph = false;
     protected double[] cumulWeightedSignalCosts = null;
     protected int nCostComputations = 0;
+    
+    protected PrecompiledJoinCostReader precompiledCosts;
     
     /****************/
     /* DATA FIELDS  */
@@ -93,7 +96,7 @@ public class JoinCostFeatures implements JoinCostFunction {
      */
     public JoinCostFeatures( String fileName ) throws IOException
     {
-        load(fileName, null);
+        load(fileName, null, null);
     }
     
     /**
@@ -101,10 +104,14 @@ public class JoinCostFeatures implements JoinCostFunction {
      * @param joinFileName the file from which to read default weights and join cost features
      * @param weightsFileName an optional file from which to read weights, taking precedence over
      * the ones given in the join file
+     * @param precompiledCostFileName an optional file containing precompiled join costs
      */
-    public void load(String joinFileName, String weightsFileName)
+    public void load(String joinFileName, String weightsFileName, String precompiledCostFileName)
     throws IOException
     {
+        if (precompiledCostFileName != null) {
+            precompiledCosts = new PrecompiledJoinCostReader(precompiledCostFileName);
+        }
         /* Open the file */
         File fid = new File( joinFileName );
         DataInput raf = new DataInputStream(new BufferedInputStream(new FileInputStream( fid )));
@@ -333,33 +340,30 @@ public class JoinCostFeatures implements JoinCostFunction {
      * 
      * @return the cost of joining the left unit with the right unit, as a non-negative value.
      */
-    public double cost( Target t1, Unit u1, Target t2, Unit u2 ) {
+    public double cost( Unit u1, Unit u2 ) {
         // Units of length 0 cannot be joined:
         if (u1.getDuration() == 0 || u2.getDuration() == 0) return Double.POSITIVE_INFINITY;
         // In the case of diphones, replace them with the relevant part:
+        boolean bothDiphones = true;
         if (u1 instanceof DiphoneUnit) {
-            assert t1 instanceof DiphoneTarget;
-            t1 = ((DiphoneTarget)t1).getRight();
             u1 = ((DiphoneUnit)u1).getRight();
+        } else {
+            bothDiphones = false;
         }
         if (u2 instanceof DiphoneUnit) {
-            assert t2 instanceof DiphoneTarget;
-            t2 = ((DiphoneTarget)t2).getLeft();
             u2 = ((DiphoneUnit)u2).getLeft();
+        } else {
+            bothDiphones = false;
         }
         
         if (u1.index+1 == u2.index) return 0;
-        if (t1 instanceof HalfPhoneTarget // half phone synthesis
-            && ((HalfPhoneTarget)t1).isRightHalf()) { // We are at a phoneme boundary
-            // Try to avoid joining at phoneme boundaries:
-            return 10;
-        }
         // Either not half phone synthesis, or at a diphone boundary
         double cost = 1; // basic penalty for joins of non-contiguous units. 
-        if (wSignal > 0)
-            cost += wSignal * cost( u1.index, u2.index );
-        if (wPhonetic > 0)
-            cost += wPhonetic * cost(t1, t2);
+        if (bothDiphones && precompiledCosts != null) {
+            cost += precompiledCosts.cost(u1, u2);
+        } else { // need to actually compute the cost
+            cost += cost( u1.index, u2.index );
+        }
         return cost;
     }
     
@@ -368,6 +372,7 @@ public class JoinCostFeatures implements JoinCostFunction {
      * @param t1 the left target
      * @param t2 the right target
      * @return a non-negative join cost, usually between 0 (best) and 1 (worst).
+     * @deprecated
      */
     protected double cost(Target t1, Target t2)
     {
@@ -409,6 +414,13 @@ public class JoinCostFeatures implements JoinCostFunction {
         if (cost > 1) cost = 1;
         return cost;
     }
+    
+    
+    
+    
+    
+    
+    
     
     public class JoinCostReporter extends Histogram
     {
