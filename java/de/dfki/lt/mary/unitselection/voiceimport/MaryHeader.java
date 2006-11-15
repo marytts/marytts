@@ -59,6 +59,7 @@ public class MaryHeader
     public final static int UNITFEATS = 300;
     public final static int HALFPHONE_UNITFEATS = 301; 
     public final static int JOINFEATS = 400;
+    public final static int PRECOMPUTED_JOINCOSTS = 450;
     public final static int TIMELINE = 500;
 
     
