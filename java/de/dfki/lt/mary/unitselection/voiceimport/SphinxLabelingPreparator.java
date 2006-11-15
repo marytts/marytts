@@ -107,8 +107,7 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         st = new File(rootDir.getAbsolutePath()+"/st");
         // get the output directory of files used by sphinxtrain 
         outputDir = st.getAbsolutePath()+"/etc";
-        //get the filenames
-        filenames = baseNames.getListAsArray();
+        
         
         /* setup the Sphinx directory */
         System.out.println("Setting up sphinx directory ...");
@@ -116,11 +115,7 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         System.out.println(" ... done.");
         progress = 1;
         
-        /* dump the filenames */
-        System.out.println("Dumping the filenames ...");
-        dumpFilenames();
-        System.out.println(" ... done.");
-        progress = 2;
+        
         
         /* read in the transcriptions, 
          * build up dictionary and phone set; 
@@ -134,6 +129,12 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         buildDictAndDumpTrans(dictionary,phones);
         System.out.println(" ... done.");
         progress = 50;
+        
+        /* dump the filenames */
+        System.out.println("Dumping the filenames ...");
+        dumpFilenames();
+        System.out.println(" ... done.");
+        progress++;
         
         /* dump phone file */
         System.out.println("Dumping phone set ...");
@@ -251,8 +252,11 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         transLabelOut.println("*align_all*");
 
         //for the progress bar: calculate the progress of each transcription
-        long nextPercentAfter = Math.round(1/(48.0/filenames.length));
+        long nextPercentAfter = Math.round(1/(48.0/baseNames.getLength()));
         int index = 1;
+        
+        //store the filenames
+        ArrayList filenameList = new ArrayList();
         
         //loop through the transcriptions in txt.done.data;
         //for each transcription, get a segment representation with MARY client
@@ -265,9 +269,11 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
             StringTokenizer tok = new StringTokenizer(line);
             //discard first token
             tok.nextToken();
-            //next token is filename, check if it is in the baseNames
+            //next token is filename, 
+            //put it in filename list
             String nextFilename = tok.nextToken();
-            if (baseNames.contains(nextFilename)){
+            filenameList.add(nextFilename);
+            
                 //transcription is everything between " "
                 String nextTrans = line.substring(line.indexOf("\"")+1,line.lastIndexOf("\""));
                 //System.out.println(nextTrans);
@@ -339,7 +345,6 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
                     transLabelOut.print("\n"+transBuff.toString().trim());
                     //System.out.println(transBuff.toString());
                 }
-            } //end of if filename is in basename
             line = transIn.readLine();
             //for the progress bar
             if (index == nextPercentAfter){
@@ -357,6 +362,15 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         transTrainOut.close();
         transLabelOut.flush();
         transLabelOut.close();
+        
+        //store the filenames locally and in basenames
+        int numFiles = filenameList.size();
+        filenames = new String[numFiles];
+        for (int i=0;i<numFiles;i++){
+            filenames[i] = (String)filenameList.get(i);
+        }
+        baseNames.clear();
+        baseNames.add(filenames);
     }
     
 
@@ -367,6 +381,7 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
      */
     private MaryClient getMaryClient() throws IOException
     {
+        //TODO: default connect to localhost, fallback connect to cling
         if (mary == null) {
             if (System.getProperty("server.host") == null) {
                 System.setProperty("server.host", "cling");
