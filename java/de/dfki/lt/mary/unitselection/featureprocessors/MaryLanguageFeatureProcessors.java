@@ -41,6 +41,7 @@ import com.sun.speech.freetts.ProcessException;
 import com.sun.speech.freetts.Relation;
 import com.sun.speech.freetts.en.us.USEnglish;
 
+import de.dfki.lt.mary.modules.synthesis.FreeTTSVoices;
 import de.dfki.lt.mary.unitselection.HalfPhoneTarget;
 import de.dfki.lt.mary.unitselection.Target;
 import de.dfki.lt.mary.util.ByteStringTranslator;
@@ -211,7 +212,8 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
             if (segment == null) return values.get("0");
             String value = segment.getFeatures().getString("name");
             if (value == null) return values.get("0");
-            return values.get(value);
+            String sampa = FreeTTSVoices.getMaryVoice(segment.getUtterance().getVoice()).voice2sampa(value);
+            return values.get(sampa);
         }
     }
 
@@ -231,10 +233,9 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
          * @param phoneset the phonetic alphabet used
          * @param segmentNavigator a navigator returning a segment with respect to the target.
          */
-        public HalfPhoneUnitName(PhoneSet phoneset)
+        public HalfPhoneUnitName(String[] possiblePhonemes)
         {
             this.name = "mary_halfphone_unitname";
-            String[] possiblePhonemes = phoneset.listPhonemes();
             String[] possibleValues = new String[2*possiblePhonemes.length+1];
             possibleValues[0] = "0"; // the "n/a" value
             for (int i=0; i<possiblePhonemes.length; i++) {
@@ -255,7 +256,8 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
             if (segment == null) return values.get("0");
             String phoneLabel = segment.getFeatures().getString("name");
             if (phoneLabel == null) return values.get("0");
-            String unitLabel = phoneLabel + (hpTarget.isLeftHalf() ? "_L" : "_R");
+            String sampa = FreeTTSVoices.getMaryVoice(segment.getUtterance().getVoice()).voice2sampa(phoneLabel);
+            String unitLabel = sampa + (hpTarget.isLeftHalf() ? "_L" : "_R");
             return values.get(unitLabel);
         }
     }

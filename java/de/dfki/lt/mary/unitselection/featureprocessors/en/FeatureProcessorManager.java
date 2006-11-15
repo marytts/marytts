@@ -40,11 +40,14 @@ public class FeatureProcessorManager extends
             PhoneSet phoneSet  = new PhoneSetImpl(phoneSetURL);
             
             addFeatureProcessor(new MaryLanguageFeatureProcessors.HalfPhoneUnitName(phoneSet));
-            // Phonetic features of the current segment:
-            String[] phonemes = phoneSet.listPhonemes();
-            String[] phonemeValues = new String[phonemes.length+1];
-            phonemeValues[0] = "0";
-            System.arraycopy(phonemes, 0, phonemeValues, 1, phonemes.length);
+            // List of SAMPA phoneme values, this will be the result of calling
+            // voice.voice2sampa(String mrpaSymbol).
+            String[] phonemeValues = new String[] {
+                "0", "V", "i", "I", "U", "{", "@", "r=", "A", "O", "u",
+                "E", "EI", "AI", "OI", "aU", "@U", "j", "h", "N", "S",
+                "T", "Z", "D", "tS", "dZ", "_", "p", "t", "k", "b", "d",
+                "g", "f", "s", "v", "z", "m", "n", "l", "r", "w"
+            };
             addFeatureProcessor(new MaryLanguageFeatureProcessors.Phoneme(
                     "mary_phoneme", phonemeValues, segment));
             addFeatureProcessor(new MaryLanguageFeatureProcessors.SegOnsetCoda(phoneSet));
