@@ -43,6 +43,7 @@ import com.sun.speech.freetts.Utterance;
 import de.dfki.lt.mary.Mary;
 import de.dfki.lt.mary.modules.MaryModule;
 import de.dfki.lt.mary.modules.XML2UttAcoustParams;
+import de.dfki.lt.mary.modules.synthesis.FreeTTSVoices;
 import de.dfki.lt.mary.modules.synthesis.SynthesisException;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 import de.dfki.lt.mary.unitselection.viterbi.Viterbi;
@@ -148,9 +149,8 @@ public class UnitSelector
         List targets = new ArrayList();
         for (Item s = segs.getHead(); s != null; s = s.getNext()) {
             String segName = s.getFeatures().getString("name");
-            // Not sure if this is needed:
-            s.getFeatures().setString("clunit_name", segName);
-            targets.add(new Target(segName, s));
+            String sampa = FreeTTSVoices.getMaryVoice(s.getUtterance().getVoice()).voice2sampa(segName);
+            targets.add(new Target(sampa, s));
         }
         return targets;
     }
