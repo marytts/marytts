@@ -59,6 +59,9 @@ public class DiphoneUnitDatabase extends UnitDatabase {
         HalfPhoneTarget right = diphoneTarget.getRight();
         String leftName = left.getName().substring(0, left.getName().lastIndexOf("_"));
         String rightName = right.getName().substring(0, right.getName().lastIndexOf("_"));
+        int iPhoneme = targetCostFunction.getFeatureDefinition().getFeatureIndex("mary_phoneme");
+        byte bleftName = targetCostFunction.getFeatureDefinition().getFeatureValueAsByte(iPhoneme, leftName);
+        byte brightName = targetCostFunction.getFeatureDefinition().getFeatureValueAsByte(iPhoneme, rightName);
 
         List candidates = new ArrayList();
         // Pre-select candidates for the left half, but retain only
@@ -67,14 +70,14 @@ public class DiphoneUnitDatabase extends UnitDatabase {
         // Now, clist is an array of halfphone unit indexes.
         for (int i = 0; i < clist.length; i++) {
             Unit unit = unitReader.getUnit(clist[i]);
-            String unitName = targetCostFunction.getFeature(unit, "mary_phoneme");
+            byte bunitName = targetCostFunction.getFeatureVector(unit).getByteFeature(iPhoneme);
             // force correct phoneme symbol:
-            if (!unitName.equals(leftName)) continue;
+            if (bunitName != bleftName) continue;
             int iRightNeighbour = clist[i]+1;
             if (iRightNeighbour < unitReader.getNumberOfUnits()) {
                 Unit rightNeighbour = unitReader.getUnit(iRightNeighbour);
-                String rightUnitName = targetCostFunction.getFeature(rightNeighbour, "mary_phoneme");
-                if (rightUnitName.equals(rightName)) {
+                byte brightUnitName = targetCostFunction.getFeatureVector(rightNeighbour).getByteFeature(iPhoneme);
+                if (brightUnitName == brightName) {
                     // Found a diphone -- add it to candidates
                     DiphoneUnit diphoneUnit = new DiphoneUnit(unit, rightNeighbour);
                     ViterbiCandidate c = new ViterbiCandidate();

@@ -100,6 +100,10 @@ public class DiphoneFFRTargetCostFunction implements TargetCostFunction
         return tcfForHalfphones.getFeature(unit, featureName);
     }
 
+    public FeatureVector getFeatureVector(Unit unit)
+    {
+        return tcfForHalfphones.getFeatureVector(unit);
+    }
 
     /**
      * Compute the goodness-of-fit of a given unit for a given target.

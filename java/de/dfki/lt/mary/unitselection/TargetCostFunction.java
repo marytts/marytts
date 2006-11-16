@@ -96,5 +96,12 @@ public interface TargetCostFunction
      * @throws IllegalArgumentException if featureName is not a known feature
      */
     public String getFeature(Unit unit, String featureName);
+    
+    /**
+     * Get the target cost feature vector for the given unit.
+     * @param unit
+     * @return
+     */
+    public FeatureVector getFeatureVector(Unit unit);
  
 }
