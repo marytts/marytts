@@ -184,7 +184,7 @@ public class FFRTargetCostFunction implements TargetCostFunction
      * @param unit a unit in the database
      * @return the FeatureVector for target cost computation associated to this unit
      */
-    public FeatureVector getUnitFeatures(Unit unit)
+    public FeatureVector getFeatureVector(Unit unit)
     {
         return featureVectors[unit.getIndex()];
     }
