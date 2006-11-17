@@ -184,6 +184,10 @@ public class CARTWagonFormat implements CART {
             throw new IOException("Error loading CART: bracket mismatch: "
                     + openBrackets);
         }
+        // Now count all candidates once, so that getNumberOfCandidates()
+        // will return the correct figure.
+        if (rootNode instanceof DecisionNode)
+            ((DecisionNode)rootNode).countCandidates();
         //System.out.println("Done");
     }
 
@@ -413,44 +417,41 @@ public class CARTWagonFormat implements CART {
      * interpretation.
      *
      * @param target the target to analyze
-     * @param backtrace the backtrace setting
+     * @param minNumberOfCandidates the minimum number of candidates requested.
+     * If this is 0, walk down the CART until the leaf level.
      *
      * @return the interpretation
      */
-    public Object interpret(Target target,int backtrace) {
+    public Object interpret(Target target,int minNumberOfCandidates) {
         Node currentNode = rootNode;
+        Node prevNode = null;
 
         FeatureVector featureVector = target.getFeatureVector();
 
         // logger.debug("Starting cart at "+nodeIndex);
-        while (!(currentNode instanceof LeafNode)) {
+        while (currentNode.getNumberOfCandidates() > minNumberOfCandidates
+                && !(currentNode instanceof LeafNode)) {
             // while we have not reached the bottom,
             // get the next node based on the features of the target
+            prevNode = currentNode;
             currentNode = ((DecisionNode) currentNode)
                     .getNextNode(featureVector);
             // logger.debug(decision.toString() + " result '"+
             // decision.findFeature(item) + "' => "+ nodeIndex);
         }
+        // Now usually we will have gone down one level too far
+        if (currentNode.getNumberOfCandidates() < minNumberOfCandidates
+                && prevNode != null) {
+            currentNode = prevNode;
+        }
 
-        // get the indices from the leaf node
-        int[] result = ((LeafNode) currentNode).getAllIndices();
+        assert currentNode.getNumberOfCandidates() >= minNumberOfCandidates
+            || currentNode == rootNode; 
         
-        // set usedBacktrace to false (default)
-        boolean usedBacktrace = false;
-        Node motherNode = currentNode.getMother();
-        while (result.length < backtrace && motherNode != null) {
-            // set backtrace to true if we have not enough units
-            usedBacktrace = true;
-            result = ((DecisionNode) motherNode).getAllIndices();
-            // get the mother node
-            motherNode = motherNode.getMother();
-        }
-        if (usedBacktrace) {
-            logger.debug("For target "+target+", selected " + result.length + " units on backtrace");
-        } else {
-            logger.debug("For target "+target+", selected " + result.length
-                    + " units without backtrace");
-        }
+        // get the indices from the leaf node
+        int[] result = currentNode.getAllIndices();
+        
+        logger.debug("For target "+target+", selected " + result.length + " units");
         return result;
 
     }
@@ -629,8 +630,9 @@ public class CARTWagonFormat implements CART {
         protected Node mother;
 
         // the index of the node in the daughters array of its mother
-        protected int index;
+        protected int nodeIndex;
 
+        
         /**
          * set the mother node of this node
          * 
@@ -676,7 +678,7 @@ public class CARTWagonFormat implements CART {
          *            the index
          */
         public void setNodeIndex(int index) {
-            this.index = index;
+            this.nodeIndex = index;
         }
 
         /**
@@ -685,8 +687,10 @@ public class CARTWagonFormat implements CART {
          * @return the index
          */
         public int getNodeIndex() {
-            return index;
+            return nodeIndex;
         }
+        
+        public abstract int getNumberOfCandidates();
 
         /**
          * Get all unit indices from all leaves below this node
@@ -695,6 +699,16 @@ public class CARTWagonFormat implements CART {
          */
         public abstract int[] getAllIndices();
 
+        /**
+         * Write this node's indices into the given array at pos,
+         * making sure that exactly len indices are written.
+         * @param array the array to write to
+         * @param pos the position in the array at which to start writing
+         * @param len the amount of indices to write, usually equals
+         * getNumberOfCandidates().
+         */
+        protected abstract void fillIndexArray(int[] array, int pos, int len);
+        
         /**
          * Writes the Cart to the given DataOut in Wagon Format
          * 
@@ -725,6 +739,9 @@ public class CARTWagonFormat implements CART {
 
         // remember last added daughter
         protected int lastDaughter;
+
+        // the total number of candidates in the leafs below this node
+        protected int nCandidates;
 
         /**
          * Construct a new DecisionNode
@@ -832,32 +849,42 @@ public class CARTWagonFormat implements CART {
          * @return an int array containing the indices
          */
         public int[] getAllIndices() {
-            int[] result = null;
-            if (daughters.length == 2) {
-                // if we have just two daughters, merging the indices is trivial
-                int[] indices1 = daughters[0].getAllIndices();
-                int[] indices2 = daughters[1].getAllIndices();
-                result = new int[indices1.length + indices2.length];
-                System.arraycopy(indices1, 0, result, 0, indices1.length);
-                System.arraycopy(indices2, 0, result, indices1.length,
-                        indices2.length);
-            } else {
-                // we have more than two daughters
-                // for each daughter, get her indices
-                // and merge them with the other indices
-                int[] indices1 = new int[0];
-                for (int i = 0; i < daughters.length; i++) {
-                    int[] indices2 = daughters[i].getAllIndices();
-                    result = new int[indices1.length + indices2.length];
-                    System.arraycopy(indices1, 0, result, 0, indices1.length);
-                    System.arraycopy(indices2, 0, result, indices1.length,
-                            indices2.length);
-                    indices1 = result;
-                }
-            }
+            int[] result = new int[nCandidates];
+            fillIndexArray(result, 0, nCandidates);
             return result;
         }
+        
+        protected void fillIndexArray(int[] array, int pos, int total)
+        {
+            assert pos+total <= array.length;
+            for (int i=0; i<daughters.length; i++) {
+                int len = daughters[i].getNumberOfCandidates();
+                daughters[i].fillIndexArray(array, pos, len);
+                pos += len;
+            }
+        }
 
+        public int getNumberOfCandidates()
+        {
+            return nCandidates;
+        }
+
+        /**
+         * Set the number of candidates correctly, by counting
+         * while walking down the tree. This needs to be done
+         * once for the entire tree.
+         *
+         */
+        protected void countCandidates()
+        {
+            nCandidates = 0;
+            for (int i=0; i<daughters.length; i++) {
+                if (daughters[i] instanceof DecisionNode)
+                    ((DecisionNode)daughters[i]).countCandidates();
+                nCandidates += daughters[i].getNumberOfCandidates();
+            }
+        }
+        
         /**
          * Writes the Cart to the given DataOut in Wagon Format
          * 
@@ -1282,6 +1309,19 @@ public class CARTWagonFormat implements CART {
          */
         public int[] getAllIndices() {
             return indices;
+        }
+        
+        protected void fillIndexArray(int[] array, int pos, int len)
+        {
+            assert len <= indices.length;
+            System.arraycopy(indices, 0, array, pos, len);
+        }
+        
+        public int getNumberOfCandidates()
+        {
+            if (indices != null) return indices.length;
+            else if (featureVectors != null) return featureVectors.length;
+            else return 0;
         }
 
         /**
