@@ -99,74 +99,72 @@ public class LabelFeatureAligner implements VoiceImportComponent
         int guiReturn = SKIP;
         boolean removeAll = false;
         boolean skipAll = false;
+        boolean tryAgain = true;
         for (Iterator it = problems.keySet().iterator(); it.hasNext(); ) {
             String basename = (String) it.next();
             String errorMessage;
-            boolean tryAgain;
-            do {
-                System.out.print("    "+basename+": ");
-                
-                /* Let the user make a first correction */
-                if ( (!removeAll) && (!skipAll) ) // These may be set true after a previous call to letUserCorrect()
+            if ( !(removeAll || skipAll) ){ // These may be set true after a previous call to letUserCorrect()
+                do {
+                    System.out.print("    "+basename+": "+verifyAlignment(basename));
+                    /* Let the user make a first correction */
                     guiReturn = letUserCorrect(basename, (String)problems.get(basename));
-                /* Check if an error remains */
-                errorMessage = verifyAlignment(basename);
-                /* If there is no error, proceed with the next file. */
-                if (errorMessage == null) {
-                    System.out.println("OK");
-                    remainingProblems--;
-                    tryAgain = false;
-                }
-                /* If the error message is (still) not null, print the error and manage the GUI return code: */
-                else {
-                    System.out.print(errorMessage);
-                    //problems.put(basename, errorMessage);
-                    /* Manage the error according to the GUI return: */
-                    switch ( guiReturn ) {
-                    case TRYAGAIN:
-                        tryAgain = true;
-                        break;
-                        
-                    case SKIP:
-                        tryAgain = false;
-                        System.out.println( " -> Skipping this utterance ! This problem remains." );
-                        break;
-                        
-                    case SKIPALL:
-                        tryAgain = false;
-                        skipAll = true;
-                        break;
-                        
-                    case REMOVE:
-                        tryAgain = false;
-                        bnl.remove( basename );
+                    /* Check if an error remains */
+                    errorMessage = verifyAlignment(basename);
+                    /* If there is no error, proceed with the next file. */
+                    if (errorMessage == null) {
+                        System.out.println("-> OK");
                         remainingProblems--;
-                        System.out.println( " -> Removed from the utterance list. OK" );
-                        break;
-                        
-                    case REMOVEALL:
                         tryAgain = false;
-                        removeAll = true;
-                        break;
+                    }
+                    /* If the error message is (still) not null, manage the GUI return code: */
+                    else {
+                        //problems.put(basename, errorMessage);
+                        /* Manage the error according to the GUI return: */
+                        switch ( guiReturn ) {
+                    
+                        case TRYAGAIN:
+                            tryAgain = true;
+                            break;
                         
-                    default:
-                        throw new RuntimeException( "The letUserCorrect() GUI returned an unknown return code." );
+                        case SKIP:
+                            tryAgain = false;
+                            System.out.println( " -> Skipped this utterance ! This problem remains." );
+                            break;
+                        
+                        case SKIPALL:
+                            tryAgain = false;
+                            skipAll = true;
+                            System.out.println( " -> Skipping all utterances ! The problems remain." );
+                            break;
+                        
+                        case REMOVE:
+                            tryAgain = false;
+                            bnl.remove( basename );
+                            remainingProblems--;
+                            System.out.println( " -> Removed from the utterance list. OK" );
+                            break;
+                        
+                        case REMOVEALL:
+                            tryAgain = false;
+                            removeAll = true;
+                            System.out.println(" -> Removing all problematic utterances. OK" );
+                            break;
+                        
+                        default:
+                            throw new RuntimeException( "The letUserCorrect() GUI returned an unknown return code." );
+                        }
                     }
-                    /* Additional management for the skipAll and removeAll options: */
-                    if (skipAll ) {
-                        System.out.println( " -> Skipping this utterance ! This problem remains." );
-                        continue;
-                    }
-                    if (removeAll) {
-                        bnl.remove( basename );
-                        remainingProblems--;
-                        System.out.println( " -> Removed from the utterance list. OK" );
-                        continue;
-                    }
-                }
+                } while (tryAgain );
                 
-            } while (tryAgain );
+            } 
+            
+            /* Additional management for the removeAll option: */        
+            if (removeAll) {
+                bnl.remove( basename );
+                remainingProblems--;
+            }
         }
+        
         
         System.out.println( "Removed [" + (bnlLengthIn-bnl.getLength()) + "/" + bnlLengthIn
                 + "] utterances from the list, [" + bnl.getLength() + "] utterances remain,"+
@@ -197,14 +195,18 @@ public class LabelFeatureAligner implements VoiceImportComponent
 
         // Now go through all feature file units
         boolean correct = true;
+        int unitIndex = 0;
         while (correct) {
+            unitIndex++;
             String labelUnit = getLabelUnit(labels);
             String featureUnit = getFeatureUnit(features);
             if (featureUnit == null) throw new IOException("Incomplete feature file: "+basename);
             // when featureUnit is the empty string, we have found an empty line == end of feature section
             if ("".equals(featureUnit)) break;
             if (!featureUnit.equals(labelUnit)) {
-                return "Non-matching units found: feature file '"+featureUnit+"' vs. label file '"+labelUnit+"'";
+                return "Non-matching units found: feature file '"
+                +featureUnit+"' vs. label file '"+labelUnit
+                +"' (Unit "+unitIndex+")";
             }
         }
         return null; // success
