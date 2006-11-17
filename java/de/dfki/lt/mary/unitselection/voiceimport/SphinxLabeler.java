@@ -101,7 +101,7 @@ public class SphinxLabeler implements VoiceImportComponent {
         }
         
         /* Run Sphinx2 */
-        /**
+   
         Runtime rtime = Runtime.getRuntime();        
         //get a shell
         Process process = rtime.exec("/bin/bash");
@@ -146,7 +146,7 @@ public class SphinxLabeler implements VoiceImportComponent {
         process.waitFor();
         process.exitValue();    
         System.out.println("... done.");
-        **/
+    
         /* Write the labels into lab directory */
         System.out.println("Exporting Labels ...");
         //lab destination directory
@@ -171,7 +171,7 @@ public class SphinxLabeler implements VoiceImportComponent {
                             +nextFile.getName())));
             
             String pauseString = null;
-            
+           
             //go through original lab file 
             while ((line = labIn.readLine()) != null){
                 if (line.startsWith("#")){
