@@ -134,10 +134,12 @@ public class CARTWagonFormat implements CART {
      *            the file to load the cart from
      * @param featDefinition
      *            the feature definition
+     * @param dummy
+     *            unused, just here for compatibility with the FeatureFileIndexer.
      * @throws IOException
      *             if a problem occurs while loading
      */
-    public void load(String fileName, FeatureDefinition featDefinition)
+    public void load(String fileName, FeatureDefinition featDefinition, String[] dummy )
             throws IOException {
         //System.out.println("Loading file");
         // open the CART-File and read the header

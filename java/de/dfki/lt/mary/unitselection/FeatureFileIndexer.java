@@ -29,11 +29,14 @@
 package de.dfki.lt.mary.unitselection;
 
 import java.io.IOException;
+import java.io.DataOutput;
 import java.util.Arrays;
 
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
+import de.dfki.lt.mary.unitselection.cart.CART;
+import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 
-public class FeatureFileIndexer extends FeatureFileReader {
+public class FeatureFileIndexer extends FeatureFileReader implements CART {
     
     private MaryNode tree = null;
     private int[] featureSequence = null;
@@ -337,7 +340,71 @@ public class FeatureFileIndexer extends FeatureFileReader {
         FeatureFileIndexingResult qr = new FeatureFileIndexingResult( getFeatureVectors(n.from,n.to), level );
         return( qr );
     }
+
+    
+    /***************************/
+    /* CART INTERFACE          */
+    /***************************/
+
+    /**
+     * Load from the given file
+     * @param fileName the file to load the cart from
+     * @param featDefinition the feature definition
+     * @param setFeatureSequence a sequence of features for indexing the feature vectors.
+     * @throws IOException if a problem occurs while loading
+     */
+    public void load(String fileName, FeatureDefinition featDefinition, String[] setFeatureSequence ) throws IOException {
+        load( fileName );
+        deepSort( setFeatureSequence );
+    }
+    
+    
+    /**
+     * An implementation of the retrieval method from the CART interface.
+     * 
+     * @param target the target to analyze
+     * @param backtrace the backtrace setting
+     *
+     * @return the interpretation
+     */
+    public Object interpret( Target target, int backtrace ) {
+        FeatureVector v = target.getFeatureVector();
+        /* Check if the tree is there */
+        if ( tree == null ) {
+            throw new RuntimeException( "Can't retrieve candidate units if a tree has not been built." +
+                    " (Run this.deepSort(int[]) or this.deepFill(MaryNode) first.)" );
+        }
+       /* Walk down the tree */
+        MaryNode n = tree;
+        MaryNode next = null;
+        while ( !n.isLeaf() ) {
+            next = n.getChild( v.getFeatureAsInt( n.getFeatureIndex() ) );
+            /* Check for the number of units in the next node */
+            if ( (next.to - next.from) < backtrace ) break;
+            /* Check if the next node is a dead branch */
+            if ( next != null ) n = next;
+            else break;
+        }
+        /* Dereference the reached node or leaf */
+        int[] ret = new int[n.to-n.from];
+        for ( int i = n.from; i < n.to; i++ ) {
+            ret[i] = featureVectors[i].getUnitIndex();
+        }
+        return( ret );
+    }
         
+    
+    /**
+     * Does nothing, just here to comply with the CART interface.
+     *
+     * @param os the DataOutputStream or RandomAccessFile to write to.
+     *
+     * @throws IOException if an error occurs during output
+     */
+    public void dumpBinary(DataOutput os) throws IOException {
+        System.out.println( "The dumpBinary() method does nothing in the case of FeatureFileIndexer objects." );
+    }
+    
     
     /***************************/
     /* MISCELLANEOUS ACCESSORS */

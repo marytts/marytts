@@ -154,7 +154,7 @@ public class CARTBuilder implements VoiceImportComponent {
             System.out.println("Reading CART from "+filename+" ...");
             //build and return CART
             CARTWagonFormat cart = new CARTWagonFormat();
-            cart.load(filename,featDef);
+            cart.load(filename,featDef,null);
             //cart.toStandardOut();
             System.out.println(" ... done!");
             return cart;

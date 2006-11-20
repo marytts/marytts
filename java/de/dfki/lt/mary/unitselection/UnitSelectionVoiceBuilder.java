@@ -159,7 +159,7 @@ public class UnitSelectionVoiceBuilder
             String cartReaderClass = MaryProperties.needProperty(header+".cartReaderClass");
             String cartFile = MaryProperties.getFilename(header+".cartFile");
             CART cart = (CART) Class.forName(cartReaderClass).newInstance();
-            cart.load(cartFile, targetFunction.getFeatureDefinition());
+            cart.load(cartFile, targetFunction.getFeatureDefinition(),null);
             
             logger.debug("...loading audio time line...");
             String timelineReaderClass = MaryProperties.needProperty(header+".audioTimelineReaderClass");
