@@ -94,9 +94,10 @@ public class LabelFeatureAligner implements VoiceImportComponent
             String errorMessage;
             if ( !(removeAll || skipAll) ){ // These may be set true after a previous call to letUserCorrect()
                 do {
-                    System.out.print("    "+basename+": "+problems.get(basename));
+                    errorMessage = (String)problems.get(basename);
+                    System.out.println("    "+basename+": "+errorMessage);
                     /* Let the user make a first correction */
-                    guiReturn = letUserCorrect(basename, (String)problems.get(basename));
+                    guiReturn = letUserCorrect(basename, errorMessage);
                     /* Check if an error remains */
                     errorMessage = verifyAlignment(basename);
                     /* If there is no error, proceed with the next file. */
@@ -107,7 +108,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
                     }
                     /* If the error message is (still) not null, manage the GUI return code: */
                     else {
-                        //problems.put(basename, errorMessage);
+                        problems.put(basename, errorMessage);
                         /* Manage the error according to the GUI return: */
                         switch ( guiReturn ) {
                     
@@ -203,8 +204,16 @@ public class LabelFeatureAligner implements VoiceImportComponent
             if (featureUnit == null) throw new IOException("Incomplete feature file: "+basename);
             // when featureUnit is the empty string, we have found an empty line == end of feature section
             if ("".equals(featureUnit)){
-                featureFile.append(line+"\n");
-                break;
+               featureFile.append(line+"\n");
+               if (labelUnit == null){
+                   break;
+               } else {
+                   if (returnString == null){
+                       returnString = "Label file is longer than feature file: "
+                           +" unit "+unitIndex
+                           +" and greater do not exist in feature file";  
+                   }
+               }
             }
             if (!featureUnit.equals(labelUnit)) {
                 if (featureUnit.equals("_")){
@@ -241,7 +250,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
             labelUnit = getLabelUnit(labels);
             
         }
-        
+        featureFile.append("\n");
         labels.close();
         while ((line = features.readLine()) != null) {
             //simply append all remaining lines
@@ -276,7 +285,6 @@ public class LabelFeatureAligner implements VoiceImportComponent
     {
         BufferedReader labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitLabDirName() + basename + db.unitLabExt() )), "UTF-8"));
         BufferedReader features = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitFeaDirName() + basename + db.unitFeaExt() )), "UTF-8"));
-        StringBuffer featureFile = new StringBuffer();
         
         String line;
         // Skip label file header:
@@ -285,7 +293,6 @@ public class LabelFeatureAligner implements VoiceImportComponent
         }
         // Skip features file header:
         while ((line = features.readLine()) != null) {
-            featureFile.append(line+"\n");
             if (line.trim().equals("")) break; // empty line marks end of header
         }
         
@@ -298,7 +305,15 @@ public class LabelFeatureAligner implements VoiceImportComponent
             String featureUnit = getFeatureUnit(features);
             if (featureUnit == null) throw new IOException("Incomplete feature file: "+basename);
             // when featureUnit is the empty string, we have found an empty line == end of feature section
-            if ("".equals(featureUnit)) break;
+            if ("".equals(featureUnit)){
+               if (labelUnit == null){
+                   break;
+               } else {
+                   return "Label file is longer than feature file: "
+                   +" unit "+unitIndex
+                   +" and greater do not exist in feature file";  
+               }
+            }
             if (!featureUnit.equals(labelUnit)) {
                 return "Non-matching units found: feature file '"
                 +featureUnit+"' vs. label file '"+labelUnit
