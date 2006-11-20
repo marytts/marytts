@@ -6,20 +6,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.TreeMap;
+import java.io.*;
+import java.util.*;
 
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
@@ -84,7 +72,8 @@ public class LabelFeatureAligner implements VoiceImportComponent
         
         for (int i=0; i<bnl.getLength(); i++) {
             percent = 100*i/bnl.getLength();
-            String errorMessage = verifyAlignment(bnl.getName(i));
+            //call firstVerifyAlignment for first alignment test
+            String errorMessage = firstVerifyAlignment(bnl.getName(i));
             System.out.print( "    " + bnl.getName(i) );
             if (errorMessage == null) {
                 System.out.println(" OK");
@@ -105,14 +94,14 @@ public class LabelFeatureAligner implements VoiceImportComponent
             String errorMessage;
             if ( !(removeAll || skipAll) ){ // These may be set true after a previous call to letUserCorrect()
                 do {
-                    System.out.print("    "+basename+": "+verifyAlignment(basename));
+                    System.out.print("    "+basename+": "+problems.get(basename));
                     /* Let the user make a first correction */
                     guiReturn = letUserCorrect(basename, (String)problems.get(basename));
                     /* Check if an error remains */
                     errorMessage = verifyAlignment(basename);
                     /* If there is no error, proceed with the next file. */
                     if (errorMessage == null) {
-                        System.out.println("-> OK");
+                        System.out.println(" -> OK");
                         remainingProblems--;
                         tryAgain = false;
                     }
@@ -175,6 +164,110 @@ public class LabelFeatureAligner implements VoiceImportComponent
     
     /**
      * Verify if the feature and label files for basename align OK.
+     * This method tries to automatically correct misalignment caused 
+     * by more pauses in the feature file.
+     * It should only be called once; for successive alignment calls the 
+     * method verifyAlignment should be used
+     * @param basename
+     * @return null if the alignment was OK, or a String containing an error message.
+     * @throws IOException
+     */
+    protected String firstVerifyAlignment(String basename) throws IOException
+    {
+        BufferedReader labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitLabDirName() + basename + db.unitLabExt() )), "UTF-8"));
+        BufferedReader features = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitFeaDirName() + basename + db.unitFeaExt() )), "UTF-8"));
+        StringBuffer featureFile = new StringBuffer();
+        
+        String line;
+        // Skip label file header:
+        while ((line = labels.readLine()) != null) {
+            if (line.startsWith("#")) break; // line starting with "#" marks end of header
+        }
+        // Skip features file header:
+        while ((line = features.readLine()) != null) {
+            featureFile.append(line+"\n");
+            if (line.trim().equals("")) break; // empty line marks end of header
+        }
+
+        String labelUnit = getLabelUnit(labels);
+        line = features.readLine();
+        String featureUnit = getFeatureUnit(line);
+        String returnString = null;
+        int unitIndex = 0;
+        
+        
+        while (labelUnit!=null){
+            //System.out.println("featureUnit : "+featureUnit
+              //      +" labelUnit : "+labelUnit);
+            unitIndex++;
+            if (featureUnit == null) throw new IOException("Incomplete feature file: "+basename);
+            // when featureUnit is the empty string, we have found an empty line == end of feature section
+            if ("".equals(featureUnit)){
+                featureFile.append(line+"\n");
+                break;
+            }
+            if (!featureUnit.equals(labelUnit)) {
+                if (featureUnit.equals("_")){
+                    //unnecessary pause unit in features, delete
+                    System.out.println("Deleting unnecessary pause unit "+unitIndex);
+                    line = features.readLine();
+                    featureUnit = getFeatureUnit(line);
+                    
+                    continue;
+                } else {
+                    if (featureUnit.equals("__L")){
+                        //two unnecessary pause units in features, delete
+                        System.out.println("Deleting unnecessary pause units "+unitIndex
+                                +" and "+unitIndex+1);
+                        features.readLine();
+                        line = features.readLine();
+                        featureUnit = getFeatureUnit(line);
+                        continue;
+                    } else {
+                        //truely not matching
+                        if (returnString == null){
+                            //only remember the the first mismatch
+                            returnString = "Non-matching units found: feature file '"
+                                +featureUnit+"' vs. label file '"+labelUnit
+                                +"' (Unit "+unitIndex+")";
+                        }
+                    }   
+                    
+                }
+            }
+            featureFile.append(line+"\n");
+            line = features.readLine();
+            featureUnit = getFeatureUnit(line);
+            labelUnit = getLabelUnit(labels);
+            
+        }
+        
+        labels.close();
+        while ((line = features.readLine()) != null) {
+            //simply append all remaining lines
+            featureFile.append(line+"\n");
+        }
+        features.close();
+        
+        //now overwrite the feature file with the lines in the StringBuffer
+        PrintWriter featureFileWriter =
+            new PrintWriter(
+                    new FileWriter(
+                            new File( db.unitFeaDirName() + basename + db.unitFeaExt() )));
+        featureFileWriter.print(featureFile.toString());
+        featureFileWriter.flush();
+        featureFileWriter.close();
+        
+        //returnString is null if all units matched,
+        //otherwise the first error is given back
+        return returnString;         
+        
+    }
+    
+    /**
+     * Verify if the feature and label files for basename align OK.
+     * This method should be called after firstVerifyAlignment
+     * for subsequent alignment tries.
      * @param basename
      * @return null if the alignment was OK, or a String containing an error message.
      * @throws IOException
@@ -183,6 +276,8 @@ public class LabelFeatureAligner implements VoiceImportComponent
     {
         BufferedReader labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitLabDirName() + basename + db.unitLabExt() )), "UTF-8"));
         BufferedReader features = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitFeaDirName() + basename + db.unitFeaExt() )), "UTF-8"));
+        StringBuffer featureFile = new StringBuffer();
+        
         String line;
         // Skip label file header:
         while ((line = labels.readLine()) != null) {
@@ -190,9 +285,10 @@ public class LabelFeatureAligner implements VoiceImportComponent
         }
         // Skip features file header:
         while ((line = features.readLine()) != null) {
+            featureFile.append(line+"\n");
             if (line.trim().equals("")) break; // empty line marks end of header
         }
-
+        
         // Now go through all feature file units
         boolean correct = true;
         int unitIndex = 0;
@@ -210,6 +306,18 @@ public class LabelFeatureAligner implements VoiceImportComponent
             }
         }
         return null; // success
+    }
+    
+    private String getFeatureUnit(String line)
+    throws IOException
+    {
+        if (line == null) return null;
+        if (line.trim().equals("")) return ""; // empty line -- signal end of section
+        StringTokenizer st = new StringTokenizer(line.trim());
+        // The expect that the first token in each line is the label
+        String unit = st.nextToken();
+        return unit;
+        
     }
     
     private String getLabelUnit(BufferedReader labelReader)
@@ -331,6 +439,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
                     try {
                         PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));
                         editPane.write(pw);
+                        pw.flush();
                         pw.close();
                         frame.setVisible(false);
                         setSaved(true);

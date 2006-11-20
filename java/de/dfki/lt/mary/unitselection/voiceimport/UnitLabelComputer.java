@@ -127,12 +127,27 @@ public class UnitLabelComputer implements VoiceImportComponent
      * in seconds, since the beginning of the file; 2. a number to be ignored;
      * 3. the phone symbol.
      * @return an array of lines, in the same format as the phoneLabels input
-     * array, but with unit symbols instead of phone symbols. This array may
+     * array, but with unit symbols instead of phone symbols. The
+     * number in the middle now denotes the unit index. This array may
      * or may not have the same number of lines as phoneLabels.
      */
     protected String[] toUnitLabels(String[] phoneLabels)
     {
-        return phoneLabels; 
+        String[] unitLabels = new String[phoneLabels.length];
+        int unitIndex = 0;
+        for (int i=0;i<phoneLabels.length;i++){
+            String line = phoneLabels[i];
+            unitIndex++;
+            StringTokenizer st = new StringTokenizer(line.trim());
+            //first token is time
+            String time = st.nextToken();
+            //next token is some number, throw away
+            st.nextToken();
+            //next token is phone
+            String phone = st.nextToken();
+            unitLabels[i] = time+" "+unitIndex+" "+phone;
+        }
+        return unitLabels; 
     }
     
     /**
