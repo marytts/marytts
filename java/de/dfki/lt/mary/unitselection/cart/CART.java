@@ -48,9 +48,11 @@ public interface CART
      * Load the cart from the given file
      * @param fileName the file to load the cart from
      * @param featDefinition the feature definition
+     * @param setFeatureSequence a sequence of features for indexing the feature vectors. Used to
+     * initialise a FeatureFileIndexer but unused in the case of an actual CART tree.
      * @throws IOException if a problem occurs while loading
      */
-    public void load(String fileName, FeatureDefinition featDefinition) throws IOException;
+    public void load(String fileName, FeatureDefinition featDefinition, String[] setFeatureSequence ) throws IOException;
     
     
     /**
