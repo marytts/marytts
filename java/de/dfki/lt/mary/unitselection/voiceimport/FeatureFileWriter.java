@@ -115,6 +115,7 @@ public class FeatureFileWriter implements VoiceImportComponent
     protected void writeUnitFeaturesTo(DataOutput out) throws IOException, UnsupportedEncodingException, FileNotFoundException {
         int numUnits = unitFileReader.getNumberOfUnits();
         out.writeInt( numUnits );
+        System.out.println("Number of units : "+numUnits);
         int index = 0; // the unique index number of units in the unit file
         // Dummy feature vector corresponding to an edge unit:
         FeatureVector start = featureDefinition.createEdgeFeatureVector(0, true);
@@ -160,7 +161,7 @@ public class FeatureFileWriter implements VoiceImportComponent
                 FeatureVector fv = featureDefinition.toFeatureVector(0, line);
                 if (unitFileReader.isEdgeUnit(index)) {
                     throw new IOException("Inconsistency between feature files and unit file: Unit "
-                            +index+" should correspond to feature line '"+line+"' of file "+bnl.getName(i)
+                            +index+"("+fv.getFeatureAsString(0,featureDefinition)+") should correspond to feature line '"+line+"' of file "+bnl.getName(i)
                             +", but is an edge unit!");
                 }
                 fv.writeTo(out);
