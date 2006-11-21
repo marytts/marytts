@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import de.dfki.lt.mary.client.MaryClient;
 import de.dfki.lt.mary.util.FileUtils;
 
 /**
@@ -175,64 +176,106 @@ public class LabelFeatureAligner implements VoiceImportComponent
      */
     protected String firstVerifyAlignment(String basename) throws IOException
     {
-        BufferedReader labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitLabDirName() + basename + db.unitLabExt() )), "UTF-8"));
-        BufferedReader features = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitFeaDirName() + basename + db.unitFeaExt() )), "UTF-8"));
-        StringBuffer featureFile = new StringBuffer();
-        
         String line;
-        // Skip label file header:
+        
+        BufferedReader labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitLabDirName() + basename + db.unitLabExt() )), "UTF-8"));
+        //store header of label file in StringBuffer
+        StringBuffer labelFileHeader = new StringBuffer();
         while ((line = labels.readLine()) != null) {
+            labelFileHeader.append(line+"\n");
             if (line.startsWith("#")) break; // line starting with "#" marks end of header
         }
-        // Skip features file header:
+        
+        //store units of label file in List
+        List labelUnits = new ArrayList();
+        while ((line = labels.readLine()) != null) {
+            labelUnits.add(line+"\n");
+        }
+        
+        BufferedReader features = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitFeaDirName() + basename + db.unitFeaExt() )), "UTF-8"));    
+        //store header of feature file in StringBuffer
+        StringBuffer featureFileHeader = new StringBuffer();
         while ((line = features.readLine()) != null) {
-            featureFile.append(line+"\n");
             if (line.trim().equals("")) break; // empty line marks end of header
+            featureFileHeader.append(line+"\n");
         }
 
-        String labelUnit = getLabelUnit(labels);
-        line = features.readLine();
-        String featureUnit = getFeatureUnit(line);
+        //store text units of feature file in list
+        List featureTextUnits = new ArrayList();
+        while ((line = features.readLine()) != null) {
+            if (line.trim().equals("")) break; // empty line marks end of section
+            featureTextUnits.add(line);
+        }
+        
+        //store binary units of feature file in list
+        List featureBinUnits = new ArrayList();
+        while ((line = features.readLine()) != null) {
+            featureBinUnits.add(line);
+        }
+        
+        String labelUnit = getLabelUnit((String)labelUnits.get(0));
+        String featureUnit = getFeatureUnit((String)featureTextUnits.get(0));
         String returnString = null;
         int unitIndex = 0;
+        int numLabelUnits = labelUnits.size();
+        int numFeatureUnits = featureTextUnits.size();
         
+        //TODO: this is a hack, replace by smarter code
+        if (!labelUnit.equals(featureUnit)){
+            System.out.println("Inserting pause units at start of feature file");
+            //insert a pause as first unit to the feature units
+            if (labelUnit.equals("_") ){
+                //copy the last unit
+                String lastUnit = (String)featureTextUnits.get(numFeatureUnits-1);
+                featureTextUnits.add(0,lastUnit);
+                lastUnit = (String)featureBinUnits.get(numFeatureUnits-1);
+                featureBinUnits.add(0,lastUnit);
+                numFeatureUnits++;
+            } else {
+                if (labelUnit.equals("__L")){
+                    //copy the two last units
+                    String lastLeftUnit = (String)featureTextUnits.get(numFeatureUnits-2);
+                    featureTextUnits.add(0,lastLeftUnit);
+                    lastLeftUnit = (String)featureBinUnits.get(numFeatureUnits-2);
+                    featureBinUnits.add(0,lastLeftUnit);
+                    String lastRightUnit = (String)featureTextUnits.get(numFeatureUnits);
+                    featureTextUnits.add(1,lastRightUnit);
+                    lastRightUnit = (String)featureBinUnits.get(numFeatureUnits);
+                    featureBinUnits.add(1,lastRightUnit);
+                    numFeatureUnits+=2;
+                }
+            }
+        }
         
-        while (labelUnit!=null){
+        int i=0,j=0;
+        while (i<numLabelUnits && j<numFeatureUnits){
             //System.out.println("featureUnit : "+featureUnit
               //      +" labelUnit : "+labelUnit);
+            labelUnit = getLabelUnit((String)labelUnits.get(i));
+            featureUnit = getFeatureUnit((String)featureTextUnits.get(j));
             unitIndex++;
-            if (featureUnit == null) throw new IOException("Incomplete feature file: "+basename);
-            // when featureUnit is the empty string, we have found an empty line == end of feature section
-            if ("".equals(featureUnit)){
-               featureFile.append(line+"\n");
-               if (labelUnit == null){
-                   break;
-               } else {
-                   if (returnString == null){
-                       returnString = "Label file is longer than feature file: "
-                           +" unit "+unitIndex
-                           +" and greater do not exist in feature file";  
-                   }
-               }
-            }
             if (!featureUnit.equals(labelUnit)) {
                 if (featureUnit.equals("_")){
                     //unnecessary pause unit in features, delete
                     System.out.println("Deleting unnecessary pause unit "+unitIndex);
-                    line = features.readLine();
-                    featureUnit = getFeatureUnit(line);
-                    
+                    featureTextUnits.set(j,null);
+                    featureBinUnits.set(j,null);
+                    j++;                   
                     continue;
                 } else {
                     if (featureUnit.equals("__L")){
                         //two unnecessary pause units in features, delete
                         System.out.println("Deleting unnecessary pause units "+unitIndex
                                 +" and "+unitIndex+1);
-                        features.readLine();
-                        line = features.readLine();
-                        featureUnit = getFeatureUnit(line);
+                        featureTextUnits.set(j,null);
+                        featureBinUnits.set(j,null);
+                        j++;
+                        featureTextUnits.set(j,null);
+                        featureBinUnits.set(j,null);
+                        j++;
                         continue;
                     } else {
+                        
                         //truely not matching
                         if (returnString == null){
                             //only remember the the first mismatch
@@ -244,26 +287,40 @@ public class LabelFeatureAligner implements VoiceImportComponent
                     
                 }
             }
-            featureFile.append(line+"\n");
-            line = features.readLine();
-            featureUnit = getFeatureUnit(line);
-            labelUnit = getLabelUnit(labels);
-            
+            //increase both counters if you did not delete a pause
+            i++;
+            j++;            
         }
-        featureFile.append("\n");
-        labels.close();
-        while ((line = features.readLine()) != null) {
-            //simply append all remaining lines
-            featureFile.append(line+"\n");
+        //return an error if label file is longer than feature file
+        if (returnString == null && numLabelUnits > numFeatureUnits){
+            returnString = "Label file is longer than feature file: "
+                +" unit "+unitIndex
+                +" and greater do not exist in feature file";  
         }
-        features.close();
         
-        //now overwrite the feature file with the lines in the StringBuffer
+        
+        //now overwrite the feature file 
         PrintWriter featureFileWriter =
             new PrintWriter(
                     new FileWriter(
                             new File( db.unitFeaDirName() + basename + db.unitFeaExt() )));
-        featureFileWriter.print(featureFile.toString());
+        //print header
+        featureFileWriter.print(featureFileHeader.toString()+"\n");
+        //print text units
+        for (int k=0;k<numFeatureUnits;k++){
+            String nextUnit = (String)featureTextUnits.get(k);
+            if (nextUnit != null){
+                featureFileWriter.print(nextUnit+"\n");
+            }
+        }
+        //print binary units
+        featureFileWriter.print("\n");
+        for (int k=0;k<numFeatureUnits;k++){
+            String nextUnit = (String)featureBinUnits.get(k);
+            if (nextUnit != null){
+                featureFileWriter.print(nextUnit+"\n");
+            }
+        }
         featureFileWriter.flush();
         featureFileWriter.close();
         
@@ -285,7 +342,6 @@ public class LabelFeatureAligner implements VoiceImportComponent
     {
         BufferedReader labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitLabDirName() + basename + db.unitLabExt() )), "UTF-8"));
         BufferedReader features = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitFeaDirName() + basename + db.unitFeaExt() )), "UTF-8"));
-        
         String line;
         // Skip label file header:
         while ((line = labels.readLine()) != null) {
@@ -321,6 +377,17 @@ public class LabelFeatureAligner implements VoiceImportComponent
             }
         }
         return null; // success
+    }
+    
+    private String getLabelUnit(String line)
+    throws IOException
+    {
+        if (line == null) return null;
+        StringTokenizer st = new StringTokenizer(line.trim());
+        // The third token in each line is the label
+        st.nextToken(); st.nextToken();
+        String unit = st.nextToken();
+        return unit;
     }
     
     private String getFeatureUnit(String line)

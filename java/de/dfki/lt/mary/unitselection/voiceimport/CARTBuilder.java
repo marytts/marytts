@@ -121,7 +121,7 @@ public class CARTBuilder implements VoiceImportComponent {
          CARTWagonFormat topLevelCART = new CARTWagonFormat(topLevelTree,fai);
          System.out.println(" ... done!");
         
-         //TODO: Write a dump method for the featureVectors; import and dump distance tables
+         
          boolean callWagon = System.getProperty("db.cartbuilder.callwagon", "true").equals("true");
          if (callWagon) {
              replaceLeaves(topLevelCART,featureDefinition);
