@@ -83,7 +83,7 @@ public class HalfPhoneTargetFeatureLister extends TargetFeatureLister
             //if first target is not a pause, add one
             if (first){
                 first = false;
-                if (! nextLeftTarget.isSilence()){
+                if (! segName.equals(silenceSymbol)){
                     //System.out.println("Adding two pause targets: "
                       //          +silenceSymbol+"_L and "
                         //        +silenceSymbol+"_R");
