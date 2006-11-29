@@ -109,11 +109,11 @@ public class UnitFeatureComputer implements VoiceImportComponent
         }
 
         //just a hack
-        text = FileUtils.getFileAsString(new File( db.txtDirName() + basename + db.txtExt() ), "UTF-8");
-        text.trim();
-        String inputFormat = "TEXT";
+        //text = FileUtils.getFileAsString(new File( db.txtDirName() + basename + db.txtExt() ), "UTF-8");
+        //text.trim();
+        //String inputFormat = "TEXT";
         
-        //String inputFormat = "RAWMARYXML";
+        String inputFormat = "RAWMARYXML";
         String outputFormat = "TARGETFEATURES";
         OutputStream os = new BufferedOutputStream(new FileOutputStream(new File( db.unitFeaDirName() + basename + db.unitFeaExt() )));
         MaryClient maryClient = getMaryClient();
