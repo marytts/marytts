@@ -156,7 +156,7 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         
         /* Convert MFCCs for Sphinxtrain */
         System.out.println("Converting MFCCs ...");
-        convertMFCCs();
+        //convertMFCCs();
         System.out.println(" ... done.");
         progress = 99;
         
@@ -293,20 +293,44 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
                 Element token = null;
                 //collect the words
                 int numTokens = 0;
-                StringBuffer transBuff = new StringBuffer();
+                StringBuffer trainBuff = new StringBuffer();
+                StringBuffer alignBuff = new StringBuffer();
+                boolean sentenceBoundary = false;
                 while ((token = (Element) tokensIt.nextNode()) != null) {
                     //get the word 
                     String word = MaryDomUtils.tokenText(token).toUpperCase();
-                    //if the word is a punctuation, ignore it
-                    if ((word.equals("")) || 
-                            ((!Character.isLetter(word.charAt(0)))
-                                    && word.length()<2)){
+                    
+                    if (word.equals(""))
+                    continue;
+                    if (word.equals(".") || word.equals(",")){
+                        //if the word is a punctuation,
+                        if (sentenceBoundary){
+                            //if there was a punctuation before,
+                            //there is an error in the transcript
+                            throw new IllegalArgumentException("Error in transcript of "
+                                    +nextFilename+": multiple sentence boundary markers");
+                        }
+                        //else append sentence end marker
+                        trainBuff.append(" </s>");
+                        sentenceBoundary = true;
+                        continue;
+                    } else {
+                        //skip all other non-words
+                        if ((!Character.isLetter(word.charAt(0)))
+                                    && word.length()<2)
                         continue;
                     }
                     //Convert ' to Q
                     word = word.replace('\'','Q');
                     //append word to transcription string
-                    transBuff.append(" "+word);
+                    if (sentenceBoundary){
+                        //there was a sentence boundary before
+                        //append sentence start marker
+                        trainBuff.append(" <s>");
+                        sentenceBoundary = false;
+                    }
+                    trainBuff.append(" "+word);
+                    alignBuff.append(" "+word);
                     
                     if (!dictionary.containsKey(word)){
                         //store word and pronounciation in dictionary:
@@ -335,14 +359,14 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
                 } //end of loop through tokens
                 //System.out.println("NumTokens: "+numTokens);
                 //print transcription to transcription out
-                transTrainOut.println("<s>"+transBuff.toString()+" </s>"
+                transTrainOut.println("<s>"+trainBuff.toString()
                         +" ("+nextFilename+")");
                 if (first){
-                    transLabelOut.print(transBuff.toString().trim());
+                    transLabelOut.print(alignBuff.toString().trim());
                     //System.out.println(transBuff.toString());
                     first = false;
                 } else {
-                    transLabelOut.print("\n"+transBuff.toString().trim());
+                    transLabelOut.print("\n"+alignBuff.toString().trim());
                     //System.out.println(transBuff.toString());
                 }
             line = transIn.readLine();

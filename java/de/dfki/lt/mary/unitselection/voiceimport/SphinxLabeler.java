@@ -146,9 +146,10 @@ public class SphinxLabeler implements VoiceImportComponent {
         process.waitFor();
         process.exitValue();    
         System.out.println("... done.");
-    
+ 
         /* Write the labels into lab directory */
         System.out.println("Exporting Labels ...");
+        
         //lab destination directory
         String labDestDir = dbLayout.labDirName();
         String labExtension = dbLayout.labExt();
@@ -175,7 +176,7 @@ public class SphinxLabeler implements VoiceImportComponent {
             //go through original lab file 
             while ((line = labIn.readLine()) != null){
                 if (line.startsWith("#")){
-                    //copy the line to destination lab file
+                   //copy the line to destination lab file
                     labOut.println(line);
                 } else {
                     //tokenize the line
@@ -283,33 +284,5 @@ public class SphinxLabeler implements VoiceImportComponent {
     {
         return -1;
     }
-    
-    class StreamGobbler extends Thread
-    {
-        InputStream is;
-        String type;
-        
-        StreamGobbler(InputStream is, String type)
-        {
-            this.is = is;
-            this.type = type;
-        }
-        
-        public void run()
-        {
-            try
-            {
-                InputStreamReader isr = new InputStreamReader(is);
-                BufferedReader br = new BufferedReader(isr);
-                String line=null;
-                while ( (line = br.readLine()) != null)
-                    System.out.println(type + ">" + line);    
-                } catch (IOException ioe)
-                  {
-                    ioe.printStackTrace();  
-                  }
-        }
-    }
-    
 
 }

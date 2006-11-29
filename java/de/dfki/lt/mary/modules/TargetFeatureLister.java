@@ -38,6 +38,8 @@ import com.sun.speech.freetts.Utterance;
 import de.dfki.lt.mary.MaryData;
 import de.dfki.lt.mary.MaryDataType;
 import de.dfki.lt.mary.MaryProperties;
+import de.dfki.lt.mary.modules.synthesis.FreeTTSVoices;
+import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.unitselection.Target;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureProcessorManager;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
@@ -81,7 +83,7 @@ public class TargetFeatureLister extends InternalModule
             Utterance utt = (Utterance)uttList.get(i);
             // Create target chain for the utterance
             Relation segs = utt.getRelation(Relation.SEGMENT);
-            List targets = createTargets(segs);
+            List targets = createTargetsWithInitialPause(segs);
             // create target feature string for the target chain
             for (int j=0, nTargets = targets.size(); j<nTargets; j++) {
                 Target target = (Target) targets.get(j);
@@ -107,11 +109,46 @@ public class TargetFeatureLister extends InternalModule
     protected List createTargets(Relation segs) {
         List targets = new ArrayList();
         for (Item s = segs.getHead(); s != null; s = s.getNext()) {
-            String segName = s.getFeatures().getString("name");
+            String segName = s.getFeatures().getString("name");;
             // Not sure if this is needed:
             //s.getFeatures().setString("clunit_name", segName);
             targets.add(new Target(segName, s));
         }
+        return targets;
+    }
+    
+    /**
+     * Create the list of targets from the Segments in the utterance.
+     * Make sure that first item is a pause
+     * @param segs the Segment relation
+     * @return a list of Target objects
+     */
+    protected List createTargetsWithInitialPause(Relation segs) {
+        List targets = new ArrayList();
+        boolean first = true;
+        Item s = segs.getHead();
+        Voice v = FreeTTSVoices.getMaryVoice(s.getUtterance().getVoice());
+        String silenceSymbol = v.sampa2voice("_");
+        for (; s != null; s = s.getNext()) {
+            //create next target
+            String segName = s.getFeatures().getString("name");
+            Target nextTarget = new Target(segName, s);
+            //if first target is not a pause, add one
+            if (first){
+                first = false;
+                if (! nextTarget.isSilence()){
+                   //System.out.println("Adding pause target "
+                     //           +silenceSymbol);
+                   //build new pause item
+                   Item newPauseItem = s.prependItem(null);
+                   newPauseItem.getFeatures().setString("name", silenceSymbol);
+                   
+                   //add new target for item
+                   targets.add(new Target(silenceSymbol, newPauseItem)); 
+                }
+            }
+            targets.add(nextTarget);
+        }        
         return targets;
     }
 }

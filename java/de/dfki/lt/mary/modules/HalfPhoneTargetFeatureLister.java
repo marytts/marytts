@@ -34,6 +34,8 @@ import java.util.List;
 import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.Relation;
 
+import de.dfki.lt.mary.modules.synthesis.FreeTTSVoices;
+import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.unitselection.HalfPhoneTarget;
 import de.dfki.lt.mary.unitselection.Target;
 
@@ -61,4 +63,43 @@ public class HalfPhoneTargetFeatureLister extends TargetFeatureLister
         return targets;
     }
 
+    /**
+     * Create the list of targets from the Segments in the utterance.
+     * Make sure that first item is a pause
+     * @param segs the Segment relation
+     * @return a list of Target objects
+     */
+    protected List createTargetsWithInitialPause(Relation segs) {
+        List targets = new ArrayList();
+        boolean first = true;
+        Item s = segs.getHead();
+        Voice v = FreeTTSVoices.getMaryVoice(s.getUtterance().getVoice());
+        String silenceSymbol = v.sampa2voice("_");
+        for (; s != null; s = s.getNext()) {
+            //create next target
+            String segName = s.getFeatures().getString("name");
+            Target nextLeftTarget = new HalfPhoneTarget(segName+"_L", s, true); 
+            Target nextRightTarget = new HalfPhoneTarget(segName+"_R", s, false);
+            //if first target is not a pause, add one
+            if (first){
+                first = false;
+                if (! nextLeftTarget.isSilence()){
+                    //System.out.println("Adding two pause targets: "
+                      //          +silenceSymbol+"_L and "
+                        //        +silenceSymbol+"_R");
+                    //build new pause item
+                    Item newPauseItem = s.prependItem(null);
+                    newPauseItem.getFeatures().setString("name", silenceSymbol);
+                    
+                    //add new targets for item
+                    targets.add(new HalfPhoneTarget(silenceSymbol+"_L", newPauseItem, true)); 
+                    targets.add(new HalfPhoneTarget(silenceSymbol+"_R", newPauseItem, false));
+                }
+            }
+            targets.add(nextLeftTarget);
+            targets.add(nextRightTarget);
+        }        
+        return targets;
+    }
+    
 }

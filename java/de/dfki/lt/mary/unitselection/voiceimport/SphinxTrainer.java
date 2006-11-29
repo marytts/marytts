@@ -85,15 +85,14 @@ public class SphinxTrainer implements VoiceImportComponent {
         pw.close();
         
         //collect the output
-        //any error message?
+        //read from error stream
         StreamGobbler errorGobbler = new 
-            StreamGobbler(process.getErrorStream(), "ERROR");            
+            StreamGobbler(process.getErrorStream(), "err");            
         
-        //any output?
+        //read from output stream
         StreamGobbler outputGobbler = new 
-            StreamGobbler(process.getInputStream(), "OUTPUT");
-            
-        //kick them off
+            StreamGobbler(process.getInputStream(), "out");        
+        //start reading from the streams
         errorGobbler.start();
         outputGobbler.start();
         
@@ -115,7 +114,7 @@ public class SphinxTrainer implements VoiceImportComponent {
     }
 
     
-    class StreamGobbler extends Thread
+    static class StreamGobbler extends Thread
     {
         InputStream is;
         String type;

@@ -16,7 +16,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import de.dfki.lt.mary.client.MaryClient;
 import de.dfki.lt.mary.util.FileUtils;
 
 /**
@@ -220,7 +219,6 @@ public class LabelFeatureAligner implements VoiceImportComponent
         int numLabelUnits = labelUnits.size();
         int numFeatureUnits = featureTextUnits.size();
         
-        //TODO: this is a hack, replace by smarter code
         if (!labelUnit.equals(featureUnit)){
             System.out.println("Inserting pause units at start of feature file");
             //insert a pause as first unit to the feature units
@@ -255,6 +253,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
             featureUnit = getFeatureUnit((String)featureTextUnits.get(j));
             unitIndex++;
             if (!featureUnit.equals(labelUnit)) {
+                /**
                 if (featureUnit.equals("_")){
                     //unnecessary pause unit in features, delete
                     System.out.println("Deleting unnecessary pause unit "+unitIndex);
@@ -274,7 +273,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
                         featureBinUnits.set(j,null);
                         j++;
                         continue;
-                    } else {
+                    } else {**/
                         
                         //truely not matching
                         if (returnString == null){
@@ -283,9 +282,9 @@ public class LabelFeatureAligner implements VoiceImportComponent
                                 +featureUnit+"' vs. label file '"+labelUnit
                                 +"' (Unit "+unitIndex+")";
                         }
-                    }   
+                   // }   
                     
-                }
+                //}
             }
             //increase both counters if you did not delete a pause
             i++;
