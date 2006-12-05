@@ -156,7 +156,7 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         
         /* Convert MFCCs for Sphinxtrain */
         System.out.println("Converting MFCCs ...");
-        //convertMFCCs();
+        convertMFCCs();
         System.out.println(" ... done.");
         progress = 99;
         
@@ -329,6 +329,7 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
                         trainBuff.append(" <s>");
                         sentenceBoundary = false;
                     }
+                    /**
                     trainBuff.append(" "+word);
                     alignBuff.append(" "+word);
                     
@@ -338,7 +339,8 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
                         List phoneList = new ArrayList();
                         //add
                         dictionary.put(word,phoneList);
-            
+            **/
+                    
                         //go through the phones
                         NodeList phoneNodes = token.getElementsByTagName(MaryXML.PHONE);
  
@@ -349,12 +351,22 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
                             String phone = phoneNode.getAttribute("p");
                             //convert the phone to Sphinx format
                             phone = convertPhone(phone);
+                            if (!dictionary.containsKey(phone)){
+                                //store word and pronounciation in dictionary:
+                                //build new pronounciation List
+                                List phoneList = new ArrayList();
+                                phoneList.add(phone);
+                                //add
+                                dictionary.put(phone,phoneList);
+                            }
                             //append the phone to the other phones 
-                            phoneList.add(phone);
+                            //phoneList.add(phone);
                             //add the phone to the phone set if not already there
                             phones.add(phone);
+                            trainBuff.append(" "+phone);
+                            alignBuff.append(" "+phone);
                         }
-                    }//end of if not word in dictionary
+                    //}//end of if not word in dictionary
                     numTokens++;
                 } //end of loop through tokens
                 //System.out.println("NumTokens: "+numTokens);
