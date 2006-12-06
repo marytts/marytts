@@ -38,13 +38,13 @@ public class LabelFeatureAligner implements VoiceImportComponent
     protected BasenameList bnl = null;
     protected int percent = 0;
     protected Map problems;
+    protected boolean correctedPauses = false;
     
     protected static final int TRYAGAIN = 0;
     protected static final int SKIP = 1;
     protected static final int SKIPALL = 2;
     protected static final int REMOVE = 3;
     protected static final int REMOVEALL = 4;
-    protected static final int CORRECTPAUSES = 5;
     
     public LabelFeatureAligner( DatabaseLayout setdb, BasenameList setbnl ) throws IOException
     {
@@ -171,6 +171,12 @@ public class LabelFeatureAligner implements VoiceImportComponent
         return remainingProblems == 0; // true exactly if all problems have been solved
     }
     
+    /**
+     * Let the user select if he wants to run the
+     * the automatic correction of pauses.
+     * @param numProblems the number of problems
+     * @throws IOException
+     */
     protected void correctPausesYesNo(int numProblems) throws IOException
     {
         int choice = JOptionPane.showOptionDialog(null,
@@ -187,17 +193,20 @@ public class LabelFeatureAligner implements VoiceImportComponent
     }
     
     /**
-     * Verify if the feature and label files for basename align OK.
-     * This method tries to automatically correct misalignment caused 
-     * by more pauses in the feature file.
-     * It should only be called once; for successive alignment calls the 
-     * method verifyAlignment should be used
+     * Try to automatically correct misalignment caused 
+     * by pauses: 
+     * If there is a pause in the label file and not in the 
+     * feature file, it is removed in the label file.
+     * If there is a pause in the feature file and not in
+     * the label file, a pause of length zero is inserted
+     * in the label file
      * @param basename
      * @return null if the alignment was OK, or a String containing an error message.
      * @throws IOException
      */
     protected void correctPauses() throws IOException
     {
+        correctedPauses = true;
         //clear the list of problems
         problems = new TreeMap();
         //go through all files
@@ -466,6 +475,12 @@ public class LabelFeatureAligner implements VoiceImportComponent
     
     protected int letUserCorrect(String basename, String errorMessage) throws IOException
     {
+        String[] options;
+        if (correctedPauses){
+            options = new String[] {"Edit RAWMARYXML", "Edit unit labels", "Remove from list", "Remove all problems", "Skip", "Skip all","Replace labels in unit file"};
+        } else {
+            options = new String[] {"Edit RAWMARYXML", "Edit unit labels", "Remove from list", "Remove all problems", "Skip", "Skip all"};
+        }
         int choice = JOptionPane.showOptionDialog(null,
                 "Misalignment problem for "+basename+":\n"+
                 errorMessage,
@@ -473,32 +488,40 @@ public class LabelFeatureAligner implements VoiceImportComponent
                 JOptionPane.YES_NO_CANCEL_OPTION, 
                 JOptionPane.QUESTION_MESSAGE, 
                 null,
-                new String[] {"Replace labels in unit file","Edit RAWMARYXML", "Edit unit labels", "Remove from list", "Remove all problems", "Skip", "Skip all"},
+                options,
                 null);
-        
         switch (choice) {
-        case 0:
-            replaceUnitLabels(basename);
-            return TRYAGAIN;
-        case 1: 
+        case 0: 
             editMaryXML(basename);
             return TRYAGAIN;
-        case 2:
+        case 1:
             editUnitLabels(basename);
             return TRYAGAIN;
-        case 3:
+        case 2:
             return REMOVE;
-        case 4:
+        case 3:
             return REMOVEALL;
-        case 5:
+        case 4:
             return SKIP;
-        case 6:
+        case 5:
             return SKIPALL;
+        case 6:
+            if (correctedPauses){
+                replaceUnitLabels(basename);
+            }
+            return TRYAGAIN;
         default: // JOptionPane.CLOSED_OPTION
             return SKIP; // don't verify again.
         }
     }
     
+    /**
+     * Replace all label units which do not match the feature units
+     * with the feature units
+     * This method should only be called after automatic pause alignment.
+     * @param basename the filename of the label/feature file
+     * @throws IOException
+     */
     private void replaceUnitLabels(String basename) throws IOException
     {
         String line;
