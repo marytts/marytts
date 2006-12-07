@@ -31,7 +31,7 @@
 :: MARY TTS server
 ::#########################################################################
 :: Set the Mary base installation directory in an environment variable:
-:: set MARY_BASE=$INSTALL_PATH
+set MARY_BASE=$INSTALL_PATH
 
 
 set SHPROT_BASE=%MARY_BASE%\lib\modules\shprot
