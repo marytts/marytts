@@ -43,10 +43,7 @@ public class UnitFeatureComputer implements VoiceImportComponent
         this.db = setdb;
         this.bnl = setbnl;
 
-        textDir = new File( db.txtDirName() );
-        if (!textDir.exists()) throw new IOException("No such directory: "+ textDir);
-        unitfeatureDir = new File( db.unitFeaDirName() );
-        if (!unitfeatureDir.exists()) unitfeatureDir.mkdir();
+        
         locale = System.getProperty("locale", "en");
 
         mary = null; // initialised only if needed
@@ -83,6 +80,11 @@ public class UnitFeatureComputer implements VoiceImportComponent
 
     public boolean compute() throws IOException
     {
+        textDir = new File( db.txtDirName() );
+        if (!textDir.exists()) throw new IOException("No such directory: "+ textDir);
+        unitfeatureDir = new File( db.unitFeaDirName() );
+        if (!unitfeatureDir.exists()) unitfeatureDir.mkdir();
+        
         //String[] basenames = FileUtils.listBasenames(textDir, ".txt");
         //System.out.println("Computing unit features for "+basenames.length+" files");
         System.out.println( "Computing unit features for " + bnl.getLength() + " files" );
