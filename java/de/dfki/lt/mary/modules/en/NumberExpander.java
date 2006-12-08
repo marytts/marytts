@@ -111,25 +111,25 @@ public class NumberExpander {
      * @param  wordRelation  words are added to this Relation
      */ 
     public static void expandNumber(String numberString,
-				    WordRelation wordRelation) {
+				    WordRelation wordRelation, Item tokenItem) {
 	int numDigits = numberString.length();
 	
 	if (numDigits == 0) {
 	    // wordRelation = null;
 	} else if (numDigits == 1) {
-	    expandDigits(numberString, wordRelation);
+	    expandDigits(numberString, wordRelation, tokenItem);
 	} else if (numDigits == 2) {
-	    expand2DigitNumber(numberString, wordRelation);
+	    expand2DigitNumber(numberString, wordRelation, tokenItem);
 	} else if (numDigits == 3) {
-	    expand3DigitNumber(numberString, wordRelation);
+	    expand3DigitNumber(numberString, wordRelation, tokenItem);
 	} else if (numDigits < 7) {
-	    expandBelow7DigitNumber(numberString, wordRelation);
+	    expandBelow7DigitNumber(numberString, wordRelation, tokenItem);
 	} else if (numDigits < 10) {
-	    expandBelow10DigitNumber(numberString, wordRelation);
+	    expandBelow10DigitNumber(numberString, wordRelation, tokenItem);
 	} else if (numDigits < 13) {
-	    expandBelow13DigitNumber(numberString, wordRelation);
+	    expandBelow13DigitNumber(numberString, wordRelation, tokenItem);
 	} else {
-	    expandDigits(numberString, wordRelation);
+	    expandDigits(numberString, wordRelation, tokenItem);
 	}
     }
 
@@ -141,7 +141,7 @@ public class NumberExpander {
      * @param  wordRelation  words are added to this Relation
      */
     private static void expand2DigitNumber(String numberString,
-					   WordRelation wordRelation) {
+					   WordRelation wordRelation, Item tokenItem) {
 	if (numberString.charAt(0) == '0') {
 	    // numberString is "0X"
 	    if (numberString.charAt(1) == '0') {
@@ -149,22 +149,22 @@ public class NumberExpander {
 	    } else {
 		// numberString is "01", "02" ...
 		String number = digit2num[numberString.charAt(1)-'0'];
-		wordRelation.addWord(number);
+		wordRelation.addWord(tokenItem,number);
 	    }
 	} else if (numberString.charAt(1) == '0') {
 	    // numberString is "10", "20", ...
 	    String number = digit2enty[numberString.charAt(0)-'0'];
-	    wordRelation.addWord(number);
+	    wordRelation.addWord(tokenItem,number);
 	} else if (numberString.charAt(0) == '1') {
 	    // numberString is "11", "12", ..., "19"
 	    String number = digit2teen[numberString.charAt(1)-'0'];
-	    wordRelation.addWord(number);
+	    wordRelation.addWord(tokenItem,number);
 	} else {
 	    // numberString is "2X", "3X", ...
 	    String enty = digit2enty[numberString.charAt(0)-'0'];
-	    wordRelation.addWord(enty);
+	    wordRelation.addWord(tokenItem,enty);
 	    expandDigits(numberString.substring(1,numberString.length()),
-			 wordRelation);
+			 wordRelation, tokenItem);
 	}
     }
 
@@ -176,14 +176,14 @@ public class NumberExpander {
      * @param  wordRelation  words are added to this Relation
      */
     private static void expand3DigitNumber(String numberString,
-					   WordRelation wordRelation) {
+					   WordRelation wordRelation,Item tokenItem) {
 	if (numberString.charAt(0) == '0') {
-	    expandNumberAt(numberString, 1, wordRelation);
+	    expandNumberAt(numberString, 1, wordRelation, tokenItem);
 	} else {
 	    String hundredDigit = digit2num[numberString.charAt(0)-'0'];
-	    wordRelation.addWord(hundredDigit);
-	    wordRelation.addWord("hundred");
-	    expandNumberAt(numberString, 1, wordRelation);
+	    wordRelation.addWord(tokenItem,hundredDigit);
+	    wordRelation.addWord(tokenItem,"hundred");
+	    expandNumberAt(numberString, 1, wordRelation, tokenItem);
 	}
     }
 
@@ -197,8 +197,8 @@ public class NumberExpander {
      * @param  wordRelation  words are added to this Relation
      */
     private static void expandBelow7DigitNumber(String numberString,
-						WordRelation wordRelation) {
-	expandLargeNumber(numberString, "thousand", 3, wordRelation);
+						WordRelation wordRelation,Item tokenItem) {
+	expandLargeNumber(numberString, "thousand", 3, wordRelation, tokenItem);
     }
     
 
@@ -210,8 +210,8 @@ public class NumberExpander {
      * @param  wordRelation  words are added to this Relation
      */
     private static void expandBelow10DigitNumber(String numberString,
-						 WordRelation wordRelation) {
-	expandLargeNumber(numberString, "million", 6, wordRelation);
+						 WordRelation wordRelation,Item tokenItem) {
+	expandLargeNumber(numberString, "million", 6, wordRelation, tokenItem);
     }
 
 
@@ -224,8 +224,8 @@ public class NumberExpander {
      * @param  wordRelation  words are added to this Relation
      */
     private static void expandBelow13DigitNumber(String numberString,
-						 WordRelation wordRelation) {
-	expandLargeNumber(numberString, "billion", 9, wordRelation);
+						 WordRelation wordRelation,Item tokenItem) {
+	expandLargeNumber(numberString, "billion", 9, wordRelation, tokenItem);
     }
 
 
@@ -242,7 +242,7 @@ public class NumberExpander {
     private static void expandLargeNumber(String numberString,
 					  String order,
 					  int numberZeroes,
-					  WordRelation wordRelation) {
+					  WordRelation wordRelation,Item tokenItem) {
 	int numberDigits = numberString.length();
 	
 	// parse out the prefix, e.g., "113" in "113,000"
@@ -252,13 +252,13 @@ public class NumberExpander {
 	// get how many thousands/millions/billions
 	Item oldTail = wordRelation.getTail();
 	
-	expandNumber(part, wordRelation);
+	expandNumber(part, wordRelation, tokenItem);
 
 	if (wordRelation.getTail() == oldTail) {
-	    expandNumberAt(numberString, i, wordRelation);
+	    expandNumberAt(numberString, i, wordRelation,tokenItem);
 	} else {
-	    wordRelation.addWord(order);
-	    expandNumberAt(numberString, i, wordRelation);
+	    wordRelation.addWord(tokenItem,order);
+	    expandNumberAt(numberString, i, wordRelation,tokenItem);
 	}
     }
 
@@ -273,9 +273,9 @@ public class NumberExpander {
      */
     private static void expandNumberAt(String numberString,
 				       int startIndex,
-				       WordRelation wordRelation) {
+				       WordRelation wordRelation,Item tokenItem) {
 	expandNumber(numberString.substring(startIndex,numberString.length()),
-		     wordRelation);
+		     wordRelation,tokenItem);
     }
     
 
@@ -286,14 +286,14 @@ public class NumberExpander {
      * @param  wordRelation  words are added to this Relation
      */
     public static void expandDigits(String numberString,
-				    WordRelation wordRelation) {
+				    WordRelation wordRelation,Item tokenItem) {
 	int numberDigits = numberString.length();
 	for (int i = 0; i < numberDigits; i++) {
 	    char digit = numberString.charAt(i);
 	    if (isDigit(digit)) {
-		wordRelation.addWord(digit2num[numberString.charAt(i)-'0']);
+		wordRelation.addWord(tokenItem,digit2num[numberString.charAt(i)-'0']);
 	    } else {
-		wordRelation.addWord("umpty");
+		wordRelation.addWord(tokenItem,"umpty");
 	    }
 	}
     }
@@ -306,11 +306,11 @@ public class NumberExpander {
      * @param  wordRelation  words are added to this Relation
      */
     public static void expandOrdinal(String rawNumberString,
-				     WordRelation wordRelation) {
+				     WordRelation wordRelation,Item tokenItem) {
 	// remove all ','s from the raw number string
 	String numberString = Utilities.deleteChar(rawNumberString, ',');
 	
-	expandNumber(numberString, wordRelation);
+	expandNumber(numberString, wordRelation,tokenItem);
 
 	// get the last in the list of number strings
 	Item lastItem = wordRelation.getTail();
@@ -378,7 +378,7 @@ public class NumberExpander {
      * @param numberString the string which is the number to expand
      * @param  wordRelation  words are added to this Relation
      */
-    public static void expandID(String numberString, WordRelation wordRelation) {
+    public static void expandID(String numberString, WordRelation wordRelation, Item tokenItem) {
 	
 	int numberDigits = numberString.length();
 	
@@ -386,25 +386,25 @@ public class NumberExpander {
                     (numberString.charAt(2) == '0') &&
                     (numberString.charAt(3) == '0')) {
             if (numberString.charAt(1) == '0') {          // e.g. 2000, 3000
-                expandNumber(numberString, wordRelation);
+                expandNumber(numberString, wordRelation,tokenItem);
             } else {
-                expandNumber(numberString.substring(0,2), wordRelation);
-                wordRelation.addWord("hundred");
+                expandNumber(numberString.substring(0,2), wordRelation,tokenItem);
+                wordRelation.addWord(tokenItem,"hundred");
             }
 	} else if ((numberDigits == 2) && (numberString.charAt(0) == '0')) {
-	    wordRelation.addWord("oh");
-	    expandDigits(numberString.substring(1,2), wordRelation);
+	    wordRelation.addWord(tokenItem,"oh");
+	    expandDigits(numberString.substring(1,2), wordRelation,tokenItem);
 	} else if ((numberDigits == 4 &&
 		    numberString.charAt(1) == '0') ||
 		   numberDigits < 3) {
-	    expandNumber(numberString, wordRelation);
+	    expandNumber(numberString, wordRelation,tokenItem);
 	} else if (numberDigits % 2 == 1) {
 	    String firstDigit = digit2num[numberString.charAt(0)-'0'];
-	    wordRelation.addWord(firstDigit);
-	    expandID(numberString.substring(1,numberDigits), wordRelation);
+	    wordRelation.addWord(tokenItem,firstDigit);
+	    expandID(numberString.substring(1,numberDigits), wordRelation,tokenItem);
 	} else {
-	    expandNumber(numberString.substring(0,2), wordRelation);
-	    expandID(numberString.substring(2,numberDigits), wordRelation);
+	    expandNumber(numberString.substring(0,2), wordRelation,tokenItem);
+	    expandID(numberString.substring(2,numberDigits), wordRelation,tokenItem);
 	}
     }
 
@@ -415,39 +415,39 @@ public class NumberExpander {
      * @param numberString the string which is the real number to expand
      * @param wordRelation words are added to this Relation
      */
-    public static void expandReal(String numberString, WordRelation wordRelation) {
+    public static void expandReal(String numberString, WordRelation wordRelation,Item tokenItem) {
 
 	int stringLength = numberString.length();
 	int position;
 
 	if (numberString.charAt(0) == '-') {
 	    // negative real numbers
-	    wordRelation.addWord("minus");
-	    expandReal(numberString.substring(1, stringLength), wordRelation);
+	    wordRelation.addWord(tokenItem,"minus");
+	    expandReal(numberString.substring(1, stringLength), wordRelation,tokenItem);
 	} else if (numberString.charAt(0) == '+') {
 	    // prefixed with a '+'
-	    wordRelation.addWord("plus");
-	    expandReal(numberString.substring(1, stringLength), wordRelation);
+	    wordRelation.addWord(tokenItem,"plus");
+	    expandReal(numberString.substring(1, stringLength), wordRelation,tokenItem);
 	} else if ((position = numberString.indexOf('e')) != -1 ||
 		   (position = numberString.indexOf('E')) != -1) {
 	    // numbers with 'E' or 'e'
-	    expandReal(numberString.substring(0, position), wordRelation);
-	    wordRelation.addWord("e");
-	    expandReal(numberString.substring(position + 1), wordRelation);
+	    expandReal(numberString.substring(0, position), wordRelation,tokenItem);
+	    wordRelation.addWord(tokenItem,"e");
+	    expandReal(numberString.substring(position + 1), wordRelation,tokenItem);
 	} else if ((position = numberString.indexOf('.')) != -1) {
 	    // numbers with '.'
 	    String beforeDot = numberString.substring(0, position);
 	    if (beforeDot.length() > 0) {
-		expandReal(beforeDot, wordRelation);
+		expandReal(beforeDot, wordRelation,tokenItem);
 	    }
-	    wordRelation.addWord("point");
+	    wordRelation.addWord(tokenItem,"point");
 	    String afterDot = numberString.substring(position + 1);
 	    if (afterDot.length() > 0) {
-		expandDigits(afterDot, wordRelation);
+		expandDigits(afterDot, wordRelation,tokenItem);
 	    }
 	} else {
 	    // everything else
-	    expandNumber(numberString, wordRelation);
+	    expandNumber(numberString, wordRelation,tokenItem);
 	}
     }
     
@@ -459,7 +459,7 @@ public class NumberExpander {
      * @param wordRelation words are added to this Relation
      */
     public static void expandLetters(String letters, 
-				     WordRelation wordRelation) {
+				     WordRelation wordRelation,Item tokenItem) {
 	letters = letters.toLowerCase();
 	char c;
 			
@@ -468,11 +468,11 @@ public class NumberExpander {
 	    c = letters.charAt(i);
 
 	    if (isDigit(c)) {
-		wordRelation.addWord(digit2num[c-'0']);
+		wordRelation.addWord(tokenItem,digit2num[c-'0']);
 	    } else if (letters.equals("a")) {
-		wordRelation.addWord("_a");
+		wordRelation.addWord(tokenItem,"_a");
 	    } else {
-		wordRelation.addWord(String.valueOf(c));
+		wordRelation.addWord(tokenItem,String.valueOf(c));
 	    }
 	}
     }
