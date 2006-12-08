@@ -304,6 +304,7 @@ public class DatabaseImportMain extends JFrame
         /* Invoke the GUI, now that the arguments and layouts are all set */
         VoiceImportComponent[] components = new VoiceImportComponent[] {
                 
+                new BITSDatabaseImporter ( db, bnl ),
                 new SphinxLabelingPreparator( db, bnl ),
                 new SphinxTrainer ( db ),
                 new SphinxLabeler ( db ),

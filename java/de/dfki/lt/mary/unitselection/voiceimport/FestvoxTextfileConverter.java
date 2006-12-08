@@ -30,15 +30,18 @@ public class FestvoxTextfileConverter implements VoiceImportComponent
         this.db = setdb;
         this.bnl = setbnl;
     
-        textFile = new File( db.baseTxtFileName() );
-        if (!textFile.exists()) throw new IOException( "No such file: " + textFile );
-        textDir = new File( db.txtDirName() );
-        if (!textDir.exists()) textDir.mkdir();
+        
     }
     
     /**/
     public boolean compute() throws IOException
     {
+        //check if transcription file exists
+        textFile = new File( db.baseTxtFileName() );
+        if (!textFile.exists()) throw new IOException( "No such file: " + textFile );
+        textDir = new File( db.txtDirName() );
+        if (!textDir.exists()) textDir.mkdir();
+        
         BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(textFile), "UTF-8"));
         String line;
         BasenameList checkList = new BasenameList();

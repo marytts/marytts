@@ -33,10 +33,7 @@ public class UnitLabelComputer implements VoiceImportComponent
         this.db = setdb;
         this.bnl = setbnl;
 
-        phonelabelDir = new File( db.labDirName() );
-        if (!phonelabelDir.exists()) throw new IOException("No such directory: "+ phonelabelDir);
-        unitlabelDir = new File( db.unitLabDirName() );
-        if (!unitlabelDir.exists()) unitlabelDir.mkdir();
+        
         pauseSymbol = System.getProperty( "pause.symbol", "pau" );
 
     }
@@ -44,6 +41,11 @@ public class UnitLabelComputer implements VoiceImportComponent
     /**/
     public boolean compute() throws IOException
     {
+        phonelabelDir = new File( db.labDirName() );
+        if (!phonelabelDir.exists()) throw new IOException("No such directory: "+ phonelabelDir);
+        unitlabelDir = new File( db.unitLabDirName() );
+        if (!unitlabelDir.exists()) unitlabelDir.mkdir();
+        
         System.out.println( "Computing unit labels for " + bnl.getLength() + " files." );
         System.out.println( "From phonetic label files: " + db.labDirName() + "*" + db.labExt() );
         System.out.println( "To       unit label files: " + db.unitLabDirName() + "*" + db.unitLabExt() );
