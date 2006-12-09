@@ -37,9 +37,7 @@ import java.util.*;
  * Class to import a BITS-database
  * The assumed directory structure is the following:
  * dvd-lg*
- *  \- ANNOT
- *      \- Session1
- *          \- Annotation files
+ *  \- list of logatones
  *  \- wav
  *      \- all wav files from all sessions
  * 
@@ -78,46 +76,36 @@ public class BITSDatabaseImporter implements VoiceImportComponent{
             if (!etcDir.exists()){
                 etcDir.mkdir();
             }
-            
+           /* Find out the naming conventions of the wavFiles */ 
+           File wavDir = new File(dbLayout.wavDirName());
+           String pathname = wavDir.getCanonicalPath();
+           String[] wavFiles = wavDir.list();
+           String baseName = wavFiles[0];
+           baseName = baseName.substring(0,baseName.indexOf("_")-4);
+           System.out.println(baseName);
+           
+           /* Read in the list of logatones (=transcript)*/
             Map newBasenames = new HashMap();
  
-            File annoDir = new File(rootDirName+"/ANNOT");
-           if (!annoDir.exists()) throw new IOException("No such directory: "+ annoDir);
-            //the subdirs of annoDir contain the sessions
-            File[] sessions = annoDir.listFiles(); 
-            for (int i=0;i<sessions.length;i++){
-                File session = sessions[i];
-                String pathname = session.getCanonicalPath();
-                //take all files ending on _0.par
-                String[] annoFiles = session.list();
-                for (int j=0;j<annoFiles.length;j++){
-                    String nextFile = annoFiles[j];
-                    if (nextFile.endsWith("_0.par")){
-                        //add to basenames
-                        String nextBasename = nextFile.substring(0, nextFile.indexOf("."));
-                        System.out.println(nextBasename);
-                        //open the file
-                        BufferedReader annoIn = 
-                            new BufferedReader(
-                                    new FileReader(
-                                            new File(pathname+"/"+nextFile)));
+            //logatone file
+            File logatoneFile = new File(rootDirName+"/BITS-LG.TBL");
+            //open the file
+            BufferedReader logaToneIn = 
+                  new BufferedReader(
+                       new InputStreamReader(
+                            new FileInputStream(logatoneFile) ,"UTF-8"));
                         
-                        String line;
-                        while((line = annoIn.readLine()) != null){
-                            if (line.startsWith("ORT")){
-                                //line looks like: ORT: 0   DATOOUHTADEU
-                                StringTokenizer lineElements = new StringTokenizer(line.trim());
-                                lineElements.nextToken();
-                                lineElements.nextToken();
-                                //next Element gives us the text
-                                String text = lineElements.nextToken();
-                                newBasenames.put(nextBasename,"( "+nextBasename+" \""+text+".\" )");
-                            }
-                        }
-                        
-                    }
-                }
+            String line;
+            while((line = logaToneIn.readLine()) != null){
+                //line looks like 0001  DATOOUHTADEU    dato:u:tadOY    o:u:    
+                StringTokenizer lineElements = new StringTokenizer(line.trim());
+                String nextExt = lineElements.nextToken();
+                String nextBasename = baseName+nextExt+"_0";
+                String text = lineElements.nextToken();
+                newBasenames.put(nextBasename+".wav"," ( "+nextBasename
+                                            +" \""+text+"\" )");
             }
+            
            
            /* Correct the basenameList */
            basenames.clear();
@@ -132,20 +120,19 @@ public class BITSDatabaseImporter implements VoiceImportComponent{
             //open text output file
             PrintWriter textOut = 
                 new PrintWriter(
-                        new FileWriter(
-                                new File(rootDirName+"/etc/txt.done.data")));
+                        new OutputStreamWriter(
+                                new FileOutputStream(
+                                        new File( rootDirName+"/etc/txt.done.data")), "ISO-8859-1"));                                
            
-           File wavDir = new File(dbLayout.wavDirName());
-           String pathname = wavDir.getCanonicalPath();
-           String[] wavFiles = wavDir.list();
+           
            List wavFilesToDelete = new ArrayList();
            for (int j=0;j<wavFiles.length;j++){
                 String nextFile = wavFiles[j];
-                String nextBasename = nextFile.substring(0,nextFile.indexOf("."));
-                if (newBasenames.containsKey(nextBasename)){
+                
+                if (newBasenames.containsKey(nextFile)){
                    //print basename and remove it from the list
-                   textOut.println(newBasenames.get(nextBasename));
-                   newBasenames.remove(nextBasename);
+                   textOut.println(newBasenames.get(nextFile));
+                   newBasenames.remove(nextFile);
                 } else {
                    //delete the wave file
                     System.out.println("Deleting wavfile "+nextFile);
@@ -168,11 +155,11 @@ public class BITSDatabaseImporter implements VoiceImportComponent{
            if (!newBasenames.isEmpty()){
                //we didnt find all wav files
                //delete all remaining basenames
-               System.out.println("Did not find all wave files. Deleting basenames ...");
+               //System.out.println("Did not find all wave files. Deleting basenames ...");
                newBasenameSet = newBasenames.keySet();
                for (Iterator it = newBasenameSet.iterator();it.hasNext();){
                    String nextBasename = (String) it.next();
-                   System.out.println(nextBasename);
+                   //System.out.println(nextBasename);
                    basenames.remove(nextBasename);
                }
            }
