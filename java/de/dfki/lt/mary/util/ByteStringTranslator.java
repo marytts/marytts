@@ -34,7 +34,13 @@ public class ByteStringTranslator
      */
     public ByteStringTranslator(String[] strings)
     {
-        if (strings.length > Byte.MAX_VALUE) throw new IllegalArgumentException("Too many strings for a byte-string translator");
+        if (strings.length > Byte.MAX_VALUE) {
+            StringBuffer buf = new StringBuffer();
+            for (int i=0; i<strings.length; i++) {
+                buf.append("\""+strings[i]+"\" ");
+            }
+            throw new IllegalArgumentException("Too many strings for a byte-string translator: \n"+buf.toString()+ "("+strings.length+" strings)");
+        }
         list = new ArrayList(Arrays.asList(strings));
     }
     
