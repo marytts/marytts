@@ -299,6 +299,44 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
 
     
     /**
+     * Returns the part-of-speech.
+     *
+     * This is a feature processor. A feature processor takes an item,
+     * performs some sort of processing on the item and returns an object.
+     */
+    public static class Pos implements ByteValuedFeatureProcessor
+    {
+        private ByteStringTranslator values;
+        private TargetItemNavigator navigator;
+
+        public String getName() { return "mary_pos"; }
+        public String[] getValues() { return values.getStringValues(); }
+        
+        public Pos(String[] posValues)
+        {
+            this.values = new ByteStringTranslator(posValues);
+            this.navigator = new WordNavigator();
+        }
+        
+    	/**
+    	 * Performs some processing on the given item.
+    	 * @param  item  the item to process
+    	 * @return a guess at the part-of-speech for the item
+    	 */
+    	public byte process(Target target)
+        {
+            Item word = navigator.getItem(target);
+            if (word == null) return values.get("0");
+    	    String pos = word.getFeatures().getString("pos");
+            if (pos == null) return values.get("0");
+            pos = pos.trim();
+            if (values.contains(pos))
+                return values.get(pos);
+            return values.get("0");
+    	}
+    }
+
+    /**
      * Returns a guess of the part-of-speech.
      *
      * This is a feature processor. A feature processor takes an item,
@@ -332,24 +370,24 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
             this.navigator = new WordNavigator();
         }
         
-    	/**
-    	 * Performs some processing on the given item.
-    	 * @param  item  the item to process
-    	 * @return a guess at the part-of-speech for the item
-    	 */
-    	public byte process(Target target)
+        /**
+         * Performs some processing on the given item.
+         * @param  item  the item to process
+         * @return a guess at the part-of-speech for the item
+         */
+        public byte process(Target target)
         {
             Item word = navigator.getItem(target);
             if (word == null) return values.get("0");
-    	    String pos = word.getFeatures().getString("pos");
+            String pos = word.getFeatures().getString("pos");
             if (pos == null) return values.get("0");
             pos = pos.trim();
-    	    if (posConverter.containsKey(pos)){
-    	        pos = (String)posConverter.get(pos);}
-    	    return values.get(pos);
-    	}
+            if (posConverter.containsKey(pos)){
+                pos = (String)posConverter.get(pos);}
+            return values.get(pos);
+        }
     }
-    
+
     /**
      * Checks for onset coda 
      * This is a feature processor. A feature processor takes an item,
