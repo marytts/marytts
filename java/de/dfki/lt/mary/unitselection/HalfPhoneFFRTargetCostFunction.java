@@ -108,15 +108,15 @@ public class HalfPhoneFFRTargetCostFunction extends FFRTargetCostFunction
             String[] weightsFiles = weightsFile.split("\\|");
             if (weightsFiles.length != 2)
                 throw new IllegalArgumentException("Parameter weightsFile should contain exactly two fields separated by a '|' character -- instead, it is: '"+weightsFile+"'");
-            File leftF = new File(weightsFiles[0]);
+            File leftF = new File(weightsFiles[0].trim());
             File rightF;
             // If the second weights file has no path, it is in the same directory as the first
             if (weightsFiles[1].indexOf("/") == -1
                 && weightsFiles[1].indexOf("\\") == -1) {
                 File dir = leftF.getParentFile();
-                rightF = new File(dir, weightsFiles[1]);
+                rightF = new File(dir, weightsFiles[1].trim());
             } else {
-                rightF = new File(weightsFiles[1]);
+                rightF = new File(weightsFiles[1].trim());
             }
             
             // overwrite weights from files

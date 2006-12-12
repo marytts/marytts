@@ -308,6 +308,7 @@ public class DatabaseImportMain extends JFrame
                 new SphinxLabelingPreparator( db, bnl ),
                 new SphinxTrainer ( db ),
                 new SphinxLabeler ( db ),
+                new MRPALabelConverter ( db ),
                 
                 new FestvoxTextfileConverter( db, bnl ),
                 new UnitLabelComputer( db, bnl ),
