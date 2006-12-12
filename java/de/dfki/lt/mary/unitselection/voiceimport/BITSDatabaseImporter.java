@@ -88,7 +88,7 @@ public class BITSDatabaseImporter implements VoiceImportComponent{
             Map newBasenames = new HashMap();
  
             //logatone file
-            File logatoneFile = new File(rootDirName+"/BITS-LG.TBL");
+            File logatoneFile = new File(rootDirName+"/BITS-US.TBL");
             //open the file
             BufferedReader logaToneIn = 
                   new BufferedReader(
@@ -97,16 +97,27 @@ public class BITSDatabaseImporter implements VoiceImportComponent{
                         
             String line;
             while((line = logaToneIn.readLine()) != null){
-                //line looks like 0001  DATOOUHTADEU    dato:u:tadOY    o:u:    
-                StringTokenizer lineElements = new StringTokenizer(line.trim());
+                //line looks like 0001;d|a|s d|'U|N|k|@|l v|'a:6 Q|aI|n k|'U6|ts|@|s Q|U|n|t l|'aI|z|6 v|'e:6|d|@|n|d|@|s f|E6|S|v|'I|n|d|@|n;das Dunkel war ein kurzes und leiser werdendes Verschwinden .;das Dunkel war ein kurzes und leiser werdendes Verschwinden 
+                StringTokenizer lineElements = new StringTokenizer(line.trim(),";");
                 String nextExt = lineElements.nextToken();
+                lineElements.nextToken();
                 String nextBasename = baseName+nextExt+"_0";
+                
                 String text = lineElements.nextToken();
-                newBasenames.put(nextBasename+".wav"," ( "+nextBasename
+                //TODO: ugly; clean up
+                if (!((text.endsWith("."))
+                        || (text.endsWith("?")
+                                || (text.endsWith("!")
+                                        || (text.endsWith("!")
+                                                || (text.endsWith(","))))))){
+                    text = text+".";
+                }
+                System.out.println("Adding "+nextBasename+" : "+text);
+                newBasenames.put(nextBasename," ( "+nextBasename
                                             +" \""+text+"\" )");
             }
             
-           
+            
            /* Correct the basenameList */
            basenames.clear();
            Set newBasenameSet = newBasenames.keySet();
@@ -122,27 +133,27 @@ public class BITSDatabaseImporter implements VoiceImportComponent{
                 new PrintWriter(
                         new OutputStreamWriter(
                                 new FileOutputStream(
-                                        new File( rootDirName+"/etc/txt.done.data")), "ISO-8859-1"));                                
+                                        new File( rootDirName+"/etc/txt.done.data")), "UTF-8"));                                
            
            
            List wavFilesToDelete = new ArrayList();
            for (int j=0;j<wavFiles.length;j++){
                 String nextFile = wavFiles[j];
-                
-                if (newBasenames.containsKey(nextFile)){
+                String nextBasename = nextFile.substring(0,nextFile.indexOf("."));
+                if (newBasenames.containsKey(nextBasename)){
                    //print basename and remove it from the list
-                   textOut.println(newBasenames.get(nextFile));
-                   newBasenames.remove(nextFile);
+                   textOut.println(newBasenames.get(nextBasename));
+                   newBasenames.remove(nextBasename);
                 } else {
                    //delete the wave file
-                    System.out.println("Deleting wavfile "+nextFile);
+                    System.out.println("Deleting wavfile "+nextBasename);
                    File nextWav = new File(pathname+"/"+nextFile);
                    //comment this out if deletion fails:
                    //System.gc();
                    //Thread.sleep(100);
-                   if(!nextWav.delete()){
-                       System.out.println("Deletion failed!");
-                   }
+                   //if(!nextWav.delete()){
+                   //    System.out.println("Deletion failed!");
+                   //}
                    
                 }
            }

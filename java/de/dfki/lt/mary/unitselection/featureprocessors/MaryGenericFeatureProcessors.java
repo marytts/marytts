@@ -467,7 +467,12 @@ public class MaryGenericFeatureProcessors
             if (syllable == null) return 0;
             String value = syllable.getFeatures().getString("stress");
             if (value == null) return 0;
-            return Byte.parseByte(value);
+            byte stressValue = Byte.parseByte(value);
+            if (stressValue > 1){
+                //out of range, set to 1
+                stressValue =1;
+            }
+            return stressValue;
         }
     }
 
@@ -798,7 +803,7 @@ public class MaryGenericFeatureProcessors
             Item syllable = navigator.getItem(target);
             if (syllable == null) return 0;
             String endtone = syllable.getFeatures().getString("endtone");
-            if (endtone == null) {
+            if (endtone == null || endtone.equals("")) {
                 return 0;
             }
             return values.get(endtone);

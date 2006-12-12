@@ -312,6 +312,7 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
                         }
                         //else append sentence end marker
                         trainBuff.append(" </s>");
+                        
                         sentenceBoundary = true;
                         continue;
                     } else {
@@ -327,6 +328,9 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
                         //there was a sentence boundary before
                         //append sentence start marker
                         trainBuff.append(" <s>");
+                        if (numTokens != 0){
+                            alignBuff.append(" SIL");
+                        }
                         sentenceBoundary = false;
                     }
                     /**
