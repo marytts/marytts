@@ -44,7 +44,7 @@ public class UnitFeatureComputer implements VoiceImportComponent
         this.bnl = setbnl;
 
         
-        locale = System.getProperty("locale", "en");
+        locale = db.locale();
 
         mary = null; // initialised only if needed
     }
@@ -109,11 +109,6 @@ public class UnitFeatureComputer implements VoiceImportComponent
                 + FileUtils.getFileAsString(new File( db.txtDirName() + basename + db.txtExt() ), "UTF-8")
                 + "</maryxml>";
         }
-
-        //just a hack
-        //text = FileUtils.getFileAsString(new File( db.txtDirName() + basename + db.txtExt() ), "UTF-8");
-        //text.trim();
-        //String inputFormat = "TEXT";
         
         String inputFormat = "RAWMARYXML";
         String outputFormat = "TARGETFEATURES";

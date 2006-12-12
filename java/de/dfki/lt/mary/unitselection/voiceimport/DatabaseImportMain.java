@@ -44,6 +44,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.Locale;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -54,6 +55,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
+
+import de.dfki.lt.mary.util.MaryUtils;
 
 /**
  * The single purpose of the DatabaseImportMain class is to provide a main
@@ -257,27 +260,26 @@ public class DatabaseImportMain extends JFrame
      * <b> Options </b>
      * <p>
      *    <ul>
-     *          <li> <code> [ -r | --recompute ] </code> Re-compute the LPC parameters from the wav files,
-     *          using the Festvox/EST shell scripts.
-     *          
-     *          <li> <code> <voiceName> </code> The name of the new voice 
-     *          
-     *          <li> <code> <targetFeatureFile> </code> The file defining the
-     *          names, weights and types of the target features
-     *          
-     *          <li> <code> <joinFeatureFile> </code> The file defining the
-     *          weights of the join features
-     *          
-     *          <li> <code> <databaseBaseName> </code> The location of the base directory
-     *          holding the database. <dataBaseDir>/wav/ should hold the corresponding initial
-     *          .wav files. If not given, defaults to ./ .
+     * 			<li> <code> [ --locale LOCALE ] </code> Set the locale of the voice to build 
+     * 				(Default: en)
      *    </ul>
      * 
      */
     public static void main( String[] args ) throws IOException
     {
+        
+        /* Set locale to en if not specified */
+        Locale locale;
+        if (args.length == 2 
+                && args[0].equals("--locale")){
+            locale = MaryUtils.string2locale(args[1]);
+        } else {
+            locale = new Locale("en");
+        }
+        System.out.println("Setting locale to "+locale);
+        
         /* Make a database layout with default values. */
-        DatabaseLayout db = new DatabaseLayout();
+        DatabaseLayout db = new DatabaseLayout(locale);
         
         /* Make the basename list */
         BasenameList bnl = null;

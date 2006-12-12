@@ -31,6 +31,7 @@
  */
 package de.dfki.lt.mary.unitselection.voiceimport;
 
+import java.util.Locale;
 
 /**
  * The DatabaseLayout class registers the base directory of a voice database,
@@ -51,6 +52,15 @@ public class DatabaseLayout
      * 
      */
     public DatabaseLayout() {
+        initDefaultProps();
+    }
+    
+    /**
+     * Constructor for a new database layout.
+     * @param locale the locale of the voice
+     */
+    public DatabaseLayout(Locale locale) {
+        setIfDoesntExist( "db.locale", locale.getLanguage());
         initDefaultProps();
     }
     
@@ -163,6 +173,9 @@ public class DatabaseLayout
     
     /* Various accessors and absolute path makers: */
 
+    /* Locale */
+    public String locale() {return ( System.getProperty( "db.locale") ); }
+    
     /* Database root directory */
     public String rootDirName() { return( System.getProperty( "db.rootDir") ); }
     
