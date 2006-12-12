@@ -124,7 +124,7 @@ public class CARTBuilder implements VoiceImportComponent {
          
          boolean callWagon = System.getProperty("db.cartbuilder.callwagon", "true").equals("true");
          if (callWagon) {
-             replaceLeaves(topLevelCART,featureDefinition);
+             //replaceLeaves(topLevelCART,featureDefinition);
          }
          
          //dump big CART to binary file

@@ -32,6 +32,7 @@ import java.io.*;
 import java.util.*;
 
 import de.dfki.lt.mary.client.MaryClient;
+import de.dfki.lt.mary.util.FileUtils;
 import de.dfki.lt.mary.util.dom.MaryDomUtils;
 import de.dfki.lt.mary.util.dom.NameNodeFilter;
 import de.dfki.lt.mary.MaryData;
@@ -62,6 +63,7 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
     private String outputDir;
     private String[] filenames;
     private int progress;
+    private String locale;
     
     /**
      * Create new LabelingPreparator
@@ -74,11 +76,11 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         this.dbLayout = dbLayout;
         this.baseNames = baseNames;
         progress = 0;
+        locale = dbLayout.locale();
     }
     
     /**
      * Do the computations required by this component.
-     * TODO: check if this works for German, too
      * 
      * @return true on success, false on failure
      */
@@ -234,12 +236,12 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
     private void buildDictAndDumpTrans(Map dictionary, Set phones) throws Exception {
         //build a new MaryClient
         mary = getMaryClient();
-        String inputFormat = "TEXT"; 
+        String inputFormat = "RAWMARYXML"; 
         String outputFormat = "ACOUSTPARAMS";
         
         //open etc/txt.done.data (transcription in)
         BufferedReader transIn = new BufferedReader(
-                new FileReader(new File(dbLayout.baseTxtFileName())));
+                new InputStreamReader(new FileInputStream(dbLayout.baseTxtFileName()),"UTF-8"));
         
         //open transcription file used for training
         PrintWriter transTrainOut = new PrintWriter(
@@ -276,6 +278,8 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
             
                 //transcription is everything between " "
                 String nextTrans = line.substring(line.indexOf("\"")+1,line.lastIndexOf("\""));
+                nextTrans = getMaryXMLHeader(locale)
+                		+ nextTrans + "</maryxml>";
                 //System.out.println(nextTrans);
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
                 //process and dump
@@ -312,7 +316,6 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
                         }
                         //else append sentence end marker
                         trainBuff.append(" </s>");
-                        
                         sentenceBoundary = true;
                         continue;
                     } else {
@@ -328,9 +331,6 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
                         //there was a sentence boundary before
                         //append sentence start marker
                         trainBuff.append(" <s>");
-                        if (numTokens != 0){
-                            alignBuff.append(" SIL");
-                        }
                         sentenceBoundary = false;
                     }
                     /**
@@ -413,6 +413,20 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         baseNames.add(filenames);
     }
     
+    /**
+     * Get a maryxml header with the given locale
+     * @param locale the locale
+     * @return the maryxml header
+     */
+    private String getMaryXMLHeader(String locale)
+    {
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
+            "<maryxml version=\"0.4\"\n" +
+            "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+            "xmlns=\"http://mary.dfki.de/2002/MaryXML\"\n" +
+            "xml:lang=\"" + locale + "\">\n";
+        
+    }
 
     /**
      * Get a new MARY client
