@@ -4,17 +4,17 @@
         <appname>MARY TTS</appname>
         <appversion>3.1beta1</appversion>
         <authors>
-            <author name="Marc Schr&ouml;der" email="schroed@dfki.de"/>
+            <author name="Marc Schröder" email="schroed@dfki.de"/>
             <author name="Sacha Krstulovic" email=""/>
             <author name="Anna Hunecke" email=""/>
             <author name="Jochen Steigner" email=""/>
             <author name="Stefanie Becker" email=""/>
             <author name="Emilia Ellsiepen" email=""/>
-            <author name="Philipp von B&ouml;selager" email=""/>
+            <author name="Philipp von Böselager" email=""/>
             <author name="Jens Apel" email=""/>
             <author name="Lars Jungjohann" email=""/>
             <author name="Maria Staudte" email=""/>
-            <author name="J&uuml;rgen Trouvain" email=""/>
+            <author name="Jürgen Trouvain" email=""/>
             <author name="Gregory Gulrajani" email=""/>
         </authors>
         <url>http://mary.dfki.de</url>
