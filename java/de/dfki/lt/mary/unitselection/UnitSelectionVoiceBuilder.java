@@ -89,21 +89,21 @@ public class UnitSelectionVoiceBuilder
 	        logger.info("Loading voice "+voice+"...");
 	        
 	        //read in the parameters from the .config file
-	        String gender = MaryProperties.getProperty(header+".gender");
+	        String gender = MaryProperties.needProperty(header+".gender");
 	        Gender voiceGender =  new Gender(gender);
-	        String locale = MaryProperties.getProperty(header+".locale");
+	        String locale = MaryProperties.needProperty(header+".locale");
 	        Locale voiceLocale = MaryUtils.string2locale(locale);
-	        String domain = MaryProperties.getProperty(header+".domain");
+	        String domain = MaryProperties.needProperty(header+".domain");
 	        String exampleTextFile = null;
 	        if (!domain.equals("general")){
-	            exampleTextFile = MaryProperties.getFilename(header+".exampleTextFile");
+	            exampleTextFile = MaryProperties.needFilename(header+".exampleTextFile");
 	        }
 	        
 	        //build the lexicon of not already built
             String lexiconClass = MaryProperties.getProperty(header+".lexiconClass");
             Lexicon lexicon = null;
             if (lexiconClass != null) {
-                String lexiconName = MaryProperties.getProperty(header+".lexicon");
+                String lexiconName = MaryProperties.needProperty(header+".lexicon");
                 if (lexicons.containsKey(lexiconClass+lexiconName)) {
                     lexicon = (Lexicon) lexicons.get(lexiconClass+lexiconName);
                 } else { // need to create a new lexicon instance
