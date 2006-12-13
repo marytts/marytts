@@ -62,7 +62,9 @@ public class DiphoneUnitSelector extends UnitSelector
         List targets = new ArrayList();
         String silenceSymbol = "_"; // in sampa
 
-        HalfPhoneTarget prev = new HalfPhoneTarget(silenceSymbol+"_R", new Item(segs, new ItemContents()), false);
+        Item initialSilence = new Item(segs, new ItemContents());
+        initialSilence.getFeatures().setFloat("end", 0.001f);
+        HalfPhoneTarget prev = new HalfPhoneTarget(silenceSymbol+"_R", initialSilence, false);
         for (Item s = segs.getHead(); s != null; s = s.getNext()) {
             String segName = s.getFeatures().getString("name");
             String sampa = FreeTTSVoices.getMaryVoice(s.getUtterance().getVoice()).voice2sampa(segName);
@@ -73,7 +75,11 @@ public class DiphoneUnitSelector extends UnitSelector
         }
         if (!prev.getName().startsWith(silenceSymbol)) {
             // need to append final silence
-            HalfPhoneTarget silence = new HalfPhoneTarget(silenceSymbol+"_L", new Item(segs, new ItemContents()), true);
+            assert prev.getItem().getFeatures().isPresent("end") : "Item '"+prev.getItem()+"' for target '"+prev.getName()+" has no 'end' feature";
+            float prevEnd = prev.getItem().getFeatures().getFloat("end");
+            Item finalSilence = new Item(segs, new ItemContents());
+            finalSilence.getFeatures().setFloat("end", prevEnd+0.001f);
+            HalfPhoneTarget silence = new HalfPhoneTarget(silenceSymbol+"_L", finalSilence, true);
             targets.add(new DiphoneTarget(prev, silence));
         }
         return targets;

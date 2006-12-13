@@ -90,7 +90,7 @@ public class Target
         if (item == null)
             throw new NullPointerException("Target "+name+" does not have an item.");
         if (!item.getFeatures().isPresent("end")) {
-            throw new IllegalStateException("Item "+item+" does not have an 'end' feature");
+            throw new IllegalStateException("Item '"+item+"' of target '"+this+"' does not have an 'end' feature");
         }
         end = item.getFeatures().getFloat("end"); 
         Item prev = item.getPrevious();
@@ -119,21 +119,11 @@ public class Target
     {
         
         if (isSilence == -1) {
-        
-            if (item != null) {
-                Voice v = FreeTTSVoices.getMaryVoice(item.getUtterance().getVoice());
-                String silenceSymbol = v.sampa2voice("_");
-                if (name.equals(silenceSymbol)) {
-                    isSilence = 1; //true
-                } else {
-                    isSilence = 0; //false
-                }
-            } else { // compare to typical silence symbol names
-                if (name.equals("pau") || name.equals("_")) {
-                    isSilence = 1; //true
-                } else {
-                    isSilence = 0; //false
-                }
+            String silenceSymbol = "_"; // we now use SAMPA in all of our voices
+            if (name.startsWith(silenceSymbol)) {
+                isSilence = 1; //true
+            } else {
+                isSilence = 0; //false
             }
         }
         if (isSilence == 1){
