@@ -58,4 +58,4 @@ else
   export LD_LIBRARY_PATH="$MARY_BASE/lib/native:$LD_LIBRARY_PATH"
 fi
 
-java -ea -Xms40m -Xmx256m -cp "$CLASSPATH" -Dmary.base="$MARY_BASE" -Djava.endorsed.dirs="$MARY_BASE/lib/endorsed" $* de.dfki.lt.mary.Mary
+java -ea -Xms40m -Xmx384m -cp "$CLASSPATH" -Dmary.base="$MARY_BASE" -Djava.endorsed.dirs="$MARY_BASE/lib/endorsed" $* de.dfki.lt.mary.Mary
