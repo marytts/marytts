@@ -140,21 +140,41 @@ public class WaveOverlapUnitConcatenator implements UnitConcatenator
             int[] pitchmarks;
             if (unit.getTarget().isSilence()) {
                 int targetLength = Math.round(unit.getTarget().getTargetDurationInSeconds()*audioformat.getSampleRate());
-                
-                int avgPeriodLength = unitSize / pitchmarksInUnit; // there will be rounding errors here
-                int nTargetPitchmarks = Math.round((float)targetLength / avgPeriodLength); // round to the nearest integer
-                pitchmarks = new int[nTargetPitchmarks+1];
-                unitData.setPitchmarks(pitchmarks);
-                for (int i=0; i<nTargetPitchmarks-1; i++) {
-                    nSamples += avgPeriodLength;
-                    pitchmarks[i] = nSamples;
+                if (unitSize > 0 && pitchmarksInUnit > 0) {
+                    int firstPeriodLength = (int) datagrams[0].getDuration();
+                    if (targetLength < firstPeriodLength) {
+                        logger.debug("For "+unit+", adjusting target length to be at least one period: "
+                                + (firstPeriodLength/audioformat.getSampleRate())+" s instead of requested "+unit.getTarget().getTargetDurationInSeconds()+ " s");
+                        targetLength = firstPeriodLength;
+                    }
+                    int avgPeriodLength = unitSize / pitchmarksInUnit; // there will be rounding errors here
+                    int nTargetPitchmarks = Math.round((float)targetLength / avgPeriodLength); // round to the nearest integer
+                    if (nTargetPitchmarks == 0) nTargetPitchmarks = 1;
+                    pitchmarks = new int[nTargetPitchmarks+1];
+                    unitData.setPitchmarks(pitchmarks);
+                    for (int i=0; i<nTargetPitchmarks-1; i++) {
+                        nSamples += avgPeriodLength;
+                        pitchmarks[i] = nSamples;
+                    }
+                    // last regular pitchmark compensates for rounding errors
+                    nSamples += targetLength - (nTargetPitchmarks-1)*avgPeriodLength;
+                    pitchmarks[nTargetPitchmarks-1] = nSamples;
+                    assert pitchmarks[nTargetPitchmarks-1] == targetLength;
+                    // empty right context
+                    rightContextFrame = new Datagram(0, new byte[0]);
+                } else { // unitSize == 0, we have a zero-length silence unit
+                    pitchmarks = new int[2]; // one for the silence, one for the empty right context
+                    unitData.setPitchmarks(pitchmarks);
+                    pitchmarks[0] = targetLength; // one period for the entire silence
+                    pitchmarks[1] = targetLength; // empty period for right context
+                    nSamples = targetLength;
+                    // artificial silence data:
+                    datagrams = new Datagram[] {
+                            new Datagram(targetLength, new byte[2*targetLength])
+                    };
+                    // empty right context
+                    rightContextFrame = new Datagram(0, new byte[0]);
                 }
-                // last regular pitchmark compensates for rounding errors
-                nSamples += targetLength - (nTargetPitchmarks-1)*avgPeriodLength;
-                pitchmarks[nTargetPitchmarks-1] = nSamples;
-                assert pitchmarks[nTargetPitchmarks-1] == targetLength;
-                // empty right context
-                rightContextFrame = new Datagram(0, new byte[0]);
             } else {
                 pitchmarks = new int[pitchmarksInUnit+1];
                 unitData.setPitchmarks(pitchmarks);
@@ -235,7 +255,7 @@ public class WaveOverlapUnitConcatenator implements UnitConcatenator
             // start overlap at iTotal:
             for (int i=0; i<firstPeriodLength; i++, iTotal++) {
                 assert iTotal < totalNSamples: 
-                    "Trying to write sample "+iTotal+" of "+totalNSamples+" (i="+i+" of "+firstPeriodLength+", unit"+unit;
+                    "Trying to write sample "+iTotal+" of "+totalNSamples+" (i="+i+" of "+firstPeriodLength+", "+unit;
                 totalAudio[iTotal] += audio[i] * hannWindow.value(i);
             }
             hannWindow = new HannWindow(2*rightContextFrameLength);
