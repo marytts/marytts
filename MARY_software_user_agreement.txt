@@ -104,5 +104,11 @@ Mary Expert Interface. java-diff is licensed under the GNU Lesser General
 Public License, see http://www.gnu.org or doc/licenses/LGPL.txt.
 (files concerned: java/java-diff.jar)
 
+JavaOpenAIR: MARY can optionally be used as an OpenAIR component,
+building on the JavaOpenAIR reference implementation from 
+http://www.mindmakers.org, which is licensed under the 
+(BSD-style) JavaOpenAIR license, see doc/licenses/JavaOpenAIR-license.txt
+(files concerned: java/JavaOpenAIR.jar)
+ 
 IT IS YOUR OBLIGATION TO READ AND ACCEPT ALL SUCH TERMS
 AND CONDITIONS PRIOR TO USE OF THIS CONTENT.
