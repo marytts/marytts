@@ -168,6 +168,9 @@ public class MaryClient {
         doProfile = profile;
         beQuiet = quiet;
         String[] info;
+        if (!beQuiet) {
+            System.err.println("Mary TTS client " + Version.specificationVersion() + " (impl. " + Version.implementationVersion() + ")");
+        }
         try {
             info = getServerVersionInfo();
         } catch (Exception e) {
@@ -194,7 +197,6 @@ public class MaryClient {
             serverCanStream = true;
         }
         if (!beQuiet) {
-            System.err.println("Mary TTS client " + Version.specificationVersion() + " (impl. " + Version.implementationVersion() + ")");
             System.err.print("Connected to " + serverHost + ":" + serverPort + ", ");
             for (int i=0; i<info.length; i++) {
                 System.err.println(info[i]);
