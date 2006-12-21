@@ -20,6 +20,6 @@
 	<classpathentry kind="lib" path="java/freetts-de.jar"/>
 	<classpathentry kind="lib" path="build/standalone-compiler.jar"/>
 	<classpathentry kind="lib" path="java/jl1.0.jar"/>
+	<classpathentry kind="lib" path="java/JavaOpenAIR.jar"/>
 	<classpathentry kind="output" path="java"/>
 </classpath>
-

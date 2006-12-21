@@ -113,13 +113,15 @@ public class MarySpeechPsydule
         Message message;
         while (true) {
             if ( (message = plug.waitForNewMessage(100)) != null) {
-                Time now = new Time();
-                System.out.println(now.printTime() + ":" + name
+                Time start = new Time();
+                System.out.println(start.printTime() + ":" + name
                                + ": received wakeup message from " +
                                message.from);
                 try {
                     String input = message.getContent();
                     processInput(input);
+                    Time end = new Time();
+                    System.out.println("Processing took "+end.difference(start)+" ms");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
