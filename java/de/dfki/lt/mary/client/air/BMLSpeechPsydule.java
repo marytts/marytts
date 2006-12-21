@@ -103,14 +103,19 @@ public class BMLSpeechPsydule extends MarySpeechPsydule
     
     protected void processInput(String input) throws Exception
     {
+        System.out.println(new Time().printTime()+" - started processing");
         String bml = input;
         String ssml = bml2ssml(bml);
+        System.out.println(new Time().printTime()+" - converted to SSML");
         String acoustparams = ssml2acoustparams(ssml);
+        System.out.println(new Time().printTime()+" - created ACOUSTPARAMS");
         String enrichedBML = mergeBmlAndAcoustparams(bml, acoustparams);
+        System.out.println(new Time().printTime()+" - merged phoneme times into BML");
         // post enriched BML to whiteboard
         plug.postMessage(WHITEBOARD, BMLOUTPUTTYPE, enrichedBML, "", "");
+        System.out.println(new Time().printTime()+" - posted enriched BML");
         byte[] audio = acoustparams2audio(acoustparams);
-        System.out.println("Audio: "+audio.length+" bytes");
+        System.out.println(new Time().printTime()+" - created audio ("+audio.length+" bytes)");
         // post audio to whiteboard
         DataSample audioData = new DataSample();
         //audioData.fromBinaryBuffer(0, audio, 0, audio.length);
@@ -118,6 +123,7 @@ public class BMLSpeechPsydule extends MarySpeechPsydule
         audioData.size = audio.length;
         Message audioMessage = new Message(name, WHITEBOARD, AUDIOOUTPUTTYPE, audioData);
         plug.postMessage(WHITEBOARD, audioMessage, "");
+        System.out.println(new Time().printTime()+" - posted audio");
 
     }
 
