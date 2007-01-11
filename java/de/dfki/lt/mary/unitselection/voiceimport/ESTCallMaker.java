@@ -60,24 +60,38 @@ public class ESTCallMaker implements VoiceImportComponent {
         
         /* Browse the pitchmarks */
         int pm = 0;
+        int pmwmax = w.length - 1;
         int TO = 0;
         int max = 0;
         for ( int pi = 0; pi < pmIn.length; pi++ ) {
             pm = (int)( pmIn[pi].floatValue() * sampleRate );
-            /* Seek the max of the wav samples around the pitchmark */
-            max = pm;
-            // - Back:
-            TO = (pm-HORIZON) < 0 ? 0 : (pm-HORIZON);
-            for ( int i = pm-1; i >= TO; i-- ) {
-                if ( w[i] > w[max] ) max = i;
+            // If the pitchmark goes out of the waveform (this sometimes
+            // happens with the last one due to rounding errors), just clip it.
+            if ( pm > pmwmax ) {
+                // If this was not the last pitchmark, there is a problem
+                if ( pi < (pmIn.length-1)) {
+                    throw new RuntimeException( "Some pitchmarks are located above the location of the last waveform sample !" );
+                }
+                // Else, if it was the last pitchmark, clip it:
+                pmOut[pi] = new Float( (double)(pmwmax) / (double)(sampleRate) );
             }
-            // - Forth:
-            TO = (pm+HORIZON+1) > w.length ? w.length : (pm+HORIZON+1);
-            for ( int i = pm+1; i < TO; i++ ) {
-                if ( w[i] >= w[max] ) max = i;
+            // Else, if the pitchmark is in the waveform:
+            else {
+                /* Seek the max of the wav samples around the pitchmark */
+                max = pm;
+                // - Back:
+                TO = (pm-HORIZON) < 0 ? 0 : (pm-HORIZON);
+                for ( int i = pm-1; i >= TO; i-- ) {
+                    if ( w[i] > w[max] ) max = i;
+                }
+                // - Forth:
+                TO = (pm+HORIZON+1) > w.length ? w.length : (pm+HORIZON+1);
+                for ( int i = pm+1; i < TO; i++ ) {
+                    if ( w[i] >= w[max] ) max = i;
+                }
+                /* Translate the pitchmark */
+                pmOut[pi] = new Float( (double)(max) / (double)(sampleRate) );
             }
-            /* Translate the pitchmark */
-            pmOut[pi] = new Float( (double)(max) / (double)(sampleRate) );
         }
         
         return( pmOut );
@@ -136,7 +150,8 @@ public class ESTCallMaker implements VoiceImportComponent {
         // For each file
         for ( int f = 0; f < baseNameArray.length; f++ ) {
         //for ( int f = 0; f < 1; f++ ) {
-                    /* Load the pitchmark file */
+            /* Load the pitchmark file */
+            //System.out.println( baseNameArray[f] );
             String fName = db.pitchmarksDirName() + baseNameArray[f] + db.pitchmarksExt();
             ESTTrackReader pmFileIn = new ESTTrackReader( fName );
             /* Wrap the primitive floats so that we can use vectors thereafter */
@@ -149,10 +164,16 @@ public class ESTCallMaker implements VoiceImportComponent {
             fName = db.wavDirName() + baseNameArray[f] + db.wavExt();
             WavReader wf = new WavReader( fName );
             short[] w = wf.getSamples();
-            /* Shift to the closest peak */
-            Float[] pmOut = shiftToClosestPeak( pmIn, w, wf.getSampleRate() );
-            /* Shift to the zero immediately preceding the closest peak */
-            pmOut = shiftToPreviousZero( pmOut, w, wf.getSampleRate() );
+            Float[] pmOut = null;
+            try {
+                /* Shift to the closest peak */
+                pmOut = shiftToClosestPeak( pmIn, w, wf.getSampleRate() );
+                /* Shift to the zero immediately preceding the closest peak */
+                pmOut = shiftToPreviousZero( pmOut, w, wf.getSampleRate() );
+            }
+            catch ( RuntimeException e ) {
+                throw new RuntimeException( "For utterance [" + baseNameArray[f] + "]:" , e );
+            }
             /* Export the corrected pitchmarks as an EST file */
             fName = db.correctedPitchmarksDirName() + baseNameArray[f] + db.correctedPitchmarksExt();
             DataOutputStream dos = null;
