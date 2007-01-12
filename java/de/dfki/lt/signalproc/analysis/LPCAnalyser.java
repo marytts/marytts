@@ -253,5 +253,26 @@ public class LPCAnalyser extends FrameBasedAnalyser
         {
             oneMinusA = LineSpectralFrequencies.lsf2lpc(lsf);
         }
+        
+        /**
+         * Convert these LPC coefficients into LPC-Cesptrum coefficients.
+         * @param cepstrumOrder The cepstrum order (i.e., the index of the last cepstrum coefficient).
+         * @return the LPCCs. c[0] is set to log(gain).
+         */
+        public double[] getLPCC( int cepstrumOrder )
+        {
+            return LPCCepstrum.lpc2lpcc( oneMinusA, gain, cepstrumOrder );
+        }
+        
+        /**
+         * Convert some LPC-Cesptrum coefficients into these LPC coefficients.
+         * @param lpcOrder The LPC order (i.e., the index of the last LPC coefficient).
+         * @note The gain is set to exp(c[0]) and the LPCs are represented in the oneMinusA format [1 -a_1 -a_2 ... -a_p].
+         */
+        public void setLPCC( double[] lpcc, int LPCOrder )
+        {
+            oneMinusA = LPCCepstrum.lpcc2lpc( lpcc, LPCOrder );
+            gain = Math.exp( lpcc[0] );
+        }
     }
 }
