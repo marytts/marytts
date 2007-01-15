@@ -32,7 +32,10 @@ package de.dfki.lt.signalproc.analysis;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.dfki.lt.signalproc.analysis.FrameBasedAnalyser.FrameAnalysisResult;
 import de.dfki.lt.signalproc.process.FrameProvider;
+import de.dfki.lt.signalproc.process.InlineDataProcessor;
+import de.dfki.lt.signalproc.process.PitchFrameProvider;
 import de.dfki.lt.signalproc.window.Window;
 import de.dfki.lt.signalproc.util.DoubleDataSource;
 
@@ -40,8 +43,10 @@ import de.dfki.lt.signalproc.util.DoubleDataSource;
  * @author Marc Schr&ouml;der
  * The base class for all frame-based signal analysis algorithms.
  */
-public abstract class FrameBasedAnalyser extends FrameProvider
+public abstract class PitchFrameAnalyser extends PitchFrameProvider
 {
+    protected int windowType;
+    
     /**
      * Array containing the analysis results, filled by analyseAllFrames().
      * Can be used for future reference to the results.
@@ -49,19 +54,35 @@ public abstract class FrameBasedAnalyser extends FrameProvider
     protected FrameAnalysisResult[] analysisResults;
     
     /**
-     * Initialise a FrameBasedAnalyser.
+     * Initialise a PitchFrameAnalyser.
      * @param signal the signal source to read from
-     * @param window the window function to apply to each frame
-     * @param frameShift the number of samples by which to shift the window from
-     * one frame analysis to the next; if this is smaller than window.getLength(),
-     * frames will overlap.
+     * @param pitchmarks the source of the pitchmarks, in seconds from the start of signal
+     * @param windowType type of analysis window to use, @see{de.dfki.signalproc.window.Window#getAvailableTypes()}
      * @param samplingRate the number of samples in one second.
      */
-    public FrameBasedAnalyser(DoubleDataSource signal, Window window, int frameShift, int samplingRate)
+    public PitchFrameAnalyser(DoubleDataSource signal, DoubleDataSource pitchmarks, int windowType, int samplingRate)
     {
-        super(signal, window, window.getLength(), frameShift, samplingRate, true);
+        this(signal, pitchmarks, windowType, samplingRate, 1, 1);
     }
     
+    /**
+     * Create a new PitchFrameAnalyser with a configurable number of pitch periods per frame
+     * and pitch periods to shift by.
+     * @param signal audio signal
+     * @param pitchmarks an array of pitchmarks; each pitch mark is in seconds from signal start
+     * @param windowType type of analysis window to use, @see{de.dfki.signalproc.window.Window#getAvailableTypes()}
+     * @param samplingRate number of samples per second in signal
+     * @param framePeriods number of periods that each frame should contain
+     * @param shiftPeriods number of periods that frames should be shifted by
+     */
+    public PitchFrameAnalyser(DoubleDataSource signal, DoubleDataSource pitchmarks,
+            int windowType,
+            int samplingRate, int framePeriods, int shiftPeriods)
+    {
+        super(signal, pitchmarks, samplingRate, framePeriods, shiftPeriods);
+        this.windowType = windowType;
+    }
+
     /**
      * The public method to call in order to trigger the analysis of the next frame.
      * @return the analysis result, or null if no part of the signal is left to analyse.
@@ -116,9 +137,9 @@ public abstract class FrameBasedAnalyser extends FrameProvider
     }
     
     /**
-     * Apply this FrameBasedAnalyser to the given data.
-     * @param frame the data to analyse, which must be of the length prescribed by this
-     * FrameBasedAnalyser, i.e. by @see{#getFrameLengthSamples()}.
+     * Apply this PitchFrameAnalyser to the given data.
+     * @param frame the data to analyse, which is expected to be the number of
+     * pitch periods requested from this PitchFrameAnalyser, @see{#getFramePeriods()}.
      * @return An analysis result. The data type depends on the concrete analyser.
      * @throws IllegalArgumentException if frame does not have the prescribed length 
      */
@@ -129,23 +150,4 @@ public abstract class FrameBasedAnalyser extends FrameProvider
         return new FrameAnalysisResult(frame, getFrameStartTime(), analysisResult);
     }
     
-    public static class FrameAnalysisResult
-    {
-        protected double[] windowedSignal;
-        protected double startTime;
-        protected Object analysisResult;
-        
-        protected FrameAnalysisResult(double[] windowedSignal, double startTime, Object analysisResult)
-        {
-            this.windowedSignal = new double[windowedSignal.length];
-            System.arraycopy(windowedSignal, 0, this.windowedSignal, 0, windowedSignal.length);
-            this.startTime = startTime;
-            this.analysisResult = analysisResult;
-        }
-        
-        public double[] getWindowedSignal() { return windowedSignal; }
-        public double getStartTime() { return startTime; }
-        public Object get() { return analysisResult; }
-        
-    }
 }
