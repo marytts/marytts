@@ -54,19 +54,17 @@ public class PitchFrameProvider extends FrameProvider
     protected int shiftPeriods;
     protected int periodsInMemory;
     protected long currPitchmark;
-    protected boolean zeroPadLastFrame;
 
     /**
      * Create a new PitchFrameProvider providing one period at a time.
      * @param signal audio signal
      * @param pitchmarks an array of pitchmarks; each pitch mark is in seconds from signal start
-     * @param processor optional processor, may be null
      * @param samplingRate number of samples per second in signal
      */
     public PitchFrameProvider(DoubleDataSource signal, DoubleDataSource pitchmarks,
-            InlineDataProcessor processor, int samplingRate)
+            int samplingRate)
     {
-        this(signal, pitchmarks, processor, samplingRate, 1, 1);
+        this(signal, pitchmarks, samplingRate, 1, 1);
     }
 
     /**
@@ -74,15 +72,14 @@ public class PitchFrameProvider extends FrameProvider
      * and pitch periods to shift by.
      * @param signal audio signal
      * @param pitchmarks an array of pitchmarks; each pitch mark is in seconds from signal start
-     * @param processor optional processor, may be null
      * @param samplingRate number of samples per second in signal
      * @param framePeriods number of periods that each frame should contain
      * @param shiftPeriods number of periods that frames should be shifted by
      */
     public PitchFrameProvider(DoubleDataSource signal, DoubleDataSource pitchmarks,
-            InlineDataProcessor processor, int samplingRate, int framePeriods, int shiftPeriods)
+            int samplingRate, int framePeriods, int shiftPeriods)
     {
-        super(signal, processor, 0, 0, samplingRate, true);
+        super(signal, null, 0, 0, samplingRate, true);
         this.pitchmarks = pitchmarks;
         this.periodLengths = new int[framePeriods];
         this.shiftPeriods = shiftPeriods;
@@ -172,6 +169,38 @@ public class PitchFrameProvider extends FrameProvider
     }
     
     /**
+     * Provide the next frame of data.
+     * @return the next frame on success, null on failure.
+     */
+    public double[] getNextFrame()
+    {
+        double[] uncutFrame = super.getNextFrame();
+        if (uncutFrame == null) return null;
+        int frameLength = super.getFrameLengthSamples();
+        double[] cutFrame = new double[frameLength];
+        System.arraycopy(uncutFrame, 0, cutFrame, 0, frameLength);
+        return cutFrame;
+    }
+    
+    /**
+     * The number of periods provided in one frame.
+     * @return
+     */
+    public int getFramePeriods()
+    {
+        return periodLengths.length;
+    }
+
+    /**
+     * The number of periods by which the analysis window is shifted.
+     * @return
+     */
+    public int getShiftPeriods()
+    {
+        return shiftPeriods;
+    }
+
+    /**
      * Whether or not this frameprovider can provide another frame.
      */
     public boolean hasMoreData()
@@ -193,7 +222,7 @@ public class PitchFrameProvider extends FrameProvider
         int samplingRate = (int) ais.getFormat().getSampleRate();
         DoubleDataSource signal = new AudioDoubleDataSource(ais);
         DoubleDataSource pitchmarks = new ESTTextfileDoubleDataSource(new FileReader(pitchmarkFile));
-        PitchFrameProvider pfp = new PitchFrameProvider(signal, pitchmarks, null, samplingRate);
+        PitchFrameProvider pfp = new PitchFrameProvider(signal, pitchmarks, samplingRate);
         double[] frame = null;
         int n = 0;
         int avgF0 = 0;
