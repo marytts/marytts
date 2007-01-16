@@ -38,12 +38,18 @@ public class LPCCepstrum {
      * @param gain The LPC gain factor.
      * @param cepstrumOrder Cepstrum order (equal to the index of the last cepstrum coefficient).
      * 
-     * @return The LPCC coefficents.
+     * @return The LPCC coefficents. c[0] is set to log(gain).
      * 
      * @author sacha
      */
     public static double[] lpc2lpcc(double[] oneMinusA, double gain, int cepstrumOrder) {
         
+        // Check the cepstrum order
+        if ( cepstrumOrder <= 0 ) {
+            throw new RuntimeException( "The cepstrum order [" + cepstrumOrder + "] must be a positive integer." );
+        }
+        
+        // Declare misc. useful variables
         int k,m;
         double acc;
         double[] c = new double[cepstrumOrder+1];
@@ -74,15 +80,22 @@ public class LPCCepstrum {
      * Converts from LPCC coefficients to LPC coefficients.
      * 
      * @param c the vector of cepstral coefficients. Note: c[0] = log(gain).
-     * @param gain The LPC gain factor.
      * @param lpcOrder The original LPC order (equal to the index of the last LPC coefficient).
      * 
      * @return The LPC coefficents [1 -a_1 -a_2 ... -a_p].
+     * 
+     * @note The gain is not returned, but it can be recovered as exp(c[0]).
      * 
      * @author sacha
      */
     public static double[] lpcc2lpc(double[] c, int lpcOrder) {
         
+        // Check the LPC order
+        if ( lpcOrder <= 0 ) {
+            throw new RuntimeException( "The LPC order [" + lpcOrder + "] must be a positive integer." );
+        }
+        
+        // Declare misc. useful variables
         int k,m;
         double acc;
         double[] a = new double[lpcOrder+1];
@@ -96,13 +109,13 @@ public class LPCCepstrum {
             if ( m <= cepstrumOrder ) {
                 acc = 0.0;
                 for ( k=1; k < m; k++ ) acc += ( (double)(k) * a[m-k] * c[k] );
-                a[m] = acc/(double)(m) + c[m];
+                a[m] = c[m] - acc/(double)(m);
             }
             /* Coeffs above the Cepstrum order: */
             else {
                 acc = 0.0;
                 for ( k=1; k <= cepstrumOrder; k++ ) acc += ( (double)(k) * a[m-k] * c[k] );
-                a[m] = acc/(double)(m);
+                a[m] = - acc/(double)(m);
             }
         }
         
