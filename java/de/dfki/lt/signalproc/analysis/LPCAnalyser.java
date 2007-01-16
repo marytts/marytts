@@ -265,7 +265,7 @@ public class LPCAnalyser extends FrameBasedAnalyser
         }
         
         /**
-         * Convert some LPC-Cesptrum coefficients into these LPC coefficients.
+         * Convert some LPC-Cepstrum coefficients into these LPC coefficients.
          * @param lpcOrder The LPC order (i.e., the index of the last LPC coefficient).
          * @note The gain is set to exp(c[0]) and the LPCs are represented in the oneMinusA format [1 -a_1 -a_2 ... -a_p].
          */
