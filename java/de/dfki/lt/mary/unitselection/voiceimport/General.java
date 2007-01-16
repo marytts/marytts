@@ -32,6 +32,7 @@
 package de.dfki.lt.mary.unitselection.voiceimport;
 
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
 /**
@@ -123,6 +124,27 @@ public class General
     }
 
     /**
+     * Write a float from the output stream, byte-swapping as
+     * necessary
+     *
+     * @param dos the outputstream
+     * @param isBigEndian whether or not the data being read in is in
+     *          big endian format.
+     * @param val the floating point value to write
+     *
+     * @throws IOException on error
+     */
+    public static void writeFloat(DataOutputStream dos, boolean isBigEndian, float val)
+            throws IOException {
+        if (!isBigEndian) {
+            writeLittleEndianFloat(dos,val);
+        } else {
+            dos.writeFloat( val );
+        }
+        return;
+    }
+
+    /**
      * Reads the next float from the given DataInputStream,
      * where the data is in little endian.
      *
@@ -133,6 +155,18 @@ public class General
     public static float readLittleEndianFloat(DataInputStream dataStream)
             throws IOException {
         return Float.intBitsToFloat(readLittleEndianInt(dataStream));
+    }
+
+    /**
+     * Writes a float to the given DataOutputStream,
+     * where the data is in little endian.
+     *
+     * @param dataStream the DataOutputStream to write to.
+     * @param val The float value to write.
+     */
+    public static void writeLittleEndianFloat(DataOutputStream dataStream,float val)
+            throws IOException {
+        writeLittleEndianInt( dataStream, Float.floatToRawIntBits(val) );
     }
 
     /**
@@ -157,6 +191,27 @@ public class General
     }
 
     /**
+     * Writes an integer to the output stream, byte-swapping as
+     * necessary
+     *
+     * @param dis the outputstream.
+     * @param isBigEndian whether or not the data being read in is in
+     *          big endian format.
+     * @param val the integer value to write.
+     *
+     * @throws IOException on error
+     */
+    public static void writeInt(DataOutputStream dis, boolean isBigEndian, int val)
+            throws IOException {
+        if (!isBigEndian) {
+            writeLittleEndianInt(dis,val);
+        } else {
+            dis.writeInt(val);
+        }
+        return;
+    }
+
+    /**
      * Reads the next little-endian integer from the given DataInputStream.
      *
      * @param dataStream the DataInputStream to read from
@@ -171,6 +226,23 @@ public class General
             bits |= (byteRead << shift);
         }
         return bits;
+    }
+
+    /**
+     * Writes a little-endian integer to the given DataOutputStream.
+     *
+     * @param dataStream the DataOutputStream to write to
+     * @param val the integer value to write
+     *
+     * @throws IOException on error
+     */
+    public static void writeLittleEndianInt(DataOutputStream dataStream, int val)
+            throws IOException {
+        int mask = 0x000000ff;
+        for (int shift = 0; shift < 32; shift += 8) {
+            dataStream.writeByte( mask & (val >> shift) );
+        }
+        return;
     }
 
     /**
