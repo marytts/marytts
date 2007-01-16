@@ -48,9 +48,10 @@ public class ESTTrackReader {
     
     private int numFrames;
     private int numChannels;
-    float[] times;
-    float[][] frames;
-    
+    private float[] times;
+    private float[][] frames;
+    private boolean isBigEndian = false;
+    private boolean isBinary = false;
     
     /****************/
     /* CONSTRUCTORS */
@@ -111,9 +112,6 @@ public class ESTTrackReader {
                  throw new Error("The given data input stream is not an EST Track file.");
              }
 
-             boolean isBinary = false;
-             boolean isBigEndian = false;
-
              // Read Header
              String token = General.readWord(dis);
              while (!token.equals("EST_Header_End")) {
@@ -144,7 +142,7 @@ public class ESTTrackReader {
              frames = new float[numFrames][numChannels];
              /* ... then load it. */
              if (isBinary) {
-                 loadBinaryData(dis, isBigEndian);
+                 loadBinaryData(dis);
              } else {
                  loadTextData(dis);
              }
@@ -179,12 +177,10 @@ public class ESTTrackReader {
      * load the data section of the file as ascii text
      *
      * @param dis DataInputStream to read from
-     * @param isBigEndian whether or not the data in the file is in
-     *          big endian byte order
      *
      * @throws IOException on ill-formatted input
      */
-    private void loadBinaryData(DataInputStream dis, boolean isBigEndian)
+    private void loadBinaryData(DataInputStream dis)
             throws IOException {
         for (int f=0; f < numFrames; f++) {
             times[f] = General.readFloat(dis, isBigEndian);
@@ -226,6 +222,15 @@ public class ESTTrackReader {
     }
 
     /**
+     * Get the frames associated with this track
+     *
+     * @return an array of frames associated with this track
+     */
+    public float[][] getFrames() {
+        return frames;
+    }
+
+    /**
      * Get an individual time associated with this track
      *
      * @param index index of time to get
@@ -234,6 +239,24 @@ public class ESTTrackReader {
      */
     public float getTime(int index) {
         return times[index];
+    }
+    
+    /**
+     * Returns the endianness of the file
+     *
+     * @return false if little endian (Intel), true if big endian (PowerPC, SPARC)
+     */
+    public boolean isBigEndian() {
+        return isBigEndian;
+    }
+    
+    /**
+     * Returns the mode of the file (ascii or binary)
+     *
+     * @return false if ascii text, true if binary
+     */
+    public boolean isBinary() {
+        return isBinary;
     }
     
     /**
