@@ -56,7 +56,7 @@ public class PitchFrameProviderTest extends TestCase
         double[] origSignal = signal.getAllData();
         signal = new BufferedDoubleDataSource(origSignal);
         DoubleDataSource pitchmarks = new ESTTextfileDoubleDataSource(new InputStreamReader(PitchFrameProviderTest.class.getResourceAsStream("arctic_a0123.pm")));
-        PitchFrameProvider pfp = new PitchFrameProvider(signal, pitchmarks, samplingRate);
+        PitchFrameProvider pfp = new PitchFrameProvider(signal, pitchmarks, null, samplingRate);
         double[] result = new double[origSignal.length];
         double[] frame = null;
         int resultPos = 0;
@@ -78,7 +78,7 @@ public class PitchFrameProviderTest extends TestCase
         double[] origSignal = signal.getAllData();
         signal = new BufferedDoubleDataSource(origSignal);
         DoubleDataSource pitchmarks = new ESTTextfileDoubleDataSource(new InputStreamReader(PitchFrameProviderTest.class.getResourceAsStream("arctic_a0123.pm")));
-        PitchFrameProvider pfp = new PitchFrameProvider(new SequenceDoubleDataSource(new DoubleDataSource[] {signal, new BufferedDoubleDataSource(new double[1000])}), pitchmarks, samplingRate,
+        PitchFrameProvider pfp = new PitchFrameProvider(new SequenceDoubleDataSource(new DoubleDataSource[] {signal, new BufferedDoubleDataSource(new double[1000])}), pitchmarks, null, samplingRate,
                 2, 1);
         double[] result = new double[origSignal.length];
         double[] frame = null;
