@@ -144,6 +144,7 @@ public class PitchFrameProvider extends FrameProvider
                         System.arraycopy(oldFrame, 0, frame, 0, pos);
                 }
                 int read = signal.getData(frame, pos, periodLengths[i]);
+                assert read == periodLengths[i] : "expected "+periodLengths[i]+", got "+read;
                 pos += read;
                 periodsInMemory++;
             } else { // no more input data
@@ -202,6 +203,20 @@ public class PitchFrameProvider extends FrameProvider
         return shiftPeriods;
     }
 
+    /**
+     * The number of samples corresponding to the "oldest" two periods that are still in memory. 
+     * @return
+     */
+    public int getShiftSamples()
+    {
+        int s = 0;
+        for (int i=0; i<shiftPeriods; i++) {
+            s += periodLengths[i];
+        }
+        return s;
+    }
+    
+    
     /**
      * Whether or not this frameprovider can provide another frame.
      */
