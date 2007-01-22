@@ -36,6 +36,7 @@ import de.dfki.lt.signalproc.analysis.FrameBasedAnalyser.FrameAnalysisResult;
 import de.dfki.lt.signalproc.process.FrameProvider;
 import de.dfki.lt.signalproc.process.InlineDataProcessor;
 import de.dfki.lt.signalproc.process.PitchFrameProvider;
+import de.dfki.lt.signalproc.window.DynamicWindow;
 import de.dfki.lt.signalproc.window.Window;
 import de.dfki.lt.signalproc.util.DoubleDataSource;
 
@@ -45,7 +46,7 @@ import de.dfki.lt.signalproc.util.DoubleDataSource;
  */
 public abstract class PitchFrameAnalyser extends PitchFrameProvider
 {
-    protected int windowType;
+    protected DynamicWindow analysisWindow;
     
     /**
      * Array containing the analysis results, filled by analyseAllFrames().
@@ -79,8 +80,7 @@ public abstract class PitchFrameAnalyser extends PitchFrameProvider
             int windowType,
             int samplingRate, int framePeriods, int shiftPeriods)
     {
-        super(signal, pitchmarks, samplingRate, framePeriods, shiftPeriods);
-        this.windowType = windowType;
+        super(signal, pitchmarks, new DynamicWindow(windowType), samplingRate, framePeriods, shiftPeriods);
     }
 
     /**
@@ -91,6 +91,7 @@ public abstract class PitchFrameAnalyser extends PitchFrameProvider
     {
         double[] frame = getNextFrame();
         if (frame == null) return null;
+        analysisWindow.applyInline(frame, 0, frame.length);
         Object analysisResult = analyse(frame);
         return constructAnalysisResult(analysisResult);
     }
