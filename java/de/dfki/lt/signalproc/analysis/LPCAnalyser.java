@@ -172,9 +172,13 @@ public class LPCAnalyser extends FrameBasedAnalyser
     
     public static class LPCoeffs
     {
-        protected double[] oneMinusA;
-        protected double gain;
+        protected double[] oneMinusA = null;
+        protected double gain = 1.0;
 
+        protected double[] lsf    = null;
+        protected double[] lpcc   = null;
+        protected double[] lprefc = null;
+        
         /**
          * Create a set of LPC coefficients
          * @param oneMinusA the coefficients, a = [1, -a_1, -a_2, ... -a_p], where p = prediction order
@@ -184,12 +188,11 @@ public class LPCAnalyser extends FrameBasedAnalyser
         {
             this.oneMinusA = oneMinusA;
             this.gain = gain;
+            
+            this.lsf = null;
+            this.lpcc = null;
+            this.lprefc = null;
         }
-        // The following are the preferred ways to read/write the lpc coefficients:
-        public final double getOneMinusA(int i) { return oneMinusA[i]; }
-        public double getA(int i) { return -oneMinusA[i+1]; }
-        public void setOneMinusA(int i, double value) { oneMinusA[i] = value; }
-        public void setA(int i, double value) { oneMinusA[i+1] = -value; }
         
         /**
          * Return a clone of the internal representation of the LPC coefficients.
@@ -203,6 +206,29 @@ public class LPCAnalyser extends FrameBasedAnalyser
         public void setOneMinusA(double[] oneMinusA)
         {
             this.oneMinusA = (double[]) oneMinusA.clone();
+            // Reset the cache:
+            this.lsf = null;
+            this.lpcc = null;
+            this.lprefc = null;
+        }
+        
+//      The following are the preferred ways to read/write the individual lpc coefficients:
+        public final double getOneMinusA(int i) { return oneMinusA[i]; }
+        public double getA(int i) { return -oneMinusA[i+1]; }
+        
+        public void setOneMinusA(int i, double value) {
+            oneMinusA[i] = value;
+            // Clean the cache:
+            this.lsf = null;
+            this.lpcc = null;
+            this.lprefc = null;
+        }
+        public void setA(int i, double value) {
+            oneMinusA[i+1] = -value;
+            // Clean the cache:
+            this.lsf = null;
+            this.lpcc = null;
+            this.lprefc = null;
         }
         
         /**
@@ -217,6 +243,9 @@ public class LPCAnalyser extends FrameBasedAnalyser
         public void setGain(double gain)
         {
             this.gain = gain;
+            this.lpcc = null; /* Note: lpcc[0] is related to the gain value,
+                               * whereas the LSFs and reflection coeffs are
+                               * oblivious to the gain value. */
         }
         
         public int getOrder()
@@ -238,6 +267,10 @@ public class LPCAnalyser extends FrameBasedAnalyser
             oneMinusA[0] = 1;
             for (int i=0; i<a.length; i++)
                 oneMinusA[i+1] = -a[i];
+            // Clean the cache:
+            this.lsf = null;
+            this.lpcc = null;
+            this.lprefc = null;
         }
         
         /**
@@ -246,12 +279,17 @@ public class LPCAnalyser extends FrameBasedAnalyser
          */
         public double[] getLSF()
         {
-            return LineSpectralFrequencies.lpc2lsf(oneMinusA, 1);
+            if ( lsf == null ) lsf = LineSpectralFrequencies.lpc2lsf(oneMinusA, 1);
+            return( (double[]) lsf.clone() );
         }
         
-        public void setLSF(double[] lsf)
+        public void setLSF(double[] someLsf)
         {
-            oneMinusA = LineSpectralFrequencies.lsf2lpc(lsf);
+            this.lsf = (double[]) someLsf.clone();
+            this.oneMinusA = LineSpectralFrequencies.lsf2lpc(lsf);
+            // Clean the cache:          
+            this.lpcc = null;
+            this.lprefc = null;            
         }
         
         /**
@@ -261,7 +299,8 @@ public class LPCAnalyser extends FrameBasedAnalyser
          */
         public double[] getLPCC( int cepstrumOrder )
         {
-            return LPCCepstrum.lpc2lpcc( oneMinusA, gain, cepstrumOrder );
+            if ( lpcc == null ) lpcc = LPCCepstrum.lpc2lpcc( oneMinusA, gain, cepstrumOrder );
+            return( (double[]) lpcc.clone() );
         }
         
         /**
@@ -269,10 +308,55 @@ public class LPCAnalyser extends FrameBasedAnalyser
          * @param lpcOrder The LPC order (i.e., the index of the last LPC coefficient).
          * @note The gain is set to exp(c[0]) and the LPCs are represented in the oneMinusA format [1 -a_1 -a_2 ... -a_p].
          */
-        public void setLPCC( double[] lpcc, int LPCOrder )
+        public void setLPCC( double[] someLpcc, int LPCOrder )
         {
+            this.lpcc = (double[]) someLpcc.clone();
             oneMinusA = LPCCepstrum.lpcc2lpc( lpcc, LPCOrder );
             gain = Math.exp( lpcc[0] );
+            // Clean the cache:
+            this.lsf = null;
+            this.lprefc = null;
         }
+
+        
+        /**
+         * Convert these LPC coefficients into reflection coefficients.
+         * @return the reflection coefficients.
+         */
+        public double[] getLPRefc()
+        {
+            if ( lprefc == null ) lprefc = ReflectionCoefficients.lpc2lprefc( oneMinusA );
+            return( (double[]) lprefc.clone() );
+        }
+        
+        /**
+         * Convert some reflection coefficients into these LPC coefficients.
+         */
+        public void setLPRefc( double[] someLprefc )
+        {
+            this.lprefc = (double[]) someLprefc.clone();
+            oneMinusA = ReflectionCoefficients.lprefc2lpc( lprefc );
+            // Clean the cache:
+            this.lsf = null;
+            this.lpcc = null;
+        }
+        
+        /**
+         * Check for the stability of the LPC filter.
+         * 
+         * @return true if the filter is stable, false otherwise.
+         */
+        public boolean isStable()
+        {
+            /* If the reflection coeffs have not been cached before, compute them: */
+            if ( this.lprefc == null ) this.lprefc = ReflectionCoefficients.lpc2lprefc( oneMinusA );
+            /* Check the stability condition: a LPC filter is stable if all its
+             * reflection coefficients have values in the interval [-1.0 1.0].  */
+            for ( int i = 0; i < this.lprefc.length; i++ ) {
+                if (  ( this.lprefc[i] > 1.0 ) || ( this.lprefc[i] < -1.0 )  ) return( false );
+            }
+            return( true );
+        }
+        
     }
 }
