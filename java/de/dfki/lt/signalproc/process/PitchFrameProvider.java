@@ -38,6 +38,7 @@ import javax.sound.sampled.AudioSystem;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.DoubleDataSource;
 import de.dfki.lt.signalproc.util.ESTTextfileDoubleDataSource;
+import de.dfki.lt.signalproc.window.DynamicTwoHalvesWindow;
 
 /**
  * Cut frames out of a given signal, and provide them one by one,
@@ -54,6 +55,7 @@ public class PitchFrameProvider extends FrameProvider
     protected int shiftPeriods;
     protected int periodsInMemory;
     protected long currPitchmark;
+    protected DynamicTwoHalvesWindow twoHalvesWindow;
 
     /**
      * Create a new PitchFrameProvider providing one period at a time.
@@ -81,12 +83,18 @@ public class PitchFrameProvider extends FrameProvider
     public PitchFrameProvider(DoubleDataSource signal, DoubleDataSource pitchmarks,
             InlineDataProcessor processor, int samplingRate, int framePeriods, int shiftPeriods)
     {
-        super(signal, processor, 0, 0, samplingRate, true);
+        super(signal, null, 0, 0, samplingRate, true);
         this.pitchmarks = pitchmarks;
         this.periodLengths = new int[framePeriods];
         this.shiftPeriods = shiftPeriods;
         this.periodsInMemory = 0;
         this.currPitchmark = 0;
+        // Need to treat an asymmetric window differently, because we need to know
+        // the pitchmark position in the "middle" of the window.
+        if (processor instanceof DynamicTwoHalvesWindow)
+            twoHalvesWindow = (DynamicTwoHalvesWindow) processor;
+        else
+            this.processor = processor;
     }
 
 
@@ -182,6 +190,18 @@ public class PitchFrameProvider extends FrameProvider
         int frameLength = super.getFrameLengthSamples();
         double[] cutFrame = new double[frameLength];
         System.arraycopy(uncutFrame, 0, cutFrame, 0, frameLength);
+        if (twoHalvesWindow != null) {
+            // using two half windows only makes sense if we have an even number of
+            // pitch periods in frame
+            assert periodLengths.length % 2 == 0 : "Using two half windows makes sense only for an even number of periods per frame";
+            int middle = 0;
+            for (int i=0; i<periodLengths.length/2; i++) {
+                middle += periodLengths[i];
+            }
+            assert middle < frameLength : "Middle "+middle+" larger than framelength "+frameLength+"!";
+            twoHalvesWindow.applyInlineLeftHalf(cutFrame, 0, middle);
+            twoHalvesWindow.applyInlineRightHalf(cutFrame, middle, frameLength-middle);
+        }
         return cutFrame;
     }
     

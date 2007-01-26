@@ -150,9 +150,9 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
      */
     public void apply(final double[] src, int srcPos, double[] target, int targetPos)
     {
-        apply(src, srcPos, target, targetPos, window.length);
+        apply(src, srcPos, target, targetPos, 0, window.length);
     }
-    
+ 
     /**
      * Apply this window on the given source data array, at the given position.
      * This method returns the resulting data in the given target array, at the
@@ -173,8 +173,33 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
      */
     public void apply(final double[] src, int srcPos, double[] target, int targetPos, int len)
     {
-        if (len < 0 || len > window.length)
-            throw new IllegalArgumentException("Requested length " + len + " does not fit into window length " + window.length);
+        apply(src, srcPos, target, targetPos, 0, len);
+    }
+ 
+    /**
+     * Apply a part of this window on the given source data array, at the given position.
+     * For example, by setting off to getLength()/2 and len to getLength()/2,
+     * only the right half of the window will be applied. 
+     * This method returns the resulting data in the given target array, at the
+     * target position given by targetPos.
+     * If src has less than len data points left at srcPos, zeros
+     * are added at the end.
+     * @param src the source data array to apply the windowing function to.
+     * @param srcPos the position in the source array from which to apply the windowing function. If srcPos is negative,
+     * abs(srcPos) zeroes will be pre-pended before the first data from src is taken into account; if it is greater than
+     * src.length-getLength(), the result will be filled up with trailing zeroes behind the last data.
+     * @param target an array to receive the target data, computed by applying this window to the
+     * source data. The target array must be long enough to receive getLength() bytes after targetPos.
+     * if target == source and targetPos == srcPos, then the window function is applied in-place.
+     * @param off the offset from the start of the window from where on the window is to be applied. 
+     * @param len the number of samples of the window to apply; off+len must be less than or equal getLength(). 
+     * @throws IllegalArgumentException if target.length-targetPos is smaller than this window's length
+     * as returned by #getLength(), or if len >= getLength.
+     */
+    public void apply(final double[] src, int srcPos, double[] target, int targetPos, int off, int len)
+    {
+        if (len < 0 || off < 0 || off+len > window.length)
+            throw new IllegalArgumentException("Requested offset "+off+" or length " + len + " does not fit into window length " + window.length);
         if (target.length < targetPos + len)
             throw new IllegalArgumentException("Target array cannot hold enough data");
         int start, end; // actual positions in src to apply the window to.
@@ -190,7 +215,7 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
             Arrays.fill(target, targetPos+end-srcPos, targetPos+len, 0);
         }
         for (int i=start; i<end; i++) {
-            target[targetPos+i-srcPos] = src[i] * window[i-srcPos];
+            target[targetPos+i-srcPos] = src[i] * window[off+i-srcPos];
         }
     }
 
