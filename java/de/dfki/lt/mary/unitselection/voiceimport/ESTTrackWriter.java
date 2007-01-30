@@ -45,7 +45,7 @@ public class ESTTrackWriter {
      * Plain constructor.
      * 
      * @param setTimes The vector of frame locations
-     * @param setFrames The frames
+     * @param setFrames The frames -- can be null if only times are to be written
      * @param setFeaType A string indicating the feature type, for header info (e.g., "LPCC")
      */
     public ESTTrackWriter( float[] setTimes, float[][] setFrames, String setFeaType ) {
@@ -76,20 +76,28 @@ public class ESTTrackWriter {
         // Output the header
         dos.writeBytes(
                 "EST_File Track\n" );
-        if ( isBinary ) dos.writeBytes( "DataType binary\n");
-        else            dos.writeBytes( "DataType ascii\n");
-        if ( isBigEndian ) dos.writeBytes( "ByteOrder 10\n");
-        else               dos.writeBytes( "ByteOrder 01\n");            
+        if ( isBinary ) {
+            dos.writeBytes( "DataType binary\n");
+            if ( isBigEndian ) dos.writeBytes( "ByteOrder 10\n");
+            else               dos.writeBytes( "ByteOrder 01\n");
+        } else {
+            dos.writeBytes( "DataType ascii\n");
+        }
+        
+        int numChannels;
+        if (frames != null && frames.length > 0 && frames[0] != null)
+            numChannels = frames[0].length;
+        else
+            numChannels = 0; // e.g., for pitchmarks
         dos.writeBytes(
-                "NumFrames "   + new Integer(times.length).toString() + "\n" +
-                "NumChannels " + new Integer(frames[0].length).toString() + "\n" +
+                "NumFrames "   + times.length + "\n" +
+                "NumChannels " + numChannels + "\n" +
                 "NumAuxChannels 0\n" +
                 "EqualSpace 0\n" +
                 "BreaksPresent true\n" +
-                "CommentChar ;\n" +
-                "\n" );
+                "CommentChar ;\n" );
         String K;
-        for ( int k = 0; k < frames[0].length; k++ ) {
+        for ( int k = 0; k < numChannels; k++ ) {
             K = new Integer(k).toString();
             dos.writeBytes( "Channel_" + K + " " + feaType + "_" + K + "\n" );
         }
@@ -100,7 +108,7 @@ public class ESTTrackWriter {
             for ( int i = 0; i < times.length; i++ ) {
                 General.writeFloat( dos, isBigEndian, times[i] );
                 General.writeFloat( dos, isBigEndian, 1.0f );
-                for ( int k = 0; k < frames[0].length; k++ ) {
+                for ( int k = 0; k < numChannels; k++ ) {
                     General.writeFloat( dos, isBigEndian, frames[i][k] );
                 }
             }
@@ -110,11 +118,13 @@ public class ESTTrackWriter {
             for ( int i = 0; i < times.length; i++ ) {
                 dos.writeBytes( new Float(times[i]).toString() );
                 dos.writeBytes( "\t1\t" );
-                dos.writeBytes( new Float(frames[i][0]).toString() );
-                for ( int k = 1; k < frames[0].length; k++ ) {
-                    dos.writeBytes( " " + new Float(frames[i][k]).toString() );
+                if (numChannels > 0) {
+                    dos.writeBytes( new Float(frames[i][0]).toString() );
+                    for ( int k = 1; k < frames[0].length; k++ ) {
+                        dos.writeBytes( " " + new Float(frames[i][k]).toString() );
+                    }
                 }
-                dos.writeBytes( "\n" );
+                dos.writeBytes( "\n" );                    
             }
         }
         // Flush and close

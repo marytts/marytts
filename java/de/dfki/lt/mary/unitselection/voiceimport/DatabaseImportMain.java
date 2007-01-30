@@ -319,6 +319,7 @@ public class DatabaseImportMain extends JFrame
                 
                 new LabelFeatureAligner( db, bnl ),
                 
+                new PraatPitchmarker( db, bnl ),
                 new ESTCallMaker( db, bnl ),
 
                 new UnitfileWriter( db, bnl ),
