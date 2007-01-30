@@ -80,6 +80,7 @@ public class LSFInterpolator extends LPCAnalysisResynthesis
     protected void processLPC(LPCoeffs coeffs, double[] residual) 
     {
         double[] frame = otherAudioFrames.getNextFrame();
+        if (frame == null) return; // no more other audio -- leave signal as is
         LPCoeffs otherCoeffs = LPCAnalyser.calcLPC(frame, p);
         double[] lsf = coeffs.getLSF();
         double[] otherlsf = otherCoeffs.getLSF();
