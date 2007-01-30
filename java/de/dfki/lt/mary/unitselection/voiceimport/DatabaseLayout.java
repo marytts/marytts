@@ -31,6 +31,7 @@
  */
 package de.dfki.lt.mary.unitselection.voiceimport;
 
+import java.io.File;
 import java.util.Locale;
 
 /**
@@ -71,7 +72,7 @@ public class DatabaseLayout
     private void initDefaultProps() {
         
         /* root : the name of the root directory for the database */
-        setIfDoesntExist( "db.rootDir", "." );
+        setIfDoesntExist( "db.rootDir", new File(".").getAbsolutePath() );
         
         /* Output directory for Mary format files */
         setIfDoesntExist( "db.marySubDir", "mary_files" );
