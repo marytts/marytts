@@ -106,7 +106,14 @@ public class LPCAnalyser extends FrameBasedAnalyser
     public static LPCoeffs calcLPC(double[] x, int p)
     {
         double[] autocorr = FFT.autoCorrelateWithZeroPadding(x);
-        double[] r = ArrayUtils.subarray(autocorr, autocorr.length/2, p+1);
+        double[] r;
+        if (p+1<autocorr.length/2) { // normal case: frame long enough
+            r = ArrayUtils.subarray(autocorr, autocorr.length/2, p+1);
+        } else { // absurdly short frame
+            // still compute LPC coefficients, by zero-padding the r
+            r = new double[p+1];
+            System.arraycopy(autocorr, autocorr.length/2, r, 0, autocorr.length-autocorr.length/2);
+        }
         double[] coeffs = MathUtils.levinson(r, p);
         // gain factor:
         double g = Math.sqrt(MathUtils.sum(MathUtils.multiply(coeffs, r)));
