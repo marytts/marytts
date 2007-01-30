@@ -212,8 +212,8 @@ public class ESTCallMaker implements VoiceImportComponent {
         //ESTCaller caller = new ESTCaller( db, "/home/cl-home/sacha/temp/speech_tools/" );
         
         // Make the pitchmarks
-        caller.make_pm_wave( baseNameArray );
-        tweakThePitchmarks( baseNameArray );
+        //caller.make_pm_wave( baseNameArray );
+        //tweakThePitchmarks( baseNameArray );
         
         // Make the LPCs and Mel Cepstra
         caller.make_lpc( baseNameArray );
