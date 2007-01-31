@@ -500,64 +500,52 @@ public class CARTBuilder implements VoiceImportComponent {
      * @return The average Mahalanobis distance along the optimal DTW path.
      */
     private double dtwDist( double[][] seq1, double[][] seq2, double[] sigma2 ) {
-        double[][] d = new double[seq1.length][seq2.length];
-        double[][] D = new double[seq1.length][seq2.length];
-        int[][] Nd = new int[seq1.length][seq2.length]; // <= Number of cumulated distances, for the final averaging
+        
+        if ( ( seq1.length <= 0 ) || ( seq2.length <= 0 ) ) {
+            throw new RuntimeException( "Can't compute a DTW distance from a sequence with length 0 or negative. "
+                    + "(seq1.length=" + seq1.length + "; seq2.length=" + seq2.length + ")" );
+        }
+        
+        int l1 = seq1.length;
+        int l2 = seq2.length;
+        double[][] d = new double[l1][l2];
+        double[][] D = new double[l1][l2];
+        int[][] Nd = new int[l1][l2]; // <= Number of cumulated distances, for the final averaging
         double[] minV = new double[3];
         int[] minNd = new int[3];
         int minIdx = 0;
         /* Fill the local distance matrix */
-        for ( int i = 0; i < seq1.length; i++ ) {
-            for ( int j = 0; j < seq2.length; j++ ) {
+        for ( int i = 0; i < l1; i++ ) {
+            for ( int j = 0; j < l2; j++ ) {
                 d[i][j] = mahalanobis( seq1[i],   seq2[j],   sigma2 );
             }
         }
         /* Compute the optimal DTW distance: */
         /* - 1st row/column: */
+        /* (This part works for 1 frame or more in either sequence.) */
         D[0][0] = 2*d[0][0];
-        /**for ( int i = 1; i < seq1.length; i++ ) {
-            D[i][0] = d[i][0];
-            D[0][i] = d[0][i];
-            Nd[0][i] = Nd[i][0] = 1;
-        }**/
-        for ( int i = 1; i < seq1.length; i++ ) {
+        for ( int i = 1; i < l1; i++ ) {
             D[i][0] = d[i][0];
             Nd[i][0] = 1;
         } 
-        for ( int i = 1; i < seq2.length; i++ ) {
+        for ( int i = 1; i < l2; i++ ) {
                 D[0][i] = d[0][i];
                 Nd[0][i] = 1;
         }
         /* - 2nd row/column: */
+        /* (This part works for 2 frames or more in either sequence.) */
         /* corner: i==1, j==1 */
-        minV[0] = 2*d[0][1] + d[1][1];  minNd[0] = 3;
-        minV[1] = D[0][0] + 2*d[1][1];  minNd[1] = Nd[0][0] + 2;
-        minV[2] = 2*d[1][0] + d[1][1];  minNd[2] = 3;
-        minIdx = minV[0] < minV[1] ? 0 : 1;
-        minIdx = minV[2] < minV[minIdx] ? 2 : minIdx;
-        D[1][1] = minV[minIdx];
-        Nd[1][1] = minNd[minIdx];
+        if ( (l1 > 1) && (l2 > 1) ) {
+            minV[0] = 2*d[0][1] + d[1][1];  minNd[0] = 3;
+            minV[1] = D[0][0] + 2*d[1][1];  minNd[1] = Nd[0][0] + 2;
+            minV[2] = 2*d[1][0] + d[1][1];  minNd[2] = 3;
+            minIdx = minV[0] < minV[1] ? 0 : 1;
+            minIdx = minV[2] < minV[minIdx] ? 2 : minIdx;
+            D[1][1] = minV[minIdx];
+            Nd[1][1] = minNd[minIdx];
+        }
         /* 2nd row: j==1 ; 2nd col: i==1 */
-        /**
-        for ( int i = 2; i < seq1.length; i++ ) {
-            // Row: 
-            minV[0] = D[i-2][0] + 2*d[i-1][1] + d[i][1];  minNd[0] = Nd[i-2][0] + 3;
-            minV[1] = D[i-1][0] + 2*d[i][1];              minNd[1] = Nd[i-1][0] + 2;
-            minV[2] = 2*d[i][0] + d[i][1];                minNd[2] = 3;
-            minIdx = minV[0] < minV[1] ? 0 : 1;
-            minIdx = minV[2] < minV[minIdx] ? 2 : minIdx;
-            D[i][1] = minV[minIdx];
-            Nd[i][1] = minNd[minIdx];
-            // Column: 
-            minV[0] = 2*d[0][i] + d[1][i];                minNd[0] = 3;
-            minV[1] = D[0][i-1] + 2*d[1][i];              minNd[1] = Nd[0][i-1] + 2;
-            minV[2] = D[0][i-2] + 2*d[1][i-1] + d[1][i];  minNd[2] = Nd[0][i-2] + 3;
-            minIdx = minV[0] < minV[1] ? 0 : 1;
-            minIdx = minV[2] < minV[minIdx] ? 2 : minIdx;
-            D[1][i] = minV[minIdx];
-            Nd[1][i] = minNd[minIdx];
-        } **/
-        for ( int i = 2; i < seq1.length; i++ ) {
+        for ( int i = 2; i < l1; i++ ) {
             // Row: 
             minV[0] = D[i-2][0] + 2*d[i-1][1] + d[i][1];  minNd[0] = Nd[i-2][0] + 3;
             minV[1] = D[i-1][0] + 2*d[i][1];              minNd[1] = Nd[i-1][0] + 2;
@@ -567,7 +555,7 @@ public class CARTBuilder implements VoiceImportComponent {
             D[i][1] = minV[minIdx];
             Nd[i][1] = minNd[minIdx];
             }
-        for ( int i = 2; i < seq2.length; i++ ) {
+        for ( int i = 2; i < l2; i++ ) {
             // Column: 
             minV[0] = 2*d[0][i] + d[1][i];                minNd[0] = 3;
             minV[1] = D[0][i-1] + 2*d[1][i];              minNd[1] = Nd[0][i-1] + 2;
@@ -578,8 +566,9 @@ public class CARTBuilder implements VoiceImportComponent {
             Nd[1][i] = minNd[minIdx];
         }
         /* - Rest of the matrix: */
-        for ( int i = 2; i < seq1.length; i++ ) {
-            for ( int j = 2; j < seq2.length; j++ ) {
+        /* (This part works for 3 frames or more in either sequence.) */
+        for ( int i = 2; i < l1; i++ ) {
+            for ( int j = 2; j < l2; j++ ) {
                 minV[0] = D[i-2][j-1] + 2*d[i-1][j] + d[i][j];  minNd[0] = Nd[i-2][j-1] + 3;
                 minV[1] = D[i-1][j-1] + 2*d[i][j];              minNd[1] = Nd[i-1][j-1] + 2;
                 minV[2] = D[i-1][j-2] + 2*d[i][j-1] + d[i][j];  minNd[0] = Nd[i-1][j-2] + 3;
@@ -590,7 +579,7 @@ public class CARTBuilder implements VoiceImportComponent {
             }
         }
         /* Return */
-        return( D[seq1.length-1][seq2.length-1] / (double)(Nd[seq1.length-1][seq2.length-1]) );
+        return( D[l1-1][l2-1] / (double)(Nd[l1-1][l2-1]) );
     }
     
     /**
