@@ -131,7 +131,7 @@ public class PraatPitchmarker implements VoiceImportComponent
             /* Else: */
             /* Seek the zero crossing preceding the pitchmark */
             TO = (pm-HORIZON) < 0 ? 0 : (pm-HORIZON);
-            for ( zero = (pm-1); ( zero > TO ) && ( (w[zero]*w[zero+1]) > 0 ); zero-- );
+            for ( zero = pm; ( zero > TO ) && ( (w[zero]*w[zero+1]) > 0 ); zero-- );
             /* If no zero crossing was found, don't move the pitchmark */
             if ( (zero == TO) && ( (w[zero]*w[zero+1]) > 0 )  ) {
                 pmOut[pi] = pmIn[pi];
