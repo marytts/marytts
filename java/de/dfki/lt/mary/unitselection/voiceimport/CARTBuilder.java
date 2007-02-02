@@ -51,6 +51,7 @@ import de.dfki.lt.mary.unitselection.MCepTimelineReader;
 import de.dfki.lt.mary.unitselection.UnitFileReader;
 import de.dfki.lt.mary.unitselection.Datagram;
 import de.dfki.lt.mary.unitselection.MCepDatagram;
+import de.dfki.lt.mary.unitselection.Unit;
 
 import de.dfki.lt.mary.MaryProperties;
 
@@ -124,7 +125,7 @@ public class CARTBuilder implements VoiceImportComponent {
          
          boolean callWagon = System.getProperty("db.cartbuilder.callwagon", "true").equals("true");
          if (callWagon) {
-             //replaceLeaves(topLevelCART,featureDefinition);
+             replaceLeaves(topLevelCART,featureDefinition);
          }
          
          //dump big CART to binary file
@@ -339,24 +340,8 @@ public class CARTBuilder implements VoiceImportComponent {
         int numFloatFeats = featDef.getNumberOfContinuousFeatures();
         //loop through the feature vectors
         for (int i=0; i<featureVectors.length;i++){
-            //get the next feature vector
-            FeatureVector nextFV = featureVectors[i];
-            //dump unit index
-            out.print(nextFV.getUnitIndex()+" ");
-            //dump the byte features
-            for (int j=0; j<numByteFeats;j++){
-                int feat = nextFV.getFeatureAsInt(j);
-                out.print(featDef.getFeatureValueAsString(j,feat)+" ");
-            }
-            //dump the short features
-            for (int j=0; j<numShortFeats;j++){
-                int feat = nextFV.getFeatureAsInt(j);
-                out.print(featDef.getFeatureValueAsString(j,feat)+" ");
-            }
-            //dump the float features
-            for (int j=0; j<numFloatFeats;j++){
-                out.print(nextFV.getContinuousFeature(j)+" ");
-            }
+            // Print the feature string
+            out.print( featDef.toFeatureString( featureVectors[i] ) );
             //print a newline if this is not the last vector
             if (i+1 != featureVectors.length){
                 out.print("\n");
@@ -407,19 +392,22 @@ public class CARTBuilder implements VoiceImportComponent {
         double[] sigma2 = new double[tlr.getOrder()];
         double N = 0.0;
         for ( int i = 0; i < numUnits; i++ ) {
+            System.out.println( "FEATURE_VEC_IDX=" + i + " UNITIDX=" + featureVectors[i].getUnitIndex() );
             /* Read the datagrams for the current unit */
             Datagram[] buff = null;
             MCepDatagram[] dat = null;
+            System.out.println( featDef.toFeatureString( featureVectors[i] ) );
             try {
                 buff = tlr.getDatagrams( ufr.getUnit(featureVectors[i].getUnitIndex()), ufr.getSampleRate() );
+                System.out.println( "NUMFRAMES=" + buff.length );
                 dat = new MCepDatagram[buff.length];
                 for ( int d = 0; d < buff.length; d++ ) {
                     dat[d] = (MCepDatagram)( buff[d] );
                 }
             }
-            catch ( IOException e ) {
+            catch ( Exception e ) {
                 throw new RuntimeException( "Failed to read the datagrams for unit number [" + featureVectors[i].getUnitIndex()
-                        + "] from the Mel-cepstrum timeline due to the following IOException: ", e );
+                        + "] from the Mel-cepstrum timeline due to the following Exception: ", e );
             }
             N += (double)(dat.length); // Update the frame counter
             melCep[i] = new double[dat.length][];
