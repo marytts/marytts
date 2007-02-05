@@ -142,8 +142,8 @@ public class PitchFrameProvider extends FrameProvider
                 currPitchmark = (long) Math.round(pitchmarkInSeconds * samplingRate);
                 periodLengths[i] = (int) (currPitchmark-prevPitchmark);
                 // Plausibility check: Do not allow periods longer than 30 ms (33 Hz) or shorter than 1 ms (1000 Hz)!
-                assert periodLengths[i] < samplingRate/33;
-                assert periodLengths[i] > samplingRate/1000;
+                assert periodLengths[i] < samplingRate/33: "Found pitch period longer than 30 ms (less than 33 Hz)";
+                assert periodLengths[i] > samplingRate/1000 : "Found pitch period shorter than 1 ms (more than 1000 Hz)";
                 if (pos+periodLengths[i] > frame.length) {
                     // need to increase frame size
                     double[] oldFrame = frame;
@@ -223,19 +223,7 @@ public class PitchFrameProvider extends FrameProvider
         return shiftPeriods;
     }
 
-    /**
-     * The number of samples corresponding to the "oldest" two periods that are still in memory. 
-     * @return
-     */
-    public int getShiftSamples()
-    {
-        int s = 0;
-        for (int i=0; i<shiftPeriods; i++) {
-            s += periodLengths[i];
-        }
-        return s;
-    }
-    
+  
     
     /**
      * Whether or not this frameprovider can provide another frame.

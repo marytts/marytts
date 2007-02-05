@@ -30,6 +30,7 @@
 package de.dfki.lt.signalproc.process;
 
 import java.io.File;
+import java.io.FileReader;
 import java.util.Arrays;
 
 import javax.sound.sampled.AudioFileFormat;
@@ -45,31 +46,40 @@ import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
 import de.dfki.lt.signalproc.util.DDSAudioInputStream;
 import de.dfki.lt.signalproc.util.DoubleDataSource;
+import de.dfki.lt.signalproc.util.PraatTextfileDoubleDataSource;
 import de.dfki.lt.signalproc.util.SequenceDoubleDataSource;
 
 /**
  * @author Marc Schr&ouml;der
  *
  */
-public class LSFInterpolator extends LPCAnalysisResynthesis
+public class LSFInterpolator extends LPCAnalysisResynthesis implements InlineFrameMerger
 {
-    protected FrameProvider otherAudioFrames;
+    protected double[] otherFrame;
     protected double r;
     
     /**
      * Create an LSF-based interpolator.
-     * @param otherAudioFrames the signal with which to interpolate the signal
-     * going through this signal.
      * @param p the order of LPC analysis
      * @param r the interpolation ratio, between 0 and 1: <code>new = r * this + (1-r) * other</code>
      */
-    public LSFInterpolator(FrameProvider otherAudioFrames, int p, double r)
+    public LSFInterpolator(int p, double r)
     {
         super(p);
         if (r < 0 || r > 1) throw new IllegalArgumentException("Mixing ratio r must be between 0 and 1");
-        this.otherAudioFrames = otherAudioFrames;
         this.r = r;
     }
+    
+    /**
+     * Set the frame of data to merge into the next call of applyInline().
+     * This is the data towards which LSF-based interpolation will be done.
+     * @param frameToMerge
+     */
+    public void setFrameToMerge(double[] frameToMerge)
+    {
+        this.otherFrame = frameToMerge;
+    }
+
     
     /**
      * Process the LPC coefficients in place. This implementation converts
@@ -79,9 +89,8 @@ public class LSFInterpolator extends LPCAnalysisResynthesis
      */
     protected void processLPC(LPCoeffs coeffs, double[] residual) 
     {
-        double[] frame = otherAudioFrames.getNextFrame();
-        if (frame == null) return; // no more other audio -- leave signal as is
-        LPCoeffs otherCoeffs = LPCAnalyser.calcLPC(frame, p);
+        if (otherFrame == null) return; // no more other audio -- leave signal as is
+        LPCoeffs otherCoeffs = LPCAnalyser.calcLPC(otherFrame, p);
         double[] lsf = coeffs.getLSF();
         double[] otherlsf = otherCoeffs.getLSF();
         assert lsf.length == otherlsf.length;
@@ -120,11 +129,9 @@ public class LSFInterpolator extends LPCAnalysisResynthesis
         DoubleDataSource otherSource = new AudioDoubleDataSource(otherAudio);
         int frameLength = Integer.getInteger("signalproc.lpcanalysisresynthesis.framelength", 512).intValue();
         int predictionOrder = Integer.getInteger("signalproc.lpcanalysisresynthesis.predictionorder", 20).intValue();
-        DoubleDataSource padding1 = new BufferedDoubleDataSource(new double[3*frameLength/4]);
-        DoubleDataSource paddedOtherSource = new SequenceDoubleDataSource(new DoubleDataSource[]{padding1, otherSource});
-        FrameProvider newResidualAudioFrames = new FrameProvider(paddedOtherSource, Window.get(Window.HANN, frameLength, 0.5), frameLength, frameLength/4, samplingRate, true);
-        FrameOverlapAddSource foas = new FrameOverlapAddSource(signal, Window.HANN, false, frameLength, samplingRate,
-                new LSFInterpolator(newResidualAudioFrames, predictionOrder, r));
+        FramewiseMerger foas = new FramewiseMerger(signal, frameLength, samplingRate, null,
+                otherSource, samplingRate, null, 
+                new LSFInterpolator(predictionOrder, r));
         DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(foas), inputAudio.getFormat());
         String outFileName = file1.substring(0, file1.length()-4) + "_" + file2.substring(file2.lastIndexOf("\\")+1, file2.length()-4)+"_"+r+".wav";
         AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
