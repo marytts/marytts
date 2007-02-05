@@ -108,7 +108,7 @@ public class FrameProvider
         this.frameLength = frameLength;
         this.samplingRate = samplingRate;
         this.frame = new double[frameLength];
-        this.frameStart = 0;
+        this.frameStart = -1;
         this.nextFrameStart = 0;
         validSamplesInFrame = 0;
         // We keep the previous frame in memory (we'll need this if frameShift < frmaeLength):
@@ -120,7 +120,8 @@ public class FrameProvider
     
     /**
      * Start position of current frame, in seconds
-     * @return
+     * @return the start time of the last frame returned by getNextFrame(), 
+     * or a small negative number if no frame has been served yet.
      */
     public double getFrameStartTime()
     {
@@ -129,7 +130,8 @@ public class FrameProvider
     
     /**
      * Start position of current frame, in samples
-     * @return
+     * @return the start position of the last frame returned by getNextFrame(), 
+     * or -1 if no frame has been served yet.
      */
     public long getFrameStartSamples()
     {
@@ -287,7 +289,8 @@ public class FrameProvider
      */
     public void resetInternalTimer()
     {
-        this.frameStart = 0;
+        this.frameStart = -1;
+        this.nextFrameStart = 0;
         this.totalRead = 0;
     }
     

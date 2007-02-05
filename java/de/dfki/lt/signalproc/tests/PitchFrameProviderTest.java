@@ -56,6 +56,13 @@ public class PitchFrameProviderTest extends TestCase
         double[] origSignal = signal.getAllData();
         signal = new BufferedDoubleDataSource(origSignal);
         DoubleDataSource pitchmarks = new ESTTextfileDoubleDataSource(new InputStreamReader(PitchFrameProviderTest.class.getResourceAsStream("arctic_a0123.pm")));
+        double[] origPitchmarks = pitchmarks.getAllData();
+        double audioDuration = origSignal.length/(double)samplingRate;
+        if (origPitchmarks[origPitchmarks.length-1] < audioDuration) {
+            System.out.println("correcting last pitchmark to total audio duration: "+audioDuration);
+            origPitchmarks[origPitchmarks.length-1] = audioDuration;
+        }
+        pitchmarks = new BufferedDoubleDataSource(origPitchmarks);
         PitchFrameProvider pfp = new PitchFrameProvider(signal, pitchmarks, null, samplingRate);
         double[] result = new double[origSignal.length];
         double[] frame = null;
@@ -78,6 +85,13 @@ public class PitchFrameProviderTest extends TestCase
         double[] origSignal = signal.getAllData();
         signal = new BufferedDoubleDataSource(origSignal);
         DoubleDataSource pitchmarks = new ESTTextfileDoubleDataSource(new InputStreamReader(PitchFrameProviderTest.class.getResourceAsStream("arctic_a0123.pm")));
+        double[] origPitchmarks = pitchmarks.getAllData();
+        double audioDuration = origSignal.length/(double)samplingRate;
+        if (origPitchmarks[origPitchmarks.length-1] < audioDuration) {
+            System.out.println("correcting last pitchmark to total audio duration: "+audioDuration);
+            origPitchmarks[origPitchmarks.length-1] = audioDuration;
+        }
+        pitchmarks = new BufferedDoubleDataSource(origPitchmarks);
         PitchFrameProvider pfp = new PitchFrameProvider(new SequenceDoubleDataSource(new DoubleDataSource[] {signal, new BufferedDoubleDataSource(new double[1000])}), pitchmarks, null, samplingRate,
                 2, 1);
         double[] result = new double[origSignal.length];
