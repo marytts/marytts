@@ -313,6 +313,7 @@ public class DatabaseImportMain extends JFrame
                 new MRPALabelConverter ( db ),
                 
                 new FestvoxTextfileConverter( db, bnl ),
+                new LabelledFilesInspector(db, bnl),
                 new UnitLabelComputer( db, bnl ),
                 new HalfPhoneUnitLabelComputer( db, bnl ),
                 new UnitFeatureComputer( db, bnl ),                
