@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2006 DFKI GmbH.
+ * Copyright 2000-2007 DFKI GmbH.
  * All Rights Reserved.  Use is subject to license terms.
  * 
  * Permission is hereby granted, free of charge, to use and distribute
@@ -28,6 +28,7 @@
  */
 package de.dfki.lt.signalproc.util;
 
+import java.io.File;
 import java.io.IOException;
 
 import javax.sound.sampled.AudioFormat;
@@ -36,64 +37,86 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineListener;
 import javax.sound.sampled.SourceDataLine;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
-    * This audio player is used by the examplce code MaryClientUser, but not by MaryClient,
-    * which uses a com.sun.speech.freetts.audio.AudioPlayer. Maybe change the example code?
-    * @author Marc Schr&ouml;der
-    */
-   public class AudioPlayer extends Thread {
+ * This audio player is used by the example code MaryClientUser, but not by
+ * MaryClient, which uses a com.sun.speech.freetts.audio.AudioPlayer. Maybe
+ * change the example code?
+ * 
+ * @author Marc Schr&ouml;der
+ */
+public class AudioPlayer extends Thread {
 
-       private AudioInputStream ais;
-       private LineListener lineListener;
-       private SourceDataLine line;
-       private boolean exitRequested = false;
-       
-       
-       public AudioPlayer(AudioInputStream ais, LineListener lineListener) {
-           this.ais = ais;
-           this.lineListener = lineListener;
-       }
+    private AudioInputStream ais;
 
-       public void cancel() {
-           if (line != null) line.stop();
-           exitRequested = true;
-       }
+    private LineListener lineListener;
 
-       public SourceDataLine getLine() {
-           return line;
-       }
+    private SourceDataLine line;
 
-       public void run() {
-           AudioFormat audioFormat = ais.getFormat();
-           
-           DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
-           try {
-               line = (SourceDataLine) AudioSystem.getLine(info);
-               line.addLineListener(lineListener);
-               line.open(audioFormat);
-           } catch (Exception e) {
-               e.printStackTrace();
-               return;
-           }
-           line.start();
-           int nRead = 0;
-           byte[]  abData = new byte[8192];
-           while (nRead != -1 && !exitRequested) {
-               try {
-                   nRead = ais.read(abData, 0, abData.length);
-               } catch (IOException e) {
-                   e.printStackTrace();
-               }
-               if (nRead >= 0) {
-                   line.write(abData, 0, nRead);
-               }
-           }
-           if (!exitRequested) {
-               line.drain();
-           } 
-           line.close();
-       }
-   }
+    private boolean exitRequested = false;
 
+    public AudioPlayer(File audioFile, LineListener lineListener) 
+    throws IOException, UnsupportedAudioFileException
+    {
+        this.ais = AudioSystem.getAudioInputStream(audioFile);
+        this.lineListener = lineListener;
+    }
+    
+    public AudioPlayer(AudioInputStream ais, LineListener lineListener) {
+        this.ais = ais;
+        this.lineListener = lineListener;
+    }
 
+    public void cancel() {
+        if (line != null)
+            line.stop();
+        exitRequested = true;
+    }
+
+    public SourceDataLine getLine() {
+        return line;
+    }
+
+    public void run() {
+        AudioFormat audioFormat = ais.getFormat();
+
+        DataLine.Info info = new DataLine.Info(SourceDataLine.class,
+                audioFormat);
+        try {
+            line = (SourceDataLine) AudioSystem.getLine(info);
+            line.addLineListener(lineListener);
+            line.open(audioFormat);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+        line.start();
+        int nRead = 0;
+        byte[] abData = new byte[8192];
+        while (nRead != -1 && !exitRequested) {
+            try {
+                nRead = ais.read(abData, 0, abData.length);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (nRead >= 0) {
+                line.write(abData, 0, nRead);
+            }
+        }
+        if (!exitRequested) {
+            line.drain();
+        }
+        line.close();
+    }
+
+    public static void main(String[] args) throws Exception
+    {
+        for (int i=0; i<args.length; i++) {
+            AudioPlayer player = new AudioPlayer(new File(args[i]), null);
+            player.start();
+            player.join();
+        }
+        System.exit(0);
+    }
+}
