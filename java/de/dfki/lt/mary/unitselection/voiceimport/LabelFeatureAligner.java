@@ -229,7 +229,12 @@ public class LabelFeatureAligner implements VoiceImportComponent
         	    labelUnits.add(line+"\n");
         	}
         
-        	BufferedReader features = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitFeaDirName() + basename + db.unitFeaExt() )), "UTF-8"));    
+        	BufferedReader features;    
+        	try {
+                 features = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitFeaDirName() + basename + db.unitFeaExt() )), "UTF-8"));
+            }catch (FileNotFoundException fnfe){
+                 return;
+            }
         	while ((line = features.readLine()) != null) {
         	    if (line.trim().equals("")) break; // empty line marks end of header
         	}
@@ -383,7 +388,13 @@ public class LabelFeatureAligner implements VoiceImportComponent
     protected String verifyAlignment(String basename) throws IOException
     {
         BufferedReader labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitLabDirName() + basename + db.unitLabExt() )), "UTF-8"));
-        BufferedReader features = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitFeaDirName() + basename + db.unitFeaExt() )), "UTF-8"));
+        BufferedReader features; 
+        try {
+            features = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitFeaDirName() + basename + db.unitFeaExt() )), "UTF-8"));
+        } catch (FileNotFoundException fnfe){
+            return "No feature file";
+        }
+        
         String line;
         // Skip label file header:
         while ((line = labels.readLine()) != null) {

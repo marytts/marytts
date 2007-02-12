@@ -41,6 +41,16 @@ public class FeatureVector
     }
 
     /**
+     * Is this an edge vector?
+     * @return isEdge
+     */
+    public boolean isEdgeVector(int edgeIndex){
+        String edgeValue = getFeature(edgeIndex).toString();
+        return (!edgeValue.equals(FeatureDefinition.NULLVALUE));
+    }
+    
+    
+    /**
      * Get the total number of features in this feature vector.
      * @return the number of features, irrespective of their type
      */

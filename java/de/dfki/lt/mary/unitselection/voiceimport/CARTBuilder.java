@@ -79,8 +79,26 @@ public class CARTBuilder implements VoiceImportComponent {
          System.out.println("Reading feature file ...");
          String featureFile = databaseLayout.targetFeaturesFileName();
          FeatureFileReader ffr = FeatureFileReader.getFeatureFileReader(featureFile);
-         FeatureVector[] featureVectors = ffr.getCopyOfFeatureVectors();
-         FeatureDefinition featureDefinition = ffr.getFeatureDefinition();
+         FeatureVector[] featureVectorsCopy = ffr.getCopyOfFeatureVectors();
+         FeatureDefinition featureDefinition = ffr.getFeatureDefinition(); 
+         //remove the feature vectors of edge units
+         List fVList = new ArrayList();
+         int edgeIndex = 
+             featureDefinition.getFeatureIndex(FeatureDefinition.EDGEFEATURE);
+         for (int i=0;i<featureVectorsCopy.length;i++){
+             FeatureVector nextFV = featureVectorsCopy[i];
+             if (!nextFV.isEdgeVector(edgeIndex)) fVList.add(nextFV);
+         }
+         int fVListSize = fVList.size();
+         int removed = featureVectorsCopy.length - fVListSize;
+         System.out.println("Removed "+removed+" edge vectors; "
+                 +"remaining vectors : "+fVListSize);
+         FeatureVector[] featureVectors = new FeatureVector[fVListSize];
+         for (int i=0;i<featureVectors.length;i++){
+             featureVectors[i] = (FeatureVector) fVList.get(i);
+         }
+         
+         
          FeatureArrayIndexer fai = new FeatureArrayIndexer(featureVectors, featureDefinition);
          System.out.println(" ... done!");
         
@@ -107,7 +125,7 @@ public class CARTBuilder implements VoiceImportComponent {
              featureSequence[i] = 
                  featureDefinition.getFeatureIndex((String)features.get(i));
          }
-       System.out.println(" ... done!"); 
+         System.out.println(" ... done!"); 
 
          //sort the features according to feature sequence
          System.out.println("Sorting features ...");
@@ -294,19 +312,24 @@ public class CARTBuilder implements VoiceImportComponent {
                 //go through the CART
                 FeatureVector[] featureVectors = 
                     cart.getNextFeatureVectors();
-                while (featureVectors != null){
+                while (featureVectors != null){                    
                     //dump the feature vectors
+                    System.out.println("Dumping feature vectors");
                     dumpFeatureVectors(featureVectors, featureDefinition,wagonDirName+"/"+featureVectorsFile);
                     //dump the distance tables
+                    System.out.println("Dumping distance tables");
                     buildAndDumpDistanceTables(featureVectors,wagonDirName+"/"+distanceTableFile,featureDefinition);
                     //call Wagon
+                    System.out.println("Calling wagon");
                     wagonCaller.callWagon(wagonDirName+"/"+featureVectorsFile,wagonDirName+"/"+distanceTableFile,wagonDirName+"/"+cartFile);
                     //read in the resulting CART
+                    System.out.println("Reading CART");
                     BufferedReader buf = new BufferedReader(
                             new FileReader(new File(wagonDirName+"/"+cartFile)));
                     CARTWagonFormat newCART = 
                         new CARTWagonFormat(buf,featureDefinition);
                     //replace the leaf by the CART
+                    System.out.println("Replacing leafs");
                     cart.replaceLeafByCart(newCART);
                     //get the next featureVectors
                     featureVectors = 
@@ -392,14 +415,14 @@ public class CARTBuilder implements VoiceImportComponent {
         double[] sigma2 = new double[tlr.getOrder()];
         double N = 0.0;
         for ( int i = 0; i < numUnits; i++ ) {
-            System.out.println( "FEATURE_VEC_IDX=" + i + " UNITIDX=" + featureVectors[i].getUnitIndex() );
+            //System.out.println( "FEATURE_VEC_IDX=" + i + " UNITIDX=" + featureVectors[i].getUnitIndex() );
             /* Read the datagrams for the current unit */
             Datagram[] buff = null;
             MCepDatagram[] dat = null;
-            System.out.println( featDef.toFeatureString( featureVectors[i] ) );
+            //System.out.println( featDef.toFeatureString( featureVectors[i] ) );
             try {
                 buff = tlr.getDatagrams( ufr.getUnit(featureVectors[i].getUnitIndex()), ufr.getSampleRate() );
-                System.out.println( "NUMFRAMES=" + buff.length );
+                //System.out.println( "NUMFRAMES=" + buff.length );
                 dat = new MCepDatagram[buff.length];
                 for ( int d = 0; d < buff.length; d++ ) {
                     dat[d] = (MCepDatagram)( buff[d] );
@@ -431,22 +454,22 @@ public class CARTBuilder implements VoiceImportComponent {
         for ( int i = 0; i < numUnits; i++ ) {
             dist[i][i] = 0.0; // <= Set the diagonal to 0.0
             for ( int j = 1; j < numUnits; j++ ) {
-                /* Get the DTW distance between the two sequences: */
+                /* Get the DTW distance between the two sequences: 
                 System.out.println( "Entering DTW : "
                         + featDef.getFeatureName( 0 ) + " "
                         + featureVectors[i].getFeatureAsString( 0, featDef )
                         + ".length=" + melCep[i].length + " ; "
                         + featureVectors[j].getFeatureAsString( 0, featDef )
                         + ".length=" + melCep[j].length + " ." );
-                System.out.flush();
+                System.out.flush(); */
                 if (melCep[i].length<3 || melCep[j].length<3){
                     dist[i][j] = dist[j][i] = euclidian(melCep[i],melCep[j]);
-                    System.out.println("Using Euclidean distance\n"+
-                            			"Distance is "+dist[i][j]);
+                    //System.out.println("Using Euclidean distance\n"+
+                      //      			"Distance is "+dist[i][j]);
                 } else {
                     dist[i][j] = dist[j][i] = dtwDist( melCep[i], melCep[j], sigma2 );
-                    System.out.println("Using Mahalanobis distance\n"+
-                            			"Distance is "+dist[i][j]);
+                    //System.out.println("Using Mahalanobis distance\n"+
+                      //      			"Distance is "+dist[i][j]);
                 }
             } 
         }
@@ -592,7 +615,7 @@ public class CARTBuilder implements VoiceImportComponent {
         double dist = 0.0;
         if (! (unit1.length == unit2.length) && (unit1.length == 1)){
             //we have a problem
-            System.out.println("Problem calculating Euclidian distance");
+            //System.out.println("Problem calculating Euclidian distance");
         } else {
             for (int i=0;i<unit1[0].length;i++){
                 double c = unit1[0][i]-unit2[0][i];

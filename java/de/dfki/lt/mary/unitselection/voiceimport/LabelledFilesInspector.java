@@ -13,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.FileWriter;
 import java.util.StringTokenizer;
 
 import javax.sound.sampled.AudioFileFormat;
@@ -225,7 +226,7 @@ public class LabelledFilesInspector implements VoiceImportComponent
             AudioSystem.write(selectedAudio, AudioFileFormat.Type.WAVE, saveWav);
             System.out.println("Wrote audio to "+saveWav.getAbsolutePath());
             Object[] selection = labels.getSelectedValues();
-            PrintWriter toLab = new PrintWriter(saveLab);
+            PrintWriter toLab = new PrintWriter(new FileWriter(saveLab));
             toLab.println("separator ;");
             toLab.println("nfields 1");
             toLab.println("#");

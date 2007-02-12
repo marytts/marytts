@@ -30,8 +30,8 @@ package de.dfki.lt.mary.modules.en;
 
 import java.util.Iterator;
 import java.util.List;
+import java.io.IOException;
 
-import com.sun.speech.freetts.Segmenter;
 import com.sun.speech.freetts.Utterance;
 import com.sun.speech.freetts.UtteranceProcessor;
 
@@ -64,7 +64,6 @@ public class FreeTTSSegmenter extends InternalModule
     public void startup() throws Exception
     {
         super.startup();
-
         // Initialise FreeTTS
         FreeTTSVoices.load();
         processor = new Segmenter();
@@ -81,10 +80,21 @@ public class FreeTTSSegmenter extends InternalModule
         }
         MaryData output = new MaryData(outputType());
         output.setUtterances(utterances);
+       
         return output;
     }
 
 
+    public void shutdown(){
+        super.shutdown();
+        try {
+         //save addenda
+       ((Segmenter)processor).saveAddenda();
+        } catch (IOException ioe){
+            ioe.printStackTrace();
+            logger.warn("Could not save addenda");
+        }
+    }
 
 
 }

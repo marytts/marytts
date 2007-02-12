@@ -112,7 +112,7 @@ public abstract class XML2UttBase extends InternalModule
             // Make sure we have the correct voice:
             Element voice = (Element) MaryDomUtils.getAncestor(sentence, MaryXML.VOICE);
             Voice maryVoice = Voice.getVoice(voice);
-            if (maryVoice == null) {
+            if (maryVoice == null) {                
                 maryVoice = d.getDefaultVoice();
             }
             if (maryVoice == null) {

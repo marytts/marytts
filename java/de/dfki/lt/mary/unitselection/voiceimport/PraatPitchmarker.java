@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.FileWriter;
 
 import de.dfki.lt.signalproc.util.PraatTextfileDoubleDataSource;
 
@@ -178,7 +179,7 @@ public class PraatPitchmarker implements VoiceImportComponent
 
         File script = new File(praatTempScript);
         if (script.exists()) script.delete();
-        PrintWriter toScript = new PrintWriter(script);
+        PrintWriter toScript = new PrintWriter(new FileWriter(script));
         toScript.println("Read from file... "+wavFilename);
         toScript.println("Rename... sound");
         // First, low-pass filter the speech signal to make it more robust against noise

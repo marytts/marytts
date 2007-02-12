@@ -367,6 +367,7 @@ public class DatabaseLayout
         String ret = System.getProperty( "db.targetFeaturesFileName" );
         if ( ret != null ) return( ret );
         /* else: */
+        System.out.println(System.getProperty("db.rootDir"));
         return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
                 + System.getProperty( "db.marySubDir" ) + System.getProperty( "file.separator" )
                 + System.getProperty( "db.targetFeaturesBaseName" ) + System.getProperty( "db.maryExtension" ) );

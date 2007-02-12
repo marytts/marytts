@@ -28,6 +28,7 @@
  */
 package de.dfki.lt.mary.modules.synthesis;
 
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -36,6 +37,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.sun.speech.freetts.VoiceManager;
 import com.sun.speech.freetts.en.us.CMULexicon;
 import com.sun.speech.freetts.lexicon.Lexicon;
 
@@ -154,7 +156,7 @@ public class FreeTTSVoices
         if (maryVoice instanceof UnitSelectionVoice) {
             return ((UnitSelectionVoice)maryVoice).getLexicon();
         }
-        if (maryVoice.getLocale().equals(Locale.US)) {
+        if (maryVoice.getLocale().equals(Locale.US)) {            
             if (usenLexicon == null) usenLexicon = new CMULexicon("cmudict04");
             return usenLexicon;
         } else if (maryVoice.getLocale().equals(Locale.GERMAN)) {

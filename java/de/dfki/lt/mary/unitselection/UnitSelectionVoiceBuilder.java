@@ -31,13 +31,16 @@ package de.dfki.lt.mary.unitselection;
 
 
 import java.lang.reflect.Constructor;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.net.URL;
+import java.util.*;
+import java.io.*;
 
 import org.apache.log4j.Logger;
 
+import com.sun.speech.freetts.VoiceManager;
+import com.sun.speech.freetts.en.us.CMULexicon;
 import com.sun.speech.freetts.lexicon.Lexicon;
+//import de.dfki.lt.mary.modules.en.*;
 
 import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.mary.modules.phonemiser.PhonemeSet;
@@ -99,14 +102,15 @@ public class UnitSelectionVoiceBuilder
 	            exampleTextFile = MaryProperties.needFilename(header+".exampleTextFile");
 	        }
 	        
-	        //build the lexicon of not already built
+	        //build the lexicon if not already built
             String lexiconClass = MaryProperties.getProperty(header+".lexiconClass");
             Lexicon lexicon = null;
             if (lexiconClass != null) {
                 String lexiconName = MaryProperties.needProperty(header+".lexicon");
                 if (lexicons.containsKey(lexiconClass+lexiconName)) {
                     lexicon = (Lexicon) lexicons.get(lexiconClass+lexiconName);
-                } else { // need to create a new lexicon instance
+                } else {                     
+                    // need to create a new lexicon instance
                     logger.debug("...loading lexicon...");
                     if (lexiconName == null) {
                         lexicon = (Lexicon) Class.forName(lexiconClass).newInstance();
@@ -115,6 +119,40 @@ public class UnitSelectionVoiceBuilder
                         Constructor lexConstr = lexCl.getConstructor(new Class[] {String.class});
                         // will throw a NoSuchMethodError if constructor does not exist
                         lexicon = (Lexicon) lexConstr.newInstance(new Object[] {lexiconName});
+                        if (lexiconName.equals("cmudict04")){
+                        String customAddenda = MaryProperties.getFilename("english.lexicon.customAddenda");
+                        if (customAddenda != null){
+                            try{
+                                //create lexicon with custom addenda
+                                logger.debug("...loading custom addenda...");
+                                lexicon.load();
+                                //open addenda file
+                                BufferedReader addendaIn = new BufferedReader(
+                                        new InputStreamReader(
+                                                new FileInputStream(
+                                                        new File(customAddenda)),"UTF-8"));
+                                
+                                String line;
+                                while((line = addendaIn.readLine()) != null){
+                                    if (!line.startsWith("#") && !line.equals("")){
+                                        //add all words in addenda to lexicon
+                                        StringTokenizer tok = new StringTokenizer(line);
+                                        String word = tok.nextToken();
+                                        int numPhones = tok.countTokens();
+                                        String[] phones = new String[numPhones];
+                                        for (int i=0;i<phones.length;i++){
+                                            phones[i] = tok.nextToken();
+                                        }
+                                        ((CMULexicon) lexicon).addAddendum(word, "", phones);
+                                    }
+                                }
+                            }catch(Exception e){
+                                e.printStackTrace();
+                                logger.warn("Could not make custom addenda for lexicon cmudict04 because : "
+                                        +e.getMessage());
+                            }
+                        }
+                    }
                     }
                     lexicons.put(lexiconClass+lexiconName, lexicon);
                 }
