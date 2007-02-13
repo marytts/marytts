@@ -1,3 +1,36 @@
+/**
+ * Portions Copyright 2006-2007 DFKI GmbH.
+ * Portions Copyright 2001 Sun Microsystems, Inc.
+ * Portions Copyright 1999-2001 Language Technologies Institute, 
+ * Carnegie Mellon University.
+ * All Rights Reserved.  Use is subject to license terms.
+ * 
+ * Permission is hereby granted, free of charge, to use and distribute
+ * this software and its documentation without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of this work, and to
+ * permit persons to whom this work is furnished to do so, subject to
+ * the following conditions:
+ * 
+ * 1. The code must retain the above copyright notice, this list of
+ *    conditions and the following disclaimer.
+ * 2. Any modifications must be clearly marked as such.
+ * 3. Original authors' names are not deleted.
+ * 4. The authors' names are not used to endorse or promote products
+ *    derived from this software without specific prior written
+ *    permission.
+ *
+ * DFKI GMBH AND THE CONTRIBUTORS TO THIS WORK DISCLAIM ALL WARRANTIES WITH
+ * REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL DFKI GMBH NOR THE
+ * CONTRIBUTORS BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
+ * DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
+ * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
+ * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+ * THIS SOFTWARE.
+ */
+
+
 package de.dfki.lt.mary.unitselection.featureprocessors;
 
 
@@ -109,6 +142,94 @@ public class MaryGenericFeatureProcessors
             Item next = segment.getNext();
             if (next == null) return null;
             return next.getNext();
+        }
+    }
+
+    /**
+     * Retrieve the first segment in the word to which this target belongs.
+     *
+     */
+    public static class FirstSegmentInWordNavigator implements TargetItemNavigator
+    {
+        public Item getItem(Target target)
+        {
+            Item segment = target.getItem();
+            if (segment == null) return null;
+            segment = segment.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (segment == null) return null;
+            Item syllable = segment.getParent();
+            if (syllable == null) return null;
+            Item word = syllable.getParent();
+            if (word == null) return null;
+            Item firstSyl = word.getDaughter();
+            if (firstSyl == null) return null;
+            Item firstSeg = firstSyl.getDaughter();
+            return firstSeg;
+        }
+    }
+
+    /**
+     * Retrieve the last segment in the word to which this target belongs.
+     *
+     */
+    public static class LastSegmentInWordNavigator implements TargetItemNavigator
+    {
+        public Item getItem(Target target)
+        {
+            Item segment = target.getItem();
+            if (segment == null) return null;
+            segment = segment.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (segment == null) return null;
+            Item syllable = segment.getParent();
+            if (syllable == null) return null;
+            Item word = syllable.getParent();
+            if (word == null) return null;
+            Item lastSyl = word.getLastDaughter();
+            if (lastSyl == null) return null;
+            Item lastSeg = lastSyl.getLastDaughter();
+            return lastSeg;
+        }
+    }
+
+    /**
+     * Retrieve the first syllable in the word to which this target belongs.
+     *
+     */
+    public static class FirstSyllableInWordNavigator implements TargetItemNavigator
+    {
+        public Item getItem(Target target)
+        {
+            Item segment = target.getItem();
+            if (segment == null) return null;
+            segment = segment.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (segment == null) return null;
+            Item syllable = segment.getParent();
+            if (syllable == null) return null;
+            Item word = syllable.getParent();
+            if (word == null) return null;
+            Item firstSyl = word.getDaughter();
+            return firstSyl;
+        }
+    }
+
+    /**
+     * Retrieve the last syllable in the word to which this target belongs.
+     *
+     */
+    public static class LastSyllableInWordNavigator implements TargetItemNavigator
+    {
+        public Item getItem(Target target)
+        {
+            Item segment = target.getItem();
+            if (segment == null) return null;
+            segment = segment.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (segment == null) return null;
+            Item syllable = segment.getParent();
+            if (syllable == null) return null;
+            Item word = syllable.getParent();
+            if (word == null) return null;
+            Item lastSyl = word.getLastDaughter();
+            return lastSyl;
         }
     }
 
@@ -287,6 +408,27 @@ public class MaryGenericFeatureProcessors
         }
     }
 
+    public static class FirstWordNavigator implements TargetItemNavigator
+    {
+        public Item getItem(Target target)
+        {
+            Item segment = target.getItem();
+            if (segment == null) return null;
+            segment = segment.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (segment == null) return null;
+            Item syllable = segment.getParent();
+            if (syllable == null) return null;
+            Item word = syllable.getParent();
+            if (word == null) return null;
+            word = word.getItemAs(Relation.PHRASE);
+            if (word == null) return null;
+            Item phrase = word.getParent();
+            if (phrase == null) return null;
+            Item firstWord = phrase.getDaughter();
+            return firstWord;
+        }
+    }
+
     public static class LastWordNavigator implements TargetItemNavigator
     {
         public Item getItem(Target target)
@@ -308,7 +450,7 @@ public class MaryGenericFeatureProcessors
         }
     }
 
-    
+
     public static class PhraseNavigator implements TargetItemNavigator
     {
         public Item getItem(Target target)
@@ -327,6 +469,57 @@ public class MaryGenericFeatureProcessors
             return phrase;
         }
     }
+
+    public static class FirstPhraseNavigator implements TargetItemNavigator
+    {
+        public Item getItem(Target target)
+        {
+            Item segment = target.getItem();
+            if (segment == null) return null;
+            segment = segment.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (segment == null) return null;
+            Item syllable = segment.getParent();
+            if (syllable == null) return null;
+            Item word = syllable.getParent();
+            if (word == null) return null;
+            word = word.getItemAs(Relation.PHRASE);
+            if (word == null) return null;
+            Item phrase = word.getParent();
+            if (phrase == null) return null;
+            Item prevPhrase = phrase.getPrevious();
+            while (prevPhrase != null) {
+                phrase = prevPhrase;
+                prevPhrase = phrase.getPrevious();
+            }
+            return phrase;
+        }
+    }
+
+    public static class LastPhraseNavigator implements TargetItemNavigator
+    {
+        public Item getItem(Target target)
+        {
+            Item segment = target.getItem();
+            if (segment == null) return null;
+            segment = segment.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (segment == null) return null;
+            Item syllable = segment.getParent();
+            if (syllable == null) return null;
+            Item word = syllable.getParent();
+            if (word == null) return null;
+            word = word.getItemAs(Relation.PHRASE);
+            if (word == null) return null;
+            Item phrase = word.getParent();
+            if (phrase == null) return null;
+            Item nextPhrase = phrase.getNext();
+            while (nextPhrase != null) {
+                phrase = nextPhrase;
+                nextPhrase = phrase.getNext();
+            }
+            return phrase;
+        }
+    }
+
 
 
 
@@ -476,7 +669,176 @@ public class MaryGenericFeatureProcessors
         }
     }
 
-    
+
+    /**
+     * Returns as an Integer the number of phrases in the current sentence. This is
+     * a feature processor. A feature processor takes an item, performs some
+     * sort of processing on the item and returns an object.
+     */
+    public static class SentenceNumPhrases implements ByteValuedFeatureProcessor
+    {
+        TargetItemNavigator navigator;
+        public SentenceNumPhrases() {
+            this.navigator = new FirstPhraseNavigator();
+        }
+        public String getName() { return "mary_sentence_numphrases"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * 
+         * @param item
+         *            the item to process
+         * 
+         * @return the number of phrases in the sentence
+         */
+        public byte process(Target target)
+        {
+            Item phrase = navigator.getItem(target);
+            if (phrase == null) return (byte)0;
+            int count = 1;
+            Item next = phrase.getNext();
+            while (next != null) {
+                count++;
+                next = next.getNext();
+            }
+            return (byte) rail(count);
+        }
+    }
+
+    /**
+     * Returns as an Integer the number of words in the current sentence. This is
+     * a feature processor. A feature processor takes an item, performs some
+     * sort of processing on the item and returns an object.
+     */
+    public static class SentenceNumWords implements ByteValuedFeatureProcessor
+    {
+        TargetItemNavigator navigator;
+        public SentenceNumWords() {
+            this.navigator = new FirstPhraseNavigator();
+        }
+        public String getName() { return "mary_sentence_numwords"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * 
+         * @param item
+         *            the item to process
+         * 
+         * @return the number of words in the sentence
+         */
+        public byte process(Target target)
+        {
+            Item phrase = navigator.getItem(target);
+            if (phrase == null) return (byte)0;
+            Item word = phrase.getDaughter();
+            if (word == null) return (byte)0;
+            word = word.getItemAs(Relation.WORD);
+            if (word == null) return (byte)0;
+            int count = 1;
+            Item next = word.getNext();
+            while (next != null) {
+                count++;
+                next = next.getNext();
+            }
+            return (byte) rail(count);
+        }
+    }
+
+    /**
+     * Returns as an Integer the number of phrases in the current sentence. This is
+     * a feature processor. A feature processor takes an item, performs some
+     * sort of processing on the item and returns an object.
+     */
+    public static class PhraseNumSyls implements ByteValuedFeatureProcessor
+    {
+        TargetItemNavigator navigator;
+        public PhraseNumSyls() {
+            this.navigator = new FirstSyllableNavigator();
+        }
+        public String getName() { return "mary_phrase_numsyls"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * 
+         * @param item
+         *            the item to process
+         * 
+         * @return the number of words in the phrase
+         */
+        public byte process(Target target)
+        {
+            Item syllable = navigator.getItem(target);
+            if (syllable == null) return (byte)0;
+            syllable = syllable.getItemAs(Relation.SYLLABLE);
+            if (syllable == null) return (byte)0;
+            int count = 1;
+            Item next = syllable.getNext();
+            while (next != null) {
+                count++;
+                next = next.getNext();
+            }
+            return (byte) rail(count);
+        }
+    }
+
+    /**
+     * Returns as an Integer the number of phrases in the current sentence. This is
+     * a feature processor. A feature processor takes an item, performs some
+     * sort of processing on the item and returns an object.
+     */
+    public static class PhraseNumWords implements ByteValuedFeatureProcessor
+    {
+        TargetItemNavigator navigator;
+        public PhraseNumWords() {
+            this.navigator = new FirstWordNavigator();
+        }
+        public String getName() { return "mary_phrase_numwords"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * 
+         * @param item
+         *            the item to process
+         * 
+         * @return the number of words in the phrase
+         */
+        public byte process(Target target)
+        {
+            Item word = navigator.getItem(target);
+            if (word == null) return (byte)0;
+            word = word.getItemAs(Relation.WORD);
+            if (word == null) return (byte)0;
+            int count = 1;
+            Item next = word.getNext();
+            while (next != null) {
+                count++;
+                next = next.getNext();
+            }
+            return (byte) rail(count);
+        }
+    }
+
+
     /**
      * Returns as an Integer the number of syllables in the given word. This is
      * a feature processor. A feature processor takes an item, performs some
@@ -494,6 +856,7 @@ public class MaryGenericFeatureProcessors
                     "8", "9", "10", "11", "12", "13", "14", "15", "16",
                     "17", "18", "19"};
         }
+
         /**
          * Performs some processing on the given item.
          * 
@@ -519,62 +882,111 @@ public class MaryGenericFeatureProcessors
     }
 
     /**
-     * Counts the number of accented syllables since the last major break. This
-     * is a feature processor. A feature processor takes an item, performs some
+     * Returns as an Integer the number of segments in the given word. This is
+     * a feature processor. A feature processor takes an item, performs some
      * sort of processing on the item and returns an object.
      */
-    public static class AccentedSylIn implements ByteValuedFeatureProcessor
+    public static class WordNumSegs implements ByteValuedFeatureProcessor
     {
         TargetItemNavigator navigator;
-        TargetItemNavigator firstSyllableNavigator;
-        public AccentedSylIn() {
-            this.navigator = new SyllableNavigator();
-            this.firstSyllableNavigator = new FirstSyllableNavigator();
+        public WordNumSegs() {
+            this.navigator = new WordNavigator();
         }
-
-        public String getName() { return "mary_asyl_in"; }
+        public String getName() { return "mary_word_numsegs"; }
         public String[] getValues() {
             return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
                     "8", "9", "10", "11", "12", "13", "14", "15", "16",
                     "17", "18", "19"};
         }
-
         /**
          * Performs some processing on the given item.
-         * @param target the target to process
-         * @return the number of accented syllables since the last major break
+         * 
+         * @param item
+         *            the item to process
+         * 
+         * @return the number of segments in the given word
          */
         public byte process(Target target)
         {
+            Item word = navigator.getItem(target);
+            if (word == null) return (byte)0;
+            word = word.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (word == null) return (byte)0;
             int count = 0;
-            Item ss = navigator.getItem(target);
-            if (ss == null) return (byte)0;
-            ss = ss.getItemAs(Relation.SYLLABLE);
-            if (ss == null) return (byte)0;
-            Item firstSyllable = firstSyllableNavigator.getItem(target);
-
-            for (Item p = ss; p != null; p = p.getPrevious()) {
-                if (p.getFeatures().isPresent("accent")) {
+            Item syllable = word.getDaughter();
+            while (syllable != null) {
+                Item seg = syllable.getDaughter();
+                while (seg != null) {
                     count++;
+                    seg = seg.getNext();
                 }
-                if (p.equalsShared(firstSyllable)) {
-                    break;
-                }
+                syllable = syllable.getNext();
             }
-            return (byte)rail(count);
+            return (byte) rail(count);
         }
     }
 
     /**
+     * Returns as an Integer the number of segments in the current syllable. This is
+     * a feature processor. A feature processor takes an item, performs some
+     * sort of processing on the item and returns an object.
+     */
+    public static class SylNumSegs implements ByteValuedFeatureProcessor
+    {
+        TargetItemNavigator navigator;
+        public SylNumSegs() {
+            this.navigator = new SyllableNavigator();
+        }
+        public String getName() { return "mary_syl_numsegs"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+        /**
+         * Performs some processing on the given item.
+         * 
+         * @param item
+         *            the item to process
+         * 
+         * @return the number of segments in the given word
+         */
+        public byte process(Target target)
+        {
+            Item syllable = navigator.getItem(target);
+            if (syllable == null) return (byte)0;
+            syllable = syllable.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (syllable == null) return (byte)0;
+            int count = 0;
+            Item seg = syllable.getDaughter();
+            while (seg != null) {
+                count++;
+                seg = seg.getNext();
+            }
+            return (byte) rail(count);
+        }
+    }
+
+    /**
+     * @deprecated, use SegsFromSylStart instead
+     */
+    public static class PosInSyl extends SegsFromSylStart
+    {
+        public PosInSyl() { super(); }
+        public String getName() { return "mary_pos_in_syl"; }
+    }
+    
+
+    /**
      * Finds the position of the phoneme in the syllable.
      */
-    public static class PosInSyl implements ByteValuedFeatureProcessor
+    public static class SegsFromSylStart implements ByteValuedFeatureProcessor
     {
         protected TargetItemNavigator navigator;
-        public PosInSyl() {
+        public SegsFromSylStart() {
             this.navigator = new SegmentNavigator();
         }
-        public String getName() { return "mary_pos_in_syl"; }
+        public String getName() { return "mary_segs_from_syl_start"; }
         public String[] getValues() {
             return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
                     "8", "9", "10", "11", "12", "13", "14", "15", "16",
@@ -597,6 +1009,186 @@ public class MaryGenericFeatureProcessors
         }
     }
 
+
+    /**
+     * Finds the position of the phoneme from the end of the syllable.
+     */
+    public static class SegsFromSylEnd implements ByteValuedFeatureProcessor
+    {
+        protected TargetItemNavigator navigator;
+        public SegsFromSylEnd() {
+            this.navigator = new SegmentNavigator();
+        }
+        public String getName() { return "mary_segs_from_syl_end"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return the position of the phoneme in the syllable
+         */
+        public byte process(Target target)
+        {
+            byte count = 0;
+            Item segment = navigator.getItem(target);
+            for (Item p = segment.getItemAs(Relation.SYLLABLE_STRUCTURE); p != null; p = p.getPrevious()) {
+                count++;
+            }
+            return (byte)rail(count);
+        }
+    }
+
+    /**
+     * Finds the position of the segment from the start of the word.
+     */
+    public static class SegsFromWordStart implements ByteValuedFeatureProcessor
+    {
+        protected TargetItemNavigator navigator;
+        protected TargetItemNavigator firstSegNavigator;
+        public SegsFromWordStart() {
+            this.navigator = new SegmentNavigator();
+            this.firstSegNavigator = new FirstSegmentInWordNavigator();
+        }
+        public String getName() { return "mary_segs_from_word_start"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return the position of the phoneme in the syllable
+         */
+        public byte process(Target target)
+        {
+            byte count = 0;
+            Item segment = navigator.getItem(target);
+            Item firstSegment = firstSegNavigator.getItem(target);
+            for (Item p = segment.getItemAs(Relation.SEGMENT); p != null; p = p.getPrevious()) {
+                count++;
+                if (p.equalsShared(firstSegment)) break;
+            }
+            return (byte)rail(count);
+        }
+    }
+
+    /**
+     * Finds the position of the segment from the end of the word.
+     */
+    public static class SegsFromWordEnd implements ByteValuedFeatureProcessor
+    {
+        protected TargetItemNavigator navigator;
+        protected TargetItemNavigator lastSegNavigator;
+        public SegsFromWordEnd() {
+            this.navigator = new SegmentNavigator();
+            this.lastSegNavigator = new LastSegmentInWordNavigator();
+        }
+        public String getName() { return "mary_segs_from_word_end"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return the position of the phoneme in the syllable
+         */
+        public byte process(Target target)
+        {
+            byte count = 0;
+            Item segment = navigator.getItem(target);
+            Item lastSegment = lastSegNavigator.getItem(target);
+            for (Item p = segment.getItemAs(Relation.SEGMENT); p != null; p = p.getNext()) {
+                count++;
+                if (p.equalsShared(lastSegment)) break;
+            }
+            return (byte)rail(count);
+        }
+    }
+ 
+    /**
+     * Finds the position of the syllable from the start of the word.
+     */
+    public static class SylsFromWordStart implements ByteValuedFeatureProcessor
+    {
+        protected TargetItemNavigator navigator;
+        protected TargetItemNavigator firstSylNavigator;
+        public SylsFromWordStart() {
+            this.navigator = new SyllableNavigator();
+            this.firstSylNavigator = new FirstSyllableInWordNavigator();
+        }
+        public String getName() { return "mary_syls_from_word_start"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return the position of the phoneme in the syllable
+         */
+        public byte process(Target target)
+        {
+            byte count = 0;
+            Item syllable = navigator.getItem(target);
+            if (syllable == null) return (byte)0;
+            Item firstSyllable = firstSylNavigator.getItem(target);
+            for (Item p = syllable.getItemAs(Relation.SYLLABLE); p != null; p = p.getPrevious()) {
+                count++;
+                if (p.equalsShared(firstSyllable)) break;
+            }
+            return (byte)rail(count);
+        }
+    }
+
+    /**
+     * Finds the position of the syllable from the end of the word.
+     */
+    public static class SylsFromWordEnd implements ByteValuedFeatureProcessor
+    {
+        protected TargetItemNavigator navigator;
+        protected TargetItemNavigator lastSylNavigator;
+        public SylsFromWordEnd() {
+            this.navigator = new SyllableNavigator();
+            this.lastSylNavigator = new LastSyllableInWordNavigator();
+        }
+        public String getName() { return "mary_syls_from_word_end"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return the position of the phoneme in the syllable
+         */
+        public byte process(Target target)
+        {
+            byte count = 0;
+            Item syllable = navigator.getItem(target);
+            if (syllable == null) return (byte)0;
+            Item lastSyllable = lastSylNavigator.getItem(target);
+            for (Item p = syllable.getItemAs(Relation.SYLLABLE); p != null; p = p.getNext()) {
+                count++;
+                if (p.equalsShared(lastSyllable)) break;
+            }
+            return (byte)rail(count);
+        }
+    }
+    
+    
     /**
      * Determines the break level after this syllable.
      */
@@ -810,22 +1402,218 @@ public class MaryGenericFeatureProcessors
         }
     }
 
+    /**
+     * The next ToBI accent following the current syllable in the current phrase.
+     */
+    public static class NextAccent extends TobiAccent
+    {
+        protected TargetItemNavigator lastSyllableNavigator;
+        public NextAccent()
+        {
+            super("mary_next_accent", new SyllableNavigator());
+            this.lastSyllableNavigator = new LastSyllableNavigator();
+        }
+        /**
+         * Search for an accented syllable, and return its tobi accent, 
+         * or 0 if there is none.
+         */
+        public byte process(Target target)
+        {
+            Item syllable = navigator.getItem(target);
+            if (syllable == null) return 0;
+            Item lastSyllable = lastSyllableNavigator.getItem(target);
+            for (Item n=syllable.getNext(); n!=null; n=n.getNext()) {
+                String accent = syllable.getFeatures().getString("accent");
+                if (accent != null) {
+                    return values.get(accent);
+                }
+                if (n.equalsShared(lastSyllable)) break;
+            }
+            return 0;
+        }
+    }
+
+    /**
+     * The previous ToBI accent preceding the current syllable in the current phrase.
+     */
+    public static class PrevAccent extends TobiAccent
+    {
+        protected TargetItemNavigator firstSyllableNavigator;
+        public PrevAccent()
+        {
+            super("mary_prev_accent", new SyllableNavigator());
+            this.firstSyllableNavigator = new FirstSyllableNavigator();
+        }
+        /**
+         * Search for an accented syllable, and return its tobi accent, 
+         * or 0 if there is none.
+         */
+        public byte process(Target target)
+        {
+            Item syllable = navigator.getItem(target);
+            if (syllable == null) return 0;
+            Item firstSyllable = firstSyllableNavigator.getItem(target);
+            for (Item n=syllable.getPrevious(); n!=null; n=n.getPrevious()) {
+                String accent = syllable.getFeatures().getString("accent");
+                if (accent != null) {
+                    return values.get(accent);
+                }
+                if (n.equalsShared(firstSyllable)) break;
+            }
+            return 0;
+        }
+    }
+
     
     /**
-     * Counts the number of stressed syllables since the last major break. This
+     * The ToBI endtone associated with the last syllable of the current phrase.
+     */
+    public static class PhraseEndtone extends TobiEndtone
+    {        
+        public PhraseEndtone()
+        {
+            super("mary_phrase_endtone", new LastSyllableNavigator());
+        }
+    }
+
+    /**
+     * The ToBI endtone associated with the last syllable of the previous phrase.
+     */
+    public static class PrevPhraseEndtone extends TobiEndtone
+    {        
+        public PrevPhraseEndtone()
+        {
+            super("mary_prev_phrase_endtone", new FirstSyllableNavigator());
+        }
+
+        /**
+         * For the given syllable item, return its tobi end tone, 
+         * or 0 if there is none.
+         */
+        public byte process(Target target)
+        {
+            Item syllable = navigator.getItem(target);
+            if (syllable == null) return 0;
+            syllable = syllable.getItemAs(Relation.SYLLABLE);
+            if (syllable == null) return 0;
+            // Now, the syllable before the first one in the current phrase
+            // is the last syllable in the previous phrase
+            syllable = syllable.getPrevious();
+            if (syllable == null) return 0;
+            String endtone = syllable.getFeatures().getString("endtone");
+            if (endtone == null || endtone.equals("")) {
+                return 0;
+            }
+            return values.get(endtone);
+        }
+    }
+
+
+    /**
+     * Counts the number of syllables since the start of the phrase. This
      * is a feature processor. A feature processor takes an item, performs some
      * sort of processing on the item and returns an object.
      */
-    public static class StressedSylIn implements ByteValuedFeatureProcessor
+    public static class SylsFromPhraseStart implements ByteValuedFeatureProcessor
     {
         TargetItemNavigator navigator;
         TargetItemNavigator firstSyllableNavigator;
-        public StressedSylIn() {
+        public SylsFromPhraseStart() {
             this.navigator = new SyllableNavigator();
             this.firstSyllableNavigator = new FirstSyllableNavigator();
         }
 
-        public String getName() { return "mary_ssyl_in"; }
+        public String getName() { return "mary_syls_from_phrase_start"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return the number of accented syllables since the last major break
+         */
+        public byte process(Target target)
+        {
+            int count = 0;
+            Item ss = navigator.getItem(target);
+            if (ss == null) return (byte)0;
+            ss = ss.getItemAs(Relation.SYLLABLE);
+            if (ss == null) return (byte)0;
+            Item firstSyllable = firstSyllableNavigator.getItem(target);
+
+            for (Item p = ss; p != null; p = p.getPrevious()) {
+                count++;
+                if (p.equalsShared(firstSyllable)) {
+                    break;
+                }
+            }
+            return (byte)rail(count);
+        }
+    }
+    
+    /**
+     * Counts the number of syllables until the end of the phrase. This
+     * is a feature processor. A feature processor takes an item, performs some
+     * sort of processing on the item and returns an object.
+     */
+    public static class SylsFromPhraseEnd implements ByteValuedFeatureProcessor
+    {
+        TargetItemNavigator navigator;
+        TargetItemNavigator lastSyllableNavigator;
+        public SylsFromPhraseEnd() {
+            this.navigator = new SyllableNavigator();
+            this.lastSyllableNavigator = new LastSyllableNavigator();
+        }
+
+        public String getName() { return "mary_syls_from_phrase_end"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return the number of accented syllables since the last major break
+         */
+        public byte process(Target target)
+        {
+            int count = 0;
+            Item ss = navigator.getItem(target);
+            if (ss == null) return (byte)0;
+            ss = ss.getItemAs(Relation.SYLLABLE);
+            if (ss == null) return (byte)0;
+            Item lastSyllable = lastSyllableNavigator.getItem(target);
+
+            for (Item p = ss; p != null; p = p.getNext()) {
+                count++;
+                if (p.equalsShared(lastSyllable)) {
+                    break;
+                }
+            }
+            return (byte)rail(count);
+        }
+    }
+    
+    /**
+     * Counts the number of stressed syllables since the start of the phrase. This
+     * is a feature processor. A feature processor takes an item, performs some
+     * sort of processing on the item and returns an object.
+     */
+    public static class StressedSylsFromPhraseStart implements ByteValuedFeatureProcessor
+    {
+        TargetItemNavigator navigator;
+        TargetItemNavigator firstSyllableNavigator;
+        public StressedSylsFromPhraseStart() {
+            this.navigator = new SyllableNavigator();
+            this.firstSyllableNavigator = new FirstSyllableNavigator();
+        }
+
+        public String getName() { return "mary_stressed_syls_from_phrase_start"; }
         public String[] getValues() {
             return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
                     "8", "9", "10", "11", "12", "13", "14", "15", "16",
@@ -859,110 +1647,20 @@ public class MaryGenericFeatureProcessors
     }
 
     /**
-     * Counts the number of syllables since the last major break. This
+     * Counts the number of stressed syllables until the end of the phrase. This
      * is a feature processor. A feature processor takes an item, performs some
      * sort of processing on the item and returns an object.
      */
-    public static class SylIn implements ByteValuedFeatureProcessor
-    {
-        TargetItemNavigator navigator;
-        TargetItemNavigator firstSyllableNavigator;
-        public SylIn() {
-            this.navigator = new SyllableNavigator();
-            this.firstSyllableNavigator = new FirstSyllableNavigator();
-        }
-
-        public String getName() { return "mary_syl_in"; }
-        public String[] getValues() {
-            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
-                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
-                    "17", "18", "19"};
-        }
-
-        /**
-         * Performs some processing on the given item.
-         * @param target the target to process
-         * @return the number of accented syllables since the last major break
-         */
-        public byte process(Target target)
-        {
-            int count = 0;
-            Item ss = navigator.getItem(target);
-            if (ss == null) return (byte)0;
-            ss = ss.getItemAs(Relation.SYLLABLE);
-            if (ss == null) return (byte)0;
-            Item firstSyllable = firstSyllableNavigator.getItem(target);
-
-            for (Item p = ss; p != null; p = p.getPrevious()) {
-                count++;
-                if (p.equalsShared(firstSyllable)) {
-                    break;
-                }
-            }
-            return (byte)rail(count);
-        }
-    }
-    
-    /**
-     * Counts the number of syllables until the next major break. This
-     * is a feature processor. A feature processor takes an item, performs some
-     * sort of processing on the item and returns an object.
-     */
-    public static class SylOut implements ByteValuedFeatureProcessor
+    public static class StressedSylsFromPhraseEnd implements ByteValuedFeatureProcessor
     {
         TargetItemNavigator navigator;
         TargetItemNavigator lastSyllableNavigator;
-        public SylOut() {
+        public StressedSylsFromPhraseEnd() {
             this.navigator = new SyllableNavigator();
             this.lastSyllableNavigator = new LastSyllableNavigator();
         }
 
-        public String getName() { return "mary_syl_out"; }
-        public String[] getValues() {
-            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
-                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
-                    "17", "18", "19"};
-        }
-
-        /**
-         * Performs some processing on the given item.
-         * @param target the target to process
-         * @return the number of accented syllables since the last major break
-         */
-        public byte process(Target target)
-        {
-            int count = 0;
-            Item ss = navigator.getItem(target);
-            if (ss == null) return (byte)0;
-            ss = ss.getItemAs(Relation.SYLLABLE);
-            if (ss == null) return (byte)0;
-            Item lastSyllable = lastSyllableNavigator.getItem(target);
-
-            for (Item p = ss; p != null; p = p.getNext()) {
-                count++;
-                if (p.equalsShared(lastSyllable)) {
-                    break;
-                }
-            }
-            return (byte)rail(count);
-        }
-    }
-    
-    /**
-     * Counts the number of stressed syllables until the next major break. This
-     * is a feature processor. A feature processor takes an item, performs some
-     * sort of processing on the item and returns an object.
-     */
-    public static class StressedSylOut implements ByteValuedFeatureProcessor
-    {
-        TargetItemNavigator navigator;
-        TargetItemNavigator lastSyllableNavigator;
-        public StressedSylOut() {
-            this.navigator = new SyllableNavigator();
-            this.lastSyllableNavigator = new LastSyllableNavigator();
-        }
-
-        public String getName() { return "mary_ssyl_out"; }
+        public String getName() { return "mary_stressed_syls_from_phrase_end"; }
         public String[] getValues() {
             return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
                     "8", "9", "10", "11", "12", "13", "14", "15", "16",
@@ -996,20 +1694,68 @@ public class MaryGenericFeatureProcessors
     }
     
     /**
-     * Counts the number of stressed syllables until the next major break. This
+     * Counts the number of accented syllables since the start of the phrase. This
      * is a feature processor. A feature processor takes an item, performs some
      * sort of processing on the item and returns an object.
      */
-    public static class AccentedSylOut implements ByteValuedFeatureProcessor
+    public static class AccentedSylsFromPhraseStart implements ByteValuedFeatureProcessor
+    {
+        TargetItemNavigator navigator;
+        TargetItemNavigator firstSyllableNavigator;
+        public AccentedSylsFromPhraseStart() {
+            this.navigator = new SyllableNavigator();
+            this.firstSyllableNavigator = new FirstSyllableNavigator();
+        }
+
+        public String getName() { return "mary_accented_syls_from_phrase_start"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return the number of accented syllables since the last major break
+         */
+        public byte process(Target target)
+        {
+            int count = 0;
+            Item ss = navigator.getItem(target);
+            if (ss == null) return (byte)0;
+            ss = ss.getItemAs(Relation.SYLLABLE);
+            if (ss == null) return (byte)0;
+            Item firstSyllable = firstSyllableNavigator.getItem(target);
+
+            for (Item p = ss; p != null; p = p.getPrevious()) {
+                if (p.getFeatures().isPresent("accent")) {
+                    count++;
+                }
+                if (p.equalsShared(firstSyllable)) {
+                    break;
+                }
+            }
+            return (byte)rail(count);
+        }
+    }
+
+    
+    /**
+     * Counts the number of stressed syllables until the end of the phrase. This
+     * is a feature processor. A feature processor takes an item, performs some
+     * sort of processing on the item and returns an object.
+     */
+    public static class AccentedSylsFromPhraseEnd implements ByteValuedFeatureProcessor
     {
         TargetItemNavigator navigator;
         TargetItemNavigator lastSyllableNavigator;
-        public AccentedSylOut() {
+        public AccentedSylsFromPhraseEnd() {
             this.navigator = new SyllableNavigator();
             this.lastSyllableNavigator = new LastSyllableNavigator();
         }
 
-        public String getName() { return "mary_asyl_out"; }
+        public String getName() { return "mary_accented_syls_from_phrase_end"; }
         public String[] getValues() {
             return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
                     "8", "9", "10", "11", "12", "13", "14", "15", "16",
@@ -1043,20 +1789,300 @@ public class MaryGenericFeatureProcessors
     }
   
     
-    
     /**
-     * Counts the number of syllables since the last accent. This
+     * Counts the number of words since the start of the phrase. This
      * is a feature processor. A feature processor takes an item, performs some
      * sort of processing on the item and returns an object.
      */
-    public static class LastAccent implements ByteValuedFeatureProcessor
+    public static class WordsFromPhraseStart implements ByteValuedFeatureProcessor
     {
         TargetItemNavigator navigator;
-        public LastAccent() {
-            this.navigator = new SyllableNavigator();
+        TargetItemNavigator firstWordNavigator;
+        public WordsFromPhraseStart() {
+            this.navigator = new WordNavigator();
+            this.firstWordNavigator = new FirstWordNavigator();
         }
 
-        public String getName() { return "mary_last_accent"; }
+        public String getName() { return "mary_words_from_phrase_start"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return the number of accented syllables since the last major break
+         */
+        public byte process(Target target)
+        {
+            int count = 0;
+            Item w = navigator.getItem(target);
+            if (w == null) return (byte)0;
+            w = w.getItemAs(Relation.WORD);
+            if (w == null) return (byte)0;
+            Item first = firstWordNavigator.getItem(target);
+
+            for (Item p = w; p != null; p = p.getPrevious()) {
+                count++;
+                if (p.equalsShared(first)) {
+                    break;
+                }
+            }
+            return (byte)rail(count);
+        }
+    }
+    
+    /**
+     * Counts the number of words until the end of the phrase. This
+     * is a feature processor. A feature processor takes an item, performs some
+     * sort of processing on the item and returns an object.
+     */
+    public static class WordsFromPhraseEnd implements ByteValuedFeatureProcessor
+    {
+        TargetItemNavigator navigator;
+        TargetItemNavigator lastWordNavigator;
+        public WordsFromPhraseEnd() {
+            this.navigator = new WordNavigator();
+            this.lastWordNavigator = new LastWordNavigator();
+        }
+
+        public String getName() { return "mary_words_from_phrase_end"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return the number of accented syllables since the last major break
+         */
+        public byte process(Target target)
+        {
+            int count = 0;
+            Item w = navigator.getItem(target);
+            if (w == null) return (byte)0;
+            w = w.getItemAs(Relation.WORD);
+            if (w == null) return (byte)0;
+            Item last = lastWordNavigator.getItem(target);
+
+            for (Item p = w; p != null; p = p.getNext()) {
+                count++;
+                if (p.equalsShared(last)) {
+                    break;
+                }
+            }
+            return (byte)rail(count);
+        }
+    }
+
+    /**
+     * Counts the number of words since the start of the sentence. This
+     * is a feature processor. A feature processor takes an item, performs some
+     * sort of processing on the item and returns an object.
+     */
+    public static class WordsFromSentenceStart implements ByteValuedFeatureProcessor
+    {
+        TargetItemNavigator navigator;
+        TargetItemNavigator firstPhraseNavigator;
+        public WordsFromSentenceStart() {
+            this.navigator = new WordNavigator();
+            this.firstPhraseNavigator = new FirstPhraseNavigator();
+        }
+
+        public String getName() { return "mary_words_from_sentence_start"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return the number of accented syllables since the last major break
+         */
+        public byte process(Target target)
+        {
+            int count = 0;
+            Item w = navigator.getItem(target);
+            if (w == null) return (byte)0;
+            w = w.getItemAs(Relation.WORD);
+            if (w == null) return (byte)0;
+            Item firstPhrase = firstPhraseNavigator.getItem(target);
+            if (firstPhrase == null) return (byte)0;
+            firstPhrase = firstPhrase.getItemAs(Relation.PHRASE);
+            if (firstPhrase == null) return (byte)0;
+            Item firstWord = firstPhrase.getDaughter();
+            for (Item p = w; p != null; p = p.getPrevious()) {
+                count++;
+                if (p.equalsShared(firstWord)) {
+                    break;
+                }
+            }
+            return (byte)rail(count);
+        }
+    }
+    
+    /**
+     * Counts the number of words until the end of the sentence. This
+     * is a feature processor. A feature processor takes an item, performs some
+     * sort of processing on the item and returns an object.
+     */
+    public static class WordsFromSentenceEnd implements ByteValuedFeatureProcessor
+    {
+        TargetItemNavigator navigator;
+        TargetItemNavigator lastPhraseNavigator;
+        public WordsFromSentenceEnd() {
+            this.navigator = new WordNavigator();
+            this.lastPhraseNavigator = new LastPhraseNavigator();
+        }
+
+        public String getName() { return "mary_words_from_sentence_end"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return the number of accented syllables since the last major break
+         */
+        public byte process(Target target)
+        {
+            int count = 0;
+            Item w = navigator.getItem(target);
+            if (w == null) return (byte)0;
+            w = w.getItemAs(Relation.WORD);
+            if (w == null) return (byte)0;
+            Item lastPhrase = lastPhraseNavigator.getItem(target);
+            lastPhrase = lastPhrase.getItemAs(Relation.PHRASE);
+            if (lastPhrase == null) return (byte)0;
+            Item lastWord = lastPhrase.getDaughter();
+            for (Item p = w; p != null; p = p.getNext()) {
+                count++;
+                if (p.equalsShared(lastWord)) {
+                    break;
+                }
+            }
+            return (byte)rail(count);
+        }
+    }
+
+    /**
+     * Counts the number of phrases since the start of the sentence. This
+     * is a feature processor. A feature processor takes an item, performs some
+     * sort of processing on the item and returns an object.
+     */
+    public static class PhrasesFromSentenceStart implements ByteValuedFeatureProcessor
+    {
+        TargetItemNavigator navigator;
+        TargetItemNavigator firstPhraseNavigator;
+        public PhrasesFromSentenceStart() {
+            this.navigator = new PhraseNavigator();
+            this.firstPhraseNavigator = new FirstPhraseNavigator();
+        }
+
+        public String getName() { return "mary_phrases_from_sentence_start"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return the number of accented syllables since the last major break
+         */
+        public byte process(Target target)
+        {
+            int count = 0;
+            Item phrase = navigator.getItem(target);
+            if (phrase == null) return (byte)0;
+            phrase = phrase.getItemAs(Relation.PHRASE);
+            if (phrase == null) return (byte)0;
+            Item firstPhrase = firstPhraseNavigator.getItem(target);
+            if (firstPhrase == null) return (byte)0;
+            firstPhrase = firstPhrase.getItemAs(Relation.PHRASE);
+            if (firstPhrase == null) return (byte)0;
+            for (Item p = phrase; p != null; p = p.getPrevious()) {
+                count++;
+                if (p.equalsShared(firstPhrase)) {
+                    break;
+                }
+            }
+            return (byte)rail(count);
+        }
+    }
+    
+    /**
+     * Counts the number of phrases until the end of the sentence. This
+     * is a feature processor. A feature processor takes an item, performs some
+     * sort of processing on the item and returns an object.
+     */
+    public static class PhrasesFromSentenceEnd implements ByteValuedFeatureProcessor
+    {
+        TargetItemNavigator navigator;
+        TargetItemNavigator lastPhraseNavigator;
+        public PhrasesFromSentenceEnd() {
+            this.navigator = new PhraseNavigator();
+            this.lastPhraseNavigator = new LastPhraseNavigator();
+        }
+
+        public String getName() { return "mary_phrases_from_sentence_end"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return the number of accented syllables since the last major break
+         */
+        public byte process(Target target)
+        {
+            int count = 0;
+            Item phrase = navigator.getItem(target);
+            if (phrase == null) return (byte)0;
+            phrase = phrase.getItemAs(Relation.PHRASE);
+            if (phrase == null) return (byte)0;
+            Item lastPhrase = lastPhraseNavigator.getItem(target);
+            lastPhrase = lastPhrase.getItemAs(Relation.PHRASE);
+            if (lastPhrase == null) return (byte)0;
+            for (Item p = phrase; p != null; p = p.getNext()) {
+                count++;
+                if (p.equalsShared(lastPhrase)) {
+                    break;
+                }
+            }
+            return (byte)rail(count);
+        }
+    }
+
+    
+    /**
+     * Counts the number of syllables since the last accent in the current phrase. This
+     * is a feature processor. A feature processor takes an item, performs some
+     * sort of processing on the item and returns an object.
+     */
+    public static class SylsFromPrevAccent implements ByteValuedFeatureProcessor
+    {
+        TargetItemNavigator navigator;
+        TargetItemNavigator firstSyllableNavigator;
+        public SylsFromPrevAccent() {
+            this.navigator = new SyllableNavigator();
+            this.firstSyllableNavigator = new FirstSyllableNavigator();
+        }
+
+        public String getName() { return "mary_syls_from_prev_accent"; }
         public String[] getValues() {
             return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
                     "8", "9", "10", "11", "12", "13", "14", "15", "16",
@@ -1075,29 +2101,31 @@ public class MaryGenericFeatureProcessors
             if (ss == null) return (byte)0;
             ss = ss.getItemAs(Relation.SYLLABLE);
             if (ss == null) return (byte)0;
-
+            Item first = firstSyllableNavigator.getItem(target);
             for (Item p = ss; p != null; p = p.getPrevious(), count++) {
                 if (p.getFeatures().isPresent("accent")) {
                     break;
                 }
+                if (p.equalsShared(first)) return (byte)0;
             }
             return (byte)rail(count);
         }
     }
   
     /**
-     * Counts the number of syllables until the next accent. This
+     * Counts the number of syllables until the next accent in the current phrase. This
      * is a feature processor. A feature processor takes an item, performs some
      * sort of processing on the item and returns an object.
      */
-    public static class NextAccent implements ByteValuedFeatureProcessor
+    public static class SylsToNextAccent implements ByteValuedFeatureProcessor
     {
         TargetItemNavigator navigator;
-        public NextAccent() {
+        TargetItemNavigator lastSyllableNavigator;
+        public SylsToNextAccent() {
             this.navigator = new SyllableNavigator();
+            this.lastSyllableNavigator = new LastSyllableNavigator();
         }
-
-        public String getName() { return "mary_next_accent"; }
+        public String getName() { return "mary_syls_to_next_accent"; }
         public String[] getValues() {
             return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
                     "8", "9", "10", "11", "12", "13", "14", "15", "16",
@@ -1116,11 +2144,100 @@ public class MaryGenericFeatureProcessors
             if (ss == null) return (byte)0;
             ss = ss.getItemAs(Relation.SYLLABLE);
             if (ss == null) return (byte)0;
-
+            Item last = lastSyllableNavigator.getItem(target);
             for (Item p = ss; p != null; p = p.getNext(), count++) {
                 if (p.getFeatures().isPresent("accent")) {
                     break;
                 }
+                if (p.equalsShared(last)) return (byte)0;
+            }
+            return (byte)rail(count);
+        }
+    }
+
+    /**
+     * Counts the number of syllables since the last stressed syllable in the current phrase. This
+     * is a feature processor. A feature processor takes an item, performs some
+     * sort of processing on the item and returns an object.
+     */
+    public static class SylsFromPrevStressed implements ByteValuedFeatureProcessor
+    {
+        TargetItemNavigator navigator;
+        TargetItemNavigator firstSyllableNavigator;
+        public SylsFromPrevStressed() {
+            this.navigator = new SyllableNavigator();
+            this.firstSyllableNavigator = new FirstSyllableNavigator();
+        }
+
+        public String getName() { return "mary_syls_from_prev_stressed"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return the number of syllables since the last accent
+         */
+        public byte process(Target target)
+        {
+            int count = 0;
+            Item ss = navigator.getItem(target);
+            if (ss == null) return (byte)0;
+            ss = ss.getItemAs(Relation.SYLLABLE);
+            if (ss == null) return (byte)0;
+            Item first = firstSyllableNavigator.getItem(target);
+            for (Item p = ss; p != null; p = p.getPrevious(), count++) {
+                if ("1".equals(p.getFeatures().getString("stress"))) {
+                    break;
+                }
+                if (p.equalsShared(first)) return (byte)0;
+            }
+            return (byte)rail(count);
+        }
+    }
+  
+    /**
+     * Counts the number of syllables until the next stressedSyllable in the current phrase. This
+     * is a feature processor. A feature processor takes an item, performs some
+     * sort of processing on the item and returns an object.
+     */
+    public static class SylsToNextStressed implements ByteValuedFeatureProcessor
+    {
+        TargetItemNavigator navigator;
+        TargetItemNavigator lastSyllableNavigator;
+        public SylsToNextStressed() {
+            this.navigator = new SyllableNavigator();
+            this.lastSyllableNavigator = new LastSyllableNavigator();
+        }
+
+        public String getName() { return "mary_syls_to_next_stressed"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return the number of syllables until the next accent
+         */
+        public byte process(Target target)
+        {
+            int count = 0;
+            Item ss = navigator.getItem(target);
+            if (ss == null) return (byte)0;
+            ss = ss.getItemAs(Relation.SYLLABLE);
+            if (ss == null) return (byte)0;
+            Item last = lastSyllableNavigator.getItem(target);
+            for (Item p = ss; p != null; p = p.getNext(), count++) {
+                if ("1".equals(p.getFeatures().getString("stress"))) {
+                    break;
+                }
+                if (p.equalsShared(last)) return (byte)0;
             }
             return (byte)rail(count);
         }
@@ -1171,56 +2288,105 @@ public class MaryGenericFeatureProcessors
         }
     }
 
-    
-    
-    ////////////////////////////////////////////////////////
-    // TODO: Remove or convert old feature processors below.
-    ////////////////////////////////////////////////////////
-    
-
-
-
-
-
     /**
-     * Counts the number of phrases before this one. This is a feature
-     * processor. A feature processor takes an item, performs some sort of
-     * processing on the item and returns an object.
+     * Determines the next word punctuation in the sentence. This is a feature processor. A feature
+     * processor takes an item, performs some sort of processing on the item and
+     * returns an object.
      */
-    public static class SubPhrases implements ByteValuedFeatureProcessor
+    public static class NextPunctuation extends WordPunc
     {
-        public String getName() { return "sub_phrases"; }
-        public String[] getValues() { return null; }
-
+        public NextPunctuation()
+        {
+            super("mary_next_punctuation", new WordNavigator());
+        }
         public byte process(Target target)
         {
-            return 0;
+            Item word = navigator.getItem(target);
+            if (word == null) return (byte)0;
+            word = word.getItemAs(Relation.WORD);
+            for (; word != null; word = word.getNext()) {
+                Item tokenWord = word.getItemAs(Relation.TOKEN);
+                if (tokenWord == null) return values.get("0");
+                Item token = tokenWord.getParent();
+                if (token == null) return values.get("0");
+                String punc = token.getFeatures().getString("punc");
+                if (punc != null && !punc.equals("")) {
+                    if (values.contains(punc)) return values.get(punc);
+                    // unknown punctuation: return "0"
+                    return values.get("0");
+                }
+            }
+            // no next punctuation: return "0"
+            return values.get("0");
+        }
+    }
+
+    /**
+     * Determines the previous word punctuation in the sentence. This is a feature processor. A feature
+     * processor takes an item, performs some sort of processing on the item and
+     * returns an object.
+     */
+    public static class PrevPunctuation extends WordPunc
+    {
+        public PrevPunctuation()
+        {
+            super("mary_prev_punctuation", new WordNavigator());
+        }
+        public byte process(Target target)
+        {
+            Item word = navigator.getItem(target);
+            if (word == null) return (byte)0;
+            word = word.getItemAs(Relation.WORD);
+            for (; word != null; word = word.getPrevious()) {
+                Item tokenWord = word.getItemAs(Relation.TOKEN);
+                if (tokenWord == null) return values.get("0");
+                Item token = tokenWord.getParent();
+                if (token == null) return values.get("0");
+                String punc = token.getFeatures().getString("punc");
+                if (punc != null && !punc.equals("")) {
+                    if (values.contains(punc)) return values.get(punc);
+                    // unknown punctuation: return "0"
+                    return values.get("0");
+                }
+            }
+            // no next punctuation: return "0"
+            return values.get("0");
+        }
+    }
+    
+    
+    public static class WordFrequency implements ByteValuedFeatureProcessor
+    {
+        protected TargetItemNavigator navigator;
+        
+        public WordFrequency()
+        {
+            this.navigator = new WordNavigator();
+        }
+        
+        public String getName() { return "mary_word_frequency"; }
+        public String[] getValues() {
+            return new String[] {"unknown", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9"};
         }
 
         /**
          * Performs some processing on the given item.
-         * 
-         * @param item
-         *            the item to process
-         * 
-         * @return the number of phrases before this one
-         * 
-         * @throws ProcessException
-         *             if an exception occurred during the processing
+         * @param target the target to process
+         * @return the frequency of the current word, on a ten-point scale
+         * from unknown to 9=very frequent.
          */
-        public String process(Item item) throws ProcessException
+        public byte process(Target target)
         {
-/*            int count = 0;
-            Item inPhrase = (Item) SUB_PHRASE_PATH.findTarget(item);
-            // Item inPhrase = new PhraseNavigator().getItem(target).getPrevious();
-
-            for (Item p = inPhrase; p != null; p = p.getPrevious()) {
-                count++;
-            }
-            return Integer.toString(rail(count));
-*/          return null;
+            Item word = navigator.getItem(target);
+            return (byte)0;
         }
+
     }
+    
+    ////////////////////////////////////////////////////////
+    // TODO: Remove or convert old feature processors below.
+    ////////////////////////////////////////////////////////
 
     /**
      * Returns the duration of the given segment This is a feature processor. A
@@ -1261,31 +2427,6 @@ public class MaryGenericFeatureProcessors
         }
     }
 
-    /**
-     * Checks if segment is sylfinal This is a feature processor. A feature
-     * processor takes an item, performs some sort of processing on the item and
-     * returns an object.
-     */
-    public static class SylFinal implements ByteValuedFeatureProcessor
-    {
-        public String getName() { return "syl_final"; }
-        public String[] getValues() { return null; }
-
-        public byte process(Target target)
-        {
-            return 0;
-        }
-
-        public String process(Item seg) throws ProcessException
-        {
-            Item sylItem = seg.getItemAs(Relation.SYLLABLE_STRUCTURE);
-            if (sylItem == null || sylItem.getNext() != null) {
-                return "0";
-            } else {
-                return "1";
-            }
-        }
-    }
 
 
     /**
