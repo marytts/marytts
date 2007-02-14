@@ -44,7 +44,10 @@ import com.sun.speech.freetts.en.us.USEnglish;
 import de.dfki.lt.mary.modules.synthesis.FreeTTSVoices;
 import de.dfki.lt.mary.unitselection.HalfPhoneTarget;
 import de.dfki.lt.mary.unitselection.Target;
+import de.dfki.lt.mary.unitselection.featureprocessors.MaryGenericFeatureProcessors.TargetItemNavigator;
+import de.dfki.lt.mary.unitselection.featureprocessors.MaryGenericFeatureProcessors.WordNavigator;
 import de.dfki.lt.mary.util.ByteStringTranslator;
+import de.dfki.lt.util.FSTLookup;
 
 
 
@@ -838,6 +841,54 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
     	}
     }
 
+    public static class WordFrequency implements ByteValuedFeatureProcessor
+    {
+        protected TargetItemNavigator navigator;
+        protected ByteStringTranslator values;
+        protected FSTLookup wordFrequencies;
+        
+        public WordFrequency(String fstFilename, String encoding)
+        {
+            this.navigator = new WordNavigator();
+            try {
+                if (fstFilename != null) 
+                    this.wordFrequencies = new FSTLookup(fstFilename, encoding);
+                else
+                    this.wordFrequencies = null;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            this.values = new ByteStringTranslator(new String[]
+                 {"unknown", "1", "2", "3", "4", "5", "6", "7","8", "9"}
+            );
+        }
+        
+        public String getName() { return "mary_word_frequency"; }
+        public String[] getValues() {
+            return values.getStringValues();
+        }
 
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return the frequency of the current word, on a ten-point scale
+         * from unknown to 9=very frequent.
+         */
+        public byte process(Target target)
+        {
+            Item word = navigator.getItem(target);
+            if (word == null) return (byte)0;
+            if (wordFrequencies != null) {
+                String[] result = wordFrequencies.lookup(word.toString());
+                if (result.length > 0) {
+                    String freq = result[0];
+                    if (values.contains(freq))
+                        return values.get(freq);
+                }
+                
+            }
+            return (byte)0; // unknown word
+        }
+    }
 
 }

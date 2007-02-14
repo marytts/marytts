@@ -41,6 +41,7 @@ import com.sun.speech.freetts.Relation;
 import de.dfki.lt.mary.unitselection.HalfPhoneTarget;
 import de.dfki.lt.mary.unitselection.Target;
 import de.dfki.lt.mary.util.ByteStringTranslator;
+import de.dfki.lt.util.FSTLookup;
 
 /**
  * A collection of feature processors that operate on Target objects.
@@ -2355,34 +2356,6 @@ public class MaryGenericFeatureProcessors
     }
     
     
-    public static class WordFrequency implements ByteValuedFeatureProcessor
-    {
-        protected TargetItemNavigator navigator;
-        
-        public WordFrequency()
-        {
-            this.navigator = new WordNavigator();
-        }
-        
-        public String getName() { return "mary_word_frequency"; }
-        public String[] getValues() {
-            return new String[] {"unknown", "1", "2", "3", "4", "5", "6", "7",
-                    "8", "9"};
-        }
-
-        /**
-         * Performs some processing on the given item.
-         * @param target the target to process
-         * @return the frequency of the current word, on a ten-point scale
-         * from unknown to 9=very frequent.
-         */
-        public byte process(Target target)
-        {
-            Item word = navigator.getItem(target);
-            return (byte)0;
-        }
-
-    }
     
     ////////////////////////////////////////////////////////
     // TODO: Remove or convert old feature processors below.

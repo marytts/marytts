@@ -124,6 +124,10 @@ public class FeatureProcessorManager extends
             addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature(phoneSet,
                     "mary_next_vrnd", "vrnd", vrndValues, nextSegment));
 
+            String wordFrequencyFilename = MaryProperties.getFilename("english.wordFrequency.fst");
+            String wordFrequencyEncoding = MaryProperties.getProperty("english.wordFrequency.encoding");
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.WordFrequency(wordFrequencyFilename, wordFrequencyEncoding));
+
 /*
         processors_en.put("seg_coda_fric", 
                 new LanguageFeatureProcessors.SegCodaFric(phoneSet));

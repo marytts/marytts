@@ -13,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.Locale;
 import java.io.FileWriter;
 import java.util.StringTokenizer;
 
@@ -41,6 +42,7 @@ import de.dfki.lt.mary.util.MaryUtils;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
 import de.dfki.lt.signalproc.util.DDSAudioInputStream;
+import de.dfki.lt.signalproc.util.ESTTextfileDoubleDataSource;
 import de.dfki.lt.util.PrintfFormat;
 
 /**
@@ -53,8 +55,10 @@ public class LabelledFilesInspector implements VoiceImportComponent
 {
     protected File wavDir;
     protected File phoneLabDir;
+    protected File pmDir;
     protected File extractedWavDir;
     protected File extractedLabDir;
+    protected File extractedPmDir;
 
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
@@ -65,6 +69,7 @@ public class LabelledFilesInspector implements VoiceImportComponent
     
     protected double[] audioSignal;
     protected AudioFormat audioFormat;
+    protected double[] pitchmarks;
     protected int samplingRate;
     protected double tStart;
     protected double tEnd;
@@ -83,6 +88,7 @@ public class LabelledFilesInspector implements VoiceImportComponent
         wavDir = new File( db.wavDirName() );
         if (!wavDir.exists()) throw new IOException("No such directory: "+ wavDir);
         phoneLabDir = new File( db.labDirName() );
+        pmDir = new File(db.correctedPitchmarksDirName());
         
         File extractedDir = new File(db.rootDirName()+"/extracted");
         if (!extractedDir.exists()) extractedDir.mkdir();
@@ -90,6 +96,8 @@ public class LabelledFilesInspector implements VoiceImportComponent
         if (!extractedWavDir.exists()) extractedWavDir.mkdir();
         extractedLabDir = new File(db.rootDirName()+"/extracted/lab");
         if (!extractedLabDir.exists()) extractedLabDir.mkdir();
+        extractedPmDir = new File(db.rootDirName()+"/extracted/pm");
+        if (!extractedPmDir.exists()) extractedPmDir.mkdir();
         
         System.out.println( "Proposing for inspection " + bnl.getLength() + " files" );
         
@@ -179,6 +187,15 @@ public class LabelledFilesInspector implements VoiceImportComponent
             if (!wavFile.exists()) throw new IllegalArgumentException("File "+wavFile.getAbsolutePath()+" does not exist");
             File labFile = new File(phoneLabDir, basename+db.labExt());
             if (!labFile.exists()) throw new IllegalArgumentException("File "+labFile.getAbsolutePath()+" does not exist");
+            // pm file is optional
+            File pmFile = new File(pmDir, basename+db.correctedPitchmarksExt());
+            if (pmFile.exists()) {
+                System.out.println("Loading pitchmarks file "+pmFile.getAbsolutePath());
+                pitchmarks = new ESTTextfileDoubleDataSource(pmFile).getAllData();
+            } else {
+                System.out.println("Pitchmarks file "+pmFile.getAbsolutePath()+" does not exist");
+                pitchmarks = null;
+            }
             
             AudioInputStream ais = AudioSystem.getAudioInputStream(wavFile);
             audioFormat = ais.getFormat();
@@ -223,8 +240,10 @@ public class LabelledFilesInspector implements VoiceImportComponent
         File saveLab = new File(extractedLabDir, saveFilename.getText()+db.labExt());
         AudioInputStream selectedAudio = getSelectedAudio();
         try {
+            // Write audio extract:
             AudioSystem.write(selectedAudio, AudioFileFormat.Type.WAVE, saveWav);
             System.out.println("Wrote audio to "+saveWav.getAbsolutePath());
+            // Write label file extract:
             Object[] selection = labels.getSelectedValues();
             PrintWriter toLab = new PrintWriter(new FileWriter(saveLab));
             toLab.println("separator ;");
@@ -234,7 +253,7 @@ public class LabelledFilesInspector implements VoiceImportComponent
                 String[] parts = ((String)selection[i]).trim().split("\\s+");
                 double time = Double.parseDouble(parts[0]);
                 double newTime = time - tStart;
-                parts[0] = new PrintfFormat("%.5f").sprintf(newTime);
+                parts[0] = new PrintfFormat(Locale.ENGLISH, "%.5f").sprintf(newTime);
                 for (int j=0; j<parts.length; j++) {
                     if (j>0) toLab.print("    ");
                     toLab.print(parts[j]);
@@ -243,7 +262,26 @@ public class LabelledFilesInspector implements VoiceImportComponent
             }
             toLab.close();
             System.out.println("Wrote labels to "+saveLab.getAbsolutePath());
-            
+            // Optionally, write pitchmark extract:
+            if (pitchmarks != null) {
+                int firstpm = -1;
+                int lastPlus1pm = -1;
+                for (int i=0; i<pitchmarks.length; i++) {
+                    if (firstpm == -1) {
+                        if (pitchmarks[i] > tStart) firstpm = i;
+                    } else if (lastPlus1pm == -1) {
+                        if (pitchmarks[i] > tEnd) lastPlus1pm = i;
+                    }
+                }
+                if (lastPlus1pm == -1) lastPlus1pm = pitchmarks.length;
+                float[] pmExtract = new float[lastPlus1pm-firstpm];
+                for (int i=0; i<pmExtract.length; i++) {
+                    pmExtract[i] = (float) (pitchmarks[firstpm+i]-tStart);
+                }
+                String extractedPmFile = extractedPmDir.getAbsolutePath()+"/"+saveFilename.getText()+db.pitchmarksExt();
+                new ESTTrackWriter(pmExtract, null, "pitchmarks").doWriteAndClose(extractedPmFile, false, false);
+                System.out.println("Wrote pitchmarks to "+extractedPmFile);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
