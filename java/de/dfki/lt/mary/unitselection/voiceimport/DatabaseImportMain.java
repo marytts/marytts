@@ -315,7 +315,7 @@ public class DatabaseImportMain extends JFrame
                 new LabelledFilesInspector(db, bnl),
                 new UnitLabelComputer( db, bnl ),
                 new HalfPhoneUnitLabelComputer( db, bnl ),
-                new BITSHalfPhoneUnitLabelComputer ( db, bnl ),
+                //new BITSHalfPhoneUnitLabelComputer ( db, bnl ),
                 new UnitFeatureComputer( db, bnl ),                
                 
                 new LabelFeatureAligner( db, bnl ),

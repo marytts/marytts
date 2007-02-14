@@ -33,8 +33,6 @@ import java.util.Map;
 
 public class FeatureProcessorManager 
 {
-    // TODO: use this to replace UnitSelectionFeatProcManager et al.
-    
     protected Map processors;
     
     public FeatureProcessorManager()
@@ -104,7 +102,6 @@ public class FeatureProcessorManager
         addFeatureProcessor(new MaryGenericFeatureProcessors.PrevPhraseEndtone());
         addFeatureProcessor(new MaryGenericFeatureProcessors.PrevPunctuation());
         addFeatureProcessor(new MaryGenericFeatureProcessors.NextPunctuation());
-        addFeatureProcessor(new MaryGenericFeatureProcessors.WordFrequency());
     }
     
     protected void addFeatureProcessor(MaryFeatureProcessor fp)
