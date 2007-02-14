@@ -859,7 +859,7 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
                 throw new RuntimeException(e);
             }
             this.values = new ByteStringTranslator(new String[]
-                 {"unknown", "1", "2", "3", "4", "5", "6", "7","8", "9"}
+                 {"0", "1", "2", "3", "4", "5", "6", "7","8", "9"}
             );
         }
         
@@ -872,7 +872,7 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
          * Performs some processing on the given item.
          * @param target the target to process
          * @return the frequency of the current word, on a ten-point scale
-         * from unknown to 9=very frequent.
+         * from 0=unknown=very rare to 9=very frequent.
          */
         public byte process(Target target)
         {
