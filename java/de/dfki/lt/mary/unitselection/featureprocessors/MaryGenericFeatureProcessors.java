@@ -763,8 +763,10 @@ public class MaryGenericFeatureProcessors
     public static class PhraseNumSyls implements ByteValuedFeatureProcessor
     {
         TargetItemNavigator navigator;
+        TargetItemNavigator lastSyllableNavigator;
         public PhraseNumSyls() {
             this.navigator = new FirstSyllableNavigator();
+            this.lastSyllableNavigator = new LastSyllableNavigator();
         }
         public String getName() { return "mary_phrase_numsyls"; }
         public String[] getValues() {
@@ -787,11 +789,12 @@ public class MaryGenericFeatureProcessors
             if (syllable == null) return (byte)0;
             syllable = syllable.getItemAs(Relation.SYLLABLE);
             if (syllable == null) return (byte)0;
+            Item last = lastSyllableNavigator.getItem(target);
             int count = 1;
-            Item next = syllable.getNext();
-            while (next != null) {
+            
+            for (Item next = syllable.getNext(); next != null; next = next.getNext()) {
+                if (next.equalsShared(last)) break;
                 count++;
-                next = next.getNext();
             }
             return (byte) rail(count);
         }
@@ -827,7 +830,7 @@ public class MaryGenericFeatureProcessors
         {
             Item word = navigator.getItem(target);
             if (word == null) return (byte)0;
-            word = word.getItemAs(Relation.WORD);
+            word = word.getItemAs(Relation.PHRASE);
             if (word == null) return (byte)0;
             int count = 1;
             Item next = word.getNext();
@@ -1003,7 +1006,10 @@ public class MaryGenericFeatureProcessors
         {
             int count = 0;
             Item segment = navigator.getItem(target);
-            for (Item p = segment.getItemAs(Relation.SYLLABLE_STRUCTURE); p != null; p = p.getPrevious()) {
+            if (segment == null) return (byte)0;
+            segment = segment.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (segment == null) return (byte)0;
+            for (Item p = segment.getPrevious(); p != null; p = p.getPrevious()) {
                 count++;
             }
             return (byte)rail(count);
@@ -1036,7 +1042,10 @@ public class MaryGenericFeatureProcessors
         {
             int count = 0;
             Item segment = navigator.getItem(target);
-            for (Item p = segment.getItemAs(Relation.SYLLABLE_STRUCTURE); p != null; p = p.getPrevious()) {
+            if (segment == null) return (byte)0;
+            segment = segment.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (segment == null) return (byte)0;
+            for (Item p = segment.getNext(); p != null; p = p.getNext()) {
                 count++;
             }
             return (byte)rail(count);
@@ -1071,9 +1080,10 @@ public class MaryGenericFeatureProcessors
             int count = 0;
             Item segment = navigator.getItem(target);
             Item firstSegment = firstSegNavigator.getItem(target);
+            if (firstSegment == null) return (byte)0;
             for (Item p = segment.getItemAs(Relation.SEGMENT); p != null; p = p.getPrevious()) {
-                count++;
                 if (p.equalsShared(firstSegment)) break;
+                count++;
             }
             return (byte)rail(count);
         }
@@ -1107,9 +1117,10 @@ public class MaryGenericFeatureProcessors
             int count = 0;
             Item segment = navigator.getItem(target);
             Item lastSegment = lastSegNavigator.getItem(target);
+            if (lastSegment == null) return (byte)0;
             for (Item p = segment.getItemAs(Relation.SEGMENT); p != null; p = p.getNext()) {
-                count++;
                 if (p.equalsShared(lastSegment)) break;
+                count++;
             }
             return (byte)rail(count);
         }
@@ -1145,8 +1156,8 @@ public class MaryGenericFeatureProcessors
             if (syllable == null) return (byte)0;
             Item firstSyllable = firstSylNavigator.getItem(target);
             for (Item p = syllable.getItemAs(Relation.SYLLABLE); p != null; p = p.getPrevious()) {
-                count++;
                 if (p.equalsShared(firstSyllable)) break;
+                count++;
             }
             return (byte)rail(count);
         }
@@ -1182,8 +1193,8 @@ public class MaryGenericFeatureProcessors
             if (syllable == null) return (byte)0;
             Item lastSyllable = lastSylNavigator.getItem(target);
             for (Item p = syllable.getItemAs(Relation.SYLLABLE); p != null; p = p.getNext()) {
-                count++;
                 if (p.equalsShared(lastSyllable)) break;
+                count++;
             }
             return (byte)rail(count);
         }
@@ -1422,9 +1433,12 @@ public class MaryGenericFeatureProcessors
         {
             Item syllable = navigator.getItem(target);
             if (syllable == null) return 0;
+            syllable = syllable.getItemAs(Relation.SYLLABLE);
+            if (syllable == null) return 0;
             Item lastSyllable = lastSyllableNavigator.getItem(target);
-            for (Item n=syllable.getNext(); n!=null; n=n.getNext()) {
-                String accent = syllable.getFeatures().getString("accent");
+            if (syllable.equalsShared(lastSyllable)) return 0;
+            for (Item n = syllable.getNext(); n != null; n = n.getNext()) {
+                String accent = n.getFeatures().getString("accent");
                 if (accent != null) {
                     return values.get(accent);
                 }
@@ -1453,9 +1467,12 @@ public class MaryGenericFeatureProcessors
         {
             Item syllable = navigator.getItem(target);
             if (syllable == null) return 0;
+            syllable = syllable.getItemAs(Relation.SYLLABLE);
+            if (syllable == null) return 0;
             Item firstSyllable = firstSyllableNavigator.getItem(target);
-            for (Item n=syllable.getPrevious(); n!=null; n=n.getPrevious()) {
-                String accent = syllable.getFeatures().getString("accent");
+            if (syllable.equalsShared(firstSyllable)) return 0;
+            for (Item n = syllable.getPrevious(); n != null; n = n.getPrevious()) {
+                String accent = n.getFeatures().getString("accent");
                 if (accent != null) {
                     return values.get(accent);
                 }
@@ -1546,10 +1563,10 @@ public class MaryGenericFeatureProcessors
             Item firstSyllable = firstSyllableNavigator.getItem(target);
 
             for (Item p = ss; p != null; p = p.getPrevious()) {
-                count++;
                 if (p.equalsShared(firstSyllable)) {
                     break;
                 }
+                count++;
             }
             return (byte)rail(count);
         }
@@ -1591,10 +1608,10 @@ public class MaryGenericFeatureProcessors
             Item lastSyllable = lastSyllableNavigator.getItem(target);
 
             for (Item p = ss; p != null; p = p.getNext()) {
-                count++;
                 if (p.equalsShared(lastSyllable)) {
                     break;
                 }
+                count++;
             }
             return (byte)rail(count);
         }
@@ -1634,8 +1651,9 @@ public class MaryGenericFeatureProcessors
             ss = ss.getItemAs(Relation.SYLLABLE);
             if (ss == null) return (byte)0;
             Item firstSyllable = firstSyllableNavigator.getItem(target);
-
-            for (Item p = ss; p != null; p = p.getPrevious()) {
+            if (ss.equalsShared(firstSyllable)) return (byte)0;
+            
+            for (Item p = ss.getPrevious(); p != null; p = p.getPrevious()) {
                 if ("1".equals(p.getFeatures().getString("stress"))) {
                     count++;
                 }
@@ -1681,8 +1699,8 @@ public class MaryGenericFeatureProcessors
             ss = ss.getItemAs(Relation.SYLLABLE);
             if (ss == null) return (byte)0;
             Item lastSyllable = lastSyllableNavigator.getItem(target);
-
-            for (Item p = ss; p != null; p = p.getNext()) {
+            if (ss.equalsShared(lastSyllable)) return (byte)0;
+            for (Item p = ss.getNext(); p != null; p = p.getNext()) {
                 if ("1".equals(p.getFeatures().getString("stress"))) {
                     count++;
                 }
@@ -1728,8 +1746,8 @@ public class MaryGenericFeatureProcessors
             ss = ss.getItemAs(Relation.SYLLABLE);
             if (ss == null) return (byte)0;
             Item firstSyllable = firstSyllableNavigator.getItem(target);
-
-            for (Item p = ss; p != null; p = p.getPrevious()) {
+            if (ss.equalsShared(firstSyllable)) return (byte)0;
+            for (Item p = ss.getPrevious(); p != null; p = p.getPrevious()) {
                 if (p.getFeatures().isPresent("accent")) {
                     count++;
                 }
@@ -1776,8 +1794,8 @@ public class MaryGenericFeatureProcessors
             ss = ss.getItemAs(Relation.SYLLABLE);
             if (ss == null) return (byte)0;
             Item lastSyllable = lastSyllableNavigator.getItem(target);
-
-            for (Item p = ss; p != null; p = p.getNext()) {
+            if (ss.equalsShared(lastSyllable)) return (byte)0;
+            for (Item p = ss.getNext(); p != null; p = p.getNext()) {
                 if (p.getFeatures().isPresent("accent")) {
                     count++;
                 }
@@ -1826,10 +1844,10 @@ public class MaryGenericFeatureProcessors
             Item first = firstWordNavigator.getItem(target);
 
             for (Item p = w; p != null; p = p.getPrevious()) {
-                count++;
                 if (p.equalsShared(first)) {
                     break;
                 }
+                count++;
             }
             return (byte)rail(count);
         }
@@ -1871,10 +1889,10 @@ public class MaryGenericFeatureProcessors
             Item last = lastWordNavigator.getItem(target);
 
             for (Item p = w; p != null; p = p.getNext()) {
-                count++;
                 if (p.equalsShared(last)) {
                     break;
                 }
+                count++;
             }
             return (byte)rail(count);
         }
@@ -1919,10 +1937,10 @@ public class MaryGenericFeatureProcessors
             if (firstPhrase == null) return (byte)0;
             Item firstWord = firstPhrase.getDaughter();
             for (Item p = w; p != null; p = p.getPrevious()) {
-                count++;
                 if (p.equalsShared(firstWord)) {
                     break;
                 }
+                count++;
             }
             return (byte)rail(count);
         }
@@ -1964,12 +1982,12 @@ public class MaryGenericFeatureProcessors
             Item lastPhrase = lastPhraseNavigator.getItem(target);
             lastPhrase = lastPhrase.getItemAs(Relation.PHRASE);
             if (lastPhrase == null) return (byte)0;
-            Item lastWord = lastPhrase.getDaughter();
+            Item lastWord = lastPhrase.getLastDaughter();
             for (Item p = w; p != null; p = p.getNext()) {
-                count++;
                 if (p.equalsShared(lastWord)) {
                     break;
                 }
+                count++;
             }
             return (byte)rail(count);
         }
@@ -2013,10 +2031,10 @@ public class MaryGenericFeatureProcessors
             firstPhrase = firstPhrase.getItemAs(Relation.PHRASE);
             if (firstPhrase == null) return (byte)0;
             for (Item p = phrase; p != null; p = p.getPrevious()) {
-                count++;
                 if (p.equalsShared(firstPhrase)) {
                     break;
                 }
+                count++;
             }
             return (byte)rail(count);
         }
@@ -2059,10 +2077,10 @@ public class MaryGenericFeatureProcessors
             lastPhrase = lastPhrase.getItemAs(Relation.PHRASE);
             if (lastPhrase == null) return (byte)0;
             for (Item p = phrase; p != null; p = p.getNext()) {
-                count++;
                 if (p.equalsShared(lastPhrase)) {
                     break;
                 }
+                count++;
             }
             return (byte)rail(count);
         }
@@ -2103,7 +2121,10 @@ public class MaryGenericFeatureProcessors
             ss = ss.getItemAs(Relation.SYLLABLE);
             if (ss == null) return (byte)0;
             Item first = firstSyllableNavigator.getItem(target);
-            for (Item p = ss; p != null; p = p.getPrevious(), count++) {
+            if (first == null) return (byte)0;
+            if (ss.equalsShared(first)) return (byte)0;
+            for (Item p = ss.getPrevious(); p != null; p = p.getPrevious()) {
+                count++;
                 if (p.getFeatures().isPresent("accent")) {
                     break;
                 }
@@ -2146,7 +2167,10 @@ public class MaryGenericFeatureProcessors
             ss = ss.getItemAs(Relation.SYLLABLE);
             if (ss == null) return (byte)0;
             Item last = lastSyllableNavigator.getItem(target);
-            for (Item p = ss; p != null; p = p.getNext(), count++) {
+            if (last == null) return (byte)0;
+            if (ss.equalsShared(last)) return (byte)0;
+            for (Item p = ss.getNext(); p != null; p = p.getNext()) {
+                count++;
                 if (p.getFeatures().isPresent("accent")) {
                     break;
                 }
@@ -2190,7 +2214,10 @@ public class MaryGenericFeatureProcessors
             ss = ss.getItemAs(Relation.SYLLABLE);
             if (ss == null) return (byte)0;
             Item first = firstSyllableNavigator.getItem(target);
-            for (Item p = ss; p != null; p = p.getPrevious(), count++) {
+            if (first == null) return (byte)0;
+            if (ss.equalsShared(first)) return (byte)0;
+            for (Item p = ss.getPrevious(); p != null; p = p.getPrevious()) {
+                count++;
                 if ("1".equals(p.getFeatures().getString("stress"))) {
                     break;
                 }
@@ -2234,7 +2261,10 @@ public class MaryGenericFeatureProcessors
             ss = ss.getItemAs(Relation.SYLLABLE);
             if (ss == null) return (byte)0;
             Item last = lastSyllableNavigator.getItem(target);
-            for (Item p = ss; p != null; p = p.getNext(), count++) {
+            if (last == null) return (byte)0;
+            if (ss.equalsShared(last)) return (byte)0;
+            for (Item p = ss.getNext(); p != null; p = p.getNext()) {
+                count++;
                 if ("1".equals(p.getFeatures().getString("stress"))) {
                     break;
                 }
@@ -2338,7 +2368,7 @@ public class MaryGenericFeatureProcessors
             Item word = navigator.getItem(target);
             if (word == null) return (byte)0;
             word = word.getItemAs(Relation.WORD);
-            for (; word != null; word = word.getPrevious()) {
+            for (word = word.getPrevious(); word != null; word = word.getPrevious()) {
                 Item tokenWord = word.getItemAs(Relation.TOKEN);
                 if (tokenWord == null) return values.get("0");
                 Item token = tokenWord.getParent();
@@ -2355,6 +2385,86 @@ public class MaryGenericFeatureProcessors
         }
     }
     
+    /**
+     * Determines the distance in words to the next word punctuation in the sentence. This is a feature processor. A feature
+     * processor takes an item, performs some sort of processing on the item and
+     * returns an object.
+     */
+    public static class WordsToNextPunctuation implements ByteValuedFeatureProcessor
+    {
+        TargetItemNavigator navigator;
+        public WordsToNextPunctuation()
+        {
+            this.navigator = new WordNavigator();
+        }
+        public String getName() { return "mary_words_to_next_punctuation"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        public byte process(Target target)
+        {
+            int count = 0;
+            Item word = navigator.getItem(target);
+            if (word == null) return (byte)0;
+            word = word.getItemAs(Relation.WORD);
+            for (; word != null; word = word.getNext()) {
+                Item tokenWord = word.getItemAs(Relation.TOKEN);
+                if (tokenWord == null) return (byte)0;
+                Item token = tokenWord.getParent();
+                if (token == null) return (byte)0;
+                String punc = token.getFeatures().getString("punc");
+                if (punc != null && !punc.equals("")) {
+                    break;
+                }
+                count++;
+            }
+            return (byte)rail(count);
+        }
+    }
+
+    /**
+     * Determines the distance in words from the previous word punctuation in the sentence. This is a feature processor. A feature
+     * processor takes an item, performs some sort of processing on the item and
+     * returns an object.
+     */
+    public static class WordsFromPrevPunctuation implements ByteValuedFeatureProcessor
+    {
+        TargetItemNavigator navigator;
+        public WordsFromPrevPunctuation()
+        {
+            this.navigator = new WordNavigator();
+        }
+        public String getName() { return "mary_words_from_prev_punctuation"; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4", "5", "6", "7",
+                    "8", "9", "10", "11", "12", "13", "14", "15", "16",
+                    "17", "18", "19"};
+        }
+
+        public byte process(Target target)
+        {
+            int count = 0;
+            Item word = navigator.getItem(target);
+            if (word == null) return (byte)0;
+            word = word.getItemAs(Relation.WORD);
+            for (word = word.getPrevious(); word != null; word = word.getPrevious()) {
+                count++;
+                Item tokenWord = word.getItemAs(Relation.TOKEN);
+                if (tokenWord == null) return (byte)0;
+                Item token = tokenWord.getParent();
+                if (token == null) return (byte)0;
+                String punc = token.getFeatures().getString("punc");
+                if (punc != null && !punc.equals("")) {
+                    break;
+                }
+            }
+            return (byte)rail(count);
+        }
+    }
+
     
     
     ////////////////////////////////////////////////////////

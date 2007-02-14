@@ -102,6 +102,8 @@ public class FeatureProcessorManager
         addFeatureProcessor(new MaryGenericFeatureProcessors.PrevPhraseEndtone());
         addFeatureProcessor(new MaryGenericFeatureProcessors.PrevPunctuation());
         addFeatureProcessor(new MaryGenericFeatureProcessors.NextPunctuation());
+        addFeatureProcessor(new MaryGenericFeatureProcessors.WordsFromPrevPunctuation());
+        addFeatureProcessor(new MaryGenericFeatureProcessors.WordsToNextPunctuation());
     }
     
     protected void addFeatureProcessor(MaryFeatureProcessor fp)
