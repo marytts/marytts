@@ -1001,7 +1001,7 @@ public class MaryGenericFeatureProcessors
          */
         public byte process(Target target)
         {
-            byte count = 0;
+            int count = 0;
             Item segment = navigator.getItem(target);
             for (Item p = segment.getItemAs(Relation.SYLLABLE_STRUCTURE); p != null; p = p.getPrevious()) {
                 count++;
@@ -1034,7 +1034,7 @@ public class MaryGenericFeatureProcessors
          */
         public byte process(Target target)
         {
-            byte count = 0;
+            int count = 0;
             Item segment = navigator.getItem(target);
             for (Item p = segment.getItemAs(Relation.SYLLABLE_STRUCTURE); p != null; p = p.getPrevious()) {
                 count++;
@@ -1068,7 +1068,7 @@ public class MaryGenericFeatureProcessors
          */
         public byte process(Target target)
         {
-            byte count = 0;
+            int count = 0;
             Item segment = navigator.getItem(target);
             Item firstSegment = firstSegNavigator.getItem(target);
             for (Item p = segment.getItemAs(Relation.SEGMENT); p != null; p = p.getPrevious()) {
@@ -1104,7 +1104,7 @@ public class MaryGenericFeatureProcessors
          */
         public byte process(Target target)
         {
-            byte count = 0;
+            int count = 0;
             Item segment = navigator.getItem(target);
             Item lastSegment = lastSegNavigator.getItem(target);
             for (Item p = segment.getItemAs(Relation.SEGMENT); p != null; p = p.getNext()) {
@@ -1140,7 +1140,7 @@ public class MaryGenericFeatureProcessors
          */
         public byte process(Target target)
         {
-            byte count = 0;
+            int count = 0;
             Item syllable = navigator.getItem(target);
             if (syllable == null) return (byte)0;
             Item firstSyllable = firstSylNavigator.getItem(target);
@@ -1177,7 +1177,7 @@ public class MaryGenericFeatureProcessors
          */
         public byte process(Target target)
         {
-            byte count = 0;
+            int count = 0;
             Item syllable = navigator.getItem(target);
             if (syllable == null) return (byte)0;
             Item lastSyllable = lastSylNavigator.getItem(target);
