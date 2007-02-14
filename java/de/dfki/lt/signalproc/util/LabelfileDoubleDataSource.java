@@ -39,33 +39,32 @@ import java.util.StringTokenizer;
  * @author Marc Schr&ouml;der
  *
  */
-public class ESTTextfileDoubleDataSource extends TextReaderDoubleDataSource
+public class LabelfileDoubleDataSource extends TextReaderDoubleDataSource
 {
-    
-    
-    /**
-     * Read Double data from a Text file e.g. in EST format. Skip the header, then read one double per line, which is the first token in that line. 
-     * @param reader
-     */
-    public ESTTextfileDoubleDataSource(File file) throws FileNotFoundException
-    {
-        this(new FileReader(file));
-    }
 
     /**
      * Read Double data from a Text file e.g. in EST format. Skip the header, then read one double per line, which is the first token in that line. 
      * @param reader
      */
-    public ESTTextfileDoubleDataSource(Reader reader)
+    public LabelfileDoubleDataSource(File file) throws FileNotFoundException
+    {
+        this(new FileReader(file));
+    }
+
+    /**
+     * Read Double data from a Text file containing labels. Skip the header, then read one double per line, which is the first token in that line. 
+     * @param reader
+     */
+    public LabelfileDoubleDataSource(Reader reader)
     {
         super(reader);
         // Skip header:
         try {
-            while (!this.reader.readLine().startsWith("EST_Header_End")) {}
+            while (!this.reader.readLine().trim().equals("#")) {}
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
-    }
+   }
 
     /**
      * Try to get length doubles from this DoubleDataSource, and copy them into target, starting from targetPos.

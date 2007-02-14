@@ -28,6 +28,9 @@
  */
 package de.dfki.lt.signalproc.util;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.StringTokenizer;
@@ -40,7 +43,16 @@ public class PraatTextfileDoubleDataSource extends TextReaderDoubleDataSource
 {
 
     /**
-     * Read Double data from a Text file e.g. in EST format. Skip the header, then read one double per line, which is the first token in that line. 
+     * Read Double data from a Text file in Praat short text file format. Skip the header, then read one double per line. 
+     * @param reader
+     */
+    public PraatTextfileDoubleDataSource(File file) throws FileNotFoundException
+    {
+        this(new FileReader(file));
+    }
+
+    /**
+     * Read Double data from a Text file in Praat short text file format. Skip the header, then read one double per line. 
      * @param reader
      */
     public PraatTextfileDoubleDataSource(Reader reader)

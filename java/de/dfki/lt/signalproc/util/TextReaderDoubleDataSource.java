@@ -30,6 +30,9 @@
 package de.dfki.lt.signalproc.util;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 
@@ -42,6 +45,15 @@ import java.io.Reader;
 public class TextReaderDoubleDataSource extends BaseDoubleDataSource {
     protected BufferedReader reader;
     
+    /**
+     * Read Double data from a Text file. Read one double per line. 
+     * @param reader
+     */
+    public TextReaderDoubleDataSource(File file) throws FileNotFoundException
+    {
+        this(new FileReader(file));
+    }
+
     /**
      * Initialise this double data source with the reader from which a text
      * representation of doubles (one per line) can be read. 
