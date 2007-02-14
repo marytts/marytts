@@ -31,23 +31,19 @@ package de.dfki.lt.signalproc.process;
 
 import java.io.File;
 import java.io.FileReader;
-import java.util.Arrays;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
+import de.dfki.lt.mary.util.FileUtils;
 import de.dfki.lt.signalproc.analysis.LPCAnalyser;
 import de.dfki.lt.signalproc.analysis.LPCAnalyser.LPCoeffs;
-import de.dfki.lt.signalproc.filter.FIRFilter;
-import de.dfki.lt.signalproc.window.Window;
-import de.dfki.lt.util.ArrayUtils;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
 import de.dfki.lt.signalproc.util.DDSAudioInputStream;
 import de.dfki.lt.signalproc.util.DoubleDataSource;
-import de.dfki.lt.signalproc.util.PraatTextfileDoubleDataSource;
-import de.dfki.lt.signalproc.util.SequenceDoubleDataSource;
+import de.dfki.lt.signalproc.util.LabelfileDoubleDataSource;
 
 /**
  * @author Marc Schr&ouml;der
@@ -110,17 +106,36 @@ public class LSFInterpolator extends LPCAnalysisResynthesis implements InlineFra
     public static void main(String[] args) throws Exception
     {
         long startTime = System.currentTimeMillis();
-        double r;
-        String file1;
-        String file2;
-        if (args.length >= 3) {
-            r = Double.valueOf(args[0]).doubleValue();
-            file1 = args[1];
-            file2 = args[2];
-        } else {
-            r = 0.5;
+        double r = Double.parseDouble(System.getProperty("r", "0.5"));
+        String file1 = null;
+        String file2 = null;
+        DoubleDataSource label1 = null;
+        DoubleDataSource label2 = null;
+        if (args.length == 2) {
             file1 = args[0];
             file2 = args[1];
+        } else if (args.length == 4) {
+            file1 = args[0];
+            label1 = new LabelfileDoubleDataSource(new FileReader(args[1]));
+            file2 = args[2];
+            label2 = new LabelfileDoubleDataSource(new FileReader(args[3]));
+            // Safety check: verify that we have the same number of labels in both files
+            double[] labelData1 = label1.getAllData();
+            double[] labelData2 = label2.getAllData();
+            if (labelData1.length != labelData2.length) {
+                System.err.println("Warning: Number of labels is different!");
+                System.err.println(args[1]+":");
+                System.err.println(FileUtils.getFileAsString(new File(args[1]), "ASCII"));
+                System.err.println(args[3]+":");
+                System.err.println(FileUtils.getFileAsString(new File(args[3]), "ASCII"));
+            } // but continue
+            label1 = new BufferedDoubleDataSource(labelData1);
+            label2 = new BufferedDoubleDataSource(labelData2);
+        } else {
+            System.out.println("Usage: java [-Dr=<mixing ratio> de.dfki.lt.signalproc.process.LSFInterpolator signal.wav [signal.lab] other.wav [other.lab]");
+            System.out.println("where");
+            System.out.println("    <mixing ratio> is a value between 0.0 and 1.0 indicating how much of \"other\" is supposed to be mixed into \"signal\"");
+            System.exit(1);
         }
         AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(file1));
         int samplingRate = (int)inputAudio.getFormat().getSampleRate();
@@ -129,8 +144,8 @@ public class LSFInterpolator extends LPCAnalysisResynthesis implements InlineFra
         DoubleDataSource otherSource = new AudioDoubleDataSource(otherAudio);
         int frameLength = Integer.getInteger("signalproc.lpcanalysisresynthesis.framelength", 512).intValue();
         int predictionOrder = Integer.getInteger("signalproc.lpcanalysisresynthesis.predictionorder", 20).intValue();
-        FramewiseMerger foas = new FramewiseMerger(signal, frameLength, samplingRate, null,
-                otherSource, samplingRate, null, 
+        FramewiseMerger foas = new FramewiseMerger(signal, frameLength, samplingRate, label1,
+                otherSource, samplingRate, label2, 
                 new LSFInterpolator(predictionOrder, r));
         DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(foas), inputAudio.getFormat());
         String outFileName = file1.substring(0, file1.length()-4) + "_" + file2.substring(file2.lastIndexOf("\\")+1, file2.length()-4)+"_"+r+".wav";
