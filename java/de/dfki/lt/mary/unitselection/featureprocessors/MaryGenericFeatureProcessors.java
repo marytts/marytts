@@ -409,7 +409,7 @@ public class MaryGenericFeatureProcessors
         }
     }
 
-    public static class FirstWordNavigator implements TargetItemNavigator
+    public static class FirstWordInPhraseNavigator implements TargetItemNavigator
     {
         public Item getItem(Target target)
         {
@@ -430,7 +430,7 @@ public class MaryGenericFeatureProcessors
         }
     }
 
-    public static class LastWordNavigator implements TargetItemNavigator
+    public static class LastWordInPhraseNavigator implements TargetItemNavigator
     {
         public Item getItem(Target target)
         {
@@ -451,6 +451,45 @@ public class MaryGenericFeatureProcessors
         }
     }
 
+    public static class FirstWordInSentenceNavigator implements TargetItemNavigator
+    {
+        public Item getItem(Target target)
+        {
+            Item segment = target.getItem();
+            if (segment == null) return null;
+            segment = segment.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (segment == null) return null;
+            Item syllable = segment.getParent();
+            if (syllable == null) return null;
+            Item word = syllable.getParent();
+            if (word == null) return null;
+            word = word.getItemAs(Relation.WORD);
+            if (word == null) return null;
+            Relation wordRelation = word.getOwnerRelation();
+            if (wordRelation == null) return null;
+            return wordRelation.getHead();
+        }
+    }
+
+    public static class LastWordInSentenceNavigator implements TargetItemNavigator
+    {
+        public Item getItem(Target target)
+        {
+            Item segment = target.getItem();
+            if (segment == null) return null;
+            segment = segment.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (segment == null) return null;
+            Item syllable = segment.getParent();
+            if (syllable == null) return null;
+            Item word = syllable.getParent();
+            if (word == null) return null;
+            word = word.getItemAs(Relation.WORD);
+            if (word == null) return null;
+            Relation wordRelation = word.getOwnerRelation();
+            if (wordRelation == null) return null;
+            return wordRelation.getTail();
+        }
+    }
 
     public static class PhraseNavigator implements TargetItemNavigator
     {
@@ -809,7 +848,7 @@ public class MaryGenericFeatureProcessors
     {
         TargetItemNavigator navigator;
         public PhraseNumWords() {
-            this.navigator = new FirstWordNavigator();
+            this.navigator = new FirstWordInPhraseNavigator();
         }
         public String getName() { return "mary_phrase_numwords"; }
         public String[] getValues() {
@@ -1819,7 +1858,7 @@ public class MaryGenericFeatureProcessors
         TargetItemNavigator firstWordNavigator;
         public WordsFromPhraseStart() {
             this.navigator = new WordNavigator();
-            this.firstWordNavigator = new FirstWordNavigator();
+            this.firstWordNavigator = new FirstWordInPhraseNavigator();
         }
 
         public String getName() { return "mary_words_from_phrase_start"; }
@@ -1864,7 +1903,7 @@ public class MaryGenericFeatureProcessors
         TargetItemNavigator lastWordNavigator;
         public WordsFromPhraseEnd() {
             this.navigator = new WordNavigator();
-            this.lastWordNavigator = new LastWordNavigator();
+            this.lastWordNavigator = new LastWordInPhraseNavigator();
         }
 
         public String getName() { return "mary_words_from_phrase_end"; }

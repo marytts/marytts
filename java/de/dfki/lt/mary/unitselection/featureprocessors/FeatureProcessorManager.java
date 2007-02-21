@@ -46,7 +46,7 @@ public class FeatureProcessorManager
         MaryGenericFeatureProcessors.TargetItemNavigator prevSyllable = new MaryGenericFeatureProcessors.PrevSyllableNavigator();
         MaryGenericFeatureProcessors.TargetItemNavigator nextSyllable = new MaryGenericFeatureProcessors.NextSyllableNavigator();
         MaryGenericFeatureProcessors.TargetItemNavigator nextNextSyllable = new MaryGenericFeatureProcessors.NextNextSyllableNavigator();
-        MaryGenericFeatureProcessors.TargetItemNavigator lastWord = new MaryGenericFeatureProcessors.LastWordNavigator();
+        MaryGenericFeatureProcessors.TargetItemNavigator lastWord = new MaryGenericFeatureProcessors.LastWordInSentenceNavigator();
 
         addFeatureProcessor(new MaryGenericFeatureProcessors.Edge());
         addFeatureProcessor(new MaryGenericFeatureProcessors.HalfPhoneLeftRight());
