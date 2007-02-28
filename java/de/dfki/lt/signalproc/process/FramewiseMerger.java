@@ -7,6 +7,7 @@ import de.dfki.lt.signalproc.util.DoubleDataSource;
 import de.dfki.lt.signalproc.util.SequenceDoubleDataSource;
 import de.dfki.lt.signalproc.window.DynamicTwoHalvesWindow;
 import de.dfki.lt.signalproc.window.Window;
+import de.dfki.lt.util.PrintfFormat;
 
 /**
  * A class to merge two audio signals, using pitch-synchronous frames.
@@ -49,8 +50,13 @@ public class FramewiseMerger extends FrameOverlapAddSource
         // Set up label times for time stretching:
         this.labelTimes = labelTimes;
         this.otherLabelTimes = otherLabelTimes;
-        
-        InlineDataProcessor analysisWindow = new DynamicTwoHalvesWindow(Window.HANN);
+        // set all current and previous labels to 0:
+        prevLabel = 0;
+        currentLabel = 0;
+        prevOtherLabel = 0;
+        currentOtherLabel = 0;
+
+        InlineDataProcessor analysisWindow = new DynamicTwoHalvesWindow(Window.HANN, 0.5);
         // Overlap-add a properly windowed first period by hand:
         // Read out the first pitchmark:
         double firstPitchmark = pitchmarks.getData(1)[0];
@@ -87,9 +93,9 @@ public class FramewiseMerger extends FrameOverlapAddSource
         System.arraycopy(memory, firstPeriodLength, memory, 0, firstPeriodLength);
         Arrays.fill(memory, firstPeriodLength, memory.length, 0);
         // And initialise frame providers for normal operation:
-        this.frameProvider = new PitchFrameProvider(inputSource, pitchmarks, analysisWindow, samplingRate, 2, 1);
+        this.frameProvider = new PitchFrameProvider(inputSource, pitchmarks, analysisWindow, samplingRate, 8, 1);
         this.otherFrameProvider = new PitchFrameProvider(otherSource, otherPitchmarks, 
-                analysisWindow, otherSamplingRate, 2, 1);
+                analysisWindow, otherSamplingRate, 8, 1);
         this.processor = merger;
     }
     
@@ -120,7 +126,7 @@ public class FramewiseMerger extends FrameOverlapAddSource
         this.otherFrameProvider = new FrameProvider(paddedOtherSource, Window.get(Window.HANN, frameLength, 0.5), frameLength, frameLength/4, samplingRate, true);
         this.blockSize = frameLength/4;
         int inputFrameshift = blockSize;
-        Window window = Window.get(Window.HANN, frameLength+1);
+        Window window = Window.get(Window.HANN, frameLength+1, 0.5);
         this.outputWindow = null;
         this.memory = new double[frameLength];
         // This is used when the last input frame has already been read,
@@ -144,6 +150,11 @@ public class FramewiseMerger extends FrameOverlapAddSource
         // Set up label times for time stretching:
         this.labelTimes = labelTimes;
         this.otherLabelTimes = otherLabelTimes;
+        // set all current and previous labels to 0:
+        prevLabel = 0;
+        currentLabel = 0;
+        prevOtherLabel = 0;
+        currentOtherLabel = 0;
     }
 
 
@@ -179,6 +190,8 @@ public class FramewiseMerger extends FrameOverlapAddSource
                 prevOtherLabel = currentOtherLabel;
                 currentOtherLabel = otherLabelTimes.getData(1)[0];
                 assert currentOtherLabel > prevOtherLabel;
+                //System.out.println("current label: "+currentLabel+"("+prevLabel+")");
+                //System.out.println("other   label: "+currentOtherLabel+"("+prevOtherLabel+")");
                 localTimeStretchFactor = (currentOtherLabel - prevOtherLabel) / (currentLabel - prevLabel);
             }
         }
@@ -187,10 +200,12 @@ public class FramewiseMerger extends FrameOverlapAddSource
         double targetOtherStart = prevOtherLabel + (frameStart - prevLabel) * localTimeStretchFactor;
         //System.out.println("Target other start = "+targetOtherStart);
         double otherStart = otherFrameProvider.getFrameStartTime();
+        double[] otherFrame = otherFrameProvider.getCurrentFrame();
+        double prevOtherStart = -1;
+        double[] prevOtherFrame = null;
         //System.out.println("Current other frame starts at "+otherStart);
         if (otherStart < 0) { // no other frame yet
-            double[] otherFrame = otherFrameProvider.getNextFrame();
-            ((InlineFrameMerger)processor).setFrameToMerge(otherFrame);
+            otherFrame = otherFrameProvider.getNextFrame();
             otherStart = otherFrameProvider.getFrameStartTime();
             //System.out.println("Getting first other frame -- starts at "+otherStart);
         }
@@ -198,15 +213,33 @@ public class FramewiseMerger extends FrameOverlapAddSource
         // Now skip other frames until the current otherStart is closer to targetOtherStart
         // then the next one would be.
         double expectedNextOtherStart = otherStart + otherFrameProvider.getFrameShiftTime();
-        while (Math.abs(expectedNextOtherStart-targetOtherStart)<Math.abs(otherStart-targetOtherStart)
+        //while (Math.abs(expectedNextOtherStart-targetOtherStart)<Math.abs(otherStart-targetOtherStart)
+        while (otherStart<targetOtherStart
                 && otherFrameProvider.hasMoreData()) {
-            double[] otherFrame = otherFrameProvider.getNextFrame();
-            ((InlineFrameMerger)processor).setFrameToMerge(otherFrame);
+            prevOtherFrame = (double[]) otherFrame.clone();
+            prevOtherStart = otherStart;
+            otherFrame = otherFrameProvider.getNextFrame();
             otherStart = otherFrameProvider.getFrameStartTime();
             //System.out.println("Skipping frame -- new one starts at "+otherStart);
             assert Math.abs(otherStart - expectedNextOtherStart) < 1e-10 : "Other frame starts at "+otherStart+" -- expected was "+expectedNextOtherStart;
             expectedNextOtherStart = otherStart + otherFrameProvider.getFrameShiftTime();
         }
+        if (prevOtherFrame == null) {
+            ((InlineFrameMerger)processor).setFrameToMerge(otherFrame);
+        } else {
+            assert prevOtherStart < targetOtherStart;
+            assert targetOtherStart <= otherStart;
+            // Request interpolation between prevOtherFrame and otherFrame in relation to their distance to targetOtherStart
+            // Linear interpolation:
+            double rPrev = 1 - (targetOtherStart - prevOtherStart)/(otherStart - prevOtherStart);
+            assert 0 <= rPrev;
+            assert rPrev < 1;
+            //PrintfFormat f = new PrintfFormat("%.3f");
+            //System.out.println("Prev: "+f.sprintf(prevOtherStart)+" Target: "+f.sprintf(targetOtherStart)+" Other: "+f.sprintf(otherStart)+" rPrev: "+f.sprintf(rPrev));
+            ((InlineFrameMerger)processor).setFrameToMerge(prevOtherFrame, otherFrame, rPrev);
+        }
+        
+
         return nextSignalFrame;
     }
 

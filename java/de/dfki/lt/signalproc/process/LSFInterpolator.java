@@ -44,6 +44,7 @@ import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
 import de.dfki.lt.signalproc.util.DDSAudioInputStream;
 import de.dfki.lt.signalproc.util.DoubleDataSource;
 import de.dfki.lt.signalproc.util.LabelfileDoubleDataSource;
+import de.dfki.lt.util.PrintfFormat;
 
 /**
  * @author Marc Schr&ouml;der
@@ -51,7 +52,9 @@ import de.dfki.lt.signalproc.util.LabelfileDoubleDataSource;
  */
 public class LSFInterpolator extends LPCAnalysisResynthesis implements InlineFrameMerger
 {
-    protected double[] otherFrame;
+    protected double[] otherFrame1;
+    protected double[] otherFrame2;
+    protected double relativeWeightOther1;
     protected double r;
     
     /**
@@ -73,7 +76,25 @@ public class LSFInterpolator extends LPCAnalysisResynthesis implements InlineFra
      */
     public void setFrameToMerge(double[] frameToMerge)
     {
-        this.otherFrame = frameToMerge;
+        this.otherFrame1 = frameToMerge;
+        this.otherFrame2 = null;
+        this.relativeWeightOther1 = 1;
+    }
+
+    /**
+     * Set the frame of data to merge into the next call of applyInline().
+     * This method allows for an interpolation of two frames to be merged into the data set;
+     * for example, in order to correct for time misalignment between signal and other frames.
+     * @param frame1 
+     * @param frame2
+     * @param relativeWeightFrame1, a number between 0 and 1 indicating the relative weight of frame1^
+     * with respect to frame2. Consequently, the relative weight of frame 2 will be (1 - relativeWeightFrame1).
+     */
+    public void setFrameToMerge(double[] frame1, double[] frame2, double relativeWeightFrame1)
+    {
+        this.otherFrame1 = frame1;
+        this.otherFrame2 = frame2;
+        this.relativeWeightOther1 = relativeWeightFrame1;
     }
 
     
@@ -85,11 +106,40 @@ public class LSFInterpolator extends LPCAnalysisResynthesis implements InlineFra
      */
     protected void processLPC(LPCoeffs coeffs, double[] residual) 
     {
-        if (otherFrame == null) return; // no more other audio -- leave signal as is
-        LPCoeffs otherCoeffs = LPCAnalyser.calcLPC(otherFrame, p);
-        double[] lsf = coeffs.getLSF();
+        if (otherFrame1 == null) return; // no more other audio -- leave signal as is
+        LPCoeffs otherCoeffs = LPCAnalyser.calcLPC(otherFrame1, p);
         double[] otherlsf = otherCoeffs.getLSF();
+        double[] lsf = coeffs.getLSF();
         assert lsf.length == otherlsf.length;
+        if (otherFrame2 != null && relativeWeightOther1 < 1) { // optionally, interpolate between two "other" frames before merging into the signal
+            assert 0 <= relativeWeightOther1;
+            LPCoeffs other2Coeffs = LPCAnalyser.calcLPC(otherFrame2, p);
+            double[] other2lsf = other2Coeffs.getLSF();
+            /*PrintfFormat f = new PrintfFormat("%      .1f ");
+            System.out.print("LSF     ");
+            for (int i=0; i<lsf.length; i++) {
+                System.out.print(f.sprintf(lsf[i]*16000));
+            }
+            System.out.println();
+            
+            System.out.print("Other1  ");
+            for (int i=0; i<lsf.length; i++) {
+                System.out.print(f.sprintf(otherlsf[i]*16000));
+            }
+            System.out.println();
+
+            System.out.print("Other2  ");
+            for (int i=0; i<lsf.length; i++) {
+                System.out.print(f.sprintf(other2lsf[i]*16000));
+            }
+            System.out.println();
+
+            System.out.println();
+            */
+            for (int i=0; i<otherlsf.length; i++) {
+                otherlsf[i] = relativeWeightOther1*otherlsf[i] + (1-relativeWeightOther1)*other2lsf[i];
+            }
+        }
         // now interpolate between the two:
         for (int i=0; i<lsf.length; i++)
             lsf[i] = (1-r)*lsf[i] + r*otherlsf[i];
