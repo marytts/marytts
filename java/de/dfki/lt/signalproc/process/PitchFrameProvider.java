@@ -56,6 +56,7 @@ public class PitchFrameProvider extends FrameProvider
     protected int periodsInMemory;
     protected long currPitchmark;
     protected DynamicTwoHalvesWindow twoHalvesWindow;
+    protected double[] cutFrame;
 
     /**
      * Create a new PitchFrameProvider providing one period at a time.
@@ -186,9 +187,12 @@ public class PitchFrameProvider extends FrameProvider
     public double[] getNextFrame()
     {
         double[] uncutFrame = super.getNextFrame();
-        if (uncutFrame == null) return null;
+        if (uncutFrame == null) {
+            cutFrame = null;
+            return null;
+        }
         int frameLength = super.getFrameLengthSamples();
-        double[] cutFrame = new double[frameLength];
+        cutFrame = new double[frameLength];
         System.arraycopy(uncutFrame, 0, cutFrame, 0, frameLength);
         if (twoHalvesWindow != null) {
             // using two half windows only makes sense if we have an even number of
@@ -202,6 +206,11 @@ public class PitchFrameProvider extends FrameProvider
             twoHalvesWindow.applyInlineLeftHalf(cutFrame, 0, middle);
             twoHalvesWindow.applyInlineRightHalf(cutFrame, middle, frameLength-middle);
         }
+        return cutFrame;
+    }
+    
+    public double[] getCurrentFrame()
+    {
         return cutFrame;
     }
     

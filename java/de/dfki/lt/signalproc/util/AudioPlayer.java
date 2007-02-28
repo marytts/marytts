@@ -112,8 +112,11 @@ public class AudioPlayer extends Thread {
 
     public static void main(String[] args) throws Exception
     {
-        for (int i=0; i<args.length; i++) {
+        boolean listFilename = false;
+        if (args[0].equals("-l")) listFilename = true;
+        for (int i=(listFilename?1:0); i<args.length; i++) {
             AudioPlayer player = new AudioPlayer(new File(args[i]), null);
+            if (listFilename) System.out.println(args[i]);
             player.start();
             player.join();
         }

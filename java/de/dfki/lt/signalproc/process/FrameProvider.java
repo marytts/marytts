@@ -272,6 +272,11 @@ public class FrameProvider
         return frame;
     }
     
+    public double[] getCurrentFrame()
+    {
+        return frame;
+    }
+    
     /**
      * Read data from input signal into current frame.
      * This base implementation will attempt to fill the frame from the position

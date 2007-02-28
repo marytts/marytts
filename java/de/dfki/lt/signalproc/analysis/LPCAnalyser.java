@@ -107,7 +107,7 @@ public class LPCAnalyser extends FrameBasedAnalyser
     {
         double[] autocorr = FFT.autoCorrelateWithZeroPadding(x);
         double[] r;
-        if (p+1<autocorr.length/2) { // normal case: frame long enough
+        if (2*(p+1)<autocorr.length) { // normal case: frame long enough
             r = ArrayUtils.subarray(autocorr, autocorr.length/2, p+1);
         } else { // absurdly short frame
             // still compute LPC coefficients, by zero-padding the r
