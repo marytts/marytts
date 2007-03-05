@@ -126,7 +126,7 @@ public class Segmenter implements UtteranceProcessor {
 	    }
 
 	    if (phones == null){
-	        System.out.println("Phones = null for word "+wordString);
+	        //System.out.println("Phones = null for word "+wordString);
 	        //phones must be generated with lts rules
 	        //add generated phones to addenda
 	        phones = lex.getPhones(wordString, null,true);	        

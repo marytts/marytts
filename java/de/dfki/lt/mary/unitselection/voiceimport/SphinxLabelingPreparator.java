@@ -41,6 +41,8 @@ import de.dfki.lt.mary.MaryXML;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
@@ -288,7 +290,13 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
                 MaryData maryData = new MaryData(MaryDataType.get(outputFormat));
                 maryData.readFrom(new ByteArrayInputStream(os.toByteArray()));
                 Document doc = maryData.getDocument();
-   
+                /**if (nextFilename.equals("EM001_BTEC_1107")){
+                    StringBuffer xmlBuf = new StringBuffer();
+                    getXMLAsString(doc,xmlBuf);
+                    System.out.println(xmlBuf.toString());
+                    line = transIn.readLine();
+                    continue;
+                }**/
                 //go through the tokens
                 NodeIterator tokensIt = ((DocumentTraversal)doc).createNodeIterator(doc, 
                         NodeFilter.SHOW_ELEMENT,
@@ -303,17 +311,25 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
                 while ((token = (Element) tokensIt.nextNode()) != null) {
                     //get the word 
                     String word = MaryDomUtils.tokenText(token).toUpperCase();
-                    
+                    String pos = token.getAttribute("pos");
                     if (word.equals(""))
-                    continue;
-                    if (word.equals(".") || word.equals(",")){
-                        //if the word is a punctuation,
-                        if (sentenceBoundary){
+                        continue;                    
+                    if (pos.equals("$PUNCT") || pos.equals("$,")){
+                    //if the word is a punctuation,
+                        if (sentenceBoundary){                            
                             //if there was a punctuation before,
                             //there is an error in the transcript
-                            throw new IllegalArgumentException("Error in transcript of "
+                            Element tokenParent = (Element) token.getParentNode();
+                            if (!tokenParent.getLocalName().equals("mtu")){                                  
+                                StringBuffer xmlBuf = new StringBuffer();
+                                getXMLAsString(doc,xmlBuf);
+                                System.out.println(xmlBuf.toString());
+                                System.out.println("Problem with token "+word
+                                        +" in sentence "+nextFilename);
+                                throw new IllegalArgumentException("Error in transcript of "
                                     +nextFilename+": multiple sentence boundary markers");
-                        }
+                            }
+                        }                        
                         //else append sentence end marker
                         trainBuff.append(" </s>");
                         sentenceBoundary = true;
@@ -343,8 +359,8 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
                         List phoneList = new ArrayList();
                         //add
                         dictionary.put(word,phoneList);
-            **/
                     
+                    **/
                         //go through the phones
                         NodeList phoneNodes = token.getElementsByTagName(MaryXML.PHONE);
  
@@ -412,6 +428,54 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         baseNames.clear();
         baseNames.add(filenames);
     }
+    
+    /**
+     * Convert the given xml-node and its subnodes to Strings
+     * and collect them in the given Stringbuffer
+     * 
+     * @param motherNode the xml-node
+     * @param ppText the Stringbuffer
+     */
+    private void getXMLAsString(Node motherNode,StringBuffer ppText){
+        NodeList children = motherNode.getChildNodes();
+        for (int i=0;i<children.getLength();i++){
+            Node nextChild = children.item(i);
+            String name = nextChild.getLocalName();
+            if (name == null){
+                continue;
+            }          
+           
+            ppText.append("<"+name);
+            if (nextChild instanceof Element){
+                if (nextChild.hasAttributes()){
+                    NamedNodeMap atts = nextChild.getAttributes();
+                    for (int j=0;j<atts.getLength();j++){
+                        String nextAtt = atts.item(j).getNodeName();
+                        ppText.append(" "+nextAtt+"=\""
+                            +((Element)nextChild).getAttribute(nextAtt)
+                            +"\"");
+                    }
+                }
+                
+            }
+            if (name.equals("boundary")){
+                ppText.append("/>\n");
+                continue;
+            }
+            ppText.append(">\n");
+            if (name.equals("t")){
+                ppText.append(MaryDomUtils.tokenText((Element)nextChild)
+                        +"\n</t>\n");                
+            } else {
+                if (nextChild.hasChildNodes()){
+                    getXMLAsString(nextChild,ppText);
+                } 
+                ppText.append("</"+name+">\n");
+            }
+        }
+    }
+    
+    
     
     /**
      * Get a maryxml header with the given locale

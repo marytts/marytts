@@ -525,6 +525,7 @@ public class CARTWagonFormat implements CART {
         // replace the leaf by the CART
         ((DecisionNode) lastMotherNode).replaceDaughter(cart.getRootNode(),
                 nextDaughterIndex);
+        numNodes+= cart.getNumNodes();
     }
    
     /**
@@ -1331,6 +1332,7 @@ public class CARTWagonFormat implements CART {
          * indices field
          */
         private void retrieveIndices() {
+            
             indices = new int[featureVectors.length];
             for (int i = 0; i < indices.length; i++) {
                 indices[i] = featureVectors[i].getUnitIndex();
@@ -1374,7 +1376,7 @@ public class CARTWagonFormat implements CART {
             }
             if (pw != null) {
                 // dump to printwriter
-                pw.print(" ((() 0))" + extension);
+                pw.print(sb.toString());
             }
         }
 
