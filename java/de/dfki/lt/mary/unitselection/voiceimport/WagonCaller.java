@@ -33,6 +33,8 @@ package de.dfki.lt.mary.unitselection.voiceimport;
 
 import java.io.*;
 
+import de.dfki.lt.mary.unitselection.voiceimport.SphinxTrainer.StreamGobbler;
+
 /**
  * Class to call Wagon
  * 
@@ -105,7 +107,7 @@ public class WagonCaller {
      * @param distanceTableFile the distance tables for the units
      * @param destinationFile the file to dump the tree to
      */
-    public Process callWagon(String valueFile, 
+    public boolean callWagon(String valueFile, 
             			String distanceTableFile,
             			String destinationFile){
         try {
@@ -115,23 +117,24 @@ public class WagonCaller {
                 				+ " -balance 0" 
                 				+ " -distmatrix " + distanceTableFile
                 				+ " -stop 10"
-                				+ " -output " + destinationFile);
-            /**BufferedReader inbuf = new BufferedReader(
-                    new InputStreamReader(p.getInputStream()));
-            String line = inbuf.readLine();
-            while (line!=null){
-                System.out.println(line);
-                line = inbuf.readLine();
-            }
-            BufferedReader errbuf = new BufferedReader(
-                    new InputStreamReader(p.getErrorStream()));
-            line = errbuf.readLine();
-            while (line!=null){
-                System.out.println(line);
-                line = errbuf.readLine();
-            }**/
-            return p;
-        } catch (IOException e){
+                				+ " -output " + destinationFile
+                				+ " -verbose");
+            //collect the output
+            //read from error stream
+            StreamGobbler errorGobbler = new 
+            	StreamGobbler(p.getErrorStream(), "err");            
+        
+            //read from output stream
+            StreamGobbler outputGobbler = new 
+            	StreamGobbler(p.getInputStream(), "out");        
+            //start reading from the streams
+            errorGobbler.start();
+            outputGobbler.start();
+            p.waitFor();
+            if (p.exitValue()==0)
+                return true;
+            return false;
+        } catch (Exception e){
             e.printStackTrace();
             throw new RuntimeException("Exception running wagon");
         }
@@ -150,26 +153,66 @@ public class WagonCaller {
      * 					greater than stop it is used as stop
      * @param stop minimum number of indices in leaf
      */
-    public void callWagon(String valueFile, 
+    public boolean callWagon(String valueFile, 
             			String distanceTableFile,
             			String destinationFile,
             			int balance,
             			int stop){
         try {
-            Runtime.getRuntime().exec( ESTDIR + "/main/wagon "
+            Process p = Runtime.getRuntime().exec( ESTDIR + "/main/wagon "
                 				+ "-desc " + featureDefFile
                 				+ " -data " + valueFile
                 				+ " -balance " + balance 
                 				+ " -distmatrix " + distanceTableFile
                 				+ " -stop " + stop 
                 				+ " -output " + destinationFile);
-        } catch (IOException e){
+            //collect the output
+            //read from error stream
+            StreamGobbler errorGobbler = new 
+            	StreamGobbler(p.getErrorStream(), "err");            
+        
+            //read from output stream
+            StreamGobbler outputGobbler = new 
+            	StreamGobbler(p.getInputStream(), "out");        
+            //start reading from the streams
+            errorGobbler.start();
+            outputGobbler.start();
+            p.waitFor();
+            if (p.exitValue()==0)
+                return true;
+            return false;
+        } catch (Exception e){
             e.printStackTrace();
             throw new RuntimeException("Exception running wagon");
         }
         
     }
     
-    
+    static class StreamGobbler extends Thread
+    {
+        InputStream is;
+        String type;
+        
+        StreamGobbler(InputStream is, String type)
+        {
+            this.is = is;
+            this.type = type;
+        }
+        
+        public void run()
+        {
+            try
+            {
+                InputStreamReader isr = new InputStreamReader(is);
+                BufferedReader br = new BufferedReader(isr);
+                String line=null;
+                while ( (line = br.readLine()) != null)
+                    System.out.println(type + ">" + line);    
+                } catch (IOException ioe)
+                  {
+                    ioe.printStackTrace();  
+                  }
+        }
+    }
     
 }

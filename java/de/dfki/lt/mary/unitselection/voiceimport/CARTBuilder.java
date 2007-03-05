@@ -28,15 +28,7 @@
  */
 package de.dfki.lt.mary.unitselection.voiceimport;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -142,18 +134,27 @@ public class CARTBuilder implements VoiceImportComponent {
         
          
          boolean callWagon = System.getProperty("db.cartbuilder.callwagon", "true").equals("true");
+         
          if (callWagon) {
-             replaceLeaves(topLevelCART,featureDefinition);
+             if (!replaceLeaves(topLevelCART,featureDefinition));
+             	System.out.println("Could not replace leaves");
+             	return false;
          }
          
          //dump big CART to binary file
          String destinationFile = databaseLayout.cartFileName();
          dumpCART(destinationFile,topLevelCART);
+         //Dump the resulting Cart to text file
+         PrintWriter pw = 
+                new PrintWriter(
+                        new FileWriter(
+                                new File("./mary_files/cartTextDump.txt")));
+         topLevelCART.toTextOut(pw);
          //say how long you took
          long timeDiff = System.currentTimeMillis() - time;
          System.out.println("Processing took "+timeDiff+" milliseconds.");
          
-         //importCART(destinationFile,featureDefinition);
+         
          return true;
      }
     
@@ -225,11 +226,16 @@ public class CARTBuilder implements VoiceImportComponent {
      * @param topLevelCART the CART
      * @param featureDefinition the definition of the features
      */
-    public void replaceLeaves(CARTWagonFormat cart,
+    public boolean replaceLeaves(CARTWagonFormat cart,
             				FeatureDefinition featureDefinition)
     throws IOException
     {
         try {
+            System.out.println("Replacing Leaves ...");
+            //TODO: find out why the cart has so many (empty) nodes
+            System.out.println("Cart has "+cart.getNumNodes()+" nodes");
+            
+            
             //create wagon dir if it does not exist
             File wagonDir = new File(databaseLayout.wagonDirName());
             if (!wagonDir.exists()){
@@ -246,7 +252,7 @@ public class CARTBuilder implements VoiceImportComponent {
             PrintWriter out = new PrintWriter(new 
                 			FileOutputStream(new 
                 			        File(featureDefFile)));
-            featureDefinition.generateAllDotDesc(out);
+            featureDefinition.generateAllDotDescForWagon(out);
             out.close();
 
             //build new WagonCaller
@@ -257,91 +263,46 @@ public class CARTBuilder implements VoiceImportComponent {
             if (np != null){
                 numProcesses = Integer.parseInt(np);
             }
-            if (numProcesses > 1){
-                /* run several Wagon calls in parallel */
-                Process[] wagonProcesses = new Process[numProcesses];
-                CARTWagonFormat.LeafNode[] leaves = new CARTWagonFormat.LeafNode[numProcesses];
-                int index = 0;
+            /* call Wagon successively */
                 //go through the CART
                 FeatureVector[] featureVectors = 
                     cart.getNextFeatureVectors();
-                while (featureVectors != null){
-                    //reset index if out of array range
-                    if (index == wagonProcesses.length){
-                        index =0;
-                    }
-                    //determine if there is a process running
-                    if (!(wagonProcesses[index] == null)){
-                        //we already have a Process
-                        //determine the state of the Process
-                        Process p = wagonProcesses[index];
-                        try {
-                            p.exitValue();
-                            //the process has finished,
-                            //read in the resulting CART
-                            BufferedReader buf = new BufferedReader(
-                                new FileReader(new File(wagonDirName+"/"+index+"_"+cartFile)));
-                            CARTWagonFormat newCART = 
-                                new CARTWagonFormat(buf,featureDefinition);
-                            //replace the leaf by the CART
-                            cart.replaceLeafByCart(newCART,leaves[index]);
-                            //now we can start a new process in this slot
-                        } catch (IllegalThreadStateException e){
-                            //the process has not finished, try the next array slot
-                            index++;
-                            continue;
-                        }
-                    } 
-                    System.out.println("Starting process at slot "+index);
-                    String filePrefix = wagonDirName+"/"+index+"_";
-                    //dump the feature vectors
-                    dumpFeatureVectors(featureVectors, featureDefinition,filePrefix+featureVectorsFile);
-                    //dump the distance tables
-                    buildAndDumpDistanceTables(featureVectors,filePrefix+distanceTableFile,featureDefinition);
-                    //call Wagon and store the process
-                    wagonProcesses[index] = wagonCaller.callWagon(filePrefix+featureVectorsFile,filePrefix+distanceTableFile,filePrefix+cartFile);
-                    //store the leaf we want to replace
-                    leaves[index] = cart.getNextLeafToReplace();
-                    //get the next featureVectors
-                    featureVectors = 
-                        cart.getNextFeatureVectors();
-                    index++;
-                } 
-            } else {
-                /* call Wagon successively */
-                //go through the CART
-                FeatureVector[] featureVectors = 
-                    cart.getNextFeatureVectors();
+                int leafIndex=1;
                 while (featureVectors != null){                    
                     //dump the feature vectors
                     System.out.println("Dumping feature vectors");
                     dumpFeatureVectors(featureVectors, featureDefinition,wagonDirName+"/"+featureVectorsFile);
                     //dump the distance tables
-                    System.out.println("Dumping distance tables");
                     buildAndDumpDistanceTables(featureVectors,wagonDirName+"/"+distanceTableFile,featureDefinition);
                     //call Wagon
                     System.out.println("Calling wagon");
-                    wagonCaller.callWagon(wagonDirName+"/"+featureVectorsFile,wagonDirName+"/"+distanceTableFile,wagonDirName+"/"+cartFile);
+                    if (!wagonCaller.callWagon(wagonDirName+"/"+featureVectorsFile,wagonDirName+"/"+distanceTableFile,wagonDirName+"/"+cartFile))
+                         return false;
                     //read in the resulting CART
                     System.out.println("Reading CART");
                     BufferedReader buf = new BufferedReader(
                             new FileReader(new File(wagonDirName+"/"+cartFile)));
                     CARTWagonFormat newCART = 
-                        new CARTWagonFormat(buf,featureDefinition);
+                        new CARTWagonFormat(buf,featureDefinition);    
+                    buf.close();
                     //replace the leaf by the CART
-                    System.out.println("Replacing leafs");
+                    System.out.println("Replacing leaf number "+leafIndex);                    
                     cart.replaceLeafByCart(newCART);
+                    System.out.println("Cart has "+cart.getNumNodes()+" nodes");
                     //get the next featureVectors
                     featureVectors = 
-                        cart.getNextFeatureVectors();    
+                        cart.getNextFeatureVectors();   
+                    leafIndex++;
                 }
-            }
+           
               
         } catch (IOException ioe) {
             IOException newIOE = new IOException("Error replacing leaves");
             newIOE.initCause(ioe);
             throw newIOE;
         }
+        System.out.println(" ... done!");
+        return true;
     }
     
     /**
@@ -364,7 +325,7 @@ public class CARTBuilder implements VoiceImportComponent {
         //loop through the feature vectors
         for (int i=0; i<featureVectors.length;i++){
             // Print the feature string
-            out.print( featDef.toFeatureString( featureVectors[i] ) );
+            out.print( i+" "+featDef.toFeatureStringForWagon( featureVectors[i] ) );
             //print a newline if this is not the last vector
             if (i+1 != featureVectors.length){
                 out.print("\n");
@@ -385,7 +346,7 @@ public class CARTBuilder implements VoiceImportComponent {
     public void buildAndDumpDistanceTables (FeatureVector[] featureVectors, String filename,
             FeatureDefinition featDef ) throws FileNotFoundException {
         
-        System.out.println( "Computing the distance matrix for file[" + filename + "]...");
+        System.out.println( "Computing distance matrix");
         
         /* Dereference the number of units once and for all */
         int numUnits = featureVectors.length;
@@ -474,7 +435,7 @@ public class CARTBuilder implements VoiceImportComponent {
             } 
         }
         /* Write the matrix to disk */
-        System.out.print( "Writing the distance matrix to file[" + filename + "]...");
+        System.out.println( "Writing distance matrix to file [" + filename + "]");
         PrintWriter out = new PrintWriter(new BufferedOutputStream(new FileOutputStream(filename)));
         for ( int i = 0; i < numUnits; i++ ) {
             for ( int j = 0; j < numUnits; j++ ) {
@@ -485,7 +446,6 @@ public class CARTBuilder implements VoiceImportComponent {
         out.flush();
         out.close();
         
-        System.out.println( "Done.");
     }
     
     

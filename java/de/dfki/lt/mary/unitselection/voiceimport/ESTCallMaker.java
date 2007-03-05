@@ -216,7 +216,7 @@ public class ESTCallMaker implements VoiceImportComponent {
         //tweakThePitchmarks( baseNameArray );
         
         // Make the LPCs and Mel Cepstra
-        caller.make_lpc( baseNameArray );
+        //caller.make_lpc( baseNameArray );
         caller.make_mcep( baseNameArray );
         
         return( true );

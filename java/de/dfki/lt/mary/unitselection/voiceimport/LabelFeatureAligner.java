@@ -162,7 +162,10 @@ public class LabelFeatureAligner implements VoiceImportComponent
                 remainingProblems--;
             }
         }
-        
+        if (removeAll){
+            //ask user if asscociated files should be deleted
+            deleteProblemsYesNo(problems);
+        }
         
         System.out.println( "Removed [" + (bnlLengthIn-bnl.getLength()) + "/" + bnlLengthIn
                 + "] utterances from the list, [" + bnl.getLength() + "] utterances remain,"+
@@ -193,6 +196,25 @@ public class LabelFeatureAligner implements VoiceImportComponent
     }
     
     /**
+     * Let the user select if he wants to run the
+     * the automatic correction of pauses.
+     * @param numProblems the number of problems
+     * @throws IOException
+     */
+    protected void deleteProblemsYesNo(Map problems) throws IOException
+    {
+        int choice = JOptionPane.showOptionDialog(null,
+                "Removed problematic utterance from List. Also delete Files?",
+                "Delete problematic files",
+                JOptionPane.YES_NO_CANCEL_OPTION, 
+                JOptionPane.QUESTION_MESSAGE, 
+                null,
+                new String[] {"Yes", "No"},
+                null);
+        
+        if (choice == 0) deleteProblems(problems);
+    }
+    /**
      * Try to automatically correct misalignment caused 
      * by pauses: 
      * If there is a pause in the label file and not in the 
@@ -215,8 +237,13 @@ public class LabelFeatureAligner implements VoiceImportComponent
             System.out.print( "    " + basename );
             String line;
         
-            BufferedReader labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitLabDirName() + basename + db.unitLabExt() )), "UTF-8"));
-            //store header of label file in StringBuffer
+            BufferedReader labels;
+            try{
+                labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitLabDirName() + basename + db.unitLabExt() )), "UTF-8"));
+            }catch (FileNotFoundException fnfe){
+                 return;
+            }
+                //store header of label file in StringBuffer
         	StringBuffer labelFileHeader = new StringBuffer();
         	while ((line = labels.readLine()) != null) {
           	  labelFileHeader.append(line+"\n");
@@ -377,6 +404,17 @@ public class LabelFeatureAligner implements VoiceImportComponent
         System.out.println("Remaining problems: "+problems.size());
     }
     
+    protected void deleteProblems(Map problems){
+        for (Iterator it = problems.keySet().iterator(); it.hasNext(); ) {
+            String basename = (String) it.next(); 
+            File nextLabFile = new File(db.unitLabDirName() + basename + db.unitLabExt());
+            nextLabFile.delete();
+            File nextFeatFile = new File(db.unitFeaDirName() + basename + db.unitFeaExt());
+            nextFeatFile.delete();
+        }
+    }
+    
+    
     /**
      * Verify if the feature and label files for basename align OK.
      * This method should be called after firstVerifyAlignment
@@ -387,8 +425,13 @@ public class LabelFeatureAligner implements VoiceImportComponent
      */
     protected String verifyAlignment(String basename) throws IOException
     {
-        BufferedReader labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitLabDirName() + basename + db.unitLabExt() )), "UTF-8"));
-        BufferedReader features; 
+        BufferedReader labels;
+        try{
+            labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitLabDirName() + basename + db.unitLabExt() )), "UTF-8"));
+        } catch (FileNotFoundException fnfe){
+            return "No label file";
+        }
+            BufferedReader features; 
         try {
             features = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitFeaDirName() + basename + db.unitFeaExt() )), "UTF-8"));
         } catch (FileNotFoundException fnfe){

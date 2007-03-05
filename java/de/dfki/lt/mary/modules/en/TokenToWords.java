@@ -370,6 +370,16 @@ public class TokenToWords implements UtteranceProcessor {
                 /* St Andrew's St, Dr King Dr */
                 drStToWords( wordRelation, tokenItem, tokenVal);
 
+            } else if (tokenVal.equals("Co")) {
+
+                tokenItem.getFeatures().setString("punc", "");
+                wordRelation.addWord(tokenItem, "company");
+                
+            } else if (tokenVal.equals("Ltd")) {
+
+                tokenItem.getFeatures().setString("punc", "");
+                wordRelation.addWord(tokenItem, "limited");
+            
             } else if (tokenVal.equals("Mr")) {
 
                 tokenItem.getFeatures().setString("punc", "");

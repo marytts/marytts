@@ -112,6 +112,7 @@ public class SphinxLabeler implements VoiceImportComponent {
         pw.print("cd "+rootDirName+"\n");
         pw.flush();
         //call Sphinx2 and exit
+        /**
         pw.print("( "+sphinx2dir+"build/bin/sphinx2-batch -adcin TRUE -adcext wav "
                 +"-ctlfn "+ctlfile+" -tactlfn "+tactlfn+" -ctloffset 0"
                 +"-ctlcount 100000000 -datadir wav -agcmax FALSE "
@@ -146,12 +147,15 @@ public class SphinxLabeler implements VoiceImportComponent {
         process.waitFor();
         process.exitValue();    
         System.out.println("... done.");
- 
+        **/
         /* Write the labels into lab directory */
         System.out.println("Exporting Labels ...");
         
         //lab destination directory
         String labDestDir = dbLayout.labDirName();
+        File labDestDirFile = new File(labDestDir);
+        if (!labDestDirFile.exists())
+            labDestDirFile.mkdir();
         String labExtension = dbLayout.labExt();
         //used to prune the times to 5 positions behind .	
         DecimalFormat df = new DecimalFormat( "0.00000" );

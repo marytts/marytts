@@ -889,6 +889,8 @@ public class FeatureDefinition
     
     /**
      * Convert a feature vector into a String representation. 
+     * Does not print the features for "mary_sentence_punc" since
+     * they interfere with wagon
      * @param fv a feature vector which must be consistent with this feature definition.
      * @return a String containing the String values of all features, separated by white space.
      * @throws IllegalArgumentException if the feature vector is not consistent with this
@@ -896,7 +898,7 @@ public class FeatureDefinition
      * @throws IndexOutOfBoundsException if any value of the feature vector is not consistent with this
      * feature definition 
      */
-    public String toFeatureString(FeatureVector fv)
+    public String toFeatureStringForWagon(FeatureVector fv)
     {
         if (numByteFeatures != fv.getNumberOfByteFeatures()
                 || numShortFeatures != fv.getNumberOfShortFeatures()
@@ -904,6 +906,9 @@ public class FeatureDefinition
             throw new IllegalArgumentException("Feature vector '"+fv+"' is inconsistent with feature definition");
         StringBuffer buf = new StringBuffer();
         for (int i=0; i<numByteFeatures; i++) {
+            //ignore mary_sentence_punc
+            if (getFeatureName(i).equals("mary_sentence_punc"))
+                    continue;
             if (buf.length()>0) buf.append(" ");
             buf.append(getFeatureValueAsString(i, fv.getByteFeature(i)));
         }
@@ -921,26 +926,32 @@ public class FeatureDefinition
     /**
      * Export this feature definition in the "all.desc" format which can be
      * read by wagon.
+     * Does not print the features for "mary_sentence_punc" since
+     * they interfere with wagon
      * @param out the destination of the data
      */
-    public void generateAllDotDesc(PrintWriter out)
+    public void generateAllDotDescForWagon(PrintWriter out)
     {
         out.println("(");
         out.println("(occurid cluster)");
-        for (int i=0, n=getNumberOfFeatures(); i<n; i++) {
+        for (int i=0, n=getNumberOfFeatures(); i<n; i++) {            
+            if (getFeatureName(i).equals("mary_sentence_punc"))
+                	    continue;
             out.print("( ");
             out.print(getFeatureName(i));
             if (i<numByteFeatures+numShortFeatures) { // list values
-                out.println();
-                for (int v=0, vmax=getNumberOfValues(i); v<vmax; v++) {
-                    out.print("  ");
-                    out.print(getFeatureValueAsString(i, v));
-                }
-                out.println();
-                out.println(")");
-            } else { // float feature
-                out.println(" float )");
-            }
+                    //ignore mary_sentence_punc
+                	
+                    for (int v=0, vmax=getNumberOfValues(i); v<vmax; v++) {
+                        out.print("  ");
+                        out.print(getFeatureValueAsString(i, v));
+                    }
+                    
+                    out.println(" )");
+             } else { // float feature
+                    out.println(" float )");
+             }
+           
         }
         out.println(")");
     }
