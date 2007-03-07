@@ -76,7 +76,7 @@ public class BlockwiseDoubleDataSource extends BufferedDoubleDataSource {
         if (dataProcessor != null) {
             dataProcessor.applyInline(buf, writePos-readSum, readSum);
         }
-        return readSum == minLength;
+        return readSum >= minLength;
         
     }
 
