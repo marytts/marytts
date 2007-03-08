@@ -410,8 +410,9 @@ public class CARTBuilder implements VoiceImportComponent {
             val = sum[k];
             sigma2[k] = ( sumSq[k] - (val*val)/N ) / N;
         }
+        System.out.println("Read MFCCs, now computing distances");
         /* Compute the unit distance matrix */
-        double[][] dist = new double[numUnits][featureVectors.length];
+        double[][] dist = new double[numUnits][numUnits];
         for ( int i = 0; i < numUnits; i++ ) {
             dist[i][i] = 0.0; // <= Set the diagonal to 0.0
             for ( int j = 1; j < numUnits; j++ ) {
@@ -423,16 +424,18 @@ public class CARTBuilder implements VoiceImportComponent {
                         + featureVectors[j].getFeatureAsString( 0, featDef )
                         + ".length=" + melCep[j].length + " ." );
                 System.out.flush(); */
-                if (melCep[i].length<3 || melCep[j].length<3){
-                    dist[i][j] = dist[j][i] = euclidian(melCep[i],melCep[j]);
-                    //System.out.println("Using Euclidean distance\n"+
-                      //      			"Distance is "+dist[i][j]);
+                if (melCep[i].length == 0 || melCep[j].length == 0) {
+                    if (melCep[i].length == melCep[j].length) { // both 0 length
+                        dist[i][j] = dist[j][i] = 0;
+                    } else {
+                        dist[i][j] = dist[j][i] = 100000; // a large number
+                    }
                 } else {
                     dist[i][j] = dist[j][i] = dtwDist( melCep[i], melCep[j], sigma2 );
                     //System.out.println("Using Mahalanobis distance\n"+
                       //      			"Distance is "+dist[i][j]);
                 }
-            } 
+            }
         }
         /* Write the matrix to disk */
         System.out.println( "Writing distance matrix to file [" + filename + "]");
@@ -514,39 +517,43 @@ public class CARTBuilder implements VoiceImportComponent {
             minIdx = minV[2] < minV[minIdx] ? 2 : minIdx;
             D[1][1] = minV[minIdx];
             Nd[1][1] = minNd[minIdx];
-        }
-        /* 2nd row: j==1 ; 2nd col: i==1 */
-        for ( int i = 2; i < l1; i++ ) {
-            // Row: 
-            minV[0] = D[i-2][0] + 2*d[i-1][1] + d[i][1];  minNd[0] = Nd[i-2][0] + 3;
-            minV[1] = D[i-1][0] + 2*d[i][1];              minNd[1] = Nd[i-1][0] + 2;
-            minV[2] = 2*d[i][0] + d[i][1];                minNd[2] = 3;
-            minIdx = minV[0] < minV[1] ? 0 : 1;
-            minIdx = minV[2] < minV[minIdx] ? 2 : minIdx;
-            D[i][1] = minV[minIdx];
-            Nd[i][1] = minNd[minIdx];
+
+            /* 2nd row: j==1 ; 2nd col: i==1 */
+            for ( int i = 2; i < l1; i++ ) {
+                // Row: 
+                minV[0] = D[i-2][0] + 2*d[i-1][1] + d[i][1];  minNd[0] = Nd[i-2][0] + 3;
+                minV[1] = D[i-1][0] + 2*d[i][1];              minNd[1] = Nd[i-1][0] + 2;
+                minV[2] = 2*d[i][0] + d[i][1];                minNd[2] = 3;
+                minIdx = minV[0] < minV[1] ? 0 : 1;
+                minIdx = minV[2] < minV[minIdx] ? 2 : minIdx;
+                D[i][1] = minV[minIdx];
+                Nd[i][1] = minNd[minIdx];
+                }
+            for ( int i = 2; i < l2; i++ ) {
+                // Column: 
+                minV[0] = 2*d[0][i] + d[1][i];                minNd[0] = 3;
+                minV[1] = D[0][i-1] + 2*d[1][i];              minNd[1] = Nd[0][i-1] + 2;
+                minV[2] = D[0][i-2] + 2*d[1][i-1] + d[1][i];  minNd[2] = Nd[0][i-2] + 3;
+                minIdx = minV[0] < minV[1] ? 0 : 1;
+                minIdx = minV[2] < minV[minIdx] ? 2 : minIdx;
+                D[1][i] = minV[minIdx];
+                Nd[1][i] = minNd[minIdx];
             }
-        for ( int i = 2; i < l2; i++ ) {
-            // Column: 
-            minV[0] = 2*d[0][i] + d[1][i];                minNd[0] = 3;
-            minV[1] = D[0][i-1] + 2*d[1][i];              minNd[1] = Nd[0][i-1] + 2;
-            minV[2] = D[0][i-2] + 2*d[1][i-1] + d[1][i];  minNd[2] = Nd[0][i-2] + 3;
-            minIdx = minV[0] < minV[1] ? 0 : 1;
-            minIdx = minV[2] < minV[minIdx] ? 2 : minIdx;
-            D[1][i] = minV[minIdx];
-            Nd[1][i] = minNd[minIdx];
+
         }
         /* - Rest of the matrix: */
         /* (This part works for 3 frames or more in either sequence.) */
-        for ( int i = 2; i < l1; i++ ) {
-            for ( int j = 2; j < l2; j++ ) {
-                minV[0] = D[i-2][j-1] + 2*d[i-1][j] + d[i][j];  minNd[0] = Nd[i-2][j-1] + 3;
-                minV[1] = D[i-1][j-1] + 2*d[i][j];              minNd[1] = Nd[i-1][j-1] + 2;
-                minV[2] = D[i-1][j-2] + 2*d[i][j-1] + d[i][j];  minNd[0] = Nd[i-1][j-2] + 3;
-                minIdx = minV[0] < minV[1] ? 0 : 1;
-                minIdx = minV[2] < minV[minIdx] ? 2 : minIdx;
-                D[i][j] = minV[minIdx];
-                Nd[i][j] = minNd[minIdx];
+        if ( (l1 > 2) && (l2 > 2) ) {
+            for ( int i = 2; i < l1; i++ ) {
+                for ( int j = 2; j < l2; j++ ) {
+                    minV[0] = D[i-2][j-1] + 2*d[i-1][j] + d[i][j];  minNd[0] = Nd[i-2][j-1] + 3;
+                    minV[1] = D[i-1][j-1] + 2*d[i][j];              minNd[1] = Nd[i-1][j-1] + 2;
+                    minV[2] = D[i-1][j-2] + 2*d[i][j-1] + d[i][j];  minNd[0] = Nd[i-1][j-2] + 3;
+                    minIdx = minV[0] < minV[1] ? 0 : 1;
+                    minIdx = minV[2] < minV[minIdx] ? 2 : minIdx;
+                    D[i][j] = minV[minIdx];
+                    Nd[i][j] = minNd[minIdx];
+                }
             }
         }
         /* Return */
@@ -569,21 +576,6 @@ public class CARTBuilder implements VoiceImportComponent {
             sum += ( (diff*diff) / sigma2[i] );
         }
         return( sum );
-    }
-    
-    private double euclidian (double[][] unit1, double[][] unit2 ){
-        double dist = 0.0;
-        if (! (unit1.length == unit2.length) && (unit1.length == 1)){
-            //we have a problem
-            //System.out.println("Problem calculating Euclidian distance");
-        } else {
-            for (int i=0;i<unit1[0].length;i++){
-                double c = unit1[0][i]-unit2[0][i];
-                dist += c*c;
-            }
-            dist = Math.sqrt(dist);
-        }
-        return dist;
     }
     
     /**
