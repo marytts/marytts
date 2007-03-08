@@ -4,7 +4,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="java/log4j-1.2.8.jar"/>
 	<classpathentry kind="lib" path="java/freetts.jar"/>
-	<classpathentry sourcepath="java/jsresources.jar" kind="lib" path="java/jsresources.jar"/>
+	<classpathentry kind="lib" path="java/jsresources.jar" sourcepath="java/jsresources.jar"/>
 	<classpathentry kind="lib" path="java/junit.jar"/>
 	<classpathentry kind="lib" path="java/freetts-cmu_us_kal.jar"/>
 	<classpathentry kind="lib" path="java/freetts-cmudict04.jar"/>
@@ -21,5 +21,6 @@
 	<classpathentry kind="lib" path="build/standalone-compiler.jar"/>
 	<classpathentry kind="lib" path="java/jl1.0.jar"/>
 	<classpathentry kind="lib" path="java/JavaOpenAIR.jar"/>
+	<classpathentry kind="lib" path="java/Jama-1.0.2.jar"/>
 	<classpathentry kind="output" path="java"/>
 </classpath>

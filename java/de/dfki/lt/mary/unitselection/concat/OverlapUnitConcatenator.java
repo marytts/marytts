@@ -72,7 +72,24 @@ public class OverlapUnitConcatenator extends BaseUnitConcatenator {
             // Set target pitchmarks,
             // either by copying from units (data-driven)
             // or by computing from target (model-driven)
-            int[] pitchmarks;
+            int unitDuration = 0;
+            int nZeroLengthDatagrams = 0;
+            for (int i=0; i<datagrams.length; i++) {
+                int dur = (int) datagrams[i].getDuration();
+                if (dur == 0) nZeroLengthDatagrams++;
+                unitDuration += datagrams[i].getDuration();
+            }
+            if (nZeroLengthDatagrams > 0) {
+                logger.warn("Unit "+unit+" contains "+nZeroLengthDatagrams+" zero-length datagrams -- removing them");
+                Datagram[] dummy = new Datagram[datagrams.length - nZeroLengthDatagrams];
+                for (int i=0, j=0; i<datagrams.length; i++) {
+                    if (datagrams[i].getDuration() > 0) {
+                        dummy[j++] = datagrams[i];
+                    }
+                }
+                datagrams = dummy;
+                unitData.setFrames(datagrams);
+            }
             if (unit.getTarget().isSilence()) {
                 int targetDuration = Math.round(unit.getTarget().getTargetDurationInSeconds()*audioformat.getSampleRate());
                 if (datagrams != null && datagrams.length > 0) {
@@ -81,10 +98,6 @@ public class OverlapUnitConcatenator extends BaseUnitConcatenator {
                         logger.debug("For "+unit+", adjusting target duration to be at least one period: "
                                 + (firstPeriodDur/audioformat.getSampleRate())+" s instead of requested "+unit.getTarget().getTargetDurationInSeconds()+ " s");
                         targetDuration = firstPeriodDur;
-                    }
-                    int unitDuration = 0;
-                    for (int i=0; i<datagrams.length; i++) {
-                        unitDuration += datagrams[i].getDuration();
                     }
                     if (unitDuration < targetDuration) {
                         // insert silence in the middle
@@ -122,6 +135,7 @@ public class OverlapUnitConcatenator extends BaseUnitConcatenator {
                 // take unit as is
                 frames = datagrams;
             }
+            unitData.setUnitDuration(unitDuration);
             unitData.setFrames(frames);
         }
     }

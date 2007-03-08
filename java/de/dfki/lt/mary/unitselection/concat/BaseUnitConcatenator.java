@@ -218,8 +218,9 @@ public class BaseUnitConcatenator implements UnitConcatenator
 
     protected static class UnitData
     {
-        int[] pitchmarks;
-        Datagram[] frames;
+        protected int[] pitchmarks;
+        protected Datagram[] frames;
+        protected int unitDuration;
 
         public UnitData()
         {
@@ -289,6 +290,26 @@ public class BaseUnitConcatenator implements UnitConcatenator
         public Datagram getFrame(int frameIndex)
         {
             return frames[frameIndex];
+        }
+        
+        /**
+         * Set the realised duration of this unit,
+         * in samples.
+         * @param duration
+         */
+        public void setUnitDuration(int duration)
+        {
+            this.unitDuration = duration;
+        }
+        
+        /**
+         * Get the realised duration of this unit,
+         * in samples
+         * @return
+         */
+        public int getUnitDuration()
+        {
+            return unitDuration;
         }
         
     }
