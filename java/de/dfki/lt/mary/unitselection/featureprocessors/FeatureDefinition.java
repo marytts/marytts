@@ -889,8 +889,6 @@ public class FeatureDefinition
     
     /**
      * Convert a feature vector into a String representation. 
-     * Does not print the features for "mary_sentence_punc" since
-     * they interfere with wagon
      * @param fv a feature vector which must be consistent with this feature definition.
      * @return a String containing the String values of all features, separated by white space.
      * @throws IllegalArgumentException if the feature vector is not consistent with this
@@ -898,7 +896,7 @@ public class FeatureDefinition
      * @throws IndexOutOfBoundsException if any value of the feature vector is not consistent with this
      * feature definition 
      */
-    public String toFeatureStringForWagon(FeatureVector fv)
+    public String toFeatureString(FeatureVector fv)
     {
         if (numByteFeatures != fv.getNumberOfByteFeatures()
                 || numShortFeatures != fv.getNumberOfShortFeatures()
@@ -906,9 +904,6 @@ public class FeatureDefinition
             throw new IllegalArgumentException("Feature vector '"+fv+"' is inconsistent with feature definition");
         StringBuffer buf = new StringBuffer();
         for (int i=0; i<numByteFeatures; i++) {
-            //ignore mary_sentence_punc
-            if (getFeatureName(i).equals("mary_sentence_punc"))
-                    continue;
             if (buf.length()>0) buf.append(" ");
             buf.append(getFeatureValueAsString(i, fv.getByteFeature(i)));
         }
