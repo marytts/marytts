@@ -939,7 +939,15 @@ public class FeatureDefinition
                         // double quotes in the value are preceded by a backslash --
                         // otherwise, we get problems e.g. for mary_sentence_punc
                         String val = getFeatureValueAsString(i, v);
-                        val = val.replaceAll("\"", "\\\""); // " -> \" 
+                        if (val.indexOf('"') != -1) {
+                            StringBuffer buf = new StringBuffer();
+                            for (int c=0; c<val.length(); c++) {
+                                char ch = val.charAt(c);
+                                if (ch == '"') buf.append("\\\"");
+                                else buf.append(ch);
+                            }
+                            val = buf.toString();
+                        }
                         out.print("\""+val+"\"");
                     }
                     
