@@ -325,7 +325,7 @@ public class CARTBuilder implements VoiceImportComponent {
         //loop through the feature vectors
         for (int i=0; i<featureVectors.length;i++){
             // Print the feature string
-            out.print( i+" "+featDef.toFeatureStringForWagon( featureVectors[i] ) );
+            out.print( i+" "+featDef.toFeatureString( featureVectors[i] ) );
             //print a newline if this is not the last vector
             if (i+1 != featureVectors.length){
                 out.print("\n");
