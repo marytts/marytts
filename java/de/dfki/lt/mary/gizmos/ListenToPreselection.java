@@ -61,14 +61,15 @@ public class ListenToPreselection {
         
         /* Loop across possible phonemes */
         long tic = System.currentTimeMillis();
+        int mary_phonemeIndex = feaDef.getFeatureIndex("mary_phoneme");
         int nbPhonVal = feaDef.getNumberOfValues( feaDef.getFeatureIndex( "mary_phoneme" ) );
         for ( int phon = 1; phon < nbPhonVal; phon++ ) {
         // for ( int phon = 14; phon < nbPhonVal; phon++ ) {
             String phonID = feaDef.getFeatureValueAsString( 0, phon );
             /* Loop across all instances */
-            byte[] phonFeature = new byte[1];
-            phonFeature[0] = (byte)( phon );
-            FeatureVector target = new FeatureVector( phonFeature, null, null, 0 );
+            byte[] phonFeature = new byte[mary_phonemeIndex+1];
+            phonFeature[mary_phonemeIndex] = (byte)( phon );
+            FeatureVector target = new FeatureVector( phonFeature, new short[0], new float[0], 0 );
             FeatureFileIndexingResult instances = ffi.retrieve( target );
             int[] ui = instances.getUnitIndexes();
             System.out.println( "Concatenating the phoneme [" + phonID + "] which has [" + ui.length + "] instances..." );
