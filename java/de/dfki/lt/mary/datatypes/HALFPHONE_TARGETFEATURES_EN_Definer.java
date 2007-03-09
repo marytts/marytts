@@ -28,6 +28,8 @@
  */
 package de.dfki.lt.mary.datatypes;
 
+import java.util.Locale;
+
 import de.dfki.lt.mary.MaryDataType;
 
 /**
@@ -35,9 +37,9 @@ import de.dfki.lt.mary.MaryDataType;
  *
  *
  */
-public class TARGETFEATURES_Definer extends MaryDataType {
+public class HALFPHONE_TARGETFEATURES_EN_Definer extends MaryDataType {
     static {
-        define("TARGETFEATURES", null, false, true, PLAIN_TEXT, null, null,
+        define("HALFPHONE_TARGETFEATURES_EN", Locale.US, false, true, PLAIN_TEXT, null, null,
                          "(no example text)");
 
     }

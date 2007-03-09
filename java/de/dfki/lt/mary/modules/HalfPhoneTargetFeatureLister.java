@@ -34,6 +34,7 @@ import java.util.List;
 import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.Relation;
 
+import de.dfki.lt.mary.MaryDataType;
 import de.dfki.lt.mary.modules.synthesis.FreeTTSVoices;
 import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.unitselection.HalfPhoneTarget;
@@ -42,9 +43,9 @@ import de.dfki.lt.mary.unitselection.Target;
 public class HalfPhoneTargetFeatureLister extends TargetFeatureLister 
 {
 
-    public HalfPhoneTargetFeatureLister()
+    public HalfPhoneTargetFeatureLister(MaryDataType outputType, String configEntryPrefix)
     {
-        super();
+        super(outputType, configEntryPrefix);
     }
 
     /**

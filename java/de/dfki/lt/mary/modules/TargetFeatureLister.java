@@ -55,20 +55,22 @@ import de.dfki.lt.mary.unitselection.featureprocessors.TargetFeatureComputer;
 public class TargetFeatureLister extends InternalModule
 {
     protected TargetFeatureComputer featureComputer;
+    protected String configEntryPrefix;
 
-    public TargetFeatureLister()
+    public TargetFeatureLister(MaryDataType outputType, String configEntryPrefix)
     {
         super("TargetFeatureLister",
                 MaryDataType.get("FREETTS_ACOUSTPARAMS"), 
-                MaryDataType.get("TARGETFEATURES"));
+                outputType);
+        this.configEntryPrefix = configEntryPrefix;
     }
 
     public void startup() throws Exception
     {
         super.startup();
-        String managerClass = MaryProperties.needProperty("targetfeaturelister.featuremanager");
+        String managerClass = MaryProperties.needProperty(configEntryPrefix+".featuremanager");
         FeatureProcessorManager manager = (FeatureProcessorManager) Class.forName(managerClass).newInstance();
-        String features = MaryProperties.needProperty("targetfeaturelister.features");
+        String features = MaryProperties.needProperty(configEntryPrefix+".features");
         this.featureComputer = new TargetFeatureComputer(manager, features);
     }
 
