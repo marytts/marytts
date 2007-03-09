@@ -935,16 +935,17 @@ public class FeatureDefinition
         out.println("(");
         out.println("(occurid cluster)");
         for (int i=0, n=getNumberOfFeatures(); i<n; i++) {            
-            if (getFeatureName(i).equals("mary_sentence_punc"))
-                	    continue;
             out.print("( ");
             out.print(getFeatureName(i));
             if (i<numByteFeatures+numShortFeatures) { // list values
-                    //ignore mary_sentence_punc
-                	
                     for (int v=0, vmax=getNumberOfValues(i); v<vmax; v++) {
                         out.print("  ");
-                        out.print(getFeatureValueAsString(i, v));
+                        // Print values surrounded by double quotes, and make sure any
+                        // double quotes in the value are preceded by a backslash --
+                        // otherwise, we get problems e.g. for mary_sentence_punc
+                        String val = getFeatureValueAsString(i, v);
+                        val = val.replace("\"", "\\\""); // " -> \" 
+                        out.print("\""+val+"\"");
                     }
                     
                     out.println(" )");
