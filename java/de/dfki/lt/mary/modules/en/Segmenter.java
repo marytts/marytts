@@ -98,29 +98,39 @@ public class Segmenter implements UtteranceProcessor {
 
 	    String[] phones = null;
 
-	    Item token = word.getItemAs("Token");
+        // Part-of-speech:
+        String pos = "0";
+        FeatureSet wordFeatures = word.getFeatures();
+        if (wordFeatures != null && wordFeatures.isPresent("pos")) {
+            pos = wordFeatures.getString("pos");
+            pos = pos.toLowerCase();
+            // TODO: create a proper mapping for parts of speech:
+            if (pos.charAt(0) == 'd') pos = "d";
+            // here we just distinguish determiners from the rest of the world.
+        }
+
+        Item token = word.getItemAs("Token");
 	    FeatureSet featureSet = null;
 
 	    if (token != null) {
-		Item parent = token.getParent();
-		featureSet = parent.getFeatures();
+	        Item parent = token.getParent();
+	        featureSet = parent.getFeatures();
 	    }
 	    String wordString = word.toString();
 	    if (featureSet != null && featureSet.isPresent("phones")) {
 	        phones = (String[]) featureSet.getObject("phones");
-		
 	    } else {
 	        boolean useLTSRules = 
-	            MaryProperties.getBoolean("english.lexicon.useLTSrules",true);
+	            MaryProperties.getBoolean("english.lexicon.useLTSrules", true);
 	        
 	        if (useLTSRules){
 	            //System.out.println("Using LTSRules");
 	            //if word not in lex, use letter to sound rules
-	            phones = lex.getPhones(wordString, null,true);
+	            phones = lex.getPhones(wordString, pos, true);
 	        } else {
 	            //System.out.println("Not using LTSRules");
 	            //dont use letter to sound rules
-	            phones = lex.getPhones(wordString, null,false);
+	            phones = lex.getPhones(wordString, pos, false);
 	        }
 		
 	    }
@@ -129,7 +139,7 @@ public class Segmenter implements UtteranceProcessor {
 	        //System.out.println("Phones = null for word "+wordString);
 	        //phones must be generated with lts rules
 	        //add generated phones to addenda
-	        phones = lex.getPhones(wordString, null,true);	        
+	        phones = lex.getPhones(wordString, pos, true);	        
 	        
 	        StringBuffer ltsPhoneString = new StringBuffer();
 	        for (int i=0;i<phones.length;i++){
