@@ -21,6 +21,7 @@ public class UnitLabelComputer implements VoiceImportComponent
 {
     protected File phonelabelDir;
     protected File unitlabelDir;
+    protected String unitlabelExt;
     protected String pauseSymbol;
     
     protected DatabaseLayout db = null;
@@ -32,23 +33,33 @@ public class UnitLabelComputer implements VoiceImportComponent
     {
         this.db = setdb;
         this.bnl = setbnl;
-
         
         pauseSymbol = System.getProperty( "pause.symbol", "pau" );
 
     }
     
+    /**
+     * Set some global variables that subclasses may want to override.
+     *
+     */
+    protected void init()
+    {
+        unitlabelDir = new File( db.phoneUnitLabDirName() );
+        if (!unitlabelDir.exists()) unitlabelDir.mkdir();
+        unitlabelExt = db.phoneUnitLabExt();
+    }
+    
     /**/
     public boolean compute() throws IOException
     {
+        init();
         phonelabelDir = new File( db.labDirName() );
         if (!phonelabelDir.exists()) throw new IOException("No such directory: "+ phonelabelDir);
-        unitlabelDir = new File( db.unitLabDirName() );
-        if (!unitlabelDir.exists()) unitlabelDir.mkdir();
+
         
         System.out.println( "Computing unit labels for " + bnl.getLength() + " files." );
         System.out.println( "From phonetic label files: " + db.labDirName() + "*" + db.labExt() );
-        System.out.println( "To       unit label files: " + db.unitLabDirName() + "*" + db.unitLabExt() );
+        System.out.println( "To       unit label files: " + unitlabelDir + "*" + unitlabelExt );
         for (int i=0; i<bnl.getLength(); i++) {
             percent = 100*i/bnl.getLength();
             File labFile = new File( db.labDirName() + bnl.getName(i) + db.labExt() );
@@ -59,7 +70,7 @@ public class UnitLabelComputer implements VoiceImportComponent
             }
             else {
                 BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream( labFile ), "UTF-8"));
-                PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File( db.unitLabDirName() + bnl.getName(i) + db.unitLabExt() )), "UTF-8"));
+                PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(unitlabelDir, bnl.getName(i) + unitlabelExt )), "UTF-8"));
                 // Merge adjacent pauses into one: In a sequence of pauses,
                 // only remember the last one.
                 String pauseLine = null;

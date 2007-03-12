@@ -30,6 +30,7 @@ package de.dfki.lt.mary.unitselection.voiceimport;
 
 import java.io.BufferedReader;
 import java.io.DataOutput;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -48,6 +49,15 @@ public class HalfPhoneFeatureFileWriter extends FeatureFileWriter
         super(setdb, setbnl);
     }
     
+    /**
+     * Set some global variables; sub-classes may want to override.
+     *
+     */
+    protected void init()
+    {
+        unitfeatureDir = new File(db.halfphoneUnitFeaDirName());
+        featsExt = db.halfphoneUnitFeaExt();
+    }
     
     protected void readFeatureDefinition() throws IOException
     {

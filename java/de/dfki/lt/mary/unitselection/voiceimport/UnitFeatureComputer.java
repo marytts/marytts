@@ -5,9 +5,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Locale;
 
 import de.dfki.lt.mary.client.MaryClient;
 import de.dfki.lt.mary.util.FileUtils;
+import de.dfki.lt.mary.util.MaryUtils;
 
 /**
  * For the given texts, compute unit features and align them
@@ -19,8 +21,11 @@ public class UnitFeatureComputer implements VoiceImportComponent
 {
     protected File textDir;
     protected File unitfeatureDir;
+    protected String featsExt;
     protected String locale;
     protected MaryClient mary;
+    protected String maryInputType;
+    protected String maryOutputType;
 
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
@@ -42,27 +47,27 @@ public class UnitFeatureComputer implements VoiceImportComponent
     {
         this.db = setdb;
         this.bnl = setbnl;
-
         
         locale = db.locale();
-
+        
         mary = null; // initialised only if needed
     }
     
-    public File getTextDir()
+    /**
+     * Set some global variables; subclasses may want to override.
+     *
+     */
+    protected void init()
     {
-        return textDir;
+        unitfeatureDir = new File( db.phoneUnitFeaDirName() );
+        if (!unitfeatureDir.exists()) unitfeatureDir.mkdir();
+        featsExt = db.phoneUnitFeaExt();
+        maryInputType = "RAWMARYXML";
+        if (locale.equals("de")) maryOutputType = "TARGETFEATURES_DE";
+        else if (locale.equals("en")) maryOutputType = "TARGETFEATURES_EN";
+        else throw new IllegalArgumentException("Unsupported locale: "+locale);
     }
     
-    public File getUnitFeatureDir()
-    {
-        return unitfeatureDir;
-    }
-    
-    public String getLocale()
-    {
-        return locale;
-    }
     
     public MaryClient getMaryClient() throws IOException
     {
@@ -80,11 +85,9 @@ public class UnitFeatureComputer implements VoiceImportComponent
 
     public boolean compute() throws IOException
     {
+        init();
         textDir = new File( db.txtDirName() );
         if (!textDir.exists()) throw new IOException("No such directory: "+ textDir);
-        unitfeatureDir = new File( db.unitFeaDirName() );
-        if (!unitfeatureDir.exists()) unitfeatureDir.mkdir();
-        
         //String[] basenames = FileUtils.listBasenames(textDir, ".txt");
         //System.out.println("Computing unit features for "+basenames.length+" files");
         System.out.println( "Computing unit features for " + bnl.getLength() + " files" );
@@ -110,11 +113,9 @@ public class UnitFeatureComputer implements VoiceImportComponent
                 + "</maryxml>";
         }
         
-        String inputFormat = "RAWMARYXML";
-        String outputFormat = "TARGETFEATURES";
-        OutputStream os = new BufferedOutputStream(new FileOutputStream(new File( db.unitFeaDirName() + basename + db.unitFeaExt() )));
+        OutputStream os = new BufferedOutputStream(new FileOutputStream(new File( unitfeatureDir, basename + featsExt )));
         MaryClient maryClient = getMaryClient();
-        maryClient.process(text, inputFormat, outputFormat, null, null, os);
+        maryClient.process(text, maryInputType, maryOutputType, null, null, os);
         os.flush();
         os.close();
     }

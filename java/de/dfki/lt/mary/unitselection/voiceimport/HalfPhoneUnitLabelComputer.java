@@ -1,5 +1,6 @@
 package de.dfki.lt.mary.unitselection.voiceimport;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
@@ -15,6 +16,17 @@ public class HalfPhoneUnitLabelComputer extends UnitLabelComputer
     public HalfPhoneUnitLabelComputer( DatabaseLayout setdb, BasenameList setbnl ) throws IOException
     {
         super(setdb, setbnl);
+    }
+    
+    /**
+     * Set some global variables that subclasses may want to override.
+     *
+     */
+    protected void init()
+    {
+        unitlabelDir = new File( db.halfphoneUnitLabDirName() );
+        if (!unitlabelDir.exists()) unitlabelDir.mkdir();
+        unitlabelExt = db.halfphoneUnitLabExt();
     }
     
     

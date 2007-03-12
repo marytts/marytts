@@ -44,6 +44,8 @@ public class UnitfileWriter implements VoiceImportComponent
 {
     protected File maryDir;
     protected File unitFile;
+    protected File unitlabelDir;
+    protected String unitlabelExt;
     protected int samplingRate;
     protected String pauseSymbol;
 
@@ -64,11 +66,23 @@ public class UnitfileWriter implements VoiceImportComponent
         unitFile = new File( db.unitFileName() );
         samplingRate = Integer.getInteger("unit.file.samplingrate", 16000).intValue(); // TODO: make a better passing of the sampling rate
         pauseSymbol = System.getProperty("pause.symbol", "pau");
-
     }
+    
+    /**
+     * Set some global variables that subclasses may want to override.
+     *
+     */
+    protected void init()
+    {
+        unitlabelDir = new File( db.phoneUnitLabDirName() );
+        if (!unitlabelDir.exists()) throw new IllegalStateException("Unit label directory "+unitlabelDir.getAbsolutePath()+" does not exist");
+        unitlabelExt = db.phoneUnitLabExt();
+    }
+    
     
     public boolean compute() throws IOException
     {
+        init();
         System.out.println("Unitfile writer started.");
         System.out.println("Verifying that unit feature and label files are perfectly aligned...");
         LabelFeatureAligner aligner = new LabelFeatureAligner( db, bnl );
@@ -95,7 +109,7 @@ public class UnitfileWriter implements VoiceImportComponent
             out.writeLong( globalStart ); out.writeInt(-1);
             index++;
             // Open the label file and reset the local time pointer
-            BufferedReader labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitLabDirName() + bnl.getName(i) + db.unitLabExt() )), "UTF-8"));
+            BufferedReader labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File(unitlabelDir, bnl.getName(i) + unitlabelExt)), "UTF-8"));
             String line;
             localNbrSamples = 0l;
             localStart = 0l;
