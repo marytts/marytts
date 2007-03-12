@@ -103,12 +103,17 @@ public class DatabaseLayout
         setIfDoesntExist( "db.phonelab.extension", ".lab" );
         
         /* Unit label files */
-        setIfDoesntExist( "db.unitlab.subDir", "unitlab" );
-        setIfDoesntExist( "db.unitlab.extension", ".unitlab" );
+        setIfDoesntExist( "db.unitlab.subDir", "phonelab" );
+        setIfDoesntExist( "db.unitlab.extension", ".lab" );
+        setIfDoesntExist( "db.halfphone-unitlab.subDir", "halfphonelab" );
+        setIfDoesntExist( "db.halfphone-unitlab.extension", ".hplab" );
+
         
         /* Unit feature files */
-        setIfDoesntExist( "db.unitfeatures.subDir", "unitfeatures" );
-        setIfDoesntExist( "db.unitfeatures.extension", ".feats" );
+        setIfDoesntExist( "db.unitfeatures.subDir", "phonefeatures" );
+        setIfDoesntExist( "db.unitfeatures.extension", ".pfeats" );
+        setIfDoesntExist( "db.halfphone-unitfeatures.subDir", "halfphonefeatures" );
+        setIfDoesntExist( "db.halfphone-unitfeatures.extension", ".hpfeats" );
 
         /* Raw Mary XML files */
         setIfDoesntExist( "db.rawmaryxml.subDir", "text" );
@@ -216,14 +221,20 @@ public class DatabaseLayout
     public String labExt() { return( System.getProperty( "db.phonelab.extension") ); }
     
     /* UNITLAB */
-    public String unitLabDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
+    public String phoneUnitLabDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
             + System.getProperty( "db.unitlab.subDir" ) + System.getProperty( "file.separator" ) ); }
-    public String unitLabExt() { return( System.getProperty( "db.unitlab.extension") ); }
+    public String phoneUnitLabExt() { return( System.getProperty( "db.unitlab.extension") ); }
+    public String halfphoneUnitLabDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
+            + System.getProperty( "db.halfphone-unitlab.subDir" ) + System.getProperty( "file.separator" ) ); }
+    public String halfphoneUnitLabExt() { return( System.getProperty( "db.halfphone-unitlab.extension") ); }
     
     /* UNIT FEATURES */
-    public String unitFeaDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
+    public String phoneUnitFeaDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
             + System.getProperty( "db.unitfeatures.subDir" ) + System.getProperty( "file.separator" ) ); }
-    public String unitFeaExt() { return( System.getProperty( "db.unitfeatures.extension") ); }
+    public String phoneUnitFeaExt() { return( System.getProperty( "db.unitfeatures.extension") ); }
+    public String halfphoneUnitFeaDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
+            + System.getProperty( "db.halfphone-unitfeatures.subDir" ) + System.getProperty( "file.separator" ) ); }
+    public String halfphoneUnitFeaExt() { return( System.getProperty( "db.halfphone-unitfeatures.extension") ); }
     
     /* RAW MARY XML */
     public String rmxDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )

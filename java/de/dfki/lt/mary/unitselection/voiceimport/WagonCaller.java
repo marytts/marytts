@@ -38,10 +38,11 @@ import de.dfki.lt.mary.unitselection.voiceimport.SphinxTrainer.StreamGobbler;
 /**
  * Class to call Wagon
  * 
- * @author sacha, Anna Hunecke
+ * @author sacha, Anna Hunecke, Marc Schröder
  *
  */
-public class WagonCaller {
+public class WagonCaller
+{
  
     //the Edinburgh Speech tools directory
     private String ESTDIR = "/project/mary/Festival/speech_tools/";
@@ -55,8 +56,8 @@ public class WagonCaller {
      * @param ESTDIR the EST directory
      * @param featureDescFile the feature definition file
      */
-    public WagonCaller(String ESTDIR,
-            		String featureDescFile){
+    public WagonCaller(String ESTDIR, String featureDescFile)
+    {
         this.ESTDIR = ESTDIR;
         this.featureDefFile = featureDescFile;
         //try out if wagon runs
@@ -77,7 +78,8 @@ public class WagonCaller {
      * 
      * @param featureDescFile the feature definition file
      */
-    public WagonCaller(String featureDescFile){
+    public WagonCaller(String featureDescFile)
+    {
         // Read the environment variable ESTDIR from the system: 
         this.featureDefFile = featureDescFile;
         String getESTDIR = System.getProperty("ESTDIR");
@@ -106,39 +108,19 @@ public class WagonCaller {
      * @param valueFile the file containing the values of the units
      * @param distanceTableFile the distance tables for the units
      * @param destinationFile the file to dump the tree to
+     * @return true on success, false on failure
      */
     public boolean callWagon(String valueFile, 
             			String distanceTableFile,
-            			String destinationFile){
-        try {
-            Process p = Runtime.getRuntime().exec( ESTDIR + "/main/wagon "
-                				+ "-desc " + featureDefFile
-                				+ " -data " + valueFile
-                				+ " -balance 0" 
-                				+ " -distmatrix " + distanceTableFile
-                				+ " -stop 10"
-                				+ " -output " + destinationFile
-                				+ " -verbose");
-            //collect the output
-            //read from error stream
-            StreamGobbler errorGobbler = new 
-            	StreamGobbler(p.getErrorStream(), "err");            
-        
-            //read from output stream
-            StreamGobbler outputGobbler = new 
-            	StreamGobbler(p.getInputStream(), "out");        
-            //start reading from the streams
-            errorGobbler.start();
-            outputGobbler.start();
-            p.waitFor();
-            if (p.exitValue()==0)
-                return true;
-            return false;
-        } catch (Exception e){
-            e.printStackTrace();
-            throw new RuntimeException("Exception running wagon");
-        }
-        
+            			String destinationFile)
+    {
+        return callWagon("-desc " + featureDefFile
+                + " -data " + valueFile
+                + " -balance 0" 
+                + " -distmatrix " + distanceTableFile
+                + " -stop 10"
+                + " -output " + destinationFile
+                + " -verbose");
     }
     
     /**
@@ -149,31 +131,46 @@ public class WagonCaller {
      * @param distanceTableFile the distance tables for the units
      * @param destinationFile the file to dump the tree to
      * @param balance if balance = 0 stop is used; 
-     * 					else if number of indices at node divided by balance is 
-     * 					greater than stop it is used as stop
+     *                  else if number of indices at node divided by balance is 
+     *                  greater than stop it is used as stop
      * @param stop minimum number of indices in leaf
+     * @return true on success, false on failure
      */
     public boolean callWagon(String valueFile, 
-            			String distanceTableFile,
-            			String destinationFile,
-            			int balance,
-            			int stop){
+                        String distanceTableFile,
+                        String destinationFile,
+                        int balance,
+                        int stop)
+    {
+        return callWagon("-desc " + featureDefFile
+                + " -data " + valueFile
+                + " -balance " + balance 
+                + " -distmatrix " + distanceTableFile
+                + " -stop " + stop 
+                + " -output " + destinationFile);
+    }
+
+    
+    /**
+     * Call the wagon program with the given argument line.
+     * This method is for those who know what they are doing.
+     * 
+     * @param arguments all arguments to wagon in one string
+     * @return true on success, false on failure
+     */
+    public boolean callWagon(String arguments)
+    {
         try {
             Process p = Runtime.getRuntime().exec( ESTDIR + "/main/wagon "
-                				+ "-desc " + featureDefFile
-                				+ " -data " + valueFile
-                				+ " -balance " + balance 
-                				+ " -distmatrix " + distanceTableFile
-                				+ " -stop " + stop 
-                				+ " -output " + destinationFile);
+                                + arguments);
             //collect the output
             //read from error stream
             StreamGobbler errorGobbler = new 
-            	StreamGobbler(p.getErrorStream(), "err");            
+                StreamGobbler(p.getErrorStream(), "err");            
         
             //read from output stream
             StreamGobbler outputGobbler = new 
-            	StreamGobbler(p.getInputStream(), "out");        
+                StreamGobbler(p.getInputStream(), "out");        
             //start reading from the streams
             errorGobbler.start();
             outputGobbler.start();
@@ -185,8 +182,9 @@ public class WagonCaller {
             e.printStackTrace();
             throw new RuntimeException("Exception running wagon");
         }
-        
     }
+
+    
     
     static class StreamGobbler extends Thread
     {

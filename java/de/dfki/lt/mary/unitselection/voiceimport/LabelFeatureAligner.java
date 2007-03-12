@@ -30,7 +30,9 @@ import de.dfki.lt.mary.util.FileUtils;
 public class LabelFeatureAligner implements VoiceImportComponent
 {
     protected File unitlabelDir;
+    protected String labExt;
     protected File unitfeatureDir;
+    protected String featsExt;
     protected UnitFeatureComputer featureComputer;
     protected String pauseSymbol;
     
@@ -51,12 +53,22 @@ public class LabelFeatureAligner implements VoiceImportComponent
         this.db = setdb;
         this.bnl = setbnl;
     
-        this.unitlabelDir = new File( db.unitLabDirName() );
-        this.unitfeatureDir = new File( db.unitFeaDirName() );
         this.featureComputer = new UnitFeatureComputer( db, bnl );
         this.pauseSymbol = System.getProperty("pause.symbol", "pau");
     }
     
+    /**
+     * Set some global variables; sub-classes may want to override.
+     *
+     */
+    protected void init()
+    {
+        unitfeatureDir = new File(db.phoneUnitFeaDirName());
+        featsExt = db.phoneUnitFeaExt();
+        this.unitlabelDir = new File( db.phoneUnitLabDirName() );
+        labExt = db.phoneUnitLabExt();
+    }
+
     /**
      * Align labels and features. For each .unitlab file in the unit label
      * directory, verify whether the chain of units given is identical to
@@ -68,6 +80,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
      */
     public boolean compute() throws IOException
     {
+        init();
         int bnlLengthIn = bnl.getLength();
         System.out.println( "Verifying feature-label alignment for "+ bnlLengthIn + " utterances." );
         problems = new TreeMap();
@@ -239,7 +252,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
         
             BufferedReader labels;
             try{
-                labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitLabDirName() + basename + db.unitLabExt() )), "UTF-8"));
+                labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File( unitlabelDir, basename + labExt )), "UTF-8"));
             }catch (FileNotFoundException fnfe){
                  return;
             }
@@ -258,7 +271,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
         
         	BufferedReader features;    
         	try {
-                 features = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitFeaDirName() + basename + db.unitFeaExt() )), "UTF-8"));
+                 features = new BufferedReader(new InputStreamReader(new FileInputStream(new File(unitfeatureDir, basename + featsExt )), "UTF-8"));
             }catch (FileNotFoundException fnfe){
                  return;
             }
@@ -374,7 +387,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
 	        PrintWriter labelFileWriter =
 	            new PrintWriter(
                     new FileWriter(
-                            new File( db.unitLabDirName() + basename + db.unitLabExt() )));
+                            new File(unitlabelDir, basename + labExt)));
 	        //print header
 	        labelFileWriter.print(labelFileHeader.toString());
 	        //print units
@@ -407,9 +420,9 @@ public class LabelFeatureAligner implements VoiceImportComponent
     protected void deleteProblems(Map problems){
         for (Iterator it = problems.keySet().iterator(); it.hasNext(); ) {
             String basename = (String) it.next(); 
-            File nextLabFile = new File(db.unitLabDirName() + basename + db.unitLabExt());
+            File nextLabFile = new File(unitlabelDir, basename + labExt);
             nextLabFile.delete();
-            File nextFeatFile = new File(db.unitFeaDirName() + basename + db.unitFeaExt());
+            File nextFeatFile = new File(unitfeatureDir, basename + featsExt);
             nextFeatFile.delete();
         }
     }
@@ -427,13 +440,13 @@ public class LabelFeatureAligner implements VoiceImportComponent
     {
         BufferedReader labels;
         try{
-            labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitLabDirName() + basename + db.unitLabExt() )), "UTF-8"));
+            labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File( unitlabelDir, basename + labExt )), "UTF-8"));
         } catch (FileNotFoundException fnfe){
             return "No label file";
         }
             BufferedReader features; 
         try {
-            features = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitFeaDirName() + basename + db.unitFeaExt() )), "UTF-8"));
+            features = new BufferedReader(new InputStreamReader(new FileInputStream(new File( unitfeatureDir, basename + featsExt )), "UTF-8"));
         } catch (FileNotFoundException fnfe){
             return "No feature file";
         }
@@ -580,7 +593,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
     {
         String line;
         
-            BufferedReader labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitLabDirName() + basename + db.unitLabExt() )), "UTF-8"));
+            BufferedReader labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File(unitlabelDir, basename + labExt)), "UTF-8"));
             //store header of label file in StringBuffer
         	StringBuffer labelFileHeader = new StringBuffer();
         	while ((line = labels.readLine()) != null) {
@@ -594,7 +607,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
         	    labelUnits.add(line+"\n");
         	}
         
-        	BufferedReader features = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitFeaDirName() + basename + db.unitFeaExt() )), "UTF-8"));    
+        	BufferedReader features = new BufferedReader(new InputStreamReader(new FileInputStream(new File(unitfeatureDir, basename + featsExt )), "UTF-8"));    
         	while ((line = features.readLine()) != null) {
         	    if (line.trim().equals("")) break; // empty line marks end of header
         	}
@@ -637,7 +650,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
 	        PrintWriter labelFileWriter =
 	            new PrintWriter(
                     new FileWriter(
-                            new File( db.unitLabDirName() + basename + db.unitLabExt() )));
+                            new File(unitlabelDir, basename + labExt)));
 	        //print header
 	        labelFileWriter.print(labelFileHeader.toString());
 	        //print units
@@ -664,7 +677,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
             // need to create it
             String text = FileUtils.getFileAsString(new File( db.txtDirName() + basename + db.txtExt() ), "UTF-8");
             PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(maryxmlFile), "UTF-8"));
-            pw.println(UnitFeatureComputer.getMaryXMLHeaderWithInitialBoundary(featureComputer.getLocale()));
+            pw.println(UnitFeatureComputer.getMaryXMLHeaderWithInitialBoundary(db.locale()));
             pw.println(text);
             pw.println("</maryxml>");
             pw.close();
@@ -677,7 +690,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
     
     private void editUnitLabels(String basename) throws IOException
     {
-        new EditFrameShower(new File( db.unitLabDirName() + basename + db.unitLabExt() )).display();
+        new EditFrameShower(new File( unitlabelDir, basename + labExt )).display();
     }
 
     public static void main(String[] args) throws IOException

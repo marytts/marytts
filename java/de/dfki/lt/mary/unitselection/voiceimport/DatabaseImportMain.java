@@ -315,14 +315,18 @@ public class DatabaseImportMain extends JFrame
                 new LabelledFilesInspector(db, bnl),
                 new UnitLabelComputer( db, bnl ),
                 new HalfPhoneUnitLabelComputer( db, bnl ),
-                new UnitFeatureComputer( db, bnl ),                
+                new UnitFeatureComputer( db, bnl ),
+                new HalfPhoneUnitFeatureComputer(db, bnl),
                 
                 new LabelFeatureAligner( db, bnl ),
+                new HalfPhoneLabelFeatureAligner(db, bnl),
+                new DurationCARTTrainer(db, bnl),
                 
                 new PraatPitchmarker( db, bnl ),
                 new ESTCallMaker( db, bnl ),
 
                 new UnitfileWriter( db, bnl ),
+                new HalfPhoneUnitfileWriter(db, bnl),
                 new FeatureFileWriter( db, bnl ),
                 new HalfPhoneFeatureFileWriter(db, bnl),
 

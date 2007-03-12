@@ -51,6 +51,7 @@ public class FeatureFileWriter implements VoiceImportComponent
     protected File featureFile;
     protected UnitFileReader unitFileReader;
     protected File unitfeatureDir;
+    protected String featsExt;
     protected FeatureDefinition featureDefinition;
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
@@ -62,8 +63,20 @@ public class FeatureFileWriter implements VoiceImportComponent
         this.bnl = setbnl;
     }
     
+    /**
+     * Set some global variables; sub-classes may want to override.
+     *
+     */
+    protected void init()
+    {
+        unitfeatureDir = new File(db.phoneUnitFeaDirName());
+        if (!unitfeatureDir.exists()) throw new IllegalStateException("Unit feature file "+unitfeatureDir.getAbsolutePath()+" does not exist");
+        featsExt = db.phoneUnitFeaExt();
+    }
+    
     public boolean compute() throws IOException
     {
+        init();
         System.out.println("Featurefile writer started.");
 
         maryDir = new File( db.maryDirName() );
@@ -73,7 +86,6 @@ public class FeatureFileWriter implements VoiceImportComponent
         }
         featureFile = new File( db.targetFeaturesFileName() );
         unitFileReader = new UnitFileReader( db.unitFileName() );
-        unitfeatureDir = new File(db.unitFeaDirName());
         readFeatureDefinition();
         assert featureDefinition != null : "Feature definition not set!";
 
@@ -124,7 +136,7 @@ public class FeatureFileWriter implements VoiceImportComponent
         for (int i=0; i<bnl.getLength(); i++) {
             percent = 100*i/bnl.getLength();
             System.out.print( "    " + bnl.getName(i) + " : Entering at index (" + index + ") -- " );
-            BufferedReader uttFeats = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.unitFeaDirName() + bnl.getName(i) + db.unitFeaExt() )), "UTF-8"));
+            BufferedReader uttFeats = new BufferedReader(new InputStreamReader(new FileInputStream(new File( unitfeatureDir,  bnl.getName(i) + featsExt )), "UTF-8"));
             FeatureDefinition uttFeatDefinition = new FeatureDefinition(uttFeats, false); // false: do not read weights
             if (!uttFeatDefinition.featureEquals(featureDefinition)) {
                 throw new IllegalArgumentException("Features in file "+bnl.getName(i)+" do not match definition file "+db.weightsFileName()
