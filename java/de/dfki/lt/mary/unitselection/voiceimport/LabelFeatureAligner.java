@@ -103,9 +103,8 @@ public class LabelFeatureAligner implements VoiceImportComponent
         if (remainingProblems>0){
             //show option for automatically correcting pauses
             correctPausesYesNo(remainingProblems);
-            remainingProblems = problems.keySet().size();
         }
-                
+               
         int guiReturn = SKIP;
         boolean removeAll = false;
         boolean skipAll = false;
@@ -244,19 +243,19 @@ public class LabelFeatureAligner implements VoiceImportComponent
         correctedPauses = true;
         //clear the list of problems
         problems = new TreeMap();
-        //go through all files
+        //go through all files        
         for (int l=0; l<bnl.getLength(); l++) {
-            String basename = bnl.getName(l);
-            System.out.print( "    " + basename );
+            String basename = bnl.getName(l);           
+            System.out.print("    " + basename );
             String line;
         
             BufferedReader labels;
             try{
                 labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File( unitlabelDir, basename + labExt )), "UTF-8"));
             }catch (FileNotFoundException fnfe){
-                 return;
+                 continue;
             }
-                //store header of label file in StringBuffer
+            //store header of label file in StringBuffer
         	StringBuffer labelFileHeader = new StringBuffer();
         	while ((line = labels.readLine()) != null) {
           	  labelFileHeader.append(line+"\n");
@@ -273,7 +272,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
         	try {
                  features = new BufferedReader(new InputStreamReader(new FileInputStream(new File(unitfeatureDir, basename + featsExt )), "UTF-8"));
             }catch (FileNotFoundException fnfe){
-                 return;
+                 continue;
             }
         	while ((line = features.readLine()) != null) {
         	    if (line.trim().equals("")) break; // empty line marks end of header
