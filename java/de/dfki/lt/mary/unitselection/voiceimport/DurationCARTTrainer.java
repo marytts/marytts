@@ -56,6 +56,7 @@ public class DurationCARTTrainer implements VoiceImportComponent
     {
         PrintWriter toFeaturesFile = new PrintWriter(new FileOutputStream(durationFeaturesFile));
         int nOK = 0;
+        System.out.println("Duration CART trainer: exporting duration features for "+bnl.getLength()+" files");
         for (int i=0, len=bnl.getLength(); i<len; i++) {
             String[] aligned;
             try {
@@ -87,9 +88,9 @@ public class DurationCARTTrainer implements VoiceImportComponent
         WagonCaller wagonCaller = new WagonCaller(null);
         File wagonTreeFile = new File(durationDir, "dur.tree");
         boolean ok = wagonCaller.callWagon("-data "+durationFeaturesFile.getAbsolutePath()
-                +"-desc "+wagonDescFile.getAbsolutePath()
-                +"-stop 10 "
-                +"-output "+wagonTreeFile.getAbsolutePath());
+                +" -desc "+wagonDescFile.getAbsolutePath()
+                +" -stop 10 "
+                +" -output "+wagonTreeFile.getAbsolutePath());
         return ok;
 
     }
