@@ -161,8 +161,9 @@ public class WagonCaller
     public boolean callWagon(String arguments)
     {
         try {
-            Process p = Runtime.getRuntime().exec( ESTDIR + "/main/wagon "
-                                + arguments);
+            System.out.println("Calling wagon as follows:");
+            System.out.println(ESTDIR + "/main/wagon " + arguments);
+            Process p = Runtime.getRuntime().exec( ESTDIR + "/main/wagon " + arguments);
             //collect the output
             //read from error stream
             StreamGobbler errorGobbler = new 
