@@ -78,7 +78,8 @@ public class FeatureFileReader
         if ( !hdr.isMaryHeader() ) {
             throw new IOException( "File [" + fileName + "] is not a valid Mary format file." );
         }
-        if ( hdr.getType() != MaryHeader.UNITFEATS ) {
+        if ( hdr.getType() != MaryHeader.UNITFEATS 
+                && hdr.getType() != MaryHeader.HALFPHONE_UNITFEATS) {
             throw new IOException( "File [" + fileName + "] is not a valid Mary Features file." );
         }
         featureDefinition = new FeatureDefinition(dis);
