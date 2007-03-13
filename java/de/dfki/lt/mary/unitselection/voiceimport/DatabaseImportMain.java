@@ -320,7 +320,6 @@ public class DatabaseImportMain extends JFrame
                 
                 new LabelFeatureAligner( db, bnl ),
                 new HalfPhoneLabelFeatureAligner(db, bnl),
-                new DurationCARTTrainer(db, bnl),
                 
                 new PraatPitchmarker( db, bnl ),
                 new ESTCallMaker( db, bnl ),
@@ -338,7 +337,9 @@ public class DatabaseImportMain extends JFrame
                 new JoinCostFileMaker( db, bnl ),
                 new JoinCostPrecomputer( db, bnl ),
                 
-                new CARTBuilder ( db )
+                new CARTBuilder ( db ),
+                new DurationCARTTrainer(db, bnl),
+                new F0CARTTrainer(db, bnl)
         };
         DatabaseImportMain importer = new DatabaseImportMain("Database import", components, db, bnl);
         importer.pack();
