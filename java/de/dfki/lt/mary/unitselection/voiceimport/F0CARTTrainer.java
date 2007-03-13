@@ -113,16 +113,21 @@ public class F0CARTTrainer implements VoiceImportComponent
                 }
                 // TODO: make this more robust, e.g. by fitting two straight lines to the data:
                 Datagram[] midDatagrams = waveTimeline.getDatagrams(unitFile.getUnit(mid), unitFile.getSampleRate());
-                float midF0 = waveTimeline.getSampleRate() / (float) midDatagrams[midDatagrams.length/2].getDuration();
                 Datagram[] leftDatagrams = waveTimeline.getDatagrams(unitFile.getUnit(first), unitFile.getSampleRate());
-                float leftF0 = waveTimeline.getSampleRate() / (float) leftDatagrams[0].getDuration();
                 Datagram[] rightDatagrams = waveTimeline.getDatagrams(unitFile.getUnit(last), unitFile.getSampleRate());
-                float rightF0 = waveTimeline.getSampleRate() / (float) rightDatagrams[rightDatagrams.length-1].getDuration();
-                System.out.println("Syllable at "+mid+" (length "+(last-first+1)+"): left = "+((int)leftF0)+", mid = "+((int)midF0)+", right = "+rightF0);
-                toLeftFeaturesFile.println(leftF0 + " "+ featureDefinition.toFeatureString(fvMid));
-                toMidFeaturesFile.println(midF0 + " "+ featureDefinition.toFeatureString(fvMid));
-                toRightFeaturesFile.println(rightF0 + " "+ featureDefinition.toFeatureString(fvMid));
-                nSyllables++;
+                if (midDatagrams != null && midDatagrams.length > 0
+                        && leftDatagrams != null && leftDatagrams.length > 0
+                        && rightDatagrams != null && rightDatagrams.length > 0) {
+                    float midF0 = waveTimeline.getSampleRate() / (float) midDatagrams[midDatagrams.length/2].getDuration();
+                    float leftF0 = waveTimeline.getSampleRate() / (float) leftDatagrams[0].getDuration();
+                    float rightF0 = waveTimeline.getSampleRate() / (float) rightDatagrams[rightDatagrams.length-1].getDuration();
+                    System.out.println("Syllable at "+mid+" (length "+(last-first+1)+"): left = "+((int)leftF0)+", mid = "+((int)midF0)+", right = "+rightF0);
+                    toLeftFeaturesFile.println(leftF0 + " "+ featureDefinition.toFeatureString(fvMid));
+                    toMidFeaturesFile.println(midF0 + " "+ featureDefinition.toFeatureString(fvMid));
+                    toRightFeaturesFile.println(rightF0 + " "+ featureDefinition.toFeatureString(fvMid));
+                    nSyllables++;
+                    
+                }
                 // Skip the part we just covered:
                 i = last;
             }
