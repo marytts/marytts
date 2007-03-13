@@ -45,7 +45,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import de.dfki.lt.mary.unitselection.cart.CARTWagonFormat;
+import de.dfki.lt.mary.unitselection.cart.CART;
+import de.dfki.lt.mary.unitselection.cart.IntCART;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 
 /**
@@ -86,7 +87,7 @@ public class FestivalCARTImporter {
                     BufferedReader reader =
                         new BufferedReader(new 
                                 InputStreamReader(new FileInputStream(entries[i])));
-                    CARTWagonFormat cart = new CARTWagonFormat(reader,featDef);
+                    CART cart = new IntCART(reader, featDef);
                     //store CART in map
                     cartMap.put(name, cart);
                     reader.close();
@@ -128,7 +129,7 @@ public class FestivalCARTImporter {
                 for (Iterator i = carts.iterator(); i.hasNext();) {
                     //get name and CART,
                     String name = (String) i.next();
-                    CARTWagonFormat cart =  (CARTWagonFormat) cartMap.get(name);
+                    CART cart =  (CART) cartMap.get(name);
                     //dump name and CART
                     out.writeUTF(name);
                     cart.dumpBinary(out);

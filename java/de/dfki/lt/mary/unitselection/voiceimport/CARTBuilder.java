@@ -34,7 +34,9 @@ import java.util.List;
 
 import de.dfki.lt.mary.unitselection.FeatureFileIndexer;
 import de.dfki.lt.mary.unitselection.MaryNode;
-import de.dfki.lt.mary.unitselection.cart.CARTWagonFormat;
+import de.dfki.lt.mary.unitselection.cart.CART;
+import de.dfki.lt.mary.unitselection.cart.FeatureVectorCART;
+import de.dfki.lt.mary.unitselection.cart.IntCART;
 import de.dfki.lt.mary.unitselection.cart.LeafNode;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
@@ -130,7 +132,7 @@ public class CARTBuilder implements VoiceImportComponent {
          
          //convert the top-level CART to Wagon Format
          System.out.println("Building CART from tree ...");
-         CARTWagonFormat topLevelCART = new CARTWagonFormat(topLevelTree,fai);
+         CART topLevelCART = new FeatureVectorCART(topLevelTree, fai);
          System.out.println(" ... done!");
         
          
@@ -166,7 +168,7 @@ public class CARTBuilder implements VoiceImportComponent {
      * 
      * @param festvoxDirectory the festvox directory of a voice
      */
-    public CARTWagonFormat importCART(String filename,
+    public CART importCART(String filename,
                             FeatureDefinition featDef)
     throws IOException
     {
@@ -174,7 +176,7 @@ public class CARTBuilder implements VoiceImportComponent {
             //open CART-File
             System.out.println("Reading CART from "+filename+" ...");
             //build and return CART
-            CARTWagonFormat cart = new CARTWagonFormat();
+            CART cart = new IntCART();
             cart.load(filename,featDef,null);
             //cart.toStandardOut();
             System.out.println(" ... done!");
@@ -193,7 +195,7 @@ public class CARTBuilder implements VoiceImportComponent {
      * @param destDir the destination directory
      */
     public void dumpCART(String destFile,
-                        CARTWagonFormat cart)
+                        CART cart)
     throws IOException
     {
         System.out.println("Dumping CART to "+destFile+" ...");
@@ -227,7 +229,7 @@ public class CARTBuilder implements VoiceImportComponent {
      * @param topLevelCART the CART
      * @param featureDefinition the definition of the features
      */
-    public boolean replaceLeaves(CARTWagonFormat cart,
+    public boolean replaceLeaves(CART cart,
             				FeatureDefinition featureDefinition)
     throws IOException
     {
@@ -257,7 +259,7 @@ public class CARTBuilder implements VoiceImportComponent {
             out.close();
 
             //build new WagonCaller
-            //WagonCaller wagonCaller = new WagonCaller(featureDefFile);
+            WagonCaller wagonCaller = new WagonCaller(featureDefFile);
            
             int numProcesses = 1;
             String np = MaryProperties.getProperty("numProcesses");
@@ -276,17 +278,17 @@ public class CARTBuilder implements VoiceImportComponent {
                 buildAndDumpDistanceTables(featureVectors,wagonDirName+"/"+distanceTableFile,featureDefinition);
                 //call Wagon
                 System.out.println("Calling wagon");
-                //if (!wagonCaller.callWagon(wagonDirName+"/"+featureVectorsFile,wagonDirName+"/"+distanceTableFile,wagonDirName+"/"+cartFile))
-                //     return false;
+                if (!wagonCaller.callWagon(wagonDirName+"/"+featureVectorsFile,wagonDirName+"/"+distanceTableFile,wagonDirName+"/"+cartFile))
+                     return false;
                 //read in the resulting CART
                 System.out.println("Reading CART");
                 BufferedReader buf = new BufferedReader(
                         new FileReader(new File(wagonDirName+"/"+cartFile)));
-                CARTWagonFormat newCART = new CARTWagonFormat(buf,featureDefinition);    
+                CART newCART = new IntCART(buf, featureDefinition);    
                 buf.close();
                 //replace the leaf by the CART
                 System.out.println("Replacing leaf");
-                CARTWagonFormat.replaceLeafByCart(newCART, leaf);
+                CART.replaceLeafByCart(newCART, leaf);
                 System.out.println("Cart has "+cart.getNumNodes()+" nodes");
             }           
               

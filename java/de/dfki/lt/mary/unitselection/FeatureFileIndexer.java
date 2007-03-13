@@ -36,7 +36,7 @@ import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 import de.dfki.lt.mary.unitselection.cart.CART;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 
-public class FeatureFileIndexer extends FeatureFileReader implements CART {
+public class FeatureFileIndexer extends FeatureFileReader {
     
     private MaryNode tree = null;
     private int[] featureSequence = null;
