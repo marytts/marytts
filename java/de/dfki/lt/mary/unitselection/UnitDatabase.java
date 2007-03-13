@@ -32,6 +32,8 @@ package de.dfki.lt.mary.unitselection;
 
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
+
 import de.dfki.lt.mary.unitselection.cart.CART;
 import de.dfki.lt.mary.unitselection.viterbi.ViterbiCandidate;
 import de.dfki.lt.mary.unitselection.voiceimport.BasenameList;
@@ -51,6 +53,7 @@ public class UnitDatabase
     protected TimelineReader audioTimeline;
     protected TimelineReader basenameTimeline;
     protected int backtrace;
+    protected Logger logger = Logger.getLogger("UnitDatabase");
     
     
     public UnitDatabase()
@@ -107,7 +110,8 @@ public class UnitDatabase
         //logger.debug("Looking for candidates in cart "+target.getName());
         //get the cart tree and extract the candidates
         int[] clist = (int[]) preselectionCART.interpret(target,backtrace);
-        
+        logger.debug("For target "+target+", selected " + clist.length + " units");
+
         // Now, clist is an array of unit indexes.
         ViterbiCandidate[] candidates = new ViterbiCandidate[clist.length];
         for (int i = 0; i < clist.length; i++) {

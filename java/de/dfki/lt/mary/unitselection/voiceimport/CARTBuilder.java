@@ -257,7 +257,7 @@ public class CARTBuilder implements VoiceImportComponent {
             out.close();
 
             //build new WagonCaller
-            WagonCaller wagonCaller = new WagonCaller(featureDefFile);
+            //WagonCaller wagonCaller = new WagonCaller(featureDefFile);
            
             int numProcesses = 1;
             String np = MaryProperties.getProperty("numProcesses");
@@ -268,7 +268,7 @@ public class CARTBuilder implements VoiceImportComponent {
             for (LeafNode leaf = cart.getFirstLeafNode(); leaf != null; leaf = leaf.getNextLeafNode()) {
                 /* call Wagon successively */
                 //go through the CART
-                FeatureVector[] featureVectors = leaf.getFeatureVectors();
+                FeatureVector[] featureVectors = ((LeafNode.FeatureVectorLeafNode)leaf).getFeatureVectors();
                 //dump the feature vectors
                 System.out.println("Dumping feature vectors");
                 dumpFeatureVectors(featureVectors, featureDefinition,wagonDirName+"/"+featureVectorsFile);
@@ -276,8 +276,8 @@ public class CARTBuilder implements VoiceImportComponent {
                 buildAndDumpDistanceTables(featureVectors,wagonDirName+"/"+distanceTableFile,featureDefinition);
                 //call Wagon
                 System.out.println("Calling wagon");
-                if (!wagonCaller.callWagon(wagonDirName+"/"+featureVectorsFile,wagonDirName+"/"+distanceTableFile,wagonDirName+"/"+cartFile))
-                     return false;
+                //if (!wagonCaller.callWagon(wagonDirName+"/"+featureVectorsFile,wagonDirName+"/"+distanceTableFile,wagonDirName+"/"+cartFile))
+                //     return false;
                 //read in the resulting CART
                 System.out.println("Reading CART");
                 BufferedReader buf = new BufferedReader(

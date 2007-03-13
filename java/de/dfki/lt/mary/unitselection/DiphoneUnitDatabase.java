@@ -40,6 +40,7 @@ public class DiphoneUnitDatabase extends UnitDatabase {
     public DiphoneUnitDatabase()
     {
         super();
+        logger = Logger.getLogger("DiphoneUnitDatabase");
     }
 
     /**
@@ -67,6 +68,8 @@ public class DiphoneUnitDatabase extends UnitDatabase {
         // Pre-select candidates for the left half, but retain only
         // those that belong to appropriate diphones:
         int[] clist = (int[]) preselectionCART.interpret(left,backtrace);
+        logger.debug("For target "+target+", selected " + clist.length + " units");
+
         // Now, clist is an array of halfphone unit indexes.
         for (int i = 0; i < clist.length; i++) {
             Unit unit = unitReader.getUnit(clist[i]);
@@ -90,6 +93,8 @@ public class DiphoneUnitDatabase extends UnitDatabase {
         // Pre-select candidates for the right half, but retain only
         // those that belong to appropriate diphones:
         clist = (int[]) preselectionCART.interpret(right,backtrace);
+        logger.debug("For target "+target+", selected " + clist.length + " units");
+
         // Now, clist is an array of halfphone unit indexes.
         for (int i = 0; i < clist.length; i++) {
             Unit unit = unitReader.getUnit(clist[i]);
@@ -110,7 +115,7 @@ public class DiphoneUnitDatabase extends UnitDatabase {
                 }
             }
         }
-        Logger.getLogger("DiphoneUnitDatabase").debug("Preselected "+candidates.size()+" diphone candidates for target "+target);
+        logger.debug("Preselected "+candidates.size()+" diphone candidates for target "+target);
         return (ViterbiCandidate[]) candidates.toArray(new ViterbiCandidate[0]);
     }
 
