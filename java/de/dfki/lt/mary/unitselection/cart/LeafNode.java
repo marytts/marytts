@@ -10,11 +10,9 @@ import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 /**
  * The leaf of a CART.
  */
-public class LeafNode extends Node {
+public abstract class LeafNode extends Node {
 
-    private int[] indices;
 
-    private FeatureVector[] featureVectors;
 
     /**
      * Create a new LeafNode.
@@ -25,81 +23,15 @@ public class LeafNode extends Node {
      * @param openBrackets
      *            the number of opening brackets at the first token
      */
-    public LeafNode(StringTokenizer tok) {
+    public LeafNode()
+    {
         super();
         isRoot = false;
-        // read the indices from the tokenized String
-        // lines are of form
-        // ((<index1> <float1>)...(<indexN> <floatN>)) 0))
-        int numTokens = tok.countTokens();
-        int index = 0;
-        if (numTokens == 2) { // we do not have any indices
-            // discard useless token
-            tok.nextToken();
-            indices = new int[0];
-        } else {
-            indices = new int[(numTokens - 1) / 2];
-
-            while (index * 2 < numTokens - 1) { // while we are not at the
-                                                // last token
-                String nextToken = tok.nextToken();
-                if (index == 0) {
-                    // we are at first token, discard all open brackets
-                    nextToken = nextToken.substring(4);
-                } else {
-                    // we are not at first token, only one open bracket
-                    nextToken = nextToken.substring(1);
-                }
-                // store the index of the unit
-                indices[index] = Integer.parseInt(nextToken);
-                // discard next token
-                tok.nextToken();
-                // increase index
-                index++;
-            }
-        }
     }
 
-    /**
-     * Build a new leaf node containing the given feature vectors
-     * 
-     * @param featureVectors
-     *            the feature vectors
-     */
-    public LeafNode(FeatureVector[] featureVectors) {
-        this.featureVectors = featureVectors;
-    }
 
-    /**
-     * Get the feature vectors of this node
-     * 
-     * @return the feature vectors
-     */
-    public FeatureVector[] getFeatureVectors() {
-        return featureVectors;
-    }
-
-    /**
-     * Get all unit indices
-     * 
-     * @return an int array containing the indices
-     */
-    public int[] getAllIndices() {
-        return indices;
-    }
     
-    protected void fillIndexArray(int[] array, int pos, int len)
-    {
-        assert len <= indices.length;
-        System.arraycopy(indices, 0, array, pos, len);
-    }
     
-    public int getNumberOfCandidates()
-    {
-        if (indices != null) return indices.length;
-        else if (featureVectors != null) return featureVectors.length;
-        else return 0;
-    }
     
     /**
      * Return the leaf node following this one in the tree.
@@ -113,56 +45,198 @@ public class LeafNode extends Node {
     }
 
     /**
-     * Retrieve the indices from the feature vectors and store them in the
-     * indices field
+     * Count all the data available at and below this node.
+     * The meaning of this depends on the type of nodes; for example,
+     * when IntArrayLeafNodes are used, it is the total number of ints
+     * that are saved in all leaf nodes below the current node.
+     * @return an int counting the data below the current node, or -1
+     * if such a concept is not meaningful.
      */
-    private void retrieveIndices() {
-        
-        indices = new int[featureVectors.length];
-        for (int i = 0; i < indices.length; i++) {
-            indices[i] = featureVectors[i].getUnitIndex();
-        }
-    }
+    public abstract int getNumberOfData();
 
     /**
-     * Writes the Cart to the given DataOut in Wagon Format
-     * 
-     * @param out
-     *            the outputStream
-     * @param extension
-     *            the extension that is added to the last daughter
+     * Get all the data at or below this node.
+     * The type of data returned depends on the type of nodes; for example,
+     * when IntArrayLeafNodes are used, one int[] is returned which contains all
+     * int values in all leaf nodes below the current node.
+     * @return an object containing all data below the current node, or null
+     * if such a concept is not meaningful.
      */
-    public void toWagonFormat(DataOutputStream out, String extension,
-            PrintWriter pw) throws IOException {
-        if (indices == null) {
-            // get the indices from the feature vectors
-            retrieveIndices();
+    public abstract Object getAllData();
+
+    /**
+     * Write this node's data into the target object at pos,
+     * making sure that exactly len data are written.
+     * The type of data written depends on the type of nodes; for example,
+     * when IntArrayLeafNodes are used, target would be an int[].
+     * @param array the object to write to, usually an array.
+     * @param pos the position in the target at which to start writing
+     * @param len the amount of data items to write, usually equals
+     * getNumberOfData().
+     */
+    protected abstract void fillData(Object target, int pos, int len);
+
+
+    public static class IntArrayLeafNode extends LeafNode
+    {
+        private int[] data;
+        public IntArrayLeafNode(int[] data)
+        {
+            super();
+            this.data = data;
         }
-        StringBuffer sb = new StringBuffer();
-        // open three brackets
-        sb.append("(((");
-        // for each index, write the index and then a pseudo float
-        for (int i = 0; i < indices.length; i++) {
-            sb.append("(" + indices[i] + " 0)");
-            if (i + 1 != indices.length) {
-                sb.append(" ");
+        
+        /**
+         * Get all data in this leaf
+         * 
+         * @return the int array contained in this leaf
+         */
+        public Object getAllData() {
+            return data;
+        }
+        
+        protected void fillData(Object target, int pos, int len)
+        {
+            if (!(target instanceof int[])) 
+                throw new IllegalArgumentException("Expected target object of type int[], got "+target.getClass());
+            int[] array = (int[]) target;
+            assert len <= data.length;
+            System.arraycopy(data, 0, array, pos, len);
+        }
+
+        public int getNumberOfData()
+        {
+            if (data != null) return data.length;
+            return 0;
+        }
+
+
+        /**
+         * Writes the Cart to the given DataOut in Wagon Format
+         * 
+         * @param out
+         *            the outputStream
+         * @param extension
+         *            the extension that is added to the last daughter
+         */
+        public void toWagonFormat(DataOutputStream out, String extension,
+                PrintWriter pw) throws IOException {
+            StringBuffer sb = new StringBuffer();
+            // open three brackets
+            sb.append("(((");
+            // for each index, write the index and then a pseudo float
+            for (int i = 0; i < data.length; i++) {
+                sb.append("(" + data[i] + " 0)");
+                if (i + 1 != data.length) {
+                    sb.append(" ");
+                }
+            }
+            // write the ending
+            sb.append(") 0))" + extension);
+            // dump the whole stuff
+            if (out != null) {
+                // write to output stream
+
+                CARTWagonFormat.writeStringToOutput(sb.toString(), out);
+            } else {
+                // write to Standard out
+                // System.out.println(sb.toString());
+            }
+            if (pw != null) {
+                // dump to printwriter
+                pw.print(sb.toString());
             }
         }
-        // write the ending
-        sb.append(") 0))" + extension);
-        // dump the whole stuff
-        if (out != null) {
-            // write to output stream
 
-            CARTWagonFormat.writeStringToOutput(sb.toString(), out);
-        } else {
-            // write to Standard out
-            // System.out.println(sb.toString());
-        }
-        if (pw != null) {
-            // dump to printwriter
-            pw.print(sb.toString());
-        }
     }
 
+    public static class FeatureVectorLeafNode extends LeafNode
+    {
+        private FeatureVector[] featureVectors;
+
+        /**
+         * Build a new leaf node containing the given feature vectors
+         * 
+         * @param featureVectors
+         *            the feature vectors
+         */
+        public FeatureVectorLeafNode(FeatureVector[] featureVectors) {
+            super();
+            this.featureVectors = featureVectors;
+        }
+
+        /**
+         * Get the feature vectors of this node
+         * 
+         * @return the feature vectors
+         */
+        public FeatureVector[] getFeatureVectors() {
+            return featureVectors;
+        }
+        
+        /**
+         * Get all data in this leaf
+         * 
+         * @return the featurevector array contained in this leaf
+         */
+        public Object getAllData() {
+            return featureVectors;
+        }
+        
+        protected void fillData(Object target, int pos, int len)
+        {
+            if (!(target instanceof FeatureVector[])) 
+                throw new IllegalArgumentException("Expected target object of type FeatureVector[], got "+target.getClass());
+            FeatureVector[] array = (FeatureVector[]) target;
+            assert len <= featureVectors.length;
+            System.arraycopy(featureVectors, 0, array, pos, len);
+        }
+
+        public int getNumberOfData()
+        {
+            if (featureVectors != null) return featureVectors.length;
+            return 0;
+        }
+
+        
+
+        /**
+         * Writes the Cart to the given DataOut in Wagon Format
+         * 
+         * @param out
+         *            the outputStream
+         * @param extension
+         *            the extension that is added to the last daughter
+         */
+        public void toWagonFormat(DataOutputStream out, String extension,
+                PrintWriter pw) throws IOException {
+            StringBuffer sb = new StringBuffer();
+            // open three brackets
+            sb.append("(((");
+            // for each index, write the index and then a pseudo float
+            for (int i = 0; i < featureVectors.length; i++) {
+                sb.append("(" + featureVectors[i].getUnitIndex() + " 0)");
+                if (i + 1 != featureVectors.length) {
+                    sb.append(" ");
+                }
+            }
+            // write the ending
+            sb.append(") 0))" + extension);
+            // dump the whole stuff
+            if (out != null) {
+                // write to output stream
+
+                CARTWagonFormat.writeStringToOutput(sb.toString(), out);
+            } else {
+                // write to Standard out
+                // System.out.println(sb.toString());
+            }
+            if (pw != null) {
+                // dump to printwriter
+                pw.print(sb.toString());
+            }
+        }
+
+
+    }
 }

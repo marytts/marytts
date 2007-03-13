@@ -4,6 +4,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import de.dfki.lt.mary.unitselection.cart.LeafNode.FeatureVectorLeafNode;
+import de.dfki.lt.mary.unitselection.cart.LeafNode.IntArrayLeafNode;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 
@@ -25,8 +27,8 @@ public abstract class DecisionNode extends Node {
     // remember last added daughter
     protected int lastDaughter;
 
-    // the total number of candidates in the leafs below this node
-    protected int nCandidates;
+    // the total number of data in the leaves below this node
+    protected int nData;
 
     /**
      * Construct a new DecisionNode
@@ -133,23 +135,33 @@ public abstract class DecisionNode extends Node {
      * 
      * @return an int array containing the indices
      */
-    public int[] getAllIndices() {
-        int[] result = new int[nCandidates];
-        fillIndexArray(result, 0, nCandidates);
+    public Object getAllData() {
+        // What to do depends on the type of leaves.
+        LeafNode firstLeaf = getNextLeafNode(0);
+        if (firstLeaf == null) return null;
+        Object result;
+        if (firstLeaf instanceof IntArrayLeafNode) {
+            result = new int[nData];
+        } else if (firstLeaf instanceof FeatureVectorLeafNode) {
+            result = new FeatureVector[nData];
+        } else {
+            return null;
+        }
+        fillData(result, 0, nData);
         return result;
     }
 
-    protected void fillIndexArray(int[] array, int pos, int total) {
-        assert pos + total <= array.length;
+    protected void fillData(Object target, int pos, int total) {
+        //assert pos + total <= target.length;
         for (int i = 0; i < daughters.length; i++) {
-            int len = daughters[i].getNumberOfCandidates();
-            daughters[i].fillIndexArray(array, pos, len);
+            int len = daughters[i].getNumberOfData();
+            daughters[i].fillData(target, pos, len);
             pos += len;
         }
     }
 
-    public int getNumberOfCandidates() {
-        return nCandidates;
+    public int getNumberOfData() {
+        return nData;
     }
 
     /**
@@ -182,11 +194,11 @@ public abstract class DecisionNode extends Node {
      * 
      */
     protected void countCandidates() {
-        nCandidates = 0;
+        nData = 0;
         for (int i = 0; i < daughters.length; i++) {
             if (daughters[i] instanceof DecisionNode)
                 ((DecisionNode) daughters[i]).countCandidates();
-            nCandidates += daughters[i].getNumberOfCandidates();
+            nData += daughters[i].getNumberOfData();
         }
     }
 

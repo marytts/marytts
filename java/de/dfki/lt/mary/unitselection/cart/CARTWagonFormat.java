@@ -258,9 +258,7 @@ public class CARTWagonFormat implements CART {
 
         } else { // we have a leaf
 
-            StringTokenizer tokenizer = new StringTokenizer(line, " ");
-            // build new leaf node
-            Node nextNode = new LeafNode(tokenizer);
+            Node nextNode = createLeafNode(line);
 
             // set the relations of this node to the others
             if (lastNode == null) { // this node is the root
@@ -273,6 +271,10 @@ public class CARTWagonFormat implements CART {
 
             // look at the bracketing at the end of the line:
             // get the last token out of the tokenizer
+            StringTokenizer tokenizer = new StringTokenizer(line, " ");
+            for (int i=0, numTokens=tokenizer.countTokens(); i<numTokens-1; i++) {
+                tokenizer.nextToken();
+            }
             String lastToken = tokenizer.nextToken();
 
             // lastToken should look like "0))"
@@ -316,6 +318,53 @@ public class CARTWagonFormat implements CART {
     }
 
     /**
+     * For a line representing a leaf in Wagon format, create a leaf.
+     * This method decides which implementation of LeafNode is used, i.e.
+     * which data format is appropriate.
+     * This implementation creates an IntArrayLeafNode, representing the leaf
+     * as an array of ints; use subclasses overriding this method
+     * if you want to create different LeafNodes.
+     * Lines are of the form
+     * ((<index1> <float1>)...(<indexN> <floatN>)) 0))
+     * 
+     * @param line a line from a wagon cart file, representing a leaf
+     * @return a leaf node representing the line.
+     */
+    protected LeafNode createLeafNode(String line) {
+        StringTokenizer tok = new StringTokenizer(line, " ");
+        // read the indices from the tokenized String
+        int numTokens = tok.countTokens();
+        int index = 0;
+        // The data to be saved in the leaf node:
+        int[] indices;
+        if (numTokens == 2) { // we do not have any indices
+            // discard useless token
+            tok.nextToken();
+            indices = new int[0];
+        } else {
+            indices = new int[(numTokens - 1) / 2];
+
+            while (index * 2 < numTokens - 1) { // while we are not at the
+                                                // last token
+                String nextToken = tok.nextToken();
+                if (index == 0) {
+                    // we are at first token, discard all open brackets
+                    nextToken = nextToken.substring(4);
+                } else {
+                    // we are not at first token, only one open bracket
+                    nextToken = nextToken.substring(1);
+                }
+                // store the index of the unit
+                indices[index] = Integer.parseInt(nextToken);
+                // discard next token
+                tok.nextToken();
+                // increase index
+                index++;
+            }
+        }
+        return new LeafNode.IntArrayLeafNode(indices);
+    }
+    /**
      * Convert the given Mary node tree into a CART with the leaves containing
      * featureVectors
      * 
@@ -344,7 +393,7 @@ public class CARTWagonFormat implements CART {
             MaryNode currentTreeNode, FeatureArrayIndexer ffi) {
         numNodes++;
         if (currentTreeNode == null) {
-            motherCARTNode.addDaughter(null);
+            motherCARTNode.addDaughter(new LeafNode.FeatureVectorLeafNode(new FeatureVector[0]));
             return;
         }
         if (currentTreeNode.isNode()) { // if we are not at a leaf
@@ -397,7 +446,7 @@ public class CARTWagonFormat implements CART {
             FeatureVector[] featureVectors = ffi.getFeatureVectors(
                     currentTreeNode.getFrom(), currentTreeNode.getTo());
             // build a new leaf
-            LeafNode leaf = new LeafNode(featureVectors);
+            LeafNode leaf = new LeafNode.FeatureVectorLeafNode(featureVectors);
 
             if (motherCARTNode == null) {
                 // if the mother is null, the current node is the root
@@ -427,7 +476,7 @@ public class CARTWagonFormat implements CART {
         FeatureVector featureVector = target.getFeatureVector();
 
         // logger.debug("Starting cart at "+nodeIndex);
-        while (currentNode.getNumberOfCandidates() > minNumberOfCandidates
+        while (currentNode.getNumberOfData() > minNumberOfCandidates
                 && !(currentNode instanceof LeafNode)) {
             // while we have not reached the bottom,
             // get the next node based on the features of the target
@@ -438,18 +487,17 @@ public class CARTWagonFormat implements CART {
             // decision.findFeature(item) + "' => "+ nodeIndex);
         }
         // Now usually we will have gone down one level too far
-        if (currentNode.getNumberOfCandidates() < minNumberOfCandidates
+        if (currentNode.getNumberOfData() < minNumberOfCandidates
                 && prevNode != null) {
             currentNode = prevNode;
         }
 
-        assert currentNode.getNumberOfCandidates() >= minNumberOfCandidates
+        assert currentNode.getNumberOfData() >= minNumberOfCandidates
             || currentNode == rootNode; 
         
         // get the indices from the leaf node
-        int[] result = currentNode.getAllIndices();
+        Object result = currentNode.getAllData();
         
-        logger.debug("For target "+target+", selected " + result.length + " units");
         return result;
 
     }
