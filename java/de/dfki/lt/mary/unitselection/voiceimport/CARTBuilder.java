@@ -35,6 +35,7 @@ import java.util.List;
 import de.dfki.lt.mary.unitselection.FeatureFileIndexer;
 import de.dfki.lt.mary.unitselection.MaryNode;
 import de.dfki.lt.mary.unitselection.cart.CARTWagonFormat;
+import de.dfki.lt.mary.unitselection.cart.LeafNode;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 import de.dfki.lt.mary.unitselection.FeatureArrayIndexer;
@@ -263,38 +264,31 @@ public class CARTBuilder implements VoiceImportComponent {
             if (np != null){
                 numProcesses = Integer.parseInt(np);
             }
-            /* call Wagon successively */
+            
+            for (LeafNode leaf = cart.getFirstLeafNode(); leaf != null; leaf = leaf.getNextLeafNode()) {
+                /* call Wagon successively */
                 //go through the CART
-                FeatureVector[] featureVectors = 
-                    cart.getNextFeatureVectors();
-                int leafIndex=1;
-                while (featureVectors != null){                    
-                    //dump the feature vectors
-                    System.out.println("Dumping feature vectors");
-                    dumpFeatureVectors(featureVectors, featureDefinition,wagonDirName+"/"+featureVectorsFile);
-                    //dump the distance tables
-                    buildAndDumpDistanceTables(featureVectors,wagonDirName+"/"+distanceTableFile,featureDefinition);
-                    //call Wagon
-                    System.out.println("Calling wagon");
-                    if (!wagonCaller.callWagon(wagonDirName+"/"+featureVectorsFile,wagonDirName+"/"+distanceTableFile,wagonDirName+"/"+cartFile))
-                         return false;
-                    //read in the resulting CART
-                    System.out.println("Reading CART");
-                    BufferedReader buf = new BufferedReader(
-                            new FileReader(new File(wagonDirName+"/"+cartFile)));
-                    CARTWagonFormat newCART = 
-                        new CARTWagonFormat(buf,featureDefinition);    
-                    buf.close();
-                    //replace the leaf by the CART
-                    System.out.println("Replacing leaf number "+leafIndex);                    
-                    cart.replaceLeafByCart(newCART);
-                    System.out.println("Cart has "+cart.getNumNodes()+" nodes");
-                    //get the next featureVectors
-                    featureVectors = 
-                        cart.getNextFeatureVectors();   
-                    leafIndex++;
-                }
-           
+                FeatureVector[] featureVectors = leaf.getFeatureVectors();
+                //dump the feature vectors
+                System.out.println("Dumping feature vectors");
+                dumpFeatureVectors(featureVectors, featureDefinition,wagonDirName+"/"+featureVectorsFile);
+                //dump the distance tables
+                buildAndDumpDistanceTables(featureVectors,wagonDirName+"/"+distanceTableFile,featureDefinition);
+                //call Wagon
+                System.out.println("Calling wagon");
+                if (!wagonCaller.callWagon(wagonDirName+"/"+featureVectorsFile,wagonDirName+"/"+distanceTableFile,wagonDirName+"/"+cartFile))
+                     return false;
+                //read in the resulting CART
+                System.out.println("Reading CART");
+                BufferedReader buf = new BufferedReader(
+                        new FileReader(new File(wagonDirName+"/"+cartFile)));
+                CARTWagonFormat newCART = new CARTWagonFormat(buf,featureDefinition);    
+                buf.close();
+                //replace the leaf by the CART
+                System.out.println("Replacing leaf");
+                CARTWagonFormat.replaceLeafByCart(newCART, leaf);
+                System.out.println("Cart has "+cart.getNumNodes()+" nodes");
+            }           
               
         } catch (IOException ioe) {
             IOException newIOE = new IOException("Error replacing leaves");
