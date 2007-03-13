@@ -45,10 +45,10 @@ public class DurationCARTTrainer implements VoiceImportComponent
         this.unitlabelDir = new File( db.phoneUnitLabDirName() );
         this.unitfeatureDir = new File( db.phoneUnitFeaDirName() );
         String rootDir = db.rootDirName();
-        this.durationDir = new File(rootDir, System.getProperty("db.durationdir", "dur"));
+        this.durationDir = new File(rootDir, System.getProperty("db.duration.dir", "dur"));
         if (!durationDir.exists()) durationDir.mkdir();
-        this.durationFeaturesFile = new File(durationDir, System.getProperty("db.durationfeaturesfile", "dur.feats"));
-        this.wagonDescFile = new File(durationDir, System.getProperty("db.wagondescfile", "dur.desc"));
+        this.durationFeaturesFile = new File(durationDir, System.getProperty("db.duration.featuresfile", "dur.feats"));
+        this.wagonDescFile = new File(durationDir, System.getProperty("db.dur.wagondescfile", "dur.desc"));
     }
     
     /**/
