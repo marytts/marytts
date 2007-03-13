@@ -137,7 +137,7 @@ public abstract class LeafNode extends Node {
             if (out != null) {
                 // write to output stream
 
-                CARTWagonFormat.writeStringToOutput(sb.toString(), out);
+                CART.writeStringToOutput(sb.toString(), out);
             } else {
                 // write to Standard out
                 // System.out.println(sb.toString());
@@ -226,7 +226,79 @@ public abstract class LeafNode extends Node {
             if (out != null) {
                 // write to output stream
 
-                CARTWagonFormat.writeStringToOutput(sb.toString(), out);
+                CART.writeStringToOutput(sb.toString(), out);
+            } else {
+                // write to Standard out
+                // System.out.println(sb.toString());
+            }
+            if (pw != null) {
+                // dump to printwriter
+                pw.print(sb.toString());
+            }
+        }
+    }
+
+    public static class FloatArrayLeafNode extends LeafNode
+    {
+        private float[] data;
+        public FloatArrayLeafNode(float[] data)
+        {
+            super();
+            this.data = data;
+        }
+        
+        /**
+         * Get all data in this leaf
+         * 
+         * @return the  contained in this leaf
+         */
+        public Object getAllData() {
+            return data;
+        }
+        
+        protected void fillData(Object target, int pos, int len)
+        {
+            if (!(target instanceof float[])) 
+                throw new IllegalArgumentException("Expected target object of type float[], got "+target.getClass());
+            float[] array = (float[]) target;
+            assert len <= data.length;
+            System.arraycopy(data, 0, array, pos, len);
+        }
+
+        public int getNumberOfData()
+        {
+            if (data != null) return data.length;
+            return 0;
+        }
+
+
+        /**
+         * Writes the Cart to the given DataOut in Wagon Format
+         * 
+         * @param out
+         *            the outputStream
+         * @param extension
+         *            the extension that is added to the last daughter
+         */
+        public void toWagonFormat(DataOutputStream out, String extension,
+                PrintWriter pw) throws IOException {
+            StringBuffer sb = new StringBuffer();
+            // open three brackets
+            sb.append("(((");
+            // for each index, write the index and then a pseudo float
+            for (int i = 0; i < data.length; i++) {
+                sb.append("(" + data[i] + " 0)");
+                if (i + 1 != data.length) {
+                    sb.append(" ");
+                }
+            }
+            // write the ending
+            sb.append(") 0))" + extension);
+            // dump the whole stuff
+            if (out != null) {
+                // write to output stream
+
+                CART.writeStringToOutput(sb.toString(), out);
             } else {
                 // write to Standard out
                 // System.out.println(sb.toString());
@@ -237,6 +309,6 @@ public abstract class LeafNode extends Node {
             }
         }
 
-
     }
+
 }

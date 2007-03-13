@@ -215,7 +215,7 @@ public abstract class DecisionNode extends Node {
         if (out != null) {
             // dump to output stream
             // two open brackets + definition of node
-            CARTWagonFormat
+            CART
                     .writeStringToOutput("((" + getNodeDefinition(), out);
         } else {
             // dump to Standard out
@@ -249,7 +249,7 @@ public abstract class DecisionNode extends Node {
 
                 if (out != null) {
                     // dump to output stream
-                    CARTWagonFormat.writeStringToOutput(nullDaughter, out);
+                    CART.writeStringToOutput(nullDaughter, out);
                 } else {
                     // dump to Standard out
                     // System.out.println(nullDaughter);

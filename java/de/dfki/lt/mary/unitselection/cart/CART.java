@@ -31,19 +31,48 @@
  */
 package de.dfki.lt.mary.unitselection.cart;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.DataInput;
+import java.io.DataInputStream;
 import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.StringTokenizer;
 
+import org.apache.log4j.Logger;
+
+import de.dfki.lt.mary.unitselection.FeatureArrayIndexer;
+import de.dfki.lt.mary.unitselection.FeatureFileIndexer;
+import de.dfki.lt.mary.unitselection.MaryNode;
 import de.dfki.lt.mary.unitselection.Target;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
+import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 
-/**
- * Generic interface for Classification and Regression Trees (CARTs) based
- * on the Breiman, Friedman, Olshen, and Stone document "Classification and
- * Regression Trees."  Wadsworth, Belmont, CA, 1984.
- */
-public interface CART
+import de.dfki.lt.mary.unitselection.voiceimport.MaryHeader;
+
+public abstract class CART 
 {
+
+    protected Logger logger = Logger.getLogger(this.getClass().getName());
+
+    protected Node rootNode;
+
+    protected int numNodes;
+
+    // knows the index numbers and types of the features used in DecisionNodes
+    protected FeatureDefinition featDef;
+
+    /**
+     * Build a new empty cart
+     * 
+     */
+    public CART() {
+    }
+
+    
     /**
      * Load the cart from the given file
      * @param fileName the file to load the cart from
@@ -52,31 +81,150 @@ public interface CART
      * initialise a FeatureFileIndexer but unused in the case of an actual CART tree.
      * @throws IOException if a problem occurs while loading
      */
-    public void load(String fileName, FeatureDefinition featDefinition, String[] setFeatureSequence ) throws IOException;
-    
-    
+    public abstract void load(String fileName, FeatureDefinition featDefinition, String[] setFeatureSequence ) throws IOException;
+
+
     /**
      * Passes the given item through this CART and returns the
      * interpretation.
      *
      * @param target the target to analyze
-     * @param backtrace the backtrace setting
+     * @param minNumberOfData the minimum number of data requested.
+     * If this is 0, walk down the CART until the leaf level.
      *
      * @return the interpretation
      */
-    public Object interpret(Target target,int backtrace);
-    
+    public Object interpret(Target target, int minNumberOfData) {
+        Node currentNode = rootNode;
+        Node prevNode = null;
+
+        FeatureVector featureVector = target.getFeatureVector();
+
+        // logger.debug("Starting cart at "+nodeIndex);
+        while (currentNode.getNumberOfData() > minNumberOfData
+                && !(currentNode instanceof LeafNode)) {
+            // while we have not reached the bottom,
+            // get the next node based on the features of the target
+            prevNode = currentNode;
+            currentNode = ((DecisionNode) currentNode)
+                    .getNextNode(featureVector);
+            // logger.debug(decision.toString() + " result '"+
+            // decision.findFeature(item) + "' => "+ nodeIndex);
+        }
+        // Now usually we will have gone down one level too far
+        if (currentNode.getNumberOfData() < minNumberOfData
+                && prevNode != null) {
+            currentNode = prevNode;
+        }
+
+        assert currentNode.getNumberOfData() >= minNumberOfData
+            || currentNode == rootNode; 
+        
+        // get the indices from the leaf node
+        Object result = currentNode.getAllData();
+        
+        return result;
+
+    }
 
     /**
-     * Dumps this CART to the output
-     *
-     * @param os the DataOutputStream or RandomAccessFile to write to.
-     *
-     * @throws IOException if an error occurs during output
+     * Get the first leaf node in this tree. Subsequent leaf nodes can be called
+     * via leafNode.getNextLeafNode().
+     * @return the first leaf node, or null if the tree has no leaves.
      */
-    public void dumpBinary(DataOutput os) throws IOException ;
+    public LeafNode getFirstLeafNode()
+    {
+        if (rootNode instanceof LeafNode) return (LeafNode) rootNode;
+        assert rootNode instanceof DecisionNode;
+        return ((DecisionNode)rootNode).getNextLeafNode(0);
+    }
     
+   
+    /**
+     * In this tree, replace the given leaf with the given CART
+     * @param cart the CART
+     * @param leaf the leaf
+     */
+    public static void replaceLeafByCart(CART cart, LeafNode leaf){
+        DecisionNode mother = (DecisionNode) leaf.getMother();
+        Node newNode = cart.getRootNode();
+        mother.replaceDaughter(newNode, leaf.getNodeIndex());
+        newNode.setMother(mother);
+        newNode.setIsRoot(false);
+    }
+    
+ 
+    
+    /**
+     * Get the root node of this CART
+     * 
+     * @return the root node
+     */
+    public Node getRootNode() {
+        return rootNode;
+    }
+
+    /**
+     * Get the number of nodes in this CART
+     * 
+     * @return the number of nodes
+     */
+    public int getNumNodes() {
+        return numNodes;
+    }
+
+    /**
+     * Dumps this CART to the output stream in WagonFormat.
+     * 
+     * @param os
+     *            the output stream
+     * 
+     * @throws IOException
+     *             if an error occurs during output
+     */
+    public void dumpBinary(DataOutput os) throws IOException {
+        try {
+            rootNode.toWagonFormat((DataOutputStream) os, null, null);
+        } catch (IOException ioe) {
+            IOException newIOE = new IOException(
+                    "Error dumping CART to output stream");
+            newIOE.initCause(ioe);
+            throw newIOE;
+        }
+    }
+
+    /**
+     * Debug output to a text file
+     * 
+     * @param pw
+     *            the print writer of the text file
+     * @throws IOException
+     */
+    public void toTextOut(PrintWriter pw) throws IOException {
+        try {
+            rootNode.toWagonFormat(null, null, pw);
+            pw.flush();
+            pw.close();
+        } catch (IOException ioe) {
+            IOException newIOE = new IOException(
+                    "Error dumping CART to standard output");
+            newIOE.initCause(ioe);
+            throw newIOE;
+        }
+    }
+
+    /**
+     * Write the given String to the given data output (Replacement for
+     * writeUTF)
+     * 
+     * @param str
+     *            the String
+     * @param out
+     *            the data output
+     */
+    public static void writeStringToOutput(String str, DataOutput out)
+            throws IOException {
+        out.writeInt(str.length());
+        out.writeChars(str);
+    }
 }
-
-
-  

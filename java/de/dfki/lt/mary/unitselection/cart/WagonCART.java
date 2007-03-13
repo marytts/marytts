@@ -1,8 +1,5 @@
 /**
- * Portions Copyright 2006 DFKI GmbH.
- * Portions Copyright 2001 Sun Microsystems, Inc.
- * Portions Copyright 1999-2001 Language Technologies Institute, 
- * Carnegie Mellon University.
+ * Copyright 2007 DFKI GmbH.
  * All Rights Reserved.  Use is subject to license terms.
  * 
  * Permission is hereby granted, free of charge, to use and distribute
@@ -29,28 +26,18 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
+
 package de.dfki.lt.mary.unitselection.cart;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataInput;
 import java.io.DataInputStream;
-import java.io.DataOutput;
-import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.StringTokenizer;
 
-import org.apache.log4j.Logger;
-
-import de.dfki.lt.mary.unitselection.FeatureArrayIndexer;
-import de.dfki.lt.mary.unitselection.FeatureFileIndexer;
-import de.dfki.lt.mary.unitselection.MaryNode;
-import de.dfki.lt.mary.unitselection.Target;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
-import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
-
 import de.dfki.lt.mary.unitselection.voiceimport.MaryHeader;
 
 /**
@@ -67,23 +54,20 @@ import de.dfki.lt.mary.unitselection.voiceimport.MaryHeader;
  * (daughter) is either a node (see above) or a leaf: ((<index1> <float1>)...(<indexN>
  * <floatN>)) : leaf with unit indices and (dummy) floats
  * 
- * @author Anna Hunecke
+ * @author Anna Hunecke, Marc Schröder
  */
-public class CARTWagonFormat implements CART {
 
-    private Logger logger = Logger.getLogger("CARTWagonFormat");
-
-    private Node rootNode;
-
+public abstract class WagonCART extends CART 
+{
     private Node lastNode;
 
     private int openBrackets;
 
-    private int numNodes;
-
-    // knows the index numbers and types of the features
-    protected FeatureDefinition featDef;
-
+    public WagonCART()
+    {
+        super();
+    }
+    
     /**
      * Creates a new CART by reading from the given reader. This method is to be
      * called when a CART created by Wagon is read in.
@@ -93,8 +77,8 @@ public class CARTWagonFormat implements CART {
      * @throws IOException
      *             if errors occur while reading the data
      */
-    public CARTWagonFormat(BufferedReader reader,
-            FeatureDefinition featDefinition) throws IOException {
+    public WagonCART(BufferedReader reader, FeatureDefinition featDefinition)
+            throws IOException {
         featDef = featDefinition;
         openBrackets = 0;
         String line = reader.readLine(); // first line is empty, read again
@@ -116,12 +100,6 @@ public class CARTWagonFormat implements CART {
         }
     }
 
-    /**
-     * Build a new empty cart
-     * 
-     */
-    public CARTWagonFormat() {
-    }
 
     /**
      * Load the cart from the given file
@@ -321,285 +299,11 @@ public class CARTWagonFormat implements CART {
      * For a line representing a leaf in Wagon format, create a leaf.
      * This method decides which implementation of LeafNode is used, i.e.
      * which data format is appropriate.
-     * This implementation creates an IntArrayLeafNode, representing the leaf
-     * as an array of ints; use subclasses overriding this method
-     * if you want to create different LeafNodes.
      * Lines are of the form
      * ((<index1> <float1>)...(<indexN> <floatN>)) 0))
      * 
      * @param line a line from a wagon cart file, representing a leaf
      * @return a leaf node representing the line.
      */
-    protected LeafNode createLeafNode(String line) {
-        StringTokenizer tok = new StringTokenizer(line, " ");
-        // read the indices from the tokenized String
-        int numTokens = tok.countTokens();
-        int index = 0;
-        // The data to be saved in the leaf node:
-        int[] indices;
-        if (numTokens == 2) { // we do not have any indices
-            // discard useless token
-            tok.nextToken();
-            indices = new int[0];
-        } else {
-            indices = new int[(numTokens - 1) / 2];
-
-            while (index * 2 < numTokens - 1) { // while we are not at the
-                                                // last token
-                String nextToken = tok.nextToken();
-                if (index == 0) {
-                    // we are at first token, discard all open brackets
-                    nextToken = nextToken.substring(4);
-                } else {
-                    // we are not at first token, only one open bracket
-                    nextToken = nextToken.substring(1);
-                }
-                // store the index of the unit
-                indices[index] = Integer.parseInt(nextToken);
-                // discard next token
-                tok.nextToken();
-                // increase index
-                index++;
-            }
-        }
-        return new LeafNode.IntArrayLeafNode(indices);
-    }
-    /**
-     * Convert the given Mary node tree into a CART with the leaves containing
-     * featureVectors
-     * 
-     * @param tree
-     *            the tree
-     * @param ffi
-     *            the feature file indexer containing the feature vectors
-     */
-    public CARTWagonFormat(MaryNode tree, FeatureArrayIndexer ffi) {
-        featDef = ffi.getFeatureDefinition();
-        numNodes = 0;
-        addDaughters(null, tree, ffi);
-    }
-
-    /**
-     * Add the given tree node as a daughter to the given mother node
-     * 
-     * @param motherCARTNode
-     *            the mother node
-     * @param currentTreeNode
-     *            the tree node that we want to add
-     * @param ffi
-     *            the feature file indexer containing the feature vectors
-     */
-    private void addDaughters(DecisionNode motherCARTNode,
-            MaryNode currentTreeNode, FeatureArrayIndexer ffi) {
-        numNodes++;
-        if (currentTreeNode == null) {
-            motherCARTNode.addDaughter(new LeafNode.FeatureVectorLeafNode(new FeatureVector[0]));
-            return;
-        }
-        if (currentTreeNode.isNode()) { // if we are not at a leaf
-
-            // System.out.print("Adding node, ");
-            // the next daughter
-            DecisionNode daughterNode = null;
-            // the number of daughters of the next daughter
-            int numDaughters;
-            // the index of the next feature
-            int nextFeatIndex = currentTreeNode.getFeatureIndex();
-            // System.out.print("featureIndex = "+nextFeatIndex+"\n");
-            if (featDef.isByteFeature(nextFeatIndex)) {
-                // if we have a byte feature, build a byte decision node
-                numDaughters = featDef.getNumberOfValues(nextFeatIndex);
-                daughterNode = new DecisionNode.ByteDecisionNode(nextFeatIndex, numDaughters, featDef);
-            } else {
-                if (featDef.isShortFeature(nextFeatIndex)) {
-                    // if we have a short feature, build a short decision node
-                    numDaughters = featDef.getNumberOfValues(nextFeatIndex);
-                    daughterNode = new DecisionNode.ShortDecisionNode(nextFeatIndex,
-                            numDaughters, featDef);
-                } else {
-                    // feature is of type float, currently not supported in ffi
-                    throw new IllegalArgumentException(
-                            "Found float feature in FeatureFileIndexer!");
-                }
-            }
-
-            if (motherCARTNode == null) {
-                // if the mother is null, the current node is the root
-                rootNode = daughterNode;
-                daughterNode.setIsRoot(true);
-            } else {
-                // if the current node is not the root,
-                // set mother and daughter accordingly
-                motherCARTNode.addDaughter(daughterNode);
-                daughterNode.setMother(motherCARTNode);
-            }
-            // for every daughter go in recursion
-            for (int i = 0; i < numDaughters; i++) {
-                MaryNode nextChild = currentTreeNode.getChild(i);
-                addDaughters(daughterNode, nextChild, ffi);
-
-            }
-        } else {
-            // we are at a leaf node
-            // System.out.println("Adding leaf");
-            // get the feature vectors
-            FeatureVector[] featureVectors = ffi.getFeatureVectors(
-                    currentTreeNode.getFrom(), currentTreeNode.getTo());
-            // build a new leaf
-            LeafNode leaf = new LeafNode.FeatureVectorLeafNode(featureVectors);
-
-            if (motherCARTNode == null) {
-                // if the mother is null, the current node is the root
-                rootNode = leaf;
-            } else {
-                // set mother and daughter
-                leaf.setMother(motherCARTNode);
-                motherCARTNode.addDaughter(leaf);
-            }
-        }
-    }
-
-    /**
-     * Passes the given item through this CART and returns the
-     * interpretation.
-     *
-     * @param target the target to analyze
-     * @param minNumberOfCandidates the minimum number of candidates requested.
-     * If this is 0, walk down the CART until the leaf level.
-     *
-     * @return the interpretation
-     */
-    public Object interpret(Target target,int minNumberOfCandidates) {
-        Node currentNode = rootNode;
-        Node prevNode = null;
-
-        FeatureVector featureVector = target.getFeatureVector();
-
-        // logger.debug("Starting cart at "+nodeIndex);
-        while (currentNode.getNumberOfData() > minNumberOfCandidates
-                && !(currentNode instanceof LeafNode)) {
-            // while we have not reached the bottom,
-            // get the next node based on the features of the target
-            prevNode = currentNode;
-            currentNode = ((DecisionNode) currentNode)
-                    .getNextNode(featureVector);
-            // logger.debug(decision.toString() + " result '"+
-            // decision.findFeature(item) + "' => "+ nodeIndex);
-        }
-        // Now usually we will have gone down one level too far
-        if (currentNode.getNumberOfData() < minNumberOfCandidates
-                && prevNode != null) {
-            currentNode = prevNode;
-        }
-
-        assert currentNode.getNumberOfData() >= minNumberOfCandidates
-            || currentNode == rootNode; 
-        
-        // get the indices from the leaf node
-        Object result = currentNode.getAllData();
-        
-        return result;
-
-    }
-
-    /**
-     * Get the first leaf node in this tree. Subsequent leaf nodes can be called
-     * via leafNode.getNextLeafNode().
-     * @return the first leaf node, or null if the tree has no leaves.
-     */
-    public LeafNode getFirstLeafNode()
-    {
-        if (rootNode instanceof LeafNode) return (LeafNode) rootNode;
-        assert rootNode instanceof DecisionNode;
-        return ((DecisionNode)rootNode).getNextLeafNode(0);
-    }
-    
-   
-    /**
-     * In this tree, replace the given leaf with the given CART
-     * @param cart the CART
-     * @param leaf the leaf
-     */
-    public static void replaceLeafByCart(CARTWagonFormat cart, LeafNode leaf){
-        DecisionNode mother = (DecisionNode) leaf.getMother();
-        Node newNode = cart.getRootNode();
-        mother.replaceDaughter(newNode, leaf.getNodeIndex());
-        newNode.setMother(mother);
-        newNode.setIsRoot(false);
-    }
-    
- 
-    
-    /**
-     * Get the root node of this CART
-     * 
-     * @return the root node
-     */
-    public Node getRootNode() {
-        return rootNode;
-    }
-
-    /**
-     * Get the number of nodes in this CART
-     * 
-     * @return the number of nodes
-     */
-    public int getNumNodes() {
-        return numNodes;
-    }
-
-    /**
-     * Dumps this CART to the output stream in WagonFormat.
-     * 
-     * @param os
-     *            the output stream
-     * 
-     * @throws IOException
-     *             if an error occurs during output
-     */
-    public void dumpBinary(DataOutput os) throws IOException {
-        try {
-            rootNode.toWagonFormat((DataOutputStream) os, null, null);
-        } catch (IOException ioe) {
-            IOException newIOE = new IOException(
-                    "Error dumping CART to output stream");
-            newIOE.initCause(ioe);
-            throw newIOE;
-        }
-    }
-
-    /**
-     * Debug output to a text file
-     * 
-     * @param pw
-     *            the print writer of the text file
-     * @throws IOException
-     */
-    public void toTextOut(PrintWriter pw) throws IOException {
-        try {
-            rootNode.toWagonFormat(null, null, pw);
-            pw.flush();
-            pw.close();
-        } catch (IOException ioe) {
-            IOException newIOE = new IOException(
-                    "Error dumping CART to standard output");
-            newIOE.initCause(ioe);
-            throw newIOE;
-        }
-    }
-
-    /**
-     * Write the given String to the given data output (Replacement for
-     * writeUTF)
-     * 
-     * @param str
-     *            the String
-     * @param out
-     *            the data output
-     */
-    public static void writeStringToOutput(String str, DataOutput out)
-            throws IOException {
-        out.writeInt(str.length());
-        out.writeChars(str);
-    }
+    protected abstract LeafNode createLeafNode(String line);
 }
