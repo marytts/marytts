@@ -247,16 +247,26 @@ public class MbrolaSynthesizer implements WaveformSynthesizer {
 
     public static AudioFormat mbrolaAudioFormat(int samplingRate)
     {
+        boolean bigEndian;
+        if (System.getProperty("os.name").equals("Mac OS X")) {
+            bigEndian = true; // big-endian
+            // Special treatment for Mac OS X, because the MBROLA binary 
+            // (which stems from PowerPC times) produces big-endian 
+            // even on an i386 machine
+        } else if (System.getProperty("os.arch").equals("x86") ||
+                System.getProperty("os.arch").equals("i386")) {
+            bigEndian = false;
+        } else {
+            // all others -- e.g., sparc
+            bigEndian = true;
+        }
         return  new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
          samplingRate, // samples per second
          16, // bits per sample
          1, // mono
          2, // nr. of bytes per frame
          samplingRate, // nr. of frames per second
-         (System.getProperty("os.arch").equals("x86") ||
-          System.getProperty("os.arch").equals("i386")) ? // byteorder
-         false // little-endian
-         : true); // big-endian
+         bigEndian);
     }
     
     public static boolean isMbrolaVoice(Voice voice)
