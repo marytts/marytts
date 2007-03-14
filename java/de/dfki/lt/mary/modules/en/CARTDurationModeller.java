@@ -51,7 +51,7 @@ import de.dfki.lt.mary.modules.synthesis.FreeTTSVoices;
 import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.unitselection.Target;
 import de.dfki.lt.mary.unitselection.cart.CART;
-import de.dfki.lt.mary.unitselection.cart.FloatCART;
+import de.dfki.lt.mary.unitselection.cart.RegressionTree;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.TargetFeatureComputer;
 import de.dfki.lt.mary.unitselection.featureprocessors.en.FeatureProcessorManager;
@@ -82,7 +82,7 @@ public class CARTDurationModeller extends InternalModule
         File fdFile = new File(MaryProperties.needFilename("english.duration.featuredefinition"));
         FeatureDefinition featureDefinition = new FeatureDefinition(new BufferedReader(new FileReader(fdFile)), true);
         File cartFile = new File(MaryProperties.needFilename("english.duration.cart"));
-        cart = new FloatCART(new BufferedReader(new FileReader(cartFile)), featureDefinition);
+        cart = new RegressionTree(new BufferedReader(new FileReader(cartFile)), featureDefinition);
         featureComputer = new TargetFeatureComputer(new FeatureProcessorManager(), featureDefinition.getFeatureNames());
     }
 
@@ -107,8 +107,9 @@ public class CARTDurationModeller extends InternalModule
                 t.setFeatureVector(featureComputer.computeFeatureVector(t));
                 float[] dur = (float[])cart.interpret(t, 0);
                 assert dur != null : "Null duration";
-                assert dur.length == 1 : "Unexpected duration length: "+dur.length;
-                float durInSeconds = dur[0];
+                assert dur.length == 2 : "Unexpected duration length: "+dur.length;
+                float durInSeconds = dur[1];
+                float stddevInSeconds = dur[0];
                 end += durInSeconds;
                 int durInMillis = (int) (1000 * durInSeconds);
                 s.getFeatures().setFloat("end", end);

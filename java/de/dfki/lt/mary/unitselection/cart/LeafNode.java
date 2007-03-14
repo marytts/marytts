@@ -77,6 +77,13 @@ public abstract class LeafNode extends Node {
     protected abstract void fillData(Object target, int pos, int len);
 
 
+    /**
+     * An LeafNode class suitable for representing the leaves of 
+     * classification trees -- the leaf is a collection of items identified
+     * by an index number.
+     * @author marc
+     *
+     */
     public static class IntArrayLeafNode extends LeafNode
     {
         private int[] data;
@@ -238,19 +245,26 @@ public abstract class LeafNode extends Node {
         }
     }
 
-    public static class FloatArrayLeafNode extends LeafNode
+    /**
+     * A leaf class that is suitable for regression trees.
+     * Here, a leaf consists of a mean and a standard deviation.
+     * @author marc
+     *
+     */
+    public static class FloatLeafNode extends LeafNode
     {
         private float[] data;
-        public FloatArrayLeafNode(float[] data)
+        public FloatLeafNode(float[] data)
         {
             super();
+            if (data.length != 2) throw new IllegalArgumentException("data must have length 2, found "+data.length);
             this.data = data;
         }
         
         /**
          * Get all data in this leaf
          * 
-         * @return the  contained in this leaf
+         * @return the mean/standard deviation value contained in this leaf
          */
         public Object getAllData() {
             return data;
@@ -258,17 +272,12 @@ public abstract class LeafNode extends Node {
         
         protected void fillData(Object target, int pos, int len)
         {
-            if (!(target instanceof float[])) 
-                throw new IllegalArgumentException("Expected target object of type float[], got "+target.getClass());
-            float[] array = (float[]) target;
-            assert len <= data.length;
-            System.arraycopy(data, 0, array, pos, len);
+            throw new IllegalStateException("This method should not be called for FloatLeafNodes");
         }
 
         public int getNumberOfData()
         {
-            if (data != null) return data.length;
-            return 0;
+            return 1;
         }
 
 
@@ -282,30 +291,23 @@ public abstract class LeafNode extends Node {
          */
         public void toWagonFormat(DataOutputStream out, String extension,
                 PrintWriter pw) throws IOException {
-            StringBuffer sb = new StringBuffer();
-            // open three brackets
-            sb.append("(((");
-            // for each index, write the index and then a pseudo float
-            for (int i = 0; i < data.length; i++) {
-                sb.append("(" + data[i] + " 0)");
-                if (i + 1 != data.length) {
-                    sb.append(" ");
-                }
-            }
-            // write the ending
-            sb.append(") 0))" + extension);
+            String s = "(("
+                + data[0] // stddev
+                + " "
+                + data[1] // mean
+                + "))";
             // dump the whole stuff
             if (out != null) {
                 // write to output stream
 
-                CART.writeStringToOutput(sb.toString(), out);
+                CART.writeStringToOutput(s, out);
             } else {
                 // write to Standard out
                 // System.out.println(sb.toString());
             }
             if (pw != null) {
                 // dump to printwriter
-                pw.print(sb.toString());
+                pw.print(s);
             }
         }
 

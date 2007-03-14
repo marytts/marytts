@@ -46,7 +46,7 @@ import java.util.Map;
 import java.util.Set;
 
 import de.dfki.lt.mary.unitselection.cart.CART;
-import de.dfki.lt.mary.unitselection.cart.IntCART;
+import de.dfki.lt.mary.unitselection.cart.ClassificationTree;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 
 /**
@@ -87,7 +87,7 @@ public class FestivalCARTImporter {
                     BufferedReader reader =
                         new BufferedReader(new 
                                 InputStreamReader(new FileInputStream(entries[i])));
-                    CART cart = new IntCART(reader, featDef);
+                    CART cart = new ClassificationTree(reader, featDef);
                     //store CART in map
                     cartMap.put(name, cart);
                     reader.close();

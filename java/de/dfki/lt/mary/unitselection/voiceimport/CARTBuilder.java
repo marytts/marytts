@@ -36,7 +36,7 @@ import de.dfki.lt.mary.unitselection.FeatureFileIndexer;
 import de.dfki.lt.mary.unitselection.MaryNode;
 import de.dfki.lt.mary.unitselection.cart.CART;
 import de.dfki.lt.mary.unitselection.cart.FeatureVectorCART;
-import de.dfki.lt.mary.unitselection.cart.IntCART;
+import de.dfki.lt.mary.unitselection.cart.ClassificationTree;
 import de.dfki.lt.mary.unitselection.cart.LeafNode;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
@@ -176,7 +176,7 @@ public class CARTBuilder implements VoiceImportComponent {
             //open CART-File
             System.out.println("Reading CART from "+filename+" ...");
             //build and return CART
-            CART cart = new IntCART();
+            CART cart = new ClassificationTree();
             cart.load(filename,featDef,null);
             //cart.toStandardOut();
             System.out.println(" ... done!");
@@ -284,7 +284,7 @@ public class CARTBuilder implements VoiceImportComponent {
                 System.out.println("Reading CART");
                 BufferedReader buf = new BufferedReader(
                         new FileReader(new File(wagonDirName+"/"+cartFile)));
-                CART newCART = new IntCART(buf, featureDefinition);    
+                CART newCART = new ClassificationTree(buf, featureDefinition);    
                 buf.close();
                 //replace the leaf by the CART
                 System.out.println("Replacing leaf");

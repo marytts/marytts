@@ -14,7 +14,11 @@ import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
  * decision nodes inherit from this class
  */
 public abstract class DecisionNode extends Node {
-
+    protected boolean TRACE = false; 
+    // for debugging:
+    protected FeatureDefinition featureDefinition;
+    
+    
     // a decision node has an array of daughters
     protected Node[] daughters;
 
@@ -43,6 +47,8 @@ public abstract class DecisionNode extends Node {
         this.featureIndex = featureDefinition.getFeatureIndex(feature);
         daughters = new Node[numDaughters];
         isRoot = false;
+        // for trace:
+        this.featureDefinition = featureDefinition;
     }
 
     /**
@@ -327,6 +333,14 @@ public abstract class DecisionNode extends Node {
             } else {
                 returnNode = daughters[1];
             }
+            if (TRACE) {
+                System.out.print(feature + ": " + featureDefinition.getFeatureValueAsString(featureIndex, val));
+                if (val == value)
+                    System.out.print(" == ");
+                else
+                    System.out.print(" != ");
+                System.out.println(featureDefinition.getFeatureValueAsString(featureIndex, value));
+            }
             return returnNode;
         }
 
@@ -376,6 +390,14 @@ public abstract class DecisionNode extends Node {
                 returnNode = daughters[0];
             } else {
                 returnNode = daughters[1];
+            }
+            if (TRACE) {
+                System.out.print(feature + ": " + featureDefinition.getFeatureValueAsString(featureIndex, val));
+                if (val == value)
+                    System.out.print(" == ");
+                else
+                    System.out.print(" != ");
+                System.out.println(featureDefinition.getFeatureValueAsString(featureIndex, value));
             }
             return returnNode;
         }
@@ -438,6 +460,15 @@ public abstract class DecisionNode extends Node {
             } else {
                 returnNode = daughters[1];
             }
+            if (TRACE) {
+                System.out.print(feature + ": " + val);
+                if (val < value)
+                    System.out.print(" < ");
+                else
+                    System.out.print(" >= ");
+                System.out.println(value);
+            }
+
             return returnNode;
         }
 
@@ -490,7 +521,11 @@ public abstract class DecisionNode extends Node {
          * @return a daughter
          */
         public Node getNextNode(FeatureVector featureVector) {
-            return daughters[featureVector.getByteFeature(featureIndex)];
+            byte val = featureVector.getByteFeature(featureIndex);
+            if (TRACE) {
+                System.out.println(feature+": "+featureDefinition.getFeatureValueAsString(featureIndex, val));
+            }
+            return daughters[val];
         }
 
         /**
@@ -542,7 +577,11 @@ public abstract class DecisionNode extends Node {
          * @return a daughter
          */
         public Node getNextNode(FeatureVector featureVector) {
-            return daughters[featureVector.getShortFeature(featureIndex)];
+            short val = featureVector.getShortFeature(featureIndex);
+            if (TRACE) {
+                System.out.println(feature+": "+featureDefinition.getFeatureValueAsString(featureIndex, val));
+            }
+            return daughters[val];
         }
 
         /**
