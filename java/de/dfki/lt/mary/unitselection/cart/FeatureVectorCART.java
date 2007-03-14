@@ -78,7 +78,9 @@ public class FeatureVectorCART extends CART {
             MaryNode currentTreeNode, FeatureArrayIndexer ffi) {
         numNodes++;
         if (currentTreeNode == null) {
-            motherCARTNode.addDaughter(new LeafNode.FeatureVectorLeafNode(new FeatureVector[0]));
+            LeafNode l = new LeafNode.FeatureVectorLeafNode(new FeatureVector[0]);
+            motherCARTNode.addDaughter(l);
+            l.setMother(motherCARTNode);
             return;
         }
         if (currentTreeNode.isNode()) { // if we are not at a leaf
