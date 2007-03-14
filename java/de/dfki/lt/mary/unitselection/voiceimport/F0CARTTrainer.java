@@ -31,8 +31,6 @@ import de.dfki.lt.util.PrintfFormat;
  */
 public class F0CARTTrainer implements VoiceImportComponent
 {
-    protected File unitlabelDir;
-    protected File unitfeatureDir;
     protected File f0Dir;
     protected File leftF0FeaturesFile;
     protected File midF0FeaturesFile;
@@ -49,8 +47,6 @@ public class F0CARTTrainer implements VoiceImportComponent
     {
         this.db = setdb;
         this.bnl = setbnl;
-        this.unitlabelDir = new File( db.phoneUnitLabDirName() );
-        this.unitfeatureDir = new File( db.phoneUnitFeaDirName() );
         String rootDir = db.rootDirName();
         this.f0Dir = new File(rootDir, System.getProperty("db.f0dir", "f0carts"));
         if (!f0Dir.exists()) f0Dir.mkdir();

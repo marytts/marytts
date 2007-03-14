@@ -36,23 +36,24 @@ import java.util.StringTokenizer;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 
 /**
+ * A representation of a regression tree. Regression trees are CARTs which have
+ * a float mean/stddev pair at their leaves.
  * @author marc
  *
  */
-public class IntCART extends WagonCART
-{
+public class RegressionTree extends WagonCART {
 
-    public IntCART()
+    public RegressionTree()
     {
         super();
     }
-
+    
     /**
      * @param reader
      * @param featDefinition
      * @throws IOException
      */
-    public IntCART(BufferedReader reader, FeatureDefinition featDefinition)
+    public RegressionTree(BufferedReader reader, FeatureDefinition featDefinition)
             throws IOException {
         super(reader, featDefinition);
         // TODO Auto-generated constructor stub
@@ -62,10 +63,10 @@ public class IntCART extends WagonCART
      * For a line representing a leaf in Wagon format, create a leaf.
      * This method decides which implementation of LeafNode is used, i.e.
      * which data format is appropriate.
-     * This implementation creates an IntArrayLeafNode, representing the leaf
-     * as an array of ints.
+     * This implementation creates an FloatArrayLeafNode, representing the leaf
+     * as an array of floats.
      * Lines are of the form
-     * ((<index1> <float1>)...(<indexN> <floatN>)) 0))
+     * ((<floatStdDev> <floatMean>))
      * 
      * @param line a line from a wagon cart file, representing a leaf
      * @return a leaf node representing the line.
@@ -74,35 +75,27 @@ public class IntCART extends WagonCART
         StringTokenizer tok = new StringTokenizer(line, " ");
         // read the indices from the tokenized String
         int numTokens = tok.countTokens();
-        int index = 0;
-        // The data to be saved in the leaf node:
-        int[] indices;
-        if (numTokens == 2) { // we do not have any indices
-            // discard useless token
-            tok.nextToken();
-            indices = new int[0];
-        } else {
-            indices = new int[(numTokens - 1) / 2];
-
-            while (index * 2 < numTokens - 1) { // while we are not at the
-                                                // last token
-                String nextToken = tok.nextToken();
-                if (index == 0) {
-                    // we are at first token, discard all open brackets
-                    nextToken = nextToken.substring(4);
-                } else {
-                    // we are not at first token, only one open bracket
-                    nextToken = nextToken.substring(1);
-                }
-                // store the index of the unit
-                indices[index] = Integer.parseInt(nextToken);
-                // discard next token
-                tok.nextToken();
-                // increase index
-                index++;
-            }
+        if (numTokens != 2) { // we need exactly one value pair
+            throw new IllegalArgumentException("Expected two tokens in line, got "+numTokens+": '"+line+"'");
         }
-        return new LeafNode.IntArrayLeafNode(indices);
+
+        // The data to be saved in the leaf node:
+        float[] data = new float[2]; // stddev and mean;
+        String nextToken = tok.nextToken();
+        nextToken = nextToken.substring(2);
+        try {
+            data[0] = Float.parseFloat(nextToken);
+        } catch (NumberFormatException nfe) {
+            data[0] = 0; // cannot make sense of the standard deviation
+        }
+        nextToken = tok.nextToken();
+        nextToken = nextToken.substring(0, nextToken.indexOf(")"));
+        try {
+            data[1] = Float.parseFloat(nextToken);
+        } catch (NumberFormatException nfe) {
+            data[1] = 0;
+        }
+        return new LeafNode.FloatLeafNode(data);
     }
 
 }

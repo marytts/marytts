@@ -36,35 +36,37 @@ import java.util.StringTokenizer;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 
 /**
+ * A representation of a classification tree. Classification trees are trees
+ * with clusters of items at their leaves, identified by index numbers.
  * @author marc
  *
  */
-public class FloatCART extends WagonCART {
+public class ClassificationTree extends WagonCART
+{
 
-    public FloatCART()
+    public ClassificationTree()
     {
         super();
     }
-    
+
     /**
      * @param reader
      * @param featDefinition
      * @throws IOException
      */
-    public FloatCART(BufferedReader reader, FeatureDefinition featDefinition)
+    public ClassificationTree(BufferedReader reader, FeatureDefinition featDefinition)
             throws IOException {
         super(reader, featDefinition);
-        // TODO Auto-generated constructor stub
     }
 
     /**
      * For a line representing a leaf in Wagon format, create a leaf.
      * This method decides which implementation of LeafNode is used, i.e.
      * which data format is appropriate.
-     * This implementation creates an FloatArrayLeafNode, representing the leaf
-     * as an array of floats.
+     * This implementation creates an IntArrayLeafNode, representing the leaf
+     * as an array of ints.
      * Lines are of the form
-     * ((<floatValue> <floatQuality>))
+     * ((<index1> <float1>)...(<indexN> <floatN>)) 0))
      * 
      * @param line a line from a wagon cart file, representing a leaf
      * @return a leaf node representing the line.
@@ -75,18 +77,13 @@ public class FloatCART extends WagonCART {
         int numTokens = tok.countTokens();
         int index = 0;
         // The data to be saved in the leaf node:
-        float[] data;
-        if (numTokens == 2) { // we have exactly one value
-            String nextToken = tok.nextToken();
-            nextToken = nextToken.substring(2);
-            data = new float[1];
-            try {
-                data[0] = Float.parseFloat(nextToken);
-            } catch (NumberFormatException nfe) {
-                data[0] = 0;
-            }
-        } else { // more than one value -- untested
-            data = new float[(numTokens - 1) / 2];
+        int[] indices;
+        if (numTokens == 2) { // we do not have any indices
+            // discard useless token
+            tok.nextToken();
+            indices = new int[0];
+        } else {
+            indices = new int[(numTokens - 1) / 2];
 
             while (index * 2 < numTokens - 1) { // while we are not at the
                                                 // last token
@@ -99,14 +96,14 @@ public class FloatCART extends WagonCART {
                     nextToken = nextToken.substring(1);
                 }
                 // store the index of the unit
-                data[index] = Float.parseFloat(nextToken);
+                indices[index] = Integer.parseInt(nextToken);
                 // discard next token
                 tok.nextToken();
                 // increase index
                 index++;
             }
         }
-        return new LeafNode.FloatArrayLeafNode(data);
+        return new LeafNode.IntArrayLeafNode(indices);
     }
 
 }
