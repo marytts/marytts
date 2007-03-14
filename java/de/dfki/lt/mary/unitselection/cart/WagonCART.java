@@ -98,6 +98,11 @@ public abstract class WagonCART extends CART
         if (openBrackets != 0) {
             throw new IOException("Error loading CART: bracket mismatch");
         }
+        // Now count all data once, so that getNumberOfData()
+        // will return the correct figure.
+        if (rootNode instanceof DecisionNode)
+            ((DecisionNode)rootNode).countData();
+
     }
 
 
@@ -160,10 +165,10 @@ public abstract class WagonCART extends CART
             throw new IOException("Error loading CART: bracket mismatch: "
                     + openBrackets);
         }
-        // Now count all candidates once, so that getNumberOfCandidates()
+        // Now count all data once, so that getNumberOfData()
         // will return the correct figure.
         if (rootNode instanceof DecisionNode)
-            ((DecisionNode)rootNode).countCandidates();
+            ((DecisionNode)rootNode).countData();
         //System.out.println("Done");
     }
 
@@ -178,12 +183,12 @@ public abstract class WagonCART extends CART
     private void parseAndAdd(String line) throws IOException {
         // remove whitespace
         line = line.trim();
-
         // at beginning of String there should be at least two opening brackets
         if (!(line.startsWith("(("))) {
             throw new IOException("Invalid input line for CART: " + line);
         }
-        if (Character.isLetter(line.charAt(2))) { // we have a node
+        if (Character.isLetter(line.charAt(2))
+                && !line.substring(2, 6).equals("nan ")) { // we have a node
             openBrackets++; // do not count first bracket
 
             // get the properties of the node
@@ -192,6 +197,9 @@ public abstract class WagonCART extends CART
             String type = tokenizer.nextToken();
             String value = tokenizer.nextToken();
             value = value.substring(0, value.length() - 1);
+            // some values are enclosed in double quotes:
+            if (value.startsWith("\"") && value.endsWith("\"") && value.length() > 2)
+                value = value.substring(1, value.length() - 1);
 
             // build new node depending on type
 
