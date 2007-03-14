@@ -96,11 +96,6 @@ public class CARTDurationModeller extends InternalModule
             Voice maryVoice = FreeTTSVoices.getMaryVoice(utterance.getVoice());
             Relation segs = utterance.getRelation(Relation.SEGMENT);
             float end = 0; // end time of segment, in seconds
-/*            for (Item s = segs.getHead(); s != null; s = s.getNext()) {
-                String segName = s.getFeatures().getString("name");
-                String sampaSegmentString = maryVoice.voice2sampa(segName);
-                s.getFeatures().setString("name", sampaSegmentString);
-            }*/
             for (Item s = segs.getHead(); s != null; s = s.getNext()) {
                 String segName = s.getFeatures().getString("name");
                 Target t = new Target(segName, s);
