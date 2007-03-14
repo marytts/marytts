@@ -30,6 +30,7 @@ package de.dfki.lt.mary.unitselection.voiceimport;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import de.dfki.lt.mary.unitselection.FeatureFileIndexer;
@@ -53,6 +54,7 @@ import de.dfki.lt.mary.MaryProperties;
 public class CARTBuilder implements VoiceImportComponent {
     
     private DatabaseLayout databaseLayout;
+    private int percent = 0;
     
     public CARTBuilder(DatabaseLayout databaseLayout){
         this.databaseLayout = databaseLayout;
@@ -134,7 +136,29 @@ public class CARTBuilder implements VoiceImportComponent {
          System.out.println("Building CART from tree ...");
          CART topLevelCART = new FeatureVectorCART(topLevelTree, fai);
          System.out.println(" ... done!");
-        
+         
+         System.out.println("Checking top-level CART for reasonable leaf sizes ...");
+         int minSize = 5;
+         int maxSize = 4000;
+         int nTooSmall = 0;
+         int nTooBig = 0;
+         int nLeaves = 0;
+         for (LeafNode leaf = topLevelCART.getFirstLeafNode(); leaf != null; leaf = leaf.getNextLeafNode()) {
+             if (leaf.getNumberOfData() < minSize) {
+                 System.out.println("  -> leaf too small: "+leaf.getNumberOfData()+" units");
+                 nTooSmall++;
+             } else if (leaf.getNumberOfData() > maxSize) {
+                 System.out.println("  -> leaf too big: "+leaf.getNumberOfData()+" units");
+                 nTooBig++;
+             }
+             nLeaves++;
+         }
+         if (nTooSmall > 0 || nTooBig > 0) {
+             System.out.println("Bad top-level cart: "+nTooSmall+"/"+nLeaves+" leaves are too small, "+nTooBig+"/"+nLeaves+" are too big");
+             System.exit(1);
+         } else {
+             System.out.println("... OK!");
+         }
          
          boolean callWagon = System.getProperty("db.cartbuilder.callwagon", "true").equals("true");
          
@@ -267,19 +291,41 @@ public class CARTBuilder implements VoiceImportComponent {
                 numProcesses = Integer.parseInt(np);
             }
             
+            List leaves = new ArrayList();
             for (LeafNode leaf = cart.getFirstLeafNode(); leaf != null; leaf = leaf.getNextLeafNode()) {
+                leaves.add(leaf);
+            }
+            int nLeaves = leaves.size();
+            System.out.println("Computing acoustic subtrees for "+nLeaves+" unit clusters");
+            for (int i=0; i<nLeaves; i++) {
+                long startTime = System.currentTimeMillis();
+                percent = 100*i/nLeaves;
+                LeafNode leaf = (LeafNode) leaves.get(i);
                 /* call Wagon successively */
                 //go through the CART
                 FeatureVector[] featureVectors = ((LeafNode.FeatureVectorLeafNode)leaf).getFeatureVectors();
                 //dump the feature vectors
-                System.out.println("Dumping feature vectors");
+                System.out.println("Dumping "+featureVectors.length+" feature vectors...");
                 dumpFeatureVectors(featureVectors, featureDefinition,wagonDirName+"/"+featureVectorsFile);
+                long endTime = System.currentTimeMillis();
+                System.out.println("... dumping feature vectors took "+(endTime-startTime)+" ms");
+                startTime = endTime;
                 //dump the distance tables
+                System.out.println("Computing distance tables...");
                 buildAndDumpDistanceTables(featureVectors,wagonDirName+"/"+distanceTableFile,featureDefinition);
+                endTime = System.currentTimeMillis();
+                System.out.println("... computing distance tables took "+(endTime-startTime)+" ms");
+                startTime = endTime;
                 //call Wagon
-                System.out.println("Calling wagon");
-                if (!wagonCaller.callWagon(wagonDirName+"/"+featureVectorsFile,wagonDirName+"/"+distanceTableFile,wagonDirName+"/"+cartFile))
-                     return false;
+                System.out.println("Calling wagon...");
+                boolean ok = wagonCaller.callWagon(wagonDirName+"/"+featureVectorsFile,
+                        wagonDirName+"/"+distanceTableFile,
+                        wagonDirName+"/"+cartFile,
+                        0, // balance
+                        50); // stop
+                endTime = System.currentTimeMillis();
+                System.out.println("... calling wagon took "+(endTime-startTime)+" ms");
+                if (!ok) return false;
                 //read in the resulting CART
                 System.out.println("Reading CART");
                 BufferedReader buf = new BufferedReader(
@@ -289,7 +335,6 @@ public class CARTBuilder implements VoiceImportComponent {
                 //replace the leaf by the CART
                 System.out.println("Replacing leaf");
                 CART.replaceLeafByCart(newCART, leaf);
-                System.out.println("Cart has "+cart.getNumNodes()+" nodes");
             }           
               
         } catch (IOException ioe) {
@@ -581,7 +626,7 @@ public class CARTBuilder implements VoiceImportComponent {
      */
     public int getProgress()
     {
-        return -1;
+        return percent;
     }
 
 }
