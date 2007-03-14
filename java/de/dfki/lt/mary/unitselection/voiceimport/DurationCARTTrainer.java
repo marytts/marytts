@@ -16,6 +16,9 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 
 import de.dfki.lt.mary.unitselection.FeatureFileReader;
+import de.dfki.lt.mary.unitselection.TimelineReader;
+import de.dfki.lt.mary.unitselection.Unit;
+import de.dfki.lt.mary.unitselection.UnitFileReader;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.util.PrintfFormat;
 
@@ -34,6 +37,7 @@ public class DurationCARTTrainer implements VoiceImportComponent
     protected File wagonDescFile;
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
+    protected int percent = 0;
     
     
     
@@ -54,34 +58,27 @@ public class DurationCARTTrainer implements VoiceImportComponent
     /**/
     public boolean compute() throws IOException
     {
+        FeatureFileReader featureFile = FeatureFileReader.getFeatureFileReader(db.targetFeaturesFileName());
+        UnitFileReader unitFile = new UnitFileReader( db.unitFileName() );
+        TimelineReader waveTimeline = new TimelineReader( db.waveTimelineFileName() );
+
         PrintWriter toFeaturesFile = new PrintWriter(new FileOutputStream(durationFeaturesFile));
-        int nOK = 0;
-        System.out.println("Duration CART trainer: exporting duration features for "+bnl.getLength()+" files");
-        for (int i=0, len=bnl.getLength(); i<len; i++) {
-            String[] aligned;
-            try {
-                aligned = align(bnl.getName(i));
-            } catch (IOException e) {
-                e.printStackTrace();
-                aligned = null;
-            }
-            if (aligned == null) {
-                System.err.println("Cannot align "+bnl.getName(i)+" -- skipping");
-            } else {
-                for (int l=0, lMax=aligned.length; l<lMax; l++) {
-                    toFeaturesFile.println(aligned[l]);
-                }
-                nOK++;
-            }
+        System.out.println("Duration CART trainer: exporting duration features");
+
+        FeatureDefinition featureDefinition = featureFile.getFeatureDefinition();
+        for (int i=0, len=unitFile.getNumberOfUnits(); i<len; i++) {
+            // We estimate that feature extraction takes 1/10 of the total time
+            // (that's probably wrong, but never mind)
+            percent = 10*i/len;
+            Unit u = unitFile.getUnit(i);
+            float dur = u.getDuration() / (float) unitFile.getSampleRate();
+            toFeaturesFile.println(dur + " " + featureDefinition.toFeatureString(featureFile.getFeatureVector(i)));
         }
         toFeaturesFile.close();
-        System.out.println("Duration features extracted for "+nOK+" out of "+bnl.getLength()+ " files");
-        if (nOK == 0) return false;
-
-        FeatureFileReader features = FeatureFileReader.getFeatureFileReader(db.targetFeaturesFileName());
-        FeatureDefinition fd = features.getFeatureDefinition();
+        System.out.println("Duration features extracted for "+unitFile.getNumberOfUnits()+" units");
+        
         PrintWriter toDesc = new PrintWriter(new FileOutputStream(wagonDescFile));
-        generateFeatureDescriptionForWagon(fd, toDesc);
+        generateFeatureDescriptionForWagon(featureDefinition, toDesc);
         toDesc.close();
         
         // Now, call wagon
@@ -95,59 +92,6 @@ public class DurationCARTTrainer implements VoiceImportComponent
 
     }
     
-    private String[] align(String basename) throws IOException
-    {
-        BufferedReader labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.phoneUnitLabDirName() + basename + db.phoneUnitLabExt() )), "UTF-8"));
-        BufferedReader features = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.phoneUnitFeaDirName() + basename + db.phoneUnitFeaExt() )), "UTF-8")); 
-        String line;
-        // Skip label file header:
-        while ((line = labels.readLine()) != null) {
-            if (line.startsWith("#")) break; // line starting with "#" marks end of header
-        }
-        // Skip features file header:
-        while ((line = features.readLine()) != null) {
-            if (line.trim().equals("")) break; // empty line marks end of header
-        }
-        
-        // Now go through all feature file units
-        boolean correct = true;
-        int unitIndex = -1;
-        float prevEnd = 0;
-        List aligned = new ArrayList();
-        while (correct) {
-            unitIndex++;
-            String labelLine = labels.readLine();
-            String featureLine = features.readLine();
-            if (featureLine == null) { // incomplete feature file
-                return null;
-            } else if (featureLine.trim().equals("")) { // end of features
-                if (labelLine == null) break; // normal end found
-                else // label file is longer than feature file
-                    return null;
-            }
-            // Verify that the two labels are the same:
-            StringTokenizer st = new StringTokenizer(labelLine.trim());
-            // The third token in each line is the label
-            float end = Float.parseFloat(st.nextToken());
-            st.nextToken(); // skip
-            String labelUnit = st.nextToken();
-
-            st = new StringTokenizer(featureLine.trim());
-            // The expect that the first token in each line is the label
-            String featureUnit = st.nextToken();
-            if (!featureUnit.equals(labelUnit)) {
-                // Non-matching units found
-                return null;
-            }
-            // OK, now we assume we have two matching lines.
-            if (!featureUnit.startsWith("_")) { // discard all silences
-                // Output format: unit duration, followed by the feature line
-                aligned.add(new PrintfFormat(Locale.ENGLISH, "%.3f").sprintf(end-prevEnd)+" "+featureLine.trim());
-            }
-            prevEnd = end;
-        }
-        return (String[]) aligned.toArray(new String[0]);
-    }
     
     private void generateFeatureDescriptionForWagon(FeatureDefinition fd, PrintWriter out)
     {
@@ -194,7 +138,7 @@ public class DurationCARTTrainer implements VoiceImportComponent
      */
     public int getProgress()
     {
-        return -1;
+        return percent;
     }
 
 
