@@ -66,16 +66,21 @@ public class DurationCARTTrainer implements VoiceImportComponent
         System.out.println("Duration CART trainer: exporting duration features");
 
         FeatureDefinition featureDefinition = featureFile.getFeatureDefinition();
+        int nUnits = 0;
         for (int i=0, len=unitFile.getNumberOfUnits(); i<len; i++) {
             // We estimate that feature extraction takes 1/10 of the total time
             // (that's probably wrong, but never mind)
             percent = 10*i/len;
             Unit u = unitFile.getUnit(i);
             float dur = u.getDuration() / (float) unitFile.getSampleRate();
-            toFeaturesFile.println(dur + " " + featureDefinition.toFeatureString(featureFile.getFeatureVector(i)));
+            if (dur >= 0.01) { // enforce a minimum duration for training data
+                toFeaturesFile.println(dur + " " + featureDefinition.toFeatureString(featureFile.getFeatureVector(i)));
+                nUnits++;
+            }
         }
+        percent = 10;
         toFeaturesFile.close();
-        System.out.println("Duration features extracted for "+unitFile.getNumberOfUnits()+" units");
+        System.out.println("Duration features extracted for "+nUnits+" units");
         
         PrintWriter toDesc = new PrintWriter(new FileOutputStream(wagonDescFile));
         generateFeatureDescriptionForWagon(featureDefinition, toDesc);
@@ -88,6 +93,7 @@ public class DurationCARTTrainer implements VoiceImportComponent
                 +" -desc "+wagonDescFile.getAbsolutePath()
                 +" -stop 10 "
                 +" -output "+wagonTreeFile.getAbsolutePath());
+        percent = 100;
         return ok;
 
     }
