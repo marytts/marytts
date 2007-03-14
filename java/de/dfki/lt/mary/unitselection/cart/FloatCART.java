@@ -64,7 +64,7 @@ public class FloatCART extends WagonCART {
      * This implementation creates an FloatArrayLeafNode, representing the leaf
      * as an array of floats.
      * Lines are of the form
-     * ((<index1> <float1>)...(<indexN> <floatN>)) 0))
+     * ((<floatValue> <floatQuality>))
      * 
      * @param line a line from a wagon cart file, representing a leaf
      * @return a leaf node representing the line.
@@ -76,11 +76,16 @@ public class FloatCART extends WagonCART {
         int index = 0;
         // The data to be saved in the leaf node:
         float[] data;
-        if (numTokens == 2) { // we do not have any indices
-            // discard useless token
-            tok.nextToken();
-            data = new float[0];
-        } else {
+        if (numTokens == 2) { // we have exactly one value
+            String nextToken = tok.nextToken();
+            nextToken = nextToken.substring(2);
+            data = new float[1];
+            try {
+                data[0] = Float.parseFloat(nextToken);
+            } catch (NumberFormatException nfe) {
+                data[0] = 0;
+            }
+        } else { // more than one value -- untested
             data = new float[(numTokens - 1) / 2];
 
             while (index * 2 < numTokens - 1) { // while we are not at the

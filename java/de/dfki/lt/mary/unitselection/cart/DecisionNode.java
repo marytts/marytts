@@ -193,11 +193,11 @@ public abstract class DecisionNode extends Node {
      * the tree. This needs to be done once for the entire tree.
      * 
      */
-    protected void countCandidates() {
+    protected void countData() {
         nData = 0;
         for (int i = 0; i < daughters.length; i++) {
             if (daughters[i] instanceof DecisionNode)
-                ((DecisionNode) daughters[i]).countCandidates();
+                ((DecisionNode) daughters[i]).countData();
             nData += daughters[i].getNumberOfData();
         }
     }
@@ -398,6 +398,7 @@ public abstract class DecisionNode extends Node {
 
         // the value of this node
         private float value;
+        private boolean isByteFeature;
 
         /**
          * Create a new binary String DecisionNode.
@@ -410,6 +411,12 @@ public abstract class DecisionNode extends Node {
         public BinaryFloatDecisionNode(String feature, float value, FeatureDefinition featureDefinition) {
             super(feature, 2, featureDefinition);
             this.value = value;
+            // check for pseudo-floats:
+            // TODO: clean this up:
+            if (featureDefinition.isByteFeature(featureIndex))
+                isByteFeature = true;
+            else
+                isByteFeature = false;
         }
 
         /**
@@ -420,7 +427,11 @@ public abstract class DecisionNode extends Node {
          * @return a daughter
          */
         public Node getNextNode(FeatureVector featureVector) {
-            float val = featureVector.getContinuousFeature(featureIndex);
+            float val;
+            if (isByteFeature) 
+                val = (float) featureVector.getByteFeature(featureIndex);
+            else
+                val = featureVector.getContinuousFeature(featureIndex);
             Node returnNode;
             if (val < value) {
                 returnNode = daughters[0];
