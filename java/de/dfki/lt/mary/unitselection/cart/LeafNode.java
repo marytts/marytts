@@ -44,6 +44,14 @@ public abstract class LeafNode extends Node {
         return ((DecisionNode)mother).getNextLeafNode(getNodeIndex()+1);
     }
 
+    public String getDecisionPath()
+    {
+        if (mother == null) return "null - "+toString();
+        assert mother instanceof DecisionNode;
+        return ((DecisionNode)mother).getDecisionPath(getNodeIndex()) + " - " + toString();
+    }
+    
+
     /**
      * Count all the data available at and below this node.
      * The meaning of this depends on the type of nodes; for example,
@@ -154,6 +162,12 @@ public abstract class LeafNode extends Node {
                 pw.print(sb.toString());
             }
         }
+        
+        public String toString()
+        {
+            if (data == null) return "int[null]";
+            return "int["+data.length+"]";
+        }
 
     }
 
@@ -243,6 +257,13 @@ public abstract class LeafNode extends Node {
                 pw.print(sb.toString());
             }
         }
+        
+        public String toString()
+        {
+            if (featureVectors == null) return "fv[null]";
+            return "fv["+featureVectors.length+"]";
+        }
+
     }
 
     /**
@@ -309,6 +330,12 @@ public abstract class LeafNode extends Node {
                 // dump to printwriter
                 pw.print(s);
             }
+        }
+        
+        public String toString()
+        {
+            if (data == null) return "mean=null, stddev=null";
+            return "mean="+data[1]+", stddev="+data[0];
         }
 
     }

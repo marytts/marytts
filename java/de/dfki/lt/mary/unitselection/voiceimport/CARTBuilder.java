@@ -145,10 +145,10 @@ public class CARTBuilder implements VoiceImportComponent {
          int nLeaves = 0;
          for (LeafNode leaf = topLevelCART.getFirstLeafNode(); leaf != null; leaf = leaf.getNextLeafNode()) {
              if (leaf.getNumberOfData() < minSize) {
-                 System.out.println("  -> leaf too small: "+leaf.getNumberOfData()+" units");
+                 System.out.println("  -> leaf too small: "+leaf.getDecisionPath());
                  nTooSmall++;
              } else if (leaf.getNumberOfData() > maxSize) {
-                 System.out.println("  -> leaf too big: "+leaf.getNumberOfData()+" units");
+                 System.out.println("  -> leaf too big: "+leaf.getDecisionPath());
                  nTooBig++;
              }
              nLeaves++;
