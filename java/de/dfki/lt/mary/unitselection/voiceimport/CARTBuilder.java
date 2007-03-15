@@ -306,6 +306,7 @@ public class CARTBuilder implements VoiceImportComponent {
             System.out.println("Computing acoustic subtrees for "+nLeaves+" unit clusters");
             /* call Wagon successively */
             //go through the CART
+            int wagonID = 0;
             for (int i=0; i<nLeaves; i++) {
                 long startTime = System.currentTimeMillis();
                 percent = 100*i/nLeaves;
@@ -325,19 +326,19 @@ public class CARTBuilder implements VoiceImportComponent {
                 System.out.println("... computing distance tables took "+(endTime-startTime)+" ms");
                 startTime = endTime;
                 // Dispatch call to Wagon to one of the wagon callers:
-                WagonCallerThread wagon = new WagonCallerThread(String.valueOf(i), 
+                WagonCallerThread wagon = new WagonCallerThread(String.valueOf(wagonID), 
                         leaf, featureDefinition, 
                         featureDefFile, 
-                        wagonDirName+"/"+featureVectorsFile+i,
-                        wagonDirName+"/"+distanceTableFile+i,
-                        wagonDirName+"/"+cartFile+i,
+                        wagonDirName+"/"+featureVectorsFile+wagonID,
+                        wagonDirName+"/"+distanceTableFile+wagonID,
+                        wagonDirName+"/"+cartFile+wagonID,
                         0,
                         stop);
                 boolean dispatched = false;
                 while (!dispatched) {
-                    for (int w=0; w<numProcesses; w++) {
+                    for (int w=0; w<numProcesses && !dispatched; w++) {
                         if (wagons[w] == null) {
-                            System.out.println("Dispatching wagon "+i+" as process "+(w+1)+" out of "+numProcesses);
+                            System.out.println("Dispatching wagon "+wagonID+" as process "+(w+1)+" out of "+numProcesses);
                             wagons[w] = wagon;
                             wagon.start();
                             dispatched = true;
