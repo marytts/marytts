@@ -47,7 +47,7 @@ public abstract class DecisionNode extends Node {
         this.featureIndex = featureDefinition.getFeatureIndex(feature);
         daughters = new Node[numDaughters];
         isRoot = false;
-        // for trace:
+        // for trace and getDecisionPath():
         this.featureDefinition = featureDefinition;
     }
 
@@ -64,6 +64,8 @@ public abstract class DecisionNode extends Node {
         this.feature = featureDefinition.getFeatureName(featureIndex);
         daughters = new Node[numDaughters];
         isRoot = false;
+        // for trace and getDecisionPath():
+        this.featureDefinition = featureDefinition;
     }
 
     /**
@@ -209,6 +211,14 @@ public abstract class DecisionNode extends Node {
     }
 
     /**
+     * Get the path leading to the daughter with the given index. This
+     * will recursively go up to the root node.
+     * @param daughterIndex
+     * @return
+     */
+    public abstract String getDecisionPath(int daughterIndex);
+
+    /**
      * Writes the Cart to the given DataOut in Wagon Format
      * 
      * @param out
@@ -343,6 +353,17 @@ public abstract class DecisionNode extends Node {
             }
             return returnNode;
         }
+        
+        public String getDecisionPath(int daughterIndex)
+        {
+            String thisNodeInfo;
+            if (daughterIndex == 0) thisNodeInfo = feature + "==" + featureDefinition.getFeatureValueAsString(featureIndex, value);
+            else thisNodeInfo = feature + "!=" + featureDefinition.getFeatureValueAsString(featureIndex, value);
+            if (mother == null) return thisNodeInfo;
+            assert mother instanceof DecisionNode;
+            return ((DecisionNode)mother).getDecisionPath(getNodeIndex()) + " - " + thisNodeInfo;
+        }
+
 
         /**
          * Gets the String that defines the decision done in the node
@@ -401,6 +422,17 @@ public abstract class DecisionNode extends Node {
             }
             return returnNode;
         }
+        
+        public String getDecisionPath(int daughterIndex)
+        {
+            String thisNodeInfo;
+            if (daughterIndex == 0) thisNodeInfo = feature + "==" + featureDefinition.getFeatureValueAsString(featureIndex, value);
+            else thisNodeInfo = feature + "!=" + featureDefinition.getFeatureValueAsString(featureIndex, value);
+            if (mother == null) return thisNodeInfo;
+            assert mother instanceof DecisionNode;
+            return ((DecisionNode)mother).getDecisionPath(getNodeIndex()) + " - " + thisNodeInfo;
+        }
+
 
         /**
          * Gets the String that defines the decision done in the node
@@ -472,6 +504,16 @@ public abstract class DecisionNode extends Node {
             return returnNode;
         }
 
+        public String getDecisionPath(int daughterIndex)
+        {
+            String thisNodeInfo;
+            if (daughterIndex == 0) thisNodeInfo = feature + "<" + value;
+            else thisNodeInfo = feature + ">=" + value;
+            if (mother == null) return thisNodeInfo;
+            assert mother instanceof DecisionNode;
+            return ((DecisionNode)mother).getDecisionPath(getNodeIndex()) + " - " + thisNodeInfo;
+        }
+
         /**
          * Gets the String that defines the decision done in the node
          * 
@@ -527,6 +569,15 @@ public abstract class DecisionNode extends Node {
             }
             return daughters[val];
         }
+        
+        public String getDecisionPath(int daughterIndex)
+        {
+            String thisNodeInfo = feature + "==" + featureDefinition.getFeatureValueAsString(featureIndex, daughterIndex);
+            if (mother == null) return thisNodeInfo;
+            assert mother instanceof DecisionNode;
+            return ((DecisionNode)mother).getDecisionPath(getNodeIndex()) + " - " + thisNodeInfo;
+        }
+
 
         /**
          * Gets the String that defines the decision done in the node
@@ -583,6 +634,15 @@ public abstract class DecisionNode extends Node {
             }
             return daughters[val];
         }
+        
+        public String getDecisionPath(int daughterIndex)
+        {
+            String thisNodeInfo = feature + "==" + featureDefinition.getFeatureValueAsString(featureIndex, daughterIndex);
+            if (mother == null) return thisNodeInfo;
+            assert mother instanceof DecisionNode;
+            return ((DecisionNode)mother).getDecisionPath(getNodeIndex()) + " - " + thisNodeInfo;
+        }
+
 
         /**
          * Gets the String that defines the decision done in the node
