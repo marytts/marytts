@@ -143,7 +143,7 @@ public class UnitSelectionVoiceBuilder
                                         for (int i=0;i<phones.length;i++){
                                             phones[i] = tok.nextToken();
                                         }
-                                        ((CMULexicon) lexicon).addAddendum(word, "", phones);
+                                        ((CMULexicon) lexicon).addAddendum(word, null, phones);
                                     }
                                 }
                             }catch(Exception e){
