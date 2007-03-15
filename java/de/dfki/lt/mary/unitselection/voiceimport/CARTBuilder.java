@@ -315,13 +315,15 @@ public class CARTBuilder implements VoiceImportComponent {
                 if (featureVectors.length <= stop) continue;
                 //dump the feature vectors
                 System.out.println("Dumping "+featureVectors.length+" feature vectors...");
-                dumpFeatureVectors(featureVectors, featureDefinition,wagonDirName+"/"+featureVectorsFile+i);
+                String featureFileName = wagonDirName+"/"+featureVectorsFile+wagonID;
+                dumpFeatureVectors(featureVectors, featureDefinition, featureFileName);
                 long endTime = System.currentTimeMillis();
                 System.out.println("... dumping feature vectors took "+(endTime-startTime)+" ms");
                 startTime = endTime;
                 //dump the distance tables
                 System.out.println("Computing distance tables...");
-                buildAndDumpDistanceTables(featureVectors,wagonDirName+"/"+distanceTableFile+i,featureDefinition);
+                String distanceFileName = wagonDirName+"/"+distanceTableFile+wagonID;
+                buildAndDumpDistanceTables(featureVectors, distanceFileName, featureDefinition);
                 endTime = System.currentTimeMillis();
                 System.out.println("... computing distance tables took "+(endTime-startTime)+" ms");
                 startTime = endTime;
@@ -329,8 +331,8 @@ public class CARTBuilder implements VoiceImportComponent {
                 WagonCallerThread wagon = new WagonCallerThread(String.valueOf(wagonID), 
                         leaf, featureDefinition, 
                         featureDefFile, 
-                        wagonDirName+"/"+featureVectorsFile+wagonID,
-                        wagonDirName+"/"+distanceTableFile+wagonID,
+                        featureFileName,
+                        distanceFileName,
                         wagonDirName+"/"+cartFile+wagonID,
                         0,
                         stop);
