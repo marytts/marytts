@@ -328,7 +328,7 @@ public class CARTBuilder implements VoiceImportComponent {
                 System.out.println("... computing distance tables took "+(endTime-startTime)+" ms");
                 startTime = endTime;
                 // Dispatch call to Wagon to one of the wagon callers:
-                WagonCallerThread wagon = new WagonCallerThread(String.valueOf(wagonID), 
+                WagonCallerThread wagon = new WagonCallerThread(String.valueOf(wagonID++), 
                         leaf, featureDefinition, 
                         featureDefFile, 
                         featureFileName,
