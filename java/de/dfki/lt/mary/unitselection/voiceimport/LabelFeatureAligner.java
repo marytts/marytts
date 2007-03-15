@@ -94,7 +94,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
                 System.out.println(" OK");
             } else {
                 problems.put( bnl.getName(i), errorMessage);
-                System.out.println(errorMessage);
+                System.out.println(" "+errorMessage);
             }
         }
         System.out.println("Found "+problems.size() + " problems");
@@ -442,7 +442,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
             labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File( unitlabelDir, basename + labExt )), "UTF-8"));
         } catch (FileNotFoundException fnfe){
             fnfe.printStackTrace();
-            return "No label file: ";
+            return "No label file";
         }
             BufferedReader features; 
         try {

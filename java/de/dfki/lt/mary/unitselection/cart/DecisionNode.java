@@ -232,7 +232,7 @@ public abstract class DecisionNode extends Node {
             // dump to output stream
             // two open brackets + definition of node
             CART
-                    .writeStringToOutput("((" + getNodeDefinition(), out);
+                    .writeStringToOutput("((" + getNodeDefinition() + ")", out);
         } else {
             // dump to Standard out
             // two open brackets + definition of node
@@ -241,7 +241,7 @@ public abstract class DecisionNode extends Node {
         if (pw != null) {
             // dump to print writer
             // two open brackets + definition of node
-            pw.println("((" + getNodeDefinition());
+            pw.println("((" + getNodeDefinition() + ")");
         }
         // add the daughters
         for (int i = 0; i < daughters.length; i++) {
@@ -371,7 +371,7 @@ public abstract class DecisionNode extends Node {
          * @return the node definition
          */
         public String getNodeDefinition() {
-            return feature + " is " + value + ")";
+            return feature + " is " + featureDefinition.getFeatureValueAsString(featureIndex, value);
         }
 
     }
@@ -440,7 +440,7 @@ public abstract class DecisionNode extends Node {
          * @return the node definition
          */
         public String getNodeDefinition() {
-            return feature + " is " + value + ")";
+            return feature + " is " + featureDefinition.getFeatureValueAsString(featureIndex, value);
         }
 
     }
@@ -520,7 +520,7 @@ public abstract class DecisionNode extends Node {
          * @return the node definition
          */
         public String getNodeDefinition() {
-            return feature + " < " + value + ")";
+            return feature + " < " + value;
         }
 
     }
@@ -585,7 +585,7 @@ public abstract class DecisionNode extends Node {
          * @return the node definition
          */
         public String getNodeDefinition() {
-            return feature + " isByteOf " + daughters.length + ")";
+            return feature + " isByteOf " + daughters.length;
         }
 
     }
@@ -650,7 +650,7 @@ public abstract class DecisionNode extends Node {
          * @return the node definition
          */
         public String getNodeDefinition() {
-            return feature + " isShortOf " + daughters.length + ")";
+            return feature + " isShortOf " + daughters.length;
         }
 
     }

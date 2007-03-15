@@ -204,29 +204,34 @@ public abstract class WagonCART extends CART
             // build new node depending on type
 
             Node nextNode;
-            if (type.equals("is")) {
-                if (featDef.isByteFeature(feature)) {
-                    nextNode = new DecisionNode.BinaryByteDecisionNode(feature, value, featDef);
-                } else {
-                    nextNode = new DecisionNode.BinaryShortDecisionNode(feature, value, featDef);
-                }
-            } else {
-                if (type.equals("<")) {
-                    nextNode = new DecisionNode.BinaryFloatDecisionNode(feature, Float
-                            .parseFloat(value), featDef);
-                } else {
-                    if (type.equals("isShortOf")) {
-                        nextNode = new DecisionNode.ShortDecisionNode(feature, Integer
-                                .parseInt(value), featDef);
+            try {
+                if (type.equals("is")) {
+                    if (featDef.isByteFeature(feature)) {
+                        nextNode = new DecisionNode.BinaryByteDecisionNode(feature, value, featDef);
                     } else {
-                        if (type.equals("isByteOf")) {
-                            nextNode = new DecisionNode.ByteDecisionNode(feature, Integer
+                        nextNode = new DecisionNode.BinaryShortDecisionNode(feature, value, featDef);
+                    }
+                } else {
+                    if (type.equals("<")) {
+                        nextNode = new DecisionNode.BinaryFloatDecisionNode(feature, Float
+                                .parseFloat(value), featDef);
+                    } else {
+                        if (type.equals("isShortOf")) {
+                            nextNode = new DecisionNode.ShortDecisionNode(feature, Integer
                                     .parseInt(value), featDef);
                         } else {
-                            throw new IOException("Unknown node type : " + type);
+                            if (type.equals("isByteOf")) {
+                                nextNode = new DecisionNode.ByteDecisionNode(feature, Integer
+                                        .parseInt(value), featDef);
+                            } else {
+                                throw new IOException("Unknown node type : " + type);
+                            }
                         }
                     }
                 }
+                
+            } catch (Exception exc) {
+                throw new RuntimeException("Cannot create decision node for cart line: '"+line+"'", exc);
             }
 
             if (lastNode != null) {
