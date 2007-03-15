@@ -145,17 +145,25 @@ public class CARTBuilder implements VoiceImportComponent {
          int nLeaves = 0;
          for (LeafNode leaf = topLevelCART.getFirstLeafNode(); leaf != null; leaf = leaf.getNextLeafNode()) {
              if (leaf.getNumberOfData() < minSize) {
-                 System.out.println("  -> leaf too small: "+leaf.getDecisionPath());
-                 nTooSmall++;
+		 // Ignore a few meaningless combinations:
+		 String path = leaf.getDecisionPath();
+		 if (path.indexOf("phoneme==0") == -1
+		     && path.indexOf("vc==0") == -1
+		     && !(path.indexOf("prev_vc==+") != -1 && path.indexOf("prev_c") != -1)
+		     && !(path.indexOf("prev_vc==-") != -1 && path.indexOf("prev_vheight") != -1)
+		     ) {
+		     System.out.println("leaf too small: "+leaf.getDecisionPath());
+		     nTooSmall++;
+		 }
              } else if (leaf.getNumberOfData() > maxSize) {
-                 System.out.println("  -> leaf too big: "+leaf.getDecisionPath());
+                 System.out.println("               LEAF TOO BIG: "+leaf.getDecisionPath());
                  nTooBig++;
              }
              nLeaves++;
          }
          if (nTooSmall > 0 || nTooBig > 0) {
              System.out.println("Bad top-level cart: "+nTooSmall+"/"+nLeaves+" leaves are too small, "+nTooBig+"/"+nLeaves+" are too big");
-             System.exit(1);
+             //System.exit(1);
          } else {
              System.out.println("... OK!");
          }
@@ -291,19 +299,21 @@ public class CARTBuilder implements VoiceImportComponent {
                 numProcesses = Integer.parseInt(np);
             }
             
+	    int stop = 50; // do not want leaves smaller than this
             List leaves = new ArrayList();
             for (LeafNode leaf = cart.getFirstLeafNode(); leaf != null; leaf = leaf.getNextLeafNode()) {
                 leaves.add(leaf);
             }
             int nLeaves = leaves.size();
             System.out.println("Computing acoustic subtrees for "+nLeaves+" unit clusters");
+            /* call Wagon successively */
+            //go through the CART
             for (int i=0; i<nLeaves; i++) {
                 long startTime = System.currentTimeMillis();
                 percent = 100*i/nLeaves;
                 LeafNode leaf = (LeafNode) leaves.get(i);
-                /* call Wagon successively */
-                //go through the CART
                 FeatureVector[] featureVectors = ((LeafNode.FeatureVectorLeafNode)leaf).getFeatureVectors();
+		if (featureVectors.length <= stop) continue;
                 //dump the feature vectors
                 System.out.println("Dumping "+featureVectors.length+" feature vectors...");
                 dumpFeatureVectors(featureVectors, featureDefinition,wagonDirName+"/"+featureVectorsFile);
@@ -322,7 +332,7 @@ public class CARTBuilder implements VoiceImportComponent {
                         wagonDirName+"/"+distanceTableFile,
                         wagonDirName+"/"+cartFile,
                         0, // balance
-                        50); // stop
+                        stop); // stop
                 endTime = System.currentTimeMillis();
                 System.out.println("... calling wagon took "+(endTime-startTime)+" ms");
                 if (!ok) return false;
