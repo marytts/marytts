@@ -441,12 +441,14 @@ public class LabelFeatureAligner implements VoiceImportComponent
         try{
             labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File( unitlabelDir, basename + labExt )), "UTF-8"));
         } catch (FileNotFoundException fnfe){
-            return "No label file";
+            fnfe.printStackTrace();
+            return "No label file: ";
         }
             BufferedReader features; 
         try {
             features = new BufferedReader(new InputStreamReader(new FileInputStream(new File( unitfeatureDir, basename + featsExt )), "UTF-8"));
         } catch (FileNotFoundException fnfe){
+            fnfe.printStackTrace();
             return "No feature file";
         }
         
@@ -484,6 +486,8 @@ public class LabelFeatureAligner implements VoiceImportComponent
                 +"' (Unit "+unitIndex+")";
             }
         }
+        labels.close();
+        features.close();
         return null; // success
     }
     
