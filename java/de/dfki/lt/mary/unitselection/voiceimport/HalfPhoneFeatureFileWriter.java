@@ -59,6 +59,7 @@ public class HalfPhoneFeatureFileWriter extends FeatureFileWriter
         featsExt = db.halfphoneUnitFeaExt();
     }
     
+    /* use default feature file format:
     protected void readFeatureDefinition() throws IOException
     {
         String leftWeights = db.halfPhoneLeftWeightsFileName();
@@ -70,17 +71,20 @@ public class HalfPhoneFeatureFileWriter extends FeatureFileWriter
         // set the variable used in super class to one of them:
         featureDefinition = leftFeatureDef;
     }
+    */
 
     /**
      * Write the header of this feature file to the given DataOutput
      * @param out
      * @throws IOException
      */
+    /* use default feature file format
     protected void writeHeaderTo(DataOutput out) throws IOException
     {
         new MaryHeader(MaryHeader.HALFPHONE_UNITFEATS).writeTo(out);
         leftFeatureDef.writeBinaryTo(out);
         rightFeatureDef.writeBinaryTo(out);
     }
+    */
     
 }
