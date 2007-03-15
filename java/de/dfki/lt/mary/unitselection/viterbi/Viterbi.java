@@ -88,8 +88,8 @@ public  class Viterbi
     //-1: unlimited search
     // n>0: beam search, retain only the n best paths at each step.
     protected int searchStrategy = 25;
-    protected final float wTargetCosts = Float.parseFloat(MaryProperties.getProperty("viterbi.wTargetCosts", "0.5"));
-    protected final float wJoinCosts = 1 - wTargetCosts;
+    protected final float wTargetCosts;
+    protected final float wJoinCosts;
     
     protected ViterbiPoint firstPoint = null;
     protected ViterbiPoint lastPoint = null;
@@ -110,12 +110,14 @@ public  class Viterbi
      * is built up.
      * 
      */
-	public Viterbi(List targets, UnitDatabase database)
+	public Viterbi(List targets, UnitDatabase database,float wTargetCosts)
     {
 	    this.database = database;
 	    this.targetCostFunction = database.getTargetCostFunction();
 	    this.joinCostFunction = database.getJoinCostFunction();
         this.logger = Logger.getLogger("Viterbi");
+        this.wTargetCosts = wTargetCosts;
+        wJoinCosts = 1 - wTargetCosts;
         this.cumulJoinCosts = 0;
         this.nJoinCosts = 0;
         this.cumulTargetCosts = 0;

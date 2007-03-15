@@ -58,8 +58,9 @@ import de.dfki.lt.signalproc.display.Histogram;
 public class JoinCostFeatures implements JoinCostFunction
 {
 
-    protected final float wSignal = Float.parseFloat(MaryProperties.getProperty("joincostfunction.wSignal", "1.0"));
-    protected final float wPhonetic = 1 - wSignal;
+    //TODO: voice specific setting
+    protected float wSignal;
+    protected float wPhonetic;
     
     protected boolean debugShowCostGraph = false;
     protected double[] cumulWeightedSignalCosts = null;
@@ -96,22 +97,25 @@ public class JoinCostFeatures implements JoinCostFunction
      */
     public JoinCostFeatures( String fileName ) throws IOException
     {
-        load(fileName, null, null);
+        load(fileName, null, null,(float)0.5);
     }
     
-    /**
+   /**
      * Load weights and values from the given file
      * @param joinFileName the file from which to read default weights and join cost features
      * @param weightsFileName an optional file from which to read weights, taking precedence over
-     * the ones given in the join file
      * @param precompiledCostFileName an optional file containing precompiled join costs
+     * @param wSignal Relative weight of the signal-based join costs relative to the
+     *                phonetic join costs computed from the target 
      */
-    public void load(String joinFileName, String weightsFileName, String precompiledCostFileName)
+    public void load(String joinFileName, String weightsFileName, String precompiledCostFileName,float wSignal)
     throws IOException
     {
         if (precompiledCostFileName != null) {
             precompiledCosts = new PrecompiledJoinCostReader(precompiledCostFileName);
         }
+        this.wSignal = wSignal;
+        wPhonetic = 1 - wSignal;
         /* Open the file */
         File fid = new File( joinFileName );
         DataInput raf = new DataInputStream(new BufferedInputStream(new FileInputStream( fid )));

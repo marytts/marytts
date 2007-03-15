@@ -53,7 +53,9 @@ public interface JoinCostFunction
      * @param joinFileName the file from which to read default weights and join cost features
      * @param weightsFileName an optional file from which to read weights, taking precedence over
      * @param precompiledCostFileName an optional file containing precompiled join costs
+     * @param wSignal Relative weight of the signal-based join costs relative to the
+     *                phonetic join costs computed from the target 
      */
-    public void load(String joinFileName, String weightsFileName, String precompiledCostFileName) throws IOException;
+    public void load(String joinFileName, String weightsFileName, String precompiledCostFileName,float wSignal) throws IOException;
     
 }

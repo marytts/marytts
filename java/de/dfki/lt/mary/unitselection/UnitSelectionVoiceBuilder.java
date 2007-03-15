@@ -184,7 +184,8 @@ public class UnitSelectionVoiceBuilder
             String joinCostClass = MaryProperties.needProperty(header+".joinCostClass");
             String precomputedJoinCostFileName = MaryProperties.getFilename(header+".precomputedJoinCostFile");
             JoinCostFunction joinFunction = (JoinCostFunction) Class.forName(joinCostClass).newInstance();
-            joinFunction.load(joinFileName, joinWeightFile, precomputedJoinCostFileName);
+            float wSignal = Float.parseFloat(MaryProperties.getProperty(header+".joincostfunction.wSignal", "1.0"));
+            joinFunction.load(joinFileName, joinWeightFile, precomputedJoinCostFileName, wSignal);
             
 	        // Build the various file readers
             logger.debug("...loading units file...");
@@ -231,7 +232,8 @@ public class UnitSelectionVoiceBuilder
             logger.debug("...instantiating unit selector...");
             String selectorClass = MaryProperties.needProperty(header+".selectorClass");
 	        UnitSelector unitSelector = (UnitSelector) Class.forName(selectorClass).newInstance();
-	        unitSelector.load(unitDatabase);
+	        float targetCostWeights = Float.parseFloat(MaryProperties.getProperty(header+".viterbi.wTargetCosts", "0.5"));
+	        unitSelector.load(unitDatabase,targetCostWeights);
             
 	        //samplingRate -> bin, audioformat -> concatenator
 	        //build Concatenator

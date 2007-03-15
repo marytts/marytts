@@ -59,6 +59,7 @@ public class UnitSelector
 {
     protected UnitDatabase database;
     protected Logger logger;
+    protected float targetCostWeight;
     
     private XML2UttAcoustParams x2u;
 
@@ -84,9 +85,10 @@ public class UnitSelector
 
     }
     
-    public void load(UnitDatabase unitDatabase)
+    public void load(UnitDatabase unitDatabase,float targetCostWeight)
     {
         this.database = unitDatabase;
+        this.targetCostWeight = targetCostWeight;
     }
     
     /**
@@ -126,7 +128,7 @@ public class UnitSelector
         }
 
         //Select the best candidates using Viterbi and the join cost function.
-        Viterbi viterbi = new Viterbi(targets, database);
+        Viterbi viterbi = new Viterbi(targets, database,targetCostWeight);
         viterbi.apply();
         List selectedUnits = viterbi.getSelectedUnits();
         // If you can not associate the candidate units in the best path 
