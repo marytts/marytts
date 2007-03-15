@@ -55,6 +55,9 @@ import de.dfki.lt.mary.MaryProperties;
 public class CARTBuilder implements VoiceImportComponent {
     
     private DatabaseLayout databaseLayout;
+    private MCepTimelineReader mcepTimeline;
+    private UnitFileReader unitFile;
+    
     private int percent = 0;
     
     public CARTBuilder(DatabaseLayout databaseLayout){
@@ -328,7 +331,8 @@ public class CARTBuilder implements VoiceImportComponent {
                 System.out.println("... computing distance tables took "+(endTime-startTime)+" ms");
                 startTime = endTime;
                 // Dispatch call to Wagon to one of the wagon callers:
-                WagonCallerThread wagon = new WagonCallerThread(String.valueOf(wagonID++), 
+                wagonID++;
+                WagonCallerThread wagon = new WagonCallerThread(String.valueOf(wagonID), 
                         leaf, featureDefinition, 
                         featureDefFile, 
                         featureFileName,
@@ -349,7 +353,7 @@ public class CARTBuilder implements VoiceImportComponent {
                                 System.out.println("Wagon "+wagons[w].id()+" failed. Aborting");
                                 return false;
                             }
-                            System.out.println("Dispatching wagon "+i+" as process "+(w+1)+" out of "+numProcesses);
+                            System.out.println("Dispatching wagon "+wagonID+" as process "+(w+1)+" out of "+numProcesses);
                             wagons[w] = wagon;
                             wagon.start();
                             dispatched = true;
@@ -412,36 +416,36 @@ public class CARTBuilder implements VoiceImportComponent {
      * @param filename the filename
      */
     public void buildAndDumpDistanceTables (FeatureVector[] featureVectors, String filename,
-            FeatureDefinition featDef ) throws FileNotFoundException {
-        
-        System.out.println( "Computing distance matrix");
-        
+            FeatureDefinition featDef ) throws IOException {
+        /* Load the MelCep timeline and the unit file */
+        if (mcepTimeline == null) {
+            try {
+                mcepTimeline = new MCepTimelineReader( databaseLayout.melcepTimelineFileName() );
+            }
+            catch ( IOException e ) {
+                throw new RuntimeException( "Failed to read the Mel-Cepstrum timeline [" + databaseLayout.melcepTimelineFileName()
+                        + "] due to the following IOException: ", e );
+            }
+        }
+        if (unitFile == null) {
+            try {
+                unitFile = new UnitFileReader( databaseLayout.unitFileName() );
+            }
+            catch ( IOException e ) {
+                throw new RuntimeException( "Failed to read the unit file [" + databaseLayout.unitFileName()
+                        + "] due to the following IOException: ", e );
+            }
+        }
+
         /* Dereference the number of units once and for all */
         int numUnits = featureVectors.length;
-        /* Load the MelCep timeline and the unit file */
-        MCepTimelineReader tlr = null;
-        try {
-            tlr = new MCepTimelineReader( databaseLayout.melcepTimelineFileName() );
-        }
-        catch ( IOException e ) {
-            throw new RuntimeException( "Failed to read the Mel-Cepstrum timeline [" + databaseLayout.melcepTimelineFileName()
-                    + "] due to the following IOException: ", e );
-        }
-        UnitFileReader ufr = null;
-        try {
-            ufr = new UnitFileReader( databaseLayout.unitFileName() );
-        }
-        catch ( IOException e ) {
-            throw new RuntimeException( "Failed to read the unit file [" + databaseLayout.unitFileName()
-                    + "] due to the following IOException: ", e );
-        }
         /* Read the Mel Cepstra for each unit, and cumulate
          * their sufficient statistics in the same loop */
         double[][][] melCep = new double[numUnits][][];
         double val = 0;
-        double[] sum = new double[tlr.getOrder()];
-        double[] sumSq = new double[tlr.getOrder()];
-        double[] sigma2 = new double[tlr.getOrder()];
+        double[] sum = new double[mcepTimeline.getOrder()];
+        double[] sumSq = new double[mcepTimeline.getOrder()];
+        double[] sigma2 = new double[mcepTimeline.getOrder()];
         double N = 0.0;
         for ( int i = 0; i < numUnits; i++ ) {
             //System.out.println( "FEATURE_VEC_IDX=" + i + " UNITIDX=" + featureVectors[i].getUnitIndex() );
@@ -450,7 +454,7 @@ public class CARTBuilder implements VoiceImportComponent {
             MCepDatagram[] dat = null;
             //System.out.println( featDef.toFeatureString( featureVectors[i] ) );
             try {
-                buff = tlr.getDatagrams( ufr.getUnit(featureVectors[i].getUnitIndex()), ufr.getSampleRate() );
+                buff = mcepTimeline.getDatagrams( unitFile.getUnit(featureVectors[i].getUnitIndex()), unitFile.getSampleRate() );
                 //System.out.println( "NUMFRAMES=" + buff.length );
                 dat = new MCepDatagram[buff.length];
                 for ( int d = 0; d < buff.length; d++ ) {
@@ -466,7 +470,7 @@ public class CARTBuilder implements VoiceImportComponent {
             for ( int j = 0; j < dat.length; j++ ) {
                 melCep[i][j] = dat[j].getCoeffsAsDouble();
                 /* Cumulate the sufficient statistics */
-                for ( int k = 0; k < tlr.getOrder(); k++ ) {
+                for ( int k = 0; k < mcepTimeline.getOrder(); k++ ) {
                     val = melCep[i][j][k];
                     sum[k] += val;
                     sumSq[k] += (val*val);
@@ -474,7 +478,7 @@ public class CARTBuilder implements VoiceImportComponent {
             }
         }
         /* Finalize the variance calculation */
-        for ( int k = 0; k < tlr.getOrder(); k++ ) {
+        for ( int k = 0; k < mcepTimeline.getOrder(); k++ ) {
             val = sum[k];
             sigma2[k] = ( sumSq[k] - (val*val)/N ) / N;
         }
@@ -739,6 +743,8 @@ public class CARTBuilder implements VoiceImportComponent {
                 finished = true;
             } catch (Exception e){
                 e.printStackTrace();
+                finished = true;
+                success = false;
                 throw new RuntimeException("Exception running wagon");
             }
 
