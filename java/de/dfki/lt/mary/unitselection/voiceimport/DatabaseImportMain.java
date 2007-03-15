@@ -244,6 +244,43 @@ public class DatabaseImportMain extends JFrame
         }
     }
     
+    
+    public static BasenameList getBasenameList(DatabaseLayout db) throws IOException {
+        /* Make the basename list */
+        BasenameList bnl = null;
+        /* If the basename list file exists, use it... */
+        File basenameFile = new File(db.basenameFile());
+        if ( basenameFile.exists() ) {
+            System.out.println( "Using basename list from file:\n"
+                    + "[" + db.basenameFile() + "]" );
+            // bnl = new BasenameList( fName );
+            bnl = new BasenameList( db.basenameFile() );
+        }
+        /* ...otherwise make a bootstrap basename list from the wav files. */
+        else {
+            System.out.println( "Using basename list from wave files");
+            bnl = new BasenameList( db.wavDirName(), db.wavExt() );
+        }
+        
+        /* TESTING HACK: process only the 20 first files. */
+        // bnl = bnl.subList( 0, 20 );
+        /* END HACK */
+        
+        System.out.println("Found [" + bnl.getLength() + "] files to convert in the list of basenames." );
+        return bnl;
+    }
+
+    public static DatabaseLayout getDatabaseLayout() {
+        /* Set locale to en if not specified */
+        Locale locale = MaryUtils.string2locale(System.getProperty("locale", "en"));
+        System.out.println("Setting locale to "+locale);
+        
+        /* Make a database layout with default values. */
+        DatabaseLayout db = new DatabaseLayout(locale);
+        return db;
+    }
+
+    
     /**
      * TODO: THIS JAVADOC IS OBSOLETE.
      * 
@@ -268,40 +305,9 @@ public class DatabaseImportMain extends JFrame
     public static void main( String[] args ) throws IOException
     {
         
-        /* Set locale to en if not specified */
-        Locale locale;
-        if (args.length == 2 
-                && args[0].equals("--locale")){
-            locale = MaryUtils.string2locale(args[1]);
-        } else {
-            locale = new Locale("en");
-        }
-        System.out.println("Setting locale to "+locale);
+        DatabaseLayout db = getDatabaseLayout();
         
-        /* Make a database layout with default values. */
-        DatabaseLayout db = new DatabaseLayout(locale);
-        
-        /* Make the basename list */
-        BasenameList bnl = null;
-        /* If the basename list file exists, use it... */
-        File basenameFile = new File(db.basenameFile());
-        if ( basenameFile.exists() ) {
-            System.out.println( "Using basename list from file:\n"
-                    + "[" + db.basenameFile() + "]" );
-            // bnl = new BasenameList( fName );
-            bnl = new BasenameList( db.basenameFile() );
-        }
-        /* ...otherwise make a bootstrap basename list from the wav files. */
-        else {
-            System.out.println( "Using basename list from wave files");
-            bnl = new BasenameList( db.wavDirName(), db.wavExt() );
-        }
-        
-        /* TESTING HACK: process only the 20 first files. */
-        // bnl = bnl.subList( 0, 20 );
-        /* END HACK */
-        
-        System.out.println("Found [" + bnl.getLength() + "] files to convert in the list of basenames." );
+        BasenameList bnl = getBasenameList(db);
         
         /* Invoke the GUI, now that the arguments and layouts are all set */
         VoiceImportComponent[] components = new VoiceImportComponent[] {
@@ -345,11 +351,7 @@ public class DatabaseImportMain extends JFrame
         importer.pack();
         // Center window on screen:
         importer.setLocationRelativeTo(null); 
-        importer.setVisible(true);   
-
-        /* Close the shop */
-        System.out.println( "----\n" + "---- Rock'n Roll!" );
+        importer.setVisible(true);
     }
-    
-    
+
 }

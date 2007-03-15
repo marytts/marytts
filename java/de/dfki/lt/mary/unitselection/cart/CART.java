@@ -60,8 +60,6 @@ public abstract class CART
 
     protected Node rootNode;
 
-    protected int numNodes;
-
     // knows the index numbers and types of the features used in DecisionNodes
     protected FeatureDefinition featDef;
 
@@ -170,7 +168,8 @@ public abstract class CART
      * @return the number of nodes
      */
     public int getNumNodes() {
-        return numNodes;
+        if (rootNode == null) return 0;
+        return rootNode.getNumberOfNodes();
     }
 
     /**

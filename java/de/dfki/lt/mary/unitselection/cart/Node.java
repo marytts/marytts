@@ -108,6 +108,15 @@ public abstract class Node {
     }
     
     /**
+     * Count all the nodes at and below this node.
+     * A leaf will return 1; the root node will 
+     * report the total number of decision and leaf nodes
+     * in the tree.
+     * @return
+     */
+    public abstract int getNumberOfNodes();
+    
+    /**
      * Count all the data available at and below this node.
      * The meaning of this depends on the type of nodes; for example,
      * when IntArrayLeafNodes are used, it is the total number of ints
