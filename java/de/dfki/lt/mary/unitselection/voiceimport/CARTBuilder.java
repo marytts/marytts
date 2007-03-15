@@ -41,6 +41,7 @@ import de.dfki.lt.mary.unitselection.cart.ClassificationTree;
 import de.dfki.lt.mary.unitselection.cart.LeafNode;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
+import de.dfki.lt.mary.unitselection.voiceimport.WagonCaller.StreamGobbler;
 import de.dfki.lt.mary.unitselection.FeatureArrayIndexer;
 import de.dfki.lt.mary.unitselection.FeatureFileReader;
 import de.dfki.lt.mary.unitselection.MCepTimelineReader;
@@ -171,9 +172,11 @@ public class CARTBuilder implements VoiceImportComponent {
          boolean callWagon = System.getProperty("db.cartbuilder.callwagon", "true").equals("true");
          
          if (callWagon) {
-             if (!replaceLeaves(topLevelCART,featureDefinition));
+             boolean ok = replaceLeaves(topLevelCART,featureDefinition);
+             if(!ok) {
              	System.out.println("Could not replace leaves");
              	return false;
+             }
          }
          
          //dump big CART to binary file
@@ -290,16 +293,11 @@ public class CARTBuilder implements VoiceImportComponent {
             featureDefinition.generateAllDotDescForWagon(out);
             out.close();
 
-            //build new WagonCaller
-            WagonCaller wagonCaller = new WagonCaller(featureDefFile);
-           
-            int numProcesses = 1;
-            String np = MaryProperties.getProperty("numProcesses");
-            if (np != null){
-                numProcesses = Integer.parseInt(np);
-            }
+            int numProcesses = Integer.getInteger("wagon.numProcesses", 1).intValue();
+            System.out.println("Will run "+numProcesses+" wagon processes in parallel");
+            WagonCallerThread[] wagons = new WagonCallerThread[numProcesses];
             
-	    int stop = 50; // do not want leaves smaller than this
+            int stop = 50; // do not want leaves smaller than this
             List leaves = new ArrayList();
             for (LeafNode leaf = cart.getFirstLeafNode(); leaf != null; leaf = leaf.getNextLeafNode()) {
                 leaves.add(leaf);
@@ -313,38 +311,54 @@ public class CARTBuilder implements VoiceImportComponent {
                 percent = 100*i/nLeaves;
                 LeafNode leaf = (LeafNode) leaves.get(i);
                 FeatureVector[] featureVectors = ((LeafNode.FeatureVectorLeafNode)leaf).getFeatureVectors();
-		if (featureVectors.length <= stop) continue;
+                if (featureVectors.length <= stop) continue;
                 //dump the feature vectors
                 System.out.println("Dumping "+featureVectors.length+" feature vectors...");
-                dumpFeatureVectors(featureVectors, featureDefinition,wagonDirName+"/"+featureVectorsFile);
+                dumpFeatureVectors(featureVectors, featureDefinition,wagonDirName+"/"+featureVectorsFile+i);
                 long endTime = System.currentTimeMillis();
                 System.out.println("... dumping feature vectors took "+(endTime-startTime)+" ms");
                 startTime = endTime;
                 //dump the distance tables
                 System.out.println("Computing distance tables...");
-                buildAndDumpDistanceTables(featureVectors,wagonDirName+"/"+distanceTableFile,featureDefinition);
+                buildAndDumpDistanceTables(featureVectors,wagonDirName+"/"+distanceTableFile+i,featureDefinition);
                 endTime = System.currentTimeMillis();
                 System.out.println("... computing distance tables took "+(endTime-startTime)+" ms");
                 startTime = endTime;
-                //call Wagon
-                System.out.println("Calling wagon...");
-                boolean ok = wagonCaller.callWagon(wagonDirName+"/"+featureVectorsFile,
-                        wagonDirName+"/"+distanceTableFile,
-                        wagonDirName+"/"+cartFile,
-                        0, // balance
-                        stop); // stop
-                endTime = System.currentTimeMillis();
-                System.out.println("... calling wagon took "+(endTime-startTime)+" ms");
-                if (!ok) return false;
-                //read in the resulting CART
-                System.out.println("Reading CART");
-                BufferedReader buf = new BufferedReader(
-                        new FileReader(new File(wagonDirName+"/"+cartFile)));
-                CART newCART = new ClassificationTree(buf, featureDefinition);    
-                buf.close();
-                //replace the leaf by the CART
-                System.out.println("Replacing leaf");
-                CART.replaceLeafByCart(newCART, leaf);
+                // Dispatch call to Wagon to one of the wagon callers:
+                WagonCallerThread wagon = new WagonCallerThread(String.valueOf(i), 
+                        leaf, featureDefinition, 
+                        featureDefFile, 
+                        wagonDirName+"/"+featureVectorsFile+i,
+                        wagonDirName+"/"+distanceTableFile+i,
+                        wagonDirName+"/"+cartFile+i,
+                        0,
+                        stop);
+                boolean dispatched = false;
+                while (!dispatched) {
+                    for (int w=0; w<numProcesses; w++) {
+                        if (wagons[w] == null) {
+                            System.out.println("Dispatching wagon "+i+" as process "+(w+1)+" out of "+numProcesses);
+                            wagons[w] = wagon;
+                            wagon.start();
+                            dispatched = true;
+                        } else if (wagons[w].finished()) {
+                            if (!wagons[w].success()) {
+                                System.out.println("Wagon "+wagons[w].id()+" failed. Aborting");
+                                return false;
+                            }
+                            System.out.println("Dispatching wagon "+i+" as process "+(w+1)+" out of "+numProcesses);
+                            wagons[w] = wagon;
+                            wagon.start();
+                            dispatched = true;
+                        }
+                    }
+                    if (!dispatched) {
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException ie) {}
+                    }
+                }
+                
             }           
               
         } catch (IOException ioe) {
@@ -639,4 +653,99 @@ public class CARTBuilder implements VoiceImportComponent {
         return percent;
     }
 
+    
+    
+    public static class WagonCallerThread extends Thread
+    {
+        //the Edinburgh Speech tools directory
+        protected String ESTDIR = "/project/mary/Festival/speech_tools/";
+        protected String arguments;
+        protected String cartFile;
+        protected String id;
+        protected LeafNode leafToReplace;
+        protected FeatureDefinition featureDefinition;
+        protected boolean finished = false;
+        protected boolean success = false;
+        
+        public WagonCallerThread(String id,
+                LeafNode leafToReplace, FeatureDefinition featureDefinition,
+                String descFile, String valueFile, 
+                String distanceTableFile,
+                String cartFile,
+                int balance,
+                int stop)
+        {
+            this.id = id;
+            this.leafToReplace = leafToReplace;
+            this.featureDefinition = featureDefinition;
+
+            String getESTDIR = System.getProperty("ESTDIR");
+            if ( getESTDIR == null ) {
+                System.out.println( "Warning: The environment variable ESTDIR was not found on your system." );
+                System.out.println( "         Defaulting ESTDIR to [" + ESTDIR + "]." );
+            }
+            else ESTDIR = getESTDIR;
+
+            this.cartFile = cartFile;
+            this.arguments = "-desc " + descFile
+                + " -data " + valueFile
+                + " -balance " + balance 
+                + " -distmatrix " + distanceTableFile
+                + " -stop " + stop 
+                + " -output " + cartFile;
+        }
+        
+        public void run()
+        {
+            try {
+                long startTime = System.currentTimeMillis();
+                System.out.println(id+"> Calling wagon as follows:");
+                System.out.println(ESTDIR + "/main/wagon " + arguments);
+                Process p = Runtime.getRuntime().exec( ESTDIR + "/main/wagon " + arguments);
+                //collect the output
+                //read from error stream
+                StreamGobbler errorGobbler = new 
+                    StreamGobbler(p.getErrorStream(), id+" err");            
+            
+                //read from output stream
+                StreamGobbler outputGobbler = new 
+                    StreamGobbler(p.getInputStream(), id+" out");        
+                //start reading from the streams
+                errorGobbler.start();
+                outputGobbler.start();
+                p.waitFor();
+                if (p.exitValue()!=0) {
+                    finished = true;
+                    success = false;
+                    return;
+                }
+                success = true;
+                System.out.println(id+"> Wagon call took "+(System.currentTimeMillis()-startTime)+" ms");
+                
+                //read in the resulting CART
+                System.out.println(id+"> Reading CART");
+                BufferedReader buf = new BufferedReader(
+                        new FileReader(new File(cartFile)));
+                CART newCART = new ClassificationTree(buf, featureDefinition);    
+                buf.close();
+                //replace the leaf by the CART
+                System.out.println(id+"> Replacing leaf");
+                CART.replaceLeafByCart(newCART, leafToReplace);
+                System.out.println(id+"> done.");
+
+                finished = true;
+            } catch (Exception e){
+                e.printStackTrace();
+                throw new RuntimeException("Exception running wagon");
+            }
+
+        }
+        
+        public boolean finished() { return finished; }
+        public boolean success() { return success; }
+        public String id() { return id; }
+
+    }
+
+    
 }
