@@ -51,6 +51,17 @@ public abstract class LeafNode extends Node {
         return ((DecisionNode)mother).getDecisionPath(getNodeIndex()) + " - " + toString();
     }
     
+    /**
+     * Count all the nodes at and below this node.
+     * A leaf will return 1; the root node will 
+     * report the total number of decision and leaf nodes
+     * in the tree.
+     * @return
+     */
+    public int getNumberOfNodes()
+    {
+        return 1;
+    }
 
     /**
      * Count all the data available at and below this node.
@@ -254,7 +265,7 @@ public abstract class LeafNode extends Node {
             }
             if (pw != null) {
                 // dump to printwriter
-                pw.print(sb.toString());
+                pw.println(sb.toString());
             }
         }
         

@@ -54,7 +54,6 @@ public class FeatureVectorCART extends CART {
      */
      public FeatureVectorCART(MaryNode tree, FeatureArrayIndexer ffi) {
         featDef = ffi.getFeatureDefinition();
-        numNodes = 0;
         addDaughters(null, tree, ffi);
     }
      
@@ -76,7 +75,6 @@ public class FeatureVectorCART extends CART {
      */
     private void addDaughters(DecisionNode motherCARTNode,
             MaryNode currentTreeNode, FeatureArrayIndexer ffi) {
-        numNodes++;
         if (currentTreeNode == null) {
             LeafNode l = new LeafNode.FeatureVectorLeafNode(new FeatureVector[0]);
             motherCARTNode.addDaughter(l);

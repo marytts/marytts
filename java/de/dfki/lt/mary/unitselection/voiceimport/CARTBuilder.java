@@ -64,15 +64,7 @@ public class CARTBuilder implements VoiceImportComponent {
         this.databaseLayout = databaseLayout;
     }
     
-    //for testing
-    public static void main(String[] args) throws Exception
-    {
-        //build database layout
-        DatabaseLayout db = new DatabaseLayout();
-        //build CARTBuilder and run compute
-        CARTBuilder cartBuilder = new CARTBuilder(db);
-        cartBuilder.compute();
-    }
+
     
      public boolean compute() throws Exception{
          long time = System.currentTimeMillis();
@@ -365,9 +357,22 @@ public class CARTBuilder implements VoiceImportComponent {
                         } catch (InterruptedException ie) {}
                     }
                 }
-                
             }           
-              
+            // Now make sure we wait for all wagons to finish
+            for (int w=0; w<numProcesses; w++) {
+                if (wagons[w] != null) {
+                    while (!wagons[w].finished()) {
+                        try {
+                            wagons[w].join();
+                        } catch (InterruptedException ie) {}
+                    }
+                    if (!wagons[w].success()) {
+                        System.out.println("Wagon "+wagons[w].id()+" failed. Aborting");
+                        return false;
+                    }
+                }
+            }
+            
         } catch (IOException ioe) {
             IOException newIOE = new IOException("Error replacing leaves");
             newIOE.initCause(ioe);
@@ -397,7 +402,7 @@ public class CARTBuilder implements VoiceImportComponent {
         //loop through the feature vectors
         for (int i=0; i<featureVectors.length;i++){
             // Print the feature string
-            out.print( i+" "+featDef.toFeatureString( featureVectors[i] ) );
+            out.print( featureVectors[i].getUnitIndex()+" "+featDef.toFeatureString( featureVectors[i] ) );
             //print a newline if this is not the last vector
             if (i+1 != featureVectors.length){
                 out.print("\n");
@@ -756,5 +761,15 @@ public class CARTBuilder implements VoiceImportComponent {
 
     }
 
+    public static void main(String[] args) throws Exception
+    {
+        //build database layout
+        DatabaseLayout db = DatabaseImportMain.getDatabaseLayout();
+        //build CARTBuilder and run compute
+        CARTBuilder cartBuilder = new CARTBuilder(db);
+        boolean ok = cartBuilder.compute();
+        if (ok) System.out.println("Finished successfully!");
+        else System.out.println("Failed.");
+    }
     
 }

@@ -168,6 +168,22 @@ public abstract class DecisionNode extends Node {
         }
     }
 
+    /**
+     * Count all the nodes at and below this node.
+     * A leaf will return 1; the root node will 
+     * report the total number of decision and leaf nodes
+     * in the tree.
+     * @return
+     */
+    public int getNumberOfNodes()
+    {
+        int nNodes = 1; // this node
+        for (int i=0; i<daughters.length; i++) {
+            if (daughters[i] != null) nNodes += daughters[i].getNumberOfNodes();
+        }
+        return nNodes;
+    }
+
     public int getNumberOfData() {
         return nData;
     }
@@ -231,8 +247,7 @@ public abstract class DecisionNode extends Node {
         if (out != null) {
             // dump to output stream
             // two open brackets + definition of node
-            CART
-                    .writeStringToOutput("((" + getNodeDefinition() + ")", out);
+            CART.writeStringToOutput("((" + getNodeDefinition() + ")", out);
         } else {
             // dump to Standard out
             // two open brackets + definition of node
@@ -271,7 +286,7 @@ public abstract class DecisionNode extends Node {
                     // System.out.println(nullDaughter);
                 }
                 if (pw != null) {
-                    pw.print(" " + nullDaughter);
+                    pw.println(" " + nullDaughter);
                 }
             } else {
                 if (i + 1 != daughters.length) {

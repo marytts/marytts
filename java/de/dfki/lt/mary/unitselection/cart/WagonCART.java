@@ -33,6 +33,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataInput;
 import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.StringTokenizer;
@@ -84,13 +85,11 @@ public abstract class WagonCART extends CART
         String line = reader.readLine(); // first line is empty, read again
         // each line corresponds to a node
         line = reader.readLine();
-        numNodes = 0;
         // for each line
         while (line != null) {
             if (!line.startsWith(";;")) {
                 // parse the line and add the node
                 parseAndAdd(line);
-                numNodes++;
             }
             line = reader.readLine();
         }
@@ -136,30 +135,28 @@ public abstract class WagonCART extends CART
         //System.out.println("Reading CART");
         // discard number of CARTs and CART name
         // TODO: Change format of CART-File
-        numNodes = raf.readInt();
+        int numNodes = raf.readInt();
         raf.readUTF();
 
         // load the CART
         featDef = featDefinition;
         // get the backtrace information
         openBrackets = 0;
-        // Read in the first node
-        String cart;
-        int nodeIndex = 0;
-        // for each node
-        while (nodeIndex < numNodes) {
-            // parse the line and add the node
-            int length = raf.readInt();
-            char[] cartChars = new char[length];
-            for (int i = 0; i < length; i++) {
-                cartChars[i] = raf.readChar();
+        // Not elegant, but robust
+        try {
+            while (true) {
+                // parse the line and add the node
+                int length = raf.readInt();
+                char[] cartChars = new char[length];
+                for (int i = 0; i < length; i++) {
+                    cartChars[i] = raf.readChar();
+                }
+                String cart = new String(cartChars);
+                // System.out.println(cart);
+                parseAndAdd(cart);
             }
-            cart = new String(cartChars);
-            // System.out.println(cart);
-            parseAndAdd(cart);
+        } catch (EOFException eof) {}
 
-            nodeIndex++;
-        }
         // make sure we closed as many brackets as we opened
         if (openBrackets != 0) {
             throw new IOException("Error loading CART: bracket mismatch: "
@@ -303,7 +300,6 @@ public abstract class WagonCART extends CART
             }
             // for debugging
             int nodeIndex = nextNode.getNodeIndex();
-           
 
         }
     }
