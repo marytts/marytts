@@ -674,7 +674,9 @@ public class CARTBuilder implements VoiceImportComponent {
         //the Edinburgh Speech tools directory
         protected String ESTDIR = "/project/mary/Festival/speech_tools/";
         protected String arguments;
-        protected String cartFile;
+        protected File cartFile;
+        protected File valueFile;
+        protected File distanceTableFile;
         protected String id;
         protected LeafNode leafToReplace;
         protected FeatureDefinition featureDefinition;
@@ -683,9 +685,9 @@ public class CARTBuilder implements VoiceImportComponent {
         
         public WagonCallerThread(String id,
                 LeafNode leafToReplace, FeatureDefinition featureDefinition,
-                String descFile, String valueFile, 
-                String distanceTableFile,
-                String cartFile,
+                String descFilename, String valueFilename, 
+                String distanceTableFilename,
+                String cartFilename,
                 int balance,
                 int stop)
         {
@@ -700,13 +702,16 @@ public class CARTBuilder implements VoiceImportComponent {
             }
             else ESTDIR = getESTDIR;
 
-            this.cartFile = cartFile;
-            this.arguments = "-desc " + descFile
-                + " -data " + valueFile
+            this.valueFile = new File(valueFilename);
+            this.distanceTableFile = new File(distanceTableFilename);
+            this.cartFile = new File(cartFilename);
+            
+            this.arguments = "-desc " + descFilename
+                + " -data " + valueFilename
                 + " -balance " + balance 
-                + " -distmatrix " + distanceTableFile
+                + " -distmatrix " + distanceTableFilename
                 + " -stop " + stop 
-                + " -output " + cartFile;
+                + " -output " + cartFilename;
         }
         
         public void run()
@@ -731,23 +736,28 @@ public class CARTBuilder implements VoiceImportComponent {
                 if (p.exitValue()!=0) {
                     finished = true;
                     success = false;
-                    return;
-                }
-                success = true;
-                System.out.println(id+"> Wagon call took "+(System.currentTimeMillis()-startTime)+" ms");
-                
-                //read in the resulting CART
-                System.out.println(id+"> Reading CART");
-                BufferedReader buf = new BufferedReader(
-                        new FileReader(new File(cartFile)));
-                CART newCART = new ClassificationTree(buf, featureDefinition);    
-                buf.close();
-                //replace the leaf by the CART
-                System.out.println(id+"> Replacing leaf");
-                CART.replaceLeafByCart(newCART, leafToReplace);
-                System.out.println(id+"> done.");
+                } else {
+                    success = true;
+                    System.out.println(id+"> Wagon call took "+(System.currentTimeMillis()-startTime)+" ms");
+                    
+                    //read in the resulting CART
+                    System.out.println(id+"> Reading CART");
+                    BufferedReader buf = new BufferedReader(
+                            new FileReader(cartFile));
+                    CART newCART = new ClassificationTree(buf, featureDefinition);    
+                    buf.close();
+                    //replace the leaf by the CART
+                    System.out.println(id+"> Replacing leaf");
+                    CART.replaceLeafByCart(newCART, leafToReplace);
+                    System.out.println(id+"> done.");
 
-                finished = true;
+                    finished = true;
+                }
+                if (!Boolean.getBoolean("wagon.keepfiles")) {
+                    valueFile.delete();
+                    distanceTableFile.delete();
+                }
+                
             } catch (Exception e){
                 e.printStackTrace();
                 finished = true;
