@@ -40,6 +40,7 @@ import de.dfki.lt.mary.unitselection.cart.CART;
 import de.dfki.lt.mary.unitselection.cart.FeatureVectorCART;
 import de.dfki.lt.mary.unitselection.cart.ClassificationTree;
 import de.dfki.lt.mary.unitselection.cart.LeafNode;
+import de.dfki.lt.mary.unitselection.cart.LeafNode.IntArrayLeafNode;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 import de.dfki.lt.mary.unitselection.voiceimport.WagonCaller.StreamGobbler;
@@ -327,7 +328,7 @@ public class CARTBuilder implements VoiceImportComponent {
                 startTime = endTime;
                 // Dispatch call to Wagon to one of the wagon callers:
                 WagonCallerThread wagon = new WagonCallerThread(String.valueOf(wagonID), 
-                        leaf, featureDefinition, 
+                        leaf, featureDefinition, featureVectors,
                         featureDefFile, 
                         featureFileName,
                         distanceFileName,
@@ -404,7 +405,7 @@ public class CARTBuilder implements VoiceImportComponent {
         //loop through the feature vectors
         for (int i=0; i<featureVectors.length;i++){
             // Print the feature string
-            out.print( featureVectors[i].getUnitIndex()+" "+featDef.toFeatureString( featureVectors[i] ) );
+            out.print( i+" "+featDef.toFeatureString( featureVectors[i] ) );
             //print a newline if this is not the last vector
             if (i+1 != featureVectors.length){
                 out.print("\n");
@@ -680,11 +681,13 @@ public class CARTBuilder implements VoiceImportComponent {
         protected String id;
         protected LeafNode leafToReplace;
         protected FeatureDefinition featureDefinition;
+        protected FeatureVector[] featureVectors;
         protected boolean finished = false;
         protected boolean success = false;
         
         public WagonCallerThread(String id,
                 LeafNode leafToReplace, FeatureDefinition featureDefinition,
+                FeatureVector[] featureVectors,
                 String descFilename, String valueFilename, 
                 String distanceTableFilename,
                 String cartFilename,
@@ -694,6 +697,7 @@ public class CARTBuilder implements VoiceImportComponent {
             this.id = id;
             this.leafToReplace = leafToReplace;
             this.featureDefinition = featureDefinition;
+            this.featureVectors = featureVectors;
 
             String getESTDIR = System.getProperty("ESTDIR");
             if ( getESTDIR == null ) {
@@ -746,6 +750,16 @@ public class CARTBuilder implements VoiceImportComponent {
                             new FileReader(cartFile));
                     CART newCART = new ClassificationTree(buf, featureDefinition);    
                     buf.close();
+                    // Fix the new cart's leaves:
+                    // They are currently the index numbers in featureVectors;
+                    // but what we need is the unit index numbers!
+                    for (LeafNode leaf = newCART.getFirstLeafNode(); leaf != null; leaf = leaf.getNextLeafNode()) {
+                        int[] data = (int[])leaf.getAllData();
+                        for (int i=0; i<data.length; i++) {
+                            data[i] = featureVectors[data[i]].getUnitIndex();
+                        }
+                    }
+                    
                     //replace the leaf by the CART
                     System.out.println(id+"> Replacing leaf");
                     CART.replaceLeafByCart(newCART, leafToReplace);
