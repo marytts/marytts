@@ -30,6 +30,7 @@ package de.dfki.lt.mary.unitselection.voiceimport;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -308,22 +309,23 @@ public class CARTBuilder implements VoiceImportComponent {
                 LeafNode leaf = (LeafNode) leaves.get(i);
                 FeatureVector[] featureVectors = ((LeafNode.FeatureVectorLeafNode)leaf).getFeatureVectors();
                 if (featureVectors.length <= stop) continue;
+                wagonID++;
+                System.out.println("Leaf replacement no. "+wagonID+" started at "+new Date());
                 //dump the feature vectors
-                System.out.println("Dumping "+featureVectors.length+" feature vectors...");
+                System.out.println(wagonID+"> Dumping "+featureVectors.length+" feature vectors...");
                 String featureFileName = wagonDirName+"/"+featureVectorsFile+wagonID;
                 dumpFeatureVectors(featureVectors, featureDefinition, featureFileName);
                 long endTime = System.currentTimeMillis();
-                System.out.println("... dumping feature vectors took "+(endTime-startTime)+" ms");
+                System.out.println(wagonID+">... dumping feature vectors took "+(endTime-startTime)+" ms");
                 startTime = endTime;
                 //dump the distance tables
-                System.out.println("Computing distance tables...");
+                System.out.println(wagonID+"> Computing distance tables...");
                 String distanceFileName = wagonDirName+"/"+distanceTableFile+wagonID;
                 buildAndDumpDistanceTables(featureVectors, distanceFileName, featureDefinition);
                 endTime = System.currentTimeMillis();
-                System.out.println("... computing distance tables took "+(endTime-startTime)+" ms");
+                System.out.println(wagonID+"> ... computing distance tables took "+(endTime-startTime)+" ms");
                 startTime = endTime;
                 // Dispatch call to Wagon to one of the wagon callers:
-                wagonID++;
                 WagonCallerThread wagon = new WagonCallerThread(String.valueOf(wagonID), 
                         leaf, featureDefinition, 
                         featureDefFile, 
