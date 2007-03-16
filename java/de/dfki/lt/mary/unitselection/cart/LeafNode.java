@@ -206,6 +206,11 @@ public abstract class LeafNode extends Node {
             return featureVectors;
         }
         
+	public void setFeatureVectors(FeatureVector[] fv)
+	{
+	    this.featureVectors = fv;
+	}
+
         /**
          * Get all data in this leaf
          * 

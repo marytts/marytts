@@ -41,6 +41,7 @@ import de.dfki.lt.mary.unitselection.cart.FeatureVectorCART;
 import de.dfki.lt.mary.unitselection.cart.ClassificationTree;
 import de.dfki.lt.mary.unitselection.cart.LeafNode;
 import de.dfki.lt.mary.unitselection.cart.LeafNode.IntArrayLeafNode;
+import de.dfki.lt.mary.unitselection.cart.LeafNode.FeatureVectorLeafNode;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 import de.dfki.lt.mary.unitselection.voiceimport.WagonCaller.StreamGobbler;
@@ -137,7 +138,7 @@ public class CARTBuilder implements VoiceImportComponent {
          
          System.out.println("Checking top-level CART for reasonable leaf sizes ...");
          int minSize = 5;
-         int maxSize = 4000;
+         int maxSize = 2500;
          int nTooSmall = 0;
          int nTooBig = 0;
          int nLeaves = 0;
@@ -150,7 +151,7 @@ public class CARTBuilder implements VoiceImportComponent {
 		     && !(path.indexOf("prev_vc==+") != -1 && path.indexOf("prev_c") != -1)
 		     && !(path.indexOf("prev_vc==-") != -1 && path.indexOf("prev_vheight") != -1)
 		     ) {
-		     System.out.println("leaf too small: "+leaf.getDecisionPath());
+		     //		     System.out.println("leaf too small: "+leaf.getDecisionPath());
 		     nTooSmall++;
 		 }
              } else if (leaf.getNumberOfData() > maxSize) {
@@ -161,7 +162,17 @@ public class CARTBuilder implements VoiceImportComponent {
          }
          if (nTooSmall > 0 || nTooBig > 0) {
              System.out.println("Bad top-level cart: "+nTooSmall+"/"+nLeaves+" leaves are too small, "+nTooBig+"/"+nLeaves+" are too big");
-             //System.exit(1);
+	     System.out.println("Cutting down the big leaves to size "+maxSize);
+         for (LeafNode leaf = topLevelCART.getFirstLeafNode(); leaf != null; leaf = leaf.getNextLeafNode()) {
+             if (leaf.getNumberOfData() > maxSize) {
+		 FeatureVectorLeafNode fvleaf = (FeatureVectorLeafNode)leaf;
+		 FeatureVector[] fv = fvleaf.getFeatureVectors();
+		 FeatureVector[] newfv = new FeatureVector[maxSize];
+		 System.arraycopy(fv, 0, newfv, 0, maxSize);
+		 fvleaf.setFeatureVectors(newfv);
+	     }
+	 }
+
          } else {
              System.out.println("... OK!");
          }
