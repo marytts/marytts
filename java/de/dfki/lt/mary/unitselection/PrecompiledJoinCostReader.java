@@ -71,7 +71,7 @@ public class PrecompiledJoinCostReader implements JoinCostFunction
      */
     public PrecompiledJoinCostReader( String fileName ) throws IOException 
     {
-        load(fileName, null, null);
+        load(fileName, null, null, 0);
     }
     
     /**
@@ -81,7 +81,7 @@ public class PrecompiledJoinCostReader implements JoinCostFunction
      * @param dummy2 not used, just used to fulfil the join cost function interface
      * @throws IOException if a problem occurs while reading
      */
-    public void load(String fileName, String dummy, String dummy2) throws IOException
+    public void load(String fileName, String dummy, String dummy2, float dummy3) throws IOException
     {
         /* Open the file */
         DataInputStream dis = null;
