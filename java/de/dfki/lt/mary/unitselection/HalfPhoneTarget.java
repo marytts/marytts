@@ -29,6 +29,9 @@
 package de.dfki.lt.mary.unitselection;
 
 import com.sun.speech.freetts.Item;
+import com.sun.speech.freetts.Relation;
+
+import de.dfki.lt.mary.unitselection.featureprocessors.MaryGenericFeatureProcessors;
 
 public class HalfPhoneTarget extends Target
 {
@@ -72,6 +75,69 @@ public class HalfPhoneTarget extends Target
     {
         return super.getTargetDurationInSeconds() / 2;
     }
+    
+    public float getTargetF0InHz()
+    {
+        if (f0 != -1){
+            return f0;
+        } else {
+        if (item == null)
+            throw new NullPointerException("Target "+name+" does not have an item.");
+
+        // System.out.println("Looking for pitch...");
+        // get mid position of segment
+        float mid;
+        float end = item.getFeatures().getFloat("end");
+        Item prev = item.getPrevious();
+        float prev_end;
+        if (prev == null) {
+            prev_end = 0;
+        } else {
+            prev_end = prev.getFeatures().getFloat("end");
+        }
+        mid = prev_end + (end - prev_end) / 2;
+        float mymid;
+        if (isLeftHalf()) {
+            mymid = prev_end + (mid - prev_end) / 2;
+        } else {
+            mymid = mid + (end - mid) / 2;
+        }
+            
+        Relation targetRelation = item.getUtterance().getRelation("Target");
+        // if segment has no target relation, you can not calculate
+        // the segment pitch
+        if (targetRelation == null) {
+            return 0;
+        }
+        // get F0 and position of previous and next target
+        Item nextTargetItem = targetRelation.getHead();
+        while (nextTargetItem != null
+                && nextTargetItem.getFeatures().getFloat("pos") < mid) {
+            nextTargetItem = nextTargetItem.getNext();
+        }
+        if (nextTargetItem == null)
+            return 0;
+        Item lastTargetItem = nextTargetItem.getPrevious();
+        if (lastTargetItem == null)
+            return 0;
+        float lastF0 = lastTargetItem.getFeatures().getFloat("f0");
+        float lastPos = lastTargetItem.getFeatures().getFloat("pos");
+        float nextF0 = nextTargetItem.getFeatures().getFloat("f0");
+        float nextPos = nextTargetItem.getFeatures().getFloat("pos");
+        assert lastPos <= mid && mid <= nextPos;
+        // build a linear function (f(x) = slope*x+intersectionYAxis)
+        float slope = (nextF0 - lastF0) / (nextPos - lastPos);
+        // calculate the pitch
+        f0 = lastF0 + slope * (mid - lastPos);
+        assert lastF0 <= f0 && f0 <= nextF0 || nextF0 <= f0 && f0 <= lastF0;
+
+        if (Float.isNaN(f0)) {
+            f0 = (float) 0.0;
+        }
+        return f0;
+        }
+    }
+
 
     
 }

@@ -41,9 +41,9 @@ import de.dfki.lt.mary.unitselection.featureprocessors.TargetFeatureComputer;
 import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunc;
 import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunctionManager;
 
-public class DiphoneFFRTargetCostFunction implements TargetCostFunction 
+public class DiphoneFFRTargetCostFunction implements AcousticTargetCostFunction 
 {
-    protected TargetCostFunction tcfForHalfphones;
+    protected AcousticTargetCostFunction tcfForHalfphones;
     
     public DiphoneFFRTargetCostFunction()
     {
@@ -132,12 +132,30 @@ public class DiphoneFFRTargetCostFunction implements TargetCostFunction
      */
     public void computeTargetFeatures(Target target)
     {
-        if (!(target instanceof DiphoneTarget))
+        if (!(target instanceof DiphoneTarget)) {
             tcfForHalfphones.computeTargetFeatures(target);
-        DiphoneTarget dt = (DiphoneTarget) target;
-        tcfForHalfphones.computeTargetFeatures(dt.getLeft());
-        tcfForHalfphones.computeTargetFeatures(dt.getRight());
+        } else {
+            DiphoneTarget dt = (DiphoneTarget) target;
+            tcfForHalfphones.computeTargetFeatures(dt.getLeft());
+            tcfForHalfphones.computeTargetFeatures(dt.getRight());
+            
+        }
     }
     
+    
+    public void setUnitSampleRate(int sampleRate)
+    {
+        tcfForHalfphones.setUnitSampleRate(sampleRate);
+    }
+    
+    public void setAudioTimeline(TimelineReader audioTimeline) 
+    {
+        tcfForHalfphones.setAudioTimeline(audioTimeline);
+    }
+    
+    public void setAcousticCostWeight(double weight)
+    {
+        tcfForHalfphones.setAcousticCostWeight(weight);
+    }
     
 }

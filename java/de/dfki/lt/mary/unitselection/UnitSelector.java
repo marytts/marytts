@@ -85,7 +85,7 @@ public class UnitSelector
 
     }
     
-    public void load(UnitDatabase unitDatabase,float targetCostWeight)
+    public void load(UnitDatabase unitDatabase, float targetCostWeight)
     {
         this.database = unitDatabase;
         this.targetCostWeight = targetCostWeight;
@@ -128,7 +128,7 @@ public class UnitSelector
         }
 
         //Select the best candidates using Viterbi and the join cost function.
-        Viterbi viterbi = new Viterbi(targets, database,targetCostWeight);
+        Viterbi viterbi = new Viterbi(targets, database, targetCostWeight);
         viterbi.apply();
         List selectedUnits = viterbi.getSelectedUnits();
         // If you can not associate the candidate units in the best path 

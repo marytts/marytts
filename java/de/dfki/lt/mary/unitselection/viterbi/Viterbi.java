@@ -110,7 +110,7 @@ public  class Viterbi
      * is built up.
      * 
      */
-	public Viterbi(List targets, UnitDatabase database,float wTargetCosts)
+	public Viterbi(List targets, UnitDatabase database, float wTargetCosts)
     {
 	    this.database = database;
 	    this.targetCostFunction = database.getTargetCostFunction();
