@@ -37,6 +37,7 @@ import de.dfki.lt.mary.modules.phonemiser.Phoneme;
 import de.dfki.lt.mary.modules.synthesis.FreeTTSVoices;
 import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
+import de.dfki.lt.mary.unitselection.featureprocessors.MaryGenericFeatureProcessors;
 
 /**
  * A representation of a target representing the ideal properties of
@@ -52,8 +53,8 @@ public class Target
     
     protected FeatureVector featureVector = null;
     
-    protected float end = -1;
     protected float duration = -1;
+    protected float f0 = -1;
     protected Logger logger;
     protected int isSilence =-1;
 
@@ -89,24 +90,22 @@ public class Target
         } else {
         if (item == null)
             throw new NullPointerException("Target "+name+" does not have an item.");
-        if (!item.getFeatures().isPresent("end")) {
-            throw new IllegalStateException("Item '"+item+"' of target '"+this+"' does not have an 'end' feature");
-        }
-        end = item.getFeatures().getFloat("end"); 
-        Item prev = item.getPrevious();
-        if (prev == null) {
-            duration = end;
-        } else {
-            if (!prev.getFeatures().isPresent("end")) {
-                throw new IllegalStateException("Item "+prev+" does not have an 'end' feature");
-            }
-            float prev_end = prev.getFeatures().getFloat("end");
-            duration = end - prev_end;
-        }
+        duration = new MaryGenericFeatureProcessors.SegmentDuration().process(this);
         return duration;
         }
     }
     
+    public float getTargetF0InHz()
+    {
+        if (f0 != -1){
+            return f0;
+        } else {
+        if (item == null)
+            throw new NullPointerException("Target "+name+" does not have an item.");
+        f0 = new MaryGenericFeatureProcessors.Seg_Pitch().process(this);
+        return f0;
+        }
+    }
 
     
     

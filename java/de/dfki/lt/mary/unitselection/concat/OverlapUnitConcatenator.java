@@ -42,12 +42,7 @@ public class OverlapUnitConcatenator extends BaseUnitConcatenator {
             // one right context period for windowing:
             Datagram rightContextFrame = null;
             Unit nextInDB = database.getUnitFileReader().getNextUnit(unit.getUnit());
-            Unit nextSelected;
-            if (i+1==len) nextSelected = null;
-            else nextSelected = ((SelectedUnit)units.get(i+1)).getUnit();
-            if (nextInDB != null && !nextInDB.isEdgeUnit() && !nextInDB.equals(nextSelected)) {
-                // Only use right context if we have a next unit in the DB, and it is not the
-                // same as the next selected unit.
+            if (nextInDB != null && !nextInDB.isEdgeUnit()) {
                 rightContextFrame = timeline.getDatagram(unitStart+unitSize);
                 unitData.setRightContextFrame(rightContextFrame);
             }
@@ -158,7 +153,16 @@ public class OverlapUnitConcatenator extends BaseUnitConcatenator {
             assert frames != null : "Cannot generate audio from null frames";
             // Generate audio from frames
             datagrams[i] = frames;
-            rightContexts[i] = unitData.getRightContextFrame(); // may be null
+            Unit nextInDB = database.getUnitFileReader().getNextUnit(unit.getUnit());
+            Unit nextSelected;
+            if (i+1==len) nextSelected = null;
+            else nextSelected = ((SelectedUnit)units.get(i+1)).getUnit();
+            if (nextInDB != null && !nextInDB.equals(nextSelected)) {
+                // Only use right context if we have a next unit in the DB is not the
+                // same as the next selected unit.
+                rightContexts[i] = unitData.getRightContextFrame(); // may be null
+            }
+
         }
         
         DoubleDataSource audioSource = new DatagramOverlapDoubleDataSource(datagrams, rightContexts);

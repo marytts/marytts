@@ -68,4 +68,10 @@ public class HalfPhoneTarget extends Target
         return !isLeftHalf;
     }
     
+    public float getTargetDurationInSeconds()
+    {
+        return super.getTargetDurationInSeconds() / 2;
+    }
+
+    
 }

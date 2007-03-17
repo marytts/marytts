@@ -2522,30 +2522,22 @@ public class MaryGenericFeatureProcessors
 
         public float process(Target target)
         {
-            return 0;
-        }
-
-        /**
-         * Performs some processing on the given item.
-         * 
-         * @param seg
-         *            the item to process
-         * 
-         * @return the duration of the segment as a string.
-         * 
-         * @throws ProcessException
-         *             if an exception occurred during the processing
-         */
-        public String process(Item seg) throws ProcessException
-        {
+            Item seg = target.getItem();
             if (seg == null) {
-                return "0";
-            } else if (seg.getPrevious() == null) {
-                return seg.getFeatures().getObject("end").toString();
-            } else {
-                return Float.toString(seg.getFeatures().getFloat("end")
-                        - seg.getPrevious().getFeatures().getFloat("end"));
+                return 0;
+            } 
+            if (!seg.getFeatures().isPresent("end")) {
+                throw new IllegalStateException("Item '"+seg+"' does not have an 'end' feature");
             }
+            Item prev = seg.getPrevious();
+            if (prev == null) {
+                return seg.getFeatures().getFloat("end");
+            }
+            if (!prev.getFeatures().isPresent("end")) {
+                throw new IllegalStateException("Item "+prev+" does not have an 'end' feature");
+            }
+            return seg.getFeatures().getFloat("end")
+                - seg.getPrevious().getFeatures().getFloat("end");
         }
     }
 
@@ -2562,10 +2554,7 @@ public class MaryGenericFeatureProcessors
 
         public float process(Target target)
         {
-            return 0;
-        }
-        public String process(Item seg) throws ProcessException
-        {
+            Item seg = target.getItem();
             // System.out.println("Looking for pitch...");
             // get mid position of segment
             float mid;
@@ -2581,7 +2570,7 @@ public class MaryGenericFeatureProcessors
             // if segment has no target relation, you can not calculate
             // the segment pitch
             if (targetRelation == null) {
-                return "0.0";
+                return 0;
             }
             // get F0 and position of previous and next target
             Item nextTargetItem = targetRelation.getHead();
@@ -2590,10 +2579,10 @@ public class MaryGenericFeatureProcessors
                 nextTargetItem = nextTargetItem.getNext();
             }
             if (nextTargetItem == null)
-                return "0.0";
+                return 0;
             Item lastTargetItem = nextTargetItem.getPrevious();
             if (lastTargetItem == null)
-                return "0.0";
+                return 0;
             float lastF0 = lastTargetItem.getFeatures().getFloat("f0");
             float lastPos = lastTargetItem.getFeatures().getFloat("pos");
             float nextF0 = nextTargetItem.getFeatures().getFloat("f0");
@@ -2611,7 +2600,7 @@ public class MaryGenericFeatureProcessors
             if (Float.isNaN(pitch)) {
                 pitch = (float) 0.0;
             }
-            return Float.toString(pitch);
+            return pitch;
         }
     }
     
