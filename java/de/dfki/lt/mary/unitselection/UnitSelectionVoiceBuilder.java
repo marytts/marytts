@@ -206,6 +206,13 @@ public class UnitSelectionVoiceBuilder
             TimelineReader timelineReader = (TimelineReader) Class.forName(timelineReaderClass).newInstance();
             timelineReader.load(timelineFile);
                 
+            if (targetFunction instanceof AcousticTargetCostFunction) {
+                ((AcousticTargetCostFunction)targetFunction).setUnitSampleRate(unitReader.getSampleRate());
+                ((AcousticTargetCostFunction)targetFunction).setAudioTimeline(timelineReader);
+                double acousticCostWeight = Double.parseDouble(MaryProperties.getProperty(header+".acoustictargetcost.weight", "0.0"));
+                ((AcousticTargetCostFunction)targetFunction).setAcousticCostWeight(acousticCostWeight);
+            }
+
             //get the backtrace information
             String backtraceString = MaryProperties
                     .getProperty(header+".cart.backtrace");

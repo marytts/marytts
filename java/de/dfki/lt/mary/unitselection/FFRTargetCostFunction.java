@@ -34,6 +34,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import de.dfki.lt.mary.MaryProperties;
+import de.dfki.lt.mary.modules.synthesis.FreeTTSVoices;
+import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.unitselection.HalfPhoneFFRTargetCostFunction.TargetCostReporter;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureProcessorManager;
@@ -43,12 +45,17 @@ import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunc;
 import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunctionManager;
 import de.dfki.lt.signalproc.display.Histogram;
 
-public class FFRTargetCostFunction implements TargetCostFunction 
+public class FFRTargetCostFunction implements AcousticTargetCostFunction 
 {
     protected WeightFunc[] weightFunction;
     protected TargetFeatureComputer targetFeatureComputer;
     protected FeatureVector[] featureVectors;
     protected FeatureDefinition featureDefinition;
+
+    // acoustic stuff:
+    protected int unitSampleRate;
+    protected TimelineReader audioTimeline;
+    protected double acousticCostWeight;
     
     protected boolean debugShowCostGraph = false;
     protected double[] cumulWeightedCosts = null;
@@ -59,6 +66,19 @@ public class FFRTargetCostFunction implements TargetCostFunction
     {
     }
 
+    public void setAcousticCostWeight(double weight)
+    {
+        this.acousticCostWeight = weight;
+    }
+    
+    public void setUnitSampleRate(int sampleRate) {
+        this.unitSampleRate = sampleRate;
+    }
+    
+    public void setAudioTimeline(TimelineReader audio) {
+        this.audioTimeline = audio;
+    }
+    
     /**
      * Compute the goodness-of-fit of a given unit for a given target.
      * @param target 
@@ -67,7 +87,10 @@ public class FFRTargetCostFunction implements TargetCostFunction
      */
     public double cost(Target target, Unit unit)
     {
-        return cost(target, unit, featureDefinition, weightFunction);
+        double cost = 0;
+        if (acousticCostWeight < 1.0) cost += (1-acousticCostWeight) * cost(target, unit, featureDefinition, weightFunction);
+        if (acousticCostWeight > 0) cost += acousticCostWeight * acousticCost(target, unit);
+        return cost;
     }
     
     
@@ -90,7 +113,7 @@ public class FFRTargetCostFunction implements TargetCostFunction
             float weight = weights.getWeight(i);
             if (targetFeatures.getByteFeature(i) != unitFeatures.getByteFeature(i)) {
                 cost += weight;
-                if (debugShowCostGraph) cumulWeightedCosts[i] += weight;
+                if (debugShowCostGraph) cumulWeightedCosts[i] += (1-acousticCostWeight)*weight;
             }
 
         }
@@ -99,7 +122,7 @@ public class FFRTargetCostFunction implements TargetCostFunction
             float weight = weights.getWeight(i);
             if (targetFeatures.getShortFeature(i) != unitFeatures.getShortFeature(i)) {
                 cost += weight;
-                if (debugShowCostGraph) cumulWeightedCosts[i] += weight;
+                if (debugShowCostGraph) cumulWeightedCosts[i] += (1-acousticCostWeight)*weight;
             }
         }
         // continuous features:
@@ -110,10 +133,37 @@ public class FFRTargetCostFunction implements TargetCostFunction
             double myCost = weightFunctions[i-nBytes-nShorts].cost(a, b); 
             cost += weight * myCost;
             if (debugShowCostGraph) {
-                cumulWeightedCosts[i] += weight * myCost;
+                cumulWeightedCosts[i] += (1-acousticCostWeight)*weight * myCost;
             }
         }
         return cost;
+    }
+    
+    protected double acousticCost(Target target, Unit unit)
+    {
+        double logTargetF0 = Math.log(target.getTargetF0InHz());
+        double targetDur = target.getTargetDurationInSeconds();
+        double unitDur = unit.getDuration() / (float) unitSampleRate;
+        double logUnitF0;
+        try {
+            Datagram[] unitAudio = audioTimeline.getDatagrams(unit, unitSampleRate);
+            double avgPeriodLength = unitDur / unitAudio.length;
+            logUnitF0 = Math.log(1 / avgPeriodLength);
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot access unit audio", e);
+        }
+        double weightF0 = 0.1;
+        double weightDur = 1 - weightF0;
+        double f0Cost = weightF0 * Math.abs(logTargetF0 - logUnitF0);
+        if (Double.isNaN(f0Cost)) f0Cost = 0;
+        double durCost = weightDur * Math.abs(targetDur - unitDur);
+        if (debugShowCostGraph) {
+            cumulWeightedCosts[cumulWeightedCosts.length-2] += acousticCostWeight*f0Cost;
+            cumulWeightedCosts[cumulWeightedCosts.length-1] += acousticCostWeight*durCost;
+        }
+        //System.out.println("Cost f0: "+f0Cost + "   dur: "+durCost);
+        return f0Cost + durCost;
+        
     }
     
     /**
@@ -160,7 +210,7 @@ public class FFRTargetCostFunction implements TargetCostFunction
         this.targetFeatureComputer = new TargetFeatureComputer(featProc, featureDefinition.getFeatureNames());
         if (MaryProperties.getBoolean("debug.show.cost.graph")) {
             debugShowCostGraph = true;
-            cumulWeightedCosts = new double[featureDefinition.getNumberOfFeatures()];
+            cumulWeightedCosts = new double[featureDefinition.getNumberOfFeatures()+2]; // TODO: clean up: +2 = f0 and dur
             TargetCostReporter tcr2 = new TargetCostReporter(cumulWeightedCosts);
             tcr2.showInJFrame("Average weighted target costs", false, false);
             tcr2.start();
