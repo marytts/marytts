@@ -91,7 +91,7 @@ public class CARTBuilder implements VoiceImportComponent {
          }
          CART topLevelCART;
          boolean fromFeatureSequence = 
-             MaryProperties.getAutoBoolean("db.readCARTFromSequence",false);
+             MaryProperties.getAutoBoolean("db.readCARTFromSequence",true);
          if (fromFeatureSequence){
              /* Build the top level tree from a feature sequence */
              FeatureArrayIndexer fai = new FeatureArrayIndexer(featureVectors, featureDefinition);

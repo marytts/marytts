@@ -112,7 +112,7 @@ public class SphinxLabeler implements VoiceImportComponent {
         pw.print("cd "+rootDirName+"\n");
         pw.flush();
         //call Sphinx2 and exit
-        /**
+        
         pw.print("( "+sphinx2dir+"build/bin/sphinx2-batch -adcin TRUE -adcext wav "
                 +"-ctlfn "+ctlfile+" -tactlfn "+tactlfn+" -ctloffset 0"
                 +"-ctlcount 100000000 -datadir wav -agcmax FALSE "
@@ -147,7 +147,7 @@ public class SphinxLabeler implements VoiceImportComponent {
         process.waitFor();
         process.exitValue();    
         System.out.println("... done.");
-        **/
+       
         /* Write the labels into lab directory */
         System.out.println("Exporting Labels ...");
         
