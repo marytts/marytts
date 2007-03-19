@@ -36,11 +36,7 @@ import java.util.List;
 
 import de.dfki.lt.mary.unitselection.FeatureFileIndexer;
 import de.dfki.lt.mary.unitselection.MaryNode;
-import de.dfki.lt.mary.unitselection.cart.CART;
-import de.dfki.lt.mary.unitselection.cart.FeatureVectorCART;
-import de.dfki.lt.mary.unitselection.cart.ClassificationTree;
-import de.dfki.lt.mary.unitselection.cart.LeafNode;
-import de.dfki.lt.mary.unitselection.cart.LeafNode.IntArrayLeafNode;
+import de.dfki.lt.mary.unitselection.cart.*;
 import de.dfki.lt.mary.unitselection.cart.LeafNode.FeatureVectorLeafNode;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
@@ -93,67 +89,93 @@ public class CARTBuilder implements VoiceImportComponent {
          for (int i=0;i<featureVectors.length;i++){
              featureVectors[i] = (FeatureVector) fVList.get(i);
          }
-         
-         
-         FeatureArrayIndexer fai = new FeatureArrayIndexer(featureVectors, featureDefinition);
-         System.out.println(" ... done!");
-        
-         //read in the feature sequence
-         //open the file
-         System.out.println("Reading feature sequence ...");
-         String featSeqFile = databaseLayout.featSequenceFileName();
-         BufferedReader buf = new BufferedReader(
-                 new FileReader(new File(featSeqFile)));
-         //each line contains one feature
-         String line = buf.readLine();
-         //collect features in a list
-         List features = new ArrayList();
-         while (line != null){
-             // Skip empty lines and lines starting with #:
-             if (!(line.trim().equals("") || line.startsWith("#"))){
-                 features.add(line.trim());
+         CART topLevelCART;
+         boolean fromFeatureSequence = 
+             MaryProperties.getAutoBoolean("db.readCARTFromSequence",false);
+         if (fromFeatureSequence){
+             /* Build the top level tree from a feature sequence */
+             FeatureArrayIndexer fai = new FeatureArrayIndexer(featureVectors, featureDefinition);
+             System.out.println(" ... done!");         
+             //read in the feature sequence
+             //open the file
+             System.out.println("Reading feature sequence ...");
+             String featSeqFile = databaseLayout.featSequenceFileName();
+             BufferedReader buf = new BufferedReader(
+                     new FileReader(new File(featSeqFile)));
+             //each line contains one feature
+             String line = buf.readLine();
+             //collect features in a list
+             List features = new ArrayList();
+             while (line != null){
+                 // Skip empty lines and lines starting with #:
+                 if (!(line.trim().equals("") || line.startsWith("#"))){
+                     features.add(line.trim());
+                 }
+                 line = buf.readLine();
              }
-             line = buf.readLine();
+             //convert list to int array
+             int[] featureSequence = new int[features.size()];
+             for (int i=0;i<features.size();i++){
+                 featureSequence[i] = 
+                     featureDefinition.getFeatureIndex((String)features.get(i));
+             }
+             System.out.println(" ... done!"); 
+             
+             //sort the features according to feature sequence
+             System.out.println("Sorting features ...");
+             fai.deepSort(featureSequence);
+             System.out.println(" ... done!");
+             //get the resulting tree
+             MaryNode topLevelTree = fai.getTree();
+             
+             //convert the top-level CART to Wagon Format
+             System.out.println("Building CART from tree ...");
+             topLevelCART = new FeatureVectorCART(topLevelTree, fai);
+             PrintWriter pw = 
+                 new PrintWriter(
+                         new FileWriter(
+                                 new File("./test.txt")));
+             topLevelCART.toTextOut(pw);
+             System.out.println(" ... done!");
+             
+         }else {
+             /* read in the top-level tree from file */
+             String filename = databaseLayout.topLevelTreeFilename();
+             System.out.println("Reading empty top-level tree from file "+filename+" ...");
+             BufferedReader reader = 
+                 new BufferedReader(
+                         new InputStreamReader(
+                                 new FileInputStream(
+                                         new File(filename)),"UTF-8"));
+             topLevelCART = new TopLevelTree(reader, featureDefinition);
+             System.out.println(" ... done!");
+             
+             //fill in the leafs of the tree
+             System.out.println("Filling leafs of top-level tree ...");
+             ((TopLevelTree)topLevelCART).fillLeafs(featureVectors);
+             System.out.println(" ... done!");
          }
-         //convert list to int array
-         int[] featureSequence = new int[features.size()];
-         for (int i=0;i<features.size();i++){
-             featureSequence[i] = 
-                 featureDefinition.getFeatureIndex((String)features.get(i));
-         }
-         System.out.println(" ... done!"); 
-
-         //sort the features according to feature sequence
-         System.out.println("Sorting features ...");
-         fai.deepSort(featureSequence);
-         System.out.println(" ... done!");
-         //get the resulting tree
-         MaryNode topLevelTree = fai.getTree();
-         //topLevelTree.toStandardOut(ffi);
-         
-         //convert the top-level CART to Wagon Format
-         System.out.println("Building CART from tree ...");
-         CART topLevelCART = new FeatureVectorCART(topLevelTree, fai);
-         System.out.println(" ... done!");
          
          System.out.println("Checking top-level CART for reasonable leaf sizes ...");
          int minSize = 5;
-         int maxSize = 2500;
+         int maxSize = 3383;
          int nTooSmall = 0;
          int nTooBig = 0;
          int nLeaves = 0;
          for (LeafNode leaf = topLevelCART.getFirstLeafNode(); leaf != null; leaf = leaf.getNextLeafNode()) {
              if (leaf.getNumberOfData() < minSize) {
-		 // Ignore a few meaningless combinations:
-		 String path = leaf.getDecisionPath();
-		 if (path.indexOf("phoneme==0") == -1
-		     && path.indexOf("vc==0") == -1
-		     && !(path.indexOf("prev_vc==+") != -1 && path.indexOf("prev_c") != -1)
-		     && !(path.indexOf("prev_vc==-") != -1 && path.indexOf("prev_vheight") != -1)
-		     ) {
-		     //		     System.out.println("leaf too small: "+leaf.getDecisionPath());
-		     nTooSmall++;
-		 }
+                 // Ignore a few meaningless combinations:
+                 String path = leaf.getDecisionPath();
+                 if (path.indexOf("phoneme==0") == -1
+                         && path.indexOf("vc==0") == -1
+                         && !(path.indexOf("prev_vc==+") != -1 && path.indexOf("prev_c") != -1)
+                         && !(path.indexOf("prev_vc==-") != -1 && path.indexOf("prev_vheight") != -1)
+                 ) {
+                    
+                     //System.out.println("leaf too small: "+leaf.getDecisionPath());
+                     nTooSmall++;
+                     }
+       
              } else if (leaf.getNumberOfData() > maxSize) {
                  System.out.println("               LEAF TOO BIG: "+leaf.getDecisionPath());
                  nTooBig++;
@@ -162,17 +184,17 @@ public class CARTBuilder implements VoiceImportComponent {
          }
          if (nTooSmall > 0 || nTooBig > 0) {
              System.out.println("Bad top-level cart: "+nTooSmall+"/"+nLeaves+" leaves are too small, "+nTooBig+"/"+nLeaves+" are too big");
-	     System.out.println("Cutting down the big leaves to size "+maxSize);
-         for (LeafNode leaf = topLevelCART.getFirstLeafNode(); leaf != null; leaf = leaf.getNextLeafNode()) {
-             if (leaf.getNumberOfData() > maxSize) {
-		 FeatureVectorLeafNode fvleaf = (FeatureVectorLeafNode)leaf;
-		 FeatureVector[] fv = fvleaf.getFeatureVectors();
-		 FeatureVector[] newfv = new FeatureVector[maxSize];
-		 System.arraycopy(fv, 0, newfv, 0, maxSize);
-		 fvleaf.setFeatureVectors(newfv);
-	     }
-	 }
-
+             System.out.println("Cutting down the big leaves to size "+maxSize);
+             for (LeafNode leaf = topLevelCART.getFirstLeafNode(); leaf != null; leaf = leaf.getNextLeafNode()) {
+                 if (leaf.getNumberOfData() > maxSize) {
+                     FeatureVectorLeafNode fvleaf = (FeatureVectorLeafNode)leaf;
+                     FeatureVector[] fv = fvleaf.getFeatureVectors();
+                     FeatureVector[] newfv = new FeatureVector[maxSize];
+                     System.arraycopy(fv, 0, newfv, 0, maxSize);
+                     fvleaf.setFeatureVectors(newfv);
+                 }
+             }
+             
          } else {
              System.out.println("... OK!");
          }
@@ -182,24 +204,25 @@ public class CARTBuilder implements VoiceImportComponent {
          if (callWagon) {
              boolean ok = replaceLeaves(topLevelCART,featureDefinition);
              if(!ok) {
-             	System.out.println("Could not replace leaves");
-             	return false;
+                 System.out.println("Could not replace leaves");
+                 return false;
              }
          }
          
          //dump big CART to binary file
          String destinationFile = databaseLayout.cartFileName();
          dumpCART(destinationFile,topLevelCART);
-         //Dump the resulting Cart to text file
-         PrintWriter pw = 
-                new PrintWriter(
-                        new FileWriter(
-                                new File("./mary_files/cartTextDump.txt")));
-         topLevelCART.toTextOut(pw);
+         
+         /**
+          //Dump the resulting Cart to text file
+           PrintWriter pw = 
+           new PrintWriter(
+           new FileWriter(
+           new File("./mary_files/cartTextDump.txt")));
+           topLevelCART.toTextOut(pw);**/
          //say how long you took
          long timeDiff = System.currentTimeMillis() - time;
          System.out.println("Processing took "+timeDiff+" milliseconds.");
-         
          
          return true;
      }

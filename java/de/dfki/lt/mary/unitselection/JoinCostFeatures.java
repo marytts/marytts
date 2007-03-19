@@ -58,7 +58,7 @@ import de.dfki.lt.signalproc.display.Histogram;
 public class JoinCostFeatures implements JoinCostFunction
 {
 
-    //TODO: voice specific setting
+   
     protected float wSignal;
     protected float wPhonetic;
     
