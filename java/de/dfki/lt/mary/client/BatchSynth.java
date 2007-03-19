@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 
+import java.util.*;
+
+
 
 /**
  * Copyright 2006 DFKI GmbH.
@@ -62,9 +65,10 @@ public class BatchSynth
            String line;
            while ((line = textReader.readLine()) != null) {
                long startTime = System.currentTimeMillis();
-               int firstspace = line.indexOf(' ');
-               String basename = line.substring(0, firstspace);
-               String sentence = line.substring(firstspace+1);
+               line = line.substring(line.indexOf("(")+1, line.lastIndexOf(")"));
+               StringTokenizer st = new StringTokenizer(line);
+               String basename = st.nextToken();
+               String sentence = line.substring(line.indexOf("\"")+1, line.lastIndexOf("\""));
                FileOutputStream audio = new FileOutputStream(outputDir+"/"+basename+".wav");
                mary.process(sentence, "TEXT_EN", "AUDIO", "WAVE", voice, audio);
                audio.close();

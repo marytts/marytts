@@ -30,6 +30,7 @@
 package de.dfki.lt.mary.unitselection.voiceimport;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * @author marc
@@ -55,6 +56,11 @@ public class HalfPhoneUnitfileWriter extends UnitfileWriter
         unitlabelDir = new File( db.halfphoneUnitLabDirName() );
         if (!unitlabelDir.exists()) throw new IllegalStateException("Unit label directory "+unitlabelDir.getAbsolutePath()+" does not exist");
         unitlabelExt = db.halfphoneUnitLabExt();
+        try {
+            aligner = new HalfPhoneLabelFeatureAligner( db, bnl );
+        } catch (IOException ioe){
+            throw new IllegalStateException("Could not create LabelFeatureAligner");
+        }
     }
 
 }
