@@ -87,7 +87,8 @@ public abstract class WagonCART extends CART
         line = reader.readLine();
         // for each line
         while (line != null) {
-            if (!line.startsWith(";;")) {
+            if (!line.startsWith(";;")
+                    && !line.equals("")) {
                 // parse the line and add the node
                 parseAndAdd(line);
             }

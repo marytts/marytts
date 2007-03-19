@@ -3,7 +3,7 @@ package de.dfki.lt.mary.unitselection.cart;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.StringTokenizer;
+import java.util.*;
 
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 
@@ -185,6 +185,8 @@ public abstract class LeafNode extends Node {
     public static class FeatureVectorLeafNode extends LeafNode
     {
         private FeatureVector[] featureVectors;
+        private List featureVectorList;
+        private boolean growable;
 
         /**
          * Build a new leaf node containing the given feature vectors
@@ -195,14 +197,38 @@ public abstract class LeafNode extends Node {
         public FeatureVectorLeafNode(FeatureVector[] featureVectors) {
             super();
             this.featureVectors = featureVectors;
+            growable = false;
         }
 
+        /** 
+         * Build a new, empty leaf node
+         * to be filled with vectors later
+         *         
+         */
+        public FeatureVectorLeafNode(){
+            super();
+            featureVectorList = new ArrayList();
+            featureVectors = null;
+            growable = true;
+        }
+        
+        public void addFeatureVector(FeatureVector fv){
+            featureVectorList.add(fv);
+        }
+        
         /**
          * Get the feature vectors of this node
          * 
          * @return the feature vectors
          */
         public FeatureVector[] getFeatureVectors() {
+            if (growable && 
+                     (featureVectors == null
+                             || featureVectors.length == 0)){
+                featureVectors = (FeatureVector[])
+                    featureVectorList.toArray(
+                        new FeatureVector[featureVectorList.size()]);
+            }
             return featureVectors;
         }
         
@@ -217,6 +243,13 @@ public abstract class LeafNode extends Node {
          * @return the featurevector array contained in this leaf
          */
         public Object getAllData() {
+             if (growable && 
+                     (featureVectors == null
+                             || featureVectors.length == 0)){
+                featureVectors = (FeatureVector[])
+                    featureVectorList.toArray(
+                        new FeatureVector[featureVectorList.size()]);
+            }
             return featureVectors;
         }
         
@@ -231,6 +264,9 @@ public abstract class LeafNode extends Node {
 
         public int getNumberOfData()
         {
+            if (growable){
+                return featureVectorList.size();
+            }
             if (featureVectors != null) return featureVectors.length;
             return 0;
         }
@@ -250,6 +286,14 @@ public abstract class LeafNode extends Node {
             StringBuffer sb = new StringBuffer();
             // open three brackets
             sb.append("(((");
+            //make sure that we have a feature vector array
+            if (growable && 
+                     (featureVectors == null
+                             || featureVectors.length == 0)){
+                featureVectors = (FeatureVector[])
+                    featureVectorList.toArray(
+                        new FeatureVector[featureVectorList.size()]);
+            }
             // for each index, write the index and then a pseudo float
             for (int i = 0; i < featureVectors.length; i++) {
                 sb.append("(" + featureVectors[i].getUnitIndex() + " 0)");
@@ -276,6 +320,7 @@ public abstract class LeafNode extends Node {
         
         public String toString()
         {
+            if (growable) return "fv["+featureVectorList.size()+"]";
             if (featureVectors == null) return "fv[null]";
             return "fv["+featureVectors.length+"]";
         }

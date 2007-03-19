@@ -153,6 +153,7 @@ public class DatabaseLayout
         setIfDoesntExist( "db.wagonFeats", "wagon.feats" );
         setIfDoesntExist( "db.wagonDistTabs", "wagon.distTabs" );
         setIfDoesntExist( "db.wagonCart", "wagon.cart" );
+        setIfDoesntExist( "db.topLevelTree", "topLevel.tree" );
         
         /* Other Mary files */
         setIfDoesntExist( "db.targetFeaturesBaseName", "unitFeatures" );
@@ -313,6 +314,12 @@ public class DatabaseLayout
     }
      public String wagonCartFile(){
         return  System.getProperty( "db.wagonCart" );
+    }
+     
+    public String topLevelTreeFilename(){
+        return ( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
+            + System.getProperty( "db.maryConfigSubDir" ) + System.getProperty( "file.separator" )
+            + System.getProperty( "db.topLevelTree" ) );
     }
     
     /* MARY FILES */
