@@ -69,6 +69,8 @@ public class BatchSynth
                StringTokenizer st = new StringTokenizer(line);
                String basename = st.nextToken();
                String sentence = line.substring(line.indexOf("\"")+1, line.lastIndexOf("\""));
+               //remove all backslashes
+               sentence = sentence.replaceAll("\\\\","");
                FileOutputStream audio = new FileOutputStream(outputDir+"/"+basename+".wav");
                mary.process(sentence, "TEXT_EN", "AUDIO", "WAVE", voice, audio);
                audio.close();
