@@ -142,13 +142,15 @@ public abstract class CART
      * In this tree, replace the given leaf with the given CART
      * @param cart the CART
      * @param leaf the leaf
+     * @return the ex-root node from cart which now replaces leaf.
      */
-    public static void replaceLeafByCart(CART cart, LeafNode leaf){
+    public static Node replaceLeafByCart(CART cart, LeafNode leaf){
         DecisionNode mother = (DecisionNode) leaf.getMother();
         Node newNode = cart.getRootNode();
         mother.replaceDaughter(newNode, leaf.getNodeIndex());
         newNode.setMother(mother);
         newNode.setIsRoot(false);
+        return newNode;
     }
     
  
