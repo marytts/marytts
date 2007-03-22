@@ -91,7 +91,7 @@ public class CARTBuilder implements VoiceImportComponent {
          }
          CART topLevelCART;
          boolean fromFeatureSequence = 
-             MaryProperties.getAutoBoolean("db.readCARTFromSequence",true);
+             Boolean.valueOf(System.getProperty("db.readCARTFromSequence","true")).booleanValue();
          if (fromFeatureSequence){
              /* Build the top level tree from a feature sequence */
              FeatureArrayIndexer fai = new FeatureArrayIndexer(featureVectors, featureDefinition);
@@ -328,7 +328,7 @@ public class CARTBuilder implements VoiceImportComponent {
             System.out.println("Will run "+numProcesses+" wagon processes in parallel");
             WagonCallerThread[] wagons = new WagonCallerThread[numProcesses];
             
-            int stop = 50; // do not want leaves smaller than this
+            int stop = 10; // do not want leaves smaller than this
             List leaves = new ArrayList();
             for (LeafNode leaf = cart.getFirstLeafNode(); leaf != null; leaf = leaf.getNextLeafNode()) {
                 leaves.add(leaf);
@@ -796,8 +796,9 @@ public class CARTBuilder implements VoiceImportComponent {
                     
                     //replace the leaf by the CART
                     System.out.println(id+"> Replacing leaf");
-                    CART.replaceLeafByCart(newCART, leafToReplace);
-                    System.out.println(id+"> done.");
+                    System.out.println(id+"> (before: "+leafToReplace.getRootNode().getNumberOfNodes()+" nodes, adding "+newCART.getNumNodes()+")");
+                    Node newNode = CART.replaceLeafByCart(newCART, leafToReplace);
+                    System.out.println(id+"> done -- cart now has "+newNode.getRootNode().getNumberOfNodes()+" nodes.");
 
                     finished = true;
                 }
