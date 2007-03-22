@@ -107,6 +107,17 @@ public abstract class Node {
         return nodeIndex;
     }
     
+    public Node getRootNode()
+    {
+        if (isRoot) {
+            assert mother == null;
+            return this;
+        } else {
+            assert mother != null : " I am not root but I have no mother :-(";
+            return mother.getRootNode();
+        }
+    }
+    
     /**
      * Count all the nodes at and below this node.
      * A leaf will return 1; the root node will 

@@ -319,7 +319,6 @@ public  class Viterbi
             int length = 0;
             int numUnits = selectedUnits.size();
             StringBuffer line = new StringBuffer();
-            //TODO: Write debug output that detects if selected units belong together
             for (int i=0; i<numUnits; i++) {
                 SelectedUnit u = (SelectedUnit) selectedUnits.get(i);
                 int index = u.getUnit().getIndex();

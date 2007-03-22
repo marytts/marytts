@@ -132,8 +132,10 @@ public abstract class SynthesisCallerBase extends InternalModule
         VoiceSectioner sectioner = null;
         if (MaryDataType.exists("FESTIVAL_UTT") && inputType().equals(MaryDataType.get("FESTIVAL_UTT"))) {
             sectioner = new FestivalUttSectioner(input, defaultVoice);
-        } else {
+        } else if (MaryDataType.exists("MBROLA") && inputType().equals(MaryDataType.get("MBROLA"))) {
             sectioner = new MbrolaVoiceSectioner(input, defaultVoice);
+        } else {
+            throw new RuntimeException("Don't know how to handle input type '"+inputType()+"'");
         }
         VoiceSection section = null;
         // A first pass identifying the voice with the highest sampling rate:
