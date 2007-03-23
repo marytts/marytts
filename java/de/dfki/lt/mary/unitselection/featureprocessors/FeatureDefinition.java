@@ -919,10 +919,57 @@ public class FeatureDefinition
     }
     
     /**
+     * Export this feature definition in the text format which can also be read by this class.
+     * @param out the destination of the data
+     * @param writeWeights whether to write weights before every line
+     */
+    public void writeTo(PrintWriter out, boolean writeWeights)
+    {
+        out.println("ByteValuedFeatureProcessors");
+        for (int i=0; i<numByteFeatures; i++) {            
+            if (writeWeights) {
+                out.print(featureWeights[i]+" | ");
+            }
+            out.print(getFeatureName(i));
+            for (int v=0, vmax=getNumberOfValues(i); v<vmax; v++) {
+                out.print(" ");
+                String val = getFeatureValueAsString(i, v);
+                out.print(val);
+            }
+            out.println();
+        }
+        out.println("ShortValuedFeatureProcessors");
+        for (int i=0; i<numShortFeatures; i++) {            
+            if (writeWeights) {
+                out.print(featureWeights[numByteFeatures+i]+" | ");
+            }
+            out.print(getFeatureName(numByteFeatures+i));
+            for (int v=0, vmax=getNumberOfValues(numByteFeatures+i); v<vmax; v++) {
+                out.print(" ");
+                String val = getFeatureValueAsString(numByteFeatures+i, v);
+                out.print(val);
+            }
+            out.println();
+        }
+        out.println("ContinuousFeatureProcessors");
+        for (int i=0; i<numContinuousFeatures; i++) {
+            if (writeWeights) {
+                out.print(featureWeights[numByteFeatures+numShortFeatures+i]);
+                out.print(" ");
+                out.print(floatWeightFuncts[i]);
+                out.print(" | ");
+            }
+
+            out.print(getFeatureName(numByteFeatures+numShortFeatures+i));
+            out.println();
+        }
+        
+    }
+
+    
+    /**
      * Export this feature definition in the "all.desc" format which can be
      * read by wagon.
-     * Does not print the features for "mary_sentence_punc" since
-     * they interfere with wagon
      * @param out the destination of the data
      */
     public void generateAllDotDescForWagon(PrintWriter out)

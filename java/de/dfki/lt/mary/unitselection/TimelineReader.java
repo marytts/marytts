@@ -148,8 +148,9 @@ public class TimelineReader extends TimelineIO
         
         /* If the end of the datagram zone is reached, refuse to read */
         if ( getBytePointer() == timeIdxBytePos ) {
-            throw new IndexOutOfBoundsException( "Time out of bounds: you are trying to read a datagram at" +
-                    " a time which is bigger than the total timeline duration." );
+            //throw new IndexOutOfBoundsException( "Time out of bounds: you are trying to read a datagram at" +
+            //        " a time which is bigger than the total timeline duration." );
+            return null;
         }
         /* Else, pop the datagram out of the file */
         try {
@@ -409,10 +410,14 @@ public class TimelineReader extends TimelineIO
         gotoTime( scaledTargetTime );
         if ( returnOffset != null ) returnOffset[0] = unScaleTime( reqSampleRate, (scaledTargetTime - getTimePointer()) );
         /* ... and read datagrams across the requested timeSpan: */
-        while( getTimePointer() < endTime ) {
+        boolean readMore = true;
+        while(readMore && getTimePointer() < endTime) {
             Datagram dat = getNextDatagram();
-            if ( reqSampleRate != sampleRate ) dat.setDuration(unScaleTime( reqSampleRate, dat.getDuration() )); // => Don't forget to stay time-consistent!
-            v.add( dat );
+            if (dat == null) readMore = false;
+            else {
+                if ( reqSampleRate != sampleRate ) dat.setDuration(unScaleTime( reqSampleRate, dat.getDuration() )); // => Don't forget to stay time-consistent!
+                v.add( dat );
+            }
         }
         
         /* Cast the vector into an array of datagrams (an array of byte arrays),
@@ -488,6 +493,7 @@ public class TimelineReader extends TimelineIO
         gotoTime( scaledTargetTime );
         /* ... and return a single datagram. */
         Datagram dat = getNextDatagram();
+        if (dat == null) return null;
         if ( reqSampleRate != sampleRate ) dat.setDuration(unScaleTime( reqSampleRate, dat.getDuration() )); // => Don't forget to stay time-consistent!
         return( dat );
     }
@@ -543,7 +549,9 @@ public class TimelineReader extends TimelineIO
     public synchronized long getTotalTime() throws IOException {
         long bptr = getBytePointer();
         setBytePointer( idx.getPrevBytePos() );
-        long ret = idx.getPrevTimePos() + getNextDatagram().duration;
+        long ret = idx.getPrevTimePos();
+        Datagram next = getNextDatagram();
+        if (next != null) ret += next.duration;
         setBytePointer( bptr );
         return( ret );
     }

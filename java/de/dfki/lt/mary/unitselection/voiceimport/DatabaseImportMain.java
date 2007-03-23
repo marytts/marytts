@@ -343,6 +343,8 @@ public class DatabaseImportMain extends JFrame
                 new JoinCostFileMaker( db, bnl ),
                 new JoinCostPrecomputer( db, bnl ),
                 
+                new AcousticFeatureFileWriter(db, bnl),
+                
                 new CARTBuilder ( db ),
                 new DurationCARTTrainer(db, bnl),
                 new F0CARTTrainer(db, bnl)
