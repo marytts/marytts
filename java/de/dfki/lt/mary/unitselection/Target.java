@@ -90,7 +90,7 @@ public class Target
         } else {
         if (item == null)
             throw new NullPointerException("Target "+name+" does not have an item.");
-        duration = new MaryGenericFeatureProcessors.SegmentDuration().process(this);
+        duration = new MaryGenericFeatureProcessors.UnitDuration().process(this);
         return duration;
         }
     }
@@ -102,7 +102,9 @@ public class Target
         } else {
         if (item == null)
             throw new NullPointerException("Target "+name+" does not have an item.");
-        f0 = new MaryGenericFeatureProcessors.Seg_Pitch().process(this);
+        float logf0 = new MaryGenericFeatureProcessors.UnitLogF0().process(this);
+        if (logf0 == 0) f0 = 0;
+        else f0 = (float) Math.exp(logf0);
         return f0;
         }
     }
