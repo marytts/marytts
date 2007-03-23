@@ -50,6 +50,7 @@ import de.dfki.lt.mary.modules.InternalModule;
 import de.dfki.lt.mary.modules.synthesis.FreeTTSVoices;
 import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.unitselection.Target;
+import de.dfki.lt.mary.unitselection.UnitSelectionVoice;
 import de.dfki.lt.mary.unitselection.cart.CART;
 import de.dfki.lt.mary.unitselection.cart.RegressionTree;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
@@ -100,6 +101,18 @@ public class CARTF0Modeller extends InternalModule
         while (it.hasNext()) {
             Utterance utterance = (Utterance) it.next();
             Voice maryVoice = FreeTTSVoices.getMaryVoice(utterance.getVoice());
+            CART currentLeftCart  = leftCart;
+            CART currentMidCart   = midCart;
+            CART currentRightCart = rightCart;
+            if (maryVoice instanceof UnitSelectionVoice) {
+                CART[] voiceTrees = ((UnitSelectionVoice)maryVoice).getF0Trees();
+                if (voiceTrees != null) {
+                    currentLeftCart  = voiceTrees[0];
+                    currentMidCart   = voiceTrees[1];
+                    currentRightCart = voiceTrees[2];
+                    logger.debug("Using voice carts");
+                }
+            }
             Relation targets = utterance.createRelation(Relation.TARGET);
             Relation syls = utterance.getRelation(Relation.SYLLABLE);
             for (Item syl = syls.getHead(); syl != null; syl = syl.getNext()) {
@@ -140,17 +153,17 @@ public class CARTF0Modeller extends InternalModule
                     String segName = vowel.getFeatures().getString("name");
                     Target t = new Target(segName, vowel);
                     t.setFeatureVector(featureComputer.computeFeatureVector(t));
-                    float[] left = (float[])leftCart.interpret(t, 0);
+                    float[] left = (float[])currentLeftCart.interpret(t, 0);
                     assert left != null : "Null frequency";
                     assert left.length == 2 : "Unexpected frequency length: "+left.length;
                     float leftF0InHz = left[1];
                     float leftStddevInHz = left[0];
-                    float[] mid = (float[])midCart.interpret(t, 0);
+                    float[] mid = (float[])currentMidCart.interpret(t, 0);
                     assert mid != null : "Null frequency";
                     assert mid.length == 2 : "Unexpected frequency length: "+mid.length;
                     float midF0InHz = mid[1];
                     float midStddevInHz = mid[0];
-                    float[] right = (float[])rightCart.interpret(t, 0);
+                    float[] right = (float[])currentRightCart.interpret(t, 0);
                     assert right != null : "Null frequency";
                     assert right.length == 2 : "Unexpected frequency length: "+right.length;
                     float rightF0InHz = right[1];

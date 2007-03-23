@@ -50,6 +50,7 @@ import de.dfki.lt.mary.modules.InternalModule;
 import de.dfki.lt.mary.modules.synthesis.FreeTTSVoices;
 import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.unitselection.Target;
+import de.dfki.lt.mary.unitselection.UnitSelectionVoice;
 import de.dfki.lt.mary.unitselection.cart.CART;
 import de.dfki.lt.mary.unitselection.cart.RegressionTree;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
@@ -94,13 +95,21 @@ public class CARTDurationModeller extends InternalModule
         while (it.hasNext()) {
             Utterance utterance = (Utterance) it.next();
             Voice maryVoice = FreeTTSVoices.getMaryVoice(utterance.getVoice());
+            CART currentCart = cart;
+            if (maryVoice instanceof UnitSelectionVoice) {
+                CART voiceCart = ((UnitSelectionVoice)maryVoice).getDurationTree();
+                if (voiceCart != null) {
+                    currentCart  = voiceCart;
+                    logger.debug("Using voice cart");
+                }
+            }
             Relation segs = utterance.getRelation(Relation.SEGMENT);
             float end = 0; // end time of segment, in seconds
             for (Item s = segs.getHead(); s != null; s = s.getNext()) {
                 String segName = s.getFeatures().getString("name");
                 Target t = new Target(segName, s);
                 t.setFeatureVector(featureComputer.computeFeatureVector(t));
-                float[] dur = (float[])cart.interpret(t, 0);
+                float[] dur = (float[])currentCart.interpret(t, 0);
                 assert dur != null : "Null duration";
                 assert dur.length == 2 : "Unexpected duration length: "+dur.length;
                 float durInSeconds = dur[1];
@@ -109,7 +118,7 @@ public class CARTDurationModeller extends InternalModule
                 int durInMillis = (int) (1000 * durInSeconds);
                 s.getFeatures().setFloat("end", end);
                 s.getFeatures().setInt("mbr_dur", durInMillis);
-                System.out.println("Duration predicted: ["+segName+"] "+durInSeconds);
+                //System.out.println("Duration predicted: ["+segName+"] "+durInSeconds);
             }
         }
         MaryData output = new MaryData(outputType());
