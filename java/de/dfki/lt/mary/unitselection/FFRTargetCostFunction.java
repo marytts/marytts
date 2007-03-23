@@ -45,18 +45,14 @@ import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunc;
 import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunctionManager;
 import de.dfki.lt.signalproc.display.Histogram;
 
-public class FFRTargetCostFunction implements AcousticTargetCostFunction 
+public class FFRTargetCostFunction implements TargetCostFunction 
 {
     protected WeightFunc[] weightFunction;
     protected TargetFeatureComputer targetFeatureComputer;
     protected FeatureVector[] featureVectors;
     protected FeatureDefinition featureDefinition;
+    protected boolean[] weightsNonZero;
 
-    // acoustic stuff:
-    protected int unitSampleRate;
-    protected TimelineReader audioTimeline;
-    protected double acousticCostWeight;
-    
     protected boolean debugShowCostGraph = false;
     protected double[] cumulWeightedCosts = null;
     protected int nCostComputations = 0;
@@ -66,19 +62,7 @@ public class FFRTargetCostFunction implements AcousticTargetCostFunction
     {
     }
 
-    public void setAcousticCostWeight(double weight)
-    {
-        this.acousticCostWeight = weight;
-    }
-    
-    public void setUnitSampleRate(int sampleRate) {
-        this.unitSampleRate = sampleRate;
-    }
-    
-    public void setAudioTimeline(TimelineReader audio) {
-        this.audioTimeline = audio;
-    }
-    
+
     /**
      * Compute the goodness-of-fit of a given unit for a given target.
      * @param target 
@@ -87,10 +71,7 @@ public class FFRTargetCostFunction implements AcousticTargetCostFunction
      */
     public double cost(Target target, Unit unit)
     {
-        double cost = 0;
-        if (acousticCostWeight < 1.0) cost += (1-acousticCostWeight) * cost(target, unit, featureDefinition, weightFunction);
-        if (acousticCostWeight > 0) cost += acousticCostWeight * acousticCost(target, unit);
-        return cost;
+        return cost(target, unit, featureDefinition, weightFunction);
     }
     
     
@@ -110,60 +91,38 @@ public class FFRTargetCostFunction implements AcousticTargetCostFunction
         double cost = 0;
         // byte-valued features:
         for (int i=0; i<nBytes; i++) {
-            float weight = weights.getWeight(i);
-            if (targetFeatures.getByteFeature(i) != unitFeatures.getByteFeature(i)) {
-                cost += weight;
-                if (debugShowCostGraph) cumulWeightedCosts[i] += (1-acousticCostWeight)*weight;
+            if (weightsNonZero[i]) {
+                float weight = weights.getWeight(i);
+                if (targetFeatures.getByteFeature(i) != unitFeatures.getByteFeature(i)) {
+                    cost += weight;
+                    if (debugShowCostGraph) cumulWeightedCosts[i] += weight;
+                }
             }
-
         }
         // short-valued features:
         for (int i=nBytes, n=nBytes+nShorts; i<n; i++) {
-            float weight = weights.getWeight(i);
-            if (targetFeatures.getShortFeature(i) != unitFeatures.getShortFeature(i)) {
-                cost += weight;
-                if (debugShowCostGraph) cumulWeightedCosts[i] += (1-acousticCostWeight)*weight;
+            if (weightsNonZero[i]) {
+                float weight = weights.getWeight(i);
+                if (targetFeatures.getShortFeature(i) != unitFeatures.getShortFeature(i)) {
+                    cost += weight;
+                    if (debugShowCostGraph) cumulWeightedCosts[i] += weight;
+                }
             }
         }
         // continuous features:
         for (int i=nBytes+nShorts, n=nBytes+nShorts+nFloats; i<n; i++) {
-            float weight = weights.getWeight(i);
-            float a = targetFeatures.getContinuousFeature(i);
-            float b = unitFeatures.getContinuousFeature(i);
-            double myCost = weightFunctions[i-nBytes-nShorts].cost(a, b); 
-            cost += weight * myCost;
-            if (debugShowCostGraph) {
-                cumulWeightedCosts[i] += (1-acousticCostWeight)*weight * myCost;
+            if (weightsNonZero[i]) {
+                float weight = weights.getWeight(i);
+                float a = targetFeatures.getContinuousFeature(i);
+                float b = unitFeatures.getContinuousFeature(i);
+                double myCost = weightFunctions[i-nBytes-nShorts].cost(a, b); 
+                cost += weight * myCost;
+                if (debugShowCostGraph) {
+                    cumulWeightedCosts[i] += weight * myCost;
+                }
             }
         }
         return cost;
-    }
-    
-    protected double acousticCost(Target target, Unit unit)
-    {
-        double logTargetF0 = Math.log(target.getTargetF0InHz());
-        double targetDur = target.getTargetDurationInSeconds();
-        double unitDur = unit.getDuration() / (float) unitSampleRate;
-        double logUnitF0;
-        try {
-            Datagram[] unitAudio = audioTimeline.getDatagrams(unit, unitSampleRate);
-            double avgPeriodLength = unitDur / unitAudio.length;
-            logUnitF0 = Math.log(1 / avgPeriodLength);
-        } catch (IOException e) {
-            throw new RuntimeException("Cannot access unit audio", e);
-        }
-        double weightF0 = 0.1;
-        double weightDur = 1 - weightF0;
-        double f0Cost = weightF0 * Math.abs(logTargetF0 - logUnitF0);
-        if (Double.isNaN(f0Cost)) f0Cost = 0;
-        double durCost = weightDur * Math.abs(targetDur - unitDur);
-        if (debugShowCostGraph) {
-            cumulWeightedCosts[cumulWeightedCosts.length-2] += acousticCostWeight*f0Cost;
-            cumulWeightedCosts[cumulWeightedCosts.length-1] += acousticCostWeight*durCost;
-        }
-        //System.out.println("Cost f0: "+f0Cost + "   dur: "+durCost);
-        return f0Cost + durCost;
-        
     }
     
     /**
@@ -208,9 +167,15 @@ public class FFRTargetCostFunction implements AcousticTargetCostFunction
         }
         // TODO: If the target feature computer had direct access to the feature definition, it could do some consistency checking
         this.targetFeatureComputer = new TargetFeatureComputer(featProc, featureDefinition.getFeatureNames());
+        // remember which weights are non-zero
+        weightsNonZero = new boolean[featureDefinition.getNumberOfFeatures()];
+        for (int i=0, n=featureDefinition.getNumberOfFeatures(); i<n; i++) {
+            weightsNonZero[i] = (featureDefinition.getWeight(i) > 0);
+        }
+
         if (MaryProperties.getBoolean("debug.show.cost.graph")) {
             debugShowCostGraph = true;
-            cumulWeightedCosts = new double[featureDefinition.getNumberOfFeatures()+2]; // TODO: clean up: +2 = f0 and dur
+            cumulWeightedCosts = new double[featureDefinition.getNumberOfFeatures()];
             TargetCostReporter tcr2 = new TargetCostReporter(cumulWeightedCosts);
             tcr2.showInJFrame("Average weighted target costs", false, false);
             tcr2.start();

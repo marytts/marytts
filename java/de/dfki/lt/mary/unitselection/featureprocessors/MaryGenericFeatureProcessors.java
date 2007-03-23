@@ -38,6 +38,7 @@ import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.ProcessException;
 import com.sun.speech.freetts.Relation;
 
+import de.dfki.lt.mary.unitselection.DiphoneTarget;
 import de.dfki.lt.mary.unitselection.HalfPhoneTarget;
 import de.dfki.lt.mary.unitselection.Target;
 import de.dfki.lt.mary.util.ByteStringTranslator;
@@ -2505,23 +2506,22 @@ public class MaryGenericFeatureProcessors
     }
 
     
-    
-    ////////////////////////////////////////////////////////
-    // TODO: Remove or convert old feature processors below.
-    ////////////////////////////////////////////////////////
-
     /**
      * Returns the duration of the given segment This is a feature processor. A
      * feature processor takes an item, performs some sort of processing on the
      * item and returns an object.
      */
-    public static class SegmentDuration implements ContinuousFeatureProcessor
+    public static class UnitDuration implements ContinuousFeatureProcessor
     {
-        public String getName() { return "segment_duration"; }
+        public String getName() { return "mary_unit_duration"; }
         public String[] getValues() { return null; }
 
         public float process(Target target)
         {
+            if (target instanceof DiphoneTarget) {
+                DiphoneTarget diphone = (DiphoneTarget) target;
+                return process(diphone.getLeft()) + process(diphone.getRight());
+            }
             Item seg = target.getItem();
             if (seg == null) {
                 return 0;
@@ -2536,8 +2536,11 @@ public class MaryGenericFeatureProcessors
             if (!prev.getFeatures().isPresent("end")) {
                 throw new IllegalStateException("Item "+prev+" does not have an 'end' feature");
             }
-            return seg.getFeatures().getFloat("end")
+            float phoneDuration = seg.getFeatures().getFloat("end")
                 - seg.getPrevious().getFeatures().getFloat("end");
+            if (target instanceof HalfPhoneTarget)
+                return phoneDuration / 2;
+            return phoneDuration;
         }
     }
 
@@ -2547,25 +2550,41 @@ public class MaryGenericFeatureProcessors
      * Calculates the pitch of a segment This processor should be used by target
      * items only
      */
-    public static class Seg_Pitch implements ContinuousFeatureProcessor
+    public static class UnitLogF0 implements ContinuousFeatureProcessor
     {
-        public String getName() { return "seg_pitch"; }
+        public String getName() { return "mary_unit_logf0"; }
         public String[] getValues() { return null; }
 
         public float process(Target target)
         {
+            if (target instanceof DiphoneTarget) {
+                DiphoneTarget diphone = (DiphoneTarget) target;
+                return (process(diphone.getLeft()) + process(diphone.getRight())) / 2;
+            }
+
             Item seg = target.getItem();
             // System.out.println("Looking for pitch...");
             // get mid position of segment
             float mid;
             float end = seg.getFeatures().getFloat("end");
             Item prev = seg.getPrevious();
+            float prev_end;
             if (prev == null) {
-                mid = end / 2;
+                prev_end = 0;
             } else {
-                float prev_end = prev.getFeatures().getFloat("end");
-                mid = prev_end + (end - prev_end) / 2;
+                prev_end = prev.getFeatures().getFloat("end");
             }
+            mid = prev_end + (end - prev_end) / 2;
+            if (target instanceof HalfPhoneTarget) {
+                float mymid;
+                if (((HalfPhoneTarget)target).isLeftHalf()) {
+                    mymid = prev_end + (mid - prev_end) / 2;
+                } else {
+                    mymid = mid + (end - mid) / 2;
+                }
+                mid = mymid;
+            }
+            // Now mid is the middle of the unit
             Relation targetRelation = seg.getUtterance().getRelation("Target");
             // if segment has no target relation, you can not calculate
             // the segment pitch
@@ -2591,16 +2610,17 @@ public class MaryGenericFeatureProcessors
             // build a linear function (f(x) = slope*x+intersectionYAxis)
             float slope = (nextF0 - lastF0) / (nextPos - lastPos);
             // calculate the pitch
-            float pitch = lastF0 + slope * (mid - lastPos);
-            if (!(lastF0 <= pitch && pitch <= nextF0 || nextF0 <= pitch
-                    && pitch <= lastF0)) {
+            float f0 = lastF0 + slope * (mid - lastPos);
+            if (!(lastF0 <= f0 && f0 <= nextF0 || nextF0 <= f0
+                    && f0 <= lastF0)) {
                 throw new NullPointerException();
             }
 
-            if (Float.isNaN(pitch)) {
-                pitch = (float) 0.0;
+            if (Float.isNaN(f0)) {
+                f0 = (float) 0.0;
             }
-            return pitch;
+            if (f0 == 0) return 0;
+            return (float) Math.log(f0);
         }
     }
     

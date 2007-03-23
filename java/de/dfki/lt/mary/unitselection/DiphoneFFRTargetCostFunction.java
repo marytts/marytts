@@ -41,9 +41,9 @@ import de.dfki.lt.mary.unitselection.featureprocessors.TargetFeatureComputer;
 import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunc;
 import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunctionManager;
 
-public class DiphoneFFRTargetCostFunction implements AcousticTargetCostFunction 
+public class DiphoneFFRTargetCostFunction implements TargetCostFunction 
 {
-    protected AcousticTargetCostFunction tcfForHalfphones;
+    protected TargetCostFunction tcfForHalfphones;
     
     public DiphoneFFRTargetCostFunction()
     {
@@ -143,19 +143,5 @@ public class DiphoneFFRTargetCostFunction implements AcousticTargetCostFunction
     }
     
     
-    public void setUnitSampleRate(int sampleRate)
-    {
-        tcfForHalfphones.setUnitSampleRate(sampleRate);
-    }
-    
-    public void setAudioTimeline(TimelineReader audioTimeline) 
-    {
-        tcfForHalfphones.setAudioTimeline(audioTimeline);
-    }
-    
-    public void setAcousticCostWeight(double weight)
-    {
-        tcfForHalfphones.setAcousticCostWeight(weight);
-    }
     
 }
