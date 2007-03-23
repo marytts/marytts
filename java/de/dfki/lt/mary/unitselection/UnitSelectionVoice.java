@@ -44,6 +44,7 @@ import com.sun.speech.freetts.lexicon.Lexicon;
 import de.dfki.lt.freetts.ClusterUnitNamer;
 import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.modules.synthesis.WaveformSynthesizer;
+import de.dfki.lt.mary.unitselection.cart.CART;
 
 /**
  * A Unit Selection Voice
@@ -58,6 +59,8 @@ public class UnitSelectionVoice extends Voice {
     protected String domain;
     protected String name;
     protected ClusterUnitNamer unitNamer;
+    protected CART durationCart;
+    protected CART[] f0Carts;
     protected String exampleText;
     
     
@@ -87,7 +90,7 @@ public class UnitSelectionVoice extends Voice {
             AudioFormat dbAudioFormat, WaveformSynthesizer synthesizer, 
             Gender gender, int topStart, int topEnd, int baseStart, int baseEnd, 
             String[] knownVoiceQualities, Lexicon lexicon, String domain,
-            String exampleTextFile)
+            String exampleTextFile, CART durationCart, CART[] f0Carts)
     {
         super(path, nameArray, locale, dbAudioFormat, synthesizer, gender, topStart, topEnd, baseStart, baseEnd, knownVoiceQualities, null);
         this.database = database; 
@@ -98,6 +101,8 @@ public class UnitSelectionVoice extends Voice {
         this.name = nameArray[0];
         if (exampleTextFile != null)
             readExampleText(exampleTextFile);
+        this.durationCart = durationCart;
+        this.f0Carts = f0Carts;
     }
     
     /**
@@ -172,5 +177,15 @@ public class UnitSelectionVoice extends Voice {
             e.printStackTrace();
             throw new Error("Can not read in example text for voice "+name);
         }
+    }
+    
+    public CART getDurationTree()
+    {
+        return durationCart;
+    }
+    
+    public CART[] getF0Trees()
+    {
+        return f0Carts;
     }
 }
