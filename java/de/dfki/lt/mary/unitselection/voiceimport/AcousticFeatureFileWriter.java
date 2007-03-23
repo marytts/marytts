@@ -90,7 +90,7 @@ public class AcousticFeatureFileWriter implements VoiceImportComponent
         inFeatureDefinition.writeTo(pw, true);
         // And now, append the two float features for duration and f0:
         pw.println("0 linear | mary_unit_duration");
-        pw.println("0 linear | mary_unit_f0");
+        pw.println("0 linear | mary_unit_logf0");
         pw.close();
         String fd = sw.toString();
         System.out.println("Generated the following feature definition:");
@@ -137,10 +137,17 @@ public class AcousticFeatureFileWriter implements VoiceImportComponent
             Unit u = unitFileReader.getUnit(i);
             float dur = u.getDuration() / (float) unitSampleRate;
             Datagram[] unitAudio = timeline.getDatagrams(u, unitSampleRate);
-            double avgPeriodLength = dur / unitAudio.length;
-            float logF0 = (float) Math.log(1 / avgPeriodLength);
+            float logF0;
+            if (unitAudio.length == 0 || dur < 0.005) {
+                logF0 = 0;
+            } else {
+                double avgPeriodLength = dur / unitAudio.length;
+                logF0 = (float) Math.log(1 / avgPeriodLength);
+                assert !Float.isNaN(logF0);
+                assert !Float.isInfinite(logF0);
+            }
             String line = inFV.toString() + " " + dur + " " + logF0;
-            System.out.println("fv: "+line);
+            //System.out.println("fv: "+line);
             FeatureVector outFV = outFeatureDefinition.toFeatureVector(0, line);
             outFV.writeTo(out);
         }
