@@ -69,7 +69,7 @@ public class CARTBuilder implements VoiceImportComponent {
          long time = System.currentTimeMillis();
          //read in the features with feature file indexer
          System.out.println("Reading feature file ...");
-         String featureFile = databaseLayout.targetFeaturesFileName();
+         String featureFile = databaseLayout.unitFeaturesWithAcousticFeaturesFileName();
          FeatureFileReader ffr = FeatureFileReader.getFeatureFileReader(featureFile);
          FeatureVector[] featureVectorsCopy = ffr.getCopyOfFeatureVectors();
          FeatureDefinition featureDefinition = ffr.getFeatureDefinition(); 
@@ -545,9 +545,18 @@ public class CARTBuilder implements VoiceImportComponent {
                         dist[i][j] = dist[j][i] = 100000; // a large number
                     }
                 } else {
-                    dist[i][j] = dist[j][i] = dtwDist( melCep[i], melCep[j], sigma2 );
+                    //dist[i][j] = dist[j][i] = dtwDist( melCep[i], melCep[j], sigma2 );
                     //System.out.println("Using Mahalanobis distance\n"+
                       //      			"Distance is "+dist[i][j]);
+                    
+                    double f0Weight = 100; // ad hoc value
+                    double durWeight = 1000; // ad hoc value
+
+                    double spectralDist = stretchDist(melCep[i], melCep[j], sigma2);
+                    double f0Dist = f0Weight * f0Dist(featureVectors[i], featureVectors[j], featDef);
+                    double durDist = durWeight * durDist(featureVectors[i], featureVectors[j], featDef);
+                    System.out.println("Spectral distance: "+spectralDist+" -- F0 distance: "+f0Dist+" -- Duration distance: "+durDist);
+                    dist[i][j] = dist[j][i] = spectralDist + f0Dist + durDist;
                 }
             }
         }
@@ -565,6 +574,50 @@ public class CARTBuilder implements VoiceImportComponent {
         
     }
     
+    
+    private double f0Dist(FeatureVector fv1, FeatureVector fv2, FeatureDefinition fd)
+    {
+        int iLogF0 = fd.getFeatureIndex("mary_unit_logf0");
+        float logf0_1 = fv1.getContinuousFeature(iLogF0);
+        float logF0_2 = fv2.getContinuousFeature(iLogF0);
+        return Math.abs(logf0_1-logF0_2);
+    }
+
+    private double durDist(FeatureVector fv1, FeatureVector fv2, FeatureDefinition fd)
+    {
+        int iLogF0 = fd.getFeatureIndex("mary_unit_duration");
+        float logf0_1 = fv1.getContinuousFeature(iLogF0);
+        float logF0_2 = fv2.getContinuousFeature(iLogF0);
+        return Math.abs(logf0_1-logF0_2);
+    }
+
+    /**
+     * Computes an average Mahalanobis distance along the simple time-stretched
+     * correspondence between two frame sequences.
+     * @param seq1 a frame sequence
+     * @param seq2 another frame sequence
+     * @param sigma2 the variance of the vectors
+     * @return the average Mahalanobis distance between the two frame sequences
+     */
+    private double stretchDist(double[][] seq1, double[][] seq2, double[] sigma2)
+    {
+        double[][] shorter;
+        double[][] longer;
+        if (seq1.length < seq2.length) {
+            shorter = seq1;
+            longer = seq2;
+        } else {
+            shorter = seq2;
+            longer = seq1;
+        }
+        float lengthFactor = shorter.length / (float) longer.length;
+        double totalDist = 0;
+        for (int i=0; i<longer.length; i++) {
+            int iShorter = (int)(lengthFactor*i);
+            totalDist += mahalanobis(longer[i], shorter[iShorter], sigma2);
+        }
+        return totalDist / longer.length;
+    }
     
     /**
      * Computes an average Mahalanobis distance along the optimal DTW path
