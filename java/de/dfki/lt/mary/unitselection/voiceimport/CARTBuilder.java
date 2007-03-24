@@ -555,7 +555,7 @@ public class CARTBuilder implements VoiceImportComponent {
                     double spectralDist = stretchDist(melCep[i], melCep[j], sigma2);
                     double f0Dist = f0Weight * f0Dist(featureVectors[i], featureVectors[j], featDef);
                     double durDist = durWeight * durDist(featureVectors[i], featureVectors[j], featDef);
-                    System.out.println("Spectral distance: "+spectralDist+" -- F0 distance: "+f0Dist+" -- Duration distance: "+durDist);
+                    //System.out.println("Spectral distance: "+spectralDist+" -- F0 distance: "+f0Dist+" -- Duration distance: "+durDist);
                     dist[i][j] = dist[j][i] = spectralDist + f0Dist + durDist;
                 }
             }
