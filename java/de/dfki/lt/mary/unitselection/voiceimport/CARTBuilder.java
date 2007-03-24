@@ -333,7 +333,7 @@ public class CARTBuilder implements VoiceImportComponent {
             System.out.println("Will run "+numProcesses+" wagon processes in parallel");
             WagonCallerThread[] wagons = new WagonCallerThread[numProcesses];
             
-            int stop = 10; // do not want leaves smaller than this
+            int stop = 50; // do not want leaves smaller than this
             List leaves = new ArrayList();
             for (LeafNode leaf = cart.getFirstLeafNode(); leaf != null; leaf = leaf.getNextLeafNode()) {
                 leaves.add(leaf);
@@ -619,7 +619,10 @@ public class CARTBuilder implements VoiceImportComponent {
         double totalDist = 0;
         for (int i=0; i<longer.length; i++) {
             int iShorter = (int)(lengthFactor*i);
-            totalDist += mahalanobis(longer[i], shorter[iShorter], sigma2);
+            double dist = mahalanobis(longer[i], shorter[iShorter], sigma2);
+            if (Double.isInfinite(dist) || Double.isNaN(dist))
+                dist = 100000; // a large number
+            totalDist += dist;
         }
         return totalDist / longer.length;
     }
