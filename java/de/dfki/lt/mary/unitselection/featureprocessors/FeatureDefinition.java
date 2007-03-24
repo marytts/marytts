@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import de.dfki.lt.mary.util.ByteStringTranslator;
 import de.dfki.lt.mary.util.IntStringTranslator;
@@ -974,11 +975,27 @@ public class FeatureDefinition
      */
     public void generateAllDotDescForWagon(PrintWriter out)
     {
+        generateAllDotDescForWagon(out, null);
+    }
+    
+    /**
+     * Export this feature definition in the "all.desc" format which can be
+     * read by wagon.
+     * @param out the destination of the data
+     * @param featuresToIgnore a set of Strings containing the names of features that 
+     * wagon should ignore. Can be null.
+     */
+    public void generateAllDotDescForWagon(PrintWriter out, Set featuresToIgnore)
+    {
         out.println("(");
         out.println("(occurid cluster)");
         for (int i=0, n=getNumberOfFeatures(); i<n; i++) {            
             out.print("( ");
-            out.print(getFeatureName(i));
+            String featureName = getFeatureName(i);
+            out.print(featureName);
+            if (featuresToIgnore != null && featuresToIgnore.contains(featureName)) {
+                out.print(" ignore");
+            }
             if (i<numByteFeatures+numShortFeatures) { // list values
                     for (int v=0, vmax=getNumberOfValues(i); v<vmax; v++) {
                         out.print("  ");

@@ -31,8 +31,10 @@ package de.dfki.lt.mary.unitselection.voiceimport;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import de.dfki.lt.mary.unitselection.FeatureFileIndexer;
 import de.dfki.lt.mary.unitselection.MaryNode;
@@ -321,7 +323,10 @@ public class CARTBuilder implements VoiceImportComponent {
             PrintWriter out = new PrintWriter(new 
                 			FileOutputStream(new 
                 			        File(featureDefFile)));
-            featureDefinition.generateAllDotDescForWagon(out);
+            Set featuresToIgnore = new HashSet();
+            featuresToIgnore.add("mary_unit_logf0");
+            featuresToIgnore.add("mary_unit_duration");
+            featureDefinition.generateAllDotDescForWagon(out, featuresToIgnore);
             out.close();
 
             int numProcesses = Integer.getInteger("wagon.numProcesses", 1).intValue();
@@ -524,7 +529,7 @@ public class CARTBuilder implements VoiceImportComponent {
             val = sum[k];
             sigma2[k] = ( sumSq[k] - (val*val)/N ) / N;
         }
-        System.out.println("Read MFCCs, now computing distances");
+        //System.out.println("Read MFCCs, now computing distances");
         /* Compute the unit distance matrix */
         double[][] dist = new double[numUnits][numUnits];
         for ( int i = 0; i < numUnits; i++ ) {
@@ -561,7 +566,7 @@ public class CARTBuilder implements VoiceImportComponent {
             }
         }
         /* Write the matrix to disk */
-        System.out.println( "Writing distance matrix to file [" + filename + "]");
+        //System.out.println( "Writing distance matrix to file [" + filename + "]");
         PrintWriter out = new PrintWriter(new BufferedOutputStream(new FileOutputStream(filename)));
         for ( int i = 0; i < numUnits; i++ ) {
             for ( int j = 0; j < numUnits; j++ ) {
