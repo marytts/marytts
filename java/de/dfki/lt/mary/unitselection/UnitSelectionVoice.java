@@ -45,6 +45,7 @@ import de.dfki.lt.freetts.ClusterUnitNamer;
 import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.modules.synthesis.WaveformSynthesizer;
 import de.dfki.lt.mary.unitselection.cart.CART;
+import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 
 /**
  * A Unit Selection Voice
@@ -62,6 +63,8 @@ public class UnitSelectionVoice extends Voice {
     protected CART durationCart;
     protected CART[] f0Carts;
     protected String exampleText;
+    protected FeatureDefinition durationCartFeatDef;
+    protected FeatureDefinition f0CartsFeatDef;
     
     
     /**
@@ -90,7 +93,8 @@ public class UnitSelectionVoice extends Voice {
             AudioFormat dbAudioFormat, WaveformSynthesizer synthesizer, 
             Gender gender, int topStart, int topEnd, int baseStart, int baseEnd, 
             String[] knownVoiceQualities, Lexicon lexicon, String domain,
-            String exampleTextFile, CART durationCart, CART[] f0Carts)
+            String exampleTextFile, CART durationCart, CART[] f0Carts,
+            FeatureDefinition durationCartFeatDef, FeatureDefinition f0CartsFeatDef)
     {
         super(path, nameArray, locale, dbAudioFormat, synthesizer, gender, topStart, topEnd, baseStart, baseEnd, knownVoiceQualities, null);
         this.database = database; 
@@ -103,6 +107,8 @@ public class UnitSelectionVoice extends Voice {
             readExampleText(exampleTextFile);
         this.durationCart = durationCart;
         this.f0Carts = f0Carts;
+        this.durationCartFeatDef = durationCartFeatDef;
+        this.f0CartsFeatDef = f0CartsFeatDef;
     }
     
     /**
@@ -188,4 +194,15 @@ public class UnitSelectionVoice extends Voice {
     {
         return f0Carts;
     }
+    
+    public FeatureDefinition getDurationCartFeatDef()
+    {
+        return durationCartFeatDef;
+    }
+    
+    public FeatureDefinition getF0CartsFeatDef()
+    {
+        return f0CartsFeatDef;
+    }
+    
 }
