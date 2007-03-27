@@ -2506,6 +2506,80 @@ public class MaryGenericFeatureProcessors
     }
 
     
+
+    /**
+     * Determine the prosodic property of a target
+     * 
+     * @author Anna Hunecke
+     *
+     */
+    public static class Selection_Prosody implements ByteValuedFeatureProcessor {
+        
+        protected TargetItemNavigator navigator;
+        
+        public Selection_Prosody ( TargetItemNavigator syllableNavigator){
+            this.navigator = syllableNavigator;
+        }
+        public String getName() { return "mary_selection_prosody"; }
+        
+        public String[] getValues() {
+            return new String[] {"0", "stressed", "pre-nuclear", "nuclear", 
+                    "finalHigh", "finalLow"};
+        }
+        
+        /**
+         * Determine the prosodic property of the target
+         * 
+         *@param target the target
+         *@return 0 - unstressed, 1 - stressed, 2 - pre-nuclear accent
+         *		3 - nuclear accent, 4 - phrase final high, 5 - phrase final low
+         */
+        public byte process(Target target){
+            //first find out if syllable is stressed
+            Item syllable = navigator.getItem(target);
+            if (syllable == null) return 0;
+            String value = syllable.getFeatures().getString("stress");
+            if (value == null) return 0;
+            boolean stressed = false;
+            if (Byte.parseByte(value) != 0)
+                stressed = true;
+            if (stressed){
+                //find out if we have an accent    
+                String accent = syllable.getFeatures().getString("accent");
+                if (accent == null)                
+                    return 1; //no accent, return stressed
+                //find out the position of the target
+                AccentedSylsFromPhraseEnd as = new AccentedSylsFromPhraseEnd();
+                byte accSyls = as.process(target);
+                if (accSyls == 0)
+                    return 3;//return nuclear accent
+                //else just a normal accent
+                return 2;//return pre-nuclear accent
+            }  
+            //ToBI endtones:"0", "H-", "!H-", "L-", "H-%", "!H-%", "H-^H%",
+            //              "!H-^H%", "L-H%", "L-%", "L-L%", "H-H%", "H-L%"
+            LastSyllableNavigator lastSylNavi = new LastSyllableNavigator();
+            syllable = lastSylNavi.getItem(target);
+            if (syllable == null) return 0;
+            String endtone = syllable.getFeatures().getString("endtone");
+            if (endtone == null || endtone.equals("")) 
+                return 0;//return unstressed
+            if (endtone.startsWith("H"))
+                return 4; //return phrase final high
+            if (endtone.startsWith("L"))
+                return 5; //return phrase final low
+            //else tone started with !
+            //TODO: ask Marc what to do with that
+            return 0;
+        }
+    }
+    
+    
+    ////////////////////////////////////////////////////////
+    // TODO: Remove or convert old feature processors below.
+    ////////////////////////////////////////////////////////
+
+
     /**
      * Returns the duration of the given segment This is a feature processor. A
      * feature processor takes an item, performs some sort of processing on the
@@ -2527,14 +2601,18 @@ public class MaryGenericFeatureProcessors
                 return 0;
             } 
             if (!seg.getFeatures().isPresent("end")) {
-                throw new IllegalStateException("Item '"+seg+"' does not have an 'end' feature");
+                //System.out.println("Item "+seg+" does not have an 'end' feature");
+                return 0;
+                //throw new IllegalStateException("Item '"+seg+"' does not have an 'end' feature");
             }
             Item prev = seg.getPrevious();
             if (prev == null) {
                 return seg.getFeatures().getFloat("end");
             }
             if (!prev.getFeatures().isPresent("end")) {
-                throw new IllegalStateException("Item "+prev+" does not have an 'end' feature");
+                //System.out.println("prev Item "+prev+" does not have an 'end' feature");
+                return 0;
+                //throw new IllegalStateException("Item "+prev+" does not have an 'end' feature");
             }
             float phoneDuration = seg.getFeatures().getFloat("end")
                 - seg.getPrevious().getFeatures().getFloat("end");
@@ -2566,12 +2644,20 @@ public class MaryGenericFeatureProcessors
             // System.out.println("Looking for pitch...");
             // get mid position of segment
             float mid;
+            if (!seg.getFeatures().isPresent("end")) {
+                //System.out.println("Item "+seg+" does not have an 'end' feature");
+                return 0;
+                //throw new IllegalStateException("Item '"+seg+"' does not have an 'end' feature");
+            }           
             float end = seg.getFeatures().getFloat("end");
             Item prev = seg.getPrevious();
             float prev_end;
-            if (prev == null) {
+            if (prev == null){
                 prev_end = 0;
             } else {
+                if (!prev.getFeatures().isPresent("end")){
+                    return 0;
+                }
                 prev_end = prev.getFeatures().getFloat("end");
             }
             mid = prev_end + (end - prev_end) / 2;
@@ -2623,6 +2709,8 @@ public class MaryGenericFeatureProcessors
             return (float) Math.log(f0);
         }
     }
+    
+    
     
     
 }

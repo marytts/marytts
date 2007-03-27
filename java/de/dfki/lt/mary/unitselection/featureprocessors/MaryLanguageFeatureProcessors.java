@@ -436,7 +436,55 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
     
     
     
-    
+    /**
+     * The phone class for the given target.
+     * @author Anna Hunecke
+     *
+     */
+    public static class Selection_PhoneClass implements ByteValuedFeatureProcessor
+    {
+        protected String name;
+        protected Map phones2Classes;
+        protected ByteStringTranslator values;
+        protected TargetItemNavigator navigator;
+        /**
+         * Initialise the feature processor. 
+         * @param phones2Classes the mapping of phones to their classes
+         * @param classes the available phone classes
+         * @param segmentNavigator a navigator returning a segment with respect to the target.
+         */
+        public Selection_PhoneClass(Map phones2Classes, String[] classes, TargetItemNavigator segmentNavigator)
+        {
+            this.name = "mary_selection_next_phone_class";
+            this.phones2Classes = phones2Classes;
+            this.values = new ByteStringTranslator(classes);
+            this.navigator = segmentNavigator;
+        }
+        
+        public String getName() { 
+            return name; 
+        }
+        
+        public String[] getValues() { 
+            return values.getStringValues(); 
+        }
+        
+        /**
+         * Give back the phone class of the target
+         * 
+         *@param target
+         *@return the phone class of the target
+         */
+        public byte process(Target target){
+            Item segment = navigator.getItem(target);
+            if (segment == null) return values.get("0");
+            String value = segment.getFeatures().getString("name");
+            if (value == null) return values.get("0");
+            String sampa = FreeTTSVoices.getMaryVoice(segment.getUtterance().getVoice()).voice2sampa(value);
+            String phoneClass = (String) phones2Classes.get(sampa); 
+            return values.get(phoneClass);
+        }
+    }
     
     
     
@@ -890,5 +938,7 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
             return (byte)0; // unknown word
         }
     }
+    
+    
 
 }

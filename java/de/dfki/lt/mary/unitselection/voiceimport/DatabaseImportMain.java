@@ -349,7 +349,11 @@ public class DatabaseImportMain extends JFrame
                 new DurationCARTTrainer(db, bnl),
                 new F0CARTTrainer(db, bnl)
         };
-        DatabaseImportMain importer = new DatabaseImportMain("Database import", components, db, bnl);
+        
+        String voicename = new File(".").getCanonicalPath();
+        voicename = voicename.substring(voicename.lastIndexOf('/')+1);
+        
+        DatabaseImportMain importer = new DatabaseImportMain("Database import: "+voicename, components, db, bnl);
         importer.pack();
         // Center window on screen:
         importer.setLocationRelativeTo(null); 

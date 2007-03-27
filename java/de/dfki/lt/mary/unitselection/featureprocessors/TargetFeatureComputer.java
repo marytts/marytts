@@ -258,7 +258,7 @@ public class TargetFeatureComputer
     {
         StringBuffer buf = new StringBuffer();
         for (int i=0; i < continuousFeatureProcessors.length; i++) {
-            buf.append(byteValuedDiscreteFeatureProcessors[i].getName());
+            buf.append(continuousFeatureProcessors[i].getName());
             buf.append(" float\n");
         }
         return buf.toString();
