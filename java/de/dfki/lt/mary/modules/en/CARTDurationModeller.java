@@ -96,11 +96,19 @@ public class CARTDurationModeller extends InternalModule
             Utterance utterance = (Utterance) it.next();
             Voice maryVoice = FreeTTSVoices.getMaryVoice(utterance.getVoice());
             CART currentCart = cart;
+            TargetFeatureComputer currentFeatureComputer = featureComputer;
             if (maryVoice instanceof UnitSelectionVoice) {
                 CART voiceCart = ((UnitSelectionVoice)maryVoice).getDurationTree();
                 if (voiceCart != null) {
                     currentCart  = voiceCart;
                     logger.debug("Using voice cart");
+                }
+                FeatureDefinition voiceFeatDef = 
+                    ((UnitSelectionVoice)maryVoice).getDurationCartFeatDef();
+                if (voiceFeatDef != null){
+                    currentFeatureComputer = 
+                        new TargetFeatureComputer(new FeatureProcessorManager(), voiceFeatDef.getFeatureNames());
+                    logger.debug("Using voice feature definition");
                 }
             }
             Relation segs = utterance.getRelation(Relation.SEGMENT);
@@ -108,7 +116,7 @@ public class CARTDurationModeller extends InternalModule
             for (Item s = segs.getHead(); s != null; s = s.getNext()) {
                 String segName = s.getFeatures().getString("name");
                 Target t = new Target(segName, s);
-                t.setFeatureVector(featureComputer.computeFeatureVector(t));
+                t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));
                 float[] dur = (float[])currentCart.interpret(t, 0);
                 assert dur != null : "Null duration";
                 assert dur.length == 2 : "Unexpected duration length: "+dur.length;

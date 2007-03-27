@@ -104,6 +104,7 @@ public class CARTF0Modeller extends InternalModule
             CART currentLeftCart  = leftCart;
             CART currentMidCart   = midCart;
             CART currentRightCart = rightCart;
+            TargetFeatureComputer currentFeatureComputer = featureComputer;
             if (maryVoice instanceof UnitSelectionVoice) {
                 CART[] voiceTrees = ((UnitSelectionVoice)maryVoice).getF0Trees();
                 if (voiceTrees != null) {
@@ -111,6 +112,13 @@ public class CARTF0Modeller extends InternalModule
                     currentMidCart   = voiceTrees[1];
                     currentRightCart = voiceTrees[2];
                     logger.debug("Using voice carts");
+                }
+                FeatureDefinition voiceFeatDef = 
+                    ((UnitSelectionVoice)maryVoice).getDurationCartFeatDef();
+                if (voiceFeatDef != null){
+                    currentFeatureComputer = 
+                        new TargetFeatureComputer(new FeatureProcessorManager(), voiceFeatDef.getFeatureNames());
+                    logger.debug("Using voice feature definition");
                 }
             }
             Relation targets = utterance.createRelation(Relation.TARGET);
@@ -152,7 +160,7 @@ public class CARTF0Modeller extends InternalModule
                     // Now predict the f0 values using the CARTs:ssh 
                     String segName = vowel.getFeatures().getString("name");
                     Target t = new Target(segName, vowel);
-                    t.setFeatureVector(featureComputer.computeFeatureVector(t));
+                    t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));
                     float[] left = (float[])currentLeftCart.interpret(t, 0);
                     assert left != null : "Null frequency";
                     assert left.length == 2 : "Unexpected frequency length: "+left.length;
