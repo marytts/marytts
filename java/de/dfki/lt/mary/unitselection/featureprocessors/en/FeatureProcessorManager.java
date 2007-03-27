@@ -13,6 +13,7 @@ import de.dfki.lt.mary.unitselection.featureprocessors.MaryGenericFeatureProcess
 import de.dfki.lt.mary.unitselection.featureprocessors.MaryLanguageFeatureProcessors;
 import de.dfki.lt.mary.unitselection.featureprocessors.PhoneSet;
 import de.dfki.lt.mary.unitselection.featureprocessors.PhoneSetImpl;
+import de.dfki.lt.mary.unitselection.featureprocessors.MaryGenericFeatureProcessors.TargetItemNavigator;
 
 public class FeatureProcessorManager extends
         de.dfki.lt.mary.unitselection.featureprocessors.FeatureProcessorManager {
@@ -128,6 +129,65 @@ public class FeatureProcessorManager extends
             String wordFrequencyEncoding = MaryProperties.getProperty("english.wordFrequency.encoding");
             addFeatureProcessor(new MaryLanguageFeatureProcessors.WordFrequency(wordFrequencyFilename, wordFrequencyEncoding));
 
+            /* for database selection*/ 
+            String[] phoneClasses = new String[] {
+                    "0", "c_labial", "c_alveolar", "c_palatal", 
+                    "c_labiodental", "c_dental", "c_velar", 
+                    "c_glottal", "v_i", "v_u", "v_o",
+                    "v_E", "v_EI", "v_V", "v_@", "v_r=", "v_@U",
+                    "v_OI", "v_{", "v_aU", "v_AI"
+            };
+            //map from phones to their classes
+            Map phone2Classes = new HashMap();
+            //put in vowels
+            phone2Classes.put("I","v_i");
+            phone2Classes.put("i","v_i");
+            phone2Classes.put("U","v_u");
+            phone2Classes.put("u","v_u");
+            phone2Classes.put("A","v_o");
+            phone2Classes.put("O","v_o");
+            phone2Classes.put("E","v_E");
+            phone2Classes.put("EI","v_EI");
+            phone2Classes.put("V","v_V");
+            phone2Classes.put("@","v_@");
+            phone2Classes.put("r=","v_r=");
+            phone2Classes.put("@U","v_@U");
+            phone2Classes.put("OI","v_OI");
+            phone2Classes.put("{","v_{");
+            phone2Classes.put("aU","v_aU");
+            phone2Classes.put("AI","v_AI");
+            //put in consonants
+            phone2Classes.put("b","c_labial");
+            phone2Classes.put("m","c_labial");
+            phone2Classes.put("p","c_labial");
+            phone2Classes.put("w","c_labial");
+            phone2Classes.put("d","c_alveolar");
+            phone2Classes.put("d","c_alveolar");
+            phone2Classes.put("l","c_alveolar");
+            phone2Classes.put("n","c_alveolar");
+            phone2Classes.put("r","c_alveolar");
+            phone2Classes.put("s","c_alveolar");
+            phone2Classes.put("t","c_alveolar");
+            phone2Classes.put("z","c_alveolar");
+            phone2Classes.put("tS","c_palatal");
+            phone2Classes.put("dZ","c_palatal");
+            phone2Classes.put("S","c_palatal");
+            phone2Classes.put("j","c_palatal");
+            phone2Classes.put("Z","c_palatal");
+            phone2Classes.put("f","c_labiodental");
+            phone2Classes.put("v","c_labiodental");
+            phone2Classes.put("D","c_dental");
+            phone2Classes.put("T","c_dental");
+            phone2Classes.put("g","c_velar");
+            phone2Classes.put("k","c_velar");
+            phone2Classes.put("N","c_velar");
+            phone2Classes.put("h","c_glottal");
+            phone2Classes.put("_","0");
+           
+           addFeatureProcessor(new MaryLanguageFeatureProcessors.Selection_PhoneClass(
+                   phone2Classes, phoneClasses, nextSegment));
+            
+            
 /*
         processors_en.put("seg_coda_fric", 
                 new LanguageFeatureProcessors.SegCodaFric(phoneSet));

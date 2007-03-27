@@ -203,8 +203,14 @@ public class FeatureDefinition
             } else {
                 featureDef = line;
             }
-            // Now featureDef is the feature name. 
-            featureNames.set(numByteFeatures+numShortFeatures+i, featureDef);
+            // Now featureDef is the feature name
+            // or the feature name followed by the word "float"
+            if (featureDef.endsWith("float")){
+                String[] featureDefSplit = featureDef.split("\\s+", 2);
+                featureNames.set(numByteFeatures+numShortFeatures+i, featureDefSplit[0]);
+            } else {
+                featureNames.set(numByteFeatures+numShortFeatures+i, featureDef);
+            }
         }
         // Normalize weights to sum to one:
         if (readWeights) {
