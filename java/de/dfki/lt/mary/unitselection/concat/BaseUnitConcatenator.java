@@ -168,7 +168,6 @@ public class BaseUnitConcatenator implements UnitConcatenator
                 int targetLength = (int) (unit.getTarget().getTargetDurationInSeconds() * timeline.getSampleRate());
                 frames = new Datagram[] { createZeroDatagram(targetLength) };
             }
-            
             unitData.setFrames(frames);
         }
     }
@@ -216,11 +215,11 @@ public class BaseUnitConcatenator implements UnitConcatenator
         return (long) (time*unitToTimelineSampleRateFactor);
     }
 
-    protected static class UnitData
+    public static class UnitData
     {
         protected int[] pitchmarks;
         protected Datagram[] frames;
-        protected int unitDuration;
+        protected int unitDuration = -1;
 
         public UnitData()
         {

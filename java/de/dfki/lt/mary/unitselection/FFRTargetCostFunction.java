@@ -167,11 +167,8 @@ public class FFRTargetCostFunction implements TargetCostFunction
         }
         // TODO: If the target feature computer had direct access to the feature definition, it could do some consistency checking
         this.targetFeatureComputer = new TargetFeatureComputer(featProc, featureDefinition.getFeatureNames());
-        // remember which weights are non-zero
-        weightsNonZero = new boolean[featureDefinition.getNumberOfFeatures()];
-        for (int i=0, n=featureDefinition.getNumberOfFeatures(); i<n; i++) {
-            weightsNonZero[i] = (featureDefinition.getWeight(i) > 0);
-        }
+
+        rememberWhichWeightsAreNonZero();
 
         if (MaryProperties.getBoolean("debug.show.cost.graph")) {
             debugShowCostGraph = true;
@@ -179,6 +176,15 @@ public class FFRTargetCostFunction implements TargetCostFunction
             TargetCostReporter tcr2 = new TargetCostReporter(cumulWeightedCosts);
             tcr2.showInJFrame("Average weighted target costs", false, false);
             tcr2.start();
+        }
+    }
+
+
+    protected void rememberWhichWeightsAreNonZero() {
+        // remember which weights are non-zero
+        weightsNonZero = new boolean[featureDefinition.getNumberOfFeatures()];
+        for (int i=0, n=featureDefinition.getNumberOfFeatures(); i<n; i++) {
+            weightsNonZero[i] = (featureDefinition.getWeight(i) > 0);
         }
     }
 

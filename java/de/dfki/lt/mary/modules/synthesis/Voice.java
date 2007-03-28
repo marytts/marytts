@@ -63,6 +63,8 @@ import de.dfki.lt.mary.MaryXML;
 import de.dfki.lt.mary.modules.phonemiser.Phoneme;
 import de.dfki.lt.mary.modules.phonemiser.PhonemeSet;
 import de.dfki.lt.mary.modules.phonemiser.Syllabifier;
+import de.dfki.lt.mary.unitselection.interpolation.InterpolatingSynthesizer;
+import de.dfki.lt.mary.unitselection.interpolation.InterpolatingVoice;
 import de.dfki.lt.mary.util.MaryUtils;
 
 /**
@@ -193,7 +195,7 @@ public class Voice
         }
         this.wantToBeDefault = MaryProperties.getInteger("voice."+getName()+".wants.to.be.default", 0);
         String phonemesetFilename = MaryProperties.getFilename("voice."+getName()+".phonemeset");
-        if (phonemesetFilename == null) {
+        if (phonemesetFilename == null && getLocale() != null) {
             // No specific phoneme set for voice, use locale default
             phonemesetFilename = MaryProperties.getFilename(MaryProperties.localePrefix(getLocale())+".phonemeset");
         }
@@ -708,6 +710,20 @@ public class Voice
         for (Iterator it = allVoices.iterator(); it.hasNext(); ) {
             Voice v = (Voice) it.next();
             if (v.hasName(name)) return v;
+        }
+        // Interpolating voices are created as needed:
+        if (InterpolatingVoice.isInterpolatingVoiceName(name)) {
+            InterpolatingSynthesizer interpolatingSynthesizer = null;
+            for (Iterator it = allVoices.iterator(); it.hasNext(); ) {
+                Voice v = (Voice) it.next();
+                if (v instanceof InterpolatingVoice) {
+                    interpolatingSynthesizer = (InterpolatingSynthesizer) v.synthesizer();
+                    break;
+                }
+            }
+            if (interpolatingSynthesizer == null) return null;
+            Voice v = new InterpolatingVoice(interpolatingSynthesizer, name);
+            registerVoice(v);
         }
         return null; // no such voice found
     }
