@@ -150,6 +150,9 @@ public class HalfPhoneFFRTargetCostFunction extends FFRTargetCostFunction
         }
         // TODO: If the target feature computer had direct access to the feature definition, it could do some consistency checking
         this.targetFeatureComputer = new TargetFeatureComputer(featProc, leftWeights.getFeatureNames());
+        
+        rememberWhichWeightsAreNonZero();
+
         if (MaryProperties.getBoolean("debug.show.cost.graph")) {
             debugShowCostGraph = true;
             cumulWeightedCosts = new double[featureDefinition.getNumberOfFeatures()];

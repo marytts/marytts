@@ -128,7 +128,7 @@ public class FreeTTSVoices
     private static DummyFreeTTSVoice createFreeTTSVoice(Voice maryVoice)
     {
         DummyFreeTTSVoice freeTTSVoice;
-        if (maryVoice.getLocale().equals(Locale.US)) {
+        if (maryVoice.getLocale() != null && maryVoice.getLocale().equals(Locale.US)) {
             try {
                 freeTTSVoice = (DummyFreeTTSVoice) Class.forName("de.dfki.lt.mary.modules.en.DummyFreeTTSVoice").newInstance();
             } catch (InstantiationException e) {
@@ -156,7 +156,9 @@ public class FreeTTSVoices
         if (maryVoice instanceof UnitSelectionVoice) {
             return ((UnitSelectionVoice)maryVoice).getLexicon();
         }
-        if (maryVoice.getLocale().equals(Locale.US)) {            
+        if (maryVoice.getLocale() == null) {
+            return null;
+        } else if (maryVoice.getLocale().equals(Locale.US)) {            
             if (usenLexicon == null) usenLexicon = new CMULexicon("cmudict04");
             return usenLexicon;
         } else if (maryVoice.getLocale().equals(Locale.GERMAN)) {

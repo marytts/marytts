@@ -59,7 +59,6 @@ public class UnitSelectionVoice extends Voice {
     protected Lexicon lexicon;
     protected String domain;
     protected String name;
-    protected ClusterUnitNamer unitNamer;
     protected CART durationCart;
     protected CART[] f0Carts;
     protected String exampleText;

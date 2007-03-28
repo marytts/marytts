@@ -461,6 +461,7 @@ public class MaryUtils {
      */
     public static boolean subsumes(Locale general, Locale specific)
     {
+        if (general == null || specific == null) return false;
         if (general.equals(specific)) return true;
         else if (general.getVariant().equals("")) {
             if (general.getCountry().equals("")) {

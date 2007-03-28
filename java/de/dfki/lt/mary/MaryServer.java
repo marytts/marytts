@@ -53,6 +53,8 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import org.apache.log4j.Logger;
 
 import de.dfki.lt.mary.modules.synthesis.Voice;
+import de.dfki.lt.mary.unitselection.UnitSelectionVoice;
+import de.dfki.lt.mary.unitselection.interpolation.InterpolatingVoice;
 import de.dfki.lt.mary.util.MaryAudioUtils;
 
 /**
@@ -294,12 +296,14 @@ public class MaryServer {
                 Collection voices = Voice.getAvailableVoices();
                 for (Iterator it = voices.iterator(); it.hasNext();) {
                     Voice v = (Voice) it.next();
-                    if (v instanceof de.dfki.lt.mary.unitselection.UnitSelectionVoice){
+                    if (v instanceof InterpolatingVoice) {
+                        // do not list interpolating voice
+                    } else if (v instanceof UnitSelectionVoice){
                         outputWriter.println(v.getName() + " " 
                                 			+ v.getLocale() + " " 
                                 			+ v.gender().toString()
                                 			+ " " 
-                                			+((de.dfki.lt.mary.unitselection.UnitSelectionVoice)v).getDomain());}
+                                			+((UnitSelectionVoice)v).getDomain());}
                     else {
                         	outputWriter.println(v.getName() + " " 
                         	        			+ v.getLocale()+ " " 
