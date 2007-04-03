@@ -102,7 +102,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
         
         if (remainingProblems>0){
             //show option for automatically correcting pauses
-            correctPausesYesNo(remainingProblems);
+            remainingProblems = correctPausesYesNo(remainingProblems);
         }
                
         int guiReturn = SKIP;
@@ -191,8 +191,9 @@ public class LabelFeatureAligner implements VoiceImportComponent
      * the automatic correction of pauses.
      * @param numProblems the number of problems
      * @throws IOException
+     * @return the number of problems remaining
      */
-    protected void correctPausesYesNo(int numProblems) throws IOException
+    protected int correctPausesYesNo(int numProblems) throws IOException
     {
         int choice = JOptionPane.showOptionDialog(null,
                 "Found "+numProblems+" problems. Automatically correct pauses?",
@@ -204,7 +205,8 @@ public class LabelFeatureAligner implements VoiceImportComponent
                 null);
         
         if (choice == 0) 
-            correctPauses();
+            return correctPauses();
+        return numProblems;
     }
     
     /**
@@ -235,10 +237,10 @@ public class LabelFeatureAligner implements VoiceImportComponent
      * the label file, a pause of length zero is inserted
      * in the label file
      * @param basename
-     * @return null if the alignment was OK, or a String containing an error message.
+     * @return the number of problems remaining
      * @throws IOException
      */
-    protected void correctPauses() throws IOException
+    protected int correctPauses() throws IOException
     {
         correctedPauses = true;
         //clear the list of problems
@@ -414,6 +416,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
 	        }
         }
         System.out.println("Remaining problems: "+problems.size());
+        return problems.size();
     }
     
     protected void deleteProblems(Map problems){
