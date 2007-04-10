@@ -1880,11 +1880,11 @@ try{
 	public void eraseUnit(int unit)
 	throws IOException{
 		int leaf = findUnit(unit);
-		LeafNode n = ctree.getFirstLeafNode();
+		LeafNode n = (IntAndFloatArrayLeafNode)ctree.getFirstLeafNode();
 		for (int i = 1; i < leaf; i++){
 			n = n.getNextLeafNode();
 		}
-		n.eraseData(unit);
+		((IntAndFloatArrayLeafNode)n).eraseData(unit);
 		outln("Unit "+unit+" successfully erased from leaf.");
 	}
 	
@@ -1908,7 +1908,7 @@ try{
 		if (!(units == null)){
 			if (reallyCut){
 				for (int i = 0; i < units.length; i++){
-					lNode.eraseData(units[i]);
+					((IntAndFloatArrayLeafNode)lNode).eraseData(units[i]);
 				}
 			}	
 			counter = units.length;
