@@ -28,18 +28,26 @@
  */
 package de.dfki.lt.mary.util;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Vector;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.TargetDataLine;
 
 import org.jsresources.SequenceAudioInputStream;
+import org.jsresources.TimedAudioRecorder;
 import org.tritonus.share.sampled.AudioFileTypes;
 import org.tritonus.share.sampled.Encodings;
 
 import de.dfki.lt.mary.modules.synthesis.Voice;
+
 
 /**
  * @author Marc Schr&ouml;der
@@ -48,7 +56,7 @@ import de.dfki.lt.mary.modules.synthesis.Voice;
  */
 public class MaryAudioUtils {
 
-    /**
+	/**
       * Create a single AudioInputStream from a vector of AudioInputStreams.
       * The AudioInputStreams are expected to have the same AudioFormat.
       * @param audioInputStreams a vector containing one or more AudioInputStreams.
@@ -116,5 +124,136 @@ public class MaryAudioUtils {
             false);
             //endianness doesn't matter
     }
+    
+    /**
+     * Record a sound file with the recording being limited to a given amount of time
+     * @param filename name of the sound file
+     * @param dauer the given amount of time in milliseconds
+     * @param audioFormat the audio format for the actual sound file
+     * @return void
+     * @throws LineUnavailableException if no recording line can be found
+     * @throws InterruptedException if the recording is stopped
+     *
+     */
+    public static void timedRecord(String filename,long dauer, AudioFormat audioFormat) 
+    {
+ 	    
+    	/*
+    	 * Our first parameter tells us the file name that the recording
+    	 * should be saved into.
+    	 */
+    	File outputFile = new File(filename);
+    	/*
+    	 * Now, we are trying to get a TargetDataLine. The TargetDataLine is
+    	 * used later to read audio data from it. If requesting the line was
+    	 * successful, we are opening it (important!).
+    	 */
+    	DataLine.Info info = new DataLine.Info(TargetDataLine.class,
+            audioFormat);
+    	TargetDataLine targetDataLine = null;
+    	try {
+    		targetDataLine = (TargetDataLine) AudioSystem.getLine(info);
+    		targetDataLine.open(audioFormat);
+    	} catch (LineUnavailableException e) {
+    		System.out.println("unable to get a recording line");
+    		e.printStackTrace();
+    		//System.exit(1);
+    	}
+
+    	/*
+    	 * Again for simplicity, we've hardcoded the audio file type, too.
+    	 */
+    	AudioFileFormat.Type targetType = AudioFileFormat.Type.WAVE;
+
+    	/*
+    	 * Now, we are creating a TimedAudioRecorder object. It contains the
+    	 * logic of starting and stopping the recording, reading audio data from
+    	 * the TargetDataLine and writing the data to a file.
+    	 * Also, it manages the duration of the recording, given by the 
+    	 * parameter ´dauer'.
+    	 */
+    	TimedAudioRecorder recorder = new TimedAudioRecorder(targetDataLine,
+            targetType, outputFile, dauer);
+
+    	/*
+    	 * Here, the recording is actually started.
+    	 */
+    	recorder.start();
+    	//System.out.println("Recording...");
+
+    	try {
+    		recorder.join();
+    	} catch (InterruptedException ie) {}
+    	//System.out.println("Recording stopped.");
+    	
+    	/* 
+    	 * Here, our recording should actually be done and all wrapped up.
+    	 *
+    	 */
+    
+    }
+    
+    /**
+     * Play back and stop a given wav file.
+     *
+     */
+    static Clip m_clip;
+    
+    /**
+     * Play it back
+     * @param filename name of the wav file
+     * @throws IOException,LineUnavailableException
+     * 
+     */
+    public static void playWavFile(String filename, int loop) 
+    {
+    	AudioInputStream 	audioInputStream = null;
+    	File clipFile = new File(filename);
+    	
+    	try
+		{
+    		audioInputStream = AudioSystem.getAudioInputStream(clipFile);
+		}
+    	catch (Exception e)
+		{
+    		e.printStackTrace();
+		}
+    	if (audioInputStream != null)
+    	{
+    		AudioFormat	format = audioInputStream.getFormat();
+    		DataLine.Info	info = new DataLine.Info(Clip.class, format);
+    		try
+			{
+    			m_clip = (Clip) AudioSystem.getLine(info);
+    			m_clip.open(audioInputStream);
+			}
+    		catch (LineUnavailableException e)
+			{
+    			e.printStackTrace();
+			}
+    		catch (IOException e)
+			{
+    			e.printStackTrace();
+			}
+    		m_clip.loop(loop);
+    	}
+    	else
+    	{
+    		System.out.println("playWavFile<init>(): can't get data from file " + clipFile.getName());
+		}
+  
+	}
+    
+    /**
+     * Stop wav play back
+     * 
+     */
+    public static void stopWavFile()
+    {
+    	m_clip.stop();
+    	m_clip.flush();
+    	m_clip.close();  	
+    }
+
 
 }
