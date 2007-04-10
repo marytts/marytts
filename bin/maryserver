@@ -31,7 +31,7 @@
 ##########################################################################
 
 # Set the Mary base installation directory in an environment variable:
-export MARY_BASE="/project/mary/max/openmary"
+export MARY_BASE="&INSTALL_PATH"
 
 # CYGWIN support:
 cygwin=0;
