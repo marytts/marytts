@@ -30,9 +30,7 @@ public abstract class LeafNode extends Node {
     }
 
 
-    
-    
-    
+       
     /**
      * Return the leaf node following this one in the tree.
      * @return the next leaf node, or null if this one is the last one.
@@ -73,6 +71,8 @@ public abstract class LeafNode extends Node {
      */
     public abstract int getNumberOfData();
 
+    public abstract void eraseData(int index);
+    
     /**
      * Get all the data at or below this node.
      * The type of data returned depends on the type of nodes; for example,
@@ -119,6 +119,23 @@ public abstract class LeafNode extends Node {
          */
         public Object getAllData() {
             return data;
+        }
+
+        /**
+         * Delete a candidate of the leaf by its given data
+         * @param target
+         *            the given data
+         */
+        public void eraseData(int target){
+        	int[] newData = new int[data.length-1];
+        	int index = 0;
+        	for (int i = 0; i < data.length; i++){
+        		if (data[i] != target){
+        			newData[index] = data[i];
+        			index++;
+        		}
+        	}
+        	data = newData;
         }
         
         protected void fillData(Object target, int pos, int len)
@@ -182,6 +199,93 @@ public abstract class LeafNode extends Node {
 
     }
 
+    public static class IntAndFloatArrayLeafNode extends LeafNode{
+    	
+    	private int[] data;
+    	private float[] floats;
+    	
+    	public IntAndFloatArrayLeafNode(int[] data, float[] floats)
+        {
+            super();
+            this.data = data;
+            this.floats = floats;
+        }
+    	
+    	protected void fillData(Object target, int pos, int len){
+    		System.out.println("Not implemented for IntAndFloatArrayLeafNode");
+    	}
+    	
+    	public int getNumberOfData(){
+    		if (data != null) return data.length;
+    		return 0;
+    	}
+    	
+    	public Object getAllData(){
+    		return data;
+    	}
+        
+    	public float[] getFloatData(){
+    		return floats;
+    	}
+
+    	/**
+         * Delete a candidate of the leaf by its given data/index
+         * @param target
+         *            the given data
+         */
+        public void eraseData(int target){
+        	int[] newData = new int[data.length-1];
+        	float[] newFloats = new float[floats.length-1];
+        	int index = 0;
+        	for (int i = 0; i < data.length; i++){
+        		if (data[i] != target){
+        			newData[index] = data[i];
+        			newFloats[index] = floats[i];
+        			index++;
+        		}
+        	}
+        	data = newData;
+        	floats = newFloats;
+        }
+        
+        /**
+         * Writes the Cart to the given DataOut in Wagon Format
+         * 
+         * @param out
+         *            the outputStream
+         * @param extension
+         *            the extension that is added to the last daughter
+         */
+        public void toWagonFormat(DataOutputStream out, String extension,
+                PrintWriter pw) throws IOException {
+            StringBuffer sb = new StringBuffer();
+            // open three brackets
+            sb.append("(((");
+            // for each index, write the index and then its float
+            for (int i = 0; i < data.length; i++) {
+                sb.append("(" + data[i] + " "+floats[i]+")");
+                if (i + 1 != data.length) {
+                    sb.append(" ");
+                }
+            }
+            // write the ending
+            sb.append(") 0))" + extension);
+            // dump the whole stuff
+            if (out != null) {
+                // write to output stream
+
+                CART.writeStringToOutput(sb.toString(), out);
+            } else {
+                // write to Standard out
+                // System.out.println(sb.toString());
+            }
+            if (pw != null) {
+                // dump to printwriter
+                pw.print(sb.toString());
+            }
+        }
+    }
+    
     public static class FeatureVectorLeafNode extends LeafNode
     {
         private FeatureVector[] featureVectors;
@@ -251,6 +355,10 @@ public abstract class LeafNode extends Node {
                         new FeatureVector[featureVectorList.size()]);
             }
             return featureVectors;
+        }
+
+        public void eraseData(int index){
+        	System.out.println("Not implemented for FeatureVectorLeafNode");
         }
         
         protected void fillData(Object target, int pos, int len)
@@ -350,6 +458,10 @@ public abstract class LeafNode extends Node {
          */
         public Object getAllData() {
             return data;
+        }
+        
+        public void eraseData(int index){
+        	System.out.println("Not implemented for FloatLeafNode");
         }
         
         protected void fillData(Object target, int pos, int len)

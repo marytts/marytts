@@ -244,7 +244,7 @@ public class CARTBuilder implements VoiceImportComponent {
             //open CART-File
             System.out.println("Reading CART from "+filename+" ...");
             //build and return CART
-            CART cart = new ClassificationTree();
+            CART cart = new ExtendedClassificationTree();
             cart.load(filename,featDef,null);
             //cart.toStandardOut();
             System.out.println(" ... done!");
@@ -843,7 +843,7 @@ public class CARTBuilder implements VoiceImportComponent {
                     System.out.println(id+"> Reading CART");
                     BufferedReader buf = new BufferedReader(
                             new FileReader(cartFile));
-                    CART newCART = new ClassificationTree(buf, featureDefinition);    
+                    CART newCART = new ExtendedClassificationTree(buf, featureDefinition);    
                     buf.close();
                     // Fix the new cart's leaves:
                     // They are currently the index numbers in featureVectors;
