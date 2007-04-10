@@ -70,8 +70,6 @@ public abstract class LeafNode extends Node {
      * if such a concept is not meaningful.
      */
     public abstract int getNumberOfData();
-
-    public abstract void eraseData(int index);
     
     /**
      * Get all the data at or below this node.
@@ -121,23 +119,6 @@ public abstract class LeafNode extends Node {
             return data;
         }
 
-        /**
-         * Delete a candidate of the leaf by its given data
-         * @param target
-         *            the given data
-         */
-        public void eraseData(int target){
-        	int[] newData = new int[data.length-1];
-        	int index = 0;
-        	for (int i = 0; i < data.length; i++){
-        		if (data[i] != target){
-        			newData[index] = data[i];
-        			index++;
-        		}
-        	}
-        	data = newData;
-        }
-        
         protected void fillData(Object target, int pos, int len)
         {
             if (!(target instanceof int[])) 
@@ -356,10 +337,6 @@ public abstract class LeafNode extends Node {
             }
             return featureVectors;
         }
-
-        public void eraseData(int index){
-        	System.out.println("Not implemented for FeatureVectorLeafNode");
-        }
         
         protected void fillData(Object target, int pos, int len)
         {
@@ -459,11 +436,7 @@ public abstract class LeafNode extends Node {
         public Object getAllData() {
             return data;
         }
-        
-        public void eraseData(int index){
-        	System.out.println("Not implemented for FloatLeafNode");
-        }
-        
+
         protected void fillData(Object target, int pos, int len)
         {
             throw new IllegalStateException("This method should not be called for FloatLeafNodes");
