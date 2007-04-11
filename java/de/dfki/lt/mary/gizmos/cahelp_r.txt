@@ -1,0 +1,10 @@
+r or replay
+
+Plays back the last rendered audio data.
+
+Note: ALL rendered audio, regardless whether
+      done in main command shell or analyze mode,
+      is saved (existing data overwritten) in
+      a "test.wav". 
+      This command doesn't render anything and just
+      plays back the file.

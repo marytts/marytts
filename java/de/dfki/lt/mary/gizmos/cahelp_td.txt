@@ -1,0 +1,6 @@
+textdump [filename] or 
+td [filename]
+
+Calls the CART method toTextOut() dumping the current cart
+in file [filename].
+Especially useful for debugging.

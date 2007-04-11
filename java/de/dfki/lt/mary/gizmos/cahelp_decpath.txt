@@ -1,0 +1,8 @@
+decpath or dp
+
+Show the current decision path,
+i.e. the decision path in the cart that
+leads up(/down) to the current leaf.
+
+Note: Do not confuse with d (binary dump of the cart)
+      or p (previous, go backwards in the leaf array)

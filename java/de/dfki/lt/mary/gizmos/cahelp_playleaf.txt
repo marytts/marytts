@@ -1,0 +1,25 @@
+playleaf [which] [where] [value] or pl [which] [where] [value]
+
+Renders all units from current leaf as audio.
+which can be either "all" which takes no parameters (where and value
+must therefore be empty) to play back all units of the leaf OR
+
+"cut" which will play back the units with outliers seperated from
+normal units.
+Leave where and value empty to use the global variables for
+outlier detection or 
+where = "above"/"below" with value being some float cut value to
+manually change the global variables and assume the outliers are
+above/below the given value.
+
+After hitting enter, you will be asked to choose between the two
+wav patterns:
+<normal units> <beep> <outliers> (yes) or
+<outliers only> (no, default).
+
+Note: When playing back all units, they are NOT (yet) sorted
+by probability value.
+Also note that the cutting mode "both" is not (yet) supported
+and implemented for this command.
+
+

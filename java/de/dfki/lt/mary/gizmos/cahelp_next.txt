@@ -1,0 +1,11 @@
+jump [leaf] or j [leaf]
+next [number] or n [number]
+prev [number] or p [number]
+
+Navigate manually through the cart.
+1. jump to leaf with index leaf
+2. next goes to next leaf, or jumps number of leafs forward
+3. prev same as next, only backward
+
+Note that the current leaf index is always displayed
+in the command line! (cL)
