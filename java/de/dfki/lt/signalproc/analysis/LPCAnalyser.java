@@ -239,7 +239,7 @@ public class LPCAnalyser extends FrameBasedAnalyser
         }
         
         /**
-         * Get the gain, i.e. the square root of the total energy or the prediction error.
+         * Get the gain, i.e. the square root of the total energy of the prediction error.
          * @return the gain
          */
         public double getGain()
