@@ -66,7 +66,9 @@ import de.dfki.lt.mary.unitselection.cart.*;
 import de.dfki.lt.mary.unitselection.cart.LeafNode.*;
 import de.dfki.lt.mary.unitselection.concat.DatagramDoubleDataSource;
 import de.dfki.lt.signalproc.analysis.EnergyAnalyser;
+import de.dfki.lt.signalproc.analysis.EnergyAnalyser_dB;
 import de.dfki.lt.signalproc.display.EnergyHistogram;
+import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
 import de.dfki.lt.signalproc.util.DoubleDataSource;
 
 public class CARTAnalyzer{
@@ -960,15 +962,19 @@ try{
 						if (inputS.equals("histo")){
 							int len = currLeaf.getNumberOfData();
 							Datagram[][] data = new Datagram[len][];
+                            int nDatagrams = 0;
 							for (int i = 0; i < len; i++){
 								data[i] = tlr.getDatagrams( ufr.getUnit(indices[i]), ufr.getSampleRate() );
+                                nDatagrams += data[i].length;
 								//outln("data["+i+"].length = "+data[i].length);
 							}
-							for (int i = 0; i < len; i++){
-								DatagramDoubleDataSource d = new DatagramDoubleDataSource(data[i]);
-								EnergyHistogram eh;
-								eh.initialise(d, 16000, 500, 500);
+                            Datagram[] allDatagrams = new Datagram[nDatagrams];
+							for (int i = 0, pos=0; i < len; pos += data[i].length, i++){
+                                System.arraycopy(data[i], 0, allDatagrams, pos, data[i].length);
 							}
+                            double[] audioData = new DatagramDoubleDataSource(allDatagrams).getAllData();
+                            EnergyHistogram eh = new EnergyHistogram(audioData, tlr.getSampleRate());
+                            eh.showInJFrame("Energy histogram for leaf "+currLeafIndex, false, false);
 							continue;
 						}
     					// first check for the 3 main commands
@@ -2233,11 +2239,13 @@ try{
      */	
     public void help(String command) throws IOException{
     	BufferedReader reader = null;
+        String resourceName;
     	if (command.equals("")){
-    		reader = new BufferedReader(new FileReader(new File("/project/mary/max/cahelp/cahelp.txt")));
+            resourceName = "cahelp.txt";
     	}else{
-    		reader = new BufferedReader(new FileReader(new File("/project/mary/max/cahelp/cahelp_"+command+".txt")));
+            resourceName = "cahelp_"+command+".txt";
     	}
+        reader = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("cahelp.txt")));
     	// display the help file
     	for (String line = reader.readLine(); line != null; line = reader.readLine()){
     		outln(line);

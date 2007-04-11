@@ -111,30 +111,30 @@ public class DatagramOverlapDoubleDataSource extends BufferedDoubleDataSource
             if (q >= datagrams[p].length) {
                 p++;
                 q = 0;
-                if (p == datagrams.length) break;
-            }
-            Datagram next = datagrams[p][q];
-            int length = (int) next.getDuration();
-            if (buf.length < writePos + length) {
-                increaseBufferSize(writePos+length);
-            }
-            int read = readDatagram(next, buf, writePos);
-            if (q == 0 && p > 0 && rightContexts[p-1] != null) {
-                // overlap-add situation
-                // window the data that we have just read with the left half of a HANN window:
-                new DynamicTwoHalvesWindow(Window.HANN).applyInlineLeftHalf(buf, writePos, read);
-                // and overlap-add the previous right context, windowed with the right half of a HANN window:
-                double[] context = new double[(int) rightContexts[p-1].getDuration()];
-                readDatagram(rightContexts[p-1], context, 0);
-                new DynamicTwoHalvesWindow(Window.HANN).applyInlineRightHalf(context, 0, context.length);
-                for (int i=0, iMax = Math.min(read, context.length); i<iMax; i++) {
-                    buf[writePos+i] += context[i];
+            } else {
+                Datagram next = datagrams[p][q];
+                int length = (int) next.getDuration();
+                if (buf.length < writePos + length) {
+                    increaseBufferSize(writePos+length);
                 }
+                int read = readDatagram(next, buf, writePos);
+                if (q == 0 && p > 0 && rightContexts[p-1] != null) {
+                    // overlap-add situation
+                    // window the data that we have just read with the left half of a HANN window:
+                    new DynamicTwoHalvesWindow(Window.HANN).applyInlineLeftHalf(buf, writePos, read);
+                    // and overlap-add the previous right context, windowed with the right half of a HANN window:
+                    double[] context = new double[(int) rightContexts[p-1].getDuration()];
+                    readDatagram(rightContexts[p-1], context, 0);
+                    new DynamicTwoHalvesWindow(Window.HANN).applyInlineRightHalf(context, 0, context.length);
+                    for (int i=0, iMax = Math.min(read, context.length); i<iMax; i++) {
+                        buf[writePos+i] += context[i];
+                    }
+                }
+                writePos += read;
+                readSum += read;
+                totalRead += read;
+                q++;
             }
-            writePos += read;
-            readSum += read;
-            totalRead += read;
-            q++;
         }
         if (dataProcessor != null) {
             dataProcessor.applyInline(buf, writePos-readSum, readSum);
