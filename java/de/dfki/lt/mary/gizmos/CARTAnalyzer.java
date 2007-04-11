@@ -64,6 +64,10 @@ import de.dfki.lt.mary.unitselection.voiceimport.MaryHeader;
 import de.dfki.lt.mary.util.MaryAudioUtils;
 import de.dfki.lt.mary.unitselection.cart.*;
 import de.dfki.lt.mary.unitselection.cart.LeafNode.*;
+import de.dfki.lt.mary.unitselection.concat.DatagramDoubleDataSource;
+import de.dfki.lt.signalproc.analysis.EnergyAnalyser;
+import de.dfki.lt.signalproc.display.EnergyHistogram;
+import de.dfki.lt.signalproc.util.DoubleDataSource;
 
 public class CARTAnalyzer{
     
@@ -124,7 +128,7 @@ public CARTAnalyzer() throws IOException{
  * 
  */	
 public static void main(String[] args) throws Exception{
-	outln("CART Analyzer v 1.99 initialising...");
+	outln("CART Analyzer initialising...");
 	long time1 = System.currentTimeMillis();
 	// initialise
 	CARTAnalyzer ca = new CARTAnalyzer();
@@ -171,7 +175,7 @@ public void run() throws Exception {
     	while (true) 
     	{	
     		// call the input method with default ca (cart analyzer) prompt, cL being the -current Leaf-
-    		StringTokenizer tokenizer = new StringTokenizer(input("ca v1.9 cL:"+ currLeafIndex+" ?> "));
+    		StringTokenizer tokenizer = new StringTokenizer(input("ca:cL:"+ currLeafIndex+" ?> "));
     		if (tokenizer.hasMoreTokens())
     	    // extract command - the first word of the input
     		command = tokenizer.nextToken();
@@ -181,6 +185,42 @@ public void run() throws Exception {
 // COMMANDS
 try{    		
 
+	
+		// DEBUG: Print stats in file with format: <leaf> <#units> <mean> <sd>
+		if (command.equals("stats")){
+			String filename = "./stats.txt";
+			if (tokenizer.hasMoreTokens()){
+				filename = "./"+tokenizer.nextToken();
+			}
+			outln("Writing stats in "+filename);
+			outln("Now computing...");
+			DecimalFormat df = new DecimalFormat("0.00");
+			PrintWriter booyah = new PrintWriter(new FileWriter(new File(filename)));
+			booyah.println("li\t#u\tmean\t\tsd");
+			booyah.println();
+			LeafNode ln =(IntAndFloatArrayLeafNode)ctree.getFirstLeafNode();
+			int counter = 1;
+			while (ln != null){
+				int nU;
+				outln("leaf "+counter);
+				nU = ln.getNumberOfData();
+				booyah.print(counter+"\t"+nU+"\t");
+				if (nU < 2){
+					booyah.println("0\t\t0");
+				}else{
+					booyah.print(df.format(getMean(((IntAndFloatArrayLeafNode)ln).getFloatData()))+"\t\t");
+					booyah.println(df.format(getSD(((IntAndFloatArrayLeafNode)ln).getFloatData())));
+				}
+				outln("leaf "+counter+" done.");
+				booyah.flush();
+				counter++;
+				ln = (IntAndFloatArrayLeafNode)ln.getNextLeafNode();
+				
+			}
+			booyah.close();
+			outln("finished.");
+		}
+	
 		/**
 		 * Provide a (command-specific) help
 		 * 
@@ -900,9 +940,8 @@ try{
 							currLeafIndex++;
 							currLeaf=(IntAndFloatArrayLeafNode)currLeaf.getNextLeafNode();
 							while(currLeaf != null){
-									
-								float[] pvalues = currLeaf.getFloatData();
-								if (getMean(pvalues) > 1000){
+
+								if (getMean(currLeaf.getFloatData())>1000){
 									outln("silence found!");
 									foundS = true;
 									break;
@@ -918,285 +957,299 @@ try{
 							continue;
 						}
 						
-    						// first check for the 3 main commands
+						if (inputS.equals("histo")){
+							int len = currLeaf.getNumberOfData();
+							Datagram[][] data = new Datagram[len][];
+							for (int i = 0; i < len; i++){
+								data[i] = tlr.getDatagrams( ufr.getUnit(indices[i]), ufr.getSampleRate() );
+								//outln("data["+i+"].length = "+data[i].length);
+							}
+							for (int i = 0; i < len; i++){
+								DatagramDoubleDataSource d = new DatagramDoubleDataSource(data[i]);
+								EnergyHistogram eh;
+								eh.initialise(d, 16000, 500, 500);
+							}
+							continue;
+						}
+    					// first check for the 3 main commands
     						   						
-    						// first off, view
-    						if (inputS.equals("view") || inputS.equals("v")){
-    							// adjust the settings
-    							if (tokenizer.hasMoreTokens()){
-    								String viewMode = tokenizer.nextToken();
-    								if (viewMode.equals("above")){
-    									cutAboveValue = Float.parseFloat(tokenizer.nextToken());
-    									cutWhere = 1;
-    								}
-    								if (viewMode.equals("below")){
-    									cutBelowValue = Float.parseFloat(tokenizer.nextToken());
-    									cutWhere = 2;
-    								}
-    								if (viewMode.equals("both")){
-    									cutBelowValue = Float.parseFloat(tokenizer.nextToken());
-    									cutAboveValue = Float.parseFloat(tokenizer.nextToken());
-    									cutWhere = 3;
-    								}
-    								// in the special case of viewing all units just execute the proper command (true)
-    								if (viewMode.equals("all")){
-    									displayLeaf(currLeaf,currLeafIndex,true);
-    									continue;
-    								}
+    					// first off, view
+    					if (inputS.equals("view") || inputS.equals("v")){
+    						// adjust the settings
+    						if (tokenizer.hasMoreTokens()){
+    							String viewMode = tokenizer.nextToken();
+    							if (viewMode.equals("above")){
+    								cutAboveValue = Float.parseFloat(tokenizer.nextToken());
+    								cutWhere = 1;
     							}
-    							// now use current values to actually view the outliers 
-    							// (displayLeaf already uses global vars, so no need for adjusting,
-    							//  just set boolean all = false)
-    							displayLeaf(currLeaf,currLeafIndex,false);
-    							continue;
-    						}
-    						
-    						// secondly, play
-    						if (inputS.equals("play") || inputS.equals("p")){
-    							// adjust the settings
-    							if (tokenizer.hasMoreTokens()){
-    								String playMode = tokenizer.nextToken();
-    								if (playMode.equals("above")){
-    									cutAboveValue = Float.parseFloat(tokenizer.nextToken());
-    									cutWhere = 1;
-    								}
-    								if (playMode.equals("below")){
-    									cutBelowValue = Float.parseFloat(tokenizer.nextToken());
-    									cutWhere = 2;
-    								}
-    								if (playMode.equals("both")){
-    									cutBelowValue = Float.parseFloat(tokenizer.nextToken());
-    									cutAboveValue = Float.parseFloat(tokenizer.nextToken());
-    									cutWhere = 3;
-    								}
-    								// in the special case of playing all units just execute the proper command
-    								// loop = 0, int[] units = intData(), concat = true
-    								if (playMode.equals("all")){
-    									play(0,(int[])currLeaf.getAllData(),true);
-    									continue;
-    								}
+    							if (viewMode.equals("below")){
+    								cutBelowValue = Float.parseFloat(tokenizer.nextToken());
+    								cutWhere = 2;
     							}
-    							// now use current values to actually play the outliers 
-    							// but before that ask whether <normal> <beep> <outliers> should be used
-    							// or only outliers
-    							String beep = input("Long version with beep [yes] or just outliers [NO]? ").toLowerCase();
-    							if (beep.equals("yes") || beep.equals("y")){
-    								playWithBeep();
+    							if (viewMode.equals("both")){
+    								cutBelowValue = Float.parseFloat(tokenizer.nextToken());
+    								cutAboveValue = Float.parseFloat(tokenizer.nextToken());
+    								cutWhere = 3;
     							}
-    							else{
-    								playOutliers();
-    							}
-    							continue;
-    						}
-    						
-    						// finally, cut
-    						if (inputS.equals("cut") || inputS.equals("c")){
-    							int erasedUnits = 0;
-    							// adjust the settings
-    							if (tokenizer.hasMoreTokens()){
-    								String cutMode = tokenizer.nextToken();
-    								if (cutMode.equals("above")){
-    									cutAboveValue = Float.parseFloat(tokenizer.nextToken());
-    									cutWhere = 1;
-    								}
-    								if (cutMode.equals("below")){
-    									cutBelowValue = Float.parseFloat(tokenizer.nextToken());
-    									cutWhere = 2;
-    								}
-    								if (cutMode.equals("both")){
-    									cutBelowValue = Float.parseFloat(tokenizer.nextToken());
-    									cutAboveValue = Float.parseFloat(tokenizer.nextToken());
-    									cutWhere = 3;
-    								}
-    							}
-    							// now use current values to actually cut the outliers 
-    							switch (cutWhere){
-    								// above: use cutAboveValue and second true as it says "cut above",
-    								// 		  third true means auto mode.
-    								case 1:
-    								{
-    									erasedUnits = eraseUnitsFromLeaf(true, currLeaf,null,cutAboveValue,logger,true,true);
-    									break;
-    								}
-    								// below: use cutBelowValue and false for "don't cut above = cut below"
-    								case 2:
-    								{
-    									erasedUnits = eraseUnitsFromLeaf(true, currLeaf,null,cutBelowValue,logger,false,true);
-    									break;
-    								}
-    								// both: the easiest part of it all: just do both cutting operations
-    								case 3:
-    								{
-    									erasedUnits = eraseUnitsFromLeaf(true, currLeaf,null,cutAboveValue,logger,true,true);
-    									erasedUnits += eraseUnitsFromLeaf(true, currLeaf,null,cutBelowValue,logger,false,true);
-    									break;
-    								}
-    							}
-    							outln("Successfully erased "+erasedUnits+" units from leaf.");
-    							continue;
-    						}
-    						    						  					
-    						// navigation
-    						// last leaf: use lastLeaf to jump to last usable leaf and store this leaf
-    						// as "new" last leaf
-    						if (inputS.equals("last") || inputS.equals("l")){
-    							int temp = currLeafIndex;
-    							outln("Going to last leaf...");
-    							jumpToLeaf(lastLeaf);
-    							lastLeaf = temp;
-    							break;
-    						}
-							
-    						// next leaf: just break out of the while(true) loop
-    						if (inputS.equals("next") || inputS.equals("n") || inputS.equals("skip") || inputS.equals("s"))
-    						{
-    							// store leaf as last usable leaf
-    							lastLeaf = currLeafIndex;
-        		    			// go to next leaf (if possible)
-    			    			currLeafIndex++;
-    			    			currLeaf = (IntAndFloatArrayLeafNode)currLeaf.getNextLeafNode();
-    							outln("Going to next leaf...");
-    							break;
-    						}
-    						
-						// provide a jump method just like in main command line
-    						if (inputS.equals("jump") || inputS.equals("j")){
-    							if (tokenizer.hasMoreTokens()){
-								int i = Integer.parseInt(tokenizer.nextToken());
-								jumpToLeaf(i);
-							}
-							else
-							{
-								String s = input("Enter leaf index: ");
-								int i = Integer.parseInt(s);
-								jumpToLeaf(i);
-							}
-    							break;
-    						}
-						
-    						// set the global variables
-    						if (inputS.equals("set") || inputS.equals("s")){
-    							// if there are more tokens, adjust the settings
-    							if (tokenizer.hasMoreTokens()){
-    								String cutMode = tokenizer.nextToken();
-    								if (cutMode.equals("above")){
-    									cutAboveValue = Float.parseFloat(tokenizer.nextToken());
-    									cutWhere = 1;
-    								}
-    								if (cutMode.equals("below")){
-    									cutBelowValue = Float.parseFloat(tokenizer.nextToken());
-    									cutWhere = 2;
-    								}
-    								if (cutMode.equals("both")){
-    									cutBelowValue = Float.parseFloat(tokenizer.nextToken());
-    									cutAboveValue = Float.parseFloat(tokenizer.nextToken());
-    									cutWhere = 3;
-    								}
-    							}
-    							// else ask interactively
-    							else{
-    								// just to be sure, use another while(true) loop here
-    								// until user gets input right
-    								while (true){
-    									String setMode = input("Choose cut mode to set [above,below,both]: ").toLowerCase();
-    									if (setMode.equals("above")){
-    										String aboveString = input("Enter float value for cutAboveValue: ");
-    										cutAboveValue = Float.parseFloat(aboveString);
-    										cutWhere = 1;
-    										break;
-    									}
-    									if (setMode.equals("below")){
-    										String belowString = input("Enter float value for cutBelowValue: ");
-    										cutBelowValue = Float.parseFloat(belowString);
-    										cutWhere = 2;
-    										break;
-    									}
-    									if (setMode.equals("both")){
-    										String belowString = input("Enter float value for cutBelowValue: ");
-    										cutBelowValue = Float.parseFloat(belowString);
-    										String aboveString = input("Enter float value for cutAboveValue: ");
-    										cutAboveValue = Float.parseFloat(aboveString);
-    										cutWhere = 3;
-    										break;
-    									}
-    									// on wrong user input, keep on asking
-    									continue;
-    								}	
-    							}
-    						}	
-    						
-    						// exit and save command, save all work
-    						if (inputS.equals("exit")||inputS.equals("save")){
-    							boolean x = (inputS.equals("exit"));
-    							if (x){
-    								outln("user exit");
-    								logger.println("user aborted process");
-    							}else{
-    								outln("saving...");
-    								logger.println("user requests save");
-    							}
-    							
-    						
-    							// save work for future resuming
-    							DataOutputStream dos = null;
-    							dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(filename)));
-    							// save logfile and cartfile
-    							if (logfile == null){
-    								dos.writeUTF("null");
-    							}else{
-    								dos.writeUTF(logfile);
-    							}	
-    							if (cartfile == null){
-    								dos.writeUTF("null");
-    							}else{
-    								dos.writeUTF(cartfile);
-    							}	
-    							// save leaf index
-    							dos.writeInt(currLeafIndex);
-    							// save current cut above value
-    							dos.writeFloat(cutAboveValue);
-    							// save current cut below value
-    							dos.writeFloat(cutBelowValue);
-    							// save cut mode
-    							dos.writeByte(cutWhere);
-    							// close file
-    							dos.close();
-    							// dump (modified/current) cart
-    							String dumpCartFile = "./resume.cart";
-    							saveCart(dumpCartFile);
-    							outln("data saved. next time you will be asked if you want to resume from here.");
-    							logger.println("data saved for future resume option");
-    							// tree reset
-    							if (x){
-    								currLeaf = (IntAndFloatArrayLeafNode)ctree.getFirstLeafNode();
-    								currLeafIndex = 1;
-    								outln("tree reset, all done.");
-    								logger.println("tree reset, all done.");
-    								logger.close();
-    								return;
-    							}else{
+    							// in the special case of viewing all units just execute the proper command (true)
+    							if (viewMode.equals("all")){
+    								displayLeaf(currLeaf,currLeafIndex,true);
     								continue;
     							}
-    						} 
-    					}else{
-    						outln("Command empty. Try again.");
+    						}
+    						// now use current values to actually view the outliers 
+    						// (displayLeaf already uses global vars, so no need for adjusting,
+    						//  just set boolean all = false)
+    						displayLeaf(currLeaf,currLeafIndex,false);
     						continue;
     					}
-    				}
-    				catch(Exception e){
-    					outln("command not found. try again.");
+    					
+    					// secondly, play
+    					if (inputS.equals("play") || inputS.equals("p")){
+    						// adjust the settings
+    						if (tokenizer.hasMoreTokens()){
+    							String playMode = tokenizer.nextToken();
+    							if (playMode.equals("above")){
+    								cutAboveValue = Float.parseFloat(tokenizer.nextToken());
+    								cutWhere = 1;
+    							}
+    							if (playMode.equals("below")){
+    								cutBelowValue = Float.parseFloat(tokenizer.nextToken());
+    								cutWhere = 2;
+    							}
+    							if (playMode.equals("both")){
+    								cutBelowValue = Float.parseFloat(tokenizer.nextToken());
+    								cutAboveValue = Float.parseFloat(tokenizer.nextToken());
+    								cutWhere = 3;
+    							}
+    							// in the special case of playing all units just execute the proper command
+    							// loop = 0, int[] units = intData(), concat = true
+    							if (playMode.equals("all")){
+    								play(0,(int[])currLeaf.getAllData(),true);
+    								continue;
+    							}
+    						}
+    						// now use current values to actually play the outliers 
+    						// but before that ask whether <normal> <beep> <outliers> should be used
+    						// or only outliers
+    						String beep = input("Long version with beep [yes] or just outliers [NO]? ").toLowerCase();
+    						if (beep.equals("yes") || beep.equals("y")){
+    							playWithBeep();
+    						}
+    						else{
+    							playOutliers();
+    						}
+    						continue;
+    					}
+    						
+    					// finally, cut
+    					if (inputS.equals("cut") || inputS.equals("c")){
+    						int erasedUnits = 0;
+    						// adjust the settings
+    						if (tokenizer.hasMoreTokens()){
+    							String cutMode = tokenizer.nextToken();
+    							if (cutMode.equals("above")){
+    								cutAboveValue = Float.parseFloat(tokenizer.nextToken());
+    								cutWhere = 1;
+    							}
+    							if (cutMode.equals("below")){
+    								cutBelowValue = Float.parseFloat(tokenizer.nextToken());
+    								cutWhere = 2;
+    							}
+    							if (cutMode.equals("both")){
+    								cutBelowValue = Float.parseFloat(tokenizer.nextToken());
+    								cutAboveValue = Float.parseFloat(tokenizer.nextToken());
+    								cutWhere = 3;
+    							}
+    						}
+    						// now use current values to actually cut the outliers 
+    						switch (cutWhere){
+    							// above: use cutAboveValue and second true as it says "cut above",
+    							// 		  third true means auto mode.
+    							case 1:
+    							{
+    								erasedUnits = eraseUnitsFromLeaf(true, currLeaf,null,cutAboveValue,logger,true,true);
+    								break;
+    							}
+    							// below: use cutBelowValue and false for "don't cut above = cut below"
+    							case 2:
+    							{
+    								erasedUnits = eraseUnitsFromLeaf(true, currLeaf,null,cutBelowValue,logger,false,true);
+    								break;
+    							}
+    							// both: the easiest part of it all: just do both cutting operations
+    							case 3:
+    							{
+    								erasedUnits = eraseUnitsFromLeaf(true, currLeaf,null,cutAboveValue,logger,true,true);
+    								erasedUnits += eraseUnitsFromLeaf(true, currLeaf,null,cutBelowValue,logger,false,true);
+    								break;
+    							}
+    						}
+    						outln("Successfully erased "+erasedUnits+" units from leaf.");
+    						continue;
+    					}
+    						    						  					
+    					// navigation
+    					// last leaf: use lastLeaf to jump to last usable leaf and store this leaf
+    					// as "new" last leaf
+    					if (inputS.equals("last") || inputS.equals("l")){
+    						int temp = currLeafIndex;
+    						outln("Going to last leaf...");
+    						jumpToLeaf(lastLeaf);
+    						lastLeaf = temp;
+    						break;
+    					}
+						
+    					// next leaf: just break out of the while(true) loop
+    					if (inputS.equals("next") || inputS.equals("n") || inputS.equals("skip") || inputS.equals("s"))
+    					{
+    						// store leaf as last usable leaf
+    						lastLeaf = currLeafIndex;
+        		    		// go to next leaf (if possible)
+    			    		currLeafIndex++;
+    			    		currLeaf = (IntAndFloatArrayLeafNode)currLeaf.getNextLeafNode();
+    						outln("Going to next leaf...");
+    						break;
+    					}
+    						
+						// provide a jump method just like in main command line
+    					if (inputS.equals("jump") || inputS.equals("j")){
+    						if (tokenizer.hasMoreTokens()){
+    							int i = Integer.parseInt(tokenizer.nextToken());
+    							jumpToLeaf(i);
+    						}
+    						else
+    						{
+    							String s = input("Enter leaf index: ");
+    							int i = Integer.parseInt(s);
+    							jumpToLeaf(i);
+    						}
+    						break;
+    					}
+						
+    					// set the global variables
+    					if (inputS.equals("set") || inputS.equals("s")){
+    						// if there are more tokens, adjust the settings
+    						if (tokenizer.hasMoreTokens()){
+    							String cutMode = tokenizer.nextToken();
+    							if (cutMode.equals("above")){
+    								cutAboveValue = Float.parseFloat(tokenizer.nextToken());
+    								cutWhere = 1;
+    							}
+    							if (cutMode.equals("below")){
+    								cutBelowValue = Float.parseFloat(tokenizer.nextToken());
+    								cutWhere = 2;
+    							}
+    							if (cutMode.equals("both")){
+    								cutBelowValue = Float.parseFloat(tokenizer.nextToken());
+    								cutAboveValue = Float.parseFloat(tokenizer.nextToken());
+    								cutWhere = 3;
+    							}
+    						}
+    						// else ask interactively
+    						else{
+    							// just to be sure, use another while(true) loop here
+    							// until user gets input right
+    							while (true){
+    								String setMode = input("Choose cut mode to set [above,below,both]: ").toLowerCase();
+    								if (setMode.equals("above")){
+    									String aboveString = input("Enter float value for cutAboveValue: ");
+    									cutAboveValue = Float.parseFloat(aboveString);
+    									cutWhere = 1;
+    									break;
+    								}
+    								if (setMode.equals("below")){
+    									String belowString = input("Enter float value for cutBelowValue: ");
+    									cutBelowValue = Float.parseFloat(belowString);
+    									cutWhere = 2;
+    									break;
+    								}
+    								if (setMode.equals("both")){
+    									String belowString = input("Enter float value for cutBelowValue: ");
+    									cutBelowValue = Float.parseFloat(belowString);
+    									String aboveString = input("Enter float value for cutAboveValue: ");
+    									cutAboveValue = Float.parseFloat(aboveString);
+    									cutWhere = 3;
+    									break;
+    								}
+    								// on wrong user input, keep on asking
+    								continue;
+    							}	
+    						}
+    					}	
+    						
+    					// exit and save command, save all work
+    					if (inputS.equals("exit")|| inputS.equals("x")|| inputS.equals("save")){
+    						boolean x = (inputS.equals("exit") || inputS.equals("x"));
+    						if (x){
+    							outln("user exit");
+    							logger.println("user aborted process");
+    						}else{
+    							outln("saving...");
+    							logger.println("user requests save");
+    						}
+    						
+    					
+    						/* save work for future resuming
+    						DataOutputStream dos = null;
+    						dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(filename)));
+    						// save logfile and cartfile
+    						if (logfile == null){
+    							dos.writeUTF("null");
+    						}else{
+    							dos.writeUTF(logfile);
+    						}	
+    						if (cartfile == null){
+    							dos.writeUTF("null");
+    						}else{
+    							dos.writeUTF(cartfile);
+    						}	
+    						// save leaf index
+    						dos.writeInt(currLeafIndex);
+    						// save current cut above value
+    						dos.writeFloat(cutAboveValue);
+    						// save current cut below value
+    						dos.writeFloat(cutBelowValue);
+    						// save cut mode
+    						dos.writeByte(cutWhere);
+    						// close file
+    						dos.close();
+    						// dump (modified/current) cart
+    						String dumpCartFile = "./resume.cart";
+    						saveCart(dumpCartFile);
+    						outln("data saved. next time you will be asked if you want to resume from here.");
+    						logger.println("data saved for future resume option");
+    						*/
+    						if (x){
+    							currLeaf = (IntAndFloatArrayLeafNode)ctree.getFirstLeafNode();
+    							currLeafIndex = 1;
+    							outln("tree reset, all done.");
+    							logger.println("tree reset, all done.");
+    							logger.close();
+    							return;
+    						}else{
+    							continue;
+    						}
+    					} 
+    				}else{
+    					outln("Command empty. Try again.");
     					continue;
-    				} // end try/catch
-    			}// end while(true) (command line)
+    				}
+    			}
+    			catch(Exception e){
+    				outln("command not found. try again.");
+    				continue;
+    			} // end try/catch
+    		}// end while(true) (command line)
 
-    		}// end while (loop through all leafs)
+    	}// end while (loop through all leafs)
     		
-    		// another "reset" to finish this, end of (first) sub-method
-    		currLeaf = (IntAndFloatArrayLeafNode)ctree.getFirstLeafNode();
-			currLeafIndex = 1;
-    		outln("tree reset, all done.");
-    		logger.println("tree reset, all done.");
-    		logger.close();
+    	// another "reset" to finish this, end of (first) sub-method
+    	currLeaf = (IntAndFloatArrayLeafNode)ctree.getFirstLeafNode();
+		currLeafIndex = 1;
+    	outln("tree reset, all done.");
+    	logger.println("tree reset, all done.");
+    	logger.close();
 
 	}
 	else
@@ -1209,13 +1262,13 @@ try{
     		float someValue2 = 0;
 		
     		boolean mode1 = true;
-		boolean cut = false;
+    		boolean cut = false;
 		
 		// ask about details
     		while (true){
     			outln("Available sub-modes: 1) cut above/below mean +- some value");
     			//outln("\t\t\t2) cut above/below mean +- (some value * st dev)");	
-			outln("\t\t\t2) cut above absolute p-value");
+    			outln("\t\t\t2) cut above absolute p-value");
     			String s = input("Enter mode: ");
     			if (s.equals("1")){
     				break;

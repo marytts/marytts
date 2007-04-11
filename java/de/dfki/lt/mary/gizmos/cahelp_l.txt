@@ -1,0 +1,17 @@
+load [filename] or
+l [filename]
+
+Load new cart from (binary) file filename,
+discarding all changes made to current cart.
+(Call save or dump before or, if you used the command
+ analyze, remember that you can give a filename
+ for automatic dumping, too.)
+ 
+Note: keep track of the carts that you have!
+      New cart will be the one you work with after
+      having called load, so there might be more
+      or fewer leafs, units etc.
+Note also that you can load "normal" .mry carts with this command,
+you will still be able to listen to the leafs, display the decision
+paths and the candidates. But of course, with all means and sds being
+0.0, you won't be able to detect or erase any outliers.

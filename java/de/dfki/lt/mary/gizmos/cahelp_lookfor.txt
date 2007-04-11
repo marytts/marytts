@@ -1,0 +1,14 @@
+lookfor [unit]
+
+Returns the index of the leaf that contains as
+one of its candidates the unit with index [unit].
+
+Since we are examining a cart, each unit belongs
+to one leaf only.
+Note: not that useful, except perhaps you want to
+      whether your cutting or erasing operation(s)
+      have succeeded,
+      In this case you can call this method to 
+      look for a unit that you had erased, if it
+      says it's still there, something must have
+      gone wrong.

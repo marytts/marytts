@@ -1,0 +1,97 @@
+OK, so here are the basic few steps that the program runs through:
+
+1) In its initialisation process, it loads the cart.mry file of the
+   current voice and calculates and shows some little stats. 
+   (Program must be run in voice directory, CART should have been 
+   built using the ExtendedClassificationTree for its leafs;
+   otherwise, no cutting and p-value specific commands are usable.
+   See below.)
+   
+2) It runs its main command shell.
+   Note that in the prompt, it says "cL: <some number>".
+   This means that you can browse through the cart by its leafs, by
+   default starting with leaf number 1.
+   You can also view the candidates, render them as audio and play
+   them back and erase some of them
+   OR you can choose to run the most useful and neat method - analyze.
+   (See help analyze for details.)
+   
+3) So basically you can use the main command shell
+   for quick testing and cart-specific commands
+   (save, dump, textdump, load)
+   or
+   use analyze (which is another command shell for itself)
+   to dive into the current cart and let the program 
+   guide you through it.
+   
+4) Change the cart as you see fit. (erase, analyze->cut; see next page)
+
+5) Save or dump the cart (you also might want to textdump for debugging),
+   analyze has an extra parameter for that.
+   
+-----------------------------------------------------------------------
+
+Cutting:
+
+There are 3 global variables, namely
+- the current cut mode (cutWhere in .java)
+- the current cutAboveValue
+- the current cutBelowValue
+
+which can be changed in both analyze and the main cmdline.
+
+-----------------------------------------------------------------------
+
+As we all currently agree on, each leaf contains from 0 up to 50
+candidates to choose from for the decision path that led there.
+The candidates are stored in the form: (<index> <value>) where
+index is the unit index and
+value is some kind of probability float value for the unit to meet
+the matching criteria (value >= 0).
+Now we postulate that any units that are outliers in terms of their
+probability values are also "acoustic outliers" that do not really
+fit into their respective leaf.
+Now, as we all know, outliers can be found both 
+above and below the mean value.
+
+-----------------------------------------------------------------------
+
+Therefore the cut modes are:
+above - which would assume that every unit that has a really LARGE 
+	p-value is an acoustic outlier
+below - which would assume that every unit that has a really LOW
+	p-value is an acoustic outlier
+both  - which would assume that both LOW and LARGE p-values
+	point to outliers
+	
+(above is the default mode as, after all, the values are called 
+ "probability values" and they usually go far beyond 1 and even 10)
+
+cutAboveValue and cutBelowValue are the absolute values used for
+cutting units and displaying the units of a leaf.
+
+examples:
+
+	 cutAboveValue = 25, cutBelowValue = 15
+cutmode = above: view/cut all units with a p-value above 25
+	= below: view/cut all units with a p-value below 15
+	= both:  view/cut all units with a p-value >25 or <15
+		(i.e. assume that a normal unit has a p-value
+		 between 15 and 25)
+	
+	 cutAboveValue = 20, cutBelowValue = 25
+cutmode = above: view/cut all units with a p-value above 20
+	= below: view/cut all units with a p-value below 25
+	= both:  view/cut all units (above 20 or below 25)
+	
+	 cutAboveValue = 0, cutBelowValue = x
+cutmode = above: view/cut all units 
+		(except those with p-value 0.0, -1 would cut all units)
+	= below: view/cut all units with a p-value below x
+	= both:  view/cut all units 
+		(including 0.0 because of below x)
+
+After having read this, you should type "help" to get a quick
+overview of the commands, type "help analyze" for details of the 
+analyze command.
+

@@ -1,0 +1,12 @@
+viewleaf [index] [which] or
+vl [index] [which]
+
+Displays all candidates of leaf with index [index].
+Again, [index] is optional, if not specified,
+the current leaf is used.
+[which] is a String parameter, either
+"all" if all units should be displayed or
+"out" for outliers only (given the cut mode and values).
+
+Note: Like playleaf, viewleaf jumps to the leaf
+      if index != current leaf index.

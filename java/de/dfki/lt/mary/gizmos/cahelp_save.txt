@@ -1,0 +1,19 @@
+save [filename] or
+s [filename]
+
+Dump current cart in (binary) (CA) file filename.
+
+Please note that save != dump:
+
+Dump = save current tree to MARY format, therefore
+       replacing the float p-values with constant
+       int 0s; rendering the resulting cart more
+       or less useless for the program
+       (It will still be useful for everything
+       that doesn't involve the floats, though.)
+       
+Save = save current tree to CA format, therefore
+       leaving the floats intact; allowing for 
+       future CA work on it
+       
+Note: you might not want to call it "cart.mry"!

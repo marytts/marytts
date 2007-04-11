@@ -1,0 +1,13 @@
+erase [uindex1].. [uindexN] or
+e [uindex1].. [uindexN]
+
+Delete as many units as you want from the cart
+each with their respective unit index [uindex].
+
+Note: With this method you may erase any unit(s)
+      you want, independant from the current leaf.
+      That is why this method is called "erasing"
+      instead of "cutting" as in the analyze method,
+      since the cutting part is leaf-dependant.
+      (And at least semi-automatic.)
+      

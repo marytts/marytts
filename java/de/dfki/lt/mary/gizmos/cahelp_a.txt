@@ -1,0 +1,40 @@
+There are 3 parameters for the analyze command:
+
+[mode] which can be "user" or "auto";
+       use "resume" if you want to continue your work on last
+       "user" session
+[logfile] in which all of the results will be logged in
+[cartfile] the file in which the (binary) final cart will be stored in
+
+The 3 modes are:
+user
+  This mode is the most important one as it combines some automatic
+  features with complete user control.
+  "Useless" leafs are automatically skipped;
+  (i.e. there are less than two candidates, or the standard deviation
+   of the p-values is 0)
+  "interesting" leafs can be viewed, played back as audio and they
+  can be cut according to the cut mode and values which 
+  can be changed by the user, too.
+  In every case, data is displayed and stored in the logfile
+  along the way.
+  
+  resume
+    As this one belongs to the "user" mode, it allows you to resume
+    your earlier work. It doesn't need any parameters, since logfile
+    and cartfile are stored in the already saved file "resume.dat".
+    Thus, just type "a resume".
+
+auto
+  In this mode, you just have to punch in some data for the algorithm
+  and let the algorithm do its job.
+  Just like the user mode, the auto mode also skips the useless leafs
+  and just analyzes the interesting ones.
+  You may even choose whether you DO want to cut the outliers (y) or
+  just pretend and look up the log afterwards (default).
+  Note: Don't walk away from the computer as it usually takes just 
+  less than a second to finish!  
+	
+
+
+

@@ -1,0 +1,16 @@
+GetCutMode or gcm
+SetCutMode [mode] or scm [mode]
+
+GetAboveValue or gav
+SetAboveValue [value] or sav [value]
+GetBelowValue or gbv
+SetBelowValue [value] or sbv [value]
+
+For details as to what these values mean and do, see "about".
+Mode is a string, either "above", "below" or "both".
+The values are float values.
+
+Note: Float value means 
+      something like "0.00023" (don't use the german "," version!)
+Note: everything (this includes f.e. the parameter [mode]) is
+      case insensitive!

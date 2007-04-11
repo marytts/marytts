@@ -1,0 +1,111 @@
+Available commands are:
+(Please note that command line is case-insensitive.)
+(Also note that you may write the full commands or just
+ the abbreviations, both forms will be accepted.)
+
+a(nalyze) [mode] [logfile] [cartfile]
+	analyze the cart with parameters being:
+	[mode]: can be "user","auto" or "resume"
+	[logfile]: all output will be saved here
+	[cartfile]: optional, final cart will be saved here
+	
+______________________________________________________________
+
+about
+	displays some information about what the program
+	is all about, what it does and how it does it.
+	you might want to read this first if you haven't
+	used the program before
+
+h(elp) [command]
+	displays this help file or specific help about command
+	
+--------------------------------------------------------------
+
+s(ave) [savefile]
+	do a binary (CA) dump for the current cart to savefile
+
+d(ump) [dumpfile]
+	do a binary (MARY) dump for the current 
+	cart to dumpfile
+	
+t(ext)d(ump) [dumpfile]
+	do a textdump for the current cart to dumpfile
+	
+l(oad) [cartfile]
+	load a new cart that will replace the current one
+	from cartfile (can be both a CA and a MARY cart, of
+        course, though, you won't be able to detect or erase
+        any outliers in the MARY cart, with all means=0.0 
+        and all sds=0.0)
+	
+--------------------------------------------------------------
+	
+j(ump) [leaf]
+	jump to the leaf with index number leaf
+	
+n(ext) [number]
+	jump number of leafs forward, if not specified
+	go to next leaf	
+	
+p(rev) [number]
+	see next, only backward
+	
+--------------------------------------------------------------
+	
+s(et)c(ut)m(ode) [mode]
+	sets the cut mode to mode, where mode can be
+	above - view or cut all units above cutAboveValue
+	below - view or cut all units below cutBelowValue
+	both  - do both
+	
+g(et)c(ut)m(ode)
+	gets the current cut mode
+	
+s(et)a(bove)v(alue) [value]
+	sets current cutAboveValue to value
+	
+g(et)a(bove)v(alue)
+	gets current cutAboveValue
+	
+s(et)b(elow)v(alue) [value]
+g(et)b(elow)v(alue)
+	see above, but with cutBelowValue
+	
+--------------------------------------------------------------
+
+lookfor [unit]
+	looks for unit with index unit in the cart
+	(use f.e. to check whether last cutting process
+	 was successful)
+	 
+e(rase) [unit1].. [unitN]
+	erase units with given indices unit1 to unitN
+	
+--------------------------------------------------------------
+
+d(ec)p(ath)
+	shows decision path of current leaf
+
+v(iew)l(eaf) [leaf] [which]
+	view units of a leaf
+	leaf: optional, leaf index, current if not specified
+	which: can be "all" or "cut"
+	       all will display all units
+	       cut will display units according to cut values 
+
+p(lay)l(eaf) [which] [where] [value]
+	plays all units(/candidates) of current leaf
+	which can be either "all" (units) or "cut"
+	only cut takes the optional two parameters 
+	where and value representing cut mode (above/below)
+	and the float cut value, respectively.	
+	
+r(eplay)
+	replays the audio that was rendered last
+	
+--------------------------------------------------------------
+
+(e)x(it) 
+	self-explanatory
+
