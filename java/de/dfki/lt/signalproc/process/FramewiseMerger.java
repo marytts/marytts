@@ -186,13 +186,17 @@ public class FramewiseMerger extends FrameOverlapAddSource
             } else {
                 prevLabel = currentLabel;
                 currentLabel = labelTimes.getData(1)[0];
-                assert currentLabel > prevLabel;
+                assert currentLabel >= prevLabel;
                 prevOtherLabel = currentOtherLabel;
                 currentOtherLabel = otherLabelTimes.getData(1)[0];
-                assert currentOtherLabel > prevOtherLabel;
+                assert currentOtherLabel >= prevOtherLabel;
                 //System.out.println("current label: "+currentLabel+"("+prevLabel+")");
                 //System.out.println("other   label: "+currentOtherLabel+"("+prevOtherLabel+")");
-                localTimeStretchFactor = (currentOtherLabel - prevOtherLabel) / (currentLabel - prevLabel);
+                if (currentLabel == prevLabel || currentOtherLabel == prevOtherLabel) {
+                    localTimeStretchFactor = 1;
+                } else {
+                    localTimeStretchFactor = (currentOtherLabel - prevOtherLabel) / (currentLabel - prevLabel);
+                }
             }
         }
         assert prevLabel <= frameStart && frameStart < currentLabel;
@@ -228,7 +232,8 @@ public class FramewiseMerger extends FrameOverlapAddSource
             ((InlineFrameMerger)processor).setFrameToMerge(otherFrame);
         } else {
             assert prevOtherStart < targetOtherStart;
-            assert targetOtherStart <= otherStart;
+            assert targetOtherStart <= otherStart || !otherFrameProvider.hasMoreData();
+            if (targetOtherStart > otherStart) targetOtherStart = otherStart;
             // Request interpolation between prevOtherFrame and otherFrame in relation to their distance to targetOtherStart
             // Linear interpolation:
             double rPrev = 1 - (targetOtherStart - prevOtherStart)/(otherStart - prevOtherStart);
