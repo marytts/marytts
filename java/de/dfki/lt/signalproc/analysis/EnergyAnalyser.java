@@ -60,12 +60,12 @@ public class EnergyAnalyser extends FrameBasedAnalyser {
     /** Beginning of valid data in frameEnergies; will be >0 only after more than
      * maxSize frames have been read.
      */
-    protected int offset;
+    protected int offset = 0;
     /**
      * Length of valid data, counting from offset. This will count up to maxSize
      * and then stay equal to maxSize. 
      */
-    protected int len;
+    protected int len = 0;
     /** maximum size of the double[] storing the frame energies */
     protected int maxSize;
     
@@ -73,11 +73,13 @@ public class EnergyAnalyser extends FrameBasedAnalyser {
     public EnergyAnalyser(DoubleDataSource signal, int framelength, int samplingRate)
     {
         super(signal, new RectWindow(framelength), framelength, samplingRate);
+        maxSize = DEFAULT_MAXSIZE;
     }
 
     public EnergyAnalyser(DoubleDataSource signal, int framelength, int frameShift, int samplingRate)
     {
         super(signal, new RectWindow(framelength), frameShift, samplingRate);
+        maxSize = DEFAULT_MAXSIZE;
     }
 
     public EnergyAnalyser(DoubleDataSource signal, int framelength, int frameShift, int samplingRate, int maxSize)

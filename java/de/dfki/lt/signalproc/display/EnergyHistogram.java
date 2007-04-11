@@ -81,6 +81,7 @@ public class EnergyHistogram extends Histogram
         int frameShift = frameLength / 2;
         if (frameLength%2==0) frameLength++; // make sure frame length is odd
         EnergyAnalyser energyAnalyser = new EnergyAnalyser_dB(signal, frameLength, frameShift, samplingRate);
+        energyAnalyser.analyseAllFrames();
         double[] histogram = energyAnalyser.getEnergyHistogram();
         int nbins = histogram.length;
         double minEnergy = energyAnalyser.getMinFrameEnergy();
