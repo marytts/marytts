@@ -111,7 +111,7 @@ public class FrameProvider
         this.frameStart = -1;
         this.nextFrameStart = 0;
         validSamplesInFrame = 0;
-        // We keep the previous frame in memory (we'll need this if frameShift < frmaeLength):
+        // We keep the previous frame in memory (we'll need this if frameShift < frameLength):
         this.memory = new double[frameLength];
         posInMemory = memory.length; // "empty"
         memoryFilled = false;

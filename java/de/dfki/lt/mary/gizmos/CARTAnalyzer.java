@@ -943,7 +943,7 @@ try{
 							currLeaf=(IntAndFloatArrayLeafNode)currLeaf.getNextLeafNode();
 							while(currLeaf != null){
 
-								if (getMean(currLeaf.getFloatData())>1000){
+								if (currLeaf.getDecisionPath().indexOf("mary_phoneme==_") != -1 && currLeaf.getNumberOfData() >= 2){
 									outln("silence found!");
 									foundS = true;
 									break;
@@ -959,7 +959,7 @@ try{
 							continue;
 						}
 						
-						if (inputS.equals("histo")){
+						if (inputS.equals("energy")){
 							int len = currLeaf.getNumberOfData();
 							Datagram[][] data = new Datagram[len][];
                             int nDatagrams = 0;
@@ -973,10 +973,62 @@ try{
                                 System.arraycopy(data[i], 0, allDatagrams, pos, data[i].length);
 							}
                             double[] audioData = new DatagramDoubleDataSource(allDatagrams).getAllData();
+                            EnergyAnalyser_dB allUnitsAnalyser = new EnergyAnalyser_dB(
+									new DatagramDoubleDataSource(allDatagrams),
+									128, tlr.getSampleRate()
+							);
+                            allUnitsAnalyser.analyseAllFrames();
                             EnergyHistogram eh = new EnergyHistogram(audioData, tlr.getSampleRate());
                             eh.showInJFrame("Energy histogram for leaf "+currLeafIndex, false, false);
+                            double meanUnitsEnergy = allUnitsAnalyser.getMeanFrameEnergy(); 
+                            double silence = allUnitsAnalyser.getSilenceCutoff();
+                            
+                            outln("Silence cutoff: "+silence+"; meanUnitsEnergy: "+meanUnitsEnergy);
+                            input("Press [Enter] for unit energy analysis ...");
+                            
+                            int counter1 = 0;
+                                                        
+                            for (int i=0; i<len; i++) {
+								EnergyAnalyser_dB oneUnitAnalyser = new EnergyAnalyser_dB(
+										new DatagramDoubleDataSource(data[i]),
+										128, tlr.getSampleRate()
+								);
+								oneUnitAnalyser.analyseAllFrames();
+								double meanUnitEnergy = oneUnitAnalyser.getMeanFrameEnergy();
+								//outln("Unit "+i+" mean energy: "+meanUnitEnergy);
+								if (meanUnitEnergy > meanUnitsEnergy){
+									counter1++;
+								}	
+                            } 
+
+                            input("[Enter] for playback...");
+                            
+                            int[] above = new int[counter1];
+                            int[] below = new int[len - counter1];
+                            int aI = 0;
+                            int bI = 0;
+                            
+                            for (int i=0; i<len; i++) {
+								EnergyAnalyser_dB oneUnitAnalyser = new EnergyAnalyser_dB(
+										new DatagramDoubleDataSource(data[i]),
+										128, tlr.getSampleRate()
+								);
+								oneUnitAnalyser.analyseAllFrames();
+								double meanUnitEnergy = oneUnitAnalyser.getMeanFrameEnergy();
+								if (meanUnitEnergy > meanUnitsEnergy){
+									above[aI] = indices[i];
+									aI++;
+								}else{
+									below[bI] = indices[i];
+									bI++;
+								}
+                            }
+                            
+                            playWithBeep(below, above);
+                            
 							continue;
 						}
+						
     					// first check for the 3 main commands
     						   						
     					// first off, view
@@ -1260,70 +1312,32 @@ try{
 	}
 	else
 	{
-// case 2: fully automatic analysis with optional automatic cutting
-    		// ask for cutting sub-mode and value (set especially for this mode)
-    		// note: there are now 2 sub-modes: mean+value or absolute value
-		
-    		float someValue = 0;
-    		float someValue2 = 0;
-		
-    		boolean mode1 = true;
-    		boolean cut = false;
-		
-		// ask about details
-    		while (true){
-    			outln("Available sub-modes: 1) cut above/below mean +- some value");
-    			//outln("\t\t\t2) cut above/below mean +- (some value * st dev)");	
-    			outln("\t\t\t2) cut above absolute p-value");
-    			String s = input("Enter mode: ");
-    			if (s.equals("1")){
-    				break;
-    			}
-    			if (s.equals("2")){
-    				mode1 = false;
-    				break;
-    			}
-    		}
-    		while (true){
-    			/*String s = input("Enter some value (minus) (float!): ");
-    			try{
-    				someValue = Float.parseFloat(s);
-    			}catch(Exception e){
-    				continue;
-    			}*/
-    			// For blizzard only: enable double cutting
-    			String s = input("Enter some value (plus) (float!): ");
-    			try{
-    				someValue2 = Float.parseFloat(s);
-    				break;
-    			}catch(Exception e){
-    				continue;
-    			}
-    		}	
-		while(true){
-			String s = input("Really cut [y] or just pretend [N] ?: ");
-			if (s.equals("y") || s.equals("yes")){
-				cut = true;
-			}
-			break;
-		}
-		
+// case 2: fully automatic analysis
+   
+			// provide experimental cut scenarios for the user
+			boolean cutAbove1000 = true;
+			boolean cutNorm = true;
+			boolean cutSilence = true;
+			if (input("Cut non-silence leafs with float mean > 1000? [YES/no]: ").equals("no"))
+				cutAbove1000 = false;
+			if (input("Cut non-silence leafs with normal mean? [YES/no]: ").equals("no"))
+				cutNorm = false;
+			if (input("Cut silence leafs? [YES/no]: ").equals("no"))
+				cutSilence = false;
     		// take the current time
     		long time1 = System.currentTimeMillis();
     		outln("Automatic analysis for cart activated...");
     		logger.println("Automatic analysis for cart activated...");
-    		outln("Starting algorithm... (mode1 = "+mode1+")");
-    		logger.println("jumped to first leaf.");
-    		
+    		outln("Starting algorithm...");
+
     		// jump to first leaf
     		currLeaf = (IntAndFloatArrayLeafNode)ctree.getFirstLeafNode();
     		currLeafIndex = 1;
- 
-    		// count how many units are cut during the process
-    		//int numCutUnits = 0;
-
-    		int numCutUnitsBelow = 0;
-    		int numCutUnitsAbove = 0;
+    		logger.println("jumped to first leaf.");
+    		
+    		// count how many units in how many leaves are cut during the process
+    		int numCutUnits = 0;
+    		int numCutLeaves = 0;
     		
    			while (currLeaf != null){
 
@@ -1353,40 +1367,78 @@ try{
    					currLeaf = (IntAndFloatArrayLeafNode)currLeaf.getNextLeafNode();
    					continue;
    				}
-				if (sd == Double.POSITIVE_INFINITY){
-					logger.println("sd = Infinity! with mean = "+mean+".");
-				}else{
-					logger.println("sd != 0: mean = "+mean+"; sd = "+sd);
-   				}	
-   				if (mean > 1000){
-					logger.println("Pause detected. Skipping.");
-					currLeafIndex++;
-   					currLeaf = (IntAndFloatArrayLeafNode)currLeaf.getNextLeafNode();
-					continue;
-				}	
-				
-       			// cutting: use user input to calculate absolute cut value for
-				// each and every single leaf accordingly
-				// mode 1: use mean +- someValue
-				if (mode1){
-					/* cut above if someValue > 0 ( => abs value above mean)
-					numCutUnits +=
-						eraseUnitsFromLeaf (cut, currLeaf, null, (mean+someValue), logger, (someValue > 0), true);
-					B07 only: */
-					//numCutUnitsBelow += 
-						//eraseUnitsFromLeaf(cut, currLeaf, null, (mean - someValue), logger, false, true);
-					numCutUnitsAbove += 
-						eraseUnitsFromLeaf (cut, currLeaf, null, (mean + someValue2), logger, true, true);
-				} // else use mean +- someValue*sd
-				else{
-					/*numCutUnitsBelow +=
-						eraseUnitsFromLeaf (cut, currLeaf, null, (float)(mean-(someValue*sd)), logger, false, true);
-					numCutUnitsAbove +=	
-						eraseUnitsFromLeaf (cut, currLeaf, null, (float)(mean+(someValue2*sd)), logger, true, true);*/
-					numCutUnitsAbove += 
-						eraseUnitsFromLeaf (cut, currLeaf, null, someValue2, logger, true, true);	
-				}
-				// DEBUG
+   				
+   				// 1) NO silence
+   				if (currLeaf.getDecisionPath().indexOf("mary_phoneme==_") == -1){
+   					if (mean > 1000){
+   						if (cutAbove1000)
+   							numCutUnits += eraseUnitsFromLeaf(cutAbove1000, currLeaf, null, 50000, logger, true, true);
+   						else
+   							eraseUnitsFromLeaf(cutAbove1000, currLeaf, null, 50000, logger, true, true);
+   						if (cutAbove1000 && numCutUnits > 0) numCutLeaves++;
+   					}
+   					else{
+   						if (cutNorm)
+   							numCutUnits += eraseUnitsFromLeaf(cutNorm, currLeaf, null, 50000, logger, true, true);
+   						else
+   							eraseUnitsFromLeaf(cutNorm, currLeaf, null, 50000, logger, true, true);
+   						if (cutNorm && numCutUnits > 0) numCutLeaves++;
+   					}	
+   				}
+   				// 2) Silence
+   				else
+   				{
+   					// Energy mode here
+   					logger.println("Silence detected! Computing energy levels...");
+   					int len = currLeaf.getNumberOfData();
+					Datagram[][] data = new Datagram[len][];
+                    int nDatagrams = 0;
+					for (int i = 0; i < len; i++){
+						data[i] = tlr.getDatagrams( ufr.getUnit(indices[i]), ufr.getSampleRate() );
+                        nDatagrams += data[i].length;
+						//outln("data["+i+"].length = "+data[i].length);
+					}
+                    Datagram[] allDatagrams = new Datagram[nDatagrams];
+					for (int i = 0, pos=0; i < len; pos += data[i].length, i++){
+                        System.arraycopy(data[i], 0, allDatagrams, pos, data[i].length);
+					}
+                    double[] audioData = new DatagramDoubleDataSource(allDatagrams).getAllData();
+                    EnergyAnalyser_dB allUnitsAnalyser = new EnergyAnalyser_dB(
+							new DatagramDoubleDataSource(allDatagrams),
+							128, tlr.getSampleRate()
+					);
+                    allUnitsAnalyser.analyseAllFrames();
+                    //EnergyHistogram eh = new EnergyHistogram(audioData, tlr.getSampleRate());
+                    //eh.showInJFrame("Energy histogram for leaf "+currLeafIndex, false, false);
+                    double meanUnitsEnergy = allUnitsAnalyser.getMeanFrameEnergy(); 
+                    double silence = allUnitsAnalyser.getSilenceCutoff();
+                    
+                    logger.println("Silence cutoff: "+silence+"; meanUnitsEnergy: "+meanUnitsEnergy);
+                    
+                    int counter1 = 0;
+                                                
+                    for (int i=0; i<len; i++) {
+						EnergyAnalyser_dB oneUnitAnalyser = new EnergyAnalyser_dB(
+								new DatagramDoubleDataSource(data[i]),
+								128, tlr.getSampleRate()
+						);
+						oneUnitAnalyser.analyseAllFrames();
+						double meanUnitEnergy = oneUnitAnalyser.getMeanFrameEnergy();
+						// actual cutting happens here
+						if (meanUnitEnergy > silence){
+							if (cutSilence)
+								((IntAndFloatArrayLeafNode)currLeaf).eraseData(indices[i]);
+							counter1++;
+							if (cutSilence)
+								numCutUnits++;
+						}	
+                    } 
+                    if (counter1 > 0 && cutSilence) numCutLeaves++;
+                    if (cutSilence)
+                    	logger.println("Out of the "+len+" units of the leaf, "+counter1+" were cut. (" +(float)((((float)counter1)/(float)len)*100.f) +"%)");
+
+   				}
+				// DEBUG 
 				float[] floatsAfter = currLeaf.getFloatData();
    				logger.println("after cutting: new mean = "+getMean(floatsAfter)+"; new sd = "+getSD(floatsAfter));
 				// END DEBUG
@@ -1402,21 +1454,20 @@ try{
     		currLeaf = (IntAndFloatArrayLeafNode)ctree.getFirstLeafNode();
     		currLeafIndex = 1;
     		
-    		// show the statistics B07
-    		int cutTotal = numCutUnitsBelow + numCutUnitsAbove;
-    		float percentage = (float)((float)cutTotal/(float)numUnits)*100.f;
-    		outln("Total number of cut units: "+cutTotal+" ("+percentage+"% of total ("+numUnits+") number of units).");
-    		logger.println("Total number of cut units: "+cutTotal+" ("+percentage+"% of total ("+numUnits+") number of units).");
-    		outln("Of those, number of units cut below p-value (mean - "+someValue+"): "+numCutUnitsBelow);
-    		outln("\tnumber of units cut above p-value (mean + "+someValue2+"): "+numCutUnitsAbove);
-    		logger.println("Of those, number of units cut below p-value (mean - "+someValue+"): "+numCutUnitsBelow+"; above p-value (mean + "+someValue2+"): "+numCutUnitsAbove);
+    		// show the statistics B07-style
+    		float percentageUnits = (float)((float)numCutUnits/(float)numUnits)*100.f;
+    		float percentageLeaves = (float)((float)numCutLeaves)/(float)numLeafs*100.f;
+    		outln("Total number of cut units: "+numCutUnits+" ("+percentageUnits+"% of total ("+numUnits+") number of units).");
+    		logger.println("Total number of cut units: "+numCutUnits+" ("+percentageUnits+"% of total ("+numUnits+") number of units).");
+    		outln("Total number of leaves pruned: "+numCutLeaves+" ("+percentageLeaves+"% of total ("+numLeafs+") number of leaves).");
+    		logger.println("Total number of leaves pruned: "+numCutLeaves+" ("+percentageLeaves+"% of total ("+numLeafs+") number of leaves).");
     		outln("Analysis/ search and destroy all done. Tree reset.");
     		logger.println("That's it. All sought and destroyed. Tree reset.");
     		// measure the time
     		long time2 = System.currentTimeMillis();
     		
-    		outln("S&D took "+(time2-time1)+" ms. Results logged in "+logfile);
-    		logger.println("process took "+(time2-time1)+" ms. Exiting...");
+    		outln("Algorithm took "+(time2-time1)+" ms. For details: results have been logged in "+logfile);
+    		logger.println("Algorithm took "+(time2-time1)+" ms. Exiting...");
     		logger.close();
 
 	}
@@ -1719,6 +1770,63 @@ try{
 
     }
     
+    private void playWithBeep(int[] normalNew, int[] outlierNew)
+    throws IOException{
+
+    	// 	 create the ByteArray and its OutputStream
+    	ByteArrayOutputStream bbis = new ByteArrayOutputStream();
+
+    	//insert normal values
+		for (int i = 0; i < normalNew.length; i++){
+			// Concatenate the normal units
+			Datagram[] dat = tlr.getDatagrams( ufr.getUnit(normalNew[i]), ufr.getSampleRate() );
+			for ( int k = 0; k < dat.length; k++ ) {
+				bbis.write( dat[k].getData() );
+			}
+		}
+		
+    	float sampleRate = 16000.f;
+    	// one second of sound
+		int sampLength = 16000;
+		int bytesPerSamp = 2;
+		
+		// insert silence (0.2 sec)
+		for (int i = 0; i < 0.2*sampLength; i++)
+			bbis.write(0);
+		
+		// insert beep (0.2 sec)
+	    for(int i = 0; i < 0.2*sampLength; i++){
+	      double time = i/sampleRate;
+	      double freq = 880.0; // frequency
+	      double sinValue =
+	        Math.sin(2*Math.PI*freq*time);
+	      sinValue *= 0.001; // lower the amplitude, otherwise it's just too loud
+	      bbis.write((short)(16000*sinValue));
+	    }//end for loop
+		
+		// insert silence (0.2 sec)
+		for (int i = 0; i < 0.2*sampLength; i++)
+			bbis.write(0);
+	    
+		// insert outliers
+		for (int j = 0; j < outlierNew.length; j++){
+			// Concatenate the datagrams from the instances
+			Datagram[] dat = tlr.getDatagrams( ufr.getUnit(outlierNew[j]), ufr.getSampleRate() );
+			for ( int k = 0; k < dat.length; k++ ) {
+				bbis.write( dat[k].getData() );
+			}
+		}
+		
+		// Get the bytes as an array
+   		byte[] buf = bbis.toByteArray();
+   		// Output the wav file
+   	    String fName = ( "./test.wav" );
+   		outln( "Outputting file [" + fName + "] with "+normalNew.length+" below values and "+outlierNew.length+" above..." );
+   		ww.export( fName, 16000, buf );
+   		outln( "Playing...");
+   		MaryAudioUtils.playWavFile(fName,0);
+    }
+    
     /**
      * Render and play outliers of current leaf
      * 
@@ -2005,10 +2113,14 @@ try{
 			
 		}
 		// only have a System.out if analyze() is not in auto mode
-		if (!auto)
+		if (!auto){
 		  outln("Successfully cut "+counter+" units, therefore leaving "+lNode.getNumberOfData()+" units in leaf.");
-		if (pw != null)
+		  outln("( => Percentage of cut units: "+(float)((float)counter/(float)(counter+lNode.getNumberOfData()))*100.f);
+		} 
+		if (pw != null){
 			pw.println("Successfully cut "+counter+" units, therefore leaving "+lNode.getNumberOfData()+" units in leaf.");
+			pw.println("( => Percentage of cut units: "+(float)((float)counter/(float)(counter+lNode.getNumberOfData()))*100.f);
+		}	
 		return counter;
 	}
 	
