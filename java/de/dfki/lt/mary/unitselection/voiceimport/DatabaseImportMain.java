@@ -346,6 +346,7 @@ public class DatabaseImportMain extends JFrame
                 new AcousticFeatureFileWriter(db, bnl),
                 
                 new CARTBuilder ( db ),
+                new CARTPruner ( db, bnl ),
                 new DurationCARTTrainer(db, bnl),
                 new F0CARTTrainer(db, bnl)
         };
