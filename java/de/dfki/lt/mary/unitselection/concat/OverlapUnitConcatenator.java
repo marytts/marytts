@@ -31,6 +31,7 @@ public class OverlapUnitConcatenator extends BaseUnitConcatenator {
     {
         for (int i=0, len=units.size(); i<len; i++) {
             SelectedUnit unit = (SelectedUnit) units.get(i);
+            assert !unit.getUnit().isEdgeUnit() : "We should never have selected any edge units!";
             OverlapUnitData unitData = new OverlapUnitData();
             unit.setConcatenationData(unitData);
             int nSamples = 0;
