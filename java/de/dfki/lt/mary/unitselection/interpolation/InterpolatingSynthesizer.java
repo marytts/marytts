@@ -206,6 +206,7 @@ public class InterpolatingSynthesizer implements WaveformSynthesizer
             }
             t2 += unitDuration2 / (float) sampleRate2;
             label2[i] = t2;
+            logger.debug(usv1.getName()+" ["+u1.getTarget()+"] "+label1[i]+" -- "+usv2.getName()+" ["+u2.getTarget()+"] "+label2[i]);
         }
         
         // 4. with these unit durations, run the LSFInterpolator on the two audio streams.
