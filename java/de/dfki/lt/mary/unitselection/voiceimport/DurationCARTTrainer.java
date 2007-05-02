@@ -38,6 +38,7 @@ public class DurationCARTTrainer implements VoiceImportComponent
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
     protected int percent = 0;
+    protected boolean useStepwiseTraining = false;
     
     
     
@@ -53,6 +54,7 @@ public class DurationCARTTrainer implements VoiceImportComponent
         if (!durationDir.exists()) durationDir.mkdir();
         this.durationFeaturesFile = new File(durationDir, System.getProperty("db.duration.featuresfile", "dur.feats"));
         this.wagonDescFile = new File(durationDir, System.getProperty("db.dur.wagondescfile", "dur.desc"));
+        this.useStepwiseTraining = Boolean.valueOf(System.getProperty("DurationCARTTrainer.useStepwiseTraining", "false")).booleanValue();
     }
     
     /**/
@@ -78,7 +80,8 @@ public class DurationCARTTrainer implements VoiceImportComponent
                 nUnits++;
             }
         }
-        percent = 10;
+        if (useStepwiseTraining) percent = 1;
+        else percent = 10;
         toFeaturesFile.close();
         System.out.println("Duration features extracted for "+nUnits+" units");
         
@@ -86,19 +89,27 @@ public class DurationCARTTrainer implements VoiceImportComponent
         generateFeatureDescriptionForWagon(featureDefinition, toDesc);
         toDesc.close();
         
-        // Split the data set in training and test part:
-       Process traintest = Runtime.getRuntime().exec("/project/mary/Festival/festvox/src/general/traintest "+durationFeaturesFile.getAbsolutePath());
-        try {
-           traintest.waitFor();
-        } catch (InterruptedException ie) {}
+        boolean ok = false;
         // Now, call wagon
         WagonCaller wagonCaller = new WagonCaller(null);
         File wagonTreeFile = new File(durationDir, "dur.tree");
-        boolean ok = wagonCaller.callWagon("-data "+durationFeaturesFile.getAbsolutePath()+".train"
-                +" -test "+durationFeaturesFile.getAbsolutePath()+".test -stepwise"
-                +" -desc "+wagonDescFile.getAbsolutePath()
-                +" -stop 10 "
-                +" -output "+wagonTreeFile.getAbsolutePath());
+        if (useStepwiseTraining) {
+            // Split the data set in training and test part:
+            Process traintest = Runtime.getRuntime().exec("/project/mary/Festival/festvox/src/general/traintest "+durationFeaturesFile.getAbsolutePath());
+             try {
+                traintest.waitFor();
+             } catch (InterruptedException ie) {}
+             ok = wagonCaller.callWagon("-data "+durationFeaturesFile.getAbsolutePath()+".train"
+                     +" -test "+durationFeaturesFile.getAbsolutePath()+".test -stepwise"
+                     +" -desc "+wagonDescFile.getAbsolutePath()
+                     +" -stop 10 "
+                     +" -output "+wagonTreeFile.getAbsolutePath());
+        } else {
+            ok = wagonCaller.callWagon("-data "+durationFeaturesFile.getAbsolutePath()+".train"
+                    +" -desc "+wagonDescFile.getAbsolutePath()
+                    +" -stop 10 "
+                    +" -output "+wagonTreeFile.getAbsolutePath());            
+        }
         percent = 100;
         return ok;
 
