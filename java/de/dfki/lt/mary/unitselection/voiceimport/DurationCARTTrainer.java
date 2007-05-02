@@ -86,10 +86,16 @@ public class DurationCARTTrainer implements VoiceImportComponent
         generateFeatureDescriptionForWagon(featureDefinition, toDesc);
         toDesc.close();
         
+        // Split the data set in training and test part:
+       Process traintest = Runtime.getRuntime().exec("/project/mary/Festival/festvox/src/general/traintest "+durationFeaturesFile.getAbsolutePath());
+        try {
+           traintest.waitFor();
+        } catch (InterruptedException ie) {}
         // Now, call wagon
         WagonCaller wagonCaller = new WagonCaller(null);
         File wagonTreeFile = new File(durationDir, "dur.tree");
-        boolean ok = wagonCaller.callWagon("-data "+durationFeaturesFile.getAbsolutePath()
+        boolean ok = wagonCaller.callWagon("-data "+durationFeaturesFile.getAbsolutePath()+".train"
+                +" -test "+durationFeaturesFile.getAbsolutePath()+".test -stepwise"
                 +" -desc "+wagonDescFile.getAbsolutePath()
                 +" -stop 10 "
                 +" -output "+wagonTreeFile.getAbsolutePath());
@@ -145,6 +151,14 @@ public class DurationCARTTrainer implements VoiceImportComponent
     public int getProgress()
     {
         return percent;
+    }
+
+
+    public static void main(String[] args) throws IOException
+    {
+        DatabaseLayout db = DatabaseImportMain.getDatabaseLayout();
+        BasenameList bnl = DatabaseImportMain.getBasenameList(db);
+        new DurationCARTTrainer(db, bnl).compute();
     }
 
 
