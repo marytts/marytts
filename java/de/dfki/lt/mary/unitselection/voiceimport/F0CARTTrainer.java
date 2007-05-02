@@ -39,7 +39,7 @@ public class F0CARTTrainer implements VoiceImportComponent
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
     protected int percent = 0;
-    
+    protected boolean useStepwiseTraining = false;
     
     
     /**/
@@ -54,6 +54,7 @@ public class F0CARTTrainer implements VoiceImportComponent
         this.midF0FeaturesFile = new File(f0Dir, System.getProperty("db.f0.mid.featuresfile", "f0.mid.feats"));
         this.rightF0FeaturesFile = new File(f0Dir, System.getProperty("db.f0.right.featuresfile", "f0.right.feats"));
         this.wagonDescFile = new File(f0Dir, System.getProperty("db.f0.wagondescfile", "f0.desc"));
+        this.useStepwiseTraining = Boolean.valueOf(System.getProperty("F0CARTTrainer.useStepwiseTraining", "false")).booleanValue();
     }
     
     /**/
@@ -132,7 +133,8 @@ public class F0CARTTrainer implements VoiceImportComponent
         toMidFeaturesFile.close();
         toRightFeaturesFile.close();
         System.out.println("F0 features extracted for "+nSyllables+" syllables");
-        percent = 10; // estimated
+        if (useStepwiseTraining) percent = 1; // estimated
+        else percent = 10; // estimated
         PrintWriter toDesc = new PrintWriter(new FileOutputStream(wagonDescFile));
         generateFeatureDescriptionForWagon(featureDefinition, toDesc);
         toDesc.close();
@@ -140,42 +142,64 @@ public class F0CARTTrainer implements VoiceImportComponent
         // Now, call wagon
         WagonCaller wagonCaller = new WagonCaller(null);
         File wagonTreeFile = new File(f0Dir, "f0.left.tree");
-        // Split the data set in training and test part:
-        Process traintest = Runtime.getRuntime().exec("/project/mary/Festival/festvox/src/general/traintest "+leftF0FeaturesFile.getAbsolutePath());
-        try {
-            traintest.waitFor();
-        } catch (InterruptedException ie) {}
-        boolean ok = wagonCaller.callWagon("-data "+leftF0FeaturesFile.getAbsolutePath()+".train"
-                +" -test "+leftF0FeaturesFile.getAbsolutePath()+".test -stepwise"
-                +" -desc "+wagonDescFile.getAbsolutePath()
-                +" -stop 10 "
-                +" -output "+wagonTreeFile.getAbsolutePath());
+        boolean ok;
+        if (useStepwiseTraining) {
+            // Split the data set in training and test part:
+            Process traintest = Runtime.getRuntime().exec("/project/mary/Festival/festvox/src/general/traintest "+leftF0FeaturesFile.getAbsolutePath());
+            try {
+                traintest.waitFor();
+            } catch (InterruptedException ie) {}
+            ok = wagonCaller.callWagon("-data "+leftF0FeaturesFile.getAbsolutePath()+".train"
+                    +" -test "+leftF0FeaturesFile.getAbsolutePath()+".test -stepwise"
+                    +" -desc "+wagonDescFile.getAbsolutePath()
+                    +" -stop 10 "
+                    +" -output "+wagonTreeFile.getAbsolutePath());
+        } else {
+            ok = wagonCaller.callWagon("-data "+leftF0FeaturesFile.getAbsolutePath()+".train"
+                    +" -desc "+wagonDescFile.getAbsolutePath()
+                    +" -stop 10 "
+                    +" -output "+wagonTreeFile.getAbsolutePath());
+        }
         if (!ok) return false;
         percent = 40;
         wagonTreeFile = new File(f0Dir, "f0.mid.tree");
-        // Split the data set in training and test part:
-        traintest = Runtime.getRuntime().exec("/project/mary/Festival/festvox/src/general/traintest "+midF0FeaturesFile.getAbsolutePath());
-        try {
-            traintest.waitFor();
-        } catch (InterruptedException ie) {}
-        ok = wagonCaller.callWagon("-data "+midF0FeaturesFile.getAbsolutePath()+".train"
-                +" -test "+midF0FeaturesFile.getAbsolutePath()+".test -stepwise"
-                +" -desc "+wagonDescFile.getAbsolutePath()
-                +" -stop 10 "
-                +" -output "+wagonTreeFile.getAbsolutePath());
+        if (useStepwiseTraining) {
+            // Split the data set in training and test part:
+            Process traintest = Runtime.getRuntime().exec("/project/mary/Festival/festvox/src/general/traintest "+midF0FeaturesFile.getAbsolutePath());
+            try {
+                traintest.waitFor();
+            } catch (InterruptedException ie) {}
+            ok = wagonCaller.callWagon("-data "+midF0FeaturesFile.getAbsolutePath()+".train"
+                    +" -test "+midF0FeaturesFile.getAbsolutePath()+".test -stepwise"
+                    +" -desc "+wagonDescFile.getAbsolutePath()
+                    +" -stop 10 "
+                    +" -output "+wagonTreeFile.getAbsolutePath());
+        } else {
+            ok = wagonCaller.callWagon("-data "+midF0FeaturesFile.getAbsolutePath()+".train"
+                    +" -desc "+wagonDescFile.getAbsolutePath()
+                    +" -stop 10 "
+                    +" -output "+wagonTreeFile.getAbsolutePath());
+        }
         if (!ok) return false;
         percent = 70;
         wagonTreeFile = new File(f0Dir, "f0.right.tree");
-        // Split the data set in training and test part:
-        traintest = Runtime.getRuntime().exec("/project/mary/Festival/festvox/src/general/traintest "+rightF0FeaturesFile.getAbsolutePath());
-        try {
-            traintest.waitFor();
-        } catch (InterruptedException ie) {}
-        ok = wagonCaller.callWagon("-data "+rightF0FeaturesFile.getAbsolutePath()+".train"
-                +" -test "+rightF0FeaturesFile.getAbsolutePath()+".test -stepwise"
-                +" -desc "+wagonDescFile.getAbsolutePath()
-                +" -stop 10 "
-                +" -output "+wagonTreeFile.getAbsolutePath());
+        if (useStepwiseTraining) {
+            // Split the data set in training and test part:
+            Process traintest = Runtime.getRuntime().exec("/project/mary/Festival/festvox/src/general/traintest "+rightF0FeaturesFile.getAbsolutePath());
+            try {
+                traintest.waitFor();
+            } catch (InterruptedException ie) {}
+            ok = wagonCaller.callWagon("-data "+rightF0FeaturesFile.getAbsolutePath()+".train"
+                    +" -test "+rightF0FeaturesFile.getAbsolutePath()+".test -stepwise"
+                    +" -desc "+wagonDescFile.getAbsolutePath()
+                    +" -stop 10 "
+                    +" -output "+wagonTreeFile.getAbsolutePath());
+        } else {
+            ok = wagonCaller.callWagon("-data "+rightF0FeaturesFile.getAbsolutePath()+".train"
+                    +" -desc "+wagonDescFile.getAbsolutePath()
+                    +" -stop 10 "
+                    +" -output "+wagonTreeFile.getAbsolutePath());
+        }
         percent = 100;
         return ok;
     }
