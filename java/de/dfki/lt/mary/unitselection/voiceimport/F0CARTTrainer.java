@@ -140,21 +140,39 @@ public class F0CARTTrainer implements VoiceImportComponent
         // Now, call wagon
         WagonCaller wagonCaller = new WagonCaller(null);
         File wagonTreeFile = new File(f0Dir, "f0.left.tree");
-        boolean ok = wagonCaller.callWagon("-data "+leftF0FeaturesFile.getAbsolutePath()
+        // Split the data set in training and test part:
+        Process traintest = Runtime.getRuntime().exec("/project/mary/Festival/festvox/src/general/traintest "+leftF0FeaturesFile.getAbsolutePath());
+        try {
+            traintest.waitFor();
+        } catch (InterruptedException ie) {}
+        boolean ok = wagonCaller.callWagon("-data "+leftF0FeaturesFile.getAbsolutePath()+".train"
+                +" -test "+leftF0FeaturesFile.getAbsolutePath()+".test -stepwise"
                 +" -desc "+wagonDescFile.getAbsolutePath()
                 +" -stop 10 "
                 +" -output "+wagonTreeFile.getAbsolutePath());
         if (!ok) return false;
         percent = 40;
         wagonTreeFile = new File(f0Dir, "f0.mid.tree");
-        ok = wagonCaller.callWagon("-data "+midF0FeaturesFile.getAbsolutePath()
+        // Split the data set in training and test part:
+        traintest = Runtime.getRuntime().exec("/project/mary/Festival/festvox/src/general/traintest "+midF0FeaturesFile.getAbsolutePath());
+        try {
+            traintest.waitFor();
+        } catch (InterruptedException ie) {}
+        ok = wagonCaller.callWagon("-data "+midF0FeaturesFile.getAbsolutePath()+".train"
+                +" -test "+midF0FeaturesFile.getAbsolutePath()+".test -stepwise"
                 +" -desc "+wagonDescFile.getAbsolutePath()
                 +" -stop 10 "
                 +" -output "+wagonTreeFile.getAbsolutePath());
         if (!ok) return false;
         percent = 70;
         wagonTreeFile = new File(f0Dir, "f0.right.tree");
-        ok = wagonCaller.callWagon("-data "+rightF0FeaturesFile.getAbsolutePath()
+        // Split the data set in training and test part:
+        traintest = Runtime.getRuntime().exec("/project/mary/Festival/festvox/src/general/traintest "+rightF0FeaturesFile.getAbsolutePath());
+        try {
+            traintest.waitFor();
+        } catch (InterruptedException ie) {}
+        ok = wagonCaller.callWagon("-data "+rightF0FeaturesFile.getAbsolutePath()+".train"
+                +" -test "+rightF0FeaturesFile.getAbsolutePath()+".test -stepwise"
                 +" -desc "+wagonDescFile.getAbsolutePath()
                 +" -stop 10 "
                 +" -output "+wagonTreeFile.getAbsolutePath());
@@ -264,5 +282,11 @@ public class F0CARTTrainer implements VoiceImportComponent
         return percent;
     }
 
+    public static void main(String[] args) throws IOException
+    {
+        DatabaseLayout db = DatabaseImportMain.getDatabaseLayout();
+        BasenameList bnl = DatabaseImportMain.getBasenameList(db);
+        new F0CARTTrainer(db, bnl).compute();
+    }
 
 }
