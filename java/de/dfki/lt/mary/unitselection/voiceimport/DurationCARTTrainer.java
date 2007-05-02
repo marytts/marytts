@@ -105,7 +105,7 @@ public class DurationCARTTrainer implements VoiceImportComponent
                      +" -stop 10 "
                      +" -output "+wagonTreeFile.getAbsolutePath());
         } else {
-            ok = wagonCaller.callWagon("-data "+durationFeaturesFile.getAbsolutePath()+".train"
+            ok = wagonCaller.callWagon("-data "+durationFeaturesFile.getAbsolutePath()
                     +" -desc "+wagonDescFile.getAbsolutePath()
                     +" -stop 10 "
                     +" -output "+wagonTreeFile.getAbsolutePath());            

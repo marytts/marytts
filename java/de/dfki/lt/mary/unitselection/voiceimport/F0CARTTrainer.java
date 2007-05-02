@@ -155,7 +155,7 @@ public class F0CARTTrainer implements VoiceImportComponent
                     +" -stop 10 "
                     +" -output "+wagonTreeFile.getAbsolutePath());
         } else {
-            ok = wagonCaller.callWagon("-data "+leftF0FeaturesFile.getAbsolutePath()+".train"
+            ok = wagonCaller.callWagon("-data "+leftF0FeaturesFile.getAbsolutePath()
                     +" -desc "+wagonDescFile.getAbsolutePath()
                     +" -stop 10 "
                     +" -output "+wagonTreeFile.getAbsolutePath());
@@ -175,7 +175,7 @@ public class F0CARTTrainer implements VoiceImportComponent
                     +" -stop 10 "
                     +" -output "+wagonTreeFile.getAbsolutePath());
         } else {
-            ok = wagonCaller.callWagon("-data "+midF0FeaturesFile.getAbsolutePath()+".train"
+            ok = wagonCaller.callWagon("-data "+midF0FeaturesFile.getAbsolutePath()
                     +" -desc "+wagonDescFile.getAbsolutePath()
                     +" -stop 10 "
                     +" -output "+wagonTreeFile.getAbsolutePath());
@@ -195,7 +195,7 @@ public class F0CARTTrainer implements VoiceImportComponent
                     +" -stop 10 "
                     +" -output "+wagonTreeFile.getAbsolutePath());
         } else {
-            ok = wagonCaller.callWagon("-data "+rightF0FeaturesFile.getAbsolutePath()+".train"
+            ok = wagonCaller.callWagon("-data "+rightF0FeaturesFile.getAbsolutePath()
                     +" -desc "+wagonDescFile.getAbsolutePath()
                     +" -stop 10 "
                     +" -output "+wagonTreeFile.getAbsolutePath());
