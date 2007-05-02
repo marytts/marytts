@@ -261,7 +261,7 @@ public class F0CARTTrainer implements VoiceImportComponent
     private void generateFeatureDescriptionForWagon(FeatureDefinition fd, PrintWriter out)
     {
         out.println("(");
-        out.println("(segment_duration float)");
+        out.println("(f0 float)");
         int nDiscreteFeatures = fd.getNumberOfByteFeatures()+fd.getNumberOfShortFeatures();
         for (int i=0, n=fd.getNumberOfFeatures(); i<n; i++) {            
             out.print("( ");
