@@ -795,11 +795,11 @@ public class CARTBuilder implements VoiceImportComponent {
             this.featureVectors = featureVectors;
 
             String getESTDIR = System.getProperty("ESTDIR");
-            if ( getESTDIR == null ) {
+            /*if ( getESTDIR == null ) {
                 System.out.println( "Warning: The environment variable ESTDIR was not found on your system." );
                 System.out.println( "         Defaulting ESTDIR to [" + ESTDIR + "]." );
             }
-            else ESTDIR = getESTDIR;
+            else*/ ESTDIR = getESTDIR;
 
             this.valueFile = new File(valueFilename);
             this.distanceTableFile = new File(distanceTableFilename);
