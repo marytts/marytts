@@ -188,4 +188,11 @@ public class UnitfileWriter implements VoiceImportComponent
         return percent;
     }
 
+    public static void main(String[] args) throws IOException
+    {
+        DatabaseLayout db = DatabaseImportMain.getDatabaseLayout();
+        BasenameList bnl = DatabaseImportMain.getBasenameList(db);
+        new UnitfileWriter(db, bnl).compute();
+    }
+
 }
