@@ -221,7 +221,9 @@ public class FeatureFileWriter implements VoiceImportComponent
      */
     public static void main(String[] args) throws IOException
     {
-        new FeatureFileWriter( null, null ).compute();
+        DatabaseLayout db = DatabaseImportMain.getDatabaseLayout();
+        BasenameList bnl = DatabaseImportMain.getBasenameList(db);
+        new FeatureFileWriter(db, bnl).compute();
     }
 
 
