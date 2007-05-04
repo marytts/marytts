@@ -322,12 +322,25 @@ public abstract class Utt2XMLBase extends InternalModule {
             insertHere.appendChild(boundary);
             if (tokenItem.getFeatures().isPresent("followingBoundaryTone"))
                 boundary.setAttribute("tone", tokenItem.getFeatures().getString("followingBoundaryTone"));
-            if (tokenItem.getFeatures().isPresent("followingBoundaryBreakindex"))
-                boundary.setAttribute("breakindex", tokenItem.getFeatures().getString("followingBoundaryBreakindex"));
+            
+            int breakindex = 0;
+            if (tokenItem.getFeatures().isPresent("followingBoundaryBreakindex")) {
+                String breakindexString = tokenItem.getFeatures().getString("followingBoundaryBreakindex");
+                boundary.setAttribute("breakindex", breakindexString);
+                try {
+                    breakindex = Integer.parseInt(breakindexString);
+                } catch (NumberFormatException nfe) {}
+            }
+            
             if (tokenItem.getFeatures().isPresent("followingBoundaryDuration"))
                 boundary.setAttribute("duration", tokenItem.getFeatures().getString("followingBoundaryDuration"));
-            else // TODO: Replace this with proper pause duration modelling!
-                boundary.setAttribute("duration", "200");
+            else { // estimate reasonable duration values based on the break index
+                if (breakindex >= 4) {
+                    boundary.setAttribute("duration", "400");
+                } else if (breakindex == 3) {
+                    boundary.setAttribute("duration", "200");
+                } // and no duration for boundaries with bi < 3
+            }
         }
 
     }
