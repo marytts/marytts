@@ -60,8 +60,8 @@ public class F0CARTTrainer implements VoiceImportComponent
     /**/
     public boolean compute() throws IOException
     {
-        FeatureFileReader featureFile = FeatureFileReader.getFeatureFileReader(db.targetFeaturesFileName());
-        UnitFileReader unitFile = new UnitFileReader( db.unitFileName() );
+        FeatureFileReader featureFile = FeatureFileReader.getFeatureFileReader(db.phoneFeaturesFileName());
+        UnitFileReader unitFile = new UnitFileReader( db.phoneUnitFileName() );
         TimelineReader waveTimeline = new TimelineReader( db.waveTimelineFileName() );
         
         PrintWriter toLeftFeaturesFile = new PrintWriter(new FileOutputStream(leftF0FeaturesFile));

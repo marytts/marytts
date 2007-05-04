@@ -80,10 +80,10 @@ public class AcousticFeatureFileWriter implements VoiceImportComponent
             maryDir.mkdir();
             System.out.println("Created the output directory [" + db.maryDirName() + "] to store the feature file." );
         }
-        unitFileReader = new UnitFileReader(db.unitFileName());
+        unitFileReader = new UnitFileReader(db.halfphoneUnitFileName());
         timeline = new TimelineReader(db.waveTimelineFileName());
         
-        feats = new FeatureFileReader(db.targetFeaturesFileName());
+        feats = new FeatureFileReader(db.halfphoneFeaturesFileName());
         inFeatureDefinition = feats.getFeatureDefinition();
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
@@ -99,14 +99,14 @@ public class AcousticFeatureFileWriter implements VoiceImportComponent
         BufferedReader br = new BufferedReader(sr);
         outFeatureDefinition = new FeatureDefinition(br, true);
 
-        outFeatureFile = new File(db.unitFeaturesWithAcousticFeaturesFileName());
+        outFeatureFile = new File(db.halfphoneFeaturesWithAcousticFeaturesFileName());
         DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outFeatureFile)));
         writeHeaderTo(out);
         writeUnitFeaturesTo(out);
         out.close();
         System.out.println("Number of processed units: " + unitFileReader.getNumberOfUnits() );
 
-        FeatureFileReader tester = FeatureFileReader.getFeatureFileReader(db.unitFeaturesWithAcousticFeaturesFileName());
+        FeatureFileReader tester = FeatureFileReader.getFeatureFileReader(db.halfphoneFeaturesWithAcousticFeaturesFileName());
         int unitsOnDisk = tester.getNumberOfUnits();
         if (unitsOnDisk == unitFileReader.getNumberOfUnits()) {
             System.out.println("Can read right number of units");

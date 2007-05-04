@@ -132,7 +132,7 @@ public class JoinCostFileMaker implements VoiceImportComponent {
         TimelineReader mcep = new TimelineReader( db.melcepTimelineFileName() );
         
         /* Open the unit file */
-        UnitFileReader ufr = new UnitFileReader( db.unitFileName() );
+        UnitFileReader ufr = new UnitFileReader( db.halfphoneUnitFileName() );
         
         /* Start writing the features: */
         try {

@@ -48,10 +48,10 @@ public class ListenToPreselection {
     public static void main(String[] args) throws IOException {
 
         DatabaseLayout dbl = new DatabaseLayout();
-        UnitFileReader ufr = new UnitFileReader( dbl.unitFileName() );
+        UnitFileReader ufr = new UnitFileReader( dbl.halfphoneUnitFileName() );
         TimelineReader tlr = new TimelineReader( dbl.waveTimelineFileName() );
         //TimelineReader tlr = new TimelineReader( dbl.lpcTimelineFileName() );
-        FeatureFileIndexer ffi = new FeatureFileIndexer( dbl.targetFeaturesFileName() );
+        FeatureFileIndexer ffi = new FeatureFileIndexer( dbl.halfphoneFeaturesFileName() );
         FeatureDefinition feaDef = ffi.getFeatureDefinition();
         WavWriter ww = new WavWriter();
         

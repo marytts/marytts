@@ -48,14 +48,18 @@ import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 public class FeatureFileWriter implements VoiceImportComponent
 {
     protected File maryDir;
-    protected File featureFile;
-    protected UnitFileReader unitFileReader;
+    protected String featureFileName;
+    protected String unitFileName;
+    protected String weightsFileName;
+    
     protected File unitfeatureDir;
     protected String featsExt;
     protected FeatureDefinition featureDefinition;
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
     protected int percent = 0;
+    
+    protected UnitFileReader unitFileReader;
     
     public FeatureFileWriter( DatabaseLayout setdb, BasenameList setbnl )
     {
@@ -72,6 +76,9 @@ public class FeatureFileWriter implements VoiceImportComponent
         unitfeatureDir = new File(db.phoneUnitFeaDirName());
         if (!unitfeatureDir.exists()) throw new IllegalStateException("Unit feature file "+unitfeatureDir.getAbsolutePath()+" does not exist");
         featsExt = db.phoneUnitFeaExt();
+        featureFileName = db.phoneFeaturesFileName();
+        unitFileName = db.phoneUnitFileName();
+        weightsFileName = db.phoneWeightsFileName();
     }
     
     public boolean compute() throws IOException
@@ -84,18 +91,17 @@ public class FeatureFileWriter implements VoiceImportComponent
             maryDir.mkdir();
             System.out.println("Created the output directory [" + db.maryDirName() + "] to store the feature file." );
         }
-        featureFile = new File( db.targetFeaturesFileName() );
-        unitFileReader = new UnitFileReader( db.unitFileName() );
-        readFeatureDefinition();
+        unitFileReader = new UnitFileReader( unitFileName );
+        featureDefinition = new FeatureDefinition(new BufferedReader(new InputStreamReader(new FileInputStream(weightsFileName), "UTF-8")), true); // true: read weights
         assert featureDefinition != null : "Feature definition not set!";
 
-        DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(featureFile)));
+        DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(featureFileName)));
         writeHeaderTo(out);
         writeUnitFeaturesTo(out);
         out.close();
         System.out.println("Number of processed units: " + unitFileReader.getNumberOfUnits() );
 
-        FeatureFileReader tester = FeatureFileReader.getFeatureFileReader(db.targetFeaturesFileName());
+        FeatureFileReader tester = FeatureFileReader.getFeatureFileReader(featureFileName);
         int unitsOnDisk = tester.getNumberOfUnits();
         if (unitsOnDisk == unitFileReader.getNumberOfUnits()) {
             System.out.println("Can read right number of units");
@@ -104,18 +110,6 @@ public class FeatureFileWriter implements VoiceImportComponent
             System.out.println("Read wrong number of units: "+unitsOnDisk);
             return false;
         }
-    }
-
-
-
-    /**
-     * Read a feature definition from a file.
-     * @throws IOException
-     */
-    protected void readFeatureDefinition() throws IOException
-    {
-        File weightsFile = new File(db.weightsFileName());
-        featureDefinition = new FeatureDefinition(new BufferedReader(new InputStreamReader(new FileInputStream(weightsFile), "UTF-8")), true); // true: read weights
     }
     
     /**
@@ -139,7 +133,7 @@ public class FeatureFileWriter implements VoiceImportComponent
             BufferedReader uttFeats = new BufferedReader(new InputStreamReader(new FileInputStream(new File( unitfeatureDir,  bnl.getName(i) + featsExt )), "UTF-8"));
             FeatureDefinition uttFeatDefinition = new FeatureDefinition(uttFeats, false); // false: do not read weights
             if (!uttFeatDefinition.featureEquals(featureDefinition)) {
-                throw new IllegalArgumentException("Features in file "+bnl.getName(i)+" do not match definition file "+db.weightsFileName()
+                throw new IllegalArgumentException("Features in file "+bnl.getName(i)+" do not match definition file "+weightsFileName
                         + " because:\n"
                         + uttFeatDefinition.featureEqualsAnalyse(featureDefinition) );
             }

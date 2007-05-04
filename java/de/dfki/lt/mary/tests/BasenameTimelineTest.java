@@ -46,10 +46,10 @@ public class BasenameTimelineTest {
     public static void main(String[] args) throws IOException {
         
         DatabaseLayout dbl = new DatabaseLayout();
-        UnitFileReader ufr = new UnitFileReader( dbl.unitFileName() );
+        UnitFileReader ufr = new UnitFileReader( dbl.halfphoneUnitFileName() );
         TimelineReader tlr = new TimelineReader( dbl.basenameTimelineFileName() );
         //TimelineReader tlr = new TimelineReader( dbl.lpcTimelineFileName() );
-        FeatureFileReader ffr = new FeatureFileReader( dbl.targetFeaturesFileName() );
+        FeatureFileReader ffr = new FeatureFileReader( dbl.halfphoneFeaturesFileName() );
         FeatureDefinition feaDef = ffr.getFeatureDefinition();
         
         System.out.println( "Sample rates:\nunit file -> [" + ufr.getSampleRate()

@@ -81,7 +81,8 @@ public class DatabaseLayout
         /* Input directory for Mary (database import) config files */
         setIfDoesntExist( "db.maryConfigSubDir", "mary_configs" );
         /* Default feature weights file */
-        setIfDoesntExist( "db.featureweights.file", "unitFeatureDefinition.txt");
+        setIfDoesntExist( "db.halfphone-featureweights.file", "halfphoneUnitFeatureDefinition.txt");
+        setIfDoesntExist( "db.phone-featureweights.file", "phoneUnitFeatureDefinition.txt");
         /* Default feature sequence file */
         setIfDoesntExist( "db.featuresequence.file", "featureSequence.txt" );
         /* Default join cost feature weights file */
@@ -156,10 +157,12 @@ public class DatabaseLayout
         setIfDoesntExist( "db.topLevelTree", "topLevel.tree" );
         
         /* Other Mary files */
-        setIfDoesntExist( "db.targetFeaturesBaseName", "unitFeatures" );
+        setIfDoesntExist( "db.halfphoneFeaturesBaseName", "halfphoneFeatures" );
+        setIfDoesntExist( "db.phoneFeaturesBaseName", "phoneFeatures" );
         setIfDoesntExist( "db.joinCostFeaturesBaseName", "joinCostFeatures" );
         setIfDoesntExist( "db.precomputedJoinCostsBaseName", "joinCosts" );
-        setIfDoesntExist( "db.unitFileBaseName", "units" );
+        setIfDoesntExist( "db.halfphoneUnitFileBaseName", "halfphoneUnits" );
+        setIfDoesntExist( "db.phoneUnitFileBaseName", "phoneUnits" );
         setIfDoesntExist( "db.cartFileBaseName", "cart" );
     }
     
@@ -338,13 +341,20 @@ public class DatabaseLayout
     /* - Configs:*/
     
     /* File name for the unit feature definition and unit feature weights */
-    public String unitFeatureDefinitionFileName() {
-        String ret = System.getProperty( "db.unitFeatureDefinitionFileName" );
+    public String halfphoneUnitFeatureDefinitionFileName() {
+        String ret = System.getProperty( "db.halfphoneUnitFeatureDefinitionFileName" );
         if ( ret != null ) return( ret );
         /* else: */
-        return( maryConfigDirName() + System.getProperty( "file.separator" ) + System.getProperty( "db.featureweights.file" ) );
+        return( maryConfigDirName() + System.getProperty( "file.separator" ) + System.getProperty( "db.halfphone-featureweights.file" ) );
     }
-    public String weightsFileName() { return( unitFeatureDefinitionFileName() ); }
+    public String halfphoneWeightsFileName() { return( halfphoneUnitFeatureDefinitionFileName() ); }
+    public String phoneUnitFeatureDefinitionFileName() {
+        String ret = System.getProperty( "db.phoneUnitFeatureDefinitionFileName" );
+        if ( ret != null ) return( ret );
+        /* else: */
+        return( maryConfigDirName() + System.getProperty( "file.separator" ) + System.getProperty( "db.phone-featureweights.file" ) );
+    }
+    public String phoneWeightsFileName() { return( phoneUnitFeatureDefinitionFileName() ); }
     
     /** For halfphone synthesis, the name of the feature definition file containing
      * the weights for the left halves.
@@ -381,23 +391,31 @@ public class DatabaseLayout
     /* - Mary format files:*/
     
     /* File name for the target features file */
-    public String targetFeaturesFileName() {
-        String ret = System.getProperty( "db.targetFeaturesFileName" );
+    public String halfphoneFeaturesFileName() {
+        String ret = System.getProperty( "db.halfphoneFeaturesFileName" );
         if ( ret != null ) return( ret );
         /* else: */
         return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
                 + System.getProperty( "db.marySubDir" ) + System.getProperty( "file.separator" )
-                + System.getProperty( "db.targetFeaturesBaseName" ) + System.getProperty( "db.maryExtension" ) );
+                + System.getProperty( "db.halfphoneFeaturesBaseName" ) + System.getProperty( "db.maryExtension" ) );
+    }
+    public String phoneFeaturesFileName() {
+        String ret = System.getProperty( "db.phoneFeaturesFileName" );
+        if ( ret != null ) return( ret );
+        /* else: */
+        return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
+                + System.getProperty( "db.marySubDir" ) + System.getProperty( "file.separator" )
+                + System.getProperty( "db.phoneFeaturesBaseName" ) + System.getProperty( "db.maryExtension" ) );
     }
 
     /* File name for the target features file */
-    public String unitFeaturesWithAcousticFeaturesFileName() {
-        String ret = System.getProperty( "db.targetFeaturesFileName" );
+    public String halfphoneFeaturesWithAcousticFeaturesFileName() {
+        String ret = System.getProperty( "db.halfphoneFeaturesFileNameAc" );
         if ( ret != null ) return( ret );
         /* else: */
         return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
                 + System.getProperty( "db.marySubDir" ) + System.getProperty( "file.separator" )
-                + System.getProperty( "db.targetFeaturesBaseName" ) + "_ac" + System.getProperty( "db.maryExtension" ) );
+                + System.getProperty( "db.halfphoneFeaturesBaseName" ) + "_ac" + System.getProperty( "db.maryExtension" ) );
     }
 
     
@@ -421,13 +439,21 @@ public class DatabaseLayout
     }
 
     /* File name for the unit file */
-    public String unitFileName() {
-        String ret = System.getProperty( "db.unitFileName" );
+    public String halfphoneUnitFileName() {
+        String ret = System.getProperty( "db.halfphoneUnitFileName" );
         if ( ret != null ) return( ret );
         /* else: */
         return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
                 + System.getProperty( "db.marySubDir" ) + System.getProperty( "file.separator" )
-                + System.getProperty( "db.unitFileBaseName" ) + System.getProperty( "db.maryExtension" ) );
+                + System.getProperty( "db.halfphoneUnitFileBaseName" ) + System.getProperty( "db.maryExtension" ) );
+    }
+    public String phoneUnitFileName() {
+        String ret = System.getProperty( "db.phoneUnitFileName" );
+        if ( ret != null ) return( ret );
+        /* else: */
+        return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
+                + System.getProperty( "db.marySubDir" ) + System.getProperty( "file.separator" )
+                + System.getProperty( "db.phoneUnitFileBaseName" ) + System.getProperty( "db.maryExtension" ) );
     }
     
     /* File name for the cart file */
