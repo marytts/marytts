@@ -79,7 +79,7 @@ public class CARTPruner implements VoiceImportComponent
         init();
         System.out.println("CART Pruner started.");
 
-        prunedCart = new File("./mary_files/prunedcart.mry");
+        prunedCart = new File("./mary_files/prunedcart");
         boolean cutAbove1000 = true;
         boolean cutNorm = false;
         boolean cutSilence = true;
