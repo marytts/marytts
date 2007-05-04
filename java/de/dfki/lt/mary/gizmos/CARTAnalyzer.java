@@ -127,9 +127,9 @@ public class CARTAnalyzer {
      */
     public CARTAnalyzer() throws IOException {
         this.dbl = new DatabaseLayout();
-        this.ufr = new UnitFileReader(dbl.unitFileName());
+        this.ufr = new UnitFileReader(dbl.halfphoneUnitFileName());
         this.tlr = new TimelineReader(dbl.waveTimelineFileName());
-        this.ffi = new FeatureFileIndexer(dbl.targetFeaturesFileName());
+        this.ffi = new FeatureFileIndexer(dbl.halfphoneFeaturesFileName());
         this.feaDef = ffi.getFeatureDefinition();
         this.ww = new WavWriter();
         // load cart

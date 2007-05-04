@@ -56,7 +56,11 @@ public class HalfPhoneFeatureFileWriter extends FeatureFileWriter
     protected void init()
     {
         unitfeatureDir = new File(db.halfphoneUnitFeaDirName());
+        if (!unitfeatureDir.exists()) throw new IllegalStateException("Unit feature file "+unitfeatureDir.getAbsolutePath()+" does not exist");
         featsExt = db.halfphoneUnitFeaExt();
+        featureFileName = db.halfphoneFeaturesFileName();
+        unitFileName = db.halfphoneUnitFileName();
+        weightsFileName = db.halfphoneWeightsFileName();
     }
     
     /* use default feature file format:

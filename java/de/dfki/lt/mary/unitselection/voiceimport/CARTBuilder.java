@@ -71,7 +71,7 @@ public class CARTBuilder implements VoiceImportComponent {
          long time = System.currentTimeMillis();
          //read in the features with feature file indexer
          System.out.println("Reading feature file ...");
-         String featureFile = databaseLayout.unitFeaturesWithAcousticFeaturesFileName();
+         String featureFile = databaseLayout.halfphoneFeaturesWithAcousticFeaturesFileName();
          FeatureFileReader ffr = FeatureFileReader.getFeatureFileReader(featureFile);
          FeatureVector[] featureVectorsCopy = ffr.getCopyOfFeatureVectors();
          FeatureDefinition featureDefinition = ffr.getFeatureDefinition(); 
@@ -476,10 +476,10 @@ public class CARTBuilder implements VoiceImportComponent {
         }
         if (unitFile == null) {
             try {
-                unitFile = new UnitFileReader( databaseLayout.unitFileName() );
+                unitFile = new UnitFileReader( databaseLayout.halfphoneUnitFileName() );
             }
             catch ( IOException e ) {
-                throw new RuntimeException( "Failed to read the unit file [" + databaseLayout.unitFileName()
+                throw new RuntimeException( "Failed to read the unit file [" + databaseLayout.halfphoneUnitFileName()
                         + "] due to the following IOException: ", e );
             }
         }

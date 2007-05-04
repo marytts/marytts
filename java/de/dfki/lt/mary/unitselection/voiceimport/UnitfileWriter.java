@@ -43,7 +43,7 @@ import de.dfki.lt.mary.unitselection.UnitFileReader;
 public class UnitfileWriter implements VoiceImportComponent
 {
     protected File maryDir;
-    protected File unitFile;
+    protected String unitFileName;
     protected File unitlabelDir;
     protected String unitlabelExt;
     protected int samplingRate;
@@ -64,7 +64,6 @@ public class UnitfileWriter implements VoiceImportComponent
             maryDir.mkdir();
             System.out.println("Created the output directory [" + db.maryDirName() + "] to store the unit file." );
         }
-        unitFile = new File( db.unitFileName() );
         samplingRate = Integer.getInteger("unit.file.samplingrate", 16000).intValue(); // TODO: make a better passing of the sampling rate
         pauseSymbol = System.getProperty("pause.symbol", "pau");
     }
@@ -75,6 +74,7 @@ public class UnitfileWriter implements VoiceImportComponent
      */
     protected void init()
     {
+        unitFileName = db.phoneUnitFileName();
         unitlabelDir = new File( db.phoneUnitLabDirName() );
         if (!unitlabelDir.exists()) throw new IllegalStateException("Unit label directory "+unitlabelDir.getAbsolutePath()+" does not exist");
         unitlabelExt = db.phoneUnitLabExt();
@@ -94,7 +94,7 @@ public class UnitfileWriter implements VoiceImportComponent
         
         if (!aligner.compute()) throw new IllegalStateException("Database is NOT perfectly aligned. Cannot create unit file.");
         System.out.println("OK, alignment verified.");
-        DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(unitFile)));
+        DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(unitFileName)));
         long posNumUnits = new MaryHeader(MaryHeader.UNITS).writeTo(out);
         out.writeInt(-1); // number of units; needs to be corrected later.
         out.writeInt(samplingRate);
@@ -160,14 +160,14 @@ public class UnitfileWriter implements VoiceImportComponent
         }
         out.close();
         // Now index is the number of units. Set this in the file:
-        RandomAccessFile raf = new RandomAccessFile(unitFile, "rw");
+        RandomAccessFile raf = new RandomAccessFile(unitFileName, "rw");
         raf.seek(posNumUnits);
         raf.writeInt(index);
         raf.close();
         System.out.println("Number of processed units: " + index );
 
         
-        UnitFileReader tester = new UnitFileReader(db.unitFileName());
+        UnitFileReader tester = new UnitFileReader(unitFileName);
         int unitsOnDisk = tester.getNumberOfUnits();
         if (unitsOnDisk == index) {
             System.out.println("Can read right number of units");

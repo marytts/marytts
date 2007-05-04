@@ -85,8 +85,8 @@ public class JoinCostPrecomputer implements VoiceImportComponent
         System.out.println("---- Precomputing join costs");
         System.out.println("Base directory: " + db.rootDirName());
         System.out.println("Reading join cost features file from: " + db.joinCostFeaturesFileName());
-        System.out.println("Reading unit feature file from: " + db.targetFeaturesFileName());
-        System.out.println("Reading unit file from: " + db.unitFileName());
+        System.out.println("Reading unit feature file from: " + db.halfphoneFeaturesFileName());
+        System.out.println("Reading unit file from: " + db.halfphoneUnitFileName());
         System.out.println("Writing precomputed join costs file to: " + db.precomputedJoinCostsFileName());
         int retainPercent = Integer.getInteger("joincostprecomputer.retainpercent", 10).intValue();
         int retainMin = Integer.getInteger("joincostprecomputer.retainmin", 20).intValue();
@@ -114,9 +114,9 @@ public class JoinCostPrecomputer implements VoiceImportComponent
         }
         hdr = null;
         
-        FeatureFileReader unitFeatures = FeatureFileReader.getFeatureFileReader(db.targetFeaturesFileName());
+        FeatureFileReader unitFeatures = FeatureFileReader.getFeatureFileReader(db.halfphoneFeaturesFileName());
         JoinCostFeatures joinFeatures = new JoinCostFeatures(db.joinCostFeaturesFileName());
-        UnitFileReader units = new UnitFileReader(db.unitFileName());
+        UnitFileReader units = new UnitFileReader(db.halfphoneUnitFileName());
         if (unitFeatures.getNumberOfUnits() != joinFeatures.getNumberOfUnits())
             throw new IllegalStateException("Number of units in unit and join feature files does not match!");
         if (unitFeatures.getNumberOfUnits() != units.getNumberOfUnits())

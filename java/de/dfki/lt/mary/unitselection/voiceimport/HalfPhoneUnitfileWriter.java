@@ -53,6 +53,8 @@ public class HalfPhoneUnitfileWriter extends UnitfileWriter
      */
     protected void init()
     {
+        unitFileName = db.halfphoneUnitFileName();
+
         unitlabelDir = new File( db.halfphoneUnitLabDirName() );
         if (!unitlabelDir.exists()) throw new IllegalStateException("Unit label directory "+unitlabelDir.getAbsolutePath()+" does not exist");
         unitlabelExt = db.halfphoneUnitLabExt();
