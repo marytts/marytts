@@ -28,33 +28,7 @@
  */
 package de.dfki.lt.mary.modules.en;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import com.sun.speech.freetts.Item;
-import com.sun.speech.freetts.Relation;
-import com.sun.speech.freetts.Utterance;
-import com.sun.speech.freetts.UtteranceProcessor;
-
-import de.dfki.lt.freetts.mbrola.ParametersToMbrolaConverter;
-import de.dfki.lt.mary.MaryData;
 import de.dfki.lt.mary.MaryDataType;
-import de.dfki.lt.mary.MaryProperties;
-import de.dfki.lt.mary.modules.InternalModule;
-import de.dfki.lt.mary.modules.synthesis.FreeTTSVoices;
-import de.dfki.lt.mary.modules.synthesis.Voice;
-import de.dfki.lt.mary.unitselection.Target;
-import de.dfki.lt.mary.unitselection.UnitSelectionVoice;
-import de.dfki.lt.mary.unitselection.cart.CART;
-import de.dfki.lt.mary.unitselection.cart.RegressionTree;
-import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
-import de.dfki.lt.mary.unitselection.featureprocessors.TargetFeatureComputer;
 import de.dfki.lt.mary.unitselection.featureprocessors.en.FeatureProcessorManager;
 
 
@@ -64,77 +38,16 @@ import de.dfki.lt.mary.unitselection.featureprocessors.en.FeatureProcessorManage
  * @author Marc Schr&ouml;der
  */
 
-public class CARTDurationModeller extends InternalModule
+public class CARTDurationModeller extends de.dfki.lt.mary.modules.CARTDurationModeller
 {
-    protected CART cart;
-    protected TargetFeatureComputer featureComputer;
-    
     public CARTDurationModeller()
     {
         super("CARTDurationModeller",
               MaryDataType.get("FREETTS_POSTPROCESSED_EN"),
-              MaryDataType.get("FREETTS_MBROLISED_DURATIONS_EN")
+              MaryDataType.get("FREETTS_MBROLISED_DURATIONS_EN"),
+              "english.duration.",
+              new FeatureProcessorManager()
               );
     }
-
-    public void startup() throws Exception
-    {
-        super.startup();
-        File fdFile = new File(MaryProperties.needFilename("english.duration.featuredefinition"));
-        FeatureDefinition featureDefinition = new FeatureDefinition(new BufferedReader(new FileReader(fdFile)), true);
-        File cartFile = new File(MaryProperties.needFilename("english.duration.cart"));
-        cart = new RegressionTree(new BufferedReader(new FileReader(cartFile)), featureDefinition);
-        featureComputer = new TargetFeatureComputer(new FeatureProcessorManager(), featureDefinition.getFeatureNames());
-    }
-
-    public MaryData process(MaryData d)
-    throws Exception
-    {
-        List utterances = d.getUtterances();
-        Iterator it = utterances.iterator();
-        while (it.hasNext()) {
-            Utterance utterance = (Utterance) it.next();
-            Voice maryVoice = FreeTTSVoices.getMaryVoice(utterance.getVoice());
-            CART currentCart = cart;
-            TargetFeatureComputer currentFeatureComputer = featureComputer;
-            if (maryVoice instanceof UnitSelectionVoice) {
-                CART voiceCart = ((UnitSelectionVoice)maryVoice).getDurationTree();
-                if (voiceCart != null) {
-                    currentCart  = voiceCart;
-                    logger.debug("Using voice cart");
-                }
-                FeatureDefinition voiceFeatDef = 
-                    ((UnitSelectionVoice)maryVoice).getDurationCartFeatDef();
-                if (voiceFeatDef != null){
-                    currentFeatureComputer = 
-                        new TargetFeatureComputer(new FeatureProcessorManager(), voiceFeatDef.getFeatureNames());
-                    logger.debug("Using voice feature definition");
-                }
-            }
-            Relation segs = utterance.getRelation(Relation.SEGMENT);
-            float end = 0; // end time of segment, in seconds
-            for (Item s = segs.getHead(); s != null; s = s.getNext()) {
-                String segName = s.getFeatures().getString("name");
-                Target t = new Target(segName, s);
-                t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));
-                float[] dur = (float[])currentCart.interpret(t, 0);
-                assert dur != null : "Null duration";
-                assert dur.length == 2 : "Unexpected duration length: "+dur.length;
-                float durInSeconds = dur[1];
-                float stddevInSeconds = dur[0];
-                end += durInSeconds;
-                int durInMillis = (int) (1000 * durInSeconds);
-                s.getFeatures().setFloat("end", end);
-                s.getFeatures().setInt("mbr_dur", durInMillis);
-                //System.out.println("Duration predicted: ["+segName+"] "+durInSeconds);
-            }
-        }
-        MaryData output = new MaryData(outputType());
-        output.setUtterances(utterances);
-        return output;
-    }
-
-
-
 
 }
