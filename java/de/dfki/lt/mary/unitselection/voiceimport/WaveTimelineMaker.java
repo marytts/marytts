@@ -124,6 +124,7 @@ public class WaveTimelineMaker implements VoiceImportComponent
                     /* Locate the corresponding segment in the wave file */
                     frameStart = frameEnd;
                     frameEnd = (int)( (double)pmFile.getTime( f ) * (double)(globSampleRate) );
+                    assert frameEnd <= wave.length : "Frame ends after end of wave data: " + frameEnd + " > " + wave.length;
                     duration = frameEnd - frameStart;
                     ByteArrayOutputStream buff =  new ByteArrayOutputStream(2*duration);
                     DataOutputStream subWave = new DataOutputStream( buff );
@@ -132,7 +133,7 @@ public class WaveTimelineMaker implements VoiceImportComponent
                     }
                     
                     /* Feed the datagram to the timeline */
-                    waveTimeline.feed( new Datagram(duration,buff.toByteArray()) , globSampleRate );
+                    waveTimeline.feed( new Datagram(duration, buff.toByteArray()), globSampleRate );
                     totalTime += duration;
                     localTime += duration;
                     numDatagrams++;
@@ -157,10 +158,13 @@ public class WaveTimelineMaker implements VoiceImportComponent
         }
         catch ( SecurityException e ) {
             System.err.println( "Error: you don't have write access to the target database directory." );
+            e.printStackTrace();
+            return false;
         }
         catch (Exception e) {
             e.printStackTrace();
             System.err.println(e);
+            return false;
         }
         
         return( true );

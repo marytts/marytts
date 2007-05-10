@@ -81,12 +81,13 @@ public class CARTPruner implements VoiceImportComponent
 
         prunedCart = new File("./mary_files/prunedcart");
         boolean cutAbove1000 = true;
-        boolean cutNorm = false;
+        boolean cutNorm = true;
         boolean cutSilence = true;
+        boolean cutLong = true;
         
         ca = new CARTAnalyzer();
         try {
-            ca.analyzeAutomatic("cartpruner.log", prunedCart.getPath(), cutAbove1000, cutNorm, cutSilence);
+            ca.analyzeAutomatic("cartpruner.log", prunedCart.getPath(), cutAbove1000, cutNorm, cutSilence, cutLong);
         } catch (Exception e) {
             e.printStackTrace();
             return false;

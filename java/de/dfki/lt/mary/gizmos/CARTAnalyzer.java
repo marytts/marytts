@@ -63,6 +63,7 @@ import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.voiceimport.DatabaseLayout;
 import de.dfki.lt.mary.unitselection.voiceimport.MaryHeader;
 import de.dfki.lt.mary.util.MaryAudioUtils;
+import de.dfki.lt.mary.util.MaryUtils;
 import de.dfki.lt.mary.unitselection.cart.*;
 import de.dfki.lt.mary.unitselection.cart.LeafNode.*;
 import de.dfki.lt.mary.unitselection.concat.DatagramDoubleDataSource;
@@ -116,6 +117,8 @@ public class CARTAnalyzer {
     // and the tree, since we want the float probability values, it's an
     // ExtendedClassificationTree
     private ExtendedClassificationTree ctree;
+    
+    private int percent = 0;
 
     /**
      * constructor method, load voice properties and, most importantly, call the
@@ -233,15 +236,8 @@ public class CARTAnalyzer {
                         if (nU < 2) {
                             booyah.println("0\t\t0");
                         } else {
-                            booyah
-                                    .print(df
-                                            .format(getMean(((IntAndFloatArrayLeafNode) ln)
-                                                    .getFloatData()))
-                                            + "\t\t");
-                            booyah
-                                    .println(df
-                                            .format(getSD(((IntAndFloatArrayLeafNode) ln)
-                                                    .getFloatData())));
+                            booyah.print(df.format(MaryUtils.mean(((IntAndFloatArrayLeafNode) ln).getFloatData())) + "\t\t");
+                            booyah.println(df.format(MaryUtils.stdDev(((IntAndFloatArrayLeafNode) ln).getFloatData())));
                         }
                         outln("leaf " + counter + " done.");
                         booyah.flush();
@@ -862,18 +858,22 @@ public class CARTAnalyzer {
         boolean cutAbove1000 = true;
         boolean cutNorm = true;
         boolean cutSilence = true;
+        boolean cutLong = true;
         if (input("Cut non-silence leafs with float mean > 1000? [YES/no]: ").equals("no"))
             cutAbove1000 = false;
         if (input("Cut non-silence leafs with normal mean? [YES/no]: ").equals("no"))
             cutNorm = false;
         if (input("Cut silence leafs? [YES/no]: ").equals("no"))
             cutSilence = false;
-        analyzeAutomatic(logfile, cartfile, cutAbove1000, cutNorm, cutSilence);
+        if (input("Cut too long units (>250ms)? [YES/no]: ").equals("no"))
+            cutLong = false;
+        analyzeAutomatic(logfile, cartfile, cutAbove1000, cutNorm, cutSilence, cutLong);
     }
     
     
-    public void analyzeAutomatic(String logfile, String cartfile, boolean cutAbove1000, boolean cutNorm, boolean cutSilence)
-    throws IOException, Exception {        
+    public void analyzeAutomatic(String logfile, String cartfile,
+            boolean cutAbove1000, boolean cutNorm, boolean cutSilence, boolean cutLong)
+    throws IOException, Exception {
         DecimalFormat df = new DecimalFormat("0.000");
         PrintWriter logger = new PrintWriter(new FileWriter(new File(logfile)),
                 true);
@@ -895,20 +895,20 @@ public class CARTAnalyzer {
         logger.println("jumped to first leaf.");
 
         // count how many units in how many leaves are cut during the process
-        int numCutUnits = 0;
+        int totalCutUnits = 0;
         int numCutLeaves = 0;
 
         while (currLeaf != null) {
-
-            logger.print("Now processing leaf " + currLeafIndex + "... ");
+            logger.print("Now processing leaf " + currLeafIndex + " of "+numLeafs+"... ");
+            percent = (int)((currLeafIndex/(float)numLeafs)*100);
             // now, as always, leave out the unusable leafs
             int numU = currLeaf.getNumberOfData();
+            int numCutU = 0;
             if (numU < 2) {
                 logger.println("0 or 1 unit(s)... skipping.");
                 logger.println("");
                 currLeafIndex++;
-                currLeaf = (IntAndFloatArrayLeafNode) currLeaf
-                        .getNextLeafNode();
+                currLeaf = (IntAndFloatArrayLeafNode) currLeaf.getNextLeafNode();
                 continue;
             }
 
@@ -916,111 +916,109 @@ public class CARTAnalyzer {
 
             float[] floats = currLeaf.getFloatData();
             int[] indices = (int[]) currLeaf.getAllData();
-
+            assert indices.length == numU;
+            
             logger.print("retrieved data... ");
-            float mean = getMean(floats);
-            double sd = getSD(floats);
+            float mean = MaryUtils.mean(floats);
+            double sd = MaryUtils.stdDev(floats);
             if (sd == 0) {
                 logger.println("sd zero. skipping.");
                 logger.println("");
                 currLeafIndex++;
-                currLeaf = (IntAndFloatArrayLeafNode) currLeaf
-                        .getNextLeafNode();
+                currLeaf = (IntAndFloatArrayLeafNode) currLeaf.getNextLeafNode();
                 continue;
             }
 
             // 1) NO silence
             if (currLeaf.getDecisionPath().indexOf("mary_phoneme==_") == -1) {
-                if (mean > 1000) {
-                    if (cutAbove1000)
-                        numCutUnits += eraseUnitsFromLeaf(cutAbove1000,
-                                currLeaf, null, 50000, logger, true, true);
-                    else
-                        eraseUnitsFromLeaf(cutAbove1000, currLeaf, null, 50000,
-                                logger, true, true);
-                    if (cutAbove1000 && numCutUnits > 0)
-                        numCutLeaves++;
-                } else {
-                    if (cutNorm)
-                        numCutUnits += eraseUnitsFromLeaf(cutNorm, currLeaf,
-                                null, 50000, logger, true, true);
-                    else
-                        eraseUnitsFromLeaf(cutNorm, currLeaf, null, 50000,
-                                logger, true, true);
-                    if (cutNorm && numCutUnits > 0)
-                        numCutLeaves++;
+                if (mean > 1000 && cutAbove1000
+                        || mean <= 1000 && cutNorm) {
+                    int cut = eraseUnitsFromLeaf(true,
+                            currLeaf, null, 50000, logger, true, true);
+                    numCutU += cut;
+                    totalCutUnits += cut;
+                }
+                if (cutLong) {
+                    indices = (int[]) currLeaf.getAllData();
+                    float sampleRate = ufr.getSampleRate();
+                    float[] durations = new float[indices.length];
+                    for (int i=0; i<indices.length; i++) {
+                        durations[i] = ufr.getUnit(indices[i]).getDuration() / sampleRate;
+                    }
+                    float meanDur = MaryUtils.mean(durations);
+                    double sdDur = MaryUtils.stdDev(durations);
+                    //System.out.println("Leaf "+currLeafIndex+ " " + currLeaf.getDecisionPath());
+                    //double durationThreshold = meanDur + 2 * sdDur;
+                    double durationThreshold = 0.2; // no halfphone should be longer than 200 ms
+                    //System.out.println("mean duration = "+ meanDur + " s; sd = "+sdDur+" s; threshold = "+durationThreshold+" s");
+                    for (int i=0; i<indices.length; i++) {
+                        if (durations[i] > durationThreshold) {
+                            //System.out.println(i+" cut: dur="+durations[i]+" s");
+                            ((IntAndFloatArrayLeafNode) currLeaf).eraseData(indices[i]);
+                            numCutU++;
+                            totalCutUnits++;
+                        } else {
+                            //System.out.println("                   uncut: "+i+", dur="+durations[i]+" s ");
+                        }
+                    }
                 }
             }
             // 2) Silence
             else {
-                // Energy mode here
-                logger.println("Silence detected! Computing energy levels...");
-                int len = currLeaf.getNumberOfData();
-                Datagram[][] data = new Datagram[len][];
-                int nDatagrams = 0;
-                for (int i = 0; i < len; i++) {
-                    data[i] = tlr.getDatagrams(ufr.getUnit(indices[i]), ufr
-                            .getSampleRate());
-                    nDatagrams += data[i].length;
-                    // outln("data["+i+"].length = "+data[i].length);
-                }
-                Datagram[] allDatagrams = new Datagram[nDatagrams];
-                for (int i = 0, pos = 0; i < len; pos += data[i].length, i++) {
-                    System.arraycopy(data[i], 0, allDatagrams, pos,
-                            data[i].length);
-                }
-                double[] audioData = new DatagramDoubleDataSource(allDatagrams)
-                        .getAllData();
-                EnergyAnalyser_dB allUnitsAnalyser = new EnergyAnalyser_dB(
-                        new DatagramDoubleDataSource(allDatagrams), 128, tlr
-                                .getSampleRate());
-                allUnitsAnalyser.analyseAllFrames();
-                // EnergyHistogram eh = new EnergyHistogram(audioData,
-                // tlr.getSampleRate());
-                // eh.showInJFrame("Energy histogram for leaf "+currLeafIndex,
-                // false, false);
-                double meanUnitsEnergy = allUnitsAnalyser.getMeanFrameEnergy();
-                double silence = allUnitsAnalyser.getSilenceCutoff();
+                if (cutSilence) {
+                    // Energy mode here
+                    logger.println("Silence detected! Computing energy levels...");
+                    Datagram[][] data = new Datagram[numU][];
+                    int nDatagrams = 0;
+                    for (int i = 0; i < numU; i++) {
+                        data[i] = tlr.getDatagrams(ufr.getUnit(indices[i]), ufr.getSampleRate());
+                        nDatagrams += data[i].length;
+                        // outln("data["+i+"].length = "+data[i].length);
+                    }
+                    Datagram[] allDatagrams = new Datagram[nDatagrams];
+                    for (int i = 0, pos = 0; i < numU; pos += data[i].length, i++) {
+                        System.arraycopy(data[i], 0, allDatagrams, pos, data[i].length);
+                    }
+                    double[] audioData = new DatagramDoubleDataSource(allDatagrams).getAllData();
+                    EnergyAnalyser_dB allUnitsAnalyser = new EnergyAnalyser_dB(
+                            new DatagramDoubleDataSource(allDatagrams), 128, tlr.getSampleRate());
+                    allUnitsAnalyser.analyseAllFrames();
+                    // EnergyHistogram eh = new EnergyHistogram(audioData,
+                    // tlr.getSampleRate());
+                    // eh.showInJFrame("Energy histogram for leaf "+currLeafIndex,
+                    // false, false);
+                    double meanUnitsEnergy = allUnitsAnalyser.getMeanFrameEnergy();
+                    double silence = allUnitsAnalyser.getSilenceCutoff();
 
-                logger.println("Silence cutoff: " + silence
-                        + "; meanUnitsEnergy: " + meanUnitsEnergy);
+                    logger.println("Silence cutoff: " + silence
+                            + "; meanUnitsEnergy: " + meanUnitsEnergy);
 
-                int counter1 = 0;
+                    int counter1 = 0;
 
-                for (int i = 0; i < len; i++) {
-                    EnergyAnalyser_dB oneUnitAnalyser = new EnergyAnalyser_dB(
-                            new DatagramDoubleDataSource(data[i]), 128, tlr
-                                    .getSampleRate());
-                    oneUnitAnalyser.analyseAllFrames();
-                    double meanUnitEnergy = oneUnitAnalyser
-                            .getMeanFrameEnergy();
-                    // actual cutting happens here
-                    if (meanUnitEnergy > silence) {
-                        if (cutSilence)
-                            ((IntAndFloatArrayLeafNode) currLeaf)
-                                    .eraseData(indices[i]);
-                        counter1++;
-                        if (cutSilence)
-                            numCutUnits++;
+                    for (int i = 0; i < numU; i++) {
+                        EnergyAnalyser_dB oneUnitAnalyser = new EnergyAnalyser_dB(
+                                new DatagramDoubleDataSource(data[i]), 128, tlr.getSampleRate());
+                        oneUnitAnalyser.analyseAllFrames();
+                        double meanUnitEnergy = oneUnitAnalyser.getMeanFrameEnergy();
+                        // actual cutting happens here
+                        if (meanUnitEnergy > silence) {
+                            ((IntAndFloatArrayLeafNode) currLeaf).eraseData(indices[i]);
+                            numCutU++;
+                            totalCutUnits++;
+                        }
                     }
                 }
-                if (counter1 > 0 && cutSilence)
-                    numCutLeaves++;
-                if (cutSilence)
-                    logger
-                            .println("Out of the "
-                                    + len
-                                    + " units of the leaf, "
-                                    + counter1
-                                    + " were cut. ("
-                                    + (float) ((((float) counter1) / (float) len) * 100.f)
-                                    + "%)");
-
             }
+            logger.println("Out of the " + numU + " units of the leaf, "
+                    + numCutU + " were cut. ("
+                    + (float) ((((float) numCutU) / (float) numU) * 100.f) + "%)");
+            if (numCutU > 0)
+                numCutLeaves++;                        
+
             // DEBUG
             float[] floatsAfter = currLeaf.getFloatData();
-            logger.println("after cutting: new mean = " + getMean(floatsAfter)
-                    + "; new sd = " + getSD(floatsAfter));
+            logger.println("after cutting: new mean = " + MaryUtils.mean(floatsAfter)
+                    + "; new sd = " + MaryUtils.stdDev(floatsAfter));
             // END DEBUG
             logger.println("");
             // next leaf
@@ -1033,13 +1031,13 @@ public class CARTAnalyzer {
         currLeafIndex = 1;
 
         // show the statistics B07-style
-        float percentageUnits = (float) ((float) numCutUnits / (float) numUnits) * 100.f;
+        float percentageUnits = (float) ((float) totalCutUnits / (float) numUnits) * 100.f;
         float percentageLeaves = (float) ((float) numCutLeaves)
                 / (float) numLeafs * 100.f;
-        outln("Total number of cut units: " + numCutUnits + " ("
+        outln("Total number of cut units: " + totalCutUnits + " ("
                 + percentageUnits + "% of total (" + numUnits
                 + ") number of units).");
-        logger.println("Total number of cut units: " + numCutUnits + " ("
+        logger.println("Total number of cut units: " + totalCutUnits + " ("
                 + percentageUnits + "% of total (" + numUnits
                 + ") number of units).");
         outln("Total number of leaves pruned: " + numCutLeaves + " ("
@@ -1194,8 +1192,8 @@ public class CARTAnalyzer {
             int[] indices = (int[]) currLeaf.getAllData();
             out("retrieved data... ");
             logger.print("retrieved data... ");
-            float mean = getMean(floats);
-            double sd = getSD(floats);
+            float mean = MaryUtils.mean(floats);
+            double sd = MaryUtils.stdDev(floats);
             if (sd == 0) {
                 outln("sd zero. skipping.");
                 logger.println("sd zero. skipping.");
@@ -2154,6 +2152,7 @@ public class CARTAnalyzer {
         if (all) {
             for (int i = 0; i < leaf.getNumberOfData(); i++) {
                 outln("		Index " + (i + 1) + ": unit " + indices[i]
+                        + " duration " + (ufr.getUnit(indices[i]).getDuration()/(float)ufr.getSampleRate())
                         + ", probability value: " + data[i]);
                 counter++;
                 if (((i + 1) % 20) == 0)
@@ -2168,6 +2167,7 @@ public class CARTAnalyzer {
                 for (int i = 0; i < leaf.getNumberOfData(); i++)
                     if (data[i] > cutAboveValue) {
                         outln("		Index " + (i + 1) + ": unit " + indices[i]
+                                + " duration " + (ufr.getUnit(indices[i]).getDuration()/(float)ufr.getSampleRate())
                                 + ", probability value: " + data[i]);
                         counter++;
                         if (((i + 1) % 20) == 0)
@@ -2180,6 +2180,7 @@ public class CARTAnalyzer {
                 for (int i = 0; i < leaf.getNumberOfData(); i++)
                     if (data[i] < cutBelowValue) {
                         outln("		Index " + (i + 1) + ": unit " + indices[i]
+                                + " duration " + (ufr.getUnit(indices[i]).getDuration()/(float)ufr.getSampleRate())
                                 + ", probability value: " + data[i]);
                         counter++;
                         if (((i + 1) % 20) == 0)
@@ -2192,6 +2193,7 @@ public class CARTAnalyzer {
                 for (int i = 0; i < leaf.getNumberOfData(); i++)
                     if (data[i] < cutBelowValue || data[i] > cutAboveValue) {
                         outln("		Index " + (i + 1) + ": unit " + indices[i]
+                                + " duration " + (ufr.getUnit(indices[i]).getDuration()/(float)ufr.getSampleRate())
                                 + ", probability value: " + data[i]);
                         counter++;
                         if (((i + 1) % 20) == 0)
@@ -2204,7 +2206,7 @@ public class CARTAnalyzer {
 
         // display mean and sd of probability values
         if (indices.length > 1) {
-            outln("(mean being " + getMean(data) + "; sd being " + getSD(data)
+            outln("(mean being " + MaryUtils.mean(data) + "; sd being " + MaryUtils.stdDev(data)
                     + ")");
         }
         if (all) {
@@ -2521,64 +2523,12 @@ public class CARTAnalyzer {
         // "+max+" (@ leaf #"+maxLeaf+"), sd being "+getSD(unitsFA));
         pw.println("minimum being " + min + " (1st @ leaf #" + minLeaf
                 + "), maximum being " + max + " (1st @ leaf #" + maxLeaf
-                + "), sd being " + getSD(unitsFA));
+                + "), sd being " + MaryUtils.stdDev(unitsFA));
         pw.close();
         outln("diag data stored in " + diag + " for diagnosis purposes.");
         return ectree;
     }
 
-    /**
-     * 
-     * Get the mean of a float array, helper method
-     * 
-     * @param array
-     *            the array of floats
-     * @return the mean NOTE: mean != sum(values)/num(values) but mean = the
-     *         "middle" element of the sorted array
-     */
-    private static float getMean(float[] array) {
-        int len = array.length;
-        if (len == 0)
-            return 0;
-        float[] copy = new float[len];
-        System.arraycopy(array, 0, copy, 0, len);
-        float mean = 0;
-        boolean even = ((len % 2) == 0);
-        Arrays.sort(copy);
-        if (even) {
-            mean = (copy[(len / 2) - 1] + copy[(len / 2)]) / 2;
-        } else {
-            mean = copy[((len + 1) / 2) - 1];
-        }
-
-        return mean;
-    }
-
-    /**
-     * 
-     * Get the sd (standard deviation) of a float array, helper method
-     * 
-     * @param array
-     *            an array of floats
-     * @return the standard deviation
-     */
-    private static double getSD(float[] array) {
-        float currfloat;
-        int len = array.length;
-        double sd = 0;
-        double sum = 0;
-        double sumsq = 0;
-        for (int i = 0; i < len; i++) {
-            currfloat = array[i];
-            sum += currfloat;
-            sumsq += currfloat * currfloat;
-        }
-        sd = ((len * sumsq - sum) / (len * (len - 1)));
-        sd = Math.sqrt(sd);
-        float mean = getMean(array);
-        sd -= (double) mean;
-        return sd;
-    }
 
     /**
      * Lazy way of System output, again, self-explaining
@@ -2628,8 +2578,7 @@ public class CARTAnalyzer {
     
     public int percent()
     {
-        if (numLeafs == 0) return -1;
-        return (int) (((float)currLeafIndex / numLeafs) * 100);
+        return percent;
     }
 
 }
