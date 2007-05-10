@@ -706,6 +706,23 @@ public class MaryUtils {
     }
 
     /**
+     * Given an array of values, compute the median of these values.
+     * @param values
+     * @return
+     */
+    public static float median(float[] values)
+    {
+        float[] a = (float[]) values.clone();
+        Arrays.sort(a);
+        int len = a.length;
+        if (len % 2 == 0) {
+            return (a[len/2-1]+a[len/2])/2;
+        } else {
+            return a[(len-1)/2];
+        }
+    }
+    
+    /**
      * Given an array of int values, compute the median of these values.
      * @param values
      * @return
@@ -737,6 +754,92 @@ public class MaryUtils {
         } else {
             return a[(len-1)/2];
         }
+    }
+
+    /**
+     * Compute the mean of all elements in the array. No missing values (NaN) are allowed.
+     * @throws IllegalArgumentException if the array contains NaN values. 
+     */
+    public static double mean(double[] data)
+    {
+        double mean = 0;
+        for (int i=0; i<data.length; i++) {
+            if (Double.isNaN(data[i]))
+                throw new IllegalArgumentException("NaN not allowed in mean calculation");
+            mean += data[i];
+        }
+        mean /= data.length;
+        return mean;
+    }
+
+    /**
+     * Compute the mean of all elements in the array. No missing values (NaN) are allowed.
+     * @throws IllegalArgumentException if the array contains NaN values. 
+     */
+    public static float mean(float[] data)
+    {
+        float mean = 0;
+        for (int i=0; i<data.length; i++) {
+            if (Float.isNaN(data[i]))
+                throw new IllegalArgumentException("NaN not allowed in mean calculation");
+            mean += data[i];
+        }
+        mean /= data.length;
+        return mean;
+    }
+    
+    /**
+     * Compute the standard deviation of the given data
+     * @param data
+     * @return
+     */
+    public static double stdDev(double[] data) {
+        // Pseudocode from wikipedia, which cites Knuth:
+        // n = 0
+        // mean = 0
+        // S = 0
+        // foreach x in data:
+        //   n = n + 1
+        //   delta = x - mean
+        //   mean = mean + delta/n
+        //   S = S + delta*(x - mean)      // This expression uses the new value of mean
+        // end for
+        // variance = S/(n - 1)
+        double mean = 0;
+        double S = 0;
+        for (int i=0; i< data.length; i++) {
+            double delta = data[i] - mean;
+            mean += delta / (i+1);
+            S += delta * (data[i] - mean);
+        }
+        return Math.sqrt(S/data.length);
+    }
+
+    /**
+     * Compute the standard deviation of the given data
+     * @param data
+     * @return
+     */
+    public static double stdDev(float[] data) {
+        // Pseudocode from wikipedia, which cites Knuth:
+        // n = 0
+        // mean = 0
+        // S = 0
+        // foreach x in data:
+        //   n = n + 1
+        //   delta = x - mean
+        //   mean = mean + delta/n
+        //   S = S + delta*(x - mean)      // This expression uses the new value of mean
+        // end for
+        // variance = S/(n - 1)
+        double mean = 0;
+        double S = 0;
+        for (int i=0; i< data.length; i++) {
+            double delta = data[i] - mean;
+            mean += delta / (i+1);
+            S += delta * (data[i] - mean);
+        }
+        return Math.sqrt(S/data.length);
     }
 
 }

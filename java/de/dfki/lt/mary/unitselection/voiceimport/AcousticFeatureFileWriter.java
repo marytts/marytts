@@ -80,8 +80,11 @@ public class AcousticFeatureFileWriter implements VoiceImportComponent
             maryDir.mkdir();
             System.out.println("Created the output directory [" + db.maryDirName() + "] to store the feature file." );
         }
+        System.out.println("A");
         unitFileReader = new UnitFileReader(db.halfphoneUnitFileName());
+        System.out.println("B");
         timeline = new TimelineReader(db.waveTimelineFileName());
+        System.out.println("C");
         
         feats = new FeatureFileReader(db.halfphoneFeaturesFileName());
         inFeatureDefinition = feats.getFeatureDefinition();

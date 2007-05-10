@@ -362,9 +362,12 @@ public class TimelineIO
         public void load( DataInput rafIn ) throws IOException {
             int numIdx = rafIn.readInt();
             idxInterval = rafIn.readInt();
+            System.out.println("numIdx: "+numIdx);
             
             field = new Vector( numIdx, INCREMENT_SIZE );
             int numBytesToRead = IdxField.numBytesOnDisk() * (numIdx + 1);
+            System.out.println("numBytesToRead: "+numBytesToRead);
+
             byte[] data = new byte[numBytesToRead];
             rafIn.readFully(data);
             DataInput bufIn = new DataInputStream(new ByteArrayInputStream(data));
