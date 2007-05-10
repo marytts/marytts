@@ -33,10 +33,13 @@ package de.dfki.lt.mary.unitselection.viterbi;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.DecimalFormat;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 
 import org.apache.log4j.Level;
@@ -103,6 +106,10 @@ public  class Viterbi
     protected int nJoinCosts;
     protected double cumulTargetCosts;
     protected int nTargetCosts;
+    
+    // Keep track of average costs for each voice: map UnitDatabase->DebugStats
+    private static Map debugStats = new HashMap();
+    
     
     /**
      * Creates a Viterbi class to process the given utterance.
@@ -374,14 +381,36 @@ public  class Viterbi
                 nStretches += lengthHistogram[l];
             }
             float avgLength = total / (float) nStretches;
-            logger.debug("Avg. consecutive length: "+avgLength+" units");
+            DecimalFormat df = new DecimalFormat("0.000");
+            logger.debug("Avg. consecutive length: "+df.format(avgLength)+" units");
             // Cost of best path
             double totalCost = best.getScore();
             int elements = selectedUnits.size();
-            logger.debug("Avg. cost: best path "+new PrintfFormat("%.3f").sprintf(totalCost/(elements-1))
-                    +", avg. target "+new PrintfFormat("%.3f").sprintf(cumulTargetCosts/nTargetCosts)
-                    +", join "+new PrintfFormat("%.3f").sprintf(cumulJoinCosts/nJoinCosts)
+            double avgCostBestPath = totalCost/(elements-1);
+            double avgTargetCost = cumulTargetCosts/nTargetCosts;
+            double avgJoinCost = cumulJoinCosts/nJoinCosts;
+            logger.debug("Avg. cost: best path "+df.format(avgCostBestPath)
+                    +", avg. target "+df.format(avgTargetCost)
+                    +", join "+df.format(avgJoinCost)
                     +" (n="+nTargetCosts+")");
+            DebugStats stats = (DebugStats) debugStats.get(database);
+            if (stats == null) {
+                stats = new DebugStats();
+                debugStats.put(database, stats);
+            }
+            stats.n++;
+            // iterative computation of mean:
+            // m(n) = m(n-1) + (x(n) - m(n-1)) / n
+            stats.avgLength += (avgLength - stats.avgLength) / stats.n;
+            stats.avgCostBestPath += (avgCostBestPath - stats.avgCostBestPath) / stats.n;
+            stats.avgTargetCost += (avgTargetCost - stats.avgTargetCost) / stats.n;
+            stats.avgJoinCost += (avgJoinCost - stats.avgJoinCost) / stats.n;
+            logger.debug("Total average of "+stats.n+" utterances for this voice:");
+            logger.debug("Avg. length: "+df.format(stats.avgLength)
+                    +", avg. cost best path: "+df.format(stats.avgCostBestPath)
+                    +", avg. target cost: "+df.format(stats.avgTargetCost)
+                    +", avg. join cost: "+df.format(stats.avgJoinCost));
+            
         }
 
         return selectedUnits;
@@ -476,7 +505,14 @@ public  class Viterbi
  
     
    
-
+    private class DebugStats
+    {
+        int n;
+        double avgLength;
+        double avgCostBestPath;
+        double avgTargetCost;
+        double avgJoinCost;
+    }
    
     
     

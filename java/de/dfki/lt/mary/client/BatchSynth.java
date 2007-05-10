@@ -52,6 +52,7 @@ public class BatchSynth
         File globalOutputDir = new File(args[0]);
         MaryClient mary = new MaryClient();
         String voice = System.getProperty("voice", "us1");
+        String inputFormat = "TEXT_"+System.getProperty("locale", "en").toUpperCase();
         long globalStartTime = System.currentTimeMillis();
         int globalCounter = 0;
         for (int i=1; i<args.length; i++) {
@@ -64,15 +65,19 @@ public class BatchSynth
            BufferedReader textReader = new BufferedReader(new FileReader(texts));
            String line;
            while ((line = textReader.readLine()) != null) {
+               line = line.trim();
+               if (line.length() == 0) continue;
                long startTime = System.currentTimeMillis();
-               line = line.substring(line.indexOf("(")+1, line.lastIndexOf(")"));
+               if (line.trim().startsWith("(")) {
+                   line = line.substring(line.indexOf("(")+1, line.lastIndexOf(")"));
+               }
                StringTokenizer st = new StringTokenizer(line);
                String basename = st.nextToken();
-               String sentence = line.substring(line.indexOf("\"")+1, line.lastIndexOf("\""));
+               String sentence = line.substring(line.indexOf(basename)+basename.length()+1).trim();
                //remove all backslashes
                sentence = sentence.replaceAll("\\\\","");
                FileOutputStream audio = new FileOutputStream(outputDir+"/"+basename+".wav");
-               mary.process(sentence, "TEXT_EN", "AUDIO", "WAVE", voice, audio);
+               mary.process(sentence, inputFormat, "AUDIO", "WAVE", voice, audio);
                audio.close();
                long endTime = System.currentTimeMillis();
                System.out.println(basename+" synthesized in "+ ((float)(endTime-startTime)/1000.) + " s");
