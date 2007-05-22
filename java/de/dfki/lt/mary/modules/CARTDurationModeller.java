@@ -125,7 +125,10 @@ public class CARTDurationModeller extends InternalModule
             float end = 0; // end time of segment, in seconds
             for (Item s = segs.getHead(); s != null; s = s.getNext()) {
                 String segName = s.getFeatures().getString("name");
-                Target t = new Target(segName, s);
+                assert segName != null;
+                String sampaName = maryVoice.voice2sampa(segName);
+                assert sampaName != null;
+                Target t = new Target(sampaName, s);
                 t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));
                 float[] dur = (float[])currentCart.interpret(t, 0);
                 assert dur != null : "Null duration";
