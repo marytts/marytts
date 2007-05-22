@@ -47,6 +47,7 @@ import de.dfki.lt.mary.MaryData;
 import de.dfki.lt.mary.MaryDataType;
 import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.mary.modules.InternalModule;
+import de.dfki.lt.mary.modules.phonemiser.Phoneme;
 import de.dfki.lt.mary.modules.synthesis.FreeTTSVoices;
 import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.unitselection.Target;
@@ -54,6 +55,7 @@ import de.dfki.lt.mary.unitselection.UnitSelectionVoice;
 import de.dfki.lt.mary.unitselection.cart.CART;
 import de.dfki.lt.mary.unitselection.cart.RegressionTree;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
+import de.dfki.lt.mary.unitselection.featureprocessors.MaryFeatureProcessor;
 import de.dfki.lt.mary.unitselection.featureprocessors.TargetFeatureComputer;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureProcessorManager;
 
@@ -139,12 +141,16 @@ public class CARTF0Modeller extends InternalModule
                 Item vowel = null;
                 Item lastVoiced = null;
                 for (Item s = sylStruct.getDaughter(); s != null; s = s.getNext()) {
-                    if (maryVoice.getSampaPhoneme(s.toString()).isVowel()) {
+                    String sampaString = maryVoice.voice2sampa(s.toString());
+                    assert sampaString != null;
+                    Phoneme sampaPhoneme = maryVoice.getSampaPhoneme(sampaString);
+                    assert sampaPhoneme != null : "Unknown phoneme: ["+sampaString+"]";
+                    if (sampaPhoneme.isVowel()) {
                         // found a vowel
                         if (firstVoiced == null) firstVoiced = s;
                         if (vowel == null) vowel = s;
                         lastVoiced = s; // last so far, at least
-                    } else if (maryVoice.getSampaPhoneme(s.toString()).isVoiced()) {
+                    } else if (sampaPhoneme.isVoiced()) {
                         // voiced consonant
                         if (firstVoiced == null) firstVoiced = s;
                         lastVoiced = s;
@@ -169,6 +175,9 @@ public class CARTF0Modeller extends InternalModule
                     float rightTime = lastVoiced.getFeatures().getFloat("end");
                     // Now predict the f0 values using the CARTs:ssh 
                     String segName = vowel.getFeatures().getString("name");
+                    assert segName != null;
+                    String sampaName = maryVoice.voice2sampa(segName);
+                    assert sampaName != null;
                     Target t = new Target(segName, vowel);
                     t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));
                     float[] left = (float[])currentLeftCart.interpret(t, 0);
