@@ -41,6 +41,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
     protected int percent = 0;
     protected Map problems;
     protected boolean correctedPauses = false;
+    //protected boolean wait =false;
     
     protected static final int TRYAGAIN = 0;
     protected static final int SKIP = 1;
@@ -118,6 +119,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
                     System.out.println("    "+basename+": "+errorMessage);
                     /* Let the user make a first correction */
                     guiReturn = letUserCorrect(basename, errorMessage);
+                    //while(wait=true){}
                     /* Check if an error remains */
                     errorMessage = verifyAlignment(basename);
                     /* If there is no error, proceed with the next file. */
@@ -228,6 +230,84 @@ public class LabelFeatureAligner implements VoiceImportComponent
         
         if (choice == 0) deleteProblems(problems);
     }
+    
+    protected void defineReplacementWindow(){
+        
+        final JFrame frame = new JFrame("Define Replacements");
+        GridBagLayout gridBagLayout = new GridBagLayout();
+        GridBagConstraints gridC = new GridBagConstraints();
+        frame.getContentPane().setLayout( gridBagLayout );
+        
+        final JEditorPane editPane = new JEditorPane();
+        editPane.setPreferredSize(new Dimension(500, 500));
+        editPane.setText("#Whenever a problem occurs, the problematic phone in the label file\n"
+                +"#will be replaced by the phone you define here.\n\n"
+                +"#Define replacements like this:\n"
+                +"#labelPhone newLabelPhone\n");        
+        
+        JButton saveButton = new JButton("Apply to problems");
+        saveButton.addActionListener(new ActionListener() {
+           public void actionPerformed(ActionEvent e) {                
+                frame.setVisible(false);
+                try{
+                    defineReplacements(editPane.getText());                
+                } catch (Exception ex){
+                    ex.printStackTrace();
+                    throw new Error("Error defining replacements");
+                }
+            }
+        });
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                frame.setVisible(false);
+            }
+        });
+        
+        gridC.gridx = 0;
+        gridC.gridy = 0;
+        // resize scroll pane:
+        gridC.weightx = 1;
+        gridC.weighty = 1;
+        gridC.fill = GridBagConstraints.HORIZONTAL;
+        JScrollPane scrollPane = new JScrollPane(editPane);
+        scrollPane.setPreferredSize(editPane.getPreferredSize());
+        gridBagLayout.setConstraints( scrollPane, gridC );
+        frame.getContentPane().add(scrollPane);
+        gridC.gridy = 1;
+        // do not resize buttons:
+        gridC.weightx = 0;
+        gridC.weighty = 0;
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout());
+        buttonPanel.add(saveButton);
+        buttonPanel.add(cancelButton);
+        gridBagLayout.setConstraints( buttonPanel, gridC );
+        frame.getContentPane().add(buttonPanel);
+        frame.pack();
+        frame.setVisible(true);
+        
+        do {
+            try {
+                Thread.sleep(10); 
+            } catch (InterruptedException e) {}
+        } while (frame.isVisible());
+        frame.dispose();
+    }
+    
+    protected void defineReplacementInfo(String text){
+        int choice = JOptionPane.showOptionDialog(null,
+                "Error applying replacements: Syntax error in line \""+text+"\"",
+                "Error in replacement definition",
+                JOptionPane.YES_NO_CANCEL_OPTION, 
+                JOptionPane.QUESTION_MESSAGE, 
+                null,
+                new String[] {"Correct", "Cancel"},
+                null);
+        if (choice == 0) defineReplacementWindow();
+    }
+    
+    
     /**
      * Try to automatically correct misalignment caused 
      * by pauses: 
@@ -247,6 +327,7 @@ public class LabelFeatureAligner implements VoiceImportComponent
         problems = new TreeMap();
         //go through all files        
         for (int l=0; l<bnl.getLength(); l++) {
+            percent = 100*l/bnl.getLength();
             String basename = bnl.getName(l);           
             System.out.print("    " + basename );
             String line;
@@ -309,7 +390,9 @@ public class LabelFeatureAligner implements VoiceImportComponent
 	                if (featureUnit.equals("_")){
 	                    //add pause in labels
 	                    System.out.println(" Adding pause unit in labels before unit "+i);
-	                    String pauseUnit = (String)labelUnitData.get(0)+" "
+	                    ArrayList previousUnitData = 
+	    	                            getLabelUnitData((String)labelUnits.get(i-1));
+	                    String pauseUnit = (String)previousUnitData.get(0)+" "
                     			+(String) labelUnitData.get(1)+" _\n";
                     		
 	                    labelUnits.add(i,pauseUnit);
@@ -322,12 +405,14 @@ public class LabelFeatureAligner implements VoiceImportComponent
 	                        //add two pause units in labels
 	                        System.out.println(" Adding pause units in labels before unit "
                                 +i);
-	                        String pauseUnit = (String)labelUnitData.get(0)+" "
+	                        ArrayList previousUnitData = 
+	    	                            getLabelUnitData((String)labelUnits.get(i-1));
+	                        String pauseUnit = (String)previousUnitData.get(0)+" "
 	                        	+(String) labelUnitData.get(1)+" __L\n";
             		
 	                        labelUnits.add(i,pauseUnit);
 	                        i++;
-	                        pauseUnit = (String)labelUnitData.get(0)+" "
+	                        pauseUnit = (String)previousUnitData.get(0)+" "
 	                        	+(String) labelUnitData.get(1)+" __R\n";
 	                        labelUnits.add(i,pauseUnit);
 	                        i++;
@@ -375,6 +460,48 @@ public class LabelFeatureAligner implements VoiceImportComponent
 	            //increase both counters if you did not delete a pause
 	            i++;
 	            j++;            
+	        }
+	        if (numLabelUnits<numFeatureUnits){
+	            //check if the final pause is missing in the label file
+	            featureUnit = getFeatureUnit((String)featureUnits.get(numFeatureUnits-1));
+	            labelUnitData = getLabelUnitData((String)labelUnits.get(numLabelUnits-1));
+	            labelUnit = (String) labelUnitData.get(2);
+	            //add a pause at the end of label file
+	            if (featureUnit.equals("_")
+	                    && numLabelUnits+1 == numFeatureUnits){
+	                String lastFeatureUnit = 
+	                    getFeatureUnit((String)featureUnits.get(numFeatureUnits-2));
+	                if (lastFeatureUnit.equals(labelUnit)){
+	                    //add pause at the end
+	                    System.out.println(" Adding pause unit in labels after last unit");
+	                    String pauseUnit = (String)labelUnitData.get(0)+" "
+	                    +numLabelUnits+" _\n";	                    
+	                    labelUnits.add(pauseUnit);
+	                    
+	                    numLabelUnits =labelUnits.size();
+	                }
+	            } else {
+	                if (featureUnit.equals("__R")
+	                        && numLabelUnits+2 == numFeatureUnits){
+	                    String lastFeatureUnit = 
+	                        getFeatureUnit((String)featureUnits.get(numFeatureUnits-3));
+	                    if (lastFeatureUnit.equals(labelUnit)){
+	                        //add two pause units at the end of label file
+	                        System.out.println(" Adding pause units in labels after last unit");
+	                        int unitIndex = numLabelUnits-1;
+	                        String pauseUnit = (String)labelUnitData.get(0)+" "
+	                        +unitIndex+" __L\n";	                        
+	                        labelUnits.add(pauseUnit);
+	                       
+	                        pauseUnit = (String)labelUnitData.get(0)+" "
+	                        +numLabelUnits+" __R\n";
+	                        labelUnits.add(pauseUnit);
+	                        
+	                        numLabelUnits =labelUnits.size();
+	                    }
+	                } 
+	            }
+	            
 	        }
 	        //return an error if label file is longer than feature file
 	        if (returnString == null && numLabelUnits > numFeatureUnits){
@@ -429,6 +556,168 @@ public class LabelFeatureAligner implements VoiceImportComponent
         }
     }
     
+    protected void defineReplacements(String text) throws Exception{
+        
+        /*read the replacements into a map*/
+        Map phone2Replace = new HashMap();
+        String error = null;
+        String[] textlines = text.split("\n");
+        for (int i=0;i<textlines.length;i++){
+            if (!textlines[i].startsWith("#")){
+                StringTokenizer tok = new StringTokenizer(textlines[i].trim());
+                try{
+                    phone2Replace.put(tok.nextToken(),tok.nextToken());
+                } catch (NoSuchElementException nsee){
+                    error = textlines[i];
+                    break;
+                }
+            }
+        }
+        if (error != null){
+            //wait = true;
+            //TODO: Does not work properly
+            defineReplacementInfo(error);
+        } else {
+            /*go through the problems and try to replace the phonemes in 
+             the labels with the specified replacements */
+            
+            //clear the list of problems
+            problems = new TreeMap();
+            //go through all files        
+            for (int l=0; l<bnl.getLength(); l++) {
+                percent = 100*l/bnl.getLength();
+                String basename = bnl.getName(l);           
+                System.out.print("    " + basename );
+                String line;
+                
+                BufferedReader labels;
+                try{
+                    labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File( unitlabelDir, basename + labExt )), "UTF-8"));
+                }catch (FileNotFoundException fnfe){
+                    continue;
+                }
+                //store header of label file in StringBuffer
+                StringBuffer labelFileHeader = new StringBuffer();
+                while ((line = labels.readLine()) != null) {
+                    labelFileHeader.append(line+"\n");
+                    if (line.startsWith("#")) break; // line starting with "#" marks end of header
+                }
+                
+                //store units of label file in List
+                List labelUnits = new ArrayList();
+                while ((line = labels.readLine()) != null) {
+                    labelUnits.add(line+"\n");
+                }
+                
+                BufferedReader features;    
+                try {
+                    features = new BufferedReader(new InputStreamReader(new FileInputStream(new File(unitfeatureDir, basename + featsExt )), "UTF-8"));
+                }catch (FileNotFoundException fnfe){
+                    continue;
+                }
+                while ((line = features.readLine()) != null) {
+                    if (line.trim().equals("")) break; // empty line marks end of header
+                }
+                
+                //store text units of feature file in list
+                List featureUnits = new ArrayList();
+                while ((line = features.readLine()) != null) {
+                    if (line.trim().equals("")) break; // empty line marks end of section
+                    featureUnits.add(line);
+                }
+                
+                ArrayList labelUnitData;        
+                String labelUnit;
+                String featureUnit;
+                String returnString = null;
+                
+                int numLabelUnits = labelUnits.size();
+                int numFeatureUnits = featureUnits.size();       
+                
+                int i=0,j=0;
+                boolean alteredLabel = false;
+                while (i<numLabelUnits && j<numFeatureUnits){
+                    //System.out.println("featureUnit : "+featureUnit
+                    //      +" labelUnit : "+labelUnit);
+                    labelUnitData = getLabelUnitData((String)labelUnits.get(i));
+                    labelUnit = (String) labelUnitData.get(2);
+                    featureUnit = getFeatureUnit((String)featureUnits.get(j));
+                    
+                    if (!featureUnit.equals(labelUnit)) {
+                        //try to replace label Unit
+                        if (phone2Replace.containsKey(labelUnit)){
+                            System.out.print(" Replacing "+labelUnit);
+                            String newlabelUnit = (String) phone2Replace.get(labelUnit);
+                            System.out.print(" with "+newlabelUnit+"... ");
+                            if (featureUnit.equals(newlabelUnit)){
+                                labelUnits.remove(i);
+                                labelUnits.add(i,(String)labelUnitData.get(0)+" "
+                                        +(String) labelUnitData.get(1)+" "+newlabelUnit);
+                                alteredLabel = true;
+                                System.out.print("successful!\n");
+                                i++;
+                                j++;
+                                continue;
+                            }
+                            System.out.print("failed!\n");
+                        }  
+                        //else we have a problem
+                        if (returnString == null){
+                            //only remember the the first mismatch
+                            int unitIndex = i;
+                            returnString = " Non-matching units found: feature file '"
+                                +featureUnit+"' vs. label file '"+labelUnit
+                                +"' (Unit "+unitIndex+")";
+                        }
+                        
+                    }
+                    i++;
+                    j++;            
+                }
+                //return an error if label file is longer than feature file
+                if (returnString == null && numLabelUnits > numFeatureUnits){
+                    returnString = " Label file is longer than feature file: "
+                        +" unit "+numFeatureUnits
+                        +" and greater do not exist in feature file";  
+                }
+                
+                if (alteredLabel){
+                    //overwrite the label file 
+                    PrintWriter labelFileWriter =
+                        new PrintWriter(
+                                new FileWriter(
+                                        new File(unitlabelDir, basename + labExt)));
+                    //print header
+                    labelFileWriter.print(labelFileHeader.toString());
+                    //print units
+                    numLabelUnits = labelUnits.size();
+                    for (int k=0;k<numLabelUnits;k++){
+                        String nextUnit = (String)labelUnits.get(k);
+                        if (nextUnit != null){
+                            //correct the unit index
+                            ArrayList nextUnitData = getLabelUnitData(nextUnit);
+                            labelFileWriter.print((String)nextUnitData.get(0)
+                                    +" "+k+" "+(String) nextUnitData.get(2)+"\n");
+                        }
+                    }
+                    
+                    labelFileWriter.flush();
+                    labelFileWriter.close();
+                }
+                //returnString is null if all units matched,
+                //otherwise the first error is given back
+                if (returnString == null) {
+                    System.out.println(" OK");
+                } else {
+                    problems.put( basename, returnString);
+                    System.out.println(returnString);
+                }
+            }
+            System.out.println("Remaining problems: "+problems.size());
+            //wait = false;
+        }
+        
+    }
     
     /**
      * Verify if the feature and label files for basename align OK.
@@ -550,9 +839,9 @@ public class LabelFeatureAligner implements VoiceImportComponent
     {
         String[] options;
         if (correctedPauses){
-            options = new String[] {"Edit RAWMARYXML", "Edit unit labels", "Remove from list", "Remove all problems", "Skip", "Skip all","Replace labels in unit file"};
+            options = new String[] {"Edit RAWMARYXML", "Edit unit labels", "Remove from list", "Remove all problems", "Skip", "Skip all","Replace labels in unit file","Define replacements"};
         } else {
-            options = new String[] {"Edit RAWMARYXML", "Edit unit labels", "Remove from list", "Remove all problems", "Skip", "Skip all"};
+            options = new String[] {"Edit RAWMARYXML", "Edit unit labels", "Remove from list", "Remove all problems", "Skip", "Skip all","Define replacements"};
         }
         int choice = JOptionPane.showOptionDialog(null,
                 "Misalignment problem for "+basename+":\n"+
@@ -581,7 +870,12 @@ public class LabelFeatureAligner implements VoiceImportComponent
         case 6:
             if (correctedPauses){
                 replaceUnitLabels(basename);
+            } else {
+                defineReplacementWindow();
             }
+            return TRYAGAIN;
+        case 7:
+            defineReplacementWindow();
             return TRYAGAIN;
         default: // JOptionPane.CLOSED_OPTION
             return SKIP; // don't verify again.

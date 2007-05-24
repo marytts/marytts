@@ -74,7 +74,11 @@ public class UnitSelector
         
         // Try to get instances of our tools from Mary; if we cannot get them,
         // instantiate new objects.
-        x2u = (XML2UttAcoustParams) Mary.getModule(XML2UttAcoustParams.class);
+        try {
+            x2u = (XML2UttAcoustParams) Mary.getModule(XML2UttAcoustParams.class);
+        }catch(NullPointerException npe){
+            x2u = null;
+        }
         if (x2u == null) {
             logger.info("Starting my own XML2UttAcoustParams");
             x2u = new XML2UttAcoustParams();

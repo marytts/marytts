@@ -162,7 +162,6 @@ public class FeatureProcessorManager extends
             phone2Classes.put("p","c_labial");
             phone2Classes.put("w","c_labial");
             phone2Classes.put("d","c_alveolar");
-            phone2Classes.put("d","c_alveolar");
             phone2Classes.put("l","c_alveolar");
             phone2Classes.put("n","c_alveolar");
             phone2Classes.put("r","c_alveolar");
