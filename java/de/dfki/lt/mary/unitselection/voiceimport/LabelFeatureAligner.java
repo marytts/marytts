@@ -390,11 +390,16 @@ public class LabelFeatureAligner implements VoiceImportComponent
 	                if (featureUnit.equals("_")){
 	                    //add pause in labels
 	                    System.out.println(" Adding pause unit in labels before unit "+i);
-	                    ArrayList previousUnitData = 
+	                    String pauseUnit;
+	                    if (i-1>=0){
+	                        ArrayList previousUnitData = 
 	    	                            getLabelUnitData((String)labelUnits.get(i-1));
-	                    String pauseUnit = (String)previousUnitData.get(0)+" "
+	                    	pauseUnit = (String)previousUnitData.get(0)+" "
                     			+(String) labelUnitData.get(1)+" _\n";
-                    		
+	                    } else {
+	                        pauseUnit = "0.00000 "
+                    			+(String) labelUnitData.get(1)+" _\n";
+	                    }
 	                    labelUnits.add(i,pauseUnit);
 	                    i++;
 	                    j++;
@@ -405,16 +410,27 @@ public class LabelFeatureAligner implements VoiceImportComponent
 	                        //add two pause units in labels
 	                        System.out.println(" Adding pause units in labels before unit "
                                 +i);
-	                        ArrayList previousUnitData = 
-	    	                            getLabelUnitData((String)labelUnits.get(i-1));
-	                        String pauseUnit = (String)previousUnitData.get(0)+" "
-	                        	+(String) labelUnitData.get(1)+" __L\n";
-            		
-	                        labelUnits.add(i,pauseUnit);
-	                        i++;
-	                        pauseUnit = (String)previousUnitData.get(0)+" "
-	                        	+(String) labelUnitData.get(1)+" __R\n";
-	                        labelUnits.add(i,pauseUnit);
+	                        String pauseUnit;
+	                        if (i-1>=0){
+	                            ArrayList previousUnitData = 
+	                                getLabelUnitData((String)labelUnits.get(i-1));
+	                            pauseUnit = (String)previousUnitData.get(0)+" "
+	                            +(String) labelUnitData.get(1)+" __L\n";
+	                            labelUnits.add(i,pauseUnit);
+	                            i++;
+	                            pauseUnit = (String)previousUnitData.get(0)+" "
+	                            +(String) labelUnitData.get(1)+" __R\n";
+	                            labelUnits.add(i,pauseUnit);
+	                        } else {
+	                            //this is the first label-unit
+	                            pauseUnit = "0.00000 "
+	                                +(String) labelUnitData.get(1)+" __L\n";
+	                            labelUnits.add(i,pauseUnit);
+	                            i++;
+	                            pauseUnit = "0.00000 "
+	                                +(String) labelUnitData.get(1)+" __R\n";
+	                            labelUnits.add(i,pauseUnit);
+	                        }
 	                        i++;
 	                        j+=2;
 	                        numLabelUnits =labelUnits.size();
@@ -430,13 +446,15 @@ public class LabelFeatureAligner implements VoiceImportComponent
 	    	                    if (labelUnit.equals("__L")){
 	    	                        //remove two pause units in labels
 	    	                        System.out.println(" Removing pause units in labels at index "
-	                                    +i);
-	    	                        //lengthen the unit before the pause
-	    	                        ArrayList previousUnitData = 
-	    	                            getLabelUnitData((String)labelUnits.get(i-1));
-	    	                        labelUnits.set(i-1,(String)labelUnitData.get(0)
-	    	                                +" "+(String)previousUnitData.get(1)
-	    	                                +" "+(String)previousUnitData.get(2)+"\n");
+	                                    +i);	    	                        
+	    	                        if (i-1>=0){
+	    	                            //lengthen the unit before the pause
+	    	                            ArrayList previousUnitData = 
+	    	                                getLabelUnitData((String)labelUnits.get(i-1));
+	    	                            labelUnits.set(i-1,(String)labelUnitData.get(0)
+	    	                                    +" "+(String)previousUnitData.get(1)
+	    	                                    +" "+(String)previousUnitData.get(2)+"\n");
+	    	                        } 
 	    	                        //remove the pauses
 	    	                        labelUnits.remove(i);
 	    	                        labelUnits.remove(i);
