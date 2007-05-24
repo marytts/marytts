@@ -482,6 +482,10 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
             if (value == null) return values.get("0");
             String sampa = FreeTTSVoices.getMaryVoice(segment.getUtterance().getVoice()).voice2sampa(value);
             String phoneClass = (String) phones2Classes.get(sampa); 
+            
+            if (phoneClass == null){
+                System.out.println("No phoneClass for phone "+sampa);
+            }
             return values.get(phoneClass);
         }
     }

@@ -70,12 +70,14 @@ public class HalfPhoneTargetFeatureLister extends TargetFeatureLister
      * @param segs the Segment relation
      * @return a list of Target objects
      */
-    protected List createTargetsWithInitialPause(Relation segs) {
+    protected List createTargetsWithPauses(Relation segs) {
         List targets = new ArrayList();
         boolean first = true;
         Item s = segs.getHead();
         Voice v = FreeTTSVoices.getMaryVoice(s.getUtterance().getVoice());
         String silenceSymbol = v.sampa2voice("_");
+        Target lastTarget = null;
+        Item lastItem = s;
         for (; s != null; s = s.getNext()) {
             //create next target
             String segName = s.getFeatures().getString("name");
@@ -84,7 +86,8 @@ public class HalfPhoneTargetFeatureLister extends TargetFeatureLister
             //if first target is not a pause, add one
             if (first){
                 first = false;
-                if (! segName.equals(silenceSymbol)){
+                //if (! segName.equals(silenceSymbol)){
+                if (! nextLeftTarget.isSilence()){
                     //System.out.println("Adding two pause targets: "
                       //          +silenceSymbol+"_L and "
                         //        +silenceSymbol+"_R");
@@ -99,7 +102,20 @@ public class HalfPhoneTargetFeatureLister extends TargetFeatureLister
             }
             targets.add(nextLeftTarget);
             targets.add(nextRightTarget);
-        }        
+            lastTarget = nextRightTarget;
+            lastItem = s;
+        }  
+        if (! lastTarget.isSilence()){
+                   //System.out.println("Adding pause target "
+                     //           +silenceSymbol);
+                   //build new pause item
+                   Item newPauseItem = lastItem.appendItem(null);
+                   newPauseItem.getFeatures().setString("name", silenceSymbol);
+                   
+                   //add new targets for item
+                    targets.add(new HalfPhoneTarget(silenceSymbol+"_L", newPauseItem, true)); 
+                    targets.add(new HalfPhoneTarget(silenceSymbol+"_R", newPauseItem, false));
+                }
         return targets;
     }
     

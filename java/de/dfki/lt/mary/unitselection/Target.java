@@ -124,7 +124,12 @@ public class Target
             if (name.startsWith(silenceSymbol)) {
                 isSilence = 1; //true
             } else {
-                isSilence = 0; //false
+                silenceSymbol = "pau"; // try MRPA just in case
+                if (name.startsWith(silenceSymbol)) {
+                    isSilence = 1; //true
+                } else {
+                    isSilence = 0; //false
+                }
             }
         }
         if (isSilence == 1){

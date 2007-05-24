@@ -73,8 +73,12 @@ public class MbrolaSynthesizer implements WaveformSynthesizer {
         logger = Logger.getLogger(this.toString());
         // Try to get instances of our tools from Mary; if we cannot get them,
         // instantiate new objects.
+        try{
         maryxmlToMbrola =
             (MaryXMLToMbrola) Mary.getModule(MaryXMLToMbrola.class);
+        } catch (NullPointerException npe){
+            maryxmlToMbrola = null;
+        }
         if (maryxmlToMbrola == null) {
             logger.info("Starting my own MaryXMLToMbrola");
             maryxmlToMbrola = new MaryXMLToMbrola();
@@ -89,7 +93,12 @@ public class MbrolaSynthesizer implements WaveformSynthesizer {
             mbrolaCallerProperty = "mbrolasynthesizer.mbrolacaller.class";
         }
 		Class mbrolaClass = MaryProperties.needClass(mbrolaCallerProperty);
-        Object obj = Mary.getModule(mbrolaClass);
+		Object obj;
+		try {
+		    obj = Mary.getModule(mbrolaClass);
+		} catch (NullPointerException npe){
+		    obj = null;
+		}
         if (obj == null) {
             logger.info("Starting my own MbrolaCaller (" + mbrolaClass.getName() + ")");
             obj = mbrolaClass.newInstance();

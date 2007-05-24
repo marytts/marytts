@@ -44,6 +44,9 @@ import de.dfki.lt.mary.unitselection.Target;
 import de.dfki.lt.mary.util.ByteStringTranslator;
 import de.dfki.lt.util.FSTLookup;
 
+import java.util.List;
+import java.util.ArrayList;
+
 /**
  * A collection of feature processors that operate on Target objects.
  * Their names are all prefixed with "mary_" to make sure no confusion with the old FreeTTS feature processors occurs. 
@@ -2516,9 +2519,27 @@ public class MaryGenericFeatureProcessors
     public static class Selection_Prosody implements ByteValuedFeatureProcessor {
         
         protected TargetItemNavigator navigator;
+        private List lowEndtones;
+        private List highEndtones;
+        private AccentedSylsFromPhraseEnd as;
         
         public Selection_Prosody ( TargetItemNavigator syllableNavigator){
             this.navigator = syllableNavigator;
+            lowEndtones = new ArrayList();
+            lowEndtones.add("L-");
+            lowEndtones.add("L-%");
+            lowEndtones.add("H-L%");
+            lowEndtones.add("L-L%");
+            highEndtones = new ArrayList();
+            highEndtones.add("H-");
+            highEndtones.add("!H-");
+            highEndtones.add("H-%");
+            highEndtones.add("!H-%");
+            highEndtones.add("H-^H");
+            highEndtones.add("!H-^H%");
+            highEndtones.add("L-H%");
+            highEndtones.add("H-H%");
+            as = new AccentedSylsFromPhraseEnd();
         }
         public String getName() { return "mary_selection_prosody"; }
         
@@ -2535,51 +2556,55 @@ public class MaryGenericFeatureProcessors
          *		3 - nuclear accent, 4 - phrase final high, 5 - phrase final low
          */
         public byte process(Target target){
+            //TODO: find out why java thinks there is an error here
             //first find out if syllable is stressed
             Item syllable = navigator.getItem(target);
-            if (syllable == null) return 0;
+            if (syllable == null) return (byte)0;
             String value = syllable.getFeatures().getString("stress");
-            if (value == null) return 0;
+            if (value == null) return (byte)0;
             boolean stressed = false;
             if (Byte.parseByte(value) != 0)
                 stressed = true;
+            //find out the position of the target
+            byte accSylsFromPhraseEnd = as.process(target);
             if (stressed){
                 //find out if we have an accent    
                 String accent = syllable.getFeatures().getString("accent");
-                if (accent == null)                
-                    return 1; //no accent, return stressed
-                //find out the position of the target
-                AccentedSylsFromPhraseEnd as = new AccentedSylsFromPhraseEnd();
-                byte accSyls = as.process(target);
-                if (accSyls == 0)
-                    return 3;//return nuclear accent
-                //else just a normal accent
-                return 2;//return pre-nuclear accent
+                if (accent != null) {
+                    if (accSylsFromPhraseEnd == 0){
+                        return (byte)3;//return nuclear accent
+                    }
+                    //else just a normal accent
+                    return (byte)2;//return pre-nuclear accent
+                }
             }  
-            //ToBI endtones:"0", "H-", "!H-", "L-", "H-%", "!H-%", "H-^H%",
-            //              "!H-^H%", "L-H%", "L-%", "L-L%", "H-H%", "H-L%"
-            LastSyllableNavigator lastSylNavi = new LastSyllableNavigator();
-            syllable = lastSylNavi.getItem(target);
-            if (syllable == null) return 0;
-            String endtone = syllable.getFeatures().getString("endtone");
-            if (endtone == null || endtone.equals("")) 
-                return 0;//return unstressed
-            if (endtone.startsWith("H"))
-                return 4; //return phrase final high
-            if (endtone.startsWith("L"))
-                return 5; //return phrase final low
-            //else tone started with !
-            //TODO: ask Marc what to do with that
-            return 0;
+            //ToBI endtones:"0"->0||1, "H-"->4, "!H-"->4, "L-"->5,
+            //				"H-%"->4, "!H-%"->4, "H-^H%"->4,
+            //              "!H-^H%"->4, "L-H%"->4, "L-%"->5, 
+            //				"L-L%"->5, "H-H%"->4, "H-L%"->5
+            if (accSylsFromPhraseEnd == 0){
+                String endtone = syllable.getFeatures().getString("endtone");
+                if (endtone == null || endtone.equals("")
+                        || endtone.equals("0")){ 
+                    if (stressed)
+                        return (byte)1; //return stressed
+                    return (byte)0;//return unstressed
+                }
+                if (highEndtones.contains(endtone)){
+                    return (byte)4; //return phrase final high
+                }
+                if (lowEndtones.contains(endtone)){
+                    return (byte)5; //return phrase final low
+                }
+            } else {
+                if (stressed) return (byte)1; //return stressed
+                return (byte)0;//return unstressed
+            }
+            return (byte)0;//return unstressed
         }
     }
     
     
-    ////////////////////////////////////////////////////////
-    // TODO: Remove or convert old feature processors below.
-    ////////////////////////////////////////////////////////
-
-
     /**
      * Returns the duration of the given segment This is a feature processor. A
      * feature processor takes an item, performs some sort of processing on the

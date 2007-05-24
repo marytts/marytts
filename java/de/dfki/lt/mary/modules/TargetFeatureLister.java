@@ -85,7 +85,8 @@ public class TargetFeatureLister extends InternalModule
             Utterance utt = (Utterance)uttList.get(i);
             // Create target chain for the utterance
             Relation segs = utt.getRelation(Relation.SEGMENT);
-            List targets = createTargetsWithInitialPause(segs);
+            List targets = createTargetsWithPauses(segs);
+            //List targets = createTargets(segs);
             // create target feature string for the target chain
             for (int j=0, nTargets = targets.size(); j<nTargets; j++) {
                 Target target = (Target) targets.get(j);
@@ -125,12 +126,14 @@ public class TargetFeatureLister extends InternalModule
      * @param segs the Segment relation
      * @return a list of Target objects
      */
-    protected List createTargetsWithInitialPause(Relation segs) {
+    protected List createTargetsWithPauses(Relation segs) {
         List targets = new ArrayList();
         boolean first = true;
         Item s = segs.getHead();
         Voice v = FreeTTSVoices.getMaryVoice(s.getUtterance().getVoice());
         String silenceSymbol = v.sampa2voice("_");
+        Item lastItem = s;
+        Target lastTarget = null;
         for (; s != null; s = s.getNext()) {
             //create next target
             String segName = s.getFeatures().getString("name");
@@ -150,7 +153,19 @@ public class TargetFeatureLister extends InternalModule
                 }
             }
             targets.add(nextTarget);
+            lastItem=s;
+            lastTarget=nextTarget;
         }        
+        if (! lastTarget.isSilence()){
+                   //System.out.println("Adding pause target "
+                     //           +silenceSymbol);
+                   //build new pause item
+                   Item newPauseItem = lastItem.appendItem(null);
+                   newPauseItem.getFeatures().setString("name", silenceSymbol);
+                   
+                   //add new target for item
+                   targets.add(new Target(silenceSymbol, newPauseItem)); 
+                }
         return targets;
     }
 }

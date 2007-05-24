@@ -121,8 +121,9 @@ public class BasenameList
         /* Extract the basenames and store them in a vector of strings */
         bList = new Vector( selectedFiles.length, DEFAULT_INCREMENT );
         String str = null;
+        int subtractFromFilename = extension.length();
         for ( int i = 0; i < selectedFiles.length; i++ ) {
-            str = selectedFiles[i].getName().substring( 0, selectedFiles[i].getName().length() - 4 );
+            str = selectedFiles[i].getName().substring( 0, selectedFiles[i].getName().length() - subtractFromFilename );
             add( str );
         }
     }
@@ -185,6 +186,7 @@ public class BasenameList
             if ( !(line.matches("^\\s*$")) ) add( line );
         }
     }
+    
     
     /*****************/
     /* OTHER METHODS */
