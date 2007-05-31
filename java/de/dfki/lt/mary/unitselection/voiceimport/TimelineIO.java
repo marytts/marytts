@@ -365,7 +365,7 @@ public class TimelineIO
             System.out.println("numIdx: "+numIdx);
             
             field = new Vector( numIdx, INCREMENT_SIZE );
-            int numBytesToRead = IdxField.numBytesOnDisk() * (numIdx + 1);
+            int numBytesToRead = IdxField.numBytesOnDisk() * numIdx + 16; // + 16 for 2 longs
             System.out.println("numBytesToRead: "+numBytesToRead);
 
             byte[] data = new byte[numBytesToRead];

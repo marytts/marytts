@@ -230,7 +230,7 @@ public class JoinCostFileMaker implements VoiceImportComponent {
                                                         *    it means we have not trespassed the unit yet,
                                                         *    so we can crawl further. */
                         dat = mcep.getDatagram( endPoint, unitSampleFreq );
-                        while ( (endPoint+dat.getDuration()) < targetEndPoint ) {
+                        while ( dat != null && (endPoint+dat.getDuration()) < targetEndPoint ) {
                             buff.removeElementAt( 0 );
                             buff.add( dat );
                             endPoint += dat.getDuration();
@@ -239,6 +239,7 @@ public class JoinCostFileMaker implements VoiceImportComponent {
                         /* Compute the right F0 from the datagram durations: */
                         for ( int j = 0; j < buff.size(); j++ ) {
                             dat = (Datagram) buff.elementAt( j );
+                            assert dat != null;
                             periods[j] = dat.getDuration();
                         }
                         median = MaryUtils.median( periods );
@@ -251,6 +252,7 @@ public class JoinCostFileMaker implements VoiceImportComponent {
                     /* -- WRITE: */
                     /* Get the datagram corresponding to the right join cost feature and pipe it out: */
                     dat = (Datagram) buff.lastElement();
+                    assert dat != null;
                     jcf.write( dat.getData(), 0, dat.getData().length );
                     /* But DO NOT WRITE the trailing join F0, because we don't know it yet. */
                 }
