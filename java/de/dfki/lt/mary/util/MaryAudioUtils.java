@@ -128,21 +128,34 @@ public class MaryAudioUtils {
     /**
      * Record a sound file with the recording being limited to a given amount of time
      * @param filename name of the sound file
-     * @param dauer the given amount of time in milliseconds
+     * @param millis the given amount of time in milliseconds
      * @param audioFormat the audio format for the actual sound file
      * @return void
      * @throws LineUnavailableException if no recording line can be found
      * @throws InterruptedException if the recording is stopped
      *
      */
-    public static void timedRecord(String filename,long dauer, AudioFormat audioFormat) 
+    public static void timedRecord(String filename,long millis, AudioFormat audioFormat) 
     {
- 	    
     	/*
     	 * Our first parameter tells us the file name that the recording
     	 * should be saved into.
     	 */
     	File outputFile = new File(filename);
+        timedRecord(outputFile, millis, audioFormat);
+    }
+    
+    /**
+     * Record a sound file with the recording being limited to a given amount of time
+     * @param filename name of the sound file
+     * @param millis the given amount of time in milliseconds
+     * @param audioFormat the audio format for the actual sound file
+     * @throws LineUnavailableException if no recording line can be found
+     * @throws InterruptedException if the recording is stopped
+     *
+     */
+    public static void timedRecord(File targetFile, long millis, AudioFormat audioFormat)
+    {
     	/*
     	 * Now, we are trying to get a TargetDataLine. The TargetDataLine is
     	 * used later to read audio data from it. If requesting the line was
@@ -155,7 +168,7 @@ public class MaryAudioUtils {
     		targetDataLine = (TargetDataLine) AudioSystem.getLine(info);
     		targetDataLine.open(audioFormat);
     	} catch (LineUnavailableException e) {
-    		System.out.println("unable to get a recording line");
+    		System.err.println("unable to get a recording line");
     		e.printStackTrace();
     		//System.exit(1);
     	}
@@ -173,18 +186,18 @@ public class MaryAudioUtils {
     	 * parameter ´dauer'.
     	 */
     	TimedAudioRecorder recorder = new TimedAudioRecorder(targetDataLine,
-            targetType, outputFile, dauer);
+            targetType, targetFile, millis);
 
     	/*
     	 * Here, the recording is actually started.
     	 */
     	recorder.start();
-    	//System.out.println("Recording...");
+    	System.out.println("Recording...");
 
     	try {
     		recorder.join();
     	} catch (InterruptedException ie) {}
-    	//System.out.println("Recording stopped.");
+    	System.out.println("Recording stopped.");
     	
     	/* 
     	 * Here, our recording should actually be done and all wrapped up.
