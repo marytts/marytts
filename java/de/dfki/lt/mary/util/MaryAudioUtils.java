@@ -41,6 +41,7 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
 
+import org.jsresources.AudioRecorder;
 import org.jsresources.SequenceAudioInputStream;
 import org.jsresources.TimedAudioRecorder;
 import org.tritonus.share.sampled.AudioFileTypes;
@@ -178,15 +179,7 @@ public class MaryAudioUtils {
     	 */
     	AudioFileFormat.Type targetType = AudioFileFormat.Type.WAVE;
 
-    	/*
-    	 * Now, we are creating a TimedAudioRecorder object. It contains the
-    	 * logic of starting and stopping the recording, reading audio data from
-    	 * the TargetDataLine and writing the data to a file.
-    	 * Also, it manages the duration of the recording, given by the 
-    	 * parameter ´dauer'.
-    	 */
-    	TimedAudioRecorder recorder = new TimedAudioRecorder(targetDataLine,
-            targetType, targetFile, millis);
+        AudioRecorder.BufferingRecorder recorder = new AudioRecorder.BufferingRecorder(targetDataLine, targetType, targetFile, (int) millis);
 
     	/*
     	 * Here, the recording is actually started.
