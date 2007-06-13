@@ -206,12 +206,26 @@ public class MaryAudioUtils {
     static Clip m_clip;
     
     /**
-     * Play it back
+     * Play back a file loop times (0 = only once). Play in the background, non-blocking.
      * @param filename name of the wav file
+     * @param loop number of times the file should be repeated (0 = play only once).
      * @throws IOException,LineUnavailableException
      * 
      */
-    public static void playWavFile(String filename, int loop) 
+    public static void playWavFile(String filename, int loop)
+    {
+        playWavFile(filename, loop, false);
+    }
+ 
+    /**
+     * Play back a file loop times (0 = only once). Play in the background, non-blocking.
+     * @param filename name of the wav file
+     * @param loop number of times the file should be repeated (0 = play only once).
+     * @param waitUntilCompleted whether or not to wait until the file has finished playing before returning.
+     * @throws IOException,LineUnavailableException
+     * 
+     */
+    public static void playWavFile(String filename, int loop, boolean waitUntilCompleted) 
     {
     	AudioInputStream 	audioInputStream = null;
     	File clipFile = new File(filename);
@@ -242,6 +256,7 @@ public class MaryAudioUtils {
     			e.printStackTrace();
 			}
     		m_clip.loop(loop);
+            m_clip.drain();
     	}
     	else
     	{
