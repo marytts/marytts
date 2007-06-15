@@ -1,0 +1,49 @@
+
+IMPORT MAIN HELP
+****************
+
+Modules processing the raw acoustic data:
+PraatPitchmarker
+MCEPMaker
+
+Modules processing unit labels and features:
+Mary2FestvoxTranscripts
+SphinxLabelingPreparator
+SphinxTrainer
+SphinxLabeler
+MRPALabelConverter
+                
+Festvox2MaryTranscripts
+LabelledFilesInspector
+PhoneUnitLabelComputer
+PhoneUnitFeatureComputer
+PhoneLabelFeatureAligner
+HalfPhoneUnitLabelComputer
+HalfPhoneUnitFeatureComputer
+HalfPhoneLabelFeatureAligner
+                
+Modules producting basic data files:
+WaveTimelineMaker
+BasenameTimelineMaker
+MCepTimelineMaker
+
+group acoustic_models Acoustic Models
+
+PhoneUnitfileWriter acoustic_models
+PhoneFeatureFileWriter acoustic_models
+DurationCARTTrainer acoustic_models
+F0CARTTrainer acoustic_models
+
+group us_files Unit Selection Files
+
+HalfPhoneFeatureFileWriter us_files
+HalfPhoneUnitfileWriter us_files
+JoinCostFileMaker us_files
+JoinCostPrecomputer us_files
+AcousticFeatureFileWriter us_files
+CARTBuilder us_files
+CARTPruner us_files
+
+group install Install Voice
+
+VoiceInstaller install
