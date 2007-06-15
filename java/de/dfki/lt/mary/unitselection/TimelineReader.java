@@ -146,6 +146,7 @@ public class TimelineReader extends TimelineIO
         
         Datagram d = null;
         
+        long position = getBytePointer();
         /* If the end of the datagram zone is reached, refuse to read */
         if ( getBytePointer() == timeIdxBytePos ) {
             //throw new IndexOutOfBoundsException( "Time out of bounds: you are trying to read a datagram at" +
@@ -493,7 +494,8 @@ public class TimelineReader extends TimelineIO
         gotoTime( scaledTargetTime );
         /* ... and return a single datagram. */
         Datagram dat = getNextDatagram();
-        if (dat == null) return null;
+        if (dat == null) 
+            return null;
         if ( reqSampleRate != sampleRate ) dat.setDuration(unScaleTime( reqSampleRate, dat.getDuration() )); // => Don't forget to stay time-consistent!
         return( dat );
     }

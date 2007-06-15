@@ -39,6 +39,9 @@ import de.dfki.lt.mary.unitselection.UnitFileReader;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 import de.dfki.lt.mary.unitselection.voiceimport.DatabaseLayout;
+import de.dfki.lt.mary.unitselection.voiceimport.HalfPhoneFeatureFileWriter;
+import de.dfki.lt.mary.unitselection.voiceimport.WaveTimelineMaker;
+import de.dfki.lt.mary.unitselection.voiceimport.VoiceImportComponent;
 
 public class ListenToPreselection {
     
@@ -47,11 +50,16 @@ public class ListenToPreselection {
      */
     public static void main(String[] args) throws IOException {
 
-        DatabaseLayout dbl = new DatabaseLayout();
-        UnitFileReader ufr = new UnitFileReader( dbl.halfphoneUnitFileName() );
-        TimelineReader tlr = new TimelineReader( dbl.waveTimelineFileName() );
+        WaveTimelineMaker wtlm = new WaveTimelineMaker();
+        HalfPhoneFeatureFileWriter ffw = new HalfPhoneFeatureFileWriter();
+        VoiceImportComponent[] comps = new VoiceImportComponent[2];
+        comps[0] = wtlm;
+        comps[1] = ffw;
+        DatabaseLayout dbl = new DatabaseLayout(comps);
+        UnitFileReader ufr = new UnitFileReader( ffw.getProp(ffw.UNITFILE));
+        TimelineReader tlr = new TimelineReader( wtlm.getProp(wtlm.WAVETIMELINE));
         //TimelineReader tlr = new TimelineReader( dbl.lpcTimelineFileName() );
-        FeatureFileIndexer ffi = new FeatureFileIndexer( dbl.halfphoneFeaturesFileName() );
+        FeatureFileIndexer ffi = new FeatureFileIndexer( ffw.getProp(ffw.FEATUREFILE));
         FeatureDefinition feaDef = ffi.getFeatureDefinition();
         WavWriter ww = new WavWriter();
         
@@ -85,7 +93,7 @@ public class ListenToPreselection {
             /* Get the bytes as an array */
             byte[] buf = bbis.toByteArray();
             /* Output the header of the wav file */
-            String fName = ( dbl.rootDirName() + "/tests/" + phonID + ".wav" );
+            String fName = ( dbl.getProp(dbl.ROOTDIR) + "/tests/" + phonID + ".wav" );
             System.out.println( "Outputting file [" + fName + "]..." );
             ww.export( fName, 16000, buf );
             /* Sanity check */

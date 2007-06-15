@@ -28,25 +28,14 @@
  */
 package de.dfki.lt.mary.unitselection.voiceimport;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.DataOutput;
-import java.io.DataOutputStream;
+
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.util.*;
 
 import de.dfki.lt.mary.gizmos.CARTAnalyzer;
-import de.dfki.lt.mary.unitselection.FeatureFileReader;
-import de.dfki.lt.mary.unitselection.UnitFileReader;
-import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
-import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 
-public class CARTPruner implements VoiceImportComponent
+public class CARTPruner extends VoiceImportComponent
 {
     protected File unprunedCart;
     protected File prunedCart;
@@ -55,39 +44,64 @@ public class CARTPruner implements VoiceImportComponent
     protected int percent = 0;
     
     protected CARTAnalyzer ca;
+    public final String CARTFILE = "cartPruner.cartFile";
+    public final String PRUNEDCARTFILE = "cartPruner.prunedCartFile";
+    public final String UNITFILE = "cartPruner.unitFile";
+    public final String WAVETIMELINE = "cartPruner.waveFile";
+    public final String UNITFEATUREFILE = "cartPruner.unitFeatureFile";
+    public final String LOGFILE = "cartPruner.logFile";
     
-    public CARTPruner( DatabaseLayout setdb, BasenameList setbnl )
-    {
-        this.db = setdb;
-        this.bnl = setbnl;
+    public String getName(){
+        return "cartPruner";
     }
     
     /**
      * Set some global variables; sub-classes may want to override.
      *
      */
-    protected void init()
+     public void initialise(BasenameList setbnl, SortedMap newProps )
     {
-        unprunedCart = new File(db.cartFileName());
-        if (!unprunedCart.exists()) throw new IllegalStateException("Unpruned CART file "+unprunedCart.getAbsolutePath()+" does not exist");
-        if (!unprunedCart.getAbsolutePath().equals(new File("./mary_files/cart.mry").getAbsolutePath()))
-            throw new IllegalStateException("Path to unpruned CART is currently hard coded to ./mary_files/cart.mry -- cannot use "+unprunedCart.getAbsolutePath());
+        this.props = newProps;            
     }
     
+      public SortedMap getDefaultProps(DatabaseLayout db){  
+          this.db = db;
+       if (props == null){
+           props = new TreeMap();
+           String filedir = db.getProp(db.FILEDIR);
+           String maryext = db.getProp(db.MARYEXT);
+           props.put(CARTFILE,filedir
+                                +"cart"+maryext);
+           props.put(PRUNEDCARTFILE,filedir
+                        +"prunedCart"+maryext);
+           props.put(UNITFILE, filedir
+                        +"halfphoneUnits"+maryext);
+           props.put(WAVETIMELINE, filedir
+                        +"timeline_waveforms"+maryext);
+           props.put(UNITFEATUREFILE, filedir
+                        +"halfphoneFeatures"+maryext);
+           props.put(LOGFILE, db.getProp(db.TEMPDIR)
+                        +"prunedCart.log");
+       } 
+       return props;
+      }
+     
     public boolean compute() throws IOException
     {
-        init();
+        
         System.out.println("CART Pruner started.");
 
-        prunedCart = new File("./mary_files/prunedcart");
+        prunedCart = new File(getProp(PRUNEDCARTFILE));
         boolean cutAbove1000 = true;
         boolean cutNorm = true;
         boolean cutSilence = true;
         boolean cutLong = true;
         
-        ca = new CARTAnalyzer();
+        ca = new CARTAnalyzer(getProp(UNITFILE),getProp(WAVETIMELINE),
+                getProp(UNITFEATUREFILE),getProp(CARTFILE));
         try {
-            ca.analyzeAutomatic("cartpruner.log", prunedCart.getPath(), cutAbove1000, cutNorm, cutSilence, cutLong);
+            
+            ca.analyzeAutomatic(getProp(LOGFILE), prunedCart.getPath(), cutAbove1000, cutNorm, cutSilence, cutLong);
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -112,10 +126,9 @@ public class CARTPruner implements VoiceImportComponent
      */
     public static void main(String[] args) throws IOException
     {
-        //build database layout
-        DatabaseLayout db = DatabaseImportMain.getDatabaseLayout();
-        BasenameList bnl = DatabaseImportMain.getBasenameList(db);
-        new CARTPruner(db, bnl).compute();
+        CARTPruner cartPruner = new CARTPruner();
+        DatabaseLayout db = new DatabaseLayout(cartPruner);
+        cartPruner.compute();
     }
 
 

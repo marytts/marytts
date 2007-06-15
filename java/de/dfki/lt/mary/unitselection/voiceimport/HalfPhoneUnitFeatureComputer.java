@@ -30,33 +30,56 @@
 package de.dfki.lt.mary.unitselection.voiceimport;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.*;
 
 /**
  * @author marc
  *
  */
-public class HalfPhoneUnitFeatureComputer extends UnitFeatureComputer 
+public class HalfPhoneUnitFeatureComputer extends PhoneUnitFeatureComputer 
 {
 
-    /**
-     * @param setdb
-     * @param setbnl
-     * @throws IOException
-     */
-    public HalfPhoneUnitFeatureComputer(DatabaseLayout setdb,
-            BasenameList setbnl) throws IOException {
-        super(setdb, setbnl);
+   
+    public String getName(){
+        return "halfPhoneUnitFeatureComputer";
     }
-
-    protected void init()
+    
+    public HalfPhoneUnitFeatureComputer(){
+        FEATUREDIR = "halfPhoneUnitFeatureComputer.featureDir";
+        FEATUREEXT = "halfPhoneUnitFeatureComputer.featureExt";
+    }
+    
+     public void initialise( BasenameList setbnl, SortedMap newProps )
     {
-        unitfeatureDir = new File( db.halfphoneUnitFeaDirName() );
-        if (!unitfeatureDir.exists()) unitfeatureDir.mkdir();
-        featsExt = db.halfphoneUnitFeaExt();
+        this.bnl = setbnl;
+        this.props = newProps;        
+        locale = db.getProp(db.LOCALE);        
+        mary = null; // initialised only if needed   
+        unitfeatureDir = new File(getProp(FEATUREDIR));
+        if (!unitfeatureDir.exists()){
+            System.out.print(FEATUREDIR+" "+getProp(FEATUREDIR)
+                    +" does not exist; ");
+            if (!unitfeatureDir.mkdir()){
+                throw new Error("Could not create FEATUREDIR");
+            }
+            System.out.print("Created successfully.\n");
+        }    
+        featsExt = getProp(FEATUREEXT);
         maryInputType = "RAWMARYXML";
         if (locale.equals("de")) maryOutputType = "HALFPHONE_TARGETFEATURES_DE";
         else if (locale.equals("en")) maryOutputType = "HALFPHONE_TARGETFEATURES_EN";
         else throw new IllegalArgumentException("Unsupported locale: "+locale);
     }
+    
+      public SortedMap getDefaultProps(DatabaseLayout db){
+        this.db = db;
+       if (props == null){
+           props = new TreeMap();
+           props.put(FEATUREDIR, db.getProp(db.ROOTDIR)
+                        +"halfphonefeatures"
+                        +System.getProperty("file.separator"));
+           props.put(FEATUREEXT,".hpfeats");
+       } 
+       return props;
+      }
 }

@@ -28,67 +28,42 @@
  */
 package de.dfki.lt.mary.unitselection.voiceimport;
 
-import java.io.BufferedReader;
-import java.io.DataOutput;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 
-import de.dfki.lt.mary.unitselection.FeatureFileReader;
-import de.dfki.lt.mary.unitselection.HalfPhoneFeatureFileReader;
+import java.util.*;
+
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 
-public class HalfPhoneFeatureFileWriter extends FeatureFileWriter
+public class HalfPhoneFeatureFileWriter extends PhoneFeatureFileWriter
 {
     protected FeatureDefinition leftFeatureDef;
     protected FeatureDefinition rightFeatureDef;
-
-    public HalfPhoneFeatureFileWriter(DatabaseLayout setdb, BasenameList setbnl)
-    {
-        super(setdb, setbnl);
+    
+    
+    
+    public HalfPhoneFeatureFileWriter(){
+        FEATUREDIR = "halfPhoneFeatureFileWriter.featureDir";
+        FEATUREEXT = "halfPhoneFeatureFileWriter.featureExt";
+        FEATUREFILE = "halfPhoneFeatureFileWriter.featureFile";
+        UNITFILE = "halfPhoneFeatureFileWriter.unitFile";
+        WEIGHTSFILE = "halfPhoneFeatureFileWriter.weightsFile";  
+        name= "halfPhoneFeatureFileWriter";
     }
     
-    /**
-     * Set some global variables; sub-classes may want to override.
-     *
-     */
-    protected void init()
-    {
-        unitfeatureDir = new File(db.halfphoneUnitFeaDirName());
-        if (!unitfeatureDir.exists()) throw new IllegalStateException("Unit feature file "+unitfeatureDir.getAbsolutePath()+" does not exist");
-        featsExt = db.halfphoneUnitFeaExt();
-        featureFileName = db.halfphoneFeaturesFileName();
-        unitFileName = db.halfphoneUnitFileName();
-        weightsFileName = db.halfphoneWeightsFileName();
-    }
-    
-    /* use default feature file format:
-    protected void readFeatureDefinition() throws IOException
-    {
-        String leftWeights = db.halfPhoneLeftWeightsFileName();
-        String rightWeights = db.halfPhoneRightWeightsFileName();
-        leftFeatureDef = new FeatureDefinition(new BufferedReader(new InputStreamReader(new FileInputStream(leftWeights), "UTF-8")), true); // true: read weights
-        rightFeatureDef = new FeatureDefinition(new BufferedReader(new InputStreamReader(new FileInputStream(rightWeights), "UTF-8")), true); // true: read weights
-        if (!leftFeatureDef.featureEquals(rightFeatureDef))
-            throw new IllegalStateException("left and right feature definitions are not compatible ("+leftWeights+" vs. "+rightWeights+")");
-        // set the variable used in super class to one of them:
-        featureDefinition = leftFeatureDef;
-    }
-    */
-
-    /**
-     * Write the header of this feature file to the given DataOutput
-     * @param out
-     * @throws IOException
-     */
-    /* use default feature file format
-    protected void writeHeaderTo(DataOutput out) throws IOException
-    {
-        new MaryHeader(MaryHeader.HALFPHONE_UNITFEATS).writeTo(out);
-        leftFeatureDef.writeBinaryTo(out);
-        rightFeatureDef.writeBinaryTo(out);
-    }
-    */
+   public SortedMap getDefaultProps(DatabaseLayout db){
+       if (props == null){
+           props = new TreeMap();
+           props.put(FEATUREDIR, db.getProp(db.ROOTDIR)
+                        +"halfphonefeatures"
+                        +System.getProperty("file.separator"));
+           props.put(FEATUREEXT,".hpfeats");
+           props.put(FEATUREFILE, db.getProp(db.FILEDIR)
+                        +"halfphoneFeatures"+db.getProp(db.MARYEXT));
+           props.put(UNITFILE, db.getProp(db.FILEDIR)
+                        +"halfphoneUnits"+db.getProp(db.MARYEXT));
+           props.put(WEIGHTSFILE, db.getProp(db.CONFIGDIR)
+                        +"halfphoneUnitFeatureDefinition.txt");
+       }
+       return props;
+   }
     
 }

@@ -5,11 +5,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Locale;
+import java.util.*;
 
 import de.dfki.lt.mary.client.MaryClient;
 import de.dfki.lt.mary.util.FileUtils;
-import de.dfki.lt.mary.util.MaryUtils;
 
 /**
  * For the given texts, compute unit features and align them
@@ -17,7 +16,7 @@ import de.dfki.lt.mary.util.MaryUtils;
  * @author schroed
  *
  */
-public class UnitFeatureComputer implements VoiceImportComponent
+public class PhoneUnitFeatureComputer extends VoiceImportComponent
 {
     protected File textDir;
     protected File unitfeatureDir;
@@ -31,6 +30,13 @@ public class UnitFeatureComputer implements VoiceImportComponent
     protected BasenameList bnl = null;
     protected int percent = 0;
     
+    public String FEATUREDIR = "phoneUnitFeatureComputer.featureDir";
+    public String FEATUREEXT = "phoneUnitFeatureComputer.featureExt";
+    
+    public String getName(){
+        return "phoneUnitFeatureComputer";
+    }
+    
     public static String getMaryXMLHeaderWithInitialBoundary(String locale)
     {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
@@ -42,32 +48,39 @@ public class UnitFeatureComputer implements VoiceImportComponent
         
     }
     
-    public UnitFeatureComputer( DatabaseLayout setdb, BasenameList setbnl )
-    throws IOException
+     public void initialise( BasenameList setbnl, SortedMap newProps )
     {
-        this.db = setdb;
         this.bnl = setbnl;
-        
-        locale = db.locale();
-        
-        mary = null; // initialised only if needed
-    }
-    
-    /**
-     * Set some global variables; subclasses may want to override.
-     *
-     */
-    protected void init()
-    {
-        unitfeatureDir = new File( db.phoneUnitFeaDirName() );
-        if (!unitfeatureDir.exists()) unitfeatureDir.mkdir();
-        featsExt = db.phoneUnitFeaExt();
+        this.props = newProps;        
+        locale = db.getProp(db.LOCALE);        
+        mary = null; // initialised only if needed   
+        unitfeatureDir = new File(getProp(FEATUREDIR));
+        if (!unitfeatureDir.exists()){
+            System.out.print(FEATUREDIR+" "+getProp(FEATUREDIR)
+                    +" does not exist; ");
+            if (!unitfeatureDir.mkdir()){
+                throw new Error("Could not create FEATUREDIR");
+            }
+            System.out.print("Created successfully.\n");
+        }    
+        featsExt = getProp(FEATUREEXT);
         maryInputType = "RAWMARYXML";
         if (locale.equals("de")) maryOutputType = "TARGETFEATURES_DE";
         else if (locale.equals("en")) maryOutputType = "TARGETFEATURES_EN";
         else throw new IllegalArgumentException("Unsupported locale: "+locale);
     }
     
+      public SortedMap getDefaultProps(DatabaseLayout db){
+        this.db = db;
+       if (props == null){
+           props = new TreeMap();
+           props.put(FEATUREDIR, db.getProp(db.ROOTDIR)
+                        +"phonefeatures"
+                        +System.getProperty("file.separator"));
+           props.put(FEATUREEXT,".pfeats");
+       } 
+       return props;
+      }
     
     public MaryClient getMaryClient() throws IOException
     {
@@ -85,9 +98,8 @@ public class UnitFeatureComputer implements VoiceImportComponent
 
     public boolean compute() throws IOException
     {
-        init();
-        textDir = new File( db.txtDirName() );
-        if (!textDir.exists()) throw new IOException("No such directory: "+ textDir);
+        
+        textDir = new File(db.getProp(db.TEXTDIR));
         //String[] basenames = FileUtils.listBasenames(textDir, ".txt");
         //System.out.println("Computing unit features for "+basenames.length+" files");
         System.out.println( "Computing unit features for " + bnl.getLength() + " files" );
@@ -104,12 +116,14 @@ public class UnitFeatureComputer implements VoiceImportComponent
     {
         String text;
         // First, test if there is a corresponding .rawmaryxml file in textdir:
-        File rawmaryxmlFile = new File( db.rmxDirName() + basename + db.rmxExt() );
+        File rawmaryxmlFile = new File(db.getProp(db.MARYXMLDIR)
+                				+ basename + db.getProp(db.MARYXMLEXT));
         if (rawmaryxmlFile.exists()) {
             text = FileUtils.getFileAsString(rawmaryxmlFile, "UTF-8");
         } else {
             text = getMaryXMLHeaderWithInitialBoundary(locale)
-                + FileUtils.getFileAsString(new File( db.txtDirName() + basename + db.txtExt() ), "UTF-8")
+                + FileUtils.getFileAsString(new File(db.getProp(db.TEXTDIR) 
+                        		+ basename + db.getProp(db.TEXTEXT)), "UTF-8")
                 + "</maryxml>";
         }
         

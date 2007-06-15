@@ -32,37 +32,21 @@
 package de.dfki.lt.mary.unitselection.voiceimport;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.Vector;
+import java.util.*;
 
-import de.dfki.lt.mary.unitselection.Datagram;
 import de.dfki.lt.mary.unitselection.FeatureFileReader;
 import de.dfki.lt.mary.unitselection.JoinCostFeatures;
 import de.dfki.lt.mary.unitselection.PrecompiledJoinCostReader;
-import de.dfki.lt.mary.unitselection.TimelineReader;
 import de.dfki.lt.mary.unitselection.Unit;
 import de.dfki.lt.mary.unitselection.UnitFileReader;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
-import de.dfki.lt.mary.util.MaryUtils;
 
-public class JoinCostPrecomputer implements VoiceImportComponent
+public class JoinCostPrecomputer extends VoiceImportComponent
 {
     
     private DatabaseLayout db = null;
@@ -73,21 +57,39 @@ public class JoinCostPrecomputer implements VoiceImportComponent
     private float[] fw = null;
     private String[] wfun = null;
     
-    /** Constructor */
-    public JoinCostPrecomputer( DatabaseLayout setdb, BasenameList setbnl ) {
-        this.db = setdb;
+    public final String JOINCOSTFILE = "joinCostPrecomputer.joinCostFile";
+    public final String JOINCOSTFEATURESFILE = "joinCostPrecomputer.joinCostFeaturesFile";
+    public final String UNITFEATURESFILE = "joinCostPrecomputer.unitFeaturesFile";
+    public final String UNITFILE = "joinCostPrecomputer.unitFile";
+    
+    public String getName(){
+        return "joinCostPrecomputer";
+    }
+    
+    public void initialise( BasenameList setbnl, SortedMap newProps )
+    {
         this.bnl = setbnl;
+        this.props = newProps;
+    }
+    
+    public SortedMap getDefaultProps(DatabaseLayout db){
+        this.db = db;
+       if (props == null){
+           props = new TreeMap();
+           String filedir = db.getProp(db.FILEDIR);
+           String maryExt = db.getProp(db.MARYEXT);
+           props.put(JOINCOSTFILE,filedir+"joinCosts"+maryExt);
+           props.put(JOINCOSTFEATURESFILE,filedir+"joinCostFeatures"+maryExt);
+           props.put(UNITFEATURESFILE,filedir+"halfphoneFeatures"+maryExt);
+           props.put(UNITFILE,filedir+"halfphoneUnits"+maryExt);
+       }
+       return props;
     }
     
     
     public boolean compute() throws IOException
     {
         System.out.println("---- Precomputing join costs");
-        System.out.println("Base directory: " + db.rootDirName());
-        System.out.println("Reading join cost features file from: " + db.joinCostFeaturesFileName());
-        System.out.println("Reading unit feature file from: " + db.halfphoneFeaturesFileName());
-        System.out.println("Reading unit file from: " + db.halfphoneUnitFileName());
-        System.out.println("Writing precomputed join costs file to: " + db.precomputedJoinCostsFileName());
         int retainPercent = Integer.getInteger("joincostprecomputer.retainpercent", 10).intValue();
         int retainMin = Integer.getInteger("joincostprecomputer.retainmin", 20).intValue();
         System.out.println("Will retain the top "+retainPercent+"% (but at least "+retainMin+") of all joins within a phoneme");
@@ -95,10 +97,10 @@ public class JoinCostPrecomputer implements VoiceImportComponent
         /* Make a new join cost file to write to */
         DataOutputStream jc = null;
         try {
-            jc = new DataOutputStream( new BufferedOutputStream( new FileOutputStream( db.precomputedJoinCostsFileName() ) ) );
+            jc = new DataOutputStream( new BufferedOutputStream( new FileOutputStream(getProp(JOINCOSTFILE))));
         }
         catch ( FileNotFoundException e ) {
-            throw new RuntimeException( "Can't create the join cost file [" + db.precomputedJoinCostsFileName() + "]. The path is probably wrong.", e );
+            throw new RuntimeException( "Can't create the join cost file [" + getProp(JOINCOSTFILE) + "]. The path is probably wrong.", e );
         }
         
         /**********/
@@ -110,13 +112,13 @@ public class JoinCostPrecomputer implements VoiceImportComponent
             hdr.writeTo( jc );
         }
         catch ( IOException e ) {
-            throw new RuntimeException( "An IOException happened when writing the Mary header to the Join Cost file.", e );
+            throw new RuntimeException( "An IOException occurred when writing the Mary header to the Join Cost file.", e );
         }
         hdr = null;
         
-        FeatureFileReader unitFeatures = FeatureFileReader.getFeatureFileReader(db.halfphoneFeaturesFileName());
-        JoinCostFeatures joinFeatures = new JoinCostFeatures(db.joinCostFeaturesFileName());
-        UnitFileReader units = new UnitFileReader(db.halfphoneUnitFileName());
+        FeatureFileReader unitFeatures = FeatureFileReader.getFeatureFileReader(getProp(UNITFEATURESFILE));
+        JoinCostFeatures joinFeatures = new JoinCostFeatures(getProp(JOINCOSTFEATURESFILE));
+        UnitFileReader units = new UnitFileReader(getProp(UNITFILE));
         if (unitFeatures.getNumberOfUnits() != joinFeatures.getNumberOfUnits())
             throw new IllegalStateException("Number of units in unit and join feature files does not match!");
         if (unitFeatures.getNumberOfUnits() != units.getNumberOfUnits())
@@ -218,7 +220,7 @@ public class JoinCostPrecomputer implements VoiceImportComponent
             percent += 100*nLeftPhoneme/totalLeftUnits;
         }
         jc.close();
-        PrecompiledJoinCostReader tester = new PrecompiledJoinCostReader(db.precomputedJoinCostsFileName());
+        PrecompiledJoinCostReader tester = new PrecompiledJoinCostReader(getProp(JOINCOSTFILE));
         return true;
     }
     

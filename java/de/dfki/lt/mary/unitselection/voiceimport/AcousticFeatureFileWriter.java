@@ -30,19 +30,18 @@ package de.dfki.lt.mary.unitselection.voiceimport;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.*;
 
 import de.dfki.lt.mary.unitselection.Datagram;
 import de.dfki.lt.mary.unitselection.Unit;
@@ -52,7 +51,7 @@ import de.dfki.lt.mary.unitselection.UnitFileReader;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 
-public class AcousticFeatureFileWriter implements VoiceImportComponent
+public class AcousticFeatureFileWriter extends VoiceImportComponent
 {
     protected File maryDir;
     protected FeatureFileReader feats;
@@ -65,28 +64,53 @@ public class AcousticFeatureFileWriter implements VoiceImportComponent
     protected BasenameList bnl = null;
     protected int percent = 0;
     
-    public AcousticFeatureFileWriter( DatabaseLayout setdb, BasenameList setbnl )
-    {
-        this.db = setdb;
-        this.bnl = setbnl;
+    public final String UNITFILE = "acousticFeatureFileWriter.unitFile";
+    public final String WAVETIMELINE = "acousticFeatureFileWriter.waveTimeLine";
+    public final String FEATUREFILE = "acousticFeatureFileWriter.featureFile";
+    public final String ACFEATUREFILE = "acousticFeatureFileWriter.acFeatureFile";  
+    public final String ACFEATDEF = "acousticFeatureFileWriter.acFeatDef";
+    
+    public String getName(){
+        return "acousticFeatureFileWriter";
     }
+    
+     public void initialise(BasenameList setbnl, SortedMap newProps )
+    {
+        this.bnl = setbnl;
+        this.props = newProps;
+    }
+    
+   public SortedMap getDefaultProps(DatabaseLayout db){
+       this.db = db;
+       if (props == null){
+           props = new TreeMap();
+           String fileDir = db.getProp(db.FILEDIR);
+           String maryExt = db.getProp(db.MARYEXT);
+           props.put(UNITFILE,fileDir+"halfphoneUnits"+maryExt);
+           props.put(WAVETIMELINE,fileDir+"timeline_waveforms"+maryExt);
+           props.put(FEATUREFILE,fileDir+"halfphoneFeatures"+maryExt);
+           props.put(ACFEATUREFILE,fileDir+"halfphoneFeatures_ac"+maryExt);
+           props.put(ACFEATDEF,db.getProp(db.CONFIGDIR)+"halfphoneUnitFeatureDefinition_ac.txt");
+       }
+       return props;
+   }
     
     public boolean compute() throws IOException
     {
         System.out.println("Acoustic feature file writer started.");
 
-        maryDir = new File( db.maryDirName() );
+        maryDir = new File( db.getProp(db.FILEDIR));
         if (!maryDir.exists()) {
             maryDir.mkdir();
-            System.out.println("Created the output directory [" + db.maryDirName() + "] to store the feature file." );
+            System.out.println("Created the output directory [" + ( db.getProp(db.FILEDIR)) + "] to store the feature file." );
         }
-        System.out.println("A");
-        unitFileReader = new UnitFileReader(db.halfphoneUnitFileName());
-        System.out.println("B");
-        timeline = new TimelineReader(db.waveTimelineFileName());
-        System.out.println("C");
+        //System.out.println("A");
+        unitFileReader = new UnitFileReader(getProp(UNITFILE));
+        //System.out.println("B");
+        timeline = new TimelineReader(getProp(WAVETIMELINE));
+        //System.out.println("C");
         
-        feats = new FeatureFileReader(db.halfphoneFeaturesFileName());
+        feats = new FeatureFileReader(getProp(FEATUREFILE));
         inFeatureDefinition = feats.getFeatureDefinition();
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
@@ -102,14 +126,31 @@ public class AcousticFeatureFileWriter implements VoiceImportComponent
         BufferedReader br = new BufferedReader(sr);
         outFeatureDefinition = new FeatureDefinition(br, true);
 
-        outFeatureFile = new File(db.halfphoneFeaturesWithAcousticFeaturesFileName());
+        outFeatureFile = new File(getProp(ACFEATUREFILE));
         DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outFeatureFile)));
         writeHeaderTo(out);
         writeUnitFeaturesTo(out);
         out.close();
         System.out.println("Number of processed units: " + unitFileReader.getNumberOfUnits() );
 
-        FeatureFileReader tester = FeatureFileReader.getFeatureFileReader(db.halfphoneFeaturesWithAcousticFeaturesFileName());
+        //make sure we have a feature definition with acoustic features
+        File featWeights = new File(getProp(ACFEATDEF));
+        if (!featWeights.exists()){
+            try{
+                PrintWriter featWeightsOut =
+                    new PrintWriter(
+                            new OutputStreamWriter(
+                                    new FileOutputStream(featWeights),"UTF-8"),true);
+                
+                
+                outFeatureDefinition.generateFeatureWeightsFile(featWeightsOut);                
+            } catch (Exception e){
+                System.out.println("No phone feature weights ac file "
+                        +getProp(ACFEATDEF));
+                return false;
+            }
+        }
+        FeatureFileReader tester = FeatureFileReader.getFeatureFileReader(getProp(ACFEATUREFILE));
         int unitsOnDisk = tester.getNumberOfUnits();
         if (unitsOnDisk == unitFileReader.getNumberOfUnits()) {
             System.out.println("Can read right number of units");
@@ -181,9 +222,10 @@ public class AcousticFeatureFileWriter implements VoiceImportComponent
      */
     public static void main(String[] args) throws IOException
     {
-        DatabaseLayout db = DatabaseImportMain.getDatabaseLayout();
-        BasenameList bnl = DatabaseImportMain.getBasenameList(db);
-        new AcousticFeatureFileWriter(db, bnl).compute();
+        AcousticFeatureFileWriter acfeatsWriter = 
+            new AcousticFeatureFileWriter();
+        DatabaseLayout db = new DatabaseLayout(acfeatsWriter);
+        acfeatsWriter.compute();
     }
 
 

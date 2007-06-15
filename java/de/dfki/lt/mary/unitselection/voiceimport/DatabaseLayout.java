@@ -1,8 +1,5 @@
 /**
- * Portions Copyright 2006 DFKI GmbH.
- * Portions Copyright 2001 Sun Microsystems, Inc.
- * Portions Copyright 1999-2001 Language Technologies Institute, 
- * Carnegie Mellon University.
+ * Copyright 2007 DFKI GmbH.
  * All Rights Reserved.  Use is subject to license terms.
  * 
  * Permission is hereby granted, free of charge, to use and distribute
@@ -31,439 +28,620 @@
  */
 package de.dfki.lt.mary.unitselection.voiceimport;
 
-import java.io.File;
-import java.util.Locale;
+
+import java.util.*;
+import java.io.*;
 
 /**
  * The DatabaseLayout class registers the base directory of a voice database,
  * as well as the various subdirectories where the various voice database
  * components should be stored or read from.
  * 
- * @author sacha
+ * @author Anna Hunecke
  *
  */
 public class DatabaseLayout 
 {   
-    /****************/
-    /* CONSTRUCTORS */
-    /****************/
+    private String configFileName;
+    private SortedMap props;
+    private BasenameList bnl;
+    private SortedMap localProps;
+    private String fileSeparator;
+    private VoiceImportComponent[] components;
+    private String[] compNames;
+    private Map compnames2comps;
+    private SortedMap missingProps;
+    private boolean initialized;
+    //marybase
+    public final String MARYBASE = "db.marybase";
+    //voicename
+    public final String VOICENAME = "db.voicename";
+    //gender
+    public final String GENDER = "db.gender";
+    //domain
+    public final String DOMAIN  = "db.domain";
+    //locale
+    public final String LOCALE = "db.locale";
+    //the sampling rate
+    public final String SAMPLINGRATE = "db.samplingrate";
+    //root directory for the database
+    public final String ROOTDIR = "db.rootDir";        
+    //directory for Mary config files
+    public final String CONFIGDIR = "db.configDir";
+    //directory for Mary voice files
+    public final String FILEDIR = "db.fileDir";
+    //mary file extension
+    public final String MARYEXT = "db.maryExtension";  
+    //basename list file
+    public final String BASENAMEFILE = "db.basenameFile";
+    //text file dir
+    public final String TEXTDIR = "db.textDir";
+    //text file extension
+    public final String TEXTEXT = "db.textExtension";  
+    //wav file dir
+    public final String WAVDIR = "db.wavDir";
+    //wav file extension
+    public final String WAVEXT = "db.wavExtension";
+    //phonetic label files
+    public final String LABDIR = "db.labDir";
+    //phonetic label file extension
+    public final String LABEXT = "db.labExtension";
+    //directory for temporary files
+    public final String TEMPDIR = "db.tempDir";
+    //maryxml dir
+    public final String MARYXMLDIR = "db.maryxmlDir";
+    //maryxml extentsion
+    public final String MARYXMLEXT = "db.maryxmlExtension";
+    //the help file for import main
+    public final String MAINHELPFILE = "db.mainHelpFile";
+    //the help file for the settings dialogue
+    public final String SETTINGSHELPFILE = "db.settingsHelpFile";
+    
+    public DatabaseLayout(){
+        initialized = false;
+        initialize(new VoiceImportComponent[0]);
+    }
+    
+    public DatabaseLayout(VoiceImportComponent[] comps){        
+        initialized = false;
+        initialize(comps);
+    }
+    
+    public DatabaseLayout(VoiceImportComponent comp){        
+        initialized = false;
+        VoiceImportComponent[] comps = new VoiceImportComponent[1];
+        comps[0] = comp;
+        initialize(comps);        
+    }
+    
+    private void initialize(VoiceImportComponent[] components){
+        System.out.println("Loading database layout:");
+        this.components = components;
+        fileSeparator = System.getProperty("file.separator");
+        /* check if there is a config file */
+        //TODO: config file name as property or command line arg?
+        configFileName = "./database.config";
+        File configFile = new File(configFileName);
+        getCompNames();
+        if (configFile.exists()){
+            //try to get all props and values from config file
+            System.out.println("Reading config file "+configFileName);
+            readConfigFile(configFile);
+            SortedMap defaultGlobalProps = new TreeMap();
+            //get the default values for the global props
+            defaultGlobalProps = initDefaultProps(defaultGlobalProps,true);
+            //get the local default props from the components
+            SortedMap defaultLocalProps = getDefaultPropsFromComps();
+            if (!checkProps(defaultGlobalProps,defaultLocalProps)){
+                //some props are missing                
+                //prompt the user for the missing props
+                //(user input updates the props via the GUI)
+                promptUserForMissingProps();      
+                //check if all dirs have a file separator at the end
+                checkForFileSeparators();
+                //save the props
+                saveProps(configFile);
+            } 
+            //check if all dirs have a file separator at the end
+            checkForFileSeparators();
+        } else {
+            //we have no values for our props
+            props = new TreeMap();
+            //prompt the user for some props
+            promptUserForBasicProps(props);
+            //fill in the other props with default values
+            props = initDefaultProps(props,false);
+            //get the local default props from the components
+            localProps = getDefaultPropsFromComps();
+            //check if all dirs have a file separator at the end
+            checkForFileSeparators();
+            //save the props
+            saveProps(configFile);
+        }
+        assureFileIntegrity();
+        loadBasenameList();
+        initializeComps();
+        initialized = true;
+    }
+    
+     /**
+     * Get the names of the components
+     * and store them in array
+     */
+    private void getCompNames(){
+        compnames2comps = new HashMap();
+        compNames = new String[components.length];
+        for (int i=0;i<components.length;i++){
+            compNames[i] = components[i].getName();
+            compnames2comps.put(compNames[i],components[i]);
+        }        
+    }
     
     /**
-     * Constructor for a new database layout.
-     * 
+     * Read the props in the config file
+     * @param configFile the config file
      */
-    public DatabaseLayout() {
-        initDefaultProps();
+    private void readConfigFile(File configFile){
+        props = new TreeMap();
+        localProps = new TreeMap();
+        try{
+            //open the file
+            BufferedReader in =
+                new BufferedReader(
+                        new InputStreamReader(
+                                new FileInputStream(configFile),"UTF-8"));
+            String line;
+            while ((line=in.readLine())!= null){
+                if (line.startsWith("#")
+                        || line.equals(""))
+                    continue;
+                //System.out.println(line);
+                //line looks like "<propName> <value>"
+                //<propname> looks like "<compName>.<prop>"
+                String[] lineSplit = line.split(" ");
+                if (lineSplit[0].startsWith("db.")){
+                   //global prop
+                    props.put(lineSplit[0],lineSplit[1]);                    
+                } else {
+                    //local prop
+                    String compName = 
+                        lineSplit[0].substring(0,lineSplit[0].indexOf('.'));
+                    if (localProps.containsKey(compName)){
+                        SortedMap localPropMap = (SortedMap) localProps.get(compName);
+                        localPropMap.put(lineSplit[0],lineSplit[1]);
+                    } else {
+                        SortedMap localPropMap = new TreeMap();
+                        localPropMap.put(lineSplit[0],lineSplit[1]);
+                        localProps.put(compName,localPropMap);
+                    }                    
+                }
+            }
+            in.close();            
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new Error("Error reading config file");
+        }   
+    }
+    
+   
+    
+    /**
+     * Check if all props are set
+     * @param defaultGlobalProps default global props
+     * @param defaultLocalProps default local props
+     * @return true if all props are set, false otherwise
+     */
+    private boolean checkProps(SortedMap defaultGlobalProps,SortedMap defaultLocalProps){
+        boolean allFine = true;
+        /* check the global props */
+        missingProps = new TreeMap();
+        Set defaultProps = defaultGlobalProps.keySet();
+        for (Iterator it = defaultProps.iterator();it.hasNext();){
+            String key = (String) it.next();
+            if (!props.containsKey(key)){
+                missingProps.put(key,defaultGlobalProps.get(key));
+                allFine = false;
+            } else {
+                //make sure all dir names have a / at the end
+                if (key.endsWith("Dir")){
+                    String prop = (String)props.get(key);
+                    if (!prop.endsWith(fileSeparator)){
+                        prop = prop+fileSeparator;
+                        props.put(key,prop);
+                    }
+                }
+            }
+            
+        }
+        /* check the local props */
+        defaultProps = defaultLocalProps.keySet();
+        for (Iterator it = defaultProps.iterator();it.hasNext();){
+            String key = (String) it.next();
+            if (!localProps.containsKey(key)){
+                missingProps.put(key,defaultLocalProps.get(key));
+                allFine = false;
+            } else {
+                SortedMap nextLocalPropMap = 
+                    (SortedMap) localProps.get(key);
+                SortedMap nextDefaultLocalPropMap = 
+                    (SortedMap) defaultLocalProps.get(key);
+                Set nextDefaultLocalProps = nextDefaultLocalPropMap.keySet();
+                boolean haveAllLocalProps = true;
+                SortedMap missingLocalPropMap = new TreeMap();
+                for (Iterator it2 = nextDefaultLocalProps.iterator();it2.hasNext();){
+                    String nextKey = (String) it2.next();
+                    if (!nextLocalPropMap.containsKey(nextKey)){
+                        missingLocalPropMap.put(nextKey,nextDefaultLocalPropMap.get(nextKey));
+                        haveAllLocalProps = false;
+                    }else {
+                        //make sure all dir names have a / at the end
+                        if (nextKey.endsWith("Dir")){
+                            String prop = (String)nextLocalPropMap.get(nextKey);
+                            if (!prop.endsWith(fileSeparator)){
+                                prop = prop+fileSeparator;
+                                nextLocalPropMap.put(key,prop);
+                            }
+                        }
+                    }
+                }
+                if (!haveAllLocalProps){
+                    missingProps.put(key,missingLocalPropMap);
+                    allFine = false;
+                }
+            }
+        }        
+        return allFine;
     }
     
     /**
-     * Constructor for a new database layout.
-     * @param locale the locale of the voice
+     * Prompt the user for the props that are missing
      */
-    public DatabaseLayout(Locale locale) {
-        setIfDoesntExist( "db.locale", locale.getLanguage());
-        initDefaultProps();
+    private void promptUserForMissingProps(){
+        displayProps(missingProps,"The following properties are missing:");
+    }
+    
+    
+    
+    private void checkForFileSeparators(){
+        
+        /* check the global props */       
+        Set propKeys = props.keySet();
+        for (Iterator it = propKeys.iterator();it.hasNext();){
+            String key = (String) it.next();
+            //make sure all dir names have a / at the end
+            if (key.endsWith("Dir")){
+                String prop = (String)props.get(key);
+                if (!prop.endsWith(fileSeparator)){
+                    prop = prop+fileSeparator;
+                    props.put(key,prop);
+                }
+            }            
+        }
+        /* check the local props */
+        Set localPropKeys = localProps.keySet();
+        for (Iterator it = localPropKeys.iterator();it.hasNext();){
+            SortedMap nextLocalPropMap = 
+                (SortedMap) localProps.get(it.next());
+            for (Iterator it2 = nextLocalPropMap.keySet().iterator();it2.hasNext();){
+                String nextKey = (String) it2.next();
+                //make sure all dir names have a / at the end
+                if (nextKey.endsWith("Dir")){
+                    String prop = (String)nextLocalPropMap.get(nextKey);
+                    if (!prop.endsWith(fileSeparator)){
+                        prop = prop+fileSeparator;
+                        nextLocalPropMap.put(nextKey,prop);
+                    }
+                }                
+            }            
+        }
+    }
+        
+    
+    
+    /**
+     * Save the props and their values in config file
+     * @param configFile the config file
+     */
+    private void saveProps(File configFile){
+        try{
+            PrintWriter out = 
+                new PrintWriter(
+                    new OutputStreamWriter(
+                            new FileOutputStream(configFile),"UTF-8"),true);
+           
+            out.println("# GlobalProperties:");
+            Set globalPropSet = props.keySet();
+            for (Iterator it=globalPropSet.iterator();it.hasNext();){
+                String key = (String) it.next();
+                out.println(key+" "+props.get(key));                
+            }
+            out.println();     
+             StringBuffer outBuf = new StringBuffer();
+            for (int i=0;i<compNames.length;i++){
+                String key = compNames[i];
+                SortedMap nextProps = (SortedMap) localProps.get(key);                
+                outBuf.append("# Properties for module "+key+":\n");
+                Set propSet = nextProps.keySet();
+                for (Iterator it2=propSet.iterator();it2.hasNext();){
+                    String localKey = (String) it2.next();
+                    outBuf.append(localKey+" "+nextProps.get(localKey)+"\n");                
+                }
+                outBuf.append("\n");
+            }
+            out.print(outBuf.toString());
+            out.close();
+        } catch(Exception e){
+            e.printStackTrace();
+            throw new Error("Error writing config file");
+        }
+    
+    
     }
     
     /**
-     * Initializes a default database layout.
-     *
+     * Prompt the user for the basic props
+     * (This is called if we don't have any props)
+     * @param props the map of props to be filled
      */
-    private void initDefaultProps() {
-        
-        /* root : the name of the root directory for the database */
-        setIfDoesntExist( "db.rootDir", new File(".").getAbsolutePath() );
-        
-        /* Output directory for Mary format files */
-        setIfDoesntExist( "db.marySubDir", "mary_files" );
-        setIfDoesntExist( "db.maryExtension", ".mry" );
-        
-        /* Input directory for Mary (database import) config files */
-        setIfDoesntExist( "db.maryConfigSubDir", "mary_configs" );
-        /* Default feature weights file */
-        setIfDoesntExist( "db.halfphone-featureweights.file", "halfphoneUnitFeatureDefinition.txt");
-        setIfDoesntExist( "db.phone-featureweights.file", "phoneUnitFeatureDefinition.txt");
-        /* Default feature sequence file */
-        setIfDoesntExist( "db.featuresequence.file", "featureSequence.txt" );
-        /* Default join cost feature weights file */
-        setIfDoesntExist( "db.joinCostWeights.file", "joinCostWeights.txt" );
-        
-        /* The file for the list of utterances */
-        setIfDoesntExist( "db.basenameFile", "basenames.lst" );
-        setIfDoesntExist( "db.basenameTimelineBaseName", "timeline_basenames" );
-        
-        /* Default text.data file */
-        setIfDoesntExist( "db.text.baseFile", "etc/txt.done.data" );
-        
-        /* Text files */
-        setIfDoesntExist( "db.text.subDir", "text" );
-        setIfDoesntExist( "db.text.extension", ".txt" );
-        
-        /* Phonetic label files */
-        setIfDoesntExist( "db.phonelab.subDir", "lab" );
-        setIfDoesntExist( "db.phonelab.extension", ".lab" );
-        
-        /* Unit label files */
-        setIfDoesntExist( "db.unitlab.subDir", "phonelab" );
-        setIfDoesntExist( "db.unitlab.extension", ".lab" );
-        setIfDoesntExist( "db.halfphone-unitlab.subDir", "halfphonelab" );
-        setIfDoesntExist( "db.halfphone-unitlab.extension", ".hplab" );
-
-        
-        /* Unit feature files */
-        setIfDoesntExist( "db.unitfeatures.subDir", "phonefeatures" );
-        setIfDoesntExist( "db.unitfeatures.extension", ".pfeats" );
-        setIfDoesntExist( "db.halfphone-unitfeatures.subDir", "halfphonefeatures" );
-        setIfDoesntExist( "db.halfphone-unitfeatures.extension", ".hpfeats" );
-
-        /* Raw Mary XML files */
-        setIfDoesntExist( "db.rawmaryxml.subDir", "text" );
-        setIfDoesntExist( "db.rawmaryxml.extension", ".rawmaryxml" );
-        
-        /* Wav files */
-        setIfDoesntExist( "db.wavSubDir", "wav" );
-        setIfDoesntExist( "db.wavExtension", ".wav" );
-        setIfDoesntExist( "db.waveTimelineBaseName", "timeline_waveforms" );
-       
-        /* LPC files */
-        setIfDoesntExist( "db.lpcSubDir", "lpc" );
-        setIfDoesntExist( "db.lpcExtension", ".lpc" );
-        setIfDoesntExist( "db.lpcTimelineBaseName", "timeline_quantized_lpc+res" );
-        
-        /* Pitchmark files*/
-        setIfDoesntExist( "db.pitchmarksSubDir", "pm" );
-        setIfDoesntExist( "db.pitchmarksExtension", ".pm" );
-        setIfDoesntExist( "db.correctedPitchmarksSubDir", "pm" );
-        setIfDoesntExist( "db.correctedPitchmarksExtension", ".pm.corrected" );
-        
-        /* Mel Cepstrum files */
-        setIfDoesntExist( "db.melcepSubDir", "mcep" );
-        setIfDoesntExist( "db.melcepExtension", ".mcep" );
-        setIfDoesntExist( "db.melcepTimelineBaseName", "timeline_mcep" );
-        
-        /* Timeline files */
-        setIfDoesntExist( "db.timelineSubDir", System.getProperty("db.marySubDir") );
-        setIfDoesntExist( "db.timelineExtension", ".mry" );
-        
-        /* CART files */
-        setIfDoesntExist( "db.cartsSubDir", System.getProperty("db.marySubDir") );
-        
-        /* Wagon files */
-        setIfDoesntExist( "db.wagonSubDir", "wagon" ); 
-        setIfDoesntExist( "db.wagonDesc", "wagon.desc" );
-        setIfDoesntExist( "db.wagonFeats", "wagon.feats" );
-        setIfDoesntExist( "db.wagonDistTabs", "wagon.distTabs" );
-        setIfDoesntExist( "db.wagonCart", "wagon.cart" );
-        setIfDoesntExist( "db.topLevelTree", "topLevel.tree" );
-        
-        /* Other Mary files */
-        setIfDoesntExist( "db.halfphoneFeaturesBaseName", "halfphoneFeatures" );
-        setIfDoesntExist( "db.phoneFeaturesBaseName", "phoneFeatures" );
-        setIfDoesntExist( "db.joinCostFeaturesBaseName", "joinCostFeatures" );
-        setIfDoesntExist( "db.precomputedJoinCostsBaseName", "joinCosts" );
-        setIfDoesntExist( "db.halfphoneUnitFileBaseName", "halfphoneUnits" );
-        setIfDoesntExist( "db.phoneUnitFileBaseName", "phoneUnits" );
-        setIfDoesntExist( "db.cartFileBaseName", "cart" );
+    private void promptUserForBasicProps(SortedMap basicprops){
+        //fill in the map with the prop names and value templates
+        basicprops.put(MARYBASE,"/path/to/marybase");
+        basicprops.put(VOICENAME,"<name of your voice>");
+        basicprops.put(GENDER,"<female or male>");
+        basicprops.put(DOMAIN,"<general or limited>");
+        basicprops.put(LOCALE,"<de or en>");
+        basicprops.put(SAMPLINGRATE,"<sampling rate of wave files>");
+        basicprops.put(ROOTDIR,"/path/to/voicedirectory");
+        basicprops.put(WAVDIR,"/path/to/wavefiles");
+        basicprops.put(WAVEXT,"<extension of your wav files, e.g., .wav>");
+        basicprops.put(LABDIR,"/path/to/labelfiles");
+        basicprops.put(LABEXT,"<extension of your lab files, e.g., .lab>");        
+        basicprops.put(TEXTDIR,"/path/to/transcriptfiles");
+        basicprops.put(TEXTEXT,"<extension of your transcript files, e.g., .txt>");
+        displayProps(basicprops,"Enter the basic properties of your voice:");
     }
     
     /**
-     * Sets a property if this property has not been set before. This is used to preserve
-     * user overrides if they were produced before the instanciation of the databaseLayout.
-     * 
-     * @param propertyName The property name.
-     * @param propertyVal The property value.
+     * Init the default props of the database layout
+     * (the props that are not set during promptUserForBasicProps)
+     * @param props the map of props to be filled
+     * @return the map of default props
      */
-    public static void setIfDoesntExist( String propertyName, String propertyVal ) {
-        if ( System.getProperty( propertyName ) == null ) System.setProperty( propertyName, propertyVal );
-    }
-    
-    /*****************/
-    /* OTHER METHODS */
-    /*****************/
-    
-    /* Various accessors and absolute path makers: */
-
-    /* Locale */
-    public String locale() {return ( System.getProperty( "db.locale") ); }
-    
-    /* Database root directory */
-    public String rootDirName() { return( System.getProperty( "db.rootDir") ); }
-    
-    /* List of basenames */
-    public String basenameFile() {
-        String ret = System.getProperty( "db.basename.file" );
-        if ( ret != null ) return( ret );
-        /* else: */
-        return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-                + System.getProperty( "db.basenameFile" ) );
-    }
-    public String basenameTimelineFileName() {
-        String ret = System.getProperty( "db.basename.timeline.file" );
-        if ( ret != null ) return( ret );
-        /* else: */
-        return( timelineDirName() + System.getProperty( "db.basenameTimelineBaseName" ) + timelineExt() );
-    }
-    
-    /* BASE TEXT FILE */
-    public String baseTxtFileName() {
-        String ret = System.getProperty( "db.text.file" );
-        if ( ret != null ) return( ret );
-        /* else: */
-        return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-                + System.getProperty( "db.text.baseFile" ) );
+    private SortedMap initDefaultProps(SortedMap props,boolean withBasicProps){
+        if (withBasicProps){
+            props.put(MARYBASE,"/path/to/marybase/");
+            props.put(VOICENAME,"<name of your voice>");
+            props.put(GENDER,"<female or male>");
+            props.put(DOMAIN,"<general or limited>");
+            props.put(LOCALE,"<de or en>");
+            props.put(SAMPLINGRATE,"<sampling rate of wave files>");
+            props.put(ROOTDIR,"/path/to/voicedirectory/");
+            props.put(WAVDIR,"/path/to/wavefiles(default rootdir/wav/)");
+            props.put(WAVEXT,"<extension of your wav files, e.g., .wav>");
+            props.put(LABDIR,"/path/to/labelfiles(default rootdir/lab/)");
+            props.put(LABEXT,"<extension of your lab files, e.g., .lab>");
+            props.put(TEXTDIR,"/path/to/transcriptfiles(default rootdir/text/");
+            props.put(TEXTEXT,"<extension of your transcript files, e.g., .txt>");
+        }        
+        String rootDir = (String)props.get(ROOTDIR);        
+        props.put(CONFIGDIR,rootDir+"mary_configs"+fileSeparator);
+        props.put(FILEDIR,rootDir+"mary_files"+fileSeparator);
+        props.put(MARYEXT,".mry");
+        props.put(BASENAMEFILE,rootDir+"basenames.lst");        
+        props.put(TEMPDIR,rootDir+"temp"+fileSeparator);
+        props.put(MARYXMLDIR,rootDir+"rawmaryxml"+fileSeparator);
+        props.put(MARYXMLEXT,".xml");  
+        props.put(MAINHELPFILE,getProp(MARYBASE)+"lib/modules/import/help_import_main.txt");
+        props.put(SETTINGSHELPFILE,getProp(MARYBASE)+"lib/modules/import/help_settings.txt");
+        return props;
     }
     
     
-    /* TXT */
-    public String txtDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-            + System.getProperty( "db.text.subDir" ) + System.getProperty( "file.separator" ) ); }
-    public String txtExt() { return( System.getProperty( "db.text.extension") ); }
     
-    /* LAB */
-    public String labDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-            + System.getProperty( "db.phonelab.subDir" ) + System.getProperty( "file.separator" ) ); }
-    public String labExt() { return( System.getProperty( "db.phonelab.extension") ); }
-    
-    /* UNITLAB */
-    public String phoneUnitLabDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-            + System.getProperty( "db.unitlab.subDir" ) + System.getProperty( "file.separator" ) ); }
-    public String phoneUnitLabExt() { return( System.getProperty( "db.unitlab.extension") ); }
-    public String halfphoneUnitLabDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-            + System.getProperty( "db.halfphone-unitlab.subDir" ) + System.getProperty( "file.separator" ) ); }
-    public String halfphoneUnitLabExt() { return( System.getProperty( "db.halfphone-unitlab.extension") ); }
-    
-    /* UNIT FEATURES */
-    public String phoneUnitFeaDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-            + System.getProperty( "db.unitfeatures.subDir" ) + System.getProperty( "file.separator" ) ); }
-    public String phoneUnitFeaExt() { return( System.getProperty( "db.unitfeatures.extension") ); }
-    public String halfphoneUnitFeaDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-            + System.getProperty( "db.halfphone-unitfeatures.subDir" ) + System.getProperty( "file.separator" ) ); }
-    public String halfphoneUnitFeaExt() { return( System.getProperty( "db.halfphone-unitfeatures.extension") ); }
-    
-    /* RAW MARY XML */
-    public String rmxDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-            + System.getProperty( "db.rawmaryxml.subDir" ) + System.getProperty( "file.separator" ) ); }
-    public String rmxExt() { return( System.getProperty( "db.rawmaryxml.extension") ); }
-    
-    /* WAV */
-    public String wavDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-            + System.getProperty( "db.wavSubDir" ) + System.getProperty( "file.separator" ) ); }
-    public String wavExt() { return( System.getProperty( "db.wavExtension") ); }
-    
-    /* LPC */
-    public String lpcDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-            + System.getProperty( "db.lpcSubDir" ) + System.getProperty( "file.separator" ) ); }
-    public String lpcExt() { return( System.getProperty( "db.lpcExtension") ); }
-    /* File name for the LPC+residual timeline */
-    public String lpcTimelineFileName() {
-        String ret = System.getProperty( "db.lpcTimelineFileName" );
-        if ( ret != null ) return( ret );
-        /* else: */
-        return( timelineDirName() + System.getProperty( "db.lpcTimelineBaseName" ) + timelineExt() );
-    }
-    
-    /* TIMELINES */
-    public String timelineDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-            + System.getProperty( "db.timelineSubDir" ) + System.getProperty( "file.separator" ) ); }
-    public String timelineExt() { return( System.getProperty( "db.timelineExtension") ); }
-    
-    /* PITCHMARKS */
-    public String pitchmarksDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-            + System.getProperty( "db.pitchmarksSubDir" ) + System.getProperty( "file.separator" ) ); }
-    public String pitchmarksExt() { return( System.getProperty( "db.pitchmarksExtension") ); }
-    public String correctedPitchmarksDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-            + System.getProperty( "db.correctedPitchmarksSubDir" ) + System.getProperty( "file.separator" ) ); }
-    public String correctedPitchmarksExt() { return( System.getProperty( "db.correctedPitchmarksExtension") ); }
-    
-    /* MELCEP */
-    public String melcepDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-            + System.getProperty( "db.melcepSubDir" ) + System.getProperty( "file.separator" ) ); }
-    public String melcepExt() { return( System.getProperty( "db.melcepExtension") ); }
-    /* File name for the mel cepstrum timeline */
-    public String melcepTimelineFileName() {
-        String ret = System.getProperty( "db.melcepTimelineFileName" );
-        if ( ret != null ) return( ret );
-        /* else: */
-        return( timelineDirName() + System.getProperty( "db.melcepTimelineBaseName" ) + timelineExt() );
-    }
-    
-    /* File name for the waveform timeline */
-    public String waveTimelineFileName() {
-        String ret = System.getProperty( "db.waveTimelineFileName" );
-        if ( ret != null ) return( ret );
-        /* else: */
-        return( timelineDirName() + System.getProperty( "db.waveTimelineBaseName" ) + timelineExt() );
-    }
-    
-    /* Feature Sequence for top-level CART */
-    public String featSequenceFileName () {
-        return ( maryConfigDirName() + System.getProperty( "file.separator" )
-                + System.getProperty( "db.featuresequence.file") ); 
-    }
-    
-    /* Wagon files */
-    public String wagonDirName(){
-        return ( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-            + System.getProperty( "db.wagonSubDir" ) );
-    }
-    public String wagonDescFile(){
-        return  System.getProperty( "db.wagonDesc" );
-    }
-    public String wagonFeatsFile(){
-        return  System.getProperty( "db.wagonFeats" );
-    }
-      public String wagonDistTabsFile(){
-        return  System.getProperty( "db.wagonDistTabs" );
-    }
-     public String wagonCartFile(){
-        return  System.getProperty( "db.wagonCart" );
-    }
-     
-    public String topLevelTreeFilename(){
-        return ( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-            + System.getProperty( "db.maryConfigSubDir" ) + System.getProperty( "file.separator" )
-            + System.getProperty( "db.topLevelTree" ) );
-    }
-    
-    /* MARY FILES */
-    
-    /* - Directories: */
-    
-    public String maryDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-            + System.getProperty( "db.marySubDir") ); }
-    
-    public String maryConfigDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-            + System.getProperty( "db.maryConfigSubDir") ); }
-    
-    public String cartsDirName() { return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-            + System.getProperty( "db.cartsSubDir") ); }
-    
-    /* - Configs:*/
-    
-    /* File name for the unit feature definition and unit feature weights */
-    public String halfphoneUnitFeatureDefinitionFileName() {
-        String ret = System.getProperty( "db.halfphoneUnitFeatureDefinitionFileName" );
-        if ( ret != null ) return( ret );
-        /* else: */
-        return( maryConfigDirName() + System.getProperty( "file.separator" ) + System.getProperty( "db.halfphone-featureweights.file" ) );
-    }
-    public String halfphoneWeightsFileName() { return( halfphoneUnitFeatureDefinitionFileName() ); }
-    public String phoneUnitFeatureDefinitionFileName() {
-        String ret = System.getProperty( "db.phoneUnitFeatureDefinitionFileName" );
-        if ( ret != null ) return( ret );
-        /* else: */
-        return( maryConfigDirName() + System.getProperty( "file.separator" ) + System.getProperty( "db.phone-featureweights.file" ) );
-    }
-    public String phoneWeightsFileName() { return( phoneUnitFeatureDefinitionFileName() ); }
-    
-    /** For halfphone synthesis, the name of the feature definition file containing
-     * the weights for the left halves.
+    /**
+     * Get the default props+values from the components
+     * @return the default props of the components
      */
-    public String halfPhoneLeftWeightsFileName()
-    {
-        return maryConfigDirName() + "/" + System.getProperty("db.featureweights.left.file", "weights.left.txt");
+    private SortedMap getDefaultPropsFromComps(){
+        SortedMap localProps = new TreeMap();
+        for (int i=0;i<components.length;i++){
+            VoiceImportComponent nextComp = components[i];
+            SortedMap nextProps = nextComp.getDefaultProps(this);
+            //get the name of the component
+            String name = nextComp.getName();
+            localProps.put(name,nextProps);
+        }
+        return localProps;
     }
-
-    /** For halfphone synthesis, the name of the feature definition file containing
-     * the weights for the right halves.
+    
+    /**
+     * Make sure that we have all files and dirs
+     * that we will need
      */
-    public String halfPhoneRightWeightsFileName()
-    {
-        return maryConfigDirName() + "/" + System.getProperty("db.featureweights.right.file", "weights.right.txt");
-    }
-
-    /* File name for the unit feature definition and unit feature weights */
-    public String featureSequenceFileName() {
-        String ret = System.getProperty( "db.featureSequenceFileName" );
-        if ( ret != null ) return( ret );
-        /* else: */
-        return( maryConfigDirName() + System.getProperty( "file.separator" ) + System.getProperty( "db.featuresequence.file" ) );
-    }
-    
-    /* File name for the unit feature definition and unit feature weights */
-    public String joinCostWeightsFileName() {
-        String ret = System.getProperty( "db.joinCostWeightsFileName" );
-        if ( ret != null ) return( ret );
-        /* else: */
-        return( maryConfigDirName() + System.getProperty( "file.separator" ) + System.getProperty( "db.joinCostWeights.file" ) );
-    }
-    
-    /* - Mary format files:*/
-    
-    /* File name for the target features file */
-    public String halfphoneFeaturesFileName() {
-        String ret = System.getProperty( "db.halfphoneFeaturesFileName" );
-        if ( ret != null ) return( ret );
-        /* else: */
-        return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-                + System.getProperty( "db.marySubDir" ) + System.getProperty( "file.separator" )
-                + System.getProperty( "db.halfphoneFeaturesBaseName" ) + System.getProperty( "db.maryExtension" ) );
-    }
-    public String phoneFeaturesFileName() {
-        String ret = System.getProperty( "db.phoneFeaturesFileName" );
-        if ( ret != null ) return( ret );
-        /* else: */
-        return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-                + System.getProperty( "db.marySubDir" ) + System.getProperty( "file.separator" )
-                + System.getProperty( "db.phoneFeaturesBaseName" ) + System.getProperty( "db.maryExtension" ) );
-    }
-
-    /* File name for the target features file */
-    public String halfphoneFeaturesWithAcousticFeaturesFileName() {
-        String ret = System.getProperty( "db.halfphoneFeaturesFileNameAc" );
-        if ( ret != null ) return( ret );
-        /* else: */
-        return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-                + System.getProperty( "db.marySubDir" ) + System.getProperty( "file.separator" )
-                + System.getProperty( "db.halfphoneFeaturesBaseName" ) + "_ac" + System.getProperty( "db.maryExtension" ) );
-    }
-
-    
-    /* File name for the join cost features file */
-    public String joinCostFeaturesFileName() {
-        String ret = System.getProperty( "db.joinCostFeaturesFileName" );
-        if ( ret != null ) return( ret );
-        /* else: */
-        return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-                + System.getProperty( "db.marySubDir" ) + System.getProperty( "file.separator" )
-                + System.getProperty( "db.joinCostFeaturesBaseName" ) + System.getProperty( "db.maryExtension" ) );
-    }
-
-    public String precomputedJoinCostsFileName() {
-        String ret = System.getProperty( "db.precomputedJoinCostsFileName" );
-        if ( ret != null ) return( ret );
-        /* else: */
-        return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-                + System.getProperty( "db.marySubDir" ) + System.getProperty( "file.separator" )
-                + System.getProperty( "db.precomputedJoinCostsBaseName" ) + System.getProperty( "db.maryExtension" ) );
-    }
-
-    /* File name for the unit file */
-    public String halfphoneUnitFileName() {
-        String ret = System.getProperty( "db.halfphoneUnitFileName" );
-        if ( ret != null ) return( ret );
-        /* else: */
-        return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-                + System.getProperty( "db.marySubDir" ) + System.getProperty( "file.separator" )
-                + System.getProperty( "db.halfphoneUnitFileBaseName" ) + System.getProperty( "db.maryExtension" ) );
-    }
-    public String phoneUnitFileName() {
-        String ret = System.getProperty( "db.phoneUnitFileName" );
-        if ( ret != null ) return( ret );
-        /* else: */
-        return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-                + System.getProperty( "db.marySubDir" ) + System.getProperty( "file.separator" )
-                + System.getProperty( "db.phoneUnitFileBaseName" ) + System.getProperty( "db.maryExtension" ) );
+    private void assureFileIntegrity(){
+        /* check root dir */
+        checkDir(ROOTDIR);
+        /* check file dir */
+        checkDir(FILEDIR);
+        /* check config dir */
+        checkDir(CONFIGDIR);
+        /* check temp dir */
+        checkDir(TEMPDIR);
+        /* check maryxml dir */
+        checkDir(MARYXMLDIR);
+        /* check text dir */  
+        checkDir(TEXTDIR);        
+        /* check wav dir */
+        File dir = new File(getProp(WAVDIR));
+        if (!dir.exists()){
+            throw new Error("WAVDIR "+getProp(WAVDIR)+" does not exist!");
+        }
+        if (!dir.isDirectory()){
+            throw new Error("WAVDIR "+getProp(WAVDIR)+" is not a directory!");
+        }
+        /* check lab dir */
+        dir = new File(getProp(LABDIR));
+        if (!dir.exists()){
+            throw new Error("LABDIR "+getProp(LABDIR)+" does not exist!");
+        }
+        if (!dir.isDirectory()){
+            throw new Error("LABDIR "+getProp(LABDIR)+" is not a directory!");
+        }
     }
     
-    /* File name for the cart file */
-    public String cartFileName() {
-        String ret = System.getProperty( "db.cartFileName" );
-        if ( ret != null ) return( ret );
-        /* else: */
-        return( System.getProperty( "db.rootDir" ) + System.getProperty( "file.separator" )
-                + System.getProperty( "db.marySubDir" ) + System.getProperty( "file.separator" )
-                + System.getProperty( "db.cartFileBaseName" ) + System.getProperty( "db.maryExtension" ) );
+    /**
+     * Test if a directory exists
+     * and try to create it if not;
+     * throws an error if the dir
+     * can not be created
+     * @param propname the prop containing the name of the dir
+     */
+    private void checkDir(String propname){
+        File dir = new File(getProp(propname));
+        if (!dir.exists()){
+            System.out.print(propname+" "+getProp(propname)
+                    +" does not exist; ");
+            if (!dir.mkdir()){
+                throw new Error("Could not create "+propname);
+            }
+            System.out.print("Created successfully.\n");
+        }        
     }
     
+    /**
+     * Load the basenamelist
+     */
+    private void loadBasenameList(){
+        //test if basenamelist file exists
+        File basenameFile = new File(getProp(BASENAMEFILE));
+        if (!basenameFile.exists()){
+            //make basename list from wav files 
+            System.out.println("Loading basename list from wav files");
+            bnl = new BasenameList(getProp(WAVDIR),getProp(WAVEXT));
+        } else {
+            //load basename list from file
+            try{
+                System.out.println("Loading basename list from file "
+                        +getProp(BASENAMEFILE));
+                bnl = new BasenameList(getProp(BASENAMEFILE));
+            }catch (IOException ioe){
+                throw new Error("Error loading basenames from file "
+                        +getProp(BASENAMEFILE)+": "+ioe.getMessage());            
+            }
+        }
+        System.out.println("Found "+bnl.getLength()+" files in basename list");
+    }
+    
+    /**
+     * Initialize the components
+     */
+    private void initializeComps(){
+        for (int i=0;i<components.length;i++){
+            SortedMap nextProps =
+                (SortedMap) localProps.get(compNames[i]);
+            components[i].initialise(bnl,nextProps);
+        }
+    }
+    
+    public String getProp(String prop){
+        return (String)props.get(prop);
+    }
+    
+    public void setProp(String prop, String val){
+        props.put(prop,val);
+    }
+    
+    /**
+     * Get all props of all components
+     * as an Array representation
+     */
+    public String[][] getAllProps(){
+        List keys = new ArrayList();
+        List values = new ArrayList();
+        for (Iterator it = props.keySet().iterator();it.hasNext();){
+            String key = (String) it.next();
+            keys.add(key);
+            values.add(props.get(key));
+        }
+        for (int i=0;i<compNames.length;i++){
+            SortedMap nextProps = (SortedMap)localProps.get(compNames[i]);
+            for (Iterator it = nextProps.keySet().iterator();it.hasNext();){
+                String key = (String) it.next();
+                keys.add(key);
+                values.add(nextProps.get(key));
+            }
+        }
+        String[][] result = new String[keys.size()][];
+        for (int i=0;i<result.length;i++){
+            String[] keyAndValue = new String[2];
+            keyAndValue[0]=(String)keys.get(i);
+            keyAndValue[1]=(String)values.get(i);
+            result[i] = keyAndValue;
+        }
+        return result;
+    }
+    
+    /**
+     * Update the old props with the given props
+     * @param newprops the new props 
+     */
+    public void updateProps(String[][] newprops){
+        for (int i=0;i<newprops.length;i++){
+            String[] keyAndValue = newprops[i];
+            String key = keyAndValue[0];
+            String value = keyAndValue[1];
+            //find out if this is a global or a local prop
+            if (key.startsWith("db.")){
+                //global prop
+                setProp(key,value);
+            } else {
+                //local prop: get the name of the component
+                String compName = key.substring(0,key.indexOf('.'));
+                //update our representation of local props for this component
+                if (localProps.containsKey(compName)){
+                    ((SortedMap) localProps.get(compName)).put(key,value);
+                } else {
+                    SortedMap keys2values = new TreeMap();
+                    keys2values.put(key,value);
+                    localProps.put(compName,keys2values);
+                    
+                }
+                //update the representation of props in the component
+                ((VoiceImportComponent) 
+                        compnames2comps.get(compName)).setProp(key,value);
+            }           
+        }       
+        //finally, save everything in config file
+        if (initialized){
+            saveProps(new File(configFileName));
+        }
+    }
+    
+    public void initialiseComponent(VoiceImportComponent vic){
+        String name = vic.getName();
+        SortedMap defaultProps = vic.getDefaultProps(this);
+        if (!compnames2comps.containsKey(name)){
+            System.out.println("comp "+name+" not in db");
+            displayProps(defaultProps,"The following properties are missing :");
+            saveProps(new File(configFileName));
+        }
+        vic.initialise(bnl,(SortedMap) localProps.get(name));
+     }
+    
+    public BasenameList getBasenames(){
+        return bnl;
+    }
+    
+    private void displayProps(SortedMap props, String text){
+        try{
+           new SettingsGUI().display(this, props,text);
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("Can not display props");
+        }
+        
+    }
+        
 }
+
+

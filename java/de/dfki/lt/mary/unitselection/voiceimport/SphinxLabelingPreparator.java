@@ -32,7 +32,6 @@ import java.io.*;
 import java.util.*;
 
 import de.dfki.lt.mary.client.MaryClient;
-import de.dfki.lt.mary.util.FileUtils;
 import de.dfki.lt.mary.util.dom.MaryDomUtils;
 import de.dfki.lt.mary.util.dom.NameNodeFilter;
 import de.dfki.lt.mary.MaryData;
@@ -52,13 +51,11 @@ import org.w3c.dom.traversal.NodeIterator;
  * Preparate the directory of the voice for sphinx labelling
  * @author Anna Hunecke
  */
-public class SphinxLabelingPreparator implements VoiceImportComponent {
+public class SphinxLabelingPreparator extends VoiceImportComponent {
     
-    private DatabaseLayout dbLayout;
+    private DatabaseLayout db;
     private BasenameList baseNames;
     private MaryClient mary;
-    private String sphinxtraindir;
-    private String estdir;
     private File rootDir;
     private File st;
     private String voicename;
@@ -67,18 +64,44 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
     private int progress;
     private String locale;
     
-    /**
-     * Create new LabelingPreparator
-     * 
-     * @param dbLayout the database layout
-     * @param baseNames the list of file base names
-     */
-    public SphinxLabelingPreparator(DatabaseLayout dbLayout,
-            				BasenameList baseNames){
-        this.dbLayout = dbLayout;
-        this.baseNames = baseNames;
+    public final String STDIR = "sphinxLabelingPreparator.stDir";
+    public final String SPHINXTRAINDIR = "sphinxLabelingPreparator.sphinxTrainDir";
+    public final String ESTDIR = "sphinxLabelingPreparator.estDir";
+    public final String TRANSCRIPTFILE = "sphinxLabelingPreparator.transcriptFile";
+    
+     public final String getName(){
+        return "sphinxLabelingPreparator";
+    }
+    
+   public SortedMap getDefaultProps(DatabaseLayout db){
+       this.db = db;
+       if (props == null){
+           props = new TreeMap();
+           String sphinxtraindir = System.getProperty("SPHINXTRAINDIR");
+           if ( sphinxtraindir == null ) {
+               sphinxtraindir = "/project/mary/anna/sphinx/SphinxTrain/";
+           }
+           props.put(SPHINXTRAINDIR,sphinxtraindir);
+           String estdir = System.getProperty("ESTDIR");
+           if ( estdir == null ) {
+               estdir = "/project/mary/Festival/speech_tools/";
+           }
+           props.put(ESTDIR,estdir);
+           props.put(STDIR,db.getProp(db.ROOTDIR)
+           				+"st"
+           				+System.getProperty("file.separator"));
+           props.put(TRANSCRIPTFILE,db.getProp(db.ROOTDIR)
+           				+"txt.done.data");
+       }
+       return props;
+   }
+    
+    public void initialise( BasenameList setbnl, SortedMap newProps )
+    {
+        this.props = newProps;
+        this.baseNames = setbnl;
         progress = 0;
-        locale = dbLayout.locale();
+        locale = db.getProp(db.LOCALE);
     }
     
     /**
@@ -89,26 +112,11 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
     public boolean compute() throws Exception{
         progress = 0;
         System.out.println("Preparing voice database for labelling");
-        /* get the directories of sphinxtrain and edinburgh speech tools */
-        sphinxtraindir = System.getProperty("SPHINXTRAINDIR");
-        if ( sphinxtraindir == null ) {
-            System.out.println( "Warning: The environment variable SPHINXTRAINDIR was not found on your system." );
-            System.out.println( "         Defaulting SPHINXTRAINDIR to [ /project/mary/anna/sphinx/SphinxTrain/ ]." );
-            sphinxtraindir = "/project/mary/anna/sphinx/SphinxTrain/";
-        }
-        estdir = System.getProperty("ESTDIR");
-        if ( estdir == null ) {
-            System.out.println( "Warning: The environment variable ESTDIR was not found on your system." );
-            System.out.println( "         Defaulting ESTDIR to [ /project/mary/Festival/speech_tools/ ]." );
-            estdir = "/project/mary/Festival/speech_tools/";
-        }
         
-        //get the root dir and the voicename
-        rootDir = new File(dbLayout.rootDirName());
-        voicename = rootDir.getCanonicalPath();
-        voicename = voicename.substring(voicename.lastIndexOf("/")+1);
+        //get the voicename        
+        voicename = db.getProp(db.VOICENAME);
         //make new directories st and lab
-        st = new File(rootDir.getAbsolutePath()+"/st");
+        st = new File(getProp(STDIR));
         // get the output directory of files used by sphinxtrain 
         outputDir = st.getAbsolutePath()+"/etc";
         
@@ -193,7 +201,7 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
                 new OutputStreamWriter(process.getOutputStream()));
         //go to st directory and call sphinx train setup script
         pw.print("( cd "+st.getAbsolutePath()
-                +"; "+sphinxtraindir+"/scripts_pl/setup_SphinxTrain.pl -task "+voicename
+                +"; "+getProp(SPHINXTRAINDIR)+"/scripts_pl/setup_SphinxTrain.pl -task "+voicename
                 +"; exit )\n");
         pw.flush();
         //shut down
@@ -243,7 +251,7 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
         
         //open etc/txt.done.data (transcription in)
         BufferedReader transIn = new BufferedReader(
-                new InputStreamReader(new FileInputStream(dbLayout.baseTxtFileName()),"UTF-8"));
+                new InputStreamReader(new FileInputStream(getProp(TRANSCRIPTFILE)),"UTF-8"));
         
         //open transcription file used for training
         PrintWriter transTrainOut = new PrintWriter(
@@ -616,8 +624,8 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
      * @throws Exception
      */
     private void convertMFCCs() throws Exception {
-        String wavDir = dbLayout.wavDirName();
-        String wavExt = dbLayout.wavExt();
+        String wavDir = db.getProp(db.WAVDIR);
+        String wavExt = db.getProp(db.WAVEXT);
         //loop through wav files
         Runtime rtime = Runtime.getRuntime();
         File wavDestDir = new File(st.getCanonicalPath()+"/wav");
@@ -637,8 +645,8 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
             PrintWriter pw = new PrintWriter(
                     new OutputStreamWriter(process.getOutputStream()));
             //go to voicedir and call ch_wave
-            pw.print("( cd "+rootDir.getCanonicalPath()
-                +"; "+estdir+"/bin/ch_wave -otype nist -o st/wav/"+wavFileName+wavExt
+            pw.print("( cd "+db.getProp(db.ROOTDIR)
+                +"; "+getProp(ESTDIR)+"/bin/ch_wave -otype nist -o st/wav/"+wavFileName+wavExt
                 +" "+wavDir+wavFileName+wavExt
                 +"; exit )\n");
             pw.close();
@@ -658,7 +666,7 @@ public class SphinxLabelingPreparator implements VoiceImportComponent {
        
         
         //correct st/bin/make_feats.pl
-        File make_feats = new File(rootDir+"/st/bin/make_feats.pl");
+        File make_feats = new File(getProp(STDIR)+"bin/make_feats.pl");
         BufferedReader bufIn = new BufferedReader(
                 new FileReader(make_feats));
         StringBuffer stBuf = new StringBuffer();

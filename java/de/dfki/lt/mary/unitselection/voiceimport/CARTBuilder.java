@@ -29,49 +29,106 @@
 package de.dfki.lt.mary.unitselection.voiceimport;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-import de.dfki.lt.mary.unitselection.FeatureFileIndexer;
 import de.dfki.lt.mary.unitselection.MaryNode;
 import de.dfki.lt.mary.unitselection.cart.*;
 import de.dfki.lt.mary.unitselection.cart.LeafNode.FeatureVectorLeafNode;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
-import de.dfki.lt.mary.unitselection.voiceimport.WagonCaller.StreamGobbler;
 import de.dfki.lt.mary.unitselection.FeatureArrayIndexer;
 import de.dfki.lt.mary.unitselection.FeatureFileReader;
 import de.dfki.lt.mary.unitselection.MCepTimelineReader;
 import de.dfki.lt.mary.unitselection.UnitFileReader;
 import de.dfki.lt.mary.unitselection.Datagram;
 import de.dfki.lt.mary.unitselection.MCepDatagram;
-import de.dfki.lt.mary.unitselection.Unit;
 
-import de.dfki.lt.mary.MaryProperties;
-
-public class CARTBuilder implements VoiceImportComponent {
+public class CARTBuilder extends VoiceImportComponent {
     
-    private DatabaseLayout databaseLayout;
     private MCepTimelineReader mcepTimeline;
     private UnitFileReader unitFile;
     
     private int percent = 0;
+    public final String ACFEATUREFILE = "cartBuilder.acFeatureFile";
+    public final String FEATURESEQFILE = "cartBuilder.featureSeqFile";
+    public final String TOPLEVELTREEFILE = "cartBuilder.topLevelTreeFile";
+    public final String CARTFILE = "cartBuilder.cartFile";
+    public final String WAGONDIR = "cartBuilder.wagonDir";
+    public final String WAGONDESCFILE = "cartBuilder.wagonDescFile";
+    public final String WAGONFEATSFILE = "cartBuilder.wagonFeatsFile";
+    public final String WAGONCARTFILE = "cartBuilder.wagonCartFile";
+    public final String WAGONDISTABSFILE = "cartBuilder.wagonDisTabsFile";
+    public final String MCEPTIMELINE = "cartBuilder.mcepTimeline";
+    public final String UNITFILE = "cartBuilder.unitFile";
+    public final String READFEATURESEQUENCE = "cartBuilder.readFeatureSequence";
     
-    public CARTBuilder(DatabaseLayout databaseLayout){
-        this.databaseLayout = databaseLayout;
+    public String getName(){
+        return "cartBuilder";
     }
     
-
+     public void initialise( BasenameList setbnl, SortedMap newProps )
+    {       
+        this.props = newProps;
+        //make sure that we have at least a feature sequence file
+        File featSeqFile = new File(getProp(FEATURESEQFILE));
+        if (!featSeqFile.exists()){
+            File topLevelTreeFile = new File(getProp(TOPLEVELTREEFILE));
+            if (!topLevelTreeFile.exists()){
+                try{
+                    PrintWriter featSeqOut =
+                        new PrintWriter(
+                            new OutputStreamWriter(
+                                    new FileOutputStream(featSeqFile),"UTF-8"));
+                    featSeqOut.println("# Automatically generated feature sequence file for CARTBuilder\n"
+                            +"# Add features to refine\n"
+                            +"# Defines the feature sequence used to build the top-level CART\n"
+                            +"mary_phoneme");
+                    featSeqOut.flush();
+                    featSeqOut.close();
+                } catch (Exception e){
+                    System.out.println("Warning: no feature sequence file "
+                            +getProp(FEATURESEQFILE)
+                            +" and no top level tree file "
+                            +getProp(TOPLEVELTREEFILE)
+                            +"; CARTBuilder will not run.");
+                }
+            }
+        }
+    }
+    
+     public SortedMap getDefaultProps(DatabaseLayout db){
+       if (props == null){
+           props = new TreeMap();
+           String filedir = db.getProp(db.FILEDIR);
+           String maryext = db.getProp(db.MARYEXT);
+           props.put(ACFEATUREFILE,filedir
+                        +"halfphoneFeatures_ac"+maryext);
+           props.put(FEATURESEQFILE, db.getProp(db.CONFIGDIR)
+                        +"featureSequence.txt");
+           props.put(TOPLEVELTREEFILE, db.getProp(db.CONFIGDIR)
+                        +"topLevel.tree");
+           props.put(CARTFILE, filedir
+                        +"cart"+maryext);
+           props.put(WAGONDIR, db.getProp(db.TEMPDIR));
+           props.put(WAGONDESCFILE,getProp(WAGONDIR)+"wagon.desc");
+           props.put(WAGONFEATSFILE, getProp(WAGONDIR)+"wagon.feats");
+           props.put(WAGONCARTFILE, getProp(WAGONDIR)+"wagon.cart");
+           props.put(WAGONDISTABSFILE, getProp(WAGONDIR)+"wagon.distabs");
+           props.put(MCEPTIMELINE, filedir
+                        +"timeline_mcep"+maryext);
+           props.put(UNITFILE,filedir
+                        +"halfphoneUnits"+maryext);
+           props.put(READFEATURESEQUENCE,"true");
+       }
+       return props;
+   }
+     
     
      public boolean compute() throws Exception{
          long time = System.currentTimeMillis();
          //read in the features with feature file indexer
          System.out.println("Reading feature file ...");
-         String featureFile = databaseLayout.halfphoneFeaturesWithAcousticFeaturesFileName();
+         String featureFile = getProp(ACFEATUREFILE);
          FeatureFileReader ffr = FeatureFileReader.getFeatureFileReader(featureFile);
          FeatureVector[] featureVectorsCopy = ffr.getCopyOfFeatureVectors();
          FeatureDefinition featureDefinition = ffr.getFeatureDefinition(); 
@@ -93,7 +150,7 @@ public class CARTBuilder implements VoiceImportComponent {
          }
          CART topLevelCART;
          boolean fromFeatureSequence = 
-             Boolean.valueOf(System.getProperty("db.readCARTFromSequence","true")).booleanValue();
+             Boolean.valueOf(getProp(READFEATURESEQUENCE)).booleanValue();
          if (fromFeatureSequence){
              /* Build the top level tree from a feature sequence */
              FeatureArrayIndexer fai = new FeatureArrayIndexer(featureVectors, featureDefinition);
@@ -101,7 +158,7 @@ public class CARTBuilder implements VoiceImportComponent {
              //read in the feature sequence
              //open the file
              System.out.println("Reading feature sequence ...");
-             String featSeqFile = databaseLayout.featSequenceFileName();
+             String featSeqFile = getProp(FEATURESEQFILE);
              BufferedReader buf = new BufferedReader(
                      new FileReader(new File(featSeqFile)));
              //each line contains one feature
@@ -142,7 +199,7 @@ public class CARTBuilder implements VoiceImportComponent {
              
          }else {
              /* read in the top-level tree from file */
-             String filename = databaseLayout.topLevelTreeFilename();
+             String filename = getProp(TOPLEVELTREEFILE);
              System.out.println("Reading empty top-level tree from file "+filename+" ...");
              BufferedReader reader = 
                  new BufferedReader(
@@ -212,7 +269,7 @@ public class CARTBuilder implements VoiceImportComponent {
          }
          
          //dump big CART to binary file
-         String destinationFile = databaseLayout.cartFileName();
+         String destinationFile = getProp(CARTFILE);
          dumpCART(destinationFile,topLevelCART);
          
          /**
@@ -303,22 +360,20 @@ public class CARTBuilder implements VoiceImportComponent {
     {
         try {
             System.out.println("Replacing Leaves ...");
-            //TODO: find out why the cart has so many (empty) nodes
+            
             System.out.println("Cart has "+cart.getNumNodes()+" nodes");
             
             
             //create wagon dir if it does not exist
-            File wagonDir = new File(databaseLayout.wagonDirName());
+            File wagonDir = new File(getProp(WAGONDIR));
             if (!wagonDir.exists()){
                 wagonDir.mkdir();
             }
             //get the filenames for the various files used by wagon
-            String wagonDirName = databaseLayout.wagonDirName();
-            String featureDefFile = wagonDirName + "/" 
-                                + databaseLayout.wagonDescFile();
-            String featureVectorsFile = databaseLayout.wagonFeatsFile();
-            String cartFile = databaseLayout.wagonCartFile();
-            String distanceTableFile = databaseLayout.wagonDistTabsFile();
+            String featureDefFile = getProp(WAGONDESCFILE);
+            String featureVectorsFile = getProp(WAGONFEATSFILE);
+            String cartFile = getProp(WAGONCARTFILE);
+            String distanceTableFile = getProp(WAGONDISTABSFILE);
             //dump the feature definitions
             PrintWriter out = new PrintWriter(new 
                 			FileOutputStream(new 
@@ -353,14 +408,14 @@ public class CARTBuilder implements VoiceImportComponent {
                 System.out.println("Leaf replacement no. "+wagonID+" started at "+new Date());
                 //dump the feature vectors
                 System.out.println(wagonID+"> Dumping "+featureVectors.length+" feature vectors...");
-                String featureFileName = wagonDirName+"/"+featureVectorsFile+wagonID;
+                String featureFileName = featureVectorsFile+wagonID;
                 dumpFeatureVectors(featureVectors, featureDefinition, featureFileName);
                 long endTime = System.currentTimeMillis();
                 System.out.println(wagonID+">... dumping feature vectors took "+(endTime-startTime)+" ms");
                 startTime = endTime;
                 //dump the distance tables
                 System.out.println(wagonID+"> Computing distance tables...");
-                String distanceFileName = wagonDirName+"/"+distanceTableFile+wagonID;
+                String distanceFileName = distanceTableFile+wagonID;
                 buildAndDumpDistanceTables(featureVectors, distanceFileName, featureDefinition);
                 endTime = System.currentTimeMillis();
                 System.out.println(wagonID+"> ... computing distance tables took "+(endTime-startTime)+" ms");
@@ -371,7 +426,7 @@ public class CARTBuilder implements VoiceImportComponent {
                         featureDefFile, 
                         featureFileName,
                         distanceFileName,
-                        wagonDirName+"/"+cartFile+wagonID,
+                        cartFile+wagonID,
                         0,
                         stop);
                 boolean dispatched = false;
@@ -467,19 +522,21 @@ public class CARTBuilder implements VoiceImportComponent {
         /* Load the MelCep timeline and the unit file */
         if (mcepTimeline == null) {
             try {
-                mcepTimeline = new MCepTimelineReader( databaseLayout.melcepTimelineFileName() );
+                mcepTimeline = new MCepTimelineReader(getProp(MCEPTIMELINE) );
             }
             catch ( IOException e ) {
-                throw new RuntimeException( "Failed to read the Mel-Cepstrum timeline [" + databaseLayout.melcepTimelineFileName()
+                throw new RuntimeException( "Failed to read the Mel-Cepstrum timeline [" 
+                        +getProp(MCEPTIMELINE)
                         + "] due to the following IOException: ", e );
             }
         }
         if (unitFile == null) {
             try {
-                unitFile = new UnitFileReader( databaseLayout.halfphoneUnitFileName() );
+                unitFile = new UnitFileReader(getProp(UNITFILE) );
             }
             catch ( IOException e ) {
-                throw new RuntimeException( "Failed to read the unit file [" + databaseLayout.halfphoneUnitFileName()
+                throw new RuntimeException( "Failed to read the unit file [" 
+                        +getProp(UNITFILE)
                         + "] due to the following IOException: ", e );
             }
         }
@@ -795,11 +852,11 @@ public class CARTBuilder implements VoiceImportComponent {
             this.featureVectors = featureVectors;
 
             String getESTDIR = System.getProperty("ESTDIR");
-            /*if ( getESTDIR == null ) {
+            if ( getESTDIR == null ) {
                 System.out.println( "Warning: The environment variable ESTDIR was not found on your system." );
                 System.out.println( "         Defaulting ESTDIR to [" + ESTDIR + "]." );
             }
-            else*/ ESTDIR = getESTDIR;
+            else ESTDIR = getESTDIR;
 
             this.valueFile = new File(valueFilename);
             this.distanceTableFile = new File(distanceTableFilename);
@@ -882,13 +939,39 @@ public class CARTBuilder implements VoiceImportComponent {
         public String id() { return id; }
 
     }
+    
+    static class StreamGobbler extends Thread
+    {
+        InputStream is;
+        String type;
+        
+        StreamGobbler(InputStream is, String type)
+        {
+            this.is = is;
+            this.type = type;
+        }
+        
+        public void run()
+        {
+            try
+            {
+                InputStreamReader isr = new InputStreamReader(is);
+                BufferedReader br = new BufferedReader(isr);
+                String line=null;
+                while ( (line = br.readLine()) != null)
+                    System.out.println(type + ">" + line);    
+                } catch (IOException ioe)
+                  {
+                    ioe.printStackTrace();  
+                  }
+        }
+    }
 
     public static void main(String[] args) throws Exception
     {
-        //build database layout
-        DatabaseLayout db = DatabaseImportMain.getDatabaseLayout();
-        //build CARTBuilder and run compute
-        CARTBuilder cartBuilder = new CARTBuilder(db);
+        CARTBuilder cartBuilder = new CARTBuilder();
+        DatabaseLayout db = new DatabaseLayout(cartBuilder);
+        //compute        
         boolean ok = cartBuilder.compute();
         if (ok) System.out.println("Finished successfully!");
         else System.out.println("Failed.");

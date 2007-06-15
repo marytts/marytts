@@ -30,35 +30,73 @@
 package de.dfki.lt.mary.unitselection.voiceimport;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.*;
+
 
 /**
  * @author marc
  *
  */
-public class HalfPhoneLabelFeatureAligner extends LabelFeatureAligner {
+public class HalfPhoneLabelFeatureAligner extends PhoneLabelFeatureAligner {
 
-    /**
-     * @param setdb
-     * @param setbnl
-     * @throws IOException
-     */
-    public HalfPhoneLabelFeatureAligner(DatabaseLayout setdb,
-            BasenameList setbnl) throws IOException {
-        super(setdb, setbnl);
-        // TODO Auto-generated constructor stub
+    public String getName(){
+        return "halfPhoneLabelFeatureAligner";
     }
-
-    /**
-     * Set some global variables; sub-classes may want to override.
-     *
-     */
-    protected void init()
+    
+    public HalfPhoneLabelFeatureAligner(){
+        FEATUREDIR = "halfPhoneLabelFeatureAligner.featureDir";
+        FEATUREEXT = "halfPhoneLabelFeatureAligner.featureExt";
+        LABELDIR = "halfPhoneLabelFeatureAligner.labelDir";
+        LABELEXT = "halfPhoneLabelFeatureAligner.labelExt";
+    }
+    
+    public void initialise( BasenameList setbnl, SortedMap newProps )
     {
-        unitfeatureDir = new File(db.halfphoneUnitFeaDirName());
-        featsExt = db.halfphoneUnitFeaExt();
-        this.unitlabelDir = new File( db.halfphoneUnitLabDirName() );
-        labExt = db.halfphoneUnitLabExt();
+        this.bnl = setbnl;
+        this.props = newProps;
+        this.featureComputer = new HalfPhoneUnitFeatureComputer();
+        db.initialiseComponent(featureComputer); 
+        
+        this.pauseSymbol = System.getProperty("pause.symbol", "pau");
+        File unitfeatureDir = new File(getProp(FEATUREDIR));
+        if (!unitfeatureDir.exists()){
+            System.out.print(FEATUREDIR+" "+getProp(FEATUREDIR)
+                    +" does not exist; ");
+            if (!unitfeatureDir.mkdir()){
+                throw new Error("Could not create FEATUREDIR");
+            }
+            System.out.print("Created successfully.\n");
+        }  
+        featsExt = getProp(FEATUREEXT);
+        File unitlabelDir = new File(getProp(LABELDIR));
+        if (!unitlabelDir.exists()){
+            System.out.print(LABELDIR+" "+getProp(LABELDIR)
+                    +" does not exist; ");
+            if (!unitlabelDir.mkdir()){
+                throw new Error("Could not create LABELDIR");
+            }
+            System.out.print("Created successfully.\n");
+        }  
+        labExt = getProp(LABELEXT);
     }
+    
+    public SortedMap getDefaultProps(DatabaseLayout db){
+        this.db = db;
+       if (props == null){
+           props = new TreeMap();
+           props.put(FEATUREDIR, db.getProp(db.ROOTDIR)
+                        +"halfphonefeatures"
+                        +System.getProperty("file.separator"));
+           props.put(FEATUREEXT,".hpfeats");
+           props.put(LABELDIR, db.getProp(db.ROOTDIR)
+                        +"halfphonelab"
+                        +System.getProperty("file.separator"));
+           props.put(LABELEXT,".hplab");
+       }
+       return props;
+    }
+
+    
+    
 
 }

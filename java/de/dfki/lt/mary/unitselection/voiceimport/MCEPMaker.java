@@ -32,7 +32,7 @@
 package de.dfki.lt.mary.unitselection.voiceimport;
 
 import java.lang.reflect.Array;
-import java.util.Vector;
+import java.util.*;
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.BufferedOutputStream;
@@ -40,16 +40,57 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.File;
 
-public class ESTCallMaker implements VoiceImportComponent {
+public class MCEPMaker extends VoiceImportComponent {
     
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
+    public final String CORRPMDIR = "mcepMaker.corrPmDir";
+    public final String CORRPMEXT = "mcepMaker.corrPmExt";
+    public final String PMDIR = "mcepMaker.pmDir";
+    public final String PMEXT = "mcepMaker.pmExt";
+    public final String LPCDIR = "mcepMaker.lpcDir";
+    public final String LPCEXT = "mcepMaker.lpcExt";
+    public final String MCEPDIR = "mcepMaker.lpcDir";
+    public final String MCEPEXT = "mcepMaker.lpcExt";
+    public final String ESTDIR = "mcepMaker.estDir";
     
-    public ESTCallMaker( DatabaseLayout setdb, BasenameList setbnl ) {
-        this.db = setdb;
-        this.bnl = setbnl;
+    public String getName(){
+        return "mcepMaker";
     }
     
+   public SortedMap getDefaultProps(DatabaseLayout db){
+       this.db = db;
+       if (props == null){
+           props = new TreeMap();
+           String rootDir = db.getProp(db.ROOTDIR);
+           props.put(CORRPMDIR, rootDir
+                   +"pm"
+                   +System.getProperty("file.separator"));
+           props.put(CORRPMEXT, ".pm.corrected");
+           props.put(PMDIR, getProp(CORRPMDIR));
+           props.put(PMEXT, ".pm");
+           props.put(LPCDIR, rootDir
+                   +"lpc"                   
+                   +System.getProperty("file.separator"));
+           props.put(LPCEXT, ".lpc");
+           props.put(MCEPDIR, rootDir
+                   +"mcep"
+                   +System.getProperty("file.separator"));
+           props.put(MCEPEXT, ".mcep");
+           String estdir = System.getProperty("ESTDIR");
+           if ( estdir == null ) {
+               estdir = "/project/mary/Festival/speech_tools/";
+           }
+           props.put(ESTDIR,estdir);
+       }
+       return props;
+   }
+    
+    public void initialise( BasenameList setbnl, SortedMap newProps )
+    {
+       this.bnl = setbnl;
+        this.props = newProps;
+    }
     /**
      * Shift the pitchmarks to the closest peak.
      */
@@ -141,9 +182,9 @@ public class ESTCallMaker implements VoiceImportComponent {
         System.out.println("---- Correcting the pitchmarks..." );
         
         /* Ensure the existence of the target directory */
-        File dir = new File( db.correctedPitchmarksDirName() );
+        File dir = new File( getProp(CORRPMDIR));
         if (!dir.exists()) { 
-            System.out.println( "Creating the directory [" + db.correctedPitchmarksDirName() + "]." );
+            System.out.println( "Creating the directory [" + getProp(CORRPMDIR) + "]." );
             dir.mkdir();
         }
         
@@ -152,7 +193,7 @@ public class ESTCallMaker implements VoiceImportComponent {
         //for ( int f = 0; f < 1; f++ ) {
             /* Load the pitchmark file */
             //System.out.println( baseNameArray[f] );
-            String fName = db.pitchmarksDirName() + baseNameArray[f] + db.pitchmarksExt();
+            String fName = getProp(PMDIR) + baseNameArray[f] + getProp(PMEXT);
             ESTTrackReader pmFileIn = new ESTTrackReader( fName );
             /* Wrap the primitive floats so that we can use vectors thereafter */
             float[] pmInPrimitive = pmFileIn.getTimes();
@@ -161,7 +202,7 @@ public class ESTCallMaker implements VoiceImportComponent {
                 pmIn[i] = (Float)Array.get( pmInPrimitive, i );
             }
             /* Load the wav file */
-            fName = db.wavDirName() + baseNameArray[f] + db.wavExt();
+            fName = db.getProp(db.WAVDIR) + baseNameArray[f] + db.getProp(db.WAVEXT);
             WavReader wf = new WavReader( fName );
             short[] w = wf.getSamples();
             Float[] pmOut = null;
@@ -175,7 +216,7 @@ public class ESTCallMaker implements VoiceImportComponent {
                 throw new RuntimeException( "For utterance [" + baseNameArray[f] + "]:" , e );
             }
             /* Export the corrected pitchmarks as an EST file */
-            fName = db.correctedPitchmarksDirName() + baseNameArray[f] + db.correctedPitchmarksExt();
+            fName = getProp(CORRPMDIR) + baseNameArray[f] + getProp(CORRPMEXT);
             DataOutputStream dos = null;
             try {
                 dos = new DataOutputStream( new BufferedOutputStream( new FileOutputStream( fName ) ) );
@@ -207,19 +248,13 @@ public class ESTCallMaker implements VoiceImportComponent {
     public boolean compute() throws IOException {
         
         String[] baseNameArray = bnl.getListAsArray();
-        System.out.println( "Recomputing pitchmarks, LPC coefficients and Mel cepstra for [" + baseNameArray.length + "] utterances." );
-        ESTCaller caller = new ESTCaller( db );
-        //ESTCaller caller = new ESTCaller( db, "/home/cl-home/sacha/temp/speech_tools/" );
-        
-        // Make the pitchmarks
-        //caller.make_pm_wave( baseNameArray );
-        //tweakThePitchmarks( baseNameArray );
-        
-        // Make the LPCs and Mel Cepstra
-
-        // caller.make_lpc( baseNameArray );
-
-        caller.make_mcep( baseNameArray );
+        System.out.println( "Computing Mel cepstra for [" + baseNameArray.length + "] utterances." );
+        ESTCaller caller = new ESTCaller( db, getProp(ESTDIR) );
+        caller.make_mcep( baseNameArray, 
+                getProp(CORRPMDIR),
+                getProp(CORRPMEXT),
+                getProp(MCEPDIR),
+                getProp(MCEPEXT));
         
         return( true );
     }

@@ -32,9 +32,8 @@
 package de.dfki.lt.mary.unitselection.voiceimport;
 
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.util.Properties;
+import java.util.*;
 
 import de.dfki.lt.mary.unitselection.MCepDatagram;
 
@@ -44,16 +43,39 @@ import de.dfki.lt.mary.unitselection.MCepDatagram;
  * 
  * @author sacha
  */
-public class MCepTimelineMaker implements VoiceImportComponent
+public class MCepTimelineMaker extends VoiceImportComponent
 { 
 
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
     protected int percent = 0;
     
-    public MCepTimelineMaker( DatabaseLayout setdb, BasenameList setbnl ) {
-        this.db = setdb;
-        this.bnl = setbnl;
+    public final String MCEPDIR = "mcepTimelineMaker.mcepDir";
+    public final String MCEPEXT = "mcepTimelineMaker.mcepExt";
+    public final String MCEPTIMELINE = "mcepTimelineMaker.mcepTimeline";
+    
+    public String getName(){
+        return "mcepTimelineMaker";
+    }
+    
+    public void initialise( BasenameList setbnl, SortedMap newProps )
+    {
+         this.bnl = setbnl;
+        this.props = newProps;
+    }
+    
+    public SortedMap getDefaultProps(DatabaseLayout db){
+        this.db = db;
+        if (props == null){
+            props = new TreeMap();
+            props.put(MCEPDIR, db.getProp(db.ROOTDIR)
+                    +"mcep"
+                    +System.getProperty("file.separator"));
+            props.put(MCEPEXT, ".mcep");
+            props.put(MCEPTIMELINE, db.getProp(db.FILEDIR)
+                    +"timeline_mcep"+db.getProp(db.MARYEXT));  
+        }
+        return props;
     }
     
     /**
@@ -63,22 +85,20 @@ public class MCepTimelineMaker implements VoiceImportComponent
     public boolean compute()
     {
         System.out.println("---- Importing Mel Cepstrum coefficients\n\n");
-        System.out.println("Base directory: " + db.rootDirName() + "\n");
+        System.out.println("Base directory: " + db.getProp(db.ROOTDIR) + "\n");
         
         /* Export the basename list into an array of strings */
         String[] baseNameArray = bnl.getListAsArray();
         
         /* Prepare the output directory for the timelines if it does not exist */
-        File timelineDir = new File( db.timelineDirName() );
-        if ( !timelineDir.exists() ) {
-            timelineDir.mkdir();
-            System.out.println("Created output directory [" + db.timelineDirName() + "] to store the timelines." );
-        }
+        File timelineDir = new File(db.getProp(db.FILEDIR));
+        
         
         try{
             /* 1) Determine the reference sampling rate as being the sample rate of the first encountered
              *    wav file */
-            WavReader wav = new WavReader( db.wavDirName() + baseNameArray[0] + db.wavExt() );
+            WavReader wav = new WavReader(db.getProp(db.WAVDIR) 
+                    + baseNameArray[0] + db.getProp(db.WAVEXT));
             int globSampleRate = wav.getSampleRate();
             System.out.println("---- Detected a global sample rate of: [" + globSampleRate + "] Hz." );
             
@@ -96,7 +116,8 @@ public class MCepTimelineMaker implements VoiceImportComponent
             /* Initialize with the first file: */
             /* - open and load */
             // System.out.println( baseNameArray[0] );
-            mcepFile = new ESTTrackReader( db.melcepDirName() + baseNameArray[0] + db.melcepExt() );
+            mcepFile = new ESTTrackReader(getProp(MCEPDIR) 
+                    + baseNameArray[0] + getProp(MCEPEXT));
             /* - get the min and the max */
             current = mcepFile.getMinMax();
             mcepMin = current[0];
@@ -114,7 +135,8 @@ public class MCepTimelineMaker implements VoiceImportComponent
                 percent = 100*i/baseNameArray.length;
                 /* - open+load */
                 // System.out.println( baseNameArray[i] );
-                mcepFile = new ESTTrackReader( db.melcepDirName() + baseNameArray[i] + db.melcepExt() );
+                mcepFile = new ESTTrackReader(getProp(MCEPDIR) 
+                        + baseNameArray[i] + getProp(MCEPEXT));
                 /* - get min and max */
                 current = mcepFile.getMinMax();
                 if ( current[0] < mcepMin ) { mcepMin = current[0]; }
@@ -140,8 +162,8 @@ public class MCepTimelineMaker implements VoiceImportComponent
             /* 3) Open the destination timeline file */
             
             /* Make the file name */
-            String mcepTimelineName = db.melcepTimelineFileName();
-            System.out.println( "Will create the mcep timeline in file [" + mcepTimelineName + "]." );
+            System.out.println( "Will create the mcep timeline in file [" 
+                    + getProp(MCEPTIMELINE) + "]." );
             
             /* An example of processing header: */
             Properties props = new Properties();
@@ -158,7 +180,7 @@ public class MCepTimelineMaker implements VoiceImportComponent
             
             
             /* Instantiate the TimelineWriter: */
-            TimelineWriter mcepTimeline = new TimelineWriter( mcepTimelineName, processingHeader, globSampleRate, 0.01 );
+            TimelineWriter mcepTimeline = new TimelineWriter( getProp(MCEPTIMELINE), processingHeader, globSampleRate, 0.01 );
             
             
             /* 4) Write the datagrams and feed the index */
@@ -169,8 +191,10 @@ public class MCepTimelineMaker implements VoiceImportComponent
             for ( int i = 0; i < baseNameArray.length; i++ ) {
                 /* - open+load */
                 System.out.println( baseNameArray[i] );
-                mcepFile = new ESTTrackReader( db.melcepDirName() + baseNameArray[i] + db.melcepExt() );
-                wav = new WavReader( db.wavDirName() + baseNameArray[i] + db.wavExt() );
+                mcepFile = new ESTTrackReader( getProp(MCEPDIR) 
+                        + baseNameArray[i] + getProp(MCEPEXT));
+                wav = new WavReader(db.getProp(db.WAVDIR) 
+                        + baseNameArray[i] + db.getProp(db.WAVEXT));
                 /* - For each frame in the mcep file: */
                 int frameStart = 0;
                 int frameEnd = 0;

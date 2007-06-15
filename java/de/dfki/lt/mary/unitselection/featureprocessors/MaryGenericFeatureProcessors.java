@@ -2604,7 +2604,54 @@ public class MaryGenericFeatureProcessors
         }
     }
     
+    /**
+     * Counts the number of words since the start of the sentence.
+     * In contrast to the feature processor "Words_From_Sentence_Start",
+     * this feature processor returns numbers higher than 19
+     * 
+     * @author Anna Hunecke
+     *
+     */
+    public static class Selection_WordIndex implements ContinuousFeatureProcessor {
+        
+        TargetItemNavigator navigator;
+        TargetItemNavigator firstPhraseNavigator;
+        public Selection_WordIndex() {
+            this.navigator = new WordNavigator();
+            this.firstPhraseNavigator = new FirstPhraseNavigator();
+        }
+        public String getName() { return "mary_selection_word_index"; }
+        
+        public String[] getValues() {
+            return null;
+        }
+        
+        /**
+         * Determine the number of words since the start of the sentence
+         * 
+         */
+        public float process(Target target){
+            float count = 0;
+            Item w = navigator.getItem(target);
+            if (w == null) return -1f;
+            w = w.getItemAs(Relation.WORD);
+            if (w == null) return -1f;
+            Item firstPhrase = firstPhraseNavigator.getItem(target);
+            if (firstPhrase == null) return -1f;
+            firstPhrase = firstPhrase.getItemAs(Relation.PHRASE);
+            if (firstPhrase == null) return -1f;
+            Item firstWord = firstPhrase.getDaughter();
+            for (Item p = w; p != null; p = p.getPrevious()) {
+                if (p.equalsShared(firstWord)) {
+                    break;
+                }
+                count++;
+            }
+            return count;
+        }
+    }
     
+
     /**
      * Returns the duration of the given segment This is a feature processor. A
      * feature processor takes an item, performs some sort of processing on the
@@ -2724,7 +2771,9 @@ public class MaryGenericFeatureProcessors
             float f0 = lastF0 + slope * (mid - lastPos);
             if (!(lastF0 <= f0 && f0 <= nextF0 || nextF0 <= f0
                     && f0 <= lastF0)) {
-                throw new NullPointerException();
+                //TODO: Find out whats happening here
+                //throw new NullPointerException();
+                return 0;
             }
 
             if (Float.isNaN(f0)) {

@@ -38,70 +38,110 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.*;
 
 import de.dfki.lt.mary.unitselection.FeatureFileReader;
 import de.dfki.lt.mary.unitselection.UnitFileReader;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 
-public class FeatureFileWriter implements VoiceImportComponent
+public class PhoneFeatureFileWriter extends VoiceImportComponent
 {
     protected File maryDir;
-    protected String featureFileName;
-    protected String unitFileName;
-    protected String weightsFileName;
-    
-    protected File unitfeatureDir;
-    protected String featsExt;
     protected FeatureDefinition featureDefinition;
-    protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
     protected int percent = 0;
     
     protected UnitFileReader unitFileReader;
     
-    public FeatureFileWriter( DatabaseLayout setdb, BasenameList setbnl )
-    {
-        this.db = setdb;
-        this.bnl = setbnl;
+    public String FEATUREDIR = "phoneFeatureFileWriter.featureDir";
+    public String FEATUREEXT = "phoneFeatureFileWriter.featureExt";
+    public String FEATUREFILE = "phoneFeatureFileWriter.featureFile";
+    public String UNITFILE = "phoneFeatureFileWriter.unitFile";
+    public String WEIGHTSFILE = "phoneFeatureFileWriter.weightsFile";
+    protected String name = "phoneFeatureFileWriter";
+    
+    public String getName(){
+        return name;
     }
     
-    /**
-     * Set some global variables; sub-classes may want to override.
-     *
-     */
-    protected void init()
+     public void initialise( BasenameList setbnl, SortedMap newProps )
     {
-        unitfeatureDir = new File(db.phoneUnitFeaDirName());
-        if (!unitfeatureDir.exists()) throw new IllegalStateException("Unit feature file "+unitfeatureDir.getAbsolutePath()+" does not exist");
-        featsExt = db.phoneUnitFeaExt();
-        featureFileName = db.phoneFeaturesFileName();
-        unitFileName = db.phoneUnitFileName();
-        weightsFileName = db.phoneWeightsFileName();
+        this.bnl = setbnl;
+        this.props = newProps;
+        
+        File unitfeatureDir = new File(getProp(FEATUREDIR));
+        if (!unitfeatureDir.exists()){
+            System.out.print(FEATUREDIR+" "+getProp(FEATUREDIR)
+                    +" does not exist; ");
+            if (!unitfeatureDir.mkdir()){
+                throw new Error("Could not create FEATUREDIR");
+            }
+            System.out.print("Created successfully.\n");
+        }  
     }
+    
+     public SortedMap getDefaultProps(DatabaseLayout db){
+       if (props == null){
+           props = new TreeMap();
+           props.put(FEATUREDIR, db.getProp(db.ROOTDIR)
+                        +"phonefeatures"
+                        +System.getProperty("file.separator"));
+           props.put(FEATUREEXT,".pfeats");
+           props.put(FEATUREFILE, db.getProp(db.FILEDIR)
+                        +"phoneFeatures"+db.getProp(db.MARYEXT));
+           props.put(UNITFILE, db.getProp(db.FILEDIR)
+                        +"phoneUnits"+db.getProp(db.MARYEXT));
+           props.put(WEIGHTSFILE, db.getProp(db.CONFIGDIR)
+                        +"phoneUnitFeatureDefinition.txt");
+       }
+       return props;
+   }
+    
     
     public boolean compute() throws IOException
     {
-        init();
-        System.out.println("Featurefile writer started.");
+        //make sure that we have a featureweightsfile
+        File featWeights = new File(getProp(WEIGHTSFILE));
+        if (!featWeights.exists()){
+            try{
+                PrintWriter featWeightsOut =
+                    new PrintWriter(
+                            new OutputStreamWriter(
+                                    new FileOutputStream(featWeights),"UTF-8"),true);
+                BufferedReader uttFeats = 
+                    new BufferedReader(
+                            new InputStreamReader(
+                                    new FileInputStream(
+                                            new File(getProp(FEATUREDIR)
+                                                    +bnl.getName(0) 
+                                                    + getProp(FEATUREEXT) )), "UTF-8"));
+                FeatureDefinition featDef = 
+                    new FeatureDefinition(uttFeats, false); // false: do not read weights
+                uttFeats.close();
+                featDef.generateFeatureWeightsFile(featWeightsOut);                
+            }catch (Exception e){
+                throw new Error("No phone feature weights file "
+                        +getProp(WEIGHTSFILE)
+                        +"; "+name+" will not run.");
 
-        maryDir = new File( db.maryDirName() );
-        if (!maryDir.exists()) {
-            maryDir.mkdir();
-            System.out.println("Created the output directory [" + db.maryDirName() + "] to store the feature file." );
+            }
         }
-        unitFileReader = new UnitFileReader( unitFileName );
-        featureDefinition = new FeatureDefinition(new BufferedReader(new InputStreamReader(new FileInputStream(weightsFileName), "UTF-8")), true); // true: read weights
+        System.out.println("Featurefile writer started.");
+        unitFileReader = new UnitFileReader( getProp(UNITFILE) );
+        featureDefinition = new FeatureDefinition(new BufferedReader(new InputStreamReader(new FileInputStream(getProp(WEIGHTSFILE)), "UTF-8")), true); // true: read weights
         assert featureDefinition != null : "Feature definition not set!";
 
-        DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(featureFileName)));
+        DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(getProp(FEATUREFILE))));
         writeHeaderTo(out);
         writeUnitFeaturesTo(out);
         out.close();
         System.out.println("Number of processed units: " + unitFileReader.getNumberOfUnits() );
 
-        FeatureFileReader tester = FeatureFileReader.getFeatureFileReader(featureFileName);
+        FeatureFileReader tester = FeatureFileReader.getFeatureFileReader(getProp(FEATUREFILE));
         int unitsOnDisk = tester.getNumberOfUnits();
         if (unitsOnDisk == unitFileReader.getNumberOfUnits()) {
             System.out.println("Can read right number of units");
@@ -130,10 +170,10 @@ public class FeatureFileWriter implements VoiceImportComponent
         for (int i=0; i<bnl.getLength(); i++) {
             percent = 100*i/bnl.getLength();
             System.out.print( "    " + bnl.getName(i) + " : Entering at index (" + index + ") -- " );
-            BufferedReader uttFeats = new BufferedReader(new InputStreamReader(new FileInputStream(new File( unitfeatureDir,  bnl.getName(i) + featsExt )), "UTF-8"));
+            BufferedReader uttFeats = new BufferedReader(new InputStreamReader(new FileInputStream(new File( getProp(FEATUREDIR)+ bnl.getName(i) + getProp(FEATUREEXT) )), "UTF-8"));
             FeatureDefinition uttFeatDefinition = new FeatureDefinition(uttFeats, false); // false: do not read weights
             if (!uttFeatDefinition.featureEquals(featureDefinition)) {
-                throw new IllegalArgumentException("Features in file "+bnl.getName(i)+" do not match definition file "+weightsFileName
+                throw new IllegalArgumentException("Features in file "+bnl.getName(i)+" do not match definition file "+getProp(WEIGHTSFILE)
                         + " because:\n"
                         + uttFeatDefinition.featureEqualsAnalyse(featureDefinition) );
             }
@@ -215,9 +255,9 @@ public class FeatureFileWriter implements VoiceImportComponent
      */
     public static void main(String[] args) throws IOException
     {
-        DatabaseLayout db = DatabaseImportMain.getDatabaseLayout();
-        BasenameList bnl = DatabaseImportMain.getBasenameList(db);
-        new FeatureFileWriter(db, bnl).compute();
+        PhoneFeatureFileWriter ffw = new PhoneFeatureFileWriter();
+        DatabaseLayout db = new DatabaseLayout(ffw);
+        ffw.compute();
     }
 
 

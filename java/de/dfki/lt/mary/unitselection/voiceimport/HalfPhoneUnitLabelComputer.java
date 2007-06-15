@@ -1,32 +1,35 @@
 package de.dfki.lt.mary.unitselection.voiceimport;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.StringTokenizer;
+
+import java.util.*;
 
 /**
  * Compute unit labels from phone labels.
  * @author schroed
  *
  */
-public class HalfPhoneUnitLabelComputer extends UnitLabelComputer
-{
+public class HalfPhoneUnitLabelComputer extends PhoneUnitLabelComputer
+{    
     
-    /**/
-    public HalfPhoneUnitLabelComputer( DatabaseLayout setdb, BasenameList setbnl ) throws IOException
-    {
-        super(setdb, setbnl);
+    public String getName(){
+        return "halfPhoneUnitLabelComputer";      
     }
     
-    /**
-     * Set some global variables that subclasses may want to override.
-     *
-     */
-    protected void init()
-    {
-        unitlabelDir = new File( db.halfphoneUnitLabDirName() );
-        if (!unitlabelDir.exists()) unitlabelDir.mkdir();
-        unitlabelExt = db.halfphoneUnitLabExt();
+    public HalfPhoneUnitLabelComputer(){
+        LABELDIR = "halfPhoneUnitLabelComputer.labelDir";
+        LABELEXT = "halfPhoneUnitLabelComputer.labelExt";
+    } 
+    
+     public SortedMap getDefaultProps(DatabaseLayout db){
+        this.db = db;
+       if (props == null){
+           props = new TreeMap();
+           props.put(LABELDIR, db.getProp(db.ROOTDIR)
+                        +"halfphonelab"
+                        +System.getProperty("file.separator"));
+           props.put(LABELEXT,".hplab");
+       }
+       return props;
     }
     
     

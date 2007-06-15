@@ -28,12 +28,8 @@
  */
 package de.dfki.lt.mary.unitselection.voiceimport;
 
-import java.util.Vector;
+import java.util.*;
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.FileOutputStream;
-import java.io.BufferedOutputStream;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.File;
@@ -43,24 +39,59 @@ import java.io.FileWriter;
 
 import de.dfki.lt.signalproc.util.PraatTextfileDoubleDataSource;
 
-public class PraatPitchmarker implements VoiceImportComponent
+public class PraatPitchmarker extends VoiceImportComponent
 {
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
 
     private int percent = 0;
-    private String praatCmd;
-    private String praatTempScript;
-    private String minPitch;
-    private String maxPitch;
     
-    public PraatPitchmarker( DatabaseLayout setdb, BasenameList setbnl ) {
-        this.db = setdb;
-        this.bnl = setbnl;
-        this.praatCmd = System.getProperty("praat.cmd", "praat");
-        this.praatTempScript = System.getProperty("db.rootDir")+"/script.praat";
-        this.minPitch = System.getProperty("praat.minpitch", "75");
-        this.maxPitch = System.getProperty("praat.maxpitch", "600");
+    public final String COMMAND = "praatPitchmarker.command";
+    public final String TEMPSCRIPT = "praatPitchmarker.tempScript";
+    public final String MINPITCH = "praatPitchmarker.minPitch";
+    public final String MAXPITCH = "praatPitchmarker.maxPitch";
+    public final String CORRPMDIR = "praatPitchmarker.corrPmDir";
+    public final String CORRPMEXT = "praatPitchmarker.corrPmExt";
+    public final String PMDIR = "praatPitchmarker.pmDir";
+    public final String PMEXT = "praatPitchmarker.pmExt";
+    public final String POINTPEXT = "praatPitchmarker.pointPExt";
+    
+     public final String getName(){
+        return "praatPitchmarker";
+    }
+    
+    public void initialise( BasenameList setbnl, SortedMap newProps )
+    {
+         this.bnl = setbnl;
+        this.props = newProps;
+    }
+    
+    public SortedMap getDefaultProps(DatabaseLayout db){
+        this.db = db;
+       if (props == null){
+           props = new TreeMap();
+           props.put(COMMAND,"praat");
+           props.put(TEMPSCRIPT,db.getProp(db.TEMPDIR)
+                   +"script.praat");
+           if (db.getProp(db.GENDER).equals("female")){
+               props.put(MINPITCH,"100");
+               props.put(MAXPITCH,"500");
+           } else {
+               props.put(MINPITCH,"75");
+               props.put(MAXPITCH,"300");
+           }
+           String rootDir = db.getProp(db.ROOTDIR);
+           props.put(CORRPMDIR, rootDir
+                   +"pm"
+                   +System.getProperty("file.separator"));
+           props.put(CORRPMEXT, ".pm.corrected");
+           props.put(PMDIR, rootDir
+                   +"pm"
+                   +System.getProperty("file.separator"));
+           props.put(PMEXT, ".pm");
+           props.put(POINTPEXT, ".PointProcess");
+       }
+       return props;
     }
     
     /**
@@ -155,7 +186,7 @@ public class PraatPitchmarker implements VoiceImportComponent
     private float[] adjustPitchmarks( String basename, float[] pitchmarks ) throws IOException
     {
         /* Load the wav file */
-        String fName = db.wavDirName() + basename + db.wavExt();
+        String fName = db.getProp(db.WAVDIR) + basename + db.getProp(db.WAVEXT);
         WavReader wf = new WavReader( fName );
         short[] w = wf.getSamples();
         float[] pmOut = null;
@@ -172,12 +203,12 @@ public class PraatPitchmarker implements VoiceImportComponent
     
     private boolean praatPitchmarks(String basename) throws IOException
     {
-        String wavFilename = db.wavDirName() + basename + db.wavExt();
-        String pointprocessFilename = db.pitchmarksDirName()+basename+".PointProcess";
-        String pmFilename = db.pitchmarksDirName()+basename+db.pitchmarksExt();
-        String correctedPmFilename = db.correctedPitchmarksDirName() + basename + db.correctedPitchmarksExt();
+        String wavFilename = db.getProp(db.WAVDIR) + basename + db.getProp(db.WAVEXT);
+        String pointprocessFilename = getProp(PMDIR)+basename+getProp(POINTPEXT);
+        String pmFilename = getProp(PMDIR)+basename+getProp(PMEXT);
+        String correctedPmFilename = getProp(CORRPMDIR) + basename + getProp(CORRPMEXT);
 
-        File script = new File(praatTempScript);
+        File script = new File(getProp(TEMPSCRIPT));
         if (script.exists()) script.delete();
         PrintWriter toScript = new PrintWriter(new FileWriter(script));
         toScript.println("Read from file... "+wavFilename);
@@ -186,7 +217,7 @@ public class PraatPitchmarker implements VoiceImportComponent
         // (i.e., mixed noise+periodicity regions treated more likely as periodic)
         toScript.println("Filter (pass Hann band)... 0 1000 100");
         // Then determine pitch curve
-        toScript.println("To Pitch... 0 "+minPitch+" "+maxPitch);
+        toScript.println("To Pitch... 0 "+getProp(MINPITCH)+" "+getProp(MAXPITCH));
         toScript.println("Rename... pitch");
         // Get some debug info:
         toScript.println("startTime = Get start time");
@@ -204,7 +235,7 @@ public class PraatPitchmarker implements VoiceImportComponent
         toScript.println("Quit");
         toScript.close();
 
-        Process praat = Runtime.getRuntime().exec(praatCmd+" "+praatTempScript);
+        Process praat = Runtime.getRuntime().exec(getProp(COMMAND)+" "+getProp(TEMPSCRIPT));
         final BufferedReader fromPraat = new BufferedReader(new InputStreamReader(praat.getInputStream()));
         new Thread() {
             public void run() {
@@ -243,15 +274,15 @@ public class PraatPitchmarker implements VoiceImportComponent
         System.out.println( "Computing pitchmarks for " + baseNameArray.length + " utterances." );
 
         /* Ensure the existence of the target pitchmark directory */
-        File dir = new File( db.pitchmarksDirName() );
+        File dir = new File(getProp(PMDIR));
         if (!dir.exists()) {
-            System.out.println( "Creating the directory [" + db.pitchmarksDirName() + "]." );
+            System.out.println( "Creating the directory [" + getProp(PMDIR) + "]." );
             dir.mkdir();
         }
         /* Ensure the existence of the target directory for corrected pitchmarks */
-        dir = new File( db.correctedPitchmarksDirName() );
+        dir = new File(getProp(CORRPMDIR));
         if (!dir.exists()) { 
-            System.out.println( "Creating the directory [" + db.correctedPitchmarksDirName() + "]." );
+            System.out.println( "Creating the directory [" + getProp(CORRPMDIR) + "]." );
             dir.mkdir();
         }
 

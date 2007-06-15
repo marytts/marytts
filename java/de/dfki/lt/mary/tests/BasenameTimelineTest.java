@@ -37,6 +37,9 @@ import de.dfki.lt.mary.unitselection.Unit;
 import de.dfki.lt.mary.unitselection.UnitFileReader;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.voiceimport.DatabaseLayout;
+import de.dfki.lt.mary.unitselection.voiceimport.HalfPhoneFeatureFileWriter;
+import de.dfki.lt.mary.unitselection.voiceimport.BasenameTimelineMaker;
+import de.dfki.lt.mary.unitselection.voiceimport.VoiceImportComponent;
 
 public class BasenameTimelineTest {
 
@@ -45,11 +48,16 @@ public class BasenameTimelineTest {
      */
     public static void main(String[] args) throws IOException {
         
-        DatabaseLayout dbl = new DatabaseLayout();
-        UnitFileReader ufr = new UnitFileReader( dbl.halfphoneUnitFileName() );
-        TimelineReader tlr = new TimelineReader( dbl.basenameTimelineFileName() );
+        BasenameTimelineMaker btlm = new BasenameTimelineMaker();
+        HalfPhoneFeatureFileWriter ffw = new HalfPhoneFeatureFileWriter();
+        VoiceImportComponent[] comps = new VoiceImportComponent[2];
+        comps[0] = btlm;
+        comps[1] = ffw;
+        DatabaseLayout dbl = new DatabaseLayout(comps);
+        UnitFileReader ufr = new UnitFileReader(ffw.getProp(ffw.UNITFILE));
+        TimelineReader tlr = new TimelineReader(btlm.getProp(btlm.TIMELINEFILE));
         //TimelineReader tlr = new TimelineReader( dbl.lpcTimelineFileName() );
-        FeatureFileReader ffr = new FeatureFileReader( dbl.halfphoneFeaturesFileName() );
+        FeatureFileReader ffr = new FeatureFileReader(ffw.getProp(ffw.FEATUREFILE));
         FeatureDefinition feaDef = ffr.getFeatureDefinition();
         
         System.out.println( "Sample rates:\nunit file -> [" + ufr.getSampleRate()
