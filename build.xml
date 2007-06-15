@@ -91,7 +91,7 @@ THIS SOFTWARE.
     <property name="javadocdir" value="doc/javadoc"/>
     <mkdir dir="${javadocdir}"/>
     <javadoc packagenames="de.dfki.lt.mary.*,de.dfki.lt.signalproc.*"
-             classpath="java/tritonus_share.jar;java/freetts-en_us.jar;java/log4j-1.2.8.jar;java/freetts-mbrola.jar;java/tritonus_mp3.jar;java/junit.jar;java/freetts-cmu_us_kal.jar;java/freetts-de.jar;java/jtok.jar;build/standalone-compiler.jar;java/tritonus_src.jar;java/jl1.0.jar;java/jsresources.jar;java/java-diff.jar;java/tritonus_remaining.jar;java/freetts-cmudict04.jar;java/freetts-germanlex.jar;java/freetts.jar"
+             classpath="java/tritonus_share.jar;java/freetts-en_us.jar;java/log4j-1.2.8.jar;java/freetts-mbrola.jar;java/tritonus_mp3.jar;java/junit.jar;java/freetts-cmu_us_kal.jar;java/freetts-de.jar;java/jtok.jar;build/standalone-compiler.jar;java/tritonus_src.jar;java/jl1.0.jar;java/jsresources.jar;java/java-diff.jar;java/tritonus_remaining.jar;java/freetts-cmudict04.jar;java/freetts-germanlex.jar;java/freetts.jar;java/JavaOpenAIR.jar;java/Jama-1.0.2.jar;java/jl1.0.jar"
              sourcepath="${src}"
              destdir="${javadocdir}"
              author="true"

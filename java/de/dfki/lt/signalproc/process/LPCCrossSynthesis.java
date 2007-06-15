@@ -70,7 +70,7 @@ public class LPCCrossSynthesis extends LPCAnalysisResynthesis
         double gain = coeffs.getGain();
         double[] frame = newResidualAudioFrames.getNextFrame();
         assert frame.length == residual.length;
-        int excP = p;
+        int excP = 3;
         LPCoeffs newCoeffs = LPCAnalyser.calcLPC(frame, excP);
         double newResidualGain = newCoeffs.getGain();
         //double[] newResidual = ArrayUtils.subarray(new FIRFilter(oneMinusA).apply(frame),0,frame.length);
