@@ -110,8 +110,9 @@ public class LicensePanelAutomationHelper implements PanelAutomation, ActionList
      * 
      * @param idata The installation data.
      * @param panelRoot The XML tree to read the data from.
+     * @return true if successful, false if failed
      */
-    public void runAutomated(AutomatedInstallData idata, XMLElement panelRoot)
+    public boolean runAutomated(AutomatedInstallData idata, XMLElement panelRoot)
     {
         // We load the licence and the list of packs covered by this license
         loadLicense(idata);
@@ -128,7 +129,7 @@ public class LicensePanelAutomationHelper implements PanelAutomation, ActionList
         String infoText;
         if (selectedPacksConcerned.isEmpty()) {
             // If none of the selected packs is concerned by this license, skip this panel:
-            return;
+            return true;
         } else if (selectedPacksConcerned.size() == 1) {
             infoText = "The pack '"+ ((String)selectedPacksConcerned.get(0)) + "' is covered by the following license. Please read it carefully:";
         } else { // several
@@ -215,6 +216,7 @@ public class LicensePanelAutomationHelper implements PanelAutomation, ActionList
             }
         }
         frame.setVisible(false);
+        return true;
     }
 
     /** Loads the license text. */

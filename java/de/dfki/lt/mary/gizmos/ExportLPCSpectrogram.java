@@ -47,7 +47,7 @@ public class ExportLPCSpectrogram {
      * @return An array of spectrum magnitude values, in the log domain, one value
      * for each normalized frequency.
      */
-    private static double[] lpcToLogMagSpectrum( double[] a, double[] omega ) {
+    private static double[] lpcToLogMagSpectrum(double[] a, double[] omega) {
         
         double[] spec = new double[omega.length];
         
