@@ -33,7 +33,7 @@ package de.dfki.lt.mary.unitselection.voiceimport;
 
 import java.io.*;
 
-import de.dfki.lt.mary.unitselection.voiceimport.SphinxTrainer.StreamGobbler;
+
 
 /**
  * Class to call Wagon

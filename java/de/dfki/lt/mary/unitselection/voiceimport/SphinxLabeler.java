@@ -39,18 +39,36 @@ import de.dfki.lt.mary.unitselection.voiceimport.SphinxTrainer.StreamGobbler;
  * Preparate the directory of the voice for sphinx labelling
  * @author Anna Hunecke
  */
-public class SphinxLabeler implements VoiceImportComponent {
+public class SphinxLabeler extends VoiceImportComponent {
     
-    private DatabaseLayout dbLayout;
+    private DatabaseLayout db;
     
-    /**
-     * Create new LabelingPreparator
-     * 
-     * @param dbLayout the database layout
-     * @param baseNames the list of file base names
-     */
-    public SphinxLabeler(DatabaseLayout dbLayout){
-        this.dbLayout = dbLayout;
+    public final String SPHINX2DIR = "sphinxLabeler.sphinx2Dir";
+    public final String STDIR = "sphinxLabeler.stDir";
+    
+     public final String getName(){
+        return "sphinxLabeler";
+    }
+    
+   public SortedMap getDefaultProps(DatabaseLayout db){
+       this.db = db;
+       if (props == null){
+           props = new TreeMap();
+           String sphinx2dir = System.getProperty("SPHINX2DIR");
+           if ( sphinx2dir == null ) {
+               sphinx2dir = "/project/mary/anna/sphinx/sphinx2/";
+           }
+           props.put(SPHINX2DIR,sphinx2dir);
+           props.put(STDIR,db.getProp(db.ROOTDIR)
+           				+System.getProperty("file.separator")
+           				+"st");
+       }
+       return props;
+   }
+    
+    public void initialise( BasenameList setbnl, SortedMap newProps )
+    {
+        this.props = newProps;
     }
     
     /**
@@ -60,42 +78,35 @@ public class SphinxLabeler implements VoiceImportComponent {
      */
     public boolean compute() throws Exception{
         
-        System.out.println("Preparing voice database for labelling");
-        /* get the directories of sphinxtrain and edinburgh speech tools */
-        String sphinx2dir = System.getProperty("SPHINX2DIR");
-        if ( sphinx2dir == null ) {
-            System.out.println( "Warning: The environment variable SPHINX2DIR was not found on your system." );
-            System.out.println( "         Defaulting SPHINX2DIR to [ /project/mary/anna/sphinx/sphinx2/ ]." );
-            sphinx2dir = "/project/mary/anna/sphinx/sphinx2/";
-        }
+        System.out.println("Labelling the voice data");
         
         //get voicename and root dir name
         //get the root dir and the voicename
-        File rootDirFile = new File(dbLayout.rootDirName());
-        String rootDirName = rootDirFile.getCanonicalPath();
-        String voicename = rootDirName.substring(rootDirName.lastIndexOf("/")+1);
+        String rootDirName = db.getProp(db.ROOTDIR);
+        String voicename = db.getProp(db.VOICENAME);
         
         
         /* Sphinx2 variables */
         System.out.println("Calling Sphinx2 ...");
+        String stdir = getProp(STDIR);
         //model directory
-        String hmm = "st/model_parameters/"+voicename+".s2models/";
+        String hmm = stdir+"/model_parameters/"+voicename+".s2models/";
         
         // the 'task' 
-        String task= "st/wav";
+        String task= stdir+"/wav";
         
         //dictionary and silence-symbol files
-        String dictfile = "st/etc/"+voicename+".dic";
-        String ndictfile = "st/etc/"+voicename+".sil";
+        String dictfile = stdir+"/etc/"+voicename+".dic";
+        String ndictfile = stdir+"/etc/"+voicename+".sil";
 
         //list of filenames
-        String ctlfile = "st/etc/"+voicename+".fileids";
+        String ctlfile = stdir+"/etc/"+voicename+".fileids";
 
         //the transcription file
-        String tactlfn = "st/etc/"+voicename+".align";
+        String tactlfn = stdir+"/etc/"+voicename+".align";
         
         //make lab-directory if it does not exist
-        File stLabDir = new File(rootDirName+"/st/lab");
+        File stLabDir = new File(stdir+"/lab");
         if (!stLabDir.exists()){
             stLabDir.mkdir();
         }
@@ -113,7 +124,7 @@ public class SphinxLabeler implements VoiceImportComponent {
         pw.flush();
         //call Sphinx2 and exit
         
-        pw.print("( "+sphinx2dir+"build/bin/sphinx2-batch -adcin TRUE -adcext wav "
+        pw.print("( "+getProp(SPHINX2DIR)+"build/bin/sphinx2-batch -adcin TRUE -adcext wav "
                 +"-ctlfn "+ctlfile+" -tactlfn "+tactlfn+" -ctloffset 0"
                 +"-ctlcount 100000000 -datadir wav -agcmax FALSE "
                 +"-langwt 6.5 -fwdflatlw 8.5 -rescorelw 9.5 -ugwt 0.5"
@@ -152,11 +163,8 @@ public class SphinxLabeler implements VoiceImportComponent {
         System.out.println("Exporting Labels ...");
         
         //lab destination directory
-        String labDestDir = dbLayout.labDirName();
-        File labDestDirFile = new File(labDestDir);
-        if (!labDestDirFile.exists())
-            labDestDirFile.mkdir();
-        String labExtension = dbLayout.labExt();
+        String labDestDir = db.getProp(db.LABDIR);
+        String labExtension = db.getProp(db.LABEXT);
         //used to prune the times to 5 positions behind .	
         DecimalFormat df = new DecimalFormat( "0.00000" );
         String line;

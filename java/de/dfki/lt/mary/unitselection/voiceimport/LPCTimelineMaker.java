@@ -33,7 +33,7 @@ package de.dfki.lt.mary.unitselection.voiceimport;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.Properties;
+import java.util.*;
 
 import de.dfki.lt.mary.unitselection.LPCDatagram;
 
@@ -43,17 +43,41 @@ import de.dfki.lt.mary.unitselection.LPCDatagram;
  * 
  * @author sacha
  */
-public class LPCTimelineMaker implements VoiceImportComponent
+public class LPCTimelineMaker extends VoiceImportComponent
 { 
 
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
     protected int percent = 0;
     
-    public LPCTimelineMaker( DatabaseLayout setdb, BasenameList setbnl ) {
-        this.db = setdb;
-        this.bnl = setbnl;
+    public final String LPCDIR = "lpcTimelineMaker.lpcDir";
+    public final String LPCEXT = "lpcTimelineMaker.lpcExt";
+    public final String LPCTIMELINE = "lpcTimelineMaker.lpcTimeline";
+    
+    public String getName(){
+        return "lpcTimelineMaker";
     }
+    
+    public void initialise( BasenameList setbnl, SortedMap newProps )
+    {
+         this.bnl = setbnl;
+        this.props = newProps;
+    }
+    
+    public SortedMap getDefaultProps(DatabaseLayout db){
+        this.db = db;
+        if (props == null){
+            props = new TreeMap();
+            props.put(LPCDIR, db.getProp(db.ROOTDIR)
+                    +"lpc"
+                    +System.getProperty("file.separator"));
+            props.put(LPCEXT, ".lpc");
+            props.put(LPCTIMELINE, db.getProp(db.FILEDIR)
+                    +"timeline_lpc"+db.getProp(db.MARYEXT));  
+        }
+        return props;
+    }
+    
     
     /**
      *  Reads and concatenates a list of LPC EST tracks into one single timeline file.
@@ -62,23 +86,20 @@ public class LPCTimelineMaker implements VoiceImportComponent
     public boolean compute()
     {
         System.out.println("---- Importing LPC coefficients\n\n");
-        System.out.println("Base directory: " + db.rootDirName() + "\n");
         
         /* Export the basename list into an array of strings */
         String[] baseNameArray = bnl.getListAsArray();
         System.out.println("Processing [" + baseNameArray.length + "] utterances.\n");
         
         /* Prepare the output directory for the timelines if it does not exist */
-        File timelineDir = new File( db.timelineDirName() );
-        if ( !timelineDir.exists() ) {
-            timelineDir.mkdir();
-            System.out.println("Created output directory [" + db.timelineDirName() + "] to store the timelines." );
-        }
+        File timelineDir = new File(db.getProp(db.FILEDIR));
+        
         
         try{
             /* 1) Determine the reference sampling rate as being the sample rate of the first encountered
              *    wav file */
-            WavReader wav = new WavReader( db.wavDirName() + baseNameArray[0] + db.wavExt() );
+            WavReader wav = new WavReader(db.getProp(db.WAVDIR) 
+                    + baseNameArray[0] + db.getProp(db.WAVEXT));
             int globSampleRate = wav.getSampleRate();
             System.out.println("---- Detected a global sample rate of: [" + globSampleRate + "] Hz." );
             
@@ -96,7 +117,8 @@ public class LPCTimelineMaker implements VoiceImportComponent
             /* Initialize with the first file: */
             /* - open and load */
             // System.out.println( baseNameArray[0] );
-            lpcFile = new ESTTrackReader( db.lpcDirName() + baseNameArray[0] + db.lpcExt() );
+            lpcFile = new ESTTrackReader(getProp(LPCDIR) 
+                    + baseNameArray[0] + getProp(LPCEXT));
             /* - get the min and the max */
             current = lpcFile.getMinMaxNo1st();
             lpcMin = current[0];
@@ -114,7 +136,8 @@ public class LPCTimelineMaker implements VoiceImportComponent
                 percent = 100*i/baseNameArray.length;
                 /* - open+load */
                 // System.out.println( baseNameArray[i] );
-                lpcFile = new ESTTrackReader( db.lpcDirName() + baseNameArray[i] + db.lpcExt() );
+                lpcFile = new ESTTrackReader(getProp(LPCDIR)
+                        + baseNameArray[i] + getProp(LPCEXT));
                 /* - get min and max */
                 current = lpcFile.getMinMaxNo1st();
                 if ( current[0] < lpcMin ) { lpcMin = current[0]; }
@@ -140,7 +163,7 @@ public class LPCTimelineMaker implements VoiceImportComponent
             /* 3) Open the destination timeline file */
             
             /* Make the file name */
-            String lpcTimelineName = db.lpcTimelineFileName() ;
+            String lpcTimelineName = getProp(LPCTIMELINE);
             System.out.println( "Will create the LPC timeline in file [" + lpcTimelineName + "]." );
             
             /* Processing header: */
@@ -168,8 +191,10 @@ public class LPCTimelineMaker implements VoiceImportComponent
             for ( int i = 0; i < baseNameArray.length; i++ ) {
                 /* - open+load */
                 System.out.println( baseNameArray[i] );
-                lpcFile = new ESTTrackReader( db.lpcDirName() + "/" + baseNameArray[i] + db.lpcExt() );
-                wav = new WavReader( db.wavDirName() + baseNameArray[i] + db.wavExt() );
+                lpcFile = new ESTTrackReader(getProp(LPCDIR) 
+                        + baseNameArray[i] + getProp(LPCEXT));
+                wav = new WavReader(db.getProp(db.WAVDIR) 
+                        + baseNameArray[i] + db.getProp(db.WAVEXT));
                 short[] wave = wav.getSamples();
                 /* - Reset the frame locations in the local file */
                 int frameStart = 0;

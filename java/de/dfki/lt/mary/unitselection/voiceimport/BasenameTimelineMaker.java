@@ -32,6 +32,7 @@
 package de.dfki.lt.mary.unitselection.voiceimport;
 
 import java.io.File;
+import java.util.*;
 
 import de.dfki.lt.mary.unitselection.Datagram;
 
@@ -41,17 +42,41 @@ import de.dfki.lt.mary.unitselection.Datagram;
  * 
  * @author sacha
  */
-public class BasenameTimelineMaker implements VoiceImportComponent
+public class BasenameTimelineMaker extends VoiceImportComponent
 { 
 
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
     protected int percent = 0;
     
-    public BasenameTimelineMaker( DatabaseLayout setdb, BasenameList setbnl ) {
-        this.db = setdb;
-        this.bnl = setbnl;
+    public final String TIMELINEFILE = "basenameTimelineMaker.timelineFile";
+    public final String PMDIR = "basenameTimelineMaker.pmDir";
+    public final String PMEXT = "basenameTimelineMaker.pmExtentsion";
+    
+    public String getName(){
+        return "basenameTimelineMaker";
     }
+    
+     public void initialise( BasenameList setbnl, SortedMap newProps )
+    {        
+        this.bnl = setbnl;
+        this.props = newProps;
+    }
+     
+    public SortedMap getDefaultProps( DatabaseLayout db){
+        this.db = db;
+       if (props == null){
+           props = new TreeMap();
+           props.put(TIMELINEFILE,db.getProp(db.FILEDIR)
+                        +"timeline_basenames"
+                        +db.getProp(db.MARYEXT));
+           props.put(PMDIR,db.getProp(db.ROOTDIR)
+                        +"pm"
+                        +System.getProperty("file.separator"));
+           props.put(PMEXT,".pm");
+       }
+       return props;
+   }
     
     /**
      *  Reads and concatenates a list of LPC EST tracks into one single timeline file.
@@ -60,23 +85,27 @@ public class BasenameTimelineMaker implements VoiceImportComponent
     public boolean compute()
     {
         System.out.println("---- Making a timeline for the base names\n\n");
-        System.out.println("Base directory: " + db.rootDirName() + "\n");
+        System.out.println("Base directory: " + db.getProp(db.ROOTDIR) + "\n");
         
         /* Export the basename list into an array of strings */
         String[] baseNameArray = bnl.getListAsArray();
         System.out.println("Processing [" + baseNameArray.length + "] utterances.\n");
         
         /* Prepare the output directory for the timelines if it does not exist */
-        File timelineDir = new File( db.timelineDirName() );
+        File timelineDir = new File(db.getProp(db.FILEDIR));
         if ( !timelineDir.exists() ) {
             timelineDir.mkdir();
-            System.out.println("Created output directory [" + db.timelineDirName() + "] to store the timelines." );
+            System.out.println("Created output directory [" 
+                    + db.getProp(db.FILEDIR) 
+                    + "] to store the timelines." );
         }
         
         try{
             /* 1) Determine the reference sampling rate as being the sample rate of the first encountered
              *    wav file */
-            WavReader wav = new WavReader( db.wavDirName() + baseNameArray[0] + db.wavExt() );
+            WavReader wav = new WavReader(db.getProp(db.WAVDIR) 
+                    			+ baseNameArray[0] 
+                    			+ db.getProp(db.WAVEXT));
             int globSampleRate = wav.getSampleRate();
             System.out.println("---- Detected a global sample rate of: [" + globSampleRate + "] Hz." );
             
@@ -85,7 +114,7 @@ public class BasenameTimelineMaker implements VoiceImportComponent
             /* 2) Open the destination timeline file */
             
             /* Make the file name */
-            String bnTimelineName = db.basenameTimelineFileName() ;
+            String bnTimelineName = getProp(TIMELINEFILE);
             System.out.println( "Will create the basename timeline in file [" + bnTimelineName + "]." );
             
             /* Processing header: */
@@ -106,8 +135,8 @@ public class BasenameTimelineMaker implements VoiceImportComponent
             for ( int i = 0; i < baseNameArray.length; i++ ) {
                 percent = 100*i/baseNameArray.length;                
                 /* - open+load */
-                pmFile = new ESTTrackReader( db.pitchmarksDirName() + "/" + baseNameArray[i] + db.pitchmarksExt() );
-                wav = new WavReader( db.wavDirName() + baseNameArray[i] + db.wavExt() );
+                pmFile = new ESTTrackReader( getProp(PMDIR) + baseNameArray[i] + getProp(PMEXT) );
+                wav = new WavReader( db.getProp(db.WAVDIR) + baseNameArray[i] + db.getProp(db.WAVEXT) );
                 totalDuration += pmFile.getTimeSpan();
                 duration = (int)( (double)pmFile.getTimeSpan() * (double)(globSampleRate) );
                 // System.out.println( baseNameArray[i] + " -> [" + duration + "] samples." );

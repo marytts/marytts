@@ -1030,6 +1030,68 @@ public class FeatureDefinition
         out.println(")");
     }
     
+    /**
+     * Print this feature definition plus weights to a .txt file
+     * @param out the destination of the data
+     */
+    public void generateFeatureWeightsFile(PrintWriter out)
+    {
+        out.println("# This file lists the features and their weights to be used for\n"
+                +"# creating the MARY features file.\n"
+                +"# The same file can also be used to override weights in a run-time system.\n"
+                +"# Three sections are distinguished: Byte-valued, Short-valued, and\n"
+                +"# Continuous features.\n"
+                +"#\n"
+                +"# Lines starting with '#' are ignored; they can be used for comments\n"
+                +"# anywhere in the file. Empty lines are also ignored.\n"
+                +"# Entries must have the following form:\n"
+                +"# \n"
+                +"# <weight definition> | <feature definition>\n"
+                +"# \n"
+                +"# For byte and short features, <weight definition> is simply the \n"
+                +"# (float) number representing the weight.\n"
+                +"# For continuous features, <weight definition> is the\n"
+                +"# (float) number representing the weight, followed by an optional\n"
+                +"# weighting function including arguments.\n"
+                +"#\n"
+                +"# The <feature definition> is the feature name, which in the case of\n"
+                +"# byte and short features is followed by the full list of feature values.\n"
+                +"#\n"
+                +"# Note that the feature definitions must be identical between this file\n"
+                +"# and all unit feature files for individual database utterances.\n"
+                +"# THIS FILE WAS GENERATED AUTOMATICALLY");
+        out.println();
+        out.println("ByteValuedFeatureProcessors");
+        for (int i=0; i<numByteFeatures; i++) { 
+            String featureName = getFeatureName(i);
+            out.print("0 | "+featureName);
+            for (int v=0, vmax=getNumberOfValues(i); v<vmax; v++) {
+                String val = getFeatureValueAsString(i, v);
+                out.print(" "+val);
+            }            
+            out.print("\n");
+        }
+        out.println("ShortValuedFeatureProcessors");
+        for (int i=numByteFeatures; i<numShortFeatures; i++) { 
+            String featureName = getFeatureName(i);
+            out.print("0 | "+featureName);
+            for (int v=0, vmax=getNumberOfValues(i); v<vmax; v++) {
+                String val = getFeatureValueAsString(i, v);
+                out.print(" "+val);
+            }            
+            out.print("\n");
+        }
+        out.println("ContinuousFeatureProcessors");
+        for (int i=numByteFeatures; i<numByteFeatures+numContinuousFeatures; i++) { 
+            String featureName = getFeatureName(i);
+            out.println("0 linear | "+featureName);   
+        }
+        out.flush();
+        out.close();
+    }
+    
+    
+    
     
     /**
      * Compares two feature vectors in terms of how many discrete features they have in common.

@@ -29,6 +29,7 @@
 package de.dfki.lt.mary.unitselection.voiceimport;
 
 import java.io.*;
+import java.util.*;
 
 /**
  * Class to train sphinx labeler
@@ -36,18 +37,32 @@ import java.io.*;
  * @author Anna Hunecke
  *
  */
-public class SphinxTrainer implements VoiceImportComponent {
+public class SphinxTrainer extends VoiceImportComponent {
     
-    private DatabaseLayout dbLayout;
+    private DatabaseLayout db;
     
-    /**
-     * Get a new Sphinx trainer
-     * 
-     * @param dbLayout the database layout
-     */
-    public SphinxTrainer(DatabaseLayout dbLayout){
-        this.dbLayout = dbLayout;
+    public final String STDIR = "sphinxTrainer.stDir";
+    
+     public final String getName(){
+        return "sphinxTrainer";
     }
+    
+   public SortedMap getDefaultProps(DatabaseLayout db){
+       this.db = db;
+       if (props == null){
+           props = new TreeMap();
+           props.put(STDIR,db.getProp(db.ROOTDIR)
+           				+"st"
+           				+System.getProperty("file.separator"));
+       }
+       return props;
+   }
+    
+    public void initialise( BasenameList setbnl, SortedMap newProps )
+    {
+        this.props = newProps;
+    }
+    
     
     /**
      * Do the computations required by this component.
@@ -56,9 +71,9 @@ public class SphinxTrainer implements VoiceImportComponent {
      */
     public boolean compute() throws Exception{
         System.out.println("Training HMMs for Sphinx labeling ...");
+       
         //Run the sphinxtrain scripts
         Runtime rtime = Runtime.getRuntime();
-        String rootDirName = new File(dbLayout.rootDirName()).getCanonicalPath();
         
         //get a shell
         Process process = rtime.exec("/bin/bash");
@@ -66,7 +81,7 @@ public class SphinxTrainer implements VoiceImportComponent {
         PrintWriter pw = new PrintWriter(
                 new OutputStreamWriter(process.getOutputStream()));
         //go to directory where the scripts are
-        pw.print("cd "+rootDirName+"/st\n");
+        pw.print("cd "+getProp(STDIR)+"\n");
         pw.flush();
         //call the scripts and exit
         pw.print("(scripts_pl/00.verify/verify_all.pl "

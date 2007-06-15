@@ -28,25 +28,72 @@
  */
 package de.dfki.lt.mary.unitselection.voiceimport;
 
+import java.util.*;
+
 /**
  * A component in the process of importing a voice into MARY format.
- * @author Marc Schr&ouml;der
+ * @author Marc Schr&ouml;der, Anna Hunecke
  *
  */
-public interface VoiceImportComponent
+public abstract class VoiceImportComponent
 {
+    
+    protected SortedMap props = null;
+    
+    /**
+     * Initialise the component;
+     * update values of local properties
+     * 
+     * @param db the database layout
+     * @param bnl the list of basenames
+     * @param props the map from properties to values
+     */
+    public abstract void initialise(BasenameList bnl, SortedMap props);
+    
+    /**
+     * Get the map of properties2values
+     * containing the default values
+     * @return map of props2values
+     */
+    public abstract SortedMap getDefaultProps(DatabaseLayout db);
+    
+    /**
+     * Get the value for a property
+     * @param prop the property name
+     * @return the value
+     */
+    public String getProp(String prop){
+        return (String) props.get(prop);
+    }
+    
+    /**
+     * Set a property to a value
+     * @param prop the property
+     * @param value the value
+     */
+    public void setProp(String prop, String value){
+        props.put(prop,value);
+    }
+    
+    /**
+     * Get the name of this component
+     * @return the name
+     */
+    public abstract String getName();
+    
     /**
      * Do the computations required by this component.
      * 
      * @return true on success, false on failure
      */
-    public boolean compute() throws Exception;
+    public abstract boolean compute() throws Exception;
     
     /**
      * Provide the progress of computation, in percent, or -1 if
      * that feature is not implemented.
      * @return -1 if not implemented, or an integer between 0 and 100.
      */
-    public int getProgress();
+    public abstract int getProgress();
+    
     
 }

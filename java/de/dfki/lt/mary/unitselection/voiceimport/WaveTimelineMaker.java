@@ -33,7 +33,7 @@ package de.dfki.lt.mary.unitselection.voiceimport;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.io.File;
+import java.util.*;
 
 import de.dfki.lt.mary.unitselection.Datagram;
 
@@ -43,17 +43,42 @@ import de.dfki.lt.mary.unitselection.Datagram;
  * 
  * @author sacha
  */
-public class WaveTimelineMaker implements VoiceImportComponent
+public class WaveTimelineMaker extends VoiceImportComponent
 { 
 
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
     protected int percent = 0;
+    public final String CORRPMDIR = "waveTimelineMaker.corrPmDir";
+    public final String CORRPMEXT = "waveTimelineMaker.corrPmExt";
+    public final String WAVETIMELINE = "waveTimelineMaker.waveTimeline";
     
-    public WaveTimelineMaker( DatabaseLayout setdb, BasenameList setbnl ) {
-        this.db = setdb;
-        this.bnl = setbnl;
+     public final String getName(){
+        return "waveTimelineMaker";
     }
+    
+    
+    public SortedMap getDefaultProps(DatabaseLayout db){
+       this.db = db;
+       if (props == null){
+           props = new TreeMap();
+           props.put(CORRPMDIR, db.getProp(db.ROOTDIR)
+           				+"pm"
+           				+System.getProperty("file.separator"));
+           props.put(CORRPMEXT, ".pm.corrected");
+           props.put(WAVETIMELINE, db.getProp(db.FILEDIR)
+                        +"timeline_waveforms"+db.getProp(db.MARYEXT));
+       }
+       return props;
+   }
+    
+    public void initialise( BasenameList setbnl, SortedMap newProps )
+    {
+       this.bnl = setbnl;
+        this.props = newProps;
+    }
+    
+    
     
     /**
      *  Reads and concatenates a list of waveforms into one single timeline file.
@@ -62,23 +87,18 @@ public class WaveTimelineMaker implements VoiceImportComponent
     public boolean compute()
     {
         System.out.println("---- Making a pitch synchronous waveform timeline\n\n");
-        System.out.println("Base directory: " + db.rootDirName() + "\n");
         
         /* Export the basename list into an array of strings */
         String[] baseNameArray = bnl.getListAsArray();
         System.out.println("Processing [" + baseNameArray.length + "] utterances.\n");
         
-        /* Prepare the output directory for the timelines if it does not exist */
-        File timelineDir = new File( db.timelineDirName() );
-        if ( !timelineDir.exists() ) {
-            timelineDir.mkdir();
-            System.out.println("Created output directory [" + db.timelineDirName() + "] to store the timelines." );
-        }
+       
         
         try{
             /* 1) Determine the reference sampling rate as being the sample rate of the first encountered
              *    wav file */
-            WavReader wav = new WavReader( db.wavDirName() + baseNameArray[0] + db.wavExt() );
+            WavReader wav = new WavReader( db.getProp(db.WAVDIR) 
+                    + baseNameArray[0] + db.getProp(db.WAVEXT));
             int globSampleRate = wav.getSampleRate();
             System.out.println("---- Detected a global sample rate of: [" + globSampleRate + "] Hz." );
             
@@ -87,7 +107,7 @@ public class WaveTimelineMaker implements VoiceImportComponent
             /* 2) Open the destination timeline file */
             
             /* Make the file name */
-            String waveTimelineName = db.waveTimelineFileName() ;
+            String waveTimelineName = getProp(WAVETIMELINE);
             System.out.println( "Will create the waveform timeline in file [" + waveTimelineName + "]." );
             
             /* Processing header: */
@@ -109,9 +129,10 @@ public class WaveTimelineMaker implements VoiceImportComponent
 
                 /* - open+load */
                 System.out.println( baseNameArray[i] );
-                pmFile = new ESTTrackReader( db.correctedPitchmarksDirName() + "/" + baseNameArray[i] + db.correctedPitchmarksExt() );
+                pmFile = new ESTTrackReader( getProp(CORRPMDIR)
+                        		+ baseNameArray[i] + getProp(CORRPMEXT));
                 totalDuration += pmFile.getTimeSpan();
-                wav = new WavReader( db.wavDirName() + baseNameArray[i] + db.wavExt() );
+                wav = new WavReader( db.getProp(db.WAVDIR) + baseNameArray[i] + db.getProp(db.WAVEXT) );
                 short[] wave = wav.getSamples();
                 /* - Reset the frame locations in the local file */
                 int frameStart = 0;

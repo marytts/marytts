@@ -30,39 +30,70 @@
 package de.dfki.lt.mary.unitselection.voiceimport;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.*;
 
 /**
  * @author marc
  *
  */
-public class HalfPhoneUnitfileWriter extends UnitfileWriter
+public class HalfPhoneUnitfileWriter extends PhoneUnitfileWriter
 {
 
-    /**
-     * @param setdb
-     * @param setbnl
-     */
-    public HalfPhoneUnitfileWriter(DatabaseLayout setdb, BasenameList setbnl) {
-        super(setdb, setbnl);
+   
+    public String getName(){
+        return "halfPhoneUnitfileWriter";
     }
-
-    /**
-     * Set some global variables that subclasses may want to override.
-     *
-     */
-    protected void init()
+    
+    public HalfPhoneUnitfileWriter(){
+        LABELDIR = "halfPhoneUnitfileWriter.labelDir";
+        LABELEXT = "halfPhoneUnitfileWriter.labelExt";
+        UNITFILE = "halfPhoneUnitfileWriter.unitFile";
+        CORRPMDIR = "halfPhoneUnitfileWriter.corrPmDir";
+        CORRPMEXT = "halfPhoneUnitfileWriter.corrPmExt";
+    }
+    
+    public void initialise( BasenameList setbnl, SortedMap newProps )
     {
-        unitFileName = db.halfphoneUnitFileName();
-
-        unitlabelDir = new File( db.halfphoneUnitLabDirName() );
-        if (!unitlabelDir.exists()) throw new IllegalStateException("Unit label directory "+unitlabelDir.getAbsolutePath()+" does not exist");
-        unitlabelExt = db.halfphoneUnitLabExt();
-        try {
-            aligner = new HalfPhoneLabelFeatureAligner( db, bnl );
-        } catch (IOException ioe){
-            throw new IllegalStateException("Could not create LabelFeatureAligner");
-        }
+         this.bnl = setbnl;
+        this.props = newProps;
+        maryDir = new File(db.getProp(db.FILEDIR));
+        
+        samplingRate = Integer.parseInt(db.getProp(db.SAMPLINGRATE));
+        pauseSymbol = System.getProperty("pause.symbol", "pau");
+    
+        unitFileName = getProp(UNITFILE);
+        unitlabelDir = new File(getProp(LABELDIR));
+        if (!unitlabelDir.exists()){
+            System.out.print(LABELDIR+" "+getProp(LABELDIR)
+                    +" does not exist; ");
+            if (!unitlabelDir.mkdir()){
+                throw new Error("Could not create LABELDIR");
+            }
+            System.out.print("Created successfully.\n");
+        } 
+        unitlabelExt = getProp(LABELEXT);
+        aligner = new HalfPhoneLabelFeatureAligner();
+        db.initialiseComponent(aligner);        
     }
+    
+    public SortedMap getDefaultProps(DatabaseLayout db){
+        this.db = db;
+        if (props == null){
+            props = new TreeMap();
+            String rootDir = db.getProp(db.ROOTDIR);
+            props.put(LABELDIR, rootDir
+                    +"halfphonelab"
+                    +System.getProperty("file.separator"));
+            props.put(LABELEXT,".hplab");
+            props.put(UNITFILE, db.getProp(db.FILEDIR)
+                    +"halfphoneUnits"+db.getProp(db.MARYEXT));           
+            props.put(CORRPMDIR, rootDir
+                    +"pm"                   
+                    +System.getProperty("file.separator"));
+            props.put(CORRPMEXT, ".pm.corrected");
+        }
+        return props;
+    }
+    
 
 }

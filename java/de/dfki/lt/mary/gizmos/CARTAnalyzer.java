@@ -102,7 +102,6 @@ public class CARTAnalyzer {
     private LeafNode.IntAndFloatArrayLeafNode currLeaf;
 
     // voice properties
-    private DatabaseLayout dbl;
 
     private TimelineReader tlr;
 
@@ -120,24 +119,19 @@ public class CARTAnalyzer {
     
     private int percent = 0;
 
-    /**
-     * constructor method, load voice properties and, most importantly, call the
-     * CART load method loadTreeFromFile
-     * 
-     * @throws IOException
-     *             (file not found etc.)
-     * 
-     */
-    public CARTAnalyzer() throws IOException {
-        this.dbl = new DatabaseLayout();
-        this.ufr = new UnitFileReader(dbl.halfphoneUnitFileName());
-        this.tlr = new TimelineReader(dbl.waveTimelineFileName());
-        this.ffi = new FeatureFileIndexer(dbl.halfphoneFeaturesFileName());
+    
+    
+    public CARTAnalyzer(String unitReaderFile,
+            			String timelineReaderFile,
+            			String featureFileIndexerFile,
+            			String cartFile) throws IOException {
+        this.ufr = new UnitFileReader(unitReaderFile);
+        this.tlr = new TimelineReader(timelineReaderFile);
+        this.ffi = new FeatureFileIndexer(featureFileIndexerFile);
         this.feaDef = ffi.getFeatureDefinition();
         this.ww = new WavWriter();
         // load cart
-        String cartfile = dbl.cartFileName();
-        ctree = loadTreeFromFile(cartfile, feaDef);
+        ctree = loadTreeFromFile(cartFile, feaDef);
     }
 
     /**
@@ -149,7 +143,7 @@ public class CARTAnalyzer {
      * 
      * @throws Exception
      * 
-     */
+     
     public static void main(String[] args) throws Exception {
         outln("CART Analyzer initialising...");
         long time1 = System.currentTimeMillis();
@@ -161,7 +155,7 @@ public class CARTAnalyzer {
         outln("");
         // run the main method (command line)
         ca.run();
-    }
+    }**/
 
     /**
      * input method for command line of the program, can also be used for any

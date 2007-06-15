@@ -7,15 +7,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.util.Locale;
+import java.util.*;
 import java.io.FileWriter;
-import java.util.StringTokenizer;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -23,10 +19,8 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -36,9 +30,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import de.dfki.lt.mary.client.MaryClient;
 import de.dfki.lt.mary.util.FileUtils;
-import de.dfki.lt.mary.util.MaryUtils;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
 import de.dfki.lt.signalproc.util.DDSAudioInputStream;
@@ -51,7 +43,7 @@ import de.dfki.lt.util.PrintfFormat;
  * @author schroed
  *
  */
-public class LabelledFilesInspector implements VoiceImportComponent
+public class LabelledFilesInspector extends VoiceImportComponent
 {
     protected File wavDir;
     protected File phoneLabDir;
@@ -75,28 +67,64 @@ public class LabelledFilesInspector implements VoiceImportComponent
     protected double tEnd;
     private boolean quit = false;
     
-    public LabelledFilesInspector( DatabaseLayout setdb, BasenameList setbnl )
-    throws IOException
-    {
-        this.db = setdb;
-        this.bnl = setbnl;
+    public final String EXTRACTEDDIR = "labelledFilesInspector.extractedDir";
+    public final String EXWAVDIR = "labelledFilesInspector.exWavDir";
+    public final String EXLABDIR = "labelledFilesInspector.exLabDir";
+    public final String EXPMDIR = "labelledFilesInspector.exPmDir";
+    public final String CORRPMDIR = "labelledFilesInspector.corrPmDir";
+    public final String CORRPMEXT = "labelledFilesInspector.corrPmExt";
+    public final String PMEXT = "labelledFilesInspector.pmExt";
+    
+    public String getName(){
+        return "labelledFilesInspector";
     }
+    
+     public void initialise( BasenameList setbnl, SortedMap newProps )
+    {
+        this.bnl = setbnl;
+        this.props = newProps;
+    }
+     
+     public SortedMap getDefaultProps(DatabaseLayout db){
+         this.db = db;
+       if (props == null){
+           props = new TreeMap();
+           String extractedDir = db.getProp(db.TEMPDIR);
+           props.put(EXTRACTEDDIR, extractedDir);
+           props.put(EXWAVDIR, extractedDir
+                        +"wav"
+                   		+System.getProperty("file.separator"));
+           props.put(EXLABDIR, extractedDir
+                        +"lab"
+                   		+System.getProperty("file.separator"));
+           props.put(EXPMDIR, extractedDir
+                        +"pm"
+                   		+System.getProperty("file.separator"));
+           props.put(CORRPMDIR, db.getProp(db.ROOTDIR)
+                        +"pm"
+                   		+System.getProperty("file.separator"));
+           props.put(CORRPMEXT, ".pm.corrected");
+           props.put(PMEXT, ".pm");
+       }
+       return props;
+   }
+    
     
 
     public boolean compute() throws IOException
     {
-        wavDir = new File( db.wavDirName() );
+        wavDir = new File( db.getProp(db.WAVDIR) );
         if (!wavDir.exists()) throw new IOException("No such directory: "+ wavDir);
-        phoneLabDir = new File( db.labDirName() );
-        pmDir = new File(db.correctedPitchmarksDirName());
+        phoneLabDir = new File( db.getProp(db.LABDIR) );
+        pmDir = new File(getProp(CORRPMDIR));
         
-        File extractedDir = new File(db.rootDirName()+"/extracted");
+        File extractedDir = new File(getProp(EXTRACTEDDIR));
         if (!extractedDir.exists()) extractedDir.mkdir();
-        extractedWavDir = new File(db.rootDirName()+"/extracted/wav");
+        extractedWavDir = new File(getProp(EXWAVDIR));
         if (!extractedWavDir.exists()) extractedWavDir.mkdir();
-        extractedLabDir = new File(db.rootDirName()+"/extracted/lab");
+        extractedLabDir = new File(getProp(EXLABDIR));
         if (!extractedLabDir.exists()) extractedLabDir.mkdir();
-        extractedPmDir = new File(db.rootDirName()+"/extracted/pm");
+        extractedPmDir = new File(getProp(EXPMDIR));
         if (!extractedPmDir.exists()) extractedPmDir.mkdir();
         
         System.out.println( "Proposing for inspection " + bnl.getLength() + " files" );
@@ -183,12 +211,12 @@ public class LabelledFilesInspector implements VoiceImportComponent
     private void loadFile(String basename)
     {
         try {
-            File wavFile = new File(wavDir, basename+db.wavExt());
+            File wavFile = new File(wavDir, basename+db.getProp(db.WAVEXT));
             if (!wavFile.exists()) throw new IllegalArgumentException("File "+wavFile.getAbsolutePath()+" does not exist");
-            File labFile = new File(phoneLabDir, basename+db.labExt());
+            File labFile = new File(phoneLabDir, basename+db.getProp(db.LABEXT));
             if (!labFile.exists()) throw new IllegalArgumentException("File "+labFile.getAbsolutePath()+" does not exist");
             // pm file is optional
-            File pmFile = new File(pmDir, basename+db.correctedPitchmarksExt());
+            File pmFile = new File(pmDir, basename+getProp(CORRPMEXT));
             if (pmFile.exists()) {
                 System.out.println("Loading pitchmarks file "+pmFile.getAbsolutePath());
                 pitchmarks = new ESTTextfileDoubleDataSource(pmFile).getAllData();
@@ -236,8 +264,8 @@ public class LabelledFilesInspector implements VoiceImportComponent
         System.out.println("Saving current selection");
         if (!delimitSelection()) return;
         // Now we have valid start and end times
-        File saveWav = new File(extractedWavDir, saveFilename.getText()+db.wavExt());
-        File saveLab = new File(extractedLabDir, saveFilename.getText()+db.labExt());
+        File saveWav = new File(extractedWavDir, saveFilename.getText()+db.getProp(db.WAVEXT));
+        File saveLab = new File(extractedLabDir, saveFilename.getText()+db.getProp(db.LABEXT));
         AudioInputStream selectedAudio = getSelectedAudio();
         try {
             // Write audio extract:
@@ -278,7 +306,7 @@ public class LabelledFilesInspector implements VoiceImportComponent
                 for (int i=0; i<pmExtract.length; i++) {
                     pmExtract[i] = (float) (pitchmarks[firstpm+i]-tStart);
                 }
-                String extractedPmFile = extractedPmDir.getAbsolutePath()+"/"+saveFilename.getText()+db.pitchmarksExt();
+                String extractedPmFile = extractedPmDir.getAbsolutePath()+"/"+saveFilename.getText()+getProp(PMEXT);
                 new ESTTrackWriter(pmExtract, null, "pitchmarks").doWriteAndClose(extractedPmFile, false, false);
                 System.out.println("Wrote pitchmarks to "+extractedPmFile);
             }

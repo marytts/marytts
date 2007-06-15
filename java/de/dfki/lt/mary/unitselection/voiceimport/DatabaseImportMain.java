@@ -42,45 +42,42 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
-import java.io.IOException;
-import java.util.Locale;
 
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
+import java.io.*;
+import javax.swing.*;
+import java.util.*;
 
-import de.dfki.lt.mary.util.MaryUtils;
 
 /**
  * The single purpose of the DatabaseImportMain class is to provide a main
  * which executes the sequence of database import and conversion operations.
  * 
- * @author sacha
+ * @author sacha, anna
  *
  */
 public class DatabaseImportMain extends JFrame 
 {
     protected VoiceImportComponent[] components;
+    protected String[][] groups2Comps;
     protected JCheckBox[] checkboxes;
     protected JButton runButton;
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
     
-    public DatabaseImportMain(String title, VoiceImportComponent[] components,
-            DatabaseLayout db, BasenameList basenames)
+    
+   
+    
+    public DatabaseImportMain(String title, 
+            VoiceImportComponent[] components,
+            DatabaseLayout db,
+            String[][] groups2Comps)
     {
         super(title);
         this.components = components;
         this.checkboxes = new JCheckBox[components.length];
         this.db = db;
-        this.bnl = basenames;
+        this.bnl = db.getBasenames();
+        this.groups2Comps = groups2Comps;
         setupGUI();
     }
     
@@ -91,20 +88,29 @@ public class DatabaseImportMain extends JFrame
         GridBagLayout gridBagLayout = new GridBagLayout();
         GridBagConstraints gridC = new GridBagConstraints();
         getContentPane().setLayout( gridBagLayout );
-
+        
         JPanel checkboxPane = new JPanel();
         checkboxPane.setLayout(new BoxLayout(checkboxPane, BoxLayout.Y_AXIS));
         //checkboxPane.setPreferredSize(new Dimension(250, 300));
-        for (int i=0; i<components.length; i++) {
-            System.out.println("Adding checkbox for "+components[i].getClass().getName());
-            String classname = components[i].getClass().getName();
-            classname = classname.substring(classname.lastIndexOf('.')+1);
-            checkboxes[i] = new JCheckBox(classname);
-            //checkboxes[i].setPreferredSize(new Dimension(200, 30));
-            JPanel line = new JPanel();
-            line.setLayout(new BorderLayout(5, 0));
-            line.add(checkboxes[i], BorderLayout.WEST);
-            checkboxPane.add(line);
+        int compIndex = 0;
+        for(int j=0;j<groups2Comps.length;j++){
+            String[] nextGroup = groups2Comps[j];
+            JPanel groupPane = new JPanel();
+            groupPane.setLayout(new BoxLayout(groupPane, BoxLayout.Y_AXIS));
+            groupPane.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createTitledBorder(nextGroup[0]),
+                    BorderFactory.createEmptyBorder(1,1,1,1)));
+            for (int i=1; i<nextGroup.length; i++) {
+                //System.out.println("Adding checkbox for "+components[i].getClass().getName());
+                checkboxes[compIndex] = new JCheckBox(nextGroup[i]);
+                //checkboxes[i].setPreferredSize(new Dimension(200, 30));
+                JPanel line = new JPanel();
+                line.setLayout(new BorderLayout(5, 0));
+                line.add(checkboxes[compIndex], BorderLayout.WEST);
+                groupPane.add(line);
+                compIndex++;
+            }
+            checkboxPane.add(groupPane);
         }
         gridC.gridx = 0;
         gridC.gridy = 0;
@@ -114,7 +120,19 @@ public class DatabaseImportMain extends JFrame
         gridBagLayout.setConstraints( scrollPane, gridC );
         getContentPane().add(scrollPane);
 
-        runButton = new JButton("Run selected components");
+        JButton helpButton = new JButton("Help");
+        helpButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ae) {
+                displayHelpGUI();
+            }
+        });
+        JButton settingsButton = new JButton("Settings");
+        settingsButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ae) {
+                displaySettingsGUI();
+            }
+        });
+        runButton = new JButton("Run");
         runButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
                 runSelectedComponents();
@@ -141,6 +159,8 @@ public class DatabaseImportMain extends JFrame
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout());
         buttonPanel.add(runButton);
+        buttonPanel.add(helpButton);
+        buttonPanel.add(settingsButton);        
         buttonPanel.add(quitButton);
         buttonPanel.add(quitAndSaveButton);
         gridBagLayout.setConstraints( buttonPanel, gridC );
@@ -157,6 +177,41 @@ public class DatabaseImportMain extends JFrame
                 System.exit(0);
             }
         });
+    }
+    
+    
+    protected void displayHelpGUI(){
+        try{
+           new Thread("DisplayHelpGUIThread") {
+            public void run() {
+            File file = new File(db.getProp(db.MAINHELPFILE));
+          
+            boolean ok = new HelpGUI(file).display();
+            if (ok=false){
+                System.out.println("Error displaying helpfile "
+                    +db.getProp(db.MAINHELPFILE));
+            }
+            }}.start();
+        }catch (Exception e){
+            System.out.println("Can not load helpfile "
+                    +db.getProp(db.MAINHELPFILE)+": "
+                    +e.getMessage());
+        }
+    }
+    
+    protected void displaySettingsGUI(){
+        try{
+            new Thread("DisplaySettingsGUIThread") {
+                public void run() {
+                    String text = "The following settings can be edited:";
+                    new SettingsGUI().display(db, db.getAllProps(),text);
+                }}.start();
+        }catch (Exception e){
+            System.out.println("Can not load helpfile "
+                    +db.getProp(db.MAINHELPFILE)+": "
+                    +e.getMessage());
+        }
+        
     }
     
     /**
@@ -216,6 +271,7 @@ public class DatabaseImportMain extends JFrame
         }.start();
     }
     
+    
     protected void askIfSave() throws IOException
     {
         int answer = JOptionPane.showOptionDialog(this,
@@ -237,7 +293,7 @@ public class DatabaseImportMain extends JFrame
     protected void doSave() throws IOException
     {
         JFileChooser fc = new JFileChooser();
-        fc.setSelectedFile(new File( db.basenameFile() ).getAbsoluteFile() );
+        fc.setSelectedFile(new File( db.getProp(db.BASENAMEFILE) ));
         int returnVal = fc.showSaveDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             bnl.write( fc.getSelectedFile() );
@@ -245,120 +301,108 @@ public class DatabaseImportMain extends JFrame
     }
     
     
-    public static BasenameList getBasenameList(DatabaseLayout db) throws IOException {
-        /* Make the basename list */
-        BasenameList bnl = null;
-        /* If the basename list file exists, use it... */
-        File basenameFile = new File(db.basenameFile());
-        if ( basenameFile.exists() ) {
-            System.out.println( "Using basename list from file:\n"
-                    + "[" + db.basenameFile() + "]" );
-            // bnl = new BasenameList( fName );
-            bnl = new BasenameList( db.basenameFile() );
+   
+    public static String[][] readComponentList(String file){
+        List groups = new ArrayList();
+        Map groups2Names = new HashMap();
+        Map groups2Components = new HashMap();
+        try{            
+            BufferedReader in = 
+                new BufferedReader(
+                        new InputStreamReader(
+                                new FileInputStream(
+                                        new File(file)),"UTF-8"));
+            String line;
+            while ((line=in.readLine())!=null){
+                line = line.trim();
+                if (line.startsWith("#")
+                        ||line.equals(""))
+                    continue;
+                //System.out.println(line);
+                String[] lineSplit = line.split(" ");
+                if (lineSplit[0].equals("group")){
+                    //we have a group
+                    //line looks like "group basic_data basic data files"
+                    groups.add(lineSplit[1]);
+                    StringBuffer nameBuf = new StringBuffer();
+                    for (int i=2;i<lineSplit.length;i++){
+                        nameBuf.append(lineSplit[i]+" ");
+                    }
+                    groups2Names.put(lineSplit[1],nameBuf.toString().trim());
+                } else {
+                    //we have a component
+                    //line looks like 
+                    //"de.dfki.lt.mary.unitselection.new_voiceimport.WaveTimelineMaker basic_data"
+                    if (groups2Components.containsKey(lineSplit[1])){
+                        List comps = (List) groups2Components.get(lineSplit[1]);
+                        comps.add(lineSplit[0]);
+                    } else {
+                        List comps = new ArrayList();
+                        comps.add(lineSplit[0]);
+                        groups2Components.put(lineSplit[1],comps);
+                    }
+                }
+            }
+            in.close();
+        } catch (Exception e){
+            e.printStackTrace();
+            throw new Error("Error reading list of modules");
         }
-        /* ...otherwise make a bootstrap basename list from the wav files. */
-        else {
-            System.out.println( "Using basename list from wave files");
-            bnl = new BasenameList( db.wavDirName(), db.wavExt() );
+        String[][] result = new String[groups.size()][];
+        for (int i=0;i<groups.size();i++){
+            String groupKey = (String) groups.get(i);
+            String groupName = (String) groups2Names.get(groupKey);
+            List components = (List) groups2Components.get(groupKey);
+            String[] group = new String[components.size()+1];
+            group[0] = groupName;
+            for(int j=0;j<components.size();j++){
+                group[j+1]=(String) components.get(j);                
+            }    
+            result[i] = group;
         }
-        
-        /* TESTING HACK: process only the 20 first files. */
-        // bnl = bnl.subList( 0, 20 );
-        /* END HACK */
-        
-        System.out.println("Found [" + bnl.getLength() + "] files to convert in the list of basenames." );
-        return bnl;
+        return result;
     }
-
-    public static DatabaseLayout getDatabaseLayout() {
-        /* Set locale to en if not specified */
-        Locale locale = MaryUtils.string2locale(System.getProperty("locale", "en"));
-        System.out.println("Setting locale to "+locale);
-        
-        /* Make a database layout with default values. */
-        DatabaseLayout db = new DatabaseLayout(locale);
-        return db;
-    }
-
     
-    /**
-     * TODO: THIS JAVADOC IS OBSOLETE.
-     * 
-     *  Imports a database from a set of wav files:
-     *  - launches the EST tools to compute the LPCs
-     *  - reads and concatenates the LPC EST tracks into one single timeline file.
-     *  - reads the unit catalog from the .catalogue file
-     *  - reads and dumps the CARTs 
-     * <p>
-     * <b> Usage </b>
-     * <p>
-     *  <code> java de.dfki.lt.mary.unitselection.voiceimport.databaseImportMain [-r|--recompute] <databaseDir></code> 
-     * <p>
-     * <b> Options </b>
-     * <p>
-     *    <ul>
-     * 			<li> <code> [ --locale LOCALE ] </code> Set the locale of the voice to build 
-     * 				(Default: en)
-     *    </ul>
-     * 
-     */
-    public static void main( String[] args ) throws IOException
+   
+    public static void main( String[] args ) throws Exception
     {
         
-        DatabaseLayout db = getDatabaseLayout();
+        /* Read the list of components */
+        //TODO: find a better way of setting the file name
+        String componentListFile = "./importMain.config";
+        String[][] groups2comps = readComponentList(componentListFile);
+        /* Create component classes */
         
-        BasenameList bnl = getBasenameList(db);
-        
-        /* Invoke the GUI, now that the arguments and layouts are all set */
-        VoiceImportComponent[] components = new VoiceImportComponent[] {
-                
-                new SphinxLabelingPreparator( db, bnl ),
-                new SphinxTrainer ( db ),
-                new SphinxLabeler ( db ),
-                new MRPALabelConverter ( db ),
-                
-                new FestvoxTextfileConverter( db, bnl ),
-                new LabelledFilesInspector(db, bnl),
-                new UnitLabelComputer( db, bnl ),
-                new HalfPhoneUnitLabelComputer( db, bnl ),
-                new UnitFeatureComputer( db, bnl ),
-                new HalfPhoneUnitFeatureComputer(db, bnl),
-                
-                new LabelFeatureAligner( db, bnl ),
-                new HalfPhoneLabelFeatureAligner(db, bnl),
-                
-                new PraatPitchmarker( db, bnl ),
-                new ESTCallMaker( db, bnl ),
-
-                new UnitfileWriter( db, bnl ),
-                new HalfPhoneUnitfileWriter(db, bnl),
-                new FeatureFileWriter( db, bnl ),
-                new HalfPhoneFeatureFileWriter(db, bnl),
-
-                new WaveTimelineMaker( db, bnl ),
-                new BasenameTimelineMaker( db, bnl ),
-                
-                new LPCTimelineMaker( db, bnl ),
-                new MCepTimelineMaker( db, bnl ),
-                new JoinCostFileMaker( db, bnl ),
-                new JoinCostPrecomputer( db, bnl ),
-                
-                new AcousticFeatureFileWriter(db, bnl),
-                
-                new CARTBuilder ( db ),
-                new CARTPruner ( db, bnl ),
-                new DurationCARTTrainer(db, bnl),
-                new F0CARTTrainer(db, bnl)
-        };
-        
-        String voicename = new File(".").getCanonicalPath();
-        voicename = voicename.substring(voicename.lastIndexOf('/')+1);
-        
-        DatabaseImportMain importer = new DatabaseImportMain("Database import: "+voicename, components, db, bnl);
+        List compsList = new ArrayList();
+        //loop over the groups
+        for (int i=0;i<groups2comps.length;i++){
+            //get the components for this group
+            String[] nextComps = groups2comps[i];
+            //loop over the components (first element is group name; ignore)
+            for (int j=1;j<nextComps.length;j++){
+                //get the class name of this component
+                String className = nextComps[j];
+                //create a new instance of this class and store in compsList
+                compsList.add((VoiceImportComponent)Class.forName(className).newInstance());
+                //remove "de.dfki...." from class name and store in groups2comps
+                nextComps[j] = className.substring(className.lastIndexOf('.')+1);
+            }
+        }
+        VoiceImportComponent[] components = 
+            new VoiceImportComponent[compsList.size()];
+        components = (VoiceImportComponent[])compsList.toArray(components);
+        /* Load DatabaseLayout */
+        DatabaseLayout db = new DatabaseLayout(components);
+               
+        /* Display GUI */       
+        String voicename = db.getProp(db.VOICENAME);
+        DatabaseImportMain importer = 
+            new DatabaseImportMain("Database import: "+voicename, components, db,groups2comps);
         importer.pack();
         // Center window on screen:
         importer.setLocationRelativeTo(null); 
         importer.setVisible(true);
     }
-
+    
+   
 }

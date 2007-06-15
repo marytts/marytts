@@ -103,7 +103,12 @@ public class TobiContourGenerator extends InternalModule {
     public void startup() throws Exception {
         super.startup();
         // We depend on the Synthesis module:
-         MaryModule synthesis = Mary.getModule(de.dfki.lt.mary.modules.Synthesis.class);
+        MaryModule synthesis;
+        try{ 
+            synthesis= Mary.getModule(de.dfki.lt.mary.modules.Synthesis.class);
+        } catch (NullPointerException npe){
+            synthesis = new Synthesis();
+        }
          assert synthesis != null;
          if (synthesis.getState() == MaryModule.MODULE_OFFLINE)
              synthesis.startup();

@@ -31,14 +31,8 @@
  */
 package de.dfki.lt.mary.unitselection.voiceimport;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.DataOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Vector;
+import java.io.*;
+import java.util.*;
 
 import de.dfki.lt.mary.unitselection.Datagram;
 import de.dfki.lt.mary.unitselection.JoinCostFeatures;
@@ -46,7 +40,7 @@ import de.dfki.lt.mary.unitselection.TimelineReader;
 import de.dfki.lt.mary.unitselection.UnitFileReader;
 import de.dfki.lt.mary.util.MaryUtils;
 
-public class JoinCostFileMaker implements VoiceImportComponent {
+public class JoinCostFileMaker extends VoiceImportComponent {
     
     private DatabaseLayout db = null;
     private BasenameList bnl = null;
@@ -56,36 +50,81 @@ public class JoinCostFileMaker implements VoiceImportComponent {
     private float[] fw = null;
     private String[] wfun = null;
     
-    /** Constructor */
-    public JoinCostFileMaker( DatabaseLayout setdb, BasenameList setbnl ) {
-        this.db = setdb;
-        this.bnl = setbnl;
+    public final String JOINCOSTFILE = "joinCostFileMaker.joinCostFile";
+    public final String MCEPTIMELINE = "joinCostFileMaker.mcepTimeline";
+    public final String UNITFILE = "joinCostFileMaker.unitFile";
+    public final String WEIGHTSFILE = "joinCostFileMaker.weightsFile";
+    public final String MCEPDIR = "joinCostFileMaker.mcepDir";
+    public final String MCEPEXT = "joinCostFileMaker.mcepExt";
+    
+    public String getName(){
+        return "joinCostFileMaker";
     }
     
+     public void initialise( BasenameList setbnl, SortedMap newProps )
+    {
+        this.bnl = setbnl;
+        this.props = newProps;
+        //make sure that we have a weights file
+        File weightsFile = new File(getProp(WEIGHTSFILE));
+        if (!weightsFile.exists()){
+            try{
+                PrintWriter weightsOut =
+                    new PrintWriter(
+                            new OutputStreamWriter(
+                                    new FileOutputStream(weightsFile),"UTF-8"));
+                printWeightsFile(weightsOut);
+            } catch (Exception e){
+                System.out.println("Warning: no join cost weights file "
+                        +getProp(WEIGHTSFILE)
+                        +"; JoinCostFileMaker will not run.");
+            }            
+        }
+    }
+    
+    public SortedMap getDefaultProps(DatabaseLayout db){
+        this.db = db;
+       if (props == null){
+           props = new TreeMap();
+           String filedir = db.getProp(db.FILEDIR);
+           props.put(JOINCOSTFILE, filedir
+                        +"joinCostFeatures"+db.getProp(db.MARYEXT));
+           props.put(MCEPTIMELINE, filedir
+                        +"timeline_mcep"+db.getProp(db.MARYEXT));
+           props.put(UNITFILE, filedir
+                        +"halfphoneUnits"+db.getProp(db.MARYEXT));
+           props.put(WEIGHTSFILE, db.getProp(db.CONFIGDIR)
+                        +"joinCostWeights.txt");
+           props.put(MCEPDIR, db.getProp(db.ROOTDIR)
+                        +"mcep"
+                        +System.getProperty("file.separator"));
+           props.put(MCEPEXT, ".mcep");           
+       }
+       return props;
+    }
     
     public boolean compute() throws IOException
     {
         System.out.print("---- Making the join cost file\n");
-        System.out.print("Base directory: " + db.rootDirName() + "\n");
-        System.out.print("Mel Cepstrum timeline: " + db.melcepTimelineFileName() + "\n");
-        System.out.print("Using join cost weights config: " + db.joinCostWeightsFileName() + "\n");
-        System.out.println("Outputting join cost file to: " + db.joinCostFeaturesFileName() + "\n");
         
         /* Export the basename list into an array of strings */
         String[] baseNameArray = bnl.getListAsArray();
         
         /* Read the number of mel cepstra from the first melcep file */
-        ESTTrackReader firstMcepFile = new ESTTrackReader( db.melcepDirName() + baseNameArray[0] + db.melcepExt());
+        ESTTrackReader firstMcepFile = new ESTTrackReader(getProp(MCEPDIR) 
+                + baseNameArray[0] + getProp(MCEPEXT));
         int numberOfMelcep = firstMcepFile.getNumChannels();
         firstMcepFile = null; // Free the memory taken by the file
         
         /* Make a new join cost file to write to */
         DataOutputStream jcf = null;
         try {
-            jcf = new DataOutputStream( new BufferedOutputStream( new FileOutputStream( db.joinCostFeaturesFileName() ) ) );
+            jcf = new DataOutputStream( new BufferedOutputStream( new FileOutputStream(getProp(JOINCOSTFILE)) ) );
         }
         catch ( FileNotFoundException e ) {
-            throw new RuntimeException( "Can't create the join cost file [" + db.joinCostFeaturesFileName() + "]. The path is probably wrong.", e );
+            throw new RuntimeException( "Can't create the join cost file [" 
+                    + getProp(JOINCOSTFILE)
+                    + "]. The path is probably wrong.", e );
         }
         
         /**********/
@@ -105,7 +144,8 @@ public class JoinCostFileMaker implements VoiceImportComponent {
         /* WEIGHTING FUNCTION SPECS */
         /****************************/
         /* Load the weight vectors */
-        Object[] weightData = JoinCostFeatures.readJoinCostWeightsFile( db.joinCostWeightsFileName() );
+        Object[] weightData = 
+            JoinCostFeatures.readJoinCostWeightsFile(getProp(WEIGHTSFILE));
         fw = (float[]) weightData[0];
         wfun = (String[]) weightData[1];
         numberOfFeatures = fw.length;
@@ -129,10 +169,10 @@ public class JoinCostFileMaker implements VoiceImportComponent {
         /************/
         
         /* Open the melcep timeline */
-        TimelineReader mcep = new TimelineReader( db.melcepTimelineFileName() );
+        TimelineReader mcep = new TimelineReader(getProp(MCEPTIMELINE));
         
         /* Open the unit file */
-        UnitFileReader ufr = new UnitFileReader( db.halfphoneUnitFileName() );
+        UnitFileReader ufr = new UnitFileReader(getProp(UNITFILE));
         
         /* Start writing the features: */
         try {
@@ -159,9 +199,9 @@ public class JoinCostFileMaker implements VoiceImportComponent {
             dat = mcep.getDatagram( 0, unitSampleFreq );
             if ( dat.getData().length != (4*(numberOfFeatures-1)) ) {
                 throw new RuntimeException( "The number of join cost features [" + numberOfFeatures
-                        + "] read from the join cost weight config file [" + db.joinCostWeightsFileName()
+                        + "] read from the join cost weight config file [" + getProp(WEIGHTSFILE)
                         + "] does not match the number of Mel Cepstra [" + (dat.getData().length / 4)
-                        + "] found in the Mel-Cepstrum timeline file [" + db.melcepTimelineFileName()
+                        + "] found in the Mel-Cepstrum timeline file [" + getProp(MCEPTIMELINE)
                         + "], plus [1] for the F0 feature." );
             }
             
@@ -308,7 +348,7 @@ public class JoinCostFileMaker implements VoiceImportComponent {
         System.out.println("---- Join Cost file done.\n\n");
         System.out.println("Number of processed units: " + ufr.getNumberOfUnits() );
         
-        JoinCostFeatures tester = new JoinCostFeatures(db.joinCostFeaturesFileName());
+        JoinCostFeatures tester = new JoinCostFeatures(getProp(JOINCOSTFILE));
         int unitsOnDisk = tester.getNumberOfUnits();
         if (unitsOnDisk == ufr.getNumberOfUnits()) {
             System.out.println("Can read right number of units");
@@ -329,5 +369,53 @@ public class JoinCostFileMaker implements VoiceImportComponent {
         return percent;
     }
 
+    private void printWeightsFile(PrintWriter weightsOut)throws Exception{
+        weightsOut.println("# This file lists the weights and weighting functions to be used for\n"
+                +"# creating the MARY join cost file, joinCostFeature.mry .\n"
+                +"#\n"
+                +"# Lines starting with '#' are ignored; they can be used for comments\n"
+                +"# anywhere in the file. Empty lines are also ignored.\n"
+                +"# Entries must have the following form:\n"
+                +"# \n"
+                +"# <feature index> : <weight value> <weighting function> <optional weighting function parameter>\n"
+                +"# \n"
+                +"# The <feature index> is an integer value from 0 to the number of join cost features\n"
+                +"# minus one. It is used for readability, but is ignored when parsing the file.\n"
+                +"# The database import process will nevertheless check that the number of valid\n"
+                +"# lines corresponds to the number of join cost features specified from external\n"
+                +"# constraints (such as the order of the Mel-Cepstra).\n"
+                +"#\n"
+                +"# The <weight value> is a float value in text format.\n"
+                +"#\n"
+                +"# The <weighting function> is a string, for the moment one of \"linear\" or \"step\".\n"
+                +"#\n"
+                +"# The <optional weighting function parameter> is a string giving additional optional\n"
+                +"# info about the weighting function:\n"
+                +"# - \"linear\" does not take an optional argument;\n"
+                +"# - \"step\" takes a threshold position argument, e.g. \"step 20%\" means a step function\n"
+                +"#   with weighs 0 when the join feature difference is less than 20%, and applies\n"
+                +"#   the weight value when the join feature difference is 20% or more.\n"
+                +"#\n"
+                +"# THIS FILE WAS GENERATED AUTOMATICALLY\n"
+                +"\n"
+                +"# Weights applied to the Mel-cepstra:\n"
+                +"0  : 1.0 linear\n"
+                +"1  : 1.0 linear\n"
+                +"2  : 1.0 linear\n"
+                +"3  : 1.0 linear\n"
+                +"4  : 1.0 linear\n"
+                +"5  : 1.0 linear\n"
+                +"6  : 1.0 linear\n"
+                +"7  : 1.0 linear\n"
+                +"8  : 1.0 linear\n"
+                +"9  : 1.0 linear\n"
+                +"10 : 1.0 linear\n"
+                +"11 : 1.0 linear\n"
+                +"\n"
+                +"# Weight applied to the F0 parameter:\n"
+                +"12 : 1.0 linear");
+        weightsOut.flush();
+        weightsOut.close();
+    }
 
 }

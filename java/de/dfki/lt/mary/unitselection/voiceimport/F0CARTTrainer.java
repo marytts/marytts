@@ -3,17 +3,16 @@ package de.dfki.lt.mary.unitselection.voiceimport;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.SortedMap;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 
 import de.dfki.lt.mary.unitselection.Datagram;
 import de.dfki.lt.mary.unitselection.FeatureFileReader;
@@ -29,7 +28,7 @@ import de.dfki.lt.util.PrintfFormat;
  * @author schroed
  *
  */
-public class F0CARTTrainer implements VoiceImportComponent
+public class F0CARTTrainer extends VoiceImportComponent
 {
     protected File f0Dir;
     protected File leftF0FeaturesFile;
@@ -41,32 +40,106 @@ public class F0CARTTrainer implements VoiceImportComponent
     protected int percent = 0;
     protected boolean useStepwiseTraining = false;
     
+    private final String name = "f0CARTTrainer";
+    public final String STEPWISETRAINING = name+".stepwiseTraining";
+    public final String FEATUREFILE = name+".featureFile";
+    public final String UNITFILE = name+".unitFile";
+    public final String WAVETIMELINE = name+".waveTimeline";
+    public final String LABELDIR = name+".labelDir";
+    public final String FEATUREDIR = name+".featureDir";
+    public final String LABELEXT = name+".labelExt";
+    public final String FEATUREEXT = name+".featureExt";
+    public final String F0DIR = name+".f0Dir";
+    public final String F0LEFTFEATFILE = name+".f0LeftFeatFile";
+    public final String F0RIGHTFEATFILE = name+".f0RightFeatFile";
+    public final String F0MIDFEATFILE = name+".f0MidFeatFile";
+    public final String F0DESCFILE = name+".f0DescFile";
+    public final String F0LEFTTREEFILE = name+".f0LeftTreeFile";
+    public final String F0RIGHTTREEFILE = name+".f0RightTreeFile";
+    public final String F0MIDTREEFILE = name+".f0MidTreeFile";
+    
+    
+    public String getName(){
+        return name;
+    }
     
     /**/
-    public F0CARTTrainer( DatabaseLayout setdb, BasenameList setbnl ) throws IOException
-    {
-        this.db = setdb;
+     public void initialise( BasenameList setbnl, SortedMap newProps )
+    {       
+        this.props = newProps;
         this.bnl = setbnl;
-        String rootDir = db.rootDirName();
-        this.f0Dir = new File(rootDir, System.getProperty("db.f0dir", "f0carts"));
-        if (!f0Dir.exists()) f0Dir.mkdir();
-        this.leftF0FeaturesFile = new File(f0Dir, System.getProperty("db.f0.left.featuresfile", "f0.left.feats"));
-        this.midF0FeaturesFile = new File(f0Dir, System.getProperty("db.f0.mid.featuresfile", "f0.mid.feats"));
-        this.rightF0FeaturesFile = new File(f0Dir, System.getProperty("db.f0.right.featuresfile", "f0.right.feats"));
-        this.wagonDescFile = new File(f0Dir, System.getProperty("db.f0.wagondescfile", "f0.desc"));
-        this.useStepwiseTraining = Boolean.valueOf(System.getProperty("F0CARTTrainer.useStepwiseTraining", "false")).booleanValue();
+        String rootDir = db.getProp(db.ROOTDIR);
+        this.f0Dir = new File(getProp(F0DIR));
+        if (!f0Dir.exists()){
+            System.out.print(F0DIR+" "+getProp(F0DIR)
+                    +" does not exist; ");
+            if (!f0Dir.mkdir()){
+                throw new Error("Could not create F0DIR");
+            }
+            System.out.print("Created successfully.\n");
+        }  
+        this.leftF0FeaturesFile = new File(getProp(F0LEFTFEATFILE));
+        this.midF0FeaturesFile = new File(getProp(F0MIDFEATFILE));
+        this.rightF0FeaturesFile = new File(getProp(F0RIGHTFEATFILE));
+        this.wagonDescFile = new File(getProp(F0DESCFILE));
+        this.useStepwiseTraining = Boolean.valueOf(getProp(STEPWISETRAINING)).booleanValue();
     }
+     
+     public SortedMap getDefaultProps(DatabaseLayout db){
+        this.db = db;
+       if (props == null){
+           props = new TreeMap();
+           String filedir = db.getProp(db.FILEDIR);
+           String maryext = db.getProp(db.MARYEXT);
+           props.put(FEATUREDIR, db.getProp(db.ROOTDIR)
+                        +"phonefeatures"
+                        +System.getProperty("file.separator"));
+           props.put(FEATUREEXT,".pfeats");
+           props.put(LABELDIR, db.getProp(db.ROOTDIR)                        
+                        +"phonelab"
+                        +System.getProperty("file.separator"));
+           props.put(LABELEXT,".lab");
+           props.put(STEPWISETRAINING,"false");
+           props.put(FEATUREFILE, filedir
+                        +"phoneFeatures"+maryext);
+           props.put(UNITFILE, filedir
+                        +"phoneUnits"+maryext);
+           props.put(WAVETIMELINE, db.getProp(db.FILEDIR)
+                        +"timeline_waveforms"+db.getProp(db.MARYEXT));
+           props.put(F0DIR,db.getProp(db.TEMPDIR));
+           props.put(F0LEFTFEATFILE,getProp(F0DIR)
+                   +"f0.left.feats");
+           props.put(F0RIGHTFEATFILE,getProp(F0DIR)
+                   +"f0.right.feats");
+           props.put(F0MIDFEATFILE,getProp(F0DIR)
+                   +"f0.mid.feats");
+           props.put(F0DESCFILE,getProp(F0DIR)
+                   +"f0.desc");
+           props.put(F0LEFTTREEFILE,filedir
+                   +"f0.left.tree");
+           props.put(F0RIGHTTREEFILE,filedir
+                   +"f0.right.tree");
+           props.put(F0MIDTREEFILE,filedir
+                   +"f0.mid.tree");
+       }
+       return props;
+    }
+    
     
     /**/
     public boolean compute() throws IOException
     {
-        FeatureFileReader featureFile = FeatureFileReader.getFeatureFileReader(db.phoneFeaturesFileName());
-        UnitFileReader unitFile = new UnitFileReader( db.phoneUnitFileName() );
-        TimelineReader waveTimeline = new TimelineReader( db.waveTimelineFileName() );
+        FeatureFileReader featureFile = 
+            FeatureFileReader.getFeatureFileReader(getProp(FEATUREFILE));
+        UnitFileReader unitFile = new UnitFileReader(getProp(UNITFILE));
+        TimelineReader waveTimeline = new TimelineReader(getProp(WAVETIMELINE));
         
-        PrintWriter toLeftFeaturesFile = new PrintWriter(new FileOutputStream(leftF0FeaturesFile));
-        PrintWriter toMidFeaturesFile = new PrintWriter(new FileOutputStream(midF0FeaturesFile));
-        PrintWriter toRightFeaturesFile = new PrintWriter(new FileOutputStream(rightF0FeaturesFile));
+        PrintWriter toLeftFeaturesFile = 
+            new PrintWriter(new FileOutputStream(leftF0FeaturesFile));
+        PrintWriter toMidFeaturesFile =
+            new PrintWriter(new FileOutputStream(midF0FeaturesFile));
+        PrintWriter toRightFeaturesFile = 
+            new PrintWriter(new FileOutputStream(rightF0FeaturesFile));
 
         System.out.println("F0 CART trainer: exporting f0 features");
         
@@ -141,7 +214,7 @@ public class F0CARTTrainer implements VoiceImportComponent
         
         // Now, call wagon
         WagonCaller wagonCaller = new WagonCaller(null);
-        File wagonTreeFile = new File(f0Dir, "f0.left.tree");
+        File wagonTreeFile = new File(getProp(F0LEFTTREEFILE));
         boolean ok;
         if (useStepwiseTraining) {
             // Split the data set in training and test part:
@@ -162,7 +235,7 @@ public class F0CARTTrainer implements VoiceImportComponent
         }
         if (!ok) return false;
         percent = 40;
-        wagonTreeFile = new File(f0Dir, "f0.mid.tree");
+        wagonTreeFile = new File(getProp(F0MIDTREEFILE));
         if (useStepwiseTraining) {
             // Split the data set in training and test part:
             Process traintest = Runtime.getRuntime().exec("/project/mary/Festival/festvox/src/general/traintest "+midF0FeaturesFile.getAbsolutePath());
@@ -182,7 +255,7 @@ public class F0CARTTrainer implements VoiceImportComponent
         }
         if (!ok) return false;
         percent = 70;
-        wagonTreeFile = new File(f0Dir, "f0.right.tree");
+        wagonTreeFile = new File(getProp(F0RIGHTTREEFILE));
         if (useStepwiseTraining) {
             // Split the data set in training and test part:
             Process traintest = Runtime.getRuntime().exec("/project/mary/Festival/festvox/src/general/traintest "+rightF0FeaturesFile.getAbsolutePath());
@@ -206,8 +279,10 @@ public class F0CARTTrainer implements VoiceImportComponent
     
     private String[] align(String basename) throws IOException
     {
-        BufferedReader labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.phoneUnitLabDirName() + basename + db.phoneUnitLabExt() )), "UTF-8"));
-        BufferedReader features = new BufferedReader(new InputStreamReader(new FileInputStream(new File( db.phoneUnitFeaDirName() + basename + db.phoneUnitFeaExt() )), "UTF-8")); 
+        BufferedReader labels = 
+            new BufferedReader(new InputStreamReader(new FileInputStream(new File(getProp(LABELDIR) + basename + getProp(LABELEXT))), "UTF-8"));
+        BufferedReader features = 
+            new BufferedReader(new InputStreamReader(new FileInputStream(new File(getProp(FEATUREDIR) + basename + getProp(FEATUREEXT))), "UTF-8")); 
         String line;
         // Skip label file header:
         while ((line = labels.readLine()) != null) {
@@ -308,9 +383,9 @@ public class F0CARTTrainer implements VoiceImportComponent
 
     public static void main(String[] args) throws IOException
     {
-        DatabaseLayout db = DatabaseImportMain.getDatabaseLayout();
-        BasenameList bnl = DatabaseImportMain.getBasenameList(db);
-        new F0CARTTrainer(db, bnl).compute();
+        F0CARTTrainer f0ct = new F0CARTTrainer();
+        DatabaseLayout db = new DatabaseLayout(f0ct);
+        f0ct.compute();
     }
 
 }

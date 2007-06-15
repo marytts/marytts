@@ -199,7 +199,9 @@ public class ESTCaller
      * @param baseNameArray The array of basenames of the .wav files to process
      * 
      */
-    public void make_pm_wave( String[] baseNameArray ) {
+    public void make_pm_wave( String[] baseNameArray,
+            String pitchmarksDirName,
+            String pitchmarksExt) {
         
         System.out.println("---- Calculating the pitchmarks..." );
         
@@ -211,25 +213,25 @@ public class ESTCaller
             /* Make the command lines and launch them */
             /* - Scaling + resampling: */
             cmdLine = ESTDIR + "/main/ch_wave -scaleN 0.9 -F 16000 "
-            + "-o tmp" + baseNameArray[i] + db.wavExt() + " "
-            + db.wavDirName() + baseNameArray[i] + db.wavExt();
+            + "-o tmp" + baseNameArray[i] + db.getProp(db.WAVEXT) + " "
+            + db.getProp(db.WAVDIR) + baseNameArray[i] + db.getProp(db.WAVEXT);
             launchProc( cmdLine, "Pitchmarks ", baseNameArray[i] );
             
             /* Ensure the existence of the target pitchmark directory */
-            File dir = new File( db.pitchmarksDirName() );
+            File dir = new File( pitchmarksDirName );
             if (!dir.exists()) {
-                System.out.println( "Creating the directory [" + db.pitchmarksDirName() + "]." );
+                System.out.println( "Creating the directory [" + pitchmarksDirName + "]." );
                 dir.mkdir();
             }
             
             /* - Pitchmarks extraction: */
             cmdLine = ESTDIR + "/main/pitchmark -min 0.0057 -max 0.012 -def 0.01 -wave_end -lx_lf 140 -lx_lo 111 -lx_hf 80 -lx_ho 51 -med_o 0 -fill -otype est "
-            + "-o " + db.pitchmarksDirName() + baseNameArray[i] + db.pitchmarksExt()
-            + " tmp" + baseNameArray[i] + db.wavExt();
+            + "-o " + pitchmarksDirName + baseNameArray[i] + pitchmarksExt
+            + " tmp" + baseNameArray[i] + db.getProp(db.WAVEXT);
             launchProc( cmdLine, "Pitchmarks ", baseNameArray[i] );
             
             /* - Cleanup the temporary file: */
-            cmdLine = "rm -f tmp" + baseNameArray[i] + db.wavExt();
+            cmdLine = "rm -f tmp" + baseNameArray[i] + db.getProp(db.WAVEXT);
             launchProc( cmdLine, "Pitchmarks ", baseNameArray[i] );
             
         }
@@ -243,7 +245,11 @@ public class ESTCaller
      * @param baseNameArray The array of basenames of the .wav files to process
      * 
      */
-    public void make_lpc( String[] baseNameArray ) {
+    public void make_lpc( String[] baseNameArray,
+            		String correctedPitchmarksDirName,
+            		String correctedPitchmarksExt,
+            		String lpcDirName,
+            		String lpcExt) {
         
         System.out.println("---- Calculating the LPC coefficents..." );
         
@@ -253,18 +259,18 @@ public class ESTCaller
         for ( int i = 0; i < baseNameArray.length; i++ ) {
             
             /* Ensure the existence of the target directory */
-            File dir = new File( db.lpcDirName() );
+            File dir = new File( lpcDirName );
             if (!dir.exists()) {
-                System.out.println( "Creating the directory [" + db.lpcDirName() + "]." );
+                System.out.println( "Creating the directory [" + lpcDirName + "]." );
                 dir.mkdir();
             }
             
             /* Make the command line */
             cmdLine = ESTDIR + "/main/sig2fv "
             + "-window_type hamming -factor 3 -otype est_binary -preemph 0.95 -coefs lpc -lpc_order 16 "
-            + "-pm " + db.correctedPitchmarksDirName() + baseNameArray[i] + db.correctedPitchmarksExt()
-            + " -o " + db.lpcDirName() + baseNameArray[i] + db.lpcExt() + " "
-            + db.wavDirName() + baseNameArray[i] + db.wavExt();
+            + "-pm " + correctedPitchmarksDirName + baseNameArray[i] + correctedPitchmarksExt
+            + " -o " + lpcDirName + baseNameArray[i] + lpcExt + " "
+            + db.getProp(db.WAVDIR) + baseNameArray[i] + db.getProp(db.WAVEXT);
             // System.out.println( cmdLine );
             
             /* Launch the relevant process */
@@ -280,7 +286,11 @@ public class ESTCaller
      * @param baseNameArray The array of basenames of the .wav files to process
      * 
      */
-    public void make_mcep( String[] baseNameArray ) {
+    public void make_mcep( String[] baseNameArray,
+            		String correctedPitchmarksDirName,
+            		String correctedPitchmarksExt,
+            		String mcepDirName,
+            		String mcepExt) {
         
         System.out.println("---- Calculating the Mel-Cepstrum coefficents..." );
         
@@ -290,18 +300,18 @@ public class ESTCaller
         for ( int i = 0; i < baseNameArray.length; i++ ) {
             
             /* Ensure the existence of the target mel cepstrum directory */
-            File dir = new File( db.melcepDirName() );
+            File dir = new File( mcepDirName );
             if (!dir.exists()) {
-                System.out.println( "Creating the directory [" + db.melcepDirName() + "]." );
+                System.out.println( "Creating the directory [" + mcepDirName + "]." );
                 dir.mkdir();
             }
             
             /* Make the command line */
             cmdLine = ESTDIR + "/main/sig2fv "
             + "-window_type hamming -factor 2.5 -otype est_binary -coefs melcep -melcep_order 12 -fbank_order 24 -shift 0.01 -preemph 0.97 "
-            + "-pm " + db.correctedPitchmarksDirName() + baseNameArray[i] + db.correctedPitchmarksExt()
-            + " -o " + db.melcepDirName() + baseNameArray[i] + db.melcepExt() + " "
-            + db.wavDirName() + baseNameArray[i] + db.wavExt();
+            + "-pm " + correctedPitchmarksDirName + baseNameArray[i] + correctedPitchmarksExt
+            + " -o " + mcepDirName + baseNameArray[i] + mcepExt + " "
+            + db.getProp(db.WAVDIR) + baseNameArray[i] + db.getProp(db.WAVEXT);
             // System.out.println( cmdLine );
             /* Note: parameter "-delta melcep" has been commented out in the original script.
              * Refer to the EST docs on http://www.cstr.ed.ac.uk/projects/speech_tools/manual-1.2.0/

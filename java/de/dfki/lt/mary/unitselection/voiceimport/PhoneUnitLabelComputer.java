@@ -8,16 +8,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
 
 /**
  * Compute unit labels from phone labels.
  * @author schroed
  *
  */
-public class UnitLabelComputer implements VoiceImportComponent
+public class PhoneUnitLabelComputer extends VoiceImportComponent
 {
     protected File phonelabelDir;
     protected File unitlabelDir;
@@ -28,41 +26,63 @@ public class UnitLabelComputer implements VoiceImportComponent
     protected BasenameList bnl = null;
     protected int percent = 0;
     
-    /**/
-    public UnitLabelComputer( DatabaseLayout setdb, BasenameList setbnl ) throws IOException
+    public String LABELDIR = "phoneUnitLabelComputer.labelDir";
+    public String LABELEXT = "phoneUnitLabelComputer.labelExt";
+    
+    public String getName(){
+        return "phoneUnitLabelComputer";
+    }
+    
+     public void initialise( BasenameList setbnl, SortedMap newProps )
     {
-        this.db = setdb;
         this.bnl = setbnl;
+        this.props = newProps;
         
         pauseSymbol = System.getProperty( "pause.symbol", "pau" );
 
+        this.unitlabelDir = new File(getProp(LABELDIR));
+        if (!unitlabelDir.exists()){
+            System.out.print(LABELDIR+" "+getProp(LABELDIR)
+                    +" does not exist; ");
+            if (!unitlabelDir.mkdir()){
+                throw new Error("Could not create LABELDIR");
+            }
+            System.out.print("Created successfully.\n");
+        }        
+        unitlabelExt = getProp(LABELEXT);
     }
     
-    /**
-     * Set some global variables that subclasses may want to override.
-     *
-     */
-    protected void init()
-    {
-        unitlabelDir = new File( db.phoneUnitLabDirName() );
-        if (!unitlabelDir.exists()) unitlabelDir.mkdir();
-        unitlabelExt = db.phoneUnitLabExt();
+     public SortedMap getDefaultProps(DatabaseLayout db){
+        this.db = db;
+       if (props == null){
+           props = new TreeMap();
+           props.put(LABELDIR, db.getProp(db.ROOTDIR)
+                        +"phonelab"
+                        +System.getProperty("file.separator"));
+           props.put(LABELEXT,".lab");
+       }
+       return props;
     }
-    
+     
     /**/
     public boolean compute() throws IOException
     {
-        init();
-        phonelabelDir = new File( db.labDirName() );
+        
+        phonelabelDir = new File(db.getProp(db.LABDIR));
         if (!phonelabelDir.exists()) throw new IOException("No such directory: "+ phonelabelDir);
 
         
-        System.out.println( "Computing unit labels for " + bnl.getLength() + " files." );
-        System.out.println( "From phonetic label files: " + db.labDirName() + "*" + db.labExt() );
-        System.out.println( "To       unit label files: " + unitlabelDir + "*" + unitlabelExt );
+        System.out.println( "Computing unit labels for " 
+                + bnl.getLength() + " files." );
+        System.out.println( "From phonetic label files: " 
+                + db.getProp(db.LABDIR) + "*" + db.getProp(db.LABEXT));
+        System.out.println( "To       unit label files: " 
+                + getProp(LABELDIR) + "*" + unitlabelExt );
         for (int i=0; i<bnl.getLength(); i++) {
             percent = 100*i/bnl.getLength();
-            File labFile = new File( db.labDirName() + bnl.getName(i) + db.labExt() );
+            File labFile = 
+                new File( db.getProp(db.LABDIR) 
+                        + bnl.getName(i) + db.getProp(db.LABEXT) );
             if ( !labFile.exists() ) {
                 System.out.println( "Utterance [" + bnl.getName(i) + "] does not have a phonetic label file." );
                 System.out.println( "Removing this utterance from the base utterance list." );
@@ -70,7 +90,8 @@ public class UnitLabelComputer implements VoiceImportComponent
             }
             else {
                 BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream( labFile ), "UTF-8"));
-                PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(unitlabelDir, bnl.getName(i) + unitlabelExt )), "UTF-8"));
+                String labelFile = getProp(LABELDIR)+ bnl.getName(i) + unitlabelExt;
+                PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(labelFile)), "UTF-8"));
                 // Merge adjacent pauses into one: In a sequence of pauses,
                 // only remember the last one.
                 String pauseLine = null;

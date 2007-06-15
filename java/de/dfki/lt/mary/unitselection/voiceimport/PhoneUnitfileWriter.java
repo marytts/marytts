@@ -37,10 +37,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
+import java.util.*;
 
 import de.dfki.lt.mary.unitselection.UnitFileReader;
 
-public class UnitfileWriter implements VoiceImportComponent
+public class PhoneUnitfileWriter extends VoiceImportComponent
 {
     protected File maryDir;
     protected String unitFileName;
@@ -48,47 +49,68 @@ public class UnitfileWriter implements VoiceImportComponent
     protected String unitlabelExt;
     protected int samplingRate;
     protected String pauseSymbol;
-    protected LabelFeatureAligner aligner;
+    protected PhoneLabelFeatureAligner aligner;
 
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
     protected int percent = 0;
     
-    public UnitfileWriter( DatabaseLayout setdb, BasenameList setbnl )
+    public String LABELDIR = "phoneUnitfileWriter.labelDir";
+    public String LABELEXT = "phoneUnitfileWriter.labelExt";
+    public String UNITFILE = "phoneUnitfileWriter.unitFile";
+    public String CORRPMDIR = "phoneUnitfileWriter.corrPmDir";
+    public String CORRPMEXT = "phoneUnitfileWriter.corrPmExt";
+    
+    public String getName(){
+        return "phoneUnitfileWriter";
+    }
+    
+    public void initialise( BasenameList setbnl, SortedMap newProps )
     {
-        this.db = setdb;
-        this.bnl = setbnl;
-
-        maryDir = new File( db.maryDirName() );
-        if (!maryDir.exists()) {
-            maryDir.mkdir();
-            System.out.println("Created the output directory [" + db.maryDirName() + "] to store the unit file." );
-        }
-        samplingRate = Integer.getInteger("unit.file.samplingrate", 16000).intValue(); // TODO: make a better passing of the sampling rate
+         this.bnl = setbnl;
+        this.props = newProps;
+        maryDir = new File(db.getProp(db.FILEDIR));
+        
+        samplingRate = Integer.parseInt(db.getProp(db.SAMPLINGRATE));
         pauseSymbol = System.getProperty("pause.symbol", "pau");
+    
+        unitFileName = getProp(UNITFILE);
+        unitlabelDir = new File(getProp(LABELDIR));
+        if (!unitlabelDir.exists()){
+            System.out.print(LABELDIR+" "+getProp(LABELDIR)
+                    +" does not exist; ");
+            if (!unitlabelDir.mkdir()){
+                throw new Error("Could not create LABELDIR");
+            }
+            System.out.print("Created successfully.\n");
+        }    
+        unitlabelExt = getProp(LABELEXT);
+        aligner = new PhoneLabelFeatureAligner();
+        db.initialiseComponent(aligner);        
     }
     
-    /**
-     * Set some global variables that subclasses may want to override.
-     *
-     */
-    protected void init()
-    {
-        unitFileName = db.phoneUnitFileName();
-        unitlabelDir = new File( db.phoneUnitLabDirName() );
-        if (!unitlabelDir.exists()) throw new IllegalStateException("Unit label directory "+unitlabelDir.getAbsolutePath()+" does not exist");
-        unitlabelExt = db.phoneUnitLabExt();
-        try {
-            aligner = new LabelFeatureAligner( db, bnl );
-        } catch (IOException ioe){
-            throw new IllegalStateException("Could not create LabelFeatureAligner");
-        }
+    public SortedMap getDefaultProps(DatabaseLayout db){
+        this.db = db;
+       if (props == null){
+           props = new TreeMap();
+           String rootDir = db.getProp(db.ROOTDIR);
+           props.put(LABELDIR, rootDir
+                   +"phonelab"
+                   +System.getProperty("file.separator"));
+           props.put(LABELEXT,".lab");
+           props.put(UNITFILE, db.getProp(db.FILEDIR)
+                   +"phoneUnits"+db.getProp(db.MARYEXT));           
+           props.put(CORRPMDIR, rootDir
+                   +"pm"
+                   +System.getProperty("file.separator"));
+           props.put(CORRPMEXT, ".pm.corrected");
+       }
+       return props;
     }
-    
     
     public boolean compute() throws IOException
     {
-        init();
+        
         System.out.println("Unitfile writer started.");
         System.out.println("Verifying that unit feature and label files are perfectly aligned...");
         
@@ -110,7 +132,8 @@ public class UnitfileWriter implements VoiceImportComponent
         for (int i=0; i<bnl.getLength(); i++) {
             percent = 100*i/bnl.getLength();
             /* Open the relevant pitchmark file */
-            pmFile = new ESTTrackReader( db.correctedPitchmarksDirName() + "/" + bnl.getName(i) + db.correctedPitchmarksExt() );
+            pmFile = new ESTTrackReader(getProp(CORRPMDIR)
+                    + bnl.getName(i) + getProp(CORRPMEXT));
             // Output the utterance start marker: "null" unit
             out.writeLong( globalStart ); out.writeInt(-1);
             index++;
@@ -190,9 +213,9 @@ public class UnitfileWriter implements VoiceImportComponent
 
     public static void main(String[] args) throws IOException
     {
-        DatabaseLayout db = DatabaseImportMain.getDatabaseLayout();
-        BasenameList bnl = DatabaseImportMain.getBasenameList(db);
-        new UnitfileWriter(db, bnl).compute();
+        PhoneUnitfileWriter ufw = new PhoneUnitfileWriter();
+        new DatabaseLayout(ufw); 
+        ufw.compute();
     }
 
 }

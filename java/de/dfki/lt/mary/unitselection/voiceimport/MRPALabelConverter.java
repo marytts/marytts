@@ -28,38 +28,41 @@
  */
 package de.dfki.lt.mary.unitselection.voiceimport;
 
-import de.dfki.lt.mary.MaryProperties;
 import java.io.*;
 import java.text.DecimalFormat;
 import java.util.*;
 
-public class MRPALabelConverter implements VoiceImportComponent{
+public class MRPALabelConverter extends VoiceImportComponent{
 
     
-    private DatabaseLayout dbLayout;
+    private DatabaseLayout db;
     private Map sampamap;
     
-    /**
-     * Create new LabelingPreparator
-     * 
-     * @param dbLayout the database layout
-     * @param baseNames the list of file base names
-     */
-    public MRPALabelConverter(DatabaseLayout dbLayout){
-        this.dbLayout = dbLayout;
-        sampamap = null;
+    public final String MRPALABDIR = "mrpaLabelConverter.mrpaLabDir";
+    
+    public String getName(){
+        return "mrpaLabelConverter";
     }
     
+    public void initialise( BasenameList setbnl, SortedMap newProps )
+    {       
+        this.props = newProps;       
+    }
+    
+    public SortedMap getDefaultProps(DatabaseLayout db){
+        this.db = db;
+       if (props == null){
+           props = new TreeMap();
+           props.put(MRPALABDIR,db.getProp(db.ROOTDIR)
+                   +"/st/lab");
+       }
+       return props;
+    }
     public boolean compute(){
         
         System.out.println("Converting mrpa labels ... ");
         //get the filename of the sampamapfile
-        String marybase = System.getProperty("MARY_BASE");
-        if (marybase == null){
-            System.out.println( "Warning: The environment variable MARY_BASE was not found on your system." );
-            System.out.println( "         Defaulting MARY_BASE to [ /project/mary/anna/openmary ]." );
-            marybase = "/project/mary/anna/openmary";
-        }
+        String marybase = db.getProp(db.MARYBASE);
         String sampamapfile = marybase+"/lib/modules/en/synthesis/sampa2mrpa_en.map";
         try{ 
             if (sampamap == null){
@@ -81,16 +84,17 @@ public class MRPALabelConverter implements VoiceImportComponent{
             
             //go through the label files
              
-            File rootDirFile = new File(dbLayout.rootDirName());
+            File rootDirFile = new File(db.getProp(db.ROOTDIR));
             String rootDirName = rootDirFile.getCanonicalPath();
-            //make lab-directory if it does not exist
-            File stLabDir = new File(rootDirName+"/st/lab");
+            //get mrpa lab-directory 
+            File stLabDir = new File(getProp(MRPALABDIR));
             if (!stLabDir.exists()){
-                stLabDir.mkdir();
+                throw new Error("Error loading mrpa labels: mrpa label directory "+getProp(MRPALABDIR)
+                        +" does not exist");
             }
             //lab destination directory
-            String labDestDir = dbLayout.labDirName();
-            String labExtension = dbLayout.labExt();
+            String labDestDir = db.getProp(db.LABDIR);
+            String labExtension = db.getProp(db.LABEXT);
             //used to prune the times to 5 positions behind .   
             DecimalFormat df = new DecimalFormat( "0.00000" );
             //go through original lab files
@@ -171,8 +175,6 @@ public class MRPALabelConverter implements VoiceImportComponent{
                 labOut.close();
             }
             System.out.println("... done.");
-            
-            
             return true;
         } catch (Exception e){
             e.printStackTrace();
