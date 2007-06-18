@@ -54,7 +54,7 @@ public class MRPALabelConverter extends VoiceImportComponent{
        if (props == null){
            props = new TreeMap();
            props.put(MRPALABDIR,db.getProp(db.ROOTDIR)
-                   +"/st/lab");
+                   +"st/lab");
        }
        return props;
     }

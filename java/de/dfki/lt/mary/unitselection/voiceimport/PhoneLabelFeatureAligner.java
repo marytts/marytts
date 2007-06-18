@@ -184,7 +184,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
                         case REMOVE:
                             tryAgain = false;
                             bnl.remove( basename );
-                            remainingProblems--;
+                            deleteProblemsYesNo(null,basename);                          remainingProblems--;
                             System.out.println( " -> Removed from the utterance list. OK" );
                             break;
                         
@@ -210,7 +210,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         }
         if (removeAll){
             //ask user if asscociated files should be deleted
-            deleteProblemsYesNo(problems);
+            deleteProblemsYesNo(problems,null);
         }
         
         System.out.println( "Removed [" + (bnlLengthIn-bnl.getLength()) + "/" + bnlLengthIn
@@ -249,20 +249,37 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
      * @param numProblems the number of problems
      * @throws IOException
      */
-    protected void deleteProblemsYesNo(Map problems) throws IOException
+    protected void deleteProblemsYesNo(Map problems, String basename) throws IOException
     {
         int choice = JOptionPane.showOptionDialog(null,
-                "Removed problematic utterance from List. Also delete Files?",
-                "Delete problematic files",
+                "Removed problematic utterance(s) from List. Also delete file(s)?",
+                "Delete problematic file(s)",
                 JOptionPane.YES_NO_CANCEL_OPTION, 
                 JOptionPane.QUESTION_MESSAGE, 
                 null,
                 new String[] {"Yes", "No"},
                 null);
         
-        if (choice == 0) deleteProblems(problems);
+        if (choice == 0){
+            if (problems != null){
+                //we have a map basenames->problems
+                for (Iterator it = problems.keySet().iterator(); it.hasNext(); ) {
+                    String nextBasename = (String) it.next(); 
+                    File nextLabFile = new File(getProp(LABELDIR)+ nextBasename + labExt);
+                    nextLabFile.delete();
+                    File nextFeatFile = new File(getProp(FEATUREDIR)+nextBasename + featsExt);
+                    nextFeatFile.delete();
+                }
+            }
+            if (basename != null){
+                //there is just one basename
+                File nextLabFile = new File(getProp(LABELDIR)+ basename + labExt);
+                nextLabFile.delete();
+                File nextFeatFile = new File(getProp(FEATUREDIR)+basename + featsExt);
+                nextFeatFile.delete();
+            }
+        }
     }
-    
     protected void defineReplacementWindow(){
         
         final JFrame frame = new JFrame("Define Replacements");
@@ -596,15 +613,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         return problems.size();
     }
     
-    protected void deleteProblems(Map problems){
-        for (Iterator it = problems.keySet().iterator(); it.hasNext(); ) {
-            String basename = (String) it.next(); 
-            File nextLabFile = new File(getProp(LABELDIR)+ basename + labExt);
-            nextLabFile.delete();
-            File nextFeatFile = new File(getProp(FEATUREDIR)+basename + featsExt);
-            nextFeatFile.delete();
-        }
-    }
+   
     
     protected void defineReplacements(String text) throws Exception{
         
@@ -805,23 +814,39 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         
         // Now go through all feature file units
         boolean correct = true;
-        int unitIndex = -1;
+        int unitIndex= 0;
         while (correct) {
-            unitIndex++;
-            String labelUnit = getLabelUnit(labels);
+            line = labels.readLine();
+            String labelUnit = null;
+            if (line != null){
+                List labelUnitData = getLabelUnitData(line);
+                labelUnit = (String)labelUnitData.get(2);
+                unitIndex = Integer.parseInt((String)labelUnitData.get(1));
+            }
+                
             String featureUnit = getFeatureUnit(features);
             if (featureUnit == null) throw new IOException("Incomplete feature file: "+basename);
             // when featureUnit is the empty string, we have found an empty line == end of feature section
             if ("".equals(featureUnit)){
                if (labelUnit == null){
+                   //we have reached the end in both labels and features
                    break;
                } else {
+                   //label file is longer than feature file
                    return "Label file is longer than feature file: "
                    +" unit "+unitIndex
                    +" and greater do not exist in feature file";  
                }
             }
+            if (labelUnit == null){
+                //feature file is longer than label file
+                unitIndex++;
+                return "Feature file is longer than label file: "
+                   +" unit "+unitIndex
+                   +" and greater do not exist in label file";  
+            }
             if (!featureUnit.equals(labelUnit)) {
+                //label and feature unit do not match
                 return "Non-matching units found: feature file '"
                 +featureUnit+"' vs. label file '"+labelUnit
                 +"' (Unit "+unitIndex+")";
@@ -840,9 +865,11 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         if (line == null) return null;
         ArrayList unitData = new ArrayList();
         StringTokenizer st = new StringTokenizer(line.trim());
-        // The third token in each line is the label
+        //the first token is the time
         unitData.add(st.nextToken()); 
+        //the second token is the unit index
         unitData.add(st.nextToken());
+        //the third token is the phoneme
         unitData.add(st.nextToken());
         return unitData;
     }
@@ -887,10 +914,16 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
     protected int letUserCorrect(String basename, String errorMessage) throws IOException
     {
         String[] options;
+        /*
         if (correctedPauses){
             options = new String[] {"Edit RAWMARYXML", "Edit unit labels", "Remove from list", "Remove all problems", "Skip", "Skip all","Replace labels in unit file","Define replacements"};
         } else {
             options = new String[] {"Edit RAWMARYXML", "Edit unit labels", "Remove from list", "Remove all problems", "Skip", "Skip all","Define replacements"};
+        }*/
+        if (correctedPauses){
+            options = new String[] {"Edit RAWMARYXML", "Edit unit labels", "Remove from list", "Remove all problems", "Skip", "Skip all"};
+        } else {
+            options = new String[] {"Edit RAWMARYXML", "Edit unit labels", "Remove from list", "Remove all problems", "Skip", "Skip all"};
         }
         int choice = JOptionPane.showOptionDialog(null,
                 "Misalignment problem for "+basename+":\n"+
@@ -916,6 +949,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
             return SKIP;
         case 5:
             return SKIPALL;
+            /**
         case 6:
             if (correctedPauses){
                 replaceUnitLabels(basename);
@@ -925,7 +959,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
             return TRYAGAIN;
         case 7:
             defineReplacementWindow();
-            return TRYAGAIN;
+            return TRYAGAIN;**/
         default: // JOptionPane.CLOSED_OPTION
             return SKIP; // don't verify again.
         }

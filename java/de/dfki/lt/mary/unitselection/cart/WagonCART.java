@@ -82,9 +82,11 @@ public abstract class WagonCART extends CART
             throws IOException {
         featDef = featDefinition;
         openBrackets = 0;
-        String line = reader.readLine(); // first line is empty, read again
+        String line = reader.readLine(); 
+        if (line.equals("")){// first line is empty, read again
+            line = reader.readLine();
+        }
         // each line corresponds to a node
-        line = reader.readLine();
         // for each line
         while (line != null) {
             if (!line.startsWith(";;")

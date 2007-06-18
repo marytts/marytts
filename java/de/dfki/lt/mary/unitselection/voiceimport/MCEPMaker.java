@@ -50,8 +50,8 @@ public class MCEPMaker extends VoiceImportComponent {
     public final String PMEXT = "mcepMaker.pmExt";
     public final String LPCDIR = "mcepMaker.lpcDir";
     public final String LPCEXT = "mcepMaker.lpcExt";
-    public final String MCEPDIR = "mcepMaker.lpcDir";
-    public final String MCEPEXT = "mcepMaker.lpcExt";
+    public final String MCEPDIR = "mcepMaker.mcepDir";
+    public final String MCEPEXT = "mcepMaker.mcepExt";
     public final String ESTDIR = "mcepMaker.estDir";
     
     public String getName(){

@@ -204,7 +204,7 @@ public class DatabaseImportMain extends JFrame
             new Thread("DisplaySettingsGUIThread") {
                 public void run() {
                     String text = "The following settings can be edited:";
-                    new SettingsGUI().display(db, db.getAllProps(),text);
+                    new SettingsGUI().display(db, db.getAllPropsForDisplay(),text);
                 }}.start();
         }catch (Exception e){
             System.out.println("Can not load helpfile "
