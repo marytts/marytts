@@ -57,6 +57,7 @@ public class F0CARTTrainer extends VoiceImportComponent
     public final String F0LEFTTREEFILE = name+".f0LeftTreeFile";
     public final String F0RIGHTTREEFILE = name+".f0RightTreeFile";
     public final String F0MIDTREEFILE = name+".f0MidTreeFile";
+    public final String ESTDIR = name+".estDir";
     
     
     public String getName(){
@@ -121,6 +122,11 @@ public class F0CARTTrainer extends VoiceImportComponent
                    +"f0.right.tree");
            props.put(F0MIDTREEFILE,filedir
                    +"f0.mid.tree");
+           String estdir = System.getProperty("ESTDIR");
+           if ( estdir == null ) {
+               estdir = "/project/mary/Festival/speech_tools/";
+           }
+           props.put(ESTDIR,estdir);
        }
        return props;
     }
@@ -213,7 +219,7 @@ public class F0CARTTrainer extends VoiceImportComponent
         toDesc.close();
         
         // Now, call wagon
-        WagonCaller wagonCaller = new WagonCaller(null);
+        WagonCaller wagonCaller = new WagonCaller(getProp(ESTDIR),null);
         File wagonTreeFile = new File(getProp(F0LEFTTREEFILE));
         boolean ok;
         if (useStepwiseTraining) {

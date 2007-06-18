@@ -43,6 +43,7 @@ public class DurationCARTTrainer extends VoiceImportComponent
     public final String UNITFILE = name+".unitFile";
     public final String WAVETIMELINE = name+".waveTimeline";
     public final String DURTREEFILE = name+".durTreeFile";
+    public final String ESTDIR = name+".estDir";
     
     public String getName(){
         return name;
@@ -95,6 +96,11 @@ public class DurationCARTTrainer extends VoiceImportComponent
                     +"timeline_waveforms"+db.getProp(db.MARYEXT));
             props.put(DURTREEFILE, db.getProp(db.FILEDIR)
                     +"dur.tree");
+           String estdir = System.getProperty("ESTDIR");
+           if ( estdir == null ) {
+               estdir = "/project/mary/Festival/speech_tools/";
+           }
+           props.put(ESTDIR,estdir);
         }
        return props;
     }
@@ -134,7 +140,7 @@ public class DurationCARTTrainer extends VoiceImportComponent
         
         boolean ok = false;
         // Now, call wagon
-        WagonCaller wagonCaller = new WagonCaller(null);
+        WagonCaller wagonCaller = new WagonCaller(getProp(ESTDIR),null);
         File wagonTreeFile = new File(getProp(DURTREEFILE));
         if (useStepwiseTraining) {
             // Split the data set in training and test part:

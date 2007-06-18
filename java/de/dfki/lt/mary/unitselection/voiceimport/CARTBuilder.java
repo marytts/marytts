@@ -61,6 +61,8 @@ public class CARTBuilder extends VoiceImportComponent {
     public final String MCEPTIMELINE = "cartBuilder.mcepTimeline";
     public final String UNITFILE = "cartBuilder.unitFile";
     public final String READFEATURESEQUENCE = "cartBuilder.readFeatureSequence";
+    public final String MAXLEAFSIZE = "cartBuilder.maxLeafSize";
+    public final String ESTDIR = "cartBuilder.estDir";
     
     public String getName(){
         return "cartBuilder";
@@ -119,6 +121,12 @@ public class CARTBuilder extends VoiceImportComponent {
            props.put(UNITFILE,filedir
                         +"halfphoneUnits"+maryext);
            props.put(READFEATURESEQUENCE,"true");
+           props.put(MAXLEAFSIZE,"3300");
+           String estdir = System.getProperty("ESTDIR");
+           if ( estdir == null ) {
+               estdir = "/project/mary/Festival/speech_tools/";
+           }
+           props.put(ESTDIR,estdir);
        }
        return props;
    }
@@ -217,7 +225,7 @@ public class CARTBuilder extends VoiceImportComponent {
          
          System.out.println("Checking top-level CART for reasonable leaf sizes ...");
          int minSize = 5;
-         int maxSize = 3383;
+         int maxSize = Integer.parseInt(getProp(MAXLEAFSIZE));
          int nTooSmall = 0;
          int nTooBig = 0;
          int nLeaves = 0;
@@ -428,7 +436,8 @@ public class CARTBuilder extends VoiceImportComponent {
                         distanceFileName,
                         cartFile+wagonID,
                         0,
-                        stop);
+                        stop,
+                        getProp(ESTDIR));
                 boolean dispatched = false;
                 while (!dispatched) {
                     for (int w=0; w<numProcesses && !dispatched; w++) {
@@ -825,7 +834,7 @@ public class CARTBuilder extends VoiceImportComponent {
     public static class WagonCallerThread extends Thread
     {
         //the Edinburgh Speech tools directory
-        protected String ESTDIR = "/project/mary/Festival/speech_tools/";
+        protected String ESTDIR;
         protected String arguments;
         protected File cartFile;
         protected File valueFile;
@@ -844,19 +853,14 @@ public class CARTBuilder extends VoiceImportComponent {
                 String distanceTableFilename,
                 String cartFilename,
                 int balance,
-                int stop)
+                int stop,
+                String ESTDIR)
         {
             this.id = id;
             this.leafToReplace = leafToReplace;
             this.featureDefinition = featureDefinition;
             this.featureVectors = featureVectors;
-
-            String getESTDIR = System.getProperty("ESTDIR");
-            if ( getESTDIR == null ) {
-                System.out.println( "Warning: The environment variable ESTDIR was not found on your system." );
-                System.out.println( "         Defaulting ESTDIR to [" + ESTDIR + "]." );
-            }
-            else ESTDIR = getESTDIR;
+            this.ESTDIR = ESTDIR;
 
             this.valueFile = new File(valueFilename);
             this.distanceTableFile = new File(distanceTableFilename);

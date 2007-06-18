@@ -32,6 +32,8 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
     
     public String FEATUREDIR = "phoneUnitFeatureComputer.featureDir";
     public String FEATUREEXT = "phoneUnitFeatureComputer.featureExt";
+    public String MARYSERVERHOST = "phoneUnitFeatureComputer.maryServerHost";
+    public String MARYSERVERPORT = "phoneUnitFeatureComputer.maryServerPort";
     
     public String getName(){
         return "phoneUnitFeatureComputer";
@@ -78,6 +80,8 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
                         +"phonefeatures"
                         +System.getProperty("file.separator"));
            props.put(FEATUREEXT,".pfeats");
+           props.put(MARYSERVERHOST,"localhost");
+           props.put(MARYSERVERPORT,"59125");
        } 
        return props;
       }
@@ -86,10 +90,10 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
     {
         if (mary == null) {
             if (System.getProperty("server.host") == null) {
-                System.setProperty("server.host", "localhost");
+                System.setProperty("server.host", getProp(MARYSERVERHOST));
             }
             if (System.getProperty("server.port") == null) {
-                System.setProperty("server.port", "59125");
+                System.setProperty("server.port", getProp(MARYSERVERPORT));
             }
             mary = new MaryClient();
         }

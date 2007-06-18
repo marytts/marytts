@@ -47,6 +47,8 @@ public class HalfPhoneUnitFeatureComputer extends PhoneUnitFeatureComputer
     public HalfPhoneUnitFeatureComputer(){
         FEATUREDIR = "halfPhoneUnitFeatureComputer.featureDir";
         FEATUREEXT = "halfPhoneUnitFeatureComputer.featureExt";
+        MARYSERVERHOST = "halfPhoneUnitFeatureComputer.maryServerHost";
+        MARYSERVERPORT = "halfPhoneUnitFeatureComputer.maryServerPort";    
     }
     
      public void initialise( BasenameList setbnl, SortedMap newProps )
@@ -79,6 +81,8 @@ public class HalfPhoneUnitFeatureComputer extends PhoneUnitFeatureComputer
                         +"halfphonefeatures"
                         +System.getProperty("file.separator"));
            props.put(FEATUREEXT,".hpfeats");
+           props.put(MARYSERVERHOST,"localhost");
+           props.put(MARYSERVERPORT,"59125");
        } 
        return props;
       }

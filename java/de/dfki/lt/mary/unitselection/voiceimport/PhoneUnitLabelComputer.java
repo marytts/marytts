@@ -70,7 +70,6 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
         
         phonelabelDir = new File(db.getProp(db.LABDIR));
         if (!phonelabelDir.exists()) throw new IOException("No such directory: "+ phonelabelDir);
-
         
         System.out.println( "Computing unit labels for " 
                 + bnl.getLength() + " files." );
@@ -127,7 +126,9 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
                 String[] phoneLabelLines = (String[]) phoneLabels.toArray(new String[0]);
                 String[] unitLabelLines = toUnitLabels(phoneLabelLines);
                 for (int h=0, hMax = header.size(); h<hMax; h++) {
+                    out.println("format: end time, unit index, phone");
                     out.println(header.get(h));
+                    
                 }
                 for (int u=0; u<unitLabelLines.length; u++) {
                     out.println(unitLabelLines[u]);

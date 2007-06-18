@@ -52,6 +52,7 @@ public class DatabaseLayout
     private Map compnames2comps;
     private SortedMap missingProps;
     private boolean initialized;
+    private List uneditableProps;
     //marybase
     public final String MARYBASE = "db.marybase";
     //voicename
@@ -118,20 +119,28 @@ public class DatabaseLayout
         System.out.println("Loading database layout:");
         this.components = components;
         fileSeparator = System.getProperty("file.separator");
+        uneditableProps = new ArrayList();
+        uneditableProps.add(MAINHELPFILE);
+        uneditableProps.add(SETTINGSHELPFILE);
+        uneditableProps.add(MARYEXT);
+        uneditableProps.add(CONFIGDIR);
+        uneditableProps.add(FILEDIR);
+        uneditableProps.add(TEMPDIR);
         /* check if there is a config file */
         //TODO: config file name as property or command line arg?
         configFileName = "./database.config";
         File configFile = new File(configFileName);
         getCompNames();
         if (configFile.exists()){
-            //try to get all props and values from config file
+            
             System.out.println("Reading config file "+configFileName);
-            readConfigFile(configFile);
+            readConfigFile(configFile);  
             SortedMap defaultGlobalProps = new TreeMap();
             //get the default values for the global props
             defaultGlobalProps = initDefaultProps(defaultGlobalProps,true);
             //get the local default props from the components
             SortedMap defaultLocalProps = getDefaultPropsFromComps();
+            //try to get all props and values from config file
             if (!checkProps(defaultGlobalProps,defaultLocalProps)){
                 //some props are missing                
                 //prompt the user for the missing props
@@ -163,6 +172,7 @@ public class DatabaseLayout
         initializeComps();
         initialized = true;
     }
+    
     
      /**
      * Get the names of the components
@@ -216,7 +226,21 @@ public class DatabaseLayout
                     }                    
                 }
             }
-            in.close();            
+            in.close(); 
+            //add the props that are not editable
+            SortedMap defaultGlobalProps = new TreeMap();
+            //get the default values for the global props
+            defaultGlobalProps = initDefaultProps(defaultGlobalProps,false);
+            for (Iterator it=uneditableProps.iterator();it.hasNext();){
+                String key = (String) it.next();
+                if (defaultGlobalProps.containsKey(key)){
+                    props.put(key, defaultGlobalProps.get(key));
+                } else {
+                    //this case should never happen -> Error
+                    throw new Error("Not editable global prop "+key
+                            +" not defined in default props.");
+                }
+            }
         }catch (Exception e){
             e.printStackTrace();
             throw new Error("Error reading config file");
@@ -353,7 +377,9 @@ public class DatabaseLayout
             Set globalPropSet = props.keySet();
             for (Iterator it=globalPropSet.iterator();it.hasNext();){
                 String key = (String) it.next();
-                out.println(key+" "+props.get(key));                
+                if (isEditable(key)){
+                    out.println(key+" "+props.get(key));      
+                }
             }
             out.println();     
              StringBuffer outBuf = new StringBuffer();
@@ -416,14 +442,14 @@ public class DatabaseLayout
             props.put(LOCALE,"<de or en>");
             props.put(SAMPLINGRATE,"<sampling rate of wave files>");
             props.put(ROOTDIR,"/path/to/voicedirectory/");
-            props.put(WAVDIR,"/path/to/wavefiles(default rootdir/wav/)");
+            props.put(WAVDIR,"/path/to/wavefiles");
             props.put(WAVEXT,"<extension of your wav files, e.g., .wav>");
-            props.put(LABDIR,"/path/to/labelfiles(default rootdir/lab/)");
+            props.put(LABDIR,"/path/to/labelfiles");
             props.put(LABEXT,"<extension of your lab files, e.g., .lab>");
-            props.put(TEXTDIR,"/path/to/transcriptfiles(default rootdir/text/");
+            props.put(TEXTDIR,"/path/to/transcriptfiles");
             props.put(TEXTEXT,"<extension of your transcript files, e.g., .txt>");
         }        
-        String rootDir = (String)props.get(ROOTDIR);        
+        String rootDir = getProp(ROOTDIR);        
         props.put(CONFIGDIR,rootDir+"mary_configs"+fileSeparator);
         props.put(FILEDIR,rootDir+"mary_files"+fileSeparator);
         props.put(MARYEXT,".mry");
@@ -480,13 +506,9 @@ public class DatabaseLayout
             throw new Error("WAVDIR "+getProp(WAVDIR)+" is not a directory!");
         }
         /* check lab dir */
+        checkDir(LABDIR);
         dir = new File(getProp(LABDIR));
-        if (!dir.exists()){
-            throw new Error("LABDIR "+getProp(LABDIR)+" does not exist!");
-        }
-        if (!dir.isDirectory()){
-            throw new Error("LABDIR "+getProp(LABDIR)+" is not a directory!");
-        }
+        
     }
     
     /**
@@ -505,6 +527,9 @@ public class DatabaseLayout
                 throw new Error("Could not create "+propname);
             }
             System.out.print("Created successfully.\n");
+        }  
+        if (!dir.isDirectory()){
+            throw new Error(propname+" "+getProp(LABDIR)+" is not a directory!");
         }        
     }
     
@@ -551,17 +576,25 @@ public class DatabaseLayout
         props.put(prop,val);
     }
     
+    public boolean isEditable(String propname){
+        return !uneditableProps.contains(propname);
+    }
+    
     /**
      * Get all props of all components
      * as an Array representation
+     * for displaying with the SettingsGUI.
+     * Does not include uneditable props.
      */
-    public String[][] getAllProps(){
+    public String[][] getAllPropsForDisplay(){
         List keys = new ArrayList();
         List values = new ArrayList();
         for (Iterator it = props.keySet().iterator();it.hasNext();){
             String key = (String) it.next();
-            keys.add(key);
-            values.add(props.get(key));
+            if (isEditable(key)){
+                keys.add(key);
+                values.add(props.get(key));
+            }
         }
         for (int i=0;i<compNames.length;i++){
             SortedMap nextProps = (SortedMap)localProps.get(compNames[i]);
@@ -593,7 +626,8 @@ public class DatabaseLayout
             //find out if this is a global or a local prop
             if (key.startsWith("db.")){
                 //global prop
-                setProp(key,value);
+                if (isEditable(key))
+                    setProp(key,value);
             } else {
                 //local prop: get the name of the component
                 String compName = key.substring(0,key.indexOf('.'));

@@ -298,13 +298,7 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
                 MaryData maryData = new MaryData(MaryDataType.get(outputFormat));
                 maryData.readFrom(new ByteArrayInputStream(os.toByteArray()));
                 Document doc = maryData.getDocument();
-                /**if (nextFilename.equals("EM001_BTEC_1107")){
-                    StringBuffer xmlBuf = new StringBuffer();
-                    getXMLAsString(doc,xmlBuf);
-                    System.out.println(xmlBuf.toString());
-                    line = transIn.readLine();
-                    continue;
-                }**/
+                
                 //go through the tokens
                 NodeIterator tokensIt = ((DocumentTraversal)doc).createNodeIterator(doc, 
                         NodeFilter.SHOW_ELEMENT,
@@ -357,18 +351,7 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
                         trainBuff.append(" <s>");
                         sentenceBoundary = false;
                     }
-                    /**
-                    trainBuff.append(" "+word);
-                    alignBuff.append(" "+word);
                     
-                    if (!dictionary.containsKey(word)){
-                        //store word and pronounciation in dictionary:
-                        //build new pronounciation List
-                        List phoneList = new ArrayList();
-                        //add
-                        dictionary.put(word,phoneList);
-                    
-                    **/
                         //go through the phones
                         NodeList phoneNodes = token.getElementsByTagName(MaryXML.PHONE);
  

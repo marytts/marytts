@@ -60,7 +60,6 @@ public class SphinxLabeler extends VoiceImportComponent {
            }
            props.put(SPHINX2DIR,sphinx2dir);
            props.put(STDIR,db.getProp(db.ROOTDIR)
-           				+System.getProperty("file.separator")
            				+"st");
        }
        return props;
