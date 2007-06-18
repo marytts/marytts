@@ -1,244 +1,288 @@
-
 SETTINGS HELP
-*************
 
-# GlobalProperties:
-db.basenameFile /home/cl-home/hunecke/anna/voices/bdl_arctic2//basenames.lst
-db.configDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_configs/
-db.domain general
-db.fileDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/
-db.gender male
-db.helpFile /home/cl-home/hunecke/anna/openmary/lib/modules/import/help.txt
-db.labDir /home/cl-home/hunecke/anna/voices/cmu_us_bdl_arctic/lab/
-db.labExtension .lab
-db.locale en
-db.mainHelpFile /home/cl-home/hunecke/anna/openmary/lib/modules/import/help_import_main.txt
-db.maryExtension .mry
-db.marybase /home/cl-home/hunecke/anna/openmary/
-db.maryxmlDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/rawmaryxml/
-db.maryxmlExtension .xml
-db.rootDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/
-db.samplingrate 16000
-db.settingsHelpFile /home/cl-home/hunecke/anna/openmary/lib/modules/import/help_settings.txt
-db.tempDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/
-db.textDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/text/
-db.textExtension .txt
-db.voicename bdl-arctic2
-db.wavDir /home/cl-home/hunecke/anna/voices/cmu_us_bdl_arctic/wav/
-db.wavExtension .wav
+Warning: the settings of the modules are connected: If you change a setting in one module, 
+then maybe the next module will not work anymore! 
 
-# Properties for module praatPitchmarker:
-praatPitchmarker.command praat
-praatPitchmarker.corrPmDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/pm/
-praatPitchmarker.corrPmExt .pm.corrected
-praatPitchmarker.maxPitch 300
-praatPitchmarker.minPitch 75
-praatPitchmarker.pmDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/pm/
-praatPitchmarker.pmExt .pm
-praatPitchmarker.pointPExt .PointProcess
-praatPitchmarker.tempScript /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/script.praat
+The settings are set up so that everything works, so normally you will not want to change anything.
+Settings that you might want to change and that do not interact with other settings, are marked with a star (*).
 
-# Properties for module mcepMaker:
-mcepMaker.corrPmDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/pm/
-mcepMaker.corrPmExt .pm.corrected
-mcepMaker.estDir /project/mary/Festival/speech_tools/
-mcepMaker.lpcDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/mcep/
-mcepMaker.lpcExt .mcep
-mcepMaker.pmDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/pm/
-mcepMaker.pmExt .pm
 
-# Properties for module mary2FestvoxTranscripts:
-mary2FestvoxTranscripts.transcriptFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/txt.done.data
+GlobalProperties:
+db.basenameFile      : the file containing the list of files that are used to build the voice
+*db.domain           : general or limited
+*db.gender           : female or male
+db.labDir            : the directory containing the label files. Will be created if it does not exist.
+db.labExtension      : the extension of the label files, default: ".lab"
+*db.locale     	     : de, en or en_US
+*db.marybase      	 : the directory containing the local Mary installation
+db.maryxmlDir    	 : the directory containing maryxml representations of the transcripts. Will be created
+					   if it does not exist.
+db.maryxmlExtension  : the extension of the maryxml files, default: ".xml"
+*db.rootDir          : the directory in which all the files created during installation will be stored.
+					   Will be created if it does not exist. 
+*db.samplingrate     : the sampling rate of the wave files, default: "16000"
+db.textDir           : the directory containing the transcript files. Will be created if it does not exist.
+db.textExtension     : the extension of the transcript files, default: ".txt"
+*db.voicename        : the name of the voice, one word, default: "cmu_us_bdl_arctic"
+*db.wavDir           : the directory containing the wave files. If it does not exist, an Error is thrown.
+*db.wavExtension     : the extension of the wave files, default: ".wav"
 
-# Properties for module sphinxLabelingPreparator:
-sphinxLabelingPreparator.estDir /project/mary/Festival/speech_tools/
-sphinxLabelingPreparator.sphinxTrainDir /project/mary/anna/sphinx/SphinxTrain/
-sphinxLabelingPreparator.stDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/st/
-sphinxLabelingPreparator.transcriptFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/txt.done.data
 
-# Properties for module sphinxTrainer:
-sphinxTrainer.stDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/st/
+Properties for module praatPitchmarker:
+*praatPitchmarker.command    : the command to start praat; default is "praat"
+praatPitchmarker.corrPmDir   : the directory containing the corrected pitchmarkfiles. Per default the same
+							   as the directory containing the pitchmarks. Will be created if 
+							   it does not exist.
+praatPitchmarker.corrPmExt   : the extension of the corrected pitchmark files, default: ".pm.corrected"
+*praatPitchmarker.maxPitch   : maximum value for the pitch (in Hz). Default: female 500, male 300.
+*praatPitchmarker.minPitch   : minimum value for the pitch (in Hz). Default: female 100, male 75.
+praatPitchmarker.pmDir       : the directory containing the pitchmarks. Will be created if it does not exist.
+praatPitchmarker.pmExt       : the extension of the pitchmark files, default: ".pm"
+praatPitchmarker.pointPExt   : the extension of the point process files, default: ".PointProcess"
+praatPitchmarker.tempScript  : the filename of the temporary script used by praat
 
-# Properties for module sphinxLabeler:
-sphinxLabeler.sphinx2Dir /project/mary/anna/sphinx/sphinx2/
-sphinxLabeler.stDir /home/cl-home/hunecke/anna/voices/bdl_arctic2//st/
 
-# Properties for module mrpaLabelConverter:
-mrpaLabelConverter.mrpaLabDir /home/cl-home/hunecke/anna/voices/bdl_arctic2//st/lab/
+Properties for module mcepMaker:
+mcepMaker.corrPmDir : the directory containing the corrected pitchmarkfiles. Per default the same
+				      as the directory containing the pitchmarks.
+mcepMaker.corrPmExt : the extension of the corrected pitchmark files, default: ".pm.corrected"
+mcepMaker.estDir    : the directory containing the local installation of the Edinburgh Speech Tools
+mcepMaker.mcepDir   : the directory containing the mcep files
+mcepMaker.mcepExt   : the extension of the mcep files, default: ".mcep"
+mcepMaker.pmDir     : the directory containing the pitchmarks
+mcepMaker.pmExt     : the extension of the pitchmark files, default: ".pm"
 
-# Properties for module festvox2MaryTranscripts:
-festvox2MaryTranscripts.transcriptFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/txt.done.data
 
-# Properties for module labelledFilesInspector:
-labelledFilesInspector.corrPmDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/pm/
-labelledFilesInspector.corrPmExt .pm.corrected
-labelledFilesInspector.exLabDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/lab/
-labelledFilesInspector.exPmDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/pm/
-labelledFilesInspector.exWavDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/wav/
-labelledFilesInspector.extractedDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/
-labelledFilesInspector.pmExt .pm
+Properties for module mary2FestvoxTranscripts:
+*mary2FestvoxTranscripts.transcriptFile : the file containing the transcripts in festvox format:
+										 ( <filename1> "<text>" )
+										 ( <filename2> "<text>" ) and so on
 
-# Properties for module phoneUnitLabelComputer:
-phoneUnitLabelComputer.labelDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/phonelab/
-phoneUnitLabelComputer.labelExt .lab
 
-# Properties for module phoneUnitFeatureComputer:
-phoneUnitFeatureComputer.featureDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/phonefeatures/
-phoneUnitFeatureComputer.featureExt .pfeats
+Properties for module sphinxLabelingPreparator:
+*sphinxLabelingPreparator.estDir         : the directory containing the local installation of the 
+										  Edinburgh Speech Tools
+*sphinxLabelingPreparator.sphinxTrainDir : the directory containing the local installation of SphinxTrain
+sphinxLabelingPreparator.stDir           : the directory containing all files used for training
+										  and labeling
+*sphinxLabelingPreparator.transcriptFile : the file containing the transcripts in festvox format:
+										  ( <filename1> "<text>" )
+										  ( <filename2> "<text>" ) and so on
 
-# Properties for module phoneLabelFeatureAligner:
-phoneLabelFeatureAligner.featureDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/phonefeatures/
-phoneLabelFeatureAligner.featureExt .pfeats
-phoneLabelFeatureAligner.labelDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/phonelab/
-phoneLabelFeatureAligner.labelExt .lab
 
-# Properties for module halfPhoneUnitLabelComputer:
-halfPhoneUnitLabelComputer.labelDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/halfphonelab/
-halfPhoneUnitLabelComputer.labelExt .hplab
+Properties for module sphinxTrainer:
+sphinxTrainer.stDir : the directory containing all files used for training and labeling
 
-# Properties for module halfPhoneUnitFeatureComputer:
-halfPhoneUnitFeatureComputer.featureDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/halfphonefeatures/
-halfPhoneUnitFeatureComputer.featureExt .hpfeats
 
-# Properties for module halfPhoneLabelFeatureAligner:
-halfPhoneLabelFeatureAligner.featureDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/halfphonefeatures/
-halfPhoneLabelFeatureAligner.featureExt .hpfeats
-halfPhoneLabelFeatureAligner.labelDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/halfphonelab/
-halfPhoneLabelFeatureAligner.labelExt .hplab
+Properties for module sphinxLabeler:
+*sphinxLabeler.sphinx2Dir : the directory containing the local installation of Sphinx2
+sphinxLabeler.stDir       : the directory containing all files used for training and labeling
 
-# Properties for module waveTimelineMaker:
-waveTimelineMaker.corrPmDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/pm/
-waveTimelineMaker.corrPmExt .pm.corrected
-waveTimelineMaker.waveTimeline /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/timeline_waveforms.mry
 
-# Properties for module basenameTimelineMaker:
-basenameTimelineMaker.pmDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/pm/
-basenameTimelineMaker.pmExtentsion .pm
-basenameTimelineMaker.timelineFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/timeline_basenames.mry
+Properties for module mrpaLabelConverter:
+mrpaLabelConverter.mrpaLabDir : the directory containing the mrpa label files
 
-# Properties for module lpcTimelineMaker:
-lpcTimelineMaker.lpcDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/lpc/
-lpcTimelineMaker.lpcExt .lpc
-lpcTimelineMaker.lpcTimeline /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/timeline_lpc.mry
 
-# Properties for module mcepTimelineMaker:
-mcepTimelineMaker.mcepDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/mcep/
-mcepTimelineMaker.mcepExt .mcep
-mcepTimelineMaker.mcepTimeline /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/timeline_mcep.mry
+Properties for module festvox2MaryTranscripts:
+*festvox2MaryTranscripts.transcriptFile  : the file containing the transcripts in festvox format:
+										  ( <filename1> "<text>" )
+										  ( <filename2> "<text>" ) and so on
 
-# Properties for module phoneUnitfileWriter:
-phoneUnitfileWriter.corrPmDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/pm/
-phoneUnitfileWriter.corrPmExt .pm.corrected
-phoneUnitfileWriter.labelDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/phonelab/
-phoneUnitfileWriter.labelExt .lab
-phoneUnitfileWriter.unitFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/phoneUnits.mry
 
-# Properties for module phoneFeatureFileWriter:
-phoneFeatureFileWriter.featureDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/phonefeatures/
-phoneFeatureFileWriter.featureExt .pfeats
-phoneFeatureFileWriter.featureFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/phoneFeatures.mry
-phoneFeatureFileWriter.unitFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/phoneUnits.mry
-phoneFeatureFileWriter.weightsFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_configs/phoneUnitFeatureDefinition.txt
+Properties for module labelledFilesInspector:
+labelledFilesInspector.corrPmDir    : the directory containing the corrected pitchmarkfiles
+labelledFilesInspector.corrPmExt    : the extension of the corrected pitchmark files, default: ".pm.corrected"
+labelledFilesInspector.exLabDir     : the directory to were to save the label files
+labelledFilesInspector.exPmDir      : the directory to were to save the pitchmark files
+labelledFilesInspector.exWavDir     : the directory to were to save the wave files
+labelledFilesInspector.extractedDir : the directory to were to save the modified files to
+labelledFilesInspector.pmExt        : the extension of the pitchmark files, default: ".pm"
 
-# Properties for module durationCARTTrainer:
-durationCARTTrainer.durDescFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/dur.desc
-durationCARTTrainer.durDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/
-durationCARTTrainer.durFeatsFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/dur.feats
-durationCARTTrainer.durTreeFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/dur.tree
-durationCARTTrainer.featureDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/phonefeatures/
-durationCARTTrainer.featureFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/phoneFeatures.mry
-durationCARTTrainer.labelDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/phonelab/
-durationCARTTrainer.stepwiseTraining false
-durationCARTTrainer.unitFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/phoneUnits.mry
-durationCARTTrainer.waveTimeline /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/timeline_waveforms.mry
 
-# Properties for module f0CARTTrainer:
-f0CARTTrainer.f0DescFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/f0.desc
-f0CARTTrainer.f0Dir /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/
-f0CARTTrainer.f0LeftFeatFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/f0.left.feats
-f0CARTTrainer.f0LeftTreeFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/f0.left.tree
-f0CARTTrainer.f0MidFeatFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/f0.mid.feats
-f0CARTTrainer.f0MidTreeFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/f0.mid.tree
-f0CARTTrainer.f0RightFeatFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/f0.right.feats
-f0CARTTrainer.f0RightTreeFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/f0.right.tree
-f0CARTTrainer.featureDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/phonefeatures/
-f0CARTTrainer.featureExt .pfeats
-f0CARTTrainer.featureFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/phoneFeatures.mry
-f0CARTTrainer.labelDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/phonelab/
-f0CARTTrainer.labelExt .lab
-f0CARTTrainer.stepwiseTraining false
-f0CARTTrainer.unitFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/phoneUnits.mry
-f0CARTTrainer.waveTimeline /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/timeline_waveforms.mry
+Properties for module phoneUnitLabelComputer:
+phoneUnitLabelComputer.labelDir : the directory containing the phone labels. Will be created if it does not exist.
+phoneUnitLabelComputer.labelExt : the extension of the phonelabel files, default: ".lab"
 
-# Properties for module halfPhoneFeatureFileWriter:
-halfPhoneFeatureFileWriter.featureDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/halfphonefeatures/
-halfPhoneFeatureFileWriter.featureExt .hpfeats
-halfPhoneFeatureFileWriter.featureFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/halfphoneFeatures.mry
-halfPhoneFeatureFileWriter.unitFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/halfphoneUnits.mry
-halfPhoneFeatureFileWriter.weightsFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_configs/halfphoneUnitFeatureDefinition.txt
 
-# Properties for module halfPhoneUnitfileWriter:
-halfPhoneUnitfileWriter.corrPmDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/pm/
-halfPhoneUnitfileWriter.corrPmExt .pm.corrected
-halfPhoneUnitfileWriter.labelDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/halfphonelab/
-halfPhoneUnitfileWriter.labelExt .hplab
-halfPhoneUnitfileWriter.unitFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/halfphoneUnits.mry
+Properties for module phoneUnitFeatureComputer:
+phoneUnitFeatureComputer.featureDir      : /home/cl-home/hunecke/anna/voices/bdl_arctic2/phonefeatures/
+phoneUnitFeatureComputer.featureExt      : .pfeats
+*phoneUnitFeatureComputer.maryServerHost : localhost
+*phoneUnitFeatureComputer.maryServerPort : 59125
 
-# Properties for module joinCostFileMaker:
-joinCostFileMaker.joinCostFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/joinCostFeatures.mry
-joinCostFileMaker.mcepDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/mcep/
-joinCostFileMaker.mcepExt .mcep
-joinCostFileMaker.mcepTimeline /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/timeline_mcep.mry
-joinCostFileMaker.unitFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/halfphoneUnits.mry
-joinCostFileMaker.weightsFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/joinCostWeights.txt
 
-# Properties for module joinCostPrecomputer:
-joinCostPrecomputer.joinCostFeaturesFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/joinCostFeatures.mry
-joinCostPrecomputer.joinCostFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/joinCosts.mry
-joinCostPrecomputer.unitFeaturesFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/halfphoneFeatures.mry
-joinCostPrecomputer.unitFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/halfphoneUnits.mry
+Properties for module phoneLabelFeatureAligner:
+phoneLabelFeatureAligner.featureDir : /home/cl-home/hunecke/anna/voices/bdl_arctic2/phonefeatures/
+phoneLabelFeatureAligner.featureExt : .pfeats
+phoneLabelFeatureAligner.labelDir   : /home/cl-home/hunecke/anna/voices/bdl_arctic2/phonelab/
+phoneLabelFeatureAligner.labelExt   : .lab
 
-# Properties for module acousticFeatureFileWriter:
-acousticFeatureFileWriter.acFeatureFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/halfphoneFeatures_ac.mry
-acousticFeatureFileWriter.featureFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/halfphoneFeatures.mry
-acousticFeatureFileWriter.unitFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/halfphoneUnits.mry
-acousticFeatureFileWriter.waveTimeLine /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/timeline_waveforms.mry
 
-# Properties for module cartBuilder:
-cartBuilder.acFeatureFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/halfphoneFeatures_ac.mry
-cartBuilder.cartFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/cart.mry
-cartBuilder.featureSeqFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_configs/featureSequence.txt
-cartBuilder.mcepTimeline /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/timeline_mcep.mry
-cartBuilder.readFeatureSequence true
-cartBuilder.topLevelTreeFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_configs/topLevel.tree
-cartBuilder.unitFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/halfphoneUnits.mry
-cartBuilder.wagonCartFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/wagon.cart
-cartBuilder.wagonDescFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/wagon.desc
-cartBuilder.wagonDir /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/
-cartBuilder.wagonDisTabsFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/wagon.distabs
-cartBuilder.wagonFeatsFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/wagon.feats
+Properties for module halfPhoneUnitLabelComputer:
+halfPhoneUnitLabelComputer.labelDir : /home/cl-home/hunecke/anna/voices/bdl_arctic2/halfphonelab/
+halfPhoneUnitLabelComputer.labelExt : .hplab
 
-# Properties for module cartPruner:
-cartPruner.cartFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/carts.mry
-cartPruner.logFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/prunedCart.log
-cartPruner.prunedCartFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/prunedCart.mry
-cartPruner.unitFeatureFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/halfphoneUnitFeatures.mry
-cartPruner.unitFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/halfphoneUnits.mry
-cartPruner.waveFile /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/timeline_waveforms.mry
 
-# Properties for module voiceInstaller:
-voiceInstaller.HalfPhoneFeatDef halfphoneUnitFeatureDefinition.txt
-voiceInstaller.cartFile cart.mry
-voiceInstaller.durTree dur.tree
-voiceInstaller.exampleText examples.text
-voiceInstaller.f0LeftTree f0.left.tree
-voiceInstaller.f0MidTree f0.mid.tree
-voiceInstaller.f0RightTree f0.right.tree
-voiceInstaller.halfPhoneFeatsAc halfphoneFeatures_ac.mry
-voiceInstaller.halfPhoneUnits halfphoneUnits.mry
-voiceInstaller.joinCostFeatDef joinCostWeights.txt
-voiceInstaller.joinCostFeats joinCostFeatures.mry
-voiceInstaller.phoneFeatDef phoneUnitFeatureDefinition.txt
-voiceInstaller.phoneUnits phoneUnits.mry
-voiceInstaller.waveTimeline timeline_waveforms.mry
+Properties for module halfPhoneUnitFeatureComputer:
+halfPhoneUnitFeatureComputer.featureDir      : /home/cl-home/hunecke/anna/voices/bdl_arctic2/halfphonefeatures/
+halfPhoneUnitFeatureComputer.featureExt      : .hpfeats
+*halfPhoneUnitFeatureComputer.maryServerHost : localhost
+*halfPhoneUnitFeatureComputer.maryServerPort : 59125
+
+
+Properties for module halfPhoneLabelFeatureAligner:
+halfPhoneLabelFeatureAligner.featureDir : /home/cl-home/hunecke/anna/voices/bdl_arctic2/halfphonefeatures/
+halfPhoneLabelFeatureAligner.featureExt : .hpfeats
+halfPhoneLabelFeatureAligner.labelDir   : /home/cl-home/hunecke/anna/voices/bdl_arctic2/halfphonelab/
+halfPhoneLabelFeatureAligner.labelExt   : .hplab
+
+
+Properties for module waveTimelineMaker:
+waveTimelineMaker.corrPmDir    : /home/cl-home/hunecke/anna/voices/bdl_arctic2/pm/
+waveTimelineMaker.corrPmExt    : .pm.corrected
+waveTimelineMaker.waveTimeline : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/timeline_waveforms.mry
+
+
+Properties for module basenameTimelineMaker:
+basenameTimelineMaker.pmDir        : /home/cl-home/hunecke/anna/voices/bdl_arctic2/pm/
+basenameTimelineMaker.pmExtentsion : .pm
+basenameTimelineMaker.timelineFile : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/timeline_basenames.mry
+
+
+Properties for module mcepTimelineMaker:
+mcepTimelineMaker.mcepDir      : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mcep/
+mcepTimelineMaker.mcepExt      : .mcep
+mcepTimelineMaker.mcepTimeline : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/timeline_mcep.mry
+
+
+Properties for module phoneUnitfileWriter:
+phoneUnitfileWriter.corrPmDir : /home/cl-home/hunecke/anna/voices/bdl_arctic2/pm/
+phoneUnitfileWriter.corrPmExt : .pm.corrected
+phoneUnitfileWriter.labelDir  : /home/cl-home/hunecke/anna/voices/bdl_arctic2/phonelab/
+phoneUnitfileWriter.labelExt  : .lab
+phoneUnitfileWriter.unitFile  : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/phoneUnits.mry
+
+
+Properties for module phoneFeatureFileWriter:
+phoneFeatureFileWriter.featureDir  : /home/cl-home/hunecke/anna/voices/bdl_arctic2/phonefeatures/
+phoneFeatureFileWriter.featureExt  : .pfeats
+phoneFeatureFileWriter.featureFile : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/phoneFeatures.mry
+phoneFeatureFileWriter.unitFile    : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/phoneUnits.mry
+phoneFeatureFileWriter.weightsFile : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_configs/phoneUnitFeatureDefinition.txt
+
+
+Properties for module durationCARTTrainer:
+durationCARTTrainer.durDescFile       : /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/dur.desc
+durationCARTTrainer.durDir            : /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/
+durationCARTTrainer.durFeatsFile      : /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/dur.feats
+durationCARTTrainer.durTreeFile       : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/dur.tree
+*durationCARTTrainer.estDir           : 
+durationCARTTrainer.featureDir        : /home/cl-home/hunecke/anna/voices/bdl_arctic2/phonefeatures/
+durationCARTTrainer.featureFile       : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/phoneFeatures.mry
+durationCARTTrainer.labelDir          : /home/cl-home/hunecke/anna/voices/bdl_arctic2/phonelab/
+*durationCARTTrainer.stepwiseTraining : false
+durationCARTTrainer.unitFile          : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/phoneUnits.mry
+durationCARTTrainer.waveTimeline      : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/timeline_waveforms.mry
+
+
+Properties for module f0CARTTrainer:
+*f0CARTTrainer.durDir           :
+f0CARTTrainer.f0DescFile        : /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/f0.desc
+f0CARTTrainer.f0Dir             : /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/
+f0CARTTrainer.f0LeftFeatFile    : /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/f0.left.feats
+f0CARTTrainer.f0LeftTreeFile    : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/f0.left.tree
+f0CARTTrainer.f0MidFeatFile     : /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/f0.mid.feats
+f0CARTTrainer.f0MidTreeFile     : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/f0.mid.tree
+f0CARTTrainer.f0RightFeatFile   : /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/f0.right.feats
+f0CARTTrainer.f0RightTreeFile   : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/f0.right.tree
+f0CARTTrainer.featureDir        : /home/cl-home/hunecke/anna/voices/bdl_arctic2/phonefeatures/
+f0CARTTrainer.featureExt        : .pfeats
+f0CARTTrainer.featureFile       : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/phoneFeatures.mry
+f0CARTTrainer.labelDir          : /home/cl-home/hunecke/anna/voices/bdl_arctic2/phonelab/
+f0CARTTrainer.labelExt          : .lab
+*f0CARTTrainer.stepwiseTraining : false
+f0CARTTrainer.unitFile          : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/phoneUnits.mry
+f0CARTTrainer.waveTimeline      : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/timeline_waveforms.mry
+
+
+Properties for module halfPhoneUnitfileWriter:
+halfPhoneUnitfileWriter.corrPmDir : /home/cl-home/hunecke/anna/voices/bdl_arctic2/pm/
+halfPhoneUnitfileWriter.corrPmExt : .pm.corrected
+halfPhoneUnitfileWriter.labelDir  : /home/cl-home/hunecke/anna/voices/bdl_arctic2/halfphonelab/
+halfPhoneUnitfileWriter.labelExt  : .hplab
+halfPhoneUnitfileWriter.unitFile  : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/halfphoneUnits.mry
+
+
+Properties for module halfPhoneFeatureFileWriter:
+halfPhoneFeatureFileWriter.featureDir  : /home/cl-home/hunecke/anna/voices/bdl_arctic2/halfphonefeatures/
+halfPhoneFeatureFileWriter.featureExt  : .hpfeats
+halfPhoneFeatureFileWriter.featureFile : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/halfphoneFeatures.mry
+halfPhoneFeatureFileWriter.unitFile    : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/halfphoneUnits.mry
+halfPhoneFeatureFileWriter.weightsFile : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_configs/halfphoneUnitFeatureDefinition.txt
+
+
+Properties for module joinCostFileMaker:
+joinCostFileMaker.joinCostFile : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/joinCostFeatures.mry
+joinCostFileMaker.mcepDir      : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mcep/
+joinCostFileMaker.mcepExt      : .mcep
+joinCostFileMaker.mcepTimeline : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/timeline_mcep.mry
+joinCostFileMaker.unitFile     : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/halfphoneUnits.mry
+joinCostFileMaker.weightsFile  : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/joinCostWeights.txt
+
+
+Properties for module joinCostPrecomputer:
+joinCostPrecomputer.joinCostFeaturesFile : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/joinCostFeatures.mry
+joinCostPrecomputer.joinCostFile         : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/joinCosts.mry
+joinCostPrecomputer.unitFeaturesFile     : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/halfphoneFeatures.mry
+joinCostPrecomputer.unitFile             : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/halfphoneUnits.mry
+
+
+Properties for module acousticFeatureFileWriter:
+acousticFeatureFileWriter.acFeatureFile : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/halfphoneFeatures_ac.mry
+acousticFeatureFileWriter.featureFile   : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/halfphoneFeatures.mry
+acousticFeatureFileWriter.unitFile      : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/halfphoneUnits.mry
+acousticFeatureFileWriter.waveTimeLine  : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/timeline_waveforms.mry
+
+
+Properties for module cartBuilder:
+cartBuilder.acFeatureFile        : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/halfphoneFeatures_ac.mry
+cartBuilder.cartFile             : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/cart.mry
+*cartBuilder.estDir              : 
+cartBuilder.featureSeqFile       : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_configs/featureSequence.txt
+*cartBuilder.maxLeafSize         : 3300
+cartBuilder.mcepTimeline         : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/timeline_mcep.mry
+*cartBuilder.readFeatureSequence : true
+cartBuilder.topLevelTreeFile     : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_configs/topLevel.tree
+cartBuilder.unitFile             : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/halfphoneUnits.mry
+cartBuilder.wagonCartFile        : /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/wagon.cart
+cartBuilder.wagonDescFile        : /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/wagon.desc
+cartBuilder.wagonDir             : /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/
+cartBuilder.wagonDisTabsFile     : /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/wagon.distabs
+cartBuilder.wagonFeatsFile       : /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/wagon.feats
+ 
+
+Properties for module cartPruner:
+cartPruner.cartFile        : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/carts.mry
+cartPruner.logFile         : /home/cl-home/hunecke/anna/voices/bdl_arctic2/temp/prunedCart.log
+cartPruner.prunedCartFile  : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/prunedCart.mry
+cartPruner.unitFeatureFile : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/halfphoneUnitFeatures.mry
+cartPruner.unitFile        : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/halfphoneUnits.mry
+cartPruner.waveFile        : /home/cl-home/hunecke/anna/voices/bdl_arctic2/mary_files/timeline_waveforms.mry
+
+
+Properties for module voiceInstaller:
+voiceInstaller.HalfPhoneFeatDef : halfphoneUnitFeatureDefinition.txt
+voiceInstaller.cartFile         : cart.mry
+voiceInstaller.durTree          : dur.tree
+voiceInstaller.exampleText      : examples.text
+voiceInstaller.f0LeftTree       : f0.left.tree
+voiceInstaller.f0MidTree        : f0.mid.tree
+voiceInstaller.f0RightTree      : f0.right.tree
+voiceInstaller.halfPhoneFeatsAc : halfphoneFeatures_ac.mry
+voiceInstaller.halfPhoneUnits   : halfphoneUnits.mry
+voiceInstaller.joinCostFeatDef  : joinCostWeights.txt
+voiceInstaller.joinCostFeats    : joinCostFeatures.mry
+voiceInstaller.phoneFeatDef     : phoneUnitFeatureDefinition.txt
+voiceInstaller.phoneUnits       : phoneUnits.mry
+voiceInstaller.waveTimeline     : timeline_waveforms.mry
 
