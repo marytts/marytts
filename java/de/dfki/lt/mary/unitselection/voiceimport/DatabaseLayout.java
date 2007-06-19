@@ -457,8 +457,8 @@ public class DatabaseLayout
         props.put(TEMPDIR,rootDir+"temp"+fileSeparator);
         props.put(MARYXMLDIR,rootDir+"rawmaryxml"+fileSeparator);
         props.put(MARYXMLEXT,".xml");  
-        props.put(MAINHELPFILE,getProp(MARYBASE)+"lib/modules/import/help_import_main.txt");
-        props.put(SETTINGSHELPFILE,getProp(MARYBASE)+"lib/modules/import/help_settings.txt");
+        props.put(MAINHELPFILE,getProp(MARYBASE)+"lib/modules/import/help_import_main.html");
+        props.put(SETTINGSHELPFILE,getProp(MARYBASE)+"lib/modules/import/help_settings.html");
         return props;
     }
     

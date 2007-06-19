@@ -68,6 +68,8 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
     public final String SPHINXTRAINDIR = "sphinxLabelingPreparator.sphinxTrainDir";
     public final String ESTDIR = "sphinxLabelingPreparator.estDir";
     public final String TRANSCRIPTFILE = "sphinxLabelingPreparator.transcriptFile";
+    public final String MARYSERVERHOST = "sphinxLabelingPreparator.maryServerHost";
+    public final String MARYSERVERPORT = "sphinxLabelingPreparator.maryServerPort";
     
      public final String getName(){
         return "sphinxLabelingPreparator";
@@ -92,6 +94,8 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
            				+System.getProperty("file.separator"));
            props.put(TRANSCRIPTFILE,db.getProp(db.ROOTDIR)
            				+"txt.done.data");
+           props.put(MARYSERVERHOST,"localhost");
+           props.put(MARYSERVERPORT,"59125");
        }
        return props;
    }
@@ -492,26 +496,12 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
     {
         if (mary == null) {
             if (System.getProperty("server.host") == null) {
-                System.setProperty("server.host", "localhost");
+                System.setProperty("server.host", getProp(MARYSERVERHOST));
             }
             if (System.getProperty("server.port") == null) {
-                System.setProperty("server.port", "59125");
+                System.setProperty("server.port", getProp(MARYSERVERPORT));
             }
-            try {
-                System.out.println("Connecting to Mary server at "
-                        +System.getProperty("server.host")+" on port "
-                        +System.getProperty("server.port")+":");
-                mary = new MaryClient();
-            } catch (IOException ioe){
-                //client could not connect with server
-                System.out.println("Connection failed!");
-                //try to connect to MARY server on cling
-                System.out.println("Connecting to Mary server at"
-                        +" cling.dfki.uni-sb.de on port 59125:");
-                System.setProperty("server.host", "cling.dfki.uni-sb.de");
-                System.setProperty("server.port", "59125");
-                mary = new MaryClient();
-            }
+            mary = new MaryClient();            
         }
         return mary;
     }
