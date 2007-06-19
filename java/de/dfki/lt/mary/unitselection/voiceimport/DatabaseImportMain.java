@@ -44,6 +44,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import java.io.*;
+
 import javax.swing.*;
 import java.util.*;
 
@@ -182,16 +183,16 @@ public class DatabaseImportMain extends JFrame
     
     protected void displayHelpGUI(){
         try{
-           new Thread("DisplayHelpGUIThread") {
-            public void run() {
-            File file = new File(db.getProp(db.MAINHELPFILE));
-          
-            boolean ok = new HelpGUI(file).display();
-            if (ok=false){
-                System.out.println("Error displaying helpfile "
-                    +db.getProp(db.MAINHELPFILE));
-            }
-            }}.start();
+            new Thread("DisplayHelpGUIThread") {
+                public void run() {
+                    File file = new File(db.getProp(db.MAINHELPFILE));
+                    
+                    boolean ok = new HelpGUI(file).display();
+                    if (ok=false){
+                        System.out.println("Error displaying helpfile "
+                                +db.getProp(db.MAINHELPFILE));
+                    }                    
+                }}.start();
         }catch (Exception e){
             System.out.println("Can not load helpfile "
                     +db.getProp(db.MAINHELPFILE)+": "
