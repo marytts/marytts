@@ -22,8 +22,11 @@ Modules processing unit labels and features:
 - SphinxLabelingPreparator: Prepares the labeling with Sphinxtrain. For this,
   you need Sphinxtrain and Sphinx2. You can download these programs here:
   http://cmusphinx.sourceforge.net/webpage/html/download.php
-  This module requires a Mary server running on the same machine. If there 
-  is no server running, it tries to connect to the Mary web server "cling".
+  Furthermore, you need the Edinburgh speech tools. You can get them here:
+  http://www.cstr.ed.ac.uk/projects/speech_tools/
+  This module requires a running Maryserver, per default on the same machine 
+  using port 59125. You can connect to a different server by altering the 
+  settings. See the settings help for more information on this.
 - SphinxTrainer: Trains the models used for labeling with Sphinxtrain. 
   Depending on the size of the data, this can take a long time. 
 - SphinxLabeler: Produces labels with the help of the modules built by the 
