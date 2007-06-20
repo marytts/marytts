@@ -44,6 +44,7 @@ public class VoiceInstaller extends VoiceImportComponent{
     
     private DatabaseLayout db;
     private String name = "voiceInstaller";
+    private BasenameList bnl;
     
     public final String CARTFILE = name+".cartFile";
     public final String DURTREE = name+".durTree";
@@ -65,7 +66,7 @@ public class VoiceInstaller extends VoiceImportComponent{
     
     public void initialise(BasenameList bnl, SortedMap props){
         this.props = props;
-        
+        this.bnl = bnl;
     }
     
     /**
@@ -156,6 +157,8 @@ public class VoiceInstaller extends VoiceImportComponent{
             out = new File(newVoiceDir+getProp(EXAMPLETEXT));
             if (in.exists()){
                 copy(in,out);   
+            } else {
+                createExampleText(out);
             }
             in = new File(filedir+getProp(WAVETIMELINE));
             out = new File(newVoiceDir+getProp(WAVETIMELINE));
@@ -206,6 +209,34 @@ public class VoiceInstaller extends VoiceImportComponent{
             throw new IOException();
         }
     }
+    
+    
+    private void createExampleText(File exampleTextFile) throws IOException{
+        try{
+            //just take the first transcript file as example text
+            String basename = bnl.getName(0);
+            BufferedReader transIn = 
+                new BufferedReader(
+                        new InputStreamReader(
+                                new FileInputStream(
+                                        new File(db.getProp(db.TEXTDIR)
+                                                +basename+db.getProp(db.TEXTEXT)))));
+            String text = transIn.readLine();
+            transIn.close();
+            PrintWriter exampleTextOut =
+                new PrintWriter(
+                        new FileWriter(exampleTextFile),true);
+            exampleTextOut.println(text);
+            exampleTextOut.close();
+            
+        } catch (Exception e){
+            System.out.println("Error creating example text file "
+                    +exampleTextFile.getName());
+            throw new IOException();
+        }
+        
+    }
+    
     
     private void createConfigFile(String filename, 
             					String newVoiceDir,

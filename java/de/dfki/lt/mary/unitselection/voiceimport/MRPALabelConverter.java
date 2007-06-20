@@ -89,8 +89,9 @@ public class MRPALabelConverter extends VoiceImportComponent{
             //get mrpa lab-directory 
             File stLabDir = new File(getProp(MRPALABDIR));
             if (!stLabDir.exists()){
-                throw new Error("Error loading mrpa labels: mrpa label directory "+getProp(MRPALABDIR)
+                System.out.println("Error loading mrpa labels: mrpa label directory "+getProp(MRPALABDIR)
                         +" does not exist");
+                return false;
             }
             //lab destination directory
             String labDestDir = db.getProp(db.LABDIR);

@@ -529,7 +529,7 @@ public class DatabaseLayout
             System.out.print("Created successfully.\n");
         }  
         if (!dir.isDirectory()){
-            throw new Error(propname+" "+getProp(LABDIR)+" is not a directory!");
+            throw new Error(propname+" "+getProp(propname)+" is not a directory!");
         }        
     }
     
