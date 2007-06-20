@@ -169,6 +169,7 @@ public abstract class XML2UttBase extends InternalModule
                                  boolean createTargetRelation)
     {
         Document doc = sentence.getOwnerDocument();
+        boolean isLastSentence = DomUtils.isLastOfItsKindIn(sentence, doc);
         Relation tokenRelation = utterance.createRelation(Relation.TOKEN);
         Relation phraseRelation = null;
         Relation segmentRelation = null;
@@ -226,16 +227,18 @@ public abstract class XML2UttBase extends InternalModule
 
             }            topElement = (Element) phraseIt.nextNode(); // or null
         }
-        // Any marks after the last token in sentence?
-        Element lastTokenElement = DomUtils.getLastElementByTagName(sentence, MaryXML.TOKEN);
-        String finalMarks = searchFollowingMarks(lastTokenElement);
-        if (finalMarks != null) {
-            Item lastToken = tokenRelation.getTail();
-            if (lastToken != null) {
-                if (lastToken.getFeatures().isPresent("followingMarks")) {
-                    finalMarks = lastToken.getFeatures().getString("followingMarks") + "," + finalMarks;
+        // Any marks after the last token in last sentence?
+        if (isLastSentence) {
+            Element lastTokenElement = DomUtils.getLastElementByTagName(sentence, MaryXML.TOKEN);
+            String finalMarks = searchFollowingMarks(lastTokenElement);
+            if (finalMarks != null) {
+                Item lastToken = tokenRelation.getTail();
+                if (lastToken != null) {
+                    if (lastToken.getFeatures().isPresent("followingMarks")) {
+                        finalMarks = lastToken.getFeatures().getString("followingMarks") + "," + finalMarks;
+                    }
+                    lastToken.getFeatures().setString("followingMarks", finalMarks);
                 }
-                lastToken.getFeatures().setString("followingMarks", finalMarks);
             }
         }
         // Check if default name needs to be added to last phrase item:
