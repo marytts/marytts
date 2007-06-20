@@ -34,6 +34,8 @@ import java.util.List;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
+import org.jsresources.AppendableSequenceAudioInputStream;
+
 import de.dfki.lt.mary.MaryData;
 import de.dfki.lt.mary.MaryDataType;
 import de.dfki.lt.mary.modules.InternalModule;
@@ -70,6 +72,13 @@ public class HTSEngine extends InternalModule
         MaryData output = new MaryData(outputType());
         if (d.getAudioFileFormat() != null) {
             output.setAudioFileFormat(d.getAudioFileFormat());
+            if (d.getAudio() != null) {
+                // This (empty) AppendableSequenceAudioInputStream object allows a 
+                // thread reading the audio data on the other "end" to get to our data as we are producing it.
+                assert d.getAudio() instanceof AppendableSequenceAudioInputStream;
+                output.setAudio(d.getAudio());
+            }
+
         }
         AudioInputStream dummyAudio = AudioSystem.getAudioInputStream(AllTests.class.getResourceAsStream("test.wav"));
         //AudioInputStream dummyAudio = new DDSAudioInputStream(new NoiseDoubleDataSource(32000, -6), d.getAudioFileFormat().getFormat());
