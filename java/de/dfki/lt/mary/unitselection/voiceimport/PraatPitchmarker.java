@@ -56,6 +56,13 @@ public class PraatPitchmarker extends VoiceImportComponent
     public final String PMEXT = "praatPitchmarker.pmExt";
     public final String POINTPEXT = "praatPitchmarker.pointPExt";
     
+    protected void setupHelp()
+    {
+        help = new HashMap();
+        help.put(COMMAND, "The command that is used to launch praat");
+
+    }
+    
      public final String getName(){
         return "praatPitchmarker";
     }
@@ -71,6 +78,7 @@ public class PraatPitchmarker extends VoiceImportComponent
        if (props == null){
            props = new TreeMap();
            props.put(COMMAND,"praat");
+           
            props.put(TEMPSCRIPT,db.getProp(db.TEMPDIR)
                    +"script.praat");
            if (db.getProp(db.GENDER).equals("female")){
@@ -235,6 +243,7 @@ public class PraatPitchmarker extends VoiceImportComponent
         toScript.println("Quit");
         toScript.close();
 
+        System.out.println("Running Praat as: "+getProp(COMMAND)+" "+getProp(TEMPSCRIPT));
         Process praat = Runtime.getRuntime().exec(getProp(COMMAND)+" "+getProp(TEMPSCRIPT));
         final BufferedReader fromPraat = new BufferedReader(new InputStreamReader(praat.getInputStream()));
         new Thread() {

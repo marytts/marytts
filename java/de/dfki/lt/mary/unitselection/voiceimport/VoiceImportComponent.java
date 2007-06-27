@@ -37,9 +37,15 @@ import java.util.*;
  */
 public abstract class VoiceImportComponent
 {
-    
     protected SortedMap props = null;
+    protected Map help = null;
     
+    protected VoiceImportComponent()
+    {
+        setupHelp();
+    }
+
+    protected void setupHelp() {}
     /**
      * Initialise the component;
      * update values of local properties
