@@ -22,5 +22,6 @@
 	<classpathentry kind="lib" path="java/jl1.0.jar"/>
 	<classpathentry kind="lib" path="java/JavaOpenAIR.jar"/>
 	<classpathentry kind="lib" path="java/Jama-1.0.2.jar"/>
+	<classpathentry kind="lib" path="java/swing-layout-1.0.jar"/>
 	<classpathentry kind="output" path="java"/>
 </classpath>
