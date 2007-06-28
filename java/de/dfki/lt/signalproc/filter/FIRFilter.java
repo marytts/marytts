@@ -47,6 +47,7 @@ public class FIRFilter {
     protected double[] transformedIR;
     protected int impulseResponseLength;
     protected int sliceLength;
+    double [] ir;
     
     /**
      * Create a new, uninitialised FIR filter. Subclasses need to call
@@ -99,6 +100,11 @@ public class FIRFilter {
         FFT.realTransform(transformedIR, false);
         // This means, we are not actually saving the impulseResponse, but only
         // its complex FFT transform.
+        
+        // We are alos saving the impulseResponse
+        this.ir = new double [impulseResponse.length];
+        System.arraycopy(impulseResponse, 0, this.ir, 0, impulseResponse.length);
+        //
     }
     
     /**
@@ -175,4 +181,13 @@ public class FIRFilter {
         }
     }
     
+    public double [] getIR()
+    {
+        return ir;
+    }
+    
+    public int getIRLength()
+    {
+        return ir.length;
+    }
 }

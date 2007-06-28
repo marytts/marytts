@@ -39,7 +39,7 @@ import de.dfki.lt.signalproc.util.DoubleDataSource;
  * <code>x[n] = e[n] + a[1]*x[n-1] + a[2]*x[n-2] + ... + a[p]*x[n-p]</code>
  */
 public class RecursiveFilter {
-    /** The prediction coefficiednts, as in
+    /** The prediction coefficients, as in
      *  * <code>x[n] = e[n] + a[1]*x[n-1] + a[2]*x[n-2] + ... + a[p]*x[n-p]</code>
      */ 
     protected final double[] a;
