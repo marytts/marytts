@@ -514,4 +514,22 @@ public class MathUtils {
         return coeffs;
     }
 
+    public static class Complex {
+        public double [] real;
+        public double [] imag;
+        
+        public Complex(int len)
+        {
+            if (len>0)
+            {
+                this.real = new double[len];
+                this.imag = new double[len];
+            }
+            else
+            {
+                this.real = null;
+                this.imag = null;
+            }
+        }
+    }
 }
