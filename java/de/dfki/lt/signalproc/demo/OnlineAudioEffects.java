@@ -71,10 +71,41 @@ public class OnlineAudioEffects extends Thread
      */
     public static void main(String[] args)
     {
+        int channels = 1;
+        int fs = 16000;
+        AudioFormat audioFormat = new AudioFormat(
+                AudioFormat.Encoding.PCM_SIGNED, 16000, 16, channels, 2*channels, fs,
+                false);
+        
+        TargetDataLine microphone = null;
+        try {
+            DataLine.Info info = new DataLine.Info(TargetDataLine.class,
+                    audioFormat);
+            microphone = (TargetDataLine) AudioSystem.getLine(info);
+            microphone.open(audioFormat);
+            System.out.println("Microphone format: "+microphone.getFormat());
+        } catch (LineUnavailableException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        
+        SourceDataLine loudspeakers = null;
+        try {
+            DataLine.Info info = new DataLine.Info(SourceDataLine.class,
+                    audioFormat);
+            loudspeakers = (SourceDataLine) AudioSystem.getLine(info);
+            loudspeakers.open(audioFormat);
+            System.out.println("Loudspeaker format: "+loudspeakers.getFormat());
+        } catch (LineUnavailableException e) {
+            e.printStackTrace();
+        }
+        
+
+        /*
         // Get a TargetDataLine (microphone signal)
         Mixer.Info[] mixerInfos = AudioSystem.getMixerInfo();
         // Hard-coded shortcut -- this can be done via a ComboBox in a GUI
-        Mixer.Info mixerInfo = mixerInfos[1];
+        Mixer.Info mixerInfo = mixerInfos[4];
         Mixer mixer = AudioSystem.getMixer(mixerInfo);
         Line.Info[] lineInfos = mixer.getTargetLineInfo();
         // Hard-coded shortcut -- this can be done via a ComboBox in a GUI
@@ -90,10 +121,11 @@ public class OnlineAudioEffects extends Thread
                 break;
             }
         }
+        
         TargetDataLine microphone = null;
         try {
             microphone = (TargetDataLine) mixer.getLine(lineInfo);
-            microphone.open(format);
+            microphone.open(audioFormat);
             System.out.println("Microphone format: "+microphone.getFormat());
         } catch (LineUnavailableException e) {
             e.printStackTrace();
@@ -103,13 +135,14 @@ public class OnlineAudioEffects extends Thread
         // Somehow only mixer 0 works for me:
         SourceDataLine loudspeakers = null;
         try {
-            DataLine.Info   info = new DataLine.Info(SourceDataLine.class, format);
+            DataLine.Info   info = new DataLine.Info(SourceDataLine.class, audioFormat);
             loudspeakers = (SourceDataLine) AudioSystem.getLine(info);
-            loudspeakers.open(format);
+            loudspeakers.open(microphone.getFormat());
             System.out.println("Loudspeaker format: "+loudspeakers.getFormat());
         } catch (LineUnavailableException e) {
             e.printStackTrace();
         }
+        */
         
         // Choose an audio effect
         InlineDataProcessor effect = new Robotiser.PhaseRemover(4096);
