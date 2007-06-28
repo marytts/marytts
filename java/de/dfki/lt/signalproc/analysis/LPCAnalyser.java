@@ -45,6 +45,8 @@ import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.Defaults;
 import de.dfki.lt.signalproc.util.DoubleDataSource;
 import de.dfki.lt.signalproc.util.MathUtils;
+import de.dfki.lt.signalproc.util.MathUtils.Complex;
+import de.dfki.lt.signalproc.util.SignalProcUtils;
 
 /**
  * @author Marc Schr&ouml;der
@@ -94,6 +96,56 @@ public class LPCAnalyser extends FrameBasedAnalyser
     public static LPCoeffs calcLPC(double[] x) {
         int p = Integer.getInteger("signalproc.lpcorder", 24).intValue();
         return calcLPC(x, p);
+    }
+    
+    //Computes LP smoothed spectrum
+    public static double [] calcSpec(double [] alpha, int p, int fftSize, Complex expTerm)
+    {
+        int maxFreq = SignalProcUtils.halfSpectrumSize(fftSize);
+        double [] vtSpectrum = new double[maxFreq];
+        
+        if (expTerm.real == null || expTerm.real.length != p*maxFreq)
+            expTerm = calcExpTerm(fftSize, p);
+        
+        int w, i, fInd;
+        Complex tmp = new Complex(1);
+
+        for (w=0; w<=maxFreq-1; w++)
+        {
+            tmp.real[0] = 1.0;
+            tmp.imag[0] = 0.0;
+            for (i=0; i<=p-1; i++)       
+            {  
+                fInd = i*maxFreq+w;
+                tmp.real[0] -= alpha[i]*expTerm.real[fInd];  
+                tmp.imag[0] -= alpha[i]*expTerm.imag[fInd];
+            }
+            
+            vtSpectrum[w] = 1.0/Math.sqrt(tmp.real[0]*tmp.real[0]+tmp.imag[0]*tmp.imag[0]);
+        }
+        
+        return vtSpectrum;
+    }
+  
+    public static Complex calcExpTerm(int fftSize, int p)
+    {
+        int maxFreq = SignalProcUtils.halfSpectrumSize(fftSize);
+        Complex expTerm = new Complex(p*maxFreq);
+        int i, w;
+        double r;
+
+        for (w=0; w<=maxFreq-1; w++)
+        {
+            r = (MathUtils.TWOPI/fftSize)*w;
+            
+            for (i=0; i<=p-1; i++)
+            {
+                expTerm.real[i*maxFreq+w] = Math.cos(r*(i+1));
+                expTerm.imag[i*maxFreq+w] = -1*Math.sin(r*(i+1));
+            }
+        }
+     
+        return expTerm;
     }
 
     /**
