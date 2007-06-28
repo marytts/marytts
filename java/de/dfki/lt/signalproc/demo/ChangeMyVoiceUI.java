@@ -209,7 +209,8 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
      * and fills in the modificationParameters object
     */ 
     private void getParameters() {
-        modificationParameters.fs = Float.valueOf((String)jComboBoxSamplingRate.getSelectedItem());
+        String str = (String)jComboBoxSamplingRate.getSelectedItem();
+        modificationParameters.fs = Float.valueOf(str.trim()).floatValue();
         voiceIndex = jComboBoxVoice.getSelectedIndex();
     }
     
