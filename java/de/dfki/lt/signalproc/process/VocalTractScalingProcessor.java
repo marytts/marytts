@@ -40,6 +40,7 @@ import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
 import de.dfki.lt.signalproc.util.DDSAudioInputStream;
 import de.dfki.lt.signalproc.util.InterpolationUtils;
 import de.dfki.lt.signalproc.util.SignalProcUtils;
+import de.dfki.lt.signalproc.util.MathUtils;
 import de.dfki.lt.signalproc.window.Window;
 
 /**
@@ -77,6 +78,7 @@ public class VocalTractScalingProcessor extends VocalTractModifier {
     {
         if (vscales!=null)
         {
+            /*
             //Scale the vocal tract
             int i;
             int wInd;
@@ -95,6 +97,27 @@ public class VocalTractScalingProcessor extends VocalTractModifier {
             //Copy the modified vocal tract spectrum to input
             System.arraycopy(PxOut, 0, Px, 0, maxFreq);
             //
+             * +/
+             */
+            
+            int newLen = (int)Math.floor(Px.length*vscales[0] + 0.5);
+            
+            double [] Px2 = MathUtils.interpolate(Px, newLen);
+            
+            int i;
+            
+            if (newLen>maxFreq)
+            {
+                for (i=0; i<maxFreq; i++)
+                    Px[i] = Px2[i];
+            }
+            else
+            {
+                for (i=0; i<newLen; i++)
+                    Px[i] = Px2[i];
+                for (i=newLen; i<maxFreq; i++)
+                    Px[i] = 0.0;
+            }
         }
     }
 
