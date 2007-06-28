@@ -95,7 +95,5 @@ public class Robotiser extends FrameOverlapAddSource
             String outFileName = args[i].substring(0, args[i].length()-4) + "_robotised.wav";
             AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
         }
-
     }
-
 }
