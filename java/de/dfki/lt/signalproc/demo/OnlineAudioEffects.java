@@ -35,6 +35,7 @@ public class OnlineAudioEffects extends Thread
         this.effect = effect;
         this.microphone = microphone;
         this.loudspeakers = loudspeakers;
+        this.setName("OnlineAudioEffect "+effect.toString());
     }
     
     public void run()
@@ -59,6 +60,8 @@ public class OnlineAudioEffects extends Thread
                 stopRequested = true;
             }
         }
+        microphone.stop();
+        loudspeakers.stop();
     }
     
     public void requestStop() 
