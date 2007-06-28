@@ -98,6 +98,7 @@ public class AudioDoubleDataSource extends BaseDoubleDataSource {
     {
         int currentPos = targetPos;
         int totalCopied = 0;
+        int nTimesRead0 = 0;
         while (hasMoreData() && totalCopied < length) {
             int nSamplesToCopy = length - totalCopied;
             if (nSamplesToCopy > byteBuf.length / bytesPerSample) {
@@ -113,29 +114,38 @@ public class AudioDoubleDataSource extends BaseDoubleDataSource {
             if (nBytesRead == -1) { // end of stream
                 hasMoreData = false;
                 return totalCopied;
-            }
-            // Now we have nBytesRead/bytesPerSample samples in byteBuf.
-            if (bytesPerSample == 1) {
-                for (int i=0; i<nBytesRead; i++, currentPos++) {
-                    target[currentPos] = (byteBuf[i]<<8);
+            } else if (nBytesRead == 0) { // prevent deadlock
+                nTimesRead0++;
+                if (nTimesRead0 > 10) {
+                    hasMoreData = false;
+                    return totalCopied;
                 }
-                totalCopied += nBytesRead;
-            } else { // bytesPerSample == 2
-                for (int i=0; i<nBytesRead; i+=2, currentPos++) {
-                    int sample;
-                    byte lobyte;
-                    byte hibyte;
-                    if (!bigEndian) {
-                        lobyte = byteBuf[i];
-                        hibyte = byteBuf[i+1];
-                    } else {
-                        lobyte = byteBuf[i+1];
-                        hibyte = byteBuf[i];
+            } else { // nBytesRead > 0
+                nTimesRead0 = 0;
+                // Now we have nBytesRead/bytesPerSample samples in byteBuf.
+                if (bytesPerSample == 1) {
+                    for (int i=0; i<nBytesRead; i++, currentPos++) {
+                        target[currentPos] = (byteBuf[i]<<8);
                     }
-                    sample = hibyte<<8 | lobyte&0xFF;
-                    target[currentPos] = sample;
+                    totalCopied += nBytesRead;
+                } else { // bytesPerSample == 2
+                    for (int i=0; i<nBytesRead; i+=2, currentPos++) {
+                        int sample;
+                        byte lobyte;
+                        byte hibyte;
+                        if (!bigEndian) {
+                            lobyte = byteBuf[i];
+                            hibyte = byteBuf[i+1];
+                        } else {
+                            lobyte = byteBuf[i+1];
+                            hibyte = byteBuf[i];
+                        }
+                        sample = hibyte<<8 | lobyte&0xFF;
+                        target[currentPos] = sample;
+                    }
+                    totalCopied += nBytesRead/bytesPerSample;
                 }
-                totalCopied += nBytesRead/bytesPerSample;
+                
             }
         }
         assert totalCopied <= length;
