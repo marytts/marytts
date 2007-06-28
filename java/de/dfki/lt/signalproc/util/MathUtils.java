@@ -532,4 +532,55 @@ public class MathUtils {
             }
         }
     }
+    
+    /* Performs interpolation to increase or decrease the size of array x
+       to newLength*/
+    public static double [] interpolate(double [] x, int newLength)
+    {
+        double [] y = null;
+        if (newLength>0)
+        {
+            int N = x.length;
+            if (N==1)
+            {
+                y = new double[1];
+                y[0]=x[0];
+                return y;
+            }
+            else if (newLength==1)
+            {
+                y = new double[1];
+                int ind = (int)Math.floor(N*0.5+0.5);
+                ind = Math.max(1, ind);
+                ind = Math.min(ind, N);
+                y[0]= x[ind-1];
+                return y;
+            }
+            else
+            {
+                y = new double[newLength];
+                double Beta = ((float)newLength)/N;
+                double newBeta = 1.0;
+                
+                if (newLength>2)
+                    newBeta=(N-2.0)/(newLength-2.0);
+
+                y[0] = x[0];
+                y[1] = x[1];
+                y[newLength-1] = x[N-1];
+                
+                double tmp, alpha;
+                int i, j;
+                for (i=2; i<=newLength-2; i++) 
+                {
+                    tmp = 1.0+(i-1)*newBeta;
+                    j = (int)Math.floor(tmp);
+                    alpha = tmp-j;
+                    y[i] = (1.0-alpha)*x[Math.max(0,j)] + alpha*x[Math.min(N-1,j+1)];
+                }
+            }
+        }
+        
+        return y;
+    }
 }
