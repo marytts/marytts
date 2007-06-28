@@ -123,7 +123,7 @@ public class VocalTractScalingSimpleProcessor extends FrequencyDomainProcessor {
     public static void main(String[] args) throws Exception
     {
         //Joint vocal tract and pitch scaling since there is no LP based vocal tract estimation yet
-        double [] vscales = {0.8};
+        double [] vscales = {2.0};
         //
         
         for (int i=0; i<args.length; i++) 
@@ -134,7 +134,7 @@ public class VocalTractScalingSimpleProcessor extends FrequencyDomainProcessor {
             FrameOverlapAddSource foas = new FrameOverlapAddSource(signal, Window.HANN, true, 1024, samplingRate,
                     new VocalTractScalingSimpleProcessor(1024, vscales));
             DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(foas), inputAudio.getFormat());
-            String outFileName = args[i].substring(0, args[i].length()-4) + "_vocalTractPitchMod.wav";
+            String outFileName = args[i].substring(0, args[i].length()-4) + "_vocalTractSimpleScaled.wav";
             AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
         }
     }
