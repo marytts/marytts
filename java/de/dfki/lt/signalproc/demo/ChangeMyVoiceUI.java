@@ -28,6 +28,7 @@ import de.dfki.lt.signalproc.process.Chorus;
 import de.dfki.lt.signalproc.process.VocalTractScalingProcessor;
 import de.dfki.lt.signalproc.process.VocalTractScalingSimpleProcessor;
 import de.dfki.lt.signalproc.process.VocalTractModifier;
+import de.dfki.lt.signalproc.filter.*;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
 import de.dfki.lt.signalproc.util.DDSAudioInputStream;
@@ -49,14 +50,16 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     VoiceModificationParameters modificationParameters;
     String [] effectNames = { "Robot", 
                               "Whisper", 
+                              "Dwarf1",
+                              "Dwarf2",
+                              "Ogre1",
+                              "Ogre2",
+                              "Giant1",
+                              "Giant2",
+                              "Ghost",
+                              "Stadium",
                               "Jet Pilot", 
                               "Old Radio", 
-                              "Dwarf",
-                              "Ogre",
-                              "Giant",
-                              "Mountain",
-                              "Stadium",
-                              "Ghost"
                               };
 
     String [] fsNames = { "8000", 
@@ -253,7 +256,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
 
         // Choose an audio effect
         InlineDataProcessor effect = null;
-
+        
         if (effectNames[voiceIndex]=="Robot")
         {  
             effect = new Robotiser.PhaseRemover(4096);
@@ -262,53 +265,47 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         {  
             effect = new LPCWhisperiser(SignalProcUtils.getLPOrder((int)modificationParameters.fs));
         }
-        else if (effectNames[voiceIndex]=="Jet Pilot")
-        {  
-            effect = new Robotiser.PhaseRemover(4096);
-        }
-        else if (effectNames[voiceIndex]=="Old Radio")
-        {  
-            effect = new Robotiser.PhaseRemover(4096);
-        }
-        else if (effectNames[voiceIndex]=="Dwarf")
+        else if (effectNames[voiceIndex]=="Dwarf1") //Using freq. domain LP spectrum modification
         {  
             double [] vscales = {1.5};
-            
-            //effect = new VocalTractScalingSimpleProcessor(1024, vscales);
-            
             int p = SignalProcUtils.getLPOrder((int)modificationParameters.fs);
             int fftSize = Math.max(SignalProcUtils.getDFTSize((int)modificationParameters.fs), 1024);
             effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, fftSize, vscales);
         }
-        else if (effectNames[voiceIndex]=="Ogre")
+        else if (effectNames[voiceIndex]=="Dwarf2") //Using freq. domain DFT magnitude spectrum modification
+        {  
+            double [] vscales = {1.5};
+            effect = new VocalTractScalingSimpleProcessor(1024, vscales);
+        }
+        else if (effectNames[voiceIndex]=="Ogre1") //Using freq. domain LP spectrum modification
         { 
-            double [] vscales = {0.9};
-            
-            //effect = new VocalTractScalingSimpleProcessor(1024, vscales);
-            
+            double [] vscales = {0.85};            
             int p = SignalProcUtils.getLPOrder((int)modificationParameters.fs);
             int fftSize = Math.max(SignalProcUtils.getDFTSize((int)modificationParameters.fs), 1024);
             effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, fftSize, vscales);
         }
-        else if (effectNames[voiceIndex]=="Giant")
+        else if (effectNames[voiceIndex]=="Ogre2") //Using freq. domain DFT magnitude spectrum modification
+        { 
+            double [] vscales = {0.85};
+            effect = new VocalTractScalingSimpleProcessor(1024, vscales);
+        }
+        else if (effectNames[voiceIndex]=="Giant1") //Using freq. domain LP spectrum modification
         {  
-            double [] vscales = {0.8};
-            
-            //effect = new VocalTractScalingSimpleProcessor(1024, vscales);
-            
+            double [] vscales = {0.75};
             int p = SignalProcUtils.getLPOrder((int)modificationParameters.fs);
             int fftSize = Math.max(SignalProcUtils.getDFTSize((int)modificationParameters.fs), 1024);
             effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, fftSize, vscales);
         }
-        else if (effectNames[voiceIndex]=="Mountain")
+        else if (effectNames[voiceIndex]=="Giant2") //Using freq. domain DFT magnitude spectrum modification
         {  
-            double [] vscales = {0.7};
-            
-            //effect = new VocalTractScalingSimpleProcessor(1024, vscales);
-            
-            int p = SignalProcUtils.getLPOrder((int)modificationParameters.fs);
-            int fftSize = Math.max(SignalProcUtils.getDFTSize((int)modificationParameters.fs), 1024);
-            effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, fftSize, vscales);
+            double [] vscales = {0.75};
+            effect = new VocalTractScalingSimpleProcessor(1024, vscales);
+        }
+        else if (effectNames[voiceIndex]=="Ghost")
+        {
+            int [] delaysInMiliseconds = {100, 200, 300};
+            double [] amps = {0.8, -0.7, 0.9};
+            effect = new Chorus(delaysInMiliseconds, amps, (int)(modificationParameters.fs));
         }
         else if (effectNames[voiceIndex]=="Stadium")
         {
@@ -316,11 +313,17 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
             double [] amps = {0.54, -0.10};
             effect = new Chorus(delaysInMiliseconds, amps, (int)(modificationParameters.fs));
         }
-        else if (effectNames[voiceIndex]=="Ghost")
-        {
-            int [] delaysInMiliseconds = {100, 200, 300};
-            double [] amps = {0.8, 0.7, 0.9};
+        else if (effectNames[voiceIndex]=="Jet Pilot")
+        {  
+            int [] delaysInMiliseconds = {5, 10, 15, 20};
+            double [] amps = {0.8, -0.5, 0.6, 0.1};
             effect = new Chorus(delaysInMiliseconds, amps, (int)(modificationParameters.fs));
+        }
+        else if (effectNames[voiceIndex]=="Old Radio")
+        {  
+            double normalizedCutOffFreq = 2000.0/modificationParameters.fs;
+            LowPassFilter f = new LowPassFilter(normalizedCutOffFreq);
+            effect = new RecursiveFilter.Processor(f.getIR());
         }
         //            
 
@@ -331,6 +334,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
             online.start();
         }
     }
+    
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         bStarted = false;
         
