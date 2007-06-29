@@ -319,14 +319,14 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         }
         else if (effectNames[voiceIndex]=="Jet Pilot")
         {  
-            int [] delaysInMiliseconds = {5, 10, 15, 20};
-            double [] amps = {0.8, -0.5, 0.6, 0.1};
-            effect = new Chorus(delaysInMiliseconds, amps, (int)(modificationParameters.fs));
+            double normalizedCutOffFreq1 = 500.0/modificationParameters.fs;
+            double normalizedCutOffFreq2 = 3000.0/modificationParameters.fs;
+            effect = new BandPassFilter(normalizedCutOffFreq1, normalizedCutOffFreq2, true);
         }
         else if (effectNames[voiceIndex]=="Old Radio")
         {  
             double normalizedCutOffFreq = 2000.0/modificationParameters.fs;
-            effect = new LowPassFilter(normalizedCutOffFreq);
+            effect = new LowPassFilter(normalizedCutOffFreq, true);
         }
         //            
 
