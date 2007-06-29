@@ -56,7 +56,14 @@ public class HighPassFilter extends FIRFilter {
      * 4000 Hz, the normalisedCutoffFrequency would have to be 0.25. 
      */
     public HighPassFilter(double normalisedCutoffFrequency) {
-        this(normalisedCutoffFrequency, DEFAULT_TRANSITIONBANDWIDTH);
+        this(normalisedCutoffFrequency, DEFAULT_TRANSITIONBANDWIDTH, false);
+    }
+    
+    public HighPassFilter(double normalisedCutoffFrequency, boolean bEnergyCompensate) {
+        this(normalisedCutoffFrequency, DEFAULT_TRANSITIONBANDWIDTH, bEnergyCompensate);
+    }
+    public HighPassFilter(double normalisedCutoffFrequency, double normalisedTransitionBandwidth) {
+        this(normalisedCutoffFrequency, bandwidth2kernelLength(normalisedTransitionBandwidth), false);
     }
     
     /**
@@ -71,8 +78,8 @@ public class HighPassFilter extends FIRFilter {
      * but also the larger the filter kernel (impulse response) and computationally costly the filter.
      * Usual range of this parameter is [0.002, 0.2].
      */
-    public HighPassFilter(double normalisedCutoffFrequency, double normalisedTransitionBandwidth) {
-        this(normalisedCutoffFrequency, bandwidth2kernelLength(normalisedTransitionBandwidth));
+    public HighPassFilter(double normalisedCutoffFrequency, double normalisedTransitionBandwidth, boolean bEnergyCompensate) {
+        this(normalisedCutoffFrequency, bandwidth2kernelLength(normalisedTransitionBandwidth), bEnergyCompensate);
     }
     
     /**
@@ -89,7 +96,7 @@ public class HighPassFilter extends FIRFilter {
      * @throws IllegalArgumentException if the kernel length is not a positive, odd number,
      * or if normalisedCutoffFrequency is not in the range between 0 and 0.5.
      */
-    public HighPassFilter(double normalisedCutoffFrequency, int kernelLength) {
+    public HighPassFilter(double normalisedCutoffFrequency, int kernelLength, boolean bEnergyCompensate) {
         super();
         if (kernelLength <= 0 || kernelLength%2==0) {
             throw new IllegalArgumentException("Kernel length must be an odd positive number, got " + kernelLength);
@@ -101,8 +108,8 @@ public class HighPassFilter extends FIRFilter {
         // determine the length of the slices by which the signal will be consumed:
         // this is the distance to the second next power of two, so that the slice
         // will be at least as long as the kernel.
-        int sliceLength = MathUtils.closestPowerOfTwoAbove(2*kernelLength) - kernelLength;
-        initialise(kernel, sliceLength);
+        sliceLength = MathUtils.closestPowerOfTwoAbove(2*kernelLength) - kernelLength;
+        initialise(kernel, sliceLength, bEnergyCompensate);
     }
 
     /**
