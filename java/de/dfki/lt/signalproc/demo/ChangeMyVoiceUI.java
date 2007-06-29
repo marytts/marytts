@@ -343,13 +343,13 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         {  
             double normalizedCutOffFreq1 = 500.0/modificationParameters.fs;
             double normalizedCutOffFreq2 = 2000.0/modificationParameters.fs;
-            effect = new BandPassFilter(normalizedCutOffFreq1, normalizedCutOffFreq2, true);
+            effect = new BandPassFilter(normalizedCutOffFreq1, normalizedCutOffFreq2, false);
         }
         else if (effectNames[voiceIndex]=="Telephone")
         {  
             double normalizedCutOffFreq1 = 300.0/modificationParameters.fs;
             double normalizedCutOffFreq2 = 3400.0/modificationParameters.fs;
-            effect = new BandPassFilter(normalizedCutOffFreq1, normalizedCutOffFreq2, true);
+            effect = new BandPassFilter(normalizedCutOffFreq1, normalizedCutOffFreq2, false);
         }
         else if (effectNames[voiceIndex]=="Old Radio")
         {  
