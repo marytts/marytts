@@ -93,12 +93,12 @@ public class FIRFilter implements InlineDataProcessor {
      */
     protected void initialise(double[] impulseResponse, int sliceLen, boolean bEnergyCompensate)
     {
-        if (!MathUtils.isPowerOfTwo(impulseResponse.length+sliceLength))
+        if (!MathUtils.isPowerOfTwo(impulseResponse.length+sliceLen))
             throw new IllegalArgumentException("Impulse response length plus slice length must be a power of two");
         this.impulseResponseLength = impulseResponse.length;
         this.sliceLength = sliceLen;
         this.bEnergyCompensation = bEnergyCompensate;
-        transformedIR = new double[sliceLength+impulseResponse.length];
+        transformedIR = new double[sliceLen+impulseResponse.length];
         System.arraycopy(impulseResponse, 0, transformedIR, 0, impulseResponse.length);
         FFT.realTransform(transformedIR, false);
         // This means, we are not actually saving the impulseResponse, but only
@@ -197,6 +197,6 @@ public class FIRFilter implements InlineDataProcessor {
             for (int i=0; i<dataOut.length; i++)
                 dataOut[i] *= scale;
         }
-        System.arraycopy(dataOut, 0, data, 0, len);
+        System.arraycopy(dataOut, 0, data, 0, data.length);
     }
 }
