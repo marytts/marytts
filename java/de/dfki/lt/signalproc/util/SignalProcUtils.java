@@ -34,4 +34,17 @@ public class SignalProcUtils {
     {
         return (int)(Math.floor(fftSize/2.0+1.5));
     }
+    
+    public static double getAverageSampleEnergy(double [] x)
+    {
+        double avgSampEn = 0.0;
+        
+        for (int i=0; i<x.length; i++)
+            avgSampEn += x[i]*x[i];
+        
+        avgSampEn = Math.sqrt(avgSampEn);
+        avgSampEn /= x.length;
+        
+        return avgSampEn;
+    }
 }
