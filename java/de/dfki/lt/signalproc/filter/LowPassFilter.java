@@ -31,6 +31,8 @@ package de.dfki.lt.signalproc.filter;
 
 import java.io.File;
 
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
 import de.dfki.lt.signalproc.FFT;
@@ -38,7 +40,10 @@ import de.dfki.lt.signalproc.display.FunctionGraph;
 import de.dfki.lt.signalproc.display.MultiDisplay;
 import de.dfki.lt.signalproc.window.BlackmanWindow;
 import de.dfki.lt.signalproc.window.Window;
+import de.dfki.lt.signalproc.process.Robotiser;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
+import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
+import de.dfki.lt.signalproc.util.DDSAudioInputStream;
 import de.dfki.lt.signalproc.util.DoubleDataSource;
 import de.dfki.lt.signalproc.util.MathUtils;
 
@@ -172,8 +177,11 @@ public class LowPassFilter extends FIRFilter {
     public static void main(String[] args) throws Exception
     {
         int cutoffFreq = Integer.valueOf(args[0]).intValue();
-        AudioDoubleDataSource source = new AudioDoubleDataSource(AudioSystem.getAudioInputStream(new File(args[1])));
-        int samplingRate = source.getSamplingRate();
+        
+        AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(args[1]));
+        int samplingRate = (int)inputAudio.getFormat().getSampleRate();
+        AudioDoubleDataSource source = new AudioDoubleDataSource(inputAudio);
+        
         double normalisedCutoffFrequency = (double) cutoffFreq / samplingRate;
         LowPassFilter filter = new LowPassFilter(normalisedCutoffFrequency);
         System.err.println("Created " + filter.toString() + " with cutoff frequency " + cutoffFreq + " Hz and transition band width " + ((int)filter.getTransitionBandWidth(samplingRate)) + " Hz");
@@ -195,7 +203,11 @@ public class LowPassFilter extends FIRFilter {
 
         // Filter the test signal and display it:
         DoubleDataSource filteredSignal = filter.apply(source);
-        MultiDisplay display = new MultiDisplay(filteredSignal.getAllData(), samplingRate, filter.toString() + " at " + cutoffFreq + " Hz applied to " + args[1],
-                MultiDisplay.DEFAULT_WIDTH, MultiDisplay.DEFAULT_HEIGHT);
+        //MultiDisplay display = new MultiDisplay(filteredSignal.getAllData(), samplingRate, filter.toString() + " at " + cutoffFreq + " Hz applied to " + args[1],
+        //        MultiDisplay.DEFAULT_WIDTH, MultiDisplay.DEFAULT_HEIGHT);
+    
+        DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(filteredSignal), source.getAudioFormat());
+        String outFileName = args[1].substring(0, args[1].length()-4) + "_lpf.wav";
+        AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
     }
 }

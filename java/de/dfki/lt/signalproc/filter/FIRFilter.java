@@ -31,6 +31,7 @@ package de.dfki.lt.signalproc.filter;
 
 import de.dfki.lt.signalproc.FFT;
 import de.dfki.lt.signalproc.process.FrameProvider;
+import de.dfki.lt.signalproc.process.InlineDataProcessor;
 import de.dfki.lt.signalproc.util.BlockwiseDoubleDataSource;
 import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
 import de.dfki.lt.signalproc.util.DoubleDataSource;
@@ -43,11 +44,10 @@ import de.dfki.lt.signalproc.util.SequenceDoubleDataSource;
  * The filtering of the input signal corresponds to a convolution
  * with the impulse response of the system.
  */
-public class FIRFilter {
+public class FIRFilter implements InlineDataProcessor {
     protected double[] transformedIR;
     protected int impulseResponseLength;
     protected int sliceLength;
-    double [] ir;
     
     /**
      * Create a new, uninitialised FIR filter. Subclasses need to call
@@ -100,11 +100,6 @@ public class FIRFilter {
         FFT.realTransform(transformedIR, false);
         // This means, we are not actually saving the impulseResponse, but only
         // its complex FFT transform.
-        
-        // We are alos saving the impulseResponse
-        this.ir = new double [impulseResponse.length];
-        System.arraycopy(impulseResponse, 0, this.ir, 0, impulseResponse.length);
-        //
     }
     
     /**
@@ -181,13 +176,9 @@ public class FIRFilter {
         }
     }
     
-    public double [] getIR()
+    public void applyInline(double[] data, int off, int len)
     {
-        return ir;
-    }
-    
-    public int getIRLength()
-    {
-        return ir.length;
+        double [] dataOut = apply(data);
+        System.arraycopy(dataOut, 0, data, 0, len);
     }
 }
