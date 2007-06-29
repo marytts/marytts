@@ -36,6 +36,7 @@ import de.dfki.lt.signalproc.util.BlockwiseDoubleDataSource;
 import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
 import de.dfki.lt.signalproc.util.DoubleDataSource;
 import de.dfki.lt.signalproc.util.MathUtils;
+import de.dfki.lt.signalproc.util.SignalProcUtils;
 import de.dfki.lt.signalproc.util.SequenceDoubleDataSource;
 
 /**
@@ -48,6 +49,7 @@ public class FIRFilter implements InlineDataProcessor {
     protected double[] transformedIR;
     protected int impulseResponseLength;
     protected int sliceLength;
+    protected boolean bEnergyCompensation;
     
     /**
      * Create a new, uninitialised FIR filter. Subclasses need to call
@@ -64,8 +66,8 @@ public class FIRFilter implements InlineDataProcessor {
      */
     public FIRFilter(double[] impulseResponse)
     {
-        int sliceLength = MathUtils.closestPowerOfTwoAbove(2*impulseResponse.length)-impulseResponse.length;
-        initialise(impulseResponse, sliceLength);
+        int sliceLen = MathUtils.closestPowerOfTwoAbove(2*impulseResponse.length)-impulseResponse.length;
+        initialise(impulseResponse, sliceLen, false);
     }
 
     /**
@@ -78,7 +80,7 @@ public class FIRFilter implements InlineDataProcessor {
      */
     public FIRFilter(double[] impulseResponse, int sliceLength)
     {
-        initialise(impulseResponse, sliceLength);
+        initialise(impulseResponse, sliceLength, false);
     }
     
     /**
@@ -89,17 +91,23 @@ public class FIRFilter implements InlineDataProcessor {
      * @throws IllegalArgumentException if the slice length is shorter than the impulse response length, or
      * it the sum of both lengths is not a power of two. 
      */
-    protected void initialise(double[] impulseResponse, int sliceLength)
+    protected void initialise(double[] impulseResponse, int sliceLen, boolean bEnergyCompensate)
     {
         if (!MathUtils.isPowerOfTwo(impulseResponse.length+sliceLength))
             throw new IllegalArgumentException("Impulse response length plus slice length must be a power of two");
         this.impulseResponseLength = impulseResponse.length;
-        this.sliceLength = sliceLength;
+        this.sliceLength = sliceLen;
+        this.bEnergyCompensation = bEnergyCompensate;
         transformedIR = new double[sliceLength+impulseResponse.length];
         System.arraycopy(impulseResponse, 0, transformedIR, 0, impulseResponse.length);
         FFT.realTransform(transformedIR, false);
         // This means, we are not actually saving the impulseResponse, but only
         // its complex FFT transform.
+    }
+    
+    protected void initialise(double[] impulseResponse, int sliceLen)
+    {
+        initialise(impulseResponse, sliceLen, false);
     }
     
     /**
@@ -179,6 +187,16 @@ public class FIRFilter implements InlineDataProcessor {
     public void applyInline(double[] data, int off, int len)
     {
         double [] dataOut = apply(data);
+        
+        //Scale output to match the average sample energy of the input
+        if (bEnergyCompensation)
+        {
+            double enIn = SignalProcUtils.getAverageSampleEnergy(data);
+            double enOut = SignalProcUtils.getAverageSampleEnergy(dataOut);
+            double scale = enIn/enOut;
+            for (int i=0; i<dataOut.length; i++)
+                dataOut[i] *= scale;
+        }
         System.arraycopy(dataOut, 0, data, 0, len);
     }
 }
