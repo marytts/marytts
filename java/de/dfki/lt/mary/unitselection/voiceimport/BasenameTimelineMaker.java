@@ -48,10 +48,14 @@ public class BasenameTimelineMaker extends VoiceImportComponent
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
     protected int percent = 0;
+    private String pmExtension = ".pm";
     
     public final String TIMELINEFILE = "basenameTimelineMaker.timelineFile";
     public final String PMDIR = "basenameTimelineMaker.pmDir";
-    public final String PMEXT = "basenameTimelineMaker.pmExtentsion";
+    
+    public BasenameTimelineMaker(){
+        setupHelp();
+    }
     
     public String getName(){
         return "basenameTimelineMaker";
@@ -73,11 +77,17 @@ public class BasenameTimelineMaker extends VoiceImportComponent
            props.put(PMDIR,db.getProp(db.ROOTDIR)
                         +"pm"
                         +System.getProperty("file.separator"));
-           props.put(PMEXT,".pm");
        }
        return props;
-   }
+    }
     
+    protected void setupHelp(){
+        props2Help = new TreeMap();
+        props2Help.put(TIMELINEFILE,"directory containing the pitchmarks");
+        props2Help.put(PMDIR,"file containing the list of files and their times."
+                +" Will be created by this module.");
+    }
+
     /**
      *  Reads and concatenates a list of LPC EST tracks into one single timeline file.
      *
@@ -135,7 +145,7 @@ public class BasenameTimelineMaker extends VoiceImportComponent
             for ( int i = 0; i < baseNameArray.length; i++ ) {
                 percent = 100*i/baseNameArray.length;                
                 /* - open+load */
-                pmFile = new ESTTrackReader( getProp(PMDIR) + baseNameArray[i] + getProp(PMEXT) );
+                pmFile = new ESTTrackReader( getProp(PMDIR) + baseNameArray[i] + pmExtension);
                 wav = new WavReader( db.getProp(db.WAVDIR) + baseNameArray[i] + db.getProp(db.WAVEXT) );
                 totalDuration += pmFile.getTimeSpan();
                 duration = (int)( (double)pmFile.getTimeSpan() * (double)(globSampleRate) );

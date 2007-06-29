@@ -44,15 +44,21 @@ public class MCEPMaker extends VoiceImportComponent {
     
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
+    
+    protected String mcepExt = ".mcep";
+    protected String lpcExt = ".lpc";
+    protected String pmExt = ".pm";
+    protected String corrPmExt = ".pm.corrected";
+    
     public final String CORRPMDIR = "mcepMaker.corrPmDir";
-    public final String CORRPMEXT = "mcepMaker.corrPmExt";
     public final String PMDIR = "mcepMaker.pmDir";
-    public final String PMEXT = "mcepMaker.pmExt";
     public final String LPCDIR = "mcepMaker.lpcDir";
-    public final String LPCEXT = "mcepMaker.lpcExt";
     public final String MCEPDIR = "mcepMaker.mcepDir";
-    public final String MCEPEXT = "mcepMaker.mcepExt";
     public final String ESTDIR = "mcepMaker.estDir";
+    
+    public MCEPMaker(){
+        setupHelp();
+    }
     
     public String getName(){
         return "mcepMaker";
@@ -63,20 +69,18 @@ public class MCEPMaker extends VoiceImportComponent {
        if (props == null){
            props = new TreeMap();
            String rootDir = db.getProp(db.ROOTDIR);
+           /** Uncomment if you want to use this class for making pitchmarks or lpcs
            props.put(CORRPMDIR, rootDir
                    +"pm"
                    +System.getProperty("file.separator"));
-           props.put(CORRPMEXT, ".pm.corrected");
            props.put(PMDIR, getProp(CORRPMDIR));
-           props.put(PMEXT, ".pm");
            props.put(LPCDIR, rootDir
                    +"lpc"                   
                    +System.getProperty("file.separator"));
-           props.put(LPCEXT, ".lpc");
+           **/
            props.put(MCEPDIR, rootDir
                    +"mcep"
                    +System.getProperty("file.separator"));
-           props.put(MCEPEXT, ".mcep");
            String estdir = System.getProperty("ESTDIR");
            if ( estdir == null ) {
                estdir = "/project/mary/Festival/speech_tools/";
@@ -85,7 +89,13 @@ public class MCEPMaker extends VoiceImportComponent {
        }
        return props;
    }
-    
+   
+   protected void setupHelp(){         
+       props2Help = new TreeMap();
+       props2Help.put(MCEPDIR, "directory containing the mcep files");
+       props2Help.put(ESTDIR,"directory containing the local installation of the Edinburgh Speech Tools");
+   }
+   
     public void initialise( BasenameList setbnl, SortedMap newProps )
     {
        this.bnl = setbnl;
@@ -193,7 +203,7 @@ public class MCEPMaker extends VoiceImportComponent {
         //for ( int f = 0; f < 1; f++ ) {
             /* Load the pitchmark file */
             //System.out.println( baseNameArray[f] );
-            String fName = getProp(PMDIR) + baseNameArray[f] + getProp(PMEXT);
+            String fName = getProp(PMDIR) + baseNameArray[f] + pmExt;
             ESTTrackReader pmFileIn = new ESTTrackReader( fName );
             /* Wrap the primitive floats so that we can use vectors thereafter */
             float[] pmInPrimitive = pmFileIn.getTimes();
@@ -216,7 +226,7 @@ public class MCEPMaker extends VoiceImportComponent {
                 throw new RuntimeException( "For utterance [" + baseNameArray[f] + "]:" , e );
             }
             /* Export the corrected pitchmarks as an EST file */
-            fName = getProp(CORRPMDIR) + baseNameArray[f] + getProp(CORRPMEXT);
+            fName = getProp(CORRPMDIR) + baseNameArray[f] + corrPmExt;
             DataOutputStream dos = null;
             try {
                 dos = new DataOutputStream( new BufferedOutputStream( new FileOutputStream( fName ) ) );
@@ -252,9 +262,9 @@ public class MCEPMaker extends VoiceImportComponent {
         ESTCaller caller = new ESTCaller( db, getProp(ESTDIR) );
         caller.make_mcep( baseNameArray, 
                 getProp(CORRPMDIR),
-                getProp(CORRPMEXT),
+                getProp(corrPmExt),
                 getProp(MCEPDIR),
-                getProp(MCEPEXT));
+                getProp(mcepExt));
         
         return( true );
     }

@@ -49,10 +49,14 @@ public class MCepTimelineMaker extends VoiceImportComponent
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
     protected int percent = 0;
+    protected String mcepExt = ".mcep";
     
     public final String MCEPDIR = "mcepTimelineMaker.mcepDir";
-    public final String MCEPEXT = "mcepTimelineMaker.mcepExt";
     public final String MCEPTIMELINE = "mcepTimelineMaker.mcepTimeline";
+    
+    public MCepTimelineMaker(){
+        setupHelp();
+    }
     
     public String getName(){
         return "mcepTimelineMaker";
@@ -71,11 +75,16 @@ public class MCepTimelineMaker extends VoiceImportComponent
             props.put(MCEPDIR, db.getProp(db.ROOTDIR)
                     +"mcep"
                     +System.getProperty("file.separator"));
-            props.put(MCEPEXT, ".mcep");
             props.put(MCEPTIMELINE, db.getProp(db.FILEDIR)
                     +"timeline_mcep"+db.getProp(db.MARYEXT));  
         }
         return props;
+    }
+    
+    protected void setupHelp(){         
+        props2Help = new TreeMap();
+        props2Help.put(MCEPDIR, "directory containing the mcep files");
+        props2Help.put(MCEPTIMELINE,"file containing all mcep files. Will be created by this module");  
     }
     
     /**
@@ -117,7 +126,7 @@ public class MCepTimelineMaker extends VoiceImportComponent
             /* - open and load */
             // System.out.println( baseNameArray[0] );
             mcepFile = new ESTTrackReader(getProp(MCEPDIR) 
-                    + baseNameArray[0] + getProp(MCEPEXT));
+                    + baseNameArray[0] + mcepExt);
             /* - get the min and the max */
             current = mcepFile.getMinMax();
             mcepMin = current[0];
@@ -136,7 +145,7 @@ public class MCepTimelineMaker extends VoiceImportComponent
                 /* - open+load */
                 // System.out.println( baseNameArray[i] );
                 mcepFile = new ESTTrackReader(getProp(MCEPDIR) 
-                        + baseNameArray[i] + getProp(MCEPEXT));
+                        + baseNameArray[i] + mcepExt);
                 /* - get min and max */
                 current = mcepFile.getMinMax();
                 if ( current[0] < mcepMin ) { mcepMin = current[0]; }
@@ -192,7 +201,7 @@ public class MCepTimelineMaker extends VoiceImportComponent
                 /* - open+load */
                 System.out.println( baseNameArray[i] );
                 mcepFile = new ESTTrackReader( getProp(MCEPDIR) 
-                        + baseNameArray[i] + getProp(MCEPEXT));
+                        + baseNameArray[i] + mcepExt);
                 wav = new WavReader(db.getProp(db.WAVDIR) 
                         + baseNameArray[i] + db.getProp(db.WAVEXT));
                 /* - For each frame in the mcep file: */

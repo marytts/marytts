@@ -38,6 +38,10 @@ public class MRPALabelConverter extends VoiceImportComponent{
     private DatabaseLayout db;
     private Map sampamap;
     
+    public MRPALabelConverter(){
+        setupHelp();
+    }
+    
     public final String MRPALABDIR = "mrpaLabelConverter.mrpaLabDir";
     
     public String getName(){
@@ -58,6 +62,12 @@ public class MRPALabelConverter extends VoiceImportComponent{
        }
        return props;
     }
+    
+    protected void setupHelp(){         
+        props2Help = new TreeMap();
+        props2Help.put(MRPALABDIR,"directory containing the mrpa label files");
+    }
+    
     public boolean compute(){
         
         System.out.println("Converting mrpa labels ... ");

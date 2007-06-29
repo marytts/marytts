@@ -48,9 +48,6 @@ public class LabelledFilesInspector extends VoiceImportComponent
     protected File wavDir;
     protected File phoneLabDir;
     protected File pmDir;
-    protected File extractedWavDir;
-    protected File extractedLabDir;
-    protected File extractedPmDir;
 
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
@@ -67,13 +64,18 @@ public class LabelledFilesInspector extends VoiceImportComponent
     protected double tEnd;
     private boolean quit = false;
     
-    public final String EXTRACTEDDIR = "labelledFilesInspector.extractedDir";
-    public final String EXWAVDIR = "labelledFilesInspector.exWavDir";
-    public final String EXLABDIR = "labelledFilesInspector.exLabDir";
-    public final String EXPMDIR = "labelledFilesInspector.exPmDir";
+    protected String corrPmExt = ".pm.corrected";
+    protected String pmExt = ".pm";
+    
+    protected String extractedDir;
+    protected String extractedWavDir;
+    protected String extractedLabDir;
+    protected String extractedPmDir;
     public final String CORRPMDIR = "labelledFilesInspector.corrPmDir";
-    public final String CORRPMEXT = "labelledFilesInspector.corrPmExt";
-    public final String PMEXT = "labelledFilesInspector.pmExt";
+    
+    public LabelledFilesInspector(){
+        setupHelp();
+    }
     
     public String getName(){
         return "labelledFilesInspector";
@@ -83,33 +85,27 @@ public class LabelledFilesInspector extends VoiceImportComponent
     {
         this.bnl = setbnl;
         this.props = newProps;
+        extractedDir = db.getProp(db.TEMPDIR);
+        extractedWavDir = extractedDir+"wav/";
+        extractedLabDir = extractedDir+"lab/";
+        extractedPmDir =  extractedDir+"pm/";
     }
      
      public SortedMap getDefaultProps(DatabaseLayout db){
          this.db = db;
        if (props == null){
            props = new TreeMap();
-           String extractedDir = db.getProp(db.TEMPDIR);
-           props.put(EXTRACTEDDIR, extractedDir);
-           props.put(EXWAVDIR, extractedDir
-                        +"wav"
-                   		+System.getProperty("file.separator"));
-           props.put(EXLABDIR, extractedDir
-                        +"lab"
-                   		+System.getProperty("file.separator"));
-           props.put(EXPMDIR, extractedDir
-                        +"pm"
-                   		+System.getProperty("file.separator"));
            props.put(CORRPMDIR, db.getProp(db.ROOTDIR)
                         +"pm"
-                   		+System.getProperty("file.separator"));
-           props.put(CORRPMEXT, ".pm.corrected");
-           props.put(PMEXT, ".pm");
+                   		+System.getProperty("file.separator"));           
        }
        return props;
    }
     
-    
+    protected void setupHelp(){         
+        props2Help = new TreeMap();
+        props2Help.put(CORRPMDIR, "directory containing the corrected pitchmarkfiles");
+    }
 
     public boolean compute() throws IOException
     {
@@ -118,14 +114,14 @@ public class LabelledFilesInspector extends VoiceImportComponent
         phoneLabDir = new File( db.getProp(db.LABDIR) );
         pmDir = new File(getProp(CORRPMDIR));
         
-        File extractedDir = new File(getProp(EXTRACTEDDIR));
-        if (!extractedDir.exists()) extractedDir.mkdir();
-        extractedWavDir = new File(getProp(EXWAVDIR));
-        if (!extractedWavDir.exists()) extractedWavDir.mkdir();
-        extractedLabDir = new File(getProp(EXLABDIR));
-        if (!extractedLabDir.exists()) extractedLabDir.mkdir();
-        extractedPmDir = new File(getProp(EXPMDIR));
-        if (!extractedPmDir.exists()) extractedPmDir.mkdir();
+        File extractedDirFile = new File(extractedDir);
+        if (!extractedDirFile.exists()) extractedDirFile.mkdir();
+        File extractedWavDirFile = new File(extractedWavDir);
+        if (!extractedWavDirFile.exists()) extractedWavDirFile.mkdir();
+        File extractedLabDirFile = new File(extractedLabDir);
+        if (!extractedLabDirFile.exists()) extractedLabDirFile.mkdir();
+        File extractedPmDirFile = new File(extractedPmDir);
+        if (!extractedPmDirFile.exists()) extractedPmDirFile.mkdir();
         
         System.out.println( "Proposing for inspection " + bnl.getLength() + " files" );
         
@@ -216,7 +212,7 @@ public class LabelledFilesInspector extends VoiceImportComponent
             File labFile = new File(phoneLabDir, basename+db.getProp(db.LABEXT));
             if (!labFile.exists()) throw new IllegalArgumentException("File "+labFile.getAbsolutePath()+" does not exist");
             // pm file is optional
-            File pmFile = new File(pmDir, basename+getProp(CORRPMEXT));
+            File pmFile = new File(pmDir, basename+corrPmExt);
             if (pmFile.exists()) {
                 System.out.println("Loading pitchmarks file "+pmFile.getAbsolutePath());
                 pitchmarks = new ESTTextfileDoubleDataSource(pmFile).getAllData();
@@ -306,7 +302,7 @@ public class LabelledFilesInspector extends VoiceImportComponent
                 for (int i=0; i<pmExtract.length; i++) {
                     pmExtract[i] = (float) (pitchmarks[firstpm+i]-tStart);
                 }
-                String extractedPmFile = extractedPmDir.getAbsolutePath()+"/"+saveFilename.getText()+getProp(PMEXT);
+                String extractedPmFile = extractedPmDir+saveFilename.getText()+pmExt;
                 new ESTTrackWriter(pmExtract, null, "pitchmarks").doWriteAndClose(extractedPmFile, false, false);
                 System.out.println("Wrote pitchmarks to "+extractedPmFile);
             }

@@ -30,8 +30,6 @@ import de.dfki.lt.mary.util.FileUtils;
 public class PhoneLabelFeatureAligner extends VoiceImportComponent
 {
     
-    protected String labExt;
-    protected String featsExt;
     protected PhoneUnitFeatureComputer featureComputer;
     protected String pauseSymbol;
     
@@ -42,6 +40,9 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
     protected boolean correctedPauses = false;
     //protected boolean wait =false;
     
+    private String featsExt = ".pfeats";
+    private String labExt = ".lab";
+    
     protected static final int TRYAGAIN = 0;
     protected static final int SKIP = 1;
     protected static final int SKIPALL = 2;
@@ -49,9 +50,11 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
     protected static final int REMOVEALL = 4;
     
     public String FEATUREDIR = "phoneLabelFeatureAligner.featureDir";
-    public String FEATUREEXT = "phoneLabelFeatureAligner.featureExt";
     public String LABELDIR = "phoneLabelFeatureAligner.labelDir";
-    public String LABELEXT = "phoneLabelFeatureAligner.labelExt";
+    
+    public PhoneLabelFeatureAligner(){
+        setupHelp();
+    }
     
     public String getName(){
         return "phoneLabelFeatureAligner";
@@ -73,8 +76,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
                 throw new Error("Could not create FEATUREDIR");
             }
             System.out.print("Created successfully.\n");
-        }  
-        featsExt = getProp(FEATUREEXT);
+        } 
         File unitlabelDir = new File(getProp(LABELDIR));
         if (!unitlabelDir.exists()){
             System.out.print(LABELDIR+" "+getProp(LABELDIR)
@@ -83,8 +85,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
                 throw new Error("Could not create LABELDIR");
             }
             System.out.print("Created successfully.\n");
-        }  
-        labExt = getProp(LABELEXT);
+        } 
     }
     
     public SortedMap getDefaultProps(DatabaseLayout db){
@@ -94,15 +95,19 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
            props.put(FEATUREDIR, db.getProp(db.ROOTDIR)
                         +"phonefeatures"
                         +System.getProperty("file.separator"));
-           props.put(FEATUREEXT,".pfeats");
            props.put(LABELDIR, db.getProp(db.ROOTDIR)
                         +"phonelab"
                         +System.getProperty("file.separator"));
-           props.put(LABELEXT,".lab");
        }
        return props;
     }
 
+    protected void setupHelp(){
+        props2Help = new TreeMap();
+        props2Help.put(FEATUREDIR, "directory containing the phone features.");
+        props2Help.put(LABELDIR, "directory containing the phone labels");
+    }
+    
     /**
      * Align labels and features. For each .unitlab file in the unit label
      * directory, verify whether the chain of units given is identical to

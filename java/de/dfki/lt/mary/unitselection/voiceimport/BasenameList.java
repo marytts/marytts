@@ -55,6 +55,7 @@ public class BasenameList
     private Vector bList = null;
     private String fromDir = null;
     private String fromExt = null;
+    private boolean hasChanged;
     private static final int DEFAULT_INCREMENT = 128;
     
     /****************/
@@ -68,6 +69,7 @@ public class BasenameList
         fromDir = null;
         fromExt = null;
         bList = new Vector( DEFAULT_INCREMENT, DEFAULT_INCREMENT );
+        hasChanged = false;
     }
     
     /**
@@ -77,6 +79,7 @@ public class BasenameList
         fromDir = setFromDir;
         fromExt = setFromExt;
         bList = setVec;
+        hasChanged = false;
     }
     
     /**
@@ -87,6 +90,7 @@ public class BasenameList
         fromExt = null;
         bList = new Vector( DEFAULT_INCREMENT, DEFAULT_INCREMENT );
         add( str );
+        hasChanged = false;
     }
     
     /**
@@ -125,7 +129,8 @@ public class BasenameList
         for ( int i = 0; i < selectedFiles.length; i++ ) {
             str = selectedFiles[i].getName().substring( 0, selectedFiles[i].getName().length() - subtractFromFilename );
             add( str );
-        }
+        }        
+        hasChanged = false;
     }
     
     /**
@@ -135,6 +140,7 @@ public class BasenameList
      */
     public BasenameList( String fileName ) throws IOException {
         load( fileName );
+        hasChanged = false;
     }
     
     /*****************/
@@ -197,6 +203,7 @@ public class BasenameList
      */
     public void add( String str ) {
         if ( !bList.contains( str ) ) bList.add( new String( str ) );
+        hasChanged = true;
     }
     
     /**
@@ -204,6 +211,7 @@ public class BasenameList
      */
     public void add( String[] str ) {
         for ( int i = 0; i < str.length; i++ ) add( str[i] );
+        hasChanged = true;
     }
     
     /**
@@ -213,6 +221,7 @@ public class BasenameList
      * @return true if the list was containing the basename.
      */
     public boolean remove( String str ) {
+        hasChanged = true;
         return( bList.remove( str ) );
     }
     
@@ -227,6 +236,7 @@ public class BasenameList
         for ( int i = 0; i < bnl.getLength(); i++ ) {
             bList.remove( bnl.getName(i) );
         }
+        hasChanged = true;
         return( ret );
     }
     
@@ -343,6 +353,7 @@ public class BasenameList
         Arrays.sort( str );
         bList.removeAllElements();
         add( str );
+        hasChanged = true;
     }
     
     /**
@@ -353,6 +364,11 @@ public class BasenameList
         fromDir = null;
         fromExt = null;
         bList.removeAllElements();
+        hasChanged = true;
+    }
+    
+    public boolean hasChanged(){
+        return hasChanged;
     }
     
 }

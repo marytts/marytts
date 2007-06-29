@@ -71,6 +71,10 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
     public final String MARYSERVERHOST = "sphinxLabelingPreparator.maryServerHost";
     public final String MARYSERVERPORT = "sphinxLabelingPreparator.maryServerPort";
     
+    public SphinxLabelingPreparator(){
+        setupHelp();
+    }
+    
      public final String getName(){
         return "sphinxLabelingPreparator";
     }
@@ -98,6 +102,16 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
            props.put(MARYSERVERPORT,"59125");
        }
        return props;
+   }
+   
+   protected void setupHelp(){
+       props2Help = new TreeMap();
+       props2Help.put(SPHINXTRAINDIR,"directory containing the local installation of SphinxTrain");
+       props2Help.put(ESTDIR,"directory containing the local installation of the Edinburgh Speech Tools");
+       props2Help.put(STDIR,"directory containing all files used for training and labeling. Will be created if it does not exist.");
+       props2Help.put(TRANSCRIPTFILE,"file containing the transcripts in festvox format");
+       props2Help.put(MARYSERVERHOST,"the host were the Mary server is running, default: \"localhost\"");
+       props2Help.put(MARYSERVERPORT,"the port were the Mary server is listening, default: \"59125\"");
    }
     
     public void initialise( BasenameList setbnl, SortedMap newProps )

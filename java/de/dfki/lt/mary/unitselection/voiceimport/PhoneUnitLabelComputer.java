@@ -19,15 +19,19 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
 {
     protected File phonelabelDir;
     protected File unitlabelDir;
-    protected String unitlabelExt;
     protected String pauseSymbol;
+    
+    private String unitlabelExt = ".lab";
     
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
     protected int percent = 0;
     
     public String LABELDIR = "phoneUnitLabelComputer.labelDir";
-    public String LABELEXT = "phoneUnitLabelComputer.labelExt";
+    
+    public PhoneUnitLabelComputer(){
+        setupHelp();
+    }
     
     public String getName(){
         return "phoneUnitLabelComputer";
@@ -48,8 +52,7 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
                 throw new Error("Could not create LABELDIR");
             }
             System.out.print("Created successfully.\n");
-        }        
-        unitlabelExt = getProp(LABELEXT);
+        }  
     }
     
      public SortedMap getDefaultProps(DatabaseLayout db){
@@ -59,12 +62,16 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
            props.put(LABELDIR, db.getProp(db.ROOTDIR)
                         +"phonelab"
                         +System.getProperty("file.separator"));
-           props.put(LABELEXT,".lab");
        }
        return props;
     }
      
-    /**/
+    protected void setupHelp(){
+        props2Help = new TreeMap();
+        props2Help.put(LABELDIR,"directory containing the phone labels." 
+                +"Will be created if it does not exist.");
+    } 
+    
     public boolean compute() throws IOException
     {
         

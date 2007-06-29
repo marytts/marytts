@@ -25,6 +25,10 @@ public class Festvox2MaryTranscripts extends VoiceImportComponent
     protected BasenameList bnl = null;
     public final String TRANSCRIPTFILE = "festvox2MaryTranscripts.transcriptFile";
     
+    public Festvox2MaryTranscripts(){
+        setupHelp();
+    }
+    
     public String getName(){
         return "festvox2MaryTranscripts";
     }
@@ -45,7 +49,10 @@ public class Festvox2MaryTranscripts extends VoiceImportComponent
        return props;
    }
     
-    
+    protected void setupHelp(){         
+        props2Help = new TreeMap();
+        props2Help.put(TRANSCRIPTFILE,"file containing the transcripts in festvox format");
+    }
     
     /**/
     public boolean compute() throws IOException

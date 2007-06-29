@@ -25,25 +25,26 @@ public class DurationCARTTrainer extends VoiceImportComponent
     protected File unitlabelDir;
     protected File unitfeatureDir;
     protected File durationDir;
-    protected File durationFeaturesFile;
-    protected File wagonDescFile;
+    protected File durationFeatsFile;
+    protected File durationDescFile;
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
     protected int percent = 0;
     protected boolean useStepwiseTraining = false;
-    private final String name = "durationCARTTrainer";
     
+    private final String name = "durationCARTTrainer";
+    public final String DURTREE = name+".durTree";
     public final String LABELDIR = name+".labelDir";
-    public final String FEATUREDIR = name+".featureDir";
-    public final String DURDIR = name+".durDir";
-    public final String DURFEATSFILE = name+".durFeatsFile";
-    public final String DURDESCFILE = name+".durDescFile";
+    public final String FEATUREDIR = name+".featureDir";   
     public final String STEPWISETRAINING = name+".stepwiseTraining";
     public final String FEATUREFILE = name+".featureFile";
     public final String UNITFILE = name+".unitFile";
     public final String WAVETIMELINE = name+".waveTimeline";
-    public final String DURTREEFILE = name+".durTreeFile";
     public final String ESTDIR = name+".estDir";
+    
+    public DurationCARTTrainer(){
+        setupHelp();
+    }
     
     public String getName(){
         return name;
@@ -57,18 +58,20 @@ public class DurationCARTTrainer extends VoiceImportComponent
         this.unitlabelDir = new File(getProp(LABELDIR));
         this.unitfeatureDir = new File(getProp(FEATUREDIR));
         String rootDir = db.getProp(db.ROOTDIR);
-        this.durationDir = new File(getProp(DURDIR));
+        String durDir = db.getProp(db.TEMPDIR);
+        this.durationDir = new File(durDir);
         if (!durationDir.exists()){
-            System.out.print(DURDIR+" "+getProp(DURDIR)
+            System.out.print("temp dir "+durDir
                     +" does not exist; ");
             if (!durationDir.mkdir()){
                 throw new Error("Could not create DURDIR");
             }
             System.out.print("Created successfully.\n");
         }         
-        this.durationFeaturesFile = new File(getProp(DURFEATSFILE));
-        this.wagonDescFile = new File(getProp(DURDESCFILE));
+        this.durationFeatsFile = new File(durDir+"dur.feats");
+        this.durationDescFile = new File(durDir+"dur.desc");
         this.useStepwiseTraining = Boolean.valueOf(getProp(STEPWISETRAINING)).booleanValue();
+
     }
     
      public SortedMap getDefaultProps(DatabaseLayout db){
@@ -81,21 +84,16 @@ public class DurationCARTTrainer extends VoiceImportComponent
                     +fileSeparator);
             props.put(LABELDIR, db.getProp(db.ROOTDIR)
                     +"phonelab"
-                    +fileSeparator);
-            props.put(DURDIR,db.getProp(db.TEMPDIR));
-            props.put(DURFEATSFILE,getProp(DURDIR)
-                    +"dur.feats");
-            props.put(DURDESCFILE,getProp(DURDIR)
-                    +"dur.desc");
+                    +fileSeparator);            
             props.put(STEPWISETRAINING,"false");
             props.put(FEATUREFILE, db.getProp(db.FILEDIR)
                     +"phoneFeatures"+db.getProp(db.MARYEXT));
             props.put(UNITFILE, db.getProp(db.FILEDIR)
                     +"phoneUnits"+db.getProp(db.MARYEXT));
             props.put(WAVETIMELINE, db.getProp(db.FILEDIR)
-                    +"timeline_waveforms"+db.getProp(db.MARYEXT));
-            props.put(DURTREEFILE, db.getProp(db.FILEDIR)
-                    +"dur.tree");
+                    +"timeline_waveforms"+db.getProp(db.MARYEXT));  
+            props.put(DURTREE,db.getProp(db.FILEDIR)
+                    +"dur.tree");                    
            String estdir = System.getProperty("ESTDIR");
            if ( estdir == null ) {
                estdir = "/project/mary/Festival/speech_tools/";
@@ -104,8 +102,20 @@ public class DurationCARTTrainer extends VoiceImportComponent
         }
        return props;
     }
-    
-    /**/
+     
+     protected void setupHelp(){
+         props2Help = new TreeMap();
+         props2Help.put(FEATUREDIR, "directory containing the phonefeatures");
+         props2Help.put(LABELDIR, "directory containing the phone labels");            
+         props2Help.put(STEPWISETRAINING,"\"false\" or \"true\" ???????????????????????????????????????????????????????????");
+         props2Help.put(FEATUREFILE, "file containing all phone units and their target cost features");
+         props2Help.put(UNITFILE, "file containing all phone units");
+         props2Help.put(WAVETIMELINE, "file containing all wave files"); 
+         props2Help.put(ESTDIR,"directory containing the local installation of the Edinburgh Speech Tools");
+         props2Help.put(DURTREE,"file containing the duration CART. Will be created by this module");
+     }
+
+
     public boolean compute() throws IOException
     {
         FeatureFileReader featureFile = 
@@ -113,7 +123,7 @@ public class DurationCARTTrainer extends VoiceImportComponent
         UnitFileReader unitFile = new UnitFileReader(getProp(UNITFILE));
         TimelineReader waveTimeline = new TimelineReader(getProp(WAVETIMELINE));
 
-        PrintWriter toFeaturesFile = new PrintWriter(new FileOutputStream(durationFeaturesFile));
+        PrintWriter toFeaturesFile = new PrintWriter(new FileOutputStream(durationFeatsFile));
         System.out.println("Duration CART trainer: exporting duration features");
 
         FeatureDefinition featureDefinition = featureFile.getFeatureDefinition();
@@ -134,28 +144,28 @@ public class DurationCARTTrainer extends VoiceImportComponent
         toFeaturesFile.close();
         System.out.println("Duration features extracted for "+nUnits+" units");
         
-        PrintWriter toDesc = new PrintWriter(new FileOutputStream(wagonDescFile));
+        PrintWriter toDesc = new PrintWriter(new FileOutputStream(durationDescFile));
         generateFeatureDescriptionForWagon(featureDefinition, toDesc);
         toDesc.close();
         
         boolean ok = false;
         // Now, call wagon
         WagonCaller wagonCaller = new WagonCaller(getProp(ESTDIR),null);
-        File wagonTreeFile = new File(getProp(DURTREEFILE));
+        File wagonTreeFile = new File(getProp(DURTREE));
         if (useStepwiseTraining) {
             // Split the data set in training and test part:
-            Process traintest = Runtime.getRuntime().exec("/project/mary/Festival/festvox/src/general/traintest "+durationFeaturesFile.getAbsolutePath());
+            Process traintest = Runtime.getRuntime().exec("/project/mary/Festival/festvox/src/general/traintest "+durationFeatsFile.getAbsolutePath());
              try {
                 traintest.waitFor();
              } catch (InterruptedException ie) {}
-             ok = wagonCaller.callWagon("-data "+durationFeaturesFile.getAbsolutePath()+".train"
-                     +" -test "+durationFeaturesFile.getAbsolutePath()+".test -stepwise"
-                     +" -desc "+wagonDescFile.getAbsolutePath()
+             ok = wagonCaller.callWagon("-data "+durationFeatsFile.getAbsolutePath()+".train"
+                     +" -test "+durationFeatsFile.getAbsolutePath()+".test -stepwise"
+                     +" -desc "+durationDescFile.getAbsolutePath()
                      +" -stop 10 "
                      +" -output "+wagonTreeFile.getAbsolutePath());
         } else {
-            ok = wagonCaller.callWagon("-data "+durationFeaturesFile.getAbsolutePath()
-                    +" -desc "+wagonDescFile.getAbsolutePath()
+            ok = wagonCaller.callWagon("-data "+durationFeatsFile.getAbsolutePath()
+                    +" -desc "+durationDescFile.getAbsolutePath()
                     +" -stop 10 "
                     +" -output "+wagonTreeFile.getAbsolutePath());            
         }

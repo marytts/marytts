@@ -34,7 +34,9 @@ public class F0CARTTrainer extends VoiceImportComponent
     protected File leftF0FeaturesFile;
     protected File midF0FeaturesFile;
     protected File rightF0FeaturesFile;
-    protected File wagonDescFile;
+    protected File f0DescFile;
+    protected String featureExt = ".pfeats";  
+    protected String labelExt = ".lab";
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
     protected int percent = 0;
@@ -47,18 +49,14 @@ public class F0CARTTrainer extends VoiceImportComponent
     public final String WAVETIMELINE = name+".waveTimeline";
     public final String LABELDIR = name+".labelDir";
     public final String FEATUREDIR = name+".featureDir";
-    public final String LABELEXT = name+".labelExt";
-    public final String FEATUREEXT = name+".featureExt";
-    public final String F0DIR = name+".f0Dir";
-    public final String F0LEFTFEATFILE = name+".f0LeftFeatFile";
-    public final String F0RIGHTFEATFILE = name+".f0RightFeatFile";
-    public final String F0MIDFEATFILE = name+".f0MidFeatFile";
-    public final String F0DESCFILE = name+".f0DescFile";
     public final String F0LEFTTREEFILE = name+".f0LeftTreeFile";
     public final String F0RIGHTTREEFILE = name+".f0RightTreeFile";
     public final String F0MIDTREEFILE = name+".f0MidTreeFile";
     public final String ESTDIR = name+".estDir";
     
+    public F0CARTTrainer(){
+        setupHelp();
+    }
     
     public String getName(){
         return name;
@@ -70,19 +68,20 @@ public class F0CARTTrainer extends VoiceImportComponent
         this.props = newProps;
         this.bnl = setbnl;
         String rootDir = db.getProp(db.ROOTDIR);
-        this.f0Dir = new File(getProp(F0DIR));
+        String f0DirName = db.getProp(db.TEMPDIR);
+        this.f0Dir = new File(f0DirName);
         if (!f0Dir.exists()){
-            System.out.print(F0DIR+" "+getProp(F0DIR)
+            System.out.print("temp dir "+f0DirName
                     +" does not exist; ");
             if (!f0Dir.mkdir()){
                 throw new Error("Could not create F0DIR");
             }
             System.out.print("Created successfully.\n");
         }  
-        this.leftF0FeaturesFile = new File(getProp(F0LEFTFEATFILE));
-        this.midF0FeaturesFile = new File(getProp(F0MIDFEATFILE));
-        this.rightF0FeaturesFile = new File(getProp(F0RIGHTFEATFILE));
-        this.wagonDescFile = new File(getProp(F0DESCFILE));
+        this.leftF0FeaturesFile = new File(f0Dir+"f0.left.feats");
+        this.midF0FeaturesFile = new File(f0Dir+"f0.mid.feats");
+        this.rightF0FeaturesFile = new File(f0Dir+"f0.right.feats");
+        this.f0DescFile = new File(f0Dir+"f0.desc");
         this.useStepwiseTraining = Boolean.valueOf(getProp(STEPWISETRAINING)).booleanValue();
     }
      
@@ -95,27 +94,16 @@ public class F0CARTTrainer extends VoiceImportComponent
            props.put(FEATUREDIR, db.getProp(db.ROOTDIR)
                         +"phonefeatures"
                         +System.getProperty("file.separator"));
-           props.put(FEATUREEXT,".pfeats");
            props.put(LABELDIR, db.getProp(db.ROOTDIR)                        
                         +"phonelab"
                         +System.getProperty("file.separator"));
-           props.put(LABELEXT,".lab");
            props.put(STEPWISETRAINING,"false");
            props.put(FEATUREFILE, filedir
                         +"phoneFeatures"+maryext);
            props.put(UNITFILE, filedir
                         +"phoneUnits"+maryext);
            props.put(WAVETIMELINE, db.getProp(db.FILEDIR)
-                        +"timeline_waveforms"+db.getProp(db.MARYEXT));
-           props.put(F0DIR,db.getProp(db.TEMPDIR));
-           props.put(F0LEFTFEATFILE,getProp(F0DIR)
-                   +"f0.left.feats");
-           props.put(F0RIGHTFEATFILE,getProp(F0DIR)
-                   +"f0.right.feats");
-           props.put(F0MIDFEATFILE,getProp(F0DIR)
-                   +"f0.mid.feats");
-           props.put(F0DESCFILE,getProp(F0DIR)
-                   +"f0.desc");
+                        +"timeline_waveforms"+db.getProp(db.MARYEXT));           
            props.put(F0LEFTTREEFILE,filedir
                    +"f0.left.tree");
            props.put(F0RIGHTTREEFILE,filedir
@@ -129,9 +117,24 @@ public class F0CARTTrainer extends VoiceImportComponent
            props.put(ESTDIR,estdir);
        }
        return props;
-    }
-    
-    
+     }
+     
+     protected void setupHelp(){         
+         props2Help = new TreeMap();
+         props2Help.put(FEATUREDIR, "directory containing the phonefeatures");
+         props2Help.put(LABELDIR, "directory containing the phone label files");
+         props2Help.put(STEPWISETRAINING,"\"false\" or \"true\" ????????????????????????");
+         props2Help.put(FEATUREFILE, "file containing all phone units and their target cost features");
+         props2Help.put(UNITFILE, "file containing all phone units");
+         props2Help.put(WAVETIMELINE, "file containing all wave files");           
+         props2Help.put(F0LEFTTREEFILE,"file containing the left f0 CART. Will be created by this module");
+         props2Help.put(F0RIGHTTREEFILE,"file containing the right f0 CART. Will be created by this module");
+         props2Help.put(F0MIDTREEFILE,"file containing the middle f0 CART. Will be created by this module");
+         props2Help.put(ESTDIR,"directory containing the local installation of the Edinburgh Speech Tools");
+     }
+   
+
+     
     /**/
     public boolean compute() throws IOException
     {
@@ -214,7 +217,7 @@ public class F0CARTTrainer extends VoiceImportComponent
         System.out.println("F0 features extracted for "+nSyllables+" syllables");
         if (useStepwiseTraining) percent = 1; // estimated
         else percent = 10; // estimated
-        PrintWriter toDesc = new PrintWriter(new FileOutputStream(wagonDescFile));
+        PrintWriter toDesc = new PrintWriter(new FileOutputStream(f0DescFile));
         generateFeatureDescriptionForWagon(featureDefinition, toDesc);
         toDesc.close();
         
@@ -230,12 +233,12 @@ public class F0CARTTrainer extends VoiceImportComponent
             } catch (InterruptedException ie) {}
             ok = wagonCaller.callWagon("-data "+leftF0FeaturesFile.getAbsolutePath()+".train"
                     +" -test "+leftF0FeaturesFile.getAbsolutePath()+".test -stepwise"
-                    +" -desc "+wagonDescFile.getAbsolutePath()
+                    +" -desc "+f0DescFile.getAbsolutePath()
                     +" -stop 10 "
                     +" -output "+wagonTreeFile.getAbsolutePath());
         } else {
             ok = wagonCaller.callWagon("-data "+leftF0FeaturesFile.getAbsolutePath()
-                    +" -desc "+wagonDescFile.getAbsolutePath()
+                    +" -desc "+f0DescFile.getAbsolutePath()
                     +" -stop 10 "
                     +" -output "+wagonTreeFile.getAbsolutePath());
         }
@@ -250,12 +253,12 @@ public class F0CARTTrainer extends VoiceImportComponent
             } catch (InterruptedException ie) {}
             ok = wagonCaller.callWagon("-data "+midF0FeaturesFile.getAbsolutePath()+".train"
                     +" -test "+midF0FeaturesFile.getAbsolutePath()+".test -stepwise"
-                    +" -desc "+wagonDescFile.getAbsolutePath()
+                    +" -desc "+f0DescFile.getAbsolutePath()
                     +" -stop 10 "
                     +" -output "+wagonTreeFile.getAbsolutePath());
         } else {
             ok = wagonCaller.callWagon("-data "+midF0FeaturesFile.getAbsolutePath()
-                    +" -desc "+wagonDescFile.getAbsolutePath()
+                    +" -desc "+f0DescFile.getAbsolutePath()
                     +" -stop 10 "
                     +" -output "+wagonTreeFile.getAbsolutePath());
         }
@@ -270,12 +273,12 @@ public class F0CARTTrainer extends VoiceImportComponent
             } catch (InterruptedException ie) {}
             ok = wagonCaller.callWagon("-data "+rightF0FeaturesFile.getAbsolutePath()+".train"
                     +" -test "+rightF0FeaturesFile.getAbsolutePath()+".test -stepwise"
-                    +" -desc "+wagonDescFile.getAbsolutePath()
+                    +" -desc "+f0DescFile.getAbsolutePath()
                     +" -stop 10 "
                     +" -output "+wagonTreeFile.getAbsolutePath());
         } else {
             ok = wagonCaller.callWagon("-data "+rightF0FeaturesFile.getAbsolutePath()
-                    +" -desc "+wagonDescFile.getAbsolutePath()
+                    +" -desc "+f0DescFile.getAbsolutePath()
                     +" -stop 10 "
                     +" -output "+wagonTreeFile.getAbsolutePath());
         }
@@ -286,9 +289,9 @@ public class F0CARTTrainer extends VoiceImportComponent
     private String[] align(String basename) throws IOException
     {
         BufferedReader labels = 
-            new BufferedReader(new InputStreamReader(new FileInputStream(new File(getProp(LABELDIR) + basename + getProp(LABELEXT))), "UTF-8"));
+            new BufferedReader(new InputStreamReader(new FileInputStream(new File(getProp(LABELDIR) + basename + labelExt)), "UTF-8"));
         BufferedReader features = 
-            new BufferedReader(new InputStreamReader(new FileInputStream(new File(getProp(FEATUREDIR) + basename + getProp(FEATUREEXT))), "UTF-8")); 
+            new BufferedReader(new InputStreamReader(new FileInputStream(new File(getProp(FEATUREDIR) + basename + featureExt)), "UTF-8")); 
         String line;
         // Skip label file header:
         while ((line = labels.readLine()) != null) {

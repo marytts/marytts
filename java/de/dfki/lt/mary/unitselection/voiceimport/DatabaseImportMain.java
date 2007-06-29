@@ -64,6 +64,7 @@ public class DatabaseImportMain extends JFrame
     protected JButton runButton;
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
+    protected int currentComponent;
     
     
    
@@ -79,6 +80,7 @@ public class DatabaseImportMain extends JFrame
         this.db = db;
         this.bnl = db.getBasenames();
         this.groups2Comps = groups2Comps;
+        currentComponent = 0;
         setupGUI();
     }
     
@@ -92,7 +94,7 @@ public class DatabaseImportMain extends JFrame
         
         JPanel checkboxPane = new JPanel();
         checkboxPane.setLayout(new BoxLayout(checkboxPane, BoxLayout.Y_AXIS));
-        //checkboxPane.setPreferredSize(new Dimension(250, 300));
+        //checkboxPane.setPreferredSize(new Dimension(300, 300));
         int compIndex = 0;
         for(int j=0;j<groups2Comps.length;j++){
             String[] nextGroup = groups2Comps[j];
@@ -102,12 +104,23 @@ public class DatabaseImportMain extends JFrame
                     BorderFactory.createTitledBorder(nextGroup[0]),
                     BorderFactory.createEmptyBorder(1,1,1,1)));
             for (int i=1; i<nextGroup.length; i++) {
+                JButton configButton = new JButton();
+                Icon configIcon = 
+                    new ImageIcon(DatabaseImportMain.class.getResource("configure.png"),
+                            "Configure");                
+                configButton.setIcon(configIcon);
+                configButton.setPreferredSize(
+                        new Dimension(configIcon.getIconWidth(),
+                                configIcon.getIconHeight()));
+                configButton.addActionListener(new ConfigButtonActionListener(compIndex+1));                
+                configButton.setBorderPainted(false);
                 //System.out.println("Adding checkbox for "+components[i].getClass().getName());
                 checkboxes[compIndex] = new JCheckBox(nextGroup[i]);
                 //checkboxes[i].setPreferredSize(new Dimension(200, 30));
                 JPanel line = new JPanel();
                 line.setLayout(new BorderLayout(5, 0));
-                line.add(checkboxes[compIndex], BorderLayout.WEST);
+                line.add(configButton, BorderLayout.WEST);
+                line.add(checkboxes[compIndex], BorderLayout.CENTER);
                 groupPane.add(line);
                 compIndex++;
             }
@@ -117,7 +130,7 @@ public class DatabaseImportMain extends JFrame
         gridC.gridy = 0;
         gridC.fill = GridBagConstraints.BOTH;
         JScrollPane scrollPane = new JScrollPane(checkboxPane);
-        scrollPane.setPreferredSize(new Dimension(300,300));
+        scrollPane.setPreferredSize(new Dimension(400,300));
         gridBagLayout.setConstraints( scrollPane, gridC );
         getContentPane().add(scrollPane);
 
@@ -130,6 +143,7 @@ public class DatabaseImportMain extends JFrame
         JButton settingsButton = new JButton("Settings");
         settingsButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
+                currentComponent = 0;
                 displaySettingsGUI();
             }
         });
@@ -139,17 +153,12 @@ public class DatabaseImportMain extends JFrame
                 runSelectedComponents();
             }
         });
-        JButton quitButton = new JButton("Quit");
-        quitButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-                System.exit(0);
-            }
-        });
-        JButton quitAndSaveButton = new JButton("Quit and save");
+        
+        JButton quitAndSaveButton = new JButton("Quit");
         quitAndSaveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
                 try {
-                    doSave();
+                    askIfSave();
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
                 }
@@ -159,14 +168,19 @@ public class DatabaseImportMain extends JFrame
         gridC.gridy = 1;
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout());
+        //buttonPanel.setLayout(new BoxLayout(buttonPanel,BoxLayout.X_AXIS));
+        //runButton.setAlignmentX(JButton.LEFT_ALIGNMENT);
         buttonPanel.add(runButton);
+        //helpButton.setAlignmentX(JButton.LEFT_ALIGNMENT);
         buttonPanel.add(helpButton);
-        buttonPanel.add(settingsButton);        
-        buttonPanel.add(quitButton);
+        //settingsButton.setAlignmentX(JButton.LEFT_ALIGNMENT);
+        buttonPanel.add(settingsButton);
+        //buttonPanel.add(Box.createHorizontalGlue());
+        //quitAndSaveButton.setAlignmentX(JButton.RIGHT_ALIGNMENT);
         buttonPanel.add(quitAndSaveButton);
         gridBagLayout.setConstraints( buttonPanel, gridC );
         getContentPane().add(buttonPanel);
-
+        //getContentPane().setPreferredSize(new Dimension(300, 300));
         // End program when closing window:
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent evt) {
@@ -204,8 +218,11 @@ public class DatabaseImportMain extends JFrame
         try{
             new Thread("DisplaySettingsGUIThread") {
                 public void run() {
-                    String text = "The following settings can be edited:";
-                    new SettingsGUI().display(db, db.getAllPropsForDisplay(),text);
+                    Map comps2HelpText = db.getComps2HelpText();
+                    new SettingsGUI(db, 
+                            	db.getAllPropsForDisplay(),
+                            	currentComponent,
+                            	comps2HelpText);
                 }}.start();
         }catch (Exception e){
             System.out.println("Can not load helpfile "
@@ -273,31 +290,26 @@ public class DatabaseImportMain extends JFrame
     }
     
     
+    
     protected void askIfSave() throws IOException
     {
-        int answer = JOptionPane.showOptionDialog(this,
-                "Do you want to save the list of basenames?",
-                "Save?",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null, null, null);
-        if (answer == JOptionPane.YES_OPTION) {
-            try {
-                doSave();
-            } catch (IOException ioe) {
-                    ioe.printStackTrace();
+        if (bnl.hasChanged()){
+            int answer = JOptionPane.showOptionDialog(this,
+                    "Do you want to save the list of basenames?",
+                    "Save?",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null, null, null);
+            if (answer == JOptionPane.YES_OPTION) {            
+                JFileChooser fc = new JFileChooser();
+                fc.setSelectedFile(new File( db.getProp(db.BASENAMEFILE) ));
+                int returnVal = fc.showSaveDialog(this);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    bnl.write( fc.getSelectedFile() );
+                } 
             }
-        }
-
-    }
-    
-    protected void doSave() throws IOException
-    {
-        JFileChooser fc = new JFileChooser();
-        fc.setSelectedFile(new File( db.getProp(db.BASENAMEFILE) ));
-        int returnVal = fc.showSaveDialog(this);
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            bnl.write( fc.getSelectedFile() );
+        } else {
+            System.exit(0);
         }
     }
     
@@ -354,6 +366,8 @@ public class DatabaseImportMain extends JFrame
             String groupKey = (String) groups.get(i);
             String groupName = (String) groups2Names.get(groupKey);
             List components = (List) groups2Components.get(groupKey);
+            if (components == null) //group is empty
+                continue;
             String[] group = new String[components.size()+1];
             group[0] = groupName;
             for(int j=0;j<components.size();j++){
@@ -383,6 +397,7 @@ public class DatabaseImportMain extends JFrame
             for (int j=1;j<nextComps.length;j++){
                 //get the class name of this component
                 String className = nextComps[j];
+                System.out.println(className);
                 //create a new instance of this class and store in compsList
                 compsList.add((VoiceImportComponent)Class.forName(className).newInstance());
                 //remove "de.dfki...." from class name and store in groups2comps
@@ -406,4 +421,16 @@ public class DatabaseImportMain extends JFrame
     }
     
    
+    class ConfigButtonActionListener implements ActionListener{
+        private int index;
+        
+        public ConfigButtonActionListener(int index){
+            this.index = index;
+        }
+        public void actionPerformed(ActionEvent ae) {
+            currentComponent = index;
+            displaySettingsGUI();
+        }        
+    }
+    
 }

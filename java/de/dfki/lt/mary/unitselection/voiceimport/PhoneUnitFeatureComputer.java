@@ -20,7 +20,7 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
 {
     protected File textDir;
     protected File unitfeatureDir;
-    protected String featsExt;
+    private String featsExt = ".pfeats";
     protected String locale;
     protected MaryClient mary;
     protected String maryInputType;
@@ -31,9 +31,12 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
     protected int percent = 0;
     
     public String FEATUREDIR = "phoneUnitFeatureComputer.featureDir";
-    public String FEATUREEXT = "phoneUnitFeatureComputer.featureExt";
     public String MARYSERVERHOST = "phoneUnitFeatureComputer.maryServerHost";
     public String MARYSERVERPORT = "phoneUnitFeatureComputer.maryServerPort";
+       
+    public PhoneUnitFeatureComputer(){
+        setupHelp();
+    }
     
     public String getName(){
         return "phoneUnitFeatureComputer";
@@ -65,29 +68,36 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
             }
             System.out.print("Created successfully.\n");
         }    
-        featsExt = getProp(FEATUREEXT);
+        
         maryInputType = "RAWMARYXML";
         if (locale.equals("de")) maryOutputType = "TARGETFEATURES_DE";
         else if (locale.equals("en")) maryOutputType = "TARGETFEATURES_EN";
         else throw new IllegalArgumentException("Unsupported locale: "+locale);
     }
-    
-      public SortedMap getDefaultProps(DatabaseLayout db){
-        this.db = db;
-       if (props == null){
-           props = new TreeMap();
-           props.put(FEATUREDIR, db.getProp(db.ROOTDIR)
-                        +"phonefeatures"
-                        +System.getProperty("file.separator"));
-           props.put(FEATUREEXT,".pfeats");
-           props.put(MARYSERVERHOST,"localhost");
-           props.put(MARYSERVERPORT,"59125");
-       } 
-       return props;
-      }
-    
-    public MaryClient getMaryClient() throws IOException
-    {
+     
+     public SortedMap getDefaultProps(DatabaseLayout db){
+         this.db = db;
+         if (props == null){
+             props = new TreeMap();
+             props.put(FEATUREDIR, db.getProp(db.ROOTDIR)
+                     +"phonefeatures"
+                     +System.getProperty("file.separator"));
+             props.put(MARYSERVERHOST,"localhost");
+             props.put(MARYSERVERPORT,"59125");
+         } 
+         return props;
+     }
+     
+     protected void setupHelp(){
+         props2Help = new TreeMap();
+         props2Help.put(FEATUREDIR, "directory containing the phone features." 
+                 +"Will be created if it does not exist");
+         props2Help.put(MARYSERVERHOST,"the host were the Mary server is running, default: \"localhost\"");
+         props2Help.put(MARYSERVERPORT,"the port were the Mary server is listening, default: \"59125\"");
+     }
+     
+     public MaryClient getMaryClient() throws IOException
+     {
         if (mary == null) {
             if (System.getProperty("server.host") == null) {
                 System.setProperty("server.host", getProp(MARYSERVERHOST));
