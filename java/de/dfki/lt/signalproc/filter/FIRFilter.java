@@ -197,6 +197,6 @@ public class FIRFilter implements InlineDataProcessor {
             for (int i=0; i<dataOut.length; i++)
                 dataOut[i] *= scale;
         }
-        System.arraycopy(dataOut, 0, data, 0, data.length);
+        System.arraycopy(dataOut, 0, data, 0, len);
     }
 }
