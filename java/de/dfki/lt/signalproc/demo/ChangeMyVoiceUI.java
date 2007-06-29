@@ -9,6 +9,7 @@ package de.dfki.lt.signalproc.demo;
 import java.io.File;
 import java.io.IOException;
 
+import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -20,6 +21,7 @@ import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 
+import de.dfki.lt.signalproc.FFT;
 import de.dfki.lt.signalproc.process.FrameOverlapAddSource;
 import de.dfki.lt.signalproc.process.InlineDataProcessor;
 import de.dfki.lt.signalproc.process.LPCWhisperiser;
@@ -33,8 +35,10 @@ import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
 import de.dfki.lt.signalproc.util.DDSAudioInputStream;
 import de.dfki.lt.signalproc.util.DoubleDataSource;
+import de.dfki.lt.signalproc.util.MathUtils;
 import de.dfki.lt.signalproc.util.SignalProcUtils;
 import de.dfki.lt.signalproc.demo.OnlineAudioEffects;
+import de.dfki.lt.signalproc.display.FunctionGraph;
 
 /**
  *
@@ -322,8 +326,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         else if (effectNames[voiceIndex]=="Old Radio")
         {  
             double normalizedCutOffFreq = 2000.0/modificationParameters.fs;
-            LowPassFilter f = new LowPassFilter(normalizedCutOffFreq);
-            effect = new RecursiveFilter.Processor(f.getIR());
+            effect = new LowPassFilter(normalizedCutOffFreq);
         }
         //            
 
