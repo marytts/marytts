@@ -39,8 +39,8 @@ public class VoiceModificationParameters {
      * 
      */
     public VoiceModificationParameters() {
-        fs = 16000.0f;  //Set default sampling rate
+        fs = 16000;  //Set default sampling rate
     }
     
-    float fs; //Sampling rate in Hz
+    int fs; //Sampling rate in Hz
 }

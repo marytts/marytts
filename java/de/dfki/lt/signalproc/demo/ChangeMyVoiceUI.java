@@ -64,6 +64,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
                               "Stadium",
                               "Jet Pilot", 
                               "Old Radio", 
+                              "Telephone"
                               };
 
     String [] fsNames = { "8000", 
@@ -131,6 +132,12 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
                 jComboBoxVoiceActionPerformed(evt);
             }
         });
+        
+        jComboBoxSamplingRate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBoxSamplingRateActionPerformed(evt);
+            }
+        });
 
         jLabelVoice.setText("Voice");
         jLabelSamplingRate.setText("Sampling Rate");
@@ -183,11 +190,25 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonExitActionPerformed
 
     private void jComboBoxVoiceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxVoiceActionPerformed
-// TODO add your handling code here:
+        voiceIndex = jComboBoxVoice.getSelectedIndex();
+        if (effectNames[voiceIndex]=="Telephone")
+        {
+            modificationParameters.fs = 8000;
+            jComboBoxSamplingRate.setSelectedItem("8000");
+        }
     }//GEN-LAST:event_jComboBoxVoiceActionPerformed
 
+    private void jComboBoxSamplingRateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxSamplingRateActionPerformed
+        voiceIndex = jComboBoxVoice.getSelectedIndex();
+        if (effectNames[voiceIndex]=="Telephone")
+        {
+            modificationParameters.fs = 8000;
+            jComboBoxSamplingRate.setSelectedItem("8000");
+        }
+    }//GEN-LAST:event_jComboBoxSamplingRateActionPerformed
+    
     private void formMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseClicked
-
+        
     }//GEN-LAST:event_formMouseClicked
 
     private void jButtonStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonStartActionPerformed
@@ -216,9 +237,9 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
      * and fills in the modificationParameters object
     */ 
     private void getParameters() {
-        String str = (String)jComboBoxSamplingRate.getSelectedItem();
-        modificationParameters.fs = Float.valueOf(str.trim()).floatValue();
         voiceIndex = jComboBoxVoice.getSelectedIndex();
+        String str = (String)jComboBoxSamplingRate.getSelectedItem();
+        modificationParameters.fs = (int)(Float.valueOf(str.trim()).floatValue());
     }
     
     /*This function opens source and target datalines and starts real-time voice modification  
@@ -227,6 +248,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     private void changeVoice() {
         bStarted = true;
         int channels = 1;
+            
         AudioFormat audioFormat = new AudioFormat(
                 AudioFormat.Encoding.PCM_SIGNED, modificationParameters.fs, 16, channels, 2*channels, modificationParameters.fs,
                 false);
@@ -320,13 +342,19 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         else if (effectNames[voiceIndex]=="Jet Pilot")
         {  
             double normalizedCutOffFreq1 = 500.0/modificationParameters.fs;
-            double normalizedCutOffFreq2 = 3000.0/modificationParameters.fs;
+            double normalizedCutOffFreq2 = 2000.0/modificationParameters.fs;
+            effect = new BandPassFilter(normalizedCutOffFreq1, normalizedCutOffFreq2, true);
+        }
+        else if (effectNames[voiceIndex]=="Telephone")
+        {  
+            double normalizedCutOffFreq1 = 300.0/modificationParameters.fs;
+            double normalizedCutOffFreq2 = 3400.0/modificationParameters.fs;
             effect = new BandPassFilter(normalizedCutOffFreq1, normalizedCutOffFreq2, true);
         }
         else if (effectNames[voiceIndex]=="Old Radio")
         {  
-            double normalizedCutOffFreq = 2000.0/modificationParameters.fs;
-            effect = new LowPassFilter(normalizedCutOffFreq, true);
+            double normalizedCutOffFreq = 3000.0/modificationParameters.fs;
+            effect = new LowPassFilter(normalizedCutOffFreq, false);
         }
         //            
 
