@@ -54,15 +54,19 @@ public class PhoneFeatureFileWriter extends VoiceImportComponent
     protected FeatureDefinition featureDefinition;
     protected BasenameList bnl = null;
     protected int percent = 0;
-    
+    private String featureExt = ".pfeats";
     protected UnitFileReader unitFileReader;
     
+    protected String name = "phoneFeatureFileWriter";
+    
     public String FEATUREDIR = "phoneFeatureFileWriter.featureDir";
-    public String FEATUREEXT = "phoneFeatureFileWriter.featureExt";
     public String FEATUREFILE = "phoneFeatureFileWriter.featureFile";
     public String UNITFILE = "phoneFeatureFileWriter.unitFile";
     public String WEIGHTSFILE = "phoneFeatureFileWriter.weightsFile";
-    protected String name = "phoneFeatureFileWriter";
+    
+    public PhoneFeatureFileWriter(){
+        setupHelp();
+    }
     
     public String getName(){
         return name;
@@ -90,7 +94,6 @@ public class PhoneFeatureFileWriter extends VoiceImportComponent
            props.put(FEATUREDIR, db.getProp(db.ROOTDIR)
                         +"phonefeatures"
                         +System.getProperty("file.separator"));
-           props.put(FEATUREEXT,".pfeats");
            props.put(FEATUREFILE, db.getProp(db.FILEDIR)
                         +"phoneFeatures"+db.getProp(db.MARYEXT));
            props.put(UNITFILE, db.getProp(db.FILEDIR)
@@ -99,9 +102,18 @@ public class PhoneFeatureFileWriter extends VoiceImportComponent
                         +"phoneUnitFeatureDefinition.txt");
        }
        return props;
-   }
-    
-    
+     }
+     
+     protected void setupHelp(){
+         props2Help = new TreeMap();
+         props2Help.put(FEATUREDIR, "directory containing the phone features");
+         props2Help.put(FEATUREFILE, "file containing all phone units and their target cost features."
+                 +"Will be created by this module");
+         props2Help.put(UNITFILE, "file containing all phone units");
+         props2Help.put(WEIGHTSFILE, "file containing the list of phone target cost features, their values and weights");
+         
+     }
+     
     public boolean compute() throws IOException
     {
         //make sure that we have a featureweightsfile
@@ -118,7 +130,7 @@ public class PhoneFeatureFileWriter extends VoiceImportComponent
                                     new FileInputStream(
                                             new File(getProp(FEATUREDIR)
                                                     +bnl.getName(0) 
-                                                    + getProp(FEATUREEXT) )), "UTF-8"));
+                                                    + featureExt)), "UTF-8"));
                 FeatureDefinition featDef = 
                     new FeatureDefinition(uttFeats, false); // false: do not read weights
                 uttFeats.close();
@@ -170,7 +182,7 @@ public class PhoneFeatureFileWriter extends VoiceImportComponent
         for (int i=0; i<bnl.getLength(); i++) {
             percent = 100*i/bnl.getLength();
             System.out.print( "    " + bnl.getName(i) + " : Entering at index (" + index + ") -- " );
-            BufferedReader uttFeats = new BufferedReader(new InputStreamReader(new FileInputStream(new File( getProp(FEATUREDIR)+ bnl.getName(i) + getProp(FEATUREEXT) )), "UTF-8"));
+            BufferedReader uttFeats = new BufferedReader(new InputStreamReader(new FileInputStream(new File( getProp(FEATUREDIR)+ bnl.getName(i) + featureExt )), "UTF-8"));
             FeatureDefinition uttFeatDefinition = new FeatureDefinition(uttFeats, false); // false: do not read weights
             if (!uttFeatDefinition.featureEquals(featureDefinition)) {
                 throw new IllegalArgumentException("Features in file "+bnl.getName(i)+" do not match definition file "+getProp(WEIGHTSFILE)

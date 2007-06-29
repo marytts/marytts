@@ -53,6 +53,7 @@ public class DatabaseLayout
     private SortedMap missingProps;
     private boolean initialized;
     private List uneditableProps;
+    private Map props2Help;
     //marybase
     public final String MARYBASE = "db.marybase";
     //voicename
@@ -95,24 +96,44 @@ public class DatabaseLayout
     public final String MARYXMLEXT = "db.maryxmlExtension";
     //the help file for import main
     public final String MAINHELPFILE = "db.mainHelpFile";
-    //the help file for the settings dialogue
-    public final String SETTINGSHELPFILE = "db.settingsHelpFile";
     
     public DatabaseLayout(){
         initialized = false;
+        setupHelp();
         initialize(new VoiceImportComponent[0]);
     }
     
     public DatabaseLayout(VoiceImportComponent[] comps){        
         initialized = false;
+        setupHelp();
         initialize(comps);
     }
     
     public DatabaseLayout(VoiceImportComponent comp){        
         initialized = false;
+        setupHelp();
         VoiceImportComponent[] comps = new VoiceImportComponent[1];
         comps[0] = comp;
         initialize(comps);        
+    }
+    
+    private void setupHelp(){
+        props2Help = new TreeMap();
+        props2Help.put(BASENAMEFILE,"file containing the list of files that are used to build the voice");
+        props2Help.put(DOMAIN,"general or limited");
+        props2Help.put(GENDER,"female or male");
+        props2Help.put(LABDIR,"directory containing the label files. Will be created if it does not exist.");
+        props2Help.put(LABEXT,"extension of the label files, default: \".lab\"");
+        props2Help.put(LOCALE,"de, en or en_US");
+        props2Help.put(MARYBASE,"directory containing the local Mary installation");
+        props2Help.put(MARYXMLDIR,"directory containing maryxml representations of the transcripts. Will be created if it does not exist.");
+        props2Help.put(MARYXMLEXT,"extension of the maryxml files, default: \".xml\"");
+        props2Help.put(ROOTDIR,"directory in which all the files created during installation will be stored. Will be created if it does not exist.");
+        props2Help.put(SAMPLINGRATE,"the sampling rate of the wave files, default: \"16000\"");
+        props2Help.put(TEXTDIR,"directory containing the transcript files. Will be created if it does not exist.");
+        props2Help.put(TEXTEXT,"extension of the transcript files, default: \".txt\"");
+        props2Help.put(VOICENAME,"the name of the voice, one word, for example: \"my_voice\"");
+        props2Help.put(WAVDIR,"directory containing the wave files. If it does not exist, an Error is thrown.");
     }
     
     private void initialize(VoiceImportComponent[] components){
@@ -121,11 +142,11 @@ public class DatabaseLayout
         fileSeparator = System.getProperty("file.separator");
         uneditableProps = new ArrayList();
         uneditableProps.add(MAINHELPFILE);
-        uneditableProps.add(SETTINGSHELPFILE);
         uneditableProps.add(MARYEXT);
         uneditableProps.add(CONFIGDIR);
         uneditableProps.add(FILEDIR);
         uneditableProps.add(TEMPDIR);
+        uneditableProps.add(WAVEXT);
         /* check if there is a config file */
         //TODO: config file name as property or command line arg?
         configFileName = "./database.config";
@@ -335,10 +356,11 @@ public class DatabaseLayout
             //make sure all dir names have a / at the end
             if (key.endsWith("Dir")){
                 String prop = (String)props.get(key);
-                if (!prop.endsWith(fileSeparator)){
-                    prop = prop+fileSeparator;
-                    props.put(key,prop);
+                char lastChar = prop.charAt(prop.length()-1);
+                if (Character.isLetterOrDigit(lastChar)){
+                    props.put(key,prop+fileSeparator);
                 }
+                
             }            
         }
         /* check the local props */
@@ -351,9 +373,9 @@ public class DatabaseLayout
                 //make sure all dir names have a / at the end
                 if (nextKey.endsWith("Dir")){
                     String prop = (String)nextLocalPropMap.get(nextKey);
-                    if (!prop.endsWith(fileSeparator)){
-                        prop = prop+fileSeparator;
-                        nextLocalPropMap.put(nextKey,prop);
+                    char lastChar = prop.charAt(prop.length()-1);
+                    if (Character.isLetterOrDigit(lastChar)){
+                        nextLocalPropMap.put(nextKey,prop+fileSeparator);
                     }
                 }                
             }            
@@ -411,19 +433,18 @@ public class DatabaseLayout
      */
     private void promptUserForBasicProps(SortedMap basicprops){
         //fill in the map with the prop names and value templates
-        basicprops.put(MARYBASE,"/path/to/marybase");
-        basicprops.put(VOICENAME,"<name of your voice>");
-        basicprops.put(GENDER,"<female or male>");
-        basicprops.put(DOMAIN,"<general or limited>");
-        basicprops.put(LOCALE,"<de or en>");
-        basicprops.put(SAMPLINGRATE,"<sampling rate of wave files>");
-        basicprops.put(ROOTDIR,"/path/to/voicedirectory");
-        basicprops.put(WAVDIR,"/path/to/wavefiles");
-        basicprops.put(WAVEXT,"<extension of your wav files, e.g., .wav>");
-        basicprops.put(LABDIR,"/path/to/labelfiles");
-        basicprops.put(LABEXT,"<extension of your lab files, e.g., .lab>");        
-        basicprops.put(TEXTDIR,"/path/to/transcriptfiles");
-        basicprops.put(TEXTEXT,"<extension of your transcript files, e.g., .txt>");
+        basicprops.put(MARYBASE,"/path/to/marybase/");
+        basicprops.put(VOICENAME,"my_voice");
+        basicprops.put(GENDER,"female");
+        basicprops.put(DOMAIN,"general");
+        basicprops.put(LOCALE,"de");
+        basicprops.put(SAMPLINGRATE,"16000");
+        basicprops.put(ROOTDIR,"./");
+        basicprops.put(WAVDIR,"wav/");
+        basicprops.put(LABDIR,"lab/");
+        basicprops.put(LABEXT,".lab");        
+        basicprops.put(TEXTDIR,"text/");
+        basicprops.put(TEXTEXT,".txt");
         displayProps(basicprops,"Enter the basic properties of your voice:");
     }
     
@@ -436,20 +457,24 @@ public class DatabaseLayout
     private SortedMap initDefaultProps(SortedMap props,boolean withBasicProps){
         if (withBasicProps){
             props.put(MARYBASE,"/path/to/marybase/");
-            props.put(VOICENAME,"<name of your voice>");
-            props.put(GENDER,"<female or male>");
-            props.put(DOMAIN,"<general or limited>");
-            props.put(LOCALE,"<de or en>");
-            props.put(SAMPLINGRATE,"<sampling rate of wave files>");
-            props.put(ROOTDIR,"/path/to/voicedirectory/");
-            props.put(WAVDIR,"/path/to/wavefiles");
-            props.put(WAVEXT,"<extension of your wav files, e.g., .wav>");
-            props.put(LABDIR,"/path/to/labelfiles");
-            props.put(LABEXT,"<extension of your lab files, e.g., .lab>");
-            props.put(TEXTDIR,"/path/to/transcriptfiles");
-            props.put(TEXTEXT,"<extension of your transcript files, e.g., .txt>");
+            props.put(VOICENAME,"my_voice");
+            props.put(GENDER,"female");
+            props.put(DOMAIN,"general");
+            props.put(LOCALE,"de");
+            props.put(SAMPLINGRATE,"16000");
+            props.put(ROOTDIR,"./");
+            props.put(WAVDIR,"wav/");
+            props.put(LABDIR,"lab/");
+            props.put(LABEXT,".lab");        
+            props.put(TEXTDIR,"text/");
+            props.put(TEXTEXT,".txt");
         }        
-        String rootDir = getProp(ROOTDIR);        
+        String rootDir = getProp(ROOTDIR);
+        char lastChar = rootDir.charAt(rootDir.length()-1);
+        if (Character.isLetterOrDigit(lastChar)){
+            props.put(ROOTDIR,rootDir+fileSeparator);
+        }
+        
         props.put(CONFIGDIR,rootDir+"mary_configs"+fileSeparator);
         props.put(FILEDIR,rootDir+"mary_files"+fileSeparator);
         props.put(MARYEXT,".mry");
@@ -457,8 +482,8 @@ public class DatabaseLayout
         props.put(TEMPDIR,rootDir+"temp"+fileSeparator);
         props.put(MARYXMLDIR,rootDir+"rawmaryxml"+fileSeparator);
         props.put(MARYXMLEXT,".xml");  
-        props.put(MAINHELPFILE,getProp(MARYBASE)+"lib/modules/import/help_import_main.html");
-        props.put(SETTINGSHELPFILE,getProp(MARYBASE)+"lib/modules/import/help_settings.html");
+        props.put(MAINHELPFILE,"help_import_main.html");
+        props.put(WAVEXT,".wav");
         return props;
     }
     
@@ -666,14 +691,44 @@ public class DatabaseLayout
         return bnl;
     }
     
+    public String[] getCompNamesForDisplay(){
+        String[] names = new String[compNames.length+1];
+        names[0] = "global properties";
+        for (int i=1;i<names.length;i++){
+             names[i] = compNames[i-1];
+        }
+        return names;
+    }
+    
     private void displayProps(SortedMap props, String text){
         try{
-           new SettingsGUI().display(this, props,text);
+           new SettingsGUI(this, props,getComps2HelpText());
         }catch (Exception e){
             e.printStackTrace();
             System.out.println("Can not display props");
         }
         
+    }
+    
+     public Map getComps2HelpText(){
+         Map comps2HelpText = new HashMap();
+         StringBuffer helpText = new StringBuffer();
+        helpText.append("<html>\n<head>\n<title>SETTINGS HELP</title>\n"
+                +"</head>\n<body>\n<dl>\n");
+        
+        for (Iterator it=props2Help.keySet().iterator();it.hasNext();){
+            String key = (String) it.next();
+            String value = (String) props2Help.get(key);
+            helpText.append("<dt><strong>"+key+"</strong></dt>\n"
+                    +"<dd>"+value+"</dd>\n");
+        }
+        
+        helpText.append("</dl>\n</body>\n</html>");
+        comps2HelpText.put("global properties",helpText.toString());
+        for (int i=0;i<components.length;i++){
+            comps2HelpText.put(compNames[i],components[i].getHelpText());
+        }
+        return comps2HelpText;
     }
         
 }

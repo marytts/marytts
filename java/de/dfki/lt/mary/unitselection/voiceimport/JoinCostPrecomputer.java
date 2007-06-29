@@ -62,6 +62,10 @@ public class JoinCostPrecomputer extends VoiceImportComponent
     public final String UNITFEATURESFILE = "joinCostPrecomputer.unitFeaturesFile";
     public final String UNITFILE = "joinCostPrecomputer.unitFile";
     
+    public JoinCostPrecomputer(){
+        setupHelp();
+    }
+    
     public String getName(){
         return "joinCostPrecomputer";
     }
@@ -86,6 +90,14 @@ public class JoinCostPrecomputer extends VoiceImportComponent
        return props;
     }
     
+    protected void setupHelp(){         
+        props2Help = new TreeMap();
+        props2Help.put(JOINCOSTFILE,"file containing the join costs for every halfphone unit pair."
+                +" Will be created by this module");
+        props2Help.put(JOINCOSTFEATURESFILE,"file containing all halfphone units and their join cost features");
+        props2Help.put(UNITFEATURESFILE,"file containing all halfphone units and their target cost features");
+        props2Help.put(UNITFILE,"file containing all halfphone units");
+    }
     
     public boolean compute() throws IOException
     {

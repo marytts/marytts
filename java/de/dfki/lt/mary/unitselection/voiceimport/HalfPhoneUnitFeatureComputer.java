@@ -39,16 +39,17 @@ import java.util.*;
 public class HalfPhoneUnitFeatureComputer extends PhoneUnitFeatureComputer 
 {
 
+    private String featsExt = ".hpfeats";
    
     public String getName(){
         return "halfPhoneUnitFeatureComputer";
     }
     
-    public HalfPhoneUnitFeatureComputer(){
+    public HalfPhoneUnitFeatureComputer(){        
         FEATUREDIR = "halfPhoneUnitFeatureComputer.featureDir";
-        FEATUREEXT = "halfPhoneUnitFeatureComputer.featureExt";
         MARYSERVERHOST = "halfPhoneUnitFeatureComputer.maryServerHost";
-        MARYSERVERPORT = "halfPhoneUnitFeatureComputer.maryServerPort";    
+        MARYSERVERPORT = "halfPhoneUnitFeatureComputer.maryServerPort";   
+        setupHelp();
     }
     
      public void initialise( BasenameList setbnl, SortedMap newProps )
@@ -66,7 +67,7 @@ public class HalfPhoneUnitFeatureComputer extends PhoneUnitFeatureComputer
             }
             System.out.print("Created successfully.\n");
         }    
-        featsExt = getProp(FEATUREEXT);
+        
         maryInputType = "RAWMARYXML";
         if (locale.equals("de")) maryOutputType = "HALFPHONE_TARGETFEATURES_DE";
         else if (locale.equals("en")) maryOutputType = "HALFPHONE_TARGETFEATURES_EN";
@@ -80,10 +81,17 @@ public class HalfPhoneUnitFeatureComputer extends PhoneUnitFeatureComputer
            props.put(FEATUREDIR, db.getProp(db.ROOTDIR)
                         +"halfphonefeatures"
                         +System.getProperty("file.separator"));
-           props.put(FEATUREEXT,".hpfeats");
            props.put(MARYSERVERHOST,"localhost");
            props.put(MARYSERVERPORT,"59125");
        } 
        return props;
       }
+      
+      protected void setupHelp(){
+         props2Help = new TreeMap();
+         props2Help.put(FEATUREDIR, "directory containing the halfphone features." 
+                 +"Will be created if it does not exist.");
+         props2Help.put(MARYSERVERHOST,"the host were the Mary server is running, default: \"localhost\"");
+         props2Help.put(MARYSERVERPORT,"the port were the Mary server is listening, default: \"59125\"");
+     }
 }

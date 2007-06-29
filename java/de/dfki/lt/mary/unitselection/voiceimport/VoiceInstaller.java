@@ -60,6 +60,10 @@ public class VoiceInstaller extends VoiceImportComponent{
     public final String EXAMPLETEXT = name+".exampleText";
     public final String WAVETIMELINE = name+".waveTimeline";
     
+    public VoiceInstaller(){
+        setupHelp();
+    }
+    
     public String getName(){
         return name;
     }
@@ -95,6 +99,26 @@ public class VoiceInstaller extends VoiceImportComponent{
        }
        return props;
        }
+    
+    protected void setupHelp(){
+        props2Help = new TreeMap();
+        props2Help.put(CARTFILE, "file containing the preselection CART");
+        props2Help.put(DURTREE, "file containing the duration CART");
+        props2Help.put(F0LEFTTREE, "file containing the left f0 CART");
+        props2Help.put(F0MIDTREE, "file containing the mid f0 CART");
+        props2Help.put(F0RIGHTTREE, "file containing the right f0 CART");
+        props2Help.put(HALFPHONEFEATSAC, "file containing all halfphone units and their target cost features"
+								  +"plus the acoustic target cost features");
+        props2Help.put(HALFPHONEFEATDEFAC, "file containing the list of halfphone target cost features, their values and weights");
+        props2Help.put(HALFPHONEUNITS, "file containing all halfphone units");
+        props2Help.put(JOINCOSTFEATS, "file containing all halfphone units and their join cost features");
+        props2Help.put(JOINCOSTFEATDEF, "file containing the list of join cost weights and their weights ");
+        props2Help.put(PHONEFEATDEF, "file containing the list of phone target cost features, their values and weights");
+        props2Help.put(EXAMPLETEXT, "file containing example text (for limited domain voices only)");
+        props2Help.put(WAVETIMELINE, "file containing all wave files");
+    }
+
+    
     
     /**
      * Do the computations required by this component.

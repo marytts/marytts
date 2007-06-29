@@ -49,10 +49,14 @@ public class LPCTimelineMaker extends VoiceImportComponent
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
     protected int percent = 0;
+    protected String lpcExt = ".lpc";
     
     public final String LPCDIR = "lpcTimelineMaker.lpcDir";
-    public final String LPCEXT = "lpcTimelineMaker.lpcExt";
     public final String LPCTIMELINE = "lpcTimelineMaker.lpcTimeline";
+    
+    public LPCTimelineMaker(){
+        setupHelp();
+    }
     
     public String getName(){
         return "lpcTimelineMaker";
@@ -71,13 +75,17 @@ public class LPCTimelineMaker extends VoiceImportComponent
             props.put(LPCDIR, db.getProp(db.ROOTDIR)
                     +"lpc"
                     +System.getProperty("file.separator"));
-            props.put(LPCEXT, ".lpc");
             props.put(LPCTIMELINE, db.getProp(db.FILEDIR)
                     +"timeline_lpc"+db.getProp(db.MARYEXT));  
         }
         return props;
     }
     
+    protected void setupHelp(){         
+        props2Help = new TreeMap();
+        props2Help.put(LPCDIR,"directory containing the lpc files");
+        props2Help.put(LPCTIMELINE,"file containing the lpc files. Will be created by this module");
+    }
     
     /**
      *  Reads and concatenates a list of LPC EST tracks into one single timeline file.
@@ -118,7 +126,7 @@ public class LPCTimelineMaker extends VoiceImportComponent
             /* - open and load */
             // System.out.println( baseNameArray[0] );
             lpcFile = new ESTTrackReader(getProp(LPCDIR) 
-                    + baseNameArray[0] + getProp(LPCEXT));
+                    + baseNameArray[0] + lpcExt);
             /* - get the min and the max */
             current = lpcFile.getMinMaxNo1st();
             lpcMin = current[0];
@@ -137,7 +145,7 @@ public class LPCTimelineMaker extends VoiceImportComponent
                 /* - open+load */
                 // System.out.println( baseNameArray[i] );
                 lpcFile = new ESTTrackReader(getProp(LPCDIR)
-                        + baseNameArray[i] + getProp(LPCEXT));
+                        + baseNameArray[i] + lpcExt);
                 /* - get min and max */
                 current = lpcFile.getMinMaxNo1st();
                 if ( current[0] < lpcMin ) { lpcMin = current[0]; }
@@ -192,7 +200,7 @@ public class LPCTimelineMaker extends VoiceImportComponent
                 /* - open+load */
                 System.out.println( baseNameArray[i] );
                 lpcFile = new ESTTrackReader(getProp(LPCDIR) 
-                        + baseNameArray[i] + getProp(LPCEXT));
+                        + baseNameArray[i] + lpcExt);
                 wav = new WavReader(db.getProp(db.WAVDIR) 
                         + baseNameArray[i] + db.getProp(db.WAVEXT));
                 short[] wave = wav.getSamples();

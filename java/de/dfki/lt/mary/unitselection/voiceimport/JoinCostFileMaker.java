@@ -45,7 +45,7 @@ public class JoinCostFileMaker extends VoiceImportComponent {
     private DatabaseLayout db = null;
     private BasenameList bnl = null;
     private int percent = 0;
-    
+    private String mcepExt = ".mcep";    
     private int numberOfFeatures = 0;
     private float[] fw = null;
     private String[] wfun = null;
@@ -55,7 +55,10 @@ public class JoinCostFileMaker extends VoiceImportComponent {
     public final String UNITFILE = "joinCostFileMaker.unitFile";
     public final String WEIGHTSFILE = "joinCostFileMaker.weightsFile";
     public final String MCEPDIR = "joinCostFileMaker.mcepDir";
-    public final String MCEPEXT = "joinCostFileMaker.mcepExt";
+    
+    public JoinCostFileMaker(){
+        setupHelp();
+    }
     
     public String getName(){
         return "joinCostFileMaker";
@@ -98,9 +101,20 @@ public class JoinCostFileMaker extends VoiceImportComponent {
            props.put(MCEPDIR, db.getProp(db.ROOTDIR)
                         +"mcep"
                         +System.getProperty("file.separator"));
-           props.put(MCEPEXT, ".mcep");           
+                  
        }
        return props;
+    }
+    
+    protected void setupHelp(){         
+        props2Help = new TreeMap();
+        props2Help.put(JOINCOSTFILE, "file containing all halfphone units and their join cost features."
+                +" Will be created by this module");
+        props2Help.put(MCEPTIMELINE, "file containing all mcep files");
+        props2Help.put(UNITFILE, "file containing all halfphone units");
+        props2Help.put(WEIGHTSFILE, "file containing the list of join cost weights and their weights");
+        props2Help.put(MCEPDIR, "directory containing the mcep files");
+        
     }
     
     public boolean compute() throws IOException
@@ -112,7 +126,7 @@ public class JoinCostFileMaker extends VoiceImportComponent {
         
         /* Read the number of mel cepstra from the first melcep file */
         ESTTrackReader firstMcepFile = new ESTTrackReader(getProp(MCEPDIR) 
-                + baseNameArray[0] + getProp(MCEPEXT));
+                + baseNameArray[0] + mcepExt);
         int numberOfMelcep = firstMcepFile.getNumChannels();
         firstMcepFile = null; // Free the memory taken by the file
         

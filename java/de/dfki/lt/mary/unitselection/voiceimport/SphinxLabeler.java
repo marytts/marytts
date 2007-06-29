@@ -46,6 +46,10 @@ public class SphinxLabeler extends VoiceImportComponent {
     public final String SPHINX2DIR = "sphinxLabeler.sphinx2Dir";
     public final String STDIR = "sphinxLabeler.stDir";
     
+    public SphinxLabeler(){
+        setupHelp();
+    }
+    
      public final String getName(){
         return "sphinxLabeler";
     }
@@ -65,6 +69,12 @@ public class SphinxLabeler extends VoiceImportComponent {
        return props;
    }
     
+   protected void setupHelp(){
+        props2Help = new TreeMap();
+        props2Help.put(SPHINX2DIR,"directory containing the local installation of Sphinx2");
+        props2Help.put(STDIR,"directory containing all files used for training and labeling");
+   }
+   
     public void initialise( BasenameList setbnl, SortedMap newProps )
     {
         this.props = newProps;

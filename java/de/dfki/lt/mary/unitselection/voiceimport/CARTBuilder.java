@@ -47,22 +47,27 @@ public class CARTBuilder extends VoiceImportComponent {
     
     private MCepTimelineReader mcepTimeline;
     private UnitFileReader unitFile;
-    
+    private String wagonDirName;
+    private String wagonDescFile;
+    private String wagonFeatsFile;
+    private String wagonCartFile;
+    private String wagonDisTabsFile;
+    private DatabaseLayout db;
     private int percent = 0;
     public final String ACFEATUREFILE = "cartBuilder.acFeatureFile";
     public final String FEATURESEQFILE = "cartBuilder.featureSeqFile";
     public final String TOPLEVELTREEFILE = "cartBuilder.topLevelTreeFile";
     public final String CARTFILE = "cartBuilder.cartFile";
-    public final String WAGONDIR = "cartBuilder.wagonDir";
-    public final String WAGONDESCFILE = "cartBuilder.wagonDescFile";
-    public final String WAGONFEATSFILE = "cartBuilder.wagonFeatsFile";
-    public final String WAGONCARTFILE = "cartBuilder.wagonCartFile";
-    public final String WAGONDISTABSFILE = "cartBuilder.wagonDisTabsFile";
+    
     public final String MCEPTIMELINE = "cartBuilder.mcepTimeline";
     public final String UNITFILE = "cartBuilder.unitFile";
     public final String READFEATURESEQUENCE = "cartBuilder.readFeatureSequence";
     public final String MAXLEAFSIZE = "cartBuilder.maxLeafSize";
     public final String ESTDIR = "cartBuilder.estDir";
+    
+    public CARTBuilder(){
+        setupHelp();
+    }
     
     public String getName(){
         return "cartBuilder";
@@ -70,7 +75,12 @@ public class CARTBuilder extends VoiceImportComponent {
     
      public void initialise( BasenameList setbnl, SortedMap newProps )
     {       
-        this.props = newProps;
+         this.props = newProps;
+         wagonDirName = db.getProp(db.TEMPDIR);
+         wagonDescFile = wagonDirName+"wagon.desc";
+         wagonFeatsFile = wagonDirName+"wagon.feats";
+         wagonCartFile = wagonDirName+"wagon.cart";
+         wagonDisTabsFile = wagonDirName+"wagon.distabs";
         //make sure that we have at least a feature sequence file
         File featSeqFile = new File(getProp(FEATURESEQFILE));
         if (!featSeqFile.exists()){
@@ -99,6 +109,7 @@ public class CARTBuilder extends VoiceImportComponent {
     }
     
      public SortedMap getDefaultProps(DatabaseLayout db){
+         this.db = db;
        if (props == null){
            props = new TreeMap();
            String filedir = db.getProp(db.FILEDIR);
@@ -111,11 +122,7 @@ public class CARTBuilder extends VoiceImportComponent {
                         +"topLevel.tree");
            props.put(CARTFILE, filedir
                         +"cart"+maryext);
-           props.put(WAGONDIR, db.getProp(db.TEMPDIR));
-           props.put(WAGONDESCFILE,getProp(WAGONDIR)+"wagon.desc");
-           props.put(WAGONFEATSFILE, getProp(WAGONDIR)+"wagon.feats");
-           props.put(WAGONCARTFILE, getProp(WAGONDIR)+"wagon.cart");
-           props.put(WAGONDISTABSFILE, getProp(WAGONDIR)+"wagon.distabs");
+           
            props.put(MCEPTIMELINE, filedir
                         +"timeline_mcep"+maryext);
            props.put(UNITFILE,filedir
@@ -128,10 +135,26 @@ public class CARTBuilder extends VoiceImportComponent {
            }
            props.put(ESTDIR,estdir);
        }
+       
        return props;
    }
      
-    
+     
+     protected void setupHelp(){
+         props2Help = new TreeMap();
+         props2Help.put(ACFEATUREFILE,"file containing all halfphone units and their target cost features"
+                 +" plus the acoustic target cost features");
+         props2Help.put(FEATURESEQFILE, "file containing the feature sequence for the basic tree");
+         props2Help.put(TOPLEVELTREEFILE,"file containing the basic tree");
+         props2Help.put(CARTFILE, "file containing the preselection CART. Will be created by this module");
+         props2Help.put(MCEPTIMELINE,"file containing the mcep files");
+         props2Help.put(UNITFILE,"file containing all halfphone units");
+         props2Help.put(READFEATURESEQUENCE,"if \"true\", basic tree is read from feature sequence file;"
+                 +" if \"false\", basic tree is read from top level tree file.");
+         props2Help.put(MAXLEAFSIZE,"the maximum number of units in a leaf of the basic tree");
+         props2Help.put(ESTDIR,"directory containing the local installation of the Edinburgh Speech Tools");
+     }
+     
      public boolean compute() throws Exception{
          long time = System.currentTimeMillis();
          //read in the features with feature file indexer
@@ -373,15 +396,15 @@ public class CARTBuilder extends VoiceImportComponent {
             
             
             //create wagon dir if it does not exist
-            File wagonDir = new File(getProp(WAGONDIR));
+            File wagonDir = new File(wagonDirName);
             if (!wagonDir.exists()){
                 wagonDir.mkdir();
             }
             //get the filenames for the various files used by wagon
-            String featureDefFile = getProp(WAGONDESCFILE);
-            String featureVectorsFile = getProp(WAGONFEATSFILE);
-            String cartFile = getProp(WAGONCARTFILE);
-            String distanceTableFile = getProp(WAGONDISTABSFILE);
+            String featureDefFile = wagonDescFile;
+            String featureVectorsFile = wagonFeatsFile;
+            String cartFile = wagonCartFile;
+            String distanceTableFile = wagonDisTabsFile;
             //dump the feature definitions
             PrintWriter out = new PrintWriter(new 
                 			FileOutputStream(new 

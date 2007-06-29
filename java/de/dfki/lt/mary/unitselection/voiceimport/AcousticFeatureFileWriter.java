@@ -70,6 +70,10 @@ public class AcousticFeatureFileWriter extends VoiceImportComponent
     public final String ACFEATUREFILE = "acousticFeatureFileWriter.acFeatureFile";  
     public final String ACFEATDEF = "acousticFeatureFileWriter.acFeatDef";
     
+    public AcousticFeatureFileWriter(){
+        setupHelp();
+    }
+    
     public String getName(){
         return "acousticFeatureFileWriter";
     }
@@ -95,6 +99,19 @@ public class AcousticFeatureFileWriter extends VoiceImportComponent
        return props;
    }
     
+   protected void setupHelp(){
+       if (props2Help ==null){
+           props2Help = new TreeMap();
+           props2Help.put(UNITFILE,"file containing all halfphone units");
+           props2Help.put(WAVETIMELINE,"file containing all wave files");
+           props2Help.put(FEATUREFILE,"file containing all halfphone units and their target cost features");
+           props2Help.put(ACFEATUREFILE,"file containing all halfphone units and their target cost features"
+								 +" plus the acoustic target cost features. Will be created by this module.");
+           props2Help.put(ACFEATDEF,"file containing the list of phone target cost features, their values and weights");
+       }
+   }
+  
+   
     public boolean compute() throws IOException
     {
         System.out.println("Acoustic feature file writer started.");

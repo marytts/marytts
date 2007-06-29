@@ -39,6 +39,8 @@ import java.util.*;
 public class HalfPhoneUnitfileWriter extends PhoneUnitfileWriter
 {
 
+    private String unitlabelExt = ".hplab";
+    private String corrPmExt = ".pm.corrected";
    
     public String getName(){
         return "halfPhoneUnitfileWriter";
@@ -46,10 +48,9 @@ public class HalfPhoneUnitfileWriter extends PhoneUnitfileWriter
     
     public HalfPhoneUnitfileWriter(){
         LABELDIR = "halfPhoneUnitfileWriter.labelDir";
-        LABELEXT = "halfPhoneUnitfileWriter.labelExt";
         UNITFILE = "halfPhoneUnitfileWriter.unitFile";
         CORRPMDIR = "halfPhoneUnitfileWriter.corrPmDir";
-        CORRPMEXT = "halfPhoneUnitfileWriter.corrPmExt";
+        setupHelp();
     }
     
     public void initialise( BasenameList setbnl, SortedMap newProps )
@@ -71,7 +72,6 @@ public class HalfPhoneUnitfileWriter extends PhoneUnitfileWriter
             }
             System.out.print("Created successfully.\n");
         } 
-        unitlabelExt = getProp(LABELEXT);
         aligner = new HalfPhoneLabelFeatureAligner();
         db.initialiseComponent(aligner);        
     }
@@ -84,15 +84,20 @@ public class HalfPhoneUnitfileWriter extends PhoneUnitfileWriter
             props.put(LABELDIR, rootDir
                     +"halfphonelab"
                     +System.getProperty("file.separator"));
-            props.put(LABELEXT,".hplab");
             props.put(UNITFILE, db.getProp(db.FILEDIR)
                     +"halfphoneUnits"+db.getProp(db.MARYEXT));           
             props.put(CORRPMDIR, rootDir
                     +"pm"                   
                     +System.getProperty("file.separator"));
-            props.put(CORRPMEXT, ".pm.corrected");
         }
         return props;
+    }
+    
+    protected void setupHelp(){
+        props2Help = new TreeMap();
+        props2Help.put(LABELDIR, "directory containing the halfphone labels");
+        props2Help.put(UNITFILE, "file containing all halfphone units. Will be created by this module");           
+        props2Help.put(CORRPMDIR, "directory containing the corrected pitchmarks");
     }
     
 

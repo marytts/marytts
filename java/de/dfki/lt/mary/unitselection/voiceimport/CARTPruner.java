@@ -41,6 +41,7 @@ public class CARTPruner extends VoiceImportComponent
     protected File prunedCart;
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
+    protected String logfile;
     protected int percent = 0;
     
     protected CARTAnalyzer ca;
@@ -49,7 +50,10 @@ public class CARTPruner extends VoiceImportComponent
     public final String UNITFILE = "cartPruner.unitFile";
     public final String WAVETIMELINE = "cartPruner.waveFile";
     public final String UNITFEATUREFILE = "cartPruner.unitFeatureFile";
-    public final String LOGFILE = "cartPruner.logFile";
+   
+    public CARTPruner(){
+        setupHelp();
+    }
     
     public String getName(){
         return "cartPruner";
@@ -61,7 +65,8 @@ public class CARTPruner extends VoiceImportComponent
      */
      public void initialise(BasenameList setbnl, SortedMap newProps )
     {
-        this.props = newProps;            
+        this.props = newProps;    
+        logfile = db.getProp(db.TEMPDIR)+"prunedCart.log";
     }
     
       public SortedMap getDefaultProps(DatabaseLayout db){  
@@ -79,13 +84,20 @@ public class CARTPruner extends VoiceImportComponent
            props.put(WAVETIMELINE, filedir
                         +"timeline_waveforms"+maryext);
            props.put(UNITFEATUREFILE, filedir
-                        +"halfphoneFeatures"+maryext);
-           props.put(LOGFILE, db.getProp(db.TEMPDIR)
-                        +"prunedCart.log");
+                        +"halfphoneFeatures"+maryext);           
        } 
        return props;
       }
-     
+      
+      protected void setupHelp(){
+          props2Help = new TreeMap();
+          props2Help.put(CARTFILE,"file containing the preselection CART");
+          props2Help.put(PRUNEDCARTFILE,"file containing the pruned preselection CART. Will be created by this module");
+          props2Help.put(UNITFILE, "file containing all halfphone units");
+          props2Help.put(WAVETIMELINE, "file containing all wave files");
+          props2Help.put(UNITFEATUREFILE, "file containing all halfphone units and their target cost features"); 
+      }
+    
     public boolean compute() throws IOException
     {
         
@@ -101,7 +113,7 @@ public class CARTPruner extends VoiceImportComponent
                 getProp(UNITFEATUREFILE),getProp(CARTFILE));
         try {
             
-            ca.analyzeAutomatic(getProp(LOGFILE), prunedCart.getPath(), cutAbove1000, cutNorm, cutSilence, cutLong);
+            ca.analyzeAutomatic(logfile, prunedCart.getPath(), cutAbove1000, cutNorm, cutSilence, cutLong);
         } catch (Exception e) {
             e.printStackTrace();
             return false;

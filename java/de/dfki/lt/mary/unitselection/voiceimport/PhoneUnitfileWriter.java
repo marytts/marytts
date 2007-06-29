@@ -46,20 +46,24 @@ public class PhoneUnitfileWriter extends VoiceImportComponent
     protected File maryDir;
     protected String unitFileName;
     protected File unitlabelDir;
-    protected String unitlabelExt;
     protected int samplingRate;
     protected String pauseSymbol;
     protected PhoneLabelFeatureAligner aligner;
+    
+    private String unitlabelExt = ".lab";
+    private String corrPmExt = ".pm.corrected";
 
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
     protected int percent = 0;
     
     public String LABELDIR = "phoneUnitfileWriter.labelDir";
-    public String LABELEXT = "phoneUnitfileWriter.labelExt";
     public String UNITFILE = "phoneUnitfileWriter.unitFile";
     public String CORRPMDIR = "phoneUnitfileWriter.corrPmDir";
-    public String CORRPMEXT = "phoneUnitfileWriter.corrPmExt";
+    
+    public PhoneUnitfileWriter(){
+        setupHelp();
+    }
     
     public String getName(){
         return "phoneUnitfileWriter";
@@ -83,8 +87,7 @@ public class PhoneUnitfileWriter extends VoiceImportComponent
                 throw new Error("Could not create LABELDIR");
             }
             System.out.print("Created successfully.\n");
-        }    
-        unitlabelExt = getProp(LABELEXT);
+        }  
         aligner = new PhoneLabelFeatureAligner();
         db.initialiseComponent(aligner);        
     }
@@ -97,15 +100,20 @@ public class PhoneUnitfileWriter extends VoiceImportComponent
            props.put(LABELDIR, rootDir
                    +"phonelab"
                    +System.getProperty("file.separator"));
-           props.put(LABELEXT,".lab");
            props.put(UNITFILE, db.getProp(db.FILEDIR)
                    +"phoneUnits"+db.getProp(db.MARYEXT));           
            props.put(CORRPMDIR, rootDir
                    +"pm"
                    +System.getProperty("file.separator"));
-           props.put(CORRPMEXT, ".pm.corrected");
        }
        return props;
+    }
+    
+    protected void setupHelp(){
+        props2Help = new TreeMap();
+        props2Help.put(LABELDIR, "directory containing the phone labels");
+        props2Help.put(UNITFILE, "file containing all phone units. Will be created by this module");           
+        props2Help.put(CORRPMDIR, "directory containing the corrected pitchmarks");
     }
     
     public boolean compute() throws IOException
@@ -133,7 +141,7 @@ public class PhoneUnitfileWriter extends VoiceImportComponent
             percent = 100*i/bnl.getLength();
             /* Open the relevant pitchmark file */
             pmFile = new ESTTrackReader(getProp(CORRPMDIR)
-                    + bnl.getName(i) + getProp(CORRPMEXT));
+                    + bnl.getName(i) +corrPmExt);
             // Output the utterance start marker: "null" unit
             out.writeLong( globalStart ); out.writeInt(-1);
             index++;

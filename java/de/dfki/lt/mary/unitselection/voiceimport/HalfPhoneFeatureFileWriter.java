@@ -37,16 +37,16 @@ public class HalfPhoneFeatureFileWriter extends PhoneFeatureFileWriter
 {
     protected FeatureDefinition leftFeatureDef;
     protected FeatureDefinition rightFeatureDef;
-    
+    private String featureExt = ".hpfeats";
     
     
     public HalfPhoneFeatureFileWriter(){
         FEATUREDIR = "halfPhoneFeatureFileWriter.featureDir";
-        FEATUREEXT = "halfPhoneFeatureFileWriter.featureExt";
         FEATUREFILE = "halfPhoneFeatureFileWriter.featureFile";
         UNITFILE = "halfPhoneFeatureFileWriter.unitFile";
         WEIGHTSFILE = "halfPhoneFeatureFileWriter.weightsFile";  
         name= "halfPhoneFeatureFileWriter";
+        setupHelp();
     }
     
    public SortedMap getDefaultProps(DatabaseLayout db){
@@ -55,7 +55,6 @@ public class HalfPhoneFeatureFileWriter extends PhoneFeatureFileWriter
            props.put(FEATUREDIR, db.getProp(db.ROOTDIR)
                         +"halfphonefeatures"
                         +System.getProperty("file.separator"));
-           props.put(FEATUREEXT,".hpfeats");
            props.put(FEATUREFILE, db.getProp(db.FILEDIR)
                         +"halfphoneFeatures"+db.getProp(db.MARYEXT));
            props.put(UNITFILE, db.getProp(db.FILEDIR)
@@ -65,5 +64,15 @@ public class HalfPhoneFeatureFileWriter extends PhoneFeatureFileWriter
        }
        return props;
    }
+   
+   protected void setupHelp(){
+         props2Help = new TreeMap();
+         props2Help.put(FEATUREDIR, "directory containing the halfphone features");
+         props2Help.put(FEATUREFILE, "file containing all halfphone units and their target cost features."
+                 +"Will be created by this module");
+         props2Help.put(UNITFILE, "file containing all halfphone units");
+         props2Help.put(WEIGHTSFILE, "file containing the list of halfphone target cost features, their values and weights");
+         
+     }
     
 }

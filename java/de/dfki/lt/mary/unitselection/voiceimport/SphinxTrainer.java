@@ -43,6 +43,10 @@ public class SphinxTrainer extends VoiceImportComponent {
     
     public final String STDIR = "sphinxTrainer.stDir";
     
+    public SphinxTrainer(){
+        setupHelp();
+    }
+    
      public final String getName(){
         return "sphinxTrainer";
     }
@@ -56,6 +60,11 @@ public class SphinxTrainer extends VoiceImportComponent {
            				+System.getProperty("file.separator"));
        }
        return props;
+   }
+   
+   protected void setupHelp(){
+       props2Help = new TreeMap();
+       props2Help.put(STDIR,"directory containing all files used for training and labeling");
    }
     
     public void initialise( BasenameList setbnl, SortedMap newProps )

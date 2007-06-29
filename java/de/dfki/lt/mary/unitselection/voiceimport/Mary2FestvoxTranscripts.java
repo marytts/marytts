@@ -17,6 +17,10 @@ public class Mary2FestvoxTranscripts extends VoiceImportComponent{
     
     public final String TRANSCRIPTFILE = "mary2FestvoxTranscripts.transcriptFile";
     
+    public Mary2FestvoxTranscripts(){
+        setupHelp();
+    }
+    
     public String getName(){
         return "mary2FestvoxTranscripts";
     }
@@ -37,6 +41,11 @@ public class Mary2FestvoxTranscripts extends VoiceImportComponent{
        return props;
    }
     
+      protected void setupHelp(){         
+        props2Help = new TreeMap();
+        props2Help.put(TRANSCRIPTFILE,"file containing the transcripts in festvox format");
+      }
+     
     public boolean compute(){
         try{
         //open output file

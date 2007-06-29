@@ -38,14 +38,11 @@ import java.util.*;
 public abstract class VoiceImportComponent
 {
     protected SortedMap props = null;
-    protected Map help = null;
+    protected SortedMap props2Help = null;
     
-    protected VoiceImportComponent()
-    {
-        setupHelp();
-    }
+    
 
-    protected void setupHelp() {}
+    protected abstract void setupHelp();
     /**
      * Initialise the component;
      * update values of local properties
@@ -100,6 +97,27 @@ public abstract class VoiceImportComponent
      * @return -1 if not implemented, or an integer between 0 and 100.
      */
     public abstract int getProgress();
+    
+    public String getHelpText(){
+        StringBuffer helpText = new StringBuffer();
+        helpText.append("<html>\n<head>\n<title>SETTINGS HELP</title>\n"
+                +"</head>\n<body>\n"
+                +"<h2>Settings help for component "+getName()+"</h2>\n<dl>\n");
+        try{
+        for (Iterator it=props2Help.keySet().iterator();it.hasNext();){
+            String key = (String) it.next();
+            String value = (String) props2Help.get(key);
+            helpText.append("<dt><strong>"+key+"</strong></dt>\n"
+                    +"<dd>"+value+"</dd>\n");
+        }
+        
+        helpText.append("</dl>\n</body>\n</html>");
+        return helpText.toString();
+        } catch (NullPointerException npe){
+            npe.printStackTrace();
+            throw new Error("No help text for component "+getName());
+        }
+    }
     
     
 }

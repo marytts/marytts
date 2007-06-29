@@ -39,15 +39,17 @@ import java.util.*;
  */
 public class HalfPhoneLabelFeatureAligner extends PhoneLabelFeatureAligner {
 
+    private String featsExt = ".hpfeats";
+    private String labExt = ".hplab";
+    
     public String getName(){
         return "halfPhoneLabelFeatureAligner";
     }
     
     public HalfPhoneLabelFeatureAligner(){
         FEATUREDIR = "halfPhoneLabelFeatureAligner.featureDir";
-        FEATUREEXT = "halfPhoneLabelFeatureAligner.featureExt";
         LABELDIR = "halfPhoneLabelFeatureAligner.labelDir";
-        LABELEXT = "halfPhoneLabelFeatureAligner.labelExt";
+        setupHelp();
     }
     
     public void initialise( BasenameList setbnl, SortedMap newProps )
@@ -66,8 +68,7 @@ public class HalfPhoneLabelFeatureAligner extends PhoneLabelFeatureAligner {
                 throw new Error("Could not create FEATUREDIR");
             }
             System.out.print("Created successfully.\n");
-        }  
-        featsExt = getProp(FEATUREEXT);
+        }
         File unitlabelDir = new File(getProp(LABELDIR));
         if (!unitlabelDir.exists()){
             System.out.print(LABELDIR+" "+getProp(LABELDIR)
@@ -77,7 +78,6 @@ public class HalfPhoneLabelFeatureAligner extends PhoneLabelFeatureAligner {
             }
             System.out.print("Created successfully.\n");
         }  
-        labExt = getProp(LABELEXT);
     }
     
     public SortedMap getDefaultProps(DatabaseLayout db){
@@ -87,16 +87,18 @@ public class HalfPhoneLabelFeatureAligner extends PhoneLabelFeatureAligner {
            props.put(FEATUREDIR, db.getProp(db.ROOTDIR)
                         +"halfphonefeatures"
                         +System.getProperty("file.separator"));
-           props.put(FEATUREEXT,".hpfeats");
            props.put(LABELDIR, db.getProp(db.ROOTDIR)
                         +"halfphonelab"
                         +System.getProperty("file.separator"));
-           props.put(LABELEXT,".hplab");
        }
        return props;
     }
 
-    
+    protected void setupHelp(){
+        props2Help = new TreeMap();
+        props2Help.put(FEATUREDIR, "directory containing the phone features.");
+        props2Help.put(LABELDIR, "directory containing the phone labels");
+    }
     
 
 }

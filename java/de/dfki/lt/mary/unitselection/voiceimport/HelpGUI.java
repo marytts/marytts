@@ -41,13 +41,31 @@ import java.io.*;
 import javax.swing.*;
 
 public class HelpGUI {
-    private File file;
+    private final JEditorPane editPane;
     
     public HelpGUI(File file)
     {
-        this.file = file;
+        editPane = new JEditorPane();
+        editPane.setPreferredSize(new Dimension(700, 500));
+        editPane.setContentType("text/html; charset=UTF-8");        
+        try{
+            //editPane.read(new InputStreamReader(HelpGUI.class.getResourceAsStream("helptext.html"), "UTF-8"), null);
+            editPane.read(new InputStreamReader(new FileInputStream(file), "UTF-8"), null);
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("Could not read file : "
+                    +e.getMessage());            
+        }
+        editPane.setEditable(false);
     }
     
+    public HelpGUI(String text){
+        editPane = new JEditorPane();
+        editPane.setPreferredSize(new Dimension(700, 500));
+        editPane.setContentType("text/html; charset=UTF-8");   
+        editPane.setText(text);
+        editPane.setEditable(false);
+    }
     
     /**
      * Show a frame displaying the help file.
@@ -60,20 +78,7 @@ public class HelpGUI {
         GridBagLayout gridBagLayout = new GridBagLayout();
         GridBagConstraints gridC = new GridBagConstraints();
         frame.getContentPane().setLayout( gridBagLayout );
-        final JEditorPane editPane = new JEditorPane();
-        editPane.setPreferredSize(new Dimension(700, 500));
-        editPane.setContentType("text/html; charset=UTF-8");        
-        try{
-            //editPane.read(new InputStreamReader(HelpGUI.class.getResourceAsStream("helptext.html"), "UTF-8"), null);
-            editPane.read(new InputStreamReader(new FileInputStream(file), "UTF-8"), null);
-        }catch (Exception e){
-            e.printStackTrace();
-            System.out.println("Could not read file : "
-                    +e.getMessage());
-            return false;
-        }
-        editPane.setEditable(false);
-        
+
         gridC.gridx = 0;
         gridC.gridy = 0;
         // resize scroll pane:

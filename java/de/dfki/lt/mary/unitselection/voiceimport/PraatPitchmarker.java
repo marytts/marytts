@@ -43,23 +43,36 @@ public class PraatPitchmarker extends VoiceImportComponent
 {
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
-
+    protected String corrPmExt = ".pm.corrected";
+    protected String pmExt = ".pm";
+    protected String pointpExt = ".PointProcess";
+    protected String tmpScript;
+    
     private int percent = 0;
     
     public final String COMMAND = "praatPitchmarker.command";
-    public final String TEMPSCRIPT = "praatPitchmarker.tempScript";
     public final String MINPITCH = "praatPitchmarker.minPitch";
     public final String MAXPITCH = "praatPitchmarker.maxPitch";
     public final String CORRPMDIR = "praatPitchmarker.corrPmDir";
-    public final String CORRPMEXT = "praatPitchmarker.corrPmExt";
     public final String PMDIR = "praatPitchmarker.pmDir";
-    public final String PMEXT = "praatPitchmarker.pmExt";
-    public final String POINTPEXT = "praatPitchmarker.pointPExt";
+    
+    public PraatPitchmarker(){
+        setupHelp();
+    }
     
     protected void setupHelp()
     {
-        help = new HashMap();
-        help.put(COMMAND, "The command that is used to launch praat");
+        if (props2Help ==null){
+            props2Help = new TreeMap();
+            props2Help.put(COMMAND, "The command that is used to launch praat");
+            props2Help.put(MINPITCH,"minimum value for the pitch (in Hz). Default: female 100, male 75");
+            props2Help.put(MAXPITCH,"maximum value for the pitch (in Hz). Default: female 500, male 300");            
+            props2Help.put(CORRPMDIR, "directory containing the corrected pitchmark files. Will be created if" 
+                    +"it does not exist");
+            props2Help.put(PMDIR, "directory containing the pitchmark files. Will be created if" 
+                    +"it does not exist");
+        }
+        
 
     }
     
@@ -71,16 +84,14 @@ public class PraatPitchmarker extends VoiceImportComponent
     {
          this.bnl = setbnl;
         this.props = newProps;
+        tmpScript = db.getProp(db.TEMPDIR)+"script.praat";
     }
     
     public SortedMap getDefaultProps(DatabaseLayout db){
         this.db = db;
        if (props == null){
            props = new TreeMap();
-           props.put(COMMAND,"praat");
-           
-           props.put(TEMPSCRIPT,db.getProp(db.TEMPDIR)
-                   +"script.praat");
+           props.put(COMMAND,"praat");  
            if (db.getProp(db.GENDER).equals("female")){
                props.put(MINPITCH,"100");
                props.put(MAXPITCH,"500");
@@ -92,12 +103,9 @@ public class PraatPitchmarker extends VoiceImportComponent
            props.put(CORRPMDIR, rootDir
                    +"pm"
                    +System.getProperty("file.separator"));
-           props.put(CORRPMEXT, ".pm.corrected");
            props.put(PMDIR, rootDir
                    +"pm"
                    +System.getProperty("file.separator"));
-           props.put(PMEXT, ".pm");
-           props.put(POINTPEXT, ".PointProcess");
        }
        return props;
     }
@@ -212,11 +220,11 @@ public class PraatPitchmarker extends VoiceImportComponent
     private boolean praatPitchmarks(String basename) throws IOException
     {
         String wavFilename = db.getProp(db.WAVDIR) + basename + db.getProp(db.WAVEXT);
-        String pointprocessFilename = getProp(PMDIR)+basename+getProp(POINTPEXT);
-        String pmFilename = getProp(PMDIR)+basename+getProp(PMEXT);
-        String correctedPmFilename = getProp(CORRPMDIR) + basename + getProp(CORRPMEXT);
+        String pointprocessFilename = getProp(PMDIR)+basename+pointpExt;
+        String pmFilename = getProp(PMDIR)+basename+pmExt;
+        String correctedPmFilename = getProp(CORRPMDIR) + basename + corrPmExt;
 
-        File script = new File(getProp(TEMPSCRIPT));
+        File script = new File(tmpScript);
         if (script.exists()) script.delete();
         PrintWriter toScript = new PrintWriter(new FileWriter(script));
         toScript.println("Read from file... "+wavFilename);
@@ -243,8 +251,8 @@ public class PraatPitchmarker extends VoiceImportComponent
         toScript.println("Quit");
         toScript.close();
 
-        System.out.println("Running Praat as: "+getProp(COMMAND)+" "+getProp(TEMPSCRIPT));
-        Process praat = Runtime.getRuntime().exec(getProp(COMMAND)+" "+getProp(TEMPSCRIPT));
+        System.out.println("Running Praat as: "+getProp(COMMAND)+" "+tmpScript);
+        Process praat = Runtime.getRuntime().exec(getProp(COMMAND)+" "+tmpScript);
         final BufferedReader fromPraat = new BufferedReader(new InputStreamReader(praat.getInputStream()));
         new Thread() {
             public void run() {
