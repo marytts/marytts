@@ -61,7 +61,7 @@ public class FIRFilter implements InlineDataProcessor {
     protected FIRFilter()
     {
         energyScales = new double[20];
-        scaleInd = 0;
+        scaleInd = -1;
         for (int i=0; i<energyScales.length; i++)
             energyScales[i] = 1.0;
     }
