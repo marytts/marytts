@@ -50,6 +50,8 @@ public class FIRFilter implements InlineDataProcessor {
     protected int impulseResponseLength;
     protected int sliceLength;
     protected boolean bEnergyCompensation;
+    protected double [] energyScales;
+    protected int scaleInd;
     
     /**
      * Create a new, uninitialised FIR filter. Subclasses need to call
@@ -58,6 +60,10 @@ public class FIRFilter implements InlineDataProcessor {
      */
     protected FIRFilter()
     {
+        energyScales = new double[20];
+        scaleInd = 0;
+        for (int i=0; i<energyScales.length; i++)
+            energyScales[i] = 1.0;
     }
     
     /**
@@ -65,7 +71,7 @@ public class FIRFilter implements InlineDataProcessor {
      * @param impulseResponse the impulse response signal
      */
     public FIRFilter(double[] impulseResponse)
-    {
+    {   
         int sliceLen = MathUtils.closestPowerOfTwoAbove(2*impulseResponse.length)-impulseResponse.length;
         initialise(impulseResponse, sliceLen, false);
     }
@@ -193,8 +199,20 @@ public class FIRFilter implements InlineDataProcessor {
         {
             double enIn = SignalProcUtils.getAverageSampleEnergy(data);
             double enOut = SignalProcUtils.getAverageSampleEnergy(dataOut);
-            double scale = enIn/enOut;
-            for (int i=0; i<dataOut.length; i++)
+            
+            int i;
+            
+            scaleInd++;
+            if (scaleInd>energyScales.length-1)
+                scaleInd = 0;
+           energyScales[scaleInd] = enIn/enOut;
+           
+           double scale = 0.0; 
+           for (i=0; i<energyScales.length; i++)
+               scale += energyScales[i];
+           scale /= energyScales.length;
+                             
+            for (i=0; i<dataOut.length; i++)
                 dataOut[i] *= scale;
         }
         System.arraycopy(dataOut, 0, data, 0, len);
