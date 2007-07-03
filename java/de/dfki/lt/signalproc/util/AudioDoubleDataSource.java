@@ -49,13 +49,16 @@ public class AudioDoubleDataSource extends BaseDoubleDataSource {
     protected int bytesPerSample;
     protected boolean bigEndian;
     protected boolean hasMoreData;
+    protected boolean bAutomaticClippingControl;
+    protected double [] scales;
+    protected int scaleInd;
     
     /**
      * Initialise this double data source with the AudioInputStream from which
      * samples can be read.
      * @throws IllegalArgumentException if the audio input stream does not have 8 or 16 bits per sample. 
      */
-    public AudioDoubleDataSource(AudioInputStream ais) {
+    public AudioDoubleDataSource(AudioInputStream ais, boolean isAutomaticClippingControl) {
         this.ais = ais;
         int bitsPerSample = ais.getFormat().getSampleSizeInBits();
         if (bitsPerSample != 8 && bitsPerSample != 16) {
@@ -66,6 +69,21 @@ public class AudioDoubleDataSource extends BaseDoubleDataSource {
         this.samplingRate = (int) ais.getFormat().getSampleRate();
         this.byteBuf = new byte[BYTEBUFFER_LENGTH];
         this.hasMoreData = true;
+        
+        this.scaleInd = -1;
+        this.bAutomaticClippingControl = isAutomaticClippingControl;
+        if (bAutomaticClippingControl)
+        {
+            scales = new double[20];
+            for (int i=0; i<scales.length; i++)
+                scales[i] = 1.0;
+        }
+        else
+            scales = null;
+    }
+    
+    public AudioDoubleDataSource(AudioInputStream ais) {
+        this(ais, false);
     }
 
     /**
