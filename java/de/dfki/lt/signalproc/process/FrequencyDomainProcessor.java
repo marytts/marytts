@@ -39,20 +39,30 @@ public class FrequencyDomainProcessor implements InlineDataProcessor
 {
     private double[] real;
     private double[] imag;
-    
+    private double robotAmount; //A double value between 0.5 and 1.0, if 1.0 full robotic, if 0.5 half robotic
+    private double oneMinusRobotAmount; //1.0-robotAmount
     /**
      * Create a frequencydomainprocessor with the given FFT size.
      * @param fftSize length of the array to be used for the FFT. Must be
      * a power of two.
      * @throws IllegalArgumentException if fftSize is not a power of two.
      */
-    public FrequencyDomainProcessor(int fftSize)
+    public FrequencyDomainProcessor(int fftSize, double amount)
     {
         if (!MathUtils.isPowerOfTwo(fftSize)) {
             throw new IllegalArgumentException("FFT size must be a power of two");
         }
         this.real = new double[fftSize];
         this.imag = new double[fftSize];
+        this.robotAmount = amount;
+        this.robotAmount = Math.max(0.5, this.robotAmount);
+        this.robotAmount = Math.min(1.0, this.robotAmount);
+        this.oneMinusRobotAmount = 1.0-this.robotAmount;
+    }
+    
+    public FrequencyDomainProcessor(int fftSize)
+    {
+        this(fftSize, 1.0);
     }
     
     public int getFFTSize(){ return real.length; }
@@ -69,6 +79,9 @@ public class FrequencyDomainProcessor implements InlineDataProcessor
      */
     public void applyInline(double[] data, int pos, int len)
     {
+        int i;
+        double [] dataOut = new double[len];
+        
         if (len > real.length) {
             throw new IllegalArgumentException("Length must not be larger than FFT size");
         }
@@ -83,8 +96,12 @@ public class FrequencyDomainProcessor implements InlineDataProcessor
         FFT.transform(real, imag, false);
         process(real, imag);
         FFT.transform(real, imag, true);
-        System.arraycopy(real, 0, data, pos+middle, len-middle);
-        System.arraycopy(real, real.length-middle, data, pos, middle);
+        
+        System.arraycopy(real, 0, dataOut, pos+middle, len-middle);
+        System.arraycopy(real, real.length-middle, dataOut, pos, middle);
+        
+        for (i=0; i<len; i++)
+            data[i] = robotAmount*dataOut[i] + oneMinusRobotAmount*data[i]; 
     }
     
     /**

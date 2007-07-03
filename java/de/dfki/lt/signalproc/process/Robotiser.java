@@ -65,9 +65,14 @@ public class Robotiser extends FrameOverlapAddSource
     
     public static class PhaseRemover extends PolarFrequencyProcessor
     {
+        public PhaseRemover(int fftSize, double amount)
+        {
+            super(fftSize, amount);
+        }
+        
         public PhaseRemover(int fftSize)
         {
-            super(fftSize);
+            this(fftSize, 1.0);
         }
 
         /**

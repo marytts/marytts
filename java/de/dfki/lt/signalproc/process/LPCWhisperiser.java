@@ -48,9 +48,22 @@ import de.dfki.lt.signalproc.util.MathUtils;
  */
 public class LPCWhisperiser extends LPCAnalysisResynthesis
 {
+    protected double whisperAmount; //Amount of whispered voice at the output between 0.5 (half whispered+half unmodified) and 1.0 (full whispered)
+    protected double oneMinusWhisperAmount; //1.0-whisperAmount
+    
+    public LPCWhisperiser(int predictionOrder, double amount)
+    {
+        super(predictionOrder);
+        this.whisperAmount = amount;
+        this.whisperAmount = Math.max(0.5, amount);
+        this.whisperAmount = Math.min(1.0, amount);
+        this.oneMinusWhisperAmount = 1.0-this.whisperAmount;
+    }
+    
     public LPCWhisperiser(int predictionOrder)
     {
         super(predictionOrder);
+        whisperAmount = 1.0;
     }
     
     /**
@@ -64,7 +77,7 @@ public class LPCWhisperiser extends LPCAnalysisResynthesis
         double maxAbsAmplitude = 2*avgAbsAmplitude;
         double spread = 2*maxAbsAmplitude;
         for (int i=0; i<residual.length; i++)
-            residual[i] = spread * (Math.random()-0.5);
+            residual[i] = whisperAmount*spread*(Math.random()-0.5) + oneMinusWhisperAmount* residual[i];
     }
 
     public static void main(String[] args) throws Exception

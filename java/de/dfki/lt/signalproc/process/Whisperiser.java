@@ -48,9 +48,14 @@ import de.dfki.lt.signalproc.util.MathUtils;
  */
 public class Whisperiser extends PolarFrequencyProcessor
 {
+    public Whisperiser(int fftSize, double amount)
+    {
+        super(fftSize, amount);
+    }
+    
     public Whisperiser(int fftSize)
     {
-        super(fftSize);
+        super(fftSize, 1.0);
     }
 
     /**
