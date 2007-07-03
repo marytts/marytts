@@ -50,6 +50,7 @@ import de.dfki.lt.signalproc.display.FunctionGraph;
  */
 
 public class ChangeMyVoiceUI extends javax.swing.JFrame {
+    private double amount;
     private int targetIndex;
     private boolean bStarted;
     OnlineAudioEffects online;
@@ -95,8 +96,8 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        jButtonExit = new javax.swing.JButton();
         jComboBoxTargetVoice = new javax.swing.JComboBox();
+        jButtonExit = new javax.swing.JButton();
         jLabelTargetVoice = new javax.swing.JLabel();
         jButtonAdd = new javax.swing.JButton();
         jButtonStart = new javax.swing.JButton();
@@ -126,16 +127,16 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
             }
         });
 
+        jComboBoxTargetVoice.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBoxTargetVoiceActionPerformed(evt);
+            }
+        });
+
         jButtonExit.setText("Exit");
         jButtonExit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonExitActionPerformed(evt);
-            }
-        });
-
-        jComboBoxTargetVoice.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBoxTargetVoiceActionPerformed(evt);
             }
         });
 
@@ -167,6 +168,16 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         jSliderAmount.setMajorTickSpacing(50);
         jSliderAmount.setMinorTickSpacing(5);
         jSliderAmount.setPaintTicks(true);
+        jSliderAmount.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                jSliderAmountPropertyChange(evt);
+            }
+        });
+        jSliderAmount.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                jSliderAmountStateChanged(evt);
+            }
+        });
 
         jLabelInput.setText("Input");
 
@@ -180,9 +191,6 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(150, 150, 150)
-                        .add(jButtonExit))
                     .add(layout.createSequentialGroup()
                         .add(10, 10, 10)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
@@ -206,19 +214,22 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
                     .add(layout.createSequentialGroup()
                         .addContainerGap()
                         .add(jScrollList, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 379, Short.MAX_VALUE))
-                    .add(layout.createSequentialGroup()
-                        .add(56, 56, 56)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .addContainerGap()
                         .add(jButtonAdd)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
                             .add(org.jdesktop.layout.GroupLayout.LEADING, jButtonStart, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                            .add(layout.createSequentialGroup()
                                 .add(jButtonRec)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(jButtonPlay)))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jButtonDel)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 105, Short.MAX_VALUE)))
+                        .add(80, 80, 80))
+                    .add(layout.createSequentialGroup()
+                        .add(171, 171, 171)
+                        .add(jButtonExit)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -244,18 +255,26 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
                 .add(jScrollList, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 225, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jButtonAdd)
                     .add(jButtonRec)
                     .add(jButtonPlay)
-                    .add(jButtonDel)
-                    .add(jButtonAdd))
-                .add(25, 25, 25)
+                    .add(jButtonDel))
+                .add(23, 23, 23)
                 .add(jButtonStart, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 42, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(28, 28, 28)
+                .add(30, 30, 30)
                 .add(jButtonExit)
                 .addContainerGap())
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jSliderAmountStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSliderAmountStateChanged
+        getAmount();
+    }//GEN-LAST:event_jSliderAmountStateChanged
+
+    private void jSliderAmountPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jSliderAmountPropertyChange
+// TODO add your handling code here:
+    }//GEN-LAST:event_jSliderAmountPropertyChange
 
     private void jButtonExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonExitActionPerformed
     System.exit(0);
@@ -300,6 +319,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     */ 
     private void getParameters() {
         targetIndex = jComboBoxTargetVoice.getSelectedIndex();
+        getAmount();
     }
     
     /*This function opens source and target datalines and starts real-time voice modification  
@@ -349,57 +369,57 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         
         if (targetNames[targetIndex]=="Robot")
         {  
-            effect = new Robotiser.PhaseRemover(4096);
+            effect = new Robotiser.PhaseRemover(4096, 0.7+0.3*amount);
         }
         else if (targetNames[targetIndex]=="Whisper")
         {  
-            effect = new LPCWhisperiser(SignalProcUtils.getLPOrder((int)modificationParameters.fs));
+            effect = new LPCWhisperiser(SignalProcUtils.getLPOrder((int)modificationParameters.fs), 0.4+0.6*amount);
         }
         else if (targetNames[targetIndex]=="Dwarf1") //Using freq. domain LP spectrum modification
         {  
-            double [] vscales = {1.5};
+            double [] vscales = {1.3+0.5*amount};
             int p = SignalProcUtils.getLPOrder((int)modificationParameters.fs);
             int fftSize = Math.max(SignalProcUtils.getDFTSize((int)modificationParameters.fs), 1024);
             effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, fftSize, vscales);
         }
         else if (targetNames[targetIndex]=="Dwarf2") //Using freq. domain DFT magnitude spectrum modification
         {  
-            double [] vscales = {1.5};
+            double [] vscales = {1.3+0.5*amount};
             effect = new VocalTractScalingSimpleProcessor(1024, vscales);
         }
         else if (targetNames[targetIndex]=="Ogre1") //Using freq. domain LP spectrum modification
         { 
-            double [] vscales = {0.85};            
+            double [] vscales = {0.90-0.1*amount};            
             int p = SignalProcUtils.getLPOrder((int)modificationParameters.fs);
             int fftSize = Math.max(SignalProcUtils.getDFTSize((int)modificationParameters.fs), 1024);
             effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, fftSize, vscales);
         }
         else if (targetNames[targetIndex]=="Ogre2") //Using freq. domain DFT magnitude spectrum modification
         { 
-            double [] vscales = {0.85};
+            double [] vscales = {0.90-0.1*amount};
             effect = new VocalTractScalingSimpleProcessor(1024, vscales);
         }
         else if (targetNames[targetIndex]=="Giant1") //Using freq. domain LP spectrum modification
         {  
-            double [] vscales = {0.75};
+            double [] vscales = {0.75-0.1*amount};
             int p = SignalProcUtils.getLPOrder((int)modificationParameters.fs);
             int fftSize = Math.max(SignalProcUtils.getDFTSize((int)modificationParameters.fs), 1024);
             effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, fftSize, vscales);
         }
         else if (targetNames[targetIndex]=="Giant2") //Using freq. domain DFT magnitude spectrum modification
         {  
-            double [] vscales = {0.75};
+            double [] vscales = {0.75-0.1*amount};
             effect = new VocalTractScalingSimpleProcessor(1024, vscales);
         }
         else if (targetNames[targetIndex]=="Ghost")
         {
-            int [] delaysInMiliseconds = {100, 200, 300};
+            int [] delaysInMiliseconds = {100+(int)(20*amount), 200+(int)(50*amount), 300+(int)(100*amount)};
             double [] amps = {0.8, -0.7, 0.9};
             effect = new Chorus(delaysInMiliseconds, amps, (int)(modificationParameters.fs));
         }
         else if (targetNames[targetIndex]=="Stadium")
         {
-            int [] delaysInMiliseconds = {366, 500};
+            int [] delaysInMiliseconds = {266+(int)(200*amount), 400+(int)(200*amount)};
             double [] amps = {0.54, -0.10};
             effect = new Chorus(delaysInMiliseconds, amps, (int)(modificationParameters.fs));
         }
@@ -453,6 +473,13 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         jListInput.setListData(inputNames);
         //
     }//GEN-LAST:event_formWindowOpened
+    
+    public void getAmount()
+    { 
+        amount = (((double)jSliderAmount.getValue())-jSliderAmount.getMinimum())/(((double)jSliderAmount.getMaximum())-jSliderAmount.getMinimum());
+        amount = Math.min(amount, 1.0);
+        amount = Math.max(amount, 0.0); 
+    }
     
     /**
      * @param args the command line arguments
