@@ -6,8 +6,11 @@
 
 package de.dfki.lt.signalproc.demo;
 
+import java.awt.Container;
+import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
+import java.awt.Point;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -20,6 +23,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.dfki.lt.signalproc.FFT;
 import de.dfki.lt.signalproc.process.FrameOverlapAddSource;
@@ -46,13 +50,13 @@ import de.dfki.lt.signalproc.display.FunctionGraph;
  */
 
 public class ChangeMyVoiceUI extends javax.swing.JFrame {
-    private int voiceIndex;
+    private int targetIndex;
     private boolean bStarted;
     OnlineAudioEffects online;
     TargetDataLine microphone;
     SourceDataLine loudspeakers;
     VoiceModificationParameters modificationParameters;
-    String [] effectNames = { "Robot", 
+    String [] targetNames = { "Robot", 
                               "Whisper", 
                               "Dwarf1",
                               "Dwarf2",
@@ -81,7 +85,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     public ChangeMyVoiceUI() {
         microphone = null;
         loudspeakers = null;
-        voiceIndex = -1;
+        targetIndex = -1;
         initComponents();
         modificationParameters = new VoiceModificationParameters();
     }
@@ -93,15 +97,34 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        jButtonStart = new javax.swing.JButton();
         jButtonExit = new javax.swing.JButton();
-        jComboBoxVoice = new javax.swing.JComboBox();
+        jComboBoxTargetVoice = new javax.swing.JComboBox();
         jComboBoxSamplingRate = new javax.swing.JComboBox();
-        jLabelVoice = new javax.swing.JLabel();
+        jLabelTargetVoice = new javax.swing.JLabel();
         jLabelSamplingRate = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jList1 = new javax.swing.JList();
+        jButton1 = new javax.swing.JButton();
+        jButtonStart = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jList2 = new javax.swing.JList();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jSlider1 = new javax.swing.JSlider();
+        jCheckBox1 = new javax.swing.JCheckBox();
+        jButton4 = new javax.swing.JButton();
+        jButton5 = new javax.swing.JButton();
+        jButton6 = new javax.swing.JButton();
+        jButton7 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Change My Voice");
+        setResizable(false);
         addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 formMouseClicked(evt);
@@ -113,13 +136,6 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
             }
         });
 
-        jButtonStart.setText("Start");
-        jButtonStart.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonStartActionPerformed(evt);
-            }
-        });
-
         jButtonExit.setText("Exit");
         jButtonExit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -127,60 +143,208 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
             }
         });
 
-        jComboBoxVoice.addActionListener(new java.awt.event.ActionListener() {
+        jComboBoxTargetVoice.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBoxVoiceActionPerformed(evt);
+                jComboBoxTargetVoiceActionPerformed(evt);
             }
         });
-        
+
         jComboBoxSamplingRate.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jComboBoxSamplingRateActionPerformed(evt);
             }
         });
 
-        jLabelVoice.setText("Voice");
+        jLabelTargetVoice.setText("Target Voice");
+        jLabelTargetVoice.setName("");
+
         jLabelSamplingRate.setText("Sampling Rate");
+
+        jList1.setModel(new javax.swing.AbstractListModel() {
+            String[] strings = { "Streaming Audio", "File1", "File2", "File3", "File4", "Browse for Output File..." };
+            public int getSize() { return strings.length; }
+            public Object getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane1.setViewportView(jList1);
+
+        jButton1.setText("Add");
+
+        jButtonStart.setText("Process >>");
+        jButtonStart.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonStartActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setText("Input");
+
+        jButton2.setText("Del");
+
+        jButton3.setText("Play");
+
+        jList2.setModel(new javax.swing.AbstractListModel() {
+            String[] strings = { "Streaming Audio", "File1", "File2", "File3", "Browse for Input File...", "Record New File..." };
+            public int getSize() { return strings.length; }
+            public Object getElementAt(int i) { return strings[i]; }
+        });
+        jList2.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jScrollPane2.setViewportView(jList2);
+
+        jLabel2.setText("Output");
+
+        jLabel3.setText("Less");
+
+        jLabel5.setText("Amount");
+
+        jLabel4.setText("More");
+
+        jSlider1.setPaintTicks(true);
+
+        jCheckBox1.setText("Online Processing Mode");
+        jCheckBox1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        jCheckBox1.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        jButton4.setText("Add");
+
+        jButton5.setText("Play");
+
+        jButton6.setText("Del");
+
+        jButton7.setText("Record");
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                        .add(layout.createSequentialGroup()
-                            .add(jLabelVoice, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 40, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(jComboBoxVoice, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 174, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(jLabelSamplingRate)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(jComboBoxSamplingRate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 64, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .addContainerGap())
-                        .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                            .add(167, 167, 167)
-                            .add(jButtonExit)
-                            .add(165, 165, 165)))
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(jButtonStart, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 72, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(156, 156, 156))))
+                    .add(layout.createSequentialGroup()
+                        .add(32, 32, 32)
+                        .add(jLabel5)
+                        .add(3, 3, 3)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(layout.createSequentialGroup()
+                                .add(3, 3, 3)
+                                .add(jSlider1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 249, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(jLabel3))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jLabel4))
+                    .add(layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(layout.createSequentialGroup()
+                                .add(97, 97, 97)
+                                .add(jLabel1))
+                            .add(layout.createSequentialGroup()
+                                .add(21, 21, 21)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                                    .add(layout.createSequentialGroup()
+                                        .add(jButton1)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                        .add(jButton7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 77, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                        .add(jButton3)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                        .add(jButton2))
+                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jScrollPane2))
+                                .add(15, 15, 15)
+                                .add(jButtonStart)))
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(layout.createSequentialGroup()
+                                .add(31, 31, 31)
+                                .add(jButton4)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(layout.createSequentialGroup()
+                                        .add(2, 2, 2)
+                                        .add(jButton5)
+                                        .add(6, 6, 6)
+                                        .add(jButton6))
+                                    .add(jLabel2))
+                                .add(58, 58, 58))
+                            .add(layout.createSequentialGroup()
+                                .add(15, 15, 15)
+                                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 206, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                    .add(layout.createSequentialGroup()
+                        .add(9, 9, 9)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(jCheckBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 193, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(layout.createSequentialGroup()
+                                .add(jLabelTargetVoice)
+                                .add(7, 7, 7)
+                                .add(jComboBoxTargetVoice, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 241, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(40, 40, 40)
+                                .add(jLabelSamplingRate)))
+                        .add(7, 7, 7)
+                        .add(jComboBoxSamplingRate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 104, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(298, Short.MAX_VALUE)
+                .add(jButtonExit)
+                .add(286, 286, 286))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(32, 32, 32)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabelVoice)
-                    .add(jComboBoxSamplingRate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabelSamplingRate)
-                    .add(jComboBoxVoice, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 42, Short.MAX_VALUE)
-                .add(jButtonStart, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 34, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(33, 33, 33)
+                .add(17, 17, 17)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(layout.createSequentialGroup()
+                        .add(3, 3, 3)
+                        .add(jLabelTargetVoice))
+                    .add(layout.createSequentialGroup()
+                        .add(1, 1, 1)
+                        .add(jComboBoxTargetVoice, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(layout.createSequentialGroup()
+                        .add(1, 1, 1)
+                        .add(jLabelSamplingRate))
+                    .add(jComboBoxSamplingRate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(8, 8, 8)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(layout.createSequentialGroup()
+                        .add(4, 4, 4)
+                        .add(jLabel5)
+                        .add(8, 8, 8)
+                        .add(jLabel4))
+                    .add(jSlider1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(layout.createSequentialGroup()
+                        .add(21, 21, 21)
+                        .add(jLabel3)))
+                .add(23, 23, 23)
+                .add(jCheckBox1)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(layout.createSequentialGroup()
+                        .add(15, 15, 15)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(layout.createSequentialGroup()
+                                .add(3, 3, 3)
+                                .add(jLabel1))
+                            .add(jLabel2))
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(layout.createSequentialGroup()
+                                .add(8, 8, 8)
+                                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 225, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(layout.createSequentialGroup()
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 232, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                        .add(9, 9, 9)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(jButton1)
+                            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                .add(jButton3)
+                                .add(jButton2)
+                                .add(jButton7))
+                            .add(layout.createSequentialGroup()
+                                .add(5, 5, 5)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                    .add(jButton4)
+                                    .add(jButton5)
+                                    .add(jButton6)))))
+                    .add(layout.createSequentialGroup()
+                        .add(138, 138, 138)
+                        .add(jButtonStart, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 42, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                .add(20, 20, 20)
                 .add(jButtonExit)
-                .add(29, 29, 29))
+                .addContainerGap())
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -189,18 +353,18 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     System.exit(0);
     }//GEN-LAST:event_jButtonExitActionPerformed
 
-    private void jComboBoxVoiceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxVoiceActionPerformed
-        voiceIndex = jComboBoxVoice.getSelectedIndex();
-        if (effectNames[voiceIndex]=="Telephone")
+    private void jComboBoxTargetVoiceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxTargetVoiceActionPerformed
+        targetIndex = jComboBoxTargetVoice.getSelectedIndex();
+        if (targetNames[targetIndex]=="Telephone")
         {
             modificationParameters.fs = 8000;
             jComboBoxSamplingRate.setSelectedItem("8000");
         }
-    }//GEN-LAST:event_jComboBoxVoiceActionPerformed
+    }//GEN-LAST:event_jComboBoxTargetVoiceActionPerformed
 
     private void jComboBoxSamplingRateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxSamplingRateActionPerformed
-        voiceIndex = jComboBoxVoice.getSelectedIndex();
-        if (effectNames[voiceIndex]=="Telephone")
+        targetIndex = jComboBoxTargetVoice.getSelectedIndex();
+        if (targetNames[targetIndex]=="Telephone")
         {
             modificationParameters.fs = 8000;
             jComboBoxSamplingRate.setSelectedItem("8000");
@@ -237,7 +401,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
      * and fills in the modificationParameters object
     */ 
     private void getParameters() {
-        voiceIndex = jComboBoxVoice.getSelectedIndex();
+        targetIndex = jComboBoxTargetVoice.getSelectedIndex();
         String str = (String)jComboBoxSamplingRate.getSelectedItem();
         modificationParameters.fs = (int)(Float.valueOf(str.trim()).floatValue());
     }
@@ -249,7 +413,9 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         bStarted = true;
         int channels = 1;
             
-        AudioFormat audioFormat = new AudioFormat(
+        AudioFormat audioFormat = null;
+
+        audioFormat = new AudioFormat(
                 AudioFormat.Encoding.PCM_SIGNED, modificationParameters.fs, 16, channels, 2*channels, modificationParameters.fs,
                 false);
 
@@ -259,9 +425,11 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         try {
             DataLine.Info info = new DataLine.Info(TargetDataLine.class,
                     audioFormat);
+            
             microphone = (TargetDataLine) AudioSystem.getLine(info);
             microphone.open(audioFormat);
             System.out.println("Microphone format: " + microphone.getFormat());
+            
         } catch (LineUnavailableException e) {
             e.printStackTrace();
             System.exit(1);
@@ -283,75 +451,75 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         // Choose an audio effect
         InlineDataProcessor effect = null;
         
-        if (effectNames[voiceIndex]=="Robot")
+        if (targetNames[targetIndex]=="Robot")
         {  
             effect = new Robotiser.PhaseRemover(4096);
         }
-        else if (effectNames[voiceIndex]=="Whisper")
+        else if (targetNames[targetIndex]=="Whisper")
         {  
             effect = new LPCWhisperiser(SignalProcUtils.getLPOrder((int)modificationParameters.fs));
         }
-        else if (effectNames[voiceIndex]=="Dwarf1") //Using freq. domain LP spectrum modification
+        else if (targetNames[targetIndex]=="Dwarf1") //Using freq. domain LP spectrum modification
         {  
             double [] vscales = {1.5};
             int p = SignalProcUtils.getLPOrder((int)modificationParameters.fs);
             int fftSize = Math.max(SignalProcUtils.getDFTSize((int)modificationParameters.fs), 1024);
             effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, fftSize, vscales);
         }
-        else if (effectNames[voiceIndex]=="Dwarf2") //Using freq. domain DFT magnitude spectrum modification
+        else if (targetNames[targetIndex]=="Dwarf2") //Using freq. domain DFT magnitude spectrum modification
         {  
             double [] vscales = {1.5};
             effect = new VocalTractScalingSimpleProcessor(1024, vscales);
         }
-        else if (effectNames[voiceIndex]=="Ogre1") //Using freq. domain LP spectrum modification
+        else if (targetNames[targetIndex]=="Ogre1") //Using freq. domain LP spectrum modification
         { 
             double [] vscales = {0.85};            
             int p = SignalProcUtils.getLPOrder((int)modificationParameters.fs);
             int fftSize = Math.max(SignalProcUtils.getDFTSize((int)modificationParameters.fs), 1024);
             effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, fftSize, vscales);
         }
-        else if (effectNames[voiceIndex]=="Ogre2") //Using freq. domain DFT magnitude spectrum modification
+        else if (targetNames[targetIndex]=="Ogre2") //Using freq. domain DFT magnitude spectrum modification
         { 
             double [] vscales = {0.85};
             effect = new VocalTractScalingSimpleProcessor(1024, vscales);
         }
-        else if (effectNames[voiceIndex]=="Giant1") //Using freq. domain LP spectrum modification
+        else if (targetNames[targetIndex]=="Giant1") //Using freq. domain LP spectrum modification
         {  
             double [] vscales = {0.75};
             int p = SignalProcUtils.getLPOrder((int)modificationParameters.fs);
             int fftSize = Math.max(SignalProcUtils.getDFTSize((int)modificationParameters.fs), 1024);
             effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, fftSize, vscales);
         }
-        else if (effectNames[voiceIndex]=="Giant2") //Using freq. domain DFT magnitude spectrum modification
+        else if (targetNames[targetIndex]=="Giant2") //Using freq. domain DFT magnitude spectrum modification
         {  
             double [] vscales = {0.75};
             effect = new VocalTractScalingSimpleProcessor(1024, vscales);
         }
-        else if (effectNames[voiceIndex]=="Ghost")
+        else if (targetNames[targetIndex]=="Ghost")
         {
             int [] delaysInMiliseconds = {100, 200, 300};
             double [] amps = {0.8, -0.7, 0.9};
             effect = new Chorus(delaysInMiliseconds, amps, (int)(modificationParameters.fs));
         }
-        else if (effectNames[voiceIndex]=="Stadium")
+        else if (targetNames[targetIndex]=="Stadium")
         {
             int [] delaysInMiliseconds = {366, 500};
             double [] amps = {0.54, -0.10};
             effect = new Chorus(delaysInMiliseconds, amps, (int)(modificationParameters.fs));
         }
-        else if (effectNames[voiceIndex]=="Jet Pilot")
+        else if (targetNames[targetIndex]=="Jet Pilot")
         {  
             double normalizedCutOffFreq1 = 500.0/modificationParameters.fs;
             double normalizedCutOffFreq2 = 2000.0/modificationParameters.fs;
             effect = new BandPassFilter(normalizedCutOffFreq1, normalizedCutOffFreq2, true);
         }
-        else if (effectNames[voiceIndex]=="Telephone")
+        else if (targetNames[targetIndex]=="Telephone")
         {  
             double normalizedCutOffFreq1 = 300.0/modificationParameters.fs;
             double normalizedCutOffFreq2 = 3400.0/modificationParameters.fs;
             effect = new BandPassFilter(normalizedCutOffFreq1, normalizedCutOffFreq2, true);
         }
-        else if (effectNames[voiceIndex]=="Old Radio")
+        else if (targetNames[targetIndex]=="Old Radio")
         {  
             double normalizedCutOffFreq = 3000.0/modificationParameters.fs;
             effect = new LowPassFilter(normalizedCutOffFreq, true);
@@ -367,11 +535,20 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     }
     
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+        
+        //Move the window to somewhere closer to middle o screen
+        Point p = this.getLocation();
+        Dimension d = this.getSize();
+        p.x = (int)(0.5*(1500-d.getWidth()));
+        p.y = (int)(0.5*(1000-d.getHeight()));
+        this.setLocation(p);
+        //
+        
         bStarted = false;
         
-        //Fill-in voice combo-box
-        for (int i=0; i<effectNames.length; i++) {
-            jComboBoxVoice.addItem(effectNames[i]);
+        //Fill-in target voice combo-box
+        for (int i=0; i<targetNames.length; i++) {
+            jComboBoxTargetVoice.addItem(targetNames[i]);
         }
         //
         
@@ -395,12 +572,30 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
+    private javax.swing.JButton jButton7;
     private javax.swing.JButton jButtonExit;
     private javax.swing.JButton jButtonStart;
+    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JComboBox jComboBoxSamplingRate;
-    private javax.swing.JComboBox jComboBoxVoice;
+    private javax.swing.JComboBox jComboBoxTargetVoice;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabelSamplingRate;
-    private javax.swing.JLabel jLabelVoice;
+    private javax.swing.JLabel jLabelTargetVoice;
+    private javax.swing.JList jList1;
+    private javax.swing.JList jList2;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JSlider jSlider1;
     // End of variables declaration//GEN-END:variables
     
 }
