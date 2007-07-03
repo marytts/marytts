@@ -41,11 +41,16 @@ public class PolarFrequencyProcessor extends FrequencyDomainProcessor
     /**
      * @param fftSize
      */
-    public PolarFrequencyProcessor(int fftSize)
+    public PolarFrequencyProcessor(int fftSize, double amount)
     {
-        super(fftSize);
+        super(fftSize, amount);
     }
 
+    public PolarFrequencyProcessor(int fftSize)
+    {
+        this(fftSize, 1.0);
+    }
+    
     /**
      * Here the actual processing of the frequency-domain frame (in cartesian coordinates) happens.
      * This implementation converts to polar coordinates calls processPolar(), and
@@ -63,7 +68,6 @@ public class PolarFrequencyProcessor extends FrequencyDomainProcessor
         processPolar(r, phi);
         // Convert back:
         MathUtils.toCartesianCoordinates(real, imag);
-
     }
     
     /**
