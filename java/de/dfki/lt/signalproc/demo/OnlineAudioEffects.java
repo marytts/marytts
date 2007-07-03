@@ -27,6 +27,7 @@ public class OnlineAudioEffects extends Thread
 {
     protected InlineDataProcessor effect;
     protected TargetDataLine microphone;
+    protected AudioInputStream input;
     protected SourceDataLine loudspeakers;
     private boolean stopRequested;
     
@@ -37,13 +38,25 @@ public class OnlineAudioEffects extends Thread
         this.loudspeakers = loudspeakers;
         this.setName("OnlineAudioEffect "+effect.toString());
     }
+
+    public OnlineAudioEffects(InlineDataProcessor effect, AudioInputStream input, SourceDataLine loudspeakers)
+    {
+        this.effect = effect;
+        this.input = input;
+        this.loudspeakers = loudspeakers;
+        this.setName("OnlineAudioEffect "+effect.toString());
+    }
+
     
     public void run()
     {
         stopRequested = false;
-        microphone.start();
         loudspeakers.start();
-        AudioInputStream input = new AudioInputStream(microphone);
+        if (microphone != null) {
+            microphone.start();
+            input = new AudioInputStream(microphone);
+        }
+        assert input != null;
         DoubleDataSource inputSource = new AudioDoubleDataSource(input);
         DoubleDataSource outputSource = new FrameOverlapAddSource(inputSource, 1024, (int) input.getFormat().getSampleRate(), effect);
         AudioInputStream result = new DDSAudioInputStream(outputSource, input.getFormat());
@@ -60,7 +73,8 @@ public class OnlineAudioEffects extends Thread
                 stopRequested = true;
             }
         }
-        microphone.stop();
+        if (microphone != null)
+            microphone.stop();
         loudspeakers.stop();
     }
     
