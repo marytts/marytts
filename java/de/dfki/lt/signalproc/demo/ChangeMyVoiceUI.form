@@ -44,7 +44,7 @@
                                       <EmptySpace max="32767" attributes="0"/>
                                       <Component id="jLabelHigh" min="-2" max="-2" attributes="0"/>
                                   </Group>
-                                  <Component id="jSliderAmount" alignment="0" max="32767" attributes="1"/>
+                                  <Component id="jSliderChangeAmount" alignment="0" max="32767" attributes="1"/>
                                   <Component id="jComboBoxTargetVoice" alignment="0" pref="278" max="32767" attributes="1"/>
                               </Group>
                           </Group>
@@ -92,7 +92,7 @@
               <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
-                      <Component id="jSliderAmount" min="-2" max="-2" attributes="0"/>
+                      <Component id="jSliderChangeAmount" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="jLabelLow" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -202,15 +202,15 @@
         <Property name="text" type="java.lang.String" value="High"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JSlider" name="jSliderAmount">
+    <Component class="javax.swing.JSlider" name="jSliderChangeAmount">
       <Properties>
         <Property name="majorTickSpacing" type="int" value="50"/>
         <Property name="minorTickSpacing" type="int" value="5"/>
         <Property name="paintTicks" type="boolean" value="true"/>
       </Properties>
       <Events>
-        <EventHandler event="propertyChange" listener="java.beans.PropertyChangeListener" parameters="java.beans.PropertyChangeEvent" handler="jSliderAmountPropertyChange"/>
-        <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jSliderAmountStateChanged"/>
+        <EventHandler event="propertyChange" listener="java.beans.PropertyChangeListener" parameters="java.beans.PropertyChangeEvent" handler="jSliderChangeAmountPropertyChange"/>
+        <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jSliderChangeAmountStateChanged"/>
       </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabelInput">
