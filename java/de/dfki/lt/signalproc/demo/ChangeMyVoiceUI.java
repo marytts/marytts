@@ -69,17 +69,15 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
                               "Jet Pilot", 
                               "Old Radio", 
                               "Telephone"
-                              };
-
-    String [] fsNames = { "8000", 
-                          "11025", 
-                          "16000", 
-                          "22050", 
-                          "32000",
-                          "44100",
-                          "48000"
-    };
+                              }; 
     
+    String [] inputNames = {"Streaming Audio",
+                            "Record New File...",
+                            "Browse for Input File...",
+                            "Built-in Text-To-Speech Output 1",
+                            "Built-in Text-To-Speech Output 2",
+                            "Built-in Text-To-Speech Output 3" 
+    };
     
     /** Creates new form ChangeMyVoiceUI */
     public ChangeMyVoiceUI() {
@@ -99,28 +97,20 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     private void initComponents() {
         jButtonExit = new javax.swing.JButton();
         jComboBoxTargetVoice = new javax.swing.JComboBox();
-        jComboBoxSamplingRate = new javax.swing.JComboBox();
         jLabelTargetVoice = new javax.swing.JLabel();
-        jLabelSamplingRate = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jList1 = new javax.swing.JList();
-        jButton1 = new javax.swing.JButton();
+        jButtonAdd = new javax.swing.JButton();
         jButtonStart = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jList2 = new javax.swing.JList();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        jSlider1 = new javax.swing.JSlider();
-        jCheckBox1 = new javax.swing.JCheckBox();
-        jButton4 = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
-        jButton7 = new javax.swing.JButton();
+        jButtonDel = new javax.swing.JButton();
+        jButtonPlay = new javax.swing.JButton();
+        jLabelLow = new javax.swing.JLabel();
+        jScrollList = new javax.swing.JScrollPane();
+        jListInput = new javax.swing.JList();
+        jLabelChangeAmount = new javax.swing.JLabel();
+        jLabelHigh = new javax.swing.JLabel();
+        jSliderAmount = new javax.swing.JSlider();
+        jLabelInput = new javax.swing.JLabel();
+        jButtonRec = new javax.swing.JButton();
+        jLabelMedium = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Change My Voice");
@@ -149,68 +139,40 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
             }
         });
 
-        jComboBoxSamplingRate.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBoxSamplingRateActionPerformed(evt);
-            }
-        });
-
         jLabelTargetVoice.setText("Target Voice");
         jLabelTargetVoice.setName("");
 
-        jLabelSamplingRate.setText("Sampling Rate");
+        jButtonAdd.setText("Add");
 
-        jList1.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { "Streaming Audio", "File1", "File2", "File3", "File4", "Browse for Output File..." };
-            public int getSize() { return strings.length; }
-            public Object getElementAt(int i) { return strings[i]; }
-        });
-        jScrollPane1.setViewportView(jList1);
-
-        jButton1.setText("Add");
-
-        jButtonStart.setText("Process >>");
+        jButtonStart.setText("Start");
         jButtonStart.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonStartActionPerformed(evt);
             }
         });
 
-        jLabel1.setText("Input");
+        jButtonDel.setText("Del");
 
-        jButton2.setText("Del");
+        jButtonPlay.setText("Play");
 
-        jButton3.setText("Play");
+        jLabelLow.setText("Low");
 
-        jList2.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { "Streaming Audio", "File1", "File2", "File3", "Browse for Input File...", "Record New File..." };
-            public int getSize() { return strings.length; }
-            public Object getElementAt(int i) { return strings[i]; }
-        });
-        jList2.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        jScrollPane2.setViewportView(jList2);
+        jListInput.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jScrollList.setViewportView(jListInput);
 
-        jLabel2.setText("Output");
+        jLabelChangeAmount.setText("Change Amount");
 
-        jLabel3.setText("Less");
+        jLabelHigh.setText("High");
 
-        jLabel5.setText("Amount");
+        jSliderAmount.setMajorTickSpacing(50);
+        jSliderAmount.setMinorTickSpacing(5);
+        jSliderAmount.setPaintTicks(true);
 
-        jLabel4.setText("More");
+        jLabelInput.setText("Input");
 
-        jSlider1.setPaintTicks(true);
+        jButtonRec.setText("Rec");
 
-        jCheckBox1.setText("Online Processing Mode");
-        jCheckBox1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        jCheckBox1.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        jButton4.setText("Add");
-
-        jButton5.setText("Play");
-
-        jButton6.setText("Del");
-
-        jButton7.setText("Record");
+        jLabelMedium.setText("Medium");
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -219,130 +181,76 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
             .add(layout.createSequentialGroup()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(32, 32, 32)
-                        .add(jLabel5)
-                        .add(3, 3, 3)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(layout.createSequentialGroup()
-                                .add(3, 3, 3)
-                                .add(jSlider1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 249, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(jLabel3))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel4))
+                        .add(150, 150, 150)
+                        .add(jButtonExit))
                     .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(layout.createSequentialGroup()
-                                .add(97, 97, 97)
-                                .add(jLabel1))
-                            .add(layout.createSequentialGroup()
-                                .add(21, 21, 21)
-                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                                    .add(layout.createSequentialGroup()
-                                        .add(jButton1)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(jButton7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 77, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(jButton3)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(jButton2))
-                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jScrollPane2))
-                                .add(15, 15, 15)
-                                .add(jButtonStart)))
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(layout.createSequentialGroup()
-                                .add(31, 31, 31)
-                                .add(jButton4)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(layout.createSequentialGroup()
-                                        .add(2, 2, 2)
-                                        .add(jButton5)
-                                        .add(6, 6, 6)
-                                        .add(jButton6))
-                                    .add(jLabel2))
-                                .add(58, 58, 58))
-                            .add(layout.createSequentialGroup()
-                                .add(15, 15, 15)
-                                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 206, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
-                    .add(layout.createSequentialGroup()
-                        .add(9, 9, 9)
+                        .add(10, 10, 10)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(jCheckBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 193, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(layout.createSequentialGroup()
-                                .add(jLabelTargetVoice)
-                                .add(7, 7, 7)
-                                .add(jComboBoxTargetVoice, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 241, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .add(40, 40, 40)
-                                .add(jLabelSamplingRate)))
-                        .add(7, 7, 7)
-                        .add(jComboBoxSamplingRate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 104, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(jLabelChangeAmount)
+                                    .add(jLabelTargetVoice))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                                        .add(jLabelLow)
+                                        .add(104, 104, 104)
+                                        .add(jLabelMedium)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .add(jLabelHigh))
+                                    .add(org.jdesktop.layout.GroupLayout.LEADING, jSliderAmount, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .add(org.jdesktop.layout.GroupLayout.LEADING, jComboBoxTargetVoice, 0, 278, Short.MAX_VALUE)))
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, jLabelInput))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 18, Short.MAX_VALUE))
+                    .add(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(jScrollList, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 379, Short.MAX_VALUE))
+                    .add(layout.createSequentialGroup()
+                        .add(56, 56, 56)
+                        .add(jButtonAdd)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, jButtonStart, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                                .add(jButtonRec)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jButtonPlay)))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jButtonDel)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 105, Short.MAX_VALUE)))
                 .addContainerGap())
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(298, Short.MAX_VALUE)
-                .add(jButtonExit)
-                .add(286, 286, 286))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(17, 17, 17)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .add(43, 43, 43)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jComboBoxTargetVoice, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabelTargetVoice))
+                .add(15, 15, 15)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(3, 3, 3)
-                        .add(jLabelTargetVoice))
-                    .add(layout.createSequentialGroup()
-                        .add(1, 1, 1)
-                        .add(jComboBoxTargetVoice, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(1, 1, 1)
-                        .add(jLabelSamplingRate))
-                    .add(jComboBoxSamplingRate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(8, 8, 8)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(4, 4, 4)
-                        .add(jLabel5)
+                        .add(jSliderAmount, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .add(8, 8, 8)
-                        .add(jLabel4))
-                    .add(jSlider1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(21, 21, 21)
-                        .add(jLabel3)))
-                .add(23, 23, 23)
-                .add(jCheckBox1)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(jLabelLow)
+                            .add(jLabelHigh)
+                            .add(jLabelMedium)))
+                    .add(jLabelChangeAmount))
+                .add(14, 14, 14)
+                .add(jLabelInput)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(15, 15, 15)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(layout.createSequentialGroup()
-                                .add(3, 3, 3)
-                                .add(jLabel1))
-                            .add(jLabel2))
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(layout.createSequentialGroup()
-                                .add(8, 8, 8)
-                                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 225, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(layout.createSequentialGroup()
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 232, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                        .add(9, 9, 9)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jButton1)
-                            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                                .add(jButton3)
-                                .add(jButton2)
-                                .add(jButton7))
-                            .add(layout.createSequentialGroup()
-                                .add(5, 5, 5)
-                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                                    .add(jButton4)
-                                    .add(jButton5)
-                                    .add(jButton6)))))
-                    .add(layout.createSequentialGroup()
-                        .add(138, 138, 138)
-                        .add(jButtonStart, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 42, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .add(20, 20, 20)
+                .add(jScrollList, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 225, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jButtonRec)
+                    .add(jButtonPlay)
+                    .add(jButtonDel)
+                    .add(jButtonAdd))
+                .add(25, 25, 25)
+                .add(jButtonStart, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 42, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(28, 28, 28)
                 .add(jButtonExit)
                 .addContainerGap())
         );
@@ -356,20 +264,10 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     private void jComboBoxTargetVoiceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxTargetVoiceActionPerformed
         targetIndex = jComboBoxTargetVoice.getSelectedIndex();
         if (targetNames[targetIndex]=="Telephone")
-        {
             modificationParameters.fs = 8000;
-            jComboBoxSamplingRate.setSelectedItem("8000");
-        }
+        else
+            modificationParameters.fs = 16000;
     }//GEN-LAST:event_jComboBoxTargetVoiceActionPerformed
-
-    private void jComboBoxSamplingRateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxSamplingRateActionPerformed
-        targetIndex = jComboBoxTargetVoice.getSelectedIndex();
-        if (targetNames[targetIndex]=="Telephone")
-        {
-            modificationParameters.fs = 8000;
-            jComboBoxSamplingRate.setSelectedItem("8000");
-        }
-    }//GEN-LAST:event_jComboBoxSamplingRateActionPerformed
     
     private void formMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseClicked
         
@@ -402,8 +300,6 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     */ 
     private void getParameters() {
         targetIndex = jComboBoxTargetVoice.getSelectedIndex();
-        String str = (String)jComboBoxSamplingRate.getSelectedItem();
-        modificationParameters.fs = (int)(Float.valueOf(str.trim()).floatValue());
     }
     
     /*This function opens source and target datalines and starts real-time voice modification  
@@ -535,6 +431,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     }
     
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+        int i;
         
         //Move the window to somewhere closer to middle o screen
         Point p = this.getLocation();
@@ -547,16 +444,13 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         bStarted = false;
         
         //Fill-in target voice combo-box
-        for (int i=0; i<targetNames.length; i++) {
+        for (i=0; i<targetNames.length; i++) {
             jComboBoxTargetVoice.addItem(targetNames[i]);
         }
         //
         
-        //Fill-in sampling rates combo-box and make default sampling rate selection
-        for (int i=0; i<fsNames.length; i++) {
-            jComboBoxSamplingRate.addItem(fsNames[i]);
-        }
-        jComboBoxSamplingRate.setSelectedItem("16000");
+        //Fill-in input combo-box
+        jListInput.setListData(inputNames);
         //
     }//GEN-LAST:event_formWindowOpened
     
@@ -572,30 +466,22 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton6;
-    private javax.swing.JButton jButton7;
+    private javax.swing.JButton jButtonAdd;
+    private javax.swing.JButton jButtonDel;
     private javax.swing.JButton jButtonExit;
+    private javax.swing.JButton jButtonPlay;
+    private javax.swing.JButton jButtonRec;
     private javax.swing.JButton jButtonStart;
-    private javax.swing.JCheckBox jCheckBox1;
-    private javax.swing.JComboBox jComboBoxSamplingRate;
     private javax.swing.JComboBox jComboBoxTargetVoice;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabelSamplingRate;
+    private javax.swing.JLabel jLabelChangeAmount;
+    private javax.swing.JLabel jLabelHigh;
+    private javax.swing.JLabel jLabelInput;
+    private javax.swing.JLabel jLabelLow;
+    private javax.swing.JLabel jLabelMedium;
     private javax.swing.JLabel jLabelTargetVoice;
-    private javax.swing.JList jList1;
-    private javax.swing.JList jList2;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JSlider jSlider1;
+    private javax.swing.JList jListInput;
+    private javax.swing.JScrollPane jScrollList;
+    private javax.swing.JSlider jSliderAmount;
     // End of variables declaration//GEN-END:variables
     
 }
