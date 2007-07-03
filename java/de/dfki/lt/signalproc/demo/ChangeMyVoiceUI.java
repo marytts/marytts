@@ -55,6 +55,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     private int targetIndex;
     private int inputIndex;
     private boolean bStarted;
+    private boolean bRecording;
     OnlineAudioEffects online;
     TargetDataLine microphone;
     SourceDataLine loudspeakers;
@@ -93,6 +94,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         inputIndex = -1;
         inputFile = null;
         inputFile = "d:/1.wav";
+        bRecording = false;
         
         initComponents();
         modificationParameters = new VoiceModificationParameters();
@@ -191,6 +193,11 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         jLabelInput.setText("Input");
 
         jButtonRec.setText("Rec");
+        jButtonRec.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonRecActionPerformed(evt);
+            }
+        });
 
         jLabelMedium.setText("Medium");
 
@@ -277,6 +284,20 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jButtonRecActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRecActionPerformed
+        if (!bRecording) //Start recording
+        {
+            bRecording = true;
+            jButtonRec.setText("Stop");
+            
+        }
+        else //Stop recording
+        {
+            bRecording = false;
+            jButtonRec.setText("Rec");
+        }
+    }//GEN-LAST:event_jButtonRecActionPerformed
+
     private void jSliderChangeAmountStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSliderChangeAmountStateChanged
         getAmount();
     }//GEN-LAST:event_jSliderChangeAmountStateChanged
@@ -320,43 +341,51 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
        jSliderChangeAmount.setEnabled(bChangeEnabled);
    }
     private void jButtonStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonStartActionPerformed
-        if (!bStarted) { 
-            getParameters();
-            changeVoice();
-            
-            jButtonStart.setText("Stop");
-        }
-        else {
-            bStarted = false;
-            online.requestStop();
-            
-            //Close the source and the target datalines to be able to use them repeatedly
-            if (microphone!=null)
-            {
-                microphone.close();
-                microphone = null;
+        if (!bRecording)
+        {
+            if (!bStarted)
+            { 
+                jButtonStart.setText("Stop");
+                jButtonRec.setEnabled(false);
+                jButtonPlay.setEnabled(false);
+                getParameters();
+                changeVoice();
             }
-            
-            if (loudspeakers != null)
+            else 
             {
-                loudspeakers.close();
-                loudspeakers = null;
-            }
-            
-            if (inputStream != null)
-            {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                inputStream = null;
-            }
-            //
+                bStarted = false;
+                online.requestStop();
 
-            jButtonStart.setText("Start");
-        }
+                //Close the source and the target datalines to be able to use them repeatedly
+                if (microphone!=null)
+                {
+                    microphone.close();
+                    microphone = null;
+                }
+
+                if (loudspeakers != null)
+                {
+                    loudspeakers.close();
+                    loudspeakers = null;
+                }
+
+                if (inputStream != null)
+                {
+                    try {
+                        inputStream.close();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    inputStream = null;
+                }
+                //
+
+                jButtonStart.setText("Start");
+                jButtonRec.setEnabled(true);
+                jButtonPlay.setEnabled(true);
+            }
+        }   
     }//GEN-LAST:event_jButtonStartActionPerformed
 
     /* This function gets the modification parameters from the GUI
