@@ -13,6 +13,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
+import javax.swing.JButton;
 
 import de.dfki.lt.signalproc.process.FrameOverlapAddSource;
 import de.dfki.lt.signalproc.process.InlineDataProcessor;
@@ -30,21 +31,36 @@ public class OnlineAudioEffects extends Thread
     protected AudioInputStream input;
     protected SourceDataLine loudspeakers;
     private boolean stopRequested;
+    JButton jButtonStart;
     
-    public OnlineAudioEffects(InlineDataProcessor effect, TargetDataLine microphone, SourceDataLine loudspeakers)
+    public OnlineAudioEffects(InlineDataProcessor effect, TargetDataLine microphone, SourceDataLine loudspeakers, JButton button)
     {
         this.effect = effect;
         this.microphone = microphone;
         this.loudspeakers = loudspeakers;
+        this.input = null;
+        this.jButtonStart = button;
         this.setName("OnlineAudioEffect "+effect.toString());
     }
 
-    public OnlineAudioEffects(InlineDataProcessor effect, AudioInputStream input, SourceDataLine loudspeakers)
+    public OnlineAudioEffects(InlineDataProcessor effect, AudioInputStream input, SourceDataLine loudspeakers, JButton button)
     {
         this.effect = effect;
         this.input = input;
         this.loudspeakers = loudspeakers;
+        this.microphone = null;
+        this.jButtonStart = button;
         this.setName("OnlineAudioEffect "+effect.toString());
+    }
+
+    public OnlineAudioEffects(InlineDataProcessor effect, TargetDataLine microphone, SourceDataLine loudspeakers)
+    {
+        this(effect, microphone, loudspeakers, null);
+    }
+
+    public OnlineAudioEffects(InlineDataProcessor effect, AudioInputStream input, SourceDataLine loudspeakers)
+    {
+       this(effect, input, loudspeakers, null);
     }
 
     
@@ -64,8 +80,12 @@ public class OnlineAudioEffects extends Thread
         while (!stopRequested) {
             try {
                 int nRead = result.read(buf);
-                if (nRead == -1) stopRequested = true;
-                else {
+                if (nRead == -1) 
+                {
+                    stopRequested = true;
+                }
+                else 
+                {
                     loudspeakers.write(buf, 0, nRead);                    
                 }
             } catch (IOException ioe) {
@@ -74,8 +94,40 @@ public class OnlineAudioEffects extends Thread
             }
         }
         if (microphone != null)
+        {
             microphone.stop();
-        loudspeakers.stop();
+            microphone = null;
+        }
+        
+        if (loudspeakers != null)
+        {
+            try {
+                sleep((int)((5*1024.0/input.getFormat().getSampleRate())*1000));
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            loudspeakers.stop();
+            loudspeakers = null;
+        }
+        
+        if (input != null)
+        {
+            try {
+                input.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            
+            input = null;
+        }
+        
+        if (jButtonStart != null)
+        {
+            if (jButtonStart.getText() != "Start")
+                jButtonStart.doClick(0);
+        }
     }
     
     public void requestStop() 

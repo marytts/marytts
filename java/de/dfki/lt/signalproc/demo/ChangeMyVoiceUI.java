@@ -50,12 +50,16 @@ import de.dfki.lt.signalproc.display.FunctionGraph;
  */
 
 public class ChangeMyVoiceUI extends javax.swing.JFrame {
+    private String inputFile;
     private double amount;
     private int targetIndex;
+    private int inputIndex;
     private boolean bStarted;
     OnlineAudioEffects online;
     TargetDataLine microphone;
     SourceDataLine loudspeakers;
+    AudioInputStream inputStream;
+    
     VoiceModificationParameters modificationParameters;
     String [] targetNames = { "Robot", 
                               "Whisper", 
@@ -72,19 +76,24 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
                               "Telephone"
                               }; 
     
-    String [] inputNames = {"Streaming Audio",
-                            "Record New File...",
-                            "Browse for Input File...",
+    String [] inputNames = {"Streaming Audio",                          
                             "Built-in Text-To-Speech Output 1",
                             "Built-in Text-To-Speech Output 2",
-                            "Built-in Text-To-Speech Output 3" 
+                            "Built-in Text-To-Speech Output 3",
+                            "Record New File...",
+                            "Browse for Input File..."
     };
     
     /** Creates new form ChangeMyVoiceUI */
     public ChangeMyVoiceUI() {
         microphone = null;
         loudspeakers = null;
+        inputStream = null;
         targetIndex = -1;
+        inputIndex = -1;
+        inputFile = null;
+        inputFile = "d:/1.wav";
+        
         initComponents();
         modificationParameters = new VoiceModificationParameters();
     }
@@ -108,7 +117,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         jListInput = new javax.swing.JList();
         jLabelChangeAmount = new javax.swing.JLabel();
         jLabelHigh = new javax.swing.JLabel();
-        jSliderAmount = new javax.swing.JSlider();
+        jSliderChangeAmount = new javax.swing.JSlider();
         jLabelInput = new javax.swing.JLabel();
         jButtonRec = new javax.swing.JButton();
         jLabelMedium = new javax.swing.JLabel();
@@ -165,17 +174,17 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
 
         jLabelHigh.setText("High");
 
-        jSliderAmount.setMajorTickSpacing(50);
-        jSliderAmount.setMinorTickSpacing(5);
-        jSliderAmount.setPaintTicks(true);
-        jSliderAmount.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+        jSliderChangeAmount.setMajorTickSpacing(50);
+        jSliderChangeAmount.setMinorTickSpacing(5);
+        jSliderChangeAmount.setPaintTicks(true);
+        jSliderChangeAmount.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
             public void propertyChange(java.beans.PropertyChangeEvent evt) {
-                jSliderAmountPropertyChange(evt);
+                jSliderChangeAmountPropertyChange(evt);
             }
         });
-        jSliderAmount.addChangeListener(new javax.swing.event.ChangeListener() {
+        jSliderChangeAmount.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                jSliderAmountStateChanged(evt);
+                jSliderChangeAmountStateChanged(evt);
             }
         });
 
@@ -207,7 +216,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
                                         .add(jLabelMedium)
                                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                         .add(jLabelHigh))
-                                    .add(org.jdesktop.layout.GroupLayout.LEADING, jSliderAmount, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .add(org.jdesktop.layout.GroupLayout.LEADING, jSliderChangeAmount, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .add(org.jdesktop.layout.GroupLayout.LEADING, jComboBoxTargetVoice, 0, 278, Short.MAX_VALUE)))
                             .add(org.jdesktop.layout.GroupLayout.LEADING, jLabelInput))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 18, Short.MAX_VALUE))
@@ -242,7 +251,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
                 .add(15, 15, 15)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(jSliderAmount, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(jSliderChangeAmount, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .add(8, 8, 8)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(jLabelLow)
@@ -268,30 +277,48 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jSliderAmountStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSliderAmountStateChanged
+    private void jSliderChangeAmountStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSliderChangeAmountStateChanged
         getAmount();
-    }//GEN-LAST:event_jSliderAmountStateChanged
+    }//GEN-LAST:event_jSliderChangeAmountStateChanged
 
-    private void jSliderAmountPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jSliderAmountPropertyChange
+    private void jSliderChangeAmountPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jSliderChangeAmountPropertyChange
 // TODO add your handling code here:
-    }//GEN-LAST:event_jSliderAmountPropertyChange
+    }//GEN-LAST:event_jSliderChangeAmountPropertyChange
 
     private void jButtonExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonExitActionPerformed
     System.exit(0);
     }//GEN-LAST:event_jButtonExitActionPerformed
 
     private void jComboBoxTargetVoiceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxTargetVoiceActionPerformed
-        targetIndex = jComboBoxTargetVoice.getSelectedIndex();
-        if (targetNames[targetIndex]=="Telephone")
-            modificationParameters.fs = 8000;
-        else
-            modificationParameters.fs = 16000;
+        getTargetIndex();
     }//GEN-LAST:event_jComboBoxTargetVoiceActionPerformed
     
     private void formMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseClicked
         
     }//GEN-LAST:event_formMouseClicked
 
+   public void getTargetIndex()
+   {
+       targetIndex = jComboBoxTargetVoice.getSelectedIndex();
+       if (targetNames[targetIndex]=="Telephone")
+           modificationParameters.fs = 8000;
+       else
+           modificationParameters.fs = 16000;
+       
+       boolean bChangeEnabled = true;
+       if (targetNames[targetIndex]=="Jet Pilot" || 
+           targetNames[targetIndex]=="Old Radio" ||
+           targetNames[targetIndex]=="Telephone")
+       {
+           bChangeEnabled = false;
+       }
+       
+       jLabelChangeAmount.setEnabled(bChangeEnabled);
+       jLabelLow.setEnabled(bChangeEnabled);
+       jLabelMedium.setEnabled(bChangeEnabled);
+       jLabelHigh.setEnabled(bChangeEnabled);
+       jSliderChangeAmount.setEnabled(bChangeEnabled);
+   }
     private void jButtonStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonStartActionPerformed
         if (!bStarted) { 
             getParameters();
@@ -304,10 +331,28 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
             online.requestStop();
             
             //Close the source and the target datalines to be able to use them repeatedly
-            microphone.close();
-            microphone = null;
-            loudspeakers.close();
-            loudspeakers = null;
+            if (microphone!=null)
+            {
+                microphone.close();
+                microphone = null;
+            }
+            
+            if (loudspeakers != null)
+            {
+                loudspeakers.close();
+                loudspeakers = null;
+            }
+            
+            if (inputStream != null)
+            {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                inputStream = null;
+            }
             //
 
             jButtonStart.setText("Start");
@@ -318,7 +363,8 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
      * and fills in the modificationParameters object
     */ 
     private void getParameters() {
-        targetIndex = jComboBoxTargetVoice.getSelectedIndex();
+        getInputIndex();
+        getTargetIndex();
         getAmount();
     }
     
@@ -331,15 +377,17 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
             
         AudioFormat audioFormat = null;
 
-        audioFormat = new AudioFormat(
+        if (inputIndex == 0) //Online processing using microphone
+        {
+            audioFormat = new AudioFormat(
                 AudioFormat.Encoding.PCM_SIGNED, modificationParameters.fs, 16, channels, 2*channels, modificationParameters.fs,
                 false);
 
-        if (microphone != null)
-            microphone.close();
+            if (microphone != null)
+                microphone.close();
 
-        try {
-            DataLine.Info info = new DataLine.Info(TargetDataLine.class,
+            try {
+                DataLine.Info info = new DataLine.Info(TargetDataLine.class,
                     audioFormat);
             
             microphone = (TargetDataLine) AudioSystem.getLine(info);
@@ -350,7 +398,25 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
             e.printStackTrace();
             System.exit(1);
         }
-
+        }
+        else
+        {
+            try {
+                inputStream = AudioSystem.getAudioInputStream(new File(inputFile));
+            } catch (UnsupportedAudioFileException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            
+            if (inputStream != null)
+            {
+                audioFormat = inputStream.getFormat();
+                modificationParameters.fs = (int)audioFormat.getSampleRate();
+            }
+        }
+        
         if (loudspeakers != null)
             loudspeakers.close();
         
@@ -443,9 +509,13 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         //            
 
         // Create the output thread and make it run in the background:
-        if (effect!=null)
+        if (effect!=null && loudspeakers!=null)
         {
-            online = new OnlineAudioEffects(effect, microphone, loudspeakers);
+            if (microphone != null)
+                online = new OnlineAudioEffects(effect, microphone, loudspeakers, null);
+            else if (inputStream !=null)
+                online = new OnlineAudioEffects(effect, inputStream, loudspeakers, jButtonStart);
+                
             online.start();
         }
     }
@@ -471,14 +541,23 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         
         //Fill-in input combo-box
         jListInput.setListData(inputNames);
+        jListInput.setSelectedIndex(0);
         //
+        
+        getParameters();
+        
     }//GEN-LAST:event_formWindowOpened
     
     public void getAmount()
     { 
-        amount = (((double)jSliderAmount.getValue())-jSliderAmount.getMinimum())/(((double)jSliderAmount.getMaximum())-jSliderAmount.getMinimum());
+        amount = (((double)jSliderChangeAmount.getValue())-jSliderChangeAmount.getMinimum())/(((double)jSliderChangeAmount.getMaximum())-jSliderChangeAmount.getMinimum());
         amount = Math.min(amount, 1.0);
         amount = Math.max(amount, 0.0); 
+    }
+    
+    public void getInputIndex()
+    {
+        inputIndex = jListInput.getSelectedIndex();
     }
     
     /**
@@ -508,7 +587,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabelTargetVoice;
     private javax.swing.JList jListInput;
     private javax.swing.JScrollPane jScrollList;
-    private javax.swing.JSlider jSliderAmount;
+    private javax.swing.JSlider jSliderChangeAmount;
     // End of variables declaration//GEN-END:variables
     
 }
