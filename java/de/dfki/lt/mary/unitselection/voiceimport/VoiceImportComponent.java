@@ -39,19 +39,35 @@ public abstract class VoiceImportComponent
 {
     protected SortedMap props = null;
     protected SortedMap props2Help = null;
+    protected BasenameList bnl;
     
-    
-
     protected abstract void setupHelp();
     /**
-     * Initialise the component;
-     * update values of local properties
+     * Initialise a voice import component:
+     * update values of local properties;
+     * setup help text for properties;
+     * call to component specific intialisation
      * 
      * @param db the database layout
      * @param bnl the list of basenames
      * @param props the map from properties to values
      */
-    public abstract void initialise(BasenameList bnl, SortedMap props);
+    public final void initialise(BasenameList bnl, SortedMap props){
+        //setupHelp(); this is now done by DatabaseLayout
+        this.props = props;
+        this.bnl = bnl;
+        initialiseComp();
+    }
+    
+    /**
+     * Initialise a voice import component:
+     * component specific initialisation;
+     * to be overwritten by subclasses
+     * 
+     * @param bnl the list of basenames
+     */
+    public void initialiseComp(){}
+        
     
     /**
      * Get the map of properties2values
@@ -119,5 +135,8 @@ public abstract class VoiceImportComponent
         }
     }
     
+    public String getHelpTextForProp(String propname){
+        return (String)props2Help.get(propname);
+    }
     
 }

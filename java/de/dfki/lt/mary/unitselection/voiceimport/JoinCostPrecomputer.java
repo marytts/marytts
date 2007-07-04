@@ -50,32 +50,21 @@ public class JoinCostPrecomputer extends VoiceImportComponent
 {
     
     private DatabaseLayout db = null;
-    private BasenameList bnl = null;
     private int percent = 0;
     
     private int numberOfFeatures = 0;
     private float[] fw = null;
     private String[] wfun = null;
     
-    public final String JOINCOSTFILE = "joinCostPrecomputer.joinCostFile";
-    public final String JOINCOSTFEATURESFILE = "joinCostPrecomputer.joinCostFeaturesFile";
-    public final String UNITFEATURESFILE = "joinCostPrecomputer.unitFeaturesFile";
-    public final String UNITFILE = "joinCostPrecomputer.unitFile";
-    
-    public JoinCostPrecomputer(){
-        setupHelp();
-    }
+    public final String JOINCOSTFILE = "JoinCostPrecomputer.joinCostFile";
+    public final String JOINCOSTFEATURESFILE = "JoinCostPrecomputer.joinCostFeaturesFile";
+    public final String UNITFEATURESFILE = "JoinCostPrecomputer.unitFeaturesFile";
+    public final String UNITFILE = "JoinCostPrecomputer.unitFile";
     
     public String getName(){
-        return "joinCostPrecomputer";
+        return "JoinCostPrecomputer";
     }
-    
-    public void initialise( BasenameList setbnl, SortedMap newProps )
-    {
-        this.bnl = setbnl;
-        this.props = newProps;
-    }
-    
+ 
     public SortedMap getDefaultProps(DatabaseLayout db){
         this.db = db;
        if (props == null){

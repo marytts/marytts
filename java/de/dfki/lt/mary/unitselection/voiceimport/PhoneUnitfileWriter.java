@@ -54,25 +54,18 @@ public class PhoneUnitfileWriter extends VoiceImportComponent
     private String corrPmExt = ".pm.corrected";
 
     protected DatabaseLayout db = null;
-    protected BasenameList bnl = null;
     protected int percent = 0;
     
-    public String LABELDIR = "phoneUnitfileWriter.labelDir";
-    public String UNITFILE = "phoneUnitfileWriter.unitFile";
-    public String CORRPMDIR = "phoneUnitfileWriter.corrPmDir";
-    
-    public PhoneUnitfileWriter(){
-        setupHelp();
-    }
+    public String LABELDIR = "PhoneUnitfileWriter.labelDir";
+    public String UNITFILE = "PhoneUnitfileWriter.unitFile";
+    public String CORRPMDIR = "PhoneUnitfileWriter.corrPmDir";
     
     public String getName(){
-        return "phoneUnitfileWriter";
+        return "PhoneUnitfileWriter";
     }
     
-    public void initialise( BasenameList setbnl, SortedMap newProps )
+    public void initialiseComp()
     {
-         this.bnl = setbnl;
-        this.props = newProps;
         maryDir = new File(db.getProp(db.FILEDIR));
         
         samplingRate = Integer.parseInt(db.getProp(db.SAMPLINGRATE));

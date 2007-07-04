@@ -22,21 +22,11 @@ public class Festvox2MaryTranscripts extends VoiceImportComponent
     protected File textDir;
     
     protected DatabaseLayout db = null;
-    protected BasenameList bnl = null;
-    public final String TRANSCRIPTFILE = "festvox2MaryTranscripts.transcriptFile";
-    
-    public Festvox2MaryTranscripts(){
-        setupHelp();
-    }
+    public final String TRANSCRIPTFILE = "Festvox2MaryTranscripts.transcriptFile";
+ 
     
     public String getName(){
-        return "festvox2MaryTranscripts";
-    }
-    
-     public void initialise( BasenameList setbnl, SortedMap newProps )
-    {
-         this.bnl = setbnl;
-        this.props = newProps;
+        return "Festvox2MaryTranscripts";
     }
     
      public SortedMap getDefaultProps(DatabaseLayout db){

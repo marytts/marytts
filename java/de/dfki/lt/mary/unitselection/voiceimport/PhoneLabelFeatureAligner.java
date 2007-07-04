@@ -34,7 +34,6 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
     protected String pauseSymbol;
     
     protected DatabaseLayout db = null;
-    protected BasenameList bnl = null;
     protected int percent = 0;
     protected Map problems;
     protected boolean correctedPauses = false;
@@ -49,21 +48,15 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
     protected static final int REMOVE = 3;
     protected static final int REMOVEALL = 4;
     
-    public String FEATUREDIR = "phoneLabelFeatureAligner.featureDir";
-    public String LABELDIR = "phoneLabelFeatureAligner.labelDir";
-    
-    public PhoneLabelFeatureAligner(){
-        setupHelp();
-    }
+    public String FEATUREDIR = "PhoneLabelFeatureAligner.featureDir";
+    public String LABELDIR = "PhoneLabelFeatureAligner.labelDir";
     
     public String getName(){
-        return "phoneLabelFeatureAligner";
+        return "PhoneLabelFeatureAligner";
     }
    
-     public void initialise( BasenameList setbnl, SortedMap newProps )
+     public void initialiseComp()
     {
-         this.bnl = setbnl;
-        this.props = newProps;
         this.featureComputer = new PhoneUnitFeatureComputer();
         db.initialiseComponent(featureComputer);    
         

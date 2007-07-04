@@ -14,12 +14,11 @@ public class HalfPhoneUnitLabelComputer extends PhoneUnitLabelComputer
     private String unitlabelExt = ".lab";
     
     public String getName(){
-        return "halfPhoneUnitLabelComputer";      
+        return "HalfPhoneUnitLabelComputer";      
     }
     
     public HalfPhoneUnitLabelComputer(){
-        LABELDIR = "halfPhoneUnitLabelComputer.labelDir";
-        setupHelp();
+        LABELDIR = "HalfPhoneUnitLabelComputer.labelDir";
     } 
     
      public SortedMap getDefaultProps(DatabaseLayout db){

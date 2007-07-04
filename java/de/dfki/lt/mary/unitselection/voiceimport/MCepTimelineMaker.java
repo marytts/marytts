@@ -47,26 +47,16 @@ public class MCepTimelineMaker extends VoiceImportComponent
 { 
 
     protected DatabaseLayout db = null;
-    protected BasenameList bnl = null;
     protected int percent = 0;
     protected String mcepExt = ".mcep";
     
-    public final String MCEPDIR = "mcepTimelineMaker.mcepDir";
-    public final String MCEPTIMELINE = "mcepTimelineMaker.mcepTimeline";
-    
-    public MCepTimelineMaker(){
-        setupHelp();
-    }
+    public final String MCEPDIR = "MCepTimelineMaker.mcepDir";
+    public final String MCEPTIMELINE = "MCepTimelineMaker.mcepTimeline";
     
     public String getName(){
-        return "mcepTimelineMaker";
+        return "MCepTimelineMaker";
     }
     
-    public void initialise( BasenameList setbnl, SortedMap newProps )
-    {
-         this.bnl = setbnl;
-        this.props = newProps;
-    }
     
     public SortedMap getDefaultProps(DatabaseLayout db){
         this.db = db;

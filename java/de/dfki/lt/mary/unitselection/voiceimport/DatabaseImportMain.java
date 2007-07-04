@@ -64,7 +64,7 @@ public class DatabaseImportMain extends JFrame
     protected JButton runButton;
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
-    protected int currentComponent;
+    protected String currentComponent;
     
     
    
@@ -80,7 +80,7 @@ public class DatabaseImportMain extends JFrame
         this.db = db;
         this.bnl = db.getBasenames();
         this.groups2Comps = groups2Comps;
-        currentComponent = 0;
+        currentComponent = "global properties";
         setupGUI();
     }
     
@@ -112,7 +112,7 @@ public class DatabaseImportMain extends JFrame
                 configButton.setPreferredSize(
                         new Dimension(configIcon.getIconWidth(),
                                 configIcon.getIconHeight()));
-                configButton.addActionListener(new ConfigButtonActionListener(compIndex+1));                
+                configButton.addActionListener(new ConfigButtonActionListener(nextGroup[i]));                
                 configButton.setBorderPainted(false);
                 //System.out.println("Adding checkbox for "+components[i].getClass().getName());
                 checkboxes[compIndex] = new JCheckBox(nextGroup[i]);
@@ -143,7 +143,7 @@ public class DatabaseImportMain extends JFrame
         JButton settingsButton = new JButton("Settings");
         settingsButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
-                currentComponent = 0;
+                currentComponent = "Global properties";
                 displaySettingsGUI();
             }
         });
@@ -219,7 +219,7 @@ public class DatabaseImportMain extends JFrame
             new Thread("DisplaySettingsGUIThread") {
                 public void run() {
                     Map comps2HelpText = db.getComps2HelpText();
-                    new SettingsGUI(db, 
+                   new SettingsGUI(db, 
                             	db.getAllPropsForDisplay(),
                             	currentComponent,
                             	comps2HelpText);
@@ -409,7 +409,8 @@ public class DatabaseImportMain extends JFrame
         components = (VoiceImportComponent[])compsList.toArray(components);
         /* Load DatabaseLayout */
         DatabaseLayout db = new DatabaseLayout(components);
-               
+        if (!db.isInitialized())
+            return;
         /* Display GUI */       
         String voicename = db.getProp(db.VOICENAME);
         DatabaseImportMain importer = 
@@ -422,13 +423,13 @@ public class DatabaseImportMain extends JFrame
     
    
     class ConfigButtonActionListener implements ActionListener{
-        private int index;
+        private String comp;
         
-        public ConfigButtonActionListener(int index){
-            this.index = index;
+        public ConfigButtonActionListener(String comp){
+            this.comp = comp;
         }
         public void actionPerformed(ActionEvent ae) {
-            currentComponent = index;
+            currentComponent = comp;
             displaySettingsGUI();
         }        
     }

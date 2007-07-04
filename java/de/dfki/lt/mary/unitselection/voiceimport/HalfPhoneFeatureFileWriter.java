@@ -41,12 +41,11 @@ public class HalfPhoneFeatureFileWriter extends PhoneFeatureFileWriter
     
     
     public HalfPhoneFeatureFileWriter(){
-        FEATUREDIR = "halfPhoneFeatureFileWriter.featureDir";
-        FEATUREFILE = "halfPhoneFeatureFileWriter.featureFile";
-        UNITFILE = "halfPhoneFeatureFileWriter.unitFile";
-        WEIGHTSFILE = "halfPhoneFeatureFileWriter.weightsFile";  
-        name= "halfPhoneFeatureFileWriter";
-        setupHelp();
+        FEATUREDIR = "HalfPhoneFeatureFileWriter.featureDir";
+        FEATUREFILE = "HalfPhoneFeatureFileWriter.featureFile";
+        UNITFILE = "HalfPhoneFeatureFileWriter.unitFile";
+        WEIGHTSFILE = "HalfPhoneFeatureFileWriter.weightsFile";  
+        name= "HalfPhoneFeatureFileWriter";
     }
     
    public SortedMap getDefaultProps(DatabaseLayout db){

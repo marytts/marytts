@@ -43,20 +43,17 @@ public class HalfPhoneUnitfileWriter extends PhoneUnitfileWriter
     private String corrPmExt = ".pm.corrected";
    
     public String getName(){
-        return "halfPhoneUnitfileWriter";
+        return "HalfPhoneUnitfileWriter";
     }
     
     public HalfPhoneUnitfileWriter(){
-        LABELDIR = "halfPhoneUnitfileWriter.labelDir";
-        UNITFILE = "halfPhoneUnitfileWriter.unitFile";
-        CORRPMDIR = "halfPhoneUnitfileWriter.corrPmDir";
-        setupHelp();
+        LABELDIR = "HalfPhoneUnitfileWriter.labelDir";
+        UNITFILE = "HalfPhoneUnitfileWriter.unitFile";
+        CORRPMDIR = "HalfPhoneUnitfileWriter.corrPmDir";
     }
     
-    public void initialise( BasenameList setbnl, SortedMap newProps )
+    public void initialiseComp()
     {
-         this.bnl = setbnl;
-        this.props = newProps;
         maryDir = new File(db.getProp(db.FILEDIR));
         
         samplingRate = Integer.parseInt(db.getProp(db.SAMPLINGRATE));

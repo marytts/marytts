@@ -13,22 +13,11 @@ import java.util.*;
 public class Mary2FestvoxTranscripts extends VoiceImportComponent{
     
     private DatabaseLayout db;
-    private BasenameList baseNameList;
     
-    public final String TRANSCRIPTFILE = "mary2FestvoxTranscripts.transcriptFile";
-    
-    public Mary2FestvoxTranscripts(){
-        setupHelp();
-    }
+    public final String TRANSCRIPTFILE = "Mary2FestvoxTranscripts.transcriptFile";
     
     public String getName(){
-        return "mary2FestvoxTranscripts";
-    }
-    
-     public void initialise( BasenameList setbnl, SortedMap newProps )
-    {
-         this.baseNameList = setbnl;
-        this.props = newProps;
+        return "Mary2FestvoxTranscripts";
     }
     
      public SortedMap getDefaultProps(DatabaseLayout db){
@@ -56,7 +45,7 @@ public class Mary2FestvoxTranscripts extends VoiceImportComponent{
                                     new File(getProp(TRANSCRIPTFILE))),"UTF-8"));
         
         //go through the text files
-        String[] basenames = baseNameList.getListAsArray();
+        String[] basenames = bnl.getListAsArray();
         String textDir = db.getProp(db.TEXTDIR);
         String textExt = db.getProp(db.TEXTEXT);
         for (int i=0;i<basenames.length;i++){
@@ -73,7 +62,7 @@ public class Mary2FestvoxTranscripts extends VoiceImportComponent{
                 fileIn.close();
                 textOut.println("( "+basenames[i]+" \""+line+"\" )");
             }catch(FileNotFoundException fnfe){
-                baseNameList.remove(basenames[i]);
+                bnl.remove(basenames[i]);
                 continue;
             }
         }

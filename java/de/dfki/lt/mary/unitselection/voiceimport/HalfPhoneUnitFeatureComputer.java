@@ -42,20 +42,17 @@ public class HalfPhoneUnitFeatureComputer extends PhoneUnitFeatureComputer
     private String featsExt = ".hpfeats";
    
     public String getName(){
-        return "halfPhoneUnitFeatureComputer";
+        return "HalfPhoneUnitFeatureComputer";
     }
     
     public HalfPhoneUnitFeatureComputer(){        
-        FEATUREDIR = "halfPhoneUnitFeatureComputer.featureDir";
-        MARYSERVERHOST = "halfPhoneUnitFeatureComputer.maryServerHost";
-        MARYSERVERPORT = "halfPhoneUnitFeatureComputer.maryServerPort";   
-        setupHelp();
+        FEATUREDIR = "HalfPhoneUnitFeatureComputer.featureDir";
+        MARYSERVERHOST = "HalfPhoneUnitFeatureComputer.maryServerHost";
+        MARYSERVERPORT = "HalfPhoneUnitFeatureComputer.maryServerPort";   
     }
     
-     public void initialise( BasenameList setbnl, SortedMap newProps )
-    {
-        this.bnl = setbnl;
-        this.props = newProps;        
+     public void initialiseComp()
+    {       
         locale = db.getProp(db.LOCALE);        
         mary = null; // initialised only if needed   
         unitfeatureDir = new File(getProp(FEATUREDIR));

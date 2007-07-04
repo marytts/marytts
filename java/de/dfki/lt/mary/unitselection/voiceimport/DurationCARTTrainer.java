@@ -28,11 +28,10 @@ public class DurationCARTTrainer extends VoiceImportComponent
     protected File durationFeatsFile;
     protected File durationDescFile;
     protected DatabaseLayout db = null;
-    protected BasenameList bnl = null;
     protected int percent = 0;
     protected boolean useStepwiseTraining = false;
     
-    private final String name = "durationCARTTrainer";
+    private final String name = "DurationCARTTrainer";
     public final String DURTREE = name+".durTree";
     public final String LABELDIR = name+".labelDir";
     public final String FEATUREDIR = name+".featureDir";   
@@ -41,20 +40,14 @@ public class DurationCARTTrainer extends VoiceImportComponent
     public final String UNITFILE = name+".unitFile";
     public final String WAVETIMELINE = name+".waveTimeline";
     public final String ESTDIR = name+".estDir";
-    
-    public DurationCARTTrainer(){
-        setupHelp();
-    }
-    
+
     public String getName(){
         return name;
     }
     
-    /**/
-     public void initialise( BasenameList setbnl, SortedMap newProps )
+ 
+     public void initialiseComp()
     {       
-        this.props = newProps;
-        this.bnl = setbnl;
         this.unitlabelDir = new File(getProp(LABELDIR));
         this.unitfeatureDir = new File(getProp(FEATUREDIR));
         String rootDir = db.getProp(db.ROOTDIR);

@@ -38,11 +38,10 @@ public class F0CARTTrainer extends VoiceImportComponent
     protected String featureExt = ".pfeats";  
     protected String labelExt = ".lab";
     protected DatabaseLayout db = null;
-    protected BasenameList bnl = null;
     protected int percent = 0;
     protected boolean useStepwiseTraining = false;
     
-    private final String name = "f0CARTTrainer";
+    private final String name = "F0CARTTrainer";
     public final String STEPWISETRAINING = name+".stepwiseTraining";
     public final String FEATUREFILE = name+".featureFile";
     public final String UNITFILE = name+".unitFile";
@@ -61,12 +60,9 @@ public class F0CARTTrainer extends VoiceImportComponent
     public String getName(){
         return name;
     }
-    
-    /**/
-     public void initialise( BasenameList setbnl, SortedMap newProps )
+
+     public void initialiseComp()
     {       
-        this.props = newProps;
-        this.bnl = setbnl;
         String rootDir = db.getProp(db.ROOTDIR);
         String f0DirName = db.getProp(db.TEMPDIR);
         this.f0Dir = new File(f0DirName);

@@ -51,6 +51,7 @@ public class DatabaseLayout
     private String[] compNames;
     private Map compnames2comps;
     private SortedMap missingProps;
+    private String missingPropsHelp;
     private boolean initialized;
     private List uneditableProps;
     private Map props2Help;
@@ -99,19 +100,16 @@ public class DatabaseLayout
     
     public DatabaseLayout(){
         initialized = false;
-        setupHelp();
         initialize(new VoiceImportComponent[0]);
     }
     
     public DatabaseLayout(VoiceImportComponent[] comps){        
         initialized = false;
-        setupHelp();
         initialize(comps);
     }
     
     public DatabaseLayout(VoiceImportComponent comp){        
         initialized = false;
-        setupHelp();
         VoiceImportComponent[] comps = new VoiceImportComponent[1];
         comps[0] = comp;
         initialize(comps);        
@@ -134,11 +132,15 @@ public class DatabaseLayout
         props2Help.put(TEXTEXT,"extension of the transcript files, default: \".txt\"");
         props2Help.put(VOICENAME,"the name of the voice, one word, for example: \"my_voice\"");
         props2Help.put(WAVDIR,"directory containing the wave files. If it does not exist, an Error is thrown.");
+        for (int i=0;i<components.length;i++){
+            components[i].setupHelp();
+        }
     }
     
     private void initialize(VoiceImportComponent[] components){
         System.out.println("Loading database layout:");
-        this.components = components;
+        this.components = components;        
+        setupHelp();
         fileSeparator = System.getProperty("file.separator");
         uneditableProps = new ArrayList();
         uneditableProps.add(MAINHELPFILE);
@@ -166,7 +168,8 @@ public class DatabaseLayout
                 //some props are missing                
                 //prompt the user for the missing props
                 //(user input updates the props via the GUI)
-                promptUserForMissingProps();      
+                if (!displayProps(missingProps,missingPropsHelp,"The following properties are missing:"))
+                    return;
                 //check if all dirs have a file separator at the end
                 checkForFileSeparators();
                 //save the props
@@ -178,7 +181,8 @@ public class DatabaseLayout
             //we have no values for our props
             props = new TreeMap();
             //prompt the user for some props
-            promptUserForBasicProps(props);
+            if (!promptUserForBasicProps(props))
+                return;
             //fill in the other props with default values
             props = initDefaultProps(props,false);
             //get the local default props from the components
@@ -278,34 +282,28 @@ public class DatabaseLayout
      */
     private boolean checkProps(SortedMap defaultGlobalProps,SortedMap defaultLocalProps){
         boolean allFine = true;
-        /* check the global props */
         missingProps = new TreeMap();
-        Set defaultProps = defaultGlobalProps.keySet();
-        for (Iterator it = defaultProps.iterator();it.hasNext();){
-            String key = (String) it.next();
-            if (!props.containsKey(key)){
-                missingProps.put(key,defaultGlobalProps.get(key));
-                allFine = false;
-            } else {
-                //make sure all dir names have a / at the end
-                if (key.endsWith("Dir")){
-                    String prop = (String)props.get(key);
-                    if (!prop.endsWith(fileSeparator)){
-                        prop = prop+fileSeparator;
-                        props.put(key,prop);
-                    }
-                }
-            }
-            
-        }
+        StringBuffer helpTextBuf = new StringBuffer();
+        helpTextBuf.append("<html>\n<head>\n<title>SETTINGS HELP</title>\n"
+                +"</head>\n<body>\n<dl>\n");
         /* check the local props */
-        defaultProps = defaultLocalProps.keySet();
+        Set defaultProps = defaultLocalProps.keySet();
         for (Iterator it = defaultProps.iterator();it.hasNext();){
             String key = (String) it.next();
             if (!localProps.containsKey(key)){
-                missingProps.put(key,defaultLocalProps.get(key));
+                VoiceImportComponent comp = (VoiceImportComponent) compnames2comps.get(key);
+                SortedMap nextLocalPropMap = 
+                    (SortedMap) defaultLocalProps.get(key);
+                missingProps.put(key,nextLocalPropMap);
+                for (Iterator it2=nextLocalPropMap.keySet().iterator();it2.hasNext();){
+                    String nextKey = (String) it2.next();                    
+                    helpTextBuf.append("<dt><strong>"+nextKey+"</strong></dt>\n"
+                            +"<dd>"+comp.getHelpTextForProp(nextKey)+"</dd>\n");
+                }
                 allFine = false;
             } else {
+                VoiceImportComponent comp = 
+                    (VoiceImportComponent) compnames2comps.get(key);
                 SortedMap nextLocalPropMap = 
                     (SortedMap) localProps.get(key);
                 SortedMap nextDefaultLocalPropMap = 
@@ -317,6 +315,8 @@ public class DatabaseLayout
                     String nextKey = (String) it2.next();
                     if (!nextLocalPropMap.containsKey(nextKey)){
                         missingLocalPropMap.put(nextKey,nextDefaultLocalPropMap.get(nextKey));
+                        helpTextBuf.append("<dt><strong>"+nextKey+"</strong></dt>\n"
+                                +"<dd>"+comp.getHelpTextForProp(nextKey)+"</dd>\n");
                         haveAllLocalProps = false;
                     }else {
                         //make sure all dir names have a / at the end
@@ -334,17 +334,32 @@ public class DatabaseLayout
                     allFine = false;
                 }
             }
-        }        
+        }
+        /* check the global props */        
+        defaultProps = defaultGlobalProps.keySet();
+        for (Iterator it = defaultProps.iterator();it.hasNext();){
+            String key = (String) it.next();
+            if (!props.containsKey(key)){
+                missingProps.put(key,defaultGlobalProps.get(key));
+                 helpTextBuf.append("<dt><strong>"+key+"</strong></dt>\n"
+                    +"<dd>"+props2Help.get(key)+"</dd>\n");
+                allFine = false;
+            } else {
+                //make sure all dir names have a / at the end
+                if (key.endsWith("Dir")){
+                    String prop = (String)props.get(key);
+                    if (!prop.endsWith(fileSeparator)){
+                        prop = prop+fileSeparator;
+                        props.put(key,prop);
+                    }
+                }
+            }
+            
+        }
+        helpTextBuf.append("</dl>\n</body>\n</html>");
+        missingPropsHelp = helpTextBuf.toString();
         return allFine;
-    }
-    
-    /**
-     * Prompt the user for the props that are missing
-     */
-    private void promptUserForMissingProps(){
-        displayProps(missingProps,"The following properties are missing:");
-    }
-    
+    }    
     
     
     private void checkForFileSeparators(){
@@ -431,7 +446,7 @@ public class DatabaseLayout
      * (This is called if we don't have any props)
      * @param props the map of props to be filled
      */
-    private void promptUserForBasicProps(SortedMap basicprops){
+    private boolean promptUserForBasicProps(SortedMap basicprops){
         //fill in the map with the prop names and value templates
         basicprops.put(MARYBASE,"/path/to/marybase/");
         basicprops.put(VOICENAME,"my_voice");
@@ -445,7 +460,26 @@ public class DatabaseLayout
         basicprops.put(LABEXT,".lab");        
         basicprops.put(TEXTDIR,"text/");
         basicprops.put(TEXTEXT,".txt");
-        displayProps(basicprops,"Enter the basic properties of your voice:");
+        
+        StringBuffer helpText = new StringBuffer();
+        helpText.append("<html>\n<head>\n<title>SETTINGS HELP</title>\n"
+                +"</head>\n<body>\n<dl>\n");
+        for (Iterator it=props2Help.keySet().iterator();it.hasNext();){
+            String key = (String) it.next();
+            String value = (String) props2Help.get(key);
+            helpText.append("<dt><strong>"+key+"</strong></dt>\n"
+                    +"<dd>"+value+"</dd>\n");
+        }
+        
+        helpText.append("</dl>\n</body>\n</html>");
+        
+        if (!displayProps(basicprops,
+                helpText.toString(),
+                "Please adjust the following settings:")){
+        	return false;
+        } else {
+            return true;
+        }
     }
     
     /**
@@ -605,6 +639,10 @@ public class DatabaseLayout
         return !uneditableProps.contains(propname);
     }
     
+    public boolean isInitialized(){
+        return initialized;
+    }
+    
     /**
      * Get all props of all components
      * as an Array representation
@@ -681,7 +719,9 @@ public class DatabaseLayout
         SortedMap defaultProps = vic.getDefaultProps(this);
         if (!compnames2comps.containsKey(name)){
             System.out.println("comp "+name+" not in db");
-            displayProps(defaultProps,"The following properties are missing :");
+            vic.setupHelp();
+            if (!displayProps(defaultProps,vic.getHelpText(),"The following properties are missing:"))
+                return;
             saveProps(new File(configFileName));
         }
         vic.initialise(bnl,(SortedMap) localProps.get(name));
@@ -693,26 +733,32 @@ public class DatabaseLayout
     
     public String[] getCompNamesForDisplay(){
         String[] names = new String[compNames.length+1];
-        names[0] = "global properties";
+        names[0] = "Global properties";
+        String[] sortedCompNames = new String[compNames.length];
+        System.arraycopy(compNames,0,sortedCompNames,0,compNames.length);
+        Arrays.sort(sortedCompNames);
         for (int i=1;i<names.length;i++){
-             names[i] = compNames[i-1];
+             names[i] = sortedCompNames[i-1];
         }
         return names;
     }
     
-    private void displayProps(SortedMap props, String text){
+    private boolean displayProps(SortedMap props, String helpText, String guiText){
         try{
-           new SettingsGUI(this, props,getComps2HelpText());
+            SettingsGUI gui = 
+                new SettingsGUI(this, props,helpText,guiText);
+            return gui.wasSaved();
         }catch (Exception e){
             e.printStackTrace();
             System.out.println("Can not display props");
+            return false;
         }
         
     }
     
-     public Map getComps2HelpText(){
-         Map comps2HelpText = new HashMap();
-         StringBuffer helpText = new StringBuffer();
+    public Map getComps2HelpText(){
+        Map comps2HelpText = new HashMap();
+        StringBuffer helpText = new StringBuffer();
         helpText.append("<html>\n<head>\n<title>SETTINGS HELP</title>\n"
                 +"</head>\n<body>\n<dl>\n");
         

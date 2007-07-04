@@ -61,28 +61,19 @@ public class AcousticFeatureFileWriter extends VoiceImportComponent
     protected UnitFileReader unitFileReader;
     protected TimelineReader timeline;
     protected DatabaseLayout db = null;
-    protected BasenameList bnl = null;
     protected int percent = 0;
     
-    public final String UNITFILE = "acousticFeatureFileWriter.unitFile";
-    public final String WAVETIMELINE = "acousticFeatureFileWriter.waveTimeLine";
-    public final String FEATUREFILE = "acousticFeatureFileWriter.featureFile";
-    public final String ACFEATUREFILE = "acousticFeatureFileWriter.acFeatureFile";  
-    public final String ACFEATDEF = "acousticFeatureFileWriter.acFeatDef";
+    public final String UNITFILE = "AcousticFeatureFileWriter.unitFile";
+    public final String WAVETIMELINE = "AcousticFeatureFileWriter.waveTimeLine";
+    public final String FEATUREFILE = "AcousticFeatureFileWriter.featureFile";
+    public final String ACFEATUREFILE = "AcousticFeatureFileWriter.acFeatureFile";  
+    public final String ACFEATDEF = "AcousticFeatureFileWriter.acFeatDef";
     
-    public AcousticFeatureFileWriter(){
-        setupHelp();
-    }
     
     public String getName(){
-        return "acousticFeatureFileWriter";
+        return "AcousticFeatureFileWriter";
     }
-    
-     public void initialise(BasenameList setbnl, SortedMap newProps )
-    {
-        this.bnl = setbnl;
-        this.props = newProps;
-    }
+   
     
    public SortedMap getDefaultProps(DatabaseLayout db){
        this.db = db;

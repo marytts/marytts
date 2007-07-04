@@ -47,25 +47,16 @@ public class LPCTimelineMaker extends VoiceImportComponent
 { 
 
     protected DatabaseLayout db = null;
-    protected BasenameList bnl = null;
     protected int percent = 0;
     protected String lpcExt = ".lpc";
     
-    public final String LPCDIR = "lpcTimelineMaker.lpcDir";
-    public final String LPCTIMELINE = "lpcTimelineMaker.lpcTimeline";
+    public final String LPCDIR = "LPCTimelineMaker.lpcDir";
+    public final String LPCTIMELINE = "LPCTimelineMaker.lpcTimeline";
     
-    public LPCTimelineMaker(){
-        setupHelp();
-    }
+
     
     public String getName(){
-        return "lpcTimelineMaker";
-    }
-    
-    public void initialise( BasenameList setbnl, SortedMap newProps )
-    {
-         this.bnl = setbnl;
-        this.props = newProps;
+        return "LPCTimelineMaker";
     }
     
     public SortedMap getDefaultProps(DatabaseLayout db){

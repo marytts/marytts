@@ -43,8 +43,7 @@ import java.nio.MappedByteBuffer;
 public class VoiceInstaller extends VoiceImportComponent{
     
     private DatabaseLayout db;
-    private String name = "voiceInstaller";
-    private BasenameList bnl;
+    private String name = "VoiceInstaller";
     
     public final String CARTFILE = name+".cartFile";
     public final String DURTREE = name+".durTree";
@@ -59,19 +58,11 @@ public class VoiceInstaller extends VoiceImportComponent{
     public final String PHONEFEATDEF = name+".phoneFeatDef";
     public final String EXAMPLETEXT = name+".exampleText";
     public final String WAVETIMELINE = name+".waveTimeline";
-    
-    public VoiceInstaller(){
-        setupHelp();
-    }
-    
+
     public String getName(){
         return name;
     }
-    
-    public void initialise(BasenameList bnl, SortedMap props){
-        this.props = props;
-        this.bnl = bnl;
-    }
+
     
     /**
      * Get the map of properties2values
