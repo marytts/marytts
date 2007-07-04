@@ -10,6 +10,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
+import java.util.Vector;
 import java.awt.Point;
 
 import javax.sound.sampled.AudioFileFormat;
@@ -24,7 +25,11 @@ import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
 
+import de.dfki.lt.mary.client.SimpleFileFilter;
+import de.dfki.lt.mary.util.MaryUtils;
 import de.dfki.lt.signalproc.FFT;
 import de.dfki.lt.signalproc.process.FrameOverlapAddSource;
 import de.dfki.lt.signalproc.process.InlineDataProcessor;
@@ -50,7 +55,7 @@ import de.dfki.lt.signalproc.display.FunctionGraph;
  */
 
 public class ChangeMyVoiceUI extends javax.swing.JFrame {
-    private String inputFile;
+    private int TOTAL_BUILT_IN_TTS_FILES;
     private double amount;
     private int targetIndex;
     private int inputIndex;
@@ -60,6 +65,11 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     TargetDataLine microphone;
     SourceDataLine loudspeakers;
     AudioInputStream inputStream;
+    
+    private Vector inputFileNames;
+    private File lastDirectory;
+    private File inputFile;
+    private String [] inputFileNameList;
     
     VoiceModificationParameters modificationParameters;
     String [] targetNames = { "Robot", 
@@ -77,14 +87,6 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
                               "Telephone"
                               }; 
     
-    String [] inputNames = {"Streaming Audio",                          
-                            "Built-in Text-To-Speech Output 1",
-                            "Built-in Text-To-Speech Output 2",
-                            "Built-in Text-To-Speech Output 3",
-                            "Record New File...",
-                            "Browse for Input File..."
-    };
-    
     /** Creates new form ChangeMyVoiceUI */
     public ChangeMyVoiceUI() {
         microphone = null;
@@ -93,8 +95,18 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         targetIndex = -1;
         inputIndex = -1;
         inputFile = null;
-        inputFile = "d:/1.wav";
         bRecording = false;
+        lastDirectory = null;
+        inputFileNameList = null;
+        
+        inputFileNames = new Vector();
+        
+        inputFileNames.addElement("Streaming Audio");    
+        
+        TOTAL_BUILT_IN_TTS_FILES = 3;
+        inputFileNames.addElement("Built-in Text-To-Speech Output 1");
+        inputFileNames.addElement("Built-in Text-To-Speech Output 2");
+        inputFileNames.addElement("Built-in Text-To-Speech Output 3");
         
         initComponents();
         modificationParameters = new VoiceModificationParameters();
@@ -155,6 +167,11 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         jLabelTargetVoice.setName("");
 
         jButtonAdd.setText("Add");
+        jButtonAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonAddActionPerformed(evt);
+            }
+        });
 
         jButtonStart.setText("Start");
         jButtonStart.addActionListener(new java.awt.event.ActionListener() {
@@ -164,12 +181,23 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         });
 
         jButtonDel.setText("Del");
+        jButtonDel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonDelActionPerformed(evt);
+            }
+        });
 
         jButtonPlay.setText("Play");
 
         jLabelLow.setText("Low");
 
         jListInput.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jListInput.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                jListInputValueChanged(evt);
+            }
+        });
+
         jScrollList.setViewportView(jListInput);
 
         jLabelChangeAmount.setText("Change Amount");
@@ -284,6 +312,45 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jButtonDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDelActionPerformed
+        if (inputIndex>=TOTAL_BUILT_IN_TTS_FILES+1)
+        {
+            inputFileNames.remove(inputIndex);
+            inputIndex--;
+            UpdateInputList();
+        }
+    }//GEN-LAST:event_jButtonDelActionPerformed
+
+    private void jListInputValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jListInputValueChanged
+        getInputIndex();
+        if (inputIndex<this.TOTAL_BUILT_IN_TTS_FILES+1)
+            jButtonDel.setEnabled(false);
+        else
+            jButtonDel.setEnabled(true);
+        
+    }//GEN-LAST:event_jListInputValueChanged
+
+    //Browse for a new wav file
+    private void jButtonAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAddActionPerformed
+        JFileChooser fc = new JFileChooser();
+        if (lastDirectory != null) {
+            fc.setCurrentDirectory(lastDirectory);
+        }
+
+        FileFilter ff = new SimpleFileFilter("wav", "Wav Files (*.wav)");
+        fc.addChoosableFileFilter(ff);
+        
+        int returnVal = fc.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) 
+        {
+            inputFile = fc.getSelectedFile();
+            lastDirectory = inputFile.getParentFile();
+            inputFileNames.add(inputFile.getPath()); //Keep full path
+            UpdateInputList();
+            jListInput.setSelectedIndex(inputFileNames.size()-1);
+        }
+    }//GEN-LAST:event_jButtonAddActionPerformed
+
     private void jButtonRecActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRecActionPerformed
         if (!bRecording) //Start recording
         {
@@ -348,6 +415,9 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
                 jButtonStart.setText("Stop");
                 jButtonRec.setEnabled(false);
                 jButtonPlay.setEnabled(false);
+                jButtonAdd.setEnabled(false);
+                jButtonDel.setEnabled(false);
+                jListInput.setEnabled(false);
                 getParameters();
                 changeVoice();
             }
@@ -384,6 +454,10 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
                 jButtonStart.setText("Start");
                 jButtonRec.setEnabled(true);
                 jButtonPlay.setEnabled(true);
+                jButtonAdd.setEnabled(true);
+                if (inputIndex>TOTAL_BUILT_IN_TTS_FILES)
+                    jButtonDel.setEnabled(true);
+                jListInput.setEnabled(true);
             }
         }   
     }//GEN-LAST:event_jButtonStartActionPerformed
@@ -403,52 +477,63 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     private void changeVoice() {
         bStarted = true;
         int channels = 1;
-            
+
         AudioFormat audioFormat = null;
 
         if (inputIndex == 0) //Online processing using microphone
         {
             audioFormat = new AudioFormat(
-                AudioFormat.Encoding.PCM_SIGNED, modificationParameters.fs, 16, channels, 2*channels, modificationParameters.fs,
-                false);
+                    AudioFormat.Encoding.PCM_SIGNED, modificationParameters.fs, 16, channels, 2*channels, modificationParameters.fs,
+                    false);
 
             if (microphone != null)
                 microphone.close();
 
             try {
                 DataLine.Info info = new DataLine.Info(TargetDataLine.class,
-                    audioFormat);
-            
-            microphone = (TargetDataLine) AudioSystem.getLine(info);
-            microphone.open(audioFormat, 1024);
-            System.out.println("Microphone format: " + microphone.getFormat());
-            
-        } catch (LineUnavailableException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-        }
-        else
-        {
-            try {
-                inputStream = AudioSystem.getAudioInputStream(new File(inputFile));
-            } catch (UnsupportedAudioFileException e) {
+                        audioFormat);
+
+                microphone = (TargetDataLine) AudioSystem.getLine(info);
+                microphone.open(audioFormat, 1024);
+                System.out.println("Microphone format: " + microphone.getFormat());
+
+            } catch (LineUnavailableException e) {
                 e.printStackTrace();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                System.exit(1);
             }
+        }
+        else //Online processing using pre-recorded wav file
+        {
+            if (inputIndex>0)
+            {
+                String inputFileNameFull = (String)inputFileNames.get(inputIndex);
+                inputFile = new File(inputFileNameFull);
+            }
+            else
+                inputFile = null;
             
+            if (inputFile != null)
+            {
+                try {
+                    inputStream = AudioSystem.getAudioInputStream(inputFile);
+                } catch (UnsupportedAudioFileException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+
             if (inputStream != null)
             {
                 audioFormat = inputStream.getFormat();
                 modificationParameters.fs = (int)audioFormat.getSampleRate();
             }
         }
-        
+
         if (loudspeakers != null)
             loudspeakers.close();
-        
+
         try {
             DataLine.Info info = new DataLine.Info(SourceDataLine.class,
                     audioFormat);
@@ -461,7 +546,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
 
         // Choose an audio effect
         InlineDataProcessor effect = null;
-        
+
         if (targetNames[targetIndex]=="Robot")
         {  
             effect = new Robotiser.PhaseRemover(4096, 0.7+0.3*amount);
@@ -544,7 +629,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
                 online = new OnlineAudioEffects(effect, microphone, loudspeakers, null);
             else if (inputStream !=null)
                 online = new OnlineAudioEffects(effect, inputStream, loudspeakers, jButtonStart);
-                
+
             online.start();
         }
     }
@@ -569,13 +654,31 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         //
         
         //Fill-in input combo-box
-        jListInput.setListData(inputNames);
-        jListInput.setSelectedIndex(0);
+        inputIndex = 0;
+        UpdateInputList();
         //
         
         getParameters();
         
     }//GEN-LAST:event_formWindowOpened
+    
+    public void UpdateInputList()
+    {
+        File fTmp;
+        inputFileNameList = new String[inputFileNames.size()];
+        for (int i=0; i<inputFileNames.size(); i++)
+        {
+            fTmp = new File((String)inputFileNames.get(i));
+            inputFileNameList[i] = fTmp.getName();
+        }
+        
+        jListInput.setListData(inputFileNameList);
+        
+        inputIndex = Math.min(inputFileNames.size()-1, inputIndex);
+        inputIndex = Math.max(0, inputIndex);
+        
+        jListInput.setSelectedIndex(inputIndex);
+    }
     
     public void getAmount()
     { 
