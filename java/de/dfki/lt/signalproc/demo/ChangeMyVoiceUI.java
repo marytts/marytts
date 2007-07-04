@@ -420,7 +420,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
                     audioFormat);
             
             microphone = (TargetDataLine) AudioSystem.getLine(info);
-            microphone.open(audioFormat);
+            microphone.open(audioFormat, 1024);
             System.out.println("Microphone format: " + microphone.getFormat());
             
         } catch (LineUnavailableException e) {
