@@ -30,16 +30,14 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
     protected BasenameList bnl = null;
     protected int percent = 0;
     
-    public String FEATUREDIR = "phoneUnitFeatureComputer.featureDir";
-    public String MARYSERVERHOST = "phoneUnitFeatureComputer.maryServerHost";
-    public String MARYSERVERPORT = "phoneUnitFeatureComputer.maryServerPort";
+    public String FEATUREDIR = "PhoneUnitFeatureComputer.featureDir";
+    public String MARYSERVERHOST = "PhoneUnitFeatureComputer.maryServerHost";
+    public String MARYSERVERPORT = "PhoneUnitFeatureComputer.maryServerPort";
        
-    public PhoneUnitFeatureComputer(){
-        setupHelp();
-    }
+   
     
     public String getName(){
-        return "phoneUnitFeatureComputer";
+        return "PhoneUnitFeatureComputer";
     }
     
     public static String getMaryXMLHeaderWithInitialBoundary(String locale)
@@ -53,10 +51,8 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
         
     }
     
-     public void initialise( BasenameList setbnl, SortedMap newProps )
-    {
-        this.bnl = setbnl;
-        this.props = newProps;        
+     public void initialiseComp()
+    {      
         locale = db.getProp(db.LOCALE);        
         mary = null; // initialised only if needed   
         unitfeatureDir = new File(getProp(FEATUREDIR));

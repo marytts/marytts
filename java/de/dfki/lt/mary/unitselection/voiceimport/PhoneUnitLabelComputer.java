@@ -24,25 +24,17 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
     private String unitlabelExt = ".lab";
     
     protected DatabaseLayout db = null;
-    protected BasenameList bnl = null;
     protected int percent = 0;
     
-    public String LABELDIR = "phoneUnitLabelComputer.labelDir";
-    
-    public PhoneUnitLabelComputer(){
-        setupHelp();
-    }
+    public String LABELDIR = "PhoneUnitLabelComputer.labelDir";
     
     public String getName(){
-        return "phoneUnitLabelComputer";
+        return "PhoneUnitLabelComputer";
     }
     
-     public void initialise( BasenameList setbnl, SortedMap newProps )
+     public void initialiseComp()
     {
-        this.bnl = setbnl;
-        this.props = newProps;
-        
-        pauseSymbol = System.getProperty( "pause.symbol", "pau" );
+         pauseSymbol = System.getProperty( "pause.symbol", "pau" );
 
         this.unitlabelDir = new File(getProp(LABELDIR));
         if (!unitlabelDir.exists()){

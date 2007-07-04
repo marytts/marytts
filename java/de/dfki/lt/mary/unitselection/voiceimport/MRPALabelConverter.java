@@ -38,19 +38,10 @@ public class MRPALabelConverter extends VoiceImportComponent{
     private DatabaseLayout db;
     private Map sampamap;
     
-    public MRPALabelConverter(){
-        setupHelp();
-    }
-    
-    public final String MRPALABDIR = "mrpaLabelConverter.mrpaLabDir";
+    public final String MRPALABDIR = "MRPALabelConverter.mrpaLabDir";
     
     public String getName(){
-        return "mrpaLabelConverter";
-    }
-    
-    public void initialise( BasenameList setbnl, SortedMap newProps )
-    {       
-        this.props = newProps;       
+        return "MRPALabelConverter";
     }
     
     public SortedMap getDefaultProps(DatabaseLayout db){

@@ -49,12 +49,16 @@ public class SettingsGUI {
     private JScrollPane scrollPane;
     private JComboBox componentsComboBox;
     private final Map comps2HelpText;
-     
+    private String simpleModeHelpText;
+    private String guiText; 
+    private boolean wasSaved;
     
-    public SettingsGUI(DatabaseLayout db, SortedMap props,Map comps2HelpText)
+    public SettingsGUI(DatabaseLayout db, SortedMap props,String simpleModeHelpText,String guiText)
     {
         this.db = db;
-        this.comps2HelpText = comps2HelpText;
+        this.simpleModeHelpText = simpleModeHelpText;
+        this.guiText = guiText;
+        comps2HelpText = null;
          Set propSet = props.keySet();
          java.util.List propList = new ArrayList();
         for (Iterator it = propSet.iterator();it.hasNext();){
@@ -89,18 +93,18 @@ public class SettingsGUI {
             tableProps[i] = (String[]) propList.get(i);            
         }
         
-        display(0);
+        display(null, true);
     }
     
     public SettingsGUI(DatabaseLayout db, 
             			String[][] props,
-            			int selectedComp,
+            			String selectedComp,
             			Map comps2HelpText)
     {
         this.db = db;        
         this.tableProps = props;
         this.comps2HelpText = comps2HelpText;
-        display(selectedComp);
+        display(selectedComp,false);
     }
     
     /**
@@ -109,32 +113,44 @@ public class SettingsGUI {
      * @param props the properties and values to be displayed
      * @return true, if no error occurred
      */
-    public void display(int selectedComp)
+    public void display(String selectedComp,boolean simpleMode)
     {
-        
+        wasSaved = false;
         //final JFrame frame = new JFrame("Settings Editor");
         GridBagLayout gridBagLayout = new GridBagLayout();
         GridBagConstraints gridC = new GridBagConstraints();
         frame.getContentPane().setLayout( gridBagLayout );
-        compNames = db.getCompNamesForDisplay();
-        componentsComboBox = new JComboBox(compNames);
-        componentsComboBox.setSelectedItem(compNames[selectedComp]);
-        componentsComboBox.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                JComboBox cb = (JComboBox)e.getSource();
-                String compName = (String)cb.getSelectedItem();
-                updateTable(compName);
-            }
-        });
-        gridC.gridx = 0;
-        gridC.gridy = 0;
-        gridBagLayout.setConstraints(componentsComboBox , gridC );
-        frame.getContentPane().add(componentsComboBox);
-        //build a new JTable        
-        String[] columnNames = {"Property",
-        						"Value"};
-        String[][] currentProps = getPropsForCompName(compNames[selectedComp]);
-        tableModel = new PropTableModel(columnNames,currentProps);
+        if (simpleMode){
+            JLabel guiTextLabel = new JLabel(guiText);
+            gridC.gridx = 0;
+            gridC.gridy = 0;
+            gridBagLayout.setConstraints(guiTextLabel, gridC );
+            frame.getContentPane().add(guiTextLabel);
+            String[] columnNames = {"Property",
+            "Value"};
+            tableModel = new PropTableModel(columnNames,tableProps);
+        } else {
+            compNames = db.getCompNamesForDisplay();        
+            componentsComboBox = new JComboBox(compNames);
+            componentsComboBox.setSelectedItem(selectedComp);
+            componentsComboBox.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    JComboBox cb = (JComboBox)e.getSource();
+                    String compName = (String)cb.getSelectedItem();
+                    updateTable(compName);
+                }
+            });
+            gridC.gridx = 0;
+            gridC.gridy = 0;
+            gridBagLayout.setConstraints(componentsComboBox , gridC );
+            frame.getContentPane().add(componentsComboBox);
+            
+            //build a new JTable        
+            String[] columnNames = {"Property",
+            "Value"};
+            String[][] currentProps = getPropsForCompName(selectedComp);
+            tableModel = new PropTableModel(columnNames,currentProps);
+        }
         table = new JTable(tableModel);        
         //table.setPreferredScrollableViewportSize(new Dimension(600, 500));
         scrollPane = new JScrollPane(table);
@@ -155,10 +171,14 @@ public class SettingsGUI {
         helpButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                     new Thread("DisplayHelpGUIThread") {
-                        public void run() {                       
-                            String helpText = 
-                                (String) comps2HelpText.get(componentsComboBox.getSelectedItem());
-                            new HelpGUI(helpText).display();                             
+                        public void run() {    
+                            if (componentsComboBox == null){
+                                new HelpGUI(simpleModeHelpText).display();  
+                            } else {
+                                String helpText = 
+                                    (String) comps2HelpText.get(componentsComboBox.getSelectedItem());
+                                new HelpGUI(helpText).display();      
+                            }
                         }}.start();
             }
         });
@@ -177,12 +197,14 @@ public class SettingsGUI {
                     }
                 }
                 updateProps();
+                wasSaved = true;
                 frame.setVisible(false);
             }
         });
         JButton cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                wasSaved = false;
                 frame.setVisible(false);
             }
         });
@@ -195,6 +217,7 @@ public class SettingsGUI {
         frame.getContentPane().add(buttonPanel);
         frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent evt) {
+                wasSaved = false;
                 frame.setVisible(false);
             }
         });
@@ -210,8 +233,12 @@ public class SettingsGUI {
         frame.dispose(); 
     }
     
+    public boolean wasSaved(){
+        return wasSaved;
+    }
+    
     private String[][] getPropsForCompName(String name){
-        if (name.equals("global properties"))
+        if (name.equals("Global properties"))
             name = "db";
         java.util.List propList = new ArrayList();
         for (int i=0;i<tableProps.length;i++){

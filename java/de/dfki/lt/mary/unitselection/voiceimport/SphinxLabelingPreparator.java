@@ -54,7 +54,6 @@ import org.w3c.dom.traversal.NodeIterator;
 public class SphinxLabelingPreparator extends VoiceImportComponent {
     
     private DatabaseLayout db;
-    private BasenameList baseNames;
     private MaryClient mary;
     private File rootDir;
     private File st;
@@ -64,19 +63,15 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
     private int progress;
     private String locale;
     
-    public final String STDIR = "sphinxLabelingPreparator.stDir";
-    public final String SPHINXTRAINDIR = "sphinxLabelingPreparator.sphinxTrainDir";
-    public final String ESTDIR = "sphinxLabelingPreparator.estDir";
-    public final String TRANSCRIPTFILE = "sphinxLabelingPreparator.transcriptFile";
-    public final String MARYSERVERHOST = "sphinxLabelingPreparator.maryServerHost";
-    public final String MARYSERVERPORT = "sphinxLabelingPreparator.maryServerPort";
-    
-    public SphinxLabelingPreparator(){
-        setupHelp();
-    }
+    public final String STDIR = "SphinxLabelingPreparator.stDir";
+    public final String SPHINXTRAINDIR = "SphinxLabelingPreparator.sphinxTrainDir";
+    public final String ESTDIR = "SphinxLabelingPreparator.estDir";
+    public final String TRANSCRIPTFILE = "SphinxLabelingPreparator.transcriptFile";
+    public final String MARYSERVERHOST = "SphinxLabelingPreparator.maryServerHost";
+    public final String MARYSERVERPORT = "SphinxLabelingPreparator.maryServerPort";
     
      public final String getName(){
-        return "sphinxLabelingPreparator";
+        return "SphinxLabelingPreparator";
     }
     
    public SortedMap getDefaultProps(DatabaseLayout db){
@@ -114,10 +109,8 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
        props2Help.put(MARYSERVERPORT,"the port were the Mary server is listening, default: \"59125\"");
    }
     
-    public void initialise( BasenameList setbnl, SortedMap newProps )
+    public void initialiseComp()
     {
-        this.props = newProps;
-        this.baseNames = setbnl;
         progress = 0;
         locale = db.getProp(db.LOCALE);
     }
@@ -282,7 +275,7 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
         transLabelOut.println("*align_all*");
 
         //for the progress bar: calculate the progress of each transcription
-        long nextPercentAfter = Math.round(1/(48.0/baseNames.getLength()));
+        long nextPercentAfter = Math.round(1/(48.0/bnl.getLength()));
         int index = 1;
         
         //store the filenames
@@ -434,8 +427,8 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
         for (int i=0;i<numFiles;i++){
             filenames[i] = (String)filenameList.get(i);
         }
-        baseNames.clear();
-        baseNames.add(filenames);
+        bnl.clear();
+        bnl.add(filenames);
     }
     
     /**

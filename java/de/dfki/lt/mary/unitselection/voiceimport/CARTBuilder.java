@@ -54,28 +54,24 @@ public class CARTBuilder extends VoiceImportComponent {
     private String wagonDisTabsFile;
     private DatabaseLayout db;
     private int percent = 0;
-    public final String ACFEATUREFILE = "cartBuilder.acFeatureFile";
-    public final String FEATURESEQFILE = "cartBuilder.featureSeqFile";
-    public final String TOPLEVELTREEFILE = "cartBuilder.topLevelTreeFile";
-    public final String CARTFILE = "cartBuilder.cartFile";
+    public final String ACFEATUREFILE = "CARTBuilder.acFeatureFile";
+    public final String FEATURESEQFILE = "CARTBuilder.featureSeqFile";
+    public final String TOPLEVELTREEFILE = "CARTBuilder.topLevelTreeFile";
+    public final String CARTFILE = "CARTBuilder.cartFile";
     
-    public final String MCEPTIMELINE = "cartBuilder.mcepTimeline";
-    public final String UNITFILE = "cartBuilder.unitFile";
-    public final String READFEATURESEQUENCE = "cartBuilder.readFeatureSequence";
-    public final String MAXLEAFSIZE = "cartBuilder.maxLeafSize";
-    public final String ESTDIR = "cartBuilder.estDir";
+    public final String MCEPTIMELINE = "CARTBuilder.mcepTimeline";
+    public final String UNITFILE = "CARTBuilder.unitFile";
+    public final String READFEATURESEQUENCE = "CARTBuilder.readFeatureSequence";
+    public final String MAXLEAFSIZE = "CARTBuilder.maxLeafSize";
+    public final String ESTDIR = "CARTBuilder.estDir";
     
-    public CARTBuilder(){
-        setupHelp();
-    }
     
     public String getName(){
-        return "cartBuilder";
+        return "CARTBuilder";
     }
     
-     public void initialise( BasenameList setbnl, SortedMap newProps )
+     public void initialiseComp()
     {       
-         this.props = newProps;
          wagonDirName = db.getProp(db.TEMPDIR);
          wagonDescFile = wagonDirName+"wagon.desc";
          wagonFeatsFile = wagonDirName+"wagon.feats";

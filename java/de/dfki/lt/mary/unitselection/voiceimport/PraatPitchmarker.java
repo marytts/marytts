@@ -42,7 +42,6 @@ import de.dfki.lt.signalproc.util.PraatTextfileDoubleDataSource;
 public class PraatPitchmarker extends VoiceImportComponent
 {
     protected DatabaseLayout db = null;
-    protected BasenameList bnl = null;
     protected String corrPmExt = ".pm.corrected";
     protected String pmExt = ".pm";
     protected String pointpExt = ".PointProcess";
@@ -50,16 +49,12 @@ public class PraatPitchmarker extends VoiceImportComponent
     
     private int percent = 0;
     
-    public final String COMMAND = "praatPitchmarker.command";
-    public final String MINPITCH = "praatPitchmarker.minPitch";
-    public final String MAXPITCH = "praatPitchmarker.maxPitch";
-    public final String CORRPMDIR = "praatPitchmarker.corrPmDir";
-    public final String PMDIR = "praatPitchmarker.pmDir";
-    
-    public PraatPitchmarker(){
-        setupHelp();
-    }
-    
+    public final String COMMAND = "PraatPitchmarker.command";
+    public final String MINPITCH = "PraatPitchmarker.minPitch";
+    public final String MAXPITCH = "PraatPitchmarker.maxPitch";
+    public final String CORRPMDIR = "PraatPitchmarker.corrPmDir";
+    public final String PMDIR = "PraatPitchmarker.pmDir";
+
     protected void setupHelp()
     {
         if (props2Help ==null){
@@ -77,13 +72,11 @@ public class PraatPitchmarker extends VoiceImportComponent
     }
     
      public final String getName(){
-        return "praatPitchmarker";
+        return "PraatPitchmarker";
     }
     
-    public void initialise( BasenameList setbnl, SortedMap newProps )
+    public void initialiseComp()
     {
-         this.bnl = setbnl;
-        this.props = newProps;
         tmpScript = db.getProp(db.TEMPDIR)+"script.praat";
     }
     

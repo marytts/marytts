@@ -47,20 +47,14 @@ public class WaveTimelineMaker extends VoiceImportComponent
 { 
 
     protected DatabaseLayout db = null;
-    protected BasenameList bnl = null;
     protected int percent = 0;
     protected String corrPmExt = ".pm.corrected";
-    public final String CORRPMDIR = "waveTimelineMaker.corrPmDir";
-    public final String WAVETIMELINE = "waveTimelineMaker.waveTimeline";
-    
-    public WaveTimelineMaker(){
-        setupHelp();
-    }
+    public final String CORRPMDIR = "WaveTimelineMaker.corrPmDir";
+    public final String WAVETIMELINE = "WaveTimelineMaker.waveTimeline";
     
      public final String getName(){
-        return "waveTimelineMaker";
-    }
-    
+        return "WaveTimelineMaker";
+    }    
     
     public SortedMap getDefaultProps(DatabaseLayout db){
        this.db = db;
@@ -81,13 +75,6 @@ public class WaveTimelineMaker extends VoiceImportComponent
         props2Help.put(CORRPMDIR,"directory containing the corrected pitchmarks");
         props2Help.put(WAVETIMELINE,"file containing all wave files. Will be created by this module");
     }
-    
-    public void initialise( BasenameList setbnl, SortedMap newProps )
-    {
-       this.bnl = setbnl;
-        this.props = newProps;
-    }
-    
     
     
     /**

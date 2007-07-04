@@ -40,32 +40,23 @@ public class CARTPruner extends VoiceImportComponent
     protected File unprunedCart;
     protected File prunedCart;
     protected DatabaseLayout db = null;
-    protected BasenameList bnl = null;
     protected String logfile;
     protected int percent = 0;
     
     protected CARTAnalyzer ca;
-    public final String CARTFILE = "cartPruner.cartFile";
-    public final String PRUNEDCARTFILE = "cartPruner.prunedCartFile";
-    public final String UNITFILE = "cartPruner.unitFile";
-    public final String WAVETIMELINE = "cartPruner.waveFile";
-    public final String UNITFEATUREFILE = "cartPruner.unitFeatureFile";
+    public final String CARTFILE = "CARTPruner.cartFile";
+    public final String PRUNEDCARTFILE = "CARTPruner.prunedCartFile";
+    public final String UNITFILE = "CARTPruner.unitFile";
+    public final String WAVETIMELINE = "CARTPruner.waveFile";
+    public final String UNITFEATUREFILE = "CARTPruner.unitFeatureFile";
    
-    public CARTPruner(){
-        setupHelp();
-    }
-    
     public String getName(){
-        return "cartPruner";
+        return "CARTPruner";
     }
     
-    /**
-     * Set some global variables; sub-classes may want to override.
-     *
-     */
-     public void initialise(BasenameList setbnl, SortedMap newProps )
-    {
-        this.props = newProps;    
+  
+     public void initialiseComp()
+    {    
         logfile = db.getProp(db.TEMPDIR)+"prunedCart.log";
     }
     

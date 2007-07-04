@@ -46,26 +46,17 @@ public class BasenameTimelineMaker extends VoiceImportComponent
 { 
 
     protected DatabaseLayout db = null;
-    protected BasenameList bnl = null;
     protected int percent = 0;
     private String pmExtension = ".pm";
     
-    public final String TIMELINEFILE = "basenameTimelineMaker.timelineFile";
-    public final String PMDIR = "basenameTimelineMaker.pmDir";
-    
-    public BasenameTimelineMaker(){
-        setupHelp();
-    }
+    public final String TIMELINEFILE = "BasenameTimelineMaker.timelineFile";
+    public final String PMDIR = "BasenameTimelineMaker.pmDir";
+   
     
     public String getName(){
-        return "basenameTimelineMaker";
+        return "BasenameTimelineMaker";
     }
-    
-     public void initialise( BasenameList setbnl, SortedMap newProps )
-    {        
-        this.bnl = setbnl;
-        this.props = newProps;
-    }
+   
      
     public SortedMap getDefaultProps( DatabaseLayout db){
         this.db = db;

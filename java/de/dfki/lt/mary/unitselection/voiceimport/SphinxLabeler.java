@@ -43,15 +43,11 @@ public class SphinxLabeler extends VoiceImportComponent {
     
     private DatabaseLayout db;
     
-    public final String SPHINX2DIR = "sphinxLabeler.sphinx2Dir";
-    public final String STDIR = "sphinxLabeler.stDir";
-    
-    public SphinxLabeler(){
-        setupHelp();
-    }
+    public final String SPHINX2DIR = "SphinxLabeler.sphinx2Dir";
+    public final String STDIR = "SphinxLabeler.stDir";
     
      public final String getName(){
-        return "sphinxLabeler";
+        return "SphinxLabeler";
     }
     
    public SortedMap getDefaultProps(DatabaseLayout db){
@@ -74,12 +70,7 @@ public class SphinxLabeler extends VoiceImportComponent {
         props2Help.put(SPHINX2DIR,"directory containing the local installation of Sphinx2");
         props2Help.put(STDIR,"directory containing all files used for training and labeling");
    }
-   
-    public void initialise( BasenameList setbnl, SortedMap newProps )
-    {
-        this.props = newProps;
-    }
-    
+
     /**
      * Do the computations required by this component.
      * 

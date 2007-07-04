@@ -43,19 +43,16 @@ public class HalfPhoneLabelFeatureAligner extends PhoneLabelFeatureAligner {
     private String labExt = ".hplab";
     
     public String getName(){
-        return "halfPhoneLabelFeatureAligner";
+        return "HalfPhoneLabelFeatureAligner";
     }
     
     public HalfPhoneLabelFeatureAligner(){
-        FEATUREDIR = "halfPhoneLabelFeatureAligner.featureDir";
-        LABELDIR = "halfPhoneLabelFeatureAligner.labelDir";
-        setupHelp();
+        FEATUREDIR = "HalfPhoneLabelFeatureAligner.featureDir";
+        LABELDIR = "HalfPhoneLabelFeatureAligner.labelDir";
     }
     
-    public void initialise( BasenameList setbnl, SortedMap newProps )
+    public void initialiseComp()
     {
-        this.bnl = setbnl;
-        this.props = newProps;
         this.featureComputer = new HalfPhoneUnitFeatureComputer();
         db.initialiseComponent(featureComputer); 
         

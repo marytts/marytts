@@ -41,14 +41,10 @@ public class SphinxTrainer extends VoiceImportComponent {
     
     private DatabaseLayout db;
     
-    public final String STDIR = "sphinxTrainer.stDir";
-    
-    public SphinxTrainer(){
-        setupHelp();
-    }
+    public final String STDIR = "SphinxTrainer.stDir";
     
      public final String getName(){
-        return "sphinxTrainer";
+        return "SphinxTrainer";
     }
     
    public SortedMap getDefaultProps(DatabaseLayout db){
@@ -66,11 +62,6 @@ public class SphinxTrainer extends VoiceImportComponent {
        props2Help = new TreeMap();
        props2Help.put(STDIR,"directory containing all files used for training and labeling");
    }
-    
-    public void initialise( BasenameList setbnl, SortedMap newProps )
-    {
-        this.props = newProps;
-    }
     
     
     /**

@@ -43,31 +43,24 @@ import de.dfki.lt.mary.util.MaryUtils;
 public class JoinCostFileMaker extends VoiceImportComponent {
     
     private DatabaseLayout db = null;
-    private BasenameList bnl = null;
     private int percent = 0;
     private String mcepExt = ".mcep";    
     private int numberOfFeatures = 0;
     private float[] fw = null;
     private String[] wfun = null;
     
-    public final String JOINCOSTFILE = "joinCostFileMaker.joinCostFile";
-    public final String MCEPTIMELINE = "joinCostFileMaker.mcepTimeline";
-    public final String UNITFILE = "joinCostFileMaker.unitFile";
-    public final String WEIGHTSFILE = "joinCostFileMaker.weightsFile";
-    public final String MCEPDIR = "joinCostFileMaker.mcepDir";
-    
-    public JoinCostFileMaker(){
-        setupHelp();
-    }
+    public final String JOINCOSTFILE = "JoinCostFileMaker.joinCostFile";
+    public final String MCEPTIMELINE = "JoinCostFileMaker.mcepTimeline";
+    public final String UNITFILE = "JoinCostFileMaker.unitFile";
+    public final String WEIGHTSFILE = "JoinCostFileMaker.weightsFile";
+    public final String MCEPDIR = "JoinCostFileMaker.mcepDir";
     
     public String getName(){
-        return "joinCostFileMaker";
+        return "JoinCostFileMaker";
     }
     
-     public void initialise( BasenameList setbnl, SortedMap newProps )
+     public void initialiseComp()
     {
-        this.bnl = setbnl;
-        this.props = newProps;
         //make sure that we have a weights file
         File weightsFile = new File(getProp(WEIGHTSFILE));
         if (!weightsFile.exists()){

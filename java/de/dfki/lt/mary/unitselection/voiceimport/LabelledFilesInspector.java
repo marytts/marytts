@@ -50,7 +50,6 @@ public class LabelledFilesInspector extends VoiceImportComponent
     protected File pmDir;
 
     protected DatabaseLayout db = null;
-    protected BasenameList bnl = null;
     
     protected JList fileList;
     protected JList labels;
@@ -71,20 +70,14 @@ public class LabelledFilesInspector extends VoiceImportComponent
     protected String extractedWavDir;
     protected String extractedLabDir;
     protected String extractedPmDir;
-    public final String CORRPMDIR = "labelledFilesInspector.corrPmDir";
-    
-    public LabelledFilesInspector(){
-        setupHelp();
-    }
-    
+    public final String CORRPMDIR = "LabelledFilesInspector.corrPmDir";
+     
     public String getName(){
-        return "labelledFilesInspector";
+        return "LabelledFilesInspector";
     }
     
-     public void initialise( BasenameList setbnl, SortedMap newProps )
+     public void initialiseComp()
     {
-        this.bnl = setbnl;
-        this.props = newProps;
         extractedDir = db.getProp(db.TEMPDIR);
         extractedWavDir = extractedDir+"wav/";
         extractedLabDir = extractedDir+"lab/";

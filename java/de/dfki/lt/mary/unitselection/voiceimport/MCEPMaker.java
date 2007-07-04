@@ -43,25 +43,20 @@ import java.io.File;
 public class MCEPMaker extends VoiceImportComponent {
     
     protected DatabaseLayout db = null;
-    protected BasenameList bnl = null;
     
     protected String mcepExt = ".mcep";
     protected String lpcExt = ".lpc";
     protected String pmExt = ".pm";
     protected String corrPmExt = ".pm.corrected";
     
-    public final String CORRPMDIR = "mcepMaker.corrPmDir";
-    public final String PMDIR = "mcepMaker.pmDir";
-    public final String LPCDIR = "mcepMaker.lpcDir";
-    public final String MCEPDIR = "mcepMaker.mcepDir";
-    public final String ESTDIR = "mcepMaker.estDir";
-    
-    public MCEPMaker(){
-        setupHelp();
-    }
-    
+    public final String CORRPMDIR = "MCEPMaker.corrPmDir";
+    public final String PMDIR = "MCEPMaker.pmDir";
+    public final String LPCDIR = "MCEPMaker.lpcDir";
+    public final String MCEPDIR = "MCEPMaker.mcepDir";
+    public final String ESTDIR = "MCEPMaker.estDir";
+     
     public String getName(){
-        return "mcepMaker";
+        return "MCEPMaker";
     }
     
    public SortedMap getDefaultProps(DatabaseLayout db){
@@ -95,12 +90,7 @@ public class MCEPMaker extends VoiceImportComponent {
        props2Help.put(MCEPDIR, "directory containing the mcep files");
        props2Help.put(ESTDIR,"directory containing the local installation of the Edinburgh Speech Tools");
    }
-   
-    public void initialise( BasenameList setbnl, SortedMap newProps )
-    {
-       this.bnl = setbnl;
-        this.props = newProps;
-    }
+
     /**
      * Shift the pitchmarks to the closest peak.
      */

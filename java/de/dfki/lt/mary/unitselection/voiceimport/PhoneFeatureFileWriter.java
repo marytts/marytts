@@ -52,31 +52,23 @@ public class PhoneFeatureFileWriter extends VoiceImportComponent
 {
     protected File maryDir;
     protected FeatureDefinition featureDefinition;
-    protected BasenameList bnl = null;
     protected int percent = 0;
     private String featureExt = ".pfeats";
     protected UnitFileReader unitFileReader;
     
-    protected String name = "phoneFeatureFileWriter";
+    protected String name = "PhoneFeatureFileWriter";
     
-    public String FEATUREDIR = "phoneFeatureFileWriter.featureDir";
-    public String FEATUREFILE = "phoneFeatureFileWriter.featureFile";
-    public String UNITFILE = "phoneFeatureFileWriter.unitFile";
-    public String WEIGHTSFILE = "phoneFeatureFileWriter.weightsFile";
-    
-    public PhoneFeatureFileWriter(){
-        setupHelp();
-    }
+    public String FEATUREDIR = "PhoneFeatureFileWriter.featureDir";
+    public String FEATUREFILE = "PhoneFeatureFileWriter.featureFile";
+    public String UNITFILE = "PhoneFeatureFileWriter.unitFile";
+    public String WEIGHTSFILE = "PhoneFeatureFileWriter.weightsFile";
     
     public String getName(){
         return name;
     }
     
-     public void initialise( BasenameList setbnl, SortedMap newProps )
-    {
-        this.bnl = setbnl;
-        this.props = newProps;
-        
+     public void initialiseComp()
+    {        
         File unitfeatureDir = new File(getProp(FEATUREDIR));
         if (!unitfeatureDir.exists()){
             System.out.print(FEATUREDIR+" "+getProp(FEATUREDIR)
