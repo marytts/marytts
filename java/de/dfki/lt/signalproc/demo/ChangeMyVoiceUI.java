@@ -28,6 +28,9 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
+import org.jsresources.AudioCommon;
+import org.jsresources.AudioRecorder.BufferingRecorder;
+
 import de.dfki.lt.mary.client.SimpleFileFilter;
 import de.dfki.lt.mary.util.MaryUtils;
 import de.dfki.lt.signalproc.FFT;
@@ -55,6 +58,7 @@ import de.dfki.lt.signalproc.display.FunctionGraph;
  */
 
 public class ChangeMyVoiceUI extends javax.swing.JFrame {
+    File outputFile;
     private int TOTAL_BUILT_IN_TTS_FILES;
     private double amount;
     private int targetIndex;
@@ -65,6 +69,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     TargetDataLine microphone;
     SourceDataLine loudspeakers;
     AudioInputStream inputStream;
+    BufferingRecorder recorder;
     
     private Vector inputFileNames;
     private File lastDirectory;
@@ -89,6 +94,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     
     /** Creates new form ChangeMyVoiceUI */
     public ChangeMyVoiceUI() {
+        outputFile = null;
         microphone = null;
         loudspeakers = null;
         inputStream = null;
@@ -354,12 +360,53 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     private void jButtonRecActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRecActionPerformed
         if (!bRecording) //Start recording
         {
+            if (recorder != null)
+            {
+                recorder.stopRecording();
+                recorder = null;
+            }
+            
+            int channels = 1;
+            
+            String strFilename = "d:/NewFile.wav";
+            outputFile = new File(strFilename);
+
+            AudioFormat audioFormat = new AudioFormat(
+                AudioFormat.Encoding.PCM_SIGNED,
+                modificationParameters.fs, 16, channels, 2*channels, modificationParameters.fs, false);
+
+            AudioFileFormat.Type    targetType = AudioFileFormat.Type.WAVE;
+
+            if (microphone != null)
+                microphone.close();
+
+            try {
+                DataLine.Info info = new DataLine.Info(TargetDataLine.class,
+                        audioFormat);
+
+                microphone = (TargetDataLine) AudioSystem.getLine(info);
+                microphone.open(audioFormat, 1024);
+                System.out.println("Microphone format: " + microphone.getFormat());
+
+            } catch (LineUnavailableException e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
+            
+            recorder = new BufferingRecorder(microphone, targetType, outputFile, 0);
+
             bRecording = true;
             jButtonRec.setText("Stop");
             
+            recorder.start();
         }
         else //Stop recording
         {
+            recorder.stopRecording();
+            recorder = null;
+            microphone.close();
+            microphone = null;
+            
             bRecording = false;
             jButtonRec.setText("Rec");
         }
