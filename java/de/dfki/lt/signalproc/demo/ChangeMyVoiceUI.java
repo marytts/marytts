@@ -32,6 +32,8 @@ import javax.swing.filechooser.FileFilter;
 import org.jsresources.AudioCommon;
 import org.jsresources.AudioRecorder.BufferingRecorder;
 
+import com.sun.speech.freetts.audio.SingleFileAudioPlayer;
+
 import de.dfki.lt.mary.client.SimpleFileFilter;
 import de.dfki.lt.mary.util.MaryUtils;
 import de.dfki.lt.signalproc.FFT;
@@ -67,11 +69,13 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     private int recordIndex;
     private boolean bStarted;
     private boolean bRecording;
+    private boolean bPlaying;
     OnlineAudioEffects online;
     TargetDataLine microphone;
     SourceDataLine loudspeakers;
     AudioInputStream inputStream;
     BufferingRecorder recorder;
+    SingleFileAudioPlayer player;
     
     private Vector listItems; //Just the names we see on the list
     private File lastDirectory;
@@ -99,6 +103,8 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     
     /** Creates new form ChangeMyVoiceUI */
     public ChangeMyVoiceUI() {
+        player = null;
+        recorder = null;
         outputFile = null;
         microphone = null;
         loudspeakers = null;
@@ -107,6 +113,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         inputIndex = -1;
         inputFile = null;
         bRecording = false;
+        bPlaying = false;
         lastDirectory = null;
         inputFileNameList = null;
         listItems = new Vector();
@@ -212,6 +219,11 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         });
 
         jButtonPlay.setText("Play");
+        jButtonPlay.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonPlayActionPerformed(evt);
+            }
+        });
 
         jLabelLow.setText("Low");
 
@@ -231,9 +243,19 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         jSliderChangeAmount.setMajorTickSpacing(50);
         jSliderChangeAmount.setMinorTickSpacing(5);
         jSliderChangeAmount.setPaintTicks(true);
+        jSliderChangeAmount.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseDragged(java.awt.event.MouseEvent evt) {
+                jSliderChangeAmountMouseDragged(evt);
+            }
+        });
         jSliderChangeAmount.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
             public void propertyChange(java.beans.PropertyChangeEvent evt) {
                 jSliderChangeAmountPropertyChange(evt);
+            }
+        });
+        jSliderChangeAmount.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                jSliderChangeAmountFocusLost(evt);
             }
         });
         jSliderChangeAmount.addChangeListener(new javax.swing.event.ChangeListener() {
@@ -335,6 +357,58 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jSliderChangeAmountFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jSliderChangeAmountFocusLost
+       
+    }//GEN-LAST:event_jSliderChangeAmountFocusLost
+
+    private void jSliderChangeAmountMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jSliderChangeAmountMouseDragged
+
+    }//GEN-LAST:event_jSliderChangeAmountMouseDragged
+
+    private void jButtonPlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPlayActionPerformed
+        if (!bRecording)
+        {
+            if (!bPlaying)
+            {
+                if (player != null)
+                {
+                    player.end();
+                    player.close();
+                    player = null;
+                }
+
+                if (inputIndex>this.TOTAL_BUILT_IN_TTS_FILES)
+                {
+                    String inputFileNameFull = (String)listItems.get(inputIndex);
+                    inputFile = new File(inputFileNameFull);
+                }
+                else
+                    inputFile = new File(builtInFileNameList[inputIndex-1]);
+                
+                bPlaying = true;
+                jButtonPlay.setText("Stop");
+                
+                AudioFileFormat.Type    targetType = AudioFileFormat.Type.WAVE;
+                player = new SingleFileAudioPlayer(inputFile.getPath(), targetType);
+                player.begin(0);
+            }
+            else
+            {
+                player.end();
+                player.close();
+                player = null;
+                bPlaying = false;
+                jButtonPlay.setText("Play");
+            }
+            
+            jButtonRec.setEnabled(!bPlaying);
+            jButtonAdd.setEnabled(!bPlaying);
+            jButtonDel.setEnabled(!bPlaying);
+            jListInput.setEnabled(!bPlaying);
+            jButtonStart.setEnabled(!bPlaying);
+        }
+    }//GEN-LAST:event_jButtonPlayActionPerformed
 
     private void jButtonDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDelActionPerformed
         if (inputIndex>=TOTAL_BUILT_IN_TTS_FILES+1)
@@ -445,10 +519,25 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
             UpdateInputList();
             jListInput.setSelectedIndex(listItems.size()-1);
         }
+        
+        jButtonPlay.setEnabled(!bRecording);
+        jButtonAdd.setEnabled(!bRecording);
+        jButtonDel.setEnabled(!bRecording);
+        jListInput.setEnabled(!bRecording);
+        jButtonStart.setEnabled(!bRecording);
+        
     }//GEN-LAST:event_jButtonRecActionPerformed
 
     private void jSliderChangeAmountStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSliderChangeAmountStateChanged
+        double prevAmount = amount;
+
         getAmount();
+
+        if (bStarted && prevAmount-amount>0.001) //If currently processing and changed modification amount
+        {
+            jButtonStart.doClick(); //Stop
+            jButtonStart.doClick(); //and restart to adapt to new target voice
+        }
     }//GEN-LAST:event_jSliderChangeAmountStateChanged
 
     private void jSliderChangeAmountPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jSliderChangeAmountPropertyChange
@@ -460,7 +549,15 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonExitActionPerformed
 
     private void jComboBoxTargetVoiceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxTargetVoiceActionPerformed
+        int prevTargetIndex = targetIndex;
+
         getTargetIndex();
+
+        if (bStarted && prevTargetIndex != targetIndex) //If currently processing and changed target voice type
+        {
+            jButtonStart.doClick(); //Stop
+            jButtonStart.doClick(); //and restart to adapt to new target voice
+        }
     }//GEN-LAST:event_jComboBoxTargetVoiceActionPerformed
     
     private void formMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseClicked
@@ -761,10 +858,14 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
             inputFileNameList[i] = fTmp.getName();
         }
         
-        jListInput.setListData(inputFileNameList);
-        
         inputIndex = Math.min(listItems.size()-1, inputIndex);
         inputIndex = Math.max(0, inputIndex);
+        
+        int prevInputIndex = inputIndex;
+        
+        jListInput.setListData(inputFileNameList);
+        
+        inputIndex = prevInputIndex;
         
         jListInput.setSelectedIndex(inputIndex);
     }
