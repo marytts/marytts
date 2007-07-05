@@ -256,7 +256,8 @@ public class MaryAudioUtils {
     			e.printStackTrace();
 			}
     		m_clip.loop(loop);
-            m_clip.drain();
+            if (waitUntilCompleted)
+                m_clip.drain();
     	}
     	else
     	{
