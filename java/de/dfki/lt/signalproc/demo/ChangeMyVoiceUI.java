@@ -234,6 +234,11 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
                 jListInputValueChanged(evt);
             }
         });
+        jListInput.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jListInputMouseClicked(evt);
+            }
+        });
 
         jScrollList.setViewportView(jListInput);
 
@@ -358,6 +363,22 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jListInputMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jListInputMouseClicked
+        int numClicks = evt.getClickCount();
+        if (numClicks==2)
+        {
+            getInputIndex();
+            
+            if (inputIndex>0)
+            {
+                if (!bPlaying && !bRecording)
+                    jButtonPlay.doClick();
+            }
+            else if (inputIndex==0 && !bStarted)
+                jButtonStart.doClick();   
+        }
+    }//GEN-LAST:event_jListInputMouseClicked
 
     private void jSliderChangeAmountFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jSliderChangeAmountFocusLost
        
