@@ -238,6 +238,9 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jListInputMouseClicked(evt);
             }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                jListInputMouseReleased(evt);
+            }
         });
 
         jScrollList.setViewportView(jListInput);
@@ -267,6 +270,11 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         jSliderChangeAmount.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 jSliderChangeAmountStateChanged(evt);
+            }
+        });
+        jSliderChangeAmount.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                jSliderChangeAmountMouseReleased(evt);
             }
         });
 
@@ -363,6 +371,14 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jSliderChangeAmountMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jSliderChangeAmountMouseReleased
+        
+    }//GEN-LAST:event_jSliderChangeAmountMouseReleased
+
+    private void jListInputMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jListInputMouseReleased
+// TODO add your handling code here:
+    }//GEN-LAST:event_jListInputMouseReleased
 
     private void jListInputMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jListInputMouseClicked
         int numClicks = evt.getClickCount();
@@ -544,7 +560,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
 
         getAmount();
 
-        if (bStarted && prevAmount-amount>0.001) //If currently processing and changed modification amount
+        if (bStarted && Math.abs(prevAmount-amount)>0.001) //If currently processing and changed modification amount
         {
             jButtonStart.doClick(); //Stop
             jButtonStart.doClick(); //and restart to adapt to new target voice
