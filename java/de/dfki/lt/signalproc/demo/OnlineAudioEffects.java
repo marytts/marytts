@@ -33,36 +33,24 @@ public class OnlineAudioEffects extends Thread
     protected AudioInputStream input;
     protected SourceDataLine loudspeakers;
     private boolean stopRequested;
-    JButton jButtonStart;
     
-    public OnlineAudioEffects(InlineDataProcessor effect, TargetDataLine microphone, SourceDataLine loudspeakers, JButton button)
+
+    public OnlineAudioEffects(InlineDataProcessor effect, TargetDataLine microphone, SourceDataLine loudspeakers)
     {
         this.effect = effect;
         this.microphone = microphone;
         this.loudspeakers = loudspeakers;
         this.input = null;
-        this.jButtonStart = button;
         this.setName("OnlineAudioEffect "+effect.toString());
     }
 
-    public OnlineAudioEffects(InlineDataProcessor effect, AudioInputStream input, SourceDataLine loudspeakers, JButton button)
+    public OnlineAudioEffects(InlineDataProcessor effect, AudioInputStream input, SourceDataLine loudspeakers)
     {
         this.effect = effect;
         this.input = input;
         this.loudspeakers = loudspeakers;
         this.microphone = null;
-        this.jButtonStart = button;
         this.setName("OnlineAudioEffect "+effect.toString());
-    }
-
-    public OnlineAudioEffects(InlineDataProcessor effect, TargetDataLine microphone, SourceDataLine loudspeakers)
-    {
-        this(effect, microphone, loudspeakers, null);
-    }
-
-    public OnlineAudioEffects(InlineDataProcessor effect, AudioInputStream input, SourceDataLine loudspeakers)
-    {
-       this(effect, input, loudspeakers, null);
     }
 
     
@@ -111,37 +99,18 @@ public class OnlineAudioEffects extends Thread
         {
             microphone.stop();
             microphone = null;
-        }
-        
-        if (loudspeakers != null)
-        {
-            try {
-                sleep((int)((5*1024.0/input.getFormat().getSampleRate())*1000));
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            loudspeakers.stop();
-            loudspeakers = null;
-        }
-        
-        if (input != null)
-        {
+        } else { // we had an audio file as input
             try {
                 input.close();
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            
-            input = null;
+            loudspeakers.drain();
         }
         
-        if (jButtonStart != null)
-        {
-            if (jButtonStart.getText() != "Start")
-                jButtonStart.doClick(0);
-        }
+        loudspeakers.stop();
+        loudspeakers = null;
+        input = null;
     }
     
     public void requestStop() 
