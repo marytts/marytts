@@ -45,6 +45,7 @@ import de.dfki.lt.signalproc.process.Chorus;
 import de.dfki.lt.signalproc.process.VocalTractScalingProcessor;
 import de.dfki.lt.signalproc.process.VocalTractScalingSimpleProcessor;
 import de.dfki.lt.signalproc.process.VocalTractModifier;
+import de.dfki.lt.signalproc.process.Robotiser.PhaseRemover;
 import de.dfki.lt.signalproc.filter.*;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
@@ -128,7 +129,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         
         listItems.addElement("Streaming Audio");    
         
-        TOTAL_BUILT_IN_TTS_FILES = 4;
+        TOTAL_BUILT_IN_TTS_FILES = 6;
         builtInFileNameList = new String[TOTAL_BUILT_IN_TTS_FILES];
         
         listItems.addElement("Built-in TTS Output1 (wohin-bits3.wav)");
@@ -142,6 +143,12 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         
         listItems.addElement("Built-in TTS Output4 (ausprobieren-bits3.wav)");
         builtInFileNameList[3] = strBuiltInFilePath + "ausprobieren-bits3.wav";
+        
+        listItems.addElement("Built-in TTS Output5 (ausprobieren.wav)");
+        builtInFileNameList[4] = strBuiltInFilePath + "ausprobieren.wav";
+        
+        listItems.addElement("Built-in TTS Output6 (moment.wav)");
+        builtInFileNameList[5] = strBuiltInFilePath + "moment.wav";
         
         initComponents();
         modificationParameters = new VoiceModificationParameters();
@@ -620,6 +627,11 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
        jLabelMedium.setEnabled(bChangeEnabled);
        jLabelHigh.setEnabled(bChangeEnabled);
        jSliderChangeAmount.setEnabled(bChangeEnabled);
+       
+       if (targetNames[targetIndex]=="Robot")
+           jLabelChangeAmount.setText("Pitch");
+       else
+           jLabelChangeAmount.setText("Change Amount");
    }
    
     private void jButtonStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonStartActionPerformed
@@ -769,10 +781,14 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
 
         // Choose an audio effect
         InlineDataProcessor effect = null;
+        int bufferSize = SignalProcUtils.getDFTSize(modificationParameters.fs);
 
         if (targetNames[targetIndex]=="Robot")
         {  
-            effect = new Robotiser.PhaseRemover(2048, 0.7+0.3*amount);
+            double targetHz = 200+(amount-0.5)*200;
+            bufferSize = MathUtils.closestPowerOfTwoAbove((int) (modificationParameters.fs / targetHz * 4 /*-fold overlap in ola*/ ));
+
+            effect = new Robotiser.PhaseRemover(bufferSize, 1.0);
         }
         else if (targetNames[targetIndex]=="Whisper")
         {  
@@ -782,64 +798,87 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         {  
             double [] vscales = {1.3+0.5*amount};
             int p = SignalProcUtils.getLPOrder((int)modificationParameters.fs);
-            int fftSize = Math.max(SignalProcUtils.getDFTSize((int)modificationParameters.fs), 1024);
-            effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, fftSize, vscales);
+            //int fftSize = Math.max(SignalProcUtils.getDFTSize((int)modificationParameters.fs), 1024);
+            //effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, fftSize, vscales);
+            effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, bufferSize, vscales);
         }
         else if (targetNames[targetIndex]=="Dwarf2") //Using freq. domain DFT magnitude spectrum modification
         {  
             double [] vscales = {1.3+0.5*amount};
-            effect = new VocalTractScalingSimpleProcessor(1024, vscales);
+            //effect = new VocalTractScalingSimpleProcessor(1024, vscales);
+            effect = new VocalTractScalingSimpleProcessor(bufferSize, vscales);
         }
         else if (targetNames[targetIndex]=="Ogre1") //Using freq. domain LP spectrum modification
         { 
             double [] vscales = {0.90-0.1*amount};            
             int p = SignalProcUtils.getLPOrder((int)modificationParameters.fs);
-            int fftSize = Math.max(SignalProcUtils.getDFTSize((int)modificationParameters.fs), 1024);
-            effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, fftSize, vscales);
+            //int fftSize = Math.max(SignalProcUtils.getDFTSize((int)modificationParameters.fs), 1024);
+            //effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, fftSize, vscales);
+            effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, bufferSize, vscales);
         }
         else if (targetNames[targetIndex]=="Ogre2") //Using freq. domain DFT magnitude spectrum modification
         { 
             double [] vscales = {0.90-0.1*amount};
-            effect = new VocalTractScalingSimpleProcessor(1024, vscales);
+            //effect = new VocalTractScalingSimpleProcessor(1024, vscales);
+            effect = new VocalTractScalingSimpleProcessor(bufferSize, vscales);
         }
         else if (targetNames[targetIndex]=="Giant1") //Using freq. domain LP spectrum modification
         {  
             double [] vscales = {0.75-0.1*amount};
             int p = SignalProcUtils.getLPOrder((int)modificationParameters.fs);
-            int fftSize = Math.max(SignalProcUtils.getDFTSize((int)modificationParameters.fs), 1024);
-            effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, fftSize, vscales);
+            //int fftSize = Math.max(SignalProcUtils.getDFTSize((int)modificationParameters.fs), 1024);
+            //effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, fftSize, vscales);
+            effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, bufferSize, vscales);
         }
         else if (targetNames[targetIndex]=="Giant2") //Using freq. domain DFT magnitude spectrum modification
         {  
             double [] vscales = {0.75-0.1*amount};
-            effect = new VocalTractScalingSimpleProcessor(1024, vscales);
+            //effect = new VocalTractScalingSimpleProcessor(1024, vscales);
+            effect = new VocalTractScalingSimpleProcessor(bufferSize, vscales);
         }
         else if (targetNames[targetIndex]=="Echo")
         {
             int [] delaysInMiliseconds = {100+(int)(20*amount), 200+(int)(50*amount), 300+(int)(100*amount)};
             double [] amps = {0.8, -0.7, 0.9};
+            
+            int maxDelayInMiliseconds = MathUtils.getMax(delaysInMiliseconds);
+            int maxDelayInSamples = (int)(maxDelayInMiliseconds/1000.0*modificationParameters.fs);
+            
+            if (bufferSize<maxDelayInSamples)
+                bufferSize *= 2;
+                
             effect = new Chorus(delaysInMiliseconds, amps, (int)(modificationParameters.fs));
         }
         else if (targetNames[targetIndex]=="Stadium")
         {
             int [] delaysInMiliseconds = {266+(int)(200*amount), 400+(int)(200*amount)};
             double [] amps = {0.54, -0.10};
+            
+            int maxDelayInMiliseconds = MathUtils.getMax(delaysInMiliseconds);
+            int maxDelayInSamples = (int)(maxDelayInMiliseconds/1000.0*modificationParameters.fs);
+            
+            if (bufferSize<maxDelayInSamples)
+                bufferSize *= 2;
+            
             effect = new Chorus(delaysInMiliseconds, amps, (int)(modificationParameters.fs));
         }
         else if (targetNames[targetIndex]=="Jet Pilot")
         {  
+            bufferSize = 8*bufferSize;
             double normalizedCutOffFreq1 = 500.0/modificationParameters.fs;
             double normalizedCutOffFreq2 = 2000.0/modificationParameters.fs;
             effect = new BandPassFilter(normalizedCutOffFreq1, normalizedCutOffFreq2, true);
         }
         else if (targetNames[targetIndex]=="Telephone")
         {  
+            bufferSize = 8*bufferSize;
             double normalizedCutOffFreq1 = 300.0/modificationParameters.fs;
             double normalizedCutOffFreq2 = 3400.0/modificationParameters.fs;
             effect = new BandPassFilter(normalizedCutOffFreq1, normalizedCutOffFreq2, true);
         }
         else if (targetNames[targetIndex]=="Old Radio")
         {  
+            bufferSize = 8*bufferSize;
             double normalizedCutOffFreq = 3000.0/modificationParameters.fs;
             effect = new LowPassFilter(normalizedCutOffFreq, true);
         }
@@ -849,7 +888,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         if (effect!=null && loudspeakers!=null)
         {
             if (microphone != null)
-                online = new OnlineAudioEffects(effect, microphone, loudspeakers);
+                online = new OnlineAudioEffects(effect, microphone, loudspeakers, bufferSize);
             else if (inputStream !=null) {
                 loudspeakers.addLineListener(new LineListener() {
                    public void update(LineEvent le) {
@@ -859,7 +898,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
                        }
                    }
                 });
-                online = new OnlineAudioEffects(effect, inputStream, loudspeakers);
+                online = new OnlineAudioEffects(effect, inputStream, loudspeakers, bufferSize);
                 
             }
 
