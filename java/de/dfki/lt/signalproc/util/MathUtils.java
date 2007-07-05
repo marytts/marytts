@@ -583,4 +583,16 @@ public class MathUtils {
         
         return y;
     }
+    
+    public static int getMax(int [] x)
+    {
+        int maxx = x[0];
+        for (int i=1; i<x.length; i++)
+        {
+            if (x[i]>maxx)
+                maxx = x[i];
+        }
+        
+        return maxx;
+    }
 }

@@ -14,15 +14,15 @@ public class SignalProcUtils {
     public static int getDFTSize(int fs){
         int dftSize;
         
-        if (fs<8000)
+        if (fs<=8000)
             dftSize = 128;
-        else if (fs<16000)
+        else if (fs<=16000)
             dftSize = 256;
-        else if (fs<22050)
+        else if (fs<=22050)
             dftSize = 512;
-        else if (fs<32000)
+        else if (fs<=32000)
             dftSize = 1024;
-        else if (fs<44100)
+        else if (fs<=44100)
             dftSize = 2048;
         else
             dftSize = 4096;
