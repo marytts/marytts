@@ -32,8 +32,6 @@ import javax.swing.filechooser.FileFilter;
 import org.jsresources.AudioCommon;
 import org.jsresources.AudioRecorder.BufferingRecorder;
 
-import com.sun.speech.freetts.audio.SingleFileAudioPlayer;
-
 import de.dfki.lt.mary.client.SimpleFileFilter;
 import de.dfki.lt.mary.util.MaryUtils;
 import de.dfki.lt.signalproc.FFT;
@@ -54,6 +52,7 @@ import de.dfki.lt.signalproc.util.MathUtils;
 import de.dfki.lt.signalproc.util.SignalProcUtils;
 import de.dfki.lt.signalproc.demo.OnlineAudioEffects;
 import de.dfki.lt.signalproc.display.FunctionGraph;
+import de.dfki.lt.mary.util.MaryAudioUtils;
 
 /**
  *
@@ -75,7 +74,6 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     SourceDataLine loudspeakers;
     AudioInputStream inputStream;
     BufferingRecorder recorder;
-    SingleFileAudioPlayer player;
     
     private Vector listItems; //Just the names we see on the list
     private File lastDirectory;
@@ -103,7 +101,6 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     
     /** Creates new form ChangeMyVoiceUI */
     public ChangeMyVoiceUI() {
-        player = null;
         recorder = null;
         outputFile = null;
         microphone = null;
@@ -371,13 +368,6 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         {
             if (!bPlaying)
             {
-                if (player != null)
-                {
-                    player.end();
-                    player.close();
-                    player = null;
-                }
-
                 if (inputIndex>this.TOTAL_BUILT_IN_TTS_FILES)
                 {
                     String inputFileNameFull = (String)listItems.get(inputIndex);
@@ -389,9 +379,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
                 bPlaying = true;
                 jButtonPlay.setText("Stop");
                 
-                AudioFileFormat.Type    targetType = AudioFileFormat.Type.WAVE;
-                player = new SingleFileAudioPlayer(inputFile.getPath(), targetType);
-                player.begin(0);
+                playWavFile()
             }
             else
             {
