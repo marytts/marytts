@@ -60,6 +60,7 @@ import de.dfki.lt.mary.util.MaryAudioUtils;
  */
 
 public class ChangeMyVoiceUI extends javax.swing.JFrame {
+    String playFile;
     File outputFile;
     private int TOTAL_BUILT_IN_TTS_FILES;
     private double amount;
@@ -80,6 +81,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     private File inputFile;
     private String [] inputFileNameList; //Actual full paths to files 
     private String [] builtInFileNameList;
+    private String classPath; //Class run-time path
     private String strBuiltInFilePath;
     private String strRecordPath;
     
@@ -101,6 +103,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     
     /** Creates new form ChangeMyVoiceUI */
     public ChangeMyVoiceUI() {
+        playFile = null;
         recorder = null;
         outputFile = null;
         microphone = null;
@@ -116,8 +119,9 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         listItems = new Vector();
         recordIndex = 0;
         
-        strBuiltInFilePath = "D:\\Oytun\\DFKI\\java\\workspace\\openmary\\trunk\\java\\de\\dfki\\lt\\signalproc\\demo\\demo\\";
-        strRecordPath = "D:\\Oytun\\DFKI\\java\\workspace\\openmary\\trunk\\java\\de\\dfki\\lt\\signalproc\\demo\\record\\";
+        classPath = new File(".").getAbsolutePath();
+        strBuiltInFilePath = classPath + "\\java\\de\\dfki\\lt\\signalproc\\demo\\demo\\";
+        strRecordPath = classPath + "\\java\\de\\dfki\\lt\\signalproc\\demo\\demo\\record\\";
         
         listItems.addElement("Streaming Audio");    
         
@@ -364,28 +368,19 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jSliderChangeAmountMouseDragged
 
     private void jButtonPlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPlayActionPerformed
-        if (!bRecording)
+        if (!bRecording && playFile!=null)
         {
             if (!bPlaying)
             {
-                if (inputIndex>this.TOTAL_BUILT_IN_TTS_FILES)
-                {
-                    String inputFileNameFull = (String)listItems.get(inputIndex);
-                    inputFile = new File(inputFileNameFull);
-                }
-                else
-                    inputFile = new File(builtInFileNameList[inputIndex-1]);
-                
                 bPlaying = true;
                 jButtonPlay.setText("Stop");
                 
-                playWavFile()
+                MaryAudioUtils.playWavFile(playFile, 0, true);
             }
             else
             {
-                player.end();
-                player.close();
-                player = null;
+                MaryAudioUtils.stopWavFile();
+                
                 bPlaying = false;
                 jButtonPlay.setText("Play");
             }
@@ -420,6 +415,13 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
             jButtonDel.setEnabled(false);
         else
             jButtonDel.setEnabled(true);
+        
+        if (inputIndex == 0)
+            playFile = null;
+        else if (inputIndex>this.TOTAL_BUILT_IN_TTS_FILES)
+            playFile = (String)listItems.get(inputIndex);
+        else
+            playFile = builtInFileNameList[inputIndex-1];
         
     }//GEN-LAST:event_jListInputValueChanged
 
