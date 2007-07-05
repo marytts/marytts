@@ -416,7 +416,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         else
             jButtonDel.setEnabled(true);
         
-        if (inputIndex == 0)
+        if (inputIndex <= 0)
             playFile = null;
         else if (inputIndex>this.TOTAL_BUILT_IN_TTS_FILES)
             playFile = (String)listItems.get(inputIndex);
