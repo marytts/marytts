@@ -25,6 +25,7 @@ import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
 import de.dfki.lt.signalproc.util.DDSAudioInputStream;
 import de.dfki.lt.signalproc.util.DoubleDataSource;
 import de.dfki.lt.signalproc.util.MathUtils;
+import de.dfki.lt.signalproc.util.SignalProcUtils;
 
 public class OnlineAudioEffects extends Thread
 {
@@ -33,23 +34,26 @@ public class OnlineAudioEffects extends Thread
     protected AudioInputStream input;
     protected SourceDataLine loudspeakers;
     private boolean stopRequested;
+    private int bufferSize;
     
-
-    public OnlineAudioEffects(InlineDataProcessor effect, TargetDataLine microphone, SourceDataLine loudspeakers)
+    public OnlineAudioEffects(InlineDataProcessor effect, TargetDataLine microphone, SourceDataLine loudspeakers, int bufferSize)
     {
         this.effect = effect;
+        this.input = null;
         this.microphone = microphone;
         this.loudspeakers = loudspeakers;
-        this.input = null;
+        this.bufferSize = bufferSize;
         this.setName("OnlineAudioEffect "+effect.toString());
     }
 
-    public OnlineAudioEffects(InlineDataProcessor effect, AudioInputStream input, SourceDataLine loudspeakers)
+    public OnlineAudioEffects(InlineDataProcessor effect, AudioInputStream input, SourceDataLine loudspeakers, int bufferSize)
     {
         this.effect = effect;
         this.input = input;
         this.loudspeakers = loudspeakers;
         this.microphone = null;
+        this.bufferSize = bufferSize;
+        
         this.setName("OnlineAudioEffect "+effect.toString());
     }
 
@@ -69,16 +73,10 @@ public class OnlineAudioEffects extends Thread
                     +"output: "+loudspeakers.getFormat());
         }
         
-        int fftSize = 1024;
-        if (effect instanceof PhaseRemover) {
-            int targetHz = 100;
-            fftSize = MathUtils.closestPowerOfTwoAbove((int) (input.getFormat().getSampleRate() / targetHz * 4 /*-fold overlap in ola*/ ));
-            //System.out.println("FFT size: "+fftSize+" samples = "+(fftSize/input.getFormat().getSampleRate())+" ms = "+ (1/(fftSize/input.getFormat().getSampleRate()))+" Hz");
-        }
         DoubleDataSource inputSource = new AudioDoubleDataSource(input);
-        DoubleDataSource outputSource = new FrameOverlapAddSource(inputSource, fftSize, (int) input.getFormat().getSampleRate(), effect);
+        DoubleDataSource outputSource = new FrameOverlapAddSource(inputSource, bufferSize, (int) input.getFormat().getSampleRate(), effect);
         AudioInputStream result = new DDSAudioInputStream(outputSource, input.getFormat());
-        byte[] buf = new byte[1024];
+        byte[] buf = new byte[bufferSize];
         while (!stopRequested) {
             try {
                 int nRead = result.read(buf);
@@ -152,56 +150,13 @@ public class OnlineAudioEffects extends Thread
             e.printStackTrace();
         }
         
-
-        /*
-        // Get a TargetDataLine (microphone signal)
-        Mixer.Info[] mixerInfos = AudioSystem.getMixerInfo();
-        // Hard-coded shortcut -- this can be done via a ComboBox in a GUI
-        Mixer.Info mixerInfo = mixerInfos[4];
-        Mixer mixer = AudioSystem.getMixer(mixerInfo);
-        Line.Info[] lineInfos = mixer.getTargetLineInfo();
-        // Hard-coded shortcut -- this can be done via a ComboBox in a GUI
-        Line.Info lineInfo = lineInfos[0];
-        DataLine.Info datalineInfo = (DataLine.Info) lineInfo;
-        AudioFormat[] formats = datalineInfo.getFormats();
-        // Hard-coded -- this can be done via a ComboBox in a GUI
-        AudioFormat format = null;
-        for (int i=formats.length-1; i >= 0; i--) {
-            if (formats[i].getChannels() == 1
-                && formats[i].getFrameSize() == 2) {
-                format = formats[i];
-                break;
-            }
-        }
-        
-        TargetDataLine microphone = null;
-        try {
-            microphone = (TargetDataLine) mixer.getLine(lineInfo);
-            microphone.open(audioFormat);
-            System.out.println("Microphone format: "+microphone.getFormat());
-        } catch (LineUnavailableException e) {
-            e.printStackTrace();
-        }
-        
-        // In a similar way we can get the output channel from mixer.getSourceLineInfo().
-        // Somehow only mixer 0 works for me:
-        SourceDataLine loudspeakers = null;
-        try {
-            DataLine.Info   info = new DataLine.Info(SourceDataLine.class, audioFormat);
-            loudspeakers = (SourceDataLine) AudioSystem.getLine(info);
-            loudspeakers.open(microphone.getFormat());
-            System.out.println("Loudspeaker format: "+loudspeakers.getFormat());
-        } catch (LineUnavailableException e) {
-            e.printStackTrace();
-        }
-        */
-        
         // Choose an audio effect
         InlineDataProcessor effect = new Robotiser.PhaseRemover(4096);
         //InlineDataProcessor effect = new LPCWhisperiser(20);
 
         // Create the output thread and make it run in the background:
-        OnlineAudioEffects online = new OnlineAudioEffects(effect, microphone, loudspeakers);
+        int bufferSize = SignalProcUtils.getDFTSize(fs);
+        OnlineAudioEffects online = new OnlineAudioEffects(effect, microphone, loudspeakers, bufferSize);
         online.start();
         
         // Here we simply wait until it is finished (which will never happen):
