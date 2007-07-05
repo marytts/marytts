@@ -21,6 +21,8 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.Line;
+import javax.sound.sampled.LineEvent;
+import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
@@ -389,31 +391,60 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
 
     }//GEN-LAST:event_jSliderChangeAmountMouseDragged
 
+    private Clip playClip = null;
     private void jButtonPlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPlayActionPerformed
         if (!bRecording && playFile!=null)
         {
             if (!bPlaying)
             {
                 bPlaying = true;
-                jButtonPlay.setText("Stop");
-                
-                MaryAudioUtils.playWavFile(playFile, 0, false);
-            }
-            else
-            {
-                MaryAudioUtils.stopWavFile();
-                
+                try
+                {
+                    AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(playFile));
+                    AudioFormat format = audioInputStream.getFormat();
+                    DataLine.Info lineInfo = new DataLine.Info(Clip.class, format);
+                    playClip = (Clip) AudioSystem.getLine(lineInfo);
+                    playClip.addLineListener(new LineListener() {
+                        public void update(LineEvent le) {
+                            if (le.getType().equals(LineEvent.Type.STOP)) {
+                                bPlaying = false;
+                                playClip = null;
+                                updateGUIPlaying();
+                            }
+                        }
+                    });
+                    playClip.open(audioInputStream);
+                    playClip.start();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
                 bPlaying = false; 
+                if (playClip != null) {
+                    playClip.stop();
+                    playClip = null;
+                }
             }
-            
-            jButtonRec.setEnabled(!bPlaying);
-            jButtonAdd.setEnabled(!bPlaying);
-            jButtonDel.setEnabled(!bPlaying);
-            jListInput.setEnabled(!bPlaying);
-            jButtonStart.setEnabled(!bPlaying);
+            updateGUIPlaying();
         }
     }//GEN-LAST:event_jButtonPlayActionPerformed
 
+    private void updateGUIPlaying()
+    {
+        if (bPlaying) {
+            jButtonPlay.setText("Stop");
+        } else {
+            jButtonPlay.setText("Play");
+        }
+        jButtonRec.setEnabled(!bPlaying);
+        jButtonAdd.setEnabled(!bPlaying);
+        jButtonDel.setEnabled(!bPlaying);
+        jListInput.setEnabled(!bPlaying);
+        jButtonStart.setEnabled(!bPlaying);
+        
+    }
+    
+    
     private void jButtonDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDelActionPerformed
         if (inputIndex>=TOTAL_BUILT_IN_TTS_FILES+1)
         {
@@ -586,61 +617,70 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
        jLabelHigh.setEnabled(bChangeEnabled);
        jSliderChangeAmount.setEnabled(bChangeEnabled);
    }
+   
     private void jButtonStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonStartActionPerformed
-        if (!bRecording)
-        {
-            if (!bStarted)
-            { 
-                jButtonStart.setText("Stop");
-                jButtonRec.setEnabled(false);
-                jButtonPlay.setEnabled(false);
-                jButtonAdd.setEnabled(false);
-                jButtonDel.setEnabled(false);
-                jListInput.setEnabled(false);
-                getParameters();
-                changeVoice();
-            }
-            else 
+        if (!bStarted)
+        { 
+            bStarted = true;
+            updateGUIStart();
+            getParameters();
+            changeVoice();
+        } else {
+            bStarted = false;
+            updateGUIStart();
+            online.requestStop();
+
+            //Close the source and the target datalines to be able to use them repeatedly
+            if (microphone!=null)
             {
-                bStarted = false;
-                online.requestStop();
-
-                //Close the source and the target datalines to be able to use them repeatedly
-                if (microphone!=null)
-                {
-                    microphone.close();
-                    microphone = null;
-                }
-
-                if (loudspeakers != null)
-                {
-                    loudspeakers.close();
-                    loudspeakers = null;
-                }
-
-                if (inputStream != null)
-                {
-                    try {
-                        inputStream.close();
-                    } catch (IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                    inputStream = null;
-                }
-                //
-
-                jButtonStart.setText("Start");
-                jButtonRec.setEnabled(true);
-                jButtonPlay.setEnabled(true);
-                jButtonAdd.setEnabled(true);
-                if (inputIndex>TOTAL_BUILT_IN_TTS_FILES)
-                    jButtonDel.setEnabled(true);
-                jListInput.setEnabled(true);
+                microphone.close();
+                microphone = null;
             }
+
+            if (loudspeakers != null)
+            {
+                loudspeakers.close();
+                loudspeakers = null;
+            }
+
+            if (inputStream != null)
+            {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                inputStream = null;
+            }
+            //
+
+            jButtonStart.setText("Start");
+            jButtonRec.setEnabled(true);
+            jButtonPlay.setEnabled(true);
+            jButtonAdd.setEnabled(true);
+            if (inputIndex>TOTAL_BUILT_IN_TTS_FILES)
+                jButtonDel.setEnabled(true);
+            jListInput.setEnabled(true);
+
         }   
     }//GEN-LAST:event_jButtonStartActionPerformed
 
+    private void updateGUIStart()
+    {
+        if (bStarted)
+        { 
+            jButtonStart.setText("Stop");
+        } else {
+            jButtonStart.setText("Start");
+        }
+        jButtonRec.setEnabled(!bStarted);
+        jButtonPlay.setEnabled(!bStarted);
+        jButtonAdd.setEnabled(!bStarted);
+        jButtonDel.setEnabled(!bStarted && inputIndex>TOTAL_BUILT_IN_TTS_FILES);
+        jListInput.setEnabled(!bStarted);
+    }
+    
     /* This function gets the modification parameters from the GUI
      * and fills in the modificationParameters object
     */ 
@@ -654,7 +694,6 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
      * using the parameters in the modificationParameters object
      */ 
     private void changeVoice() {
-        bStarted = true;
         int channels = 1;
 
         AudioFormat audioFormat = null;
@@ -806,9 +845,19 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         if (effect!=null && loudspeakers!=null)
         {
             if (microphone != null)
-                online = new OnlineAudioEffects(effect, microphone, loudspeakers, null);
-            else if (inputStream !=null)
-                online = new OnlineAudioEffects(effect, inputStream, loudspeakers, jButtonStart);
+                online = new OnlineAudioEffects(effect, microphone, loudspeakers);
+            else if (inputStream !=null) {
+                loudspeakers.addLineListener(new LineListener() {
+                   public void update(LineEvent le) {
+                       if (le.getType().equals(LineEvent.Type.STOP)) {
+                           bStarted = false;
+                           updateGUIStart();
+                       }
+                   }
+                });
+                online = new OnlineAudioEffects(effect, inputStream, loudspeakers);
+                
+            }
 
             online.start();
         }
@@ -914,7 +963,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
             if (lineFormat == null) {
                 throw new LineUnavailableException("Cannot get any mono line with 16 bit");
             }
-            line.open(lineFormat, 1024);
+            line.open(lineFormat, 4096);
 
         } catch (LineUnavailableException e) {
             e.printStackTrace();
