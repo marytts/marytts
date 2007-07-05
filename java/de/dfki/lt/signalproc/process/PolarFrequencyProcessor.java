@@ -44,6 +44,7 @@ public class PolarFrequencyProcessor extends FrequencyDomainProcessor
     public PolarFrequencyProcessor(int fftSize, double amount)
     {
         super(fftSize, amount);
+        //super(fftSize);
     }
 
     public PolarFrequencyProcessor(int fftSize)

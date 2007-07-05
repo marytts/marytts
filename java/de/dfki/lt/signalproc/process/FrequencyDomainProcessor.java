@@ -39,8 +39,8 @@ public class FrequencyDomainProcessor implements InlineDataProcessor
 {
     private double[] real;
     private double[] imag;
-    private double robotAmount; //A double value between 0.5 and 1.0, if 1.0 full robotic, if 0.5 half robotic
-    private double oneMinusRobotAmount; //1.0-robotAmount
+    private double amount; //A double value between 0.5 and 1.0, if 1.0 full modification, if 0.5 half modification
+    private double oneMinusAmount; //1.0-amount
     /**
      * Create a frequencydomainprocessor with the given FFT size.
      * @param fftSize length of the array to be used for the FFT. Must be
@@ -54,10 +54,10 @@ public class FrequencyDomainProcessor implements InlineDataProcessor
         }
         this.real = new double[fftSize];
         this.imag = new double[fftSize];
-        this.robotAmount = amount;
-        this.robotAmount = Math.max(0.5, this.robotAmount);
-        this.robotAmount = Math.min(1.0, this.robotAmount);
-        this.oneMinusRobotAmount = 1.0-this.robotAmount;
+        this.amount = amount;
+        this.amount = Math.max(0.5, this.amount);
+        this.amount = Math.min(1.0, this.amount);
+        this.oneMinusAmount = 1.0-this.amount;
     }
     
     public FrequencyDomainProcessor(int fftSize)
@@ -87,8 +87,10 @@ public class FrequencyDomainProcessor implements InlineDataProcessor
         }
         // For correct phase, center time origin in the middle of windowed frame:
         int middle = len/2 + len%2; //e.g., 3 if len==5  
-        System.arraycopy(data, pos+middle, real, 0, len-middle);
-        System.arraycopy(data, pos, real, real.length-middle, middle);
+        System.arraycopy(data, 0, dataOut, 0, len);
+        System.arraycopy(dataOut, pos+middle, real, 0, len-middle);
+        System.arraycopy(dataOut, pos, real, real.length-middle, middle);
+        
         if (real.length > len)
             Arrays.fill(real, len-middle, real.length-middle, 0);
         Arrays.fill(imag, 0, imag.length, 0.);
@@ -101,7 +103,7 @@ public class FrequencyDomainProcessor implements InlineDataProcessor
         System.arraycopy(real, real.length-middle, dataOut, pos, middle);
         
         for (i=0; i<len; i++)
-            data[i] = robotAmount*dataOut[i] + oneMinusRobotAmount*data[i]; 
+            data[i] = amount*dataOut[i] + oneMinusAmount*data[i]; 
     }
     
     /**
