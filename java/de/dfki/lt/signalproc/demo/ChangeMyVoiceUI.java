@@ -94,7 +94,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
                               "Ogre2",
                               "Giant1",
                               "Giant2",
-                              "Ghost",
+                              "Echo",
                               "Stadium",
                               "Jet Pilot", 
                               "Old Radio", 
@@ -238,9 +238,6 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jListInputMouseClicked(evt);
             }
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                jListInputMouseReleased(evt);
-            }
         });
 
         jScrollList.setViewportView(jListInput);
@@ -270,11 +267,6 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         jSliderChangeAmount.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 jSliderChangeAmountStateChanged(evt);
-            }
-        });
-        jSliderChangeAmount.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                jSliderChangeAmountMouseReleased(evt);
             }
         });
 
@@ -371,14 +363,6 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void jSliderChangeAmountMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jSliderChangeAmountMouseReleased
-        
-    }//GEN-LAST:event_jSliderChangeAmountMouseReleased
-
-    private void jListInputMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jListInputMouseReleased
-// TODO add your handling code here:
-    }//GEN-LAST:event_jListInputMouseReleased
 
     private void jListInputMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jListInputMouseClicked
         int numClicks = evt.getClickCount();
@@ -802,7 +786,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
             double [] vscales = {0.75-0.1*amount};
             effect = new VocalTractScalingSimpleProcessor(1024, vscales);
         }
-        else if (targetNames[targetIndex]=="Ghost")
+        else if (targetNames[targetIndex]=="Echo")
         {
             int [] delaysInMiliseconds = {100+(int)(20*amount), 200+(int)(50*amount), 300+(int)(100*amount)};
             double [] amps = {0.8, -0.7, 0.9};
