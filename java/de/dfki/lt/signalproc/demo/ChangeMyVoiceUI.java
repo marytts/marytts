@@ -322,11 +322,12 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
                                 .add(jButtonPlay)))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jButtonDel)
-                        .add(80, 80, 80))
-                    .add(layout.createSequentialGroup()
-                        .add(171, 171, 171)
-                        .add(jButtonExit)))
+                        .add(80, 80, 80)))
                 .addContainerGap())
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(168, Short.MAX_VALUE)
+                .add(jButtonExit, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 66, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(165, 165, 165))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
