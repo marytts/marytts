@@ -800,9 +800,9 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         if (targetNames[targetIndex]=="Robot")
         {  
             double targetHz = 200+(amount-0.5)*200;
-            bufferSize = MathUtils.closestPowerOfTwoAbove((int) (modificationParameters.fs / targetHz * 4 /*-fold overlap in ola*/ ));
+            bufferSize = (int) (modificationParameters.fs / targetHz * 4 /*-fold overlap in ola*/ );
 
-            effect = new Robotiser.PhaseRemover(bufferSize, 1.0);
+            effect = new Robotiser.PhaseRemover(MathUtils.closestPowerOfTwoAbove(bufferSize), 1.0);
         }
         else if (targetNames[targetIndex]=="Whisper")
         {  

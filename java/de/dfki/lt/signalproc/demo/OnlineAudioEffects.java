@@ -73,9 +73,9 @@ public class OnlineAudioEffects extends Thread
                     +"output: "+loudspeakers.getFormat());
         }
         
-        DoubleDataSource inputSource = new AudioDoubleDataSource(input);
+        DoubleDataSource inputSource = new BufferedDoubleDataSource(new AudioDoubleDataSource(input));
         DoubleDataSource outputSource = new FrameOverlapAddSource(inputSource, bufferSize, (int) input.getFormat().getSampleRate(), effect);
-        AudioInputStream result = new DDSAudioInputStream(outputSource, input.getFormat());
+        AudioInputStream result = new DDSAudioInputStream(new BufferedDoubleDataSource(outputSource), input.getFormat());
         byte[] buf = new byte[bufferSize];
         while (!stopRequested) {
             try {
