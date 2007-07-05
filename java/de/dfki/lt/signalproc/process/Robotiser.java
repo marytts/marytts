@@ -40,6 +40,7 @@ import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
 import de.dfki.lt.signalproc.util.DDSAudioInputStream;
 import de.dfki.lt.signalproc.util.DoubleDataSource;
+import de.dfki.lt.signalproc.util.SignalProcUtils;
 
 /**
  * Create a robot-like impression on the output, by setting all phases to zero in each frame. This effectively
@@ -58,7 +59,8 @@ public class Robotiser extends FrameOverlapAddSource
      */
     public Robotiser(DoubleDataSource inputSource, int samplingRate)
     {
-        int frameLength = Integer.getInteger("signalproc.robotiser.framelength", 256).intValue();
+        //int frameLength = Integer.getInteger("signalproc.robotiser.framelength", 256).intValue();
+        int frameLength = SignalProcUtils.getDFTSize(samplingRate);
         initialise(inputSource, Window.HANN, true, frameLength, samplingRate, new PhaseRemover(frameLength));
     }
     
