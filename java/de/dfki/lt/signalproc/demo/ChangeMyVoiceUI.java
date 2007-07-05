@@ -179,6 +179,8 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         jLabelInput = new javax.swing.JLabel();
         jButtonRec = new javax.swing.JButton();
         jLabelMedium = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
 
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
@@ -196,6 +198,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
             }
         });
 
+        jComboBoxTargetVoice.setMaximumRowCount(20);
         jComboBoxTargetVoice.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jComboBoxTargetVoiceActionPerformed(evt);
@@ -243,7 +246,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 5;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHEAST;
         getContentPane().add(jButtonAdd, gridBagConstraints);
 
         jButtonStart.setText("Start");
@@ -273,9 +276,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 5;
-        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 30);
         getContentPane().add(jButtonDel, gridBagConstraints);
 
         jButtonPlay.setText("Play");
@@ -288,7 +289,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 5;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
         getContentPane().add(jButtonPlay, gridBagConstraints);
 
         jLabelLow.setText("Low");
@@ -327,7 +328,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
         getContentPane().add(jLabelChangeAmount, gridBagConstraints);
 
@@ -362,6 +363,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(20, 10, 0, 0);
         getContentPane().add(jLabelInput, gridBagConstraints);
@@ -376,7 +378,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 5;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
         getContentPane().add(jButtonRec, gridBagConstraints);
 
         jLabelMedium.setText("Medium");
@@ -386,8 +388,20 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         getContentPane().add(jLabelMedium, gridBagConstraints);
 
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.ipadx = 30;
+        getContentPane().add(jLabel1, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.ipadx = 30;
+        getContentPane().add(jLabel2, gridBagConstraints);
+
         java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-        setBounds((screenSize.width-430)/2, (screenSize.height-560)/2, 430, 560);
+        setBounds((screenSize.width-382)/2, (screenSize.height-560)/2, 382, 560);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jListInputMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jListInputMouseClicked
@@ -1034,6 +1048,8 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     private javax.swing.JButton jButtonRec;
     private javax.swing.JButton jButtonStart;
     private javax.swing.JComboBox jComboBoxTargetVoice;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabelChangeAmount;
     private javax.swing.JLabel jLabelHigh;
     private javax.swing.JLabel jLabelInput;
