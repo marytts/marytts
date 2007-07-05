@@ -60,7 +60,6 @@ import de.dfki.lt.mary.util.MaryAudioUtils;
  */
 
 public class ChangeMyVoiceUI extends javax.swing.JFrame {
-    String playFile;
     File outputFile;
     private int TOTAL_BUILT_IN_TTS_FILES;
     private double amount;
@@ -75,6 +74,8 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     SourceDataLine loudspeakers;
     AudioInputStream inputStream;
     BufferingRecorder recorder;
+    Clip m_clip;
+    String playFile;
     
     private Vector listItems; //Just the names we see on the list
     private File lastDirectory;
@@ -396,14 +397,13 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
                 bPlaying = true;
                 jButtonPlay.setText("Stop");
                 
-                MaryAudioUtils.playWavFile(playFile, 0, true);
+                MaryAudioUtils.playWavFile(playFile, 0, false);
             }
             else
             {
                 MaryAudioUtils.stopWavFile();
                 
-                bPlaying = false;
-                jButtonPlay.setText("Play");
+                bPlaying = false; 
             }
             
             jButtonRec.setEnabled(!bPlaying);
