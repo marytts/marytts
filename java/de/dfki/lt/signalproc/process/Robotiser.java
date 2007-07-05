@@ -58,7 +58,7 @@ public class Robotiser extends FrameOverlapAddSource
      */
     public Robotiser(DoubleDataSource inputSource, int samplingRate)
     {
-        int frameLength = Integer.getInteger("signalproc.robotiser.framelength", 1024).intValue();
+        int frameLength = Integer.getInteger("signalproc.robotiser.framelength", 256).intValue();
         initialise(inputSource, Window.HANN, true, frameLength, samplingRate, new PhaseRemover(frameLength));
     }
     
