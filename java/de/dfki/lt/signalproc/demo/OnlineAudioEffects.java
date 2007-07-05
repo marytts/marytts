@@ -19,10 +19,12 @@ import de.dfki.lt.signalproc.process.FrameOverlapAddSource;
 import de.dfki.lt.signalproc.process.InlineDataProcessor;
 import de.dfki.lt.signalproc.process.LPCWhisperiser;
 import de.dfki.lt.signalproc.process.Robotiser;
+import de.dfki.lt.signalproc.process.Robotiser.PhaseRemover;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
 import de.dfki.lt.signalproc.util.DDSAudioInputStream;
 import de.dfki.lt.signalproc.util.DoubleDataSource;
+import de.dfki.lt.signalproc.util.MathUtils;
 
 public class OnlineAudioEffects extends Thread
 {
@@ -73,8 +75,20 @@ public class OnlineAudioEffects extends Thread
             input = new AudioInputStream(microphone);
         }
         assert input != null;
+        
+        if (!input.getFormat().matches(loudspeakers.getFormat())) {
+            System.err.println("Houston, we have a problem: input: "+input.getFormat()+"\n"
+                    +"output: "+loudspeakers.getFormat());
+        }
+        
+        int fftSize = 1024;
+        if (effect instanceof PhaseRemover) {
+            int targetHz = 100;
+            fftSize = MathUtils.closestPowerOfTwoAbove((int) (input.getFormat().getSampleRate() / targetHz * 4 /*-fold overlap in ola*/ ));
+            //System.out.println("FFT size: "+fftSize+" samples = "+(fftSize/input.getFormat().getSampleRate())+" ms = "+ (1/(fftSize/input.getFormat().getSampleRate()))+" Hz");
+        }
         DoubleDataSource inputSource = new AudioDoubleDataSource(input);
-        DoubleDataSource outputSource = new FrameOverlapAddSource(inputSource, 1024, (int) input.getFormat().getSampleRate(), effect);
+        DoubleDataSource outputSource = new FrameOverlapAddSource(inputSource, fftSize, (int) input.getFormat().getSampleRate(), effect);
         AudioInputStream result = new DDSAudioInputStream(outputSource, input.getFormat());
         byte[] buf = new byte[1024];
         while (!stopRequested) {

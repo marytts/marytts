@@ -121,8 +121,8 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         recordIndex = 0;
         
         classPath = new File(".").getAbsolutePath();
-        strBuiltInFilePath = classPath + "\\java\\de\\dfki\\lt\\signalproc\\demo\\demo\\";
-        strRecordPath = classPath + "\\java\\de\\dfki\\lt\\signalproc\\demo\\demo\\record\\";
+        strBuiltInFilePath = classPath + "/java/de/dfki/lt/signalproc/demo/demo/";
+        strRecordPath = classPath + "/java/de/dfki/lt/signalproc/demo/demo/record/";
         
         listItems.addElement("Streaming Audio");    
         
@@ -495,19 +495,8 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
             if (microphone != null)
                 microphone.close();
 
-            try {
-                DataLine.Info info = new DataLine.Info(TargetDataLine.class,
-                        audioFormat);
+            microphone = getMicrophone(audioFormat);
 
-                microphone = (TargetDataLine) AudioSystem.getLine(info);
-                microphone.open(audioFormat, 1024);
-                System.out.println("Microphone format: " + microphone.getFormat());
-
-            } catch (LineUnavailableException e) {
-                e.printStackTrace();
-                System.exit(1);
-            }
-            
             recorder = new BufferingRecorder(microphone, targetType, outputFile, 0);
 
             bRecording = true;
@@ -679,18 +668,14 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
             if (microphone != null)
                 microphone.close();
 
-            try {
-                DataLine.Info info = new DataLine.Info(TargetDataLine.class,
-                        audioFormat);
-
-                microphone = (TargetDataLine) AudioSystem.getLine(info);
-                microphone.open(audioFormat, 1024);
-                System.out.println("Microphone format: " + microphone.getFormat());
-
-            } catch (LineUnavailableException e) {
-                e.printStackTrace();
-                System.exit(1);
+            microphone = getMicrophone(audioFormat);
+            
+            if (microphone != null)
+            {
+                audioFormat = microphone.getFormat();
+                modificationParameters.fs = (int)audioFormat.getSampleRate();
             }
+
         }
         else //Online processing using pre-recorded wav file
         {
@@ -718,12 +703,12 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
                     e.printStackTrace();
                 }
             }
-
             if (inputStream != null)
             {
                 audioFormat = inputStream.getFormat();
                 modificationParameters.fs = (int)audioFormat.getSampleRate();
             }
+
         }
 
         if (loudspeakers != null)
@@ -744,7 +729,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
 
         if (targetNames[targetIndex]=="Robot")
         {  
-            effect = new Robotiser.PhaseRemover(4096, 0.7+0.3*amount);
+            effect = new Robotiser.PhaseRemover(2048, 0.7+0.3*amount);
         }
         else if (targetNames[targetIndex]=="Whisper")
         {  
@@ -891,6 +876,51 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     public void getInputIndex()
     {
         inputIndex = jListInput.getSelectedIndex();
+    }
+    
+    private TargetDataLine getMicrophone(AudioFormat preferredFormat)
+    {
+        TargetDataLine line = null;
+        try {
+            DataLine.Info info = new DataLine.Info(TargetDataLine.class, preferredFormat);
+            int mixerRequested = Integer.getInteger("mixer", -1).intValue();
+            if (mixerRequested == -1) { // no specific mixer requested
+                line = (TargetDataLine) AudioSystem.getLine(info);
+            } else {
+                Mixer.Info[] mixerInfos = AudioSystem.getMixerInfo();
+                Mixer.Info mixerInfo = mixerInfos[mixerRequested];
+                Mixer mixer = AudioSystem.getMixer(mixerInfo);
+                Line.Info[] lineInfos = mixer.getTargetLineInfo();
+                Line.Info lineInfo = lineInfos[0];
+                DataLine.Info datalineInfo = (DataLine.Info) lineInfo;
+                line = (TargetDataLine) mixer.getLine(lineInfo);
+            }
+            DataLine.Info lineInfo = (DataLine.Info) line.getLineInfo();
+            AudioFormat lineFormat = null;
+            if (lineInfo.isFormatSupported(preferredFormat)) {
+                lineFormat = preferredFormat;
+            } else {
+                System.err.println("Preferred format not supported: "+preferredFormat);
+                AudioFormat[] formats = lineInfo.getFormats();
+                for (int i=formats.length-1; i >= 0; i--) {
+                    if (formats[i].getChannels() == 1
+                        && formats[i].getFrameSize() == 2) {
+                        lineFormat = formats[i];
+                        break;
+                    }
+                }
+                System.err.println("Using instead: "+lineFormat);
+            }
+            if (lineFormat == null) {
+                throw new LineUnavailableException("Cannot get any mono line with 16 bit");
+            }
+            line.open(lineFormat, 1024);
+
+        } catch (LineUnavailableException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return line;
     }
     
     /**
