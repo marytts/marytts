@@ -435,13 +435,24 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
 
     private Clip playClip = null;
     private void jButtonPlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPlayActionPerformed
-        if (!bRecording && playFile!=null)
+        if (!bRecording)
         {
             if (!bPlaying)
             {
                 bPlaying = true;
                 try
                 {
+                    if (inputIndex <= 0)
+                        playFile = null;
+                    else if (inputIndex>builtInFileNameList.size()) {
+                        try {
+                            playFile = new BufferedInputStream(new FileInputStream((String)listItems.get(inputIndex)));
+                        } catch (FileNotFoundException fnf) {
+                            fnf.printStackTrace();
+                        }
+                    } else {
+                        playFile = ChangeMyVoiceUI.class.getResourceAsStream("demo/"+((String) builtInFileNameList.get(inputIndex-1)));
+                    }
                     AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(playFile);
                     AudioFormat format = audioInputStream.getFormat();
                     DataLine.Info lineInfo = new DataLine.Info(Clip.class, format);
@@ -450,7 +461,14 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
                         public void update(LineEvent le) {
                             if (le.getType().equals(LineEvent.Type.STOP)) {
                                 bPlaying = false;
+                                playClip.close();
                                 playClip = null;
+                                try {
+                                    playFile.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                playFile = null;
                                 updateGUIPlaying();
                             }
                         }
@@ -465,6 +483,14 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
                 if (playClip != null) {
                     playClip.stop();
                     playClip = null;
+                }
+                if (playFile != null) {
+                    try {
+                        playFile.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    playFile = null;
                 }
             }
             updateGUIPlaying();
@@ -510,17 +536,6 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         else
             jButtonDel.setEnabled(true);
         
-        if (inputIndex <= 0)
-            playFile = null;
-        else if (inputIndex>builtInFileNameList.size()) {
-            try {
-                playFile = new BufferedInputStream(new FileInputStream((String)listItems.get(inputIndex)));
-            } catch (FileNotFoundException fnf) {
-                fnf.printStackTrace();
-            }
-        } else {
-            playFile = ChangeMyVoiceUI.class.getResourceAsStream("demo/"+((String) builtInFileNameList.get(inputIndex-1)));
-        }
     }//GEN-LAST:event_jListInputValueChanged
 
     //Browse for a new wav file
@@ -694,10 +709,19 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
                 try {
                     inputStream.close();
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
                 inputStream = null;
+            }
+            
+            if (inputFile != null) {
+                try {
+                    inputFile.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                inputFile = null;
+                
             }
             //
 
