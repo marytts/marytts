@@ -184,12 +184,12 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         listItems.addElement("Unit selection TTS female (so-nicht-bits4.wav)");
         builtInFileNameList.add("so-nicht-bits4.wav");
 
-/*        listItems.addElement("HMM-based TTS female (gewinnen-hmm4.wav)");
-        builtInFileNameList.add(strBuiltInFilePath + "gewinnen-hmm4.wav");
+        listItems.addElement("HMM-based TTS female (gewinnen-hmm4.wav)");
+        builtInFileNameList.add("gewinnen-hmm4.wav");
         
         listItems.addElement("HMM-based TTS female (so-nicht-hmm4.wav)");
-        builtInFileNameList.add(strBuiltInFilePath + "so-nicht-hmm4.wav");
-*/
+        builtInFileNameList.add("so-nicht-hmm4.wav");
+
         listItems.addElement("Limited domain TTS neutral (herta-neutral.wav)");
         builtInFileNameList.add("herta-neutral.wav");
         
