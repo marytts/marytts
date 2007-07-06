@@ -43,14 +43,13 @@ import javax.swing.*;
 public class HelpGUI {
     private final JEditorPane editPane;
     
-    public HelpGUI(File file)
+    public HelpGUI(InputStream fileIn)
     {
         editPane = new JEditorPane();
         editPane.setPreferredSize(new Dimension(700, 500));
         editPane.setContentType("text/html; charset=UTF-8");        
         try{
-            //editPane.read(new InputStreamReader(HelpGUI.class.getResourceAsStream("helptext.html"), "UTF-8"), null);
-            editPane.read(new InputStreamReader(new FileInputStream(file), "UTF-8"), null);
+            editPane.read(new InputStreamReader(fileIn, "UTF-8"), null);
         }catch (Exception e){
             e.printStackTrace();
             System.out.println("Could not read file : "
