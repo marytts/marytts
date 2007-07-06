@@ -52,6 +52,7 @@ import de.dfki.lt.signalproc.process.VocalTractScalingProcessor;
 import de.dfki.lt.signalproc.process.VocalTractScalingSimpleProcessor;
 import de.dfki.lt.signalproc.process.VocalTractModifier;
 import de.dfki.lt.signalproc.process.Robotiser.PhaseRemover;
+import de.dfki.lt.signalproc.process.AudioMixer;
 import de.dfki.lt.signalproc.filter.*;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
@@ -84,6 +85,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     BufferingRecorder recorder;
     Clip m_clip;
     InputStream playFile;
+    InputStream mixFile;
     
     private Vector listItems; //Just the names we see on the list
     private File lastDirectory;
@@ -103,15 +105,46 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
                               "Giant1",
                               "Giant2",
                               "Stadium",
+                              "Telephone",
                               "Jet Pilot", 
                               //"Old Radio",
-                              //"Echo",
-                              "Telephone"
+                              //"Echo", 
+                              "Helicopter",
+                              "Alien",
+                              "Bird",
+                              "Cat",
+                              "Dog",
+                              "Earthquake",
+                              "Ghost",
+                              "Monster1",
+                              "Monster2",
+                              "Ocean",
+                              "Thunder",
+                              "Violin1",
+                              "Violin2",
+                              "Waterfall"
                               }; 
+    
+    private String[] mixFiles = {"helicopter.wav",
+                                    "alien.wav",
+                                    "bird.wav",
+                                    "cat.wav",
+                                    "dog.wav",
+                                    "earthquake.wav",
+                                    "ghost.wav",
+                                    "monster1.wav",
+                                    "monster2.wav",
+                                    "ocean.wav",
+                                    "thunder.wav",
+                                    "violin1.wav",
+                                    "violin2.wav",
+                                    "waterfall.wav"};
+    private int mixFileInd;
     
     /** Creates new form ChangeMyVoiceUI */
     public ChangeMyVoiceUI() {
         playFile = null;
+        mixFile = null;
         recorder = null;
         outputFile = null;
         microphone = null;
@@ -126,9 +159,9 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         inputFileNameList = null;
         listItems = new Vector();
         recordIndex = 0;
+        mixFileInd = 0;
         
         classPath = new File(".").getAbsolutePath();
-        strRecordPath = classPath;
         
         listItems.addElement("Streaming Audio");    
         
@@ -939,6 +972,90 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
             double normalizedCutOffFreq = 3000.0/modificationParameters.fs;
             effect = new LowPassFilter(normalizedCutOffFreq, true);
         }
+        else if (targetNames[targetIndex]=="Helicopter")
+        {
+            mixFileInd = 0;
+            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
+            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, amount);
+        }
+        else if (targetNames[targetIndex]=="Alien")
+        {
+            mixFileInd = 1;
+            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
+            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, amount);
+        }
+        else if (targetNames[targetIndex]=="Bird")
+        {
+            mixFileInd = 2;
+            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
+            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, amount);
+        }
+        else if (targetNames[targetIndex]=="Cat")
+        {
+            mixFileInd = 3;
+            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
+            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, amount);
+        }
+        else if (targetNames[targetIndex]=="Dog")
+        {
+            mixFileInd = 4;
+            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
+            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, amount);
+        }
+        else if (targetNames[targetIndex]=="Earthquake")
+        {
+            mixFileInd = 5;
+            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
+            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, amount);
+        }
+        else if (targetNames[targetIndex]=="Ghost")
+        {
+            mixFileInd = 6;
+            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
+            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, amount);
+        }
+        else if (targetNames[targetIndex]=="Monster1")
+        {
+            mixFileInd = 7;
+            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
+            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, amount);
+        }
+        else if (targetNames[targetIndex]=="Monster2")
+        {
+            mixFileInd = 8;
+            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
+            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, amount);
+        }
+        else if (targetNames[targetIndex]=="Ocean")
+        {
+            mixFileInd = 9;
+            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
+            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, amount);
+        }
+        else if (targetNames[targetIndex]=="Thunder")
+        {
+            mixFileInd = 10;
+            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
+            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, amount);
+        }
+        else if (targetNames[targetIndex]=="Violin1")
+        {
+            mixFileInd = 11;
+            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
+            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, amount);
+        }
+        else if (targetNames[targetIndex]=="Violin2")
+        {
+            mixFileInd = 12;
+            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
+            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, amount);
+        }
+        else if (targetNames[targetIndex]=="Waterfall")
+        {
+            mixFileInd = 13;
+            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
+            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, amount);
+        }   
         //            
 
         // Create the output thread and make it run in the background:
