@@ -44,6 +44,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import java.io.*;
+import java.net.URL;
+
 
 import javax.swing.*;
 import java.util.*;
@@ -196,26 +198,18 @@ public class DatabaseImportMain extends JFrame
     
     
     protected void displayHelpGUI(){
-        try{
             new Thread("DisplayHelpGUIThread") {
                 public void run() {
-                    File file = new File(db.getProp(db.MAINHELPFILE));
-                    
-                    boolean ok = new HelpGUI(file).display();
+                    boolean ok = 
+                        new HelpGUI(DatabaseImportMain.class.getResourceAsStream("help_import_main.html")).display();
                     if (ok=false){
                         System.out.println("Error displaying helpfile "
-                                +db.getProp(db.MAINHELPFILE));
+                                +"help_import_main.html");
                     }                    
                 }}.start();
-        }catch (Exception e){
-            System.out.println("Can not load helpfile "
-                    +db.getProp(db.MAINHELPFILE)+": "
-                    +e.getMessage());
-        }
     }
     
     protected void displaySettingsGUI(){
-        try{
             new Thread("DisplaySettingsGUIThread") {
                 public void run() {
                     Map comps2HelpText = db.getComps2HelpText();
@@ -224,12 +218,6 @@ public class DatabaseImportMain extends JFrame
                             	currentComponent,
                             	comps2HelpText);
                 }}.start();
-        }catch (Exception e){
-            System.out.println("Can not load helpfile "
-                    +db.getProp(db.MAINHELPFILE)+": "
-                    +e.getMessage());
-        }
-        
     }
     
     /**
@@ -315,16 +303,14 @@ public class DatabaseImportMain extends JFrame
     
     
    
-    public static String[][] readComponentList(String file){
+    public static String[][] readComponentList(InputStream fileIn){
         List groups = new ArrayList();
         Map groups2Names = new HashMap();
         Map groups2Components = new HashMap();
         try{            
             BufferedReader in = 
                 new BufferedReader(
-                        new InputStreamReader(
-                                new FileInputStream(
-                                        new File(file)),"UTF-8"));
+                        new InputStreamReader(fileIn, "UTF-8"));
             String line;
             while ((line=in.readLine())!=null){
                 line = line.trim();
@@ -383,9 +369,32 @@ public class DatabaseImportMain extends JFrame
     {
         
         /* Read the list of components */
-        //TODO: find a better way of setting the file name
-        String componentListFile = "./importMain.config";
-        String[][] groups2comps = readComponentList(componentListFile);
+        String[][] groups2comps;
+        File importMainConfigFile = new File("./importMain.config");
+        if (!importMainConfigFile.exists()){
+            //create config file
+            BufferedReader configIn = 
+                new BufferedReader(
+                        new InputStreamReader(
+                                DatabaseImportMain.class.getResourceAsStream("importMain.config"),"UTF-8"));
+            PrintWriter configOut = 
+                new PrintWriter(
+                        new OutputStreamWriter(
+                                new FileOutputStream(importMainConfigFile),"UTF-8"),true);
+            String line;
+            while((line=configIn.readLine())!= null){
+                configOut.println(line);                
+            }
+            configIn.close();
+            configOut.close();
+            //read the config file
+            groups2comps = 
+                readComponentList(
+                        DatabaseImportMain.class.getResourceAsStream("importMain.config"));
+        } else {
+            groups2comps = 
+                readComponentList(new FileInputStream(importMainConfigFile));
+        }
         /* Create component classes */
         
         List compsList = new ArrayList();

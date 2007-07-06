@@ -95,8 +95,6 @@ public class DatabaseLayout
     public final String MARYXMLDIR = "db.maryxmlDir";
     //maryxml extentsion
     public final String MARYXMLEXT = "db.maryxmlExtension";
-    //the help file for import main
-    public final String MAINHELPFILE = "db.mainHelpFile";
     
     public DatabaseLayout(){
         initialized = false;
@@ -139,21 +137,25 @@ public class DatabaseLayout
     
     private void initialize(VoiceImportComponent[] components){
         System.out.println("Loading database layout:");
-        this.components = components;        
+        
+        /* first, handle the components */     
+        this.components = components;      
+        getCompNames();  
+        /* initialize the help texts */
         setupHelp();
+        
         fileSeparator = System.getProperty("file.separator");
+        /* define the uneditable props */
         uneditableProps = new ArrayList();
-        uneditableProps.add(MAINHELPFILE);
         uneditableProps.add(MARYEXT);
         uneditableProps.add(CONFIGDIR);
         uneditableProps.add(FILEDIR);
         uneditableProps.add(TEMPDIR);
         uneditableProps.add(WAVEXT);
+        
         /* check if there is a config file */
-        //TODO: config file name as property or command line arg?
         configFileName = "./database.config";
         File configFile = new File(configFileName);
-        getCompNames();
         if (configFile.exists()){
             
             System.out.println("Reading config file "+configFileName);
@@ -515,8 +517,7 @@ public class DatabaseLayout
         props.put(BASENAMEFILE,rootDir+"basenames.lst");        
         props.put(TEMPDIR,rootDir+"temp"+fileSeparator);
         props.put(MARYXMLDIR,rootDir+"rawmaryxml"+fileSeparator);
-        props.put(MARYXMLEXT,".xml");  
-        props.put(MAINHELPFILE,"help_import_main.html");
+        props.put(MARYXMLEXT,".xml"); 
         props.put(WAVEXT,".wav");
         return props;
     }
