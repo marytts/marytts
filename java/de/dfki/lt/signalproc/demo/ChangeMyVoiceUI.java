@@ -102,10 +102,10 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
                               "Ogre2",
                               "Giant1",
                               "Giant2",
-                              "Echo",
                               "Stadium",
                               "Jet Pilot", 
-                              "Old Radio", 
+                              //"Old Radio",
+                              //"Echo",
                               "Telephone"
                               }; 
     
@@ -821,7 +821,6 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
                 audioFormat = inputStream.getFormat();
                 modificationParameters.fs = (int)audioFormat.getSampleRate();
             }
-
         }
 
         if (loudspeakers != null)
