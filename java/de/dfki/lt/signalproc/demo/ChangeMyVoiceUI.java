@@ -8,8 +8,14 @@ package de.dfki.lt.signalproc.demo;
 
 import java.awt.Container;
 import java.awt.Dimension;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.awt.Point;
@@ -64,7 +70,6 @@ import de.dfki.lt.mary.util.MaryAudioUtils;
 
 public class ChangeMyVoiceUI extends javax.swing.JFrame {
     File outputFile;
-    private int TOTAL_BUILT_IN_TTS_FILES;
     private double amount;
     private int targetIndex;
     private int inputIndex;
@@ -78,15 +83,14 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     AudioInputStream inputStream;
     BufferingRecorder recorder;
     Clip m_clip;
-    String playFile;
+    InputStream playFile;
     
     private Vector listItems; //Just the names we see on the list
     private File lastDirectory;
-    private File inputFile;
-    private String [] inputFileNameList; //Actual full paths to files 
-    private String [] builtInFileNameList;
+    private InputStream inputFile;
+    private String[] inputFileNameList; //Actual full paths to files 
+    private Vector builtInFileNameList;
     private String classPath; //Class run-time path
-    private String strBuiltInFilePath;
     private String strRecordPath;
     
     VoiceModificationParameters modificationParameters;
@@ -124,32 +128,41 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         recordIndex = 0;
         
         classPath = new File(".").getAbsolutePath();
-        strBuiltInFilePath = classPath + "/java/de/dfki/lt/signalproc/demo/demo/";
-        strRecordPath = classPath + "/java/de/dfki/lt/signalproc/demo/demo/record/";
+        strRecordPath = classPath;
         
         listItems.addElement("Streaming Audio");    
         
-        TOTAL_BUILT_IN_TTS_FILES = 6;
-        builtInFileNameList = new String[TOTAL_BUILT_IN_TTS_FILES];
+        builtInFileNameList = new Vector();
+        listItems.addElement("Unit selection TTS male (wohin-bits3.wav)");
+        builtInFileNameList.add("wohin-bits3.wav");
         
-        listItems.addElement("Built-in TTS Output1 (wohin-bits3.wav)");
-        builtInFileNameList[0] = strBuiltInFilePath + "wohin-bits3.wav";
+        listItems.addElement("Unit selection TTS male (ausprobieren-bits3.wav)");
+        builtInFileNameList.add("ausprobieren-bits3.wav");
+
+        listItems.addElement("HMM-based TTS male (ausprobieren-hmm3.wav)");
+        builtInFileNameList.add("ausprobieren-hmm3.wav");
         
-        listItems.addElement("Built-in TTS Output2 (herta-neutral.wav)");
-        builtInFileNameList[1] = strBuiltInFilePath + "herta-neutral.wav";
+        listItems.addElement("HMM-based TTS male (wohin-hmm3.wav)");
+        builtInFileNameList.add("wohin-hmm3.wav");
+
+        listItems.addElement("Unit selection TTS female (gewinnen-bits4.wav)");
+        builtInFileNameList.add("gewinnen-bits4.wav");
         
-        listItems.addElement("Built-in TTS Output3 (herta-excited.wav)");
-        builtInFileNameList[2] = strBuiltInFilePath + "herta-excited.wav";
+        listItems.addElement("Unit selection TTS female (so-nicht-bits4.wav)");
+        builtInFileNameList.add("so-nicht-bits4.wav");
+
+/*        listItems.addElement("HMM-based TTS female (gewinnen-hmm4.wav)");
+        builtInFileNameList.add(strBuiltInFilePath + "gewinnen-hmm4.wav");
         
-        listItems.addElement("Built-in TTS Output4 (ausprobieren-bits3.wav)");
-        builtInFileNameList[3] = strBuiltInFilePath + "ausprobieren-bits3.wav";
+        listItems.addElement("HMM-based TTS female (so-nicht-hmm4.wav)");
+        builtInFileNameList.add(strBuiltInFilePath + "so-nicht-hmm4.wav");
+*/
+        listItems.addElement("Limited domain TTS neutral (herta-neutral.wav)");
+        builtInFileNameList.add("herta-neutral.wav");
         
-        listItems.addElement("Built-in TTS Output5 (ausprobieren.wav)");
-        builtInFileNameList[4] = strBuiltInFilePath + "ausprobieren.wav";
-        
-        listItems.addElement("Built-in TTS Output6 (moment.wav)");
-        builtInFileNameList[5] = strBuiltInFilePath + "moment.wav";
-        
+        listItems.addElement("Limited domain TTS excited (herta-excited.wav)");
+        builtInFileNameList.add("herta-excited.wav");
+
         initComponents();
         modificationParameters = new VoiceModificationParameters();
     }
@@ -429,7 +442,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
                 bPlaying = true;
                 try
                 {
-                    AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(playFile));
+                    AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(playFile);
                     AudioFormat format = audioInputStream.getFormat();
                     DataLine.Info lineInfo = new DataLine.Info(Clip.class, format);
                     playClip = (Clip) AudioSystem.getLine(lineInfo);
@@ -475,7 +488,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     
     
     private void jButtonDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDelActionPerformed
-        if (inputIndex>=TOTAL_BUILT_IN_TTS_FILES+1)
+        if (inputIndex>=builtInFileNameList.size()+1)
         {
             listItems.remove(inputIndex);
             inputIndex--;
@@ -492,18 +505,22 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         else
             jButtonPlay.setEnabled(true);
         
-        if (inputIndex<this.TOTAL_BUILT_IN_TTS_FILES+1)
+        if (inputIndex<builtInFileNameList.size()+1)
             jButtonDel.setEnabled(false);
         else
             jButtonDel.setEnabled(true);
         
         if (inputIndex <= 0)
             playFile = null;
-        else if (inputIndex>this.TOTAL_BUILT_IN_TTS_FILES)
-            playFile = (String)listItems.get(inputIndex);
-        else
-            playFile = builtInFileNameList[inputIndex-1];
-        
+        else if (inputIndex>builtInFileNameList.size()) {
+            try {
+                playFile = new BufferedInputStream(new FileInputStream((String)listItems.get(inputIndex)));
+            } catch (FileNotFoundException fnf) {
+                fnf.printStackTrace();
+            }
+        } else {
+            playFile = ChangeMyVoiceUI.class.getResourceAsStream("demo/"+((String) builtInFileNameList.get(inputIndex-1)));
+        }
     }//GEN-LAST:event_jListInputValueChanged
 
     //Browse for a new wav file
@@ -519,9 +536,9 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         int returnVal = fc.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) 
         {
-            inputFile = fc.getSelectedFile();
-            lastDirectory = inputFile.getParentFile();
-            listItems.add(inputFile.getPath()); //Keep full path
+            File addInputFile = fc.getSelectedFile();
+            lastDirectory = addInputFile.getParentFile();
+            listItems.add(addInputFile.getPath()); //Keep full path
             UpdateInputList();
             jListInput.setSelectedIndex(listItems.size()-1);
         }
@@ -574,8 +591,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
             bRecording = false;
             jButtonRec.setText("Rec");
             
-            inputFile = outputFile;
-            listItems.add(inputFile.getPath()); //Keep full path
+            listItems.add(outputFile.getPath()); //Keep full path
             UpdateInputList();
             jListInput.setSelectedIndex(listItems.size()-1);
         }
@@ -689,7 +705,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
             jButtonRec.setEnabled(true);
             jButtonPlay.setEnabled(true);
             jButtonAdd.setEnabled(true);
-            if (inputIndex>TOTAL_BUILT_IN_TTS_FILES)
+            if (inputIndex>builtInFileNameList.size())
                 jButtonDel.setEnabled(true);
             jListInput.setEnabled(true);
 
@@ -707,7 +723,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         jButtonRec.setEnabled(!bStarted);
         jButtonPlay.setEnabled(!bStarted);
         jButtonAdd.setEnabled(!bStarted);
-        jButtonDel.setEnabled(!bStarted && inputIndex>TOTAL_BUILT_IN_TTS_FILES);
+        jButtonDel.setEnabled(!bStarted && inputIndex>builtInFileNameList.size());
         jListInput.setEnabled(!bStarted);
     }
     
@@ -750,13 +766,17 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
         {
             if (inputIndex>0)
             {
-                if (inputIndex>this.TOTAL_BUILT_IN_TTS_FILES)
+                if (inputIndex>builtInFileNameList.size())
                 {
                     String inputFileNameFull = (String)listItems.get(inputIndex);
-                    inputFile = new File(inputFileNameFull);
+                    try {
+                        inputFile = new BufferedInputStream(new FileInputStream(inputFileNameFull));
+                    } catch (FileNotFoundException fnf) {
+                        fnf.printStackTrace();
+                    }
                 }
                 else
-                    inputFile = new File(builtInFileNameList[inputIndex-1]); 
+                    inputFile = ChangeMyVoiceUI.class.getResourceAsStream("demo/"+((String)builtInFileNameList.get(inputIndex-1))); 
             }
             else
                 inputFile = null;
