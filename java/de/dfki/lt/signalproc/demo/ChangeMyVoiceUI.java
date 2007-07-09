@@ -109,22 +109,22 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
             "Jet Pilot", 
             //"Old Radio",
             //"Echo", 
-            "Helicopter Pilot",
-            "Jungle",
-            "Alien",
-            "Bird",
-            "Cat",
-            "Dog",
-            "Earthquake",
-            "Fire",
-            "Ghost",
-            "Monster1",
-            "Monster2",
-            "Ocean",
-            "Thunder",
-            "Violin1",
-            "Violin2",
-            "Waterfall"
+            //"Helicopter Pilot",
+            //"Jungle",
+            //"Alien",
+            //"Bird",
+            //"Cat",
+            //"Dog",
+            //"Earthquake",
+            //"Fire",
+            //"Ghost",
+            "Monster",
+            //"Monster2",
+            //"Ocean",
+            //"Thunder",
+            //"Violin1",
+            //"Violin",
+            //"Waterfall"
             }; 
 
 private String[] mixFiles = {"helicopter.wav",
@@ -1031,11 +1031,11 @@ private String[] mixFiles = {"helicopter.wav",
             mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
             effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, 0.3+0.3*amount, true);
         }
-        else if (targetNames[targetIndex]=="Monster1")
+        else if (targetNames[targetIndex]=="Monster")
         {
             mixFileInd = 9;
             mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
-            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, 0.3+0.3*amount, false);
+            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, 0.05+0.2*amount, false);
         }
         else if (targetNames[targetIndex]=="Monster2")
         {
@@ -1061,7 +1061,7 @@ private String[] mixFiles = {"helicopter.wav",
             mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
             effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, 0.05+0.3*amount, false);
         }
-        else if (targetNames[targetIndex]=="Violin2")
+        else if (targetNames[targetIndex]=="Violin")
         {
             mixFileInd = 14;
             mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
