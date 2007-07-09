@@ -212,7 +212,7 @@ public class PraatPitchmarker extends VoiceImportComponent
     
     private boolean praatPitchmarks(String basename) throws IOException
     {
-        String wavFilename = db.getProp(db.WAVDIR) + basename + db.getProp(db.WAVEXT);
+        String wavFilename = new File(db.getProp(db.WAVDIR) + basename + db.getProp(db.WAVEXT)).getAbsolutePath();
         String pointprocessFilename = getProp(PMDIR)+basename+pointpExt;
         String pmFilename = getProp(PMDIR)+basename+pmExt;
         String correctedPmFilename = getProp(CORRPMDIR) + basename + corrPmExt;
