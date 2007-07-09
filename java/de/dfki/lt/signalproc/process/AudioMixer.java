@@ -31,6 +31,11 @@ public class AudioMixer implements InlineDataProcessor {
     double avgEn;
     double [] frm;
     boolean bFixed; //Plays the sound in fixed amount in the background
+    double dataEnLongTerm; //long term average sample energy of the input data
+    int enLongTermSize;
+    double [] enLongTermBuff;
+    int enLongTermInd;
+    boolean bFirstEnBuff;
     
     //stSil: silence before starting the mix in seconds
     //stBwn: silence between consecutive mixes in seconds
@@ -61,6 +66,7 @@ public class AudioMixer implements InlineDataProcessor {
             }
             else
             {
+                int i;
                 silenceStart = (int)Math.floor(stSil*samplingRate + 0.5);
                 silenceInBetween = (int)Math.floor(stBwn*samplingRate + 0.5);
                 silenceStart = Math.max(0, silenceStart);
@@ -69,7 +75,7 @@ public class AudioMixer implements InlineDataProcessor {
                 mixSignal = new double[(int)mixSignalSource.getDataLength() + silenceInBetween];
                 mixSignalSource.getData(mixSignal);
                 avgEn = SignalProcUtils.getAverageSampleEnergy(mixSignal, (int)mixSignalSource.getDataLength());
-                for (int i=(int)mixSignalSource.getDataLength(); i<(int)mixSignalSource.getDataLength() + silenceInBetween; i++)
+                for (i=(int)mixSignalSource.getDataLength(); i<(int)mixSignalSource.getDataLength() + silenceInBetween; i++)
                     mixSignal[i] = 0.0;
                 
                 mixStart = 0;
@@ -82,6 +88,13 @@ public class AudioMixer implements InlineDataProcessor {
                 frm = new double[bufferSize];
                 bFixed = isFixed;
                 scale = 1.0;
+                enLongTermSize = 40;
+                enLongTermBuff = new double[enLongTermSize];
+                for (i=0; i<enLongTermSize; i++)
+                    enLongTermBuff[i] = 0.0;
+                
+                bFirstEnBuff = true;
+                enLongTermInd = -1;
             }
         }
         else
@@ -94,7 +107,8 @@ public class AudioMixer implements InlineDataProcessor {
     { 
         if (data.length==bufferSize)
         {
-            for (int i=0; i<bufferSize; i++)
+            int i;
+            for (i=0; i<bufferSize; i++)
             {
                 frm[i] = mixSignal[(mixStart+i)%mixSignal.length];
             }
@@ -108,10 +122,29 @@ public class AudioMixer implements InlineDataProcessor {
             else
             {
                 dataEn = Math.sqrt(SignalProcUtils.getAverageSampleEnergy(data));
-                scale = 0.25*dataEn/avgEn;
+                enLongTermInd++;
+                
+                if (bFirstEnBuff)
+                {
+                    if (enLongTermInd<enLongTermSize)
+                        enLongTermBuff[enLongTermInd] = dataEn;
+                    
+                    if (enLongTermInd==enLongTermSize-1)
+                    {
+                        bFirstEnBuff = false;
+                        enLongTermInd = -1;
+                    }
+                }
+                
+                dataEnLongTerm = 0.0;
+                for (i=0; i<enLongTermSize; i++)
+                    dataEnLongTerm += enLongTermBuff[i];
+                
+                dataEnLongTerm /= enLongTermSize;
+                scale = 0.25*dataEnLongTerm/avgEn;
             }
             
-            for (int i=0; i<bufferSize; i++)
+            for (i=0; i<bufferSize; i++)
             {
                 data[i] = oneMinusMixAmount*data[i] + mixAmount*scale*frm[i];
             }
