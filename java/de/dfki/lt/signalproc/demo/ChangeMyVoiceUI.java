@@ -981,7 +981,7 @@ private String[] mixFiles = {"helicopter.wav",
         {
             mixFileInd = 0;
             mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
-            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, 0.05+0.2*amount, true);
+            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, 0.3+0.5*amount, true);
         }
         else if (targetNames[targetIndex]=="Jungle")
         {
