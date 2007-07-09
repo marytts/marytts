@@ -27,12 +27,15 @@ public class AudioMixer implements InlineDataProcessor {
     int quarterBufferSize;
     double dataEn;
     double mixEn;
+    double scale;
+    double avgEn;
     double [] frm;
+    boolean bFixed; //Plays the sound in fixed amount in the background
     
     //stSil: silence before starting the mix in seconds
     //stBwn: silence between consecutive mixes in seconds
     //fs: sampling rate in Hz
-    public AudioMixer(InputStream inputStream, double stSil, double stBwn, int fs, int buffSize, double amount)
+    public AudioMixer(InputStream inputStream, double stSil, double stBwn, int fs, int buffSize, double amount, boolean isFixed)
     {
         AudioInputStream inputAudio = null;
         try {
@@ -65,6 +68,7 @@ public class AudioMixer implements InlineDataProcessor {
                 
                 mixSignal = new double[(int)mixSignalSource.getDataLength() + silenceInBetween];
                 mixSignalSource.getData(mixSignal);
+                avgEn = SignalProcUtils.getAverageSampleEnergy(mixSignal, (int)mixSignalSource.getDataLength());
                 for (int i=(int)mixSignalSource.getDataLength(); i<(int)mixSignalSource.getDataLength() + silenceInBetween; i++)
                     mixSignal[i] = 0.0;
                 
@@ -76,6 +80,8 @@ public class AudioMixer implements InlineDataProcessor {
                 bufferSize = buffSize;
                 quarterBufferSize = (int)Math.floor(bufferSize*0.25+0.5);
                 frm = new double[bufferSize];
+                bFixed = isFixed;
+                scale = 1.0;
             }
         }
         else
@@ -92,12 +98,22 @@ public class AudioMixer implements InlineDataProcessor {
             {
                 frm[i] = mixSignal[(mixStart+i)%mixSignal.length];
             }
-            dataEn = Math.sqrt(SignalProcUtils.getAverageSampleEnergy(data));
-            mixEn = Math.sqrt(SignalProcUtils.getAverageSampleEnergy(frm));
+            
+            if (!bFixed)
+            {
+                dataEn = Math.sqrt(SignalProcUtils.getAverageSampleEnergy(data));
+                mixEn = Math.sqrt(SignalProcUtils.getAverageSampleEnergy(frm));
+                scale = dataEn/mixEn;
+            }
+            else
+            {
+                dataEn = Math.sqrt(SignalProcUtils.getAverageSampleEnergy(data));
+                scale = 0.25*dataEn/avgEn;
+            }
             
             for (int i=0; i<bufferSize; i++)
             {
-                data[i] = oneMinusMixAmount*data[i] + mixAmount*dataEn/mixEn*frm[i];
+                data[i] = oneMinusMixAmount*data[i] + mixAmount*scale*frm[i];
             }
             
             mixStart += quarterBufferSize;
