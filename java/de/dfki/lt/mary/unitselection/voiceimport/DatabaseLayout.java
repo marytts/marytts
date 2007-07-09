@@ -456,7 +456,7 @@ public class DatabaseLayout
         basicprops.put(DOMAIN,"general");
         basicprops.put(LOCALE,"de");
         basicprops.put(SAMPLINGRATE,"16000");
-        basicprops.put(ROOTDIR,"./");
+        basicprops.put(ROOTDIR,new File(".").getAbsolutePath()+"/");
         basicprops.put(WAVDIR,"wav/");
         basicprops.put(LABDIR,"lab/");
         basicprops.put(LABEXT,".lab");        
@@ -498,7 +498,7 @@ public class DatabaseLayout
             props.put(DOMAIN,"general");
             props.put(LOCALE,"de");
             props.put(SAMPLINGRATE,"16000");
-            props.put(ROOTDIR,"./");
+            props.put(ROOTDIR, new File(".").getAbsolutePath()+"/");
             props.put(WAVDIR,"wav/");
             props.put(LABDIR,"lab/");
             props.put(LABEXT,".lab");        

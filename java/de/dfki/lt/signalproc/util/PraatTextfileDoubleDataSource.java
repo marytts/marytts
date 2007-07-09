@@ -61,7 +61,7 @@ public class PraatTextfileDoubleDataSource extends TextReaderDoubleDataSource
         // Skip header:
         try {
             String line = this.reader.readLine().trim();
-            if (!line.equals("File type = \"ooTextFile short\"")) {
+            if (!line.startsWith("File type = \"ooTextFile")) {
                 throw new IllegalArgumentException("Expected Praat file, got first line: "+line);
             }
             line = this.reader.readLine(); // the type of data encoded, e.g. "PointProcess"
