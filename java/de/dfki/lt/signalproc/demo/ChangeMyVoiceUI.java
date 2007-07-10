@@ -44,7 +44,10 @@ import de.dfki.lt.mary.client.SimpleFileFilter;
 import de.dfki.lt.mary.util.MaryUtils;
 import de.dfki.lt.signalproc.FFT;
 import de.dfki.lt.signalproc.process.FrameOverlapAddSource;
+import de.dfki.lt.signalproc.process.FrameProvider;
 import de.dfki.lt.signalproc.process.InlineDataProcessor;
+import de.dfki.lt.signalproc.process.LPCCrossSynthesis;
+import de.dfki.lt.signalproc.process.LPCCrossSynthesisOnline;
 import de.dfki.lt.signalproc.process.LPCWhisperiser;
 import de.dfki.lt.signalproc.process.Robotiser;
 import de.dfki.lt.signalproc.process.Chorus;
@@ -59,7 +62,9 @@ import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
 import de.dfki.lt.signalproc.util.DDSAudioInputStream;
 import de.dfki.lt.signalproc.util.DoubleDataSource;
 import de.dfki.lt.signalproc.util.MathUtils;
+import de.dfki.lt.signalproc.util.SequenceDoubleDataSource;
 import de.dfki.lt.signalproc.util.SignalProcUtils;
+import de.dfki.lt.signalproc.window.Window;
 import de.dfki.lt.signalproc.demo.OnlineAudioEffects;
 import de.dfki.lt.signalproc.display.FunctionGraph;
 import de.dfki.lt.mary.util.MaryAudioUtils;
@@ -82,6 +87,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     TargetDataLine microphone;
     SourceDataLine loudspeakers;
     AudioInputStream inputStream;
+    InputStream resStream;
     BufferingRecorder recorder;
     Clip m_clip;
     InputStream playFile;
@@ -97,54 +103,57 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     
     VoiceModificationParameters modificationParameters;
     String [] targetNames = { "Robot", 
-            "Whisper", 
-            "Dwarf1",
-            "Dwarf2",
-            "Ogre1",
-            "Ogre2",
-            "Giant1",
-            "Giant2",
-            "Stadium",
-            "Telephone",
-            "Jet Pilot", 
-            //"Old Radio",
-            //"Echo", 
-            //"Helicopter Pilot",
-            //"Jungle",
-            //"Alien",
-            //"Bird",
-            //"Cat",
-            //"Dog",
-            //"Earthquake",
-            //"Fire",
-            //"Ghost",
-            "Monster",
-            //"Monster2",
-            //"Ocean",
-            //"Thunder",
-            //"Violin1",
-            //"Violin",
-            //"Waterfall"
-            }; 
+                              "Whisper", 
+                              "Dwarf1",
+                              "Dwarf2",
+                              "Ogre1",
+                              "Ogre2",
+                              "Giant1",
+                              "Giant2",
+                              //"Echo", 
+                              "Stadium",  
+                              "Telephone",
+                              //"Old Radio",
+                              "Jet Pilot", 
+                              //"Helicopter Pilot",
+                              "Bird",
+                              "Cat",
+                              "Dog",
+                              "Horse",
+                              //"Jungle",
+                              "Monster1",
+                              "Monster2",
+                              "Ghost",
+                              //"Alien",
+                              "Flute",
+                              "Violin", 
+                              //"Earthquake",
+                              //"Fire",
+                              //"Ocean",
+                              //"Thunder",
+                              //"Waterfall"
+                              }; 
 
-private String[] mixFiles = {"helicopter.wav",
-                  "jungle.wav",
-                  "alien.wav",
-                  "bird.wav",
-                  "cat.wav",
-                  "dog.wav",
-                  "earthquake.wav",
-                  "fire.wav",
-                  "ghost.wav",
-                  "monster1.wav",
-                  "monster2.wav",
-                  "ocean.wav",
-                  "thunder.wav",
-                  "violin1.wav",
-                  "violin2.wav",
-                  "waterfall.wav"
-                  };
-    private int mixFileInd;
+private String[] mixFiles = {"helicopter_mix.wav",
+                             "jungle_mix.wav",
+                             "monster1_mix.wav",
+                             "alien_mix.wav"
+                             };
+    
+private String[] lpCrossSynthFiles = {"bird.wav",
+                                      "cat.wav",
+                                      "dog.wav",
+                                      "horse.wav",
+                                      "ghost.wav",
+                                      "monster2.wav",
+                                      "flute.wav",
+                                      "violin.wav",
+                                      "earthquake.wav",
+                                      "fire.wav",
+                                      "ocean.wav",
+                                      "thunder.wav",
+                                      "waterfall.wav"
+                                     };
     
     /** Creates new form ChangeMyVoiceUI */
     public ChangeMyVoiceUI() {
@@ -158,13 +167,13 @@ private String[] mixFiles = {"helicopter.wav",
         targetIndex = -1;
         inputIndex = -1;
         inputFile = null;
+        resStream = null;
         bRecording = false;
         bPlaying = false;
         lastDirectory = null;
         inputFileNameList = null;
         listItems = new Vector();
         recordIndex = 0;
-        mixFileInd = 0;
         
         classPath = new File(".").getAbsolutePath();
         
@@ -482,13 +491,17 @@ private String[] mixFiles = {"helicopter.wav",
                 {
                     if (inputIndex <= 0)
                         playFile = null;
-                    else if (inputIndex>builtInFileNameList.size()) {
-                        try {
+                    else if (inputIndex>builtInFileNameList.size()) 
+                    {
+                        try 
+                        {
                             playFile = new BufferedInputStream(new FileInputStream((String)listItems.get(inputIndex)));
-                        } catch (FileNotFoundException fnf) {
+                        } catch (FileNotFoundException fnf) 
+                        {
                             fnf.printStackTrace();
                         }
-                    } else {
+                    } else 
+                    {
                         playFile = ChangeMyVoiceUI.class.getResourceAsStream("demo/"+((String) builtInFileNameList.get(inputIndex-1)));
                     }
                     AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(playFile);
@@ -822,7 +835,6 @@ private String[] mixFiles = {"helicopter.wav",
                 audioFormat = microphone.getFormat();
                 modificationParameters.fs = (int)audioFormat.getSampleRate();
             }
-
         }
         else //Online processing using pre-recorded wav file
         {
@@ -893,42 +905,33 @@ private String[] mixFiles = {"helicopter.wav",
         {  
             double [] vscales = {1.3+0.5*amount};
             int p = SignalProcUtils.getLPOrder((int)modificationParameters.fs);
-            //int fftSize = Math.max(SignalProcUtils.getDFTSize((int)modificationParameters.fs), 1024);
-            //effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, fftSize, vscales);
             effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, bufferSize, vscales);
         }
         else if (targetNames[targetIndex]=="Dwarf2") //Using freq. domain DFT magnitude spectrum modification
         {  
             double [] vscales = {1.3+0.5*amount};
-            //effect = new VocalTractScalingSimpleProcessor(1024, vscales);
             effect = new VocalTractScalingSimpleProcessor(bufferSize, vscales);
         }
         else if (targetNames[targetIndex]=="Ogre1") //Using freq. domain LP spectrum modification
         { 
             double [] vscales = {0.90-0.1*amount};            
             int p = SignalProcUtils.getLPOrder((int)modificationParameters.fs);
-            //int fftSize = Math.max(SignalProcUtils.getDFTSize((int)modificationParameters.fs), 1024);
-            //effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, fftSize, vscales);
             effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, bufferSize, vscales);
         }
         else if (targetNames[targetIndex]=="Ogre2") //Using freq. domain DFT magnitude spectrum modification
         { 
             double [] vscales = {0.90-0.1*amount};
-            //effect = new VocalTractScalingSimpleProcessor(1024, vscales);
             effect = new VocalTractScalingSimpleProcessor(bufferSize, vscales);
         }
         else if (targetNames[targetIndex]=="Giant1") //Using freq. domain LP spectrum modification
         {  
             double [] vscales = {0.75-0.1*amount};
             int p = SignalProcUtils.getLPOrder((int)modificationParameters.fs);
-            //int fftSize = Math.max(SignalProcUtils.getDFTSize((int)modificationParameters.fs), 1024);
-            //effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, fftSize, vscales);
             effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, bufferSize, vscales);
         }
         else if (targetNames[targetIndex]=="Giant2") //Using freq. domain DFT magnitude spectrum modification
         {  
             double [] vscales = {0.75-0.1*amount};
-            //effect = new VocalTractScalingSimpleProcessor(1024, vscales);
             effect = new VocalTractScalingSimpleProcessor(bufferSize, vscales);
         }
         else if (targetNames[targetIndex]=="Echo")
@@ -957,13 +960,6 @@ private String[] mixFiles = {"helicopter.wav",
             
             effect = new Chorus(delaysInMiliseconds, amps, (int)(modificationParameters.fs));
         }
-        else if (targetNames[targetIndex]=="Jet Pilot")
-        {  
-            bufferSize = 8*bufferSize;
-            double normalizedCutOffFreq1 = 500.0/modificationParameters.fs;
-            double normalizedCutOffFreq2 = 2000.0/modificationParameters.fs;
-            effect = new BandPassFilter(normalizedCutOffFreq1, normalizedCutOffFreq2, true);
-        }
         else if (targetNames[targetIndex]=="Telephone")
         {  
             bufferSize = 8*bufferSize;
@@ -977,102 +973,85 @@ private String[] mixFiles = {"helicopter.wav",
             double normalizedCutOffFreq = 3000.0/modificationParameters.fs;
             effect = new LowPassFilter(normalizedCutOffFreq, true);
         }
+        else if (targetNames[targetIndex]=="Jet Pilot")
+        {  
+            bufferSize = 8*bufferSize;
+            double normalizedCutOffFreq1 = 500.0/modificationParameters.fs;
+            double normalizedCutOffFreq2 = 2000.0/modificationParameters.fs;
+            effect = new BandPassFilter(normalizedCutOffFreq1, normalizedCutOffFreq2, true);
+        }
         else if (targetNames[targetIndex]=="Helicopter Pilot")
         {
-            mixFileInd = 0;
-            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
+            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[0]);
             effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, 0.3+0.5*amount, true);
         }
         else if (targetNames[targetIndex]=="Jungle")
         {
-            mixFileInd = 1;
-            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
+            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[1]);
             effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, 0.05+0.2*amount, true);
+        }
+        else if (targetNames[targetIndex]=="Monster1")
+        {
+            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[2]);
+            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, 0.05+0.2*amount, false);
         }
         else if (targetNames[targetIndex]=="Alien")
         {
-            mixFileInd = 2;
-            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
+            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[3]);
             effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, 0.01+0.2*amount, false);
         }
         else if (targetNames[targetIndex]=="Bird")
-        {
-            mixFileInd = 3;
-            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
-            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, 0.01+0.2*amount, false);
+        {  
+            effect = getLPCrossSynthEffect(0, bufferSize);
         }
         else if (targetNames[targetIndex]=="Cat")
         {
-            mixFileInd = 4;
-            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
-            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, 0.05+0.3*amount, false);
+            effect = getLPCrossSynthEffect(1, bufferSize);
         }
         else if (targetNames[targetIndex]=="Dog")
         {
-            mixFileInd = 5;
-            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
-            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, 0.1+0.3*amount, false);
+            effect = getLPCrossSynthEffect(2, bufferSize);
         }
-        else if (targetNames[targetIndex]=="Earthquake")
+        else if (targetNames[targetIndex]=="Horse")
         {
-            mixFileInd = 6;
-            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
-            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, 0.5+0.3*amount, true);
-        }
-        else if (targetNames[targetIndex]=="Fire")
-        {
-            mixFileInd = 7;
-            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
-            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, 0.3+0.3*amount, true);
+            effect = getLPCrossSynthEffect(3, bufferSize);
         }
         else if (targetNames[targetIndex]=="Ghost")
         {
-            mixFileInd = 8;
-            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
-            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, 0.3+0.3*amount, true);
-        }
-        else if (targetNames[targetIndex]=="Monster")
-        {
-            mixFileInd = 9;
-            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
-            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, 0.05+0.2*amount, false);
+            effect = getLPCrossSynthEffect(4, bufferSize);
         }
         else if (targetNames[targetIndex]=="Monster2")
         {
-            mixFileInd = 10;
-            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
-            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, 0.3+0.3*amount, false);
+            effect = getLPCrossSynthEffect(5, bufferSize);
         }
-        else if (targetNames[targetIndex]=="Ocean")
+        else if (targetNames[targetIndex]=="Flute")
         {
-            mixFileInd = 11;
-            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
-            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, 0.1+0.3*amount, true);
-        }
-        else if (targetNames[targetIndex]=="Thunder")
-        {
-            mixFileInd = 12;
-            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
-            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, 0.2+0.3*amount, true);
-        }
-        else if (targetNames[targetIndex]=="Violin1")
-        {
-            mixFileInd = 13;
-            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
-            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, 0.05+0.3*amount, false);
+            effect = getLPCrossSynthEffect(6, bufferSize);
         }
         else if (targetNames[targetIndex]=="Violin")
         {
-            mixFileInd = 14;
-            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
-            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, 0.05+0.3*amount, false);
+            effect = getLPCrossSynthEffect(7, bufferSize);
+        }
+        else if (targetNames[targetIndex]=="Earthquake")
+        {
+            effect = getLPCrossSynthEffect(8, bufferSize);
+        }
+        else if (targetNames[targetIndex]=="Fire")
+        {
+            effect = getLPCrossSynthEffect(9, bufferSize);
+        }
+        else if (targetNames[targetIndex]=="Ocean")
+        {
+            effect = getLPCrossSynthEffect(10, bufferSize);
+        }
+        else if (targetNames[targetIndex]=="Thunder")
+        {
+            effect = getLPCrossSynthEffect(11, bufferSize);
         }
         else if (targetNames[targetIndex]=="Waterfall")
         {
-            mixFileInd = 15;
-            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[mixFileInd]);
-            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, 0.1+0.3*amount, true);
-        }   
+            effect = getLPCrossSynthEffect(12, bufferSize);
+        }
         //            
 
         // Create the output thread and make it run in the background:
@@ -1204,6 +1183,15 @@ private String[] mixFiles = {"helicopter.wav",
             System.exit(1);
         }
         return line;
+    }
+    
+    public InlineDataProcessor getLPCrossSynthEffect(int lpCrossSynthFileInd, int bufferSize)
+    {
+        InlineDataProcessor effect = null;
+      
+        effect = new LPCCrossSynthesisOnline(SignalProcUtils.getLPOrder((int)modificationParameters.fs), bufferSize, "lp_cross_synth/"+lpCrossSynthFiles[lpCrossSynthFileInd], (int)modificationParameters.fs);
+        
+        return effect;
     }
     
     /**
