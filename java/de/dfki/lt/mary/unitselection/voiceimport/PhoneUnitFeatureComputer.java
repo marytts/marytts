@@ -66,15 +66,9 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
         }    
         
         maryInputType = "RAWMARYXML";
-        if (!MaryDataType.exists(maryInputType)){
-            System.out.println("GRMBL!");
-        }
         if (locale.equals("de")) maryOutputType = "TARGETFEATURES_DE";
         else if (locale.equals("en")) maryOutputType = "TARGETFEATURES_EN";
-        else throw new IllegalArgumentException("Unsupported locale: "+locale);
-        if (!MaryDataType.exists(maryOutputType)){
-            System.out.println("GRMBL!");
-        }        
+        else throw new IllegalArgumentException("Unsupported locale: "+locale);       
     }
      
      public SortedMap getDefaultProps(DatabaseLayout db){
