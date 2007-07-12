@@ -21,7 +21,7 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
     protected File unitlabelDir;
     protected String pauseSymbol;
     
-    private String unitlabelExt = ".lab";
+    protected String unitlabelExt = ".lab";
     
     protected DatabaseLayout db = null;
     protected int percent = 0;
@@ -99,11 +99,11 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
                 List phoneLabels = new ArrayList();
                 while ((line = in.readLine())!= null) {
                     if (readingHeader) {
-                        header.add(line);
                         if (line.trim().equals("#")) {
                             // found end of header
                             readingHeader = false;
                         }
+                        header.add(line);                        
                     } else {
                         // Not reading header
                         // Verify if this is a pause unit
@@ -124,10 +124,9 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
                 }
                 String[] phoneLabelLines = (String[]) phoneLabels.toArray(new String[0]);
                 String[] unitLabelLines = toUnitLabels(phoneLabelLines);
-                for (int h=0, hMax = header.size(); h<hMax; h++) {
-                    out.println("format: end time, unit index, phone");
+                out.println("format: end time, unit index, phone");
+                for (int h=0; h<header.size(); h++) {                
                     out.println(header.get(h));
-                    
                 }
                 for (int u=0; u<unitLabelLines.length; u++) {
                     out.println(unitLabelLines[u]);

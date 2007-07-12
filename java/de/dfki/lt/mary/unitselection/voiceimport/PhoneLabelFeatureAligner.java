@@ -39,8 +39,8 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
     protected boolean correctedPauses = false;
     //protected boolean wait =false;
     
-    private String featsExt = ".pfeats";
-    private String labExt = ".lab";
+    protected String featsExt = ".pfeats";
+    protected String labExt = ".lab";
     
     protected static final int TRYAGAIN = 0;
     protected static final int SKIP = 1;

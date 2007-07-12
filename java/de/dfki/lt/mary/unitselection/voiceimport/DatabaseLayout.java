@@ -450,13 +450,18 @@ public class DatabaseLayout
      */
     private boolean promptUserForBasicProps(SortedMap basicprops){
         //fill in the map with the prop names and value templates
-        basicprops.put(MARYBASE,"/path/to/marybase/");
+        String marybase = System.getProperty("MARYBASE");
+        if ( marybase == null ) {
+            marybase = "/path/to/marybase/";
+        }
+        basicprops.put(MARYBASE,marybase);
         basicprops.put(VOICENAME,"my_voice");
         basicprops.put(GENDER,"female");
         basicprops.put(DOMAIN,"general");
         basicprops.put(LOCALE,"de");
         basicprops.put(SAMPLINGRATE,"16000");
-        basicprops.put(ROOTDIR,new File(".").getAbsolutePath()+"/");
+        String rootDir = new File(".").getAbsolutePath();
+        basicprops.put(ROOTDIR,rootDir.substring(0,rootDir.length()-1));
         basicprops.put(WAVDIR,"wav/");
         basicprops.put(LABDIR,"lab/");
         basicprops.put(LABEXT,".lab");        
@@ -492,13 +497,18 @@ public class DatabaseLayout
      */
     private SortedMap initDefaultProps(SortedMap props,boolean withBasicProps){
         if (withBasicProps){
-            props.put(MARYBASE,"/path/to/marybase/");
+            String marybase = System.getProperty("MARYBASE");
+            if ( marybase == null ) {
+                marybase = "/path/to/marybase/";
+            }
+            props.put(MARYBASE,marybase);
             props.put(VOICENAME,"my_voice");
             props.put(GENDER,"female");
             props.put(DOMAIN,"general");
             props.put(LOCALE,"de");
             props.put(SAMPLINGRATE,"16000");
-            props.put(ROOTDIR, new File(".").getAbsolutePath()+"/");
+            String rootDir = new File(".").getAbsolutePath();
+            props.put(ROOTDIR,rootDir.substring(0,rootDir.length()-1));
             props.put(WAVDIR,"wav/");
             props.put(LABDIR,"lab/");
             props.put(LABEXT,".lab");        

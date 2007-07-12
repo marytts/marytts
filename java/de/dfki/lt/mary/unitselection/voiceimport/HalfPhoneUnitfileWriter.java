@@ -39,14 +39,14 @@ import java.util.*;
 public class HalfPhoneUnitfileWriter extends PhoneUnitfileWriter
 {
 
-    private String unitlabelExt = ".hplab";
-    private String corrPmExt = ".pm.corrected";
    
     public String getName(){
         return "HalfPhoneUnitfileWriter";
     }
     
     public HalfPhoneUnitfileWriter(){
+        unitlabelExt = ".hplab";
+        corrPmExt = ".pm.corrected";
         LABELDIR = "HalfPhoneUnitfileWriter.labelDir";
         UNITFILE = "HalfPhoneUnitfileWriter.unitFile";
         CORRPMDIR = "HalfPhoneUnitfileWriter.corrPmDir";

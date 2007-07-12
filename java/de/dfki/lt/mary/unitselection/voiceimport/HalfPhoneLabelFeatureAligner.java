@@ -38,15 +38,14 @@ import java.util.*;
  *
  */
 public class HalfPhoneLabelFeatureAligner extends PhoneLabelFeatureAligner {
-
-    private String featsExt = ".hpfeats";
-    private String labExt = ".hplab";
     
     public String getName(){
         return "HalfPhoneLabelFeatureAligner";
     }
     
     public HalfPhoneLabelFeatureAligner(){
+        featsExt = ".hpfeats";
+        labExt = ".hplab";
         FEATUREDIR = "HalfPhoneLabelFeatureAligner.featureDir";
         LABELDIR = "HalfPhoneLabelFeatureAligner.labelDir";
     }

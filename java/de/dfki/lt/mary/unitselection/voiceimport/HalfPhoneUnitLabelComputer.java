@@ -10,14 +10,12 @@ import java.util.*;
  */
 public class HalfPhoneUnitLabelComputer extends PhoneUnitLabelComputer
 {    
-    
-    private String unitlabelExt = ".lab";
-    
     public String getName(){
         return "HalfPhoneUnitLabelComputer";      
     }
     
     public HalfPhoneUnitLabelComputer(){
+        unitlabelExt = ".hplab";
         LABELDIR = "HalfPhoneUnitLabelComputer.labelDir";
     } 
     

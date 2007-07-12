@@ -38,14 +38,12 @@ import java.util.*;
  */
 public class HalfPhoneUnitFeatureComputer extends PhoneUnitFeatureComputer 
 {
-
-    private String featsExt = ".hpfeats";
-   
     public String getName(){
         return "HalfPhoneUnitFeatureComputer";
     }
     
     public HalfPhoneUnitFeatureComputer(){        
+        featsExt = ".hpfeats";
         FEATUREDIR = "HalfPhoneUnitFeatureComputer.featureDir";
         MARYSERVERHOST = "HalfPhoneUnitFeatureComputer.maryServerHost";
         MARYSERVERPORT = "HalfPhoneUnitFeatureComputer.maryServerPort";   

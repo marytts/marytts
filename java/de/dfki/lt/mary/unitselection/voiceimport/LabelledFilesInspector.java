@@ -102,6 +102,7 @@ public class LabelledFilesInspector extends VoiceImportComponent
 
     public boolean compute() throws IOException
     {
+        quit = false;
         wavDir = new File( db.getProp(db.WAVDIR) );
         if (!wavDir.exists()) throw new IOException("No such directory: "+ wavDir);
         phoneLabDir = new File( db.getProp(db.LABDIR) );

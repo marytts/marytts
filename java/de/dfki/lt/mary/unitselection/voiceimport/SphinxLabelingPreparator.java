@@ -499,16 +499,15 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
      * 
      * @return the MARY client
      */
-    private MaryClient getMaryClient() throws IOException
+    private MaryClient getMaryClient()throws IOException
     {
         if (mary == null) {
-            if (System.getProperty("server.host") == null) {
-                System.setProperty("server.host", getProp(MARYSERVERHOST));
+            try{
+                mary = new MaryClient(getProp(MARYSERVERHOST), Integer.parseInt(getProp(MARYSERVERPORT)));        
+            } catch (IOException e){
+                throw new IOException("Could not connect to Maryserver at "
+                        +getProp(MARYSERVERHOST)+" "+getProp(MARYSERVERPORT));
             }
-            if (System.getProperty("server.port") == null) {
-                System.setProperty("server.port", getProp(MARYSERVERPORT));
-            }
-            mary = new MaryClient();            
         }
         return mary;
     }
