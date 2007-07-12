@@ -37,10 +37,10 @@ public class HalfPhoneFeatureFileWriter extends PhoneFeatureFileWriter
 {
     protected FeatureDefinition leftFeatureDef;
     protected FeatureDefinition rightFeatureDef;
-    private String featureExt = ".hpfeats";
     
     
     public HalfPhoneFeatureFileWriter(){
+        featureExt = ".hpfeats";
         FEATUREDIR = "HalfPhoneFeatureFileWriter.featureDir";
         FEATUREFILE = "HalfPhoneFeatureFileWriter.featureFile";
         UNITFILE = "HalfPhoneFeatureFileWriter.unitFile";

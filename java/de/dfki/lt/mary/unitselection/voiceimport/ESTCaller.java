@@ -307,7 +307,7 @@ public class ESTCaller
             }
             
             /* Make the command line */
-            cmdLine = ESTDIR + "/main/sig2fv "
+            cmdLine = ESTDIR + "main/sig2fv "
             + "-window_type hamming -factor 2.5 -otype est_binary -coefs melcep -melcep_order 12 -fbank_order 24 -shift 0.01 -preemph 0.97 "
             + "-pm " + correctedPitchmarksDirName + baseNameArray[i] + correctedPitchmarksExt
             + " -o " + mcepDirName + baseNameArray[i] + mcepExt + " "

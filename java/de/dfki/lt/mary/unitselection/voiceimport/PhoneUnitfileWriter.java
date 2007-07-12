@@ -50,8 +50,8 @@ public class PhoneUnitfileWriter extends VoiceImportComponent
     protected String pauseSymbol;
     protected PhoneLabelFeatureAligner aligner;
     
-    private String unitlabelExt = ".lab";
-    private String corrPmExt = ".pm.corrected";
+    protected String unitlabelExt = ".lab";
+    protected String corrPmExt = ".pm.corrected";
 
     protected DatabaseLayout db = null;
     protected int percent = 0;

@@ -53,7 +53,7 @@ public class PhoneFeatureFileWriter extends VoiceImportComponent
     protected File maryDir;
     protected FeatureDefinition featureDefinition;
     protected int percent = 0;
-    private String featureExt = ".pfeats";
+    protected String featureExt = ".pfeats";
     protected UnitFileReader unitFileReader;
     
     protected String name = "PhoneFeatureFileWriter";

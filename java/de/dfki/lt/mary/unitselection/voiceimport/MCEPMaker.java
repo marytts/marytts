@@ -64,11 +64,12 @@ public class MCEPMaker extends VoiceImportComponent {
        if (props == null){
            props = new TreeMap();
            String rootDir = db.getProp(db.ROOTDIR);
-           /** Uncomment if you want to use this class for making pitchmarks or lpcs
+           
            props.put(CORRPMDIR, rootDir
                    +"pm"
                    +System.getProperty("file.separator"));
            props.put(PMDIR, getProp(CORRPMDIR));
+           /** Uncomment if you want to use this class for making lpcs
            props.put(LPCDIR, rootDir
                    +"lpc"                   
                    +System.getProperty("file.separator"));
@@ -252,9 +253,9 @@ public class MCEPMaker extends VoiceImportComponent {
         ESTCaller caller = new ESTCaller( db, getProp(ESTDIR) );
         caller.make_mcep( baseNameArray, 
                 getProp(CORRPMDIR),
-                getProp(corrPmExt),
+                corrPmExt,
                 getProp(MCEPDIR),
-                getProp(mcepExt));
+                mcepExt);
         
         return( true );
     }

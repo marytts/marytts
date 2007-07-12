@@ -271,7 +271,7 @@ public class SettingsGUI {
         
         
         private String[] columnNames;
-        private boolean DEBUG = true;
+        private boolean DEBUG = false;
         private String[][] props;
 
         public PropTableModel(String[] columnNames,

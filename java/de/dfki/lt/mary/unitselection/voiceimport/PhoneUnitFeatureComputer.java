@@ -9,6 +9,7 @@ import java.util.*;
 
 import de.dfki.lt.mary.client.MaryClient;
 import de.dfki.lt.mary.util.FileUtils;
+import de.dfki.lt.mary.MaryDataType;
 
 /**
  * For the given texts, compute unit features and align them
@@ -20,14 +21,13 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
 {
     protected File textDir;
     protected File unitfeatureDir;
-    private String featsExt = ".pfeats";
+    protected String featsExt = ".pfeats";
     protected String locale;
     protected MaryClient mary;
     protected String maryInputType;
     protected String maryOutputType;
 
     protected DatabaseLayout db = null;
-    protected BasenameList bnl = null;
     protected int percent = 0;
     
     public String FEATUREDIR = "PhoneUnitFeatureComputer.featureDir";
@@ -66,9 +66,15 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
         }    
         
         maryInputType = "RAWMARYXML";
+        if (!MaryDataType.exists(maryInputType)){
+            System.out.println("GRMBL!");
+        }
         if (locale.equals("de")) maryOutputType = "TARGETFEATURES_DE";
         else if (locale.equals("en")) maryOutputType = "TARGETFEATURES_EN";
         else throw new IllegalArgumentException("Unsupported locale: "+locale);
+        if (!MaryDataType.exists(maryOutputType)){
+            System.out.println("GRMBL!");
+        }        
     }
      
      public SortedMap getDefaultProps(DatabaseLayout db){
@@ -95,13 +101,12 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
      public MaryClient getMaryClient() throws IOException
      {
         if (mary == null) {
-            if (System.getProperty("server.host") == null) {
-                System.setProperty("server.host", getProp(MARYSERVERHOST));
+            try{
+                mary = new MaryClient(getProp(MARYSERVERHOST), Integer.parseInt(getProp(MARYSERVERPORT)));        
+            } catch (IOException e){
+                throw new IOException("Could not connect to Maryserver at "
+                        +getProp(MARYSERVERHOST)+" "+getProp(MARYSERVERPORT));
             }
-            if (System.getProperty("server.port") == null) {
-                System.setProperty("server.port", getProp(MARYSERVERPORT));
-            }
-            mary = new MaryClient();
         }
         return mary;
     }
@@ -110,8 +115,6 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
     {
         
         textDir = new File(db.getProp(db.TEXTDIR));
-        //String[] basenames = FileUtils.listBasenames(textDir, ".txt");
-        //System.out.println("Computing unit features for "+basenames.length+" files");
         System.out.println( "Computing unit features for " + bnl.getLength() + " files" );
         for (int i=0; i<bnl.getLength(); i++) {
             percent = 100*i/bnl.getLength();
