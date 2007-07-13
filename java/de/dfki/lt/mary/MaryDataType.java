@@ -180,19 +180,23 @@ public class MaryDataType
 
     /**
      * Test whether the type with the given name exists.
-     * This method will return true under exactly the same circumstances as a call to get()
-     * would return a data type without throwing an error. 
+     * This method will return true only if the type name is known and has
+     * already been activated by a call to get(). In other words, if exists()
+     * returns true, get() will return a non-null value, and if get() returns
+     * a non-null value, exists() will return true; also, if get() returns null,
+     * exists() will return false; but when exists() returns false, it is possible
+     * either that get has been called (and returned a null value), or that get 
+     * has not yet been called (and would return a non-null value).
+     * 
+     *  Therefore, exists() should be called to non-intrusively test the system
+     *  configuration, whereas get() should be called to see if some data type
+     *  can be made available.
      * @param typeName the type name in question
      * @return true if the type exists, false if it is unknown.
      */
     public static boolean exists(String typeName)
     {
-    	try {
-    		get(typeName);
-    		return true;
-    	} catch (Error err) {
-    		return false;
-    	}
+        return nameMap.containsKey(typeName);
     }
 
     /**
