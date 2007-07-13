@@ -204,11 +204,19 @@ public class MaryXMLToMbrola extends InternalModule
                     buf.append(p.toString());
                     buf.append("\n");
                 }
-                buf.append("_ ");
-                buf.append(element.getAttribute("duration"));
-                buf.append("\n");
-                // and insert a "flush" symbol after every boundary:
-                buf.append("#\n");
+                String duration = element.getAttribute("duration");
+                if (duration != null && !duration.equals("")) {
+                    try {
+                        Integer.parseInt(duration); // just to check it is an integer
+                        buf.append("_ ");
+                        buf.append(duration);
+                        buf.append("\n");
+                        // and insert a "flush" symbol after every boundary:
+                        buf.append("#\n");
+                    } catch (NumberFormatException nfe) {
+                        logger.debug("Unexpected value for duration: '"+duration+"' -- ignoring boundary");
+                    }
+                }
             } else {
                 throw new IllegalArgumentException
                     ("Expected only <ph> and <boundary> elements, got <" +
