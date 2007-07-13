@@ -40,6 +40,7 @@ import javax.sound.sampled.AudioInputStream;
 import de.dfki.lt.mary.MaryDataType;
 import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.mary.NoSuchPropertyException;
+import de.dfki.lt.mary.modules.synthesis.MbrolaVoice;
 import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.util.AudioDestination;
 import de.dfki.lt.mary.util.AudioReader;
@@ -85,9 +86,10 @@ public class MbrolaCaller extends SynthesisCallerBase {
         if (mbrolaData == null || voice == null) {
             throw new IllegalArgumentException("Received null argument.");
         }
+        assert voice instanceof MbrolaVoice : "Not an MBROLA voice: "+voice.getName();
         // Construct command line for external program call
         // mbrola reads from its stdin, writes headerless data to its stdout
-        String[] cmd = new String[] {baseCmd, "-e", voice.path(), "-", "-.raw"};
+        String[] cmd = new String[] {baseCmd, "-e", ((MbrolaVoice)voice).path(), "-", "-.raw"};
 
         // Timeout facility:
         int MAX_NR_ATTEMPTS = 2;

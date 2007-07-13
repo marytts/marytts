@@ -252,9 +252,6 @@ public class UnitSelectionVoiceBuilder
 	        int baseStart = MaryProperties.getInteger(header+".baseline.start", -1);
 	        int baseEnd = MaryProperties.getInteger(header+".baseline.end", -1);
 	        
-	        //dummy values for the rest of the parameters
-	        String[] knownVoiceQualities = null;
-	        String path = null;
 			
             // see if there are any voice-specific duration and f0 models to load
             CART durationCart = null;
@@ -287,11 +284,11 @@ public class UnitSelectionVoiceBuilder
 	        //build the voice
             logger.debug("...instantiating voice...");
 	        Voice v = new UnitSelectionVoice(unitDatabase, unitSelector, 
-	                    unitConcatenator, path, 
+	                    unitConcatenator,
                     nameArray, voiceLocale, unitConcatenator.getAudioFormat(), 
                     synth, voiceGender,
-                    topStart, topEnd, baseStart, 
-                    baseEnd, knownVoiceQualities,lexicon,domain,
+                    topStart, topEnd, baseStart, baseEnd,
+                    lexicon, domain,
                     exampleTextFile, durationCart, f0Carts,
                     durationCartFeatDef, f0CartsFeatDef);
 	        return v;

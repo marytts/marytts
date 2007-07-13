@@ -88,14 +88,14 @@ public class UnitSelectionVoice extends Voice {
      * 						  this voice (null for general domain voice)
      */
     public UnitSelectionVoice(UnitDatabase database, UnitSelector unitSelector,
-            UnitConcatenator concatenator, String path, String[] nameArray, Locale locale, 
+            UnitConcatenator concatenator, String[] nameArray, Locale locale, 
             AudioFormat dbAudioFormat, WaveformSynthesizer synthesizer, 
             Gender gender, int topStart, int topEnd, int baseStart, int baseEnd, 
-            String[] knownVoiceQualities, Lexicon lexicon, String domain,
+            Lexicon lexicon, String domain,
             String exampleTextFile, CART durationCart, CART[] f0Carts,
             FeatureDefinition durationCartFeatDef, FeatureDefinition f0CartsFeatDef)
     {
-        super(path, nameArray, locale, dbAudioFormat, synthesizer, gender, topStart, topEnd, baseStart, baseEnd, knownVoiceQualities, null);
+        super(nameArray, locale, dbAudioFormat, synthesizer, gender, topStart, topEnd, baseStart, baseEnd);
         this.database = database; 
         this.unitSelector = unitSelector;
         this.concatenator = concatenator;

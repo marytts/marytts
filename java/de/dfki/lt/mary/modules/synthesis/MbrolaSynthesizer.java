@@ -141,7 +141,7 @@ public class MbrolaSynthesizer implements WaveformSynthesizer {
                 String[] voiceQualities = null;
                 if (vqString != null) voiceQualities = vqString.split("\\s+");
                 String missingDiphones = MaryProperties.getFilename("voice."+voiceName+".missingdiphones", null);
-                Voice v = new Voice (path,
+                Voice v = new MbrolaVoice (path,
                         new String[] { voiceName },
                         locale,
                         mbrolaAudioFormat(samplingRate),

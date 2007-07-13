@@ -82,7 +82,7 @@ public class InterpolatingVoice extends Voice {
     
     public InterpolatingVoice(InterpolatingSynthesizer is, String name)
     {
-        super(null, new String[] {name}, null, null, is, null, -1, -1, -1, -1, null, null);
+        super(new String[] {name}, null, null, is, null, -1, -1, -1, -1);
         if (isInterpolatingVoiceName(name)) {
             String[] parts = name.split("\\s+");
             firstVoice = Voice.getVoice(parts[0]);

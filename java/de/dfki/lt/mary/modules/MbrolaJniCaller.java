@@ -33,6 +33,7 @@ import java.io.IOException;
 import javax.sound.sampled.AudioInputStream;
 
 import de.dfki.lt.mary.MaryDataType;
+import de.dfki.lt.mary.modules.synthesis.MbrolaVoice;
 import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.util.AudioDestination;
 
@@ -100,7 +101,8 @@ public class MbrolaJniCaller extends MbrolaCaller {
         // the voice every time.
         if (currentlyLoadedVoice != null)
             mbrolaClose();
-        mbrolaInitVoice(voice.path(), true); // true = tolerant, don't abort at missing diphones
+        assert voice instanceof MbrolaVoice : "Not an MBROLA voice: "+voice.getName();
+        mbrolaInitVoice(((MbrolaVoice)voice).path(), true); // true = tolerant, don't abort at missing diphones
         currentlyLoadedVoice = voice;
     }
 
@@ -136,7 +138,8 @@ public class MbrolaJniCaller extends MbrolaCaller {
 			else
 				endIndex = mbrolaMarkup.lastIndexOf("#\n", endIndex) + 2;
 			String toSynthesise = mbrolaMarkup.substring(index, endIndex);
-			logger.info("Setting Mbrola voice `" + voice.getName() + "' (" + voice.path() + ")");
+            assert voice instanceof MbrolaVoice : "Not an MBROLA voice: "+voice.getName();
+			logger.info("Setting Mbrola voice `" + voice.getName() + "' (" + ((MbrolaVoice)voice).path() + ")");
 			setVoice(voice);
 			logger.info("Synthesising audio data.");
 			logger.debug("Writing MbrolaMarkup input:\n" + toSynthesise + "\n");
