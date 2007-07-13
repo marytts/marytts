@@ -6,7 +6,6 @@
 	<classpathentry kind="lib" path="java/freetts.jar"/>
 	<classpathentry kind="lib" path="java/jsresources.jar" sourcepath="java/jsresources.jar"/>
 	<classpathentry kind="lib" path="java/junit.jar"/>
-	<classpathentry kind="lib" path="java/freetts-cmu_us_kal.jar"/>
 	<classpathentry kind="lib" path="java/freetts-cmudict04.jar"/>
 	<classpathentry kind="lib" path="java/freetts-en_us.jar"/>
 	<classpathentry kind="lib" path="java/freetts-mbrola.jar"/>
