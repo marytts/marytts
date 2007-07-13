@@ -214,8 +214,9 @@ public abstract class XML2UttBase extends InternalModule
                     // skip enclosed tokens
                     Element mtu = element;
                     while ((element = (Element) tokenIt.nextNode()) != null
-                    && element.getTagName().equals(MaryXML.TOKEN)
-                    && element.getParentNode().equals(mtu)) {
+                    && (element.getTagName().equals(MaryXML.TOKEN)
+                            || element.getTagName().equals(MaryXML.MTU))
+                    && MaryDomUtils.isAncestor(mtu, element)) {
                       // do nothing, move on
                     }
                     // Now if we have not reached the end (element==null),
@@ -225,7 +226,8 @@ public abstract class XML2UttBase extends InternalModule
                         tokenIt.previousNode();
                 }
 
-            }            topElement = (Element) phraseIt.nextNode(); // or null
+            }
+            topElement = (Element) phraseIt.nextNode(); // or null
         }
         // Any marks after the last token in last sentence?
         if (isLastSentence) {
