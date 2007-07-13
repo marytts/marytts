@@ -105,14 +105,12 @@ public class FestivalSynthesizer implements WaveformSynthesizer {
             int topEnd = pitch;
             int baseStart = pitch;
             int baseEnd = pitch - range;
-            Voice voice = new Voice(null, 
-                new String[] {voiceName},
+            Voice voice = new Voice(new String[] {voiceName},
                 MaryUtils.string2locale(MaryProperties.needProperty("festival.voices." + voiceName + ".locale")),
                 Voice.AF16000,
                 this,
                 new Voice.Gender(MaryProperties.needProperty("festival.voices." + voiceName + ".gender")),
-                topStart, topEnd, baseStart, baseEnd,
-                null, null);
+                topStart, topEnd, baseStart, baseEnd);
             Voice.registerVoice(voice);
         }
         logger.info("started.");

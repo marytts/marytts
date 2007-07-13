@@ -136,7 +136,6 @@ public class Voice
 
 
 
-    private String path;
     private List names; // all the names under which this voice is known
     private Locale locale;
     private AudioFormat dbAudioFormat = null;
@@ -146,26 +145,21 @@ public class Voice
     private int topEnd;
     private int baseStart;
     private int baseEnd;
-    private List knownVoiceQualities;
     private Map sampa2voiceMap;
     private Map voice2sampaMap;
     private boolean useVoicePAInOutput;
-    private Set missingDiphones;
     private int wantToBeDefault;
     private PhonemeSet phonemeSet;
     String preferredModulesClasses;
     private Vector preferredModules;
 
     
-    public Voice(String path, String[] nameArray, Locale locale, 
+    public Voice(String[] nameArray, Locale locale, 
                  AudioFormat dbAudioFormat,
                  WaveformSynthesizer synthesizer,
                  Gender gender,
-                 int topStart, int topEnd, int baseStart, int baseEnd,
-                 String[] knownVoiceQualities,
-                 String missingDiphonesPath) 
+                 int topStart, int topEnd, int baseStart, int baseEnd) 
     {
-        this.path = path;
         this.names = new ArrayList();
         for (int i=0; i<nameArray.length; i++)
             names.add(nameArray[i]);
@@ -177,27 +171,8 @@ public class Voice
         this.topEnd = topEnd;
         this.baseStart = baseStart;
         this.baseEnd = baseEnd;
-        this.knownVoiceQualities = new ArrayList();
-        if (knownVoiceQualities != null)
-            for (int j=0; j<knownVoiceQualities.length; j++)
-                this.knownVoiceQualities.add(knownVoiceQualities[j]);
         fillSampaMap();
         this.useVoicePAInOutput = MaryProperties.getBoolean("voice."+getName()+".use.voicepa.in.output", true);
-        if (missingDiphonesPath != null) {
-            File missingDiphonesFile = new File(missingDiphonesPath);
-            try {
-                BufferedReader br =
-                    new BufferedReader(new FileReader(missingDiphonesFile));
-                String diphone = null;
-                missingDiphones = new HashSet();
-                while ((diphone = br.readLine()) != null) {
-                    missingDiphones.add(diphone);
-                }
-            } catch (IOException e) {
-                //e.printStackTrace();
-                missingDiphones = null;
-            }
-        }
         this.wantToBeDefault = MaryProperties.getInteger("voice."+getName()+".wants.to.be.default", 0);
         String phonemesetFilename = MaryProperties.getFilename("voice."+getName()+".phonemeset");
         if (phonemesetFilename == null && getLocale() != null) {
@@ -223,7 +198,6 @@ public class Voice
      */
     public Voice(com.sun.speech.freetts.Voice freeTTSVoice, WaveformSynthesizer synthesizer)
     {
-        this.path = null;
         this.names = new ArrayList();
         String domain = freeTTSVoice.getDomain();
         String name;
@@ -255,7 +229,6 @@ public class Voice
         this.topEnd    = (int) freeTTSVoice.getPitch();
         this.baseStart = (int) freeTTSVoice.getPitch();
         this.baseEnd   = (int) (freeTTSVoice.getPitch() - freeTTSVoice.getPitchRange());
-        this.knownVoiceQualities = new ArrayList(0);
         fillSampaMap();
         this.wantToBeDefault = MaryProperties.getInteger("voice."+getName()+".wants.to.be.default", 0);
     }
@@ -467,7 +440,6 @@ public class Voice
     }
     
 
-    public String path() { return path; }
     public boolean hasName(String name) { return names.contains(name); }
     /** Return the name of this voice. If the voice has several possible names,
      * the first one is returned. */
@@ -483,8 +455,6 @@ public class Voice
     public int baseStart() { return baseStart; }
     public int baseEnd() { return baseEnd; }
 
-    public boolean hasVoiceQuality(String vq)
-    { return knownVoiceQualities.contains(vq); }
 
     /**
      * Whether to use this voice's phonetic alphabet in the output.
@@ -547,135 +517,6 @@ public class Voice
         return phonemes;
     }
 
-    public boolean hasDiphone(MBROLAPhoneme p1, MBROLAPhoneme p2)
-    {
-        return hasDiphone(p1.getSymbol() + "-" + p2.getSymbol());
-    }
-
-    /**
-     * Verify whether a diphone (p1-p2) is in the list of missing diphones.
-     */
-    public boolean hasDiphone(String diphone)
-    {
-        if (missingDiphones != null && missingDiphones.contains(diphone)) {
-            return false;
-        }
-        return true;
-    }
-
-    public Vector replaceDiphone(MBROLAPhoneme p1, MBROLAPhoneme p2)
-    {
-        Vector phonemes = new Vector();
-        String s1 = p1.getSymbol();
-        String s2 = p2.getSymbol();
-        boolean solved = false;
-        // Would inserting a short silence help?
-        if (hasDiphone(s1 + "-_") && hasDiphone("_-" + s2)) {
-            phonemes.add(p1);
-            phonemes.add(new MBROLAPhoneme("_", 10, null, null));
-            phonemes.add(p2);
-            solved = true;
-        }
-        // Would denasalising one of them help?
-        if (!solved) {
-            String s1a = null;
-            String s2a = s2;
-            if (s1.equals("E~") || s1.equals("e~")) s1a = "E";
-            else if (s1.equals("9^") || s1.equals("9~")) s1a = "9";
-            else if (s1.equals("a~")) s1a = "O";
-            else if (s1.equals("o~")) s1a = "o:";
-            if (s1a != null) {
-                if (hasDiphone(s1a + "-" + s2)) {
-                    p1.setSymbol(s1a);
-                    phonemes.add(p1);
-                    phonemes.add(p2);
-                    solved = true;
-                } else if (hasDiphone(s1a + "-N") && hasDiphone("N-" + s2)) {
-                    p1.setSymbol(s1a);
-                    p1.setDuration(p1.getDuration()-30);
-                    phonemes.add(p1);
-                    phonemes.add(new MBROLAPhoneme("N", 30, null, null));
-                    phonemes.add(p2);
-                    solved = true;
-                }                    
-            } else {
-                if (s2.equals("E~") || s2.equals("e~")) s2a = "E:";
-                else if (s2.equals("9^") || s2.equals("9~")) s2a = "9";
-                else if (s2.equals("a~")) s2a = "O";
-                else if (s2.equals("o~")) s2a = "o:";
-                if (s2a != null && hasDiphone(s1 + "-" + s2a)) {
-                    p2.setSymbol(s2a);
-                    phonemes.add(p1);
-                    phonemes.add(p2);
-                    solved = true;
-                } else if (s1a != null && s2a != null &&
-                           hasDiphone(s1a + "-" + s2a)) {
-                    p1.setSymbol(s1a);
-                    p2.setSymbol(s2a);
-                    phonemes.add(p1);
-                    phonemes.add(p2);
-                    solved = true;
-                }
-            }
-        }
-        // replace first a: with a?
-        if (!solved && s1.equals("a:") && hasDiphone("a-" + s2)) {
-            p1.setSymbol("a");
-            phonemes.add(p1);
-            phonemes.add(p2);
-            solved = true;
-        }
-        // replace second a: with a?
-        if (!solved && s2.equals("a:") && hasDiphone(s1 + "-a")) {
-            p2.setSymbol("a");
-            phonemes.add(p1);
-            phonemes.add(p2);
-            solved = true;
-        }
-        // replace first j with i:?
-        if (!solved && s1.equals("j") && hasDiphone("i:-" + s2)) {
-            p1.setSymbol("i:");
-            phonemes.add(p1);
-            phonemes.add(p2);
-            solved = true;
-        }
-        // replace second j with i:?
-        if (!solved && s2.equals("j") && hasDiphone(s1 + "-i:")) {
-            p2.setSymbol("i:");
-            phonemes.add(p1);
-            phonemes.add(p2);
-            solved = true;
-        }
-        // insert g before N?
-        if (!solved && s2.equals("N") &&
-            hasDiphone(s1 + "-g") && hasDiphone("g-N")) {
-            phonemes.add(p1);
-            phonemes.add(new MBROLAPhoneme("g", 10, null, null));
-            phonemes.add(p2);
-            solved = true;
-        }
-        // insert 6 after 9 or after O?
-        if (!solved && (s1.equals("9") || s1.equals("O")) &&
-            hasDiphone(s1 + "-6") && hasDiphone("6-" + s2)) {
-            phonemes.add(p1);
-            phonemes.add(new MBROLAPhoneme("6", 10, null, null));
-            phonemes.add(p2);
-            solved = true;
-        }
-        // insert @?
-        if (!solved && hasDiphone(s1 + "-@") && hasDiphone("@-" + s2)) {
-            phonemes.add(p1);
-            phonemes.add(new MBROLAPhoneme("@", 10, null, null));
-            phonemes.add(p2);
-            solved = true;
-        }
-        // No remedy... :-(
-        if (!solved) {
-            phonemes.add(p1);
-            phonemes.add(p2);
-        }
-        return phonemes;
-    }
     
 
     /**

@@ -46,6 +46,7 @@ import de.dfki.lt.mary.MaryData;
 import de.dfki.lt.mary.MaryDataType;
 import de.dfki.lt.mary.MaryXML;
 import de.dfki.lt.mary.modules.synthesis.MBROLAPhoneme;
+import de.dfki.lt.mary.modules.synthesis.MbrolaVoice;
 import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.util.MaryUtils;
 import de.dfki.lt.mary.util.dom.MaryDomUtils;
@@ -168,7 +169,8 @@ public class MaryXMLToMbrola extends InternalModule
                     i = k;
                 }
                 String vq = element.getAttribute("vq");
-                if (vq.equals("") || !voice.hasVoiceQuality(vq)) {
+                if (vq.equals("") ||
+                        !(voice instanceof MbrolaVoice && ((MbrolaVoice)voice).hasVoiceQuality(vq))) {
                     vq = null;
                 }
                 MBROLAPhoneme newP = new MBROLAPhoneme(s, dur, targets, vq);
@@ -176,15 +178,16 @@ public class MaryXMLToMbrola extends InternalModule
                 mbrolaPhonemes.addAll(p2vect);
                 // Verify if diphone exists:
                 while (mbrolaPhonemes.size() > 1) { // at least 2 phonemes
-                    if (!voice.hasDiphone
-                        ((MBROLAPhoneme)mbrolaPhonemes.get(0),
-                         (MBROLAPhoneme)mbrolaPhonemes.get(1))) {
+                    if (voice instanceof MbrolaVoice 
+                            && !((MbrolaVoice)voice).hasDiphone
+                                ((MBROLAPhoneme)mbrolaPhonemes.get(0),
+                                 (MBROLAPhoneme)mbrolaPhonemes.get(1))) {
                         // Replace the first two phonemes:
                         MBROLAPhoneme p1 =
                             (MBROLAPhoneme) mbrolaPhonemes.removeFirst();
                         MBROLAPhoneme p2 =
                             (MBROLAPhoneme) mbrolaPhonemes.removeFirst();
-                        Vector newPhones = voice.replaceDiphone(p1, p2);
+                        Vector newPhones = ((MbrolaVoice)voice).replaceDiphone(p1, p2);
                         // Prepend them to list:
                         for (int l=newPhones.size()-1; l>=0; l--) {
                             MBROLAPhoneme mph = (MBROLAPhoneme) newPhones.get(l);

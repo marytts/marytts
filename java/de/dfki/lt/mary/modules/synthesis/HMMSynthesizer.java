@@ -161,15 +161,12 @@ public class HMMSynthesizer implements WaveformSynthesizer {
                     samplingRate, // nr. of frames per second
                     false);
             
-            Voice v = new Voice (null,
-                    new String[] { voiceName },
+            Voice v = new Voice (new String[] { voiceName },
                     locale,
                     format,
                     this,
                     gender,
-                    -1, -1, -1, -1,
-                    null,
-                    null);
+                    -1, -1, -1, -1);
             Voice.registerVoice(v);
         }
         logger.info("started.");
