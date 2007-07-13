@@ -57,9 +57,12 @@ import org.w3c.dom.Element;
 
 import de.dfki.lt.freetts.ClusterUnitVoice;
 import de.dfki.lt.freetts.DiphoneVoice;
+import de.dfki.lt.mary.Mary;
 import de.dfki.lt.mary.MaryData;
+import de.dfki.lt.mary.MaryDataType;
 import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.mary.MaryXML;
+import de.dfki.lt.mary.modules.MaryModule;
 import de.dfki.lt.mary.modules.phonemiser.Phoneme;
 import de.dfki.lt.mary.modules.phonemiser.PhonemeSet;
 import de.dfki.lt.mary.modules.phonemiser.Syllabifier;
@@ -150,6 +153,8 @@ public class Voice
     private Set missingDiphones;
     private int wantToBeDefault;
     private PhonemeSet phonemeSet;
+    String preferredModulesClasses;
+    private Vector preferredModules;
 
     
     public Voice(String path, String[] nameArray, Locale locale, 
@@ -158,7 +163,7 @@ public class Voice
                  Gender gender,
                  int topStart, int topEnd, int baseStart, int baseEnd,
                  String[] knownVoiceQualities,
-                 String missingDiphonesPath)
+                 String missingDiphonesPath) 
     {
         this.path = path;
         this.names = new ArrayList();
@@ -208,6 +213,7 @@ public class Voice
                 phonemeSet = null;
             }
         }
+        preferredModulesClasses = MaryProperties.getProperty("voice."+getName()+".preferredModules");
     }
 
     /**
@@ -421,6 +427,43 @@ public class Voice
     {
         if (phonemeSet == null) return null;
         return phonemeSet.getPhoneme(sampaSymbol);
+    }
+    
+    
+    public Vector getPreferredModulesAcceptingType(MaryDataType type)
+    {
+        if (preferredModules == null && preferredModulesClasses != null) {
+            // need to initialise the list of modules
+            preferredModules = new Vector();
+            StringTokenizer st = new StringTokenizer(preferredModulesClasses, ", \t\n\r\f");
+            while (st.hasMoreTokens()) {
+                String className = st.nextToken();
+                try {
+                    MaryModule mm = Mary.getModule(Class.forName(className));
+                    if (mm == null) {
+                        // need to create our own:
+                        mm = (MaryModule) Class.forName(className).newInstance();
+                        mm.startup();
+                    }
+                    preferredModules.add(mm);
+                } catch (Exception e) {
+                    logger.warn("Cannot initialise preferred module "+className+" for voice "+getName()+" -- skipping.");
+                }
+            }
+
+        }
+        if (preferredModules != null) {
+            Vector v = new Vector();
+            for (Iterator it = preferredModules.iterator(); it.hasNext(); ) {
+                MaryModule m = (MaryModule) it.next();
+                if (m.inputType().equals(type)) {
+                    v.add(m);
+                }
+            }
+            if (v.size() > 0) return v;
+            else return null;
+        }
+        return null;
     }
     
 
@@ -722,8 +765,14 @@ public class Voice
                 }
             }
             if (interpolatingSynthesizer == null) return null;
-            Voice v = new InterpolatingVoice(interpolatingSynthesizer, name);
-            registerVoice(v);
+            try {   
+                Voice v = new InterpolatingVoice(interpolatingSynthesizer, name);
+                registerVoice(v);
+                return v;
+            } catch (Exception e) {
+                logger.warn("Could not create Interpolating voice:", e);
+                return null;
+            }
         }
         return null; // no such voice found
     }

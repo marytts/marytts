@@ -236,6 +236,7 @@ public class Request {
             || inputType.isXMLType() && !inputType.isMaryXML()) {
             // Convert to RAWMARYXML
             rawmaryxml = processOneChunk(inputData, MaryDataType.get("RAWMARYXML"));
+            assert rawmaryxml.getDefaultVoice() != null;
             inputDataList = splitIntoChunks(rawmaryxml);
         } else if (inputType.equals(MaryDataType.get("RAWMARYXML"))) {
             rawmaryxml = inputData;
@@ -243,6 +244,7 @@ public class Request {
         } else {
             // other input data types are processed as a whole
             outputData = processOneChunk(inputData, outputType);
+            assert outputData.getDefaultVoice() != null;
             if (appendableAudioStream != null) appendableAudioStream.doneAppending();
             return;
         }
@@ -257,6 +259,7 @@ public class Request {
             // as the starting point for MaryXML output types,
             // in order to gradually enrich them:
             outputData.setDocument(rawmaryxml.getDocument());
+            outputData.setDefaultVoice(defaultVoice);
         }
         int len = inputDataList.getLength();
         for (int i=0; i<len && !abortRequested; i++) {
@@ -268,7 +271,9 @@ public class Request {
                 outputNodeList = currentInputParagraph.getChildNodes();
             } else { // process "real" data:
                 MaryData oneInputData = extractParagraphAsMaryData(rawmaryxml, currentInputParagraph);
+                assert oneInputData.getDefaultVoice() != null;
                 MaryData oneOutputData = processOneChunk(oneInputData, outputType);
+                assert oneOutputData.getDefaultVoice() != null;
                 if (outputType.isMaryXML()) {
                     NodeList outParagraphList = oneOutputData.getDocument().getDocumentElement().getElementsByTagName(MaryXML.PARAGRAPH);
                     // This does not hold for Tibetan:
@@ -317,7 +322,7 @@ public class Request {
         Locale locale = determineLocale(oneInputData);
         assert locale != null;
         logger.debug("Determining which modules to use");
-        List neededModules = Mary.modulesRequiredForProcessing(oneInputData.type(), oneOutputType, locale);
+        List neededModules = Mary.modulesRequiredForProcessing(oneInputData.type(), oneOutputType, locale, oneInputData.getDefaultVoice());
         // Now neededModules contains references to the needed modules,
         // in the order in which they are to process the data.
         if (neededModules == null) {
@@ -360,8 +365,6 @@ public class Request {
                 currentData.writeTo(dummy);
                 // side effect: writeTo() writes to log if debug
             }
-            if (currentData.getDefaultVoice() == null)
-                currentData.setDefaultVoice(defaultVoice);
             logger.info("Next module: " + m.name());
             MaryData outData = null;
             try {
@@ -373,6 +376,7 @@ public class Request {
             if (outData == null) {
                 throw new NullPointerException("Module " + m.name() + " returned null. This should not happen.");
             }
+            outData.setDefaultVoice(defaultVoice);
             currentData = outData;
             long moduleStopTime = System.currentTimeMillis();
             long delta = moduleStopTime - moduleStartTime;
