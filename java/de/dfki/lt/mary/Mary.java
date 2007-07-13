@@ -137,7 +137,22 @@ public class Mary {
     public static LinkedList modulesRequiredForProcessing(
         MaryDataType sourceType,
         MaryDataType targetType,
-        Locale locale) {
+        Locale locale)
+    {
+        return modulesRequiredForProcessing(sourceType, targetType, locale, null);
+    }
+    /**
+     * A method for determining the list of modules required to transform
+     * the given source data type into the requested target data type. If the
+     * voice given is not null, any preferred modules it may have are taken into account.
+     * @return the (ordered) list of modules required, or null if no such
+     * list could be found.
+     */
+    public static LinkedList modulesRequiredForProcessing(
+        MaryDataType sourceType,
+        MaryDataType targetType,
+        Locale locale,
+        Voice voice) {
         if (sourceType == null)
             throw new NullPointerException("Received null source type");
         if (targetType == null)
@@ -150,6 +165,7 @@ public class Mary {
             sourceType,
             targetType,
             locale,
+            voice,
             seenTypes);
     }
     
@@ -176,6 +192,7 @@ public class Mary {
         MaryDataType sourceType,
         MaryDataType targetType,
         Locale locale,
+        Voice voice,
         LinkedList seenTypes) {
         // This method recursively calls itself.
         // It forward-constructs a list of seen types (upon test),
@@ -187,7 +204,12 @@ public class Mary {
             return new LinkedList();
         }
         // Recursion step:
-        Vector candidates = getModulesAcceptingType(sourceType);
+        // Any voice-specific modules?
+        Vector candidates = null;
+        if (voice != null) candidates = voice.getPreferredModulesAcceptingType(sourceType);
+        if (candidates == null || candidates.isEmpty()) { // default: use all available modules
+            candidates = getModulesAcceptingType(sourceType);
+        }
         if (candidates == null || candidates.isEmpty()) {
             // Verify if it is a language-independent type for which
             // a language-dependent data type exists:
@@ -223,6 +245,7 @@ public class Mary {
                         outputType,
                         targetType,
                         locale,
+                        voice,
                         seenTypes);
                 if (path != null) {
                     // success, found a path of which candidate is the first
