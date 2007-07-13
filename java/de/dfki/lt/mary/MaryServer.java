@@ -382,8 +382,9 @@ public class MaryServer {
                     if (tt.countTokens() == 2 && tt.nextToken().equals("IN")) {
                         // The value of IN=
                         helper = tt.nextToken(); // the input type
-                        inputType = MaryDataType.get(helper);
-                        if (inputType == null) {
+                        if (MaryDataType.exists(helper)) {
+                            inputType = MaryDataType.get(helper);
+                        } else {
                             throw new Exception("Invalid input type: " + helper);
                         }
                     } else {
@@ -399,8 +400,9 @@ public class MaryServer {
                     if (tt.countTokens() == 2 && tt.nextToken().equals("OUT")) {
                         // The value of OUT=
                         helper = tt.nextToken(); // the output type
-                        outputType = MaryDataType.get(helper);
-                        if (outputType == null) {
+                        if (MaryDataType.exists(helper)) {
+                            outputType = MaryDataType.get(helper);
+                        } else {
                             throw new Exception("Invalid output type: " + helper);
                         }
                     } else {

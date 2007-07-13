@@ -130,9 +130,9 @@ public abstract class SynthesisCallerBase extends InternalModule
         }
         
         VoiceSectioner sectioner = null;
-        if (MaryDataType.exists("FESTIVAL_UTT") && inputType().equals(MaryDataType.get("FESTIVAL_UTT"))) {
+        if (MaryDataType.get("FESTIVAL_UTT") != null && inputType().equals(MaryDataType.get("FESTIVAL_UTT"))) {
             sectioner = new FestivalUttSectioner(input, defaultVoice);
-        } else if (MaryDataType.exists("MBROLA") && inputType().equals(MaryDataType.get("MBROLA"))) {
+        } else if (MaryDataType.get("MBROLA") != null && inputType().equals(MaryDataType.get("MBROLA"))) {
             sectioner = new MbrolaVoiceSectioner(input, defaultVoice);
         } else {
             throw new RuntimeException("Don't know how to handle input type '"+inputType()+"'");
@@ -148,7 +148,7 @@ public abstract class SynthesisCallerBase extends InternalModule
                 commonAudioFormat = section.voice().dbAudioFormat();
         }
         // And second pass:
-        if (MaryDataType.exists("FESTIVAL_UTT") && inputType().equals(MaryDataType.get("FESTIVAL_UTT"))) {
+        if (MaryDataType.get("FESTIVAL_UTT") != null && inputType().equals(MaryDataType.get("FESTIVAL_UTT"))) {
             sectioner = new FestivalUttSectioner(input, defaultVoice);
         } else {
             sectioner = new MbrolaVoiceSectioner(input, defaultVoice);
