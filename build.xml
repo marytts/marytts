@@ -116,7 +116,10 @@ THIS SOFTWARE.
                    de/dfki/lt/mary/modules/apml-to-mary.xsl
                    de/dfki/lt/mary/modules/emotion-to-mary.xsl
                    de/dfki/lt/mary/specification-version.txt
-                   de/dfki/lt/mary/implementation-version.txt"
+                   de/dfki/lt/mary/implementation-version.txt
+  				   de/dfki/lt/mary/unitselection/voiceimport/configure.png
+    			   de/dfki/lt/mary/unitselection/voiceimport/help_import_main.html
+    			   de/dfki/lt/mary/unitselection/voiceimport/importMain.config"
         excludes="de/dfki/lt/mary/modules/synthesis/FreeTTSSynthesizer.class
 		   	  de/dfki/lt/mary/modules/synthesis/FreeTTSVoices.class
 			  de/dfki/lt/mary/modules/DummyFreeTTSVoice.class
