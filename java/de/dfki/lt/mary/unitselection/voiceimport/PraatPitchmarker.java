@@ -244,7 +244,6 @@ public class PraatPitchmarker extends VoiceImportComponent
         toScript.println("Quit");
         toScript.close();
 
-        System.out.println("Running Praat as: "+getProp(COMMAND)+" "+tmpScript);
         Process praat = Runtime.getRuntime().exec(getProp(COMMAND)+" "+tmpScript);
         final BufferedReader fromPraat = new BufferedReader(new InputStreamReader(praat.getInputStream()));
         new Thread() {
@@ -296,7 +295,8 @@ public class PraatPitchmarker extends VoiceImportComponent
             dir.mkdir();
         }
 
-
+        
+        System.out.println("Running Praat as: "+getProp(COMMAND)+" "+tmpScript);
         for ( int i = 0; i < baseNameArray.length; i++ ) {
             percent = 100*i/baseNameArray.length;
             praatPitchmarks(baseNameArray[i]);

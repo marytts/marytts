@@ -90,7 +90,7 @@ public class CARTBuilder extends VoiceImportComponent {
                     featSeqOut.println("# Automatically generated feature sequence file for CARTBuilder\n"
                             +"# Add features to refine\n"
                             +"# Defines the feature sequence used to build the top-level CART\n"
-                            +"mary_phoneme");
+                            +"mary_phoneme\nmary_stressed\nmary_next_phoneme");
                     featSeqOut.flush();
                     featSeqOut.close();
                 } catch (Exception e){

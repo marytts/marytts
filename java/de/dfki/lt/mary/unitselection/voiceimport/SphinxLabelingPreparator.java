@@ -295,6 +295,7 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
             //next token is filename, 
             //put it in filename list
             String nextFilename = tok.nextToken();
+            System.out.println(nextFilename);
             filenameList.add(nextFilename);
             
                 //transcription is everything between " "

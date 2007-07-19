@@ -131,7 +131,7 @@ public class MCepTimelineMaker extends VoiceImportComponent
             
             /* Then, browse the remaining files: */
             for ( int i = 1; i < baseNameArray.length; i++ ) {
-                percent = 100*i/baseNameArray.length;
+                percent = 50*i/baseNameArray.length;
                 /* - open+load */
                 // System.out.println( baseNameArray[i] );
                 mcepFile = new ESTTrackReader(getProp(MCEPDIR) 
@@ -188,6 +188,7 @@ public class MCepTimelineMaker extends VoiceImportComponent
             
             /* For each EST track file: */
             for ( int i = 0; i < baseNameArray.length; i++ ) {
+                percent = 50+50*i/baseNameArray.length;
                 /* - open+load */
                 System.out.println( baseNameArray[i] );
                 mcepFile = new ESTTrackReader( getProp(MCEPDIR) 

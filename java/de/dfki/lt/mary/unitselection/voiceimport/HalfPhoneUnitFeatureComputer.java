@@ -62,10 +62,11 @@ public class HalfPhoneUnitFeatureComputer extends PhoneUnitFeatureComputer
             }
             System.out.print("Created successfully.\n");
         }    
-        
+       
+
         maryInputType = "RAWMARYXML";
         if (locale.equals("de")) maryOutputType = "HALFPHONE_TARGETFEATURES_DE";
-        else if (locale.equals("en")) maryOutputType = "HALFPHONE_TARGETFEATURES_EN";
+        else if (locale.equals("en") || locale.equals("en_US")) maryOutputType = "HALFPHONE_TARGETFEATURES_EN";
         else throw new IllegalArgumentException("Unsupported locale: "+locale);
     }
     
