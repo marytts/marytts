@@ -40,7 +40,7 @@ import java.io.IOException;
  * writing from files, or converting formats of numbers.
  */
 public class General
-{
+{ 
 
     /**
      * Reads the next word (text separated by whitespace) from the

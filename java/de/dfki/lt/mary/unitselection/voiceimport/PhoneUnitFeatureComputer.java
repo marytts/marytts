@@ -67,7 +67,7 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
         
         maryInputType = "RAWMARYXML";
         if (locale.equals("de")) maryOutputType = "TARGETFEATURES_DE";
-        else if (locale.equals("en")) maryOutputType = "TARGETFEATURES_EN";
+        else if (locale.equals("en") || locale.equals("en_US")) maryOutputType = "TARGETFEATURES_EN";
         else throw new IllegalArgumentException("Unsupported locale: "+locale);       
     }
      

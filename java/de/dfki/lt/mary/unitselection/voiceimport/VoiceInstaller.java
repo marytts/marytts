@@ -228,20 +228,22 @@ public class VoiceInstaller extends VoiceImportComponent{
     
     private void createExampleText(File exampleTextFile) throws IOException{
         try{
-            //just take the first transcript file as example text
-            String basename = bnl.getName(0);
-            BufferedReader transIn = 
-                new BufferedReader(
-                        new InputStreamReader(
-                                new FileInputStream(
-                                        new File(db.getProp(db.TEXTDIR)
-                                                +basename+db.getProp(db.TEXTEXT)))));
-            String text = transIn.readLine();
-            transIn.close();
+            //just take the first three transcript files as example text
             PrintWriter exampleTextOut =
                 new PrintWriter(
                         new FileWriter(exampleTextFile),true);
-            exampleTextOut.println(text);
+            for (int i=0;i<3;i++){
+                String basename = bnl.getName(i);
+                BufferedReader transIn = 
+                    new BufferedReader(
+                            new InputStreamReader(
+                                    new FileInputStream(
+                                            new File(db.getProp(db.TEXTDIR)
+                                                    +basename+db.getProp(db.TEXTEXT)))));
+                String text = transIn.readLine();
+                transIn.close();            
+                exampleTextOut.println(text);
+            }
             exampleTextOut.close();
             
         } catch (Exception e){

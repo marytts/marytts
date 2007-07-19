@@ -36,6 +36,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.Iterator;
 
 import de.dfki.lt.mary.util.ByteStringTranslator;
 import de.dfki.lt.mary.util.IntStringTranslator;
@@ -1062,9 +1063,42 @@ public class FeatureDefinition
                 +"# THIS FILE WAS GENERATED AUTOMATICALLY");
         out.println();
         out.println("ByteValuedFeatureProcessors");
+        List getValuesOf10 = new ArrayList();
+        getValuesOf10.add("mary_phoneme");
+        getValuesOf10.add("mary_ph_vc");
+        getValuesOf10.add("mary_prev_phoneme");
+        getValuesOf10.add("mary_next_phoneme");
+        getValuesOf10.add("mary_stressed");
+        getValuesOf10.add("mary_syl_break");
+        getValuesOf10.add("mary_prev_syl_break");
+        getValuesOf10.add("mary_next_is_pause");
+        getValuesOf10.add("mary_prev_is_pause");
+        List getValuesOf5 = new ArrayList();
+        getValuesOf5.add("cplace");
+        getValuesOf5.add("ctype");
+        getValuesOf5.add("cvox");
+        getValuesOf5.add("vfront");
+        getValuesOf5.add("vheight");
+        getValuesOf5.add("vlng");
+        getValuesOf5.add("vrnd");
+        getValuesOf5.add("vc");
         for (int i=0; i<numByteFeatures; i++) { 
             String featureName = getFeatureName(i);
-            out.print("0 | "+featureName);
+            if (getValuesOf10.contains(featureName)){
+                out.print("10 | "+featureName);
+            } else {
+                boolean found = false;
+                for (Iterator it = getValuesOf5.iterator();it.hasNext();){
+                    if (featureName.matches(".*"+(String)it.next())){
+                        out.print("5 | "+featureName);
+                        found=true;
+                        break;
+                    }
+                } 
+                if (!found){
+                    out.print("0 | "+featureName);
+                }
+            }
             for (int v=0, vmax=getNumberOfValues(i); v<vmax; v++) {
                 String val = getFeatureValueAsString(i, v);
                 out.print(" "+val);

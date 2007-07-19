@@ -132,7 +132,7 @@ public class DatabaseImportMain extends JFrame
         gridC.gridy = 0;
         gridC.fill = GridBagConstraints.BOTH;
         JScrollPane scrollPane = new JScrollPane(checkboxPane);
-        scrollPane.setPreferredSize(new Dimension(400,300));
+        scrollPane.setPreferredSize(new Dimension(450,300));
         gridBagLayout.setConstraints( scrollPane, gridC );
         getContentPane().add(scrollPane);
 
@@ -406,7 +406,7 @@ public class DatabaseImportMain extends JFrame
             for (int j=1;j<nextComps.length;j++){
                 //get the class name of this component
                 String className = nextComps[j];
-                System.out.println(className);
+                //System.out.println(className);
                 //create a new instance of this class and store in compsList
                 compsList.add((VoiceImportComponent)Class.forName(className).newInstance());
                 //remove "de.dfki...." from class name and store in groups2comps
