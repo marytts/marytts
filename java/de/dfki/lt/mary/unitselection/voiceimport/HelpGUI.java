@@ -34,6 +34,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
@@ -45,8 +46,7 @@ public class HelpGUI {
     
     public HelpGUI(InputStream fileIn)
     {
-        editPane = new JEditorPane();
-        editPane.setPreferredSize(new Dimension(700, 500));
+        editPane = new JEditorPane();        
         editPane.setContentType("text/html; charset=UTF-8");        
         try{
             editPane.read(new InputStreamReader(fileIn, "UTF-8"), null);
@@ -55,6 +55,7 @@ public class HelpGUI {
             System.out.println("Could not read file : "
                     +e.getMessage());            
         }
+        editPane.setPreferredSize(new Dimension(700, 500));
         editPane.setEditable(false);
     }
     
@@ -92,7 +93,8 @@ public class HelpGUI {
         // do not resize buttons:
         gridC.weightx = 0;
         gridC.weighty = 0;
-        JButton exitButton = new JButton("Exit");
+        JButton exitButton = new JButton("Quit");
+        exitButton.setMnemonic(KeyEvent.VK_Q);
         exitButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 frame.setVisible(false);
@@ -119,7 +121,7 @@ public class HelpGUI {
             }
         } while (frame.isVisible());
         
-        frame.dispose();  
+        frame.dispose(); 
         return true;
     }
     

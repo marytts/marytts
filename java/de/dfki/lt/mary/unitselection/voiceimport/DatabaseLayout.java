@@ -781,7 +781,7 @@ public class DatabaseLayout
         }
         
         helpText.append("</dl>\n</body>\n</html>");
-        comps2HelpText.put("global properties",helpText.toString());
+        comps2HelpText.put("Global properties",helpText.toString());
         for (int i=0;i<components.length;i++){
             comps2HelpText.put(compNames[i],components[i].getHelpText());
         }
