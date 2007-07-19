@@ -38,8 +38,10 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -48,6 +50,7 @@ import java.net.URL;
 
 
 import javax.swing.*;
+
 import java.util.*;
 
 
@@ -118,6 +121,7 @@ public class DatabaseImportMain extends JFrame
                 configButton.setBorderPainted(false);
                 //System.out.println("Adding checkbox for "+components[i].getClass().getName());
                 checkboxes[compIndex] = new JCheckBox(nextGroup[i]);
+                checkboxes[compIndex].setFocusable(true);
                 //checkboxes[i].setPreferredSize(new Dimension(200, 30));
                 JPanel line = new JPanel();
                 line.setLayout(new BorderLayout(5, 0));
@@ -137,12 +141,14 @@ public class DatabaseImportMain extends JFrame
         getContentPane().add(scrollPane);
 
         JButton helpButton = new JButton("Help");
+        helpButton.setMnemonic(KeyEvent.VK_H);
         helpButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
                 displayHelpGUI();
             }
         });
         JButton settingsButton = new JButton("Settings");
+        settingsButton.setMnemonic(KeyEvent.VK_S);
         settingsButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
                 currentComponent = "Global properties";
@@ -150,6 +156,7 @@ public class DatabaseImportMain extends JFrame
             }
         });
         runButton = new JButton("Run");
+        runButton.setMnemonic(KeyEvent.VK_R);
         runButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
                 runSelectedComponents();
@@ -157,6 +164,7 @@ public class DatabaseImportMain extends JFrame
         });
         
         JButton quitAndSaveButton = new JButton("Quit");
+        quitAndSaveButton.setMnemonic(KeyEvent.VK_Q);
         quitAndSaveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
                 try {
@@ -182,6 +190,7 @@ public class DatabaseImportMain extends JFrame
         buttonPanel.add(quitAndSaveButton);
         gridBagLayout.setConstraints( buttonPanel, gridC );
         getContentPane().add(buttonPanel);
+        
         //getContentPane().setPreferredSize(new Dimension(300, 300));
         // End program when closing window:
         addWindowListener(new WindowAdapter() {
@@ -198,6 +207,7 @@ public class DatabaseImportMain extends JFrame
     
     
     protected void displayHelpGUI(){
+        Thread helpGUIThread = 
             new Thread("DisplayHelpGUIThread") {
                 public void run() {
                     boolean ok = 
@@ -206,7 +216,8 @@ public class DatabaseImportMain extends JFrame
                         System.out.println("Error displaying helpfile "
                                 +"help_import_main.html");
                     }                    
-                }}.start();
+                }};
+                helpGUIThread.start();
     }
     
     protected void displaySettingsGUI(){

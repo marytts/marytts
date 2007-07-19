@@ -30,6 +30,7 @@ package de.dfki.lt.mary.unitselection.voiceimport;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 import javax.swing.table.*;
 import javax.swing.event.*;
@@ -151,7 +152,14 @@ public class SettingsGUI {
             String[][] currentProps = getPropsForCompName(selectedComp);
             tableModel = new PropTableModel(columnNames,currentProps);
         }
-        table = new JTable(tableModel);        
+        table = new JTable(tableModel); 
+        //set the focus traversal keys for the table
+        Set forwardKeys = new HashSet();
+        forwardKeys.add(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0, false));
+        table.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,forwardKeys);
+        Set backwardKeys = new HashSet();
+        backwardKeys.add(KeyStroke.getKeyStroke(KeyEvent.VK_TAB,KeyEvent.SHIFT_MASK+KeyEvent.SHIFT_DOWN_MASK, false));
+        table.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS,backwardKeys);
         //table.setPreferredScrollableViewportSize(new Dimension(600, 500));
         scrollPane = new JScrollPane(table);
         gridC.gridy = 1;
@@ -168,6 +176,7 @@ public class SettingsGUI {
         gridC.weightx = 0;
         gridC.weighty = 0;
         JButton helpButton = new JButton("Help");
+        helpButton.setMnemonic(KeyEvent.VK_H);
         helpButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                     new Thread("DisplayHelpGUIThread") {
@@ -183,7 +192,7 @@ public class SettingsGUI {
             }
         });
         JButton saveButton = new JButton("Save");
-       
+        saveButton.setMnemonic(KeyEvent.VK_S);
         saveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 int col = table.getEditingColumn();
@@ -202,6 +211,7 @@ public class SettingsGUI {
             }
         });
         JButton cancelButton = new JButton("Cancel");
+        cancelButton.setMnemonic(KeyEvent.VK_C);
         cancelButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 wasSaved = false;
