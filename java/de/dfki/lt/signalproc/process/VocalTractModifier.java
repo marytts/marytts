@@ -53,24 +53,44 @@ public class VocalTractModifier implements InlineDataProcessor {
     protected int fs;
     protected int fftSize;
     protected int maxFreq;
-    private double[] real;
-    private double[] imag;
-    private double [] vtSpectrum;
-    Complex expTerm;
+    protected double[] real;
+    protected double[] imag;
+    protected double [] vtSpectrum;
+    private Complex expTerm;
+    private boolean bAnalysisOnly;
     
     /**
      * 
      */
-    public VocalTractModifier(int p, int fs, int fftSize) {
-            this.p = p;
-            this.fs = fs;
-            this.fftSize = fftSize;
-            this.real = new double[fftSize];
-            this.imag = new double[fftSize];
-            this.maxFreq = SignalProcUtils.halfSpectrumSize(fftSize);
-            this.vtSpectrum = new double[maxFreq];
-            this.expTerm = new Complex(p*maxFreq);
-            this.expTerm = LPCAnalyser.calcExpTerm(fftSize, p);
+    
+    //For derived classes which will call initialise on their own
+    public VocalTractModifier() {
+    
+    }
+    
+    public VocalTractModifier(int pIn, int fsIn, int fftSizeIn) {
+            initialise(pIn, fsIn, fftSizeIn);
+    }
+    
+    public void initialise(int pIn, int fsIn, int fftSizeIn)
+    {
+        initialise(pIn, fsIn, fftSizeIn, false);
+    }
+    
+    //If bAnalysisOnly is true, it will not process the spectrum and after each call to applyInline, you will obtain
+    // the real valued vocal tract spectrum in vtSpectrum and the complex valued excitation spectrum in real and imag
+    public void initialise(int pIn, int fsIn, int fftSizeIn, boolean bAnalysisOnlyIn)
+    {
+        this.p = pIn;
+        this.fs = fsIn;
+        this.fftSize = fftSizeIn;
+        this.real = new double[fftSize];
+        this.imag = new double[fftSize];
+        this.maxFreq = SignalProcUtils.halfSpectrumSize(fftSize);
+        this.vtSpectrum = new double[maxFreq];
+        this.expTerm = new Complex(p*maxFreq);
+        this.expTerm = LPCAnalyser.calcExpTerm(fftSize, p);
+        this.bAnalysisOnly = bAnalysisOnlyIn;
     }
     
     public void applyInline(double [] data, int pos, int len) {
@@ -82,49 +102,53 @@ public class VocalTractModifier implements InlineDataProcessor {
         
         // Compute LPC coefficients
         LPCoeffs coeffs = LPCAnalyser.calcLPC(data, p);
-        double gain = coeffs.getGain();
+        double sqrtGain = coeffs.getGain();
         
-        // For correct phase, center time origin in the middle of windowed frame:
-        int middle = len/2 + len%2; //e.g., 3 if len==5  
-        System.arraycopy(data, pos+middle, real, 0, len-middle);
-        System.arraycopy(data, pos, real, real.length-middle, middle);
+        System.arraycopy(data, 0, real, 0, Math.min(len, real.length));
+        
         if (real.length > len)
-            Arrays.fill(real, len-middle, real.length-middle, 0);
-        Arrays.fill(imag, 0, imag.length, 0.);
+            Arrays.fill(real, real.length-len, real.length-1, 0);
+        
+        Arrays.fill(imag, 0, imag.length-1, 0);
         
         // Convert to polar coordinates in frequency domain
         FFT.transform(real, imag, false);
         
         vtSpectrum = LPCAnalyser.calcSpec(coeffs.getA(), p, fftSize, expTerm);
         
-        //Filter out vocal tract to obtain residual spectrum
+        for (k=0; k<maxFreq; k++)
+            vtSpectrum[k] *= sqrtGain;
+        
+        // Filter out vocal tract to obtain residual spectrum
         for (k=0; k<maxFreq; k++)
         {
             real[k] /= vtSpectrum[k];
             imag[k] /= vtSpectrum[k];
         }
         
-        // Process vocal tract spectrum
-        processSpectrum(vtSpectrum);
-        
-        //Apply modified vocal tract filter on the residual spectrum
-        for (k=0; k<maxFreq; k++)
+        if (!bAnalysisOnly)
         {
-            real[k] *= vtSpectrum[k];
-            imag[k] *= vtSpectrum[k];
-        }
-        
-        //Generate the complex conjugate part to make the output the DFT of a real-valued signal
-        for (k=maxFreq; k<fftSize; k++)
-        {
-            real[k] = real[2*maxFreq-k];
-            imag[k] = imag[2*maxFreq-k];
-        }
-        //
+            // Process vocal tract spectrum
+            processSpectrum(vtSpectrum);
 
-        FFT.transform(real, imag, true);
-        System.arraycopy(real, 0, data, pos+middle, len-middle);
-        System.arraycopy(real, real.length-middle, data, pos, middle);
+            //Apply modified vocal tract filter on the residual spectrum
+            for (k=0; k<maxFreq; k++)
+            {
+                real[k] *= vtSpectrum[k];
+                imag[k] *= vtSpectrum[k];
+            }
+
+            //Generate the complex conjugate part to make the output the DFT of a real-valued signal
+            for (k=maxFreq; k<fftSize; k++)
+            {
+                real[k] = real[2*maxFreq-k];
+                imag[k] = imag[2*maxFreq-k];
+            }
+            //
+
+            FFT.transform(real, imag, true);
+            System.arraycopy(real, 0, data, 0, len);
+        }
     }
 
     //Overload this function in the derived classes to modify the vocal tract spectrum Px in anyway you wish
