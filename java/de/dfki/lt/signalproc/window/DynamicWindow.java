@@ -46,6 +46,12 @@ public class DynamicWindow implements InlineDataProcessor
     {
         this.windowType = windowType;
     }
+    
+    public double [] values(int len)
+    {
+        Window w = Window.get(windowType, len);
+        return w.window;
+    }
 
     /**
      * apply a window of the specified type, with length len, to the data. 
