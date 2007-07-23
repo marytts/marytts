@@ -54,6 +54,7 @@ import de.dfki.lt.signalproc.process.Chorus;
 import de.dfki.lt.signalproc.process.VocalTractScalingProcessor;
 import de.dfki.lt.signalproc.process.VocalTractScalingSimpleProcessor;
 import de.dfki.lt.signalproc.process.VocalTractModifier;
+import de.dfki.lt.signalproc.process.VoiceModificationParameters;
 import de.dfki.lt.signalproc.process.Robotiser.PhaseRemover;
 import de.dfki.lt.signalproc.process.AudioMixer;
 import de.dfki.lt.signalproc.filter.*;
@@ -101,7 +102,7 @@ public class ChangeMyVoiceUI extends javax.swing.JFrame {
     private String classPath; //Class run-time path
     private String strRecordPath;
     
-    VoiceModificationParameters modificationParameters;
+    VoiceModificationParameters modParams;
     String [] targetNames = { "Robot", 
                               "Whisper", 
                               "Dwarf1",
@@ -211,7 +212,7 @@ private String[] lpCrossSynthFiles = {"bird.wav",
         builtInFileNameList.add("herta-excited.wav");
 
         initComponents();
-        modificationParameters = new VoiceModificationParameters();
+        modParams = new VoiceModificationParameters();
     }
     
     /** This method is called from within the constructor to
@@ -631,7 +632,7 @@ private String[] lpCrossSynthFiles = {"bird.wav",
 
             AudioFormat audioFormat = new AudioFormat(
                 AudioFormat.Encoding.PCM_SIGNED,
-                modificationParameters.fs, 16, channels, 2*channels, modificationParameters.fs, false);
+                modParams.fs, 16, channels, 2*channels, modParams.fs, false);
 
             AudioFileFormat.Type    targetType = AudioFileFormat.Type.WAVE;
 
@@ -706,9 +707,9 @@ private String[] lpCrossSynthFiles = {"bird.wav",
    {
        targetIndex = jComboBoxTargetVoice.getSelectedIndex();
        if (targetNames[targetIndex]=="Telephone")
-           modificationParameters.fs = 8000;
+           modParams.fs = 8000;
        else
-           modificationParameters.fs = 16000;
+           modParams.fs = 16000;
        
        boolean bChangeEnabled = true;
        if (targetNames[targetIndex]=="Jet Pilot" || 
@@ -803,7 +804,7 @@ private String[] lpCrossSynthFiles = {"bird.wav",
     }
     
     /* This function gets the modification parameters from the GUI
-     * and fills in the modificationParameters object
+     * and fills in the modParams object
     */ 
     private void getParameters() {
         getInputIndex();
@@ -812,7 +813,7 @@ private String[] lpCrossSynthFiles = {"bird.wav",
     }
     
     /*This function opens source and target datalines and starts real-time voice modification  
-     * using the parameters in the modificationParameters object
+     * using the parameters in the modParams object
      */ 
     private void changeVoice() {
         int channels = 1;
@@ -822,7 +823,7 @@ private String[] lpCrossSynthFiles = {"bird.wav",
         if (inputIndex == 0) //Online processing using microphone
         {
             audioFormat = new AudioFormat(
-                    AudioFormat.Encoding.PCM_SIGNED, modificationParameters.fs, 16, channels, 2*channels, modificationParameters.fs,
+                    AudioFormat.Encoding.PCM_SIGNED, modParams.fs, 16, channels, 2*channels, modParams.fs,
                     false);
 
             if (microphone != null)
@@ -833,7 +834,7 @@ private String[] lpCrossSynthFiles = {"bird.wav",
             if (microphone != null)
             {
                 audioFormat = microphone.getFormat();
-                modificationParameters.fs = (int)audioFormat.getSampleRate();
+                modParams.fs = (int)audioFormat.getSampleRate();
             }
         }
         else //Online processing using pre-recorded wav file
@@ -869,7 +870,7 @@ private String[] lpCrossSynthFiles = {"bird.wav",
             if (inputStream != null)
             {
                 audioFormat = inputStream.getFormat();
-                modificationParameters.fs = (int)audioFormat.getSampleRate();
+                modParams.fs = (int)audioFormat.getSampleRate();
             }
         }
 
@@ -888,24 +889,24 @@ private String[] lpCrossSynthFiles = {"bird.wav",
 
         // Choose an audio effect
         InlineDataProcessor effect = null;
-        int bufferSize = SignalProcUtils.getDFTSize(modificationParameters.fs);
+        int bufferSize = SignalProcUtils.getDFTSize(modParams.fs);
 
         if (targetNames[targetIndex]=="Robot")
         {  
             double targetHz = 200+(amount-0.5)*200;
-            bufferSize = (int) (modificationParameters.fs / targetHz * 4 /*-fold overlap in ola*/ );
+            bufferSize = (int) (modParams.fs / targetHz * 4 /*-fold overlap in ola*/ );
 
             effect = new Robotiser.PhaseRemover(MathUtils.closestPowerOfTwoAbove(bufferSize), 1.0);
         }
         else if (targetNames[targetIndex]=="Whisper")
         {  
-            effect = new LPCWhisperiser(SignalProcUtils.getLPOrder((int)modificationParameters.fs), 0.4+0.6*amount);
+            effect = new LPCWhisperiser(SignalProcUtils.getLPOrder(modParams.fs), 0.4+0.6*amount);
         }
         else if (targetNames[targetIndex]=="Dwarf1") //Using freq. domain LP spectrum modification
         {  
             double [] vscales = {1.3+0.5*amount};
-            int p = SignalProcUtils.getLPOrder((int)modificationParameters.fs);
-            effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, bufferSize, vscales);
+            int p = SignalProcUtils.getLPOrder(modParams.fs);
+            effect = new VocalTractScalingProcessor(p, modParams.fs, bufferSize, vscales);
         }
         else if (targetNames[targetIndex]=="Dwarf2") //Using freq. domain DFT magnitude spectrum modification
         {  
@@ -915,8 +916,8 @@ private String[] lpCrossSynthFiles = {"bird.wav",
         else if (targetNames[targetIndex]=="Ogre1") //Using freq. domain LP spectrum modification
         { 
             double [] vscales = {0.90-0.1*amount};            
-            int p = SignalProcUtils.getLPOrder((int)modificationParameters.fs);
-            effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, bufferSize, vscales);
+            int p = SignalProcUtils.getLPOrder(modParams.fs);
+            effect = new VocalTractScalingProcessor(p, modParams.fs, bufferSize, vscales);
         }
         else if (targetNames[targetIndex]=="Ogre2") //Using freq. domain DFT magnitude spectrum modification
         { 
@@ -926,8 +927,8 @@ private String[] lpCrossSynthFiles = {"bird.wav",
         else if (targetNames[targetIndex]=="Giant1") //Using freq. domain LP spectrum modification
         {  
             double [] vscales = {0.75-0.1*amount};
-            int p = SignalProcUtils.getLPOrder((int)modificationParameters.fs);
-            effect = new VocalTractScalingProcessor(p, (int)modificationParameters.fs, bufferSize, vscales);
+            int p = SignalProcUtils.getLPOrder(modParams.fs);
+            effect = new VocalTractScalingProcessor(p, modParams.fs, bufferSize, vscales);
         }
         else if (targetNames[targetIndex]=="Giant2") //Using freq. domain DFT magnitude spectrum modification
         {  
@@ -940,12 +941,12 @@ private String[] lpCrossSynthFiles = {"bird.wav",
             double [] amps = {0.8, -0.7, 0.9};
             
             int maxDelayInMiliseconds = MathUtils.getMax(delaysInMiliseconds);
-            int maxDelayInSamples = (int)(maxDelayInMiliseconds/1000.0*modificationParameters.fs);
+            int maxDelayInSamples = (int)(maxDelayInMiliseconds/1000.0*modParams.fs);
             
             if (bufferSize<maxDelayInSamples)
                 bufferSize *= 2;
                 
-            effect = new Chorus(delaysInMiliseconds, amps, (int)(modificationParameters.fs));
+            effect = new Chorus(delaysInMiliseconds, amps, modParams.fs);
         }
         else if (targetNames[targetIndex]=="Stadium")
         {
@@ -953,52 +954,52 @@ private String[] lpCrossSynthFiles = {"bird.wav",
             double [] amps = {0.54, -0.10};
             
             int maxDelayInMiliseconds = MathUtils.getMax(delaysInMiliseconds);
-            int maxDelayInSamples = (int)(maxDelayInMiliseconds/1000.0*modificationParameters.fs);
+            int maxDelayInSamples = (int)(maxDelayInMiliseconds/1000.0*modParams.fs);
             
             if (bufferSize<maxDelayInSamples)
                 bufferSize *= 2;
             
-            effect = new Chorus(delaysInMiliseconds, amps, (int)(modificationParameters.fs));
+            effect = new Chorus(delaysInMiliseconds, amps, modParams.fs);
         }
         else if (targetNames[targetIndex]=="Telephone")
         {  
             bufferSize = 8*bufferSize;
-            double normalizedCutOffFreq1 = 300.0/modificationParameters.fs;
-            double normalizedCutOffFreq2 = 3400.0/modificationParameters.fs;
+            double normalizedCutOffFreq1 = 300.0/modParams.fs;
+            double normalizedCutOffFreq2 = 3400.0/modParams.fs;
             effect = new BandPassFilter(normalizedCutOffFreq1, normalizedCutOffFreq2, true);
         }
         else if (targetNames[targetIndex]=="Old Radio")
         {  
             bufferSize = 8*bufferSize;
-            double normalizedCutOffFreq = 3000.0/modificationParameters.fs;
+            double normalizedCutOffFreq = 3000.0/modParams.fs;
             effect = new LowPassFilter(normalizedCutOffFreq, true);
         }
         else if (targetNames[targetIndex]=="Jet Pilot")
         {  
             bufferSize = 8*bufferSize;
-            double normalizedCutOffFreq1 = 500.0/modificationParameters.fs;
-            double normalizedCutOffFreq2 = 2000.0/modificationParameters.fs;
+            double normalizedCutOffFreq1 = 500.0/modParams.fs;
+            double normalizedCutOffFreq2 = 2000.0/modParams.fs;
             effect = new BandPassFilter(normalizedCutOffFreq1, normalizedCutOffFreq2, true);
         }
         else if (targetNames[targetIndex]=="Helicopter Pilot")
         {
             mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[0]);
-            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, 0.3+0.5*amount, true);
+            effect = new AudioMixer(mixFile, 0.05, 0.2, modParams.fs, bufferSize, 0.3+0.5*amount, true);
         }
         else if (targetNames[targetIndex]=="Jungle")
         {
             mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[1]);
-            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, 0.05+0.2*amount, true);
+            effect = new AudioMixer(mixFile, 0.05, 0.2, modParams.fs, bufferSize, 0.05+0.2*amount, true);
         }
         else if (targetNames[targetIndex]=="Monster1")
         {
             mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[2]);
-            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, 0.05+0.2*amount, false);
+            effect = new AudioMixer(mixFile, 0.05, 0.2, modParams.fs, bufferSize, 0.05+0.2*amount, false);
         }
         else if (targetNames[targetIndex]=="Alien")
         {
             mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[3]);
-            effect = new AudioMixer(mixFile, 0.05, 0.2, modificationParameters.fs, bufferSize, 0.01+0.2*amount, false);
+            effect = new AudioMixer(mixFile, 0.05, 0.2, modParams.fs, bufferSize, 0.01+0.2*amount, false);
         }
         else if (targetNames[targetIndex]=="Bird")
         {  
@@ -1189,7 +1190,7 @@ private String[] lpCrossSynthFiles = {"bird.wav",
     {
         InlineDataProcessor effect = null;
       
-        effect = new LPCCrossSynthesisOnline(SignalProcUtils.getLPOrder((int)modificationParameters.fs), bufferSize, "lp_cross_synth/"+lpCrossSynthFiles[lpCrossSynthFileInd], (int)modificationParameters.fs);
+        effect = new LPCCrossSynthesisOnline(SignalProcUtils.getLPOrder(modParams.fs), bufferSize, "lp_cross_synth/"+lpCrossSynthFiles[lpCrossSynthFileInd], modParams.fs);
         
         return effect;
     }
