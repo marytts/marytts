@@ -29,6 +29,8 @@
 
 package de.dfki.lt.signalproc.util;
 
+import java.util.Vector;
+
 
 /**
  * @author Marc Schr&ouml;der
@@ -43,6 +45,12 @@ public class MathUtils {
     
     public static final double TWOPI = 2*Math.PI;
     
+    public static final int EQUALS = 0;
+    public static final int GREATER_THAN = 1;
+    public static final int GREATER_THAN_OR_EQUALS = 2;
+    public static final int LESS_THAN = 3;
+    public static final int LESS_THAN_OR_EQUALS = 4;
+    public static final int NOT_EQUALS = 5;
     
     public static boolean isPowerOfTwo(int N)
     {
@@ -188,6 +196,23 @@ public class MathUtils {
             mean += data[i];
         }
         mean /= data.length;
+        return mean;
+    }
+    
+    /**
+     * Compute the mean of all elements in the array with given indices. No missing values (NaN) are allowed.
+     * @throws IllegalArgumentException if the array contains NaN values. 
+     */
+    public static double mean(double[] data, int [] inds)
+    {
+        double mean = 0;
+        for (int i=0; i<inds.length; i++) {
+            if (Double.isNaN(data[inds[i]]))
+                throw new IllegalArgumentException("NaN not allowed in mean calculation");
+
+            mean += data[inds[i]];
+        }
+        mean /= inds.length;
         return mean;
     }
 
@@ -594,5 +619,217 @@ public class MathUtils {
         }
         
         return maxx;
+    }
+    
+    //Return an array where each entry is set to val
+    public static double [] filledArray(double val, int len)
+    {
+        double [] x = null;
+        
+        if (len>0)
+        {
+            x = new double[len];
+            for (int i=0; i<len; i++)
+                x[i] = val;
+        }
+        
+        return x;
+    }
+    
+    //Return an array where each entry is set to val
+    public static int [] filledArray(int val, int len)
+    {
+        int [] x = null;
+        
+        if (len>0)
+        {
+            x = new int[len];
+            for (int i=0; i<len; i++)
+                x[i] = val;
+        }
+        
+        return x;
+    }
+    
+    //Return an array filled with 0´s
+    public static double [] zeros(int len)
+    {
+        return filledArray(0.0, len);
+    }
+    
+    //Return an array filled with 1´s
+    public static double [] ones(int len)
+    {
+        return filledArray(1.0, len);
+    }
+    
+//  Return an array filled with 0´s
+    public static int [] zerosInt(int len)
+    {
+        return filledArray(0, len);
+    }
+    
+    //Return an array filled with 1´s
+    public static int [] onesInt(int len)
+    {
+        return filledArray(1, len);
+    }
+    
+    public static int [] find(double[] x, int comparator, double val)
+    {
+        int [] inds = null;
+        int totalFound = 0;
+        
+        switch (comparator)
+        {
+        case EQUALS:
+            for (int i=0; i<x.length; i++)
+            {
+                if (x[i]==val)
+                    totalFound++;
+            }
+            break;
+        case GREATER_THAN:
+            for (int i=0; i<x.length; i++)
+            {
+                if (x[i]>val)
+                    totalFound++;
+            }
+            break;
+        case GREATER_THAN_OR_EQUALS:
+            for (int i=0; i<x.length; i++)
+            {
+                if (x[i]>=val)
+                    totalFound++;
+            }
+            break;
+        case LESS_THAN:
+            for (int i=0; i<x.length; i++)
+            {
+                if (x[i]<val)
+                    totalFound++;
+            }
+            break;
+        case LESS_THAN_OR_EQUALS:
+            for (int i=0; i<x.length; i++)
+            {
+                if (x[i]<=val)
+                    totalFound++;
+            }
+            break;
+        case NOT_EQUALS:
+            for (int i=0; i<x.length; i++)
+            {
+                if (x[i]!=val)
+                    totalFound++;
+            }
+            break;
+        }
+        
+        if (totalFound>0)
+        {
+            int currentInd = 0;
+            inds = new int[totalFound];
+            
+            switch (comparator)
+            {
+            case EQUALS:
+                for (int i=0; i<x.length; i++)
+                {
+                    if (x[i]==val)
+                    {
+                        inds[currentInd++] = i;
+                        totalFound++;
+                    }
+                }
+                break;
+            case GREATER_THAN:
+                for (int i=0; i<x.length; i++)
+                {
+                    if (x[i]>val)
+                    {
+                        inds[currentInd++] = i;
+                        totalFound++;
+                    }
+                }
+                break;
+            case GREATER_THAN_OR_EQUALS:
+                for (int i=0; i<x.length; i++)
+                {
+                    if (x[i]>=val)
+                    {
+                        inds[currentInd++] = i;
+                        totalFound++;
+                    }
+                }
+                break;
+            case LESS_THAN:
+                for (int i=0; i<x.length; i++)
+                {
+                    if (x[i]<val)
+                    {
+                        inds[currentInd++] = i;
+                        totalFound++;
+                    }
+                }
+                break;
+            case LESS_THAN_OR_EQUALS:
+                for (int i=0; i<x.length; i++)
+                {
+                    if (x[i]<=val)
+                    {
+                        inds[currentInd++] = i;
+                        totalFound++;
+                    }
+                }
+                break;
+            case NOT_EQUALS:
+                for (int i=0; i<x.length; i++)
+                {
+                    if (x[i]!=val)
+                    {
+                        inds[currentInd++] = i;
+                        totalFound++;
+                    }
+                }
+                break;
+            }
+        }
+        
+        return inds;
+    }
+    
+    public static double [] interpolate_linear(int [] x, double [] y, int [] xi)
+    {
+        assert(x.length==y.length);
+        
+        double [] yi = new double[xi.length];
+        int i, j;
+        boolean bFound;
+        double alpha;
+        
+        for (i=0; i<xi.length; i++)
+        {
+            bFound = false;
+            for (j=0; j<x.length-1; j++)
+            {
+                if (xi[i]>=x[j] && xi[i]<x[j+1])
+                {
+                    bFound = true;
+                    break;
+                }
+            }
+            
+            if (bFound)
+            {
+                alpha = (((double)xi[i])-x[j])/(x[j+1]-x[j]);
+                yi[i] = (1-alpha)*y[j] + alpha*y[j+1];
+            }
+        }
+        
+        if (xi[xi.length-1]==x[x.length-1])
+            yi[xi.length-1] = y[x.length-1];
+        
+        return yi;
     }
 }
