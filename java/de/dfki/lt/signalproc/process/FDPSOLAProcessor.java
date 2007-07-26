@@ -11,6 +11,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
 import de.dfki.lt.signalproc.FFT;
+import de.dfki.lt.signalproc.FFTArbitraryLength;
 import de.dfki.lt.signalproc.analysis.F0Reader;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
@@ -69,6 +70,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         int synthFrmInd = 0;
         double localDurDiff = 0.0;
         int repeatSkipCount = 0; // -1:skip frame, 0:no repetition (use synthesized frame as it is), >0: number of repetitions for synthesized frame
+        int prevRepeatSkipCount = 0;
         double localDurDiffSaved = 0.0;
         double sumLocalDurDiffs = 0.0;
         double nextAdd = 0.0;
@@ -122,7 +124,11 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         int kInd;
        
         for (i=0; i<numfrm; i++)
-        {   
+        { 
+            int a;
+            if (totalWrittenToFile>=67140)
+                a=0;
+            
             if (bBroke)
                 break;
 
@@ -194,6 +200,14 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                 }
                 //
             }
+            
+            if (i==numfrm-1 && repeatSkipCount<0 && prevRepeatSkipCount<0)
+            {
+                repeatSkipCount=0;
+                bLastFrame = true;
+            }
+
+            prevRepeatSkipCount = repeatSkipCount;
 
             if (repeatSkipCount>-1)
             {
@@ -318,13 +332,12 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                     }
 
                     //Convert back to time domain
-                    FFT.transform(Hy.real, Hy.imag, true);
+                    //FFT.transform(Hy.real, Hy.imag, true);
+                    Hy = FFTArbitraryLength.ifft(Hy);
                     
                     frmy = new double[newFrmSize];
+                    System.arraycopy(Hy.real, 0, frmy, 0, newFrmSize);
                     
-                    for (k=0; k<newFrmSize; k++)
-                        frmy[k] = Hy.real[k];  //Maybe a scaling factor of 1.0/newFrmSize will be required here depending on FFT implementation
-
                     frmyEn = SignalProcUtils.getEnergy(frmy);
                     gain = (frmEn/Math.sqrt(frmSize))/(frmyEn/Math.sqrt(newFrmSize))*modParams.escalesVar[i];
                 }
@@ -649,10 +662,10 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         int numfrm = pm.pitchMarks.length-numPeriods; //Total pitch synchronous frames (This is the actual number of frames to be processed)
         int numfrmFixed = (int)(Math.floor(((double)(in.getDataLength()+pm.totalZerosToPadd)/fs-0.5*ws)/ss+0.5)+2); //Total frames if the analysis was fixed skip-rate
         
-        double [] pscales = {1.0};
+        double [] pscales = {0.75};
         double [] tscales = {2.0};
-        double [] escales = {1.0};
-        double [] vscales = {1.0};
+        double [] escales = {1.0, 1.2, 1.5, 2.0, 2.5, 3.0};
+        double [] vscales = {1.2, 1.5};
         VoiceModificationParametersPreprocessor modParams = new VoiceModificationParametersPreprocessor(fs, P,
                                                                                 pscales, tscales, escales, vscales,
                                                                                 pm.pitchMarks, ws, ss,
