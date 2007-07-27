@@ -29,19 +29,22 @@ import de.dfki.lt.signalproc.analysis.PitchMarker;
 
 public class FDPSOLAProcessor extends VocalTractModifier {
     private DoubleDataSource input;
+    private DoubleDataSource input2;
     private String outputFile;
     private VoiceModificationParametersPreprocessor modParams;
     private int numfrm;
     private String outFile;
     private int origLen;
     PitchMarker pm;
+    PSOLAFrameProvider psFrm;
     
-    public FDPSOLAProcessor(DoubleDataSource in, String strOutFile, PitchMarker pmIn, 
+    public FDPSOLAProcessor(DoubleDataSource in, DoubleDataSource in2 , String strOutFile, PitchMarker pmIn, 
             VoiceModificationParametersPreprocessor modParamsIn, int numfrmIn)
     {
         super();
         this.modParams = modParamsIn;
         this.input = in;
+        this.input2 = in2;
         this.outputFile = outFile;
         this.numfrm = numfrmIn;
         this.outFile = strOutFile;
@@ -56,6 +59,8 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         double [] x = new double[origLen+pm.totalZerosToPadd];
         Arrays.fill(x, 0.0);
         System.arraycopy(tmpx, 0, x, 0, origLen);
+        
+        psFrm = new PSOLAFrameProvider(input2, pm, modParams.fs, modParams.numPeriods);
         
         LEDataOutputStream dout = new LEDataOutputStream(outFile);
         
@@ -106,7 +111,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         double [] frm;
         boolean bWarp;
         int kMax;
-        int i, j, k, n;
+        int i, j, k, n, m;
         int tmpFix, tmpAdd, tmpMul;
         double [] tmpVScales;
         int wInd;
@@ -122,12 +127,11 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         double [] tmpvsc = new double[1];
         int remain;
         int kInd;
+        double [] frm2;
        
         for (i=0; i<numfrm; i++)
-        { 
-            int a;
-            if (totalWrittenToFile>=67140)
-                a=0;
+        {   
+            frm2 = psFrm.getNextFrame();
             
             if (bBroke)
                 break;
@@ -188,7 +192,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
             }
 
             sumLocalDurDiffs += localDurDiff;
-
+            
             if (i==numfrm-1)
             {
                 // Check the final length and perform additional repetitions if necessary
@@ -208,11 +212,12 @@ public class FDPSOLAProcessor extends VocalTractModifier {
             }
 
             prevRepeatSkipCount = repeatSkipCount;
-
+            
             if (repeatSkipCount>-1)
             {
                 frm = MathUtils.zeros(frmSize);
-                System.arraycopy(x, pm.pitchMarks[i], frm, 0, Math.min(frmSize, origLen-pm.pitchMarks[i]));
+                //System.arraycopy(x, pm.pitchMarks[i], frm, 0, Math.min(frmSize, origLen-pm.pitchMarks[i]));
+                System.arraycopy(frm2, 0, frm, 0, frmSize);
                 wgt = windowIn.values(frmSize);
 
                 if (modParams.vscalesVar[i] != 1.0)
@@ -647,9 +652,11 @@ public class FDPSOLAProcessor extends VocalTractModifier {
     public static void main(String[] args) throws Exception
     {  
         AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(args[0]));
+        AudioInputStream inputAudio2 = AudioSystem.getAudioInputStream(new File(args[0]));
         int fs = (int)inputAudio.getFormat().getSampleRate();
         int P = SignalProcUtils.getLPOrder(fs);
         AudioDoubleDataSource in = new AudioDoubleDataSource(inputAudio);
+        AudioDoubleDataSource in2 = new AudioDoubleDataSource(inputAudio2);
         String strOutFile = args[0].substring(0, args[0].length()-4) + "_fdJav.wav";
         String ptcFile = args[0].substring(0, args[0].length()-4) + ".ptc";
         F0Reader f0 = new F0Reader(ptcFile);
@@ -671,7 +678,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                                                                                 pm.pitchMarks, ws, ss,
                                                                                 numfrm, numfrmFixed, numPeriods);
        
-        FDPSOLAProcessor fd = new FDPSOLAProcessor(in, strOutFile, pm, modParams, numfrm);
+        FDPSOLAProcessor fd = new FDPSOLAProcessor(in, in2, strOutFile, pm, modParams, numfrm);
         fd.fdpsolaOnline();
         
     }
