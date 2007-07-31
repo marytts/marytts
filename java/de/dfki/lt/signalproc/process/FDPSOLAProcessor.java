@@ -1,5 +1,6 @@
 package de.dfki.lt.signalproc.process;
 
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -9,6 +10,7 @@ import java.util.Arrays;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.dfki.lt.signalproc.FFT;
 import de.dfki.lt.signalproc.FFTArbitraryLength;
@@ -17,6 +19,7 @@ import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
 import de.dfki.lt.signalproc.util.DDSAudioInputStream;
 import de.dfki.lt.signalproc.util.DoubleDataSource;
+import de.dfki.lt.signalproc.util.LEDataInputStream;
 import de.dfki.lt.signalproc.util.LEDataOutputStream;
 import de.dfki.lt.signalproc.util.MathUtils;
 import de.dfki.lt.signalproc.util.MathUtils.Complex;
@@ -29,105 +32,169 @@ import de.dfki.lt.signalproc.analysis.PitchMarker;
 
 public class FDPSOLAProcessor extends VocalTractModifier {
     private DoubleDataSource input;
-    private DoubleDataSource input2;
-    private String outputFile;
+    private AudioInputStream inputAudio;
+    private DDSAudioInputStream outputAudio;
     private VoiceModificationParametersPreprocessor modParams;
     private int numfrm;
-    private String outFile;
+    private int numfrmFixed;
+    private int P; //LP analysis order
+    private String outputFile;
+    private String tempOutBinaryFile;
     private int origLen;
-    PitchMarker pm;
-    PSOLAFrameProvider psFrm;
+    private PitchMarker pm;
+    private PSOLAFrameProvider psFrm;
+    private double wsFixed;
+    private double ssFixed;
+    private int numPeriods;
+    private static int NUM_PITCH_SYNC_PERIODS = 3;
     
-    public FDPSOLAProcessor(DoubleDataSource in, DoubleDataSource in2 , String strOutFile, PitchMarker pmIn, 
-            VoiceModificationParametersPreprocessor modParamsIn, int numfrmIn)
+    private boolean bSilent;
+    private LEDataOutputStream dout; 
+    private LEDataInputStream din; 
+    private DynamicWindow windowIn;
+    private DynamicWindow windowOut;
+    private double [] wgt;
+    private double [] wgty;
+    
+    private int frmSize;
+    private int newFrmSize;
+    private int newPeriod;
+    private int synthFrmInd;
+    private double localDurDiff;
+    private int repeatSkipCount; // -1:skip frame, 0:no repetition (use synthesized frame as it is), >0: number of repetitions for synthesized frame
+    private double localDurDiffSaved;
+    private double sumLocalDurDiffs;
+    private double nextAdd;
+
+    private int synthSt;
+    private int synthTotal;
+    
+    private int maxFrmSize;
+    private int maxNewFrmSize;
+    private int synthFrameInd;
+    private boolean bLastFrame;
+    private boolean bBroke;
+    private int newFftSize;
+    private int newMaxFreq;
+    
+    private int outBuffLen;
+    private double [] outBuff;
+    private int outBuffStart;
+    private int totalWrittenToFile;
+
+    private double [] ySynthBuff;
+    private double [] wSynthBuff;
+    private int ySynthInd;
+    private double [] frm;
+    private double [] frm2;
+    private boolean bWarp;
+    
+    private double [] Py;
+    private double [] Py2;
+    private Complex Hy;
+    private double [] frmy;
+    private double frmEn;
+    private double frmyEn;
+    private double gain;
+    private int newSkipSize;
+    private int halfWin;
+    private double [] newVScales;
+    
+    public FDPSOLAProcessor(String strInputFile, String strPitchFile, String strOutputFile,
+                            double [] pscales, double [] tscales, double [] escales, double [] vscales) throws UnsupportedAudioFileException, IOException
     {
         super();
-        this.modParams = modParamsIn;
-        this.input = in;
-        this.input2 = in2;
-        this.outputFile = outFile;
-        this.numfrm = numfrmIn;
-        this.outFile = strOutFile;
-        this.origLen = (int)in.getDataLength();
-        this.pm = pmIn;
+        
+        inputAudio = AudioSystem.getAudioInputStream(new File(strInputFile));
+        input = new AudioDoubleDataSource(inputAudio);
+        
+        origLen = (int)input.getDataLength();
+        fs = (int)inputAudio.getFormat().getSampleRate();
+        P = SignalProcUtils.getLPOrder(fs);
+        
+        wsFixed = 0.02;
+        ssFixed = 0.01;
+        numPeriods = NUM_PITCH_SYNC_PERIODS;
+        
+        F0Reader f0 = new F0Reader(strPitchFile);
+        pm = SignalProcUtils.pitchContour2pitchMarks(f0.getContour(), fs, origLen, f0.ws, f0.ss, true);
+        
+        numfrm = pm.pitchMarks.length-numPeriods; //Total pitch synchronous frames (This is the actual number of frames to be processed)
+        numfrmFixed = (int)(Math.floor(((double)(origLen + pm.totalZerosToPadd)/fs-0.5*wsFixed)/ssFixed+0.5)+2); //Total frames if the analysis was fixed skip-rate
+         
+        modParams = new VoiceModificationParametersPreprocessor(fs, P,
+                                                                pscales, tscales, escales, vscales,
+                                                                pm.pitchMarks, wsFixed, ssFixed,
+                                                                numfrm, numfrmFixed, numPeriods);
+        
+        outputFile = strOutputFile; 
+        
+        initialise();
     }
     
-    public void fdpsolaOnline() throws IOException
-    {   
-        boolean bSilent = false;
-        double [] tmpx = input.getAllData();
-        double [] x = new double[origLen+pm.totalZerosToPadd];
-        Arrays.fill(x, 0.0);
-        System.arraycopy(tmpx, 0, x, 0, origLen);
+    public void initialise() throws FileNotFoundException
+    {
+        bSilent = false;
         
-        psFrm = new PSOLAFrameProvider(input2, pm, modParams.fs, modParams.numPeriods);
+        //double [] tmpx = input.getAllData();
+        //double [] x = new double[origLen+pm.totalZerosToPadd];
+        //Arrays.fill(x, 0.0);
+        //System.arraycopy(tmpx, 0, x, 0, origLen);
         
-        LEDataOutputStream dout = new LEDataOutputStream(outFile);
+        psFrm = new PSOLAFrameProvider(input, pm, modParams.fs, modParams.numPeriods);
         
-        DynamicWindow windowIn = new DynamicWindow(Window.HANN);
-        DynamicWindow windowOut = new DynamicWindow(Window.HANN);
-        double [] wgt;
-        double [] wgty;
+        tempOutBinaryFile = outputFile + ".bin";
+        dout = new LEDataOutputStream(tempOutBinaryFile);
         
-        int frmSize = 0;
-        int newFrmSize = 0;
-        int newPeriod = 0;
-        int synthFrmInd = 0;
-        double localDurDiff = 0.0;
-        int repeatSkipCount = 0; // -1:skip frame, 0:no repetition (use synthesized frame as it is), >0: number of repetitions for synthesized frame
-        int prevRepeatSkipCount = 0;
-        double localDurDiffSaved = 0.0;
-        double sumLocalDurDiffs = 0.0;
-        double nextAdd = 0.0;
+        windowIn = new DynamicWindow(Window.HANN);
+        windowOut = new DynamicWindow(Window.HANN);
+        
+        frmSize = 0;
+        newFrmSize = 0;
+        newPeriod = 0;
+        synthFrmInd = 0;
+        localDurDiff = 0.0;
+        repeatSkipCount = 0; // -1:skip frame, 0:no repetition (use synthesized frame as it is), >0: number of repetitions for synthesized frame
+        localDurDiffSaved = 0.0;
+        sumLocalDurDiffs = 0.0;
+        nextAdd = 0.0;
 
-        int synthSt = pm.pitchMarks[0];
-        int synthTotal = 0;
-
-        //Overlap-add synthesis
-        int maxFrmSize = (int)(modParams.numPeriods*modParams.fs/40.0);
+        synthSt = pm.pitchMarks[0];
+        synthTotal = 0;
+        
+        maxFrmSize = (int)(modParams.numPeriods*modParams.fs/40.0);
         if ((maxFrmSize % 2) != 0)
             maxFrmSize++;
         
-        int maxNewFrmSize = (int)(Math.floor(maxFrmSize/MathUtils.min(modParams.pscalesVar)+0.5));
+        maxNewFrmSize = (int)(Math.floor(maxFrmSize/MathUtils.min(modParams.pscalesVar)+0.5));
         if ((maxNewFrmSize % 2) != 0) 
             maxNewFrmSize++;
 
-        int synthFrameInd = 0;
-        boolean bLastFrame = false;
-        boolean bBroke = false;
+        synthFrameInd = 0;
+        bLastFrame = false;
+        bBroke = false;
         fftSize = (int)Math.pow(2, (Math.ceil(Math.log((double)maxFrmSize)/Math.log(2.0))));
         maxFreq = fftSize/2+1;
-        int newFftSize;
-        int newMaxFreq;
         
-        int outBuffLen = 100;
-        double [] outBuff = MathUtils.zeros(outBuffLen);
-        int outBuffStart = 1;
-        int totalWrittenToFile = 0;
+        outBuffLen = 100;
+        outBuff = MathUtils.zeros(outBuffLen);
+        outBuffStart = 1;
+        totalWrittenToFile = 0;
 
-        double [] ySynthBuff = MathUtils.zeros(maxNewFrmSize);
-        double [] wSynthBuff = MathUtils.zeros(maxNewFrmSize);
-        int ySynthInd = 1;
-        double [] frm;
-        boolean bWarp;
+        ySynthBuff = MathUtils.zeros(maxNewFrmSize);
+        wSynthBuff = MathUtils.zeros(maxNewFrmSize);
+        ySynthInd = 1;
+    }
+    public void fdpsolaOnline() throws IOException
+    {   
         int kMax;
         int i, j, k, n, m;
         int tmpFix, tmpAdd, tmpMul;
-        double [] tmpVScales;
         int wInd;
-        double [] Py;
-        double [] Py2;
-        Complex Hy;
-        double [] frmy;
-        double frmEn;
-        double frmyEn;
-        double gain;
-        int newSkipSize;
-        int halfWin;
+
         double [] tmpvsc = new double[1];
         int remain;
-        int kInd;
-        double [] frm2;
+        int kInd; 
        
         for (i=0; i<numfrm; i++)
         {   
@@ -205,13 +272,11 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                 //
             }
             
-            if (i==numfrm-1 && repeatSkipCount<0 && prevRepeatSkipCount<0)
+            if (i==numfrm-1)
             {
-                repeatSkipCount=0;
+                repeatSkipCount++;
                 bLastFrame = true;
             }
-
-            prevRepeatSkipCount = repeatSkipCount;
             
             if (repeatSkipCount>-1)
             {
@@ -261,19 +326,19 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                     if (bWarp)
                     {
                         tmpvsc[0] = modParams.vscalesVar[i];
-                        tmpVScales = InterpolationUtils.modifySize(tmpvsc, newMaxFreq); //Modify length to match current length of spectrum
+                        newVScales = InterpolationUtils.modifySize(tmpvsc, newMaxFreq); //Modify length to match current length of spectrum
                         
-                        for (k=0; k<tmpVScales.length; k++)
+                        for (k=0; k<newVScales.length; k++)
                         {
-                            if (tmpVScales[k]<0.05) //Put a floor to avoid divide by zero
-                                tmpVScales[k]=0.05;
+                            if (newVScales[k]<0.05) //Put a floor to avoid divide by zero
+                                newVScales[k]=0.05;
                         }
                         
                         Py2 = new double[newMaxFreq];
                         
                         for (k=0; k<newMaxFreq; k++)
                         {
-                            wInd = (int)Math.floor((k+1)/tmpVScales[k]+0.5); //Find new indices
+                            wInd = (int)Math.floor((k+1)/newVScales[k]+0.5); //Find new indices
                             if (wInd<1)
                                 wInd = 1;
                             if (wInd>newMaxFreq)
@@ -362,14 +427,14 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                 //Energy scale compensation + modification
                 for (k=0; k<newFrmSize; k++)
                     frmy[k] *= gain;
-
+                    
                 for (j=1; j<=repeatSkipCount+1; j++)
                 {
                     if (pm.vuvs[i])
                         newSkipSize = (int)Math.floor((pm.pitchMarks[i+1]-pm.pitchMarks[i])/modParams.pscalesVar[i]+0.5);
                     else
                         newSkipSize = (int)Math.floor((pm.pitchMarks[i+1]-pm.pitchMarks[i])+0.5);
-
+                    
                     if ((i==numfrm-1 && j==repeatSkipCount+1)) //| (i~=numfrm & all(repeatSkipCounts(i+1:numfrm)==-1)))
                         bLastFrame = true;
                     else
@@ -636,49 +701,51 @@ public class FDPSOLAProcessor extends VocalTractModifier {
             if (modParams.tscaleSingle!=1.0 || totalWrittenToFile+outBuffStart-1<=origLen)
             {
                 dout.writeDouble(outBuff, 0, outBuffStart-1);
-                totalWrittenToFile += outBuffStart;
+                totalWrittenToFile += outBuffStart-1;
             }
             else
             {
-                dout.writeDouble(outBuff, 0, origLen-totalWrittenToFile-1);
+                dout.writeDouble(outBuff, 0, origLen-totalWrittenToFile);
                 totalWrittenToFile = origLen;
             }
         }
         //
 
         dout.close();
+        
+        //Read the temp binary file into a wav file and delete the temp binary file
+        din = new LEDataInputStream(tempOutBinaryFile);
+        double [] yOut = din.readDouble(totalWrittenToFile);
+        din.close();
+        
+        double tmpMax = MathUtils.getAbsMax(yOut);
+        if (tmpMax>32735)
+        {
+            for (i=0; i<yOut.length; i++)
+                yOut[i] *= 32735/tmpMax;
+        }
+        
+        outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(yOut), inputAudio.getFormat());
+        AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outputFile));
+        
+        File tmpFile = new File(tempOutBinaryFile);
+        tmpFile.delete();
+        //
     }
     
     public static void main(String[] args) throws Exception
     {  
-        AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(args[0]));
-        AudioInputStream inputAudio2 = AudioSystem.getAudioInputStream(new File(args[0]));
-        int fs = (int)inputAudio.getFormat().getSampleRate();
-        int P = SignalProcUtils.getLPOrder(fs);
-        AudioDoubleDataSource in = new AudioDoubleDataSource(inputAudio);
-        AudioDoubleDataSource in2 = new AudioDoubleDataSource(inputAudio2);
-        String strOutFile = args[0].substring(0, args[0].length()-4) + "_fdJav.wav";
-        String ptcFile = args[0].substring(0, args[0].length()-4) + ".ptc";
-        F0Reader f0 = new F0Reader(ptcFile);
-        PitchMarker pm = SignalProcUtils.pitchContour2pitchMarks(f0.getContour(), fs, (int)in.getDataLength(), f0.ws, f0.ss, true);
+        String strOutputFile = args[0].substring(0, args[0].length()-4) + "_fdJav.wav";
+        String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
         
-        double ws = 0.02;
-        double ss = 0.01;
-        int numPeriods = 3;
-        
-        int numfrm = pm.pitchMarks.length-numPeriods; //Total pitch synchronous frames (This is the actual number of frames to be processed)
-        int numfrmFixed = (int)(Math.floor(((double)(in.getDataLength()+pm.totalZerosToPadd)/fs-0.5*ws)/ss+0.5)+2); //Total frames if the analysis was fixed skip-rate
-        
-        double [] pscales = {0.75};
-        double [] tscales = {2.0};
-        double [] escales = {1.0, 1.2, 1.5, 2.0, 2.5, 3.0};
-        double [] vscales = {1.2, 1.5};
-        VoiceModificationParametersPreprocessor modParams = new VoiceModificationParametersPreprocessor(fs, P,
-                                                                                pscales, tscales, escales, vscales,
-                                                                                pm.pitchMarks, ws, ss,
-                                                                                numfrm, numfrmFixed, numPeriods);
+        double [] pscales = {1.8};
+        double [] tscales = {1.0};
+        double [] escales = {1.0};
+        double [] vscales = {1.5};
        
-        FDPSOLAProcessor fd = new FDPSOLAProcessor(in, in2, strOutFile, pm, modParams, numfrm);
+        FDPSOLAProcessor fd = new FDPSOLAProcessor(args[0], strPitchFile, strOutputFile, 
+                                                    pscales, tscales, escales, vscales);
+        
         fd.fdpsolaOnline();
         
     }
