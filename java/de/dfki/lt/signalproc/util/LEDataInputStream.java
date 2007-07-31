@@ -12,6 +12,9 @@ package de.dfki.lt.signalproc.util;
 
 import java.io.DataInput;
 import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -79,6 +82,11 @@ public class LEDataInputStream implements DataInput {
         this.dis = new DataInputStream( in );
         work = new byte[8];
         }
+    
+    public LEDataInputStream( String filename) throws FileNotFoundException
+    {
+        this(new FileInputStream(filename));
+    }
 
     /**
      * close.
@@ -196,6 +204,17 @@ public class LEDataInputStream implements DataInput {
         
         return ret;
     } 
+    
+    public final int [] readDoubleToInt(int len) throws IOException
+    {
+        int [] ret = new int[len];
+        
+        for (int i=0; i<len; i++)
+            ret[i] = (int)readDouble();
+        
+        return ret;
+    } 
+    
     /**
      * Read one float. Like DataInputStream.readFloat except little endian.
      *
