@@ -621,6 +621,30 @@ public class MathUtils {
         return maxx;
     }
     
+    public static double getMax(double [] x)
+    {
+        double maxx = x[0];
+        for (int i=1; i<x.length; i++)
+        {
+            if (x[i]>maxx)
+                maxx = x[i];
+        }
+        
+        return maxx;
+    }
+    
+    public static double getAbsMax(double [] x)
+    {
+        double maxx = Math.abs(x[0]);
+        for (int i=1; i<x.length; i++)
+        {
+            if (Math.abs(x[i])>maxx)
+                maxx = Math.abs(x[i]);
+        }
+        
+        return maxx;
+    }
+    
     //Return an array where each entry is set to val
     public static double [] filledArray(double val, int len)
     {
