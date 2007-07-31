@@ -204,6 +204,7 @@ public class EHMMLabeler extends VoiceImportComponent {
                     +"; mkdir feat"
                     +"; mkdir etc"
                     +"; mkdir mod"
+                    +"; mkdir lab"
                     +"; exit )\n");
             pw.flush();
             //shut down
@@ -411,28 +412,28 @@ public class EHMMLabeler extends VoiceImportComponent {
          PrintWriter pw = new PrintWriter(
                  new OutputStreamWriter(process.getOutputStream()));
          
-         System.out.println("( cd "+db.getProp(db.ROOTDIR)
+         System.out.println("( cd "+ehmm.getAbsolutePath()
                  +"; "+getProp(EHMMDIR)+"/bin/edec "
                  +outputDir+"/"+voicename+".phoneList.int "
                  +outputDir+"/"+voicename+"_train.transcription.int 1 "
                  +ehmm.getAbsolutePath()+"/feat ft "
                  +outputDir+"/"+voicename+".featSettings "
-                 +ehmm.getAbsolutePath()+"/mod >> ehmm/log.txt"
+                 +ehmm.getAbsolutePath()+"/mod >> log.txt"
                  +"; perl "+getProp(EHMMDIR)+"/bin/sym2nm.pl "
-                 +db.getProp(db.ROOTDIR)+"/lab "
-                 +outputDir+"/"+voicename+".phoneList.int >> ehmm/log.txt"
+                 +ehmm.getAbsolutePath()+"/lab "
+                 +outputDir+"/"+voicename+".phoneList.int >> log.txt"
                  +"; exit )\n");
          
-         pw.print("( cd "+db.getProp(db.ROOTDIR)
+         pw.print("( cd "+ehmm.getAbsolutePath()
                  +"; "+getProp(EHMMDIR)+"/bin/edec "
                  +outputDir+"/"+voicename+".phoneList.int "
                  +outputDir+"/"+voicename+"_train.transcription.int 1 "
                  +ehmm.getAbsolutePath()+"/feat ft "
                  +outputDir+"/"+voicename+".featSettings "
-                 +ehmm.getAbsolutePath()+"/mod >> ehmm/log.txt"
+                 +ehmm.getAbsolutePath()+"/mod >> log.txt"
                  +"; perl "+getProp(EHMMDIR)+"/bin/sym2nm.pl "
-                 +db.getProp(db.ROOTDIR)+"/lab "
-                 +outputDir+"/"+voicename+".phoneList.int >> ehmm/log.txt"
+                 +ehmm.getAbsolutePath()+"/lab "
+                 +outputDir+"/"+voicename+".phoneList.int >> log.txt"
                  +"; exit )\n");
          
          pw.flush();
