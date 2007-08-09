@@ -415,7 +415,7 @@ public class DatabaseImportMain extends JFrame
             String[] nextComps = groups2comps[i];
             //loop over the components (first element is group name; ignore)
             for (int j=1;j<nextComps.length;j++){
-                //get the class name of this component
+                //get the class name of this component  
                 String className = nextComps[j];
                 //System.out.println(className);
                 //create a new instance of this class and store in compsList
@@ -425,7 +425,7 @@ public class DatabaseImportMain extends JFrame
             }
         }
         VoiceImportComponent[] components = 
-            new VoiceImportComponent[compsList.size()];
+            new VoiceImportComponent[compsList.size()]; 
         components = (VoiceImportComponent[])compsList.toArray(components);
         /* Load DatabaseLayout */
         DatabaseLayout db = new DatabaseLayout(components);
