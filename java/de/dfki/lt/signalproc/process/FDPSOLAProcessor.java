@@ -12,8 +12,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import de.dfki.lt.signalproc.FFT;
-import de.dfki.lt.signalproc.FFTArbitraryLength;
+import de.dfki.lt.signalproc.FFTMixedRadix;
 import de.dfki.lt.signalproc.analysis.F0Reader;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
@@ -133,7 +132,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
     }
     
     public void initialise() throws FileNotFoundException
-    {
+    {        
         bSilent = false;
         
         //double [] tmpx = input.getAllData();
@@ -355,8 +354,8 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                     Hy.real = MathUtils.zeros(newFftSize);
                     Hy.imag = MathUtils.zeros(newFftSize);
 
-                    System.arraycopy(this.real, 0, Hy.real, 0, Math.min(maxFreq, newFftSize));
-                    System.arraycopy(this.imag, 0, Hy.imag, 0, Math.min(maxFreq, newFftSize));
+                    System.arraycopy(this.h.real, 0, Hy.real, 0, Math.min(maxFreq, newFftSize));
+                    System.arraycopy(this.h.imag, 0, Hy.imag, 0, Math.min(maxFreq, newFftSize));
 
                     //Copy & paste samples if required (COMPLEX VERSION TO SUPPORT PSCALE<=0.5)
                     // This version fills the spectrum by flipping and pasting the original freq bins as many times as required.
@@ -380,8 +379,8 @@ public class FDPSOLAProcessor extends VocalTractModifier {
 
                         for (j=tmpFix+3; j<=Math.min(newMaxFreq, maxFreq+tmpFix); j++)
                         {
-                            Hy.real[j-1] = this.real[tmpMul*(tmpFix-j)+tmpAdd-1];
-                            Hy.imag[j-1] = this.imag[tmpMul*(tmpFix-j)+tmpAdd-1];
+                            Hy.real[j-1] = this.h.real[tmpMul*(tmpFix-j)+tmpAdd-1];
+                            Hy.imag[j-1] = this.h.imag[tmpMul*(tmpFix-j)+tmpAdd-1];
                         }
                     }
 
@@ -403,7 +402,8 @@ public class FDPSOLAProcessor extends VocalTractModifier {
 
                     //Convert back to time domain
                     //FFT.transform(Hy.real, Hy.imag, true);
-                    Hy = FFTArbitraryLength.ifft(Hy);
+                    //Hy = FFTArbitraryLength.ifft(Hy);
+                    Hy = FFTMixedRadix.ifft(Hy);
                     
                     frmy = new double[newFrmSize];
                     System.arraycopy(Hy.real, 0, frmy, 0, newFrmSize);
@@ -738,10 +738,10 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         String strOutputFile = args[0].substring(0, args[0].length()-4) + "_fdJav.wav";
         String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
         
-        double [] pscales = {1.8};
-        double [] tscales = {1.0};
+        double [] pscales = {1.2, 0.3};
+        double [] tscales = {1.5};
         double [] escales = {1.0};
-        double [] vscales = {1.5};
+        double [] vscales = {1.8, 0.4};
        
         FDPSOLAProcessor fd = new FDPSOLAProcessor(args[0], strPitchFile, strOutputFile, 
                                                     pscales, tscales, escales, vscales);

@@ -31,7 +31,7 @@ package de.dfki.lt.signalproc.process;
 
 import java.util.Arrays;
 
-import de.dfki.lt.signalproc.FFT;
+import de.dfki.lt.signalproc.FFTMixedRadix;
 import de.dfki.lt.signalproc.analysis.LPCAnalyser;
 import de.dfki.lt.signalproc.analysis.LPCAnalyser.LPCoeffs;
 import de.dfki.lt.signalproc.filter.FIRFilter;
@@ -53,8 +53,7 @@ public class VocalTractModifier implements InlineDataProcessor {
     protected int fs;
     protected int fftSize;
     protected int maxFreq;
-    protected double[] real;
-    protected double[] imag;
+    protected Complex h;
     protected double [] vtSpectrum;
     private Complex expTerm;
     private boolean bAnalysisOnly;
@@ -84,8 +83,7 @@ public class VocalTractModifier implements InlineDataProcessor {
         this.p = pIn;
         this.fs = fsIn;
         this.fftSize = fftSizeIn;
-        this.real = new double[fftSize];
-        this.imag = new double[fftSize];
+        h = new Complex(fftSize);
         this.maxFreq = SignalProcUtils.halfSpectrumSize(fftSize);
         this.vtSpectrum = new double[maxFreq];
         this.expTerm = new Complex(p*maxFreq);
@@ -104,15 +102,15 @@ public class VocalTractModifier implements InlineDataProcessor {
         LPCoeffs coeffs = LPCAnalyser.calcLPC(data, p);
         double sqrtGain = coeffs.getGain();
         
-        System.arraycopy(data, 0, real, 0, Math.min(len, real.length));
+        System.arraycopy(data, 0, h.real, 0, Math.min(len, h.real.length));
         
-        if (real.length > len)
-            Arrays.fill(real, real.length-len, real.length-1, 0);
+        if (h.real.length > len)
+            Arrays.fill(h.real, h.real.length-len, h.real.length-1, 0);
         
-        Arrays.fill(imag, 0, imag.length-1, 0);
+        Arrays.fill(h.imag, 0, h.imag.length-1, 0);
         
         // Convert to polar coordinates in frequency domain
-        FFT.transform(real, imag, false);
+        h = FFTMixedRadix.fftComplex(h);
         
         vtSpectrum = LPCAnalyser.calcSpec(coeffs.getA(), p, fftSize, expTerm);
         
@@ -122,8 +120,8 @@ public class VocalTractModifier implements InlineDataProcessor {
         // Filter out vocal tract to obtain residual spectrum
         for (k=0; k<maxFreq; k++)
         {
-            real[k] /= vtSpectrum[k];
-            imag[k] /= vtSpectrum[k];
+            h.real[k] /= vtSpectrum[k];
+            h.imag[k] /= vtSpectrum[k];
         }
         
         if (!bAnalysisOnly)
@@ -134,20 +132,20 @@ public class VocalTractModifier implements InlineDataProcessor {
             //Apply modified vocal tract filter on the residual spectrum
             for (k=0; k<maxFreq; k++)
             {
-                real[k] *= vtSpectrum[k];
-                imag[k] *= vtSpectrum[k];
+                h.real[k] *= vtSpectrum[k];
+                h.imag[k] *= vtSpectrum[k];
             }
 
             //Generate the complex conjugate part to make the output the DFT of a real-valued signal
             for (k=maxFreq; k<fftSize; k++)
             {
-                real[k] = real[2*maxFreq-k];
-                imag[k] = imag[2*maxFreq-k];
+                h.real[k] = h.real[2*maxFreq-k];
+                h.imag[k] = h.imag[2*maxFreq-k];
             }
             //
 
-            FFT.transform(real, imag, true);
-            System.arraycopy(real, 0, data, 0, len);
+            h = FFTMixedRadix.ifft(h);
+            System.arraycopy(h.real, 0, data, 0, len);
         }
     }
 
