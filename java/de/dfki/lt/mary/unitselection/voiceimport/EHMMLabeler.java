@@ -2,6 +2,7 @@ package de.dfki.lt.mary.unitselection.voiceimport;
 
 import java.io.*;
 import java.util.*;
+import java.util.regex.*;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -49,21 +50,22 @@ import de.dfki.lt.mary.util.dom.NameNodeFilter;
 
 public class EHMMLabeler extends VoiceImportComponent {
         
-        private DatabaseLayout db;
-        private MaryClient mary;
+        private DatabaseLayout db;        
         private File rootDir;
         private File ehmm;
         private String voicename;
         private String outputDir;
-     
+        protected String featsExt = ".pfeats";
+        protected String labExt = ".lab";
+        
         private int progress;
         private String locale;
         
         public final String EDIR = "EHMMLabeler.eDir";
         public final String EHMMDIR = "EHMMLabeler.ehmmDir";
         public final String TRANSCRIPTFILE = "EHMMLabeler.transcriptFile";
-        public final String MARYSERVERHOST = "EHMMLabeler.maryServerHost";
-        public final String MARYSERVERPORT = "EHMMLabeler.maryServerPort";
+        public final String FEATUREDIR = "EHMMLabeler.featureDir";
+        public final String OUTLABDIR = "EHMMLabeler.outputLabDir";
         
          public final String getName(){
             return "EHMMLabeler";
@@ -84,8 +86,13 @@ public class EHMMLabeler extends VoiceImportComponent {
                             +System.getProperty("file.separator"));
                props.put(TRANSCRIPTFILE,db.getProp(db.ROOTDIR)
                             +"txt.done.data");
-               props.put(MARYSERVERHOST,"localhost");
-               props.put(MARYSERVERPORT,"59125");
+               props.put(FEATUREDIR, db.getProp(db.ROOTDIR)
+                       +"phonefeatures"
+                       +System.getProperty("file.separator"));
+               props.put(OUTLABDIR, db.getProp(db.ROOTDIR)
+                       +"lab"
+                       +System.getProperty("file.separator"));
+              
            }
            return props;
        }
@@ -95,8 +102,8 @@ public class EHMMLabeler extends VoiceImportComponent {
            props2Help.put(EHMMDIR,"directory containing the local installation of EHMM Labeller"); 
            props2Help.put(EDIR,"directory containing all files used for training and labeling. Will be created if it does not exist.");
            props2Help.put(TRANSCRIPTFILE,"file containing the transcripts in festvox format");
-           props2Help.put(MARYSERVERHOST,"the host were the Mary server is running, default: \"localhost\"");
-           props2Help.put(MARYSERVERPORT,"the port were the Mary server is listening, default: \"59125\"");
+           props2Help.put(FEATUREDIR, "directory containing the phone features.");
+           props2Help.put(OUTLABDIR, "Directory to store generated lebels from EHMM.");
        }
         
         public void initialiseComp()
@@ -123,61 +130,63 @@ public class EHMMLabeler extends VoiceImportComponent {
             // get the output directory of files used by EHMM 
             outputDir = ehmm.getAbsolutePath()+"/etc";
             
+            // setup the EHMM directory 
             
-            /* setup the EHMM directory */
             System.out.println("Setting up EHMM directory ...");
             setup();
             System.out.println(" ... done.");
             progress = 1;
             
-                        
-            /* read in the transcriptions, 
-             * build up dictionary and phone set; 
-             * dump the transcriptions */
-            //dictionary 
-            Map dictionary = new HashMap();
-            //set of phones
-            Set phones = new HashSet();
             //fill dictionary and phone set, dump transcriptions   
             System.out.println("Building dictionary, phone set and dumping transcriptions ...");
-            buildDictAndDumpTrans(dictionary,phones);
+            getPhoneSequence();
             System.out.println(" ... done.");
-            progress = 45;
+            progress = 10;
+          
             System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
-            /* dump the filenames */
+            // dump the filenames 
             System.out.println("Dumping required files ....");
             dumpRequiredFiles();
             System.out.println(" ... done.");           
-            progress = 47;
+            progress = 15;
+            
             System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
-            /* Computing Features (MFCCs) for EHMM */
+            // Computing Features (MFCCs) for EHMM 
             System.out.println("Computing MFCCs ...");
             computeFeatures();
             System.out.println(" ... done.");
-            progress = 50;
+            progress = 25;
+            
             System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
             System.out.println("Scaling Feature Vectors ...");
             scaleFeatures();
             System.out.println(" ... done.");
-            progress = 53;
+            progress = 35;
+            
             System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
             System.out.println("Intializing EHMM Model ...");
             intializeEHMMModels();
             System.out.println(" ... done.");
-            progress = 55;
+            progress = 40;
+            
             System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
             System.out.println("EHMM baum-welch re-estimation ...");
             System.out.println("It may take more time (may be 1 or 2 days) depending on voice database ...");
             baumWelchEHMM();            
             System.out.println(" ... done.");
-            progress = 90;
+            progress = 80;
+            
             System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
             System.out.println("Aligning EHMM for labelling ...");
-            System.out.println("And Copying label files into lab directory ...");
             alignEHMM();
+            progress = 95;
+            
+            System.out.println("And Copying label files into lab directory ...");
+            getProperLabelFormat();
             System.out.println(" ... done.");
-  
+            
             System.out.println("Label file Generation Successfully completed using EHMM !"); 
+            
             progress = 100;
             
             return true;
@@ -244,19 +253,19 @@ public class EHMMLabeler extends VoiceImportComponent {
             //go to ehmm directory and create required files for EHMM 
             System.out.println("( cd "+ehmm.getAbsolutePath()
                     +"; perl "+getProp(EHMMDIR)+"/bin/phfromutt.pl "
-                    +outputDir+"/"+voicename+"_train.transcription "
+                    +outputDir+"/"+voicename+".align "
                     +outputDir+"/"+voicename+".phoneList 5"
                     +"; perl "+getProp(EHMMDIR)+"/bin/getwavlist.pl "
-                    +outputDir+"/"+voicename+"_train.transcription "
+                    +outputDir+"/"+voicename+".align "
                     +outputDir+"/"+voicename+".waveList"
                     +"; exit )\n");
             
             pw.print("( cd "+ehmm.getAbsolutePath()
                     +"; perl "+getProp(EHMMDIR)+"/bin/phfromutt.pl "
-                    +outputDir+"/"+voicename+"_train.transcription "
+                    +outputDir+"/"+voicename+".align "
                     +outputDir+"/"+voicename+".phoneList 5 > log.txt"
                     +"; perl "+getProp(EHMMDIR)+"/bin/getwavlist.pl "
-                    +outputDir+"/"+voicename+"_train.transcription "
+                    +outputDir+"/"+voicename+".align "
                     +outputDir+"/"+voicename+".waveList >> log.txt"
                     +"; exit )\n");
             
@@ -348,7 +357,7 @@ public class EHMMLabeler extends VoiceImportComponent {
                  new OutputStreamWriter(process.getOutputStream()));
          pw.print("( cd "+ehmm.getAbsolutePath()
                  +"; perl "+getProp(EHMMDIR)+"/bin/seqproc.pl "
-                 +outputDir+"/"+voicename+"_train.transcription "
+                 +outputDir+"/"+voicename+".align "
                  +outputDir+"/"+voicename+".phoneList 2 2 13 >> log.txt"
                  +"; exit )\n");
          pw.flush();
@@ -356,10 +365,9 @@ public class EHMMLabeler extends VoiceImportComponent {
          pw.close();
          process.waitFor();
          process.exitValue();
-     
             
         }
-        
+       
      
      /**
       * Training EHMM Models
@@ -377,7 +385,7 @@ public class EHMMLabeler extends VoiceImportComponent {
          System.out.println("( cd "+ehmm.getAbsolutePath()
                  +"; "+getProp(EHMMDIR)+"/bin/ehmm "
                  +outputDir+"/"+voicename+".phoneList.int "
-                 +outputDir+"/"+voicename+"_train.transcription.int 1 0 "
+                 +outputDir+"/"+voicename+".align.int 1 0 "
                  +ehmm.getAbsolutePath()+"/feat "
                  +ehmm.getAbsolutePath()+"/mod 0 0 0 >> log.txt"
                  +"; exit )\n");
@@ -385,7 +393,7 @@ public class EHMMLabeler extends VoiceImportComponent {
          pw.print("( cd "+ehmm.getAbsolutePath()
                  +"; "+getProp(EHMMDIR)+"/bin/ehmm "
                  +outputDir+"/"+voicename+".phoneList.int "
-                 +outputDir+"/"+voicename+"_train.transcription.int 1 0 "
+                 +outputDir+"/"+voicename+".align.int 1 0 "
                  +ehmm.getAbsolutePath()+"/feat ft "
                  +ehmm.getAbsolutePath()+"/mod 0 0 0 >> log.txt"
                  +"; exit )\n");
@@ -415,7 +423,7 @@ public class EHMMLabeler extends VoiceImportComponent {
          System.out.println("( cd "+ehmm.getAbsolutePath()
                  +"; "+getProp(EHMMDIR)+"/bin/edec "
                  +outputDir+"/"+voicename+".phoneList.int "
-                 +outputDir+"/"+voicename+"_train.transcription.int 1 "
+                 +outputDir+"/"+voicename+".align.int 1 "
                  +ehmm.getAbsolutePath()+"/feat ft "
                  +outputDir+"/"+voicename+".featSettings "
                  +ehmm.getAbsolutePath()+"/mod >> log.txt"
@@ -427,7 +435,7 @@ public class EHMMLabeler extends VoiceImportComponent {
          pw.print("( cd "+ehmm.getAbsolutePath()
                  +"; "+getProp(EHMMDIR)+"/bin/edec "
                  +outputDir+"/"+voicename+".phoneList.int "
-                 +outputDir+"/"+voicename+"_train.transcription.int 1 "
+                 +outputDir+"/"+voicename+".align.int 1 "
                  +ehmm.getAbsolutePath()+"/feat ft "
                  +outputDir+"/"+voicename+".featSettings "
                  +ehmm.getAbsolutePath()+"/mod >> log.txt"
@@ -445,298 +453,190 @@ public class EHMMLabeler extends VoiceImportComponent {
      }
      
         /**
-         * Build a dictionary and dump the transcription file
-         * @param dictionary the dictionary to be filled
-         * @param phones the phone set to be filled
+         * Create phone sequence file, which is 
+         * used for Alignment
          * @throws Exception
          */
-        private void buildDictAndDumpTrans(Map dictionary, Set phones) throws Exception {
-            //build a new MaryClient
-            mary = getMaryClient();
-            String inputFormat = "RAWMARYXML"; 
-            String outputFormat = "ACOUSTPARAMS";
+     
+        private void getPhoneSequence() throws Exception {
+                        
             
-            //open etc/txt.done.data (transcription in)
-            BufferedReader transIn = new BufferedReader(
-                    new InputStreamReader(new FileInputStream(getProp(TRANSCRIPTFILE)),"UTF-8"));
-            
-            //open transcription file used for training
-            PrintWriter transTrainOut = new PrintWriter(
-                    new FileOutputStream (new File(outputDir+"/"+voicename+"_train.transcription")));
-            
-            //open transcription file used for labeling
+            // open transcription file used for labeling
             PrintWriter transLabelOut = new PrintWriter(
                     new FileOutputStream (new File(outputDir+"/"+voicename+".align")));
-            //write beginning of labeling transcription file
-            transLabelOut.println("*align_all*");
-
-            //for the progress bar: calculate the progress of each transcription
-            long nextPercentAfter = Math.round(1/(48.0/bnl.getLength()));
-            int index = 1;
             
-            //store the filenames
-            ArrayList filenameList = new ArrayList();
+            String phoneSeq; 
             
-            //loop through the transcriptions in txt.done.data;
-            //for each transcription, get a segment representation with MARY client
-            //then go through segment representation 
-            //and collect words and phones 
-            //for dictionary and phone set
-            String line = transIn.readLine();
-            boolean first = true;
-            while (line != null){
-                StringTokenizer tok = new StringTokenizer(line);
-                //discard first token
-                tok.nextToken();
-                //next token is filename, 
-                //put it in filename list
-                String nextFilename = tok.nextToken();
-                System.out.println(nextFilename);
-                filenameList.add(nextFilename);
-                
-                    //transcription is everything between " "
-                    String nextTrans = line.substring(line.indexOf("\"")+1,line.lastIndexOf("\""));
-                    nextTrans = getMaryXMLHeader(locale)
-                            + nextTrans + "</maryxml>";
-                    //System.out.println(nextTrans);
-                    ByteArrayOutputStream os = new ByteArrayOutputStream();
-                    //process and dump
-                    mary.process(nextTrans, inputFormat, outputFormat, null, null, os);
-                    //read into mary data object                
-                    MaryData maryData = new MaryData(MaryDataType.get(outputFormat));
-                    maryData.readFrom(new ByteArrayInputStream(os.toByteArray()));
-                    Document doc = maryData.getDocument();
-                    
-                    //go through the tokens
-                    NodeIterator tokensIt = ((DocumentTraversal)doc).createNodeIterator(doc, 
-                            NodeFilter.SHOW_ELEMENT,
-                            new NameNodeFilter(MaryXML.TOKEN), 
-                            false);
-                    Element token = null;
-                    //collect the words
-                    int numTokens = 0;
-                    StringBuffer trainBuff = new StringBuffer();
-                    StringBuffer alignBuff = new StringBuffer();
-                    boolean sentenceBoundary = false;
-                    //trainBuff.append(" SIL ");
-                    while ((token = (Element) tokensIt.nextNode()) != null) {
-                        //get the word 
-                        String word = MaryDomUtils.tokenText(token).toUpperCase();
-                        String pos = token.getAttribute("pos");
-                        if (word.equals(""))
-                            continue;                    
-                        if (pos.equals("$PUNCT") || pos.equals("$,")){
-                        //if the word is a punctuation,
-                            if (sentenceBoundary){                            
-                                //if there was a punctuation before,
-                                //there is an error in the transcript
-                                Element tokenParent = (Element) token.getParentNode();
-                                if (!tokenParent.getLocalName().equals("mtu")){                                  
-                                    StringBuffer xmlBuf = new StringBuffer();
-                                    getXMLAsString(doc,xmlBuf);
-                                    System.out.println(xmlBuf.toString());
-                                    System.out.println("Problem with token "+word
-                                            +" in sentence "+nextFilename);
-                                    throw new IllegalArgumentException("Error in transcript of "
-                                        +nextFilename+": multiple sentence boundary markers");
-                                }
-                            }                        
-                            //else append sentence end marker
-                            //trainBuff.append(" </s>");
-                            trainBuff.append(" pau");
-                            sentenceBoundary = true;
-                            continue;
-                        } else {
-                            //skip all other non-words
-                            if ((!Character.isLetter(word.charAt(0)))
-                                        && word.length()<2)
-                            continue;
-                        }
-                        //Convert ' to Q
-                        word = word.replace('\'','Q');
-                        //append word to transcription string
-                        if (sentenceBoundary){
-                            //there was a sentence boundary before
-                            //append sentence start marker
-                            //trainBuff.append(" SIL");
-                            //trainBuff.append(" <s>");
-                            sentenceBoundary = false;
-                        }
-                        else if(trainBuff.length() > 0) {
-                            trainBuff.append(" ssil");
-                        } 
-                        
-                            //go through the phones
-                            NodeList phoneNodes = token.getElementsByTagName(MaryXML.PHONE);
-     
-                            for (int j=0; j<phoneNodes.getLength(); j++) {
-                                //get the next phone node
-                                Element phoneNode = (Element) phoneNodes.item(j);
-                                //get the phone
-                                String phone = phoneNode.getAttribute("p");
-                                //convert the phone to EHMM format
-                                phone = convertPhone(phone);
-                                if (!dictionary.containsKey(phone)){
-                                    //store word and pronounciation in dictionary:
-                                    //build new pronounciation List
-                                    List phoneList = new ArrayList();
-                                    phoneList.add(phone);
-                                    //add
-                                    dictionary.put(phone,phoneList);
-                                }
-                                //append the phone to the other phones 
-                                //phoneList.add(phone);
-                                //add the phone to the phone set if not already there
-                                phones.add(phone);
-                                trainBuff.append(" "+phone);
-                                alignBuff.append(" "+phone);
-                            }
-                        //}//end of if not word in dictionary
-                        numTokens++;
-                    } //end of loop through tokens
-                    //System.out.println("NumTokens: "+numTokens);
-                    //print transcription to transcription out
-                    transTrainOut.println(nextFilename+" pau"+trainBuff.toString());
-                    //transTrainOut.println(nextFilename+trainBuff.toString());
-                    
-                    if (first){
-                        transLabelOut.print(alignBuff.toString().trim());
-                        //System.out.println(transBuff.toString());
-                        first = false;
-                    } else {
-                        transLabelOut.print("\n"+alignBuff.toString().trim());
-                        //System.out.println(transBuff.toString());
-                    }
-                line = transIn.readLine();
-                //for the progress bar
-                if (index == nextPercentAfter){
-                    //next percent is due
-                    progress++;
-                    index = 1;
-                } else {
-                    index++;
-                }
-            } //end of loop through lines of txt.done.data
+            for (int i=0; i<bnl.getLength(); i++) {
+            
+                progress = (int) Math.round(10.0*i/bnl.getLength());
+                               
+                phoneSeq = getSingleLine(bnl.getName(i));
+                transLabelOut.println(phoneSeq.trim());
 
-            //close the streams
-            transIn.close();
-            transTrainOut.flush();
-            transTrainOut.close();
+                System.out.println( "    " + bnl.getName(i) );
+                           
+            }
             transLabelOut.flush();
             transLabelOut.close();
-            
-  
+            System.out.println("Finished computing the unit features.");
+        
         }
         
         /**
-         * Convert the given xml-node and its subnodes to Strings
-         * and collect them in the given Stringbuffer
-         * 
-         * @param motherNode the xml-node
-         * @param ppText the Stringbuffer
+         * Get phoneme sequence from a single feature file
+         * @param basename
+         * @return String
+         * @throws Exception
          */
-        private void getXMLAsString(Node motherNode,StringBuffer ppText){
-            NodeList children = motherNode.getChildNodes();
-            for (int i=0;i<children.getLength();i++){
-                Node nextChild = children.item(i);
-                String name = nextChild.getLocalName();
-                if (name == null){
-                    continue;
-                }          
-               
-                ppText.append("<"+name);
-                if (nextChild instanceof Element){
-                    if (nextChild.hasAttributes()){
-                        NamedNodeMap atts = nextChild.getAttributes();
-                        for (int j=0;j<atts.getLength();j++){
-                            String nextAtt = atts.item(j).getNodeName();
-                            ppText.append(" "+nextAtt+"=\""
-                                +((Element)nextChild).getAttribute(nextAtt)
-                                +"\"");
-                        }
+        private String getSingleLine(String basename) throws Exception {
+            
+            String line;
+            String featName;
+            String phone;
+            String phoneSeq;
+            int lineCount = 0;
+            int featCount = 0;
+            boolean featStart = false;
+            Matcher matcher;
+            
+            Pattern pattern; 
+            StringBuffer alignBuff = new StringBuffer();
+            alignBuff.append(basename);
+            
+            BufferedReader transIn = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(getProp(FEATUREDIR)+"/"+basename+featsExt))); 
+           
+            for(lineCount = 0 ;(line = transIn.readLine()) != null; lineCount++){
+                
+                if(line.startsWith("mary_segs_from_word_start")){
+                    featCount = lineCount - 1;                 
+                }
+                
+                // to get a line break 
+                if(line.equals("")){
+                    if(featStart) break;
+                    else{
+                        featStart = true;
+                        continue;
                     }
+                }
+                
+                if(featStart){
+                    String[] feats = line.split(" ");
                     
-                }
-                if (name.equals("boundary")){
-                    ppText.append("/>\n");
+                    
+                    
+                    // This module for Short SIL insertion 
+                    // at each word boundary. 
+                    
+                   /*
+                       
+                    if(feats[0].equals("_")){
+                        alignBuff.append(" _");
+                        continue;
+                     }
+
+                    if(feats[featCount].equals("0") && (!alignBuff.toString().endsWith("_"))){
+                         alignBuff.append(" _");
+                         }
+                    */
+                     
+                    alignBuff.append(" "+feats[0]);
+                }           
+            }
+            
+            transIn.close();
+            
+            /* Use Regular Expressions to change
+             * phoneme sequence such that it supports
+             * 
+             * 1. Start-End Silences and Short silences
+             * (at punctuations) differently.
+             *   
+             * 2. So that Start-End Silences modeling 
+             * is different from Short SIL modelling 
+             * 
+             */
+            
+            phoneSeq = alignBuff.toString();
+            pattern = Pattern.compile(" _");
+            matcher = pattern.matcher(phoneSeq);
+            phoneSeq = matcher.replaceAll(" ssil");
+            
+            pattern = Pattern.compile(" ssil");
+            matcher = pattern.matcher(phoneSeq);
+            phoneSeq = matcher.replaceFirst(" pau");
+            
+            pattern = Pattern.compile(" ssil$");
+            matcher = pattern.matcher(phoneSeq);
+            phoneSeq = matcher.replaceFirst(" pau");
+            
+            return phoneSeq;
+        }
+        
+        /**
+         * Post processing Step to convert Label files
+         * to MARY supportable format
+         * @throws Exception
+         */        
+        private void getProperLabelFormat() throws Exception {
+            
+            int currentProgress = progress;
+            for (int i=0; i<bnl.getLength(); i++) {
+                progress = currentProgress + (int) Math.round(5.0*i/bnl.getLength());
+                convertSingleLabelFile(bnl.getName(i));               
+                System.out.println( "    " + bnl.getName(i) );
+                
+            }
+        }
+        
+        /**
+         * Post Processing single Label file
+         * @param basename
+         * @throws Exception
+         */
+        private void convertSingleLabelFile(String basename) throws Exception {
+            
+            String line;
+            String previous, current;
+            String regexp = "\\spau|\\sssil";
+
+            //Compile regular expression
+            Pattern pattern = Pattern.compile(regexp);
+
+            File labDir = new File(getProp(OUTLABDIR));
+            
+            PrintWriter labelOut = new PrintWriter(
+                    new FileOutputStream (new File(labDir+"/"+basename+labExt)));
+            
+            
+            BufferedReader labelIn = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(getProp(EDIR)+"/lab/"+basename+labExt)));
+            
+            previous = labelIn.readLine();
+                                  
+            while((line = labelIn.readLine()) != null){
+
+                //Replace all occurrences of pattern in input
+                Matcher matcher = pattern.matcher(line);
+                current = matcher.replaceAll(" _");
+                
+                if(previous.endsWith("_") && current.endsWith("_")){
+                    previous = current;
                     continue;
                 }
-                ppText.append(">\n");
-                if (name.equals("t")){
-                    ppText.append(MaryDomUtils.tokenText((Element)nextChild)
-                            +"\n</t>\n");                
-                } else {
-                    if (nextChild.hasChildNodes()){
-                        getXMLAsString(nextChild,ppText);
-                    } 
-                    ppText.append("</"+name+">\n");
-                }
+                                             
+                labelOut.println(previous);
+                previous = current;
+                
             }
-        }
-        
-        
-        
-        /**
-         * Get a maryxml header with the given locale
-         * @param locale the locale
-         * @return the maryxml header
-         */
-        private String getMaryXMLHeader(String locale)
-        {
-            return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
-                "<maryxml version=\"0.4\"\n" +
-                "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                "xmlns=\"http://mary.dfki.de/2002/MaryXML\"\n" +
-                "xml:lang=\"" + locale + "\">\n";
             
-        }
-
-        /**
-         * Get a new MARY client
-         * 
-         * @return the MARY client
-         */
-        private MaryClient getMaryClient()throws IOException
-        {
-            if (mary == null) {
-                try{
-                    mary = new MaryClient(getProp(MARYSERVERHOST), Integer.parseInt(getProp(MARYSERVERPORT)));        
-                } catch (IOException e){
-                    throw new IOException("Could not connect to Maryserver at "
-                            +getProp(MARYSERVERHOST)+" "+getProp(MARYSERVERPORT));
-                }
-            }
-            return mary;
-        }
-        
-        /**
-        * Convert the given phone to Tools format
-        * 
-        * @param phone the phone
-        * @return the converted phone
-        */
-        private String convertPhone(String phone){
-            //since EHMM is not case sensitive, 
-            //convert everything to uppercase
-            //and mark originally uppercase characters with *
-            char[] phoneChars = phone.toCharArray();
-            StringBuffer convertedPhone = new StringBuffer();
-            for (int i=0;i<phoneChars.length;i++){
-                char phoneChar = phoneChars[i];
-                if (Character.isLetter(phoneChar)){
-                    if (Character.isLowerCase(phoneChar)){
-                        //convert to uppercase
-                        convertedPhone.append(Character.toUpperCase(phoneChar));
-                    } else {
-                        //insert * before the char
-                        convertedPhone.append("*"+phoneChar);
-                    }
-                } else {
-                    //just append non-letter signs
-                    convertedPhone.append(phoneChar);
-                }
-            }
-            return convertedPhone.toString();
+            labelOut.println(previous);
+            labelOut.flush();
+            labelOut.close();
+            labelIn.close();
+                        
         }
         
         /**
