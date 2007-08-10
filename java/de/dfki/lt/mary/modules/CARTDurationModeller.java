@@ -122,6 +122,20 @@ public class CARTDurationModeller extends InternalModule
                 }
             }
             Relation segs = utterance.getRelation(Relation.SEGMENT);
+            // Simple boundary treatment: Insert pause segments for boundaries
+            Relation words = utterance.getRelation(Relation.WORD);
+            for (Item w = words.getHead(); w != null; w = w.getNext()) {
+                Item ss = w.getItemAs(Relation.SYLLABLE_STRUCTURE);
+                Item lastSyl = ss.getLastDaughter();
+                if (lastSyl.getFeatures().isPresent("endtone")) {
+                    Item lastSeg = lastSyl.getLastDaughter();
+                    assert lastSeg != null;
+                    lastSeg = lastSeg.getItemAs(Relation.SEGMENT);
+                    assert lastSeg != null;
+                    Item pauseSeg = lastSeg.appendItem(null);
+                    pauseSeg.getFeatures().setString("name", maryVoice.sampa2voice("_"));
+                }
+            }
             float end = 0; // end time of segment, in seconds
             for (Item s = segs.getHead(); s != null; s = s.getNext()) {
                 String segName = s.getFeatures().getString("name");
@@ -130,11 +144,16 @@ public class CARTDurationModeller extends InternalModule
                 assert sampaName != null;
                 Target t = new Target(sampaName, s);
                 t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));
-                float[] dur = (float[])currentCart.interpret(t, 0);
-                assert dur != null : "Null duration";
-                assert dur.length == 2 : "Unexpected duration length: "+dur.length;
-                float durInSeconds = dur[1];
-                float stddevInSeconds = dur[0];
+                float durInSeconds;
+                if (sampaName.equals("_")) { // a pause
+                    durInSeconds = 0.4f; // TODO: distinguish types of boundaries?
+                } else {
+                    float[] dur = (float[])currentCart.interpret(t, 0);
+                    assert dur != null : "Null duration";
+                    assert dur.length == 2 : "Unexpected duration length: "+dur.length;
+                    durInSeconds = dur[1];
+                    float stddevInSeconds = dur[0];
+                }
                 end += durInSeconds;
                 int durInMillis = (int) (1000 * durInSeconds);
                 s.getFeatures().setFloat("end", end);
