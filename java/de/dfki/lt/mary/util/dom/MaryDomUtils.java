@@ -29,6 +29,8 @@
 package de.dfki.lt.mary.util.dom;
 
 // DOM classes
+import java.util.Locale;
+
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -38,6 +40,7 @@ import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 
 import de.dfki.lt.mary.MaryXML;
+import de.dfki.lt.mary.util.MaryUtils;
 
 /** A collection of utilities for MaryXML DOM manipulation or analysis.
  *  No object of class MaryDomUtils is created, all methods are static.
@@ -154,6 +157,16 @@ public class MaryDomUtils extends DomUtils
         return boundary;
     }
 
-
+    /**
+     * Try to determine the locale of a document by looking at the xml:lang attribute of the document element.
+     * @param doc the document in which to look for a locale.
+     * @return the locale set for the document, or null if no locale is set.
+     */
+    public static Locale getLocale(Document doc) 
+    {
+        if (doc.getDocumentElement().hasAttribute("xml:lang"))
+            return MaryUtils.string2locale(doc.getDocumentElement().getAttribute("xml:lang"));
+        return null;
+    }
 
 }
