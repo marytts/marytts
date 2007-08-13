@@ -28,8 +28,12 @@
  */
 package de.dfki.lt.mary.modules;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.log4j.Level;
 
 import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.Relation;
@@ -83,6 +87,12 @@ public class TargetFeatureLister extends InternalModule
         StringBuffer bin = new StringBuffer();
         for (int i=0, len=uttList.size(); i<len; i++) {
             Utterance utt = (Utterance)uttList.get(i);
+            if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                utt.dump(pw, 2, name(), true); // padding, justRelations
+                logger.debug("Converting the following Utterance to target features:\n"+sw.toString());
+            }
             // Create target chain for the utterance
             Relation segs = utt.getRelation(Relation.SEGMENT);
             List targets = createTargetsWithPauses(segs);
