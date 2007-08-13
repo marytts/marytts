@@ -130,8 +130,8 @@ public class Request {
         StringBuffer info =
             new StringBuffer(
                 "New request (input type \"" + inputType.name() + "\", output type \"" + outputType.name());
-        if (defaultVoice != null)
-            info.append("\", voice \"" + defaultVoice.getName());
+        if (this.defaultVoice != null)
+            info.append("\", voice \"" + this.defaultVoice.getName());
         if (audioFileFormat != null)
             info.append("\", audio \"" + audioFileFormat.getType().toString()+ "\"");
         if (streamAudio)
@@ -190,6 +190,11 @@ public class Request {
                     + ", got "
                     + inputData.type().toString());
         }
+        if (defaultVoice == null) {
+            defaultVoice = Voice.getSuitableVoice(inputData);
+        }
+        assert defaultVoice != null;
+
         if (inputData.getDefaultVoice() == null) {
             inputData.setDefaultVoice(defaultVoice);
         }
@@ -211,6 +216,10 @@ public class Request {
             inputData.setValidating(MaryProperties.getBoolean("maryxml.validate.input"));
         }
         inputData.readFrom(inputReader, null); // null = read until end-of-file
+        if (defaultVoice == null) {
+            defaultVoice = Voice.getSuitableVoice(inputData);
+        }
+        assert defaultVoice != null;
         inputData.setDefaultVoice(defaultVoice);
     }
 
