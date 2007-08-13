@@ -169,7 +169,8 @@ THIS SOFTWARE.
 	           de/dfki/lt/mary/modules/MbrolaPhoneme.class
                    de/dfki/lt/mary/modules/synthesis/MbrolaSynthesizer.class
                    de/dfki/lt/mary/modules/synthesis/MbrolaVoiceSectioner.class
-                   de/dfki/lt/mary/modules/synthesis/MBROLAPhoneme.class">
+                   de/dfki/lt/mary/modules/synthesis/MBROLAPhoneme.class
+    	       de/dfki/lt/mary/modules/synthesis/MbrolaVoice.class">
       <manifest>
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Specification-Version" value="${specification.version}"/>
