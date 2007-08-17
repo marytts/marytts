@@ -54,22 +54,20 @@ This README explains the steps necessary to import your voice into MARY.
 For the actual import, you can use the import tool that comes with MARY. Start the import tool in the directory 
 where you want to store your voice data. The easiest way to start the tool is to call Java from the command line:
 
-For Linux:
+For Linux/Unix/Mac OS X:
 export MARY_BASE="/path/to/mary"
 java -Xmx1024m -classpath $MARY_BASE/java/mary-common.jar:$MARY_BASE/java/signalproc.jar:
-$MARY_BASE/java/freetts.jar:$MARY_BASE/java/jsresources.jar:$MARY_BASE/java/log4j-1.2.8.jar
--Djava.endorsed.dirs=$MARYBASE/lib/endorsed
+$MARY_BASE/java/maryclient.jar:$MARY_BASE/java/jsresources.jar:$MARY_BASE/java/log4j-1.2.8.jar
+-Djava.endorsed.dirs=$MARY_BASE/lib/endorsed
 de.dfki.lt.mary.unitselection.voiceimport.DatabaseImportMain 
 
 For Windows:
-export MARY_BASE="/path/to/mary"
-java -Xmx512m -classpath $MARY_BASE/java/mary-common.jar;$MARY_BASE/java/signalproc.jar;
-$MARY_BASE/java/freetts.jar;$MARY_BASE/java/jsresources.jar;$MARY_BASE/java/log4j-1.2.8.jar
--Djava.endorsed.dirs=$MARYBASE/lib/endorsed
-de.dfki.lt.mary.unitselection.voiceimport.DatabaseImportMain ??????????????
+set MARY_BASE="/path/to/mary"
+java -Xmx512m -classpath %MARY_BASE%\java\mary-common.jar;%MARY_BASE%\java\signalproc.jar;
+%MARY_BASE%\java\maryclient.jar;%MARY_BASE%\java\jsresources.jar;%MARY_BASE%\java\log4j-1.2.8.jar
+-Djava.endorsed.dirs=%MARY_BASE%\lib\endorsed
+de.dfki.lt.mary.unitselection.voiceimport.DatabaseImportMain
 
-For Mac:
-????????
 
 When starting the voice import tool for the first time, you are presented with a GUI window where you 
 have to enter a few basic settings. Almost all other settings are based on these first settings and set automatically.
