@@ -274,9 +274,7 @@ public class LEDataOutputStream implements DataOutput {
         }
 
     public final void writeDouble( double [] v, int startPos, int len) throws IOException
-    {
-        assert v.length<startPos+len;
-        
+    {        
         for (int i=startPos; i<startPos+len; i++)
             writeDouble(v[i]);
     }
