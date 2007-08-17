@@ -127,7 +127,7 @@ public class CARTDurationModeller extends InternalModule
             for (Item w = words.getHead(); w != null; w = w.getNext()) {
                 Item ss = w.getItemAs(Relation.SYLLABLE_STRUCTURE);
                 Item lastSyl = ss.getLastDaughter();
-                if (lastSyl.getFeatures().isPresent("endtone")) {
+                if (lastSyl != null && lastSyl.getFeatures().isPresent("endtone")) {
                     Item lastSeg = lastSyl.getLastDaughter();
                     assert lastSeg != null;
                     lastSeg = lastSeg.getItemAs(Relation.SEGMENT);
