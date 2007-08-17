@@ -96,7 +96,7 @@ public class VocalTractModifier implements InlineDataProcessor {
         assert pos==0;
         assert len==data.length;
         if (len > fftSize)
-            throw new IllegalArgumentException("Length must not be larger than FFT size");
+            len = fftSize;
         
         // Compute LPC coefficients
         LPCoeffs coeffs = LPCAnalyser.calcLPC(data, p);
