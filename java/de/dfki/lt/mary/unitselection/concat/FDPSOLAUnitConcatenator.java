@@ -30,6 +30,7 @@
 package de.dfki.lt.mary.unitselection.concat;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -51,7 +52,10 @@ import de.dfki.lt.signalproc.util.DoubleDataSource;
  *
  */
 public class FDPSOLAUnitConcatenator extends OverlapUnitConcatenator {
-    FDPSOLAProcessor fdpsola;
+    protected FDPSOLAProcessor fdpsola;
+    private double [][] pscales;
+    private double [][] tscales;
+    
     /**
      * 
      */
@@ -88,6 +92,17 @@ public class FDPSOLAUnitConcatenator extends OverlapUnitConcatenator {
     }
     
     /**
+     * Determine target pitchmarks (= duration and f0) for each unit.
+     * @param units
+     */
+    protected void determineTargetPitchmarks(List units)
+    {
+        // First, determine the target pitchmarks as usual by the parent
+        // implementation:
+        super.determineTargetPitchmarks(units);
+    }
+    
+    /**
      * Generate audio to match the target pitchmarks as closely as possible.
      * @param units
      * @return
@@ -100,9 +115,21 @@ public class FDPSOLAUnitConcatenator extends OverlapUnitConcatenator {
         Datagram[][] datagrams = new Datagram[len][];
         Datagram[] rightContexts = new Datagram[len];
         boolean[][] voicings = new boolean[len][];
+        pscales = new double[len][];
+        tscales = new double[len][];
+        double averageUnitF0InHz;
+        double averageTargetF0InHz;
+        int totalTargetUnits;
         
-        for (int i=0; i<len; i++) {
-            SelectedUnit unit = (SelectedUnit) units.get(i);
+        int i, j;
+        SelectedUnit prevUnit = null;
+        SelectedUnit unit = null;
+        SelectedUnit nextUnit = null;
+        
+        //Preprocessing and allocation
+        for (i=0; i<len; i++) 
+        {
+            unit = (SelectedUnit) units.get(i);
             
             OverlapUnitData unitData = (OverlapUnitData)unit.getConcatenationData();
             assert unitData != null : "Should not have null unitdata here";
@@ -111,15 +138,8 @@ public class FDPSOLAUnitConcatenator extends OverlapUnitConcatenator {
             // Generate audio from frames
             datagrams[i] = frames;
             voicings[i] = new boolean[datagrams[i].length];
-            Phoneme sampaPhoneme = unit.getTarget().getSampaPhoneme();
-            
-            for (int j=0; j<voicings[i].length; j++)
-            {
-                if (sampaPhoneme != null && (sampaPhoneme.isVowel() || sampaPhoneme.isVoiced()))
-                    voicings[i][j] = true;
-                else
-                    voicings[i][j] = false;
-            }
+            pscales[i] = new double[datagrams[i].length];
+            tscales[i] = new double[datagrams[i].length];
             
             Unit nextInDB = database.getUnitFileReader().getNextUnit(unit.getUnit());
             Unit nextSelected;
@@ -131,12 +151,138 @@ public class FDPSOLAUnitConcatenator extends OverlapUnitConcatenator {
                 rightContexts[i] = unitData.getRightContextFrame(); // may be null
             }
         }
-        
-        return fdpsola.process(datagrams, rightContexts, audioformat, voicings);
-    }
-    
-    protected void determineTargetPitchmarks(List units)
-    {
+        //
 
+        //Estimation pitch scale modification amounts
+        for (i=0; i<len; i++) 
+        {
+            if (i>0)
+                prevUnit = (SelectedUnit) units.get(i-1);
+            else
+                prevUnit = null;
+            
+            unit = (SelectedUnit) units.get(i);
+            
+            if (i<len-1)
+                nextUnit = (SelectedUnit) units.get(i+1);
+            else
+                nextUnit = null;
+            
+            Phoneme sampaPhoneme = unit.getTarget().getSampaPhoneme();
+
+            int totalDatagrams = 0;
+            averageUnitF0InHz = 0.0;
+            averageTargetF0InHz = 0.0;
+            totalTargetUnits = 0;
+            
+            if (i>0)
+            {
+                for (j=0; j<datagrams[i-1].length; j++)
+                {
+                    if (sampaPhoneme != null && (sampaPhoneme.isVowel() || sampaPhoneme.isVoiced()))
+                    {
+                        averageUnitF0InHz += ((double)timeline.getSampleRate())/((double)datagrams[i-1][j].getDuration());
+                        totalDatagrams++;
+                    }
+                }
+                
+                averageTargetF0InHz += prevUnit.getTarget().getTargetF0InHz();
+                totalTargetUnits++;
+            }
+            
+            for (j=0; j<datagrams[i].length; j++)
+            {
+                if (sampaPhoneme != null && (sampaPhoneme.isVowel() || sampaPhoneme.isVoiced()))
+                {
+                    averageUnitF0InHz += ((double)timeline.getSampleRate())/((double)datagrams[i][j].getDuration());
+                    totalDatagrams++;
+                }
+                
+                averageTargetF0InHz += unit.getTarget().getTargetF0InHz();
+                totalTargetUnits++;
+            }
+            
+            if (i<len-1)
+            {
+                for (j=0; j<datagrams[i+1].length; j++)
+                {
+                    if (sampaPhoneme != null && (sampaPhoneme.isVowel() || sampaPhoneme.isVoiced()))
+                    {
+                        averageUnitF0InHz += ((double)timeline.getSampleRate())/((double)datagrams[i+1][j].getDuration());
+                        totalDatagrams++;
+                    }
+                }
+                
+                averageTargetF0InHz += nextUnit.getTarget().getTargetF0InHz();
+                totalTargetUnits++;
+            }
+            
+            averageTargetF0InHz /= totalTargetUnits;
+            averageUnitF0InHz /= totalDatagrams;
+
+            for (j=0; j<datagrams[i].length; j++)
+            {
+                if (sampaPhoneme != null && (sampaPhoneme.isVowel() || sampaPhoneme.isVoiced()))
+                {
+                    voicings[i][j] = true;
+                    pscales[i][j] = averageTargetF0InHz/averageUnitF0InHz;
+                }
+                else
+                {
+                    voicings[i][j] = false;
+                    pscales[i][j] = 1.0;
+                }
+            }
+        }
+        //
+        
+        int unitDuration;
+        double [] unitDurationsInSeconds = new double[datagrams.length];
+        for (i=0; i<len; i++)
+        {
+            unitDuration = 0;
+            for (j=0; j<datagrams[i].length; j++)
+            {
+                if (j==datagrams[i].length-1)
+                {
+                    if (rightContexts!=null && rightContexts[i]!=null)
+                        unitDuration += datagrams[i][j].getDuration()+rightContexts[i].getDuration();
+                    else
+                        unitDuration += datagrams[i][j].getDuration();
+                }
+                else
+                    unitDuration += datagrams[i][j].getDuration();
+            }
+            unitDurationsInSeconds[i] = ((double)unitDuration)/timeline.getSampleRate();
+        }
+        
+        double targetDur, unitDur;
+        for (i=0; i<len; i++)
+        {
+            targetDur = 0.0;
+            unitDur = 0.0;
+            if (i>0)
+            {
+                prevUnit = (SelectedUnit) units.get(i-1);
+                targetDur += prevUnit.getTarget().getTargetDurationInSeconds();
+                unitDur += unitDurationsInSeconds[i-1];
+            }
+            
+            unit = (SelectedUnit) units.get(i);
+            targetDur += unit.getTarget().getTargetDurationInSeconds();
+            unitDur += unitDurationsInSeconds[i];
+            
+            if (i<len-1)
+            {
+                nextUnit = (SelectedUnit) units.get(i+1);
+                targetDur += nextUnit.getTarget().getTargetDurationInSeconds();
+                unitDur += unitDurationsInSeconds[i+1];
+            }
+            
+            for (j=0; j<datagrams[i].length; j++)
+                tscales[i][j] = targetDur/unitDur;
+        }
+        
+        return fdpsola.process(datagrams, rightContexts, audioformat, voicings, pscales, tscales);
     }
 }
