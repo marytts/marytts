@@ -38,13 +38,17 @@ import java.io.PrintWriter;
 import java.io.FileWriter;
 
 import de.dfki.lt.mary.unitselection.voiceimport.SphinxTrainer.StreamGobbler;
-import de.dfki.lt.signalproc.util.PraatTextfileDoubleDataSource;
+import de.dfki.lt.signalproc.util.SnackTextfileDoubleDataSource;
+import de.dfki.lt.signalproc.util.SignalProcUtils;
+import de.dfki.lt.signalproc.analysis.PitchMarker;
+
 
 public class SnackPitchmarker extends VoiceImportComponent
 {
     protected DatabaseLayout db = null;
-    protected String pmExt = ".pm";
-    protected String snackPmExt = ".pm.snack";
+    protected String pmExt = ".pm.snack";
+    protected String correctedPmExt = ".pm.corrected.snack";
+    protected String snackPmExt = ".snack";
     protected String scriptFileName;
     
     private int percent = 0;
@@ -122,10 +126,12 @@ public class SnackPitchmarker extends VoiceImportComponent
         /* execute snack */        
         for ( int i = 0; i < baseNameArray.length; i++ ) {
             percent = 100*i/baseNameArray.length;
-            String infile = db.getProp(db.WAVDIR) + baseNameArray[i] + db.getProp(db.WAVEXT);
-            String outfile = getProp(PMDIR) + baseNameArray[i] + snackPmExt;
-            System.out.println("Writing pm file to "+outfile);
-            Process snack = Runtime.getRuntime().exec(scriptFileName+" "+infile+" "+outfile
+            String wavFile = db.getProp(db.WAVDIR) + baseNameArray[i] + db.getProp(db.WAVEXT);
+            String snackFile = getProp(PMDIR) + baseNameArray[i] + snackPmExt;
+            String pmFile = getProp(PMDIR) + baseNameArray[i] + pmExt;
+            String correctedPmFile = getProp(PMDIR) + baseNameArray[i] + correctedPmExt;
+            System.out.println("Writing pm file to "+snackFile);
+            Process snack = Runtime.getRuntime().exec(scriptFileName+" "+wavFile+" "+snackFile
                     +" "+getProp(MAXPITCH)+" "+getProp(MINPITCH));
         
              StreamGobbler errorGobbler = new 
@@ -144,19 +150,136 @@ public class SnackPitchmarker extends VoiceImportComponent
              snack.waitFor();
              snack.exitValue();
              
-             /* Now convert the snack format into EST pm format
-              double[] pm = new PraatTextfileDoubleDataSource(new FileReader(pointprocessFilename)).getAllData();
-            float[] pitchmarks = new float[pm.length];
-            for (int i=0; i<pitchmarks.length; i++) pitchmarks[i] = (float) pm[i];
-            new ESTTrackWriter(pitchmarks, null, "pitchmarks").doWriteAndClose(pmFilename, false, false);
+             // Now convert the snack format into EST pm format
+             double[] pm = new SnackTextfileDoubleDataSource(new FileReader(snackFile)).getAllData();
+             
+             WavReader wf = new WavReader( wavFile );
+             int sampleRate = wf.getSampleRate();
+             PitchMarker snackPitchmarker = SignalProcUtils.pitchContour2pitchMarks(pm,sampleRate,wf.getNumSamples(),0.0075,0.01,false);
+             int[] pitchmarkSamples = snackPitchmarker.pitchMarks; 
+             
+             float[] pitchmarkSeconds = new float[pitchmarkSamples.length];
+             for (int j=0; j<pitchmarkSeconds.length;j++){
+                 pitchmarkSeconds[j] = (float) pitchmarkSamples[j]/ (float) sampleRate; 
+             }
+             
+            
+            new ESTTrackWriter(pitchmarkSeconds, null, "pitchmarks").doWriteAndClose(pmFile, false, false);
             
             // And correct pitchmark locations
-            pitchmarks = adjustPitchmarks(basename, pitchmarks);
-            new ESTTrackWriter(pitchmarks, null, "pitchmarks").doWriteAndClose(correctedPmFilename, false, false);
-            **/
+            pitchmarkSeconds = adjustPitchmarks(wf, pitchmarkSeconds);
+            new ESTTrackWriter(pitchmarkSeconds, null, "pitchmarks").doWriteAndClose(correctedPmFile, false, false);
+                   
         }
         return true;
     }
+    
+     /**
+     * Shift the pitchmarks to the closest peak.
+     */
+    private float[] shiftToClosestPeak( float[] pmIn, short[] w, int sampleRate ) {
+        
+        final int HORIZON = 32; // <= number of samples to seek before and after the pitchmark
+        float[] pmOut = new float[pmIn.length];
+        
+        /* Browse the pitchmarks */
+        int pm = 0;
+        int pmwmax = w.length - 1;
+        int TO = 0;
+        int max = 0;
+        for ( int pi = 0; pi < pmIn.length; pi++ ) {
+            pm = (int)( pmIn[pi] * sampleRate );
+            // If the pitchmark goes out of the waveform (this sometimes
+            // happens with the last one due to rounding errors), just clip it.
+            if ( pm > pmwmax ) {
+                // If this was not the last pitchmark, there is a problem
+                if ( pi < (pmIn.length-1)) {
+                    throw new RuntimeException( "Some pitchmarks are located above the location of the last waveform sample !" );
+                }
+                // Else, if it was the last pitchmark, clip it:
+                pmOut[pi] = (float) ((double)(pmwmax) / (double)(sampleRate));
+            }
+            // Else, if the pitchmark is in the waveform:
+            else {
+                /* Seek the max of the wav samples around the pitchmark */
+                max = pm;
+                // - Back:
+                TO = (pm-HORIZON) < 0 ? 0 : (pm-HORIZON);
+                for ( int i = pm-1; i >= TO; i-- ) {
+                    if ( w[i] > w[max] ) max = i;
+                }
+                // - Forth:
+                TO = (pm+HORIZON+1) > w.length ? w.length : (pm+HORIZON+1);
+                for ( int i = pm+1; i < TO; i++ ) {
+                    if ( w[i] >= w[max] ) max = i;
+                }
+                /* Translate the pitchmark */
+                pmOut[pi] = (float) ( (double)(max) / (double)(sampleRate) );
+            }
+        }
+        
+        return pmOut;
+    }
+    
+    /**
+     * Shift the pitchmarks to the previous zero crossing.
+     */
+    private float[] shiftToPreviousZero( float[] pmIn, short[] w, int sampleRate ) {
+        
+        final int HORIZON = 32; // <= number of samples to seek before the pitchmark
+        float[] pmOut = new float[pmIn.length];
+        
+        /* Browse the pitchmarks */
+        int pm = 0;
+        int TO = 0;
+        int zero = 0;
+        for ( int pi = 0; pi < pmIn.length; pi++ ) {
+            pm = (int)( pmIn[pi] * sampleRate );
+            /* If the initial pitchmark is on a zero, don't shift the pitchmark. */
+            if ( w[pm] == 0 ) {
+                pmOut[pi] = pmIn[pi];
+                continue;
+            }
+            /* Else: */
+            /* Seek the zero crossing preceding the pitchmark */
+            TO = (pm-HORIZON) < 0 ? 0 : (pm-HORIZON);
+            for ( zero = pm; ( zero > TO ) && ( (w[zero]*w[zero+1]) > 0 ); zero-- );
+            /* If no zero crossing was found, don't move the pitchmark */
+            if ( (zero == TO) && ( (w[zero]*w[zero+1]) > 0 )  ) {
+                pmOut[pi] = pmIn[pi];
+            }
+            /* If a zero crossing was found, translate the pitchmark */
+            else {
+                pmOut[pi] = (float) ( (double)( (-w[zero]) <  w[zero+1] ?  zero : (zero+1) ) / (double)(sampleRate) );
+            }
+        }
+        
+        return pmOut;
+    }
+    
+    /**
+     * Adjust pitchmark position to the zero crossing preceding the closest peak.
+     * @param basename basename of the corresponding wav file
+     * @param pitchmarks the input pitchmarks
+     * @return the adjusted pitchmarks
+     */
+    private float[] adjustPitchmarks( WavReader wf, float[] pitchmarks ) throws IOException
+    {
+        /* Load the wav file */
+        
+        short[] w = wf.getSamples();
+        float[] pmOut = null;
+        try {
+            /* Shift to the closest peak */
+            pmOut = shiftToClosestPeak( pitchmarks, w, wf.getSampleRate() );
+            /* Shift to the zero immediately preceding the closest peak */
+            pmOut = shiftToPreviousZero( pmOut, w, wf.getSampleRate() );
+        } catch ( RuntimeException e ) {
+            throw new RuntimeException(e );
+        }
+        return pmOut;
+    }
+    
     
     /**
      * Provide the progress of computation, in percent, or -1 if
