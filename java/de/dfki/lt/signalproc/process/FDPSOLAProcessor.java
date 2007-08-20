@@ -61,6 +61,10 @@ public class FDPSOLAProcessor extends VocalTractModifier {
     private int numPeriods;
     private static int NUM_PITCH_SYNC_PERIODS = 2;
     
+    private static int FROM_CODE = 0;
+    private static int FROM_FILE = 1;
+    private static int FROM_TARGET = 2;
+    
     private boolean bSilent;
     private LEDataOutputStream dout; //Output stream for big-endian wav tests
     private LEDataInputStream din; //Input stream for big-endian wav tests
@@ -257,8 +261,15 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         //
     }
     
-    public DDSAudioInputStream process(Datagram [][] datagrams, Datagram [] rightContexts, AudioFormat audioformat, boolean [][] voicings)
+    public DDSAudioInputStream process(Datagram [][] datagrams, Datagram [] rightContexts, AudioFormat audioformat, boolean [][] voicings, double [][] pitchScales, double [][] timeScales)
     {
+        int pitchSpecs = FROM_TARGET;
+        //int pitchSpecs = FROM_FILE;
+        //int pitchSpecs = FROM_CODE;
+        int durationSpecs = FROM_TARGET;
+        //int durationSpecs = FROM_FILE;
+        //int durationSpecs = FROM_CODE;
+        
         int i, j, k;
         double [] output = null;
         boolean isVoiced = true;
@@ -267,50 +278,54 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         double escale=1.0;
         double vscale=1.0;
         
-        //Read pscale, tscale, escale and vscale from a text file (for quick testing purposes)
-        double [] scales = new double[4];
-        
-        Reader r = null;
-        try {
-            r = new BufferedReader(new FileReader("d:/psolaParam.txt"));
-        } catch (FileNotFoundException e2) {
-            // TODO Auto-generated catch block
-            e2.printStackTrace();
+        //Read pscale, tscale, escale and vscale from a text file.
+        // (For quick testing purposes. It resest the input pichScales and timeScales to the fixed values in the text file.)
+        if (pitchSpecs==FROM_FILE || durationSpecs==FROM_FILE)
+        {
+            double [] scales = getScalesFromTextFile("d:/psolaParam.txt");
+            
+            if (pitchSpecs==FROM_FILE)
+                pscale = scales[0]; 
+            
+            if (durationSpecs==FROM_FILE)
+                tscale = scales[1]; 
+            
+            escale = scales[2]; 
+            vscale = scales[3]; 
         }
-        StreamTokenizer stok = new StreamTokenizer(r);
-        stok.parseNumbers();
-
-        try {
-            stok.nextToken();
-        } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        for (i=0; i<scales.length; i++) {
-            if (stok.ttype == StreamTokenizer.TT_NUMBER)
-                scales[i] = stok.nval;
-
-            try {
-                stok.nextToken();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        try {
-            r.close();
-        } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        
-        pscale = scales[0];
-        tscale = scales[1];
-        escale = scales[2];
-        vscale = scales[3];
         //
         
-        tscaleSingle = tscale;
+        if (pitchSpecs==FROM_FILE || pitchSpecs==FROM_CODE || durationSpecs==FROM_FILE || durationSpecs==FROM_CODE)
+        {
+            for (i=0; i<timeScales.length; i++)
+            {
+                if (pitchSpecs==FROM_FILE || pitchSpecs==FROM_CODE)
+                {
+                    for (j=0; j<pitchScales[i].length; j++)
+                        pitchScales[i][j] = pscale;
+                }
+                
+                if (durationSpecs==FROM_FILE || durationSpecs==FROM_CODE)
+                {
+                    for (j=0; j<timeScales[i].length; j++)
+                        timeScales[i][j] = tscale;
+                }
+            }
+        }  
+        
+        double firstTScale = timeScales[0][0];
+        tscaleSingle = firstTScale;
+        for (i=0; i<timeScales.length; i++)
+        {
+            for (j=0; j<timeScales[i].length; j++)
+            {
+                if (i!=0 && j!=0 && timeScales[i][j]!=firstTScale)
+                {
+                    tscaleSingle = -1.0;
+                    break;
+                }
+            }    
+        }       
         
         boolean isLastInputFrame = false;
         int currentPeriod;
@@ -416,7 +431,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                 }
                     
                 try {
-                    output = processFrame(frmIn, isVoiced, pscale, tscale, escale, vscale, isLastInputFrame, currentPeriod, inputFrameSize);
+                    output = processFrame(frmIn, isVoiced, pitchScales[i][j], timeScales[i][j], escale, vscale, isLastInputFrame, currentPeriod, inputFrameSize);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -476,6 +491,49 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         }
         
         return new DDSAudioInputStream(new BufferedDoubleDataSource(yOut), audioformat);
+    }
+    
+    //Read scale factors from a text file for quick testing
+    public double [] getScalesFromTextFile(String strScaleFile)
+    {
+        int i;
+        double [] scales = new double[4];
+        
+        Reader r = null;
+        try {
+            r = new BufferedReader(new FileReader(strScaleFile));
+        } catch (FileNotFoundException e2) {
+            // TODO Auto-generated catch block
+            e2.printStackTrace();
+        }
+        StreamTokenizer stok = new StreamTokenizer(r);
+        stok.parseNumbers();
+
+        try {
+            stok.nextToken();
+        } catch (IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        for (i=0; i<scales.length; i++) {
+            if (stok.ttype == StreamTokenizer.TT_NUMBER)
+                scales[i] = stok.nval;
+
+            try {
+                stok.nextToken();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        try {
+            r.close();
+        } catch (IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        
+        return scales;
     }
     
     public void fdpsolaOnline() throws IOException
