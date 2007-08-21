@@ -137,8 +137,8 @@ public class EHMMLabeler extends VoiceImportComponent {
             System.out.println(" ... done.");
             progress = 1;
             
-            //fill dictionary and phone set, dump transcriptions   
-            System.out.println("Building dictionary, phone set and dumping transcriptions ...");
+            //Getting Phone Sequence for Force Alignment    
+            System.out.println("Getting Phone Sequence from Phone Features...");
             getPhoneSequence();
             System.out.println(" ... done.");
             progress = 10;
@@ -474,13 +474,12 @@ public class EHMMLabeler extends VoiceImportComponent {
                 phoneSeq = getSingleLine(bnl.getName(i));
                 transLabelOut.println(phoneSeq.trim());
 
-                System.out.println( "    " + bnl.getName(i) );
+                //System.out.println( "    " + bnl.getName(i) );
                            
             }
             transLabelOut.flush();
             transLabelOut.close();
-            System.out.println("Finished computing the unit features.");
-        
+            
         }
         
         /**
@@ -524,13 +523,12 @@ public class EHMMLabeler extends VoiceImportComponent {
                 
                 if(featStart){
                     String[] feats = line.split(" ");
-                    
-                    
+                   
                     
                     // This module for Short SIL insertion 
                     // at each word boundary. 
                     
-                   /*
+                   if(locale.startsWith("en")){
                        
                     if(feats[0].equals("_")){
                         alignBuff.append(" _");
@@ -540,7 +538,7 @@ public class EHMMLabeler extends VoiceImportComponent {
                     if(feats[featCount].equals("0") && (!alignBuff.toString().endsWith("_"))){
                          alignBuff.append(" _");
                          }
-                    */
+                   }
                      
                     alignBuff.append(" "+feats[0]);
                 }           
