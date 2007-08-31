@@ -21,20 +21,15 @@ open(BADOUTFILE,">$badoutfile") or die("Could not open $badoutfile");
 for($i=0;$i<@sentsfiles;$i++){
     $textfile = $sentsfiles[$i];
    
-    #there was a bug in the java program
-    #index of sentence file has to be decreased
-    #by 1 to get index of feature file 
     if ($textfile 
 	=~ /(\*\s*)(sentences)(\d*\\dewiki\d*\/\/dewiki\d*_)(\d*)(.txt) (.*)/){ 
 	$num = $4;
-	#$num--; 
 	$textfile = "features" . $3 . $num . ".feats"; 
 	print BADOUTFILE "$textfile\n"; 
     } else { 
 	if ($textfile 
 	    =~ /(sentences)(\d*\\dewiki\d*\/\/dewiki\d*_)(\d*)(.txt) (.*)/){ 
 	    $num = $3;
-	    #$num--; 
 	    $textfile = "features" . $2 . $num . ".feats"; 
 	    print GOODOUTFILE "$textfile\n"; 
 	} else { 
