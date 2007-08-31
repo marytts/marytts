@@ -78,8 +78,13 @@ public class MultiDisplay extends JFrame
         this(ais, title, DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
 
+    public MultiDisplay(AudioInputStream ais, String title, boolean exitOnClose)
+    {
+        this(ais, title, DEFAULT_WIDTH, DEFAULT_HEIGHT, exitOnClose);
+    }
+
     public MultiDisplay(AudioInputStream ais, String title, int width,
-            int height)
+            int height, boolean exitOnClose)
     {
         super(title);
         if (!ais.getFormat().getEncoding().equals(
@@ -93,18 +98,31 @@ public class MultiDisplay extends JFrame
         }
         int samplingRate = (int) ais.getFormat().getSampleRate();
         double[] audioData = AudioUtils.getSamplesAsDoubleArray(ais);
-        initialise(audioData, samplingRate, width, height);
+        initialise(audioData, samplingRate, width, height, exitOnClose);
+    }
+
+    public MultiDisplay(AudioInputStream ais, String title, int width,
+            int height)
+    {
+        this(ais, title, width, height, true);
     }
 
     public MultiDisplay(double[] signal, int samplingRate, String title,
             int width, int height)
     {
         super(title);
-        initialise(signal, samplingRate, width, height);
+        initialise(signal, samplingRate, width, height, true);
+    }
+
+    public MultiDisplay(double[] signal, int samplingRate, String title,
+            int width, int height, boolean exitOnClose)
+    {
+        super(title);
+        initialise(signal, samplingRate, width, height, exitOnClose);
     }
 
     protected void initialise(double[] signal, int samplingRate, int width,
-            int height)
+            int height, boolean exitOnClose)
     {
         setSize(width, height);
         JPanel zoomPanel = new JPanel();
@@ -172,12 +190,15 @@ public class MultiDisplay extends JFrame
             g.addCursorListener(glass);
         }
 
-        addWindowListener(new java.awt.event.WindowAdapter() {
-            public void windowClosing(java.awt.event.WindowEvent evt)
-            {
-                System.exit(0);
-            }
-        });
+        if (exitOnClose) {
+            addWindowListener(new java.awt.event.WindowAdapter() {
+                public void windowClosing(java.awt.event.WindowEvent evt)
+                {
+                    System.exit(0);
+                }
+            });
+        }
+        
         setVisible(true);
         signalGraph.requestFocus();
     }
