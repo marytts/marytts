@@ -15,12 +15,9 @@ open(OUTFILE,">$outfile") or die("Could not open outfile");
 for($i=0;$i<@featsfiles;$i++){
     $textfile = $featsfiles[$i];
     $textfile = "sentences".substr($textfile,10,-6)."txt";
-    #there was a bug in the java program
-    #index of feature file has to be increased
-    #by 1 to get index of sentence file 
+
     if ($textfile =~ /(sentences\d*\\dewiki\d*\/\/dewiki\d*_)(\d*)(.txt)/){ 
-	$num = $2;
-	#$num++; 
+	$num = $2; 
 	$textfile = $1 . $num . $3;
 	open(TEXTFILE,"$textfile") or die("Could not open $textfile");
 	$text = <TEXTFILE>;
