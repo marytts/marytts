@@ -273,8 +273,9 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         int i, j, k;
         double [] output = null;
         boolean isVoiced = true;
-        double pscale=1.0;
-        double tscale=1.0;
+ 
+        double pscale=1.0; //if pitchSpecs==FROM_CODE flag, this value will be used for pitch scaling
+        double tscale=1.0; //if durationSpecs==FROM_CODE flag, this value will be used for duration scaling  
         double escale=1.0;
         double vscale=1.0;
         
