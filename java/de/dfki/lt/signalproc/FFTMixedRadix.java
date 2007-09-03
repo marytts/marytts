@@ -1,5 +1,6 @@
 package de.dfki.lt.signalproc;
 
+import de.dfki.lt.signalproc.util.MathUtils;
 import de.dfki.lt.signalproc.util.MathUtils.Complex;
 
 public class FFTMixedRadix {
@@ -64,6 +65,31 @@ public class FFTMixedRadix {
     private static double  s120;
     private static double  rad;
 
+    //  xlen-point FFT power spectrum of real valued data x of length xlen.
+    public static double [] fftPowerSpectrum(double [] x, int xlen)
+    {
+        Complex h = new Complex(xlen);
+        double [] Ps = new double[xlen];
+        int w;
+
+        for (w=0; w<xlen; w++)
+        {
+            h.real[w] = x[w];
+            h.imag[w] = 0.0;
+        }
+
+        mixedRadixFFTBase(h.real, h.imag, xlen, xlen, xlen, 1);
+
+        for (w=0; w<xlen; w++)
+            h.imag[w] = -h.imag[w];
+        
+        for (w=0; w<xlen; w++)
+            Ps[w] = 10*MathUtils.log10(h.imag[w]*h.imag[w] + h.imag[w]*h.imag[w]);
+        
+        return Ps;
+    }
+    //
+    
     // xlen-point FFT of real valued data x of length xlen.
     // The result is returned as a pointer to a Complex object 
     //   which holds a real and an imag array of size xlen
