@@ -52,9 +52,11 @@ import de.dfki.lt.signalproc.util.DoubleDataSource;
  *
  */
 public class FDPSOLAUnitConcatenator extends OverlapUnitConcatenator {
-    protected FDPSOLAProcessor fdpsola;
+    private boolean [][] voicings;
     private double [][] pscales;
     private double [][] tscales;
+    private Datagram[][] datagrams;
+    private Datagram[] rightContexts;
     
     /**
      * 
@@ -70,7 +72,8 @@ public class FDPSOLAUnitConcatenator extends OverlapUnitConcatenator {
      */
     protected void getDatagramsFromTimeline(List units) throws IOException
     {
-        for (int i=0, len=units.size(); i<len; i++) {
+        for (int i=0, len=units.size(); i<len; i++) 
+        {
             SelectedUnit unit = (SelectedUnit) units.get(i);
             assert !unit.getUnit().isEdgeUnit() : "We should never have selected any edge units!";
             OverlapUnitData unitData = new OverlapUnitData();
@@ -79,8 +82,8 @@ public class FDPSOLAUnitConcatenator extends OverlapUnitConcatenator {
             int unitSize = unitToTimeline(unit.getUnit().getDuration()); // convert to timeline samples
             long unitStart = unitToTimeline(unit.getUnit().getStart()); // convert to timeline samples
             //System.out.println("Unit size "+unitSize+", pitchmarksInUnit "+pitchmarksInUnit);
-            Datagram[] datagrams = timeline.getDatagrams(unitStart,(long)unitSize);
-            unitData.setFrames(datagrams);
+            Datagram [] tmpDatagrams = timeline.getDatagrams(unitStart,(long)unitSize);
+            unitData.setFrames(tmpDatagrams);
             // one right context period for windowing:
             Datagram rightContextFrame = null;
             Unit nextInDB = database.getUnitFileReader().getNextUnit(unit.getUnit());
@@ -100,32 +103,14 @@ public class FDPSOLAUnitConcatenator extends OverlapUnitConcatenator {
         // First, determine the target pitchmarks as usual by the parent
         // implementation:
         super.determineTargetPitchmarks(units);
-    }
-    
-    /**
-     * Generate audio to match the target pitchmarks as closely as possible.
-     * @param units
-     * @return
-     */
-    protected AudioInputStream generateAudioStream(List units)
-    {
-        fdpsola = new FDPSOLAProcessor();
         
         int len = units.size();
-        Datagram[][] datagrams = new Datagram[len][];
-        Datagram[] rightContexts = new Datagram[len];
-        boolean[][] voicings = new boolean[len][];
-        pscales = new double[len][];
-        tscales = new double[len][];
-        double averageUnitF0InHz;
-        double averageTargetF0InHz;
-        int totalTargetUnits;
-        
+        datagrams = new Datagram[len][];
+        rightContexts = new Datagram[len];
+    
         int i, j;
-        SelectedUnit prevUnit = null;
         SelectedUnit unit = null;
-        SelectedUnit nextUnit = null;
-        
+
         //Preprocessing and allocation
         for (i=0; i<len; i++) 
         {
@@ -137,9 +122,6 @@ public class FDPSOLAUnitConcatenator extends OverlapUnitConcatenator {
             assert frames != null : "Cannot generate audio from null frames";
             // Generate audio from frames
             datagrams[i] = frames;
-            voicings[i] = new boolean[datagrams[i].length];
-            pscales[i] = new double[datagrams[i].length];
-            tscales[i] = new double[datagrams[i].length];
             
             Unit nextInDB = database.getUnitFileReader().getNextUnit(unit.getUnit());
             Unit nextSelected;
@@ -152,8 +134,64 @@ public class FDPSOLAUnitConcatenator extends OverlapUnitConcatenator {
             }
         }
         //
+        getVoicings(units);
 
-        //Estimation pitch scale modification amounts
+        getPitchScales(units);
+        
+        getDurationScales(units);
+    }
+    
+    private void getVoicings(List units)
+    {
+        int len = units.size();
+        int i, j;
+        
+        voicings = new boolean[len][];
+
+        SelectedUnit unit = null;
+        
+        //Estimation of pitch scale modification amounts
+        for (i=0; i<len; i++) 
+        {
+            unit = (SelectedUnit) units.get(i);
+
+            Phoneme sampaPhoneme = unit.getTarget().getSampaPhoneme();
+
+            voicings[i] = new boolean[datagrams[i].length];
+            
+            for (j=0; j<datagrams[i].length; j++)
+            {
+                if (sampaPhoneme != null && (sampaPhoneme.isVowel() || sampaPhoneme.isVoiced()))
+                    voicings[i][j] = true;
+                else
+                    voicings[i][j] = false;
+            }
+        }
+        //
+    }
+    
+    //We can try different things in this function
+    //1) Pitch of the selected units can  be smoothed without using the target pitch values at all. 
+    //   This will involve creating the target f0 values for each frame by ensuing small adjustments and yet reduce pitch discontinuity
+    //2) Pitch of the selected units can be modified to match the specified target where those target values are smoothed
+    //3) A mixture of (1) and (2) can be deviced, i.e. to minimize the amount of pitch modification one of the two methods can be selected for a given unit
+    //4) Pitch segments of selected units can be shifted 
+    //5) Pitch segments of target units can be shifted
+    //6) Pitch slopes can be modified for better matching in concatenation boundaries
+    private void getPitchScales(List units)
+    {
+        int len = units.size();
+        int i, j;
+        double averageUnitF0InHz;
+        double averageTargetF0InHz;
+        int totalTargetUnits;
+        voicings = new boolean[len][];
+        pscales = new double[len][];
+        SelectedUnit prevUnit = null;
+        SelectedUnit unit = null;
+        SelectedUnit nextUnit = null;
+        
+        //Estimation of pitch scale modification amounts
         for (i=0; i<len; i++) 
         {
             if (i>0)
@@ -220,12 +258,19 @@ public class FDPSOLAUnitConcatenator extends OverlapUnitConcatenator {
             averageTargetF0InHz /= totalTargetUnits;
             averageUnitF0InHz /= totalDatagrams;
 
+            voicings[i] = new boolean[datagrams[i].length];
+            pscales[i] = new double[datagrams[i].length];
+            
             for (j=0; j<datagrams[i].length; j++)
             {
                 if (sampaPhoneme != null && (sampaPhoneme.isVowel() || sampaPhoneme.isVoiced()))
                 {
                     voicings[i][j] = true;
                     pscales[i][j] = averageTargetF0InHz/averageUnitF0InHz;
+                    if (pscales[i][j]>1.2)
+                        pscales[i][j]=1.2;
+                    if (pscales[i][j]<0.8)
+                        pscales[i][j]=0.8;
                 }
                 else
                 {
@@ -235,9 +280,26 @@ public class FDPSOLAUnitConcatenator extends OverlapUnitConcatenator {
             }
         }
         //
+    }
+    
+    //We can try different things in this function
+    //1) Duration modification factors can be estimated using neighbouring selected and target unit durations
+    //2) Duration modification factors can be limited or even set to 1.0 for different phoneme classes
+    //3) Duration modification factors can be limited depending on the previous/next phoneme class
+    private void getDurationScales(List units)
+    {
+        int len = units.size();
         
+        int i, j;
+        tscales = new double[len][];
         int unitDuration;
+        
         double [] unitDurationsInSeconds = new double[datagrams.length];
+        
+        SelectedUnit prevUnit = null;
+        SelectedUnit unit = null;
+        SelectedUnit nextUnit = null;
+        
         for (i=0; i<len; i++)
         {
             unitDuration = 0;
@@ -261,7 +323,7 @@ public class FDPSOLAUnitConcatenator extends OverlapUnitConcatenator {
         {
             targetDur = 0.0;
             unitDur = 0.0;
-            if (i>0)
+            if (false && i>0)
             {
                 prevUnit = (SelectedUnit) units.get(i-1);
                 targetDur += prevUnit.getTarget().getTargetDurationInSeconds();
@@ -272,17 +334,33 @@ public class FDPSOLAUnitConcatenator extends OverlapUnitConcatenator {
             targetDur += unit.getTarget().getTargetDurationInSeconds();
             unitDur += unitDurationsInSeconds[i];
             
-            if (i<len-1)
+            if (false && i<len-1)
             {
                 nextUnit = (SelectedUnit) units.get(i+1);
                 targetDur += nextUnit.getTarget().getTargetDurationInSeconds();
                 unitDur += unitDurationsInSeconds[i+1];
             }
             
+            tscales[i] = new double[datagrams[i].length];
+            
             for (j=0; j<datagrams[i].length; j++)
+            {
                 tscales[i][j] = targetDur/unitDur;
+                if (tscales[i][j]>1.2)
+                    tscales[i][j]=1.2;
+                if (tscales[i][j]<0.8)
+                    tscales[i][j]=0.8;
+            }
         }
-        
-        return fdpsola.process(datagrams, rightContexts, audioformat, voicings, pscales, tscales);
+    }
+    
+    /**
+     * Generate audio to match the target pitchmarks as closely as possible.
+     * @param units
+     * @return
+     */
+    protected AudioInputStream generateAudioStream(List units)
+    {
+        return (new FDPSOLAProcessor()).process(datagrams, rightContexts, audioformat, voicings, pscales, tscales);
     }
 }
