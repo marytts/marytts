@@ -1,6 +1,8 @@
 package de.dfki.lt.signalproc.util;
 
+import de.dfki.lt.signalproc.FFT;
 import de.dfki.lt.signalproc.analysis.PitchMarker;
+import de.dfki.lt.signalproc.window.Window;
 
 public class SignalProcUtils {
     
@@ -260,4 +262,65 @@ public class SignalProcUtils {
         
         return new_f0s;
     }
+    
+    public static boolean getVoicing(double [] windowedSpeechFrame, int samplingRateInHz)
+    {
+        return getVoicing(windowedSpeechFrame, samplingRateInHz, 0.35f);
+    }
+
+    public static boolean getVoicing(double [] windowedSpeechFrame, int samplingRateInHz, double voicingThreshold)
+    {
+        double Pvoiced = getVoicingProbability(windowedSpeechFrame, samplingRateInHz);
+        
+        if (Pvoiced>=voicingThreshold)
+            return true;
+        else
+            return false;
+    }
+
+    public static double getVoicingProbability(double [] windowedSpeechFrame, int samplingRateInHz)
+    {   
+        int maxT0 = (int)((double)samplingRateInHz/40.0);
+        int minT0 = (int)((double)samplingRateInHz/400.0);
+        if (maxT0>windowedSpeechFrame.length-1)
+            maxT0 = windowedSpeechFrame.length-1;
+        if (minT0>maxT0)
+            minT0=maxT0;
+        
+        double [] R = SignalProcUtils.autocorr(windowedSpeechFrame, maxT0);
+        
+        double maxR = R[minT0];
+        
+        for (int i=minT0+1; i<=maxT0; i++)
+        {
+            if (R[i]>maxR)
+                maxR = R[i];
+        }
+        
+        double Pvoiced = maxR/R[0];
+        
+        return Pvoiced;
+    }
+    
+    public static double [] autocorr(double [] x, int LPOrder)
+    {
+        int N = x.length;
+        double [] R = new double[LPOrder+1];
+        
+        int n, m;
+        
+        for (m=0; m<=LPOrder; m++)
+        {   
+            R[m] = 0.0;
+            
+            for (n=0; n<=x.length-m-1; n++)
+                R[m] += x[n]*x[n+m];
+        }
+        
+        return R;
+    }
 }
+
+
+
+
