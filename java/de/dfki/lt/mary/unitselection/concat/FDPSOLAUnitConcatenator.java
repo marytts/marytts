@@ -266,11 +266,15 @@ public class FDPSOLAUnitConcatenator extends OverlapUnitConcatenator {
                 if (sampaPhoneme != null && (sampaPhoneme.isVowel() || sampaPhoneme.isVoiced()))
                 {
                     voicings[i][j] = true;
+                    
+                    /*
                     pscales[i][j] = averageTargetF0InHz/averageUnitF0InHz;
                     if (pscales[i][j]>1.2)
                         pscales[i][j]=1.2;
                     if (pscales[i][j]<0.8)
                         pscales[i][j]=0.8;
+                        */
+                    pscales[i][j] = 1.0;
                 }
                 else
                 {
@@ -345,11 +349,15 @@ public class FDPSOLAUnitConcatenator extends OverlapUnitConcatenator {
             
             for (j=0; j<datagrams[i].length; j++)
             {
+                /*
                 tscales[i][j] = targetDur/unitDur;
                 if (tscales[i][j]>1.2)
                     tscales[i][j]=1.2;
                 if (tscales[i][j]<0.8)
                     tscales[i][j]=0.8;
+                    */
+                
+                tscales[i][j] = 1.0;
             }
         }
     }
