@@ -59,7 +59,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
     private double wsFixed;
     private double ssFixed;
     private int numPeriods;
-    private static int NUM_PITCH_SYNC_PERIODS = 2;
+    private static int NUM_PITCH_SYNC_PERIODS = 3;
     
     private static int FROM_CODE = 0;
     private static int FROM_FILE = 1;
@@ -328,7 +328,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
             }    
         }       
         
-        boolean isLastInputFrame = false;
+        boolean bLastInputFrame = false;
         int currentPeriod;
         int inputFrameSize;
         
@@ -364,11 +364,14 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         for (i=0; i<datagrams.length; i++)
         {
             for (j=0; j<datagrams[i].length; j++)
-            {
-                isVoiced = voicings[i][j];
-                
+            {   
                 if (i==datagrams.length-1 && j==datagrams[i].length-1)
-                    isLastInputFrame = true;
+                    bLastInputFrame = true;
+                else
+                    bLastInputFrame = false;
+                
+                frmIn = null;
+                inputFrameSize = 0;
                 
                 currentPeriod = (int)datagrams[i][j].getDuration();
                 
@@ -430,33 +433,39 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                         }
                     }
                 }
-                    
-                try {
-                    output = processFrame(frmIn, isVoiced, pitchScales[i][j], timeScales[i][j], escale, vscale, isLastInputFrame, currentPeriod, inputFrameSize);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                
-                boolean bBroken = false;
-                if (output!=null)
+                   
+                if (frmIn!=null) //We have a frame to be processed
                 {
-                    if (yOut==null)
-                    {
-                        yOut = new double[output.length];
-                        System.arraycopy(output, 0, yOut, 0, output.length);
+                    //isVoiced = voicings[i][j];
+                    isVoiced = SignalProcUtils.getVoicing(frmIn, (int)(audioformat.getSampleRate()), 0.35f);
+
+                    try {
+                        output = processFrame(frmIn, isVoiced, pitchScales[i][j], timeScales[i][j], escale, vscale, bLastInputFrame, currentPeriod, inputFrameSize);
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                    else
+
+                    boolean bBroken = false;
+                    if (output!=null)
                     {
-                        yOutTmp = new double[yOut.length];
-                        System.arraycopy(yOut, 0, yOutTmp, 0, yOut.length);
-                        yOut = new double[yOutTmp.length+output.length];
-                        System.arraycopy(yOutTmp, 0, yOut, 0, yOutTmp.length);
-                        System.arraycopy(output, 0, yOut, yOutTmp.length, output.length);
-                    } 
+                        if (yOut==null)
+                        {
+                            yOut = new double[output.length];
+                            System.arraycopy(output, 0, yOut, 0, output.length);
+                        }
+                        else
+                        {
+                            yOutTmp = new double[yOut.length];
+                            System.arraycopy(yOut, 0, yOutTmp, 0, yOut.length);
+                            yOut = new double[yOutTmp.length+output.length];
+                            System.arraycopy(yOutTmp, 0, yOut, 0, yOutTmp.length);
+                            System.arraycopy(output, 0, yOut, yOutTmp.length, output.length);
+                        } 
+                    }
+
+                    if (bBroken)
+                        break;
                 }
-                
-                if (bBroken)
-                    break;
             }
         }
         
@@ -492,6 +501,377 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         }
         
         return new DDSAudioInputStream(new BufferedDoubleDataSource(yOut), audioformat);
+    }
+    
+    public DDSAudioInputStream process(double[] x, int [] pitchMarks, AudioFormat audioformat, boolean [] voicings, double [] pitchScales, double [] timeScales)
+    {
+        int pitchSpecs = FROM_TARGET;
+        //int pitchSpecs = FROM_FILE;
+        //int pitchSpecs = FROM_CODE;
+        int durationSpecs = FROM_TARGET;
+        //int durationSpecs = FROM_FILE;
+        //int durationSpecs = FROM_CODE;
+        
+        int i, j, k;
+        double [] output = null;
+        boolean isVoiced = true;
+ 
+        double pscale=1.0; //if pitchSpecs==FROM_CODE flag, this value will be used for pitch scaling
+        double tscale=1.0; //if durationSpecs==FROM_CODE flag, this value will be used for duration scaling  
+        double escale=1.0;
+        double vscale=1.0;
+        
+        //Read pscale, tscale, escale and vscale from a text file.
+        // (For quick testing purposes. It resest the input pichScales and timeScales to the fixed values in the text file.)
+        if (pitchSpecs==FROM_FILE || durationSpecs==FROM_FILE)
+        {
+            double [] scales = getScalesFromTextFile("d:/psolaParam.txt");
+            
+            if (pitchSpecs==FROM_FILE)
+                pscale = scales[0]; 
+            
+            if (durationSpecs==FROM_FILE)
+                tscale = scales[1]; 
+            
+            escale = scales[2]; 
+            vscale = scales[3]; 
+        }
+        //
+        
+        if (pitchSpecs==FROM_FILE || pitchSpecs==FROM_CODE || durationSpecs==FROM_FILE || durationSpecs==FROM_CODE)
+        {
+            if (pitchSpecs==FROM_FILE || pitchSpecs==FROM_CODE)
+            {
+                for (i=0; i<pitchScales.length; i++)
+                    pitchScales[i] = pscale;
+            }
+
+            if (durationSpecs==FROM_FILE || durationSpecs==FROM_CODE)
+            {
+                for (i=0; i<timeScales.length; i++)
+                    timeScales[i] = tscale;
+            }
+        }  
+        
+        double firstTScale = timeScales[0];
+        tscaleSingle = firstTScale;
+        for (i=0; i<timeScales.length; i++)
+        {
+            if (i!=0 && timeScales[i]!=firstTScale)
+            {
+                tscaleSingle = -1.0;
+                break;
+            } 
+        }       
+        
+        boolean bLastInputFrame = false;
+        int currentPeriod;
+        int inputFrameSize;
+        
+        double [] frmIn = null;
+        double [] frmTmp = null;
+        int tmpLen;
+        double [] yOut = null;
+        double [] yOutTmp = null;
+        
+        origLen = x.length;
+        numfrm = pitchMarks.length-numPeriods;
+           
+        int yCounter = -1;
+        
+        for (i=0; i<pitchMarks.length-numPeriods; i++)
+        {
+            if (i==pitchMarks.length-numPeriods-1)
+                bLastInputFrame = true;
+            else
+                bLastInputFrame = false;
+
+            inputFrameSize =  pitchMarks[i+numPeriods]-pitchMarks[i]+1;
+            frmIn = new double[inputFrameSize];
+            System.arraycopy(x, pitchMarks[i], frmIn, 0, inputFrameSize);
+
+            currentPeriod = pitchMarks[i+1]-pitchMarks[i]+1;
+
+            if (frmIn!=null) //We have a frame to be processed
+            {
+                //isVoiced = voicings[i][j];
+                isVoiced = SignalProcUtils.getVoicing(frmIn, (int)(audioformat.getSampleRate()), 0.35f);
+
+                try {
+                    output = processFrame(frmIn, isVoiced, pitchScales[i], timeScales[i], escale, vscale, bLastInputFrame, currentPeriod, inputFrameSize);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                boolean bBroken = false;
+                if (output!=null)
+                {
+                    if (yOut==null)
+                    {
+                        yOut = new double[output.length];
+                        System.arraycopy(output, 0, yOut, 0, output.length);
+                    }
+                    else
+                    {
+                        yOutTmp = new double[yOut.length];
+                        System.arraycopy(yOut, 0, yOutTmp, 0, yOut.length);
+                        yOut = new double[yOutTmp.length+output.length];
+                        System.arraycopy(yOutTmp, 0, yOut, 0, yOutTmp.length);
+                        System.arraycopy(output, 0, yOut, yOutTmp.length, output.length);
+                    } 
+                }
+
+                if (bBroken)
+                    break;
+            }
+        }
+
+        try {
+            output = writeFinal();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        if (output!=null)
+        {
+            if (yOut==null)
+            {
+                yOut = new double[output.length];
+                System.arraycopy(output, 0, yOut, 0, output.length);
+            }
+            else
+            {
+                yOutTmp = new double[yOut.length];
+                System.arraycopy(yOut, 0, yOutTmp, 0, yOut.length);
+                yOut = new double[yOutTmp.length+output.length];
+                System.arraycopy(yOutTmp, 0, yOut, 0, yOutTmp.length);
+                System.arraycopy(output, 0, yOut, yOutTmp.length, output.length);
+            }
+        }
+        
+        double absMax = MathUtils.absMax(yOut);
+        if (absMax>32700)
+        {
+            for (i=0; i<yOut.length; i++)
+                yOut[i] = yOut[i]/absMax*32700;
+        }
+        
+        return new DDSAudioInputStream(new BufferedDoubleDataSource(yOut), audioformat);
+    }
+    
+    
+    public double [] processDatagram(Datagram [] datagrams, Datagram rightContext, AudioFormat audioformat, boolean [] voicings, double [] pitchScales, double [] timeScales, boolean bLastDatagram)
+    {
+        int pitchSpecs = FROM_TARGET;
+        //int pitchSpecs = FROM_FILE;
+        //int pitchSpecs = FROM_CODE;
+        int durationSpecs = FROM_TARGET;
+        //int durationSpecs = FROM_FILE;
+        //int durationSpecs = FROM_CODE;
+        
+        int j, k;
+        double [] output = null;
+        boolean isVoiced = true;
+ 
+        double pscale=1.0; //if pitchSpecs==FROM_CODE flag, this value will be used for pitch scaling
+        double tscale=1.0; //if durationSpecs==FROM_CODE flag, this value will be used for duration scaling  
+        double escale=1.0;
+        double vscale=1.0;
+        
+        //Read pscale, tscale, escale and vscale from a text file.
+        // (For quick testing purposes. It resest the input pichScales and timeScales to the fixed values in the text file.)
+        if (pitchSpecs==FROM_FILE || durationSpecs==FROM_FILE)
+        {
+            double [] scales = getScalesFromTextFile("d:/psolaParam.txt");
+            
+            if (pitchSpecs==FROM_FILE)
+                pscale = scales[0]; 
+            
+            if (durationSpecs==FROM_FILE)
+                tscale = scales[1]; 
+            
+            escale = scales[2]; 
+            vscale = scales[3]; 
+        }
+        //
+        
+        if (pitchSpecs==FROM_FILE || pitchSpecs==FROM_CODE || durationSpecs==FROM_FILE || durationSpecs==FROM_CODE)
+        {
+            if (pitchSpecs==FROM_FILE || pitchSpecs==FROM_CODE)
+            {
+                for (j=0; j<pitchScales.length; j++)
+                    pitchScales[j] = pscale;
+            }
+
+            if (durationSpecs==FROM_FILE || durationSpecs==FROM_CODE)
+            {
+                for (j=0; j<timeScales.length; j++)
+                    timeScales[j] = tscale;
+            }
+        }  
+        
+        double firstTScale = timeScales[0];
+        tscaleSingle = firstTScale;
+
+        for (j=0; j<timeScales.length; j++)
+        {
+            if (j!=0 && timeScales[j]!=firstTScale)
+            {
+                tscaleSingle = -1.0;
+                break;
+            }
+        }          
+        
+        boolean bLastInputFrame = false;
+        int currentPeriod;
+        int inputFrameSize;
+        
+        double [] frmIn = null;
+        double [] frmTmp = null;
+        int tmpLen;
+        double [] yOut = null;
+        double [] yOutTmp = null;
+        Datagram [] tmpDatagram = new Datagram[1];
+        
+        origLen = 0;
+        numfrm = 0;
+
+        for (j=0; j<datagrams.length; j++)
+        {
+            if (j==datagrams.length-1)
+            {
+                if (rightContext!=null)
+                    origLen += datagrams[j].getDuration()+rightContext.getDuration();
+                else
+                    origLen += datagrams[j].getDuration();
+            }
+            else
+                origLen += datagrams[j].getDuration();
+
+            numfrm++;
+        }
+           
+        int yCounter = -1;
+
+        for (j=0; j<datagrams.length; j++)
+        {   
+            frmIn = null;
+            inputFrameSize = 0;
+
+            /*
+            if (j==datagrams.length-1)
+                bLastInputFrame = true;
+                */
+            
+            if (bLastDatagram && j==datagrams.length-1)
+                bLastInputFrame = true;
+
+            currentPeriod = (int)datagrams[j].getDuration();
+
+            if (j<datagrams.length-1)
+            {
+                inputFrameSize = (int)datagrams[j].getDuration()+(int)datagrams[j+1].getDuration();
+                frmIn = new double[inputFrameSize];
+
+                tmpDatagram[0] = datagrams[j];
+                frmTmp = new DatagramDoubleDataSource(tmpDatagram).getAllData();
+                tmpLen = frmTmp.length;
+                System.arraycopy(frmTmp, 0, frmIn, 0, tmpLen);
+
+                tmpDatagram[0] = datagrams[j+1];
+                frmTmp = new DatagramDoubleDataSource(tmpDatagram).getAllData();
+                System.arraycopy(frmTmp, 0, frmIn, tmpLen, frmTmp.length);
+            }
+            else
+            {
+                if (rightContext!=null)
+                {
+                    inputFrameSize = (int)datagrams[j].getDuration()+(int)rightContext.getDuration();
+                    frmIn = new double[inputFrameSize];
+
+                    tmpDatagram[0] = datagrams[j];
+                    frmTmp = new DatagramDoubleDataSource(tmpDatagram).getAllData();
+                    tmpLen = frmTmp.length;
+                    System.arraycopy(frmTmp, 0, frmIn, 0, tmpLen);
+
+                    tmpDatagram[0] = rightContext;
+                    frmTmp = new DatagramDoubleDataSource(tmpDatagram).getAllData();
+                    System.arraycopy(frmTmp, 0, frmIn, tmpLen, frmTmp.length);   
+                }
+                else
+                {
+                    inputFrameSize = 2*(int)datagrams[j].getDuration();
+                    frmIn = new double[inputFrameSize];
+
+                    Arrays.fill(frmIn, 0.0);
+
+                    tmpDatagram[0] = datagrams[j];
+                    frmTmp = new DatagramDoubleDataSource(tmpDatagram).getAllData();
+                    tmpLen = frmTmp.length;
+                    System.arraycopy(frmTmp, 0, frmIn, 0, tmpLen);
+                }
+            }
+
+            if (frmIn!=null) //We have a frame to be processed
+            {
+                //isVoiced = voicings[j];
+                isVoiced = SignalProcUtils.getVoicing(frmIn, (int)(audioformat.getSampleRate()), 0.35f);
+
+                try {
+                    output = processFrame(frmIn, isVoiced, pitchScales[j], timeScales[j], escale, vscale, bLastInputFrame, currentPeriod, inputFrameSize);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                boolean bBroken = false;
+                if (output!=null)
+                {
+                    if (yOut==null)
+                    {
+                        yOut = new double[output.length];
+                        System.arraycopy(output, 0, yOut, 0, output.length);
+                    }
+                    else
+                    {
+                        yOutTmp = new double[yOut.length];
+                        System.arraycopy(yOut, 0, yOutTmp, 0, yOut.length);
+                        yOut = new double[yOutTmp.length+output.length];
+                        System.arraycopy(yOutTmp, 0, yOut, 0, yOutTmp.length);
+                        System.arraycopy(output, 0, yOut, yOutTmp.length, output.length);
+                    } 
+                }
+
+                if (bBroken)
+                    break;
+            }
+        }
+        
+        try {
+            output = writeFinal();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        if (output!=null)
+        {
+            if (yOut==null)
+            {
+                yOut = new double[output.length];
+                System.arraycopy(output, 0, yOut, 0, output.length);
+            }
+            else
+            {
+                yOutTmp = new double[yOut.length];
+                System.arraycopy(yOut, 0, yOutTmp, 0, yOut.length);
+                yOut = new double[yOutTmp.length+output.length];
+                System.arraycopy(yOutTmp, 0, yOut, 0, yOutTmp.length);
+                System.arraycopy(output, 0, yOut, yOutTmp.length, output.length);
+            }
+        }
+        
+        return yOut;
     }
     
     //Read scale factors from a text file for quick testing
