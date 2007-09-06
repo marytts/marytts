@@ -61,8 +61,8 @@ public class AudioDoubleDataSource extends BaseDoubleDataSource {
     public AudioDoubleDataSource(AudioInputStream ais, boolean isAutomaticClippingControl) {
         this.ais = ais;
         int bitsPerSample = ais.getFormat().getSampleSizeInBits();
-        if (bitsPerSample != 8 && bitsPerSample != 16) {
-            throw new IllegalArgumentException("Can deal with sample size 8 or 16, but not " + bitsPerSample);
+        if (bitsPerSample != 8 && bitsPerSample != 16 && bitsPerSample != 24) {
+            throw new IllegalArgumentException("Can deal with sample size 8, 16 or 24, but not " + bitsPerSample);
         }
         this.bytesPerSample = bitsPerSample / 8;
         this.bigEndian = ais.getFormat().isBigEndian();
@@ -143,10 +143,10 @@ public class AudioDoubleDataSource extends BaseDoubleDataSource {
                 // Now we have nBytesRead/bytesPerSample samples in byteBuf.
                 if (bytesPerSample == 1) {
                     for (int i=0; i<nBytesRead; i++, currentPos++) {
-                        target[currentPos] = (byteBuf[i]<<8);
+                        target[currentPos] = (byteBuf[i]<<8) / 128.0; // normalise to range [-1, 1];
                     }
                     totalCopied += nBytesRead;
-                } else { // bytesPerSample == 2
+                } else if (bytesPerSample == 2){ // 16 bit
                     for (int i=0; i<nBytesRead; i+=2, currentPos++) {
                         int sample;
                         byte lobyte;
@@ -159,9 +159,27 @@ public class AudioDoubleDataSource extends BaseDoubleDataSource {
                             hibyte = byteBuf[i];
                         }
                         sample = hibyte<<8 | lobyte&0xFF;
-                        target[currentPos] = sample;
+                        target[currentPos] = sample / 32768.0;// normalise to range [-1, 1];
                     }
                     totalCopied += nBytesRead/bytesPerSample;
+                } else { // bytesPerSample == 3, i.e. 24 bit
+                    for (int i=0; i<nBytesRead; i+=3, currentPos++) {
+                        int sample;
+                        byte lobyte;
+                        byte midbyte;
+                        byte hibyte;
+                        if (!bigEndian) {
+                            lobyte = byteBuf[i];
+                            midbyte = byteBuf[i+1];
+                            hibyte = byteBuf[i+2];
+                        } else {
+                            lobyte = byteBuf[i+2];
+                            midbyte = byteBuf[i+1];
+                            hibyte = byteBuf[i];
+                        }
+                        sample = hibyte << 16 + (midbyte & 0xFF) << 8 + lobyte & 0xFF;
+                        target[currentPos] = sample / 8388606.0; // normalise to range [-1, 1]
+                    }
                 }
                 
             }
