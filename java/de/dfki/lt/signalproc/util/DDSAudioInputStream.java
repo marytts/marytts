@@ -104,12 +104,13 @@ public class DDSAudioInputStream extends AudioInputStream {
             //System.err.println("DDSAudioInputStream: read " + nRead + " samples from source");
             if (frameSize == 1) { // bytes per sample
                 for (int i=0; i<nRead; i++, currentPos++) {
-                    b[currentPos] = (byte) (((int)sampleBuf[i]>>8)&0xFF);
+                    int sample = (int) (sampleBuf[i] * 128.0); // de-normalise to value range
+                    b[currentPos] = (byte) ((sample>>8)&0xFF);
                 }
-            } else { // frameSize == 2
+            } else if (frameSize == 2){ // 16 bit
                 boolean bigEndian = format.isBigEndian();
                 for (int i=0; i<nRead; i++, currentPos+=2) {
-                    int sample = (int) sampleBuf[i];
+                    int sample = (int) (sampleBuf[i] * 32768.0); // de-normalise to value range
                     if (sample > MAX_AMPLITUDE || sample < -MAX_AMPLITUDE) {
                         System.err.println("Warning: signal amplitude out of range: "+sample);
                     }
@@ -123,7 +124,24 @@ public class DDSAudioInputStream extends AudioInputStream {
                         b[currentPos+1] = lobyte;
                     }
                     //System.err.println("out sample["+i+"]="+sample+" hi:"+Integer.toBinaryString(hibyte)+"/"+hibyte+" lo:"+Integer.toBinaryString(lobyte)+"/"+lobyte);
-
+                }
+            } else { // 24 bit
+                boolean bigEndian = format.isBigEndian();
+                for (int i=0; i<nRead; i++, currentPos+=3) {
+                    int sample = (int) (sampleBuf[i] * 8388606.0); // de-normalise to value range
+                    byte hibyte = (byte) (sample>>16);
+                    byte midbyte = (byte) ((sample>>8) & 0xFF);
+                    byte lobyte = (byte) (sample&0xFF);
+                    if (!bigEndian) {
+                        b[currentPos] = lobyte;
+                        b[currentPos+1] = midbyte;
+                        b[currentPos+2] = hibyte;
+                    } else {
+                        b[currentPos] = hibyte;
+                        b[currentPos+1] = midbyte;
+                        b[currentPos+2] = lobyte;
+                    }
+                    //System.err.println("out sample["+i+"]="+sample+" hi:"+Integer.toBinaryString(hibyte)+"/"+hibyte+" lo:"+Integer.toBinaryString(lobyte)+"/"+lobyte);
                 }
             }
             totalRead += nRead;

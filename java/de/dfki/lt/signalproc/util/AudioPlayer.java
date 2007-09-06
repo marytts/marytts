@@ -38,6 +38,7 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineListener;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.sound.sampled.AudioFormat.Encoding;
 
 /**
  * This audio player is used by the example code MaryClientUser, but not by
@@ -53,8 +54,20 @@ public class AudioPlayer extends Thread {
     private LineListener lineListener;
 
     private SourceDataLine line;
+    
+    private boolean forceStereoOutput = false;
 
     private boolean exitRequested = false;
+
+    public AudioPlayer(File audioFile) 
+    throws IOException, UnsupportedAudioFileException
+    {
+        this.ais = AudioSystem.getAudioInputStream(audioFile);
+    }
+    
+    public AudioPlayer(AudioInputStream ais) {
+        this.ais = ais;
+    }
 
     public AudioPlayer(File audioFile, LineListener lineListener) 
     throws IOException, UnsupportedAudioFileException
@@ -66,6 +79,36 @@ public class AudioPlayer extends Thread {
     public AudioPlayer(AudioInputStream ais, LineListener lineListener) {
         this.ais = ais;
         this.lineListener = lineListener;
+    }
+
+    public AudioPlayer(File audioFile, SourceDataLine line, LineListener lineListener) 
+    throws IOException, UnsupportedAudioFileException
+    {
+        this.ais = AudioSystem.getAudioInputStream(audioFile);
+        this.line = line;
+        this.lineListener = lineListener;
+    }
+    
+    public AudioPlayer(AudioInputStream ais, SourceDataLine line, LineListener lineListener) {
+        this.ais = ais;
+        this.line = line;
+        this.lineListener = lineListener;
+    }
+
+    public AudioPlayer(File audioFile, SourceDataLine line, LineListener lineListener, boolean forceStereoOutput) 
+    throws IOException, UnsupportedAudioFileException
+    {
+        this.ais = AudioSystem.getAudioInputStream(audioFile);
+        this.line = line;
+        this.lineListener = lineListener;
+        this.forceStereoOutput = forceStereoOutput;
+    }
+    
+    public AudioPlayer(AudioInputStream ais, SourceDataLine line, LineListener lineListener, boolean forceStereoOutput) {
+        this.ais = ais;
+        this.line = line;
+        this.lineListener = lineListener;
+        this.forceStereoOutput = forceStereoOutput;
     }
 
     public void cancel() {
@@ -80,12 +123,19 @@ public class AudioPlayer extends Thread {
 
     public void run() {
         AudioFormat audioFormat = ais.getFormat();
+        if (audioFormat.getChannels() == 1 && forceStereoOutput) { // mono -> convert to stereo
+            AudioFormat targetFormat = new AudioFormat(audioFormat.getSampleRate(), audioFormat.getSampleSizeInBits(), 2, Encoding.PCM_SIGNED.equals(audioFormat.getEncoding()), audioFormat.isBigEndian());
+            ais = AudioSystem.getAudioInputStream(targetFormat, ais);
+            audioFormat = targetFormat;
+        }
 
         DataLine.Info info = new DataLine.Info(SourceDataLine.class,
                 audioFormat);
         try {
-            line = (SourceDataLine) AudioSystem.getLine(info);
-            line.addLineListener(lineListener);
+            if (line == null)
+                line = (SourceDataLine) AudioSystem.getLine(info);
+            if (lineListener != null)
+                line.addLineListener(lineListener);
             line.open(audioFormat);
         } catch (Exception e) {
             e.printStackTrace();
@@ -93,7 +143,7 @@ public class AudioPlayer extends Thread {
         }
         line.start();
         int nRead = 0;
-        byte[] abData = new byte[8192];
+        byte[] abData = new byte[65532]; // needs to be a multiple of 4 and 6, to support both 16 and 24 bit stereo
         while (nRead != -1 && !exitRequested) {
             try {
                 nRead = ais.read(abData, 0, abData.length);

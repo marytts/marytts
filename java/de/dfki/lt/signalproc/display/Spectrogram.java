@@ -101,6 +101,7 @@ public class Spectrogram  extends FunctionGraph
     
     protected List spectra;
     protected double spectra_max = 0.;
+    protected double spectra_min = 0.;
     protected double deltaF = 0.; // distance in Hz between two spectrum samples
     protected int spectra_indexmax = 0; // index in each spectrum corresponding to FREQ_MAX
     
@@ -167,7 +168,8 @@ public class Spectrogram  extends FunctionGraph
         // Frequency resolution of the FFT:
         deltaF = spectrumAnalyser.getFrequencyResolution(); 
         long startTime = System.currentTimeMillis();
-        spectra_max = 0;
+        spectra_max = Double.NaN;
+        spectra_min = Double.NaN;
         FrameBasedAnalyser.FrameAnalysisResult[] results = spectrumAnalyser.analyseAllFrames();
         for (int i=0; i<results.length; i++) {
             double[] spectrum = (double[]) results[i].get();
@@ -176,8 +178,10 @@ public class Spectrogram  extends FunctionGraph
             for (int j=0; j<spectrum.length; j++) {
                 double freqPreemphasis = PREEMPHASIS / Math.log(2) * Math.log((j+1)*deltaF/1000.);
                 spectrum[j] += freqPreemphasis;
-                if (spectrum[j] < 0) spectrum[j] = 0;
-                if (spectrum[j] > spectra_max) {
+                if (Double.isNaN(spectra_min) || spectrum[j] < spectra_min) {
+                    spectra_min = spectrum[j];
+                }
+                if (Double.isNaN(spectra_max) || spectrum[j] > spectra_max) {
                     spectra_max = spectrum[j];
                 }
             }
