@@ -65,9 +65,10 @@ public class SortTestResults{
          * same results */
         File simpleDiphoneSortFile = new File("./simpleDiphoneSort.txt");
         File clusteredDiphoneSortFile = new File("./clusteredDiphoneSort.txt");
-        File simpleOverallSortFile = new File("./simpleOverallSort.txt");
-        File clusteredOverallSortFile = new File("./clusteredOverallSort.txt");
+        File simpleProsodySortFile = new File("./simpleProsodySort.txt");
+        File clusteredProsodySortFile = new File("./clusteredProsodySort.txt");
         File sameResultsFile = new File("./sameResults.txt");
+        File numSentencesFile = new File("./numSentencesSort.txt");
         
         List resultList = new ArrayList();
         BufferedReader logIn = 
@@ -85,8 +86,9 @@ public class SortTestResults{
         /* sort */
         SortedMap simpleDiphone2Results = new TreeMap(Collections.reverseOrder());
         SortedMap clusteredDiphone2Results = new TreeMap(Collections.reverseOrder());
-        SortedMap simpleOverall2Results = new TreeMap(Collections.reverseOrder());
-        SortedMap clusteredOverall2Results = new TreeMap(Collections.reverseOrder());
+        SortedMap simpleProsody2Results = new TreeMap(Collections.reverseOrder());
+        SortedMap clusteredProsody2Results = new TreeMap(Collections.reverseOrder());
+        SortedMap numSentences2Results = new TreeMap();
         double[] sdCovArray = new double[resultList.size()];
         double[] soCovArray = new double[resultList.size()];
         double[] cdCovArray = new double[resultList.size()];
@@ -100,11 +102,11 @@ public class SortTestResults{
             Double coverage = new Double(cov);
             sort(simpleDiphone2Results, nextResult, coverage);
             
-            //sort according to simpleOverall coverage
-            cov = nextResult.getSimpleOverallCoverage();
+            //sort according to simpleProsody coverage
+            cov = nextResult.getSimpleProsodyCoverage();
             soCovArray[index] = cov;
             coverage = new Double(cov);
-            sort(simpleOverall2Results, nextResult, coverage);
+            sort(simpleProsody2Results, nextResult, coverage);
             
             //sort according to clusteredDiphone coverage
             cov = nextResult.getClusteredDiphoneCoverage();
@@ -112,11 +114,15 @@ public class SortTestResults{
             coverage = new Double(cov);
             sort(clusteredDiphone2Results, nextResult, coverage);
             
-            //sort according to clusteredOverall coverage
-            cov = nextResult.getClusteredOverallCoverage();
+            //sort according to clusteredProsody coverage
+            cov = nextResult.getClusteredProsodyCoverage();
             coCovArray[index] = cov;
             coverage = new Double(cov);
-            sort(clusteredOverall2Results, nextResult, coverage);
+            sort(clusteredProsody2Results, nextResult, coverage);
+            
+            //sort according to number of sentences
+            Integer numSents = new Integer(nextResult.getNumSentences());
+            sort(numSentences2Results,nextResult,numSents);
             
             index++;
         }
@@ -132,13 +138,13 @@ public class SortTestResults{
         double maxCoverage = result1.getMaxSimpleDiphoneCoverage();
         print(simpleDiphone2Results,out,shortResults,justSettings,"simple diphone coverage (max: "+maxCoverage+")");
         
-        //simpleOverallCoverage
+        //simpleProsodyCoverage
         out =
             new PrintWriter(
                     new OutputStreamWriter(
-                            new FileOutputStream(simpleOverallSortFile),"UTF-8"),true);
-        maxCoverage = result1.getMaxSimpleOverallCoverage();
-        print(simpleOverall2Results,out,shortResults,justSettings,"simple overall coverage (max: "+maxCoverage+")");
+                            new FileOutputStream(simpleProsodySortFile),"UTF-8"),true);
+        maxCoverage = result1.getMaxSimpleProsodyCoverage();
+        print(simpleProsody2Results,out,shortResults,justSettings,"simple Prosody coverage (max: "+maxCoverage+")");
         
         //clusteredDiphoneCoverage
         out =
@@ -148,13 +154,13 @@ public class SortTestResults{
         maxCoverage = result1.getMaxClusteredDiphoneCoverage();
         print(clusteredDiphone2Results,out,shortResults,justSettings,"clustered diphone coverage (max: "+maxCoverage+")");
         
-        //clusteredOverallCoverage
+        //clusteredProsodyCoverage
         out =
             new PrintWriter(
                     new OutputStreamWriter(
-                            new FileOutputStream(clusteredOverallSortFile),"UTF-8"),true);
-        maxCoverage = result1.getMaxClusteredOverallCoverage();
-        print(clusteredOverall2Results,out,shortResults,justSettings,"clustered overall coverage (max: "+maxCoverage+")");
+                            new FileOutputStream(clusteredProsodySortFile),"UTF-8"),true);
+        maxCoverage = result1.getMaxClusteredProsodyCoverage();
+        print(clusteredProsody2Results,out,shortResults,justSettings,"clustered Prosody coverage (max: "+maxCoverage+")");
       
         //same Results
         out =
@@ -162,10 +168,17 @@ public class SortTestResults{
                     new OutputStreamWriter(
                             new FileOutputStream(sameResultsFile),"UTF-8"),true);
         printSameResults(out,resultList, sdCovArray, soCovArray, cdCovArray, coCovArray,justSettings);
+     
+        //numSentences
+        out =
+            new PrintWriter(
+                    new OutputStreamWriter(
+                            new FileOutputStream(numSentencesFile),"UTF-8"),true);
+        printNumSentences(out,resultList,numSentences2Results,shortResults,justSettings);
         
     }
     
-    private static void sort(SortedMap sortMap, TestResult result, Double coverage){
+    private static void sort(SortedMap sortMap, TestResult result, Object coverage){
         if (sortMap.containsKey(coverage)){
                 List nextResultList = (List) sortMap.get(coverage);
                 nextResultList.add(result);
@@ -191,11 +204,13 @@ public class SortTestResults{
             List nextResultList = (List) sortMap.get(nextCoverage);
             if (justSettings){
                 for (Iterator it2 = nextResultList.iterator();it2.hasNext();){
-                    String outString = ((TestResult)it2.next()).getSettings();
+                    TestResult nextResult = (TestResult)it2.next(); 
                     if (index<10){
-                    	out.println("0"+index+": "+nextCoverage+"\t"+outString);
+                    	out.println("0"+index+": "+nextCoverage+"\t"
+                                +nextResult.getSettings());
                     } else {
-                    	out.println(index+": "+nextCoverage+"\t"+outString);
+                    	out.println(index+": "+nextCoverage+"\t"
+                                +nextResult.getSettings());
                     }
                     
                     
@@ -270,8 +285,46 @@ public class SortTestResults{
             }
             out.println("*******************");
         }
-
-
-
     }
+    
+    private static void printNumSentences(PrintWriter out,
+                            List resultList,
+                            Map numSentences2Results,
+                            boolean shortResults,
+                            boolean justSettings){
+        int index =1;
+        
+        DecimalFormat df = new DecimalFormat("0.00");
+        for (Iterator it=numSentences2Results.keySet().iterator();it.hasNext();){
+            Integer numSentences = (Integer) it.next();
+            List nextResultList = (List) numSentences2Results.get(numSentences);
+            if (justSettings){
+                for (Iterator it2 = nextResultList.iterator();it2.hasNext();){
+                    TestResult nextResult = (TestResult)it2.next();
+                    if (index<10){
+                        out.println("0"+index+": "+numSentences+"\t"
+                                +nextResult.getSettings()+"\n\t\t"
+                                +nextResult.getCoverageString()+"\n");
+                    } else {
+                        out.println(index+": "+numSentences+"\t"
+                                +nextResult.getSettings()+"\n\t\t"
+                                +nextResult.getCoverageString()+"\n");
+                    } 
+                }
+            } else {
+                out.println("*** "+index+" ***\n");            
+                for (Iterator it2 = nextResultList.iterator();it2.hasNext();){
+                    if (shortResults){
+                        out.println(((TestResult)it2.next()).getShortText()+"\n");
+                    } else {
+                        out.println(((TestResult)it2.next()).getText()+"\n");
+                    }
+                }
+                out.println();
+            }            
+            index++;
+        }
+        out.close();
+    }
+    
 }
