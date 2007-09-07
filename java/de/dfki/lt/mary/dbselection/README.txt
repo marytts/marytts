@@ -245,11 +245,13 @@ Sort the results of all tests. For this, a file containing all results
 is needed. This file can be created by starting the DatabaseSelector
 with the option -overallLog <file> at each run. 
 
-The program produces five files. For each of the four coverage
+The program produces six files. For each of the four coverage
 measures, the results are sorted according to which result has the
 highest coverage for the given measure and stored in a
-file. Additionally, a file containing those results that are the same
+file. Also, a file containing those results that are the same
 but probablty were achieved with different settings is constructed.
+And lastly, the program creates a file containing the results sorted
+according to the number of sentences selected.
 
 The files are written to the directory where the program is started from.  
 
@@ -274,7 +276,7 @@ de.dfki.lt.mary.dbselection.SortTestResults
  rank: coverage	    number of basenames; stop criterion; units are
  simple (SD) or clustered diphones (CD); frequency measure; wanted
  weights on phone/nextPhone/prosody level; number by which the wanted
- weight is divided 
+ weight is divided; number of sentences selected 
 
 
 

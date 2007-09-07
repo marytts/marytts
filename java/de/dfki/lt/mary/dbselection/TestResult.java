@@ -45,17 +45,18 @@ public class TestResult{
     private String date;
     private double phoneCoverage;
     private double simpleDiphoneCoverage;
-    private double simpleOverallCoverage;
+    private double simpleProsodyCoverage;
     private double clusteredDiphoneCoverage;
-    private double clusteredOverallCoverage;
+    private double clusteredProsodyCoverage;
     private double maxPhoneCoverage;
     private double maxSimpleDiphoneCoverage;
-    private double maxSimpleOverallCoverage;
+    private double maxSimpleProsodyCoverage;
     private double maxClusteredDiphoneCoverage;
-    private double maxClusteredOverallCoverage;
+    private double maxClusteredProsodyCoverage;
     private double averageSentenceLength;
     private int maximumSentenceLength;
     private int minimumSentenceLength;
+    private int numSentences;
 
 
     public TestResult(BufferedReader resultIn) throws Exception{
@@ -148,7 +149,7 @@ public class TestResult{
         textBuf.append(line+"\n");
         shortTextBuf.append(line+"\n");
         lineSplit = line.split(" ");
-        settingBuf.append(lineSplit[1].substring(0,lineSplit[1].length()-2));
+        settingBuf.append(lineSplit[1].substring(0,lineSplit[1].length()-2)+";");
         // 
         //textBuf.append(resultIn.readLine()+"\n");
         resultIn.readLine();
@@ -157,6 +158,8 @@ public class TestResult{
         textBuf.append(line+"\n");
         lineSplit = line.split(" ");
         shortTextBuf.append("Num sents: "+lineSplit[5]+"\n");
+        numSentences = Integer.parseInt(lineSplit[5]);
+        settingBuf.append(lineSplit[5]);
         // Avg sent length : 107.92880
         line = resultIn.readLine();
         textBuf.append(line+"\n");
@@ -198,8 +201,8 @@ public class TestResult{
         textBuf.append(line+"\n");
         lineSplit = line.split(" ");
         shortTextBuf.append("simple Prosody: "+lineSplit[1]+" "+lineSplit[2]+"\n");
-        simpleOverallCoverage = Double.parseDouble(lineSplit[1]);
-        maxSimpleOverallCoverage = 
+        simpleProsodyCoverage = Double.parseDouble(lineSplit[1]);
+        maxSimpleProsodyCoverage = 
             Double.parseDouble(lineSplit[2].substring(1,lineSplit[2].length()-1));
         // Clustered Coverage:
         textBuf.append(resultIn.readLine()+"\n");
@@ -216,8 +219,8 @@ public class TestResult{
         textBuf.append(line+"\n");
         lineSplit = line.split(" ");
         shortTextBuf.append("clustered Prosody: "+lineSplit[1]+" "+lineSplit[2]+"\n");
-        clusteredOverallCoverage = Double.parseDouble(lineSplit[1]);
-        maxClusteredOverallCoverage = 
+        clusteredProsodyCoverage = Double.parseDouble(lineSplit[1]);
+        maxClusteredProsodyCoverage = 
             Double.parseDouble(lineSplit[2].substring(1,lineSplit[2].length()-1));
         resultText = textBuf.toString();
         shortResultText = shortTextBuf.toString();
@@ -256,12 +259,12 @@ public class TestResult{
         return maxSimpleDiphoneCoverage;
     }
 
-    public double getSimpleOverallCoverage(){
-        return simpleOverallCoverage;
+    public double getSimpleProsodyCoverage(){
+        return simpleProsodyCoverage;
     }
 
-    public double getMaxSimpleOverallCoverage(){
-        return maxSimpleOverallCoverage;
+    public double getMaxSimpleProsodyCoverage(){
+        return maxSimpleProsodyCoverage;
     }
 
     public double getClusteredDiphoneCoverage(){
@@ -272,12 +275,12 @@ public class TestResult{
         return maxClusteredDiphoneCoverage;
     }
 
-    public double getClusteredOverallCoverage(){
-        return clusteredOverallCoverage;
+    public double getClusteredProsodyCoverage(){
+        return clusteredProsodyCoverage;
     }
 
-    public double getMaxClusteredOverallCoverage(){
-        return maxClusteredOverallCoverage;
+    public double getMaxClusteredProsodyCoverage(){
+        return maxClusteredProsodyCoverage;
     }
 
     public double getAverageSentenceLength(){
@@ -290,6 +293,18 @@ public class TestResult{
 
     public int getMinSentenceLength(){
         return minimumSentenceLength;
+    }
+    
+    public int getNumSentences(){
+        return numSentences;
+    }
+    
+    public String getCoverageString(){
+        return "SD "+simpleDiphoneCoverage+
+            " SP "+simpleProsodyCoverage+
+            " CD "+clusteredDiphoneCoverage+
+            " CP "+clusteredProsodyCoverage;
+        
     }
 
 }
