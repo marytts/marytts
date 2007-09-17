@@ -79,8 +79,6 @@ public class DatabaseSelector{
     //are not wanted on the basename list
     private static String unwantedSentsFile;
     
-    
-    
     /**
      * Main method to be run from the directory where the data is.
      * Expects already computed unit features in directory unitfeatures
@@ -88,6 +86,22 @@ public class DatabaseSelector{
      * @param args the command line args (see printUsage for details)
      */
     public static void main(String[] args)throws Exception{
+        main2(args,null);
+    }
+
+    
+    /**
+     * Main method to be run from the directory where the data is.
+     * Expects already computed unit features in directory unitfeatures.
+     * Can be given an array of feature vectors - this is useful if the 
+     * program is run several times with the same feature vectors.
+     * 
+     * @param args the command line args (see printUsage for details)
+     * @param vectorArray the array of feature vectors
+     * 
+     * @return the array of feature vectors used in the current pass
+     */
+    public static byte[][] main2(String[] args,byte[][] vectorArray)throws Exception{
         /* Sort out the filenames and dirs for the logfiles */
         System.out.println("Starting Database Selection...");
         long time = System.currentTimeMillis();
@@ -101,7 +115,7 @@ public class DatabaseSelector{
         System.out.println("Reading arguments ...");
         StringBuffer logBuf = new StringBuffer();
         if (!readArgs(args,logBuf))
-            return;
+            return null;
 
         //make sure the stop criterion is allright
         SelectionFunction selFunc = 
@@ -109,7 +123,7 @@ public class DatabaseSelector{
         if (!selFunc.stopIsOkay(stopCriterion)){
             System.out.println("Stop criterion format is wrong");
             printUsage();
-            return;
+            return null;
         }
 
         //make various dirs
@@ -152,11 +166,12 @@ public class DatabaseSelector{
 
         /* Initialise the coverage definition */
         System.out.println("Initiating coverage...");
-        CoverageDefinition covDef = new CoverageDefinition(featDef,covDefConfigFileName,holdVectorsInMemory);
+        CoverageDefinition covDef = new CoverageDefinition(featDef,covDefConfigFileName,holdVectorsInMemory,vectorArray);
 
         long startTime = System.currentTimeMillis();
         File covSetFile = new File(initFileName);
         boolean readCovFromFile = true;
+        boolean vectorArrayNull = (vectorArray == null);
         if (!covSetFile.exists()){
             //coverage has to be initialised
             readCovFromFile = false;
@@ -167,7 +182,7 @@ public class DatabaseSelector{
             //coverage can be read from file 
             covDef.readCoverageBin(initFileName,featDef,basenameList);
         }
-        
+        if (vectorArrayNull) vectorArray = covDef.getVectorArray();
         /* add already selected sentences to cover */
         if (selectedSentsFile !=null){
             addSelectedSents(covDef);
@@ -248,7 +263,8 @@ public class DatabaseSelector{
                 +elapsedTime+" milliseconds)");
         logOut.flush();
         logOut.close();
-        System.out.println("All done!");      
+        System.out.println("All done!");   
+        return vectorArray;
     }
 
     /**
