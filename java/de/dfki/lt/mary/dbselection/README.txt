@@ -8,7 +8,7 @@ The selection tools consist of three Java programs:
 
 - DatabaseSelector : program for selecting the speech corpus
 
-- FeatureMaker(No)MaryServer :  programs for building the text corpus
+- FeatureMakerMaryServer :  program for building the text corpus
   from which to select
 
 - SortTestResults : program for sorting the text results according to 
@@ -140,7 +140,7 @@ Optional arguments:
 
 
 ******************************
-* FeatureMaker(No)MaryServer * 
+* FeatureMakerMaryServer * 
 ******************************
 
 Takes a list of files containing text. For each file, the text is
@@ -149,12 +149,11 @@ computed and features and sentences are written to disk. Sentences
 with unreliable phonetic transcriptions are sorted out. The result is
 a list of feature files that can be used by DatabaseSelector.
 
-FeatureMakerMaryServer needs a running Mary server, whereas
-FeatureMakerNoMaryServer doesn't. The latter might be faster, but it
-might not be possible to start it. The most important thing is that
-the target feature file german-targetfeatures-selection.config is used
-for the computation of the features. This file has to be in the /conf
-directory of the Mary installation. 
+FeatureMakerMaryServer needs a running Mary server. The most important 
+thing is that the target feature file 
+german-targetfeatures-selection.config is used for the computation of
+the features. This file has to be in the /conf directory of the Mary
+installation.   
 
 
 *** Usage: ***
@@ -164,41 +163,29 @@ and edit them according to your needs. Start the script from the command line:
 
 @echo off
 set MARY_BASE=drive:\path\to\mary
-set SHPROT_BASE=%MARY_BASE%\lib\modules\shprot
-set PATH=%MARY_BASE%\lib\windows;%PATH%
 
 set CLASSPATH="%MARY_BASE%\java\mary-common.jar;
 %MARY_BASE%\java\log4j-1.2.8.jar;%MARY_BASE%\java\mary-german.jar; 
-%MARY_BASE%\java\fst.jar;%MARY_BASE%\java\jtok.jar;
-%MARY_BASE%\java\shprot.jar;%MARY_BASE%\java\freetts.jar; 
-%MARY_BASE%\java\mary-freetts.jar;%MARY_BASE%\java\freetts-cmudict04.jar;
-%MARY_BASE%\java\freetts-en_us.jar;%MARY_BASE%\java\signalproc.jar;
-%MARY_BASE%\java\jsresources.jar;%MARY_BASE%\java\mary-english.jar"
+%MARY_BASE%\java\freetts.jar;%MARY_BASE%\java\jsresources.jar"
 
 java -Xmx512m -cp %CLASSPATH%
 "-Djava.endorsed.dirs=%MARY_BASE%\lib\endorsed"  
 "-Dmary.base=%MARY_BASE%" 
-de.dfki.lt.mary.dbselection.FeatureMaker(No)MaryServer <arguments>
+de.dfki.lt.mary.dbselection.FeatureMakerMaryServer <arguments>
 
 
 Startup script for Linux:
 
 export MARY_BASE="/path/to/mary"
-export LD_LIBRARY_PATH="$MARY_BASE/lib/linux:$LD_LIBRARY_PATH"
-export SHPROT_BASE="$MARY_BASE/lib/modules/shprot"
 
 export CLASSPATH="$MARY_BASE/java/mary-common.jar:
 $MARY_BASE/java/log4j-1.2.8.jar:$MARY_BASE/java/mary-german.jar:
-$MARY_BASE/java/fst.jar:$MARY_BASE/java/jtok.jar:
-$MARY_BASE/java/shprot.jar:$MARY_BASE/java/freetts.jar:
-$MARY_BASE/java/mary-freetts.jar:$MARY_BASE/java/freetts-cmudict04.jar:
-$MARY_BASE/java/freetts-en_us.jar:$MARY_BASE/java/signalproc.jar:
-$MARY_BASE/java/jsresources.jar:$MARY_BASE\java\mary-english.jar"
+$MARY_BASE/java/freetts.jar:$MARY_BASE/java/jsresources.jar"
 
 java -classpath $CLASSPATH 
 -Djava.endorsed.dirs=$MARY_BASE/lib/endorsed 
 -Dmary.base=$MARY_BASE 
-de.dfki.lt.mary.dbselection.FeatureMaker(No)MaryServer <arguments>
+de.dfki.lt.mary.dbselection.FeatureMakerMaryServer <arguments>
 
 
 
