@@ -91,7 +91,7 @@ public class EHMMLabeler extends VoiceImportComponent {
                props.put(OUTLABDIR, db.getProp(db.ROOTDIR)
                        +"lab"
                        +System.getProperty("file.separator"));
-               props.put(INITEHMMDIR,"-");
+               props.put(INITEHMMDIR,"/");
                props.put(RETRAIN,"true");
            }
            return props;
@@ -104,6 +104,7 @@ public class EHMMLabeler extends VoiceImportComponent {
            props2Help.put(FEATUREDIR, "directory containing the phone features.");
            props2Help.put(OUTLABDIR, "Directory to store generated lebels from EHMM.");
            props2Help.put(INITEHMMDIR,"If you provide a path to previous EHMM Directory, Models will intialize with those models. other wise EHMM Models will build with Flat-Start Initialization");
+           props2Help.put(RETRAIN,"true - Do re-training by initializing with given models. false - Do just Decoding");
        }
         
         public void initialiseComp()
@@ -341,7 +342,7 @@ public class EHMMLabeler extends VoiceImportComponent {
          PrintWriter pw = new PrintWriter(
                  new OutputStreamWriter(process.getOutputStream()));
          
-         if(INITEHMMDIR.equals("-")){
+         if(INITEHMMDIR.equals("/")){
          
              pw.print("( cd "+ehmm.getAbsolutePath()
                  +"; perl "+getProp(EHMMDIR)+"/bin/seqproc.pl "
@@ -392,7 +393,7 @@ public class EHMMLabeler extends VoiceImportComponent {
          PrintWriter pw = new PrintWriter(
                  new OutputStreamWriter(process.getOutputStream()));
          
-         if(INITEHMMDIR.equals("-")){
+         if(INITEHMMDIR.equals("/")){
              
          System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
          System.out.println("EHMM baum-welch re-estimation ...");
