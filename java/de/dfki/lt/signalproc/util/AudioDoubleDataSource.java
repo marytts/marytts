@@ -42,7 +42,7 @@ import javax.sound.sampled.AudioSystem;
  * The Reader is expected to contain the text representation of exactly one double per line.
  */
 public class AudioDoubleDataSource extends BaseDoubleDataSource {
-    public static final int BYTEBUFFER_LENGTH = 8192;
+    public static final int BYTEBUFFER_LENGTH = 65532; // multiple of 4 and 6, to allow for 16 and 24 bit
     protected AudioInputStream ais;
     protected byte[] byteBuf;
     protected int samplingRate;
@@ -56,7 +56,7 @@ public class AudioDoubleDataSource extends BaseDoubleDataSource {
     /**
      * Initialise this double data source with the AudioInputStream from which
      * samples can be read.
-     * @throws IllegalArgumentException if the audio input stream does not have 8 or 16 bits per sample. 
+     * @throws IllegalArgumentException if the audio input stream does not have 8, 16 or 24 bits per sample. 
      */
     public AudioDoubleDataSource(AudioInputStream ais, boolean isAutomaticClippingControl) {
         this.ais = ais;
@@ -177,9 +177,11 @@ public class AudioDoubleDataSource extends BaseDoubleDataSource {
                             midbyte = byteBuf[i+1];
                             hibyte = byteBuf[i];
                         }
-                        sample = hibyte << 16 + (midbyte & 0xFF) << 8 + lobyte & 0xFF;
+                        sample = hibyte << 16 | (midbyte & 0xFF) << 8 | lobyte & 0xFF;
+                        System.out.println(Integer.toHexString(hibyte)+"  "+Integer.toHexString(midbyte) + "  "+Integer.toHexString(lobyte) +"    "+Integer.toHexString(sample) );
                         target[currentPos] = sample / 8388606.0; // normalise to range [-1, 1]
                     }
+                    totalCopied += nBytesRead/bytesPerSample;
                 }
                 
             }
