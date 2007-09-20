@@ -178,7 +178,6 @@ public class AudioDoubleDataSource extends BaseDoubleDataSource {
                             hibyte = byteBuf[i];
                         }
                         sample = hibyte << 16 | (midbyte & 0xFF) << 8 | lobyte & 0xFF;
-                        System.out.println(Integer.toHexString(hibyte)+"  "+Integer.toHexString(midbyte) + "  "+Integer.toHexString(lobyte) +"    "+Integer.toHexString(sample) );
                         target[currentPos] = sample / 8388606.0; // normalise to range [-1, 1]
                     }
                     totalCopied += nBytesRead/bytesPerSample;
