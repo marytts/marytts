@@ -48,14 +48,19 @@ import javax.sound.sampled.AudioFormat.Encoding;
  * @author Marc Schr&ouml;der
  */
 public class AudioPlayer extends Thread {
-
+    public static final int MONO = 0;
+    public static final int STEREO = 3;
+    public static final int LEFT_ONLY = 1;
+    public static final int RIGHT_ONLY = 2;
+    
+    
     private AudioInputStream ais;
 
     private LineListener lineListener;
 
     private SourceDataLine line;
     
-    private boolean forceStereoOutput = false;
+    private int outputMode;
 
     private boolean exitRequested = false;
 
@@ -95,20 +100,40 @@ public class AudioPlayer extends Thread {
         this.lineListener = lineListener;
     }
 
-    public AudioPlayer(File audioFile, SourceDataLine line, LineListener lineListener, boolean forceStereoOutput) 
+    /**
+     * 
+     * @param audioFile
+     * @param line
+     * @param lineListener
+     * @param outputMode if MONO, force output to be mono; if STEREO, force output to be STEREO;
+     * if LEFT_ONLY, play a mono signal over the left channel of a stereo output, or mute the 
+     * right channel of a stereo signal; if RIGHT_ONLY, do the same with the right output channel.
+     * @throws IOException
+     * @throws UnsupportedAudioFileException
+     */
+    public AudioPlayer(File audioFile, SourceDataLine line, LineListener lineListener, int outputMode) 
     throws IOException, UnsupportedAudioFileException
     {
         this.ais = AudioSystem.getAudioInputStream(audioFile);
         this.line = line;
         this.lineListener = lineListener;
-        this.forceStereoOutput = forceStereoOutput;
+        this.outputMode = outputMode;
     }
     
-    public AudioPlayer(AudioInputStream ais, SourceDataLine line, LineListener lineListener, boolean forceStereoOutput) {
+    /**
+     * 
+     * @param ais
+     * @param line
+     * @param lineListener
+     * @param outputMode if MONO, force output to be mono; if STEREO, force output to be STEREO;
+     * if LEFT_ONLY, play a mono signal over the left channel of a stereo output, or mute the 
+     * right channel of a stereo signal; if RIGHT_ONLY, do the same with the right output channel.
+     */
+    public AudioPlayer(AudioInputStream ais, SourceDataLine line, LineListener lineListener, int outputMode) {
         this.ais = ais;
         this.line = line;
         this.lineListener = lineListener;
-        this.forceStereoOutput = forceStereoOutput;
+        this.outputMode = outputMode;
     }
 
     public void cancel() {
@@ -123,10 +148,21 @@ public class AudioPlayer extends Thread {
 
     public void run() {
         AudioFormat audioFormat = ais.getFormat();
-        if (audioFormat.getChannels() == 1 && forceStereoOutput) { // mono -> convert to stereo
-            AudioFormat targetFormat = new AudioFormat(audioFormat.getSampleRate(), audioFormat.getSampleSizeInBits(), 2, Encoding.PCM_SIGNED.equals(audioFormat.getEncoding()), audioFormat.isBigEndian());
-            ais = AudioSystem.getAudioInputStream(targetFormat, ais);
-            audioFormat = targetFormat;
+        if (audioFormat.getChannels() == 1) {
+            if (outputMode != MONO) { // mono -> convert to stereo
+                ais = new StereoAudioInputStream(ais, outputMode);
+                audioFormat = ais.getFormat();
+            }
+        } else { // 2 channels
+            assert audioFormat.getChannels() == 2 : "Unexpected number of channels: "+audioFormat.getChannels();
+            if (outputMode == MONO) {
+                ais = new MonoAudioInputStream(ais);
+            } else if (outputMode == LEFT_ONLY){
+                ais = new StereoAudioInputStream(ais, outputMode);
+            } else {
+                assert outputMode == RIGHT_ONLY : "Unexpected output mode: "+outputMode;
+                ais = new StereoAudioInputStream(ais, outputMode);
+            }
         }
 
         DataLine.Info info = new DataLine.Info(SourceDataLine.class,
