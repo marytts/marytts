@@ -418,6 +418,10 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
             if (s == null) {
                 return values.get("coda");
             }
+            s = s.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (s == null) {
+                return values.get("coda");
+            }
     
             s = s.getNext();
             while (s != null) {
