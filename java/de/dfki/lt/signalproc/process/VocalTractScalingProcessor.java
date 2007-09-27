@@ -97,9 +97,8 @@ public class VocalTractScalingProcessor extends VocalTractModifier {
             //Copy the modified vocal tract spectrum to input
             System.arraycopy(PxOut, 0, Px, 0, maxFreq);
             //
-             * +/
              */
-            
+
             int newLen = (int)Math.floor(Px.length*vscales[0] + 0.5);
             
             double [] Px2 = MathUtils.interpolate(Px, newLen);
