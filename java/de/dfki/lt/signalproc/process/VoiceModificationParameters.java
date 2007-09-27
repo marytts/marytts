@@ -75,15 +75,29 @@ public class VoiceModificationParameters {
     
     private void initialise(int samplingRate, int LPOrder, double [] pscalesIn, double [] tscalesIn, double [] escalesIn, double [] vscalesIn)
     {
-        pscales = new double[pscalesIn.length];
-        tscales = new double[tscalesIn.length];
-        escales = new double[escalesIn.length];
-        vscales = new double[vscalesIn.length];
-
-        System.arraycopy(pscalesIn, 0, pscales, 0, pscalesIn.length);
-        System.arraycopy(tscalesIn, 0, tscales, 0, tscalesIn.length);
-        System.arraycopy(escalesIn, 0, escales, 0, escalesIn.length);
-        System.arraycopy(vscalesIn, 0, vscales, 0, vscalesIn.length);
+        if (pscalesIn!=null)
+        {
+            pscales = new double[pscalesIn.length];
+            System.arraycopy(pscalesIn, 0, pscales, 0, pscalesIn.length);
+        }
+        
+        if (tscalesIn!=null)
+        {
+            tscales = new double[tscalesIn.length];
+            System.arraycopy(tscalesIn, 0, tscales, 0, tscalesIn.length);
+        }
+        
+        if (escalesIn!=null)
+        {
+            escales = new double[escalesIn.length];
+            System.arraycopy(escalesIn, 0, escales, 0, escalesIn.length);
+        }
+        
+        if (vscalesIn!=null)
+        {
+            vscales = new double[vscalesIn.length];
+            System.arraycopy(vscalesIn, 0, vscales, 0, vscalesIn.length);
+        }
 
         fs = samplingRate;
         P = SignalProcUtils.getLPOrder(fs);
