@@ -31,12 +31,14 @@ package de.dfki.lt.signalproc.process;
 
 import java.util.Arrays;
 
+import de.dfki.lt.signalproc.FFT;
 import de.dfki.lt.signalproc.FFTMixedRadix;
 import de.dfki.lt.signalproc.analysis.LPCAnalyser;
 import de.dfki.lt.signalproc.analysis.LPCAnalyser.LPCoeffs;
 import de.dfki.lt.signalproc.filter.FIRFilter;
 import de.dfki.lt.signalproc.filter.RecursiveFilter;
 import de.dfki.lt.signalproc.process.InlineDataProcessor;
+import de.dfki.lt.signalproc.util.MathUtils;
 import de.dfki.lt.signalproc.util.SignalProcUtils;
 import de.dfki.lt.util.ArrayUtils;
 import de.dfki.lt.signalproc.analysis.LPCAnalyser;
@@ -83,6 +85,7 @@ public class VocalTractModifier implements InlineDataProcessor {
         this.p = pIn;
         this.fs = fsIn;
         this.fftSize = fftSizeIn;
+        fftSize = MathUtils.closestPowerOfTwoAbove(fftSize);
         h = new Complex(fftSize);
         this.maxFreq = SignalProcUtils.halfSpectrumSize(fftSize);
         this.vtSpectrum = new double[maxFreq];
@@ -95,8 +98,18 @@ public class VocalTractModifier implements InlineDataProcessor {
         int k;
         assert pos==0;
         assert len==data.length;
+        
         if (len > fftSize)
             len = fftSize;
+        
+        if (len < fftSize)
+        {
+            double [] data2 = new double[fftSize];
+            System.arraycopy(data, 0, data2, 0, data.length);
+            Arrays.fill(data2, data.length, data2.length-1, 0);
+            data = new double[data2.length];
+            System.arraycopy(data2, 0, data, 0, data2.length);
+        }
         
         // Compute LPC coefficients
         LPCoeffs coeffs = LPCAnalyser.calcLPC(data, p);
@@ -110,7 +123,8 @@ public class VocalTractModifier implements InlineDataProcessor {
         Arrays.fill(h.imag, 0, h.imag.length-1, 0);
         
         // Convert to polar coordinates in frequency domain
-        h = FFTMixedRadix.fftComplex(h);
+        //h = FFTMixedRadix.fftComplex(h);
+        FFT.transform(h.real, h.imag, false);
         
         vtSpectrum = LPCAnalyser.calcSpec(coeffs.getA(), p, fftSize, expTerm);
         
@@ -140,11 +154,13 @@ public class VocalTractModifier implements InlineDataProcessor {
             for (k=maxFreq; k<fftSize; k++)
             {
                 h.real[k] = h.real[2*maxFreq-k];
-                h.imag[k] = h.imag[2*maxFreq-k];
+                h.imag[k] = -1*h.imag[2*maxFreq-k];
             }
             //
 
-            h = FFTMixedRadix.ifft(h);
+            //h = FFTMixedRadix.ifft(h);
+            FFT.transform(h.real, h.imag, true);
+            
             System.arraycopy(h.real, 0, data, 0, len);
         }
     }
