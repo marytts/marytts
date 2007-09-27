@@ -64,7 +64,6 @@ public class Robotiser extends FrameOverlapAddSource
         initialise(inputSource, Window.HANN, true, frameLength, samplingRate, new PhaseRemover(frameLength));
     }
     
-    
     public static class PhaseRemover extends PolarFrequencyProcessor
     {
         public PhaseRemover(int fftSize, double amount)
