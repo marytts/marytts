@@ -261,6 +261,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         //
     }
     
+    //FD-PSOLA using all concatenation units
     public DDSAudioInputStream process(Datagram [][] datagrams, Datagram [] rightContexts, AudioFormat audioformat, boolean [][] voicings, double [][] pitchScales, double [][] timeScales)
     {
         int pitchSpecs = FROM_TARGET;
@@ -280,7 +281,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         double vscale=1.0;
         
         //Read pscale, tscale, escale and vscale from a text file.
-        // (For quick testing purposes. It resest the input pichScales and timeScales to the fixed values in the text file.)
+        // (For quick testing purposes. It resets the input pichScales and timeScales to the fixed values in the text file.)
         if (pitchSpecs==FROM_FILE || durationSpecs==FROM_FILE)
         {
             double [] scales = getScalesFromTextFile("d:/psolaParam.txt");
@@ -503,6 +504,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         return new DDSAudioInputStream(new BufferedDoubleDataSource(yOut), audioformat);
     }
     
+    //FD-PDSOLA on the whole signal with specified pitch marks
     public DDSAudioInputStream process(double[] x, int [] pitchMarks, AudioFormat audioformat, boolean [] voicings, double [] pitchScales, double [] timeScales)
     {
         int pitchSpecs = FROM_TARGET;
@@ -660,7 +662,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         return new DDSAudioInputStream(new BufferedDoubleDataSource(yOut), audioformat);
     }
     
-    
+    //FD-PSOLA on a single concatenation unit
     public double [] processDatagram(Datagram [] datagrams, Datagram rightContext, AudioFormat audioformat, boolean [] voicings, double [] pitchScales, double [] timeScales, boolean bLastDatagram)
     {
         int pitchSpecs = FROM_TARGET;
