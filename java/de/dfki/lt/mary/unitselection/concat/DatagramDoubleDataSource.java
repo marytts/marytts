@@ -145,7 +145,7 @@ public class DatagramDoubleDataSource extends BufferedDoubleDataSource
             lobyte = frameAudio[i+1];
             hibyte = frameAudio[i];
             sample = hibyte<<8 | lobyte&0xFF;
-            target[pos] = sample;
+            target[pos] = sample / 32768.0;// normalise to range [-1, 1];
         }
 
 
