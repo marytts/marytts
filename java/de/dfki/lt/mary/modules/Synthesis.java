@@ -148,6 +148,8 @@ public class Synthesis extends InternalModule
         List elements = new ArrayList();
         Element element = null;
         Voice currentVoice = defaultVoice;
+        String currentStyle = "";
+        String currentEffect = "";
         Element currentVoiceElement = null;
         while ((element = (Element) it.nextNode()) != null) {
             Element v = (Element) MaryDomUtils.getAncestor(element, MaryXML.VOICE);
@@ -156,20 +158,24 @@ public class Synthesis extends InternalModule
                     // We have just left a voice section
                     if (!elements.isEmpty()) {
                         AudioInputStream ais = synthesizeOneSection
-                            (elements, currentVoice, targetFormat);
+                            (elements, currentVoice, currentStyle, currentEffect, targetFormat);
                         if (ais != null) {
                             result.appendAudio(ais);
                         }
                         elements.clear();
                     }
                     currentVoice = defaultVoice;
+                    currentStyle = "";
+                    currentEffect = "";
                     currentVoiceElement = null;
                 }
-            } else if (v != currentVoiceElement) {
+            } else if (v != currentVoiceElement 
+                    || !v.getAttribute("style").equals(currentStyle)
+                    || !v.getAttribute("effect").equals(currentEffect)) {
                 // We have just entered a new voice section
                 if (!elements.isEmpty()) {
                     AudioInputStream ais = synthesizeOneSection
-                        (elements, currentVoice, targetFormat);
+                        (elements, currentVoice, currentStyle, currentEffect, targetFormat);
                     if (ais != null) {
                         result.appendAudio(ais);
                     }
@@ -179,13 +185,15 @@ public class Synthesis extends InternalModule
                 if (newVoice != null) {
                     currentVoice = newVoice;
                 }
+                currentStyle = v.getAttribute("style");
+                currentEffect = v.getAttribute("effect");
                 currentVoiceElement = v;
             }
             elements.add(element);
         }
         if (!elements.isEmpty()) {
             AudioInputStream ais =
-                synthesizeOneSection(elements, currentVoice, targetFormat);
+                synthesizeOneSection(elements, currentVoice, currentStyle, currentEffect, targetFormat);
             if (ais != null) {
                 result.appendAudio(ais);
             }
@@ -199,7 +207,7 @@ public class Synthesis extends InternalModule
      * given voice, to the given target audio format.
      */
     private AudioInputStream synthesizeOneSection
-        (List tokensAndBoundaries, Voice voice, AudioFormat targetFormat)
+        (List tokensAndBoundaries, Voice voice, String currentStyle, String currentEffect, AudioFormat targetFormat)
     throws SynthesisException, UnsupportedAudioFileException
     {
         AudioInputStream ais = null;
@@ -234,6 +242,10 @@ public class Synthesis extends InternalModule
                          " to requested audio format " + targetFormat +
                          " not supported.\n" + iae.getMessage());
             }
+        }
+        // Apply effect if present
+        if (!currentEffect.equals("")) {
+            //ais = EffectApplier.apply(ais, currentEffect); 
         }
         return ais;
     }
