@@ -56,16 +56,16 @@ public class MonoAudioInputStream extends AudioInputStream
      * @see #available
      */
     public int read(byte[] b, int off, int len) throws IOException {
-        int nFrames = len/frameSize;
-        int sampleSizeInBytes = frameSize; // because framesize is for 1 channel
+        int sampleSizeInBytes = frameSize / inputChannels;
+        int outputFrameSize = sampleSizeInBytes; // mono output
+        int nFrames = len/outputFrameSize;
         boolean bigEndian = getFormat().isBigEndian();
-        int inputFrameSize = sampleSizeInBytes * inputChannels;
-        byte[] inputBytes = new byte[nFrames*inputFrameSize];
+        byte[] inputBytes = new byte[nFrames*frameSize];
         int nInputBytes = super.read(inputBytes, 0, inputBytes.length);
         if (nInputBytes <= 0) return nInputBytes;
 
         if (inputMode == AudioPlayer.STEREO) {
-            for(int i=0, j=off; i<nInputBytes; i+=inputFrameSize, j+=frameSize) {
+            for(int i=0, j=off; i<nInputBytes; i+=frameSize, j+=outputFrameSize) {
                 int sample = 0;
                 for (int c=0; c<inputChannels; c++) {
                     if (sampleSizeInBytes == 1) {
@@ -128,14 +128,14 @@ public class MonoAudioInputStream extends AudioInputStream
                 }
             } // for all frames
         } else if (inputMode == AudioPlayer.LEFT_ONLY) {
-            for(int i=0, j=off; i<nInputBytes; i+=inputFrameSize, j+=frameSize) {
+            for(int i=0, j=off; i<nInputBytes; i+=frameSize, j+=outputFrameSize) {
                 for (int k=0; k<sampleSizeInBytes; k++) {
                     b[j+k] = inputBytes[i+k];
                 }
             }
         } else {
             assert inputMode == AudioPlayer.RIGHT_ONLY : "unexpected input mode: "+inputMode;
-            for(int i=0, j=off; i<nInputBytes; i+=inputFrameSize, j+=frameSize) {
+            for(int i=0, j=off; i<nInputBytes; i+=frameSize, j+=outputFrameSize) {
                 for (int k=0; k<sampleSizeInBytes; k++) {
                     b[j+k] = inputBytes[i+k+sampleSizeInBytes];
                 }

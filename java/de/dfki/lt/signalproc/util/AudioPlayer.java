@@ -159,9 +159,11 @@ public class AudioPlayer extends Thread {
                 ais = new MonoAudioInputStream(ais);
             } else if (outputMode == LEFT_ONLY){
                 ais = new StereoAudioInputStream(ais, outputMode);
-            } else {
-                assert outputMode == RIGHT_ONLY : "Unexpected output mode: "+outputMode;
+            } else if (outputMode == RIGHT_ONLY) {
                 ais = new StereoAudioInputStream(ais, outputMode);
+            } else {
+                assert outputMode == STEREO : "Unexpected output mode: "+outputMode;
+
             }
         }
 
