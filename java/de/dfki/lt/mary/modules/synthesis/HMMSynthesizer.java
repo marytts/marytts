@@ -61,11 +61,23 @@ import de.dfki.lt.mary.modules.XML2UttAcoustParams;
 import de.dfki.lt.mary.modules.en.HTSContextTranslator;
 import de.dfki.lt.mary.modules.en.HTSEngine;
 import de.dfki.lt.mary.modules.en.TargetFeatureLister;
+
+
+import de.dfki.lt.mary.htsengine.ParameterGeneration;
+import de.dfki.lt.mary.htsengine.UttModel;
+import de.dfki.lt.mary.htsengine.Vocoder;
+
 import de.dfki.lt.mary.modules.synthesis.Voice.Gender;
 import de.dfki.lt.mary.util.MaryUtils;
+import de.dfki.lt.signalproc.util.AudioPlayer;
+
 
 /**
- * The Mbrola waveform synthesizer wrapper.
+ * HTS-HMM synthesiser.
+ *
+ * Java port and extension of HTS engine version 2.0
+ * Extension: mixed excitation
+ * @author Marc Schr&ouml;der, Marcela Charfuelan 
  */
 public class HMMSynthesizer implements WaveformSynthesizer {
     private XML2UttAcoustParams x2u;
@@ -134,6 +146,11 @@ public class HMMSynthesizer implements WaveformSynthesizer {
             htsEngine.startup();
         }
 
+        /* I need to include this somewhere???
+         * load configuration file from: 
+         * /project/mary/marcela/HTS-mix/hts_engine.config */
+        htsEngine.InitHMMengine();
+        
         
         // Register HMM voices:
         String basePath =
@@ -179,6 +196,23 @@ public class HMMSynthesizer implements WaveformSynthesizer {
      public synchronized void powerOnSelfTest() throws Error
      {
          // TODO: add meaningful power-on self test
+         logger.info("\n TODO: TO-BE DONE HMMSynthesizer powerOnSelfTest()\n");
+         UttModel um = new UttModel();
+         AudioInputStream ais;
+         
+         /* example of HTSCONTEXT_EN label file */
+         String Flab = htsEngine.getLabFile();
+
+         /* Process label file of Mary context features and creates UttModel um */
+         htsEngine.ProcessUttFromFile(Flab,um);
+
+         /* pdf2parameters and parameters2speech */
+         ais = htsEngine.pdf2speech(um);
+         
+         //System.out.println("Calling audioplayer:");
+         //AudioPlayer player = new AudioPlayer(ais, null);
+         //player.start();  // this call the run method..
+         //System.out.println("audioplayer finished..."); 
      }
 
     public String toString() {
@@ -202,6 +236,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
             MaryData targetFeatures = targetFeatureLister.process(freettsAcoustparams);
             MaryData htsContext = htsContextTranslator.process(targetFeatures);
             MaryData audio = htsEngine.process(htsContext);
+            
             return audio.getAudio();
         } catch (Exception e) {
             throw new SynthesisException("HMM Synthesiser could not synthesise: ", e);
