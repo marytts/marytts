@@ -92,7 +92,7 @@ public class EHMMLabeler extends VoiceImportComponent {
                        +"lab"
                        +System.getProperty("file.separator"));
                props.put(INITEHMMDIR,"/");
-               props.put(RETRAIN,"true");
+               props.put(RETRAIN,"false");
            }
            return props;
        }
@@ -342,8 +342,11 @@ public class EHMMLabeler extends VoiceImportComponent {
          PrintWriter pw = new PrintWriter(
                  new OutputStreamWriter(process.getOutputStream()));
          
-         if(INITEHMMDIR.equals("/")){
+         System.out.println(INITEHMMDIR);
          
+         if(getProp(INITEHMMDIR).equals("/")){
+         
+             
              pw.print("( cd "+ehmm.getAbsolutePath()
                  +"; perl "+getProp(EHMMDIR)+"/bin/seqproc.pl "
                  +outputDir+"/"+"ehmm"+".align "
@@ -352,7 +355,7 @@ public class EHMMLabeler extends VoiceImportComponent {
          }
          else{
              
-             System.out.println();
+            
              
              File modelFile = new File(getProp(INITEHMMDIR)+"/mod/model101.txt");
              if (!modelFile.exists()) {
@@ -393,7 +396,7 @@ public class EHMMLabeler extends VoiceImportComponent {
          PrintWriter pw = new PrintWriter(
                  new OutputStreamWriter(process.getOutputStream()));
          
-         if(INITEHMMDIR.equals("/")){
+         if(getProp(INITEHMMDIR).equals("/")){
              
          System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
          System.out.println("EHMM baum-welch re-estimation ...");
@@ -416,7 +419,7 @@ public class EHMMLabeler extends VoiceImportComponent {
                  +"; exit )\n");
          
          }
-         else if(RETRAIN.equals("true")){
+         else if(getProp(RETRAIN).equals("true")){
              
              System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
              System.out.println("EHMM baum-welch re-estimation ... Re-Training... ");

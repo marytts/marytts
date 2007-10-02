@@ -415,6 +415,9 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         	    featureUnits.add(line);
         	}
         
+            labels.close();
+            features.close();
+            
         	ArrayList labelUnitData;        
         	String labelUnit;
         	String featureUnit;
@@ -1000,6 +1003,9 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         	    featureTextUnits.add(line);
         	}
         
+            labels.close();
+            features.close();
+            
         	ArrayList labelUnitData;        
         	String labelUnit;
         	String featureUnit;
