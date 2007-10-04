@@ -1,3 +1,52 @@
+/**   
+*           The HMM-Based Speech Synthesis System (HTS)             
+*                       HTS Working Group                           
+*                                                                   
+*                  Department of Computer Science                   
+*                  Nagoya Institute of Technology                   
+*                               and                                 
+*   Interdisciplinary Graduate School of Science and Engineering    
+*                  Tokyo Institute of Technology                    
+*                                                                   
+*                Portions Copyright (c) 2001-2006                       
+*                       All Rights Reserved.
+*                         
+*              Portions Copyright 2000-2007 DFKI GmbH.
+*                      All Rights Reserved.                  
+*                                                                   
+*  Permission is hereby granted, free of charge, to use and         
+*  distribute this software and its documentation without           
+*  restriction, including without limitation the rights to use,     
+*  copy, modify, merge, publish, distribute, sublicense, and/or     
+*  sell copies of this work, and to permit persons to whom this     
+*  work is furnished to do so, subject to the following conditions: 
+*                                                                   
+*    1. The source code must retain the above copyright notice,     
+*       this list of conditions and the following disclaimer.       
+*                                                                   
+*    2. Any modifications to the source code must be clearly        
+*       marked as such.                                             
+*                                                                   
+*    3. Redistributions in binary form must reproduce the above     
+*       copyright notice, this list of conditions and the           
+*       following disclaimer in the documentation and/or other      
+*       materials provided with the distribution.  Otherwise, one   
+*       must contact the HTS working group.                         
+*                                                                   
+*  NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF TECHNOLOGY,   
+*  HTS WORKING GROUP, AND THE CONTRIBUTORS TO THIS WORK DISCLAIM    
+*  ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL       
+*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT   
+*  SHALL NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF         
+*  TECHNOLOGY, HTS WORKING GROUP, NOR THE CONTRIBUTORS BE LIABLE    
+*  FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY        
+*  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,  
+*  WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTUOUS   
+*  ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR          
+*  PERFORMANCE OF THIS SOFTWARE.                                    
+*                                                                   
+*/
+
 package de.dfki.lt.mary.htsengine;
 
 
@@ -90,10 +139,10 @@ public class Vocoder {
 	/** The initialisation of VocoderSetup should be done when there is already 
 	  * information about the number of feature vectors to be processed,
 	  * size of the mcep vector file, etc. */
-	private void InitVocoder(int mcep_order, int mcep_vsize) {
+	private void InitVocoder(int mcep_order, int mcep_vsize, HMMData hts_data) {
 		int vector_size;
-		fprd  = HMMData.FPERIOD();
-		rate  = HMMData.RATE();
+		fprd  = hts_data.FPERIOD();
+		rate  = hts_data.RATE();
 		iprd  = IPERIOD;
 		pd    = PADEORDER;
 		gauss = GAUSS;
@@ -159,10 +208,10 @@ public class Vocoder {
 	
 	/** Initialisation for mixed excitation : it loads the filter taps are read from 
 	 * MixFilterFile specified in the configuration file. */
-	private void InitMixedExcitation() {
+	private void InitMixedExcitation(HMMData hts_data) {
 		
-		numM = HMMData.get_numFilters();
-		orderM = HMMData.get_orderFilters();
+		numM = hts_data.get_numFilters();
+		orderM = hts_data.get_orderFilters();
 		h = new double[numM][orderM];
 		xp_sig = new double[orderM];
 		xn_sig = new double[orderM];
@@ -171,7 +220,7 @@ public class Vocoder {
 		Scanner s = null;
 		int i,j;
 		try {
-			s = new Scanner(new BufferedReader(new FileReader(HMMData.MixFiltersFile())));
+			s = new Scanner(new BufferedReader(new FileReader(hts_data.MixFiltersFile())));
 
 			for(i=0; i<numM; i++){
 				for(j=0; j<orderM; j++) {
@@ -180,7 +229,7 @@ public class Vocoder {
 						//System.out.println("h["+i+"]["+j+"]="+h[i][j]);
 					}
 					else
-						System.err.println("VocoderSetup: error reading fiter taps file =" + HMMData.MixFiltersFile());
+						System.err.println("VocoderSetup: error reading fiter taps file =" + hts_data.MixFiltersFile());
 				}
 			}
 		} catch (FileNotFoundException e) {
@@ -204,19 +253,19 @@ public class Vocoder {
      *   PStream magpst : Fourier magnitudes ( OJO!! this is not used yet)
      *   PStream lf0pst : Log F0  
      */
-	public AudioInputStream HTS_MLSA_Vocoder(ParameterGeneration pdf2par, ModelSet ms) {
+	public AudioInputStream HTS_MLSA_Vocoder(ParameterGeneration pdf2par, HMMData hts_data) {
 
 	  double inc, x;
 	  short sx;
 	  double xp,xn,fxp,fxn,mix;  /* samples for pulse and for noise and the filtered ones */
 	  //float x_exc,x_mix;         /* for saving samples of excitation and mix-excitation   */ 
 	  int i, j, k, m, s, mcepframe, lf0frame; 
-	  double a = HMMData.ALPHA();
+	  double a = hts_data.ALPHA();
 	  double aa = 1-a*a;
-	 // double beta = HMMData.BETA();
+	 // double beta = hts_data.BETA();
 	  int audio_size;  /* audio size in samples, calculated as num frames * frame period */
 	  byte[] audio = null;    /* buffer for audio data */
-      
+      ModelSet ms = hts_data.getModelSet();
 	    
       double f0;
       double mc[];  /* feature vector for a particular frame */
@@ -227,8 +276,8 @@ public class Vocoder {
 	   * of the filters so the shaping filters hp and hn can be initialised. */
 	  m = pdf2par.get_mcep_order();
 	  mc = new double[m];
-	  InitVocoder(m-1, ms.get_mcepvsize()-1);  /* m-1 because the SlideVector offsets count from 0-->24 */
-	  InitMixedExcitation();
+	  InitVocoder(m-1, ms.get_mcepvsize()-1, hts_data);  /* m-1 because the SlideVector offsets count from 0-->24 */
+	  InitMixedExcitation(hts_data);
 	  hp = new double[orderM];  
 	  hn = new double[orderM];   
       c.clearContent();   /* Clear content of SlideVector c, should be done if this function is
@@ -240,12 +289,12 @@ public class Vocoder {
 		System.err.println("HTS_MLSA_Vocoder: error numM=" + numM + " in configuration file is different of generated str order=" + pdf2par.get_str_order());
 	  }
 	  
-	  try{
+	 // try{
     
 	  // these binaries for testing...
-      DataOutputStream data_out = new DataOutputStream (new FileOutputStream ("/project/mary/marcela/MaryClientUserHMM/gen/tmp.raw"));
-      DataOutputStream pulse_out = new DataOutputStream (new FileOutputStream ("/project/mary/marcela/MaryClientUserHMM/gen/pulse.bin"));
-      DataOutputStream mix_out = new DataOutputStream (new FileOutputStream ("/project/mary/marcela/MaryClientUserHMM/gen/mix.bin"));
+     // DataOutputStream data_out = new DataOutputStream (new FileOutputStream ("/project/mary/marcela/MaryClientUserHMM/gen/tmp.raw"));
+     // DataOutputStream pulse_out = new DataOutputStream (new FileOutputStream ("/project/mary/marcela/MaryClientUserHMM/gen/pulse.bin"));
+     // DataOutputStream mix_out = new DataOutputStream (new FileOutputStream ("/project/mary/marcela/MaryClientUserHMM/gen/mix.bin"));
       
 	  /* _______________________Synthesize speech waveforms_____________________ */
 	  /* generate Nperiod samples per mcepframe */
@@ -260,7 +309,7 @@ public class Vocoder {
 		 
         /* f0 modification */
 	    if(pdf2par.get_voiced(mcepframe)){
-	      f0 = HMMData.F0_STD() * Math.exp(pdf2par.get_lf0(lf0frame, 0)) + HMMData.F0_MEAN(); 
+	      f0 = hts_data.F0_STD() * Math.exp(pdf2par.get_lf0(lf0frame, 0)) + hts_data.F0_MEAN(); 
 	      lf0frame++;
 	    }
 	    else
@@ -352,8 +401,8 @@ public class Vocoder {
           
           /* x is a pulse noise excitation and mix is mixed excitation */
           mix = fxp+fxn;
-          pulse_out.writeFloat((float)x);
-          mix_out.writeFloat((float)mix);
+         // pulse_out.writeFloat((float)x);
+         // mix_out.writeFloat((float)mix);
       
           /* comment this line if no mixed excitation, just pulse and noise */
           x = mix;   /* excitation sample */
@@ -378,7 +427,7 @@ public class Vocoder {
           s = s+2;                       /* increment number of samples in bytes */
           
           /* write speech sample in a binary file */
-          data_out.writeShort((short)x);
+        //  data_out.writeShort((short)x);
           
           if((--i) == 0 ) {
             p1 += inc;
@@ -400,18 +449,18 @@ public class Vocoder {
 	  } /* for each mcep frame */
 	  
       // Close file when finished with it..
-      mix_out.close();
-      pulse_out.close();
-      data_out.close();
+     // mix_out.close();
+     // pulse_out.close();
+     // data_out.close();
       System.out.println("Finish processing " + mcepframe + " mcep frames." + "  Num samples in bytes s=" + s );
-      System.out.println("Finish generating: /project/mary/marcela/MaryClientUserHMM/gen/tmp.raw");
-      System.out.println("Finish generating: /project/mary/marcela/MaryClientUserHMM/gen/pulse.bin");
-      System.out.println("Finish generating: /project/mary/marcela/MaryClientUserHMM/gen/mix.bin");
+      //System.out.println("Finish generating: /project/mary/marcela/MaryClientUserHMM/gen/tmp.raw");
+      //System.out.println("Finish generating: /project/mary/marcela/MaryClientUserHMM/gen/pulse.bin");
+      //System.out.println("Finish generating: /project/mary/marcela/MaryClientUserHMM/gen/mix.bin");
 	  
-	  }
-	    catch (IOException e) {
-	       System.out.println ("IO exception = " + e );
-	  }
+	 // }
+	   // catch (IOException e) {
+	   //    System.out.println ("IO exception = " + e );
+	 // }
 		
 	  ByteArrayInputStream bais = new ByteArrayInputStream(audio);
 	  float sampleRate = 16000.0F;  //8000,11025,16000,22050,44100
@@ -445,6 +494,7 @@ public class Vocoder {
 		return -1.0;
 	}
 	
+        
 	
 	/** mc2b: transform mel-cepstrum to MLSA digital fillter coefficients */
 	private void mc2b(double mc[], int m, double a ) {

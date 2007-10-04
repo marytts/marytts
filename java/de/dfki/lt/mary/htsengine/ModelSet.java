@@ -1,3 +1,52 @@
+/**   
+*           The HMM-Based Speech Synthesis System (HTS)             
+*                       HTS Working Group                           
+*                                                                   
+*                  Department of Computer Science                   
+*                  Nagoya Institute of Technology                   
+*                               and                                 
+*   Interdisciplinary Graduate School of Science and Engineering    
+*                  Tokyo Institute of Technology                    
+*                                                                   
+*                Portions Copyright (c) 2001-2006                       
+*                       All Rights Reserved.
+*                         
+*              Portions Copyright 2000-2007 DFKI GmbH.
+*                      All Rights Reserved.                  
+*                                                                   
+*  Permission is hereby granted, free of charge, to use and         
+*  distribute this software and its documentation without           
+*  restriction, including without limitation the rights to use,     
+*  copy, modify, merge, publish, distribute, sublicense, and/or     
+*  sell copies of this work, and to permit persons to whom this     
+*  work is furnished to do so, subject to the following conditions: 
+*                                                                   
+*    1. The source code must retain the above copyright notice,     
+*       this list of conditions and the following disclaimer.       
+*                                                                   
+*    2. Any modifications to the source code must be clearly        
+*       marked as such.                                             
+*                                                                   
+*    3. Redistributions in binary form must reproduce the above     
+*       copyright notice, this list of conditions and the           
+*       following disclaimer in the documentation and/or other      
+*       materials provided with the distribution.  Otherwise, one   
+*       must contact the HTS working group.                         
+*                                                                   
+*  NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF TECHNOLOGY,   
+*  HTS WORKING GROUP, AND THE CONTRIBUTORS TO THIS WORK DISCLAIM    
+*  ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL       
+*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT   
+*  SHALL NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF         
+*  TECHNOLOGY, HTS WORKING GROUP, NOR THE CONTRIBUTORS BE LIABLE    
+*  FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY        
+*  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,  
+*  WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTUOUS   
+*  ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR          
+*  PERFORMANCE OF THIS SOFTWARE.                                    
+*                                                                   
+*/
+
 package de.dfki.lt.mary.htsengine;
 
 import java.io.*;
@@ -16,24 +65,24 @@ import java.io.IOException;
  */
 public class ModelSet {
 	
-	private static int nstate;               /* # of HMM states for individual HMM */
-	private static int lf0stream;            /* # of stream for log f0 modeling */
-	private static int mcepvsize;            /* vector size for mcep modeling */
-	private static int strvsize;             /* vector size for strengths modeling */
-	private static int magvsize;             /* vector size for Fourier magnitudes modeling */
+	private int nstate;               /* # of HMM states for individual HMM */
+	private int lf0stream;            /* # of stream for log f0 modeling */
+	private int mcepvsize;            /* vector size for mcep modeling */
+	private int strvsize;             /* vector size for strengths modeling */
+	private int magvsize;             /* vector size for Fourier magnitudes modeling */
 
-	private static int nlf0pdf[];             /* # of pdfs for each state position (log F0) */
-	private static int nmceppdf[];            /* # of pdfs for each state position (mcep) */
-	private static int nstrpdf[];             /* # of pdfs for each state position (str) */
-	private static int nmagpdf[];             /* # of pdfs for each state position (mag) */
-	private static int ndurpdf;               /* # of pdfs for duration */
+	private int nlf0pdf[];             /* # of pdfs for each state position (log F0) */
+	private int nmceppdf[];            /* # of pdfs for each state position (mcep) */
+	private int nstrpdf[];             /* # of pdfs for each state position (str) */
+	private int nmagpdf[];             /* # of pdfs for each state position (mag) */
+	private int ndurpdf;               /* # of pdfs for duration */
 
-	private static double durpdf[][];         /* pdfs for duration [#states][#leaves]*/
-	private static double mceppdf[][][];      /* pdfs for mcep     [#states][#leaves][vectorsize]   */
-	private static double strpdf[][][];       /* pdfs for str      [#states][#leaves][vectorsize]   */
-	private static double magpdf[][][];       /* pdfs for mag      [#states][#leaves][vectorsize]   */
+	private double durpdf[][];         /* pdfs for duration [#states][#leaves]*/
+	private double mceppdf[][][];      /* pdfs for mcep     [#states][#leaves][vectorsize]   */
+	private double strpdf[][][];       /* pdfs for str      [#states][#leaves][vectorsize]   */
+	private double magpdf[][][];       /* pdfs for mag      [#states][#leaves][vectorsize]   */
 
-	private static double lf0pdf[][][][];     /* pdfs for lf0      [#states][#leaves][#streams][lf0_vectorsize] */ 
+	private double lf0pdf[][][][];     /* pdfs for lf0      [#states][#leaves][#streams][lf0_vectorsize] */ 
 	                           /* lf0_vectorsize = 4: mean, variance, voiced weight, and unvoiced weight */
 	
 	
@@ -72,7 +121,7 @@ public class ModelSet {
 		m.set_dur(s, (int)(data+dd+0.5));
 		if(m.get_dur(s) < 1 )
 		  m.set_dur(s, 1);
-		System.out.print("dur[" + s + "]=" + m.get_dur(s) + " ");
+		//System.out.print("dur[" + s + "]=" + m.get_dur(s) + " ");
 		m.set_totaldur(m.get_totaldur() + m.get_dur(s));
 		dd = dd + ( data - (double)m.get_dur(s) );		
 	  }
@@ -153,9 +202,11 @@ public class ModelSet {
 	  
 	}
 	
+    
+    
 	/** This function loads the models set contained in files .pdf, it uses as input the names of 
 	 * the files .pdf, these file names are in HMMData. */
-	public static void LoadModelSet(HMMData hts_data) {
+	public void LoadModelSet(HMMData hts_data) {
 	
 	  DataInputStream data_in;
 	  int i, j, k, l;
@@ -164,13 +215,13 @@ public class ModelSet {
       try {        	   	
         /*________________________________________________________________*/
         /*-------------------- load pdfs for duration --------------------*/ 
-  	    data_in = new DataInputStream (new FileInputStream(HMMData.PdfDurFile()));
-        System.out.println("LoadModelSet reading: " + HMMData.PdfDurFile());
+  	    data_in = new DataInputStream (new FileInputStream(hts_data.PdfDurFile()));
+        System.out.println("LoadModelSet reading: " + hts_data.PdfDurFile());
           
         /* read the number of states & the number of pdfs (leaf nodes) */
         /* read the number of HMM states, this number is the same for all pdf's. */		 
 	    nstate = data_in.readInt();
-	    System.out.println("LoadModelSet: nstate = " + nstate);
+	    //System.out.println("LoadModelSet: nstate = " + nstate);
 	    
 	    /* I do not know if this is the best way of handling this...*/
 	    /* I need to log this error and exit */
@@ -179,7 +230,7 @@ public class ModelSet {
 	     
 	    /* read the number of duration pdfs */
 	    ndurpdf = data_in.readInt();
-	    System.out.println("LoadModelSet: ndurpdf = " + ndurpdf);
+	    //System.out.println("LoadModelSet: ndurpdf = " + ndurpdf);
 	    
 	    if( nstate < 0 )
 		  System.err.println("LoadModelSet: #duration pdf must be positive value.");
@@ -204,11 +255,11 @@ public class ModelSet {
 	    
 	    /*________________________________________________________________*/
 	    /*-------------------- load pdfs for mcep ------------------------*/
- 	    data_in = new DataInputStream (new FileInputStream (HMMData.PdfMcpFile()));
-        System.out.println("LoadModelSet reading: " + HMMData.PdfMcpFile());
+ 	    data_in = new DataInputStream (new FileInputStream (hts_data.PdfMcpFile()));
+        System.out.println("LoadModelSet reading: " + hts_data.PdfMcpFile());
         /* read vector size for spectrum */
         mcepvsize = data_in.readInt();
-	    System.out.println("LoadModelSet: mcepvsize = " + mcepvsize);
+	    //System.out.println("LoadModelSet: mcepvsize = " + mcepvsize);
 	  
 	    if( mcepvsize < 0 )
 		   System.err.println("LoadModelSet: vector size of mel-cepstrum part must be positive.");
@@ -220,7 +271,7 @@ public class ModelSet {
 	       nmceppdf[i] = data_in.readInt();
 	       if( nmceppdf[i] < 0 )
 	    	 System.err.println("LoadModelSet: #mcep pdf at state " + i + " must be positive value.");
-	       System.out.println("nmceppdf[" + i + "] = " + nmceppdf[i]);
+	       //System.out.println("nmceppdf[" + i + "] = " + nmceppdf[i]);
 	       /* Now i know the size of mceppdf[#states][#leaves][vectorsize] */
 	       /* so i can allocate memory for mceppdf[][][] */
 	       mceppdf[i] = new double[nmceppdf[i]][2*mcepvsize];         
@@ -235,18 +286,18 @@ public class ModelSet {
 	    		  //System.out.println("mcep["+ i + "][" + j + "][" + k + "] =" + mceppdf[i][j][k]);
 	    	  }
 	      }
-	      System.out.println("loaded nmceppdf[" + i + "] = " + j);
+	      //System.out.println("loaded nmceppdf[" + i + "] = " + j);
 	    }
 	    data_in.close (); 
 	    data_in=null;
 	    
 	    /*____________________________________________________________________*/
 	    /*-------------------- load pdfs for strengths------------------------*/
- 	    data_in = new DataInputStream (new FileInputStream (HMMData.PdfStrFile()));
-        System.out.println("LoadModelSet reading: " + HMMData.PdfStrFile());
+ 	    data_in = new DataInputStream (new FileInputStream (hts_data.PdfStrFile()));
+        System.out.println("LoadModelSet reading: " + hts_data.PdfStrFile());
         /* read vector size for strengths */
         strvsize = data_in.readInt();
-	    System.out.println("LoadModelSet: strvsize = " + strvsize);
+	    //System.out.println("LoadModelSet: strvsize = " + strvsize);
 	  
 	    if( strvsize < 0 )
 		   System.err.println("LoadModelSet: vector size of strengths part must be positive.");
@@ -258,7 +309,7 @@ public class ModelSet {
 	       nstrpdf[i] = data_in.readInt();
 	       if( nstrpdf[i] < 0 )
 	    	 System.err.println("LoadModelSet: #str pdf at state " + i + " must be positive value.");
-	       System.out.println("nstrpdf[" + i + "] = " + nstrpdf[i]);
+	       //System.out.println("nstrpdf[" + i + "] = " + nstrpdf[i]);
 	       /* Now i know the size of strpdf[#states][#leaves][vectorsize] */
 	       /* so i can allocate memory for strpdf[][][] */
 	       strpdf[i] = new double[nstrpdf[i]][2*strvsize];         
@@ -273,18 +324,18 @@ public class ModelSet {
 	    		  //System.out.println("strpdf["+ i + "][" + j + "][" + k + "] =" + strpdf[i][j][k]);
 	    	  }
 	      }
-	      System.out.println("loaded nstrpdf[" + i + "] = " + j);
+	      //System.out.println("loaded nstrpdf[" + i + "] = " + j);
 	    }
 	    data_in.close (); 
 	    data_in=null;
 	    
 	    /*____________________________________________________________________*/
 	    /*-------------------- load pdfs for Fourier magnitudes --------------*/
- 	    data_in = new DataInputStream (new FileInputStream (HMMData.PdfMagFile()));
-        System.out.println("LoadModelSet reading: " + HMMData.PdfMagFile());
+ 	    data_in = new DataInputStream (new FileInputStream (hts_data.PdfMagFile()));
+        System.out.println("LoadModelSet reading: " + hts_data.PdfMagFile());
         /* read vector size for Fourier magnitudes */
         magvsize = data_in.readInt();
-	    System.out.println("LoadModelSet: magvsize = " + magvsize);
+	    //System.out.println("LoadModelSet: magvsize = " + magvsize);
 	  
 	    if( magvsize < 0 )
 		   System.err.println("LoadModelSet: vector size of Fourier magnitudes part must be positive.");
@@ -296,7 +347,7 @@ public class ModelSet {
 	       nmagpdf[i] = data_in.readInt();
 	       if( nmagpdf[i] < 0 )
 	    	 System.err.println("LoadModelSet: #mag pdf at state " + i + " must be positive value.");
-	       System.out.println("nmagpdf[" + i + "] = " + nmagpdf[i]);
+	       //System.out.println("nmagpdf[" + i + "] = " + nmagpdf[i]);
 	       /* Now i know the size of magpdf[#states][#leaves][vectorsize] */
 	       /* so i can allocate memory for magpdf[][][] */
 	       magpdf[i] = new double[nmagpdf[i]][2*magvsize];         
@@ -311,7 +362,7 @@ public class ModelSet {
 	    		  //System.out.println("magpdf["+ i + "][" + j + "][" + k + "] =" + magpdf[i][j][k]);
 	    	  }
 	      }
-	      System.out.println("loaded nmagpdf[" + i + "] = " + j);
+	      //System.out.println("loaded nmagpdf[" + i + "] = " + j);
 	    }
 	    
 	    data_in.close (); 
@@ -319,11 +370,11 @@ public class ModelSet {
 	    
 	    /*____________________________________________________________________*/
 	    /*-------------------- load pdfs for Log F0 --------------*/
-	    data_in = new DataInputStream (new FileInputStream (HMMData.PdfLf0File()));
-        System.out.println("LoadModelSet reading: " + HMMData.PdfLf0File());
+	    data_in = new DataInputStream (new FileInputStream (hts_data.PdfLf0File()));
+        System.out.println("LoadModelSet reading: " + hts_data.PdfLf0File());
 	    /* read the number of streams for f0 modeling */
         lf0stream  = data_in.readInt();
-	    System.out.println("LoadModelSet: lf0stream = " + lf0stream);
+	    //System.out.println("LoadModelSet: lf0stream = " + lf0stream);
 	  
 	    if( lf0stream < 0 )
 		   System.err.println("LoadModelSet:  #stream for log f0 part must be positive value.");
@@ -335,7 +386,7 @@ public class ModelSet {
 	       nlf0pdf[i] = data_in.readInt();
 	       if( nlf0pdf[i] < 0 )
 	    	 System.err.println("LoadModelSet: #lf0 pdf at state " + i + " must be positive value.");
-	       System.out.println("nlf0pdf[" + i + "] = " + nlf0pdf[i]);
+	       //System.out.println("nlf0pdf[" + i + "] = " + nlf0pdf[i]);
 	       /* Now i know the size of pdfs for lf0 [#states][#leaves][#streams][lf0_vectorsize] */
 	       /* lf0_vectorsize = 4: mean, variance, voiced weight, and unvoiced weight */
 	       /* so i can allocate memory for lf0pdf[][][] */
@@ -356,7 +407,7 @@ public class ModelSet {
 	            	System.err.println("LoadModelSet: voiced/unvoiced weights must be within 0.99 to 1.01.");
 	    	  }
 	      }
-	      System.out.println("loaded nlf0pdf[" + i + "] = " + j);
+	      //System.out.println("loaded nlf0pdf[" + i + "] = " + j);
 	    }
 	    
 	    data_in.close (); 

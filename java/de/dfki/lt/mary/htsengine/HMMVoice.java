@@ -47,49 +47,64 @@
 *                                                                   
 */
 
+
 package de.dfki.lt.mary.htsengine;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Locale;
+import java.util.Properties;
 
-import java.util.Vector;
+import javax.sound.sampled.AudioFormat;
 
-/**
- * list of Model objects for current utterance.
- * 
- * Java port and extension of HTS engine version 2.0
- * Extension: mixed excitation
- * @author Marcela Charfuelan
- */
-public class UttModel {
+import de.dfki.lt.mary.modules.synthesis.Voice;
+import de.dfki.lt.mary.modules.synthesis.WaveformSynthesizer;
+import de.dfki.lt.mary.modules.synthesis.Voice.Gender;
 
-  private int nModel;        /* # of models for current utterance       */
-  private int nState;        /* # of HMM states for current utterance   */ 
-  private int totalframe;    /* # of frames for current utterance       */
-  private int lf0frame;      /* # of frames that are voiced or non-zero */
-  private Vector ModelList;  /* This will be a list of Model objects for current utterance */
+public class HMMVoice extends Voice {
+ 
+    HMMData hts_data = new HMMData();
+    
+   /** 
+    * constructor */ 
+   public HMMVoice(String[] nameArray, Locale locale, 
+           AudioFormat dbAudioFormat, WaveformSynthesizer synthesizer, 
+           Gender gender, int topStart, int topEnd, int baseStart, int baseEnd,
+           String Ftd, String Ftf, String Ftm, String Fts, String Fta, 
+           String Fmd, String Fmf, String Fmm, String Fms, String Fma,
+           String FeaList, String Flab, String Fif, int nFilters, int norderFilters) {
+       super(nameArray, locale, dbAudioFormat, synthesizer, gender, topStart, topEnd, baseStart, baseEnd);
 
-  
-  public UttModel() {
-	nModel = 0;
-	nState = 0;
-	totalframe = 0;
-	lf0frame = 0;
-	ModelList = new Vector();
-  }
-  
-  public void set_nModel(int val){ nModel = val; }
-  public int get_nModel(){ return nModel; }
-  
-  public void set_nState(int val){ nState = val; }
-  public int get_nState(){ return nState; }
-  
-  public void set_totalframe(int val){ totalframe = val; }
-  public int get_totalframe(){ return totalframe; }
-  
-  public void set_lf0frame(int val){ lf0frame = val; }
-  public int get_lf0frame(){ return lf0frame; }
-  
-  public void addUttModel(Model new_model){ ModelList.addElement(new_model); }
-  public Model getUttModel(int i){ return (Model) ModelList.elementAt(i); 	}
-  public int getNumUttModel(){ return ModelList.size(); }
-  
-}
+       this.hts_data.setTreeDurFile(Ftd);  /* CHECk do i need this this. ??? */
+       this.hts_data.setTreeLf0File(Ftf);           
+       this.hts_data.setTreeMcpFile(Ftm);
+       this.hts_data.setTreeStrFile(Fts);
+       this.hts_data.setTreeMagFile(Fta);
+
+       this.hts_data.setPdfDurFile(Fmd);
+       this.hts_data.setPdfLf0File(Fmf);        
+       this.hts_data.setPdfMcpFile(Fmm);
+       this.hts_data.setPdfStrFile(Fms);
+       this.hts_data.setPdfMagFile(Fma);
+
+       /* Feature list file */
+       this.hts_data.setFeaListFile(FeaList);
+
+       /* Example context feature file in HTSCONTEXT_EN format */
+       this.hts_data.setLabFile(Flab);
+
+       /* Configuration for mixed excitation */
+       this.hts_data.setMixFiltersFile(Fif); 
+       this.hts_data.set_numFilters(nFilters);
+       this.hts_data.set_orderFilters(norderFilters);
+
+       /* Load TreeSet ts and ModelSet ms*/
+       this.hts_data.LoadModelSet();  
+       this.hts_data.LoadTreeSet();   
+
+   }
+   
+   public HMMData getHMMData(){ return this.hts_data; }
+    
+
+} /* class HMMVoice */
