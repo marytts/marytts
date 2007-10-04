@@ -3,7 +3,6 @@ package de.dfki.lt.signalproc.effects;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 
-import de.dfki.lt.mary.unitselection.AudioEffect;
 import de.dfki.lt.signalproc.process.FrameOverlapAddSource;
 import de.dfki.lt.signalproc.process.LPCWhisperiser;
 import de.dfki.lt.signalproc.process.VocalTractScalingProcessor;
@@ -13,7 +12,12 @@ import de.dfki.lt.signalproc.util.DDSAudioInputStream;
 import de.dfki.lt.signalproc.util.SignalProcUtils;
 import de.dfki.lt.signalproc.window.Window;
 
-public class VocalTractLinearScalerEffect implements AudioEffect {
+public class VocalTractLinearScalerEffect extends BaseAudioEffect {
+    
+    public VocalTractLinearScalerEffect(int samplingRate)
+    {
+        super(samplingRate);
+    }
     
     public AudioInputStream apply(AudioInputStream inputAudio)
     {
