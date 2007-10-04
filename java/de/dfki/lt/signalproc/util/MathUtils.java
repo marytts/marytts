@@ -151,6 +151,16 @@ public class MathUtils {
         }
         return max;
     }
+    
+    public static int max(int[] data)
+    {
+        int max = data[0];
+        for (int i=1; i<data.length; i++) {
+            if (data[i] > max) 
+                max = data[i];
+        }
+        return max;
+    }
 
     /**
      * Find the maximum of the absolute values of all elements in the array, ignoring elements that are NaN.
@@ -179,6 +189,16 @@ public class MathUtils {
         for (int i=0; i<data.length; i++) {
             if (Double.isNaN(data[i])) continue;
             if (Double.isNaN(min)|| data[i] < min) min = data[i];
+        }
+        return min;
+    }
+    
+    public static int min(int[] data)
+    {
+        int min = data[0];
+        for (int i=1; i<data.length; i++) {
+            if (data[i] < min) 
+                min = data[i];
         }
         return min;
     }
@@ -855,5 +875,44 @@ public class MathUtils {
             yi[xi.length-1] = y[x.length-1];
         
         return yi;
+    }
+    
+    public static int CheckLimits(int val, int minVal, int maxVal)
+    {
+        int ret = val;
+
+        if (ret<minVal)
+            ret = minVal;
+        
+        if (ret>maxVal)
+            ret = maxVal;
+        
+        return ret;
+    }
+    
+    public static double CheckLimits(double val, double minVal, double maxVal)
+    {
+        double ret = val;
+
+        if (ret<minVal)
+            ret = minVal;
+        
+        if (ret>maxVal)
+            ret = maxVal;
+        
+        return ret;
+    }
+    
+    public static float CheckLimits(float val, float minVal, float maxVal)
+    {
+        float ret = val;
+
+        if (ret<minVal)
+            ret = minVal;
+        
+        if (ret>maxVal)
+            ret = maxVal;
+        
+        return ret;
     }
 }
