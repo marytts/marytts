@@ -26,6 +26,7 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
+
 package de.dfki.lt.mary.modules.en;
 
 import java.io.BufferedReader;
@@ -40,7 +41,10 @@ import java.util.Vector;
 
 import de.dfki.lt.mary.MaryData;
 import de.dfki.lt.mary.MaryDataType;
+import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.mary.modules.InternalModule;
+import de.dfki.lt.mary.unitselection.featureprocessors.FeatureProcessorManager;
+import de.dfki.lt.mary.unitselection.featureprocessors.TargetFeatureComputer;
 
 
 /**
@@ -52,14 +56,7 @@ import de.dfki.lt.mary.modules.InternalModule;
  */
 public class HTSContextTranslator extends InternalModule {
 
-    /* Requested features for the full context names and tree questions */
-   // private Vector featureList = new Vector();
-    
-    /* mary_ context features and possible values */
-  //  private Hashtable maryPfeats = new Hashtable();
-    
-    /* context features in current utterance  */
-  //  private ArrayList currentPfeats = new ArrayList();
+    private String contextFeatureFile;
  
     public HTSContextTranslator()
     {
@@ -90,18 +87,14 @@ public class HTSContextTranslator extends InternalModule {
  
         MaryData output = new MaryData(outputType());
          
-        String lab;
-        
-        /* Read feature list
-         * this function does not need to be called all the time if the same 
-         * feature list file is used in subsequent calls to HMMSynthesiser */        
-       // ReadFeatureList("/project/mary/marcela/HTS-mix/data/feature_list_en_05.pl");
-               
-        lab = _process(d.getPlainText());
-        
+        String lab;      
+        lab = _process(d.getPlainText());       
         output.setPlainText(lab);
+        
         return output;
     }
+    
+    public void setContextFeatureFile(String str){ contextFeatureFile = str; }
 
     /**Translate TARGETFEATURES_EN to HTSCONTEXT_EN
      * @param String d
@@ -114,7 +107,7 @@ public class HTSContextTranslator extends InternalModule {
       Hashtable maryPfeats = new Hashtable();
       ArrayList currentPfeats = new ArrayList();
       Vector featureList = new Vector();
-      ReadFeatureList(featureList, "/project/mary/marcela/HTS-mix/data/feature_list_en_05.pl");
+      ReadFeatureList(featureList, contextFeatureFile);
       
       int i,j;
       int num_phoneme = 0;
@@ -243,7 +236,7 @@ public class HTSContextTranslator extends InternalModule {
            
     }
     
-    System.out.println("\nLAB:\n" + lab);
+    //System.out.println("\nLAB:\n" + lab);
        
     return lab;
     
@@ -253,7 +246,7 @@ public class HTSContextTranslator extends InternalModule {
     /** This function reads the feature list file, for example feature_list_en_05.pl
      * and fills in a vector the elements in that list that are un-commented 
      */
-    public void ReadFeatureList(Vector featureList, String featureFile){
+    private void ReadFeatureList(Vector featureList, String featureFile){
       String line;
       int i;
       Scanner s = null;
