@@ -1,31 +1,52 @@
-/**
- * Copyright 2000-2006 DFKI GmbH.
- * All Rights Reserved.  Use is subject to license terms.
- * 
- * Permission is hereby granted, free of charge, to use and distribute
- * this software and its documentation without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of this work, and to
- * permit persons to whom this work is furnished to do so, subject to
- * the following conditions:
- * 
- * 1. The code must retain the above copyright notice, this list of
- *    conditions and the following disclaimer.
- * 2. Any modifications must be clearly marked as such.
- * 3. Original authors' names are not deleted.
- * 4. The authors' names are not used to endorse or promote products
- *    derived from this software without specific prior written
- *    permission.
- *
- * DFKI GMBH AND THE CONTRIBUTORS TO THIS WORK DISCLAIM ALL WARRANTIES WITH
- * REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL DFKI GMBH NOR THE
- * CONTRIBUTORS BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
- * DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
- * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
- * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
- * THIS SOFTWARE.
- */
+/**   
+*           The HMM-Based Speech Synthesis System (HTS)             
+*                       HTS Working Group                           
+*                                                                   
+*                  Department of Computer Science                   
+*                  Nagoya Institute of Technology                   
+*                               and                                 
+*   Interdisciplinary Graduate School of Science and Engineering    
+*                  Tokyo Institute of Technology                    
+*                                                                   
+*                Portions Copyright (c) 2001-2006                       
+*                       All Rights Reserved.
+*                         
+*              Portions Copyright 2000-2007 DFKI GmbH.
+*                      All Rights Reserved.                  
+*                                                                   
+*  Permission is hereby granted, free of charge, to use and         
+*  distribute this software and its documentation without           
+*  restriction, including without limitation the rights to use,     
+*  copy, modify, merge, publish, distribute, sublicense, and/or     
+*  sell copies of this work, and to permit persons to whom this     
+*  work is furnished to do so, subject to the following conditions: 
+*                                                                   
+*    1. The source code must retain the above copyright notice,     
+*       this list of conditions and the following disclaimer.       
+*                                                                   
+*    2. Any modifications to the source code must be clearly        
+*       marked as such.                                             
+*                                                                   
+*    3. Redistributions in binary form must reproduce the above     
+*       copyright notice, this list of conditions and the           
+*       following disclaimer in the documentation and/or other      
+*       materials provided with the distribution.  Otherwise, one   
+*       must contact the HTS working group.                         
+*                                                                   
+*  NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF TECHNOLOGY,   
+*  HTS WORKING GROUP, AND THE CONTRIBUTORS TO THIS WORK DISCLAIM    
+*  ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL       
+*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT   
+*  SHALL NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF         
+*  TECHNOLOGY, HTS WORKING GROUP, NOR THE CONTRIBUTORS BE LIABLE    
+*  FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY        
+*  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,  
+*  WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTUOUS   
+*  ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR          
+*  PERFORMANCE OF THIS SOFTWARE.                                    
+*                                                                   
+*/
+
 package de.dfki.lt.mary.modules.synthesis;
 
 import java.io.File;
@@ -63,11 +84,16 @@ import de.dfki.lt.mary.modules.en.HTSEngine;
 import de.dfki.lt.mary.modules.en.TargetFeatureLister;
 
 
+import de.dfki.lt.mary.htsengine.HMMData;
+import de.dfki.lt.mary.htsengine.ModelSet;
 import de.dfki.lt.mary.htsengine.ParameterGeneration;
+import de.dfki.lt.mary.htsengine.TreeSet;
 import de.dfki.lt.mary.htsengine.UttModel;
 import de.dfki.lt.mary.htsengine.Vocoder;
+import de.dfki.lt.mary.htsengine.HMMVoice;
 
 import de.dfki.lt.mary.modules.synthesis.Voice.Gender;
+import de.dfki.lt.mary.unitselection.UnitSelectionVoice;
 import de.dfki.lt.mary.util.MaryUtils;
 import de.dfki.lt.signalproc.util.AudioPlayer;
 
@@ -145,12 +171,6 @@ public class HMMSynthesizer implements WaveformSynthesizer {
         } else if (htsEngine.getState() == MaryModule.MODULE_OFFLINE) {
             htsEngine.startup();
         }
-
-        /* I need to include this somewhere???
-         * load configuration file from: 
-         * /project/mary/marcela/HTS-mix/hts_engine.config */
-        htsEngine.InitHMMengine();
-        
         
         // Register HMM voices:
         String basePath =
@@ -162,6 +182,8 @@ public class HMMSynthesizer implements WaveformSynthesizer {
                 + File.separator;
 
         logger.debug("Register HMM voices:");
+        
+        
         String voiceNames = MaryProperties.needProperty("hmm.voices.list");
         for (StringTokenizer st = new StringTokenizer(voiceNames); st.hasMoreTokens(); ) {
             String voiceName = st.nextToken();
@@ -178,15 +200,45 @@ public class HMMSynthesizer implements WaveformSynthesizer {
                     samplingRate, // nr. of frames per second
                     false);
             
-            Voice v = new Voice (new String[] { voiceName },
-                    locale,
-                    format,
-                    this,
-                    gender,
-                    -1, -1, -1, -1);
+            //Voice v = new Voice (new String[] { voiceName },locale, format, this, gender, -1, -1, -1, -1);
+            //Voice.registerVoice(v);
+            
+           /* When creating a HMMVoice object it will create and initialise a 
+            * TreeSet ts and a ModelSet ms. */
+            
+           /* HMMVoice(String[] nameArray, Locale locale, 
+              AudioFormat dbAudioFormat, WaveformSynthesizer synthesizer, 
+              Gender gender, int topStart, int topEnd, int baseStart, int baseEnd,
+              String Ftd, String Ftf, String Ftm, String Fts, String Fta, 
+              String Fmd, String Fmf, String Fmm, String Fms, String Fma,
+              String FeaList, String Flab, String Fif, int nFilters, int norderFilters) */
+            HMMVoice v = new HMMVoice (new String[] { voiceName },
+                locale, format, this, gender, -1, -1, -1, -1,
+                MaryProperties.getFilename("voice."+voiceName+".Ftd"), /* Tree DUR */
+                MaryProperties.getFilename("voice."+voiceName+".Ftf"), /* Tree LF0 */
+                MaryProperties.getFilename("voice."+voiceName+".Ftm"), /* Tree MCP */
+                MaryProperties.getFilename("voice."+voiceName+".Fts"), /* Tree STR */
+                MaryProperties.getFilename("voice."+voiceName+".Fta"), /* Tree MAG */
+                MaryProperties.getFilename("voice."+voiceName+".Fmd"), /* Model DUR */
+                MaryProperties.getFilename("voice."+voiceName+".Fmf"), /* Model LF0 */
+                MaryProperties.getFilename("voice."+voiceName+".Fmm"), /* Model MCP */
+                MaryProperties.getFilename("voice."+voiceName+".Fms"), /* Model STR */
+                MaryProperties.getFilename("voice."+voiceName+".Fma"), /* Model MAG */
+                MaryProperties.getFilename("voice."+voiceName+".FeaList"), /*  Feature list file */
+                MaryProperties.getFilename("voice."+voiceName+".Flab"),    /*  label file, for testing*/
+                MaryProperties.getFilename("voice."+voiceName+".Fif"),     /* Filter coefficients file for mixed excitation*/
+                MaryProperties.getInteger("voice."+voiceName+".in"),    /* Number of filters */
+                MaryProperties.getInteger("voice."+voiceName+".io"));   /* Number of taps per filter or filters order */
             Voice.registerVoice(v);
+           
+            /* CHECK I am not sure if this has to be done here ??? */
+            htsContextTranslator.setContextFeatureFile(MaryProperties.getFilename("voice."+voiceName+".FeaList"));
+            
         }
         logger.info("started.");
+        
+  
+        
     }
 
     /**
@@ -197,22 +249,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
      {
          // TODO: add meaningful power-on self test
          logger.info("\n TODO: TO-BE DONE HMMSynthesizer powerOnSelfTest()\n");
-         UttModel um = new UttModel();
-         AudioInputStream ais;
-         
-         /* example of HTSCONTEXT_EN label file */
-         String Flab = htsEngine.getLabFile();
 
-         /* Process label file of Mary context features and creates UttModel um */
-         htsEngine.ProcessUttFromFile(Flab,um);
-
-         /* pdf2parameters and parameters2speech */
-         ais = htsEngine.pdf2speech(um);
-         
-         //System.out.println("Calling audioplayer:");
-         //AudioPlayer player = new AudioPlayer(ais, null);
-         //player.start();  // this call the run method..
-         //System.out.println("audioplayer finished..."); 
      }
 
     public String toString() {
@@ -221,6 +258,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
 
     public AudioInputStream synthesize(List tokensAndBoundaries, Voice voice)
         throws SynthesisException {
+        
         if (!voice.synthesizer().equals(this)) {
             throw new IllegalArgumentException(
                 "Voice " + voice.getName() + " is not an HMM voice.");
@@ -234,7 +272,9 @@ public class HMMSynthesizer implements WaveformSynthesizer {
         freettsAcoustparams.setUtterances(utts);
         try {
             MaryData targetFeatures = targetFeatureLister.process(freettsAcoustparams);
+            /* CHECK how to get the FeaList corresponding to this voice ??? */
             MaryData htsContext = htsContextTranslator.process(targetFeatures);
+            htsContext.setDefaultVoice(voice);
             MaryData audio = htsEngine.process(htsContext);
             
             return audio.getAudio();
