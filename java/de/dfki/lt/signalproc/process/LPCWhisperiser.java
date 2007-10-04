@@ -55,7 +55,7 @@ public class LPCWhisperiser extends LPCAnalysisResynthesis
     {
         super(predictionOrder);
         this.whisperAmount = amount;
-        this.whisperAmount = Math.max(0.5, amount);
+        this.whisperAmount = Math.max(0.0, amount);
         this.whisperAmount = Math.min(1.0, amount);
         this.oneMinusWhisperAmount = 1.0-this.whisperAmount;
     }

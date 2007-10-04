@@ -57,11 +57,16 @@ public class Robotiser extends FrameOverlapAddSource
      * @param rateChangeFactor the factor by which to speed up or slow down the source.
      * Values greater than one will speed up, values smaller than one will slow down the original.
      */
-    public Robotiser(DoubleDataSource inputSource, int samplingRate)
+    public Robotiser(DoubleDataSource inputSource, int samplingRate, float amount)
     {
         //int frameLength = Integer.getInteger("signalproc.robotiser.framelength", 256).intValue();
         int frameLength = SignalProcUtils.getDFTSize(samplingRate);
-        initialise(inputSource, Window.HANN, true, frameLength, samplingRate, new PhaseRemover(frameLength));
+        initialise(inputSource, Window.HANN, true, frameLength, samplingRate, new PhaseRemover(frameLength, amount));
+    }
+    
+    public Robotiser(DoubleDataSource inputSource, int samplingRate)
+    {
+        this(inputSource, samplingRate, 1.0f);
     }
     
     public static class PhaseRemover extends PolarFrequencyProcessor

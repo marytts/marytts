@@ -60,9 +60,28 @@ public class Chorus implements InlineDataProcessor {
     private int numChannels;
     private double sumAmps;
     
-
+    public Chorus(int samplingRate)
+    {
+        this(null, null, samplingRate);
+    }
+    
     public Chorus(int [] delaysInMiliseconds, double [] ampsIn, int samplingRate)
     {
+        //If null parameters, use a default chorus
+        boolean bDelete = false;
+        if (delaysInMiliseconds==null)
+        {
+            bDelete = true;
+            
+            delaysInMiliseconds = new int[2];
+            delaysInMiliseconds[0] = 466;
+            delaysInMiliseconds[1] = 600;
+            
+            ampsIn = new double[2];
+            ampsIn[0] = 0.54;
+            ampsIn[1] = -0.10;
+        }
+
         numChannels = Math.min(delaysInMiliseconds.length, ampsIn.length);
         
         if (numChannels>0)
@@ -81,6 +100,9 @@ public class Chorus implements InlineDataProcessor {
                 if (buffInLen<delays[i])
                     buffInLen = delays[i];
             }
+            
+            if (buffInLen<1)
+                buffInLen=1;
 
             buffIn = new double[buffInLen];
             for (i=0; i<buffInLen; i++)
@@ -111,6 +133,12 @@ public class Chorus implements InlineDataProcessor {
             numChannels = 0;
             sumAmps = 1.0;
         }
+        
+        if (bDelete)
+        {
+            delaysInMiliseconds = null;
+            ampsIn = null;
+        }
     }
     
     public void applyInline(double[] data, int pos, int buffOutLen)
@@ -137,7 +165,6 @@ public class Chorus implements InlineDataProcessor {
                     if (i==1)
                         buffOut[j-1] = 1.0/sumAmps*buffIn[buffInStart-1]; //Delay-less channel 
                     
-                    //ind = j-delays(i);
                     ind = buffInStart-delays[i-1];
                     
                     if (!(bFirstInBuff[i-1]) && ind<1)
