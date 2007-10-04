@@ -54,6 +54,7 @@ import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.modules.synthesis.WaveformSynthesizer;
 import de.dfki.lt.mary.util.dom.MaryDomUtils;
 import de.dfki.lt.mary.util.dom.NameNodeFilter;
+import de.dfki.lt.signalproc.effects.EffectsApplier;
 
 /**
  * The synthesis module.
@@ -64,6 +65,7 @@ import de.dfki.lt.mary.util.dom.NameNodeFilter;
 public class Synthesis extends InternalModule
 {
     private List waveformSynthesizers;
+    private EffectsApplier effects;
     
     public Synthesis()
     {
@@ -210,6 +212,8 @@ public class Synthesis extends InternalModule
         (List tokensAndBoundaries, Voice voice, String currentStyle, String currentEffect, AudioFormat targetFormat)
     throws SynthesisException, UnsupportedAudioFileException
     {
+        EffectsApplier ef = new EffectsApplier();
+        
         AudioInputStream ais = null;
         ais = voice.synthesize(tokensAndBoundaries);
         if (ais == null) return null;
@@ -245,7 +249,7 @@ public class Synthesis extends InternalModule
         }
         // Apply effect if present
         if (!currentEffect.equals("")) {
-            //ais = EffectApplier.apply(ais, currentEffect); 
+            ais = ef.apply(ais, currentEffect); 
         }
         return ais;
     }
