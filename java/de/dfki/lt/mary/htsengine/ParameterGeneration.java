@@ -1,3 +1,51 @@
+/**   
+*           The HMM-Based Speech Synthesis System (HTS)             
+*                       HTS Working Group                           
+*                                                                   
+*                  Department of Computer Science                   
+*                  Nagoya Institute of Technology                   
+*                               and                                 
+*   Interdisciplinary Graduate School of Science and Engineering    
+*                  Tokyo Institute of Technology                    
+*                                                                   
+*                Portions Copyright (c) 2001-2006                       
+*                       All Rights Reserved.
+*                         
+*              Portions Copyright 2000-2007 DFKI GmbH.
+*                      All Rights Reserved.                  
+*                                                                   
+*  Permission is hereby granted, free of charge, to use and         
+*  distribute this software and its documentation without           
+*  restriction, including without limitation the rights to use,     
+*  copy, modify, merge, publish, distribute, sublicense, and/or     
+*  sell copies of this work, and to permit persons to whom this     
+*  work is furnished to do so, subject to the following conditions: 
+*                                                                   
+*    1. The source code must retain the above copyright notice,     
+*       this list of conditions and the following disclaimer.       
+*                                                                   
+*    2. Any modifications to the source code must be clearly        
+*       marked as such.                                             
+*                                                                   
+*    3. Redistributions in binary form must reproduce the above     
+*       copyright notice, this list of conditions and the           
+*       following disclaimer in the documentation and/or other      
+*       materials provided with the distribution.  Otherwise, one   
+*       must contact the HTS working group.                         
+*                                                                   
+*  NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF TECHNOLOGY,   
+*  HTS WORKING GROUP, AND THE CONTRIBUTORS TO THIS WORK DISCLAIM    
+*  ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL       
+*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT   
+*  SHALL NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF         
+*  TECHNOLOGY, HTS WORKING GROUP, NOR THE CONTRIBUTORS BE LIABLE    
+*  FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY        
+*  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,  
+*  WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTUOUS   
+*  ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR          
+*  PERFORMANCE OF THIS SOFTWARE.                                    
+*                                                                   
+*/
 
 package de.dfki.lt.mary.htsengine;
 
@@ -58,13 +106,14 @@ public class ParameterGeneration {
   * @param um  : utterance model sequence after processing Mary context features
   * @param ms  : HMM pdfs model set.
   */
-  public void HTS_MaximumLikelihoodParameterGeneration(UttModel um, ModelSet ms){
+  public void HTS_MaximumLikelihoodParameterGeneration(UttModel um, HMMData hts_data){
 	  
 	int frame, Tframe, lf0frame;
 	int state, lw, rw, k, n, i;
 	boolean nobound;
 	Model m;
-	
+    ModelSet ms = hts_data.getModelSet();
+    
 	/* Initialisation of PStream objects */
   	/* Initialise Parameter generation using UttModel um and Modelset ms */
   	/* initialise PStream objects for all the parameters that are going to be generated: */
