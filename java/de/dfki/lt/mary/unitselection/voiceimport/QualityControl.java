@@ -74,7 +74,10 @@ public class QualityControl extends VoiceImportComponent {
     public final String FRICCUTENERGY = "QualityControl.fricativeHighFreqCutofEnegy";
     public final String SILCUTENERGY = "QualityControl.silenceCutofEnergy";
     public final String OUTFILE = "QualityControl.outputFile";
-    
+    public final String MLONGPHN = "QualityControl.markUnusuallyLongPhone";
+    public final String MHSILEGY = "QualityControl.markHighSILEnergy";
+    public final String MHFREQEGY = "QualityControl.markFricativeHighFreqEnergy";
+    public final String MUNVOICEDVOWEL = "QualityControl.markUnvoicedVowel";
     
     public final String getName(){
         return "QualityControl";
@@ -108,6 +111,11 @@ public class QualityControl extends VoiceImportComponent {
            props.put(FRICCUTENERGY,"0.344");
            props.put(SILCUTENERGY,"0.124");
            props.put(OUTFILE,db.getProp(db.ROOTDIR)+"QualityControl.out");
+           props.put(MLONGPHN,"true");
+           props.put(MHSILEGY,"true");
+           props.put(MHFREQEGY,"true");
+           props.put(MUNVOICEDVOWEL,"true");
+           
        }
        return props;
     }
@@ -119,6 +127,11 @@ public class QualityControl extends VoiceImportComponent {
         props2Help.put(FRICCUTENERGY, "Higher Frequency Cutof Energy for Fricatives");
         props2Help.put(SILCUTENERGY, "Cutof Energy for Silence");
         props2Help.put(OUTFILE,"Output file which shows suspicious alignments");
+        props2Help.put(MLONGPHN,"if true, Mark Un usually long Phone");
+        props2Help.put(MHSILEGY,"if true, Mark Higher Silence Energy");
+        props2Help.put(MHFREQEGY,"if true, Mark Higher Frequency Energy for a Fricative");   
+        props2Help.put(MUNVOICEDVOWEL,"if true, Unvoiced Vowels");
+                                
     }
     
     /**
@@ -230,43 +243,43 @@ public class QualityControl extends VoiceImportComponent {
                 +featureUnit+"' vs. label file '"+labelUnit
                 +"' (Unit "+unitIndex+")");
             }
-            
+        // System.out.println(basename +" "+labelUnit+" "+startTimeStamp+" "+endTimeStamp+" ---> Just Printing...");   
         double phoneDuration =  endTimeStamp - startTimeStamp;
-        if( phoneDuration > 1 && !labelUnit.equals("_")){
+        if( phoneDuration > 1 && !labelUnit.equals("_") && getProp(MLONGPHN).equals("true")){
               //System.out.println(basename +" "+labelUnit+" "+startTimeStamp+" "+endTimeStamp+" Unusually Long Phone");
-                outFileWriter.println(basename +"\t "+labelUnit+"\t "+startTimeStamp+"\t "+endTimeStamp+"\t Unusually Long Phone");
+                outFileWriter.println(basename +"\t"+labelUnit+"\t"+startTimeStamp+"\t"+endTimeStamp+"\tUnusually Long Phone");
                 startTimeStamp = endTimeStamp;
                 continue;
             }
             
-        if(isVowel(line,ph_VC_idx)){
-              
+        if(isVowel(line,ph_VC_idx) && phoneDuration > 0 && getProp(MUNVOICEDVOWEL).equals("true")){
+            
            boolean isVV = isVowelVoiced(signal, samplingRate, startTimeStamp, endTimeStamp);
            if(!isVV){
                //System.out.println(basename +" "+labelUnit+" "+startTimeStamp+" "+endTimeStamp+" Non-Voiced Vowel");
-               outFileWriter.println(basename +"\t "+labelUnit+"\t "+startTimeStamp+"\t "+endTimeStamp+"\t Non-Voiced Vowel");
+               outFileWriter.println(basename +"\t"+labelUnit+"\t"+startTimeStamp+"\t"+endTimeStamp+"\tUn-Voiced Vowel");
                startTimeStamp = endTimeStamp;
                continue;
            }
          }
               
-        if(isFricative(line,ph_Ctype_idx)){
+        if(isFricative(line,ph_Ctype_idx) && phoneDuration > 0 && getProp(MHFREQEGY).equals("true")){
                   
-           boolean isFHEnergy = isFricativeHighEnergy(signal, samplingRate, startTimeStamp, endTimeStamp);
+           boolean isFHEnergy = isFricativeHighEnergy(signal, samplingRate, startTimeStamp, endTimeStamp, labelUnit);
            if(isFHEnergy){
              //System.out.println(basename +" "+labelUnit+" "+startTimeStamp+" "+endTimeStamp+" Higher Frequency Energy for Fricative");
-               outFileWriter.println(basename +"\t "+labelUnit+"\t "+startTimeStamp+"\t "+endTimeStamp+"\t Higher Frequency Energy for Fricative");
+               outFileWriter.println(basename +"\t"+labelUnit+"\t"+startTimeStamp+"\t"+endTimeStamp+"\tHigher Frequency Energy for a Fricative");
                startTimeStamp = endTimeStamp;
                continue;
            }
          }
               
-        if(labelUnit.equals("_")){
+        if(labelUnit.equals("_") && phoneDuration > 0 && getProp(MHSILEGY).equals("true")){
                   
            boolean isSILHEnergy = isSilenceHighEnergy(signal, samplingRate, startTimeStamp, endTimeStamp);
            if(isSILHEnergy){
              //System.out.println(basename +" "+labelUnit+" "+startTimeStamp+" "+endTimeStamp+" HigherEnergy for a Silence");
-               outFileWriter.println(basename +"\t "+labelUnit+"\t "+startTimeStamp+"\t "+endTimeStamp+"\t HigherEnergy for a Silence");
+               outFileWriter.println(basename +"\t"+labelUnit+"\t"+startTimeStamp+"\t"+endTimeStamp+"\tHigherEnergy for a Silence");
                startTimeStamp = endTimeStamp;
                continue;
            }
@@ -300,11 +313,18 @@ public class QualityControl extends VoiceImportComponent {
         double phoneDur = endTimeStamp - startTimeStamp;
         int segmentStartIndex = (int)(startTimeStamp * samplingRate);
         int segmentEndIndex = (int)(endTimeStamp * samplingRate);
+        
+        if(segmentEndIndex > signal.length){
+            segmentEndIndex = signal.length;
+        }
         int segmentSize = segmentEndIndex - segmentStartIndex;
+
         
         double[] phoneSegment = new double[segmentSize]; 
+        // System.out.println(segmentStartIndex + " "+ segmentEndIndex + " "+ segmentSize +" "+signal.length);
         
         System.arraycopy(signal, segmentStartIndex, phoneSegment, 0, segmentSize);
+        
         
         double silenceEnergy = SignalProcUtils.getEnergy(phoneSegment);
         
@@ -330,7 +350,7 @@ public class QualityControl extends VoiceImportComponent {
      * @throws Exception
      */
     
-    private boolean isFricativeHighEnergy(double[] signal, float samplingRate, double startTimeStamp, double endTimeStamp)
+    private boolean isFricativeHighEnergy(double[] signal, float samplingRate, double startTimeStamp, double endTimeStamp, String unitName)
     throws IOException, Exception
     {
         
@@ -339,6 +359,11 @@ public class QualityControl extends VoiceImportComponent {
         double phoneDur = endTimeStamp - startTimeStamp;
         int segmentStartIndex = (int)(startTimeStamp * samplingRate);
         int segmentEndIndex = (int)(endTimeStamp * samplingRate);
+        
+        if(segmentEndIndex > signal.length){
+            segmentEndIndex = signal.length;
+        }
+        
         int segmentSize = segmentEndIndex - segmentStartIndex;
         
         double[] phoneSegment = new double[segmentSize]; 
@@ -351,7 +376,8 @@ public class QualityControl extends VoiceImportComponent {
         double higherFreqEnergy = SignalProcUtils.getEnergy(highFreqSamples);
                        
         //System.out.println(basename +" : High Freq. Energy :  "+ phoneUnit + " Energy : "+ higherFreqEnergy);
-        //System.out.println(phoneUnit+" "+higherFreqEnergy);      
+        //System.out.println(unitName+" "+higherFreqEnergy);
+        
         double cutofEnergy =  Double.parseDouble(getProp(FRICCUTENERGY));
         if(higherFreqEnergy > cutofEnergy ) isFHighEnergy = true;
         
@@ -379,6 +405,11 @@ public class QualityControl extends VoiceImportComponent {
         double phoneDur = endTimeStamp - startTimeStamp;
         int segmentStartIndex = (int)(startTimeStamp * samplingRate);
         int segmentEndIndex = (int)(endTimeStamp * samplingRate);
+        
+        if(segmentEndIndex > signal.length){
+            segmentEndIndex = signal.length;
+        }
+        
         int segmentSize = segmentEndIndex - segmentStartIndex;
         
         double[] phoneSegment = new double[segmentSize]; 
