@@ -228,7 +228,7 @@ public class Vocoder {
 				for(j=0; j<orderM; j++) {
 					if (s.hasNextDouble()) {
 						h[i][j] = s.nextDouble();
-						System.out.println("h["+i+"]["+j+"]="+h[i][j]);
+						//System.out.println("h["+i+"]["+j+"]="+h[i][j]);
 					}
 					else
 						System.err.println("VocoderSetup: error reading fiter taps file =" + hts_data.MixFiltersFile());
