@@ -54,6 +54,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.BufferedReader;
+import java.util.Locale;
 import java.util.Scanner;
 import java.util.Random;
 import java.io.*;
@@ -221,12 +222,13 @@ public class Vocoder {
 		int i,j;
 		try {
 			s = new Scanner(new BufferedReader(new FileReader(hts_data.MixFiltersFile())));
+            s.useLocale(Locale.US);
 
 			for(i=0; i<numM; i++){
 				for(j=0; j<orderM; j++) {
 					if (s.hasNextDouble()) {
 						h[i][j] = s.nextDouble();
-						//System.out.println("h["+i+"]["+j+"]="+h[i][j]);
+						System.out.println("h["+i+"]["+j+"]="+h[i][j]);
 					}
 					else
 						System.err.println("VocoderSetup: error reading fiter taps file =" + hts_data.MixFiltersFile());
