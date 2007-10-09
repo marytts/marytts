@@ -52,10 +52,14 @@ package de.dfki.lt.mary.htsengine;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.Vector;
 
 import javax.sound.sampled.AudioFormat;
+
+import org.apache.log4j.Logger;
 
 import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.modules.synthesis.WaveformSynthesizer;
@@ -63,7 +67,8 @@ import de.dfki.lt.mary.modules.synthesis.Voice.Gender;
 
 public class HMMVoice extends Voice {
  
-    HMMData hts_data = new HMMData();
+    private HMMData htsData = new HMMData();
+    private Logger logger = Logger.getLogger("HMMVoice");
     
    /** 
     * constructor */ 
@@ -72,39 +77,51 @@ public class HMMVoice extends Voice {
            Gender gender, int topStart, int topEnd, int baseStart, int baseEnd,
            String Ftd, String Ftf, String Ftm, String Fts, String Fta, 
            String Fmd, String Fmf, String Fmm, String Fms, String Fma,
-           String FeaList, String Flab, String Fif, int nFilters, int norderFilters) {
+           String FeaList, String Flab, String Fif, int nFilters, int norderFilters) throws Exception {
        super(nameArray, locale, dbAudioFormat, synthesizer, gender, topStart, topEnd, baseStart, baseEnd);
 
-       this.hts_data.setTreeDurFile(Ftd);  /* CHECk do i need this this. ??? */
-       this.hts_data.setTreeLf0File(Ftf);           
-       this.hts_data.setTreeMcpFile(Ftm);
-       this.hts_data.setTreeStrFile(Fts);
-       this.hts_data.setTreeMagFile(Fta);
+       this.htsData.setTreeDurFile(Ftd);  
+       this.htsData.setTreeLf0File(Ftf);           
+       this.htsData.setTreeMcpFile(Ftm);
+       this.htsData.setTreeStrFile(Fts);
+       this.htsData.setTreeMagFile(Fta);
 
-       this.hts_data.setPdfDurFile(Fmd);
-       this.hts_data.setPdfLf0File(Fmf);        
-       this.hts_data.setPdfMcpFile(Fmm);
-       this.hts_data.setPdfStrFile(Fms);
-       this.hts_data.setPdfMagFile(Fma);
+       this.htsData.setPdfDurFile(Fmd);
+       this.htsData.setPdfLf0File(Fmf);        
+       this.htsData.setPdfMcpFile(Fmm);
+       this.htsData.setPdfStrFile(Fms);
+       this.htsData.setPdfMagFile(Fma);
 
        /* Feature list file */
-       this.hts_data.setFeaListFile(FeaList);
+       this.htsData.setFeaListFile(FeaList);
 
        /* Example context feature file in HTSCONTEXT_EN format */
-       this.hts_data.setLabFile(Flab);
+       this.htsData.setLabFile(Flab);
 
        /* Configuration for mixed excitation */
-       this.hts_data.setMixFiltersFile(Fif); 
-       this.hts_data.set_numFilters(nFilters);
-       this.hts_data.set_orderFilters(norderFilters);
+       this.htsData.setMixFiltersFile(Fif); 
+       this.htsData.setNumFilters(nFilters);
+       this.htsData.setOrderFilters(norderFilters);
 
        /* Load TreeSet ts and ModelSet ms*/
-       this.hts_data.LoadModelSet();  
-       this.hts_data.LoadTreeSet();   
+       logger.info("Loading Model Set:");
+       this.htsData.loadModelSet(); 
+       logger.info("Loading Tree Set:");
+       this.htsData.loadTreeSet();  
+       
+       /* Load (un-commented) context feature list from featureListFile */
+       logger.info("Loading Context feature list:");      
+       this.htsData.readFeatureList();
+
+       if( getFeatureList().size() == 0)
+          logger.debug("Warning feature list file empty or feature list not loaded. ");
+            
 
    }
    
-   public HMMData getHMMData(){ return this.hts_data; }
+   public HMMData getHMMData(){ return this.htsData; }
+   
+   public Vector getFeatureList(){ return this.htsData.getFeatureList(); }
     
 
 } /* class HMMVoice */

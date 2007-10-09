@@ -49,6 +49,7 @@
 
 package de.dfki.lt.mary.modules.synthesis;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
@@ -203,8 +204,8 @@ public class HMMSynthesizer implements WaveformSynthesizer {
             //Voice v = new Voice (new String[] { voiceName },locale, format, this, gender, -1, -1, -1, -1);
             //Voice.registerVoice(v);
             
-           /* When creating a HMMVoice object it will create and initialise a 
-            * TreeSet ts and a ModelSet ms. */
+           /** When creating a HMMVoice object it should create and initialise a 
+            * TreeSet ts, a ModelSet ms and load the context feature list used in this voice. */
             
            /* HMMVoice(String[] nameArray, Locale locale, 
               AudioFormat dbAudioFormat, WaveformSynthesizer synthesizer, 
@@ -214,31 +215,26 @@ public class HMMSynthesizer implements WaveformSynthesizer {
               String FeaList, String Flab, String Fif, int nFilters, int norderFilters) */
             HMMVoice v = new HMMVoice (new String[] { voiceName },
                 locale, format, this, gender, -1, -1, -1, -1,
-                MaryProperties.getFilename("voice."+voiceName+".Ftd"), /* Tree DUR */
-                MaryProperties.getFilename("voice."+voiceName+".Ftf"), /* Tree LF0 */
-                MaryProperties.getFilename("voice."+voiceName+".Ftm"), /* Tree MCP */
-                MaryProperties.getFilename("voice."+voiceName+".Fts"), /* Tree STR */
-                MaryProperties.getFilename("voice."+voiceName+".Fta"), /* Tree MAG */
-                MaryProperties.getFilename("voice."+voiceName+".Fmd"), /* Model DUR */
-                MaryProperties.getFilename("voice."+voiceName+".Fmf"), /* Model LF0 */
-                MaryProperties.getFilename("voice."+voiceName+".Fmm"), /* Model MCP */
-                MaryProperties.getFilename("voice."+voiceName+".Fms"), /* Model STR */
-                MaryProperties.getFilename("voice."+voiceName+".Fma"), /* Model MAG */
-                MaryProperties.getFilename("voice."+voiceName+".FeaList"), /*  Feature list file */
-                MaryProperties.getFilename("voice."+voiceName+".Flab"),    /*  label file, for testing*/
+                MaryProperties.getFilename("voice."+voiceName+".Ftd"),     /* Tree DUR */
+                MaryProperties.getFilename("voice."+voiceName+".Ftf"),     /* Tree LF0 */
+                MaryProperties.getFilename("voice."+voiceName+".Ftm"),     /* Tree MCP */
+                MaryProperties.getFilename("voice."+voiceName+".Fts"),     /* Tree STR */
+                MaryProperties.getFilename("voice."+voiceName+".Fta"),     /* Tree MAG */
+                MaryProperties.getFilename("voice."+voiceName+".Fmd"),     /* Model DUR */
+                MaryProperties.getFilename("voice."+voiceName+".Fmf"),     /* Model LF0 */
+                MaryProperties.getFilename("voice."+voiceName+".Fmm"),     /* Model MCP */
+                MaryProperties.getFilename("voice."+voiceName+".Fms"),     /* Model STR */
+                MaryProperties.getFilename("voice."+voiceName+".Fma"),     /* Model MAG */
+                MaryProperties.getFilename("voice."+voiceName+".FeaList"), /* Feature list file */
+                MaryProperties.getFilename("voice."+voiceName+".Flab"),    /* label file, for testing*/
                 MaryProperties.getFilename("voice."+voiceName+".Fif"),     /* Filter coefficients file for mixed excitation*/
-                MaryProperties.getInteger("voice."+voiceName+".in"),    /* Number of filters */
-                MaryProperties.getInteger("voice."+voiceName+".io"));   /* Number of taps per filter or filters order */
+                MaryProperties.getInteger("voice."+voiceName+".in"),       /* Number of filters */
+                MaryProperties.getInteger("voice."+voiceName+".io"));      /* Number of taps per filter or filters order */
             Voice.registerVoice(v);
            
-            /* CHECK I am not sure if this has to be done here ??? */
-            htsContextTranslator.setContextFeatureFile(MaryProperties.getFilename("voice."+voiceName+".FeaList"));
-            
         }
         logger.info("started.");
-        
-  
-        
+               
     }
 
     /**
@@ -248,7 +244,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
      public synchronized void powerOnSelfTest() throws Error
      {
          // TODO: add meaningful power-on self test
-         logger.info("\n TODO: TO-BE DONE HMMSynthesizer powerOnSelfTest()\n");
+         logger.info(".........TODO: TO-BE DONE HMMSynthesizer powerOnSelfTest()\n");
 
      }
 
@@ -258,7 +254,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
 
     public AudioInputStream synthesize(List tokensAndBoundaries, Voice voice)
         throws SynthesisException {
-        
+               
         if (!voice.synthesizer().equals(this)) {
             throw new IllegalArgumentException(
                 "Voice " + voice.getName() + " is not an HMM voice.");
@@ -272,15 +268,17 @@ public class HMMSynthesizer implements WaveformSynthesizer {
         freettsAcoustparams.setUtterances(utts);
         try {
             MaryData targetFeatures = targetFeatureLister.process(freettsAcoustparams);
-            /* CHECK how to get the FeaList corresponding to this voice ??? */
+            targetFeatures.setDefaultVoice(voice);
             MaryData htsContext = htsContextTranslator.process(targetFeatures);
             htsContext.setDefaultVoice(voice);
             MaryData audio = htsEngine.process(htsContext);
-            
             return audio.getAudio();
+                     
         } catch (Exception e) {
             throw new SynthesisException("HMM Synthesiser could not synthesise: ", e);
         }
     }
+    
+ 
 
 }

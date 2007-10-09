@@ -49,9 +49,16 @@
 
 package de.dfki.lt.mary.htsengine;
 
+import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.Properties;
+import java.util.Scanner;
+import java.util.Vector;
 import java.io.IOException;
+
+import org.apache.log4j.Logger;
 
 /**
  * Configuration files and global variables for HTS engine.
@@ -62,121 +69,128 @@ import java.io.IOException;
  */
 public class HMMData {
 	
+    /** Number of model and identificator for the models*/
 	public final int HTS_NUMMTYPE = 5;
 	public final int DUR = 0;
 	public final int LF0 = 1;
 	public final int MCP = 2;
 	public final int STR = 3;
 	public final int MAG = 4;
-	/* why i can not use enum??? */
-	//public enum HTS_MType { DUR, LF0, MCP, STR, MAG };
 
-	
-	/* Global variables for some functions, initialised with default values, so these values 
+    private Logger logger = Logger.getLogger("HMMData");
+    
+	/** Global variables for some functions, initialised with default values, so these values 
 	 * can be loaded from a configuration file. */
-	private int RATE       = 16000; /* sampling rate                              */
-	private int FPERIOD    = 80;    /* frame period (point)                       */
-	private double RHO     = 0.0;   /* variable for speaking rate control         */
-	private double ALPHA   = 0.42;  /* variable for frequency warping parameter   */
-	private double F0_STD  = 1.0;   /* variable for f0 control                    */
-	private double F0_MEAN = 0.0;   /* variable for f0 control                    */
-	private double BETA    = 0.0;   /* variable for postfiltering                 */
-	private double UV      = 0.5;   /* variable for U/V threshold                 */
-	private double LENGTH  = 0.0;   /* total number of frame for generated speech */
+	private int rate       = 16000; /* sampling rate                              */
+	private int fperiod    = 80;    /* frame period (point)                       */
+	private double rho     = 0.0;   /* variable for speaking rate control         */
+	private double alpha   = 0.42;  /* variable for frequency warping parameter   */
+	private double f0Std  = 1.0;   /* variable for f0 control                    */
+	private double f0Mean = 0.0;   /* variable for f0 control                    */
+	private double beta    = 0.0;   /* variable for postfiltering                 */
+	private double uv      = 0.5;   /* variable for U/V threshold                 */
+	private double length  = 0.0;   /* total number of frame for generated speech */
 	private boolean algnst = false; /* use state level alignment for duration     */
 	private boolean algnph = false; /* use phoneme level alignment for duration   */
 	
 	
-	/* Trees and HMM model files */
-	private String TreeDurFile; /* durations tree file */
-	private String TreeLf0File; /* lf0 tree file */
-	private String TreeMcpFile; /* MCP tree file */
-	private String TreeStrFile; /* Strengths tree file */
-	private String TreeMagFile; /* Fourier magnitudes tree file */
+	/** Tree files and TreeSet object */
+	private String treeDurFile; /* durations tree file */
+	private String treeLf0File; /* lf0 tree file */
+	private String treeMcpFile; /* MCP tree file */
+	private String treeStrFile; /* Strengths tree file */
+	private String treeMagFile; /* Fourier magnitudes tree file */
     
-     /** Contains the tree-xxx.inf, xxx: dur, lf0, mcp, str and mag 
+     /** TreeSet contains the tree-xxx.inf, xxx: dur, lf0, mcp, str and mag 
      * these are all the trees trained for a particular voice. */
     private TreeSet ts = new TreeSet(HTS_NUMMTYPE);
 	
-	private String PdfDurFile;  /* durations Pdf file */
-	private String PdfLf0File;  /* lf0 Pdf file */
-	private String PdfMcpFile;  /* MCP Pdf file */
-	private String PdfStrFile;  /* Strengths Pdf file */
-	private String PdfMagFile;  /* Fourier magnitudes Pdf file */
+    /** HMM pdf model files and ModelSet object */
+	private String pdfDurFile;  /* durations Pdf file */
+	private String pdfLf0File;  /* lf0 Pdf file */
+	private String pdfMcpFile;  /* MCP Pdf file */
+	private String pdfStrFile;  /* Strengths Pdf file */
+	private String pdfMagFile;  /* Fourier magnitudes Pdf file */
     
-     /** Contains the .pdf's (means and variances) for dur, lf0, mcp, str and mag
+     /** ModelSet contains the .pdf's (means and variances) for dur, lf0, mcp, str and mag
      * these are all the HMMs trained for a particular voice */   
     private ModelSet ms = new ModelSet();
 	
-	/* Variables for mixed excitation */
-	private String MixFiltersFile; /* this file contains the filter taps for mixed excitation */
+	/** Variables for mixed excitation */
+	private String mixFiltersFile; /* this file contains the filter taps for mixed excitation */
 	private int numFilters;
 	private int orderFilters;
 	
-	/* Feature list file */
+	/* Feature list file and Vector which will contain the loaded features from this file */
 	private String featureListFile;
+    private Vector featureList = new Vector();
+    
     
     /* Example context feature file in HTSCONTEXT_EN format */
     private String labFile;
 	
-	public int RATE() { return RATE; }
-	public int FPERIOD() { return FPERIOD; } 
-	public double RHO() { return RHO; } 
-	public double ALPHA() { return ALPHA; }
-	public double F0_STD() { return F0_STD; }
-	public double F0_MEAN() { return F0_MEAN; }
-	public double BETA() { return BETA; }
-	public double UV() { return  UV; }
-	public double LENGTH() { return LENGTH; }
-	public boolean algnst() { return algnst; }
-	public boolean algnph() { return algnph; }
+	public int getRate() { return rate; }
+	public int getFperiod() { return fperiod; } 
+	public double getRho() { return rho; } 
+	public double getAlpha() { return alpha; }
+	public double getF0Std() { return f0Std; }
+	public double getF0Mean() { return f0Mean; }
+	public double getBeta() { return beta; }
+	public double getUV() { return  uv; }
+	public double getLength() { return length; }
+	public boolean getAlgnst() { return algnst; }
+	public boolean getAlgnph() { return algnph; }
 	
-	public String TreeDurFile() { return TreeDurFile; } 
-	public String TreeLf0File() { return TreeLf0File; } 
-	public String TreeMcpFile() { return TreeMcpFile; }  
-	public String TreeStrFile() { return TreeStrFile; } 
-	public String TreeMagFile() { return TreeMagFile; }  
+	public String getTreeDurFile() { return treeDurFile; } 
+	public String getTreeLf0File() { return treeLf0File; } 
+	public String getTreeMcpFile() { return treeMcpFile; }  
+	public String getTreeStrFile() { return treeStrFile; } 
+	public String getTreeMagFile() { return treeMagFile; }  
 	
-	public String PdfDurFile() { return PdfDurFile; }   
-	public String PdfLf0File() { return PdfLf0File; }   
-	public String PdfMcpFile() { return PdfMcpFile; } 
-	public String PdfStrFile() { return PdfStrFile; } 
-	public String PdfMagFile() { return PdfMagFile; } 
+	public String getPdfDurFile() { return pdfDurFile; }   
+	public String getPdfLf0File() { return pdfLf0File; }   
+	public String getPdfMcpFile() { return pdfMcpFile; } 
+	public String getPdfStrFile() { return pdfStrFile; } 
+	public String getPdfMagFile() { return pdfMagFile; } 
 	
-	public String FeaListFile() { return featureListFile; }
-    public String LabFile() { return labFile; }
+	public String getFeatureListFile() { return featureListFile; }
+    /* This function returns the feature list already loaded in a Vector */
+    public Vector getFeatureList() { return featureList; }  
+    public String getLabFile() { return labFile; }
 	
-	public String MixFiltersFile() { return MixFiltersFile; } 
-	public int get_numFilters(){ return numFilters; }
-	public int get_orderFilters(){ return orderFilters; }
+	public String getMixFiltersFile() { return mixFiltersFile; } 
+	public int getNumFilters(){ return numFilters; }
+	public int getOrderFilters(){ return orderFilters; }
     
     public TreeSet getTreeSet() { return ts; }       
     public ModelSet getModelSet() { return ms; }
  
-    public void setTreeDurFile(String str) { TreeDurFile = str; } 
-    public void setTreeLf0File(String str) { TreeLf0File = str; } 
-    public void setTreeMcpFile(String str) { TreeMcpFile = str; }  
-    public void setTreeStrFile(String str) { TreeStrFile = str; } 
-    public void setTreeMagFile(String str) { TreeMagFile = str; }  
+    public void setTreeDurFile(String str) { treeDurFile = str; } 
+    public void setTreeLf0File(String str) { treeLf0File = str; } 
+    public void setTreeMcpFile(String str) { treeMcpFile = str; }  
+    public void setTreeStrFile(String str) { treeStrFile = str; } 
+    public void setTreeMagFile(String str) { treeMagFile = str; }  
     
-    public void setPdfDurFile(String str) { PdfDurFile = str; }   
-    public void setPdfLf0File(String str) { PdfLf0File = str; }   
-    public void setPdfMcpFile(String str) { PdfMcpFile = str; } 
-    public void setPdfStrFile(String str) { PdfStrFile = str; } 
-    public void setPdfMagFile(String str) { PdfMagFile = str; } 
+    public void setPdfDurFile(String str) { pdfDurFile = str; }   
+    public void setPdfLf0File(String str) { pdfLf0File = str; }   
+    public void setPdfMcpFile(String str) { pdfMcpFile = str; } 
+    public void setPdfStrFile(String str) { pdfStrFile = str; } 
+    public void setPdfMagFile(String str) { pdfMagFile = str; } 
     
     public void setFeaListFile(String str) { featureListFile = str; }
     public void setLabFile(String str) { labFile = str; }
     
-    public void setMixFiltersFile(String str) { MixFiltersFile = str; } 
-    public void set_numFilters(int val){ numFilters = val; }
-    public void set_orderFilters(int val){ orderFilters = val; }
+    public void setMixFiltersFile(String str) { mixFiltersFile = str; } 
+    public void setNumFilters(int val){ numFilters = val; }
+    public void setOrderFilters(int val){ orderFilters = val; }
     
-    public void LoadTreeSet(){ ts.LoadTreeSet(this); }   
-    public void LoadModelSet(){ ms.LoadModelSet(this); }  
+    public void loadTreeSet() throws Exception { ts.loadTreeSet(this); }   
+    public void loadModelSet() throws Exception { ms.loadModelSet(this); }  
 	
-	/* Reads from configuration file all the data files in this class */
-	public void InitHMMData(String ConfigFile) {		
+	/** Reads from configuration file all the data files in this class 
+     * this method is used when running stand alone, for example when calling
+     * from MaryClientUserHMM */
+	public void initHMMData(String ConfigFile) {		
       Properties props = new Properties();
       
       try {
@@ -184,17 +198,17 @@ public class HMMData {
     	  props.load( fis );
     	  fis.close();
     	      	  
-    	  TreeDurFile = props.getProperty( "Ftd" );
-    	  TreeLf0File = props.getProperty( "Ftf" );     	  
-    	  TreeMcpFile = props.getProperty( "Ftm" );
-    	  TreeStrFile = props.getProperty( "Fts" );
-    	  TreeMagFile = props.getProperty( "Fta" );
+    	  treeDurFile = props.getProperty( "Ftd" );
+    	  treeLf0File = props.getProperty( "Ftf" );     	  
+    	  treeMcpFile = props.getProperty( "Ftm" );
+    	  treeStrFile = props.getProperty( "Fts" );
+    	  treeMagFile = props.getProperty( "Fta" );
     	  
-    	  PdfDurFile = props.getProperty( "Fmd" );
-    	  PdfLf0File = props.getProperty( "Fmf" );     	  
-    	  PdfMcpFile = props.getProperty( "Fmm" );
-    	  PdfStrFile = props.getProperty( "Fms" );
-    	  PdfMagFile = props.getProperty( "Fma" );
+    	  pdfDurFile = props.getProperty( "Fmd" );
+    	  pdfLf0File = props.getProperty( "Fmf" );     	  
+    	  pdfMcpFile = props.getProperty( "Fmm" );
+    	  pdfStrFile = props.getProperty( "Fms" );
+    	  pdfMagFile = props.getProperty( "Fma" );
     	  
     	  /* Feature list file */
     	  featureListFile = props.getProperty( "FeaList" );
@@ -203,7 +217,7 @@ public class HMMData {
           labFile = props.getProperty( "Flab" );
     	  
     	  /* Configuration for mixed excitation */
-    	  MixFiltersFile = props.getProperty( "Fif" ); 
+    	  mixFiltersFile = props.getProperty( "Fif" ); 
     	  numFilters     = Integer.parseInt(props.getProperty( "in" ));
     	  orderFilters   = Integer.parseInt(props.getProperty( "io" ));
     	  
@@ -211,14 +225,69 @@ public class HMMData {
     	  
       } 
       catch (IOException e) {
-        System.err.println("Caught IOException: " +  e.getMessage());
+          logger.debug("Caught IOException: " +  e.getMessage());
 	  }	
       
-      /* Load TreeSet ts and ModelSet ms*/
-      ts.LoadTreeSet(this);   /* OJO!!! CHECK??? is this correct ???*/ 
-      ms.LoadModelSet(this);  /* OJO!!! CHECK??? is this correct ???*/ 
+      try {
+        /* Load TreeSet ts and ModelSet ms for current voice*/
+        logger.info("Loading Model Set:");
+        ts.loadTreeSet(this);   
+       
+        logger.info("Loading Tree Set:");
+        ms.loadModelSet(this);  
+      
+        /* Load (un-commented) context feature list from featureListFile */
+        logger.info("Loading Feature List:");
+        readFeatureList();
+      }
+      catch (Exception e) {
+          logger.debug(e.getMessage()); 
+      }
+      
+      if( featureList.size() == 0)
+          logger.debug("initHMMData: Warning feature list file empty or feature list not loaded. ");
    		
 	}
 	
+    
+    /** This function reads the feature list file, for example feature_list_en_05.pl
+     * and fills in a vector the elements in that list that are un-commented 
+     */
+    public void readFeatureList() throws FileNotFoundException {
+      String line;
+      int i;
+      
+      Scanner s = null;
+      try {
+        s = new Scanner(new BufferedReader(new FileReader(featureListFile))).useDelimiter("\n");
+        
+        while (s.hasNext()) {
+          line = s.next();
+          //System.out.println("fea: "+ line);
+          if(!line.contains("#") && line.length()>0){    /* if it is not commented */
+            String[] elem = line.split(",");
+            for(i=0; i<elem.length; i++)
+              if(elem[i].contains("mary_")){  /* if starts with mary_ */                 
+                featureList.addElement(elem[i].substring(elem[i].indexOf("\"")+1, elem[i].lastIndexOf("\"")));
+                //System.out.println("  -->  "+ featureList.lastElement()); 
+              }
+          }
+        }
+                
+        if (s != null) { 
+          s.close();
+        }
+        
+      } catch (FileNotFoundException e) {
+          logger.debug("readFeatureList:  " + e.getMessage());
+          throw new FileNotFoundException("readFeatureList " + e.getMessage());
+      }
+      
+      logger.info("readFeatureList: loaded " + featureList.size() + " context features from " + featureListFile);
+      
+    } /* method ReadFeatureList */
+
+    
+    
 	
 }

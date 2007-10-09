@@ -63,6 +63,7 @@ import de.dfki.lt.mary.htsengine.HMMVoice;
 import de.dfki.lt.mary.modules.synthesis.Voice;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -70,6 +71,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 
+import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
@@ -93,18 +95,6 @@ import de.dfki.lt.signalproc.util.NoiseDoubleDataSource;
  */
 public class HTSEngine extends InternalModule
 {
-    /** Data in the configuration file, .pdf file names and other parameters */
-   // private HMMData hts_data = new HMMData();
-
-    /** Contains the .pdf's (means and variances) for dur, lf0, mcp, str and mag
-     * these are all the HMMs trained for a particular voice */   
-   // private ModelSet ms = new ModelSet();
-    
-     
-    /** Contains the tree-xxx.inf, xxx: dur, lf0, mcp, str and mag 
-     * these are all the trees trained for a particular voice. */
-   // private TreeSet ts = new TreeSet(hts_data.HTS_NUMMTYPE);
-    
     
     public HTSEngine()
     {
@@ -117,7 +107,7 @@ public class HTSEngine extends InternalModule
     public synchronized void powerOnSelfTest() throws Error
     {
         // TODO: add meaningful power-on self test
-        logger.info("\n TODO: TO-BE DONE HTSEngine powerOnSelfTest()\n");
+        logger.info("..........TODO: TO-BE DONE HTSEngine powerOnSelfTest()");
         
     }
     
@@ -137,8 +127,8 @@ public class HTSEngine extends InternalModule
         ParameterGeneration pdf2par = new ParameterGeneration();
         Vocoder par2speech = new Vocoder();
         AudioInputStream ais;
-   
-        Voice v = d.getDefaultVoice();
+              
+        Voice v = d.getDefaultVoice(); /* This is the way of getting a Voice through a MaryData type */
         assert v instanceof HMMVoice;
         HMMVoice hmmv = (HMMVoice)v;
         
@@ -146,15 +136,15 @@ public class HTSEngine extends InternalModule
         String context = d.getPlainText();
         
         /* Process label file of Mary context features and creates UttModel um */
-        ProcessUtt(context, um, hmmv.getHMMData());
+        processUtt(context, um, hmmv.getHMMData());
 
         /* Process UttModel */
         /* Generate sequence of speech parameter vectors, generate parameters out of sequence of pdf's */     
-        pdf2par.HTS_MaximumLikelihoodParameterGeneration(um, hmmv.getHMMData());
+        pdf2par.htsMaximumLikelihoodParameterGeneration(um, hmmv.getHMMData());
     
         /* Process generated parameters */
         /* Synthesize speech waveform, generate speech out of sequence of parameters */
-        ais = par2speech.HTS_MLSA_Vocoder(pdf2par, hmmv.getHMMData());
+        ais = par2speech.htsMLSAVocoder(pdf2par, hmmv.getHMMData());
        
         MaryData output = new MaryData(outputType());
         if (d.getAudioFileFormat() != null) {
@@ -165,18 +155,16 @@ public class HTSEngine extends InternalModule
                 assert d.getAudio() instanceof AppendableSequenceAudioInputStream;
                 output.setAudio(d.getAudio());
             }
-
         }
-        
-       output.appendAudio(ais); 
-        
-        
+       
+       output.appendAudio(ais);
+         
        return output;
         
     }
    
     /* For stand alone testing. */
-    public AudioInputStream processStr(String context)
+    public AudioInputStream processStr(String context, HMMData htsData)
     throws Exception
     {
         UttModel um = new UttModel();
@@ -184,47 +172,44 @@ public class HTSEngine extends InternalModule
         Vocoder par2speech = new Vocoder();
         AudioInputStream ais;
         
-        /** Data in the configuration file, .pdf file names and other parameters 
+        /* htsData contains:
+         * data in the configuration file, .pdf file names and other parameters. 
          * After InitHMMData it contains TreeSet ts and ModelSet ms 
          * ModelSet: Contains the .pdf's (means and variances) for dur, lf0, mcp, str and mag
          *           these are all the HMMs trained for a particular voice 
          * TreeSet: Contains the tree-xxx.inf, xxx: dur, lf0, mcp, str and mag 
          *          these are all the trees trained for a particular voice. */
-         HMMData hts_data = new HMMData();
-         hts_data.InitHMMData("/project/mary/marcela/HTS-mix/hts_engine.config");
-         
-        //ModelSet ms = new ModelSet();
-        //TreeSet ts = new TreeSet(hts_data.HTS_NUMMTYPE);
-        //InitHMMengine(hts_data, ts, ms);
+ 
         
         System.out.println("CONTEXT:" + context);
         
         /* Process label file of Mary context features and creates UttModel um */
-        ProcessUtt(context, um, hts_data);
+        processUtt(context, um, htsData);
 
         /* Process UttModel */
         /* Generate sequence of speech parameter vectors, generate parameters out of sequence of pdf's */     
-        pdf2par.HTS_MaximumLikelihoodParameterGeneration(um, hts_data);
+        pdf2par.htsMaximumLikelihoodParameterGeneration(um, htsData);
     
         /* Process generated parameters */
         /* Synthesize speech waveform, generate speech out of sequence of parameters */
-        ais = par2speech.HTS_MLSA_Vocoder(pdf2par, hts_data);
+        ais = par2speech.htsMLSAVocoder(pdf2par, htsData);
         
        return ais;
         
     }
   
+ 
     
     /** Reads the Label file, the file which contains the Mary context features,
      *  creates an scanner object and calls _ProcessUtt
      * @param LabFile
      */
-    public void ProcessUttFromFile(String LabFile, UttModel um, HMMData hts_data){ 
+    public void processUttFromFile(String LabFile, UttModel um, HMMData htsData){ 
         Scanner s = null;
         try {    
             /* parse text in label file */
             s = new Scanner(new BufferedReader(new FileReader(LabFile)));
-            _ProcessUtt(s,um,hts_data,hts_data.getTreeSet(),hts_data.getModelSet());
+            _processUtt(s,um,htsData,htsData.getTreeSet(),htsData.getModelSet());
               
         } catch (FileNotFoundException e) {
             System.err.println("FileNotFoundException: " + e.getMessage());
@@ -239,11 +224,11 @@ public class HTSEngine extends InternalModule
      * and calls _ProcessUtt
      * @param LabText
      */
-    public void ProcessUtt(String LabText, UttModel um, HMMData hts_data) {
+    public void processUtt(String LabText, UttModel um, HMMData htsData) {
         Scanner s = null;
         try {
           s = new Scanner(LabText);
-         _ProcessUtt(s, um, hts_data, hts_data.getTreeSet(),hts_data.getModelSet());
+         _processUtt(s, um, htsData, htsData.getTreeSet(),htsData.getModelSet());
         } finally {
             if (s != null)
               s.close();
@@ -252,126 +237,101 @@ public class HTSEngine extends InternalModule
     
 
     
-    /** Parse Mary context features, triphones. 
+    /** Parse Mary context features. 
      * For each triphone model in the file, it creates a Model object in a linked list of 
      * Model objects -> UttModel um 
      * It also estimates state duration from state duration model (Gaussian).
      * For each model in the vector, the mean and variance of the DUR, LF0, MCP, STR and MAG 
      * are searched in the ModelSet and copied in each triphone model.   */
-    private void _ProcessUtt(Scanner s, UttModel um, HMMData hts_data, TreeSet ts, ModelSet ms){     
+    private void _processUtt(Scanner s, UttModel um, HMMData htsData, TreeSet ts, ModelSet ms){     
         int i, mstate,frame;
         Model m;                   /* current model, corresponds to a line in label file */
-        String next_line;
-        double diffdur_old = 0.0;
-        double diffdur_new = 0.0;
-        Tree aux_tree;
+        String nextLine;
+        double diffdurOld = 0.0;
+        double diffdurNew = 0.0;
+        Tree auxTree;
 
         /* parse text */
         i=0;
         while (s.hasNext()) {
-            next_line = s.next();
-            //System.out.println("STR: " + next_line);
+            nextLine = s.next();
+            //System.out.println("STR: " + nextLine);
             um.addUttModel(new Model(ms));            
 
             m = um.getUttModel(i);
-            m.setName(next_line);               
+            m.setName(nextLine);               
 
             /* Estimate state duration from state duration model (Gaussian) 
              * 1. find the index idx of the durpdf corresponding (or that best match in the tree) 
-             *    to the triphone+context features in next_line. 
+             *    to the triphone+context features in nextLine. 
              * NOTE 1: the indexes in the tree.inf file start in 1 ex. dur_s2_1, but here are stored 
              * in durpdf[i][j] array which starts in i=0, so when finding this dur pdf, the idx should 
              * be idx-1 !!!
              * 2. Calculate duration using the pdf idx found in the tree, function: FindDurPDF */
-            aux_tree = ts.getTreeHead(hts_data.DUR);
-            m.set_durpdf( ts.SearchTree(next_line, aux_tree.get_root(), false));
+            auxTree = ts.getTreeHead(htsData.DUR);
+            m.setDurPdf( ts.searchTree(nextLine, auxTree.getRoot(), false));
 
             //System.out.println("dur->pdf=" + m.get_durpdf());
 
-            if (hts_data.LENGTH() == 0.0 ) {
-                diffdur_new = ms.FindDurPDF(m, hts_data.RHO(), diffdur_old); 
-                diffdur_old = diffdur_new;
-                um.set_totalframe(um.get_totalframe() + m.get_totaldur());
+            if (htsData.getLength() == 0.0 ) {
+                diffdurNew = ms.findDurPdf(m, htsData.getRho(), diffdurOld); 
+                diffdurOld = diffdurNew;
+                um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());
                 //System.out.println("total_frame=" + um.get_totalframe() + "  total_dur=" + m.get_totaldur());
             } /* else : when total length of generated speech is specified */
             /* Not implemented yet...*/
 
             /* Find pdf for LF0 */               
-            for(aux_tree=ts.getTreeHead(hts_data.LF0), mstate=0; aux_tree != ts.getTreeTail(hts_data.LF0); aux_tree=aux_tree.get_next(), mstate++ ) {           
-                m.set_lf0pdf(mstate, ts.SearchTree(next_line,aux_tree.get_root(),false));
+            for(auxTree=ts.getTreeHead(htsData.LF0), mstate=0; auxTree != ts.getTreeTail(htsData.LF0); auxTree=auxTree.getNext(), mstate++ ) {           
+                m.setLf0Pdf(mstate, ts.searchTree(nextLine,auxTree.getRoot(),false));
                 //System.out.println("lf0pdf[" + mstate + "]=" + m.get_lf0pdf(mstate));
-                ms.FindLF0PDF(mstate, m, hts_data.UV());
+                ms.findLf0Pdf(mstate, m, htsData.getUV());
             }
 
             /* Find pdf for MCP */
-            for(aux_tree=ts.getTreeHead(hts_data.MCP), mstate=0; aux_tree != ts.getTreeTail(hts_data.MCP); aux_tree=aux_tree.get_next(), mstate++ ) {           
-                m.set_mceppdf(mstate, ts.SearchTree(next_line,aux_tree.get_root(),false));
+            for(auxTree=ts.getTreeHead(htsData.MCP), mstate=0; auxTree != ts.getTreeTail(htsData.MCP); auxTree=auxTree.getNext(), mstate++ ) {           
+                m.setMcepPdf(mstate, ts.searchTree(nextLine,auxTree.getRoot(),false));
                 //System.out.println("mceppdf[" + mstate + "]=" + m.get_mceppdf(mstate));
-                ms.FindMcpPDF(mstate, m);
+                ms.findMcpPdf(mstate, m);
             }              
 
             /* Find pdf for strengths */
-            for(aux_tree=ts.getTreeHead(hts_data.STR), mstate=0; aux_tree != ts.getTreeTail(hts_data.STR); aux_tree=aux_tree.get_next(), mstate++ ) {           
-                m.set_strpdf(mstate, ts.SearchTree(next_line,aux_tree.get_root(),false));
+            for(auxTree=ts.getTreeHead(htsData.STR), mstate=0; auxTree != ts.getTreeTail(htsData.STR); auxTree=auxTree.getNext(), mstate++ ) {           
+                m.setStrPdf(mstate, ts.searchTree(nextLine,auxTree.getRoot(),false));
                 //System.out.println("strpdf[" + mstate + "]=" + m.get_strpdf(mstate));
-                ms.FindStrPDF(mstate, m);                    
+                ms.findStrPdf(mstate, m);                    
             }
 
             /* Find pdf for Fourier magnitudes */
-            for(aux_tree=ts.getTreeHead(hts_data.MAG), mstate=0; aux_tree != ts.getTreeTail(hts_data.MAG); aux_tree=aux_tree.get_next(), mstate++ ) {           
-                m.set_magpdf(mstate, ts.SearchTree(next_line,aux_tree.get_root(),false));
+            for(auxTree=ts.getTreeHead(htsData.MAG), mstate=0; auxTree != ts.getTreeTail(htsData.MAG); auxTree=auxTree.getNext(), mstate++ ) {           
+                m.setMagPdf(mstate, ts.searchTree(nextLine,auxTree.getRoot(),false));
                 //System.out.println("magpdf[" + mstate + "]=" + m.get_magpdf(mstate));
-                ms.FindMagPDF(mstate, m);
+                ms.findMagPdf(mstate, m);
             }
 
             //System.out.println();
             /* increment number of models in utterance model */
-            um.set_nModel(um.get_nModel()+1);
+            um.setNumModel(um.getNumModel()+1);
             /* update number of states */
-            um.set_nState(um.get_nState() + ms.get_nstate());
+            um.setNumState(um.getNumState() + ms.getNumState());
             i++;
         }
 
         for(i=0; i<um.getNumUttModel(); i++){
             m = um.getUttModel(i);                  
-            for(mstate=0; mstate<ms.get_nstate(); mstate++)
-                for(frame=0; frame<m.get_dur(mstate); frame++) 
-                    if(m.get_voiced(mstate))
-                        um.set_lf0frame(um.get_lf0frame() +1);
+            for(mstate=0; mstate<ms.getNumState(); mstate++)
+                for(frame=0; frame<m.getDur(mstate); frame++) 
+                    if(m.getVoiced(mstate))
+                        um.setLf0Frame(um.getLf0Frame() +1);
             //System.out.println("Vector m[" + i + "]=" + m.getName()); 
         }
 
-        System.out.println("\nNumber of models in sentence nModel=" + um.get_nModel() + "  Total number of states nState=" + um.get_nState());
-        System.out.println("Number of voiced frames=" + um.get_lf0frame());    
+        logger.info("Number of models in sentence numModel=" + um.getNumModel() + "  Total number of states numState=" + um.getNumState());
+        logger.info("Total number of frames=" + um.getTotalFrame() + "  Number of voiced frames=" + um.getLf0Frame());    
 
         
     } /* method _ProcessUtt */
 
-   
-    
-    
-    /**
-     * Process UttModel: um
-     * Generate parameters out of PDFs:   pdf2par and
-     * Generate speech out of parameters: par2speech
-     */
-    public AudioInputStream pdf2speech(UttModel um, HMMData hts_data) {
-      AudioInputStream ais;
-      ParameterGeneration pdf2par = new ParameterGeneration();
-      Vocoder par2speech = new Vocoder();
-        
-      /* Generate sequence of speech parameter vectors, generate parameters out of sequence of pdf's */     
-      pdf2par.HTS_MaximumLikelihoodParameterGeneration(um, hts_data);
-        
-
-      /* Synthesize speech waveform, generate speech out of sequence of parameters */
-      ais = par2speech.HTS_MLSA_Vocoder(pdf2par, hts_data);
-        
-      return ais;
-    }
-
- 
-    
     
     
     /** 
@@ -383,14 +343,15 @@ public class HTSEngine extends InternalModule
 
       HTSEngine hmm_tts = new HTSEngine();
       
-      /** Data in the configuration file, .pdf file names and other parameters 
-      * After InitHMMData it contains TreeSet ts and ModelSet ms 
-      * ModelSet: Contains the .pdf's (means and variances) for dur, lf0, mcp, str and mag
-      *           these are all the HMMs trained for a particular voice 
-      * TreeSet: Contains the tree-xxx.inf, xxx: dur, lf0, mcp, str and mag 
-      *          these are all the trees trained for a particular voice. */
-      HMMData hts_data = new HMMData();
-      hts_data.InitHMMData("/project/mary/marcela/HTS-mix/hts_engine.config");
+      /* htsData contains:
+       * Data in the configuration file, .pdf, tree-xxx.inf file names and other parameters. 
+       * After initHMMData it contains TreeSet ts and ModelSet ms 
+       * ModelSet: Contains the .pdf's (means and variances) for dur, lf0, mcp, str and mag
+       *           these are all the HMMs trained for a particular voice 
+       * TreeSet: Contains the tree-xxx.inf, xxx: dur, lf0, mcp, str and mag 
+       *          these are all the trees trained for a particular voice. */
+      HMMData htsData = new HMMData();
+      htsData.initHMMData("/project/mary/marcela/HTS-mix/hts_engine.config");
  
       
       /** The utterance model, um, is a Vector (or linked list) of Model objects. 
@@ -401,29 +362,33 @@ public class HTSEngine extends InternalModule
       AudioInputStream ais;
       
       /** Example of HTSCONTEXT_EN context features file */
-      String Flab = hts_data.LabFile();
+      String flab = htsData.getLabFile();
+
+      try {
+          /* Process label file of Mary context features and creates UttModel um, a linked             
+           * list of alt the models in the utterance. For each model, it searches in each tree, dur,   
+           * cmp, etc, the pdf index that corresponds to a triphone context feature and with           
+           * that index retrieves from the ModelSet the mean and variance for each state of the HMM.   */
+          hmm_tts.processUttFromFile(flab, um, htsData);
 
 
-      /* Process label file of Mary context features and creates UttModel um, a linked             
-       * list of alt the models in the utterance. For each model, it searches in each tree, dur,   
-       * cmp, etc, the pdf index that corresponds to a triphone context feature and with           
-       * that index retrieves from the ModelSet the mean and variance for each state of the HMM.   */
-      hmm_tts.ProcessUttFromFile(Flab, um, hts_data);
+          /* Generate sequence of speech parameter vectors, generate parameters out of sequence of pdf's */     
+          pdf2par.htsMaximumLikelihoodParameterGeneration(um, htsData);
 
 
-      /* Generate sequence of speech parameter vectors, generate parameters out of sequence of pdf's */     
-      pdf2par.HTS_MaximumLikelihoodParameterGeneration(um, hts_data);
+          /* Synthesize speech waveform, generate speech out of sequence of parameters */
+          ais = par2speech.htsMLSAVocoder(pdf2par, htsData);
 
+          System.out.println("Calling audioplayer:");
+          AudioPlayer player = new AudioPlayer(ais, null);
+          player.start();  // this call the run method..
+          player.join();
+          System.out.println("audioplayer finished...");
+          System.exit(0);
 
-      /* Synthesize speech waveform, generate speech out of sequence of parameters */
-      ais = par2speech.HTS_MLSA_Vocoder(pdf2par, hts_data);
-
-      System.out.println("Calling audioplayer:");
-      AudioPlayer player = new AudioPlayer(ais, null);
-      player.start();  // this call the run method..
-      player.join();
-      System.out.println("audioplayer finished...");
-      System.exit(0);
+      } catch (Exception e) {
+          System.err.println("Exception: " + e.getMessage());
+      }
 
     }  /* main method */
     

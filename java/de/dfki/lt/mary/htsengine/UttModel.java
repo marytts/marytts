@@ -61,35 +61,35 @@ import java.util.Vector;
  */
 public class UttModel {
 
-  private int nModel;        /* # of models for current utterance       */
-  private int nState;        /* # of HMM states for current utterance   */ 
-  private int totalframe;    /* # of frames for current utterance       */
-  private int lf0frame;      /* # of frames that are voiced or non-zero */
-  private Vector ModelList;  /* This will be a list of Model objects for current utterance */
+  private int numModel;        /* # of models for current utterance       */
+  private int numState;        /* # of HMM states for current utterance   */ 
+  private int totalFrame;    /* # of frames for current utterance       */
+  private int lf0Frame;      /* # of frames that are voiced or non-zero */
+  private Vector modelList;  /* This will be a list of Model objects for current utterance */
 
   
   public UttModel() {
-	nModel = 0;
-	nState = 0;
-	totalframe = 0;
-	lf0frame = 0;
-	ModelList = new Vector();
+	numModel = 0;
+	numState = 0;
+	totalFrame = 0;
+	lf0Frame = 0;
+	modelList = new Vector();
   }
   
-  public void set_nModel(int val){ nModel = val; }
-  public int get_nModel(){ return nModel; }
+  public void setNumModel(int val){ numModel = val; }
+  public int getNumModel(){ return numModel; }
   
-  public void set_nState(int val){ nState = val; }
-  public int get_nState(){ return nState; }
+  public void setNumState(int val){ numState = val; }
+  public int getNumState(){ return numState; }
   
-  public void set_totalframe(int val){ totalframe = val; }
-  public int get_totalframe(){ return totalframe; }
+  public void setTotalFrame(int val){ totalFrame = val; }
+  public int getTotalFrame(){ return totalFrame; }
   
-  public void set_lf0frame(int val){ lf0frame = val; }
-  public int get_lf0frame(){ return lf0frame; }
+  public void setLf0Frame(int val){ lf0Frame = val; }
+  public int getLf0Frame(){ return lf0Frame; }
   
-  public void addUttModel(Model new_model){ ModelList.addElement(new_model); }
-  public Model getUttModel(int i){ return (Model) ModelList.elementAt(i); 	}
-  public int getNumUttModel(){ return ModelList.size(); }
+  public void addUttModel(Model newModel){ modelList.addElement(newModel); }
+  public Model getUttModel(int i){ return (Model) modelList.elementAt(i); 	}
+  public int getNumUttModel(){ return modelList.size(); }
   
 }

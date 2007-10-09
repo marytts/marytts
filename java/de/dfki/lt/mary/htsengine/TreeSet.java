@@ -54,6 +54,8 @@ import java.util.Scanner;
 import java.io.FileReader;
 import java.io.BufferedReader;
 
+import org.apache.log4j.Logger;
+
 /**
  * Tree set containing trees and questions lists for DUR, logF0, MCP, STR and MAG
  * 
@@ -68,6 +70,8 @@ public class TreeSet {
 	private Question qtail[];
 	private Tree thead[];      /* tree lists for DUR, logF0, MCP, STR and MAG */
 	private Tree ttail[];
+    
+    private Logger logger = Logger.getLogger("TreeSet");
 	
 	/** Constructor 
 	* TreeSet is initialised with the information in ModelSet,      
@@ -84,34 +88,37 @@ public class TreeSet {
 
 	/**
 	 * This function returns the head tree of this type
-	 * @param type: one of hts_data.DUR, hts_data.LF0, hts_data.MCP, hts_data.STR or hts_data.MAG
+	 * @param type: one of htsData.DUR, htsData.LF0, htsData.MCP, htsData.STR or htsData.MAG
 	 * @return a Tree object.
 	 */
 	public Tree getTreeHead(int type){ return thead[type]; }
 
 	/**
 	 * This function returns the tail tree of this type
-	 * @param type: one of hts_data.DUR, hts_data.LF0, hts_data.MCP, hts_data.STR or hts_data.MAG
+	 * @param type: one of htsData.DUR, htsData.LF0, htsData.MCP, htsData.STR or htsData.MAG
 	 * @return a Tree object.
 	 */
 	public Tree getTreeTail(int type){ return ttail[type]; }
 	
     
+    
+    
     /** This function loads all the trees and questions for the files 
-     * Tree*File in hts_data. */
-    public void LoadTreeSet(HMMData hts_data) {
-        
-        _LoadTreeSet(hts_data.TreeDurFile(), hts_data.DUR);        
-        _LoadTreeSet(hts_data.TreeLf0File(), hts_data.LF0);        
-        _LoadTreeSet(hts_data.TreeMcpFile(), hts_data.MCP);        
-        _LoadTreeSet(hts_data.TreeStrFile(), hts_data.STR);        
-        _LoadTreeSet(hts_data.TreeMagFile(), hts_data.MAG);
+     * Tree*File in htsData. */
+    public void loadTreeSet(HMMData htsData) throws Exception {
+       
+        _loadTreeSet(htsData.getTreeDurFile(), htsData.DUR);        
+        _loadTreeSet(htsData.getTreeLf0File(), htsData.LF0);        
+        _loadTreeSet(htsData.getTreeMcpFile(), htsData.MCP);        
+        _loadTreeSet(htsData.getTreeStrFile(), htsData.STR);        
+        _loadTreeSet(htsData.getTreeMagFile(), htsData.MAG);
+
     }
     
     
     /** This function loads the trees and questions for a particular tree type 
      */
-	private void _LoadTreeSet(String fileName, int type) {
+	private void _loadTreeSet(String fileName, int type) throws Exception {
 		
 	  Question q = new Question(); /* so: qName=null; next=null; pattern=new Vector(); */
 	  qhead[type] = q;
@@ -130,28 +137,28 @@ public class TreeSet {
 		s = new Scanner(new BufferedReader(new FileReader(fileName))).useDelimiter("\n"); 
 		
 		//System.out.println("LoadTreeSet reading: " + fileName + " tree type: " + type);
-        System.out.println("LoadTreeSet reading: " + fileName);
+        logger.info("LoadTreeSet reading: " + fileName);
 		
 		while(s.hasNext()) {
 		  line = s.next();
 		  
 		  if (line.indexOf("QS") >= 0 ) {				
 		    //System.out.println("QUESTION: " + line );
-		    LoadQuestions(line.substring(3),q,false);  /* after 3 char so without QS */
+		    loadQuestions(line.substring(3),q,false);  /* after 3 char so without QS */
 		    
-		    q.insert_next();  /* create new next Question (set of questions) */
-		    q = q.get_next();
+		    q.insertNext();  /* create new next Question (set of questions) */
+		    q = q.getNext();
 		    qtail[type] = q;  
 		    
 		  }
 		  else if(line.indexOf("{*}") >= 0 ){  /* this is the indicator of a new state-tree */
 			aux = line.substring(line.indexOf("[")+1, line.indexOf("]")); 
-			t.set_state(Integer.parseInt(aux));
+			t.setState(Integer.parseInt(aux));
 			//System.out.println("Loading tree type=" + type + " TREE STATE: " +  t.get_state() );
 			
-			LoadTree(s, t, type, false);   /* load one tree per state */
-			t.insert_next(); /* create new next Tree */
-			t = t.get_next();
+			loadTree(s, t, type, false);   /* load one tree per state */
+			t.insertNext(); /* create new next Tree */
+			t = t.getNext();
 			ttail[type] = t;
 			
 			/* increment number of trees for this type */
@@ -160,38 +167,28 @@ public class TreeSet {
 		  }
 		 
 		} /* while */  
-	    
-		s.close();
+        if (s != null)
+		  s.close();
 		
 		/* check that the tree was correctly loaded */
 		if( qhead[type] == null || nTrees[type] == 0 ) {
-         System.err.println("LoadTreeSet: error loading trees from " + fileName);  
-            
-//		   if(type == hts_data.DUR)
-//			 System.err.println("LoadTreeSet: no trees for duration are loaded.");
-//		   else if(type == hts_data.LF0)
-//		     System.err.println("LoadTreeSet: no trees for log f0 are loaded.");
-//		   else if(type == hts_data.MCP)
-//			 System.err.println("LoadTreeSet: no trees for mel-cepstrum are loaded.");
-//		   else if(type == hts_data.STR)
-//			 System.err.println("LoadTreeSet: no trees for strengths are loaded.");
-//		   else  /* if(type == hts_data.MAG) */
-//			 System.err.println("LoadTreeSet: no trees for Fourier magnitudes are loaded.");
-			
+          logger.debug("LoadTreeSet: error no trees loaded from " + fileName);  
+          throw new Exception("LoadTreeSet: error no trees loaded from  " + fileName);   
 		}
 		
 	    
 	  } catch (FileNotFoundException e) {
-	       System.err.println("FileNotFoundException: " + e.getMessage());
+          logger.debug("FileNotFoundException: " + e.getMessage());
+          throw new FileNotFoundException("LoadTreeSet: " + e.getMessage());
 	  }
 		
-	} /* method LoadTreeSet */
+	} /* method loadTreeSet */
 
 	
 	/** Load questions from file, it receives a line from the tree-*.inf file 
 	 * each line corresponds to a question name and one or more patterns.  
 	 * parameter debug is used for printing detailed information.          */
-	private void LoadQuestions(String line, Question q, boolean debug) {
+	private void loadQuestions(String line, Question q, boolean debug) {
 		Scanner s = new Scanner(line);
 		String aux, sub_aux;
 		String pats[];
@@ -215,21 +212,21 @@ public class TreeSet {
   			    q.addPattern(sub_aux);
 			  }
 			  else		
-				q.set_qName(aux);
+				q.setQuestionName(aux);
 			}		
 		}  
 		s.close();
 		
 		/* print this question */
 		if(debug) {
-		  System.out.println("  qName   : " + q.get_qName());
+		  System.out.println("  qName   : " + q.getQuestionName());
 		  System.out.print  ("  patterns: ");
 		  for(i=0; i<q.getNumPatterns(); i++) {
 			 System.out.print(q.getPattern(i) + "  ");
 	      }
 		  System.out.println();
 		}
-	} /* method load Questions */
+	} /* method loadQuestions */
 	
 	
 	
@@ -239,12 +236,12 @@ public class TreeSet {
 	 * @param type: corresponds to one of DUR, logF0, MCP, STR and MAG
 	 * @param debug: when true print out detailled information
 	 */
-	private void LoadTree(Scanner s, Tree t, int type, boolean debug){
+	private void loadTree(Scanner s, Tree t, int type, boolean debug) throws Exception {
 	  Scanner sline;
 	  String aux,buf;
 	  Node node = new Node();
-	  t.set_root(node);
-	  t.set_leaf(node);
+	  t.setRoot(node);
+	  t.setLeaf(node);
 	  int iaux;
 	  Question qaux;
 	  
@@ -264,39 +261,39 @@ public class TreeSet {
 		    buf = sline.next();
 		    //System.out.println("\nNode to find: " + buf + " starting in leaf node: " + t.get_leaf());
 		    if(buf.startsWith("-"))
-		  	  node = FindNode(t.get_leaf(),Integer.parseInt(buf.substring(1)),debug);  
+		  	  node = findNode(t.getLeaf(),Integer.parseInt(buf.substring(1)),debug);  
 		    else
-		      node = FindNode(t.get_leaf(),Integer.parseInt(buf),debug);
+		      node = findNode(t.getLeaf(),Integer.parseInt(buf),debug);
 		  
 		    if(node == null)
-			  System.err.println("LoadTree: Node not found, index = " +  buf); 
+                throw new Exception("LoadTree: Node not found, index = " +  buf); 
 		    else {
 		      //System.out.println("node found = " + node);
 		      /* 2: gets question name and looks for the question whose qName = buf */
 		      buf = sline.next();
 		      //System.out.println("Question to find: " + buf);
-		      qaux = FindQuestion(type,buf);
+		      qaux = findQuestion(type,buf);
 		      node.setQuestion(qaux);
 		  
 		      /* create nodes for NO and YES */
-		      node.insert_no();
-		      node.insert_yes();
+		      node.insertNo();
+		      node.insertYes();
 		  
 		      /* NO index */
 		      buf = sline.next();
 		      //System.out.print("  NO:" + buf + "   ");
 		      if(buf.startsWith("-")) {
 		 	    iaux = Integer.parseInt(buf.substring(1));
-			    node.get_no().set_idx(iaux);
+			    node.getNo().setIdx(iaux);
 			    //System.out.println("No IDX=" + iaux);
 		      } else {  /*convert name of node to node index number */
 			    iaux = Integer.parseInt(buf.substring(buf.lastIndexOf("_")+1, buf.length()-1));
-			    node.get_no().set_pdf(iaux);
+			    node.getNo().setPdf(iaux);
 			    //System.out.println("No PDF=" + iaux); 
 		      }
 		  	  
-		      node.get_no().set_next(t.get_leaf());
-		      t.set_leaf(node.get_no());
+		      node.getNo().setNext(t.getLeaf());
+		      t.setLeaf(node.getNo());
 		  
 		  	  
 		      /* YES index */
@@ -304,18 +301,18 @@ public class TreeSet {
 		      //System.out.print("  YES: " + buf + "   ");
 		      if(buf.startsWith("-")) {
 			    iaux = Integer.parseInt(buf.substring(1));
-			    node.get_yes().set_idx(iaux);
+			    node.getYes().setIdx(iaux);
 			    //System.out.println("Yes IDX=" + iaux);
 		      } else {  /*convert name of node to node index number */
 			    iaux = Integer.parseInt(buf.substring(buf.lastIndexOf("_")+1, buf.length()-1));
-			    node.get_yes().set_pdf(iaux);
+			    node.getYes().setPdf(iaux);
 			    //System.out.println("Yes PDF=" + iaux); 
 		      }
-		      node.get_yes().set_next(t.get_leaf());
-		      t.set_leaf(node.get_yes());
+		      node.getYes().setNext(t.getLeaf());
+		      t.setLeaf(node.getYes());
 		  
 		      if(debug)
-		        node.PrintNode();
+		        node.printNode();
 		      //node.get_no().PrintNode();
 		      //node.get_yes().PrintNode();
 		    }  /* if node not null */
@@ -330,73 +327,73 @@ public class TreeSet {
 	   } /* while there is another line */
 	  }  /* if not "{" */
 	  	
-	} /* method LoadTree() */
+	} /* method loadTree() */
 
 	
-	private Node FindNode(Node node, int num, boolean debug){
+	private Node findNode(Node node, int num, boolean debug){
 	  if(debug)
         System.out.print("Finding Node : " + num + "  "  );
 	  while(node != null){
 		 if(debug)
-		   System.out.print("node->idx=" + node.get_idx() + "  ");
-		 if(node.get_idx() == num){
+		   System.out.print("node->idx=" + node.getIdx() + "  ");
+		 if(node.getIdx() == num){
 			if(debug) 
 			  System.out.println(); 
 			return node;
 		 }
 		 else
-			 node = node.get_next();
+			 node = node.getNext();
 	  }
 	  return null;
 		
-	} /* method FindNode */
+	} /* method findNode */
 	
-	private Question FindQuestion(int type, String qname){
+	private Question findQuestion(int type, String qname) throws Exception {
 		Question q;
 		//System.out.println("qhead[type]=" + qhead[type] + "  "  + "qtail[type]=" + qtail[type]);
-		for(q = qhead[type]; q != qtail[type]; q = q.get_next() ) {
+		for(q = qhead[type]; q != qtail[type]; q = q.getNext() ) {
 		 //System.out.println("q : " + q + "  qname=" + qname + "  q.get_qName= " + q.get_qName());
-		 if(qname.equals(q.get_qName()) ) {
+		 if(qname.equals(q.getQuestionName()) ) {
 		   //q.printQuestion();
 		   break;
 		 }
 		 
 		}
 		if(q == qtail[type])
-		  System.err.println("FindQuestion: cannot find question %s." + qname );
+            throw new Exception("FindQuestion: cannot find question %s." + qname );
 		
 		
 		return q;
 		
-	} /* method FindQuestion */
+	} /* method findQuestion */
 	
 	
-	public int SearchTree(String name, Node root_node, boolean debug){
+	public int searchTree(String name, Node root_node, boolean debug){
 	   	 
 		Node aux_node = root_node;
 		
 		while (aux_node != null ){
 			
-			if( QMatch(name, aux_node.getQuestion(),debug)) {
-				if(aux_node.get_yes().get_pdf() > 0 )
-					return aux_node.get_yes().get_pdf();
-				aux_node = aux_node.get_yes();
+			if( questionMatch(name, aux_node.getQuestion(),debug)) {
+				if(aux_node.getYes().getPdf() > 0 )
+					return aux_node.getYes().getPdf();
+				aux_node = aux_node.getYes();
 				if(debug)
-				  System.out.println("  QMatch=1 node->YES->idx=" + aux_node.get_idx());
+				  System.out.println("  QMatch=1 node->YES->idx=" + aux_node.getIdx());
 			} else {
-				if(aux_node.get_no().get_pdf() > 0)
-				  return(aux_node.get_no().get_pdf());
-				aux_node = aux_node.get_no();
+				if(aux_node.getNo().getPdf() > 0)
+				  return(aux_node.getNo().getPdf());
+				aux_node = aux_node.getNo();
 				if(debug)
-				  System.out.println("  QMatch=0 node->NO->idx=" + aux_node.get_idx());
+				  System.out.println("  QMatch=0 node->NO->idx=" + aux_node.getIdx());
 			}
 			
 		}
 		return -1;
 		
-	} /* method SearchTree */
+	} /* method searchTree */
 	
-	private boolean QMatch(String str, Question q, boolean debug) {
+	private boolean questionMatch(String str, Question q, boolean debug) {
 		int i;
 		String pat;
 	    

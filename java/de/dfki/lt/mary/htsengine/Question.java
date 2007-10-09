@@ -81,8 +81,8 @@ public class Question {
 		pattern = new Vector();
 	}
 	
-	public void set_qName(String var){ qName = var; }
-	public String get_qName(){ return qName; }
+	public void setQuestionName(String var){ qName = var; }
+	public String getQuestionName(){ return qName; }
 	
 	public void addPattern(String pat){ pattern.addElement(pat); }
 	public String getPattern(int i){ return (String) pattern.elementAt(i); 	}
@@ -97,7 +97,7 @@ public class Question {
 	  System.out.println();
 	}
 	
-	public void insert_next(){ next = new Question(); }
-	public Question get_next(){ return next; }
+	public void insertNext(){ next = new Question(); }
+	public Question getNext(){ return next; }
 	
 }

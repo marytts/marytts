@@ -61,19 +61,19 @@ package de.dfki.lt.mary.htsengine;
 public class SlideVector {
 	
    private double[] content;
-   private int content_size;
+   private int contentSize;
    
    /* offsets for vector c */ 
-   private static int cc;
-   private static int cinc;
-   private static int d1;
+   private int cc;
+   private int cinc;
+   private int d1;
    
    /** Constructor *
    * The size of the vector is specified when creating a new SlideVector */
    public SlideVector(int vector_size, int mcep_order, int pade_order) {
 	   
 	   content    = new double[vector_size];
-	   content_size = vector_size;
+	   contentSize = vector_size;
 	   
 	   /* offset for vector c:
 	    * vector_size = ( 3*(m+1) + 3*(pd+1) + pd*(m+2) ), m=mcep_vsize;
@@ -89,33 +89,33 @@ public class SlideVector {
    }
     
    public void clearContent(){
-	 for(int i=0; i<content_size; i++)
+	 for(int i=0; i<contentSize; i++)
 		 content[i]=0.0;  
    }
    /* General methods for getting content */
-   private double get(int index, int offset) { return content[offset+index]; }
+   private double getContent(int index, int offset) { return content[offset+index]; }
    /* this is the general method to get content[] without offset */
-   public double get(int index) {return content[index]; }
+   public double getContent(int index) {return content[index]; }
 
    /* Particular methods for getting content */
-   public double getCC(int index) { return this.get(index, SlideVector.cc); }
+   public double getCC(int index) { return this.getContent(index, cc); }
 
-   public double getCINC(int index) { return this.get(index, SlideVector.cinc); }
+   public double getCINC(int index) { return this.getContent(index, cinc); }
 
-   public double getD1(int index) { return this.get(index, SlideVector.d1); }
+   public double getD1(int index) { return this.getContent(index, d1); }
    
    
    /* General method for setting content */
-   private void set(int index, int offset, double value) { content[offset+index] = value; }
+   private void setContent(int index, int offset, double value) { content[offset+index] = value; }
    /* this is the general method to set content[] without offset*/
-   public void set(int index, double value){ content[index] = value; }
+   public void setContent(int index, double value){ content[index] = value; }
    
    /* Particular methods for setting content */
-   public void setCC(int index, double value) { this.set(index, SlideVector.cc, value); }
+   public void setCC(int index, double value) { this.setContent(index, cc, value); }
   
-   public void setCINC(int index, double value) { this.set(index, SlideVector.cinc, value); }
+   public void setCINC(int index, double value) { this.setContent(index, cinc, value); }
 
-   public void setD1(int index, double value) { this.set(index, SlideVector.d1, value); }
+   public void setD1(int index, double value) { this.setContent(index, d1, value); }
    
    
 }  /* class SlideVector */

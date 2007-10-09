@@ -42,9 +42,11 @@ import java.util.Vector;
 import de.dfki.lt.mary.MaryData;
 import de.dfki.lt.mary.MaryDataType;
 import de.dfki.lt.mary.MaryProperties;
+import de.dfki.lt.mary.htsengine.HMMVoice;
 import de.dfki.lt.mary.modules.InternalModule;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureProcessorManager;
 import de.dfki.lt.mary.unitselection.featureprocessors.TargetFeatureComputer;
+import de.dfki.lt.mary.modules.synthesis.Voice;
 
 
 /**
@@ -73,7 +75,7 @@ public class HTSContextTranslator extends InternalModule {
     public synchronized void powerOnSelfTest() throws Error
     {
         // TODO: add meaningful power-on self test
-       logger.info("\n TODO: TO-BE DONE HTSContextTranslator powerOnSelfTest()\n");
+       logger.info("..........TODO: TO-BE DONE HTSContextTranslator powerOnSelfTest()");
     }
 
 
@@ -86,9 +88,13 @@ public class HTSContextTranslator extends InternalModule {
     {
  
         MaryData output = new MaryData(outputType());
-         
+
+        Voice v = d.getDefaultVoice();  /* This is the way of getting a Voice through a MaryData type */
+        assert v instanceof HMMVoice;
+        HMMVoice hmmv = (HMMVoice)v;  
+        
         String lab;      
-        lab = _process(d.getPlainText());       
+        lab = _process(d.getPlainText(), hmmv.getFeatureList());       
         output.setPlainText(lab);
         
         return output;
@@ -97,25 +103,25 @@ public class HTSContextTranslator extends InternalModule {
     public void setContextFeatureFile(String str){ contextFeatureFile = str; }
 
     /**Translate TARGETFEATURES_EN to HTSCONTEXT_EN
+     * (I have put this method public so I can use it from MaryClientHMM)
      * @param String d
      * @return String
      * @throws Exception
      */
-    public String _process(String d)
+    public String _process(String d, Vector featureList)
     throws Exception
     {
       Hashtable maryPfeats = new Hashtable();
       ArrayList currentPfeats = new ArrayList();
-      Vector featureList = new Vector();
-      ReadFeatureList(featureList, contextFeatureFile);
-      
       int i,j;
       int num_phoneme = 0;
       int num_mary_pfeats = 0;
-      /* i need these for knowing when to convert tricky phonemes */
+      
+      /* These .._phoneme variables indicate when to convert tricky phonemes */
       int index_mary_phoneme = 0;
       int index_mary_prev_phoneme = 0;
       int index_mary_next_phoneme = 0;
+      
       Integer index;
       boolean first_blank_line = false;
       String pfeats, fea_out;
@@ -125,11 +131,10 @@ public class HTSContextTranslator extends InternalModule {
 
       Scanner s = null;
       String line;
-      
+          
       s = new Scanner(pfeats).useDelimiter("\n"); 
 
-      /* create a hash table with the mary_ pfeats context feature names and possible values 
-       * and another hash table with the pfeats values for current utterance */
+      /* Create a hash table with the mary_ pfeats context feature names and possible values. */
       while(s.hasNext()) {
         line = s.next();
         //System.out.println("length=" + line.length() + " line= " + line);
@@ -220,7 +225,7 @@ public class HTSContextTranslator extends InternalModule {
         if( maryPfeats.containsKey(fea_out) ) {
            index = (Integer) maryPfeats.get(fea_out);
           
-          /* now i should look for this index in currentPfeats vector */
+          /* now I should look for this index in currentPfeats vector */
           /* maybe i need to check first if the value is allowed ??? in the hash table */
           /* that is the value should exist in mary_v   */
           fea_out = shortenPfeat(fea_out);
@@ -228,8 +233,10 @@ public class HTSContextTranslator extends InternalModule {
           lab += fea_out + "=" + v.get(index.intValue()) + "|";
           //System.out.print(fea_out + "=" + v.get(index.intValue()) + "|");
            
-        } else 
-            System.err.println("HTSContextTranslator: error featureList element is not in maryPfeats.");
+        } else {
+            logger.debug("HTSContextTranslator: error featureList element " + fea_out + " is not in maryPfeats.");
+            throw new Exception("HTSContextTranslator: error featureList element " + fea_out + "  is not in maryPfeats.");
+        }
       }
       lab += "\n";
       //System.out.println();
@@ -241,39 +248,6 @@ public class HTSContextTranslator extends InternalModule {
     return lab;
     
     } /* method _process */
-
-    
-    /** This function reads the feature list file, for example feature_list_en_05.pl
-     * and fills in a vector the elements in that list that are un-commented 
-     */
-    private void ReadFeatureList(Vector featureList, String featureFile){
-      String line;
-      int i;
-      Scanner s = null;
-      try {
-        s = new Scanner(new BufferedReader(new FileReader(featureFile))).useDelimiter("\n");
-        
-        while (s.hasNext()) {
-          line = s.next();
-          //System.out.println("fea: "+ line);
-          if(!line.contains("#") && line.length()>0){    /* if it is not commented */
-            String[] elem = line.split(",");
-            for(i=0; i<elem.length; i++)
-              if(elem[i].contains("mary_")){  /* if starts with mary_ */                 
-                featureList.addElement(elem[i].substring(elem[i].indexOf("\"")+1, elem[i].lastIndexOf("\"")));
-                //System.out.println("  -->  "+ featureList.lastElement()); 
-              }
-          }
-        }
-        
-        if (s != null) 
-          s.close();
-        
-      } catch (FileNotFoundException e) {
-           System.err.println("FileNotFoundException: " + e.getMessage());
-      }
-      
-    } /* method ReadFeatureList */
 
     
     /** Translation table for labels which are incompatible with HTK or shell filenames

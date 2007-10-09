@@ -105,8 +105,8 @@ public class DWin {
 	  }
 
 	  
-	  public int get_width(int i, int j){ return width[i][j]; }
-	  public int get_num() { return num; }
+	  public int getWidth(int i, int j){ return width[i][j]; }
+	  public int getNum() { return num; }
 	   
 	  /* The coefficients are stored using all positive indexes, in oder to simmulate
 	   * negative indexes of the window an offset is applied.
@@ -114,7 +114,7 @@ public class DWin {
 	   * -3 -2 -1 0 1 2 3 
 	   *  0  1  2 3 4 5 6  
 	   *  so the corresponding index is obtain adding abs(maxw[LEFT]) to the */
-	  public double coef(int i, int j){
+	  public double getCoef(int i, int j){
 		 if(i==0) {
 		   if( j < 0 ) {
 			 System.err.println("Dwin: error reading window coeficients, window 1 has just coef[0][0]");

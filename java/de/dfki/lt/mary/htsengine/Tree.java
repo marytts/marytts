@@ -67,7 +67,7 @@ public class Tree {
     private Tree next;  /* link to next tree */
     
     /* i am not sure if this is needed??? what is it used for??? */
-    private static Vector pattern;  /* pattern list for this tree */
+    private Vector pattern;  /* pattern list for this tree */
     
     /* Every time a new Tree is created a new vector of patterns is created */
 	public Tree(){
@@ -77,16 +77,16 @@ public class Tree {
 		next = null;
 		pattern = new Vector();
 	}
-	public void insert_next(){ next = new Tree(); }
-	public Tree get_next(){ return next; }
+	public void insertNext(){ next = new Tree(); }
+	public Tree getNext(){ return next; }
 	
-	public void set_state(int var){ state = var; }
-	public int get_state(){ return state; }
+	public void setState(int var){ state = var; }
+	public int getState(){ return state; }
 	
-	public void set_root(Node rnode){ root = rnode; }
-	public Node get_root(){ return root; }
+	public void setRoot(Node rnode){ root = rnode; }
+	public Node getRoot(){ return root; }
 
-	public void set_leaf(Node lnode){ leaf = lnode; }
-	public Node get_leaf(){ return leaf; }
+	public void setLeaf(Node lnode){ leaf = lnode; }
+	public Node getLeaf(){ return leaf; }
 	
 }
