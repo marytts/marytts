@@ -40,7 +40,7 @@ import de.dfki.lt.signalproc.util.SignalProcUtils;
 public class VoiceModificationParameters {
 
     public int fs; //Sampling rate in Hz
-    public int P; //LP order
+    public int lpOrder; //LP order
     
     protected double [] pscales;
     protected double [] tscales;
@@ -100,6 +100,6 @@ public class VoiceModificationParameters {
         }
 
         fs = samplingRate;
-        P = SignalProcUtils.getLPOrder(fs);
+        lpOrder = SignalProcUtils.getLPOrder(fs);
     }
 }

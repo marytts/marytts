@@ -50,7 +50,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
     private VoiceModificationParametersPreprocessor modParams;
     private int numfrm;
     private int numfrmFixed;
-    private int P; //LP analysis order
+    private int lpOrder; //LP analysis order
     private String outputFile;
     private String tempOutBinaryFile;
     private int origLen;
@@ -105,9 +105,9 @@ public class FDPSOLAProcessor extends VocalTractModifier {
     private double [] frm;
     private boolean bWarp;
     
-    private double [] Py;
-    private double [] Py2;
-    private Complex Hy;
+    private double [] py;
+    private double [] py2;
+    private Complex hy;
     private double [] frmy;
     private double frmEn;
     private double frmyEn;
@@ -136,7 +136,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         
         origLen = (int)input.getDataLength();
         fs = (int)inputAudio.getFormat().getSampleRate();
-        P = SignalProcUtils.getLPOrder(fs);
+        lpOrder = SignalProcUtils.getLPOrder(fs);
         
         wsFixed = 0.02;
         ssFixed = 0.01;
@@ -148,7 +148,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         numfrm = pm.pitchMarks.length-numPeriods; //Total pitch synchronous frames (This is the actual number of frames to be processed)
         numfrmFixed = (int)(Math.floor(((double)(origLen + pm.totalZerosToPadd)/fs-0.5*wsFixed)/ssFixed+0.5)+2); //Total frames if the analysis was fixed skip-rate
          
-        modParams = new VoiceModificationParametersPreprocessor(fs, P,
+        modParams = new VoiceModificationParametersPreprocessor(fs, lpOrder,
                                                                 pscales, tscales, escales, vscales,
                                                                 pm.pitchMarks, wsFixed, ssFixed,
                                                                 numfrm, numfrmFixed, numPeriods);
@@ -169,7 +169,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         
         origLen = 0;
         fs = 16000;
-        P = SignalProcUtils.getLPOrder(fs);
+        lpOrder = SignalProcUtils.getLPOrder(fs);
         
         wsFixed = 0.02;
         ssFixed = 0.01;
@@ -1082,12 +1082,12 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                 frmEn = SignalProcUtils.getEnergy(frm);
 
                 //Compute LP and excitation spectrum
-                initialise(P, fs, fftSize, true); //Perform only analysis
+                initialise(lpOrder, fs, fftSize, true); //Perform only analysis
                 windowIn.applyInline(frm, 0, frmSize); //Windowing
                 applyInline(frm, 0, frmSize); //LP analysis
                 
                 //Expand/Compress the vocal tract spectrum in inverse manner
-                Py = MathUtils.interpolate(vtSpectrum, newMaxFreq); //Interpolated vocal tract spectrum
+                py = MathUtils.interpolate(vtSpectrum, newMaxFreq); //Interpolated vocal tract spectrum
 
                 //Perform vocal tract scaling
                 if (bWarp)
@@ -1101,7 +1101,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                             newVScales[k]=0.05;
                     }
                     
-                    Py2 = new double[newMaxFreq];
+                    py2 = new double[newMaxFreq];
                     
                     for (k=0; k<newMaxFreq; k++)
                     {
@@ -1111,19 +1111,19 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                         if (wInd>newMaxFreq)
                             wInd = newMaxFreq;
                         
-                        Py2[k] = Py[wInd-1];
+                        py2[k] = py[wInd-1];
                     }
                     
-                    System.arraycopy(Py2, 0, Py, 0, newMaxFreq);
+                    System.arraycopy(py2, 0, py, 0, newMaxFreq);
                 }
 
                 //Create output DFT spectrum
-                Hy = new Complex(newFftSize);
-                Hy.real = MathUtils.zeros(newFftSize);
-                Hy.imag = MathUtils.zeros(newFftSize);
+                hy = new Complex(newFftSize);
+                hy.real = MathUtils.zeros(newFftSize);
+                hy.imag = MathUtils.zeros(newFftSize);
 
-                System.arraycopy(this.h.real, 0, Hy.real, 0, Math.min(maxFreq, newFftSize));
-                System.arraycopy(this.h.imag, 0, Hy.imag, 0, Math.min(maxFreq, newFftSize));
+                System.arraycopy(this.h.real, 0, hy.real, 0, Math.min(maxFreq, newFftSize));
+                System.arraycopy(this.h.imag, 0, hy.imag, 0, Math.min(maxFreq, newFftSize));
 
                 //Copy & paste samples if required (COMPLEX VERSION TO SUPPORT PSCALE<=0.5)
                 // This version fills the spectrum by flipping and pasting the original freq bins as many times as required.
@@ -1147,34 +1147,34 @@ public class FDPSOLAProcessor extends VocalTractModifier {
 
                     for (j=tmpFix+3; j<=Math.min(newMaxFreq, maxFreq+tmpFix); j++)
                     {
-                        Hy.real[j-1] = this.h.real[tmpMul*(tmpFix-j)+tmpAdd-1];
-                        Hy.imag[j-1] = this.h.imag[tmpMul*(tmpFix-j)+tmpAdd-1];
+                        hy.real[j-1] = this.h.real[tmpMul*(tmpFix-j)+tmpAdd-1];
+                        hy.imag[j-1] = this.h.imag[tmpMul*(tmpFix-j)+tmpAdd-1];
                     }
                 }
 
-                Hy.real[newMaxFreq-1] = Math.sqrt(Hy.real[newMaxFreq-1]*Hy.real[newMaxFreq-1] + Hy.imag[newMaxFreq-1]*Hy.imag[newMaxFreq-1]);
-                Hy.imag[newMaxFreq-1] = 0.0;
+                hy.real[newMaxFreq-1] = Math.sqrt(hy.real[newMaxFreq-1]*hy.real[newMaxFreq-1] + hy.imag[newMaxFreq-1]*hy.imag[newMaxFreq-1]);
+                hy.imag[newMaxFreq-1] = 0.0;
                 
                 //Convolution
                 for (k=1; k<=newMaxFreq; k++)
                 {
-                    Hy.real[k-1] *= Py[k-1];
-                    Hy.imag[k-1] *= Py[k-1];
+                    hy.real[k-1] *= py[k-1];
+                    hy.imag[k-1] *= py[k-1];
                 }
                 
                 for (k=newMaxFreq+1; k<=newFftSize; k++)
                 {
-                    Hy.real[k-1] = Hy.real[2*newMaxFreq-1-k];
-                    Hy.imag[k-1] = -Hy.imag[2*newMaxFreq-1-k];
+                    hy.real[k-1] = hy.real[2*newMaxFreq-1-k];
+                    hy.imag[k-1] = -hy.imag[2*newMaxFreq-1-k];
                 }
 
                 //Convert back to time domain
-                //FFT.transform(Hy.real, Hy.imag, true);
-                //Hy = FFTArbitraryLength.ifft(Hy);
-                Hy = FFTMixedRadix.ifft(Hy);
+                //FFT.transform(hy.real, hy.imag, true);
+                //hy = FFTArbitraryLength.ifft(hy);
+                hy = FFTMixedRadix.ifft(hy);
                 
                 frmy = new double[newFrmSize];
-                System.arraycopy(Hy.real, 0, frmy, 0, newFrmSize);
+                System.arraycopy(hy.real, 0, frmy, 0, newFrmSize);
                 
                 frmyEn = SignalProcUtils.getEnergy(frmy);
                 gain = (frmEn/Math.sqrt(frmSize))/(frmyEn/Math.sqrt(newFrmSize))*escale;
