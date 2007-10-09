@@ -49,6 +49,22 @@ public class LineSpectralFrequencies
     static int add=0;
     static int ptr=0;
 
+    /**
+     * Convert filter coefficients to lsp coefficients.
+     * @param oneMinusA A(z) = a0 - sum { ai * z^-i } . a0 = 1.
+     * @param type which of the four methods for a2lsf conversion to perform
+     * @return the lsf coefficients in the range 0 to 0.5*samplingRate,
+     * as an array of doubles of length oneMinusA.length-1.
+     */
+    public static double[] lpc2lsf(double[] oneMinusA, int type, int samplingRate)
+    {
+        double [] lsp = lpc2lsf(oneMinusA, type);
+        
+        for (int i=0; i<lsp.length; i++)
+            lsp[i] *= samplingRate;
+        
+        return lsp;
+    }
     
     /**
      * Convert filter coefficients to lsp coefficients.
