@@ -2,6 +2,7 @@ package de.dfki.lt.signalproc.util;
 
 import de.dfki.lt.signalproc.FFT;
 import de.dfki.lt.signalproc.analysis.PitchMarker;
+import de.dfki.lt.signalproc.filter.RecursiveFilter;
 import de.dfki.lt.signalproc.window.Window;
 
 public class SignalProcUtils {
@@ -318,6 +319,30 @@ public class SignalProcUtils {
         }
         
         return R;
+    }
+    
+    //Apply a 1st order highpass preemphasis filter to speech frame frm
+    public static void preemphasize(double [] frm, double preCoef)
+    {
+        double [] coeffs = new double[2];
+        coeffs[0] = 1.0;
+        coeffs[1] = -preCoef;
+        
+        RecursiveFilter r = new RecursiveFilter(coeffs);
+        
+        r.apply(frm);
+    }
+    
+    //Remove preemphasis from preemphasized frame frm (i.e. 1st order lowspass filtering)
+    public static void removePreemphasize(double [] frm, double preCoef)
+    {
+        double [] coeffs = new double[2];
+        coeffs[0] = 1.0;
+        coeffs[1] = preCoef;
+        
+        RecursiveFilter r = new RecursiveFilter(coeffs);
+        
+        r.apply(frm);
     }
 }
 
