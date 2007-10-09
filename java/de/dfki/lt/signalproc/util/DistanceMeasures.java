@@ -15,11 +15,38 @@ import de.dfki.lt.signalproc.window.HammingWindow;
 
 public class DistanceMeasures {
   
+    /*
+     * Inverse harmonic weighting based LSF distance
+     * Performs LP analysis by first preemphasizing and windowing speech frames <speechFrame1> and <speechFrame2>
+     * Then, computes LSFs for the two speech frames
+     * Finally, the perceptual distance between two lsf vectors are estimated.
+     * Note that the input speech frames are not changed during distance computation
+     * LP order is automatically decided depending on the sampling rate
+     * 
+     * speechFrame1: First speech frame (not windowed)
+     * speechFrame2: Second speech frame (not windowed)
+     * samplingRate: Sampling rate in Hz
+     * 
+     */
     public static double lsfDist(double [] speechFrame1, double [] speechFrame2, int samplingRate)
     {
         return lsfDist(speechFrame1, speechFrame2, samplingRate, SignalProcUtils.getLPOrder(samplingRate));
     }
     
+    
+    /*
+     * Inverse harmonic weighting based LSF distance
+     * Performs LP analysis by first preemphasizing and windowing speech frames <speechFrame1> and <speechFrame2>
+     * Then, computes LSFs for the two speech frames
+     * Finally, the perceptual distance between two lsf vectors are estimated.
+     * Note that the input speech frames are not changed during distance computation
+     * 
+     * speechFrame1: First speech frame (not windowed)
+     * speechFrame2: Second speech frame (not windowed)
+     * samplingRate: Sampling rate in Hz
+     * lpOrder: Desired LP analysis order
+     * 
+     */
     public static double lsfDist(double [] speechFrame1, double [] speechFrame2, int samplingRate, int lpOrder)
     {
         //Preemphasis
