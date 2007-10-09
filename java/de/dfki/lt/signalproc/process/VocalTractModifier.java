@@ -59,6 +59,7 @@ public class VocalTractModifier implements InlineDataProcessor {
     protected double [] vtSpectrum;
     private Complex expTerm;
     private boolean bAnalysisOnly;
+    public static int tmpCount = 0;
     
     /**
      * 
@@ -98,6 +99,8 @@ public class VocalTractModifier implements InlineDataProcessor {
         int k;
         assert pos==0;
         assert len==data.length;
+        
+        tmpCount++;
         
         if (len > fftSize)
             len = fftSize;
