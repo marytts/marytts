@@ -1,3 +1,10 @@
+/**
+ * @author oytun.turk
+ * 
+ * A class for general purpose distance metrics to compare speech/audio signals objectively
+ * 
+ */
+
 package de.dfki.lt.signalproc.util;
 
 import java.io.File;
@@ -32,7 +39,6 @@ public class DistanceMeasures {
     {
         return lsfDist(speechFrame1, speechFrame2, samplingRate, SignalProcUtils.getLPOrder(samplingRate));
     }
-    
     
     /*
      * Inverse harmonic weighting based LSF distance
