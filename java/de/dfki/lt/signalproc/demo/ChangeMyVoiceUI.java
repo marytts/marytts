@@ -906,6 +906,8 @@ private String[] lpCrossSynthFiles = {"bird.wav",
         {  
             double [] vscales = {1.3+0.5*amount};
             int p = SignalProcUtils.getLPOrder(modParams.fs);
+            if (bufferSize<1024)
+                bufferSize=1024;
             effect = new VocalTractScalingProcessor(p, modParams.fs, bufferSize, vscales);
         }
         else if (targetNames[targetIndex]=="Dwarf2") //Using freq. domain DFT magnitude spectrum modification
@@ -917,6 +919,8 @@ private String[] lpCrossSynthFiles = {"bird.wav",
         { 
             double [] vscales = {0.90-0.1*amount};            
             int p = SignalProcUtils.getLPOrder(modParams.fs);
+            if (bufferSize<1024)
+                bufferSize=1024;
             effect = new VocalTractScalingProcessor(p, modParams.fs, bufferSize, vscales);
         }
         else if (targetNames[targetIndex]=="Ogre2") //Using freq. domain DFT magnitude spectrum modification
@@ -928,6 +932,8 @@ private String[] lpCrossSynthFiles = {"bird.wav",
         {  
             double [] vscales = {0.75-0.1*amount};
             int p = SignalProcUtils.getLPOrder(modParams.fs);
+            if (bufferSize<1024)
+                bufferSize=1024;
             effect = new VocalTractScalingProcessor(p, modParams.fs, bufferSize, vscales);
         }
         else if (targetNames[targetIndex]=="Giant2") //Using freq. domain DFT magnitude spectrum modification
