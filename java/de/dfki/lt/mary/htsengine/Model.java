@@ -62,119 +62,119 @@ package de.dfki.lt.mary.htsengine;
 public class Model {
   
   private String name;              /* the name of this HMM */
-  private int durpdf;               /* duration pdf index for this HMM */
-  private int lf0pdf[];             /* mel-cepstrum pdf indexes for each state of this HMM */  
-  private int mceppdf[];            /* log f0 pdf indexes for each state of this HMM */
-  private int strpdf[];             /* str pdf indexes for each state of this HMM  */
-  private int magpdf[];             /* str pdf indexes for each state of this HMM  */
+  private int durPdf;               /* duration pdf index for this HMM */
+  private int lf0Pdf[];             /* mel-cepstrum pdf indexes for each state of this HMM */  
+  private int mcepPdf[];            /* log f0 pdf indexes for each state of this HMM */
+  private int strPdf[];             /* str pdf indexes for each state of this HMM  */
+  private int magPdf[];             /* str pdf indexes for each state of this HMM  */
 
   private int dur[];                /* duration for each state of this HMM */
-  private int totaldur;             /* total duration of this HMM */
-  private double lf0mean[][];       /* mean vector of log f0 pdfs for each state of this HMM */
-  private double lf0variance[][];   /* variance (diag) elements of log f0 for each state of this HMM */
-  private double mcepmean[][];      /* mean vector of mel-cepstrum pdfs for each state of this HMM */
-  private double mcepvariance[][];  /* variance (diag) elements of mel-cepstrum for each state of this HMM */
+  private int totalDur;             /* total duration of this HMM */
+  private double lf0Mean[][];       /* mean vector of log f0 pdfs for each state of this HMM */
+  private double lf0Variance[][];   /* variance (diag) elements of log f0 for each state of this HMM */
+  private double mcepMean[][];      /* mean vector of mel-cepstrum pdfs for each state of this HMM */
+  private double mcepVariance[][];  /* variance (diag) elements of mel-cepstrum for each state of this HMM */
 
-  private double strmean[][];       /* mean vector of strengths pdfs for each state of this HMM */
-  private double strvariance[][];   /* variance (diag) elements of strengths for each state of this HMM */
-  private double magmean[][];       /* mean vector of fourier magnitude pdfs for each state of this HMM */
-  private double magvariance[][];   /* variance (diag) elements of fourier magnitudes for each state of this HMM */
+  private double strMean[][];       /* mean vector of strengths pdfs for each state of this HMM */
+  private double strVariance[][];   /* variance (diag) elements of strengths for each state of this HMM */
+  private double magMean[][];       /* mean vector of fourier magnitude pdfs for each state of this HMM */
+  private double magVariance[][];   /* variance (diag) elements of fourier magnitudes for each state of this HMM */
 
   private boolean voiced[];         /* voiced/unvoiced decision for each state of this HMM */
   
   public void setName(String var){ name = var; }
   public String getName(){return name;}
   
-  public void set_durpdf(int val){ durpdf = val; }
-  public int get_durpdf(){return durpdf;}
+  public void setDurPdf(int val){ durPdf = val; }
+  public int getDurPdf(){return durPdf;}
   
-  public void set_dur(int i, int val){ dur[i] = val; }
-  public int get_dur(int i){ return dur[i]; } 
+  public void setDur(int i, int val){ dur[i] = val; }
+  public int getDur(int i){ return dur[i]; } 
   
-  public void set_totaldur(int val){ totaldur = val; }
-  public int get_totaldur(){return totaldur;}
+  public void setTotalDur(int val){ totalDur = val; }
+  public int getTotalDur(){return totalDur;}
   
-  public void set_lf0pdf(int i, int val){ lf0pdf[i] = val; }
-  public int get_lf0pdf(int i){ return lf0pdf[i]; } 
+  public void setLf0Pdf(int i, int val){ lf0Pdf[i] = val; }
+  public int getLf0Pdf(int i){ return lf0Pdf[i]; } 
   
-  public void set_mceppdf(int i, int val){ mceppdf[i] = val; }
-  public int get_mceppdf(int i){ return mceppdf[i]; } 
+  public void setMcepPdf(int i, int val){ mcepPdf[i] = val; }
+  public int getMcepPdf(int i){ return mcepPdf[i]; } 
   
-  public void set_strpdf(int i, int val){ strpdf[i] = val; }
-  public int get_strpdf(int i){ return strpdf[i]; } 
+  public void setStrPdf(int i, int val){ strPdf[i] = val; }
+  public int getStrPdf(int i){ return strPdf[i]; } 
   
-  public void set_magpdf(int i, int val){ magpdf[i] = val; }
-  public int get_magpdf(int i){ return magpdf[i]; } 
+  public void setMagPdf(int i, int val){ magPdf[i] = val; }
+  public int getMagPdf(int i){ return magPdf[i]; } 
   
-  public void set_lf0mean(int i, int j, double val){ lf0mean[i][j] = val; }
-  public double get_lf0mean(int i, int j){ return lf0mean[i][j]; } 
-  public void set_lf0variance(int i, int j, double val){ lf0variance[i][j] = val; }
-  public double get_lf0variance(int i, int j){ return lf0variance[i][j]; } 
+  public void setLf0Mean(int i, int j, double val){ lf0Mean[i][j] = val; }
+  public double getLf0Mean(int i, int j){ return lf0Mean[i][j]; } 
+  public void setLf0Variance(int i, int j, double val){ lf0Variance[i][j] = val; }
+  public double getLf0Variance(int i, int j){ return lf0Variance[i][j]; } 
   
-  public void set_mcepmean(int i, int j, double val){ mcepmean[i][j] = val; }
-  public double get_mcepmean(int i, int j){ return mcepmean[i][j]; } 
-  public void set_mcepvariance(int i, int j, double val){ mcepvariance[i][j] = val; }
-  public double get_mcepvariance(int i, int j){ return mcepvariance[i][j]; }
+  public void setMcepMean(int i, int j, double val){ mcepMean[i][j] = val; }
+  public double getMcepMean(int i, int j){ return mcepMean[i][j]; } 
+  public void setMcepVariance(int i, int j, double val){ mcepVariance[i][j] = val; }
+  public double getMcepVariance(int i, int j){ return mcepVariance[i][j]; }
   
-  public void PrintMcepMean(){  
-	for(int i=0; i<mcepmean.length; i++) {
-	  System.out.print("mcepmean[" + i + "]: ");
-	  for(int j=0; j<mcepmean[i].length; j++)
-		  System.out.print(mcepmean[i][j] + "  ");
+  public void printMcepMean(){  
+	for(int i=0; i<mcepMean.length; i++) {
+	  System.out.print("mcepMean[" + i + "]: ");
+	  for(int j=0; j<mcepMean[i].length; j++)
+		  System.out.print(mcepMean[i][j] + "  ");
 	  System.out.println();
 	}
   }
   
-  public void set_strmean(int i, int j, double val){ strmean[i][j] = val; }
-  public double get_strmean(int i, int j){ return strmean[i][j]; } 
-  public void set_strvariance(int i, int j, double val){ strvariance[i][j] = val; }
-  public double get_strvariance(int i, int j){ return strvariance[i][j]; }
+  public void setStrMean(int i, int j, double val){ strMean[i][j] = val; }
+  public double getStrMean(int i, int j){ return strMean[i][j]; } 
+  public void setStrVariance(int i, int j, double val){ strVariance[i][j] = val; }
+  public double getStrVariance(int i, int j){ return strVariance[i][j]; }
   
-  public void set_magmean(int i, int j, double val){ magmean[i][j] = val; }
-  public double get_magmean(int i, int j){ return magmean[i][j]; } 
-  public void set_magvariance(int i, int j, double val){ magvariance[i][j] = val; }
-  public double get_magvariance(int i, int j){ return magvariance[i][j]; }
+  public void setMagMean(int i, int j, double val){ magMean[i][j] = val; }
+  public double getMagMean(int i, int j){ return magMean[i][j]; } 
+  public void setMagVariance(int i, int j, double val){ magVariance[i][j] = val; }
+  public double getMagVariance(int i, int j){ return magVariance[i][j]; }
   
-  public void set_voiced(int i, boolean val){ voiced[i] = val; }
-  public boolean get_voiced(int i){ return voiced[i]; }
+  public void setVoiced(int i, boolean val){ voiced[i] = val; }
+  public boolean getVoiced(int i){ return voiced[i]; }
   
   
   /* Constructor */
   /* Every Model is initialised with the information in ModelSet*/
   public Model(ModelSet ms){
 	int i, nstate;  
-	totaldur = 0;
-	nstate = ms.get_nstate();
+	totalDur = 0;
+	nstate = ms.getNumState();
 	dur = new int[nstate];
-	lf0pdf = new int[nstate];
-	lf0mean = new double[nstate][];
-    lf0variance = new double[nstate][];
+	lf0Pdf = new int[nstate];
+	lf0Mean = new double[nstate][];
+    lf0Variance = new double[nstate][];
     voiced = new boolean[nstate];
 
-    mceppdf = new int[nstate];
-	mcepmean = new double[nstate][];
-    mcepvariance = new double[nstate][];
+    mcepPdf = new int[nstate];
+	mcepMean = new double[nstate][];
+    mcepVariance = new double[nstate][];
 	 
-    strpdf = new int[nstate];
-	strmean = new double[nstate][];
-    strvariance = new double[nstate][];
+    strPdf = new int[nstate];
+	strMean = new double[nstate][];
+    strVariance = new double[nstate][];
     
-    magpdf = new int[nstate];
-	magmean = new double[nstate][];
-    magvariance = new double[nstate][];
+    magPdf = new int[nstate];
+	magMean = new double[nstate][];
+    magVariance = new double[nstate][];
     
     for(i=0; i<nstate; i++ ){
-        lf0mean[i] = new double[ms.get_lf0stream()];
-        lf0variance[i] = new double[ms.get_lf0stream()];
+        lf0Mean[i] = new double[ms.getLf0Stream()];
+        lf0Variance[i] = new double[ms.getLf0Stream()];
         
-        mcepmean[i] = new double[ms.get_mcepvsize()];
-        mcepvariance[i] = new double[ms.get_mcepvsize()];
+        mcepMean[i] = new double[ms.getMcepVsize()];
+        mcepVariance[i] = new double[ms.getMcepVsize()];
         
-        strmean[i] = new double[ms.get_strvsize()];
-        strvariance[i] = new double[ms.get_strvsize()];
+        strMean[i] = new double[ms.getStrVsize()];
+        strVariance[i] = new double[ms.getStrVsize()];
         
-        magmean[i] = new double[ms.get_magvsize()];
-        magvariance[i] = new double[ms.get_magvsize()];
+        magMean[i] = new double[ms.getMagVsize()];
+        magVariance[i] = new double[ms.getMagVsize()];
     }
     
   } /* method Model, initialise a Model object */

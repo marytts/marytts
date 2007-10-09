@@ -67,47 +67,39 @@ public class Node {
 	
 	private Question quest;  /* question applied at this node */
 
-//	public Node(){
-//		idx = -1;
-//		pdf = -1;
-//		yes = null;
-//		no = null;
-//		next = null;
-//		quest = null;
-//	}
 	
-	public void set_idx(int var){ idx = var; }
-	public int get_idx(){ return idx; }
+	public void setIdx(int var){ idx = var; }
+	public int getIdx(){ return idx; }
 	
-	public void set_pdf( int var){ pdf = var; }
-	public int get_pdf(){ return pdf; }
+	public void setPdf( int var){ pdf = var; }
+	public int getPdf(){ return pdf; }
 
-	public void insert_next(){ next = new Node(); }
-	public void set_next(Node nnode){ next = nnode; }
-	public Node get_next(){ return next; }
+	public void insertNext(){ next = new Node(); }
+	public void setNext(Node nnode){ next = nnode; }
+	public Node getNext(){ return next; }
 	
 	public void setQuestion(Question q){ quest = q; }
 	public Question getQuestion(){ return quest; }
 	
-	public void insert_no(){ no = new Node(); }
-	public Node get_no(){ return no; }
+	public void insertNo(){ no = new Node(); }
+	public Node getNo(){ return no; }
 	
-	public void insert_yes(){ yes = new Node(); }
-	public Node get_yes(){ return yes; }
+	public void insertYes(){ yes = new Node(); }
+	public Node getYes(){ return yes; }
 	
 	
-	public void PrintNode(){
+	public void printNode(){
 		System.out.println("Printing node: ");
 		System.out.println("  idx=" + idx);
 		System.out.println("  pdf=" + pdf);
 		if ( quest != null )
 		  quest.printQuestion();
 		if ( no != null )
-		  System.out.println("  Node no=" + no + "  idx=" + no.get_idx());
+		  System.out.println("  Node no=" + no + "  idx=" + no.getIdx());
 		else
 		  System.out.println("  Node no=" + no);
 		if ( yes != null )
-		  System.out.println("  Node yes=" + yes + "  idx=" + yes.get_idx());
+		  System.out.println("  Node yes=" + yes + "  idx=" + yes.getIdx());
 		else
 		  System.out.println("  Node yes=" + yes);
 		System.out.println("  Node next=" + next);
