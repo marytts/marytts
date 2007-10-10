@@ -54,15 +54,15 @@ import de.dfki.lt.mary.util.MaryAudioUtils;
 
 public class AudioConverterUtils {
 
-  
+    
     /**
      * Default Stereo to Mono Converter
      * @param AudioInputStream 
      * @return AudioInputStream
      */
-    public static AudioInputStream ConvertStereoToMono(AudioInputStream ais){
+    public static AudioInputStream convertStereoToMono(AudioInputStream ais){
         
-        return ConvertStereoToMono(ais, AudioPlayer.STEREO);
+        return convertStereoToMono(ais, AudioPlayer.STEREO);
         
     }
     /**
@@ -71,7 +71,7 @@ public class AudioConverterUtils {
      * @param Channel ( Ex: AudioPlayer.LEFT_ONLY, AudioPlayer.RIGHT_ONLY )
      * @return AudioInputStream
      */
-    public static AudioInputStream ConvertStereoToMono(AudioInputStream ais, int mode){
+    public static AudioInputStream convertStereoToMono(AudioInputStream ais, int mode){
 
         return new MonoAudioInputStream(ais, mode);
         
@@ -84,56 +84,72 @@ public class AudioConverterUtils {
      * @throws Exception
      */
     
-    public static AudioInputStream ConvertBit24ToBit16(AudioInputStream ais) throws Exception {
+    public static AudioInputStream convertBit24ToBit16(AudioInputStream ais) throws Exception {
         
-        int BitsPerSample = 24;
-        int TargetBitsPerSample = 16;
+        int bitsPerSample = 24;
+        int targetBitsPerSample = 16;
+        
+        int noOfbitsPerSample = ais.getFormat().getSampleSizeInBits();
+        if(noOfbitsPerSample != bitsPerSample){
+            throw new Exception("24-Bit Audio Data Expected. But given Audio Data is "+noOfbitsPerSample+"-Bit data");
+        }
         
         float samplingRate = ais.getFormat().getSampleRate();
-        int noOfBitsPerSample = ais.getFormat().getSampleSizeInBits();
         int channels = ais.getFormat().getChannels();
+        int nBytes = ais.available();
+        boolean bigEndian = ais.getFormat().isBigEndian();
+        byte [] byteBuf = new byte[nBytes];
+        int nBytesRead = ais.read(byteBuf, 0, nBytes); // Reading all Bytes at a time
+        int currentPos = 0;
+        int noOfSamples =  nBytes/3;
+        int[] sample =  new int[noOfSamples];
         
-        if(noOfBitsPerSample != BitsPerSample){
-            throw new Exception("24-Bit Audio Data Expected. But given Audio Data is "+noOfBitsPerSample+"-Bit data");
-        }
+        for (int i=0; i<nBytesRead; i+=3, currentPos++) {
+            byte lobyte;
+            byte midbyte;
+            byte hibyte;
+            if (!bigEndian) {
+                lobyte = byteBuf[i];
+                midbyte = byteBuf[i+1];
+                hibyte = byteBuf[i+2];
+            } else {
+                lobyte = byteBuf[i+2];
+                midbyte = byteBuf[i+1];
+                hibyte = byteBuf[i];
+            }
+            sample[currentPos] = hibyte << 16 | (midbyte & 0xFF) << 8 | lobyte & 0xFF;
+       }
         
-        double[] signal = new AudioDoubleDataSource(ais).getAllData();
-        int[] sample =  new int[signal.length];
-        
-        for(int i=0; i<signal.length; i++ ){
-            sample[i] = (int) Math.round((signal[i] * 8388606.0)); // De-Normalisation (24-bit) 
-        }
-       
         int maxBitPos = 0;
-        int LSB;
+        int valueAfterShift;
         
         for(int i=0;i<sample.length;i++){
-        for(int j=BitsPerSample;j>=1;j--){
-            LSB = sample[i] >> j;
-            if(LSB != 0 && LSB != -1){  // Condition for Positive and Negative Numbers (Since 2's Complement)
+        for(int j=bitsPerSample;j>=1;j--){
+            valueAfterShift = sample[i] >> j;
+            if(valueAfterShift != 0 && valueAfterShift != -1){  // Condition for Positive and Negative Numbers (Since 2's Complement)
                 if(maxBitPos < j) maxBitPos = j;
                 break;
              }
            }
         }
         
-        int shiftBits = maxBitPos - TargetBitsPerSample + 2; // need to change 24 to 16 
+        int shiftBits = maxBitPos - targetBitsPerSample + 2; // need to change 24 to 16 
 
         for(int i=0; (shiftBits>0 && i<sample.length); i++ ){
-            sample[i] = sample[i] >> shiftBits;
+           sample[i] = sample[i] >> shiftBits;
         }
         
-        int currentPos = 0 ; // off
+        currentPos = 0 ; // off
         int nRead = sample.length;
         byte[] b = new byte[2*sample.length];
-        int MAX_AMPLITUD = 32767;
-        boolean bigEndian = true;
+        int MAX_AMPLITUDE = 32767;
+       
         
         // Conversion to BYTE ARRAY 
         for (int i=0; i<nRead; i++, currentPos+=2) {
             
             int samp = sample[i];
-            if (samp > MAX_AMPLITUD || samp < -MAX_AMPLITUD) {
+            if (samp > MAX_AMPLITUDE || samp < -MAX_AMPLITUDE) {
                 System.err.println("Warning: signal amplitude out of range: "+samp);
             }
             byte hibyte = (byte) (samp >> 8);
@@ -153,18 +169,18 @@ public class AudioConverterUtils {
        
         AudioFormat af = new AudioFormat(
         samplingRate,
-        TargetBitsPerSample,
+        targetBitsPerSample,
         channels,
         signed,
         bigEndian);
 
-        long lengthInSamples = b.length / (TargetBitsPerSample/8);
-       
+        long lengthInSamples = b.length / (targetBitsPerSample/8);
+        
         return new AudioInputStream(bais, af, lengthInSamples);
     }
 
-    
-}
+}    
+   
 
 
 
