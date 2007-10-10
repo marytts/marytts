@@ -52,12 +52,9 @@ import de.dfki.lt.mary.util.dom.MaryDomUtils;
 
 import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.mary.MaryXML;
-import de.dfki.lt.mary.modules.de.phonemiser.Inflection;
-import de.dfki.lt.mary.modules.de.*;
 import de.dfki.lt.mary.modules.XML2UttAcoustParams;
 import de.dfki.lt.mary.util.MaryUtils;
 import de.dfki.lt.mary.util.dom.NameNodeFilter;
-import de.usaar.coli.fst.FSTLookup;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.modules.TargetFeatureLister;
 
