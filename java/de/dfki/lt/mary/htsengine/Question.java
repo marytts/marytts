@@ -71,14 +71,14 @@ import java.util.Vector;
 public class Question {
 
 	private String qName; 
-	private Vector pattern;
+	private Vector<String> pattern;
 	private Question next;
 	
 	/* Every time a new Question is created a new vector of patterns is created */
 	public Question(){
 		qName = null;
 		next = null;
-		pattern = new Vector();
+		pattern = new Vector<String>();
 	}
 	
 	public void setQuestionName(String var){ qName = var; }

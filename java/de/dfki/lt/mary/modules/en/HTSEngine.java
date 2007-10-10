@@ -104,11 +104,12 @@ public class HTSEngine extends InternalModule
               );
     }
 
+    /**
+     * This module is actually tested as part of the HMMSynthesizer test,
+     * for which reason this method does nothing.
+     */
     public synchronized void powerOnSelfTest() throws Error
     {
-        // TODO: add meaningful power-on self test
-        logger.info("..........TODO: TO-BE DONE HTSEngine powerOnSelfTest()");
-        
     }
     
     
@@ -268,7 +269,7 @@ public class HTSEngine extends InternalModule
              * in durpdf[i][j] array which starts in i=0, so when finding this dur pdf, the idx should 
              * be idx-1 !!!
              * 2. Calculate duration using the pdf idx found in the tree, function: FindDurPDF */
-            auxTree = ts.getTreeHead(htsData.DUR);
+            auxTree = ts.getTreeHead(HMMData.DUR);
             m.setDurPdf( ts.searchTree(nextLine, auxTree.getRoot(), false));
 
             //System.out.println("dur->pdf=" + m.get_durpdf());
@@ -282,28 +283,28 @@ public class HTSEngine extends InternalModule
             /* Not implemented yet...*/
 
             /* Find pdf for LF0 */               
-            for(auxTree=ts.getTreeHead(htsData.LF0), mstate=0; auxTree != ts.getTreeTail(htsData.LF0); auxTree=auxTree.getNext(), mstate++ ) {           
+            for(auxTree=ts.getTreeHead(HMMData.LF0), mstate=0; auxTree != ts.getTreeTail(HMMData.LF0); auxTree=auxTree.getNext(), mstate++ ) {           
                 m.setLf0Pdf(mstate, ts.searchTree(nextLine,auxTree.getRoot(),false));
                 //System.out.println("lf0pdf[" + mstate + "]=" + m.get_lf0pdf(mstate));
                 ms.findLf0Pdf(mstate, m, htsData.getUV());
             }
 
             /* Find pdf for MCP */
-            for(auxTree=ts.getTreeHead(htsData.MCP), mstate=0; auxTree != ts.getTreeTail(htsData.MCP); auxTree=auxTree.getNext(), mstate++ ) {           
+            for(auxTree=ts.getTreeHead(HMMData.MCP), mstate=0; auxTree != ts.getTreeTail(HMMData.MCP); auxTree=auxTree.getNext(), mstate++ ) {           
                 m.setMcepPdf(mstate, ts.searchTree(nextLine,auxTree.getRoot(),false));
                 //System.out.println("mceppdf[" + mstate + "]=" + m.get_mceppdf(mstate));
                 ms.findMcpPdf(mstate, m);
             }              
 
             /* Find pdf for strengths */
-            for(auxTree=ts.getTreeHead(htsData.STR), mstate=0; auxTree != ts.getTreeTail(htsData.STR); auxTree=auxTree.getNext(), mstate++ ) {           
+            for(auxTree=ts.getTreeHead(HMMData.STR), mstate=0; auxTree != ts.getTreeTail(HMMData.STR); auxTree=auxTree.getNext(), mstate++ ) {           
                 m.setStrPdf(mstate, ts.searchTree(nextLine,auxTree.getRoot(),false));
                 //System.out.println("strpdf[" + mstate + "]=" + m.get_strpdf(mstate));
                 ms.findStrPdf(mstate, m);                    
             }
 
             /* Find pdf for Fourier magnitudes */
-            for(auxTree=ts.getTreeHead(htsData.MAG), mstate=0; auxTree != ts.getTreeTail(htsData.MAG); auxTree=auxTree.getNext(), mstate++ ) {           
+            for(auxTree=ts.getTreeHead(HMMData.MAG), mstate=0; auxTree != ts.getTreeTail(HMMData.MAG); auxTree=auxTree.getNext(), mstate++ ) {           
                 m.setMagPdf(mstate, ts.searchTree(nextLine,auxTree.getRoot(),false));
                 //System.out.println("magpdf[" + mstate + "]=" + m.get_magpdf(mstate));
                 ms.findMagPdf(mstate, m);

@@ -107,11 +107,11 @@ public class TreeSet {
      * Tree*File in htsData. */
     public void loadTreeSet(HMMData htsData) throws Exception {
        
-        _loadTreeSet(htsData.getTreeDurFile(), htsData.DUR);        
-        _loadTreeSet(htsData.getTreeLf0File(), htsData.LF0);        
-        _loadTreeSet(htsData.getTreeMcpFile(), htsData.MCP);        
-        _loadTreeSet(htsData.getTreeStrFile(), htsData.STR);        
-        _loadTreeSet(htsData.getTreeMagFile(), htsData.MAG);
+        _loadTreeSet(htsData.getTreeDurFile(), HMMData.DUR);        
+        _loadTreeSet(htsData.getTreeLf0File(), HMMData.LF0);        
+        _loadTreeSet(htsData.getTreeMcpFile(), HMMData.MCP);        
+        _loadTreeSet(htsData.getTreeStrFile(), HMMData.STR);        
+        _loadTreeSet(htsData.getTreeMagFile(), HMMData.MAG);
 
     }
     

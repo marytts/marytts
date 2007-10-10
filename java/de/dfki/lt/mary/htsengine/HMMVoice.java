@@ -121,7 +121,7 @@ public class HMMVoice extends Voice {
    
    public HMMData getHMMData(){ return this.htsData; }
    
-   public Vector getFeatureList(){ return this.htsData.getFeatureList(); }
+   public Vector<String> getFeatureList(){ return this.htsData.getFeatureList(); }
     
 
 } /* class HMMVoice */
