@@ -61,11 +61,11 @@ import java.util.Vector;
  */
 public class UttModel {
 
-  private int numModel;        /* # of models for current utterance       */
-  private int numState;        /* # of HMM states for current utterance   */ 
-  private int totalFrame;    /* # of frames for current utterance       */
-  private int lf0Frame;      /* # of frames that are voiced or non-zero */
-  private Vector modelList;  /* This will be a list of Model objects for current utterance */
+  private int numModel;             /* # of models for current utterance       */
+  private int numState;             /* # of HMM states for current utterance   */ 
+  private int totalFrame;           /* # of frames for current utterance       */
+  private int lf0Frame;             /* # of frames that are voiced or non-zero */
+  private Vector<Model> modelList;  /* This will be a list of Model objects for current utterance */
 
   
   public UttModel() {
@@ -73,7 +73,7 @@ public class UttModel {
 	numState = 0;
 	totalFrame = 0;
 	lf0Frame = 0;
-	modelList = new Vector();
+	modelList = new Vector<Model>();
   }
   
   public void setNumModel(int val){ numModel = val; }

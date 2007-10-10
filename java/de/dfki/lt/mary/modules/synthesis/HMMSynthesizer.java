@@ -243,8 +243,46 @@ public class HMMSynthesizer implements WaveformSynthesizer {
       */
      public synchronized void powerOnSelfTest() throws Error
      {
-         // TODO: add meaningful power-on self test
-         logger.info(".........TODO: TO-BE DONE HMMSynthesizer powerOnSelfTest()\n");
+         // copied from FreeTTSSynthesiyer poweronSelfTest() CHECK??
+
+         logger.info("Starting power-on self test.");
+         try {
+             MaryData in = new MaryData(x2u.inputType());
+             Collection myVoices = Voice.getAvailableVoices(this);
+             if (myVoices.size() == 0) {
+                 return;
+             }
+             
+             Voice v = (Voice) myVoices.iterator().next();
+            
+             String exampleText;
+             if (v.getLocale().equals(Locale.GERMAN)) {
+                 exampleText = MaryDataType.get("ACOUSTPARAMS_DE").exampleText();
+             } else {
+                 exampleText = MaryDataType.get("ACOUSTPARAMS_EN").exampleText();
+             }
+             in.readFrom(new StringReader(exampleText));
+             in.setDefaultVoice(v);
+             MaryData d1 = x2u.process(in);
+             Utterance utt = (Utterance) d1.getUtterances().get(0);           
+             MaryData freettsAcoustparams = new MaryData(x2u.outputType());
+             List<Utterance> utts = new ArrayList<Utterance>();
+             utts.add(utt);
+             freettsAcoustparams.setUtterances(utts);
+          
+             MaryData targetFeatures = targetFeatureLister.process(freettsAcoustparams);
+             targetFeatures.setDefaultVoice(v);
+             MaryData htsContext = htsContextTranslator.process(targetFeatures);
+             htsContext.setDefaultVoice(v);
+             MaryData audio = htsEngine.process(htsContext);
+             
+             assert audio.getAudio() != null;
+             
+         } catch (Throwable t) {
+             throw new Error("Module " + toString() + ": Power-on self test failed.", t);
+         }
+         logger.info("Power-on self test complete.");
+         
 
      }
 
@@ -263,7 +301,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
         logger.info("Synthesizing one utterance.");
         Utterance utt = x2u.convert(tokensAndBoundaries, voice);
         MaryData freettsAcoustparams = new MaryData(x2u.outputType());
-        List utts = new ArrayList();
+        List<Utterance> utts = new ArrayList<Utterance>();
         utts.add(utt);
         freettsAcoustparams.setUtterances(utts);
         try {

@@ -56,6 +56,7 @@ import java.io.FileReader;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.Vector;
+import java.util.*;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
@@ -68,14 +69,14 @@ import org.apache.log4j.Logger;
  * @author Marcela Charfuelan
  */
 public class HMMData {
-	
+    	
     /** Number of model and identificator for the models*/
-	public final int HTS_NUMMTYPE = 5;
-	public final int DUR = 0;
-	public final int LF0 = 1;
-	public final int MCP = 2;
-	public final int STR = 3;
-	public final int MAG = 4;
+	public static final int HTS_NUMMTYPE = 5;
+	public static final int DUR = 0;
+	public static final int LF0 = 1;
+	public static final int MCP = 2;
+	public static final int STR = 3;
+	public static final int MAG = 4;
 
     private Logger logger = Logger.getLogger("HMMData");
     
@@ -85,8 +86,8 @@ public class HMMData {
 	private int fperiod    = 80;    /* frame period (point)                       */
 	private double rho     = 0.0;   /* variable for speaking rate control         */
 	private double alpha   = 0.42;  /* variable for frequency warping parameter   */
-	private double f0Std  = 1.0;   /* variable for f0 control                    */
-	private double f0Mean = 0.0;   /* variable for f0 control                    */
+	private double f0Std   = 1.0;   /* variable for f0 control                    */
+	private double f0Mean  = 0.0;   /* variable for f0 control                    */
 	private double beta    = 0.0;   /* variable for postfiltering                 */
 	private double uv      = 0.5;   /* variable for U/V threshold                 */
 	private double length  = 0.0;   /* total number of frame for generated speech */
@@ -123,7 +124,7 @@ public class HMMData {
 	
 	/* Feature list file and Vector which will contain the loaded features from this file */
 	private String featureListFile;
-    private Vector featureList = new Vector();
+    private Vector<String> featureList = new Vector<String>();
     
     
     /* Example context feature file in HTSCONTEXT_EN format */
@@ -155,7 +156,7 @@ public class HMMData {
 	
 	public String getFeatureListFile() { return featureListFile; }
     /* This function returns the feature list already loaded in a Vector */
-    public Vector getFeatureList() { return featureList; }  
+    public Vector<String> getFeatureList() { return featureList; }  
     public String getLabFile() { return labFile; }
 	
 	public String getMixFiltersFile() { return mixFiltersFile; } 
@@ -222,7 +223,7 @@ public class HMMData {
     	  orderFilters   = Integer.parseInt(props.getProperty( "io" ));
     	  
     	  props.clear();
-    	  
+          
       } 
       catch (IOException e) {
           logger.debug("Caught IOException: " +  e.getMessage());

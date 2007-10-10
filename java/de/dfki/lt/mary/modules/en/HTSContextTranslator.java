@@ -69,13 +69,11 @@ public class HTSContextTranslator extends InternalModule {
     }
     
     /**
-     * Perform a power-on self test by processing some example input data.
-     * @throws Error if the module does not work properly.
+     * This module is actually tested as part of the HMMSynthesizer test,
+     * for which reason this method does nothing.
      */
     public synchronized void powerOnSelfTest() throws Error
     {
-        // TODO: add meaningful power-on self test
-       logger.info("..........TODO: TO-BE DONE HTSContextTranslator powerOnSelfTest()");
     }
 
 
@@ -93,7 +91,8 @@ public class HTSContextTranslator extends InternalModule {
         assert v instanceof HMMVoice;
         HMMVoice hmmv = (HMMVoice)v;  
         
-        String lab;      
+        String lab;   
+        
         lab = _process(d.getPlainText(), hmmv.getFeatureList());       
         output.setPlainText(lab);
         
@@ -108,11 +107,11 @@ public class HTSContextTranslator extends InternalModule {
      * @return String
      * @throws Exception
      */
-    public String _process(String d, Vector featureList)
+    public String _process(String d, Vector<String> featureList)
     throws Exception
     {
-      Hashtable maryPfeats = new Hashtable();
-      ArrayList currentPfeats = new ArrayList();
+      Hashtable<String,Integer> maryPfeats = new Hashtable<String,Integer>();
+      ArrayList< Vector<String> > currentPfeats = new ArrayList< Vector<String> >();
       int i,j;
       int num_phoneme = 0;
       int num_mary_pfeats = 0;
@@ -126,7 +125,7 @@ public class HTSContextTranslator extends InternalModule {
       boolean first_blank_line = false;
       String pfeats, fea_out;
       String lab = "";
-      Vector v, n_v, nn_v;
+      Vector<String> v, n_v, nn_v;
       pfeats = d;
 
       Scanner s = null;
@@ -165,9 +164,10 @@ public class HTSContextTranslator extends InternalModule {
         } else if( first_blank_line ) { 
           
           String[] elem = line.split(" ");
-          if( elem.length > 1) {        
-            currentPfeats.add(new Vector()); 
-            v = (Vector)currentPfeats.get(num_phoneme);
+          if( elem.length > 1) { 
+            currentPfeats.add(new Vector<String>()); 
+            v = currentPfeats.get(num_phoneme);
+        
             /* create a vector with the elements of this line */
             for(i=0; i<elem.length; i++) {
               //System.out.println("elem " + i + ": " + elem[i]);
@@ -192,15 +192,15 @@ public class HTSContextTranslator extends InternalModule {
    
    /* produce output with phonemes in context */
     String pp_phn, p_phn, cur_phn, n_phn, nn_phn;
-    v    = (Vector)currentPfeats.get(0);
-    n_v  = (Vector)currentPfeats.get(1);
-    nn_v = (Vector)currentPfeats.get(2);
+    v    = currentPfeats.get(0);
+    n_v  = currentPfeats.get(1);
+    nn_v = currentPfeats.get(2);
       
-    pp_phn  = (String)v.elementAt(0);
-    p_phn   = (String)v.elementAt(0);
-    cur_phn = (String)v.elementAt(0);
-    n_phn   = (String)n_v.elementAt(0); 
-    nn_phn  = (String)nn_v.elementAt(0);
+    pp_phn  = v.elementAt(0);
+    p_phn   = v.elementAt(0);
+    cur_phn = v.elementAt(0);
+    n_phn   = n_v.elementAt(0); 
+    nn_phn  = nn_v.elementAt(0);
    
     for(i=0; i<currentPfeats.size(); i++){
       lab += pp_phn + "^" + p_phn + "-" + cur_phn + "+" + n_phn + "=" + nn_phn + "||";  
@@ -210,20 +210,20 @@ public class HTSContextTranslator extends InternalModule {
       cur_phn = n_phn;
       n_phn = nn_phn;
       if( (i+3) < currentPfeats.size() ) {
-        nn_v = (Vector)currentPfeats.get(i+3);
-        nn_phn = (String)nn_v.elementAt(0);
+        nn_v = currentPfeats.get(i+3);
+        nn_phn = nn_v.elementAt(0);
       } else {
-          nn_v = (Vector)currentPfeats.get(currentPfeats.size()-1);
-          nn_phn = (String)nn_v.elementAt(0); 
+          nn_v = currentPfeats.get(currentPfeats.size()-1);
+          nn_phn = nn_v.elementAt(0); 
       }
             
-      v = (Vector)currentPfeats.get(i);
+      v = currentPfeats.get(i);
       
       for(j=0; j<featureList.size(); j++) {
-        fea_out = (String)featureList.elementAt(j);
+        fea_out = featureList.elementAt(j);
         /* check if the feature is in maryPfeats list */  
         if( maryPfeats.containsKey(fea_out) ) {
-           index = (Integer) maryPfeats.get(fea_out);
+           index = maryPfeats.get(fea_out);
           
           /* now I should look for this index in currentPfeats vector */
           /* maybe i need to check first if the value is allowed ??? in the hash table */
