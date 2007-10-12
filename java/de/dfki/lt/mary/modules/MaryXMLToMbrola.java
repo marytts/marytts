@@ -130,17 +130,14 @@ public class MaryXMLToMbrola extends InternalModule
      * @throws IllegalArgumentException if one of the Elements in the List is
      * not a <ph> or <boundary> element or if the voice is not an MBROLA voice.
      */
-    public String convertToMbrola(List phonemesAndBoundaries, Voice voice)
+    public String convertToMbrola(List<Element> phonemesAndBoundaries, Voice voice)
     {
         StringBuffer buf = new StringBuffer();
-        Element element = null;
-        Iterator it = phonemesAndBoundaries.iterator();
         // In order to test for missing diphones, we need to
         // look at two subsequent phonemes. General case:
         // A list of phonemes "in the cue":
-        LinkedList mbrolaPhonemes = new LinkedList();
-        while (it.hasNext()) {
-            element = (Element) it.next();
+        LinkedList<MBROLAPhoneme> mbrolaPhonemes = new LinkedList<MBROLAPhoneme>();
+        for (Element element : phonemesAndBoundaries) {
             if (element.getTagName().equals(MaryXML.PHONE)) {
                 // Assemble an MBROLAPhoneme object:
                 String s = element.getAttribute("p");
@@ -149,7 +146,7 @@ public class MaryXMLToMbrola extends InternalModule
                     dur = Integer.parseInt(element.getAttribute("d"));
                 } catch (NumberFormatException e) {}
                 String f0string = element.getAttribute("f0");
-                Vector targets = new Vector();
+                Vector<int[]> targets = new Vector<int []>();
                 int i=0;
                 while ((i = f0string.indexOf("(", i)) != -1) {
                     int j = f0string.indexOf(",", i);
@@ -174,36 +171,31 @@ public class MaryXMLToMbrola extends InternalModule
                     vq = null;
                 }
                 MBROLAPhoneme newP = new MBROLAPhoneme(s, dur, targets, vq);
-                Vector p2vect = voice.convertSampa(newP);
+                Vector<MBROLAPhoneme> p2vect = voice.convertSampa(newP);
                 mbrolaPhonemes.addAll(p2vect);
                 // Verify if diphone exists:
                 while (mbrolaPhonemes.size() > 1) { // at least 2 phonemes
                     if (voice instanceof MbrolaVoice 
                             && !((MbrolaVoice)voice).hasDiphone
-                                ((MBROLAPhoneme)mbrolaPhonemes.get(0),
-                                 (MBROLAPhoneme)mbrolaPhonemes.get(1))) {
+                                (mbrolaPhonemes.get(0), mbrolaPhonemes.get(1))) {
                         // Replace the first two phonemes:
-                        MBROLAPhoneme p1 =
-                            (MBROLAPhoneme) mbrolaPhonemes.removeFirst();
-                        MBROLAPhoneme p2 =
-                            (MBROLAPhoneme) mbrolaPhonemes.removeFirst();
-                        Vector newPhones = ((MbrolaVoice)voice).replaceDiphone(p1, p2);
+                        MBROLAPhoneme p1 = mbrolaPhonemes.removeFirst();
+                        MBROLAPhoneme p2 = mbrolaPhonemes.removeFirst();
+                        Vector<MBROLAPhoneme> newPhones = ((MbrolaVoice)voice).replaceDiphone(p1, p2);
                         // Prepend them to list:
                         for (int l=newPhones.size()-1; l>=0; l--) {
-                            MBROLAPhoneme mph = (MBROLAPhoneme) newPhones.get(l);
+                            MBROLAPhoneme mph = newPhones.get(l);
                             mbrolaPhonemes.addFirst(mph);
                         }
                     }
                     // And now consider the first in the list ready for output
-                    MBROLAPhoneme p1 =
-                        (MBROLAPhoneme) mbrolaPhonemes.removeFirst();
+                    MBROLAPhoneme p1 = mbrolaPhonemes.removeFirst();
                     buf.append(p1.toString());
                     buf.append("\n");
                 }
             } else if (element.getTagName().equals(MaryXML.BOUNDARY)) {
                 while (!mbrolaPhonemes.isEmpty()) {
-                    MBROLAPhoneme p = 
-                        (MBROLAPhoneme) mbrolaPhonemes.removeFirst();
+                    MBROLAPhoneme p = mbrolaPhonemes.removeFirst();
                     buf.append(p.toString());
                     buf.append("\n");
                 }
@@ -227,8 +219,7 @@ public class MaryXMLToMbrola extends InternalModule
             }
         }
         while (!mbrolaPhonemes.isEmpty()) {
-            MBROLAPhoneme p = 
-                (MBROLAPhoneme) mbrolaPhonemes.removeFirst();
+            MBROLAPhoneme p = mbrolaPhonemes.removeFirst();
             buf.append(p.toString());
             buf.append("\n");
         }

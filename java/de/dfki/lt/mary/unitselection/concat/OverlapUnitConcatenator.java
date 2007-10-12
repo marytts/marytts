@@ -27,10 +27,9 @@ public class OverlapUnitConcatenator extends BaseUnitConcatenator {
      * Get the raw audio material for each unit from the timeline.
      * @param units
      */
-    protected void getDatagramsFromTimeline(List units) throws IOException
+    protected void getDatagramsFromTimeline(List<SelectedUnit> units) throws IOException
     {
-        for (int i=0, len=units.size(); i<len; i++) {
-            SelectedUnit unit = (SelectedUnit) units.get(i);
+        for (SelectedUnit unit : units) {
             assert !unit.getUnit().isEdgeUnit() : "We should never have selected any edge units!";
             OverlapUnitData unitData = new OverlapUnitData();
             unit.setConcatenationData(unitData);
@@ -54,10 +53,9 @@ public class OverlapUnitConcatenator extends BaseUnitConcatenator {
      * Determine target pitchmarks (= duration and f0) for each unit.
      * @param units
      */
-    protected void determineTargetPitchmarks(List units)
+    protected void determineTargetPitchmarks(List<SelectedUnit> units)
     {
-        for (Iterator it = units.iterator();it.hasNext();) {
-            SelectedUnit unit = (SelectedUnit) it.next();
+        for (SelectedUnit unit : units) {
             UnitData unitData = (UnitData)unit.getConcatenationData();
             assert unitData != null : "Should not have null unitdata here";
             Datagram[] datagrams = unitData.getFrames();
@@ -141,13 +139,13 @@ public class OverlapUnitConcatenator extends BaseUnitConcatenator {
      * @param units
      * @return
      */
-    protected AudioInputStream generateAudioStream(List units)
+    protected AudioInputStream generateAudioStream(List<SelectedUnit> units)
     {
         int len = units.size();
         Datagram[][] datagrams = new Datagram[len][];
         Datagram[] rightContexts = new Datagram[len];
         for (int i=0; i<len; i++) {
-            SelectedUnit unit = (SelectedUnit) units.get(i);
+            SelectedUnit unit = units.get(i);
             OverlapUnitData unitData = (OverlapUnitData)unit.getConcatenationData();
             assert unitData != null : "Should not have null unitdata here";
             Datagram[] frames = unitData.getFrames();
@@ -157,7 +155,7 @@ public class OverlapUnitConcatenator extends BaseUnitConcatenator {
             Unit nextInDB = database.getUnitFileReader().getNextUnit(unit.getUnit());
             Unit nextSelected;
             if (i+1==len) nextSelected = null;
-            else nextSelected = ((SelectedUnit)units.get(i+1)).getUnit();
+            else nextSelected = units.get(i+1).getUnit();
             if (nextInDB != null && !nextInDB.equals(nextSelected)) {
                 // Only use right context if we have a next unit in the DB is not the
                 // same as the next selected unit.

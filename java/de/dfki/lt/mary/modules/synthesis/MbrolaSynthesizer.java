@@ -194,7 +194,7 @@ public class MbrolaSynthesizer implements WaveformSynthesizer {
         return "MbrolaSynthesizer";
     }
 
-    public AudioInputStream synthesize(List tokensAndBoundaries, Voice voice)
+    public AudioInputStream synthesize(List<Element> tokensAndBoundaries, Voice voice)
         throws SynthesisException {
         if (!voice.synthesizer().equals(this)) {
             throw new IllegalArgumentException(
@@ -202,15 +202,12 @@ public class MbrolaSynthesizer implements WaveformSynthesizer {
         }
         logger.info("Synthesizing one sentence.");
         // 1. Convert into MBROLA .pho format.
-        List phonemesAndBoundaries = new ArrayList();
-        Iterator it = tokensAndBoundaries.iterator();
-        Element element = null;
-        while (it.hasNext()) {
-            element = (Element) it.next();
+        List<Element> phonemesAndBoundaries = new ArrayList<Element>();
+        for (Element element : tokensAndBoundaries) {
             if (element.getTagName().equals(MaryXML.TOKEN)) {
                 NodeList nl = element.getElementsByTagName(MaryXML.PHONE);
                 for (int i = 0; i < nl.getLength(); i++) {
-                    phonemesAndBoundaries.add(nl.item(i));
+                    phonemesAndBoundaries.add((Element)nl.item(i));
                 }
             } else if (element.getTagName().equals(MaryXML.BOUNDARY)) {
                 phonemesAndBoundaries.add(element);

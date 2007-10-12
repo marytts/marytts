@@ -128,7 +128,7 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
             in.setDefaultVoice(unitSelVoice);
             if (in == null){
                 System.out.println(exampleText+" is null");}
-            List tokensAndBoundaries = new ArrayList();
+            List<Element> tokensAndBoundaries = new ArrayList<Element>();
             TreeWalker tw = ((DocumentTraversal)in.getDocument()).createTreeWalker(
                     in.getDocument(), NodeFilter.SHOW_ELEMENT,
                     new NameNodeFilter(new String[] {MaryXML.TOKEN, MaryXML.BOUNDARY}),
@@ -155,7 +155,7 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
      * @throws IllegalArgumentException if the voice requested for this section
      * is incompatible with this WaveformSynthesizer.
      */
-    public AudioInputStream synthesize(List tokensAndBoundaries, Voice voice)
+    public AudioInputStream synthesize(List<Element> tokensAndBoundaries, Voice voice)
         throws SynthesisException
     {
         assert voice instanceof UnitSelectionVoice;
@@ -166,7 +166,7 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
         // TODO: check if we actually need to access v.getDatabase() here
         UnitDatabase database = v.getDatabase();
         logger.debug("Selecting units with a "+unitSel.getClass().getName()+" from a "+database.getClass().getName());
-        List selectedUnits = unitSel.selectUnits(tokensAndBoundaries, voice);
+        List<SelectedUnit> selectedUnits = unitSel.selectUnits(tokensAndBoundaries, voice);
         //if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
           //  StringWriter sw = new StringWriter();
            // PrintWriter pw = new PrintWriter(sw);

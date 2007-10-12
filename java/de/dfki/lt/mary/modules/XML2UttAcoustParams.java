@@ -63,7 +63,7 @@ public class XML2UttAcoustParams extends XML2UttBase
     {
     }
     
-    public Utterance convert(List tokensAndBoundaries, Voice maryVoice)
+    public Utterance convert(List<Element> tokensAndBoundaries, Voice maryVoice)
     {
         com.sun.speech.freetts.Voice freettsVoice =
             FreeTTSVoices.getFreeTTSVoice(maryVoice);
@@ -78,8 +78,7 @@ public class XML2UttAcoustParams extends XML2UttBase
         utterance.createRelation(Relation.SEGMENT);
         utterance.createRelation(Relation.TARGET);
         utterance.createRelation(Relation.PHRASE);
-        for (Iterator it = tokensAndBoundaries.iterator(); it.hasNext(); ) {
-            Element el = (Element) it.next();
+        for (Element el : tokensAndBoundaries) {
             addOneElement(utterance, el,
                           true, // create word relation
                           true, // create sylstruct relation

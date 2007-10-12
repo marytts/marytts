@@ -47,6 +47,7 @@ import javax.sound.sampled.AudioSystem;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.w3c.dom.Element;
 
 import com.sun.speech.freetts.ProcessException;
 import com.sun.speech.freetts.Utterance;
@@ -236,7 +237,7 @@ public class FreeTTSSynthesizer implements WaveformSynthesizer {
         return "FreeTTSSynthesizer";
     }
 
-    public AudioInputStream synthesize(List tokensAndBoundaries, Voice voice)
+    public AudioInputStream synthesize(List<Element> tokensAndBoundaries, Voice voice)
         throws SynthesisException {
         if (!voice.synthesizer().equals(this)) {
             throw new IllegalArgumentException(

@@ -57,9 +57,9 @@ public class DiphoneUnitSelector extends UnitSelector
      * @param segs the Segment relation
      * @return a list of Target objects -- in this case, diphone targets
      */
-    protected List createTargets(Relation segs)
+    protected List<Target> createTargets(Relation segs)
     {
-        List targets = new ArrayList();
+        List<Target> targets = new ArrayList<Target>();
         String silenceSymbol = "_"; // in sampa
 
         Item initialSilence = new Item(segs, new ItemContents());

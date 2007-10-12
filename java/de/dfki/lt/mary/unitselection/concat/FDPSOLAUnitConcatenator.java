@@ -70,11 +70,10 @@ public class FDPSOLAUnitConcatenator extends OverlapUnitConcatenator {
      * Get the raw audio material for each unit from the timeline.
      * @param units
      */
-    protected void getDatagramsFromTimeline(List units) throws IOException
+    protected void getDatagramsFromTimeline(List<SelectedUnit> units) throws IOException
     {
-        for (int i=0, len=units.size(); i<len; i++) 
+        for (SelectedUnit unit : units) 
         {
-            SelectedUnit unit = (SelectedUnit) units.get(i);
             assert !unit.getUnit().isEdgeUnit() : "We should never have selected any edge units!";
             OverlapUnitData unitData = new OverlapUnitData();
             unit.setConcatenationData(unitData);
@@ -98,7 +97,7 @@ public class FDPSOLAUnitConcatenator extends OverlapUnitConcatenator {
      * Determine target pitchmarks (= duration and f0) for each unit.
      * @param units
      */
-    protected void determineTargetPitchmarks(List units)
+    protected void determineTargetPitchmarks(List<SelectedUnit> units)
     {
         // First, determine the target pitchmarks as usual by the parent
         // implementation:
@@ -141,7 +140,7 @@ public class FDPSOLAUnitConcatenator extends OverlapUnitConcatenator {
         getDurationScales(units);
     }
     
-    private void getVoicings(List units)
+    private void getVoicings(List<SelectedUnit> units)
     {
         int len = units.size();
         int i, j;
@@ -178,7 +177,7 @@ public class FDPSOLAUnitConcatenator extends OverlapUnitConcatenator {
     //4) Pitch segments of selected units can be shifted 
     //5) Pitch segments of target units can be shifted
     //6) Pitch slopes can be modified for better matching in concatenation boundaries
-    private void getPitchScales(List units)
+    private void getPitchScales(List<SelectedUnit> units)
     {
         int len = units.size();
         int i, j;
@@ -290,7 +289,7 @@ public class FDPSOLAUnitConcatenator extends OverlapUnitConcatenator {
     //1) Duration modification factors can be estimated using neighbouring selected and target unit durations
     //2) Duration modification factors can be limited or even set to 1.0 for different phoneme classes
     //3) Duration modification factors can be limited depending on the previous/next phoneme class
-    private void getDurationScales(List units)
+    private void getDurationScales(List<SelectedUnit> units)
     {
         int len = units.size();
         
@@ -367,8 +366,9 @@ public class FDPSOLAUnitConcatenator extends OverlapUnitConcatenator {
      * @param units
      * @return
      */
-    protected AudioInputStream generateAudioStream(List units)
+    protected AudioInputStream generateAudioStream(List<SelectedUnit> units)
     {
+        // TODO: this does not seem thread-safe -- what happens if several threads call FDPSOLAUnitConcatenator? Store all data in units.
         return (new FDPSOLAProcessor()).process(datagrams, rightContexts, audioformat, voicings, pscales, tscales);
     }
 }

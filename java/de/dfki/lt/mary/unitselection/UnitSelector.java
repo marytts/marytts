@@ -35,6 +35,7 @@ import java.util.List;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.w3c.dom.Element;
 
 import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.Relation;
@@ -108,7 +109,7 @@ public class UnitSelector
      * @throws IllegalStateException if no path for generating the target utterance
      * could be found
      */
-    public List selectUnits(List tokensAndBoundaries,
+    public List<SelectedUnit> selectUnits(List<Element> tokensAndBoundaries,
             de.dfki.lt.mary.modules.synthesis.Voice voice)
     throws SynthesisException
     {
@@ -123,18 +124,16 @@ public class UnitSelector
 
         // Create target chain for the utterance
         Relation segs = utt.getRelation(Relation.SEGMENT);
-        List targets = createTargets(segs);
+        List<Target> targets = createTargets(segs);
         // compute target features for each target in the chain
-        for (int j=0, nTargets = targets.size(); j<nTargets; j++) {
-            Target target = (Target) targets.get(j);
+        for (Target target : targets) {
             database.getTargetCostFunction().computeTargetFeatures(target);
-
         }
 
         //Select the best candidates using Viterbi and the join cost function.
         Viterbi viterbi = new Viterbi(targets, database, targetCostWeight);
         viterbi.apply();
-        List selectedUnits = viterbi.getSelectedUnits();
+        List<SelectedUnit> selectedUnits = viterbi.getSelectedUnits();
         // If you can not associate the candidate units in the best path 
         // with the items in the segment relation, there is no best path
         if (selectedUnits == null) {
@@ -150,9 +149,9 @@ public class UnitSelector
      * @param segs the Segment relation
      * @return a list of Target objects
      */
-    protected List createTargets(Relation segs)
+    protected List<Target> createTargets(Relation segs)
     {
-        List targets = new ArrayList();
+        List<Target> targets = new ArrayList<Target>();
         for (Item s = segs.getHead(); s != null; s = s.getNext()) {
             String segName = s.getFeatures().getString("name");
             String sampa = FreeTTSVoices.getMaryVoice(s.getUtterance().getVoice()).voice2sampa(segName);

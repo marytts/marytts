@@ -55,9 +55,9 @@ public class HalfPhoneUnitSelector extends UnitSelector
      * @param segs the Segment relation
      * @return a list of Target objects -- in this case, halfphone targets
      */
-    protected List createTargets(Relation segs)
+    protected List<Target> createTargets(Relation segs)
     {
-        List targets = new ArrayList();
+        List<Target> targets = new ArrayList<Target>();
         for (Item s = segs.getHead(); s != null; s = s.getNext()) {
             String segName = s.getFeatures().getString("name");
             String sampa = FreeTTSVoices.getMaryVoice(s.getUtterance().getVoice()).voice2sampa(segName);

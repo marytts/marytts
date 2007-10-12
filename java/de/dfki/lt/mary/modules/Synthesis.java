@@ -147,7 +147,7 @@ public class Synthesis extends InternalModule
             (doc, NodeFilter.SHOW_ELEMENT,
              new NameNodeFilter(new String[]{MaryXML.TOKEN, MaryXML.BOUNDARY}),
              false);
-        List elements = new ArrayList();
+        List<Element> elements = new ArrayList<Element>();
         Element element = null;
         Voice currentVoice = defaultVoice;
         String currentStyle = "";
@@ -209,7 +209,7 @@ public class Synthesis extends InternalModule
      * given voice, to the given target audio format.
      */
     private AudioInputStream synthesizeOneSection
-        (List tokensAndBoundaries, Voice voice, String currentStyle, String currentEffect, AudioFormat targetFormat)
+        (List<Element> tokensAndBoundaries, Voice voice, String currentStyle, String currentEffect, AudioFormat targetFormat)
     throws SynthesisException, UnsupportedAudioFileException
     {
         EffectsApplier ef = new EffectsApplier();

@@ -39,7 +39,7 @@ import de.dfki.lt.signalproc.util.DoubleDataSource;
 
 public class DatagramDoubleDataSource extends BufferedDoubleDataSource
 {
-    protected LinkedList datagrams;
+    protected LinkedList<Datagram> datagrams;
     
     /**
      * Construct an double data source from the given array of datagrams.
@@ -48,7 +48,7 @@ public class DatagramDoubleDataSource extends BufferedDoubleDataSource
     public DatagramDoubleDataSource(Datagram[] datagrams)
     {
         super((DoubleDataSource)null);
-        this.datagrams = new LinkedList();
+        this.datagrams = new LinkedList<Datagram>();
         dataLength = 0;
         for (int i=0; i<datagrams.length; i++) {
             dataLength += datagrams[i].getDuration();
@@ -60,13 +60,12 @@ public class DatagramDoubleDataSource extends BufferedDoubleDataSource
      * Construct an double data source from the given array of datagrams.
      * @param datagrams
      */
-    public DatagramDoubleDataSource(LinkedList datagrams)
+    public DatagramDoubleDataSource(LinkedList<Datagram> datagrams)
     {
         super((DoubleDataSource)null);
         this.datagrams = datagrams;
         dataLength = 0;
-        for (Iterator it = datagrams.iterator(); it.hasNext(); ) {
-            Datagram d = (Datagram) it.next();
+        for (Datagram d : datagrams) {
             dataLength += d.getDuration();
         }
     }
@@ -90,8 +89,7 @@ public class DatagramDoubleDataSource extends BufferedDoubleDataSource
     public int available()
     {
         int available = currentlyInBuffer();
-        for (Iterator it = datagrams.iterator(); it.hasNext(); ) {
-            Datagram d = (Datagram) it.next();
+        for (Datagram d : datagrams) {
             available += d.getDuration();
         }
         return available;
@@ -117,7 +115,7 @@ public class DatagramDoubleDataSource extends BufferedDoubleDataSource
         // read blocks:
         
         while (readSum < minLength && !datagrams.isEmpty()) {
-            Datagram next = (Datagram) datagrams.removeFirst();
+            Datagram next = datagrams.removeFirst();
             int length = (int) next.getDuration();
             if (buf.length < writePos + length) {
                 increaseBufferSize(writePos+length);
