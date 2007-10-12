@@ -41,7 +41,7 @@ public class DiphoneTarget extends Target {
     
     public DiphoneTarget(HalfPhoneTarget left, HalfPhoneTarget right)
     {
-        super(null, null);
+        super(null, null, null);
         this.name = left.name.substring(0, left.name.lastIndexOf("_"))
             + "-" + right.name.substring(0, right.name.lastIndexOf("_"));
         assert left.isRightHalf(); // the left half of this diphone must be the right half of a phone

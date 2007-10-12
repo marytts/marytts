@@ -33,11 +33,13 @@ import org.w3c.dom.Element;
 
 import com.sun.speech.freetts.Item;
 
+import de.dfki.lt.mary.MaryXML;
 import de.dfki.lt.mary.modules.phonemiser.Phoneme;
 import de.dfki.lt.mary.modules.synthesis.FreeTTSVoices;
 import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 import de.dfki.lt.mary.unitselection.featureprocessors.MaryGenericFeatureProcessors;
+import de.dfki.lt.mary.util.dom.MaryDomUtils;
 
 /**
  * A representation of a target representing the ideal properties of
@@ -67,10 +69,40 @@ public class Target
      */
     public Target(String name, Item item)
     {
+        this(name, null, item);
+    }
+    
+    /**
+     * Create a target associated to the given element in the MaryXML tree.
+     * @param name a name for the target, which may or may not
+     * coincide with the segment name.
+     * @param maryxmlElement the phone or boundary element in the MaryXML tree
+     * to be associated with this target.
+     */
+    public Target(String name, Element maryxmlElement)
+    {
+        this(name, maryxmlElement, null);
+    }
+    
+    /**
+     * Create a target associated to the given element in the MaryXML tree and with
+     * the given segment item.
+     * @param name a name for the target, which may or may not
+     * coincide with the segment name.
+     * @param maryxmlElement the phone or boundary element in the MaryXML tree
+     * to be associated with this target.
+     * @param item the phone segment item in the Utterance structure,
+     * to be associated to this target 
+     */
+    public Target(String name, Element maryxmlElement, Item item)
+    {
         logger = Logger.getLogger("Target");
         this.name = name;
+        this.maryxmlElement = maryxmlElement;
         this.item = item;
     }
+    
+    public Element getMaryxmlElement() { return maryxmlElement; }
     
     public Item getItem() { return item; }
     
@@ -146,6 +178,21 @@ public class Target
         if (item != null) {
             Voice v = FreeTTSVoices.getMaryVoice(item.getUtterance().getVoice());
             return v.getSampaPhoneme(v.voice2sampa(item.toString()));
+        } else if (maryxmlElement != null) {
+            Element voiceElement = (Element) MaryDomUtils.getAncestor(maryxmlElement, MaryXML.VOICE);
+            if (voiceElement != null) {
+                Voice v = Voice.getVoice(voiceElement);
+                if (v != null) {
+                    String sampa;
+                    if (maryxmlElement.getNodeName().equals(MaryXML.PHONE)) {
+                        sampa = maryxmlElement.getAttribute("p");
+                    } else {
+                        assert maryxmlElement.getNodeName().equals(MaryXML.BOUNDARY);
+                        sampa = "_";
+                    }
+                    return v.getSampaPhoneme(sampa);
+                }
+            }
         }
         return null;
     }

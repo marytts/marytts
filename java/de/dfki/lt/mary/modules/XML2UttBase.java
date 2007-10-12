@@ -350,6 +350,7 @@ public abstract class XML2UttBase extends InternalModule
                         }
                         float end = prevEnd + dur * 0.001f;
                         Item segItem = segmentRelation.appendItem();
+                        segItem.getFeatures().setObject("maryxmlElement", element);
                         // Silence symbol in voice-specific phonetic alphabet:
                         String silence = maryVoice.sampa2voice("_");
                         assert silence != null;
@@ -567,6 +568,7 @@ public abstract class XML2UttBase extends InternalModule
             Element segElement = null;
             while ((segElement = (Element) segIt.nextNode()) != null) {
                 Item segItem = segRelation.appendItem();
+                segItem.getFeatures().setObject("maryxmlElement", segElement);
                 sylStructSylItem.addDaughter(segItem);
                 String sampa = segElement.getAttribute("p");
                 assert !sampa.equals("");

@@ -153,9 +153,10 @@ public class UnitSelector
     {
         List<Target> targets = new ArrayList<Target>();
         for (Item s = segs.getHead(); s != null; s = s.getNext()) {
+            Element maryxmlElement = (Element) s.getFeatures().getObject("maryxmlElement");
             String segName = s.getFeatures().getString("name");
             String sampa = FreeTTSVoices.getMaryVoice(s.getUtterance().getVoice()).voice2sampa(segName);
-            targets.add(new Target(sampa, s));
+            targets.add(new Target(sampa, maryxmlElement, s));
         }
         return targets;
     }

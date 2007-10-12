@@ -31,6 +31,8 @@ package de.dfki.lt.mary.unitselection;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.w3c.dom.Element;
+
 import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.ItemContents;
 import com.sun.speech.freetts.Relation;
@@ -64,12 +66,13 @@ public class DiphoneUnitSelector extends UnitSelector
 
         Item initialSilence = new Item(segs, new ItemContents());
         initialSilence.getFeatures().setFloat("end", 0.001f);
-        HalfPhoneTarget prev = new HalfPhoneTarget(silenceSymbol+"_R", initialSilence, false);
+        HalfPhoneTarget prev = new HalfPhoneTarget(silenceSymbol+"_R", null, initialSilence, false);
         for (Item s = segs.getHead(); s != null; s = s.getNext()) {
+            Element maryxmlElement = (Element) s.getFeatures().getObject("maryxmlElement");
             String segName = s.getFeatures().getString("name");
             String sampa = FreeTTSVoices.getMaryVoice(s.getUtterance().getVoice()).voice2sampa(segName);
-            HalfPhoneTarget leftHalfPhone = new HalfPhoneTarget(sampa+"_L", s, true); // left half
-            HalfPhoneTarget rightHalfPhone = new HalfPhoneTarget(sampa+"_R", s, false); // right half
+            HalfPhoneTarget leftHalfPhone = new HalfPhoneTarget(sampa+"_L", maryxmlElement, s, true); // left half
+            HalfPhoneTarget rightHalfPhone = new HalfPhoneTarget(sampa+"_R", maryxmlElement, s, false); // right half
             targets.add(new DiphoneTarget(prev, leftHalfPhone));
             prev = rightHalfPhone;
         }
@@ -79,7 +82,7 @@ public class DiphoneUnitSelector extends UnitSelector
             float prevEnd = prev.getItem().getFeatures().getFloat("end");
             Item finalSilence = new Item(segs, new ItemContents());
             finalSilence.getFeatures().setFloat("end", prevEnd+0.001f);
-            HalfPhoneTarget silence = new HalfPhoneTarget(silenceSymbol+"_L", finalSilence, true);
+            HalfPhoneTarget silence = new HalfPhoneTarget(silenceSymbol+"_L", null, finalSilence, true);
             targets.add(new DiphoneTarget(prev, silence));
         }
         return targets;

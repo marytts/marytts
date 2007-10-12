@@ -31,6 +31,8 @@ package de.dfki.lt.mary.unitselection;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.w3c.dom.Element;
+
 import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.Relation;
 
@@ -59,10 +61,11 @@ public class HalfPhoneUnitSelector extends UnitSelector
     {
         List<Target> targets = new ArrayList<Target>();
         for (Item s = segs.getHead(); s != null; s = s.getNext()) {
+            Element maryxmlElement = (Element) s.getFeatures().getObject("maryxmlElement");
             String segName = s.getFeatures().getString("name");
             String sampa = FreeTTSVoices.getMaryVoice(s.getUtterance().getVoice()).voice2sampa(segName);
-            targets.add(new HalfPhoneTarget(sampa+"_L", s, true)); // left half
-            targets.add(new HalfPhoneTarget(sampa+"_R", s, false)); // right half
+            targets.add(new HalfPhoneTarget(sampa+"_L", maryxmlElement, s, true)); // left half
+            targets.add(new HalfPhoneTarget(sampa+"_R", maryxmlElement, s, false)); // right half
         }
         return targets;
     }
