@@ -107,9 +107,9 @@ public class MaryDataType
     protected static final Traits BINARY = new Traits(false, false, false, false);
 
 
-    private static final Vector allTypes = new Vector();
+    private static final Vector<MaryDataType> allTypes = new Vector<MaryDataType>();
     private static boolean allTypesIsSorted = false;
-    private static final Map nameMap = new HashMap();
+    private static final Map<String,MaryDataType> nameMap = new HashMap<String,MaryDataType>();
     
     /**
      * The preferred way to create a data type. In order to define a MaryDataType "XYZ",
@@ -139,41 +139,41 @@ public class MaryDataType
     }
     
 
-    public static Vector getInputTypeStrings() {
+    public static Vector<String> getInputTypeStrings() {
         if (!allTypesIsSorted) sortAllTypes();
-        Vector result = new Vector(10);
-        for (int i=0; i<allTypes.size(); i++) {
-            if (((MaryDataType)allTypes.get(i)).isInputType())
-                result.add(((MaryDataType)allTypes.get(i)).name());
+        Vector<String> result = new Vector<String>(10);
+        for (MaryDataType t : allTypes) {
+            if (t.isInputType())
+                result.add(t.name());
         }
         return result;
     }
 
-    public static Vector getOutputTypeStrings() {
+    public static Vector<String> getOutputTypeStrings() {
         if (!allTypesIsSorted) sortAllTypes();
-        Vector result = new Vector(10);
-        for (int i=0; i<allTypes.size(); i++) {
-            if (((MaryDataType)allTypes.get(i)).isOutputType())
-                result.add(((MaryDataType)allTypes.get(i)).name());
+        Vector<String> result = new Vector<String>(10);
+        for (MaryDataType t : allTypes) {
+            if (t.isOutputType())
+                result.add(t.name());
         }
         return result;
     }
-      public static Vector getInputTypes() {
+      public static Vector<MaryDataType> getInputTypes() {
           if (!allTypesIsSorted) sortAllTypes();
-        Vector result = new Vector(10);
-        for (int i=0; i<allTypes.size(); i++) {
-            if (((MaryDataType)allTypes.get(i)).isInputType())
-                result.add(allTypes.get(i));
+        Vector<MaryDataType> result = new Vector<MaryDataType>(10);
+        for (MaryDataType t : allTypes) {
+            if (t.isInputType())
+                result.add(t);
         }
         return result;
     }
 
-    public static Vector getOutputTypes() {
+    public static Vector<MaryDataType> getOutputTypes() {
         if (!allTypesIsSorted) sortAllTypes();
-        Vector result = new Vector(10);
-        for (int i=0; i<allTypes.size(); i++) {
-            if (((MaryDataType)allTypes.get(i)).isOutputType())
-                result.add(allTypes.get(i));
+        Vector<MaryDataType> result = new Vector<MaryDataType>(10);
+        for (MaryDataType t : allTypes) {
+            if (t.isOutputType())
+                result.add(t);
         }
         return result;
     }
@@ -207,7 +207,7 @@ public class MaryDataType
      * @throws Error if the data type cannot be found
      */
     public static MaryDataType get(String name) {
-        MaryDataType t = (MaryDataType) nameMap.get(name);
+        MaryDataType t = nameMap.get(name);
         if (t == null) { // try to initialize the _Definer class
         // This should initialize the class, i.e. execute the static { } blocks.
 	    try {
@@ -216,23 +216,19 @@ public class MaryDataType
                 throw new Error("Unknown MaryDataType `" + name + "'", e);
             }
             // and try again:
-            t = (MaryDataType) nameMap.get(name);
+            t = nameMap.get(name);
         }
         return t;
     }
 
-    public static Vector getDataTypes() {
+    public static Vector<MaryDataType> getDataTypes() {
         if (!allTypesIsSorted) sortAllTypes();
-        return (Vector) allTypes.clone();
+        return (Vector<MaryDataType>) allTypes.clone();
     }
 
     private static void sortAllTypes() {
-        Collections.sort(allTypes, new Comparator() {
-            public int compare(Object a, Object b) {
-                if (!(a instanceof MaryDataType) || !(b instanceof MaryDataType))
-                    return 0;
-                MaryDataType one = (MaryDataType) a;
-                MaryDataType two = (MaryDataType) b;
+        Collections.sort(allTypes, new Comparator<MaryDataType>() {
+            public int compare(MaryDataType one, MaryDataType two) {
                 // First, sort by input type / output type status:
                 if (one.isInputType() && !two.isInputType()) {
                     return -1; // one is first

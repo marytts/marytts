@@ -792,30 +792,29 @@ public class CoverageDefinition{
             Map ph2Frequency){
         DecimalFormat df = new DecimalFormat("0.00000");
         //Sort phones according to their frequencies
-        TreeMap freq2Phones = new TreeMap(Collections.reverseOrder());
-        Map freq2Prob = new HashMap();
+        TreeMap<Integer,List<String>> freq2Phones = new TreeMap<Integer,List<String>>(Collections.reverseOrder());
+        Map<Integer,Double> freq2Prob = new HashMap<Integer,Double>();
         Set phones = ph2Frequency.keySet();
         for (Iterator it = phones.iterator();it.hasNext();){
             String nextPhone = (String) it.next();
             Integer nextFreq = (Integer)ph2Frequency.get(nextPhone);            
             if (!freq2Phones.containsKey(nextFreq)){
-                List phoneList = new ArrayList();
+                List<String> phoneList = new ArrayList<String>();
                 phoneList.add(nextPhone);
                 freq2Phones.put(nextFreq,phoneList);
                 int freq = nextFreq.intValue();
                 double prob = (double)freq*100.0/(double)numTokens;
                 freq2Prob.put(nextFreq,new Double(prob));
             } else {
-                List phoneList = (List)freq2Phones.get(nextFreq);
+                List<String> phoneList = freq2Phones.get(nextFreq);
                 phoneList.add(nextPhone);
             }
         }
         //output phones and their frequencies
-        Set frequencies = freq2Phones.keySet();
-        for (Iterator it = frequencies.iterator();it.hasNext();){
-            Integer nextFreq = (Integer) it.next();
-            Double nextProb = (Double) freq2Prob.get(nextFreq);
-            List nextPhoneList = (List) freq2Phones.get(nextFreq);
+        Set<Integer> frequencies = freq2Phones.keySet();
+        for (Integer nextFreq : frequencies){
+            Double nextProb = freq2Prob.get(nextFreq);
+            List<String> nextPhoneList = freq2Phones.get(nextFreq);
             for (int i=0; i<nextPhoneList.size();i++){
                 out.print(nextPhoneList.get(i));
                 out.print(" : ");

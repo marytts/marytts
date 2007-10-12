@@ -45,11 +45,9 @@ import de.dfki.lt.mary.unitselection.Target;
  public class ViterbiPoint {
      private Target target = null;
      private ViterbiCandidate[] candidates = null;
-     private SortedSet paths = new TreeSet(new Comparator() {
-         public int compare(Object o1, Object o2)
+     private SortedSet<ViterbiPath> paths = new TreeSet<ViterbiPath>(new Comparator<ViterbiPath>() {
+         public int compare(ViterbiPath p1, ViterbiPath p2)
          {
-             ViterbiPath p1 = (ViterbiPath) o1;
-             ViterbiPath p2 = (ViterbiPath) o2;
              // big is bad:
              return Double.compare(p1.getScore(), p2.getScore());
          }

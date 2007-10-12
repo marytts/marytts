@@ -94,8 +94,8 @@ public class Request {
 
     // Keep track of timing info for each module
     // (map MaryModule onto Long)
-    private Set usedModules;
-    private Map timingInfo;
+    private Set<MaryModule> usedModules;
+    private Map<MaryModule,Long> timingInfo;
 
     public Request(MaryDataType inputType, MaryDataType outputType, Voice defaultVoice,
                    int id, AudioFileFormat audioFileFormat)
@@ -140,8 +140,8 @@ public class Request {
         
         // Keep track of timing info for each module
         // (map MaryModule onto Long)
-        usedModules = new LinkedHashSet();
-        timingInfo = new HashMap();
+        usedModules = new LinkedHashSet<MaryModule>();
+        timingInfo = new HashMap<MaryModule,Long>();
     }
 
     public MaryDataType getInputType() {
@@ -304,8 +304,7 @@ public class Request {
         }
         long stopTime = System.currentTimeMillis();
         logger.info("Request processed in " + (stopTime - startTime) + " ms.");
-        for (Iterator it = usedModules.iterator(); it.hasNext();) {
-            MaryModule m = (MaryModule) it.next();
+        for (MaryModule m : usedModules) {
             logger.info("   " + m.name() + " took " + timingInfo.get(m) + " ms");
         }
         if (appendableAudioStream != null) appendableAudioStream.doneAppending();
@@ -330,7 +329,7 @@ public class Request {
         Locale locale = determineLocale(oneInputData);
         assert locale != null;
         logger.debug("Determining which modules to use");
-        List neededModules = Mary.modulesRequiredForProcessing(oneInputData.type(), oneOutputType, locale, oneInputData.getDefaultVoice());
+        List<MaryModule> neededModules = Mary.modulesRequiredForProcessing(oneInputData.type(), oneOutputType, locale, oneInputData.getDefaultVoice());
         // Now neededModules contains references to the needed modules,
         // in the order in which they are to process the data.
         if (neededModules == null) {
@@ -388,7 +387,7 @@ public class Request {
             currentData = outData;
             long moduleStopTime = System.currentTimeMillis();
             long delta = moduleStopTime - moduleStartTime;
-            Long soFar = (Long) timingInfo.get(m);
+            Long soFar = timingInfo.get(m);
             if (soFar != null)
                 timingInfo.put(m, new Long(soFar.longValue()+delta));
             else

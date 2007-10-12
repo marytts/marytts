@@ -70,7 +70,7 @@ public class SortTestResults{
         File sameResultsFile = new File("./sameResults.txt");
         File numSentencesFile = new File("./numSentencesSort.txt");
         
-        List resultList = new ArrayList();
+        List<TestResult> resultList = new ArrayList<TestResult>();
         BufferedReader logIn = 
             new BufferedReader(
                     new InputStreamReader(
@@ -84,11 +84,11 @@ public class SortTestResults{
         }
         
         /* sort */
-        SortedMap simpleDiphone2Results = new TreeMap(Collections.reverseOrder());
-        SortedMap clusteredDiphone2Results = new TreeMap(Collections.reverseOrder());
-        SortedMap simpleProsody2Results = new TreeMap(Collections.reverseOrder());
-        SortedMap clusteredProsody2Results = new TreeMap(Collections.reverseOrder());
-        SortedMap numSentences2Results = new TreeMap();
+        SortedMap<Double,TestResult> simpleDiphone2Results = new TreeMap<Double,TestResult>(Collections.reverseOrder());
+        SortedMap<Double,TestResult> clusteredDiphone2Results = new TreeMap<Double,TestResult>(Collections.reverseOrder());
+        SortedMap<Double,TestResult> simpleProsody2Results = new TreeMap<Double,TestResult>(Collections.reverseOrder());
+        SortedMap<Double,TestResult> clusteredProsody2Results = new TreeMap<Double,TestResult>(Collections.reverseOrder());
+        SortedMap<Integer,TestResult> numSentences2Results = new TreeMap<Integer,TestResult>();
         double[] sdCovArray = new double[resultList.size()];
         double[] soCovArray = new double[resultList.size()];
         double[] cdCovArray = new double[resultList.size()];

@@ -78,8 +78,8 @@ public class Mary {
 
     private static Category logger;
 
-    private static Vector allModules;
-    private static HashMap type2Modules;
+    private static Vector<MaryModule> allModules;
+    private static HashMap<MaryDataType,Vector<MaryModule>> type2Modules;
     private static int currentState = STATE_OFF;
 
     /**
@@ -106,11 +106,11 @@ public class Mary {
      * Provide a vector containing all modules accepting the given data type
      * as input.
      */
-    public static Vector getModulesAcceptingType(MaryDataType type) {
+    public static Vector<MaryModule> getModulesAcceptingType(MaryDataType type) {
         if (type == null)
             throw new NullPointerException("received null type");
         assert type2Modules != null;
-        return (Vector) type2Modules.get(type);
+        return type2Modules.get(type);
     }
 
     /**
@@ -134,7 +134,7 @@ public class Mary {
      * @return the (ordered) list of modules required, or null if no such
      * list could be found.
      */
-    public static LinkedList modulesRequiredForProcessing(
+    public static LinkedList<MaryModule> modulesRequiredForProcessing(
         MaryDataType sourceType,
         MaryDataType targetType,
         Locale locale)
@@ -148,7 +148,7 @@ public class Mary {
      * @return the (ordered) list of modules required, or null if no such
      * list could be found.
      */
-    public static LinkedList modulesRequiredForProcessing(
+    public static LinkedList<MaryModule> modulesRequiredForProcessing(
         MaryDataType sourceType,
         MaryDataType targetType,
         Locale locale,
@@ -159,7 +159,7 @@ public class Mary {
             throw new NullPointerException("Received null target type");
         if (locale == null)
             throw new NullPointerException("Received null locale");
-        LinkedList seenTypes = new LinkedList();
+        LinkedList<MaryDataType> seenTypes = new LinkedList<MaryDataType>();
         seenTypes.add(sourceType);
         return modulesRequiredForProcessing(
             sourceType,
@@ -188,12 +188,12 @@ public class Mary {
         
     }
 
-    private static LinkedList modulesRequiredForProcessing(
+    private static LinkedList<MaryModule> modulesRequiredForProcessing(
         MaryDataType sourceType,
         MaryDataType targetType,
         Locale locale,
         Voice voice,
-        LinkedList seenTypes) {
+        LinkedList<MaryDataType> seenTypes) {
         // This method recursively calls itself.
         // It forward-constructs a list of seen types (upon test),
         // and backward-constructs a list of required modules (upon success).
@@ -201,7 +201,7 @@ public class Mary {
         // Terminating condition:
         if (sourceType == targetType) {
                 logger.debug("found path through modules");
-            return new LinkedList();
+            return new LinkedList<MaryModule>();
         }
         // Recursion step:
         // Any voice-specific modules?
@@ -240,7 +240,7 @@ public class Mary {
                             + " into "
                             + outputType);
                 // recursive call:
-                LinkedList path =
+                LinkedList<MaryModule> path =
                     modulesRequiredForProcessing(
                         outputType,
                         targetType,
@@ -262,10 +262,7 @@ public class Mary {
 
     private static void startModules()
         throws ClassNotFoundException, InstantiationException, Exception {
-        for (Iterator it = MaryProperties.moduleClasses().iterator();
-            it.hasNext();
-            ) {
-            String moduleClassName = (String) it.next();
+        for (String moduleClassName : MaryProperties.moduleClasses()) {
             MaryModule m =
                 (MaryModule) Class.forName(moduleClassName).newInstance();
             allModules.add(m);
@@ -273,8 +270,7 @@ public class Mary {
         // Separate loop for startup allows modules to cross-reference to each
         // other via Mary.getModule(Class) even if some have not yet been
         // started.
-        for (Iterator it = allModules.iterator(); it.hasNext();) {
-            MaryModule m = (MaryModule) it.next();
+        for (MaryModule m : allModules) {
             // Only start the modules here if in server mode: 
             if ((MaryProperties.getBoolean("server") || m instanceof Synthesis) 
                     && m.getState() == MaryModule.MODULE_OFFLINE) {
@@ -295,7 +291,7 @@ public class Mary {
     public static void startup() throws Exception {
         currentState = STATE_STARTING;
 
-        allModules = new Vector();
+        allModules = new Vector<MaryModule>();
 
         // Configure Logging:
         logger = Logger.getLogger("main");
@@ -391,13 +387,13 @@ public class Mary {
             logger.debug("XML libraries used:");
             try {
                 Class xercesVersion = Class.forName("org.apache.xerces.impl.Version");
-                logger.debug(xercesVersion.getMethod("getVersion", null).invoke(null, null));
+                logger.debug(xercesVersion.getMethod("getVersion").invoke(null));
             } catch (Exception e) {
                 logger.debug("XML parser is not Xerces: " + DocumentBuilderFactory.newInstance().getClass());
             }
             try {
                 Class xalanVersion = Class.forName("org.apache.xalan.Version");
-                logger.debug(xalanVersion.getMethod("getVersion", null).invoke(null, null));
+                logger.debug(xalanVersion.getMethod("getVersion").invoke(null));
             } catch (Exception e) {
                 logger.debug("XML transformer is not Xalan: " + TransformerFactory.newInstance().getClass());
             }
@@ -411,14 +407,14 @@ public class Mary {
         // Fill datatype-to-module translation table:
         // (for each data type, provide a list of modules accepting this
         // type as input)
-        type2Modules = new HashMap();
+        type2Modules = new HashMap<MaryDataType,Vector<MaryModule>>();
         for (Iterator it = allModules.iterator(); it.hasNext();) {
             MaryModule m = (MaryModule) it.next();
-            Vector list = null;
+            Vector<MaryModule> list = null;
             if (type2Modules.containsKey(m.inputType())) {
-                list = (Vector) type2Modules.get(m.inputType());
+                list = type2Modules.get(m.inputType());
             } else {
-                list = new Vector();
+                list = new Vector<MaryModule>();
                 type2Modules.put(m.inputType(), list);
             }
             list.add(m);

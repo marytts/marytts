@@ -117,10 +117,8 @@ public class Voice
          : true); // big-endian
     /** List all registered voices. This set will always return the voices in the order of their
      * wantToBeDefault value, highest first. */
-    private static Set allVoices = new TreeSet(new Comparator() {
-    	public int compare(Object o1, Object o2) {
-    		Voice v1 = (Voice) o1;
-    		Voice v2 = (Voice) o2;
+    private static Set<Voice> allVoices = new TreeSet<Voice>(new Comparator<Voice>() {
+    	public int compare(Voice v1, Voice v2) {
     		// Return negative number if v1 should be listed before v2
     		int desireDelta = v2.wantToBeDefault - v1.wantToBeDefault; 
     		if (desireDelta != 0) return desireDelta;
@@ -130,7 +128,7 @@ public class Voice
     });
     /** This map associates a value de.dfki.lt.mary.modules.synthesis.Voice to
      * a key Locale: */
-    private static Map defaultVoices = new HashMap();
+    private static Map<Locale,Voice> defaultVoices = new HashMap<Locale,Voice>();
     /** logger */
     private static Logger logger = Logger.getLogger("Voice");
 
@@ -582,7 +580,7 @@ public class Voice
 	{
 		
         Locale locale = voice.getLocale();
-        Voice currentDefault = (Voice) defaultVoices.get(locale);
+        Voice currentDefault = defaultVoices.get(locale);
         if (currentDefault == null || currentDefault.wantToBeDefault < voice.wantToBeDefault) {
             logger.info("New default voice for locale " + locale + ": " + voice.getName() + " (desire " + voice.wantToBeDefault + ")");
         	defaultVoices.put(locale, voice);
@@ -724,7 +722,7 @@ public class Voice
 
     public static Voice getDefaultVoice(Locale locale)
     {
-        Voice v = (Voice) defaultVoices.get(locale);
+        Voice v = defaultVoices.get(locale);
         if (v == null) v = getVoice(locale, FEMALE);
         if (v == null) v = getVoice(locale, MALE);
         if (v == null) logger.warn("Could not find default voice for locale "+locale);
