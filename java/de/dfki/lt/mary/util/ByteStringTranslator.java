@@ -10,7 +10,7 @@ import java.util.Arrays;
  */
 public class ByteStringTranslator
 {
-    ArrayList list;
+    ArrayList<String> list;
     
     /**
      * Initialize empty byte-string two-way translator.
@@ -18,12 +18,12 @@ public class ByteStringTranslator
      */
     public ByteStringTranslator()
     {
-        list = new ArrayList();
+        list = new ArrayList<String>();
     }
 
     public ByteStringTranslator(byte initialRange)
     {
-        list = new ArrayList(initialRange);
+        list = new ArrayList<String>(initialRange);
     }
 
     /**
@@ -41,7 +41,7 @@ public class ByteStringTranslator
             }
             throw new IllegalArgumentException("Too many strings for a byte-string translator: \n"+buf.toString()+ "("+strings.length+" strings)");
         }
-        list = new ArrayList(Arrays.asList(strings));
+        list = new ArrayList<String>(Arrays.asList(strings));
     }
     
     public void set(byte b, String s)
@@ -76,12 +76,12 @@ public class ByteStringTranslator
         int index = (int) b;
         if (index < 0 || index >= list.size())
             throw new IndexOutOfBoundsException("Byte value out of range: "+index);
-        return (String) list.get(index);
+        return list.get(index);
     }
     
     public String[] getStringValues()
     {
-        return (String[]) list.toArray(new String[0]);
+        return list.toArray(new String[0]);
     }
     
     public byte getNumberOfValues()

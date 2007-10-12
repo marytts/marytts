@@ -10,7 +10,7 @@ import java.util.Arrays;
  */
 public class IntStringTranslator
 {
-    ArrayList list;
+    ArrayList<String> list;
     
     /**
      * Initialize empty int-string two-way translator.
@@ -18,12 +18,12 @@ public class IntStringTranslator
      */
     public IntStringTranslator()
     {
-        list = new ArrayList();
+        list = new ArrayList<String>();
     }
 
     public IntStringTranslator(int initialRange)
     {
-        list = new ArrayList(initialRange);
+        list = new ArrayList<String>(initialRange);
     }
     
     /**
@@ -34,7 +34,7 @@ public class IntStringTranslator
      */
     public IntStringTranslator(String[] strings)
     {
-        list = new ArrayList(Arrays.asList(strings));
+        list = new ArrayList<String>(Arrays.asList(strings));
     }
     
     public void set(int i, String s)
@@ -67,12 +67,12 @@ public class IntStringTranslator
     {
         if (i < 0 || i >= list.size())
             throw new IndexOutOfBoundsException("Int value out of range: "+i);
-        return (String) list.get(i);
+        return list.get(i);
     }
     
     public String[] getStringValues()
     {
-        return (String[]) list.toArray(new String[0]);
+        return list.toArray(new String[0]);
     }
     
     public int getHighestValue()

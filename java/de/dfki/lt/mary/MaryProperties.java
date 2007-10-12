@@ -69,8 +69,8 @@ public class MaryProperties
     // Global configuration settings independent of any particular request:
     private static String maryBase = null;
     private static boolean logToFile = false;
-    private static Vector moduleClasses = new Vector();
-    private static Vector synthClasses = new Vector();
+    private static Vector<String> moduleClasses = new Vector<String>();
+    private static Vector<String> synthClasses = new Vector<String>();
 
     private static Object[] localSchemas;
 
@@ -79,9 +79,9 @@ public class MaryProperties
     /** Whether to log to the log file or to the screen */
     public static boolean logToFile() { return logToFile; }
     /** Names of the classes to use as modules. */
-    public static Vector moduleClasses() { return moduleClasses; }
+    public static Vector<String> moduleClasses() { return moduleClasses; }
     /** Names of the classes to use as waveform synthesizers. */
-    public static Vector synthesizerClasses() { return synthClasses; }
+    public static Vector<String> synthesizerClasses() { return synthClasses; }
     /** An Object[] containing File objects referencing local Schema files */
     public static Object[] localSchemas() { return localSchemas; }
     
@@ -121,15 +121,14 @@ public class MaryProperties
         if (configFiles.length == 0) {
             throw new FileNotFoundException("No configuration files found in directory: "+ confDir.getPath()); 
         }
-        List allConfigs = readConfigFiles(configFiles);
+        List<Properties> allConfigs = readConfigFiles(configFiles);
         boolean allThere = checkDependencies(allConfigs);
         if (!allThere) System.exit(1);
 
         // Add properties from individual config files to global properties:
         // Global mary properties
         p = new Properties();
-        for (Iterator it=allConfigs.iterator(); it.hasNext(); ) {
-            Properties oneP = (Properties) it.next();
+        for (Properties oneP : allConfigs) {
             for (Iterator keyIt=oneP.keySet().iterator(); keyIt.hasNext(); ) {
                 String key = (String) keyIt.next();
                 // Ignore dependency-related properties:
@@ -169,7 +168,7 @@ public class MaryProperties
         String helperString;
         StringTokenizer st;
 
-        Set ignoreModuleClasses = new HashSet();
+        Set<String> ignoreModuleClasses = new HashSet<String>();
         helperString = getProperty("ignore.modules.classes.list");
         if (helperString != null) {
             // allow whitespace and comma as list delimiters
@@ -198,7 +197,7 @@ public class MaryProperties
 
         helperString = getProperty("schema.local");
         st = new StringTokenizer(helperString);
-        Vector v = new Vector();
+        Vector<File> v = new Vector<File>();
         while (st.hasMoreTokens()) {
             String schemaFilename = expandPath(st.nextToken());
             File schemaFile = new File(schemaFilename);
@@ -218,11 +217,11 @@ public class MaryProperties
      * points to the path on the filesystem from where the config file was loaded.
      * @throws Exception if problem occurred that impairs a proper system startup 
      */
-    private static List readConfigFiles(File[] configFiles) throws Exception
+    private static List<Properties> readConfigFiles(File[] configFiles) throws Exception
     {
         
         /////////////////// Read config files ////////////////////
-        List allConfigs = new LinkedList();
+        List<Properties> allConfigs = new LinkedList<Properties>();
         for (int i=0; i<configFiles.length; i++) {
             // Ignore config file?
             if (System.getProperty("ignore."+configFiles[i].getName()) != null) 
@@ -244,15 +243,14 @@ public class MaryProperties
      * @return true if all dependencies are OK
      * @throws Exception if a problem occurs
      */
-    private static boolean checkDependencies(List allConfigs)
+    private static boolean checkDependencies(List<Properties> allConfigs)
     throws Exception
     {
         // Keep track of "requires" and "provides" settings, in order to check if
         // all requirements are satisfied.
-        Map requiresMap = new HashMap(); // map a requirement to a list of components that have it
-        Map providesMap = new HashMap(); // map a provided item to a list of components providing it
-        for (Iterator it = allConfigs.iterator(); it.hasNext(); ) {
-            Properties oneP = (Properties) it.next();
+        Map<String,List<Properties>> requiresMap = new HashMap<String,List<Properties>>(); // map a requirement to a list of components that have it
+        Map<String,List<Properties>> providesMap = new HashMap<String,List<Properties>>(); // map a provided item to a list of components providing it
+        for (Properties oneP : allConfigs) {
             // Build up dependency lists
             String name = oneP.getProperty("name");
             if (name == null) {
@@ -277,11 +275,9 @@ public class MaryProperties
 
         // Resolve dependencies
         boolean allThere = true;
-        for (Iterator it = requiresMap.keySet().iterator(); it.hasNext(); ) {
-            String requirement = (String) it.next();
-            List requirers = (List) requiresMap.get(requirement);
-            for (Iterator requirerIt = requirers.iterator(); requirerIt.hasNext(); ) {
-                Properties requirer = (Properties) requirerIt.next();
+        for (String requirement : requiresMap.keySet()) {
+            List<Properties> requirers = requiresMap.get(requirement);
+            for (Properties requirer : requirers) {
                 if (!providesMap.containsKey(requirement)) {
                     // Missing dependency
                     String component = tryToSolveDependencyProblem(requirement, requirer, "component is missing");
@@ -294,7 +290,7 @@ public class MaryProperties
                         // add new config file, re-check
                         File configFile = new File(maryBase+"/conf/"+component+".config");
                         assert configFile.exists();
-                        allConfigs.add(readConfigFiles(new File[] {configFile}));
+                        allConfigs.addAll(readConfigFiles(new File[] {configFile}));
                         // recursive call
                         allThere = checkDependencies(allConfigs);
                     } else { // failed, cannot solve
@@ -303,9 +299,8 @@ public class MaryProperties
                 } else { // Component is there
                     // Check version
                     String reqVersion = requirer.getProperty("requires."+requirement+".version");
-                    List providers = (List) providesMap.get(requirement);
-                    for (Iterator providersIt = providers.iterator(); providersIt.hasNext(); ) {
-                        Properties provider = (Properties) providersIt.next();
+                    List<Properties> providers = providesMap.get(requirement);
+                    for (Properties provider : providers) {
                         if (reqVersion != null) {
                             String version =  provider.getProperty(requirement+".version");
                             String problem = null;
@@ -326,7 +321,7 @@ public class MaryProperties
                                     // add new config file, re-check
                                     File configFile = new File(maryBase+"/conf/"+component+".config");
                                     assert configFile.exists();
-                                    allConfigs.add(readConfigFiles(new File[] {configFile}));
+                                    allConfigs.addAll(readConfigFiles(new File[] {configFile}));
                                     // recursive call
                                     allThere = checkDependencies(allConfigs);
                                 } else { // failed, cannot solve
@@ -359,13 +354,13 @@ public class MaryProperties
      * @param key
      * @param listValue
      */
-    private static final void addToMapList(Map map, String key, Object listValue)
+    private static final void addToMapList(Map<String,List<Properties>> map, String key, Properties listValue)
     {
-        List list;
+        List<Properties> list;
         if (map.containsKey(key)) {
-            list = (List) map.get(key);
+            list = map.get(key);
         } else {
-            list = new ArrayList();
+            list = new ArrayList<Properties>();
             map.put(key, list);
         }
         list.add(listValue);

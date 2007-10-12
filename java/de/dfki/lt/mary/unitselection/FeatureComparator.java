@@ -32,7 +32,7 @@ import java.util.Comparator;
 
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 
-public class FeatureComparator implements Comparator {
+public class FeatureComparator implements Comparator<FeatureVector> {
  
     /** The index of the feature to be compared in the feature vector. */
     private int I = -1;
@@ -76,9 +76,7 @@ public class FeatureComparator implements Comparator {
      * 
      * @see FeatureComparator#setFeatureIdx(int)
      */
-    public int compare( Object v1, Object v2 ) {
-        FeatureVector a = (FeatureVector)v1;
-        FeatureVector b = (FeatureVector)v2;
+    public int compare( FeatureVector a, FeatureVector b ) {
         Comparable n1 = (Comparable)( a.getFeature( I ) );
         Comparable n2 = (Comparable)( b.getFeature( I ) );
         return( n1.compareTo( n2 ) );
@@ -100,11 +98,9 @@ public class FeatureComparator implements Comparator {
  * An additional comparator for the unit indexes in the feature vectors.
  * 
  */
-class UnitIndexComparator implements Comparator {
+class UnitIndexComparator implements Comparator<FeatureVector> {
     
-    public int compare( Object v1, Object v2 ) {
-        FeatureVector a = (FeatureVector)v1;
-        FeatureVector b = (FeatureVector)v2;
+    public int compare( FeatureVector a, FeatureVector b ) {
         return( a.getUnitIndex() - b.getUnitIndex() );
     }
 

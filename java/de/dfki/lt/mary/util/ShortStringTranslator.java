@@ -10,7 +10,7 @@ import java.util.Arrays;
  */
 public class ShortStringTranslator
 {
-    ArrayList list;
+    ArrayList<String> list;
     
     /**
      * Initialize empty short-string two-way translator.
@@ -18,12 +18,12 @@ public class ShortStringTranslator
      */
     public ShortStringTranslator()
     {
-        list = new ArrayList();
+        list = new ArrayList<String>();
     }
 
     public ShortStringTranslator(short initialRange)
     {
-        list = new ArrayList(initialRange);
+        list = new ArrayList<String>(initialRange);
     }
 
     /**
@@ -35,7 +35,7 @@ public class ShortStringTranslator
     public ShortStringTranslator(String[] strings)
     {
         if (strings.length > Short.MAX_VALUE) throw new IllegalArgumentException("Too many strings for a short-string translator");
-        list = new ArrayList(Arrays.asList(strings));
+        list = new ArrayList<String>(Arrays.asList(strings));
     }
     
     public void set(short b, String s)
@@ -69,12 +69,12 @@ public class ShortStringTranslator
         int index = (int) b;
         if (index < 0 || index >= list.size())
             throw new IndexOutOfBoundsException("Short value out of range: "+index);
-        return (String) list.get(index);
+        return list.get(index);
     }
     
     public String[] getStringValues()
     {
-        return (String[]) list.toArray(new String[0]);
+        return list.toArray(new String[0]);
     }
     
     public short getNumberOfValues()

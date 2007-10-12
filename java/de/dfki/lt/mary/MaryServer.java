@@ -162,7 +162,7 @@ public class MaryServer {
     private ServerSocket server;
     private Logger logger;
     private int runningNumber = 1;
-    private Map clientMap;
+    private Map<Integer,Object[]> clientMap;
 
     public MaryServer() {
         logger = Logger.getLogger("server");
@@ -170,7 +170,7 @@ public class MaryServer {
 
     public void run() throws IOException, NoSuchPropertyException {
         logger.info("Starting server.");
-        clientMap = Collections.synchronizedMap(new HashMap());
+        clientMap = Collections.synchronizedMap(new HashMap<Integer,Object[]>());
         server = new ServerSocket(MaryProperties.needInteger("socket.port"));
 
         while (true) {
@@ -517,7 +517,7 @@ public class MaryServer {
                 Object[] value = new Object[2];
                 value[0] = client;
                 value[1] = request;
-                clientMap.put(new Integer(id), value);
+                clientMap.put(id, value);
                 return true;
             }
             return false;
@@ -542,7 +542,7 @@ public class MaryServer {
             Object[] value = null;
             do {
                 Thread.yield();
-                value = (Object[]) clientMap.get(new Integer(id));
+                value = (Object[]) clientMap.get(id);
             } while (value == null && System.currentTimeMillis() - startTime < TIMEOUT);
             if (value != null) {
                 infoSocket = (Socket) value[0];
@@ -561,7 +561,7 @@ public class MaryServer {
 
             //   -- delete clientMap entry
             try {
-                clientMap.remove(new Integer(id));
+                clientMap.remove(id);
             } catch (UnsupportedOperationException e) {
                 logger.info("Cannot remove clientMap entry", e);
             }
