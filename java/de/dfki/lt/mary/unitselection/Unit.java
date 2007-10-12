@@ -50,16 +50,30 @@ public class Unit
         this.index = index;
     }
     
+    /**
+     * Index position of this unit in the unit file.
+     * @return
+     */
     public int getIndex()
     {
         return index;
     }
     
+    /**
+     * Unit start time, expressed in samples. To convert into time,
+     * divide by UnitFileReader.getSampleRate().
+     * @return
+     */
     public long getStart()
     {
         return startTime;
     }
     
+    /**
+     * Unit duration, expressed in samples. To convert into time,
+     * divide by UnitFileReader.getSampleRate().
+     * @return
+     */
     public int getDuration()
     {
         return duration;

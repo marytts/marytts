@@ -31,6 +31,8 @@ package de.dfki.lt.mary.modules;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.w3c.dom.Element;
+
 import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.Relation;
 
@@ -53,13 +55,14 @@ public class HalfPhoneTargetFeatureLister extends TargetFeatureLister
      * @param segs the Segment relation
      * @return a list of Target objects -- in this case, halfphone targets
      */
-    protected List createTargets(Relation segs)
+    protected List<Target> createTargets(Relation segs)
     {
-        List targets = new ArrayList();
+        List<Target> targets = new ArrayList<Target>();
         for (Item s = segs.getHead(); s != null; s = s.getNext()) {
+            Element maryxmlElement = (Element) s.getFeatures().getObject("maryxmlElement");
             String segName = s.getFeatures().getString("name");
-            targets.add(new HalfPhoneTarget(segName+"_L", s, true)); // left half
-            targets.add(new HalfPhoneTarget(segName+"_R", s, false)); // right half
+            targets.add(new HalfPhoneTarget(segName+"_L", maryxmlElement, s, true)); // left half
+            targets.add(new HalfPhoneTarget(segName+"_R", maryxmlElement, s, false)); // right half
         }
         return targets;
     }
@@ -70,8 +73,8 @@ public class HalfPhoneTargetFeatureLister extends TargetFeatureLister
      * @param segs the Segment relation
      * @return a list of Target objects
      */
-    protected List createTargetsWithPauses(Relation segs) {
-        List targets = new ArrayList();
+    protected List<Target> createTargetsWithPauses(Relation segs) {
+        List<Target> targets = new ArrayList<Target>();
         boolean first = true;
         Item s = segs.getHead();
         Voice v = FreeTTSVoices.getMaryVoice(s.getUtterance().getVoice());
@@ -79,10 +82,11 @@ public class HalfPhoneTargetFeatureLister extends TargetFeatureLister
         Target lastTarget = null;
         Item lastItem = s;
         for (; s != null; s = s.getNext()) {
+            Element maryxmlElement = (Element) s.getFeatures().getObject("maryxmlElement");
             //create next target
             String segName = s.getFeatures().getString("name");
-            Target nextLeftTarget = new HalfPhoneTarget(segName+"_L", s, true); 
-            Target nextRightTarget = new HalfPhoneTarget(segName+"_R", s, false);
+            Target nextLeftTarget = new HalfPhoneTarget(segName+"_L", maryxmlElement, s, true); 
+            Target nextRightTarget = new HalfPhoneTarget(segName+"_R", maryxmlElement, s, false);
             //if first target is not a pause, add one
             if (first){
                 first = false;
@@ -96,8 +100,8 @@ public class HalfPhoneTargetFeatureLister extends TargetFeatureLister
                     newPauseItem.getFeatures().setString("name", silenceSymbol);
                     
                     //add new targets for item
-                    targets.add(new HalfPhoneTarget(silenceSymbol+"_L", newPauseItem, true)); 
-                    targets.add(new HalfPhoneTarget(silenceSymbol+"_R", newPauseItem, false));
+                    targets.add(new HalfPhoneTarget(silenceSymbol+"_L", null, newPauseItem, true)); 
+                    targets.add(new HalfPhoneTarget(silenceSymbol+"_R", null, newPauseItem, false));
                 }
             }
             targets.add(nextLeftTarget);
@@ -113,8 +117,8 @@ public class HalfPhoneTargetFeatureLister extends TargetFeatureLister
                    newPauseItem.getFeatures().setString("name", silenceSymbol);
                    
                    //add new targets for item
-                    targets.add(new HalfPhoneTarget(silenceSymbol+"_L", newPauseItem, true)); 
-                    targets.add(new HalfPhoneTarget(silenceSymbol+"_R", newPauseItem, false));
+                    targets.add(new HalfPhoneTarget(silenceSymbol+"_L", null, newPauseItem, true)); 
+                    targets.add(new HalfPhoneTarget(silenceSymbol+"_R", null, newPauseItem, false));
                 }
         return targets;
     }

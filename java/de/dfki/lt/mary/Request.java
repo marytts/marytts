@@ -114,14 +114,13 @@ public class Request {
         this.outputType = outputType;
         this.defaultVoice = defaultVoice;
         this.id = id;
+        this.audioFileFormat = audioFileFormat;
         this.streamAudio = streamAudio;
         if (outputType == MaryDataType.get("AUDIO")) {
             if (audioFileFormat == null)
                 throw new NullPointerException("audio file format is needed for output type AUDIO");
-            this.audioFileFormat = audioFileFormat;
             this.appendableAudioStream = new AppendableSequenceAudioInputStream(audioFileFormat.getFormat(), new ArrayList());
         } else {
-            this.audioFileFormat = null;
             this.appendableAudioStream = null;
         }
         this.logger = Logger.getLogger("R " + id);

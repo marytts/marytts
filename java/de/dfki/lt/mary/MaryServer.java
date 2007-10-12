@@ -497,17 +497,19 @@ public class MaryServer {
                 // Now, the parse is complete.
                 // this request's id:
                 id = getID();
-                // Construct audio format
+                // Construct audio file format -- even when output is not AUDIO,
+                // in case we need to pass via audio to get our output type.
                 AudioFileFormat audioFileFormat = null;
-                if (audioFileFormatType != null) {
-                    AudioFormat audioFormat = voice.dbAudioFormat();
-                    if (audioFileFormatType.toString().equals("MP3")) {
-                        if (!MaryAudioUtils.canCreateMP3())
-                            throw new UnsupportedAudioFileException("Conversion to MP3 not supported.");
-                        audioFormat = MaryAudioUtils.getMP3AudioFormat();
-                    }
-                    audioFileFormat = new AudioFileFormat(audioFileFormatType, audioFormat, AudioSystem.NOT_SPECIFIED);
+                if (audioFileFormatType == null) {
+                    audioFileFormatType = AudioFileFormat.Type.WAVE;
                 }
+                AudioFormat audioFormat = voice.dbAudioFormat();
+                if (audioFileFormatType.toString().equals("MP3")) {
+                    if (!MaryAudioUtils.canCreateMP3())
+                        throw new UnsupportedAudioFileException("Conversion to MP3 not supported.");
+                    audioFormat = MaryAudioUtils.getMP3AudioFormat();
+                }
+                audioFileFormat = new AudioFileFormat(audioFileFormatType, audioFormat, AudioSystem.NOT_SPECIFIED);
 
                 Request request = new Request(inputType, outputType, voice, id, audioFileFormat, streamingAudio);
                 outputWriter.println(id);

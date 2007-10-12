@@ -111,7 +111,7 @@ public class Synthesis extends InternalModule
     throws Exception
     {
         // We produce audio data, so we expect some helpers in our input:
-        assert d.getAudioFileFormat() != null;
+        assert d.getAudioFileFormat() != null : "Audio file format is not set!";
         Document doc = d.getDocument();
         // As the input may contain multipe voice sections,
         // the challenge in this method is to join the audio data
@@ -135,6 +135,8 @@ public class Synthesis extends InternalModule
         }
 
         MaryData result = new MaryData(outputType());
+        // Also remember XML document in "AUDIO" output data, to keep track of phone durations:
+        result.setDocument(doc);
         result.setAudioFileFormat(d.getAudioFileFormat());
         if (d.getAudio() != null) {
             // This (empty) AppendableSequenceAudioInputStream object allows a 

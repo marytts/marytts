@@ -121,9 +121,11 @@ public class OverlapUnitConcatenator extends BaseUnitConcatenator {
                             System.arraycopy(datagrams, midright, frames, midleft+1, datagrams.length-midright);
                         }
                     }
+                    unitDuration = targetDuration; // now they are the same
                 } else { // unitSize == 0, we have a zero-length silence unit
                     // artificial silence data:
                     frames = new Datagram[] { createZeroDatagram(targetDuration) };
+                    unitDuration = targetDuration;
                 }
             } else { // not silence
                 // take unit as is

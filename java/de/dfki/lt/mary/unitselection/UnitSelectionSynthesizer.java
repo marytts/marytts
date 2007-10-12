@@ -28,6 +28,7 @@
  */
 package de.dfki.lt.mary.unitselection;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
@@ -41,6 +42,7 @@ import java.util.StringTokenizer;
 
 import javax.sound.sampled.AudioInputStream;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 import org.w3c.dom.traversal.DocumentTraversal;
@@ -54,6 +56,8 @@ import de.dfki.lt.mary.MaryXML;
 import de.dfki.lt.mary.modules.synthesis.SynthesisException;
 import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.modules.synthesis.WaveformSynthesizer;
+import de.dfki.lt.mary.unitselection.concat.BaseUnitConcatenator.UnitData;
+import de.dfki.lt.mary.util.MaryNormalisedWriter;
 import de.dfki.lt.mary.util.dom.NameNodeFilter;
 
 /**
@@ -174,10 +178,12 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
               //  pw.println(selIt.next());
             //logger.debug("Units selected:\n"+sw.toString());
         //}
+        
         // Concatenate:
         logger.debug("Now creating audio with a "+unitConcatenator.getClass().getName());
+        AudioInputStream audio = null;
         try {
-            return unitConcatenator.getAudio(selectedUnits);
+            audio = unitConcatenator.getAudio(selectedUnits);
         } catch (IOException ioe) {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
@@ -185,6 +191,64 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
                 pw.println(selIt.next());
             throw new SynthesisException("Problems generating audio for unit chain: "+sw.toString(), ioe);
         }
+        
+        // Propagate unit durations to XML tree:
+        int end = 0;
+        for (SelectedUnit su : selectedUnits) {
+            Target t = su.getTarget();
+            boolean halfphone = (t instanceof HalfPhoneTarget);
+            Object concatenationData = su.getConcatenationData();
+            assert concatenationData instanceof UnitData;
+            UnitData unitData = (UnitData) concatenationData;
+            int unitDurationInSamples = unitData.getUnitDuration();
+            float unitDurationInSeconds = unitDurationInSamples / (float) database.getUnitFileReader().getSampleRate();
+            int unitDurationInMillis = (int) (1000 * unitDurationInSeconds);
+            end += unitDurationInMillis;
+            Element maryxmlElement = su.getTarget().getMaryxmlElement();
+            if (maryxmlElement != null) {
+                if (maryxmlElement.getNodeName().equals(MaryXML.PHONE)) {
+                    int prevD = Integer.parseInt(maryxmlElement.getAttribute("d"));
+                    int prevEnd = Integer.parseInt(maryxmlElement.getAttribute("end"));
+
+                    int d = unitDurationInMillis;
+                    if (halfphone && ((HalfPhoneTarget)t).isRightHalf()) {
+                        d += prevD;
+                    }
+                    
+                    if (prevEnd == prevD) {
+                        // start new end computation
+                        end = d;
+                    }
+                    maryxmlElement.setAttribute("d", String.valueOf(d));
+                    maryxmlElement.setAttribute("end", String.valueOf(end));
+                } else { // not a PHONE
+                    assert maryxmlElement.getNodeName().equals(MaryXML.BOUNDARY);
+                    int d;
+                    if (halfphone && ((HalfPhoneTarget)t).isRightHalf()) {
+                        int prevD = Integer.parseInt(maryxmlElement.getAttribute("duration"));
+                        d = prevD + unitDurationInMillis;
+                    } else {
+                        d = unitDurationInMillis;
+                    }
+                    maryxmlElement.setAttribute("duration", String.valueOf(d));
+                }
+            } else {
+                logger.debug("Unit "+su+" of length "+unitDurationInMillis+" ms has no maryxml element.");
+            }
+        }
+        if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
+            try {
+                MaryNormalisedWriter writer = new MaryNormalisedWriter();
+                ByteArrayOutputStream debugOut = new ByteArrayOutputStream();
+                writer.output(tokensAndBoundaries.get(0).getOwnerDocument(), debugOut);
+                logger.debug("Propagating the realised unit durations to the XML tree: \n"+debugOut.toString());
+            } catch (Exception e) {
+                logger.warn("Problem writing XML to logfile: "+e);
+            }
+        }
+
+        
+        return audio;
     }
     
 }

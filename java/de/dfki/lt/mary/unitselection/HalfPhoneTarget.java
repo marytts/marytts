@@ -28,6 +28,8 @@
  */
 package de.dfki.lt.mary.unitselection;
 
+import org.w3c.dom.Element;
+
 import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.Relation;
 
@@ -47,9 +49,9 @@ public class HalfPhoneTarget extends Target
      * @param isLeftHalf true if this target represents the left half
      * of the phone, false if it represents the right half of the phone
      */
-    public HalfPhoneTarget(String name, Item item, boolean isLeftHalf)
+    public HalfPhoneTarget(String name, Element maryxmlElement, Item item, boolean isLeftHalf)
     {
-        super(name, item);
+        super(name, maryxmlElement, item);
         this.isLeftHalf = isLeftHalf;
     }
 
