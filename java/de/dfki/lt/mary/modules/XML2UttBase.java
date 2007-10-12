@@ -127,6 +127,10 @@ public abstract class XML2UttBase extends InternalModule
                 throw new NullPointerException("No FreeTTS voice for mary voice " + maryVoice.getName());
             }
             Utterance utterance = new Utterance(freettsVoice);
+            if (voice != null && voice.hasAttribute("style")) {
+                String style = voice.getAttribute("style");
+                utterance.setString("style", style);
+            }
             // Any prosodic settings present?
             insertProsodySettings(utterance, sentence);
 

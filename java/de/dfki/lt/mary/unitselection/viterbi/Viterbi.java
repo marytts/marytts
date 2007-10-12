@@ -108,7 +108,7 @@ public  class Viterbi
     protected int nTargetCosts;
     
     // Keep track of average costs for each voice: map UnitDatabase->DebugStats
-    private static Map debugStats = new HashMap();
+    private static Map<UnitDatabase,DebugStats> debugStats = new HashMap<UnitDatabase,DebugStats>();
     
     
     /**
@@ -117,7 +117,7 @@ public  class Viterbi
      * is built up.
      * 
      */
-	public Viterbi(List targets, UnitDatabase database, float wTargetCosts)
+	public Viterbi(List<Target> targets, UnitDatabase database, float wTargetCosts)
     {
 	    this.database = database;
 	    this.targetCostFunction = database.getTargetCostFunction();
@@ -132,8 +132,7 @@ public  class Viterbi
         ViterbiPoint last = null;
         f = new LinkedHashMap();
         //for each segment, build a ViterbiPoint
-        for (Iterator it = targets.iterator(); it.hasNext(); ) {
-            Target target = (Target) it.next();
+        for (Target target : targets) {
             ViterbiPoint nextPoint = new ViterbiPoint(target);
             
             if (last != null) { // continue to build up the queue
@@ -292,9 +291,9 @@ public  class Viterbi
      * Note: This is a replacement for result().
      * @return the list of selected units, or null if no path could be found.
      */
-    public List getSelectedUnits()
+    public List<SelectedUnit> getSelectedUnits()
     {
-        LinkedList selectedUnits = new LinkedList();
+        LinkedList<SelectedUnit> selectedUnits = new LinkedList<SelectedUnit>();
         if (firstPoint == null || firstPoint.getNext() == null) {
             return selectedUnits; // null case
         }
@@ -393,7 +392,7 @@ public  class Viterbi
                     +", avg. target "+df.format(avgTargetCost)
                     +", join "+df.format(avgJoinCost)
                     +" (n="+nTargetCosts+")");
-            DebugStats stats = (DebugStats) debugStats.get(database);
+            DebugStats stats = debugStats.get(database);
             if (stats == null) {
                 stats = new DebugStats();
                 debugStats.put(database, stats);

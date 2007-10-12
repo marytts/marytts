@@ -109,7 +109,7 @@ public class InterpolatingSynthesizer implements WaveformSynthesizer
      * @throws IllegalArgumentException if the voice requested for this section
      * is incompatible with this WaveformSynthesizer.
      */
-    public AudioInputStream synthesize(List tokensAndBoundaries, Voice voice)
+    public AudioInputStream synthesize(List<Element> tokensAndBoundaries, Voice voice)
         throws SynthesisException
     {
         if (tokensAndBoundaries.size() == 0) return null;
@@ -142,9 +142,9 @@ public class InterpolatingSynthesizer implements WaveformSynthesizer
         UnitSelectionVoice usv2 = (UnitSelectionVoice) voice2;
         
         UnitSelector unitSel1 = usv1.getUnitSelector();
-        List selectedUnits1 = unitSel1.selectUnits(tokensAndBoundaries, voice);
+        List<SelectedUnit> selectedUnits1 = unitSel1.selectUnits(tokensAndBoundaries, voice);
         UnitSelector unitSel2 = usv2.getUnitSelector();
-        List selectedUnits2 = unitSel2.selectUnits(tokensAndBoundaries, voice);
+        List<SelectedUnit> selectedUnits2 = unitSel2.selectUnits(tokensAndBoundaries, voice);
         assert selectedUnits1.size() == selectedUnits2.size() : 
             "Unexpected difference in number of units: "+selectedUnits1.size()+" vs. "+selectedUnits2.size();
         int numUnits = selectedUnits1.size();
@@ -182,8 +182,8 @@ public class InterpolatingSynthesizer implements WaveformSynthesizer
         double[] label2 = new double[numUnits];
         double t2 = 0;
         for (int i=0; i<numUnits; i++) {
-            SelectedUnit u1 = (SelectedUnit) selectedUnits1.get(i);
-            SelectedUnit u2 = (SelectedUnit) selectedUnits2.get(i);
+            SelectedUnit u1 = selectedUnits1.get(i);
+            SelectedUnit u2 = selectedUnits2.get(i);
             BaseUnitConcatenator.UnitData ud1 = (BaseUnitConcatenator.UnitData) u1.getConcatenationData();
             int unitDuration1 = ud1.getUnitDuration();
             if (unitDuration1 < 0) { // was not set by the unit concatenator, have to count ourselves

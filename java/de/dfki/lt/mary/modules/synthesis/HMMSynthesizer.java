@@ -290,7 +290,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
         return "HMMSynthesizer";
     }
 
-    public AudioInputStream synthesize(List tokensAndBoundaries, Voice voice)
+    public AudioInputStream synthesize(List<Element> tokensAndBoundaries, Voice voice)
         throws SynthesisException {
                
         if (!voice.synthesizer().equals(this)) {

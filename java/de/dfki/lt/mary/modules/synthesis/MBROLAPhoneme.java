@@ -39,11 +39,11 @@ public class MBROLAPhoneme
     /** The f0 targets. This is a vector of int[]. Each target int[] has two
      * entries, the first [0] is the percent duration, the second [1] the f0 in
      * Hz. */
-    private Vector targets;
+    private Vector<int []> targets;
     /** The voice quality */
     private String vq;
 
-    public MBROLAPhoneme(String symbol, int duration, Vector targets, String vq)
+    public MBROLAPhoneme(String symbol, int duration, Vector<int []> targets, String vq)
     {
         this.symbol = symbol;
         this.duration = duration;
@@ -56,7 +56,7 @@ public class MBROLAPhoneme
     public void setDuration(int duration) { this.duration = duration; }
     public int getDuration() { return duration; }
     public void setTargets(Vector targets) { this.targets = targets; }
-    public Vector getTargets() { return targets; }
+    public Vector<int []> getTargets() { return targets; }
     public void setVoiceQuality(String vq) { this.vq = vq; }
     public String getVoiceQuality() { return vq; }
 

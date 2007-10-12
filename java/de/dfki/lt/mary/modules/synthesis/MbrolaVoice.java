@@ -76,9 +76,9 @@ public class MbrolaVoice extends Voice
         return true;
     }
 
-    public Vector replaceDiphone(MBROLAPhoneme p1, MBROLAPhoneme p2)
+    public Vector<MBROLAPhoneme> replaceDiphone(MBROLAPhoneme p1, MBROLAPhoneme p2)
     {
-        Vector phonemes = new Vector();
+        Vector<MBROLAPhoneme> phonemes = new Vector<MBROLAPhoneme>();
         String s1 = p1.getSymbol();
         String s2 = p2.getSymbol();
         boolean solved = false;

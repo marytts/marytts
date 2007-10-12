@@ -467,14 +467,14 @@ public class Voice
      * @return a vector of MBROLAPhoneme objects realising this phoneme
      * for this voice.
      */
-    public Vector convertSampa(MBROLAPhoneme maryPhoneme)
+    public Vector<MBROLAPhoneme> convertSampa(MBROLAPhoneme maryPhoneme)
     {
-        Vector phonemes = new Vector();
+        Vector<MBROLAPhoneme> phonemes = new Vector<MBROLAPhoneme>();
         String marySampa = maryPhoneme.getSymbol();
         if (sampa2voiceMap != null && useVoicePAInOutput && sampa2voiceMap.containsKey(marySampa)) {
             String newSampa = (String) sampa2voiceMap.get(marySampa);
             // Check if more than one phoneme:
-            Vector newSampas = new Vector();
+            Vector<String> newSampas = new Vector<String>();
             StringTokenizer st = new StringTokenizer(newSampa);
             while (st.hasMoreTokens()) {
                 newSampas.add(st.nextToken());
@@ -482,13 +482,13 @@ public class Voice
             // Now, how many new phonemes do we have:
             int n = newSampas.size();
             int totalDur = maryPhoneme.getDuration();
-            Vector allTargets = maryPhoneme.getTargets();
+            Vector<int []> allTargets = maryPhoneme.getTargets();
             // Distribute total duration evenly across the phonemes
             // and put the targets where they belong:
             for (int i=0; i<newSampas.size(); i++) {
                 String sampa = (String) newSampas.get(i);
                 int dur = totalDur / n;
-                Vector newTargets = null;
+                Vector<int []> newTargets = null;
                 // Percentage limit belonging to this phoneme
                 int maxP = 100 * (i+1) / n;
                 boolean ok = true;
@@ -499,7 +499,7 @@ public class Voice
                         int[] newTarget = new int[2];
                         newTarget[0] = oldTarget[0] * n; // percentage
                         newTarget[1] = oldTarget[1]; // f0
-                        if (newTargets == null) newTargets = new Vector();
+                        if (newTargets == null) newTargets = new Vector<int []>();
                         newTargets.add(newTarget);
                         // Delete from original list:
                         allTargets.remove(0);
@@ -523,7 +523,7 @@ public class Voice
      * Synthesize a list of tokens and boundaries with the waveform synthesizer
      * providing this voice.
      */
-    public AudioInputStream synthesize(List tokensAndBoundaries)
+    public AudioInputStream synthesize(List<Element> tokensAndBoundaries)
         throws SynthesisException
     {
         return synthesizer.synthesize(tokensAndBoundaries, this);

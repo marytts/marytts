@@ -37,6 +37,7 @@ import java.util.StringTokenizer;
 import javax.sound.sampled.AudioInputStream;
 
 import org.apache.log4j.Logger;
+import org.w3c.dom.Element;
 
 import com.sun.speech.freetts.Utterance;
 
@@ -145,7 +146,7 @@ public class FestivalSynthesizer implements WaveformSynthesizer {
         return "FestivalSynthesizer";
     }
 
-    public AudioInputStream synthesize(List tokensAndBoundaries, Voice voice)
+    public AudioInputStream synthesize(List<Element> tokensAndBoundaries, Voice voice)
         throws SynthesisException {
         if (!voice.synthesizer().equals(this)) {
             throw new IllegalArgumentException(

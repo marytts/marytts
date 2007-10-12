@@ -115,7 +115,7 @@ public class BaseUnitConcatenator implements UnitConcatenator
      * @param units the units
      * @return the resulting audio stream
      */
-    public AudioInputStream getAudio(List units) throws IOException
+    public AudioInputStream getAudio(List<SelectedUnit> units) throws IOException
     {
         logger.debug("Getting audio for "+units.size()+" units");
 
@@ -133,10 +133,9 @@ public class BaseUnitConcatenator implements UnitConcatenator
      * Get the raw audio material for each unit from the timeline.
      * @param units
      */
-    protected void getDatagramsFromTimeline(List units) throws IOException
+    protected void getDatagramsFromTimeline(List<SelectedUnit> units) throws IOException
     {
-        for (Iterator it = units.iterator();it.hasNext();) {
-            SelectedUnit unit = (SelectedUnit) it.next();
+        for (SelectedUnit unit : units) {
             UnitData unitData = new UnitData();
             unit.setConcatenationData(unitData);
             int nSamples = 0;
@@ -152,10 +151,9 @@ public class BaseUnitConcatenator implements UnitConcatenator
      * Determine target pitchmarks (= duration and f0) for each unit.
      * @param units
      */
-    protected void determineTargetPitchmarks(List units)
+    protected void determineTargetPitchmarks(List<SelectedUnit> units)
     {
-        for (Iterator it = units.iterator();it.hasNext();) {
-            SelectedUnit unit = (SelectedUnit) it.next();
+        for (SelectedUnit unit : units) {
             UnitData unitData = (UnitData)unit.getConcatenationData();
             assert unitData != null : "Should not have null unitdata here";
             Datagram[] datagrams = unitData.getFrames();
@@ -177,11 +175,10 @@ public class BaseUnitConcatenator implements UnitConcatenator
      * @param units
      * @return
      */
-    protected AudioInputStream generateAudioStream(List units)
+    protected AudioInputStream generateAudioStream(List<SelectedUnit> units)
     {
-        LinkedList datagrams = new LinkedList();
-        for (Iterator it = units.iterator();it.hasNext();) {
-            SelectedUnit unit = (SelectedUnit) it.next();
+        LinkedList<Datagram> datagrams = new LinkedList<Datagram>();
+        for (SelectedUnit unit : units) {
             UnitData unitData = (UnitData)unit.getConcatenationData();
             assert unitData != null : "Should not have null unitdata here";
             Datagram[] frames = unitData.getFrames();
