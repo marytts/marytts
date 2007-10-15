@@ -29,6 +29,7 @@
 
 package de.dfki.lt.signalproc.util;
 
+import java.util.Arrays;
 import java.util.Vector;
 
 
@@ -569,6 +570,9 @@ public class MathUtils {
             {
                 this.real = new double[len];
                 this.imag = new double[len];
+                
+                Arrays.fill(this.real, 0.0);
+                Arrays.fill(this.imag, 0.0);
             }
             else
             {
@@ -914,5 +918,84 @@ public class MathUtils {
             ret = maxVal;
         
         return ret;
+    }
+    
+    public static int [] getExtrema(double [] x, int numLeftN, int numRightN, boolean isMaxima)
+    {
+        int [] tmpInds = new int[x.length];
+        int [] inds = null;
+        int total = 0;
+        
+        int i, j;
+        boolean bExtremum = true;
+        
+        if (isMaxima) //Search for maxima
+        {
+            for (i=numLeftN; i<x.length-numRightN; i++)
+            {
+                bExtremum = true;
+                for (j=i-numLeftN; j<i; j++)
+                {
+                    if (x[i]<x[j])
+                    {
+                        bExtremum = false;
+                        break;
+                    }
+                }
+                
+                if (bExtremum)
+                {
+                    for (j=i+1; j<=i+numRightN; j++)
+                    {
+                        if (x[i]<x[j])
+                        {
+                            bExtremum = false;
+                            break;
+                        }
+                    }
+                }
+                
+                if (bExtremum)
+                    tmpInds[total++] = i;
+            }
+        }
+        else //Search for minima
+        {
+            for (i=numLeftN; i<x.length-numRightN; i++)
+            {
+                for (j=i-numLeftN; j<i; j++)
+                {
+                    if (x[i]>x[j])
+                    {
+                        bExtremum = false;
+                        break;
+                    }
+                }
+                
+                if (bExtremum)
+                {
+                    for (j=i+1; j<=i+numRightN; j++)
+                    {
+                        if (x[i]>x[j])
+                        {
+                            bExtremum = false;
+                            break;
+                        }
+                    }
+                }
+                
+                if (bExtremum)
+                    tmpInds[total++] = i;
+            }
+        }  
+        
+        
+        if (total>0)
+        {
+            inds = new int[total];
+            System.arraycopy(tmpInds, 0, inds, 0, total);
+        }
+        
+        return inds; 
     }
 }
