@@ -289,12 +289,7 @@ public class MathUtils {
     public static double db2amplitude(double dbAmplitude)
     {
         if (Double.isNaN(dbAmplitude)) return 0.;
-        else return exp10(dbAmplitude/20);
-    }
-    
-    public static double[] db2amplitude(double[] dbAmplitudes)
-    {
-        return exp10(divide(dbAmplitudes, 20));
+        else return Math.pow(10.0, dbAmplitude/20);
     }
 
     /**
