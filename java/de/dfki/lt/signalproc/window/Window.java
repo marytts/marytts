@@ -352,4 +352,24 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
         Window w = get(windowType, 1);
         return w.toString();
     }
+
+    //Normalize window coefficients to sum up to unity
+    public void normalize()
+    {
+        normalize(1.0f);
+    }
+
+    //Normalize window coefficients to sum up to val
+    public void normalize(float val)
+    {
+        float total = 0.0f;
+        int i;
+        for (i=0; i<window.length; i++)
+            total += window[i];
+
+        float scale = val/total;
+
+        for (i=0; i<window.length; i++)
+            window[i] *= scale;
+    }
 }
