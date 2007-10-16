@@ -45,13 +45,15 @@ public class Sinusoid {
         
     }
     
+    public Sinusoid(float ampIn, float freqIn, float phaseIn)
+    {
+        this.amp = ampIn;
+        this.freq = freqIn;
+        this.phase = phaseIn;
+    }
+    
     public Sinusoid(Sinusoid existingSinusoid)
     {
-        if (existingSinusoid!=null)
-        {
-            this.amp = existingSinusoid.amp;
-            this.freq = existingSinusoid.freq;
-            this.phase = existingSinusoid.phase;
-        }
+        this(existingSinusoid.amp, existingSinusoid.freq, existingSinusoid.phase);
     }
 }

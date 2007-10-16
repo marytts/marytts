@@ -71,6 +71,7 @@ public class TrackGenerator {
         int newTotalLiving;
         int tmpInd;
         int i;
+        Sinusoid zeroAmpSin;
         
         if (numFrames>0)
         {   
@@ -85,22 +86,33 @@ public class TrackGenerator {
                 {
                     tr = new SinusoidalTracks(framesSins[0].length);
                     livingTrackInds = new int[framesSins[0].length];
-                    tr.add(times[i], framesSins[i]);
+                    
+                    for (j=0; j<framesSins[i].length; j++)
+                    {
+                        //First add a zero amplitude sinusoid to previous frame to allow smooth synthesis
+                        zeroAmpSin = new Sinusoid(0.0f, framesSins[i][j].freq, 0.0f);
+                        if (i>1)
+                            tr.add(new SinusoidalTrack(times[i-1], zeroAmpSin));
+                        else
+                            tr.add(new SinusoidalTrack(0.0f, zeroAmpSin));
+                        //
+                    
+                        tr.tracks[tr.currentIndex].add(times[i], framesSins[i][j]);
+                    }
+                    
+                    //tr.add(times[i], framesSins[i]);
 
                     for (j=0; j<tr.totalTracks; j++)
                         livingTrackInds[j] = j;
                 }
                 else //If there are tracks, first check "continuations" by checking whether a given sinusoid is in the +-deltaInHz neighbourhood of the previous track. 
-                     // Those tracks that do not continue are "dead". 
-                     // All sinusoids of the current frame that are not assigned to any of the "continuations" or "deaths" are "birth"s of new tracks.
+                     // Those tracks that do not continue are "turned off". 
+                     // All sinusoids of the current frame that are not assigned to any of the "continuations" or "turned off" are "birth"s of new tracks.
                 {
                     for (j=0; j<tr.totalTracks; j++)
                     {
                         if (tr.tracks[j] != null)
-                        {
                             tr.tracks[j].resetCandidate();
-                            tr.tracks[j].bLiving = false;
-                        }
                     }
                     
                     bSinAssigneds = new boolean[framesSins[i].length];
@@ -141,11 +153,18 @@ public class TrackGenerator {
                     
                     //Here is the actual assignment of sinusoids to existing tracks
                     newTotalLiving = 0;
+                    
+                    /*
                     for (j=0; j<livingTrackInds.length; j++)
                     {
+                        newTotalLiving++;
+                        
                         if (tr.tracks[livingTrackInds[j]].newCandidate != null)
-                            newTotalLiving++;
+                            newTotalLiving++;    
                     }
+                    */
+                    newTotalLiving += livingTrackInds.length; //Never kill a track but just turn it off by setting the amplitudoe to zero
+                    
                     for (k=0; k<bSinAssigneds.length; k++)
                     {
                         if (!bSinAssigneds[k])
@@ -158,16 +177,18 @@ public class TrackGenerator {
                     for (j=0; j<livingTrackInds.length; j++)
                     {
                         if (tr.tracks[livingTrackInds[j]].newCandidate != null)
-                        {
                             tr.tracks[livingTrackInds[j]].add(times[i], tr.tracks[livingTrackInds[j]].newCandidate);
-                            tr.tracks[livingTrackInds[j]].bLiving = true;
-                            
-                            newLivingTrackInds[tmpInd] = livingTrackInds[j];
-                            tmpInd++;
-                        }
+                        else
+                        {
+                            zeroAmpSin = new Sinusoid(0.0f, tr.tracks[livingTrackInds[j]].freqs[tr.tracks[livingTrackInds[j]].totalSins-1], 0.0f);
+                            tr.tracks[livingTrackInds[j]].add(times[i], zeroAmpSin);
+                        } 
+                        
+                        newLivingTrackInds[tmpInd] = livingTrackInds[j];
+                        tmpInd++;
                     }
                     
-                    //Deaths: Kill tracks that are not assigned any new sinusoid
+                    //Deaths: Turn off tracks that are not assigned any new sinusoid
                     //No need to do anything since at the end all tracks will be dead:)
                     
                     //Births: Create new tracks from sinusoids that are not assigned to existing tracks
@@ -175,7 +196,15 @@ public class TrackGenerator {
                     {
                         if (!bSinAssigneds[k])
                         {
-                            tr.add(new SinusoidalTrack(times[i], framesSins[i][k]));
+                            //First add a zero amplitude sinusoid to previous frame to allow smooth synthesis
+                            zeroAmpSin = new Sinusoid(0.0f, framesSins[i][k].freq, 0.0f);
+                            if (i>1)
+                                tr.add(new SinusoidalTrack(times[i-1], zeroAmpSin));
+                            else
+                                tr.add(new SinusoidalTrack(0.0f, zeroAmpSin));
+                            //
+                            
+                            tr.tracks[tr.currentIndex].add(times[i], framesSins[i][k]);
                             newLivingTrackInds[tmpInd] = tr.currentIndex;
                             tmpInd++;
                         }
