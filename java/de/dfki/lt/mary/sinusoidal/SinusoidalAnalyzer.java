@@ -63,17 +63,17 @@ import de.dfki.lt.signalproc.window.Window;
  */
 public class SinusoidalAnalyzer {
     
-    private int fs; //Sampling rate in Hz
-    private int windowType; //Type of window (See class Window for details)
-    private int fftSize; //FFT size in points
+    protected int fs; //Sampling rate in Hz
+    protected int windowType; //Type of window (See class Window for details)
+    protected int fftSize; //FFT size in points
     
-    private boolean bRefinePeakEstimatesParabola; //Refine peak and frequency estimates by fitting parabolas?
-    private boolean bRefinePeakEstimatesBias; //Further refine peak and frequency estimates by correcting bias? 
+    protected boolean bRefinePeakEstimatesParabola; //Refine peak and frequency estimates by fitting parabolas?
+    protected boolean bRefinePeakEstimatesBias; //Further refine peak and frequency estimates by correcting bias? 
                                               //       (Only effective when bRefinePeakEstimatesParabola=true)
     
-    private int ws; //Window size in samples
-    private int ss; //Skip size in samples
-    private Window win; //Windowing applier
+    protected int ws; //Window size in samples
+    protected int ss; //Skip size in samples
+    protected Window win; //Windowing applier
     
     public static float DEFAULT_ANALYSIS_WINDOW_SIZE = 0.020f;
     public static float DEFAULT_ANALYSIS_SKIP_SIZE = 0.010f;
@@ -106,6 +106,7 @@ public class SinusoidalAnalyzer {
     {
         this(samplingRate, Window.HAMMING);
     }
+    //
     
     public static int getSinAnaFFTSize(int samplingRate)
     {
@@ -118,22 +119,24 @@ public class SinusoidalAnalyzer {
     }
     
     // Fixed window size and skip rate analysis
-    public SinusoidalTracks analyze(double [] x)
+    public SinusoidalTracks analyzeFixedRate(double [] x)
     {
-        return analyze(x, DEFAULT_ANALYSIS_WINDOW_SIZE);
+        return analyzeFixedRate(x, DEFAULT_ANALYSIS_WINDOW_SIZE);
     }
     
-    public SinusoidalTracks analyze(double [] x, float winSizeInSeconds)
+    public SinusoidalTracks analyzeFixedRate(double [] x, float winSizeInSeconds)
     {
-        return analyze(x, winSizeInSeconds, DEFAULT_ANALYSIS_SKIP_SIZE);
+        return analyzeFixedRate(x, winSizeInSeconds, DEFAULT_ANALYSIS_SKIP_SIZE);
     }
     
     /* 
+     * Fixed rate analysis
+     * 
      * x: Speech/Audio signal to be analyzed
      * winSizeInSeconds: Integer array of sample indices for pitch period start instants
      * skipSizeInSeconds: Number of pitch periods to be used in analysis
      */
-    public SinusoidalTracks analyze(double [] x, float winSizeInSeconds, float skipSizeInSeconds)
+    public SinusoidalTracks analyzeFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds)
     {
         ws = (int)Math.floor(winSizeInSeconds*fs + 0.5);
         ss = (int)Math.floor(skipSizeInSeconds*fs + 0.5);
@@ -375,7 +378,9 @@ public class SinusoidalAnalyzer {
         int samplingRate = (int)inputAudio.getFormat().getSampleRate();
         AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
         double [] x = signal.getAllData();
+        
         SinusoidalAnalyzer sa = new SinusoidalAnalyzer(samplingRate, Window.HAMMING, true, true);
-        SinusoidalTracks st = sa.analyze(x);        
+        
+        SinusoidalTracks st = sa.analyzeFixedRate(x);        
     }
 }

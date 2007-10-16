@@ -165,6 +165,11 @@ public class SinusoidalTracks {
             tracks[index].copy(track);
     }
     
+    public void getTrackStatistics()
+    {
+        getTrackStatistics(-1.0f, -1.0f);
+    }
+    
     public void getTrackStatistics(float windowSizeInSeconds, float skipSizeInSeconds)
     {
         int longest;
@@ -198,8 +203,16 @@ public class SinusoidalTracks {
         average /= totalTracks;
         
         System.out.println("Total tracks = " + String.valueOf(totalTracks));
-        System.out.println("Longest track = " + String.valueOf(longest) + " ("+ String.valueOf(longest*skipSizeInSeconds+0.5*windowSizeInSeconds) + " sec.)");
-        System.out.println("Mean track length = " + String.valueOf(average) + " ("+ String.valueOf(average*skipSizeInSeconds+0.5*windowSizeInSeconds) + " sec.)");
+        if (windowSizeInSeconds>0 && skipSizeInSeconds>0)
+            System.out.println("Longest track = " + String.valueOf(longest) + " ("+ String.valueOf(longest*skipSizeInSeconds+0.5*windowSizeInSeconds) + " sec.)");
+        else
+            System.out.println("Longest track = " + String.valueOf(longest));
+        
+        if (windowSizeInSeconds>0 && skipSizeInSeconds>0)
+            System.out.println("Mean track length = " + String.valueOf(average) + " ("+ String.valueOf(average*skipSizeInSeconds+0.5*windowSizeInSeconds) + " sec.)");
+        else
+            System.out.println("Mean track length = " + String.valueOf(average));
+            
         System.out.println("Total tracks shorter than " + String.valueOf(shortLim) + " speech frames = " + String.valueOf(numShorts));
         System.out.println("Total tracks longer than " + String.valueOf(longLim) + " speech frames = " + String.valueOf(numLongs));
     }
