@@ -59,26 +59,52 @@ import de.dfki.lt.signalproc.window.Window;
  * Given a speech/audio signal, a set of amplitudes, frequencies and phases are estimated on a frame-by-frame basis
  * Then, sinusoids that are close in frequency are grouped together to form sinusoidal tracks
  * Optional amplitude and phase continuity constraints can be employed during track generation
+ * The implementation consists of ideas and algorithms from various papers as described in function headers
  */
 public class SinusoidalAnalyzer {
-    private int fftSize; //FFT size in points
+    
     private int fs; //Sampling rate in Hz
+    private int windowType; //Type of window (See class Window for details)
+    private int fftSize; //FFT size in points
+    
+    private boolean bRefinePeakEstimatesParabola; //Refine peak and frequency estimates by fitting parabolas?
+    private boolean bRefinePeakEstimatesBias; //Further refine peak and frequency estimates by correcting bias? 
+                                              //       (Only effective when bRefinePeakEstimatesParabola=true)
+    
     private int ws; //Window size in samples
     private int ss; //Skip size in samples
+    private Window win; //Windowing applier
     
     public static float DEFAULT_ANALYSIS_WINDOW_SIZE = 0.020f;
     public static float DEFAULT_ANALYSIS_SKIP_SIZE = 0.010f;
     
-    public SinusoidalAnalyzer(int samplingRate, int FFTSize)
+    // fs: Sampling rate in Hz
+    // windowType: Type of window (See class Window for details)
+    // bRefinePeakEstimatesParabola: Refine peak and frequency estimates by fitting parabolas?
+    // bRefinePeakEstimatesBias: Further refine peak and frequency estimates by correcting bias? 
+    //                           (Only effective when bRefinePeakEstimatesParabola=true)
+    public SinusoidalAnalyzer(int samplingRate, int windowTypeIn, boolean bRefinePeakEstimatesParabolaIn, boolean bRefinePeakEstimatesBiasIn)
     {
         fs = samplingRate;
-        fftSize = FFTSize;
+        windowType = windowTypeIn;
+        fftSize = getSinAnaFFTSize(fs);
+        bRefinePeakEstimatesParabola = bRefinePeakEstimatesParabolaIn;
+        bRefinePeakEstimatesBias = bRefinePeakEstimatesBiasIn;
+    }
+    
+    public SinusoidalAnalyzer(int samplingRate, int windowTypeIn, boolean bRefinePeakEstimatesParabolaIn)
+    {
+        this(samplingRate, windowTypeIn, bRefinePeakEstimatesParabolaIn, true);
+    }
+    
+    public SinusoidalAnalyzer(int samplingRate, int windowTypeIn)
+    {
+        this(samplingRate, windowTypeIn, true);
     }
     
     public SinusoidalAnalyzer(int samplingRate)
     {
-        fs = samplingRate;
-        fftSize = getSinAnaFFTSize(fs);
+        this(samplingRate, Window.HAMMING);
     }
     
     public static int getSinAnaFFTSize(int samplingRate)
@@ -112,6 +138,8 @@ public class SinusoidalAnalyzer {
         ws = (int)Math.floor(winSizeInSeconds*fs + 0.5);
         ss = (int)Math.floor(skipSizeInSeconds*fs + 0.5);
         
+        win = Window.get(windowType, ws);
+        
         int totalFrm = (int)((x.length-0.5*ws)/ss);
         
         //Extract frames and analyze them
@@ -126,6 +154,8 @@ public class SinusoidalAnalyzer {
             Arrays.fill(frm, 0.0);
             for (j=i*ss; j<Math.min(i*ss+ws, x.length); j++)
                 frm[j-i*ss] = x[j];
+            
+            win.apply(frm, 0);
             
             framesSins[i] = analyze_frame(frm);
             
@@ -162,7 +192,7 @@ public class SinusoidalAnalyzer {
         else
             FFTMixedRadix.fftComplex(Y);
         
-        //Compute magnitude spectrum in dB
+        //Compute magnitude spectrum in dB as peak frequency estimates tend to be more accurate
         double [] Ydb = new double[maxFreq]; 
         for (i=0; i<maxFreq; i++)
             Ydb[i] = 10*Math.log10(Y.real[i]*Y.real[i]+Y.imag[i]*Y.imag[i]);
@@ -170,18 +200,49 @@ public class SinusoidalAnalyzer {
         
         //Determine peak amplitude indices and the corresponding amplitudes, frequencies, and phases 
         int [] freqInds = MathUtils.getExtrema(Ydb, 1, 1, true);
+        
+        
         Sinusoid [] frameSins = null;
         if (freqInds != null)
         {
             int numFrameSinusoids = freqInds.length;
             frameSins = new Sinusoid[numFrameSinusoids];
             
+            //Perform parabola fitting around peak estimates to refine frequency estimation (Ref. - PARSHL, see the function for more details)
+            float [] freqIndsRefined = new float[numFrameSinusoids];
+            float [] ampsRefined = new float[numFrameSinusoids];
+            
+            //For check only
+            float [] amps = new float[numFrameSinusoids];
+            for (i=0; i<numFrameSinusoids; i++)
+                amps[i] = (float)Ydb[freqInds[i]];
+            
+            if (bRefinePeakEstimatesParabola)
+            {
+                refinePeakEstimatesParabola(Ydb, freqInds, freqIndsRefined, ampsRefined);
+                
+                if (bRefinePeakEstimatesBias)
+                    refinePeakEstimatesBias(Ydb, freqInds, freqIndsRefined, ampsRefined);
+            }
+            //
+            
             for (i=0; i<numFrameSinusoids; i++)
             {
                 frameSins[i] = new Sinusoid();
+                
+                /*
+                // Use basic peak detection results
                 frameSins[i].amp = (float) Ydb[freqInds[i]];
                 frameSins[i].freq = (float) ((0.5*fs*freqInds[i])/(maxFreq-1)); //freq in Hz
                 //frameSins[i].freq = (float) ((0.5*MathUtils.TWOPI*freqInds[i])/(maxFreq-1));  //freq in radians
+                */
+                
+                //Use refined peak estimation results
+                frameSins[i].amp = ampsRefined[i];
+                frameSins[i].freq = (float)((0.5*fs*freqIndsRefined[i])/(maxFreq-1)); //freq in Hz
+                //frameSins[i].freq = (float) ((0.5*MathUtils.TWOPI*freqIndsFloat[i])/(maxFreq-1));  //freq in radians
+                //
+                
                 frameSins[i].phase = (float) (Math.atan2(Y.imag[freqInds[i]], Y.real[freqInds[i]]));
             }
         }
@@ -190,13 +251,119 @@ public class SinusoidalAnalyzer {
         return frameSins;
     }
     
+    //Refine peak detection to get more accurate frequency and amplitude values as described in (Smith III and Serra, 1985)(*)
+    // 
+    // (*) Julius O. Smith III and Xavier Serra, 1985, "PARSHL: An Analysis/Synthesis Program for Non-Harmonic Sounds
+    //            Based on a Sinusoidal Representation", Technical Report, Stanford University, CCRMA STAN-M-43.
+    //
+    // The basic idea is to fit a parabola to each of the peak detected by simple peak picking from the dB spectrum
+    // The previous and next frequency bin is used along with each peak to fit the parabola
+    // Then, the peak of the parabola is returned as the peak amplitude estimate and 
+    //  its location as a floating point frequency index for refined peak location
+    // 
+    // Parameters:
+    // powSpecdB: Power spectrum estimate in dB
+    // freqInds: Peak locations (frequency bins) which we want to refine
+    // freqIndsRefined: (OUTPUT) - Refined peak locations as floating point frequency bins
+    // ampsRefined: (OUTPUT) - Refined peak amplitude estimates corresponding to the peak value of the parabola fit to each amplitude triplet
+    public void refinePeakEstimatesParabola(double [] powSpecdB, int [] freqInds, float [] freqIndsRefined, float [] ampsRefined)
+    {
+        double alpha, beta, gamma, p;
+        
+        for (int i=0; i<freqInds.length; i++)
+        {
+            //Make sure the peak is not at the first or last freq bin
+            if (freqInds[i]>0 && freqInds[i]<freqInds.length-1)
+            {
+                alpha = powSpecdB[freqInds[i]-1];
+                beta = powSpecdB[freqInds[i]];
+                gamma = powSpecdB[freqInds[i]+1];
+                
+                p = 0.5*(alpha-gamma)/(alpha-2*beta+gamma);
+                
+                freqIndsRefined[i] = (float) (freqInds[i]+p);
+                ampsRefined[i] = (float) (beta-0.25*p*(alpha-gamma));
+                //ampsRefined[i] = (float)((p*p*(alpha-beta)+p*2*(alpha-2*beta)-beta)/(2*(alpha-beta)));
+            }
+            else //otherwise do not refine
+            {
+                freqIndsRefined[i] = (float) freqInds[i];
+                ampsRefined[i] = (float) powSpecdB[freqInds[i]];
+            }
+        }
+    }
+    
+    //Further refine peak detection to get more accurate frequency and amplitude values as described in (Abe and Smith III, 2004)(**)
+    // 
+    // (**) Mototsugu Abe and Julius O. Smith III, 2004, "CQIFFT: Correcting Bias in a Sinusoidal Parameter Estimator based
+    //          on Quadratic Interpolation of FFT Magnitude Peaks", Technical Report, Center for Computer Research in Music 
+    //          and Acoustics, Department of Music, Stanford University, STAN-M-117.
+    //
+    // The basic idea is to measure and correct the window-dependent bias of the quadratic refinement method in the previous function
+    // 
+    // Parameters:
+    // powSpecdB: Power spectrum estimate in dB
+    // freqInds: Peak locations (frequency bins) which we want to refine
+    // freqIndsRefined: (OUTPUT) - Refined peak locations as floating point frequency bins
+    // ampsRefined: (OUTPUT) - Refined peak amplitude estimates corresponding to the peak value of the parabola fit to each amplitude triplet
+    public void refinePeakEstimatesBias(double [] powSpecdB, int [] freqInds, float [] freqIndsRefined, float [] ampsRefined)
+    {
+        double delHat, Zpf, ZpA;
+        double [] c = new double[4];
+    
+        //The Zp values are for a max bias of 0.01% in frequency and amplitude as given in Table 3 (Abe and Smith III, 2004)
+        switch (windowType)
+        {
+        case Window.HANN:
+            Zpf = 1.5;
+            ZpA = 1.9;
+            c[0] = 0.247560;
+            c[1] = 0.084372;
+            c[2] = -0.090608;
+            c[3] = -0.055781;
+            break;
+        case Window.HAMMING:
+            Zpf = 1.5;
+            ZpA = 2.0;
+            c[0] = 0.256498;
+            c[1] = 0.075977;
+            c[2] = -0.116927;
+            c[3] = -0.062882;
+            break;
+        case Window.BLACKMAN:
+            Zpf = 1.2;
+            ZpA = 1.7;
+            c[0] = 0.124188;
+            c[1] = 0.013752;
+            c[2] = -0.038073;
+            c[3] = -0.006195;
+            break;
+        default: //These are for rectangular window in fact
+            Zpf = 2.9; 
+            ZpA = 3.5;
+            c[0] = 1.279369;
+            c[1] = 1.756245;
+            c[2] = -1.173273;
+            c[3] = -3.241966;      
+        }
+        
+        double EZpf = c[0]*Math.pow(Zpf,-2.0) + c[1]*Math.pow(Zpf,-4.0);
+        double nZpA = c[2]*Math.pow(ZpA,-4.0) + c[3]*Math.pow(ZpA,-6.0);
+        for (int i=0; i<freqInds.length; i++)
+        {
+                delHat = freqIndsRefined[i]-freqInds[i];
+                freqIndsRefined[i] = freqIndsRefined[i] + (float) (delHat+EZpf*(delHat-0.5)*(delHat+0.5)*delHat);
+                ampsRefined[i] = (float) (ampsRefined[i]+nZpA*delHat*delHat);
+        }
+    }
+    
     public static void main(String[] args) throws UnsupportedAudioFileException, IOException
     {
         AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(args[0]));
         int samplingRate = (int)inputAudio.getFormat().getSampleRate();
         AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
         double [] x = signal.getAllData();
-        SinusoidalAnalyzer sa = new SinusoidalAnalyzer(samplingRate);
+        SinusoidalAnalyzer sa = new SinusoidalAnalyzer(samplingRate, Window.HAMMING, true, true);
         sa.analyze(x);
     }
 }

@@ -46,8 +46,6 @@ public class SinusoidalTrack {
     int currentIndex;
     int totalSins;
     
-    boolean bLiving;
-    
     //These two parameters are used for keeping temporary information 
     // on new sinusoid candidates to be appended to the current track during track generation
     Sinusoid newCandidate;
@@ -94,7 +92,6 @@ public class SinusoidalTrack {
         currentIndex = -1;
         newCandidate = null;
         newCandidateInd = -1;
-        bLiving = false;
     }
     
     // Copy part of the existing track parameters in srcTrack into the current track 
