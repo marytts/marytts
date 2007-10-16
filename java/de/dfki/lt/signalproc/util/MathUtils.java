@@ -285,6 +285,17 @@ public class MathUtils {
     {
         return exp10(divide(dbEnergies, 10));
     }
+    
+    public static double db2amplitude(double dbAmplitude)
+    {
+        if (Double.isNaN(dbAmplitude)) return 0.;
+        else return exp10(dbAmplitude/20);
+    }
+    
+    public static double[] db2amplitude(double[] dbAmplitudes)
+    {
+        return exp10(divide(dbAmplitudes, 20));
+    }
 
     /**
      * Build the sum of the squared difference of all elements 
