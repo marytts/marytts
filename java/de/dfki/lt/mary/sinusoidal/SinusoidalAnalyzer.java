@@ -118,14 +118,14 @@ public class SinusoidalAnalyzer {
     }
     
     // Fixed window size and skip rate analysis
-    public void analyze(double [] x)
+    public SinusoidalTracks analyze(double [] x)
     {
-        analyze(x, DEFAULT_ANALYSIS_WINDOW_SIZE);
+        return analyze(x, DEFAULT_ANALYSIS_WINDOW_SIZE);
     }
     
-    public void analyze(double [] x, float winSizeInSeconds)
+    public SinusoidalTracks analyze(double [] x, float winSizeInSeconds)
     {
-        analyze(x, winSizeInSeconds, DEFAULT_ANALYSIS_SKIP_SIZE);
+        return analyze(x, winSizeInSeconds, DEFAULT_ANALYSIS_SKIP_SIZE);
     }
     
     /* 
@@ -139,6 +139,7 @@ public class SinusoidalAnalyzer {
         ss = (int)Math.floor(skipSizeInSeconds*fs + 0.5);
         
         win = Window.get(windowType, ws);
+        win.normalize(1.0f); //Normalize to sum up to unity
         
         int totalFrm = (int)((x.length-0.5*ws)/ss);
         
@@ -160,12 +161,14 @@ public class SinusoidalAnalyzer {
             framesSins[i] = analyze_frame(frm);
             
             times[i] = (float)((i*ss+0.5*ws)/fs);
+            
+            System.out.println("Analysis complete for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm));
         }
         //
         
         //Extract sinusoidal tracks
         TrackGenerator tg = new TrackGenerator();
-        SinusoidalTracks sinTracks = tg.generateTracksFreqOnly(framesSins, times, 50.0f);
+        SinusoidalTracks sinTracks = tg.generateTracksFreqOnly(framesSins, times, 50.0f, fs);
         sinTracks.getTrackStatistics(winSizeInSeconds, skipSizeInSeconds);
         
         return sinTracks;
@@ -224,6 +227,13 @@ public class SinusoidalAnalyzer {
                 if (bRefinePeakEstimatesBias)
                     refinePeakEstimatesBias(Ydb, freqInds, freqIndsRefined, ampsRefined);
             }
+            else
+            {
+                System.arraycopy(amps, 0, ampsRefined, 0, numFrameSinusoids);
+                
+                for (i=0; i<numFrameSinusoids; i++)
+                    freqIndsRefined[i] = (float)freqInds[i];
+            }
             //
             
             for (i=0; i<numFrameSinusoids; i++)
@@ -231,19 +241,21 @@ public class SinusoidalAnalyzer {
                 frameSins[i] = new Sinusoid();
                 
                 /*
-                // Use basic peak detection results
-                frameSins[i].amp = (float) Ydb[freqInds[i]];
-                frameSins[i].freq = (float) ((0.5*fs*freqInds[i])/(maxFreq-1)); //freq in Hz
-                //frameSins[i].freq = (float) ((0.5*MathUtils.TWOPI*freqInds[i])/(maxFreq-1));  //freq in radians
+                // Use simple peak detection results
+                frameSins[i].amp = (float)(MathUtils.db2amplitude(Ydb[freqInds[i]]));
+                //frameSins[i].freq = (float) ((0.5*fs*freqInds[i])/(maxFreq-1)); //freq in Hz
+                frameSins[i].freq = (float) ((0.5*MathUtils.TWOPI*freqInds[i])/(maxFreq-1));  //freq in radians
                 */
                 
-                //Use refined peak estimation results
-                frameSins[i].amp = ampsRefined[i];
-                frameSins[i].freq = (float)((0.5*fs*freqIndsRefined[i])/(maxFreq-1)); //freq in Hz
-                //frameSins[i].freq = (float) ((0.5*MathUtils.TWOPI*freqIndsFloat[i])/(maxFreq-1));  //freq in radians
+                //Use results of refined peak estimation after simple peak detection
+                frameSins[i].amp = (float)(MathUtils.db2amplitude(ampsRefined[i]));
+                //frameSins[i].freq = (float)((0.5*fs*freqIndsRefined[i])/(maxFreq-1)); //freq in Hz
+                frameSins[i].freq = (float) ((0.5*MathUtils.TWOPI*freqIndsRefined[i])/(maxFreq-1));  //freq in radians
                 //
                 
                 frameSins[i].phase = (float) (Math.atan2(Y.imag[freqInds[i]], Y.real[freqInds[i]]));
+                
+                //Possible improvement: Refinement of phase values
             }
         }
         //
@@ -364,6 +376,6 @@ public class SinusoidalAnalyzer {
         AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
         double [] x = signal.getAllData();
         SinusoidalAnalyzer sa = new SinusoidalAnalyzer(samplingRate, Window.HAMMING, true, true);
-        sa.analyze(x);
+        SinusoidalTracks st = sa.analyze(x);        
     }
 }
