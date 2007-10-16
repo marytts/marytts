@@ -38,10 +38,13 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import de.dfki.lt.signalproc.analysis.F0Reader;
+import de.dfki.lt.signalproc.analysis.PitchMarker;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
 import de.dfki.lt.signalproc.util.DDSAudioInputStream;
 import de.dfki.lt.signalproc.util.MathUtils;
+import de.dfki.lt.signalproc.util.SignalProcUtils;
 import de.dfki.lt.signalproc.window.Window;
 
 /**
@@ -142,17 +145,42 @@ public class SinusoidalSynthesizer {
     
     public static void main(String[] args) throws UnsupportedAudioFileException, IOException
     {
+        //File input
         AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(args[0]));
         int samplingRate = (int)inputAudio.getFormat().getSampleRate();
         AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
         double [] x = signal.getAllData();
-        SinusoidalAnalyzer sa = new SinusoidalAnalyzer(samplingRate, Window.HAMMING, true, true);
-        SinusoidalTracks st = sa.analyze(x, 0.020f, 0.010f);
+        
+        SinusoidalAnalyzer sa = null;
+        SinusoidalTracks st = null;
+        PitchSynchronousSinusoidalAnalyzer pa = null;
+        //
+        
+        //Analysis
+        if (true)
+        {
+            sa = new SinusoidalAnalyzer(samplingRate, Window.HAMMING, true, true);
+            st = sa.analyzeFixedRate(x, 0.020f, 0.010f);
+        }
+        else
+        {
+            String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
+            F0Reader f0 = new F0Reader(strPitchFile);
+            PitchMarker pm = SignalProcUtils.pitchContour2pitchMarks(f0.getContour(), samplingRate, x.length, f0.ws, f0.ss, true);
+            pa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, true, true);
+            st = pa.analyzePitchSynchronous(x, pm.pitchMarks);
+        }
+        //
+        
+        //Resynthesis
         SinusoidalSynthesizer ss = new SinusoidalSynthesizer(samplingRate);
         x = ss.synthesize(st);
+        //
         
+        //File output
         DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(x), inputAudio.getFormat());
         String outFileName = args[0].substring(0, args[0].length()-4) + "_sinResynth.wav";
         AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
+        //
     }
 }
