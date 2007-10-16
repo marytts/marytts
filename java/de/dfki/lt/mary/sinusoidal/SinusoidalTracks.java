@@ -34,22 +34,29 @@ package de.dfki.lt.mary.sinusoidal;
  *
  */
 public class SinusoidalTracks {
-    SinusoidalTrack [] tracks;
-    int totalTracks;
-    int currentIndex;
+    public SinusoidalTrack [] tracks;
+    public int totalTracks;
+    public int currentIndex;
+    public int fs; //Sampling rate in Hz, you can change this using setSamplingRate to synthesize speech at a different sampling rate
+    public float origDur; //Original duration of the signal modeled by sinusoidal tracks in seconds
     
-    public SinusoidalTracks(int len)
+    public SinusoidalTracks(int len, int samplingRate)
     {
-        initialize(len);
+        initialize(len, samplingRate);
     }
     
     public SinusoidalTracks(SinusoidalTracks sinTrks)
     {
-        initialize(sinTrks.totalTracks);
+        initialize(sinTrks.totalTracks, sinTrks.fs);
         copy(sinTrks);
     }
     
-    public void initialize(int len)
+    public void setSamplingRate(int samplingRate)
+    {
+        fs = samplingRate;
+    }
+    
+    public void initialize(int len, int samplingRate)
     {
         if (len>0)
         {
@@ -63,6 +70,9 @@ public class SinusoidalTracks {
         }
         
         currentIndex = -1;
+        origDur = 0.0f;
+        
+        setSamplingRate(samplingRate);
     }
     
     // Copy part of the existing tracks in srcTracks into the current tracks
@@ -81,7 +91,7 @@ public class SinusoidalTracks {
             startTrackIndex = endTrackIndex;
         
         if (totalTracks<endTrackIndex-startTrackIndex+1)
-            initialize(endTrackIndex-startTrackIndex+1);
+            initialize(endTrackIndex-startTrackIndex+1, srcTracks.fs);
         
         if (totalTracks>0)
         {
@@ -92,6 +102,9 @@ public class SinusoidalTracks {
             }
             
             currentIndex = endTrackIndex-startTrackIndex;
+            
+            if (srcTracks.origDur>origDur)
+                origDur = srcTracks.origDur;
         }   
     }
     
@@ -110,24 +123,27 @@ public class SinusoidalTracks {
             {
                 SinusoidalTracks tmpTracks = new SinusoidalTracks(this);
                 if (tmpTracks.totalTracks<10)
-                    initialize(2*tmpTracks.totalTracks);
+                    initialize(2*tmpTracks.totalTracks, fs);
                 else if (tmpTracks.totalTracks<100)
-                    initialize(tmpTracks.totalTracks+20);
+                    initialize(tmpTracks.totalTracks+20, fs);
                 else if (tmpTracks.totalTracks<1000)
-                    initialize(tmpTracks.totalTracks+200);
+                    initialize(tmpTracks.totalTracks+200, fs);
                 else
-                    initialize(tmpTracks.totalTracks+2000);
+                    initialize(tmpTracks.totalTracks+2000, fs);
                 
                 this.copy(tmpTracks);
             }
             else
-                initialize(1);
+                initialize(1, fs);
         }
 
         currentIndex++;
 
         tracks[currentIndex] = new SinusoidalTrack(1);
         tracks[currentIndex].copy(track);
+        
+        if (origDur<track.times[track.totalSins-1])
+            origDur = track.times[track.totalSins-1];
     }
     
     public void add(float time, Sinusoid [] sins)
@@ -136,6 +152,9 @@ public class SinusoidalTracks {
         {
             SinusoidalTrack tmpTrack = new SinusoidalTrack(time, sins[i]);
             add(tmpTrack);
+            
+            if (time>origDur)
+                origDur = time;
         }
     }
     
@@ -183,5 +202,10 @@ public class SinusoidalTracks {
         System.out.println("Mean track length = " + String.valueOf(average) + " ("+ String.valueOf(average*skipSizeInSeconds+0.5*windowSizeInSeconds) + " sec.)");
         System.out.println("Total tracks shorter than " + String.valueOf(shortLim) + " speech frames = " + String.valueOf(numShorts));
         System.out.println("Total tracks longer than " + String.valueOf(longLim) + " speech frames = " + String.valueOf(numLongs));
+    }
+    
+    public float getOriginalDuration()
+    {
+        return origDur;
     }
 }
