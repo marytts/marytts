@@ -61,7 +61,7 @@ public class TrackGenerator {
      * the more likely the current sinusoid gets assigned to that track
      * 
      */
-    public SinusoidalTracks generateTracksFreqOnly(Sinusoid [][] framesSins, float [] times, float deltaInHz)
+    public SinusoidalTracks generateTracksFreqOnly(Sinusoid [][] framesSins, float [] times, float deltaInHz, int samplingRate)
     {
         int numFrames = framesSins.length;
         
@@ -84,7 +84,7 @@ public class TrackGenerator {
             {   
                 if (tr==null) //If no tracks yet, assign the current sinusoids to new tracks
                 {
-                    tr = new SinusoidalTracks(framesSins[0].length);
+                    tr = new SinusoidalTracks(framesSins[0].length, samplingRate);
                     livingTrackInds = new int[framesSins[0].length];
                     
                     for (j=0; j<framesSins[i].length; j++)
@@ -214,12 +214,12 @@ public class TrackGenerator {
                     livingTrackInds = new int[newLivingTrackInds.length];
                     System.arraycopy(newLivingTrackInds, 0, livingTrackInds, 0, newLivingTrackInds.length);
                     
-                    //System.out.println("Track generation using frame " + String.valueOf(i+1) + " of " + String.valueOf(numFrames));
+                    System.out.println("Track generation using frame " + String.valueOf(i+1) + " of " + String.valueOf(numFrames));
                 } 
             }
         }
         
-        SinusoidalTracks tr2 = new SinusoidalTracks(tr.currentIndex+1);
+        SinusoidalTracks tr2 = new SinusoidalTracks(tr.currentIndex+1, samplingRate);
         for (i=0; i<tr.currentIndex+1; i++)  
             tr2.add(tr.tracks[i]);
         
