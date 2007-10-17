@@ -89,15 +89,15 @@ public class TrackGenerator {
                     
                     for (j=0; j<framesSins[i].length; j++)
                     {
-                        //First add a zero amplitude sinusoid to previous frame to allow smooth synthesis
+                        //First add a zero amplitude sinusoid to previous frame to allow smooth synthesis (i.e. "turning on" the track)
                         zeroAmpSin = new Sinusoid(0.0f, framesSins[i][j].freq, 0.0f);
                         if (i>1)
-                            tr.add(new SinusoidalTrack(times[i-1], zeroAmpSin));
+                            tr.add(new SinusoidalTrack(times[i-1], zeroAmpSin,  SinusoidalTrack.TURNED_ON));
                         else
-                            tr.add(new SinusoidalTrack(0.0f, zeroAmpSin));
+                            tr.add(new SinusoidalTrack(0.0f, zeroAmpSin, SinusoidalTrack.TURNED_ON));
                         //
                     
-                        tr.tracks[tr.currentIndex].add(times[i], framesSins[i][j]);
+                        tr.tracks[tr.currentIndex].add(times[i], framesSins[i][j], SinusoidalTrack.ACTIVE);
                     }
                     
                     //tr.add(times[i], framesSins[i]);
@@ -152,18 +152,7 @@ public class TrackGenerator {
                     }
                     
                     //Here is the actual assignment of sinusoids to existing tracks
-                    newTotalLiving = 0;
-                    
-                    /*
-                    for (j=0; j<livingTrackInds.length; j++)
-                    {
-                        newTotalLiving++;
-                        
-                        if (tr.tracks[livingTrackInds[j]].newCandidate != null)
-                            newTotalLiving++;    
-                    }
-                    */
-                    newTotalLiving += livingTrackInds.length; //Never kill a track but just turn it off by setting the amplitudoe to zero
+                    newTotalLiving = livingTrackInds.length; //Never kill a track but just turn it off by setting the amplitude to zero
                     
                     for (k=0; k<bSinAssigneds.length; k++)
                     {
@@ -177,34 +166,31 @@ public class TrackGenerator {
                     for (j=0; j<livingTrackInds.length; j++)
                     {
                         if (tr.tracks[livingTrackInds[j]].newCandidate != null)
-                            tr.tracks[livingTrackInds[j]].add(times[i], tr.tracks[livingTrackInds[j]].newCandidate);
-                        else
+                            tr.tracks[livingTrackInds[j]].add(times[i], tr.tracks[livingTrackInds[j]].newCandidate, SinusoidalTrack.ACTIVE);
+                        else //Turn off tracks that are not assigned any new sinusoid
                         {
                             zeroAmpSin = new Sinusoid(0.0f, tr.tracks[livingTrackInds[j]].freqs[tr.tracks[livingTrackInds[j]].totalSins-1], 0.0f);
-                            tr.tracks[livingTrackInds[j]].add(times[i], zeroAmpSin);
+                            tr.tracks[livingTrackInds[j]].add(times[i], zeroAmpSin, SinusoidalTrack.TURNED_OFF);
                         } 
                         
                         newLivingTrackInds[tmpInd] = livingTrackInds[j];
                         tmpInd++;
                     }
                     
-                    //Deaths: Turn off tracks that are not assigned any new sinusoid
-                    //No need to do anything since at the end all tracks will be dead:)
-                    
                     //Births: Create new tracks from sinusoids that are not assigned to existing tracks
                     for (k=0; k<bSinAssigneds.length; k++)
                     {
                         if (!bSinAssigneds[k])
                         {
-                            //First add a zero amplitude sinusoid to previous frame to allow smooth synthesis
+                            //First add a zero amplitude sinusoid to previous frame to allow smooth synthesis (i.e. "turning on" the track)
                             zeroAmpSin = new Sinusoid(0.0f, framesSins[i][k].freq, 0.0f);
                             if (i>1)
-                                tr.add(new SinusoidalTrack(times[i-1], zeroAmpSin));
+                                tr.add(new SinusoidalTrack(times[i-1], zeroAmpSin, SinusoidalTrack.TURNED_ON));
                             else
-                                tr.add(new SinusoidalTrack(0.0f, zeroAmpSin));
+                                tr.add(new SinusoidalTrack(0.0f, zeroAmpSin, SinusoidalTrack.TURNED_ON));
                             //
                             
-                            tr.tracks[tr.currentIndex].add(times[i], framesSins[i][k]);
+                            tr.tracks[tr.currentIndex].add(times[i], framesSins[i][k], SinusoidalTrack.ACTIVE);
                             newLivingTrackInds[tmpInd] = tr.currentIndex;
                             tmpInd++;
                         }

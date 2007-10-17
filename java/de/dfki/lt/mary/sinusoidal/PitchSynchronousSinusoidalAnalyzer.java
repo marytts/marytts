@@ -99,13 +99,16 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         //Extract frames and analyze them
         double [] frm = null;
         int i, j;
+        int T0;
 
         Sinusoid [][] framesSins =  new Sinusoid[totalFrm][];
         float [] times = new float[totalFrm];
         
         for (i=0; i<totalFrm; i++)
         {
-            ws = (int)Math.floor(numPeriods*(pitchMarks[i+1]-pitchMarks[i])+ 0.5);
+            T0 = pitchMarks[i+1]-pitchMarks[i]-1;
+            ws = (int)Math.floor(numPeriods*T0+ 0.5);
+            ws = Math.max(ws, minWindowSize);
             frm = new double[ws];
             
             win = Window.get(windowType, ws);
