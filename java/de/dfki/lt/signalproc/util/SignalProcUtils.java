@@ -127,14 +127,13 @@ public class SignalProcUtils {
         }
         else
             return null;
-        
     }
     
     /* Extracts pitch marks from a given pitch contour.
     // It is not very optimized, only inserts a pitch mark and waits for sufficient samples before inserting a new one
     // in order not to insert more than one pitch mark within one pitch period
     //
-    // f0s: pitch contous vector
+    // f0s: pitch contour vector
     // fs: sampling rate in Hz
     // len: total samples in original speech signal
     // ws: window size used for pitch extraction in seconds
