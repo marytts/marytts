@@ -74,6 +74,9 @@ public class SinusoidalAnalyzer {
     protected int ws; //Window size in samples
     protected int ss; //Skip size in samples
     protected Window win; //Windowing applier
+   
+    public static float MIN_WINDOW_SIZE = 0.020f; 
+    protected int minWindowSize; //Minimum window size allowed to satisfy 100 Hz criterion for unvoiced sounds computed from MIN_WINDOW_SIZE and sampling rate
     
     public static float DEFAULT_ANALYSIS_WINDOW_SIZE = 0.020f;
     public static float DEFAULT_ANALYSIS_SKIP_SIZE = 0.010f;
@@ -90,6 +93,7 @@ public class SinusoidalAnalyzer {
         fftSize = getSinAnaFFTSize(fs);
         bRefinePeakEstimatesParabola = bRefinePeakEstimatesParabolaIn;
         bRefinePeakEstimatesBias = bRefinePeakEstimatesBiasIn;
+        minWindowSize = (int)(Math.floor(fs*MIN_WINDOW_SIZE+0.5));
     }
     
     public SinusoidalAnalyzer(int samplingRate, int windowTypeIn, boolean bRefinePeakEstimatesParabolaIn)
@@ -109,7 +113,7 @@ public class SinusoidalAnalyzer {
     //
     
     public static int getSinAnaFFTSize(int samplingRate)
-    {
+    { 
         if (samplingRate<=10000)
             return 1024;
         else if (samplingRate<=20000)
@@ -189,7 +193,7 @@ public class SinusoidalAnalyzer {
         //Perform circular buffering as described in (Quatieri, 2001) to provide correct phase estimates
         int midPoint = (int) Math.floor(0.5*frm.length+0.5);
         System.arraycopy(frm, midPoint, Y.real, 0, frm.length-midPoint);
-        System.arraycopy(frm, 0, Y.real, frm.length-midPoint, midPoint);
+        System.arraycopy(frm, 0, Y.real, fftSize-midPoint, midPoint);
         //
         
         //Take FFT
@@ -257,6 +261,11 @@ public class SinusoidalAnalyzer {
                 //
                 
                 frameSins[i].phase = (float) (Math.atan2(Y.imag[freqInds[i]], Y.real[freqInds[i]]));
+                
+                /*
+                if (Y.real[freqInds[i]]<0)
+                    frameSins[i].phase += 0.5*MathUtils.TWOPI;
+                    */
                 
                 //Possible improvement: Refinement of phase values
             }
