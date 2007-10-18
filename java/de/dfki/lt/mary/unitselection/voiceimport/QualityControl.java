@@ -51,6 +51,7 @@ import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.SignalProcUtils;
 import de.dfki.lt.signalproc.FFTMixedRadix;
 import de.dfki.lt.signalproc.filter.BandPassFilter;
+import de.dfki.lt.mary.util.MaryUtils;
 
 /**
  * Quality Control Component for Voice Import Tool to perform 'Sensibility check' on Data. 
@@ -68,11 +69,13 @@ public class QualityControl extends VoiceImportComponent {
     protected String featsExt = ".pfeats";
     protected String labExt = ".lab";
     private PrintWriter outFileWriter;
+    private Map fricativeThresholds;
+    private ArrayList silenceEnergyList;
+    private double sileceThreshold;
+    private TreeMap allProblems;
     
     public final String FEATUREDIR = "QualityControl.featureDir";
     public final String LABELDIR = "QualityControl.labelDir";
-    public final String FRICCUTENERGY = "QualityControl.fricativeHighFreqCutofEnegy";
-    public final String SILCUTENERGY = "QualityControl.silenceCutofEnergy";
     public final String OUTFILE = "QualityControl.outputFile";
     public final String MLONGPHN = "QualityControl.markUnusuallyLongPhone";
     public final String MHSILEGY = "QualityControl.markHighSILEnergy";
@@ -108,8 +111,6 @@ public class QualityControl extends VoiceImportComponent {
            props.put(LABELDIR, db.getProp(db.ROOTDIR)
                         +"phonelab"
                         +System.getProperty("file.separator"));
-           props.put(FRICCUTENERGY,"0.344");
-           props.put(SILCUTENERGY,"0.124");
            props.put(OUTFILE,db.getProp(db.ROOTDIR)+"QualityControl.out");
            props.put(MLONGPHN,"true");
            props.put(MHSILEGY,"true");
@@ -124,12 +125,10 @@ public class QualityControl extends VoiceImportComponent {
         props2Help = new TreeMap();
         props2Help.put(FEATUREDIR, "directory containing the phone features.");
         props2Help.put(LABELDIR, "directory containing the phone labels");
-        props2Help.put(FRICCUTENERGY, "Higher Frequency Cutof Energy for Fricatives");
-        props2Help.put(SILCUTENERGY, "Cutof Energy for Silence");
         props2Help.put(OUTFILE,"Output file which shows suspicious alignments");
-        props2Help.put(MLONGPHN,"if true, Mark Un usually long Phone");
+        props2Help.put(MLONGPHN,"if true, Mark Unusually long Phone");
         props2Help.put(MHSILEGY,"if true, Mark Higher Silence Energy");
-        props2Help.put(MHFREQEGY,"if true, Mark Higher Frequency Energy for a Fricative");   
+        props2Help.put(MHFREQEGY,"if true, Mark High-Frequency Energy for a Fricative is very low");   
         props2Help.put(MUNVOICEDVOWEL,"if true, Unvoiced Vowels");
                                 
     }
@@ -144,27 +143,31 @@ public class QualityControl extends VoiceImportComponent {
         
         String wavDir    =  db.getProp(db.WAVDIR);
         String voiceName =  db.getProp(db.VOICENAME);
-        progress = 1;
+        progress = 0;
         int bnlLengthIn = bnl.getLength();
         System.out.println( "Searching for Suspicious Alignments (Labels) in "+ bnlLengthIn + " utterances...." );
-        TreeMap problems = new TreeMap();
-        outFileWriter = new PrintWriter(new FileWriter(new File(getProp(OUTFILE))));
-        for (int i=0; i<bnl.getLength(); i++) {
-            progress = 100*i/bnl.getLength();
-     
-            findSuspiciousAlignments(bnl.getName(i));
-            
+        Map fricativeHash = createHashMaps();
+        if(getProp(MHFREQEGY).equals("true")){
+            fricativeThresholds = getFricativeThresholds(fricativeHash);
         }
-        outFileWriter.flush();
-        outFileWriter.close();
+        if(getProp(MHSILEGY).equals("true")){
+            sileceThreshold = getSilenceThreshold();
+        }
+
+        allProblems = new TreeMap();
+        
+        for (int i=0; i<bnl.getLength(); i++) {
+            progress = 50 + (50*i/bnl.getLength());
+            findSuspiciousAlignments(bnl.getName(i));
+        }
+        writeProblemstoFile();
         
         System.out.println( "Identified Suspicious Alignments (Labels) written into "+ getProp(OUTFILE) + " file." );
         System.out.println( ".... Done."); 
         return true;
     }
-    
-    
-/**
+
+ /**
  * Take Each Base File and identifies any suspicious-alignments 
  * @param basename
  * @throws IOException
@@ -228,7 +231,6 @@ public class QualityControl extends VoiceImportComponent {
                 unitIndex = Integer.parseInt((String)labelUnitData.get(1));
                 endTimeStamp = Double.parseDouble((String)labelUnitData.get(0)); 
             }
-                  
             line = features.readLine();
             String featureUnit = getFeatureUnit(line);
             if (featureUnit == null) throw new IOException("Incomplete feature file: "+basename);
@@ -243,60 +245,200 @@ public class QualityControl extends VoiceImportComponent {
                 +featureUnit+"' vs. label file '"+labelUnit
                 +"' (Unit "+unitIndex+")");
             }
-        // System.out.println(basename +" "+labelUnit+" "+startTimeStamp+" "+endTimeStamp+" ---> Just Printing...");   
         double phoneDuration =  endTimeStamp - startTimeStamp;
+        String currentProblem = "";
         if( phoneDuration > 1 && !labelUnit.equals("_") && getProp(MLONGPHN).equals("true")){
-              //System.out.println(basename +" "+labelUnit+" "+startTimeStamp+" "+endTimeStamp+" Unusually Long Phone");
-                outFileWriter.println(basename +"\t"+labelUnit+"\t"+startTimeStamp+"\t"+endTimeStamp+"\tUnusually Long Phone");
-                startTimeStamp = endTimeStamp;
-                continue;
+            currentProblem = labelUnit+"\t"+startTimeStamp+"\t"+endTimeStamp+"\tUnusually Long Phone";
+        }
+        else if(isVowel(line,ph_VC_idx) && phoneDuration > 0 && getProp(MUNVOICEDVOWEL).equals("true")){
+            boolean isVV = isVowelVoiced(signal, samplingRate, startTimeStamp, endTimeStamp);
+            if(!isVV){
+                currentProblem = labelUnit+"\t"+startTimeStamp+"\t"+endTimeStamp+"\tUn-Voiced Vowel";
             }
-            
-        if(isVowel(line,ph_VC_idx) && phoneDuration > 0 && getProp(MUNVOICEDVOWEL).equals("true")){
-            
-           boolean isVV = isVowelVoiced(signal, samplingRate, startTimeStamp, endTimeStamp);
-           if(!isVV){
-               //System.out.println(basename +" "+labelUnit+" "+startTimeStamp+" "+endTimeStamp+" Non-Voiced Vowel");
-               outFileWriter.println(basename +"\t"+labelUnit+"\t"+startTimeStamp+"\t"+endTimeStamp+"\tUn-Voiced Vowel");
-               startTimeStamp = endTimeStamp;
-               continue;
-           }
-         }
-              
-        if(isFricative(line,ph_Ctype_idx) && phoneDuration > 0 && getProp(MHFREQEGY).equals("true")){
-                  
-           boolean isFHEnergy = isFricativeHighEnergy(signal, samplingRate, startTimeStamp, endTimeStamp, labelUnit);
-           if(isFHEnergy){
-             //System.out.println(basename +" "+labelUnit+" "+startTimeStamp+" "+endTimeStamp+" Higher Frequency Energy for Fricative");
-               outFileWriter.println(basename +"\t"+labelUnit+"\t"+startTimeStamp+"\t"+endTimeStamp+"\tHigher Frequency Energy for a Fricative");
-               startTimeStamp = endTimeStamp;
-               continue;
-           }
-         }
-              
-        if(labelUnit.equals("_") && phoneDuration > 0 && getProp(MHSILEGY).equals("true")){
-                  
-           boolean isSILHEnergy = isSilenceHighEnergy(signal, samplingRate, startTimeStamp, endTimeStamp);
-           if(isSILHEnergy){
-             //System.out.println(basename +" "+labelUnit+" "+startTimeStamp+" "+endTimeStamp+" HigherEnergy for a Silence");
-               outFileWriter.println(basename +"\t"+labelUnit+"\t"+startTimeStamp+"\t"+endTimeStamp+"\tHigherEnergy for a Silence");
-               startTimeStamp = endTimeStamp;
-               continue;
-           }
-         }
-              
-            
-        startTimeStamp = endTimeStamp;
-
-       }
+        }
+        else if(isFricative(line,ph_Ctype_idx) && phoneDuration > 0 && getProp(MHFREQEGY).equals("true")){
+            boolean isFHEnergy = isFricativeHighEnergy(signal, samplingRate, startTimeStamp, endTimeStamp, labelUnit);
+            if(!isFHEnergy){
+                currentProblem = labelUnit+"\t"+startTimeStamp+"\t"+endTimeStamp+"\tFricative High-Frequency Energy is very low";
+            }
+        }
+        else if(labelUnit.equals("_") && phoneDuration > 0 && getProp(MHSILEGY).equals("true")){
+            boolean isSILHEnergy = isSilenceHighEnergy(signal, samplingRate, startTimeStamp, endTimeStamp);
+            if(isSILHEnergy){
+                currentProblem = labelUnit+"\t"+startTimeStamp+"\t"+endTimeStamp+"\tHigherEnergy for a Silence";
+            }
+        }
         
+        if(!"".equals(currentProblem)){
+            if(allProblems.containsKey(basename)){
+                ArrayList arrList = (ArrayList) allProblems.get(basename);
+                arrList.add(currentProblem);
+                allProblems.put(basename, arrList);
+                }
+                else {
+                ArrayList arrList = new ArrayList();
+                arrList.add(currentProblem);
+                allProblems.put(basename, arrList);
+                }
+        }
+        
+        startTimeStamp = endTimeStamp;
+     }
         labels.close();
         features.close();
         return;
     }
     
-    
     /**
+     * It helps to calculate Thresholds by storing all Energy values in to hash.
+     * @return
+     * @throws IOException
+     * @throws Exception
+     */
+    private Map createHashMaps() throws IOException, Exception{
+        
+        Map fricativeHash = new HashMap();
+        silenceEnergyList = new  ArrayList();
+        
+        for (int baseCnt=0; baseCnt<bnl.getLength(); baseCnt++) {
+          
+          progress = (50*baseCnt/bnl.getLength());
+          String baseName = bnl.getName(baseCnt);
+          BufferedReader labels;
+          BufferedReader features; 
+          String wavDir    =  db.getProp(db.WAVDIR);
+          String voiceName =  db.getProp(db.VOICENAME);
+
+          AudioInputStream ais = AudioSystem.getAudioInputStream(new File(wavDir+"/"+baseName+".wav"));
+          
+          if (!ais.getFormat().getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
+              ais = AudioSystem.getAudioInputStream(AudioFormat.Encoding.PCM_SIGNED, ais);
+          }
+   
+          float samplingRate = ais.getFormat().getSampleRate();
+          double[] signal = new AudioDoubleDataSource(ais).getAllData();
+          
+          labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File( getProp(LABELDIR)+ baseName + labExt )), "UTF-8"));
+          features = new BufferedReader(new InputStreamReader(new FileInputStream(new File( getProp(FEATUREDIR)+ baseName + featsExt )), "UTF-8"));
+          
+          String line;
+          int  ph_VC_idx = -1; // Vowel-Consonent Index
+          int ph_Ctype_idx = -1;
+          
+          // Skip label file header:
+          while ((line = labels.readLine()) != null) {
+              if (line.startsWith("#")) break; // line starting with "#" marks end of header
+          }
+          // Skip features file header:
+          for(int lineCount = 0 ;(line = features.readLine()) != null; lineCount++){   
+             
+              if(line.startsWith("mary_ph_ctype")){
+                  ph_Ctype_idx = lineCount - 1;                 
+              }
+              
+              if (line.trim().equals("")) break; // empty line marks end of header
+           }
+          
+           boolean correct = true;
+           double startTimeStamp = 0.0;
+           double endTimeStamp = 0.0;
+           boolean isFricative = false;
+           int unitIndex= 0;
+           String labelUnit;
+              
+           while (correct) {
+        
+               line = labels.readLine();
+               labelUnit = null;
+               if (line != null){
+                  List labelUnitData = getLabelUnitData(line);
+                  labelUnit = (String)labelUnitData.get(2);
+                  unitIndex = Integer.parseInt((String)labelUnitData.get(1));
+                  endTimeStamp = Double.parseDouble((String)labelUnitData.get(0)); 
+               }
+                        
+               line = features.readLine();
+               String featureUnit = getFeatureUnit(line);
+               if (featureUnit == null) throw new IOException("Incomplete feature file: "+baseName);
+               // when featureUnit is the empty string, we have found an empty line == end of feature section
+               if ("".equals(featureUnit) && labelUnit == null){
+                  //we have reached the end in both labels and features
+                  break;
+                }
+               if (!featureUnit.equals(labelUnit)) {
+                  //label and feature unit do not match
+                  System.err.println("Non-matching units found: feature file '"
+                  +featureUnit+"' vs. label file '"+labelUnit
+                  +"' (Unit "+unitIndex+")");
+               }
+                 
+               if(isFricative(line,ph_Ctype_idx) && getProp(MHFREQEGY).equals("true")){
+                   
+                   double fricEnergy = getFricativeEnergy(signal, samplingRate, startTimeStamp, endTimeStamp, labelUnit);
+                   if(fricativeHash.containsKey(featureUnit)){
+                   ArrayList arrList = (ArrayList) fricativeHash.get(featureUnit);
+                   arrList.add(new Double(fricEnergy));
+                   fricativeHash.put(featureUnit, arrList);
+                   }
+                   else {
+                   ArrayList arrList = new ArrayList();
+                   arrList.add(new Double(fricEnergy));
+                   fricativeHash.put(featureUnit, arrList);
+                   }
+               }
+               double phoneDuration =  endTimeStamp - startTimeStamp;
+               if(labelUnit.equals("_") && phoneDuration > 0 && getProp(MHSILEGY).equals("true")){
+                   double silEnergy = getSilenceEnergy(signal, samplingRate, startTimeStamp, endTimeStamp);
+                   silenceEnergyList.add(new Double(silEnergy));
+               }
+            }
+              
+            features.close();
+            labels.close();
+         }
+       
+        return fricativeHash;
+     }
+    
+/**
+ * Create a HashMap which contains indivisual fricative Thresholds
+ * @param fricativeHash
+ * @return HashMap which contains indivisual fricative Thresholds
+ */    
+private Map getFricativeThresholds(Map fricativeHash){
+    
+    Map hashThresholds = new HashMap();
+    
+    for ( Iterator it = fricativeHash.entrySet().iterator(); it.hasNext(); ) {
+        Map.Entry e = (Map.Entry) it.next();
+        ArrayList arr = (ArrayList) e.getValue();
+        double[] arrVal =  listToArray(arr);
+        double meanVal = MaryUtils.mean(arrVal);
+        double stDev = MaryUtils.stdDev(arrVal);
+        Double threshold = (Double) (meanVal - (2 * stDev));
+        if(threshold.doubleValue() < 0)
+            threshold = (Double) (meanVal - (1.5 * stDev));
+        
+        hashThresholds.put((String) e.getKey(), (Double) threshold);
+    }
+    
+    return hashThresholds;
+}
+
+/**
+ * Calculating Silence Energy Threshold Level 
+ * @return Silence Threshold
+ */
+private double getSilenceThreshold(){
+    
+    double[] arrVal =  listToArray(silenceEnergyList);
+    double meanVal = MaryUtils.mean(arrVal);
+    double stDev = MaryUtils.stdDev(arrVal);
+         
+    return (meanVal + (1.5 * stDev));
+}
+
+/**
      * Identifies If Silence has more Energy
      * @param signal
      * @param samplingRate
@@ -320,27 +462,66 @@ public class QualityControl extends VoiceImportComponent {
             segmentEndIndex = signal.length;
         }
         int segmentSize = segmentEndIndex - segmentStartIndex;
-
-        
         double[] phoneSegment = new double[segmentSize]; 
-        // System.out.println(segmentStartIndex + " "+ segmentEndIndex + " "+ segmentSize +" "+signal.length);
-        
         System.arraycopy(signal, segmentStartIndex, phoneSegment, 0, segmentSize);
-        
-        
         double silenceEnergy = SignalProcUtils.getEnergy(phoneSegment);
-        
-        double cutofEnergy =  Double.parseDouble(getProp(SILCUTENERGY)); 
-        
-        //System.out.println(basename +" : Silence Energy :  "+ silenceEnergy);
-        //System.out.println(silenceEnergy);
-        
-        if(silenceEnergy > cutofEnergy ) isSILHEnergy = true;
+        if(silenceEnergy > sileceThreshold ) isSILHEnergy = true;
         
         return isSILHEnergy;
     }
     
+    /**
+     * Calculate Silence Energy
+     * @param signal
+     * @param samplingRate
+     * @param startTimeStamp
+     * @param endTimeStamp
+     * @return
+     * @throws IOException
+     * @throws Exception
+     */
+    private double getSilenceEnergy(double[] signal, float samplingRate, double startTimeStamp, double endTimeStamp)
+    throws IOException, Exception
+    {
+        boolean isSILHEnergy = false;
+        float duration = signal.length / samplingRate;
+        double phoneDur = endTimeStamp - startTimeStamp;
+        int segmentStartIndex = (int)(startTimeStamp * samplingRate);
+        int segmentEndIndex = (int)(endTimeStamp * samplingRate);
+        if(segmentEndIndex > signal.length){
+            segmentEndIndex = signal.length;
+        }
+        int segmentSize = segmentEndIndex - segmentStartIndex;
+        double[] phoneSegment = new double[segmentSize]; 
+        System.arraycopy(signal, segmentStartIndex, phoneSegment, 0, segmentSize);
+        return SignalProcUtils.getEnergy(phoneSegment);
+    }
     
+    /**
+     * Writing all suspicious labels to a File
+     * @throws IOException
+     */
+    private void writeProblemstoFile() throws IOException {
+        
+        outFileWriter = new PrintWriter(new FileWriter(new File(getProp(OUTFILE))));
+        
+        for (int i=0; i<bnl.getLength(); i++) {
+           String baseName = bnl.getName(i);
+           if(allProblems.containsKey(baseName)){
+               //outFileWriter.println(baseName);
+               ArrayList arrList = (ArrayList) allProblems.get(baseName);
+               for(Iterator it = arrList.iterator(); it.hasNext() ;){
+                   String eachProblem = (String) it.next();
+                   outFileWriter.println(baseName+"\t"+eachProblem);
+                   
+               }
+               //outFileWriter.println("");
+           }
+        }
+        outFileWriter.flush();
+        outFileWriter.close();
+    }
+
     /**
      * Identifies if Fricative has more higher frequency Energy
      * @param signal
@@ -351,12 +532,11 @@ public class QualityControl extends VoiceImportComponent {
      * @throws IOException
      * @throws Exception
      */
-    
     private boolean isFricativeHighEnergy(double[] signal, float samplingRate, double startTimeStamp, double endTimeStamp, String unitName)
     throws IOException, Exception
     {
         
-        boolean isFHighEnergy = false;
+        boolean isFHighEnergy = true;
         float duration = signal.length / samplingRate;
         double phoneDur = endTimeStamp - startTimeStamp;
         int segmentStartIndex = (int)(startTimeStamp * samplingRate);
@@ -376,14 +556,50 @@ public class QualityControl extends VoiceImportComponent {
         double [] highFreqSamples = filter.apply(phoneSegment);
         
         double higherFreqEnergy = SignalProcUtils.getEnergy(highFreqSamples);
-                       
-        //System.out.println(basename +" : High Freq. Energy :  "+ phoneUnit + " Energy : "+ higherFreqEnergy);
-        //System.out.println(unitName+" "+higherFreqEnergy);
         
-        double cutofEnergy =  Double.parseDouble(getProp(FRICCUTENERGY));
-        if(higherFreqEnergy > cutofEnergy ) isFHighEnergy = true;
+        Double cutofEnergy = (Double) fricativeThresholds.get(unitName);
+        //System.out.println("High Freq. Energy :  "+ unitName + " Energy : "+ higherFreqEnergy + "-- Threshold : "+ cutofEnergy.doubleValue());
+        if(higherFreqEnergy < cutofEnergy.doubleValue() ) isFHighEnergy = false;
         
         return isFHighEnergy;
+    }
+    
+    /**
+     * To get Fricative High-Freq Energy
+     * @param signal
+     * @param samplingRate
+     * @param startTimeStamp
+     * @param endTimeStamp
+     * @param unitName
+     * @return Fricative High-Freq Energy
+     * @throws IOException
+     * @throws Exception
+     */
+    private double getFricativeEnergy(double[] signal, float samplingRate, double startTimeStamp, double endTimeStamp, String unitName)
+    throws IOException, Exception
+    {
+        
+        float duration = signal.length / samplingRate;
+        double phoneDur = endTimeStamp - startTimeStamp;
+        int segmentStartIndex = (int)(startTimeStamp * samplingRate);
+        int segmentEndIndex = (int)(endTimeStamp * samplingRate);
+        
+        if(segmentEndIndex > signal.length){
+            segmentEndIndex = signal.length;
+        }
+        
+        int segmentSize = segmentEndIndex - segmentStartIndex;
+        
+        double[] phoneSegment = new double[segmentSize]; 
+        
+        System.arraycopy(signal, segmentStartIndex, phoneSegment, 0, segmentSize);
+        
+        BandPassFilter filter = new BandPassFilter(0.25, 0.49);
+        double [] highFreqSamples = filter.apply(phoneSegment);
+        
+        double higherFreqEnergy = SignalProcUtils.getEnergy(highFreqSamples);
+        
+        return higherFreqEnergy;
     }
     
     
@@ -444,7 +660,22 @@ public class QualityControl extends VoiceImportComponent {
         return unitData;
     }
     
-    
+    /**
+     * Double ArrayList to double array conversion
+     * @param Double ArrayList
+     * @return double array
+     */
+    private double[] listToArray(ArrayList array){
+        
+        double[] doubleArray = new double[array.size()];
+        Iterator it = array.iterator();
+        for(int i=0; it.hasNext(); i++){
+            Double tempDouble = (Double) it.next();
+            doubleArray[i] = tempDouble.doubleValue();
+        }
+        return doubleArray;
+    }
+
     /**
      * To get Phone Unit from Feature Vector
      * @param line
