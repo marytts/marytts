@@ -55,7 +55,7 @@ import de.dfki.lt.signalproc.util.MathUtils;
 public class Tester {
     public static float DEFAULT_AMP = 0.8f;
     public static float DEFAULT_PHASE = 0.0f;
-    public static float DEFAULT_DUR = 3.0f;
+    public static float DEFAULT_DUR = 1.0f;
     public static int DEFAULT_FS = 16000;
     public double [] signal;
     public int [] pitchMarks;
@@ -107,7 +107,7 @@ public class Tester {
     
     public Tester(Sinusoid [] sinsIn)
     {
-        this(sinsIn, DEFAULT_DUR, DEFAULT_FS);
+        this(sinsIn, DEFAULT_DUR);
     }
     
     public Tester(Sinusoid [] sinsIn, float durationInSeconds)
@@ -193,14 +193,13 @@ public class Tester {
         int i;
         Tester t = null;
         
-        t = new Tester(200.0f);
+        //t = new Tester(200.0f);
         
-        /*
-        Sinusoid [] sins = new Sinusoid[2];
-        sins[0] = new Sinusoid(0.8f, 120.0f, 0.0f);
-        sins[1] = new Sinusoid(0.3f, 1200.0f, 0.0f);
+        Sinusoid [] sins = new Sinusoid[3];
+        sins[0] = new Sinusoid(100.0f, 120.0f, 0.0f);
+        sins[1] = new Sinusoid(25.0f, 700.0f, 0.0f);
+        sins[2] = new Sinusoid(6.5f, 4300.0f, 0.0f);
         t = new Tester(sins);
-        */
         
         t.write(args[0], args[1]);
         

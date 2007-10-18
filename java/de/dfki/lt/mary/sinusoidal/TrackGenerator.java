@@ -37,6 +37,8 @@ package de.dfki.lt.mary.sinusoidal;
  */
 public class TrackGenerator {
     
+    public static float DEFAULT_DELTA = 50.0f; //Default maximum absolute frequency deviation between neighbouring sinusoids in a track
+    
     public TrackGenerator()
     {
         
@@ -94,7 +96,7 @@ public class TrackGenerator {
                         if (i>1)
                             tr.add(new SinusoidalTrack(times[i-1], zeroAmpSin,  SinusoidalTrack.TURNED_ON));
                         else
-                            tr.add(new SinusoidalTrack(0.0f, zeroAmpSin, SinusoidalTrack.TURNED_ON));
+                            tr.add(new SinusoidalTrack(0.5f*(times[i]-times[i+1]), zeroAmpSin, SinusoidalTrack.TURNED_ON));
                         //
                     
                         tr.tracks[tr.currentIndex].add(times[i], framesSins[i][j], SinusoidalTrack.ACTIVE);
