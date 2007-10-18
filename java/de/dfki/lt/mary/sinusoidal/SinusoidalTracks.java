@@ -215,6 +215,9 @@ public class SinusoidalTracks {
             
         System.out.println("Total tracks shorter than " + String.valueOf(shortLim) + " speech frames = " + String.valueOf(numShorts));
         System.out.println("Total tracks longer than " + String.valueOf(longLim) + " speech frames = " + String.valueOf(numLongs));
+ 
+        for (i=0; i<totalTracks; i++)
+            tracks[i].getStatistics(true, true, fs);
     }
     
     public float getOriginalDuration()

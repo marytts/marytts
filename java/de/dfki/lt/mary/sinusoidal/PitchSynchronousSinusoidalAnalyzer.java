@@ -80,7 +80,19 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
     //Pitch synchronous analysis
     public SinusoidalTracks analyzePitchSynchronous(double [] x, int [] pitchMarks)
     {
-        return analyzePitchSynchronous(x, pitchMarks, DEFAULT_ANALYSIS_PERIODS);
+        return analyzePitchSynchronous(x, pitchMarks, DEFAULT_ANALYSIS_PERIODS, -1.0f);
+    }
+    
+    //Pitch synchronous analysis
+    public SinusoidalTracks analyzePitchSynchronous(double [] x, int [] pitchMarks, float numPeriods)
+    {
+        return analyzePitchSynchronous(x, pitchMarks, numPeriods, -1.0f);
+    }
+    
+  //Pitch synchronous analysis
+    public SinusoidalTracks analyzePitchSynchronous(double [] x, int [] pitchMarks, float numPeriods, float skipSizeInSeconds)
+    {
+        return analyzePitchSynchronous(x, pitchMarks, numPeriods, skipSizeInSeconds, TrackGenerator.DEFAULT_DELTA);
     }
     
     /* 
@@ -90,11 +102,25 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
      * pitchMarks: Integer array of sample indices for pitch period start instants
      * numPeriods: Number of pitch periods to be used in analysis
      */
-    public SinusoidalTracks analyzePitchSynchronous(double [] x, int [] pitchMarks, float numPeriods)
+    public SinusoidalTracks analyzePitchSynchronous(double [] x, int [] pitchMarks, float numPeriods, float skipSizeInSeconds, float deltaInHz)
     {
-        int totalFrm = (int)Math.floor(pitchMarks.length-numPeriods+0.5);
-        if (totalFrm>pitchMarks.length-1)
-            totalFrm = pitchMarks.length-1;
+        boolean bFixedSkipRate = false;
+        if (skipSizeInSeconds>0.0f) //Perform fixed skip rate but pitch synchronous analysis?
+        {
+            ss = (int)Math.floor(skipSizeInSeconds*fs + 0.5);
+            bFixedSkipRate = true;
+        }
+        
+        int totalFrm;
+        
+        if (!bFixedSkipRate)
+        {
+            totalFrm = (int)Math.floor(pitchMarks.length-numPeriods+0.5);
+            if (totalFrm>pitchMarks.length-1)
+                totalFrm = pitchMarks.length-1;
+        }
+        else
+            totalFrm = (int)(x.length/ss+0.5);
         
         //Extract frames and analyze them
         double [] frm = null;
@@ -104,25 +130,61 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         Sinusoid [][] framesSins =  new Sinusoid[totalFrm][];
         float [] times = new float[totalFrm];
         
+        int pmInd = 0;
+        int currentTimeInd = 0;
+        
         for (i=0; i<totalFrm; i++)
-        {
-            T0 = pitchMarks[i+1]-pitchMarks[i]-1;
+        {   
+            if (!bFixedSkipRate)
+                T0 = pitchMarks[i+1]-pitchMarks[i];
+            else
+            {
+                while (pitchMarks[pmInd]<currentTimeInd)
+                {
+                    pmInd++;
+                    if (pmInd>pitchMarks.length-1)
+                    {
+                        pmInd = pitchMarks.length-1;
+                        break;
+                    }
+                }
+                
+                if (pmInd<pitchMarks.length-1)
+                    T0 = pitchMarks[pmInd+1]-pitchMarks[pmInd];
+                else
+                    T0 = pitchMarks[pmInd]-pitchMarks[pmInd-1];
+            }
+            
             ws = (int)Math.floor(numPeriods*T0+ 0.5);
             ws = Math.max(ws, minWindowSize);
             frm = new double[ws];
             
+            Arrays.fill(frm, 0.0);
+            
+            if (!bFixedSkipRate)
+            {
+                for (j=pitchMarks[i]; j<Math.min(pitchMarks[i]+ws-1, x.length); j++)
+                    frm[j-pitchMarks[i]] = x[j];
+            }
+            else
+            {
+                for (j=currentTimeInd; j<Math.min(currentTimeInd+ws-1, x.length); j++)
+                    frm[j-currentTimeInd] = x[j];
+            }
+            
             win = Window.get(windowType, ws);
             win.normalize(1.0f); //Normalize to sum up to unity
-            
-            Arrays.fill(frm, 0.0);
-            for (j=pitchMarks[i]; j<Math.min(pitchMarks[i]+ws-1, x.length); j++)
-                frm[j-pitchMarks[i]] = x[j];
-            
-            win.apply(frm, 0);
+            win.applyInline(frm, 0, ws);
             
             framesSins[i] = analyze_frame(frm);
             
-            times[i] = (float)(0.5*(pitchMarks[i+1]+pitchMarks[i])/fs);
+            if (!bFixedSkipRate)
+                times[i] = (float)(0.5*(pitchMarks[i+1]+pitchMarks[i])/fs);
+            else
+            {
+                times[i] = (currentTimeInd+0.5f*T0)/fs;
+                currentTimeInd += ss;
+            }
             
             System.out.println("Analysis complete for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm));
         }
@@ -130,7 +192,7 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         
         //Extract sinusoidal tracks
         TrackGenerator tg = new TrackGenerator();
-        SinusoidalTracks sinTracks = tg.generateTracksFreqOnly(framesSins, times, 50.0f, fs);
+        SinusoidalTracks sinTracks = tg.generateTracksFreqOnly(framesSins, times, deltaInHz, fs);
         sinTracks.getTrackStatistics();
         
         return sinTracks;

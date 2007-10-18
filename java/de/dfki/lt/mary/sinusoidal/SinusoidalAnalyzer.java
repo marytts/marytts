@@ -133,6 +133,11 @@ public class SinusoidalAnalyzer {
         return analyzeFixedRate(x, winSizeInSeconds, DEFAULT_ANALYSIS_SKIP_SIZE);
     }
     
+    public SinusoidalTracks analyzeFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds)
+    {
+        return analyzeFixedRate(x, winSizeInSeconds, skipSizeInSeconds, TrackGenerator.DEFAULT_DELTA);
+    }
+    
     /* 
      * Fixed rate analysis
      * 
@@ -140,7 +145,7 @@ public class SinusoidalAnalyzer {
      * winSizeInSeconds: Integer array of sample indices for pitch period start instants
      * skipSizeInSeconds: Number of pitch periods to be used in analysis
      */
-    public SinusoidalTracks analyzeFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds)
+    public SinusoidalTracks analyzeFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz)
     {
         ws = (int)Math.floor(winSizeInSeconds*fs + 0.5);
         ss = (int)Math.floor(skipSizeInSeconds*fs + 0.5);
@@ -163,7 +168,7 @@ public class SinusoidalAnalyzer {
             for (j=i*ss; j<Math.min(i*ss+ws, x.length); j++)
                 frm[j-i*ss] = x[j];
             
-            win.apply(frm, 0);
+            win.applyInline(frm, 0, ws);
             
             framesSins[i] = analyze_frame(frm);
             
@@ -175,14 +180,14 @@ public class SinusoidalAnalyzer {
         
         //Extract sinusoidal tracks
         TrackGenerator tg = new TrackGenerator();
-        SinusoidalTracks sinTracks = tg.generateTracksFreqOnly(framesSins, times, 50.0f, fs);
+        SinusoidalTracks sinTracks = tg.generateTracksFreqOnly(framesSins, times, deltaInHz, fs);
         sinTracks.getTrackStatistics(winSizeInSeconds, skipSizeInSeconds);
         
         return sinTracks;
     }
 
     public Sinusoid [] analyze_frame(double [] frm)
-    {
+    {   
         if (fftSize<frm.length)
             fftSize = frm.length;
         
@@ -200,17 +205,16 @@ public class SinusoidalAnalyzer {
         if (MathUtils.isPowerOfTwo(fftSize))
             FFT.transform(Y.real, Y.imag, false);
         else
-            FFTMixedRadix.fftComplex(Y);
+            Y = FFTMixedRadix.fftComplex(Y);
         
         //Compute magnitude spectrum in dB as peak frequency estimates tend to be more accurate
         double [] Ydb = new double[maxFreq]; 
         for (i=0; i<maxFreq; i++)
-            Ydb[i] = 10*Math.log10(Y.real[i]*Y.real[i]+Y.imag[i]*Y.imag[i]);
+            Ydb[i] = 10*Math.log10(Y.real[i]*Y.real[i]+Y.imag[i]*Y.imag[i]+1e-20);
         //
         
         //Determine peak amplitude indices and the corresponding amplitudes, frequencies, and phases 
         int [] freqInds = MathUtils.getExtrema(Ydb, 1, 1, true);
-        
         
         Sinusoid [] frameSins = null;
         if (freqInds != null)

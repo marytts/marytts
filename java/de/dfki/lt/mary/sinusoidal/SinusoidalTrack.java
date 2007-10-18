@@ -29,6 +29,8 @@
 
 package de.dfki.lt.mary.sinusoidal;
 
+import de.dfki.lt.signalproc.util.MathUtils;
+
 /**
  * @author oytun.turk
  *
@@ -39,7 +41,7 @@ package de.dfki.lt.mary.sinusoidal;
 public class SinusoidalTrack {
 
     float [] amps; //Amplitudes of the sinusoids
-    float [] freqs; //Frequencies of the sinusoids in Hz
+    float [] freqs; //Frequencies of the sinusoids
     float [] phases; //Phases of the sinusoids in radians
     float [] times; //Times of the sinusoids in seconds
     int [] states; //State of the track for a given index (one of the flags below, by default: LIVING
@@ -55,6 +57,87 @@ public class SinusoidalTrack {
     // on new sinusoid candidates to be appended to the current track during track generation
     Sinusoid newCandidate;
     int newCandidateInd;
+    //
+    
+    //These are for checking some statistics and debugging only, not required for actual analysis/synthesis
+    public float avgFreqInHz;
+    public float minFreqInHz;
+    public float maxFreqInHz;
+    
+    public float avgAmpLinear;
+    public float minAmpLinear;
+    public float maxAmpLinear;
+    
+    public float avgPhaseInDegrees;
+    public float minPhaseInDegrees;
+    public float maxPhaseInDegrees;
+    public void getStatistics(boolean isFreqRadian, boolean isPhaseRadian, int fs) 
+    {
+        avgFreqInHz = 0.0f;
+        minFreqInHz = -1.0f;
+        maxFreqInHz = -1.0f;
+        
+        avgAmpLinear = 0.0f;
+        minAmpLinear = -1.0f;
+        maxAmpLinear = -1.0f;
+        
+        avgPhaseInDegrees = 0.0f;
+        minPhaseInDegrees = -1.0f;
+        maxPhaseInDegrees = -1.0f;
+        
+        if (totalSins>0)
+        {
+            int i;
+            for (i=0; i<totalSins; i++)
+            {
+                avgFreqInHz += freqs[i];
+                avgAmpLinear += MathUtils.db2amplitude(amps[i]);
+                avgPhaseInDegrees += phases[i];
+            }
+            
+            avgFreqInHz /= totalSins;
+            avgAmpLinear /= totalSins;
+            avgPhaseInDegrees /= totalSins;
+            
+            if (isFreqRadian)
+                avgFreqInHz = MathUtils.radian2Hz(avgFreqInHz, fs);
+            
+            if (isPhaseRadian)
+                avgPhaseInDegrees = MathUtils.radian2degrees(avgPhaseInDegrees);
+            
+            minFreqInHz = MathUtils.getMin(freqs);
+            if (isFreqRadian)
+                minFreqInHz = MathUtils.radian2Hz(minFreqInHz, fs);
+            
+            maxFreqInHz = MathUtils.getMax(freqs);
+            if (isFreqRadian)
+                maxFreqInHz = MathUtils.radian2Hz(maxFreqInHz, fs);
+            
+            minAmpLinear = MathUtils.db2amplitude(MathUtils.getMin(amps));
+            maxAmpLinear = MathUtils.db2amplitude(MathUtils.getMax(amps));
+
+            minPhaseInDegrees = MathUtils.getMin(phases);
+            if (isPhaseRadian)
+                minPhaseInDegrees = MathUtils.radian2degrees(minPhaseInDegrees);
+            
+            maxPhaseInDegrees = MathUtils.getMax(phases);
+            if (isPhaseRadian)
+                maxPhaseInDegrees = MathUtils.radian2degrees(maxPhaseInDegrees); 
+            
+            char chTab = 9;
+            String str = "avgFreq=" + String.valueOf(avgFreqInHz) + " Hz." + chTab;
+            str += "minFreq=" + String.valueOf(minFreqInHz) + " Hz." + chTab;
+            str += "maxFreq=" + String.valueOf(maxFreqInHz) + " Hz." + chTab;
+            str += "avgAmpl=" + String.valueOf(avgAmpLinear) + chTab;
+            str += "minAmpl=" + String.valueOf(minAmpLinear) + chTab;
+            str += "maxAmpl=" + String.valueOf(maxAmpLinear) + chTab;
+            str += "avgPhas=" + String.valueOf(avgPhaseInDegrees) + "°" + chTab;
+            str += "minPhas=" + String.valueOf(minPhaseInDegrees) + "°" + chTab;
+            str += "maxPhas=" + String.valueOf(maxPhaseInDegrees) + "°";
+            
+            System.out.println(str);
+        }
+    }
     //
     
     public SinusoidalTrack(int len)

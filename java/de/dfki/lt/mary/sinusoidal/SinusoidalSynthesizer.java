@@ -68,7 +68,7 @@ public class SinusoidalSynthesizer {
     {
         int n; //discrete time index
         int i, j;
-        int nStart, nEnd;
+        int nStart, nEnd, pStart, pEnd;
         float t; //continuous time
         float t2; //continuous time squared
         float t3; //continuous time cubed
@@ -91,11 +91,15 @@ public class SinusoidalSynthesizer {
         {
             for (j=0; j<st.tracks[i].totalSins-1; j++)
             {
-                nStart = (int)Math.floor(st.tracks[i].times[j]*st.fs+0.5);
-                nEnd = (int)Math.floor(st.tracks[i].times[j+1]*st.fs+0.5);
-                
+                pStart = (int)Math.floor(st.tracks[i].times[j]*st.fs+0.5);
+                pEnd = (int)Math.floor(st.tracks[i].times[j+1]*st.fs+0.5);
+                nStart = Math.max(0, pStart);
+                nEnd = Math.max(0, pEnd);
+                nStart = Math.min(y.length-1, nStart);
+                nEnd = Math.min(y.length-1, nEnd);
+
                 for (n=nStart; n<nEnd; n++)
-                {
+                {   
                     if (false) //Direct synthesis
                     {
                         currentAmp = st.tracks[i].amps[j];
@@ -105,9 +109,9 @@ public class SinusoidalSynthesizer {
                     else //Synthesis with interpolation
                     {
                         //Amplitude interpolation
-                        currentAmp = st.tracks[i].amps[j] + (st.tracks[i].amps[j+1]-st.tracks[i].amps[j])*((float)n-nStart)/(nEnd-nStart+1);
-                        
-                        T = (nEnd-nStart);
+                        currentAmp = st.tracks[i].amps[j] + (st.tracks[i].amps[j+1]-st.tracks[i].amps[j])*((float)n-pStart)/(pEnd-pStart+1);
+
+                        T = (pEnd-pStart);
 
                         //Birth of a track
                         //if (j==0)
@@ -127,18 +131,18 @@ public class SinusoidalSynthesizer {
                             M = (int)(Math.floor(oneOverTwoPi*((st.tracks[i].phases[j] + T*st.tracks[i].freqs[j] - st.tracks[i].phases[j+1])+(st.tracks[i].freqs[j+1]-st.tracks[i].freqs[j])*0.5*T)+0.5));
                             term1 = st.tracks[i].phases[j+1]-st.tracks[i].phases[j]-T*st.tracks[i].freqs[j]+M*MathUtils.TWOPI;
                             term2 = st.tracks[i].freqs[j+1]-st.tracks[i].freqs[j];
-                            
+
                             /*
                             //Smith III and Serra
                             if (j<st.tracks[i].totalSins-2)
                                 M = (int)(Math.floor(oneOverTwoPi*((st.tracks[i].phases[j-1] + T*st.tracks[i].freqs[j-1] - st.tracks[i].phases[j])+(st.tracks[i].freqs[j]-st.tracks[i].freqs[j+1])*0.5*T)+0.5));
                             else
                                 M = (int)(Math.floor(oneOverTwoPi*((st.tracks[i].phases[j-1] + T*st.tracks[i].freqs[j-1] - st.tracks[i].phases[j]))+0.5));
-                            
+
                             term1 = st.tracks[i].phases[j]-st.tracks[i].phases[j-1]-T*st.tracks[i].freqs[j-1]+M*MathUtils.TWOPI;
                             term2 = st.tracks[i].freqs[j]-st.tracks[i].freqs[j-1];
-                            */
-                            
+                             */
+
                             T2 = T*T;
                             T3 = T*T2;
                             alpha = 3.0*term1/T2-term2/T;
@@ -147,26 +151,25 @@ public class SinusoidalSynthesizer {
                             t = ((float)n-nStart);
                             t2 = t*t;
                             t3 = t*t2;
-                            
+
                             //Quatieri
                             currentTheta=(float)(st.tracks[i].phases[j] + st.tracks[i].freqs[j]*t + alpha*t2 + beta*t3);
-                            
+
                             //Smith III and Serra
                             //currentTheta=(float)(st.tracks[i].phases[j-1] + st.tracks[i].freqs[j-1]*t + alpha*t2 + beta*t3);
                         }
-                        
+
                         //Synthesis
                         //y[n] += currentAmp*Math.cos(n*st.tracks[i].freqs[j] + currentTheta);
                         y[n] += currentAmp*Math.cos(currentTheta);
                     }
-                    
+
                     //System.out.println(String.valueOf(currentAmp) +  "    " + String.valueOf(currentTheta)); 
                 }
             }
-            
+
             System.out.println("Synthesized track " + String.valueOf(i+1) + " of " + String.valueOf(st.totalTracks));
-        }  
-        
+        }          
         double maxy = MathUtils.getAbsMax(y);
         for (i=0; i<y.length; i++)
             y[i] = 0.95*y[i]/maxy;
@@ -188,28 +191,35 @@ public class SinusoidalSynthesizer {
         //
         
         //Analysis
+        float deltaInHz = 10.0f;
+        float numPeriods = 2.5f;
+        
         if (false)
         {
+            //Fixed window size and skip rate analysis
             sa = new SinusoidalAnalyzer(samplingRate, Window.HAMMING, true, true);
-            st = sa.analyzeFixedRate(x, 0.020f, 0.010f);
+            st = sa.analyzeFixedRate(x, 0.020f, 0.010f, deltaInHz);
+            //
         }
         else
         {
+            //Pitch synchronous analysis
             if (true) //Test using real speech (Make sure .ptc file with identical filename as the wavfile exists)
             {
                 String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
                 F0Reader f0 = new F0Reader(strPitchFile);
                 PitchMarker pm = SignalProcUtils.pitchContour2pitchMarks(f0.getContour(), samplingRate, x.length, f0.ws, f0.ss, true);
                 pa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, true, true);
-                st = pa.analyzePitchSynchronous(x, pm.pitchMarks);
+                st = pa.analyzePitchSynchronous(x, pm.pitchMarks, numPeriods, -1.0f, deltaInHz);
             }
-            else //Test using simple sinusoids (Make sure .pm file with identical filename as the wavfile exists (Tester.java automatically generates it)
+            else //Test using simple sinusoids (Make sure .pm file with identical filename as the wavfile exists (Tester.java automatically generates it))
             {
                 String strPmFile = args[0].substring(0, args[0].length()-4) + ".pm";
                 int [] pitchMarks = FileUtils.readFromBinaryFile(strPmFile);
-                pa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, true, true);
-                st = pa.analyzePitchSynchronous(x, pitchMarks);
+                pa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.RECT, true, true);
+                st = pa.analyzePitchSynchronous(x, pitchMarks, numPeriods, -1.0f, deltaInHz);
             }
+            //
         }
         //
         
