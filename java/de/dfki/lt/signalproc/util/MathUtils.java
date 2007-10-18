@@ -286,10 +286,36 @@ public class MathUtils {
         return exp10(divide(dbEnergies, 10));
     }
     
+    public static float db2amplitude(float dbAmplitude)
+    {
+        if (Float.isNaN(dbAmplitude)) return 0.0f;
+        else return (float)(Math.pow(10.0, dbAmplitude/20));
+    }
+    
     public static double db2amplitude(double dbAmplitude)
     {
         if (Double.isNaN(dbAmplitude)) return 0.;
         else return Math.pow(10.0, dbAmplitude/20);
+    }
+ 
+    public static float radian2Hz(float rad, int samplingRate)
+    {
+        return (float)((rad/MathUtils.TWOPI)*samplingRate);
+    }
+    
+    public static double radian2Hz(double rad, int samplingRate)
+    {
+        return (rad/MathUtils.TWOPI)*samplingRate;
+    }
+    
+    public static float radian2degrees(float rad)
+    {
+        return (float)((rad/MathUtils.TWOPI)*360.0f);
+    }
+    
+    public static double radian2degrees(double rad)
+    {
+        return (rad/MathUtils.TWOPI)*360.0;
     }
 
     /**
@@ -657,6 +683,54 @@ public class MathUtils {
         for (int i=1; i<x.length; i++)
         {
             if (x[i]>maxx)
+                maxx = x[i];
+        }
+        
+        return maxx;
+    }
+    
+    public static float getMax(float [] x)
+    {
+        float maxx = x[0];
+        for (int i=1; i<x.length; i++)
+        {
+            if (x[i]>maxx)
+                maxx = x[i];
+        }
+        
+        return maxx;
+    }
+    
+    public static int getMin(int [] x)
+    {
+        int maxx = x[0];
+        for (int i=1; i<x.length; i++)
+        {
+            if (x[i]<maxx)
+                maxx = x[i];
+        }
+        
+        return maxx;
+    }
+    
+    public static double getMin(double [] x)
+    {
+        double maxx = x[0];
+        for (int i=1; i<x.length; i++)
+        {
+            if (x[i]<maxx)
+                maxx = x[i];
+        }
+        
+        return maxx;
+    }
+    
+    public static float getMin(float [] x)
+    {
+        float maxx = x[0];
+        for (int i=1; i<x.length; i++)
+        {
+            if (x[i]<maxx)
                 maxx = x[i];
         }
         
