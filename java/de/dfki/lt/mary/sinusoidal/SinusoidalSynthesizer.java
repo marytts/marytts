@@ -66,6 +66,11 @@ public class SinusoidalSynthesizer {
     
     public double [] synthesize(SinusoidalTracks st)
     {
+        return synthesize(st, false);
+    }
+    
+    public double [] synthesize(SinusoidalTracks st, boolean isSilentSynthesis)
+    {
         int n; //discrete time index
         int i, j;
         int nStart, nEnd, pStart, pEnd;
@@ -87,12 +92,15 @@ public class SinusoidalSynthesizer {
         double oneOverTwoPi = 1.0/MathUtils.TWOPI;
         double term1, term2;
         
+        st = perceptualProcessing(st);
+        
         for (i=0; i<st.totalTracks; i++) 
         {
             for (j=0; j<st.tracks[i].totalSins-1; j++)
             {
                 pStart = (int)Math.floor(st.tracks[i].times[j]*st.fs+0.5);
                 pEnd = (int)Math.floor(st.tracks[i].times[j+1]*st.fs+0.5);
+                
                 nStart = Math.max(0, pStart);
                 nEnd = Math.max(0, pEnd);
                 nStart = Math.min(y.length-1, nStart);
@@ -113,17 +121,17 @@ public class SinusoidalSynthesizer {
 
                         T = (pEnd-pStart);
 
-                        //Birth of a track
-                        //if (j==0)
-                        if (st.tracks[i].states[j]==SinusoidalTrack.TURNED_ON)
+                        if (n==nStart && st.tracks[i].states[j]==SinusoidalTrack.TURNED_ON) //Turning on a track
                         {
                             //Quatieri
-                            currentTheta = st.tracks[i].phases[j+1] - T*st.tracks[i].freqs[j+1];
+                            currentTheta = st.tracks[i].phases[j+1] - T*st.tracks[i].freqs[j+1]; 
+                            currentAmp = 0.0f;
                         }
-                        else if (st.tracks[i].states[j]==SinusoidalTrack.TURNED_OFF && j>0)
+                        else if (n==nStart && st.tracks[i].states[j]==SinusoidalTrack.TURNED_OFF && j>0) //Turning off a track
                         {
                             //Quatieri
                             currentTheta = st.tracks[i].phases[j-1] + T*st.tracks[i].freqs[j-1];
+                            currentAmp = 0.0f;
                         }
                         else //Cubic phase interpolation
                         {
@@ -168,13 +176,31 @@ public class SinusoidalSynthesizer {
                 }
             }
 
-            System.out.println("Synthesized track " + String.valueOf(i+1) + " of " + String.valueOf(st.totalTracks));
+            if (!isSilentSynthesis)
+                System.out.println("Synthesized track " + String.valueOf(i+1) + " of " + String.valueOf(st.totalTracks));
         }          
         double maxy = MathUtils.getAbsMax(y);
         for (i=0; i<y.length; i++)
             y[i] = 0.95*y[i]/maxy;
         
         return y;
+    }
+    
+    //Turn-off segments of tracks that are masked by more strong components in other tracks
+    //This is a basic implementation that performs some amplitude comparison in freq-time bins of sinusoidal tracks
+    //Segments that contain relatively weak sinusoids are turned off
+    //In fact, this module can be extended to use perceptual masking phenomena from psycho-acoustics
+    //Current version checks only for simple spectral and temporal masking as follows:
+    //
+    //It would be nice to add: 
+    // - Support for spectral and temporal masking as in MPEG
+    // - Pre-processing with an absolute hearing threshold curve
+    // - Grouping of spectrum in perceptually relevant segments, i.e. like in Bark-scale
+    public SinusoidalTracks perceptualProcessing(SinusoidalTracks st)
+    {
+        //TO-DO
+        
+        return st;
     }
     
     public static void main(String[] args) throws UnsupportedAudioFileException, IOException
@@ -191,13 +217,18 @@ public class SinusoidalSynthesizer {
         //
         
         //Analysis
-        float deltaInHz = 10.0f;
+        float deltaInHz = 50.0f;
         float numPeriods = 2.5f;
+        boolean isSilentSynthesis = false;
         
-        if (false)
+        boolean bRefinePeakEstimatesParabola = false;
+        boolean bRefinePeakEstimatesBias = false;
+        boolean bAdjustNeighFreqDependent = false;
+        
+        if (true)
         {
             //Fixed window size and skip rate analysis
-            sa = new SinusoidalAnalyzer(samplingRate, Window.HAMMING, true, true);
+            sa = new SinusoidalAnalyzer(samplingRate, Window.HAMMING, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bAdjustNeighFreqDependent);
             st = sa.analyzeFixedRate(x, 0.020f, 0.010f, deltaInHz);
             //
         }
@@ -209,14 +240,15 @@ public class SinusoidalSynthesizer {
                 String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
                 F0Reader f0 = new F0Reader(strPitchFile);
                 PitchMarker pm = SignalProcUtils.pitchContour2pitchMarks(f0.getContour(), samplingRate, x.length, f0.ws, f0.ss, true);
-                pa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, true, true);
+                pa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bAdjustNeighFreqDependent);
                 st = pa.analyzePitchSynchronous(x, pm.pitchMarks, numPeriods, -1.0f, deltaInHz);
+                isSilentSynthesis = false;
             }
             else //Test using simple sinusoids (Make sure .pm file with identical filename as the wavfile exists (Tester.java automatically generates it))
             {
                 String strPmFile = args[0].substring(0, args[0].length()-4) + ".pm";
                 int [] pitchMarks = FileUtils.readFromBinaryFile(strPmFile);
-                pa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.RECT, true, true);
+                pa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bAdjustNeighFreqDependent);
                 st = pa.analyzePitchSynchronous(x, pitchMarks, numPeriods, -1.0f, deltaInHz);
             }
             //
@@ -225,7 +257,7 @@ public class SinusoidalSynthesizer {
         
         //Resynthesis
         SinusoidalSynthesizer ss = new SinusoidalSynthesizer(samplingRate);
-        x = ss.synthesize(st);
+        x = ss.synthesize(st, isSilentSynthesis);
         //
         
         //File output

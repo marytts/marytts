@@ -71,6 +71,10 @@ public class SinusoidalTrack {
     public float avgPhaseInDegrees;
     public float minPhaseInDegrees;
     public float maxPhaseInDegrees;
+    
+    public float minTimeInSeconds;
+    public float maxTimeInSeconds;
+    
     public void getStatistics(boolean isFreqRadian, boolean isPhaseRadian, int fs) 
     {
         avgFreqInHz = 0.0f;
@@ -85,13 +89,16 @@ public class SinusoidalTrack {
         minPhaseInDegrees = -1.0f;
         maxPhaseInDegrees = -1.0f;
         
+        minTimeInSeconds = -1.0f;
+        maxTimeInSeconds = -1.0f;
+        
         if (totalSins>0)
         {
             int i;
             for (i=0; i<totalSins; i++)
             {
                 avgFreqInHz += freqs[i];
-                avgAmpLinear += MathUtils.db2amplitude(amps[i]);
+                avgAmpLinear += amps[i];
                 avgPhaseInDegrees += phases[i];
             }
             
@@ -113,8 +120,8 @@ public class SinusoidalTrack {
             if (isFreqRadian)
                 maxFreqInHz = MathUtils.radian2Hz(maxFreqInHz, fs);
             
-            minAmpLinear = MathUtils.db2amplitude(MathUtils.getMin(amps));
-            maxAmpLinear = MathUtils.db2amplitude(MathUtils.getMax(amps));
+            minAmpLinear = MathUtils.getMin(amps);
+            maxAmpLinear = MathUtils.getMax(amps);
 
             minPhaseInDegrees = MathUtils.getMin(phases);
             if (isPhaseRadian)
@@ -123,6 +130,9 @@ public class SinusoidalTrack {
             maxPhaseInDegrees = MathUtils.getMax(phases);
             if (isPhaseRadian)
                 maxPhaseInDegrees = MathUtils.radian2degrees(maxPhaseInDegrees); 
+            
+            minTimeInSeconds = MathUtils.getMin(times);
+            maxTimeInSeconds = MathUtils.getMax(times);
             
             char chTab = 9;
             String str = "avgFreq=" + String.valueOf(avgFreqInHz) + " Hz." + chTab;
@@ -133,7 +143,9 @@ public class SinusoidalTrack {
             str += "maxAmpl=" + String.valueOf(maxAmpLinear) + chTab;
             str += "avgPhas=" + String.valueOf(avgPhaseInDegrees) + "°" + chTab;
             str += "minPhas=" + String.valueOf(minPhaseInDegrees) + "°" + chTab;
-            str += "maxPhas=" + String.valueOf(maxPhaseInDegrees) + "°";
+            str += "maxPhas=" + String.valueOf(maxPhaseInDegrees) + "°" + chTab;
+            str += "minTime=" + String.valueOf(minTimeInSeconds) + "s." + chTab;
+            str += "maxTime=" + String.valueOf(maxTimeInSeconds) + "s.";
             
             System.out.println(str);
         }
@@ -269,4 +281,18 @@ public class SinusoidalTrack {
         newCandidate = null;
         newCandidateInd = -1;
     }
+    
+    //Check turning on instants and if it is misplaced, correct its location
+    public void correctTrack() 
+    {
+        for (int i=0; i<totalSins; i++)
+        {
+            if (states[i]==TURNED_ON)
+            {
+                if (i<totalSins-1 && (times[i+1]-times[i])>0.040f)
+                    times[i] = times[i+1]-0.010f;
+            }
+        }
+    }
+
 }

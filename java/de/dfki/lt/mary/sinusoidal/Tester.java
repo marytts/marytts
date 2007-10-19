@@ -120,7 +120,35 @@ public class Tester {
         init(sinsIn, durationInSeconds, samplingRateInHz);
     }
     
+    //These constructors can be used to create tracks starting and terminating at desired time instants    
+    public Tester(Sinusoid [] sinsIn, float [] startTimesInSeconds, float [] endTimesInSeconds)
+    {
+        this(sinsIn, startTimesInSeconds, endTimesInSeconds, DEFAULT_FS);
+    }
+    
+    public Tester(Sinusoid [] sinsIn, float [] startTimesInSeconds, float [] endTimesInSeconds, int samplingRateInHz)
+    {
+        init(sinsIn, startTimesInSeconds, endTimesInSeconds, samplingRateInHz);
+    }
+    //
+    
     public void init(Sinusoid [] sinsIn, float durationInSeconds, int samplingRateInHz)
+    {
+        if (sinsIn.length>0)
+        {
+            float [] startTimesInSeconds = new float[sinsIn.length];
+            float [] endTimesInSeconds = new float[sinsIn.length];
+            for (int i=0; i<sinsIn.length; i++)
+            {
+                startTimesInSeconds[i] = 0.0f;
+                endTimesInSeconds[i] = durationInSeconds;
+            }
+            
+            init(sinsIn, startTimesInSeconds, endTimesInSeconds, samplingRateInHz);
+        } 
+    }
+    
+    public void init(Sinusoid [] sinsIn, float [] startTimesInSeconds, float [] endTimesInSeconds, int samplingRateInHz)
     {
         fs = samplingRateInHz;
         signal = null;
@@ -129,33 +157,57 @@ public class Tester {
         
         if (sinsIn!=null)
         {
-            int totalSamples = (int)(Math.floor(durationInSeconds*fs+0.5));
+            assert startTimesInSeconds.length==endTimesInSeconds.length;
+            assert sinsIn.length==endTimesInSeconds.length;
             
-            if (totalSamples>0)
+            float minFreq = sinsIn[0].freq;
+            int minFreqInd = 0;
+            for (i=1; i<sinsIn.length; i++)
             {
-                signal = new double[totalSamples];
-                Arrays.fill(signal, 0.0);
-                
-              //Create pitch marks by finding the longest period
-                float minFreq = sinsIn[0].freq;
-                for (i=1; i<sinsIn.length; i++)
+                if (sinsIn[i].freq<minFreq)
                 {
-                    if (sinsIn[i].freq<minFreq)
-                        minFreq = sinsIn[i].freq;
+                    minFreq = sinsIn[i].freq;
+                    minFreqInd = i;
                 }
-
-                int maxT0 = (int)(Math.floor(fs/minFreq+0.5));
-                int numPitchMarks = (int)(Math.floor(((double)totalSamples)/maxT0+0.5)) + 1; 
-                pitchMarks = new int[numPitchMarks];
-                for (i=0; i<numPitchMarks; i++)
-                    pitchMarks[i] = Math.min(i*maxT0, totalSamples);
-                //
+            }
+            
+            int [] startSampleIndices = new int[sinsIn.length];
+            int [] endSampleIndices = new int[sinsIn.length];
+            
+            for (i=0; i<startTimesInSeconds.length; i++)
+            {
+                if (startTimesInSeconds[i]<0.0f)
+                    startTimesInSeconds[i]=0.0f;
+                if (endTimesInSeconds[i]<0.0f)
+                    endTimesInSeconds[i]=0.0f;
+                if (startTimesInSeconds[i]>endTimesInSeconds[i])
+                    startTimesInSeconds[i] = endTimesInSeconds[i];
                 
+                startSampleIndices[i] = (int)(Math.floor(startTimesInSeconds[i]*fs+0.5));
+                endSampleIndices[i] = (int)(Math.floor(endTimesInSeconds[i]*fs+0.5));
+            }
+            
+            int minStartSampleIndex = MathUtils.getMin(startSampleIndices);
+            int maxEndSampleIndex = MathUtils.getMax(endSampleIndices);
+            
+            //Create pitch marks by finding the longest period
+            int maxT0 = (int)(Math.floor(fs/minFreq+0.5));
+            int numPitchMarks = (int)(Math.floor(((double)(maxEndSampleIndex-minStartSampleIndex+1))/maxT0+0.5)) + 1; 
+            pitchMarks = new int[numPitchMarks];
+            for (i=0; i<numPitchMarks; i++)
+                pitchMarks[i] = Math.min(i*maxT0+minStartSampleIndex, maxEndSampleIndex);
+            //
+            
+            if (maxEndSampleIndex>0)
+            {
+                signal = new double[maxEndSampleIndex+1];
+                Arrays.fill(signal, 0.0);
+
                 //Synthesize sinusoids
                 for (i=0; i<sinsIn.length; i++)
                 {
-                    for (j=0; j<totalSamples; j++)
-                        signal[j] += sinsIn[i].amp * Math.sin(MathUtils.TWOPI*(j*(sinsIn[i].freq/fs) + sinsIn[i].phase/360.0));
+                    for (j=startSampleIndices[i]; j<=endSampleIndices[i]; j++)
+                        signal[j] += sinsIn[i].amp * Math.sin(MathUtils.TWOPI*((j-startSampleIndices[i])*(sinsIn[i].freq/fs) + sinsIn[i].phase/360.0));
                 }  
             }
         }
@@ -190,16 +242,40 @@ public class Tester {
     
     public static void main(String[] args) throws IOException
     {
-        int i;
+        int i, numTracks;
+        float [] tStarts, tEnds;
         Tester t = null;
         
+        //Single sinusoid, tme-invariant
         //t = new Tester(200.0f);
-        
-        Sinusoid [] sins = new Sinusoid[3];
+        //
+
+        /*
+        //Several sinusoids, time-invariant
+        numTracks = 3;
+        Sinusoid [] sins = new Sinusoid[numTracks];
         sins[0] = new Sinusoid(100.0f, 120.0f, 0.0f);
         sins[1] = new Sinusoid(25.0f, 700.0f, 0.0f);
         sins[2] = new Sinusoid(6.5f, 4300.0f, 0.0f);
         t = new Tester(sins);
+        //
+        */
+        
+        //Fixed sinusoidal track with a gap
+        numTracks = 2;
+        Sinusoid [] sins = new Sinusoid[numTracks];
+        tStarts = new float[numTracks];
+        tEnds = new float[numTracks];
+        
+        sins[0] = new Sinusoid(100.0f, 200.0f, 0.0f);
+        tStarts[0] = 0.0f;
+        tEnds[0] = 0.1f; 
+        sins[1] = new Sinusoid(100.0f, 200.0f, 0.0f);
+        tStarts[1] = 0.2f;
+        tEnds[1] = 0.3f;
+        t = new Tester(sins, tStarts, tEnds);
+        //
+        
         
         t.write(args[0], args[1]);
         
