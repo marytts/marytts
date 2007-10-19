@@ -208,16 +208,30 @@ public class MathUtils {
      * Compute the mean of all elements in the array. No missing values (NaN) are allowed.
      * @throws IllegalArgumentException if the array contains NaN values. 
      */
-    public static double mean(double[] data)
+    public static double mean(double[] data, int startIndex, int endIndex)
     {
         double mean = 0;
-        for (int i=0; i<data.length; i++) {
+        int total = 0;
+        startIndex = Math.max(startIndex, 0);
+        endIndex = Math.max(startIndex, 0);
+        startIndex = Math.min(startIndex, data.length-1);
+        endIndex = Math.min(endIndex, data.length-1);
+        if (startIndex>endIndex)
+            startIndex = endIndex;
+        
+        for (int i=startIndex; i<=endIndex; i++) {
             if (Double.isNaN(data[i]))
                 throw new IllegalArgumentException("NaN not allowed in mean calculation");
             mean += data[i];
+            total++;
         }
-        mean /= data.length;
+        mean /= total;
         return mean;
+    }
+    
+    public static double mean(double[] data)
+    {
+       return mean(data, 0, data.length-1);
     }
     
     /**
@@ -229,6 +243,53 @@ public class MathUtils {
         double mean = 0;
         for (int i=0; i<inds.length; i++) {
             if (Double.isNaN(data[inds[i]]))
+                throw new IllegalArgumentException("NaN not allowed in mean calculation");
+
+            mean += data[inds[i]];
+        }
+        mean /= inds.length;
+        return mean;
+    }
+    
+    /**
+     * Compute the mean of all elements in the array. No missing values (NaN) are allowed.
+     * @throws IllegalArgumentException if the array contains NaN values. 
+     */
+    public static float mean(float[] data, int startIndex, int endIndex)
+    {
+        float mean = 0;
+        int total = 0;
+        startIndex = Math.max(startIndex, 0);
+        endIndex = Math.max(startIndex, 0);
+        startIndex = Math.min(startIndex, data.length-1);
+        endIndex = Math.min(endIndex, data.length-1);
+        if (startIndex>endIndex)
+            startIndex = endIndex;
+        
+        for (int i=startIndex; i<=endIndex; i++) {
+            if (Float.isNaN(data[i]))
+                throw new IllegalArgumentException("NaN not allowed in mean calculation");
+            mean += data[i];
+            total++;
+        }
+        mean /= total;
+        return mean;
+    }
+    
+    public static float mean(float[] data)
+    {
+       return mean(data, 0, data.length-1);
+    }
+    
+    /**
+     * Compute the mean of all elements in the array with given indices. No missing values (NaN) are allowed.
+     * @throws IllegalArgumentException if the array contains NaN values. 
+     */
+    public static float mean(float[] data, int [] inds)
+    {
+        float mean = 0;
+        for (int i=0; i<inds.length; i++) {
+            if (Float.isNaN(data[inds[i]]))
                 throw new IllegalArgumentException("NaN not allowed in mean calculation");
 
             mean += data[inds[i]];
@@ -1002,30 +1063,32 @@ public class MathUtils {
     
     public static int [] getExtrema(double [] x, int numLeftN, int numRightN, boolean isMaxima)
     {
+        int [] numLeftNs = new int[x.length];
+        int [] numRightNs = new int[x.length];
+        Arrays.fill(numLeftNs, numLeftN);
+        Arrays.fill(numRightNs, numRightN);
+        
+        return getExtrema(x, numLeftNs, numRightNs, isMaxima); 
+    }
+    
+    public static int [] getExtrema(double [] x, int [] numLeftNs, int [] numRightNs, boolean isMaxima)
+    {
         int [] tmpInds = new int[x.length];
         int [] inds = null;
         int total = 0;
         
         int i, j;
-        boolean bExtremum = true;
+        boolean bExtremum;
         
         if (isMaxima) //Search for maxima
         {
-            for (i=numLeftN; i<x.length-numRightN; i++)
+            for (i=0; i<x.length; i++)
             {
                 bExtremum = true;
-                for (j=i-numLeftN; j<i; j++)
-                {
-                    if (x[i]<x[j])
-                    {
-                        bExtremum = false;
-                        break;
-                    }
-                }
                 
-                if (bExtremum)
+                if (i-numLeftNs[i]>=0)
                 {
-                    for (j=i+1; j<=i+numRightN; j++)
+                    for (j=i-numLeftNs[i]; j<i; j++)
                     {
                         if (x[i]<x[j])
                         {
@@ -1033,7 +1096,26 @@ public class MathUtils {
                             break;
                         }
                     }
+
+                    if (bExtremum)
+                    {
+                        if (i+numRightNs[i]<x.length)
+                        {
+                            for (j=i+1; j<=i+numRightNs[i]; j++)
+                            {
+                                if (x[i]<x[j])
+                                {
+                                    bExtremum = false;
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                            bExtremum = false;
+                    }
                 }
+                else
+                    bExtremum = false;
                 
                 if (bExtremum)
                     tmpInds[total++] = i;
@@ -1041,20 +1123,12 @@ public class MathUtils {
         }
         else //Search for minima
         {
-            for (i=numLeftN; i<x.length-numRightN; i++)
+            for (i=0; i<x.length; i++)
             {
-                for (j=i-numLeftN; j<i; j++)
+                bExtremum = true;
+                if (i-numLeftNs[i]>=0)
                 {
-                    if (x[i]>x[j])
-                    {
-                        bExtremum = false;
-                        break;
-                    }
-                }
-                
-                if (bExtremum)
-                {
-                    for (j=i+1; j<=i+numRightN; j++)
+                    for (j=i-numLeftNs[i]; j<i; j++)
                     {
                         if (x[i]>x[j])
                         {
@@ -1062,7 +1136,26 @@ public class MathUtils {
                             break;
                         }
                     }
+
+                    if (bExtremum)
+                    {
+                        if (i+numRightNs[i]<x.length)
+                        {
+                            for (j=i+1; j<=i+numRightNs[i]; j++)
+                            {
+                                if (x[i]>x[j])
+                                {
+                                    bExtremum = false;
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                            bExtremum = false;
+                    }
                 }
+                else
+                    bExtremum = false;
                 
                 if (bExtremum)
                     tmpInds[total++] = i;
