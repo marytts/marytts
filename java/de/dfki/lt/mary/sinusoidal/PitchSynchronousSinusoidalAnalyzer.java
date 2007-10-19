@@ -41,6 +41,7 @@ import de.dfki.lt.signalproc.analysis.F0Reader;
 import de.dfki.lt.signalproc.analysis.PitchMarker;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.DoubleDataSource;
+import de.dfki.lt.signalproc.util.MathUtils;
 import de.dfki.lt.signalproc.util.SignalProcUtils;
 import de.dfki.lt.signalproc.window.Window;
 
@@ -56,9 +57,14 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
     // bRefinePeakEstimatesParabola: Refine peak and frequency estimates by fitting parabolas?
     // bRefinePeakEstimatesBias: Further refine peak and frequency estimates by correcting bias? 
     //                           (Only effective when bRefinePeakEstimatesParabola=true)
+    public PitchSynchronousSinusoidalAnalyzer(int samplingRate, int windowTypeIn, boolean bRefinePeakEstimatesParabolaIn, boolean bRefinePeakEstimatesBiasIn, boolean bAdjustNeighFreqDependentIn)
+    {
+        super(samplingRate, windowTypeIn, bRefinePeakEstimatesParabolaIn, bRefinePeakEstimatesBiasIn, bAdjustNeighFreqDependentIn);
+    }
+    
     public PitchSynchronousSinusoidalAnalyzer(int samplingRate, int windowTypeIn, boolean bRefinePeakEstimatesParabolaIn, boolean bRefinePeakEstimatesBiasIn)
     {
-        super(samplingRate, windowTypeIn, bRefinePeakEstimatesParabolaIn, bRefinePeakEstimatesBiasIn);
+        super(samplingRate, windowTypeIn, bRefinePeakEstimatesParabolaIn, bRefinePeakEstimatesBiasIn, false);
     }
     
     public PitchSynchronousSinusoidalAnalyzer(int samplingRate, int windowTypeIn, boolean bRefinePeakEstimatesParabolaIn)
@@ -104,6 +110,9 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
      */
     public SinusoidalTracks analyzePitchSynchronous(double [] x, int [] pitchMarks, float numPeriods, float skipSizeInSeconds, float deltaInHz)
     {
+        double absMax = MathUtils.getAbsMax(x);
+        energyThreshold = SignalProcUtils.getEnergydB(AMP_MIN_16BIT_TH/16768.0*absMax);
+        
         boolean bFixedSkipRate = false;
         if (skipSizeInSeconds>0.0f) //Perform fixed skip rate but pitch synchronous analysis?
         {
@@ -126,9 +135,12 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         double [] frm = null;
         int i, j;
         int T0;
-
+        
         Sinusoid [][] framesSins =  new Sinusoid[totalFrm][];
         float [] times = new float[totalFrm];
+        boolean [] isSinusoidNulls = new boolean[totalFrm]; 
+        Arrays.fill(isSinusoidNulls, false);
+        int totalNonNull = 0;
         
         int pmInd = 0;
         int currentTimeInd = 0;
@@ -178,6 +190,11 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
             
             framesSins[i] = analyze_frame(frm);
             
+            if (framesSins[i]==null)
+                isSinusoidNulls[i] = true;
+            else
+                totalNonNull++;
+            
             if (!bFixedSkipRate)
                 times[i] = (float)(0.5*(pitchMarks[i+1]+pitchMarks[i])/fs);
             else
@@ -190,9 +207,35 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         }
         //
         
+        Sinusoid [][] framesSins2 = null;
+        float [] times2 = null;
+        if (totalNonNull>0)
+        {
+            //Collect non-null sinusoids only
+            framesSins2 =  new Sinusoid[totalNonNull][];
+            times2 = new float[totalNonNull];
+            int ind = 0;
+            for (i=0; i<totalFrm; i++)
+            {
+                if (!isSinusoidNulls[i])
+                {
+                    framesSins2[ind] = new Sinusoid[framesSins[i].length];
+                    for (j=0; j<framesSins[i].length; j++)
+                        framesSins2[ind][j] = new Sinusoid(framesSins[i][j]);
+
+                    times2[ind] = times[i];
+
+                    ind++;
+                    if (ind>totalNonNull-1)
+                        break;
+                }
+            }
+            //
+        }
+        
         //Extract sinusoidal tracks
         TrackGenerator tg = new TrackGenerator();
-        SinusoidalTracks sinTracks = tg.generateTracksFreqOnly(framesSins, times, deltaInHz, fs);
+        SinusoidalTracks sinTracks = tg.generateTracksFreqOnly(framesSins2, times2, deltaInHz, fs);
         sinTracks.getTrackStatistics();
         
         return sinTracks;
