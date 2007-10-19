@@ -40,6 +40,29 @@ public class SignalProcUtils {
         return (int)(Math.floor(fftSize/2.0+1.5));
     }
     
+    public static double getEnergydB(double x)
+    {   
+        double [] y = new double[1];
+        y[0] = x;
+        
+        return getEnergydB(y);
+    }
+    
+    public static double getEnergydB(double [] x)
+    {   
+        return getEnergydB(x, x.length);
+    }
+    
+    public static double getEnergydB(double [] x, int len)
+    {   
+        return getEnergydB(x, len, 0);
+    }
+    
+    public static double getEnergydB(double [] x, int len, int start)
+    {   
+        return 10*Math.log10(getEnergy(x, len, start));
+    }
+    
     public static double getEnergy(double [] x, int len, int start)
     {
         if (start<0)
@@ -342,6 +365,11 @@ public class SignalProcUtils {
         RecursiveFilter r = new RecursiveFilter(coeffs);
         
         r.apply(frm);
+    }
+    
+    public static double freq2bark(double freqInHz)
+    {
+        return 13.0*Math.atan(0.00076*freqInHz)+3.5*Math.atan((freqInHz*freqInHz/(7500*7500)));
     }
 }
 
