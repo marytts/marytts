@@ -67,8 +67,7 @@ public class SinusoidalAnalyzer {
     protected int fs; //Sampling rate in Hz
     protected int windowType; //Type of window (See class Window for details)
     protected int fftSize; //FFT size in points
-    protected double energyThreshold; //Average sample energy threshold for considering a speech frame to be non-silent
-    
+
     protected boolean bRefinePeakEstimatesParabola; //Refine peak and frequency estimates by fitting parabolas?
     protected boolean bRefinePeakEstimatesBias; //Further refine peak and frequency estimates by correcting bias? 
                                               //       (Only effective when bRefinePeakEstimatesParabola=true)
@@ -86,8 +85,9 @@ public class SinusoidalAnalyzer {
     
     public static float DEFAULT_ANALYSIS_WINDOW_SIZE = 0.020f;
     public static float DEFAULT_ANALYSIS_SKIP_SIZE = 0.010f;
-    public static float AMP_MIN_16BIT_TH = 2.0f; //If the average sample energy is below a speech frame with all AMP_MIN_16BIT_TH amplitudes, 
-                                                 //   no sinusoids are extracted from it. This helps to eliminate silent regions in analysis
+    public static double MIN_ENERGY_TH = 1e-10; //Minimum energy threshold to analyze a frame
+    
+    protected double absMax; //Keep absolute max of the input signal for normalization after resynthesis
     
     // fs: Sampling rate in Hz
     // windowType: Type of window (See class Window for details)
@@ -103,6 +103,7 @@ public class SinusoidalAnalyzer {
         bRefinePeakEstimatesBias = bRefinePeakEstimatesBiasIn;
         minWindowSize = (int)(Math.floor(fs*MIN_WINDOW_SIZE+0.5));
         bAdjustNeighFreqDependent = bAdjustNeighFreqDependentIn;
+        absMax = -1.0f;
     }
     
     public SinusoidalAnalyzer(int samplingRate, int windowTypeIn, boolean bRefinePeakEstimatesParabolaIn, boolean bRefinePeakEstimatesBiasIn)
@@ -207,8 +208,7 @@ public class SinusoidalAnalyzer {
      */
     public SinusoidalTracks analyzeFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz)
     {
-        double absMax = MathUtils.getAbsMax(x);
-        energyThreshold = SignalProcUtils.getEnergydB(AMP_MIN_16BIT_TH/16768.0*absMax);
+        absMax = MathUtils.getAbsMax(x);
         
         ws = (int)Math.floor(winSizeInSeconds*fs + 0.5);
         ss = (int)Math.floor(skipSizeInSeconds*fs + 0.5);
@@ -245,7 +245,7 @@ public class SinusoidalAnalyzer {
             
             times[i] = (float)((i*ss+0.5*ws)/fs);
             
-            System.out.println("Analysis complete for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm));
+            System.out.println("Analysis complete at " + String.valueOf(times[i]) + "s. for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm) + "(found " + String.valueOf(totalNonNull) + " peaks)");
         }
         //
         
@@ -290,8 +290,8 @@ public class SinusoidalAnalyzer {
     {   
         Sinusoid [] frameSins = null;
         
-        double frmAvgEn = SignalProcUtils.getEnergydB(frm)/frm.length;
-        if (frmAvgEn>energyThreshold)
+        double frmEn = SignalProcUtils.getEnergy(frm);
+        if (frmEn>MIN_ENERGY_TH)
         {
             if (fftSize<frm.length)
                 fftSize = frm.length;
@@ -378,36 +378,6 @@ public class SinusoidalAnalyzer {
                     */
 
                     //Possible improvement: Refinement of phase values
-                }
-                
-                if (false)
-                {
-                    //Test: Eliminate some frequency ranges from frameSins to understand which frequencies result in mode noise
-                    Sinusoid [] frameSinsTmp = null;
-                    float eliminateRadFreq1 = (float)(0.0f/fs*MathUtils.TWOPI);
-                    float eliminateRadFreq2 = (float)(500.0f/fs*MathUtils.TWOPI);
-
-                    int total = 0;
-
-                    for (i=0; i<numFrameSinusoids; i++)
-                    {
-                        if (frameSins[i].freq>=eliminateRadFreq1 && frameSins[i].freq<=eliminateRadFreq2)
-                            total++;
-                    }
-
-                    frameSinsTmp = new Sinusoid[total];
-
-                    int ind = 0;
-                    for (i=0; i<numFrameSinusoids; i++)
-                    {
-                        if (frameSins[i].freq>=eliminateRadFreq1 && frameSins[i].freq<=eliminateRadFreq2)
-                            frameSinsTmp[ind++] = new Sinusoid(frameSins[i]);
-                    }
-
-                    frameSins = new Sinusoid[total];
-                    for (i=0; i<total; i++)
-                        frameSins[i] = new Sinusoid(frameSinsTmp[i]);
-                    ////
                 }
             }
             //
@@ -520,6 +490,11 @@ public class SinusoidalAnalyzer {
                 freqIndsRefined[i] = freqIndsRefined[i] + (float) (delHat+EZpf*(delHat-0.5)*(delHat+0.5)*delHat);
                 ampsRefined[i] = (float) (ampsRefined[i]+nZpA*delHat*delHat);
         }
+    }
+    
+    public double getAbsMaxOriginal()
+    {
+        return absMax;
     }
     
     public static void main(String[] args) throws UnsupportedAudioFileException, IOException

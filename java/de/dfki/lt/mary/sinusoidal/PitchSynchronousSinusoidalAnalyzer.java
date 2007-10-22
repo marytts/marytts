@@ -110,9 +110,8 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
      */
     public SinusoidalTracks analyzePitchSynchronous(double [] x, int [] pitchMarks, float numPeriods, float skipSizeInSeconds, float deltaInHz)
     {
-        double absMax = MathUtils.getAbsMax(x);
-        energyThreshold = SignalProcUtils.getEnergydB(AMP_MIN_16BIT_TH/16768.0*absMax);
-        
+        absMax = MathUtils.getAbsMax(x);
+ 
         boolean bFixedSkipRate = false;
         if (skipSizeInSeconds>0.0f) //Perform fixed skip rate but pitch synchronous analysis?
         {
@@ -193,7 +192,10 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
             if (framesSins[i]==null)
                 isSinusoidNulls[i] = true;
             else
+            {
+                isSinusoidNulls[i] = false;
                 totalNonNull++;
+            }
             
             if (!bFixedSkipRate)
                 times[i] = (float)(0.5*(pitchMarks[i+1]+pitchMarks[i])/fs);
@@ -203,7 +205,7 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
                 currentTimeInd += ss;
             }
             
-            System.out.println("Analysis complete for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm));
+            System.out.println("Analysis complete at " + String.valueOf(times[i]) + "s. for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm) + "(found " + String.valueOf(totalNonNull) + " peaks)");
         }
         //
         
