@@ -160,11 +160,11 @@ public class Tester {
             assert startTimesInSeconds.length==endTimesInSeconds.length;
             assert sinsIn.length==endTimesInSeconds.length;
             
-            float minFreq = sinsIn[0].freq;
-            int minFreqInd = 0;
-            for (i=1; i<sinsIn.length; i++)
+            float minFreq = 2*fs;
+            int minFreqInd = -1;
+            for (i=0; i<sinsIn.length; i++)
             {
-                if (sinsIn[i].freq<minFreq)
+                if (sinsIn[i].freq>0.0f && sinsIn[i].freq<minFreq)
                 {
                     minFreq = sinsIn[i].freq;
                     minFreqInd = i;
@@ -191,7 +191,13 @@ public class Tester {
             int maxEndSampleIndex = MathUtils.getMax(endSampleIndices);
             
             //Create pitch marks by finding the longest period
-            int maxT0 = (int)(Math.floor(fs/minFreq+0.5));
+            int maxT0;
+            
+            if (minFreqInd>0)
+                maxT0 = (int)(Math.floor(fs/minFreq+0.5));
+            else //No non-zero Hz sinusoids found, therefore set maxT0 to a fixed number
+                maxT0 = (int)Math.floor(0.010f*fs+0.5);
+            
             int numPitchMarks = (int)(Math.floor(((double)(maxEndSampleIndex-minStartSampleIndex+1))/maxT0+0.5)) + 1; 
             pitchMarks = new int[numPitchMarks];
             for (i=0; i<numPitchMarks; i++)
@@ -262,20 +268,25 @@ public class Tester {
         */
         
         //Fixed sinusoidal track with a gap
-        numTracks = 2;
+        numTracks = 4;
         Sinusoid [] sins = new Sinusoid[numTracks];
         tStarts = new float[numTracks];
         tEnds = new float[numTracks];
         
-        sins[0] = new Sinusoid(100.0f, 200.0f, 0.0f);
+        sins[0] = new Sinusoid(0.0f, 0.0f, 0.0f);
         tStarts[0] = 0.0f;
         tEnds[0] = 0.1f; 
         sins[1] = new Sinusoid(100.0f, 200.0f, 0.0f);
-        tStarts[1] = 0.2f;
-        tEnds[1] = 0.3f;
+        tStarts[1] = 0.1f;
+        tEnds[1] = 0.2f; 
+        sins[2] = new Sinusoid(100.0f, 300.0f, 0.0f);
+        tStarts[2] = 0.3f;
+        tEnds[2] = 0.4f;
+        sins[3] = new Sinusoid(0.0f, 0.0f, 0.0f);
+        tStarts[3] = 0.4f;
+        tEnds[3] = 0.5f;
         t = new Tester(sins, tStarts, tEnds);
         //
-        
         
         t.write(args[0], args[1]);
         

@@ -58,6 +58,7 @@ import de.dfki.lt.signalproc.window.Window;
  */
 public class SinusoidalSynthesizer {
     private int fs; //Sampling rate in Hz
+    public static double DEFAULT_ABS_MAX_OUT = 0.90;
     
     public SinusoidalSynthesizer(int samplingRate)
     {
@@ -66,11 +67,21 @@ public class SinusoidalSynthesizer {
     
     public double [] synthesize(SinusoidalTracks st)
     {
-        return synthesize(st, false);
+        return synthesize(st, DEFAULT_ABS_MAX_OUT, false);
     }
     
-    public double [] synthesize(SinusoidalTracks st, boolean isSilentSynthesis)
+    public double [] synthesize(SinusoidalTracks st, double absMaxDesired)
     {
+        return synthesize(st, absMaxDesired, false);
+    }
+    
+    //st: Sinusoidal tracks
+    //absMaxDesired: Desired absolute maximum of the output
+    public double [] synthesize(SinusoidalTracks st, double absMaxDesired, boolean isSilentSynthesis)
+    {
+        if (absMaxDesired<0.0f)
+            absMaxDesired = DEFAULT_ABS_MAX_OUT;
+        
         int n; //discrete time index
         int i, j;
         int nStart, nEnd, pStart, pEnd;
@@ -93,86 +104,78 @@ public class SinusoidalSynthesizer {
         double term1, term2;
         
         st = perceptualProcessing(st);
+        float currentTime; //For debugging purposes
         
         for (i=0; i<st.totalTracks; i++) 
         {
             for (j=0; j<st.tracks[i].totalSins-1; j++)
             {
-                pStart = (int)Math.floor(st.tracks[i].times[j]*st.fs+0.5);
-                pEnd = (int)Math.floor(st.tracks[i].times[j+1]*st.fs+0.5);
-                
-                nStart = Math.max(0, pStart);
-                nEnd = Math.max(0, pEnd);
-                nStart = Math.min(y.length-1, nStart);
-                nEnd = Math.min(y.length-1, nEnd);
+                if (st.tracks[i].states[j]!=SinusoidalTrack.TURNED_OFF)
+                {
+                    pStart = (int)Math.floor(st.tracks[i].times[j]*st.fs+0.5);
+                    pEnd = (int)Math.floor(st.tracks[i].times[j+1]*st.fs+0.5);
 
-                for (n=nStart; n<nEnd; n++)
-                {   
-                    if (false) //Direct synthesis
-                    {
-                        currentAmp = st.tracks[i].amps[j];
-                        currentTheta = (n-nStart)*st.tracks[i].freqs[j] + st.tracks[i].phases[j];
-                        y[n] += currentAmp*Math.cos(currentTheta);
+                    nStart = Math.max(0, pStart);
+                    nEnd = Math.max(0, pEnd);
+                    nStart = Math.min(y.length-1, nStart);
+                    nEnd = Math.min(y.length-1, nEnd);
+                    
+                    //currentTime = 0.5f*(nEnd+nStart)/st.fs;
+                    //System.out.println("currentTime=" + String.valueOf(currentTime));
+
+                    for (n=nStart; n<nEnd; n++)
+                    {   
+                        if (false) //Direct synthesis
+                        {
+                            currentAmp = st.tracks[i].amps[j];
+                            currentTheta = (n-nStart)*st.tracks[i].freqs[j] + st.tracks[i].phases[j];
+                            y[n] += currentAmp*Math.cos(currentTheta);
+                        }
+                        else //Synthesis with interpolation
+                        {
+                            //Amplitude interpolation
+                            currentAmp = st.tracks[i].amps[j] + (st.tracks[i].amps[j+1]-st.tracks[i].amps[j])*((float)n-pStart)/(pEnd-pStart+1);
+
+                            T = (pEnd-pStart);
+
+                            if (n==nStart && st.tracks[i].states[j]==SinusoidalTrack.TURNED_ON) //Turning on a track
+                            {
+                                //Quatieri
+                                currentTheta = st.tracks[i].phases[j+1] - T*st.tracks[i].freqs[j+1]; 
+                                currentAmp = 0.0f;
+                            }
+                            else if (n==nStart && st.tracks[i].states[j]==SinusoidalTrack.TURNED_OFF && j>0) //Turning off a track
+                            {
+                                //Quatieri
+                                currentTheta = st.tracks[i].phases[j-1] + T*st.tracks[i].freqs[j-1];
+                                currentAmp = 0.0f;
+                            }
+                            else //Cubic phase interpolation
+                            {
+                                //Quatieri
+                                M = (int)(Math.floor(oneOverTwoPi*((st.tracks[i].phases[j] + T*st.tracks[i].freqs[j] - st.tracks[i].phases[j+1])+(st.tracks[i].freqs[j+1]-st.tracks[i].freqs[j])*0.5*T)+0.5));
+                                term1 = st.tracks[i].phases[j+1]-st.tracks[i].phases[j]-T*st.tracks[i].freqs[j]+M*MathUtils.TWOPI;
+                                term2 = st.tracks[i].freqs[j+1]-st.tracks[i].freqs[j];
+
+                                T2 = T*T;
+                                T3 = T*T2;
+                                alpha = 3.0*term1/T2-term2/T;
+                                beta = -2*term1/T3+term2/T2;
+
+                                t = ((float)n-nStart);
+                                t2 = t*t;
+                                t3 = t*t2;
+
+                                //Quatieri
+                                currentTheta=(float)(st.tracks[i].phases[j] + st.tracks[i].freqs[j]*t + alpha*t2 + beta*t3);
+                            }
+
+                            //Synthesis
+                            y[n] += currentAmp*Math.cos(currentTheta);
+                        }
+
+                        //System.out.println(String.valueOf(currentAmp) +  "    " + String.valueOf(currentTheta)); 
                     }
-                    else //Synthesis with interpolation
-                    {
-                        //Amplitude interpolation
-                        currentAmp = st.tracks[i].amps[j] + (st.tracks[i].amps[j+1]-st.tracks[i].amps[j])*((float)n-pStart)/(pEnd-pStart+1);
-
-                        T = (pEnd-pStart);
-
-                        if (n==nStart && st.tracks[i].states[j]==SinusoidalTrack.TURNED_ON) //Turning on a track
-                        {
-                            //Quatieri
-                            currentTheta = st.tracks[i].phases[j+1] - T*st.tracks[i].freqs[j+1]; 
-                            currentAmp = 0.0f;
-                        }
-                        else if (n==nStart && st.tracks[i].states[j]==SinusoidalTrack.TURNED_OFF && j>0) //Turning off a track
-                        {
-                            //Quatieri
-                            currentTheta = st.tracks[i].phases[j-1] + T*st.tracks[i].freqs[j-1];
-                            currentAmp = 0.0f;
-                        }
-                        else //Cubic phase interpolation
-                        {
-                            //Quatieri
-                            M = (int)(Math.floor(oneOverTwoPi*((st.tracks[i].phases[j] + T*st.tracks[i].freqs[j] - st.tracks[i].phases[j+1])+(st.tracks[i].freqs[j+1]-st.tracks[i].freqs[j])*0.5*T)+0.5));
-                            term1 = st.tracks[i].phases[j+1]-st.tracks[i].phases[j]-T*st.tracks[i].freqs[j]+M*MathUtils.TWOPI;
-                            term2 = st.tracks[i].freqs[j+1]-st.tracks[i].freqs[j];
-
-                            /*
-                            //Smith III and Serra
-                            if (j<st.tracks[i].totalSins-2)
-                                M = (int)(Math.floor(oneOverTwoPi*((st.tracks[i].phases[j-1] + T*st.tracks[i].freqs[j-1] - st.tracks[i].phases[j])+(st.tracks[i].freqs[j]-st.tracks[i].freqs[j+1])*0.5*T)+0.5));
-                            else
-                                M = (int)(Math.floor(oneOverTwoPi*((st.tracks[i].phases[j-1] + T*st.tracks[i].freqs[j-1] - st.tracks[i].phases[j]))+0.5));
-
-                            term1 = st.tracks[i].phases[j]-st.tracks[i].phases[j-1]-T*st.tracks[i].freqs[j-1]+M*MathUtils.TWOPI;
-                            term2 = st.tracks[i].freqs[j]-st.tracks[i].freqs[j-1];
-                             */
-
-                            T2 = T*T;
-                            T3 = T*T2;
-                            alpha = 3.0*term1/T2-term2/T;
-                            beta = -2*term1/T3+term2/T2;
-
-                            t = ((float)n-nStart);
-                            t2 = t*t;
-                            t3 = t*t2;
-
-                            //Quatieri
-                            currentTheta=(float)(st.tracks[i].phases[j] + st.tracks[i].freqs[j]*t + alpha*t2 + beta*t3);
-
-                            //Smith III and Serra
-                            //currentTheta=(float)(st.tracks[i].phases[j-1] + st.tracks[i].freqs[j-1]*t + alpha*t2 + beta*t3);
-                        }
-
-                        //Synthesis
-                        //y[n] += currentAmp*Math.cos(n*st.tracks[i].freqs[j] + currentTheta);
-                        y[n] += currentAmp*Math.cos(currentTheta);
-                    }
-
-                    //System.out.println(String.valueOf(currentAmp) +  "    " + String.valueOf(currentTheta)); 
                 }
             }
 
@@ -181,7 +184,7 @@ public class SinusoidalSynthesizer {
         }          
         double maxy = MathUtils.getAbsMax(y);
         for (i=0; i<y.length; i++)
-            y[i] = 0.95*y[i]/maxy;
+            y[i] = absMaxDesired*y[i]/maxy;
         
         return y;
     }
@@ -221,15 +224,17 @@ public class SinusoidalSynthesizer {
         float numPeriods = 2.5f;
         boolean isSilentSynthesis = false;
         
-        boolean bRefinePeakEstimatesParabola = false;
-        boolean bRefinePeakEstimatesBias = false;
+        boolean bRefinePeakEstimatesParabola = true;
+        boolean bRefinePeakEstimatesBias = true;
         boolean bAdjustNeighFreqDependent = false;
+        double absMaxOriginal;
         
-        if (true)
+        if (false)
         {
             //Fixed window size and skip rate analysis
             sa = new SinusoidalAnalyzer(samplingRate, Window.HAMMING, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bAdjustNeighFreqDependent);
             st = sa.analyzeFixedRate(x, 0.020f, 0.010f, deltaInHz);
+            absMaxOriginal = sa.getAbsMaxOriginal();
             //
         }
         else
@@ -252,12 +257,14 @@ public class SinusoidalSynthesizer {
                 st = pa.analyzePitchSynchronous(x, pitchMarks, numPeriods, -1.0f, deltaInHz);
             }
             //
+            
+            absMaxOriginal = pa.getAbsMaxOriginal();
         }
         //
         
         //Resynthesis
         SinusoidalSynthesizer ss = new SinusoidalSynthesizer(samplingRate);
-        x = ss.synthesize(st, isSilentSynthesis);
+        x = ss.synthesize(st, absMaxOriginal, isSilentSynthesis);
         //
         
         //File output

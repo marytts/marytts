@@ -287,10 +287,17 @@ public class SinusoidalTrack {
     {
         for (int i=0; i<totalSins; i++)
         {
+            if (states[i]==TURNED_OFF)
+            {
+                if (i>0 && (times[i]-times[i-1])>0.040f)
+                    times[i] = times[i-1]+TrackGenerator.ZERO_AMP_SHIFT_IN_SECONDS;
+            }
+            
             if (states[i]==TURNED_ON)
             {
                 if (i<totalSins-1 && (times[i+1]-times[i])>0.040f)
-                    times[i] = times[i+1]-0.010f;
+                    times[i] = times[i+1]-TrackGenerator.ZERO_AMP_SHIFT_IN_SECONDS;
+                
             }
         }
     }
