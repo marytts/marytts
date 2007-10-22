@@ -208,7 +208,9 @@ public class ModelSet {
     
     
 	/** This function loads the models set contained in files .pdf, it uses as input the names of 
-	 * the files .pdf, these file names are in HMMData. */
+	 * the files .pdf, these file names are in HMMData. 
+     * DUR, LF0 and MCP are required as minimum for generating voice,
+     * STR and MAG are optional for generating mixed excitation.  */
 	public void loadModelSet(HMMData htsData) throws Exception {
 	
 	  DataInputStream data_in;
@@ -218,7 +220,7 @@ public class ModelSet {
       try {        	   	
         /*________________________________________________________________*/
         /*-------------------- load pdfs for duration --------------------*/ 
-  	    data_in = new DataInputStream (new FileInputStream(htsData.getPdfDurFile()));
+  	    data_in = new DataInputStream (new BufferedInputStream(new FileInputStream(htsData.getPdfDurFile())));
         logger.info("LoadModelSet reading: " + htsData.getPdfDurFile());
           
         /* read the number of states & the number of pdfs (leaf nodes) */
@@ -254,7 +256,7 @@ public class ModelSet {
 	    
 	    /*________________________________________________________________*/
 	    /*-------------------- load pdfs for mcep ------------------------*/
- 	    data_in = new DataInputStream (new FileInputStream (htsData.getPdfMcpFile()));
+ 	    data_in = new DataInputStream (new BufferedInputStream(new FileInputStream (htsData.getPdfMcpFile())));
         logger.info("LoadModelSet reading: " + htsData.getPdfMcpFile());
         /* read vector size for spectrum */
         mcepVsize = data_in.readInt();
@@ -292,7 +294,9 @@ public class ModelSet {
 	    
 	    /*____________________________________________________________________*/
 	    /*-------------------- load pdfs for strengths------------------------*/
- 	    data_in = new DataInputStream (new FileInputStream (htsData.getPdfStrFile()));
+        if( htsData.getPdfStrFile() != null) {
+        
+ 	    data_in = new DataInputStream (new BufferedInputStream(new FileInputStream (htsData.getPdfStrFile())));
         logger.info("LoadModelSet reading: " + htsData.getPdfStrFile());
         /* read vector size for strengths */
         strVsize = data_in.readInt();
@@ -327,10 +331,13 @@ public class ModelSet {
 	    }
 	    data_in.close (); 
 	    data_in=null;
-	    
+        
+        } /* if STR file is not null */
+        
 	    /*____________________________________________________________________*/
 	    /*-------------------- load pdfs for Fourier magnitudes --------------*/
- 	    data_in = new DataInputStream (new FileInputStream (htsData.getPdfMagFile()));
+        if( htsData.getPdfMagFile() != null ) {
+ 	    data_in = new DataInputStream (new BufferedInputStream(new FileInputStream (htsData.getPdfMagFile())));
         logger.info("LoadModelSet reading: " + htsData.getPdfMagFile());
         /* read vector size for Fourier magnitudes */
         magVsize = data_in.readInt();
@@ -366,10 +373,11 @@ public class ModelSet {
 	    
 	    data_in.close (); 
 	    data_in=null;
-	    
+        } /*  if MAG file is not null */ 
+       
 	    /*____________________________________________________________________*/
 	    /*-------------------- load pdfs for Log F0 --------------*/
-	    data_in = new DataInputStream (new FileInputStream (htsData.getPdfLf0File()));
+	    data_in = new DataInputStream (new BufferedInputStream(new FileInputStream (htsData.getPdfLf0File())));
         logger.info("LoadModelSet reading: " + htsData.getPdfLf0File());
 	    /* read the number of streams for f0 modeling */
         lf0Stream  = data_in.readInt();

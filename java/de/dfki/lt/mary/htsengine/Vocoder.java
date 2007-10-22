@@ -139,6 +139,7 @@ public class Vocoder {
 	private double h[][];      /* filters for mixed excitation */  
 	private double xpulseSignal[];   /* the size of this should be orderM */
 	private double xnoiseSignal[];   /* the size of this should be orderM */
+    private boolean mixedExcitation = false;
 	
 	
 	/** The initialisation of VocoderSetup should be done when there is already 
@@ -268,7 +269,7 @@ public class Vocoder {
 
 	  double inc, x;
 	  short sx;
-	  double xp,xn,fxp,fxn,mix;  /* samples for pulse and for noise and the filtered ones */
+	  double xp=0.0,xn=0.0,fxp,fxn,mix;  /* samples for pulse and for noise and the filtered ones */
 	  //float x_exc,x_mix;         /* for saving samples of excitation and mix-excitation   */ 
 	  int i, j, k, m, s, mcepframe, lf0frame; 
 	  double a = htsData.getAlpha();
@@ -279,27 +280,37 @@ public class Vocoder {
       ModelSet ms = htsData.getModelSet();
 	    
       double f0;
-      double mc[];  /* feature vector for a particular frame */
-	  double hp[];  /* pulse shaping filter, it is initialised once it is known orderM */  
-	  double hn[];  /* noise shaping filter, it is initialised once it is known orderM */  
+      double mc[] = null;  /* feature vector for a particular frame */
+	  double hp[] = null;  /* pulse shaping filter, it is initialised once it is known orderM */  
+	  double hn[] = null;  /* noise shaping filter, it is initialised once it is known orderM */  
 	  
 	  /* Initialise vocoder and mixed excitation, once initialised it is known the order
 	   * of the filters so the shaping filters hp and hn can be initialised. */
 	  m = pdf2par.getMcepOrder();
 	  mc = new double[m];
 	  initVocoder(m-1, ms.getMcepVsize()-1, htsData);  /* m-1 because the SlideVector offsets count from 0-->24 */
-	  initMixedExcitation(htsData);
-	  hp = new double[orderM];  
-	  hn = new double[orderM];   
-      c.clearContent();   /* Clear content of SlideVector c, should be done if this function is
-                             called more than once with a new set of generated parameters. */
+      
+      if( htsData.getPdfStrFile() != null ) {
+	    initMixedExcitation(htsData);
+        mixedExcitation = true;
+	    hp = new double[orderM];  
+	    hn = new double[orderM]; 
+        
+        /* Check if the number of filters is equal to the order of strpst 
+         * i.e. the number of filters is equal to the number of generated strengths per frame. */
+        if(numM != pdf2par.getStrOrder()) {
+          logger.debug("htsMLSAVocoder: error num mix-excitation filters =" + numM + " in configuration file is different from generated str order=" + pdf2par.getStrOrder());
+          throw new Exception("htsMLSAVocoder: error num mix-excitation filters = " + numM + " in configuration file is different from generated str order=" + pdf2par.getStrOrder());
+        }
+        logger.info("HMM speech generation with mixed-excitation.");
+      } else
+        logger.info("HMM speech generation without mixed-excitation.");  
+      
+      /* Clear content of SlideVector c, should be done if this function is
+      called more than once with a new set of generated parameters. */
+      c.clearContent();   
 	    
-	  /* Check if the number of filters is equal to the order of strpst 
-	   * i.e. the number of filters is equal to the number of generated strengths per frame. */
-	  if(numM != pdf2par.getStrOrder()) {
-		logger.debug("htsMLSAVocoder: error num mix-excitation filters =" + numM + " in configuration file is different from generated str order=" + pdf2par.getStrOrder());
-        throw new Exception("htsMLSAVocoder: error num mix-excitation filters = " + numM + " in configuration file is different from generated str order=" + pdf2par.getStrOrder());
-	  }
+	  
 	  
 	 // try{
     
@@ -329,13 +340,15 @@ public class Vocoder {
 	   
 	    //System.out.println("\nmcepframe=" + mcepframe + " --> f0=" + f0 );
 	  
-	    /* shaping filters for this frame */
-        for(j=0; j<orderM; j++) {
-          hp[j] = hn[j] = 0.0;
-          for(i=0; i<numM; i++) {
-        	//System.out.println("str=" + pdf2par.get_str(mcepframe, i) + "  h[i][j]=" + h[i][j])  ;
-        	hp[j] += pdf2par.getStr(mcepframe, i) * h[i][j];
-        	hn[j] += ( 1 - pdf2par.getStr(mcepframe, i) ) * h[i][j];
+	    /* if mixed excitation get shaping filters for this frame */
+        if(mixedExcitation){
+          for(j=0; j<orderM; j++) {
+            hp[j] = hn[j] = 0.0;
+            for(i=0; i<numM; i++) {
+        	  //System.out.println("str=" + pdf2par.get_str(mcepframe, i) + "  h[i][j]=" + h[i][j])  ;
+        	  hp[j] += pdf2par.getStr(mcepframe, i) * h[i][j];
+        	  hn[j] += ( 1 - pdf2par.getStr(mcepframe, i) ) * h[i][j];
+            }
           }
         }
 	    
@@ -380,8 +393,11 @@ public class Vocoder {
               x = rand.nextGaussian();  /* returns double, gaussian distribution mean=0.0 and var=1.0 */
             else
               x = uniformRand(); /* returns 1.0 or -1.0 uniformly distributed */
-            xn = x;
-            xp = 0.0;            
+            
+            if(mixedExcitation) {
+              xn = x;
+              xp = 0.0;
+            }
           } else {
         	  if( (pc += 1.0) >= p1 ){
         	    x = Math.sqrt(p1);
@@ -389,35 +405,39 @@ public class Vocoder {
         	  } else
         	    x = 0.0;
         	  
-        	  xp = x;
-        	  if(gauss)
-        		xn = rand.nextGaussian();
-        	  else
-        		xn = uniformRand();
+              if(mixedExcitation) {
+        	    xp = x;
+        	    if(gauss)
+        		  xn = rand.nextGaussian();
+        	    else
+        	  	  xn = uniformRand();
+              }
           } 
         	  
           /* apply the shaping filters to the pulse and noise samples */
           /* i need memory of at least for M samples in both signals */
-          fxp = 0.0;
-          fxn = 0.0;
-          for(k=orderM-1; k>0; k--) {
-        	fxp += hp[k] * xpulseSignal[k];
-        	fxn += hn[k] * xnoiseSignal[k];
-        	xpulseSignal[k] = xpulseSignal[k-1];
-        	xnoiseSignal[k] = xnoiseSignal[k-1];
-          }
-          fxp += hp[0] * xp;
-          fxn += hn[0] * xn;
-          xpulseSignal[0] = xp;
-          xnoiseSignal[0] = xn;
+          if(mixedExcitation) {
+            fxp = 0.0;
+            fxn = 0.0;
+            for(k=orderM-1; k>0; k--) {
+        	  fxp += hp[k] * xpulseSignal[k];
+        	  fxn += hn[k] * xnoiseSignal[k];
+        	  xpulseSignal[k] = xpulseSignal[k-1];
+        	  xnoiseSignal[k] = xnoiseSignal[k-1];
+            }
+            fxp += hp[0] * xp;
+            fxn += hn[0] * xn;
+            xpulseSignal[0] = xp;
+            xnoiseSignal[0] = xn;
           
-          /* x is a pulse noise excitation and mix is mixed excitation */
-          mix = fxp+fxn;
-         // pulse_out.writeFloat((float)x);
-         // mix_out.writeFloat((float)mix);
+            /* x is a pulse noise excitation and mix is mixed excitation */
+            mix = fxp+fxn;
+            // pulse_out.writeFloat((float)x);
+            // mix_out.writeFloat((float)mix);
       
-          /* comment this line if no mixed excitation, just pulse and noise */
-          x = mix;   /* excitation sample */
+            /* comment this line if no mixed excitation, just pulse and noise */
+            x = mix;   /* excitation sample */
+          }
                     
           if(x != 0.0 )
         	x *= Math.exp(c.getContent(0));
@@ -500,7 +520,7 @@ public class Vocoder {
 	private double uniformRand() {	
 	  double x;
 	  x = rand.nextDouble(); /* double uniformly distributed between 0.0 <= Math.random() < 1.0.*/
-	  if(x > 0.5)
+	  if(x >= 0.5)
 	    return 1.0;
 	  else
 		return -1.0;
