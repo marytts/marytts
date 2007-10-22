@@ -67,10 +67,10 @@ public class ParameterGeneration {
   public static final double LTPI    = 1.83787706640935;    /* log(2*PI) */
 	
 
-  private PStream mcepPst;
-  private PStream strPst;
-  private PStream magPst;
-  private PStream lf0Pst;
+  private PStream mcepPst = null;
+  private PStream strPst  = null;
+  private PStream magPst  = null;
+  private PStream lf0Pst  = null;
   private boolean voiced[];
   
   private Logger logger = Logger.getLogger("ParameterGeneration");
@@ -125,10 +125,14 @@ public class ParameterGeneration {
 	/* Here i should pass the window files to initialise the dynamic windows dw */
 	/* for the moment the dw are all the same and hard-coded */
 	mcepPst = new PStream(ms.getMcepVsize(), um.getTotalFrame());
-	strPst  = new PStream(ms.getStrVsize(), um.getTotalFrame());
-	magPst  = new PStream(ms.getStrVsize(), um.getTotalFrame());
-	/* for lf0 count just the number of lf0frames that are voiced or non-zero */
-	lf0Pst  = new PStream(ms.getLf0Stream(), um.getLf0Frame());   
+    /* for lf0 count just the number of lf0frames that are voiced or non-zero */
+    lf0Pst  = new PStream(ms.getLf0Stream(), um.getLf0Frame());
+    /* The following are optional in case of generating mixed excitation */
+    if( htsData.getPdfStrFile() != null)
+	  strPst  = new PStream(ms.getStrVsize(), um.getTotalFrame());
+    if (htsData.getPdfMagFile() != null )
+	  magPst  = new PStream(ms.getMagVsize(), um.getTotalFrame());
+	   
 	
 	uttFrame = lf0Frame = 0;
 	voiced = new boolean[um.getTotalFrame()];
@@ -166,16 +170,20 @@ public class ParameterGeneration {
       	  }
       	  
       	  /* copy pdf for str */
-      	  for(k=0; k<ms.getStrVsize(); k++){
-      		strPst.setMseq(uttFrame, k, m.getStrMean(state, k));
-      		strPst.setIvseq(uttFrame, k, finv(m.getStrVariance(state, k)));
-      	  }
+          if( strPst !=null ) {
+      	    for(k=0; k<ms.getStrVsize(); k++){
+      		  strPst.setMseq(uttFrame, k, m.getStrMean(state, k));
+      		  strPst.setIvseq(uttFrame, k, finv(m.getStrVariance(state, k)));
+      	    }
+          }
       	  
       	  /* copy pdf for mag */
-      	  for(k=0; k<ms.getMagVsize(); k++){
-      		magPst.setMseq(uttFrame, k, m.getMagMean(state, k));
-      		magPst.setIvseq(uttFrame, k, finv(m.getMagVariance(state, k)));
-    	  }
+          if( magPst != null ) {
+      	    for(k=0; k<ms.getMagVsize(); k++){
+      		  magPst.setMseq(uttFrame, k, m.getMagMean(state, k));
+      		  magPst.setIvseq(uttFrame, k, finv(m.getMagVariance(state, k)));
+    	    }
+          }
       	  
       	  /* copy pdfs for lf0 */ 
       	  for(k=0; k<ms.getLf0Stream(); k++){
@@ -214,18 +222,24 @@ public class ParameterGeneration {
 	logger.info("Parameter generation for MCEP: ");
 	mcepPst.mlpg();
 
+    /* parameter generation for lf0 */
+    logger.info("Parameter generation for LF0: ");
+    if (lf0Frame>0)
+      lf0Pst.mlpg();
+    
 	/* parameter generation for str */
-    logger.info("Parameter generation for STR: ");
-	strPst.mlpg();
+    if( strPst != null ) {
+      logger.info("Parameter generation for STR: ");
+	  strPst.mlpg();
+    }
 
 	/* parameter generation for mag */
-    logger.info("Parameter generation for MAG: ");
-	magPst.mlpg();
+    if( magPst != null ) {
+      logger.info("Parameter generation for MAG: ");
+	  magPst.mlpg();
+    }
 	   
-	/* parameter generation for lf0 */
-    logger.info("Parameter generation for LF0: ");
-	if (lf0Frame>0)
-	  lf0Pst.mlpg();
+	
 
 	  
   }  /* method htsMaximumLikelihoodParameterGeneration */

@@ -218,9 +218,11 @@ public class HMMData {
           labFile = props.getProperty( "Flab" );
     	  
     	  /* Configuration for mixed excitation */
-    	  mixFiltersFile = props.getProperty( "Fif" ); 
-    	  numFilters     = Integer.parseInt(props.getProperty( "in" ));
-    	  orderFilters   = Integer.parseInt(props.getProperty( "io" ));
+          if( treeStrFile != null ) {
+    	    mixFiltersFile = props.getProperty( "Fif" ); 
+    	    numFilters     = Integer.parseInt(props.getProperty( "in" ));
+    	    orderFilters   = Integer.parseInt(props.getProperty( "io" ));
+          }
     	  
     	  props.clear();
           

@@ -53,6 +53,7 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.io.FileReader;
 import java.io.BufferedReader;
+import java.io.*;
 
 import org.apache.log4j.Logger;
 
@@ -107,10 +108,15 @@ public class TreeSet {
      * Tree*File in htsData. */
     public void loadTreeSet(HMMData htsData) throws Exception {
        
+     /* DUR, LF0 and MCP are required as minimum for generating voice */
         _loadTreeSet(htsData.getTreeDurFile(), HMMData.DUR);        
         _loadTreeSet(htsData.getTreeLf0File(), HMMData.LF0);        
-        _loadTreeSet(htsData.getTreeMcpFile(), HMMData.MCP);        
-        _loadTreeSet(htsData.getTreeStrFile(), HMMData.STR);        
+        _loadTreeSet(htsData.getTreeMcpFile(), HMMData.MCP); 
+        
+     /* STR and MAG are optional for generating mixed excitation */ 
+      if( htsData.getTreeStrFile() != null)
+        _loadTreeSet(htsData.getTreeStrFile(), HMMData.STR);
+      if( htsData.getTreeMagFile() != null)
         _loadTreeSet(htsData.getTreeMagFile(), HMMData.MAG);
 
     }
@@ -134,8 +140,8 @@ public class TreeSet {
 	  	  
 	  try {   
 		/* read lines of tree-*.inf fileName */ 
-		s = new Scanner(new BufferedReader(new FileReader(fileName))).useDelimiter("\n"); 
-		
+		s = new Scanner(new BufferedInputStream(new FileInputStream(fileName))).useDelimiter("\n");
+          
 		//System.out.println("LoadTreeSet reading: " + fileName + " tree type: " + type);
         logger.info("LoadTreeSet reading: " + fileName);
 		
