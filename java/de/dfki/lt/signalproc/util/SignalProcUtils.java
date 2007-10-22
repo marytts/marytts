@@ -78,6 +78,7 @@ public class SignalProcUtils {
             en += x[i]*x[i];
         
         en = Math.sqrt(en);
+        en = Math.max(en, 1e-100); //Put a minimum floor to avoid -Ininity in log based computations
         
         return en;
     }
