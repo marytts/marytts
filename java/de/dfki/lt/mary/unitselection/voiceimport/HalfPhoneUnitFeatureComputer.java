@@ -65,9 +65,7 @@ public class HalfPhoneUnitFeatureComputer extends PhoneUnitFeatureComputer
        
 
         maryInputType = "RAWMARYXML";
-        if (locale.equals("de")) maryOutputType = "HALFPHONE_TARGETFEATURES_DE";
-        else if (locale.equals("en") || locale.equals("en_US")) maryOutputType = "HALFPHONE_TARGETFEATURES_EN";
-        else throw new IllegalArgumentException("Unsupported locale: "+locale);
+        maryOutputType = "HALFPHONE_TARGETFEATURES";
     }
     
       public SortedMap getDefaultProps(DatabaseLayout db){
