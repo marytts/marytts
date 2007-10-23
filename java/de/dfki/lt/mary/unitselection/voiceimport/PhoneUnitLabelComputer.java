@@ -133,6 +133,7 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
                 }
                 out.flush();
                 out.close();
+                in.close();
                 System.out.println( "    " + bnl.getName(i) );
             }
         }

@@ -235,7 +235,7 @@ public class DatabaseLayout
                 //System.out.println(line);
                 //line looks like "<propName> <value>"
                 //<propname> looks like "<compName>.<prop>"
-                String[] lineSplit = line.split(" ");
+                String[] lineSplit = line.split(" ",2);
                 if (lineSplit[0].startsWith("db.")){
                    //global prop
                     props.put(lineSplit[0],lineSplit[1]);                    
