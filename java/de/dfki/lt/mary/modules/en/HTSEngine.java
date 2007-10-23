@@ -99,7 +99,7 @@ public class HTSEngine extends InternalModule
     public HTSEngine()
     {
         super("HTSEngine",
-              MaryDataType.get("HTSCONTEXT_EN"),
+              MaryDataType.get("HTSCONTEXT"),
               MaryDataType.get("AUDIO")
               );
     }

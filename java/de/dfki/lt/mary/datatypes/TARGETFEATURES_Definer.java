@@ -37,12 +37,9 @@ import de.dfki.lt.mary.MaryDataType;
  *
  *
  */
-public class TARGETFEATURES_EN_Definer extends MaryDataType {
+public class TARGETFEATURES_Definer extends MaryDataType {
     static {
-        //define("TARGETFEATURES_EN", Locale.US, false, true, PLAIN_TEXT, null, null,
-        //                 "(no example text)");
-        // ==Mch== Changed to allow this data type as input as well.
-        define("TARGETFEATURES_EN", Locale.US, true, true, PLAIN_TEXT, null, null,
+        define("TARGETFEATURES", null, false, true, PLAIN_TEXT, null, null,
                          "(no example text)");
 
     }

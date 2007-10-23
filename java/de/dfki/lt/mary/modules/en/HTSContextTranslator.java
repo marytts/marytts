@@ -63,8 +63,8 @@ public class HTSContextTranslator extends InternalModule {
     public HTSContextTranslator()
     {
         super("HTSContextTranslator",
-              MaryDataType.get("TARGETFEATURES_EN"),
-              MaryDataType.get("HTSCONTEXT_EN")
+              MaryDataType.get("TARGETFEATURES"),
+              MaryDataType.get("HTSCONTEXT")
               );
     }
     
@@ -78,7 +78,7 @@ public class HTSContextTranslator extends InternalModule {
 
 
     /**
-     * Translate TARGETFEATURES_EN to HTSCONTEXT_EN
+     * Translate TARGETFEATURES to HTSCONTEXT
      * @param MaryData type.
      */
     public MaryData process(MaryData d)
@@ -88,7 +88,7 @@ public class HTSContextTranslator extends InternalModule {
         MaryData output = new MaryData(outputType());
 
         Voice v = d.getDefaultVoice();  /* This is the way of getting a Voice through a MaryData type */
-        assert v instanceof HMMVoice;
+        assert v instanceof HMMVoice : v.getName()+" is not an HMM voice!";
         HMMVoice hmmv = (HMMVoice)v;  
         
         String lab;   
