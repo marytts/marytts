@@ -411,6 +411,8 @@ THIS SOFTWARE.
         <xsd:attribute name="age" type="xsd:positiveInteger"/>
         <xsd:attribute name="variant" type="xsd:integer"/>
         <xsd:attribute name="name" type="xsd:string"/>
+        <xsd:attribute name="style" type="xsd:string"/>
+        <xsd:attribute name="effect" type="xsd:string"/>
         <xsd:attribute ref="xml:lang"/>
     </xsd:complexType>
 
