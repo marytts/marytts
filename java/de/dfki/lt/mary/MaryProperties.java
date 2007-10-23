@@ -71,7 +71,9 @@ public class MaryProperties
     private static boolean logToFile = false;
     private static Vector<String> moduleClasses = new Vector<String>();
     private static Vector<String> synthClasses = new Vector<String>();
-
+    
+    private static Map<Locale,String> locale2prefix = new HashMap<Locale,String>();
+    
     private static Object[] localSchemas;
 
     /** The mary base directory, e.g. /usr/local/mary */
@@ -207,6 +209,10 @@ public class MaryProperties
         }
         localSchemas = v.toArray();
 
+        // Setup locale translation table:
+        locale2prefix.put(Locale.ENGLISH, "english");
+        locale2prefix.put(Locale.GERMAN, "german");
+        locale2prefix.put(new Locale("tib"), "tibetan");
     }
 
     /**
@@ -748,9 +754,14 @@ public class MaryProperties
      */
     public static String localePrefix(Locale locale)
     {
-        if (locale.equals(Locale.GERMAN)) return "german";
-        if (MaryUtils.subsumes(Locale.ENGLISH, locale)) return "english";
-        if (locale.equals(new Locale("tib"))) return "tibetan";
+        if (locale2prefix.containsKey(locale)) {
+            return locale2prefix.get(locale);
+        }
+        for (Locale l : locale2prefix.keySet()) {
+            if (MaryUtils.subsumes(l, locale)) {
+                return locale2prefix.get(l);
+            }
+        }
         return null;
     }
 

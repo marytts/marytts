@@ -41,14 +41,26 @@ import de.dfki.lt.mary.modules.synthesis.FreeTTSVoices;
 import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.unitselection.HalfPhoneTarget;
 import de.dfki.lt.mary.unitselection.Target;
+import de.dfki.lt.mary.unitselection.featureprocessors.TargetFeatureComputer;
 
 public class HalfPhoneTargetFeatureLister extends TargetFeatureLister 
 {
 
-    public HalfPhoneTargetFeatureLister(MaryDataType outputType, String configEntryPrefix)
+    public HalfPhoneTargetFeatureLister()
     {
-        super(outputType, configEntryPrefix);
+        super(MaryDataType.get("HALFPHONE_TARGETFEATURES"));
     }
+    
+    /**
+     * Get the appropriate target feature computer for this target feature lister from voice
+     * @param v
+     * @return
+     */
+    protected TargetFeatureComputer getTargetFeatureComputer(Voice v)
+    {
+        return v.getHalfphoneTargetFeatureComputer();
+    }
+
 
     /**
      * Create the list of targets from the Segments in the utterance.

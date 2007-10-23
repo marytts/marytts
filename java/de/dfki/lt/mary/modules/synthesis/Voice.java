@@ -62,10 +62,13 @@ import de.dfki.lt.mary.MaryData;
 import de.dfki.lt.mary.MaryDataType;
 import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.mary.MaryXML;
+import de.dfki.lt.mary.NoSuchPropertyException;
 import de.dfki.lt.mary.modules.MaryModule;
 import de.dfki.lt.mary.modules.phonemiser.Phoneme;
 import de.dfki.lt.mary.modules.phonemiser.PhonemeSet;
 import de.dfki.lt.mary.modules.phonemiser.Syllabifier;
+import de.dfki.lt.mary.unitselection.featureprocessors.FeatureProcessorManager;
+import de.dfki.lt.mary.unitselection.featureprocessors.TargetFeatureComputer;
 import de.dfki.lt.mary.unitselection.interpolation.InterpolatingSynthesizer;
 import de.dfki.lt.mary.unitselection.interpolation.InterpolatingVoice;
 import de.dfki.lt.mary.util.MaryUtils;
@@ -131,10 +134,12 @@ public class Voice
     private static Map<Locale,Voice> defaultVoices = new HashMap<Locale,Voice>();
     /** logger */
     private static Logger logger = Logger.getLogger("Voice");
+    /** A local map of already-instantiated target feature computers */
+    private static Map<String,TargetFeatureComputer> knownTargetFeatureComputers = new HashMap<String,TargetFeatureComputer>();
+    
 
 
-
-    private List names; // all the names under which this voice is known
+    private List<String> names; // all the names under which this voice is known
     private Locale locale;
     private AudioFormat dbAudioFormat = null;
     private WaveformSynthesizer synthesizer;
@@ -143,13 +148,16 @@ public class Voice
     private int topEnd;
     private int baseStart;
     private int baseEnd;
-    private Map sampa2voiceMap;
-    private Map voice2sampaMap;
+    private Map<String, String> sampa2voiceMap;
+    private Map<String, String> voice2sampaMap;
     private boolean useVoicePAInOutput;
     private int wantToBeDefault;
     private PhonemeSet phonemeSet;
     String preferredModulesClasses;
-    private Vector preferredModules;
+    private Vector<MaryModule> preferredModules;
+    private TargetFeatureComputer targetFeatureComputer;
+    private TargetFeatureComputer halfphoneTargetFeatureComputer;
+    
 
     
     public Voice(String[] nameArray, Locale locale, 
@@ -158,7 +166,7 @@ public class Voice
                  Gender gender,
                  int topStart, int topEnd, int baseStart, int baseEnd) 
     {
-        this.names = new ArrayList();
+        this.names = new ArrayList<String>();
         for (int i=0; i<nameArray.length; i++)
             names.add(nameArray[i]);
         this.locale = locale;
@@ -187,6 +195,69 @@ public class Voice
             }
         }
         preferredModulesClasses = MaryProperties.getProperty("voice."+getName()+".preferredModules");
+        
+        // Determine target feature computer from config settings, if available
+        targetFeatureComputer = initTargetFeatureProcessor("targetfeaturelister");
+        halfphoneTargetFeatureComputer = initTargetFeatureProcessor("halfphone-targetfeaturelister");
+    }
+
+    /**
+     * Try to determine a feature processor manager and a list of features for the 
+     * given config setting. This will look in the voice-specific config settings
+     * (prefix: <code>voice.(voicename).</code>) first, and then in the language-specific
+     * settings (prefix: <code>(locale).</code>). If no feature processor manager or no 
+     * list of features is found, null is returned.
+     * @param configSetting "targetfeaturelister" for phone features, "halfphone-targetfeaturelister" 
+     * for halfphone features
+     * @return the target feature computer, or null if none is configered.
+     */
+    private TargetFeatureComputer initTargetFeatureProcessor(String configSetting) {
+        // First, the feature processor manager to use:
+        String keyVoiceFeatMgr = "voice."+getName()+"."+configSetting+".featuremanager";
+        String featMgrClass = MaryProperties.getProperty(keyVoiceFeatMgr);
+        if (featMgrClass == null) {
+            String localePrefix = MaryProperties.localePrefix(locale);
+            if (localePrefix == null) {
+                throw new NoSuchPropertyException("Cannot determine config prefix for locale "+locale);
+            }
+            String keyLocaleFeatMgr = localePrefix+"."+configSetting+".featuremanager";
+            featMgrClass = MaryProperties.getProperty(keyLocaleFeatMgr);
+            if (featMgrClass == null) {
+                logger.debug("No feature processor manager setting '"+keyVoiceFeatMgr+"' or '"+keyLocaleFeatMgr+"' -- will set to null.");
+                return null;
+            }
+        }
+        assert featMgrClass != null;
+        // Now, the feature list to use:
+        String keyVoiceFeatures = "voice."+getName()+"."+configSetting+".features";
+        String features = MaryProperties.getProperty(keyVoiceFeatures);
+        if (features == null) {
+            String localePrefix = MaryProperties.localePrefix(locale);
+            if (localePrefix == null) {
+                throw new NoSuchPropertyException("Cannot determine config prefix for locale "+locale);
+            }
+            String keyLocaleFeatures = localePrefix+"."+configSetting+".features";
+            features = MaryProperties.getProperty(keyLocaleFeatures);
+            if (features == null) {
+                logger.debug("No features setting '"+keyVoiceFeatures+"' or '"+keyLocaleFeatures+"' -- will set to null.");
+                return null;
+            }
+        }
+        assert features != null;
+        String key = featMgrClass + "|" + features;
+        TargetFeatureComputer tfc = knownTargetFeatureComputers.get(key);
+        if (tfc == null) { // not known yet, initialise
+            FeatureProcessorManager featMgr = null;
+            try {
+                featMgr = (FeatureProcessorManager) Class.forName(featMgrClass).newInstance();
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Cannot initialise FeatureProcessorManager", e);
+            }
+            assert featMgr != null;
+            tfc = new TargetFeatureComputer(featMgr, features);
+            knownTargetFeatureComputers.put(key, tfc);
+        }
+        return tfc;
     }
 
     /**
@@ -196,7 +267,7 @@ public class Voice
      */
     public Voice(com.sun.speech.freetts.Voice freeTTSVoice, WaveformSynthesizer synthesizer)
     {
-        this.names = new ArrayList();
+        this.names = new ArrayList<String>();
         String domain = freeTTSVoice.getDomain();
         String name;
         if (domain.equals("general")) name = freeTTSVoice.getName();
@@ -292,11 +363,11 @@ public class Voice
             throw new IllegalArgumentException();
         }
         if (s2v) {
-            if (sampa2voiceMap == null) sampa2voiceMap = new HashMap();
+            if (sampa2voiceMap == null) sampa2voiceMap = new HashMap<String, String>();
             sampa2voiceMap.put(parts[0].trim(), parts[1].trim());
         }
         if (v2s) {
-            if (voice2sampaMap == null) voice2sampaMap = new HashMap();
+            if (voice2sampaMap == null) voice2sampaMap = new HashMap<String, String>();
             voice2sampaMap.put(parts[1].trim(), parts[0].trim());
         }
     }
@@ -331,9 +402,9 @@ public class Voice
      * appended to the voice-specific versions of the vowels in the syllable.
      * @return a List of String objects.
      */
-    public List sampaString2voicePhonemeList(String sampa)
+    public List<String> sampaString2voicePhonemeList(String sampa)
     {
-        List voicePhonemeList = new ArrayList();
+        List<String> voicePhonemeList = new ArrayList<String>();
         StringTokenizer st = new StringTokenizer(sampa, "-_");
         while (st.hasMoreTokens()) {
             String syllable = st.nextToken();
@@ -401,11 +472,11 @@ public class Voice
     }
     
     
-    public Vector getPreferredModulesAcceptingType(MaryDataType type)
+    public Vector<MaryModule> getPreferredModulesAcceptingType(MaryDataType type)
     {
         if (preferredModules == null && preferredModulesClasses != null) {
             // need to initialise the list of modules
-            preferredModules = new Vector();
+            preferredModules = new Vector<MaryModule>();
             StringTokenizer st = new StringTokenizer(preferredModulesClasses, ", \t\n\r\f");
             while (st.hasMoreTokens()) {
                 String className = st.nextToken();
@@ -421,10 +492,9 @@ public class Voice
                     logger.warn("Cannot initialise preferred module "+className+" for voice "+getName()+" -- skipping.");
                 }
             }
-
         }
         if (preferredModules != null) {
-            Vector v = new Vector();
+            Vector<MaryModule> v = new Vector<MaryModule>();
             for (Iterator it = preferredModules.iterator(); it.hasNext(); ) {
                 MaryModule m = (MaryModule) it.next();
                 if (m.inputType().equals(type)) {
@@ -453,6 +523,41 @@ public class Voice
     public int baseStart() { return baseStart; }
     public int baseEnd() { return baseEnd; }
 
+    /**
+     * Get the target feature computer to be used in conjunction with this voice
+     * when computing target feature vectors,
+     * e.g. for unit selection or HMM-based synthesis.
+     * This can be voice-specific if there are config settings
+     * <code>voice.(voicename).targetfeaturelister.featuremanager</code> and/or 
+     * <code>voice.(voicename).targetfeaturelister.features</code>, or else this will default to the
+     * locale specific versions
+     * <code>(locale).targetfeaturelister.featuremanager</code> and
+     * <code>(locale).targetfeaturelister.features</code>.
+     * If there are no locale-specific versions either, null is returned.
+     * @return a target feature computer object, or null.
+     */
+    public TargetFeatureComputer getTargetFeatureComputer()
+    {
+        return targetFeatureComputer;
+    }
+
+    /**
+     * Get the target feature computer to be used in conjunction with this voice
+     * when computing target feature vectors,
+     * e.g. for unit selection or HMM-based synthesis.
+     * This can be voice-specific if there are config settings
+     * <code>voice.(voicename).halfphone-targetfeaturelister.featuremanager</code> and/or 
+     * <code>voice.(voicename).halfphone-targetfeaturelister.features</code>, or else this will default to the
+     * locale specific versions
+     * <code>(locale).halfphone-targetfeaturelister.featuremanager</code> and
+     * <code>(locale).halfphone-targetfeaturelister.features</code>.
+     * If there are no locale-specific versions either, null is returned.
+     * @return a target feature computer object, or null.
+     */
+    public TargetFeatureComputer getHalfphoneTargetFeatureComputer()
+    {
+        return halfphoneTargetFeatureComputer;
+    }
 
     /**
      * Whether to use this voice's phonetic alphabet in the output.
@@ -628,12 +733,10 @@ public class Voice
      * @param locale
      * @return a collection of Voice objects, or an empty collection if no voice is available for the given locale.
      */
-    public static Collection getAvailableVoices(Locale locale)
+    public static Collection<Voice> getAvailableVoices(Locale locale)
     {
-        ArrayList list = new ArrayList();
-        Iterator it = allVoices.iterator();
-        while (it.hasNext()) {
-            Voice v = (Voice) it.next();
+        ArrayList<Voice> list = new ArrayList<Voice>();
+        for (Voice v : allVoices) {
             if (MaryUtils.subsumes(locale, v.getLocale())) {
                 list.add(v);
             }
@@ -646,15 +749,13 @@ public class Voice
      * will return the voices in decreasing order of their "wantToBeDefault" value.
      * @return a collection of Voice objects, or an empty collection if no voice is available for the given waveform synthesizer.
      */
-    public static Collection getAvailableVoices(WaveformSynthesizer synth)
+    public static Collection<Voice> getAvailableVoices(WaveformSynthesizer synth)
     {
         if (synth == null) {
             throw new NullPointerException("Got null WaveformSynthesizer");
         }
-        ArrayList list = new ArrayList();
-        Iterator it = allVoices.iterator();
-        while (it.hasNext()) {
-            Voice v = (Voice) it.next();
+        ArrayList<Voice> list = new ArrayList<Voice>();
+        for (Voice v : allVoices) {
             if (synth.equals(v.synthesizer())) {
                 list.add(v);
             }
@@ -667,12 +768,10 @@ public class Voice
      * will return the voices in decreasing order of their "wantToBeDefault" value.
      * @return a collection of Voice objects, or an empty collection if no voice is available for the given locale.
      */
-    public static Collection getAvailableVoices(WaveformSynthesizer synth, Locale locale)
+    public static Collection<Voice> getAvailableVoices(WaveformSynthesizer synth, Locale locale)
     {
-        ArrayList list = new ArrayList();
-        Iterator it = allVoices.iterator();
-        while (it.hasNext()) {
-            Voice v = (Voice) it.next();
+        ArrayList<Voice> list = new ArrayList<Voice>();
+        for (Voice v : allVoices) {
             if (v.synthesizer().equals(synth) && MaryUtils.subsumes(locale, v.getLocale())) {
                 list.add(v);
             }
@@ -682,8 +781,7 @@ public class Voice
 
     public static Voice getVoice(Locale locale, Gender gender)
     {
-        for (Iterator it = allVoices.iterator(); it.hasNext(); ) {
-            Voice v = (Voice) it.next();
+        for (Voice v : allVoices) {
             if (MaryUtils.subsumes(locale, v.getLocale()) && v.gender().equals(gender))
                 return v;
         }
@@ -751,7 +849,6 @@ public class Voice
 
         return guessedVoice;
     }
-
 
 
     public static class Gender

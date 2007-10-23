@@ -1,5 +1,5 @@
 /**
- * Copyright 2007 DFKI GmbH.
+ * Copyright 2000-2006 DFKI GmbH.
  * All Rights Reserved.  Use is subject to license terms.
  * 
  * Permission is hereby granted, free of charge, to use and distribute
@@ -26,15 +26,21 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-package de.dfki.lt.mary.modules.en;
+package de.dfki.lt.mary.datatypes;
+
+import java.util.Locale;
 
 import de.dfki.lt.mary.MaryDataType;
 
-public class TargetFeatureLister extends de.dfki.lt.mary.modules.TargetFeatureLister
-{
+/**
+ * @author Marc Schr&ouml;der
+ *
+ *
+ */
+public class HTSCONTEXT_Definer extends MaryDataType {
+    static {
+        define("HTSCONTEXT", null, true, true, PLAIN_TEXT, null, null,
+                         "(no example text)");
 
-    public TargetFeatureLister() {
-        super(MaryDataType.get("TARGETFEATURES_EN"), "english.targetfeaturelister");
     }
-
 }

@@ -32,6 +32,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Level;
 
@@ -58,29 +59,28 @@ import de.dfki.lt.mary.unitselection.featureprocessors.TargetFeatureComputer;
 
 public class TargetFeatureLister extends InternalModule
 {
-    protected TargetFeatureComputer featureComputer;
-    protected String configEntryPrefix;
 
-    public TargetFeatureLister(MaryDataType outputType, String configEntryPrefix)
+    public TargetFeatureLister(MaryDataType outputType)
     {
         super("TargetFeatureLister",
                 MaryDataType.get("FREETTS_ACOUSTPARAMS"), 
                 outputType);
-        this.configEntryPrefix = configEntryPrefix;
     }
 
-    public void startup() throws Exception
+    public TargetFeatureLister()
     {
-        super.startup();
-        String managerClass = MaryProperties.needProperty(configEntryPrefix+".featuremanager");
-        FeatureProcessorManager manager = (FeatureProcessorManager) Class.forName(managerClass).newInstance();
-        String features = MaryProperties.needProperty(configEntryPrefix+".features");
-        this.featureComputer = new TargetFeatureComputer(manager, features);
+        this(MaryDataType.get("TARGETFEATURES"));
     }
-
+    
     public MaryData process(MaryData d)
     throws Exception
     {
+        Voice voice = d.getDefaultVoice();
+        if (voice == null) {
+            throw new NullPointerException("Need default voice to be set in input data, but it is null");
+        }
+        TargetFeatureComputer featureComputer = getTargetFeatureComputer(voice);
+        assert featureComputer != null : "Voice provides null instead of a feature computer!";
         List uttList = d.getUtterances();
         String header = featureComputer.getAllFeatureProcessorNamesAndValues();
         StringBuffer text = new StringBuffer();
@@ -113,18 +113,26 @@ public class TargetFeatureLister extends InternalModule
         result.setPlainText(out);
         return result;
     }
+    
+    /**
+     * Get the appropriate target feature computer for this target feature lister from voice
+     * @param v
+     * @return
+     */
+    protected TargetFeatureComputer getTargetFeatureComputer(Voice v)
+    {
+        return v.getTargetFeatureComputer();
+    }
 
     /**
      * Create the list of targets from the Segments in the utterance.
      * @param segs the Segment relation
      * @return a list of Target objects
      */
-    protected List createTargets(Relation segs) {
-        List targets = new ArrayList();
+    protected List<Target> createTargets(Relation segs) {
+        List<Target> targets = new ArrayList<Target>();
         for (Item s = segs.getHead(); s != null; s = s.getNext()) {
             String segName = s.getFeatures().getString("name");;
-            // Not sure if this is needed:
-            //s.getFeatures().setString("clunit_name", segName);
             targets.add(new Target(segName, s));
         }
         return targets;
@@ -136,8 +144,8 @@ public class TargetFeatureLister extends InternalModule
      * @param segs the Segment relation
      * @return a list of Target objects
      */
-    protected List createTargetsWithPauses(Relation segs) {
-        List targets = new ArrayList();
+    protected List<Target> createTargetsWithPauses(Relation segs) {
+        List<Target> targets = new ArrayList<Target>();
         boolean first = true;
         Item s = segs.getHead();
         Voice v = FreeTTSVoices.getMaryVoice(s.getUtterance().getVoice());

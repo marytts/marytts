@@ -82,7 +82,7 @@ import de.dfki.lt.mary.modules.MbrolaCaller;
 import de.dfki.lt.mary.modules.XML2UttAcoustParams;
 import de.dfki.lt.mary.modules.en.HTSContextTranslator;
 import de.dfki.lt.mary.modules.en.HTSEngine;
-import de.dfki.lt.mary.modules.en.TargetFeatureLister;
+import de.dfki.lt.mary.modules.TargetFeatureLister;
 
 
 import de.dfki.lt.mary.htsengine.HMMData;
@@ -269,7 +269,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
              List<Utterance> utts = new ArrayList<Utterance>();
              utts.add(utt);
              freettsAcoustparams.setUtterances(utts);
-          
+             freettsAcoustparams.setDefaultVoice(v);
              MaryData targetFeatures = targetFeatureLister.process(freettsAcoustparams);
              targetFeatures.setDefaultVoice(v);
              MaryData htsContext = htsContextTranslator.process(targetFeatures);
@@ -304,6 +304,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
         List<Utterance> utts = new ArrayList<Utterance>();
         utts.add(utt);
         freettsAcoustparams.setUtterances(utts);
+        freettsAcoustparams.setDefaultVoice(voice);
         try {
             MaryData targetFeatures = targetFeatureLister.process(freettsAcoustparams);
             targetFeatures.setDefaultVoice(voice);
