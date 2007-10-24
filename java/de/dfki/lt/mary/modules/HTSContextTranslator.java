@@ -27,7 +27,7 @@
  * THIS SOFTWARE.
  */
 
-package de.dfki.lt.mary.modules.en;
+package de.dfki.lt.mary.modules;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -50,7 +50,7 @@ import de.dfki.lt.mary.modules.synthesis.Voice;
 
 
 /**
- * Translates TARGETFEATURES_EN --> HTSCONTEXT_EN used in HMM synthesis.
+ * Translates TARGETFEATURES --> HTSCONTEXT used in HMM synthesis.
  * 
  * Java port of make_labels_full.pl and common_routines.pl developed in Perl
  * by Sacha Krstulovic. 
@@ -243,7 +243,7 @@ public class HTSContextTranslator extends InternalModule {
            
     }
     
-    //System.out.println("\nLAB:\n" + lab);
+    //logger.debug("\nLAB:\n" + lab);
        
     return lab;
     
@@ -256,23 +256,34 @@ public class HTSContextTranslator extends InternalModule {
      * @return String
      */
     private String replaceTrickyPhones(String lab){
-      String s;
-      /** CHECK!! these replacements for German, ??? */
+      String s = lab;
+      
       /** the replace is done for the labels: mary_phoneme, mary_prev_phoneme and mary_next_phoneme */
-   
-      /* DE (replacements in German phoneme set) 
-      s = lab.replaceAll("6", "ER6");
-      s = lab.replaceAll("=6", "ER6");  //  REM: =6 is mapped to 6 
-      s = lab.replaceAll("2:", "EU2");
-      s = lab.replaceAll( "9", "EU9");
-      s = lab.replaceAll("9~", "UM9");
-      s = lab.replaceAll("e~", "IMe");
-      s = lab.replaceAll( "a~", "ANa");
-      s = lab.replaceAll("o~", "ONo"); */
-    //  s = lab.replaceAll("?", "gstop"); /* CHECK!! this replacement can not be done in this way ??? */
-
+      
+      /** DE (replacements in German phoneme set) */     
+      if(lab.contentEquals("6") )
+        s = "ER6";
+      else if (lab.contentEquals("=6") )
+        s = "ER6";
+      else if (lab.contentEquals("2:") )
+          s = "EU2";
+      else if (lab.contentEquals("9") )
+          s = "EU9";
+      else if (lab.contentEquals("9~") )
+          s = "UM9";
+      else if (lab.contentEquals("e~") )
+          s = "IMe";
+      else if (lab.contentEquals("a~") )
+          s = "ANa";
+      else if (lab.contentEquals("o~") )
+          s = "ONo";
+      else if (lab.contentEquals("?") )
+          s = "gstop";
       /** EN (replacements in English phoneme set) */
-      s = lab.replaceAll("r=", "rr"); 
+      else if (lab.contentEquals("r=") )
+          s = "rr"; 
+      
+      //System.out.println("LAB=" + s);
       
       return s;
         

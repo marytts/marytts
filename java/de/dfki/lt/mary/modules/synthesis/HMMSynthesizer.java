@@ -80,8 +80,8 @@ import de.dfki.lt.mary.modules.MaryModule;
 import de.dfki.lt.mary.modules.MaryXMLToMbrola;
 import de.dfki.lt.mary.modules.MbrolaCaller;
 import de.dfki.lt.mary.modules.XML2UttAcoustParams;
-import de.dfki.lt.mary.modules.en.HTSContextTranslator;
-import de.dfki.lt.mary.modules.en.HTSEngine;
+import de.dfki.lt.mary.modules.HTSContextTranslator;
+import de.dfki.lt.mary.modules.HTSEngine;
 import de.dfki.lt.mary.modules.TargetFeatureLister;
 
 

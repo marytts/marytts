@@ -48,7 +48,7 @@
 *                                                                   
 */
 
-package de.dfki.lt.mary.modules.en;
+package de.dfki.lt.mary.modules;
 
 import de.dfki.lt.mary.htsengine.HMMData;
 import de.dfki.lt.mary.htsengine.Model;
@@ -75,6 +75,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
+import org.apache.log4j.Logger;
 import org.jsresources.AppendableSequenceAudioInputStream;
 
 import de.dfki.lt.mary.MaryData;
@@ -95,6 +96,7 @@ import de.dfki.lt.signalproc.util.NoiseDoubleDataSource;
  */
 public class HTSEngine extends InternalModule
 {
+    private Logger logger = Logger.getLogger("HTSEngine");
     
     public HTSEngine()
     {
@@ -114,7 +116,8 @@ public class HTSEngine extends InternalModule
     
     
     /**
-     * when calling this function HMMengine must be initialised already.
+     * when calling this function HMMVoice must be initialised already.
+     * that is TreeSet and ModelSet must be loaded already.
      * @param d
      * @return
      * @throws Exception
@@ -182,7 +185,7 @@ public class HTSEngine extends InternalModule
          *          these are all the trees trained for a particular voice. */
  
         
-        System.out.println("CONTEXT:" + context);
+        logger.info("CONTEXT:" + context);
         
         /* Process label file of Mary context features and creates UttModel um */
         processUtt(context, um, htsData);
@@ -297,6 +300,7 @@ public class HTSEngine extends InternalModule
             }              
 
             /* Find pdf for strengths */
+            /* If there is no STRs then auxTree=null=ts.getTreeTail so it will not try to find pdf for strengths */
             for(auxTree=ts.getTreeHead(HMMData.STR), mstate=0; auxTree != ts.getTreeTail(HMMData.STR); auxTree=auxTree.getNext(), mstate++ ) {           
                 m.setStrPdf(mstate, ts.searchTree(nextLine,auxTree.getRoot(),false));
                 //System.out.println("strpdf[" + mstate + "]=" + m.get_strpdf(mstate));
@@ -304,6 +308,7 @@ public class HTSEngine extends InternalModule
             }
 
             /* Find pdf for Fourier magnitudes */
+            /* If there is no MAGs then auxTree=null=ts.getTreeTail so it will not try to find pdf for Fourier magnitudes */
             for(auxTree=ts.getTreeHead(HMMData.MAG), mstate=0; auxTree != ts.getTreeTail(HMMData.MAG); auxTree=auxTree.getNext(), mstate++ ) {           
                 m.setMagPdf(mstate, ts.searchTree(nextLine,auxTree.getRoot(),false));
                 //System.out.println("magpdf[" + mstate + "]=" + m.get_magpdf(mstate));
@@ -352,8 +357,9 @@ public class HTSEngine extends InternalModule
        * TreeSet: Contains the tree-xxx.inf, xxx: dur, lf0, mcp, str and mag 
        *          these are all the trees trained for a particular voice. */
       HMMData htsData = new HMMData();
-      htsData.initHMMData("/project/mary/marcela/HTS-mix/hts_engine.config");
- 
+      //htsData.initHMMData("/project/mary/marcela/HTS-mix/hts_engine.config");
+      //htsData.initHMMData("/project/mary/sacha/HTS_BITS_24features_stableonly/hts_engine.config");
+      htsData.initHMMData("/project/mary/marcela/german-hmm-bits/hts/hts_engine.config");
       
       /** The utterance model, um, is a Vector (or linked list) of Model objects. 
        * It will contain the list of models for current label file. */
