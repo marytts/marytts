@@ -275,6 +275,7 @@ public class VoiceInstaller extends VoiceImportComponent{
              configOut.println("# Declare \"group names\" as component that other components can require.\n"+
                      	"# These correspond to abstract \"groups\" of which this component is an instance.\n"+
                      	"provides = \\\n"+longLocale+"-voice\n");
+             configOut.println(longLocale+"-voice.version = "+db.getProp(db.MARYBASEVERSION)+"\n");
              configOut.println("# List the dependencies, as a whitespace-separated list.\n"+
                      "# For each required component, an optional minimum version and an optional\n"+
                      "# download url can be given.\n"+

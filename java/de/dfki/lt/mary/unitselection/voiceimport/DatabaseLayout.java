@@ -57,6 +57,8 @@ public class DatabaseLayout
     private Map props2Help;
     //marybase
     public final String MARYBASE = "db.marybase";
+    //marybase version
+    public final String MARYBASEVERSION = "db.marybaseversion";
     //voicename
     public final String VOICENAME = "db.voicename";
     //gender
@@ -122,6 +124,7 @@ public class DatabaseLayout
         props2Help.put(LABEXT,"extension of the label files, default: \".lab\"");
         props2Help.put(LOCALE,"de, en or en_US");
         props2Help.put(MARYBASE,"directory containing the local Mary installation");
+        props2Help.put(MARYBASEVERSION,"local Mary installation version");
         props2Help.put(MARYXMLDIR,"directory containing maryxml representations of the transcripts. Will be created if it does not exist.");
         props2Help.put(MARYXMLEXT,"extension of the maryxml files, default: \".xml\"");
         props2Help.put(ROOTDIR,"directory in which all the files created during installation will be stored. Will be created if it does not exist.");
@@ -455,6 +458,7 @@ public class DatabaseLayout
             marybase = "/path/to/marybase/";
         }
         basicprops.put(MARYBASE,marybase);
+        basicprops.put(MARYBASEVERSION, "3.1.0");
         basicprops.put(VOICENAME,"my_voice");
         basicprops.put(GENDER,"female");
         basicprops.put(DOMAIN,"general");
