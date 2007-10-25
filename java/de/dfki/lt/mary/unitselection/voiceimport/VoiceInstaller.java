@@ -311,6 +311,10 @@ public class VoiceInstaller extends VoiceImportComponent{
                       voiceHeader+".domain = "+db.getProp(db.DOMAIN).toLowerCase()+"\n"+
                       voiceHeader+".samplingRate = "+db.getProp(db.SAMPLINGRATE)+"\n");
               
+              //Weight of the target cost function vs. the join cost function
+              configOut.println("# Relative weight of the target cost function vs. the join cost function\n"+
+                      voiceHeader+".viterbi.wTargetCosts = "+"0.95"+"\n");
+              
               //language specific settings 
               if (!cutLocale.equals("en")||cutLocale.equals("de")){
                   configOut.println("Unsupported locale "+db.getProp(db.LOCALE));
