@@ -86,6 +86,7 @@ public class MaryClient {
     private Vector outputDataTypes = null;
     private Map serverExampleTexts = new HashMap();
     private Map voiceExampleTexts = new HashMap();
+    private Map audioEffectsMap = new HashMap();
     private String[] serverVersionInfo = null;
 
     /**
@@ -225,10 +226,10 @@ public class MaryClient {
      * @see #getInputDataTypes()
      * @see #getVoices()
      */
-    public void streamAudio(String input, String inputType, String audioType, String defaultVoiceName, AudioPlayer audioPlayer, AudioPlayerListener listener)
+    public void streamAudio(String input, String inputType, String audioType, String defaultVoiceName, String audioEffects, AudioPlayer audioPlayer, AudioPlayerListener listener)
     throws UnknownHostException, IOException
     {
-        _process(input, inputType, "AUDIO", audioType, defaultVoiceName, audioPlayer, 0, true, listener);
+        _process(input, inputType, "AUDIO", audioType, defaultVoiceName, audioEffects, audioPlayer, 0, true, listener);
     }
 
     /**
@@ -239,6 +240,7 @@ public class MaryClient {
      * @param outputType the name of the output data type, e.g. AUDIO or ACOUSTPARAMS.
      * @param audioType the name of the audio format, e.g. "WAVE" or "MP3".
      * @param defaultVoiceName the name of the voice to use, e.g. de7 or us1.
+     * @param audioEffects the audio effects and their parameters to be applied as a post-processing step, e.g. Robot(Amount=100), Whisper(amount=50)
      * @param output the output stream into which the data from the server is to be written.
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
@@ -247,10 +249,17 @@ public class MaryClient {
      * @see #getVoices()
      */
     public void process(String input, String inputType, String outputType,
-        String audioType, String defaultVoiceName, OutputStream output)
+        String audioType, String defaultVoiceName, String audioEffects, OutputStream output)
         throws UnknownHostException, IOException
     {
-        _process(input, inputType, outputType, audioType, defaultVoiceName, output, 0, false, null);
+        _process(input, inputType, outputType, audioType, defaultVoiceName, audioEffects, output, 0, false, null);
+    }
+    
+    public void process(String input, String inputType, String outputType,
+            String audioType, String defaultVoiceName, OutputStream output)
+            throws UnknownHostException, IOException
+    {
+        process( input,  inputType,  outputType, audioType,  defaultVoiceName,  output);
     }
 
     /**
@@ -261,6 +270,7 @@ public class MaryClient {
      * @param outputType the name of the output data type, e.g. AUDIO or ACOUSTPARAMS.
      * @param audioType the name of the audio format, e.g. "WAVE" or "MP3".
      * @param defaultVoiceName the name of the voice to use, e.g. de7 or us1.
+     * @param audioEffects the audio effects and their parameters to be applied as a post-processing step, e.g. Robot(Amount=100), Whisper(amount=50)
      * @param output the output stream into which the data from the server is to be written.
      * @param timeout if >0, sets a timer to as many milliseconds; if processing is not finished by then,
      * the connection with the Mary server is forcefully cut, resulting in an IOException.
@@ -271,28 +281,41 @@ public class MaryClient {
      * @see #getVoices()
      */
     public void process(String input, String inputType, String outputType,
-        String audioType, String defaultVoiceName, OutputStream output, long timeout)
+        String audioType, String defaultVoiceName, String audioEffects, OutputStream output, long timeout)
         throws UnknownHostException, IOException
     {
-        _process(input, inputType, outputType, audioType, defaultVoiceName, output, timeout, false, null);
+        _process(input, inputType, outputType, audioType, defaultVoiceName, audioEffects, output, timeout, false, null);
     }
 
+    public void process(String input, String inputType, String outputType,
+         String audioType, String defaultVoiceName, OutputStream output, long timeout)
+         throws UnknownHostException, IOException
+    {
+        process(input,  inputType, outputType, audioType,  defaultVoiceName, "",  output, timeout);
+    }
     /**
      * The easiest way to call the MARY client when the output is to
      * be played via a FreeTTS audio player. 
      * @param input a textual representation of the input data 
      * @param inputType the name of the input data type, e.g. TEXT or RAWMARYXML. See #getInputDataTypes().
      * @param defaultVoiceName the name of the voice to use, e.g. de7 or us1. See #getVoices().
+     * @param audioEffects the audio effects and their parameters to be applied as a post-processing step, e.g. Robot(Amount=100), Whisper(amount=50)
      * @param player the FreeTTS audio player with which to play the synthesised audio data. The
      * given audio player must already be instanciated. See the package
      * <code>com.sun.speech.freetts.audio</code> in FreeTTS for implementations of AudioPlayer.
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    public void process(String input, String inputType, String defaultVoiceName, AudioPlayer player)
+    public void process(String input, String inputType, String defaultVoiceName, String audioEffects, AudioPlayer player)
         throws UnknownHostException, IOException
     {
-        _process(input, inputType, "AUDIO", "AU", defaultVoiceName, player, 0, false, null);
+        _process(input, inputType, "AUDIO", "AU", defaultVoiceName, audioEffects, player, 0, false, null);
+    }
+    
+    public void process(String input, String inputType, String defaultVoiceName, AudioPlayer player)
+    throws UnknownHostException, IOException
+    {
+        process(input, inputType, defaultVoiceName, "",  player);
     }
 
     /**
@@ -301,6 +324,7 @@ public class MaryClient {
      * @param input a textual representation of the input data 
      * @param inputType the name of the input data type, e.g. TEXT or RAWMARYXML.
      * @param defaultVoiceName the name of the voice to use, e.g. de7 or us1.
+     * @param audioEffects the audio effects and their parameters to be applied as a post-processing step, e.g. Robot(Amount=100), Whisper(amount=50)
      * @param player the FreeTTS audio player with which to play the synthesised audio data. The
      * given audio player must already be instanciated. See the package
      * <code>com.sun.speech.freetts.audio</code> in FreeTTS for implementations of AudioPlayer.
@@ -311,14 +335,19 @@ public class MaryClient {
      * @see #getInputDataTypes()
      * @see #getVoices()
      */
-    public void process(String input, String inputType, String defaultVoiceName, AudioPlayer player, long timeout)
+    public void process(String input, String inputType, String defaultVoiceName, String audioEffects, AudioPlayer player, long timeout)
         throws UnknownHostException, IOException
     {
-        _process(input, inputType, "AUDIO", "AU", defaultVoiceName, player, timeout, false, null);
+        _process(input, inputType, "AUDIO", "AU", defaultVoiceName, audioEffects, player, timeout, false, null);
     }
 
+    public void process(String input, String inputType, String defaultVoiceName, AudioPlayer player, long timeout)
+    throws UnknownHostException, IOException
+    {
+        process( input, inputType, defaultVoiceName, "", player, timeout);
+    }
     private void _process(String input, String inputType, String outputType,
-        String audioType, String defaultVoiceName, Object output, long timeout, boolean streamingAudio, AudioPlayerListener playerListener)
+        String audioType, String defaultVoiceName, String audioEffects, Object output, long timeout, boolean streamingAudio, AudioPlayerListener playerListener)
         throws UnknownHostException, IOException
     {
         boolean isAudioPlayer;
@@ -353,7 +382,12 @@ public class MaryClient {
         if (defaultVoiceName != null) {
             toServerInfo.print(" VOICE=" + defaultVoiceName);
         }
+        
+        if (audioEffects != "") {
+            toServerInfo.print(" EFFECTS=" + audioEffects);
+        }
         toServerInfo.println();
+        
         // Receive a request ID:
         //System.err.println("Reading reply from server.");
         String helper = fromServerInfo.readLine();
@@ -449,9 +483,6 @@ public class MaryClient {
                             long processingTime = endTime - startTime;
                             System.err.println("Processed request in " + processingTime + " ms.");
                         }
-
-                    
-                   
                 }
             };
             if (streamingAudio) {
@@ -892,7 +923,30 @@ public class MaryClient {
         return (String) serverExampleTexts.get(dataType);
     }
 
-
+    /**
+     * Request the available audio effects for a voice from the server
+     * @param voicename the voice
+     * @return A string of available audio effects and default parameters, i.e. "FIRFilter,Robot(amount=50)"
+     * @throws IOException
+     * @throws UnknownHostException
+     */
+    public String getAudioEffects(String voicename) 
+                                    throws IOException, UnknownHostException {
+          if (!audioEffectsMap.containsKey(voicename)) 
+          {
+                Socket marySocket = new Socket(host, port);
+                String info = getServerInfo(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
+                    new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
+                    "MARY VOICE AUDIOEFFECTS " + voicename);
+                if (info.length() == 0)
+                    throw new IOException("Could not get available audio effects from Mary server");
+                
+                audioEffectsMap.put(voicename, info.replaceAll("\n", System.getProperty("line.separator")));
+                marySocket.close();
+            }
+          
+            return (String)audioEffectsMap.get(voicename);
+        }
 
     public static void usage() {
         System.err.println("usage:");
@@ -943,6 +997,7 @@ public class MaryClient {
                 System.exit(1);
         }
         String defaultVoiceName = System.getProperty("voice.default", "de7");
+        String audioEffects = "";
 
         if (args.length > 0) {
             File file = new File(args[0]);
@@ -960,7 +1015,7 @@ public class MaryClient {
         }
 
         try {
-            mc.process(sb.toString(), inputType, outputType, audioType, defaultVoiceName, System.out);
+            mc.process(sb.toString(), inputType, outputType, audioType, defaultVoiceName, audioEffects, System.out);
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
