@@ -93,6 +93,7 @@ public class MaryData {
 
     // for plainText, allow additional information:
     private Voice defaultVoice = null;
+    private String audioEffects = "";
 
     // The following XML I/O helpers are only initialised
     // if actually needed.
@@ -480,6 +481,15 @@ public class MaryData {
         return defaultVoice;
     }
     
+    public void setAudioEffects(String effects)
+    {
+        audioEffects = effects;
+    }
+    
+    public String getAudioEffects()
+    {
+        return audioEffects;
+    }
 
     /**
      * The audio file format is required only for data types serving as input

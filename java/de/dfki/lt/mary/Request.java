@@ -85,6 +85,7 @@ public class Request {
     private AudioFileFormat audioFileFormat;
     private AppendableSequenceAudioInputStream appendableAudioStream;
     private Voice defaultVoice;
+    private String audioEffects;
     private int id;
     private Logger logger;
     private MaryData inputData;
@@ -100,10 +101,10 @@ public class Request {
     public Request(MaryDataType inputType, MaryDataType outputType, Voice defaultVoice,
                    int id, AudioFileFormat audioFileFormat)
     {
-    	this(inputType, outputType, defaultVoice, id, audioFileFormat, false);
+    	this(inputType, outputType, defaultVoice, "", id, audioFileFormat, false);
     }
     
-    public Request(MaryDataType inputType, MaryDataType outputType, Voice defaultVoice,
+    public Request(MaryDataType inputType, MaryDataType outputType, Voice defaultVoice, String audioEffects,
             int id, AudioFileFormat audioFileFormat, boolean streamAudio)
     {
         if (!inputType.isInputType())
@@ -113,6 +114,7 @@ public class Request {
         this.inputType = inputType;
         this.outputType = outputType;
         this.defaultVoice = defaultVoice;
+        this.audioEffects = audioEffects;
         this.id = id;
         this.audioFileFormat = audioFileFormat;
         this.streamAudio = streamAudio;
@@ -152,6 +154,9 @@ public class Request {
     }
     public Voice getDefaultVoice() {
         return defaultVoice;
+    }
+    public String getAudioEffects() {
+        return audioEffects;
     }
     public int getId() {
         return id;
@@ -197,6 +202,8 @@ public class Request {
         if (inputData.getDefaultVoice() == null) {
             inputData.setDefaultVoice(defaultVoice);
         }
+        inputData.setAudioEffects(audioEffects);
+        
         this.inputData = inputData;
     }
 
@@ -220,6 +227,7 @@ public class Request {
         }
         assert defaultVoice != null;
         inputData.setDefaultVoice(defaultVoice);
+        inputData.setAudioEffects(audioEffects);
     }
 
     /**
@@ -268,6 +276,7 @@ public class Request {
             // in order to gradually enrich them:
             outputData.setDocument(rawmaryxml.getDocument());
             outputData.setDefaultVoice(defaultVoice);
+            outputData.setAudioEffects(audioEffects);
         }
         int len = inputDataList.getLength();
         for (int i=0; i<len && !abortRequested; i++) {
@@ -384,6 +393,8 @@ public class Request {
                 throw new NullPointerException("Module " + m.name() + " returned null. This should not happen.");
             }
             outData.setDefaultVoice(defaultVoice);
+            outData.setAudioEffects(audioEffects);
+            
             currentData = outData;
             long moduleStopTime = System.currentTimeMillis();
             long delta = moduleStopTime - moduleStartTime;
@@ -575,6 +586,7 @@ public class Request {
         MaryData md = new MaryData(maryxml.type());
         String rootLanguage = maryxml.getDocument().getDocumentElement().getAttribute("xml:lang");
         md.setDefaultVoice(maryxml.getDefaultVoice());
+        md.setAudioEffects(maryxml.getAudioEffects());
         Document newDoc = MaryXML.newDocument();
         md.setDocument(newDoc);
         Element newRoot = newDoc.getDocumentElement();
