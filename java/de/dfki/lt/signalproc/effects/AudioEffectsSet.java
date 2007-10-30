@@ -10,33 +10,34 @@ public class AudioEffectsSet {
     //Create an effect set from a string like "Whisper(amount=50.0),Robot,FIRFilter"
     public AudioEffectsSet(String strEffectSet)
     {
-        EffectsApplier ef = new EffectsApplier();
-        ef.parseEffectsAndParams(strEffectSet);
-        if (ef.audioEffects.length>0)
+        effects = null;
+        totalEffects = 0;
+        
+        if (strEffectSet!=null && strEffectSet!="")
         {
-            int ind = 0;
-            int i;
-            totalEffects = 0;
-            for (i=0; i<ef.audioEffects.length; i++)
+            EffectsApplier ef = new EffectsApplier();
+            ef.parseEffectsAndParams(strEffectSet);
+            if (ef.audioEffects.length>0)
             {
-                if (ef.audioEffects[i]!=null)
-                    totalEffects++;
+                int ind = 0;
+                int i;
+                totalEffects = 0;
+                for (i=0; i<ef.audioEffects.length; i++)
+                {
+                    if (ef.audioEffects[i]!=null)
+                        totalEffects++;
+                }
+
+                effects = new BaseAudioEffect[totalEffects];
+                for (i=0; i<ef.audioEffects.length; i++)
+                {
+                    if (ef.audioEffects[i]!=null)
+                        effects[ind++] = new BaseAudioEffect(ef.audioEffects[i]);
+                }
             }
-            
-            effects = new BaseAudioEffect[totalEffects];
-            for (i=0; i<ef.audioEffects.length; i++)
-            {
-                if (ef.audioEffects[i]!=null)
-                    effects[ind++] = new BaseAudioEffect(ef.audioEffects[i]);
-            }
-        }
-        else
-        {
-            effects = null;
-            totalEffects = 0;
         }
     }
-    
+
     //Create an effect set from a Vector array of Strings
     public AudioEffectsSet(Vector<String> effectSet)
     {
