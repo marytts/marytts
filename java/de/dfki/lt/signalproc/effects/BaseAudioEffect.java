@@ -1,6 +1,9 @@
 package de.dfki.lt.signalproc.effects;
 
 import java.io.File;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import javax.sound.sampled.AudioFileFormat;
@@ -8,6 +11,9 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
+import org.apache.tools.ant.util.StringUtils;
+
+import de.dfki.lt.mary.util.ClassUtils;
 import de.dfki.lt.mary.util.StringUtil;
 import de.dfki.lt.signalproc.process.FrameOverlapAddSource;
 import de.dfki.lt.signalproc.process.InlineDataProcessor;
@@ -28,20 +34,74 @@ public class BaseAudioEffect implements AudioEffect{
     public static int NULL_INT_PARAM = -100000;
     public static String NULL_STRING_PARAM = "";
     
-    String [] paramNames;
-    float [] paramVals;
-    static char chEquals = '=';
-    static char chSeparator = ';';
-    int fs;
+    public String strEffectName="";
+    public String strHelpText="";
+    public String strExampleParameters="";
+    
+    public String [] paramNames;
+    public float [] paramVals;
+    public String strParams; //To set the parameters using a String generated from outside
+    
+    
+    public static char chParamEquals = ':';
+    public static char chParamSeparator = ';';
+    public static char chEffectParamStart = '(';
+    public static char chEffectParamEnd = ')';
+    
+    public int fs;
+    
+    public BaseAudioEffect(BaseAudioEffect existing)
+    {
+        int i;
+        fs = existing.fs;
+        if (existing.paramNames!=null && existing.paramNames.length>0)
+        {
+            paramNames = new String[existing.paramNames.length];
+           
+            for (i=0; i<paramNames.length; i++)
+                paramNames[i] = existing.paramNames[i];
+        }
+        else
+            paramNames = null;  
+        
+        if (existing.paramVals!=null && existing.paramVals.length>0)
+        {
+            paramVals = new float[existing.paramVals.length];
+            
+            for (i=0; i<paramVals.length; i++)
+                paramVals[i] = existing.paramVals[i];
+        }
+        else
+            paramVals = null;
+        
+        strEffectName = existing.strEffectName;
+        strParams = existing.strParams;
+        strExampleParameters = existing.strExampleParameters;
+        strHelpText = existing.strHelpText;
+    }
     
     public BaseAudioEffect(int samplingRate)
     {
         fs = samplingRate;
+        parseParameters(getExampleParameters());
+    }
+    
+    public BaseAudioEffect(int samplingRate, String strParams)
+    {
+        fs = samplingRate;
+        parseParameters(strParams);
     }
    
+    public DoubleDataSource apply(DoubleDataSource input) 
+    {
+        return apply(input, strParams);
+    }
+    
     public DoubleDataSource apply(DoubleDataSource input, String param) 
     {
-        parseParameters(param);
+        strParams = param;
+        
+        parseParameters(strParams);
   
         return process(input);
     }
@@ -50,6 +110,26 @@ public class BaseAudioEffect implements AudioEffect{
     public DoubleDataSource process(DoubleDataSource input)
     {
         return input;
+    }
+    
+
+    public void setParams(String params)
+    {
+        String params2 = preprocessParams(params);
+                
+        parseParameters(params2);
+        
+        checkParameters();
+    }
+    
+    //Preprocess to replace "=" with chParamEquals and ";" with chParamSeparator
+    public String preprocessParams(String params)
+    {
+        String params2 = params;
+        params2 = StringUtils.replace(params2, "=", String.valueOf(chParamEquals));
+        params2 = StringUtils.replace(params2, ",", String.valueOf(chParamSeparator));
+        
+        return params2;
     }
     
     public void parseParameters(String param)
@@ -61,7 +141,7 @@ public class BaseAudioEffect implements AudioEffect{
             
             while (true)
             {
-                ind = param.indexOf(chEquals, ind+1);
+                ind = param.indexOf(chParamEquals, ind+1);
                 if (ind>-1)
                     count++;
                 else
@@ -83,8 +163,8 @@ public class BaseAudioEffect implements AudioEffect{
                 
                 for (int i=0; i<count; i++)
                 {
-                    ind1 = param.indexOf(chEquals, ind2+1);
-                    ind2 = param.indexOf(chSeparator, ind1+1);
+                    ind1 = param.indexOf(chParamEquals, ind2+1);
+                    ind2 = param.indexOf(chParamSeparator, ind1+1);
                     
                     if (ind1>-1)
                     { 
@@ -120,24 +200,85 @@ public class BaseAudioEffect implements AudioEffect{
                             break;
                     }
                 }
+                
+                strParams = this.getParamsAsString(false);
             }
         }
+    }
+    
+    //Perform parameter range controls in the derived classes
+    public void checkParameters()
+    {
+        
     }
     
     //Should return a string containing exemplar parameters in the following form:
     // "param1=1.2; param2=0.5; param3=5;" 
     public String getExampleParameters() {
-        return "";
+            return strExampleParameters;
     }
 
     //Should return a unique name for each derived effect class
     public String getName() {
-        return "";
+        return strEffectName;
+    }
+    
+    public void setName(String strName) {
+        strEffectName = strName;
+    }
+    
+    public void setExampleParameters(String strExampleParams) {
+        
+        strExampleParameters = strExampleParams;
+        
+        strExampleParameters = preprocessParams(strExampleParameters);
     }
 
     //Should return a help text explaining what the effect does and what parameters it has with information on the ranges of parameters
     public String getHelpText() {
-        return "";
+        return strHelpText;
+    }
+    
+    public String getParamsAsString()
+    {
+        return getParamsAsString(true);
+    }
+    
+    public String getParamsAsString(boolean bWithParantheses)
+    {
+        String strRet = "";
+        
+        if (paramNames!=null && paramNames.length>0)
+        {
+            if (bWithParantheses)
+                strRet += chEffectParamStart;
+            
+            for (int i=0; i<paramNames.length; i++)
+            {
+                strRet += paramNames[i] + chParamEquals + String.valueOf(paramVals[i]);
+                
+                if (i<paramNames.length-1)
+                    strRet += chParamSeparator;
+            }
+            
+            if (bWithParantheses)
+                strRet += chEffectParamEnd;
+        }
+        
+        return strRet;
+    }
+    
+    public String getFullEffectAsString()
+    {
+        return getName() + getParamsAsString(true);
+    }
+    
+    public String getFullEffectWithExampleParametersAsString()
+    {
+        if (strExampleParameters!=null && strExampleParameters!="")
+            return getName() + "(" + strExampleParameters + ")";
+        else
+            return getName();
     }
     
     public float expectFloatParameter(String strParamName)
@@ -199,8 +340,7 @@ public class BaseAudioEffect implements AudioEffect{
     
     public static void main(String[] args) throws Exception
     {
-        BaseAudioEffect b = new BaseAudioEffect(16000);
-        b.parseParameters("a1=1.1 ; a2 =2.02; a3= 3.003; a4  =  4.0004  ;a5=5.12345; a6= 6.6   ; a7=7.0a");
+        BaseAudioEffect b = new BaseAudioEffect(16000, "a1:1.1 ; a2 :2.02; a3: 3.003; a4  :  4.0004  ;a5:5.12345; a6: 6.6   ; a7:7.0a");
         
         for (int i=0; i<b.paramNames.length; i++)
             System.out.println(b.paramNames[i] + "=" + String.valueOf(b.paramVals[i]));

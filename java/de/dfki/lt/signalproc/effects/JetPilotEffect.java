@@ -1,10 +1,19 @@
 package de.dfki.lt.signalproc.effects;
 
-public class JetPilotEffect extends FilterEffectsBase {
+public class JetPilotEffect extends FilterEffectBase {
     
+    public JetPilotEffect()
+    {
+        this(16000);
+    }
+
     public JetPilotEffect(int samplingRate)
     {
         super(500.0, 2000.0, samplingRate, BANDPASS_FILTER);
+        
+        setExampleParameters("");
+        
+        strHelpText = getHelpText();
     }
     
 
