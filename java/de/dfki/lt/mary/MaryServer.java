@@ -120,9 +120,16 @@ import de.dfki.lt.mary.util.MaryAudioUtils;
  * by sending the server a line "MARY LIST VOICES", which will reply with
  * lines such as "de7 de female", "kevin16 en male" or "us2 en male". 
  * <p>
+ * The optional EFFECTS=EFFECTSWITHPARAMETERS specifies the audio effects
+ * to be applied as a post-processing step along with their parameters. 
+ * EFFECTSWITHPARAMETERS is a String of the form 
+ * "Effect1Name(Effect1Parameter1=Effect1Value1; Effect1Parameter2=Effect1Value2), Effect2Name(Effect2Parameter1=Effect2Value1)"
+ * For example, "Robot(amount=100),Whisper(amount=50)" will convert the output into 
+ * a whispered robotic voice with the specified amounts.
+ * <p>
  * Example: The line
  * <pre>
- *   MARY IN=TEXT_EN OUT=AUDIO AUDIO=WAVE VOICE=kevin16
+ *   MARY IN=TEXT_EN OUT=AUDIO AUDIO=WAVE VOICE=kevin16 EFFECTS
  * </pre>
  * will process normal ASCII text, and send back a WAV audio file
  * synthesised with the voice "kevin16".
@@ -333,10 +340,12 @@ public class MaryServer {
                 // upon failure, simply return nothing
                 outputWriter.println();
                 return true;
-            } else { 
+            } 
+            else if (inputLine.startsWith("MARY VOICE EXAMPLETEXT")) 
+            { 
                 //the request is about the example text of 
                 //a limited domain unit selection voice
-                if (inputLine.startsWith("MARY VOICE EXAMPLETEXT")) {
+
                 logger.debug("InfoRequest " + inputLine);
                 // send an example text for a given data type
                 StringTokenizer st = new StringTokenizer(inputLine);
@@ -355,9 +364,28 @@ public class MaryServer {
                 // upon failure, simply return nothing
                 outputWriter.println();
                 return true; 
-            } else {
-                return false;
             }
+            else 
+            {
+                if (inputLine.startsWith("MARY VOICE AUDIOEFFECTS"))
+                {   
+                    //the request is about the available audio effects
+                    logger.debug("InfoRequest " + inputLine);
+                    
+                    String audioEffectClass;
+                    
+                    for (Iterator it=MaryProperties.effectClasses().iterator(); it.hasNext();)
+                    {
+                        audioEffectClass = (String)it.next();
+                        outputWriter.println(audioEffectClass.trim());
+                    }
+
+                    // upon failure, simply return nothing
+                    outputWriter.println();
+                    return true;
+                }
+                else
+                    return false;
             }
         }
 
@@ -370,6 +398,7 @@ public class MaryServer {
                 MaryDataType inputType = null;
                 MaryDataType outputType = null;
                 Voice voice = null;
+                String effects = "";
                 AudioFileFormat.Type audioFileFormatType = null;
                 boolean streamingAudio = false;
 
@@ -438,6 +467,7 @@ public class MaryServer {
                         token = t.nextToken();
                         tokenConsumed = false;
                     }
+                    
                     // Optional VOICE field
                     if (!tokenConsumed) {
                         tt = new StringTokenizer(token, "=");
@@ -478,6 +508,27 @@ public class MaryServer {
                         token = t.nextToken();
                         tokenConsumed = false;
                     }
+                    
+                    //Optional EFFECTS field
+                    effects = "";
+                    if (!tokenConsumed) {
+                        tt = new StringTokenizer(token, "=");
+                        if (tt.countTokens()==2 && tt.nextToken().equals("EFFECTS")) {
+                            tokenConsumed = true;
+                            // the values of EFFECTS=
+                            effects = tt.nextToken();
+                        }
+                    }
+                    if (effects == "")
+                        logger.debug("No audio effects requested");
+                    else
+                        logger.debug("Audio effects requested: " + effects);
+                    
+                    if (tokenConsumed && t.hasMoreTokens()) {
+                        token = t.nextToken();
+                        tokenConsumed = false;
+                    }
+                    
                     // Optional LOG field
                     // If present, the rest of the line counts as the value of LOG=
                     if (!tokenConsumed) {
@@ -511,7 +562,7 @@ public class MaryServer {
                 }
                 audioFileFormat = new AudioFileFormat(audioFileFormatType, audioFormat, AudioSystem.NOT_SPECIFIED);
 
-                Request request = new Request(inputType, outputType, voice, id, audioFileFormat, streamingAudio);
+                Request request = new Request(inputType, outputType, voice, effects, id, audioFileFormat, streamingAudio);
                 outputWriter.println(id);
                 //   -- create new clientMap entry
                 Object[] value = new Object[2];
