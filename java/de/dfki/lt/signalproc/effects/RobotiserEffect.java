@@ -17,15 +17,19 @@ public class RobotiserEffect extends BaseAudioEffect {
     static float MAX_AMOUNT = 100.0f;
     static float MIN_AMOUNT = 0.0f;
     
+    public RobotiserEffect()
+    {
+        this(16000);
+    }
+    
     public RobotiserEffect(int samplingRate)
     {
         super(samplingRate);
-    }
-    
-    public String getExampleParameters() {
-        String strParam = "amount=100.0;";
         
-        return strParam;
+        //setExampleParameters("amount" + chEquals + "100.0" + chSeparator);
+        setExampleParameters("amount=100.0,");
+        
+        strHelpText = getHelpText();
     }
     
     public void parseParameters(String param)
@@ -48,7 +52,7 @@ public class RobotiserEffect extends BaseAudioEffect {
 
     public String getHelpText() {
         String strHelp = "Robotiser Effect:\n\n" +
-                         "Creates a robotic voice by setting all phases to zero in the signal.\n\n" +
+                         "Creates a robotic voice by setting all phases to zero.\n\n" +
         		         "Parameter:\n" +
         		         "   <amount>" +
         		         "   Definition : The amount of robotic voice at the output\n" +

@@ -30,11 +30,25 @@ public class ChorusEffectBase extends BaseAudioEffect {
     static double MIN_AMP = -5.0;
     static double MAX_AMP = 5.0;
     
+    public ChorusEffectBase()
+    {
+        this(16000);
+    }
+    
     public ChorusEffectBase(int samplingRate)
     {
         super(samplingRate);
+        
+        setExampleParameters("delay1" + chParamEquals + "466" + chParamSeparator + 
+                             " amp1" + chParamEquals + "0.54" + chParamSeparator +
+                             " delay2" + chParamEquals + "600" + chParamSeparator +
+                             " amp2" + chParamEquals + "-0.10" + chParamSeparator +
+                             " delay3" + chParamEquals + "250" + chParamSeparator +
+                             " amp3" + chParamEquals + "0.30");
+        
+        strHelpText = getHelpText();  
     }
-    
+
     public void parseChildParameters(String param)
     {
         super.parseParameters(param);
@@ -128,12 +142,6 @@ public class ChorusEffectBase extends BaseAudioEffect {
         FrameOverlapAddSource foas = new FrameOverlapAddSource(input, Window.HANN, true, 1024, fs, chorus);
         
         return new BufferedDoubleDataSource(foas);
-    }
-    
-    public String getExampleParameters() {
-        String strParam = "delay1=466; amp1=0.54; delay2=600; amp2=-0.10; delay3=250; amp3=0.30;";
-        
-        return strParam;
     }
 
     public String getHelpText() {

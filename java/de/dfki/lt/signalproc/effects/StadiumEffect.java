@@ -1,6 +1,12 @@
 package de.dfki.lt.signalproc.effects;
 
+import de.dfki.lt.signalproc.process.Chorus;
+import de.dfki.lt.signalproc.process.FrameOverlapAddSource;
+import de.dfki.lt.signalproc.process.Robotiser;
+import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
+import de.dfki.lt.signalproc.util.DoubleDataSource;
 import de.dfki.lt.signalproc.util.MathUtils;
+import de.dfki.lt.signalproc.window.Window;
 
 public class StadiumEffect extends ChorusEffectBase {
     
@@ -8,6 +14,11 @@ public class StadiumEffect extends ChorusEffectBase {
     static float DEFAULT_AMOUNT = 100.0f;
     static float MAX_AMOUNT = 200.0f;
     static float MIN_AMOUNT = 0.0f;
+    
+    public StadiumEffect()
+    {
+        this(16000);
+    }
     
     public StadiumEffect(int samplingRate)
     {
@@ -21,6 +32,10 @@ public class StadiumEffect extends ChorusEffectBase {
         amps[0] = 0.54;
         amps[1] = -0.10;
         
+        setExampleParameters("amount" + chParamEquals + "100.0");
+        
+        strHelpText = getHelpText();
+
         initialise();
     }
     
@@ -28,23 +43,20 @@ public class StadiumEffect extends ChorusEffectBase {
     {      
         super.parseChildParameters(param);
         
-        amount = expectFloatParameter("amount");
-        
-        if (amount == NULL_FLOAT_PARAM)
-            amount = DEFAULT_AMOUNT;
-        
-        amount = MathUtils.CheckLimits(amount, MIN_AMOUNT, MAX_AMOUNT);
-        
-        for (int i=0; i<delaysInMiliseconds.length; i++)
-            delaysInMiliseconds[i] = (int)(delaysInMiliseconds[i]*amount/100.0f);
+        if (param!="")
+        {
+            amount = expectFloatParameter("amount");
+
+            if (amount == NULL_FLOAT_PARAM)
+                amount = DEFAULT_AMOUNT;
+
+            amount = MathUtils.CheckLimits(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+            for (int i=0; i<delaysInMiliseconds.length; i++)
+                delaysInMiliseconds[i] = (int)(delaysInMiliseconds[i]*amount/100.0f);
+        }
         
         initialise();
-    }
-    
-    public String getExampleParameters() {
-        String strParam = "amount=100;";
-        
-        return strParam;
     }
 
     public String getHelpText() {

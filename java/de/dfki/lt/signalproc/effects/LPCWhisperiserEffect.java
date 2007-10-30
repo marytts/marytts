@@ -38,15 +38,18 @@ public class LPCWhisperiserEffect extends BaseAudioEffect {
     static float MAX_AMOUNT = 100.0f;
     static float MIN_AMOUNT = 0.0f;
     
+    public LPCWhisperiserEffect()
+    {
+        this(16000);
+    }
+    
     public LPCWhisperiserEffect(int samplingRate)
     {
         super(samplingRate);
-    }
-
-    public String getExampleParameters() {
-        String strParam = "amount=100.0;";
         
-        return strParam;
+        setExampleParameters("amount" + chParamEquals + "100.0" + chParamSeparator);
+        
+        strHelpText = getHelpText(); 
     }
     
     public void parseParameters(String param)

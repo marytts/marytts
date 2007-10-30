@@ -9,26 +9,76 @@ import de.dfki.lt.signalproc.process.VocalTractScalingProcessor;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
 import de.dfki.lt.signalproc.util.DDSAudioInputStream;
+import de.dfki.lt.signalproc.util.DoubleDataSource;
+import de.dfki.lt.signalproc.util.MathUtils;
 import de.dfki.lt.signalproc.util.SignalProcUtils;
 import de.dfki.lt.signalproc.window.Window;
 
 public class VocalTractLinearScalerEffect extends BaseAudioEffect {
     
+    float amount;
+    static float MAX_AMOUNT = 4.0f;
+    static float MIN_AMOUNT = 0.25f;
+    static float DEFAULT_AMOUNT = 1.5f;
+    
+    public VocalTractLinearScalerEffect()
+    {
+        this(16000);
+    }
+    
     public VocalTractLinearScalerEffect(int samplingRate)
     {
         super(samplingRate);
+        
+        setExampleParameters("amount" + chParamEquals + "1.5" + chParamSeparator);
+        
+        strHelpText = getHelpText();  
     }
     
-    public AudioInputStream apply(AudioInputStream inputAudio)
+    public void parseParameters(String param)
     {
-        double [] vscales = {1.5};
-        AudioFormat audioformat = inputAudio.getFormat();
-        int fs = (int)audioformat.getSampleRate();
-        AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
-        int frameLength = Integer.getInteger("signalproc.lpcanalysissynthesis.framelength", 512).intValue();
-        int predictionOrder = Integer.getInteger("signalproc.lpcwhisperiser.predictionorder", 20).intValue();
-        FrameOverlapAddSource foas = new FrameOverlapAddSource(signal, Window.HANN, true, frameLength, fs,
-                new VocalTractScalingProcessor(predictionOrder, fs, frameLength, vscales));
-        return new DDSAudioInputStream(new BufferedDoubleDataSource(foas), audioformat);
+        super.parseParameters(param);
+        
+        amount = expectFloatParameter("amount");
+        
+        if (amount == NULL_FLOAT_PARAM)
+            amount = DEFAULT_AMOUNT;
+    }
+    
+    public DoubleDataSource process(DoubleDataSource inputAudio)
+    {        
+        amount = MathUtils.CheckLimits(amount, MIN_AMOUNT, MAX_AMOUNT);
+        
+        double [] vscales = {amount};
+
+        int frameLength = SignalProcUtils.getDFTSize(fs);
+        int predictionOrder = SignalProcUtils.getLPOrder(fs);
+        
+        VocalTractScalingProcessor p = new VocalTractScalingProcessor(predictionOrder, fs, frameLength, vscales);
+        FrameOverlapAddSource foas = new FrameOverlapAddSource(inputAudio, Window.HANN, true, frameLength, fs, p);
+        
+        return new BufferedDoubleDataSource(foas);
+    }
+    
+    public String getHelpText() {
+        String strHelp = "Vocal Tract Linear Scaling Effect:\n\n" +
+                         "Creates a shortened or lengthened vocal tract effect by shifting the formants.\n\n" +
+                         "Parameter:\n" +
+                         "   <amount>" +
+                         "   Definition : The amount of formant shifting\n" +
+                         "   Range      : [" + String.valueOf(MIN_AMOUNT) + "," + String.valueOf(MAX_AMOUNT) + "]\n" +
+                         "   For values of <amount> less than 1.0, the formants are shifted to lower frequencies\n" +
+                         "       resulting in a longer vocal tract (i.e. a deeper voice).\n" +
+                         "   Values greater than 1.0 shift the formants to higher frequencies.\n" +
+                         "       The result is a shorter vocal tract.\n" +
+                         "\n" +
+                         "Example:\n" + 
+                         getExampleParameters();
+                        
+        return strHelp;
+    }
+
+    public String getName() {
+        return "TractScaler";
     }
 }

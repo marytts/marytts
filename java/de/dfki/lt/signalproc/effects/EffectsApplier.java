@@ -1,6 +1,9 @@
 package de.dfki.lt.signalproc.effects;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Vector;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -9,6 +12,8 @@ import javax.sound.sampled.AudioSystem;
 
 import org.apache.tools.ant.util.StringUtils;
 
+import de.dfki.lt.mary.MaryProperties;
+import de.dfki.lt.mary.modules.synthesis.WaveformSynthesizer;
 import de.dfki.lt.mary.util.StringUtil;
 import de.dfki.lt.signalproc.process.Chorus;
 import de.dfki.lt.signalproc.process.FrameOverlapAddSource;
@@ -21,10 +26,19 @@ import de.dfki.lt.signalproc.window.Window;
 
 public class EffectsApplier {
     public BaseAudioEffect [] audioEffects;
-    public String [] audioEffectsParams;
-    public static char chEffectSeparator = ',';
-    public static char chEffectParamStart = '(';
-    public static char chEffectParamEnd = ')';
+    public int [] optimumEffectIndices;
+    public static char chEffectSeparator = '+';
+    private ArrayList<String> optimumOrderedEffectNames;
+    
+    public EffectsApplier()
+    {
+         this(null);
+    }
+    
+    public EffectsApplier(Vector<String> optimumClassNames)
+    {
+         getOptimizedEffectOrdering(optimumClassNames);
+    }
     
     public AudioInputStream apply(AudioInputStream input, String param)
     {
@@ -37,22 +51,29 @@ public class EffectsApplier {
         
         if (audioEffects != null) //There are audio effects to apply
         {   
+            int index;
+            
             for (int i=0; i<audioEffects.length; i++)
             {
-                if (audioEffects[i]!=null)
+                if (optimumEffectIndices!=null && optimumEffectIndices[i]>=0 && optimumEffectIndices[i]<audioEffects.length)
+                    index = optimumEffectIndices[i];
+                else
+                    index = i;
+                
+                if (audioEffects[index]!=null)
                 {
                     if (bFirstEffect)
                     {
-                        if (audioEffects[i]!= null)
+                        if (audioEffects[index]!= null)
                         {
-                            tmpSignal = audioEffects[i].apply(signal, audioEffectsParams[i]);
+                            tmpSignal = audioEffects[index].apply(signal);
                             bFirstEffect = false;
                         }
                     }
                     else
                     {
-                        if (audioEffects[i]!= null)
-                            tmpSignal = audioEffects[i].apply(tmpSignal, audioEffectsParams[i]);
+                        if (audioEffects[index]!= null)
+                            tmpSignal = audioEffects[index].apply(tmpSignal);
                     }
                 }
             }
@@ -63,14 +84,13 @@ public class EffectsApplier {
             return input;
     }
     
+    //Extract effects and parameters and create the corresponding effects at a default sampling rate 
+    public void parseEffectsAndParams(String param)
+    {
+        parseEffectsAndParams(param, 16000);
+    }
+    
     //Extract effects and parameters and create the corresponding effects
-    // !!!TO DO!!!: Do the parsing in a more structured manner, i.e. by first determining the effect indices and then the corresponding parameters
-    //              Currently it is not possible to parse FIRFilter,Robot(amount=50) for example, 
-    //              as there is no way to understand whether the parameters belong to the first or the second effect
-    //              This problem can be solved by finding the index where each effect name starts and ends and then search for the corresponding parameters
-    //              of that effect up to the index where the successive effect begins
-    //              P.S.: Use StringUtil.find function for this kind of parsing.
-    //                    We have similar parsing in BaseAudioEffect.java also. It might need to be re-checked and made more robust
     public void parseEffectsAndParams(String param, int samplingRate)
     {
         param = StringUtil.deblank(param);
@@ -91,12 +111,14 @@ public class EffectsApplier {
 
         if (numEffects>0)
         {
-            audioEffects = new BaseAudioEffect[numEffects];
-            audioEffectsParams = new String[numEffects];
+            int totalNonEmptyEffects = 0;
+            String [] strEffectNames = new String[numEffects];
+            String [] strParamsAlls = new String[numEffects];
 
             String strEffectName, strParams;
             int [] paramInds;
-            for (int i=0; i<numEffects; i++)
+            int i;
+            for (i=0; i<numEffects; i++)
             {
                 if (i==0)
                 {
@@ -119,15 +141,20 @@ public class EffectsApplier {
 
                 if (strEffectName!=null && strEffectName!="")
                 {
-                    paramInds = StringUtil.find(strEffectName, chEffectParamStart);
+                    paramInds = StringUtil.find(strEffectName, BaseAudioEffect.chEffectParamStart);
                     if (paramInds!=null)
                     {
                         int stParam = MathUtils.max(paramInds);
-                        paramInds = StringUtil.find(strEffectName, chEffectParamEnd);
-                        int enParam = MathUtils.min(paramInds);
+                        paramInds = StringUtil.find(strEffectName, BaseAudioEffect.chEffectParamEnd);
+                        if (paramInds!=null)
+                        {
+                            int enParam = MathUtils.min(paramInds);
 
-                        strParams = strEffectName.substring(stParam+1, enParam);
-                        strParams = StringUtil.deblank(strParams);
+                            strParams = strEffectName.substring(stParam+1, enParam);
+                            strParams = StringUtil.deblank(strParams);
+                        }
+                        else
+                            strParams = "";
 
                         strEffectName = strEffectName.substring(0, stParam);
                         strEffectName = StringUtil.deblank(strEffectName);
@@ -138,14 +165,46 @@ public class EffectsApplier {
                 else
                     strParams = "";
 
-                audioEffects[i] = string2AudioEffect(strEffectName, samplingRate);
-                audioEffectsParams[i] = strParams;
+                if (strEffectName!=null && strEffectName!="")
+                {
+                    strEffectNames[i] = strEffectName;
+                    strParamsAlls[i] = strParams;
+                    totalNonEmptyEffects++;
+                }
             }
+            
+            int index = 0;
+            if (totalNonEmptyEffects>0)
+            {
+                audioEffects = new BaseAudioEffect[totalNonEmptyEffects];
+                for (i=0; i<numEffects; i++)
+                {
+                    if (isEffectAvailable(strEffectNames[i]))
+                    {
+                        if (index<totalNonEmptyEffects)
+                        {
+                            audioEffects[index] = string2AudioEffect(strEffectNames[i], samplingRate);
+                            audioEffects[index].setName(strEffectNames[i]);
+                            audioEffects[index].setParams(strParamsAlls[i]);
+                            index++;
+                        }
+                        else
+                            break;
+                    }
+                }
+
+                optimizeEffectsOrdering();
+            }
+            else
+            {
+                audioEffects = null;
+                optimumEffectIndices = null;
+            }   
         }
         else
         {
             audioEffects = null;
-            audioEffectsParams = null;
+            optimumEffectIndices = null;
         }
     }
     
@@ -158,24 +217,126 @@ public class EffectsApplier {
         else if (strEffectName.compareToIgnoreCase("Stadium")==0)
             return new StadiumEffect(samplingRate);
         else if (strEffectName.compareToIgnoreCase("FIRFilter")==0)
-            return new FilterEffectsBase(samplingRate);
+            return new FilterEffectBase(samplingRate);
         else if (strEffectName.compareToIgnoreCase("JetPilot")==0)
             return new JetPilotEffect(samplingRate);
         else if (strEffectName.compareToIgnoreCase("Whisper")==0)
             return new LPCWhisperiserEffect(samplingRate);
+        else if (strEffectName.compareToIgnoreCase("TractScaler")==0)
+            return new VocalTractLinearScalerEffect(samplingRate);
         else
             return null;
+    }
+    
+    //Check whether a desired effect is available in the optimum ordered list
+    //If there are no optimum ordered lists available, then the EffectsApplier object is constructed with the null constructor
+    //In this case, check if any audio effect is null before actually applying it 
+    public boolean isEffectAvailable(String effectName)
+    {
+        boolean returnVal = false;
+        
+        if (effectName!=null && effectName!="")
+        {
+            if (optimumOrderedEffectNames!=null)
+            { 
+                for (Iterator it=optimumOrderedEffectNames.iterator(); it.hasNext();)
+                {
+                    if (effectName.compareToIgnoreCase((String)it.next())==0)
+                    {
+                        returnVal = true;
+                        break;
+                    }
+                }
+            }
+            else
+                returnVal = true;
+        }
+        
+       return returnVal;
+    }
+    
+    //Get optimized effect ordering from marybase.config in case of multiple effects being applied one after another
+    //The "optimal" ordering should be determined by testing and the audioeffects.classes.list entry in marybase.config 
+    // should be arranged in the same order
+    public void getOptimizedEffectOrdering(Vector<String> optimumClassNames)
+    {
+        //Get optimal ordering from .config file
+        if (optimumClassNames!=null && optimumClassNames.size()>0)
+        {
+            String effectClassName;
+            optimumOrderedEffectNames = new ArrayList<String>();
+            
+            for (Iterator it = optimumClassNames.iterator(); it.hasNext();) 
+            {
+                effectClassName = (String)it.next();
+                BaseAudioEffect ae = null;
+                try {
+                    ae = (BaseAudioEffect)Class.forName(effectClassName).newInstance();
+                } catch (InstantiationException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                
+                if (ae!=null)
+                    optimumOrderedEffectNames.add(ae.getName());
+                else
+                    optimumOrderedEffectNames.add(effectClassName);
+            }
+        }
+        else
+            optimumOrderedEffectNames = null;
+    }
+    
+    //In case of multiple effects, use a pre-determined order to sort the effects in order to minimize distortion
+    //  when applying effects consecutively. 
+    // This ordering should be the one given "audioeffects.classes.list" in "marybase.config"
+    public void optimizeEffectsOrdering()
+    {
+        if (optimumOrderedEffectNames!=null && optimumOrderedEffectNames.size()>0 && audioEffects!=null && audioEffects.length>0)
+        {
+            optimumEffectIndices = new int[audioEffects.length];
+            int index = -1;
+            int i;
+            boolean bBroke = false;
+            String tmpName;
+            for (Iterator it = optimumOrderedEffectNames.iterator(); it.hasNext();)
+            {
+                tmpName = (String)it.next();
+                for (i=0; i<audioEffects.length; i++)
+                {
+                    if (audioEffects[i].getName()==tmpName)
+                    {
+                        index++;
+                        if (index>audioEffects.length-1)
+                        {
+                            bBroke=true;
+                            break;
+                        }
+                        else
+                            optimumEffectIndices[index] = i;
+                    }
+                }
+            }
+        }
+        else
+            optimumEffectIndices = null;
     }
     
     public static void main(String[] args) throws Exception
     {   
         EffectsApplier e = new EffectsApplier();
         
-        //String strEffectsAndParams = "Robot(amount=50)";
-        //String strEffectsAndParams = "Robot(amount=100), Chorus(delay1=866; amp1=0.24; delay2=300; amp2=-0.40;)";
-        //String strEffectsAndParams = "Robot(amount=80), Stadium(amount=50)";
-        //String strEffectsAndParams = "FIRFilter(type=3;fc1=6000; fc2=10000), Robot";
-        String strEffectsAndParams = "Stadium(amount=40), Robot(amount=87), Whisper(amount=65), FIRFilter(type=1;fc1=1540;),,,,; ";
+        String strEffectsAndParams = "FIRFilter+Robot(amount=50)";
+        //String strEffectsAndParams = "Robot(amount=100)+Chorus(delay1=866, amp1=0.24, delay2=300, amp2=-0.40,)";
+        //String strEffectsAndParams = "Robot(amount=80)+Stadium(amount=50)";
+        //String strEffectsAndParams = "FIRFilter(type=3,fc1=6000, fc2=10000) + Robot";
+        //String strEffectsAndParams = "Stadium(amount=40) + Robot(amount=87) + Whisper(amount=65)+FIRFilter(type=1,fc1=1540;)++";
         
         AudioInputStream input = AudioSystem.getAudioInputStream(new File(args[0]));
 
