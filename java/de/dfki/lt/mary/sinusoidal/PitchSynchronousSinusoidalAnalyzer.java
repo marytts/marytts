@@ -238,7 +238,12 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         //Extract sinusoidal tracks
         TrackGenerator tg = new TrackGenerator();
         SinusoidalTracks sinTracks = tg.generateTracksFreqOnly(framesSins2, times2, deltaInHz, fs);
-        sinTracks.getTrackStatistics();
+        
+        if (sinTracks!=null)
+        {
+            sinTracks.getTrackStatistics();
+            getGrossStatistics(sinTracks);
+        }
         
         return sinTracks;
     }
