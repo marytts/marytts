@@ -71,7 +71,8 @@ public class MaryProperties
     private static boolean logToFile = false;
     private static Vector<String> moduleClasses = new Vector<String>();
     private static Vector<String> synthClasses = new Vector<String>();
-    
+    private static Vector<String> audioEffectClasses = new Vector<String>();
+
     private static Map<Locale,String> locale2prefix = new HashMap<Locale,String>();
     
     private static Object[] localSchemas;
@@ -84,6 +85,8 @@ public class MaryProperties
     public static Vector<String> moduleClasses() { return moduleClasses; }
     /** Names of the classes to use as waveform synthesizers. */
     public static Vector<String> synthesizerClasses() { return synthClasses; }
+    /** Names of the classes to use as audio effects. */
+    public static Vector<String> effectClasses() { return audioEffectClasses; }
     /** An Object[] containing File objects referencing local Schema files */
     public static Object[] localSchemas() { return localSchemas; }
     
@@ -178,7 +181,6 @@ public class MaryProperties
             while (st.hasMoreTokens()) {
                 ignoreModuleClasses.add(st.nextToken());
             }
-            
         }
         
         helperString = needProperty("modules.classes.list");
@@ -195,6 +197,13 @@ public class MaryProperties
         st = new StringTokenizer(helperString, ", \t\n\r\f");
         while (st.hasMoreTokens()) {
             synthClasses.add(st.nextToken());
+        }
+
+        helperString = getProperty("audioeffects.classes.list");
+        // allow whitespace and comma as list delimiters
+        st = new StringTokenizer(helperString, ", \t\n\r\f");
+        while (st.hasMoreTokens()) {
+            audioEffectClasses.add(st.nextToken());
         }
 
         helperString = getProperty("schema.local");
