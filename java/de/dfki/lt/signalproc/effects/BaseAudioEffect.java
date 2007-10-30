@@ -13,7 +13,6 @@ import javax.sound.sampled.AudioSystem;
 
 import org.apache.tools.ant.util.StringUtils;
 
-import de.dfki.lt.mary.util.ClassUtils;
 import de.dfki.lt.mary.util.StringUtil;
 import de.dfki.lt.signalproc.process.FrameOverlapAddSource;
 import de.dfki.lt.signalproc.process.InlineDataProcessor;
