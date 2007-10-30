@@ -175,7 +175,8 @@ public class Synthesis extends InternalModule
                 }
             } else if (v != currentVoiceElement 
                     || !v.getAttribute("style").equals(currentStyle)
-                    || !v.getAttribute("effect").equals(currentEffect)) {
+                    || !d.getAudioEffects().equals(currentEffect)) {
+                    //|| !v.getAttribute("effect").equals(currentEffect)) {
                 // We have just entered a new voice section
                 if (!elements.isEmpty()) {
                     AudioInputStream ais = synthesizeOneSection
@@ -190,7 +191,8 @@ public class Synthesis extends InternalModule
                     currentVoice = newVoice;
                 }
                 currentStyle = v.getAttribute("style");
-                currentEffect = v.getAttribute("effect");
+                //currentEffect = v.getAttribute("effect");
+                currentEffect = d.getAudioEffects();
                 currentVoiceElement = v;
             }
             elements.add(element);
@@ -213,8 +215,8 @@ public class Synthesis extends InternalModule
     private AudioInputStream synthesizeOneSection
         (List<Element> tokensAndBoundaries, Voice voice, String currentStyle, String currentEffect, AudioFormat targetFormat)
     throws SynthesisException, UnsupportedAudioFileException
-    {
-        EffectsApplier ef = new EffectsApplier();
+    {            
+        EffectsApplier ef = new EffectsApplier(MaryProperties.effectClasses());
         
         AudioInputStream ais = null;
         ais = voice.synthesize(tokensAndBoundaries);
