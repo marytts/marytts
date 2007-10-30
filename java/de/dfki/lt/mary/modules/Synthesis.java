@@ -83,13 +83,13 @@ public class Synthesis extends InternalModule
 
     private void startupSynthesizers()
         throws ClassNotFoundException, InstantiationException, Exception
-    {
-       waveformSynthesizers = new ArrayList();
+   {
+        waveformSynthesizers = new ArrayList();
         for (Iterator it = MaryProperties.synthesizerClasses().iterator();
-             it.hasNext(); ) {
+        it.hasNext(); ) {
             String synthClassName = (String)it.next();
             WaveformSynthesizer ws = (WaveformSynthesizer)
-                Class.forName(synthClassName).newInstance();
+            Class.forName(synthClassName).newInstance();
             ws.startup();
             waveformSynthesizers.add(ws);
         }
