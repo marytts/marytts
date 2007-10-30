@@ -28,7 +28,7 @@
  */
 package de.dfki.lt.mary.client;
 
-// General Java Classes
+//General Java Classes
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -55,6 +55,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -67,6 +68,7 @@ import java.util.Vector;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioSystem;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -76,11 +78,13 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
+import javax.swing.border.Border;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
@@ -93,7 +97,11 @@ import org.incava.util.diff.Difference;
 import com.sun.speech.freetts.audio.AudioPlayer;
 import com.sun.speech.freetts.audio.JavaStreamingAudioPlayer;
 
+import de.dfki.lt.mary.client.MaryClient.Voice;
 import de.dfki.lt.mary.util.MaryUtils;
+import de.dfki.lt.signalproc.effects.AudioEffectsSet;
+import de.dfki.lt.signalproc.effects.BaseAudioEffect;
+import de.dfki.lt.signalproc.effects.EffectsApplier;
 
 
 
@@ -109,6 +117,7 @@ public class MaryGUIClient extends JPanel
 
     /* -------------------- GUI stuff -------------------- */
 
+    private Dimension paneDimension;
     // Input
     private JPanel inputTypePanel;
     private JComboBox cbInputType;
@@ -135,12 +144,21 @@ public class MaryGUIClient extends JPanel
     private JButton bPlay;
     private JPanel savePanel;
 
+    //Audio effects
+    private boolean isButtonHide = true;
+    private boolean showingAudioEffects = false;
+    private JPanel showHidePanel;
+    private JButton showHideEffects;
+    private AudioEffectsSet audioEffectSet;
+    private JList effectsList;
+    private MaryAudioEffectsBox effectsBox;
+    //
+
     // Processing Buttons
     private JPanel buttonPanel;
     private JButton bProcess;
     private JButton bEdit;
     private JButton bCompare;
-    
 
     static JFrame mainFrame;
     static JApplet mainApplet;
@@ -155,9 +173,12 @@ public class MaryGUIClient extends JPanel
     private boolean allowSave;
     private boolean streamMp3 = false;
     private MaryClient.Voice prevVoice = null;
-    
+
     //Map of limited Domain Voices and their example Texts
     private Map limDomVoices = new HashMap();
+    
+    //Map of voices and their audio effects
+    private Map voices = new HashMap();
 
     static FocusTraversalPolicy maryGUITraversal;
 
@@ -221,16 +242,18 @@ public class MaryGUIClient extends JPanel
      * and initialise the GUI.
      */
     public void init() throws IOException, UnknownHostException {
-    
-	maryGUITraversal = new MaryGUIFocusTraversalPolicy();
-	//if this is a normal gui
-	if (mainFrame != null){
-	    mainFrame.setFocusTraversalPolicy(maryGUITraversal);
-	} else { //this is an applet
-	    mainApplet.setFocusTraversalPolicy(maryGUITraversal);
-	}
 
-        Dimension paneDimension = new Dimension(250,400);
+        maryGUITraversal = new MaryGUIFocusTraversalPolicy();
+        //if this is a normal gui
+        if (mainFrame != null){
+            mainFrame.setFocusTraversalPolicy(maryGUITraversal);
+        } else { //this is an applet
+            mainApplet.setFocusTraversalPolicy(maryGUITraversal);
+        }
+
+        audioEffectSet = null;
+        
+        paneDimension = new Dimension(250,400);
         // Layout
         GridBagLayout gridBagLayout = new GridBagLayout();
         GridBagConstraints gridC = new GridBagConstraints();
@@ -259,9 +282,9 @@ public class MaryGUIClient extends JPanel
         assert outputTypes.size() > 0;
         cbInputType = new JComboBox( inputTypes );
         cbInputType.setName("Input Type");
-	cbInputType.getAccessibleContext().setAccessibleName("Input Type selection");
+        cbInputType.getAccessibleContext().setAccessibleName("Input Type selection");
         cbInputType.setToolTipText( "Specify the type of data contained " +
-                                    "in the input text area below." );
+        "in the input text area below." );
         cbInputType.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -303,51 +326,53 @@ public class MaryGUIClient extends JPanel
         gridC.ipady = 0;
         gridC.fill = GridBagConstraints.NONE;
         inputText = new JTextPane();
-	
-	inputText.getAccessibleContext().setAccessibleName("Input Text Area");
-	
-	//Set Tab and Shift-Tab for Keyboard movement
+
+        inputText.getAccessibleContext().setAccessibleName("Input Text Area");
+
+        //Set Tab and Shift-Tab for Keyboard movement
         Set forwardKeys = new HashSet();
         forwardKeys.add(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0, false));
         inputText.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,forwardKeys);
         Set backwardKeys = new HashSet();
         backwardKeys.add(KeyStroke.getKeyStroke(KeyEvent.VK_TAB,KeyEvent.SHIFT_MASK+KeyEvent.SHIFT_DOWN_MASK, false));
         inputText.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS,backwardKeys);
-	
+
         inputScrollPane = new JScrollPane(inputText);
         inputPanel.add(inputScrollPane);
         inputScrollPane.setPreferredSize(new Dimension(inputPanel.getPreferredSize().width, 1000));
         //example text for limDom voices
         cbVoiceExampleText = new JComboBox();
-	cbVoiceExampleText.setName("Example Text");
-	cbVoiceExampleText.getAccessibleContext().setAccessibleName("Example text selection");
+        cbVoiceExampleText.setName("Example Text");
+        cbVoiceExampleText.getAccessibleContext().setAccessibleName("Example text selection");
         cbVoiceExampleText.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     if (doReplaceInput
-                    		&& ((MaryClient.DataType)cbInputType.getSelectedItem()).name().startsWith("TEXT"))
+                            && ((MaryClient.DataType)cbInputType.getSelectedItem()).name().startsWith("TEXT"))
                         setInputText((String)cbVoiceExampleText.getSelectedItem());
                 }
             }
         });
         cbVoiceExampleText.setPreferredSize(new Dimension(inputPanel.getPreferredSize().width, 25));
         inputPanel.add(cbVoiceExampleText);
-        
+
         // Select voice
         voicePanel = new JPanel();
         voicePanel.setLayout(new FlowLayout(FlowLayout.LEADING));
         gridC.gridx = 0;
         gridC.gridy = 4;
         gridC.gridwidth = 4;
+        gridC.gridheight = 2;
         gridC.fill = GridBagConstraints.HORIZONTAL;
         gridBagLayout.setConstraints( voicePanel, gridC );
         add( voicePanel );
         gridC.gridwidth = 1;
+        gridC.gridheight = 1;
         JLabel voiceLabel = new JLabel("Voice:");
         voicePanel.add( voiceLabel );
         cbDefaultVoice = new JComboBox();
-	cbDefaultVoice.setName("Voice selection");
-	cbDefaultVoice.getAccessibleContext().setAccessibleName("Voice selection");
+        cbDefaultVoice.setName("Voice selection");
+        cbDefaultVoice.getAccessibleContext().setAccessibleName("Voice selection");
         voicePanel.add( cbDefaultVoice );
         cbDefaultVoice.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
@@ -357,11 +382,12 @@ public class MaryGUIClient extends JPanel
                     MaryClient.Voice voice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
                     MaryClient.DataType dataType = (MaryClient.DataType)cbInputType.getSelectedItem(); 
                     if (doReplaceInput
-                        && (voice.isLimitedDomain() && dataType.name().startsWith("TEXT")
-                    	    || getPrevVoice() == null
-                    	    || !getPrevVoice().getLocale().equals(voice.getLocale())))
+                            && (voice.isLimitedDomain() && dataType.name().startsWith("TEXT")
+                                    || getPrevVoice() == null
+                                    || !getPrevVoice().getLocale().equals(voice.getLocale())))
                         setExampleInputText();
                     setPrevVoice(voice);
+                    setAudioEffects(voice);
                 }
             }
         });
@@ -392,8 +418,8 @@ public class MaryGUIClient extends JPanel
         add( buttonPanel );
         bProcess = new JButton( "Process ->" );
         bProcess.setToolTipText( "Call the Mary Server." +
-                                 "The input will be transformed into the specified output type." );
-	bProcess.getAccessibleContext().setAccessibleName("Process button");
+        "The input will be transformed into the specified output type." );
+        bProcess.getAccessibleContext().setAccessibleName("Process button");
         bProcess.setActionCommand( "process" );
         bProcess.setMnemonic('P');
         bProcess.addActionListener(new ActionListener() {
@@ -409,8 +435,8 @@ public class MaryGUIClient extends JPanel
 
         bEdit = new JButton( "<- Edit" );
         bEdit.setToolTipText( "Edit the content of the output text area as the new input." +
-                              " The current content of the input text area will be discarded." );
-	bEdit.getAccessibleContext().setAccessibleName("Edit button");
+        " The current content of the input text area will be discarded." );
+        bEdit.getAccessibleContext().setAccessibleName("Edit button");
         bEdit.setActionCommand( "edit" );
         bEdit.setMnemonic('E');
         bEdit.addActionListener(new ActionListener() {
@@ -425,8 +451,8 @@ public class MaryGUIClient extends JPanel
 
         bCompare = new JButton( "<- Compare ->" );
         bCompare.setToolTipText( "Compare input and output" +
-                               "(available only if both are MaryXML types)." );
-	bCompare.getAccessibleContext().setAccessibleName("Compare button");
+            "(available only if both are MaryXML types)." );
+        bCompare.getAccessibleContext().setAccessibleName("Compare button");
         bCompare.setActionCommand( "compare" );
         bCompare.setMnemonic('C');
         bCompare.addActionListener(new ActionListener() {
@@ -447,21 +473,24 @@ public class MaryGUIClient extends JPanel
         gridC.gridx = 4;
         gridC.gridy = 0;
         gridC.gridwidth = 3;
+        gridC.gridheight = 1;
+        gridC.ipady = 10;
         gridC.fill = GridBagConstraints.HORIZONTAL;
         gridBagLayout.setConstraints( outputTypePanel, gridC );
         add( outputTypePanel );
+        gridC.ipady = 0;
         gridC.gridwidth = 1;
         JLabel outputTypeLabel = new JLabel( "Output Type: " );
         outputTypePanel.add( outputTypeLabel );
         cbOutputType = new JComboBox();
-	cbOutputType.setName("Output type");
-	cbOutputType.getAccessibleContext().setAccessibleName("Output type selection");
+        cbOutputType.setName("Output type");
+        cbOutputType.getAccessibleContext().setAccessibleName("Output type selection");
         setOutputTypeItems();
         // The last possible output type (= audio) is the default
         // output type:
         cbOutputType.setSelectedIndex(cbOutputType.getItemCount() - 1);
         cbOutputType.setToolTipText( "Specify the output type for the next " +
-                                     "processing action (Process button)." );
+        "processing action (Process button)." );
         cbOutputType.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -479,12 +508,12 @@ public class MaryGUIClient extends JPanel
         else
             showingTextOutput = false;
         outputText = new JTextPane();
-	outputText.getAccessibleContext().setAccessibleName("Output text");
+        outputText.getAccessibleContext().setAccessibleName("Output text");
 
         //set tab and shift-tab for keyboard movement
         outputText.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,forwardKeys);
         outputText.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS,backwardKeys);
-	
+
         //        outputText.setLineWrap(false);
         outputText.setEditable(false);
         outputScrollPane = new JScrollPane(outputText);
@@ -503,6 +532,74 @@ public class MaryGUIClient extends JPanel
         if (!showingTextOutput)
             outputScrollPane.setVisible(false);
         add( outputScrollPane );
+       
+        //Audio effects
+        MaryClient.Voice voice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
+        setAudioEffects(voice);
+        
+        isButtonHide = false;
+        if (audioEffectSet!=null)
+        {
+            showAudioEffects(gridBagLayout, gridC);
+
+            if (effectsBox.mainPanel!=null)
+            {
+                showHidePanel = new JPanel();
+                showHidePanel.setPreferredSize(paneDimension);
+                showHidePanel.setLayout( new BoxLayout(showHidePanel, BoxLayout.Y_AXIS) );
+                if (!showingTextOutput)
+                {
+                    showHideEffects = new JButton("Hide Effects");
+                    isButtonHide = true;
+                }
+                else
+                {
+                    showHideEffects = new JButton("Show Effects");
+                    isButtonHide = false;
+                }
+
+                showHideEffects.setToolTipText( "Hide or show available audio effects for post-processing the TTS output" );
+                showHideEffects.getAccessibleContext().setAccessibleName("Hide/Show audio effects button");
+
+                showHideEffects.addActionListener( new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        showHideEffectAction();
+                    }
+                });
+            
+                showHidePanel.add(Box.createVerticalGlue());
+                showHidePanel.add(showHideEffects);
+                showHidePanel.add(Box.createVerticalGlue());
+                showHideEffects.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+                gridC.gridx = 4;
+                if (!showingTextOutput)
+                    gridC.gridy = 4;
+                else
+                    gridC.gridy = 3;
+                    
+                gridC.gridwidth = 3;
+                gridC.gridheight = 1;
+                gridC.ipady = 10;
+                gridC.fill = GridBagConstraints.BOTH;
+                gridBagLayout.setConstraints(showHidePanel, gridC);
+                add(showHidePanel);
+                gridC.ipady = 0;
+                
+                if (effectsBox.mainPanel!=null && !showingTextOutput && isButtonHide)
+                {
+                    effectsBox.mainPanel.setVisible(true);
+                    showingAudioEffects = true;
+                }
+                else
+                {
+                    effectsBox.mainPanel.setVisible(false);
+                    showingAudioEffects = false;
+                }
+            }
+        }   
+        //
+        
         gridC.gridwidth = 1;
         gridC.gridheight = 1;
         gridC.weightx = 0.1;
@@ -510,13 +607,14 @@ public class MaryGUIClient extends JPanel
         gridC.ipadx = 0;
         gridC.ipady = 0;
         gridC.fill = GridBagConstraints.NONE;
+        
         // Overlapping location: Audio play button
         audioPanel = new JPanel();
         audioPanel.setPreferredSize(paneDimension);
         audioPanel.setLayout( new BoxLayout(audioPanel, BoxLayout.Y_AXIS) );
         bPlay = new JButton( "Play" );
         bPlay.setToolTipText( "Synthesize and play the resulting audio stream." );
-	bPlay.getAccessibleContext().setAccessibleName("Play button");
+        bPlay.getAccessibleContext().setAccessibleName("Play button");
         bPlay.setActionCommand( "play" );
         bPlay.setMnemonic('P');
         bPlay.addActionListener( new ActionListener() {
@@ -528,7 +626,6 @@ public class MaryGUIClient extends JPanel
                 } else {
                     processInput();
                 }
-
             }
         });
         audioPanel.add(Box.createVerticalGlue());
@@ -536,31 +633,41 @@ public class MaryGUIClient extends JPanel
         audioPanel.add(Box.createVerticalGlue());
         bPlay.setAlignmentX(Component.CENTER_ALIGNMENT);
         //bPlay.setMaximumSize(bPlay.getPreferredSize());
+
         if (showingTextOutput)
             audioPanel.setVisible(false);
         gridC.gridx = 4;
-        gridC.gridy = 1;
+        if (showingAudioEffects)
+            gridC.gridy = 5;
+        else
+            gridC.gridy = 4;
         gridC.gridwidth = 3;
-        gridC.gridheight = 3;
+        gridC.gridheight = 1;
+        gridC.ipady = 10;
         gridC.fill = GridBagConstraints.BOTH;
-        gridBagLayout.setConstraints( audioPanel, gridC );
+        gridBagLayout.setConstraints(audioPanel, gridC);
         add( audioPanel );
         gridC.gridwidth = 1;
-
+        gridC.ipady = 0;
 
         // Output Save button        
         if (allowSave) {
             savePanel = new JPanel();
             savePanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
             gridC.gridx = 4;
-            gridC.gridy = 4;
+            gridC.ipady = 10;
+            if (showingAudioEffects)
+                gridC.gridy = 6;
+            else
+                gridC.gridy = 5;
+            
             gridC.fill = GridBagConstraints.HORIZONTAL;
             gridBagLayout.setConstraints( savePanel, gridC );
             add(savePanel);
             ImageIcon saveIcon = new ImageIcon("save.gif");
             bSaveOutput = new JButton( "Save...", saveIcon );
             bSaveOutput.setToolTipText( "Save the output as a file." );
-	    bSaveOutput.getAccessibleContext().setAccessibleName("Save Output button");
+            bSaveOutput.getAccessibleContext().setAccessibleName("Save Output button");
             bSaveOutput.setActionCommand( "saveOutput" );
             bSaveOutput.setMnemonic('S');
             bSaveOutput.addActionListener(new ActionListener() {
@@ -569,43 +676,177 @@ public class MaryGUIClient extends JPanel
                 }
             });
             savePanel.add( bSaveOutput );
+            gridC.ipady = 0;
         }
         setPreferredSize(new Dimension(720,480));
 
         verifyEnableButtons();
         cbInputType.requestFocusInWindow();
     }
+    
+    private void setAudioEffects(Voice voice)
+    {
+        String availableAudioEffects = "";
+        try {
+            availableAudioEffects = processor.getAudioEffects(voice.name());
+        } catch (UnknownHostException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        String strAudioEffects = "";
+        String effectClassName; 
+        StringTokenizer st = new StringTokenizer(availableAudioEffects, "\n");
 
+        boolean bFirst = true;
+        while (st.hasMoreTokens())
+        {
+            effectClassName = (String)st.nextToken();
+            effectClassName = effectClassName.trim();
+            BaseAudioEffect ae = null;
+            try {
+                ae = (BaseAudioEffect)Class.forName(effectClassName).newInstance();
+            } catch (InstantiationException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            
+            if (ae!=null)
+            {   
+                if (!bFirst)
+                    strAudioEffects += EffectsApplier.chEffectSeparator + ae.getFullEffectWithExampleParametersAsString();
+                else
+                {
+                    strAudioEffects += ae.getFullEffectWithExampleParametersAsString();
+                    bFirst=false;
+                }
+            }     
+        }
+
+        audioEffectSet = new AudioEffectsSet(strAudioEffects);
+    }
+    
+    private void showHideEffectAction()
+    {
+        if (isButtonHide)
+        {
+            if (effectsBox.mainPanel!=null)
+                effectsBox.mainPanel.setVisible(false);
+            
+            showHideEffects.setText("Show Effects");
+            isButtonHide = false;
+            showingAudioEffects = false;
+        }
+        else
+        {
+            if (effectsBox.mainPanel!=null)
+                effectsBox.mainPanel.setVisible(true);
+            
+            showHideEffects.setText("Hide Effects");
+            isButtonHide = true;
+            showingAudioEffects = true;
+        }
+    }
+    
+    //If there are any effects available for the selected voice
+    // update audio effects box accordingly
+    private void showAudioEffects(GridBagLayout g, GridBagConstraints c)
+    {
+        //Overlapping location: Audio effects box
+        //Initialize the effects here (normally using info from the server)
+        if (audioEffectSet!=null && audioEffectSet.totalEffects>0)
+        {
+            effectsBox = new MaryAudioEffectsBox(audioEffectSet.getEffectNames(), audioEffectSet.getExampleParams(), audioEffectSet.getHelpTexts());
+            if (effectsBox != null)
+            {  
+                c.gridx = 4;
+                c.gridy = 1;
+                c.gridwidth = 3;
+                c.gridheight = 3;
+                c.weightx = 0.1;
+                c.weighty = 0.1;
+                c.ipadx = 0;
+                c.ipady = 0;
+                add(effectsBox.mainPanel, c);
+                effectsBox.show();
+            }
+        }
+        //
+    }
+
+    //Create a single String parameter by reading the selected ffect parameters in the interface
+    //If no effect is selected or the effects are not being shown, an empty String is returned
+    private String getAudioEffectsAsString()
+    {
+        String strParams = "";
+        String strTmpParam;
+        
+        if (isButtonHide)
+        {         
+            boolean bFirst = true;
+            for (int i=0; i<audioEffectSet.totalEffects; i++)
+            {
+                if (effectsBox.effectControls[i].chkEnabled.isSelected())
+                {
+                    audioEffectSet.effects[i].setParams(effectsBox.effectControls[i].txtParams.getText());
+                    
+                    effectsBox.effectControls[i].txtParams.setText(audioEffectSet.effects[i].getParamsAsString(false));
+                    
+                    strTmpParam = audioEffectSet.effects[i].getFullEffectAsString();
+                    
+                    if (!bFirst)
+                        strParams += EffectsApplier.chEffectSeparator + strTmpParam;
+                    else
+                    {
+                        strParams += strTmpParam;
+                        bFirst = false;
+                    }
+                }
+            }
+        }
+        
+        return strParams;
+    }
+    
     private void setExampleInputText()
     {
 
         MaryClient.Voice defaultVoice = (MaryClient.Voice) cbDefaultVoice.getSelectedItem();
         MaryClient.DataType inputType = (MaryClient.DataType) cbInputType.getSelectedItem();
-    	if (defaultVoice.isLimitedDomain() && inputType.name().startsWith("TEXT")) {
+        if (defaultVoice.isLimitedDomain() && inputType.name().startsWith("TEXT")) {
             setInputText((String) cbVoiceExampleText.getSelectedItem());
         } else {
             try {
-            	String key = inputType.name();
-            	String exampleText;
-            	if (inputType.getLocale() == null) {
-            		// for data types without locale, test if we can get example text.
-            		// If not, try to get example text with voice locale.
-            		try {
-            			exampleText = processor.getServerExampleText(key);
-            		} catch (IOException err) {
-                		key = inputType.name() + "_" + defaultVoice.getLocale().getLanguage().toUpperCase();
-                		exampleText = processor.getServerExampleText(key);
-            		}
-            	} else {
-            		exampleText = processor.getServerExampleText(key);
-            	}
+                String key = inputType.name();
+                String exampleText;
+                if (inputType.getLocale() == null) {
+                    // for data types without locale, test if we can get example text.
+                    // If not, try to get example text with voice locale.
+                    try {
+                        exampleText = processor.getServerExampleText(key);
+                    } catch (IOException err) {
+                        key = inputType.name() + "_" + defaultVoice.getLocale().getLanguage().toUpperCase();
+                        exampleText = processor.getServerExampleText(key);
+                    }
+                } else {
+                    exampleText = processor.getServerExampleText(key);
+                }
                 setInputText(exampleText);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
-    
+
     private void fillExampleTexts()
     {
         MaryClient.Voice defaultVoice = (MaryClient.Voice) cbDefaultVoice.getSelectedItem();
@@ -619,19 +860,18 @@ public class MaryGUIClient extends JPanel
         cbVoiceExampleText.setSelectedIndex(0);
     }
 
-   
     private void verifyExamplesVisible()
     {
         MaryClient.Voice defaultVoice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
         MaryClient.DataType inputType = (MaryClient.DataType) cbInputType.getSelectedItem();
-        
+
         if (defaultVoice.isLimitedDomain() && inputType.name().startsWith("TEXT")) {
             cbVoiceExampleText.setVisible(true);
         } else {
             cbVoiceExampleText.setVisible(false);
         }
     }
-    
+
     private void verifyEnableButtons() {
         if (((MaryClient.DataType)cbOutputType.getSelectedItem()).isTextType()) {
             buttonPanel.setVisible(true);
@@ -655,7 +895,7 @@ public class MaryGUIClient extends JPanel
         // Compare button:
         // Only enabled if both input and output are text types
         if (((MaryClient.DataType)cbOutputType.getSelectedItem()).isTextType() &&
-            outputText.getText().length() > 0) {
+                outputText.getText().length() > 0) {
             bCompare.setEnabled(true);
         } else {
             bCompare.setEnabled(false);
@@ -675,7 +915,7 @@ public class MaryGUIClient extends JPanel
         Locale voiceLocale = null;
         if (defaultVoice != null) voiceLocale = defaultVoice.getLocale();
         if (inputLocale != null && voiceLocale != null && !voiceLocale.equals(inputLocale))
-        	defaultVoice = null;
+            defaultVoice = null;
         // Reset the list, just in case
         cbDefaultVoice.removeAllItems();
         Iterator it = availableVoices.iterator();
@@ -705,7 +945,7 @@ public class MaryGUIClient extends JPanel
             sentences.add(st.nextToken());}
         return sentences;
     }
-    
+
     private void setOutputTypeItems()
     {
         MaryClient.DataType inputType = (MaryClient.DataType) cbInputType.getSelectedItem();
@@ -716,8 +956,8 @@ public class MaryGUIClient extends JPanel
             MaryClient.DataType d = (MaryClient.DataType) it.next();
             Locale locale = d.getLocale();
             if (inputLocale == null ||
-                locale == null ||
-                inputLocale.equals(locale)) {
+                    locale == null ||
+                    inputLocale.equals(locale)) {
                 cbOutputType.addItem(d);
             }
         }
@@ -726,26 +966,46 @@ public class MaryGUIClient extends JPanel
 
     private void verifyOutputDisplay()
     {
-        if (((MaryClient.DataType)cbOutputType.getSelectedItem()).isTextType()) {
+        if (((MaryClient.DataType)cbOutputType.getSelectedItem()).isTextType()) 
+        {
             setOutputText(""); // erase the output text
-            if (!showingTextOutput) { // showing Audio Output
+            if (!showingTextOutput) 
+            { 
+                // showing Audio Output
                 // need to change output display
                 audioPanel.setVisible(false);
+
+                if (effectsBox.mainPanel!=null)
+                    effectsBox.mainPanel.setVisible(false);
+                
+                showHidePanel.setVisible(false);
+                
                 outputScrollPane.setVisible(true);
                 showingTextOutput = true;
                 revalidate();
             }
-        } else { // Audio output
-            if (showingTextOutput) {
+        } 
+        else 
+        { // Audio output
+            if (showingTextOutput) 
+            {
                 // change output display
                 outputScrollPane.setVisible(false);
                 audioPanel.setVisible(true);
+                if (effectsBox.mainPanel!=null)
+                 {
+                    showHidePanel.setVisible(true);
+                    
+                    if (effectsBox.mainPanel!=null && isButtonHide)
+                        effectsBox.mainPanel.setVisible(true);
+                 }
+                
                 showingTextOutput = false;
                 revalidate();
             }
         }
     }
-    
+
 
     /* -------------------- Processing callers -------------------- */
     private File lastDirectory = null;
@@ -790,8 +1050,8 @@ public class MaryGUIClient extends JPanel
                     File saveFile = fc.getSelectedFile();
                     String ext = MaryUtils.getExtension(saveFile);
                     if (ext == null) { // no extension in the file name, append from filefilter
-                    	ext = ((SimpleFileFilter)fc.getFileFilter()).getExtension();
-                    	saveFile = new File(saveFile.getAbsolutePath()+"."+ext);
+                        ext = ((SimpleFileFilter)fc.getFileFilter()).getExtension();
+                        saveFile = new File(saveFile.getAbsolutePath()+"."+ext);
                     }
                     lastDirectory = saveFile.getParentFile();
                     lastExtension = ext;
@@ -807,11 +1067,12 @@ public class MaryGUIClient extends JPanel
                                 "Cannot write file of type `." + ext + "'");
                     } else { // OK, we know what to do
                         processor.process(inputText.getText(),
-                            ((MaryClient.DataType)cbInputType.getSelectedItem()).name(),
-                            "AUDIO",
-                            audioType.toString(),
-                            ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
-                            new FileOutputStream(saveFile));
+                                ((MaryClient.DataType)cbInputType.getSelectedItem()).name(),
+                                "AUDIO",
+                                audioType.toString(),
+                                ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
+                                getAudioEffectsAsString(),
+                                new FileOutputStream(saveFile));
                     }
                 }
             }
@@ -850,7 +1111,7 @@ public class MaryGUIClient extends JPanel
                     if (beginText != -1) { // anything to highlight?
                         // highlight it
                         doc.setCharacterAttributes(beginText, i-beginText,
-                                                   highlighted, false);
+                                highlighted, false);
                         beginText = -1;
                     }
                     insideTag = true;
@@ -865,7 +1126,7 @@ public class MaryGUIClient extends JPanel
         // Any text at the very end of the document?
         if (beginText != -1) {
             doc.setCharacterAttributes(beginText, doc.getLength()-beginText,
-                                       highlighted, false);
+                    highlighted, false);
         }
     }
 
@@ -880,36 +1141,38 @@ public class MaryGUIClient extends JPanel
                 processor.streamAudio(inputText.getText(), 
                         ((MaryClient.DataType)cbInputType.getSelectedItem()).name(),
                         streamMp3 ? "MP3":"WAVE",
-                        ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
-                        audioPlayer,
-                        new MaryClient.AudioPlayerListener() {
-                            public void playerFinished()
-                            {
-                                resetPlayButton();
-                            }
-                            public void playerException(Exception e)
-                            {
-                                showErrorMessage(e.getClass().getName(), e.getMessage());
-                                resetPlayButton();
-                            }
-                        });
+                                ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
+                                getAudioEffectsAsString(),
+                                audioPlayer,
+                                new MaryClient.AudioPlayerListener() {
+                    public void playerFinished()
+                    {
+                        resetPlayButton();
+                    }
+                    public void playerException(Exception e)
+                    {
+                        showErrorMessage(e.getClass().getName(), e.getMessage());
+                        resetPlayButton();
+                    }
+                });
                 bPlay.setText("Stop");
             } catch (Exception e) {
                 e.printStackTrace();
                 showErrorMessage(e.getClass().getName(), e.getMessage());
                 resetPlayButton();
             }
-            
+
         } else {
             try {
                 // Write to a byte array (to be converted to a string later)
                 os = new ByteArrayOutputStream();
                 processor.process(inputText.getText(),
-                ((MaryClient.DataType)cbInputType.getSelectedItem()).name(),
-                outputType.name(),
-                null,
-                ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
-                os);
+                        ((MaryClient.DataType)cbInputType.getSelectedItem()).name(),
+                        outputType.name(),
+                        null,
+                        ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
+                        getAudioEffectsAsString(),
+                        os);
                 try {
                     setOutputText(((ByteArrayOutputStream)os).toString("UTF-8"));
                 } catch (UnsupportedEncodingException uee) {
@@ -943,67 +1206,67 @@ public class MaryGUIClient extends JPanel
     private void compareTexts() {
         // Only try to compare if both are MaryXML and non-empty:
         if (!((MaryClient.DataType)cbOutputType.getSelectedItem()).isTextType() ||
-            inputText.getText().length() == 0 ||
-            outputText.getText().length() == 0) {
+                inputText.getText().length() == 0 ||
+                outputText.getText().length() == 0) {
             return;
         }
         try {
-        // First, make both documents plain text:
-        makeTextPlain(inputText.getStyledDocument());
-        makeTextPlain(outputText.getStyledDocument());
+            // First, make both documents plain text:
+            makeTextPlain(inputText.getStyledDocument());
+            makeTextPlain(outputText.getStyledDocument());
 
-        // Now, highlight text in both documents:
-        highlightText(inputText.getStyledDocument());
-        highlightText(outputText.getStyledDocument());
+            // Now, highlight text in both documents:
+            highlightText(inputText.getStyledDocument());
+            highlightText(outputText.getStyledDocument());
 
-        // Define text attributes for added/removed chunks:
-        SimpleAttributeSet removed = new SimpleAttributeSet();
-        SimpleAttributeSet added = new SimpleAttributeSet();
-        StyleConstants.setBold(removed, true);
-        StyleConstants.setBold(added, true);
-        StyleConstants.setItalic(removed, true);
-        StyleConstants.setItalic(added, true);
-        StyleConstants.setUnderline(added, true);
-        StyleConstants.setForeground(removed, Color.red);
-        StyleConstants.setForeground(added, Color.green.darker());
-        // Calculate the differences between input and output:
-        String input = inputText.getStyledDocument().getText(0, inputText.getStyledDocument().getLength());
-        String[] inputWords = MaryUtils.splitIntoSensibleXMLUnits(input);
-        int[] inputIndex = new int[inputWords.length+1];
-        int total = 0;
-        for (int i=0; i<inputWords.length; i++) {
-            inputIndex[i] = total;
-            total += inputWords[i].length();
-            //System.err.println("Input Word nr. " + i + ": [" + inputWords[i] + "], indexes " + inputIndex[i] + "-" + (inputIndex[i]+inputWords[i].length()) + "[" + input.substring(inputIndex[i], inputIndex[i]+inputWords[i].length()) + "] / [" + inputText.getStyledDocument().getText(inputIndex[i], inputWords[i].length()) + "]");
-        }
-        inputIndex[inputWords.length] = total;
-        String output = outputText.getStyledDocument().getText(0, outputText.getStyledDocument().getLength());
-        String[] outputWords = MaryUtils.splitIntoSensibleXMLUnits(output);
-        int[] outputIndex = new int[outputWords.length+1];
-        total = 0;
-        for (int i=0; i<outputWords.length; i++) {
-            outputIndex[i] = total;
-            total += outputWords[i].length();
-            //System.err.println("Output Word nr. " + i + ": [" + outputWords[i] + "], indexes " + outputIndex[i] + "-" + (outputIndex[i]+outputWords[i].length()) + "[" + output.substring(outputIndex[i], outputIndex[i]+outputWords[i].length()) + "]");
-        }
-        outputIndex[outputWords.length] = total;
-        List diffs = new Diff(inputWords, outputWords).diff();
-        Iterator it = diffs.iterator();
-        while (it.hasNext()) {
-            Difference diff = (Difference)it.next();
-            int delStart = diff.getDeletedStart();
-            int delEnd = diff.getDeletedEnd();
-            int addStart = diff.getAddedStart();
-            int addEnd = diff.getAddedEnd();
-            if (delEnd != Difference.NONE) {
-                inputText.getStyledDocument().setCharacterAttributes(inputIndex[delStart], inputIndex[delEnd+1]-inputIndex[delStart], removed, false);
-                //System.err.println("deleted "+delStart+"-"+(delEnd+1)+": [" + input.substring(inputIndex[delStart], inputIndex[delEnd+1]) + "] / [" + inputText.getStyledDocument().getText(inputIndex[delStart], inputIndex[delEnd+1]-inputIndex[delStart]) + "]");
+            // Define text attributes for added/removed chunks:
+            SimpleAttributeSet removed = new SimpleAttributeSet();
+            SimpleAttributeSet added = new SimpleAttributeSet();
+            StyleConstants.setBold(removed, true);
+            StyleConstants.setBold(added, true);
+            StyleConstants.setItalic(removed, true);
+            StyleConstants.setItalic(added, true);
+            StyleConstants.setUnderline(added, true);
+            StyleConstants.setForeground(removed, Color.red);
+            StyleConstants.setForeground(added, Color.green.darker());
+            // Calculate the differences between input and output:
+            String input = inputText.getStyledDocument().getText(0, inputText.getStyledDocument().getLength());
+            String[] inputWords = MaryUtils.splitIntoSensibleXMLUnits(input);
+            int[] inputIndex = new int[inputWords.length+1];
+            int total = 0;
+            for (int i=0; i<inputWords.length; i++) {
+                inputIndex[i] = total;
+                total += inputWords[i].length();
+                //System.err.println("Input Word nr. " + i + ": [" + inputWords[i] + "], indexes " + inputIndex[i] + "-" + (inputIndex[i]+inputWords[i].length()) + "[" + input.substring(inputIndex[i], inputIndex[i]+inputWords[i].length()) + "] / [" + inputText.getStyledDocument().getText(inputIndex[i], inputWords[i].length()) + "]");
             }
-            if (addEnd != Difference.NONE) {
-                outputText.getStyledDocument().setCharacterAttributes(outputIndex[addStart], outputIndex[addEnd+1]-outputIndex[addStart], added, false);                
-                //System.err.println("added "+addStart+"-"+(addEnd+1)+": [" + output.substring(outputIndex[addStart], outputIndex[addEnd+1]) + "] / [" + outputText.getStyledDocument().getText(outputIndex[addStart], outputIndex[addEnd+1]-outputIndex[addStart]) + "]");
+            inputIndex[inputWords.length] = total;
+            String output = outputText.getStyledDocument().getText(0, outputText.getStyledDocument().getLength());
+            String[] outputWords = MaryUtils.splitIntoSensibleXMLUnits(output);
+            int[] outputIndex = new int[outputWords.length+1];
+            total = 0;
+            for (int i=0; i<outputWords.length; i++) {
+                outputIndex[i] = total;
+                total += outputWords[i].length();
+                //System.err.println("Output Word nr. " + i + ": [" + outputWords[i] + "], indexes " + outputIndex[i] + "-" + (outputIndex[i]+outputWords[i].length()) + "[" + output.substring(outputIndex[i], outputIndex[i]+outputWords[i].length()) + "]");
             }
-        }
+            outputIndex[outputWords.length] = total;
+            List diffs = new Diff(inputWords, outputWords).diff();
+            Iterator it = diffs.iterator();
+            while (it.hasNext()) {
+                Difference diff = (Difference)it.next();
+                int delStart = diff.getDeletedStart();
+                int delEnd = diff.getDeletedEnd();
+                int addStart = diff.getAddedStart();
+                int addEnd = diff.getAddedEnd();
+                if (delEnd != Difference.NONE) {
+                    inputText.getStyledDocument().setCharacterAttributes(inputIndex[delStart], inputIndex[delEnd+1]-inputIndex[delStart], removed, false);
+                    //System.err.println("deleted "+delStart+"-"+(delEnd+1)+": [" + input.substring(inputIndex[delStart], inputIndex[delEnd+1]) + "] / [" + inputText.getStyledDocument().getText(inputIndex[delStart], inputIndex[delEnd+1]-inputIndex[delStart]) + "]");
+                }
+                if (addEnd != Difference.NONE) {
+                    outputText.getStyledDocument().setCharacterAttributes(outputIndex[addStart], outputIndex[addEnd+1]-outputIndex[addStart], added, false);                
+                    //System.err.println("added "+addStart+"-"+(addEnd+1)+": [" + output.substring(outputIndex[addStart], outputIndex[addEnd+1]) + "] / [" + outputText.getStyledDocument().getText(outputIndex[addStart], outputIndex[addEnd+1]-outputIndex[addStart]) + "]");
+                }
+            }
         } catch(Exception ex) { ex.printStackTrace(); }
     }
 
@@ -1013,7 +1276,7 @@ public class MaryGUIClient extends JPanel
         makeTextPlain(inputText.getStyledDocument());
         inputText.setCaretPosition(0);
     }
-    
+
     protected void setOutputText(String text)
     {
         outputText.setText(text);
@@ -1023,9 +1286,9 @@ public class MaryGUIClient extends JPanel
 
     private MaryClient.Voice getPrevVoice() { return prevVoice; }
     private void setPrevVoice(MaryClient.Voice prevVoice) {
-    	this.prevVoice = prevVoice;
+        this.prevVoice = prevVoice;
     }
-    
+
     public void resetPlayButton()
     {
         bPlay.setText("Play");
@@ -1047,15 +1310,13 @@ public class MaryGUIClient extends JPanel
                 JOptionPane.ERROR_MESSAGE);
 
     }
-    
-   
-    
+
     public static void main(String[] args) throws Exception 
     {
         mainFrame = new JFrame("Mary GUI Client");
         mainFrame.addWindowListener(new WindowAdapter() {
-                public void windowClosing(WindowEvent e) {System.exit(0);}
-            });
+            public void windowClosing(WindowEvent e) {System.exit(0);}
+        });
         MaryGUIClient m = new MaryGUIClient();
         mainFrame.setContentPane(m);
         mainFrame.pack();
@@ -1064,32 +1325,32 @@ public class MaryGUIClient extends JPanel
     }
 
     class MaryGUIFocusTraversalPolicy
-                 extends FocusTraversalPolicy {
+    extends FocusTraversalPolicy {
 
         public Component getComponentAfter(Container focusCycleRoot,
-                                           Component aComponent) 
+                Component aComponent) 
         {
             if (aComponent.equals(cbInputType)) {
                 return cbOutputType;
             } else if (aComponent.equals(cbOutputType)) {
                 return cbDefaultVoice;
             } else if (aComponent.equals(cbDefaultVoice)) {
-                		if (cbVoiceExampleText.isVisible()){
-                		    return cbVoiceExampleText;
-                		} else {
-                		    return inputText;
-                		}
+                if (cbVoiceExampleText.isVisible()){
+                    return cbVoiceExampleText;
+                } else {
+                    return inputText;
+                }
             } else if (aComponent.equals(cbVoiceExampleText)) {
                 return inputText;
             } else if (aComponent.equals(inputText)) {
-                		if (audioPanel.isVisible()){
-                		    return bPlay;
-                		} else {
-                		    return bProcess;
-                		}
+                if (audioPanel.isVisible()){
+                    return bPlay;
+                } else {
+                    return bProcess;
+                }
             } else if (aComponent.equals(bProcess)) {
                 if (bEdit.isEnabled()){
-         		    return bEdit;
+                    return bEdit;
                 } else {
                     if (allowSave && bSaveOutput.isEnabled()){
                         return bSaveOutput;
@@ -1104,13 +1365,13 @@ public class MaryGUIClient extends JPanel
                     return cbInputType;
                 }
             } else if (aComponent.equals(outputText)) {
-	         		if (bEdit.isEnabled()){
-	         		    return bEdit;
-	         		} else {
-	         		    return cbInputType;
-	         		}
+                if (bEdit.isEnabled()){
+                    return bEdit;
+                } else {
+                    return cbInputType;
+                }
             } else if (aComponent.equals(bEdit)) {
-                	return bCompare;
+                return bCompare;
             } else if (aComponent.equals(bCompare)) {
                 if (allowSave){
                     return bSaveOutput;
@@ -1124,18 +1385,18 @@ public class MaryGUIClient extends JPanel
         }
 
         public Component getComponentBefore(Container focusCycleRoot,
-                                            Component aComponent) 
+                Component aComponent) 
         {
             if (aComponent.equals(bSaveOutput)) {
                 if (!buttonPanel.isVisible()){
-                   
+
                     return bPlay;
                 } else {
                     if (bCompare.isEnabled()){
-                        
+
                         return bCompare;
                     } else {
-                       
+
                         return bProcess;
                     }
                 }
@@ -1150,11 +1411,11 @@ public class MaryGUIClient extends JPanel
             } else if (aComponent.equals(bProcess)) {
                 return inputText;
             } else if (aComponent.equals(inputText)) {
-                		if (cbVoiceExampleText.isVisible()){
-                		    return cbVoiceExampleText;
-                		} else {
-                		    return cbDefaultVoice;
-                		}
+                if (cbVoiceExampleText.isVisible()){
+                    return cbVoiceExampleText;
+                } else {
+                    return cbDefaultVoice;
+                }
             } else if (aComponent.equals(cbVoiceExampleText)) {
                 return cbDefaultVoice;
             } else if (aComponent.equals(cbDefaultVoice)) {
@@ -1162,15 +1423,15 @@ public class MaryGUIClient extends JPanel
             } else if (aComponent.equals(cbOutputType)) {
                 return cbInputType;
             } else if (aComponent.equals(cbInputType)) {
-                		if (allowSave  && bSaveOutput.isEnabled()){
-                		    return bSaveOutput;
-                		} else {
-                		   if (buttonPanel.isVisible()){
-                               return bProcess;
-                		   } else {
-                		       return bPlay;
-                		   }
-                		}
+                if (allowSave  && bSaveOutput.isEnabled()){
+                    return bSaveOutput;
+                } else {
+                    if (buttonPanel.isVisible()){
+                        return bProcess;
+                    } else {
+                        return bPlay;
+                    }
+                }
             }
             return cbInputType;
         }
