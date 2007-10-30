@@ -542,7 +542,7 @@ public class MaryGUIClient extends JPanel
         {
             showAudioEffects(gridBagLayout, gridC);
 
-            if (effectsBox.mainPanel!=null)
+            if (effectsBox!=null && effectsBox.mainPanel!=null)
             {
                 showHidePanel = new JPanel();
                 showHidePanel.setPreferredSize(paneDimension);
