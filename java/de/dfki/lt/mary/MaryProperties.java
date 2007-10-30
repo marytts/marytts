@@ -200,23 +200,29 @@ public class MaryProperties
         }
 
         helperString = getProperty("audioeffects.classes.list");
-        // allow whitespace and comma as list delimiters
-        st = new StringTokenizer(helperString, ", \t\n\r\f");
-        while (st.hasMoreTokens()) {
-            audioEffectClasses.add(st.nextToken());
+        if (helperString!=null)
+        {
+            // allow whitespace and comma as list delimiters
+            st = new StringTokenizer(helperString, ", \t\n\r\f");
+            while (st.hasMoreTokens()) {
+                audioEffectClasses.add(st.nextToken());
+            }
         }
 
         helperString = getProperty("schema.local");
-        st = new StringTokenizer(helperString);
-        Vector<File> v = new Vector<File>();
-        while (st.hasMoreTokens()) {
-            String schemaFilename = expandPath(st.nextToken());
-            File schemaFile = new File(schemaFilename);
-            if (!schemaFile.canRead())
-                throw new Exception("Cannot read Schema file: " + schemaFilename);
-            v.add(schemaFile);
+        if (helperString!=null)
+        {
+            st = new StringTokenizer(helperString);
+            Vector<File> v = new Vector<File>();
+            while (st.hasMoreTokens()) {
+                String schemaFilename = expandPath(st.nextToken());
+                File schemaFile = new File(schemaFilename);
+                if (!schemaFile.canRead())
+                    throw new Exception("Cannot read Schema file: " + schemaFilename);
+                v.add(schemaFile);
+            }
+            localSchemas = v.toArray();
         }
-        localSchemas = v.toArray();
 
         // Setup locale translation table:
         locale2prefix.put(Locale.ENGLISH, "english");
