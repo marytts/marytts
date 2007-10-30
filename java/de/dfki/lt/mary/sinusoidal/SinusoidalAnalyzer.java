@@ -280,10 +280,29 @@ public class SinusoidalAnalyzer {
         SinusoidalTracks sinTracks = tg.generateTracksFreqOnly(framesSins2, times2, deltaInHz, fs);
         
         if (sinTracks!=null)
+        {
             sinTracks.getTrackStatistics(winSizeInSeconds, skipSizeInSeconds);
+            getGrossStatistics(sinTracks);
+        }
         //
         
         return sinTracks;
+    }
+    
+    public void getGrossStatistics(SinusoidalTracks sinTracks)
+    {
+        int totalSins = 0;
+        int i, j;
+        for (i=0; i<sinTracks.totalTracks; i++)
+        {
+            for (j=0; j<sinTracks.tracks[i].totalSins; j++)
+            {
+                if (sinTracks.tracks[i].states[j]==SinusoidalTrack.ACTIVE)
+                    totalSins++;
+            }
+        }
+        
+        System.out.println("Total sinusoids to model this file = " + String.valueOf(totalSins));
     }
 
     public Sinusoid [] analyze_frame(double [] frm)
