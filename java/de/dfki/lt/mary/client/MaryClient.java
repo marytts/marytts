@@ -226,10 +226,10 @@ public class MaryClient {
      * @see #getInputDataTypes()
      * @see #getVoices()
      */
-    public void streamAudio(String input, String inputType, String audioType, String defaultVoiceName, String audioEffects, AudioPlayer audioPlayer, AudioPlayerListener listener)
+    public void streamAudio(String input, String inputType, String audioType, String defaultVoiceName, String defaultStyle, String defaultEffects, AudioPlayer audioPlayer, AudioPlayerListener listener)
     throws UnknownHostException, IOException
     {
-        _process(input, inputType, "AUDIO", audioType, defaultVoiceName, audioEffects, audioPlayer, 0, true, listener);
+        _process(input, inputType, "AUDIO", audioType, defaultVoiceName, defaultStyle, defaultEffects, audioPlayer, 0, true, listener);
     }
 
     /**
@@ -249,17 +249,17 @@ public class MaryClient {
      * @see #getVoices()
      */
     public void process(String input, String inputType, String outputType,
-        String audioType, String defaultVoiceName, String audioEffects, OutputStream output)
+        String audioType, String defaultVoiceName, String defaultStyle, String defaultEffects, OutputStream output)
         throws UnknownHostException, IOException
     {
-        _process(input, inputType, outputType, audioType, defaultVoiceName, audioEffects, output, 0, false, null);
+        _process(input, inputType, outputType, audioType, defaultVoiceName, defaultStyle, defaultEffects, output, 0, false, null);
     }
     
     public void process(String input, String inputType, String outputType,
             String audioType, String defaultVoiceName, OutputStream output)
             throws UnknownHostException, IOException
     {
-        process( input,  inputType,  outputType, audioType,  defaultVoiceName,  output);
+        process( input,  inputType,  outputType, audioType,  defaultVoiceName,  "", "", output);
     }
 
     /**
@@ -281,17 +281,17 @@ public class MaryClient {
      * @see #getVoices()
      */
     public void process(String input, String inputType, String outputType,
-        String audioType, String defaultVoiceName, String audioEffects, OutputStream output, long timeout)
+        String audioType, String defaultVoiceName, String defaultStyle, String defaultEffects, OutputStream output, long timeout)
         throws UnknownHostException, IOException
     {
-        _process(input, inputType, outputType, audioType, defaultVoiceName, audioEffects, output, timeout, false, null);
+        _process(input, inputType, outputType, audioType, defaultVoiceName, defaultStyle, defaultEffects, output, timeout, false, null);
     }
 
     public void process(String input, String inputType, String outputType,
          String audioType, String defaultVoiceName, OutputStream output, long timeout)
          throws UnknownHostException, IOException
     {
-        process(input,  inputType, outputType, audioType,  defaultVoiceName, "",  output, timeout);
+        process(input,  inputType, outputType, audioType,  defaultVoiceName, "",  "", output, timeout);
     }
     /**
      * The easiest way to call the MARY client when the output is to
@@ -306,16 +306,16 @@ public class MaryClient {
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    public void process(String input, String inputType, String defaultVoiceName, String audioEffects, AudioPlayer player)
+    public void process(String input, String inputType, String defaultVoiceName, String defaultStyle,  String defaultEffects, AudioPlayer player)
         throws UnknownHostException, IOException
     {
-        _process(input, inputType, "AUDIO", "AU", defaultVoiceName, audioEffects, player, 0, false, null);
+        _process(input, inputType, "AUDIO", "AU", defaultVoiceName, defaultStyle, defaultEffects, player, 0, false, null);
     }
     
     public void process(String input, String inputType, String defaultVoiceName, AudioPlayer player)
     throws UnknownHostException, IOException
     {
-        process(input, inputType, defaultVoiceName, "",  player);
+        process(input, inputType, defaultVoiceName, "", "", player);
     }
 
     /**
@@ -335,19 +335,20 @@ public class MaryClient {
      * @see #getInputDataTypes()
      * @see #getVoices()
      */
-    public void process(String input, String inputType, String defaultVoiceName, String audioEffects, AudioPlayer player, long timeout)
+    public void process(String input, String inputType, String defaultVoiceName, String defaultStyle, String defaultEffects, AudioPlayer player, long timeout)
         throws UnknownHostException, IOException
     {
-        _process(input, inputType, "AUDIO", "AU", defaultVoiceName, audioEffects, player, timeout, false, null);
+        _process(input, inputType, "AUDIO", "AU", defaultVoiceName, defaultStyle, defaultEffects, player, timeout, false, null);
     }
 
     public void process(String input, String inputType, String defaultVoiceName, AudioPlayer player, long timeout)
     throws UnknownHostException, IOException
     {
-        process( input, inputType, defaultVoiceName, "", player, timeout);
+        process( input, inputType, defaultVoiceName, "", "", player, timeout);
     }
-    private void _process(String input, String inputType, String outputType,
-        String audioType, String defaultVoiceName, String audioEffects, Object output, long timeout, boolean streamingAudio, AudioPlayerListener playerListener)
+    private void _process(String input, String inputType, String outputType, String audioType, 
+            String defaultVoiceName, String defaultStyle, String defaultEffects, 
+            Object output, long timeout, boolean streamingAudio, AudioPlayerListener playerListener)
         throws UnknownHostException, IOException
     {
         boolean isAudioPlayer;
@@ -383,8 +384,12 @@ public class MaryClient {
             toServerInfo.print(" VOICE=" + defaultVoiceName);
         }
         
-        if (audioEffects != "") {
-            toServerInfo.print(" EFFECTS=" + audioEffects);
+        if (defaultStyle != "") {
+            toServerInfo.print(" STYLE=" + defaultStyle);
+        }
+        
+        if (defaultEffects != "") {
+            toServerInfo.print(" EFFECTS=" + defaultEffects);
         }
         toServerInfo.println();
         
@@ -997,7 +1002,8 @@ public class MaryClient {
                 System.exit(1);
         }
         String defaultVoiceName = System.getProperty("voice.default", "de7");
-        String audioEffects = "";
+        String defaultStyle = "";
+        String defaultEffects = "";
 
         if (args.length > 0) {
             File file = new File(args[0]);
@@ -1015,13 +1021,12 @@ public class MaryClient {
         }
 
         try {
-            mc.process(sb.toString(), inputType, outputType, audioType, defaultVoiceName, audioEffects, System.out);
+            mc.process(sb.toString(), inputType, outputType, audioType, defaultVoiceName, defaultStyle, defaultEffects, System.out);
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
         }
     }
-
 
     /**
      * This helper method converts a string (e.g., "en_US") into a 
