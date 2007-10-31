@@ -78,7 +78,10 @@ public class EffectsApplier {
                 }
             }
             
-            return new DDSAudioInputStream(tmpSignal, audioformat);
+            if (tmpSignal!=null)
+                return new DDSAudioInputStream(tmpSignal, audioformat);
+            else
+                return input;
         }
         else
             return input;
@@ -310,7 +313,7 @@ public class EffectsApplier {
                 tmpName = (String)it.next();
                 for (i=0; i<audioEffects.length; i++)
                 {
-                    if (audioEffects[i].getName()==tmpName)
+                    if (audioEffects[i]!=null && audioEffects[i].getName()==tmpName)
                     {
                         index++;
                         if (index>audioEffects.length-1)
