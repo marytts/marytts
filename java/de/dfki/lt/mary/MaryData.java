@@ -93,7 +93,8 @@ public class MaryData {
 
     // for plainText, allow additional information:
     private Voice defaultVoice = null;
-    private String audioEffects = "";
+    private String defaultStyle = "";
+    private String defaultEffects = "";
 
     // The following XML I/O helpers are only initialised
     // if actually needed.
@@ -480,17 +481,27 @@ public class MaryData {
     public Voice getDefaultVoice() {
         return defaultVoice;
     }
-    
-    public void setAudioEffects(String effects)
-    {
-        audioEffects = effects;
-    }
-    
-    public String getAudioEffects()
-    {
-        return audioEffects;
-    }
 
+    public void setDefaultStyle(String style)
+    {
+        defaultStyle = style;
+    }
+    
+    public String getDefaultStyle()
+    {
+        return defaultStyle;
+    }
+    
+    public void setDefaultEffects(String effects)
+    {
+        defaultEffects = effects;
+    }
+    
+    public String getDefaultEffects()
+    {
+        return defaultEffects;
+    }
+    
     /**
      * The audio file format is required only for data types serving as input
      * to modules producing AUDIO data (e.g., MBROLA data), as well as for the
