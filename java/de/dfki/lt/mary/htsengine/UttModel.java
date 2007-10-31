@@ -66,7 +66,7 @@ public class UttModel {
   private int totalFrame;           /* # of frames for current utterance       */
   private int lf0Frame;             /* # of frames that are voiced or non-zero */
   private Vector<Model> modelList;  /* This will be a list of Model objects for current utterance */
-
+  private String realisedAcoustParams;  /* list of phonemes and actual realised durations for each one */
   
   public UttModel() {
 	numModel = 0;
@@ -74,6 +74,7 @@ public class UttModel {
 	totalFrame = 0;
 	lf0Frame = 0;
 	modelList = new Vector<Model>();
+    realisedAcoustParams = "";
   }
   
   public void setNumModel(int val){ numModel = val; }
@@ -91,5 +92,11 @@ public class UttModel {
   public void addUttModel(Model newModel){ modelList.addElement(newModel); }
   public Model getUttModel(int i){ return (Model) modelList.elementAt(i); 	}
   public int getNumUttModel(){ return modelList.size(); }
+  
+  public void setRealisedAcoustParams(String str){ realisedAcoustParams = str;}
+  public String getRealisedAcoustParams(){ return realisedAcoustParams; }
+  public void concatRealisedAcoustParams(String str){
+      realisedAcoustParams = realisedAcoustParams + str;
+  }
   
 }
