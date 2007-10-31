@@ -128,6 +128,9 @@ public class Synthesis extends InternalModule
 
         AudioFormat targetFormat = d.getAudioFileFormat().getFormat();
         Voice defaultVoice = d.getDefaultVoice();
+        String defaultStyle = d.getDefaultStyle();
+        String defaultEffects = d.getDefaultEffects();
+        
         if (defaultVoice == null) {
             defaultVoice = Voice.getDefaultVoice(Locale.GERMAN);
             logger.info("No default voice associated with data. Assuming global default " +
@@ -152,8 +155,8 @@ public class Synthesis extends InternalModule
         List<Element> elements = new ArrayList<Element>();
         Element element = null;
         Voice currentVoice = defaultVoice;
-        String currentStyle = "";
-        String currentEffect = "";
+        String currentStyle = defaultStyle;
+        String currentEffect = defaultEffects;
         Element currentVoiceElement = null;
         while ((element = (Element) it.nextNode()) != null) {
             Element v = (Element) MaryDomUtils.getAncestor(element, MaryXML.VOICE);
@@ -169,14 +172,13 @@ public class Synthesis extends InternalModule
                         elements.clear();
                     }
                     currentVoice = defaultVoice;
-                    currentStyle = "";
-                    currentEffect = "";
+                    currentStyle = defaultStyle;
+                    currentEffect = defaultEffects;
                     currentVoiceElement = null;
                 }
             } else if (v != currentVoiceElement 
-                    || !v.getAttribute("style").equals(currentStyle)
-                    || !d.getAudioEffects().equals(currentEffect)) {
-                    //|| !v.getAttribute("effect").equals(currentEffect)) {
+                    || (v.getAttribute("style")!=null && v.getAttribute("style")!="" && !v.getAttribute("style").equals(currentStyle))
+                    || (v.getAttribute("effect")!=null && v.getAttribute("effect")!="" && !v.getAttribute("effect").equals(currentEffect))) {
                 // We have just entered a new voice section
                 if (!elements.isEmpty()) {
                     AudioInputStream ais = synthesizeOneSection
@@ -186,20 +188,27 @@ public class Synthesis extends InternalModule
                     }
                     elements.clear();
                 }
+                
+                //Override with new voice, style, and/or effect
                 Voice newVoice = Voice.getVoice(v);
                 if (newVoice != null) {
                     currentVoice = newVoice;
                 }
-                currentStyle = v.getAttribute("style");
-                //currentEffect = v.getAttribute("effect");
-                currentEffect = d.getAudioEffects();
+                
+                if (v.getAttribute("style")!=null && v.getAttribute("style")!="")
+                    currentStyle = v.getAttribute("style");
+                
+                if (v.getAttribute("effect")!=null && v.getAttribute("effect")!="")
+                    currentEffect = v.getAttribute("effect");
+                
                 currentVoiceElement = v;
             }
             elements.add(element);
         }
+        
         if (!elements.isEmpty()) {
-            AudioInputStream ais =
-                synthesizeOneSection(elements, currentVoice, currentStyle, currentEffect, targetFormat);
+            AudioInputStream ais = synthesizeOneSection(elements, currentVoice, currentStyle, currentEffect, targetFormat);
+            
             if (ais != null) {
                 result.appendAudio(ais);
             }
