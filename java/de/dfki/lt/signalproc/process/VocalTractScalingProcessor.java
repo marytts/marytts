@@ -121,7 +121,7 @@ public class VocalTractScalingProcessor extends VocalTractModifier {
     }
 
     public static void main(String[] args) throws Exception {
-        double [] vscales = {0.85};
+        double [] vscales = {1.0};
         
         for (int i=0; i<args.length; i++) 
         {

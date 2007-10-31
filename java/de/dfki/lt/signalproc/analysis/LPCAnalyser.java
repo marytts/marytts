@@ -157,6 +157,9 @@ public class LPCAnalyser extends FrameBasedAnalyser
      */
     public static LPCoeffs calcLPC(double[] x, int p)
     {
+        for (int i=0; i<x.length; i++)
+            x[i] += Math.random()*1e-50;
+        
         double[] autocorr = FFT.autoCorrelateWithZeroPadding(x);
         double[] r;
         if (2*(p+1)<autocorr.length) { // normal case: frame long enough
