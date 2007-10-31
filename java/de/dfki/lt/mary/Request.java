@@ -58,6 +58,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
+import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.dom.traversal.TreeWalker;
 
 import de.dfki.lt.mary.modules.MaryModule;
@@ -85,7 +86,9 @@ public class Request {
     private AudioFileFormat audioFileFormat;
     private AppendableSequenceAudioInputStream appendableAudioStream;
     private Voice defaultVoice;
-    private String audioEffects;
+    private String defaultStyle;
+    private String defaultEffects;
+    
     private int id;
     private Logger logger;
     private MaryData inputData;
@@ -98,14 +101,16 @@ public class Request {
     private Set<MaryModule> usedModules;
     private Map<MaryModule,Long> timingInfo;
 
-    public Request(MaryDataType inputType, MaryDataType outputType, Voice defaultVoice,
+    public Request(MaryDataType inputType, MaryDataType outputType, 
+                   Voice defaultVoice, String defaultEffects, String defaultStyle,
                    int id, AudioFileFormat audioFileFormat)
     {
-    	this(inputType, outputType, defaultVoice, "", id, audioFileFormat, false);
+    	this(inputType, outputType, defaultVoice, defaultEffects, defaultStyle, id, audioFileFormat, false);
     }
     
-    public Request(MaryDataType inputType, MaryDataType outputType, Voice defaultVoice, String audioEffects,
-            int id, AudioFileFormat audioFileFormat, boolean streamAudio)
+    public Request(MaryDataType inputType, MaryDataType outputType, 
+                   Voice defaultVoice, String defaultEffects, String defaultStyle,
+                   int id, AudioFileFormat audioFileFormat, boolean streamAudio)
     {
         if (!inputType.isInputType())
             throw new IllegalArgumentException("not an input type: " + inputType.name());
@@ -114,7 +119,8 @@ public class Request {
         this.inputType = inputType;
         this.outputType = outputType;
         this.defaultVoice = defaultVoice;
-        this.audioEffects = audioEffects;
+        this.defaultEffects = defaultEffects;
+        this.defaultStyle = defaultStyle;
         this.id = id;
         this.audioFileFormat = audioFileFormat;
         this.streamAudio = streamAudio;
@@ -133,6 +139,10 @@ public class Request {
                 "New request (input type \"" + inputType.name() + "\", output type \"" + outputType.name());
         if (this.defaultVoice != null)
             info.append("\", voice \"" + this.defaultVoice.getName());
+        if (this.defaultEffects!=null && this.defaultEffects!="")
+            info.append("\", effect \"" + this.defaultEffects);
+        if (this.defaultStyle!=null && this.defaultStyle!="")
+            info.append("\", style \"" + this.defaultStyle);
         if (audioFileFormat != null)
             info.append("\", audio \"" + audioFileFormat.getType().toString()+ "\"");
         if (streamAudio)
@@ -155,8 +165,11 @@ public class Request {
     public Voice getDefaultVoice() {
         return defaultVoice;
     }
-    public String getAudioEffects() {
-        return audioEffects;
+    public String getDefaultStyle() {
+        return defaultStyle;
+    }
+    public String getDefaultEffects() {
+        return defaultEffects;
     }
     public int getId() {
         return id;
@@ -202,8 +215,9 @@ public class Request {
         if (inputData.getDefaultVoice() == null) {
             inputData.setDefaultVoice(defaultVoice);
         }
-        inputData.setAudioEffects(audioEffects);
-        
+        inputData.setDefaultStyle(defaultStyle);
+        inputData.setDefaultEffects(defaultEffects);
+
         this.inputData = inputData;
     }
 
@@ -227,7 +241,8 @@ public class Request {
         }
         assert defaultVoice != null;
         inputData.setDefaultVoice(defaultVoice);
-        inputData.setAudioEffects(audioEffects);
+        inputData.setDefaultStyle(defaultStyle);
+        inputData.setDefaultEffects(defaultEffects);
     }
 
     /**
@@ -252,6 +267,7 @@ public class Request {
             || inputType.isXMLType() && !inputType.isMaryXML()) {
             // Convert to RAWMARYXML
             rawmaryxml = processOneChunk(inputData, MaryDataType.get("RAWMARYXML"));
+            
             assert rawmaryxml.getDefaultVoice() != null;
             inputDataList = splitIntoChunks(rawmaryxml);
         } else if (inputType.equals(MaryDataType.get("RAWMARYXML"))) {
@@ -266,8 +282,8 @@ public class Request {
         }
         assert rawmaryxml != null && rawmaryxml.type().equals(MaryDataType.get("RAWMARYXML"))
         && rawmaryxml.getDocument() != null;
-        moveBoundariesIntoParagraphs(rawmaryxml.getDocument());
-
+        moveBoundariesIntoParagraphs(rawmaryxml.getDocument()); 
+        
         // Now the beyond-RAWMARYXML processing:
         if (outputType.isMaryXML()) {
             outputData = new MaryData(outputType);
@@ -276,7 +292,8 @@ public class Request {
             // in order to gradually enrich them:
             outputData.setDocument(rawmaryxml.getDocument());
             outputData.setDefaultVoice(defaultVoice);
-            outputData.setAudioEffects(audioEffects);
+            outputData.setDefaultStyle(defaultStyle);
+            outputData.setDefaultEffects(defaultEffects);
         }
         int len = inputDataList.getLength();
         for (int i=0; i<len && !abortRequested; i++) {
@@ -393,7 +410,8 @@ public class Request {
                 throw new NullPointerException("Module " + m.name() + " returned null. This should not happen.");
             }
             outData.setDefaultVoice(defaultVoice);
-            outData.setAudioEffects(audioEffects);
+            outData.setDefaultStyle(defaultStyle);
+            outData.setDefaultEffects(defaultEffects);
             
             currentData = outData;
             long moduleStopTime = System.currentTimeMillis();
@@ -586,7 +604,7 @@ public class Request {
         MaryData md = new MaryData(maryxml.type());
         String rootLanguage = maryxml.getDocument().getDocumentElement().getAttribute("xml:lang");
         md.setDefaultVoice(maryxml.getDefaultVoice());
-        md.setAudioEffects(maryxml.getAudioEffects());
+        //md.setAudioEffects(maryxml.getAudioEffects());
         Document newDoc = MaryXML.newDocument();
         md.setDocument(newDoc);
         Element newRoot = newDoc.getDocumentElement();

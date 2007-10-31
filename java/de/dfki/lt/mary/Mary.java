@@ -514,8 +514,8 @@ public class Mary {
                 }
                 audioFileFormat = new AudioFileFormat(audioType, audioFormat, AudioSystem.NOT_SPECIFIED);
             }
-            Request request =
-                new Request(inputType, outputType, voice, 1, audioFileFormat);
+            Request request = new Request(inputType, outputType, voice, "", "", 1, audioFileFormat);
+     
             InputStream is;
             if (args.length == 0 || args[0].equals("-"))
                 is = System.in;

@@ -398,7 +398,9 @@ public class MaryServer {
                 MaryDataType inputType = null;
                 MaryDataType outputType = null;
                 Voice voice = null;
+                String style = "";
                 String effects = "";
+               
                 AudioFileFormat.Type audioFileFormatType = null;
                 boolean streamingAudio = false;
 
@@ -509,6 +511,27 @@ public class MaryServer {
                         tokenConsumed = false;
                     }
                     
+                    //Optional STYLE field
+                    style = "";
+                    if (!tokenConsumed) {
+                        tt = new StringTokenizer(token, "=");
+                        if (tt.countTokens()==2 && tt.nextToken().equals("STYLE")) {
+                            tokenConsumed = true;
+                            // the values of STYLE=
+                            style = tt.nextToken();
+                        }
+                    }
+                    if (style == "")
+                        logger.debug("No style requested");
+                    else
+                        logger.debug("Style requested: " + style);
+                    
+                    if (tokenConsumed && t.hasMoreTokens()) {
+                        token = t.nextToken();
+                        tokenConsumed = false;
+                    }
+                    //
+                    
                     //Optional EFFECTS field
                     effects = "";
                     if (!tokenConsumed) {
@@ -528,6 +551,7 @@ public class MaryServer {
                         token = t.nextToken();
                         tokenConsumed = false;
                     }
+                    //
                     
                     // Optional LOG field
                     // If present, the rest of the line counts as the value of LOG=
@@ -562,7 +586,7 @@ public class MaryServer {
                 }
                 audioFileFormat = new AudioFileFormat(audioFileFormatType, audioFormat, AudioSystem.NOT_SPECIFIED);
 
-                Request request = new Request(inputType, outputType, voice, effects, id, audioFileFormat, streamingAudio);
+                Request request = new Request(inputType, outputType, voice, effects, style, id, audioFileFormat, streamingAudio);
                 outputWriter.println(id);
                 //   -- create new clientMap entry
                 Object[] value = new Object[2];
