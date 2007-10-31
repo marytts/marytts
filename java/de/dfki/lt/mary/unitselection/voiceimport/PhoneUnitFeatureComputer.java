@@ -11,6 +11,7 @@ import de.dfki.lt.mary.client.MaryClient;
 import de.dfki.lt.mary.util.FileUtils;
 import de.dfki.lt.mary.MaryDataType;
 
+
 /**
  * For the given texts, compute unit features and align them
  * with the given unit labels.
@@ -26,7 +27,7 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
     protected MaryClient mary;
     protected String maryInputType;
     protected String maryOutputType;
-
+    
     protected DatabaseLayout db = null;
     protected int percent = 0;
     
@@ -53,7 +54,8 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
     
      public void initialiseComp()
     {      
-        locale = db.getProp(db.LOCALE);        
+        locale = db.getProp(db.LOCALE);   
+        
         mary = null; // initialised only if needed   
         unitfeatureDir = new File(getProp(FEATUREDIR));
         if (!unitfeatureDir.exists()){
@@ -120,6 +122,9 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
     public void computeFeaturesFor(String basename) throws IOException
     {
         String text;
+        Locale localVoice;
+        localVoice = MaryClient.string2locale(locale);
+        
         // First, test if there is a corresponding .rawmaryxml file in textdir:
         File rawmaryxmlFile = new File(db.getProp(db.MARYXMLDIR)
                 				+ basename + db.getProp(db.MARYXMLEXT));
@@ -134,7 +139,11 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
         
         OutputStream os = new BufferedOutputStream(new FileOutputStream(new File( unitfeatureDir, basename + featsExt )));
         MaryClient maryClient = getMaryClient();
-        maryClient.process(text, maryInputType, maryOutputType, null, null, os);
+        Vector voices = maryClient.getVoices(localVoice);
+        MaryClient.Voice defaultVoice = (MaryClient.Voice) voices.firstElement();
+        String voiceName = defaultVoice.name();
+        //maryClient.process(text, maryInputType, maryOutputType, null, null, os);
+        maryClient.process(text, maryInputType, maryOutputType, null, voiceName, os);
         os.flush();
         os.close();
     }
