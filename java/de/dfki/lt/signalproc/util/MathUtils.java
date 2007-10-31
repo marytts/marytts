@@ -1171,4 +1171,32 @@ public class MathUtils {
         
         return inds; 
     }
+    
+    //Returns an array of values selected randomly in the interval [0.0,1.0)
+    public static double [] getRandoms(int len)
+    {
+        return getRandoms(len, 0.0, 1.0);
+    }
+    
+    //Returns an array of values selected randomly in the interval minVal and maxVal
+    public static double [] getRandoms(int len, double minVal, double maxVal)
+    {
+        double [] x = null;
+        
+        if (len>0)
+        {
+            x = new double[len];
+            if (minVal>maxVal)
+            {
+                double tmp = minVal;
+                minVal = maxVal;
+                maxVal = tmp;
+            }
+
+            for (int i=0; i<len; i++)
+                x[i] = Math.random()*(maxVal-minVal)+minVal;
+        }
+        
+        return x; 
+    }
 }

@@ -60,7 +60,6 @@ public class VocalTractModifier implements InlineDataProcessor {
     private Complex expTerm;
     private boolean bAnalysisOnly;
     public static int tmpCount = 0;
-    
     /**
      * 
      */
@@ -95,7 +94,7 @@ public class VocalTractModifier implements InlineDataProcessor {
         this.bAnalysisOnly = bAnalysisOnlyIn;
     }
     
-    public void applyInline(double [] data, int pos, int len) {
+    public void applyInline(double [] data, int pos, int len) {   
         int k;
         assert pos==0;
         assert len==data.length;
