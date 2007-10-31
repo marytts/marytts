@@ -120,12 +120,20 @@ public class ModelSet {
 	    mean = durPdf[idx][s];
 		variance = durPdf[idx][n_state+s];
 		data = mean + rho*variance;
+        
+        //System.out.print("data = " + data + "  ");
+        /* check if the model is initial/final pause, if so reduce the length of the pause 
+         * to 10% of the calculated value. */
+        if(m.getPhoneName().contentEquals("_"))
+           data = data * 0.1;   
 		
 		m.setDur(s, (int)(data+dd+0.5));
 		if(m.getDur(s) < 1 )
 		  m.setDur(s, 1);
-		//System.out.print("dur[" + s + "]=" + m.get_dur(s) + " ");
+               
+		//System.out.println("dur[" + s + "]=" + m.getDur(s) + " " + "  data=" + data);
 		m.setTotalDur(m.getTotalDur() + m.getDur(s));
+        
 		dd = dd + ( data - (double)m.getDur(s) );		
 	  }
 	 

@@ -61,7 +61,8 @@ package de.dfki.lt.mary.htsengine;
  */
 public class Model {
   
-  private String name;              /* the name of this HMM */
+  private String name;              /* the name of this HMM, it includes ph(-2)^ph(-1)-ph(0)+ph(1)=ph(2) + context features */
+  private String phoneName;         /* the name of the phone corresponding to this model, ph(0) in name */
   private int durPdf;               /* duration pdf index for this HMM */
   private int lf0Pdf[];             /* mel-cepstrum pdf indexes for each state of this HMM */  
   private int mcepPdf[];            /* log f0 pdf indexes for each state of this HMM */
@@ -69,7 +70,8 @@ public class Model {
   private int magPdf[];             /* str pdf indexes for each state of this HMM  */
 
   private int dur[];                /* duration for each state of this HMM */
-  private int totalDur;             /* total duration of this HMM */
+  private int totalDur;             /* total duration of this HMM in frames */
+  private int totalDurMillisec;     /* total duration of this model in milliseconds */
   private double lf0Mean[][];       /* mean vector of log f0 pdfs for each state of this HMM */
   private double lf0Variance[][];   /* variance (diag) elements of log f0 for each state of this HMM */
   private double mcepMean[][];      /* mean vector of mel-cepstrum pdfs for each state of this HMM */
@@ -82,8 +84,15 @@ public class Model {
 
   private boolean voiced[];         /* voiced/unvoiced decision for each state of this HMM */
   
-  public void setName(String var){ name = var; }
+  /** This function also sets the phoneName */
+  public void setName(String var){ 
+      name = var;
+      phoneName = getShortPhoneName();
+  }
   public String getName(){return name;}
+  
+  public void setPhoneName(String var){ phoneName = var; }
+  public String getPhoneName(){return phoneName;}
   
   public void setDurPdf(int val){ durPdf = val; }
   public int getDurPdf(){return durPdf;}
@@ -93,6 +102,9 @@ public class Model {
   
   public void setTotalDur(int val){ totalDur = val; }
   public int getTotalDur(){return totalDur;}
+  
+  public void setTotalDurMillisec(int val){ totalDurMillisec = val; }
+  public int getTotalDurMillisec(){return totalDurMillisec;}
   
   public void setLf0Pdf(int i, int val){ lf0Pdf[i] = val; }
   public int getLf0Pdf(int i){ return lf0Pdf[i]; } 
@@ -123,6 +135,24 @@ public class Model {
 		  System.out.print(mcepMean[i][j] + "  ");
 	  System.out.println();
 	}
+  }
+  
+  public void printDuration(int numStates){
+    System.out.print("phoneName: " + phoneName + "\t");
+    for(int i=0; i<numStates; i++)
+       System.out.print("dur[" + i + "]=" + dur[i] + " ");
+    System.out.println("  totalDur=" + totalDur + "  totalDurMillisec=" + totalDurMillisec );      
+  }
+  
+  public String getShortPhoneName(){
+    String aux;
+    int l,r;
+    l = name.indexOf("-");
+    r = name.indexOf("+");
+    aux = name.substring(l+1, r);
+    
+    return aux;
+    
   }
   
   public void setStrMean(int i, int j, double val){ strMean[i][j] = val; }
