@@ -63,7 +63,7 @@ public class RequestTest extends TestCase {
     }
 
     public void testSetInputData() {
-        Request r = new Request(MaryDataType.get("TEXT_DE"), MaryDataType.get("ACOUSTPARAMS"), null, 1, null);
+        Request r = new Request(MaryDataType.get("TEXT_DE"), MaryDataType.get("ACOUSTPARAMS"), null, "", "", 1, null);
         MaryData md = new MaryData(MaryDataType.get("RAWMARYXML"));
         try {
             r.setInputData(md);
@@ -74,7 +74,7 @@ public class RequestTest extends TestCase {
     }
 
     public void testProcess1() throws Exception {
-        Request r = new Request(MaryDataType.get("TEXT_EN"), MaryDataType.get("ACOUSTPARAMS"), null, 1, null);
+        Request r = new Request(MaryDataType.get("TEXT_EN"), MaryDataType.get("ACOUSTPARAMS"), null, "", "", 1, null);
         try {
             r.process();
         } catch (NullPointerException e) {
@@ -84,7 +84,7 @@ public class RequestTest extends TestCase {
     }
 
     public void testProcess2() throws Exception {
-        Request r = new Request(MaryDataType.get("RAWMARYXML"), MaryDataType.get("ACOUSTPARAMS"), null, 1, null);
+        Request r = new Request(MaryDataType.get("RAWMARYXML"), MaryDataType.get("ACOUSTPARAMS"), null, "", "", 1, null);
         MaryData md = new MaryData(MaryDataType.get("RAWMARYXML"), true);
         Document d = md.getDocument();
         Element elt = d.getDocumentElement();
@@ -101,7 +101,7 @@ public class RequestTest extends TestCase {
 
     public void testProcess3() throws Exception {
         // ask for an impossible conversion:
-        Request r = new Request(MaryDataType.get("INTONATION_EN"), MaryDataType.get("TOKENS_EN"), null, 1, null);
+        Request r = new Request(MaryDataType.get("INTONATION_EN"), MaryDataType.get("TOKENS_EN"), null, "", "", 1, null);
         MaryData md = new MaryData(MaryDataType.get("INTONATION_EN"));
         md.readFrom(new StringReader(MaryDataType.get("INTONATION_EN").exampleText()), null);
         r.setInputData(md);
@@ -119,7 +119,7 @@ public class RequestTest extends TestCase {
         AudioFileFormat aff = new AudioFileFormat(AudioFileFormat.Type.WAVE,
             af, AudioSystem.NOT_SPECIFIED);
         Request r = new Request(MaryDataType.get("TEXT_EN"), MaryDataType.get("AUDIO"),
-            voice, 1, aff);
+            voice, "", "", 1, aff);
         MaryData md = new MaryData(MaryDataType.get("TEXT_EN"));
         md.setPlainText("This is a test.");
         r.setInputData(md);
@@ -134,7 +134,7 @@ public class RequestTest extends TestCase {
         MaryDataType rawmaryxml = MaryDataType.get("RAWMARYXML");
         MaryData inputData = new MaryData(rawmaryxml);
         inputData.readFrom(maryxml, null);
-        Request r = new Request(rawmaryxml, rawmaryxml, null, 1, null);
+        Request r = new Request(rawmaryxml, rawmaryxml, null, "", "", 1, null);
         r.setInputData(inputData);
         r.process();
         MaryData processedOut = r.getOutputData();
@@ -154,7 +154,7 @@ public class RequestTest extends TestCase {
     }
     
     public void testWriteOutputData1() throws Exception {
-        Request r = new Request(MaryDataType.get("RAWMARYXML"), MaryDataType.get("RAWMARYXML"), null, 1, null);
+        Request r = new Request(MaryDataType.get("RAWMARYXML"), MaryDataType.get("RAWMARYXML"), null, "", "", 1, null);
         MaryData md = new MaryData(MaryDataType.get("RAWMARYXML"));
         md.readFrom(new StringReader(MaryDataType.get("RAWMARYXML_EN").exampleText()), null);
         r.setInputData(md);
@@ -173,7 +173,7 @@ public class RequestTest extends TestCase {
         AudioFileFormat aff = new AudioFileFormat(AudioFileFormat.Type.WAVE,
             af, AudioSystem.NOT_SPECIFIED);
         Request r = new Request(MaryDataType.get("TEXT_EN"), MaryDataType.get("AUDIO"),
-            voice, 1, aff);
+            voice, "", "", 1, aff);
         MaryData md = new MaryData(MaryDataType.get("TEXT_EN"));
         md.setPlainText("This is a test.");
         r.setInputData(md);

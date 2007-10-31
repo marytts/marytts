@@ -124,7 +124,7 @@ public class MaryTest extends TestCase {
         Assert.assertTrue(maryxml != null);
         MaryData inputData = new MaryData(inputType);
         inputData.readFrom(maryxml, null);
-        Request r = new Request(inputType, targetType, null, 1, null);
+        Request r = new Request(inputType, targetType, null, "", "", 1, null);
         r.setInputData(inputData);
         r.process();
         MaryData outputData = r.getOutputData();
