@@ -37,6 +37,7 @@ package de.dfki.lt.mary.unitselection.featureprocessors;
 import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.ProcessException;
 import com.sun.speech.freetts.Relation;
+import com.sun.speech.freetts.Utterance;
 
 import de.dfki.lt.mary.unitselection.DiphoneTarget;
 import de.dfki.lt.mary.unitselection.HalfPhoneTarget;
@@ -640,6 +641,38 @@ public class MaryGenericFeatureProcessors
             HalfPhoneTarget hpTarget = (HalfPhoneTarget) target;
             String value = (hpTarget.isLeftHalf() ? "L" : "R");
             return values.get(value);
+        }
+    }
+    
+    /**
+     * Sentence Style for the given target 
+     * @author Sathish Chandra Pammi
+     *
+     */
+    
+    public static class SentenceStyle implements ByteValuedFeatureProcessor
+    {
+        protected ByteStringTranslator values;
+        protected TargetItemNavigator navigator;
+        /**
+         * Initialise a SentenceStyle feature processor.
+         */
+        public SentenceStyle()
+        {
+            this.values = new ByteStringTranslator(new String[] {
+                    "0", "neutral", "poker", "happy", "sad", "angry", "excited"
+            });
+            this.navigator = new SegmentNavigator();
+        }
+        public String getName() { return "mary_style"; }
+        public String[] getValues() { return values.getStringValues(); }
+        public byte process(Target target)
+        {
+            Item item = target.getItem();
+            Utterance utt = item.getUtterance();
+            String style = utt.getString("style");
+            if(style == null) style = "0";
+            return values.get(style);
         }
     }
 
