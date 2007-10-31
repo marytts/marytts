@@ -1071,6 +1071,7 @@ public class MaryGUIClient extends JPanel
                                 "AUDIO",
                                 audioType.toString(),
                                 ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
+                                "",
                                 getAudioEffectsAsString(),
                                 new FileOutputStream(saveFile));
                     }
@@ -1142,6 +1143,7 @@ public class MaryGUIClient extends JPanel
                         ((MaryClient.DataType)cbInputType.getSelectedItem()).name(),
                         streamMp3 ? "MP3":"WAVE",
                                 ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
+                                "",
                                 getAudioEffectsAsString(),
                                 audioPlayer,
                                 new MaryClient.AudioPlayerListener() {
@@ -1171,8 +1173,10 @@ public class MaryGUIClient extends JPanel
                         outputType.name(),
                         null,
                         ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
+                        "",
                         getAudioEffectsAsString(),
                         os);
+
                 try {
                     setOutputText(((ByteArrayOutputStream)os).toString("UTF-8"));
                 } catch (UnsupportedEncodingException uee) {
