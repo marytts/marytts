@@ -289,6 +289,46 @@ public class HTSContextTranslator extends InternalModule {
         
     }
     
+    
+    /** Translation table for labels which are incompatible with HTK or shell filenames
+     * See common_routines.pl in HTS training.
+     * In this function the phonemes as used internally in HTSEngine are changed
+     * back to the Mary TTS set, this function is necessary when correcting the 
+     * actual durations of AcousticPhonemes.
+     * @param lab
+     * @return String
+     */
+    public String replaceBackTrickyPhones(String lab){
+      String s = lab;
+      /** DE (replacements in German phoneme set) */     
+      if(lab.contentEquals("ER6") )
+        s = "6";
+      //else if (lab.contentEquals("ER6") )   /* CHECK ??? */
+      //  s = "6";
+      else if (lab.contentEquals("EU2") )
+          s = "2:";
+      else if (lab.contentEquals("EU9") )
+          s = "9";
+      else if (lab.contentEquals("UM9") )
+          s = "9~";
+      else if (lab.contentEquals("IMe") )
+          s = "e~";
+      else if (lab.contentEquals("ANa") )
+          s = "a~";
+      else if (lab.contentEquals("ONo") )
+          s = "o~";
+      else if (lab.contentEquals("gstop") )
+          s = "?";
+      /** EN (replacements in English phoneme set) */
+      else if (lab.contentEquals("rr") )
+          s = "r="; 
+      
+      //System.out.println("LAB=" + s);
+      
+      return s;
+        
+    }
+    
     /** Shorten the key name (to make the full context names shorter)
      * See common_routines.pl in HTS training.
      */

@@ -66,7 +66,9 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
@@ -74,14 +76,24 @@ import java.util.Scanner;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.AudioFileFormat;
 
 import org.apache.log4j.Logger;
 import org.jsresources.AppendableSequenceAudioInputStream;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.traversal.DocumentTraversal;
+import org.w3c.dom.traversal.NodeFilter;
+import org.w3c.dom.traversal.NodeIterator;
 
 import de.dfki.lt.mary.MaryData;
 import de.dfki.lt.mary.MaryDataType;
+import de.dfki.lt.mary.MaryXML;
 import de.dfki.lt.mary.modules.InternalModule;
 import de.dfki.lt.mary.tests.AllTests;
+import de.dfki.lt.mary.util.dom.NameNodeFilter;
 import de.dfki.lt.signalproc.util.AudioPlayer;
 import de.dfki.lt.signalproc.util.DDSAudioInputStream;
 import de.dfki.lt.signalproc.util.NoiseDoubleDataSource;
@@ -135,9 +147,9 @@ public class HTSEngine extends InternalModule
         Voice v = d.getDefaultVoice(); /* This is the way of getting a Voice through a MaryData type */
         assert v instanceof HMMVoice;
         HMMVoice hmmv = (HMMVoice)v;
-        
-        
+              
         String context = d.getPlainText();
+        
         
         /* Process label file of Mary context features and creates UttModel um */
         processUtt(context, um, hmmv.getHMMData());
@@ -159,10 +171,12 @@ public class HTSEngine extends InternalModule
                 assert d.getAudio() instanceof AppendableSequenceAudioInputStream;
                 output.setAudio(d.getAudio());
             }
-        }
-       
+        }     
        output.appendAudio(ais);
-         
+       
+       /* include correct durations in MaryData output */
+       output.setPlainText(um.getRealisedAcoustParams());
+              
        return output;
         
     }
@@ -254,6 +268,8 @@ public class HTSEngine extends InternalModule
         double diffdurOld = 0.0;
         double diffdurNew = 0.0;
         Tree auxTree;
+        float fperiodmillisec = ((float)htsData.getFperiod() / (float)htsData.getRate()) * 1000;
+        Integer dur;
 
         /* parse text */
         i=0;
@@ -278,12 +294,15 @@ public class HTSEngine extends InternalModule
             //System.out.println("dur->pdf=" + m.get_durpdf());
 
             if (htsData.getLength() == 0.0 ) {
-                diffdurNew = ms.findDurPdf(m, htsData.getRho(), diffdurOld); 
+                diffdurNew = ms.findDurPdf(m, htsData.getRho(), diffdurOld);                
+                m.setTotalDurMillisec((int)(fperiodmillisec * m.getTotalDur()));                
                 diffdurOld = diffdurNew;
                 um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());
-                //System.out.println("total_frame=" + um.get_totalframe() + "  total_dur=" + m.get_totaldur());
+                dur = m.getTotalDurMillisec();
+                um.concatRealisedAcoustParams(m.getPhoneName() + " " + dur.toString() + "\n");           
             } /* else : when total length of generated speech is specified */
             /* Not implemented yet...*/
+            //m.printDuration(ms.getNumState());
 
             /* Find pdf for LF0 */               
             for(auxTree=ts.getTreeHead(HMMData.LF0), mstate=0; auxTree != ts.getTreeTail(HMMData.LF0); auxTree=auxTree.getNext(), mstate++ ) {           
@@ -359,7 +378,7 @@ public class HTSEngine extends InternalModule
       HMMData htsData = new HMMData();
       //htsData.initHMMData("/project/mary/marcela/HTS-mix/hts_engine.config");
       //htsData.initHMMData("/project/mary/sacha/HTS_BITS_24features_stableonly/hts_engine.config");
-      htsData.initHMMData("/project/mary/marcela/german-hmm-bits/hts/hts_engine.config");
+      htsData.initHMMData("/project/mary/marcela/HMM-voices/german-hmm-bits1/hts/hts_engine.config");
       
       /** The utterance model, um, is a Vector (or linked list) of Model objects. 
        * It will contain the list of models for current label file. */
@@ -386,11 +405,22 @@ public class HTSEngine extends InternalModule
           /* Synthesize speech waveform, generate speech out of sequence of parameters */
           ais = par2speech.htsMLSAVocoder(pdf2par, htsData);
 
+          
+          
+          System.out.println("saving to file: /project/mary/marcela/HMM-voices/german-hmm-bits1/hts/gen/tmp.wav");
+          File fileOut = new File("/project/mary/marcela/HMM-voices/german-hmm-bits1/hts/gen/tmp.wav");
+          if (AudioSystem.isFileTypeSupported(AudioFileFormat.Type.WAVE,ais)) {
+            AudioSystem.write(ais, AudioFileFormat.Type.WAVE, fileOut);
+          }
+
+          /*
+          ais.reset();
           System.out.println("Calling audioplayer:");
           AudioPlayer player = new AudioPlayer(ais, null);
           player.start();  // this call the run method..
           player.join();
           System.out.println("audioplayer finished...");
+          */
           System.exit(0);
 
       } catch (Exception e) {
