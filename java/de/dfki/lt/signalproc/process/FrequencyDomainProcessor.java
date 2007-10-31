@@ -55,8 +55,6 @@ public class FrequencyDomainProcessor implements InlineDataProcessor
         this.real = new double[fftSize];
         this.imag = new double[fftSize];
         this.amount = amount;
-        this.amount = Math.max(0.5, this.amount);
-        this.amount = Math.min(1.0, this.amount);
         this.oneMinusAmount = 1.0-this.amount;
     }
     
