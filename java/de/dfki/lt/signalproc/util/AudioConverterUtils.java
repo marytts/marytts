@@ -44,6 +44,9 @@ import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.AudioFormat.Encoding;
 import de.dfki.lt.mary.util.MaryAudioUtils;
+import de.dfki.lt.signalproc.filter.*;
+import de.dfki.lt.signalproc.util.DDSAudioInputStream;
+import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
 
 /**
  * 
@@ -92,6 +95,9 @@ public class AudioConverterUtils {
         int noOfbitsPerSample = ais.getFormat().getSampleSizeInBits();
         if(noOfbitsPerSample != bitsPerSample){
             throw new Exception("24-Bit Audio Data Expected. But given Audio Data is "+noOfbitsPerSample+"-Bit data");
+        }
+        if(ais.getFormat().getChannels() != 1){
+            throw new Exception("Expected Audio type is Mono. But given Audio Data has "+ais.getFormat().getChannels()+" channels");
         }
         
         float samplingRate = ais.getFormat().getSampleRate();
@@ -179,6 +185,143 @@ public class AudioConverterUtils {
         return new AudioInputStream(bais, af, lengthInSamples);
     }
 
+ /**
+  * Get samples in Integer Format (un-normalized) from AudioInputStream
+  * @param ais
+  * @return
+  * @throws Exception
+  */   
+ public static int[] getSamples(AudioInputStream ais) throws Exception{
+        
+        
+        int noOfbitsPerSample = ais.getFormat().getSampleSizeInBits();
+        float samplingRate = ais.getFormat().getSampleRate();
+        int channels = ais.getFormat().getChannels();
+        int nBytes = ais.available();
+        boolean bigEndian = ais.getFormat().isBigEndian();
+        byte [] byteBuf = new byte[nBytes];
+        int nBytesRead = ais.read(byteBuf, 0, nBytes); // Reading all Bytes at a time
+        int noOfBytesPerSample = noOfbitsPerSample / 8;
+        
+        int[] samples = new int[nBytes / noOfBytesPerSample]; 
+        int currentPos = 0 ; // off
+        
+        if (noOfBytesPerSample == 1) {
+            for (int i=0; i<nBytesRead; i++, currentPos++) {
+                samples[currentPos] = (byteBuf[i]<<8) ;
+            }
+        
+        } else if (noOfBytesPerSample == 2){ // 16 bit
+            for (int i=0; i<nBytesRead; i+=2, currentPos++) {
+                int sample;
+                byte lobyte;
+                byte hibyte;
+                if (!bigEndian) {
+                    lobyte = byteBuf[i];
+                    hibyte = byteBuf[i+1];
+                } else {
+                    lobyte = byteBuf[i+1];
+                    hibyte = byteBuf[i];
+                }
+                samples[currentPos] = hibyte<<8 | lobyte&0xFF;
+           }
+            
+        } else { // noOfBytesPerSample == 3, i.e. 24 bit
+            for (int i=0; i<nBytesRead; i+=3, currentPos++) {
+                int sample;
+                byte lobyte;
+                byte midbyte;
+                byte hibyte;
+                if (!bigEndian) {
+                    lobyte = byteBuf[i];
+                    midbyte = byteBuf[i+1];
+                    hibyte = byteBuf[i+2];
+                } else {
+                    lobyte = byteBuf[i+2];
+                    midbyte = byteBuf[i+1];
+                    hibyte = byteBuf[i];
+                }
+                samples[currentPos] = hibyte << 16 | (midbyte & 0xFF) << 8 | lobyte & 0xFF;
+            }
+        }
+        
+        return samples; 
+    }
+
+ /**
+  * Remove Low Frequency Noise (It will Remove Signal Content which is less than 50Hz)
+  * @param ais
+  * @return
+  * @throws Exception
+  */
+ public static AudioInputStream removeLowFrequencyNoise(AudioInputStream ais) throws Exception{
+        
+        double[] samples = new AudioDoubleDataSource(ais).getAllData();
+        float samplingRate = ais.getFormat().getSampleRate();
+        double cutOff = (double)(50.0 / samplingRate);
+        HighPassFilter hFilter = new HighPassFilter(cutOff);
+        double[] fsamples = hFilter.apply(samples);
+        DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(fsamples), ais.getFormat()); 
+        return outputAudio; 
+    }
+ 
+ 
+ /**
+  * DownSampling given Audio Input Stream 
+  * @param ais
+  * @param targetSamplingRate
+  * @return
+  * @throws Exception
+  */   
+ public static AudioInputStream downSampling(AudioInputStream ais, int targetSamplingRate) throws Exception{
+        
+        float currentSamplingRate = ais.getFormat().getSampleRate();
+        if(targetSamplingRate >= currentSamplingRate){
+            throw new Exception("Requested sampling rate "+targetSamplingRate+" is greater than or equal to Audio sampling rate "+currentSamplingRate);
+        }
+        int noOfbitsPerSample = ais.getFormat().getSampleSizeInBits();
+        int channels = ais.getFormat().getChannels();
+        int nBytes = ais.available();
+        
+        boolean bigEndian = ais.getFormat().isBigEndian();
+        double[] samples = new AudioDoubleDataSource(ais).getAllData();
+        
+        // **** Filtering to Remove Aliasing ****** 
+        double filterCutof = 0.5 * (double) targetSamplingRate/currentSamplingRate;
+        //System.out.println("filterCutof: "+filterCutof);
+        LowPassFilter filter = new LowPassFilter(filterCutof);
+        samples = filter.apply(samples);
+        double duration = (double) samples.length / currentSamplingRate;
+        //System.out.println("duration: "+duration);
+        int newSampleLen = (int) Math.floor(duration * targetSamplingRate) ;
+        //System.out.println("New Sample Length: "+newSampleLen);
+        double fraction = (double)currentSamplingRate / targetSamplingRate;
+        //System.out.println("Fraction: "+fraction);
+        
+        double[] newSignal = new double[newSampleLen];
+        for(int i=0;i<newSignal.length;i++){
+            double posIdx =  fraction * i;
+            int nVal = (int) Math.floor(posIdx);
+            double diffVal = posIdx - nVal;
+            
+            // Linear Interpolation 
+            newSignal[i] = (diffVal * samples[nVal+1]) + ((1 - diffVal) * samples[nVal]);
+            
+        }
+        boolean signed = true; //true,false
+        AudioFormat af = new AudioFormat(
+                targetSamplingRate,
+                noOfbitsPerSample,
+                channels,
+                signed,
+                bigEndian);
+        
+        DDSAudioInputStream oais = new DDSAudioInputStream(new
+                BufferedDoubleDataSource(newSignal), af);
+
+        return oais;
+    }
+    
 }    
    
 
