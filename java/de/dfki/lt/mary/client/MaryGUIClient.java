@@ -739,18 +739,18 @@ public class MaryGUIClient extends JPanel
     {
         if (isButtonHide)
         {
-            if (effectsBox.mainPanel!=null)
+            if (effectsBox!=null && effectsBox.mainPanel!=null)
                 effectsBox.mainPanel.setVisible(false);
-            
+
             showHideEffects.setText("Show Effects");
             isButtonHide = false;
             showingAudioEffects = false;
         }
         else
         {
-            if (effectsBox.mainPanel!=null)
+            if (effectsBox!=null && effectsBox.mainPanel!=null)
                 effectsBox.mainPanel.setVisible(true);
-            
+
             showHideEffects.setText("Hide Effects");
             isButtonHide = true;
             showingAudioEffects = true;
@@ -787,33 +787,36 @@ public class MaryGUIClient extends JPanel
     //If no effect is selected or the effects are not being shown, an empty String is returned
     private String getAudioEffectsAsString()
     {
+        
         String strParams = "";
         String strTmpParam;
-        
-        if (isButtonHide)
-        {         
-            boolean bFirst = true;
-            for (int i=0; i<audioEffectSet.totalEffects; i++)
-            {
-                if (effectsBox.effectControls[i].chkEnabled.isSelected())
+
+        if (effectsBox!=null)
+        {
+            if (isButtonHide)
+            {         
+                boolean bFirst = true;
+                for (int i=0; i<audioEffectSet.totalEffects; i++)
                 {
-                    audioEffectSet.effects[i].setParams(effectsBox.effectControls[i].txtParams.getText());
-                    
-                    effectsBox.effectControls[i].txtParams.setText(audioEffectSet.effects[i].getParamsAsString(false));
-                    
-                    strTmpParam = audioEffectSet.effects[i].getFullEffectAsString();
-                    
-                    if (!bFirst)
-                        strParams += EffectsApplier.chEffectSeparator + strTmpParam;
-                    else
+                    if (effectsBox.effectControls[i].chkEnabled.isSelected())
                     {
-                        strParams += strTmpParam;
-                        bFirst = false;
+                        audioEffectSet.effects[i].setParams(effectsBox.effectControls[i].txtParams.getText());
+
+                        effectsBox.effectControls[i].txtParams.setText(audioEffectSet.effects[i].getParamsAsString(false));
+
+                        strTmpParam = audioEffectSet.effects[i].getFullEffectAsString();
+
+                        if (!bFirst)
+                            strParams += EffectsApplier.chEffectSeparator + strTmpParam;
+                        else
+                        {
+                            strParams += strTmpParam;
+                            bFirst = false;
+                        }
                     }
                 }
             }
         }
-        
         return strParams;
     }
     
@@ -975,10 +978,13 @@ public class MaryGUIClient extends JPanel
                 // need to change output display
                 audioPanel.setVisible(false);
 
-                if (effectsBox.mainPanel!=null)
-                    effectsBox.mainPanel.setVisible(false);
+                if (effectsBox!=null)
+                {
+                    if (effectsBox.mainPanel!=null)
+                        effectsBox.mainPanel.setVisible(false);
                 
-                showHidePanel.setVisible(false);
+                    showHidePanel.setVisible(false);
+                }
                 
                 outputScrollPane.setVisible(true);
                 showingTextOutput = true;
@@ -992,7 +998,8 @@ public class MaryGUIClient extends JPanel
                 // change output display
                 outputScrollPane.setVisible(false);
                 audioPanel.setVisible(true);
-                if (effectsBox.mainPanel!=null)
+                
+                if (effectsBox!=null && effectsBox.mainPanel!=null)
                  {
                     showHidePanel.setVisible(true);
                     
