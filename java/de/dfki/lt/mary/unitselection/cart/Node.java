@@ -169,5 +169,9 @@ public abstract class Node {
      */
     public abstract void toWagonFormat(DataOutputStream out,
             String extension, PrintWriter pw) throws IOException;
+    
+    public String toString(String prefix){
+        return prefix + this.toString();
+    }
 
 }

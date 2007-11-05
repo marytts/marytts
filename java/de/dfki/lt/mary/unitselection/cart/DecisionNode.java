@@ -84,6 +84,8 @@ public abstract class DecisionNode extends Node {
      *            the new daughter
      */
     public void addDaughter(Node daughter) {
+      
+        
         if (lastDaughter > daughters.length - 1) {
             throw new RuntimeException("Can not add daughter number "
                     + (lastDaughter + 1) + ", since node has only "
@@ -305,6 +307,29 @@ public abstract class DecisionNode extends Node {
             }
         }
     }
+    
+    /**
+     * This returns a String representation of this node. A prefix is given to
+     * indent the nodes.
+     */
+    public String toString(String prefix){
+        StringBuffer sb = new StringBuffer();
+        
+        String lineBreak = System.getProperty("line.separator");
+
+        sb.append(lineBreak);
+        sb.append(prefix + "((" + getNodeDefinition() + ")");
+        
+        // add the daughters
+        for (int i = 0; i < daughters.length; i++) {
+            sb.append(daughters[i].toString(prefix + " "));
+            
+        }
+        
+        sb.append(")");
+        
+        return sb.toString();
+    }
 
     /**
      * Gets the String that defines the decision done in the node
@@ -325,7 +350,7 @@ public abstract class DecisionNode extends Node {
     /**
      * A binary decision Node that compares two byte values.
      */
-    static class BinaryByteDecisionNode extends DecisionNode {
+    public static class BinaryByteDecisionNode extends DecisionNode {
 
         // the value of this node
         private byte value;
