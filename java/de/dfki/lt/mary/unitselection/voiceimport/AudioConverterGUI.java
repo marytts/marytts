@@ -353,37 +353,6 @@ public class AudioConverterGUI extends javax.swing.JFrame {
         System.exit(0);
     }
     
-    /**
-     * Sampling Rate Conversion doing with SOX.
-     * @param outpath
-     * @param targetSamplingRate
-     * @throws IOException
-     */
-    private void samplingRateConverter(String waveFile, int targetSamplingRate) throws IOException{
-        
-        try{
-            Runtime rtime = Runtime.getRuntime();
-            Process process = rtime.exec("/bin/bash");
-            
-            PrintWriter pw = new PrintWriter(
-                    new OutputStreamWriter(process.getOutputStream()));
-            pw.print("( sox "+waveFile+" -r "
-                    + targetSamplingRate
-                    +" tempOut.wav"
-                    +" ; mv tempOut.wav "+waveFile
-                    +" ; exit )\n");
-            pw.flush();
-            pw.close();
-            process.waitFor();
-            process.exitValue();
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-        return;
-    }
-
     private void quitGUI(java.awt.event.ActionEvent evt) {                         
 // TODO add your handling code here:
         System.exit(0);
