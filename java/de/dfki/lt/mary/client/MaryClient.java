@@ -944,7 +944,7 @@ public class MaryClient {
                     new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
                     "MARY VOICE AUDIOEFFECTS " + voicename);
                 if (info.length() == 0)
-                    throw new IOException("Could not get available audio effects from Mary server");
+                    return "";
                 
                 audioEffectsMap.put(voicename, info.replaceAll("\n", System.getProperty("line.separator")));
                 marySocket.close();
