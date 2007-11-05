@@ -343,7 +343,7 @@ public class VoiceInstaller extends VoiceImportComponent{
               configOut.println("# Java classes to use for the various unit selection components\n"+
                       voiceHeader+".databaseClass            = de.dfki.lt.mary.unitselection.DiphoneUnitDatabase\n"+
                       voiceHeader+".selectorClass            = de.dfki.lt.mary.unitselection.DiphoneUnitSelector\n"+
-                      voiceHeader+".concatenatorClass        = de.dfki.lt.mary.unitselection.WaveOverlapUnitConcatenator\n"+
+                      voiceHeader+".concatenatorClass        = de.dfki.lt.mary.unitselection.concat.OverlapUnitConcatenator\n"+
                       voiceHeader+".targetCostClass          = de.dfki.lt.mary.unitselection.DiphoneFFRTargetCostFunction\n"+
                       voiceHeader+".joinCostClass            = de.dfki.lt.mary.unitselection.JoinCostFeatures\n"+
                       voiceHeader+".unitReaderClass          = de.dfki.lt.mary.unitselection.UnitFileReader\n"+
