@@ -85,8 +85,9 @@ public class HalfPhoneTargetFeatureLister extends TargetFeatureLister
      * @param segs the Segment relation
      * @return a list of Target objects
      */
-    protected List<Target> createTargetsWithPauses(Relation segs) {
+    public static List<Target> createTargetsWithPauses(Relation segs) {
         List<Target> targets = new ArrayList<Target>();
+
         boolean first = true;
         Item s = segs.getHead();
         Voice v = FreeTTSVoices.getMaryVoice(s.getUtterance().getVoice());

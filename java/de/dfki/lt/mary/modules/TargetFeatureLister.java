@@ -67,6 +67,7 @@ public class TargetFeatureLister extends InternalModule
                 outputType);
     }
 
+
     public TargetFeatureLister()
     {
         this(MaryDataType.get("TARGETFEATURES"));
@@ -144,8 +145,9 @@ public class TargetFeatureLister extends InternalModule
      * @param segs the Segment relation
      * @return a list of Target objects
      */
-    protected List<Target> createTargetsWithPauses(Relation segs) {
+    public static List<Target> createTargetsWithPauses(Relation segs) {
         List<Target> targets = new ArrayList<Target>();
+
         boolean first = true;
         Item s = segs.getHead();
         Voice v = FreeTTSVoices.getMaryVoice(s.getUtterance().getVoice());
