@@ -36,6 +36,7 @@ import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Stack;
 import java.util.StringTokenizer;
 
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
@@ -61,7 +62,7 @@ import de.dfki.lt.mary.unitselection.voiceimport.MaryHeader;
 public abstract class WagonCART extends CART 
 {
     private Node lastNode;
-
+    
     private int openBrackets;
 
     public WagonCART()
@@ -80,6 +81,20 @@ public abstract class WagonCART extends CART
      */
     public WagonCART(BufferedReader reader, FeatureDefinition featDefinition)
             throws IOException {
+        this.load(reader, featDefinition);
+
+    }
+    
+    /**
+     * 
+     * This loads a cart from a wagon tree in textual format, from a reader.
+     * This method exists to be called from the constructor.
+     * 
+     * @param reader the Reader providing the wagon tree
+     * @param featDefinition
+     * @throws IOException 
+     */
+    protected void load(BufferedReader reader, FeatureDefinition featDefinition) throws IOException{
         featDef = featDefinition;
         openBrackets = 0;
         String line = reader.readLine(); 
@@ -92,6 +107,8 @@ public abstract class WagonCART extends CART
             if (!line.startsWith(";;")
                     && !line.equals("")) {
                 // parse the line and add the node
+                
+                
                 parseAndAdd(line);
             }
             line = reader.readLine();
@@ -104,7 +121,7 @@ public abstract class WagonCART extends CART
         // will return the correct figure.
         if (rootNode instanceof DecisionNode)
             ((DecisionNode)rootNode).countData();
-
+        
     }
 
 

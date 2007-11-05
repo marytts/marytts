@@ -81,18 +81,17 @@ public abstract class CART
      */
     public abstract void load(String fileName, FeatureDefinition featDefinition, String[] setFeatureSequence ) throws IOException;
 
-
     /**
      * Passes the given item through this CART and returns the
-     * interpretation.
+     * leaf Node, or the Node it stopped walking down.
      *
      * @param target the target to analyze
      * @param minNumberOfData the minimum number of data requested.
      * If this is 0, walk down the CART until the leaf level.
      *
-     * @return the interpretation
+     * @return the Node
      */
-    public Object interpret(Target target, int minNumberOfData) {
+    public Node interpretToNode(Target target, int minNumberOfData) {
         Node currentNode = rootNode;
         Node prevNode = null;
 
@@ -118,8 +117,24 @@ public abstract class CART
         assert currentNode.getNumberOfData() >= minNumberOfData
             || currentNode == rootNode; 
         
+        return currentNode;
+        
+    }
+
+    /**
+     * Passes the given item through this CART and returns the
+     * interpretation.
+     *
+     * @param target the target to analyze
+     * @param minNumberOfData the minimum number of data requested.
+     * If this is 0, walk down the CART until the leaf level.
+     *
+     * @return the interpretation
+     */
+    public Object interpret(Target target, int minNumberOfData) {
+        
         // get the indices from the leaf node
-        Object result = currentNode.getAllData();
+        Object result = this.interpretToNode(target, minNumberOfData).getAllData();
         
         return result;
 
@@ -203,7 +218,7 @@ public abstract class CART
      */
     public void toTextOut(PrintWriter pw) throws IOException {
         try {
-            rootNode.toWagonFormat(null, null, pw);
+            rootNode.toWagonFormat(null, "", pw);
             pw.flush();
             pw.close();
         } catch (IOException ioe) {
@@ -227,5 +242,9 @@ public abstract class CART
             throws IOException {
         out.writeInt(str.length());
         out.writeChars(str);
+    }
+    
+    public String toString(){
+        return this.rootNode.toString("");
     }
 }

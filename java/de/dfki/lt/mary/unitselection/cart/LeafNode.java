@@ -205,6 +205,10 @@ public abstract class LeafNode extends Node {
     		return data;
     	}
         
+    	public int[] getIntData(){
+            return data;
+        }
+        
     	public float[] getFloatData(){
     		return floats;
     	}
@@ -262,10 +266,47 @@ public abstract class LeafNode extends Node {
             }
             if (pw != null) {
                 // dump to printwriter
+                // TODO: change print to println
                 pw.print(sb.toString());
             }
         }
+        
+        /**
+         * This returns a String representation of this node. A prefix is given to
+         * indent the nodes.
+         */
+        public String toString(String prefix){
+            StringBuffer sb = new StringBuffer();
+            
+            String lineBreak = System.getProperty("line.separator");
+            
+            int maxData = 0;
+            float maxFloat = 0.0f;
+            
+            sb.append(lineBreak);
+            // open three brackets
+            sb.append(prefix + "(((");
+            // for each index, write the index and then its float
+            for (int i = 0; i < data.length; i++) {
+                
+                if ( floats[i] > maxFloat ){
+                    maxFloat = floats[i];
+                    maxData = data[i];
+                }
+                
+                sb.append("(" + data[i] + " "+floats[i]+")");
+                if (i + 1 != data.length) {
+                    sb.append(" ");
+                }
+            }
+            // write the ending
+            sb.append(") " + maxData+ "))");
+                    
+            return sb.toString();
+        }
     }
+    
+
     
     public static class FeatureVectorLeafNode extends LeafNode
     {

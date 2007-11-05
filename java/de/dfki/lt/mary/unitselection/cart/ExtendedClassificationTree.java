@@ -61,7 +61,7 @@ public class ExtendedClassificationTree extends WagonCART
             throws IOException {
         super(reader, featDefinition);
     }
-
+    
     /**
      * For a line representing a leaf in Wagon format, create a leaf.
      * This method decides which implementation of LeafNode is used, i.e.
