@@ -95,10 +95,10 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         return analyzePitchSynchronous(x, pitchMarks, numPeriods, -1.0f);
     }
     
-  //Pitch synchronous analysis
+    //Pitch synchronous analysis using a fixed skip size
     public SinusoidalTracks analyzePitchSynchronous(double [] x, int [] pitchMarks, float numPeriods, float skipSizeInSeconds)
     {
-        return analyzePitchSynchronous(x, pitchMarks, numPeriods, skipSizeInSeconds, TrackGenerator.DEFAULT_DELTA);
+        return analyzePitchSynchronous(x, pitchMarks, numPeriods, skipSizeInSeconds, DEFAULT_DELTA_IN_HZ);
     }
     
     /* 
@@ -113,7 +113,7 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         absMax = MathUtils.getAbsMax(x);
  
         boolean bFixedSkipRate = false;
-        if (skipSizeInSeconds>0.0f) //Perform fixed skip rate but pitch synchronous analysis?
+        if (skipSizeInSeconds>0.0f) //Perform fixed skip rate but pitch synchronous analysis. This is useful for time/pitch scale modification
         {
             ss = (int)Math.floor(skipSizeInSeconds*fs + 0.5);
             bFixedSkipRate = true;

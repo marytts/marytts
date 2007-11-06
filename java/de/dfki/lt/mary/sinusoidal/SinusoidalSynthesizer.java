@@ -57,7 +57,7 @@ import de.dfki.lt.signalproc.window.Window;
  * 
  */
 public class SinusoidalSynthesizer {
-    private int fs; //Sampling rate in Hz
+    public int fs; //Sampling rate in Hz
     public static double DEFAULT_ABS_MAX_OUT = 0.90;
     
     public SinusoidalSynthesizer(int samplingRate)
@@ -220,8 +220,8 @@ public class SinusoidalSynthesizer {
         //
         
         //Analysis
-        float deltaInHz = 50.0f;
-        float numPeriods = 2.5f;
+        float deltaInHz = SinusoidalAnalyzer.DEFAULT_DELTA_IN_HZ;
+        float numPeriods = PitchSynchronousSinusoidalAnalyzer.DEFAULT_ANALYSIS_PERIODS;
         boolean isSilentSynthesis = false;
         
         boolean bRefinePeakEstimatesParabola = true;

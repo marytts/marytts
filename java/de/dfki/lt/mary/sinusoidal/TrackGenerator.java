@@ -36,8 +36,6 @@ package de.dfki.lt.mary.sinusoidal;
  * 
  */
 public class TrackGenerator {
-    
-    public static float DEFAULT_DELTA = 50.0f; //Default maximum absolute frequency deviation between neighbouring sinusoids in a track
     public static float ZERO_AMP_SHIFT_IN_SECONDS = 0.005f; //Time instant before/after current time to insert a turning-on/off event
                                                             //The amplitudes and synthesis freqs/phases are accordingly interpolated to provide a smooth transition
     
