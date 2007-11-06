@@ -63,6 +63,10 @@ import de.dfki.lt.signalproc.window.Window;
  * The implementation consists of ideas and algorithms from various papers as described in function headers
  */
 public class SinusoidalAnalyzer {
+    public static float DEFAULT_DELTA_IN_HZ = 50.0f;
+    public static float DEFAULT_ANALYSIS_WINDOW_SIZE = 0.020f;
+    public static float DEFAULT_ANALYSIS_SKIP_SIZE = 0.010f;
+    public static double MIN_ENERGY_TH = 1e-10; //Minimum energy threshold to analyze a frame
     
     protected int fs; //Sampling rate in Hz
     protected int windowType; //Type of window (See class Window for details)
@@ -70,7 +74,7 @@ public class SinusoidalAnalyzer {
 
     protected boolean bRefinePeakEstimatesParabola; //Refine peak and frequency estimates by fitting parabolas?
     protected boolean bRefinePeakEstimatesBias; //Further refine peak and frequency estimates by correcting bias? 
-                                              //       (Only effective when bRefinePeakEstimatesParabola=true)
+                                                //       (Only effective when bRefinePeakEstimatesParabola=true)
     
     protected int ws; //Window size in samples
     protected int ss; //Skip size in samples
@@ -82,10 +86,6 @@ public class SinusoidalAnalyzer {
     
     public static float MIN_WINDOW_SIZE = 0.020f; 
     protected int minWindowSize; //Minimum window size allowed to satisfy 100 Hz criterion for unvoiced sounds computed from MIN_WINDOW_SIZE and sampling rate
-    
-    public static float DEFAULT_ANALYSIS_WINDOW_SIZE = 0.020f;
-    public static float DEFAULT_ANALYSIS_SKIP_SIZE = 0.010f;
-    public static double MIN_ENERGY_TH = 1e-10; //Minimum energy threshold to analyze a frame
     
     protected double absMax; //Keep absolute max of the input signal for normalization after resynthesis
     
@@ -140,7 +140,7 @@ public class SinusoidalAnalyzer {
     
     public SinusoidalTracks analyzeFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds)
     {
-        return analyzeFixedRate(x, winSizeInSeconds, skipSizeInSeconds, TrackGenerator.DEFAULT_DELTA);
+        return analyzeFixedRate(x, winSizeInSeconds, skipSizeInSeconds, DEFAULT_DELTA_IN_HZ);
     }
     
     public static int getSinAnaFFTSize(int samplingRate)
