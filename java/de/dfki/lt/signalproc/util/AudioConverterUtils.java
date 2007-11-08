@@ -131,8 +131,8 @@ public class AudioConverterUtils {
         
         for(int i=0;i<sample.length;i++){
         for(int j=bitsPerSample;j>=1;j--){
-            valueAfterShift = sample[i] >> j;
-            if(valueAfterShift != 0 && valueAfterShift != -1){  // Condition for Positive and Negative Numbers (Since 2's Complement)
+            valueAfterShift = Math.abs(sample[i]) >> j;
+            if(valueAfterShift != 0){  
                 if(maxBitPos < j) maxBitPos = j;
                 break;
              }
@@ -140,9 +140,11 @@ public class AudioConverterUtils {
         }
         
         int shiftBits = maxBitPos - targetBitsPerSample + 2; // need to change 24 to 16 
-
+        int sign;
         for(int i=0; (shiftBits>0 && i<sample.length); i++ ){
-           sample[i] = sample[i] >> shiftBits;
+            if(sample[i] < 0) sign = -1;
+            else sign = 1;
+            sample[i] = sign * (Math.abs(sample[i]) >> shiftBits);
         }
         
         currentPos = 0 ; // off
