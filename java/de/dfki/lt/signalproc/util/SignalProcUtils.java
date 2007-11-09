@@ -1,5 +1,7 @@
 package de.dfki.lt.signalproc.util;
 
+import java.util.Arrays;
+
 import de.dfki.lt.signalproc.FFT;
 import de.dfki.lt.signalproc.analysis.PitchMarker;
 import de.dfki.lt.signalproc.filter.RecursiveFilter;
@@ -287,6 +289,69 @@ public class SignalProcUtils {
         return new_f0s;
     }
     
+    public static double [] interpolate_pitch_contour(double [] f0s, float beta)
+    {
+        double [] new_f0s = null;
+        
+        int newLen = (int)Math.floor(f0s.length*beta+0.5);
+        if (newLen>0)
+        {
+            new_f0s = new double[newLen];
+            Arrays.fill(new_f0s, 0.0);
+            
+            //Find voiceds and interpolate them segment by segment
+            int segSt = -1;
+            int segEn = -1;
+            for (int i=0; i<f0s.length; i++)
+            {
+                if (f0s[i]>10.0) //Voiced
+                {
+                    if (segSt<0) //Start new segment
+                        segSt=i;
+                    
+                    segEn=i; //Update current segment end
+                }
+                else //Unvoiced
+                {
+                    if (segSt>=0)
+                    {
+                        if (segEn>=0) //Segment ended
+                        {
+                            double [] tmp_f0s = new double[segEn-segSt+1];
+                            System.arraycopy(f0s, segSt, tmp_f0s, 0, segEn-segSt+1);
+                            int tmpNewLen = (int)Math.floor(tmp_f0s.length*beta+0.5);
+                            if (tmpNewLen>0)
+                            {
+                                double [] tmpNew_f0s = MathUtils.interpolate(tmp_f0s, tmpNewLen);
+                                int newSegSt = (int)Math.floor(segSt*beta+0.5);
+                                System.arraycopy(tmpNew_f0s, 0, new_f0s, newSegSt, Math.min(tmpNewLen, new_f0s.length-newSegSt));
+                            }
+                        }
+                    }
+                    
+                    segSt = -1;
+                    segEn = -1;
+                } 
+            }
+            
+            if (segSt>=0 && (segEn==-1 || segEn==f0s.length-1)) //The final segment is all voiced
+            {
+                double [] tmp_f0s = new double[segEn-segSt+1];
+                System.arraycopy(f0s, segSt, tmp_f0s, 0, segEn-segSt+1);
+                int tmpNewLen = (int)Math.floor(tmp_f0s.length*beta+0.5);
+                if (tmpNewLen>0)
+                {
+                    double [] tmpNew_f0s = MathUtils.interpolate(tmp_f0s, tmpNewLen);
+                    int newSegSt = (int)Math.floor(segSt*beta+0.5);
+                    System.arraycopy(tmpNew_f0s, 0, new_f0s, newSegSt, Math.min(tmpNewLen, new_f0s.length-newSegSt));
+                }
+            }
+        }
+        
+        
+        return new_f0s;
+    }
+    
     public static boolean getVoicing(double [] windowedSpeechFrame, int samplingRateInHz)
     {
         return getVoicing(windowedSpeechFrame, samplingRateInHz, 0.35f);
@@ -371,6 +436,48 @@ public class SignalProcUtils {
     public static double freq2bark(double freqInHz)
     {
         return 13.0*Math.atan(0.00076*freqInHz)+3.5*Math.atan((freqInHz*freqInHz/(7500*7500)));
+    }
+ 
+    //Convert sample index to time value in seconds
+    public static float sample2time(int sample, int samplingRate)
+    {
+        return ((float)sample)/samplingRate;
+    }
+    
+    //Convert time value in seconds to sample index
+    public static int time2sample(float time, int samplingRate)
+    {
+        return (int)Math.floor(time*samplingRate+0.5f);
+    }
+    
+    //Convert sample indices to time values in seconds
+    public static float[] samples2times(int [] samples, int samplingRate)
+    {
+        float [] times = null;
+
+        if (samples!=null && samples.length>0)
+        {
+            times = new float[samples.length];
+            for (int i=0; i<samples.length; i++)
+                times[i] = ((float)samples[i])/samplingRate;
+        }
+
+        return times;
+    }
+    
+    //Convert time values in seconds to sample indices
+    public static int[] times2samples(float [] times, int samplingRate)
+    {
+        int [] samples = null;
+
+        if (times!=null && times.length>0)
+        {
+            samples = new int[times.length];
+            for (int i=0; i<samples.length; i++)
+                samples[i] = (int)Math.floor(times[i]*samplingRate+0.5f);
+        }
+
+        return samples;
     }
 }
 

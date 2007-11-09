@@ -1199,4 +1199,67 @@ public class MathUtils {
         
         return x; 
     }
+    
+    //Return the zero-based index of the entry of x which is closest to val
+    public static int findClosest(float [] x, float val)
+    {
+        int ind = -1;
+        if (x!=null && x.length>0)
+        {
+            float minDiff = Math.abs(x[0]-val);
+            float tmpDiff;
+            ind = 0;
+            
+            for (int i=1; i<x.length; i++)
+            {
+                tmpDiff = Math.abs(x[i]-val);
+                if (tmpDiff<minDiff)
+                {
+                    minDiff = tmpDiff;
+                    ind = i;
+                }
+            }
+        }
+        
+        return ind;
+    }
+    
+  //Return the zero-based index of the entry of x which is closest to val
+    public static int findClosest(int [] x, int val)
+    {
+        int ind = -1;
+        if (x!=null && x.length>0)
+        {
+            int minDiff = Math.abs(x[0]-val);
+            int tmpDiff;
+            ind = 0;
+            
+            for (int i=1; i<x.length; i++)
+            {
+                tmpDiff = Math.abs(x[i]-val);
+                if (tmpDiff<minDiff)
+                {
+                    minDiff = tmpDiff;
+                    ind = i;
+                }
+            }
+        }
+        
+        return ind;
+    }
+    
+    public static float unwrap(float phaseInRadians, float prevPhaseInRadians)
+    {
+        float unwrappedPhaseInRadians = phaseInRadians;
+        
+        while (Math.abs(unwrappedPhaseInRadians-prevPhaseInRadians)>0.5*TWOPI)
+        {
+            if (unwrappedPhaseInRadians>prevPhaseInRadians)
+                unwrappedPhaseInRadians -= TWOPI;
+            else
+                unwrappedPhaseInRadians += TWOPI;
+        }
+        
+        return unwrappedPhaseInRadians;
+    }
 }
