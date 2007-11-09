@@ -198,10 +198,14 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
             }
             
             if (!bFixedSkipRate)
-                times[i] = (float)(0.5*(pitchMarks[i+1]+pitchMarks[i])/fs);
+            {
+                //times[i] = (float)(0.5*(pitchMarks[i+1]+pitchMarks[i])/fs);
+                times[i] = (float)((pitchMarks[i]+0.5f*ws)/fs);
+            }
             else
             {
-                times[i] = (currentTimeInd+0.5f*T0)/fs;
+                //times[i] = (currentTimeInd+0.5f*T0)/fs;
+                times[i] = (currentTimeInd+0.5f*ws)/fs;
                 currentTimeInd += ss;
             }
             

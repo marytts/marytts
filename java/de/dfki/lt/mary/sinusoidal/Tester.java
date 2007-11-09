@@ -193,7 +193,7 @@ public class Tester {
             //Create pitch marks by finding the longest period
             int maxT0;
             
-            if (minFreqInd>0)
+            if (minFreqInd>=0)
                 maxT0 = (int)(Math.floor(fs/minFreq+0.5));
             else //No non-zero Hz sinusoids found, therefore set maxT0 to a fixed number
                 maxT0 = (int)Math.floor(0.010f*fs+0.5);
@@ -252,8 +252,8 @@ public class Tester {
         float [] tStarts, tEnds;
         Tester t = null;
         
-        //Single sinusoid, tme-invariant
-        //t = new Tester(200.0f);
+        //Single sinusoid, time-invariant
+        t = new Tester(400.0f);
         //
 
         /*
@@ -267,6 +267,7 @@ public class Tester {
         //
         */
         
+        /*
         //Fixed sinusoidal track with a gap
         numTracks = 4;
         Sinusoid [] sins = new Sinusoid[numTracks];
@@ -287,6 +288,7 @@ public class Tester {
         tEnds[3] = 0.5f;
         t = new Tester(sins, tStarts, tEnds);
         //
+         */
         
         t.write(args[0], args[1]);
         

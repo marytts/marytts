@@ -34,8 +34,20 @@ package de.dfki.lt.mary.sinusoidal;
  *
  */
 
+import java.io.File;
+import java.io.IOException;
+
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
+import de.dfki.lt.mary.util.FileUtils;
 import de.dfki.lt.signalproc.analysis.F0Reader;
 import de.dfki.lt.signalproc.analysis.PitchMarker;
+import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
+import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
+import de.dfki.lt.signalproc.util.DDSAudioInputStream;
 import de.dfki.lt.signalproc.util.MathUtils;
 import de.dfki.lt.signalproc.util.SignalProcUtils;
 import de.dfki.lt.signalproc.window.Window;
@@ -46,136 +58,13 @@ public class ConstantTimeScaler extends SinusoidalSynthesizer {
         super(samplingRate);
     }
     
-    public double [] synthesize(SinusoidalTracks st, float timeScale)
-    {
-        return synthesize(st, timeScale, DEFAULT_ABS_MAX_OUT);
-    }
-    
-    public double [] synthesize(SinusoidalTracks st, float timeScale, double absMaxDesired)
-    {
-        return synthesize(st, timeScale, absMaxDesired, false);
-    }
-    
-    public double [] synthesize(SinusoidalTracks tr, float timeScale, double absMaxDesired, boolean isSilentSynthesis)
-    {
-        SinusoidalTracks tr2 = modify(tr, timeScale);
-        
-        //Call the baseline synthesizer
-        return synthesize(tr2, absMaxDesired, isSilentSynthesis);
-    }
-    
-    public SinusoidalTracks modify(SinusoidalTracks tr, float timeScale)
-    {
-        SinusoidalTracks tr2 = null;
-        
-        return tr2;
-    }
-    
-    //Anlayze, modify, and synthesize
-    public double [] process(double [] x, int [] pitchMarks, float timeScale)
-    {    
-        return process(x, pitchMarks, timeScale, TrackModifier.DEFAULT_MODIFICATION_SKIP_SIZE);
-    }
-    
-    public double [] process(double [] x, int [] pitchMarks, float timeScale,
-            float skipSizeInSeconds)
-    {    
-        return process(x, pitchMarks, timeScale,
-                       skipSizeInSeconds,
-                       PitchSynchronousSinusoidalAnalyzer.DEFAULT_DELTA_IN_HZ);
-    }
-    
-    public double [] process(double [] x, int [] pitchMarks, float timeScale,
-            float skipSizeInSeconds,
-            float deltaInHz)
-    {    
-        return process(x, pitchMarks, timeScale,
-                       skipSizeInSeconds,
-                       deltaInHz,
-                       PitchSynchronousSinusoidalAnalyzer.DEFAULT_ANALYSIS_PERIODS);
-    }
-    
-    public double [] process(double [] x, int [] pitchMarks, float timeScale,
-            float skipSizeInSeconds,
-            float deltaInHz,
-            float numPeriods)
-    {    
-        return process(x, pitchMarks, timeScale,
-                       skipSizeInSeconds,
-                       deltaInHz,
-                       numPeriods,
-                       true);
-    }
-    
-    public double [] process(double [] x, int [] pitchMarks, float timeScale,
-            float skipSizeInSeconds,
-            float deltaInHz,
-            float numPeriods,
-            boolean bRefinePeakEstimatesParabola)
-    {    
-        return process(x, pitchMarks, timeScale,
-                       skipSizeInSeconds,
-                       deltaInHz,
-                       numPeriods,
-                       bRefinePeakEstimatesParabola, 
-                       true);
-    }
-    
-    public double [] process(double [] x, int [] pitchMarks, float timeScale,
-            float skipSizeInSeconds,
-            float deltaInHz,
-            float numPeriods,
-            boolean bRefinePeakEstimatesParabola, 
-            boolean bRefinePeakEstimatesBias)
-    {    
-        return process(x, pitchMarks, timeScale,
-                       skipSizeInSeconds,
-                       deltaInHz,
-                       numPeriods,
-                       bRefinePeakEstimatesParabola, 
-                       bRefinePeakEstimatesBias,  
-                       false);
-    }
-    
-    public double [] process(double [] x, int [] pitchMarks, float timeScale,
-            float skipSizeInSeconds,
-            float deltaInHz,
-            float numPeriods,
-            boolean bRefinePeakEstimatesParabola, 
-            boolean bRefinePeakEstimatesBias,  
-            boolean bAdjustNeighFreqDependent)
-    {    
-        return process(x, pitchMarks, timeScale,
-                       skipSizeInSeconds,
-                       deltaInHz,
-                       numPeriods,
-                       bRefinePeakEstimatesParabola, 
-                       bRefinePeakEstimatesBias,  
-                       bAdjustNeighFreqDependent,
-                       false);
-    }
-    
-    public double [] process(double [] x, int [] pitchMarks, float timeScale,
-            float skipSizeInSeconds,
-            float deltaInHz,
-            float numPeriods,
-            boolean bRefinePeakEstimatesParabola, 
-            boolean bRefinePeakEstimatesBias,  
-            boolean bAdjustNeighFreqDependent,
-            boolean isSilentSynthesis)
-    {    
-        return process(x, pitchMarks, timeScale,
-                       skipSizeInSeconds,
-                       deltaInHz,
-                       numPeriods,
-                       bRefinePeakEstimatesParabola, 
-                       bRefinePeakEstimatesBias,  
-                       bAdjustNeighFreqDependent,
-                       isSilentSynthesis,
-                       MathUtils.getAbsMax(x));
-    }
-    
-    public double [] process(double [] x, int [] pitchMarks, float timeScale,
+    public double [] process(double [] x, 
+                             double [] f0s, 
+                             float f0_ws, float f0_ss,
+                             float [] voicings,
+                             boolean isVoicingAdaptiveTimeScaling, 
+                             float timeScalingVoicingThreshold, 
+                             float timeScale,
                              float skipSizeInSeconds,
                              float deltaInHz,
                              float numPeriods,
@@ -187,12 +76,87 @@ public class ConstantTimeScaler extends SinusoidalSynthesizer {
     {    
         //Analysis
         PitchSynchronousSinusoidalAnalyzer pa = new PitchSynchronousSinusoidalAnalyzer(fs, Window.HAMMING, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bAdjustNeighFreqDependent);
-        SinusoidalTracks st = pa.analyzePitchSynchronous(x, pitchMarks, numPeriods, skipSizeInSeconds, deltaInHz);
+        
+        PitchMarker pm = SignalProcUtils.pitchContour2pitchMarks(f0s, fs, x.length, f0_ws, f0_ss, false);
+        
+        SinusoidalTracks st = pa.analyzePitchSynchronous(x, pm.pitchMarks, numPeriods, skipSizeInSeconds, deltaInHz);
+        //To do: Estimation of voicing probabilities...
         
         //Modification
-        st = TrackModifier.modifyTimeScale(st, timeScale);
-         
+        SinusoidalTracks stMod = TrackModifier.modifyTimeScaleConstant(st, f0s, f0_ss, f0_ws, pm.pitchMarks, voicings, 
+                                                                       skipSizeInSeconds, numPeriods, 
+                                                                       isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, 
+                                                                       timeScale);
+
         //Synthesis
-        return synthesize(st, timeScale, absMaxDesired, isSilentSynthesis);
+        return synthesize(stMod, absMaxDesired, isSilentSynthesis);
+    }
+    
+    public static void main(String[] args) throws UnsupportedAudioFileException, IOException
+    {
+        //File input
+        AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(args[0]));
+        int samplingRate = (int)inputAudio.getFormat().getSampleRate();
+        AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
+        double [] x = signal.getAllData();
+        
+        //Read pitch contour (real speech or create it from pm file
+        F0Reader f0 = null;
+        if (false) //Test using real speech (Make sure .ptc file with identical filename as the wavfile exists)
+        {
+            String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
+            f0 = new F0Reader(strPitchFile);
+        }
+        else //Test using simple sinusoids (Make sure .pm file with identical filename as the wavfile exists (Tester.java automatically generates it))  
+        {
+            String strPmFile = args[0].substring(0, args[0].length()-4) + ".pm";
+            int [] pitchMarks = FileUtils.readFromBinaryFile(strPmFile);
+            f0 = new F0Reader(pitchMarks, samplingRate, 0.020f, 0.010f); 
+        }
+        //
+        
+        //Analysis
+        float deltaInHz = SinusoidalAnalyzer.DEFAULT_DELTA_IN_HZ;
+        float numPeriods = PitchSynchronousSinusoidalAnalyzer.DEFAULT_ANALYSIS_PERIODS;
+        boolean isSilentSynthesis = false;
+        
+        boolean bRefinePeakEstimatesParabola = true;
+        boolean bRefinePeakEstimatesBias = true;
+        boolean bAdjustNeighFreqDependent = false;
+        double absMaxOriginal = MathUtils.getAbsMax(x);
+        
+        float skipSizeInSeconds = TrackModifier.DEFAULT_MODIFICATION_SKIP_SIZE;
+        //float skipSizeInSeconds = 0.003f;
+        
+        float timeScale = 2.0f;
+        
+        float [] voicings = null;
+        boolean isVoicingAdaptiveTimeScaling = false;
+        float timeScalingVoicingThreshold = 0.3f;
+ 
+        ConstantTimeScaler cs = new ConstantTimeScaler(samplingRate);
+        
+        double [] y = cs.process(x, 
+                f0.getContour(), 
+                (float)f0.ws, (float)f0.ss,
+                voicings,
+                isVoicingAdaptiveTimeScaling, 
+                timeScalingVoicingThreshold, 
+                timeScale,
+                skipSizeInSeconds,
+                deltaInHz,
+                numPeriods,
+                bRefinePeakEstimatesParabola, 
+                bRefinePeakEstimatesBias,  
+                bAdjustNeighFreqDependent,
+                isSilentSynthesis,
+                absMaxOriginal);
+        //
+
+        //File output
+        DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(y), inputAudio.getFormat());
+        String outFileName = args[0].substring(0, args[0].length()-4) + "_sinTScaled.wav";
+        AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
+        //
     }
 }

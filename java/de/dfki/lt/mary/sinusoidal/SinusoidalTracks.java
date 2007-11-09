@@ -39,7 +39,7 @@ public class SinusoidalTracks {
     public int currentIndex;
     public int fs; //Sampling rate in Hz, you can change this using setSamplingRate to synthesize speech at a different sampling rate
     public float origDur; //Original duration of the signal modeled by sinusoidal tracks in seconds
-    
+
     public SinusoidalTracks(int len, int samplingRate)
     {
         initialize(len, samplingRate);
