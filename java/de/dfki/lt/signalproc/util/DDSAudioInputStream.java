@@ -65,8 +65,8 @@ public class DDSAudioInputStream extends AudioInputStream {
             throw new IllegalArgumentException("Can only produce PCM_SIGNED or PCM_UNSIGNED audio");
         }
         int bitsPerSample = format.getSampleSizeInBits();
-        if (bitsPerSample != 8 && bitsPerSample != 16) {
-            throw new IllegalArgumentException("Can deal with sample size 8 or 16, but not " + bitsPerSample);
+        if (bitsPerSample != 8 && bitsPerSample != 16 && bitsPerSample != 24) {
+            throw new IllegalArgumentException("Can deal with sample size 8 or 16 or 24, but not " + bitsPerSample);
         }
         this.source = source;
         this.sampleBuf = new double[SAMPLEBUFFERSIZE];
