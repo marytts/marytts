@@ -29,6 +29,10 @@
 
 package de.dfki.lt.mary.sinusoidal;
 
+import de.dfki.lt.signalproc.analysis.PitchMarker;
+import de.dfki.lt.signalproc.util.MathUtils;
+import de.dfki.lt.signalproc.util.SignalProcUtils;
+
 /**
  * @author oytun.turk
  *
@@ -40,73 +44,110 @@ public class TrackModifier {
                                                                  // large duration modification factors or to realize more accurate final target lengths
                                                                  // because the time scaling resolution will only be as low as the skip size
     
-    public static SinusoidalTracks modifyTimeScale(SinusoidalTracks trIn, float tScale)
-    {
-        return modifyTimeAndPitchScale(trIn, tScale, 1.0f);   
-    }
-    
-    public static SinusoidalTracks modifyPitchScale(SinusoidalTracks trIn, float pScale)
-    {
-        return modifyTimeAndPitchScale(trIn, 1.0f, pScale);   
-    }
-    
-    public static SinusoidalTracks modifyTimeAndPitchScale(SinusoidalTracks trIn, float tScale, float pScale)
-    {
-        float [] tScales = null;
-        float [] pScales = null;
+    public static SinusoidalTracks modifyTimeScaleConstant(SinusoidalTracks trIn, 
+                                               double [] f0s, 
+                                               float f0_ss, float f0_ws,
+                                               int [] pitchMarks,
+                                               float [] voicings, 
+                                               float skipSizeInSeconds,
+                                               float numPeriods,
+                                               boolean isVoicingAdaptiveTimeScaling, 
+                                               float timeScalingVoicingThreshold, 
+                                               float tScale)
+    {   
+        //Time scale pitch contour
+        double [] f0sMod = SignalProcUtils.interpolate_pitch_contour(f0s, tScale);
         
-        if (tScale!=1.0f)
+        //Find modified onsets
+        PitchMarker pmMod = SignalProcUtils.pitchContour2pitchMarks(f0sMod, trIn.fs, (int)Math.floor(trIn.origDur*tScale*trIn.fs+0.5), f0_ws, f0_ss, false);
+        
+        int L = (int)Math.floor(skipSizeInSeconds*trIn.fs+0.5);
+        int LMod = (int)Math.floor(skipSizeInSeconds*tScale*trIn.fs+0.5);
+        
+        int i, j, l, lShift;
+        float excPhase, excPhaseMod;
+        float sysPhase;
+        int closestInd;
+        int n0, n0Mod;
+        float T0;
+        
+        SinusoidalTracks trMod = new SinusoidalTracks(trIn);
+        //SinusoidalTracks trMod = new SinusoidalTracks(1, trIn.fs);
+        float maxDur = 0.0f;
+        int middleAnalysisSample;
+        
+        for (i=0; i<trIn.totalTracks; i++)
+        //for (i=7; i<8; i++)
         {
-            tScales = new float[1];
-            tScales[0] = tScale;
+            //trMod.add(trIn.tracks[i]);
+            
+            l = 0;
+            for (j=0; j<trIn.tracks[i].totalSins; j++)
+            {
+                if (trIn.tracks[i].states[j]==SinusoidalTrack.ACTIVE)
+                {
+                    if (j>0 && trIn.tracks[i].states[j-1]==SinusoidalTrack.TURNED_ON)
+                    {
+                        middleAnalysisSample = SignalProcUtils.time2sample(trIn.tracks[i].times[j], trIn.fs);
+                        lShift = (int)Math.floor(((float)middleAnalysisSample)/L+0.5f)+1;
+                        l = lShift;
+                    }
+                    else
+                        l++;
+                    
+                    closestInd = MathUtils.findClosest(pitchMarks, l*L);
+                    
+                    n0 = pitchMarks[closestInd];
+                    excPhase = (n0-l*L)*trIn.tracks[i].freqs[j];
+                    sysPhase = trIn.tracks[i].phases[j]-excPhase;
+
+                    //Estimate modified excitation phase
+                    closestInd = MathUtils.findClosest(pmMod.pitchMarks, l*LMod);
+                    
+                    n0Mod = pmMod.pitchMarks[closestInd];
+                    excPhaseMod = (n0Mod-l*LMod)*trIn.tracks[i].freqs[j];
+                    
+                    //System.out.println("n0-l*L=" + String.valueOf(n0-l*L) + " n0Mod-l*LMod=" + String.valueOf(n0Mod-l*LMod));
+                    
+                    trMod.tracks[i].phases[j] = sysPhase + excPhaseMod;
+                    trMod.tracks[i].times[j] = SignalProcUtils.sample2time(l*LMod, trIn.fs);
+                    
+                    if (trMod.tracks[i].times[j]>maxDur)
+                        maxDur = trMod.tracks[i].times[j];
+                    
+                    if (j>0 && trIn.tracks[i].states[j-1]==SinusoidalTrack.TURNED_ON)
+                        trMod.tracks[i].times[j-1] = Math.max(0.0f, trIn.tracks[i].times[j]-TrackGenerator.ZERO_AMP_SHIFT_IN_SECONDS);
+                    
+                    /*
+                    trMod.tracks[0].phases[j] = sysPhase + excPhaseMod;
+                    trMod.tracks[0].times[j] = SignalProcUtils.sample2time(l*LMod, trIn.fs);
+                    
+                    if (trMod.tracks[0].times[j]>maxDur)
+                        maxDur = trMod.tracks[0].times[j];
+                    
+                    if (j>0 && trIn.tracks[i].states[j-1]==SinusoidalTrack.TURNED_ON)
+                        trMod.tracks[0].times[j-1] = Math.max(0.0f, trIn.tracks[i].times[j]-TrackGenerator.ZERO_AMP_SHIFT_IN_SECONDS);
+                        */
+                }
+                else if (trIn.tracks[i].states[j]==SinusoidalTrack.TURNED_OFF)
+                {
+                    trMod.tracks[i].times[j] = trMod.tracks[i].times[j-1]+TrackGenerator.ZERO_AMP_SHIFT_IN_SECONDS;
+                    
+                    if (trMod.tracks[i].times[j]>maxDur)
+                        maxDur = trMod.tracks[i].times[j];
+                    
+                    /*
+                    trMod.tracks[0].times[j] = trMod.tracks[0].times[j-1]+TrackGenerator.ZERO_AMP_SHIFT_IN_SECONDS;
+                    
+                    if (trMod.tracks[0].times[j]>maxDur)
+                        maxDur = trMod.tracks[0].times[j];
+                        */
+                }
+            }
         }
         
-        if (pScale!=1.0f)
-        {
-            pScales = new float[1];
-            pScales[0] = pScale;
-        }
+        trMod.origDur = maxDur;
         
-        return modify(trIn, null, tScales, null, pScales);   
-    }
-    
-    public static SinusoidalTracks modifyTimeScale(SinusoidalTracks trIn, float [] tScales)
-    {
-        return modifyTimeScale(trIn, null, tScales);
-    }
-    
-    public static SinusoidalTracks modifyTimeScale(SinusoidalTracks trIn, float [] tscaleTimes, float [] tScales)
-    {
-        return modify(trIn, tscaleTimes, tScales, null, null);
-    }
-    
-    public static SinusoidalTracks modifyPitchScale(SinusoidalTracks trIn, float [] pScales)
-    {
-        return modifyPitchScale(trIn, null, pScales);
-    }
-    
-    public static SinusoidalTracks modifyPitchScale(SinusoidalTracks trIn, float [] pscaleTimes, float [] pScales)
-    {
-        return modify(trIn, pscaleTimes, pScales, null, null);
-    }
-    
-    //All-purpose function for time and pitch scale modification using shape invariant sinusoidal modeling.
-    //    For simpler usage, please check the functions above
-    //
-    // trIn: Input sinusoidal tracks (refer to PitchSynchronousSinusoidalAnalyzer based classes for more information)
-    // tscaleTimes: Specific time instants, in seconds, for which a desired time scale modification factor is specified in tScales
-    // tScales: An array of time scale modification factors to be applied at corresponding time instants in tscaleTimes
-    // pscaleTimes: Specific time instants, in seconds, for which a desired pitch scale modification factor is specified in pScales
-    // pScales: An array of pitch scale modification factors to be applied at corresponding time instants in pscaleTimes
-    //
-    // If tscaleTimes (or pscaleTimes) is null, the greatest time instant is found in trIn, and a time vector is generated 
-    //    using DEFAULT_MODIFICATION_SKIP_SIZE. Then, tScales(or pScales) is linearly interpolated to match the length of the generated time vector.
-    //    Modification is performed as usual then.
-    // If the length of tScales (or pScales) does not match the corresponding time instants vector (i.e. tscaleTimes for tScales and 
-    //    or pScales for pscaleTimes
-    public static SinusoidalTracks modify(SinusoidalTracks trIn, float [] tscaleTimes, float [] tScales, float [] pscaleTimes, float [] pScales)
-    {
-        
-        return null;
+        return trMod;
     }
 }

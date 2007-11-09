@@ -95,6 +95,7 @@ public class SinusoidalSynthesizer {
         Arrays.fill(y, 0.0);
         float currentAmp;
         float currentTheta;
+        float prevTheta = 0.0f;
         double alpha, beta;
         int M;
         float T; //Number of samples between consecutive frames (equals to pitch period in pitch synchronous analysis/synthesis)
@@ -168,6 +169,10 @@ public class SinusoidalSynthesizer {
 
                                 //Quatieri
                                 currentTheta=(float)(st.tracks[i].phases[j] + st.tracks[i].freqs[j]*t + alpha*t2 + beta*t3);
+                                
+                                //System.out.println(String.valueOf(MathUtils.radian2Hz(MathUtils.unwrap(currentTheta,prevTheta)-prevTheta, st.fs))); //Synthesized freq in Hz
+                                
+                                prevTheta = currentTheta;
                             }
 
                             //Synthesis
