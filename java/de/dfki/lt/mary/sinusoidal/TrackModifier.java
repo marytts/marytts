@@ -68,80 +68,154 @@ public class TrackModifier {
         float excPhase, excPhaseMod;
         float sysPhase;
         int closestInd;
-        int n0, n0Mod;
-        float T0;
+        int closestIndMod;
+        int n0, n0Mod, n0Prev, n0ModPrev;
+        int Pm;
+        int J, JMod;
+        int m;
         
-        SinusoidalTracks trMod = new SinusoidalTracks(trIn);
-        //SinusoidalTracks trMod = new SinusoidalTracks(1, trIn.fs);
         float maxDur = 0.0f;
         int middleAnalysisSample;
+        int middleSynthesisSample;
+
+        SinusoidalTracks trMod = null;
+        int trackSt, trackEn;
         
-        for (i=0; i<trIn.totalTracks; i++)
-        //for (i=7; i<8; i++)
+        
+        boolean bSingleTrackTest = true;
+        
+
+        if (bSingleTrackTest)  
         {
-            //trMod.add(trIn.tracks[i]);
+            trackSt = 7;
+            trackEn = 7;
+            trMod = new SinusoidalTracks(1, trIn.fs);
+        }
+        else
+        {
+            trackSt = 0;
+            trackEn = trIn.totalTracks-1;
+            trMod = new SinusoidalTracks(trIn);
+        }
+
+        for (i=trackSt; i<=trackEn; i++)
+        {
+            if (bSingleTrackTest)
+                trMod.add(trIn.tracks[i]);
             
+            n0Prev = 0;
+            n0ModPrev = 0;
+            m = 0;
             l = 0;
+            
             for (j=0; j<trIn.tracks[i].totalSins; j++)
-            {
+            {   
+                System.out.println(String.valueOf(l) + " " + String.valueOf(m));
+                
                 if (trIn.tracks[i].states[j]==SinusoidalTrack.ACTIVE)
                 {
-                    if (j>0 && trIn.tracks[i].states[j-1]==SinusoidalTrack.TURNED_ON)
-                    {
-                        middleAnalysisSample = SignalProcUtils.time2sample(trIn.tracks[i].times[j], trIn.fs);
-                        lShift = (int)Math.floor(((float)middleAnalysisSample)/L+0.5f)+1;
-                        l = lShift;
-                    }
+                    middleAnalysisSample = SignalProcUtils.time2sample(trIn.tracks[i].times[j], trIn.fs);
+                    
+                    if (j>0 && trIn.tracks[i].states[j-1]==SinusoidalTrack.TURNED_ON) 
+                        l = (int)Math.floor(((float)middleAnalysisSample)/L+0.5f)+1;
                     else
                         l++;
+
+                    closestInd = MathUtils.findClosest(pitchMarks, middleAnalysisSample);
                     
-                    closestInd = MathUtils.findClosest(pitchMarks, l*L);
+                    if (closestInd<pitchMarks.length-1)
+                        Pm = pitchMarks[closestInd+1] - pitchMarks[closestInd];
+                    else
+                        Pm = pitchMarks[closestInd] - pitchMarks[closestInd-1];
                     
-                    n0 = pitchMarks[closestInd];
-                    excPhase = (n0-l*L)*trIn.tracks[i].freqs[j];
+                    if (j>0 && trIn.tracks[i].states[j-1]==SinusoidalTrack.TURNED_ON)
+                    {
+                        m = 0;
+                        n0 = pitchMarks[closestInd];
+                        n0Prev = 0;
+                    }
+                    else
+                    {
+                        m++;
+                        
+                        J = 1;
+                        while (n0Prev+J*Pm<middleAnalysisSample)
+                            J++;
+                        
+                        if (J>1 && Math.abs(n0Prev+J*Pm-middleAnalysisSample)>Math.abs(n0Prev+(J-1)*Pm-middleAnalysisSample))
+                            J--;
+                        
+                        n0 = n0Prev + J*Pm;
+                    }
+                    
+                    excPhase = -(m*L-n0)*trIn.tracks[i].freqs[j];
                     sysPhase = trIn.tracks[i].phases[j]-excPhase;
 
                     //Estimate modified excitation phase
-                    closestInd = MathUtils.findClosest(pmMod.pitchMarks, l*LMod);
-                    
-                    n0Mod = pmMod.pitchMarks[closestInd];
-                    excPhaseMod = (n0Mod-l*LMod)*trIn.tracks[i].freqs[j];
-                    
-                    //System.out.println("n0-l*L=" + String.valueOf(n0-l*L) + " n0Mod-l*LMod=" + String.valueOf(n0Mod-l*LMod));
-                    
-                    trMod.tracks[i].phases[j] = sysPhase + excPhaseMod;
-                    trMod.tracks[i].times[j] = SignalProcUtils.sample2time(l*LMod, trIn.fs);
-                    
-                    if (trMod.tracks[i].times[j]>maxDur)
-                        maxDur = trMod.tracks[i].times[j];
+                    middleSynthesisSample = l*LMod;
+                    closestIndMod = MathUtils.findClosest(pmMod.pitchMarks, middleSynthesisSample);
                     
                     if (j>0 && trIn.tracks[i].states[j-1]==SinusoidalTrack.TURNED_ON)
-                        trMod.tracks[i].times[j-1] = Math.max(0.0f, trIn.tracks[i].times[j]-TrackGenerator.ZERO_AMP_SHIFT_IN_SECONDS);
+                    {
+                        n0Mod = pmMod.pitchMarks[closestIndMod];
+                        n0ModPrev = 0;
+                    }
+                    else
+                    {
+                        JMod = 1;
+                        while (n0ModPrev+JMod*Pm<middleSynthesisSample)
+                            JMod++;
+                        
+                        if (JMod>1 && Math.abs(n0ModPrev+JMod*Pm-middleSynthesisSample)>Math.abs(n0ModPrev+(JMod-1)*Pm-middleSynthesisSample))
+                            JMod--;
+                        
+                        n0Mod = n0ModPrev + JMod*Pm;
+                    }
                     
-                    /*
-                    trMod.tracks[0].phases[j] = sysPhase + excPhaseMod;
-                    trMod.tracks[0].times[j] = SignalProcUtils.sample2time(l*LMod, trIn.fs);
+                    excPhaseMod = -(m*LMod-n0Mod)*trIn.tracks[i].freqs[j]; 
                     
-                    if (trMod.tracks[0].times[j]>maxDur)
-                        maxDur = trMod.tracks[0].times[j];
+                    if (!bSingleTrackTest)
+                    {
+                        trMod.tracks[i].phases[j] = sysPhase + excPhaseMod;
+                        trMod.tracks[i].times[j] = SignalProcUtils.sample2time(middleSynthesisSample, trIn.fs);
                     
-                    if (j>0 && trIn.tracks[i].states[j-1]==SinusoidalTrack.TURNED_ON)
-                        trMod.tracks[0].times[j-1] = Math.max(0.0f, trIn.tracks[i].times[j]-TrackGenerator.ZERO_AMP_SHIFT_IN_SECONDS);
-                        */
+                        if (trMod.tracks[i].times[j]>maxDur)
+                            maxDur = trMod.tracks[i].times[j];
+                    
+                        if (j>0 && trIn.tracks[i].states[j-1]==SinusoidalTrack.TURNED_ON)
+                            trMod.tracks[i].times[j-1] = Math.max(0.0f, trMod.tracks[i].times[j]-TrackGenerator.ZERO_AMP_SHIFT_IN_SECONDS);
+                    }
+                    else
+                    {
+                        trMod.tracks[0].phases[j] = sysPhase + excPhaseMod;
+                        trMod.tracks[0].times[j] = SignalProcUtils.sample2time(l*LMod, trIn.fs);
+                    
+                        if (trMod.tracks[0].times[j]>maxDur)
+                            maxDur = trMod.tracks[0].times[j];
+                    
+                        if (j>0 && trIn.tracks[i].states[j-1]==SinusoidalTrack.TURNED_ON)
+                            trMod.tracks[0].times[j-1] = Math.max(0.0f, trMod.tracks[0].times[j]-TrackGenerator.ZERO_AMP_SHIFT_IN_SECONDS);
+                    }
+                    
+                    n0Prev = n0;
+                    n0ModPrev = n0Mod;
                 }
                 else if (trIn.tracks[i].states[j]==SinusoidalTrack.TURNED_OFF)
                 {
-                    trMod.tracks[i].times[j] = trMod.tracks[i].times[j-1]+TrackGenerator.ZERO_AMP_SHIFT_IN_SECONDS;
+                    if (!bSingleTrackTest)
+                    {
+                        trMod.tracks[i].times[j] = trMod.tracks[i].times[j-1]+TrackGenerator.ZERO_AMP_SHIFT_IN_SECONDS;
                     
-                    if (trMod.tracks[i].times[j]>maxDur)
-                        maxDur = trMod.tracks[i].times[j];
+                        if (trMod.tracks[i].times[j]>maxDur)
+                            maxDur = trMod.tracks[i].times[j];
+                    }
+                    else
+                    {
+                        trMod.tracks[0].times[j] = trMod.tracks[0].times[j-1]+TrackGenerator.ZERO_AMP_SHIFT_IN_SECONDS;
                     
-                    /*
-                    trMod.tracks[0].times[j] = trMod.tracks[0].times[j-1]+TrackGenerator.ZERO_AMP_SHIFT_IN_SECONDS;
-                    
-                    if (trMod.tracks[0].times[j]>maxDur)
-                        maxDur = trMod.tracks[0].times[j];
-                        */
+                        if (trMod.tracks[0].times[j]>maxDur)
+                            maxDur = trMod.tracks[0].times[j];
+                    }
                 }
             }
         }

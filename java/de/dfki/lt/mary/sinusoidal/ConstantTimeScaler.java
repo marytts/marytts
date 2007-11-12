@@ -128,7 +128,7 @@ public class ConstantTimeScaler extends SinusoidalSynthesizer {
         float skipSizeInSeconds = TrackModifier.DEFAULT_MODIFICATION_SKIP_SIZE;
         //float skipSizeInSeconds = 0.003f;
         
-        float timeScale = 2.0f;
+        float timeScale = 0.3f;
         
         float [] voicings = null;
         boolean isVoicingAdaptiveTimeScaling = false;
