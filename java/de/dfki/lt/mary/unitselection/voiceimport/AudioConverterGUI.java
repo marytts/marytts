@@ -342,7 +342,7 @@ public class AudioConverterGUI extends javax.swing.JFrame {
                 if(sampleConvert.isSelected()){
                         
                     //ais = AudioConverterUtils.downSampling(ais, targetSamplingRate);
-                    samplingRateConverter(outPath+System.getProperty("file.separator")+wavFiles[i], (int)targetSamplingRate);
+                    samplingRateConverter(outPath, (int)targetSamplingRate);
                 }
                 
                 /* File outFile =  new File(outPath);
