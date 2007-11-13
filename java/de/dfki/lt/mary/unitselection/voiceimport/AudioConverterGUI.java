@@ -278,7 +278,7 @@ public class AudioConverterGUI extends javax.swing.JFrame {
            System.exit(0);
        }
        
-       
+        int bestShift; 
         int targetSamplingRate = Integer.parseInt(jTextField3.getText());
         File inDirPath  = new File(inDir.getText());
         File outDirPath = new File(outDir.getText());
@@ -294,8 +294,18 @@ public class AudioConverterGUI extends javax.swing.JFrame {
             }
         }.start();
         System.out.println("Number of Wave files need to Convert : "+ wavFiles.length);
+        int interProgress = 0;
+        if(bit24Tobit16.isSelected()){
+            bestShift = bestShiftBits(wavFiles, 16);
+            System.out.println("Best Shift: "+bestShift);
+            interProgress = 50;
+        }
+        else bestShift = 8;
+        
+
+        
         for(int i=0;i<wavFiles.length;i++){
-            progress = (i * 100 / wavFiles.length);
+            progress = interProgress + (i * (100 -  interProgress)/ wavFiles.length);
             
             //progressBar.setValue(progress);
             if(wavFiles[i].endsWith(".wav")){
@@ -315,27 +325,31 @@ public class AudioConverterGUI extends javax.swing.JFrame {
                     ais = AudioConverterUtils.convertStereoToMono(ais,channel);
                 }
                 
-                if(bit24Tobit16.isSelected())
-                    ais = AudioConverterUtils.convertBit24ToBit16(ais);
+                // If Audio is Mono then only remove Low Frequency Noise 
+                if((ais.getFormat().getChannels() == 1))
+                        ais = AudioConverterUtils.removeLowFrequencyNoise(ais);
                 
-                // If Audio is Mono and Bits = 8 or 16  only remove Low Frequency Noise 
-                if((ais.getFormat().getChannels() == 1) && 
-                    (ais.getFormat().getSampleSizeInBits() == 8 ||ais.getFormat().getSampleSizeInBits() == 16))
-                ais = AudioConverterUtils.removeLowFrequencyNoise(ais);
+                if(bit24Tobit16.isSelected())
+                    ais = AudioConverterUtils.convertBit24ToBit16(ais,bestShift);
+                    //ais = AudioConverterUtils.convertBit24ToBit16(ais);
+                
                 File outFile =  new File(outPath);
                 if(outFile.exists()){
                     outFile.delete();
                 }
+                AudioSystem.write(ais, AudioFileFormat.Type.WAVE, outFile);
                 
                 if(sampleConvert.isSelected()){
-                    int bitsPerSample = ais.getFormat().getSampleSizeInBits();
-                    if(bitsPerSample != 8 && bitsPerSample != 16){
-                        throw new Exception("Sampling Conversion Not supported with "+bitsPerSample+"-Bit Audio");  
-                    }
-                    ais = AudioConverterUtils.downSampling(ais, targetSamplingRate);
+                        
+                    //ais = AudioConverterUtils.downSampling(ais, targetSamplingRate);
+                    samplingRateConverter(outPath+System.getProperty("file.separator")+wavFiles[i], (int)targetSamplingRate);
                 }
                 
-                AudioSystem.write(ais, AudioFileFormat.Type.WAVE, outFile);
+                /* File outFile =  new File(outPath);
+                if(outFile.exists()){
+                    outFile.delete();
+                }
+                AudioSystem.write(ais, AudioFileFormat.Type.WAVE, outFile);*/
                 
                 ais.reset();
                 ais.close();
@@ -352,7 +366,102 @@ public class AudioConverterGUI extends javax.swing.JFrame {
          
         System.exit(0);
     }
-    
+   
+  /**
+   * To choose a global value to get Best Dynamic Bits
+   * @param wavFileNames
+   * @param targetBitsPerSample
+   * @return
+   * @throws Exception
+   */ 
+  private int bestShiftBits(String[] wavFiles, int targetBitsPerSample) throws Exception{ 
+
+   int globalBestShift=0;
+   
+   File inDirPath  = new File(inDir.getText());
+   for(int i=0;i<wavFiles.length;i++){
+       progress = (i * 50 / wavFiles.length);
+       
+       //progressBar.setValue(progress);
+       if(wavFiles[i].endsWith(".wav")){
+           //System.out.println(wavFiles[i]);
+           String inPath = inDirPath.getAbsolutePath()+System.getProperty("file.separator")+wavFiles[i];
+//           String outPath = outDirPath.getAbsolutePath()+System.getProperty("file.separator")+wavFiles[i];
+           AudioInputStream ais = AudioSystem.getAudioInputStream(new File(inPath));
+           
+           if (!ais.getFormat().getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
+               ais = AudioSystem.getAudioInputStream(AudioFormat.Encoding.PCM_SIGNED, ais);
+           }
+           if(stereotoMono.isSelected()){
+               int channel = AudioPlayer.STEREO;
+               if(leftChannel.isSelected()) channel = AudioPlayer.LEFT_ONLY;
+               if(rightChannel.isSelected()) channel = AudioPlayer.RIGHT_ONLY;
+               if(bothChannels.isSelected()) channel = AudioPlayer.STEREO;
+               ais = AudioConverterUtils.convertStereoToMono(ais,channel);
+           }
+           
+           // If Audio is Mono then only remove Low Frequency Noise 
+           if((ais.getFormat().getChannels() == 1))
+                   ais = AudioConverterUtils.removeLowFrequencyNoise(ais);
+           
+           int[] samples = AudioConverterUtils.getSamples(ais);
+           int maxBitPos = 0;
+           int valueAfterShift;
+           int bitsPerSample = ais.getFormat().getSampleSizeInBits();
+           for(int k=0;k<samples.length;k++){
+           for(int j=bitsPerSample;j>=1;j--){
+               valueAfterShift = Math.abs(samples[k]) >> j;
+               if(valueAfterShift != 0){  
+                   if(maxBitPos < j) maxBitPos = j;
+                   break;
+                }
+              }
+           }
+           
+           ais.reset();
+           ais.close();
+           int bestShift = maxBitPos - targetBitsPerSample + 2;
+           if(bestShift > globalBestShift){
+               globalBestShift = bestShift;
+           }
+                   
+       }
+   }
+   
+   return globalBestShift;
+}  
+   
+/** 
+          * Sampling Rate Conversion doing with SOX. 
+          * @param outpath 
+          * @param targetSamplingRate 
+          * @throws IOException 
+*/ 
+           private void samplingRateConverter(String waveFile, int targetSamplingRate) throws IOException{ 
+               
+              try{ 
+                 Runtime rtime = Runtime.getRuntime(); 
+                 Process process = rtime.exec("/bin/bash"); 
+                   
+                   PrintWriter pw = new PrintWriter( 
+                         new OutputStreamWriter(process.getOutputStream())); 
+                 pw.print("( sox "+waveFile+" -r " 
+                         + targetSamplingRate 
+                          +" tempOut.wav" 
+                          +" ; mv tempOut.wav "+waveFile 
+                          +" ; exit )\n"); 
+                  pw.flush(); 
+                  pw.close(); 
+                  process.waitFor(); 
+                  process.exitValue(); 
+              } 
+              catch(Exception e) 
+              { 
+                 e.printStackTrace(); 
+              } 
+             return; 
+          } 
+   
     private void quitGUI(java.awt.event.ActionEvent evt) {                         
 // TODO add your handling code here:
         System.exit(0);
