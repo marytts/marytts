@@ -75,10 +75,9 @@ public class AudioConverterUtils {
      * @return AudioInputStream
      */
     public static AudioInputStream convertStereoToMono(AudioInputStream ais, int mode){
-
         return new MonoAudioInputStream(ais, mode);
-        
     }
+ 
     
     /**
      * 24-Bit Audio to  16-bit Audio converter 
@@ -187,6 +186,101 @@ public class AudioConverterUtils {
         return new AudioInputStream(bais, af, lengthInSamples);
     }
 
+    /**
+     * 24-Bit Audio to  16-bit Audio converter 
+     * @param AudioInputStream 
+     * @param shiftBits
+     * @return AudioInputStream
+     * @throws Exception
+     */
+    
+    public static AudioInputStream convertBit24ToBit16(AudioInputStream ais, int shiftBits) throws Exception {
+        
+        int bitsPerSample = 24;
+        int targetBitsPerSample = 16;
+        
+        int noOfbitsPerSample = ais.getFormat().getSampleSizeInBits();
+        if(noOfbitsPerSample != bitsPerSample){
+            throw new Exception("24-Bit Audio Data Expected. But given Audio Data is "+noOfbitsPerSample+"-Bit data");
+        }
+        if(ais.getFormat().getChannels() != 1){
+            throw new Exception("Expected Audio type is Mono. But given Audio Data has "+ais.getFormat().getChannels()+" channels");
+        }
+        // System.out.println("Shift bits: "+shiftBits);
+        float samplingRate = ais.getFormat().getSampleRate();
+        int channels = ais.getFormat().getChannels();
+        int nBytes = ais.available();
+        boolean bigEndian = ais.getFormat().isBigEndian();
+        byte [] byteBuf = new byte[nBytes];
+        int nBytesRead = ais.read(byteBuf, 0, nBytes); // Reading all Bytes at a time
+        int currentPos = 0;
+        int noOfSamples =  nBytes/3;
+        int[] sample =  new int[noOfSamples];
+        
+        for (int i=0; i<nBytesRead; i+=3, currentPos++) {
+            byte lobyte;
+            byte midbyte;
+            byte hibyte;
+            if (!bigEndian) {
+                lobyte = byteBuf[i];
+                midbyte = byteBuf[i+1];
+                hibyte = byteBuf[i+2];
+            } else {
+                lobyte = byteBuf[i+2];
+                midbyte = byteBuf[i+1];
+                hibyte = byteBuf[i];
+            }
+            sample[currentPos] = hibyte << 16 | (midbyte & 0xFF) << 8 | lobyte & 0xFF;
+       }
+        
+        int sign;
+        for(int i=0; (shiftBits>0 && i<sample.length); i++ ){
+            if(sample[i] < 0) sign = -1;
+            else sign = 1;
+            sample[i] = sign * (Math.abs(sample[i]) >> shiftBits);
+        }
+        
+        currentPos = 0 ; // off
+        int nRead = sample.length;
+        byte[] b = new byte[2*sample.length];
+        int MAX_AMPLITUDE = 32767;
+       
+        
+        // Conversion to BYTE ARRAY 
+        for (int i=0; i<nRead; i++, currentPos+=2) {
+            
+            int samp = sample[i];
+            if (samp > MAX_AMPLITUDE || samp < -MAX_AMPLITUDE) {
+                System.err.println("Warning: signal amplitude out of range: "+samp);
+            }
+            byte hibyte = (byte) (samp >> 8);
+            byte lobyte = (byte) (samp & 0xFF);
+            if (!bigEndian) {
+                b[currentPos] = lobyte;
+                b[currentPos+1] = hibyte;
+            } else {
+                b[currentPos] = hibyte;
+                b[currentPos+1] = lobyte;
+            }
+       }
+        
+        
+        ByteArrayInputStream bais = new ByteArrayInputStream(b);
+        boolean signed = true; //true,false
+       
+        AudioFormat af = new AudioFormat(
+        samplingRate,
+        targetBitsPerSample,
+        channels,
+        signed,
+        bigEndian);
+
+        long lengthInSamples = b.length / (targetBitsPerSample/8);
+        
+        return new AudioInputStream(bais, af, lengthInSamples);
+    }
+    
+    
  /**
   * Get samples in Integer Format (un-normalized) from AudioInputStream
   * @param ais
