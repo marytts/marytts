@@ -378,6 +378,16 @@ public class MathUtils {
     {
         return (rad/MathUtils.TWOPI)*360.0;
     }
+    
+    public static float hz2radian(float hz, int samplingRate)
+    {
+        return (float)(hz*MathUtils.TWOPI/samplingRate);
+    }
+    
+    public static double hz2radian(double hz, int samplingRate)
+    {
+        return hz*MathUtils.TWOPI/samplingRate;
+    }
 
     /**
      * Build the sum of the squared difference of all elements 
@@ -1061,17 +1071,18 @@ public class MathUtils {
         return ret;
     }
     
-    public static int [] getExtrema(double [] x, int numLeftN, int numRightN, boolean isMaxima)
+    //Find the extremum points that are larger/smaller than numLefNs and numRightNs neighbours and larger/smaller than the given th value
+    public static int [] getExtrema(double [] x, int numLeftN, int numRightN, boolean isMaxima, double th)
     {
         int [] numLeftNs = new int[x.length];
         int [] numRightNs = new int[x.length];
         Arrays.fill(numLeftNs, numLeftN);
         Arrays.fill(numRightNs, numRightN);
         
-        return getExtrema(x, numLeftNs, numRightNs, isMaxima); 
+        return getExtrema(x, numLeftNs, numRightNs, isMaxima, th); 
     }
     
-    public static int [] getExtrema(double [] x, int [] numLeftNs, int [] numRightNs, boolean isMaxima)
+    public static int [] getExtrema(double [] x, int [] numLeftNs, int [] numRightNs, boolean isMaxima, double th)
     {
         int [] tmpInds = new int[x.length];
         int [] inds = null;
@@ -1084,39 +1095,44 @@ public class MathUtils {
         {
             for (i=0; i<x.length; i++)
             {
-                bExtremum = true;
-                
-                if (i-numLeftNs[i]>=0)
-                {
-                    for (j=i-numLeftNs[i]; j<i; j++)
-                    {
-                        if (x[i]<x[j])
-                        {
-                            bExtremum = false;
-                            break;
-                        }
-                    }
+                if (x[i]>th)
+                {    
+                    bExtremum = true;
 
-                    if (bExtremum)
+                    if (i-numLeftNs[i]>=0)
                     {
-                        if (i+numRightNs[i]<x.length)
+                        for (j=i-numLeftNs[i]; j<i; j++)
                         {
-                            for (j=i+1; j<=i+numRightNs[i]; j++)
+                            if (x[i]<x[j])
                             {
-                                if (x[i]<x[j])
-                                {
-                                    bExtremum = false;
-                                    break;
-                                }
+                                bExtremum = false;
+                                break;
                             }
                         }
-                        else
-                            bExtremum = false;
+
+                        if (bExtremum)
+                        {
+                            if (i+numRightNs[i]<x.length)
+                            {
+                                for (j=i+1; j<=i+numRightNs[i]; j++)
+                                {
+                                    if (x[i]<x[j])
+                                    {
+                                        bExtremum = false;
+                                        break;
+                                    }
+                                }
+                            }
+                            else
+                                bExtremum = false;
+                        }
                     }
+                    else
+                        bExtremum = false;
                 }
                 else
                     bExtremum = false;
-                
+
                 if (bExtremum)
                     tmpInds[total++] = i;
             }
@@ -1125,43 +1141,47 @@ public class MathUtils {
         {
             for (i=0; i<x.length; i++)
             {
-                bExtremum = true;
-                if (i-numLeftNs[i]>=0)
+                if (x[i]<th)
                 {
-                    for (j=i-numLeftNs[i]; j<i; j++)
+                    bExtremum = true;
+                    if (i-numLeftNs[i]>=0)
                     {
-                        if (x[i]>x[j])
+                        for (j=i-numLeftNs[i]; j<i; j++)
                         {
-                            bExtremum = false;
-                            break;
-                        }
-                    }
-
-                    if (bExtremum)
-                    {
-                        if (i+numRightNs[i]<x.length)
-                        {
-                            for (j=i+1; j<=i+numRightNs[i]; j++)
+                            if (x[i]>x[j])
                             {
-                                if (x[i]>x[j])
-                                {
-                                    bExtremum = false;
-                                    break;
-                                }
+                                bExtremum = false;
+                                break;
                             }
                         }
-                        else
-                            bExtremum = false;
+
+                        if (bExtremum)
+                        {
+                            if (i+numRightNs[i]<x.length)
+                            {
+                                for (j=i+1; j<=i+numRightNs[i]; j++)
+                                {
+                                    if (x[i]>x[j])
+                                    {
+                                        bExtremum = false;
+                                        break;
+                                    }
+                                }
+                            }
+                            else
+                                bExtremum = false;
+                        }
                     }
+                    else
+                        bExtremum = false;
                 }
                 else
                     bExtremum = false;
-                
+
                 if (bExtremum)
                     tmpInds[total++] = i;
             }
         }  
-        
         
         if (total>0)
         {
@@ -1261,5 +1281,23 @@ public class MathUtils {
         }
         
         return unwrappedPhaseInRadians;
+    }
+    
+    //Unwarps phaseInDegrees to range [lowestDegree, lowestDegree+360.0)
+    public static float unwrapToRange(float phaseInDegrees, float lowestDegree)
+    {
+        float retVal = phaseInDegrees;
+        if (retVal<lowestDegree)
+        {
+            while (retVal<lowestDegree)
+                retVal += 360.0f;
+        }
+        else if (retVal>=lowestDegree+360.0f)
+        {
+            while (retVal>=lowestDegree+360.0f)
+                retVal -= 360.0f;
+        }
+        
+        return retVal;
     }
 }
