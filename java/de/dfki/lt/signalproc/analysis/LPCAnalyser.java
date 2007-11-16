@@ -98,13 +98,36 @@ public class LPCAnalyser extends FrameBasedAnalyser
         return calcLPC(x, p);
     }
     
-    //Computes LP smoothed spectrum
-    public static double [] calcSpec(double [] alpha, int p, int fftSize, Complex expTerm)
+    //Computes LP smoothed spectrum of a windowed speech frame
+    public static double [] calcSpecFrame(double [] windowedFrame, int p)
+    {
+        return calcSpecFrame(windowedFrame, p, windowedFrame.length);
+    }
+    
+    //Computes LP smoothed spectrum of a windowed speech frame
+    public static double [] calcSpecFrame(double [] windowedFrame, int p, int fftSize)
+    {
+        return calcSpecFrame(windowedFrame, p, fftSize, null);
+    }
+    
+    //Computes LP smoothed spectrum of a windowed speech frame
+    public static double [] calcSpecFrame(double [] windowedFrame, int p, int fftSize, Complex expTerm)
+    {
+        LPCoeffs c = calcLPC(windowedFrame, p);
+        
+        if (expTerm==null || expTerm.real == null)
+            return calcSpec(c.getA(), p, c.getGain(), fftSize, null);
+        else
+            return calcSpec(c.getA(), p, c.getGain(), fftSize, expTerm);
+    }
+    
+    //Computes LP smoothed spectrum from LP coefficients
+    public static double [] calcSpec(double [] alpha, int p, double gain, int fftSize, Complex expTerm)
     {
         int maxFreq = SignalProcUtils.halfSpectrumSize(fftSize);
         double [] vtSpectrum = new double[maxFreq];
         
-        if (expTerm.real == null || expTerm.real.length != p*maxFreq)
+        if (expTerm==null || expTerm.real == null || expTerm.real.length != p*maxFreq)
             expTerm = calcExpTerm(fftSize, p);
         
         int w, i, fInd;
@@ -121,7 +144,7 @@ public class LPCAnalyser extends FrameBasedAnalyser
                 tmp.imag[0] -= alpha[i]*expTerm.imag[fInd];
             }
             
-            vtSpectrum[w] = 1.0/Math.sqrt(tmp.real[0]*tmp.real[0]+tmp.imag[0]*tmp.imag[0]);
+            vtSpectrum[w] = gain/Math.sqrt(tmp.real[0]*tmp.real[0]+tmp.imag[0]*tmp.imag[0]);
         }
         
         return vtSpectrum;
