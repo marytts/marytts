@@ -44,7 +44,40 @@ public class TrackModifier {
                                                                  // large duration modification factors or to realize more accurate final target lengths
                                                                  // because the time scaling resolution will only be as low as the skip size
     
-    public static SinusoidalTracks modifyTimeScaleConstant(SinusoidalTracks trIn, 
+    public static SinusoidalTracks modifyTimeScale(SinusoidalTracks trIn, 
+                                                    double [] f0s, 
+                                                    float f0_ss, float f0_ws,
+                                                    int [] pitchMarks,
+                                                    float [] voicings, 
+                                                    float skipSizeInSeconds,
+                                                    float numPeriods,
+                                                    boolean isVoicingAdaptiveTimeScaling, 
+                                                    float timeScalingVoicingThreshold, 
+                                                    boolean isVoicingAdaptivePitchScaling, 
+                                                    float tScale)
+    {  
+        float [] tScales = new float[1];
+        float [] tScalesTimes = new float[1];
+        tScales[0] = tScale;
+        tScalesTimes[0] = skipSizeInSeconds;
+        
+        return modify(trIn, 
+                               f0s, 
+                               f0_ss,  f0_ws,
+                               pitchMarks,
+                               voicings, 
+                               skipSizeInSeconds,
+                               numPeriods,
+                               isVoicingAdaptiveTimeScaling, 
+                               timeScalingVoicingThreshold, 
+                               isVoicingAdaptivePitchScaling,
+                               tScales,
+                               tScalesTimes,
+                               null,
+                               null);
+    }
+    
+    public static SinusoidalTracks modify(SinusoidalTracks trIn, 
                                                double [] f0s, 
                                                float f0_ss, float f0_ws,
                                                int [] pitchMarks,
@@ -53,37 +86,57 @@ public class TrackModifier {
                                                float numPeriods,
                                                boolean isVoicingAdaptiveTimeScaling, 
                                                float timeScalingVoicingThreshold, 
-                                               float tScale)
+                                               boolean isVoicingAdaptivePitchScaling, 
+                                               float [] tScales,
+                                               float [] tScalesTimes,
+                                               float [] pScales,
+                                               float [] pScalesTimes)
     {   
+        int i, j, l, lShift;
+
+       
+        
+        //Pitch scale pitch contour
+        double [] f0sMod = SignalProcUtils.pitchScalePitchContour(f0s, f0_ws, f0_ss, pScales, pScalesTimes);
+        
         //Time scale pitch contour
-        double [] f0sMod = SignalProcUtils.interpolate_pitch_contour(f0s, tScale);
+        f0sMod = SignalProcUtils.timeScalePitchContour(f0sMod, f0_ws, f0_ss, tScales, tScalesTimes);
+        
+        float maxDur = SignalProcUtils.timeScaledTime(trIn.origDur, tScales, tScalesTimes);
         
         //Find modified onsets
-        PitchMarker pmMod = SignalProcUtils.pitchContour2pitchMarks(f0sMod, trIn.fs, (int)Math.floor(trIn.origDur*tScale*trIn.fs+0.5), f0_ws, f0_ss, false);
+        PitchMarker pmMod = SignalProcUtils.pitchContour2pitchMarks(f0sMod, trIn.fs, (int)Math.floor(maxDur*trIn.fs+0.5), f0_ws, f0_ss, false);
         
         int L = (int)Math.floor(skipSizeInSeconds*trIn.fs+0.5);
-        int LMod = (int)Math.floor(skipSizeInSeconds*tScale*trIn.fs+0.5);
         
-        int i, j, l, lShift;
+        float tScaleCurrent;
+        float pScaleCurrent;
+        int LMod;
+ 
+        float pVoicing;
+        float bandwidth = (float)(0.5f*MathUtils.TWOPI);
+
         float excPhase, excPhaseMod;
-        float sysPhase;
+        float sysPhase, sysPhaseMod;
+        float excAmp, excAmpMod;
+        float sysAmp, sysAmpMod;
+        float freq, freqMod;
+        
         int closestInd;
         int closestIndMod;
         int n0, n0Mod, n0Prev, n0ModPrev;
         int Pm;
         int J, JMod;
-        int m;
         
-        float maxDur = 0.0f;
         int middleAnalysisSample;
+        float middleSynthesisTime;
         int middleSynthesisSample;
 
         SinusoidalTracks trMod = null;
         int trackSt, trackEn;
         
-        
-        boolean bSingleTrackTest = true;
-        
+        boolean bSingleTrackTest = false;
+        //boolean bSingleTrackTest = true;
 
         if (bSingleTrackTest)  
         {
@@ -105,13 +158,10 @@ public class TrackModifier {
             
             n0Prev = 0;
             n0ModPrev = 0;
-            m = 0;
             l = 0;
             
             for (j=0; j<trIn.tracks[i].totalSins; j++)
             {   
-                System.out.println(String.valueOf(l) + " " + String.valueOf(m));
-                
                 if (trIn.tracks[i].states[j]==SinusoidalTrack.ACTIVE)
                 {
                     middleAnalysisSample = SignalProcUtils.time2sample(trIn.tracks[i].times[j], trIn.fs);
@@ -122,6 +172,38 @@ public class TrackModifier {
                         l++;
 
                     closestInd = MathUtils.findClosest(pitchMarks, middleAnalysisSample);
+
+                    int pScaleInd = MathUtils.findClosest(pScalesTimes, trIn.tracks[i].times[j]);
+                    pScaleCurrent = pScales[pScaleInd];
+                    
+                    //Voicing dependent pitch scale modification factor estimation
+                    if (voicings!=null && isVoicingAdaptivePitchScaling)
+                    {
+                        pVoicing = voicings[Math.min(closestInd, voicings.length-1)];
+                        float pitchScalingFreqThreshold = (float)(0.5f*pVoicing*MathUtils.TWOPI);
+                        
+                        if (trIn.tracks[i].freqs[j]>pitchScalingFreqThreshold)
+                            pScaleCurrent = 1.0f;
+                        else
+                            pScaleCurrent = pScales[pScaleInd];
+                    }   
+                    //
+                          
+                    int tScaleInd = MathUtils.findClosest(tScalesTimes, trIn.tracks[i].times[j]);
+                    tScaleCurrent = tScales[tScaleInd];
+                    
+                    //Voicing dependent time scale modification factor estimation
+                    if (voicings!=null && isVoicingAdaptiveTimeScaling)
+                    {
+                        pVoicing = voicings[Math.min(closestInd, voicings.length-1)];
+                        
+                        if (pVoicing<timeScalingVoicingThreshold)
+                            tScaleCurrent = 1.0f;
+                        else
+                            tScaleCurrent = (1.0f-pVoicing) + pVoicing*tScales[tScaleInd];
+                    }
+                    
+                    LMod = (int)Math.floor(skipSizeInSeconds*tScaleCurrent*trIn.fs+0.5);
                     
                     if (closestInd<pitchMarks.length-1)
                         Pm = pitchMarks[closestInd+1] - pitchMarks[closestInd];
@@ -130,14 +212,12 @@ public class TrackModifier {
                     
                     if (j>0 && trIn.tracks[i].states[j-1]==SinusoidalTrack.TURNED_ON)
                     {
-                        m = 0;
                         n0 = pitchMarks[closestInd];
                         n0Prev = 0;
                     }
                     else
                     {
-                        m++;
-                        
+                        /*
                         J = 1;
                         while (n0Prev+J*Pm<middleAnalysisSample)
                             J++;
@@ -146,13 +226,20 @@ public class TrackModifier {
                             J--;
                         
                         n0 = n0Prev + J*Pm;
+                        */
+                        
+                        n0 = pitchMarks[closestInd];
                     }
                     
-                    excPhase = -(m*L-n0)*trIn.tracks[i].freqs[j];
+                    excPhase = -(middleAnalysisSample-n0)*trIn.tracks[i].freqs[j];
                     sysPhase = trIn.tracks[i].phases[j]-excPhase;
+                    excAmp = trIn.tracks[i].amps[j]/trIn.tracks[i].sysAmps[j];
+                    sysAmp = trIn.tracks[i].sysAmps[j];
+                    freq = trIn.tracks[i].freqs[j];
 
                     //Estimate modified excitation phase
-                    middleSynthesisSample = l*LMod;
+                    middleSynthesisTime = SignalProcUtils.timeScaledTime(trIn.tracks[i].times[j], tScales, tScalesTimes);
+                    middleSynthesisSample = (int)SignalProcUtils.time2sample(middleSynthesisTime, trIn.fs);
                     closestIndMod = MathUtils.findClosest(pmMod.pitchMarks, middleSynthesisSample);
                     
                     if (j>0 && trIn.tracks[i].states[j-1]==SinusoidalTrack.TURNED_ON)
@@ -162,6 +249,7 @@ public class TrackModifier {
                     }
                     else
                     {
+                        /*
                         JMod = 1;
                         while (n0ModPrev+JMod*Pm<middleSynthesisSample)
                             JMod++;
@@ -170,14 +258,32 @@ public class TrackModifier {
                             JMod--;
                         
                         n0Mod = n0ModPrev + JMod*Pm;
+                        */
+                        
+                        n0Mod = pmMod.pitchMarks[closestIndMod];
                     }
                     
-                    excPhaseMod = -(m*LMod-n0Mod)*trIn.tracks[i].freqs[j]; 
+                    excPhaseMod = -(middleSynthesisSample-n0Mod)*pScaleCurrent*trIn.tracks[i].freqs[j]; 
+                    excAmpMod = excAmp;
+                    freqMod = (float)Math.min(pScaleCurrent*freq, 0.5f*MathUtils.TWOPI);
                     
+                    if (pScaleCurrent==1.0f)
+                    {
+                        sysPhaseMod = sysPhase;
+                        sysAmpMod = sysAmp;
+                    }
+                    else //Modify system phase and amplitude according to pitch scale modification factor
+                    {
+                        sysPhaseMod = sysPhase;
+                        sysAmpMod = sysAmp;
+                    }
+                        
                     if (!bSingleTrackTest)
                     {
-                        trMod.tracks[i].phases[j] = sysPhase + excPhaseMod;
-                        trMod.tracks[i].times[j] = SignalProcUtils.sample2time(middleSynthesisSample, trIn.fs);
+                        trMod.tracks[i].amps[j] = excAmpMod*sysAmpMod;
+                        trMod.tracks[i].freqs[j] = freqMod;
+                        trMod.tracks[i].phases[j] = sysPhaseMod + excPhaseMod;
+                        trMod.tracks[i].times[j] = middleSynthesisTime;
                     
                         if (trMod.tracks[i].times[j]>maxDur)
                             maxDur = trMod.tracks[i].times[j];
@@ -187,8 +293,10 @@ public class TrackModifier {
                     }
                     else
                     {
-                        trMod.tracks[0].phases[j] = sysPhase + excPhaseMod;
-                        trMod.tracks[0].times[j] = SignalProcUtils.sample2time(l*LMod, trIn.fs);
+                        trMod.tracks[0].amps[j] = excAmpMod*sysAmpMod;
+                        trMod.tracks[0].freqs[j] = freqMod;
+                        trMod.tracks[0].phases[j] = sysPhaseMod + excPhaseMod;
+                        trMod.tracks[0].times[j] = middleSynthesisTime;
                     
                         if (trMod.tracks[0].times[j]>maxDur)
                             maxDur = trMod.tracks[0].times[j];

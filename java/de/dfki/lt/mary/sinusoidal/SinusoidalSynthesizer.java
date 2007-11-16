@@ -95,7 +95,6 @@ public class SinusoidalSynthesizer {
         Arrays.fill(y, 0.0);
         float currentAmp;
         float currentTheta;
-        float prevTheta = 0.0f;
         double alpha, beta;
         int M;
         float T; //Number of samples between consecutive frames (equals to pitch period in pitch synchronous analysis/synthesis)
@@ -169,24 +168,21 @@ public class SinusoidalSynthesizer {
 
                                 //Quatieri
                                 currentTheta=(float)(st.tracks[i].phases[j] + st.tracks[i].freqs[j]*t + alpha*t2 + beta*t3);
-                                
-                                //System.out.println(String.valueOf(MathUtils.radian2Hz(MathUtils.unwrap(currentTheta,prevTheta)-prevTheta, st.fs))); //Synthesized freq in Hz
-                                
-                                prevTheta = currentTheta;
                             }
 
                             //Synthesis
                             y[n] += currentAmp*Math.cos(currentTheta);
                         }
 
-                        //System.out.println(String.valueOf(currentAmp) +  "    " + String.valueOf(currentTheta)); 
+                        //System.out.println(String.valueOf(currentTheta)); 
                     }
                 }
             }
 
             if (!isSilentSynthesis)
                 System.out.println("Synthesized track " + String.valueOf(i+1) + " of " + String.valueOf(st.totalTracks));
-        }          
+        }   
+        
         double maxy = MathUtils.getAbsMax(y);
         for (i=0; i<y.length; i++)
             y[i] = absMaxDesired*y[i]/maxy;
@@ -229,8 +225,8 @@ public class SinusoidalSynthesizer {
         float numPeriods = PitchSynchronousSinusoidalAnalyzer.DEFAULT_ANALYSIS_PERIODS;
         boolean isSilentSynthesis = false;
         
-        boolean bRefinePeakEstimatesParabola = true;
-        boolean bRefinePeakEstimatesBias = true;
+        boolean bRefinePeakEstimatesParabola = false;
+        boolean bRefinePeakEstimatesBias = false;
         boolean bAdjustNeighFreqDependent = false;
         double absMaxOriginal;
         
@@ -245,7 +241,7 @@ public class SinusoidalSynthesizer {
         else
         {
             //Pitch synchronous analysis
-            if (true) //Test using real speech (Make sure .ptc file with identical filename as the wavfile exists)
+            if (false) //Test using real speech (Make sure .ptc file with identical filename as the wavfile exists)
             {
                 String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
                 F0Reader f0 = new F0Reader(strPitchFile);
@@ -259,7 +255,7 @@ public class SinusoidalSynthesizer {
                 String strPmFile = args[0].substring(0, args[0].length()-4) + ".pm";
                 int [] pitchMarks = FileUtils.readFromBinaryFile(strPmFile);
                 pa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bAdjustNeighFreqDependent);
-                st = pa.analyzePitchSynchronous(x, pitchMarks, numPeriods, -1.0f, deltaInHz);
+                st = pa.analyzePitchSynchronous(x, pitchMarks, numPeriods, 0.010f, deltaInHz);
             }
             //
             
@@ -271,6 +267,8 @@ public class SinusoidalSynthesizer {
         SinusoidalSynthesizer ss = new SinusoidalSynthesizer(samplingRate);
         x = ss.synthesize(st, absMaxOriginal, isSilentSynthesis);
         //
+        
+        st.writeToTextFile("d:\\log1.txt");
         
         //File output
         DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(x), inputAudio.getFormat());

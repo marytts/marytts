@@ -36,9 +36,14 @@ package de.dfki.lt.mary.sinusoidal;
  * 
  */
 public class Sinusoid {
-    public float amp; //Amplitude
+    public float amp; //Amplitude (Total amplitude, i.e. excitation x system)
     public float freq; //Frequency in radians
     public float phase; //Phase
+    public int frameIndex; //Frame index
+    public float sysAmp; //System amplitude (If excitation amplitude is required, simply divide amp by this value) 
+    
+    public static int NON_EXISTING_FRAME_INDEX = -1; //Used for sinusoid components added for parameter smoothing
+    public static float DEFAULT_SYS_AMP = 1.0f;
     
     public Sinusoid()
     {
@@ -47,13 +52,25 @@ public class Sinusoid {
     
     public Sinusoid(float ampIn, float freqIn, float phaseIn)
     {
+        this(ampIn, freqIn, phaseIn, NON_EXISTING_FRAME_INDEX);
+    }
+    
+    public Sinusoid(float ampIn, float freqIn, float phaseIn, int frameIndexIn)
+    {
+        this(ampIn, freqIn, phaseIn, frameIndexIn, DEFAULT_SYS_AMP);
+    }
+
+    public Sinusoid(float ampIn, float freqIn, float phaseIn, int frameIndexIn, float sysAmpIn)
+    {
         this.amp = ampIn;
         this.freq = freqIn;
         this.phase = phaseIn;
+        this.frameIndex = frameIndexIn;
+        this.sysAmp = sysAmpIn;
     }
     
     public Sinusoid(Sinusoid existingSinusoid)
     {
-        this(existingSinusoid.amp, existingSinusoid.freq, existingSinusoid.phase);
+        this(existingSinusoid.amp, existingSinusoid.freq, existingSinusoid.phase, existingSinusoid.frameIndex, existingSinusoid.sysAmp);
     }
 }
