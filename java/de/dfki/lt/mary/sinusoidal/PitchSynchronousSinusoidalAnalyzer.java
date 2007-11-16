@@ -137,6 +137,7 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         
         Sinusoid [][] framesSins =  new Sinusoid[totalFrm][];
         float [] times = new float[totalFrm];
+        float [] voicings = new float[totalFrm];
         boolean [] isSinusoidNulls = new boolean[totalFrm]; 
         Arrays.fill(isSinusoidNulls, false);
         int totalNonNull = 0;
@@ -188,6 +189,13 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
             win.applyInline(frm, 0, ws);
             
             framesSins[i] = analyze_frame(frm);
+            voicings[i] = (float)SignalProcUtils.getVoicingProbability(frm, fs);
+            
+            if (framesSins[i]!=null)
+            {
+                for (j=0; j<framesSins[i].length; j++)
+                    framesSins[i][j].frameIndex = i;
+            }
             
             if (framesSins[i]==null)
                 isSinusoidNulls[i] = true;
@@ -215,11 +223,13 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         
         Sinusoid [][] framesSins2 = null;
         float [] times2 = null;
+        float [] voicings2 = null;
         if (totalNonNull>0)
         {
             //Collect non-null sinusoids only
             framesSins2 =  new Sinusoid[totalNonNull][];
             times2 = new float[totalNonNull];
+            voicings2 = new float[totalNonNull];
             int ind = 0;
             for (i=0; i<totalFrm; i++)
             {
@@ -230,6 +240,7 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
                         framesSins2[ind][j] = new Sinusoid(framesSins[i][j]);
 
                     times2[ind] = times[i];
+                    voicings2[ind] = voicings[i];
 
                     ind++;
                     if (ind>totalNonNull-1)
@@ -242,6 +253,8 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         //Extract sinusoidal tracks
         TrackGenerator tg = new TrackGenerator();
         SinusoidalTracks sinTracks = tg.generateTracksFreqOnly(framesSins2, times2, deltaInHz, fs);
+        
+        sinTracks.setVoicings(voicings2);
         
         if (sinTracks!=null)
         {

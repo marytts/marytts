@@ -29,6 +29,13 @@
 
 package de.dfki.lt.mary.sinusoidal;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import de.dfki.lt.signalproc.util.MathUtils;
+import de.dfki.lt.signalproc.util.SignalProcUtils;
+
 /**
  * @author oytun.turk
  *
@@ -39,7 +46,8 @@ public class SinusoidalTracks {
     public int currentIndex;
     public int fs; //Sampling rate in Hz, you can change this using setSamplingRate to synthesize speech at a different sampling rate
     public float origDur; //Original duration of the signal modeled by sinusoidal tracks in seconds
-
+    public float [] voicings; //Voicing probabilities
+    
     public SinusoidalTracks(int len, int samplingRate)
     {
         initialize(len, samplingRate);
@@ -73,6 +81,8 @@ public class SinusoidalTracks {
         origDur = 0.0f;
         
         setSamplingRate(samplingRate);
+        
+        voicings = null;
     }
     
     // Copy part of the existing tracks in srcTracks into the current tracks
@@ -105,7 +115,9 @@ public class SinusoidalTracks {
             
             if (srcTracks.origDur>origDur)
                 origDur = srcTracks.origDur;
-        }   
+        }  
+        
+        setVoicings(srcTracks.voicings);
     }
     
     // Copy existing tracks (srcTracks) into the current tracks
@@ -217,11 +229,51 @@ public class SinusoidalTracks {
         System.out.println("Total tracks longer than " + String.valueOf(longLim) + " speech frames = " + String.valueOf(numLongs));
  
         for (i=0; i<totalTracks; i++)
-            tracks[i].getStatistics(true, true, fs);
+            tracks[i].getStatistics(true, true, fs, i);
     }
     
     public float getOriginalDuration()
     {
         return origDur;
+    }
+    
+    public void setVoicings(float [] voicingsIn)
+    {
+        if (voicingsIn!=null && voicingsIn.length>0)
+        {
+            voicings = new float[voicingsIn.length];
+            System.arraycopy(voicingsIn, 0, voicings, 0, voicingsIn.length);
+        }
+        else
+            voicings = null;  
+    }
+    
+    public void writeToTextFile(String filename) throws IOException
+    {
+        File outFile = new File(filename);
+        FileWriter out = new FileWriter(outFile);
+        String str;
+        
+        for (int i=0; i<this.totalTracks; i++)
+        {
+            str = "*** Track index= " + String.valueOf(i) + "\r\n" + "AMP(lin)\tFREQ(Hz)\tPHASE(rad)\tPHASE(°)\tTIME(sec)" + "\r\n";
+            out.write(str);
+            
+            for (int j=0; j<tracks[i].totalSins; j++)
+            {
+                str = String.format("%1$f",tracks[i].amps[j]) + "\t" +
+                      String.format("%1$f",MathUtils.radian2Hz(tracks[i].freqs[j], fs)) + "\t" +
+                      String.format("%1$f",tracks[i].phases[j]) + "\t" +
+                      String.format("%1$f",MathUtils.unwrapToRange(MathUtils.radian2degrees(tracks[i].phases[j]), -180.0f)) + "\t" +
+                      String.format("%1$f",tracks[i].times[j]) + "\r\n";
+                
+                out.write(str);
+            }
+            
+            str = "********************************************************" + "\r\n";
+            out.write(str);
+        }
+        
+        out.close();
     }
 }

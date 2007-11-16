@@ -40,6 +40,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.dfki.lt.signalproc.FFT;
 import de.dfki.lt.signalproc.FFTMixedRadix;
+import de.dfki.lt.signalproc.analysis.LPCAnalyser;
 import de.dfki.lt.signalproc.process.FrameOverlapAddSource;
 import de.dfki.lt.signalproc.process.FrameProvider;
 import de.dfki.lt.signalproc.process.LPCCrossSynthesis;
@@ -67,10 +68,12 @@ public class SinusoidalAnalyzer {
     public static float DEFAULT_ANALYSIS_WINDOW_SIZE = 0.020f;
     public static float DEFAULT_ANALYSIS_SKIP_SIZE = 0.010f;
     public static double MIN_ENERGY_TH = 1e-10; //Minimum energy threshold to analyze a frame
+    public static double MIN_PEAK_IN_DB = -2000.0f;
     
     protected int fs; //Sampling rate in Hz
     protected int windowType; //Type of window (See class Window for details)
     protected int fftSize; //FFT size in points
+    protected int LPOrder; //LP analysis order
 
     protected boolean bRefinePeakEstimatesParabola; //Refine peak and frequency estimates by fitting parabolas?
     protected boolean bRefinePeakEstimatesBias; //Further refine peak and frequency estimates by correcting bias? 
@@ -104,6 +107,7 @@ public class SinusoidalAnalyzer {
         minWindowSize = (int)(Math.floor(fs*MIN_WINDOW_SIZE+0.5));
         bAdjustNeighFreqDependent = bAdjustNeighFreqDependentIn;
         absMax = -1.0f;
+        LPOrder = SignalProcUtils.getLPOrder(fs);
     }
     
     public SinusoidalAnalyzer(int samplingRate, int windowTypeIn, boolean bRefinePeakEstimatesParabolaIn, boolean bRefinePeakEstimatesBiasIn)
@@ -145,12 +149,12 @@ public class SinusoidalAnalyzer {
     
     public static int getSinAnaFFTSize(int samplingRate)
     { 
-        if (samplingRate<=10000)
+        if (samplingRate<10000)
+            return 512;
+        else if (samplingRate<20000)
             return 1024;
-        else if (samplingRate<=20000)
-            return 2048;
         else
-            return 4096;
+            return 2048;
     }
     
     //Set default search range for peak detection for different frequency intervals
@@ -224,6 +228,7 @@ public class SinusoidalAnalyzer {
 
         Sinusoid [][] framesSins =  new Sinusoid[totalFrm][];
         float [] times = new float[totalFrm];
+        float [] voicings = new float[totalFrm];
         boolean [] isSinusoidNulls = new boolean[totalFrm]; 
         Arrays.fill(isSinusoidNulls, false);
         int totalNonNull = 0;
@@ -237,6 +242,13 @@ public class SinusoidalAnalyzer {
             win.applyInline(frm, 0, ws);
             
             framesSins[i] = analyze_frame(frm);
+            voicings[i] = (float)SignalProcUtils.getVoicingProbability(frm, fs);
+            
+            if (framesSins[i]!=null)
+            {
+                for (j=0; j<framesSins[i].length; j++)
+                    framesSins[i][j].frameIndex = i;
+            }
             
             if (framesSins[i]==null)
                 isSinusoidNulls[i] = true;
@@ -251,11 +263,13 @@ public class SinusoidalAnalyzer {
         
         Sinusoid [][] framesSins2 = null;
         float [] times2 = null;
+        float [] voicings2 = null;
         if (totalNonNull>0)
         {
             //Collect non-null sinusoids only
             framesSins2 =  new Sinusoid[totalNonNull][];
             times2 = new float[totalNonNull];
+            voicings2 = new float[totalNonNull];
             int ind = 0;
             for (i=0; i<totalFrm; i++)
             {
@@ -266,6 +280,7 @@ public class SinusoidalAnalyzer {
                         framesSins2[ind][j] = new Sinusoid(framesSins[i][j]);
 
                     times2[ind] = times[i];
+                    voicings2[ind] = voicings[i];
 
                     ind++;
                     if (ind>totalNonNull-1)
@@ -278,6 +293,8 @@ public class SinusoidalAnalyzer {
         //Extract sinusoidal tracks
         TrackGenerator tg = new TrackGenerator();
         SinusoidalTracks sinTracks = tg.generateTracksFreqOnly(framesSins2, times2, deltaInHz, fs);
+        
+        sinTracks.setVoicings(voicings2);
         
         if (sinTracks!=null)
         {
@@ -326,6 +343,8 @@ public class SinusoidalAnalyzer {
             System.arraycopy(frm, midPoint, Y.real, 0, frm.length-midPoint);
             System.arraycopy(frm, 0, Y.real, fftSize-midPoint, midPoint);
             //
+            
+            double [] lpSpec = LPCAnalyser.calcSpecFrame(frm, LPOrder, fftSize);
 
             //Take FFT
             if (MathUtils.isPowerOfTwo(fftSize))
@@ -335,12 +354,13 @@ public class SinusoidalAnalyzer {
 
             //Compute magnitude spectrum in dB as peak frequency estimates tend to be more accurate
             double [] Ydb = new double[maxFreq]; 
+            
             for (i=0; i<maxFreq; i++)
-                Ydb[i] = 10*Math.log10(Y.real[i]*Y.real[i]+Y.imag[i]*Y.imag[i]+1e-20);
+                Ydb[i] = 10*Math.log10(Y.real[i]*Y.real[i]+Y.imag[i]*Y.imag[i]+1e-80);
             //
             
             //Determine peak amplitude indices and the corresponding amplitudes, frequencies, and phases 
-            int [] freqInds = MathUtils.getExtrema(Ydb, freqSampNeighs, freqSampNeighs, true);
+            int [] freqInds = MathUtils.getExtrema(Ydb, freqSampNeighs, freqSampNeighs, true, MIN_PEAK_IN_DB);
 
             if (freqInds != null)
             {
@@ -385,12 +405,15 @@ public class SinusoidalAnalyzer {
 
                     //Use results of refined peak estimation after simple peak detection
                     frameSins[i].amp = (float)(MathUtils.db2amplitude(ampsRefined[i]));
+                    
                     //frameSins[i].freq = (float)((0.5*fs*freqIndsRefined[i])/(maxFreq-1)); //freq in Hz
                     frameSins[i].freq = (float) ((0.5*MathUtils.TWOPI*freqIndsRefined[i])/(maxFreq-1));  //freq in radians
                     //
 
                     frameSins[i].phase = (float) (Math.atan2(Y.imag[freqInds[i]], Y.real[freqInds[i]])); //phase in radians
 
+                    frameSins[i].sysAmp = (float)lpSpec[freqInds[i]];
+                    
                     /*
                     if (Y.real[freqInds[i]]<0)
                         frameSins[i].phase += 0.5*MathUtils.TWOPI;

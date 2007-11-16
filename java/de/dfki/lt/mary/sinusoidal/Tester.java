@@ -55,6 +55,7 @@ import de.dfki.lt.signalproc.util.MathUtils;
 public class Tester {
     public static float DEFAULT_AMP = 0.8f;
     public static float DEFAULT_PHASE = 0.0f;
+    public static int DEFAULT_FRAME_INDEX = 0;
     public static float DEFAULT_DUR = 1.0f;
     public static int DEFAULT_FS = 16000;
     public double [] signal;
@@ -73,12 +74,23 @@ public class Tester {
     
     public Tester(float freqInHz, float amp, float phaseInDegrees)
     {
-        this(freqInHz, amp, phaseInDegrees, DEFAULT_DUR);
+        this(freqInHz, amp, phaseInDegrees, DEFAULT_FRAME_INDEX);
     }
     
-    public Tester(float freqInHz, float amp, float phaseInDegrees, float durationInSeconds)
+    public Tester(float freqInHz, float amp, float phaseInDegrees, int frameIndex)
     {
-        this(freqInHz, amp, phaseInDegrees, durationInSeconds, DEFAULT_FS);
+        this(freqInHz, amp, phaseInDegrees, frameIndex, DEFAULT_DUR);
+    }
+    
+    public Tester(float freqInHz, float amp, float phaseInDegrees, int frameIndex, float sysAmp)
+    {
+        this(freqInHz, amp, phaseInDegrees, frameIndex, sysAmp, DEFAULT_DUR);
+    }
+    
+    
+    public Tester(float freqInHz, float amp, float phaseInDegrees, int frameIndex, float sysAmp, float durationInSeconds)
+    {
+        this(freqInHz, amp, phaseInDegrees, frameIndex, sysAmp, durationInSeconds, DEFAULT_FS);
     }
     
     public Tester(Sinusoid sin)
@@ -91,10 +103,10 @@ public class Tester {
         this(sin, durationInSeconds, DEFAULT_FS);
     }
     
-    public Tester(float freqInHz, float amp, float phaseInDegrees, float durationInSeconds, int samplingRateInHz)
+    public Tester(float freqInHz, float amp, float phaseInDegrees, int frameIndex, float sysAmp, float durationInSeconds, int samplingRateInHz)
     {
         Sinusoid [] tmpSins = new Sinusoid[1];
-        tmpSins[0] = new Sinusoid(amp, freqInHz, phaseInDegrees);
+        tmpSins[0] = new Sinusoid(amp, freqInHz, phaseInDegrees, frameIndex, sysAmp);
         init(tmpSins, durationInSeconds, samplingRateInHz);
     }
     
@@ -253,19 +265,16 @@ public class Tester {
         Tester t = null;
         
         //Single sinusoid, time-invariant
-        t = new Tester(400.0f);
+        //t = new Tester(400.0f);
         //
 
-        /*
         //Several sinusoids, time-invariant
-        numTracks = 3;
+        numTracks = 1;
         Sinusoid [] sins = new Sinusoid[numTracks];
-        sins[0] = new Sinusoid(100.0f, 120.0f, 0.0f);
-        sins[1] = new Sinusoid(25.0f, 700.0f, 0.0f);
-        sins[2] = new Sinusoid(6.5f, 4300.0f, 0.0f);
+        //sins[0] = new Sinusoid(100.0f, 100.0f, 0.0f);
+        sins[0] = new Sinusoid(25.0f, 255.0f, 0.0f);
         t = new Tester(sins);
         //
-        */
         
         /*
         //Fixed sinusoidal track with a gap

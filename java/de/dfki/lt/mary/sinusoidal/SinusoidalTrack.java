@@ -43,6 +43,8 @@ public class SinusoidalTrack {
     float [] amps; //Amplitudes of the sinusoids
     float [] freqs; //Frequencies of the sinusoids
     float [] phases; //Phases of the sinusoids in radians
+    int [] frameIndices; //Frame indices of sinusoids
+    float [] sysAmps; //System amplitudes
     float [] times; //Times of the sinusoids in seconds
     int [] states; //State of the track for a given index (one of the flags below, by default: LIVING
     
@@ -75,7 +77,7 @@ public class SinusoidalTrack {
     public float minTimeInSeconds;
     public float maxTimeInSeconds;
     
-    public void getStatistics(boolean isFreqRadian, boolean isPhaseRadian, int fs) 
+    public void getStatistics(boolean isFreqRadian, boolean isPhaseRadian, int fs, int trackIndex) 
     {
         avgFreqInHz = 0.0f;
         minFreqInHz = -1.0f;
@@ -135,7 +137,7 @@ public class SinusoidalTrack {
             maxTimeInSeconds = MathUtils.getMax(times);
             
             char chTab = 9;
-            String str = "avgFreq=" + String.valueOf(avgFreqInHz) + " Hz." + chTab;
+            String str = "ind=" + String.valueOf(trackIndex) + " avgFreq=" + String.valueOf(avgFreqInHz) + " Hz." + chTab;
             str += "minFreq=" + String.valueOf(minFreqInHz) + " Hz." + chTab;
             str += "maxFreq=" + String.valueOf(maxFreqInHz) + " Hz." + chTab;
             str += "avgAmpl=" + String.valueOf(avgAmpLinear) + chTab;
@@ -160,7 +162,7 @@ public class SinusoidalTrack {
     //Create a track from a single sinusoid
     public SinusoidalTrack(float time, Sinusoid sin, int state)
     {
-        add(time, sin.amp, sin.freq, sin.phase, state);
+        add(time, sin.amp, sin.freq, sin.phase, sin.frameIndex, sin.sysAmp, state);
     }
     
   //Create a track from a track
@@ -179,6 +181,8 @@ public class SinusoidalTrack {
             amps = new float[totalSins];
             freqs = new float[totalSins];
             phases = new float[totalSins];
+            frameIndices = new int[totalSins];
+            sysAmps = new float[totalSins];
             states = new int[totalSins];
         }
         else
@@ -188,6 +192,8 @@ public class SinusoidalTrack {
             amps = null;
             freqs = null;
             phases = null;
+            frameIndices = null;
+            sysAmps = null;
             states = null;
         }
         
@@ -220,6 +226,8 @@ public class SinusoidalTrack {
             System.arraycopy(srcTrack.amps, startSinIndex, this.amps, 0, endSinIndex-startSinIndex+1);
             System.arraycopy(srcTrack.freqs, startSinIndex, this.freqs, 0, endSinIndex-startSinIndex+1);
             System.arraycopy(srcTrack.phases, startSinIndex, this.phases, 0, endSinIndex-startSinIndex+1);
+            System.arraycopy(srcTrack.frameIndices, startSinIndex, this.frameIndices, 0, endSinIndex-startSinIndex+1);
+            System.arraycopy(srcTrack.sysAmps, startSinIndex, this.sysAmps, 0, endSinIndex-startSinIndex+1);
             System.arraycopy(srcTrack.states, startSinIndex, this.states, 0, endSinIndex-startSinIndex+1);
             currentIndex = endSinIndex-startSinIndex;
         }
@@ -232,7 +240,7 @@ public class SinusoidalTrack {
     }
     
     //Add a new sinusoid to the track
-    public void add(float time, float amp, float freq, float phase, int state)
+    public void add(float time, float amp, float freq, float phase, int frameIndex, float sysAmp, int state)
     {
         if (currentIndex+1>=totalSins) //Expand the current track to twice its length and then add
         {
@@ -255,16 +263,18 @@ public class SinusoidalTrack {
         amps[currentIndex] = amp;
         freqs[currentIndex] = freq;
         phases[currentIndex] = phase;
+        frameIndices[currentIndex] = frameIndex;
+        sysAmps[currentIndex] = sysAmp;
         states[currentIndex] = state;
     }
     
     public void add(float time, Sinusoid newSin, int state)
     {
-        add(time, newSin.amp, newSin.freq, newSin.phase, state);
+        add(time, newSin.amp, newSin.freq, newSin.phase, newSin.frameIndex, newSin.sysAmp, state);
     }
     
     //Update parameters of <index>th sinusoid in track
-    public void update(int index, int time, float amp, float freq, float phase, int state)
+    public void update(int index, int time, float amp, float freq, float phase, int frameIndex, float sysAmp, int state)
     {
         if (index<totalSins)
         {            
@@ -272,6 +282,8 @@ public class SinusoidalTrack {
             amps[index] = amp;
             freqs[index] = freq;
             phases[index] = phase;
+            frameIndices[index] = frameIndex;
+            sysAmps[index] = sysAmp;
             states[index] = state;
         }
     }

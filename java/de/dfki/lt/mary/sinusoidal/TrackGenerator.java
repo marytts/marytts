@@ -36,7 +36,7 @@ package de.dfki.lt.mary.sinusoidal;
  * 
  */
 public class TrackGenerator {
-    public static float ZERO_AMP_SHIFT_IN_SECONDS = 0.005f; //Time instant before/after current time to insert a turning-on/off event
+    public static float ZERO_AMP_SHIFT_IN_SECONDS = 0.001f; //Time instant before/after current time to insert a turning-on/off event
                                                             //The amplitudes and synthesis freqs/phases are accordingly interpolated to provide a smooth transition
     
     public TrackGenerator()
@@ -87,7 +87,7 @@ public class TrackGenerator {
                     for (j=0; j<framesSins[i].length; j++)
                     {
                         //First add a zero amplitude sinusoid at previous time instant to allow smooth synthesis (i.e. "turning on" the track)
-                        zeroAmpSin = new Sinusoid(0.0f, framesSins[i][j].freq, 0.0f);
+                        zeroAmpSin = new Sinusoid(0.0f, framesSins[i][j].freq, 0.0f, Sinusoid.NON_EXISTING_FRAME_INDEX);
                         tr.add(new SinusoidalTrack(times[i]-ZERO_AMP_SHIFT_IN_SECONDS, zeroAmpSin,  SinusoidalTrack.TURNED_ON));
                         //
                     
@@ -149,7 +149,7 @@ public class TrackGenerator {
 
                             if (tr.tracks[j].states[tr.tracks[j].currentIndex]!=SinusoidalTrack.ACTIVE)
                             {
-                                zeroAmpSin = new Sinusoid(0.0f, tr.tracks[j].freqs[tr.tracks[j].totalSins-1], 0.0f);
+                                zeroAmpSin = new Sinusoid(0.0f, tr.tracks[j].freqs[tr.tracks[j].totalSins-1], 0.0f, Sinusoid.NON_EXISTING_FRAME_INDEX);
                                 tr.tracks[j].add(times[i]-ZERO_AMP_SHIFT_IN_SECONDS, zeroAmpSin, SinusoidalTrack.TURNED_ON);
                             }
                             
@@ -159,7 +159,7 @@ public class TrackGenerator {
                         {
                             if (tr.tracks[j].states[tr.tracks[j].currentIndex]!=SinusoidalTrack.TURNED_OFF)
                             {
-                                zeroAmpSin = new Sinusoid(0.0f, tr.tracks[j].freqs[tr.tracks[j].totalSins-1], 0.0f);
+                                zeroAmpSin = new Sinusoid(0.0f, tr.tracks[j].freqs[tr.tracks[j].totalSins-1], 0.0f, Sinusoid.NON_EXISTING_FRAME_INDEX);
                                 tr.tracks[j].add(times[i]+ZERO_AMP_SHIFT_IN_SECONDS, zeroAmpSin, SinusoidalTrack.TURNED_OFF);
                             }  
                         } 
@@ -171,7 +171,7 @@ public class TrackGenerator {
                         if (!bSinAssigneds[k])
                         {
                             //First add a zero amplitude sinusoid to previous frame to allow smooth synthesis (i.e. "turning on" the track)
-                            zeroAmpSin = new Sinusoid(0.0f, framesSins[i][k].freq, 0.0f);
+                            zeroAmpSin = new Sinusoid(0.0f, framesSins[i][k].freq, 0.0f, Sinusoid.NON_EXISTING_FRAME_INDEX);
                             tr.add(new SinusoidalTrack(times[i]-ZERO_AMP_SHIFT_IN_SECONDS, zeroAmpSin, SinusoidalTrack.TURNED_ON));
                             //
                             
@@ -191,7 +191,7 @@ public class TrackGenerator {
                         {
                             if (tr.tracks[j].states[tr.tracks[j].currentIndex]==SinusoidalTrack.ACTIVE)
                             {
-                                zeroAmpSin = new Sinusoid(0.0f, tr.tracks[j].freqs[tr.tracks[j].totalSins-1], 0.0f);
+                                zeroAmpSin = new Sinusoid(0.0f, tr.tracks[j].freqs[tr.tracks[j].totalSins-1], 0.0f, Sinusoid.NON_EXISTING_FRAME_INDEX);
                                 tr.tracks[j].add(times[i]+ZERO_AMP_SHIFT_IN_SECONDS, zeroAmpSin, SinusoidalTrack.TURNED_OFF);
                             }
                         }
