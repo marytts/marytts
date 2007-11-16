@@ -77,6 +77,7 @@ public class HMMVoice extends Voice {
            Gender gender, int topStart, int topEnd, int baseStart, int baseEnd,
            String Ftd, String Ftf, String Ftm, String Fts, String Fta, 
            String Fmd, String Fmf, String Fmm, String Fms, String Fma,
+           boolean useGV, String Fgvf, String Fgvm, String Fgvs, String Fgva,
            String FeaList, String Flab, String Fif, int nFilters, int norderFilters) throws Exception {
        super(nameArray, locale, dbAudioFormat, synthesizer, gender, topStart, topEnd, baseStart, baseEnd);
 
@@ -92,6 +93,12 @@ public class HMMVoice extends Voice {
        this.htsData.setPdfStrFile(Fms);
        this.htsData.setPdfMagFile(Fma);
 
+       this.htsData.setUseGV(useGV);
+       this.htsData.setPdfLf0GVFile(Fgvf);        
+       this.htsData.setPdfMcpGVFile(Fgvm);
+       this.htsData.setPdfStrGVFile(Fgvs);
+       this.htsData.setPdfMagGVFile(Fgva);
+       
        /* Feature list file */
        this.htsData.setFeaListFile(FeaList);
 
@@ -103,11 +110,17 @@ public class HMMVoice extends Voice {
        this.htsData.setNumFilters(nFilters);
        this.htsData.setOrderFilters(norderFilters);
 
-       /* Load TreeSet ts and ModelSet ms*/
+       /* Load ModelSet ts */
        logger.info("Loading Model Set:");
        this.htsData.loadModelSet(); 
+       
+       /* Load TreeSet ms*/
        logger.info("Loading Tree Set:");
        this.htsData.loadTreeSet();  
+       
+       /* Load GV ModelSet gv*/
+       logger.info("Loading GV Model Set:");
+       this.htsData.loadGVModelSet();
        
        /* Load (un-commented) context feature list from featureListFile */
        logger.info("Loading Context feature list:");      

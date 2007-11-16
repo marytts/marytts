@@ -327,9 +327,13 @@ public class Vocoder {
 	  for(mcepframe=0,lf0frame=0; mcepframe<pdf2par.getMcepT(); mcepframe++) {
        
 		/* get current feature vector mc */ 
-		for(i=0; i<m; i++) 
-		  mc[i] = pdf2par.getMcep(mcepframe, i);	  
-		 
+          //System.out.print("Frame: " + mcepframe + "  ");
+		for(i=0; i<m; i++){
+		  mc[i] = pdf2par.getMcep(mcepframe, i);
+          //System.out.print("mc[" + i + "]=" + mc[i] ); 
+        }
+        //System.out.println(); 
+        
         /* f0 modification */
 	    if(pdf2par.getVoiced(mcepframe)){
 	      f0 = htsData.getF0Std() * Math.exp(pdf2par.getLf0(lf0frame, 0)) + htsData.getF0Mean(); 

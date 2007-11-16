@@ -378,7 +378,9 @@ public class HTSEngine extends InternalModule
       HMMData htsData = new HMMData();
       //htsData.initHMMData("/project/mary/marcela/HTS-mix/hts_engine.config");
       //htsData.initHMMData("/project/mary/sacha/HTS_BITS_24features_stableonly/hts_engine.config");
-      htsData.initHMMData("/project/mary/marcela/HMM-voices/german-hmm-bits1/hts/hts_engine.config");
+      //htsData.initHMMData("/project/mary/marcela/HMM-voices/german-hmm-bits1/hts/hts_engine.config");
+      //htsData.initHMMData("/project/mary/marcela/HMM-voices/english-hmm-cmu-arctic-slt/hts/hts_engine.config");
+      htsData.initHMMData("/project/mary/marcela/HTS-2.1alpha-demo_CMU-ARCTIC-SLT/hts_engine.config");
       
       /** The utterance model, um, is a Vector (or linked list) of Model objects. 
        * It will contain the list of models for current label file. */
@@ -407,8 +409,10 @@ public class HTSEngine extends InternalModule
 
           
           
-          System.out.println("saving to file: /project/mary/marcela/HMM-voices/german-hmm-bits1/hts/gen/tmp.wav");
-          File fileOut = new File("/project/mary/marcela/HMM-voices/german-hmm-bits1/hts/gen/tmp.wav");
+          //System.out.println("saving to file: /project/mary/marcela/HMM-voices/german-hmm-bits1/hts/gen/tmp.wav");
+          //File fileOut = new File("/project/mary/marcela/HMM-voices/german-hmm-bits1/hts/gen/tmp.wav");
+          System.out.println("saving to file: /project/mary/marcela/HMM-voices/english-hmm-cmu-arctic-slt/hts/gen/tmp.wav");
+          File fileOut = new File("/project/mary/marcela/HMM-voices/english-hmm-cmu-arctic-slt/hts/gen/tmp.wav");
           if (AudioSystem.isFileTypeSupported(AudioFileFormat.Type.WAVE,ais)) {
             AudioSystem.write(ais, AudioFileFormat.Type.WAVE, fileOut);
           }
