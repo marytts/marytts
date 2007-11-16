@@ -289,69 +289,6 @@ public class SignalProcUtils {
         return new_f0s;
     }
     
-    public static double [] interpolate_pitch_contour(double [] f0s, float beta)
-    {
-        double [] new_f0s = null;
-        
-        int newLen = (int)Math.floor(f0s.length*beta+0.5);
-        if (newLen>0)
-        {
-            new_f0s = new double[newLen];
-            Arrays.fill(new_f0s, 0.0);
-            
-            //Find voiceds and interpolate them segment by segment
-            int segSt = -1;
-            int segEn = -1;
-            for (int i=0; i<f0s.length; i++)
-            {
-                if (f0s[i]>10.0) //Voiced
-                {
-                    if (segSt<0) //Start new segment
-                        segSt=i;
-                    
-                    segEn=i; //Update current segment end
-                }
-                else //Unvoiced
-                {
-                    if (segSt>=0)
-                    {
-                        if (segEn>=0) //Segment ended
-                        {
-                            double [] tmp_f0s = new double[segEn-segSt+1];
-                            System.arraycopy(f0s, segSt, tmp_f0s, 0, segEn-segSt+1);
-                            int tmpNewLen = (int)Math.floor(tmp_f0s.length*beta+0.5);
-                            if (tmpNewLen>0)
-                            {
-                                double [] tmpNew_f0s = MathUtils.interpolate(tmp_f0s, tmpNewLen);
-                                int newSegSt = (int)Math.floor(segSt*beta+0.5);
-                                System.arraycopy(tmpNew_f0s, 0, new_f0s, newSegSt, Math.min(tmpNewLen, new_f0s.length-newSegSt));
-                            }
-                        }
-                    }
-                    
-                    segSt = -1;
-                    segEn = -1;
-                } 
-            }
-            
-            if (segSt>=0 && (segEn==-1 || segEn==f0s.length-1)) //The final segment is all voiced
-            {
-                double [] tmp_f0s = new double[segEn-segSt+1];
-                System.arraycopy(f0s, segSt, tmp_f0s, 0, segEn-segSt+1);
-                int tmpNewLen = (int)Math.floor(tmp_f0s.length*beta+0.5);
-                if (tmpNewLen>0)
-                {
-                    double [] tmpNew_f0s = MathUtils.interpolate(tmp_f0s, tmpNewLen);
-                    int newSegSt = (int)Math.floor(segSt*beta+0.5);
-                    System.arraycopy(tmpNew_f0s, 0, new_f0s, newSegSt, Math.min(tmpNewLen, new_f0s.length-newSegSt));
-                }
-            }
-        }
-        
-        
-        return new_f0s;
-    }
-    
     public static boolean getVoicing(double [] windowedSpeechFrame, int samplingRateInHz)
     {
         return getVoicing(windowedSpeechFrame, samplingRateInHz, 0.35f);
@@ -478,6 +415,146 @@ public class SignalProcUtils {
         }
 
         return samples;
+    }
+    
+    //Find the scaled version of a given time value t by performing time varying scaling using
+    // scales s at times given by alphas
+    // t: instant of time which we want to convert to the new time scale
+    // s: time scale factors at times given by alphas
+    // alphas: time instants at which the time scale modification factor is the corresponding entry in s
+    public static float timeScaledTime(float t, float [] s, float [] alphas)
+    {
+        assert s!=null;
+        assert alphas!=null;
+        assert s.length==alphas.length;
+        
+        int N = s.length;
+        float tNew = 0.0f;
+        
+        if (N>0)
+        {
+            if (t<=alphas[0])
+            {
+                tNew = t*s[0];
+            }
+            else if (t>=alphas[N-1])
+            {
+                tNew = alphas[0]*s[0];
+                for (int i=0; i<N-2; i++)
+                    tNew += 0.5*(alphas[i+1]-alphas[i])*(s[i]+s[i+1]);
+                
+                tNew += (t-alphas[N-1])*s[N-1];
+            }
+            else
+            {
+                int k = MathUtils.findClosest(alphas, t);
+                if (alphas[k]>=t)
+                    k--;
+                
+                tNew = alphas[0]*s[0];
+                
+                for (int i=0; i<=k-1; i++)
+                    tNew += 0.5*(alphas[i+1]-alphas[i])*(s[i]+s[i+1]);
+                
+                float st0 = (t-alphas[k])*(s[k+1]-s[k])/(alphas[k+1]-alphas[k]) + s[k];
+                
+                tNew += 0.5*(t-alphas[k])*(st0+s[k]);
+            }
+        }
+        
+        return tNew;
+    }
+    
+    //Find the scaled version of a set of time values times by performing time varying scaling using
+    // tScales at times given by tScalesTimes
+    public static float [] timeScaledTimes(float [] times, float [] tScales, float [] tScalesTimes)
+    {
+        float [] newTimes = null;
+        
+        if (times!=null && times.length>0)
+        {
+            newTimes = new float[times.length];
+            
+            for (int i=0; i<times.length; i++)
+                newTimes[i] = timeScaledTime(times[i], tScales, tScalesTimes);
+        }
+        
+        return newTimes;
+    }
+    
+    //Time scale a pitch contour as specified by a time varying pattern tScales and tScalesTimes
+    // f0s: f0 values
+    // ws: Window size in seconds in f0 analysis
+    // ss: Skip size in seconds in f0 analysis
+    // tScales: time scale factors at times given by tScalesTimes
+    // tScalesTimes: time instants at which the time scale modification factor is the corresponding entry in tScales
+    public static double[] timeScalePitchContour(double[] f0s, float ws, float ss, float[] tScales, float[] tScalesTimes)
+    {
+        if (tScales==null || tScalesTimes==null)
+            return f0s;
+        
+        assert tScales.length == tScalesTimes.length;
+        
+        int i, ind;
+        
+        //First compute the original time axis
+        float [] times = new float[f0s.length]; 
+        for (i=0; i<f0s.length; i++)
+            times[i] = i*ss + 0.5f*ws;
+        
+        float [] newTimes = timeScaledTimes(times, tScales, tScalesTimes); 
+        
+        int numfrm = (int)Math.floor((newTimes[newTimes.length-1]-0.5*ws)/ss+0.5);
+        
+        double [] f0sNew = new double[numfrm];
+        
+        for (i=0; i<numfrm; i++)
+        {
+            ind = MathUtils.findClosest(newTimes, i*ss+0.5f*ws);
+            f0sNew[i] = f0s[ind];
+        }
+        
+        return f0sNew;
+    }
+    
+    //Pitch scale a pitch contour as specified by a time varying pattern pScales and pScalesTimes
+    // f0s: f0 values
+    // ws: Window size in seconds in f0 analysis
+    // ss: Skip size in seconds in f0 analysis
+    // pScales: pitch scale factors at times given by pScalesTimes
+    // pScalesTimes: time instants at which the pitch scale modification factor is the corresponding entry in pScales
+    public static double[] pitchScalePitchContour(double[] f0s, float ws, float ss, float[] pScales, float[] pScalesTimes)
+    {
+        if (pScales==null || pScalesTimes==null)
+            return f0s;
+        
+        assert pScales.length == pScalesTimes.length;
+        
+        int i, smallerCloseInd;
+        float currentTime;
+        float alpha;
+        
+        double [] f0sNew = new double[f0s.length];
+        
+        for (i=0; i<f0s.length; i++)
+        {
+            currentTime = i*ss+0.5f*ws;
+            
+            smallerCloseInd = MathUtils.findClosest(pScalesTimes, currentTime);
+            
+            if (pScalesTimes[smallerCloseInd]>currentTime)
+                smallerCloseInd--;
+                
+            if (smallerCloseInd>=0 && smallerCloseInd<pScales.length-1)
+            {
+                alpha = (pScalesTimes[smallerCloseInd+1]-currentTime)/(pScalesTimes[smallerCloseInd+1]-pScalesTimes[smallerCloseInd]);
+                f0sNew[i] = (alpha*pScales[smallerCloseInd]+(1.0f-alpha)*pScales[smallerCloseInd+1])*f0s[i];
+            }
+            else
+                f0sNew[i] = pScales[smallerCloseInd]*f0s[i];
+        }
+        
+        return f0sNew;
     }
 }
 
