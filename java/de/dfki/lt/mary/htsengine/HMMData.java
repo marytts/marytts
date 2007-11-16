@@ -53,9 +53,6 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.util.Properties;
-import java.util.Scanner;
-import java.util.Vector;
 import java.util.*;
 import java.io.IOException;
 
@@ -93,6 +90,7 @@ public class HMMData {
 	private double length  = 0.0;   /* total number of frame for generated speech */
 	private boolean algnst = false; /* use state level alignment for duration     */
 	private boolean algnph = false; /* use phoneme level alignment for duration   */
+    private boolean useGV  = false; /* use global variance in parameter generation */
 	
 	
 	/** Tree files and TreeSet object */
@@ -117,6 +115,16 @@ public class HMMData {
      * these are all the HMMs trained for a particular voice */   
     private ModelSet ms = new ModelSet();
 	
+    /** GV pdf files*/
+    /** Global variance file, it contains one global mean vector and one global diagonal covariance vector */
+    private String pdfLf0GVFile; /* lf0 GV pdf file */  
+    private String pdfMcpGVFile; /* Mcp GV pdf file */ 
+    private String pdfStrGVFile; /* Str GV pdf file */ 
+    private String pdfMagGVFile; /* Mag GV pdf file */ 
+    
+    /** GVModelSet contains the global covariance and mean for lf0, mcp, str and mag */
+    private GVModelSet gv = new GVModelSet();
+
 	/** Variables for mixed excitation */
 	private String mixFiltersFile; /* this file contains the filter taps for mixed excitation */
 	private int numFilters;
@@ -153,7 +161,13 @@ public class HMMData {
 	public String getPdfMcpFile() { return pdfMcpFile; } 
 	public String getPdfStrFile() { return pdfStrFile; } 
 	public String getPdfMagFile() { return pdfMagFile; } 
-	
+    
+    public boolean getUseGV(){ return useGV; }
+    public String getPdfLf0GVFile() { return pdfLf0GVFile; }   
+    public String getPdfMcpGVFile() { return pdfMcpGVFile; } 
+    public String getPdfStrGVFile() { return pdfStrGVFile; } 
+    public String getPdfMagGVFile() { return pdfMagGVFile; }
+    	
 	public String getFeatureListFile() { return featureListFile; }
     /* This function returns the feature list already loaded in a Vector */
     public Vector<String> getFeatureList() { return featureList; }  
@@ -165,6 +179,7 @@ public class HMMData {
     
     public TreeSet getTreeSet() { return ts; }       
     public ModelSet getModelSet() { return ms; }
+    public GVModelSet getGVModelSet() { return gv; }
  
     public void setTreeDurFile(String str) { treeDurFile = str; } 
     public void setTreeLf0File(String str) { treeLf0File = str; } 
@@ -178,6 +193,12 @@ public class HMMData {
     public void setPdfStrFile(String str) { pdfStrFile = str; } 
     public void setPdfMagFile(String str) { pdfMagFile = str; } 
     
+    public void setUseGV(boolean bval){ useGV = bval; }
+    public void setPdfLf0GVFile(String str) { pdfLf0GVFile = str; }   
+    public void setPdfMcpGVFile(String str) { pdfMcpGVFile = str; } 
+    public void setPdfStrGVFile(String str) { pdfStrGVFile = str; } 
+    public void setPdfMagGVFile(String str) { pdfMagGVFile = str; } 
+    
     public void setFeaListFile(String str) { featureListFile = str; }
     public void setLabFile(String str) { labFile = str; }
     
@@ -187,6 +208,7 @@ public class HMMData {
     
     public void loadTreeSet() throws Exception { ts.loadTreeSet(this); }   
     public void loadModelSet() throws Exception { ms.loadModelSet(this); }  
+    public void loadGVModelSet() throws Exception { gv.loadGVModelSet(this); } 
 	
 	/** Reads from configuration file all the data files in this class 
      * this method is used when running stand alone, for example when calling
@@ -211,6 +233,12 @@ public class HMMData {
     	  pdfStrFile = props.getProperty( "Fms" );
     	  pdfMagFile = props.getProperty( "Fma" );
     	  
+          useGV = Boolean.valueOf(props.getProperty( "useGV" )).booleanValue();
+          pdfLf0GVFile = props.getProperty( "Fgvf" );        
+          pdfMcpGVFile = props.getProperty( "Fgvm" );
+          pdfStrGVFile = props.getProperty( "Fgvs" );
+          pdfMagGVFile = props.getProperty( "Fgva" );
+          
     	  /* Feature list file */
     	  featureListFile = props.getProperty( "FeaList" );
           
@@ -233,11 +261,14 @@ public class HMMData {
       
       try {
         /* Load TreeSet ts and ModelSet ms for current voice*/
-        logger.info("Loading Model Set:");
+        logger.info("Loading Tree Set:");
         ts.loadTreeSet(this);   
        
-        logger.info("Loading Tree Set:");
-        ms.loadModelSet(this);  
+        logger.info("Loading Model Set:");
+        ms.loadModelSet(this);
+        
+        logger.info("Loading GV Model Set:");
+        gv.loadGVModelSet(this);
       
         /* Load (un-commented) context feature list from featureListFile */
         logger.info("Loading Feature List:");

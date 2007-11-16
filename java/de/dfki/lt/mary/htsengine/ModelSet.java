@@ -87,8 +87,7 @@ public class ModelSet {
 	                           /* lf0_vectorsize = 4: mean, variance, voiced weight, and unvoiced weight */
     
     private Logger logger = Logger.getLogger("ModelSet");
-	
-	
+  	
 	public int getNumState(){ return numState; }
 	public int getLf0Stream(){ return lf0Stream; }
 	public int getMcepVsize(){ return mcepVsize; }
@@ -440,6 +439,8 @@ public class ModelSet {
   } /* method loadModelSet */ 
 	
  
+ 
+    
 	
 	
 } /* class ModelSet */

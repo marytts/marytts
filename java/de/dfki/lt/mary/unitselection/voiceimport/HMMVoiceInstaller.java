@@ -61,6 +61,14 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
     public final String pdfStrFile = name+".Fms";
     public final String pdfMagFile = name+".Fma";
     
+    /** GV pdf files*/
+    /** Global variance file, it contains one global mean vector and one global diagonal covariance vector */
+    public final String useGV        = name+".useGV";
+    public final String pdfLf0GVFile = name+".Fgvf"; 
+    public final String pdfMcpGVFile = name+".Fgvm";  
+    public final String pdfStrGVFile = name+".Fgvs";  
+    public final String pdfMagGVFile = name+".Fgva";  
+        
     /** Variables for mixed excitation */
     public final String mixFiltersFile = name+".Fif";
     public final String numFilters = name+".in";
@@ -96,6 +104,11 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
            props.put(pdfMcpFile, "hts/voices/qst001/ver1/mgc.pdf"); 
            props.put(pdfStrFile, "hts/voices/qst001/ver1/str.pdf");
            props.put(pdfMagFile, "hts/voices/qst001/ver1/mag.pdf");
+           props.put(useGV, "true");
+           props.put(pdfLf0GVFile, "hts/data/gv/gv-lf0-littend.pdf"); 
+           props.put(pdfMcpGVFile, "hts/data/gv/gv-mgc-littend.pdf"); 
+           props.put(pdfStrGVFile, "hts/data/gv/gv-str-littend.pdf");
+           props.put(pdfMagGVFile, "hts/data/gv/gv-mag-littend.pdf");
            props.put(mixFiltersFile, "hts/data/filters/mix_excitation_filters.txt"); 
            props.put(numFilters, "5");
            props.put(orderFilters, "48");
@@ -119,6 +132,11 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
         props2Help.put(pdfMcpFile, "Mel-cepstral (or Mel-generalized cepstral mgc) means and variances PDF file"); 
         props2Help.put(pdfStrFile, "Bandpass voicing strengths means and variances PDF file (optional: used for mixed excitation)");
         props2Help.put(pdfMagFile, "Fourier Magnitudes means and variances PDF file (optional: used for mixed excitation)");
+        props2Help.put(useGV, "Use global variance in parameter generation (true/false)");
+        props2Help.put(pdfLf0GVFile, "Global variance for Log F0, mean and (diagonal) variance PDF file"); 
+        props2Help.put(pdfMcpGVFile, "Global variance for Mel-cepstral (or Mel-generalized cepstral mgc) mean and (diagonal) variance PDF file"); 
+        props2Help.put(pdfStrGVFile, "Global variance for Bandpass voicing strengths mean and (diagonal) variance PDF file (optional: used for mixed excitation)");
+        props2Help.put(pdfMagGVFile, "Global variance for Fourier Magnitudes mean and (diagonal) variance PDF file (optional: used for mixed excitation)");        
         props2Help.put(mixFiltersFile, "Filter taps of bandpass filters for mixed excitation (optional: used for mixed excitation)"); 
         props2Help.put(numFilters, "Number of filters in bandpass bank, default 5 filters (optional: used for mixed excitation)");
         props2Help.put(orderFilters, "Number of taps in bandpass filters, default 48 taps (optional: used for mixed excitation)");
@@ -200,6 +218,29 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
               out = new File(newVoiceDir + getFileName(getProp(pdfMagFile)));
               copy(in,out);   
             }
+            
+            /* global variance files */
+            in = new File(getProp(pdfMcpGVFile));
+            if(in.exists()) {
+              out = new File(newVoiceDir + getFileName(getProp(pdfMcpGVFile)));
+              copy(in,out);   
+            }
+            in = new File(getProp(pdfLf0GVFile));
+            if(in.exists()) {
+              out = new File(newVoiceDir + getFileName(getProp(pdfLf0GVFile)));
+              copy(in,out);   
+            }
+            in = new File(getProp(pdfStrGVFile));
+            if(in.exists()) {
+              out = new File(newVoiceDir + getFileName(getProp(pdfStrGVFile)));
+              copy(in,out);   
+            }
+            in = new File(getProp(pdfMagGVFile));
+            if(in.exists()) {
+              out = new File(newVoiceDir + getFileName(getProp(pdfMagGVFile)));
+              copy(in,out);   
+            }
+            
             in = new File(getProp(mixFiltersFile));
             out = new File(newVoiceDir + getFileName(getProp(mixFiltersFile)));
             copy(in,out);
@@ -388,6 +429,18 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
                configOut.println(voiceHeader+".Fms = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfStrFile))+"\n");
               if( new File(getProp(pdfMagFile)).exists())
                configOut.println(voiceHeader+".Fma = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfMagFile))+"\n");
+              
+              configOut.println("\n# Information about Global Mean and Variance PDFs");
+              configOut.println(voiceHeader+".useGV = "+ getProp(useGV));
+              if( new File(getProp(pdfLf0GVFile)).exists())
+                  configOut.println(voiceHeader+".Fgvf = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfLf0GVFile)));
+              if( new File(getProp(pdfMcpGVFile)).exists())
+                  configOut.println(voiceHeader+".Fgvm = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfMcpGVFile)));
+              if( new File(getProp(pdfStrGVFile)).exists())
+                  configOut.println(voiceHeader+".Fgvs = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfStrGVFile)));
+              if( new File(getProp(pdfMagGVFile)).exists())
+                  configOut.println(voiceHeader+".Fgva = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfMagGVFile)));
+              configOut.println();
               
               configOut.println("\n# File for testing the HMMSynthesiser, example of a file in HTSCONTEXT format\n" +
                       voiceHeader+".FLab = MARY_BASE/lib/voices/"+voicename+"/"+getFileName(getProp(labFile))+"\n\n"+

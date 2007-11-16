@@ -110,7 +110,7 @@ public class ParameterGeneration {
   * @param um  : utterance model sequence after processing Mary context features
   * @param ms  : HMM pdfs model set.
   */
-  public void htsMaximumLikelihoodParameterGeneration(UttModel um, HMMData htsData){
+  public void htsMaximumLikelihoodParameterGeneration(UttModel um, HMMData htsData) throws Exception{
 	  
 	int frame, uttFrame, lf0Frame;
 	int state, lw, rw, k, n, i;
@@ -124,14 +124,14 @@ public class ParameterGeneration {
   	/* mceppst, strpst, magpst, lf0pst */
 	/* Here i should pass the window files to initialise the dynamic windows dw */
 	/* for the moment the dw are all the same and hard-coded */
-	mcepPst = new PStream(ms.getMcepVsize(), um.getTotalFrame());
+	mcepPst = new PStream(ms.getMcepVsize(), um.getTotalFrame(), HMMData.MCP);
     /* for lf0 count just the number of lf0frames that are voiced or non-zero */
-    lf0Pst  = new PStream(ms.getLf0Stream(), um.getLf0Frame());
+    lf0Pst  = new PStream(ms.getLf0Stream(), um.getLf0Frame(), HMMData.LF0);
     /* The following are optional in case of generating mixed excitation */
     if( htsData.getPdfStrFile() != null)
-	  strPst  = new PStream(ms.getStrVsize(), um.getTotalFrame());
+	  strPst  = new PStream(ms.getStrVsize(), um.getTotalFrame(), HMMData.STR);
     if (htsData.getPdfMagFile() != null )
-	  magPst  = new PStream(ms.getMagVsize(), um.getTotalFrame());
+	  magPst  = new PStream(ms.getMagVsize(), um.getTotalFrame(), HMMData.MAG);
 	   
 	
 	uttFrame = lf0Frame = 0;
@@ -218,25 +218,26 @@ public class ParameterGeneration {
 	//System.out.println("After copying pdfs to PStreams uttFrame=" + uttFrame + " lf0frame=" + lf0Frame);
 	//System.out.println("mseq[" + uttFrame + "][" + k + "]=" + mceppst.get_mseq(uttFrame, k) + "   " + m.get_mcepmean(state, k));
 		
-	/* parameter generation for mcep */
+	/* parameter generation for mcep */    
 	logger.info("Parameter generation for MCEP: ");
-	mcepPst.mlpg();
+    mcepPst.mlpg(htsData);
+    //mcepPst.mlpg(false);
 
     /* parameter generation for lf0 */
     logger.info("Parameter generation for LF0: ");
     if (lf0Frame>0)
-      lf0Pst.mlpg();
+      lf0Pst.mlpg(htsData);
     
 	/* parameter generation for str */
     if( strPst != null ) {
       logger.info("Parameter generation for STR: ");
-	  strPst.mlpg();
+	  strPst.mlpg(htsData);
     }
 
 	/* parameter generation for mag */
     if( magPst != null ) {
       logger.info("Parameter generation for MAG: ");
-	  magPst.mlpg();
+	  magPst.mlpg(htsData);
     }
 	   
 	
