@@ -253,7 +253,7 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
         public byte process(Target target)
         {
             if (!(target instanceof HalfPhoneTarget))
-                throw new IllegalArgumentException("This feature processor should only be called for half-phone unit targets!");
+                throw new IllegalArgumentException("This feature processor should only be called for half-phone unit targets, got a "+ target.getClass()+"!");
             HalfPhoneTarget hpTarget = (HalfPhoneTarget) target;
             Item segment = navigator.getItem(target);
             if (segment == null) return values.get("0");
