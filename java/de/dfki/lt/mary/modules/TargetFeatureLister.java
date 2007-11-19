@@ -96,7 +96,7 @@ public class TargetFeatureLister extends InternalModule
             }
             // Create target chain for the utterance
             Relation segs = utt.getRelation(Relation.SEGMENT);
-            List targets = createTargetsWithPauses(segs);
+            List targets = overridableCreateTargetsWithPauses(segs);
             //List targets = createTargets(segs);
             // create target feature string for the target chain
             for (int j=0, nTargets = targets.size(); j<nTargets; j++) {
@@ -137,6 +137,18 @@ public class TargetFeatureLister extends InternalModule
             targets.add(new Target(segName, s));
         }
         return targets;
+    }
+    
+    
+    /**
+     * Access the code from within the our own code so that a subclass
+     * can override it. Use this rather than the public static method in local code.
+     * @param segs
+     * @return
+     */
+    protected List<Target> overridableCreateTargetsWithPauses(Relation segs)
+    {
+        return TargetFeatureLister.createTargetsWithPauses(segs);
     }
     
     /**
