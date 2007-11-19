@@ -79,6 +79,18 @@ public class HalfPhoneTargetFeatureLister extends TargetFeatureLister
         return targets;
     }
 
+    
+    /**
+     * Access the code from within the our own code so that a subclass
+     * can override it. Use this rather than the public static method in local code.
+     * @param segs
+     * @return
+     */
+    protected List<Target> overridableCreateTargetsWithPauses(Relation segs)
+    {
+        return HalfPhoneTargetFeatureLister.createTargetsWithPauses(segs);
+    }
+
     /**
      * Create the list of targets from the Segments in the utterance.
      * Make sure that first item is a pause
