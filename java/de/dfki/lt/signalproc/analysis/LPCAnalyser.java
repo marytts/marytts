@@ -122,6 +122,12 @@ public class LPCAnalyser extends FrameBasedAnalyser
     }
     
     //Computes LP smoothed spectrum from LP coefficients
+    public static double [] calcSpec(double [] alpha, int p, int fftSize, Complex expTerm)
+    {  
+        return calcSpec(alpha, p, 1.0f, fftSize, expTerm);
+    }
+    
+  //Computes LP smoothed spectrum from LP coefficients
     public static double [] calcSpec(double [] alpha, int p, double gain, int fftSize, Complex expTerm)
     {
         int maxFreq = SignalProcUtils.halfSpectrumSize(fftSize);
