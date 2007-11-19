@@ -69,14 +69,17 @@ public class QualityControl extends VoiceImportComponent {
     protected String featsExt = ".pfeats";
     protected String labExt = ".lab";
     private PrintWriter outFileWriter;
+    private PrintWriter priorityFileWriter;
     private Map fricativeThresholds;
     private ArrayList silenceEnergyList;
     private double sileceThreshold;
     private TreeMap allProblems;
+    private TreeMap priorityProblems;
     
     public final String FEATUREDIR = "QualityControl.featureDir";
     public final String LABELDIR = "QualityControl.labelDir";
     public final String OUTFILE = "QualityControl.outputFile";
+    public final String PRIORFILE = "QualityControl.outPriorityFile";
     public final String MLONGPHN = "QualityControl.markUnusuallyLongPhone";
     public final String MHSILEGY = "QualityControl.markHighSILEnergy";
     public final String MHFREQEGY = "QualityControl.markFricativeHighFreqEnergy";
@@ -111,7 +114,8 @@ public class QualityControl extends VoiceImportComponent {
            props.put(LABELDIR, db.getProp(db.ROOTDIR)
                         +"phonelab"
                         +System.getProperty("file.separator"));
-           props.put(OUTFILE,db.getProp(db.ROOTDIR)+"QualityControl.out");
+           props.put(OUTFILE,db.getProp(db.ROOTDIR)+"QualityControl_Problems.out");
+           props.put(PRIORFILE,db.getProp(db.ROOTDIR)+"QualityControl_Priority.out");
            props.put(MLONGPHN,"true");
            props.put(MHSILEGY,"true");
            props.put(MHFREQEGY,"true");
@@ -126,6 +130,7 @@ public class QualityControl extends VoiceImportComponent {
         props2Help.put(FEATUREDIR, "directory containing the phone features.");
         props2Help.put(LABELDIR, "directory containing the phone labels");
         props2Help.put(OUTFILE,"Output file which shows suspicious alignments");
+        props2Help.put(PRIORFILE,"Output file which shows sorted suspicious aligned basenames according to a priority");
         props2Help.put(MLONGPHN,"if true, Mark Unusually long Phone");
         props2Help.put(MHSILEGY,"if true, Mark Higher Silence Energy");
         props2Help.put(MHFREQEGY,"if true, Mark High-Frequency Energy for a Fricative is very low");   
@@ -155,12 +160,14 @@ public class QualityControl extends VoiceImportComponent {
         }
 
         allProblems = new TreeMap();
+        priorityProblems = new TreeMap();
         
         for (int i=0; i<bnl.getLength(); i++) {
             progress = 50 + (50*i/bnl.getLength());
             findSuspiciousAlignments(bnl.getName(i));
         }
         writeProblemstoFile();
+        writePrioritytoFile();
         
         System.out.println( "Identified Suspicious Alignments (Labels) written into "+ getProp(OUTFILE) + " file." );
         System.out.println( ".... Done."); 
@@ -180,6 +187,7 @@ public class QualityControl extends VoiceImportComponent {
         BufferedReader features; 
         String wavDir    =  db.getProp(db.WAVDIR);
         String voiceName =  db.getProp(db.VOICENAME);
+        int cost = 0;
 
         AudioInputStream ais = AudioSystem.getAudioInputStream(new File(wavDir+"/"+basename+".wav"));
         
@@ -249,23 +257,27 @@ public class QualityControl extends VoiceImportComponent {
         String currentProblem = "";
         if( phoneDuration > 1 && !labelUnit.equals("_") && getProp(MLONGPHN).equals("true")){
             currentProblem = labelUnit+"\t"+startTimeStamp+"\t"+endTimeStamp+"\tUnusually Long Phone";
-        }
-        else if(isVowel(line,ph_VC_idx) && phoneDuration > 0 && getProp(MUNVOICEDVOWEL).equals("true")){
-            boolean isVV = isVowelVoiced(signal, samplingRate, startTimeStamp, endTimeStamp);
-            if(!isVV){
-                currentProblem = labelUnit+"\t"+startTimeStamp+"\t"+endTimeStamp+"\tUn-Voiced Vowel";
-            }
+            cost = 4;
         }
         else if(isFricative(line,ph_Ctype_idx) && phoneDuration > 0 && getProp(MHFREQEGY).equals("true")){
             boolean isFHEnergy = isFricativeHighEnergy(signal, samplingRate, startTimeStamp, endTimeStamp, labelUnit);
             if(!isFHEnergy){
                 currentProblem = labelUnit+"\t"+startTimeStamp+"\t"+endTimeStamp+"\tFricative High-Frequency Energy is very low";
+                cost = 3;
             }
         }
         else if(labelUnit.equals("_") && phoneDuration > 0 && getProp(MHSILEGY).equals("true")){
             boolean isSILHEnergy = isSilenceHighEnergy(signal, samplingRate, startTimeStamp, endTimeStamp);
             if(isSILHEnergy){
                 currentProblem = labelUnit+"\t"+startTimeStamp+"\t"+endTimeStamp+"\tHigherEnergy for a Silence";
+                cost = 2;
+            }
+        }
+        else if(isVowel(line,ph_VC_idx) && phoneDuration > 0 && getProp(MUNVOICEDVOWEL).equals("true")){
+            boolean isVV = isVowelVoiced(signal, samplingRate, startTimeStamp, endTimeStamp);
+            if(!isVV){
+                currentProblem = labelUnit+"\t"+startTimeStamp+"\t"+endTimeStamp+"\tUn-Voiced Vowel";
+                cost = 0;
             }
         }
         
@@ -279,6 +291,16 @@ public class QualityControl extends VoiceImportComponent {
                 ArrayList arrList = new ArrayList();
                 arrList.add(currentProblem);
                 allProblems.put(basename, arrList);
+                }
+            if(priorityProblems.containsKey(basename)){
+                Integer problemCost = (Integer) priorityProblems.get(basename);
+                problemCost = problemCost + cost;
+                priorityProblems.put(basename, problemCost);
+                }
+                else {
+                Integer problemCost = new Integer(cost);
+                //problemCost = 0;
+                priorityProblems.put(basename, problemCost);
                 }
         }
         
@@ -415,9 +437,9 @@ private Map getFricativeThresholds(Map fricativeHash){
         double[] arrVal =  listToArray(arr);
         double meanVal = MaryUtils.mean(arrVal);
         double stDev = MaryUtils.stdDev(arrVal);
-        Double threshold = (Double) (meanVal - (2 * stDev));
-        if(threshold.doubleValue() < 0)
-            threshold = (Double) (meanVal - (1.5 * stDev));
+        Double threshold = (Double) (meanVal - (1.5 * stDev));
+        /*if(threshold.doubleValue() < 0)
+            threshold = (Double) (meanVal - (1.5 * stDev));*/
         
         hashThresholds.put((String) e.getKey(), (Double) threshold);
     }
@@ -520,6 +542,34 @@ private double getSilenceThreshold(){
         }
         outFileWriter.flush();
         outFileWriter.close();
+    }
+    
+    /**
+     * Writing all priority problems to a file 
+     * @throws IOException
+     */
+    private void writePrioritytoFile() throws IOException {
+        
+        priorityFileWriter = new PrintWriter(new FileWriter(new File(getProp(PRIORFILE))));
+        
+        TreeSet set = new TreeSet(new Comparator() {
+            public int compare(Object obj, Object obj1) {
+                int vcomp = ((Comparable) ((Map.Entry) obj1).getValue()).compareTo(((Map.Entry) 
+                        obj).getValue());
+                if (vcomp != 0) return vcomp;
+                else return ((Comparable) ((Map.Entry) obj).getKey()).compareTo(((Map.Entry) 
+                        obj1).getKey());
+            }
+        });
+        
+        set.addAll(priorityProblems.entrySet());
+        for (Iterator i = set.iterator(); i.hasNext();) {
+            Map.Entry entry = (Map.Entry) i.next();
+            priorityFileWriter.println(entry.getKey() + "\t" + entry.getValue());
+            //System.out.println(entry.getKey() + "\t" + entry.getValue());
+        }
+        priorityFileWriter.flush();
+        priorityFileWriter.close();
     }
 
     /**
