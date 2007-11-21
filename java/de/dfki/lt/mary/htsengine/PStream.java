@@ -358,6 +358,7 @@ public class PStream {
     double diag[] = new double[nT];
     mean=0.0;
     var=0.0;
+    int numDown = 0;
     
     for(t=0; t<nT; t++)
         g[t] = 0.0;
@@ -372,12 +373,16 @@ public class PStream {
     for (iter=1; iter<=maxGVIter; iter++) {
       /* calculate GV objective and its derivative with respect to c */
       obj = calcGradient(m, gvmean, gvcovInv);
-     
+    
       /* accelerate/decelerate step size */
       if(iter > 1) {
+  
         /* objective function improved -> increase step size */
-        if (obj > prev) 
-          step *= stepInc;  
+        if (obj > prev){
+          step *= stepInc;
+          //System.out.println("+++ obj > prev iter=" + iter +"  obj=" + obj + "  < prev=" + prev);
+          numDown = 0;
+        }
         
         /* objective function degraded -> go back c and decrese step size */
         if (obj < prev) {
@@ -387,8 +392,14 @@ public class PStream {
            for (t=0; t<nT; t++)  /* gradient c */
               par[t][m] += step * diag[t];
            iter--;
-           //System.out.println("          obj=" + obj + "  < prev=" + prev);
-           continue;
+           numDown++;
+           //System.out.println("--- obj < prev iter=" + iter +"  obj=" + obj + "  < prev=" + prev +"  numDown=" + numDown);
+           if(numDown < 100)
+            continue;
+           else {
+             logger.info("***Convergence problems....optimization stopped. Number of iterations: " + iter );
+             break;
+           }
         }
           
       } else
