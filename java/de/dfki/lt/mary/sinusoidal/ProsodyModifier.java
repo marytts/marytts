@@ -125,36 +125,37 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
                              double absMaxDesired)
     {    
         //Analysis
-        PitchSynchronousSinusoidalAnalyzer pa = new PitchSynchronousSinusoidalAnalyzer(fs, Window.HAMMING, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bAdjustNeighFreqDependent);
+        PitchSynchronousSinusoidalAnalyzer pa = new PitchSynchronousSinusoidalAnalyzer(fs, Window.HANN, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bAdjustNeighFreqDependent);
         
         PitchMarker pm = SignalProcUtils.pitchContour2pitchMarks(f0s, fs, x.length, f0_ws, f0_ss, false);
 
         SinusoidalTracks st = pa.analyzePitchSynchronous(x, pm.pitchMarks, numPeriods, skipSizeInSeconds, deltaInHz);
         
+        /*
         try {
             st.writeToTextFile("d:\\log_ts1.txt");
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        */
         
         //To do: Estimation of voicing probabilities...
         
         //Modification
-        SinusoidalTracks stMod = TrackModifier.modify(st, f0s, f0_ss, f0_ws, pm.pitchMarks, st.voicings, 
-                                                               skipSizeInSeconds, numPeriods, 
-                                                               isVoicingAdaptiveTimeScaling, 
-                                                               timeScalingVoicingThreshold,
-                                                               isVoicingAdaptivePitchScaling,  
-                                                               timeScales, timeScalesTimes,
-                                                               pitchScales, pitchScalesTimes);
+        SinusoidalTracks stMod = TrackModifier.modify(st, f0s, f0_ss, f0_ws, pm.pitchMarks, st.voicings, numPeriods, 
+                                                      isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold,
+                                                      isVoicingAdaptivePitchScaling,  
+                                                      timeScales, timeScalesTimes, pitchScales, pitchScalesTimes);
 
+        /*
         try {
             stMod.writeToTextFile("d:\\log_ts2.txt");
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        */
         
         //Synthesis
         return synthesize(stMod, absMaxDesired, isSilentSynthesis);
@@ -193,34 +194,38 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
         boolean bAdjustNeighFreqDependent = false;
         double absMaxOriginal = MathUtils.getAbsMax(x);
         
-        //float skipSizeInSeconds = TrackModifier.DEFAULT_MODIFICATION_SKIP_SIZE;
-        float skipSizeInSeconds = 0.01f;
-        float timeScale = 1.4f;
-        float pitchScale = 1.0f;
+        float skipSizeInSeconds = TrackModifier.DEFAULT_MODIFICATION_SKIP_SIZE;
+        //skipSizeInSeconds = -1.0f;
+        //skipSizeInSeconds = 0.002f;
         
         boolean isVoicingAdaptiveTimeScaling = true;
-        float timeScalingVoicingThreshold = 0.3f;
+        float timeScalingVoicingThreshold = 0.5f;
         boolean isVoicingAdaptivePitchScaling = true;
         
         ProsodyModifier cs = new ProsodyModifier(samplingRate);
-        
-        double [] y = cs.process(x, 
-                f0.getContour(), 
-                (float)f0.ws, (float)f0.ss,
-                isVoicingAdaptiveTimeScaling,
-                timeScalingVoicingThreshold,
-                isVoicingAdaptivePitchScaling,
-                timeScale,
-                pitchScale,
-                skipSizeInSeconds,
-                deltaInHz,
-                numPeriods,
-                bRefinePeakEstimatesParabola, 
-                bRefinePeakEstimatesBias,  
-                bAdjustNeighFreqDependent,
-                isSilentSynthesis,
-                absMaxOriginal);
-        //
+        double [] y = null;
+
+        if (true)
+        {
+            float timeScale = 1.0f;
+            float pitchScale = 1.0f;
+            y = cs.process(x, f0.getContour(), (float)f0.ws, (float)f0.ss, 
+                           isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
+                           timeScale, pitchScale, skipSizeInSeconds, deltaInHz, numPeriods, 
+                           bRefinePeakEstimatesParabola,  bRefinePeakEstimatesBias,   bAdjustNeighFreqDependent, isSilentSynthesis, absMaxOriginal);
+        }
+        else
+        {
+            float [] timeScales = {0.5f, 0.75f, 1.25f, 1.75f};
+            float [] timeScalesTimes = {0.5f, 1.25f, 2.0f, 2.5f};
+            float [] pitchScales = {2.0f, 1.5f, 0.8f, 0.6f};
+            float [] pitchScalesTimes = {0.5f, 1.25f, 2.0f, 2.5f};
+
+            y = cs.process(x, f0.getContour(), (float)f0.ws, (float)f0.ss,
+                          isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
+                          timeScales, timeScalesTimes, pitchScales, pitchScalesTimes, skipSizeInSeconds, deltaInHz, numPeriods,
+                          bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias,   bAdjustNeighFreqDependent, isSilentSynthesis, absMaxOriginal);
+        }
 
         //File output
         DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(y), inputAudio.getFormat());

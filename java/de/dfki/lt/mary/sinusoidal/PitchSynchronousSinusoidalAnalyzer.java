@@ -111,6 +111,7 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
     public SinusoidalTracks analyzePitchSynchronous(double [] x, int [] pitchMarks, float numPeriods, float skipSizeInSeconds, float deltaInHz)
     {
         absMax = MathUtils.getAbsMax(x);
+        float originalDurationInSeconds = ((float)x.length)/fs;
  
         boolean bFixedSkipRate = false;
         if (skipSizeInSeconds>0.0f) //Perform fixed skip rate but pitch synchronous analysis. This is useful for time/pitch scale modification
@@ -135,7 +136,7 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         int i, j;
         int T0;
         
-        Sinusoid [][] framesSins =  new Sinusoid[totalFrm][];
+        SinusoidsWithSpectrum [] framesSins =  new SinusoidsWithSpectrum[totalFrm];
         float [] times = new float[totalFrm];
         float [] voicings = new float[totalFrm];
         boolean [] isSinusoidNulls = new boolean[totalFrm]; 
@@ -193,16 +194,18 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
             
             if (framesSins[i]!=null)
             {
-                for (j=0; j<framesSins[i].length; j++)
-                    framesSins[i][j].frameIndex = i;
+                for (j=0; j<framesSins[i].sinusoids.length; j++)
+                    framesSins[i].sinusoids[j].frameIndex = i;
             }
             
+            int peakCount = 0;
             if (framesSins[i]==null)
                 isSinusoidNulls[i] = true;
             else
             {
                 isSinusoidNulls[i] = false;
                 totalNonNull++;
+                peakCount = framesSins[i].sinusoids.length;
             }
             
             if (!bFixedSkipRate)
@@ -217,17 +220,17 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
                 currentTimeInd += ss;
             }
             
-            System.out.println("Analysis complete at " + String.valueOf(times[i]) + "s. for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm) + "(found " + String.valueOf(totalNonNull) + " peaks)");
+            System.out.println("Analysis complete at " + String.valueOf(times[i]) + "s. for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm) + "(found " + String.valueOf(peakCount) + " peaks)");
         }
         //
         
-        Sinusoid [][] framesSins2 = null;
+        SinusoidsWithSpectrum [] framesSins2 = null;
         float [] times2 = null;
         float [] voicings2 = null;
         if (totalNonNull>0)
         {
             //Collect non-null sinusoids only
-            framesSins2 =  new Sinusoid[totalNonNull][];
+            framesSins2 =  new SinusoidsWithSpectrum[totalNonNull];
             times2 = new float[totalNonNull];
             voicings2 = new float[totalNonNull];
             int ind = 0;
@@ -235,9 +238,7 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
             {
                 if (!isSinusoidNulls[i])
                 {
-                    framesSins2[ind] = new Sinusoid[framesSins[i].length];
-                    for (j=0; j<framesSins[i].length; j++)
-                        framesSins2[ind][j] = new Sinusoid(framesSins[i][j]);
+                    framesSins2[ind] = new SinusoidsWithSpectrum(framesSins[i]);
 
                     times2[ind] = times[i];
                     voicings2[ind] = voicings[i];
@@ -252,7 +253,7 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         
         //Extract sinusoidal tracks
         TrackGenerator tg = new TrackGenerator();
-        SinusoidalTracks sinTracks = tg.generateTracksFreqOnly(framesSins2, times2, deltaInHz, fs);
+        SinusoidalTracks sinTracks = tg.generateTracks(framesSins2, times2, deltaInHz, fs, originalDurationInSeconds);
         
         sinTracks.setVoicings(voicings2);
         

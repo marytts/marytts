@@ -32,6 +32,7 @@ package de.dfki.lt.mary.sinusoidal;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Vector;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -67,14 +68,15 @@ public class SinusoidalAnalyzer {
     public static float DEFAULT_DELTA_IN_HZ = 50.0f;
     public static float DEFAULT_ANALYSIS_WINDOW_SIZE = 0.020f;
     public static float DEFAULT_ANALYSIS_SKIP_SIZE = 0.010f;
-    public static double MIN_ENERGY_TH = 1e-10; //Minimum energy threshold to analyze a frame
-    public static double MIN_PEAK_IN_DB = -2000.0f;
+    public static double MIN_ENERGY_TH = 1e-50; //Minimum energy threshold to analyze a frame
+    public static double MIN_PEAK_IN_DB = -200.0f;
     
     protected int fs; //Sampling rate in Hz
     protected int windowType; //Type of window (See class Window for details)
     protected int fftSize; //FFT size in points
     protected int LPOrder; //LP analysis order
-
+    protected int lifterOrder; //Cepstral lifting order
+    
     protected boolean bRefinePeakEstimatesParabola; //Refine peak and frequency estimates by fitting parabolas?
     protected boolean bRefinePeakEstimatesBias; //Further refine peak and frequency estimates by correcting bias? 
                                                 //       (Only effective when bRefinePeakEstimatesParabola=true)
@@ -85,7 +87,7 @@ public class SinusoidalAnalyzer {
     
     protected int [] freqSampNeighs; //Number of neighbouring samples to search for a peak in the spectrum
     protected boolean bAdjustNeighFreqDependent; //Adjust number of neighbouring samples to search for a peak adaptively depending on frequency?
-    public static int DEFAULT_FREQ_SAMP_NEIGHS = 1; //Default search range for all frequencies for spectral peak detection
+    public static int DEFAULT_FREQ_SAMP_NEIGHS = 2; //Default search range for all frequencies for spectral peak detection
     
     public static float MIN_WINDOW_SIZE = 0.020f; 
     protected int minWindowSize; //Minimum window size allowed to satisfy 100 Hz criterion for unvoiced sounds computed from MIN_WINDOW_SIZE and sampling rate
@@ -108,6 +110,7 @@ public class SinusoidalAnalyzer {
         bAdjustNeighFreqDependent = bAdjustNeighFreqDependentIn;
         absMax = -1.0f;
         LPOrder = SignalProcUtils.getLPOrder(fs);
+        lifterOrder = SignalProcUtils.getLifterOrder(fs);
     }
     
     public SinusoidalAnalyzer(int samplingRate, int windowTypeIn, boolean bRefinePeakEstimatesParabolaIn, boolean bRefinePeakEstimatesBiasIn)
@@ -150,11 +153,11 @@ public class SinusoidalAnalyzer {
     public static int getSinAnaFFTSize(int samplingRate)
     { 
         if (samplingRate<10000)
-            return 512;
-        else if (samplingRate<20000)
             return 1024;
-        else
+        else if (samplingRate<20000)
             return 2048;
+        else
+            return 4096;
     }
     
     //Set default search range for peak detection for different frequency intervals
@@ -213,6 +216,7 @@ public class SinusoidalAnalyzer {
     public SinusoidalTracks analyzeFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz)
     {
         absMax = MathUtils.getAbsMax(x);
+        float originalDurationInSeconds = ((float)x.length)/fs;
         
         ws = (int)Math.floor(winSizeInSeconds*fs + 0.5);
         ss = (int)Math.floor(skipSizeInSeconds*fs + 0.5);
@@ -226,12 +230,13 @@ public class SinusoidalAnalyzer {
         double [] frm = new double[ws];
         int i, j;
 
-        Sinusoid [][] framesSins =  new Sinusoid[totalFrm][];
+        SinusoidsWithSpectrum [] framesSins =  new SinusoidsWithSpectrum[totalFrm];
         float [] times = new float[totalFrm];
         float [] voicings = new float[totalFrm];
         boolean [] isSinusoidNulls = new boolean[totalFrm]; 
         Arrays.fill(isSinusoidNulls, false);
         int totalNonNull = 0;
+        int peakCounter;
         
         for (i=0; i<totalFrm; i++)
         {
@@ -246,28 +251,33 @@ public class SinusoidalAnalyzer {
             
             if (framesSins[i]!=null)
             {
-                for (j=0; j<framesSins[i].length; j++)
-                    framesSins[i][j].frameIndex = i;
+                for (j=0; j<framesSins[i].sinusoids.length; j++)
+                    framesSins[i].sinusoids[j].frameIndex = i;
             }
             
+            int peakCount = 0;
             if (framesSins[i]==null)
                 isSinusoidNulls[i] = true;
             else
+            {
+                isSinusoidNulls[i] = false;
                 totalNonNull++;
+                peakCount = framesSins[i].sinusoids.length;
+            }   
             
             times[i] = (float)((i*ss+0.5*ws)/fs);
             
-            System.out.println("Analysis complete at " + String.valueOf(times[i]) + "s. for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm) + "(found " + String.valueOf(totalNonNull) + " peaks)");
+            System.out.println("Analysis complete at " + String.valueOf(times[i]) + "s. for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm) + "(found " + String.valueOf(peakCount) + " peaks)");
         }
         //
         
-        Sinusoid [][] framesSins2 = null;
+        SinusoidsWithSpectrum [] framesSins2 = null;
         float [] times2 = null;
         float [] voicings2 = null;
         if (totalNonNull>0)
         {
             //Collect non-null sinusoids only
-            framesSins2 =  new Sinusoid[totalNonNull][];
+            framesSins2 =  new SinusoidsWithSpectrum[totalNonNull];
             times2 = new float[totalNonNull];
             voicings2 = new float[totalNonNull];
             int ind = 0;
@@ -275,9 +285,7 @@ public class SinusoidalAnalyzer {
             {
                 if (!isSinusoidNulls[i])
                 {
-                    framesSins2[ind] = new Sinusoid[framesSins[i].length];
-                    for (j=0; j<framesSins[i].length; j++)
-                        framesSins2[ind][j] = new Sinusoid(framesSins[i][j]);
+                    framesSins2[ind] = new SinusoidsWithSpectrum(framesSins[i]);
 
                     times2[ind] = times[i];
                     voicings2[ind] = voicings[i];
@@ -292,7 +300,7 @@ public class SinusoidalAnalyzer {
         
         //Extract sinusoidal tracks
         TrackGenerator tg = new TrackGenerator();
-        SinusoidalTracks sinTracks = tg.generateTracksFreqOnly(framesSins2, times2, deltaInHz, fs);
+        SinusoidalTracks sinTracks = tg.generateTracks(framesSins2, times2, deltaInHz, fs, originalDurationInSeconds);
         
         sinTracks.setVoicings(voicings2);
         
@@ -322,29 +330,78 @@ public class SinusoidalAnalyzer {
         System.out.println("Total sinusoids to model this file = " + String.valueOf(totalSins));
     }
 
-    public Sinusoid [] analyze_frame(double [] frm)
+    public SinusoidsWithSpectrum analyze_frame(double [] frm)
     {   
-        Sinusoid [] frameSins = null;
-        
+        SinusoidsWithSpectrum frameSins = null;
+
         double frmEn = SignalProcUtils.getEnergy(frm);
         if (frmEn>MIN_ENERGY_TH)
         {
             if (fftSize<frm.length)
                 fftSize = frm.length;
-            
+
+            if (fftSize % 2 == 1)
+                fftSize++;
+
             setNeighFreq();
 
             int maxFreq = (int) (Math.floor(0.5*fftSize+0.5)+1);
             Complex Y = new Complex(fftSize);
             int i;
-
+            
+            int [] freqInds = null;
+            
+            //The following lines are for testing purposes: Fixed frequency tracks will be created
+            // Set  bManualPeakPickingTest = true to enable this test.
+            // Otherwise, the peaks will be automatically estimated (i.e. normal operation mode)
+            //    below by int [] freqInds = MathUtils.getExtrema...
+            boolean bManualPeakPickingTest = false;
+            if (bManualPeakPickingTest)
+            {
+                int w;
+                int numSins = 0;
+                int numNoises = 0;
+                float noiseRange1 = 0.0f;
+                float noiseRange2 = 0.0f;
+                float deltaNoise = 1.0f;
+                
+                numSins = 4;
+                float [] sinFreqs = new float[numSins];
+                sinFreqs[0] = 180.0f;
+                sinFreqs[1] = 1580.0f;
+                sinFreqs[2] = 2580.0f;
+                sinFreqs[3] = 4780.0f;
+    
+                /*
+                noiseRange1=2000.0f; 
+                noiseRange2=4000.0f;
+                deltaNoise=50.0f;
+                numNoises = Math.max(1, (int)Math.floor((noiseRange2-noiseRange1)/deltaNoise+0.5));
+                */
+                 
+                freqInds = new int[numSins+numNoises];
+                
+                for (w=0; w<numSins; w++)
+                    freqInds[w] = SignalProcUtils.freq2index(sinFreqs[w], fs, maxFreq);
+                    
+                for (w=numSins; w<numSins+numNoises; w++)
+                    freqInds[w] = SignalProcUtils.freq2index(noiseRange1+(w-numSins)*deltaNoise, fs, maxFreq);
+                
+            }
+            //
+            
             //Perform circular buffering as described in (Quatieri, 2001) to provide correct phase estimates
             int midPoint = (int) Math.floor(0.5*frm.length+0.5);
             System.arraycopy(frm, midPoint, Y.real, 0, frm.length-midPoint);
             System.arraycopy(frm, 0, Y.real, fftSize-midPoint, midPoint);
             //
-            
-            double [] lpSpec = LPCAnalyser.calcSpecFrame(frm, LPOrder, fftSize);
+
+            double [] tmpSpec = SignalProcUtils.cepstralSmoothedSpectrumInNeper(frm, fftSize, lifterOrder);
+            double [] tmpPhase = SignalProcUtils.minimumPhaseResponseInRadians(tmpSpec);
+            double [] vocalTractPhase = new double[fftSize/2+1];
+            System.arraycopy(tmpPhase, 0, vocalTractPhase, 0, vocalTractPhase.length);
+
+            double [] vocalTractSpec = LPCAnalyser.calcSpecFrame(frm, LPOrder, fftSize);
 
             //Take FFT
             if (MathUtils.isPowerOfTwo(fftSize))
@@ -354,18 +411,19 @@ public class SinusoidalAnalyzer {
 
             //Compute magnitude spectrum in dB as peak frequency estimates tend to be more accurate
             double [] Ydb = new double[maxFreq]; 
-            
+
             for (i=0; i<maxFreq; i++)
                 Ydb[i] = 10*Math.log10(Y.real[i]*Y.real[i]+Y.imag[i]*Y.imag[i]+1e-80);
             //
-            
+
             //Determine peak amplitude indices and the corresponding amplitudes, frequencies, and phases 
-            int [] freqInds = MathUtils.getExtrema(Ydb, freqSampNeighs, freqSampNeighs, true, MIN_PEAK_IN_DB);
+            if (!bManualPeakPickingTest)
+                freqInds = MathUtils.getExtrema(Ydb, freqSampNeighs, freqSampNeighs, true, MIN_PEAK_IN_DB);
 
             if (freqInds != null)
             {
                 int numFrameSinusoids = freqInds.length;
-                frameSins = new Sinusoid[numFrameSinusoids];
+                frameSins = new SinusoidsWithSpectrum(numFrameSinusoids);
 
                 //Perform parabola fitting around peak estimates to refine frequency estimation (Ref. - PARSHL, see the function for more details)
                 float [] freqIndsRefined = new float[numFrameSinusoids];
@@ -394,40 +452,41 @@ public class SinusoidalAnalyzer {
 
                 for (i=0; i<numFrameSinusoids; i++)
                 {
-                    frameSins[i] = new Sinusoid();
+                    frameSins.sinusoids[i] = new Sinusoid();
 
                     /*
                     // Use simple peak detection results
-                    frameSins[i].amp = (float)(MathUtils.db2amplitude(Ydb[freqInds[i]]));
-                    //frameSins[i].freq = (float) ((0.5*fs*freqInds[i])/(maxFreq-1)); //freq in Hz
-                    frameSins[i].freq = (float) ((0.5*MathUtils.TWOPI*freqInds[i])/(maxFreq-1));  //freq in radians
-                    */
+                    frameSins.sinusoids[i].amp = (float)(MathUtils.db2amplitude(Ydb[freqInds[i]]));
+                    //frameSins.sinusoids[i].freq = (float) ((0.5*fs*freqInds[i])/(maxFreq-1)); //freq in Hz
+                    frameSins.sinusoids[i].freq = (float) ((0.5*MathUtils.TWOPI*freqInds[i])/(maxFreq-1));  //freq in radians
+                     */
 
                     //Use results of refined peak estimation after simple peak detection
-                    frameSins[i].amp = (float)(MathUtils.db2amplitude(ampsRefined[i]));
-                    
+                    frameSins.sinusoids[i].amp = (float)(MathUtils.db2amplitude(ampsRefined[i]));
+
                     //frameSins[i].freq = (float)((0.5*fs*freqIndsRefined[i])/(maxFreq-1)); //freq in Hz
-                    frameSins[i].freq = (float) ((0.5*MathUtils.TWOPI*freqIndsRefined[i])/(maxFreq-1));  //freq in radians
+                    frameSins.sinusoids[i].freq = (float) ((0.5*MathUtils.TWOPI*freqIndsRefined[i])/(maxFreq-1));  //freq in radians
                     //
 
-                    frameSins[i].phase = (float) (Math.atan2(Y.imag[freqInds[i]], Y.real[freqInds[i]])); //phase in radians
+                    frameSins.sinusoids[i].phase = (float) (Math.atan2(Y.imag[freqInds[i]], Y.real[freqInds[i]])); //phase in radians
 
-                    frameSins[i].sysAmp = (float)lpSpec[freqInds[i]];
-                    
                     /*
                     if (Y.real[freqInds[i]]<0)
-                        frameSins[i].phase += 0.5*MathUtils.TWOPI;
-                    */
+                        frameSins.sinusoids[i].phase += 0.5*MathUtils.TWOPI;
+                     */
 
                     //Possible improvement: Refinement of phase values
                 }
+
+                frameSins.setSystemAmps(vocalTractSpec);
+                frameSins.setSystemPhases(vocalTractPhase);
             }
             //
         }
-        
+
         return frameSins;
     }
-    
+
     //Refine peak detection to get more accurate frequency and amplitude values as described in (Smith III and Serra, 1985)(*)
     // 
     // (*) Julius O. Smith III and Xavier Serra, 1985, "PARSHL: An Analysis/Synthesis Program for Non-Harmonic Sounds
@@ -446,7 +505,7 @@ public class SinusoidalAnalyzer {
     public void refinePeakEstimatesParabola(double [] powSpecdB, int [] freqInds, float [] freqIndsRefined, float [] ampsRefined)
     {
         double alpha, beta, gamma, p;
-        
+
         for (int i=0; i<freqInds.length; i++)
         {
             //Make sure the peak is not at the first or last freq bin
