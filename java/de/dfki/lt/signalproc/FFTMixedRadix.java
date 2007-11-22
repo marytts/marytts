@@ -65,11 +65,20 @@ public class FFTMixedRadix {
     private static double  s120;
     private static double  rad;
 
-    //  xlen-point FFT power spectrum of real valued data x of length xlen.
-    public static double [] fftPowerSpectrum(double [] x, int xlen)
+    //FFT power spectrum of real valued data x
+    public static double [] fftPowerSpectrum(double [] x)
+    {   
+        return fftPowerSpectrum(x, x.length);
+    }
+    //
+    
+    //fftSize point FFT power spectrum of real valued data x
+    public static double [] fftPowerSpectrum(double [] x, int fftSize)
     {
-        Complex h = new Complex(xlen);
-        double [] Ps = new double[xlen];
+        int xlen = x.length;
+        
+        Complex h = new Complex(fftSize);
+        double [] Ps = new double[fftSize];
         int w;
 
         for (w=0; w<xlen; w++)
@@ -78,13 +87,59 @@ public class FFTMixedRadix {
             h.imag[w] = 0.0;
         }
 
-        mixedRadixFFTBase(h.real, h.imag, xlen, xlen, xlen, 1);
+        for (w=xlen; w<fftSize; w++)
+        {
+            h.real[w] = 0.0;
+            h.imag[w] = 0.0;
+        }
+        
+        mixedRadixFFTBase(h.real, h.imag, fftSize, fftSize, fftSize, 1);
 
-        for (w=0; w<xlen; w++)
+        for (w=0; w<fftSize; w++)
             h.imag[w] = -h.imag[w];
         
+        for (w=0; w<fftSize; w++)
+            Ps[w] = 10*MathUtils.log10(h.real[w]*h.real[w] + h.imag[w]*h.imag[w]);
+        
+        return Ps;
+    }
+    //
+    
+    // Absolute FFT spectrum of real valued data x
+    public static double [] fftAbsSpectrum(double [] x)
+    {
+        return fftAbsSpectrum(x, x.length);
+    }
+    //
+    
+    // fftSize-point Absolute FFT spectrum of real valued data x
+    public static double [] fftAbsSpectrum(double [] x, int fftSize)
+    {
+        int xlen = x.length;
+        
+        Complex h = new Complex(fftSize);
+        double [] Ps = new double[fftSize];
+        int w;
+
         for (w=0; w<xlen; w++)
-            Ps[w] = 10*MathUtils.log10(h.imag[w]*h.imag[w] + h.imag[w]*h.imag[w]);
+        {
+            h.real[w] = x[w];
+            h.imag[w] = 0.0;
+        }
+
+        for (w=xlen; w<fftSize; w++)
+        {
+            h.real[w] = 0.0;
+            h.imag[w] = 0.0;
+        }
+        
+        mixedRadixFFTBase(h.real, h.imag, fftSize, fftSize, fftSize, 1);
+
+        for (w=0; w<fftSize; w++)
+            h.imag[w] = -h.imag[w];
+        
+        for (w=0; w<fftSize; w++)
+            Ps[w] = Math.sqrt(h.real[w]*h.real[w] + h.imag[w]*h.imag[w]);
         
         return Ps;
     }

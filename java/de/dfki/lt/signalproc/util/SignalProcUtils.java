@@ -3,8 +3,14 @@ package de.dfki.lt.signalproc.util;
 import java.util.Arrays;
 
 import de.dfki.lt.signalproc.FFT;
+import de.dfki.lt.signalproc.FFTMixedRadix;
 import de.dfki.lt.signalproc.analysis.PitchMarker;
+import de.dfki.lt.signalproc.filter.BandPassFilter;
+import de.dfki.lt.signalproc.filter.FIRFilter;
+import de.dfki.lt.signalproc.filter.HighPassFilter;
+import de.dfki.lt.signalproc.filter.LowPassFilter;
 import de.dfki.lt.signalproc.filter.RecursiveFilter;
+import de.dfki.lt.signalproc.util.MathUtils.Complex;
 import de.dfki.lt.signalproc.window.Window;
 
 public class SignalProcUtils {
@@ -35,6 +41,15 @@ public class SignalProcUtils {
             dftSize = 4096;
         
         return dftSize;
+    }
+    
+    public static int getLifterOrder(int fs){
+        int lifterOrder = 2*(int)(fs/1000.0f+2);
+        
+        if (lifterOrder%2==1)
+            lifterOrder+=1;
+        
+        return lifterOrder;
     }
     
     public static int halfSpectrumSize(int fftSize)
@@ -173,7 +188,7 @@ public class SignalProcUtils {
         //Interpolate unvoiced segments
         double [] interpf0s = interpolate_pitch_uv(f0s);
         int numfrm = f0s.length;
-        int maxTotalPitchMarks = (int)(Math.floor(len/(fs/500.0) + 0.5) + 10); //Max number of pitch marks if pitch was highest(500.0 Hz), everything was voiced all along the signal
+        int maxTotalPitchMarks = len;
         int [] tmpPitchMarks = MathUtils.zerosInt(maxTotalPitchMarks);
         boolean [] tmpVuvs = new boolean[maxTotalPitchMarks];
         
@@ -374,6 +389,28 @@ public class SignalProcUtils {
     {
         return 13.0*Math.atan(0.00076*freqInHz)+3.5*Math.atan((freqInHz*freqInHz/(7500*7500)));
     }
+    
+    //Convert frequency in Hz to frequency sample index
+    // maxFreq corresponds to half sampling rate, i.e. sample no: fftSize/2+1 where freq sample indices are 0,1,...,maxFreq-1
+    public static int[] freq2index(double [] freqsInHz, int samplingRateInHz, int maxFreq)
+    {
+        int [] inds = null;
+        
+        if (freqsInHz!=null && freqsInHz.length>0)
+        {
+            inds = new int[freqsInHz.length];
+            
+            for (int i=0; i<inds.length; i++)
+                inds[i] = freq2index(freqsInHz[i], samplingRateInHz, maxFreq);
+        }
+        
+        return inds;
+    }
+    
+    public static int freq2index(double freqInHz, int samplingRateInHz, int maxFreqIndex)
+    {
+        return (int)Math.floor(freqInHz/(0.5*samplingRateInHz)*(maxFreqIndex-1)+0.5);
+    }
  
     //Convert sample index to time value in seconds
     public static float sample2time(int sample, int samplingRate)
@@ -551,10 +588,182 @@ public class SignalProcUtils {
                 f0sNew[i] = (alpha*pScales[smallerCloseInd]+(1.0f-alpha)*pScales[smallerCloseInd+1])*f0s[i];
             }
             else
+            {
+                smallerCloseInd = Math.max(0, smallerCloseInd);
+                smallerCloseInd = Math.min(smallerCloseInd, pScales.length-1);
                 f0sNew[i] = pScales[smallerCloseInd]*f0s[i];
+            }
         }
         
         return f0sNew;
+    }
+    
+    public static Complex hilbert(double [] x)
+    {
+        return hilbert(x, x.length);
+    }
+    
+    //Computes the N-point Discrete Hilbert Transform of real valued vector x:
+    // The algorithm consists of the following stages:
+    // - X(w) = FFT(x) is computed
+    // - H(w), DFT of a Hilbert transform filter h[n], is created:
+    //   H[0]=H[N/2]=1
+    //   H[w]=2 for w=1,2,...,N/2-1
+    //   H[w]=0 for w=N/2+1,...,N-1
+    // - x[n] and h[n] are convolved (i.e. X(w) and H(w) multiplied)
+    // - y[n], the Discrete Hilbert Transform of x[n] is computed by y[n]=IFFT(X(w)H(w)) for n=0,...,N-1
+    public static Complex hilbert(double [] x, int N)
+    {
+        Complex X = FFTMixedRadix.fftReal(x, N);
+        double [] H = new double[N];
+        
+        int NOver2 = (int)Math.floor(N/2+0.5);
+        int w;
+        
+        H[0] = 1.0;
+        H[NOver2] = 1.0;
+        
+        for (w=1; w<=NOver2-1; w++)
+            H[w] = 2.0;
+        
+        for (w=NOver2+1; w<=N-1; w++)
+            H[w] = 0.0;
+        
+        for (w=0; w<N; w++)
+        {
+            X.real[w] *= H[w];
+            X.imag[w] *= H[w];
+        }
+        
+        return FFTMixedRadix.ifft(X);
+    }
+    
+    //Estimates the phase response (in Radians) of the vocal tract transfer function
+    // using the minimum phase assumption using real cepstrum based spectral smoothing
+    public static double [] systemPhaseResponse(double [] x, int fftSize, int lifterOrder)
+    {
+        double [] systemAmpsInNeper = cepstralSmoothedSpectrumInNeper(x, fftSize, lifterOrder);
+        
+        return minimumPhaseResponseInRadians(systemAmpsInNeper);
+    }
+    
+    //Estimates the phase response (in Radians) of the vocal tract transfer function
+    // using the minimum phase assumption using real cepstrum based spectral smoothing
+    public static double [] systemPhaseResponse(double [] x, int fs)
+    {   
+        double [] systemAmpsInNeper = cepstralSmoothedSpectrumInNeper(x, fs);
+        
+        return minimumPhaseResponseInRadians(systemAmpsInNeper);
+    }
+    
+    //Returns the phase response(in radians) of a minimum phase system given the system amplitudes in dB
+    public static double [] minimumPhaseResponseInRadians(double [] systemAmpsInNeper)
+    {
+        Complex phaseResponse = minimumPhaseResponse(systemAmpsInNeper);
+        
+        //Perform in-place conversion from complex values to radians
+        for (int w=0; w<phaseResponse.real.length; w++)
+            phaseResponse.real[w] = Math.atan2(phaseResponse.imag[w], phaseResponse.real[w]);
+        
+        return phaseResponse.real;
+    }
+    
+    //Returns the phase response of a minimum phase system given the system amplitudes in dB
+    public static Complex minimumPhaseResponse(double [] systemAmpsInNeper)
+    {
+        int w;
+    
+        Complex phaseResponse = hilbert(systemAmpsInNeper);
+        for (w=0; w<phaseResponse.real.length; w++)
+        {
+            phaseResponse.real[w] *= -1.0;
+            phaseResponse.imag[w] *= -1.0;
+        }
+        
+        return phaseResponse;
+    }
+    
+    //Returns the real cepstrum of data in real valued vector x
+    public static double [] realCepstrum(double [] x, int N)
+    {
+        double [] Xabs = FFTMixedRadix.fftAbsSpectrum(x, N);
+        
+        int w;
+        
+        for (w=0; w<Xabs.length; w++)
+            Xabs[w] = Math.log(Xabs[w]);
+        
+        Complex Y = FFTMixedRadix.fftReal(Xabs, Xabs.length);
+        
+        return Y.real;
+    }
+    
+    //Returns the cepstral smoothed amplitude spectrum in dB
+    public static double [] cepstralSmoothedSpectrumInNeper(double [] x, int fs)
+    {
+        int lifterOrder = SignalProcUtils.getLifterOrder(fs);
+        int fftSize = SignalProcUtils.getDFTSize(fs);
+        return  cepstralSmoothedSpectrumInNeper(x, fftSize, lifterOrder);
+    }
+
+    public static double [] cepstralSmoothedSpectrumInNeper(double [] x, int fftSize, int lifterOrder)
+    {
+        double [] rceps = realCepstrum(x, fftSize);
+        double [] w = new double[rceps.length];
+        
+        int i;
+        for (i=0; i<lifterOrder; i++)
+            w[i] = 1.0;
+        for (i=lifterOrder; i<w.length; i++)
+            w[i] = 0.0;
+        
+        for (i=0; i<w.length; i++)
+            rceps[i] *= w[i];
+        
+        //Inverse cepstrum step
+        Complex y = FFTMixedRadix.fftReal(rceps, rceps.length);
+        
+        return y.real;
+        //
+    }
+    
+    //Returns samples from a white noise process. The sample amplitudes are between [-0.5,0.5]
+    public static double [] getNoise(double startFreqInHz, double endFreqInHz, int samplingRateInHz, int len)
+    {
+        return getNoise(startFreqInHz/samplingRateInHz, endFreqInHz/samplingRateInHz, len);
+    }
+    
+    public static double [] getNoise(double normalizedStartFreq, double normalizedEndFreq, int len)
+    {
+        double [] noise = null;
+        
+        if (len>0)
+        {
+            noise = new double[len];
+            for (int i=0; i<len; i++)
+                noise[i] = Math.random()-0.5;
+            
+            FIRFilter f=null;
+            if (normalizedStartFreq>0.0 && normalizedEndFreq<1.0f) //Bandpass
+                f = new BandPassFilter(normalizedStartFreq, normalizedEndFreq, true);
+            else if (normalizedStartFreq>0.0)
+                f = new HighPassFilter(normalizedStartFreq, true);
+            else if (normalizedEndFreq<1.0f)
+                f = new LowPassFilter(normalizedEndFreq, true);
+            
+            if (f!=null)
+            {
+                double [] noise2 = f.apply(noise);
+                System.arraycopy(noise2, 0, noise, 0, len);
+            }
+        }
+        
+        return noise;
+    }
+    
+    public static void main(String[] args)
+    {
+        
     }
 }
 

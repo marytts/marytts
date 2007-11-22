@@ -1300,4 +1300,64 @@ public class MathUtils {
         
         return retVal;
     }
+    
+    public static double db2neper(double db)
+    {
+        return 20.0*db/Math.log(10.0);
+    }
+    
+    public static double [] db2neper(double [] dbs)
+    {
+        double [] nepers = null;
+        
+        if (dbs!=null && dbs.length>0)
+        {
+            nepers = new double[dbs.length];
+
+            for (int i=0; i<nepers.length; i++)
+                nepers[i] = db2neper(dbs[i]);
+        }
+        
+        return nepers;
+    }
+    
+    public static double neper2db(double neper)
+    {
+        return (neper*Math.log(10.0))/20.0;
+    }
+    
+    public static double [] neper2db(double [] nepers)
+    {
+        double [] dbs = null;
+        
+        if (nepers!=null && nepers.length>0)
+        {
+            dbs = new double[nepers.length];
+
+            for (int i=0; i<dbs.length; i++)
+                dbs[i] = neper2db(nepers[i]);
+        }
+        
+        return dbs;
+    }
+    
+    public static double neper2linear(double neper)
+    {
+        return Math.exp(neper);
+    }
+    
+    public static double [] neper2linear(double [] nepers)
+    {
+        double [] lins = null;
+        
+        if (nepers!=null && nepers.length>0)
+        {
+            lins = new double[nepers.length];
+
+            for (int i=0; i<lins.length; i++)
+                lins[i] = neper2linear(nepers[i]);
+        }
+        
+        return lins;
+    }
 }
