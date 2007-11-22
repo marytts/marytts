@@ -223,6 +223,7 @@ public class SinusoidalSynthesizer {
         //Analysis
         float deltaInHz = SinusoidalAnalyzer.DEFAULT_DELTA_IN_HZ;
         float numPeriods = PitchSynchronousSinusoidalAnalyzer.DEFAULT_ANALYSIS_PERIODS;
+        
         boolean isSilentSynthesis = false;
         
         boolean bRefinePeakEstimatesParabola = false;
@@ -233,7 +234,7 @@ public class SinusoidalSynthesizer {
         if (false)
         {
             //Fixed window size and skip rate analysis
-            sa = new SinusoidalAnalyzer(samplingRate, Window.HAMMING, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bAdjustNeighFreqDependent);
+            sa = new SinusoidalAnalyzer(samplingRate, Window.HANN, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bAdjustNeighFreqDependent);
             st = sa.analyzeFixedRate(x, 0.020f, 0.010f, deltaInHz);
             absMaxOriginal = sa.getAbsMaxOriginal();
             //
@@ -246,7 +247,7 @@ public class SinusoidalSynthesizer {
                 String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
                 F0Reader f0 = new F0Reader(strPitchFile);
                 PitchMarker pm = SignalProcUtils.pitchContour2pitchMarks(f0.getContour(), samplingRate, x.length, f0.ws, f0.ss, true);
-                pa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bAdjustNeighFreqDependent);
+                pa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HANN, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bAdjustNeighFreqDependent);
                 st = pa.analyzePitchSynchronous(x, pm.pitchMarks, numPeriods, -1.0f, deltaInHz);
                 isSilentSynthesis = false;
             }
@@ -254,8 +255,8 @@ public class SinusoidalSynthesizer {
             {
                 String strPmFile = args[0].substring(0, args[0].length()-4) + ".pm";
                 int [] pitchMarks = FileUtils.readFromBinaryFile(strPmFile);
-                pa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bAdjustNeighFreqDependent);
-                st = pa.analyzePitchSynchronous(x, pitchMarks, numPeriods, 0.010f, deltaInHz);
+                pa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HANN, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bAdjustNeighFreqDependent);
+                st = pa.analyzePitchSynchronous(x, pitchMarks, numPeriods, -1.0f, deltaInHz);
             }
             //
             
@@ -267,8 +268,6 @@ public class SinusoidalSynthesizer {
         SinusoidalSynthesizer ss = new SinusoidalSynthesizer(samplingRate);
         x = ss.synthesize(st, absMaxOriginal, isSilentSynthesis);
         //
-        
-        st.writeToTextFile("d:\\log1.txt");
         
         //File output
         DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(x), inputAudio.getFormat());

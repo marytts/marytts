@@ -32,6 +32,8 @@ package de.dfki.lt.mary.sinusoidal;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Vector;
 
 import de.dfki.lt.signalproc.util.MathUtils;
 import de.dfki.lt.signalproc.util.SignalProcUtils;
@@ -48,6 +50,10 @@ public class SinusoidalTracks {
     public float origDur; //Original duration of the signal modeled by sinusoidal tracks in seconds
     public float [] voicings; //Voicing probabilities
     
+    public LinkedList<double[]> sysAmps; //System amplitudes for each speech frame
+    public LinkedList<double[]> sysPhases; //System phases for each speech frame
+    public float [] times; //Analysis time instants for each speech frame
+    
     public SinusoidalTracks(int len, int samplingRate)
     {
         initialize(len, samplingRate);
@@ -55,8 +61,12 @@ public class SinusoidalTracks {
     
     public SinusoidalTracks(SinusoidalTracks sinTrks)
     {
-        initialize(sinTrks.totalTracks, sinTrks.fs);
-        copy(sinTrks);
+        this(sinTrks, 0, sinTrks.totalTracks-1);
+    }
+    
+    public SinusoidalTracks(SinusoidalTracks sinTrks, int startIndex, int endIndex)
+    {
+        copy(sinTrks, startIndex, endIndex);
     }
     
     public void setSamplingRate(int samplingRate)
@@ -118,6 +128,9 @@ public class SinusoidalTracks {
         }  
         
         setVoicings(srcTracks.voicings);
+        setTimes(srcTracks.times);
+        setSystemAmps(srcTracks.sysAmps);
+        setSystemPhases(srcTracks.sysPhases);
     }
     
     // Copy existing tracks (srcTracks) into the current tracks
@@ -237,6 +250,20 @@ public class SinusoidalTracks {
         return origDur;
     }
     
+    public void setOriginalDurationAuto()
+    {
+        for (int i=0; i<totalTracks; i++)
+        {
+            if (tracks[i].times!=null && origDur<tracks[i].times[tracks[i].currentIndex])
+                origDur = tracks[i].times[tracks[i].currentIndex];
+        }
+    }
+    
+    public void setOriginalDurationManual(float origDurIn)
+    {
+        origDur = origDurIn;
+    }
+    
     public void setVoicings(float [] voicingsIn)
     {
         if (voicingsIn!=null && voicingsIn.length>0)
@@ -246,6 +273,27 @@ public class SinusoidalTracks {
         }
         else
             voicings = null;  
+    }
+    
+    public void setTimes(float [] timesIn)
+    {
+        if (timesIn!=null && timesIn.length>0)
+        {
+            times = new float[timesIn.length];
+            System.arraycopy(timesIn, 0, times, 0, timesIn.length);
+        }
+        else
+            times = null;  
+    }
+    
+    public void setSystemAmps(LinkedList<double[]> sysAmpsIn)
+    {
+        sysAmps = sysAmpsIn;
+    }
+    
+    public void setSystemPhases(LinkedList<double[]> sysPhasesIn)
+    {
+        sysPhases = sysPhasesIn;
     }
     
     public void writeToTextFile(String filename) throws IOException
@@ -275,5 +323,31 @@ public class SinusoidalTracks {
         }
         
         out.close();
+    }
+    
+    public void setSysAmpsAndTimes(SinusoidsWithSpectrum [] framesSins, float [] timesIn)
+    {
+        if (framesSins==null || timesIn==null || framesSins.length<=0 || timesIn.length<=0)
+        {
+            sysAmps = null;
+            sysPhases = null;
+            times = null;
+        }
+        else
+        {
+            assert framesSins.length == timesIn.length;
+            
+            sysAmps = new LinkedList<double[]>();
+            sysPhases = new LinkedList<double[]>();
+            
+            for (int i=0; i<framesSins.length; i++)
+            {
+                sysAmps.add(framesSins[i].systemAmps);
+                sysPhases.add(framesSins[i].systemPhases);
+            }
+            
+            times = new float[timesIn.length];
+            System.arraycopy(timesIn, 0, times, 0, timesIn.length); 
+        }
     }
 }
