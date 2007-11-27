@@ -119,6 +119,10 @@ public class EHMMLabeler extends VoiceImportComponent {
          */
         public boolean compute() throws Exception{
             
+            File ehmmFile = new File(getProp(EHMMDIR)+"/bin/ehmm");
+            if (!ehmmFile.exists()) {
+                throw new IOException("EHMM path setting is wrong. Because file "+ehmmFile.getAbsolutePath()+" does not exist");
+            }
                                     
             System.out.println("Preparing voice database for labelling using EHMM :");
             System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
@@ -211,7 +215,7 @@ public class EHMMLabeler extends VoiceImportComponent {
             
             
             // Feature Settings required for EHMM Training
-            settings.println("WaveDir: "+db.getProp(db.ROOTDIR)+"/wav \n"
+            settings.println("WaveDir: "+db.getProp(db.ROOTDIR)+"/"+db.getProp(db.WAVDIR)+" \n"
                     +"HeaderBytes: 44 \n"
                     +"SamplingFreq: 16000 \n"
                     +"FrameSize: 160 \n"
@@ -342,7 +346,6 @@ public class EHMMLabeler extends VoiceImportComponent {
          PrintWriter pw = new PrintWriter(
                  new OutputStreamWriter(process.getOutputStream()));
          
-         System.out.println(INITEHMMDIR);
          
          if(getProp(INITEHMMDIR).equals("/")){
          
