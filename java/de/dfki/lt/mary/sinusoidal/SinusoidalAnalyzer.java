@@ -107,6 +107,9 @@ public class SinusoidalAnalyzer {
         bRefinePeakEstimatesParabola = bRefinePeakEstimatesParabolaIn;
         bRefinePeakEstimatesBias = bRefinePeakEstimatesBiasIn;
         minWindowSize = (int)(Math.floor(fs*MIN_WINDOW_SIZE+0.5));
+        if (minWindowSize%2==0) //Always use an odd window size to have a zero-phase analysis window
+            minWindowSize++;
+        
         bAdjustNeighFreqDependent = bAdjustNeighFreqDependentIn;
         absMax = -1.0f;
         LPOrder = SignalProcUtils.getLPOrder(fs);
@@ -215,10 +218,32 @@ public class SinusoidalAnalyzer {
      */
     public SinusoidalTracks analyzeFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz)
     {
+        SinusoidalSpeechSignal sinSignal = extractSinusoidsFixedRate(x, winSizeInSeconds, skipSizeInSeconds, deltaInHz);
+        
+        //Extract sinusoidal tracks
+        TrackGenerator tg = new TrackGenerator();
+        SinusoidalTracks sinTracks = tg.generateTracks(sinSignal, deltaInHz, fs);
+        
+        if (sinTracks!=null)
+        {
+            sinTracks.getTrackStatistics(winSizeInSeconds, skipSizeInSeconds);
+            getGrossStatistics(sinTracks);
+        }
+        //
+        
+        return sinTracks;
+    }
+    
+    public SinusoidalSpeechSignal extractSinusoidsFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz)
+    {
         absMax = MathUtils.getAbsMax(x);
-        float originalDurationInSeconds = ((float)x.length)/fs;
         
         ws = (int)Math.floor(winSizeInSeconds*fs + 0.5);
+        if (ws%2==0) //Always use an odd window size to have a zero-phase analysis window
+            ws++;
+        
+        ws = Math.max(ws, minWindowSize);
+        
         ss = (int)Math.floor(skipSizeInSeconds*fs + 0.5);
         
         win = Window.get(windowType, ws);
@@ -230,9 +255,7 @@ public class SinusoidalAnalyzer {
         double [] frm = new double[ws];
         int i, j;
 
-        SinusoidsWithSpectrum [] framesSins =  new SinusoidsWithSpectrum[totalFrm];
-        float [] times = new float[totalFrm];
-        float [] voicings = new float[totalFrm];
+        SinusoidalSpeechSignal sinSignal =  new SinusoidalSpeechSignal(totalFrm);
         boolean [] isSinusoidNulls = new boolean[totalFrm]; 
         Arrays.fill(isSinusoidNulls, false);
         int totalNonNull = 0;
@@ -246,49 +269,42 @@ public class SinusoidalAnalyzer {
             
             win.applyInline(frm, 0, ws);
             
-            framesSins[i] = analyze_frame(frm);
-            voicings[i] = (float)SignalProcUtils.getVoicingProbability(frm, fs);
+            sinSignal.framesSins[i] = analyze_frame(frm);
+            sinSignal.framesSins[i].voicing = (float)SignalProcUtils.getVoicingProbability(frm, fs);
             
-            if (framesSins[i]!=null)
+            if (sinSignal.framesSins[i]!=null)
             {
-                for (j=0; j<framesSins[i].sinusoids.length; j++)
-                    framesSins[i].sinusoids[j].frameIndex = i;
+                for (j=0; j<sinSignal.framesSins[i].sinusoids.length; j++)
+                    sinSignal.framesSins[i].sinusoids[j].frameIndex = i;
             }
             
             int peakCount = 0;
-            if (framesSins[i]==null)
+            if (sinSignal.framesSins[i]==null)
                 isSinusoidNulls[i] = true;
             else
             {
                 isSinusoidNulls[i] = false;
                 totalNonNull++;
-                peakCount = framesSins[i].sinusoids.length;
+                peakCount = sinSignal.framesSins[i].sinusoids.length;
             }   
             
-            times[i] = (float)((i*ss+0.5*ws)/fs);
+            sinSignal.framesSins[i].time = (float)((i*ss+0.5*ws)/fs);
             
-            System.out.println("Analysis complete at " + String.valueOf(times[i]) + "s. for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm) + "(found " + String.valueOf(peakCount) + " peaks)");
+            System.out.println("Analysis complete at " + String.valueOf(sinSignal.framesSins[i].time) + "s. for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm) + "(found " + String.valueOf(peakCount) + " peaks)");
         }
         //
         
-        SinusoidsWithSpectrum [] framesSins2 = null;
-        float [] times2 = null;
-        float [] voicings2 = null;
+        SinusoidalSpeechSignal sinSignal2 = null;
         if (totalNonNull>0)
         {
             //Collect non-null sinusoids only
-            framesSins2 =  new SinusoidsWithSpectrum[totalNonNull];
-            times2 = new float[totalNonNull];
-            voicings2 = new float[totalNonNull];
+            sinSignal2 =  new SinusoidalSpeechSignal(totalNonNull);
             int ind = 0;
             for (i=0; i<totalFrm; i++)
             {
                 if (!isSinusoidNulls[i])
                 {
-                    framesSins2[ind] = new SinusoidsWithSpectrum(framesSins[i]);
-
-                    times2[ind] = times[i];
-                    voicings2[ind] = voicings[i];
+                    sinSignal2.framesSins[ind] = new SinusoidalSpeechFrame(sinSignal.framesSins[i]);
 
                     ind++;
                     if (ind>totalNonNull-1)
@@ -296,22 +312,11 @@ public class SinusoidalAnalyzer {
                 }
             }
             //
+            
+            sinSignal2.originalDurationInSeconds = ((float)x.length)/fs;
         }
         
-        //Extract sinusoidal tracks
-        TrackGenerator tg = new TrackGenerator();
-        SinusoidalTracks sinTracks = tg.generateTracks(framesSins2, times2, deltaInHz, fs, originalDurationInSeconds);
-        
-        sinTracks.setVoicings(voicings2);
-        
-        if (sinTracks!=null)
-        {
-            sinTracks.getTrackStatistics(winSizeInSeconds, skipSizeInSeconds);
-            getGrossStatistics(sinTracks);
-        }
-        //
-        
-        return sinTracks;
+        return sinSignal2;
     }
     
     public void getGrossStatistics(SinusoidalTracks sinTracks)
@@ -330,9 +335,9 @@ public class SinusoidalAnalyzer {
         System.out.println("Total sinusoids to model this file = " + String.valueOf(totalSins));
     }
 
-    public SinusoidsWithSpectrum analyze_frame(double [] frm)
+    public SinusoidalSpeechFrame analyze_frame(double [] frm)
     {   
-        SinusoidsWithSpectrum frameSins = null;
+        SinusoidalSpeechFrame frameSins = null;
 
         double frmEn = SignalProcUtils.getEnergy(frm);
         if (frmEn>MIN_ENERGY_TH)
@@ -423,7 +428,7 @@ public class SinusoidalAnalyzer {
             if (freqInds != null)
             {
                 int numFrameSinusoids = freqInds.length;
-                frameSins = new SinusoidsWithSpectrum(numFrameSinusoids);
+                frameSins = new SinusoidalSpeechFrame(numFrameSinusoids);
 
                 //Perform parabola fitting around peak estimates to refine frequency estimation (Ref. - PARSHL, see the function for more details)
                 float [] freqIndsRefined = new float[numFrameSinusoids];

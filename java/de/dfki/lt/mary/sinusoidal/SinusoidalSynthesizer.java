@@ -39,7 +39,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.dfki.lt.mary.util.FileUtils;
-import de.dfki.lt.signalproc.analysis.F0Reader;
+import de.dfki.lt.signalproc.analysis.F0ReaderWriter;
 import de.dfki.lt.signalproc.analysis.PitchMarker;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
@@ -245,7 +245,7 @@ public class SinusoidalSynthesizer {
             if (false) //Test using real speech (Make sure .ptc file with identical filename as the wavfile exists)
             {
                 String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
-                F0Reader f0 = new F0Reader(strPitchFile);
+                F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
                 PitchMarker pm = SignalProcUtils.pitchContour2pitchMarks(f0.getContour(), samplingRate, x.length, f0.ws, f0.ss, true);
                 pa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HANN, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bAdjustNeighFreqDependent);
                 st = pa.analyzePitchSynchronous(x, pm.pitchMarks, numPeriods, -1.0f, deltaInHz);

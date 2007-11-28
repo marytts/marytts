@@ -310,7 +310,7 @@ public class SinusoidalTracks {
             for (int j=0; j<tracks[i].totalSins; j++)
             {
                 str = String.format("%1$f",tracks[i].amps[j]) + "\t" +
-                      String.format("%1$f",MathUtils.radian2Hz(tracks[i].freqs[j], fs)) + "\t" +
+                      String.format("%1$f",SignalProcUtils.radian2Hz(tracks[i].freqs[j], fs)) + "\t" +
                       String.format("%1$f",tracks[i].phases[j]) + "\t" +
                       String.format("%1$f",MathUtils.unwrapToRange(MathUtils.radian2degrees(tracks[i].phases[j]), -180.0f)) + "\t" +
                       String.format("%1$f",tracks[i].times[j]) + "\r\n";
@@ -325,9 +325,9 @@ public class SinusoidalTracks {
         out.close();
     }
     
-    public void setSysAmpsAndTimes(SinusoidsWithSpectrum [] framesSins, float [] timesIn)
+    public void setSysAmpsAndTimes(SinusoidalSpeechFrame [] framesSins)
     {
-        if (framesSins==null || timesIn==null || framesSins.length<=0 || timesIn.length<=0)
+        if (framesSins==null || framesSins.length<=0)
         {
             sysAmps = null;
             sysPhases = null;
@@ -335,19 +335,16 @@ public class SinusoidalTracks {
         }
         else
         {
-            assert framesSins.length == timesIn.length;
-            
             sysAmps = new LinkedList<double[]>();
             sysPhases = new LinkedList<double[]>();
+            times = new float[framesSins.length];
             
             for (int i=0; i<framesSins.length; i++)
             {
                 sysAmps.add(framesSins[i].systemAmps);
                 sysPhases.add(framesSins[i].systemPhases);
+                times[i] = framesSins[i].time;
             }
-            
-            times = new float[timesIn.length];
-            System.arraycopy(timesIn, 0, times, 0, timesIn.length); 
         }
     }
 }

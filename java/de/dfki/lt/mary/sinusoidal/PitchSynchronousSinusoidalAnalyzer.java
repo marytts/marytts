@@ -37,7 +37,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import de.dfki.lt.signalproc.analysis.F0Reader;
+import de.dfki.lt.signalproc.analysis.F0ReaderWriter;
 import de.dfki.lt.signalproc.analysis.PitchMarker;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.DoubleDataSource;
@@ -110,8 +110,24 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
      */
     public SinusoidalTracks analyzePitchSynchronous(double [] x, int [] pitchMarks, float numPeriods, float skipSizeInSeconds, float deltaInHz)
     {
+        SinusoidalSpeechSignal sinSignal = extracSinusoidsPitchSynchronous(x, pitchMarks, numPeriods, skipSizeInSeconds, deltaInHz);
+        
+        //Extract sinusoidal tracks
+        TrackGenerator tg = new TrackGenerator();
+        SinusoidalTracks sinTracks = tg.generateTracks(sinSignal, deltaInHz, fs);
+        
+        if (sinTracks!=null)
+        {
+            sinTracks.getTrackStatistics();
+            getGrossStatistics(sinTracks);
+        }
+        
+        return sinTracks;
+    }
+    
+    public SinusoidalSpeechSignal extracSinusoidsPitchSynchronous(double [] x, int [] pitchMarks, float numPeriods, float skipSizeInSeconds, float deltaInHz)
+    {
         absMax = MathUtils.getAbsMax(x);
-        float originalDurationInSeconds = ((float)x.length)/fs;
  
         boolean bFixedSkipRate = false;
         if (skipSizeInSeconds>0.0f) //Perform fixed skip rate but pitch synchronous analysis. This is useful for time/pitch scale modification
@@ -136,9 +152,7 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         int i, j;
         int T0;
         
-        SinusoidsWithSpectrum [] framesSins =  new SinusoidsWithSpectrum[totalFrm];
-        float [] times = new float[totalFrm];
-        float [] voicings = new float[totalFrm];
+        SinusoidalSpeechSignal sinSignal =  new SinusoidalSpeechSignal(totalFrm);
         boolean [] isSinusoidNulls = new boolean[totalFrm]; 
         Arrays.fill(isSinusoidNulls, false);
         int totalNonNull = 0;
@@ -169,6 +183,9 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
             }
             
             ws = (int)Math.floor(numPeriods*T0+ 0.5);
+            if (ws%2==0) //Always use an odd window size to have a zero-phase analysis window
+                ws++;
+            
             ws = Math.max(ws, minWindowSize);
             frm = new double[ws];
             
@@ -189,59 +206,53 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
             win.normalize(1.0f); //Normalize to sum up to unity
             win.applyInline(frm, 0, ws);
             
-            framesSins[i] = analyze_frame(frm);
-            voicings[i] = (float)SignalProcUtils.getVoicingProbability(frm, fs);
+            sinSignal.framesSins[i] = analyze_frame(frm);
+            sinSignal.framesSins[i].voicing = (float)SignalProcUtils.getVoicingProbability(frm, fs);
             
-            if (framesSins[i]!=null)
+            if (sinSignal.framesSins[i]!=null)
             {
-                for (j=0; j<framesSins[i].sinusoids.length; j++)
-                    framesSins[i].sinusoids[j].frameIndex = i;
+                for (j=0; j<sinSignal.framesSins[i].sinusoids.length; j++)
+                    sinSignal.framesSins[i].sinusoids[j].frameIndex = i;
             }
             
             int peakCount = 0;
-            if (framesSins[i]==null)
+            if (sinSignal.framesSins[i]==null)
                 isSinusoidNulls[i] = true;
             else
             {
                 isSinusoidNulls[i] = false;
                 totalNonNull++;
-                peakCount = framesSins[i].sinusoids.length;
+                peakCount = sinSignal.framesSins[i].sinusoids.length;
             }
             
             if (!bFixedSkipRate)
             {
-                //times[i] = (float)(0.5*(pitchMarks[i+1]+pitchMarks[i])/fs);
-                times[i] = (float)((pitchMarks[i]+0.5f*ws)/fs);
+                //sinSignal.framesSins[i].time = (float)(0.5*(pitchMarks[i+1]+pitchMarks[i])/fs);
+                sinSignal.framesSins[i].time = (float)((pitchMarks[i]+0.5f*ws)/fs);
             }
             else
             {
-                //times[i] = (currentTimeInd+0.5f*T0)/fs;
-                times[i] = (currentTimeInd+0.5f*ws)/fs;
+                //sinSignal.framesSins[i].time = (currentTimeInd+0.5f*T0)/fs;
+                sinSignal.framesSins[i].time = (currentTimeInd+0.5f*ws)/fs;
                 currentTimeInd += ss;
             }
             
-            System.out.println("Analysis complete at " + String.valueOf(times[i]) + "s. for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm) + "(found " + String.valueOf(peakCount) + " peaks)");
+            System.out.println("Analysis complete at " + String.valueOf(sinSignal.framesSins[i].time) + "s. for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm) + "(found " + String.valueOf(peakCount) + " peaks)");
         }
         //
         
-        SinusoidsWithSpectrum [] framesSins2 = null;
-        float [] times2 = null;
+        SinusoidalSpeechSignal sinSignal2 = null;
         float [] voicings2 = null;
         if (totalNonNull>0)
         {
             //Collect non-null sinusoids only
-            framesSins2 =  new SinusoidsWithSpectrum[totalNonNull];
-            times2 = new float[totalNonNull];
-            voicings2 = new float[totalNonNull];
+            sinSignal2 =  new SinusoidalSpeechSignal(totalNonNull);
             int ind = 0;
             for (i=0; i<totalFrm; i++)
             {
                 if (!isSinusoidNulls[i])
                 {
-                    framesSins2[ind] = new SinusoidsWithSpectrum(framesSins[i]);
-
-                    times2[ind] = times[i];
-                    voicings2[ind] = voicings[i];
+                    sinSignal2.framesSins[ind] = new SinusoidalSpeechFrame(sinSignal.framesSins[i]);
 
                     ind++;
                     if (ind>totalNonNull-1)
@@ -249,21 +260,11 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
                 }
             }
             //
+            
+            sinSignal2.originalDurationInSeconds = ((float)x.length)/fs;
         }
         
-        //Extract sinusoidal tracks
-        TrackGenerator tg = new TrackGenerator();
-        SinusoidalTracks sinTracks = tg.generateTracks(framesSins2, times2, deltaInHz, fs, originalDurationInSeconds);
-        
-        sinTracks.setVoicings(voicings2);
-        
-        if (sinTracks!=null)
-        {
-            sinTracks.getTrackStatistics();
-            getGrossStatistics(sinTracks);
-        }
-        
-        return sinTracks;
+        return sinSignal2;
     }
     
     public static void main(String[] args) throws UnsupportedAudioFileException, IOException
@@ -274,7 +275,7 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         double [] x = signal.getAllData();
         
         String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
-        F0Reader f0 = new F0Reader(strPitchFile);
+        F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
         PitchMarker pm = SignalProcUtils.pitchContour2pitchMarks(f0.getContour(), samplingRate, x.length, f0.ws, f0.ss, true);
         PitchSynchronousSinusoidalAnalyzer sa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, true, true);
         

@@ -63,9 +63,9 @@ public class TrackGenerator {
      * the more likely the current sinusoid gets assigned to that track
      * 
      */
-    public SinusoidalTracks generateTracks(SinusoidsWithSpectrum [] framesSins, float [] times, float deltaInHz, int samplingRate, float originalDurationInSeconds)
+    public SinusoidalTracks generateTracks(SinusoidalSpeechSignal sinSignal, float deltaInHz, int samplingRate)
     {
-        int numFrames = framesSins.length;
+        int numFrames = sinSignal.framesSins.length;
         
         SinusoidalTracks tr = null;
         int i;
@@ -82,17 +82,17 @@ public class TrackGenerator {
             {   
                 if (tr==null) //If no tracks yet, assign the current sinusoids to new tracks
                 {
-                    tr = new SinusoidalTracks(framesSins[i].sinusoids.length, samplingRate);
-                    tr.setSysAmpsAndTimes(framesSins, times);
+                    tr = new SinusoidalTracks(sinSignal.framesSins[i].sinusoids.length, samplingRate);
+                    tr.setSysAmpsAndTimes(sinSignal.framesSins);
                     
-                    for (j=0; j<framesSins[i].sinusoids.length; j++)
+                    for (j=0; j<sinSignal.framesSins[i].sinusoids.length; j++)
                     {
                         //First add a zero amplitude sinusoid at previous time instant to allow smooth synthesis (i.e. "turning on" the track)
-                        zeroAmpSin = new Sinusoid(0.0f, framesSins[i].sinusoids[j].freq, 0.0f, Sinusoid.NON_EXISTING_FRAME_INDEX);
-                        tr.add(new SinusoidalTrack(times[i]-ZERO_AMP_SHIFT_IN_SECONDS, zeroAmpSin,  SinusoidalTrack.TURNED_ON));
+                        zeroAmpSin = new Sinusoid(0.0f, sinSignal.framesSins[i].sinusoids[j].freq, 0.0f, Sinusoid.NON_EXISTING_FRAME_INDEX);
+                        tr.add(new SinusoidalTrack(sinSignal.framesSins[i].time-ZERO_AMP_SHIFT_IN_SECONDS, zeroAmpSin,  SinusoidalTrack.TURNED_ON));
                         //
                     
-                        tr.tracks[tr.currentIndex].add(times[i], framesSins[i].sinusoids[j], SinusoidalTrack.ACTIVE);
+                        tr.tracks[tr.currentIndex].add(sinSignal.framesSins[i].time, sinSignal.framesSins[i].sinusoids[j], SinusoidalTrack.ACTIVE);
                     }
                 }
                 else //If there are tracks, first check "continuations" by checking whether a given sinusoid is in the +-deltaInHz neighbourhood of the previous track. 
@@ -105,12 +105,12 @@ public class TrackGenerator {
                             tr.tracks[j].resetCandidate();
                     }
                     
-                    bSinAssigneds = new boolean[framesSins[i].sinusoids.length];
+                    bSinAssigneds = new boolean[sinSignal.framesSins[i].sinusoids.length];
                     
                     //Continuations:
-                    for (k=0; k<framesSins[i].sinusoids.length; k++)
+                    for (k=0; k<sinSignal.framesSins[i].sinusoids.length; k++)
                     {
-                        minDist = Math.abs(framesSins[i].sinusoids[k].freq-tr.tracks[0].freqs[tr.tracks[0].currentIndex]);
+                        minDist = Math.abs(sinSignal.framesSins[i].sinusoids[k].freq-tr.tracks[0].freqs[tr.tracks[0].currentIndex]);
                         if (minDist<deltaInHz)
                             trackInd = 0;
                         else
@@ -118,7 +118,7 @@ public class TrackGenerator {
                         
                         for (j=1; j<tr.currentIndex+1; j++)
                         {
-                            tmpDist = Math.abs(framesSins[i].sinusoids[k].freq-tr.tracks[j].freqs[tr.tracks[j].currentIndex]);
+                            tmpDist = Math.abs(sinSignal.framesSins[i].sinusoids[k].freq-tr.tracks[j].freqs[tr.tracks[j].currentIndex]);
                             
                             if (tmpDist<deltaInHz && (trackInd==-1 || tmpDist<minDist))
                             {
@@ -132,7 +132,7 @@ public class TrackGenerator {
                             if (tr.tracks[trackInd].newCandidateInd>-1)
                                 bSinAssigneds[tr.tracks[trackInd].newCandidateInd] = false;
                             
-                            tr.tracks[trackInd].newCandidate = new Sinusoid(framesSins[i].sinusoids[k]);
+                            tr.tracks[trackInd].newCandidate = new Sinusoid(sinSignal.framesSins[i].sinusoids[k]);
                             tr.tracks[trackInd].newCandidateInd = k;
                             
                             bSinAssigneds[k] = true; //The sinusoid might be assigned to an existing track provided that a closer sinusoid is not found
@@ -151,17 +151,17 @@ public class TrackGenerator {
                             if (tr.tracks[j].states[tr.tracks[j].currentIndex]!=SinusoidalTrack.ACTIVE)
                             {
                                 zeroAmpSin = new Sinusoid(0.0f, tr.tracks[j].freqs[tr.tracks[j].totalSins-1], 0.0f, Sinusoid.NON_EXISTING_FRAME_INDEX);
-                                tr.tracks[j].add(times[i]-ZERO_AMP_SHIFT_IN_SECONDS, zeroAmpSin, SinusoidalTrack.TURNED_ON);
+                                tr.tracks[j].add(sinSignal.framesSins[i].time-ZERO_AMP_SHIFT_IN_SECONDS, zeroAmpSin, SinusoidalTrack.TURNED_ON);
                             }
                             
-                            tr.tracks[j].add(times[i], tmpSin, SinusoidalTrack.ACTIVE); 
+                            tr.tracks[j].add(sinSignal.framesSins[i].time, tmpSin, SinusoidalTrack.ACTIVE); 
                         }
                         else //Turn off tracks that are not assigned any new sinusoid
                         {
                             if (tr.tracks[j].states[tr.tracks[j].currentIndex]!=SinusoidalTrack.TURNED_OFF)
                             {
                                 zeroAmpSin = new Sinusoid(0.0f, tr.tracks[j].freqs[tr.tracks[j].totalSins-1], 0.0f, Sinusoid.NON_EXISTING_FRAME_INDEX);
-                                tr.tracks[j].add(times[i]+ZERO_AMP_SHIFT_IN_SECONDS, zeroAmpSin, SinusoidalTrack.TURNED_OFF);
+                                tr.tracks[j].add(sinSignal.framesSins[i].time+ZERO_AMP_SHIFT_IN_SECONDS, zeroAmpSin, SinusoidalTrack.TURNED_OFF);
                             }  
                         } 
                     }
@@ -172,11 +172,11 @@ public class TrackGenerator {
                         if (!bSinAssigneds[k])
                         {
                             //First add a zero amplitude sinusoid to previous frame to allow smooth synthesis (i.e. "turning on" the track)
-                            zeroAmpSin = new Sinusoid(0.0f, framesSins[i].sinusoids[k].freq, 0.0f, Sinusoid.NON_EXISTING_FRAME_INDEX);
-                            tr.add(new SinusoidalTrack(times[i]-ZERO_AMP_SHIFT_IN_SECONDS, zeroAmpSin, SinusoidalTrack.TURNED_ON));
+                            zeroAmpSin = new Sinusoid(0.0f, sinSignal.framesSins[i].sinusoids[k].freq, 0.0f, Sinusoid.NON_EXISTING_FRAME_INDEX);
+                            tr.add(new SinusoidalTrack(sinSignal.framesSins[i].time-ZERO_AMP_SHIFT_IN_SECONDS, zeroAmpSin, SinusoidalTrack.TURNED_ON));
                             //
                             
-                            tr.tracks[tr.currentIndex].add(times[i], framesSins[i].sinusoids[k], SinusoidalTrack.ACTIVE);
+                            tr.tracks[tr.currentIndex].add(sinSignal.framesSins[i].time, sinSignal.framesSins[i].sinusoids[k], SinusoidalTrack.ACTIVE);
                         }
                     }
 
@@ -188,12 +188,12 @@ public class TrackGenerator {
                 {
                     for (j=0; j<tr.currentIndex+1; j++)
                     {
-                        if (Math.abs(times[i]-tr.tracks[j].times[tr.tracks[j].totalSins-1])<ZERO_AMP_SHIFT_IN_SECONDS)
+                        if (Math.abs(sinSignal.framesSins[i].time-tr.tracks[j].times[tr.tracks[j].totalSins-1])<ZERO_AMP_SHIFT_IN_SECONDS)
                         {
                             if (tr.tracks[j].states[tr.tracks[j].currentIndex]==SinusoidalTrack.ACTIVE)
                             {
                                 zeroAmpSin = new Sinusoid(0.0f, tr.tracks[j].freqs[tr.tracks[j].totalSins-1], 0.0f, Sinusoid.NON_EXISTING_FRAME_INDEX);
-                                tr.tracks[j].add(times[i]+ZERO_AMP_SHIFT_IN_SECONDS, zeroAmpSin, SinusoidalTrack.TURNED_OFF);
+                                tr.tracks[j].add(sinSignal.framesSins[i].time+ZERO_AMP_SHIFT_IN_SECONDS, zeroAmpSin, SinusoidalTrack.TURNED_OFF);
                             }
                         }
                     }
@@ -205,7 +205,7 @@ public class TrackGenerator {
         for (i=0; i<=tr.currentIndex; i++)
             tr.tracks[i].correctTrack();
         
-        tr.setOriginalDurationManual(originalDurationInSeconds);
+        tr.setOriginalDurationManual(sinSignal.originalDurationInSeconds);
         
         return new SinusoidalTracks(tr, 0, tr.currentIndex);
     }

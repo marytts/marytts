@@ -30,6 +30,7 @@
 package de.dfki.lt.mary.sinusoidal;
 
 import de.dfki.lt.signalproc.util.MathUtils;
+import de.dfki.lt.signalproc.util.SignalProcUtils;
 
 /**
  * @author oytun.turk
@@ -108,18 +109,18 @@ public class SinusoidalTrack {
             avgPhaseInDegrees /= totalSins;
             
             if (isFreqRadian)
-                avgFreqInHz = MathUtils.radian2Hz(avgFreqInHz, fs);
+                avgFreqInHz = SignalProcUtils.radian2Hz(avgFreqInHz, fs);
             
             if (isPhaseRadian)
                 avgPhaseInDegrees = MathUtils.radian2degrees(avgPhaseInDegrees);
             
             minFreqInHz = MathUtils.getMin(freqs);
             if (isFreqRadian)
-                minFreqInHz = MathUtils.radian2Hz(minFreqInHz, fs);
+                minFreqInHz = SignalProcUtils.radian2Hz(minFreqInHz, fs);
             
             maxFreqInHz = MathUtils.getMax(freqs);
             if (isFreqRadian)
-                maxFreqInHz = MathUtils.radian2Hz(maxFreqInHz, fs);
+                maxFreqInHz = SignalProcUtils.radian2Hz(maxFreqInHz, fs);
             
             minAmpLinear = MathUtils.getMin(amps);
             maxAmpLinear = MathUtils.getMax(amps);
