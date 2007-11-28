@@ -29,7 +29,10 @@
 
 package de.dfki.lt.signalproc.util;
 
+import java.awt.List;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Vector;
 
 
@@ -358,16 +361,6 @@ public class MathUtils {
         if (Double.isNaN(dbAmplitude)) return 0.;
         else return Math.pow(10.0, dbAmplitude/20);
     }
- 
-    public static float radian2Hz(float rad, int samplingRate)
-    {
-        return (float)((rad/MathUtils.TWOPI)*samplingRate);
-    }
-    
-    public static double radian2Hz(double rad, int samplingRate)
-    {
-        return (rad/MathUtils.TWOPI)*samplingRate;
-    }
     
     public static float radian2degrees(float rad)
     {
@@ -377,16 +370,6 @@ public class MathUtils {
     public static double radian2degrees(double rad)
     {
         return (rad/MathUtils.TWOPI)*360.0;
-    }
-    
-    public static float hz2radian(float hz, int samplingRate)
-    {
-        return (float)(hz*MathUtils.TWOPI/samplingRate);
-    }
-    
-    public static double hz2radian(double hz, int samplingRate)
-    {
-        return hz*MathUtils.TWOPI/samplingRate;
     }
 
     /**
@@ -1359,5 +1342,88 @@ public class MathUtils {
         }
         
         return lins;
+    }
+    
+    public static float[] sinc(float [] x, float N)
+    {
+        float [] y = null;
+        
+        if (x.length>0)
+        {
+            y = new float[x.length];
+            for (int i=0; i<y.length; i++)
+                y[i] = sinc(x[i], N);
+        }
+        
+        return y;
+        
+    }
+    
+    public static float sinc(float x, float N)
+    {
+        return (float)(Math.sin(N*0.5*x)/(N*Math.sin(0.5*x)));
+    }
+    
+    public static double sinc(double x, double N)
+    {
+        return Math.sin(N*0.5*x)/(N*Math.sin(0.5*x));
+    }
+    
+    public static float[] sinc(float[] x)
+    {
+        float [] y = null;
+        
+        if (x.length>0)
+        {
+            y = new float[x.length];
+            for (int i=0; i<y.length; i++)
+                y[i] = sinc(2*x[i], (float)(0.5*MathUtils.TWOPI));
+        }
+        
+        return y;
+    }
+    
+    public static double[] sinc(double[] x)
+    {
+        double [] y = null;
+        
+        if (x.length>0)
+        {
+            y = new double[x.length];
+            for (int i=0; i<y.length; i++)
+                y[i] = sinc(2*x[i], 0.5*MathUtils.TWOPI);
+        }
+        
+        return y;
+    }
+    
+    public static float sinc(float x)
+    {
+        return sinc(2*x, (float)(0.5*MathUtils.TWOPI));
+    }
+    
+    public static double sinc(double x)
+    {
+        return sinc(2*x, 0.5*MathUtils.TWOPI);
+    }
+    
+    //Returns the index of the smallest element that is larger than %percentSmallerThan of the data in x
+    //  It simply sorts the data in x and then finds the smallest value that is larger than 
+    //  the [percentSmallerThan/100.0*(x.length-1)]th entry
+    public static double getSortedValue(double [] x, double percentSmallerThan)
+    {
+        int retInd = -1;
+        
+        Vector v = new Vector();
+        for (int i=0; i<x.length; i++)
+            v.add(x[i]);
+        
+        Collections.sort(v);
+        
+        int index = (int)Math.floor(percentSmallerThan/100.0*(x.length-1)+0.5);
+        index = Math.max(0, index);
+        index = Math.min(index, x.length-1);
+
+        return ((Double)(v.get(index))).doubleValue();
     }
 }

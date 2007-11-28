@@ -13,7 +13,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.dfki.lt.signalproc.FFTMixedRadix;
-import de.dfki.lt.signalproc.analysis.F0Reader;
+import de.dfki.lt.signalproc.analysis.F0ReaderWriter;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
 import de.dfki.lt.signalproc.util.DDSAudioInputStream;
@@ -115,7 +115,7 @@ public class FDPSOLAProcessorOld extends VocalTractModifier {
         ssFixed = 0.01;
         numPeriods = NUM_PITCH_SYNC_PERIODS;
         
-        F0Reader f0 = new F0Reader(strPitchFile);
+        F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
         pm = SignalProcUtils.pitchContour2pitchMarks(f0.getContour(), fs, origLen, f0.ws, f0.ss, true);
         
         numfrm = pm.pitchMarks.length-numPeriods; //Total pitch synchronous frames (This is the actual number of frames to be processed)
