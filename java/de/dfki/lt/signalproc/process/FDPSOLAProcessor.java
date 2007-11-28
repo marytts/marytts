@@ -27,7 +27,7 @@ import de.dfki.lt.mary.unitselection.Unit;
 import de.dfki.lt.mary.unitselection.concat.DatagramDoubleDataSource;
 import de.dfki.lt.mary.unitselection.concat.DatagramOverlapDoubleDataSource;
 import de.dfki.lt.signalproc.FFTMixedRadix;
-import de.dfki.lt.signalproc.analysis.F0Reader;
+import de.dfki.lt.signalproc.analysis.F0ReaderWriter;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
 import de.dfki.lt.signalproc.util.DDSAudioInputStream;
@@ -142,7 +142,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         ssFixed = 0.01;
         numPeriods = NUM_PITCH_SYNC_PERIODS;
         
-        F0Reader f0 = new F0Reader(strPitchFile);
+        F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
         pm = SignalProcUtils.pitchContour2pitchMarks(f0.getContour(), fs, origLen, f0.ws, f0.ss, true);
         
         numfrm = pm.pitchMarks.length-numPeriods; //Total pitch synchronous frames (This is the actual number of frames to be processed)
@@ -1638,10 +1638,10 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         String strOutputFile = args[0].substring(0, args[0].length()-4) + "_fdJav.wav";
         String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
         
-        double [] pscales = {1.2, 0.3};
-        double [] tscales = {1.5};
+        double [] pscales = {0.52};
+        double [] tscales = {1.0};
         double [] escales = {1.0};
-        double [] vscales = {1.8, 0.4};
+        double [] vscales = {1.0};
        
         FDPSOLAProcessor fd = new FDPSOLAProcessor(args[0], strPitchFile, strOutputFile, 
                                                     pscales, tscales, escales, vscales);

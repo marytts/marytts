@@ -761,6 +761,28 @@ public class SignalProcUtils {
         return noise;
     }
     
+    
+    public static float radian2Hz(float rad, int samplingRate)
+    {
+        return (float)((rad/MathUtils.TWOPI)*samplingRate);
+    }
+    
+    public static double radian2Hz(double rad, int samplingRate)
+    {
+        return (rad/MathUtils.TWOPI)*samplingRate;
+    }
+    
+    
+    public static float hz2radian(float hz, int samplingRate)
+    {
+        return (float)(hz*MathUtils.TWOPI/samplingRate);
+    }
+    
+    public static double hz2radian(double hz, int samplingRate)
+    {
+        return hz*MathUtils.TWOPI/samplingRate;
+    }
+    
     public static void main(String[] args)
     {
         
