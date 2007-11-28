@@ -444,7 +444,7 @@ public class TrackModifier {
                     }
 
                     sysTimeInd = MathUtils.findClosest(trIn.times, trIn.tracks[i].times[j]);
-                    freqInHz = MathUtils.radian2Hz(trIn.tracks[i].freqs[j], trIn.fs);
+                    freqInHz = SignalProcUtils.radian2Hz(trIn.tracks[i].freqs[j], trIn.fs);
                     sysFreqInd = (int)Math.floor(freqInHz/(0.5f*trIn.fs)*(trIn.sysAmps.get(sysTimeInd).length-1) + 0.5);
                     sysFreqInd = Math.min(sysFreqInd, trIn.sysAmps.get(sysTimeInd).length-1);
                     sysFreqInd = Math.max(sysFreqInd, 0);

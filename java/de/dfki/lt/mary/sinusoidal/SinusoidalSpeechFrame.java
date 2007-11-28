@@ -3,12 +3,14 @@ package de.dfki.lt.mary.sinusoidal;
 import java.util.Vector;
 
 // Single speech frame sinusoids with spectrum
-public class SinusoidsWithSpectrum {
+public class SinusoidalSpeechFrame {
     public Sinusoid [] sinusoids;
     public double [] systemAmps;
     public double [] systemPhases;
+    public float time;
+    public float voicing;
     
-    public SinusoidsWithSpectrum(int numSins)
+    public SinusoidalSpeechFrame(int numSins)
     {
         if (numSins>0)
             sinusoids = new Sinusoid[numSins];
@@ -17,9 +19,11 @@ public class SinusoidsWithSpectrum {
         
         systemAmps = null;
         systemPhases = null;
+        time = -1.0f;
+        voicing = -1.0f;
     }
     
-    public SinusoidsWithSpectrum(SinusoidsWithSpectrum existing)
+    public SinusoidalSpeechFrame(SinusoidalSpeechFrame existing)
     {
         this(existing.sinusoids.length);
         
@@ -28,6 +32,8 @@ public class SinusoidsWithSpectrum {
         
         setSystemAmps(existing.systemAmps);
         setSystemPhases(existing.systemPhases);
+        time = existing.time;
+        voicing = existing.voicing;
     }
     
     public void setSystemAmps(double [] newAmps)

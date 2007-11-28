@@ -43,7 +43,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.dfki.lt.mary.util.FileUtils;
-import de.dfki.lt.signalproc.analysis.F0Reader;
+import de.dfki.lt.signalproc.analysis.F0ReaderWriter;
 import de.dfki.lt.signalproc.analysis.PitchMarker;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
@@ -170,17 +170,17 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
         double [] x = signal.getAllData();
         
         //Read pitch contour (real speech or create it from pm file
-        F0Reader f0 = null;
+        F0ReaderWriter f0 = null;
         if (true) //Test using real speech (Make sure .ptc file with identical filename as the wavfile exists)
         {
             String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
-            f0 = new F0Reader(strPitchFile);
+            f0 = new F0ReaderWriter(strPitchFile);
         }
         else //Test using simple sinusoids (Make sure .pm file with identical filename as the wavfile exists (Tester.java automatically generates it))  
         {
             String strPmFile = args[0].substring(0, args[0].length()-4) + ".pm";
             int [] pitchMarks = FileUtils.readFromBinaryFile(strPmFile);
-            f0 = new F0Reader(pitchMarks, samplingRate, 0.020f, 0.010f); 
+            f0 = new F0ReaderWriter(pitchMarks, samplingRate, 0.020f, 0.010f); 
         }
         //
         
@@ -208,7 +208,7 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
         if (true)
         {
             float timeScale = 1.0f;
-            float pitchScale = 1.0f;
+            float pitchScale = 0.52f;
             y = cs.process(x, f0.getContour(), (float)f0.ws, (float)f0.ss, 
                            isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
                            timeScale, pitchScale, skipSizeInSeconds, deltaInHz, numPeriods, 
