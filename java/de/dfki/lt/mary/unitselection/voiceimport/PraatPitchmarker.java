@@ -84,7 +84,7 @@ public class PraatPitchmarker extends VoiceImportComponent
         this.db = db;
        if (props == null){
            props = new TreeMap();
-           props.put(COMMAND,"praat");  
+           props.put(COMMAND,"praat");   
            if (db.getProp(db.GENDER).equals("female")){
                props.put(MINPITCH,"100");
                props.put(MAXPITCH,"500");
@@ -244,7 +244,13 @@ public class PraatPitchmarker extends VoiceImportComponent
         toScript.println("Quit");
         toScript.close();
 
-        Process praat = Runtime.getRuntime().exec(getProp(COMMAND)+" "+tmpScript);
+        String strTmp = getProp(COMMAND) + " " + tmpScript;
+        boolean isWindows = false;
+        if (isWindows)
+            strTmp = "cmd.exe /c " + strTmp;
+        
+        Process praat = Runtime.getRuntime().exec(strTmp);
+        
         final BufferedReader fromPraat = new BufferedReader(new InputStreamReader(praat.getInputStream()));
         new Thread() {
             public void run() {
