@@ -50,61 +50,81 @@ public class SnackPitchmarker extends VoiceImportComponent
     protected String correctedPmExt = ".pm.corrected.snack";
     protected String snackPmExt = ".snack";
     protected String scriptFileName;
-    
+
     private int percent = 0;
-    
-   
-    public final String PMDIR = "SnackPitchmarker.pmDir";    
+  
     public final String MINPITCH = "SnackPitchmarker.minPitch";
     public final String MAXPITCH = "SnackPitchmarker.maxPitch";
-
+    public final String PMDIR = "SnackPitchmarker.pmDir";  
+    public final String SNACKDIR = "SnackPitchmarker.snackDir";
+    
     protected void setupHelp()
     {
         if (props2Help ==null){
             props2Help = new TreeMap();
             props2Help.put(MINPITCH,"minimum value for the pitch (in Hz). Default: female 100, male 75");
-            props2Help.put(MAXPITCH,"maximum value for the pitch (in Hz). Default: female 500, male 300");    
+            props2Help.put(MAXPITCH,"maximum value for the pitch (in Hz). Default: female 500, male 300"); 
             props2Help.put(PMDIR, "directory containing the pitchmark files. Will be created if" 
                     +"it does not exist");
+            props2Help.put(SNACKDIR, "directory of local SNACK installation");
         }
-        
-
     }
-    
-     public final String getName(){
+
+    public final String getName(){
         return "SnackPitchmarker";
     }
-    
+
     public void initialiseComp()
     {
         scriptFileName = db.getProp(db.TEMPDIR)+"pm.tcl";
     }
-    
+
     public SortedMap getDefaultProps(DatabaseLayout db){
         this.db = db;
-       if (props == null){
-           props = new TreeMap();       
-           if (db.getProp(db.GENDER).equals("female")){
-               props.put(MINPITCH,"100");
-               props.put(MAXPITCH,"500");
-           } else {
-               props.put(MINPITCH,"75");
-               props.put(MAXPITCH,"300");
-           }
-           props.put(PMDIR, db.getProp(db.ROOTDIR)
-                   +"pm"
-                   +System.getProperty("file.separator"));
-       }
-       return props;
+        if (props == null){
+            props = new TreeMap();       
+            if (db.getProp(db.GENDER).equals("female")){
+                props.put(MINPITCH,"100");
+                props.put(MAXPITCH,"500");
+            } else {
+                props.put(MINPITCH,"75");
+                props.put(MAXPITCH,"300");
+            }
+            
+            props.put(PMDIR, db.getProp(db.ROOTDIR)
+                    +"pm"
+                    +System.getProperty("file.separator"));
+            
+            props.put(SNACKDIR, "c:\\tcl\\lib\\snack2.2\\");
+        }
+        return props;
     }
-    
-    
-    
+
     /**
      * The standard compute() method of the VoiceImportComponent interface.
      */
     public boolean compute() throws Exception {
         
+        File script = new File(scriptFileName);
+        
+        if (script.exists()) script.delete();
+        PrintWriter toScript = new PrintWriter(new FileWriter(script));
+        toScript.println("#!"+getProp(SNACKDIR));
+        toScript.println(" ");
+        toScript.println("package require snack");
+        toScript.println(" ");
+        toScript.println("snack::sound s");
+        toScript.println(" ");
+        toScript.println("s read [lindex $argv 0]");
+        toScript.println(" ");
+        toScript.println("set fd [open [lindex $argv 1] w]");
+        toScript.println("puts $fd [join [s pitch -method esps -maxpitch [lindex $argv 2] -minpitch [lindex $argv 3]] \\n]");
+        toScript.println("close $fd");
+        toScript.println(" ");
+        toScript.println("exit"); 
+        toScript.println(" ");
+        toScript.close();
+
         String[] baseNameArray = bnl.getListAsArray();
         System.out.println( "Computing pitchmarks for " + baseNameArray.length + " utterances." );
 
@@ -114,14 +134,6 @@ public class SnackPitchmarker extends VoiceImportComponent
             System.out.println( "Creating the directory [" + getProp(PMDIR) + "]." );
             dir.mkdir();
         }        
-
-        //TODO: if we are going to use the script, 
-        /**if (System.getProperty("TCLLIBPATH")==null){
-            System.out.println("Can not run SnackPitchmarker; need property "
-                    +"TCLLIBPATH to point to snack installation directory, "
-                    +"for example, /home/cl-home/hunecke/anna/snack2.2/");
-            return false;
-        }**/
         
         /* execute snack */        
         for ( int i = 0; i < baseNameArray.length; i++ ) {
@@ -131,57 +143,60 @@ public class SnackPitchmarker extends VoiceImportComponent
             String pmFile = getProp(PMDIR) + baseNameArray[i] + pmExt;
             String correctedPmFile = getProp(PMDIR) + baseNameArray[i] + correctedPmExt;
             System.out.println("Writing pm file to "+snackFile);
-            Process snack = Runtime.getRuntime().exec(scriptFileName+" "+wavFile+" "+snackFile
-                    +" "+getProp(MAXPITCH)+" "+getProp(MINPITCH));
-        
-             StreamGobbler errorGobbler = new 
-             StreamGobbler(snack.getErrorStream(), "err");            
-             
-             //read from output stream
-             StreamGobbler outputGobbler = new 
-             StreamGobbler(snack.getInputStream(), "out");    
-             
-             
-             //start reading from the streams
-             errorGobbler.start();
-             outputGobbler.start();
-             
-             //close everything down
-             snack.waitFor();
-             snack.exitValue();
-             
-             // Now convert the snack format into EST pm format
-             double[] pm = new SnackTextfileDoubleDataSource(new FileReader(snackFile)).getAllData();
-             
-             WavReader wf = new WavReader( wavFile );
-             int sampleRate = wf.getSampleRate();
-             PitchMarker snackPitchmarker = SignalProcUtils.pitchContour2pitchMarks(pm,sampleRate,wf.getNumSamples(),0.0075,0.01,false);
-             int[] pitchmarkSamples = snackPitchmarker.pitchMarks; 
-             
-             float[] pitchmarkSeconds = new float[pitchmarkSamples.length];
-             for (int j=0; j<pitchmarkSeconds.length;j++){
-                 pitchmarkSeconds[j] = (float) pitchmarkSamples[j]/ (float) sampleRate; 
-             }
-             
-            
+
+            boolean isWindows = false;
+            String strTmp = scriptFileName + " " + wavFile + " " + snackFile + " " + getProp(MAXPITCH) + " " + getProp(MINPITCH);
+            if (isWindows)
+                strTmp = "cmd.exe /c " + strTmp;
+
+            Process snack = Runtime.getRuntime().exec(strTmp);
+
+            StreamGobbler errorGobbler = new 
+            StreamGobbler(snack.getErrorStream(), "err");            
+
+            //read from output stream
+            StreamGobbler outputGobbler = new 
+            StreamGobbler(snack.getInputStream(), "out");    
+
+            //start reading from the streams
+            errorGobbler.start();
+            outputGobbler.start();
+
+            //close everything down
+            snack.waitFor();
+            snack.exitValue();
+
+            // Now convert the snack format into EST pm format
+            double[] pm = new SnackTextfileDoubleDataSource(new FileReader(snackFile)).getAllData();
+
+            WavReader wf = new WavReader(wavFile);
+            int sampleRate = wf.getSampleRate();
+            PitchMarker snackPitchmarker = SignalProcUtils.pitchContour2pitchMarks(pm,sampleRate,wf.getNumSamples(),0.0075,0.01,false);
+            int[] pitchmarkSamples = snackPitchmarker.pitchMarks; 
+
+            float[] pitchmarkSeconds = new float[pitchmarkSamples.length];
+            for (int j=0; j<pitchmarkSeconds.length;j++){
+                pitchmarkSeconds[j] = (float) pitchmarkSamples[j]/ (float) sampleRate; 
+            }
+
             new ESTTrackWriter(pitchmarkSeconds, null, "pitchmarks").doWriteAndClose(pmFile, false, false);
-            
+
             // And correct pitchmark locations
-            pitchmarkSeconds = adjustPitchmarks(wf, pitchmarkSeconds);
-            new ESTTrackWriter(pitchmarkSeconds, null, "pitchmarks").doWriteAndClose(correctedPmFile, false, false);
-                   
+            //pitchmarkSeconds = adjustPitchmarks(wf, pitchmarkSeconds);
+            //new ESTTrackWriter(pitchmarkSeconds, null, "pitchmarks").doWriteAndClose(correctedPmFile, false, false);
+
         }
         return true;
     }
-    
-     /**
+
+    /**
      * Shift the pitchmarks to the closest peak.
      */
     private float[] shiftToClosestPeak( float[] pmIn, short[] w, int sampleRate ) {
-        
+
         final int HORIZON = 32; // <= number of samples to seek before and after the pitchmark
         float[] pmOut = new float[pmIn.length];
-        
+
         /* Browse the pitchmarks */
         int pm = 0;
         int pmwmax = w.length - 1;
@@ -217,18 +232,18 @@ public class SnackPitchmarker extends VoiceImportComponent
                 pmOut[pi] = (float) ( (double)(max) / (double)(sampleRate) );
             }
         }
-        
+
         return pmOut;
     }
-    
+
     /**
      * Shift the pitchmarks to the previous zero crossing.
      */
     private float[] shiftToPreviousZero( float[] pmIn, short[] w, int sampleRate ) {
-        
+
         final int HORIZON = 32; // <= number of samples to seek before the pitchmark
         float[] pmOut = new float[pmIn.length];
-        
+
         /* Browse the pitchmarks */
         int pm = 0;
         int TO = 0;
@@ -253,10 +268,10 @@ public class SnackPitchmarker extends VoiceImportComponent
                 pmOut[pi] = (float) ( (double)( (-w[zero]) <  w[zero+1] ?  zero : (zero+1) ) / (double)(sampleRate) );
             }
         }
-        
+
         return pmOut;
     }
-    
+
     /**
      * Adjust pitchmark position to the zero crossing preceding the closest peak.
      * @param basename basename of the corresponding wav file
@@ -266,7 +281,7 @@ public class SnackPitchmarker extends VoiceImportComponent
     private float[] adjustPitchmarks( WavReader wf, float[] pitchmarks ) throws IOException
     {
         /* Load the wav file */
-        
+
         short[] w = wf.getSamples();
         float[] pmOut = null;
         try {
@@ -279,8 +294,8 @@ public class SnackPitchmarker extends VoiceImportComponent
         }
         return pmOut;
     }
-    
-    
+
+
     /**
      * Provide the progress of computation, in percent, or -1 if
      * that feature is not implemented.
@@ -290,5 +305,4 @@ public class SnackPitchmarker extends VoiceImportComponent
     {
         return percent;
     }
-
 }
