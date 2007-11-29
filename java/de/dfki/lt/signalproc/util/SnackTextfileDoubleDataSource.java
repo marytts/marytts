@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  * @author Marc Schr&ouml;der
@@ -78,6 +79,10 @@ public class SnackTextfileDoubleDataSource extends TextReaderDoubleDataSource
         int i=0;
         try {            
             String line;
+            String strVal;
+            StringTokenizer s;
+            double value;
+            
             List lines = new ArrayList();
             while ((line= reader.readLine())!=null){
                 lines.add(line);
@@ -85,7 +90,14 @@ public class SnackTextfileDoubleDataSource extends TextReaderDoubleDataSource
             int numData = lines.size();
             for (i=0;i<length;i++){
                 if (i>=numData) return i;
-                double value = Double.parseDouble((String)lines.get(i));
+                strVal = (String)lines.get(i);
+                s = new StringTokenizer(strVal);
+                
+                if (s.hasMoreTokens())
+                    value = Double.parseDouble(s.nextToken());
+                else
+                    value = Double.parseDouble(strVal);
+                
                 target[targetPos+i] = value;            
             }
         } catch (IOException ioe) {
@@ -95,8 +107,6 @@ public class SnackTextfileDoubleDataSource extends TextReaderDoubleDataSource
             nfe.printStackTrace();
             return i;
         }
-        return length;
-        
+        return length;  
     }
-    
 }
