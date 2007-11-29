@@ -708,19 +708,25 @@ public class DatabaseLayout
                     setProp(key,value);
             } else {
                 //local prop: get the name of the component
-                String compName = key.substring(0,key.indexOf('.'));
-                //update our representation of local props for this component
-                if (localProps.containsKey(compName)){
-                    ((SortedMap) localProps.get(compName)).put(key,value);
-                } else {
-                    SortedMap keys2values = new TreeMap();
-                    keys2values.put(key,value);
-                    localProps.put(compName,keys2values);
-                    
+                int index = key.indexOf('.');
+
+                if (index>-1)
+                {
+                    String compName = key.substring(0,index);
+
+                    //update our representation of local props for this component
+                    if (localProps.containsKey(compName)){
+                        ((SortedMap) localProps.get(compName)).put(key,value);
+                    } else {
+                        SortedMap keys2values = new TreeMap();
+                        keys2values.put(key,value);
+                        localProps.put(compName,keys2values);
+
+                    }
+                    //update the representation of props in the component
+                    ((VoiceImportComponent) 
+                            compnames2comps.get(compName)).setProp(key,value);
                 }
-                //update the representation of props in the component
-                ((VoiceImportComponent) 
-                        compnames2comps.get(compName)).setProp(key,value);
             }           
         }       
         //finally, save everything in config file
