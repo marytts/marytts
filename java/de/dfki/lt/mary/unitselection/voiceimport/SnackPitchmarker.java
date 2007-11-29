@@ -90,12 +90,11 @@ public class SnackPitchmarker extends VoiceImportComponent
                 props.put(MINPITCH,"75");
                 props.put(MAXPITCH,"300");
             }
+            props.put(SNACKDIR, "c:\\tcl\\lib\\snack2.2\\");
             
             props.put(PMDIR, db.getProp(db.ROOTDIR)
                     +"pm"
                     +System.getProperty("file.separator"));
-            
-            props.put(SNACKDIR, "c:\\tcl\\lib\\snack2.2\\");
         }
         return props;
     }
