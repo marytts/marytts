@@ -449,7 +449,7 @@ public class Vocoder {
           //System.out.println("j:" + j + "  x=" + x + "  c[0]=" + c.get(0));
           x = mlsadf(x, m, a, aa);
           
-          /* i need the low and high bytes!!!  */
+          /* i need the low and high bytes!!!  */ 
           sx = (short)x;
           
           /* BIG-ENDIAN  bigEndian = true*/

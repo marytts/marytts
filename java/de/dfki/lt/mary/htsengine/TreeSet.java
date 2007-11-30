@@ -381,17 +381,21 @@ public class TreeSet {
 		while (aux_node != null ){
 			
 			if( questionMatch(name, aux_node.getQuestion(),debug)) {
-				if(aux_node.getYes().getPdf() > 0 )
+				if(aux_node.getYes().getPdf() > 0 ){
+                    if(debug)
+                      System.out.println("  QMatch=1 node->YES->idx=" + aux_node.getIdx() + "  aux_node.getYes().getPdf()=" + aux_node.getYes().getPdf());
 					return aux_node.getYes().getPdf();
+                }
 				aux_node = aux_node.getYes();
-				if(debug)
-				  System.out.println("  QMatch=1 node->YES->idx=" + aux_node.getIdx());
+				
 			} else {
-				if(aux_node.getNo().getPdf() > 0)
+				if(aux_node.getNo().getPdf() > 0){
+                  if(debug)
+                    System.out.println("  QMatch=0 node->NO->idx=" + aux_node.getIdx() + "  aux_node.getNo().getPdf()=" + aux_node.getNo().getPdf() );  
 				  return(aux_node.getNo().getPdf());
+                }
 				aux_node = aux_node.getNo();
-				if(debug)
-				  System.out.println("  QMatch=0 node->NO->idx=" + aux_node.getIdx());
+				
 			}
 			
 		}
@@ -412,11 +416,12 @@ public class TreeSet {
 		   if( str.contains(pat) ){
 			  if(debug) {  
 			   q.printQuestion();
-               System.out.println("    pattern matched: " + pat);
+               System.out.println("    pattern matched: " + pat + "\n");
 			  }
               return true;
 		   }
 		}
+        
 	    return false;
 		
 	}
