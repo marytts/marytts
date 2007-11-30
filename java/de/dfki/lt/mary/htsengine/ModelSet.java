@@ -102,7 +102,7 @@ public class ModelSet {
 	 * @param diffdur
 	 * @return
 	 */
-	public double findDurPdf(Model m, double rho, double diffdur) {
+	public double findDurPdf(Model m, boolean firstPh, boolean lastPh, double rho, double diffdur) {
 		
 	  double data, mean, variance, dd;
 	  int s;
@@ -114,7 +114,13 @@ public class ModelSet {
 	  int idx = m.getDurPdf()-1;
 	 
 	  dd = diffdur;
-	  
+//      System.out.print("phoneme=" + m.getPhoneName());
+//      if(firstPh)
+//        System.out.print("  firstPh=true");
+//      if(lastPh)
+//          System.out.print("  lastPh=true");
+
+      
 	  for(s=0; s<n_state; s++){
 	    mean = durPdf[idx][s];
 		variance = durPdf[idx][n_state+s];
@@ -122,9 +128,13 @@ public class ModelSet {
         
         //System.out.print("data = " + data + "  ");
         /* check if the model is initial/final pause, if so reduce the length of the pause 
-         * to 10% of the calculated value. */
-        if(m.getPhoneName().contentEquals("_"))
-           data = data * 0.1;   
+         * to 10% of the calculated value. */       
+        if(m.getPhoneName().contentEquals("_") && (firstPh || lastPh )){
+         // System.out.print("  state =" + s + " data=" + data);  
+          data = data * 0.1;
+         // System.out.print("  reduced data=" + data);
+        }
+        
 		
 		m.setDur(s, (int)(data+dd+0.5));
 		if(m.getDur(s) < 1 )
@@ -135,7 +145,7 @@ public class ModelSet {
         
 		dd = dd + ( data - (double)m.getDur(s) );		
 	  }
-	 
+      System.out.println();
 	  return dd; 
 		  		  
     } /* method FindDurPdf */

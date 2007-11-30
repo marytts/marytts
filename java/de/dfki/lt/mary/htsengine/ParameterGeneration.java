@@ -221,7 +221,6 @@ public class ParameterGeneration {
 	/* parameter generation for mcep */    
 	logger.info("Parameter generation for MCEP: ");
     mcepPst.mlpg(htsData);
-    //mcepPst.mlpg(false);
 
     /* parameter generation for lf0 */
     logger.info("Parameter generation for LF0: ");

@@ -54,7 +54,9 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
 import org.apache.log4j.Logger;
 
 
@@ -65,7 +67,7 @@ import org.apache.log4j.Logger;
  * It also contains auxiliar matrices used in maximum likelihood 
  * parameter generation.
  * 
- * Java port and extension of HTS engine version 2.0
+ * Java port and extension of HTS engine version 2.0 and GV from HTS version 2.1alpha.
  * Extension: mixed excitation
  * @author Marcela Charfuelan
  */
@@ -80,7 +82,8 @@ public class PStream {
   private int nT;          /* length, number of frames in utterance */
   private int width;       /* width of dynamic window */
   
-  private double par[][];  /* output parameter vector, the size of this parameter is par[nT][vSize] */ 
+  private double par[][];  /* output parameter vector, the size of this parameter is par[nT][vSize] */
+  
   
   /* ____________________Matrices for parameter generation____________________ */
   private double mseq[][];   /* sequence of mean vector */
@@ -101,7 +104,7 @@ public class PStream {
   /* ____________________ GV related variables ____________________*/
   /* GV: Global mean and covariance (diagonal covariance only) */
   private double mean, var;  /* mean and variance for current utt eqs: (16), (17)*/
-  private int maxGVIter     = 50;      /* max iterations in the speech parameter generation considering GV */
+  private int maxGVIter     = 200;      /* max iterations in the speech parameter generation considering GV */
   private double GVepsilon  = 1.0E-4;  /* convergence factor for GV iteration */
   private double minEucNorm = 1.0E-2;  /* minimum Euclid norm of a gradient vector */ 
   private double stepInit   = 1.0;     /* initial step size */
@@ -128,6 +131,7 @@ public class PStream {
     width = 3;            /* hard-coded to 3, in the c code is:  pst->width = pst->dw.max_L*2+1;  */
                           /* pst->dw.max_L is hard-code to 1, for all windows                     */
     par = new double[nT][order];
+  
    // sm = new SMatrices(T, vSize, width, order);
     
     /* ___________________________Matrices initialisation___________________ */
@@ -168,30 +172,15 @@ public class PStream {
 	System.out.println(""); 
   }
   
+  
   /* mlpg: generate sequence of speech parameter vector maximizing its output probability for 
    * given pdf sequence */
   public void mlpg(HMMData htsData) {
-    
-   if(feaType == HMMData.MCP)   
-    _mlpg(htsData.getUseGV(), htsData.getGVModelSet().getGVmeanMcp(), htsData.getGVModelSet().getGVcovInvMcp());
-   else if(feaType == HMMData.LF0) 
-    _mlpg(htsData.getUseGV(), htsData.getGVModelSet().getGVmeanLf0(), htsData.getGVModelSet().getGVcovInvLf0());
-   else if(feaType == HMMData.STR)   
-    _mlpg(htsData.getUseGV(), htsData.getGVModelSet().getGVmeanStr(), htsData.getGVModelSet().getGVcovInvStr());
-   else if(feaType == HMMData.MAG) 
-    _mlpg(htsData.getUseGV(), htsData.getGVModelSet().getGVmeanMag(), htsData.getGVModelSet().getGVcovInvMag());
-           
-  }
-  
-  
-  /* mlpg: generate sequence of speech parameter vector maximizing its output probability for 
-   * given pdf sequence */
-  public void _mlpg(boolean useGV, double gvmean[], double gvcovInv[]) {
 	 int m,t;
 	 int M = order;
 	 boolean debug=false;
 
-     if(useGV)
+     if( htsData.getUseGV() && (feaType == HMMData.MCP || feaType == HMMData.LF0 ) )
          logger.info("Generation using Global Variance");
      
 	 for (m=0; m<M; m++) {
@@ -200,9 +189,18 @@ public class PStream {
 	   forwardSubstitution();     /* forward substitution in Cholesky decomposition  */
 	   backwardSubstitution(m);   /* backward substitution in Cholesky decomposition */
               
-       if(useGV) {
-         logger.info("Optimization feature: "+ m);    
-         gvParmGen(m, gvmean, gvcovInv);
+       if( htsData.getUseGV() && feaType == HMMData.MCP ) {
+         logger.info("Optimization MCP feature: ("+ m + ")");    
+         gvParmGen(m, htsData.getGVModelSet().getGVmeanMcp(), htsData.getGVModelSet().getGVcovInvMcp());  
+       } else if ( htsData.getUseGV() && feaType == HMMData.LF0 ) {
+           logger.info("Optimization LF0 feature: ("+ m + ")");    
+           gvParmGen(m, htsData.getGVModelSet().getGVmeanLf0(), htsData.getGVModelSet().getGVcovInvLf0());           
+       } else if ( false && feaType == HMMData.STR ) {
+           logger.info("Optimization STR feature: ("+ m + ")");    
+           gvParmGen(m, htsData.getGVModelSet().getGVmeanStr(), htsData.getGVModelSet().getGVcovInvStr());           
+       } else if ( false && feaType == HMMData.MAG ) {
+           logger.info("Optimization MAG feature: ("+ m + ")");    
+           gvParmGen(m, htsData.getGVModelSet().getGVmeanMag(), htsData.getGVModelSet().getGVcovInvMag());           
        }
         
        
@@ -214,6 +212,18 @@ public class PStream {
 	     System.out.println();
 	   }
 	   System.out.println();
+	 }
+     
+	 if(debug) {
+	     if( htsData.getUseGV() && feaType == HMMData.MCP )
+	         saveParam("/project/mary/marcela/gen-test/mcp-gv.bin");  
+	     else if ( !htsData.getUseGV() && feaType == HMMData.MCP ) 
+	         saveParam("/project/mary/marcela/gen-test/mcp.bin");
+
+	     if( htsData.getUseGV() && feaType == HMMData.LF0 )
+	         saveParam("/project/mary/marcela/gen-test/lf0-gv.bin");  
+	     else if ( !htsData.getUseGV() && feaType == HMMData.LF0 ) 
+	         saveParam("/project/mary/marcela/gen-test/lf0e.bin");
 	 }
 	 
   }  /* method mlpg */
@@ -356,12 +366,15 @@ public class PStream {
     double step=stepInit;
     double obj=0.0, prev=0.0;
     double diag[] = new double[nT];
+    double par_ori[] = new double[nT];
     mean=0.0;
     var=0.0;
     int numDown = 0;
     
-    for(t=0; t<nT; t++)
-        g[t] = 0.0;
+    for(t=0; t<nT; t++){
+      g[t] = 0.0;
+      par_ori[t] = par[t][m];  
+    }
     
     /* first convert c (c=par) according to GV pdf and use it as the initial value */
     convGV(m, gvmean, gvcovInv);
@@ -380,7 +393,7 @@ public class PStream {
         /* objective function improved -> increase step size */
         if (obj > prev){
           step *= stepInc;
-          //System.out.println("+++ obj > prev iter=" + iter +"  obj=" + obj + "  < prev=" + prev);
+          //logger.info("+++ obj > prev iter=" + iter +"  obj=" + obj + "  > prev=" + prev);
           numDown = 0;
         }
         
@@ -393,25 +406,25 @@ public class PStream {
               par[t][m] += step * diag[t];
            iter--;
            numDown++;
-           //System.out.println("--- obj < prev iter=" + iter +"  obj=" + obj + "  < prev=" + prev +"  numDown=" + numDown);
+           //logger.info("--- obj < prev iter=" + iter +"  obj=" + obj + "  < prev=" + prev +"  numDown=" + numDown);
            if(numDown < 100)
             continue;
            else {
-             logger.info("***Convergence problems....optimization stopped. Number of iterations: " + iter );
+             logger.info("  ***Convergence problems....optimization stopped. Number of iterations: " + iter );
              break;
            }
         }
           
       } else
-       logger.info("First iteration:  GVobj=" + obj + " (HMMobj=" + HMMobj + "  GVobj=" + GVobj + ")");
+       logger.info("  First iteration:  GVobj=" + obj + " (HMMobj=" + HMMobj + "  GVobj=" + GVobj + ")");
       
       /* convergence check (Euclid norm, objective function) */
       if(norm < minEucNorm || (iter > 1 && Math.abs(obj-prev) < GVepsilon )){
-        logger.info("Number of iterations: " + iter + " GVobj=" + obj + " (HMMobj=" + HMMobj + "  GVobj=" + GVobj + ")");
+        logger.info("  Number of iterations: [   " + iter + "   ] GVobj=" + obj + " (HMMobj=" + HMMobj + "  GVobj=" + GVobj + ")");
         if(iter > 1 )
-            logger.info("Converged (norm=" + norm + ", change=" + Math.abs(obj-prev) + ")");
+            logger.info("  Converged (norm=" + norm + ", change=" + Math.abs(obj-prev) + ")");
         else
-            logger.info("Converged (norm=" + norm + ")");
+            logger.info("  Converged (norm=" + norm + ")");
         break;
       }
       
@@ -424,8 +437,16 @@ public class PStream {
     }
     
     if( iter>maxGVIter ){
-      logger.info("Number of iterations: 50 GVobj=" + obj + " (HMMobj=" + HMMobj + "  GVobj=" + GVobj + ")");
-      logger.info("Optimization stopped by reaching max number of iterations = " + maxGVIter);
+      logger.info("");  
+      logger.info("  Number of iterations: " + maxGVIter + " GVobj=" + obj + " (HMMobj=" + HMMobj + "  GVobj=" + GVobj + ")");
+      logger.info("  Optimization stopped by reaching max number of iterations = " + maxGVIter);
+      logger.info("");
+
+      /* If there it does not converge, the feature parameter is not optimized */
+      for(t=0; t<nT; t++){
+        par[t][m] = par_ori[t];  
+      } 
+      
     }
       
   }
@@ -486,8 +507,10 @@ public class PStream {
        
    }
    
-   //System.out.println("HMMobj=" + HMMobj + "  GVobj=" + GVobj );
+   
    norm = Math.sqrt(norm);
+   //logger.info("HMMobj=" + HMMobj + "  GVobj=" + GVobj + "  norm=" + norm);
+   
    return(HMMobj+GVobj);  
    
   }
@@ -530,6 +553,32 @@ public class PStream {
     //System.out.println("calcGV(1): mean=" + mean + " var=" + var);
       
   }
+  
+  /* Save generated parameters in a binary file */
+  public void saveParam(String fileName){
+    int t, m;
+    try{  
+      DataOutputStream data_out = new DataOutputStream (new FileOutputStream (fileName));
+      
+      for(t=0; t<nT; t++)
+        for (m=0; m<order; m++)
+          data_out.writeFloat((float)par[t][m]);
+      
+      data_out.close();
+      
+      System.out.println("saveParam in file: " + fileName);
+      
+    } catch (IOException e) {
+       System.out.println ("IO exception = " + e );
+    }
+      
+      
+  }
+  
+  
+  
+  
+  
   
 
 } /* class PStream */
