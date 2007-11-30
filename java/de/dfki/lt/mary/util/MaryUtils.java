@@ -842,4 +842,16 @@ public class MaryUtils {
         return Math.sqrt(S/data.length);
     }
 
+    //Return true if the operating system is Windows
+    // return false for other OSs
+    public static boolean isWindows()
+    {
+        String osName = System.getProperty("os.name");
+        osName = osName.toLowerCase();
+        
+        if (osName.indexOf("windows")!=-1)
+            return true;
+        else
+            return false;
+    }
 }
