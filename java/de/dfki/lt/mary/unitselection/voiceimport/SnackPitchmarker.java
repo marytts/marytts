@@ -38,6 +38,7 @@ import java.io.PrintWriter;
 import java.io.FileWriter;
 
 import de.dfki.lt.mary.unitselection.voiceimport.SphinxTrainer.StreamGobbler;
+import de.dfki.lt.mary.util.MaryUtils;
 import de.dfki.lt.signalproc.util.SnackTextfileDoubleDataSource;
 import de.dfki.lt.signalproc.util.SignalProcUtils;
 import de.dfki.lt.signalproc.analysis.PitchMarker;
@@ -143,9 +144,10 @@ public class SnackPitchmarker extends VoiceImportComponent
             String correctedPmFile = getProp(PMDIR) + baseNameArray[i] + correctedPmExt;
             System.out.println("Writing pm file to "+snackFile);
 
-            boolean isWindows = false;
+            boolean isWindows = true;
             String strTmp = scriptFileName + " " + wavFile + " " + snackFile + " " + getProp(MAXPITCH) + " " + getProp(MINPITCH);
-            if (isWindows)
+
+            if (MaryUtils.isWindows())
                 strTmp = "cmd.exe /c " + strTmp;
 
             Process snack = Runtime.getRuntime().exec(strTmp);

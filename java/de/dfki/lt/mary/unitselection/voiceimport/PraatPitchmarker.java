@@ -37,6 +37,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.FileWriter;
 
+import de.dfki.lt.mary.util.MaryUtils;
 import de.dfki.lt.signalproc.util.PraatTextfileDoubleDataSource;
 
 public class PraatPitchmarker extends VoiceImportComponent
@@ -245,8 +246,8 @@ public class PraatPitchmarker extends VoiceImportComponent
         toScript.close();
 
         String strTmp = getProp(COMMAND) + " " + tmpScript;
-        boolean isWindows = false;
-        if (isWindows)
+        
+        if (MaryUtils.isWindows())
             strTmp = "cmd.exe /c " + strTmp;
         
         Process praat = Runtime.getRuntime().exec(strTmp);
