@@ -270,7 +270,9 @@ public class HTSEngine extends InternalModule
         Tree auxTree;
         float fperiodmillisec = ((float)htsData.getFperiod() / (float)htsData.getRate()) * 1000;
         Integer dur;
-
+        boolean firstPh = true; 
+        boolean lastPh = false;
+        
         /* parse text */
         i=0;
         while (s.hasNext()) {
@@ -279,7 +281,11 @@ public class HTSEngine extends InternalModule
             um.addUttModel(new Model(ms));            
 
             m = um.getUttModel(i);
-            m.setName(nextLine);               
+            /* this function also sets the phoneme name, the phoneme between - and + */
+            m.setName(nextLine);  
+            
+            if(!(s.hasNext()) )
+              lastPh = true;
 
             /* Estimate state duration from state duration model (Gaussian) 
              * 1. find the index idx of the durpdf corresponding (or that best match in the tree) 
@@ -291,10 +297,10 @@ public class HTSEngine extends InternalModule
             auxTree = ts.getTreeHead(HMMData.DUR);
             m.setDurPdf( ts.searchTree(nextLine, auxTree.getRoot(), false));
 
-            //System.out.println("dur->pdf=" + m.get_durpdf());
+            //System.out.println("dur->pdf=" + m.getDurPdf());
 
             if (htsData.getLength() == 0.0 ) {
-                diffdurNew = ms.findDurPdf(m, htsData.getRho(), diffdurOld);                
+                diffdurNew = ms.findDurPdf(m, firstPh, lastPh, htsData.getRho(), diffdurOld);                
                 m.setTotalDurMillisec((int)(fperiodmillisec * m.getTotalDur()));                
                 diffdurOld = diffdurNew;
                 um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());
@@ -307,14 +313,14 @@ public class HTSEngine extends InternalModule
             /* Find pdf for LF0 */               
             for(auxTree=ts.getTreeHead(HMMData.LF0), mstate=0; auxTree != ts.getTreeTail(HMMData.LF0); auxTree=auxTree.getNext(), mstate++ ) {           
                 m.setLf0Pdf(mstate, ts.searchTree(nextLine,auxTree.getRoot(),false));
-                //System.out.println("lf0pdf[" + mstate + "]=" + m.get_lf0pdf(mstate));
+                //System.out.println("lf0pdf[" + mstate + "]=" + m.getLf0Pdf(mstate));
                 ms.findLf0Pdf(mstate, m, htsData.getUV());
             }
 
             /* Find pdf for MCP */
             for(auxTree=ts.getTreeHead(HMMData.MCP), mstate=0; auxTree != ts.getTreeTail(HMMData.MCP); auxTree=auxTree.getNext(), mstate++ ) {           
                 m.setMcepPdf(mstate, ts.searchTree(nextLine,auxTree.getRoot(),false));
-                //System.out.println("mceppdf[" + mstate + "]=" + m.get_mceppdf(mstate));
+                //System.out.println("mceppdf[" + mstate + "]=" + m.getMcepPdf(mstate));
                 ms.findMcpPdf(mstate, m);
             }              
 
@@ -322,7 +328,7 @@ public class HTSEngine extends InternalModule
             /* If there is no STRs then auxTree=null=ts.getTreeTail so it will not try to find pdf for strengths */
             for(auxTree=ts.getTreeHead(HMMData.STR), mstate=0; auxTree != ts.getTreeTail(HMMData.STR); auxTree=auxTree.getNext(), mstate++ ) {           
                 m.setStrPdf(mstate, ts.searchTree(nextLine,auxTree.getRoot(),false));
-                //System.out.println("strpdf[" + mstate + "]=" + m.get_strpdf(mstate));
+                //System.out.println("strpdf[" + mstate + "]=" + m.getStrPdf(mstate));
                 ms.findStrPdf(mstate, m);                    
             }
 
@@ -330,7 +336,7 @@ public class HTSEngine extends InternalModule
             /* If there is no MAGs then auxTree=null=ts.getTreeTail so it will not try to find pdf for Fourier magnitudes */
             for(auxTree=ts.getTreeHead(HMMData.MAG), mstate=0; auxTree != ts.getTreeTail(HMMData.MAG); auxTree=auxTree.getNext(), mstate++ ) {           
                 m.setMagPdf(mstate, ts.searchTree(nextLine,auxTree.getRoot(),false));
-                //System.out.println("magpdf[" + mstate + "]=" + m.get_magpdf(mstate));
+                //System.out.println("magpdf[" + mstate + "]=" + m.getMagPdf(mstate));
                 ms.findMagPdf(mstate, m);
             }
 
@@ -340,6 +346,9 @@ public class HTSEngine extends InternalModule
             /* update number of states */
             um.setNumState(um.getNumState() + ms.getNumState());
             i++;
+            
+            if(firstPh)
+              firstPh = false;
         }
 
         for(i=0; i<um.getNumUttModel(); i++){
@@ -379,8 +388,8 @@ public class HTSEngine extends InternalModule
       //htsData.initHMMData("/project/mary/marcela/HTS-mix/hts_engine.config");
       //htsData.initHMMData("/project/mary/sacha/HTS_BITS_24features_stableonly/hts_engine.config");
       //htsData.initHMMData("/project/mary/marcela/HMM-voices/german-hmm-bits1/hts/hts_engine.config");
-      //htsData.initHMMData("/project/mary/marcela/HMM-voices/english-hmm-cmu-arctic-slt/hts/hts_engine.config");
-      htsData.initHMMData("/project/mary/marcela/HTS-2.1alpha-demo_CMU-ARCTIC-SLT/hts_engine.config");
+      htsData.initHMMData("/project/mary/marcela/HMM-voices/english-hmm-cmu-arctic-slt/hts/hts_engine.config");
+      //htsData.initHMMData("/project/mary/marcela/HMM-voices/english-hmm-em001/hts/hts_engine.config");
       
       /** The utterance model, um, is a Vector (or linked list) of Model objects. 
        * It will contain the list of models for current label file. */
@@ -411,8 +420,12 @@ public class HTSEngine extends InternalModule
           
           //System.out.println("saving to file: /project/mary/marcela/HMM-voices/german-hmm-bits1/hts/gen/tmp.wav");
           //File fileOut = new File("/project/mary/marcela/HMM-voices/german-hmm-bits1/hts/gen/tmp.wav");
-          System.out.println("saving to file: /project/mary/marcela/HMM-voices/english-hmm-cmu-arctic-slt/hts/gen/tmp.wav");
-          File fileOut = new File("/project/mary/marcela/HMM-voices/english-hmm-cmu-arctic-slt/hts/gen/tmp.wav");
+          // System.out.println("saving to file: /project/mary/marcela/HMM-voices/english-hmm-cmu-arctic-slt/hts/gen/tmp.wav");
+          // File fileOut = new File("/project/mary/marcela/HMM-voices/english-hmm-cmu-arctic-slt/hts/gen/tmp.wav");
+          
+          System.out.println("saving to file: /project/mary/marcela/HMM-voices/english-hmm-em001/hts/gen/tmp.wav");
+          File fileOut = new File("/project/mary/marcela/HMM-voices/english-hmm-em001/hts/gen/tmp.wav");
+          
           if (AudioSystem.isFileTypeSupported(AudioFileFormat.Type.WAVE,ais)) {
             AudioSystem.write(ais, AudioFileFormat.Type.WAVE, fileOut);
           }
