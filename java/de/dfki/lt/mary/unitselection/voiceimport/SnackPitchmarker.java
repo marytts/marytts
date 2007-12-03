@@ -47,8 +47,8 @@ import de.dfki.lt.signalproc.analysis.PitchMarker;
 public class SnackPitchmarker extends VoiceImportComponent
 {
     protected DatabaseLayout db = null;
-    protected String pmExt = ".pm";
-    protected String correctedPmExt = ".pm.corrected";
+    protected String pmExt = ".pm.corrected";
+    //protected String correctedPmExt = ".pm.corrected";
     protected String snackPmExt = ".snack";
     protected String scriptFileName;
 
@@ -141,7 +141,7 @@ public class SnackPitchmarker extends VoiceImportComponent
             String wavFile = db.getProp(db.WAVDIR) + baseNameArray[i] + db.getProp(db.WAVEXT);
             String snackFile = getProp(PMDIR) + baseNameArray[i] + snackPmExt;
             String pmFile = getProp(PMDIR) + baseNameArray[i] + pmExt;
-            String correctedPmFile = getProp(PMDIR) + baseNameArray[i] + correctedPmExt;
+            //String correctedPmFile = getProp(PMDIR) + baseNameArray[i] + correctedPmExt;
             System.out.println("Writing pm file to "+snackFile);
 
             boolean isWindows = true;
