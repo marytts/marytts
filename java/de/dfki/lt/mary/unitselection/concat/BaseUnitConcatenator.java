@@ -166,6 +166,13 @@ public class BaseUnitConcatenator implements UnitConcatenator
                 int targetLength = (int) (unit.getTarget().getTargetDurationInSeconds() * timeline.getSampleRate());
                 frames = new Datagram[] { createZeroDatagram(targetLength) };
             }
+            int unitDuration = 0;
+            for (int i=0; i<frames.length; i++) {
+                int dur = (int) frames[i].getDuration();
+                unitDuration += frames[i].getDuration();
+            }
+
+            unitData.setUnitDuration(unitDuration);
             unitData.setFrames(frames);
         }
     }
