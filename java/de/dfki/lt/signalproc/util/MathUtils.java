@@ -802,6 +802,28 @@ public class MathUtils {
         
         return maxx;
     }
+  
+    //Return the local peak index for values x[startInd],x[startInd+1],...,x[endInd]
+    // Note that the returned index is in the range [startInd,endInd]
+    // If there is no local peak, -1 is returned. This means that the peak is either at [startInd] or [endInd].
+    // However, it is the responsibility of the calling function to further check this situation as the returned index
+    // will be -1 in both cases
+    public static int getAbsMaxInd(double [] x, int startInd, int endInd)
+    {
+        int index = -1;
+        double max = x[startInd];
+
+        for (int i=startInd+1; i<endInd-1; i++)
+        {
+            if (x[i]>max && x[i]>x[i-1] && x[i]>x[i+1])
+            {
+                max = x[i];
+                index = i;
+            }
+        }
+
+        return index;
+    }
     
     //Return an array where each entry is set to val
     public static double [] filledArray(double val, int len)

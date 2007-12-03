@@ -1,6 +1,10 @@
 package de.dfki.lt.signalproc.util;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Vector;
+
+import sun.text.CompactShortArray.Iterator;
 
 import de.dfki.lt.signalproc.FFT;
 import de.dfki.lt.signalproc.FFTMixedRadix;
@@ -243,6 +247,33 @@ public class SignalProcUtils {
         return pm;
     }
     
+    //Convert pitch marks to pitch contour values in Hz using a fixed analysis rate
+    public static double [] pitchMarks2PitchContour(int [] pitchMarks, float ws, float ss, int samplingRate)
+    {
+        double [] f0s = null;
+        float [] times = samples2times(pitchMarks, samplingRate);
+        int numfrm = (int)Math.floor((times[times.length-1]-0.5*ws)/ss+0.5);
+        
+        if (numfrm>0)
+        {
+            f0s = new double[numfrm];
+         
+            int currentInd;
+            float currentTime;
+            float T0;
+            for (int i=0; i<numfrm; i++)
+            {
+                currentTime = i*ss+0.5f*ws;
+                currentInd = MathUtils.findClosest(times, currentTime);
+             
+                
+                    
+            }
+        }
+        
+        return f0s;
+    }
+    
     // Interpolates unvoiced parts of the f0 contour 
     // using the neighbouring voiced parts
     // Linear interpolation is used
@@ -410,6 +441,12 @@ public class SignalProcUtils {
     public static int freq2index(double freqInHz, int samplingRateInHz, int maxFreqIndex)
     {
         return (int)Math.floor(freqInHz/(0.5*samplingRateInHz)*(maxFreqIndex-1)+0.5);
+    }
+    
+    //Convert a zero based spectrum index value to frequency in Hz
+    public static double index2freq(int freqIndex, int samplingRateInHz, int maxFreqIndex)
+    {
+        return freqIndex*(0.5*samplingRateInHz)/(maxFreqIndex-1);
     }
  
     //Convert sample index to time value in seconds
@@ -781,6 +818,186 @@ public class SignalProcUtils {
     public static double hz2radian(double hz, int samplingRate)
     {
         return hz*MathUtils.TWOPI/samplingRate;
+    }
+    
+    //Median filtering: All values in x are replaced by the median of the 3-closest context neighbours (i.e. the left value, the value itself, and the right value)
+    // The output y[k] is the median of x[k-1], x[k], and x[k+1]
+    // All out-of-boundary values are assumed 0.0
+    public static double[] medianFilter(double[] x)
+    {
+        return medianFilter(x, 3);
+    }
+    
+    //Median filtering: All values in x are replaced by the median of the N closest context neighbours
+    // If N is odd, the output y[k] is the median of x[k-(N-1)/2],...,x[k+(N-1)/2]
+    // If N is even, the output y[k] is the median of x[k-(N/2)+1],...,x[k+(N/2)-1], i.e. the average of the (N/2-1)th and (N/2)th of the sorted values
+    // All out-of-boundary values are assumed 0.0
+    public static double[] medianFilter(double[] x, int N)
+    {
+        return medianFilter(x, N, 0.0);
+    }
+    
+    //Median filtering: All values in x are replaced by the median of the N closest context neighbours
+    // If N is odd, the output y[k] is the median of x[k-(N-1)/2],...,x[k+(N-1)/2]
+    // If N is even, the output y[k] is the median of x[k-(N/2)+1],...,x[k+(N/2)-1], i.e. the average of the (N/2-1)th and (N/2)th of the sorted values
+    // All out-of-boundary values are assumed outOfBound
+    public static double[] medianFilter(double[] x, int N, double outOfBound)
+    {
+        return medianFilter(x, N, outOfBound, outOfBound);
+    }
+    
+    //Median filtering: All values in x are replaced by the median of the N closest context neighbours and the value itself
+    // If N is odd, the output y[k] is the median of x[k-(N-1)/2],...,x[k+(N-1)/2]
+    // If N is even, the output y[k] is the median of x[k-(N/2)+1],...,x[k+(N/2)-1], i.e. the average of the (N/2-1)th and (N/2)th of the sorted values
+    // The out-of-boundary values are assumed leftOutOfBound for k-i<0 and rightOutOfBound for k+i>x.length-1
+    public static double[] medianFilter(double[] x, int N, double leftOutOfBound, double rightOutOfBound)
+    {
+        double [] y = new double[x.length];
+        Vector v = new Vector();
+
+        int k, j, midVal;
+
+        if (N%2==1) //Odd version
+        {
+            midVal = (N-1)/2;
+
+            for (k=0; k<x.length; k++)
+            {
+                for (j=0; j<midVal; j++)
+                {
+                    if (k-j>=0)
+                        v.add(x[k-j]);
+                    else
+                        v.add(leftOutOfBound);
+                }
+                
+                for (j=midVal; j<N; j++)
+                {
+                    if (k+j<x.length)
+                        v.add(x[k+j]);
+                    else
+                        v.add(rightOutOfBound);
+                }
+                
+                Collections.sort(v);
+                
+                y[k] = ((Double)(v.get(midVal))).doubleValue();
+                
+                v.clear();
+            }
+        }
+        else //Even version
+        {
+            midVal = N/2-1;
+
+            for (k=0; k<x.length; k++)
+            {
+                for (j=0; j<=midVal; j++)
+                {
+                    if (k-j>=0)
+                        v.add(x[k-j]);
+                    else
+                        v.add(leftOutOfBound);
+                }
+                
+                for (j=midVal+1; j<N; j++)
+                {
+                    if (k+j<x.length)
+                        v.add(x[k+j]);
+                    else
+                        v.add(rightOutOfBound);
+                }
+                
+                Collections.sort(v);
+                
+                y[k] = 0.5*(((Double)(v.get(midVal))).doubleValue()+((Double)(v.get(midVal+1))).doubleValue());
+                
+                v.clear();
+            }
+        }
+        
+        return y;
+    }
+    
+    //Mean filtering: All values in x are replaced by the mean of the N closest context neighbours and the value itself
+    // If N is odd, the output y[k] is the mean of x[k-(N-1)/2],...,x[k+(N-1)/2]
+    // If N is even, the output y[k] is the mean of x[k-(N/2)+1],...,x[k+(N/2)-1]
+    // The out-of-boundary values are assumed leftOutOfBound for k-i<0 and rightOutOfBound for k+i>x.length-1
+    public static double[] meanFilter(double[] x, int N, double leftOutOfBound, double rightOutOfBound)
+    {
+        double [] y = new double[x.length];
+        Vector v = new Vector();
+
+        int k, j, midVal;
+
+        if (N%2==1) //Odd version
+        {
+            midVal = (N-1)/2;
+
+            for (k=0; k<x.length; k++)
+            {
+                for (j=0; j<midVal; j++)
+                {
+                    if (k-j>=0)
+                        v.add(x[k-j]);
+                    else
+                        v.add(leftOutOfBound);
+                }
+                
+                for (j=midVal; j<N; j++)
+                {
+                    if (k+j<x.length)
+                        v.add(x[k+j]);
+                    else
+                        v.add(rightOutOfBound);
+                }
+                
+                y[k] = mean(v);
+                
+                v.clear();
+            }
+        }
+        else //Even version
+        {
+            midVal = N/2-1;
+
+            for (k=0; k<x.length; k++)
+            {
+                for (j=0; j<=midVal; j++)
+                {
+                    if (k-j>=0)
+                        v.add(x[k-j]);
+                    else
+                        v.add(leftOutOfBound);
+                }
+                
+                for (j=midVal+1; j<N; j++)
+                {
+                    if (k+j<x.length)
+                        v.add(x[k+j]);
+                    else
+                        v.add(rightOutOfBound);
+                }
+                
+                y[k] = mean(v);
+                
+                v.clear();
+            }
+        }
+        
+        return y;
+    }
+    
+    public static double mean(Vector v)
+    {
+        double m = 0.0;
+        
+        for (int i=0; i<v.size(); i++)
+            m += ((Double) (v.get(i))).doubleValue();
+        
+        m /= v.size();
+        
+        return m;
     }
     
     public static void main(String[] args)
