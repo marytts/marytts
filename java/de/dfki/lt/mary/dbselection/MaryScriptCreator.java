@@ -20,6 +20,7 @@ public class MaryScriptCreator {
         String prefix = System.getProperty("prefix", "prompt");
         File outDir = new File(System.getProperty("outdir", "./text"));
         String inputEncoding = System.getProperty("encoding", "UTF-8");
+        boolean ignoreFirst = Boolean.parseBoolean(System.getProperty("ignoreFirst", "true"));
         if (!outDir.exists()) outDir.mkdir();
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in, inputEncoding));
         String line;
@@ -30,14 +31,15 @@ public class MaryScriptCreator {
             // all we do is search for the first and last quotation marks; the rest is ignored
             //int first = line.indexOf('"');
             //int last = line.lastIndexOf('"');
-            int first = line.indexOf(" ");
+            int first = 0;
+            if (ignoreFirst) first = line.indexOf(" ") + 1;
             int last = line.length();
             if (first == -1 || last == -1 || last <= first) {
                 System.err.println("Line no. "+i+" has no space -- skipping: "+line);
             }
             File outFile = new File(outDir, prefix+f.format(i)+".txt");
             PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(outFile), "UTF-8"));
-            out.println(line.substring(first+1, last));
+            out.println(line.substring(first, last));
             out.close();
         }
         
