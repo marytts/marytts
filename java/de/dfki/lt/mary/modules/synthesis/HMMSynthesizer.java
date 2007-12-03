@@ -370,6 +370,8 @@ public class HMMSynthesizer implements WaveformSynthesizer {
       if(ph.get(0).contentEquals("_")) {
          dur.set(1, (dur.get(1) + dur.get(0)) );
          ph.set(0, "");
+         /* remove this element of the vector otherwise next time it will return the same */
+         ph.set(0, "");
       }
       
       for (Element e : tokensAndBoundaries) {
@@ -407,7 +409,9 @@ public class HMMSynthesizer implements WaveformSynthesizer {
              if(e.hasAttribute("duration")) {
                index = ph.indexOf("_");  
              //  System.out.println("duration=" + e.getAttribute("duration") + " " + dur.elementAt(index).toString());  
-               e.setAttribute("duration", dur.elementAt(index).toString());             
+               e.setAttribute("duration", dur.elementAt(index).toString());   
+               /* remove this element of the vector otherwise next time it will return the same */
+               ph.set(index, "");
              //  System.out.println("duration=" + e.getAttribute("duration"));
              }
          } // else ignore whatever other label...
