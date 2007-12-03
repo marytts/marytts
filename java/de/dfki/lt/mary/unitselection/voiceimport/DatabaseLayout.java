@@ -244,19 +244,15 @@ public class DatabaseLayout
                     props.put(lineSplit[0],lineSplit[1]);                    
                 } else {
                     //local prop
-                    int index = lineSplit[0].indexOf('.');
-                    if (index>-1)
-                    {
-                        String compName = lineSplit[0].substring(0,index);
-                        if (localProps.containsKey(compName)){
-                            SortedMap localPropMap = (SortedMap) localProps.get(compName);
-                            localPropMap.put(lineSplit[0],lineSplit[1]);
-                        } else {
-                            SortedMap localPropMap = new TreeMap();
-                            localPropMap.put(lineSplit[0],lineSplit[1]);
-                            localProps.put(compName,localPropMap);
-                        }       
-                    }
+                    String compName = lineSplit[0].substring(0,lineSplit[0].indexOf('.'));
+                    if (localProps.containsKey(compName)){
+                        SortedMap localPropMap = (SortedMap) localProps.get(compName);
+                        localPropMap.put(lineSplit[0],lineSplit[1]);
+                    } else {
+                        SortedMap localPropMap = new TreeMap();
+                        localPropMap.put(lineSplit[0],lineSplit[1]);
+                        localProps.put(compName,localPropMap);
+                    }       
                 }
             }
             in.close(); 
@@ -711,12 +707,7 @@ public class DatabaseLayout
                     setProp(key,value);
             } else {
                 //local prop: get the name of the component
-                int index = key.indexOf('.');
-                String compName;
-                if (index>-1)
-                    compName = key.substring(0,index);
-                else
-                    compName = key;
+                String compName = key.substring(0,key.indexOf('.'));
                 
                 //update our representation of local props for this component
                 if (localProps.containsKey(compName)){
