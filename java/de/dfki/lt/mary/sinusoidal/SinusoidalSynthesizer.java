@@ -231,18 +231,47 @@ public class SinusoidalSynthesizer {
         boolean bAdjustNeighFreqDependent = false;
         double absMaxOriginal;
         
-        if (false)
+        int spectralEnvelopeType = SinusoidalAnalyzer.SEEVOC_SPEC;
+        
+        boolean isFixedRateAnalysis = true;
+        boolean isRealSpeech = true;
+        
+        if (isFixedRateAnalysis)
         {
             //Fixed window size and skip rate analysis
+            double [] f0s = null;
+            float ws_f0 = -1.0f;
+            float ss_f0 = -1.0f;
             sa = new SinusoidalAnalyzer(samplingRate, Window.HANN, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bAdjustNeighFreqDependent);
-            st = sa.analyzeFixedRate(x, 0.020f, 0.010f, deltaInHz);
+            
+            if (spectralEnvelopeType == SinusoidalAnalyzer.SEEVOC_SPEC) //Pitch info needed
+            {
+                if (isRealSpeech)
+                {
+                    String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
+                    F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
+                    f0s = f0.getContour();
+                    ws_f0 = (float) f0.ws;
+                    ss_f0 = (float) f0.ss;
+                }
+                else
+                {
+                    String strPmFile = args[0].substring(0, args[0].length()-4) + ".pm";
+                    int [] pitchMarks = FileUtils.readFromBinaryFile(strPmFile);
+                    ws_f0 = 0.020f;;
+                    ss_f0 = 0.010f;
+                    f0s = SignalProcUtils.pitchMarks2PitchContour(pitchMarks, ws_f0, ss_f0, samplingRate);
+                }
+            }
+                
+            st = sa.analyzeFixedRate(x, 0.020f, 0.010f, deltaInHz, spectralEnvelopeType, f0s, ws_f0, ss_f0);
             absMaxOriginal = sa.getAbsMaxOriginal();
             //
         }
         else
         {
             //Pitch synchronous analysis
-            if (false) //Test using real speech (Make sure .ptc file with identical filename as the wavfile exists)
+            if (isRealSpeech) //Test using real speech (Make sure .ptc file with identical filename as the wavfile exists)
             {
                 String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
                 F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);

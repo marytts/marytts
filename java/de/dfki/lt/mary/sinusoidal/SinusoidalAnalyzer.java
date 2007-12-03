@@ -41,7 +41,9 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.dfki.lt.signalproc.FFT;
 import de.dfki.lt.signalproc.FFTMixedRadix;
+import de.dfki.lt.signalproc.analysis.F0ReaderWriter;
 import de.dfki.lt.signalproc.analysis.LPCAnalyser;
+import de.dfki.lt.signalproc.analysis.SEEVOCAnalyser;
 import de.dfki.lt.signalproc.process.FrameOverlapAddSource;
 import de.dfki.lt.signalproc.process.FrameProvider;
 import de.dfki.lt.signalproc.process.LPCCrossSynthesis;
@@ -70,6 +72,10 @@ public class SinusoidalAnalyzer {
     public static float DEFAULT_ANALYSIS_SKIP_SIZE = 0.010f;
     public static double MIN_ENERGY_TH = 1e-50; //Minimum energy threshold to analyze a frame
     public static double MIN_PEAK_IN_DB = -200.0f;
+    
+    public static int NO_SPEC = -1; //No spectral envelope information is extracted
+    public static int LP_SPEC = 0; //Linear Prediction (LP) based envelope
+    public static int SEEVOC_SPEC = 1; //Sprectral Envelope Estimation Vocoder (SEEVOC) based envelope
     
     protected int fs; //Sampling rate in Hz
     protected int windowType; //Type of window (See class Window for details)
@@ -137,22 +143,6 @@ public class SinusoidalAnalyzer {
     }
     //
     
-    // Fixed window size and skip rate analysis
-    public SinusoidalTracks analyzeFixedRate(double [] x)
-    {
-        return analyzeFixedRate(x, DEFAULT_ANALYSIS_WINDOW_SIZE);
-    }
-    
-    public SinusoidalTracks analyzeFixedRate(double [] x, float winSizeInSeconds)
-    {
-        return analyzeFixedRate(x, winSizeInSeconds, DEFAULT_ANALYSIS_SKIP_SIZE);
-    }
-    
-    public SinusoidalTracks analyzeFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds)
-    {
-        return analyzeFixedRate(x, winSizeInSeconds, skipSizeInSeconds, DEFAULT_DELTA_IN_HZ);
-    }
-    
     public static int getSinAnaFFTSize(int samplingRate)
     { 
         if (samplingRate<10000)
@@ -213,13 +203,88 @@ public class SinusoidalAnalyzer {
      * Fixed rate analysis
      * 
      * x: Speech/Audio signal to be analyzed
+     */
+    public SinusoidalTracks analyzeFixedRate(double [] x)
+    {
+        return analyzeFixedRate(x, DEFAULT_ANALYSIS_WINDOW_SIZE);
+    }
+    
+    /* 
+     * Fixed rate analysis
+     * 
+     * x: Speech/Audio signal to be analyzed
+     * winSizeInSeconds: Integer array of sample indices for pitch period start instants
+     */
+    public SinusoidalTracks analyzeFixedRate(double [] x, float winSizeInSeconds)
+    {
+        return analyzeFixedRate(x, winSizeInSeconds, DEFAULT_ANALYSIS_SKIP_SIZE);
+    }
+    
+    /* 
+     * Fixed rate analysis
+     * 
+     * x: Speech/Audio signal to be analyzed
      * winSizeInSeconds: Integer array of sample indices for pitch period start instants
      * skipSizeInSeconds: Number of pitch periods to be used in analysis
      */
+    public SinusoidalTracks analyzeFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds)
+    {
+        return analyzeFixedRate(x, winSizeInSeconds, skipSizeInSeconds, DEFAULT_DELTA_IN_HZ);
+    }
+    
+    /* 
+     * Fixed rate analysis
+     * 
+     * x: Speech/Audio signal to be analyzed
+     * winSizeInSeconds: Integer array of sample indices for pitch period start instants
+     * skipSizeInSeconds: Number of pitch periods to be used in analysis
+     * deltaInHz: Maximum allowed frequency deviance when creating sinusoidal tracks
+     */
     public SinusoidalTracks analyzeFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz)
     {
-        SinusoidalSpeechSignal sinSignal = extractSinusoidsFixedRate(x, winSizeInSeconds, skipSizeInSeconds, deltaInHz);
-        
+        return analyzeFixedRate(x, winSizeInSeconds, skipSizeInSeconds, deltaInHz, LP_SPEC);
+    }
+    
+    /* 
+     * Fixed rate analysis
+     * 
+     * x: Speech/Audio signal to be analyzed
+     * winSizeInSeconds: Integer array of sample indices for pitch period start instants
+     * skipSizeInSeconds: Number of pitch periods to be used in analysis
+     * deltaInHz: Maximum allowed frequency deviance when creating sinusoidal tracks
+     * spectralEnvelopeType: Spectral envelope estimation method with possible values
+     *                       NO_SPEC (do not compute spectral envelope) 
+     *                       LP_SPEC (linear prediction based envelope)
+     *                       SEEVOC_SPEC (Spectral Envelope Estimation Vocoder based envelope)
+     *                       See below for details...
+     */
+    public SinusoidalTracks analyzeFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz, int spectralEnvelopeType)
+    {
+        return analyzeFixedRate(x, winSizeInSeconds, skipSizeInSeconds, deltaInHz, spectralEnvelopeType, null, -1.0f, -1.0f);
+    }
+    
+    /* 
+     * Fixed rate analysis
+     * 
+     * x: Speech/Audio signal to be analyzed
+     * winSizeInSeconds: Integer array of sample indices for pitch period start instants
+     * skipSizeInSeconds: Number of pitch periods to be used in analysis
+     * deltaInHz: Maximum allowed frequency deviation when creating sinusoidal tracks
+     * spectralEnvelopeType: Spectral envelope estimation method with possible values
+     *                       NO_SPEC (do not compute spectral envelope) 
+     *                       LP_SPEC (linear prediction based envelope)
+     *                       SEEVOC_SPEC (Spectral Envelope Estimation Vocoder based envelope)
+     * f0s: f0 values in Hz (optional, required for SEEVOC based spectral envelope estimation. 
+     *      If not specified, SEEVOC based estimation will be performed at a fixed f0 value of 100.0 Hz    
+     * ws_f0s: Window size in seconds used for f0 extraction (Functional only for SEEVOC based envelope estimation and when f0s are not null)
+     * ss_f0s: Skip size in seconds used for f0 extraction (Functional only for SEEVOC based envelope estimation and when f0s are not null)                      
+     */
+    public SinusoidalTracks analyzeFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz,
+                                             int spectralEnvelopeType, double [] f0s, float ws_f0, float ss_f0)
+    {
+        SinusoidalSpeechSignal sinSignal = extractSinusoidsFixedRate(x, winSizeInSeconds, skipSizeInSeconds, deltaInHz,
+                                                                     spectralEnvelopeType, f0s, ws_f0, ss_f0);
+            
         //Extract sinusoidal tracks
         TrackGenerator tg = new TrackGenerator();
         SinusoidalTracks sinTracks = tg.generateTracks(sinSignal, deltaInHz, fs);
@@ -236,6 +301,19 @@ public class SinusoidalAnalyzer {
     
     public SinusoidalSpeechSignal extractSinusoidsFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz)
     {
+        return extractSinusoidsFixedRate(x, winSizeInSeconds, skipSizeInSeconds, deltaInHz, LP_SPEC);
+    }
+    
+    public SinusoidalSpeechSignal extractSinusoidsFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz,
+                                                            int spectralEnvelopeType)
+    {
+        return extractSinusoidsFixedRate(x, winSizeInSeconds, skipSizeInSeconds, deltaInHz, spectralEnvelopeType, null, -1.0f, -1.0f);
+    }
+    
+    public SinusoidalSpeechSignal extractSinusoidsFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz,
+                                                            int spectralEnvelopeType, double [] f0s, float ws_f0, float ss_f0)
+    {
+        int f0Ind;
         absMax = MathUtils.getAbsMax(x);
         
         ws = (int)Math.floor(winSizeInSeconds*fs + 0.5);
@@ -260,6 +338,7 @@ public class SinusoidalAnalyzer {
         Arrays.fill(isSinusoidNulls, false);
         int totalNonNull = 0;
         int peakCounter;
+        float currentTime;
         
         for (i=0; i<totalFrm; i++)
         {
@@ -269,7 +348,18 @@ public class SinusoidalAnalyzer {
             
             win.applyInline(frm, 0, ws);
             
-            sinSignal.framesSins[i] = analyze_frame(frm);
+            currentTime = (float)((i*ss+0.5*ws)/fs);
+            
+            if (spectralEnvelopeType==SEEVOC_SPEC && f0s!=null)
+            {
+                f0Ind = (int)Math.floor((currentTime*fs-0.5*ws_f0)/ss_f0+0.5);
+                f0Ind = Math.min(f0Ind, f0s.length-1);
+                f0Ind = Math.max(0, f0Ind);
+                sinSignal.framesSins[i] = analyze_frame(frm, spectralEnvelopeType, f0s[f0Ind]);
+            }
+            else
+                sinSignal.framesSins[i] = analyze_frame(frm, spectralEnvelopeType);
+            
             sinSignal.framesSins[i].voicing = (float)SignalProcUtils.getVoicingProbability(frm, fs);
             
             if (sinSignal.framesSins[i]!=null)
@@ -288,7 +378,7 @@ public class SinusoidalAnalyzer {
                 peakCount = sinSignal.framesSins[i].sinusoids.length;
             }   
             
-            sinSignal.framesSins[i].time = (float)((i*ss+0.5*ws)/fs);
+            sinSignal.framesSins[i].time = currentTime;
             
             System.out.println("Analysis complete at " + String.valueOf(sinSignal.framesSins[i].time) + "s. for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm) + "(found " + String.valueOf(peakCount) + " peaks)");
         }
@@ -336,6 +426,19 @@ public class SinusoidalAnalyzer {
     }
 
     public SinusoidalSpeechFrame analyze_frame(double [] frm)
+    { 
+        return analyze_frame(frm, LP_SPEC, -1.0);
+    }
+    
+    public SinusoidalSpeechFrame analyze_frame(double [] frm, int spectralEnvelopeType)
+    { 
+        if (spectralEnvelopeType==SEEVOC_SPEC)
+            return analyze_frame(frm, spectralEnvelopeType, 100.0);
+        else
+            return analyze_frame(frm, spectralEnvelopeType, -1.0);
+    }
+    
+    public SinusoidalSpeechFrame analyze_frame(double [] frm, int spectralEnvelopeType, double f0)
     {   
         SinusoidalSpeechFrame frameSins = null;
 
@@ -406,8 +509,6 @@ public class SinusoidalAnalyzer {
             double [] vocalTractPhase = new double[fftSize/2+1];
             System.arraycopy(tmpPhase, 0, vocalTractPhase, 0, vocalTractPhase.length);
 
-            double [] vocalTractSpec = LPCAnalyser.calcSpecFrame(frm, LPOrder, fftSize);
-
             //Take FFT
             if (MathUtils.isPowerOfTwo(fftSize))
                 FFT.transform(Y.real, Y.imag, false);
@@ -420,6 +521,12 @@ public class SinusoidalAnalyzer {
             for (i=0; i<maxFreq; i++)
                 Ydb[i] = 10*Math.log10(Y.real[i]*Y.real[i]+Y.imag[i]*Y.imag[i]+1e-80);
             //
+            
+            double [] vocalTractSpec = null;
+            if (spectralEnvelopeType==LP_SPEC)
+                vocalTractSpec = LPCAnalyser.calcSpecFrame(frm, LPOrder, fftSize);
+            else if (spectralEnvelopeType==SEEVOC_SPEC)
+                vocalTractSpec = SEEVOCAnalyser.calcSpecEnvelope(Ydb, fs, f0);
 
             //Determine peak amplitude indices and the corresponding amplitudes, frequencies, and phases 
             if (!bManualPeakPickingTest)
@@ -612,6 +719,18 @@ public class SinusoidalAnalyzer {
         
         SinusoidalAnalyzer sa = new SinusoidalAnalyzer(samplingRate, Window.HAMMING, true, true);
         
-        SinusoidalTracks st = sa.analyzeFixedRate(x);        
+        float winSizeInSeconds = 0.020f;
+        float skipSizeInSeconds = 0.010f;
+        float deltaInHz = 50.0f;
+        int spectralEnvelopeType = SinusoidalAnalyzer.SEEVOC_SPEC;
+        
+        String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
+        F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
+        double [] f0s = f0.getContour();
+        float ws_f0 = (float)f0.ws;
+        float ss_f0 = (float)f0.ss;
+        
+        SinusoidalTracks st = sa.analyzeFixedRate(x, winSizeInSeconds, skipSizeInSeconds, deltaInHz,
+                                                  spectralEnvelopeType, f0s , ws_f0, ss_f0);        
     }
 }

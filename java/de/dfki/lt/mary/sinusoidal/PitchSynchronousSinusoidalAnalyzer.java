@@ -101,16 +101,28 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         return analyzePitchSynchronous(x, pitchMarks, numPeriods, skipSizeInSeconds, DEFAULT_DELTA_IN_HZ);
     }
     
+    public SinusoidalTracks analyzePitchSynchronous(double [] x, int [] pitchMarks, float numPeriods, float skipSizeInSeconds, float deltaInHz)
+    {
+        return analyzePitchSynchronous(x, pitchMarks, numPeriods, skipSizeInSeconds, deltaInHz, SinusoidalAnalyzer.LP_SPEC); 
+    }
+    
     /* 
      * Pitch synchronous analysis
      * 
      * x: Speech/Audio signal to be analyzed
      * pitchMarks: Integer array of sample indices for pitch period start instants
      * numPeriods: Number of pitch periods to be used in analysis
+     * skipSizeInSeconds: Skip size for fixed skip rate but pitch synchronous analysis 
+     *                    (Enter -1.0f for using adaptive skip rates of one complete pitch periods)
+     * deltaInHz: Maximum allowed frequency deviation when creating sinusoidal tracks
+     * spectralEnvelopeType: Spectral envelope estimation method with possible values
+     *                       NO_SPEC (do not compute spectral envelope) 
+     *                       LP_SPEC (linear prediction based envelope)
+     *                       SEEVOC_SPEC (Spectral Envelope Estimation Vocoder based envelope)
      */
-    public SinusoidalTracks analyzePitchSynchronous(double [] x, int [] pitchMarks, float numPeriods, float skipSizeInSeconds, float deltaInHz)
+    public SinusoidalTracks analyzePitchSynchronous(double [] x, int [] pitchMarks, float numPeriods, float skipSizeInSeconds, float deltaInHz, int spectralEnvelopeType)
     {
-        SinusoidalSpeechSignal sinSignal = extracSinusoidsPitchSynchronous(x, pitchMarks, numPeriods, skipSizeInSeconds, deltaInHz);
+        SinusoidalSpeechSignal sinSignal = extracSinusoidsPitchSynchronous(x, pitchMarks, numPeriods, skipSizeInSeconds, deltaInHz, spectralEnvelopeType);
         
         //Extract sinusoidal tracks
         TrackGenerator tg = new TrackGenerator();
@@ -126,6 +138,11 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
     }
     
     public SinusoidalSpeechSignal extracSinusoidsPitchSynchronous(double [] x, int [] pitchMarks, float numPeriods, float skipSizeInSeconds, float deltaInHz)
+    {
+        return extracSinusoidsPitchSynchronous(x, pitchMarks, numPeriods, skipSizeInSeconds, deltaInHz, SinusoidalAnalyzer.LP_SPEC);
+    }
+    
+    public SinusoidalSpeechSignal extracSinusoidsPitchSynchronous(double [] x, int [] pitchMarks, float numPeriods, float skipSizeInSeconds, float deltaInHz, int spectralEnvelopeType)
     {
         absMax = MathUtils.getAbsMax(x);
  
@@ -159,6 +176,7 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         
         int pmInd = 0;
         int currentTimeInd = 0;
+        float f0;
         
         for (i=0; i<totalFrm; i++)
         {   
@@ -181,6 +199,8 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
                 else
                     T0 = pitchMarks[pmInd]-pitchMarks[pmInd-1];
             }
+            
+            f0 = ((float)fs)/T0;
             
             ws = (int)Math.floor(numPeriods*T0+ 0.5);
             if (ws%2==0) //Always use an odd window size to have a zero-phase analysis window
@@ -206,7 +226,7 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
             win.normalize(1.0f); //Normalize to sum up to unity
             win.applyInline(frm, 0, ws);
             
-            sinSignal.framesSins[i] = analyze_frame(frm);
+            sinSignal.framesSins[i] = analyze_frame(frm, spectralEnvelopeType, f0);
             sinSignal.framesSins[i].voicing = (float)SignalProcUtils.getVoicingProbability(frm, fs);
             
             if (sinSignal.framesSins[i]!=null)
