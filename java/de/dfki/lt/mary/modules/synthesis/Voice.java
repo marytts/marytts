@@ -34,6 +34,7 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -54,6 +55,9 @@ import javax.sound.sampled.AudioInputStream;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
+
+import com.sun.speech.freetts.en.us.CMULexicon;
+import com.sun.speech.freetts.lexicon.Lexicon;
 
 import de.dfki.lt.freetts.ClusterUnitVoice;
 import de.dfki.lt.freetts.DiphoneVoice;
@@ -136,7 +140,8 @@ public class Voice
     private static Logger logger = Logger.getLogger("Voice");
     /** A local map of already-instantiated target feature computers */
     private static Map<String,TargetFeatureComputer> knownTargetFeatureComputers = new HashMap<String,TargetFeatureComputer>();
-    
+    /** A local map of already-instantiated Lexicons */
+    private static Map<String, Lexicon> lexicons = new HashMap<String, Lexicon>();
 
 
     private List<String> names; // all the names under which this voice is known
@@ -157,7 +162,7 @@ public class Voice
     private Vector<MaryModule> preferredModules;
     private TargetFeatureComputer targetFeatureComputer;
     private TargetFeatureComputer halfphoneTargetFeatureComputer;
-    
+    private Lexicon lexicon;
 
     
     public Voice(String[] nameArray, Locale locale, 
@@ -178,9 +183,12 @@ public class Voice
         this.baseStart = baseStart;
         this.baseEnd = baseEnd;
         fillSampaMap();
-        this.useVoicePAInOutput = MaryProperties.getBoolean("voice."+getName()+".use.voicepa.in.output", true);
-        this.wantToBeDefault = MaryProperties.getInteger("voice."+getName()+".wants.to.be.default", 0);
-        String phonemesetFilename = MaryProperties.getFilename("voice."+getName()+".phonemeset");
+        
+        // Read settings from config file:
+        String header = "voice."+getName();
+        this.useVoicePAInOutput = MaryProperties.getBoolean(header+".use.voicepa.in.output", true);
+        this.wantToBeDefault = MaryProperties.getInteger(header+".wants.to.be.default", 0);
+        String phonemesetFilename = MaryProperties.getFilename(header+".phonemeset");
         if (phonemesetFilename == null && getLocale() != null) {
             // No specific phoneme set for voice, use locale default
             phonemesetFilename = MaryProperties.getFilename(MaryProperties.localePrefix(getLocale())+".phonemeset");
@@ -194,11 +202,14 @@ public class Voice
                 phonemeSet = null;
             }
         }
-        preferredModulesClasses = MaryProperties.getProperty("voice."+getName()+".preferredModules");
+        preferredModulesClasses = MaryProperties.getProperty(header+".preferredModules");
         
         // Determine target feature computer from config settings, if available
         targetFeatureComputer = initTargetFeatureProcessor("targetfeaturelister");
         halfphoneTargetFeatureComputer = initTargetFeatureProcessor("halfphone-targetfeaturelister");
+        String lexiconClass = MaryProperties.getProperty(header+".lexiconClass");
+        String lexiconName = MaryProperties.getProperty(header+".lexicon");
+        lexicon = getLexicon(lexiconClass, lexiconName);
     }
 
     /**
@@ -259,12 +270,14 @@ public class Voice
         }
         return tfc;
     }
+    
 
     /**
      * Constructor for creating a MARY voice from a FreeTTS voice.
      * @param freeTTSVoice an existing FreeTTS voice
      * @param synthesizer the freeTTS synthesizer working with this voice.
      */
+    @Deprecated
     public Voice(com.sun.speech.freetts.Voice freeTTSVoice, WaveformSynthesizer synthesizer)
     {
         this.names = new ArrayList<String>();
@@ -631,6 +644,16 @@ public class Voice
     {
         return synthesizer.synthesize(tokensAndBoundaries, this);
     }
+    
+    /**
+     * Return the lexicon associated to this voice
+     * @return
+     */
+    public Lexicon getLexicon()
+    {
+        return lexicon;
+    }
+
 
 
 
@@ -848,6 +871,67 @@ public class Voice
             logger.debug("Couldn't find any voice at all");
 
         return guessedVoice;
+    }
+
+    /**
+     * Look up in the list of already-loaded lexicons whether the requested lexicon
+     * is known; otherwise, load it.
+     * @param lexiconClass
+     * @param lexiconName
+     * @return the requested lexicon, or null.
+     */
+    private static Lexicon getLexicon(String lexiconClass, String lexiconName)
+    {
+        if (lexiconClass == null) return null;
+        // build the lexicon if not already built
+        Lexicon lexicon = null;
+        if (lexicons.containsKey(lexiconClass+lexiconName)) {
+            return lexicons.get(lexiconClass+lexiconName);
+        }
+        // need to create a new lexicon instance
+        try {
+            logger.debug("...loading lexicon...");
+            if (lexiconName == null) {
+                lexicon = (Lexicon) Class.forName(lexiconClass).newInstance();
+            } else { // lexiconName is String argument to constructor 
+                Class lexCl = Class.forName(lexiconClass);
+                Constructor lexConstr = lexCl.getConstructor(new Class[] {String.class});
+                // will throw a NoSuchMethodError if constructor does not exist
+                lexicon = (Lexicon) lexConstr.newInstance(new Object[] {lexiconName});
+                
+                // Apply our own custom addenda only for cmudict04:
+                if (lexiconName.equals("cmudict04")) {
+                    assert lexicon instanceof CMULexicon : "Expected lexicon to be a CMULexicon";
+                    String customAddenda = MaryProperties.getFilename("english.lexicon.customAddenda");
+                    if (customAddenda != null) {
+                        //create lexicon with custom addenda
+                        logger.debug("...loading custom addenda...");
+                        lexicon.load();
+                        //open addenda file
+                        BufferedReader addendaIn = new BufferedReader(new InputStreamReader(
+                                new FileInputStream(new File(customAddenda)),"UTF-8"));
+                        String line;
+                        while((line = addendaIn.readLine()) != null) {
+                            if (!line.startsWith("#") && !line.equals("")) {
+                                //add all words in addenda to lexicon
+                                StringTokenizer tok = new StringTokenizer(line);
+                                String word = tok.nextToken();
+                                int numPhones = tok.countTokens();
+                                String[] phones = new String[numPhones];
+                                for (int i=0;i<phones.length;i++) {
+                                    phones[i] = tok.nextToken();
+                                }
+                                ((CMULexicon) lexicon).addAddendum(word, null, phones);
+                            }
+                        }
+                    }
+                }
+            }                    
+        } catch (Exception ex) {
+            logger.error("Could not load lexicon "+lexiconClass+"('"+lexiconName+"')", ex);
+        }
+        lexicons.put(lexiconClass+lexiconName, lexicon);
+        return lexicon;
     }
 
 

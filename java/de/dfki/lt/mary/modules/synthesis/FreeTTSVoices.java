@@ -61,14 +61,14 @@ public class FreeTTSVoices
      * <code>de.dfki.lt.mary.modules.synthesis.Voice</code>; the values are
      * instances of <code>com.sun.speech.freetts.Voice</code>.
      */
-    private static Map mary2freettsVoices = null;
+    private static Map<de.dfki.lt.mary.modules.synthesis.Voice, com.sun.speech.freetts.Voice> mary2freettsVoices = null;
     /**
      * The keys in this map are instances of
      * <code>com.sun.speech.freetts.Voice</code>;
      * the values are instances of
      * <code>de.dfki.lt.mary.modules.synthesis.Voice</code>.
      */
-    private static Map freetts2maryVoices = null;
+    private static Map<com.sun.speech.freetts.Voice, de.dfki.lt.mary.modules.synthesis.Voice> freetts2maryVoices = null;
     private static Lexicon usenLexicon = null;
     private static Lexicon deLexicon = null;
     
@@ -114,8 +114,8 @@ public class FreeTTSVoices
     public static void load(de.dfki.lt.mary.modules.synthesis.Voice maryVoice)
     throws NoSuchPropertyException
     {
-        if (mary2freettsVoices == null) mary2freettsVoices = new HashMap();
-        if (freetts2maryVoices == null) freetts2maryVoices = new HashMap();
+        if (mary2freettsVoices == null) mary2freettsVoices = new HashMap<de.dfki.lt.mary.modules.synthesis.Voice, com.sun.speech.freetts.Voice>();
+        if (freetts2maryVoices == null) freetts2maryVoices = new HashMap<com.sun.speech.freetts.Voice, de.dfki.lt.mary.modules.synthesis.Voice>();
         if (mary2freettsVoices.containsKey(maryVoice)) return; // already known
         load(maryVoice, createFreeTTSVoice(maryVoice));
     }
@@ -151,6 +151,7 @@ public class FreeTTSVoices
      * @param maryVoice
      * @return a Lexicon; if it was freshly created, it is not yet loaded.
      */
+    @Deprecated
     private static Lexicon getLexicon(Voice maryVoice)
     {
         if (maryVoice instanceof UnitSelectionVoice) {
@@ -182,11 +183,11 @@ public class FreeTTSVoices
     public static void load(de.dfki.lt.mary.modules.synthesis.Voice maryVoice, com.sun.speech.freetts.Voice freeTTSVoice)
     throws NoSuchPropertyException
     {
-        if (mary2freettsVoices == null) mary2freettsVoices = new HashMap();
-        if (freetts2maryVoices == null) freetts2maryVoices = new HashMap();
+        if (mary2freettsVoices == null) mary2freettsVoices = new HashMap<de.dfki.lt.mary.modules.synthesis.Voice, com.sun.speech.freetts.Voice>();
+        if (freetts2maryVoices == null) freetts2maryVoices = new HashMap<com.sun.speech.freetts.Voice, de.dfki.lt.mary.modules.synthesis.Voice>();
         if (mary2freettsVoices.containsKey(maryVoice)) return; // already known
         if (freeTTSVoice.getLexicon() == null) {
-            Lexicon lex = getLexicon(maryVoice);
+            Lexicon lex = maryVoice.getLexicon();
             freeTTSVoice.setLexicon(lex);
         }
         if (MaryProperties.needAutoBoolean("freetts.lexicon.preload") && !freeTTSVoice.isLoaded()) {
