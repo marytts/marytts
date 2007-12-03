@@ -64,8 +64,9 @@ public class DiphoneUnitSelector extends UnitSelector
         List<Target> targets = new ArrayList<Target>();
         String silenceSymbol = "_"; // in sampa
 
+        // Insert an initial silence with duration 0 (needed as context)
         Item initialSilence = new Item(segs, new ItemContents());
-        initialSilence.getFeatures().setFloat("end", 0.001f);
+        initialSilence.getFeatures().setFloat("end", 0.000f);
         HalfPhoneTarget prev = new HalfPhoneTarget(silenceSymbol+"_R", null, initialSilence, false);
         for (Item s = segs.getHead(); s != null; s = s.getNext()) {
             Element maryxmlElement = (Element) s.getFeatures().getObject("maryxmlElement");
@@ -76,12 +77,13 @@ public class DiphoneUnitSelector extends UnitSelector
             targets.add(new DiphoneTarget(prev, leftHalfPhone));
             prev = rightHalfPhone;
         }
+        // Make sure there is a final silence
         if (!prev.getName().startsWith(silenceSymbol)) {
-            // need to append final silence
+            // need to append final silence of length 0 (needed as context)
             assert prev.getItem().getFeatures().isPresent("end") : "Item '"+prev.getItem()+"' for target '"+prev.getName()+" has no 'end' feature";
             float prevEnd = prev.getItem().getFeatures().getFloat("end");
             Item finalSilence = new Item(segs, new ItemContents());
-            finalSilence.getFeatures().setFloat("end", prevEnd+0.001f);
+            finalSilence.getFeatures().setFloat("end", prevEnd+0.000f); // same end time
             HalfPhoneTarget silence = new HalfPhoneTarget(silenceSymbol+"_L", null, finalSilence, true);
             targets.add(new DiphoneTarget(prev, silence));
         }

@@ -193,47 +193,56 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
         }
         
         // Propagate unit durations to XML tree:
-        int end = 0;
+        float endInSeconds = 0;
+        float durLeftHalfInSeconds = 0;
         for (SelectedUnit su : selectedUnits) {
             Target t = su.getTarget();
             boolean halfphone = (t instanceof HalfPhoneTarget);
             Object concatenationData = su.getConcatenationData();
             assert concatenationData instanceof UnitData;
             UnitData unitData = (UnitData) concatenationData;
+            
+            // For the unit durations, keep record in floats because of precision;
+            // convert to millis only at export time, and re-compute duration in millis
+            // from the end in millis, to avoid discrepancies due to rounding
             int unitDurationInSamples = unitData.getUnitDuration();
             float unitDurationInSeconds = unitDurationInSamples / (float) database.getUnitFileReader().getSampleRate();
-            int unitDurationInMillis = (int) (1000 * unitDurationInSeconds);
-            end += unitDurationInMillis;
+            int prevEndInMillis = (int) (1000 * endInSeconds);
+            endInSeconds += unitDurationInSeconds;
+            int endInMillis = (int) (1000 * endInSeconds);
+            int unitDurationInMillis = endInMillis - prevEndInMillis;
+            if (halfphone) {
+                if (((HalfPhoneTarget)t).isLeftHalf()) {
+                    durLeftHalfInSeconds = unitDurationInSeconds;
+                } else { // right half
+                    // re-compute unit duration from both halves
+                    float totalUnitDurInSeconds = durLeftHalfInSeconds + unitDurationInSeconds;
+                    float prevEndInSeconds = endInSeconds - totalUnitDurInSeconds;
+                    prevEndInMillis = (int) (1000 * prevEndInSeconds);
+                    unitDurationInMillis = endInMillis - prevEndInMillis;
+                    durLeftHalfInSeconds = 0;
+                }
+            }
+            
+            
             Element maryxmlElement = su.getTarget().getMaryxmlElement();
             if (maryxmlElement != null) {
                 if (maryxmlElement.getNodeName().equals(MaryXML.PHONE)) {
-                    int prevD = Integer.parseInt(maryxmlElement.getAttribute("d"));
-                    int prevEnd = Integer.parseInt(maryxmlElement.getAttribute("end"));
+                    int oldD = Integer.parseInt(maryxmlElement.getAttribute("d"));
+                    int oldEnd = Integer.parseInt(maryxmlElement.getAttribute("end"));
 
-                    int d = unitDurationInMillis;
-                    if (halfphone && ((HalfPhoneTarget)t).isRightHalf()) {
-                        d += prevD;
-                    }
-                    
-                    if (prevEnd == prevD) {
+                    if (oldEnd == oldD) {
                         // start new end computation
-                        end = d;
+                        endInSeconds = unitDurationInSeconds;
                     }
-                    maryxmlElement.setAttribute("d", String.valueOf(d));
-                    maryxmlElement.setAttribute("end", String.valueOf(end));
+                    maryxmlElement.setAttribute("d", String.valueOf(unitDurationInMillis));
+                    maryxmlElement.setAttribute("end", String.valueOf(endInMillis));
                 } else { // not a PHONE
                     assert maryxmlElement.getNodeName().equals(MaryXML.BOUNDARY);
-                    int d;
-                    if (halfphone && ((HalfPhoneTarget)t).isRightHalf()) {
-                        int prevD = Integer.parseInt(maryxmlElement.getAttribute("duration"));
-                        d = prevD + unitDurationInMillis;
-                    } else {
-                        d = unitDurationInMillis;
-                    }
-                    maryxmlElement.setAttribute("duration", String.valueOf(d));
+                    maryxmlElement.setAttribute("duration", String.valueOf(unitDurationInMillis));
                 }
             } else {
-                logger.debug("Unit "+su+" of length "+unitDurationInMillis+" ms has no maryxml element.");
+                logger.debug("Unit "+su.getTarget().getName()+" of length "+unitDurationInMillis+" ms has no maryxml element.");
             }
         }
         if (logger.getEffectiveLevel().equals(Level.DEBUG)) {

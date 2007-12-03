@@ -86,7 +86,7 @@ public class OverlapUnitConcatenator extends BaseUnitConcatenator {
             }
             if (unit.getTarget().isSilence()) {
                 int targetDuration = Math.round(unit.getTarget().getTargetDurationInSeconds()*audioformat.getSampleRate());
-                if (datagrams != null && datagrams.length > 0) {
+                if (targetDuration > 0 && datagrams != null && datagrams.length > 0) {
                     int firstPeriodDur = (int) datagrams[0].getDuration();
                     if (targetDuration < firstPeriodDur) {
                         logger.debug("For "+unit+", adjusting target duration to be at least one period: "
