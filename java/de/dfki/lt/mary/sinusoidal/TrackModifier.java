@@ -353,7 +353,7 @@ public class TrackModifier {
 
         int closestInd;
         int closestIndMod;
-        int sysTimeInd, sysFreqInd;
+        int sysTimeInd, sysFreqInd, sysFreqIndMod;
         int currentInd;
         int n0, n0Mod, n0Prev, n0ModPrev;
         int Pm;
@@ -445,7 +445,7 @@ public class TrackModifier {
 
                     sysTimeInd = MathUtils.findClosest(trIn.times, trIn.tracks[i].times[j]);
                     freqInHz = SignalProcUtils.radian2Hz(trIn.tracks[i].freqs[j], trIn.fs);
-                    sysFreqInd = (int)Math.floor(freqInHz/(0.5f*trIn.fs)*(trIn.sysAmps.get(sysTimeInd).length-1) + 0.5);
+                    sysFreqInd = SignalProcUtils.freq2index(freqInHz, trIn.fs, trIn.sysAmps.get(sysTimeInd).length-1);
                     sysFreqInd = Math.min(sysFreqInd, trIn.sysAmps.get(sysTimeInd).length-1);
                     sysFreqInd = Math.max(sysFreqInd, 0);
                     sysAmp = (float)(trIn.sysAmps.get(sysTimeInd)[sysFreqInd]);
@@ -471,22 +471,19 @@ public class TrackModifier {
 
                     if (pScaleCurrent==1.0f)
                     {
+                        sysFreqIndMod = sysFreqInd;
                         sysPhaseMod = sysPhase;
                         sysAmpMod = sysAmp;
                     }
                     else //Modify system phase and amplitude according to pitch scale modification factor
                     {
-                        sysFreqInd = (int)Math.floor(pScaleCurrent*freqInHz/(0.5f*trIn.fs)*(trIn.sysPhases.get(sysTimeInd).length-1) + 0.5);
-                        sysFreqInd = Math.min(sysFreqInd, trIn.sysPhases.get(sysTimeInd).length-1);
-                        sysFreqInd = Math.max(sysFreqInd, 0);
-                        sysPhaseMod = (float)(trIn.sysPhases.get(sysTimeInd)[sysFreqInd]);
-
-                        sysFreqInd = (int)Math.floor(pScaleCurrent*freqInHz/(0.5f*trIn.fs)*(trIn.sysAmps.get(sysTimeInd).length-1) + 0.5);
-                        sysFreqInd = Math.min(sysFreqInd, trIn.sysAmps.get(sysTimeInd).length-1);
-                        sysFreqInd = Math.max(sysFreqInd, 0);
-                        sysAmpMod = (float)(trIn.sysAmps.get(sysTimeInd)[sysFreqInd]);
+                        sysFreqIndMod = SignalProcUtils.freq2index(pScaleCurrent*freqInHz, trIn.fs, trIn.sysPhases.get(sysTimeInd).length-1);
+                        sysFreqIndMod = Math.min(sysFreqIndMod, trIn.sysPhases.get(sysTimeInd).length-1);
+                        sysFreqIndMod = Math.max(sysFreqIndMod, 0);
+                        sysPhaseMod = (float)(trIn.sysPhases.get(sysTimeInd)[sysFreqIndMod]);
+                        sysAmpMod = (float)(trIn.sysAmps.get(sysTimeInd)[sysFreqIndMod]);
                     }
-
+                    
                     trMod.tracks[currentInd].amps[j] = excAmpMod*sysAmpMod;
                     trMod.tracks[currentInd].freqs[j] = freqMod;
                     trMod.tracks[currentInd].phases[j] = sysPhaseMod + excPhaseMod;

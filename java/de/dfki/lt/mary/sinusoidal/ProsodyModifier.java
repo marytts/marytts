@@ -73,7 +73,8 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
                              boolean bRefinePeakEstimatesBias,  
                              boolean bAdjustNeighFreqDependent,
                              boolean isSilentSynthesis,
-                             double absMaxDesired)
+                             double absMaxDesired,
+                             int spectralEnvelopeType)
     {    
         float [] tScales = new float[1];
         float [] tScalesTimes = new float[1];
@@ -102,7 +103,8 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
                        bRefinePeakEstimatesBias,  
                        bAdjustNeighFreqDependent,
                        isSilentSynthesis,
-                       absMaxDesired);
+                       absMaxDesired,
+                       spectralEnvelopeType);
     }
     
     public double [] process(double [] x, 
@@ -122,14 +124,15 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
                              boolean bRefinePeakEstimatesBias,  
                              boolean bAdjustNeighFreqDependent,
                              boolean isSilentSynthesis,
-                             double absMaxDesired)
+                             double absMaxDesired,
+                             int spectralEnvelopeType)
     {    
         //Analysis
         PitchSynchronousSinusoidalAnalyzer pa = new PitchSynchronousSinusoidalAnalyzer(fs, Window.HANN, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bAdjustNeighFreqDependent);
         
         PitchMarker pm = SignalProcUtils.pitchContour2pitchMarks(f0s, fs, x.length, f0_ws, f0_ss, false);
 
-        SinusoidalTracks st = pa.analyzePitchSynchronous(x, pm.pitchMarks, numPeriods, skipSizeInSeconds, deltaInHz);
+        SinusoidalTracks st = pa.analyzePitchSynchronous(x, pm.pitchMarks, numPeriods, skipSizeInSeconds, deltaInHz, spectralEnvelopeType);
         
         /*
         try {
@@ -202,17 +205,20 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
         float timeScalingVoicingThreshold = 0.5f;
         boolean isVoicingAdaptivePitchScaling = true;
         
-        ProsodyModifier cs = new ProsodyModifier(samplingRate);
+        int spectralEnvelopeType = SinusoidalAnalyzer.SEEVOC_SPEC;
+        
+        ProsodyModifier pm = new ProsodyModifier(samplingRate);
         double [] y = null;
 
         if (true)
         {
             float timeScale = 1.0f;
-            float pitchScale = 0.52f;
-            y = cs.process(x, f0.getContour(), (float)f0.ws, (float)f0.ss, 
+            float pitchScale = 2.3f;
+            y = pm.process(x, f0.getContour(), (float)f0.ws, (float)f0.ss, 
                            isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
                            timeScale, pitchScale, skipSizeInSeconds, deltaInHz, numPeriods, 
-                           bRefinePeakEstimatesParabola,  bRefinePeakEstimatesBias,   bAdjustNeighFreqDependent, isSilentSynthesis, absMaxOriginal);
+                           bRefinePeakEstimatesParabola,  bRefinePeakEstimatesBias,   bAdjustNeighFreqDependent, isSilentSynthesis, 
+                           absMaxOriginal, spectralEnvelopeType);
         }
         else
         {
@@ -221,10 +227,11 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
             float [] pitchScales = {2.0f, 1.5f, 0.8f, 0.6f};
             float [] pitchScalesTimes = {0.5f, 1.25f, 2.0f, 2.5f};
 
-            y = cs.process(x, f0.getContour(), (float)f0.ws, (float)f0.ss,
+            y = pm.process(x, f0.getContour(), (float)f0.ws, (float)f0.ss,
                           isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
                           timeScales, timeScalesTimes, pitchScales, pitchScalesTimes, skipSizeInSeconds, deltaInHz, numPeriods,
-                          bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias,   bAdjustNeighFreqDependent, isSilentSynthesis, absMaxOriginal);
+                          bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias,   bAdjustNeighFreqDependent, isSilentSynthesis, 
+                          absMaxOriginal, spectralEnvelopeType);
         }
 
         //File output
