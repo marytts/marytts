@@ -47,8 +47,8 @@ import de.dfki.lt.signalproc.analysis.PitchMarker;
 public class SnackPitchmarker extends VoiceImportComponent
 {
     protected DatabaseLayout db = null;
-    protected String pmExt = ".pm.snack";
-    protected String correctedPmExt = ".pm.corrected.snack";
+    protected String pmExt = ".pm";
+    protected String correctedPmExt = ".pm.corrected";
     protected String snackPmExt = ".snack";
     protected String scriptFileName;
 
