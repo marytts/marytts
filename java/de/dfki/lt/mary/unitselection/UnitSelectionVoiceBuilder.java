@@ -71,11 +71,11 @@ public class UnitSelectionVoiceBuilder
 
     private Map lexicons; // administrate lexicons by name
     private WaveformSynthesizer synth;
-    private Map featureProcessors;
+    private Map<String,FeatureProcessorManager> featureProcessors;
 	
 	public UnitSelectionVoiceBuilder(WaveformSynthesizer synth){
         this.synth = synth;  
-       featureProcessors = new HashMap();
+       featureProcessors = new HashMap<String,FeatureProcessorManager>();
        lexicons = new HashMap();
        logger = Logger.getLogger("UnitSelectionVoiceBuilder");
 	}
@@ -104,67 +104,12 @@ public class UnitSelectionVoiceBuilder
 	            exampleTextFile = MaryProperties.needFilename(header+".exampleTextFile");
 	        }
 	        
-	        //build the lexicon if not already built
-            String lexiconClass = MaryProperties.getProperty(header+".lexiconClass");
-            Lexicon lexicon = null;
-            if (lexiconClass != null) {
-                String lexiconName = MaryProperties.needProperty(header+".lexicon");
-                if (lexicons.containsKey(lexiconClass+lexiconName)) {
-                    lexicon = (Lexicon) lexicons.get(lexiconClass+lexiconName);
-                } else {                     
-                    // need to create a new lexicon instance
-                    logger.debug("...loading lexicon...");
-                    if (lexiconName == null) {
-                        lexicon = (Lexicon) Class.forName(lexiconClass).newInstance();
-                    } else { // lexiconName is String argument to constructor 
-                        Class lexCl = Class.forName(lexiconClass);
-                        Constructor lexConstr = lexCl.getConstructor(new Class[] {String.class});
-                        // will throw a NoSuchMethodError if constructor does not exist
-                        lexicon = (Lexicon) lexConstr.newInstance(new Object[] {lexiconName});
-                        if (lexiconName.equals("cmudict04")){
-                        String customAddenda = MaryProperties.getFilename("english.lexicon.customAddenda");
-                        if (customAddenda != null){
-                            try{
-                                //create lexicon with custom addenda
-                                logger.debug("...loading custom addenda...");
-                                lexicon.load();
-                                //open addenda file
-                                BufferedReader addendaIn = new BufferedReader(
-                                        new InputStreamReader(
-                                                new FileInputStream(
-                                                        new File(customAddenda)),"UTF-8"));
-                                
-                                String line;
-                                while((line = addendaIn.readLine()) != null){
-                                    if (!line.startsWith("#") && !line.equals("")){
-                                        //add all words in addenda to lexicon
-                                        StringTokenizer tok = new StringTokenizer(line);
-                                        String word = tok.nextToken();
-                                        int numPhones = tok.countTokens();
-                                        String[] phones = new String[numPhones];
-                                        for (int i=0;i<phones.length;i++){
-                                            phones[i] = tok.nextToken();
-                                        }
-                                        ((CMULexicon) lexicon).addAddendum(word, null, phones);
-                                    }
-                                }
-                            }catch(Exception e){
-                                e.printStackTrace();
-                                logger.warn("Could not make custom addenda for lexicon cmudict04 because : "
-                                        +e.getMessage());
-                            }
-                        }
-                    }
-                    }
-                    lexicons.put(lexiconClass+lexiconName, lexicon);
-                }
-            }
             
             // build the feature processors if not already built	
 	        String featureProcessorsClass = MaryProperties.needProperty(header+".featureProcessorsClass");
 	        FeatureProcessorManager featProcManager;
 	        if (featureProcessors.containsKey(locale)) {
-	            featProcManager = (FeatureProcessorManager) featureProcessors.get(locale);
+	            featProcManager = featureProcessors.get(locale);
             } else {
                 logger.debug("...instantiating feature processors...");
 	            featProcManager = (FeatureProcessorManager) Class.forName(featureProcessorsClass).newInstance();
@@ -288,7 +233,7 @@ public class UnitSelectionVoiceBuilder
                     nameArray, voiceLocale, unitConcatenator.getAudioFormat(), 
                     synth, voiceGender,
                     topStart, topEnd, baseStart, baseEnd,
-                    lexicon, domain,
+                    domain,
                     exampleTextFile, durationCart, f0Carts,
                     durationCartFeatDef, f0CartsFeatDef);
 	        return v;

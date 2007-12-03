@@ -56,7 +56,6 @@ public class UnitSelectionVoice extends Voice {
     protected UnitDatabase database;
     protected UnitSelector unitSelector;
     protected UnitConcatenator concatenator;
-    protected Lexicon lexicon;
     protected String domain;
     protected String name;
     protected CART durationCart;
@@ -90,8 +89,8 @@ public class UnitSelectionVoice extends Voice {
     public UnitSelectionVoice(UnitDatabase database, UnitSelector unitSelector,
             UnitConcatenator concatenator, String[] nameArray, Locale locale, 
             AudioFormat dbAudioFormat, WaveformSynthesizer synthesizer, 
-            Gender gender, int topStart, int topEnd, int baseStart, int baseEnd, 
-            Lexicon lexicon, String domain,
+            Gender gender, int topStart, int topEnd, int baseStart, int baseEnd,
+            String domain,
             String exampleTextFile, CART durationCart, CART[] f0Carts,
             FeatureDefinition durationCartFeatDef, FeatureDefinition f0CartsFeatDef)
     {
@@ -99,7 +98,6 @@ public class UnitSelectionVoice extends Voice {
         this.database = database; 
         this.unitSelector = unitSelector;
         this.concatenator = concatenator;
-        this.lexicon = lexicon;
         this.domain = domain;
         this.name = nameArray[0];
         if (exampleTextFile != null)
@@ -110,14 +108,6 @@ public class UnitSelectionVoice extends Voice {
         this.f0CartsFeatDef = f0CartsFeatDef;
     }
     
-    /**
-     * Return the lexicon associated to this voice
-     * @return
-     */
-    public Lexicon getLexicon()
-    {
-        return lexicon;
-    }
     
     /**
      * Gets the database of this voice
