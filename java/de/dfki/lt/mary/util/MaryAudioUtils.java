@@ -94,6 +94,9 @@ public class MaryAudioUtils {
         if (name.equals("MP3")) {
             // Supported by tritonus plugin
             at = AudioFileTypes.getType("MP3", "mp3");
+        } else if (name.equals("OGG")) {
+            // supported by tritonus plugin
+            at = new AudioFileFormat.Type("Vorbis", "ogg");
         } else {
             try {
                 at = (AudioFileFormat.Type) AudioFileFormat.Type.class.getField(name).get(null);
@@ -124,6 +127,26 @@ public class MaryAudioUtils {
             AudioSystem.NOT_SPECIFIED,
             false);
             //endianness doesn't matter
+    }
+    
+    /**
+     * Determine whether conversion to ogg vorbis format is possible.
+     */
+    public static boolean canCreateOgg()
+    {
+        return AudioSystem.isConversionSupported(getOggAudioFormat(), Voice.AF22050);
+    }
+    
+    public static AudioFormat getOggAudioFormat()
+    {
+        return new AudioFormat(
+                new AudioFormat.Encoding("VORBIS"),
+                AudioSystem.NOT_SPECIFIED,
+                AudioSystem.NOT_SPECIFIED,
+                1,
+                AudioSystem.NOT_SPECIFIED,
+                AudioSystem.NOT_SPECIFIED,
+                false);
     }
     
     /**
