@@ -303,9 +303,25 @@ THIS SOFTWARE.
 	      </manifest>
 	    </jar>
   </target>
+ 
+ <target name="voiceimport.jar" depends="compile">
+	<jar destfile="${dest}/voiceimport.jar"
+             basedir="${src}"
+             includes="de/dfki/lt/mary/unitselection/voiceimport/*.class
+                       de/dfki/lt/mary/unitselection/voiceimport/*.config
+                       de/dfki/lt/mary/unitselection/voiceimport/*.png">
+        <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Main-Class"
+         value="de.dfki.lt.mary.unitselection.voiceimport.DatabaseImportMain"/>
+        <attribute name="Class-Path" value="mary-common.jar signalproc.jar freetts.jar jsresources.jar log4j-1.2.8.jar"/>
+        </manifest>
+        </jar>
+  </target>
 
 
-  <target name="jars" depends="mary-common.jar,mary-freetts.jar,maryclient.jar,mary-english.jar,mary-tibetan.jar,mary-mbrola.jar,signalproc.jar,emospeak.jar,emospeakapplet.jar,redstart.jar"/>
+
+  <target name="jars" depends="mary-common.jar,mary-freetts.jar,maryclient.jar,mary-english.jar,mary-tibetan.jar,mary-mbrola.jar,signalproc.jar,emospeak.jar,emospeakapplet.jar,redstart.jar,voiceimport.jar"/>
 
 	
 	
