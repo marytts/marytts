@@ -110,6 +110,7 @@ import de.dfki.lt.mary.util.MaryAudioUtils;
  *   <li> AIFF </li>
  *   <li> AIFC </li>
  *   <li> MP3 </li>
+ *   <li> OGG </li>
  *   <li> STREAMING_AU</li>
  *   <li> STREAMING_MP3</li>
  * </ul>
@@ -583,6 +584,10 @@ public class MaryServer {
                     if (!MaryAudioUtils.canCreateMP3())
                         throw new UnsupportedAudioFileException("Conversion to MP3 not supported.");
                     audioFormat = MaryAudioUtils.getMP3AudioFormat();
+                } else if (audioFileFormatType.toString().equals("Vorbis")) {
+                    if (!MaryAudioUtils.canCreateOgg())
+                        throw new UnsupportedAudioFileException("Conversion to OGG Vorbis format not supported.");
+                    audioFormat = MaryAudioUtils.getOggAudioFormat();
                 }
                 audioFileFormat = new AudioFileFormat(audioFileFormatType, audioFormat, AudioSystem.NOT_SPECIFIED);
 
