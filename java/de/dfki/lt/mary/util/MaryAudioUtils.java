@@ -94,7 +94,7 @@ public class MaryAudioUtils {
         if (name.equals("MP3")) {
             // Supported by tritonus plugin
             at = AudioFileTypes.getType("MP3", "mp3");
-        } else if (name.equals("OGG")) {
+        } else if (name.equals("Vorbis")) {
             // supported by tritonus plugin
             at = new AudioFileFormat.Type("Vorbis", "ogg");
         } else {

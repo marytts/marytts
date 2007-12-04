@@ -110,7 +110,7 @@ import de.dfki.lt.mary.util.MaryAudioUtils;
  *   <li> AIFF </li>
  *   <li> AIFC </li>
  *   <li> MP3 </li>
- *   <li> OGG </li>
+ *   <li> Vorbis </li>
  *   <li> STREAMING_AU</li>
  *   <li> STREAMING_MP3</li>
  * </ul>
