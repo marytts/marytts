@@ -11,8 +11,6 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import org.apache.tools.ant.util.StringUtils;
-
 import de.dfki.lt.mary.util.StringUtil;
 import de.dfki.lt.signalproc.process.FrameOverlapAddSource;
 import de.dfki.lt.signalproc.process.InlineDataProcessor;
@@ -125,8 +123,8 @@ public class BaseAudioEffect implements AudioEffect{
     public String preprocessParams(String params)
     {
         String params2 = params;
-        params2 = StringUtils.replace(params2, "=", String.valueOf(chParamEquals));
-        params2 = StringUtils.replace(params2, ",", String.valueOf(chParamSeparator));
+        params2 = params2.replace('=', chParamEquals);
+        params2 = params2.replace(',', chParamSeparator);
         
         return params2;
     }
