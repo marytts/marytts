@@ -158,8 +158,11 @@ public class Synthesis extends InternalModule
         String currentStyle = defaultStyle;
         String currentEffect = defaultEffects;
         Element currentVoiceElement = null;
+        Element currentSentence = null;
         while ((element = (Element) it.nextNode()) != null) {
             Element v = (Element) MaryDomUtils.getAncestor(element, MaryXML.VOICE);
+            Element s = (Element) MaryDomUtils.getAncestor(element, MaryXML.SENTENCE);
+            // Chunk at boundaries between voice sections
             if (v == null) {
                 if (currentVoiceElement != null) {
                     // We have just left a voice section
@@ -202,6 +205,18 @@ public class Synthesis extends InternalModule
                     currentEffect = v.getAttribute("effect");
                 
                 currentVoiceElement = v;
+            }
+            // Chunk at sentence boundaries
+            if (s != currentSentence) {
+                if (!elements.isEmpty()) {
+                    AudioInputStream ais = synthesizeOneSection
+                        (elements, currentVoice, currentStyle, currentEffect, targetFormat);
+                    if (ais != null) {
+                        result.appendAudio(ais);
+                    }
+                    elements.clear();
+                }
+                currentSentence = s;
             }
             elements.add(element);
         }
