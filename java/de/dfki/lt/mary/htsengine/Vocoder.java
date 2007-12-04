@@ -59,6 +59,9 @@ import java.util.Scanner;
 import java.util.Random;
 import java.io.*;
 import javax.sound.sampled.*;
+import de.dfki.lt.signalproc.util.DDSAudioInputStream;
+import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
+import de.dfki.lt.signalproc.util.MathUtils;
 
 import org.apache.log4j.Logger;
 
@@ -267,16 +270,17 @@ public class Vocoder {
 	public AudioInputStream htsMLSAVocoder(ParameterGeneration pdf2par, HMMData htsData) 
     throws Exception {
 
-	  double inc, x;
+	  double inc, x, MaxSample;
 	  short sx;
 	  double xp=0.0,xn=0.0,fxp,fxn,mix;  /* samples for pulse and for noise and the filtered ones */
 	  //float x_exc,x_mix;         /* for saving samples of excitation and mix-excitation   */ 
-	  int i, j, k, m, s, mcepframe, lf0frame; 
+	  int i, j, k, m, s, mcepframe, lf0frame, s_double; 
 	  double a = htsData.getAlpha();
 	  double aa = 1-a*a;
 	 // double beta = htsData.BETA();
 	  int audio_size;  /* audio size in samples, calculated as num frames * frame period */
 	  byte[] audio = null;    /* buffer for audio data */
+      double [] audio_double = null;
       ModelSet ms = htsData.getModelSet();
 	    
       double f0;
@@ -322,8 +326,10 @@ public class Vocoder {
 	  /* _______________________Synthesize speech waveforms_____________________ */
 	  /* generate Nperiod samples per mcepframe */
       s = 0;   /* number of samples */
+      s_double = 0;
       audio_size = (pdf2par.getMcepT()) * (fprd) ;
 	  audio = new byte[audio_size*2];  /* initialise buffer for audio */
+      audio_double = new double[audio_size];  /* initialise buffer for audio */
 	  for(mcepframe=0,lf0frame=0; mcepframe<pdf2par.getMcepT(); mcepframe++) {
        
 		/* get current feature vector mc */ 
@@ -450,6 +456,8 @@ public class Vocoder {
           x = mlsadf(x, m, a, aa);
           
           /* i need the low and high bytes!!!  */ 
+          audio_double[s_double] = x;
+          s_double++;
           sx = (short)x;
           
           /* BIG-ENDIAN  bigEndian = true*/
@@ -513,9 +521,17 @@ public class Vocoder {
       
       long lengthInSamples = audio.length / (sampleSizeInBits/8);
       logger.info("length in samples=" + lengthInSamples + "  audio length=" + audio.length);
-      AudioInputStream ais = new AudioInputStream(bais, af, lengthInSamples);
-     
-      return ais;
+      //AudioInputStream ais = new AudioInputStream(bais, af, lengthInSamples);
+      //return ais;
+      
+      
+      /* Normalise the signal before return, this will normalise between 1 and -1 */
+      MaxSample = MathUtils.getAbsMax(audio_double);
+      for (i=0; i<audio_double.length; i++)
+         audio_double[i] = audio_double[i] / MaxSample;
+      
+      DDSAudioInputStream oais = new DDSAudioInputStream(new BufferedDoubleDataSource(audio_double), af);
+      return oais;
 	  
 	} /* method htsMLSAVocoder() */
 	
