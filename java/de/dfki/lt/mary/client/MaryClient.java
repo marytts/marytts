@@ -969,7 +969,7 @@ public class MaryClient {
             "                          PHONEMISED_DE, INTONISED_DE, POSTPROCESSED_DE, ACOUSTPARAMS or MBROLA,");
         System.err.println("     OUTPUTTYPE is one of TOKENISED_DE, PREPROCESSED_DE, CHUNKED_DE, PHONEMISED_DE");
         System.err.println("                          INTONISED_DE, POSTPROCESSED_DE, ACOUSTPARAMS, MBROLA, or AUDIO,");
-        System.err.println("and AUDIOTYPE is one of AIFC, AIFF, AU, SND, WAVE, MP3, and OGG.");
+        System.err.println("and AUDIOTYPE is one of AIFC, AIFF, AU, SND, WAVE, MP3, and Vorbis.");
         System.err.println("The default values for input.type and output.type are TEXT_DE and AUDIO,");
         System.err.println("respectively; the default audio.type is WAVE.");
         System.err.println();
@@ -996,7 +996,7 @@ public class MaryClient {
             || audioType.equals("SND")
             || audioType.equals("WAVE")
             || audioType.equals("MP3")
-            || audioType.equals("OGG"))) {
+            || audioType.equals("Vorbis"))) {
                 System.err.println("Invalid value '" + audioType + "' for property 'audio.type'");
                 System.err.println();
                 usage();
