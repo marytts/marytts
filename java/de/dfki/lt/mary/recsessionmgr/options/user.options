@@ -1,0 +1,9 @@
+#Settings for Recording Session Manager
+#Fri Jun 15 15:37:08 CEST 2007
+pauseBetweenRec=2000
+bufferAdded=400
+pauseAfterSynth=1000
+mixerIndex=0
+lineIndex=0
+formatIndex=0
+systemLookAndFeel=false

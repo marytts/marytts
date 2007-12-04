@@ -285,8 +285,27 @@ THIS SOFTWARE.
       </manifest>
     </jar>
   </target>
+	
+  <target name="redstart.jar" depends="compile">
+	    <jar destfile="${dest}/redstart.jar"
+	         basedir="${src}"
+	         includes="de/dfki/lt/mary/recsessionmgr/**/*.class
+	                   de/dfki/lt/mary/recsessionmgr/**/*.wav
+	                   de/dfki/lt/mary/recsessionmgr/**/*.options
+	                   de/dfki/lt/mary/recsessionmgr/**/*.png">
+	      <manifest>
+	        <attribute name="Built-By" value="${user.name}"/>
+	        <attribute name="Main-Class"
+	                   value="de.dfki.lt.mary.recsessionmgr.Redstart"/>
+	        <attribute name="Class-Path"
+	                   value="signalproc.jar swing-layout-1.0.jar jsresources.jar"/>
 
-  <target name="jars" depends="mary-common.jar,mary-freetts.jar,maryclient.jar,mary-english.jar,mary-tibetan.jar,mary-mbrola.jar,signalproc.jar,emospeak.jar,emospeakapplet.jar"/>
+	      </manifest>
+	    </jar>
+  </target>
+
+
+  <target name="jars" depends="mary-common.jar,mary-freetts.jar,maryclient.jar,mary-english.jar,mary-tibetan.jar,mary-mbrola.jar,signalproc.jar,emospeak.jar,emospeakapplet.jar,redstart.jar"/>
 
 	
 	
@@ -323,43 +342,6 @@ THIS SOFTWARE.
     	            <arg line="-generate_binary ${clunit_voice}.txt ${feature_def} ${value_dir}"/>
     	</java>
 	</target>
-
-	<!-- cluster unit voice - make binary 
-		Builds the .bin file from the .txt file of a Clunit Voice.
-		The arguments are:
-		- clunit_voice : the voice name and, at the same time, the name
-		  of the voice's directory
-		- feature_def : the name of the file defining the features 
-		  and their weights. This file should be in the directory of
-		  the voice 
-		- value_dir : the directory containing the features. This should 
-		  also be in the voice's directory 
-		
-		
-		ant import_unitsel_voice -Dvoice=<voicename> 
-			-Dfestvox_dir=<directory of festvox data> 
-			-Dtarget_feats=<filename of target feature file>
-            -Djoin_feats=<filename of join feature file>
-            [-Daudio_encod=<audioEncoding (at present, only LPC supported)>]
-            
-	-->
-	    <target name="import_unitsel_voice" 
-	            if="voice"
-		    description="Make binaries for ${voice}">
-	         
-	    	<java classpathref="project.classpath" classname="de.dfki.lt.mary.unitselection.voiceimport.CentralDatabase"
-	    		
-	    		      failonerror="true" 
-	    		      fork="true">
-	       		    <jvmarg value="-Xmx250m"/>
-	    		    <arg line="${voice}"/>
-	    			<arg line="${mary.base}"/>
-	    	        <arg line="${festvox_dir}"/>
-	    	        <arg line="${target_feats}"/>
-	    			<arg line="${join_feats}"/>
-	    			
-	    	</java>
-		</target>
 	
 	 
 	<target name="SpeechSynthesisTool"> 
