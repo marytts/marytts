@@ -67,8 +67,8 @@ THIS SOFTWARE.
 
   <target name="compile" depends="version">
     <!-- Compile the java code from ${src} -->
-    <javac srcdir="${src}" classpathref="project.classpath" source="1.4"
-           target="1.4" encoding="UTF-8" debug="on"/>
+    <javac srcdir="${src}" classpathref="project.classpath" source="1.5"
+           target="1.5" encoding="UTF-8" debug="on"/>
   </target>
 
 
@@ -97,7 +97,7 @@ THIS SOFTWARE.
              author="true"
              version="true"
              use="true"
-             source="1.4"
+             source="1.5"
              access="protected"
              encoding="UTF-8"
              overview="${src}/de/dfki/lt/mary/overview.html"
