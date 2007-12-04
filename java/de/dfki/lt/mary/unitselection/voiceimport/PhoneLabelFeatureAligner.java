@@ -133,7 +133,8 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         
         if (remainingProblems>0){
             //show option for automatically correcting pauses
-            remainingProblems = correctPausesYesNo(remainingProblems);
+            //remainingProblems = correctPausesYesNo(remainingProblems);
+            remainingProblems = correctPauses();
         }
                
         int guiReturn = SKIP;
