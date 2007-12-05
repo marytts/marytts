@@ -95,12 +95,12 @@ import de.dfki.lt.mary.modules.TargetFeatureLister;
 
 
 import de.dfki.lt.mary.htsengine.HMMData;
-import de.dfki.lt.mary.htsengine.Model;
-import de.dfki.lt.mary.htsengine.ModelSet;
-import de.dfki.lt.mary.htsengine.ParameterGeneration;
-import de.dfki.lt.mary.htsengine.TreeSet;
-import de.dfki.lt.mary.htsengine.UttModel;
-import de.dfki.lt.mary.htsengine.Vocoder;
+import de.dfki.lt.mary.htsengine.HTSModel;
+import de.dfki.lt.mary.htsengine.HTSModelSet;
+import de.dfki.lt.mary.htsengine.HTSParameterGeneration;
+import de.dfki.lt.mary.htsengine.HTSTreeSet;
+import de.dfki.lt.mary.htsengine.HTSUttModel;
+import de.dfki.lt.mary.htsengine.HTSVocoder;
 import de.dfki.lt.mary.htsengine.HMMVoice;
 
 import de.dfki.lt.mary.modules.synthesis.Voice.Gender;
@@ -212,18 +212,10 @@ public class HMMSynthesizer implements WaveformSynthesizer {
                     samplingRate, // nr. of frames per second
                     false);
             
-            //Voice v = new Voice (new String[] { voiceName },locale, format, this, gender, -1, -1, -1, -1);
-            //Voice.registerVoice(v);
             
            /** When creating a HMMVoice object it should create and initialise a 
             * TreeSet ts, a ModelSet ms and load the context feature list used in this voice. */
             
-           /* HMMVoice(String[] nameArray, Locale locale, 
-              AudioFormat dbAudioFormat, WaveformSynthesizer synthesizer, 
-              Gender gender, int topStart, int topEnd, int baseStart, int baseEnd,
-              String Ftd, String Ftf, String Ftm, String Fts, String Fta, 
-              String Fmd, String Fmf, String Fmm, String Fms, String Fma,
-              String FeaList, String Flab, String Fif, int nFilters, int norderFilters) */
             HMMVoice v = new HMMVoice (new String[] { voiceName },
                 locale, format, this, gender, -1, -1, -1, -1,
                 MaryProperties.getFilename("voice."+voiceName+".Ftd"),     /* Tree DUR */
@@ -259,7 +251,6 @@ public class HMMSynthesizer implements WaveformSynthesizer {
       */
      public synchronized void powerOnSelfTest() throws Error
      {
-         // copied from FreeTTSSynthesiyer poweronSelfTest() CHECK??
 
          logger.info("Starting power-on self test.");
          try {
@@ -356,7 +347,6 @@ public class HMMSynthesizer implements WaveformSynthesizer {
       Integer totalDur = 0;
       Integer auxDur = 0;
       
-      //System.out.println("ACOUSTPARAMS:\n" + durations);
       
       s = new Scanner(durations).useDelimiter("\n");
       while(s.hasNext()) {
@@ -364,7 +354,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
          str = line.split(" ");
          ph.add(htsContextTranslator.replaceBackTrickyPhones(str[0]));
          dur.add(Integer.valueOf(str[1]));
-         //System.out.println("phone=" + str[0] + " dur=" + str[1]); 
+         
       }
       /* the duration of the first phoneme includes de duration of of the initial pause */
       if(ph.get(0).contentEquals("_")) {
@@ -375,18 +365,18 @@ public class HMMSynthesizer implements WaveformSynthesizer {
       }
       
       for (Element e : tokensAndBoundaries) {
-        // System.out.println("element=" + e.getTagName());
+        
          if( e.getTagName().contentEquals(MaryXML.TOKEN) ) {
           no1 = e.getChildNodes();
           for(i=0; i< no1.getLength(); i++) {
             if(no1.item(i).getNodeName().contentEquals(MaryXML.SYLLABLE)) {
-           //   System.out.println("elem1=" +  no1.item(i).getNodeName());
+           
               no2 = no1.item(i).getChildNodes();
               for(j=0; j<no2.getLength(); j++){
-             //   System.out.println("elem2=" +  no2.item(j).getNodeName());
+             
                 if( no2.item(j).getNodeName().contentEquals(MaryXML.PHONE) ) {
                    att = no2.item(j).getAttributes(); 
-                   //  System.out.println(att.getNamedItem("p") + " " + att.getNamedItem("d") + " " + att.getNamedItem("end"));
+                   
                    
                    if( ( index = ph.indexOf(att.getNamedItem("p").getNodeValue()) ) >= 0 ){ 
                      totalDur = totalDur + dur.elementAt(index);
@@ -398,8 +388,6 @@ public class HMMSynthesizer implements WaveformSynthesizer {
                    } else
                        throw new SynthesisException("problems phoneme " + att.getNamedItem("p") + " NOT found in HTSEngine phoneme set");
                    
-                  // System.out.println(att.getNamedItem("p") + " " + att.getNamedItem("d") + " " + att.getNamedItem("end") + "\n");
-                   
                 } else
                     throw new SynthesisException("setActualDurations: problem parsing PHONE in List<Element> tokensAndBoundaries.");               
               }              
@@ -408,11 +396,11 @@ public class HMMSynthesizer implements WaveformSynthesizer {
          } else if( e.getTagName().contentEquals(MaryXML.BOUNDARY) ) {
              if(e.hasAttribute("duration")) {
                index = ph.indexOf("_");  
-             //  System.out.println("duration=" + e.getAttribute("duration") + " " + dur.elementAt(index).toString());  
+             
                e.setAttribute("duration", dur.elementAt(index).toString());   
                /* remove this element of the vector otherwise next time it will return the same */
                ph.set(index, "");
-             //  System.out.println("duration=" + e.getAttribute("duration"));
+             
              }
          } // else ignore whatever other label...
             

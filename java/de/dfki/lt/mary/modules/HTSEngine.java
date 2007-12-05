@@ -51,13 +51,13 @@
 package de.dfki.lt.mary.modules;
 
 import de.dfki.lt.mary.htsengine.HMMData;
-import de.dfki.lt.mary.htsengine.Model;
-import de.dfki.lt.mary.htsengine.ModelSet;
-import de.dfki.lt.mary.htsengine.ParameterGeneration;
-import de.dfki.lt.mary.htsengine.Tree;
-import de.dfki.lt.mary.htsengine.TreeSet;
-import de.dfki.lt.mary.htsengine.UttModel;
-import de.dfki.lt.mary.htsengine.Vocoder;
+import de.dfki.lt.mary.htsengine.HTSModel;
+import de.dfki.lt.mary.htsengine.HTSModelSet;
+import de.dfki.lt.mary.htsengine.HTSParameterGeneration;
+import de.dfki.lt.mary.htsengine.HTSTree;
+import de.dfki.lt.mary.htsengine.HTSTreeSet;
+import de.dfki.lt.mary.htsengine.HTSUttModel;
+import de.dfki.lt.mary.htsengine.HTSVocoder;
 import de.dfki.lt.mary.htsengine.HMMVoice;
 
 import de.dfki.lt.mary.modules.synthesis.Voice;
@@ -139,9 +139,9 @@ public class HTSEngine extends InternalModule
     {
         /** The utterance model, um, is a Vector (or linked list) of Model objects. 
          * It will contain the list of models for current label file. */
-        UttModel um = new UttModel();
-        ParameterGeneration pdf2par = new ParameterGeneration();
-        Vocoder par2speech = new Vocoder();
+        HTSUttModel um = new HTSUttModel();
+        HTSParameterGeneration pdf2par = new HTSParameterGeneration();
+        HTSVocoder par2speech = new HTSVocoder();
         AudioInputStream ais;
               
         Voice v = d.getDefaultVoice(); /* This is the way of getting a Voice through a MaryData type */
@@ -185,9 +185,9 @@ public class HTSEngine extends InternalModule
     public AudioInputStream processStr(String context, HMMData htsData)
     throws Exception
     {
-        UttModel um = new UttModel();
-        ParameterGeneration pdf2par = new ParameterGeneration();
-        Vocoder par2speech = new Vocoder();
+        HTSUttModel um = new HTSUttModel();
+        HTSParameterGeneration pdf2par = new HTSParameterGeneration();
+        HTSVocoder par2speech = new HTSVocoder();
         AudioInputStream ais;
         
         /* htsData contains:
@@ -222,7 +222,7 @@ public class HTSEngine extends InternalModule
      *  creates an scanner object and calls _ProcessUtt
      * @param LabFile
      */
-    public void processUttFromFile(String LabFile, UttModel um, HMMData htsData){ 
+    public void processUttFromFile(String LabFile, HTSUttModel um, HMMData htsData){ 
         Scanner s = null;
         try {    
             /* parse text in label file */
@@ -242,7 +242,7 @@ public class HTSEngine extends InternalModule
      * and calls _ProcessUtt
      * @param LabText
      */
-    public void processUtt(String LabText, UttModel um, HMMData htsData) {
+    public void processUtt(String LabText, HTSUttModel um, HMMData htsData) {
         Scanner s = null;
         try {
           s = new Scanner(LabText);
@@ -261,13 +261,13 @@ public class HTSEngine extends InternalModule
      * It also estimates state duration from state duration model (Gaussian).
      * For each model in the vector, the mean and variance of the DUR, LF0, MCP, STR and MAG 
      * are searched in the ModelSet and copied in each triphone model.   */
-    private void _processUtt(Scanner s, UttModel um, HMMData htsData, TreeSet ts, ModelSet ms){     
+    private void _processUtt(Scanner s, HTSUttModel um, HMMData htsData, HTSTreeSet ts, HTSModelSet ms){     
         int i, mstate,frame;
-        Model m;                   /* current model, corresponds to a line in label file */
+        HTSModel m;                   /* current model, corresponds to a line in label file */
         String nextLine;
         double diffdurOld = 0.0;
         double diffdurNew = 0.0;
-        Tree auxTree;
+        HTSTree auxTree;
         float fperiodmillisec = ((float)htsData.getFperiod() / (float)htsData.getRate()) * 1000;
         Integer dur;
         boolean firstPh = true; 
@@ -278,7 +278,7 @@ public class HTSEngine extends InternalModule
         while (s.hasNext()) {
             nextLine = s.next();
             //System.out.println("STR: " + nextLine);
-            um.addUttModel(new Model(ms));            
+            um.addUttModel(new HTSModel(ms));            
 
             m = um.getUttModel(i);
             /* this function also sets the phoneme name, the phoneme between - and + */
@@ -369,7 +369,7 @@ public class HTSEngine extends InternalModule
     
     
     /** 
-     * Stand alone testing using an HTSCONTEXT_EN file as input.
+     * Stand alone testing using an HTSCONTEXT file as input. 
      * @param args
      * @throws IOException
      */
@@ -385,17 +385,13 @@ public class HTSEngine extends InternalModule
        * TreeSet: Contains the tree-xxx.inf, xxx: dur, lf0, mcp, str and mag 
        *          these are all the trees trained for a particular voice. */
       HMMData htsData = new HMMData();
-      //htsData.initHMMData("/project/mary/marcela/HTS-mix/hts_engine.config");
-      //htsData.initHMMData("/project/mary/sacha/HTS_BITS_24features_stableonly/hts_engine.config");
-      //htsData.initHMMData("/project/mary/marcela/HMM-voices/german-hmm-bits1/hts/hts_engine.config");
       htsData.initHMMData("/project/mary/marcela/HMM-voices/english-hmm-cmu-arctic-slt/hts/hts_engine.config");
-      //htsData.initHMMData("/project/mary/marcela/HMM-voices/english-hmm-em001/hts/hts_engine.config");
-      
+    
       /** The utterance model, um, is a Vector (or linked list) of Model objects. 
        * It will contain the list of models for current label file. */
-      UttModel um = new UttModel();
-      ParameterGeneration pdf2par = new ParameterGeneration();
-      Vocoder par2speech = new Vocoder();
+      HTSUttModel um = new HTSUttModel();
+      HTSParameterGeneration pdf2par = new HTSParameterGeneration();
+      HTSVocoder par2speech = new HTSVocoder();
       AudioInputStream ais;
       
       /** Example of HTSCONTEXT_EN context features file */
@@ -415,29 +411,14 @@ public class HTSEngine extends InternalModule
 
           /* Synthesize speech waveform, generate speech out of sequence of parameters */
           ais = par2speech.htsMLSAVocoder(pdf2par, htsData);
-
-          
-          
-          //System.out.println("saving to file: /project/mary/marcela/HMM-voices/german-hmm-bits1/hts/gen/tmp.wav");
-          //File fileOut = new File("/project/mary/marcela/HMM-voices/german-hmm-bits1/hts/gen/tmp.wav");
-          // System.out.println("saving to file: /project/mary/marcela/HMM-voices/english-hmm-cmu-arctic-slt/hts/gen/tmp.wav");
-          // File fileOut = new File("/project/mary/marcela/HMM-voices/english-hmm-cmu-arctic-slt/hts/gen/tmp.wav");
-          
-          System.out.println("saving to file: /project/mary/marcela/HMM-voices/english-hmm-em001/hts/gen/tmp.wav");
-          File fileOut = new File("/project/mary/marcela/HMM-voices/english-hmm-em001/hts/gen/tmp.wav");
+     
+          System.out.println("saving to file: /project/mary/marcela/HMM-voices/english-hmm-cmu-arctic-slt/hts/gen/tmp.wav");
+          File fileOut = new File("/project/mary/marcela/HMM-voices/english-hmm-cmu-arctic-slt/hts/tmp.wav");
           
           if (AudioSystem.isFileTypeSupported(AudioFileFormat.Type.WAVE,ais)) {
             AudioSystem.write(ais, AudioFileFormat.Type.WAVE, fileOut);
           }
 
-          /*
-          ais.reset();
-          System.out.println("Calling audioplayer:");
-          AudioPlayer player = new AudioPlayer(ais, null);
-          player.start();  // this call the run method..
-          player.join();
-          System.out.println("audioplayer finished...");
-          */
           System.exit(0);
 
       } catch (Exception e) {
