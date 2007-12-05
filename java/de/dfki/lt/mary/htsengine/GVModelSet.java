@@ -99,33 +99,7 @@ public class GVModelSet {
   public void loadGVModelSet(HMMData htsData) throws Exception {
     
     /* allocate memory for the arrays and load the data from file */
- /* OJO I need the order of the static vectors here, but i do not know until 
-  * i  know dwin, so I need to encode that in the gv-*.pdf file 
-  * for exmample when converting for big-endian to little endian */     
-      
-    /* GV for Mcp */
-    //gvmeanMcp = new double[htsData.getModelSet().getMcepVsize()/3];
-    //gvcovInvMcp = new double[htsData.getModelSet().getMcepVsize()/3];
-  //  loadGVSet(htsData.getPdfMcpGVFile(), gvmeanMcp, gvcovInvMcp);
-    
-    /* GV for Lf0 */
-    //gvmeanLf0 = new double[htsData.getModelSet().getLf0Stream()/3];
-    //gvcovInvLf0 = new double[htsData.getModelSet().getLf0Stream()/3];
-  //  loadGVSet(htsData.getPdfLf0GVFile(), gvmeanLf0, gvcovInvLf0);
 
-    /* GV for Str */
-    //gvmeanStr = new double[htsData.getModelSet().getStrVsize()/3];
-    //gvcovInvStr = new double[htsData.getModelSet().getStrVsize()/3];
-  //  loadGVSet(htsData.getPdfStrGVFile(), gvmeanStr, gvcovInvStr);
-    
-    /* GV for Mag */
-    //gvmeanMag = new double[htsData.getModelSet().getMagVsize()/3];
-    //gvcovInvMag = new double[htsData.getModelSet().getMagVsize()/3];
-  //  loadGVSet(htsData.getPdfMagGVFile(), gvmeanMag, gvcovInvMag);
-      
- // }
-  
- // private void loadGVSet(String gvFile, double gvmean[], double gvcovInv[]) throws Exception  {
     double gvcov;
     int order;
     DataInputStream data_in;

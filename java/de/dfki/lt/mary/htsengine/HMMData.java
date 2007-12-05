@@ -102,7 +102,7 @@ public class HMMData {
     
      /** TreeSet contains the tree-xxx.inf, xxx: dur, lf0, mcp, str and mag 
      * these are all the trees trained for a particular voice. */
-    private TreeSet ts = new TreeSet(HTS_NUMMTYPE);
+    private HTSTreeSet ts = new HTSTreeSet(HTS_NUMMTYPE);
 	
     /** HMM pdf model files and ModelSet object */
 	private String pdfDurFile;  /* durations Pdf file */
@@ -113,7 +113,7 @@ public class HMMData {
     
      /** ModelSet contains the .pdf's (means and variances) for dur, lf0, mcp, str and mag
      * these are all the HMMs trained for a particular voice */   
-    private ModelSet ms = new ModelSet();
+    private HTSModelSet ms = new HTSModelSet();
 	
     /** GV pdf files*/
     /** Global variance file, it contains one global mean vector and one global diagonal covariance vector */
@@ -177,8 +177,8 @@ public class HMMData {
 	public int getNumFilters(){ return numFilters; }
 	public int getOrderFilters(){ return orderFilters; }
     
-    public TreeSet getTreeSet() { return ts; }       
-    public ModelSet getModelSet() { return ms; }
+    public HTSTreeSet getTreeSet() { return ts; }       
+    public HTSModelSet getModelSet() { return ms; }
     public GVModelSet getGVModelSet() { return gv; }
  
     public void setTreeDurFile(String str) { treeDurFile = str; } 

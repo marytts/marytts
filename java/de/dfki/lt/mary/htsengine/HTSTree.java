@@ -49,61 +49,43 @@
 
 package de.dfki.lt.mary.htsengine;
 
+import java.util.Vector;
+
+
 /**
- * Node of a tree.
+ * Decision trees.
  * 
  * Java port and extension of HTS engine version 2.0
  * Extension: mixed excitation
  * @author Marcela Charfuelan
  */
-public class Node {
+public class HTSTree {
 
-	private int idx;         /* index of this node */
-	private int pdf;         /* index of pdf for this node  ( leaf node only ) */
-	
-	private Node yes;        /* link to child node (yes) */
-	private Node no;         /* link to child node (no)  */
-	private Node next;       /* link to next node  */  
-	
-	private Question quest;  /* question applied at this node */
-
-	
-	public void setIdx(int var){ idx = var; }
-	public int getIdx(){ return idx; }
-	
-	public void setPdf( int var){ pdf = var; }
-	public int getPdf(){ return pdf; }
-
-	public void insertNext(){ next = new Node(); }
-	public void setNext(Node nnode){ next = nnode; }
-	public Node getNext(){ return next; }
-	
-	public void setQuestion(Question q){ quest = q; }
-	public Question getQuestion(){ return quest; }
-	
-	public void insertNo(){ no = new Node(); }
-	public Node getNo(){ return no; }
-	
-	public void insertYes(){ yes = new Node(); }
-	public Node getYes(){ return yes; }
-	
-	
-	public void printNode(){
-		System.out.println("Printing node: ");
-		System.out.println("  idx=" + idx);
-		System.out.println("  pdf=" + pdf);
-		if ( quest != null )
-		  quest.printQuestion();
-		if ( no != null )
-		  System.out.println("  Node no=" + no + "  idx=" + no.getIdx());
-		else
-		  System.out.println("  Node no=" + no);
-		if ( yes != null )
-		  System.out.println("  Node yes=" + yes + "  idx=" + yes.getIdx());
-		else
-		  System.out.println("  Node yes=" + yes);
-		System.out.println("  Node next=" + next);
-		System.out.println();
+	private int state;  /* state position of this tree */
+	private HTSNode root;  /* root node of this decision tree */
+    private HTSNode leaf;  /* leaf nodes of this decision tree */
+    private HTSTree next;  /* link to next tree */
+    
+    private Vector pattern;  /* pattern list for this tree */
+    
+    /* Every time a new Tree is created a new vector of patterns is created */
+	public HTSTree(){
+		state = 0;
+		root = null;
+		leaf = null;
+		next = null;
+		pattern = new Vector();
 	}
+	public void insertNext(){ next = new HTSTree(); }
+	public HTSTree getNext(){ return next; }
+	
+	public void setState(int var){ state = var; }
+	public int getState(){ return state; }
+	
+	public void setRoot(HTSNode rnode){ root = rnode; }
+	public HTSNode getRoot(){ return root; }
+
+	public void setLeaf(HTSNode lnode){ leaf = lnode; }
+	public HTSNode getLeaf(){ return leaf; }
 	
 }

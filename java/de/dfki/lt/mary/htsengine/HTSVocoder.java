@@ -74,7 +74,7 @@ import org.apache.log4j.Logger;
  * Extension: mixed excitation
  * @author Marcela Charfuelan 
  */
-public class Vocoder {
+public class HTSVocoder {
   
 	public static final int RANDMAX = 32767;
 	
@@ -84,20 +84,10 @@ public class Vocoder {
 	public static final int B28     = 0x10000000;
 	public static final int B31     = 0x80000000;
 	public static final int B31_    = 0x7fffffff;
-	public static final int Z       = 0x00000000;
-	
-	/* OJO!! check what this value should be??? 
-	 * for the moment i left like this...., it seems that it is not used during c compilation */
-	// public static final boolean HTS_EMBEDDED = false; 	
-	//if HTS_EMBEDDED ){
-    //  public static final int GAUSS     = 0;
-	//  public static final int PADEORDER = 4;  /* pade order (for MLSA filter) */
-	//  public static final int IRLENG    = 64; /* length of impulse response */
-	//} else {
+	public static final int Z       = 0x00000000;	
 	public static final boolean GAUSS = true;
 	public static final int PADEORDER = 5;
 	public static final int IRLENG    = 96;
-	//}
 	
     private Logger logger = Logger.getLogger("Vocoder");
     
@@ -117,24 +107,6 @@ public class Vocoder {
 	int pt1;
 	int pt2;
 	int pt3[];
-
-	/* postfiltering variables */
-	//private int size;
-	/* private double d[]; 
-	 * private double g[];
-	 * the previous replaced by a class SlideVector d, also includes pointers:
-	 * pt1 = &d[pd+1] in function mlsadf1() 
-	 * pt2 = &d[pd * (m+2)]; */
-	//private SlideVector d;
-	 
-	/* private double mc[];
-	 * private double cep[];
-	 * private double ir[]; 
-	 * the previous replaced by a class SlideVector mc */
-	//private SlideVector mc;
-	
-	//private int o;
-	//private int irleng;  
 
 	/* mixed excitation variables */  
 	private int numM;          /* Number of bandpass filters for mixed excitation */
@@ -209,9 +181,6 @@ public class Vocoder {
 		p1 = -1;
  		pc = 0.0;  /* double */
 	
-		/* for postfiltering */
-		//irleng = IRLENG;
-
 	} /* method initVocoder */
 	
 	
@@ -267,21 +236,18 @@ public class Vocoder {
      *   PStream magpst : Fourier magnitudes ( OJO!! this is not used yet)
      *   PStream lf0pst : Log F0  
      */
-	public AudioInputStream htsMLSAVocoder(ParameterGeneration pdf2par, HMMData htsData) 
+	public AudioInputStream htsMLSAVocoder(HTSParameterGeneration pdf2par, HMMData htsData) 
     throws Exception {
 
 	  double inc, x, MaxSample;
 	  short sx;
 	  double xp=0.0,xn=0.0,fxp,fxn,mix;  /* samples for pulse and for noise and the filtered ones */
-	  //float x_exc,x_mix;         /* for saving samples of excitation and mix-excitation   */ 
 	  int i, j, k, m, s, mcepframe, lf0frame, s_double; 
 	  double a = htsData.getAlpha();
 	  double aa = 1-a*a;
-	 // double beta = htsData.BETA();
 	  int audio_size;  /* audio size in samples, calculated as num frames * frame period */
-	  byte[] audio = null;    /* buffer for audio data */
       double [] audio_double = null;
-      ModelSet ms = htsData.getModelSet();
+      HTSModelSet ms = htsData.getModelSet();
 	    
       double f0;
       double mc[] = null;  /* feature vector for a particular frame */
@@ -314,31 +280,17 @@ public class Vocoder {
       called more than once with a new set of generated parameters. */
       c.clearContent();   
 	    
-	  
-	  
-	 // try{
-    
-	  // these binaries for testing...
-     // DataOutputStream data_out = new DataOutputStream (new FileOutputStream ("/project/mary/marcela/MaryClientUserHMM/gen/tmp.raw"));
-     // DataOutputStream pulse_out = new DataOutputStream (new FileOutputStream ("/project/mary/marcela/MaryClientUserHMM/gen/pulse.bin"));
-     // DataOutputStream mix_out = new DataOutputStream (new FileOutputStream ("/project/mary/marcela/MaryClientUserHMM/gen/mix.bin"));
-      
 	  /* _______________________Synthesize speech waveforms_____________________ */
 	  /* generate Nperiod samples per mcepframe */
       s = 0;   /* number of samples */
       s_double = 0;
       audio_size = (pdf2par.getMcepT()) * (fprd) ;
-	  audio = new byte[audio_size*2];  /* initialise buffer for audio */
       audio_double = new double[audio_size];  /* initialise buffer for audio */
 	  for(mcepframe=0,lf0frame=0; mcepframe<pdf2par.getMcepT(); mcepframe++) {
        
 		/* get current feature vector mc */ 
-          //System.out.print("Frame: " + mcepframe + "  ");
-		for(i=0; i<m; i++){
-		  mc[i] = pdf2par.getMcep(mcepframe, i);
-          //System.out.print("mc[" + i + "]=" + mc[i] ); 
-        }
-        //System.out.println(); 
+		for(i=0; i<m; i++)
+		  mc[i] = pdf2par.getMcep(mcepframe, i); 
         
         /* f0 modification */
 	    if(pdf2par.getVoiced(mcepframe)){
@@ -347,9 +299,7 @@ public class Vocoder {
 	    }
 	    else
 	      f0 = 0.0;
-	   
-	    //System.out.println("\nmcepframe=" + mcepframe + " --> f0=" + f0 );
-	  
+	     
 	    /* if mixed excitation get shaping filters for this frame */
         if(mixedExcitation){
           for(j=0; j<orderM; j++) {
@@ -374,7 +324,7 @@ public class Vocoder {
 	   	/* mc2b: transform mel-cepstrum to MLSA digital fillter coefficients */
 	     mc2b(mc,m,a);
 	   
-	    /* postfiltering  ( OJO!!! not implemented yet )*/
+	    /* postfiltering  ( Not implemented yet )*/
 	    /* this is done if beta>0.0 */
 	    
 	    for(k=0; k<m; k++){
@@ -392,7 +342,7 @@ public class Vocoder {
 	    }
 	    
 	    /* Here i need to generate both xp:pulse and xn:noise signals separately  */ 
-	    gauss = false; /* OJO! mixed excitation works better with nomal noise??? check!!! */
+	    gauss = false; /* Mixed excitation works better with nomal noise */
 	  
 	    /* Generate fperiod samples per feature vector, normally 80 samples per frame */
 	    //p1=0.0;
@@ -442,8 +392,6 @@ public class Vocoder {
           
             /* x is a pulse noise excitation and mix is mixed excitation */
             mix = fxp+fxn;
-            // pulse_out.writeFloat((float)x);
-            // mix_out.writeFloat((float)mix);
       
             /* comment this line if no mixed excitation, just pulse and noise */
             x = mix;   /* excitation sample */
@@ -452,26 +400,10 @@ public class Vocoder {
           if(x != 0.0 )
         	x *= Math.exp(c.getContent(0));
                    
-          //System.out.println("j:" + j + "  x=" + x + "  c[0]=" + c.get(0));
           x = mlsadf(x, m, a, aa);
           
-          /* i need the low and high bytes!!!  */ 
           audio_double[s_double] = x;
           s_double++;
-          sx = (short)x;
-          
-          /* BIG-ENDIAN  bigEndian = true*/
-          //audio[s]   = (byte)(sx >>> 8); /* byte high */
-          //audio[s+1] = (byte)sx;         /* byte low, cast implies & 0xff*/
-          //s = s+2;                       /* increment number of samples in bytes */
-          
-          /* LITTLE-ENDIAN bigEndian = false */
-          audio[s]   = (byte)sx;         /* byte low, cast implies & 0xff*/
-          audio[s+1] = (byte)(sx >>> 8); /* byte high */
-          s = s+2;                       /* increment number of samples in bytes */
-          
-          /* write speech sample in a binary file */
-        //  data_out.writeShort((short)x);
           
           if((--i) == 0 ) {
             p1 += inc;
@@ -491,22 +423,9 @@ public class Vocoder {
           c.setContent(i, c.getCC(i));
 	  
 	  } /* for each mcep frame */
-	  
-      // Close file when finished with it..
-     // mix_out.close();
-     // pulse_out.close();
-     // data_out.close();
+	
       logger.info("Finish processing " + mcepframe + " mcep frames." + "  Num samples in bytes s=" + s );
-      //System.out.println("Finish generating: /project/mary/marcela/MaryClientUserHMM/gen/tmp.raw");
-      //System.out.println("Finish generating: /project/mary/marcela/MaryClientUserHMM/gen/pulse.bin");
-      //System.out.println("Finish generating: /project/mary/marcela/MaryClientUserHMM/gen/mix.bin");
-	  
-	 // }
-	   // catch (IOException e) {
-	   //    System.out.println ("IO exception = " + e );
-	 // }
-		
-	  ByteArrayInputStream bais = new ByteArrayInputStream(audio);
+    	
 	  float sampleRate = 16000.0F;  //8000,11025,16000,22050,44100
       int sampleSizeInBits = 16;  //8,16
       int channels = 1;     //1,2
@@ -519,11 +438,8 @@ public class Vocoder {
     		  signed,
     		  bigEndian);
       
-      long lengthInSamples = audio.length / (sampleSizeInBits/8);
-      logger.info("length in samples=" + lengthInSamples + "  audio length=" + audio.length);
-      //AudioInputStream ais = new AudioInputStream(bais, af, lengthInSamples);
-      //return ais;
-      
+      long lengthInSamples = (audio_double.length * 2 ) / (sampleSizeInBits/8);
+      logger.info("length in samples=" + lengthInSamples );
       
       /* Normalise the signal before return, this will normalise between 1 and -1 */
       MaxSample = MathUtils.getAbsMax(audio_double);

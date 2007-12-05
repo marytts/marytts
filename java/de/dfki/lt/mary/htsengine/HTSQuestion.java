@@ -49,54 +49,55 @@
 
 package de.dfki.lt.mary.htsengine;
 
-
 import java.util.Vector;
 
-/**
- * list of Model objects for current utterance.
- * 
- * Java port and extension of HTS engine version 2.0
- * Extension: mixed excitation
- * @author Marcela Charfuelan
- */
-public class UttModel {
 
-  private int numModel;             /* # of models for current utterance       */
-  private int numState;             /* # of HMM states for current utterance   */ 
-  private int totalFrame;           /* # of frames for current utterance       */
-  private int lf0Frame;             /* # of frames that are voiced or non-zero */
-  private Vector<Model> modelList;  /* This will be a list of Model objects for current utterance */
-  private String realisedAcoustParams;  /* list of phonemes and actual realised durations for each one */
-  
-  public UttModel() {
-	numModel = 0;
-	numState = 0;
-	totalFrame = 0;
-	lf0Frame = 0;
-	modelList = new Vector<Model>();
-    realisedAcoustParams = "";
-  }
-  
-  public void setNumModel(int val){ numModel = val; }
-  public int getNumModel(){ return numModel; }
-  
-  public void setNumState(int val){ numState = val; }
-  public int getNumState(){ return numState; }
-  
-  public void setTotalFrame(int val){ totalFrame = val; }
-  public int getTotalFrame(){ return totalFrame; }
-  
-  public void setLf0Frame(int val){ lf0Frame = val; }
-  public int getLf0Frame(){ return lf0Frame; }
-  
-  public void addUttModel(Model newModel){ modelList.addElement(newModel); }
-  public Model getUttModel(int i){ return (Model) modelList.elementAt(i); 	}
-  public int getNumUttModel(){ return modelList.size(); }
-  
-  public void setRealisedAcoustParams(String str){ realisedAcoustParams = str;}
-  public String getRealisedAcoustParams(){ return realisedAcoustParams; }
-  public void concatRealisedAcoustParams(String str){
-      realisedAcoustParams = realisedAcoustParams + str;
-  }
-  
+/** The question class contains a name of the question and its patterns.  
+* The vector (or linked list) pat will contain the list of               
+* patterns in a question, for example for the question QS L-vc-          
+* in file: /project/mary/marcela/HTS-mix/voices/qst001/ver1/tree-mcp.inf 
+* QS L-vc- { "*^d-*","*^n-*","*^p-*","*^s-*","*^t-*","*^z-*" }           
+*   qName = L-vc-     
+*   pat[0] = *^d-*    
+*   pat[1] = *^n-*    
+*   ...               
+*   pat[5] = *^z-*    
+* Vector will contain a list of patterns which are Strings.   
+* 
+* Java port and extension of HTS engine version 2.0
+* Extension: mixed excitation
+* @author Marcela Charfuelan
+*/
+public class HTSQuestion {
+
+	private String qName; 
+	private Vector<String> pattern;
+	private HTSQuestion next;
+	
+	/* Every time a new Question is created a new vector of patterns is created */
+	public HTSQuestion(){
+		qName = null;
+		next = null;
+		pattern = new Vector<String>();
+	}
+	
+	public void setQuestionName(String var){ qName = var; }
+	public String getQuestionName(){ return qName; }
+	
+	public void addPattern(String pat){ pattern.addElement(pat); }
+	public String getPattern(int i){ return (String) pattern.elementAt(i); 	}
+	public int getNumPatterns(){ return pattern.size(); }
+	
+	public void printQuestion(){
+	  int i;
+	  System.out.println("    qName: " + qName);
+	  System.out.print("    patterns: ");
+	  for(i=0; i<pattern.size(); i++)
+		System.out.print(pattern.elementAt(i) + " ");
+	  System.out.println();
+	}
+	
+	public void insertNext(){ next = new HTSQuestion(); }
+	public HTSQuestion getNext(){ return next; }
+	
 }

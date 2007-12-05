@@ -49,44 +49,61 @@
 
 package de.dfki.lt.mary.htsengine;
 
-import java.util.Vector;
-
-
 /**
- * Decision trees.
+ * Node of a tree.
  * 
  * Java port and extension of HTS engine version 2.0
  * Extension: mixed excitation
  * @author Marcela Charfuelan
  */
-public class Tree {
+public class HTSNode {
 
-	private int state;  /* state position of this tree */
-	private Node root;  /* root node of this decision tree */
-    private Node leaf;  /* leaf nodes of this decision tree */
-    private Tree next;  /* link to next tree */
-    
-    /* i am not sure if this is needed??? what is it used for??? */
-    private Vector pattern;  /* pattern list for this tree */
-    
-    /* Every time a new Tree is created a new vector of patterns is created */
-	public Tree(){
-		state = 0;
-		root = null;
-		leaf = null;
-		next = null;
-		pattern = new Vector();
+	private int idx;         /* index of this node */
+	private int pdf;         /* index of pdf for this node  ( leaf node only ) */
+	
+	private HTSNode yes;        /* link to child node (yes) */
+	private HTSNode no;         /* link to child node (no)  */
+	private HTSNode next;       /* link to next node  */  
+	
+	private HTSQuestion quest;  /* question applied at this node */
+
+	
+	public void setIdx(int var){ idx = var; }
+	public int getIdx(){ return idx; }
+	
+	public void setPdf( int var){ pdf = var; }
+	public int getPdf(){ return pdf; }
+
+	public void insertNext(){ next = new HTSNode(); }
+	public void setNext(HTSNode nnode){ next = nnode; }
+	public HTSNode getNext(){ return next; }
+	
+	public void setQuestion(HTSQuestion q){ quest = q; }
+	public HTSQuestion getQuestion(){ return quest; }
+	
+	public void insertNo(){ no = new HTSNode(); }
+	public HTSNode getNo(){ return no; }
+	
+	public void insertYes(){ yes = new HTSNode(); }
+	public HTSNode getYes(){ return yes; }
+	
+	
+	public void printNode(){
+		System.out.println("Printing node: ");
+		System.out.println("  idx=" + idx);
+		System.out.println("  pdf=" + pdf);
+		if ( quest != null )
+		  quest.printQuestion();
+		if ( no != null )
+		  System.out.println("  Node no=" + no + "  idx=" + no.getIdx());
+		else
+		  System.out.println("  Node no=" + no);
+		if ( yes != null )
+		  System.out.println("  Node yes=" + yes + "  idx=" + yes.getIdx());
+		else
+		  System.out.println("  Node yes=" + yes);
+		System.out.println("  Node next=" + next);
+		System.out.println();
 	}
-	public void insertNext(){ next = new Tree(); }
-	public Tree getNext(){ return next; }
-	
-	public void setState(int var){ state = var; }
-	public int getState(){ return state; }
-	
-	public void setRoot(Node rnode){ root = rnode; }
-	public Node getRoot(){ return root; }
-
-	public void setLeaf(Node lnode){ leaf = lnode; }
-	public Node getLeaf(){ return leaf; }
 	
 }

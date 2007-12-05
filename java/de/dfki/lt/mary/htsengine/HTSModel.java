@@ -59,7 +59,7 @@ package de.dfki.lt.mary.htsengine;
  * Extension: mixed excitation
  * @author Marcela Charfuelan
  */
-public class Model {
+public class HTSModel {
   
   private String name;              /* the name of this HMM, it includes ph(-2)^ph(-1)-ph(0)+ph(1)=ph(2) + context features */
   private String phoneName;         /* the name of the phone corresponding to this model, ph(0) in name */
@@ -171,7 +171,7 @@ public class Model {
   
   /* Constructor */
   /* Every Model is initialised with the information in ModelSet*/
-  public Model(ModelSet ms){
+  public HTSModel(HTSModelSet ms){
 	int i, nstate;  
 	totalDur = 0;
 	nstate = ms.getNumState();

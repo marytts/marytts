@@ -64,13 +64,13 @@ import org.apache.log4j.Logger;
  * Extension: mixed excitation
  * @author Marcela Charfuelan
  */
-public class TreeSet {
+public class HTSTreeSet {
     
-	private int nTrees[];      /* # of trees for DUR, logF0, MCP, STR and MAG */
-	private Question qhead[];  /* question lists for DUR, logF0, MCP, STR and MAG */
-	private Question qtail[];
-	private Tree thead[];      /* tree lists for DUR, logF0, MCP, STR and MAG */
-	private Tree ttail[];
+	private int nTrees[];         /* # of trees for DUR, logF0, MCP, STR and MAG */
+	private HTSQuestion qhead[];  /* question lists for DUR, logF0, MCP, STR and MAG */
+	private HTSQuestion qtail[];
+	private HTSTree thead[];      /* tree lists for DUR, logF0, MCP, STR and MAG */
+	private HTSTree ttail[];
     
     private Logger logger = Logger.getLogger("TreeSet");
 	
@@ -79,12 +79,12 @@ public class TreeSet {
 	* basically we need to know the structure of the feature vector 
 	* then we know how many trees and lists of questions we have,   
 	* there is a tree and a list of questions per each feature */
-	public TreeSet(int num_mtype){
+	public HTSTreeSet(int num_mtype){
 	   nTrees = new int[num_mtype];
-	   qhead = new Question[num_mtype];
-	   qtail = new Question[num_mtype];
-	   thead = new Tree[num_mtype];
-	   ttail = new Tree[num_mtype];
+	   qhead = new HTSQuestion[num_mtype];
+	   qtail = new HTSQuestion[num_mtype];
+	   thead = new HTSTree[num_mtype];
+	   ttail = new HTSTree[num_mtype];
 	}
 
 	/**
@@ -92,14 +92,14 @@ public class TreeSet {
 	 * @param type: one of htsData.DUR, htsData.LF0, htsData.MCP, htsData.STR or htsData.MAG
 	 * @return a Tree object.
 	 */
-	public Tree getTreeHead(int type){ return thead[type]; }
+	public HTSTree getTreeHead(int type){ return thead[type]; }
 
 	/**
 	 * This function returns the tail tree of this type
 	 * @param type: one of htsData.DUR, htsData.LF0, htsData.MCP, htsData.STR or htsData.MAG
 	 * @return a Tree object.
 	 */
-	public Tree getTreeTail(int type){ return ttail[type]; }
+	public HTSTree getTreeTail(int type){ return ttail[type]; }
 	
     
     
@@ -126,11 +126,11 @@ public class TreeSet {
      */
 	private void _loadTreeSet(String fileName, int type) throws Exception {
 		
-	  Question q = new Question(); /* so: qName=null; next=null; pattern=new Vector(); */
+      HTSQuestion q = new HTSQuestion(); /* so: qName=null; next=null; pattern=new Vector(); */
 	  qhead[type] = q;
 	  qtail[type] = null;
 	  
-	  Tree t = new Tree(); /* so state=0; root=null; leaf=null; next=null; pattern=new Vector(); */
+      HTSTree t = new HTSTree(); /* so state=0; root=null; leaf=null; next=null; pattern=new Vector(); */
 	  thead[type] = t;     /* first tree corresponds to state 2, next tree to state 3, ..., until state 6 */
 	  ttail[type] = null;
 	  nTrees[type] = 0;
@@ -194,7 +194,7 @@ public class TreeSet {
 	/** Load questions from file, it receives a line from the tree-*.inf file 
 	 * each line corresponds to a question name and one or more patterns.  
 	 * parameter debug is used for printing detailed information.          */
-	private void loadQuestions(String line, Question q, boolean debug) {
+	private void loadQuestions(String line, HTSQuestion q, boolean debug) {
 		Scanner s = new Scanner(line);
 		String aux, sub_aux;
 		String pats[];
@@ -242,14 +242,14 @@ public class TreeSet {
 	 * @param type: corresponds to one of DUR, logF0, MCP, STR and MAG
 	 * @param debug: when true print out detailled information
 	 */
-	private void loadTree(Scanner s, Tree t, int type, boolean debug) throws Exception {
+	private void loadTree(Scanner s, HTSTree t, int type, boolean debug) throws Exception {
 	  Scanner sline;
 	  String aux,buf;
-	  Node node = new Node();
+      HTSNode node = new HTSNode();
 	  t.setRoot(node);
 	  t.setLeaf(node);
 	  int iaux;
-	  Question qaux;
+      HTSQuestion qaux;
 	  
 	  //System.out.println("root node = " + node + "  t.leaf = " + t.get_leaf() + "  t.root = " + t.get_root());
 	  
@@ -336,7 +336,7 @@ public class TreeSet {
 	} /* method loadTree() */
 
 	
-	private Node findNode(Node node, int num, boolean debug){
+	private HTSNode findNode(HTSNode node, int num, boolean debug){
 	  if(debug)
         System.out.print("Finding Node : " + num + "  "  );
 	  while(node != null){
@@ -354,8 +354,8 @@ public class TreeSet {
 		
 	} /* method findNode */
 	
-	private Question findQuestion(int type, String qname) throws Exception {
-		Question q;
+	private HTSQuestion findQuestion(int type, String qname) throws Exception {
+        HTSQuestion q;
 		//System.out.println("qhead[type]=" + qhead[type] + "  "  + "qtail[type]=" + qtail[type]);
 		for(q = qhead[type]; q != qtail[type]; q = q.getNext() ) {
 		 //System.out.println("q : " + q + "  qname=" + qname + "  q.get_qName= " + q.get_qName());
@@ -374,9 +374,9 @@ public class TreeSet {
 	} /* method findQuestion */
 	
 	
-	public int searchTree(String name, Node root_node, boolean debug){
+	public int searchTree(String name, HTSNode root_node, boolean debug){
 	   	 
-		Node aux_node = root_node;
+        HTSNode aux_node = root_node;
 		
 		while (aux_node != null ){
 			
@@ -403,7 +403,7 @@ public class TreeSet {
 		
 	} /* method searchTree */
 	
-	private boolean questionMatch(String str, Question q, boolean debug) {
+	private boolean questionMatch(String str, HTSQuestion q, boolean debug) {
 		int i;
 		String pat;
 	    

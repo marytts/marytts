@@ -58,7 +58,7 @@ import org.apache.log4j.Logger;
  * Extension: mixed excitation
  * @author Marcela Charfuelan
  */
-public class ParameterGeneration {
+public class HTSParameterGeneration {
 	
   public static final double INFTY   = ((double) 1.0e+38);
   public static final double INFTY2  = ((double) 1.0e+19);
@@ -67,10 +67,10 @@ public class ParameterGeneration {
   public static final double LTPI    = 1.83787706640935;    /* log(2*PI) */
 	
 
-  private PStream mcepPst = null;
-  private PStream strPst  = null;
-  private PStream magPst  = null;
-  private PStream lf0Pst  = null;
+  private HTSPStream mcepPst = null;
+  private HTSPStream strPst  = null;
+  private HTSPStream magPst  = null;
+  private HTSPStream lf0Pst  = null;
   private boolean voiced[];
   
   private Logger logger = Logger.getLogger("ParameterGeneration");
@@ -110,13 +110,13 @@ public class ParameterGeneration {
   * @param um  : utterance model sequence after processing Mary context features
   * @param ms  : HMM pdfs model set.
   */
-  public void htsMaximumLikelihoodParameterGeneration(UttModel um, HMMData htsData) throws Exception{
+  public void htsMaximumLikelihoodParameterGeneration(HTSUttModel um, HMMData htsData) throws Exception{
 	  
 	int frame, uttFrame, lf0Frame;
 	int state, lw, rw, k, n, i;
 	boolean nobound;
-	Model m;
-    ModelSet ms = htsData.getModelSet();
+    HTSModel m;
+    HTSModelSet ms = htsData.getModelSet();
     
 	/* Initialisation of PStream objects */
   	/* Initialise Parameter generation using UttModel um and Modelset ms */
@@ -124,14 +124,14 @@ public class ParameterGeneration {
   	/* mceppst, strpst, magpst, lf0pst */
 	/* Here i should pass the window files to initialise the dynamic windows dw */
 	/* for the moment the dw are all the same and hard-coded */
-	mcepPst = new PStream(ms.getMcepVsize(), um.getTotalFrame(), HMMData.MCP);
+	mcepPst = new HTSPStream(ms.getMcepVsize(), um.getTotalFrame(), HMMData.MCP);
     /* for lf0 count just the number of lf0frames that are voiced or non-zero */
-    lf0Pst  = new PStream(ms.getLf0Stream(), um.getLf0Frame(), HMMData.LF0);
+    lf0Pst  = new HTSPStream(ms.getLf0Stream(), um.getLf0Frame(), HMMData.LF0);
     /* The following are optional in case of generating mixed excitation */
     if( htsData.getPdfStrFile() != null)
-	  strPst  = new PStream(ms.getStrVsize(), um.getTotalFrame(), HMMData.STR);
+	  strPst  = new HTSPStream(ms.getStrVsize(), um.getTotalFrame(), HMMData.STR);
     if (htsData.getPdfMagFile() != null )
-	  magPst  = new PStream(ms.getMagVsize(), um.getTotalFrame(), HMMData.MAG);
+	  magPst  = new HTSPStream(ms.getMagVsize(), um.getTotalFrame(), HMMData.MAG);
 	   
 	
 	uttFrame = lf0Frame = 0;
@@ -187,8 +187,8 @@ public class ParameterGeneration {
       	  
       	  /* copy pdfs for lf0 */ 
       	  for(k=0; k<ms.getLf0Stream(); k++){
-      		lw = lf0Pst.getDWwidth(k, PStream.WLEFT);
-      		rw = lf0Pst.getDWwidth(k, PStream.WRIGHT);
+      		lw = lf0Pst.getDWwidth(k, HTSPStream.WLEFT);
+      		rw = lf0Pst.getDWwidth(k, HTSPStream.WRIGHT);
       		nobound = true;
       		/* check if current frame is voiced/unvoiced boundary or not */
       		for(n=lw; n<=rw; n++)
