@@ -63,6 +63,7 @@ THIS SOFTWARE.
               value="${DSTAMP}"/>
     <echo file="${src}/de/dfki/lt/mary/implementation-version.txt"
           message="${implementation.version}"/>
+    <echo>Building OpenMary version '${specification.version}'</echo>
   </target>
 
   <target name="compile" depends="version">
@@ -319,9 +320,21 @@ THIS SOFTWARE.
         </jar>
   </target>
 
+ <target name="installvoices.jar" depends="compile">
+        <jar destfile="${dest}/installvoices.jar"
+             basedir="${src}"
+             includes="de/dfki/lt/mary/installvoices/*.class">
+        <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Main-Class"
+         value="de.dfki.lt.mary.installvoices.VoiceInstaller"/>
+        <attribute name="Class-Path" value=""/>
+        </manifest>
+        </jar>
+  </target>
 
 
-  <target name="jars" depends="mary-common.jar,mary-freetts.jar,maryclient.jar,mary-english.jar,mary-tibetan.jar,mary-mbrola.jar,signalproc.jar,emospeak.jar,emospeakapplet.jar,redstart.jar,voiceimport.jar"/>
+  <target name="jars" depends="mary-common.jar,mary-freetts.jar,maryclient.jar,mary-english.jar,mary-tibetan.jar,mary-mbrola.jar,signalproc.jar,emospeak.jar,emospeakapplet.jar,redstart.jar,voiceimport.jar,installvoices.jar"/>
 
 	
 	
