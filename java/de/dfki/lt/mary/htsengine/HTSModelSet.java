@@ -64,24 +64,24 @@ import org.apache.log4j.Logger;
  * Extension: mixed excitation
  * @author Marcela Charfuelan
  */
-public class ModelSet {
+public class HTSModelSet {
 	
-	private int numState;               /* # of HMM states for individual HMM */
+	private int numState;             /* # of HMM states for individual HMM */
 	private int lf0Stream;            /* # of stream for log f0 modeling */
 	private int mcepVsize;            /* vector size for mcep modeling */
 	private int strVsize;             /* vector size for strengths modeling */
 	private int magVsize;             /* vector size for Fourier magnitudes modeling */
 
-	private int numLf0Pdf[];             /* # of pdfs for each state position (log F0) */
-	private int numMcepPdf[];            /* # of pdfs for each state position (mcep) */
-	private int numStrPdf[];             /* # of pdfs for each state position (str) */
-	private int numMagPdf[];             /* # of pdfs for each state position (mag) */
-	private int numDurPdf;               /* # of pdfs for duration */
+	private int numLf0Pdf[];          /* # of pdfs for each state position (log F0) */
+	private int numMcepPdf[];         /* # of pdfs for each state position (mcep) */
+	private int numStrPdf[];          /* # of pdfs for each state position (str) */
+	private int numMagPdf[];          /* # of pdfs for each state position (mag) */
+	private int numDurPdf;            /* # of pdfs for duration */
 
-	private double durPdf[][];         /* pdfs for duration [#states][#leaves]*/
-	private double mcepPdf[][][];      /* pdfs for mcep     [#states][#leaves][vectorsize]   */
-	private double strPdf[][][];       /* pdfs for str      [#states][#leaves][vectorsize]   */
-	private double magPdf[][][];       /* pdfs for mag      [#states][#leaves][vectorsize]   */
+	private double durPdf[][];        /* pdfs for duration [#states][#leaves]*/
+	private double mcepPdf[][][];     /* pdfs for mcep     [#states][#leaves][vectorsize]   */
+	private double strPdf[][][];      /* pdfs for str      [#states][#leaves][vectorsize]   */
+	private double magPdf[][][];      /* pdfs for mag      [#states][#leaves][vectorsize]   */
 
 	private double lf0Pdf[][][][];     /* pdfs for lf0      [#states][#leaves][#streams][lf0_vectorsize] */ 
 	                           /* lf0_vectorsize = 4: mean, variance, voiced weight, and unvoiced weight */
@@ -102,7 +102,7 @@ public class ModelSet {
 	 * @param diffdur
 	 * @return
 	 */
-	public double findDurPdf(Model m, boolean firstPh, boolean lastPh, double rho, double diffdur) {
+	public double findDurPdf(HTSModel m, boolean firstPh, boolean lastPh, double rho, double diffdur) {
 		
 	  double data, mean, variance, dd;
 	  int s;
@@ -114,38 +114,26 @@ public class ModelSet {
 	  int idx = m.getDurPdf()-1;
 	 
 	  dd = diffdur;
-//      System.out.print("phoneme=" + m.getPhoneName());
-//      if(firstPh)
-//        System.out.print("  firstPh=true");
-//      if(lastPh)
-//          System.out.print("  lastPh=true");
-
       
 	  for(s=0; s<n_state; s++){
 	    mean = durPdf[idx][s];
 		variance = durPdf[idx][n_state+s];
 		data = mean + rho*variance;
         
-        //System.out.print("data = " + data + "  ");
         /* check if the model is initial/final pause, if so reduce the length of the pause 
          * to 10% of the calculated value. */       
-        if(m.getPhoneName().contentEquals("_") && (firstPh || lastPh )){
-         // System.out.print("  state =" + s + " data=" + data);  
+        if(m.getPhoneName().contentEquals("_") && (firstPh || lastPh ))
           data = data * 0.1;
-         // System.out.print("  reduced data=" + data);
-        }
-        
 		
 		m.setDur(s, (int)(data+dd+0.5));
 		if(m.getDur(s) < 1 )
 		  m.setDur(s, 1);
                
-		//System.out.println("dur[" + s + "]=" + m.getDur(s) + " " + "  data=" + data);
 		m.setTotalDur(m.getTotalDur() + m.getDur(s));
         
 		dd = dd + ( data - (double)m.getDur(s) );		
 	  }
-      System.out.println();
+      
 	  return dd; 
 		  		  
     } /* method FindDurPdf */
@@ -156,7 +144,7 @@ public class ModelSet {
 	 * @param m
 	 * @param uvthresh
 	 */
-	public void findLf0Pdf(int s, Model m, double uvthresh) {
+	public void findLf0Pdf(int s, HTSModel m, double uvthresh) {
 	   int stream;
 	   double val;
 	   /* idx-1 because index number start in 1 but they are stored starting in 0, see NOTE 1. */
@@ -184,7 +172,7 @@ public class ModelSet {
 	 * @param s
 	 * @param m
 	 */
-	public void findMcpPdf(int s, Model m) {
+	public void findMcpPdf(int s, HTSModel m) {
 	  int i,j;
 	  int idx = m.getMcepPdf(s)-1;
 	  for(i=0, j=0; j<mcepVsize; i++,j++)
@@ -198,7 +186,7 @@ public class ModelSet {
 	 * @param s
 	 * @param m
 	 */
-	public void findStrPdf(int s, Model m) {
+	public void findStrPdf(int s, HTSModel m) {
 	  int i,j;
 	  int idx = m.getStrPdf(s)-1;
 	  for(i=0, j=0; j<strVsize; i++,j++)
@@ -212,7 +200,7 @@ public class ModelSet {
 	 * @param s
 	 * @param m
 	 */
-	public void findMagPdf(int s, Model m) {
+	public void findMagPdf(int s, HTSModel m) {
 	  int i,j;
 	  int idx = m.getMagPdf(s)-1;
 	  for(i=0, j=0; j<magVsize; i++,j++)

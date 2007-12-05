@@ -71,7 +71,7 @@ import org.apache.log4j.Logger;
  * Extension: mixed excitation
  * @author Marcela Charfuelan
  */
-public class PStream {
+public class HTSPStream {
 	
   public static final int WLEFT = 0;
   public static final int WRIGHT = 1;	
@@ -93,13 +93,8 @@ public class PStream {
   private double wum[];      /* W' U^-1 mu */
   
   /* ____________________Dynamic window ____________________ */
-  private DWin dw;         
- // private int num;          /* number of static + deltas, number of window files */
-  // private String fn;     /* delta window coefficient file */
- // private int dw_width[][]; /* width [0..num-1][0(left) 1(right)] */
- // private double coef[][];  /* coefficient [0..num-1][length[0]..length[1]] */
- // private int maxw[];       /* max width [0(left) 1(right)] */
- // private int max_L;        /* max {maxw[0], maxw[1]} */
+  private HTSDWin dw;       /* Windows used to calculate dynamic features, delta and delta-delta */
+
   
   /* ____________________ GV related variables ____________________*/
   /* GV: Global mean and covariance (diagonal covariance only) */
@@ -117,13 +112,12 @@ public class PStream {
   private Logger logger = Logger.getLogger("PStream");
   
   /* Constructor */
-  public PStream(int vector_size, int utt_length, int fea_type) throws Exception {
-	/* in the c code for each PStream there is an InitDwin() and an InitPStream() */ 
+  public HTSPStream(int vector_size, int utt_length, int fea_type) throws Exception {
+	/* In the c code for each PStream there is an InitDwin() and an InitPStream() */ 
 	/* - InitDwin reads the window files passed as parameters for example: mcp.win1, mcp.win2, mcp.win3 */
 	/*   for the moment the dynamic window is the same for all MCP, LF0, STR and MAG  */
 	/*   The initialisation of the dynamic window is done with the constructor. */
-	/* - InitPstream does the same as it is done here with the SMatrices constructor. */
-	dw = new DWin();
+	dw = new HTSDWin();
     feaType = fea_type; 
     vSize = vector_size;
     order = vector_size / dw.getNum(); 
@@ -131,8 +125,6 @@ public class PStream {
     width = 3;            /* hard-coded to 3, in the c code is:  pst->width = pst->dw.max_L*2+1;  */
                           /* pst->dw.max_L is hard-code to 1, for all windows                     */
     par = new double[nT][order];
-  
-   // sm = new SMatrices(T, vSize, width, order);
     
     /* ___________________________Matrices initialisation___________________ */
 	mseq = new double[nT][vSize];
@@ -460,13 +452,10 @@ public class PStream {
    calcGV(m);   
    
    /* GV objective function and its derivative with respect to c */
-   /* -1/2 * v(c)' U^-1 v(c) + v(c)' U^-1 mu + K  --> second part of eq (20) */
-   /* ??? -1/2 * var gvcovInv(m) var + var gvcovInv(m) gvmean(m) */
-   // ??? GVobj = -0.5 * var * gvcovInv[m] * var + var * gvcovInv[m] * gvmean[m];
+   /* -1/2 * v(c)' U^-1 v(c) + v(c)' U^-1 mu + K  --> second part of eq (20) in Toda and Tokuda IEICE-2007 paper.*/
    GVobj = -0.5 * w2 * (var - gvmean[m]) * gvcovInv[m] * (var - gvmean[m]);
    vd = gvcovInv[m] * (var - gvmean[m]);
    
-   //System.out.println("  GVobj=" + GVobj + "  vd=" + vd );
      
    /* calculate g = R*c = WUW*c*/
    for(t=0; t<nT; t++) {
@@ -477,33 +466,27 @@ public class PStream {
        if( t-i+1 >= 0 )
          g[t] += wuw[t-i+1][i-1] * par[t-i+1][m];  /* i as index should be i-1 */
      }
-     //System.out.print(" g[" + t + "]=" + g[t]);
+     
    }
-   //System.out.println();
    
    
    for(t=0, HMMobj=0.0, norm=0.0; t<nT; t++) {
        
      HMMobj += -0.5 * w1 * w * par[t][m] * (g[t] - 2.0 * wum[t]); 
        
-     /* Hessian (not implemented yet) */
      /* case STEEPEST: do not use hessian */
      //h = 1.0;
      /* case NEWTON */
      /* only diagonal elements of Hessian matrix are used */
      h = -w1 * w * wuw[t][1-1] - w2 * 2.0 / (nT*nT) * ( ( nT-1) * vd + 2.0 * gvcovInv[m] * (par[t][m] - mean) * (par[t][m] - mean) );
-     //System.out.println("h=" + h + "  (-1.0/h = " + (-1.0/h) + ")" );
      
      h = -1.0/h;
-     
-     
+       
      /* gradient vector */
      g[t] = h * ( w1 * w *(-g[t] + wum[t]) + w2 * (-2.0/nT * (par[t][m] - mean ) * vd ) ); 
      
      /*  Euclidian norm of gradient vector */  
      norm += g[t]*g[t];
-     
-     //System.out.println("gradient[" + t + "]=" + g[t] + "  norm=" + norm);
        
    }
    
@@ -523,14 +506,11 @@ public class PStream {
        
     /* ratio between GV mean and variance of c */
     ratio = Math.sqrt(gvmean[m] / var);
-    //System.out.println("convGV: gvmean=" + gvmean[m] + "  mean=" + mean + " var=" + var + "  ratio=" + ratio);
-    
-    /* c'[t][d] = ratio * (c[t][d]-mean[d]) + mean[d]  eq. (34) in Toda and Tokuda paper (1). */
+   
+    /* c'[t][d] = ratio * (c[t][d]-mean[d]) + mean[d]  eq. (34) in Toda and Tokuda IEICE-2007 paper. */
     
     for(t=0; t<nT; t++){
-     //System.out.print("  par[" + t + "]["+ m + "]=" + par[t][m]); 
      par[t][m] = ratio * ( par[t][m]-mean ) + mean;
-     //System.out.println("  par'[" + t + "]["+ m + "]=" + par[t][m]); 
     }
       
   }
@@ -539,7 +519,7 @@ public class PStream {
     int t, i;
     mean=0.0;
     var=0.0;
-    //System.out.println("calcGV(0): mean=" + mean + " var=" + var);
+ 
     /* mean */
     for(t=0; t<nT; t++)
       mean += par[t][m];
@@ -549,8 +529,6 @@ public class PStream {
     for(t=0; t<nT; t++)
       var += (par[t][m] - mean) * (par[t][m] - mean);
     var = var / nT;
-    
-    //System.out.println("calcGV(1): mean=" + mean + " var=" + var);
       
   }
   
@@ -574,11 +552,6 @@ public class PStream {
       
       
   }
-  
-  
-  
-  
-  
   
 
 } /* class PStream */
