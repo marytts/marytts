@@ -1039,13 +1039,18 @@ public class MaryGUIClient extends JPanel
                 if (lastDirectory != null) {
                     fc.setCurrentDirectory(lastDirectory);
                 }
-                AudioFileFormat.Type[] knownAudioTypes = AudioSystem.getAudioFileTypes();
+                String[] knownAudioTypes = processor.getAudioFileFormatTypes();
+                String[] extensions = new String[knownAudioTypes.length];
+                String[] typeNames = new String[knownAudioTypes.length];
                 FileFilter defaultFilter = null;
                 for (int i=0; i<knownAudioTypes.length; i++) {
-                    FileFilter ff = new SimpleFileFilter(knownAudioTypes[i].getExtension(),
-                            knownAudioTypes[i].toString() + " (." + knownAudioTypes[i].getExtension() + ")");
+                    int iSpace = knownAudioTypes[i].indexOf(' ');
+                    extensions[i] = knownAudioTypes[i].substring(0, iSpace);
+                    typeNames[i] = knownAudioTypes[i].substring(iSpace+1);
+                    FileFilter ff = new SimpleFileFilter(extensions[i],
+                            typeNames[i] + " (." + extensions[i] + ")");
                     fc.addChoosableFileFilter(ff);
-                    if (lastExtension != null && lastExtension.equals(knownAudioTypes[i].getExtension())) {
+                    if (lastExtension != null && lastExtension.equals(extensions[i])) {
                         defaultFilter = ff;
                     }
                     if (defaultFilter != null) {
@@ -1062,10 +1067,10 @@ public class MaryGUIClient extends JPanel
                     }
                     lastDirectory = saveFile.getParentFile();
                     lastExtension = ext;
-                    AudioFileFormat.Type audioType = null;
+                    String audioType = null;
                     for (int i=0; i<knownAudioTypes.length; i++) {
-                        if (knownAudioTypes[i].getExtension().equals(ext)) {
-                            audioType = knownAudioTypes[i];
+                        if (extensions[i].equals(ext)) {
+                            audioType = typeNames[i];
                             break;
                         }
                     }
@@ -1076,7 +1081,7 @@ public class MaryGUIClient extends JPanel
                         processor.process(inputText.getText(),
                                 ((MaryClient.DataType)cbInputType.getSelectedItem()).name(),
                                 "AUDIO",
-                                audioType.toString(),
+                                audioType,
                                 ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
                                 "",
                                 getAudioEffectsAsString(),
