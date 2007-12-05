@@ -28,6 +28,12 @@
  */
 package de.dfki.lt.mary.recsessionmgr;
 
+import java.io.File;
+import java.util.Vector;
+
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+
 import de.dfki.lt.mary.recsessionmgr.debug.Test;
 import de.dfki.lt.mary.recsessionmgr.gui.AdminWindow;
 import de.dfki.lt.mary.recsessionmgr.gui.Splash;
@@ -38,7 +44,46 @@ public class Redstart {
      * @param args
      */
     public static void main(String[] args) {
-        // TODO Auto-generated method stub
+        // Determine the voice building directory in the following order:
+        // 1. System property "user.dir"
+        // 2. First command line argument
+        // 3. current directory
+        // 4. Prompt user via gui.
+        // Do a sanity check -- do they exist, do they have a wav/ subdirectory?
+        
+        String voiceBuildingDir = null;
+        Vector<String> candidates = new Vector<String>();
+        candidates.add(System.getProperty("user.dir"));
+        if (args.length > 0) candidates.add(args[0]);
+        candidates.add("."); // current directory
+        for (String dir: candidates) {
+            if (dir != null 
+                    && new File(dir).isDirectory()
+                    && new File(dir+"/text").isDirectory()) {
+                voiceBuildingDir = dir;
+                break;
+            }
+        }
+        if (voiceBuildingDir == null) { // need to ask user
+            JFrame window = new JFrame("This is the Frames's Title Bar!");
+            JFileChooser fc = new JFileChooser();
+            fc.setDialogTitle("Choose Voice Building Directory");
+            fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            System.out.println("Opening GUI....... ");
+            //outDir.setText(file.getAbsolutePath());
+            //System.exit(0);
+            int returnVal = fc.showOpenDialog(window);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                File file = fc.getSelectedFile();
+                if (file != null)
+                    voiceBuildingDir = file.getAbsolutePath(); 
+            }
+        }
+        if (voiceBuildingDir == null) {
+            System.err.println("Could not get a voice building directory -- exiting.");
+            System.exit(0);
+        }
+        
         
         // Display splash screen
 
@@ -56,19 +101,10 @@ public class Redstart {
 
         System.out.println("Welcome to Redstart, your recording session manager.");
         
-        final String voiceFolderPathString;
-        // Set string variable indicating voice folder location
-        if (args.length > 0) {
-            voiceFolderPathString = args[0]; // Take first command-line argument as the voice path
-        }
-        else { // default to current directory
-            voiceFolderPathString = ".";
-        }
-        
         // TESTCODE
-        Test.output("|Redstart.main| voiceFolderPath = " + voiceFolderPathString);
+        Test.output("|Redstart.main| voiceFolderPath = " + voiceBuildingDir);
                         
-        AdminWindow adminWindow = new AdminWindow(voiceFolderPathString);
+        AdminWindow adminWindow = new AdminWindow(voiceBuildingDir);
         if (splash != null) splash.setVisible(false);
         adminWindow.setVisible(true);
     }

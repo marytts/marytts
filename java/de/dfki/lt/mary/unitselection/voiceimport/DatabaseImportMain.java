@@ -378,35 +378,47 @@ public class DatabaseImportMain extends JFrame
    
     public static void main( String[] args ) throws Exception
     {
-        File wavDir = new File(System.getProperty("user.dir")+System.getProperty("file.separator")+"wav");
-        String voiceBuildingDir = System.getProperty("user.dir");
-        if(!wavDir.exists()){
-            if (args.length > 0){
-                voiceBuildingDir = args[0];
-                //System.setProperty("user.dir", args[0] );
-            }
-            else{
-                JFrame window = new JFrame("This is the Frames's Title Bar!");
-                JFileChooser fc = new JFileChooser();
-                fc.setDialogTitle("Choose Voice Building Directory");
-                fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                System.out.println("Opening GUI....... ");
-                //outDir.setText(file.getAbsolutePath());
-                //System.exit(0);
-                int returnVal = fc.showOpenDialog(window);
-                if (returnVal == JFileChooser.APPROVE_OPTION) {
-                      File file = fc.getSelectedFile();
-                      voiceBuildingDir = file.getAbsolutePath();
-                      //System.setProperty("user.dir",file.getAbsolutePath());
-                      //System.out.println("Opening GUI....... ");
-                      //outDir.setText(file.getAbsolutePath());
-                      //System.exit(0);
-                } 
-            }
-            
-            System.setProperty("user.dir", voiceBuildingDir);
-        }
+        // Determine the voice building directory in the following order:
+        // 1. System property "user.dir"
+        // 2. First command line argument
+        // 3. current directory
+        // 4. Prompt user via gui.
+        // Do a sanity check -- do they exist, do they have a wav/ subdirectory?
         
+        String voiceBuildingDir = null;
+        Vector<String> candidates = new Vector<String>();
+        candidates.add(System.getProperty("user.dir"));
+        if (args.length > 0) candidates.add(args[0]);
+        candidates.add("."); // current directory
+        for (String dir: candidates) {
+            if (dir != null 
+                    && new File(dir).isDirectory()
+                    && new File(dir+"/wav").isDirectory()) {
+                voiceBuildingDir = dir;
+                break;
+            }
+        }
+        if (voiceBuildingDir == null) { // need to ask user
+            JFrame window = new JFrame("This is the Frames's Title Bar!");
+            JFileChooser fc = new JFileChooser();
+            fc.setDialogTitle("Choose Voice Building Directory");
+            fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            System.out.println("Opening GUI....... ");
+            //outDir.setText(file.getAbsolutePath());
+            //System.exit(0);
+            int returnVal = fc.showOpenDialog(window);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                File file = fc.getSelectedFile();
+                if (file != null)
+                    voiceBuildingDir = file.getAbsolutePath(); 
+            }
+        }
+        if (voiceBuildingDir != null) {
+            System.setProperty("user.dir", voiceBuildingDir);
+        } else {
+            System.err.println("Could not get a voice building directory -- exiting.");
+            System.exit(0);
+        }
         
         /* Read the list of components */
         String[][] groups2comps;
