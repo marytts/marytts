@@ -157,7 +157,7 @@ public class DatabaseLayout
         uneditableProps.add(WAVEXT);
         
         /* check if there is a config file */
-        configFileName = "./database.config";
+        configFileName = System.getProperty("user.dir")+System.getProperty("file.separator")+"database.config";
         File configFile = new File(configFileName);
         if (configFile.exists()){
             
@@ -569,9 +569,11 @@ public class DatabaseLayout
         /* check maryxml dir */
         checkDir(MARYXMLDIR);
         /* check text dir */  
-        checkDir(TEXTDIR);        
+        //checkDir(TEXTDIR);
+        checkDirinCurrentDir(TEXTDIR);
         /* check wav dir */
-        File dir = new File(getProp(WAVDIR));
+        File dir = new File(System.getProperty("user.dir")+System.getProperty("file.separator")+getProp(WAVDIR));
+        //System.out.println(System.getProperty("user.dir")+System.getProperty("file.separator")+getProp(WAVDIR));
         if (!dir.exists()){
             throw new Error("WAVDIR "+getProp(WAVDIR)+" does not exist!");
         }
@@ -579,8 +581,9 @@ public class DatabaseLayout
             throw new Error("WAVDIR "+getProp(WAVDIR)+" is not a directory!");
         }
         /* check lab dir */
-        checkDir(LABDIR);
-        dir = new File(getProp(LABDIR));
+        //checkDir(LABDIR);
+        checkDirinCurrentDir(LABDIR);
+        //dir = new File(getProp(LABDIR));
         
     }
     
@@ -607,6 +610,28 @@ public class DatabaseLayout
     }
     
     /**
+     * Test if a directory exists
+     * and try to create it if not;
+     * throws an error if the dir
+     * can not be created
+     * @param propname the prop containing the name of the dir
+     */
+    private void checkDirinCurrentDir(String propname){
+        File dir = new File(System.getProperty("user.dir")+System.getProperty("file.separator")+getProp(propname));
+        if (!dir.exists()){
+            System.out.print(propname+" "+getProp(propname)
+                    +" does not exist; ");
+            if (!dir.mkdir()){
+                throw new Error("Could not create "+propname);
+            }
+            System.out.print("Created successfully.\n");
+        }  
+        if (!dir.isDirectory()){
+            throw new Error(propname+" "+getProp(propname)+" is not a directory!");
+        }        
+    }
+    
+    /**
      * Load the basenamelist
      */
     private void loadBasenameList(){
@@ -615,7 +640,7 @@ public class DatabaseLayout
         if (!basenameFile.exists()){
             //make basename list from wav files 
             System.out.println("Loading basename list from wav files");
-            bnl = new BasenameList(getProp(WAVDIR),getProp(WAVEXT));
+            bnl = new BasenameList(System.getProperty("user.dir")+System.getProperty("file.separator")+getProp(WAVDIR),getProp(WAVEXT));
         } else {
             //load basename list from file
             try{

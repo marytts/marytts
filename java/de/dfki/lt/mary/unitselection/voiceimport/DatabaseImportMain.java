@@ -378,10 +378,39 @@ public class DatabaseImportMain extends JFrame
    
     public static void main( String[] args ) throws Exception
     {
+        File wavDir = new File(System.getProperty("user.dir")+System.getProperty("file.separator")+"wav");
+        String voiceBuildingDir = System.getProperty("user.dir");
+        if(!wavDir.exists()){
+            if (args.length > 0){
+                voiceBuildingDir = args[0];
+                //System.setProperty("user.dir", args[0] );
+            }
+            else{
+                JFrame window = new JFrame("This is the Frames's Title Bar!");
+                JFileChooser fc = new JFileChooser();
+                fc.setDialogTitle("Choose Voice Building Directory");
+                fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                System.out.println("Opening GUI....... ");
+                //outDir.setText(file.getAbsolutePath());
+                //System.exit(0);
+                int returnVal = fc.showOpenDialog(window);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                      File file = fc.getSelectedFile();
+                      voiceBuildingDir = file.getAbsolutePath();
+                      //System.setProperty("user.dir",file.getAbsolutePath());
+                      //System.out.println("Opening GUI....... ");
+                      //outDir.setText(file.getAbsolutePath());
+                      //System.exit(0);
+                } 
+            }
+            
+            System.setProperty("user.dir", voiceBuildingDir);
+        }
+        
         
         /* Read the list of components */
         String[][] groups2comps;
-        File importMainConfigFile = new File("./importMain.config");
+        File importMainConfigFile = new File(System.getProperty("user.dir")+System.getProperty("file.separator")+"./importMain.config");
         if (!importMainConfigFile.exists()){
             //create config file
             BufferedReader configIn = 
