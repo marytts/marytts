@@ -321,6 +321,15 @@ public class MaryServer {
                 // Empty line marks end of info:
                 outputWriter.println();
                 return true;
+            } else if (inputLine.startsWith("MARY LIST AUDIOFILEFORMATTYPES")) {
+                logger.debug("InfoRequest " + inputLine);
+                AudioFileFormat.Type[] audioTypes = AudioSystem.getAudioFileTypes();
+                for (int t=0; t<audioTypes.length; t++) {
+                    outputWriter.println(audioTypes[t].getExtension()+" "+audioTypes[t].toString());
+                }
+                // Empty line marks end of info:
+                outputWriter.println();
+                return true;
             } else if (inputLine.startsWith("MARY EXAMPLETEXT")) {
                 logger.debug("InfoRequest " + inputLine);
                 // send an example text for a given data type

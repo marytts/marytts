@@ -42,6 +42,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
@@ -87,6 +88,7 @@ public class MaryClient {
     private Map serverExampleTexts = new HashMap();
     private Map voiceExampleTexts = new HashMap();
     private Map audioEffectsMap = new HashMap();
+    private String[] audioFileFormatTypes = null;
     private String[] serverVersionInfo = null;
 
     /**
@@ -562,6 +564,28 @@ public class MaryClient {
         return result.toString();
     }
 
+    /**
+     * From an open server connection, read one chunk of info data. Writes the 
+     * infoCommand to the server, then reads from the server until an empty line
+     * or eof is read.
+     * @param toServer
+     * @param fromServer
+     * @param infoCommand the one-line request to send to the server
+     * @return an array of Strings representing the server response, one string for one line
+     * @throws IOException if communication with the server fails
+     */
+    private String[] getServerInfoLines(PrintWriter toServerInfo, BufferedReader fromServerInfo, String infoCommand)
+    throws IOException {
+        toServerInfo.println(infoCommand);
+        Vector<String> result = new Vector<String>();
+        String line = null;
+        // Read until either end of file or an empty line
+        while((line = fromServerInfo.readLine()) != null && !line.equals("")) {
+            result.add(line);
+        }
+        return result.toArray(new String[0]);
+    }
+
 
     /**
      * Get the version info from the server. This is optional information
@@ -952,6 +976,27 @@ public class MaryClient {
           
             return (String)audioEffectsMap.get(voicename);
         }
+    
+    /**
+     * Get the audio file format types known by the server, one per line.
+     * Each line has the format: <code>extension name</code>
+     * @return
+     * @throws IOException
+     * @throws UnknownHostException
+     */
+    public String[] getAudioFileFormatTypes()
+    throws IOException, UnknownHostException
+    {
+        if (audioFileFormatTypes == null) {
+            Socket marySocket = new Socket(host, port);
+            audioFileFormatTypes = getServerInfoLines(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
+                    new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
+                    "MARY LIST AUDIOFILEFORMATTYPES");
+            
+        }
+        return audioFileFormatTypes;
+    }
+    
 
     public static void usage() {
         System.err.println("usage:");
