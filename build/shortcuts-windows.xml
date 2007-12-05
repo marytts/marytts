@@ -38,6 +38,58 @@
   </shortcut>
 
   <shortcut
+    name="Redstart"
+    target="$INSTALL_PATH\bin\redstart.bat"
+    commandLine=""
+    workingDirectory="$INSTALL_PATH\"
+    description="Tool for recording new OpenMary voices"
+    initialState="normal"
+    programGroup="yes"
+    desktop="no"
+    applications="no"
+    startMenu="no"
+    startup="no"
+    iconFile="$INSTALL_PATH\lib\icons\mary.ico"
+    iconIndex="0">
+    <createForPack name="redstart"/>
+  </shortcut>
+
+  <shortcut
+    name="Voice Import Tools"
+    target="$INSTALL_PATH\bin\voiceimport.bat"
+    commandLine=""
+    workingDirectory="$INSTALL_PATH\"
+    description="The voice import tools for building new OpenMary voices"
+    initialState="normal"
+    programGroup="yes"
+    desktop="no"
+    applications="no"
+    startMenu="no"
+    startup="no"
+    iconFile="$INSTALL_PATH\lib\icons\mary.ico"
+    iconIndex="0">
+    <createForPack name="voiceimport"/>
+  </shortcut>
+
+  <shortcut
+    name="Install Voices"
+    target="$INSTALL_PATH\bin\installvoices.bat"
+    commandLine=""
+    workingDirectory="$INSTALL_PATH\"
+    description="Download and install additional voices for OpenMary"
+    initialState="normal"
+    programGroup="yes"
+    desktop="no"
+    applications="no"
+    startMenu="no"
+    startup="no"
+    iconFile="$INSTALL_PATH\lib\icons\mary.ico"
+    iconIndex="0">
+    <createForPack name="voiceimport"/>
+  </shortcut>
+
+
+  <shortcut
     name="EmoSpeak"
     target="$INSTALL_PATH\bin\emospeak.bat"
     commandLine=""
@@ -45,7 +97,7 @@
     description="Emotional speech synthesis (server must be started first!)"
     initialState="normal"
     programGroup="yes"
-    desktop="yes"
+    desktop="no"
     applications="no"
     startMenu="no"
     startup="no"

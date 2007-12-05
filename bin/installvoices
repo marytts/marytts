@@ -1,0 +1,4 @@
+#!/bin/sh
+
+java -ea -jar "$INSTALL_PATH"/java/installvoices.jar
+
