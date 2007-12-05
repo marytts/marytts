@@ -33,7 +33,7 @@ import java.io.*;
 import java.nio.channels.FileChannel;
 import java.nio.MappedByteBuffer;
 
-import de.dfki.lt.mary.htsengine.TreeSet;
+import de.dfki.lt.mary.htsengine.HTSTreeSet;
 
 /**
  * Install a voice by copying the voice data to marybase/lib/voices/voicename/
