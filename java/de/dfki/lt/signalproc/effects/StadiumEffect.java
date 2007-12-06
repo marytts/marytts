@@ -60,14 +60,14 @@ public class StadiumEffect extends ChorusEffectBase {
     }
 
     public String getHelpText() {
-        String strHelp = "Stadium Effect:\n\n" +
-                         "Adds stadium effect by applying a specially designed multi-tap chorus.\n\n" +
-                         "Parameter:\n" +
+
+        String strHelp = "Stadium Effect:" + strLineBreak +
+                         "Adds stadium effect by applying a specially designed multi-tap chorus." + strLineBreak +
+                         "Parameter:" + strLineBreak +
                          "   <amount>" +
-                         "   Definition : The amount of stadium effect at the output\n" +
-                         "   Range      : [" + String.valueOf(MIN_AMOUNT) + "," + String.valueOf(MAX_AMOUNT) + "]\n" +
-                         "\n" +
-                         "Example:\n" + 
+                         "   Definition : The amount of stadium effect at the output" + strLineBreak +
+                         "   Range      : [" + String.valueOf(MIN_AMOUNT) + "," + String.valueOf(MAX_AMOUNT) + "]" + strLineBreak +
+                         "Example:" + strLineBreak +
                          getExampleParameters();
                         
         return strHelp;

@@ -4,7 +4,6 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -25,6 +24,7 @@ import de.dfki.lt.signalproc.window.Window;
 //It serves as a null effect
 //It´s main functionality is providing base functions for parsing parameter strings
 public class BaseAudioEffect implements AudioEffect{
+    public static String strLineBreak = "_LINEBREAK_";
     
     public static float NULL_FLOAT_PARAM = -100000.0f;
     public static double NULL_DOUBLE_PARAM = -100000;
@@ -268,6 +268,19 @@ public class BaseAudioEffect implements AudioEffect{
     public String getFullEffectAsString()
     {
         return getName() + getParamsAsString(true);
+    }
+    
+    public String setParamsFromFullName(String fullEffectAsString)
+    {
+        int ind = fullEffectAsString.indexOf(strEffectName);
+        
+        if (ind>-1)
+        {
+            String strNewParams = fullEffectAsString.substring(ind+strEffectName.length(), fullEffectAsString.length());
+            setParams(strNewParams);
+        }
+        
+        return getParamsAsString();
     }
     
     public String getFullEffectWithExampleParametersAsString()

@@ -23,9 +23,10 @@ public class JetPilotEffect extends FilterEffectBase {
     }
     
     public String getHelpText() {
-        String strHelp = "Jet pilot effect:\n\n" +
-                         "Filters the input signal using an FIR bandpass filter.\n\n" +
-                         "Parameters: NONE\n";
+        
+        String strHelp = "Jet pilot effect:" + strLineBreak +
+                         "Filters the input signal using an FIR bandpass filter." + strLineBreak +
+                         "Parameters: NONE" + strLineBreak;
                         
         return strHelp;
     }

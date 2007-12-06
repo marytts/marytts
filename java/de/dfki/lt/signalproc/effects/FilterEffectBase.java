@@ -215,23 +215,22 @@ public class FilterEffectBase extends BaseAudioEffect {
         
         strRange += String.valueOf(BANDREJECT_FILTER);
         
-        String strHelp = "FIR filtering:\n\n" +
-                         "Filters the input signal by an FIR filter.\n\n" +
-                         "Parameters:\n" +
-                         "   <type>" +
-                         "   Definition : Type of filter (1:Lowpass, 2:Highpass, 3:Bandpass, 4:Bandreject)\n" +
-                         "   Range      : {" + strRange + "}\n\n" +
+        String strHelp = "FIR filtering:" + strLineBreak +
+                         "Filters the input signal by an FIR filter." + strLineBreak +
+                         "Parameters:" + strLineBreak +
+                         "   <type>" + strLineBreak +
+                         "   Definition : Type of filter (1:Lowpass, 2:Highpass, 3:Bandpass, 4:Bandreject)" + strLineBreak +
+                         "   Range      : {" + strRange + "}" + strLineBreak +
                          "   <fc>" +
-                         "   Definition : Cutoff frequency in Hz for lowpass and highpass filters\n" +
-                         "   Range      : {" + strRange + "}\n\n" +
+                         "   Definition : Cutoff frequency in Hz for lowpass and highpass filters" + strLineBreak +
+                         "   Range      : {" + strRange + "}" + strLineBreak +
                          "   <fc1>" +
-                         "   Definition : Lower frequency cutoff in Hz for bandpass and bandreject filters\n" +
-                         "   Range      : {" + strRange + "}\n\n" +
+                         "   Definition : Lower frequency cutoff in Hz for bandpass and bandreject filters" +  strLineBreak +
+                         "   Range      : {" + strRange + "}" + strLineBreak +
                          "   <fc2>" +
-                         "   Definition : Higher frequency cutoff in Hz for bandpass and bandreject filters\n" +
-                         "   Range      : {" + strRange + "}\n" +
-                         "\n" +
-                         "Example:\n" + 
+                         "   Definition : Higher frequency cutoff in Hz for bandpass and bandreject filters" + strLineBreak +
+                         "   Range      : {" + strRange + "}" + strLineBreak +
+                         "Example:" + strLineBreak +
                          getExampleParameters();
                         
         return strHelp;

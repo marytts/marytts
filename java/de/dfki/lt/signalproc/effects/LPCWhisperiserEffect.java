@@ -77,14 +77,14 @@ public class LPCWhisperiserEffect extends BaseAudioEffect {
     }
 
     public String getHelpText() {
-        String strHelp = "Whisper Effect:\n\n" +
-                         "Creates a whispered voice by replacing the LPC residual with white noise.\n\n" +
-                         "Parameter:\n" +
+        
+        String strHelp = "Whisper Effect:" + strLineBreak +
+                         "Creates a whispered voice by replacing the LPC residual with white noise." + strLineBreak +
+                         "Parameter:" + strLineBreak +
                          "   <amount>" +
-                         "   Definition : The amount of whisperised voice at the output\n" +
-                         "   Range      : [" + String.valueOf(MIN_AMOUNT) + "," + String.valueOf(MAX_AMOUNT) + "]\n" +
-                         "\n" +
-                         "Example:\n" + 
+                         "   Definition : The amount of whisperised voice at the output" + strLineBreak +
+                         "   Range      : [" + String.valueOf(MIN_AMOUNT) + "," + String.valueOf(MAX_AMOUNT) + "]" + strLineBreak +
+                         "Example:" + strLineBreak +
                          getExampleParameters();
                         
         return strHelp;

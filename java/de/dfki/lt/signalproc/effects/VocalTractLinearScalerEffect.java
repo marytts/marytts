@@ -61,18 +61,18 @@ public class VocalTractLinearScalerEffect extends BaseAudioEffect {
     }
     
     public String getHelpText() {
-        String strHelp = "Vocal Tract Linear Scaling Effect:\n\n" +
-                         "Creates a shortened or lengthened vocal tract effect by shifting the formants.\n\n" +
-                         "Parameter:\n" +
+
+        String strHelp = "Vocal Tract Linear Scaling Effect:" + strLineBreak +
+                         "Creates a shortened or lengthened vocal tract effect by shifting the formants." + strLineBreak +
+                         "Parameter:" + strLineBreak +
                          "   <amount>" +
-                         "   Definition : The amount of formant shifting\n" +
-                         "   Range      : [" + String.valueOf(MIN_AMOUNT) + "," + String.valueOf(MAX_AMOUNT) + "]\n" +
-                         "   For values of <amount> less than 1.0, the formants are shifted to lower frequencies\n" +
-                         "       resulting in a longer vocal tract (i.e. a deeper voice).\n" +
-                         "   Values greater than 1.0 shift the formants to higher frequencies.\n" +
-                         "       The result is a shorter vocal tract.\n" +
-                         "\n" +
-                         "Example:\n" + 
+                         "   Definition : The amount of formant shifting" + strLineBreak +
+                         "   Range      : [" + String.valueOf(MIN_AMOUNT) + "," + String.valueOf(MAX_AMOUNT) + "]" + strLineBreak +
+                         "   For values of <amount> less than 1.0, the formants are shifted to lower frequencies" + strLineBreak +
+                         "       resulting in a longer vocal tract (i.e. a deeper voice)." + strLineBreak +
+                         "   Values greater than 1.0 shift the formants to higher frequencies." + strLineBreak +
+                         "       The result is a shorter vocal tract.\n" + strLineBreak +
+                         "Example:" + strLineBreak +
                          getExampleParameters();
                         
         return strHelp;

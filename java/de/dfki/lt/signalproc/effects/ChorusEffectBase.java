@@ -144,36 +144,35 @@ public class ChorusEffectBase extends BaseAudioEffect {
         return new BufferedDoubleDataSource(foas);
     }
 
-    public String getHelpText() {
-        String strHelp = "Multi-Tap Chorus Effect:\n\n" +
-                         "Adds chorus effect by summing up the original signal with delayed and amplitude scaled versions.\n\n" +
-                         "The parameters should consist of delay and amplitude pairs for each tap.\n" +
-                         "A variable number of taps (max 20) can be specified by simply defining more delay-amplitude pairs.\n" +
-                         "Each tap outputs a delayed and gain-scaled version of the original signal.\n" +
-                         "All tap outputs are summed up with the oiginal signal with appropriate gain normalization.\n\n" +
-                         "Parameters:\n" +
-                         "   <delay1>\n" +
-                         "   Definition : The amount of delay in miliseconds for tap #1\n" +
-                         "   Range      : [0,5000]\n\n" +
-                         "   <amp1>\n" +
-                         "   Definition : Relative amplitude of the channel gain as compared to original signal gain for tap #1\n" +
-                         "   Range      : [-5.0,5.0]\n\n" +
-                         "   <delay2>\n" +
-                         "   Definition : The amount of delay in miliseconds in delayed channel #2\n" +
-                         "   Range      : [0,5000]\n\n" +
-                         "   <amp2>\n" +
-                         "   Definition : Relative amplitude of the channel gain as compared to original signal gain for delayed channel #2\n" +
-                         "   Range      : [-5.0,5.0]\n\n" +
-                         "   ...\n\n" +
-                         "   <delayN>\n" +
-                         "   Definition : The amount of delay in miliseconds in delayed channel #N\n" +
-                         "   Range      : [0,5000]\n\n" +
-                         "   <ampN>\n" +
-                         "   Definition : Relative amplitude of the channel gain as compared to original signal gain for delayed channel #N\n" +
-                         "   Range      : [-5.0,5.0]\n\n" +
-                         "   Note: Maximum possible number of taps is N=20. Parameters for more taps will simply be neglected.\n" +
-                         "\n" +
-                         "Example: (A three-tap chorus effect)\n" + 
+    public String getHelpText() {        
+        String strHelp = "Multi-Tap Chorus Effect:" + strLineBreak +
+                         "Adds chorus effect by summing up the original signal with delayed and amplitude scaled versions." + strLineBreak +
+                         "The parameters should consist of delay and amplitude pairs for each tap." + strLineBreak +
+                         "A variable number of taps (max 20) can be specified by simply defining more delay-amplitude pairs." + strLineBreak +
+                         "Each tap outputs a delayed and gain-scaled version of the original signal." + strLineBreak +
+                         "All tap outputs are summed up with the oiginal signal with appropriate gain normalization." + strLineBreak +
+                         "Parameters:"  + strLineBreak +
+                         "   <delay1>"  + strLineBreak +
+                         "   Definition : The amount of delay in miliseconds for tap #1"  + strLineBreak +
+                         "   Range      : [0,5000]" + strLineBreak +
+                         "   <amp1>"  + strLineBreak +
+                         "   Definition : Relative amplitude of the channel gain as compared to original signal gain for tap #1" + strLineBreak +
+                         "   Range      : [-5.0,5.0]" + strLineBreak +
+                         "   <delay2>" + strLineBreak +
+                         "   Definition : The amount of delay in miliseconds in delayed channel #2" + strLineBreak +
+                         "   Range      : [0,5000]" + strLineBreak +
+                         "   <amp2>" + strLineBreak +
+                         "   Definition : Relative amplitude of the channel gain as compared to original signal gain for delayed channel #2" + strLineBreak +
+                         "   Range      : [-5.0,5.0]" + strLineBreak +
+                         "   ..." + strLineBreak +
+                         "   <delayN>" + strLineBreak +
+                         "   Definition : The amount of delay in miliseconds in delayed channel #N" + strLineBreak +
+                         "   Range      : [0,5000]" + strLineBreak +
+                         "   <ampN>" + strLineBreak +
+                         "   Definition : Relative amplitude of the channel gain as compared to original signal gain for delayed channel #N" + strLineBreak +
+                         "   Range      : [-5.0,5.0]" + strLineBreak +
+                         "   Note: Maximum possible number of taps is N=20. Parameters for more taps will simply be neglected." + strLineBreak +
+                         "Example: (A three-tap chorus effect)" +  strLineBreak +
                          getExampleParameters();
                         
         return strHelp;

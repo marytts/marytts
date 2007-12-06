@@ -2,6 +2,7 @@ package de.dfki.lt.signalproc.effects;
 
 import java.util.Vector;
 
+
 //A set of audio effects with names, default parameters, and help information
 public class AudioEffectsSet {
     public BaseAudioEffect [] effects;

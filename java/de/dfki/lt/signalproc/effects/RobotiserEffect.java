@@ -51,14 +51,14 @@ public class RobotiserEffect extends BaseAudioEffect {
     }
 
     public String getHelpText() {
-        String strHelp = "Robotiser Effect:\n\n" +
-                         "Creates a robotic voice by setting all phases to zero.\n\n" +
-        		         "Parameter:\n" +
+        
+        String strHelp = "Robotiser Effect:" + strLineBreak +
+                         "Creates a robotic voice by setting all phases to zero." + strLineBreak +
+        		         "Parameter:" + strLineBreak +
         		         "   <amount>" +
-        		         "   Definition : The amount of robotic voice at the output\n" +
-        		         "   Range      : [" + String.valueOf(MIN_AMOUNT) + "," + String.valueOf(MAX_AMOUNT) + "]\n" +
-        		         "\n" +
-        		         "Example:\n" + 
+        		         "   Definition : The amount of robotic voice at the output" + strLineBreak +
+        		         "   Range      : [" + String.valueOf(MIN_AMOUNT) + "," + String.valueOf(MAX_AMOUNT) + "]" + strLineBreak +
+        		         "Example:" + strLineBreak +
         		         getExampleParameters();
                         
         return strHelp;
