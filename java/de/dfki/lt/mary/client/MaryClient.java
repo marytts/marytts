@@ -1049,6 +1049,9 @@ public class MaryClient {
             audioEffectHelpTextsMap.put(effectName, info.replaceAll("\n", System.getProperty("line.separator")));
             marySocket.close();
         }
+
+        return (String)audioEffectHelpTextsMap.get(effectName);
+    }
     
     /**
      * Get the audio file format types known by the server, one per line.
@@ -1068,10 +1071,6 @@ public class MaryClient {
             
         }
         return audioFileFormatTypes;
-    }
-    
-
-        return (String)audioEffectHelpTextsMap.get(effectName);
     }
 
     public static void usage() {
