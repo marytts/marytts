@@ -91,7 +91,9 @@ public class SnackPitchmarker extends VoiceImportComponent
                 props.put(MINPITCH,"75");
                 props.put(MAXPITCH,"300");
             }
-            props.put(SNACKDIR, "c:\\tcl\\lib\\snack2.2\\");
+            if (MaryUtils.isWindows())
+                props.put(SNACKDIR, "c:\\tcl\\lib\\snack2.2\\");
+            else props.put(SNACKDIR, "/usr/lib/snack2.2/");
             
             props.put(PMDIR, db.getProp(db.ROOTDIR)
                     +"pm"
@@ -149,7 +151,9 @@ public class SnackPitchmarker extends VoiceImportComponent
 
             if (MaryUtils.isWindows())
                 strTmp = "cmd.exe /c " + strTmp;
-
+            else  strTmp = "tcl " + strTmp;
+                
+            //System.out.println("strTmp: "+strTmp);
             Process snack = Runtime.getRuntime().exec(strTmp);
 
             StreamGobbler errorGobbler = new 
