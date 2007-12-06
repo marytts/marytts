@@ -346,10 +346,9 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
             configOut.println("#Auto-generated config file for voice "+voicename+"\n");
             //print name and version info
              configOut.println("name = " + longLocale + "-" + voicename);
-             if(longLocale.contentEquals("german"))
-               configOut.println(longLocale + "-voice.version = 3.1.0\n");
-             else
-               configOut.println(longLocale + "-voice.version = 3.5.0\n");
+             String version = "3.5.0"; // TODO: turn this into a config setting
+             configOut.println(longLocale + "-voice.version = "+version+"\n");
+             configOut.println("voice.version = "+version+"\n");
              //print providing info
              configOut.println("# Declare \"group names\" as component that other components can require.\n"+
                      	"# These correspond to abstract \"groups\" of which this component is an instance.\n"+

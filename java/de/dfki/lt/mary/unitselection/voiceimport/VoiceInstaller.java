@@ -270,12 +270,12 @@ public class VoiceInstaller extends VoiceImportComponent{
             configOut.println("#Auto-generated config file for voice "+voicename+"\n");
             //print name and version info
              configOut.println("name = "+voicename);
-             configOut.println(filename+".version = 3.1.0\n");
              //print providing info
              configOut.println("# Declare \"group names\" as component that other components can require.\n"+
                      	"# These correspond to abstract \"groups\" of which this component is an instance.\n"+
                      	"provides = \\\n"+longLocale+"-voice\n");
              configOut.println(longLocale+"-voice.version = "+db.getProp(db.MARYBASEVERSION)+"\n");
+             configOut.println("voice.version = "+db.getProp(db.MARYBASEVERSION)+"\n");
              configOut.println("# List the dependencies, as a whitespace-separated list.\n"+
                      "# For each required component, an optional minimum version and an optional\n"+
                      "# download url can be given.\n"+
