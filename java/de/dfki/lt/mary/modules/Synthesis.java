@@ -240,7 +240,7 @@ public class Synthesis extends InternalModule
         (List<Element> tokensAndBoundaries, Voice voice, String currentStyle, String currentEffect, AudioFormat targetFormat)
     throws SynthesisException, UnsupportedAudioFileException
     {            
-        EffectsApplier ef = new EffectsApplier(MaryProperties.effectClasses());
+        EffectsApplier ef = new EffectsApplier(MaryProperties.effectClasses(), MaryProperties.effectParams());
         
         AudioInputStream ais = null;
         ais = voice.synthesize(tokensAndBoundaries);

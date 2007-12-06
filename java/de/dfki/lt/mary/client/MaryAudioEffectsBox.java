@@ -33,6 +33,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.util.StringTokenizer;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -54,26 +55,217 @@ public class MaryAudioEffectsBox {
     public JScrollPane scrollPane;
     public JPanel effectControlsPanel;
     
-    public MaryAudioEffectsBox(String [] effectNames, String [] exampleParams, String [] helpTexts)
+    public String [] effectNames;
+    public String [] exampleParams;
+    public String [] helpTexts;
+    public char chEffectSeparator;
+    
+    //availableEffects is a one large string produced by the server in the following format:
+    // <EffectSeparator>charEffectSeparator</EffectSeparator>
+    // <Effect>
+    //   <Name>effect´s name</Name> 
+    //   <SampleParam>example parameters string</SampleParam>
+    //   <HelpText>help text string</HelpText>
+    // </Effect>
+    // <Effect>
+    //   <Name>effect´s name</effectName> 
+    //   <SampleParam>example parameters string</SampleParam>
+    //   <HelpText>help text string</HelpText>
+    // </Effect>
+    // ...
+    // <Effect>
+    //   <Name>effect´s name</effectName> 
+    //   <SampleParam>example parameters string</SampleParam>
+    //   <HelpText>help text string</HelpText>
+    // </Effect>
+    public MaryAudioEffectsBox(String availableEffects, String lineBreak)
     {
-        assert effectNames.length == helpTexts.length;
-        assert effectNames.length == exampleParams.length;
-        
-        int numEffects = effectNames.length;
-        
-        mainPanel = new JPanel();
-        effectsBoxLabel = new JLabel("Audio Effects:");
-        effectControlsPanel = new JPanel();
-        
-        if (numEffects>0)
+        if (availableEffects!=null || availableEffects!="")
         {
-            effectControls = new MaryAudioEffectControl[numEffects];
+            int numEffects = parseAvailableEffects(availableEffects);
 
-            for (int i=0; i<effectControls.length; i++)
-                effectControls[i] = new MaryAudioEffectControl(effectNames[i], exampleParams[i], helpTexts[i]);
+            mainPanel = new JPanel();
+            effectsBoxLabel = new JLabel("Audio Effects:");
+            effectControlsPanel = new JPanel();
+
+            if (numEffects>0)
+            {
+                effectControls = new MaryAudioEffectControl[numEffects];
+
+                for (int i=0; i<effectControls.length; i++)
+                    effectControls[i] = new MaryAudioEffectControl(effectNames[i], exampleParams[i], helpTexts[i], lineBreak);
+            }
+            else
+                effectControls = null;
         }
         else
             effectControls = null;
+    }
+    
+    public boolean hasEffects()
+    {
+        if (effectControls!=null)
+            return true;
+        else
+            return false;
+    }
+    
+    //Parse the XML-like full effect set string from the server
+    protected int parseAvailableEffects(String availableEffects)
+    {
+        effectNames = null;
+        exampleParams = null;
+        helpTexts = null;
+        chEffectSeparator = ' ';
+       
+        int ind1, ind2, ind3, ind4;
+        String strEffectName, strParams, strExampleParams, strHelpText;
+        
+        String effectSeparatorStartTag = "<EffectSeparator>";
+        String effectSeparatorEndTag = "</EffectSeparator>";
+        String effectStartTag = "<Effect>";
+        String effectEndTag = "</Effect>";
+        String nameStartTag = "<Name>";
+        String nameEndTag = "</Name>";
+        String paramStartTag = "<Param>";
+        String paramEndTag = "</Param>";
+        String sampleParamStartTag = "<SampleParam>";
+        String sampleParamEndTag = "</SampleParam>";
+        String helpTextStartTag = "<HelpText>";
+        String helpTextEndTag = "</HelpText>";
+        
+        int totalEffects = 0;
+        int currentIndex = 0;
+        
+        ind1 = availableEffects.indexOf(effectSeparatorStartTag, currentIndex);
+        ind2 = availableEffects.indexOf(effectSeparatorEndTag, currentIndex);
+        
+        if (ind1>-1 && ind2>-1)
+        {
+            String strTmp = availableEffects.substring(ind1+effectSeparatorStartTag.length(), ind2);
+            chEffectSeparator = strTmp.charAt(0);
+            
+            while (true)
+            {
+                ind1 = availableEffects.indexOf(effectStartTag, currentIndex);
+                ind2 = availableEffects.indexOf(effectEndTag, currentIndex);
+
+                if (ind1>-1 && ind2>-1)
+                {
+                    ind3 = availableEffects.indexOf(nameStartTag, currentIndex);
+                    ind4 = availableEffects.indexOf(nameEndTag, currentIndex);
+
+                    if (ind3>-1 && ind4>-1)
+                    {
+                        strEffectName = availableEffects.substring(ind3+nameStartTag.length(), ind4);
+
+                        ind3 = availableEffects.indexOf(sampleParamStartTag, currentIndex);
+                        ind4 = availableEffects.indexOf(sampleParamEndTag, currentIndex);
+
+
+                        if (ind3>-1 && ind4>-1)
+                        {
+                            strParams = availableEffects.substring(ind3+paramStartTag.length(), ind4);
+
+                            ind3 = availableEffects.indexOf(sampleParamStartTag, currentIndex);
+                            ind4 = availableEffects.indexOf(sampleParamEndTag, currentIndex);
+
+                            if (ind3>-1 && ind4>-1)
+                            {
+                                strExampleParams = availableEffects.substring(ind3+sampleParamStartTag.length(), ind4);
+
+                                ind3 = availableEffects.indexOf(helpTextStartTag, currentIndex);
+                                ind4 = availableEffects.indexOf(helpTextEndTag, currentIndex);
+
+                                if (ind3>-1 && ind4>-1)
+                                {
+                                    strHelpText = availableEffects.substring(ind3+helpTextStartTag.length(), ind4);
+
+                                    totalEffects++;
+                                }
+                                else
+                                    break;
+                            }
+                            else
+                                break;
+                        }
+                        else
+                            break;
+                    }
+                    else
+                        break;
+
+                    currentIndex = ind2+1;
+
+                    if (currentIndex>=availableEffects.length()-1)
+                        break;
+                }
+                else
+                    break;
+            }
+        }
+        
+        if (totalEffects>0)
+        {
+            effectNames = new String[totalEffects];
+            exampleParams = new String[totalEffects];
+            helpTexts = new String[totalEffects];
+            
+            currentIndex = 0;
+            for (int i=0; i<totalEffects; i++)
+            {
+                ind1 = availableEffects.indexOf(effectStartTag, currentIndex);
+                ind2 = availableEffects.indexOf(effectEndTag, currentIndex);
+
+                if (ind1>-1 && ind2>-1)
+                {
+                    ind3 = availableEffects.indexOf(nameStartTag, currentIndex);
+                    ind4 = availableEffects.indexOf(nameEndTag, currentIndex);
+
+                    if (ind3>-1 && ind4>-1)
+                    {
+                        strEffectName = availableEffects.substring(ind3+nameStartTag.length(), ind4);
+
+                        ind3 = availableEffects.indexOf(sampleParamStartTag, currentIndex);
+                        ind4 = availableEffects.indexOf(sampleParamEndTag, currentIndex);
+
+
+                        if (ind3>-1 && ind4>-1)
+                        {
+                            strExampleParams = availableEffects.substring(ind3+sampleParamStartTag.length(), ind4);
+
+                            ind3 = availableEffects.indexOf(helpTextStartTag, currentIndex);
+                            ind4 = availableEffects.indexOf(helpTextEndTag, currentIndex);
+
+                            if (ind3>-1 && ind4>-1)
+                            {
+                                strHelpText = availableEffects.substring(ind3+helpTextStartTag.length(), ind4);
+                                
+                                effectNames[i] = strEffectName;
+                                exampleParams[i] = strExampleParams;
+                                helpTexts[i] = strHelpText;
+                            }
+                            else
+                                break;
+                        }
+                        else
+                            break;
+                    }
+                    else
+                        break;
+
+                    currentIndex = ind2+1;
+
+                    if (currentIndex>=availableEffects.length()-1)
+                        break;
+                }
+                else
+                    break;
+            }
+
+        }
+
+        return totalEffects;
     }
     
     public void show()
@@ -125,5 +317,13 @@ public class MaryAudioEffectsBox {
         scrollPane.setViewportView(effectControlsPanel);
         g.setConstraints(scrollPane, c);
         mainPanel.add(scrollPane);
+    }
+    
+    public int getTotalEffects()
+    {
+        if (effectControls!=null)
+            return effectControls.length;
+        else
+            return 0;
     }
 }

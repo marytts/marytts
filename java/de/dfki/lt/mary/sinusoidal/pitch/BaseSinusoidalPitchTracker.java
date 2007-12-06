@@ -67,55 +67,58 @@ public class BaseSinusoidalPitchTracker {
     public float pitchAnalyzeFrame(SinusoidalSpeechFrame sinFrame, int samplingRate, float searchStepInHz, float minFreqInHz, float maxFreqInHz)
     {
         float f0 = 0.0f;
-        
-        int i, k;
-        int numCandidates = (int)Math.floor((maxFreqInHz-minFreqInHz)/searchStepInHz + 1 + 0.5);
-        float w0, w0InRadians;
-        double [] Q = new double[numCandidates];
-        double maxQ = 0.0;
-        int stInd, enInd;
-        float minFreqInRadians = SignalProcUtils.hz2radian(minFreqInHz, samplingRate);
-        float maxFreqInRadians = SignalProcUtils.hz2radian(maxFreqInHz, samplingRate);
-        
-        for (i=0; i<numCandidates; i++)
+
+        if (sinFrame!=null)
         {
-            w0 = i*searchStepInHz+minFreqInHz;
-            w0InRadians = SignalProcUtils.hz2radian(w0, samplingRate);
-            Q[i] = 0.0f;
-            
-            stInd = 0;
-            while (sinFrame.sinusoids[stInd].freq<minFreqInRadians)
+            int i, k;
+            int numCandidates = (int)Math.floor((maxFreqInHz-minFreqInHz)/searchStepInHz + 1 + 0.5);
+            float w0, w0InRadians;
+            double [] Q = new double[numCandidates];
+            double maxQ = 0.0;
+            int stInd, enInd;
+            float minFreqInRadians = SignalProcUtils.hz2radian(minFreqInHz, samplingRate);
+            float maxFreqInRadians = SignalProcUtils.hz2radian(maxFreqInHz, samplingRate);
+
+            for (i=0; i<numCandidates; i++)
             {
-                stInd++;
-            
-                if (stInd>=sinFrame.sinusoids.length-1)
+                w0 = i*searchStepInHz+minFreqInHz;
+                w0InRadians = SignalProcUtils.hz2radian(w0, samplingRate);
+                Q[i] = 0.0f;
+
+                stInd = 0;
+                while (sinFrame.sinusoids[stInd].freq<minFreqInRadians)
                 {
-                    stInd=sinFrame.sinusoids.length-1;
-                    break;
+                    stInd++;
+
+                    if (stInd>=sinFrame.sinusoids.length-1)
+                    {
+                        stInd=sinFrame.sinusoids.length-1;
+                        break;
+                    }
                 }
-            }
-            
-            enInd = stInd;
-            while (sinFrame.sinusoids[enInd].freq<maxFreqInRadians)
-            {
-                enInd++;
-            
-                if (enInd>=sinFrame.sinusoids.length-1)
+
+                enInd = stInd;
+                while (sinFrame.sinusoids[enInd].freq<maxFreqInRadians)
                 {
-                    enInd=sinFrame.sinusoids.length-1;
-                    break;
+                    enInd++;
+
+                    if (enInd>=sinFrame.sinusoids.length-1)
+                    {
+                        enInd=sinFrame.sinusoids.length-1;
+                        break;
+                    }
                 }
-            }
-            
-            Q[i] = performanceCriterion(sinFrame, stInd, enInd, w0, samplingRate);
-            
-            if (i==0 || Q[i]>maxQ)
-            {
-                f0 = w0;
-                maxQ = Q[i];
+
+                Q[i] = performanceCriterion(sinFrame, stInd, enInd, w0, samplingRate);
+
+                if (i==0 || Q[i]>maxQ)
+                {
+                    f0 = w0;
+                    maxQ = Q[i];
+                }
             }
         }
-
+        
         return f0;
     }
     
