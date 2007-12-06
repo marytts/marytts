@@ -331,7 +331,7 @@ THIS SOFTWARE.
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Main-Class"
          value="de.dfki.lt.mary.installvoices.VoiceInstaller"/>
-        <attribute name="Class-Path" value=""/>
+        <attribute name="Class-Path" value="fast-md5.jar"/>
         </manifest>
         </jar>
   </target>
