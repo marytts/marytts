@@ -50,6 +50,8 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 
+import de.dfki.lt.signalproc.effects.BaseAudioEffect;
+
 /**
  * @author oytun.turk
  * 
@@ -66,14 +68,16 @@ public class MaryAudioEffectControl {
     public JButton btnHelp;
     public String strHelpText;
     public String strExampleParams;
+    public String strLineBreak;
     
     //Create a Mary audio effect with help text
-    public MaryAudioEffectControl(String strEffectNameIn, String strExampleParams, String strHelpTextIn)
+    public MaryAudioEffectControl(String strEffectNameIn, String strExampleParams, String strHelpTextIn, String lineBreak)
     { 
         mainPanel = new JPanel();
         chkEnabled = new JCheckBox();
         txtParams = new JTextField("Parameters");
         btnHelp = new JButton("?");
+        strLineBreak = lineBreak;
         
         init(strEffectNameIn, strExampleParams, strHelpTextIn);
     }
@@ -115,7 +119,7 @@ public class MaryAudioEffectControl {
             public void actionPerformed(ActionEvent e) {
                //System.out.println(strHelpText);
                 JFrame helpFrame = new JFrame("Help: " + chkEnabled.getText() + " Effect");
-                JTextArea helpText = new JTextArea(strHelpText);
+                JTextArea helpText = new JTextArea(parseLineBreaks(strHelpText));
                 helpText.setEditable(false);
                 
                 helpFrame.getContentPane().add(helpText, BorderLayout.WEST);
@@ -124,6 +128,34 @@ public class MaryAudioEffectControl {
                 helpFrame.setVisible(true);
             }
         });
+    }
+    
+    //Parse string according to line break string
+    public String parseLineBreaks(String strInput)
+    {
+        String strOut = "";
+        String strTmp;
+        
+        for (int i=0; i<strInput.length()-strLineBreak.length(); i++)
+        {
+            strTmp = strInput.substring(i, i+strLineBreak.length());
+            
+            if (strTmp.equals(strLineBreak)==false)
+                strOut += strInput.substring(i, i+1);
+            else
+            {
+                strOut += System.getProperty("line.separator");
+                i += strLineBreak.length()-1;
+            }
+        }
+        
+        strTmp = strInput.substring(strInput.length()-strLineBreak.length(), strInput.length());
+        if (strTmp.compareTo(strLineBreak)!=0)
+            strOut += strTmp;
+        else
+            strOut += System.getProperty("line.separator");
+        
+        return strOut;
     }
     
     public boolean isSelected()

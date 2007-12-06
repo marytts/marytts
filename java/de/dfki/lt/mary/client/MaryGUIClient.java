@@ -99,9 +99,10 @@ import com.sun.speech.freetts.audio.JavaStreamingAudioPlayer;
 
 import de.dfki.lt.mary.client.MaryClient.Voice;
 import de.dfki.lt.mary.util.MaryUtils;
+//import de.dfki.lt.signalproc.effects.AudioEffectsSet;
+//import de.dfki.lt.signalproc.effects.BaseAudioEffect;
+//import de.dfki.lt.signalproc.effects.EffectsApplier;
 import de.dfki.lt.signalproc.effects.AudioEffectsSet;
-import de.dfki.lt.signalproc.effects.BaseAudioEffect;
-import de.dfki.lt.signalproc.effects.EffectsApplier;
 
 
 
@@ -149,9 +150,11 @@ public class MaryGUIClient extends JPanel
     private boolean showingAudioEffects = false;
     private JPanel showHidePanel;
     private JButton showHideEffects;
-    private AudioEffectsSet audioEffectSet;
     private JList effectsList;
     private MaryAudioEffectsBox effectsBox;
+    private String [] effectNames;
+    private String [] exampleParams;
+    private String [] helpTexts;
     //
 
     // Processing Buttons
@@ -251,7 +254,7 @@ public class MaryGUIClient extends JPanel
             mainApplet.setFocusTraversalPolicy(maryGUITraversal);
         }
 
-        audioEffectSet = null;
+//        audioEffectSet = null;
         
         paneDimension = new Dimension(250,400);
         // Layout
@@ -387,7 +390,6 @@ public class MaryGUIClient extends JPanel
                                     || !getPrevVoice().getLocale().equals(voice.getLocale())))
                         setExampleInputText();
                     setPrevVoice(voice);
-                    setAudioEffects(voice);
                 }
             }
         });
@@ -534,11 +536,10 @@ public class MaryGUIClient extends JPanel
         add( outputScrollPane );
        
         //Audio effects
-        MaryClient.Voice voice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
-        setAudioEffects(voice);
+        setAudioEffects();
         
         isButtonHide = false;
-        if (audioEffectSet!=null)
+        if (effectsBox.hasEffects())
         {
             showAudioEffects(gridBagLayout, gridC);
 
@@ -547,6 +548,7 @@ public class MaryGUIClient extends JPanel
                 showHidePanel = new JPanel();
                 showHidePanel.setPreferredSize(paneDimension);
                 showHidePanel.setLayout( new BoxLayout(showHidePanel, BoxLayout.Y_AXIS) );
+
                 if (!showingTextOutput)
                 {
                     showHideEffects = new JButton("Hide Effects");
@@ -586,15 +588,18 @@ public class MaryGUIClient extends JPanel
                 add(showHidePanel);
                 gridC.ipady = 0;
                 
-                if (effectsBox.mainPanel!=null && !showingTextOutput && isButtonHide)
+                if (effectsBox.mainPanel!=null)
                 {
-                    effectsBox.mainPanel.setVisible(true);
-                    showingAudioEffects = true;
-                }
-                else
-                {
-                    effectsBox.mainPanel.setVisible(false);
-                    showingAudioEffects = false;
+                    if (!showingTextOutput && isButtonHide)
+                    {
+                        effectsBox.mainPanel.setVisible(true);
+                        showingAudioEffects = true;
+                    }
+                    else
+                    {
+                        effectsBox.mainPanel.setVisible(false);
+                        showingAudioEffects = false;
+                    }
                 }
             }
         }   
@@ -682,13 +687,17 @@ public class MaryGUIClient extends JPanel
 
         verifyEnableButtons();
         cbInputType.requestFocusInWindow();
+        
+        showHideEffectAction();
     }
     
-    private void setAudioEffects(Voice voice)
+    private void setAudioEffects()
     {
         String availableAudioEffects = "";
+        String strLineBreak = "";
+        
         try {
-            availableAudioEffects = processor.getAudioEffects(voice.name());
+            availableAudioEffects = processor.getAudioEffects();
         } catch (UnknownHostException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -697,42 +706,17 @@ public class MaryGUIClient extends JPanel
             e.printStackTrace();
         }
         
-        String strAudioEffects = "";
-        String effectClassName; 
-        StringTokenizer st = new StringTokenizer(availableAudioEffects, "\n");
-
-        boolean bFirst = true;
-        while (st.hasMoreTokens())
-        {
-            effectClassName = (String)st.nextToken();
-            effectClassName = effectClassName.trim();
-            BaseAudioEffect ae = null;
-            try {
-                ae = (BaseAudioEffect)Class.forName(effectClassName).newInstance();
-            } catch (InstantiationException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            
-            if (ae!=null)
-            {   
-                if (!bFirst)
-                    strAudioEffects += EffectsApplier.chEffectSeparator + ae.getFullEffectWithExampleParametersAsString();
-                else
-                {
-                    strAudioEffects += ae.getFullEffectWithExampleParametersAsString();
-                    bFirst=false;
-                }
-            }     
+        try {
+            strLineBreak = processor.getAudioEffectHelpTextLineBreak();
+        } catch (UnknownHostException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
 
-        audioEffectSet = new AudioEffectsSet(strAudioEffects);
+        effectsBox = new MaryAudioEffectsBox(availableAudioEffects, strLineBreak);
     }
     
     private void showHideEffectAction()
@@ -763,9 +747,10 @@ public class MaryGUIClient extends JPanel
     {
         //Overlapping location: Audio effects box
         //Initialize the effects here (normally using info from the server)
-        if (audioEffectSet!=null && audioEffectSet.totalEffects>0)
-        {
-            effectsBox = new MaryAudioEffectsBox(audioEffectSet.getEffectNames(), audioEffectSet.getExampleParams(), audioEffectSet.getHelpTexts());
+        if (effectsBox.hasEffects() && effectsBox.getTotalEffects()>0)
+        {     
+            MaryClient.Voice voice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
+            
             if (effectsBox != null)
             {  
                 c.gridx = 4;
@@ -783,11 +768,10 @@ public class MaryGUIClient extends JPanel
         //
     }
 
-    //Create a single String parameter by reading the selected ffect parameters in the interface
+    //Create a single String parameter by reading the selected effect parameters in the interface
     //If no effect is selected or the effects are not being shown, an empty String is returned
     private String getAudioEffectsAsString()
     {
-        
         String strParams = "";
         String strTmpParam;
 
@@ -796,18 +780,43 @@ public class MaryGUIClient extends JPanel
             if (isButtonHide)
             {         
                 boolean bFirst = true;
-                for (int i=0; i<audioEffectSet.totalEffects; i++)
+                for (int i=0; i<effectsBox.getTotalEffects(); i++)
                 {
                     if (effectsBox.effectControls[i].chkEnabled.isSelected())
                     {
-                        audioEffectSet.effects[i].setParams(effectsBox.effectControls[i].txtParams.getText());
+                        //Request from server to set the parameters of the ith effect as effectsBox.effectControls[i].txtParams.getText()
+                        MaryClient.Voice voice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
+                        String strTmp = "";
+                        try {
+                            strTmp = processor.requestEffectParametersChange(effectsBox.effectNames[i], effectsBox.effectControls[i].txtParams.getText());
+                        } catch (UnknownHostException e1) {
+                            // TODO Auto-generated catch block
+                            e1.printStackTrace();
+                        } catch (IOException e1) {
+                            // TODO Auto-generated catch block
+                            e1.printStackTrace();
+                        }
+                       
+                        //Update the text field after server sets the parameters of the ith effect since the text field input might contain invalid entries
+                        // This is done by simply requesting the current parameters of the ith effect from the server
+                        effectsBox.effectControls[i].txtParams.setText(strTmp);
 
-                        effectsBox.effectControls[i].txtParams.setText(audioEffectSet.effects[i].getParamsAsString(false));
+                        //strTmpParam = audioEffectSet.effects[i].getFullEffectAsString();
+                        strTmpParam = "";
+                        try {
+                            strTmpParam = processor.requestFullEffectAsString(effectsBox.effectNames[i]);
+                        } catch (UnknownHostException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
 
-                        strTmpParam = audioEffectSet.effects[i].getFullEffectAsString();
-
+                        strTmpParam = strTmpParam.trim();
+                        
                         if (!bFirst)
-                            strParams += EffectsApplier.chEffectSeparator + strTmpParam;
+                            strParams += effectsBox.chEffectSeparator + strTmpParam;
                         else
                         {
                             strParams += strTmpParam;
@@ -817,6 +826,7 @@ public class MaryGUIClient extends JPanel
                 }
             }
         }
+        
         return strParams;
     }
     

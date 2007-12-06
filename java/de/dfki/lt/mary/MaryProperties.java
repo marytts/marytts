@@ -50,6 +50,7 @@ import javax.swing.JOptionPane;
 
 import de.dfki.lt.mary.util.InstallationUtils;
 import de.dfki.lt.mary.util.MaryUtils;
+import de.dfki.lt.signalproc.effects.BaseAudioEffect;
 
 /**
  * A static class reading once, at program start, properties
@@ -72,7 +73,11 @@ public class MaryProperties
     private static Vector<String> moduleClasses = new Vector<String>();
     private static Vector<String> synthClasses = new Vector<String>();
     private static Vector<String> audioEffectClasses = new Vector<String>();
-
+    private static Vector<String> audioEffectNames = new Vector<String>();
+    private static Vector<String> audioEffectParams = new Vector<String>();
+    private static Vector<String> audioEffectSampleParams = new Vector<String>();
+    private static Vector<String> audioEffectHelpTexts = new Vector<String>();
+    
     private static Map<Locale,String> locale2prefix = new HashMap<Locale,String>();
     
     private static Object[] localSchemas;
@@ -87,6 +92,14 @@ public class MaryProperties
     public static Vector<String> synthesizerClasses() { return synthClasses; }
     /** Names of the classes to use as audio effects. */
     public static Vector<String> effectClasses() { return audioEffectClasses; }
+    /** Names of audio effects. */
+    public static Vector<String> effectNames() { return audioEffectNames; }
+    /** Parameters of audio effects. */
+    public static Vector<String> effectParams() { return audioEffectParams; }
+    /** Sample Parameters of audio effects. */
+    public static Vector<String> effectSampleParams() { return audioEffectSampleParams; }
+    /** Help text of audio effects. */
+    public static Vector<String> effectHelpTexts() { return audioEffectHelpTexts; }
     /** An Object[] containing File objects referencing local Schema files */
     public static Object[] localSchemas() { return localSchemas; }
     
@@ -199,13 +212,40 @@ public class MaryProperties
             synthClasses.add(st.nextToken());
         }
 
+        String audioEffectClassName, audioEffectName, audioEffectParam, audioEffectSampleParam, audioEffectHelpText;
         helperString = getProperty("audioeffects.classes.list");
         if (helperString!=null)
         {
             // allow whitespace and comma as list delimiters
             st = new StringTokenizer(helperString, ", \t\n\r\f");
             while (st.hasMoreTokens()) {
-                audioEffectClasses.add(st.nextToken());
+                audioEffectClassName = st.nextToken();
+                audioEffectClasses.add(audioEffectClassName);
+                
+                BaseAudioEffect ae = null;
+                try {
+                    ae = (BaseAudioEffect)Class.forName(audioEffectClassName).newInstance();
+                } catch (InstantiationException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                
+                ae.setParams(ae.getExampleParameters());
+                
+                audioEffectName = ae.getName();
+                audioEffectNames.add(audioEffectName);
+                audioEffectParam = ae.getParamsAsString(false);
+                audioEffectParams.add(audioEffectParam);
+                audioEffectSampleParam = ae.getExampleParameters();
+                audioEffectSampleParams.add(audioEffectParam);
+                audioEffectHelpText = ae.getHelpText();
+                audioEffectHelpTexts.add(audioEffectHelpText);
             }
         }
 
