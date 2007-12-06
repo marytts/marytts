@@ -123,6 +123,7 @@ THIS SOFTWARE.
     			   de/dfki/lt/mary/unitselection/voiceimport/importMain.config"
         excludes="de/dfki/lt/mary/modules/synthesis/FreeTTSSynthesizer.class
 		   	  de/dfki/lt/mary/modules/synthesis/FreeTTSVoices.class
+              de/dfki/lt/mary/modules/synthesis/HMMSynthesizer.class
 			  de/dfki/lt/mary/modules/DummyFreeTTSVoice.class
     	      de.dfki.lt.mary.modules.XML2UttAcoustParams.class
         	  de.dfki.lt.mary.modules.Utt2XMLAcoustParams.class
@@ -132,7 +133,9 @@ THIS SOFTWARE.
     	      de/dfki/lt/mary/datatypes/FREETTS*_Definer.class
               de/dfki/lt/mary/datatypes/*_EN_Definer.class
               de/dfki/lt/mary/datatypes/*_TIB_Definer.class
-              **/*Mbrola* **/*MBROLA*">
+              **/*Mbrola* **/*MBROLA*
+    	      de/dfki/lt/mary/recsessionmgr/**/*
+    	      de/dfki/lt/mary/sinusoidal/**/*">
       <manifest>
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Specification-Version" value="${specification.version}"/>
@@ -338,39 +341,7 @@ THIS SOFTWARE.
 
 	
 	
-<!-- cluster unit voice - make binary 
-	Builds the .bin file from the .txt file of a Clunit Voice.
-	The arguments are:
-	- clunit_voice : the voice name and, at the same time, the name
-	  of the voice's directory
-	- feature_def : the name of the file defining the features 
-	  and their weights. This file should be in the directory of
-	  the voice 
-	- value_dir : the directory containing the features. This should 
-	  also be in the voice's directory 
-	
-	Target can be called with or without the last two arguments.
-	When called without, the voice will be synthesized with cluster
-	unit selection and without target costs:
-	ant clunit_voice_bin -Dclunit_voice=cmu_us_slt_arctic 
-	When called with the last two arguments, unit selection synthesis 
-	is used:
-	ant clunit_voice_bin -Dclunit_voice=cmu_us_slt_arctic -Dfeature_def=feats2Weights.txt -Dvalue_dir=feats
--->
-    <target name="clunit_voice_bin" 
-            if="clunit_voice"
-	    description="Make binary for ${clunit_voice}">
-         
-    	<java classpathref="project.classpath" classname="de.dfki.lt.mary.unitselection.clunits.ClusterUnitDatabase"
-    		
-    		      failonerror="true" 
-    		      fork="true">
-       		    <jvmarg value="-Xmx900m"/>
-    		    <arg line="-src ${mary.base}/lib/voices/${clunit_voice}"/>
-    	            <arg line="-dest ${mary.base}/lib/voices/${clunit_voice}"/>
-    	            <arg line="-generate_binary ${clunit_voice}.txt ${feature_def} ${value_dir}"/>
-    	</java>
-	</target>
+
 	
 	 
 	<target name="SpeechSynthesisTool"> 

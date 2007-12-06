@@ -104,6 +104,11 @@ Mary Expert Interface. java-diff is licensed under the GNU Lesser General
 Public License, see http://www.gnu.org or doc/licenses/LGPL.txt.
 (files concerned: java/java-diff.jar)
 
+fast-md5: A fast md5 checksum implementation from http://www.twmacinta.com/myjava/fast_md5.php
+used for computing checksums after downloading voices. fast-md5 is licensed under
+the GNU Lerrer General Public License, see http://www.gnu.org or doc/licenses/LGPL.txt.
+(files concerned: java/fast-md5.jar)
+
 JavaOpenAIR: MARY can optionally be used as an OpenAIR component,
 building on the JavaOpenAIR reference implementation from 
 http://www.mindmakers.org, which is licensed under the 

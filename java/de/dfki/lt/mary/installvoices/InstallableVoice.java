@@ -15,9 +15,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
+import com.twmacinta.util.MD5;
+
 // This class downloads a file from a URL.
 public class InstallableVoice extends Observable implements Runnable {
-    public enum Status {AVAILABLE, DOWNLOADING, PAUSED, DOWNLOADED, CANCELLED, ERROR, INSTALLED};
+    public enum Status {AVAILABLE, DOWNLOADING, PAUSED, VERIFYING, DOWNLOADED, CANCELLED, ERROR, INSTALLED};
     
     // Max size of download buffer.
     private static final int MAX_BUFFER_SIZE = 1024;
@@ -28,12 +30,13 @@ public class InstallableVoice extends Observable implements Runnable {
     private String infoFilename;
     private URL url; // download URL
     private URL license;
+    private String md5;
     private int size; // size of download in bytes
     private int downloaded; // number of bytes downloaded
     private Status status; // current status of download
     
     // Constructor for Download.
-    public InstallableVoice(String name, String version, String archiveFilename, String infoFilename, URL url, int size, URL license) {
+    public InstallableVoice(String name, String version, String archiveFilename, String infoFilename, URL url, int size, URL license, String md5) {
         this.name = name;
         this.version = version;
         this.archiveFilename = archiveFilename;
@@ -41,6 +44,7 @@ public class InstallableVoice extends Observable implements Runnable {
         this.url = url;
         this.size = size;
         this.license = license;
+        this.md5 = md5;
         downloaded = 0;
         determineStatus();
     }
@@ -89,7 +93,8 @@ public class InstallableVoice extends Observable implements Runnable {
     {
         if (infoFilename != null && new File(infoFilename).exists()) status = Status.INSTALLED;
         else if (archiveFilename != null && new File(archiveFilename).exists()) status = Status.DOWNLOADED;
-        else status = Status.AVAILABLE;
+        else if (url != null) status = Status.AVAILABLE;
+        else status = Status.ERROR;
     }
     
     // Pause this download.
@@ -190,7 +195,20 @@ public class InstallableVoice extends Observable implements Runnable {
       /* Change status to complete if this point was
          reached because downloading has finished. */
             if (status == Status.DOWNLOADING) {
-                status = Status.DOWNLOADED;
+                System.err.println("Download of "+name+"-"+version+" has finished.");
+                System.err.print("Computing checksum...");
+                status = Status.VERIFYING;
+                String hash = MD5.asHex(MD5.getHash(new File(archiveFilename)));
+                if (hash.equals(md5)) {
+                    System.err.println("ok!");
+                    status = Status.DOWNLOADED;
+                } else {
+                    System.err.println("failed!");
+                    System.out.println("MD5 downloaded: "+md5);
+                    System.out.println("MD5 computed:   "+hash);
+                    status = Status.ERROR;
+                    downloaded = 0;
+                }
                 stateChanged();
             }
         } catch (Exception e) {

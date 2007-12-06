@@ -122,10 +122,10 @@ public class VoiceInstaller {
                 int size = Integer.parseInt(sizeString);
                 urlString = st.nextToken();
                 URL license = new URL(urlString);
-                //String md5sum = st.nextToken();
+                String md5sum = st.nextToken();
                 String archiveFilename = archiveDir.getAbsolutePath()+"/"+name+"-"+version+".zip";
                 String infoFilename = infoDir.getAbsolutePath()+"/"+name+"-"+version+".voice";
-                voiceMap.put(name+"-"+version, new InstallableVoice(name, version, archiveFilename, infoFilename, url, size, license));
+                voiceMap.put(name+"-"+version, new InstallableVoice(name, version, archiveFilename, infoFilename, url, size, license, md5sum));
             } catch (Exception e) {
                 System.err.println("Problem with voice description read from list -- ignoring: '"+line+"'");
                 e.printStackTrace();
@@ -154,7 +154,7 @@ public class VoiceInstaller {
                 if (new File(archiveFilename).exists()) {
                     size = (int) new File(archiveFilename).length();
                 }
-                voiceMap.put(voice, new InstallableVoice(name, version, archiveFilename, infoFilename, url, size, null));
+                voiceMap.put(voice, new InstallableVoice(name, version, archiveFilename, infoFilename, url, size, null, null));
             }
             System.out.println("added voice: "+voice);
             voices.add(voiceMap.get(voice));
