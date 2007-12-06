@@ -419,6 +419,20 @@ public class DatabaseImportMain extends JFrame
             System.err.println("Could not get a voice building directory -- exiting.");
             System.exit(0);
         }
+        File wavDir =  new File(System.getProperty("user.dir")+System.getProperty("file.separator")+"wav");
+        //System.out.println(System.getProperty("user.dir")+System.getProperty("file.separator")+"wav");
+        if(!wavDir.exists()){
+            int choose = JOptionPane.showOptionDialog(null,
+                    "Before beginning a new voice building, make sure that all wave files to build the voice are in 'wav' directory of your specified location.",
+                    "Could not find wave files",
+                    JOptionPane.OK_OPTION, 
+                    JOptionPane.ERROR_MESSAGE, 
+                    null,
+                    new String[] {"OK"},
+                    null);
+            System.err.println("Could not find 'wav' directory in specified voice building directory -- exiting.");
+            System.exit(0);
+        }
         
         /* Read the list of components */
         String[][] groups2comps;
