@@ -1,4 +1,4 @@
 @echo off
 
-java -ea -jar "$INSTALL_PATH"\java\installvoices.jar
+java -ea -Dmary.base="$INSTALL_PATH" -jar "$INSTALL_PATH"\java\installvoices.jar
 

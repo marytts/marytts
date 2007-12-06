@@ -169,9 +169,27 @@ public class AudioPlayer extends Thread {
 
         DataLine.Info info = new DataLine.Info(SourceDataLine.class,
                 audioFormat);
+        
         try {
-            if (line == null)
+            if (line == null) {
+                boolean bIsSupportedDirectly = AudioSystem.isLineSupported(info);
+                if (!bIsSupportedDirectly)
+                {
+                    AudioFormat sourceFormat = audioFormat;
+                    AudioFormat targetFormat = new AudioFormat(
+                        AudioFormat.Encoding.PCM_SIGNED,
+                        sourceFormat.getSampleRate(),
+                        sourceFormat.getSampleSizeInBits(),
+                        sourceFormat.getChannels(),
+                        sourceFormat.getChannels() * (sourceFormat.getSampleSizeInBits() / 8),
+                        sourceFormat.getSampleRate(),
+                        sourceFormat.isBigEndian());
+                    ais = AudioSystem.getAudioInputStream(targetFormat, ais);
+                    audioFormat = ais.getFormat();
+                }
+                info = new DataLine.Info(SourceDataLine.class, audioFormat);
                 line = (SourceDataLine) AudioSystem.getLine(info);
+            }
             if (lineListener != null)
                 line.addLineListener(lineListener);
             line.open(audioFormat);
