@@ -211,7 +211,10 @@ public class SignalProcUtils {
             if (ind>numfrm)
                 ind=numfrm;
             
-            T0 = (fs/interpf0s[ind-1]);
+            if (interpf0s[ind-1]>10.0)
+                T0 = (fs/interpf0s[ind-1]);
+            else
+                T0 = (fs/100.0f);
             
             if (f0s[ind-1]>10.0)
                 bVuv = true;
