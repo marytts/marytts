@@ -10,10 +10,6 @@
 	<classpathentry kind="lib" path="java/freetts-en_us.jar"/>
 	<classpathentry kind="lib" path="java/freetts-mbrola.jar"/>
 	<classpathentry kind="lib" path="java/jtok.jar"/>
-	<classpathentry kind="lib" path="java/tritonus_mp3.jar"/>
-	<classpathentry kind="lib" path="java/tritonus_remaining.jar"/>
-	<classpathentry kind="lib" path="java/tritonus_share.jar"/>
-	<classpathentry kind="lib" path="java/tritonus_src.jar"/>
 	<classpathentry kind="lib" path="java/java-diff.jar"/>
 	<classpathentry kind="lib" path="java/freetts-germanlex.jar"/>
 	<classpathentry kind="lib" path="java/freetts-de.jar"/>
@@ -22,5 +18,12 @@
 	<classpathentry kind="lib" path="java/JavaOpenAIR.jar"/>
 	<classpathentry kind="lib" path="java/Jama-1.0.2.jar"/>
 	<classpathentry kind="lib" path="java/swing-layout-1.0.jar"/>
+	<classpathentry kind="lib" path="java/tritonus_share-0.3.6.jar"/>
+	<classpathentry kind="lib" path="java/tritonus_remaining-0.3.6.jar"/>
+	<classpathentry kind="lib" path="java/tritonus_mp3-0.3.6.jar"/>
+	<classpathentry kind="lib" path="java/tritonus_jorbis-0.3.6.jar"/>
+	<classpathentry kind="lib" path="java/jorbis-0.0.15.jar"/>
+	<classpathentry kind="lib" path="java/jogg-0.0.7.jar"/>
+	<classpathentry kind="lib" path="java/fast-md5.jar"/>
 	<classpathentry kind="output" path="java"/>
 </classpath>
