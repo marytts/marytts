@@ -300,6 +300,14 @@ public class DownloadManager extends JFrame
                     installButton.setEnabled(true);
                     removeButton.setEnabled(false);
                     break;
+                case INSTALLING:
+                    downloadButton.setEnabled(false);
+//                  pauseButton.setEnabled(false);
+//                  resumeButton.setEnabled(false);
+                    cancelButton.setEnabled(false);
+                    installButton.setEnabled(false);
+                    removeButton.setEnabled(false);
+                    break;
                 case INSTALLED:
                     downloadButton.setEnabled(false);
 //                  pauseButton.setEnabled(false);
