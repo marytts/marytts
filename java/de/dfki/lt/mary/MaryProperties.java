@@ -48,6 +48,7 @@ import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
+import de.dfki.lt.mary.installvoices.VoiceInstaller;
 import de.dfki.lt.mary.util.InstallationUtils;
 import de.dfki.lt.mary.util.MaryUtils;
 import de.dfki.lt.signalproc.effects.BaseAudioEffect;
@@ -445,17 +446,25 @@ public class MaryProperties
         String requirer = reqProps.getProperty("name");
         String problem = "Component `"+missing+"' is required by `"+requirer+"',\n"+
         "but "+message+".";
+        
+        String component = reqProps.getProperty("requires."+missing+".download.package-name", missing).trim();
         String download = reqProps.getProperty("requires."+missing+".download");
-        if (download == null) { // no download option, just inform.
-            JOptionPane.showMessageDialog(null,
-                    problem,
-                    "Dependency problem",
-                    JOptionPane.ERROR_MESSAGE);            
-        } else { // we can try to download it
-            String component = reqProps.getProperty("requires."+missing+".download.package-name", missing).trim();
+        if (missing.contains("voice")) {
             int answer = JOptionPane.showConfirmDialog(null,
                     problem+"\n"+
-                    "Do you want to download `"+ component +"' from\n" + download + "?\n"
+                    "Would you like to download `"+ component +"'\nusing the MARY Voice Installer?\n"
+                    + "After installation, please re-start the MARY server.",
+                    "Dependency problem",
+                    JOptionPane.YES_NO_OPTION);
+            if (answer == JOptionPane.YES_OPTION) {
+                // Try to install it via the voice installer
+                // run(), not start(), so that the code is executed in the current thread
+                new VoiceInstaller(component, false).run(); 
+            }
+        } else if (download != null) {
+            int answer = JOptionPane.showConfirmDialog(null,
+                    problem+"\n"+
+                    "Would you like to download `"+ component +"' from\n" + download + "?\n"
                     + "After installation, please re-start the MARY server.",
                     "Dependency problem",
                     JOptionPane.YES_NO_OPTION);
@@ -476,6 +485,13 @@ public class MaryProperties
                     return component;
                 }
             }
+            
+        } else {
+            // no download option, just inform.
+            JOptionPane.showMessageDialog(null,
+                    problem,
+                    "Dependency problem",
+                    JOptionPane.ERROR_MESSAGE);            
         }
         return null;
     }

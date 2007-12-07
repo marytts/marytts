@@ -36,8 +36,11 @@ public class DownloadManager extends JFrame
     // Flag for whether or not table selection is being cleared.
     private boolean clearing;
     
+    private boolean exitOnClose;
+    
     // Constructor for Download Manager.
-    public DownloadManager(List<InstallableVoice> voices) {
+    public DownloadManager(List<InstallableVoice> voices, boolean exitOnClose) {
+        this.exitOnClose = exitOnClose;
         
         // Set application title.
         setTitle("MARY Voice Installer");
@@ -162,7 +165,11 @@ public class DownloadManager extends JFrame
     
     // Exit this program.
     private void actionExit() {
-        System.exit(0);
+        if (exitOnClose) {
+            System.exit(0);
+        } else {
+            setVisible(false);
+        }
     }
     
     // Verify download URL.

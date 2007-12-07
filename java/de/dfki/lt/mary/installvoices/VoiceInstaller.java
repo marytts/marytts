@@ -48,10 +48,29 @@ import java.util.zip.ZipInputStream;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 
-public class VoiceInstaller {
+public class VoiceInstaller extends Thread
+{
+    private String filter;
+    private boolean exitOnClose;
 
-    // Run the Download Manager.
-    public static void main(String[] args) throws Exception {
+    public VoiceInstaller()
+    {
+        this(null, true);
+    }
+    
+    /**
+     * Create a voice installer that shows only voices
+     * whose name (and optionally, version) matches the ones given in filter.
+     * @param filter
+     */
+    public VoiceInstaller(String filter, boolean exitOnClose)
+    {
+        this.filter = filter;
+        this.exitOnClose = exitOnClose;
+    }
+    
+    public void run()
+    {
         String maryBase = System.getProperty("mary.base");
         if (maryBase == null || !new File(maryBase).isDirectory()) {
             JFrame window = new JFrame("This is the Frames's Title Bar!");
@@ -94,42 +113,46 @@ public class VoiceInstaller {
             voiceMap.put(n.substring(0, n.lastIndexOf('.')), null);
         }
         
-        // Available voices:
-        URL voicesBaseURL = new URL("http://mary.dfki.de/download/voices");
-        URL voicesList = new URL(voicesBaseURL.toString()+"/voices-list.txt");
-        System.out.println("Trying to connect to "+voicesList.toString());
-        HttpURLConnection connection = (HttpURLConnection) voicesList.openConnection();
-        connection.connect();
-        // Make sure response code is in the 200 range.
-        if (connection.getResponseCode() / 100 != 2) {
-            throw new Exception("Cannot download voice list: "+connection.getResponseMessage());
-        }
-        BufferedReader fromVoicesList = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        String line = null;
-        while ((line = fromVoicesList.readLine()) != null) {
-            System.out.println("Read from voices-list: '"+line+"'");
-            // Skip empty lines and comments:
-            if (line.trim().equals("") || line.trim().startsWith("#")) {
-                continue;
+        try {
+            // Available voices:
+            URL voicesBaseURL = new URL("http://mary.dfki.de/download/voices");
+            URL voicesList = new URL(voicesBaseURL.toString()+"/voices-list.txt");
+            System.out.println("Trying to connect to "+voicesList.toString());
+            HttpURLConnection connection = (HttpURLConnection) voicesList.openConnection();
+            connection.connect();
+            // Make sure response code is in the 200 range.
+            if (connection.getResponseCode() / 100 != 2) {
+                throw new Exception("Cannot download voice list: "+connection.getResponseMessage());
             }
-            try {
-                StringTokenizer st = new StringTokenizer(line);
-                String name = st.nextToken();
-                String version = st.nextToken();
-                String urlString = st.nextToken();
-                URL url = new URL(urlString);
-                String sizeString = st.nextToken();
-                int size = Integer.parseInt(sizeString);
-                urlString = st.nextToken();
-                URL license = new URL(urlString);
-                String md5sum = st.nextToken();
-                String archiveFilename = archiveDir.getAbsolutePath()+"/"+name+"-"+version+".zip";
-                String infoFilename = infoDir.getAbsolutePath()+"/"+name+"-"+version+".voice";
-                voiceMap.put(name+"-"+version, new InstallableVoice(name, version, archiveFilename, infoFilename, url, size, license, md5sum));
-            } catch (Exception e) {
-                System.err.println("Problem with voice description read from list -- ignoring: '"+line+"'");
-                e.printStackTrace();
+            BufferedReader fromVoicesList = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String line = null;
+            while ((line = fromVoicesList.readLine()) != null) {
+                System.out.println("Read from voices-list: '"+line+"'");
+                // Skip empty lines and comments:
+                if (line.trim().equals("") || line.trim().startsWith("#")) {
+                    continue;
+                }
+                try {
+                    StringTokenizer st = new StringTokenizer(line);
+                    String name = st.nextToken();
+                    String version = st.nextToken();
+                    String urlString = st.nextToken();
+                    URL url = new URL(urlString);
+                    String sizeString = st.nextToken();
+                    int size = Integer.parseInt(sizeString);
+                    urlString = st.nextToken();
+                    URL license = new URL(urlString);
+                    String md5sum = st.nextToken();
+                    String archiveFilename = archiveDir.getAbsolutePath()+"/"+name+"-"+version+".zip";
+                    String infoFilename = infoDir.getAbsolutePath()+"/"+name+"-"+version+".voice";
+                    voiceMap.put(name+"-"+version, new InstallableVoice(name, version, archiveFilename, infoFilename, url, size, license, md5sum));
+                } catch (Exception e) {
+                    System.err.println("Problem with voice description read from list -- ignoring: '"+line+"'");
+                    e.printStackTrace();
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         
         List<InstallableVoice> voices = new ArrayList<InstallableVoice>();
@@ -156,11 +179,25 @@ public class VoiceInstaller {
                 }
                 voiceMap.put(voice, new InstallableVoice(name, version, archiveFilename, infoFilename, url, size, null, null));
             }
-            System.out.println("added voice: "+voice);
-            voices.add(voiceMap.get(voice));
+            if (filter == null || voice.contains(filter)) {
+                System.out.println("added voice: "+voice);
+                voices.add(voiceMap.get(voice));
+            }
         }
         
-        DownloadManager manager = new DownloadManager(voices);
+        DownloadManager manager = new DownloadManager(voices, exitOnClose);
         manager.setVisible(true);
+        
+        try {
+            while (manager.isVisible()) {
+                Thread.sleep(50);
+            }
+        } catch (InterruptedException e) {
+        }
+    }
+    
+    // Run the Download Manager.
+    public static void main(String[] args) throws Exception {
+        new VoiceInstaller().start();
     }
 }
