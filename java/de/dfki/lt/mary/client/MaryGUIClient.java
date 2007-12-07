@@ -95,7 +95,7 @@ import org.incava.util.diff.Diff;
 import org.incava.util.diff.Difference;
 
 import com.sun.speech.freetts.audio.AudioPlayer;
-import com.sun.speech.freetts.audio.JavaStreamingAudioPlayer;
+import de.dfki.lt.signalproc.util.JavaStreamingAudioPlayer;
 
 import de.dfki.lt.mary.client.MaryClient.Voice;
 import de.dfki.lt.mary.util.MaryUtils;
@@ -169,7 +169,7 @@ public class MaryGUIClient extends JPanel
     /* -------------------- Data and Processing stuff -------------------- */
     private MaryClient processor;
 
-    private AudioPlayer audioPlayer = null;
+    private de.dfki.lt.signalproc.util.AudioPlayer audioPlayer = null;
     private Vector availableVoices = null;
     private Vector inputTypes = null;
     private Vector outputTypes = null;
@@ -1160,7 +1160,7 @@ public class MaryGUIClient extends JPanel
         MaryClient.DataType outputType = (MaryClient.DataType)cbOutputType.getSelectedItem();
         if (outputType.name().equals("AUDIO")) {
             try {
-                audioPlayer = new JavaStreamingAudioPlayer();
+                audioPlayer = new de.dfki.lt.signalproc.util.AudioPlayer();
                 processor.streamAudio(inputText.getText(), 
                         ((MaryClient.DataType)cbInputType.getSelectedItem()).name(),
                         streamMp3 ? "MP3":"WAVE",
