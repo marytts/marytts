@@ -83,7 +83,16 @@ public class MaryProperties
     private static Object[] localSchemas;
 
     /** The mary base directory, e.g. /usr/local/mary */
-    public static String maryBase() { return maryBase; }
+    public static String maryBase()
+    {
+        if (maryBase == null) {
+            maryBase = System.getProperty("mary.base");
+            if (maryBase == null)
+                throw new RuntimeException("System property mary.base not defined");
+            maryBase = expandPath(maryBase);
+        }
+        return maryBase; 
+    }
     /** Whether to log to the log file or to the screen */
     public static boolean logToFile() { return logToFile; }
     /** Names of the classes to use as modules. */
@@ -121,12 +130,8 @@ public class MaryProperties
         throws Exception {
         // Throws all sorts of exceptions, each of them should lead to
         // a program halt: We cannot start up properly.
-        maryBase = System.getProperty("mary.base");
-        if (maryBase == null)
-            throw new Exception("System property mary.base not defined");
-        maryBase = expandPath(maryBase);
         
-        File confDir = new File(maryBase+"/conf");
+        File confDir = new File(maryBase()+"/conf");
         if (!confDir.exists()) {
             throw new FileNotFoundException("Configuration directory not found: "+ confDir.getPath());
         }

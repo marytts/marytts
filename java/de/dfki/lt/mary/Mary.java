@@ -460,10 +460,10 @@ public class Mary {
      */
     public static void main(String[] args) throws Exception {
         long startTime = System.currentTimeMillis();
+        addJarsToClasspath();
         // Read properties:
         // (Will throw exceptions if problems are found)
         MaryProperties.readProperties();
-        addJarsToClasspath();
 
         if (MaryProperties.needBoolean("server")) {
             System.err.print("MARY server " + Version.specificationVersion() + " starting...");
