@@ -49,9 +49,6 @@ public class FIRFilter implements InlineDataProcessor {
     protected double[] transformedIR;
     protected int impulseResponseLength;
     protected int sliceLength;
-    protected boolean bEnergyCompensation;
-    protected double [] energyScales;
-    protected int scaleInd;
     
     /**
      * Create a new, uninitialised FIR filter. Subclasses need to call
@@ -60,10 +57,7 @@ public class FIRFilter implements InlineDataProcessor {
      */
     protected FIRFilter()
     {
-        energyScales = new double[1];
-        scaleInd = -1;
-        for (int i=0; i<energyScales.length; i++)
-            energyScales[i] = 1.0;
+
     }
     
     /**
@@ -73,20 +67,12 @@ public class FIRFilter implements InlineDataProcessor {
     public FIRFilter(double[] impulseResponse)
     {   
         int sliceLen = MathUtils.closestPowerOfTwoAbove(2*impulseResponse.length)-impulseResponse.length;
-        initialise(impulseResponse, sliceLen, false);
+        initialise(impulseResponse, sliceLen);
     }
-
-    /**
-     * Create a new Finite Impulse Response filter.
-     * @param impulseResponse the impulse response signal
-     * @param sliceLength the length of the slices in which to process the input data. IMPORTANT:
-     * impulseResponse.length+sliceLength must be a power of two (256, 512, etc.)
-     * @throws IllegalArgumentException if the slice length is shorter than the impulse response length, or
-     * it the sum of both lengths is not a power of two. 
-     */
-    public FIRFilter(double[] impulseResponse, int sliceLength)
-    {
-        initialise(impulseResponse, sliceLength, false);
+    
+    public FIRFilter(double[] impulseResponse, int len)
+    {   
+        initialise(impulseResponse, len);
     }
     
     /**
@@ -97,23 +83,17 @@ public class FIRFilter implements InlineDataProcessor {
      * @throws IllegalArgumentException if the slice length is shorter than the impulse response length, or
      * it the sum of both lengths is not a power of two. 
      */
-    protected void initialise(double[] impulseResponse, int sliceLen, boolean bEnergyCompensate)
+    protected void initialise(double[] impulseResponse, int sliceLen)
     {
         if (!MathUtils.isPowerOfTwo(impulseResponse.length+sliceLen))
             throw new IllegalArgumentException("Impulse response length plus slice length must be a power of two");
         this.impulseResponseLength = impulseResponse.length;
         this.sliceLength = sliceLen;
-        this.bEnergyCompensation = bEnergyCompensate;
         transformedIR = new double[sliceLen+impulseResponse.length];
         System.arraycopy(impulseResponse, 0, transformedIR, 0, impulseResponse.length);
         FFT.realTransform(transformedIR, false);
         // This means, we are not actually saving the impulseResponse, but only
         // its complex FFT transform.
-    }
-    
-    protected void initialise(double[] impulseResponse, int sliceLen)
-    {
-        initialise(impulseResponse, sliceLen, false);
     }
     
     /**
@@ -193,28 +173,7 @@ public class FIRFilter implements InlineDataProcessor {
     public void applyInline(double[] data, int off, int len)
     {
         double [] dataOut = apply(data);
-        
-        //Scale output to match the average sample energy of the input
-        if (bEnergyCompensation)
-        {
-            double enIn = SignalProcUtils.getAverageSampleEnergy(data);
-            double enOut = SignalProcUtils.getAverageSampleEnergy(dataOut);
-            
-            int i;
-            
-            scaleInd++;
-            if (scaleInd>energyScales.length-1)
-                scaleInd = 0;
-           energyScales[scaleInd] = enIn/enOut;
-           
-           double scale = 0.0; 
-           for (i=0; i<energyScales.length; i++)
-               scale += energyScales[i];
-           scale /= energyScales.length;
-                             
-            for (i=0; i<dataOut.length; i++)
-                dataOut[i] *= scale;
-        }
+       
         System.arraycopy(dataOut, 0, data, 0, len);
     }
 }

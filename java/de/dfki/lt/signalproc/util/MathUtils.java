@@ -793,8 +793,13 @@ public class MathUtils {
     
     public static double getAbsMax(double [] x)
     {
-        double maxx = Math.abs(x[0]);
-        for (int i=1; i<x.length; i++)
+        return getAbsMax(x, 0, x.length-1);
+    }
+    
+    public static double getAbsMax(double [] x, int startInd, int endInd)
+    {
+        double maxx = Math.abs(x[startInd]);
+        for (int i=startInd+1; i<=endInd; i++)
         {
             if (Math.abs(x[i])>maxx)
                 maxx = Math.abs(x[i]);

@@ -785,11 +785,11 @@ public class SignalProcUtils {
             
             FIRFilter f=null;
             if (normalizedStartFreq>0.0 && normalizedEndFreq<1.0f) //Bandpass
-                f = new BandPassFilter(normalizedStartFreq, normalizedEndFreq, true);
+                f = new BandPassFilter(normalizedStartFreq, normalizedEndFreq);
             else if (normalizedStartFreq>0.0)
-                f = new HighPassFilter(normalizedStartFreq, true);
+                f = new HighPassFilter(normalizedStartFreq);
             else if (normalizedEndFreq<1.0f)
-                f = new LowPassFilter(normalizedEndFreq, true);
+                f = new LowPassFilter(normalizedEndFreq);
             
             if (f!=null)
             {

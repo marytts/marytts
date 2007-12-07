@@ -60,15 +60,7 @@ public class BandPassFilter extends FIRFilter {
      * 6000 Hz, the upperNormalisedCutoffFrequency would have to be 0.375. 
      */
     public BandPassFilter(double lowerNormalisedCutoffFrequency, double upperNormalisedCutoffFrequency) {
-        this(lowerNormalisedCutoffFrequency, upperNormalisedCutoffFrequency, DEFAULT_TRANSITIONBANDWIDTH, false);
-    }
-    
-    public BandPassFilter(double lowerNormalisedCutoffFrequency, double upperNormalisedCutoffFrequency, boolean bEnergyCompensate) {
-        this(lowerNormalisedCutoffFrequency, upperNormalisedCutoffFrequency, DEFAULT_TRANSITIONBANDWIDTH, bEnergyCompensate);
-    }
-    
-    public BandPassFilter(double lowerNormalisedCutoffFrequency, double upperNormalisedCutoffFrequency, double normalisedTransitionBandwidth) {
-        this(lowerNormalisedCutoffFrequency, upperNormalisedCutoffFrequency, bandwidth2kernelLength(normalisedTransitionBandwidth), false);
+        this(lowerNormalisedCutoffFrequency, upperNormalisedCutoffFrequency, DEFAULT_TRANSITIONBANDWIDTH);
     }
     
     /**
@@ -87,8 +79,8 @@ public class BandPassFilter extends FIRFilter {
      * but also the larger the filter kernel (impulse response) and computationally costly the filter.
      * Usual range of this parameter is [0.002, 0.2].
      */
-    public BandPassFilter(double lowerNormalisedCutoffFrequency, double upperNormalisedCutoffFrequency, double normalisedTransitionBandwidth, boolean bEnergyCompensate) {
-        this(lowerNormalisedCutoffFrequency, upperNormalisedCutoffFrequency, bandwidth2kernelLength(normalisedTransitionBandwidth), bEnergyCompensate);
+    public BandPassFilter(double lowerNormalisedCutoffFrequency, double upperNormalisedCutoffFrequency, double normalisedTransitionBandwidth) {
+        this(lowerNormalisedCutoffFrequency, upperNormalisedCutoffFrequency, bandwidth2kernelLength(normalisedTransitionBandwidth));
     }
     
     /**
@@ -109,7 +101,7 @@ public class BandPassFilter extends FIRFilter {
      * @throws IllegalArgumentException if the kernel length is not a positive, odd number,
      * or if normalisedCutoffFrequency is not in the range between 0 and 0.5.
      */
-    public BandPassFilter(double lowerNormalisedCutoffFrequency, double upperNormalisedCutoffFrequency, int kernelLength, boolean bEnergyCompensate) {
+    public BandPassFilter(double lowerNormalisedCutoffFrequency, double upperNormalisedCutoffFrequency, int kernelLength) {
         super();
         if (kernelLength <= 0 || kernelLength%2==0) {
             throw new IllegalArgumentException("Kernel length must be an odd positive number, got " + kernelLength);
@@ -123,7 +115,7 @@ public class BandPassFilter extends FIRFilter {
         // this is the distance to the second next power of two, so that the slice
         // will be at least as long as the kernel.
         sliceLength = MathUtils.closestPowerOfTwoAbove(2*kernelLength) - kernelLength;
-        initialise(kernel, sliceLength, bEnergyCompensate);
+        initialise(kernel, sliceLength);
     }
 
     /**
