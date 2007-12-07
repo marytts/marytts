@@ -132,6 +132,7 @@ public class InstallableVoice extends Observable implements Runnable {
     // Download file.
     public void run() {
         status = Status.DOWNLOADING;
+        stateChanged();
         
         RandomAccessFile file = null;
         InputStream stream = null;
@@ -299,7 +300,7 @@ public class InstallableVoice extends Observable implements Runnable {
         JTextPane licensePane = new JTextPane();
         licensePane.setPage(license);
         JScrollPane scroll = new JScrollPane(licensePane);
-        final JOptionPane optionPane = new JOptionPane(scroll, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION, null, new String[] {"Reject", "Accept"}, "Reject");
+        final JOptionPane optionPane = new JOptionPane(scroll, JOptionPane.PLAIN_MESSAGE, JOptionPane.YES_NO_OPTION, null, new String[] {"Reject", "Accept"}, "Reject");
         optionPane.setPreferredSize(new Dimension(640,480));
         final JDialog dialog = new JDialog((Frame)null, "Do you accept the following license?", true);
         dialog.setContentPane(optionPane);

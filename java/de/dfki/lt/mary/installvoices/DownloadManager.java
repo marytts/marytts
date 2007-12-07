@@ -197,8 +197,7 @@ public class DownloadManager extends JFrame
        set the selected download and register to
        receive notifications from it. */
         if (!clearing) {
-            selectedVoice =
-                    tableModel.getDownload(table.getSelectedRow());
+            selectedVoice = tableModel.getDownload(table.getSelectedRow());
             if (selectedVoice != null)
                 selectedVoice.addObserver(DownloadManager.this);
             updateButtons();
