@@ -35,6 +35,7 @@ class DownloadsTableModel extends AbstractTableModel
     
     // Get a download for the specified row.
     public InstallableVoice getDownload(int row) {
+        if (row < 0  || row >= downloadList.size()) return null;
         return downloadList.get(row);
     }
     
