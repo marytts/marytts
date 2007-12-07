@@ -4,8 +4,7 @@ Mary:             Modular
                   Research on
           speech sYnthesis
 
-     Release 3.0.3, October 2006
-          Marc Schroeder, DFKI
+     Release 3.5.0, December 2007
 ----------------------------------------
 README
 ======
@@ -27,11 +26,9 @@ Overview
   - Installation under Windows
   - Running server and client
 * Important configuration settings
-* Starting only the German or only the English modules
-* Selecting which waveform synthesiser and which voices to use
+* Starting only selected components
 * Building new voices
 * How to use Mary in other applications: Demo socket client
-* How to use Mary via JSAPI
 * Known limitations
 * Bug reports
 
@@ -39,17 +36,24 @@ Overview
 New in this release
 ===================
 
-This is the first open source release of the MARY TTS system. Please be
-patient and constructive should you find any bugs. And do report them
-on the ticketing system at http://mary.opendfki.de !
+This release provides substantial new features while maintaining the API
+compatible to previous versions.
 
-This release brings noticeable improvements over previous, closed-source
-releases, including:
-
-* streaming audio -- low latency when synthesizing longer texts
-* support for general-domain cluster unit selection voices; we have
-  modified FreeTTS code to obtain much faster loading and less memory
-  requirements.
+New features include:
+* installer slimmed down to just over 30 MB, including some voices;
+* separate voice installer tool, allowing you to download voices comfortably
+  and with an integrity verification prior to installation;
+* new synthesis technology: Marcela Charfuelan ported the excellent HMM-based
+  synthesis code from the HTS project (http://hts.sp.nitech.ac.jp/) to Java --
+  several HMM-based voices already ship with MARY;
+* audio effects: Oytun Turk implemented a range of audio effects that can be
+  applied to the MARY voices, and can be controlled through the MARYGUIClient;
+* voice creation toolkit: Sathish Chandra Pammi and Anna Hunecke have
+  cleaned up and documented the tool we use for building new synthesis voices;
+* voice recording tool "Redstart": Mat Wilson has programmed a very nice GUI 
+  for recording new voices;
+* OGG Vorbis support: under Linux, the MARY server can now generate audio in
+  OGG Vorbis format.
 
 Introduction
 ============
@@ -73,17 +77,15 @@ Installing and Running the Mary server
 
 Supported platforms:
 
-* Windows (tested on Windows 98, NT 4.0, 2000 and XP)
-* Linux
+* Windows (tested on Windows 98, NT 4.0, 2000, XP, and Vista)
+* Linux (32 and 64 bit versions)
 * Solaris
 * MacOS X
 
 
 Pre-conditions:
 
-* Java 1.4 or 1.5 (tested with Sun Java 1.4.x, 1.5.0, and with IBM Java
-  1.4.1 under linux)
-* For a source release: jakarta-ant build tool (version 1.5.4 or newer).
+* Java 1.5 (or higher)
 
 
 Running the server and the client
@@ -213,8 +215,27 @@ Linux/Solaris/Mac: maryserver -Dignore.german.config -Dignore.mbrola-de3.config 
 Windows: maryserver.bat "-Dignore.german.config" "-Dignore.mbrola-de3.config" "-Dignore.mbrola-de7.config"
 
 
+Building new voices
+===================
+
+The tool "Voice Import Tool" is very powerful and aimed to be easy to use.
+Detailed documentation can be found on the project wiki page:
+http://mary.opendfki.de/wiki/VoiceImportToolsTutorial
+
+
+How to use Mary in other applications: Demo socket client
+=========================================================
+
+Implementations of the MARY client in various programming languages, as well as
+an example of how to use the Java MARY client from a simple Java program, can
+be found in MARY TTS/examples.
+
+
 Known limitations
 =================
+
+Under Windows Vista, installation is not possible in the program folder c:\Program Files
+because of stricter security settings. Installation in a different folder should work.
 
 Under Solaris or MacOS X, MP3 encoding does not work, as there is no native library
 for mp3 encoding.
@@ -224,10 +245,9 @@ Bug reports
 ===========
 
 The system was tested before the release, but clearly you can never test enough.
-If any problems should occur, please submit bug reports via the ticketing system
-operating under http://mary.opendfki.de 
-* check "view tickets" first to see if your bug is already known;
-* if your bug is not listed yet, go to "new ticket" to submit a new bug report.
+If any problems should occur, please submit bug reports via the mary-users
+mailing list -- register at http://dfki.de/mailman/listinfo/mary-users
+
 
 IMPORTANT: Be sure to include the following information in any bug report:
 
