@@ -216,7 +216,9 @@ THIS SOFTWARE.
          basedir="${src}"
          includes="de/dfki/lt/mary/client/*.class
                    de/dfki/lt/mary/util/MaryUtils*.class
-    	           de/dfki/lt/signalproc/util/AudioPlayer.class
+    	           de/dfki/lt/signalproc/util/AudioPlayer*.class
+                   de/dfki/lt/signalproc/util/MonoAudioInputStream.class
+                   de/dfki/lt/signalproc/util/StereoAudioInputStream.class
                    de/dfki/lt/mary/Version.class
                    de/dfki/lt/mary/specification-version.txt
                    de/dfki/lt/mary/implementation-version.txt">
