@@ -33,6 +33,7 @@ import java.util.Vector;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import de.dfki.lt.mary.recsessionmgr.debug.Test;
 import de.dfki.lt.mary.recsessionmgr.gui.AdminWindow;
@@ -84,6 +85,20 @@ public class Redstart {
             System.exit(0);
         }
         
+        File textDir =  new File(System.getProperty("user.dir")+System.getProperty("file.separator")+"text");
+        //System.out.println(System.getProperty("user.dir")+System.getProperty("file.separator")+"wav");
+        if(!textDir.exists()){
+            int choose = JOptionPane.showOptionDialog(null,
+                    "Before beginning a new recording session, make sure that all text files (transcriptions) are available in 'text' directory of your specified location.",
+                    "Could not find transcriptions",
+                    JOptionPane.OK_OPTION, 
+                    JOptionPane.ERROR_MESSAGE, 
+                    null,
+                    new String[] {"OK"},
+                    null);
+            System.err.println("Could not find 'text' directory in user specified location -- exiting.");
+            System.exit(0);
+        }
         
         // Display splash screen
 
