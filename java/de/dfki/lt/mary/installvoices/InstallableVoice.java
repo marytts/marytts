@@ -19,7 +19,7 @@ import com.twmacinta.util.MD5;
 
 // This class downloads a file from a URL.
 public class InstallableVoice extends Observable implements Runnable {
-    public enum Status {AVAILABLE, DOWNLOADING, PAUSED, VERIFYING, DOWNLOADED, CANCELLED, ERROR, INSTALLED};
+    public enum Status {AVAILABLE, DOWNLOADING, PAUSED, VERIFYING, DOWNLOADED, INSTALLING, CANCELLED, ERROR, INSTALLED};
     
     // Max size of download buffer.
     private static final int MAX_BUFFER_SIZE = 1024;
@@ -301,8 +301,10 @@ public class InstallableVoice extends Observable implements Runnable {
      * Install this voice, if the user accepts the license.
      * @return true if the voice was installed, false otherwise
      */
-    public boolean install() throws Exception
+    public void install() throws Exception
     {
+        status = Status.INSTALLING;
+        stateChanged();
         JTextPane licensePane = new JTextPane();
         licensePane.setPage(license);
         JScrollPane scroll = new JScrollPane(licensePane);
@@ -326,41 +328,48 @@ public class InstallableVoice extends Observable implements Runnable {
         
         if (!"Accept".equals(optionPane.getValue())) {
             System.out.println("License not accepted. Installation aborted.");
-            return false;
+            status = Status.DOWNLOADED;
+            stateChanged();
+            return;
         }
         System.out.println("License accepted.");
-        String maryBase = System.getProperty("mary.base");
-        System.out.println("Installing "+name+"-"+version+" in "+maryBase+"...");
-        StringBuffer files = new StringBuffer();
-        try {
-            ZipFile zipfile = new ZipFile(archiveFilename);
-            Enumeration entries = zipfile.entries();
-            while(entries.hasMoreElements()) {
-                ZipEntry entry = (ZipEntry)entries.nextElement();
-                files.append(entry.getName());
-                files.append("\n");
-                if(entry.isDirectory()) {
-                  System.err.println("Extracting directory: " + entry.getName());
-                  (new File(maryBase+"/"+entry.getName())).mkdir();
-                } else {
-                    System.err.println("Extracting file: " + entry.getName());
-                    copyInputStream(zipfile.getInputStream(entry),
-                       new BufferedOutputStream(new FileOutputStream(maryBase+"/"+entry.getName())));
+        Thread t = new Thread() {
+            public void run() {
+                String maryBase = System.getProperty("mary.base");
+                System.out.println("Installing "+name+"-"+version+" in "+maryBase+"...");
+                StringBuffer files = new StringBuffer();
+                try {
+                    ZipFile zipfile = new ZipFile(archiveFilename);
+                    Enumeration entries = zipfile.entries();
+                    while(entries.hasMoreElements()) {
+                        ZipEntry entry = (ZipEntry)entries.nextElement();
+                        files.append(entry.getName());
+                        files.append("\n");
+                        if(entry.isDirectory()) {
+                          System.err.println("Extracting directory: " + entry.getName());
+                          (new File(maryBase+"/"+entry.getName())).mkdir();
+                        } else {
+                            System.err.println("Extracting file: " + entry.getName());
+                            copyInputStream(zipfile.getInputStream(entry),
+                               new BufferedOutputStream(new FileOutputStream(maryBase+"/"+entry.getName())));
+                        }
+                      }
+                      zipfile.close();
+                      PrintWriter pw = new PrintWriter(infoFilename);
+                      pw.println(files);
+                      pw.close();
+                } catch (Exception e) {
+                    System.err.println("... installation failed:");
+                    e.printStackTrace();
+                    status = Status.ERROR;
+                    stateChanged();
                 }
-              }
-              zipfile.close();
-              PrintWriter pw = new PrintWriter(infoFilename);
-              pw.println(files);
-              pw.close();
-        } catch (Exception e) {
-            System.err.println("... installation failed:");
-            e.printStackTrace();
-            return false;
-        }
-        System.err.println("...done");
-        status = Status.INSTALLED;
-        stateChanged();
-        return true;
+                System.err.println("...done");
+                status = Status.INSTALLED;
+                stateChanged();
+            }
+        };
+        t.start();
     }
     
     public static final void copyInputStream(InputStream in, OutputStream out)
