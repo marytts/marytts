@@ -87,6 +87,14 @@ class DownloadsTableModel extends AbstractTableModel
                 return null;
             case 4: // Status
                 return download.getStatus();
+            case 5: // License
+                String license = download.getLicenseUrl();
+                if (license == null) return null;
+                int lastSlash = license.lastIndexOf('/');
+                if (lastSlash == -1) return license;
+                int underscoreAfterSlash = license.indexOf('_', lastSlash);
+                if (underscoreAfterSlash == -1) return license.substring(lastSlash+1);
+                return license.substring(lastSlash+1, underscoreAfterSlash);
         }
         return "";
     }

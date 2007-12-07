@@ -71,7 +71,13 @@ public class InstallableVoice extends Observable implements Runnable {
     
     // Get this download's URL.
     public String getUrl() {
+        if (url == null) return null;
         return url.toString();
+    }
+    
+    public String getLicenseUrl() {
+        if (license == null) return null;
+        return license.toString();
     }
     
     // Get this download's size.
