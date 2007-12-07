@@ -58,8 +58,6 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.AudioFormat.Encoding;
 
-import com.sun.speech.freetts.audio.AudioPlayer;
-
 import de.dfki.lt.mary.Version;
 
 /**
@@ -231,12 +229,40 @@ public class MaryClient {
      * @see #getInputDataTypes()
      * @see #getVoices()
      */
-    public void streamAudio(String input, String inputType, String audioType, String defaultVoiceName, String defaultStyle, String defaultEffects, AudioPlayer audioPlayer, AudioPlayerListener listener)
+    public void streamAudio(String input, String inputType, String audioType, String defaultVoiceName, String defaultStyle, String defaultEffects, de.dfki.lt.signalproc.util.AudioPlayer audioPlayer, AudioPlayerListener listener)
     throws UnknownHostException, IOException
     {
         _process(input, inputType, "AUDIO", audioType, defaultVoiceName, defaultStyle, defaultEffects, audioPlayer, 0, true, listener);
     }
 
+    /**
+     * Call the mary client to stream audio via the given audio player. The server will
+     * provide audio data as it is being generated. If the connection to the server is
+     * not too slow, streaming will be attractive because it reduces considerably the
+     * amount of time one needs to wait for the first audio to play. 
+     * @param input a textual representation of the input data 
+     * @param inputType the name of the input data type, e.g. TEXT or RAWMARYXML.
+     * @param audioType the name of the audio format, e.g. "WAVE" or "MP3".
+     * @param defaultVoiceName the name of the voice to use, e.g. de7 or us1.
+     * @param audioPlayer the FreeTTS audio player with which to play the synthesised audio data. The
+     * given audio player must already be instanciated. See the package
+     * <code>com.sun.speech.freetts.audio</code> in FreeTTS for implementations of AudioPlayer.
+     * @param listener a means for letting calling code know that the AudioPlayer has finished.
+     * @throws IOException if communication with the server fails
+     * @throws UnknownHostException if the host could not be found
+     * @see #getInputDataTypes()
+     * @see #getVoices()
+     */
+    @Deprecated
+    public void streamAudio(String input, String inputType, String audioType, String defaultVoiceName, String defaultStyle, String defaultEffects, com.sun.speech.freetts.audio.AudioPlayer audioPlayer, AudioPlayerListener listener)
+    throws UnknownHostException, IOException
+    {
+        _process(input, inputType, "AUDIO", audioType, defaultVoiceName, defaultStyle, defaultEffects, audioPlayer, 0, true, listener);
+    }
+
+    
+    
+    
     /**
      * The standard way to call the MARY client when the output is to
      * go to an output stream. 
@@ -311,13 +337,15 @@ public class MaryClient {
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    public void process(String input, String inputType, String defaultVoiceName, String defaultStyle,  String defaultEffects, AudioPlayer player)
+    @Deprecated
+    public void process(String input, String inputType, String defaultVoiceName, String defaultStyle,  String defaultEffects, com.sun.speech.freetts.audio.AudioPlayer player)
         throws UnknownHostException, IOException
     {
         _process(input, inputType, "AUDIO", "AU", defaultVoiceName, defaultStyle, defaultEffects, player, 0, false, null);
     }
     
-    public void process(String input, String inputType, String defaultVoiceName, AudioPlayer player)
+    @Deprecated
+    public void process(String input, String inputType, String defaultVoiceName, com.sun.speech.freetts.audio.AudioPlayer player)
     throws UnknownHostException, IOException
     {
         process(input, inputType, defaultVoiceName, "", "", player);
@@ -340,27 +368,34 @@ public class MaryClient {
      * @see #getInputDataTypes()
      * @see #getVoices()
      */
-    public void process(String input, String inputType, String defaultVoiceName, String defaultStyle, String defaultEffects, AudioPlayer player, long timeout)
+    @Deprecated
+    public void process(String input, String inputType, String defaultVoiceName, String defaultStyle, String defaultEffects, com.sun.speech.freetts.audio.AudioPlayer player, long timeout)
         throws UnknownHostException, IOException
     {
         _process(input, inputType, "AUDIO", "AU", defaultVoiceName, defaultStyle, defaultEffects, player, timeout, false, null);
     }
 
-    public void process(String input, String inputType, String defaultVoiceName, AudioPlayer player, long timeout)
+    @Deprecated
+    public void process(String input, String inputType, String defaultVoiceName, com.sun.speech.freetts.audio.AudioPlayer player, long timeout)
     throws UnknownHostException, IOException
     {
         process( input, inputType, defaultVoiceName, "", "", player, timeout);
     }
+    
+    
+    
     private void _process(String input, String inputType, String outputType, String audioType, 
             String defaultVoiceName, String defaultStyle, String defaultEffects, 
             Object output, long timeout, boolean streamingAudio, AudioPlayerListener playerListener)
         throws UnknownHostException, IOException
     {
-        boolean isAudioPlayer;
-        if (output instanceof AudioPlayer) {
-            isAudioPlayer = true;
+        boolean isFreettsAudioPlayer = false;
+        boolean isMaryAudioPlayer = false;
+        if (output instanceof com.sun.speech.freetts.audio.AudioPlayer) {
+            isFreettsAudioPlayer = true;
+        } else if (output instanceof de.dfki.lt.signalproc.util.AudioPlayer) {
+            isMaryAudioPlayer = true;
         } else if (output instanceof OutputStream) {
-            isAudioPlayer = false;
         } else {
             throw new IllegalArgumentException("Expected OutputStream or AudioPlayer, got " + output.getClass().getName());
         }
@@ -456,8 +491,8 @@ public class MaryClient {
             timer.schedule(timerTask, timeout);
         }
 
-        if (isAudioPlayer) {
-            final AudioPlayer player = (AudioPlayer) output;
+        if (isFreettsAudioPlayer) {
+            final com.sun.speech.freetts.audio.AudioPlayer player = (com.sun.speech.freetts.audio.AudioPlayer) output;
             final AudioPlayerListener listener = playerListener;
             Thread t = new Thread() {
                 public void run() 
@@ -501,6 +536,75 @@ public class MaryClient {
                 
                 t.run(); // execute code in the current thread
                 
+            }
+        } else if (isMaryAudioPlayer) {
+            final de.dfki.lt.signalproc.util.AudioPlayer player = (de.dfki.lt.signalproc.util.AudioPlayer) output;
+            final AudioPlayerListener listener = playerListener;
+            Thread t = new Thread() {
+                public void run() 
+                {
+                    try {
+                        InputStream in = fromServerStream;
+                        if (doProfile)
+                            System.err.println("After "+(System.currentTimeMillis()-startTime)+" ms: Trying to read data from server");
+                        while (false && in.available() < 46) { // at least the audio header should be there
+                            Thread.yield();
+                        }
+                        if (doProfile)
+                            System.err.println("After "+(System.currentTimeMillis()-startTime)+" ms: Got at least the header");
+                        in = new BufferedInputStream(in);
+                        in.mark(1000);
+                         AudioInputStream fromServerAudio = AudioSystem.getAudioInputStream(in);
+                         if (fromServerAudio.getFrameLength() == 0) { // weird bug under Java 1.4
+                             //in.reset();
+                             fromServerAudio = new AudioInputStream(in, fromServerAudio.getFormat(), AudioSystem.NOT_SPECIFIED);
+                         }
+                         //System.out.println("Audio framelength: "+fromServerAudio.getFrameLength());
+                         //System.out.println("Audio frame size: "+fromServerAudio.getFormat().getFrameSize());
+                         //System.out.println("Audio format: "+fromServerAudio.getFormat());
+                         if (doProfile)
+                             System.err.println("After "+(System.currentTimeMillis()-startTime)+" ms: Audio available: "+in.available());
+                         AudioFormat audioFormat = fromServerAudio.getFormat();
+                         if (!audioFormat.getEncoding().equals(Encoding.PCM_SIGNED)) { // need conversion, e.g. for mp3
+                             audioFormat = new AudioFormat(fromServerAudio.getFormat().getSampleRate(), 16, 1, true, false);
+                             fromServerAudio = AudioSystem.getAudioInputStream(audioFormat, fromServerAudio);
+                         }
+                        player.setAudio(fromServerAudio);
+                        player.run(); // not start(), i.e. execute in this thread
+                        if (timer != null) {
+                            timer.cancel();
+                        }
+                        if (listener != null) listener.playerFinished();
+
+                        toServerInfo.close();
+                        fromServerInfo.close();
+                        maryInfoSocket.close();
+                        toServerData.close();
+                        maryDataSocket.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }                    
+
+                    try {
+                        warningReader.join();
+                    } catch (InterruptedException ie) {}
+                    if (warningReader.getWarnings().length() > 0) { // there are warnings
+                        String warnings = warningReader.getWarnings(); 
+                        System.err.println(warnings);
+                        if (listener != null) listener.playerException(new IOException(warnings));
+                    }
+
+                        if (doProfile) {
+                            long endTime = System.currentTimeMillis();
+                            long processingTime = endTime - startTime;
+                            System.err.println("Processed request in " + processingTime + " ms.");
+                        }
+                }
+            };
+            if (streamingAudio) {
+                t.start();
+            } else {
+                t.run(); // execute code in the current thread
             }
         } else { // output is an OutputStream
             OutputStream os = (OutputStream) output;
@@ -1232,16 +1336,16 @@ public class MaryClient {
 
     public class AudioPlayerWriter
     {
-        protected AudioPlayer player;
+        protected com.sun.speech.freetts.audio.AudioPlayer player;
         protected InputStream in;
         protected long startTime;
-        public AudioPlayerWriter(AudioPlayer player, InputStream in)
+        public AudioPlayerWriter(com.sun.speech.freetts.audio.AudioPlayer player, InputStream in)
         {
             this.player = player;
             this.in = in;
             this.startTime = System.currentTimeMillis();
         }
-        public AudioPlayerWriter(AudioPlayer player, InputStream in, long startTime)
+        public AudioPlayerWriter(com.sun.speech.freetts.audio.AudioPlayer player, InputStream in, long startTime)
         {
             this.player = player;
             this.in = in;

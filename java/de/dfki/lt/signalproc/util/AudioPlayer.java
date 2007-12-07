@@ -53,6 +53,7 @@ public class AudioPlayer extends Thread {
     public static final int LEFT_ONLY = 1;
     public static final int RIGHT_ONLY = 2;
     
+    public enum Status {WAITING, PLAYING};
     
     private AudioInputStream ais;
 
@@ -62,8 +63,17 @@ public class AudioPlayer extends Thread {
     
     private int outputMode;
 
+    private Status status = Status.WAITING;
     private boolean exitRequested = false;
 
+    /**
+     * AudioPlayer which can be used if audio stream is to be set separately, using setAudio().
+     *
+     */
+    public AudioPlayer()
+    {
+    }
+    
     public AudioPlayer(File audioFile) 
     throws IOException, UnsupportedAudioFileException
     {
@@ -135,6 +145,16 @@ public class AudioPlayer extends Thread {
         this.lineListener = lineListener;
         this.outputMode = outputMode;
     }
+    
+    
+    public void setAudio(AudioInputStream audio) {
+        if (status == Status.PLAYING) {
+            throw new IllegalStateException("Cannot set audio while playing");
+        }
+        this.ais = audio;
+    }
+    
+    
 
     public void cancel() {
         if (line != null)
@@ -147,6 +167,7 @@ public class AudioPlayer extends Thread {
     }
 
     public void run() {
+        status = Status.PLAYING;
         AudioFormat audioFormat = ais.getFormat();
         if (audioFormat.getChannels() == 1) {
             if (outputMode != MONO) { // mono -> convert to stereo
