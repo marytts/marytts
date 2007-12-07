@@ -209,28 +209,30 @@ public class FilterEffectBase extends BaseAudioEffect {
     }
 
     public String getHelpText() {
-        String strRange = "";
+        String strRange1 = "";
         for (int i=LOWPASS_FILTER; i<BANDREJECT_FILTER; i++)
-            strRange += String.valueOf(i) + ",";
+            strRange1 += String.valueOf(i) + ",";
         
-        strRange += String.valueOf(BANDREJECT_FILTER);
+        strRange1 += String.valueOf(BANDREJECT_FILTER);
+        
+        String strRange2 = "[0.0, fs/2.0] where fs is the sampling rate in Hz";
         
         String strHelp = "FIR filtering:" + strLineBreak +
                          "Filters the input signal by an FIR filter." + strLineBreak +
                          "Parameters:" + strLineBreak +
                          "   <type>" + strLineBreak +
                          "   Definition : Type of filter (1:Lowpass, 2:Highpass, 3:Bandpass, 4:Bandreject)" + strLineBreak +
-                         "   Range      : {" + strRange + "}" + strLineBreak +
+                         "   Range      : {" + strRange1 + "}" + strLineBreak +
                          "   <fc>" +
                          "   Definition : Cutoff frequency in Hz for lowpass and highpass filters" + strLineBreak +
-                         "   Range      : {" + strRange + "}" + strLineBreak +
+                         "   Range      : " + strRange2 + strLineBreak +
                          "   <fc1>" +
                          "   Definition : Lower frequency cutoff in Hz for bandpass and bandreject filters" +  strLineBreak +
-                         "   Range      : {" + strRange + "}" + strLineBreak +
+                         "   Range      : " + strRange2 + strLineBreak +
                          "   <fc2>" +
                          "   Definition : Higher frequency cutoff in Hz for bandpass and bandreject filters" + strLineBreak +
-                         "   Range      : {" + strRange + "}" + strLineBreak +
-                         "Example:" + strLineBreak +
+                         "   Range      : " + strRange2 + strLineBreak +
+                         "Example: (A band-pass filter)" + strLineBreak +
                          getExampleParameters();
                         
         return strHelp;
