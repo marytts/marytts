@@ -971,20 +971,20 @@ private String[] lpCrossSynthFiles = {"bird.wav",
             bufferSize = 8*bufferSize;
             double normalizedCutOffFreq1 = 300.0/modParams.fs;
             double normalizedCutOffFreq2 = 3400.0/modParams.fs;
-            effect = new BandPassFilter(normalizedCutOffFreq1, normalizedCutOffFreq2, true);
+            effect = new BandPassFilter(normalizedCutOffFreq1, normalizedCutOffFreq2);
         }
         else if (targetNames[targetIndex]=="Old Radio")
         {  
             bufferSize = 8*bufferSize;
             double normalizedCutOffFreq = 3000.0/modParams.fs;
-            effect = new LowPassFilter(normalizedCutOffFreq, true);
+            effect = new LowPassFilter(normalizedCutOffFreq);
         }
         else if (targetNames[targetIndex]=="Jet Pilot")
         {  
             bufferSize = 8*bufferSize;
             double normalizedCutOffFreq1 = 500.0/modParams.fs;
             double normalizedCutOffFreq2 = 2000.0/modParams.fs;
-            effect = new BandPassFilter(normalizedCutOffFreq1, normalizedCutOffFreq2, true);
+            effect = new BandPassFilter(normalizedCutOffFreq1, normalizedCutOffFreq2);
         }
         else if (targetNames[targetIndex]=="Helicopter Pilot")
         {

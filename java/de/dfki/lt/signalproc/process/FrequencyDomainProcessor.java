@@ -33,6 +33,7 @@ import java.util.Arrays;
 
 import de.dfki.lt.signalproc.FFT;
 import de.dfki.lt.signalproc.util.MathUtils;
+import de.dfki.lt.signalproc.util.SignalProcUtils;
 
 
 public class FrequencyDomainProcessor implements InlineDataProcessor
@@ -100,8 +101,16 @@ public class FrequencyDomainProcessor implements InlineDataProcessor
         System.arraycopy(real, 0, dataOut, pos+middle, len-middle);
         System.arraycopy(real, real.length-middle, dataOut, pos, middle);
         
+        double origAvgEnergy = SignalProcUtils.getAverageSampleEnergy(data, len);
+
         for (i=0; i<len; i++)
             data[i] = amount*dataOut[i] + oneMinusAmount*data[i]; 
+        
+        double newAvgEnergy = SignalProcUtils.getAverageSampleEnergy(data, len);
+        double scale = origAvgEnergy/newAvgEnergy;
+        
+        for (i=0; i<len; i++)
+            data[i] *= 0.8*scale; 
     }
     
     /**

@@ -113,6 +113,8 @@ public class VocalTractModifier implements InlineDataProcessor {
             System.arraycopy(data2, 0, data, 0, data2.length);
         }
         
+        double origAvgEnergy = SignalProcUtils.getAverageSampleEnergy(data);
+        
         // Compute LPC coefficients
         LPCoeffs coeffs = LPCAnalyser.calcLPC(data, p);
         double sqrtGain = coeffs.getGain();
@@ -162,6 +164,12 @@ public class VocalTractModifier implements InlineDataProcessor {
 
             //h = FFTMixedRadix.ifft(h);
             FFT.transform(h.real, h.imag, true);
+            
+            double newAvgEnergy = SignalProcUtils.getAverageSampleEnergy(h.real, len);
+            double scale = origAvgEnergy/newAvgEnergy;
+            
+            for (k=0; k<len; k++)
+                h.real[k] *= scale;
             
             System.arraycopy(h.real, 0, data, 0, len);
         }

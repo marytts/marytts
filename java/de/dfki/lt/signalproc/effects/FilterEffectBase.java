@@ -167,9 +167,9 @@ public class FilterEffectBase extends BaseAudioEffect {
         filter = null;
         
         if (filterType == LOWPASS_FILTER && normalizedCutOffFreq1>0.0)
-            filter = new LowPassFilter(normalizedCutOffFreq1, true);
+            filter = new LowPassFilter(normalizedCutOffFreq1);
         else if (filterType == HIGHPASS_FILTER && normalizedCutOffFreq1>0.0)
-            filter = new HighPassFilter(normalizedCutOffFreq1, true);
+            filter = new HighPassFilter(normalizedCutOffFreq1);
         else if (filterType == BANDPASS_FILTER && normalizedCutOffFreq1>0.0 && normalizedCutOffFreq2>0.0)
         {
             if (normalizedCutOffFreq1>normalizedCutOffFreq2)
@@ -179,7 +179,7 @@ public class FilterEffectBase extends BaseAudioEffect {
                 normalizedCutOffFreq2 = tmp;
             }
             
-            filter = new BandPassFilter(normalizedCutOffFreq1, normalizedCutOffFreq2, true);
+            filter = new BandPassFilter(normalizedCutOffFreq1, normalizedCutOffFreq2);
         }
         else if (filterType == BANDREJECT_FILTER  && normalizedCutOffFreq1>0.0 && normalizedCutOffFreq2>0.0)
         {
@@ -190,7 +190,7 @@ public class FilterEffectBase extends BaseAudioEffect {
                 normalizedCutOffFreq2 = tmp;
             }
             
-            filter = new BandRejectFilter(normalizedCutOffFreq1, normalizedCutOffFreq2, true);
+            filter = new BandRejectFilter(normalizedCutOffFreq1, normalizedCutOffFreq2);
         }
     }
     
