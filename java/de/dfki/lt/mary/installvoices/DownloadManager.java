@@ -199,7 +199,8 @@ public class DownloadManager extends JFrame
         if (!clearing) {
             selectedVoice =
                     tableModel.getDownload(table.getSelectedRow());
-            selectedVoice.addObserver(DownloadManager.this);
+            if (selectedVoice != null)
+                selectedVoice.addObserver(DownloadManager.this);
             updateButtons();
         }
     }

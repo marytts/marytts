@@ -352,6 +352,7 @@ public class InstallableVoice extends Observable implements Runnable {
         }
         System.err.println("...done");
         status = Status.INSTALLED;
+        stateChanged();
         return true;
     }
     
