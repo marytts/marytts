@@ -95,7 +95,6 @@ import org.incava.util.diff.Diff;
 import org.incava.util.diff.Difference;
 
 import com.sun.speech.freetts.audio.AudioPlayer;
-import de.dfki.lt.signalproc.util.JavaStreamingAudioPlayer;
 
 import de.dfki.lt.mary.client.MaryClient.Voice;
 import de.dfki.lt.mary.util.MaryUtils;
