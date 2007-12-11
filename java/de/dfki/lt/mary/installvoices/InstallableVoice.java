@@ -306,7 +306,11 @@ public class InstallableVoice extends Observable implements Runnable {
         status = Status.INSTALLING;
         stateChanged();
         JTextPane licensePane = new JTextPane();
-        licensePane.setPage(license);
+        if (license != null) {
+            licensePane.setPage(license);
+        } else {
+            licensePane.setText("Unknown license for voice "+this.toString()+" -- only proceed if you are certain you have the right to install this voice!");
+        }
         JScrollPane scroll = new JScrollPane(licensePane);
         final JOptionPane optionPane = new JOptionPane(scroll, JOptionPane.PLAIN_MESSAGE, JOptionPane.YES_NO_OPTION, null, new String[] {"Reject", "Accept"}, "Reject");
         optionPane.setPreferredSize(new Dimension(640,480));
@@ -349,9 +353,14 @@ public class InstallableVoice extends Observable implements Runnable {
                           System.err.println("Extracting directory: " + entry.getName());
                           (new File(maryBase+"/"+entry.getName())).mkdir();
                         } else {
+                            File newFile = new File(maryBase+"/"+entry.getName());
+                            if (!newFile.getParentFile().isDirectory()) {
+                                System.err.println("Creating directory tree: "+newFile.getParentFile().getAbsolutePath());
+                                newFile.getParentFile().mkdirs();
+                            }
                             System.err.println("Extracting file: " + entry.getName());
                             copyInputStream(zipfile.getInputStream(entry),
-                               new BufferedOutputStream(new FileOutputStream(maryBase+"/"+entry.getName())));
+                               new BufferedOutputStream(new FileOutputStream(newFile)));
                         }
                       }
                       zipfile.close();
