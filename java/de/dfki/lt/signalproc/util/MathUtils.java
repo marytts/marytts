@@ -755,28 +755,92 @@ public class MathUtils {
         return maxx;
     }
     
-    public static int getMin(int [] x)
+    public static int getMaxIndex(double [] x)
     {
-        int maxx = x[0];
+        double maxx = x[0];
+        int maxInd = 0;
         for (int i=1; i<x.length; i++)
         {
-            if (x[i]<maxx)
+            if (x[i]>maxx)
+            {
                 maxx = x[i];
+                maxInd = i;
+            }
         }
         
-        return maxx;
+        return maxInd;
+    }
+    
+    public static int getMaxIndex(float [] x)
+    {
+        float maxx = x[0];
+        int maxInd = 0;
+        for (int i=1; i<x.length; i++)
+        {
+            if (x[i]>maxx)
+            {
+                maxx = x[i];
+                maxInd = i;
+            }
+        }
+        
+        return maxInd;
+    }
+    
+    public static int getMin(int [] x)
+    {
+        int minn = x[0];
+        for (int i=1; i<x.length; i++)
+        {
+            if (x[i]<minn)
+                minn = x[i];
+        }
+        
+        return minn;
     }
     
     public static double getMin(double [] x)
     {
-        double maxx = x[0];
+        double minn = x[0];
         for (int i=1; i<x.length; i++)
         {
-            if (x[i]<maxx)
-                maxx = x[i];
+            if (x[i]<minn)
+                minn = x[i];
         }
         
-        return maxx;
+        return minn;
+    }
+    
+    public static int getMinIndex(double [] x)
+    {
+        double minn = x[0];
+        int minInd = 0;
+        for (int i=1; i<x.length; i++)
+        {
+            if (x[i]<minn)
+            {
+                minn = x[i];
+                minInd = i;
+            }
+        }
+        
+        return minInd;
+    }
+    
+    public static int getMinIndex(float [] x)
+    {
+        float minn = x[0];
+        int minInd = 0;
+        for (int i=1; i<x.length; i++)
+        {
+            if (x[i]<minn)
+            {
+                minn = x[i];
+                minInd = i;
+            }
+        }
+        
+        return minInd;
     }
     
     public static float getMin(float [] x)
@@ -1079,6 +1143,19 @@ public class MathUtils {
             ret = maxVal;
         
         return ret;
+    }
+    
+    //Find the extremum points that are larger/smaller than numLefNs and numRightNs neighbours and larger/smaller than the given th value
+    public static int [] getExtrema(double [] x, int numLeftN, int numRightN, boolean isMaxima)
+    {
+        double th;
+        
+        if (isMaxima)
+            th = MathUtils.getMin(x)-1.0;
+        else
+            th = MathUtils.getMax(x)+1.0;
+
+        return getExtrema(x, numLeftN, numRightN, isMaxima, th); 
     }
     
     //Find the extremum points that are larger/smaller than numLefNs and numRightNs neighbours and larger/smaller than the given th value
@@ -1452,5 +1529,70 @@ public class MathUtils {
         index = Math.min(index, x.length-1);
 
         return ((Double)(v.get(index))).doubleValue();
+    }
+    
+    //Factorial design of all possible paths
+    // totalItemsInNodes is a vector containing the total number of element at each node,
+    // The output is the zero-based indices of elements in successive nodes covering all possible paths
+    // from the first node to the last
+    // Note that all elements of totalItemsInNodes should be greater than 0 (otherwise it is assumed that the corresponding element is 1)
+    public static int [][] factorialDesign(int [] totalItemsInNodes)
+    {
+        int totalPaths = 1;
+
+        int i, j;
+        for (i=0; i<totalItemsInNodes.length; i++)
+        {
+            if (totalItemsInNodes[i]>0)
+                totalPaths *= totalItemsInNodes[i];
+        }
+        
+        int [][] pathInds = new int[totalPaths][totalItemsInNodes.length];
+        int [] currentPath = new int[totalItemsInNodes.length];
+        
+        int count = 0;
+        
+        Arrays.fill(currentPath, 0);
+        System.arraycopy(currentPath, 0, pathInds[count++], 0, currentPath.length);
+
+        while (count<totalPaths)
+        {
+            for (i=currentPath.length-1; i>=0; i--)
+            {
+                if (currentPath[i]+1<Math.max(1, totalItemsInNodes[i]))
+                {
+                    currentPath[i]++;
+                    break;
+                }
+                else
+                    currentPath[i]=0;
+            }
+            
+            System.arraycopy(currentPath, 0, pathInds[count], 0, currentPath.length);
+            count++;
+        }
+
+        return pathInds;
+    }
+    
+    public static void main(String[] args)
+    {
+        int [] totals = new int[4];
+        totals[0] = 2;
+        totals[1] = 3;
+        totals[2] = 2;
+        totals[3] = 2;
+        
+        int [][] paths = factorialDesign(totals);
+        String str;
+        
+        for (int i=0; i<paths.length; i++)
+        {
+            str = "";
+            for (int j=0; j<paths[i].length; j++)
+                str += String.valueOf(paths[i][j]) + " ";
+
+            System.out.println(str);
+        }
     }
 }

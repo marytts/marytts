@@ -98,7 +98,7 @@ public class LPCAnalyser extends FrameBasedAnalyser
         return calcLPC(x, p);
     }
     
-    //Computes LP smoothed spectrum of a windowed speech frame
+    //Computes LP smoothed spectrum of a windowed speech frame (linear)
     public static double [] calcSpecFrame(double [] windowedFrame, int p)
     {
         return calcSpecFrame(windowedFrame, p, windowedFrame.length);
@@ -186,7 +186,8 @@ public class LPCAnalyser extends FrameBasedAnalyser
      */
     public static LPCoeffs calcLPC(double[] x, int p)
     {
-        for (int i=0; i<x.length; i++)
+        int i;
+        for (i=0; i<x.length; i++)
             x[i] += Math.random()*1e-50;
         
         double[] autocorr = FFT.autoCorrelateWithZeroPadding(x);
@@ -201,6 +202,14 @@ public class LPCAnalyser extends FrameBasedAnalyser
         double[] coeffs = MathUtils.levinson(r, p);
         // gain factor:
         double g = Math.sqrt(MathUtils.sum(MathUtils.multiply(coeffs, r)));
+        
+        /*
+        g = r[0];
+        for (i=0; i<p; i++)
+            g -= coeffs[i]*r[i+1];
+        g = Math.sqrt(g);
+        */
+        
         return new LPCoeffs(coeffs, g);
     }
 

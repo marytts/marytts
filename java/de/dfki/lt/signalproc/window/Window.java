@@ -372,4 +372,9 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
         for (i=0; i<window.length; i++)
             window[i] *= scale;
     }
+    
+    public double[] getCoeffs()
+    {
+        return window;
+    }
 }

@@ -268,9 +268,11 @@ public class SignalProcUtils {
             {
                 currentTime = i*ss+0.5f*ws;
                 currentInd = MathUtils.findClosest(times, currentTime);
-             
-                
-                    
+
+                if (currentInd>0)
+                    f0s[i] = 1.0/(times[currentInd]-times[currentInd-1]);
+                else
+                    f0s[i] = 1.0/times[currentInd];
             }
         }
         
@@ -443,7 +445,11 @@ public class SignalProcUtils {
     
     public static int freq2index(double freqInHz, int samplingRateInHz, int maxFreqIndex)
     {
-        return (int)Math.floor(freqInHz/(0.5*samplingRateInHz)*(maxFreqIndex-1)+0.5);
+        int index = (int)Math.floor(freqInHz/(0.5*samplingRateInHz)*(maxFreqIndex-1)+0.5);
+        index = (int)Math.max(0, index);
+        index = (int)Math.min(index, maxFreqIndex);
+        
+        return index;
     }
     
     //Convert a zero based spectrum index value to frequency in Hz

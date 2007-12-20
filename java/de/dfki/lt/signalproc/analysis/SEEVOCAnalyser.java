@@ -45,6 +45,15 @@ public class SEEVOCAnalyser {
         return calcSpecEnvelope(absMagSpecIndB, samplingRate, 100.0);
     }
     
+    //The returned spectral envelope is in linear scale
+    public static double[] calcSpecEnvelopeLinear(double [] absMagSpecIndB, int samplingRate, double f0)
+    {
+        double [] H = calcSpecEnvelope(absMagSpecIndB, samplingRate, f0);
+
+        return MathUtils.db2linear(H);
+    }
+    
+    //The returned spectral envelope is also in dB
     public static double[] calcSpecEnvelope(double [] absMagSpecIndB, int samplingRate, double f0)
     {
         int i, j;
@@ -171,8 +180,8 @@ public class SEEVOCAnalyser {
         for (j=peakInds[numPeaks-1]; j<=maxFreqInd; j++)
             H[j] = absMagSpecIndB[peakInds[numPeaks-1]] + (absMagSpecIndB[maxFreqInd]-absMagSpecIndB[peakInds[numPeaks-1]])/(0.5*samplingRate-peakFreqs[numPeaks-1])*(freqs[j]-peakFreqs[numPeaks-1]);
         
-        H = SignalProcUtils.medianFilter(H, 5, H[0], H[H.length-1]); 
-        H = SignalProcUtils.meanFilter(H, 19, H[0], H[H.length-1]);
+        //H = SignalProcUtils.medianFilter(H, 5, H[0], H[H.length-1]); 
+        //H = SignalProcUtils.meanFilter(H, 19, H[0], H[H.length-1]);
         
         //Plot the DFT and the estimated spectral envelope to check visually
         //double [] excIndB = new double[H.length];
