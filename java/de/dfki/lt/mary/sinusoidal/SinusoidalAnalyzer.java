@@ -38,12 +38,14 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.JFrame;
 
 import de.dfki.lt.signalproc.FFT;
 import de.dfki.lt.signalproc.FFTMixedRadix;
 import de.dfki.lt.signalproc.analysis.F0ReaderWriter;
 import de.dfki.lt.signalproc.analysis.LPCAnalyser;
 import de.dfki.lt.signalproc.analysis.SEEVOCAnalyser;
+import de.dfki.lt.signalproc.display.FunctionGraph;
 import de.dfki.lt.signalproc.process.FrameOverlapAddSource;
 import de.dfki.lt.signalproc.process.FrameProvider;
 import de.dfki.lt.signalproc.process.LPCCrossSynthesis;
@@ -109,7 +111,7 @@ public class SinusoidalAnalyzer {
     {
         fs = samplingRate;
         windowType = windowTypeIn;
-        fftSize = getSinAnaFFTSize(fs);
+        setSinAnaFFTSize(getDefaultFFTSize(fs));
         bRefinePeakEstimatesParabola = bRefinePeakEstimatesParabolaIn;
         bRefinePeakEstimatesBias = bRefinePeakEstimatesBiasIn;
         minWindowSize = (int)(Math.floor(fs*MIN_WINDOW_SIZE+0.5));
@@ -143,7 +145,7 @@ public class SinusoidalAnalyzer {
     }
     //
     
-    public static int getSinAnaFFTSize(int samplingRate)
+    public static int getDefaultFFTSize(int samplingRate)
     { 
         if (samplingRate<10000)
             return 1024;
@@ -151,6 +153,11 @@ public class SinusoidalAnalyzer {
             return 2048;
         else
             return 4096;
+    }
+    
+    public void setSinAnaFFTSize(int fftSizeIn)
+    { 
+        fftSize = fftSizeIn;
     }
     
     //Set default search range for peak detection for different frequency intervals
@@ -310,6 +317,8 @@ public class SinusoidalAnalyzer {
         return extractSinusoidsFixedRate(x, winSizeInSeconds, skipSizeInSeconds, deltaInHz, spectralEnvelopeType, null, -1.0f, -1.0f);
     }
     
+    // ws_f0: Window size in pitch extraction in seconds
+    // ss_f0: Skip size in pitch extraction in seconds
     public SinusoidalSpeechSignal extractSinusoidsFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz,
                                                             int spectralEnvelopeType, double [] f0s, float ws_f0, float ss_f0)
     {
@@ -352,7 +361,7 @@ public class SinusoidalAnalyzer {
             
             if (spectralEnvelopeType==SEEVOC_SPEC && f0s!=null)
             {
-                f0Ind = (int)Math.floor((currentTime*fs-0.5*ws_f0)/ss_f0+0.5);
+                f0Ind = (int)Math.floor((currentTime-0.5*ws_f0)/ss_f0+0.5);
                 f0Ind = Math.min(f0Ind, f0s.length-1);
                 f0Ind = Math.max(0, f0Ind);
                 sinSignal.framesSins[i] = analyze_frame(frm, spectralEnvelopeType, f0s[f0Ind]);
@@ -526,8 +535,18 @@ public class SinusoidalAnalyzer {
             if (spectralEnvelopeType==LP_SPEC)
                 vocalTractSpec = LPCAnalyser.calcSpecFrame(frm, LPOrder, fftSize);
             else if (spectralEnvelopeType==SEEVOC_SPEC)
-                vocalTractSpec = SEEVOCAnalyser.calcSpecEnvelope(Ydb, fs, f0);
-
+                vocalTractSpec = SEEVOCAnalyser.calcSpecEnvelopeLinear(Ydb, fs, f0); //Note that this is in dB
+            
+            /*
+            double [] YLin = MathUtils.db2linear(Ydb);
+            FunctionGraph graph = new FunctionGraph(400, 200, 0, 1,  YLin);
+            JFrame frame1 = graph.showInJFrame("Q-values", 500, 300, true, false);
+            FunctionGraph graph2 = new FunctionGraph(400, 200, 0, 1,  vocalTractSpec);
+            JFrame frame2 = graph2.showInJFrame("Q-values", 500, 300, true, false);
+            frame1.dispose();
+            frame2.dispose();
+            */
+            
             //Determine peak amplitude indices and the corresponding amplitudes, frequencies, and phases 
             if (!bManualPeakPickingTest)
                 freqInds = MathUtils.getExtrema(Ydb, freqSampNeighs, freqSampNeighs, true, MIN_PEAK_IN_DB);

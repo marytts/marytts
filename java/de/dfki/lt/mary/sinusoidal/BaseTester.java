@@ -37,6 +37,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 
 import de.dfki.lt.mary.util.FileUtils;
+import de.dfki.lt.signalproc.analysis.F0ReaderWriter;
 import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
 import de.dfki.lt.signalproc.util.DDSAudioInputStream;
 import de.dfki.lt.signalproc.util.MathUtils;
@@ -51,11 +52,22 @@ public class BaseTester {
     public static float DEFAULT_AMP = 0.8f;
     public static float DEFAULT_DUR = 1.0f;
     public static int DEFAULT_FS = 16000;
+    public static float DEFAULT_WINDOW_SIZE_FOR_PITCH_CONTOUR = 0.020f;
+    public static float DEFAULT_SKIP_SIZE_FOR_PITCH_CONTOUR = 0.010f;
     public double [] signal;
     public int [] pitchMarks;
+    public double [] f0s; 
     public int fs;
+    public float ws; //Window size in seconds
+    public float ss; //Skip size in seconds
     
-    public void write(String outWavFile, String outPmFile) throws IOException
+    public BaseTester()
+    {
+        ws = DEFAULT_WINDOW_SIZE_FOR_PITCH_CONTOUR;
+        ss = DEFAULT_SKIP_SIZE_FOR_PITCH_CONTOUR;
+    }
+    
+    public void write(String outWavFile, String outPtcFile) throws IOException
     {
         if (signal != null)
         {
@@ -77,8 +89,12 @@ public class BaseTester {
                 AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outWavFile));
             }
             
-            if (pitchMarks != null && (outPmFile!=null || outPmFile!=""))
-                FileUtils.writeToBinaryFile(pitchMarks, outPmFile);
+            if (pitchMarks != null && (outPtcFile!=null || outPtcFile!=""))
+            {
+                F0ReaderWriter.write_pitch_file(outPtcFile, f0s, ws, ss, fs);
+                //FileUtils.writeToBinaryFile(pitchMarks, outPtcFile); //Pitch mark file
+            }
+ 
         }
     }
 }

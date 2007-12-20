@@ -246,22 +246,11 @@ public class SinusoidalSynthesizer {
             
             if (spectralEnvelopeType == SinusoidalAnalyzer.SEEVOC_SPEC) //Pitch info needed
             {
-                if (isRealSpeech)
-                {
-                    String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
-                    F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
-                    f0s = f0.getContour();
-                    ws_f0 = (float) f0.ws;
-                    ss_f0 = (float) f0.ss;
-                }
-                else
-                {
-                    String strPmFile = args[0].substring(0, args[0].length()-4) + ".pm";
-                    int [] pitchMarks = FileUtils.readFromBinaryFile(strPmFile);
-                    ws_f0 = 0.020f;;
-                    ss_f0 = 0.010f;
-                    f0s = SignalProcUtils.pitchMarks2PitchContour(pitchMarks, ws_f0, ss_f0, samplingRate);
-                }
+                String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
+                F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
+                f0s = f0.getContour();
+                ws_f0 = (float) f0.ws;
+                ss_f0 = (float) f0.ss;
             }
                 
             st = sa.analyzeFixedRate(x, 0.020f, 0.010f, deltaInHz, spectralEnvelopeType, f0s, ws_f0, ss_f0);
@@ -271,24 +260,13 @@ public class SinusoidalSynthesizer {
         else
         {
             //Pitch synchronous analysis
-            if (isRealSpeech) //Test using real speech (Make sure .ptc file with identical filename as the wavfile exists)
-            {
-                String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
-                F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
-                PitchMarker pm = SignalProcUtils.pitchContour2pitchMarks(f0.getContour(), samplingRate, x.length, f0.ws, f0.ss, true);
-                pa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HANN, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bAdjustNeighFreqDependent);
-                st = pa.analyzePitchSynchronous(x, pm.pitchMarks, numPeriods, -1.0f, deltaInHz);
-                isSilentSynthesis = false;
-            }
-            else //Test using simple sinusoids (Make sure .pm file with identical filename as the wavfile exists (Tester.java automatically generates it))
-            {
-                String strPmFile = args[0].substring(0, args[0].length()-4) + ".pm";
-                int [] pitchMarks = FileUtils.readFromBinaryFile(strPmFile);
-                pa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HANN, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bAdjustNeighFreqDependent);
-                st = pa.analyzePitchSynchronous(x, pitchMarks, numPeriods, -1.0f, deltaInHz);
-            }
-            //
-            
+            String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
+            F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
+            PitchMarker pm = SignalProcUtils.pitchContour2pitchMarks(f0.getContour(), samplingRate, x.length, f0.ws, f0.ss, true);
+            pa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HANN, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bAdjustNeighFreqDependent);
+            st = pa.analyzePitchSynchronous(x, pm.pitchMarks, numPeriods, -1.0f, deltaInHz);
+            isSilentSynthesis = false;
+
             absMaxOriginal = pa.getAbsMaxOriginal();
         }
         //
