@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 import de.dfki.lt.mary.util.FileUtils;
 import de.dfki.lt.signalproc.util.MathUtils;
+import de.dfki.lt.signalproc.util.SignalProcUtils;
 
 //This class combines SinusoidsTester and NoiseTester classes
 // You can simply give a SinusoidsTester object and NoiseTester object
@@ -27,6 +28,7 @@ public class HybridTester extends BaseTester{
             maxLen = n.signal.length;
         
         signal = new double[maxLen];
+        pitchMarks = null;
         
         Arrays.fill(signal, 0.0);
         
@@ -138,6 +140,9 @@ public class HybridTester extends BaseTester{
                 System.arraycopy(n.pitchMarks, 0, pitchMarks, 0, n.pitchMarks.length);
             }
         }
+        
+        if (pitchMarks!=null)
+            f0s = SignalProcUtils.pitchMarks2PitchContour(pitchMarks, ws, ss, fs);
     }
 
     public static void main(String[] args) throws IOException

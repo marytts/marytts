@@ -40,8 +40,10 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.JFrame;
 
 import de.dfki.lt.mary.MaryProperties;
+import de.dfki.lt.signalproc.display.FunctionGraph;
 
 
 public class AudioDestination
@@ -152,4 +154,28 @@ public class AudioDestination
         }
     }        
 
+    public static void plot(double [] x)
+    {
+        plot(x, false);
+    }
+    
+    public static void plot(double [] x, boolean bAutoClose)
+    {
+        plot(x, bAutoClose, 3000);
+    }
+    
+    // Plots the values in x
+    // If bAutoClose is specified, the figure is closed after milliSecondsToClose milliseconds
+    // milliSecondsToClose: has no effect if bAutoClose is false
+    public static void plot(double [] x, boolean bAutoClose, int milliSecondsToClose)
+    {
+        FunctionGraph graph = new FunctionGraph(400, 200, 0, 1, x);
+        JFrame frame = graph.showInJFrame("wgt2", 500, 300, true, false);
+        
+        if (bAutoClose)
+        {
+            try { Thread.sleep(milliSecondsToClose); } catch (InterruptedException e) {}
+            frame.dispose();
+        }
+    }
 }

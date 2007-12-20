@@ -50,7 +50,7 @@ import de.dfki.lt.signalproc.window.Window;
 
 /**
  * @author oytun.turk
- *
+ * This pitch tracker is based on Quatieri´s book
  */
 public class CombFilterPitchTracker extends BaseSinusoidalPitchTracker {
 
@@ -60,11 +60,22 @@ public class CombFilterPitchTracker extends BaseSinusoidalPitchTracker {
     }
     
     
-    public double performanceCriterion(SinusoidalSpeechFrame sinFrame, int startIndex, int endIndex, float f0Candidate, int samplingRate)
+    public double performanceCriterion(SinusoidalSpeechFrame sinFrame, float f0Candidate, int samplingRate)
     {
         double Q = 0.0;
         
-        for (int k=startIndex; k<=endIndex; k++)
+        int endIndex = 0;
+        float f0CandidateInRadians = SignalProcUtils.hz2radian(f0Candidate, samplingRate);
+        
+        while (sinFrame.sinusoids[endIndex].freq<f0CandidateInRadians)
+        {
+            if (endIndex>=sinFrame.sinusoids.length-1)
+                break;
+            
+            endIndex++;
+        }
+        
+        for (int k=0; k<=endIndex; k++)
             Q += sinFrame.sinusoids[k].amp*sinFrame.sinusoids[k].amp*Math.cos(MathUtils.TWOPI*SignalProcUtils.radian2Hz(sinFrame.sinusoids[k].freq, samplingRate)/f0Candidate);
         
         return Q;
@@ -77,9 +88,9 @@ public class CombFilterPitchTracker extends BaseSinusoidalPitchTracker {
         AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
         double [] x = signal.getAllData();
         
-        float searchStepInHz = 0.2f;
+        float searchStepInHz = 0.5f;
         float minFreqInHz = 40.0f;
-        float maxFreqInHz = 800.0f;
+        float maxFreqInHz = 400.0f;
         
         float windowSizeInSeconds = SinusoidalAnalyzer.DEFAULT_ANALYSIS_WINDOW_SIZE;
         float skipSizeInSeconds = SinusoidalAnalyzer.DEFAULT_ANALYSIS_SKIP_SIZE;
@@ -89,7 +100,7 @@ public class CombFilterPitchTracker extends BaseSinusoidalPitchTracker {
         F0ReaderWriter f0 = new F0ReaderWriter(strPitchFileIn);
         PitchMarker pm = SignalProcUtils.pitchContour2pitchMarks(f0.getContour(), samplingRate, x.length, f0.ws, f0.ss, true);
         PitchSynchronousSinusoidalAnalyzer sa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, true, true);
-        
+        //sa.setSinAnaFFTSize(4096);
         SinusoidalSpeechSignal ss = sa.extractSinusoidsFixedRate(x, windowSizeInSeconds, skipSizeInSeconds, deltaInHz);
         
         CombFilterPitchTracker p = new CombFilterPitchTracker();

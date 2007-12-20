@@ -227,6 +227,8 @@ public class NoiseTester extends BaseTester{
                 pitchMarks[i] = Math.min(i*maxT0+minStartSampleIndex, maxEndSampleIndex);
             //
             
+            f0s = SignalProcUtils.pitchMarks2PitchContour(pitchMarks, ws, ss, fs);
+            
             if (maxEndSampleIndex>0)
             {
                 signal = new double[maxEndSampleIndex+1];

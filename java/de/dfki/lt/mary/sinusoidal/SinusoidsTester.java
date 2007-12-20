@@ -94,6 +94,8 @@ public class SinusoidsTester extends BaseTester{
     
     public SinusoidsTester(float freqInHz, float amp, float phaseInDegrees, int frameIndex, float durationInSeconds, int samplingRateInHz)
     {
+        super();
+        
         Sinusoid [] tmpSins = new Sinusoid[1];
         tmpSins[0] = new Sinusoid(amp, freqInHz, phaseInDegrees, frameIndex);
         init(tmpSins, durationInSeconds, samplingRateInHz);
@@ -101,6 +103,8 @@ public class SinusoidsTester extends BaseTester{
     
     public SinusoidsTester(Sinusoid sin, float durationInSeconds, int samplingRateInHz)
     {
+        super();
+        
         Sinusoid [] tmpSins = new Sinusoid[1];
         tmpSins[0] = new Sinusoid(sin);
         init(tmpSins, durationInSeconds, samplingRateInHz);
@@ -118,6 +122,8 @@ public class SinusoidsTester extends BaseTester{
     
     public SinusoidsTester(Sinusoid [] sinsIn, float durationInSeconds, int samplingRateInHz)
     {
+        super();
+        
         init(sinsIn, durationInSeconds, samplingRateInHz);
     }
     
@@ -129,6 +135,8 @@ public class SinusoidsTester extends BaseTester{
     
     public SinusoidsTester(Sinusoid [] sinsIn, float [] startTimesInSeconds, float [] endTimesInSeconds, int samplingRateInHz)
     {
+        super();
+        
         init(sinsIn, startTimesInSeconds, endTimesInSeconds, samplingRateInHz);
     }
     //
@@ -206,6 +214,8 @@ public class SinusoidsTester extends BaseTester{
                 pitchMarks[i] = Math.min(i*maxT0+minStartSampleIndex, maxEndSampleIndex);
             //
             
+            f0s = SignalProcUtils.pitchMarks2PitchContour(pitchMarks, ws, ss, fs);
+            
             if (maxEndSampleIndex>0)
             {
                 signal = new double[maxEndSampleIndex+1];
@@ -228,7 +238,7 @@ public class SinusoidsTester extends BaseTester{
         SinusoidsTester s = null;
         
         //Single sinusoid, time-invariant
-        //s = new Tester(400.0f);
+        s = new SinusoidsTester(200.0f);
         //
 
         /*
@@ -249,7 +259,8 @@ public class SinusoidsTester extends BaseTester{
         //
          */
         
-       //Sinus part
+        /*
+        //Sinus part
         numSins = 10;
         float [] sinFreqs = new float[numSins];
         sinFreqs[0] = 180.0f;
@@ -263,6 +274,7 @@ public class SinusoidsTester extends BaseTester{
         
         s = new SinusoidsTester(sins);
         //
+        */
         
         
         /*
@@ -284,14 +296,10 @@ public class SinusoidsTester extends BaseTester{
         sins[3] = new Sinusoid(0.0f, 0.0f, 0.0f);
         tStarts[3] = 0.4f;
         tEnds[3] = 0.5f;
-        s = new Tester(sins, tStarts, tEnds);
+        s = new SinusoidsTester(sins, tStarts, tEnds);
         //
          */
         
         s.write(args[0], args[1]);
-        
-        int [] pitchMarks = FileUtils.readFromBinaryFile(args[1]);
-        for (i=0; i<pitchMarks.length; i++)
-            System.out.println(String.valueOf(pitchMarks[i]) + " ");
     }
 }

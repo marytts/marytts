@@ -50,7 +50,7 @@ import de.dfki.lt.signalproc.window.Window;
 
 /**
  * @author oytun.turk
- *
+ * This pitch tracker is based on Quatieri´s book
  */
 public class HarmonicPitchTracker extends BaseSinusoidalPitchTracker {
     
@@ -59,23 +59,20 @@ public class HarmonicPitchTracker extends BaseSinusoidalPitchTracker {
         
     }
     
-    public double performanceCriterion(SinusoidalSpeechFrame sinFrame, int startIndex, int endIndex, float f0Candidate, int samplingRate)
+    public double performanceCriterion(SinusoidalSpeechFrame sinFrame, float f0Candidate, int samplingRate)
     {   
-        if (sinFrame==null || sinFrame.sinusoids.length<1)
-            return -1e+50;
-        
-        return -1e+50;
-        
-        /*
         int l, k, kw0Ind, Kw0, K;
         double kw0;
         
         double Q = 0.0;
-        double tempSum;
+        double tempSum, tempSum2;
+        double freqHz;
         
-        double maxFreqInRadians = SignalProcUtils.hz2radian(1000.0, samplingRate);
+        double maxFreqInHz = Math.max(1000.0, f0Candidate+50.0);
+        double maxFreqInRadians = SignalProcUtils.hz2radian(maxFreqInHz, samplingRate);
         
-        Kw0 = Math.max(0, (int)Math.floor(800.0f/f0Candidate+0.5+1));
+        Kw0 = Math.max(0, (int)Math.floor(maxFreqInHz/f0Candidate+0.5+1));
+        
         K = 0;
         while (sinFrame.sinusoids[K].freq<maxFreqInRadians)
         {
@@ -87,6 +84,9 @@ public class HarmonicPitchTracker extends BaseSinusoidalPitchTracker {
             }
         }
 
+        tempSum2 = 0.0;
+        
+   
         if (K<1)
             Q = -1e+50;
         else
@@ -95,33 +95,30 @@ public class HarmonicPitchTracker extends BaseSinusoidalPitchTracker {
             {
                 tempSum = 0.0;
 
+                freqHz = SignalProcUtils.radian2Hz(sinFrame.sinusoids[l-1].freq, samplingRate);
+                
                 for (k=1; k<=K; k++)
                 {
                     kw0 = k*f0Candidate;
                     kw0Ind = SignalProcUtils.freq2index(kw0, samplingRate, sinFrame.systemAmps.length-1);
-
-                    tempSum += sinFrame.systemAmps[kw0Ind]*MathUtils.sinc(sinFrame.sinusoids[k-1].freq-kw0);
+                    tempSum += sinFrame.systemAmps[kw0Ind]*Math.abs(MathUtils.sinc(freqHz-kw0, 10*sinFrame.systemAmps.length));   
                 }
 
                 Q += sinFrame.sinusoids[l-1].amp*tempSum;
-
             }
 
             tempSum = 0.0;
-
             for (k=1; k<=Kw0; k++)
             {
                 kw0 = k*f0Candidate;
                 kw0Ind = SignalProcUtils.freq2index(kw0, samplingRate, sinFrame.systemAmps.length-1);
-
                 tempSum += sinFrame.systemAmps[kw0Ind]*sinFrame.systemAmps[kw0Ind];
             }
-
+            
             Q = Q - 0.5*tempSum;
         }
         
         return Q;
-        */
     }
     
     public static void main(String[] args) throws UnsupportedAudioFileException, IOException
@@ -131,21 +128,22 @@ public class HarmonicPitchTracker extends BaseSinusoidalPitchTracker {
         AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
         double [] x = signal.getAllData();
         
-        float searchStepInHz = 0.2f;
+        float searchStepInHz = 0.5f;
         float minFreqInHz = 40.0f;
-        float maxFreqInHz = 800.0f;
+        float maxFreqInHz = 400.0f;
         
         float windowSizeInSeconds = SinusoidalAnalyzer.DEFAULT_ANALYSIS_WINDOW_SIZE;
         float skipSizeInSeconds = SinusoidalAnalyzer.DEFAULT_ANALYSIS_SKIP_SIZE;
         float deltaInHz  = SinusoidalAnalyzer.DEFAULT_DELTA_IN_HZ;
         int spectralEnvelopeType = SinusoidalAnalyzer.SEEVOC_SPEC;
+        //int spectralEnvelopeType = SinusoidalAnalyzer.LP_SPEC;
         
         String strPitchFileIn = args[0].substring(0, args[0].length()-4) + ".ptc";
         F0ReaderWriter f0 = new F0ReaderWriter(strPitchFileIn);
         PitchMarker pm = SignalProcUtils.pitchContour2pitchMarks(f0.getContour(), samplingRate, x.length, f0.ws, f0.ss, true);
         PitchSynchronousSinusoidalAnalyzer sa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, true, true);
         
-        SinusoidalSpeechSignal ss = sa.extractSinusoidsFixedRate(x, windowSizeInSeconds, skipSizeInSeconds, deltaInHz, spectralEnvelopeType);
+        SinusoidalSpeechSignal ss = sa.extractSinusoidsFixedRate(x, windowSizeInSeconds, skipSizeInSeconds, deltaInHz, spectralEnvelopeType, f0.getContour(), (float)f0.ws, (float)f0.ss);
         
         HarmonicPitchTracker p = new HarmonicPitchTracker();
         float [] f0s = p.pitchTrack(ss, samplingRate, searchStepInHz, minFreqInHz, maxFreqInHz);    
