@@ -35,6 +35,13 @@ public class F0ReaderWriter {
         }
     }
     
+    public F0ReaderWriter() {
+        contour = null;
+        ws = 0.0;
+        ss = 0.0;
+        fs = 0;
+    }
+    
     //Create f0 contour from pitch marks
     //Note that, as we do not have voicing information, an all-voiced pitch contour is generated
     // using whatever pitch period is assigned to unvoiced segments in the pitch marks
@@ -96,6 +103,15 @@ public class F0ReaderWriter {
 
             lr.close();
         }
+    } 
+    
+    public static void write_pitch_file(String ptcFile, double [] f0s, float windowSizeInSeconds, float skipSizeInSeconds, int samplingRate) throws IOException
+    {
+        float [] f0sFloat = new float[f0s.length];
+        for (int i=0; i<f0s.length; i++)
+            f0sFloat[i] = (float)f0s[i];
+        
+        write_pitch_file(ptcFile, f0sFloat, windowSizeInSeconds, skipSizeInSeconds, samplingRate);
     } 
     
     public static void write_pitch_file(String ptcFile, float [] f0s, float windowSizeInSeconds, float skipSizeInSeconds, int samplingRate) throws IOException
