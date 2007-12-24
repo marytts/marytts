@@ -227,7 +227,6 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
             win.applyInline(frm, 0, ws);
             
             sinSignal.framesSins[i] = analyze_frame(frm, spectralEnvelopeType, f0);
-            sinSignal.framesSins[i].voicing = (float)SignalProcUtils.getVoicingProbability(frm, fs);
             
             if (sinSignal.framesSins[i]!=null)
             {

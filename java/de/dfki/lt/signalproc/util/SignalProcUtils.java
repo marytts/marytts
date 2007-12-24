@@ -453,9 +453,9 @@ public class SignalProcUtils {
     }
     
     //Convert a zero based spectrum index value to frequency in Hz
-    public static double index2freq(int freqIndex, int samplingRateInHz, int maxFreqIndex)
+    public static double index2freq(int zeroBasedFreqIndex, int samplingRateInHz, int zeroBasedMaxFreqIndex)
     {
-        return freqIndex*(0.5*samplingRateInHz)/(maxFreqIndex-1);
+        return zeroBasedFreqIndex*(0.5*samplingRateInHz)/zeroBasedMaxFreqIndex;
     }
  
     //Convert sample index to time value in seconds
