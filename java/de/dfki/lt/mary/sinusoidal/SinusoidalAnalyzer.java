@@ -40,6 +40,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JFrame;
 
+import de.dfki.lt.mary.sinusoidal.pitch.HNMPitchVoicingAnalyzer;
 import de.dfki.lt.signalproc.FFT;
 import de.dfki.lt.signalproc.FFTMixedRadix;
 import de.dfki.lt.signalproc.analysis.F0ReaderWriter;
@@ -369,8 +370,6 @@ public class SinusoidalAnalyzer {
             else
                 sinSignal.framesSins[i] = analyze_frame(frm, spectralEnvelopeType);
             
-            sinSignal.framesSins[i].voicing = (float)SignalProcUtils.getVoicingProbability(frm, fs);
-            
             if (sinSignal.framesSins[i]!=null)
             {
                 for (j=0; j<sinSignal.framesSins[i].sinusoids.length; j++)
@@ -448,26 +447,56 @@ public class SinusoidalAnalyzer {
     }
     
     public SinusoidalSpeechFrame analyze_frame(double [] frm, int spectralEnvelopeType, double f0)
+    {
+        return analyze_frame(frm, spectralEnvelopeType, f0, false);
+    }
+    
+    //Extract sinusoidal model parameter from a windowed speech frame using the DFT peak-picking algorithm
+    // frm: Windowed speech frame
+    // spectralEnvelopeType: Desired spectral envelope (See above, i.e LP_SPEC, SEEVOC_SPEC, etc.)
+    // 
+    public SinusoidalSpeechFrame analyze_frame(double [] frm, int spectralEnvelopeType, double f0, boolean bEstimateHNMVoicing)
     {   
         SinusoidalSpeechFrame frameSins = null;
 
+        if (fftSize<frm.length)
+            fftSize = frm.length;
+
+        if (fftSize % 2 == 1)
+            fftSize++;
+
+        setNeighFreq();
+
+        int maxFreq = (int) (Math.floor(0.5*fftSize+0.5)+1);
+        Complex Y = new Complex(fftSize);
+        int i;
+        
+        //Perform circular buffering as described in (Quatieri, 2001) to provide correct phase estimates
+        int midPoint = (int) Math.floor(0.5*frm.length+0.5);
+        System.arraycopy(frm, midPoint, Y.real, 0, frm.length-midPoint);
+        System.arraycopy(frm, 0, Y.real, fftSize-midPoint, midPoint);
+        //
+
+        //Compute DFT
+        if (MathUtils.isPowerOfTwo(fftSize))
+            FFT.transform(Y.real, Y.imag, false);
+        else
+            Y = FFTMixedRadix.fftComplex(Y);
+        //
+
+        //Compute magnitude spectrum in dB as peak frequency estimates tend to be more accurate
+        double [] Ydb = new double[maxFreq]; 
+
+        for (i=0; i<maxFreq; i++)
+            Ydb[i] = 10*Math.log10(Y.real[i]*Y.real[i]+Y.imag[i]*Y.imag[i]+1e-80);
+        //
+        
+        int [] freqInds = null;
+        float [] freqIndsRefined = null;
+        
         double frmEn = SignalProcUtils.getEnergy(frm);
         if (frmEn>MIN_ENERGY_TH)
         {
-            if (fftSize<frm.length)
-                fftSize = frm.length;
-
-            if (fftSize % 2 == 1)
-                fftSize++;
-
-            setNeighFreq();
-
-            int maxFreq = (int) (Math.floor(0.5*fftSize+0.5)+1);
-            Complex Y = new Complex(fftSize);
-            int i;
-            
-            int [] freqInds = null;
-            
             //The following lines are for testing purposes: Fixed frequency tracks will be created
             // Set  bManualPeakPickingTest = true to enable this test.
             // Otherwise, the peaks will be automatically estimated (i.e. normal operation mode)
@@ -503,49 +532,8 @@ public class SinusoidalAnalyzer {
                     
                 for (w=numSins; w<numSins+numNoises; w++)
                     freqInds[w] = SignalProcUtils.freq2index(noiseRange1+(w-numSins)*deltaNoise, fs, maxFreq);
-                
             }
             //
-            
-            //Perform circular buffering as described in (Quatieri, 2001) to provide correct phase estimates
-            int midPoint = (int) Math.floor(0.5*frm.length+0.5);
-            System.arraycopy(frm, midPoint, Y.real, 0, frm.length-midPoint);
-            System.arraycopy(frm, 0, Y.real, fftSize-midPoint, midPoint);
-            //
-
-            double [] tmpSpec = SignalProcUtils.cepstralSmoothedSpectrumInNeper(frm, fftSize, lifterOrder);
-            double [] tmpPhase = SignalProcUtils.minimumPhaseResponseInRadians(tmpSpec);
-            double [] vocalTractPhase = new double[fftSize/2+1];
-            System.arraycopy(tmpPhase, 0, vocalTractPhase, 0, vocalTractPhase.length);
-
-            //Take FFT
-            if (MathUtils.isPowerOfTwo(fftSize))
-                FFT.transform(Y.real, Y.imag, false);
-            else
-                Y = FFTMixedRadix.fftComplex(Y);
-
-            //Compute magnitude spectrum in dB as peak frequency estimates tend to be more accurate
-            double [] Ydb = new double[maxFreq]; 
-
-            for (i=0; i<maxFreq; i++)
-                Ydb[i] = 10*Math.log10(Y.real[i]*Y.real[i]+Y.imag[i]*Y.imag[i]+1e-80);
-            //
-            
-            double [] vocalTractSpec = null;
-            if (spectralEnvelopeType==LP_SPEC)
-                vocalTractSpec = LPCAnalyser.calcSpecFrame(frm, LPOrder, fftSize);
-            else if (spectralEnvelopeType==SEEVOC_SPEC)
-                vocalTractSpec = SEEVOCAnalyser.calcSpecEnvelopeLinear(Ydb, fs, f0); //Note that this is in dB
-            
-            /*
-            double [] YLin = MathUtils.db2linear(Ydb);
-            FunctionGraph graph = new FunctionGraph(400, 200, 0, 1,  YLin);
-            JFrame frame1 = graph.showInJFrame("Q-values", 500, 300, true, false);
-            FunctionGraph graph2 = new FunctionGraph(400, 200, 0, 1,  vocalTractSpec);
-            JFrame frame2 = graph2.showInJFrame("Q-values", 500, 300, true, false);
-            frame1.dispose();
-            frame2.dispose();
-            */
             
             //Determine peak amplitude indices and the corresponding amplitudes, frequencies, and phases 
             if (!bManualPeakPickingTest)
@@ -557,7 +545,7 @@ public class SinusoidalAnalyzer {
                 frameSins = new SinusoidalSpeechFrame(numFrameSinusoids);
 
                 //Perform parabola fitting around peak estimates to refine frequency estimation (Ref. - PARSHL, see the function for more details)
-                float [] freqIndsRefined = new float[numFrameSinusoids];
+                freqIndsRefined = new float[numFrameSinusoids];
                 float [] ampsRefined = new float[numFrameSinusoids];
 
                 //For check only
@@ -609,11 +597,26 @@ public class SinusoidalAnalyzer {
                     //Possible improvement: Refinement of phase values
                 }
 
+                //Vocal tract phase & magnitude spectrum analysis
+                double [] tmpSpec = SignalProcUtils.cepstralSmoothedSpectrumInNeper(frm, fftSize, lifterOrder);
+                double [] tmpPhase = SignalProcUtils.minimumPhaseResponseInRadians(tmpSpec);
+                double [] vocalTractPhase = new double[fftSize/2+1];
+                System.arraycopy(tmpPhase, 0, vocalTractPhase, 0, vocalTractPhase.length);
+                
+                double [] vocalTractSpec = null;
+                if (spectralEnvelopeType==LP_SPEC)
+                    vocalTractSpec = LPCAnalyser.calcSpecFrame(frm, LPOrder, fftSize);
+                else if (spectralEnvelopeType==SEEVOC_SPEC)
+                    vocalTractSpec = SEEVOCAnalyser.calcSpecEnvelopeLinear(Ydb, fs, f0); //Note that this is in dB
+                
                 frameSins.setSystemAmps(vocalTractSpec);
                 frameSins.setSystemPhases(vocalTractPhase);
+                //
             }
             //
         }
+        
+        frameSins.voicing = (float)SignalProcUtils.getVoicingProbability(frm, fs);
 
         return frameSins;
     }

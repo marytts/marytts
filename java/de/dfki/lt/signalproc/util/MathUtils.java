@@ -328,10 +328,21 @@ public class MathUtils {
         if (energy <= 0) return Double.NaN;
         else return 10 * log10(energy);
     }
+    
+    public static double amp2db(double amp)
+    {
+        if (amp <= 0) return Double.NaN;
+        else return 20 * log10(amp);
+    }
 
     public static double[] db(double[] energies)
     {
         return multiply(log10(energies), 10);
+    }
+    
+    public static double[] amp2db(double[] amps)
+    {
+        return multiply(log10(amps), 20);
     }
 
     /**
@@ -731,6 +742,237 @@ public class MathUtils {
         return maxx;
     }
     
+    public static int getMinIndex(int [] x)
+    {
+        return getMinIndex(x, 0);
+    }
+    
+    public static int getMinIndex(int [] x, int startInd)
+    {
+        return getMinIndex(x, startInd, x.length-1);
+    }
+    
+    public static int getMinIndex(int [] x, int startInd, int endInd)
+    {
+        return getExtremaIndex(x, false, startInd, endInd);
+    }
+    
+    public static int getMaxIndex(int [] x)
+    {
+        return getMaxIndex(x, 0);
+    }
+    
+    public static int getMaxIndex(int [] x, int startInd)
+    {
+        return getMaxIndex(x, startInd, x.length-1);
+    }
+    
+    public static int getMaxIndex(int [] x, int startInd, int endInd)
+    {
+        return getExtremaIndex(x, true, startInd, endInd);
+    }
+    
+    public static int getExtremaIndex(int [] x, boolean isMax)
+    {
+        return getExtremaIndex(x, isMax, 0);
+    }
+    
+    public static int getExtremaIndex(int [] x, boolean isMax, int startInd)
+    {
+        return getExtremaIndex(x, isMax, startInd, x.length-1);
+    }
+    
+    public static int getExtremaIndex(int [] x, boolean isMax, int startInd, int endInd)
+    {
+        int extrema = x[0];
+        int extremaInd = 0;
+        if (startInd<0)
+            startInd=0;
+        if (endInd>x.length-1)
+            endInd = x.length-1;
+        if (startInd>endInd)
+            startInd=endInd;
+        
+        if (isMax)
+        {
+            for (int i=startInd; i<=endInd; i++)
+            {
+                if (x[i]>extrema)
+                {
+                    extrema = x[i];
+                    extremaInd = i;
+                }
+            }
+        }
+        else
+        {
+            for (int i=startInd; i<=endInd; i++)
+            {
+                if (x[i]<extrema)
+                {
+                    extrema = x[i];
+                    extremaInd = i;
+                }
+            }
+        }
+        
+        return extremaInd;
+    }
+    
+    public static int getMinIndex(float [] x)
+    {
+        return getMinIndex(x, 0);
+    }
+    
+    public static int getMinIndex(float [] x, int startInd)
+    {
+        return getMinIndex(x, startInd, x.length-1);
+    }
+    
+    public static int getMinIndex(float [] x, int startInd, int endInd)
+    {
+        return getExtremaIndex(x, false, startInd, endInd);
+    }
+    
+    public static int getMaxIndex(float [] x)
+    {
+        return getMaxIndex(x, 0);
+    }
+    
+    public static int getMaxIndex(float [] x, int startInd)
+    {
+        return getMaxIndex(x, startInd, x.length-1);
+    }
+    
+    public static int getMaxIndex(float [] x, int startInd, int endInd)
+    {
+        return getExtremaIndex(x, true, startInd, endInd);
+    }
+    
+    public static int getExtremaIndex(float [] x, boolean isMax)
+    {
+        return getExtremaIndex(x, isMax, 0);
+    }
+    
+    public static int getExtremaIndex(float [] x, boolean isMax, int startInd)
+    {
+        return getExtremaIndex(x, isMax, startInd, x.length-1);
+    }
+    
+    public static int getExtremaIndex(float [] x, boolean isMax, int startInd, int endInd)
+    {
+        float extrema = x[0];
+        int extremaInd = 0;
+        if (startInd<0)
+            startInd=0;
+        if (endInd>x.length-1)
+            endInd = x.length-1;
+        if (startInd>endInd)
+            startInd=endInd;
+        
+        if (isMax)
+        {
+            for (int i=startInd; i<=endInd; i++)
+            {
+                if (x[i]>extrema)
+                {
+                    extrema = x[i];
+                    extremaInd = i;
+                }
+            }
+        }
+        else
+        {
+            for (int i=startInd; i<=endInd; i++)
+            {
+                if (x[i]<extrema)
+                {
+                    extrema = x[i];
+                    extremaInd = i;
+                }
+            }
+        }
+        
+        return extremaInd;
+    }
+    
+    public static int getMinIndex(double [] x)
+    {
+        return getMinIndex(x, 0);
+    }
+    
+    public static int getMinIndex(double [] x, int startInd)
+    {
+        return getMinIndex(x, startInd, x.length-1);
+    }
+    
+    public static int getMinIndex(double [] x, int startInd, int endInd)
+    {
+        return getExtremaIndex(x, false, startInd, endInd);
+    }
+    
+    public static int getMaxIndex(double [] x)
+    {
+        return getMaxIndex(x, 0);
+    }
+    
+    public static int getMaxIndex(double [] x, int startInd)
+    {
+        return getMaxIndex(x, startInd, x.length-1);
+    }
+    
+    public static int getMaxIndex(double [] x, int startInd, int endInd)
+    {
+        return getExtremaIndex(x, true, startInd, endInd);
+    }
+    
+    public static int getExtremaIndex(double [] x, boolean isMax)
+    {
+        return getExtremaIndex(x, isMax, 0);
+    }
+    
+    public static int getExtremaIndex(double [] x, boolean isMax, int startInd)
+    {
+        return getExtremaIndex(x, isMax, startInd, x.length-1);
+    }
+    
+    public static int getExtremaIndex(double [] x, boolean isMax, int startInd, int endInd)
+    {
+        double extrema = x[0];
+        int extremaInd = 0;
+        if (startInd<0)
+            startInd=0;
+        if (endInd>x.length-1)
+            endInd = x.length-1;
+        if (startInd>endInd)
+            startInd=endInd;
+        
+        if (isMax)
+        {
+            for (int i=startInd; i<=endInd; i++)
+            {
+                if (x[i]>extrema)
+                {
+                    extrema = x[i];
+                    extremaInd = i;
+                }
+            }
+        }
+        else
+        {
+            for (int i=startInd; i<=endInd; i++)
+            {
+                if (x[i]<extrema)
+                {
+                    extrema = x[i];
+                    extremaInd = i;
+                }
+            }
+        }
+        
+        return extremaInd;
+    }
+    
     public static double getMax(double [] x)
     {
         double maxx = x[0];
@@ -755,38 +997,6 @@ public class MathUtils {
         return maxx;
     }
     
-    public static int getMaxIndex(double [] x)
-    {
-        double maxx = x[0];
-        int maxInd = 0;
-        for (int i=1; i<x.length; i++)
-        {
-            if (x[i]>maxx)
-            {
-                maxx = x[i];
-                maxInd = i;
-            }
-        }
-        
-        return maxInd;
-    }
-    
-    public static int getMaxIndex(float [] x)
-    {
-        float maxx = x[0];
-        int maxInd = 0;
-        for (int i=1; i<x.length; i++)
-        {
-            if (x[i]>maxx)
-            {
-                maxx = x[i];
-                maxInd = i;
-            }
-        }
-        
-        return maxInd;
-    }
-    
     public static int getMin(int [] x)
     {
         int minn = x[0];
@@ -809,38 +1019,6 @@ public class MathUtils {
         }
         
         return minn;
-    }
-    
-    public static int getMinIndex(double [] x)
-    {
-        double minn = x[0];
-        int minInd = 0;
-        for (int i=1; i<x.length; i++)
-        {
-            if (x[i]<minn)
-            {
-                minn = x[i];
-                minInd = i;
-            }
-        }
-        
-        return minInd;
-    }
-    
-    public static int getMinIndex(float [] x)
-    {
-        float minn = x[0];
-        int minInd = 0;
-        for (int i=1; i<x.length; i++)
-        {
-            if (x[i]<minn)
-            {
-                minn = x[i];
-                minInd = i;
-            }
-        }
-        
-        return minInd;
     }
     
     public static float getMin(float [] x)
@@ -1161,15 +1339,52 @@ public class MathUtils {
     //Find the extremum points that are larger/smaller than numLefNs and numRightNs neighbours and larger/smaller than the given th value
     public static int [] getExtrema(double [] x, int numLeftN, int numRightN, boolean isMaxima, double th)
     {
+        return getExtrema(x, numLeftN, numRightN, isMaxima, 0, th); 
+    }
+    
+    public static int [] getExtrema(double [] x, int numLeftN, int numRightN, boolean isMaxima, int startInd, double th)
+    {
+        return getExtrema(x, numLeftN, numRightN, isMaxima, startInd, x.length-1, th);
+    }
+    
+    public static int [] getExtrema(double [] x, int numLeftN, int numRightN, boolean isMaxima, int startInd, int endInd, double th)
+    {
         int [] numLeftNs = new int[x.length];
         int [] numRightNs = new int[x.length];
         Arrays.fill(numLeftNs, numLeftN);
         Arrays.fill(numRightNs, numRightN);
         
-        return getExtrema(x, numLeftNs, numRightNs, isMaxima, th); 
+        return getExtrema(x, numLeftNs, numRightNs, isMaxima, startInd, endInd, th); 
+    }
+    
+    public static int [] getExtrema(double [] x, int [] numLeftNs, int [] numRightNs, boolean isMaxima, int startInd)
+    { 
+        return getExtrema(x, numLeftNs, numRightNs, isMaxima, startInd, x.length-1);
+    }
+    
+    public static int [] getExtrema(double [] x, int [] numLeftNs, int [] numRightNs, boolean isMaxima, int startInd, int endInd)
+    {   
+        double th;
+        
+        if (isMaxima)
+            th = MathUtils.getMin(x)-1.0;
+        else
+            th = MathUtils.getMax(x)+1.0;
+        
+        return getExtrema(x, numLeftNs, numRightNs, isMaxima, startInd, endInd, th);
     }
     
     public static int [] getExtrema(double [] x, int [] numLeftNs, int [] numRightNs, boolean isMaxima, double th)
+    {
+        return getExtrema(x, numLeftNs, numRightNs, isMaxima, 0, th);
+    }
+    
+    public static int [] getExtrema(double [] x, int [] numLeftNs, int [] numRightNs, boolean isMaxima, int startInd, double th)
+    {
+        return getExtrema(x, numLeftNs, numRightNs, isMaxima, startInd, x.length-1, th);
+    }
+    
+    public static int [] getExtrema(double [] x, int [] numLeftNs, int [] numRightNs, boolean isMaxima, int startInd, int endInd, double th)
     {
         int [] tmpInds = new int[x.length];
         int [] inds = null;
@@ -1178,9 +1393,16 @@ public class MathUtils {
         int i, j;
         boolean bExtremum;
         
+        if (startInd<0)
+            startInd=0;
+        if (endInd>x.length-1)
+            endInd=x.length-1;
+        if (startInd>endInd)
+            startInd=endInd;
+        
         if (isMaxima) //Search for maxima
         {
-            for (i=0; i<x.length; i++)
+            for (i=startInd; i<=endInd; i++)
             {
                 if (x[i]>th)
                 {    
@@ -1226,7 +1448,7 @@ public class MathUtils {
         }
         else //Search for minima
         {
-            for (i=0; i<x.length; i++)
+            for (i=startInd; i<=endInd; i++)
             {
                 if (x[i]<th)
                 {
