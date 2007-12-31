@@ -537,7 +537,7 @@ public class SinusoidalAnalyzer {
             
             //Determine peak amplitude indices and the corresponding amplitudes, frequencies, and phases 
             if (!bManualPeakPickingTest)
-                freqInds = MathUtils.getExtrema(Ydb, freqSampNeighs, freqSampNeighs, true, MIN_PEAK_IN_DB);
+                freqInds = MathUtils.getExtrema(Ydb, freqSampNeighs, freqSampNeighs, true, 0, Ydb.length-1, MIN_PEAK_IN_DB);
 
             if (freqInds != null)
             {
