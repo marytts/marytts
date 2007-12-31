@@ -119,7 +119,7 @@ public class BaseSinusoidalPitchTracker {
         {
             v.maxQ = MathUtils.getMax(Q);
             int numNeighs = (int)Math.floor(10.0f/searchStepInHz+0.5);
-            int [] maxInds = MathUtils.getExtrema(Q, numNeighs, numNeighs, true, 0.1*v.maxQ);
+            int [] maxInds = MathUtils.getExtrema(Q, numNeighs, numNeighs, true, 0, Q.length-1, 0.1*v.maxQ);
             if (maxInds!=null)
             {
                 int maxInd=0;

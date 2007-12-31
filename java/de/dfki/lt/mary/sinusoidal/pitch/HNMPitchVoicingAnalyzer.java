@@ -284,21 +284,19 @@ public class HNMPitchVoicingAnalyzer {
             else
                 maxFrequencyOfVoicings[n] = 0.0f;
             
-            /*
             if (voicings[n])
-                System.out.println("Time=" + String.valueOf(0.5*(frmInds[n][1]+frmInds[n][0])/samplingRate)+ " sec." + " f0=" + String.valueOf(initialF0s[n]) + " Hz." + " Voiced");
+                System.out.println("Time=" + String.valueOf(0.5*(frmInds[n][1]+frmInds[n][0])/samplingRate)+ " sec." + " f0=" + String.valueOf(initialF0s[n]) + " Hz." + " Voiced" + " MaxVFreq=" + String.valueOf(maxFrequencyOfVoicings[n]));
             else
-                System.out.println("Time=" + String.valueOf(0.5*(frmInds[n][1]+frmInds[n][0])/samplingRate)+ " sec." + " f0=" + String.valueOf(initialF0s[n]) + " Hz." + " Unvoiced");
-                */
+                System.out.println("Time=" + String.valueOf(0.5*(frmInds[n][1]+frmInds[n][0])/samplingRate)+ " sec." + " f0=" + String.valueOf(initialF0s[n]) + " Hz." + " Unvoiced" + " MaxVFreq=" + String.valueOf(maxFrequencyOfVoicings[n]));
         }
     }
     
     public static float estimateMaxFrequencyOfVoicingsFrame(double [] absSpec, int samplingRate, float initialF0)
     {
         int [] tmpValleyInds = null;
-        int peakInd, valleyInd1, valleyInd2, freqStartInd, freqEndInd, prevStartInd;
-        double f0StartHz, f0EndHz, fc;
-        double Am, Amc, AmcMean, AmMax;
+        int peakInd, valleyInd1, valleyInd2, freqStartInd, freqEndInd;
+        double f0StartHz, f0EndHz;
+        double Am, Amc, AmcMean, AmMax, fc;
         int i, n, L;
         int maxFreq = absSpec.length-1;
         int [] peakInds = null;
@@ -308,11 +306,23 @@ public class HNMPitchVoicingAnalyzer {
         int maxHarmonics = 0;
         while ((maxHarmonics+0.5)*fc<=0.5*samplingRate)
             maxHarmonics++;
+        maxHarmonics *= 2;
         
-        boolean [] bVoiceds = new boolean[maxHarmonics];
-        for (L=0; L<maxHarmonics; L++)
+        double [] voiceds = new double[maxHarmonics];
+        float [] peakFreqs = new float[maxHarmonics];
+        int numHarmonics = 0;
+        
+        double ampRatio, ampDiff, harmDevPerc;
+        double maxHarmDevPerc = HARMONIC_DEVIATION_PERCENT/100.0;
+        
+        L = 1;
+        while(true)
         {
-            bVoiceds[L] = false;
+            numHarmonics++;
+            if (numHarmonics>maxHarmonics)
+                break;
+            
+            voiceds[L] = 0.0;
             f0StartHz = (L-0.5)*fc;
             f0EndHz = (L+0.5)*fc;
             
@@ -323,11 +333,20 @@ public class HNMPitchVoicingAnalyzer {
             freqEndInd = SignalProcUtils.freq2index(f0EndHz, samplingRate, maxFreq);
 
             peakInd = MathUtils.getMaxIndex(absSpec, freqStartInd, freqEndInd);
-            fc = SignalProcUtils.index2freq(peakInd, samplingRate, maxFreq-1);
+            fc = (float)SignalProcUtils.index2freq(peakInd, samplingRate, maxFreq-1);
+            peakFreqs[numHarmonics-1] = (float)fc;
+            
             tmpValleyInds = MathUtils.getExtrema(absSpec, 1, 1, false, freqStartInd, peakInd-1);
-            valleyInd1 = MathUtils.getMax(tmpValleyInds);
+            if (tmpValleyInds!=null)
+                valleyInd1 = MathUtils.getMax(tmpValleyInds);
+            else
+                valleyInd1 = freqStartInd;
+            
             tmpValleyInds = MathUtils.getExtrema(absSpec, 1, 1, false, peakInd+1, freqEndInd);
-            valleyInd2 = MathUtils.getMin(tmpValleyInds);
+            if (tmpValleyInds!=null)
+                valleyInd2 = MathUtils.getMin(tmpValleyInds);
+            else
+                valleyInd2 = freqEndInd;
 
             Am = absSpec[peakInd];
             
@@ -342,41 +361,75 @@ public class HNMPitchVoicingAnalyzer {
             freqEndInd = SignalProcUtils.freq2index(f0EndHz, samplingRate, maxFreq);
             peakInds = MathUtils.getExtrema(absSpec, 1, 1, true, freqStartInd, freqEndInd);
             
-            prevStartInd = freqStartInd;
-            AmcMean = 0.0;
-            AmMax = 1e-50;
-            counter = 0;
-            for (n=0; n<peakInds.length; n++)
+            if (peakInds!=null)
             {
-                if (peakInds[n]!=peakInd)
+                AmcMean = 0.0;
+                AmMax = 1e-50;
+                counter = 0;
+                for (n=0; n<peakInds.length; n++)
                 {
-                    tmpValleyInds = MathUtils.getExtrema(absSpec, 1, 1, false, prevStartInd, peakInds[n]-1);
-                    valleyInd1 = MathUtils.getMax(tmpValleyInds);
-                    tmpValleyInds = MathUtils.getExtrema(absSpec, 1, 1, false, peakInds[n]+1, freqEndInd);
-                    valleyInd2 = MathUtils.getMin(tmpValleyInds);
-                    counter++;
-                    
-                    for (i=valleyInd1; i<=valleyInd2; i++)
-                        AmcMean += absSpec[i];
+                    if (peakInds[n]!=peakInd)
+                    {
+                        tmpValleyInds = MathUtils.getExtrema(absSpec, 1, 1, false, freqStartInd, peakInds[n]-1);
+                        if (tmpValleyInds!=null)
+                            valleyInd1 = MathUtils.getMax(tmpValleyInds);
+                        else
+                            valleyInd1 = freqStartInd;
+                        
+                        tmpValleyInds = MathUtils.getExtrema(absSpec, 1, 1, false, peakInds[n]+1, freqEndInd);
+                        if (tmpValleyInds!=null)
+                            valleyInd2 = MathUtils.getMin(tmpValleyInds);
+                        else
+                            valleyInd2 = freqEndInd;
+                        
+                        counter++;
+
+                        for (i=valleyInd1; i<=valleyInd2; i++)
+                            AmcMean += absSpec[i];
+                    }
+
+                    if (counter>0)
+                        AmcMean /= counter;
+
+                    if (counter==0 || absSpec[peakInds[n]]>AmMax)
+                        AmMax = absSpec[peakInds[n]];
                 }
+
+                ampRatio = Amc/AmcMean;
+                ampDiff = MathUtils.amp2db(Am-AmMax);
+                System.out.println("ampRatio(>?2.0)=" + String.valueOf(ampRatio) + " " + "ampDiff(>?13)=" + String.valueOf(ampDiff));
                 
-                if (counter>0)
-                    AmcMean /= counter;
-                
-                if (counter==0 || absSpec[peakInds[n]]>AmMax)
-                    AmMax = absSpec[peakInds[n]];
+                if (ampRatio>2.0 || ampDiff>13)
+                {
+                    harmDevPerc = (Math.abs(fc-L*initialF0)/(L*initialF0));
+                    System.out.println("harmDevPerc(<?" + String.valueOf(maxHarmDevPerc) + "=" + String.valueOf(harmDevPerc));
+                    if (harmDevPerc<maxHarmDevPerc)
+                        voiceds[L] = 1.0;
+                }
             }
             
-            if (Amc/AmcMean>2.0 || MathUtils.amp2db(Am-AmMax)>13)
-            {
-                if ((Math.abs(fc-L*initialF0)/(L*initialF0))<HARMONIC_DEVIATION_PERCENT/100.0)
-                    bVoiceds[L] = true;
-            }
+            L++;
         }
         
+        //Median filtering
+        double [] tmpVoiceds = new double[numHarmonics];
+        System.arraycopy(voiceds, 0, tmpVoiceds, 0, numHarmonics);
+        voiceds = SignalProcUtils.medianFilter(tmpVoiceds, 3);
+        int maxVoicedHarmonic = -1;
+        for (i=0; i<numHarmonics; i++)
+        {
+            if (voiceds[i]<1.0)
+                break;
+            else
+                maxVoicedHarmonic++;
+        }
         
+        float maxFreqOfVoicing = 0.0f;
         
-        return 0.0f;
+        if (maxVoicedHarmonic>-1)
+            maxFreqOfVoicing = peakFreqs[maxVoicedHarmonic];
+        
+        return maxFreqOfVoicing;
     }
     
     public static boolean estimateVoicingFromFrameSpectrum(double [] absSpec, int samplingRate, float initialF0, int [] peakInds, int [] valleyInds) 
@@ -438,7 +491,7 @@ public class HNMPitchVoicingAnalyzer {
         if (E>6.0)
             bVoicing = true;
 
-        System.out.println(String.valueOf(E));
+        //System.out.println(String.valueOf(E));
 
         return bVoicing;
     }
