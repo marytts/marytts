@@ -75,6 +75,8 @@ public class QualityControl extends VoiceImportComponent {
     private double sileceThreshold;
     private TreeMap allProblems;
     private TreeMap priorityProblems;
+    private String unit;
+    private String baseN;
     
     public final String FEATUREDIR = "QualityControl.featureDir";
     public final String LABELDIR = "QualityControl.labelDir";
@@ -114,8 +116,8 @@ public class QualityControl extends VoiceImportComponent {
            props.put(LABELDIR, db.getProp(db.ROOTDIR)
                         +"phonelab"
                         +System.getProperty("file.separator"));
-           props.put(OUTFILE,db.getProp(db.ROOTDIR)+"QualityControl_Problems.out");
-           props.put(PRIORFILE,db.getProp(db.ROOTDIR)+"QualityControl_Priority.out");
+           props.put(OUTFILE,db.getProp(db.ROOTDIR)+"QualityControl_Problems.txt");
+           props.put(PRIORFILE,db.getProp(db.ROOTDIR)+"QualityControl_Priority.txt");
            props.put(MLONGPHN,"true");
            props.put(MHSILEGY,"true");
            props.put(MHFREQEGY,"true");
@@ -170,6 +172,7 @@ public class QualityControl extends VoiceImportComponent {
         writePrioritytoFile();
         
         System.out.println( "Identified Suspicious Alignments (Labels) written into "+ getProp(OUTFILE) + " file." );
+        System.out.println( "A List of base names sorted according to an associated cost value and written into  "+ getProp(OUTFILE) + " file, Which will be useful for Manual Correction." );
         System.out.println( ".... Done."); 
         return true;
     }
@@ -228,7 +231,7 @@ public class QualityControl extends VoiceImportComponent {
         boolean isFricative = false;
         int unitIndex= 0;
         String labelUnit;
-        
+         
         
         while (correct) {
             line = labels.readLine();
@@ -253,31 +256,34 @@ public class QualityControl extends VoiceImportComponent {
                 +featureUnit+"' vs. label file '"+labelUnit
                 +"' (Unit "+unitIndex+")");
             }
+            
+        baseN = basename;
+        unit = labelUnit;
         double phoneDuration =  endTimeStamp - startTimeStamp;
         String currentProblem = "";
         if( phoneDuration > 1 && !labelUnit.equals("_") && getProp(MLONGPHN).equals("true")){
             currentProblem = labelUnit+"\t"+startTimeStamp+"\t"+endTimeStamp+"\tUnusually Long Phone";
-            cost = 4;
+            cost += 4;
         }
-        else if(isFricative(line,ph_Ctype_idx) && phoneDuration > 0 && getProp(MHFREQEGY).equals("true")){
+        if(isFricative(line,ph_Ctype_idx) && phoneDuration > 0 && getProp(MHFREQEGY).equals("true")){
             boolean isFHEnergy = isFricativeHighEnergy(signal, samplingRate, startTimeStamp, endTimeStamp, labelUnit);
             if(!isFHEnergy){
                 currentProblem = labelUnit+"\t"+startTimeStamp+"\t"+endTimeStamp+"\tFricative High-Frequency Energy is very low";
-                cost = 3;
+                cost += 3;
             }
         }
-        else if(labelUnit.equals("_") && phoneDuration > 0 && getProp(MHSILEGY).equals("true")){
+        if(labelUnit.equals("_") && phoneDuration > 0 && getProp(MHSILEGY).equals("true")){
             boolean isSILHEnergy = isSilenceHighEnergy(signal, samplingRate, startTimeStamp, endTimeStamp);
             if(isSILHEnergy){
                 currentProblem = labelUnit+"\t"+startTimeStamp+"\t"+endTimeStamp+"\tHigherEnergy for a Silence";
-                cost = 2;
+                cost += 1;
             }
         }
-        else if(isVowel(line,ph_VC_idx) && phoneDuration > 0 && getProp(MUNVOICEDVOWEL).equals("true")){
+        if(isVowel(line,ph_VC_idx) && phoneDuration > 0 && getProp(MUNVOICEDVOWEL).equals("true")){
             boolean isVV = isVowelVoiced(signal, samplingRate, startTimeStamp, endTimeStamp);
             if(!isVV){
                 currentProblem = labelUnit+"\t"+startTimeStamp+"\t"+endTimeStamp+"\tUn-Voiced Vowel";
-                cost = 0;
+                cost += 2;
             }
         }
         
@@ -684,8 +690,24 @@ private double getSilenceThreshold(){
         
         System.arraycopy(signal, segmentStartIndex, phoneSegment, 0, segmentSize);
      
-        isVoiced = SignalProcUtils.getVoicing(phoneSegment, (int)samplingRate);
-         
+        //isVoiced = SignalProcUtils.getVoicing(phoneSegment, (int)samplingRate);
+        int noFrames=1, noVoicedFrames=0;
+        int frameSize = (int)(Double.valueOf(db.getProp(db.SAMPLINGRATE).trim()).intValue() * 0.020f) ; // 20 ms
+        for(int i=0;i<(phoneSegment.length - frameSize); i+=frameSize){
+            double[] frameSegment = new double[frameSize];
+            System.arraycopy(phoneSegment, i, frameSegment, 0, frameSize);
+            boolean isFrameVoiced = SignalProcUtils.getVoicing(phoneSegment, (int)samplingRate, 0.22f);
+            if(isFrameVoiced){
+                noVoicedFrames++;
+            }
+            noFrames++;
+        }
+        double normalisedVoice = (double) noVoicedFrames / (double) noFrames;
+        if( normalisedVoice<0.22 && noFrames>3 ) {
+            //System.out.println("Basename: "+baseN+" Unit: "+unit+" "+startTimeStamp+" "+endTimeStamp+" No. of Frames: "+noFrames+" No. of Voiced Frames: "+noVoicedFrames+" Actual: "+isVoiced);
+            isVoiced = false;
+        }
+        
         return isVoiced;
     }
     
