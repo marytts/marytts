@@ -341,13 +341,14 @@ public class MaryServer {
                 st.nextToken();
                 if (st.hasMoreTokens()) {
                     String typeName = st.nextToken();
-                    if (MaryDataType.exists(typeName)) {
+                    try {
                         MaryDataType type = MaryDataType.get(typeName);
+                        // if we get here, the type exists
                         assert type != null;
                         String exampleText = type.exampleText();
                         if (exampleText != null)
                             outputWriter.println(exampleText.trim());
-                    }
+                    } catch (Error err) {} // type doesn't exist
                 }
                 // upon failure, simply return nothing
                 outputWriter.println();
