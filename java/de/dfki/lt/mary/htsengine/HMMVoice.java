@@ -135,6 +135,10 @@ public class HMMVoice extends Voice {
    public HMMData getHMMData(){ return this.htsData; }
    
    public Vector<String> getFeatureList(){ return this.htsData.getFeatureList(); }
+   
+   public void setF0Std(double dval) { htsData.setF0Std(dval); }
+   public void setF0Mean(double dval) { htsData.setF0Mean(dval); }
+   public void setLength(double dval) { htsData.setLength(dval); }
     
 
 } /* class HMMVoice */
