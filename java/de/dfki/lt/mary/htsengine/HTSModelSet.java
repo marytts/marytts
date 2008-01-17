@@ -126,7 +126,7 @@ public class HTSModelSet {
         if(m.getPhoneName().contentEquals("_") && (firstPh || lastPh ))
           data = data * 0.1;
         
-       data = data * durscale; 
+        data = data * durscale; 
           
 		
 		m.setDur(s, (int)(data+dd+0.5));
