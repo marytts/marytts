@@ -310,6 +310,8 @@ public class HTSVocoder {
 	    if(pdf2par.getVoiced(mcepframe)){
 	      f0 = f0Std * Math.exp(pdf2par.getLf0(lf0frame, 0)) + (1-f0Std) * f0MeanOri + f0Shift;       
 	      lf0frame++;
+          if(f0 < 0.0)
+            f0 = 0.0;
 	    }
 	    else{
 	      f0 = 0.0;          
