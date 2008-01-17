@@ -246,7 +246,7 @@ public class Synthesis extends InternalModule
     {            
         EffectsApplier ef = new EffectsApplier(MaryProperties.effectClasses(), MaryProperties.effectParams());
         
-        String currentEffectLower = currentEffect.toLowerCase();
+        //Check if any effects are selected for which the corresponding parameters should be fed to the HMM synthesizer
         if (voice instanceof HMMVoice)
         {
             //Just create dummy effects to set default values for HMM voices
@@ -273,6 +273,7 @@ public class Synthesis extends InternalModule
                 }
             }
         }
+        //
         
         AudioInputStream ais = null;
         ais = voice.synthesize(tokensAndBoundaries);
