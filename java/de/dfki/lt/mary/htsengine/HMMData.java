@@ -96,6 +96,7 @@ public class HMMData {
     private double f0Mean  = 0.0;   /* variable for f0 control, add f0           [0.0][0.0--100.0] */
     private double length  = 0.0;   /* total number of frame for generated speech                  */
 	                                /* length of generated speech (in seconds)   [N/A][0.0--30.0]  */
+    private double durationScale = 1.0; /* less than 1.0 is faster and more than 1.0 is slower, min=0.1 max=3.0 */
 	
 	/** Tree files and TreeSet object */
 	private String treeDurFile; /* durations tree file */
@@ -154,6 +155,7 @@ public class HMMData {
     public double getF0Std() { return f0Std; }
     public double getF0Mean() { return f0Mean; }
     public double getLength() { return length; }
+    public double getDurationScale() { return durationScale; }
     
 	public String getTreeDurFile() { return treeDurFile; } 
 	public String getTreeLf0File() { return treeLf0File; } 
@@ -187,6 +189,7 @@ public class HMMData {
     public void setF0Std(double dval) { f0Std = dval; }
     public void setF0Mean(double dval) { f0Mean = dval; }
     public void setLength(double dval) { length = dval; }
+    public void setDurationScale(double dval) { durationScale = dval; }
   
     public HTSTreeSet getTreeSet() { return ts; }       
     public HTSModelSet getModelSet() { return ms; }
