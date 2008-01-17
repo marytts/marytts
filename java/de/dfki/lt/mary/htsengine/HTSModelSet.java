@@ -102,12 +102,13 @@ public class HTSModelSet {
 	 * @param diffdur
 	 * @return
 	 */
-	public double findDurPdf(HTSModel m, boolean firstPh, boolean lastPh, double rho, double diffdur) {
+	public double findDurPdf(HTSModel m, boolean firstPh, boolean lastPh, double rho, double diffdur, double durscale) {
 		
 	  double data, mean, variance, dd;
 	  int s;
 	  int n_state = numState;
 	  
+      
 	  /* NOTE 1: the indexes in the tree.inf file start in 1 ex. dur_s2_1, but here are stored */
       /* in durpdf[i][j] array which starts in i=0, so when finding this dur pdf, the idx should */
       /* be idx-1 !!!*/
@@ -118,12 +119,15 @@ public class HTSModelSet {
 	  for(s=0; s<n_state; s++){
 	    mean = durPdf[idx][s];
 		variance = durPdf[idx][n_state+s];
-		data = mean + rho*variance;
+		data = mean + rho * variance;
         
         /* check if the model is initial/final pause, if so reduce the length of the pause 
          * to 10% of the calculated value. */       
         if(m.getPhoneName().contentEquals("_") && (firstPh || lastPh ))
           data = data * 0.1;
+        
+       data = data * durscale; 
+          
 		
 		m.setDur(s, (int)(data+dd+0.5));
 		if(m.getDur(s) < 1 )

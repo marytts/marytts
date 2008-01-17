@@ -141,6 +141,7 @@ public class HMMVoice extends Voice {
    public void setF0Std(double dval) { htsData.setF0Std(dval); }
    public void setF0Mean(double dval) { htsData.setF0Mean(dval); }
    public void setLength(double dval) { htsData.setLength(dval); }
+   public void setDurationScale(double dval) { htsData.setDurationScale(dval); }
     
 
 } /* class HMMVoice */
