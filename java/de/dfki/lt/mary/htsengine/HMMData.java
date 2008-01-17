@@ -186,10 +186,29 @@ public class HMMData {
     
     /* These variables have default values but can be modified with setting in 
      * audio effects component. */
-    public void setF0Std(double dval) { f0Std = dval; }
-    public void setF0Mean(double dval) { f0Mean = dval; }
+    public void setF0Std(double dval) {
+        /* default=1.0, min=0.0, max=3.0 */
+        if( dval >= 0.0 && dval <= 3.0 )
+          f0Std = dval;
+        else
+          f0Std = 1.0;
+    }
+    public void setF0Mean(double dval) {
+        /* default=0.0, min=-300.0, max=300.0 */
+        if( dval >= -300.0 && dval <= 300.0 )
+          f0Mean = dval; 
+        else
+          f0Mean = 0.0;
+    }
     public void setLength(double dval) { length = dval; }
-    public void setDurationScale(double dval) { durationScale = dval; }
+    public void setDurationScale(double dval) { 
+        /* default=1.0, min=0.1, max=3.0 */
+        if( dval >= 0.1 && dval <= 3.0 )
+          durationScale = dval; 
+        else
+          durationScale = 1.0; 
+        
+    }
   
     public HTSTreeSet getTreeSet() { return ts; }       
     public HTSModelSet getModelSet() { return ms; }
