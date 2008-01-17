@@ -38,9 +38,9 @@ import de.dfki.lt.signalproc.util.MathUtils;
  */
 public class HMMDurationScaleEffect extends BaseAudioEffect {
     public float durScale;
-    static float DEFAULT_DUR_SCALE = 1.0f;
-    static float MAX_DUR_SCALE = 3.0f;
-    static float MIN_DUR_SCALE = 0.1f;
+    public static float DEFAULT_DUR_SCALE = 1.0f;
+    public static float MAX_DUR_SCALE = 3.0f;
+    public static float MIN_DUR_SCALE = 0.1f;
     
     public HMMDurationScaleEffect()
     {

@@ -11,9 +11,9 @@ import de.dfki.lt.signalproc.window.Window;
 public class StadiumEffect extends ChorusEffectBase {
     
     float amount;
-    static float DEFAULT_AMOUNT = 100.0f;
-    static float MAX_AMOUNT = 200.0f;
-    static float MIN_AMOUNT = 0.0f;
+    public static float DEFAULT_AMOUNT = 100.0f;
+    public static float MAX_AMOUNT = 200.0f;
+    public static float MIN_AMOUNT = 0.0f;
     
     public StadiumEffect()
     {

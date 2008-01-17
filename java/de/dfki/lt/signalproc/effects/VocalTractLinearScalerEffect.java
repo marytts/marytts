@@ -17,9 +17,9 @@ import de.dfki.lt.signalproc.window.Window;
 public class VocalTractLinearScalerEffect extends BaseAudioEffect {
     
     float amount;
-    static float MAX_AMOUNT = 4.0f;
-    static float MIN_AMOUNT = 0.25f;
-    static float DEFAULT_AMOUNT = 1.5f;
+    public static float MAX_AMOUNT = 4.0f;
+    public static float MIN_AMOUNT = 0.25f;
+    public static float DEFAULT_AMOUNT = 1.5f;
     
     public VocalTractLinearScalerEffect()
     {

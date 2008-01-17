@@ -34,9 +34,9 @@ public class LPCWhisperiserEffect extends BaseAudioEffect {
     int frameLength;
     int predictionOrder;
     float amount;
-    static float DEFAULT_AMOUNT = 100.0f;
-    static float MAX_AMOUNT = 100.0f;
-    static float MIN_AMOUNT = 0.0f;
+    public static float DEFAULT_AMOUNT = 100.0f;
+    public static float MAX_AMOUNT = 100.0f;
+    public static float MIN_AMOUNT = 0.0f;
     
     public LPCWhisperiserEffect()
     {

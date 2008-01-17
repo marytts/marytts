@@ -40,9 +40,9 @@ import de.dfki.lt.signalproc.util.MathUtils;
  */
 public class HMMF0AddEffect extends BaseAudioEffect {
     public float f0Add;
-    static float DEFAULT_F0_ADD = 0.0f;
-    static float MAX_F0_ADD= 300.0f;
-    static float MIN_F0_ADD = -300.0f;
+    public static float DEFAULT_F0_ADD = 0.0f;
+    public static float MAX_F0_ADD= 300.0f;
+    public static float MIN_F0_ADD = -300.0f;
     
     public HMMF0AddEffect()
     {

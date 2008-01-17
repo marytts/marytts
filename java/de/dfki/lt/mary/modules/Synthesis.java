@@ -249,10 +249,19 @@ public class Synthesis extends InternalModule
         String currentEffectLower = currentEffect.toLowerCase();
         if (voice instanceof HMMVoice)
         {
+            //Just create dummy effects to set default values for HMM voices
+            HMMF0AddEffect dummy1 = new HMMF0AddEffect();
+            HMMF0ScaleEffect dummy2 = new HMMF0ScaleEffect();
+            HMMDurationScaleEffect dummy3 = new HMMDurationScaleEffect();
+            ((HMMVoice)voice).setF0Mean(dummy1.DEFAULT_F0_ADD);
+            ((HMMVoice)voice).setF0Std(dummy2.DEFAULT_F0_SCALE);
+            ((HMMVoice)voice).setDurationScale(dummy3.DEFAULT_DUR_SCALE);
+            //
+            
             ef.parseEffectsAndParams(currentEffect);
 
             if (ef.audioEffects!=null)
-            {
+            {   
                 for (int i=0; i<ef.audioEffects.length; i++)
                 {
                     if (ef.audioEffects[i] instanceof HMMF0AddEffect)

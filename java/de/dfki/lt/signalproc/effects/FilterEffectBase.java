@@ -30,15 +30,15 @@ public class FilterEffectBase extends BaseAudioEffect {
     double normalizedCutOffFreq2;
     InlineDataProcessor filter;
     
-    static int NULL_FILTER = 0;
-    static int LOWPASS_FILTER = 1;
-    static int HIGHPASS_FILTER = 2;
-    static int BANDPASS_FILTER = 3;
-    static int BANDREJECT_FILTER = 4;
+    public static int NULL_FILTER = 0;
+    public static int LOWPASS_FILTER = 1;
+    public static int HIGHPASS_FILTER = 2;
+    public static int BANDPASS_FILTER = 3;
+    public static int BANDREJECT_FILTER = 4;
     
-    static int DEFAULT_FILTER = BANDPASS_FILTER;
-    static double DEFAULT_CUTOFF1 = 500.0;
-    static double DEFAULT_CUTOFF2 = 2000.0;
+    public static int DEFAULT_FILTER = BANDPASS_FILTER;
+    public static double DEFAULT_CUTOFF1 = 500.0;
+    public static double DEFAULT_CUTOFF2 = 2000.0;
    
     //Unlike most of the other effect parameters the following are sampling rate dependent
     double MIN_CUTOFF1;

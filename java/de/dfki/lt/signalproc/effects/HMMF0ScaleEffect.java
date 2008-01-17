@@ -38,9 +38,9 @@ import de.dfki.lt.signalproc.util.MathUtils;
  */
 public class HMMF0ScaleEffect extends BaseAudioEffect {
     public float f0Scale;
-    static float DEFAULT_F0_SCALE = 1.0f;
-    static float MAX_F0_SCALE= 3.0f;
-    static float MIN_F0_SCALE = 0.0f;
+    public static float DEFAULT_F0_SCALE = 1.0f;
+    public static float MAX_F0_SCALE= 3.0f;
+    public static float MIN_F0_SCALE = 0.0f;
     
     public HMMF0ScaleEffect()
     {

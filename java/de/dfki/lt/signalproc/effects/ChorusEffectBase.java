@@ -24,11 +24,11 @@ public class ChorusEffectBase extends BaseAudioEffect {
     int maxDelayInMiliseconds;
     int maxDelayInSamples;
     int numTaps;
-    static int MAX_TAPS = 20;
-    static int MIN_DELAY = 0;
-    static int MAX_DELAY = 5000;
-    static double MIN_AMP = -5.0;
-    static double MAX_AMP = 5.0;
+    public static int MAX_TAPS = 20;
+    public static int MIN_DELAY = 0;
+    public static int MAX_DELAY = 5000;
+    public static double MIN_AMP = -5.0;
+    public static double MAX_AMP = 5.0;
     
     public ChorusEffectBase()
     {
