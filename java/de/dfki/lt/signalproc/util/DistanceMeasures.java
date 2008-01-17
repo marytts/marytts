@@ -78,8 +78,8 @@ public class DistanceMeasures {
         //
         
         //LPC to LSF conversion
-        double [] lsfs1 = LineSpectralFrequencies.lpc2lsf(lpcs1.getOneMinusA(), 4, samplingRate);
-        double [] lsfs2 = LineSpectralFrequencies.lpc2lsf(lpcs2.getOneMinusA(), 4, samplingRate);
+        double [] lsfs1 = LineSpectralFrequencies.lpc2lsfInHz(lpcs1.getOneMinusA(), 4, samplingRate);
+        double [] lsfs2 = LineSpectralFrequencies.lpc2lsfInHz(lpcs2.getOneMinusA(), 4, samplingRate);
         //
         
         return getLsfDist(lsfs1, lsfs2, samplingRate);

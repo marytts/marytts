@@ -30,13 +30,21 @@
 package de.dfki.lt.signalproc.analysis;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.Defaults;
+import de.dfki.lt.signalproc.util.LEDataInputStream;
+import de.dfki.lt.signalproc.util.LEDataOutputStream;
 import de.dfki.lt.signalproc.util.MathUtils;
+import de.dfki.lt.signalproc.util.SignalProcUtils;
+import de.dfki.lt.signalproc.window.Window;
 
 /* Demonstration program to accompany the subroutines described in the        */
 /* articles by J. Rothweiler, on computing the Line Spectral Frequencies.     */
@@ -56,7 +64,7 @@ public class LineSpectralFrequencies
      * @return the lsf coefficients in the range 0 to 0.5*samplingRate,
      * as an array of doubles of length oneMinusA.length-1.
      */
-    public static double[] lpc2lsf(double[] oneMinusA, int type, int samplingRate)
+    public static double[] lpc2lsfInHz(double[] oneMinusA, int type, int samplingRate)
     {
         double [] lsp = lpc2lsf(oneMinusA, type);
         
@@ -340,7 +348,7 @@ public class LineSpectralFrequencies
      * @return an array of length lsf.length+1, containing the LPC coefficients
      * as in A(z) = a0 - sum { ai * z^-i } . a0 = 1.
      */
-    public static double[] lsf2lpc(double[] lsf, int samplingRate)
+    public static double[] lsfInHz2lpc(double[] lsf, int samplingRate)
     {
      
         double[] normalised_lsf = new double[lsf.length];
@@ -418,12 +426,100 @@ public class LineSpectralFrequencies
         return oneMinusA;
     }
     
+    public static double[][] lsfAnalyzeWavFile(String wavFile, LsfFileHeader params) throws UnsupportedAudioFileException, IOException
+    {
+        AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(wavFile));
+        params.samplingRate = (int)inputAudio.getFormat().getSampleRate();
+        
+        int ws =  (int)Math.floor(params.winsize*params.samplingRate+0.5);
+        int ss = (int)Math.floor(params.skipsize*params.samplingRate+0.5);
+
+        if (params.lpOrder<1)
+            params.lpOrder = SignalProcUtils.getLPOrder(params.samplingRate);
+        
+        AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
+        LPCAnalyser lpcAnalyser = new LPCAnalyser(signal, ws, ss, params.samplingRate, params.lpOrder, params.windowType, params.preCoef);
+        FrameBasedAnalyser.FrameAnalysisResult[] results = lpcAnalyser.analyseAllFrames();
+        if (results!=null)
+            params.numfrm = results.length;
+        else
+            params.numfrm = 0;
+        
+        double[][] lsfs = new double[params.numfrm][params.lpOrder];
+        double [] lpc = null;
+        int i, j;
+        for (i=0; i<results.length; i++) 
+        {          
+            lpc = ((LPCAnalyser.LPCoeffs)results[i].get()).getOneMinusA();
+            lsfs[i] = lpc2lsfInHz(lpc, 4, params.samplingRate);
+        }
+        
+        return lsfs;
+    }
     
+    public static void lsfAnalyzeWavFile(String wavFileIn, String lsfFileOut, LsfFileHeader params) throws IOException
+    {
+        double[][] lsfs = null;
+        try {
+            lsfs = lsfAnalyzeWavFile(wavFileIn, params);
+        } catch (UnsupportedAudioFileException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        if (lsfs!=null)
+        {
+            params.numfrm = lsfs.length;
+            writeLsfFile(lsfs, lsfFileOut, params);
+        }
+        else
+            params.numfrm = 0;
+    }
     
+    public static void writeLsfFile(double[][] lsfs, String lsfFileOut, LsfFileHeader params) throws IOException
+    {
+        params.numfrm = lsfs.length;
+        LEDataOutputStream stream = params.writeLsfHeader(lsfFileOut, true);
+        writeLsfs(stream, lsfs);
+    }
+    
+    public static void writeLsfs(LEDataOutputStream stream, double[][] lsfs) throws IOException
+    {
+        if (stream!=null && lsfs!=null && lsfs.length>0)
+        {
+            for (int i=0; i<lsfs.length; i++)
+                stream.writeDouble(lsfs[i]);
+            
+            stream.close();
+        }
+    }
+    
+    public static double[][] readLsfFile(String lsfFile) throws IOException
+    {
+        LsfFileHeader params = new LsfFileHeader();
+        LEDataInputStream stream = params.readLsfHeader(lsfFile, true);
+        return readLsfs(stream, params);
+    }
+    
+    public static double[][] readLsfs(LEDataInputStream stream, LsfFileHeader params) throws IOException
+    {
+        double[][] lsfs = null;
+        
+        if (stream!=null && params.numfrm>0)
+        {
+            lsfs = new double[params.numfrm][];
+            
+            for (int i=0; i<lsfs.length; i++)
+                lsfs[i] = stream.readDouble(params.lpOrder);
+            
+            stream.close();
+        }
+        
+        return lsfs;
+    }
     
     public static void main(String[] args) throws Exception
     {
-        
         int windowSize = Defaults.getWindowSize();
         int windowType = Defaults.getWindowType();
         int fftSize = Defaults.getFFTSize();

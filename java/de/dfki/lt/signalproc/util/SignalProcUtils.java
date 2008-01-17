@@ -1,11 +1,16 @@
 package de.dfki.lt.signalproc.util;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Vector;
 
 import sun.text.CompactShortArray.Iterator;
 
+import de.dfki.lt.mary.util.FileUtils;
 import de.dfki.lt.signalproc.FFT;
 import de.dfki.lt.signalproc.FFTMixedRadix;
 import de.dfki.lt.signalproc.analysis.PitchMarker;
@@ -1009,9 +1014,22 @@ public class SignalProcUtils {
         return m;
     }
     
+    public static float frameIndex2Time(int zeroBasedFrameIndex, float windowSizeInSeconds, float skipSizeInSeconds)
+    {
+        return Math.max(0.0f, 0.5f*windowSizeInSeconds+zeroBasedFrameIndex*skipSizeInSeconds);
+    }
+    
+    public static int time2frameIndex(float time, float windowSizeInSeconds, float skipSizeInSeconds)
+    {
+        return (int)Math.max(0, Math.floor((time-0.5f*windowSizeInSeconds)/skipSizeInSeconds+0.5));
+    }
+    
     public static void main(String[] args)
     {
+        ESTLabels e = new ESTLabels("d:\\a0003.lab");
         
+        for (int i=0; i<e.items.length; i++)
+            System.out.println(String.valueOf(e.items[i].time) + " " + String.valueOf(e.items[i].status) + " " + e.items[i].phn + " " + String.valueOf(e.items[i].ll));
     }
 }
 

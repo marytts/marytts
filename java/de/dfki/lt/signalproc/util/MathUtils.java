@@ -939,7 +939,7 @@ public class MathUtils {
     public static int getExtremaIndex(double [] x, boolean isMax, int startInd, int endInd)
     {
         double extrema = x[0];
-        int extremaInd = 0;
+        int extremaInd = startInd;
         if (startInd<0)
             startInd=0;
         if (endInd>x.length-1)
@@ -1326,25 +1326,24 @@ public class MathUtils {
     //Find the extremum points that are larger/smaller than numLefNs and numRightNs neighbours and larger/smaller than the given th value
     public static int [] getExtrema(double [] x, int numLeftN, int numRightN, boolean isMaxima)
     {
+        return getExtrema(x, numLeftN, numRightN, isMaxima, 0); 
+    }
+    
+    public static int [] getExtrema(double [] x, int numLeftN, int numRightN, boolean isMaxima, int startInd)
+    {
+        return getExtrema(x, numLeftN, numRightN, isMaxima, startInd, x.length-1);
+    }
+    
+    public static int [] getExtrema(double [] x, int numLeftN, int numRightN, boolean isMaxima, int startInd, int endInd)
+    {
         double th;
         
         if (isMaxima)
             th = MathUtils.getMin(x)-1.0;
         else
             th = MathUtils.getMax(x)+1.0;
-
-        return getExtrema(x, numLeftN, numRightN, isMaxima, th); 
-    }
-    
-    //Find the extremum points that are larger/smaller than numLefNs and numRightNs neighbours and larger/smaller than the given th value
-    public static int [] getExtrema(double [] x, int numLeftN, int numRightN, boolean isMaxima, double th)
-    {
-        return getExtrema(x, numLeftN, numRightN, isMaxima, 0, th); 
-    }
-    
-    public static int [] getExtrema(double [] x, int numLeftN, int numRightN, boolean isMaxima, int startInd, double th)
-    {
-        return getExtrema(x, numLeftN, numRightN, isMaxima, startInd, x.length-1, th);
+        
+        return getExtrema(x, numLeftN, numRightN, isMaxima, startInd, endInd, th);
     }
     
     public static int [] getExtrema(double [] x, int numLeftN, int numRightN, boolean isMaxima, int startInd, int endInd, double th)
@@ -1357,8 +1356,13 @@ public class MathUtils {
         return getExtrema(x, numLeftNs, numRightNs, isMaxima, startInd, endInd, th); 
     }
     
-    public static int [] getExtrema(double [] x, int [] numLeftNs, int [] numRightNs, boolean isMaxima, int startInd)
+    public static int [] getExtrema(double [] x, int [] numLeftNs, int [] numRightNs, boolean isMaxima)
     { 
+        return getExtrema(x, numLeftNs, numRightNs, isMaxima, 0);
+    }
+    
+    public static int [] getExtrema(double [] x, int [] numLeftNs, int [] numRightNs, boolean isMaxima, int startInd)
+    {
         return getExtrema(x, numLeftNs, numRightNs, isMaxima, startInd, x.length-1);
     }
     
@@ -1372,16 +1376,6 @@ public class MathUtils {
             th = MathUtils.getMax(x)+1.0;
         
         return getExtrema(x, numLeftNs, numRightNs, isMaxima, startInd, endInd, th);
-    }
-    
-    public static int [] getExtrema(double [] x, int [] numLeftNs, int [] numRightNs, boolean isMaxima, double th)
-    {
-        return getExtrema(x, numLeftNs, numRightNs, isMaxima, 0, th);
-    }
-    
-    public static int [] getExtrema(double [] x, int [] numLeftNs, int [] numRightNs, boolean isMaxima, int startInd, double th)
-    {
-        return getExtrema(x, numLeftNs, numRightNs, isMaxima, startInd, x.length-1, th);
     }
     
     public static int [] getExtrema(double [] x, int [] numLeftNs, int [] numRightNs, boolean isMaxima, int startInd, int endInd, double th)
@@ -1795,6 +1789,13 @@ public class MathUtils {
         }
 
         return pathInds;
+    }
+    
+    //Returns the linearly mapped version of x which is in range xStart and xEnd in a new range
+    // yStart and yEnd
+    public static float linearMap(float x, float xStart, float xEnd, float yStart, float yEnd)
+    {
+        return (x-xStart)/(xEnd-xStart)*(yEnd-yStart)+yStart;
     }
     
     public static void main(String[] args)
