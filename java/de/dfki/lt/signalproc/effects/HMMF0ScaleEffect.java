@@ -72,10 +72,13 @@ public class HMMF0ScaleEffect extends BaseAudioEffect {
         String strHelp = "F0 scaling effect for HMM voices:" + strLineBreak +
                          "All voiced f0 values are multiplied by <f0Scale> for HMM voices." + strLineBreak +
                          "This operation effectively scales the range of f0 values." + strLineBreak +
-                         "Note that the mean f0 is also changed with this operation." + strLineBreak +
+                         "Note that mean f0 is preserved during the operation." + strLineBreak +
                          "Parameter:" + strLineBreak +
                          "   <f0Scale>" +
-                         "   Definition : Target mean F0 of the synthesized speech output" + strLineBreak +
+                         "   Definition : Scale ratio for modifying the dynamic range of the f0 contour" + strLineBreak +
+                         "                If f0Scale>1.0, the range is expanded (i.e. voice with more variable pitch)" + strLineBreak +
+                         "                If f0Scale<1.0, the range is compressed (i.e. more monotonic voice)" + strLineBreak +
+                         "                If f0Scale=1.0 results in no changes in range" + strLineBreak +
                          "   Range      : [" + String.valueOf(MIN_F0_SCALE) + "," + String.valueOf(MAX_F0_SCALE) + "]" + strLineBreak +
                          "Example:" + strLineBreak +
                          getExampleParameters();
