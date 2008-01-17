@@ -158,6 +158,10 @@ public class HTSEngine extends InternalModule
         /* Generate sequence of speech parameter vectors, generate parameters out of sequence of pdf's */     
         pdf2par.htsMaximumLikelihoodParameterGeneration(um, hmmv.getHMMData());
     
+        
+        /* set parameters for generation: f0Std, f0Mean and length, default values 1.0, 0.0 and 0.0 */
+        /* These values are fixed in HMMVoice */
+        
         /* Process generated parameters */
         /* Synthesize speech waveform, generate speech out of sequence of parameters */
         ais = par2speech.htsMLSAVocoder(pdf2par, hmmv.getHMMData());
@@ -267,6 +271,8 @@ public class HTSEngine extends InternalModule
         String nextLine;
         double diffdurOld = 0.0;
         double diffdurNew = 0.0;
+        double mean = 0.0;
+        double var = 0.0;
         HTSTree auxTree;
         float fperiodmillisec = ((float)htsData.getFperiod() / (float)htsData.getRate()) * 1000;
         Integer dur;
@@ -296,18 +302,19 @@ public class HTSEngine extends InternalModule
              * 2. Calculate duration using the pdf idx found in the tree, function: FindDurPDF */
             auxTree = ts.getTreeHead(HMMData.DUR);
             m.setDurPdf( ts.searchTree(nextLine, auxTree.getRoot(), false));
-
+            
+            
             //System.out.println("dur->pdf=" + m.getDurPdf());
 
             if (htsData.getLength() == 0.0 ) {
-                diffdurNew = ms.findDurPdf(m, firstPh, lastPh, htsData.getRho(), diffdurOld);                
+                diffdurNew = ms.findDurPdf(m, firstPh, lastPh, htsData.getRho(), diffdurOld, htsData.getDurationScale());                
                 m.setTotalDurMillisec((int)(fperiodmillisec * m.getTotalDur()));                
                 diffdurOld = diffdurNew;
                 um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());
                 dur = m.getTotalDurMillisec();
                 um.concatRealisedAcoustParams(m.getPhoneName() + " " + dur.toString() + "\n");           
-            } /* else : when total length of generated speech is specified */
-            /* Not implemented yet...*/
+            } /* else : when total length of generated speech is specified (not implemented yet) */
+            
             //m.printDuration(ms.getNumState());
 
             /* Find pdf for LF0 */               
