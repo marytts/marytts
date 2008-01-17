@@ -30,7 +30,7 @@ public class VocalTractLinearScalerEffect extends BaseAudioEffect {
     {
         super(samplingRate);
         
-        setExampleParameters("amount" + chParamEquals + "1.5" + chParamSeparator);
+        setExampleParameters("amount" + chParamEquals + Float.toString(DEFAULT_AMOUNT) + chParamSeparator);
         
         strHelpText = getHelpText();  
     }

@@ -53,7 +53,10 @@ import de.dfki.lt.signalproc.util.SignalProcUtils;
  *
  */
 public class LPCAnalyser extends FrameBasedAnalyser
-{
+{    
+    public static int lpOrder = 0;
+    public static float preemphasisCoefficient = 0.0f;
+    
     public LPCAnalyser(DoubleDataSource signal, int framelength, int samplingRate)
     {
         this(signal, Window.get(Defaults.getWindowType(), framelength), framelength, samplingRate);
@@ -63,10 +66,32 @@ public class LPCAnalyser extends FrameBasedAnalyser
     {
         this(signal, Window.get(Defaults.getWindowType(),framelength), frameShift, samplingRate);
     }
+    
+    public LPCAnalyser(DoubleDataSource signal, int framelength, int frameShift, int samplingRate, int order, int windowType)
+    {
+        this(signal, Window.get(windowType,framelength), frameShift, samplingRate, order);
+    }
+    
+    public LPCAnalyser(DoubleDataSource signal, int framelength, int frameShift, int samplingRate, int order, int windowType, float preCoef)
+    {
+        this(signal, Window.get(windowType,framelength), frameShift, samplingRate, order, preCoef);
+    }
 
     public LPCAnalyser(DoubleDataSource signal, Window window, int frameShift, int samplingRate)
     {
+        this(signal, window, frameShift, samplingRate, SignalProcUtils.getLPOrder(samplingRate));
+    }
+    
+    public LPCAnalyser(DoubleDataSource signal, Window window, int frameShift, int samplingRate, int order)
+    {
+        this(signal, window, frameShift, samplingRate, order, 0.0f);
+    }
+    
+    public LPCAnalyser(DoubleDataSource signal, Window window, int frameShift, int samplingRate, int order, float preCoef)
+    {
         super(signal, window, frameShift, samplingRate);
+        lpOrder = order;
+        preemphasisCoefficient = preCoef;
     }
     
     /**
@@ -81,21 +106,48 @@ public class LPCAnalyser extends FrameBasedAnalyser
         if (frame.length != getFrameLengthSamples())
             throw new IllegalArgumentException("Expected frame of length " + getFrameLengthSamples()
                     + ", got " + frame.length);
-        return calcLPC(frame);
+        
+        return calcLPC(frame, lpOrder, preemphasisCoefficient);
     }
 
     /**
-     * Calculate LPC parameters for a given input signal, with the default
-     * prediction order as defined by the System property 
-     * <code>signalproc.lpcorder</code> (defaults to 24).
+     * Calculate LPC parameters for a given input signal.
      * @param x input signal
      * @param p prediction order
      * @return an LPCoeffs object encapsulating the LPC coefficients, a = [1, -a_1, -a_2, ... -a_p],
      * and the gain factor
      */
-    public static LPCoeffs calcLPC(double[] x) {
-        int p = Integer.getInteger("signalproc.lpcorder", 24).intValue();
-        return calcLPC(x, p);
+    public static LPCoeffs calcLPC(double[] x, int p)
+    {
+        return calcLPC(x, p, 0.0f);
+    }
+    
+    public static LPCoeffs calcLPC(double[] x, int p, float preCoef)
+    {
+        if (p<=0)
+            p = Integer.getInteger("signalproc.lpcorder", 24).intValue();
+        
+        if (preCoef>0.0)
+            SignalProcUtils.preemphasize(x, preCoef);
+        
+        int i;
+        for (i=0; i<x.length; i++)
+            x[i] += Math.random()*1e-50;
+        
+        double[] autocorr = FFT.autoCorrelateWithZeroPadding(x);
+        double[] r;
+        if (2*(p+1)<autocorr.length) { // normal case: frame long enough
+            r = ArrayUtils.subarray(autocorr, autocorr.length/2, p+1);
+        } else { // absurdly short frame
+            // still compute LPC coefficients, by zero-padding the r
+            r = new double[p+1];
+            System.arraycopy(autocorr, autocorr.length/2, r, 0, autocorr.length-autocorr.length/2);
+        }
+        double[] coeffs = MathUtils.levinson(r, p);
+        // gain factor:
+        double g = Math.sqrt(MathUtils.sum(MathUtils.multiply(coeffs, r)));
+
+        return new LPCoeffs(coeffs, g);
     }
     
     //Computes LP smoothed spectrum of a windowed speech frame (linear)
@@ -175,42 +227,6 @@ public class LPCAnalyser extends FrameBasedAnalyser
         }
      
         return expTerm;
-    }
-
-    /**
-     * Calculate LPC parameters for a given input signal.
-     * @param x input signal
-     * @param p prediction order
-     * @return an LPCoeffs object encapsulating the LPC coefficients, a = [1, -a_1, -a_2, ... -a_p],
-     * and the gain factor
-     */
-    public static LPCoeffs calcLPC(double[] x, int p)
-    {
-        int i;
-        for (i=0; i<x.length; i++)
-            x[i] += Math.random()*1e-50;
-        
-        double[] autocorr = FFT.autoCorrelateWithZeroPadding(x);
-        double[] r;
-        if (2*(p+1)<autocorr.length) { // normal case: frame long enough
-            r = ArrayUtils.subarray(autocorr, autocorr.length/2, p+1);
-        } else { // absurdly short frame
-            // still compute LPC coefficients, by zero-padding the r
-            r = new double[p+1];
-            System.arraycopy(autocorr, autocorr.length/2, r, 0, autocorr.length-autocorr.length/2);
-        }
-        double[] coeffs = MathUtils.levinson(r, p);
-        // gain factor:
-        double g = Math.sqrt(MathUtils.sum(MathUtils.multiply(coeffs, r)));
-        
-        /*
-        g = r[0];
-        for (i=0; i<p; i++)
-            g -= coeffs[i]*r[i+1];
-        g = Math.sqrt(g);
-        */
-        
-        return new LPCoeffs(coeffs, g);
     }
 
     public static void main(String[] args) throws Exception

@@ -58,6 +58,7 @@ import de.dfki.lt.signalproc.util.MathUtils;
  */
 public class PitchLPCAnalyser extends PitchFrameAnalyser
 {
+    public static int lpOrder = 0;
     
     /**
      * Initialise a PitchLPCAnalyser.
@@ -104,10 +105,9 @@ public class PitchLPCAnalyser extends PitchFrameAnalyser
             System.err.println("Expected frame of length " + expectedFrameLength
                     + "(" + periodLengths.length + " periods)"
                     + ", got " + frame.length);
-        return LPCAnalyser.calcLPC(frame);
+
+        return LPCAnalyser.calcLPC(frame, lpOrder);
     }
-
-
 
     public static void main(String[] args) throws Exception
     {

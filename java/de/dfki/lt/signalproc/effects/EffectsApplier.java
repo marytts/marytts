@@ -96,118 +96,124 @@ public class EffectsApplier {
     //Extract effects and parameters and create the corresponding effects
     public void parseEffectsAndParams(String param, int samplingRate)
     {
-        param = StringUtil.deblank(param);
-        int [] effectInds = StringUtil.find(param, chEffectSeparator);
-        int numEffects = 0;
+        audioEffects = null;
+        optimumEffectIndices = null;
         
-        if (effectInds!=null)
+        if (param!="")
         {
-            numEffects = effectInds.length;
-            if (effectInds[effectInds.length-1] != param.length())
-                numEffects++;
-        }
-        else
-        {
-            if (param.length()!=0)
-                numEffects = 1;
-        }
+            param = StringUtil.deblank(param);
+            int [] effectInds = StringUtil.find(param, chEffectSeparator);
+            int numEffects = 0;
 
-        if (numEffects>0)
-        {
-            int totalNonEmptyEffects = 0;
-            String [] strEffectNames = new String[numEffects];
-            String [] strParamsAlls = new String[numEffects];
-
-            String strEffectName, strParams;
-            int [] paramInds;
-            int i;
-            for (i=0; i<numEffects; i++)
+            if (effectInds!=null)
             {
-                if (i==0)
-                {
-                    if (numEffects==1 || effectInds==null)
-                        strEffectName = param;
-                    else
-                        strEffectName = param.substring(0, effectInds[0]);
-                }
-                else
-                {
-                    if (effectInds==null)
-                        strEffectName = param;
-                    else if (i<effectInds.length)
-                        strEffectName = param.substring(effectInds[i-1]+1, effectInds[i]);
-                    else
-                        strEffectName = param.substring(effectInds[i-1]+1, param.length());
-                }   
-                    
-                strEffectName = StringUtil.deblank(strEffectName);
+                numEffects = effectInds.length;
+                if (effectInds[effectInds.length-1] != param.length())
+                    numEffects++;
+            }
+            else
+            {
+                if (param.length()!=0)
+                    numEffects = 1;
+            }
 
-                if (strEffectName!=null && strEffectName!="")
+            if (numEffects>0)
+            {
+                int totalNonEmptyEffects = 0;
+                String [] strEffectNames = new String[numEffects];
+                String [] strParamsAlls = new String[numEffects];
+
+                String strEffectName, strParams;
+                int [] paramInds;
+                int i;
+                for (i=0; i<numEffects; i++)
                 {
-                    paramInds = StringUtil.find(strEffectName, BaseAudioEffect.chEffectParamStart);
-                    if (paramInds!=null)
+                    if (i==0)
                     {
-                        int stParam = MathUtils.max(paramInds);
-                        paramInds = StringUtil.find(strEffectName, BaseAudioEffect.chEffectParamEnd);
+                        if (numEffects==1 || effectInds==null)
+                            strEffectName = param;
+                        else
+                            strEffectName = param.substring(0, effectInds[0]);
+                    }
+                    else
+                    {
+                        if (effectInds==null)
+                            strEffectName = param;
+                        else if (i<effectInds.length)
+                            strEffectName = param.substring(effectInds[i-1]+1, effectInds[i]);
+                        else
+                            strEffectName = param.substring(effectInds[i-1]+1, param.length());
+                    }   
+
+                    strEffectName = StringUtil.deblank(strEffectName);
+
+                    if (strEffectName!=null && strEffectName!="")
+                    {
+                        paramInds = StringUtil.find(strEffectName, BaseAudioEffect.chEffectParamStart);
                         if (paramInds!=null)
                         {
-                            int enParam = MathUtils.min(paramInds);
+                            int stParam = MathUtils.max(paramInds);
+                            paramInds = StringUtil.find(strEffectName, BaseAudioEffect.chEffectParamEnd);
+                            if (paramInds!=null)
+                            {
+                                int enParam = MathUtils.min(paramInds);
 
-                            strParams = strEffectName.substring(stParam+1, enParam);
-                            strParams = StringUtil.deblank(strParams);
+                                strParams = strEffectName.substring(stParam+1, enParam);
+                                strParams = StringUtil.deblank(strParams);
+                            }
+                            else
+                                strParams = "";
+
+                            strEffectName = strEffectName.substring(0, stParam);
+                            strEffectName = StringUtil.deblank(strEffectName);
                         }
                         else
                             strParams = "";
-
-                        strEffectName = strEffectName.substring(0, stParam);
-                        strEffectName = StringUtil.deblank(strEffectName);
                     }
                     else
                         strParams = "";
-                }
-                else
-                    strParams = "";
 
-                if (strEffectName!=null && strEffectName!="")
-                {
-                    strEffectNames[i] = strEffectName;
-                    strParamsAlls[i] = strParams;
-                    totalNonEmptyEffects++;
-                }
-            }
-            
-            int index = 0;
-            if (totalNonEmptyEffects>0)
-            {
-                audioEffects = new BaseAudioEffect[totalNonEmptyEffects];
-                for (i=0; i<numEffects; i++)
-                {
-                    if (isEffectAvailable(strEffectNames[i]))
+                    if (strEffectName!=null && strEffectName!="")
                     {
-                        if (index<totalNonEmptyEffects)
-                        {
-                            audioEffects[index] = string2AudioEffect(strEffectNames[i], samplingRate);
-                            audioEffects[index].setName(strEffectNames[i]);
-                            audioEffects[index].setParams(strParamsAlls[i]);
-                            index++;
-                        }
-                        else
-                            break;
+                        strEffectNames[i] = strEffectName;
+                        strParamsAlls[i] = strParams;
+                        totalNonEmptyEffects++;
                     }
                 }
 
-                optimizeEffectsOrdering();
+                int index = 0;
+                if (totalNonEmptyEffects>0)
+                {
+                    audioEffects = new BaseAudioEffect[totalNonEmptyEffects];
+                    for (i=0; i<numEffects; i++)
+                    {
+                        if (isEffectAvailable(strEffectNames[i]))
+                        {
+                            if (index<totalNonEmptyEffects)
+                            {
+                                audioEffects[index] = string2AudioEffect(strEffectNames[i], samplingRate);
+                                audioEffects[index].setName(strEffectNames[i]);
+                                audioEffects[index].setParams(strParamsAlls[i]);
+                                index++;
+                            }
+                            else
+                                break;
+                        }
+                    }
+
+                    optimizeEffectsOrdering();
+                }
+                else
+                {
+                    audioEffects = null;
+                    optimumEffectIndices = null;
+                }   
             }
             else
             {
                 audioEffects = null;
                 optimumEffectIndices = null;
-            }   
-        }
-        else
-        {
-            audioEffects = null;
-            optimumEffectIndices = null;
+            }
         }
     }
     
@@ -227,6 +233,12 @@ public class EffectsApplier {
             return new LPCWhisperiserEffect(samplingRate);
         else if (strEffectName.compareToIgnoreCase("TractScaler")==0)
             return new VocalTractLinearScalerEffect(samplingRate);
+        else if (strEffectName.compareToIgnoreCase("F0Add")==0)
+            return new HMMF0AddEffect();
+        else if (strEffectName.compareToIgnoreCase("F0Scale")==0)
+            return new HMMF0ScaleEffect();
+        else if (strEffectName.compareToIgnoreCase("Rate")==0)
+            return new HMMDurationScaleEffect();
         else
             return null;
     }
