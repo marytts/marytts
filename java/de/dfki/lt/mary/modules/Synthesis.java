@@ -49,12 +49,16 @@ import de.dfki.lt.mary.MaryData;
 import de.dfki.lt.mary.MaryDataType;
 import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.mary.MaryXML;
+import de.dfki.lt.mary.htsengine.HMMVoice;
 import de.dfki.lt.mary.modules.synthesis.SynthesisException;
 import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.modules.synthesis.WaveformSynthesizer;
 import de.dfki.lt.mary.util.dom.MaryDomUtils;
 import de.dfki.lt.mary.util.dom.NameNodeFilter;
 import de.dfki.lt.signalproc.effects.EffectsApplier;
+import de.dfki.lt.signalproc.effects.HMMDurationScaleEffect;
+import de.dfki.lt.signalproc.effects.HMMF0AddEffect;
+import de.dfki.lt.signalproc.effects.HMMF0ScaleEffect;
 
 /**
  * The synthesis module.
@@ -241,6 +245,25 @@ public class Synthesis extends InternalModule
     throws SynthesisException, UnsupportedAudioFileException
     {            
         EffectsApplier ef = new EffectsApplier(MaryProperties.effectClasses(), MaryProperties.effectParams());
+        
+        String currentEffectLower = currentEffect.toLowerCase();
+        if (voice instanceof HMMVoice)
+        {
+            ef.parseEffectsAndParams(currentEffect);
+
+            if (ef.audioEffects!=null)
+            {
+                for (int i=0; i<ef.audioEffects.length; i++)
+                {
+                    if (ef.audioEffects[i] instanceof HMMF0AddEffect)
+                        ((HMMVoice)voice).setF0Mean((double)((HMMF0AddEffect)ef.audioEffects[i]).f0Add);
+                    else if (ef.audioEffects[i] instanceof HMMF0ScaleEffect)
+                        ((HMMVoice)voice).setF0Std(((HMMF0ScaleEffect)ef.audioEffects[i]).f0Scale);
+                    else if (ef.audioEffects[i] instanceof HMMDurationScaleEffect)
+                        ((HMMVoice)voice).setDurationScale(((HMMDurationScaleEffect)ef.audioEffects[i]).durScale);
+                }
+            }
+        }
         
         AudioInputStream ais = null;
         ais = voice.synthesize(tokensAndBoundaries);
