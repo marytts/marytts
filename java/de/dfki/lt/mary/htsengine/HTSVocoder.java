@@ -249,7 +249,7 @@ public class HTSVocoder {
       double [] audio_double = null;
       HTSModelSet ms = htsData.getModelSet();
 	    
-      double f0, f0Std, f0Mean;
+      double f0, f0Std, f0Shift, f0MeanOri;
       double mc[] = null;  /* feature vector for a particular frame */
 	  double hp[] = null;  /* pulse shaping filter, it is initialised once it is known orderM */  
 	  double hn[] = null;  /* noise shaping filter, it is initialised once it is known orderM */  
@@ -279,16 +279,25 @@ public class HTSVocoder {
       /* Clear content of SlideVector c, should be done if this function is
       called more than once with a new set of generated parameters. */
       c.clearContent();   
-	    
-      
+	
+      f0Std = htsData.getF0Std();
+      f0Shift = htsData.getF0Mean();
+      f0MeanOri = 0.0;
+
+      for(mcepframe=0,lf0frame=0; mcepframe<pdf2par.getMcepT(); mcepframe++) {
+        if(pdf2par.getVoiced(mcepframe)){
+          f0MeanOri = f0MeanOri + Math.exp(pdf2par.getLf0(lf0frame, 0));
+          lf0frame++;
+        }
+      }
+      f0MeanOri = f0MeanOri/lf0frame;
 	  /* _______________________Synthesize speech waveforms_____________________ */
 	  /* generate Nperiod samples per mcepframe */
       s = 0;   /* number of samples */
       s_double = 0;
       audio_size = (pdf2par.getMcepT()) * (fprd) ;
       audio_double = new double[audio_size];  /* initialise buffer for audio */
-      f0Std = htsData.getF0Std();
-      f0Mean = htsData.getF0Mean();
+ 
 	  for(mcepframe=0,lf0frame=0; mcepframe<pdf2par.getMcepT(); mcepframe++) {
        
 		/* get current feature vector mc */ 
@@ -299,7 +308,7 @@ public class HTSVocoder {
         
         /* f0 modification */
 	    if(pdf2par.getVoiced(mcepframe)){
-	      f0 = f0Std * Math.exp(pdf2par.getLf0(lf0frame, 0)) + f0Mean;       
+	      f0 = f0Std * Math.exp(pdf2par.getLf0(lf0frame, 0)) + (1-f0Std) * f0MeanOri + f0Shift;       
 	      lf0frame++;
 	    }
 	    else{
