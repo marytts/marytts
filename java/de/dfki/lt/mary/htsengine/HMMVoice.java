@@ -136,6 +136,8 @@ public class HMMVoice extends Voice {
    
    public Vector<String> getFeatureList(){ return this.htsData.getFeatureList(); }
    
+   /* set parameters for generation: f0Std, f0Mean and length, default values 1.0, 0.0 and 0.0 */
+   /* take the values from audio effects component through a MaryData object */
    public void setF0Std(double dval) { htsData.setF0Std(dval); }
    public void setF0Mean(double dval) { htsData.setF0Mean(dval); }
    public void setLength(double dval) { htsData.setLength(dval); }
