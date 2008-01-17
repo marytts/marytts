@@ -69,6 +69,7 @@ public class MaryAudioEffectControl {
     public String strHelpText;
     public String strExampleParams;
     public String strLineBreak;
+    private boolean isVisible; //This can be used for not showing a specific effect for specific voices
     
     //Create a Mary audio effect with help text
     public MaryAudioEffectControl(String strEffectNameIn, String strExampleParams, String strHelpTextIn, String lineBreak)
@@ -78,7 +79,8 @@ public class MaryAudioEffectControl {
         txtParams = new JTextField("Parameters");
         btnHelp = new JButton("?");
         strLineBreak = lineBreak;
-        
+        isVisible = true;
+ 
         init(strEffectNameIn, strExampleParams, strHelpTextIn);
     }
 
@@ -90,44 +92,55 @@ public class MaryAudioEffectControl {
         setEffectParamsToExample();
     }
     
+    public void setVisible(boolean bShow)
+    {
+        if (bShow)
+            isVisible = true;
+        else
+            isVisible = false;
+    }
+    
     public void show()
     {
-        GridBagLayout g = new GridBagLayout();
-        GridBagConstraints c = new GridBagConstraints();
-        
-        mainPanel.setLayout(g);
-        
-        c.fill = GridBagConstraints.HORIZONTAL;
-        
-        c.gridx = 0;
-        c.gridy = 0;
-        g.setConstraints(chkEnabled, c);
-        chkEnabled.setPreferredSize(new Dimension(100,25));
-        mainPanel.add(chkEnabled);
-        
-        c.gridx = 1;
-        g.setConstraints(chkEnabled, c);
-        txtParams.setPreferredSize(new Dimension(150,25));
-        mainPanel.add(txtParams);
-        
-        c.gridx = GridBagConstraints.RELATIVE;
-        g.setConstraints(btnHelp, c);
-        btnHelp.setPreferredSize(new Dimension(45,25));
-        mainPanel.add(btnHelp);
-        
-        btnHelp.addActionListener( new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-               //System.out.println(strHelpText);
-                JFrame helpFrame = new JFrame("Help: " + chkEnabled.getText() + " Effect");
-                JTextArea helpText = new JTextArea(parseLineBreaks(strHelpText));
-                helpText.setEditable(false);
-                
-                helpFrame.getContentPane().add(helpText, BorderLayout.WEST);
-                helpFrame.pack();
-                helpFrame.setLocation(btnHelp.getLocation().x, btnHelp.getLocation().y);
-                helpFrame.setVisible(true);
-            }
-        });
+        if (isVisible)
+        {
+            GridBagLayout g = new GridBagLayout();
+            GridBagConstraints c = new GridBagConstraints();
+
+            mainPanel.setLayout(g);
+
+            c.fill = GridBagConstraints.HORIZONTAL;
+
+            c.gridx = 0;
+            c.gridy = 0;
+            g.setConstraints(chkEnabled, c);
+            chkEnabled.setPreferredSize(new Dimension(100,25));
+            mainPanel.add(chkEnabled);
+
+            c.gridx = 1;
+            g.setConstraints(chkEnabled, c);
+            txtParams.setPreferredSize(new Dimension(150,25));
+            mainPanel.add(txtParams);
+
+            c.gridx = GridBagConstraints.RELATIVE;
+            g.setConstraints(btnHelp, c);
+            btnHelp.setPreferredSize(new Dimension(45,25));
+            mainPanel.add(btnHelp);
+
+            btnHelp.addActionListener( new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    //System.out.println(strHelpText);
+                    JFrame helpFrame = new JFrame("Help: " + chkEnabled.getText() + " Effect");
+                    JTextArea helpText = new JTextArea(parseLineBreaks(strHelpText));
+                    helpText.setEditable(false);
+
+                    helpFrame.getContentPane().add(helpText, BorderLayout.WEST);
+                    helpFrame.pack();
+                    helpFrame.setLocation(btnHelp.getLocation().x, btnHelp.getLocation().y);
+                    helpFrame.setVisible(true);
+                }
+            });
+        }
     }
     
     //Parse string according to line break string
