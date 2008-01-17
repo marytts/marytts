@@ -83,15 +83,19 @@ public class HMMData {
 	private int fperiod    = 80;    /* frame period (point)                       */
 	private double rho     = 0.0;   /* variable for speaking rate control         */
 	private double alpha   = 0.42;  /* variable for frequency warping parameter   */
-	private double f0Std   = 1.0;   /* variable for f0 control                    */
-	private double f0Mean  = 0.0;   /* variable for f0 control                    */
 	private double beta    = 0.0;   /* variable for postfiltering                 */
 	private double uv      = 0.5;   /* variable for U/V threshold                 */
-	private double length  = 0.0;   /* total number of frame for generated speech */
 	private boolean algnst = false; /* use state level alignment for duration     */
 	private boolean algnph = false; /* use phoneme level alignment for duration   */
     private boolean useGV  = false; /* use global variance in parameter generation */
-	
+    
+    /** variables for controling generation of speech in the vocoder                
+     * these variables have default values but can be fixed and read from the      
+     * audio effects component.                                              [Default][min--max]   */
+    private double f0Std   = 1.0;   /* variable for f0 control, multiply f0      [1.0][0.0--5.0]   */
+    private double f0Mean  = 0.0;   /* variable for f0 control, add f0           [0.0][0.0--100.0] */
+    private double length  = 0.0;   /* total number of frame for generated speech                  */
+	                                /* length of generated speech (in seconds)   [N/A][0.0--30.0]  */
 	
 	/** Tree files and TreeSet object */
 	private String treeDurFile; /* durations tree file */
@@ -142,14 +146,15 @@ public class HMMData {
 	public int getFperiod() { return fperiod; } 
 	public double getRho() { return rho; } 
 	public double getAlpha() { return alpha; }
-	public double getF0Std() { return f0Std; }
-	public double getF0Mean() { return f0Mean; }
 	public double getBeta() { return beta; }
 	public double getUV() { return  uv; }
-	public double getLength() { return length; }
 	public boolean getAlgnst() { return algnst; }
 	public boolean getAlgnph() { return algnph; }
-	
+
+    public double getF0Std() { return f0Std; }
+    public double getF0Mean() { return f0Mean; }
+    public double getLength() { return length; }
+    
 	public String getTreeDurFile() { return treeDurFile; } 
 	public String getTreeLf0File() { return treeLf0File; } 
 	public String getTreeMcpFile() { return treeMcpFile; }  
@@ -177,6 +182,12 @@ public class HMMData {
 	public int getNumFilters(){ return numFilters; }
 	public int getOrderFilters(){ return orderFilters; }
     
+    /* These variables have default values but can be modified with setting in 
+     * audio effects component. */
+    public void setF0Std(double dval) { f0Std = dval; }
+    public void setF0Mean(double dval) { f0Mean = dval; }
+    public void setLength(double dval) { length = dval; }
+  
     public HTSTreeSet getTreeSet() { return ts; }       
     public HTSModelSet getModelSet() { return ms; }
     public GVModelSet getGVModelSet() { return gv; }

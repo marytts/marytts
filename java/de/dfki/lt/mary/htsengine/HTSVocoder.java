@@ -249,7 +249,7 @@ public class HTSVocoder {
       double [] audio_double = null;
       HTSModelSet ms = htsData.getModelSet();
 	    
-      double f0;
+      double f0, f0Std, f0Mean;
       double mc[] = null;  /* feature vector for a particular frame */
 	  double hp[] = null;  /* pulse shaping filter, it is initialised once it is known orderM */  
 	  double hn[] = null;  /* noise shaping filter, it is initialised once it is known orderM */  
@@ -280,25 +280,31 @@ public class HTSVocoder {
       called more than once with a new set of generated parameters. */
       c.clearContent();   
 	    
+      
 	  /* _______________________Synthesize speech waveforms_____________________ */
 	  /* generate Nperiod samples per mcepframe */
       s = 0;   /* number of samples */
       s_double = 0;
       audio_size = (pdf2par.getMcepT()) * (fprd) ;
       audio_double = new double[audio_size];  /* initialise buffer for audio */
+      f0Std = htsData.getF0Std();
+      f0Mean = htsData.getF0Mean();
 	  for(mcepframe=0,lf0frame=0; mcepframe<pdf2par.getMcepT(); mcepframe++) {
        
 		/* get current feature vector mc */ 
 		for(i=0; i<m; i++)
 		  mc[i] = pdf2par.getMcep(mcepframe, i); 
         
+        //System.out.println("htsData.getF0Std()=" + htsData.getF0Std() + " htsData.getF0Mean()="+ htsData.getF0Mean());
+        
         /* f0 modification */
 	    if(pdf2par.getVoiced(mcepframe)){
-	      f0 = htsData.getF0Std() * Math.exp(pdf2par.getLf0(lf0frame, 0)) + htsData.getF0Mean(); 
+	      f0 = f0Std * Math.exp(pdf2par.getLf0(lf0frame, 0)) + f0Mean;       
 	      lf0frame++;
 	    }
-	    else
-	      f0 = 0.0;
+	    else{
+	      f0 = 0.0;          
+        }
 	     
 	    /* if mixed excitation get shaping filters for this frame */
         if(mixedExcitation){
