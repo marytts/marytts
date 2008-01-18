@@ -461,7 +461,7 @@ public class HTSVocoder {
       /* Normalise the signal before return, this will normalise between 1 and -1 */
       MaxSample = MathUtils.getAbsMax(audio_double);
       for (i=0; i<audio_double.length; i++)
-         audio_double[i] = 0.7 * ( audio_double[i] / MaxSample );
+         audio_double[i] = 0.3 * ( audio_double[i] / MaxSample );
       
       DDSAudioInputStream oais = new DDSAudioInputStream(new BufferedDoubleDataSource(audio_double), af);
       return oais;
