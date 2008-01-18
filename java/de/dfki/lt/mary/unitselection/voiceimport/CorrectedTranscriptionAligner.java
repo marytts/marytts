@@ -147,8 +147,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
     }
     
     public int getProgress() {
-        // TODO Auto-generated method stub
-        return -1;
+        return progress;
     }
     /**
      * align and change automatic transcriptions to manually 
@@ -193,7 +192,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
             File nextFile = new File(props.get(this.ORIGTRANS)
                     +System.getProperty("file.separator")
                     +bnl.getName(i)+".xml");
-            System.out.println(nextFile.getName());
+            System.out.println(bnl.getName(i));
             
             // get original xml file
             Document doc = db.parse(nextFile);
