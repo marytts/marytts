@@ -62,6 +62,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
     Map<String, Integer> aligncost;
     int defaultcost;
     int skipcost;
+    PhonemeSet phonemeSet;
     
     public CorrectedTranscriptionAligner() {
         this.aligncost = new HashMap<String, Integer>();
@@ -83,8 +84,6 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
         if (props == null){
             props = new TreeMap();
             
-            // TODO: enter paths here
-
             // original transcriptions (?LABDIR / TEXTDIR)
             String origTrans = System.getProperty(ORIGTRANS);
             if ( origTrans == null ) {
@@ -169,7 +168,10 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
         }
         
         this.setDefaultCost( this.getMaxCost() );
-        this.setSkipCost( this.getMaxCost() / 4 );
+        this.setSkipCost( this.getMaxCost() / 3 );
+        
+        // phoneme set is used for splitting the sampa strings
+        this.setPhonemeSet(PhonemeSet.getPhonemeSet((String) props.get(this.PHONSET)));
 
         
         //go through original xml files
@@ -185,12 +187,10 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
             
         // for parsing xml files
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        // TODO: put in loop?
         DocumentBuilder db = dbf.newDocumentBuilder();
         
         // for writing xml files
         TransformerFactory tFactory = TransformerFactory.newInstance();
-        // TODO: put in loop?
         Transformer transformer = tFactory.newTransformer();
 
        
@@ -212,20 +212,15 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
             try{
 
                 String trfdir = (String) props.get(this.CORRTRANS);
-                
-                //System.out.println(trfdir);
+
                 
                 //if (!trfdir.endsWith(System.getProperty("File.separator")))
                 //        trfdir += System.getProperty("File.separator");
-
-                if (!trfdir.endsWith("/"))
-                    trfdir += "/";
-
                 
                 String trfname = trfdir + 
                 nextFile.getName().substring(0, nextFile.getName().length() - 4) + ".lab";
                 
-                System.out.println(trfname);
+                //System.out.println(trfname);
                 
                 manTransString = this.readLabelFile(trfname);
                 
@@ -334,6 +329,10 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
     }*/
     
     
+    public void setPhonemeSet(PhonemeSet aPhonemeSet) {
+        this.phonemeSet = aPhonemeSet;
+    }
+
     /**
      * This reads in a label file and returns a String of the phonetic symbols,
      * seperated by white spaces. Pause symbols ("_") are disregarded (skipped).
@@ -590,10 +589,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
     public Document alignXmlTranscriptions(Document doc, String correct) throws SAXException, IOException, ParserConfigurationException    {
         // get all <t .. /> - elements in xml data
         NodeList tokens = doc.getElementsByTagName("t");
-                        
-        // TODO: move outside method
-        PhonemeSet phonemeSet = PhonemeSet.getPhonemeSet((String) props.get(this.PHONSET));
-        
+                                
         // String Tokenizer devides transcriptions into syllables
         // syllable delimiters and stress symbols are retained
         String delims = "',-";
@@ -635,8 +631,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
         String al = this.distanceAlign(orig.trim(),correct.trim()) + " ";
         String[] alignments = al.split("#");
         
-        // TODO: debugging
-        System.out.println("Alignment: " + al);
+        //System.out.println("Alignment: " + al);
         
         // counter to keep track of the position in alignment array
         int currAl = 0;
@@ -665,15 +660,11 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
                     String currTok = sTok.nextToken();
                     
                     if (delims.indexOf(currTok) == -1) {
-                        
-
-                        
                         // current Token is no delimiter
                         for ( Phoneme ph : phonemeSet.splitIntoPhonemes(currTok)){
                             orig += ph.name();
-                            
-                            // TODO: debugging
-                            System.out.print(ph.name() + " >>" + alignments[currAl] + "; ");
+
+                            //System.out.print(ph.name() + " >>" + alignments[currAl] + "; ");
                             
                             // new transciption is the aligned ones without white spaces
                             newSampa += alignments[currAl].replaceAll(" ", "");
@@ -683,9 +674,55 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
                         
                     } else {
                         // all delimiters have to be copied
-                        newSampa += currTok;
+                        
+                        
+                        /* exceptions treated below...*/
+                        String previousChar;
+                        if (newSampa.length() == 0)
+                            previousChar = "";
+                        else
+                            previousChar = newSampa.substring(newSampa.length()-1);
+                        
+                        
+                        // with a few exceptions:
+                        // 1. a syllable is only indicated after a phoneme symbol
+                        // 2. no two subsequent stress symbols are allowed
+                        if ( ( previousChar.equals("") && currTok.equals("-") ) || 
+                             ( previousChar.equals("-") && currTok.equals("-") )||
+                             ( previousChar.equals("'") && currTok.equals("-") )||
+                             ( previousChar.equals(",") && currTok.equals("-") )||
+                             ( previousChar.equals("'") && currTok.equals("'") )||
+                             ( previousChar.equals(",") && currTok.equals("'") )||
+                             ( previousChar.equals("'") && currTok.equals(",") )||
+                             ( previousChar.equals(",") && currTok.equals(",") )){
+                            // continue
+                        } else { //...
+                            newSampa += currTok;
+                        }
+                        
+
+                        
                     }
                 }// ... while there are more tokens 
+                
+
+                /*
+                // replace illegal delimiter sequences
+                newSampa =  newSampa.replaceAll("--", "-");
+                newSampa =  newSampa.replaceAll("'-", "-");
+                newSampa =  newSampa.replaceAll(",-", "-");
+                newSampa =  newSampa.replaceAll("^-", "");
+                newSampa =  newSampa.replaceAll("'$", "");
+                newSampa =  newSampa.replaceAll(",$", "");
+                newSampa =  newSampa.replaceAll("-$", "");
+                */
+                
+                // if new sampa ends with delimiters, delete them
+                while (newSampa.length() > 0 &&
+                        delims.indexOf( newSampa.substring(newSampa.length()-1) ) != -1 )
+                {
+                    newSampa = newSampa.substring(0,newSampa.length()-1);
+                }
                 
                 // set new sampa
                 token.setAttribute("sampa", newSampa);
@@ -693,8 +730,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
             }// ... if there is transcription 
         }// ... for each t-Element
                           
-        // TODO: debugging
-        System.out.println();
+        //System.out.println();
         
         return doc;
     }
