@@ -17,7 +17,7 @@ public class PhonemisedtoHalfPhoneFV extends VoiceImportComponent
 {
     protected File textDir;
     protected File unitfeatureDir;
-    protected String featsExt = ".pfeats";
+    protected String featsExt = ".hpfeats";
     protected String xmlExt = ".xml";
     protected String locale;
     protected MaryClient mary;
