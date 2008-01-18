@@ -21,6 +21,7 @@ public class MaryScriptCreator {
         File outDir = new File(System.getProperty("outdir", "./text"));
         String inputEncoding = System.getProperty("encoding", "UTF-8");
         boolean ignoreFirst = Boolean.parseBoolean(System.getProperty("ignoreFirst", "true"));
+        boolean useFirstAsBasename = Boolean.parseBoolean(System.getProperty("useFirstAsBasename", "false"));
         if (!outDir.exists()) outDir.mkdir();
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in, inputEncoding));
         String line;
@@ -37,7 +38,14 @@ public class MaryScriptCreator {
             if (first == -1 || last == -1 || last <= first) {
                 System.err.println("Line no. "+i+" has no space -- skipping: "+line);
             }
-            File outFile = new File(outDir, prefix+f.format(i)+".txt");
+            String filename;
+            if (useFirstAsBasename) {
+                filename = line.substring(0, line.indexOf(" "));
+                if (!filename.endsWith(".txt")) filename += ".txt";
+            } else {
+                filename = prefix+f.format(i)+".txt";
+            }
+            File outFile = new File(outDir, filename);
             PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(outFile), "UTF-8"));
             out.println(line.substring(first, last));
             out.close();
