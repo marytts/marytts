@@ -13,7 +13,7 @@ import de.dfki.lt.mary.MaryDataType;
 
 
 
-public class PhonemisedtoFeatureVector extends VoiceImportComponent
+public class PhonemisedtoHalfPhoneFV extends VoiceImportComponent
 {
     protected File textDir;
     protected File unitfeatureDir;
@@ -27,15 +27,15 @@ public class PhonemisedtoFeatureVector extends VoiceImportComponent
     protected DatabaseLayout db = null;
     protected int percent = 0;
     
-    public String FEATUREDIR = "PhonemisedtoFeatureVector.featureDir";
-    public String  PHONEMISED = "PhonemisedtoFeatureVector.phonemisedDir";
-    public String MARYSERVERHOST = "PhonemisedtoFeatureVector.maryServerHost";
-    public String MARYSERVERPORT = "PhonemisedtoFeatureVector.maryServerPort";
+    public String FEATUREDIR = "PhonemisedtoHalfPhoneFV.featureDir";
+    public String  PHONEMISED = "PhonemisedtoHalfPhoneFV.phonemisedDir";
+    public String MARYSERVERHOST = "PhonemisedtoHalfPhoneFV.maryServerHost";
+    public String MARYSERVERPORT = "PhonemisedtoHalfPhoneFV.maryServerPort";
        
    
     
     public String getName(){
-        return "PhonemisedtoFeatureVector";
+        return "PhonemisedtoHalfPhoneFV";
     }
     
     public void initialiseComp()
@@ -54,7 +54,7 @@ public class PhonemisedtoFeatureVector extends VoiceImportComponent
         }    
         
         maryInputType = "PHONEMISED_DE";
-        maryOutputType = "TARGETFEATURES";
+        maryOutputType = "HALFPHONE_TARGETFEATURES";
     }
      
      public SortedMap getDefaultProps(DatabaseLayout db){
@@ -62,7 +62,7 @@ public class PhonemisedtoFeatureVector extends VoiceImportComponent
          if (props == null){
              props = new TreeMap();
              props.put(FEATUREDIR, db.getProp(db.ROOTDIR)
-                     +"correctedphonefeatures"
+                     +"correctedhalfphonefeatures"
                      +System.getProperty("file.separator"));
                      
              props.put(PHONEMISED, db.getProp(db.ROOTDIR)
