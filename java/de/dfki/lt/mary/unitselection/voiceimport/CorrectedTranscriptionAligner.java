@@ -58,6 +58,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
     public final String RESULTTRANS = "CorrectedTranscriptionAligner.results";
     public final String SYMCOSTS = "CorrectedTranscriptionAligner.costfile";
     public final String PHONSET = "CorrectedTranscriptionAligner.phonset";
+    private int progress;
     
     Map<String, Integer> aligncost;
     int defaultcost;
@@ -174,13 +175,6 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
         this.setPhonemeSet(PhonemeSet.getPhonemeSet((String) props.get(this.PHONSET)));
 
         
-        //go through original xml files
-        File xmlDir = new File((String) props.get(this.ORIGTRANS));
-        if (!xmlDir.exists())
-            throw new IllegalStateException("Path with original transcription files not found: " + (String) props.get(this.ORIGTRANS));
-   
-        File[] xmlFiles = xmlDir.listFiles();
-        
         File xmlOutDir = new File((String) props.get(this.RESULTTRANS));
         if (!xmlOutDir.exists())
             xmlOutDir.mkdir();
@@ -194,8 +188,11 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
         Transformer transformer = tFactory.newTransformer();
 
        
-        for (int i=0;i<xmlFiles.length;i++){
-            File nextFile = xmlFiles[i];
+        for (int i=0;i<bnl.getLength();i++){
+            progress = 100*i/bnl.getLength();
+            File nextFile = new File(props.get(this.ORIGTRANS)
+                    +System.getProperty("file.separator")
+                    +bnl.getName(i)+".xml");
             System.out.println(nextFile.getName());
             
             // get original xml file
@@ -234,14 +231,6 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
 
                 continue;
             }
-                   
-            
-            
-            // get manual transcription
-            //String manTransString = manTrans.readLine();
-            //if (manTransString.equals("") || manTrans.readLine()!=null )
-            //    throw new IllegalArgumentException("File with corrected transcription has to contain exactly one non-empty line. Not the case for " + nextFile.getName());
-            //manTrans.close();
             
             // align transcriptions
             this.alignXmlTranscriptions(doc, manTransString);
@@ -255,79 +244,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
 
         return true;
     }
-    
-    /*
-    public boolean compute() throws IOException{
-       
-        // set costs used for distance computation
-        try{
-            this.setDistance(new BufferedReader(new FileReader ((String) props.get(this.SYMCOSTS))));
-        } catch (FileNotFoundException e) {
-            throw new IllegalStateException("File with symbol costs not set: " + (String) props.get(this.SYMCOSTS));
-        }
-        
-        this.setDefaultCost(this.getMaxCost());
-        this.setSkipCost(this.getDefaultCost()/4);
-        
-        //go through original lab files
-        File labDir = new File((String) props.get(this.ORIGTRANS));
-        if (!labDir.exists())
-            throw new IllegalStateException("Path with original transcription files not found: " + (String) props.get(this.ORIGTRANS));
-   
-        File[] labFiles = labDir.listFiles();
-        
-        File labOutDir = new File((String) props.get(this.RESULTTRANS));
-        if (!labOutDir.exists())
-            labOutDir.mkdir();
-            
-       
-        for (int i=0;i<labFiles.length;i++){
-            File nextFile = labFiles[i];
-            System.out.println(nextFile.getName());
-            
-            // open original lab file
-            BufferedReader labIn = new BufferedReader(new FileReader(nextFile));
-            
-            // open destination lab file
-            PrintWriter labOut = new PrintWriter(new FileWriter((String) props.get(this.RESULTTRANS) + nextFile.getName()));
-            
-            // open file with manual transcription that is to be aligned
-            BufferedReader manTrans;
-            try{
-                String trfname = (String) props.get(this.CORRTRANS) + 
-                    nextFile.getName().substring(0, nextFile.getName().length() - 4) + ".ph";
-                manTrans = new BufferedReader(new FileReader(trfname ));
-            } catch ( FileNotFoundException e ) {
-                System.out.println("No manual transcription found, copy original ...");
-                
-                // just copy transcription...
-                String line;
-                while ((line = labIn.readLine()) != null)
-                    labOut.println(line);
-                
-                // close files and go on to next file
-                labIn.close();
-                labOut.close();
-                continue;
-            }
-            
-            // get manual transcription
-            String manTransString = manTrans.readLine();
-            if (manTransString.equals("") || manTrans.readLine()!=null )
-                throw new IllegalArgumentException("File with corrected transcription has to contain exactly one non-empty line. Not the case for " + nextFile.getName());
-            manTrans.close();
-            
-            // write alignment to output file
-            labOut.print( this.alignTranscriptions(labIn, manTransString));
-            // System.out.println(this.alignTranscriptions(labIn, manTransString));
-            labIn.close();
-            labOut.close();
-        }
-            
-
-        return true;
-    }*/
-    
+     
     
     public void setPhonemeSet(PhonemeSet aPhonemeSet) {
         this.phonemeSet = aPhonemeSet;
