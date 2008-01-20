@@ -78,9 +78,14 @@ public class EffectsApplier {
                 }
             }
             
-            if (tmpSignal!=null)
+            if (tmpSignal!=null) {
+                if (tmpSignal.getDataLength() == DoubleDataSource.NOT_SPECIFIED) {
+                    double[] data = tmpSignal.getAllData();
+                    tmpSignal = new BufferedDoubleDataSource(data);
+                }
+                assert tmpSignal.getDataLength() != DoubleDataSource.NOT_SPECIFIED;
                 return new DDSAudioInputStream(tmpSignal, audioformat);
-            else
+            } else
                 return input;
         }
         else
