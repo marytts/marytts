@@ -185,8 +185,6 @@ public class MaryGUIClient extends JPanel
     private GridBagLayout gridBagLayout;
     private GridBagConstraints gridC;
     
-    private boolean bFirstTime;
-    
     static FocusTraversalPolicy maryGUITraversal;
 
     /**
@@ -250,7 +248,6 @@ public class MaryGUIClient extends JPanel
      */
     public void init() throws IOException, UnknownHostException {
 
-        bFirstTime = true;
         maryGUITraversal = new MaryGUIFocusTraversalPolicy();
         //if this is a normal gui
         if (mainFrame != null){
@@ -380,6 +377,24 @@ public class MaryGUIClient extends JPanel
         cbDefaultVoice.setName("Voice selection");
         cbDefaultVoice.getAccessibleContext().setAccessibleName("Voice selection");
         voicePanel.add( cbDefaultVoice );
+        cbDefaultVoice.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    fillExampleTexts();
+                    verifyExamplesVisible();
+                    MaryClient.Voice voice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
+                    MaryClient.DataType dataType = (MaryClient.DataType)cbInputType.getSelectedItem(); 
+                    if (doReplaceInput
+                            && (voice.isLimitedDomain() && dataType.name().startsWith("TEXT")
+                                    || getPrevVoice() == null
+                                    || !getPrevVoice().getLocale().equals(voice.getLocale())))
+                        setExampleInputText();
+                    setPrevVoice(voice);
+                    
+                    updateAudioEffects();
+                }
+            }
+        });
         
         // For the limited domain voices, get example texts: 
         availableVoices = processor.getVoices();
@@ -604,25 +619,6 @@ public class MaryGUIClient extends JPanel
         }   
         //
         
-        cbDefaultVoice.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED) {
-                    fillExampleTexts();
-                    verifyExamplesVisible();
-                    MaryClient.Voice voice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
-                    MaryClient.DataType dataType = (MaryClient.DataType)cbInputType.getSelectedItem(); 
-                    if (doReplaceInput
-                            && (voice.isLimitedDomain() && dataType.name().startsWith("TEXT")
-                                    || getPrevVoice() == null
-                                    || !getPrevVoice().getLocale().equals(voice.getLocale())))
-                        setExampleInputText();
-                    setPrevVoice(voice);
-                    
-                    updateAudioEffects();
-                }
-            }
-        });
-        
         gridC.gridwidth = 1;
         gridC.gridheight = 1;
         gridC.weightx = 0.1;
@@ -765,9 +761,9 @@ public class MaryGUIClient extends JPanel
     {        
         //Overlapping location: Audio effects box
         //Initialize the effects here (normally using info from the server)
-        if (effectsBox.hasEffects() && effectsBox.getTotalEffects()>0)
+        if (effectsBox != null)
         {     
-            if (effectsBox != null)
+            if (effectsBox.hasEffects() && effectsBox.getTotalEffects()>0)
             {
                 MaryClient.Voice voice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
                 

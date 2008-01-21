@@ -989,7 +989,7 @@ public class MaryClient {
             if (!st.hasMoreTokens()) continue; // ignore entry
             String gender = st.nextToken();
             String synthesizerType = st.nextToken();
-            
+                
             Voice voice;
             if (!st.hasMoreTokens()){ //assume domain is general
                 voice = new Voice(name, locale, gender, synthesizerType, "general");}
