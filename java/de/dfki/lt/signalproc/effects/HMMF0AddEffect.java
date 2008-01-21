@@ -40,13 +40,16 @@ import de.dfki.lt.signalproc.util.MathUtils;
  */
 public class HMMF0AddEffect extends BaseAudioEffect {
     public float f0Add;
-    public static float DEFAULT_F0_ADD = 0.0f;
+    public static float NO_MODIFICATION = 0.0f;
+    public static float DEFAULT_F0_ADD = 50.0f;
     public static float MAX_F0_ADD= 300.0f;
     public static float MIN_F0_ADD = -300.0f;
     
     public HMMF0AddEffect()
     {
         super(16000);
+        
+        setHMMEffect(true);
         
         setExampleParameters("f0Add" + chParamEquals + Float.toString(DEFAULT_F0_ADD) + chParamSeparator);
     }
@@ -75,7 +78,7 @@ public class HMMF0AddEffect extends BaseAudioEffect {
                          "Shifts the mean F0 value by <f0Add> Hz for HMM voices." + strLineBreak +
                          "Parameter:" + strLineBreak +
                          "   <f0Add>" +
-                         "   Definition : Mean F0 shift for synthesized speech output" + strLineBreak +
+                         "   Definition : F0 shift of mean value in Hz for synthesized speech output" + strLineBreak +
                          "   Range      : [" + String.valueOf(MIN_F0_ADD) + "," + String.valueOf(MAX_F0_ADD) + "]" + strLineBreak +
                          "Example:" + strLineBreak +
                          getExampleParameters();

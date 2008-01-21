@@ -12,6 +12,8 @@ import javax.sound.sampled.AudioSystem;
 
 import org.apache.tools.ant.util.StringUtils;
 
+import de.dfki.lt.mary.htsengine.HMMVoice;
+import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.modules.synthesis.WaveformSynthesizer;
 import de.dfki.lt.mary.util.StringUtil;
 import de.dfki.lt.signalproc.process.Chorus;
@@ -224,7 +226,9 @@ public class EffectsApplier {
     
     public BaseAudioEffect string2AudioEffect(String strEffectName, int samplingRate)
     {
-        if (strEffectName.compareToIgnoreCase("Robot")==0)
+        if (strEffectName.compareToIgnoreCase("Volume")==0)
+            return new VolumeEffect();
+        else if (strEffectName.compareToIgnoreCase("Robot")==0)
             return new RobotiserEffect(samplingRate);
         else if (strEffectName.compareToIgnoreCase("Chorus")==0)
             return new ChorusEffectBase(samplingRate);
@@ -358,6 +362,38 @@ public class EffectsApplier {
         }
         else
             optimumEffectIndices = null;
+    }
+    
+    //Check if any effects are selected for which the corresponding parameters should be fed to the HMM synthesizer
+    public void setHMMEffectParameters(Voice voice, String currentEffect)
+    {
+
+        if (voice instanceof HMMVoice)
+        {
+            //Just create dummy effects to set default values for HMM voices
+            HMMF0AddEffect dummy1 = new HMMF0AddEffect();
+            HMMF0ScaleEffect dummy2 = new HMMF0ScaleEffect();
+            HMMDurationScaleEffect dummy3 = new HMMDurationScaleEffect();
+            ((HMMVoice)voice).setF0Mean(dummy1.NO_MODIFICATION);
+            ((HMMVoice)voice).setF0Std(dummy2.NO_MODIFICATION);
+            ((HMMVoice)voice).setDurationScale(dummy3.NO_MODIFICATION);
+            //
+
+            parseEffectsAndParams(currentEffect);
+
+            if (audioEffects!=null)
+            {   
+                for (int i=0; i<audioEffects.length; i++)
+                {
+                    if (audioEffects[i] instanceof HMMF0AddEffect)
+                        ((HMMVoice)voice).setF0Mean((double)((HMMF0AddEffect)audioEffects[i]).f0Add);
+                    else if (audioEffects[i] instanceof HMMF0ScaleEffect)
+                        ((HMMVoice)voice).setF0Std(((HMMF0ScaleEffect)audioEffects[i]).f0Scale);
+                    else if (audioEffects[i] instanceof HMMDurationScaleEffect)
+                        ((HMMVoice)voice).setDurationScale(((HMMDurationScaleEffect)audioEffects[i]).durScale);
+                }
+            }
+        }
     }
     
     public static void main(String[] args) throws Exception

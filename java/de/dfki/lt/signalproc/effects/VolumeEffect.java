@@ -29,6 +29,8 @@
 
 package de.dfki.lt.signalproc.effects;
 
+import de.dfki.lt.signalproc.process.Robotiser;
+import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
 import de.dfki.lt.signalproc.util.DoubleDataSource;
 import de.dfki.lt.signalproc.util.MathUtils;
 
@@ -36,48 +38,55 @@ import de.dfki.lt.signalproc.util.MathUtils;
  * @author oytun.turk
  *
  */
-public class HMMDurationScaleEffect extends BaseAudioEffect {
-    public float durScale;
-    public static float NO_MODIFICATION = 1.0f;
-    public static float DEFAULT_DUR_SCALE = 1.5f;
-    public static float MAX_DUR_SCALE = 3.0f;
-    public static float MIN_DUR_SCALE = 0.1f;
+public class VolumeEffect extends BaseAudioEffect {
+    float amount;
+    public static float DEFAULT_AMOUNT = 2.0f;
+    public static float MAX_AMOUNT = 10.0f;
+    public static float MIN_AMOUNT = 0.0f;
     
-    public HMMDurationScaleEffect()
+    public VolumeEffect()
     {
         super(16000);
         
-        setHMMEffect(true);
+        setExampleParameters("amount=" + String.valueOf(DEFAULT_AMOUNT) + ",");
         
-        setExampleParameters("durScale" + chParamEquals + Float.toString(DEFAULT_DUR_SCALE) + chParamSeparator);
+        strHelpText = getHelpText();
     }
     
     public void parseParameters(String param)
     {
         super.parseParameters(param);
         
-        durScale = expectFloatParameter("durScale");
+        amount = expectFloatParameter("amount");
         
-        if (durScale == NULL_FLOAT_PARAM)
-            durScale = DEFAULT_DUR_SCALE;
+        if (amount == NULL_FLOAT_PARAM)
+            amount = DEFAULT_AMOUNT;
         
-        durScale = MathUtils.CheckLimits(durScale, MIN_DUR_SCALE, MAX_DUR_SCALE);
+        amount = MathUtils.CheckLimits(amount, MIN_AMOUNT, MAX_AMOUNT);
     }
     
-    //Actual processing is done within the HMM synthesizer so do nothing here
     public DoubleDataSource process(DoubleDataSource input)
     {
+        double [] x = input.getAllData();
+        if (x!=null)
+        {
+            for (int i=0; i<x.length; i++)
+                x[i] *= amount;
+            
+            input = new BufferedDoubleDataSource(x);
+        }
+        
         return input;
     }
 
     public String getHelpText() {
         
-        String strHelp = "Duration scaling for HMM voices:" + strLineBreak +
-                         "Scales the HMM output speech duration by <durScale>." + strLineBreak +
+        String strHelp = "Volume Effect:" + strLineBreak +
+                         "Scales the output volume by a fixed amount." + strLineBreak +
                          "Parameter:" + strLineBreak +
-                         "   <durScale>" +
-                         "   Definition : Duration scaling factor for synthesized speech output" + strLineBreak +
-                         "   Range      : [" + String.valueOf(MIN_DUR_SCALE) + "," + String.valueOf(MAX_DUR_SCALE) + "]" + strLineBreak +
+                         "   <amount>" +
+                         "   Definition : Amount of scaling (the output is simply multiplied by amount)" + strLineBreak +
+                         "   Range      : [" + String.valueOf(MIN_AMOUNT) + "," + String.valueOf(MAX_AMOUNT) + "]" + strLineBreak +
                          "Example:" + strLineBreak +
                          getExampleParameters();
                         
@@ -85,6 +94,7 @@ public class HMMDurationScaleEffect extends BaseAudioEffect {
     }
 
     public String getName() {
-        return "Rate";
+        return "Volume";
     }
+
 }
