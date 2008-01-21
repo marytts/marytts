@@ -245,34 +245,9 @@ public class Synthesis extends InternalModule
     throws SynthesisException, UnsupportedAudioFileException
     {            
         EffectsApplier ef = new EffectsApplier(MaryProperties.effectClasses(), MaryProperties.effectParams());
-        
-        //Check if any effects are selected for which the corresponding parameters should be fed to the HMM synthesizer
-        if (voice instanceof HMMVoice)
-        {
-            //Just create dummy effects to set default values for HMM voices
-            HMMF0AddEffect dummy1 = new HMMF0AddEffect();
-            HMMF0ScaleEffect dummy2 = new HMMF0ScaleEffect();
-            HMMDurationScaleEffect dummy3 = new HMMDurationScaleEffect();
-            ((HMMVoice)voice).setF0Mean(dummy1.DEFAULT_F0_ADD);
-            ((HMMVoice)voice).setF0Std(dummy2.DEFAULT_F0_SCALE);
-            ((HMMVoice)voice).setDurationScale(dummy3.DEFAULT_DUR_SCALE);
-            //
-            
-            ef.parseEffectsAndParams(currentEffect);
 
-            if (ef.audioEffects!=null)
-            {   
-                for (int i=0; i<ef.audioEffects.length; i++)
-                {
-                    if (ef.audioEffects[i] instanceof HMMF0AddEffect)
-                        ((HMMVoice)voice).setF0Mean((double)((HMMF0AddEffect)ef.audioEffects[i]).f0Add);
-                    else if (ef.audioEffects[i] instanceof HMMF0ScaleEffect)
-                        ((HMMVoice)voice).setF0Std(((HMMF0ScaleEffect)ef.audioEffects[i]).f0Scale);
-                    else if (ef.audioEffects[i] instanceof HMMDurationScaleEffect)
-                        ((HMMVoice)voice).setDurationScale(((HMMDurationScaleEffect)ef.audioEffects[i]).durScale);
-                }
-            }
-        }
+        //HMM-only effects need to get their parameters prior to synthesis
+        ef.setHMMEffectParameters(voice, currentEffect);
         //
         
         AudioInputStream ais = null;

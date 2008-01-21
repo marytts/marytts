@@ -52,6 +52,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.apache.log4j.Logger;
 
+import de.dfki.lt.mary.htsengine.HMMVoice;
 import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.unitselection.UnitSelectionVoice;
 import de.dfki.lt.mary.unitselection.interpolation.InterpolatingVoice;
@@ -311,13 +312,22 @@ public class MaryServer {
                     } else if (v instanceof UnitSelectionVoice){
                         outputWriter.println(v.getName() + " " 
                                 			+ v.getLocale() + " " 
-                                			+ v.gender().toString()
-                                			+ " " 
+                                			+ v.gender().toString() + " " 
+                                			+ "unitselection" + " "
                                 			+((UnitSelectionVoice)v).getDomain());}
-                    else {
+                    else if (v instanceof HMMVoice)
+                    {
                         	outputWriter.println(v.getName() + " " 
                         	        			+ v.getLocale()+ " " 
-                        	        			+ v.gender().toString());
+                        	        			+ v.gender().toString()+ " "
+                        	        			+ "hmm");
+                    }
+                    else
+                    {
+                        outputWriter.println(v.getName() + " " 
+                                            + v.getLocale()+ " " 
+                                            + v.gender().toString() + " "
+                                            + "other");
                     }
                 }
                 // Empty line marks end of info:
@@ -555,6 +565,8 @@ public class MaryServer {
             }
             else if (inputLine.startsWith("MARY VOICE GETAUDIOEFFECTHELPTEXT "))
             {
+                int zz = MaryProperties.effectClasses().size();
+                
                 for (int i=0; i<MaryProperties.effectNames().size(); i++)
                 {
                     int tmpInd = inputLine.indexOf("MARY VOICE GETAUDIOEFFECTHELPTEXT " + MaryProperties.effectNames().elementAt(i));
@@ -590,6 +602,49 @@ public class MaryServer {
                 }
                 
                 return false;
+            }
+            else if (inputLine.startsWith("MARY VOICE ISHMMAUDIOEFFECT "))
+            {
+                for (int i=0; i<MaryProperties.effectNames().size(); i++)
+                {
+                    int tmpInd = inputLine.indexOf("MARY VOICE ISHMMAUDIOEFFECT " + MaryProperties.effectNames().elementAt(i));
+                    if (tmpInd>-1)
+                    {   
+                        //the request is about the parameters of a specific audio effect
+                        logger.debug("InfoRequest " + inputLine);
+
+                        BaseAudioEffect ae = null;
+                        try {
+                            ae = (BaseAudioEffect)Class.forName(MaryProperties.effectClasses().elementAt(i)).newInstance();
+                        } catch (InstantiationException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        } catch (IllegalAccessException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        } catch (ClassNotFoundException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                        
+                        if (ae!=null)
+                        {
+                            String strRet = "no";
+                            
+                            if (ae.isHMMEffect())
+                                strRet = "yes";
+                            
+                            outputWriter.println(strRet.trim());
+                        }
+                     
+                        // upon failure, simply return nothing
+                        outputWriter.println();
+                        return true;
+                    }
+                }
+                
+                return false;
+                
             }
             else
                 return false;
