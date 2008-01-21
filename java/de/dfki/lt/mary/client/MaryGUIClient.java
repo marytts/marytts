@@ -181,7 +181,12 @@ public class MaryGUIClient extends JPanel
     
     //Map of voices and their audio effects
     private Map voices = new HashMap();
-
+    
+    private GridBagLayout gridBagLayout;
+    private GridBagConstraints gridC;
+    
+    private boolean bFirstTime;
+    
     static FocusTraversalPolicy maryGUITraversal;
 
     /**
@@ -245,6 +250,7 @@ public class MaryGUIClient extends JPanel
      */
     public void init() throws IOException, UnknownHostException {
 
+        bFirstTime = true;
         maryGUITraversal = new MaryGUIFocusTraversalPolicy();
         //if this is a normal gui
         if (mainFrame != null){
@@ -252,18 +258,16 @@ public class MaryGUIClient extends JPanel
         } else { //this is an applet
             mainApplet.setFocusTraversalPolicy(maryGUITraversal);
         }
-
-//        audioEffectSet = null;
         
         paneDimension = new Dimension(250,400);
         // Layout
-        GridBagLayout gridBagLayout = new GridBagLayout();
-        GridBagConstraints gridC = new GridBagConstraints();
+        gridBagLayout = new GridBagLayout();
+        gridC = new GridBagConstraints();
 
         gridC.insets = new Insets( 2,2,2,2 );
         gridC.weightx = 0.1;
         gridC.weighty = 0.1;
-        setLayout( gridBagLayout );
+        setLayout(gridBagLayout);
 
         //////////////// Left Column: Input /////////////////////
         // Input type
@@ -357,7 +361,7 @@ public class MaryGUIClient extends JPanel
         });
         cbVoiceExampleText.setPreferredSize(new Dimension(inputPanel.getPreferredSize().width, 25));
         inputPanel.add(cbVoiceExampleText);
-
+        
         // Select voice
         voicePanel = new JPanel();
         voicePanel.setLayout(new FlowLayout(FlowLayout.LEADING));
@@ -376,22 +380,7 @@ public class MaryGUIClient extends JPanel
         cbDefaultVoice.setName("Voice selection");
         cbDefaultVoice.getAccessibleContext().setAccessibleName("Voice selection");
         voicePanel.add( cbDefaultVoice );
-        cbDefaultVoice.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED) {
-                    fillExampleTexts();
-                    verifyExamplesVisible();
-                    MaryClient.Voice voice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
-                    MaryClient.DataType dataType = (MaryClient.DataType)cbInputType.getSelectedItem(); 
-                    if (doReplaceInput
-                            && (voice.isLimitedDomain() && dataType.name().startsWith("TEXT")
-                                    || getPrevVoice() == null
-                                    || !getPrevVoice().getLocale().equals(voice.getLocale())))
-                        setExampleInputText();
-                    setPrevVoice(voice);
-                }
-            }
-        });
+        
         // For the limited domain voices, get example texts: 
         availableVoices = processor.getVoices();
         Iterator it = availableVoices.iterator();
@@ -526,21 +515,32 @@ public class MaryGUIClient extends JPanel
         gridC.gridheight = 3;
         gridC.weightx = 0.4;
         gridC.weighty = 0.8;
-        //gridC.ipadx = 270;
-        //gridC.ipady = 200;
         gridC.fill = GridBagConstraints.BOTH;
-        gridBagLayout.setConstraints( outputScrollPane, gridC );
+        gridBagLayout.setConstraints(outputScrollPane, gridC);
         if (!showingTextOutput)
             outputScrollPane.setVisible(false);
         add( outputScrollPane );
        
-        //Audio effects
+        //Audio effects      
         setAudioEffects();
         
         isButtonHide = false;
         if (effectsBox.hasEffects())
         {
-            showAudioEffects(gridBagLayout, gridC);
+            gridC.gridx = 4;
+            gridC.gridy = 1;
+            gridC.gridwidth = 3;
+            gridC.gridheight = 3;
+            gridC.weightx = 0.1;
+            gridC.weighty = 0.1;
+            gridC.ipadx = 0;
+            gridC.ipady = 0;
+            gridC.fill = GridBagConstraints.BOTH;
+            gridBagLayout.setConstraints(effectsBox.mainPanel, gridC);
+                
+            add(effectsBox.mainPanel);
+            
+            updateAudioEffects();
 
             if (effectsBox!=null && effectsBox.mainPanel!=null)
             {
@@ -603,6 +603,25 @@ public class MaryGUIClient extends JPanel
             }
         }   
         //
+        
+        cbDefaultVoice.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    fillExampleTexts();
+                    verifyExamplesVisible();
+                    MaryClient.Voice voice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
+                    MaryClient.DataType dataType = (MaryClient.DataType)cbInputType.getSelectedItem(); 
+                    if (doReplaceInput
+                            && (voice.isLimitedDomain() && dataType.name().startsWith("TEXT")
+                                    || getPrevVoice() == null
+                                    || !getPrevVoice().getLocale().equals(voice.getLocale())))
+                        setExampleInputText();
+                    setPrevVoice(voice);
+                    
+                    updateAudioEffects();
+                }
+            }
+        });
         
         gridC.gridwidth = 1;
         gridC.gridheight = 1;
@@ -742,25 +761,38 @@ public class MaryGUIClient extends JPanel
     
     //If there are any effects available for the selected voice
     // update audio effects box accordingly
-    private void showAudioEffects(GridBagLayout g, GridBagConstraints c)
-    {
+    private void updateAudioEffects()
+    {        
         //Overlapping location: Audio effects box
         //Initialize the effects here (normally using info from the server)
         if (effectsBox.hasEffects() && effectsBox.getTotalEffects()>0)
         {     
-            MaryClient.Voice voice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
-            
             if (effectsBox != null)
-            {  
-                c.gridx = 4;
-                c.gridy = 1;
-                c.gridwidth = 3;
-                c.gridheight = 3;
-                c.weightx = 0.1;
-                c.weighty = 0.1;
-                c.ipadx = 0;
-                c.ipady = 0;
-                add(effectsBox.mainPanel, c);
+            {
+                MaryClient.Voice voice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
+                
+                for (int i=0; i<effectsBox.getTotalEffects(); i++)
+                {
+                    String effectName = effectsBox.effectControls[i].getEffectName();
+                    
+                    effectsBox.effectControls[i].setVisible(true);
+                    //Do not display audio effects that are only available for the HMM voice
+                    if (!voice.isHMMVoice())
+                    {
+                        try {
+                            if (processor.isHMMEffect(effectName))  
+                                effectsBox.effectControls[i].setVisible(false);  
+                                
+                        } catch (UnknownHostException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                
                 effectsBox.show();
             }
         }
@@ -800,7 +832,6 @@ public class MaryGUIClient extends JPanel
                         // This is done by simply requesting the current parameters of the ith effect from the server
                         effectsBox.effectControls[i].txtParams.setText(strTmp);
 
-                        //strTmpParam = audioEffectSet.effects[i].getFullEffectAsString();
                         strTmpParam = "";
                         try {
                             strTmpParam = processor.requestFullEffectAsString(effectsBox.effectNames[i]);
@@ -831,7 +862,6 @@ public class MaryGUIClient extends JPanel
     
     private void setExampleInputText()
     {
-
         MaryClient.Voice defaultVoice = (MaryClient.Voice) cbDefaultVoice.getSelectedItem();
         MaryClient.DataType inputType = (MaryClient.DataType) cbInputType.getSelectedItem();
         if (defaultVoice.isLimitedDomain() && inputType.name().startsWith("TEXT")) {

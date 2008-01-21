@@ -270,6 +270,12 @@ public class MaryAudioEffectsBox {
     
     public void show()
     {  
+        mainPanel.removeAll();
+        mainPanel.validate();
+        
+        effectControlsPanel.removeAll();
+        effectControlsPanel.validate();
+        
         GridBagLayout g = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
         mainPanel.setLayout(g);
@@ -297,14 +303,20 @@ public class MaryAudioEffectsBox {
             effectControlsPanel.setLayout(g);
             
             c.gridx = 0;
-            c.fill = GridBagConstraints.WEST;
+            c.fill = GridBagConstraints.BOTH;
             
+            int totalShown = 0;
             for (int i=0; i<effectControls.length; i++)
             {
-                c.gridy = i;
-                g.setConstraints(effectControls[i].mainPanel, c);
-                effectControlsPanel.add(effectControls[i].mainPanel);
-                effectControls[i].show();
+                if (effectControls[i].isVisible())
+                {
+                    c.gridy = totalShown;
+                    g.setConstraints(effectControls[i].mainPanel, c);                    
+                    effectControlsPanel.add(effectControls[i].mainPanel);
+                    effectControls[i].show();
+
+                    totalShown++;
+                }
             }
         }
 
@@ -317,6 +329,8 @@ public class MaryAudioEffectsBox {
         scrollPane.setViewportView(effectControlsPanel);
         g.setConstraints(scrollPane, c);
         mainPanel.add(scrollPane);
+        effectControlsPanel.validate();
+        mainPanel.validate();
     }
     
     public int getTotalEffects()

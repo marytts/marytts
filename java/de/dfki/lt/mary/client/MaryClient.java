@@ -86,8 +86,6 @@ public class MaryClient {
     private Map serverExampleTexts = new HashMap();
     private Map voiceExampleTexts = new HashMap();
     private String audioEffects;
-    private Map audioEffectParamsMap = new HashMap();
-    private Map audioEffectFullsMap = new HashMap();
     private Map audioEffectHelpTextsMap = new HashMap();
     private String[] audioFileFormatTypes = null;
     private String[] serverVersionInfo = null;
@@ -990,12 +988,14 @@ public class MaryClient {
             assert locale != null;
             if (!st.hasMoreTokens()) continue; // ignore entry
             String gender = st.nextToken();
+            String synthesizerType = st.nextToken();
+            
             Voice voice;
             if (!st.hasMoreTokens()){ //assume domain is general
-                voice = new Voice(name, locale, gender,"general");}
+                voice = new Voice(name, locale, gender, synthesizerType, "general");}
             else{ //read in the domain
                 String domain = st.nextToken();
-                voice = new Voice(name, locale, gender,domain);}
+                voice = new Voice(name, locale, gender, synthesizerType, domain);}
             allVoices.add(voice);
             Vector localeVoices = null;
             if (voicesByLocaleMap.containsKey(locale)) {
@@ -1102,8 +1102,7 @@ public class MaryClient {
                 "MARY VOICE SETAUDIOEFFECTPARAM " + effectName + "_" + strParamNew);
         if (info.length() == 0)
             return "";
-
-        audioEffectParamsMap.put(effectName, info.replaceAll("\n", System.getProperty("line.separator")));
+        
         marySocket.close();
         
         return requestEffectParametersAsString(effectName);
@@ -1118,10 +1117,9 @@ public class MaryClient {
         if (info.length() == 0)
             return "";
 
-        audioEffectParamsMap.put(effectName, info.replaceAll("\n", System.getProperty("line.separator")));
         marySocket.close();
 
-        return (String)audioEffectParamsMap.get(effectName);
+        return info.replaceAll("\n", System.getProperty("line.separator"));
     }
 
     public String requestFullEffectAsString(String effectName) throws IOException, UnknownHostException 
@@ -1133,15 +1131,14 @@ public class MaryClient {
         if (info.length() == 0)
             return "";
 
-        audioEffectFullsMap.put(effectName, info.replaceAll("\n", System.getProperty("line.separator")));
         marySocket.close();
 
-        return (String)audioEffectFullsMap.get(effectName);
+        return info.replaceAll("\n", System.getProperty("line.separator"));
     }
     
     public String requestEffectHelpText(String effectName) throws IOException, UnknownHostException 
     {
-        if (!audioEffectHelpTextsMap.containsKey(effectName)) 
+        if (!audioEffectHelpTextsMap.containsKey(effectName))
         {
             Socket marySocket = new Socket(host, port);
             String info = getServerInfo(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
@@ -1153,8 +1150,25 @@ public class MaryClient {
             audioEffectHelpTextsMap.put(effectName, info.replaceAll("\n", System.getProperty("line.separator")));
             marySocket.close();
         }
-
+        
         return (String)audioEffectHelpTextsMap.get(effectName);
+    }
+    
+    public boolean isHMMEffect(String effectName) throws IOException, UnknownHostException
+    {
+        Socket marySocket = new Socket(host, port);
+        String info = getServerInfo(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
+                new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
+                "MARY VOICE ISHMMAUDIOEFFECT " + effectName);
+        if (info.length() == 0)
+            return false;
+
+        boolean bRet = false;
+        info = info.toLowerCase();
+        if (info.indexOf("yes")>-1)
+            bRet = true;
+        
+        return bRet;
     }
     
     /**
@@ -1288,13 +1302,16 @@ public class MaryClient {
         private String name;
         private Locale locale;
         private String gender;
+        private String synthesizerType;
         private String domain;
+     
         private boolean isLimitedDomain;
-        Voice(String name, Locale locale, String gender, String domain)
+        Voice(String name, Locale locale, String gender, String synthesizerType, String domain)
         {
             this.name = name;
             this.locale = locale;
             this.gender = gender;
+            this.synthesizerType = synthesizerType;
             this.domain = domain;
             if (domain == null || domain.equals("general")){
                 isLimitedDomain = false;}
@@ -1303,9 +1320,16 @@ public class MaryClient {
         public Locale getLocale() { return locale; }
         public String name() { return name; }
         public String gender() { return gender; }
+        public String synthesizerType() {return synthesizerType;}
         public String toString() { return name + " (" + locale.getDisplayLanguage() + ", " + gender
         	+ (isLimitedDomain ? ", " + domain : "") +")";}
         public boolean isLimitedDomain() { return isLimitedDomain; }
+        public boolean isHMMVoice() {
+            if (synthesizerType.compareToIgnoreCase("hmm")==0)
+                return true;
+            else
+                return false;
+        }
     }
     
     /**

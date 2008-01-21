@@ -100,8 +100,16 @@ public class MaryAudioEffectControl {
             isVisible = false;
     }
     
+    public boolean isVisible()
+    {
+        return isVisible;
+    }
+    
     public void show()
     {
+        mainPanel.removeAll();
+        mainPanel.validate();
+        
         if (isVisible)
         {
             GridBagLayout g = new GridBagLayout();
@@ -141,6 +149,8 @@ public class MaryAudioEffectControl {
                 }
             });
         }
+        
+        mainPanel.validate();
     }
     
     //Parse string according to line break string
