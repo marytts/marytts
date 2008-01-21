@@ -38,6 +38,7 @@ import java.awt.GridBagLayout;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -70,6 +71,8 @@ public class MaryAudioEffectControl {
     public String strExampleParams;
     public String strLineBreak;
     private boolean isVisible; //This can be used for not showing a specific effect for specific voices
+    public boolean isHelpWindowOpen;
+    private JFrame helpWindow; //Window to show help context
     
     //Create a Mary audio effect with help text
     public MaryAudioEffectControl(String strEffectNameIn, String strExampleParams, String strHelpTextIn, String lineBreak)
@@ -80,6 +83,7 @@ public class MaryAudioEffectControl {
         btnHelp = new JButton("?");
         strLineBreak = lineBreak;
         isVisible = true;
+        isHelpWindowOpen = false;
  
         init(strEffectNameIn, strExampleParams, strHelpTextIn);
     }
@@ -137,15 +141,30 @@ public class MaryAudioEffectControl {
 
             btnHelp.addActionListener( new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    //System.out.println(strHelpText);
-                    JFrame helpFrame = new JFrame("Help: " + chkEnabled.getText() + " Effect");
-                    JTextArea helpText = new JTextArea(parseLineBreaks(strHelpText));
-                    helpText.setEditable(false);
+                    if (!isHelpWindowOpen)
+                    {
+                        isHelpWindowOpen = true;
+                        helpWindow = new JFrame("Help: " + chkEnabled.getText() + " Effect");
+                        JTextArea helpText = new JTextArea(parseLineBreaks(strHelpText));
+                        helpText.setEditable(false);
 
-                    helpFrame.getContentPane().add(helpText, BorderLayout.WEST);
-                    helpFrame.pack();
-                    helpFrame.setLocation(btnHelp.getLocation().x, btnHelp.getLocation().y);
-                    helpFrame.setVisible(true);
+                        helpWindow.getContentPane().add(helpText, BorderLayout.WEST);
+                        helpWindow.pack();
+                        helpWindow.setLocation(btnHelp.getLocation().x, btnHelp.getLocation().y);
+                        helpWindow.setVisible(true);
+                        
+                        helpWindow.addWindowListener(new java.awt.event.WindowAdapter() {
+                            public void windowClosing(WindowEvent winEvt) {
+                                // Perhaps ask user if they want to save any unsaved files first.
+                                isHelpWindowOpen = false;
+                            }
+                        });
+                    }
+                    else
+                    {
+                        if (helpWindow!=null)
+                            helpWindow.requestFocus();
+                    }
                 }
             });
         }
