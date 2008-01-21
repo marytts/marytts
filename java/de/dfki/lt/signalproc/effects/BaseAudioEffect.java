@@ -45,6 +45,8 @@ public class BaseAudioEffect implements AudioEffect{
     public static char chEffectParamStart = '(';
     public static char chEffectParamEnd = ')';
     
+    private boolean isHMMEffect;
+    
     public int fs;
     
     public BaseAudioEffect(BaseAudioEffect existing)
@@ -75,6 +77,9 @@ public class BaseAudioEffect implements AudioEffect{
         strParams = existing.strParams;
         strExampleParameters = existing.strExampleParameters;
         strHelpText = existing.strHelpText;
+        
+        setHMMEffect(false); //By default all effects are available to all voices
+                             //Set to true if the effect is only available to HMM voices
     }
     
     public BaseAudioEffect(int samplingRate)
@@ -346,6 +351,16 @@ public class BaseAudioEffect implements AudioEffect{
         }
            
         return ret;
+    }
+    
+    public boolean isHMMEffect()
+    {
+        return isHMMEffect;
+    }
+    
+    public void setHMMEffect(boolean bHMMEffect)
+    {
+        isHMMEffect = bHMMEffect;
     }
     
     public static void main(String[] args) throws Exception

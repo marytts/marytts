@@ -38,13 +38,16 @@ import de.dfki.lt.signalproc.util.MathUtils;
  */
 public class HMMF0ScaleEffect extends BaseAudioEffect {
     public float f0Scale;
-    public static float DEFAULT_F0_SCALE = 1.0f;
+    public static float NO_MODIFICATION = 1.0f;
+    public static float DEFAULT_F0_SCALE = 2.0f;
     public static float MAX_F0_SCALE= 3.0f;
     public static float MIN_F0_SCALE = 0.0f;
     
     public HMMF0ScaleEffect()
     {
         super(16000);
+        
+        setHMMEffect(true);
         
         setExampleParameters("f0Scale" + chParamEquals + Float.toString(DEFAULT_F0_SCALE) + chParamSeparator);
     }
