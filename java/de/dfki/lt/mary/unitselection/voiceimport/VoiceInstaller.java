@@ -58,6 +58,7 @@ public class VoiceInstaller extends VoiceImportComponent{
     public final String PHONEFEATDEF = name+".phoneFeatDef";
     public final String EXAMPLETEXT = name+".exampleText";
     public final String WAVETIMELINE = name+".waveTimeline";
+    public final String BASETIMELINE = name+".basenameTimeline";
 
     public String getName(){
         return name;
@@ -87,6 +88,8 @@ public class VoiceInstaller extends VoiceImportComponent{
            props.put(PHONEFEATDEF, "phoneUnitFeatureDefinition.txt");
            props.put(EXAMPLETEXT, "examples.text");
            props.put(WAVETIMELINE, "timeline_waveforms"+maryext);
+           props.put(BASETIMELINE, "timeline_basenames"+maryext);
+           
        }
        return props;
        }
@@ -107,6 +110,8 @@ public class VoiceInstaller extends VoiceImportComponent{
         props2Help.put(PHONEFEATDEF, "file containing the list of phone target cost features, their values and weights");
         props2Help.put(EXAMPLETEXT, "file containing example text (for limited domain voices only)");
         props2Help.put(WAVETIMELINE, "file containing all wave files");
+        props2Help.put(BASETIMELINE, "file containing all basenames");
+        
     }
 
     
@@ -178,6 +183,9 @@ public class VoiceInstaller extends VoiceImportComponent{
             in = new File(filedir+getProp(WAVETIMELINE));
             out = new File(newVoiceDir+getProp(WAVETIMELINE));
             copy(in,out);   
+            in = new File(filedir+getProp(BASETIMELINE));
+            out = new File(newVoiceDir+getProp(BASETIMELINE));
+            copy(in,out);
         }catch (IOException ioe){
             return false;
         }
@@ -358,7 +366,9 @@ public class VoiceInstaller extends VoiceImportComponent{
                       voiceHeader+".joinCostWeights   = MARY_BASE/lib/voices/"+voicename+"/"+getProp(JOINCOSTFEATDEF)+"\n"+
                       voiceHeader+".unitsFile         = MARY_BASE/lib/voices/"+voicename+"/"+getProp(HALFPHONEUNITS)+"\n"+
                       voiceHeader+".cartFile          = MARY_BASE/lib/voices/"+voicename+"/"+getProp(CARTFILE)+"\n"+
-              		  voiceHeader+".audioTimelineFile = MARY_BASE/lib/voices/"+voicename+"/"+getProp(WAVETIMELINE)+"\n");
+              		  voiceHeader+".audioTimelineFile = MARY_BASE/lib/voices/"+voicename+"/"+getProp(WAVETIMELINE)+"\n"+
+                      voiceHeader+".basenameTimeline = MARY_BASE/lib/voices/"+voicename+"/"+getProp(BASETIMELINE)+"\n");
+                      
               
               if (db.getProp(db.DOMAIN).equals("limited")){
                   configOut.println("# Location of example text\n"+
