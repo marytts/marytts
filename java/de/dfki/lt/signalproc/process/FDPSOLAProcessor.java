@@ -26,6 +26,7 @@ import de.dfki.lt.mary.unitselection.SelectedUnit;
 import de.dfki.lt.mary.unitselection.Unit;
 import de.dfki.lt.mary.unitselection.concat.DatagramDoubleDataSource;
 import de.dfki.lt.mary.unitselection.concat.DatagramOverlapDoubleDataSource;
+import de.dfki.lt.mary.util.FileUtils;
 import de.dfki.lt.signalproc.FFTMixedRadix;
 import de.dfki.lt.signalproc.analysis.F0ReaderWriter;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
@@ -44,155 +45,181 @@ import de.dfki.lt.signalproc.util.InterpolationUtils;
 import de.dfki.lt.signalproc.analysis.PitchMarker;
 
 public class FDPSOLAProcessor extends VocalTractModifier {
-    private DoubleDataSource input;
-    private AudioInputStream inputAudio;
-    private DDSAudioInputStream outputAudio;
-    private VoiceModificationParametersPreprocessor modParams;
-    private int numfrm;
-    private int numfrmFixed;
-    private int lpOrder; //LP analysis order
-    private String outputFile;
-    private String tempOutBinaryFile;
-    private int origLen;
-    private PitchMarker pm;
-    private PSOLAFrameProvider psFrm;
-    private double wsFixed;
-    private double ssFixed;
-    private int numPeriods;
-    private static int NUM_PITCH_SYNC_PERIODS = 3;
+    public static int WAVEFORM_MODIFICATION = 1;
+    public static int TTS_MODIFICATION = 2;
     
-    private static int FROM_CODE = 0;
-    private static int FROM_FILE = 1;
-    private static int FROM_TARGET = 2;
+    protected DoubleDataSource input;
+    protected AudioInputStream inputAudio;
+    protected DDSAudioInputStream outputAudio;
+    protected VoiceModificationParametersPreprocessor modParams;
+    protected int numfrm;
+    protected int numfrmFixed;
+    protected int lpOrder; //LP analysis order
+    protected String outputFile;
+    protected String tempOutBinaryFile;
+    protected int origLen;
+    protected PitchMarker pm;
+    protected PSOLAFrameProvider psFrm;
+    protected double wsFixedInSeconds;
+    protected double ssFixedInSeconds;
+    protected int numPeriods;
+    protected static int NUM_PITCH_SYNC_PERIODS = 3;
     
-    private boolean bSilent;
-    private LEDataOutputStream dout; //Output stream for big-endian wav tests
-    private LEDataInputStream din; //Input stream for big-endian wav tests
-    private DynamicWindow windowIn;
-    private DynamicWindow windowOut;
-    private double [] wgt;
-    private double [] wgty;
+    protected static int FROM_CODE = 0;
+    protected static int FROM_FILE = 1;
+    protected static int FROM_TARGET = 2;
     
-    private int frmSize;
-    private int newFrmSize;
-    private int newPeriod;
-    private int synthFrmInd;
-    private double localDurDiff;
-    private int repeatSkipCount; // -1:skip frame, 0:no repetition (use synthesized frame as it is), >0: number of repetitions for synthesized frame
-    private double localDurDiffSaved;
-    private double sumLocalDurDiffs;
-    private double nextAdd;
+    protected boolean bSilent;
+    protected LEDataOutputStream dout; //Output stream for big-endian wav tests
+    protected LEDataInputStream din; //Input stream for big-endian wav tests
+    protected DynamicWindow windowIn;
+    protected DynamicWindow windowOut;
+    protected double [] wgt;
+    protected double [] wgty;
+    
+    protected int frmSize;
+    protected int newFrmSize;
+    protected int newPeriod;
+    protected int synthFrmInd;
+    protected double localDurDiff;
+    protected int repeatSkipCount; // -1:skip frame, 0:no repetition (use synthesized frame as it is), >0: number of repetitions for synthesized frame
+    protected double localDurDiffSaved;
+    protected double sumLocalDurDiffs;
+    protected double nextAdd;
 
-    private int synthSt;
-    private int synthTotal;
+    protected int synthSt;
+    protected int synthTotal;
     
-    private int maxFrmSize;
-    private int maxNewFrmSize;
-    private int synthFrameInd;
-    private boolean bLastFrame;
-    private boolean bBroke;
-    private int newFftSize;
-    private int newMaxFreq;
+    protected int maxFrmSize;
+    protected int maxNewFrmSize;
+    protected int synthFrameInd;
+    protected boolean bLastFrame;
+    protected boolean bBroke;
+    protected int newFftSize;
+    protected int newMaxFreq;
     
-    private int outBuffLen;
-    private double [] outBuff;
-    private int outBuffStart;
-    private int totalWrittenToFile;
+    protected int outBuffLen;
+    protected double [] outBuff;
+    protected int outBuffStart;
+    protected int totalWrittenToFile;
 
-    private double [] ySynthBuff;
-    private double [] wSynthBuff;
-    private int ySynthInd;
-    private double [] frm;
-    private boolean bWarp;
+    protected double [] ySynthBuff;
+    protected double [] wSynthBuff;
+    protected int ySynthInd;
+    protected double [] frm;
+    protected boolean bWarp;
     
-    private double [] py;
-    private double [] py2;
-    private Complex hy;
-    private double [] frmy;
-    private double frmEn;
-    private double frmyEn;
-    private double gain;
-    private int newSkipSize;
-    private int halfWin;
-    private double [] newVScales;
-    private double [] tmpvsc;
-    private boolean isWavFileOutput;
-    private int inputFrameIndex;
-    private static double MIN_PSCALE = 0.1;
-    private static double MAX_PSCALE = 5.0;
-    private static double MIN_TSCALE = 0.1;
-    private static double MAX_TSCALE = 5.0;
+    protected double [] py;
+    protected double [] py2;
+    protected Complex hy;
+    protected double [] frmy;
+    protected double frmEn;
+    protected double frmyEn;
+    protected double gain;
+    protected int newSkipSize;
+    protected int halfWin;
+    protected double [] newVScales;
+    protected double [] tmpvsc;
+    protected boolean isWavFileOutput;
+    protected int inputFrameIndex;
+    protected static double MIN_PSCALE = 0.1;
+    protected static double MAX_PSCALE = 5.0;
+    protected static double MIN_TSCALE = 0.1;
+    protected static double MAX_TSCALE = 5.0;
  
-    private double tscaleSingle;
+    protected double tscaleSingle;
     
     public FDPSOLAProcessor(String strInputFile, String strPitchFile, String strOutputFile,
                             double [] pscales, double [] tscales, double [] escales, double [] vscales) throws UnsupportedAudioFileException, IOException
     {
         super();
-        
-        isWavFileOutput = true;
-        inputAudio = AudioSystem.getAudioInputStream(new File(strInputFile));
-        input = new AudioDoubleDataSource(inputAudio);
-        
-        origLen = (int)input.getDataLength();
-        fs = (int)inputAudio.getFormat().getSampleRate();
-        lpOrder = SignalProcUtils.getLPOrder(fs);
-        
-        wsFixed = 0.02;
-        ssFixed = 0.01;
-        numPeriods = NUM_PITCH_SYNC_PERIODS;
-        
-        F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
-        pm = SignalProcUtils.pitchContour2pitchMarks(f0.getContour(), fs, origLen, f0.ws, f0.ss, true);
-        
-        numfrm = pm.pitchMarks.length-numPeriods; //Total pitch synchronous frames (This is the actual number of frames to be processed)
-        numfrmFixed = (int)(Math.floor(((double)(origLen + pm.totalZerosToPadd)/fs-0.5*wsFixed)/ssFixed+0.5)+2); //Total frames if the analysis was fixed skip-rate
-         
-        modParams = new VoiceModificationParametersPreprocessor(fs, lpOrder,
-                                                                pscales, tscales, escales, vscales,
-                                                                pm.pitchMarks, wsFixed, ssFixed,
-                                                                numfrm, numfrmFixed, numPeriods);
-        tscaleSingle = modParams.tscaleSingle;
-        
-        outputFile = strOutputFile; 
-        
-        initialize();
+
+        init(WAVEFORM_MODIFICATION);
     }
- 
+    
     public FDPSOLAProcessor()
     {
         super();
         
+        init(TTS_MODIFICATION);
+    }
+    
+    protected void init(int initialisationType)
+    {
+        init(initialisationType, null, null, null, null, null, null, null, false);
+    }
+    
+    protected void init(int initialisationType, String strInputFile, String strPitchFile, String strOutputFile,
+                        double [] pscales, double [] tscales, double [] escales, double [] vscales,
+                        boolean isFixedRate)
+    {
         isWavFileOutput = false;
         inputAudio = null;
         input = null;
+        pm = null;
+        
+        wsFixedInSeconds = 0.02;
+        ssFixedInSeconds = 0.01;
+        numPeriods = NUM_PITCH_SYNC_PERIODS;
         
         origLen = 0;
         fs = 16000;
-        lpOrder = SignalProcUtils.getLPOrder(fs);
-        
-        wsFixed = 0.02;
-        ssFixed = 0.01;
-        numPeriods = NUM_PITCH_SYNC_PERIODS;
-        
-        pm = null;
         
         numfrm = 0; //Total pitch synchronous frames (This is the actual number of frames to be processed)
         numfrmFixed = 0; //Total frames if the analysis was fixed skip-rate
          
         modParams = null;
         
-        //outputFile = null; 
-        outputFile = "d:/tts_out.wav";
+        outputFile = null; 
         
         tscaleSingle = 1.0;
+
+        if (initialisationType==WAVEFORM_MODIFICATION)
+        {
+            isWavFileOutput = true;
+            if (FileUtils.exists(strInputFile) && FileUtils.exists(strPitchFile) && strOutputFile!=null)
+            {
+                try {
+                    inputAudio = AudioSystem.getAudioInputStream(new File(strInputFile));
+                } catch (UnsupportedAudioFileException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                
+                input = new AudioDoubleDataSource(inputAudio);
+
+                origLen = (int)input.getDataLength();
+                fs = (int)inputAudio.getFormat().getSampleRate();
+
+                F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
+                pm = SignalProcUtils.pitchContour2pitchMarks(f0.getContour(), fs, origLen, f0.ws, f0.ss, true);
+
+                numfrmFixed = (int)(Math.floor(((double)(origLen + pm.totalZerosToPadd)/fs-0.5*wsFixedInSeconds)/ssFixedInSeconds+0.5)+2); //Total frames if the analysis was fixed skip-rate
+                if (!isFixedRate)
+                    numfrm = pm.pitchMarks.length-numPeriods; //Total pitch synchronous frames (This is the actual number of frames to be processed)
+                else
+                    numfrm = numfrmFixed;
+                
+                modParams = new VoiceModificationParametersPreprocessor(fs, lpOrder,
+                        pscales, tscales, escales, vscales,
+                        pm.pitchMarks, wsFixedInSeconds, ssFixedInSeconds,
+                        numfrm, numfrmFixed, numPeriods);
+                tscaleSingle = modParams.tscaleSingle;
+
+                outputFile = strOutputFile;    
+            }
+        }
+        else if (initialisationType==TTS_MODIFICATION)
+        {
+            //For test purposes, remove this line if you do not need additional wav file output
+            //outputFile = "d:/tts_out.wav";
+        }
         
-        initialize();
-    }
-    
-    protected void initialize()
-    {
-//      initialization
+        lpOrder = SignalProcUtils.getLPOrder(fs);
+        
         tmpvsc = new double[1];
         bSilent = false;
         
@@ -201,7 +228,10 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         
         if (isWavFileOutput)
         {
-            psFrm = new PSOLAFrameProvider(input, pm, modParams.fs, modParams.numPeriods);
+            if (!isFixedRate)
+                psFrm = new PSOLAFrameProvider(input, pm, modParams.fs, modParams.numPeriods);
+            else
+                psFrm = new PSOLAFrameProvider(input, wsFixedInSeconds, ssFixedInSeconds, modParams.fs, numfrm);
             
             try {
                 dout = new LEDataOutputStream(tempOutBinaryFile);
@@ -944,7 +974,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
             inputFrameSize = pm.pitchMarks[i+modParams.numPeriods]-pm.pitchMarks[i]+1;
             
             processFrame(frmIn, pm.vuvs[i], modParams.pscalesVar[i], modParams.tscalesVar[i], modParams.escalesVar[i], modParams.vscalesVar[i], isLastInputFrame, 
-                    currentPeriod, inputFrameSize);
+                         currentPeriod, inputFrameSize);
         }
 
         writeFinal();
@@ -1082,13 +1112,13 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                 frmEn = SignalProcUtils.getEnergy(frm);
 
                 //Compute LP and excitation spectrum
-                initialise(lpOrder, fs, fftSize, true); //Perform only analysis
+                super.initialise(lpOrder, fs, fftSize, true); //Perform only analysis
                 windowIn.applyInline(frm, 0, frmSize); //Windowing
                 applyInline(frm, 0, frmSize); //LP analysis
                 
                 //Expand/Compress the vocal tract spectrum in inverse manner
                 py = MathUtils.interpolate(vtSpectrum, newMaxFreq); //Interpolated vocal tract spectrum
-
+                
                 //Perform vocal tract scaling
                 if (bWarp)
                 {
