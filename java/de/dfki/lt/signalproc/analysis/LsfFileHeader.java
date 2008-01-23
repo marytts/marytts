@@ -31,8 +31,7 @@ package de.dfki.lt.signalproc.analysis;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import de.dfki.lt.signalproc.util.LEDataInputStream;
-import de.dfki.lt.signalproc.util.LEDataOutputStream;
+import de.dfki.lt.signalproc.util.MaryRandomAccessFile;
 import de.dfki.lt.signalproc.window.Window;
 
 /**
@@ -74,19 +73,31 @@ public class LsfFileHeader {
         readLsfHeader(lsfFile, false);
     }
     
-    public LEDataInputStream readLsfHeader(String lsfFile, boolean bLeaveStreamOpen) throws IOException
+    public MaryRandomAccessFile readLsfHeader(String lsfFile, boolean bLeaveStreamOpen) throws IOException
     {
-        LEDataInputStream stream = new LEDataInputStream(lsfFile);
+        MaryRandomAccessFile stream = new MaryRandomAccessFile(lsfFile, "rw");
 
+        readLsfHeader(stream, bLeaveStreamOpen);
+        
+        return stream;
+    }
+    
+    public void readLsfHeader(MaryRandomAccessFile stream) throws IOException
+    {
+        readLsfHeader(stream, true);
+    }
+    
+    public void readLsfHeader(MaryRandomAccessFile stream, boolean bLeaveStreamOpen) throws IOException
+    {
         if (stream!=null)
         {
-            this.numfrm = stream.readInt();
-            this.lpOrder = stream.readInt();
-            this.preCoef = stream.readFloat();
-            this.winsize = stream.readFloat();
-            this.skipsize = stream.readFloat();
-            this.samplingRate = stream.readInt();
-            this.windowType = stream.readInt();
+            numfrm = stream.readInt();
+            lpOrder = stream.readInt();
+            preCoef = stream.readFloat();
+            winsize = stream.readFloat();
+            skipsize = stream.readFloat();
+            samplingRate = stream.readInt();
+            windowType = stream.readInt();
             
             if (!bLeaveStreamOpen)
             {
@@ -94,8 +105,6 @@ public class LsfFileHeader {
                 stream = null;
             }
         }
-        
-        return stream;
     }
     
     public void writeLsfHeader(String lsfFile) throws IOException
@@ -105,19 +114,13 @@ public class LsfFileHeader {
     
     //This version returns the file output stream for further use, i.e. if you want to write additional information
     // in the file use this version
-    public LEDataOutputStream writeLsfHeader(String lsfFile, boolean bLeaveStreamOpen) throws IOException
+    public MaryRandomAccessFile writeLsfHeader(String lsfFile, boolean bLeaveStreamOpen) throws IOException
     {
-        LEDataOutputStream stream = new LEDataOutputStream(lsfFile);
+        MaryRandomAccessFile stream = new MaryRandomAccessFile(lsfFile, "rw");
 
         if (stream!=null)
         {
-            stream.writeInt(this.numfrm);
-            stream.writeInt(this.lpOrder);
-            stream.writeFloat(this.preCoef);
-            stream.writeFloat(this.winsize);
-            stream.writeFloat(this.skipsize);
-            stream.writeInt(this.samplingRate);
-            stream.writeInt(this.windowType);
+            writeLsfHeader(stream);
             
             if (!bLeaveStreamOpen)
             {
@@ -129,4 +132,14 @@ public class LsfFileHeader {
         return stream;
     }
     
+    public void writeLsfHeader(MaryRandomAccessFile ler) throws IOException
+    {   
+        ler.writeInt(numfrm);
+        ler.writeInt(lpOrder);
+        ler.writeFloat(preCoef);
+        ler.writeFloat(winsize);
+        ler.writeFloat(skipsize);
+        ler.writeInt(samplingRate);
+        ler.writeInt(windowType);
+    }
 }

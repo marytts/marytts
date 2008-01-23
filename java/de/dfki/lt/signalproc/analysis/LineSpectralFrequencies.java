@@ -40,8 +40,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.Defaults;
-import de.dfki.lt.signalproc.util.LEDataInputStream;
-import de.dfki.lt.signalproc.util.LEDataOutputStream;
+import de.dfki.lt.signalproc.util.MaryRandomAccessFile;
 import de.dfki.lt.signalproc.util.MathUtils;
 import de.dfki.lt.signalproc.util.SignalProcUtils;
 import de.dfki.lt.signalproc.window.Window;
@@ -479,11 +478,11 @@ public class LineSpectralFrequencies
     public static void writeLsfFile(double[][] lsfs, String lsfFileOut, LsfFileHeader params) throws IOException
     {
         params.numfrm = lsfs.length;
-        LEDataOutputStream stream = params.writeLsfHeader(lsfFileOut, true);
+        MaryRandomAccessFile stream = params.writeLsfHeader(lsfFileOut, true);
         writeLsfs(stream, lsfs);
     }
     
-    public static void writeLsfs(LEDataOutputStream stream, double[][] lsfs) throws IOException
+    public static void writeLsfs(MaryRandomAccessFile stream, double[][] lsfs) throws IOException
     {
         if (stream!=null && lsfs!=null && lsfs.length>0)
         {
@@ -497,15 +496,15 @@ public class LineSpectralFrequencies
     public static double[][] readLsfFile(String lsfFile) throws IOException
     {
         LsfFileHeader params = new LsfFileHeader();
-        LEDataInputStream stream = params.readLsfHeader(lsfFile, true);
+        MaryRandomAccessFile stream = params.readLsfHeader(lsfFile, true);
         return readLsfs(stream, params);
     }
     
-    public static double[][] readLsfs(LEDataInputStream stream, LsfFileHeader params) throws IOException
+    public static double[][] readLsfs(MaryRandomAccessFile stream, LsfFileHeader params) throws IOException
     {
         double[][] lsfs = null;
         
-        if (stream!=null && params.numfrm>0)
+        if (stream!=null && params.numfrm>0 && params.lpOrder>0)
         {
             lsfs = new double[params.numfrm][];
             
