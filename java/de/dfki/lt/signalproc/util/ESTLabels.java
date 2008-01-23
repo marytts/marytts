@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 
 import de.dfki.lt.mary.util.FileUtils;
+import de.dfki.lt.mary.util.StringUtil;
 
 /**
  * @author oytun.turk
@@ -53,14 +54,36 @@ public class ESTLabels {
         }
     }
     
+    //Create ESTLabels from existing ones
     public ESTLabels(ESTLabels e)
+    {
+        this(e, 0);
+    }
+    
+  //Create ESTLabels from existing ones
+    public ESTLabels(ESTLabels e, int startPos)
+    {
+        this(e, startPos, e.items.length-1);
+    }
+    
+    //Create ESTLabels using labels between [startPos,endPos] 
+    public ESTLabels(ESTLabels e, int startPos, int endPos)
     {
         items = null;
         if (e!=null && e.items!=null)
         {
-            items = new ESTLabel[e.items.length];
-            for (int i=0; i<e.items.length; i++)
-                items[i] = new ESTLabel(e.items[i]);
+            if (startPos<0)
+                startPos = 0;
+            if (startPos>e.items.length-1)
+                startPos=e.items.length-1;
+            if (endPos<startPos)
+                endPos=startPos;
+            if (endPos>e.items.length-1)
+                endPos=e.items.length-1;
+            
+            items = new ESTLabel[endPos-startPos+1];
+            for (int i=startPos; i<=endPos; i++)
+                items[i-startPos] = new ESTLabel(e.items[i]);
         }
     }
     
@@ -72,6 +95,7 @@ public class ESTLabels {
     public static ESTLabels readESTLabelFile(String labelFile)
     {
         ESTLabels labels = null;
+        ESTLabels labelsRet = null;
         String allText = null;
         try {
             allText = FileUtils.getFileAsString(new File(labelFile), "ASCII");
@@ -103,13 +127,15 @@ public class ESTLabels {
                         break;
                     
                     String[] labelInfos = lines[i].split(" ");
-                    if (labelInfos.length>2)
+                    if (labelInfos.length>2 && 
+                            StringUtil.isNumeric(labelInfos[0]) &&
+                            StringUtil.isNumeric(labelInfos[1]))
                     {
                         labels.items[tmpCount].time = (float)Float.valueOf(labelInfos[0]);
                         labels.items[tmpCount].status = (int)Integer.valueOf(labelInfos[1]);
                         labels.items[tmpCount].phn = labelInfos[2].trim();
 
-                        if (labelInfos.length>3)
+                        if (labelInfos.length>3 && StringUtil.isNumeric(labelInfos[3]))
                             labels.items[tmpCount].ll = (float)Float.valueOf(labelInfos[3]);
                         else
                             labels.items[tmpCount].ll = (float)Float.NEGATIVE_INFINITY; 
@@ -117,10 +143,29 @@ public class ESTLabels {
                         tmpCount++;
                     }
                 }
+                
+                labelsRet = new ESTLabels(labels, 0, tmpCount-1);
             }
         }
         
-        return labels;
+        return labelsRet;
+    }
+    
+    public void print()
+    {
+        for (int i=0; i<items.length; i++)
+            items[i].print();
+    }
+    
+    public static void main(String[] args)
+    {
+        ESTLabels lab = null;
+        
+        lab = new ESTLabels("d:\\m0001_poppyPhoneLab.lab");
+        lab.print();
+        
+        lab = new ESTLabels("d:\\m0001.lab");
+        lab.print();
     }
     
 }

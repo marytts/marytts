@@ -69,4 +69,13 @@ public class ESTLabel {
         phn = lab.phn;
         ll = lab.ll;
     }
+    
+    //Display label entries
+    public void print()
+    {
+        System.out.println("Time=" + String.valueOf(time) + " s. " + 
+                           "Stat=" + String.valueOf(status) + " " +
+                           "Phoneme=" + phn + " " +
+                           "Log-likelihood=" + String.valueOf(ll));
+    }
 }
