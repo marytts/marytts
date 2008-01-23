@@ -339,4 +339,45 @@ public class StringUtil {
 
         return labelMap;
     }
+    
+    public static boolean isNumeric(String str) 
+    {
+        for (int i=0; i<str.length(); i++)
+        {
+            char ch = str.charAt(i);
+            if (!Character.isDigit(ch) && ch!='.') 
+                return false;
+        }
+        
+        return true;
+    }
+    
+    //Retrieves filename from fullpathname
+    // Also works for removing file extension from a filename with extension
+    public static String getFileName(String fullpathFilename, boolean bRemoveExtension)
+    {
+        String filename = "";
+        
+        int ind1 = fullpathFilename.lastIndexOf('\\');
+        int ind2 = fullpathFilename.lastIndexOf('/');
+        
+        ind1 = Math.max(ind1, ind2);
+        
+        if (ind1>=0 && ind1<fullpathFilename.length()-2)
+            filename = fullpathFilename.substring(ind1+1);
+        
+        if (bRemoveExtension)
+        {
+            ind1 = fullpathFilename.lastIndexOf('.');
+            if (ind1>0 && ind1-1>=0)
+                filename = filename.substring(0, ind1-1);
+        }
+        
+        return filename;
+    }
+    
+    public static String getFileName(String fullpathFilename)
+    {
+        return getFileName(fullpathFilename, true);
+    }
 }

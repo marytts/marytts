@@ -99,4 +99,48 @@ public class FileUtils
         return x;
     }
     
+    public static boolean exists(String file)
+    {
+        boolean bRet = false;
+
+        if (file!=null)
+        {
+            File f = new File(file);
+            if (f.exists())
+                bRet =  true;
+        }
+
+        return bRet;
+    }
+    
+    //Checks for the existence of file and deletes if existing
+    public static void delete(String file, boolean bDisplayInfo)
+    {
+        File f = new File(file);
+        if (f.exists())
+            f.delete();
+        
+        if (bDisplayInfo)
+            System.out.println("Deleted: " + file);
+    }
+    
+    //Silent version
+    public static void delete(String file)
+    {
+        delete(file, false);
+    }
+    
+    public static void delete(String[] files, boolean bDisplayInfo)
+    {
+        for (int i=0; i<files.length; i++)
+            delete(files[i], bDisplayInfo);
+    }
+    
+    //Silnet version
+    public static void delete(String[] files)
+    {
+        delete(files, false);
+    }
+    
+    
 }
