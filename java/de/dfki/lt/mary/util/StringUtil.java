@@ -368,9 +368,9 @@ public class StringUtil {
         
         if (bRemoveExtension)
         {
-            ind1 = fullpathFilename.lastIndexOf('.');
+            ind1 = filename.lastIndexOf('.');
             if (ind1>0 && ind1-1>=0)
-                filename = filename.substring(0, ind1-1);
+                filename = filename.substring(0, ind1);
         }
         
         return filename;

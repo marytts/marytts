@@ -147,6 +147,13 @@ public class WeightedCodebookFile {
         return readCodebookHeader();
     }
     
+    public static WeightedCodebookFileHeader readCodebookHeaderAndClose(String codebookFile) throws IOException
+    {
+        MaryRandomAccessFile ler = new MaryRandomAccessFile(codebookFile, "r");
+        
+        return readCodebookHeader(ler);
+    }
+    
     public WeightedCodebookFileHeader readCodebookHeader()
     {
         try {
@@ -159,7 +166,7 @@ public class WeightedCodebookFile {
         return null;
     }
     
-    public WeightedCodebookFileHeader readCodebookHeader(MaryRandomAccessFile ler) throws IOException
+    public static WeightedCodebookFileHeader readCodebookHeader(MaryRandomAccessFile ler) throws IOException
     {
         WeightedCodebookFileHeader header = new WeightedCodebookFileHeader();
         
@@ -225,8 +232,11 @@ public class WeightedCodebookFile {
                 codebook.allocate();
                 codebook.header.lsfParams.numfrm = codebook.totalEntries;
 
+                System.out.println("Reading codebook file: "+ codebookFile + "...");
                 for (int i=0; i<codebook.totalEntries; i++)
                     codebook.entries[i] = readEntry(codebook.header.lsfParams.lpOrder);
+                
+                System.out.println("Reading completed...");
             }
         }
 

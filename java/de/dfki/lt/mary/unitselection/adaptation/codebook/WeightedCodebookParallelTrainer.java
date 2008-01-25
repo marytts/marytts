@@ -29,6 +29,7 @@
 
 package de.dfki.lt.mary.unitselection.adaptation.codebook;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
@@ -74,6 +75,8 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         params.trainingBaseFolder = StringUtil.checkLastSlash(params.trainingBaseFolder);
         params.sourceTrainingFolder = StringUtil.checkLastSlash(params.sourceTrainingFolder);
         params.targetTrainingFolder = StringUtil.checkLastSlash(params.targetTrainingFolder);
+        
+        FileUtils.createDirectory(params.trainingBaseFolder);
     }
     
     //Create list of files
@@ -632,8 +635,8 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
     public void deleteTemporaryFiles(WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet)
     {
         FileUtils.delete(fcol.indexMapFiles, true);
-        FileUtils.delete(sourceTrainingSet.getLsfFiles(), true);
-        FileUtils.delete(targetTrainingSet.getLsfFiles(), true);
+        //FileUtils.delete(sourceTrainingSet.getLsfFiles(), true);
+        //FileUtils.delete(targetTrainingSet.getLsfFiles(), true);
     }
     
     public static void main(String[] args)
@@ -649,12 +652,12 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABEL_GROUPS; pa.codebookHeader.numNeighboursInLabelGroups = 1; //Mapping of average features collected across label groups (i.e. vowels, consonants, etc)
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.SPEECH; //Mapping of average features collected across all speech parts (i.e. like spectral equalization)
 
-        pa.codebookHeader.sourceTag = "sourceL"; //Source name tag (i.e. style or speaker identity)
-        pa.codebookHeader.targetTag = "targetL"; //Target name tag (i.e. style or speaker identity)
+        pa.codebookHeader.sourceTag = "neutralL"; //Source name tag (i.e. style or speaker identity)
+        pa.codebookHeader.targetTag = "angryL"; //Target name tag (i.e. style or speaker identity)
 
-        pa.trainingBaseFolder = "d:\\1"; //Training base directory
-        pa.sourceTrainingFolder = "d:\\1\\src"; //Source training folder
-        pa.targetTrainingFolder = "d:\\1\\tgt"; //Target training folder
+        pa.trainingBaseFolder = "d:\\1\\neutral_X_angry"; //Training base directory
+        pa.sourceTrainingFolder = "d:\\1\\neutral\\train"; //Source training folder
+        pa.targetTrainingFolder = "d:\\1\\angry\\train"; //Target training folder
 
         pa.indexMapFileExtension = ".imf"; //Index map file extensions
         

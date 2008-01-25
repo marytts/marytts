@@ -31,15 +31,19 @@ package de.dfki.lt.mary.unitselection.adaptation.codebook;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.dfki.lt.mary.util.FileUtils;
+import de.dfki.lt.signalproc.FFT;
 import de.dfki.lt.signalproc.FFTMixedRadix;
 import de.dfki.lt.signalproc.analysis.F0ReaderWriter;
+import de.dfki.lt.signalproc.analysis.LPCAnalyser;
 import de.dfki.lt.signalproc.analysis.LineSpectralFrequencies;
 import de.dfki.lt.signalproc.analysis.Lsfs;
+import de.dfki.lt.signalproc.analysis.LPCAnalyser.LPCoeffs;
 import de.dfki.lt.signalproc.process.FDPSOLAProcessor;
 import de.dfki.lt.signalproc.process.VoiceModificationParametersPreprocessor;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
@@ -59,28 +63,17 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
     private Lsfs inputLsfs;
     private boolean isFixedRateVocalTractTransformation;
     
-    //This constructor is for performing FDPSOLA based pitch, time, energy, and vocal tract scaling
-    //It does not support voice conversion functionality
-    public WeightedCodebookFdpsolaAdapter(String strInputFile, String strPitchFile, String strLsfFile, String strOutputFile,
-                                          double [] pscales, double [] tscales, double [] escales, double [] vscales) throws UnsupportedAudioFileException, IOException
+    public WeightedCodebookFdpsolaAdapter(String strInputFile, String strPitchFile, String strLsfFile, String strOutputFile, 
+                                          boolean bFixedRateVocalTractTransformation,
+                                          double [] pscales, double [] tscales, double [] escales, double [] vscales
+                                         ) throws UnsupportedAudioFileException, IOException
     {
-       isFixedRateVocalTractTransformation = false;
-       init(strInputFile, strPitchFile,  strLsfFile, strOutputFile,
-            pscales, tscales, escales, vscales);
-    }
+        super(strInputFile, strPitchFile, strOutputFile, pscales, tscales, escales, vscales, bFixedRateVocalTractTransformation);
 
-    public WeightedCodebookFdpsolaAdapter(String strInputFile, String strPitchFile, String strLsfFile, String strOutputFile,
-                                          boolean bFixedRateVocalTractTransformation) throws UnsupportedAudioFileException, IOException
-    {
         isFixedRateVocalTractTransformation = bFixedRateVocalTractTransformation;
-        
-        double [] pscales = {1.0};
-        double [] tscales = {1.0};
-        double [] escales = {1.0};
-        double [] vscales = {1.0};
-        
+
         init(strInputFile, strPitchFile,  strLsfFile, strOutputFile,
-             pscales, tscales, escales, vscales);
+                pscales, tscales, escales, vscales);
     }
     
     public void init(String strInputFile, String strPitchFile, String strLsfFile, String strOutputFile,
@@ -140,6 +133,7 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
         convertToWav(inputAudio.getFormat());
     }
     
+    //Voice conversion version
     public double [] processFrame(double [] frmIn, boolean isVoiced, 
                                   double pscale, double tscale, double escale, double vscale, 
                                   boolean isLastInputFrame, int currentPeriod, int inputFrameSize,
@@ -249,7 +243,9 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
             else
                 bWarp=false; 
             
-            if ((isVoiced && pscale!=1.0) || bWarp)
+            boolean isTransformUnvoiced = true;
+            
+            if ((isVoiced && pscale!=1.0) || bWarp || isTransformUnvoiced)
             {
                 if (fftSize<frmSize)
                 {
@@ -269,27 +265,46 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
 
                 frmEn = SignalProcUtils.getEnergy(frm);
 
-                
-                
-                
-                //Here is the point where voice conversion comes into play!
-                //To do: do LP and LSF analysis on your own!
-                //Compute LP and excitation spectrum
-                super.initialise(lpOrder, fs, fftSize, true); //Perform only analysis
+                //Note that windowing is applied prior to preemphasis
+                //Is this correct, perhaps after the better?
                 windowIn.applyInline(frm, 0, frmSize); //Windowing
-                applyInline(frm, 0, frmSize); //LP analysis
-                //
+                
+                //LPC and LSF analysis
+                LPCoeffs l = LPCAnalyser.calcLPC(frm, params.lsfParams.lpOrder, params.lsfParams.preCoef);
+                double [] inputLpcs = l.getOneMinusA();
+                double [] inputLsfs = LineSpectralFrequencies.lpc2lsfInHz(inputLpcs, 4, params.lsfParams.samplingRate);
+                
+                Complex expTermInput = LPCAnalyser.calcExpTerm(fftSize, params.lsfParams.lpOrder);
+                vtSpectrum = LPCAnalyser.calcSpec(inputLpcs, params.lsfParams.lpOrder, fftSize, expTermInput);
+                
+                h = new Complex(fftSize);
+                System.arraycopy(frm, 0, h.real, 0, Math.min(frmSize, h.real.length));
+                
+                if (h.real.length > frmSize)
+                    Arrays.fill(h.real, h.real.length-frmSize, h.real.length-1, 0);
+                
+                Arrays.fill(h.imag, 0, h.imag.length-1, 0);
+                
+                FFT.transform(h.real, h.imag, false);
                 
                 //First transform then interpolate!
+                double [] targetLsfs = mapper.transform(inputLsfs, codebook);
+                
+                double [] targetLpcs = LineSpectralFrequencies.lsfInHz2lpc(targetLsfs, params.lsfParams.samplingRate);
+                
+                double[] targetVocalTract;
+                if (fftSize!=newFftSize)
+                {
+                    Complex expTermNew = LPCAnalyser.calcExpTerm(newFftSize, params.lsfParams.lpOrder);
+                    targetVocalTract = LPCAnalyser.calcSpec(targetLpcs, params.lsfParams.lpOrder, 1.0, newFftSize, expTermNew);
+                }
+                else
+                    targetVocalTract = LPCAnalyser.calcSpec(targetLpcs, params.lsfParams.lpOrder, 1.0, newFftSize, expTermInput);
                 
                 //Expand/Compress the vocal tract spectrum in inverse manner
-                py = MathUtils.interpolate(vtSpectrum, newMaxFreq); //Interpolated vocal tract spectrum
+                inputVocalTractSpectrum = MathUtils.interpolate(vtSpectrum, newMaxFreq); //Interpolated vocal tract spectrum
                 ////
-                
-                
-                
-                
-                
+
                 //Perform vocal tract scaling
                 if (bWarp)
                 {
@@ -312,10 +327,10 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
                         if (wInd>newMaxFreq)
                             wInd = newMaxFreq;
                         
-                        py2[k] = py[wInd-1];
+                        py2[k] = inputVocalTractSpectrum[wInd-1];
                     }
                     
-                    System.arraycopy(py2, 0, py, 0, newMaxFreq);
+                    System.arraycopy(py2, 0, inputVocalTractSpectrum, 0, newMaxFreq);
                 }
 
                 //Create output DFT spectrum
@@ -359,8 +374,8 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
                 //Convolution
                 for (k=1; k<=newMaxFreq; k++)
                 {
-                    hy.real[k-1] *= py[k-1];
-                    hy.imag[k-1] *= py[k-1];
+                    hy.real[k-1] *= targetVocalTract[k-1]/inputVocalTractSpectrum[k-1];
+                    hy.imag[k-1] *= targetVocalTract[k-1]/inputVocalTractSpectrum[k-1];
                 }
                 
                 for (k=newMaxFreq+1; k<=newFftSize; k++)

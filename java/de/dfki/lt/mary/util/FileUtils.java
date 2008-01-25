@@ -141,6 +141,21 @@ public class FileUtils
     {
         delete(files, false);
     }
+
+    public static void createDirectory(String trainingBaseFolder) {
+        File f = new File(trainingBaseFolder);
+        if (!f.exists())
+            f.mkdirs();
+    }
+
+    public static boolean isDirectory(String dirName) {
+        File f = new File(dirName);
+        
+        if (f.isDirectory())
+            return true;
+        else
+            return false;
+    }
     
     
 }

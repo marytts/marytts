@@ -38,6 +38,7 @@ import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationSet;
 import de.dfki.lt.mary.unitselection.voiceimport.BasenameList;
 import de.dfki.lt.mary.util.FileUtils;
 import de.dfki.lt.mary.util.StringUtil;
+import de.dfki.lt.signalproc.analysis.LsfFileHeader;
 
 /**
  * @author oytun.turk
@@ -68,23 +69,46 @@ public class WeightedCodebookParallelTransformer extends
         if (bContinue)
         {
             BaselineAdaptationSet inputSet = getInputSet(params.inputFolder);
-            BaselineAdaptationSet outputSet = getOutputSet(inputSet, params.outputFolder);
+            if (inputSet==null)
+                System.out.println("No input files found in " + params.inputFolder);
+            else
+            {
+                BaselineAdaptationSet outputSet = getOutputSet(inputSet, params.outputFolder);
 
-            transform(inputSet, outputSet);
+                transform(inputSet, outputSet);
+            }
         }
-        else
-            System.out.println("Error: Codebook file not found!");
     }
     
-    public boolean checkParams()
+    public boolean checkParams() throws IOException
     {
         params.inputFolder = StringUtil.checkLastSlash(params.inputFolder);
         params.outputFolder = StringUtil.checkLastSlash(params.outputFolder);
         
-        if (FileUtils.exists(params.codebookFile))
-            return true;
-        else
-            return false;      
+        if (!FileUtils.exists(params.codebookFile))
+        {
+            System.out.println("Error: Codebook file " + params.codebookFile + " not found!");
+            return false;     
+        }
+        else //Read lsfParams from the codebook header
+        {
+            params.lsfParams = new LsfFileHeader(WeightedCodebookFile.readCodebookHeaderAndClose(params.codebookFile).lsfParams);
+            params.mapperParams.lpOrder = params.lsfParams.lpOrder;
+        }
+            
+        if (!FileUtils.exists(params.inputFolder) || !FileUtils.isDirectory(params.inputFolder))
+        {
+            System.out.println("Error: Input folder " + params.inputFolder + " not found!");
+            return false; 
+        }
+        
+        if (!FileUtils.isDirectory(params.outputFolder))
+        {
+            System.out.println("Creating output folder " + params.outputFolder + "...");
+            FileUtils.createDirectory(params.outputFolder);
+        }
+        
+        return true;
     }
     
     //Create list of input files
@@ -145,7 +169,7 @@ public class WeightedCodebookParallelTransformer extends
             }
             
             //Load the codebook
-            WeightedCodebookFile f = new WeightedCodebookFile(params.codebookFile);
+            WeightedCodebookFile f = new WeightedCodebookFile(params.codebookFile, WeightedCodebookFile.OPEN_FOR_READ);
             try {
                 codebook = f.readCodebookFile();
             } catch (IOException e) {
@@ -186,10 +210,19 @@ public class WeightedCodebookParallelTransformer extends
     {
         boolean bSeparateProsody = true;
         boolean bFixedRateVocalTractConversion = true;
+        //Desired values should be specified in the follwing four parameters
         double [] pscales = {1.0};
         double [] tscales = {1.0};
         double [] escales = {1.0};
         double [] vscales = {1.0};
+        //
+        
+        //These are for fixed rate vocal tract transformation: Do not change these!!!
+        double [] pscalesTemp = {1.0};
+        double [] tscalesTemp = {1.0};
+        double [] escalesTemp = {1.0};
+        double [] vscalesTemp = {1.0};
+        //
         
         WeightedCodebookFdpsolaAdapter adapter = null;
 
@@ -197,42 +230,111 @@ public class WeightedCodebookParallelTransformer extends
         {
             adapter = new WeightedCodebookFdpsolaAdapter(
                                   inputItem.audioFile, inputItem.f0File, inputItem.lsfFile, 
-                                  outputItem.audioFile, bFixedRateVocalTractConversion);
+                                  outputItem.audioFile, 
+                                  bFixedRateVocalTractConversion, 
+                                  pscalesTemp, tscalesTemp, escalesTemp, vscalesTemp);
         }
         else
         {
             adapter = new WeightedCodebookFdpsolaAdapter(
                                   inputItem.audioFile, inputItem.f0File, inputItem.lsfFile, 
                                   outputItem.audioFile, 
+                                  bFixedRateVocalTractConversion, 
                                   pscales, tscales, escales, vscales);
         }
 
         if (adapter!=null)
         {
 
+            adapter.bSilent = true;
             adapter.fdpsolaOnline(wctParams, wcMapper, wCodebook); //Call voice conversion version
 
             if (bSeparateProsody)
             {
-
+                if (isScalingsRequired(pscales, tscales, escales, vscales))
+                {
                     adapter = new WeightedCodebookFdpsolaAdapter(
-                                          inputItem.audioFile, inputItem.f0File, null, 
-                                          outputItem.audioFile, 
-                                          pscales, tscales, escales, vscales);
-                    
+                            inputItem.audioFile, inputItem.f0File, null, 
+                            outputItem.audioFile, 
+                            false,
+                            pscales, tscales, escales, vscales);
+
+                    adapter.bSilent = true;
                     adapter.fdpsolaOnline(); //Call parent class version (i.e. no voice conversion)
+                }
             }
         }
     }
+    
+    public static boolean isScalingsRequired(double[] pscales, double[] tscales, double[] escales, double[] vscales)
+    {
+        int i;
+        for (i=0; i<pscales.length; i++)
+        {
+            if (pscales[i]!=1.0)
+                return true;
+        }
+        
+        for (i=0; i<tscales.length; i++)
+        {
+            if (tscales[i]!=1.0)
+                return true;
+        }
+        
+        for (i=0; i<escales.length; i++)
+        {
+            if (escales[i]!=1.0)
+                return true;
+        }
+        
+        for (i=0; i<vscales.length; i++)
+        {
+            if (vscales[i]!=1.0)
+                return true;
+        }
+        
+        return false;
+    }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         WeightedCodebookPreprocessor pp = new WeightedCodebookPreprocessor();
         WeightedCodebookFeatureExtractor fe = new WeightedCodebookFeatureExtractor();
         WeightedCodebookPostprocessor po = new WeightedCodebookPostprocessor();
         WeightedCodebookTransformerParams pa = new WeightedCodebookTransformerParams();
         
-        pa.inputFolder = "d:\\1\\src_test";
-        pa.outputFolder = "d:\\1\\src2tgt_output";
-
+        pa.inputFolder = "d:\\1\\neutral\\test";
+        pa.outputFolder = "d:\\1\\neutral_X_angry\\neutral2angryOut";
+        //pa.codebookFile = "d:\\1\\neutralF_X_angryF.wcf";
+        //pa.codebookFile = "d:\\1\\neutralFG_X_angryFG.wcf";
+        pa.codebookFile = "d:\\1\\neutral_X_angry\\neutralL_X_angryL.wcf";
+        //pa.codebookFile = "d:\\1\\neutralLG_X_angryLG.wcf";
+        //pa.codebookFile = "d:\\1\\neutralS_X_angryS.wcf";
+        
+        //Set codebook mapper parameters
+        pa.mapperParams.numBestMatches = 4; // Number of best matches in codebook
+        
+        // Distance measure for comparing source training and transformation features
+        pa.mapperParams.distanceMeasure = WeightedCodebookMapperParams.LSF_INVERSE_HARMONIC_DISTANCE;
+        //pa.mapperParams.distanceMeasure = WeightedCodebookMapperParams.LSF_INVERSE_HARMONIC_DISTANCE_SYMMETRIC; pa.mapperParams.alphaForSymmetric = 0.5; //Weighting factor for using weights of two lsf vectors in distance computation relatively. The range is [0.0,1.0]
+        //pa.mapperParams.distanceMeasure = WeightedCodebookMapperParams.LSF_EUCLIDEAN_DISTANCE;
+        //pa.mapperParams.distanceMeasure = WeightedCodebookMapperParams.LSF_MAHALANOBIS_DISTANCE;
+        //pa.mapperParams.distanceMeasure = WeightedCodebookMapperParams.LSF_ABSOLUTE_VALUE_DISTANCE;
+        
+        // Method for weighting best codebook matches
+        //pa.mapperParams.weightingMethod = WeightedCodebookMapperParams.GAUSSIAN_HALF_WINDOW;
+        pa.mapperParams.weightingMethod = WeightedCodebookMapperParams.EXPONENTIAL_HALF_WINDOW;
+        //pa.mapperParams.weightingMethod = WeightedCodebookMapperParams.TRIANGLE_HALF_WINDOW;
+        
+        pa.mapperParams.weightingSteepness = 0.9; // Steepness of weighting function in range [MIN_STEEPNESS, MAX_STEEPNESS]=[0.0,1.0]
+        
+        ////Mean and variance of a specific distance measure can be optionally kept in the following
+        // two parameters for z-normalization
+        pa.mapperParams.distanceMean = 0.0; 
+        pa.mapperParams.distanceVariance = 1.0;
+        //
+        
+        
+        WeightedCodebookParallelTransformer t = new WeightedCodebookParallelTransformer(pp, fe, po, pa);
+        t.run();
     }
 }
