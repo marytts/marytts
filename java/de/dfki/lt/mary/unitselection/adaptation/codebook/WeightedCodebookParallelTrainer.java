@@ -262,7 +262,9 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
                 
                 if (!bHeaderWritten)
                 {
-                    params.codebookHeader.lsfParams.lpOrder = srcLsfs.params.lpOrder; //This is required for auto setting LP order
+                    params.codebookHeader.lsfParams.lpOrder = srcLsfs.params.lpOrder;
+                    params.codebookHeader.lsfParams.samplingRate = srcLsfs.params.samplingRate;
+                    
                     codebookFile.writeCodebookHeader(params.codebookHeader);
                     bHeaderWritten = true;
                 }
@@ -325,7 +327,9 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
                 
                 if (!bHeaderWritten)
                 {
-                    params.codebookHeader.lsfParams.lpOrder = srcLsfs.params.lpOrder; //This is required for auto setting LP order
+                    params.codebookHeader.lsfParams.lpOrder = srcLsfs.params.lpOrder;
+                    params.codebookHeader.lsfParams.samplingRate = srcLsfs.params.samplingRate;
+                    
                     codebookFile.writeCodebookHeader(params.codebookHeader);
                     bHeaderWritten = true;
                 }
@@ -453,9 +457,9 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
                 
                 if (!bHeaderWritten)
                 {
-                    //These are required for auto setting LP order
                     params.codebookHeader.lsfParams.lpOrder = srcLsfs.params.lpOrder;
                     params.codebookHeader.lsfParams.samplingRate =  srcLsfs.params.samplingRate;
+                    
                     codebookFile.writeCodebookHeader(params.codebookHeader);
                     bHeaderWritten = true;
                 }
@@ -585,7 +589,9 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
                 
                 if (!bHeaderWritten)
                 {
-                    params.codebookHeader.lsfParams.lpOrder = srcLsfs.params.lpOrder; //This is required for auto setting LP order
+                    params.codebookHeader.lsfParams.lpOrder = srcLsfs.params.lpOrder;
+                    params.codebookHeader.lsfParams.samplingRate = srcLsfs.params.samplingRate;
+                    
                     codebookFile.writeCodebookHeader(params.codebookHeader);
                     bHeaderWritten = true;
                 }
@@ -677,13 +683,13 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         WeightedCodebookTrainerParams pa = new WeightedCodebookTrainerParams();
         
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAMES; //Frame-by-frame mapping of features
-        pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAME_GROUPS; pa.codebookHeader.numNeighboursInFrameGroups = 3; //Mapping of frame average features (no label information but fixed amount of neighbouring frames is used)
+        //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAME_GROUPS; pa.codebookHeader.numNeighboursInFrameGroups = 3; //Mapping of frame average features (no label information but fixed amount of neighbouring frames is used)
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABELS; //Mapping of label average features
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABEL_GROUPS; pa.codebookHeader.numNeighboursInLabelGroups = 1; //Mapping of average features collected across label groups (i.e. vowels, consonants, etc)
-        //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.SPEECH; //Mapping of average features collected across all speech parts (i.e. like spectral equalization)
+        pa.codebookHeader.codebookType = WeightedCodebookFileHeader.SPEECH; //Mapping of average features collected across all speech parts (i.e. like spectral equalization)
 
-        pa.codebookHeader.sourceTag = "neutralFG"; //Source name tag (i.e. style or speaker identity)
-        pa.codebookHeader.targetTag = "angryFG"; //Target name tag (i.e. style or speaker identity)
+        pa.codebookHeader.sourceTag = "neutralS"; //Source name tag (i.e. style or speaker identity)
+        pa.codebookHeader.targetTag = "angryS"; //Target name tag (i.e. style or speaker identity)
         
         pa.trainingBaseFolder = "d:\\1\\neutral_X_angry"; //Training base directory
         pa.sourceTrainingFolder = "d:\\1\\neutral\\train"; //Source training folder

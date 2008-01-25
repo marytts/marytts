@@ -1811,11 +1811,32 @@ public class MathUtils {
         return indices;
     }
     
+    public static int[] quickSort(double[] x, int startInd, int endInd)
+    {
+        if (startInd<0)
+            startInd=0;
+        if (endInd<0)
+            endInd=0;
+        if (endInd>x.length-1)
+            endInd=x.length-1;
+        if (startInd>endInd)
+            startInd=endInd;
+            
+        double[] y = new double[endInd-startInd+1];
+        System.arraycopy(x, startInd, y, 0, endInd-startInd+1);
+        
+        int[] inds = quickSort(y);
+        
+        for (int i=0; i<inds.length; i++)
+            inds[i] += startInd;
+        
+        return inds;
+    }
     public static void quickSort(double[] x, int[] indices)
     {
          quickSort(x, indices, 0, x.length-1);
     }
-    
+
     public static void quickSort(double[] x, int[] indices, int startIndex, int endIndex)
     {
         int i = startIndex; 
@@ -1857,15 +1878,23 @@ public class MathUtils {
     
     public static double[] normalizeToSumUpTo(double[] x, double sumUp)
     {
-        double[] y = new double[x.length];
+        return normalizeToSumUpTo(x, x.length, sumUp);
+    }
+    
+    public static double[] normalizeToSumUpTo(double[] x, int len, double sumUp)
+    {
+        if (len>x.length)
+            len=x.length;
+        
+        double[] y = new double[len];
         
         double total = 0.0;
         int i;
         
-        for (i=0; i<x.length; i++)
+        for (i=0; i<len; i++)
             total += x[i];
         
-        for (i=0; i<x.length; i++)
+        for (i=0; i<len; i++)
             y[i] = x[i]/total;
         
         return y;

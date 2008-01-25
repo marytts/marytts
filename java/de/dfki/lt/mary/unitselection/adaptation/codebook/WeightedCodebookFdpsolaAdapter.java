@@ -93,6 +93,8 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
         int inputFrameSize;
         int currentPeriod;
         
+        params.lsfParams.samplingRate = (int)inputAudio.getFormat().getSampleRate();
+        
         inputFrameIndex = 0;
         for (i=0; i<numfrm; i++)
         {   

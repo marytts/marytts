@@ -302,10 +302,10 @@ public class WeightedCodebookParallelTransformer extends
         
         pa.isDisplayProcessingFrameCount = true;
         
-        pa.inputFolder = "d:\\1\\neutral\\test1";
+        pa.inputFolder = "d:\\1\\neutral\\test2";
         pa.outputFolder = "d:\\1\\neutral_X_angry\\neutral2angryOut";
         
-        pa.codebookFile = "d:\\1\\neutral_X_angry\\neutralFG_X_angryFG.wcf";
+        pa.codebookFile = "d:\\1\\neutral_X_angry\\neutralL_X_angryL.wcf";
  
         
         //Set codebook mapper parameters
