@@ -38,9 +38,16 @@ public class WeightedCodebookMapperParams {
     
     public int distanceMeasure; // Distance measure for comparing source training and transformation features
     public static int LSF_INVERSE_HARMONIC_DISTANCE = 1;
-    public static int LSF_EUCLIDEAN_DISTANCE = 2;
-    public static int LSF_MAHALANOBIS_DISTANCE = 3;
+    public static int LSF_INVERSE_HARMONIC_DISTANCE_SYMMETRIC = 2;
+    public static int LSF_EUCLIDEAN_DISTANCE = 3;
+    public static int LSF_MAHALANOBIS_DISTANCE = 4;
+    public static int LSF_ABSOLUTE_VALUE_DISTANCE = 5;
     public static int DEFAULT_DISTANCE_MEASURE = LSF_INVERSE_HARMONIC_DISTANCE;
+    
+    public double alphaForSymmetric; //Weighting factor for using weights of two lsf vectors in distance computation relatively.
+                                     //The range is [0.0,1.0]
+    public static double MIN_ALPHA_FOR_SYMMETRIC = 0.0;
+    public static double MAX_ALPHA_FOR_SYMMETRIC = 1.0f;
     
     public int weightingMethod; // Method for weighting best codebook matches
     public static int GAUSSIAN_HALF_WINDOW = 1;
@@ -60,6 +67,8 @@ public class WeightedCodebookMapperParams {
     public static double DEFAULT_DISTANCE_MEAN = 0.0;
     public static double DEFAULT_DISTANCE_VARIANCE = 1.0;
     
+    public int lpOrder;
+    
     public WeightedCodebookMapperParams()
     {
         distanceMeasure = DEFAULT_DISTANCE_MEASURE;
@@ -71,11 +80,14 @@ public class WeightedCodebookMapperParams {
     
     public WeightedCodebookMapperParams(WeightedCodebookMapperParams w)
     {
+        numBestMatches = w.numBestMatches;
         distanceMeasure = w.distanceMeasure;
+        alphaForSymmetric = w.alphaForSymmetric;
         weightingMethod = w.weightingMethod;
         weightingSteepness = w.weightingSteepness;
-        distanceMean = w.distanceMean;
+        distanceMean = w.distanceMean; 
         distanceVariance = w.distanceVariance;
+        lpOrder = w.lpOrder;
     }
 
 }

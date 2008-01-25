@@ -83,6 +83,63 @@ public class DistanceComputer {
         return dist;
     }
     
+  //Note that the function requires the lsfWeights array to be created outside of this function
+    // for efficiency purposes as this function is called many times during transformation.
+    //The length of the array should be equal to the length of the lsf vectors
+    public static double getLsfInverseHarmonicDistance(double[] lsfs1, double[] lsfs2)
+    {
+        assert lsfs1.length==lsfs2.length;
+       
+        double[] lsfWeights = getLsfWeights(lsfs1);
+
+        double dist = 0.0;
+        
+        for (int i=0; i<lsfs1.length; i++)
+            dist += lsfWeights[i]*Math.abs(lsfs1[i]-lsfs2[i]);
+        
+        return dist;
+    }
+    
+    //A symmetric version of the inverse harmonic based lsf distance
+    //The weights are averaged in a weighted manner using alpha prior to distance computation
+    // alpha should be in the range [0.0,1.0].
+    // If it is 0.0 lsfWeights1 get all the weighting, so the function is identical to getLsfInverseHarmonicDistance.
+    // lsfWeights should be provided outside of the function and their length should match the 
+    public static double getLsfInverseHarmonicDistanceSymmetric(double[] lsfs1, double[] lsfs2, double alpha)
+    {
+        assert lsfs1.length==lsfs2.length;
+       
+        double[] lsfWeights1 = getLsfWeights(lsfs1);
+        double[] lsfWeights2 = getLsfWeights(lsfs2);
+        
+        double dist = 0.0;
+        double oneMinusAlpha = 1.0-alpha;
+        double absVal;
+        for (int i=0; i<lsfs1.length; i++)
+        {
+            absVal = Math.abs(lsfs1[i]-lsfs2[i]);
+            dist += oneMinusAlpha*lsfWeights1[i]*absVal + alpha*lsfWeights2[i]*absVal;
+        }
+        
+        return dist;
+    }
+    
+    //Fills in the lsfWeights array with weights estimated for lsfs
+    //Note that the function requires the lsfWeights array to be created outside of this function
+    // for efficiency purposes as this function is called many times during transformation
+    public static double[] getLsfWeights(double[] lsfs)
+    {
+        int i;
+        double[] lsfWeights = new double[lsfs.length];
+        lsfWeights[0] = 1.0/Math.abs(lsfs[1]-lsfs[0]);
+        for (i=1; i<lsfWeights.length-1; i++)
+            lsfWeights[i] = 1.0/Math.min(Math.abs(lsfs[i]-lsfs[i-1]), Math.abs(lsfs[i+1]-lsfs[i]));
+
+        lsfWeights[lsfWeights.length-1] = 1.0/Math.abs(lsfs[lsfWeights.length-1]-lsfs[lsfWeights.length-2]);
+        
+        return lsfWeights;
+    }
+    
     //Note that this requires an inverse covariance matrix
     //If you have a diagonal matrix only, then the Mahalanobis distance reduces to
     // Normalized Eucledian distance

@@ -44,5 +44,16 @@ public class WeightedCodebookTransformerParams extends WeightedCodebookBaselineP
     public WeightedCodebookMapperParams mapperParams;
     
     public LsfFileHeader lsfParams;
+    
+    public WeightedCodebookTransformerParams()
+    {
+        inputFolder = "";
+        outputFolder = "";
+        codebookFile = "";
+        isSourceToTarget = true;
+            
+        mapperParams = new WeightedCodebookMapperParams();
+        lsfParams = new LsfFileHeader();
+    }
 }
 
