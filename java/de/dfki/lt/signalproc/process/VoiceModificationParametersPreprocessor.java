@@ -37,6 +37,11 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
 
     private void getScalesVar(int [] pitchMarks, double wsFixed, double ssFixed, int numfrm, int numfrmFixed)
     {
+        if (numfrm<1)
+            numfrm=1;
+        if (numfrmFixed<1)
+            numfrmFixed=1;
+        
         if (tscales.length==1)
             tscaleSingle=tscales[0]; 
         else

@@ -69,7 +69,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
     protected static int FROM_FILE = 1;
     protected static int FROM_TARGET = 2;
     
-    protected boolean bSilent;
+    public boolean bSilent;
     protected LEDataOutputStream dout; //Output stream for big-endian wav tests
     protected LEDataInputStream din; //Input stream for big-endian wav tests
     protected DynamicWindow windowIn;
@@ -109,7 +109,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
     protected double [] frm;
     protected boolean bWarp;
     
-    protected double [] py;
+    protected double [] inputVocalTractSpectrum;
     protected double [] py2;
     protected Complex hy;
     protected double [] frmy;
@@ -132,11 +132,19 @@ public class FDPSOLAProcessor extends VocalTractModifier {
     public FDPSOLAProcessor(String strInputFile, String strPitchFile, String strOutputFile,
                             double [] pscales, double [] tscales, double [] escales, double [] vscales) throws UnsupportedAudioFileException, IOException
     {
+        this(strInputFile, strPitchFile, strOutputFile,
+             pscales, tscales, escales, vscales, false);
+    }
+
+    public FDPSOLAProcessor(String strInputFile, String strPitchFile, String strOutputFile,
+                            double [] pscales, double [] tscales, double [] escales, double [] vscales, boolean isFixedRate) throws UnsupportedAudioFileException, IOException
+    {
         super();
 
-        init(WAVEFORM_MODIFICATION);
+        init(WAVEFORM_MODIFICATION, strInputFile, strPitchFile, strOutputFile,
+                pscales, tscales, escales, vscales, isFixedRate);
     }
-    
+
     public FDPSOLAProcessor()
     {
         super();
@@ -203,6 +211,8 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                 else
                     numfrm = numfrmFixed;
                 
+                lpOrder = SignalProcUtils.getLPOrder(fs);
+                
                 modParams = new VoiceModificationParametersPreprocessor(fs, lpOrder,
                         pscales, tscales, escales, vscales,
                         pm.pitchMarks, wsFixedInSeconds, ssFixedInSeconds,
@@ -216,9 +226,8 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         {
             //For test purposes, remove this line if you do not need additional wav file output
             //outputFile = "d:/tts_out.wav";
+            lpOrder = SignalProcUtils.getLPOrder(fs);
         }
-        
-        lpOrder = SignalProcUtils.getLPOrder(fs);
         
         tmpvsc = new double[1];
         bSilent = false;
@@ -1117,7 +1126,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                 applyInline(frm, 0, frmSize); //LP analysis
                 
                 //Expand/Compress the vocal tract spectrum in inverse manner
-                py = MathUtils.interpolate(vtSpectrum, newMaxFreq); //Interpolated vocal tract spectrum
+                inputVocalTractSpectrum = MathUtils.interpolate(vtSpectrum, newMaxFreq); //Interpolated vocal tract spectrum
                 
                 //Perform vocal tract scaling
                 if (bWarp)
@@ -1141,10 +1150,10 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                         if (wInd>newMaxFreq)
                             wInd = newMaxFreq;
                         
-                        py2[k] = py[wInd-1];
+                        py2[k] = inputVocalTractSpectrum[wInd-1];
                     }
                     
-                    System.arraycopy(py2, 0, py, 0, newMaxFreq);
+                    System.arraycopy(py2, 0, inputVocalTractSpectrum, 0, newMaxFreq);
                 }
 
                 //Create output DFT spectrum
@@ -1188,8 +1197,8 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                 //Convolution
                 for (k=1; k<=newMaxFreq; k++)
                 {
-                    hy.real[k-1] *= py[k-1];
-                    hy.imag[k-1] *= py[k-1];
+                    hy.real[k-1] *= inputVocalTractSpectrum[k-1];
+                    hy.imag[k-1] *= inputVocalTractSpectrum[k-1];
                 }
                 
                 for (k=newMaxFreq+1; k<=newFftSize; k++)

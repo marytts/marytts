@@ -58,6 +58,37 @@ public class LsfFileHeader {
         windowType = Window.HAMMING;
     }
     
+    public LsfFileHeader(LsfFileHeader existingHeader)
+    {
+        numfrm = existingHeader.numfrm;
+        lpOrder = existingHeader.lpOrder;
+        preCoef = existingHeader.preCoef;
+        winsize = existingHeader.winsize;
+        skipsize = existingHeader.skipsize;
+        samplingRate = existingHeader.samplingRate;
+        windowType = existingHeader.windowType;
+    }
+    
+    public boolean isIdenticalAnalysisParams(LsfFileHeader hdr)
+    {
+        boolean bRet = true;
+        
+        if (this.lpOrder!=hdr.lpOrder)
+            return false;
+        if (this.preCoef!=hdr.preCoef)
+            return false;
+        if (this.winsize!=hdr.winsize)
+            return false;
+        if (this.skipsize!=hdr.skipsize)
+            return false;
+        if (this.samplingRate!=hdr.samplingRate)
+            return false;
+        if (this.windowType!=hdr.windowType)
+            return false;
+        
+        return bRet;
+    }
+    
     public LsfFileHeader(String lsfFile)
     {
         try {

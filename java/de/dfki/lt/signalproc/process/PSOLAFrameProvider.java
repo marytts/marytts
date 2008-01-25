@@ -119,11 +119,10 @@ public class PSOLAFrameProvider {
                     input.getData(y, 0, frmSize);
                 else //Read numPeriods-1 pitch synchronous frames from the buffer and one period from the source
                 {
-                    fromBuffer = ssFixedLen;
-                    System.arraycopy(buffer, pitchMarker.pitchMarks[index]-pitchMarker.pitchMarks[index-1], y, 0, fromBuffer);
+                    System.arraycopy(buffer, prevFrmSize-ssFixedLen, y, 0, ssFixedLen);
 
-                    remain = frmSize - fromBuffer;
-                    input.getData(y, fromBuffer, remain); 
+                    remain = frmSize - ssFixedLen;
+                    input.getData(y, ssFixedLen, remain); 
                 }
 
                 System.arraycopy(y, 0, buffer, 0, frmSize);

@@ -1734,7 +1734,7 @@ public class MathUtils {
     {
         int retInd = -1;
         
-        Vector v = new Vector();
+        Vector<Double> v = new Vector<Double>();
         for (int i=0; i<x.length; i++)
             v.add(x[i]);
         
@@ -1798,24 +1798,96 @@ public class MathUtils {
         return (x-xStart)/(xEnd-xStart)*(yEnd-yStart)+yStart;
     }
     
+    //In-place sorting of array x
+    //The corresponding original indices are returned as an int array
+    public static int[] quickSort(double[] x)
+    {
+        int[] indices = new int[x.length];
+        for (int i=0; i<x.length; i++)
+            indices[i] = i;
+        
+        quickSort(x, indices);
+        
+        return indices;
+    }
+    
+    public static void quickSort(double[] x, int[] indices)
+    {
+         quickSort(x, indices, 0, x.length-1);
+    }
+    
+    public static void quickSort(double[] x, int[] indices, int startIndex, int endIndex)
+    {
+        int i = startIndex; 
+        int j = endIndex;
+        int ind;
+        double temp = x[(startIndex+endIndex)/2];
+
+        do
+        {    
+            while (x[i]<temp) 
+                i++; 
+            
+            while (x[j]>temp) 
+                j--;
+            
+            if (i<=j)
+            {
+                temp = x[i];
+                ind = indices[i];
+                
+                x[i] = x[j]; 
+                indices[i] = indices[j];
+                
+                x[j] = temp;
+                indices[j] = ind;
+                
+                i++; 
+                j--;
+            }
+        } while (i<=j);
+
+        //  recursion
+        if (startIndex<j) 
+            quickSort(x, indices, startIndex, j);
+        
+        if (i<endIndex) 
+            quickSort(x, indices, i, endIndex);
+    }
+    
+    public static double[] normalizeToSumUpTo(double[] x, double sumUp)
+    {
+        double[] y = new double[x.length];
+        
+        double total = 0.0;
+        int i;
+        
+        for (i=0; i<x.length; i++)
+            total += x[i];
+        
+        for (i=0; i<x.length; i++)
+            y[i] = x[i]/total;
+        
+        return y;
+    }
+    
     public static void main(String[] args)
     {
-        int [] totals = new int[4];
-        totals[0] = 2;
-        totals[1] = 3;
-        totals[2] = 2;
-        totals[3] = 2;
+        double [] x = new double[10];
+        x[0] = 1.0;
+        x[1] = 5.0;
+        x[2] = 4.0;
+        x[3] = 11.0;
+        x[4] = 25.0;
+        x[5] = 200.0;
+        x[6] = 3.0;
+        x[7] = -10.0;
+        x[8] = 5.0;
+        x[9] = 12.0;
         
-        int [][] paths = factorialDesign(totals);
-        String str;
+        int [] indices = quickSort(x);
         
-        for (int i=0; i<paths.length; i++)
-        {
-            str = "";
-            for (int j=0; j<paths[i].length; j++)
-                str += String.valueOf(paths[i][j]) + " ";
-
-            System.out.println(str);
-        }
+        for (int i=0; i<x.length; i++)
+            System.out.println(String.valueOf(indices[i]) + " " + String.valueOf(x[i]));
     }
 }
