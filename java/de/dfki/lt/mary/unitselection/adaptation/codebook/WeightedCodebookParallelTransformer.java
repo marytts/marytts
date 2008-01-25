@@ -157,8 +157,7 @@ public class WeightedCodebookParallelTransformer extends
             {
                 preprocessor.run(inputSet);
                 
-                int desiredFeatures = WeightedCodebookFeatureExtractor.LSF_ANALYSIS +
-                                      WeightedCodebookFeatureExtractor.F0_ANALYSIS;
+                int desiredFeatures = WeightedCodebookFeatureExtractor.F0_ANALYSIS;
                 
                 try {
                     featureExtractor.run(inputSet, params, desiredFeatures);
@@ -245,8 +244,7 @@ public class WeightedCodebookParallelTransformer extends
 
         if (adapter!=null)
         {
-
-            adapter.bSilent = true;
+            adapter.bSilent = !wctParams.isDisplayProcessingFrameCount;
             adapter.fdpsolaOnline(wctParams, wcMapper, wCodebook); //Call voice conversion version
 
             if (bSeparateProsody)
@@ -302,16 +300,16 @@ public class WeightedCodebookParallelTransformer extends
         WeightedCodebookPostprocessor po = new WeightedCodebookPostprocessor();
         WeightedCodebookTransformerParams pa = new WeightedCodebookTransformerParams();
         
-        pa.inputFolder = "d:\\1\\neutral\\test";
+        pa.isDisplayProcessingFrameCount = true;
+        
+        pa.inputFolder = "d:\\1\\neutral\\test1";
         pa.outputFolder = "d:\\1\\neutral_X_angry\\neutral2angryOut";
-        //pa.codebookFile = "d:\\1\\neutralF_X_angryF.wcf";
-        //pa.codebookFile = "d:\\1\\neutralFG_X_angryFG.wcf";
-        pa.codebookFile = "d:\\1\\neutral_X_angry\\neutralL_X_angryL.wcf";
-        //pa.codebookFile = "d:\\1\\neutralLG_X_angryLG.wcf";
-        //pa.codebookFile = "d:\\1\\neutralS_X_angryS.wcf";
+        
+        pa.codebookFile = "d:\\1\\neutral_X_angry\\neutralFG_X_angryFG.wcf";
+ 
         
         //Set codebook mapper parameters
-        pa.mapperParams.numBestMatches = 4; // Number of best matches in codebook
+        pa.mapperParams.numBestMatches = 10; // Number of best matches in codebook
         
         // Distance measure for comparing source training and transformation features
         pa.mapperParams.distanceMeasure = WeightedCodebookMapperParams.LSF_INVERSE_HARMONIC_DISTANCE;
@@ -325,7 +323,7 @@ public class WeightedCodebookParallelTransformer extends
         pa.mapperParams.weightingMethod = WeightedCodebookMapperParams.EXPONENTIAL_HALF_WINDOW;
         //pa.mapperParams.weightingMethod = WeightedCodebookMapperParams.TRIANGLE_HALF_WINDOW;
         
-        pa.mapperParams.weightingSteepness = 0.9; // Steepness of weighting function in range [MIN_STEEPNESS, MAX_STEEPNESS]=[0.0,1.0]
+        pa.mapperParams.weightingSteepness = 0.2; // Steepness of weighting function in range [MIN_STEEPNESS, MAX_STEEPNESS]=[0.0,1.0]
         
         ////Mean and variance of a specific distance measure can be optionally kept in the following
         // two parameters for z-normalization

@@ -59,6 +59,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
     protected String tempOutBinaryFile;
     protected int origLen;
     protected PitchMarker pm;
+    protected double[] f0s;
     protected PSOLAFrameProvider psFrm;
     protected double wsFixedInSeconds;
     protected double ssFixedInSeconds;
@@ -165,6 +166,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         inputAudio = null;
         input = null;
         pm = null;
+        f0s = null;
         
         wsFixedInSeconds = 0.02;
         ssFixedInSeconds = 0.01;
@@ -182,10 +184,31 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         
         tscaleSingle = 1.0;
 
+        boolean bContinue = true;
+        
         if (initialisationType==WAVEFORM_MODIFICATION)
         {
             isWavFileOutput = true;
-            if (FileUtils.exists(strInputFile) && FileUtils.exists(strPitchFile) && strOutputFile!=null)
+            
+            if (!FileUtils.exists(strInputFile))
+            {
+                System.out.println("Error! Pitch file " + strInputFile + " not found.");
+                bContinue = false;
+            }
+
+            if (!FileUtils.exists(strPitchFile))
+            {
+                System.out.println("Error! Pitch file " + strPitchFile + " not found.");
+                bContinue = false;
+            }
+
+            if (strOutputFile==null || strOutputFile=="")
+            {
+                System.out.println("Invalid output file...");
+                bContinue = false;
+            }
+            
+            if (bContinue)
             {
                 try {
                     inputAudio = AudioSystem.getAudioInputStream(new File(strInputFile));
@@ -211,12 +234,14 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                 else
                     numfrm = numfrmFixed;
                 
+                f0s = SignalProcUtils.fixedRateF0Values(pm, wsFixedInSeconds, ssFixedInSeconds, numfrmFixed, fs);
+                
                 lpOrder = SignalProcUtils.getLPOrder(fs);
                 
                 modParams = new VoiceModificationParametersPreprocessor(fs, lpOrder,
                         pscales, tscales, escales, vscales,
                         pm.pitchMarks, wsFixedInSeconds, ssFixedInSeconds,
-                        numfrm, numfrmFixed, numPeriods);
+                        numfrm, numfrmFixed, numPeriods, isFixedRate);
                 tscaleSingle = modParams.tscaleSingle;
 
                 outputFile = strOutputFile;    
@@ -229,75 +254,78 @@ public class FDPSOLAProcessor extends VocalTractModifier {
             lpOrder = SignalProcUtils.getLPOrder(fs);
         }
         
-        tmpvsc = new double[1];
-        bSilent = false;
-        
-        if (outputFile != null)
-            tempOutBinaryFile = outputFile + ".bin";
-        
-        if (isWavFileOutput)
+        if (bContinue)
         {
-            if (!isFixedRate)
-                psFrm = new PSOLAFrameProvider(input, pm, modParams.fs, modParams.numPeriods);
-            else
-                psFrm = new PSOLAFrameProvider(input, wsFixedInSeconds, ssFixedInSeconds, modParams.fs, numfrm);
-            
-            try {
-                dout = new LEDataOutputStream(tempOutBinaryFile);
-            } catch (FileNotFoundException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            tmpvsc = new double[1];
+            bSilent = false;
+
+            if (outputFile != null)
+                tempOutBinaryFile = outputFile + ".bin";
+
+            if (isWavFileOutput)
+            {
+                if (!isFixedRate)
+                    psFrm = new PSOLAFrameProvider(input, pm, modParams.fs, modParams.numPeriods);
+                else
+                    psFrm = new PSOLAFrameProvider(input, wsFixedInSeconds, ssFixedInSeconds, modParams.fs, numfrm);
+
+                try {
+                    dout = new LEDataOutputStream(tempOutBinaryFile);
+                } catch (FileNotFoundException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
+            else
+            {
+                psFrm = null;
+                dout = null;
+            }
+
+            windowIn = new DynamicWindow(Window.HANN);
+            windowOut = new DynamicWindow(Window.HANN);
+
+            frmSize = 0;
+            newFrmSize = 0;
+            newPeriod = 0;
+            synthFrmInd = 0;
+            localDurDiff = 0.0;
+            repeatSkipCount = 0; // -1:skip frame, 0:no repetition (use synthesized frame as it is), >0: number of repetitions for synthesized frame
+            localDurDiffSaved = 0.0;
+            sumLocalDurDiffs = 0.0;
+            nextAdd = 0.0;
+
+            if (isWavFileOutput)
+                synthSt = pm.pitchMarks[0];
+            else
+                synthSt = 0;
+
+            synthTotal = 0;
+
+            maxFrmSize = (int)(numPeriods*fs/40.0);
+            if ((maxFrmSize % 2) != 0)
+                maxFrmSize++;
+
+            maxNewFrmSize = (int)(Math.floor(maxFrmSize/MIN_PSCALE+0.5));
+            if ((maxNewFrmSize % 2) != 0) 
+                maxNewFrmSize++;
+
+            synthFrameInd = 0;
+            bLastFrame = false;
+            bBroke = false;
+            fftSize = (int)Math.pow(2, (Math.ceil(Math.log((double)maxFrmSize)/Math.log(2.0))));
+            maxFreq = fftSize/2+1;
+
+            outBuffLen = 500000;
+            outBuff = MathUtils.zeros(outBuffLen);
+            outBuffStart = 1;
+            totalWrittenToFile = 0;
+
+            ySynthBuff = MathUtils.zeros(maxNewFrmSize);
+            wSynthBuff = MathUtils.zeros(maxNewFrmSize);
+            ySynthInd = 1;
+            //
         }
-        else
-        {
-            psFrm = null;
-            dout = null;
-        }
-        
-        windowIn = new DynamicWindow(Window.HANN);
-        windowOut = new DynamicWindow(Window.HANN);
-        
-        frmSize = 0;
-        newFrmSize = 0;
-        newPeriod = 0;
-        synthFrmInd = 0;
-        localDurDiff = 0.0;
-        repeatSkipCount = 0; // -1:skip frame, 0:no repetition (use synthesized frame as it is), >0: number of repetitions for synthesized frame
-        localDurDiffSaved = 0.0;
-        sumLocalDurDiffs = 0.0;
-        nextAdd = 0.0;
-
-        if (isWavFileOutput)
-            synthSt = pm.pitchMarks[0];
-        else
-            synthSt = 0;
-        
-        synthTotal = 0;
-        
-        maxFrmSize = (int)(numPeriods*fs/40.0);
-        if ((maxFrmSize % 2) != 0)
-            maxFrmSize++;
-        
-        maxNewFrmSize = (int)(Math.floor(maxFrmSize/MIN_PSCALE+0.5));
-        if ((maxNewFrmSize % 2) != 0) 
-            maxNewFrmSize++;
-
-        synthFrameInd = 0;
-        bLastFrame = false;
-        bBroke = false;
-        fftSize = (int)Math.pow(2, (Math.ceil(Math.log((double)maxFrmSize)/Math.log(2.0))));
-        maxFreq = fftSize/2+1;
-        
-        outBuffLen = 500000;
-        outBuff = MathUtils.zeros(outBuffLen);
-        outBuffStart = 1;
-        totalWrittenToFile = 0;
-
-        ySynthBuff = MathUtils.zeros(maxNewFrmSize);
-        wSynthBuff = MathUtils.zeros(maxNewFrmSize);
-        ySynthInd = 1;
-        //
     }
     
     //FD-PSOLA using all concatenation units

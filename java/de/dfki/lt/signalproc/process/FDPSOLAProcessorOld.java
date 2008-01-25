@@ -124,7 +124,7 @@ public class FDPSOLAProcessorOld extends VocalTractModifier {
         modParams = new VoiceModificationParametersPreprocessor(fs, lpOrder,
                                                                 pscales, tscales, escales, vscales,
                                                                 pm.pitchMarks, wsFixed, ssFixed,
-                                                                numfrm, numfrmFixed, numPeriods);
+                                                                numfrm, numfrmFixed, numPeriods, false);
         
         outputFile = strOutputFile; 
         
