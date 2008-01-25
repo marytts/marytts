@@ -40,6 +40,7 @@ public class WeightedCodebookTransformerParams extends WeightedCodebookBaselineP
     public String outputFolder; //Folder of output files to be transformed
     public String codebookFile; //Codebook file
     public boolean isSourceToTarget; //if true source is transformed to target, else target is transformed to source
+    public boolean isDisplayProcessingFrameCount; //Display processed frame indices while transforming?
     
     public WeightedCodebookMapperParams mapperParams;
     
@@ -51,6 +52,7 @@ public class WeightedCodebookTransformerParams extends WeightedCodebookBaselineP
         outputFolder = "";
         codebookFile = "";
         isSourceToTarget = true;
+        isDisplayProcessingFrameCount = false;
             
         mapperParams = new WeightedCodebookMapperParams();
         lsfParams = new LsfFileHeader();

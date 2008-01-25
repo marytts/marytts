@@ -241,7 +241,7 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         WeightedCodebookEntry codebookEntry = null;
         WeightedCodebookFile codebookFile = new WeightedCodebookFile(params.codebookFile, WeightedCodebookFile.OPEN_FOR_WRITE);
 
-        codebookFile.writeCodebookHeader(params.codebookHeader);
+        boolean bHeaderWritten = false;
 
         //Take directly the corresponding source-target frame LSF vectors and write them as a new entry
         for (i=0; i<fcol.indexMapFiles.length; i++)
@@ -259,6 +259,13 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
             {
                 Lsfs srcLsfs = new Lsfs(sourceTrainingSet.items[i].lsfFile);
                 Lsfs tgtLsfs = new Lsfs(targetTrainingSet.items[map[i]].lsfFile);
+                
+                if (!bHeaderWritten)
+                {
+                    params.codebookHeader.lsfParams.lpOrder = srcLsfs.params.lpOrder; //This is required for auto setting LP order
+                    codebookFile.writeCodebookHeader(params.codebookHeader);
+                    bHeaderWritten = true;
+                }
                 
                 if (srcLsfs.lsfs!=null && tgtLsfs.lsfs!=null)
                 {
@@ -297,7 +304,7 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         WeightedCodebookEntry codebookEntry = null;
         WeightedCodebookFile codebookFile = new WeightedCodebookFile(params.codebookFile, WeightedCodebookFile.OPEN_FOR_WRITE);
 
-        codebookFile.writeCodebookHeader(params.codebookHeader);
+        boolean bHeaderWritten = false;
 
         //Average neighbouring frame lsfs to obtain a smoother estimate of the source and target LSF vectors and write the averaged versions as a new entry
         for (i=0; i<fcol.indexMapFiles.length; i++)
@@ -315,6 +322,13 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
             {
                 Lsfs srcLsfs = new Lsfs(sourceTrainingSet.items[i].lsfFile);
                 Lsfs tgtLsfs = new Lsfs(targetTrainingSet.items[map[i]].lsfFile);
+                
+                if (!bHeaderWritten)
+                {
+                    params.codebookHeader.lsfParams.lpOrder = srcLsfs.params.lpOrder; //This is required for auto setting LP order
+                    codebookFile.writeCodebookHeader(params.codebookHeader);
+                    bHeaderWritten = true;
+                }
                 
                 if (i==0)
                 {
@@ -413,7 +427,7 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         WeightedCodebookEntry codebookEntry = null;
         WeightedCodebookFile codebookFile = new WeightedCodebookFile(params.codebookFile, WeightedCodebookFile.OPEN_FOR_WRITE);
 
-        codebookFile.writeCodebookHeader(params.codebookHeader);
+        boolean bHeaderWritten = false;
 
         //Take an average of LSF vectors within each label pair and write the resulting vector as the state
         // average for source and target
@@ -436,6 +450,15 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
             {
                 Lsfs srcLsfs = new Lsfs(sourceTrainingSet.items[i].lsfFile);
                 Lsfs tgtLsfs = new Lsfs(targetTrainingSet.items[map[i]].lsfFile);
+                
+                if (!bHeaderWritten)
+                {
+                    //These are required for auto setting LP order
+                    params.codebookHeader.lsfParams.lpOrder = srcLsfs.params.lpOrder;
+                    params.codebookHeader.lsfParams.samplingRate =  srcLsfs.params.samplingRate;
+                    codebookFile.writeCodebookHeader(params.codebookHeader);
+                    bHeaderWritten = true;
+                }
 
                 if (i==0)
                 {
@@ -537,7 +560,7 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         WeightedCodebookEntry codebookEntry = null;
         WeightedCodebookFile codebookFile = new WeightedCodebookFile(params.codebookFile, WeightedCodebookFile.OPEN_FOR_WRITE);
 
-        codebookFile.writeCodebookHeader(params.codebookHeader);
+        boolean bHeaderWritten = false;
 
         //Take an average of LSF vectors within each label pair and write the resulting vector as the state
         // average for source and target
@@ -559,6 +582,13 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
             {
                 Lsfs srcLsfs = new Lsfs(sourceTrainingSet.items[i].lsfFile);
                 Lsfs tgtLsfs = new Lsfs(targetTrainingSet.items[map[i]].lsfFile);
+                
+                if (!bHeaderWritten)
+                {
+                    params.codebookHeader.lsfParams.lpOrder = srcLsfs.params.lpOrder; //This is required for auto setting LP order
+                    codebookFile.writeCodebookHeader(params.codebookHeader);
+                    bHeaderWritten = true;
+                }
                 
                 if (i==0)
                 {
@@ -647,14 +677,14 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         WeightedCodebookTrainerParams pa = new WeightedCodebookTrainerParams();
         
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAMES; //Frame-by-frame mapping of features
-        //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAME_GROUPS; pa.codebookHeader.numNeighboursInFrameGroups = 2; //Mapping of frame average features (no label information but fixed amount of neighbouring frames is used)
-        pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABELS; //Mapping of label average features
+        pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAME_GROUPS; pa.codebookHeader.numNeighboursInFrameGroups = 3; //Mapping of frame average features (no label information but fixed amount of neighbouring frames is used)
+        //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABELS; //Mapping of label average features
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABEL_GROUPS; pa.codebookHeader.numNeighboursInLabelGroups = 1; //Mapping of average features collected across label groups (i.e. vowels, consonants, etc)
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.SPEECH; //Mapping of average features collected across all speech parts (i.e. like spectral equalization)
 
-        pa.codebookHeader.sourceTag = "neutralL"; //Source name tag (i.e. style or speaker identity)
-        pa.codebookHeader.targetTag = "angryL"; //Target name tag (i.e. style or speaker identity)
-
+        pa.codebookHeader.sourceTag = "neutralFG"; //Source name tag (i.e. style or speaker identity)
+        pa.codebookHeader.targetTag = "angryFG"; //Target name tag (i.e. style or speaker identity)
+        
         pa.trainingBaseFolder = "d:\\1\\neutral_X_angry"; //Training base directory
         pa.sourceTrainingFolder = "d:\\1\\neutral\\train"; //Source training folder
         pa.targetTrainingFolder = "d:\\1\\angry\\train"; //Target training folder

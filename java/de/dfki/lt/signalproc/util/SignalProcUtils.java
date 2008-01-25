@@ -284,6 +284,37 @@ public class SignalProcUtils {
         return f0s;
     }
     
+    public static double[] fixedRateF0Values(PitchMarker pm, double wsFixedInSeconds, double ssFixedInSeconds, int numfrm, int samplingRate)
+    {
+        double[] f0s = new double[numfrm];
+
+        int i, ind, sample;
+        for (i=0; i<numfrm; i++)
+        {
+            sample = SignalProcUtils.time2sample((float)(i*ssFixedInSeconds+0.5*wsFixedInSeconds), samplingRate);
+            ind = MathUtils.findClosest(pm.pitchMarks, sample);
+            
+            f0s[i] = 0.0;
+            if (ind<0)
+            {
+                if (sample>pm.pitchMarks[pm.pitchMarks.length-1])
+                    ind=pm.pitchMarks.length-1;
+                else
+                    ind=1;
+            }
+            
+            if (pm.vuvs[ind-1])
+            {
+                if (ind>0)
+                    f0s[i] = ((double)samplingRate)/(pm.pitchMarks[ind]-pm.pitchMarks[ind-1]);
+                else
+                    f0s[i] = ((double)samplingRate)/(pm.pitchMarks[ind+1]-pm.pitchMarks[ind]);
+            }
+        }
+        
+        return f0s;
+    }
+    
     // Interpolates unvoiced parts of the f0 contour 
     // using the neighbouring voiced parts
     // Linear interpolation is used

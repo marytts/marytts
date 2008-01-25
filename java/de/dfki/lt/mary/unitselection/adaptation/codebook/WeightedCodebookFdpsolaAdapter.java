@@ -60,7 +60,6 @@ import de.dfki.lt.signalproc.util.MathUtils.Complex;
  * 
  */
 public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
-    private Lsfs inputLsfs;
     private boolean isFixedRateVocalTractTransformation;
     
     public WeightedCodebookFdpsolaAdapter(String strInputFile, String strPitchFile, String strLsfFile, String strOutputFile, 
@@ -82,11 +81,6 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
         super.init(WAVEFORM_MODIFICATION, 
                    strInputFile, strPitchFile, strOutputFile,
                    pscales,  tscales,  escales,  vscales, isFixedRateVocalTractTransformation);
-        
-        if (FileUtils.exists(strLsfFile))
-            inputLsfs = new Lsfs(strLsfFile);
-        else
-            inputLsfs = null;
     }
     
     public void fdpsolaOnline(WeightedCodebookTransformerParams params,
@@ -122,8 +116,19 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
                 currentPeriod = -1;
                 inputFrameSize = frmIn.length;
             }
+
+            boolean isVoiced;
+            if (!isFixedRateVocalTractTransformation)
+                isVoiced = pm.vuvs[i];
+            else
+            {
+                if (f0s[i]>10.0)
+                    isVoiced=true;
+                else
+                    isVoiced=false;
+            }
             
-            processFrame(frmIn, pm.vuvs[i], modParams.pscalesVar[i], modParams.tscalesVar[i], modParams.escalesVar[i], modParams.vscalesVar[i], isLastInputFrame, 
+            processFrame(frmIn, isVoiced, modParams.pscalesVar[i], modParams.tscalesVar[i], modParams.escalesVar[i], modParams.vscalesVar[i], isLastInputFrame, 
                          currentPeriod, inputFrameSize,
                          params, mapper, codebook);
         }

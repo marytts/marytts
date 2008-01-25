@@ -18,30 +18,25 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
             double[] pscalesIn, double[] tscalesIn, double[] escalesIn, double[] vscalesIn, 
             int[] pitchMarksIn, 
             double wsFixedIn, double ssFixedIn, 
-            int numfrm, int numfrmFixed, int numPeriodsIn) 
+            int numfrm, int numfrmFixed, int numPeriodsIn, boolean isFixedRate) 
     {
         super(samplingRate, LPOrder, pscalesIn, tscalesIn, escalesIn, vscalesIn);
         
-        initialise(pitchMarksIn, wsFixedIn, ssFixedIn, numfrm, numfrmFixed, numPeriodsIn);
+        initialise(pitchMarksIn, wsFixedIn, ssFixedIn, numfrm, numfrmFixed, numPeriodsIn, isFixedRate);
     }
 
-    private void initialise(int [] pitchMarksIn, double wsFixedIn, double ssFixedIn, int numfrm, int numfrmFixed, int numPeriodsIn)
+    private void initialise(int [] pitchMarksIn, double wsFixedIn, double ssFixedIn, int numfrm, int numfrmFixed, int numPeriodsIn, boolean isFixedRate)
     {
         numPeriods = numPeriodsIn;
 
         if (pitchMarksIn != null)
         {
-            getScalesVar(pitchMarksIn, wsFixedIn, ssFixedIn, numfrm, numfrmFixed);
+            getScalesVar(pitchMarksIn, wsFixedIn, ssFixedIn, numfrm, numfrmFixed, isFixedRate);
         }     
     }
 
-    private void getScalesVar(int [] pitchMarks, double wsFixed, double ssFixed, int numfrm, int numfrmFixed)
-    {
-        if (numfrm<1)
-            numfrm=1;
-        if (numfrmFixed<1)
-            numfrmFixed=1;
-        
+    private void getScalesVar(int [] pitchMarks, double wsFixed, double ssFixed, int numfrm, int numfrmFixed, boolean isFixedRate)
+    {   
         if (tscales.length==1)
             tscaleSingle=tscales[0]; 
         else
@@ -71,7 +66,11 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
         int ind;
         for (int i=0; i<numfrm; i++)
         {
-            tVar = (0.5*(pitchMarks[i+numPeriods]+pitchMarks[i]))/fs;
+            if (!isFixedRate)
+                tVar = (0.5*(pitchMarks[i+numPeriods]+pitchMarks[i]))/fs;
+            else
+                tVar = i*ssFixed+0.5*wsFixed;
+            
             ind = (int)(Math.floor((tVar-0.5*wsFixed)/ssFixed+0.5));
             if (ind<0)
                 ind=0;
