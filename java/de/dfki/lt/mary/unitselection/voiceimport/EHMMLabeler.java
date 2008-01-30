@@ -172,9 +172,9 @@ public class EHMMLabeler extends VoiceImportComponent {
             System.out.println("Aligning EHMM for labelling ...");
             alignEHMM();
             
-            System.out.println("And Copying label files into lab directory ...");
-            getProperLabelFormat();
-            System.out.println(" ... done.");
+//            System.out.println("And Copying label files into lab directory ...");
+//            getProperLabelFormat();
+//            System.out.println(" ... done.");
             
             System.out.println("Label file Generation Successfully completed using EHMM !"); 
             
@@ -652,6 +652,9 @@ public class EHMMLabeler extends VoiceImportComponent {
             Pattern pattern = Pattern.compile(regexp);
 
             File labDir = new File(getProp(OUTLABDIR));
+            if(!labDir.exists()){
+                labDir.mkdir();
+            }
             
             PrintWriter labelOut = new PrintWriter(
                     new FileOutputStream (new File(labDir+"/"+basename+labExt)));
