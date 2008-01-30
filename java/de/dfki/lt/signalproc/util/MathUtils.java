@@ -344,6 +344,29 @@ public class MathUtils {
     {
         return multiply(log10(amps), 20);
     }
+    
+    public static double[] amp2db(Complex c)
+    {
+        return amp2db(c, 0, c.real.length-1);
+    }
+    
+    public static double[] amp2db(Complex c, int startInd, int endInd)
+    {
+        if (startInd<0)
+            startInd=0;
+        if (startInd>Math.min(c.real.length-1,c.imag.length-1))
+            startInd=Math.min(c.real.length-1,c.imag.length-1);
+        if (endInd<startInd)
+            endInd=startInd;
+        if (endInd>Math.min(c.real.length-1,c.imag.length-1))
+            endInd=Math.min(c.real.length-1,c.imag.length-1);
+        
+        double[] dbs = new double[endInd-startInd+1];
+        for (int i=startInd; i<=endInd; i++)
+            dbs[i-startInd] = 10*log10(c.real[i]*c.real[i]+c.imag[i]*c.imag[i]);
+        
+        return dbs;
+    }
 
     /**
      * Convert energy from db scale to linear scale.
@@ -663,18 +686,33 @@ public class MathUtils {
         
         public Complex(int len)
         {
+            init(len);
+        }
+        
+        public Complex(Complex c)
+        {
+            if (c.real!=null && c.imag!=null && c.real.length==c.imag.length)
+            {
+                init(c.real.length);
+                System.arraycopy(c.real, 0, real, 0, c.real.length);
+                System.arraycopy(c.imag, 0, imag, 0, c.imag.length);
+            }
+        }
+        
+        public void init(int len)
+        {
             if (len>0)
             {
-                this.real = new double[len];
-                this.imag = new double[len];
+                real = new double[len];
+                imag = new double[len];
                 
-                Arrays.fill(this.real, 0.0);
-                Arrays.fill(this.imag, 0.0);
+                Arrays.fill(real, 0.0);
+                Arrays.fill(imag, 0.0);
             }
             else
             {
-                this.real = null;
-                this.imag = null;
+                real = null;
+                imag = null;
             }
         }
     }

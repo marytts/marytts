@@ -62,11 +62,9 @@ public class WeightedCodebookParallelTransformer extends
         mapper = null;
     }
     
-    public void run() throws IOException
+    public void run() throws IOException, UnsupportedAudioFileException
     {
-        boolean bContinue = checkParams();
-        
-        if (bContinue)
+        if (checkParams())
         {
             BaselineAdaptationSet inputSet = getInputSet(params.inputFolder);
             if (inputSet==null)
@@ -83,7 +81,7 @@ public class WeightedCodebookParallelTransformer extends
     public boolean checkParams() throws IOException
     {
         params.inputFolder = StringUtil.checkLastSlash(params.inputFolder);
-        params.outputFolder = StringUtil.checkLastSlash(params.outputFolder);
+        params.outputBaseFolder = StringUtil.checkLastSlash(params.outputBaseFolder);
         
         if (!FileUtils.exists(params.codebookFile))
         {
@@ -102,6 +100,17 @@ public class WeightedCodebookParallelTransformer extends
             return false; 
         }
         
+        if (!FileUtils.isDirectory(params.outputBaseFolder))
+        {
+            System.out.println("Creating output base folder " + params.outputBaseFolder + "...");
+            FileUtils.createDirectory(params.outputBaseFolder);
+        }
+        
+        if (params.outputFolderInfoString!="")
+            params.outputFolder = params.outputBaseFolder + params.outputFolderInfoString + "_best" + String.valueOf(params.mapperParams.numBestMatches);
+        else
+            params.outputFolder = params.outputBaseFolder + "best" + String.valueOf(params.mapperParams.numBestMatches);
+            
         if (!FileUtils.isDirectory(params.outputFolder))
         {
             System.out.println("Creating output folder " + params.outputFolder + "...");
@@ -145,7 +154,7 @@ public class WeightedCodebookParallelTransformer extends
     //
     
     
-    public void transform(BaselineAdaptationSet inputSet, BaselineAdaptationSet outputSet)
+    public void transform(BaselineAdaptationSet inputSet, BaselineAdaptationSet outputSet) throws UnsupportedAudioFileException
     {
         System.out.println("Transformation started...");
         
@@ -294,7 +303,7 @@ public class WeightedCodebookParallelTransformer extends
         return false;
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, UnsupportedAudioFileException {
         WeightedCodebookPreprocessor pp = new WeightedCodebookPreprocessor();
         WeightedCodebookFeatureExtractor fe = new WeightedCodebookFeatureExtractor();
         WeightedCodebookPostprocessor po = new WeightedCodebookPostprocessor();
@@ -302,14 +311,14 @@ public class WeightedCodebookParallelTransformer extends
         
         pa.isDisplayProcessingFrameCount = true;
         
-        pa.inputFolder = "d:\\1\\neutral\\test2";
-        pa.outputFolder = "d:\\1\\neutral_X_angry\\neutral2angryOut";
+        pa.inputFolder = "d:\\1\\neutral\\test";
+        pa.outputBaseFolder = "d:\\1\\neutral_X_angry\\neutral2angryOut";
         
         pa.codebookFile = "d:\\1\\neutral_X_angry\\neutralL_X_angryL.wcf";
- 
+        pa.outputFolderInfoString = "labels";
         
         //Set codebook mapper parameters
-        pa.mapperParams.numBestMatches = 10; // Number of best matches in codebook
+        pa.mapperParams.numBestMatches = 1; // Number of best matches in codebook
         
         // Distance measure for comparing source training and transformation features
         pa.mapperParams.distanceMeasure = WeightedCodebookMapperParams.LSF_INVERSE_HARMONIC_DISTANCE;
@@ -320,10 +329,10 @@ public class WeightedCodebookParallelTransformer extends
         
         // Method for weighting best codebook matches
         //pa.mapperParams.weightingMethod = WeightedCodebookMapperParams.GAUSSIAN_HALF_WINDOW;
-        pa.mapperParams.weightingMethod = WeightedCodebookMapperParams.EXPONENTIAL_HALF_WINDOW;
-        //pa.mapperParams.weightingMethod = WeightedCodebookMapperParams.TRIANGLE_HALF_WINDOW;
+        //pa.mapperParams.weightingMethod = WeightedCodebookMapperParams.EXPONENTIAL_HALF_WINDOW;
+        pa.mapperParams.weightingMethod = WeightedCodebookMapperParams.TRIANGLE_HALF_WINDOW;
         
-        pa.mapperParams.weightingSteepness = 0.2; // Steepness of weighting function in range [MIN_STEEPNESS, MAX_STEEPNESS]=[0.0,1.0]
+        pa.mapperParams.weightingSteepness = 1.0; // Steepness of weighting function in range [MIN_STEEPNESS, MAX_STEEPNESS]=[0.0,1.0]
         
         ////Mean and variance of a specific distance measure can be optionally kept in the following
         // two parameters for z-normalization
@@ -331,6 +340,7 @@ public class WeightedCodebookParallelTransformer extends
         pa.mapperParams.distanceVariance = 1.0;
         //
         
+        pa.isForcedAnalysis = false;
         
         WeightedCodebookParallelTransformer t = new WeightedCodebookParallelTransformer(pp, fe, po, pa);
         t.run();

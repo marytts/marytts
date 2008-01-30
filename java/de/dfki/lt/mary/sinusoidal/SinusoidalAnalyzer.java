@@ -749,8 +749,8 @@ public class SinusoidalAnalyzer {
         String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
         F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
         double [] f0s = f0.getContour();
-        float ws_f0 = (float)f0.ws;
-        float ss_f0 = (float)f0.ss;
+        float ws_f0 = (float)f0.header.ws;
+        float ss_f0 = (float)f0.header.ss;
         
         SinusoidalTracks st = sa.analyzeFixedRate(x, winSizeInSeconds, skipSizeInSeconds, deltaInHz,
                                                   spectralEnvelopeType, f0s , ws_f0, ss_f0);        

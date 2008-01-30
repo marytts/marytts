@@ -434,27 +434,43 @@ public class SignalProcUtils {
     }
     
     //Apply a 1st order highpass preemphasis filter to speech frame frm
-    public static void preemphasize(double [] frm, double preCoef)
+    public static double[] applyPreemphasis(double [] frm, double preCoef)
     {
-        double [] coeffs = new double[2];
-        coeffs[0] = 1.0;
-        coeffs[1] = -preCoef;
+        double[] frmOut = new double[frm.length];
+        System.arraycopy(frm, 0, frmOut, 0, frm.length);
         
-        RecursiveFilter r = new RecursiveFilter(coeffs);
-        
-        r.apply(frm);
+        if (preCoef>0.0)
+        {  
+            double [] coeffs = new double[2];
+            coeffs[0] = 1.0;
+            coeffs[1] = -preCoef;
+
+            RecursiveFilter r = new RecursiveFilter(coeffs);
+
+            r.apply(frmOut);
+        }
+
+        return frmOut;
     }
     
     //Remove preemphasis from preemphasized frame frm (i.e. 1st order lowspass filtering)
-    public static void removePreemphasize(double [] frm, double preCoef)
+    public static double[] removePreemphasis(double [] frm, double preCoef)
     {
-        double [] coeffs = new double[2];
-        coeffs[0] = 1.0;
-        coeffs[1] = preCoef;
+        double[] frmOut = new double[frm.length];
+        System.arraycopy(frm, 0, frmOut, 0, frm.length);
+
+        if (preCoef>0.0)
+        {
+            double [] coeffs = new double[2];
+            coeffs[0] = 1.0;
+            coeffs[1] = preCoef;
+
+            RecursiveFilter r = new RecursiveFilter(coeffs);
+
+            r.apply(frmOut);
+        }
         
-        RecursiveFilter r = new RecursiveFilter(coeffs);
-        
-        r.apply(frm);
+        return frmOut;
     }
     
     public static double freq2bark(double freqInHz)

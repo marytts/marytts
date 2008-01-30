@@ -34,6 +34,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 
+import javax.sound.sampled.UnsupportedAudioFileException;
+
 import de.dfki.lt.mary.unitselection.adaptation.AdaptationUtils;
 import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationItem;
 import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationSet;
@@ -60,23 +62,46 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         super(pp, fe, pa);
     }
       
-    public void run() throws IOException
+    public void run() throws IOException, UnsupportedAudioFileException
     {
-        checkParams();
-        
-        BaselineAdaptationSet sourceTrainingSet = getTrainingSet(params.sourceTrainingFolder);
-        BaselineAdaptationSet targetTrainingSet = getTrainingSet(params.targetTrainingFolder);
-        
-        train(sourceTrainingSet, targetTrainingSet);
+        if (checkParams())
+        {
+            BaselineAdaptationSet sourceTrainingSet = getTrainingSet(params.sourceTrainingFolder);
+            BaselineAdaptationSet targetTrainingSet = getTrainingSet(params.targetTrainingFolder);
+
+            train(sourceTrainingSet, targetTrainingSet);
+        }
     }
     
-    public void checkParams()
+    public boolean checkParams()
     {
+        boolean bContinue = true;
+        
         params.trainingBaseFolder = StringUtil.checkLastSlash(params.trainingBaseFolder);
         params.sourceTrainingFolder = StringUtil.checkLastSlash(params.sourceTrainingFolder);
         params.targetTrainingFolder = StringUtil.checkLastSlash(params.targetTrainingFolder);
         
         FileUtils.createDirectory(params.trainingBaseFolder);
+        
+        if (!FileUtils.exists(params.trainingBaseFolder) || !FileUtils.isDirectory(params.trainingBaseFolder))
+        {
+            System.out.println("Error! Training base folder " + params.trainingBaseFolder + " not found.");
+            bContinue = false;
+        }
+        
+        if (!FileUtils.exists(params.sourceTrainingFolder) || !FileUtils.isDirectory(params.sourceTrainingFolder))
+        {
+            System.out.println("Error! Source training folder " + params.sourceTrainingFolder + " not found.");
+            bContinue = false;
+        }
+        
+        if (!FileUtils.exists(params.targetTrainingFolder) || !FileUtils.isDirectory(params.targetTrainingFolder))
+        {
+            System.out.println("Error! Target training folder " + params.targetTrainingFolder + " not found.");
+            bContinue = false;
+        }
+        
+        return bContinue;
     }
     
     //Create list of files
@@ -93,7 +118,7 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
     }
     //
     
-    public void train(BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet) throws IOException
+    public void train(BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet) throws IOException, UnsupportedAudioFileException
     {
         int numItems = Math.min(sourceTrainingSet.items.length, targetTrainingSet.items.length);
         if (numItems>0)
@@ -110,7 +135,7 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
     
     //<map> is a vector of same length as sourceItems showing the index of the corresponding target item 
     //  for each source item. This allows to specify the target files in any order, i.e. file names are not required to be in alphabetical order
-    public void train(BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map) throws IOException
+    public void train(BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map) throws IOException, UnsupportedAudioFileException
     {
         if (sourceTrainingSet.items!=null && targetTrainingSet.items!=null && map!=null)
         {
@@ -675,7 +700,7 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         //FileUtils.delete(targetTrainingSet.getLsfFiles(), true);
     }
     
-    public static void main(String[] args)
+    public static void main(String[] args) throws UnsupportedAudioFileException, IOException
     {
         WeightedCodebookPreprocessor pp = new WeightedCodebookPreprocessor();
         WeightedCodebookFeatureExtractor fe = new WeightedCodebookFeatureExtractor();
@@ -684,12 +709,12 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAMES; //Frame-by-frame mapping of features
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAME_GROUPS; pa.codebookHeader.numNeighboursInFrameGroups = 3; //Mapping of frame average features (no label information but fixed amount of neighbouring frames is used)
-        //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABELS; //Mapping of label average features
+        pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABELS; //Mapping of label average features
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABEL_GROUPS; pa.codebookHeader.numNeighboursInLabelGroups = 1; //Mapping of average features collected across label groups (i.e. vowels, consonants, etc)
-        pa.codebookHeader.codebookType = WeightedCodebookFileHeader.SPEECH; //Mapping of average features collected across all speech parts (i.e. like spectral equalization)
+        //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.SPEECH; //Mapping of average features collected across all speech parts (i.e. like spectral equalization)
 
-        pa.codebookHeader.sourceTag = "neutralS"; //Source name tag (i.e. style or speaker identity)
-        pa.codebookHeader.targetTag = "angryS"; //Target name tag (i.e. style or speaker identity)
+        pa.codebookHeader.sourceTag = "neutralL"; //Source name tag (i.e. style or speaker identity)
+        pa.codebookHeader.targetTag = "angryL"; //Target name tag (i.e. style or speaker identity)
         
         pa.trainingBaseFolder = "d:\\1\\neutral_X_angry"; //Training base directory
         pa.sourceTrainingFolder = "d:\\1\\neutral\\train"; //Source training folder
@@ -705,13 +730,11 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         
         pa.codebookFile = StringUtil.checkLastSlash(pa.trainingBaseFolder) + pa.codebookHeader.sourceTag + "_X_" + pa.codebookHeader.targetTag + WeightedCodebookFile.defaultExtension;
 
+        pa.isForcedAnalysis = false;
+        
         WeightedCodebookParallelTrainer t = new WeightedCodebookParallelTrainer(pp, fe, pa);
-        try {
-            t.run();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        
+        t.run();
         
         System.out.println("Training completed...");
     }

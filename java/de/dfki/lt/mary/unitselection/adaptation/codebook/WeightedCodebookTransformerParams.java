@@ -30,6 +30,7 @@
 package de.dfki.lt.mary.unitselection.adaptation.codebook;
 
 import de.dfki.lt.signalproc.analysis.LsfFileHeader;
+import de.dfki.lt.signalproc.analysis.PitchFileHeader;
 
 /**
  * @author oytun.turk
@@ -37,7 +38,9 @@ import de.dfki.lt.signalproc.analysis.LsfFileHeader;
  */
 public class WeightedCodebookTransformerParams extends WeightedCodebookBaselineParams {
     public String inputFolder; //Folder of input files to be transformed
-    public String outputFolder; //Folder of output files to be transformed
+    public String outputBaseFolder; //Base folder of output files
+    public String outputFolder; //Individual folder of output files (Note that this is automatically generated using parameter values)
+    public String outputFolderInfoString; //An information string to be appended as a prefix to the output folder
     public String codebookFile; //Codebook file
     public boolean isSourceToTarget; //if true source is transformed to target, else target is transformed to source
     public boolean isDisplayProcessingFrameCount; //Display processed frame indices while transforming?
@@ -45,17 +48,24 @@ public class WeightedCodebookTransformerParams extends WeightedCodebookBaselineP
     public WeightedCodebookMapperParams mapperParams;
     
     public LsfFileHeader lsfParams;
+    public PitchFileHeader ptcParams;
+    
+    public boolean isForcedAnalysis;
     
     public WeightedCodebookTransformerParams()
     {
         inputFolder = "";
+        outputBaseFolder = "";
         outputFolder = "";
+        outputFolderInfoString = "";
         codebookFile = "";
         isSourceToTarget = true;
         isDisplayProcessingFrameCount = false;
             
         mapperParams = new WeightedCodebookMapperParams();
         lsfParams = new LsfFileHeader();
+        ptcParams = new PitchFileHeader();
+        isForcedAnalysis = false;
     }
 }
 

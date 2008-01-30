@@ -32,6 +32,7 @@ package de.dfki.lt.mary.unitselection.adaptation.codebook;
 import java.io.IOException;
 
 import de.dfki.lt.signalproc.analysis.LsfFileHeader;
+import de.dfki.lt.signalproc.analysis.PitchFileHeader;
 import de.dfki.lt.signalproc.util.MaryRandomAccessFile;
 
 /**
@@ -52,6 +53,7 @@ public class WeightedCodebookFileHeader {
     public String targetTag; //Target name tag (i.e. style or speaker identity)
     
     public LsfFileHeader lsfParams;
+    public PitchFileHeader ptcParams;
     
     public int numNeighboursInFrameGroups; //Functional only when codebookType == FRAME_GROUPS
     public int numNeighboursInLabelGroups; //Functional only when codebookType == LABEL_GROUPS
@@ -64,12 +66,16 @@ public class WeightedCodebookFileHeader {
         targetTag = "target"; //Target name tag (i.e. style or speaker identity)
         
         lsfParams = new LsfFileHeader();
+        ptcParams = new PitchFileHeader();
     } 
     
     public void read(MaryRandomAccessFile ler) throws IOException
     {
         lsfParams = new LsfFileHeader();
         lsfParams.readLsfHeader(ler);
+        
+        ptcParams = new PitchFileHeader();
+        ptcParams.readPitchHeader(ler);
         
         codebookType = ler.readInt();
         numNeighboursInFrameGroups = ler.readInt();
@@ -84,6 +90,7 @@ public class WeightedCodebookFileHeader {
     public void write(MaryRandomAccessFile ler) throws IOException
     {
         lsfParams.writeLsfHeader(ler);
+        ptcParams.writePitchHeader(ler);
         
         ler.writeInt(codebookType);
         ler.writeInt(numNeighboursInFrameGroups);

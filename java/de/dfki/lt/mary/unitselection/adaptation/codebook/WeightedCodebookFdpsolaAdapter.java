@@ -37,6 +37,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.dfki.lt.mary.util.FileUtils;
+import de.dfki.lt.mary.util.MaryUtils;
 import de.dfki.lt.signalproc.FFT;
 import de.dfki.lt.signalproc.FFTMixedRadix;
 import de.dfki.lt.signalproc.analysis.F0ReaderWriter;
@@ -51,6 +52,8 @@ import de.dfki.lt.signalproc.util.InterpolationUtils;
 import de.dfki.lt.signalproc.util.MathUtils;
 import de.dfki.lt.signalproc.util.SignalProcUtils;
 import de.dfki.lt.signalproc.util.MathUtils.Complex;
+import de.dfki.lt.signalproc.window.DynamicWindow;
+import de.dfki.lt.signalproc.window.Window;
 
 /**
  * @author oytun.turk
@@ -163,6 +166,10 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
         int tmpFix, tmpAdd, tmpMul;
         int remain;
         int kInd;
+        double [] targetLsfs = null;
+        
+        windowIn = new DynamicWindow(params.lsfParams.windowType);
+        windowOut = new DynamicWindow(params.lsfParams.windowType);
         
         repeatSkipCount = 0; // -1:skip frame, 0:no repetition (use synthesized frame as it is), >0: number of repetitions for synthesized frame
 
@@ -239,6 +246,9 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
             bLastFrame = true;
         }
         
+        double [] tmpSpec;
+        Complex tmpComp;
+        int desiredFrameInd = 70;
         if (repeatSkipCount>-1)
         {
             frm = MathUtils.zeros(frmSize);
@@ -271,48 +281,107 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
                 newFftSize = 2*(newMaxFreq-1);
 
                 frmEn = SignalProcUtils.getEnergy(frm);
+                
+                wgt = windowIn.values(frmSize);
+                
+                //Windowing
+                for (j=0; j<frmSize; j++)
+                    frm[j] = frm[j]*wgt[j]; 
+                
+                //Preemphasis
+                frm = SignalProcUtils.applyPreemphasis(frm, params.lsfParams.preCoef);
 
-                //Note that windowing is applied prior to preemphasis
-                //Is this correct, perhaps after the better?
-                windowIn.applyInline(frm, 0, frmSize); //Windowing
+                // Compute LPC coefficients
+                LPCoeffs inputLPCoeffs = LPCAnalyser.calcLPC(frm, params.lsfParams.lpOrder);
+                double[] inputLpcs = inputLPCoeffs.getOneMinusA();
+                double[] inputLsfs = LineSpectralFrequencies.lpc2lsfInHz(inputLpcs, params.lsfParams.samplingRate); 
+                double sqrtInputGain = inputLPCoeffs.getGain();
                 
-                //LPC and LSF analysis
-                LPCoeffs l = LPCAnalyser.calcLPC(frm, params.lsfParams.lpOrder, params.lsfParams.preCoef);
-                double [] inputLpcs = l.getOneMinusA();
-                double [] inputLsfs = LineSpectralFrequencies.lpc2lsfInHz(inputLpcs, 4, params.lsfParams.samplingRate);
+                Complex inputDft = new Complex(fftSize);
                 
-                Complex expTermInput = LPCAnalyser.calcExpTerm(fftSize, params.lsfParams.lpOrder);
-                vtSpectrum = LPCAnalyser.calcSpec(inputLpcs, params.lsfParams.lpOrder, fftSize, expTermInput);
+                System.arraycopy(frm, 0, inputDft.real, 0, Math.min(frmSize, inputDft.real.length));
                 
-                h = new Complex(fftSize);
-                System.arraycopy(frm, 0, h.real, 0, Math.min(frmSize, h.real.length));
+                if (inputDft.real.length > frmSize)
+                    Arrays.fill(inputDft.real, inputDft.real.length-frmSize, inputDft.real.length-1, 0);
                 
-                if (h.real.length > frmSize)
-                    Arrays.fill(h.real, h.real.length-frmSize, h.real.length-1, 0);
+                Arrays.fill(inputDft.imag, 0, inputDft.imag.length-1, 0);
                 
-                Arrays.fill(h.imag, 0, h.imag.length-1, 0);
+                inputDft = FFTMixedRadix.fftComplex(inputDft);
                 
-                FFT.transform(h.real, h.imag, false);
+                //For checking
+                if (false && inputFrameIndex==desiredFrameInd)
+                {
+                    tmpComp = new Complex(inputDft);
+                    tmpSpec = MathUtils.amp2db(tmpComp, 0, maxFreq);
+                    MaryUtils.plot(tmpSpec);
+                }
+                //
+                
+                Complex inputExpTerm = LPCAnalyser.calcExpTerm(fftSize, params.lsfParams.lpOrder);
+                Complex outputExpTerm = LPCAnalyser.calcExpTerm(newFftSize, params.lsfParams.lpOrder);
+                double[] inputVocalTractSpectrum = LPCAnalyser.calcSpec(inputLPCoeffs.getA(), params.lsfParams.lpOrder, fftSize, inputExpTerm);
+                
+                for (k=0; k<maxFreq; k++)
+                    inputVocalTractSpectrum[k] *= sqrtInputGain;
+                
+                //For checking
+                if (false && inputFrameIndex==desiredFrameInd)
+                {
+                    tmpSpec = new double[maxFreq];
+                    System.arraycopy(inputVocalTractSpectrum, 0, tmpSpec, 0, tmpSpec.length);
+                    tmpSpec = MathUtils.amp2db(tmpSpec);
+                    MaryUtils.plot(tmpSpec);
+                }
+                //
+                
+                Complex inputResidual = new Complex(fftSize);
+                
+                // Filter out vocal tract to obtain the input residual spectrum
+                for (k=0; k<maxFreq; k++)
+                {
+                    inputResidual.real[k] = inputDft.real[k]/inputVocalTractSpectrum[k];
+                    inputResidual.imag[k] = inputDft.imag[k]/inputVocalTractSpectrum[k];
+                }
+
+                //For checking
+                if (false && inputFrameIndex==desiredFrameInd)
+                {
+                    tmpComp = new Complex(inputResidual);
+                    tmpSpec = MathUtils.amp2db(tmpComp, 0, newMaxFreq-1);
+                    MaryUtils.plot(tmpSpec);
+                }
+                //
                 
                 //First transform then interpolate!
-                double [] targetLsfs = mapper.transform(inputLsfs, codebook);
+                targetLsfs = mapper.transform(inputLsfs, codebook);
+                //targetLsfs = new double[inputLsfs.length]; //Check: use original lsfs to see if it is able to resynthesize the original back
+                //System.arraycopy(inputLsfs, 0, targetLsfs, 0, inputLsfs.length);
                 
                 double [] targetLpcs = LineSpectralFrequencies.lsfInHz2lpc(targetLsfs, params.lsfParams.samplingRate);
                 
-                double[] targetVocalTract;
+                double[] targetVocalTractSpectrum = null;
                 if (fftSize!=newFftSize)
                 {
                     Complex expTermNew = LPCAnalyser.calcExpTerm(newFftSize, params.lsfParams.lpOrder);
-                    targetVocalTract = LPCAnalyser.calcSpec(targetLpcs, params.lsfParams.lpOrder, 1.0, newFftSize, expTermNew);
+                    targetVocalTractSpectrum = LPCAnalyser.calcSpecFromOneMinusA(targetLpcs, 1.0f, newFftSize, outputExpTerm);
                 }
                 else
-                    targetVocalTract = LPCAnalyser.calcSpec(targetLpcs, params.lsfParams.lpOrder, 1.0, newFftSize, expTermInput);
-                
-                //Expand/Compress the vocal tract spectrum in inverse manner
-                inputVocalTractSpectrum = MathUtils.interpolate(vtSpectrum, newMaxFreq); //Interpolated vocal tract spectrum
-                ////
+                    targetVocalTractSpectrum = LPCAnalyser.calcSpecFromOneMinusA(targetLpcs, 1.0f, newFftSize, inputExpTerm);
 
-                //Perform vocal tract scaling
+                for (k=0; k<newMaxFreq; k++)
+                    targetVocalTractSpectrum[k] *= sqrtInputGain;
+                
+                //For checking
+                if (false && inputFrameIndex==desiredFrameInd)
+                {
+                    tmpSpec = new double[newMaxFreq];
+                    System.arraycopy(targetVocalTractSpectrum, 0, tmpSpec, 0, tmpSpec.length);
+                    tmpSpec = MathUtils.amp2db(tmpSpec);
+                    MaryUtils.plot(tmpSpec);
+                }
+                //
+                
+                //Perform additional vocal tract scaling
                 if (bWarp)
                 {
                     tmpvsc[0] = vscale;
@@ -324,7 +393,7 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
                             newVScales[k]=0.05;
                     }
                     
-                    py2 = new double[newMaxFreq];
+                    double[] tempSpectrum = new double[newMaxFreq];
                     
                     for (k=0; k<newMaxFreq; k++)
                     {
@@ -334,19 +403,19 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
                         if (wInd>newMaxFreq)
                             wInd = newMaxFreq;
                         
-                        py2[k] = inputVocalTractSpectrum[wInd-1];
+                        tempSpectrum[k] = targetVocalTractSpectrum[wInd-1];
                     }
                     
-                    System.arraycopy(py2, 0, inputVocalTractSpectrum, 0, newMaxFreq);
+                    System.arraycopy(tempSpectrum, 0, targetVocalTractSpectrum, 0, newMaxFreq);
                 }
 
                 //Create output DFT spectrum
-                hy = new Complex(newFftSize);
-                hy.real = MathUtils.zeros(newFftSize);
-                hy.imag = MathUtils.zeros(newFftSize);
+                Complex outputResidual = new Complex(newFftSize);
+                outputResidual.real = MathUtils.zeros(newFftSize);
+                outputResidual.imag = MathUtils.zeros(newFftSize);
 
-                System.arraycopy(this.h.real, 0, hy.real, 0, Math.min(maxFreq, newFftSize));
-                System.arraycopy(this.h.imag, 0, hy.imag, 0, Math.min(maxFreq, newFftSize));
+                System.arraycopy(inputResidual.real, 0, outputResidual.real, 0, Math.min(maxFreq, newFftSize));
+                System.arraycopy(inputResidual.imag, 0, outputResidual.imag, 0, Math.min(maxFreq, newFftSize));
 
                 //Copy & paste samples if required (COMPLEX VERSION TO SUPPORT PSCALE<=0.5)
                 // This version fills the spectrum by flipping and pasting the original freq bins as many times as required.
@@ -370,35 +439,52 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
 
                     for (j=tmpFix+3; j<=Math.min(newMaxFreq, maxFreq+tmpFix); j++)
                     {
-                        hy.real[j-1] = this.h.real[tmpMul*(tmpFix-j)+tmpAdd-1];
-                        hy.imag[j-1] = this.h.imag[tmpMul*(tmpFix-j)+tmpAdd-1];
+                        outputResidual.real[j-1] = inputResidual.real[tmpMul*(tmpFix-j)+tmpAdd-1];
+                        outputResidual.imag[j-1] = inputResidual.imag[tmpMul*(tmpFix-j)+tmpAdd-1];
                     }
                 }
 
-                hy.real[newMaxFreq-1] = Math.sqrt(hy.real[newMaxFreq-1]*hy.real[newMaxFreq-1] + hy.imag[newMaxFreq-1]*hy.imag[newMaxFreq-1]);
-                hy.imag[newMaxFreq-1] = 0.0;
+                outputResidual.real[newMaxFreq-1] = Math.sqrt(outputResidual.real[newMaxFreq-1]*outputResidual.real[newMaxFreq-1] + outputResidual.imag[newMaxFreq-1]*outputResidual.imag[newMaxFreq-1]);
+                outputResidual.imag[newMaxFreq-1] = 0.0;
                 
-                //Convolution
+                //For checking
+                if (false && inputFrameIndex==desiredFrameInd)
+                {
+                    tmpComp = new Complex(outputResidual);
+                    tmpSpec = MathUtils.amp2db(tmpComp, 0, newMaxFreq-1);
+                    MaryUtils.plot(tmpSpec);
+                }
+                //
+                
+                //Filter the output residual with the estimated target vocal tract spectrum
+                Complex outputDft = new Complex(newFftSize);
+                
                 for (k=1; k<=newMaxFreq; k++)
                 {
-                    hy.real[k-1] *= targetVocalTract[k-1]/inputVocalTractSpectrum[k-1];
-                    hy.imag[k-1] *= targetVocalTract[k-1]/inputVocalTractSpectrum[k-1];
+                    outputDft.real[k-1] = outputResidual.real[k-1]*targetVocalTractSpectrum[k-1];
+                    outputDft.imag[k-1] = outputResidual.imag[k-1]*targetVocalTractSpectrum[k-1];
                 }
                 
                 for (k=newMaxFreq+1; k<=newFftSize; k++)
                 {
-                    hy.real[k-1] = hy.real[2*newMaxFreq-1-k];
-                    hy.imag[k-1] = -hy.imag[2*newMaxFreq-1-k];
+                    outputDft.real[k-1] = outputDft.real[2*newMaxFreq-1-k];
+                    outputDft.imag[k-1] = -outputDft.imag[2*newMaxFreq-1-k];
                 }
+                
+                //For checking
+                if (false && inputFrameIndex==desiredFrameInd)
+                {
+                    tmpComp = new Complex(outputDft);
+                    tmpSpec = MathUtils.amp2db(tmpComp, 0, newMaxFreq);
+                    MaryUtils.plot(tmpSpec);
+                }
+                //
 
                 //Convert back to time domain
-                hy = FFTMixedRadix.ifft(hy);
+                outputDft = FFTMixedRadix.ifft(outputDft);
                 
                 frmy = new double[newFrmSize];
-                System.arraycopy(hy.real, 0, frmy, 0, newFrmSize);
-                
-                frmyEn = SignalProcUtils.getEnergy(frmy);
-                gain = (frmEn/Math.sqrt(frmSize))/(frmyEn/Math.sqrt(newFrmSize))*escale;
+                System.arraycopy(outputDft.real, 0, frmy, 0, newFrmSize);
             }
             else
             {
@@ -406,18 +492,23 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
                     newFrmSize = frmSize; 
                 
                 frmy = new double[newFrmSize];
-                
+            }       
+            
+            frmy = SignalProcUtils.removePreemphasis(frmy, params.lsfParams.preCoef);
+            
+            frmyEn = SignalProcUtils.getEnergy(frmy);
+            
+            gain = (frmEn/Math.sqrt(frmSize))/(frmyEn/Math.sqrt(newFrmSize))*escale;
+            
+            if (!(isVoiced && pscale!=1.0) && !bWarp && !isTransformUnvoiced)
+            {
                 for (k=0; k<frmSize; k++)
                     frmy[k] = frm[k]*wgt[k];
-
-                gain = escale;
-            }            
-
+            }
+            
             //Energy scale compensation + modification
             for (k=0; k<newFrmSize; k++)
-            {
                 frmy[k] *= gain;
-            }
                 
             for (j=1; j<=repeatSkipCount+1; j++)
             {

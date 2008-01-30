@@ -58,11 +58,11 @@ public class DistanceMeasures {
         //Preemphasis
         double [] windowedSpeechFrame1 = new double[speechFrame1.length];
         System.arraycopy(speechFrame1, 0, windowedSpeechFrame1, 0, speechFrame1.length);
-        SignalProcUtils.preemphasize(windowedSpeechFrame1, 0.97);
+        windowedSpeechFrame1 = SignalProcUtils.applyPreemphasis(windowedSpeechFrame1, 0.97);
         
         double [] windowedSpeechFrame2 = new double[speechFrame2.length];
         System.arraycopy(speechFrame2, 0, windowedSpeechFrame2, 0, speechFrame2.length);
-        SignalProcUtils.preemphasize(windowedSpeechFrame2, 0.97);
+        windowedSpeechFrame2 = SignalProcUtils.applyPreemphasis(windowedSpeechFrame2, 0.97);
         //
         
         //Windowing
@@ -78,8 +78,8 @@ public class DistanceMeasures {
         //
         
         //LPC to LSF conversion
-        double [] lsfs1 = LineSpectralFrequencies.lpc2lsfInHz(lpcs1.getOneMinusA(), 4, samplingRate);
-        double [] lsfs2 = LineSpectralFrequencies.lpc2lsfInHz(lpcs2.getOneMinusA(), 4, samplingRate);
+        double [] lsfs1 = LineSpectralFrequencies.lpc2lsfInHz(lpcs1.getOneMinusA(), samplingRate);
+        double [] lsfs2 = LineSpectralFrequencies.lpc2lsfInHz(lpcs2.getOneMinusA(), samplingRate);
         //
         
         return getLsfDist(lsfs1, lsfs2, samplingRate);

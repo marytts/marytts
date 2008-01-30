@@ -47,6 +47,8 @@ public class WeightedCodebookTrainerParams extends WeightedCodebookBaselineParam
     //Some filename extension for custom training file types
     public String indexMapFileExtension; //Index map file extensions
     
+    boolean isForcedAnalysis; //Set this to true if you want all acoustic features to be extracted even if their files exist
+    
     public WeightedCodebookTrainerParams()
     {
         codebookHeader = new WeightedCodebookFileHeader();
@@ -57,5 +59,7 @@ public class WeightedCodebookTrainerParams extends WeightedCodebookBaselineParam
         
         //Some filename extension for custom training file types
         indexMapFileExtension = ".imf";
+        
+        isForcedAnalysis = false;
     }
 }
