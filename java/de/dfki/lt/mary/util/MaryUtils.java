@@ -860,21 +860,26 @@ public class MaryUtils {
     
     public static void plot(double [] x)
     {
-        plot(x, false);
+        plot(x, "");
     }
     
-    public static void plot(double [] x, boolean bAutoClose)
+    public static void plot(double [] x, String strTitle)
     {
-        plot(x, bAutoClose, 3000);
+        plot(x, strTitle, false);
+    }
+    
+    public static void plot(double [] x, String strTitle, boolean bAutoClose)
+    {
+        plot(x, strTitle, bAutoClose, 3000);
     }
     
     // Plots the values in x
     // If bAutoClose is specified, the figure is closed after milliSecondsToClose milliseconds
     // milliSecondsToClose: has no effect if bAutoClose is false
-    public static void plot(double [] x, boolean bAutoClose, int milliSecondsToClose)
+    public static void plot(double [] x, String strTitle, boolean bAutoClose, int milliSecondsToClose)
     {
         FunctionGraph graph = new FunctionGraph(400, 200, 0, 1, x);
-        JFrame frame = graph.showInJFrame("wgt2", 500, 300, true, false);
+        JFrame frame = graph.showInJFrame(strTitle, 500, 300, true, false);
         
         if (bAutoClose)
         {

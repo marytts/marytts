@@ -33,16 +33,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import de.dfki.lt.signalproc.analysis.LPCAnalyser.LPCoeffs;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.Defaults;
 import de.dfki.lt.signalproc.util.MaryRandomAccessFile;
 import de.dfki.lt.signalproc.util.MathUtils;
 import de.dfki.lt.signalproc.util.SignalProcUtils;
+import de.dfki.lt.signalproc.window.DynamicWindow;
 import de.dfki.lt.signalproc.window.Window;
 
 /* Demonstration program to accompany the subroutines described in the        */
@@ -63,7 +66,12 @@ public class LineSpectralFrequencies
      * @return the lsf coefficients in the range 0 to 0.5*samplingRate,
      * as an array of doubles of length oneMinusA.length-1.
      */
-    public static double[] lpc2lsfInHz(double[] oneMinusA, int type, int samplingRate)
+    public static double[] lpc2lsfInHz(double[] oneMinusA, int samplingRate)
+    {
+        return lpc2lsfInHz(oneMinusA, samplingRate, 4);
+    }
+    
+    public static double[] lpc2lsfInHz(double[] oneMinusA, int samplingRate, int type)
     {
         double [] lsp = lpc2lsf(oneMinusA, type);
         
@@ -437,23 +445,82 @@ public class LineSpectralFrequencies
             params.lpOrder = SignalProcUtils.getLPOrder(params.samplingRate);
         
         AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
-        LPCAnalyser lpcAnalyser = new LPCAnalyser(signal, ws, ss, params.samplingRate, params.lpOrder, params.windowType, params.preCoef);
-        FrameBasedAnalyser.FrameAnalysisResult[] results = lpcAnalyser.analyseAllFrames();
-        if (results!=null)
-            params.numfrm = results.length;
+        double[] x = signal.getAllData();
+        
+        double[] frm = new double[ws];
+        int numfrm = (int)Math.floor((x.length-ws)/((double)ss)+0.5);
+        if (numfrm>0)
+            params.numfrm = numfrm;
         else
             params.numfrm = 0;
         
         double[][] lsfs = new double[params.numfrm][params.lpOrder];
-        double [] lpc = null;
-        int i, j;
-        for (i=0; i<results.length; i++) 
-        {          
-            lpc = ((LPCAnalyser.LPCoeffs)results[i].get()).getOneMinusA();
-            lsfs[i] = lpc2lsfInHz(lpc, 4, params.samplingRate);
-        }
         
+        double[] wgt;
+        int j;
+        for (int i=0; i<params.numfrm; i++)
+        {
+            Arrays.fill(frm, 0.0);
+            System.arraycopy(x, i*ss, frm, 0, Math.min(ws, x.length-i*ss));
+           
+            lsfs[i] = nonPreemphasizedFrame2LsfsInHz(frm, params.lpOrder, params.samplingRate, params.windowType, params.preCoef);
+        }
+       
         return lsfs;
+    }
+    
+    public static double[] nonPreemphasizedFrame2Lpcs(double[] nonPreemphasizedFrame, int lpOrder, int samplingRate, int windowType, float preCoef)
+    {
+        double[] preemphasizedFrame = SignalProcUtils.applyPreemphasis(nonPreemphasizedFrame, preCoef);
+        
+        return preemphasizedFrame2Lpcs(preemphasizedFrame, lpOrder, samplingRate, windowType);
+    }
+    
+    public static double[] preemphasizedFrame2Lpcs(double[] preemphasizedFrame, int lpOrder, int samplingRate, int windowType)
+    {                    
+        DynamicWindow window = new DynamicWindow(windowType);
+        double[] wgt = window.values(preemphasizedFrame.length);
+        double[] windowedAndPreemphasizedFrame = new double[preemphasizedFrame.length];
+        
+        for (int j=0; j<preemphasizedFrame.length; j++)
+            windowedAndPreemphasizedFrame[j] = preemphasizedFrame[j]*wgt[j]; //Windowing
+
+
+        return windowedAndPreemphasizedFrame2Lpcs(windowedAndPreemphasizedFrame, lpOrder, samplingRate);
+    }
+    
+    public static double[] windowedAndPreemphasizedFrame2Lpcs(double[] windowedAndPreemphasizedFrame, int lpOrder, int samplingRate)
+    {
+        //LPC and LSF analysis
+        LPCoeffs l = LPCAnalyser.calcLPC(windowedAndPreemphasizedFrame, lpOrder);
+        return l.getOneMinusA();
+    }
+    
+    public static double[] nonPreemphasizedFrame2LsfsInHz(double[] nonPreemphasizedFrame, int lpOrder, int samplingRate, int windowType, float preCoef)
+    {
+        double[] preemphasizedFrame = SignalProcUtils.applyPreemphasis(nonPreemphasizedFrame, preCoef);
+
+        return preemphasizedFrame2LsfsInHz(preemphasizedFrame, lpOrder, samplingRate, windowType);
+    }
+    
+    public static double[] preemphasizedFrame2LsfsInHz(double[] preemphasizedFrame, int lpOrder, int samplingRate, int windowType)
+    {  
+        DynamicWindow window = new DynamicWindow(windowType);
+        double[] wgt = window.values(preemphasizedFrame.length);
+        double[] windowedAndPreemphasizedFrame = new double[preemphasizedFrame.length];
+        
+        for (int j=0; j<windowedAndPreemphasizedFrame.length; j++)
+            windowedAndPreemphasizedFrame[j] = preemphasizedFrame[j]*wgt[j]; //Windowing
+        
+
+        return windowedAndPreemphasizedFrame2LsfsInHz(windowedAndPreemphasizedFrame, lpOrder, samplingRate);
+    }
+    
+    public static double[] windowedAndPreemphasizedFrame2LsfsInHz(double[] windowedAndPreemphasizedFrame, int lpOrder, int samplingRate)
+    {
+        double [] lpcs = windowedAndPreemphasizedFrame2Lpcs(windowedAndPreemphasizedFrame, lpOrder, samplingRate);
+        
+        return LineSpectralFrequencies.lpc2lsfInHz(lpcs, samplingRate);
     }
     
     public static void lsfAnalyzeWavFile(String wavFileIn, String lsfFileOut, LsfFileHeader params) throws IOException

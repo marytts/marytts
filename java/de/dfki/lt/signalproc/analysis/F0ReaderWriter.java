@@ -16,16 +16,17 @@ import de.dfki.lt.signalproc.util.SignalProcUtils;
 import de.dfki.lt.signalproc.util.MathUtils;
 
 public class F0ReaderWriter {
-    public double ws; //Window size in seconds
-    public double ss; //Skip size in seconds
-    public int fs; //Rate in Hz
+    public PitchFileHeader header;
     protected double [] contour; //f0 values in Hz (0.0 for unvoiced)
     
     public F0ReaderWriter(String ptcFile) {
         contour = null;
-        ws = 0.0;
-        ss = 0.0;
-        fs = 0;
+        
+        header = new PitchFileHeader();
+        
+        header.ws = 0.0;
+        header.ss = 0.0;
+        header.fs = 0;
         
         try {
             read_pitch_file(ptcFile);
@@ -37,9 +38,12 @@ public class F0ReaderWriter {
     
     public F0ReaderWriter() {
         contour = null;
-        ws = 0.0;
-        ss = 0.0;
-        fs = 0;
+        
+        header = new PitchFileHeader();
+        
+        header.ws = 0.0;
+        header.ss = 0.0;
+        header.fs = 0;
     }
     
     //Create f0 contour from pitch marks
@@ -48,30 +52,33 @@ public class F0ReaderWriter {
     public F0ReaderWriter(int [] pitchMarks, int samplingRate, float windowSizeInSeconds, float skipSizeInSeconds) 
     {
         contour = null;
-        ws = windowSizeInSeconds;
-        ss = skipSizeInSeconds;
-        fs = samplingRate;
+     
+        header = new PitchFileHeader();
+        
+        header.ws = windowSizeInSeconds;
+        header.ss = skipSizeInSeconds;
+        header.fs = samplingRate;
         float currentTime;
         int currentInd;
         
         if (pitchMarks != null && pitchMarks.length>1)
         {
-            int numfrm = (int)Math.floor(((float)pitchMarks[pitchMarks.length-2])/fs/ss+0.5);
+            int numfrm = (int)Math.floor(((float)pitchMarks[pitchMarks.length-2])/header.fs/header.ss+0.5);
             
             if (numfrm>0)
             {
-                float [] onsets = SignalProcUtils.samples2times(pitchMarks, fs);
+                float [] onsets = SignalProcUtils.samples2times(pitchMarks, header.fs);
                 
                 contour = new double[numfrm];
                 for (int i=0; i<numfrm; i++)
                 {
-                    currentTime = (float) (i*ss+0.5*ws);
+                    currentTime = (float) (i*header.ss+0.5*header.ws);
                     currentInd = MathUtils.findClosest(onsets, currentTime);
                     
                     if (currentInd<onsets.length-1)
-                        contour[i] = fs/(pitchMarks[currentInd+1]-pitchMarks[currentInd]);
+                        contour[i] = header.fs/(pitchMarks[currentInd+1]-pitchMarks[currentInd]);
                     else
-                        contour[i] = fs/(pitchMarks[currentInd]-pitchMarks[currentInd-1]);
+                        contour[i] = header.fs/(pitchMarks[currentInd]-pitchMarks[currentInd-1]);
                 }
             }
         }
@@ -91,14 +98,14 @@ public class F0ReaderWriter {
         {
             int winsize = (int)lr.readFloat();
             int skipsize = (int)lr.readFloat();
-            fs = (int)lr.readFloat();
-            int numfrm = (int)lr.readFloat();
+            header.fs = (int)lr.readFloat();
+            header.numfrm = (int)lr.readFloat();
 
-            ws = ((double)winsize)/fs;
-            ss = ((double)skipsize)/fs;
-            contour = new double[numfrm];
+            header.ws = ((double)winsize)/header.fs;
+            header.ss = ((double)skipsize)/header.fs;
+            contour = new double[header.numfrm];
             
-            for (int i=0; i<numfrm; i++)
+            for (int i=0; i<header.numfrm; i++)
                 contour[i] = (double)lr.readFloat();
 
             lr.close();

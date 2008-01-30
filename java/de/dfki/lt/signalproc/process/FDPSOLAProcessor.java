@@ -110,7 +110,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
     protected double [] frm;
     protected boolean bWarp;
     
-    protected double [] inputVocalTractSpectrum;
+    protected double [] inputVT;
     protected double [] py2;
     protected Complex hy;
     protected double [] frmy;
@@ -226,7 +226,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                 fs = (int)inputAudio.getFormat().getSampleRate();
 
                 F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
-                pm = SignalProcUtils.pitchContour2pitchMarks(f0.getContour(), fs, origLen, f0.ws, f0.ss, true);
+                pm = SignalProcUtils.pitchContour2pitchMarks(f0.getContour(), fs, origLen, f0.header.ws, f0.header.ss, true);
 
                 numfrmFixed = (int)(Math.floor(((double)(origLen + pm.totalZerosToPadd)/fs-0.5*wsFixedInSeconds)/ssFixedInSeconds+0.5)+2); //Total frames if the analysis was fixed skip-rate
                 if (!isFixedRate)
@@ -1154,7 +1154,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                 applyInline(frm, 0, frmSize); //LP analysis
                 
                 //Expand/Compress the vocal tract spectrum in inverse manner
-                inputVocalTractSpectrum = MathUtils.interpolate(vtSpectrum, newMaxFreq); //Interpolated vocal tract spectrum
+                inputVT = MathUtils.interpolate(vtSpectrum, newMaxFreq); //Interpolated vocal tract spectrum
                 
                 //Perform vocal tract scaling
                 if (bWarp)
@@ -1178,10 +1178,10 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                         if (wInd>newMaxFreq)
                             wInd = newMaxFreq;
                         
-                        py2[k] = inputVocalTractSpectrum[wInd-1];
+                        py2[k] = inputVT[wInd-1];
                     }
                     
-                    System.arraycopy(py2, 0, inputVocalTractSpectrum, 0, newMaxFreq);
+                    System.arraycopy(py2, 0, inputVT, 0, newMaxFreq);
                 }
 
                 //Create output DFT spectrum
@@ -1225,8 +1225,8 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                 //Convolution
                 for (k=1; k<=newMaxFreq; k++)
                 {
-                    hy.real[k-1] *= inputVocalTractSpectrum[k-1];
-                    hy.imag[k-1] *= inputVocalTractSpectrum[k-1];
+                    hy.real[k-1] *= inputVT[k-1];
+                    hy.imag[k-1] *= inputVT[k-1];
                 }
                 
                 for (k=newMaxFreq+1; k<=newFftSize; k++)

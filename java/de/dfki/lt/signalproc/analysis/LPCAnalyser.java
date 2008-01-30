@@ -128,7 +128,7 @@ public class LPCAnalyser extends FrameBasedAnalyser
             p = Integer.getInteger("signalproc.lpcorder", 24).intValue();
         
         if (preCoef>0.0)
-            SignalProcUtils.preemphasize(x, preCoef);
+            x = SignalProcUtils.applyPreemphasis(x, preCoef);
         
         int i;
         for (i=0; i<x.length; i++)
@@ -168,20 +168,29 @@ public class LPCAnalyser extends FrameBasedAnalyser
         LPCoeffs c = calcLPC(windowedFrame, p);
         
         if (expTerm==null || expTerm.real == null)
-            return calcSpec(c.getA(), p, c.getGain(), fftSize, null);
+            return calcSpec(c.getA(), c.getGain(), fftSize, null);
         else
-            return calcSpec(c.getA(), p, c.getGain(), fftSize, expTerm);
+            return calcSpec(c.getA(), c.getGain(), fftSize, expTerm);
     }
     
-    //Computes LP smoothed spectrum from LP coefficients
-    public static double [] calcSpec(double [] alpha, int p, int fftSize, Complex expTerm)
+    public static double [] calcSpecFromOneMinusA(double [] oneMinusA,  float gain, int fftSize, Complex expTerm)
     {  
-        return calcSpec(alpha, p, 1.0f, fftSize, expTerm);
+        double[] alpha = new double[oneMinusA.length-1];
+        for (int i=1; i<oneMinusA.length; i++)
+            alpha[i-1] = -1*oneMinusA[i];
+        return calcSpec(alpha, gain, fftSize, expTerm);
     }
     
     //Computes LP smoothed spectrum from LP coefficients
-    public static double [] calcSpec(double [] alpha, int p, double gain, int fftSize, Complex expTerm)
+    public static double [] calcSpec(double [] alpha, int fftSize, Complex expTerm)
+    {  
+        return calcSpec(alpha, 1.0f, fftSize, expTerm);
+    }
+    
+    //Computes LP smoothed spectrum from LP coefficients
+    public static double [] calcSpec(double [] alpha, double gain, int fftSize, Complex expTerm)
     {
+        int p = alpha.length;
         int maxFreq = SignalProcUtils.halfSpectrumSize(fftSize);
         double [] vtSpectrum = new double[maxFreq];
         
