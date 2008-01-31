@@ -48,6 +48,7 @@ public class WeightedCodebookMapper {
     private int[] bestMatchIndices;
     private int[] sortedIndicesOfBestMatchIndices;
     double[] weights;
+    public WeightedCodebookEntry returnedEntry;
     
     public WeightedCodebookMapper(WeightedCodebookMapperParams mp)
     {
@@ -58,16 +59,18 @@ public class WeightedCodebookMapper {
             bestMatchDists = new double[mapperParams.numBestMatches];
             bestMatchIndices = new int[mapperParams.numBestMatches];
             sortedIndicesOfBestMatchIndices = new int[mapperParams.numBestMatches];
+            returnedEntry = new WeightedCodebookEntry(mapperParams.lpOrder);
         }
         else
         {
             bestMatchDists = null;
             bestMatchIndices = null;
             sortedIndicesOfBestMatchIndices = null;
+            returnedEntry = null;
         }
     }
     
-    public double[] transform(double[] inputLsfs, WeightedCodebook codebook)
+    public WeightedCodebookEntry transform(double[] inputLsfs, WeightedCodebook codebook)
     {
         double currentDist;
         double worstBestDist = -1.0;
@@ -242,12 +245,16 @@ public class WeightedCodebookMapper {
         int j;
         String strBestIndices = "";
         String strWeights = "";
-        double[] targetLsfs = new double[mapperParams.lpOrder];
-        Arrays.fill(targetLsfs, 0.0);
+        Arrays.fill(returnedEntry.sourceItem.lsfs, 0.0);
+        Arrays.fill(returnedEntry.targetItem.lsfs, 0.0);
+        
         for (i=0; i<Math.min(mapperParams.numBestMatches, codebook.totalEntries); i++)
         {
             for (j=0; j<mapperParams.lpOrder; j++)
-                targetLsfs[j] += weights[i]*codebook.entries[bestMatchIndices[sortedIndicesOfBestMatchIndices[i]]].targetItem.lsfs[j];
+            {
+                returnedEntry.sourceItem.lsfs[j] += weights[i]*codebook.entries[bestMatchIndices[sortedIndicesOfBestMatchIndices[i]]].sourceItem.lsfs[j];
+                returnedEntry.targetItem.lsfs[j] += weights[i]*codebook.entries[bestMatchIndices[sortedIndicesOfBestMatchIndices[i]]].targetItem.lsfs[j];
+            }
             
             strBestIndices += String.valueOf(bestMatchIndices[sortedIndicesOfBestMatchIndices[i]]) + " ";
             strWeights += String.valueOf(weights[i]) + " ";
@@ -255,27 +262,22 @@ public class WeightedCodebookMapper {
         
         System.out.println("Best entry indices = " + strBestIndices + " with weights = " + strWeights);
         
-        return targetLsfs;
+        return returnedEntry;
     }
     
-    public static double[] getWeights(double[] bestScores, int numScores, int weightingMethod, double steepness)
+    public static double[] getWeights(double[] bestDistances, int numBestDistances, int weightingMethod, double steepness)
     {
-        double[] outputWeights = MathUtils.normalizeToSumUpTo(bestScores, numScores, 1.0);
+        double[] outputWeights = MathUtils.normalizeToRange(bestDistances, numBestDistances, 0.0, Math.max(1.0, steepness+1.0));
         
         if (weightingMethod==WeightedCodebookMapperParams.EXPONENTIAL_HALF_WINDOW)
         {
             for (int i=0; i<outputWeights.length; i++)
-                outputWeights[i] = Math.exp(-10.0*steepness*outputWeights[i]);
-        }
-        else if (weightingMethod==WeightedCodebookMapperParams.GAUSSIAN_HALF_WINDOW)
-        {
-            for (int i=0; i<outputWeights.length; i++)
-                outputWeights[i] = Math.exp(-steepness*outputWeights[i]*outputWeights[i]);   
+                outputWeights[i] = Math.exp(-steepness*outputWeights[i]);
         }
         else if (weightingMethod==WeightedCodebookMapperParams.TRIANGLE_HALF_WINDOW)
         {
             for (int i=0; i<outputWeights.length; i++)
-                outputWeights[i] = 5.0*steepness*outputWeights[i] + (1.0+steepness); 
+                outputWeights[i] = 1.0/Math.pow(outputWeights[i],i*steepness) + (1.0+steepness); 
         }
         
         return MathUtils.normalizeToSumUpTo(outputWeights, 1.0);

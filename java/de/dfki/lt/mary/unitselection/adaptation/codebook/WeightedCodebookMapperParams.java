@@ -50,15 +50,14 @@ public class WeightedCodebookMapperParams {
     public static double MAX_ALPHA_FOR_SYMMETRIC = 1.0f;
     
     public int weightingMethod; // Method for weighting best codebook matches
-    public static int GAUSSIAN_HALF_WINDOW = 1;
-    public static int EXPONENTIAL_HALF_WINDOW = 2;
-    public static int TRIANGLE_HALF_WINDOW = 3;
-    public static int DEFAULT_WEIGHTING_METHOD = GAUSSIAN_HALF_WINDOW;
+    public static int EXPONENTIAL_HALF_WINDOW = 1;
+    public static int TRIANGLE_HALF_WINDOW = 2;
+    public static int DEFAULT_WEIGHTING_METHOD = EXPONENTIAL_HALF_WINDOW;
     
     public double weightingSteepness; // Steepness of weighting function in range [MIN_STEEPNESS, MAX_STEEPNESS]
-    public static double MIN_STEEPNESS = 0.0;
-    public static double MAX_STEEPNESS = 1.0;
-    public static double DEFAULT_WEIGHTING_STEEPNESS = 0.8;
+    public static double MIN_STEEPNESS = 0.0; //All weights are equal
+    public static double MAX_STEEPNESS = 10.0; //Best codebook weight is very large as compared to remaining
+    public static double DEFAULT_WEIGHTING_STEEPNESS = 1.0;
     
     ////Mean and variance of a specific distance measure can be optionally kept in the follwoing
     // two parameters for z-normalization

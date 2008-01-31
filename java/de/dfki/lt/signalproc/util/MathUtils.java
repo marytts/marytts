@@ -1933,7 +1933,33 @@ public class MathUtils {
             total += x[i];
         
         for (i=0; i<len; i++)
-            y[i] = x[i]/total;
+            y[i] = sumUp*(x[i]/total);
+        
+        return y;
+    }
+    
+    public static double[] normalizeToRange(double[] x, int len, double minVal, double maxVal)
+    {
+        if (len>x.length)
+            len=x.length;
+        
+        double[] y = new double[len];
+        
+        double xmin = MathUtils.min(x);
+        double xmax = MathUtils.max(x);
+        int i;
+        
+        if (xmax>xmin)
+        {
+            for (i=0; i<len; i++)
+                y[i] = (x[i]-xmin)/(xmax-xmin)*(maxVal-minVal)+minVal;
+        }
+        else
+        {
+            for (i=0; i<len; i++)
+                y[i] = (x[i]-xmin)+0.5*(minVal+maxVal);
+        }
+            
         
         return y;
     }

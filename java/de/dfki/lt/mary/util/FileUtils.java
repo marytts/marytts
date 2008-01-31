@@ -116,12 +116,18 @@ public class FileUtils
     //Checks for the existence of file and deletes if existing
     public static void delete(String file, boolean bDisplayInfo)
     {
+        boolean bRet = false;
         File f = new File(file);
         if (f.exists())
-            f.delete();
+            bRet = f.delete();
         
-        if (bDisplayInfo)
-            System.out.println("Deleted: " + file);
+        if (!bRet)
+            System.out.println("Unable to delete file: " + file);
+        else
+        {
+            if (bDisplayInfo)
+                System.out.println("Deleted: " + file);
+        }
     }
     
     //Silent version
@@ -140,6 +146,71 @@ public class FileUtils
     public static void delete(String[] files)
     {
         delete(files, false);
+    }
+    
+    public static void copy(String sourceFile, String destinationFile) throws IOException {
+        File fromFile = new File(sourceFile);
+        File toFile = new File(destinationFile);
+
+        if (!fromFile.exists())
+            throw new IOException("FileCopy: " + "no such source file: " + sourceFile);
+        if (!fromFile.isFile())
+            throw new IOException("FileCopy: " + "can't copy directory: " + sourceFile);
+        if (!fromFile.canRead())
+            throw new IOException("FileCopy: " + "source file is unreadable: " + sourceFile);
+
+        if (toFile.isDirectory())
+            toFile = new File(toFile, fromFile.getName());
+
+        if (toFile.exists()) 
+        {
+            if (!toFile.canWrite())
+                throw new IOException("FileCopy: " + "destination file cannot be written: " + destinationFile);
+        }
+
+        String parent = toFile.getParent();
+        if (parent == null)
+            parent = System.getProperty("user.dir");
+        File dir = new File(parent);
+        if (!dir.exists())
+            throw new IOException("FileCopy: " + "destination directory doesn't exist: " + parent);
+        if (dir.isFile())
+            throw new IOException("FileCopy: " + "destination is not a directory: " + parent);
+        if (!dir.canWrite())
+            throw new IOException("FileCopy: " + "destination directory is unwriteable: " + parent);
+
+        FileInputStream from = null;
+        FileOutputStream to = null;
+        try 
+        {
+            from = new FileInputStream(fromFile);
+            to = new FileOutputStream(toFile);
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+
+            while ((bytesRead = from.read(buffer)) != -1)
+                to.write(buffer, 0, bytesRead); // write
+        } 
+        finally 
+        {
+            if (from != null)
+            {
+                try {
+                    from.close();
+                } catch (IOException e) {
+                    ;
+                }
+            }
+            
+            if (to != null)
+            {
+                try {
+                    to.close();
+                } catch (IOException e) {
+                    ;
+                }
+            }
+        }
     }
 
     public static void createDirectory(String trainingBaseFolder) {

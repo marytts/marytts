@@ -1017,6 +1017,8 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         writeFinal();
         
         convertToWav(inputAudio.getFormat());
+        
+        inputAudio.close();
     }
     
     public double [] processFrame(double [] frmIn, boolean isVoiced, double pscale, double tscale, double escale, double vscale, boolean isLastInputFrame, int currentPeriod, int inputFrameSize) throws IOException
@@ -1661,9 +1663,9 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                         System.arraycopy(outBuff, 0, output, outputTmp.length, origLen-totalWrittenToFile);
                     }
                 }
-            }
-
-            totalWrittenToFile = origLen;
+                
+                totalWrittenToFile = origLen;
+            } 
         }
         //
 
@@ -1685,10 +1687,10 @@ public class FDPSOLAProcessor extends VocalTractModifier {
             din.close();
 
             double tmpMax = MathUtils.getAbsMax(yOut);
-            if (tmpMax>32735)
+            if (tmpMax>1.0)
             {
                 for (int n=0; n<yOut.length; n++)
-                    yOut[n] *= 32735/tmpMax;
+                    yOut[n] /= tmpMax;
             }
 
             outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(yOut), audioformat);

@@ -6,6 +6,7 @@ import de.dfki.lt.signalproc.analysis.PitchMarker;
 import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
 import de.dfki.lt.signalproc.util.DoubleDataSource;
 import de.dfki.lt.signalproc.util.SequenceDoubleDataSource;
+import de.dfki.lt.signalproc.util.SignalProcUtils;
 import de.dfki.lt.signalproc.window.DynamicTwoHalvesWindow;
 import de.dfki.lt.signalproc.window.Window;
 
@@ -23,6 +24,8 @@ public class PSOLAFrameProvider {
     private int wsFixedLen;
     private int ssFixedLen;
     private int totalFixedFrames;
+    private double currentTimeInSeconds;
+    private int samplingRate;
     
     //Pitch synchronous frame provider
     public PSOLAFrameProvider(DoubleDataSource inputSource, PitchMarker pm, int fs, int psPeriods)
@@ -31,6 +34,7 @@ public class PSOLAFrameProvider {
         this.numPeriods = psPeriods;
         this.pitchMarker = pm;
         
+        samplingRate = fs;
         int maxFrmSize = (int)(numPeriods*fs/40.0);
         if ((maxFrmSize % 2) != 0)
             maxFrmSize++;
@@ -41,6 +45,7 @@ public class PSOLAFrameProvider {
         index = -1;
         isFixedRate = false;
         totalFixedFrames = 0;
+        currentTimeInSeconds = -1.0;
     }
     
     //Fixed rate frame provider
@@ -50,6 +55,7 @@ public class PSOLAFrameProvider {
         this.numPeriods = -1;
         this.pitchMarker = null;
         
+        samplingRate = fs;
         wsFixedLen = (int)Math.floor(fixedWindowSizeInSeconds*fs + 0.5);
         if ((wsFixedLen % 2) != 0)
             wsFixedLen++;
@@ -69,6 +75,7 @@ public class PSOLAFrameProvider {
         index = -1;
         isFixedRate = true;
         totalFixedFrames = totalFrames;
+        currentTimeInSeconds = -1.0;
     }
 
     public double[] getNextFrame()
@@ -82,7 +89,7 @@ public class PSOLAFrameProvider {
             if (index+numPeriods<pitchMarker.pitchMarks.length)
             {
                 frmSize = pitchMarker.pitchMarks[index+numPeriods]-pitchMarker.pitchMarks[index]+1;
-
+                currentTimeInSeconds = SignalProcUtils.sample2time((int)(0.5*(pitchMarker.pitchMarks[index+numPeriods]+pitchMarker.pitchMarks[index]+1)), samplingRate);
                 if ((frmSize % 2) !=0) 
                     frmSize++;
 
@@ -125,11 +132,18 @@ public class PSOLAFrameProvider {
                     input.getData(y, ssFixedLen, remain); 
                 }
 
+                currentTimeInSeconds = SignalProcUtils.sample2time((int)(index*ssFixedLen+0.5*frmSize), samplingRate);
+                
                 System.arraycopy(y, 0, buffer, 0, frmSize);
                 prevFrmSize = frmSize;
             }
         }
 
         return y;
+    }
+    
+    public double getCurrentTime()
+    {
+        return currentTimeInSeconds;
     }
 }
