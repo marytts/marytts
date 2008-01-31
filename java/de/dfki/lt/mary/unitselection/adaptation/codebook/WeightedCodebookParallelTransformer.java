@@ -29,6 +29,7 @@
 
 package de.dfki.lt.mary.unitselection.adaptation.codebook;
 
+import java.io.File;
 import java.io.IOException;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -107,9 +108,17 @@ public class WeightedCodebookParallelTransformer extends
         }
         
         if (params.outputFolderInfoString!="")
-            params.outputFolder = params.outputBaseFolder + params.outputFolderInfoString + "_best" + String.valueOf(params.mapperParams.numBestMatches);
+        {
+            params.outputFolder = params.outputBaseFolder + params.outputFolderInfoString + 
+                                  "_best" + String.valueOf(params.mapperParams.numBestMatches) + 
+                                  "_steep" + String.valueOf(params.mapperParams.weightingSteepness);
+        }
         else
-            params.outputFolder = params.outputBaseFolder + "best" + String.valueOf(params.mapperParams.numBestMatches);
+        {
+            params.outputFolder = params.outputBaseFolder + 
+                                  "best" + String.valueOf(params.mapperParams.numBestMatches) +
+                                  "_steep" + String.valueOf(params.mapperParams.weightingSteepness);
+        }
             
         if (!FileUtils.isDirectory(params.outputFolder))
         {
@@ -216,9 +225,13 @@ public class WeightedCodebookParallelTransformer extends
                                         WeightedCodebook wCodebook
                                         ) throws UnsupportedAudioFileException, IOException
     {
-        boolean bSeparateProsody = true;
-        boolean bFixedRateVocalTractConversion = true;
-        //Desired values should be specified in the follwing four parameters
+        boolean isSeparateProsody = false;
+        boolean isFixedRateVocalTractConversion = false;
+        
+        if (isFixedRateVocalTractConversion)
+            isSeparateProsody = true;
+            
+        //Desired values should be specified in the following four parameters
         double [] pscales = {1.0};
         double [] tscales = {1.0};
         double [] escales = {1.0};
@@ -234,42 +247,62 @@ public class WeightedCodebookParallelTransformer extends
         
         WeightedCodebookFdpsolaAdapter adapter = null;
 
-        if (bSeparateProsody)
+        String firstPassOutputWavFile = "";
+        
+        if (isSeparateProsody)
         {
+            firstPassOutputWavFile = outputItem.audioFile + ".temp.wav";
+            
             adapter = new WeightedCodebookFdpsolaAdapter(
-                                  inputItem.audioFile, inputItem.f0File, inputItem.lsfFile, 
-                                  outputItem.audioFile, 
-                                  bFixedRateVocalTractConversion, 
+                                  inputItem.audioFile, inputItem.f0File, 
+                                  firstPassOutputWavFile, 
+                                  true, //isVocalTractTransformation
+                                  isFixedRateVocalTractConversion, 
                                   pscalesTemp, tscalesTemp, escalesTemp, vscalesTemp);
+            
+            //Separate prosody modification
+            if (adapter!=null)
+            {
+                adapter.bSilent = !wctParams.isDisplayProcessingFrameCount;
+                adapter.fdpsolaOnline(wctParams, wcMapper, wCodebook); //Call voice conversion version
+
+                if (isSeparateProsody)
+                {
+                    if (isScalingsRequired(pscales, tscales, escales, vscales))
+                    {
+                        System.out.println("Performing prosody modifications...");
+                        
+                        adapter = new WeightedCodebookFdpsolaAdapter(
+                                firstPassOutputWavFile, inputItem.f0File, 
+                                outputItem.audioFile, 
+                                false, //isVocalTractTransformation should be false 
+                                false, //isFixedRateVocalTractConversion should be false to enable prosody modifications with FD-PSOLA
+                                pscales, tscales, escales, vscales);
+
+                        adapter.bSilent = true;
+                        adapter.fdpsolaOnline(wctParams, null, null);
+                    }
+                    else //Copy output file
+                        FileUtils.copy(firstPassOutputWavFile, outputItem.audioFile);
+                    
+                    //Delete first pass output file
+                    FileUtils.delete(firstPassOutputWavFile);
+                    
+                    System.out.println("Done...");
+                }
+            }
         }
         else
         {
             adapter = new WeightedCodebookFdpsolaAdapter(
-                                  inputItem.audioFile, inputItem.f0File, inputItem.lsfFile, 
+                                  inputItem.audioFile, inputItem.f0File, 
                                   outputItem.audioFile, 
-                                  bFixedRateVocalTractConversion, 
+                                  true,
+                                  isFixedRateVocalTractConversion, 
                                   pscales, tscales, escales, vscales);
-        }
-
-        if (adapter!=null)
-        {
+            
             adapter.bSilent = !wctParams.isDisplayProcessingFrameCount;
             adapter.fdpsolaOnline(wctParams, wcMapper, wCodebook); //Call voice conversion version
-
-            if (bSeparateProsody)
-            {
-                if (isScalingsRequired(pscales, tscales, escales, vscales))
-                {
-                    adapter = new WeightedCodebookFdpsolaAdapter(
-                            inputItem.audioFile, inputItem.f0File, null, 
-                            outputItem.audioFile, 
-                            false,
-                            pscales, tscales, escales, vscales);
-
-                    adapter.bSilent = true;
-                    adapter.fdpsolaOnline(); //Call parent class version (i.e. no voice conversion)
-                }
-            }
         }
     }
     
@@ -311,14 +344,14 @@ public class WeightedCodebookParallelTransformer extends
         
         pa.isDisplayProcessingFrameCount = true;
         
-        pa.inputFolder = "d:\\1\\neutral\\test";
-        pa.outputBaseFolder = "d:\\1\\neutral_X_angry\\neutral2angryOut";
+        pa.inputFolder = "d:\\1\\neutral50\\test1";
+        pa.outputBaseFolder = "d:\\1\\neutral_X_neutral_50\\neutral2neutralOut";
         
-        pa.codebookFile = "d:\\1\\neutral_X_angry\\neutralL_X_angryL.wcf";
-        pa.outputFolderInfoString = "labels";
+        pa.codebookFile = "d:\\1\\neutral_X_neutral_50\\neutral1_X_neutral2.wcf";
+        pa.outputFolderInfoString = "labelgroups";
         
         //Set codebook mapper parameters
-        pa.mapperParams.numBestMatches = 1; // Number of best matches in codebook
+        pa.mapperParams.numBestMatches = 6; // Number of best matches in codebook
         
         // Distance measure for comparing source training and transformation features
         pa.mapperParams.distanceMeasure = WeightedCodebookMapperParams.LSF_INVERSE_HARMONIC_DISTANCE;
@@ -328,11 +361,10 @@ public class WeightedCodebookParallelTransformer extends
         //pa.mapperParams.distanceMeasure = WeightedCodebookMapperParams.LSF_ABSOLUTE_VALUE_DISTANCE;
         
         // Method for weighting best codebook matches
-        //pa.mapperParams.weightingMethod = WeightedCodebookMapperParams.GAUSSIAN_HALF_WINDOW;
-        //pa.mapperParams.weightingMethod = WeightedCodebookMapperParams.EXPONENTIAL_HALF_WINDOW;
-        pa.mapperParams.weightingMethod = WeightedCodebookMapperParams.TRIANGLE_HALF_WINDOW;
+        pa.mapperParams.weightingMethod = WeightedCodebookMapperParams.EXPONENTIAL_HALF_WINDOW;
+        //pa.mapperParams.weightingMethod = WeightedCodebookMapperParams.TRIANGLE_HALF_WINDOW;
         
-        pa.mapperParams.weightingSteepness = 1.0; // Steepness of weighting function in range [MIN_STEEPNESS, MAX_STEEPNESS]=[0.0,1.0]
+        pa.mapperParams.weightingSteepness = 4.0; // Steepness of weighting function in range [WeightedCodebookMapperParams.MIN_STEEPNESS, WeightedCodebookMapperParams.MAX_STEEPNESS]
         
         ////Mean and variance of a specific distance measure can be optionally kept in the following
         // two parameters for z-normalization
@@ -341,6 +373,7 @@ public class WeightedCodebookParallelTransformer extends
         //
         
         pa.isForcedAnalysis = false;
+        pa.isSourceVocalTractSpectrumFromCodebook = false;
         
         WeightedCodebookParallelTransformer t = new WeightedCodebookParallelTransformer(pp, fe, po, pa);
         t.run();

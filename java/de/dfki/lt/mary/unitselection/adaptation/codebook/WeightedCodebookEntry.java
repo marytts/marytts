@@ -49,6 +49,18 @@ public class WeightedCodebookEntry {
         allocate(lpOrder);
     }
     
+    public WeightedCodebookEntry(double[] sourceLsfs, double[] targetLsfs)
+    {
+        if (sourceLsfs!=null && targetLsfs!=null)
+        {
+            assert sourceLsfs.length==targetLsfs.length;
+            allocate(sourceLsfs.length);
+            setLsfs(sourceLsfs, targetLsfs);
+        }
+        else
+            allocate(0);
+    }
+    
     public void allocate(int lpOrder)
     {
         if (lpOrder>0)

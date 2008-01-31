@@ -30,9 +30,13 @@
 package de.dfki.lt.mary.unitselection.adaptation.codebook;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -44,11 +48,18 @@ import de.dfki.lt.signalproc.analysis.F0ReaderWriter;
 import de.dfki.lt.signalproc.analysis.LPCAnalyser;
 import de.dfki.lt.signalproc.analysis.LineSpectralFrequencies;
 import de.dfki.lt.signalproc.analysis.Lsfs;
+import de.dfki.lt.signalproc.analysis.PitchMarker;
 import de.dfki.lt.signalproc.analysis.LPCAnalyser.LPCoeffs;
 import de.dfki.lt.signalproc.process.FDPSOLAProcessor;
+import de.dfki.lt.signalproc.process.PSOLAFrameProvider;
 import de.dfki.lt.signalproc.process.VoiceModificationParametersPreprocessor;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
+import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
+import de.dfki.lt.signalproc.util.DDSAudioInputStream;
+import de.dfki.lt.signalproc.util.DoubleDataSource;
 import de.dfki.lt.signalproc.util.InterpolationUtils;
+import de.dfki.lt.signalproc.util.LEDataInputStream;
+import de.dfki.lt.signalproc.util.LEDataOutputStream;
 import de.dfki.lt.signalproc.util.MathUtils;
 import de.dfki.lt.signalproc.util.SignalProcUtils;
 import de.dfki.lt.signalproc.util.MathUtils.Complex;
@@ -62,33 +73,277 @@ import de.dfki.lt.signalproc.window.Window;
  * prosody and vocal tract modifications
  * 
  */
-public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
+public class WeightedCodebookFdpsolaAdapter {
     private boolean isFixedRateVocalTractTransformation;
-    
-    public WeightedCodebookFdpsolaAdapter(String strInputFile, String strPitchFile, String strLsfFile, String strOutputFile, 
-                                          boolean bFixedRateVocalTractTransformation,
-                                          double [] pscales, double [] tscales, double [] escales, double [] vscales
-                                         ) throws UnsupportedAudioFileException, IOException
-    {
-        super(strInputFile, strPitchFile, strOutputFile, pscales, tscales, escales, vscales, bFixedRateVocalTractTransformation);
+    private boolean isVocalTractTransformation;
+    public static int WAVEFORM_MODIFICATION = 1;
+    public static int TTS_MODIFICATION = 2;
 
+    protected DoubleDataSource input;
+    protected AudioInputStream inputAudio;
+    protected DDSAudioInputStream outputAudio;
+    protected VoiceModificationParametersPreprocessor modParams;
+    protected int numfrm;
+    protected int numfrmFixed;
+    protected int lpOrder; //LP analysis order
+    protected String outputFile;
+    protected String tempOutBinaryFile;
+    protected int origLen;
+    protected PitchMarker pm;
+    protected double[] f0s;
+    protected PSOLAFrameProvider psFrm;
+    protected double wsFixedInSeconds;
+    protected double ssFixedInSeconds;
+    protected int numPeriods;
+    protected static int NUM_PITCH_SYNC_PERIODS = 3;
+
+    protected static int FROM_CODE = 0;
+    protected static int FROM_FILE = 1;
+    protected static int FROM_TARGET = 2;
+
+    public boolean bSilent;
+    protected LEDataOutputStream dout; //Output stream for big-endian wav tests
+    protected LEDataInputStream din; //Input stream for big-endian wav tests
+    protected DynamicWindow windowIn;
+    protected DynamicWindow windowOut;
+    protected double [] wgt;
+    protected double [] wgty;
+
+    protected int frmSize;
+    protected int newFrmSize;
+    protected int newPeriod;
+    protected int synthFrmInd;
+    protected double localDurDiff;
+    protected int repeatSkipCount; // -1:skip frame, 0:no repetition (use synthesized frame as it is), >0: number of repetitions for synthesized frame
+    protected double localDurDiffSaved;
+    protected double sumLocalDurDiffs;
+    protected double nextAdd;
+
+    protected int synthSt;
+    protected int synthTotal;
+
+    protected int maxFrmSize;
+    protected int maxNewFrmSize;
+    protected int synthFrameInd;
+    protected boolean bLastFrame;
+    protected boolean bBroke;
+    protected int newFftSize;
+    protected int newMaxFreq;
+
+    protected int outBuffLen;
+    protected double [] outBuff;
+    protected int outBuffStart;
+    protected int totalWrittenToFile;
+
+    protected double [] ySynthBuff;
+    protected double [] wSynthBuff;
+    protected int ySynthInd;
+    protected double [] frm;
+    protected boolean bWarp;
+
+    protected double [] inputVT;
+    protected double [] py2;
+    protected Complex hy;
+    protected double [] frmy;
+    protected double frmEn;
+    protected double frmyEn;
+    protected double gain;
+    protected int newSkipSize;
+    protected int halfWin;
+    protected double [] newVScales;
+    protected double [] tmpvsc;
+    protected boolean isWavFileOutput;
+    protected int inputFrameIndex;
+    protected static double MIN_PSCALE = 0.1;
+    protected static double MAX_PSCALE = 5.0;
+    protected static double MIN_TSCALE = 0.1;
+    protected static double MAX_TSCALE = 5.0;
+    protected int fs;
+    protected int fftSize;
+    protected int maxFreq;
+
+    protected double tscaleSingle;
+    
+    private double desiredFrameTime;
+    private boolean bShowAGraph;
+
+    public WeightedCodebookFdpsolaAdapter(String strInputFile, String strPitchFile, String strOutputFile, 
+            boolean bVocalTractTransformation,
+            boolean bFixedRateVocalTractTransformation,
+            double [] pscales, double [] tscales, double [] escales, double [] vscales
+    ) throws UnsupportedAudioFileException, IOException
+    {
+        isVocalTractTransformation = bVocalTractTransformation;
         isFixedRateVocalTractTransformation = bFixedRateVocalTractTransformation;
 
-        init(strInputFile, strPitchFile,  strLsfFile, strOutputFile,
-                pscales, tscales, escales, vscales);
+        init(strInputFile, strPitchFile, strOutputFile,
+                pscales, tscales, escales, vscales, isFixedRateVocalTractTransformation);
     }
-    
-    public void init(String strInputFile, String strPitchFile, String strLsfFile, String strOutputFile,
-                     double [] pscales, double [] tscales, double [] escales, double [] vscales)
+
+    protected void init(String strInputFile, String strPitchFile, String strOutputFile,
+            double [] pscales, double [] tscales, double [] escales, double [] vscales,
+            boolean isFixedRate)
     {
-        super.init(WAVEFORM_MODIFICATION, 
-                   strInputFile, strPitchFile, strOutputFile,
-                   pscales,  tscales,  escales,  vscales, isFixedRateVocalTractTransformation);
+        isWavFileOutput = false;
+        inputAudio = null;
+        input = null;
+        pm = null;
+        f0s = null;
+
+        wsFixedInSeconds = 0.02;
+        ssFixedInSeconds = 0.01;
+        numPeriods = NUM_PITCH_SYNC_PERIODS;
+
+        origLen = 0;
+        fs = 16000;
+
+        numfrm = 0; //Total pitch synchronous frames (This is the actual number of frames to be processed)
+        numfrmFixed = 0; //Total frames if the analysis was fixed skip-rate
+
+        modParams = null;
+
+        outputFile = null; 
+
+        tscaleSingle = 1.0;
+
+        boolean bContinue = true;
+
+        isWavFileOutput = true;
+
+        if (!FileUtils.exists(strInputFile))
+        {
+            System.out.println("Error! Pitch file " + strInputFile + " not found.");
+            bContinue = false;
+        }
+
+        if (!FileUtils.exists(strPitchFile))
+        {
+            System.out.println("Error! Pitch file " + strPitchFile + " not found.");
+            bContinue = false;
+        }
+
+        if (strOutputFile==null || strOutputFile=="")
+        {
+            System.out.println("Invalid output file...");
+            bContinue = false;
+        }
+
+        if (bContinue)
+        {
+            try {
+                inputAudio = AudioSystem.getAudioInputStream(new File(strInputFile));
+            } catch (UnsupportedAudioFileException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            input = new AudioDoubleDataSource(inputAudio);
+
+            origLen = (int)input.getDataLength();
+            fs = (int)inputAudio.getFormat().getSampleRate();
+
+            F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
+            pm = SignalProcUtils.pitchContour2pitchMarks(f0.getContour(), fs, origLen, f0.header.ws, f0.header.ss, true);
+
+            numfrmFixed = (int)(Math.floor(((double)(origLen + pm.totalZerosToPadd)/fs-0.5*wsFixedInSeconds)/ssFixedInSeconds+0.5)+2); //Total frames if the analysis was fixed skip-rate
+            if (!isFixedRate)
+                numfrm = pm.pitchMarks.length-numPeriods; //Total pitch synchronous frames (This is the actual number of frames to be processed)
+            else
+                numfrm = numfrmFixed;
+
+            f0s = SignalProcUtils.fixedRateF0Values(pm, wsFixedInSeconds, ssFixedInSeconds, numfrmFixed, fs);
+
+            lpOrder = SignalProcUtils.getLPOrder(fs);
+
+            modParams = new VoiceModificationParametersPreprocessor(fs, lpOrder,
+                    pscales, tscales, escales, vscales,
+                    pm.pitchMarks, wsFixedInSeconds, ssFixedInSeconds,
+                    numfrm, numfrmFixed, numPeriods, isFixedRate);
+            tscaleSingle = modParams.tscaleSingle;
+
+            outputFile = strOutputFile;    
+        }
+
+        if (bContinue)
+        {
+            tmpvsc = new double[1];
+            bSilent = false;
+
+            if (outputFile != null)
+                tempOutBinaryFile = outputFile + ".bin";
+
+            if (isWavFileOutput)
+            {
+                if (!isFixedRate)
+                    psFrm = new PSOLAFrameProvider(input, pm, modParams.fs, modParams.numPeriods);
+                else
+                    psFrm = new PSOLAFrameProvider(input, wsFixedInSeconds, ssFixedInSeconds, modParams.fs, numfrm);
+
+                try {
+                    dout = new LEDataOutputStream(tempOutBinaryFile);
+                } catch (FileNotFoundException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+            else
+            {
+                psFrm = null;
+                dout = null;
+            }
+
+            windowIn = new DynamicWindow(Window.HANN);
+            windowOut = new DynamicWindow(Window.HANN);
+
+            frmSize = 0;
+            newFrmSize = 0;
+            newPeriod = 0;
+            synthFrmInd = 0;
+            localDurDiff = 0.0;
+            repeatSkipCount = 0; // -1:skip frame, 0:no repetition (use synthesized frame as it is), >0: number of repetitions for synthesized frame
+            localDurDiffSaved = 0.0;
+            sumLocalDurDiffs = 0.0;
+            nextAdd = 0.0;
+
+            if (isWavFileOutput)
+                synthSt = pm.pitchMarks[0];
+            else
+                synthSt = 0;
+
+            synthTotal = 0;
+
+            maxFrmSize = (int)(numPeriods*fs/40.0);
+            if ((maxFrmSize % 2) != 0)
+                maxFrmSize++;
+
+            maxNewFrmSize = (int)(Math.floor(maxFrmSize/MIN_PSCALE+0.5));
+            if ((maxNewFrmSize % 2) != 0) 
+                maxNewFrmSize++;
+
+            synthFrameInd = 0;
+            bLastFrame = false;
+            bBroke = false;
+            fftSize = (int)Math.pow(2, (Math.ceil(Math.log((double)maxFrmSize)/Math.log(2.0))));
+            maxFreq = fftSize/2+1;
+
+            outBuffLen = 500000;
+            outBuff = MathUtils.zeros(outBuffLen);
+            outBuffStart = 1;
+            totalWrittenToFile = 0;
+
+            ySynthBuff = MathUtils.zeros(maxNewFrmSize);
+            wSynthBuff = MathUtils.zeros(maxNewFrmSize);
+            ySynthInd = 1;
+
+        }
     }
-    
+
     public void fdpsolaOnline(WeightedCodebookTransformerParams params,
-                              WeightedCodebookMapper mapper,
-                              WeightedCodebook codebook) throws IOException
+            WeightedCodebookMapper mapper,
+            WeightedCodebook codebook) throws IOException
     {   
         int i;
         double [] frmIn;
@@ -96,16 +351,19 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
         int inputFrameSize;
         int currentPeriod;
         
-        params.lsfParams.samplingRate = (int)inputAudio.getFormat().getSampleRate();
-        
+        desiredFrameTime = 1.06;
+        bShowAGraph = false;
+
+        fs = (int)inputAudio.getFormat().getSampleRate();
+
         inputFrameIndex = 0;
         for (i=0; i<numfrm; i++)
         {   
             frmIn = psFrm.getNextFrame();
-            
+
             if (bBroke)
                 break;
-            
+
             if (i==numfrm-1)
                 isLastInputFrame = true;
             else
@@ -132,17 +390,19 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
                 else
                     isVoiced=false;
             }
-            
+
             processFrame(frmIn, isVoiced, modParams.pscalesVar[i], modParams.tscalesVar[i], modParams.escalesVar[i], modParams.vscalesVar[i], isLastInputFrame, 
-                         currentPeriod, inputFrameSize,
-                         params, mapper, codebook);
+                    currentPeriod, inputFrameSize,
+                    params, mapper, codebook);
         }
 
         writeFinal();
-        
+
         convertToWav(inputAudio.getFormat());
-    }
-    
+        
+        inputAudio.close();
+   }
+
     //Voice conversion version
     public double [] processFrame(double [] frmIn, boolean isVoiced, 
                                   double pscale, double tscale, double escale, double vscale, 
@@ -159,18 +419,18 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
             tscale = MIN_TSCALE;
         if (tscale>MAX_TSCALE)
             tscale = MAX_TSCALE;
-        
+
         double [] output = null;
         double [] outputTmp = null;
         int j, k, wInd, kMax;
         int tmpFix, tmpAdd, tmpMul;
         int remain;
         int kInd;
-        double [] targetLsfs = null;
-        
+        WeightedCodebookEntry interpolatedEntry = null;
+
         windowIn = new DynamicWindow(params.lsfParams.windowType);
         windowOut = new DynamicWindow(params.lsfParams.windowType);
-        
+
         repeatSkipCount = 0; // -1:skip frame, 0:no repetition (use synthesized frame as it is), >0: number of repetitions for synthesized frame
 
         // Compute new frame sizes, change in durations due to pitch scaling, and required compensation amount in samples
@@ -227,7 +487,7 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
         }
 
         sumLocalDurDiffs += localDurDiff;
-        
+
         if (isLastInputFrame)
         {
             // Check the final length and perform additional repetitions if necessary
@@ -239,16 +499,37 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
             }
             //
         }
-        
+
         if (isLastInputFrame)
         {
             repeatSkipCount++;
             bLastFrame = true;
         }
-        
+
         double [] tmpSpec;
         Complex tmpComp;
-        int desiredFrameInd = 70;
+
+        LPCoeffs inputLPCoeffs = null;
+        double[] inputLpcs = null;
+        double[] inputLsfs = null; 
+        double sqrtInputGain; 
+        double [] targetLpcs = null;
+
+        Complex inputDft = null;
+        Complex inputExpTerm = null;
+        Complex outputExpTerm = null;
+        Complex inputResidual = null;
+        Complex outputResidual = null;
+        Complex outputDft = null;
+
+        double[] inputVocalTractSpectrum = null;
+        double [] interpolatedInputLpcs = null;
+        double[] sourceVocalTractSpectrumEstimate = null;
+        double[] targetVocalTractSpectrumEstimate = null;
+        double[] interpolatedInputVocalTractSpectrum = null;
+        double[] outputVocalTractSpectrum = null;
+        double[] warpedOutputVocalTractSpectrum = null;
+        
         if (repeatSkipCount>-1)
         {
             frm = MathUtils.zeros(frmSize);
@@ -259,9 +540,9 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
                 bWarp=true; 
             else
                 bWarp=false; 
-            
+
             boolean isTransformUnvoiced = true;
-            
+
             if ((isVoiced && pscale!=1.0) || bWarp || isTransformUnvoiced)
             {
                 if (fftSize<frmSize)
@@ -269,74 +550,100 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
                     fftSize = (int)Math.pow(2, (Math.ceil(Math.log((double)frmSize)/Math.log(2.0))));
                     maxFreq = fftSize/2+1;
                 }
-                
+
                 newMaxFreq = (int)Math.floor(maxFreq/pscale+0.5);
-                
+
                 if (newMaxFreq<3)
                     newMaxFreq=3;
-                
+
                 if ((newMaxFreq % 2) !=1)
                     newMaxFreq++;
-                
+
                 newFftSize = 2*(newMaxFreq-1);
 
                 frmEn = SignalProcUtils.getEnergy(frm);
-                
+
                 wgt = windowIn.values(frmSize);
-                
+
                 //Windowing
                 for (j=0; j<frmSize; j++)
                     frm[j] = frm[j]*wgt[j]; 
-                
+
                 //Preemphasis
                 frm = SignalProcUtils.applyPreemphasis(frm, params.lsfParams.preCoef);
 
                 // Compute LPC coefficients
-                LPCoeffs inputLPCoeffs = LPCAnalyser.calcLPC(frm, params.lsfParams.lpOrder);
-                double[] inputLpcs = inputLPCoeffs.getOneMinusA();
-                double[] inputLsfs = LineSpectralFrequencies.lpc2lsfInHz(inputLpcs, params.lsfParams.samplingRate); 
-                double sqrtInputGain = inputLPCoeffs.getGain();
-                
-                Complex inputDft = new Complex(fftSize);
-                
+                inputLPCoeffs = LPCAnalyser.calcLPC(frm, params.lsfParams.lpOrder);
+                inputLpcs = inputLPCoeffs.getOneMinusA();
+                inputLsfs = LineSpectralFrequencies.lpc2lsfInHz(inputLpcs, fs); 
+                sqrtInputGain = inputLPCoeffs.getGain();
+
+                //Find target estimate from codebook
+                if (isVocalTractTransformation)
+                {
+                    interpolatedEntry = mapper.transform(inputLsfs, codebook);
+                    //Use source for testing things. Don´t forget to set isSourceVocalTractFromCodeook=false
+                    //interpolatedEntry = new WeightedCodebookEntry(inputLsfs, inputLsfs); 
+                }
+
+                inputDft = new Complex(fftSize);
+
                 System.arraycopy(frm, 0, inputDft.real, 0, Math.min(frmSize, inputDft.real.length));
-                
+
                 if (inputDft.real.length > frmSize)
                     Arrays.fill(inputDft.real, inputDft.real.length-frmSize, inputDft.real.length-1, 0);
-                
+
                 Arrays.fill(inputDft.imag, 0, inputDft.imag.length-1, 0);
-                
+
                 inputDft = FFTMixedRadix.fftComplex(inputDft);
-                
+
                 //For checking
-                if (false && inputFrameIndex==desiredFrameInd)
+                if (bShowAGraph && psFrm.getCurrentTime()>=desiredFrameTime)
                 {
                     tmpComp = new Complex(inputDft);
                     tmpSpec = MathUtils.amp2db(tmpComp, 0, maxFreq);
-                    MaryUtils.plot(tmpSpec);
+                    MaryUtils.plot(tmpSpec, "Input DFT");
                 }
                 //
+
+                inputExpTerm = LPCAnalyser.calcExpTerm(fftSize, params.lsfParams.lpOrder);
+                outputExpTerm = LPCAnalyser.calcExpTerm(newFftSize, params.lsfParams.lpOrder);
+
+                inputVocalTractSpectrum = LPCAnalyser.calcSpecFromOneMinusA(inputLPCoeffs.getOneMinusA(), params.lsfParams.lpOrder, fftSize, inputExpTerm);
                 
-                Complex inputExpTerm = LPCAnalyser.calcExpTerm(fftSize, params.lsfParams.lpOrder);
-                Complex outputExpTerm = LPCAnalyser.calcExpTerm(newFftSize, params.lsfParams.lpOrder);
-                double[] inputVocalTractSpectrum = LPCAnalyser.calcSpec(inputLPCoeffs.getA(), params.lsfParams.lpOrder, fftSize, inputExpTerm);
-                
+                //Use a weighted codebook estimate of the input vocal tract spectrum. This will result in a smoother transformation filter
+                if (params.isSourceVocalTractSpectrumFromCodebook && isVocalTractTransformation)
+                {
+                    interpolatedInputLpcs = LineSpectralFrequencies.lsfInHz2lpc(interpolatedEntry.sourceItem.lsfs, fs);
+                    sourceVocalTractSpectrumEstimate = LPCAnalyser.calcSpecFromOneMinusA(interpolatedInputLpcs, 1.0f, newFftSize, outputExpTerm);
+                }
+
                 for (k=0; k<maxFreq; k++)
                     inputVocalTractSpectrum[k] *= sqrtInputGain;
-                
+
                 //For checking
-                if (false && inputFrameIndex==desiredFrameInd)
+                if (bShowAGraph && psFrm.getCurrentTime()>=desiredFrameTime)
                 {
                     tmpSpec = new double[maxFreq];
                     System.arraycopy(inputVocalTractSpectrum, 0, tmpSpec, 0, tmpSpec.length);
                     tmpSpec = MathUtils.amp2db(tmpSpec);
-                    MaryUtils.plot(tmpSpec);
+                    MaryUtils.plot(tmpSpec, "Input Vocal Tract");
                 }
                 //
                 
-                Complex inputResidual = new Complex(fftSize);
-                
-                // Filter out vocal tract to obtain the input residual spectrum
+                //For checking
+                if (bShowAGraph && psFrm.getCurrentTime()>=desiredFrameTime && params.isSourceVocalTractSpectrumFromCodebook && isVocalTractTransformation)
+                {
+                    tmpSpec = new double[maxFreq];
+                    System.arraycopy(sourceVocalTractSpectrumEstimate, 0, tmpSpec, 0, tmpSpec.length);
+                    tmpSpec = MathUtils.amp2db(tmpSpec);
+                    MaryUtils.plot(tmpSpec, "Source Vocal Tract Estimate");
+                }
+                //
+
+                inputResidual = new Complex(fftSize);
+
+                // Filter out vocal tract to obtain the input residual spectrum (note that this is the real residual spectrum)
                 for (k=0; k<maxFreq; k++)
                 {
                     inputResidual.real[k] = inputDft.real[k]/inputVocalTractSpectrum[k];
@@ -344,42 +651,63 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
                 }
 
                 //For checking
-                if (false && inputFrameIndex==desiredFrameInd)
+                if (bShowAGraph && psFrm.getCurrentTime()>=desiredFrameTime)
                 {
                     tmpComp = new Complex(inputResidual);
-                    tmpSpec = MathUtils.amp2db(tmpComp, 0, newMaxFreq-1);
-                    MaryUtils.plot(tmpSpec);
+                    tmpSpec = MathUtils.amp2db(tmpComp, 0, maxFreq-1);
+                    MaryUtils.plot(tmpSpec, "Input Residual");
                 }
                 //
-                
-                //First transform then interpolate!
-                targetLsfs = mapper.transform(inputLsfs, codebook);
-                //targetLsfs = new double[inputLsfs.length]; //Check: use original lsfs to see if it is able to resynthesize the original back
-                //System.arraycopy(inputLsfs, 0, targetLsfs, 0, inputLsfs.length);
-                
-                double [] targetLpcs = LineSpectralFrequencies.lsfInHz2lpc(targetLsfs, params.lsfParams.samplingRate);
-                
-                double[] targetVocalTractSpectrum = null;
-                if (fftSize!=newFftSize)
-                {
-                    Complex expTermNew = LPCAnalyser.calcExpTerm(newFftSize, params.lsfParams.lpOrder);
-                    targetVocalTractSpectrum = LPCAnalyser.calcSpecFromOneMinusA(targetLpcs, 1.0f, newFftSize, outputExpTerm);
-                }
-                else
-                    targetVocalTractSpectrum = LPCAnalyser.calcSpecFromOneMinusA(targetLpcs, 1.0f, newFftSize, inputExpTerm);
 
-                for (k=0; k<newMaxFreq; k++)
-                    targetVocalTractSpectrum[k] *= sqrtInputGain;
-                
+                if (isVocalTractTransformation)
+                {
+                    targetLpcs = LineSpectralFrequencies.lsfInHz2lpc(interpolatedEntry.targetItem.lsfs, fs);
+
+                    if (fftSize!=newFftSize)
+                    {
+                        if (outputExpTerm==null || newMaxFreq*params.lsfParams.lpOrder!=outputExpTerm.real.length)
+                            outputExpTerm = LPCAnalyser.calcExpTerm(newFftSize, params.lsfParams.lpOrder);
+
+                        targetVocalTractSpectrumEstimate = LPCAnalyser.calcSpecFromOneMinusA(targetLpcs, 1.0f, newFftSize, outputExpTerm);
+                    }
+                    else
+                        targetVocalTractSpectrumEstimate = LPCAnalyser.calcSpecFromOneMinusA(targetLpcs, 1.0f, newFftSize, inputExpTerm);
+
+                    for (k=0; k<newMaxFreq; k++)
+                        targetVocalTractSpectrumEstimate[k] *= sqrtInputGain;
+                }
+
                 //For checking
-                if (false && inputFrameIndex==desiredFrameInd)
+                if (bShowAGraph && psFrm.getCurrentTime()>=desiredFrameTime && isVocalTractTransformation)
                 {
                     tmpSpec = new double[newMaxFreq];
-                    System.arraycopy(targetVocalTractSpectrum, 0, tmpSpec, 0, tmpSpec.length);
+                    System.arraycopy(targetVocalTractSpectrumEstimate, 0, tmpSpec, 0, tmpSpec.length);
                     tmpSpec = MathUtils.amp2db(tmpSpec);
-                    MaryUtils.plot(tmpSpec);
+                    MaryUtils.plot(tmpSpec, "Target Vocal Tract Estimate");
                 }
                 //
+
+                outputVocalTractSpectrum = new double[newMaxFreq];
+                interpolatedInputVocalTractSpectrum = MathUtils.interpolate(inputVocalTractSpectrum, newMaxFreq);
+                
+                if (isVocalTractTransformation)
+                {
+                    if (params.isSourceVocalTractSpectrumFromCodebook)
+                    {
+                        for (k=0; k<newMaxFreq; k++)
+                            outputVocalTractSpectrum[k] = targetVocalTractSpectrumEstimate[k]/sourceVocalTractSpectrumEstimate[k]*interpolatedInputVocalTractSpectrum[k];
+                    }
+                    else
+                    {
+                        for (k=0; k<newMaxFreq; k++)
+                            outputVocalTractSpectrum[k] = targetVocalTractSpectrumEstimate[k];
+                    }
+                }
+                else
+                {
+                    for (k=0; k<newMaxFreq; k++)
+                        outputVocalTractSpectrum[k] = interpolatedInputVocalTractSpectrum[k];
+                }
                 
                 //Perform additional vocal tract scaling
                 if (bWarp)
@@ -393,7 +721,7 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
                             newVScales[k]=0.05;
                     }
                     
-                    double[] tempSpectrum = new double[newMaxFreq];
+                    warpedOutputVocalTractSpectrum = new double[newMaxFreq];
                     
                     for (k=0; k<newMaxFreq; k++)
                     {
@@ -403,14 +731,14 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
                         if (wInd>newMaxFreq)
                             wInd = newMaxFreq;
                         
-                        tempSpectrum[k] = targetVocalTractSpectrum[wInd-1];
+                        warpedOutputVocalTractSpectrum[k] = outputVocalTractSpectrum[wInd-1];
                     }
                     
-                    System.arraycopy(tempSpectrum, 0, targetVocalTractSpectrum, 0, newMaxFreq);
+                    System.arraycopy(warpedOutputVocalTractSpectrum, 0, outputVocalTractSpectrum, 0, newMaxFreq);
                 }
-
+                
                 //Create output DFT spectrum
-                Complex outputResidual = new Complex(newFftSize);
+                outputResidual = new Complex(newFftSize);
                 outputResidual.real = MathUtils.zeros(newFftSize);
                 outputResidual.imag = MathUtils.zeros(newFftSize);
 
@@ -446,43 +774,44 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
 
                 outputResidual.real[newMaxFreq-1] = Math.sqrt(outputResidual.real[newMaxFreq-1]*outputResidual.real[newMaxFreq-1] + outputResidual.imag[newMaxFreq-1]*outputResidual.imag[newMaxFreq-1]);
                 outputResidual.imag[newMaxFreq-1] = 0.0;
-                
+
                 //For checking
-                if (false && inputFrameIndex==desiredFrameInd)
+                if (bShowAGraph && psFrm.getCurrentTime()>=desiredFrameTime)
                 {
                     tmpComp = new Complex(outputResidual);
                     tmpSpec = MathUtils.amp2db(tmpComp, 0, newMaxFreq-1);
-                    MaryUtils.plot(tmpSpec);
+                    MaryUtils.plot(tmpSpec, "Output Residual");
                 }
                 //
-                
+
                 //Filter the output residual with the estimated target vocal tract spectrum
-                Complex outputDft = new Complex(newFftSize);
-                
+                outputDft = new Complex(newFftSize);
+ 
                 for (k=1; k<=newMaxFreq; k++)
                 {
-                    outputDft.real[k-1] = outputResidual.real[k-1]*targetVocalTractSpectrum[k-1];
-                    outputDft.imag[k-1] = outputResidual.imag[k-1]*targetVocalTractSpectrum[k-1];
+                    outputDft.real[k-1] = outputResidual.real[k-1]*outputVocalTractSpectrum[k-1];
+                    outputDft.imag[k-1] = outputResidual.imag[k-1]*outputVocalTractSpectrum[k-1];
                 }
-                
+
                 for (k=newMaxFreq+1; k<=newFftSize; k++)
                 {
                     outputDft.real[k-1] = outputDft.real[2*newMaxFreq-1-k];
                     outputDft.imag[k-1] = -outputDft.imag[2*newMaxFreq-1-k];
                 }
-                
+
                 //For checking
-                if (false && inputFrameIndex==desiredFrameInd)
+                if (bShowAGraph && psFrm.getCurrentTime()>=desiredFrameTime)
                 {
                     tmpComp = new Complex(outputDft);
                     tmpSpec = MathUtils.amp2db(tmpComp, 0, newMaxFreq);
-                    MaryUtils.plot(tmpSpec);
+                    MaryUtils.plot(tmpSpec, "Output DFT");
+                    bShowAGraph = false;
                 }
                 //
 
                 //Convert back to time domain
                 outputDft = FFTMixedRadix.ifft(outputDft);
-                
+
                 frmy = new double[newFrmSize];
                 System.arraycopy(outputDft.real, 0, frmy, 0, newFrmSize);
             }
@@ -490,26 +819,26 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
             {
                 if (frmSize<newFrmSize)
                     newFrmSize = frmSize; 
-                
+
                 frmy = new double[newFrmSize];
             }       
-            
+
             frmy = SignalProcUtils.removePreemphasis(frmy, params.lsfParams.preCoef);
-            
+
             frmyEn = SignalProcUtils.getEnergy(frmy);
-            
+
             gain = (frmEn/Math.sqrt(frmSize))/(frmyEn/Math.sqrt(newFrmSize))*escale;
-            
+
             if (!(isVoiced && pscale!=1.0) && !bWarp && !isTransformUnvoiced)
             {
                 for (k=0; k<frmSize; k++)
                     frmy[k] = frm[k]*wgt[k];
             }
-            
+
             //Energy scale compensation + modification
             for (k=0; k<newFrmSize; k++)
                 frmy[k] *= gain;
-                
+
             for (j=1; j<=repeatSkipCount+1; j++)
             {
                 if (!isFixedRateVocalTractTransformation)
@@ -521,7 +850,7 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
                 }
                 else
                     newSkipSize = (int)Math.floor(ssFixedInSeconds*fs+0.5);
-                
+
                 if ((isLastInputFrame && j==repeatSkipCount+1)) //| (i~=numfrm & all(repeatSkipCounts(i+1:numfrm)==-1)))
                     bLastFrame = true;
                 else
@@ -530,7 +859,7 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
                 synthFrameInd++;
 
                 wgty = windowOut.values(newFrmSize);
-                
+
                 if (synthFrameInd==1) //First frame: Do not window the first half of output speech frame to prevent overflow in normalization with hanning coeffs
                 {
                     halfWin = (int)Math.floor(newFrmSize/2.0+0.5);
@@ -600,7 +929,7 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
                             ySynthBuff[k-1] += frmy[k-ySynthInd]*wgty[k-ySynthInd];
                             wSynthBuff[k-1] += wgty[k-ySynthInd]*wgty[k-ySynthInd];
                         }
-                        
+
                         for (k=ySynthInd+halfWin; k<=ySynthInd+newFrmSize-1; k++)
                         {
                             ySynthBuff[k-1] += frmy[k-ySynthInd];
@@ -638,7 +967,7 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
                         }
                     }
                     //
-                    
+
                     if (!bSilent)
                         System.out.println("Synthesized using frame " + String.valueOf(inputFrameIndex+1)); 
                 }
@@ -699,7 +1028,7 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
                     wSynthBuff[kInd-1] = 0.0;
 
                     outBuffStart++;
-                    
+
                     if (outBuffStart>outBuffLen)
                     {
                         if (tscaleSingle!=1.0 || totalWrittenToFile+outBuffLen<=origLen)
@@ -722,7 +1051,7 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
                                     System.arraycopy(outBuff, 0, output, outputTmp.length, outBuffLen);
                                 }
                             }
-                            
+
                             totalWrittenToFile += outBuffLen;
                         }
                         else
@@ -745,10 +1074,10 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
                                     System.arraycopy(outBuff, 0, output, outputTmp.length, origLen-totalWrittenToFile);
                                 }
                             }
-                            
+
                             totalWrittenToFile = origLen;
                         }
-                        
+
                         outBuffStart=1;
                     }
                 }
@@ -758,10 +1087,10 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
 
                 //if (!bLastFrame)
                 //{
-                    if (ySynthInd+newSkipSize<=maxNewFrmSize)
-                        ySynthInd += newSkipSize;
-                    else
-                        ySynthInd += newSkipSize-maxNewFrmSize;
+                if (ySynthInd+newSkipSize<=maxNewFrmSize)
+                    ySynthInd += newSkipSize;
+                else
+                    ySynthInd += newSkipSize-maxNewFrmSize;
                 //}
                 /////////
 
@@ -777,9 +1106,175 @@ public class WeightedCodebookFdpsolaAdapter extends FDPSOLAProcessor {
             if (!bSilent)
                 System.out.println("Skipped frame " + String.valueOf(inputFrameIndex+1));
         }
-        
+
         inputFrameIndex++;
-        
+
         return output;
     }
+
+    public double [] writeFinal() throws IOException
+    {
+        double [] output = null;
+        double [] outputTmp = null;
+
+        int k, kInd;
+
+        if (tscaleSingle==1.0)
+            synthTotal=origLen;
+
+        if (outBuffLen>synthTotal)
+            outBuffLen = synthTotal;
+
+        //Write the final segment
+        for (k=synthSt; k<=synthTotal; k++)
+        {
+            kInd = (k-synthSt+ySynthInd)%maxNewFrmSize; 
+
+            if (kInd==0)
+                kInd=maxNewFrmSize;
+
+            if (wSynthBuff[kInd-1]>0.0)
+                outBuff[outBuffStart-1] = ySynthBuff[kInd-1]/wSynthBuff[kInd-1];
+            else
+                outBuff[outBuffStart-1] = ySynthBuff[kInd-1];
+
+            ySynthBuff[kInd-1] = 0.0;
+            wSynthBuff[kInd-1] = 0.0;
+
+            outBuffStart++;
+
+            if (outBuffStart>outBuffLen)
+            {                
+                if (tscaleSingle!=1.0 || totalWrittenToFile+outBuffLen<=origLen)
+                {
+                    if (isWavFileOutput)
+                        dout.writeDouble(outBuff, 0, outBuffLen);
+                    else
+                    { 
+                        if (output == null)
+                        {
+                            output = new double[outBuffLen];
+                            System.arraycopy(outBuff, 0, output, 0, outBuffLen);
+                        }
+                        else
+                        {
+                            outputTmp = new double[output.length];
+                            System.arraycopy(output, 0, outputTmp, 0, output.length);
+                            output = new double[outputTmp.length + outBuffLen];
+                            System.arraycopy(outputTmp, 0, output, 0, outputTmp.length);
+                            System.arraycopy(outBuff, 0, output, outputTmp.length, outBuffLen);
+                        }
+                    }
+
+                    totalWrittenToFile += outBuffLen;
+                }
+                else
+                {
+                    if (isWavFileOutput)
+                        dout.writeDouble(outBuff, 0, origLen-totalWrittenToFile);
+                    else
+                    {
+                        if (output == null)
+                        {
+                            output = new double[origLen-totalWrittenToFile];
+                            System.arraycopy(outBuff, 0, output, 0, origLen-totalWrittenToFile);
+                        }
+                        else
+                        {
+                            outputTmp = new double[output.length];
+                            System.arraycopy(output, 0, outputTmp, 0, output.length);
+                            output = new double[outputTmp.length + origLen-totalWrittenToFile];
+                            System.arraycopy(outputTmp, 0, output, 0, outputTmp.length);
+                            System.arraycopy(outBuff, 0, output, outputTmp.length, origLen-totalWrittenToFile);
+                        }
+                    }
+
+                    totalWrittenToFile = origLen;
+                }
+                outBuffStart=1;
+            }
+        }
+
+        if (outBuffStart>1)
+        {            
+            if (tscaleSingle!=1.0 || totalWrittenToFile+outBuffStart-1<=origLen)
+            {
+                if (isWavFileOutput)
+                    dout.writeDouble(outBuff, 0, outBuffStart-1);
+                else
+                {
+                    if (output == null)
+                    {
+                        output = new double[outBuffStart-1];
+                        System.arraycopy(outBuff, 0, output, 0, outBuffStart-1);
+                    }
+                    else
+                    {
+                        outputTmp = new double[output.length];
+                        System.arraycopy(output, 0, outputTmp, 0, output.length);
+                        output = new double[outputTmp.length + outBuffStart-1];
+                        System.arraycopy(outputTmp, 0, output, 0, outputTmp.length);
+                        System.arraycopy(outBuff, 0, output, outputTmp.length, outBuffStart-1);
+                    }
+                }
+
+                totalWrittenToFile += outBuffStart-1;
+            }
+            else
+            {
+                if (isWavFileOutput)
+                    dout.writeDouble(outBuff, 0, origLen-totalWrittenToFile);
+                else
+                { 
+                    if (output == null)
+                    {
+                        output = new double[origLen-totalWrittenToFile];
+                        System.arraycopy(outBuff, 0, output, 0, origLen-totalWrittenToFile);
+                    }
+                    else
+                    {
+                        outputTmp = new double[output.length];
+                        System.arraycopy(output, 0, outputTmp, 0, output.length);
+                        output = new double[outputTmp.length + origLen-totalWrittenToFile];
+                        System.arraycopy(outputTmp, 0, output, 0, outputTmp.length);
+                        System.arraycopy(outBuff, 0, output, outputTmp.length, origLen-totalWrittenToFile);
+                    }
+                }
+
+                totalWrittenToFile = origLen;
+            }
+        }
+        //
+
+        if (dout!=null)
+            dout.close();
+
+        return output;
+    }
+
+    public void convertToWav(AudioFormat audioformat) throws IOException
+    {
+        //Read the temp binary file into a wav file and delete the temp binary file
+        if (tempOutBinaryFile!=null)
+        {
+            double [] yOut = null;
+
+            din = new LEDataInputStream(tempOutBinaryFile);
+            yOut = din.readDouble(totalWrittenToFile);
+            din.close();
+
+            double tmpMax = MathUtils.getAbsMax(yOut);
+            if (tmpMax>1.0)
+            {
+                for (int n=0; n<yOut.length; n++)
+                    yOut[n] /= tmpMax;
+            }
+
+            outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(yOut), audioformat);
+            AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outputFile));
+
+            FileUtils.delete(tempOutBinaryFile);
+            //
+        }
+    }  
 }

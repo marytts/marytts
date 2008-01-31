@@ -51,6 +51,7 @@ public class WeightedCodebookTransformerParams extends WeightedCodebookBaselineP
     public PitchFileHeader ptcParams;
     
     public boolean isForcedAnalysis;
+    public boolean isSourceVocalTractSpectrumFromCodebook;
     
     public WeightedCodebookTransformerParams()
     {
@@ -66,6 +67,7 @@ public class WeightedCodebookTransformerParams extends WeightedCodebookBaselineP
         lsfParams = new LsfFileHeader();
         ptcParams = new PitchFileHeader();
         isForcedAnalysis = false;
+        isSourceVocalTractSpectrumFromCodebook = true;
     }
 }
 

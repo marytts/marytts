@@ -708,17 +708,17 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         WeightedCodebookTrainerParams pa = new WeightedCodebookTrainerParams();
         
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAMES; //Frame-by-frame mapping of features
-        //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAME_GROUPS; pa.codebookHeader.numNeighboursInFrameGroups = 3; //Mapping of frame average features (no label information but fixed amount of neighbouring frames is used)
-        pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABELS; //Mapping of label average features
+        pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAME_GROUPS; pa.codebookHeader.numNeighboursInFrameGroups = 3; //Mapping of frame average features (no label information but fixed amount of neighbouring frames is used)
+        //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABELS; //Mapping of label average features
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABEL_GROUPS; pa.codebookHeader.numNeighboursInLabelGroups = 1; //Mapping of average features collected across label groups (i.e. vowels, consonants, etc)
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.SPEECH; //Mapping of average features collected across all speech parts (i.e. like spectral equalization)
 
-        pa.codebookHeader.sourceTag = "neutralL"; //Source name tag (i.e. style or speaker identity)
-        pa.codebookHeader.targetTag = "angryL"; //Target name tag (i.e. style or speaker identity)
+        pa.codebookHeader.sourceTag = "neutral1"; //Source name tag (i.e. style or speaker identity)
+        pa.codebookHeader.targetTag = "neutral2"; //Target name tag (i.e. style or speaker identity)
         
-        pa.trainingBaseFolder = "d:\\1\\neutral_X_angry"; //Training base directory
-        pa.sourceTrainingFolder = "d:\\1\\neutral\\train"; //Source training folder
-        pa.targetTrainingFolder = "d:\\1\\angry\\train"; //Target training folder
+        pa.trainingBaseFolder = "d:\\1\\neutral_X_neutral_50"; //Training base directory
+        pa.sourceTrainingFolder = "d:\\1\\neutral50\\train"; //Source training folder
+        pa.targetTrainingFolder = "d:\\1\\neutral50\\train"; //Target training folder
 
         pa.indexMapFileExtension = ".imf"; //Index map file extensions
         
