@@ -29,9 +29,12 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.tools.ant.types.CommandlineJava.SysProperties;
+import org.apache.xpath.NodeSet;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -202,25 +205,30 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
      * @throws TransformerException 
      * @throws ParserConfigurationException 
      * @throws SAXException 
+     * @throws XPathExpressionException 
      */
-    public boolean compute() throws IOException, TransformerException, ParserConfigurationException, SAXException{
+    public boolean compute() throws IOException, TransformerException, ParserConfigurationException, SAXException, XPathExpressionException{
         
         // set costs used for distance computation
+        
+        /* TODO: make use of cost file dependent on settings
         try{
             this.setDistance(new BufferedReader(new FileReader ((String) props.get(this.SYMCOSTS))));
         } catch (FileNotFoundException e) {
             throw new IllegalStateException("File with symbol costs not set: " + (String) props.get(this.SYMCOSTS));
         }
+        */
         
+        
+        // phoneme set is used for splitting the sampa strings and setting the costs
+        this.setPhonemeSet(PhonemeSet.getPhonemeSet((String) props.get(this.PHONSET)));
 
+        this.setDistance();
         
         this.setDefaultCost( this.getMaxCost() );
         
-        this.setSkipCost( this.getMaxCost() / 3 );
-        
-        // phoneme set is used for splitting the sampa strings
-        this.setPhonemeSet(PhonemeSet.getPhonemeSet((String) props.get(this.PHONSET)));
-        
+        this.setSkipCost( this.getMaxCost() * 3 / 10 ); // 0.25 / 0.3 /0.33 seem all fine
+                
         // use the default setting to align boundaries only to itself
         this.useDefaultBoundaryCosts();
         
@@ -326,17 +334,56 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
            if ( lineLmnts.length != 3 )
                throw new IllegalArgumentException("Expected three columns in label file, got " + lineLmnts.length);
            
-           // TODO: changed..
-           // dont skip pauses
-           //if (!lineLmnts[2].equals("_")){
            result += lineLmnts[2] + " ";
-           //}
         }
         
         return result;
     }
 
     /**
+     * This sets the distance by using the phoneme set of the aligner object.
+     * Phoneme set must already be specified.
+     */
+    private void setDistance(){
+        
+        if (null == this.phonemeSet )
+            throw new IllegalStateException("Phoneme set must be specified before generic distance method can be executed.");
+        
+        for (String fromSym : this.phonemeSet.getPhonemeNames()){
+            for (String toSym : this.phonemeSet.getPhonemeNames()){
+                
+                int diff = 0;
+                
+                Phoneme fromPh = this.phonemeSet.getPhoneme(fromSym);
+                Phoneme toPh = this.phonemeSet.getPhoneme(toSym);
+                
+                // for each difference increase distance
+                diff += (!fromSym.equals(toSym))? 2:0;
+                diff += (fromPh.isFricative() != toPh.isFricative())? 2:0;
+                diff += (fromPh.isGlide() != toPh.isGlide())?   2:0;
+                diff += (fromPh.isLiquid() != toPh.isLiquid())? 2:0;
+                diff += (fromPh.isNasal() != toPh.isNasal())?   2:0;
+                diff += (fromPh.isPlosive() != toPh.isPlosive())? 1:0;
+                diff += (fromPh.isSonorant() != toPh.isSonorant())? 2:0;
+                diff += (fromPh.isSyllabic() != toPh.isSyllabic())? 1:0;
+                diff += (fromPh.isVoiced() != toPh.isVoiced())? 1:0;
+                diff += (fromPh.isVowel() != toPh.isVowel())? 2:0;
+                diff += Math.abs(fromPh.sonority() - toPh.sonority());
+                
+                String key = fromSym + " " + toSym;
+                
+                //System.out.println(key + " " + diff);
+                
+                this.aligncost.put(key, diff);
+            }
+        }
+    }
+    
+    /**
+     * DEPRECATED / no longer used by compute()
+     * 
+     * unless you want to specify special costs, set the distance with the phonemeset instead
+     * 
      * This sets the distance between two symbols from a feature/cost 
      * description, usually a file.
      * 
@@ -444,6 +491,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
         String[] ostr = out.split(" ");
         String delim = "#";
 
+
         
         // distances:
         // 1. previous distance (= previous column in matrix)
@@ -538,6 +586,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
             al   = _al;
         }
         
+        
         return p_al[ostr.length];
         
     }
@@ -556,14 +605,31 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
      * @throws IOException 
      * @throws SAXException 
      */
-    public Document alignXmlTranscriptions(Document doc, String correct) throws SAXException, IOException, ParserConfigurationException    {
+    public Document alignXmlTranscriptions(Document doc, String correct) throws SAXException, IOException, ParserConfigurationException, XPathExpressionException    {
         // get all <t .. /> - elements in xml data
-        NodeList tokens = doc.getElementsByTagName("t");
         
-        // TODO: use xpath to get all t and boundary elements
-        //XPath xpath = XPathFactory.newInstance().newXPath();
-        // NodeList tokens = (NodeSet) xpath.evaluate("all t's and boundaries", doc, XpathConstants.NODESET); 
-                                
+        // use xpath to get all t and boundary elements
+        XPath xpath = XPathFactory.newInstance().newXPath();
+        // we rely on the assumption that the result of the evalaution is 
+        // a list rather than a set and that it is retrieved in document order
+        // TODO: check that assumption
+        NodeList tokens = (NodeList) xpath.evaluate("//t | //boundary", doc, XPathConstants.NODESET);
+                
+        String orig = this.collectTranscription(tokens);
+        
+        // now we align the transcriptions and split it at the delimiters
+        String al = this.distanceAlign(orig.trim(),correct.trim()) + " ";
+        
+        String[] alignments = al.split("#");
+                
+        doc = this.changeTranscriptions(doc, tokens, orig, alignments);
+                
+        return doc;
+    }
+    
+    private String collectTranscription(NodeList tokens) {
+
+        // TODO: make argument
         // String Tokenizer devides transcriptions into syllables
         // syllable delimiters and stress symbols are retained
         String delims = "',-";
@@ -571,13 +637,16 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
         // String storing the original transcription begins with a pause
         String orig = this.pauseBnd + " " ;
         
-        // first looping: get original phoneme String
+        
+        // get original phoneme String
         for (int tNr = 0; tNr < tokens.getLength() ; tNr++ ){
             
+            Element token = (Element) tokens.item(tNr);
+            
             // only look at it if there is a sampa to change
-            if ( ((Element) tokens.item(tNr)).hasAttribute("sampa") ){                   
+            if ( token.hasAttribute("sampa") ){                   
                 
-                String sampa = ((Element) tokens.item(tNr)).getAttribute("sampa");
+                String sampa = token.getAttribute("sampa");
     
                 List<String> sylsAndDelims = new ArrayList<String>();
                 StringTokenizer sTok = new StringTokenizer(sampa, delims, true);
@@ -593,53 +662,43 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
                     }// ... if no delimiter
                 }// ... while there are more tokens    
             }
-            
-            
-            
-            //if (succ != null && succ.getTagName().equals("boundary")){
-            
-            
-            if (tNr == tokens.getLength() - 1) {
-              // last token, insert end pause
-              orig += this.pauseBnd + " ";
-
-            } else {
-
-
+                 
+            if ( token.getTagName().equals("t") ){
                 
-                Element succ = getNextElement(tokens.item(tNr));
-                
-                // TODO: sometimes there are embedded t-elements ( <mtu> <t/> </mtu> ) that have no siblings... so here is a hack:
-                // (maybe collect t- and boundary-elements together in one query)
-                if (succ == null){
-                    succ = (Element) tokens.item(tNr + 1);
-                    System.out.println("Element with no sibling, chose next t-Element");
-                }
-
-                
-                if ( succ.hasAttribute("breakindex") && 
-                        "3456".indexOf(succ.getAttribute("breakindex"))!=-1){
-                    //breakindex of the next string is "4", "5" or "6" 
+                // if the following element is no boundary, insert a non-pause delimiter
+                if (tNr == tokens.getLength()-1 || 
+                    !((Element) tokens.item(tNr+1)).getTagName().equals("boundary") ){
+                        orig += this.nonPauseBnd + " ";
+                        
+                    }
+                                   
+            } else if ( token.getTagName().equals("boundary")){
+                if ( token.hasAttribute("breakindex") &&
+                        "3456".indexOf(token.getAttribute("breakindex"))!=-1){
+                    //breakindex of the next string is in "3".. "6" -> pause
                     orig += this.pauseBnd + " ";
                 
                 } else {
+
+                    // boundary without pause
                     orig += this.nonPauseBnd + " ";
                 }
+            } else {
+                // should be "t" or "boundary" elements
+                assert(false);
             }
-            // boundaries inserted
-            
+                        
         }// ... for each t-Element
         
-        // now we align the transcriptions and split it at the delimiters
-        String al = this.distanceAlign(orig.trim(),correct.trim()) + " ";
+        return orig;
+    }
+    
+    private Document changeTranscriptions(Document doc, NodeList tokens, String orig, String[] alignments){
         
-        //System.out.println(orig);
-        //System.out.println(correct);
-        //System.out.println(al);
-        
-        String[] alignments = al.split("#");
-        
-        //System.out.println("Alignment: " + al);
+        // TODO: make argument
+        // String Tokenizer devides transcriptions into syllables
+        // syllable delimiters and stress symbols are retained
+        String delims = "',-";
         
         // counter to keep track of the position in alignment array
         // starts with 1 since transcription begins with a pause
@@ -650,9 +709,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
         // second looping: get original phoneme String
         for (int tNr = 0; tNr < tokens.getLength() ; tNr++ ){
             Element token = (Element) tokens.item(tNr);
-            
-
-            
+   
             String sampa = token.getAttribute("sampa");
             
             // the transcription to which the old is aligned
@@ -671,8 +728,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
                         // current Token is no delimiter
                         for ( Phoneme ph : phonemeSet.splitIntoPhonemes(currTok)){
                             orig += ph.name();
-
-                            
+                           
                             // new transciption is the aligned ones without white spaces
                             newSampa += alignments[currAl].replaceAll(" ", "");
                             currAl +=1;
@@ -683,7 +739,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
                         // all delimiters have to be copied
                         
                         
-                        /* exceptions treated below...*/
+                        // exceptions treated below...
                         String previousChar;
                         if (newSampa.length() == 0)
                             previousChar = "";
@@ -703,8 +759,10 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
                              ( previousChar.equals("'") && currTok.equals(",") )||
                              ( previousChar.equals(",") && currTok.equals(",") )){
                             // continue
+
                         } else { //...
                             newSampa += currTok;
+
                         }
                         
 
@@ -724,66 +782,59 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
                 
             }// ... if there is transcription
             
-            // after each token there is some kind of boundary: 
-            // a pause or a non pause            
-
-            
-            // check if that boundary is only aligned to one of its kind
-            assert( alignments.equals("") || 
-                    alignments.equals(this.pauseBnd) || 
-                    alignments.equals(this.nonPauseBnd) );
-            
-            if (tNr == tokens.getLength() - 1) {
-                // last token do nothing
-
-            } else {
-                Element succ = getNextElement(token);
-                // TODO: some hack again... see above
-                if (succ == null)
-                    succ = (Element) tokens.item(tNr + 1);
-
-                                  
-                if ( succ.hasAttribute("breakindex") && 
-                        "3456".indexOf(succ.getAttribute("breakindex"))!=-1){
-                    //breakindex input is "3"-"6" -> pause
+            // treat boundaries          
+            if ( token.getTagName().equals("t") ){
+                
+                // if the following element is no boundary, a non-pause delimiter was inserted
+                if (tNr == tokens.getLength()-1 || 
+                    !((Element) tokens.item(tNr+1)).getTagName().equals("boundary") ){
                     
-                    //if not aligned to a pause, change breakindex value
-                    if ( !alignments[currAl].trim().equals(this.pauseBnd) ){
-                        succ.setAttribute("breakindex","2");
-                    }
-                                        
-                } else {
-                    // either no "break index" at all or one which triggers 
-                    // no pause
-                    
-                    
-                    if (alignments[currAl].trim().equals(this.pauseBnd)){
-                        // now we have to insert a pause...
-                        
-                        if ( !succ.getTagName().equals("boundary") ){
-                            // create a boundary if not present yet
+                        // insert a pause , if aligned to one
+                        if ( alignments[currAl].trim().equals(this.pauseBnd) ) {
+                            // if aligned to a pause, create a boundary element
                             Element newSucc = doc.createElement("boundary");
-                            succ = (Element) token.getParentNode().insertBefore(newSucc , succ);
+                            token.getParentNode().insertBefore(newSucc, token.getNextSibling());
+                            // set the break index to 3
+                            newSucc.setAttribute("breakindex", "3");   
+                            
                         }
                         
-                        // set the break index to 3
-                        succ.setAttribute("breakindex", "3");   
+                        currAl += 1;                        
+                    }
+                                   
+            } else if ( token.getTagName().equals("boundary")){
+
+                if ( token.hasAttribute("breakindex") &&
+                        "3456".indexOf(token.getAttribute("breakindex"))!=-1){
+                    // pause was inserted, delete it, i aligned to non-pause
+                    if ( alignments[currAl].trim().equals(this.nonPauseBnd) || alignments[currAl].trim().equals("") ) {
+                        token.setAttribute("breakindex", "2");
                         
-                    }// ..insert pause
-                }// ..no orig pause
-            }// ..not last token
-            
-            currAl += 1;
-            // boundaries inserted
-            
-            
+                    }
+                    currAl += 1;                     
+
+               } else {
+
+                   // boundary non-pause was inserted, change to pause according
+                   // to alignment
+                   if ( alignments[currAl].trim().equals(this.pauseBnd) ) {
+                       token.setAttribute("breakindex", "3");
+                       
+                   }
+                   currAl += 1; 
+
+                }
+            } else {
+                // should be "t" or "boundary" elements
+                assert(false);
+            }
+
         }// ... for each t-Element
-                          
-        //System.out.println();
-        
+
+
         return doc;
     }
-    
+
     /**
      * 
      * This returns the next element Node from a Node
