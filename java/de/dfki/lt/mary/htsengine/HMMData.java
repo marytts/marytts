@@ -246,43 +246,43 @@ public class HMMData {
 	/** Reads from configuration file all the data files in this class 
      * this method is used when running stand alone, for example when calling
      * from MaryClientUserHMM */
-	public void initHMMData(String ConfigFile) {		
+	public void initHMMData(String voice, String MaryBase, String ConfigFile) {		
       Properties props = new Properties();
       
       try {
-    	  FileInputStream fis = new FileInputStream( ConfigFile );
+    	  FileInputStream fis = new FileInputStream( MaryBase+"conf/"+ConfigFile );
     	  props.load( fis );
     	  fis.close();
     	      	  
-    	  treeDurFile = props.getProperty( "Ftd" );
-    	  treeLf0File = props.getProperty( "Ftf" );     	  
-    	  treeMcpFile = props.getProperty( "Ftm" );
-    	  treeStrFile = props.getProperty( "Fts" );
-    	  treeMagFile = props.getProperty( "Fta" );
+    	  treeDurFile = MaryBase + props.getProperty( "voice." + voice + ".Ftd" ).substring(10);
+     	  treeLf0File = MaryBase + props.getProperty( "voice." + voice + ".Ftf" ).substring(10);     	  
+    	  treeMcpFile = MaryBase + props.getProperty( "voice." + voice + ".Ftm" ).substring(10);
+    	  treeStrFile = MaryBase + props.getProperty( "voice." + voice + ".Fts" ).substring(10);
+    	 // treeMagFile = MaryBase + props.getProperty( "voice." + voice + ".Fta" ).substring(10);
     	  
-    	  pdfDurFile = props.getProperty( "Fmd" );
-    	  pdfLf0File = props.getProperty( "Fmf" );     	  
-    	  pdfMcpFile = props.getProperty( "Fmm" );
-    	  pdfStrFile = props.getProperty( "Fms" );
-    	  pdfMagFile = props.getProperty( "Fma" );
+    	  pdfDurFile = MaryBase + props.getProperty( "voice." + voice + ".Fmd" ).substring(10);
+    	  pdfLf0File = MaryBase + props.getProperty( "voice." + voice + ".Fmf" ).substring(10);     	  
+    	  pdfMcpFile = MaryBase + props.getProperty( "voice." + voice + ".Fmm" ).substring(10);
+    	  pdfStrFile = MaryBase + props.getProperty( "voice." + voice + ".Fms" ).substring(10);
+    	 // pdfMagFile = MaryBase + props.getProperty( "voice." + voice + ".Fma" ).substring(10);
     	  
-          useGV = Boolean.valueOf(props.getProperty( "useGV" )).booleanValue();
-          pdfLf0GVFile = props.getProperty( "Fgvf" );        
-          pdfMcpGVFile = props.getProperty( "Fgvm" );
-          pdfStrGVFile = props.getProperty( "Fgvs" );
-          pdfMagGVFile = props.getProperty( "Fgva" );
+          useGV = Boolean.valueOf(props.getProperty( "voice." + voice + ".useGV" )).booleanValue();
+          pdfLf0GVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgvf" ).substring(10);        
+          pdfMcpGVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgvm" ).substring(10);
+          pdfStrGVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgvs" ).substring(10);
+         // pdfMagGVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgva" ).substring(10);
           
     	  /* Feature list file */
-    	  featureListFile = props.getProperty( "FeaList" );
+    	  featureListFile = MaryBase + props.getProperty( "voice." + voice + ".FeaList" ).substring(10);
           
           /* Example context feature file in HTSCONTEXT_EN format */
-          labFile = props.getProperty( "Flab" );
+          labFile = MaryBase + props.getProperty( "voice." + voice + ".FLab" ).substring(10);
     	  
     	  /* Configuration for mixed excitation */
           if( treeStrFile != null ) {
-    	    mixFiltersFile = props.getProperty( "Fif" ); 
-    	    numFilters     = Integer.parseInt(props.getProperty( "in" ));
-    	    orderFilters   = Integer.parseInt(props.getProperty( "io" ));
+    	    mixFiltersFile = MaryBase + props.getProperty( "voice." + voice + ".Fif" ).substring(10); 
+    	    numFilters     = Integer.parseInt(props.getProperty( "voice." + voice + ".in" ));
+    	    orderFilters   = Integer.parseInt(props.getProperty( "voice." + voice + ".io" ));
           }
     	  
     	  props.clear();
