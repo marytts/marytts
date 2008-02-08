@@ -312,7 +312,7 @@ public class HTSEngine extends InternalModule
                 diffdurOld = diffdurNew;
                 um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());
                 dur = m.getTotalDurMillisec();
-                um.concatRealisedAcoustParams(m.getPhoneName() + " " + dur.toString() + "\n");           
+                um.concatRealisedAcoustParams(m.getPhoneName() + " " + dur.toString() + "\n"); 
             } /* else : when total length of generated speech is specified (not implemented yet) */
             
             //m.printDuration(ms.getNumState());
@@ -381,7 +381,17 @@ public class HTSEngine extends InternalModule
      * @throws IOException
      */
     public static void main(String[] args) throws IOException, InterruptedException{
+        
+      /* configure log info */
+      org.apache.log4j.BasicConfigurator.configure();
 
+      /* To run the stand alone version of HTSEngine, it is necessary to pass a configuration
+       * file. It can be one of the hmm configuration files in MARY_BASE/conf/*hmm*.config 
+       * The input for creating a sound file is a label file in HTSCONTEXT format, there
+       * is an example indicated in the configuration file as well, if one wants to 
+       * change this example file, another HTSCONTEX file, for whatever text, can be generated 
+       * and saved in a file with MARY system.
+       * The output sound file is located in MARY_BASE/tmp/tmp.wav */
       HTSEngine hmm_tts = new HTSEngine();
       
       /* htsData contains:
@@ -392,7 +402,11 @@ public class HTSEngine extends InternalModule
        * TreeSet: Contains the tree-xxx.inf, xxx: dur, lf0, mcp, str and mag 
        *          these are all the trees trained for a particular voice. */
       HMMData htsData = new HMMData();
-      htsData.initHMMData("/project/mary/marcela/HMM-voices/english-hmm-cmu-arctic-slt/hts/hts_engine.config");
+      
+      /* For initialise provide the name of the hmm voice and the name of its configuration file,
+       * also indicate the name of your MARY_BASE directory.*/
+      String MaryBase = "/project/mary/marcela/MARY TTS/";
+      htsData.initHMMData("hmm-bits1", MaryBase, "german-hmm-bits1.config");
     
       /** The utterance model, um, is a Vector (or linked list) of Model objects. 
        * It will contain the list of models for current label file. */
@@ -419,8 +433,8 @@ public class HTSEngine extends InternalModule
           /* Synthesize speech waveform, generate speech out of sequence of parameters */
           ais = par2speech.htsMLSAVocoder(pdf2par, htsData);
      
-          System.out.println("saving to file: /project/mary/marcela/HMM-voices/english-hmm-cmu-arctic-slt/hts/gen/tmp.wav");
-          File fileOut = new File("/project/mary/marcela/HMM-voices/english-hmm-cmu-arctic-slt/hts/tmp.wav");
+          System.out.println("saving to file: " + MaryBase + "tmp/tmp.wav");
+          File fileOut = new File(MaryBase + "tmp/tmp.wav");
           
           if (AudioSystem.isFileTypeSupported(AudioFileFormat.Type.WAVE,ais)) {
             AudioSystem.write(ais, AudioFileFormat.Type.WAVE, fileOut);
