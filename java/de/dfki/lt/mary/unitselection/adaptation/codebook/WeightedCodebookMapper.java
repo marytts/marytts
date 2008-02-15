@@ -48,7 +48,7 @@ public class WeightedCodebookMapper {
     private int[] bestMatchIndices;
     private int[] sortedIndicesOfBestMatchIndices;
     double[] weights;
-    public WeightedCodebookEntry returnedEntry;
+    public WeightedCodebookMatch returnedMatch;
     
     public WeightedCodebookMapper(WeightedCodebookMapperParams mp)
     {
@@ -59,18 +59,18 @@ public class WeightedCodebookMapper {
             bestMatchDists = new double[mapperParams.numBestMatches];
             bestMatchIndices = new int[mapperParams.numBestMatches];
             sortedIndicesOfBestMatchIndices = new int[mapperParams.numBestMatches];
-            returnedEntry = new WeightedCodebookEntry(mapperParams.lpOrder);
         }
         else
         {
             bestMatchDists = null;
             bestMatchIndices = null;
             sortedIndicesOfBestMatchIndices = null;
-            returnedEntry = null;
         }
+        
+        returnedMatch = null;
     }
     
-    public WeightedCodebookEntry transform(double[] inputLsfs, WeightedCodebook codebook)
+    public WeightedCodebookMatch transform(double[] inputLsfs, WeightedCodebook codebook)
     {
         double currentDist;
         double worstBestDist = -1.0;
@@ -79,11 +79,11 @@ public class WeightedCodebookMapper {
 
         if (mapperParams.distanceMeasure==WeightedCodebookMapperParams.LSF_EUCLIDEAN_DISTANCE)
         {
-            for (i=0; i<codebook.totalEntries; i++)
+            for (i=0; i<codebook.header.totalLsfEntries; i++)
             {
                 if (i>=mapperParams.numBestMatches)
                 {
-                    currentDist = DistanceComputer.getEuclideanDistance(inputLsfs, codebook.entries[i].sourceItem.lsfs);
+                    currentDist = DistanceComputer.getEuclideanDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs);
                     
                     if (currentDist<worstBestDist)
                     {
@@ -95,7 +95,7 @@ public class WeightedCodebookMapper {
                 }
                 else
                 {
-                    bestMatchDists[i] = DistanceComputer.getEuclideanDistance(inputLsfs, codebook.entries[i].sourceItem.lsfs);
+                    bestMatchDists[i] = DistanceComputer.getEuclideanDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs);
                     bestMatchIndices[i] = i; 
                     
                     if (i==0 || bestMatchDists[i]>worstBestDist)
@@ -108,11 +108,11 @@ public class WeightedCodebookMapper {
         }
         else if (mapperParams.distanceMeasure==WeightedCodebookMapperParams.LSF_INVERSE_HARMONIC_DISTANCE)
         {
-            for (i=0; i<codebook.totalEntries; i++)
+            for (i=0; i<codebook.header.totalLsfEntries; i++)
             {
                 if (i>=mapperParams.numBestMatches)
                 {
-                    currentDist = DistanceComputer.getLsfInverseHarmonicDistance(inputLsfs, codebook.entries[i].sourceItem.lsfs);
+                    currentDist = DistanceComputer.getLsfInverseHarmonicDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs);
                     
                     if (currentDist<worstBestDist)
                     {
@@ -124,7 +124,7 @@ public class WeightedCodebookMapper {
                 }
                 else
                 {
-                    bestMatchDists[i] = DistanceComputer.getLsfInverseHarmonicDistance(inputLsfs, codebook.entries[i].sourceItem.lsfs);
+                    bestMatchDists[i] = DistanceComputer.getLsfInverseHarmonicDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs);
                     bestMatchIndices[i] = i; 
                     
                     if (i==0 || bestMatchDists[i]>worstBestDist)
@@ -137,11 +137,11 @@ public class WeightedCodebookMapper {
         }
         else if (mapperParams.distanceMeasure==WeightedCodebookMapperParams.LSF_INVERSE_HARMONIC_DISTANCE_SYMMETRIC)
         { 
-            for (i=0; i<codebook.totalEntries; i++)
+            for (i=0; i<codebook.header.totalLsfEntries; i++)
             {
                 if (i>=mapperParams.numBestMatches)
                 {
-                    currentDist = DistanceComputer.getLsfInverseHarmonicDistanceSymmetric(inputLsfs, codebook.entries[i].sourceItem.lsfs, mapperParams.alphaForSymmetric);
+                    currentDist = DistanceComputer.getLsfInverseHarmonicDistanceSymmetric(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs, mapperParams.alphaForSymmetric);
                     
                     if (currentDist<worstBestDist)
                     {
@@ -153,7 +153,7 @@ public class WeightedCodebookMapper {
                 }
                 else
                 {
-                    bestMatchDists[i] = DistanceComputer.getLsfInverseHarmonicDistanceSymmetric(inputLsfs, codebook.entries[i].sourceItem.lsfs, mapperParams.alphaForSymmetric);
+                    bestMatchDists[i] = DistanceComputer.getLsfInverseHarmonicDistanceSymmetric(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs, mapperParams.alphaForSymmetric);
                     bestMatchIndices[i] = i; 
                     
                     if (i==0 || bestMatchDists[i]>worstBestDist)
@@ -168,11 +168,11 @@ public class WeightedCodebookMapper {
         {
             double[][] inverseCovarianceMatrix = null;
             
-            for (i=0; i<codebook.totalEntries; i++)
+            for (i=0; i<codebook.header.totalLsfEntries; i++)
             {
                 if (i>=mapperParams.numBestMatches)
                 {
-                    currentDist = DistanceComputer.getMahalanobisDistance(inputLsfs, codebook.entries[i].sourceItem.lsfs, inverseCovarianceMatrix);
+                    currentDist = DistanceComputer.getMahalanobisDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs, inverseCovarianceMatrix);
                     
                     if (currentDist<worstBestDist)
                     {
@@ -184,7 +184,7 @@ public class WeightedCodebookMapper {
                 }
                 else
                 {
-                    bestMatchDists[i] = DistanceComputer.getMahalanobisDistance(inputLsfs, codebook.entries[i].sourceItem.lsfs, inverseCovarianceMatrix);
+                    bestMatchDists[i] = DistanceComputer.getMahalanobisDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs, inverseCovarianceMatrix);
                     bestMatchIndices[i] = i; 
                     
                     if (i==0 || bestMatchDists[i]>worstBestDist)
@@ -198,11 +198,11 @@ public class WeightedCodebookMapper {
         else if (mapperParams.distanceMeasure==WeightedCodebookMapperParams.LSF_ABSOLUTE_VALUE_DISTANCE)
         {
             
-            for (i=0; i<codebook.totalEntries; i++)
+            for (i=0; i<codebook.header.totalLsfEntries; i++)
             {
                 if (i>=mapperParams.numBestMatches)
                 {
-                    currentDist = DistanceComputer.getAbsoluteValueDistance(inputLsfs, codebook.entries[i].sourceItem.lsfs);
+                    currentDist = DistanceComputer.getAbsoluteValueDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs);
                     
                     if (currentDist<worstBestDist)
                     {
@@ -214,7 +214,7 @@ public class WeightedCodebookMapper {
                 }
                 else
                 {
-                    bestMatchDists[i] = DistanceComputer.getAbsoluteValueDistance(inputLsfs, codebook.entries[i].sourceItem.lsfs);
+                    bestMatchDists[i] = DistanceComputer.getAbsoluteValueDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs);
                     bestMatchIndices[i] = i; 
                     
                     if (i==0 || bestMatchDists[i]>worstBestDist)
@@ -230,39 +230,43 @@ public class WeightedCodebookMapper {
         
         //Get sorted indices of best distances (i.e. lowests) and perform weighting
         //Note that bestMatchDists is not actually sorted, only sorted indices returned!
-        sortedIndicesOfBestMatchIndices = MathUtils.quickSort(bestMatchDists, 0, Math.min(mapperParams.numBestMatches, codebook.totalEntries)-1);
+        sortedIndicesOfBestMatchIndices = MathUtils.quickSort(bestMatchDists, 0, Math.min(mapperParams.numBestMatches, codebook.header.totalLsfEntries)-1);
         
         //bestMatchIndices[sortedIndicesOfBestMatchIndices[0]] is the best matching codebook entry index
-        //bestMatchDists[sortedIndicesOfBestMatchIndices[0]] is the best score
+        //bestMatchDists[0] is the best score
         //codebook.entries[bestMatchIndices[sortedIndicesOfBestMatchIndices[0]]] are the source and target lsf set of the best match
         
-        double[] sortedBestMatchDists = new double[Math.min(mapperParams.numBestMatches, codebook.totalEntries)];
-        for (i=0; i<Math.min(mapperParams.numBestMatches, codebook.totalEntries); i++)
-            sortedBestMatchDists[i] = bestMatchDists[sortedIndicesOfBestMatchIndices[i]];
-        
-        weights = getWeights(sortedBestMatchDists, Math.min(mapperParams.numBestMatches, codebook.totalEntries), mapperParams.weightingMethod, mapperParams.weightingSteepness);
+        weights = getWeights(bestMatchDists, Math.min(mapperParams.numBestMatches, codebook.header.totalLsfEntries), mapperParams.weightingMethod, mapperParams.weightingSteepness);
 
         int j;
         String strBestIndices = "";
         String strWeights = "";
-        Arrays.fill(returnedEntry.sourceItem.lsfs, 0.0);
-        Arrays.fill(returnedEntry.targetItem.lsfs, 0.0);
         
-        for (i=0; i<Math.min(mapperParams.numBestMatches, codebook.totalEntries); i++)
+        returnedMatch = new WeightedCodebookMatch(Math.min(mapperParams.numBestMatches, codebook.header.totalLsfEntries), mapperParams.lpOrder);
+        Arrays.fill(returnedMatch.entry.sourceItem.lsfs, 0.0);
+        Arrays.fill(returnedMatch.entry.targetItem.lsfs, 0.0);
+        
+        for (i=0; i<returnedMatch.totalMatches; i++)
         {
+            returnedMatch.weights[i] = weights[i];
+            returnedMatch.indices[i] = bestMatchIndices[sortedIndicesOfBestMatchIndices[i]];
+            
             for (j=0; j<mapperParams.lpOrder; j++)
             {
-                returnedEntry.sourceItem.lsfs[j] += weights[i]*codebook.entries[bestMatchIndices[sortedIndicesOfBestMatchIndices[i]]].sourceItem.lsfs[j];
-                returnedEntry.targetItem.lsfs[j] += weights[i]*codebook.entries[bestMatchIndices[sortedIndicesOfBestMatchIndices[i]]].targetItem.lsfs[j];
+                returnedMatch.entry.sourceItem.lsfs[j] += returnedMatch.weights[i]*codebook.lsfEntries[returnedMatch.indices[i]].sourceItem.lsfs[j];
+                returnedMatch.entry.targetItem.lsfs[j] += returnedMatch.weights[i]*codebook.lsfEntries[returnedMatch.indices[i]].targetItem.lsfs[j];
             }
             
-            strBestIndices += String.valueOf(bestMatchIndices[sortedIndicesOfBestMatchIndices[i]]) + " ";
-            strWeights += String.valueOf(weights[i]) + " ";
+            strBestIndices += String.valueOf(returnedMatch.indices[i]) + " ";
+            strWeights += String.valueOf(returnedMatch.weights[i]) + " ";
+            
+            if (i>0 && weights[i]>weights[i-1])
+                System.out.println("Weight should be less than prev weight!!!");
         }
         
         System.out.println("Best entry indices = " + strBestIndices + " with weights = " + strWeights);
         
-        return returnedEntry;
+        return returnedMatch;
     }
     
     public static double[] getWeights(double[] bestDistances, int numBestDistances, int weightingMethod, double steepness)

@@ -31,6 +31,8 @@ package de.dfki.lt.mary.unitselection.adaptation.codebook;
 
 import java.io.IOException;
 
+import de.dfki.lt.signalproc.analysis.EnergyAnalyserRms;
+import de.dfki.lt.signalproc.analysis.EnergyFileHeader;
 import de.dfki.lt.signalproc.analysis.LsfFileHeader;
 import de.dfki.lt.signalproc.analysis.PitchFileHeader;
 import de.dfki.lt.signalproc.util.MaryRandomAccessFile;
@@ -40,6 +42,9 @@ import de.dfki.lt.signalproc.util.MaryRandomAccessFile;
  *
  */
 public class WeightedCodebookFileHeader {
+    public int totalLsfEntries;
+    public int totalF0StatisticsEntries;
+    
     //Codebook type
     public int codebookType;
     public static int FRAMES = 1; //Frame-by-frame mapping of features
@@ -54,12 +59,21 @@ public class WeightedCodebookFileHeader {
     
     public LsfFileHeader lsfParams;
     public PitchFileHeader ptcParams;
+    public EnergyFileHeader energyParams;
     
     public int numNeighboursInFrameGroups; //Functional only when codebookType == FRAME_GROUPS
     public int numNeighboursInLabelGroups; //Functional only when codebookType == LABEL_GROUPS
     
     public WeightedCodebookFileHeader()
     {
+        this(0, 0);
+    } 
+    
+    public WeightedCodebookFileHeader(int totalEntriesIn, int totalF0StatisticsEntriesIn)
+    {
+        totalLsfEntries = totalEntriesIn;
+        totalF0StatisticsEntries = totalF0StatisticsEntriesIn;
+        
         codebookType = FRAMES;
         
         sourceTag = "source"; //Source name tag (i.e. style or speaker identity)
@@ -67,15 +81,46 @@ public class WeightedCodebookFileHeader {
         
         lsfParams = new LsfFileHeader();
         ptcParams = new PitchFileHeader();
+        energyParams = new EnergyFileHeader();
     } 
     
-    public void read(MaryRandomAccessFile ler) throws IOException
+    public WeightedCodebookFileHeader(WeightedCodebookFileHeader h)
     {
+        totalLsfEntries = h.totalLsfEntries;
+        totalF0StatisticsEntries = h.totalF0StatisticsEntries;
+        
+        codebookType = h.codebookType;
+        
+        sourceTag = h.sourceTag;
+        targetTag = h.targetTag;
+        
+        lsfParams = new LsfFileHeader(h.lsfParams);
+        ptcParams = new PitchFileHeader(h.ptcParams);
+        energyParams = new EnergyFileHeader(h.energyParams);
+        
+        numNeighboursInFrameGroups = h.numNeighboursInFrameGroups;
+        numNeighboursInLabelGroups = h.numNeighboursInLabelGroups;
+    } 
+    
+    public void resetTotalEntries()
+    {
+        totalLsfEntries = 0;
+        totalF0StatisticsEntries = 0;
+    }
+
+    public void read(MaryRandomAccessFile ler) throws IOException
+    {   
+        totalLsfEntries = ler.readInt();
+        totalF0StatisticsEntries = ler.readInt();
+        
         lsfParams = new LsfFileHeader();
         lsfParams.readLsfHeader(ler);
         
         ptcParams = new PitchFileHeader();
         ptcParams.readPitchHeader(ler);
+        
+        energyParams = new EnergyFileHeader();
+        energyParams.read(ler, true);
         
         codebookType = ler.readInt();
         numNeighboursInFrameGroups = ler.readInt();
@@ -89,8 +134,12 @@ public class WeightedCodebookFileHeader {
     
     public void write(MaryRandomAccessFile ler) throws IOException
     {
+        ler.writeInt(totalLsfEntries);
+        ler.writeInt(totalF0StatisticsEntries);
+        
         lsfParams.writeLsfHeader(ler);
         ptcParams.writePitchHeader(ler);
+        energyParams.write(ler);
         
         ler.writeInt(codebookType);
         ler.writeInt(numNeighboursInFrameGroups);

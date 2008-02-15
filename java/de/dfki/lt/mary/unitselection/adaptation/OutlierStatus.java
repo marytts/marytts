@@ -27,27 +27,36 @@
  * THIS SOFTWARE.
  */
 
-package de.dfki.lt.mary.unitselection.adaptation.codebook;
+package de.dfki.lt.mary.unitselection.adaptation;
 
 /**
  * @author oytun.turk
  *
  */
-public class WeightedCodebookTrainer {
+public class OutlierStatus {
+    public static final int NON_OUTLIER      = Integer.parseInt("00000000", 2);
+    public static final int LSF_OUTLIER      = Integer.parseInt("00000001", 2);
+    public static final int F0_OUTLIER       = Integer.parseInt("00000010", 2);
+    public static final int DURATION_OUTLIER = Integer.parseInt("00000100", 2);
+    public static final int ENERGY_OUTLIER   = Integer.parseInt("00001000", 2);
     
-    public WeightedCodebookPreprocessor preprocessor;
-    public WeightedCodebookFeatureExtractor featureExtractor;
-    public WeightedCodebookOutlierEliminator outlierEliminator;
-    public WeightedCodebookTrainerParams params;
-    public static String wavExt = ".wav";
+    public int totalNonOutliers;
+    public int totalLsfOutliers;
+    public int totalF0Outliers;
+    public int totalDurationOutliers;
+    public int totalEnergyOutliers;
     
-    public WeightedCodebookTrainer(WeightedCodebookPreprocessor pp,
-            WeightedCodebookFeatureExtractor fe, 
-            WeightedCodebookTrainerParams pa) 
+    public OutlierStatus()
     {
-        preprocessor = new WeightedCodebookPreprocessor(pp);
-        featureExtractor = new WeightedCodebookFeatureExtractor(fe);
-        params = new WeightedCodebookTrainerParams(pa);
+       init();
     }
-
+    
+    public void init()
+    {
+        totalNonOutliers = 0;
+        totalLsfOutliers = 0;
+        totalF0Outliers = 0;
+        totalDurationOutliers = 0;
+        totalEnergyOutliers = 0;
+    }
 }

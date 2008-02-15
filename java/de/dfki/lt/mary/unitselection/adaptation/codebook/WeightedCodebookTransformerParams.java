@@ -29,6 +29,8 @@
 
 package de.dfki.lt.mary.unitselection.adaptation.codebook;
 
+import de.dfki.lt.mary.unitselection.adaptation.prosody.ProsodyTransformerParams;
+import de.dfki.lt.signalproc.analysis.EnergyFileHeader;
 import de.dfki.lt.signalproc.analysis.LsfFileHeader;
 import de.dfki.lt.signalproc.analysis.PitchFileHeader;
 
@@ -46,12 +48,19 @@ public class WeightedCodebookTransformerParams extends WeightedCodebookBaselineP
     public boolean isDisplayProcessingFrameCount; //Display processed frame indices while transforming?
     
     public WeightedCodebookMapperParams mapperParams;
+    public ProsodyTransformerParams prosodyParams;
     
     public LsfFileHeader lsfParams;
     public PitchFileHeader ptcParams;
+    public EnergyFileHeader energyParams;
     
     public boolean isForcedAnalysis;
     public boolean isSourceVocalTractSpectrumFromCodebook;
+    public boolean isVocalTractTransformation;
+    
+    public boolean isSeparateProsody;
+    public boolean isSaveVocalTractOnlyVersion;
+    public boolean isFixedRateVocalTractConversion;
     
     public WeightedCodebookTransformerParams()
     {
@@ -64,10 +73,16 @@ public class WeightedCodebookTransformerParams extends WeightedCodebookBaselineP
         isDisplayProcessingFrameCount = false;
             
         mapperParams = new WeightedCodebookMapperParams();
+        prosodyParams = new ProsodyTransformerParams();
         lsfParams = new LsfFileHeader();
         ptcParams = new PitchFileHeader();
+        energyParams = new EnergyFileHeader();
         isForcedAnalysis = false;
         isSourceVocalTractSpectrumFromCodebook = true;
+        isVocalTractTransformation = true;
+        isSeparateProsody = true;
+        isSaveVocalTractOnlyVersion = true;
+        isFixedRateVocalTractConversion = true;
     }
 }
 

@@ -205,7 +205,7 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
         {
             float timeScale = 1.0f;
             float pitchScale = 2.3f;
-            y = pm.process(x, f0.getContour(), (float)f0.header.ws, (float)f0.header.ss, 
+            y = pm.process(x, f0.contour, (float)f0.header.ws, (float)f0.header.ss, 
                            isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
                            timeScale, pitchScale, skipSizeInSeconds, deltaInHz, numPeriods, 
                            bRefinePeakEstimatesParabola,  bRefinePeakEstimatesBias,   bAdjustNeighFreqDependent, isSilentSynthesis, 
@@ -218,7 +218,7 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
             float [] pitchScales = {2.0f, 1.5f, 0.8f, 0.6f};
             float [] pitchScalesTimes = {0.5f, 1.25f, 2.0f, 2.5f};
 
-            y = pm.process(x, f0.getContour(), (float)f0.header.ws, (float)f0.header.ss,
+            y = pm.process(x, f0.contour, (float)f0.header.ws, (float)f0.header.ss,
                           isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
                           timeScales, timeScalesTimes, pitchScales, pitchScalesTimes, skipSizeInSeconds, deltaInHz, numPeriods,
                           bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias,   bAdjustNeighFreqDependent, isSilentSynthesis, 

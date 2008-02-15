@@ -17,7 +17,7 @@ import de.dfki.lt.signalproc.util.MathUtils;
 
 public class F0ReaderWriter {
     public PitchFileHeader header;
-    protected double [] contour; //f0 values in Hz (0.0 for unvoiced)
+    public double [] contour; //f0 values in Hz (0.0 for unvoiced)
     
     public F0ReaderWriter(String ptcFile) {
         contour = null;
@@ -84,14 +84,13 @@ public class F0ReaderWriter {
         }
     }
     
-    public double [] getContour()
+    public double [] getVoiceds()
     {
-        return contour;
+        return SignalProcUtils.getVoiceds(contour);
     }
     
     public void read_pitch_file(String ptcFile) throws IOException
     {
-        //LittleEndianBinaryReader lr = new LittleEndianBinaryReader(new DataInputStream(new FileInputStream(ptcFile)));
         LEDataInputStream lr = new LEDataInputStream(new DataInputStream(new FileInputStream(ptcFile)));
         
         if (lr!=null)

@@ -9,24 +9,25 @@ import de.dfki.lt.mary.util.StringUtil;
 public class BaselineAdaptationItem {
     //A decomposition of the file into its sinus+noise+transients+residual components
     // audioFile = sinesFile+noiseFile+transientsFile+residualFile
-    public String sinesFile; //Sinusoids
-    public String noiseFile; //Noise
-    public String transientsFile; //Transients
-    public String residualFile; //Residual (what remains after all model based decomposition)
+    public String sinesFile;        //Sinusoids
+    public String noiseFile;        //Noise
+    public String transientsFile;   //Transients
+    public String residualFile;     //Residual (what remains after all model based decomposition)
     //
     
-    public String labelFile;   //Labels
-    public String f0File;      //f0 contour
-    public String pitchMarkFile;   //Pitch marks
-    public String textFile;    //Text
-    public String mfccFile;    //Mel frequency cepstral coefficients
-    public String lsfFile;     //Line spectral frequencies
-    public String lpcFile;     //Linear prediction coefficients
+    public String labelFile;        //Labels
+    public String f0File;           //f0 contour
+    public String pitchMarkFile;    //Pitch marks
+    public String energyFile;       //Energy contour
+    public String textFile;         //Text
+    public String mfccFile;         //Mel frequency cepstral coefficients
+    public String lsfFile;          //Line spectral frequencies
+    public String lpcFile;          //Linear prediction coefficients
     public String lpResidualFile;   //Time-domain residual waveform after LP inverse filtering
-    public String cepsFile;    //Cepstrum coefficients file
-    public String eggFile;     //Electro-glottograph file
+    public String cepsFile;         //Cepstrum coefficients file
+    public String eggFile;          //Electro-glottograph file
     
-    public String audioFile;   //Original waveform file
+    public String audioFile;        //Original waveform file
     
     public BaselineAdaptationItem()
     {
@@ -45,6 +46,7 @@ public class BaselineAdaptationItem {
         labelFile = StringUtil.modifyExtension(audioFile, ".lab");   //Labels
         f0File = StringUtil.modifyExtension(audioFile, ".ptc");      //f0 contour
         pitchMarkFile = StringUtil.modifyExtension(audioFile, ".pm");   //Pitch marks
+        energyFile = StringUtil.modifyExtension(audioFile, ".ene"); //Energy contour
         textFile = StringUtil.modifyExtension(audioFile, ".txt");    //Text
         mfccFile = StringUtil.modifyExtension(audioFile, ".mfc");    //Mel frequency cepstral coefficients
         lsfFile = StringUtil.modifyExtension(audioFile, ".lsf");     //Line spectral frequencies

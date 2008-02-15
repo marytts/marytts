@@ -248,7 +248,7 @@ public class SinusoidalSynthesizer {
             {
                 String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
                 F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
-                f0s = f0.getContour();
+                f0s = f0.contour;
                 ws_f0 = (float) f0.header.ws;
                 ss_f0 = (float) f0.header.ss;
             }
@@ -262,7 +262,7 @@ public class SinusoidalSynthesizer {
             //Pitch synchronous analysis
             String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
             F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
-            PitchMarker pm = SignalProcUtils.pitchContour2pitchMarks(f0.getContour(), samplingRate, x.length, f0.header.ws, f0.header.ss, true);
+            PitchMarker pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true);
             pa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HANN, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bAdjustNeighFreqDependent);
             st = pa.analyzePitchSynchronous(x, pm.pitchMarks, numPeriods, -1.0f, deltaInHz);
             isSilentSynthesis = false;

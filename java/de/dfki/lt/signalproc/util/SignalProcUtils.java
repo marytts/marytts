@@ -149,6 +149,35 @@ public class SignalProcUtils {
         return getAverageSampleEnergy(x, x.length, 0);
     }
     
+    public static double[] getEnergyContourRms(double[] x, double windowSizeInSeconds, double skipSizeInSeconds, int samplingRate)
+    {
+        int ws = (int)Math.floor(windowSizeInSeconds*samplingRate+0.5);
+        int ss = (int)Math.floor(skipSizeInSeconds*samplingRate+0.5);
+        int numfrm = (int)Math.floor((x.length-(double)ws)/ss+0.5);
+        
+        double[] energies = null;
+        
+        if (numfrm>0)
+        {
+            energies = new double[numfrm];
+            double[] frm = new double[ws];
+            int i, j;
+            for (i=0; i<numfrm; i++)
+            {
+                Arrays.fill(frm, 0.0);
+                System.arraycopy(x, i*ss, frm, 0, Math.min(ws, x.length-i*ss));
+                energies[i] = 0.0;
+                for (j=0; j<ws; j++)
+                    energies[i] += frm[j]*frm[j];
+                energies[i] /= ws;
+                energies[i] = Math.sqrt(energies[i]);
+                energies[i] = MathUtils.amp2db(energies[i]);
+            }
+        }
+        
+        return energies;
+    }
+    
     //Returns the reversed version of the input array
     public static double [] reverse(double [] x)
     {
@@ -374,6 +403,64 @@ public class SignalProcUtils {
         }
         
         return new_f0s;
+    }
+    
+    //A least squares line is fit to the given contour
+    // and the parameters of the line are returned, i.e. line[0]=intercept and line[1]=slope
+    public static double[] getContourLSFit(double[] contour, boolean isPitchUVInterpolation)
+    {
+        double[] line = null;
+        
+        if (contour!=null)
+        {
+            double[] newContour = new double[contour.length];
+            System.arraycopy(contour, 0, newContour, 0, contour.length);
+        
+            if (isPitchUVInterpolation)
+                newContour = SignalProcUtils.interpolate_pitch_uv(newContour);
+            
+            double[] indices = new double[contour.length];
+            for (int i=0; i<contour.length; i++)
+                indices[i] = i;
+            
+            line = fitLeastSquaresLine(indices, newContour);
+        }
+        
+        return line;
+    }
+    
+    public static double[] fitLeastSquaresLine(double [] x, double [] y)
+    {
+        assert x!=null;
+        assert y!=null;
+        assert x.length==y.length;
+        
+        double [] params = new double[2];
+
+        double sx = 0.0;
+        double sy = 0.0;
+        double sxx = 0.0;
+        double sxy = 0.0;
+        double delta;
+
+        int numPoints = x.length;
+        
+        for(int i=0; i<numPoints; i++)
+        {
+            sx  += x[i];
+            sy  += y[i];
+            sxx += x[i]*x[i];
+            sxy += x[i]*y[i];
+        }
+
+        delta = numPoints*sxx - sx*sx;
+
+        //Intercept
+        params[0] = (sxx*sy -sx*sxy)/delta;
+        //Slope
+        params[1] = (numPoints*sxy -sx*sy)/delta;
+
+        return params;
     }
     
     public static boolean getVoicing(double [] windowedSpeechFrame, int samplingRateInHz)
@@ -1069,6 +1156,145 @@ public class SignalProcUtils {
     public static int time2frameIndex(float time, float windowSizeInSeconds, float skipSizeInSeconds)
     {
         return (int)Math.max(0, Math.floor((time-0.5f*windowSizeInSeconds)/skipSizeInSeconds+0.5));
+    }
+    
+    //Center-clipping using the amount <ratio>
+    //Valid values of ratio are in the range [0.0,1.0]
+    // greater values result in  more clipping (i.e. with 1.0 you will get all zeros at the output)
+    public static void centerClip(double[] x, double ratio)
+    {
+        if (ratio<0.0)
+            ratio=0.0;
+        if (ratio>1.0)
+            ratio=1.0;
+        
+        double positiveMax = MathUtils.getMax(x);
+        double negativeMax = MathUtils.getMin(x);
+        double positiveTh = positiveMax*ratio;
+        double negativeTh = negativeMax*ratio;
+        
+        for (int i=0; i<x.length; i++)
+        {
+            if (x[i]>positiveTh)
+                x[i] -= positiveTh;
+            else if (x[i]<negativeTh)
+                x[i] -= negativeTh;
+            else
+                x[i] = 0.0;
+        }
+    }
+    
+    public static double[] getVoiceds(double[] f0s)
+    {
+        double[] voiceds = null;
+
+        if (f0s!=null)
+        {
+            int totalVoiceds = 0;
+            int i;
+
+            for (i=0; i<f0s.length; i++)
+            {
+                if (f0s[i]>10.0)
+                    totalVoiceds++;
+            }
+
+            if (totalVoiceds>0)
+            {
+                voiceds = new double[totalVoiceds];
+                int count = 0;
+                for (i=0; i<f0s.length; i++)
+                {
+                    if (f0s[i]>10.0)
+                        voiceds[count++] = f0s[i];
+
+                    if (count>=totalVoiceds)
+                        break;
+                }
+            }
+        }
+        
+        return voiceds;
+    }
+    
+    //Convert an f0 contour into a log-f0 contour by handling unvoiced parts specially
+    //The unvoiced values (i.e. f0 values less than or equal to 10 Hz are set to 0.0
+    public static double[] getLogF0s(double[] f0s)
+    {
+        return MathUtils.log(f0s, 10.0, 0.0);
+    }
+    
+    //Inverse of getLogF0s functions
+    //i.e. log f0 values are converted to values in Hz with special handling of unvoiceds
+    public static double[] getExpF0s(double[] logF0s)
+    {
+        double[] f0s = null;
+        
+        if (logF0s!=null)
+        {
+            f0s = new double[logF0s.length];
+            
+            for (int i=0; i<f0s.length; i++)
+            {
+                if (logF0s[i]>Math.log(10.0))
+                    f0s[i] = Math.exp(logF0s[i]);
+                else
+                    f0s[i] = 0.0;
+            }
+        }
+        
+        return f0s;
+    }
+    
+    public static double getF0Range(double[] f0s)
+    {
+        return getF0Range(f0s, 0.10, 0.10);
+    }
+    
+    public static double getF0Range(double[] f0s, double percentileMin, double percentileMax)
+    {
+        double range = 0.0;
+        
+        double[] voiceds = SignalProcUtils.getVoiceds(f0s);
+        
+        if (voiceds!=null)
+        {
+            if (percentileMin<0.0)
+                percentileMin = 0.0;
+            if (percentileMin>1.0)
+                percentileMin = 1.0;
+            if (percentileMax<0.0)
+                percentileMax = 0.0;
+            if (percentileMax>1.0)
+                percentileMax = 1.0;
+            
+            MathUtils.quickSort(voiceds);
+            int ind1 = (int)Math.floor(voiceds.length*percentileMin+0.5);
+            int ind2 = (int)Math.floor(voiceds.length*(1.0-percentileMax)+0.5);
+            range = Math.max(0.0, voiceds[ind2] - voiceds[ind1]);
+        }
+        
+        return range;
+    }
+    
+    public static int frameIndex2LabelIndex(int zeroBasedFrameIndex, ESTLabels labels, double windowSizeInSeconds, double skipSizeInSeconds)
+    {
+        int index = -1;
+        double time = zeroBasedFrameIndex*skipSizeInSeconds + 0.5*windowSizeInSeconds;
+        for (int i=0; i<labels.items.length; i++)
+        {
+            if (labels.items[i].time<=time)
+                index++;
+            else
+                break;
+        }
+        
+        if (index<0)
+            index=0;
+        if (index>labels.items.length-1)
+            index=labels.items.length-1;
+
+        return index;
     }
     
     public static void main(String[] args)

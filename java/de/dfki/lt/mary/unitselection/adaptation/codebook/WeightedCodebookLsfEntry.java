@@ -35,21 +35,21 @@ import de.dfki.lt.signalproc.util.MaryRandomAccessFile;
  * @author oytun.turk
  *
  */
-public class WeightedCodebookEntry {
-    WeightedCodebookSpeakerItem sourceItem;
-    WeightedCodebookSpeakerItem targetItem;
+public class WeightedCodebookLsfEntry {
+    public WeightedCodebookSpeakerItem sourceItem;
+    public WeightedCodebookSpeakerItem targetItem;
     
-    public WeightedCodebookEntry()
+    public WeightedCodebookLsfEntry()
     {
         this(0);
     }
     
-    public WeightedCodebookEntry(int lpOrder)
+    public WeightedCodebookLsfEntry(int lpOrder)
     {
         allocate(lpOrder);
     }
     
-    public WeightedCodebookEntry(double[] sourceLsfs, double[] targetLsfs)
+    public WeightedCodebookLsfEntry(double[] sourceLsfs, double[] targetLsfs)
     {
         if (sourceLsfs!=null && targetLsfs!=null)
         {

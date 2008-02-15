@@ -252,4 +252,17 @@ public class BaselineAdaptationSet {
         
         return fileList;    
     }
+    
+    public String [] getEnergyFiles()
+    {
+        String [] fileList = null;
+        if (items!=null && items.length>0)
+        {
+            fileList = new String[items.length];
+            for (int i=0; i<items.length; i++)
+                fileList[i] = items[i].energyFile;
+        }
+        
+        return fileList;    
+    }
 }

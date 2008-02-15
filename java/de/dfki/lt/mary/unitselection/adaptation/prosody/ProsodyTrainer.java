@@ -27,27 +27,17 @@
  * THIS SOFTWARE.
  */
 
-package de.dfki.lt.mary.unitselection.adaptation.codebook;
+package de.dfki.lt.mary.unitselection.adaptation.prosody;
 
 /**
  * @author oytun.turk
  *
  */
-public class WeightedCodebookTrainer {
+public class ProsodyTrainer {
+    PitchTrainer pitchTrainer;
+    DurationTrainer durationTrainer;
+    EnergyTrainer energyTrainer;
     
-    public WeightedCodebookPreprocessor preprocessor;
-    public WeightedCodebookFeatureExtractor featureExtractor;
-    public WeightedCodebookOutlierEliminator outlierEliminator;
-    public WeightedCodebookTrainerParams params;
-    public static String wavExt = ".wav";
     
-    public WeightedCodebookTrainer(WeightedCodebookPreprocessor pp,
-            WeightedCodebookFeatureExtractor fe, 
-            WeightedCodebookTrainerParams pa) 
-    {
-        preprocessor = new WeightedCodebookPreprocessor(pp);
-        featureExtractor = new WeightedCodebookFeatureExtractor(fe);
-        params = new WeightedCodebookTrainerParams(pa);
-    }
 
 }

@@ -133,10 +133,21 @@ public class MathUtils {
      */
     public static double sum(double[] data)
     {
-        double sum = 0;
+        double sum = 0.0;
         for (int i=0; i<data.length; i++) {
             if (Double.isNaN(data[i])) continue; 
             sum += data[i];
+        }
+        return sum;
+    }
+    
+    //Computes sum_i=0^data.length-1 (data[i]+term)^2
+    public static double sumSquared(double[] data, double term)
+    {
+        double sum = 0.0;
+        for (int i=0; i<data.length; i++) {
+            if (Double.isNaN(data[i])) continue; 
+            sum += (data[i]+term)*(data[i]+term);
         }
         return sum;
     }
@@ -300,6 +311,55 @@ public class MathUtils {
         mean /= inds.length;
         return mean;
     }
+    
+    public static double standardDeviation(double[] data)
+    {
+        return standardDeviation(data, mean(data));
+    }
+    
+    public static double standardDeviation(double[] data, double meanVal)
+    {
+        return standardDeviation(data, meanVal, 0, data.length-1);
+    }
+    
+    public static double standardDeviation(double[] data, double meanVal, int startIndex, int endIndex)
+    {
+        return Math.sqrt(variance(data, meanVal, startIndex, endIndex));
+    }
+    
+    public static double variance(double[] data)
+    {
+        return variance(data, mean(data));
+    }
+
+    public static double variance(double[] data, double meanVal)
+    {
+       return variance(data, meanVal, 0, data.length-1);
+    }
+    
+    public static double variance(double[] data, double meanVal, int startIndex, int endIndex)
+    {
+        double var = 0.0;
+        
+        if (startIndex<0)
+            startIndex=0;
+        if (startIndex>data.length-1)
+            startIndex=data.length-1;
+        if (endIndex<startIndex)
+            endIndex=startIndex;
+        if (endIndex>data.length-1)
+            endIndex=data.length-1;
+        
+        for (int i=startIndex; i<=endIndex; i++)
+            var += (data[i]-meanVal)*(data[i]-meanVal);
+        
+        if (endIndex-startIndex+1>1)
+            var /= (endIndex-startIndex+1);
+        
+        return var;
+    }
+    
+    
 
     /**
      * Convert energy from linear scale to db SPL scale (comparing energies to  
@@ -524,6 +584,22 @@ public class MathUtils {
         return c;
     }
 
+    //A special log operation
+    //The values smaller than or equal to minimumValue are set to fixedValue
+    //The values greater than minimumValue are converted to log
+    public static double[] log(double[] a, double minimumValue, double fixedValue)
+    {
+        double[] c = new double[a.length];
+        for (int i=0; i<a.length; i++) 
+        {
+            if (a[i]>minimumValue)
+                c[i] = Math.log(a[i]);
+            else
+                c[i] = fixedValue;
+        }
+        return c;
+    }
+    
     public static double[] log10(double[] a)
     {
         double[] c = new double[a.length];
@@ -1836,8 +1912,12 @@ public class MathUtils {
         return (x-xStart)/(xEnd-xStart)*(yEnd-yStart)+yStart;
     }
     
-    //In-place sorting of array x
-    //The corresponding original indices are returned as an int array
+    public static int linearMap(int x, int xStart, int xEnd, int yStart, int yEnd)
+    {
+        return (int)Math.floor(((float)x-xStart)/((float)xEnd-xStart)*(yEnd-yStart)+yStart + 0.5);
+    }
+    
+    //In place sorting of array x, return value are the sorted 0-based indices 
     public static int[] quickSort(double[] x)
     {
         int[] indices = new int[x.length];
@@ -1849,69 +1929,96 @@ public class MathUtils {
         return indices;
     }
     
-    public static int[] quickSort(double[] x, int startInd, int endInd)
+    //In place sorting of elements of array x between startIndex(included) and endIndex(included)
+    public static int[] quickSort(double[] x, int startIndex, int endIndex)
     {
-        if (startInd<0)
-            startInd=0;
-        if (endInd<0)
-            endInd=0;
-        if (endInd>x.length-1)
-            endInd=x.length-1;
-        if (startInd>endInd)
-            startInd=endInd;
-            
-        double[] y = new double[endInd-startInd+1];
-        System.arraycopy(x, startInd, y, 0, endInd-startInd+1);
+        if (startIndex<0)
+            startIndex=0;
+        if (startIndex>x.length-1)
+            startIndex=x.length-1;
+        if (endIndex<startIndex)
+            endIndex=startIndex;
+        if (endIndex>x.length-1)
+            endIndex=x.length-1;
         
-        int[] inds = quickSort(y);
+        int[] indices = new int[endIndex-startIndex+1];
+        double[] x2 = new double[endIndex-startIndex+1];
+        int i;
         
-        for (int i=0; i<inds.length; i++)
-            inds[i] += startInd;
+        for (i=startIndex; i<=endIndex; i++)
+        {
+            indices[i-startIndex] = i;
+            x2[i-startIndex] = x[i];
+        }
         
-        return inds;
+        quickSort(x2, indices);
+        
+        for (i=startIndex; i<=endIndex; i++)
+            x[i] = x2[i-startIndex];
+        
+        return indices;
     }
-    public static void quickSort(double[] x, int[] indices)
+    
+    
+    //Sorts x, y is also sorted as x so it can be used to obtain sorted indices
+    public static void quickSort(double[] x, int[] y)
     {
-         quickSort(x, indices, 0, x.length-1);
+        assert x.length==y.length;
+        
+        quickSort(x, y, 0, x.length-1);
+    }
+    
+    public static void quickSort(double[] x, int[] y, int startIndex, int endIndex)
+    {
+        if(startIndex<endIndex) 
+        {
+            int j = partition(x, y, startIndex, endIndex);
+            quickSort(x, y, startIndex, j-1);
+            quickSort(x, y, j+1, endIndex);
+        } 
     }
 
-    public static void quickSort(double[] x, int[] indices, int startIndex, int endIndex)
+    private static int partition(double[] x, int[] y, int startIndex, int endIndex) 
     {
         int i = startIndex; 
-        int j = endIndex;
-        int ind;
-        double temp = x[(startIndex+endIndex)/2];
-
-        do
-        {    
-            while (x[i]<temp) 
-                i++; 
-            
-            while (x[j]>temp) 
-                j--;
-            
-            if (i<=j)
-            {
-                temp = x[i];
-                ind = indices[i];
-                
-                x[i] = x[j]; 
-                indices[i] = indices[j];
-                
-                x[j] = temp;
-                indices[j] = ind;
-                
-                i++; 
-                j--;
-            }
-        } while (i<=j);
-
-        //  recursion
-        if (startIndex<j) 
-            quickSort(x, indices, startIndex, j);
+        int j = endIndex+1;
+        double t;
+        int ty;
+        double pivot = x[startIndex];
         
-        if (i<endIndex) 
-            quickSort(x, indices, i, endIndex);
+        while(true)
+        {
+            do {
+                ++i;
+            } while(i<=endIndex && x[i]<=pivot);
+
+            do {
+                --j;
+            } while(x[j]>pivot);
+
+            if(i>=j) 
+                break;
+
+            t = x[i]; 
+            ty = y[i];
+            
+            x[i] = x[j];
+            y[i] = y[j];
+            
+            x[j] = t;
+            y[j] = ty;
+        }
+
+        t = x[startIndex]; 
+        ty = y[startIndex];
+        
+        x[startIndex] = x[j]; 
+        y[startIndex] = y[j];
+        
+        x[j] = t;
+        y[j] = ty;
+        
+        return j;
     }
     
     public static double[] normalizeToSumUpTo(double[] x, double sumUp)
@@ -1958,10 +2065,75 @@ public class MathUtils {
         {
             for (i=0; i<len; i++)
                 y[i] = (x[i]-xmin)+0.5*(minVal+maxVal);
-        }
-            
+        }   
         
         return y;
+    }
+    
+    //Shifts mean value of x
+    public static void adjustMean(double[] x, double newMean)
+    {
+        double currentMean = MathUtils.mean(x);
+
+        for (int i=0; i<x.length; i++)
+            x[i] = (x[i]-currentMean) + newMean;
+    }
+    //
+    
+    public static void adjustVariance(double[] x, double newVariance)
+    {
+        adjustStandardDeviation(x, Math.sqrt(newVariance));
+    }
+    
+    //Assigns new standard deviation while keeping the mean value of x
+    public static void adjustStandardDeviation(double[] x, double newStandardDeviation)
+    {
+        double currentMean = mean(x);
+        double currentStdDev = standardDeviation(x, currentMean);
+        
+        for (int i=0; i<x.length; i++)
+            x[i] = ((x[i]-currentMean)*newStandardDeviation/currentStdDev) + currentMean;
+    }
+    //
+    
+    public static double median(double[] x)
+    {
+        quickSort(x);
+        
+        int index = (int)Math.floor(0.5*x.length+0.5);
+        if (index<0)
+            index=0;
+        if (index>x.length-1)
+            index=x.length-1;
+        
+        return x[index];
+    }
+    
+    //Returns 1/N sum_i=0^N-1(|x[i]|)
+    public static double absMean(double[] x)
+    {
+        double m = 0.0;
+        
+        for (int i=0; i<x.length; i++)
+            m += Math.abs(x[i]);
+        
+        m /= x.length;
+        
+        return m;
+    }
+    
+    //Returns variances for each row
+    public static double[] getVarianceRows(double[][] x)
+    {   
+        double[] variances = null;
+        if (x!=null)
+        {
+            variances = new double[x.length];
+            for (int i=0; i<x.length; i++)
+                variances[i] = MathUtils.variance(x[i]);
+        }
+
+        return variances;
     }
     
     public static void main(String[] args)
@@ -1978,9 +2150,19 @@ public class MathUtils {
         x[8] = 5.0;
         x[9] = 12.0;
         
-        int [] indices = quickSort(x);
+        /*
+        int startIndex = 0;
+        int endIndex = 9;
+        int [] indices = quickSort(x, startIndex, endIndex);
         
-        for (int i=0; i<x.length; i++)
-            System.out.println(String.valueOf(indices[i]) + " " + String.valueOf(x[i]));
+        for (int i=startIndex; i<=endIndex; i++)
+            System.out.println(String.valueOf(indices[i-startIndex]) + " " + String.valueOf(x[i]));
+        
+        adjustVariance(x, 64.0);
+        System.out.println(String.valueOf(standardDeviation(x)));
+        */
+        
+        System.out.println(String.valueOf(median(x)));
+        
     }
 }
