@@ -40,6 +40,9 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchStatistics;
+import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchTransformer;
+import de.dfki.lt.mary.unitselection.adaptation.prosody.ProsodyTransformerParams;
 import de.dfki.lt.mary.util.FileUtils;
 import de.dfki.lt.mary.util.MaryUtils;
 import de.dfki.lt.signalproc.FFT;
@@ -166,6 +169,8 @@ public class WeightedCodebookFdpsolaAdapter {
     
     private double desiredFrameTime;
     private boolean bShowAGraph;
+    
+    private PitchTransformer pitchTransformer;
 
     public WeightedCodebookFdpsolaAdapter(String strInputFile, String strPitchFile, String strOutputFile, 
             boolean bVocalTractTransformation,
@@ -184,6 +189,7 @@ public class WeightedCodebookFdpsolaAdapter {
             double [] pscales, double [] tscales, double [] escales, double [] vscales,
             boolean isFixedRate)
     {
+        pitchTransformer = new PitchTransformer();
         isWavFileOutput = false;
         inputAudio = null;
         input = null;
@@ -246,7 +252,7 @@ public class WeightedCodebookFdpsolaAdapter {
             fs = (int)inputAudio.getFormat().getSampleRate();
 
             F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
-            pm = SignalProcUtils.pitchContour2pitchMarks(f0.getContour(), fs, origLen, f0.header.ws, f0.header.ss, true);
+            pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, origLen, f0.header.ws, f0.header.ss, true);
 
             numfrmFixed = (int)(Math.floor(((double)(origLen + pm.totalZerosToPadd)/fs-0.5*wsFixedInSeconds)/ssFixedInSeconds+0.5)+2); //Total frames if the analysis was fixed skip-rate
             if (!isFixedRate)
@@ -259,9 +265,9 @@ public class WeightedCodebookFdpsolaAdapter {
             lpOrder = SignalProcUtils.getLPOrder(fs);
 
             modParams = new VoiceModificationParametersPreprocessor(fs, lpOrder,
-                    pscales, tscales, escales, vscales,
-                    pm.pitchMarks, wsFixedInSeconds, ssFixedInSeconds,
-                    numfrm, numfrmFixed, numPeriods, isFixedRate);
+                                                                    pscales, tscales, escales, vscales,
+                                                                    pm.pitchMarks, wsFixedInSeconds, ssFixedInSeconds,
+                                                                    numfrm, numfrmFixed, numPeriods, isFixedRate);
             tscaleSingle = modParams.tscaleSingle;
 
             outputFile = strOutputFile;    
@@ -355,7 +361,15 @@ public class WeightedCodebookFdpsolaAdapter {
         bShowAGraph = false;
 
         fs = (int)inputAudio.getFormat().getSampleRate();
+        
+        PitchStatistics inputF0Statistics = new PitchStatistics(params.prosodyParams.pitchStatisticsType, f0s);
 
+        double[] targetF0s = pitchTransformer.transform(params.prosodyParams,  
+                                                        codebook.f0StatisticsMapping,
+                                                        inputF0Statistics, 
+                                                        f0s,
+                                                        modParams.pscalesVar);
+        
         inputFrameIndex = 0;
         for (i=0; i<numfrm; i++)
         {   
@@ -381,19 +395,35 @@ public class WeightedCodebookFdpsolaAdapter {
             }
 
             boolean isVoiced;
+            isVoiced = pm.vuvs[i];
+            double currentF0;
+            if (isVoiced)
+                currentF0 = fs/currentPeriod;
+            else
+                currentF0 = 0.0;
+            
+            int index = (int)(Math.floor((psFrm.getCurrentTime()-0.5*wsFixedInSeconds)/ssFixedInSeconds+0.5));
+            if (index<0)
+                index=0;
+            if (index>targetF0s.length-1)
+                index=targetF0s.length-1;
+            
+            /*
             if (!isFixedRateVocalTractTransformation)
                 isVoiced = pm.vuvs[i];
             else
             {
-                if (f0s[i]>10.0)
+                if (f0s[index]>10.0)
                     isVoiced=true;
                 else
                     isVoiced=false;
             }
+            */
 
-            processFrame(frmIn, isVoiced, modParams.pscalesVar[i], modParams.tscalesVar[i], modParams.escalesVar[i], modParams.vscalesVar[i], isLastInputFrame, 
-                    currentPeriod, inputFrameSize,
-                    params, mapper, codebook);
+            processFrame(frmIn, isVoiced, 
+                         currentF0, targetF0s[index], modParams.tscalesVar[i], modParams.escalesVar[i], modParams.vscalesVar[i], 
+                         isLastInputFrame, currentPeriod, inputFrameSize,
+                         params, mapper, codebook);
         }
 
         writeFinal();
@@ -405,16 +435,24 @@ public class WeightedCodebookFdpsolaAdapter {
 
     //Voice conversion version
     public double [] processFrame(double [] frmIn, boolean isVoiced, 
-                                  double pscale, double tscale, double escale, double vscale, 
+                                  double currentF0, double targetF0, double tscale, double escale, double vscale, 
                                   boolean isLastInputFrame, int currentPeriod, int inputFrameSize,
                                   WeightedCodebookTransformerParams params,
                                   WeightedCodebookMapper mapper,
                                   WeightedCodebook codebook) throws IOException
     {   
+        double pscale;
+        
+        if (currentF0>10.0)
+            pscale = targetF0/currentF0;
+        else
+            pscale = 1.0;
+        
         if (pscale<MIN_PSCALE)
             pscale = MIN_PSCALE;
         if (pscale>MAX_PSCALE)
             pscale = MAX_PSCALE;
+        
         if (tscale<MIN_TSCALE)
             tscale = MIN_TSCALE;
         if (tscale>MAX_TSCALE)
@@ -426,7 +464,7 @@ public class WeightedCodebookFdpsolaAdapter {
         int tmpFix, tmpAdd, tmpMul;
         int remain;
         int kInd;
-        WeightedCodebookEntry interpolatedEntry = null;
+        WeightedCodebookMatch codebookMatch = null;
 
         windowIn = new DynamicWindow(params.lsfParams.windowType);
         windowOut = new DynamicWindow(params.lsfParams.windowType);
@@ -581,9 +619,9 @@ public class WeightedCodebookFdpsolaAdapter {
                 //Find target estimate from codebook
                 if (isVocalTractTransformation)
                 {
-                    interpolatedEntry = mapper.transform(inputLsfs, codebook);
+                    codebookMatch = mapper.transform(inputLsfs, codebook);
                     //Use source for testing things. Don´t forget to set isSourceVocalTractFromCodeook=false
-                    //interpolatedEntry = new WeightedCodebookEntry(inputLsfs, inputLsfs); 
+                    //codebookMatch = new WeightedCodebookMatch(inputLsfs, inputLsfs); 
                 }
 
                 inputDft = new Complex(fftSize);
@@ -614,7 +652,7 @@ public class WeightedCodebookFdpsolaAdapter {
                 //Use a weighted codebook estimate of the input vocal tract spectrum. This will result in a smoother transformation filter
                 if (params.isSourceVocalTractSpectrumFromCodebook && isVocalTractTransformation)
                 {
-                    interpolatedInputLpcs = LineSpectralFrequencies.lsfInHz2lpc(interpolatedEntry.sourceItem.lsfs, fs);
+                    interpolatedInputLpcs = LineSpectralFrequencies.lsfInHz2lpc(codebookMatch.entry.sourceItem.lsfs, fs);
                     sourceVocalTractSpectrumEstimate = LPCAnalyser.calcSpecFromOneMinusA(interpolatedInputLpcs, 1.0f, newFftSize, outputExpTerm);
                 }
 
@@ -661,7 +699,7 @@ public class WeightedCodebookFdpsolaAdapter {
 
                 if (isVocalTractTransformation)
                 {
-                    targetLpcs = LineSpectralFrequencies.lsfInHz2lpc(interpolatedEntry.targetItem.lsfs, fs);
+                    targetLpcs = LineSpectralFrequencies.lsfInHz2lpc(codebookMatch.entry.targetItem.lsfs, fs);
 
                     if (fftSize!=newFftSize)
                     {

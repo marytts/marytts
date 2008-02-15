@@ -33,21 +33,42 @@ package de.dfki.lt.mary.unitselection.adaptation.codebook;
  * @author oytun.turk
  *
  */
-public class WeightedCodebookTrainer {
+public class WeightedCodebookMatch {
+    public WeightedCodebookLsfEntry entry;
+    public int[] indices;
+    public double[] weights;
+    public int totalMatches; //This is less than or equal to the length of the above items (i.e. number of
+                             // best codebook matches). Can be lower when the codebook has less entries
     
-    public WeightedCodebookPreprocessor preprocessor;
-    public WeightedCodebookFeatureExtractor featureExtractor;
-    public WeightedCodebookOutlierEliminator outlierEliminator;
-    public WeightedCodebookTrainerParams params;
-    public static String wavExt = ".wav";
-    
-    public WeightedCodebookTrainer(WeightedCodebookPreprocessor pp,
-            WeightedCodebookFeatureExtractor fe, 
-            WeightedCodebookTrainerParams pa) 
+    public WeightedCodebookMatch(int numMaxMatches, int lpOrder)
     {
-        preprocessor = new WeightedCodebookPreprocessor(pp);
-        featureExtractor = new WeightedCodebookFeatureExtractor(fe);
-        params = new WeightedCodebookTrainerParams(pa);
+        init(numMaxMatches, lpOrder);
     }
-
+    
+    //Create a dummy match to use original input lsfs 
+    // (Should not be used in real codebook matching but only for control purposes)
+    public WeightedCodebookMatch(double[] sourceLsfs, double[] targetLsfs)
+    {
+        init(1, sourceLsfs.length);
+        entry = new WeightedCodebookLsfEntry(sourceLsfs, targetLsfs);
+    }
+    
+    public void init(int numMaxMatches, int lpOrder)
+    {
+        if (numMaxMatches>0 && lpOrder>0)
+        {
+            entry = new WeightedCodebookLsfEntry(lpOrder);
+            indices = new int[numMaxMatches];
+            weights = new double[numMaxMatches];
+            totalMatches = numMaxMatches;
+        }
+        else
+        {
+            entry = null;
+            indices = null;
+            weights = null;
+            totalMatches = 0;
+        }
+    }
+    
 }

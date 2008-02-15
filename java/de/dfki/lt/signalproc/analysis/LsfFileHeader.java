@@ -122,8 +122,8 @@ public class LsfFileHeader {
     {
         if (stream!=null)
         {
-            numfrm = stream.readInt();
             lpOrder = stream.readInt();
+            numfrm = stream.readInt();
             preCoef = stream.readFloat();
             winsize = stream.readFloat();
             skipsize = stream.readFloat();
@@ -165,8 +165,8 @@ public class LsfFileHeader {
     
     public void writeLsfHeader(MaryRandomAccessFile ler) throws IOException
     {   
-        ler.writeInt(numfrm);
         ler.writeInt(lpOrder);
+        ler.writeInt(numfrm);
         ler.writeFloat(preCoef);
         ler.writeFloat(winsize);
         ler.writeFloat(skipsize);

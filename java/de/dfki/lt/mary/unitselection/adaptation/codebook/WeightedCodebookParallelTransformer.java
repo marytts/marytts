@@ -36,6 +36,8 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationItem;
 import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationSet;
+import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchStatistics;
+import de.dfki.lt.mary.unitselection.adaptation.prosody.ProsodyTransformerParams;
 import de.dfki.lt.mary.unitselection.voiceimport.BasenameList;
 import de.dfki.lt.mary.util.FileUtils;
 import de.dfki.lt.mary.util.StringUtil;
@@ -52,6 +54,7 @@ public class WeightedCodebookParallelTransformer extends
     
     public WeightedCodebookMapper mapper;
     public WeightedCodebook codebook;
+    private WeightedCodebookFile codebookFile;
 
     public WeightedCodebookParallelTransformer(WeightedCodebookPreprocessor pp,
             WeightedCodebookFeatureExtractor fe,
@@ -83,6 +86,7 @@ public class WeightedCodebookParallelTransformer extends
     {
         params.inputFolder = StringUtil.checkLastSlash(params.inputFolder);
         params.outputBaseFolder = StringUtil.checkLastSlash(params.outputBaseFolder);
+        codebookFile = null;
         
         if (!FileUtils.exists(params.codebookFile))
         {
@@ -91,7 +95,11 @@ public class WeightedCodebookParallelTransformer extends
         }
         else //Read lsfParams from the codebook header
         {
-            params.lsfParams = new LsfFileHeader(WeightedCodebookFile.readCodebookHeaderAndClose(params.codebookFile).lsfParams);
+            codebookFile = new WeightedCodebookFile(params.codebookFile, WeightedCodebookFile.OPEN_FOR_READ);
+            codebook = new WeightedCodebook();
+            
+            codebook.header = codebookFile.readCodebookHeader();
+            params.lsfParams = new LsfFileHeader(codebook.header.lsfParams);
             params.mapperParams.lpOrder = params.lsfParams.lpOrder;
         }
             
@@ -111,13 +119,15 @@ public class WeightedCodebookParallelTransformer extends
         {
             params.outputFolder = params.outputBaseFolder + params.outputFolderInfoString + 
                                   "_best" + String.valueOf(params.mapperParams.numBestMatches) + 
-                                  "_steep" + String.valueOf(params.mapperParams.weightingSteepness);
+                                  "_steep" + String.valueOf(params.mapperParams.weightingSteepness) +
+                                  "_prosody" + String.valueOf(params.prosodyParams.pitchStatisticsType) + "x" + String.valueOf(params.prosodyParams.pitchTransformationMethod);
         }
         else
         {
             params.outputFolder = params.outputBaseFolder + 
                                   "best" + String.valueOf(params.mapperParams.numBestMatches) +
-                                  "_steep" + String.valueOf(params.mapperParams.weightingSteepness);
+                                  "_steep" + String.valueOf(params.mapperParams.weightingSteepness) +
+                                  "_prosody" + String.valueOf(params.prosodyParams.pitchStatisticsType) + "x" + String.valueOf(params.prosodyParams.pitchTransformationMethod);
         }
             
         if (!FileUtils.isDirectory(params.outputFolder))
@@ -185,14 +195,8 @@ public class WeightedCodebookParallelTransformer extends
                 }
             }
             
-            //Load the codebook
-            WeightedCodebookFile f = new WeightedCodebookFile(params.codebookFile, WeightedCodebookFile.OPEN_FOR_READ);
-            try {
-                codebook = f.readCodebookFile();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            //Read the codebook
+            codebookFile.readCodebookFileExcludingHeader(codebook);
             
             //Create a mapper object
             mapper = new WeightedCodebookMapper(params.mapperParams);
@@ -224,12 +228,9 @@ public class WeightedCodebookParallelTransformer extends
                                         WeightedCodebookMapper wcMapper,
                                         WeightedCodebook wCodebook
                                         ) throws UnsupportedAudioFileException, IOException
-    {
-        boolean isSeparateProsody = false;
-        boolean isFixedRateVocalTractConversion = false;
-        
-        if (isFixedRateVocalTractConversion)
-            isSeparateProsody = true;
+    {   
+        if (wctParams.isFixedRateVocalTractConversion)
+            wctParams.isSeparateProsody = true;
             
         //Desired values should be specified in the following four parameters
         double [] pscales = {1.0};
@@ -249,15 +250,17 @@ public class WeightedCodebookParallelTransformer extends
 
         String firstPassOutputWavFile = "";
         
-        if (isSeparateProsody)
+        if (wctParams.isSeparateProsody)
         {
-            firstPassOutputWavFile = outputItem.audioFile + ".temp.wav";
+            firstPassOutputWavFile = StringUtil.getFolderName(outputItem.audioFile) + StringUtil.getFileName(outputItem.audioFile) + "_vt.wav";
+            int tmpPitchTransformationMethod = wctParams.prosodyParams.pitchTransformationMethod;
+            wctParams.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.NO_TRANSFORMATION;
             
             adapter = new WeightedCodebookFdpsolaAdapter(
                                   inputItem.audioFile, inputItem.f0File, 
                                   firstPassOutputWavFile, 
-                                  true, //isVocalTractTransformation
-                                  isFixedRateVocalTractConversion, 
+                                  wctParams.isVocalTractTransformation,
+                                  wctParams.isFixedRateVocalTractConversion, 
                                   pscalesTemp, tscalesTemp, escalesTemp, vscalesTemp);
             
             //Separate prosody modification
@@ -266,30 +269,30 @@ public class WeightedCodebookParallelTransformer extends
                 adapter.bSilent = !wctParams.isDisplayProcessingFrameCount;
                 adapter.fdpsolaOnline(wctParams, wcMapper, wCodebook); //Call voice conversion version
 
-                if (isSeparateProsody)
+                if (isScalingsRequired(pscales, tscales, escales, vscales) || tmpPitchTransformationMethod!=ProsodyTransformerParams.NO_TRANSFORMATION)
                 {
-                    if (isScalingsRequired(pscales, tscales, escales, vscales))
-                    {
-                        System.out.println("Performing prosody modifications...");
-                        
-                        adapter = new WeightedCodebookFdpsolaAdapter(
-                                firstPassOutputWavFile, inputItem.f0File, 
-                                outputItem.audioFile, 
-                                false, //isVocalTractTransformation should be false 
-                                false, //isFixedRateVocalTractConversion should be false to enable prosody modifications with FD-PSOLA
-                                pscales, tscales, escales, vscales);
+                    System.out.println("Performing prosody modifications...");
 
-                        adapter.bSilent = true;
-                        adapter.fdpsolaOnline(wctParams, null, null);
-                    }
-                    else //Copy output file
-                        FileUtils.copy(firstPassOutputWavFile, outputItem.audioFile);
-                    
-                    //Delete first pass output file
-                    FileUtils.delete(firstPassOutputWavFile);
-                    
-                    System.out.println("Done...");
+                    wctParams.prosodyParams.pitchTransformationMethod = tmpPitchTransformationMethod;
+
+                    adapter = new WeightedCodebookFdpsolaAdapter(
+                            firstPassOutputWavFile, inputItem.f0File, 
+                            outputItem.audioFile, 
+                            false, //isVocalTractTransformation should be false 
+                            false, //isFixedRateVocalTractConversion should be false to enable prosody modifications with FD-PSOLA
+                            pscales, tscales, escales, vscales);
+
+                    adapter.bSilent = true;
+                    adapter.fdpsolaOnline(wctParams, null, wCodebook);
                 }
+                else //Copy output file
+                    FileUtils.copy(firstPassOutputWavFile, outputItem.audioFile);
+
+                //Delete first pass output file
+                if (!wctParams.isSaveVocalTractOnlyVersion)
+                    FileUtils.delete(firstPassOutputWavFile);
+
+                System.out.println("Done...");
             }
         }
         else
@@ -297,8 +300,8 @@ public class WeightedCodebookParallelTransformer extends
             adapter = new WeightedCodebookFdpsolaAdapter(
                                   inputItem.audioFile, inputItem.f0File, 
                                   outputItem.audioFile, 
-                                  true,
-                                  isFixedRateVocalTractConversion, 
+                                  wctParams.isVocalTractTransformation,
+                                  wctParams.isFixedRateVocalTractConversion, 
                                   pscales, tscales, escales, vscales);
             
             adapter.bSilent = !wctParams.isDisplayProcessingFrameCount;
@@ -345,17 +348,18 @@ public class WeightedCodebookParallelTransformer extends
         pa.isDisplayProcessingFrameCount = true;
         
         pa.inputFolder = "d:\\1\\neutral50\\test1";
-        pa.outputBaseFolder = "d:\\1\\neutral_X_neutral_50\\neutral2neutralOut";
+        pa.outputBaseFolder = "d:\\1\\neutral_X_angry_50\\neutral2angryOut3";
         
-        pa.codebookFile = "d:\\1\\neutral_X_neutral_50\\neutral1_X_neutral2.wcf";
-        pa.outputFolderInfoString = "labelgroups";
+        pa.codebookFile = "d:\\1\\neutral_X_angry_50\\neutralL_X_angryL.wcf";
+        pa.outputFolderInfoString = "labels";
         
         //Set codebook mapper parameters
-        pa.mapperParams.numBestMatches = 6; // Number of best matches in codebook
+        pa.mapperParams.numBestMatches = 5; // Number of best matches in codebook
+        pa.mapperParams.weightingSteepness = 1.0; // Steepness of weighting function in range [WeightedCodebookMapperParams.MIN_STEEPNESS, WeightedCodebookMapperParams.MAX_STEEPNESS]
         
         // Distance measure for comparing source training and transformation features
-        pa.mapperParams.distanceMeasure = WeightedCodebookMapperParams.LSF_INVERSE_HARMONIC_DISTANCE;
-        //pa.mapperParams.distanceMeasure = WeightedCodebookMapperParams.LSF_INVERSE_HARMONIC_DISTANCE_SYMMETRIC; pa.mapperParams.alphaForSymmetric = 0.5; //Weighting factor for using weights of two lsf vectors in distance computation relatively. The range is [0.0,1.0]
+        //pa.mapperParams.distanceMeasure = WeightedCodebookMapperParams.LSF_INVERSE_HARMONIC_DISTANCE;
+        pa.mapperParams.distanceMeasure = WeightedCodebookMapperParams.LSF_INVERSE_HARMONIC_DISTANCE_SYMMETRIC; pa.mapperParams.alphaForSymmetric = 0.5; //Weighting factor for using weights of two lsf vectors in distance computation relatively. The range is [0.0,1.0]
         //pa.mapperParams.distanceMeasure = WeightedCodebookMapperParams.LSF_EUCLIDEAN_DISTANCE;
         //pa.mapperParams.distanceMeasure = WeightedCodebookMapperParams.LSF_MAHALANOBIS_DISTANCE;
         //pa.mapperParams.distanceMeasure = WeightedCodebookMapperParams.LSF_ABSOLUTE_VALUE_DISTANCE;
@@ -363,9 +367,7 @@ public class WeightedCodebookParallelTransformer extends
         // Method for weighting best codebook matches
         pa.mapperParams.weightingMethod = WeightedCodebookMapperParams.EXPONENTIAL_HALF_WINDOW;
         //pa.mapperParams.weightingMethod = WeightedCodebookMapperParams.TRIANGLE_HALF_WINDOW;
-        
-        pa.mapperParams.weightingSteepness = 4.0; // Steepness of weighting function in range [WeightedCodebookMapperParams.MIN_STEEPNESS, WeightedCodebookMapperParams.MAX_STEEPNESS]
-        
+
         ////Mean and variance of a specific distance measure can be optionally kept in the following
         // two parameters for z-normalization
         pa.mapperParams.distanceMean = 0.0; 
@@ -373,7 +375,42 @@ public class WeightedCodebookParallelTransformer extends
         //
         
         pa.isForcedAnalysis = false;
-        pa.isSourceVocalTractSpectrumFromCodebook = false;
+        pa.isSourceVocalTractSpectrumFromCodebook = true;
+        pa.isVocalTractTransformation = true;
+        
+        pa.isSeparateProsody = true;
+        pa.isSaveVocalTractOnlyVersion = true;
+        pa.isFixedRateVocalTractConversion = true;
+        
+        //Prosody transformation
+        pa.prosodyParams.pitchStatisticsType = PitchStatistics.STATISTICS_IN_HERTZ;
+        //pa.prosodyParams.pitchStatisticsType = PitchStatistics.STATISTICS_IN_LOGHERTZ;
+        
+        pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_MEAN;
+        //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_STDDEV;
+        //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_RANGE;
+        //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_SLOPE;
+        //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_INTERCEPT;
+        //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_MEAN_STDDEV;
+        //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_MEAN_SLOPE;
+        //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_INTERCEPT_STDDEV;
+        //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_INTERCEPT_SLOPE;
+        //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.SENTENCE_MEAN;
+        //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.SENTENCE_STDDEV;
+        //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.SENTENCE_RANGE;
+        //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.SENTENCE_SLOPE;
+        //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.SENTENCE_INTERCEPT;
+        //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.SENTENCE_MEAN_STDDEV;
+        //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.SENTENCE_MEAN_SLOPE;
+        //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.SENTENCE_INTERCEPT_STDDEV;
+        //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.SENTENCE_INTERCEPT_SLOPE;
+        
+        pa.prosodyParams.isUseInputMean = false;
+        pa.prosodyParams.isUseInputStdDev = false;
+        pa.prosodyParams.isUseInputRange = false;
+        pa.prosodyParams.isUseInputIntercept = false;
+        pa.prosodyParams.isUseInputSlope = false;
+        //
         
         WeightedCodebookParallelTransformer t = new WeightedCodebookParallelTransformer(pp, fe, po, pa);
         t.run();

@@ -48,6 +48,7 @@ import javax.swing.JFrame;
 
 import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.signalproc.display.FunctionGraph;
+import de.dfki.lt.signalproc.util.MathUtils;
 
 /**
  * A collection of useful static little utility methods.
@@ -871,6 +872,46 @@ public class MaryUtils {
     public static void plot(double [] x, String strTitle, boolean bAutoClose)
     {
         plot(x, strTitle, bAutoClose, 3000);
+    }
+    
+    public static void plotZoomed(double [] x, String strTitle, double minVal)
+    {
+        plotZoomed(x, strTitle, minVal, MathUtils.getMax(x));
+    }
+    
+    public static void plotZoomed(double [] x, String strTitle, double minVal, double maxVal)
+    {
+        plotZoomed(x, strTitle, minVal, maxVal, false);
+    }
+    
+    public static void plotZoomed(double [] x, String strTitle, double minVal, double maxVal, boolean bAutoClose)
+    {
+        plotZoomed(x, strTitle, minVal, maxVal, bAutoClose, 3000);
+    }
+    
+    public static void plotZoomed(double [] x, String strTitle, double minVal, double maxVal, boolean bAutoClose, int milliSecondsToClose)
+    {
+        double[] y = null;
+        if (x!=null)
+        {
+            if (minVal>maxVal)
+            {
+                double tmp = minVal;
+                minVal = maxVal;
+                maxVal = tmp;
+            }
+            y = new double[x.length];
+            for (int i=0; i<x.length; i++)
+            {
+                y[i] = x[i];
+                if (y[i]<minVal)
+                    y[i] = minVal;
+                else if (y[i]>maxVal)
+                    y[i] = maxVal;
+            }
+                
+            plot(y, strTitle, bAutoClose, milliSecondsToClose);
+        }
     }
     
     // Plots the values in x

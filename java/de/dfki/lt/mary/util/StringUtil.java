@@ -380,4 +380,19 @@ public class StringUtil {
     {
         return getFileName(fullpathFilename, true);
     }
+    
+    public static String getFolderName(String fullpathFilename)
+    {
+        String foldername = "";
+        
+        int ind1 = fullpathFilename.lastIndexOf('\\');
+        int ind2 = fullpathFilename.lastIndexOf('/');
+        
+        ind1 = Math.max(ind1, ind2);
+        
+        if (ind1>=0 && ind1<fullpathFilename.length()-2)
+            foldername = fullpathFilename.substring(0, ind1+1);
+        
+        return foldername;
+    }
 }

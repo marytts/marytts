@@ -29,6 +29,7 @@
 
 package de.dfki.lt.mary.unitselection.adaptation.codebook;
 
+import de.dfki.lt.mary.unitselection.adaptation.GaussianOutlierEliminator;
 import de.dfki.lt.signalproc.analysis.LsfFileHeader;
 
 /**
@@ -41,13 +42,20 @@ public class WeightedCodebookTrainerParams extends WeightedCodebookBaselineParam
     public String trainingBaseFolder; //Training base directory
     public String sourceTrainingFolder; //Source training folder
     public String targetTrainingFolder; //Target training folder
-    
     public String codebookFile; //Source and target codebook file
+    public String temporaryCodebookFile; //Temporary codebook file
     
     //Some filename extension for custom training file types
     public String indexMapFileExtension; //Index map file extensions
     
     boolean isForcedAnalysis; //Set this to true if you want all acoustic features to be extracted even if their files exist
+    
+    public int outlierEliminatorType;
+
+    public double totalStandardDeviationsLsf;
+    public double totalStandardDeviationsF0;
+    public double totalStandardDeviationsDuration;
+    public double totalStandardDeviationsEnergy;
     
     public WeightedCodebookTrainerParams()
     {
@@ -56,10 +64,39 @@ public class WeightedCodebookTrainerParams extends WeightedCodebookBaselineParam
         trainingBaseFolder = ""; //Training base directory
         sourceTrainingFolder = ""; //Source training folder
         targetTrainingFolder = ""; //Target training folder
+        codebookFile = "";
         
         //Some filename extension for custom training file types
         indexMapFileExtension = ".imf";
         
         isForcedAnalysis = false;
+        
+        outlierEliminatorType = WeightedCodebookOutlierEliminator.GAUSSIAN;
+        
+        totalStandardDeviationsLsf = GaussianOutlierEliminator.DEFAULT_TOTAL_STANDARD_DEVIATIONS;
+        totalStandardDeviationsF0 = GaussianOutlierEliminator.DEFAULT_TOTAL_STANDARD_DEVIATIONS;
+        totalStandardDeviationsDuration = GaussianOutlierEliminator.DEFAULT_TOTAL_STANDARD_DEVIATIONS;
+        totalStandardDeviationsEnergy = GaussianOutlierEliminator.DEFAULT_TOTAL_STANDARD_DEVIATIONS;
+    }
+    
+    public WeightedCodebookTrainerParams(WeightedCodebookTrainerParams pa)
+    {
+        codebookHeader = new WeightedCodebookFileHeader(pa.codebookHeader);
+        
+        trainingBaseFolder = pa.trainingBaseFolder;
+        sourceTrainingFolder = pa.sourceTrainingFolder;
+        targetTrainingFolder = pa.targetTrainingFolder;
+        codebookFile = pa.codebookFile;
+
+        indexMapFileExtension = pa.indexMapFileExtension;
+        
+        isForcedAnalysis = pa.isForcedAnalysis;
+        
+        outlierEliminatorType = pa.outlierEliminatorType;
+        
+        totalStandardDeviationsLsf = pa.totalStandardDeviationsLsf;
+        totalStandardDeviationsF0 = pa.totalStandardDeviationsF0;
+        totalStandardDeviationsDuration = pa.totalStandardDeviationsDuration;
+        totalStandardDeviationsEnergy = pa.totalStandardDeviationsEnergy;
     }
 }

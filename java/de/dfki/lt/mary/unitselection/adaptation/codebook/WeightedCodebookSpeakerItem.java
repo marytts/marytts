@@ -38,7 +38,10 @@ import de.dfki.lt.signalproc.util.MaryRandomAccessFile;
  *
  */
 public class WeightedCodebookSpeakerItem {
-    double [] lsfs;
+    public double [] lsfs;
+    public double f0;
+    public double duration;
+    public double energy;
     
     public WeightedCodebookSpeakerItem()
     {
@@ -84,6 +87,27 @@ public class WeightedCodebookSpeakerItem {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+            
+            try {
+                ler.writeDouble(f0);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            
+            try {
+                ler.writeDouble(duration);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            
+            try {
+                ler.writeDouble(energy);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
     }
     
@@ -95,6 +119,27 @@ public class WeightedCodebookSpeakerItem {
         {
             try {
                 lsfs = ler.readDouble(lpOrder);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            
+            try {
+                f0 = ler.readDouble();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            
+            try {
+                duration = ler.readDouble();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            
+            try {
+                energy = ler.readDouble();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
