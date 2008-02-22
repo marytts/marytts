@@ -25,9 +25,43 @@ import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 public class WeightedCodebookFeatureExtractor {
     //Add more as necessary & make sure you can discriminate each using AND(&) operator
     // from a single integer that represents desired analyses (See the function run())
-    public static int LSF_ANALYSIS    =   Integer.parseInt("00000001", 2);
-    public static int F0_ANALYSIS     =   Integer.parseInt("00000010", 2);
-    public static int ENERGY_ANALYSIS =   Integer.parseInt("00000100", 2);
+    public static int LSF_FEATURES      =   Integer.parseInt("00000001", 2);
+    public static int F0_FEATURES       =   Integer.parseInt("00000010", 2);
+    public static int ENERGY_FEATURES   =   Integer.parseInt("00000100", 2);
+    public static int DURATION_FEATURES =   Integer.parseInt("00001000", 2);
+    public static final int FEATURE_DESCRIBER_STRING_LENGTH = 8;
+    
+    public static boolean isDesired(int featureDesired, int desiredFeatures)
+    {
+        boolean bRet = false;
+        
+        String str1 = Integer.toBinaryString(desiredFeatures);
+
+        while (str1.length()<FEATURE_DESCRIBER_STRING_LENGTH)
+            str1 = "0" + str1;
+        
+        String str2;
+        int pos = FEATURE_DESCRIBER_STRING_LENGTH;
+        
+        //ADD more as necessary
+        if (featureDesired==LSF_FEATURES)
+            pos = FEATURE_DESCRIBER_STRING_LENGTH-1;
+        else if (featureDesired==F0_FEATURES)
+            pos = FEATURE_DESCRIBER_STRING_LENGTH-2;
+        else if (featureDesired==ENERGY_FEATURES)
+            pos = FEATURE_DESCRIBER_STRING_LENGTH-3;
+        else if (featureDesired==DURATION_FEATURES)
+            pos = FEATURE_DESCRIBER_STRING_LENGTH-4;
+        //
+           
+        str2 = Integer.toBinaryString(featureDesired);
+        while (str2.length()<FEATURE_DESCRIBER_STRING_LENGTH)
+            str2 = "0" + str2;
+        if (pos<FEATURE_DESCRIBER_STRING_LENGTH && pos>=0 && str1.charAt(pos)==str2.charAt(pos))
+            bRet = true;
+        
+        return bRet;
+    }
     
     public WeightedCodebookFeatureExtractor()
     {
@@ -73,36 +107,16 @@ public class WeightedCodebookFeatureExtractor {
         else if (params instanceof WeightedCodebookTransformerParams)
             isForcedAnalysis = ((WeightedCodebookTransformerParams)params).isForcedAnalysis;
         
-        String str1 = Integer.toBinaryString(desiredFeatures);
-        int maxPos = 8;
-        int pos = maxPos;
-        while (str1.length()<maxPos)
-            str1 = "0" + str1;
-        
-        String str2;
-        
-        pos--;
-        str2 = Integer.toBinaryString(LSF_ANALYSIS);
-        while (str2.length()<maxPos)
-            str2 = "0" + str2;
-        if (str1.charAt(pos)==str2.charAt(pos))
+        //ADD more analyses as necessary
+        if (isDesired(LSF_FEATURES, desiredFeatures))
             lsfAnalysis(fileSet, lsfParams, isForcedAnalysis);
 
-        pos--;
-        str2 = Integer.toBinaryString(F0_ANALYSIS);
-        while (str2.length()<maxPos)
-            str2 = "0" + str2;
-        if (str1.charAt(pos)==str2.charAt(pos))
+        if (isDesired(F0_FEATURES, desiredFeatures))
             f0Analysis(fileSet, ptcParams, isForcedAnalysis);       
         
-        pos--;
-        str2 = Integer.toBinaryString(ENERGY_ANALYSIS);
-        while (str2.length()<maxPos)
-            str2 = "0" + str2;
-        if (str1.charAt(pos)==str2.charAt(pos))
+        if (isDesired(ENERGY_FEATURES, desiredFeatures))
             energyAnalysis(fileSet, energyParams, isForcedAnalysis); 
-        
-        //ADD more as necessary
+        //
     }
     
     public void lsfAnalysis(BaselineAdaptationSet fileSet, LsfFileHeader lsfParams, boolean isForcedAnalysis) throws IOException

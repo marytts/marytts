@@ -63,8 +63,11 @@ public class WeightedCodebookMapperParams {
     // two parameters for z-normalization
     public double distanceMean; 
     public double distanceVariance;
-    public static double DEFAULT_DISTANCE_MEAN = 0.0;
-    public static double DEFAULT_DISTANCE_VARIANCE = 1.0;
+    public static final double DEFAULT_DISTANCE_MEAN = 0.0;
+    public static final double DEFAULT_DISTANCE_VARIANCE = 1.0;
+    
+    public double freqRange; //Frequency range to be considered around center freq when matching LSFs (note that center freq is estimated automatically as the middle of most closest LSFs)
+    public static final double DEFAULT_FREQ_RANGE_FOR_LSF_MATCH = 5000.0;
     
     public int lpOrder;
     
@@ -75,6 +78,7 @@ public class WeightedCodebookMapperParams {
         weightingSteepness = DEFAULT_WEIGHTING_STEEPNESS;
         distanceMean = DEFAULT_DISTANCE_MEAN;
         distanceVariance = DEFAULT_DISTANCE_VARIANCE;
+        freqRange = DEFAULT_FREQ_RANGE_FOR_LSF_MATCH;
     }
     
     public WeightedCodebookMapperParams(WeightedCodebookMapperParams w)
@@ -87,6 +91,7 @@ public class WeightedCodebookMapperParams {
         distanceMean = w.distanceMean; 
         distanceVariance = w.distanceVariance;
         lpOrder = w.lpOrder;
+        freqRange = w.freqRange;
     }
 
 }

@@ -29,54 +29,57 @@
 
 package de.dfki.lt.mary.unitselection.adaptation.codebook;
 
-import de.dfki.lt.mary.unitselection.adaptation.GaussianOutlierEliminator;
-import de.dfki.lt.mary.unitselection.adaptation.KMeansOutlierEliminator;
+import de.dfki.lt.mary.unitselection.adaptation.outlier.GMMOutlierEliminator;
+import de.dfki.lt.mary.unitselection.adaptation.outlier.GaussianOutlierEliminator;
+import de.dfki.lt.mary.unitselection.adaptation.outlier.KMeansMappingEliminator;
+import de.dfki.lt.mary.util.FileUtils;
 
 /**
  * @author oytun.turk
  *
  */
 public class WeightedCodebookOutlierEliminator {
-    public static final int GAUSSIAN = 1;
-    public static final int KMEANS = 2;
-    
     private GaussianOutlierEliminator gaussian;
-    private KMeansOutlierEliminator kmeans;
+    private KMeansMappingEliminator kmeans;
+    private GMMOutlierEliminator gmm;
     
     public void run(WeightedCodebookTrainerParams params)
     {
-        run(params.totalStandardDeviationsLsf,
-            params.totalStandardDeviationsF0,
-            params.totalStandardDeviationsDuration,
-            params.totalStandardDeviationsEnergy, 
-            params.outlierEliminatorType, 
-            params.temporaryCodebookFile, 
-            params.codebookFile);
-    }
-    public void run(double totalStandardDeviationsLsf,
-                    double totalStandardDeviationsF0,
-                    double totalStandardDeviationsDuration,
-                    double totalStandardDeviationsEnergy,
-                    int outlierEliminatorType, 
-                    String codebookFileIn, 
-                    String codebookFileOut)
-    {
-        if (outlierEliminatorType == WeightedCodebookOutlierEliminator.GAUSSIAN)
+        String tempIn = params.temporaryCodebookFile;
+        String tempOut = params.temporaryCodebookFile + "2";
+        
+        if (params.gaussianEliminatorParams.isActive)
         {
-            gaussian = new GaussianOutlierEliminator(totalStandardDeviationsLsf,
-                                                     totalStandardDeviationsF0,
-                                                     totalStandardDeviationsDuration,
-                                                     totalStandardDeviationsEnergy);
+            if (!params.kmeansEliminatorParams.isActive)
+                tempOut = params.codebookFile;
+                
+            gaussian = new GaussianOutlierEliminator();
             
-            gaussian.eliminate(codebookFileIn, codebookFileOut);
+            gaussian.eliminate(params.gaussianEliminatorParams, tempIn, tempOut);
         }
-        else if (outlierEliminatorType == WeightedCodebookOutlierEliminator.KMEANS)
+        
+        if (params.kmeansEliminatorParams.isActive)
         {
-            /*
-            kmeans = new KMeansOutlierEliminator(params.totalStandardDeviations);
-            kmeans.run();
-            */
+            if (params.gaussianEliminatorParams.isActive)
+                tempIn = tempOut;
+
+            tempOut = params.codebookFile; //This should be changed if you add more eliminators below
+                
+            kmeans = new KMeansMappingEliminator();
+            
+            kmeans.eliminate(params.kmeansEliminatorParams, tempIn, tempOut);
+            
+            if (params.gaussianEliminatorParams.isActive)
+                FileUtils.delete(tempIn);
         }
+       
+        /*
+        if (params.gmmEliminatorParams.isActive)
+        {
+            gmm = new KMeansOutlierEliminator(params.totalStandardDeviations);
+            gmm.eliminate();
+        }
+        */
     }
 
 }

@@ -29,7 +29,9 @@
 
 package de.dfki.lt.mary.unitselection.adaptation.codebook;
 
-import de.dfki.lt.mary.unitselection.adaptation.GaussianOutlierEliminator;
+import de.dfki.lt.mary.unitselection.adaptation.outlier.GaussianOutlierEliminator;
+import de.dfki.lt.mary.unitselection.adaptation.outlier.GaussianOutlierEliminatorParams;
+import de.dfki.lt.mary.unitselection.adaptation.outlier.KMeansMappingEliminatorParams;
 import de.dfki.lt.signalproc.analysis.LsfFileHeader;
 
 /**
@@ -50,12 +52,8 @@ public class WeightedCodebookTrainerParams extends WeightedCodebookBaselineParam
     
     boolean isForcedAnalysis; //Set this to true if you want all acoustic features to be extracted even if their files exist
     
-    public int outlierEliminatorType;
-
-    public double totalStandardDeviationsLsf;
-    public double totalStandardDeviationsF0;
-    public double totalStandardDeviationsDuration;
-    public double totalStandardDeviationsEnergy;
+    public GaussianOutlierEliminatorParams gaussianEliminatorParams;
+    public KMeansMappingEliminatorParams kmeansEliminatorParams;
     
     public WeightedCodebookTrainerParams()
     {
@@ -71,12 +69,8 @@ public class WeightedCodebookTrainerParams extends WeightedCodebookBaselineParam
         
         isForcedAnalysis = false;
         
-        outlierEliminatorType = WeightedCodebookOutlierEliminator.GAUSSIAN;
-        
-        totalStandardDeviationsLsf = GaussianOutlierEliminator.DEFAULT_TOTAL_STANDARD_DEVIATIONS;
-        totalStandardDeviationsF0 = GaussianOutlierEliminator.DEFAULT_TOTAL_STANDARD_DEVIATIONS;
-        totalStandardDeviationsDuration = GaussianOutlierEliminator.DEFAULT_TOTAL_STANDARD_DEVIATIONS;
-        totalStandardDeviationsEnergy = GaussianOutlierEliminator.DEFAULT_TOTAL_STANDARD_DEVIATIONS;
+        gaussianEliminatorParams = new GaussianOutlierEliminatorParams();
+        kmeansEliminatorParams = new KMeansMappingEliminatorParams();
     }
     
     public WeightedCodebookTrainerParams(WeightedCodebookTrainerParams pa)
@@ -92,11 +86,7 @@ public class WeightedCodebookTrainerParams extends WeightedCodebookBaselineParam
         
         isForcedAnalysis = pa.isForcedAnalysis;
         
-        outlierEliminatorType = pa.outlierEliminatorType;
-        
-        totalStandardDeviationsLsf = pa.totalStandardDeviationsLsf;
-        totalStandardDeviationsF0 = pa.totalStandardDeviationsF0;
-        totalStandardDeviationsDuration = pa.totalStandardDeviationsDuration;
-        totalStandardDeviationsEnergy = pa.totalStandardDeviationsEnergy;
+        gaussianEliminatorParams = new GaussianOutlierEliminatorParams(pa.gaussianEliminatorParams);
+        kmeansEliminatorParams = new KMeansMappingEliminatorParams(pa.kmeansEliminatorParams);
     }
 }

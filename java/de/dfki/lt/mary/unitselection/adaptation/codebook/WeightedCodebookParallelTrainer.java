@@ -40,6 +40,7 @@ import de.dfki.lt.mary.unitselection.adaptation.AdaptationUtils;
 import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationItem;
 import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationSet;
 import de.dfki.lt.mary.unitselection.adaptation.IndexMap;
+import de.dfki.lt.mary.unitselection.adaptation.outlier.KMeansMappingEliminatorParams;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchTrainer;
 import de.dfki.lt.mary.unitselection.voiceimport.BasenameList;
 import de.dfki.lt.mary.util.FileUtils;
@@ -152,9 +153,9 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
                 preprocessor.run(sourceTrainingSet);
                 preprocessor.run(targetTrainingSet);
                 
-                int desiredFeatures = WeightedCodebookFeatureExtractor.LSF_ANALYSIS +
-                                      WeightedCodebookFeatureExtractor.F0_ANALYSIS + 
-                                      WeightedCodebookFeatureExtractor.ENERGY_ANALYSIS;
+                int desiredFeatures = WeightedCodebookFeatureExtractor.LSF_FEATURES +
+                                      WeightedCodebookFeatureExtractor.F0_FEATURES + 
+                                      WeightedCodebookFeatureExtractor.ENERGY_FEATURES;
                 
                 featureExtractor.run(sourceTrainingSet, params, desiredFeatures);
                 featureExtractor.run(targetTrainingSet, params, desiredFeatures);
@@ -292,14 +293,14 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         
         WeightedCodebookTrainerParams pa = new WeightedCodebookTrainerParams();
         
-        //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAMES; //Frame-by-frame mapping of features
+        pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAMES; //Frame-by-frame mapping of features
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAME_GROUPS; pa.codebookHeader.numNeighboursInFrameGroups = 3; //Mapping of frame average features (no label information but fixed amount of neighbouring frames is used)
-        pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABELS; //Mapping of label average features
+        //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABELS; //Mapping of label average features
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABEL_GROUPS; pa.codebookHeader.numNeighboursInLabelGroups = 1; //Mapping of average features collected across label groups (i.e. vowels, consonants, etc)
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.SPEECH; //Mapping of average features collected across all speech parts (i.e. like spectral equalization)
 
-        pa.codebookHeader.sourceTag = "neutralL"; //Source name tag (i.e. style or speaker identity)
-        pa.codebookHeader.targetTag = "angryL"; //Target name tag (i.e. style or speaker identity)
+        pa.codebookHeader.sourceTag = "neutralF"; //Source name tag (i.e. style or speaker identity)
+        pa.codebookHeader.targetTag = "angryF"; //Target name tag (i.e. style or speaker identity)
         
         pa.trainingBaseFolder = "d:\\1\\neutral_X_angry_50"; //Training base directory
         pa.sourceTrainingFolder = "d:\\1\\neutral50\\train"; //Source training folder
@@ -331,14 +332,36 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         pa.codebookHeader.energyParams.windowSizeInSeconds = 0.020;
         pa.codebookHeader.energyParams.skipSizeInSeconds = 0.010;
         
-        pa.outlierEliminatorType = WeightedCodebookOutlierEliminator.GAUSSIAN;
-        //pa.outlierEliminatorType = WeightedCodebookOutlierEliminator.KMEANS;
+        //Gaussian outlier eliminator
+        //Decreasing totalStandardDeviations will lead to more outlier eliminations, i.e. smaller codebooks
+        pa.gaussianEliminatorParams.isActive = true; //Set to false if you do not want to use this eliminator at all
+        pa.gaussianEliminatorParams.totalStandardDeviationsLsf = 1.5;        
+        pa.gaussianEliminatorParams.isCheckLsfOutliers = true;
+        pa.gaussianEliminatorParams.isEliminateTooSimilarLsf = false;
         
-        //Decreasing these will lead to more outlier eliminations, i.e. smaller codebooks
-        pa.totalStandardDeviationsLsf = 1.5;
-        pa.totalStandardDeviationsF0 = 1.0;
-        pa.totalStandardDeviationsDuration = 1.0;
-        pa.totalStandardDeviationsEnergy = 2.0;
+        pa.gaussianEliminatorParams.totalStandardDeviationsF0 = 1.0;         
+        pa.gaussianEliminatorParams.isCheckF0Outliers = true;
+        
+        pa.gaussianEliminatorParams.totalStandardDeviationsDuration = 1.0;   
+        pa.gaussianEliminatorParams.isCheckDurationOutliers = true;
+        
+        pa.gaussianEliminatorParams.totalStandardDeviationsEnergy = 2.0;     
+        pa.gaussianEliminatorParams.isCheckEnergyOutliers = true;
+        //
+        
+        //KMeans one-to-many and many-to-one mapping eliminator
+        pa.kmeansEliminatorParams.eliminationAlgorithm = KMeansMappingEliminatorParams.ELIMINATE_LEAST_LIKELY_MAPPINGS;
+        //pa.kmeansEliminatorParams.eliminationAlgorithm = KMeansMappingEliminatorParams.ELIMINATE_MEAN_DISTANCE_MISMATCHES;
+        //pa.kmeansEliminatorParams.eliminationAlgorithm = KMeansMappingEliminatorParams.ELIMINATE_USING_SUBCLUSTER_MEAN_DISTANCES;
+        
+        pa.kmeansEliminatorParams.eliminationLikelihood = 0.20;
+        pa.kmeansEliminatorParams.numClusters = 40;
+        pa.kmeansEliminatorParams.isActive = true; //Set to false if you do not want to use this eliminator at all
+        pa.kmeansEliminatorParams.isSeparateClustering = true; //Cluster features separately(true) or together(false)?
+        pa.kmeansEliminatorParams.isCheckLsfOutliers = true;    
+        pa.kmeansEliminatorParams.isCheckF0Outliers = true; 
+        pa.kmeansEliminatorParams.isCheckDurationOutliers = true;  
+        pa.kmeansEliminatorParams.isCheckEnergyOutliers = true;
         //
         
         WeightedCodebookParallelTrainer t = new WeightedCodebookParallelTrainer(pp, fe, pa);
