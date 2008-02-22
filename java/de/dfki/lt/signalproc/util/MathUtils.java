@@ -312,6 +312,27 @@ public class MathUtils {
         return mean;
     }
     
+    //Returns the mean of rows or columns of matrix x
+    public static double[] mean(double[][]x, boolean isRowWise)
+    {
+        double[] m = null;
+        
+        if (x!=null && x[0]!=null && x[0].length>0)
+        {
+            m = new double[x[0].length];
+            int j, i;
+            for (j=0; j<x[0].length; j++)
+            {
+                for (i=0; i<x.length; i++)
+                    m[j] += x[i][j];
+                
+                m[j] /= x.length;
+            }
+        }
+        
+        return m;
+    }
+    
     public static double standardDeviation(double[] data)
     {
         return standardDeviation(data, mean(data));
@@ -2131,6 +2152,27 @@ public class MathUtils {
             variances = new double[x.length];
             for (int i=0; i<x.length; i++)
                 variances[i] = MathUtils.variance(x[i]);
+        }
+
+        return variances;
+    }
+    
+    //Returns variances for each column
+    public static double[] getVarianceCols(double[][] x)
+    {   
+        double[] variances = null;
+        if (x!=null)
+        {
+            variances = new double[x[0].length];
+            double[] tmp = new double[x.length];
+            int i, j;
+            for (j=0; j<x[0].length; j++)
+            {
+                for (i=0; i<x.length; i++)
+                    tmp[i] = x[i][j];
+                
+                variances[j] = MathUtils.variance(tmp);
+            }
         }
 
         return variances;
