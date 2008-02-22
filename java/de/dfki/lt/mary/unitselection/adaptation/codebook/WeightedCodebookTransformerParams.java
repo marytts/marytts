@@ -57,6 +57,7 @@ public class WeightedCodebookTransformerParams extends WeightedCodebookBaselineP
     public boolean isForcedAnalysis;
     public boolean isSourceVocalTractSpectrumFromCodebook;
     public boolean isVocalTractTransformation;
+    public boolean isResynthesizeVocalTractFromSourceCodebook;
     
     public boolean isSeparateProsody;
     public boolean isSaveVocalTractOnlyVersion;
@@ -77,9 +78,12 @@ public class WeightedCodebookTransformerParams extends WeightedCodebookBaselineP
         lsfParams = new LsfFileHeader();
         ptcParams = new PitchFileHeader();
         energyParams = new EnergyFileHeader();
+        
         isForcedAnalysis = false;
         isSourceVocalTractSpectrumFromCodebook = true;
         isVocalTractTransformation = true;
+        isResynthesizeVocalTractFromSourceCodebook = false;
+        
         isSeparateProsody = true;
         isSaveVocalTractOnlyVersion = true;
         isFixedRateVocalTractConversion = true;

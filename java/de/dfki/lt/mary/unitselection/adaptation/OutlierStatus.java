@@ -39,12 +39,14 @@ public class OutlierStatus {
     public static final int F0_OUTLIER       = Integer.parseInt("00000010", 2);
     public static final int DURATION_OUTLIER = Integer.parseInt("00000100", 2);
     public static final int ENERGY_OUTLIER   = Integer.parseInt("00001000", 2);
+    public static final int GENERAL_OUTLIER  = Integer.parseInt("00010000", 2);
     
     public int totalNonOutliers;
     public int totalLsfOutliers;
     public int totalF0Outliers;
     public int totalDurationOutliers;
     public int totalEnergyOutliers;
+    public int totalGeneralOutliers;
     
     public OutlierStatus()
     {
@@ -58,5 +60,6 @@ public class OutlierStatus {
         totalF0Outliers = 0;
         totalDurationOutliers = 0;
         totalEnergyOutliers = 0;
+        totalGeneralOutliers = 0;
     }
 }

@@ -79,6 +79,7 @@ import de.dfki.lt.signalproc.window.Window;
 public class WeightedCodebookFdpsolaAdapter {
     private boolean isFixedRateVocalTractTransformation;
     private boolean isVocalTractTransformation;
+    private boolean isResynthesizeVocalTractFromSourceCodebook;
     public static int WAVEFORM_MODIFICATION = 1;
     public static int TTS_MODIFICATION = 2;
 
@@ -175,12 +176,14 @@ public class WeightedCodebookFdpsolaAdapter {
     public WeightedCodebookFdpsolaAdapter(String strInputFile, String strPitchFile, String strOutputFile, 
             boolean bVocalTractTransformation,
             boolean bFixedRateVocalTractTransformation,
+            boolean bResynthesizeVocalTractFromSourceCodebook,
             double [] pscales, double [] tscales, double [] escales, double [] vscales
     ) throws UnsupportedAudioFileException, IOException
     {
         isVocalTractTransformation = bVocalTractTransformation;
         isFixedRateVocalTractTransformation = bFixedRateVocalTractTransformation;
-
+        isResynthesizeVocalTractFromSourceCodebook = bResynthesizeVocalTractFromSourceCodebook;
+        
         init(strInputFile, strPitchFile, strOutputFile,
                 pscales, tscales, escales, vscales, isFixedRateVocalTractTransformation);
     }
@@ -699,7 +702,10 @@ public class WeightedCodebookFdpsolaAdapter {
 
                 if (isVocalTractTransformation)
                 {
-                    targetLpcs = LineSpectralFrequencies.lsfInHz2lpc(codebookMatch.entry.targetItem.lsfs, fs);
+                    if (!isResynthesizeVocalTractFromSourceCodebook)
+                        targetLpcs = LineSpectralFrequencies.lsfInHz2lpc(codebookMatch.entry.targetItem.lsfs, fs);
+                    else
+                        targetLpcs = LineSpectralFrequencies.lsfInHz2lpc(codebookMatch.entry.sourceItem.lsfs, fs);
 
                     if (fftSize!=newFftSize)
                     {

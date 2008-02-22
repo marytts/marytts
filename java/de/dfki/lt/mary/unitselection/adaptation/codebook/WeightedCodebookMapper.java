@@ -31,7 +31,7 @@ package de.dfki.lt.mary.unitselection.adaptation.codebook;
 
 import java.util.Arrays;
 
-import de.dfki.lt.mary.unitselection.adaptation.DistanceComputer;
+import de.dfki.lt.signalproc.util.DistanceComputer;
 import de.dfki.lt.signalproc.util.MathUtils;
 import de.dfki.lt.signalproc.util.SignalProcUtils;
 
@@ -112,7 +112,7 @@ public class WeightedCodebookMapper {
             {
                 if (i>=mapperParams.numBestMatches)
                 {
-                    currentDist = DistanceComputer.getLsfInverseHarmonicDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs);
+                    currentDist = DistanceComputer.getLsfInverseHarmonicDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs, mapperParams.freqRange);
                     
                     if (currentDist<worstBestDist)
                     {
@@ -124,7 +124,7 @@ public class WeightedCodebookMapper {
                 }
                 else
                 {
-                    bestMatchDists[i] = DistanceComputer.getLsfInverseHarmonicDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs);
+                    bestMatchDists[i] = DistanceComputer.getLsfInverseHarmonicDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs, mapperParams.freqRange);
                     bestMatchIndices[i] = i; 
                     
                     if (i==0 || bestMatchDists[i]>worstBestDist)
@@ -141,7 +141,7 @@ public class WeightedCodebookMapper {
             {
                 if (i>=mapperParams.numBestMatches)
                 {
-                    currentDist = DistanceComputer.getLsfInverseHarmonicDistanceSymmetric(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs, mapperParams.alphaForSymmetric);
+                    currentDist = DistanceComputer.getLsfInverseHarmonicDistanceSymmetric(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs, mapperParams.alphaForSymmetric, mapperParams.freqRange);
                     
                     if (currentDist<worstBestDist)
                     {
@@ -153,7 +153,7 @@ public class WeightedCodebookMapper {
                 }
                 else
                 {
-                    bestMatchDists[i] = DistanceComputer.getLsfInverseHarmonicDistanceSymmetric(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs, mapperParams.alphaForSymmetric);
+                    bestMatchDists[i] = DistanceComputer.getLsfInverseHarmonicDistanceSymmetric(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs, mapperParams.alphaForSymmetric, mapperParams.freqRange);
                     bestMatchIndices[i] = i; 
                     
                     if (i==0 || bestMatchDists[i]>worstBestDist)

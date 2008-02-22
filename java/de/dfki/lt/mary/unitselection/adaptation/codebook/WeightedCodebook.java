@@ -38,6 +38,13 @@ import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchStatisticsMapping;
  *
  */
 public class WeightedCodebook {
+    //These are for feature requests from the codebook
+    public static final int SOURCE = 1;
+    public static final int TARGET = 2;
+    public static final int SOURCE_TARGET = 3; 
+    public static final int TARGET_SOURCE = 4;
+    //
+    
     public WeightedCodebookLsfEntry[] lsfEntries;
     public WeightedCodebookFileHeader header;
     
@@ -98,4 +105,125 @@ public class WeightedCodebook {
         else
             f0StatisticsMapping = null;
     }
+    
+    public double[][] getFeatures(int speakerType, int desiredFeatures)
+    {
+        double[][] features = null;
+        
+        if (lsfEntries!=null)
+        {
+            features = new double[header.totalLsfEntries][];
+            int dimension = 0;
+            boolean isLsfDesired = false;
+            boolean isF0Desired = false;
+            boolean isEnergyDesired = false;
+            boolean isDurationDesired = false;
+            
+            if (WeightedCodebookFeatureExtractor.isDesired(WeightedCodebookFeatureExtractor.LSF_FEATURES, desiredFeatures))
+            {
+                dimension += header.lsfParams.lpOrder;
+                isLsfDesired = true;
+            }
+            if (WeightedCodebookFeatureExtractor.isDesired(WeightedCodebookFeatureExtractor.F0_FEATURES, desiredFeatures))
+            {
+                dimension += 1;
+                isF0Desired = true;
+            }
+            if (WeightedCodebookFeatureExtractor.isDesired(WeightedCodebookFeatureExtractor.ENERGY_FEATURES, desiredFeatures))
+            {
+                dimension += 1;
+                isEnergyDesired = true;
+            }
+            if (WeightedCodebookFeatureExtractor.isDesired(WeightedCodebookFeatureExtractor.DURATION_FEATURES, desiredFeatures))
+            {
+                dimension += 1;
+                isDurationDesired = true;
+            }
+            
+            int currentPos;
+            for (int i=0; i<header.totalLsfEntries; i++)
+            {
+                features[i] = new double[dimension];
+                currentPos = 0;
+                
+                //Source
+                if (speakerType==SOURCE || speakerType==SOURCE_TARGET)
+                {
+                    if (isLsfDesired)
+                    {
+                        System.arraycopy(lsfEntries[i].sourceItem.lsfs, 0, features[i], currentPos, header.lsfParams.lpOrder);
+                        currentPos += header.lsfParams.lpOrder;
+                    }
+                    if (isF0Desired)
+                    {
+                        features[i][currentPos] = lsfEntries[i].sourceItem.f0;
+                        currentPos += 1;
+                    }
+                    if (isEnergyDesired)
+                    {
+                        features[i][currentPos] = lsfEntries[i].sourceItem.energy;
+                        currentPos += 1;
+                    }
+                    if (isDurationDesired)
+                    {
+                        features[i][currentPos] = lsfEntries[i].sourceItem.duration;
+                        currentPos += 1;
+                    } 
+                }
+                
+                //Target
+                if (speakerType==TARGET || speakerType==TARGET_SOURCE)
+                {
+                    if (isLsfDesired)
+                    {
+                        System.arraycopy(lsfEntries[i].targetItem.lsfs, 0, features[i], currentPos, header.lsfParams.lpOrder);
+                        currentPos += header.lsfParams.lpOrder;
+                    }
+                    if (isF0Desired)
+                    {
+                        features[i][currentPos] = lsfEntries[i].targetItem.f0;
+                        currentPos += 1;
+                    }
+                    if (isEnergyDesired)
+                    {
+                        features[i][currentPos] = lsfEntries[i].targetItem.energy;
+                        currentPos += 1;
+                    }
+                    if (isDurationDesired)
+                    {
+                        features[i][currentPos] = lsfEntries[i].targetItem.duration;
+                        currentPos += 1;
+                    } 
+                } 
+                
+                //Repeat Source here (i.e. target is requested first)
+                if (speakerType==TARGET_SOURCE)
+                {
+                    if (isLsfDesired)
+                    {
+                        System.arraycopy(lsfEntries[i].sourceItem.lsfs, 0, features[i], currentPos, header.lsfParams.lpOrder);
+                        currentPos += header.lsfParams.lpOrder;
+                    }
+                    if (isF0Desired)
+                    {
+                        features[i][currentPos] = lsfEntries[i].sourceItem.f0;
+                        currentPos += 1;
+                    }
+                    if (isEnergyDesired)
+                    {
+                        features[i][currentPos] = lsfEntries[i].sourceItem.energy;
+                        currentPos += 1;
+                    }
+                    if (isDurationDesired)
+                    {
+                        features[i][currentPos] = lsfEntries[i].sourceItem.duration;
+                        currentPos += 1;
+                    } 
+                }
+            }
+        }
+        
+        return features;
+    }
+    
 }

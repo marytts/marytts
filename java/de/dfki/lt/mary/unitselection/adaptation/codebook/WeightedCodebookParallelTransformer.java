@@ -185,7 +185,7 @@ public class WeightedCodebookParallelTransformer extends
             {
                 preprocessor.run(inputSet);
                 
-                int desiredFeatures = WeightedCodebookFeatureExtractor.F0_ANALYSIS;
+                int desiredFeatures = WeightedCodebookFeatureExtractor.F0_FEATURES;
                 
                 try {
                     featureExtractor.run(inputSet, params, desiredFeatures);
@@ -261,6 +261,7 @@ public class WeightedCodebookParallelTransformer extends
                                   firstPassOutputWavFile, 
                                   wctParams.isVocalTractTransformation,
                                   wctParams.isFixedRateVocalTractConversion, 
+                                  wctParams.isResynthesizeVocalTractFromSourceCodebook,
                                   pscalesTemp, tscalesTemp, escalesTemp, vscalesTemp);
             
             //Separate prosody modification
@@ -280,6 +281,7 @@ public class WeightedCodebookParallelTransformer extends
                             outputItem.audioFile, 
                             false, //isVocalTractTransformation should be false 
                             false, //isFixedRateVocalTractConversion should be false to enable prosody modifications with FD-PSOLA
+                            false, //isResynthesizeVocalTractFromSourceCodebook should be false
                             pscales, tscales, escales, vscales);
 
                     adapter.bSilent = true;
@@ -302,6 +304,7 @@ public class WeightedCodebookParallelTransformer extends
                                   outputItem.audioFile, 
                                   wctParams.isVocalTractTransformation,
                                   wctParams.isFixedRateVocalTractConversion, 
+                                  wctParams.isResynthesizeVocalTractFromSourceCodebook,
                                   pscales, tscales, escales, vscales);
             
             adapter.bSilent = !wctParams.isDisplayProcessingFrameCount;
@@ -348,14 +351,15 @@ public class WeightedCodebookParallelTransformer extends
         pa.isDisplayProcessingFrameCount = true;
         
         pa.inputFolder = "d:\\1\\neutral50\\test1";
-        pa.outputBaseFolder = "d:\\1\\neutral_X_angry_50\\neutral2angryOut3";
+        pa.outputBaseFolder = "d:\\1\\neutral_X_angry_50\\neutral2angryOut5";
         
-        pa.codebookFile = "d:\\1\\neutral_X_angry_50\\neutralL_X_angryL.wcf";
+        pa.codebookFile = "d:\\1\\neutral_X_angry_50\\neutralF_X_angryF.wcf";
         pa.outputFolderInfoString = "labels";
         
         //Set codebook mapper parameters
-        pa.mapperParams.numBestMatches = 5; // Number of best matches in codebook
+        pa.mapperParams.numBestMatches = 1; // Number of best matches in codebook
         pa.mapperParams.weightingSteepness = 1.0; // Steepness of weighting function in range [WeightedCodebookMapperParams.MIN_STEEPNESS, WeightedCodebookMapperParams.MAX_STEEPNESS]
+        pa.mapperParams.freqRange = 5000.0; //Frequency range to be considered around center freq when matching LSFs (note that center freq is estimated automatically as the middle of most closest LSFs)
         
         // Distance measure for comparing source training and transformation features
         //pa.mapperParams.distanceMeasure = WeightedCodebookMapperParams.LSF_INVERSE_HARMONIC_DISTANCE;
@@ -375,8 +379,9 @@ public class WeightedCodebookParallelTransformer extends
         //
         
         pa.isForcedAnalysis = false;
-        pa.isSourceVocalTractSpectrumFromCodebook = true;
+        pa.isSourceVocalTractSpectrumFromCodebook = false;
         pa.isVocalTractTransformation = true;
+        pa.isResynthesizeVocalTractFromSourceCodebook = false;
         
         pa.isSeparateProsody = true;
         pa.isSaveVocalTractOnlyVersion = true;
