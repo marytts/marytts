@@ -80,6 +80,7 @@ public class WeightedCodebookFdpsolaAdapter {
     private boolean isFixedRateVocalTractTransformation;
     private boolean isVocalTractTransformation;
     private boolean isResynthesizeVocalTractFromSourceCodebook;
+    private boolean isVocalTractMatchUsingTargetCodebook;
     public static int WAVEFORM_MODIFICATION = 1;
     public static int TTS_MODIFICATION = 2;
 
@@ -177,12 +178,14 @@ public class WeightedCodebookFdpsolaAdapter {
             boolean bVocalTractTransformation,
             boolean bFixedRateVocalTractTransformation,
             boolean bResynthesizeVocalTractFromSourceCodebook,
+            boolean bVocalTractMatchUsingTargetCodebook,
             double [] pscales, double [] tscales, double [] escales, double [] vscales
     ) throws UnsupportedAudioFileException, IOException
     {
         isVocalTractTransformation = bVocalTractTransformation;
         isFixedRateVocalTractTransformation = bFixedRateVocalTractTransformation;
         isResynthesizeVocalTractFromSourceCodebook = bResynthesizeVocalTractFromSourceCodebook;
+        isVocalTractMatchUsingTargetCodebook = bVocalTractMatchUsingTargetCodebook;
         
         init(strInputFile, strPitchFile, strOutputFile,
                 pscales, tscales, escales, vscales, isFixedRateVocalTractTransformation);
@@ -622,7 +625,7 @@ public class WeightedCodebookFdpsolaAdapter {
                 //Find target estimate from codebook
                 if (isVocalTractTransformation)
                 {
-                    codebookMatch = mapper.transform(inputLsfs, codebook);
+                    codebookMatch = mapper.transform(inputLsfs, codebook, params.isVocalTractMatchUsingTargetCodebook);
                     //Use source for testing things. Don´t forget to set isSourceVocalTractFromCodeook=false
                     //codebookMatch = new WeightedCodebookMatch(inputLsfs, inputLsfs); 
                 }

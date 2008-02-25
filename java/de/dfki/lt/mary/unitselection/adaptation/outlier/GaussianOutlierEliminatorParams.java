@@ -34,11 +34,7 @@ package de.dfki.lt.mary.unitselection.adaptation.outlier;
  *
  */
 public class GaussianOutlierEliminatorParams extends BaselineOutlierEliminatorParams {
-    public double totalStandardDeviationsLsf;
-    public double totalStandardDeviationsF0;
-    public double totalStandardDeviationsDuration;
-    public double totalStandardDeviationsEnergy;
-    public static final double DEFAULT_TOTAL_STANDARD_DEVIATIONS = 1.5;
+    public TotalStandardDeviations totalStandardDeviations;
    
     public boolean isEliminateTooSimilarLsf; //Also eliminate left tail - this forces some average vocal tract transformation for all frames
     
@@ -46,10 +42,7 @@ public class GaussianOutlierEliminatorParams extends BaselineOutlierEliminatorPa
     {
         super();
         
-        totalStandardDeviationsLsf = DEFAULT_TOTAL_STANDARD_DEVIATIONS;
-        totalStandardDeviationsF0 = DEFAULT_TOTAL_STANDARD_DEVIATIONS;
-        totalStandardDeviationsDuration = DEFAULT_TOTAL_STANDARD_DEVIATIONS;
-        totalStandardDeviationsEnergy = DEFAULT_TOTAL_STANDARD_DEVIATIONS;
+        totalStandardDeviations = new TotalStandardDeviations();
         
         isEliminateTooSimilarLsf = true;
     }
@@ -58,10 +51,7 @@ public class GaussianOutlierEliminatorParams extends BaselineOutlierEliminatorPa
     {
         super(existing);
         
-        totalStandardDeviationsLsf = existing.totalStandardDeviationsLsf;
-        totalStandardDeviationsF0 = existing.totalStandardDeviationsF0;
-        totalStandardDeviationsDuration = existing.totalStandardDeviationsDuration;
-        totalStandardDeviationsEnergy = existing.totalStandardDeviationsEnergy;
+        totalStandardDeviations =  new TotalStandardDeviations(existing.totalStandardDeviations);
         
         isEliminateTooSimilarLsf = existing.isEliminateTooSimilarLsf;
     }

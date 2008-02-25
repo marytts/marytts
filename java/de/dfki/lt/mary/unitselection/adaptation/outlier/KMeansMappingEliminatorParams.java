@@ -37,8 +37,9 @@ import de.dfki.lt.machinelearning.KMeansClusteringTrainer;
  */
 public class KMeansMappingEliminatorParams extends BaselineOutlierEliminatorParams {
     public int eliminationAlgorithm;
-    public static final int ELIMINATE_LEAST_LIKELY_MAPPINGS = 1;
-    public static final int ELIMINATE_MEAN_DISTANCE_MISMATCHES = 2;
+    
+    public static final int ELIMINATE_LEAST_LIKELY_MAPPINGS = 1;            public double eliminationLikelihood;
+    public static final int ELIMINATE_MEAN_DISTANCE_MISMATCHES = 2;         public TotalStandardDeviations totalStandardDeviations;
     public static final int ELIMINATE_USING_SUBCLUSTER_MEAN_DISTANCES = 3;
     
     public int numClusters;
@@ -48,8 +49,6 @@ public class KMeansMappingEliminatorParams extends BaselineOutlierEliminatorPara
     public double minClusterPercent;
     public boolean isDiagonalCovariance;
     public boolean isSeparateClustering;
-    
-    public double eliminationLikelihood;
     
     public KMeansMappingEliminatorParams()
     {
@@ -62,6 +61,7 @@ public class KMeansMappingEliminatorParams extends BaselineOutlierEliminatorPara
         isSeparateClustering = false;
         eliminationAlgorithm = ELIMINATE_LEAST_LIKELY_MAPPINGS;
         eliminationLikelihood = 0.1;
+        totalStandardDeviations = new TotalStandardDeviations();
     }
     
     public KMeansMappingEliminatorParams(KMeansMappingEliminatorParams existing)
@@ -72,7 +72,9 @@ public class KMeansMappingEliminatorParams extends BaselineOutlierEliminatorPara
         maximumIterations = existing.maximumIterations;
         minClusterPercent = existing.minClusterPercent;
         isDiagonalCovariance = existing.isDiagonalCovariance;
+        isSeparateClustering = existing.isSeparateClustering;
         eliminationAlgorithm = existing.eliminationAlgorithm;
-        eliminationLikelihood  =existing.eliminationLikelihood;
+        eliminationLikelihood = existing.eliminationLikelihood;
+        totalStandardDeviations = new TotalStandardDeviations(existing.totalStandardDeviations);
     }
 }

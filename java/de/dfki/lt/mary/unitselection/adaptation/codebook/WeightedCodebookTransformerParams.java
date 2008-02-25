@@ -58,6 +58,7 @@ public class WeightedCodebookTransformerParams extends WeightedCodebookBaselineP
     public boolean isSourceVocalTractSpectrumFromCodebook;
     public boolean isVocalTractTransformation;
     public boolean isResynthesizeVocalTractFromSourceCodebook;
+    public boolean isVocalTractMatchUsingTargetCodebook;
     
     public boolean isSeparateProsody;
     public boolean isSaveVocalTractOnlyVersion;
@@ -83,6 +84,7 @@ public class WeightedCodebookTransformerParams extends WeightedCodebookBaselineP
         isSourceVocalTractSpectrumFromCodebook = true;
         isVocalTractTransformation = true;
         isResynthesizeVocalTractFromSourceCodebook = false;
+        isVocalTractMatchUsingTargetCodebook = false;
         
         isSeparateProsody = true;
         isSaveVocalTractOnlyVersion = true;

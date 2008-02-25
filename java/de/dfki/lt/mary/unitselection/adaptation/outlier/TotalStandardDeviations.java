@@ -27,42 +27,32 @@
  * THIS SOFTWARE.
  */
 
-package de.dfki.lt.mary.unitselection.adaptation;
+package de.dfki.lt.mary.unitselection.adaptation.outlier;
 
 /**
  * @author oytun.turk
  *
  */
-public class OutlierStatus {
-    public static final int NON_OUTLIER        = Integer.parseInt("0000000000", 2);
-    public static final int LSF_OUTLIER        = Integer.parseInt("0000000001", 2);
-    public static final int F0_OUTLIER         = Integer.parseInt("0000000010", 2);
-    public static final int DURATION_OUTLIER   = Integer.parseInt("0000000100", 2);
-    public static final int ENERGY_OUTLIER     = Integer.parseInt("0000001000", 2);
-    public static final int GENERAL_OUTLIER    = Integer.parseInt("0000010000", 2);
-    public static final int ONE2MANY_OUTLIER   = Integer.parseInt("0000100000", 2);
-    public static final int MANY2ONE_OUTLIER   = Integer.parseInt("0001000000", 2);
-    public static final int MANY2MANY_OUTLIER  = Integer.parseInt("0010000000", 2);
+public class TotalStandardDeviations {
+    public double lsf;
+    public double f0;
+    public double duration;
+    public double energy;
+    public static final double DEFAULT_TOTAL_STANDARD_DEVIATIONS = 1.5;
     
-    public int totalNonOutliers;
-    public int totalLsfOutliers;
-    public int totalF0Outliers;
-    public int totalDurationOutliers;
-    public int totalEnergyOutliers;
-    public int totalGeneralOutliers;
-    
-    public OutlierStatus()
+    public TotalStandardDeviations()
     {
-       init();
+        lsf = DEFAULT_TOTAL_STANDARD_DEVIATIONS;
+        f0 = DEFAULT_TOTAL_STANDARD_DEVIATIONS;
+        duration = DEFAULT_TOTAL_STANDARD_DEVIATIONS;
+        energy = DEFAULT_TOTAL_STANDARD_DEVIATIONS;
     }
     
-    public void init()
+    public TotalStandardDeviations(TotalStandardDeviations existing)
     {
-        totalNonOutliers = 0;
-        totalLsfOutliers = 0;
-        totalF0Outliers = 0;
-        totalDurationOutliers = 0;
-        totalEnergyOutliers = 0;
-        totalGeneralOutliers = 0;
+        lsf = existing.lsf;
+        f0 = existing.f0;
+        duration = existing.duration;
+        energy = existing.energy;
     }
 }

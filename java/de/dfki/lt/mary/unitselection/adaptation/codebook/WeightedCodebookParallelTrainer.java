@@ -41,6 +41,7 @@ import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationItem;
 import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationSet;
 import de.dfki.lt.mary.unitselection.adaptation.IndexMap;
 import de.dfki.lt.mary.unitselection.adaptation.outlier.KMeansMappingEliminatorParams;
+import de.dfki.lt.mary.unitselection.adaptation.outlier.TotalStandardDeviations;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchTrainer;
 import de.dfki.lt.mary.unitselection.voiceimport.BasenameList;
 import de.dfki.lt.mary.util.FileUtils;
@@ -332,36 +333,43 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         pa.codebookHeader.energyParams.windowSizeInSeconds = 0.020;
         pa.codebookHeader.energyParams.skipSizeInSeconds = 0.010;
         
+        TotalStandardDeviations tsd = new TotalStandardDeviations();
+        tsd.lsf = 1.5;
+        tsd.f0 = 1.0;
+        tsd.duration = 1.0;
+        tsd.energy = 2.0;
+        
         //Gaussian outlier eliminator
         //Decreasing totalStandardDeviations will lead to more outlier eliminations, i.e. smaller codebooks
-        pa.gaussianEliminatorParams.isActive = true; //Set to false if you do not want to use this eliminator at all
-        pa.gaussianEliminatorParams.totalStandardDeviationsLsf = 1.5;        
+        pa.gaussianEliminatorParams.isActive = false; //Set to false if you do not want to use this eliminator at all      
         pa.gaussianEliminatorParams.isCheckLsfOutliers = true;
         pa.gaussianEliminatorParams.isEliminateTooSimilarLsf = false;
-        
-        pa.gaussianEliminatorParams.totalStandardDeviationsF0 = 1.0;         
-        pa.gaussianEliminatorParams.isCheckF0Outliers = true;
-        
-        pa.gaussianEliminatorParams.totalStandardDeviationsDuration = 1.0;   
-        pa.gaussianEliminatorParams.isCheckDurationOutliers = true;
-        
-        pa.gaussianEliminatorParams.totalStandardDeviationsEnergy = 2.0;     
+        pa.gaussianEliminatorParams.isCheckF0Outliers = true; 
+        pa.gaussianEliminatorParams.isCheckDurationOutliers = true;    
         pa.gaussianEliminatorParams.isCheckEnergyOutliers = true;
+        pa.gaussianEliminatorParams.totalStandardDeviations = new TotalStandardDeviations(tsd);
         //
         
         //KMeans one-to-many and many-to-one mapping eliminator
-        pa.kmeansEliminatorParams.eliminationAlgorithm = KMeansMappingEliminatorParams.ELIMINATE_LEAST_LIKELY_MAPPINGS;
-        //pa.kmeansEliminatorParams.eliminationAlgorithm = KMeansMappingEliminatorParams.ELIMINATE_MEAN_DISTANCE_MISMATCHES;
+        //pa.kmeansEliminatorParams.eliminationAlgorithm = KMeansMappingEliminatorParams.ELIMINATE_LEAST_LIKELY_MAPPINGS; 
+        pa.kmeansEliminatorParams.eliminationAlgorithm = KMeansMappingEliminatorParams.ELIMINATE_MEAN_DISTANCE_MISMATCHES; 
         //pa.kmeansEliminatorParams.eliminationAlgorithm = KMeansMappingEliminatorParams.ELIMINATE_USING_SUBCLUSTER_MEAN_DISTANCES;
         
-        pa.kmeansEliminatorParams.eliminationLikelihood = 0.20;
+        tsd.lsf = 1.5;
+        tsd.f0 = 1.0;
+        tsd.duration = 1.0;
+        tsd.energy = 2.0;
+
         pa.kmeansEliminatorParams.numClusters = 40;
         pa.kmeansEliminatorParams.isActive = true; //Set to false if you do not want to use this eliminator at all
         pa.kmeansEliminatorParams.isSeparateClustering = true; //Cluster features separately(true) or together(false)?
         pa.kmeansEliminatorParams.isCheckLsfOutliers = true;    
-        pa.kmeansEliminatorParams.isCheckF0Outliers = true; 
-        pa.kmeansEliminatorParams.isCheckDurationOutliers = true;  
-        pa.kmeansEliminatorParams.isCheckEnergyOutliers = true;
+        pa.kmeansEliminatorParams.isCheckF0Outliers = false; 
+        pa.kmeansEliminatorParams.isCheckDurationOutliers = false;  
+        pa.kmeansEliminatorParams.isCheckEnergyOutliers = false;
+        
+        pa.kmeansEliminatorParams.eliminationLikelihood = 0.20;
+        pa.kmeansEliminatorParams.totalStandardDeviations = new TotalStandardDeviations(tsd);
         //
         
         WeightedCodebookParallelTrainer t = new WeightedCodebookParallelTrainer(pp, fe, pa);
