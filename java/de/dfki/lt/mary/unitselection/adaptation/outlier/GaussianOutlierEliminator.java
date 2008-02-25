@@ -162,21 +162,21 @@ public class GaussianOutlierEliminator {
             {
                 if (params.isCheckLsfOutliers)
                 {
-                    if (lsfDistances[i]>lsfDistanceMean+params.totalStandardDeviationsLsf*lsfDistanceStdDev ||
-                         (params.isEliminateTooSimilarLsf && lsfDistances[i]<lsfDistanceMean-params.totalStandardDeviationsLsf*lsfDistanceStdDev))
+                    if (lsfDistances[i]>lsfDistanceMean+params.totalStandardDeviations.lsf*lsfDistanceStdDev ||
+                         (params.isEliminateTooSimilarLsf && lsfDistances[i]<lsfDistanceMean-params.totalStandardDeviations.lsf*lsfDistanceStdDev))
                     {
                         acceptanceStatus[i] += OutlierStatus.LSF_OUTLIER;
                         totalLsfOutliers++;
                     }
                 }
 
-                if (params.isCheckDurationOutliers && durationDistances[i]>durationDistanceMean+params.totalStandardDeviationsDuration*durationDistanceStdDev)
+                if (params.isCheckDurationOutliers && durationDistances[i]>durationDistanceMean+params.totalStandardDeviations.duration*durationDistanceStdDev)
                 {
                     acceptanceStatus[i] += OutlierStatus.DURATION_OUTLIER;
                     totalDurationOutliers++;
                 }
                 
-                if (params.isCheckEnergyOutliers && energyDistances[i]>energyDistanceMean+params.totalStandardDeviationsEnergy*energyDistanceStdDev)
+                if (params.isCheckEnergyOutliers && energyDistances[i]>energyDistanceMean+params.totalStandardDeviations.energy*energyDistanceStdDev)
                 {
                     acceptanceStatus[i] += OutlierStatus.ENERGY_OUTLIER;
                     totalEnergyOutliers++;
@@ -188,7 +188,7 @@ public class GaussianOutlierEliminator {
             {
                 for (i=0; i<totalVoiced; i++)
                 {
-                    if (f0Distances[i]>f0DistanceMean+params.totalStandardDeviationsF0*f0DistanceStdDev)
+                    if (f0Distances[i]>f0DistanceMean+params.totalStandardDeviations.f0*f0DistanceStdDev)
                     {
                         acceptanceStatus[voicedInds[i]] += OutlierStatus.F0_OUTLIER;
                         totalF0Outliers++;

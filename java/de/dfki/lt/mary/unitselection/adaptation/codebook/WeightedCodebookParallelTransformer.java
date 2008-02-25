@@ -262,6 +262,7 @@ public class WeightedCodebookParallelTransformer extends
                                   wctParams.isVocalTractTransformation,
                                   wctParams.isFixedRateVocalTractConversion, 
                                   wctParams.isResynthesizeVocalTractFromSourceCodebook,
+                                  wctParams.isVocalTractMatchUsingTargetCodebook,
                                   pscalesTemp, tscalesTemp, escalesTemp, vscalesTemp);
             
             //Separate prosody modification
@@ -282,6 +283,7 @@ public class WeightedCodebookParallelTransformer extends
                             false, //isVocalTractTransformation should be false 
                             false, //isFixedRateVocalTractConversion should be false to enable prosody modifications with FD-PSOLA
                             false, //isResynthesizeVocalTractFromSourceCodebook should be false
+                            false, //isVocalTractMatchUsingTargetCodebook shuld be false
                             pscales, tscales, escales, vscales);
 
                     adapter.bSilent = true;
@@ -305,6 +307,7 @@ public class WeightedCodebookParallelTransformer extends
                                   wctParams.isVocalTractTransformation,
                                   wctParams.isFixedRateVocalTractConversion, 
                                   wctParams.isResynthesizeVocalTractFromSourceCodebook,
+                                  wctParams.isVocalTractMatchUsingTargetCodebook,
                                   pscales, tscales, escales, vscales);
             
             adapter.bSilent = !wctParams.isDisplayProcessingFrameCount;
@@ -350,7 +353,7 @@ public class WeightedCodebookParallelTransformer extends
         
         pa.isDisplayProcessingFrameCount = true;
         
-        pa.inputFolder = "d:\\1\\neutral50\\test1";
+        pa.inputFolder = "d:\\1\\angry50\\test1";
         pa.outputBaseFolder = "d:\\1\\neutral_X_angry_50\\neutral2angryOut5";
         
         pa.codebookFile = "d:\\1\\neutral_X_angry_50\\neutralF_X_angryF.wcf";
@@ -382,6 +385,7 @@ public class WeightedCodebookParallelTransformer extends
         pa.isSourceVocalTractSpectrumFromCodebook = false;
         pa.isVocalTractTransformation = true;
         pa.isResynthesizeVocalTractFromSourceCodebook = false;
+        pa.isVocalTractMatchUsingTargetCodebook = false;
         
         pa.isSeparateProsody = true;
         pa.isSaveVocalTractOnlyVersion = true;

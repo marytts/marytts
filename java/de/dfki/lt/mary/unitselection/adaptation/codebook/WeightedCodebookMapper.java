@@ -70,7 +70,7 @@ public class WeightedCodebookMapper {
         returnedMatch = null;
     }
     
-    public WeightedCodebookMatch transform(double[] inputLsfs, WeightedCodebook codebook)
+    public WeightedCodebookMatch transform(double[] inputLsfs, WeightedCodebook codebook, boolean isVocalTractMatchUsingTargetCodebook)
     {
         double currentDist;
         double worstBestDist = -1.0;
@@ -83,7 +83,10 @@ public class WeightedCodebookMapper {
             {
                 if (i>=mapperParams.numBestMatches)
                 {
-                    currentDist = DistanceComputer.getEuclideanDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs);
+                    if (!isVocalTractMatchUsingTargetCodebook)
+                        currentDist = DistanceComputer.getEuclideanDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs);
+                    else
+                        currentDist = DistanceComputer.getEuclideanDistance(inputLsfs, codebook.lsfEntries[i].targetItem.lsfs);
                     
                     if (currentDist<worstBestDist)
                     {
@@ -95,7 +98,11 @@ public class WeightedCodebookMapper {
                 }
                 else
                 {
-                    bestMatchDists[i] = DistanceComputer.getEuclideanDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs);
+                    if (!isVocalTractMatchUsingTargetCodebook)
+                        bestMatchDists[i] = DistanceComputer.getEuclideanDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs);
+                    else
+                        bestMatchDists[i] = DistanceComputer.getEuclideanDistance(inputLsfs, codebook.lsfEntries[i].targetItem.lsfs);
+                    
                     bestMatchIndices[i] = i; 
                     
                     if (i==0 || bestMatchDists[i]>worstBestDist)
@@ -112,7 +119,10 @@ public class WeightedCodebookMapper {
             {
                 if (i>=mapperParams.numBestMatches)
                 {
-                    currentDist = DistanceComputer.getLsfInverseHarmonicDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs, mapperParams.freqRange);
+                    if (!isVocalTractMatchUsingTargetCodebook)
+                        currentDist = DistanceComputer.getLsfInverseHarmonicDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs, mapperParams.freqRange);
+                    else
+                        currentDist = DistanceComputer.getLsfInverseHarmonicDistance(inputLsfs, codebook.lsfEntries[i].targetItem.lsfs, mapperParams.freqRange);
                     
                     if (currentDist<worstBestDist)
                     {
@@ -124,7 +134,11 @@ public class WeightedCodebookMapper {
                 }
                 else
                 {
-                    bestMatchDists[i] = DistanceComputer.getLsfInverseHarmonicDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs, mapperParams.freqRange);
+                    if (!isVocalTractMatchUsingTargetCodebook)
+                        bestMatchDists[i] = DistanceComputer.getLsfInverseHarmonicDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs, mapperParams.freqRange);
+                    else
+                        bestMatchDists[i] = DistanceComputer.getLsfInverseHarmonicDistance(inputLsfs, codebook.lsfEntries[i].targetItem.lsfs, mapperParams.freqRange);
+                    
                     bestMatchIndices[i] = i; 
                     
                     if (i==0 || bestMatchDists[i]>worstBestDist)
@@ -141,7 +155,10 @@ public class WeightedCodebookMapper {
             {
                 if (i>=mapperParams.numBestMatches)
                 {
-                    currentDist = DistanceComputer.getLsfInverseHarmonicDistanceSymmetric(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs, mapperParams.alphaForSymmetric, mapperParams.freqRange);
+                    if (!isVocalTractMatchUsingTargetCodebook)
+                        currentDist = DistanceComputer.getLsfInverseHarmonicDistanceSymmetric(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs, mapperParams.alphaForSymmetric, mapperParams.freqRange);
+                    else
+                        currentDist = DistanceComputer.getLsfInverseHarmonicDistanceSymmetric(inputLsfs, codebook.lsfEntries[i].targetItem.lsfs, mapperParams.alphaForSymmetric, mapperParams.freqRange);
                     
                     if (currentDist<worstBestDist)
                     {
@@ -153,7 +170,11 @@ public class WeightedCodebookMapper {
                 }
                 else
                 {
-                    bestMatchDists[i] = DistanceComputer.getLsfInverseHarmonicDistanceSymmetric(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs, mapperParams.alphaForSymmetric, mapperParams.freqRange);
+                    if (!isVocalTractMatchUsingTargetCodebook)
+                        bestMatchDists[i] = DistanceComputer.getLsfInverseHarmonicDistanceSymmetric(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs, mapperParams.alphaForSymmetric, mapperParams.freqRange);
+                    else
+                        bestMatchDists[i] = DistanceComputer.getLsfInverseHarmonicDistanceSymmetric(inputLsfs, codebook.lsfEntries[i].targetItem.lsfs, mapperParams.alphaForSymmetric, mapperParams.freqRange);
+                        
                     bestMatchIndices[i] = i; 
                     
                     if (i==0 || bestMatchDists[i]>worstBestDist)
@@ -172,7 +193,10 @@ public class WeightedCodebookMapper {
             {
                 if (i>=mapperParams.numBestMatches)
                 {
-                    currentDist = DistanceComputer.getMahalanobisDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs, inverseCovarianceMatrix);
+                    if (!isVocalTractMatchUsingTargetCodebook)
+                        currentDist = DistanceComputer.getMahalanobisDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs, inverseCovarianceMatrix);
+                    else
+                        currentDist = DistanceComputer.getMahalanobisDistance(inputLsfs, codebook.lsfEntries[i].targetItem.lsfs, inverseCovarianceMatrix);
                     
                     if (currentDist<worstBestDist)
                     {
@@ -184,7 +208,11 @@ public class WeightedCodebookMapper {
                 }
                 else
                 {
-                    bestMatchDists[i] = DistanceComputer.getMahalanobisDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs, inverseCovarianceMatrix);
+                    if (!isVocalTractMatchUsingTargetCodebook)
+                        bestMatchDists[i] = DistanceComputer.getMahalanobisDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs, inverseCovarianceMatrix);
+                    else
+                        bestMatchDists[i] = DistanceComputer.getMahalanobisDistance(inputLsfs, codebook.lsfEntries[i].targetItem.lsfs, inverseCovarianceMatrix);
+                    
                     bestMatchIndices[i] = i; 
                     
                     if (i==0 || bestMatchDists[i]>worstBestDist)
@@ -202,7 +230,10 @@ public class WeightedCodebookMapper {
             {
                 if (i>=mapperParams.numBestMatches)
                 {
-                    currentDist = DistanceComputer.getAbsoluteValueDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs);
+                    if (!isVocalTractMatchUsingTargetCodebook)
+                        currentDist = DistanceComputer.getAbsoluteValueDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs);
+                    else
+                        currentDist = DistanceComputer.getAbsoluteValueDistance(inputLsfs, codebook.lsfEntries[i].targetItem.lsfs);
                     
                     if (currentDist<worstBestDist)
                     {
@@ -214,7 +245,11 @@ public class WeightedCodebookMapper {
                 }
                 else
                 {
-                    bestMatchDists[i] = DistanceComputer.getAbsoluteValueDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs);
+                    if (!isVocalTractMatchUsingTargetCodebook)
+                        bestMatchDists[i] = DistanceComputer.getAbsoluteValueDistance(inputLsfs, codebook.lsfEntries[i].sourceItem.lsfs);
+                    else
+                        bestMatchDists[i] = DistanceComputer.getAbsoluteValueDistance(inputLsfs, codebook.lsfEntries[i].targetItem.lsfs);
+                            
                     bestMatchIndices[i] = i; 
                     
                     if (i==0 || bestMatchDists[i]>worstBestDist)
