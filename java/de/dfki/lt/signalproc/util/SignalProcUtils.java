@@ -8,8 +8,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Vector;
 
-import sun.text.CompactShortArray.Iterator;
-
 import de.dfki.lt.mary.util.FileUtils;
 import de.dfki.lt.signalproc.FFT;
 import de.dfki.lt.signalproc.FFTMixedRadix;
