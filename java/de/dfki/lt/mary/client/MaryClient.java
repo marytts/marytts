@@ -78,15 +78,15 @@ public class MaryClient {
     private boolean serverCanStream = false;
     private boolean doProfile = false;
     private boolean beQuiet = false;
-    private Vector allVoices = null;
-    private Map voicesByLocaleMap = null;
-    private Vector allDataTypes = null;
-    private Vector inputDataTypes = null;
-    private Vector outputDataTypes = null;
-    private Map serverExampleTexts = new HashMap();
-    private Map voiceExampleTexts = new HashMap();
+    private Vector<MaryClient.Voice> allVoices = null;
+    private Map<Locale, Vector<MaryClient.Voice>> voicesByLocaleMap = null;
+    private Vector<MaryClient.DataType> allDataTypes = null;
+    private Vector<MaryClient.DataType> inputDataTypes = null;
+    private Vector<MaryClient.DataType> outputDataTypes = null;
+    private Map<String, String> serverExampleTexts = new HashMap<String, String>();
+    private Map<String, String> voiceExampleTexts = new HashMap<String, String>();
     private String audioEffects;
-    private Map audioEffectHelpTextsMap = new HashMap();
+    private Map<String, String> audioEffectHelpTextsMap = new HashMap<String, String>();
     private String[] audioFileFormatTypes = null;
     private String[] serverVersionInfo = null;
 
@@ -729,7 +729,7 @@ public class MaryClient {
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    public Vector getAllDataTypes() throws IOException, UnknownHostException
+    public Vector<MaryClient.DataType> getAllDataTypes() throws IOException, UnknownHostException
     {
         if (allDataTypes == null) {
             fillDataTypes();
@@ -747,7 +747,7 @@ public class MaryClient {
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    public Vector getInputDataTypes() throws IOException, UnknownHostException
+    public Vector<MaryClient.DataType> getInputDataTypes() throws IOException, UnknownHostException
     {
         if (inputDataTypes == null) {
             fillDataTypes();
@@ -765,7 +765,7 @@ public class MaryClient {
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    public Vector getOutputDataTypes() throws IOException, UnknownHostException
+    public Vector<MaryClient.DataType> getOutputDataTypes() throws IOException, UnknownHostException
     {
         if (outputDataTypes == null) {
             fillDataTypes();
@@ -775,9 +775,9 @@ public class MaryClient {
     }
 
     private void fillDataTypes() throws UnknownHostException, IOException {
-        allDataTypes = new Vector();
-        inputDataTypes = new Vector();
-        outputDataTypes = new Vector();
+        allDataTypes = new Vector<MaryClient.DataType>();
+        inputDataTypes = new Vector<MaryClient.DataType>();
+        outputDataTypes = new Vector<MaryClient.DataType>();
         Socket marySocket = new Socket(host, port);
         // Expect a variable number of lines of the kind
         // RAWMARYXML INPUT OUTPUT
@@ -827,7 +827,7 @@ public class MaryClient {
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    public Vector getVoices() throws IOException, UnknownHostException
+    public Vector<MaryClient.Voice> getVoices() throws IOException, UnknownHostException
     {
         if (allVoices == null) {
             fillVoices();
@@ -848,12 +848,12 @@ public class MaryClient {
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    public Vector getVoices(Locale locale) throws IOException, UnknownHostException
+    public Vector<MaryClient.Voice> getVoices(Locale locale) throws IOException, UnknownHostException
     {
         if (allVoices == null) {
             fillVoices();
         }
-        return (Vector) voicesByLocaleMap.get(locale);
+        return voicesByLocaleMap.get(locale);
     }
 
     /**
@@ -866,12 +866,11 @@ public class MaryClient {
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    public Vector getGeneralDomainVoices() throws IOException, UnknownHostException
+    public Vector<MaryClient.Voice> getGeneralDomainVoices() throws IOException, UnknownHostException
     {
-        Vector voices = getVoices();
-        Vector requestedVoices = new Vector();
-        for (Iterator it = voices.iterator(); it.hasNext(); ) {
-            Voice v = (Voice) it.next();
+        Vector<MaryClient.Voice> voices = getVoices();
+        Vector<MaryClient.Voice> requestedVoices = new Vector<MaryClient.Voice>();
+        for (Voice v: voices) {
             if (!v.isLimitedDomain()) {
                 requestedVoices.add(v);
             }
@@ -892,12 +891,11 @@ public class MaryClient {
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    public Vector getLimitedDomainVoices() throws IOException, UnknownHostException
+    public Vector<MaryClient.Voice> getLimitedDomainVoices() throws IOException, UnknownHostException
     {
-        Vector voices = getVoices();
-        Vector requestedVoices = new Vector();
-        for (Iterator it = voices.iterator(); it.hasNext(); ) {
-            Voice v = (Voice) it.next();
+        Vector<MaryClient.Voice> voices = getVoices();
+        Vector<MaryClient.Voice> requestedVoices = new Vector<MaryClient.Voice>();
+        for (Voice v : voices) {
             if (v.isLimitedDomain()) {
                 requestedVoices.add(v);
             }
@@ -919,12 +917,11 @@ public class MaryClient {
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    public Vector getGeneralDomainVoices(Locale locale) throws IOException, UnknownHostException
+    public Vector<MaryClient.Voice> getGeneralDomainVoices(Locale locale) throws IOException, UnknownHostException
     {
-        Vector voices = getVoices(locale);
-        Vector requestedVoices = new Vector();
-        for (Iterator it = voices.iterator(); it.hasNext(); ) {
-            Voice v = (Voice) it.next();
+        Vector<MaryClient.Voice> voices = getVoices(locale);
+        Vector<MaryClient.Voice> requestedVoices = new Vector<MaryClient.Voice>();
+        for (Voice v : voices) {
             if (!v.isLimitedDomain()) {
                 requestedVoices.add(v);
             }
@@ -946,12 +943,11 @@ public class MaryClient {
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    public Vector getLimitedDomainVoices(Locale locale) throws IOException, UnknownHostException
+    public Vector<MaryClient.Voice> getLimitedDomainVoices(Locale locale) throws IOException, UnknownHostException
     {
-        Vector voices = getVoices(locale);
-        Vector requestedVoices = new Vector();
-        for (Iterator it = voices.iterator(); it.hasNext(); ) {
-            Voice v = (Voice) it.next();
+        Vector<MaryClient.Voice> voices = getVoices(locale);
+        Vector<MaryClient.Voice> requestedVoices = new Vector<MaryClient.Voice>();
+        for (Voice v : voices) {
             if (v.isLimitedDomain()) {
                 requestedVoices.add(v);
             }
@@ -964,8 +960,8 @@ public class MaryClient {
 
     private void fillVoices() throws IOException, UnknownHostException
     {
-        allVoices = new Vector();
-        voicesByLocaleMap = new HashMap();
+        allVoices = new Vector<MaryClient.Voice>();
+        voicesByLocaleMap = new HashMap<Locale,Vector<MaryClient.Voice>>();
         Socket marySocket = new Socket(host, port);
         // Expect a variable number of lines of the kind
         // de7 de female
@@ -997,11 +993,11 @@ public class MaryClient {
                 String domain = st.nextToken();
                 voice = new Voice(name, locale, gender, synthesizerType, domain);}
             allVoices.add(voice);
-            Vector localeVoices = null;
+            Vector<MaryClient.Voice> localeVoices = null;
             if (voicesByLocaleMap.containsKey(locale)) {
-                localeVoices = (Vector) voicesByLocaleMap.get(locale);
+                localeVoices = voicesByLocaleMap.get(locale);
             } else {
-                localeVoices = new Vector();
+                localeVoices = new Vector<MaryClient.Voice>();
                 voicesByLocaleMap.put(locale, localeVoices);
             }
             localeVoices.add(voice);
@@ -1031,7 +1027,7 @@ public class MaryClient {
                 
             }
           
-            return (String) voiceExampleTexts.get(voicename);
+            return voiceExampleTexts.get(voicename);
         }
     /**
      * Request an example text for a given data type from the server.
@@ -1056,7 +1052,7 @@ public class MaryClient {
             marySocket.close();
             
         }
-        return (String) serverExampleTexts.get(dataType);
+        return serverExampleTexts.get(dataType);
     }
 
     /**
@@ -1151,7 +1147,7 @@ public class MaryClient {
             marySocket.close();
         }
         
-        return (String)audioEffectHelpTextsMap.get(effectName);
+        return audioEffectHelpTextsMap.get(effectName);
     }
     
     public boolean isHMMEffect(String effectName) throws IOException, UnknownHostException
