@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -109,6 +110,14 @@ public class PhonemeSet
     {
         if (name == null) return null;
         return (Phoneme) phonemes.get(name);
+    }
+    
+    /**
+     * This returns the names of all phonemes contained in this PhonemeSet,
+     * as a Set of Strings
+     */
+    public Set<String> getPhonemeNames(){
+        return this.phonemes.keySet();
     }
 
     /**
