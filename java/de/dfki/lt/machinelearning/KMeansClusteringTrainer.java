@@ -52,6 +52,8 @@ public class KMeansClusteringTrainer {
     public Cluster[] clusters;
     public int[] totalObservationsInClusters;
     public int[] clusterIndices;
+    public double[][] covMatrixGlobal;
+    public double[][] invCovMatrixGlobal;
     
     public void cluster(double[][] x, int numClusters)
     {   
@@ -316,10 +318,42 @@ public class KMeansClusteringTrainer {
                     clusters[i].covMatrix[0][d] = Math.max(MINIMUM_VARIANCE, clusters[i].covMatrix[0][d]);
                 }
             }
+            
+            double[][] tmpCov = MathUtils.covariance(x, true);
+            covMatrixGlobal = new double[1][tmpCov.length];
+            covMatrixGlobal[0] = MathUtils.diagonal(tmpCov);
+            invCovMatrixGlobal = new double[1][tmpCov.length];
+            invCovMatrixGlobal[0] = MathUtils.inverse(covMatrixGlobal[0]);
         }
         else
         {
-            //We need matrix inversion here!
+            for (i=0; i<numClusters; i++)
+            {
+                Arrays.fill(clusters[i].covMatrix[0], 0.0);
+                for (t=0; t<observations; t++)
+                {
+                    if (clusterIndices[t]==i)
+                    {
+                        for (d=0; d<dimension; d++)
+                            clusters[i].covMatrix[0][d] += (x[t][d]-clusters[i].meanVector[d])*(x[t][d]-clusters[i].meanVector[d]);
+                    }
+                }
+                
+                for (d=0; d<dimension; d++)
+                {
+                    if (totalObservationsInClusters[i]>=10)
+                        clusters[i].covMatrix[0][d] /= (totalObservationsInClusters[i]-1);
+                    else if (totalObservationsInClusters[i]>=5)
+                        clusters[i].covMatrix[0][d] /= totalObservationsInClusters[i];
+                    else
+                        clusters[i].covMatrix[0][d] = 1.0;
+                    
+                    clusters[i].covMatrix[0][d] = Math.max(MINIMUM_VARIANCE, clusters[i].covMatrix[0][d]);
+                }
+            }
+            
+            covMatrixGlobal = MathUtils.covariance(x);
+            invCovMatrixGlobal = MathUtils.inverse(covMatrixGlobal);
         }
        
     }

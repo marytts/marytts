@@ -312,27 +312,6 @@ public class MathUtils {
         return mean;
     }
     
-    //Returns the mean of rows or columns of matrix x
-    public static double[] mean(double[][]x, boolean isRowWise)
-    {
-        double[] m = null;
-        
-        if (x!=null && x[0]!=null && x[0].length>0)
-        {
-            m = new double[x[0].length];
-            int j, i;
-            for (j=0; j<x[0].length; j++)
-            {
-                for (i=0; i<x.length; i++)
-                    m[j] += x[i][j];
-                
-                m[j] /= x.length;
-            }
-        }
-        
-        return m;
-    }
-    
     public static double standardDeviation(double[] data)
     {
         return standardDeviation(data, mean(data));
@@ -380,7 +359,484 @@ public class MathUtils {
         return var;
     }
     
+    //If isAlongRows==true, the observations are row-by-row
+    // if isAlongRows==false, they are column-by-column
+    public static double[] mean(double[][] x, boolean isAlongRows)
+    {
+        double[] meanVector = null;
+        int i, j;
+        if (isAlongRows)
+        {
+            meanVector = new double[x[0].length];
+            Arrays.fill(meanVector, 0.0);
+            
+            for (i=0; i<x.length; i++)
+            {
+                for (j=0; j<x[0].length; j++)
+                    meanVector[j] += x[i][j];
+            }
+            
+            for (j=0; j<x[0].length; j++)
+                meanVector[j] /= x.length;
+        }
+        else
+        {
+            meanVector = new double[x.length];
+            Arrays.fill(meanVector, 0.0);
+            
+            for (i=0; i<x[0].length; i++)
+            {
+                for (j=0; j<x.length; j++)
+                    meanVector[j] += x[i][j];
+            }
+            
+            for (j=0; j<x.length; j++)
+                meanVector[j] /= x[0].length;
+        }
+        
+        return meanVector;
+    }
     
+    //The observations are taken row by row
+    public static double[][] covariance(double[][] x)
+    {
+        return covariance(x, true);
+    }
+    
+  //The observations are taken row by row
+    public static double[][] covariance(double[][] x, double[] meanVector)
+    {        
+        return covariance(x, meanVector, true);
+    }
+    
+    //If isAlongRows==true, the observations are row-by-row
+    // if isAlongRows==false, they are column-by-column
+    public static double[][] covariance(double[][] x, boolean isAlongRows)
+    {
+        double[] meanVector = mean(x, isAlongRows);
+        
+        return covariance(x, meanVector, isAlongRows);
+    }
+    
+    //If isAlongRows==true, the observations are row-by-row
+    // if isAlongRows==false, they are column-by-column
+    public static double[][] covariance(double[][] x, double[] meanVector, boolean isAlongRows)
+    {
+        int numObservations;
+        int dimension;
+        int i, j, p;
+        double[][] cov = null;
+        double[][] tmpMatrix = null;
+        double[][] zeroMean = null;
+        double[][] zeroMeanTranspoze = null;
+        
+        if (x!=null && meanVector!=null)
+        {
+            if (isAlongRows)
+            {
+                for (i=0; i<x.length; i++)
+                    assert meanVector.length == x[i].length;
+
+                numObservations = x.length;
+                dimension = x[0].length;
+
+                cov = new double[dimension][dimension];
+                tmpMatrix = new double[dimension][dimension];
+                zeroMean = new double[dimension][1];
+                double[] tmpVector;
+                
+                for (i=0; i<dimension; i++)
+                    Arrays.fill(cov[i], 0.0);
+                
+                for (i=0; i<numObservations; i++)
+                {
+                    tmpVector = subtract(x[i], meanVector);
+                    zeroMean = transpoze(tmpVector);
+                    zeroMeanTranspoze = transpoze(zeroMean);
+                    
+                    tmpMatrix = matrixProduct(zeroMean, zeroMeanTranspoze);
+                    cov = add(cov, tmpMatrix);
+                }
+                
+                cov = divide(cov, numObservations-1);
+            }
+            else
+            {
+                assert meanVector.length == x.length;
+                numObservations = x[0].length;
+                
+                for (i=1; i<x.length; i++)
+                    assert x[i].length==x[0].length;
+                
+                dimension = x.length;
+                
+                cov = transpoze(covariance(transpoze(x), meanVector, true));
+            }
+        }
+        
+        return cov;
+    }
+    
+    public static double[] diagonal(double[][]x)
+    {
+        double[] d = null;
+        int dim = x.length;
+        int i;
+        for (i=1; i<dim; i++)
+            assert x[i].length==dim;
+        
+        if (x!=null)
+        {
+            d = new double[dim];
+            
+            for (i=0; i<x.length; i++)
+                d[i] = x[i][i]; 
+        }
+            
+        return d;
+    }
+    
+    public static double[][] transpoze(double[] x)
+    {
+        double[][] y = new double[x.length][1];
+        for (int i=0; i<x.length; i++)
+            y[i][0] = x[i];
+        
+        return y;
+    }
+    
+    public static double[][] transpoze(double[][] x)
+    {
+        double[][] y = null;
+        
+        if (x!=null)
+        {
+            int i, j;
+            int rowSizex = x.length;
+            int colSizex = x[0].length;
+            for (i=1; i<rowSizex; i++)
+                assert x[i].length==colSizex;
+
+            y = new double[colSizex][rowSizex];
+            for (i=0; i<rowSizex; i++)
+            {
+                for (j=0; j<colSizex; j++)
+                    y[j][i] = x[i][j];
+            }
+        }
+        
+        return y;
+    }
+    
+    public static double[] add(double[] x, double[] y)
+    {
+        assert x.length==y.length;
+        double[] z = new double[x.length];
+        for (int i=0; i<x.length; i++)
+            z[i] = x[i]+y[i];
+        
+        return z;
+    }
+
+    public static double[] add(double[] a, double b)
+    {
+        double[] c = new double[a.length];
+        for (int i=0; i<a.length; i++) {
+            c[i] = a[i] + b;
+        }
+        return c;        
+    }
+
+    public static double[] subtract(double[] a, double[] b)
+    {
+        if (a.length != b.length) {
+            throw new IllegalArgumentException("Arrays must be equal length");
+        }
+        double[] c = new double[a.length];
+        for (int i=0; i<a.length; i++) {
+            c[i] = a[i] - b[i];
+        }
+        return c;
+    }
+    
+    public static double[] subtract(double[] a, double b)
+    {
+        double[] c = new double[a.length];
+        for (int i=0; i<a.length; i++) {
+            c[i] = a[i] - b;
+        }
+        return c;
+    }
+    
+    public static double[] multiply(double[] a, double[] b)
+    {
+        if (a.length != b.length) {
+            throw new IllegalArgumentException("Arrays must be equal length");
+        }
+        double[] c = new double[a.length];
+        for (int i=0; i<a.length; i++) {
+            c[i] = a[i] * b[i];
+        }
+        return c;        
+    }
+
+    public static double[] multiply(double[] a, double b)
+    {
+        double[] c = new double[a.length];
+        for (int i=0; i<a.length; i++) {
+            c[i] = a[i] * b;
+        }
+        return c;        
+    }
+
+    public static double[] divide(double[] a, double[] b)
+    {
+        if (a.length != b.length) {
+            throw new IllegalArgumentException("Arrays must be equal length");
+        }
+        double[] c = new double[a.length];
+        for (int i=0; i<a.length; i++) {
+            c[i] = a[i] / b[i];
+        }
+        return c;
+    }
+    
+    public static double[] divide(double[] a, double b)
+    {
+        double[] c = new double[a.length];
+        for (int i=0; i<a.length; i++) {
+            c[i] = a[i] / b;
+        }
+        return c;
+    }
+    
+    //Returns the summ of two matrices, i.e. x+y
+    //x and y should be of same size
+    public static double[][] add(double[][] x, double[][] y)
+    {
+        double[][] z = null;
+
+        if (x!=null && y!=null)
+        {
+            int i, j;
+            assert x.length==y.length;
+            for (i=0; i<x.length; i++)
+            {
+                assert x[i].length==x[0].length;
+                assert x[i].length==y[i].length;
+            }
+
+            z = new double[x.length][x[0].length];
+
+            
+            for (i=0; i<x.length; i++)
+            {
+                for (j=0; j<x[i].length; j++)
+                    z[i][j] = x[i][j]+y[i][j];
+            }
+        }
+        
+        return z;
+    }
+    
+    //Returns the difference of two matrices, i.e. x-y
+    //x and y should be of same size
+    public static double[][] subtract(double[][] x, double[][] y)
+    {
+        double[][] z = null;
+
+        if (x!=null && y!=null)
+        {
+            int i, j;
+            assert x.length==y.length;
+            for (i=0; i<x.length; i++)
+            {
+                assert x[i].length==x[0].length;
+                assert x[i].length==y[i].length;
+            }
+
+            z = new double[x.length][x[0].length];
+
+            
+            for (i=0; i<x.length; i++)
+            {
+                for (j=0; j<x[i].length; j++)
+                    z[i][j] = x[i][j]-y[i][j];
+            }
+        }
+        
+        return z;
+    }
+    
+    //Returns multiplication of matrix entries with a constant, i.e. ax
+    //x and y should be of same size
+    public static double[][] multiply(double a, double[][] x)
+    {
+        double[][] z = null;
+
+        if (x!=null)
+        {
+            int i, j;
+            for (i=1; i<x.length; i++)
+                assert x[i].length==x[0].length;
+
+            z = new double[x.length][x[0].length];
+
+            for (i=0; i<x.length; i++)
+            {
+                for (j=0; j<x[i].length; j++)
+                    z[i][j] = a*x[i][j];
+            }
+        }
+        
+        return z;
+    }
+    
+    //Returns the division of matrix entries with a constant, i.e. x/a
+    //x and y should be of same size
+    public static double[][] divide(double[][] x, double a)
+    {
+        return multiply(1.0/a, x);
+    }
+    
+    //This is a "*" product --> should return a matrix provided that the sizes are appropriate
+    public static double[][] matrixProduct(double[][] x, double[][] y)
+    {
+        double[][] z = null;
+
+        if (x!=null && y!=null)
+        {
+            int i, j, m;
+            int rowSizex = x.length;
+            int colSizex = x[0].length;
+            int rowSizey = y.length;
+            int colSizey = y[0].length;
+            for (i=1; i<x.length; i++)
+                assert x[i].length == colSizex;
+            for (i=1; i<y.length; i++)
+                assert y[i].length == colSizey;
+            assert colSizex==rowSizey;
+            
+            z = new double[rowSizex][colSizey];
+            double tmpSum;
+            for (i=0; i<rowSizex; i++)
+            {
+                for (j=0; j<colSizey; j++)
+                {
+                    tmpSum = 0.0;
+                    for (m=0; m<x[i].length; m++)
+                        tmpSum += x[i][m]*y[m][j];
+                    
+                    z[i][j] = tmpSum;
+                }
+            }
+        }
+        
+        return z;
+    }
+    
+    //"x" product of two vectors
+    public static double[][] vectorProduct(double[] x, boolean isColumnVectorX, double[] y, boolean isColumnVectorY)
+    {
+        double[][] xx = null;
+        double[][] yy = null;
+        int i;
+        if (isColumnVectorX)
+        {
+            xx = new double[x.length][1];
+            for (i=0; i<x.length; i++)
+                xx[i][0] = x[i];
+        }
+        else
+        {
+            xx = new double[1][x.length];
+            System.arraycopy(x, 0, xx[0], 0, x.length);
+        }
+        
+        if (isColumnVectorY)
+        {
+            yy = new double[y.length][1];
+            for (i=0; i<y.length; i++)
+                yy[i][0] = y[i];
+        }
+        else
+        {
+            yy = new double[1][y.length];
+            System.arraycopy(y, 0, yy[0], 0, y.length);
+        }
+        
+        return matrixProduct(xx, yy);
+    }
+    
+    public static double dotProduct(double[] x, double[] y)
+    {
+        assert x.length==y.length;
+        
+        double tmpSum = 0.0;
+        for (int i=0; i<x.length; i++)
+            tmpSum += x[i]*y[i];
+        
+        return tmpSum;
+    }
+    
+    public static double[][] dotProduct(double[][] x, double[][] y)
+    {
+        double[][] z = null;
+        assert x.length==y.length;
+        int numRows = x.length;
+        int numCols = x[0].length;
+        int i;
+        for (i=1; i<numRows; i++)
+        {
+            assert numCols == x[i].length;
+            assert numCols == y[i].length;
+        }
+
+        if (x!=null)
+        {
+            int j;
+            z = new double[numRows][numCols];
+            for (i=0; i<numRows; i++)
+            {
+                for (j=0; j<numCols; j++)
+                    z[i][j] = x[i][j]*y[i][j];
+            }
+        }
+        
+        return z;
+    }
+    
+    //Returns inverse of diagonal vector
+    public static double[] inverse(double[] x)
+    {
+        double[] invx = new double[x.length];
+        
+        for (int i=0; i<x.length; i++)
+            invx[i] = 1.0/(x.length*x[i]);
+        
+        return invx;
+    }
+
+    //matrix inversion using Gaussian elimination
+    public static double[][] inverse(double[][] x)
+    {   
+        double[][]y = null;
+        int m = x.length;
+        int n = x[0].length;
+        assert m==n;
+        int k;
+        for (k=1; k<m; k++)
+            assert x[k].length==n;
+
+        y = new double[m][n];
+        for (k=0; k<m; k++)
+            System.arraycopy(x[k], 0, y[k], 0, n);
+        
+        //Do in-place inversion on y here. Alternatives could be Gaussian-Jordan elimination (slower) or LU Decomposition(faster)
+        //
+
+        return y;
+    }
 
     /**
      * Convert energy from linear scale to db SPL scale (comparing energies to  
@@ -507,89 +963,6 @@ public class MathUtils {
         return sum;
     }
 
-    public static double[] add(double[] a, double[] b)
-    {
-        if (a.length != b.length) {
-            throw new IllegalArgumentException("Arrays must be equal length");
-        }
-        double[] c = new double[a.length];
-        for (int i=0; i<a.length; i++) {
-            c[i] = a[i] + b[i];
-        }
-        return c;        
-    }
-
-    public static double[] add(double[] a, double b)
-    {
-        double[] c = new double[a.length];
-        for (int i=0; i<a.length; i++) {
-            c[i] = a[i] + b;
-        }
-        return c;        
-    }
-
-    public static double[] substract(double[] a, double[] b)
-    {
-        if (a.length != b.length) {
-            throw new IllegalArgumentException("Arrays must be equal length");
-        }
-        double[] c = new double[a.length];
-        for (int i=0; i<a.length; i++) {
-            c[i] = a[i] - b[i];
-        }
-        return c;
-    }
-    
-    public static double[] substract(double[] a, double b)
-    {
-        double[] c = new double[a.length];
-        for (int i=0; i<a.length; i++) {
-            c[i] = a[i] - b;
-        }
-        return c;
-    }
-    
-    public static double[] multiply(double[] a, double[] b)
-    {
-        if (a.length != b.length) {
-            throw new IllegalArgumentException("Arrays must be equal length");
-        }
-        double[] c = new double[a.length];
-        for (int i=0; i<a.length; i++) {
-            c[i] = a[i] * b[i];
-        }
-        return c;        
-    }
-
-    public static double[] multiply(double[] a, double b)
-    {
-        double[] c = new double[a.length];
-        for (int i=0; i<a.length; i++) {
-            c[i] = a[i] * b;
-        }
-        return c;        
-    }
-
-    public static double[] divide(double[] a, double[] b)
-    {
-        if (a.length != b.length) {
-            throw new IllegalArgumentException("Arrays must be equal length");
-        }
-        double[] c = new double[a.length];
-        for (int i=0; i<a.length; i++) {
-            c[i] = a[i] / b[i];
-        }
-        return c;
-    }
-    
-    public static double[] divide(double[] a, double b)
-    {
-        double[] c = new double[a.length];
-        for (int i=0; i<a.length; i++) {
-            c[i] = a[i] / b;
-        }
-        return c;
-    }
     
     public static double log10(double x)
     {
@@ -2180,31 +2553,34 @@ public class MathUtils {
     
     public static void main(String[] args)
     {
-        double [] x = new double[10];
-        x[0] = 1.0;
-        x[1] = 5.0;
-        x[2] = 4.0;
-        x[3] = 11.0;
-        x[4] = 25.0;
-        x[5] = 200.0;
-        x[6] = 3.0;
-        x[7] = -10.0;
-        x[8] = 5.0;
-        x[9] = 12.0;
+        double[] x = new double[4];
+        double[] y = new double[4];
+        int i, j;
+        for (i=0; i<x.length; i++)
+            x[i] = i;
+        for (j=0; j<y.length; j++)
+            y[j] = j+1;
+        double[] z1 = MathUtils.add(x, y);
+        double[] z2 = MathUtils.subtract(x, y);
+        double[] z3 = MathUtils.add(x, 0.5);
+        double[] z4 = MathUtils.subtract(y, -10);
+        double[][] x1= new double[x.length][1];
+        double[][] y1= new double[1][y.length];
+        for (i=0; i<x.length; i++)
+            x1[i][0] = x[i];
+        System.arraycopy(y, 0, y1[0], 0, y.length);
+        double[][] z5 = MathUtils.matrixProduct(x1, y1);
+        double[][] z6 = MathUtils.vectorProduct(x, true, y, false);
         
-        /*
-        int startIndex = 0;
-        int endIndex = 9;
-        int [] indices = quickSort(x, startIndex, endIndex);
+        double[][] xx = new double[2][2];
+        xx[0][0] = 1;
+        xx[0][1] = 2;
+        xx[1][0] = 3;
+        xx[1][1] = 4;
+
+        double[][] z7 = inverse(xx);
+        double[][] z8 = matrixProduct(xx, z7);
         
-        for (int i=startIndex; i<=endIndex; i++)
-            System.out.println(String.valueOf(indices[i-startIndex]) + " " + String.valueOf(x[i]));
-        
-        adjustVariance(x, 64.0);
-        System.out.println(String.valueOf(standardDeviation(x)));
-        */
-        
-        System.out.println(String.valueOf(median(x)));
-        
+        System.out.println("Test completed...");
     }
 }

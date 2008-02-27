@@ -38,6 +38,7 @@ import java.util.Arrays;
 public class Cluster {
     public double[] meanVector;
     public double[][] covMatrix;
+    public double[][] invCovMatrix; //This is not supported yet (requires matrix inversion)
     public boolean isDiagonal;
     
     public Cluster()
@@ -63,6 +64,10 @@ public class Cluster {
                 covMatrix = new double[1][];
                 covMatrix[0] = new double[dimension];
                 Arrays.fill(covMatrix[0], 0.0);
+                
+                invCovMatrix = new double[1][];
+                invCovMatrix[0] = new double[dimension];
+                Arrays.fill(invCovMatrix[0], 0.0);
             }
             else
             {
@@ -72,12 +77,20 @@ public class Cluster {
                     covMatrix[i] = new double[dimension];
                     Arrays.fill(covMatrix[i], 0.0);
                 }
+                
+                invCovMatrix = new double[dimension][];
+                for (int i=0; i<dimension; i++)
+                {
+                    invCovMatrix[i] = new double[dimension];
+                    Arrays.fill(invCovMatrix[i], 0.0);
+                }
             }
         }
         else
         {
             meanVector = null;
             covMatrix = null;
+            invCovMatrix = null;
         }
     }
     

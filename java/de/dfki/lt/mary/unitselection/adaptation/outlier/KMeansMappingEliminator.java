@@ -106,51 +106,51 @@ public class KMeansMappingEliminator {
             {
                 if (params.isCheckLsfOutliers)
                 {
-                    sourceLsfClusterer = clusterFeatures(codebookIn, WeightedCodebookFeatureExtractor.LSF_FEATURES, WeightedCodebook.SOURCE, params);
-                    targetLsfClusterer = clusterFeatures(codebookIn, WeightedCodebookFeatureExtractor.LSF_FEATURES, WeightedCodebook.TARGET, params);
+                    sourceLsfClusterer = clusterFeatures(codebookIn, WeightedCodebookFeatureExtractor.LSF_FEATURES, WeightedCodebook.SOURCE, params, params.numClustersLsf);
+                    targetLsfClusterer = clusterFeatures(codebookIn, WeightedCodebookFeatureExtractor.LSF_FEATURES, WeightedCodebook.TARGET, params, params.numClustersLsf);
                 }
 
                 if (params.isCheckF0Outliers)
                 {
-                    sourceF0Clusterer = clusterFeatures(codebookIn, WeightedCodebookFeatureExtractor.F0_FEATURES, WeightedCodebook.SOURCE, params);
-                    targetF0Clusterer = clusterFeatures(codebookIn, WeightedCodebookFeatureExtractor.F0_FEATURES, WeightedCodebook.TARGET, params);
+                    sourceF0Clusterer = clusterFeatures(codebookIn, WeightedCodebookFeatureExtractor.F0_FEATURES, WeightedCodebook.SOURCE, params, params.numClustersF0);
+                    targetF0Clusterer = clusterFeatures(codebookIn, WeightedCodebookFeatureExtractor.F0_FEATURES, WeightedCodebook.TARGET, params, params.numClustersF0);
                 }
 
                 if (params.isCheckEnergyOutliers)
                 {
-                    sourceEnergyClusterer = clusterFeatures(codebookIn, WeightedCodebookFeatureExtractor.ENERGY_FEATURES, WeightedCodebook.SOURCE, params);
-                    targetEnergyClusterer = clusterFeatures(codebookIn, WeightedCodebookFeatureExtractor.ENERGY_FEATURES, WeightedCodebook.TARGET, params);
+                    sourceEnergyClusterer = clusterFeatures(codebookIn, WeightedCodebookFeatureExtractor.ENERGY_FEATURES, WeightedCodebook.SOURCE, params, params.numClustersEnergy);
+                    targetEnergyClusterer = clusterFeatures(codebookIn, WeightedCodebookFeatureExtractor.ENERGY_FEATURES, WeightedCodebook.TARGET, params, params.numClustersEnergy);
                 }
 
                 if (params.isCheckDurationOutliers)
                 {
-                    sourceDurationClusterer = clusterFeatures(codebookIn, WeightedCodebookFeatureExtractor.DURATION_FEATURES, WeightedCodebook.SOURCE, params);
-                    targetDurationClusterer = clusterFeatures(codebookIn, WeightedCodebookFeatureExtractor.DURATION_FEATURES, WeightedCodebook.TARGET, params);
+                    sourceDurationClusterer = clusterFeatures(codebookIn, WeightedCodebookFeatureExtractor.DURATION_FEATURES, WeightedCodebook.SOURCE, params, params.numClustersDuration);
+                    targetDurationClusterer = clusterFeatures(codebookIn, WeightedCodebookFeatureExtractor.DURATION_FEATURES, WeightedCodebook.TARGET, params, params.numClustersDuration);
                 }
 
                 if (params.eliminationAlgorithm == KMeansMappingEliminatorParams.ELIMINATE_LEAST_LIKELY_MAPPINGS)
                 {
                     if (params.isCheckLsfOutliers)
                     {
-                        totalLsfOutliers = eliminateLeastLikelyMappings(sourceLsfClusterer, targetLsfClusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.LSF_FEATURES, OutlierStatus.LSF_OUTLIER, params.eliminationLikelihood);
+                        totalLsfOutliers = eliminateLeastLikelyMappings(sourceLsfClusterer, targetLsfClusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.LSF_FEATURES, OutlierStatus.LSF_OUTLIER, params.eliminationLikelihood, params.distanceType);
                         System.out.println("Total lsf outliers = " + String.valueOf(totalLsfOutliers));
                     }
                     
                     if (params.isCheckF0Outliers)
                     {
-                        totalF0Outliers = eliminateLeastLikelyMappings(sourceF0Clusterer, targetF0Clusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.F0_FEATURES, OutlierStatus.F0_OUTLIER, params.eliminationLikelihood);
+                        totalF0Outliers = eliminateLeastLikelyMappings(sourceF0Clusterer, targetF0Clusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.F0_FEATURES, OutlierStatus.F0_OUTLIER, params.eliminationLikelihood, params.distanceType);
                         System.out.println("Total f0 outliers = " + String.valueOf(totalF0Outliers));
                     }
                     
                     if (params.isCheckDurationOutliers)
                     {
-                        totalDurationOutliers = eliminateLeastLikelyMappings(sourceDurationClusterer, targetDurationClusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.DURATION_FEATURES, OutlierStatus.DURATION_OUTLIER, params.eliminationLikelihood);
+                        totalDurationOutliers = eliminateLeastLikelyMappings(sourceDurationClusterer, targetDurationClusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.DURATION_FEATURES, OutlierStatus.DURATION_OUTLIER, params.eliminationLikelihood, params.distanceType);
                         System.out.println("Total duration outliers = " + String.valueOf(totalDurationOutliers));
                     }
                     
                     if (params.isCheckEnergyOutliers)
                     {
-                        totalEnergyOutliers = eliminateLeastLikelyMappings(sourceEnergyClusterer, targetEnergyClusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.ENERGY_FEATURES, OutlierStatus.ENERGY_OUTLIER, params.eliminationLikelihood);
+                        totalEnergyOutliers = eliminateLeastLikelyMappings(sourceEnergyClusterer, targetEnergyClusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.ENERGY_FEATURES, OutlierStatus.ENERGY_OUTLIER, params.eliminationLikelihood, params.distanceType);
                         System.out.println("Total energy outliers = " + String.valueOf(totalEnergyOutliers));
                     }
                 }
@@ -158,25 +158,25 @@ public class KMeansMappingEliminator {
                 {
                     if (params.isCheckLsfOutliers)
                     {
-                        totalLsfOutliers = eliminateMeanDistanceMismatches(codebookIn, sourceLsfClusterer, targetLsfClusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.LSF_FEATURES, OutlierStatus.LSF_OUTLIER, params.totalStandardDeviations.lsf);
+                        totalLsfOutliers = eliminateMeanDistanceMismatches(codebookIn, sourceLsfClusterer, targetLsfClusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.LSF_FEATURES, OutlierStatus.LSF_OUTLIER, params.totalStandardDeviations.lsf, params.distanceType, params.isGlobalVariance);
                         System.out.println("Total lsf outliers = " + String.valueOf(totalLsfOutliers));
                     }
                     
                     if (params.isCheckF0Outliers)
                     {
-                        totalF0Outliers = eliminateMeanDistanceMismatches(codebookIn, sourceF0Clusterer, targetF0Clusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.F0_FEATURES, OutlierStatus.F0_OUTLIER, params.totalStandardDeviations.f0);
+                        totalF0Outliers = eliminateMeanDistanceMismatches(codebookIn, sourceF0Clusterer, targetF0Clusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.F0_FEATURES, OutlierStatus.F0_OUTLIER, params.totalStandardDeviations.f0, params.distanceType, params.isGlobalVariance);
                         System.out.println("Total f0 outliers = " + String.valueOf(totalF0Outliers));
                     }
                     
                     if (params.isCheckDurationOutliers)
                     {
-                        totalDurationOutliers = eliminateMeanDistanceMismatches(codebookIn, sourceDurationClusterer, targetDurationClusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.DURATION_FEATURES, OutlierStatus.DURATION_OUTLIER, params.totalStandardDeviations.duration);
+                        totalDurationOutliers = eliminateMeanDistanceMismatches(codebookIn, sourceDurationClusterer, targetDurationClusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.DURATION_FEATURES, OutlierStatus.DURATION_OUTLIER, params.totalStandardDeviations.duration, params.distanceType, params.isGlobalVariance);
                         System.out.println("Total duration outliers = " + String.valueOf(totalDurationOutliers));
                     }
                     
                     if (params.isCheckEnergyOutliers)
                     {
-                        totalEnergyOutliers = eliminateMeanDistanceMismatches(codebookIn, sourceEnergyClusterer, targetEnergyClusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.ENERGY_FEATURES, OutlierStatus.ENERGY_OUTLIER, params.totalStandardDeviations.energy);
+                        totalEnergyOutliers = eliminateMeanDistanceMismatches(codebookIn, sourceEnergyClusterer, targetEnergyClusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.ENERGY_FEATURES, OutlierStatus.ENERGY_OUTLIER, params.totalStandardDeviations.energy, params.distanceType, params.isGlobalVariance);
                         System.out.println("Total energy outliers = " + String.valueOf(totalEnergyOutliers));
                     }
                 }
@@ -184,25 +184,25 @@ public class KMeansMappingEliminator {
                 {
                     if (params.isCheckLsfOutliers)
                     {
-                        totalLsfOutliers = eliminateUsingSubclusterMeanDistances(codebookIn, sourceLsfClusterer, targetLsfClusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.LSF_FEATURES, OutlierStatus.LSF_OUTLIER, params.totalStandardDeviations.lsf);
+                        totalLsfOutliers = eliminateUsingSubclusterMeanDistances(codebookIn, sourceLsfClusterer, targetLsfClusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.LSF_FEATURES, OutlierStatus.LSF_OUTLIER, params.totalStandardDeviations.lsf, params.distanceType);
                         System.out.println("Total lsf outliers = " + String.valueOf(totalLsfOutliers));
                     }
                     
                     if (params.isCheckF0Outliers)
                     {
-                        totalF0Outliers = eliminateUsingSubclusterMeanDistances(codebookIn, sourceF0Clusterer, targetF0Clusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.F0_FEATURES, OutlierStatus.F0_OUTLIER, params.totalStandardDeviations.f0);
+                        totalF0Outliers = eliminateUsingSubclusterMeanDistances(codebookIn, sourceF0Clusterer, targetF0Clusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.F0_FEATURES, OutlierStatus.F0_OUTLIER, params.totalStandardDeviations.f0, params.distanceType);
                         System.out.println("Total f0 outliers = " + String.valueOf(totalF0Outliers));
                     }
                     
                     if (params.isCheckDurationOutliers)
                     {
-                        totalDurationOutliers = eliminateUsingSubclusterMeanDistances(codebookIn, sourceDurationClusterer, targetDurationClusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.DURATION_FEATURES, OutlierStatus.DURATION_OUTLIER, params.totalStandardDeviations.duration);
+                        totalDurationOutliers = eliminateUsingSubclusterMeanDistances(codebookIn, sourceDurationClusterer, targetDurationClusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.DURATION_FEATURES, OutlierStatus.DURATION_OUTLIER, params.totalStandardDeviations.duration, params.distanceType);
                         System.out.println("Total duration outliers = " + String.valueOf(totalDurationOutliers));
                     }
                     
                     if (params.isCheckEnergyOutliers)
                     {
-                        totalEnergyOutliers = eliminateUsingSubclusterMeanDistances(codebookIn, sourceEnergyClusterer, targetEnergyClusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.ENERGY_FEATURES, OutlierStatus.ENERGY_OUTLIER, params.totalStandardDeviations.energy);
+                        totalEnergyOutliers = eliminateUsingSubclusterMeanDistances(codebookIn, sourceEnergyClusterer, targetEnergyClusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.ENERGY_FEATURES, OutlierStatus.ENERGY_OUTLIER, params.totalStandardDeviations.energy, params.distanceType);
                         System.out.println("Total energy outliers = " + String.valueOf(totalEnergyOutliers)); 
                     }
                 }
@@ -219,15 +219,15 @@ public class KMeansMappingEliminator {
                 if (params.isCheckDurationOutliers)
                     desiredFeatures += WeightedCodebookFeatureExtractor.DURATION_FEATURES;
 
-                sourceClusterer = clusterFeatures(codebookIn, desiredFeatures, WeightedCodebook.SOURCE, params);
-                targetClusterer = clusterFeatures(codebookIn, desiredFeatures, WeightedCodebook.TARGET, params);
+                sourceClusterer = clusterFeatures(codebookIn, desiredFeatures, WeightedCodebook.SOURCE, params, params.numClusters);
+                targetClusterer = clusterFeatures(codebookIn, desiredFeatures, WeightedCodebook.TARGET, params, params.numClusters);
 
                 if (params.eliminationAlgorithm == KMeansMappingEliminatorParams.ELIMINATE_LEAST_LIKELY_MAPPINGS)
-                    totalOutliers = eliminateLeastLikelyMappings(sourceClusterer, targetClusterer, acceptanceStatus, desiredFeatures, OutlierStatus.GENERAL_OUTLIER, params.eliminationLikelihood);
+                    totalOutliers = eliminateLeastLikelyMappings(sourceClusterer, targetClusterer, acceptanceStatus, desiredFeatures, OutlierStatus.GENERAL_OUTLIER, params.eliminationLikelihood, params.distanceType);
                 else if (params.eliminationAlgorithm == KMeansMappingEliminatorParams.ELIMINATE_MEAN_DISTANCE_MISMATCHES)
-                    totalOutliers = eliminateMeanDistanceMismatches(codebookIn, sourceClusterer, targetClusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.LSF_FEATURES, OutlierStatus.LSF_OUTLIER, params.totalStandardDeviations.lsf);
+                    totalOutliers = eliminateMeanDistanceMismatches(codebookIn, sourceClusterer, targetClusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.LSF_FEATURES, OutlierStatus.LSF_OUTLIER, params.totalStandardDeviations.general, params.distanceType, params.isGlobalVariance);
                 else if (params.eliminationAlgorithm == KMeansMappingEliminatorParams.ELIMINATE_USING_SUBCLUSTER_MEAN_DISTANCES)
-                    totalOutliers = eliminateUsingSubclusterMeanDistances(codebookIn, sourceClusterer, targetClusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.LSF_FEATURES, OutlierStatus.LSF_OUTLIER, params.totalStandardDeviations.lsf);
+                    totalOutliers = eliminateUsingSubclusterMeanDistances(codebookIn, sourceClusterer, targetClusterer, acceptanceStatus, WeightedCodebookFeatureExtractor.LSF_FEATURES, OutlierStatus.LSF_OUTLIER, params.totalStandardDeviations.general, params.distanceType);
                 
                 System.out.println("Total outliers = " + String.valueOf(totalOutliers));
             }
@@ -265,7 +265,7 @@ public class KMeansMappingEliminator {
     }
 
     //Collect desired features from codebook and call k-means clustering
-    private KMeansClusteringTrainer clusterFeatures(WeightedCodebook codebook, int desiredFeatures, int speakerType, KMeansMappingEliminatorParams params)
+    private KMeansClusteringTrainer clusterFeatures(WeightedCodebook codebook, int desiredFeatures, int speakerType, KMeansMappingEliminatorParams params, int numClusters)
     {
         KMeansClusteringTrainer clusterer = null;
 
@@ -273,7 +273,7 @@ public class KMeansMappingEliminator {
 
         clusterer= new KMeansClusteringTrainer();
         double[] globalVariances = MathUtils.getVarianceCols(features);
-        clusterer.cluster(features, params.numClusters, params.maximumIterations, params.minClusterPercent, params.isDiagonalCovariance, globalVariances);
+        clusterer.cluster(features, numClusters, params.maximumIterations, params.minClusterPercent, params.isDiagonalCovariance, globalVariances);
         features = null; //Memory clean-up
 
         return clusterer;
@@ -289,7 +289,8 @@ public class KMeansMappingEliminator {
                                              int[] acceptanceStatus, 
                                              int desiredFeatures,
                                              int desiredOutlierStatus,
-                                             double eliminationLikelihood)
+                                             double eliminationLikelihood,
+                                             int distanceType)
     {
         int totalOutliers = 0;
         int i, j, k;
@@ -349,7 +350,9 @@ public class KMeansMappingEliminator {
                                                 int[] acceptanceStatus, 
                                                 int desiredFeatures,
                                                 int desiredOutlierStatus,
-                                                double totalStandardDeviations)
+                                                double totalStandardDeviations,
+                                                int distanceType,
+                                                boolean isGlobalVariance)
     {
         int totalOutliers = 0;
         int i, j, k;
@@ -366,11 +369,22 @@ public class KMeansMappingEliminator {
         for (i=0; i<srcClusterer.clusters.length; i++)
         { 
             for (j=0; j<boundaryVector.length; j++)
-                boundaryVector[j] = srcClusterer.clusters[i].meanVector[j] + totalStandardDeviations*srcClusterer.clusters[i].covMatrix[0][j];
+            {
+                if (isGlobalVariance)
+                    boundaryVector[j] = srcClusterer.clusters[i].meanVector[j] + totalStandardDeviations*srcClusterer.covMatrixGlobal[0][j];
+                else
+                    boundaryVector[j] = srcClusterer.clusters[i].meanVector[j] + totalStandardDeviations*srcClusterer.clusters[i].covMatrix[0][j];
+            }
 
-            srcThresholds[i] = DistanceComputer.getNormalizedEuclideanDistance(boundaryVector, srcClusterer.clusters[i].meanVector, srcClusterer.clusters[i].covMatrix[0]);
+            if (distanceType==DistanceComputer.ABSOLUTE_VALUE_DISTANCE)
+                srcThresholds[i] = DistanceComputer.getAbsoluteValueDistance(boundaryVector, srcClusterer.clusters[i].meanVector);
+            else if (distanceType==DistanceComputer.EUCLIDEAN_DISTANCE)
+                srcThresholds[i] = DistanceComputer.getEuclideanDistance(boundaryVector, srcClusterer.clusters[i].meanVector);
+            else if (distanceType==DistanceComputer.NORMALIZED_EUCLIDEAN_DISTANCE)
+                srcThresholds[i] = DistanceComputer.getNormalizedEuclideanDistance(boundaryVector, srcClusterer.clusters[i].meanVector, srcClusterer.clusters[i].covMatrix[0]);
+            else if (distanceType==DistanceComputer.MAHALANOBIS_DISTANCE)
+                srcThresholds[i] = DistanceComputer.getMahalanobisDistance(boundaryVector, srcClusterer.clusters[i].meanVector, srcClusterer.clusters[i].invCovMatrix);
         }
-
 
         //Compute distance between a hypothetical target cluster boundary vector and the mean vector for thresholding
         double[] tgtThresholds = new double[tgtClusterer.clusters.length];
@@ -378,41 +392,110 @@ public class KMeansMappingEliminator {
         for (i=0; i<srcClusterer.clusters.length; i++)
         {
             for (j=0; j<boundaryVector.length; j++)
-                boundaryVector[j] = tgtClusterer.clusters[i].meanVector[j] + totalStandardDeviations*tgtClusterer.clusters[i].covMatrix[0][j];
+            {
+                if (isGlobalVariance)
+                    boundaryVector[j] = tgtClusterer.clusters[i].meanVector[j] + totalStandardDeviations*tgtClusterer.covMatrixGlobal[0][j];
+                else
+                    boundaryVector[j] = tgtClusterer.clusters[i].meanVector[j] + totalStandardDeviations*tgtClusterer.clusters[i].covMatrix[0][j];
+            }
 
-            tgtThresholds[i] = DistanceComputer.getNormalizedEuclideanDistance(boundaryVector, tgtClusterer.clusters[i].meanVector, tgtClusterer.clusters[i].covMatrix[0]);
+            if (distanceType==DistanceComputer.ABSOLUTE_VALUE_DISTANCE)
+                tgtThresholds[i] = DistanceComputer.getAbsoluteValueDistance(boundaryVector, tgtClusterer.clusters[i].meanVector);
+            else if (distanceType==DistanceComputer.EUCLIDEAN_DISTANCE)
+                tgtThresholds[i] = DistanceComputer.getEuclideanDistance(boundaryVector, tgtClusterer.clusters[i].meanVector);
+            else if (distanceType==DistanceComputer.NORMALIZED_EUCLIDEAN_DISTANCE)
+                tgtThresholds[i] = DistanceComputer.getNormalizedEuclideanDistance(boundaryVector, tgtClusterer.clusters[i].meanVector, tgtClusterer.clusters[i].covMatrix[0]);
+            else if (distanceType==DistanceComputer.MAHALANOBIS_DISTANCE)
+                tgtThresholds[i] = DistanceComputer.getMahalanobisDistance(boundaryVector, tgtClusterer.clusters[i].meanVector, tgtClusterer.clusters[i].invCovMatrix);
         }
-
 
         int totalOne2Many = 0;
         int totalMany2One = 0;
         int totalMany2Many = 0;
+        srcDist = 0.0;
+        tgtDist = 0.0;
         for (i=0; i<srcClusterer.clusterIndices.length; i++)
         {
-            srcDist = DistanceComputer.getNormalizedEuclideanDistance(srcFeatures[i], 
-                    srcClusterer.clusters[srcClusterer.clusterIndices[i]].meanVector, 
-                    srcClusterer.clusters[srcClusterer.clusterIndices[i]].covMatrix[0]);
+            if (distanceType==DistanceComputer.ABSOLUTE_VALUE_DISTANCE)
+            {
+                srcDist = DistanceComputer.getAbsoluteValueDistance(srcFeatures[i], 
+                        srcClusterer.clusters[srcClusterer.clusterIndices[i]].meanVector);
 
-            tgtDist = DistanceComputer.getNormalizedEuclideanDistance(tgtFeatures[i], 
-                    tgtClusterer.clusters[tgtClusterer.clusterIndices[i]].meanVector, 
-                    tgtClusterer.clusters[tgtClusterer.clusterIndices[i]].covMatrix[0]);
+                tgtDist = DistanceComputer.getAbsoluteValueDistance(tgtFeatures[i], 
+                        tgtClusterer.clusters[tgtClusterer.clusterIndices[i]].meanVector);
+            }
+            else if (distanceType==DistanceComputer.EUCLIDEAN_DISTANCE)
+            {
+                srcDist = DistanceComputer.getEuclideanDistance(srcFeatures[i], 
+                        srcClusterer.clusters[srcClusterer.clusterIndices[i]].meanVector);
+
+                tgtDist = DistanceComputer.getEuclideanDistance(tgtFeatures[i], 
+                        tgtClusterer.clusters[tgtClusterer.clusterIndices[i]].meanVector);
+            }
+            else if (distanceType==DistanceComputer.NORMALIZED_EUCLIDEAN_DISTANCE)
+            {
+                if (!isGlobalVariance)
+                {
+                    srcDist = DistanceComputer.getNormalizedEuclideanDistance(srcFeatures[i], 
+                            srcClusterer.clusters[srcClusterer.clusterIndices[i]].meanVector, 
+                            srcClusterer.clusters[srcClusterer.clusterIndices[i]].covMatrix[0]);
+
+                    tgtDist = DistanceComputer.getNormalizedEuclideanDistance(tgtFeatures[i], 
+                            tgtClusterer.clusters[tgtClusterer.clusterIndices[i]].meanVector, 
+                            tgtClusterer.clusters[tgtClusterer.clusterIndices[i]].covMatrix[0]);
+                }
+                else
+                {
+                    srcDist = DistanceComputer.getNormalizedEuclideanDistance(srcFeatures[i], 
+                            srcClusterer.clusters[srcClusterer.clusterIndices[i]].meanVector, 
+                            srcClusterer.covMatrixGlobal[0]);
+
+                    tgtDist = DistanceComputer.getNormalizedEuclideanDistance(tgtFeatures[i], 
+                            tgtClusterer.clusters[tgtClusterer.clusterIndices[i]].meanVector, 
+                            tgtClusterer.covMatrixGlobal[0]);
+                }
+            }
+            else if (distanceType==DistanceComputer.MAHALANOBIS_DISTANCE)
+            {
+                if (!isGlobalVariance)
+                {
+                    srcDist = DistanceComputer.getMahalanobisDistance(srcFeatures[i], 
+                            srcClusterer.clusters[srcClusterer.clusterIndices[i]].meanVector, 
+                            srcClusterer.clusters[srcClusterer.clusterIndices[i]].invCovMatrix);
+
+                    tgtDist = DistanceComputer.getMahalanobisDistance(tgtFeatures[i], 
+                            tgtClusterer.clusters[tgtClusterer.clusterIndices[i]].meanVector, 
+                            tgtClusterer.clusters[tgtClusterer.clusterIndices[i]].invCovMatrix);
+                }
+                else
+                {
+                    srcDist = DistanceComputer.getMahalanobisDistance(srcFeatures[i], 
+                            srcClusterer.clusters[srcClusterer.clusterIndices[i]].meanVector, 
+                            srcClusterer.invCovMatrixGlobal);
+
+                    tgtDist = DistanceComputer.getMahalanobisDistance(tgtFeatures[i], 
+                            tgtClusterer.clusters[tgtClusterer.clusterIndices[i]].meanVector, 
+                            tgtClusterer.invCovMatrixGlobal);
+                    
+                }
+            }
 
             if (srcDist<srcThresholds[srcClusterer.clusterIndices[i]]  
                                       && tgtDist>=tgtThresholds[tgtClusterer.clusterIndices[i]]) //One-to-many mappings
-                                      {
+            {
                 acceptanceStatus[i] += OutlierStatus.ONE2MANY_OUTLIER;
                 totalOne2Many++;
                 totalOutliers++;
-                                      }
+            }
             else if (srcDist>=srcThresholds[srcClusterer.clusterIndices[i]] 
-                                            && tgtDist<tgtThresholds[tgtClusterer.clusterIndices[i]]) //Many-to-one mapping
+                                      && tgtDist<tgtThresholds[tgtClusterer.clusterIndices[i]]) //Many-to-one mapping
             {
                 acceptanceStatus[i] += OutlierStatus.MANY2ONE_OUTLIER;
                 totalMany2One++;
                 totalOutliers++;
             }
             else if (srcDist>=srcThresholds[srcClusterer.clusterIndices[i]] 
-                                            && tgtDist>=tgtThresholds[tgtClusterer.clusterIndices[i]]) //Many-to-many mapping
+                                      && tgtDist>=tgtThresholds[tgtClusterer.clusterIndices[i]]) //Many-to-many mapping
             {
                 acceptanceStatus[i] += OutlierStatus.MANY2MANY_OUTLIER;
                 totalMany2Many++;
@@ -431,7 +514,8 @@ public class KMeansMappingEliminator {
                                                       int[] acceptanceStatus, 
                                                       int desiredFeatures,
                                                       int desiredOutlierStatus,
-                                                      double totalStandardDeviations)
+                                                      double totalStandardDeviations,
+                                                      int distanceType)
     {
         int totalOutliers = 0;
         

@@ -400,21 +400,13 @@ public class WeightedCodebookFdpsolaAdapter {
                 inputFrameSize = frmIn.length;
             }
 
-            boolean isVoiced;
-            isVoiced = pm.vuvs[i];
-            double currentF0;
-            if (isVoiced)
-                currentF0 = fs/currentPeriod;
-            else
-                currentF0 = 0.0;
-            
             int index = (int)(Math.floor((psFrm.getCurrentTime()-0.5*wsFixedInSeconds)/ssFixedInSeconds+0.5));
             if (index<0)
                 index=0;
             if (index>targetF0s.length-1)
                 index=targetF0s.length-1;
             
-            /*
+            boolean isVoiced;
             if (!isFixedRateVocalTractTransformation)
                 isVoiced = pm.vuvs[i];
             else
@@ -424,7 +416,12 @@ public class WeightedCodebookFdpsolaAdapter {
                 else
                     isVoiced=false;
             }
-            */
+            
+            double currentF0;
+            if (isVoiced)
+                currentF0 = fs/currentPeriod;
+            else
+                currentF0 = 0.0;
 
             processFrame(frmIn, isVoiced, 
                          currentF0, targetF0s[index], modParams.tscalesVar[i], modParams.escalesVar[i], modParams.vscalesVar[i], 
