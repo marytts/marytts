@@ -353,14 +353,14 @@ public class WeightedCodebookParallelTransformer extends
         
         pa.isDisplayProcessingFrameCount = true;
         
-        pa.inputFolder = "d:\\1\\angry50\\test1";
-        pa.outputBaseFolder = "d:\\1\\neutral_X_angry_50\\neutral2angryOut5";
+        pa.inputFolder = "d:\\1\\neutral50\\test1";
+        pa.outputBaseFolder = "d:\\1\\neutral_X_angry_50\\neutral2angryOut7";
         
-        pa.codebookFile = "d:\\1\\neutral_X_angry_50\\neutralF_X_angryF.wcf";
-        pa.outputFolderInfoString = "labels";
+        pa.codebookFile = "d:\\1\\neutral_X_angry_50\\neutralL_X_angryL.wcf";
+        pa.outputFolderInfoString = "labelsGaussKmeans";
         
         //Set codebook mapper parameters
-        pa.mapperParams.numBestMatches = 1; // Number of best matches in codebook
+        pa.mapperParams.numBestMatches = 4; // Number of best matches in codebook
         pa.mapperParams.weightingSteepness = 1.0; // Steepness of weighting function in range [WeightedCodebookMapperParams.MIN_STEEPNESS, WeightedCodebookMapperParams.MAX_STEEPNESS]
         pa.mapperParams.freqRange = 5000.0; //Frequency range to be considered around center freq when matching LSFs (note that center freq is estimated automatically as the middle of most closest LSFs)
         

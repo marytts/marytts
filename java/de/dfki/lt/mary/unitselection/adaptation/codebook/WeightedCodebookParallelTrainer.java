@@ -47,6 +47,7 @@ import de.dfki.lt.mary.unitselection.voiceimport.BasenameList;
 import de.dfki.lt.mary.util.FileUtils;
 import de.dfki.lt.mary.util.StringUtil;
 import de.dfki.lt.signalproc.analysis.Lsfs;
+import de.dfki.lt.signalproc.util.DistanceComputer;
 import de.dfki.lt.signalproc.util.MaryRandomAccessFile;
 import de.dfki.lt.signalproc.window.Window;
 
@@ -294,14 +295,14 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         
         WeightedCodebookTrainerParams pa = new WeightedCodebookTrainerParams();
         
-        pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAMES; //Frame-by-frame mapping of features
+        //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAMES; //Frame-by-frame mapping of features
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAME_GROUPS; pa.codebookHeader.numNeighboursInFrameGroups = 3; //Mapping of frame average features (no label information but fixed amount of neighbouring frames is used)
-        //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABELS; //Mapping of label average features
+        pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABELS; //Mapping of label average features
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABEL_GROUPS; pa.codebookHeader.numNeighboursInLabelGroups = 1; //Mapping of average features collected across label groups (i.e. vowels, consonants, etc)
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.SPEECH; //Mapping of average features collected across all speech parts (i.e. like spectral equalization)
 
-        pa.codebookHeader.sourceTag = "neutralF"; //Source name tag (i.e. style or speaker identity)
-        pa.codebookHeader.targetTag = "angryF"; //Target name tag (i.e. style or speaker identity)
+        pa.codebookHeader.sourceTag = "neutralL"; //Source name tag (i.e. style or speaker identity)
+        pa.codebookHeader.targetTag = "angryL"; //Target name tag (i.e. style or speaker identity)
         
         pa.trainingBaseFolder = "d:\\1\\neutral_X_angry_50"; //Training base directory
         pa.sourceTrainingFolder = "d:\\1\\neutral50\\train"; //Source training folder
@@ -343,7 +344,7 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         //Decreasing totalStandardDeviations will lead to more outlier eliminations, i.e. smaller codebooks
         pa.gaussianEliminatorParams.isActive = false; //Set to false if you do not want to use this eliminator at all      
         pa.gaussianEliminatorParams.isCheckLsfOutliers = true;
-        pa.gaussianEliminatorParams.isEliminateTooSimilarLsf = false;
+        pa.gaussianEliminatorParams.isEliminateTooSimilarLsf = true;
         pa.gaussianEliminatorParams.isCheckF0Outliers = true; 
         pa.gaussianEliminatorParams.isCheckDurationOutliers = true;    
         pa.gaussianEliminatorParams.isCheckEnergyOutliers = true;
@@ -351,24 +352,40 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         //
         
         //KMeans one-to-many and many-to-one mapping eliminator
+        pa.kmeansEliminatorParams.isActive = true; //Set to false if you do not want to use this eliminator at all
+        
         //pa.kmeansEliminatorParams.eliminationAlgorithm = KMeansMappingEliminatorParams.ELIMINATE_LEAST_LIKELY_MAPPINGS; 
+        //pa.kmeansEliminatorParams.eliminationLikelihood = 0.20;
+        
         pa.kmeansEliminatorParams.eliminationAlgorithm = KMeansMappingEliminatorParams.ELIMINATE_MEAN_DISTANCE_MISMATCHES; 
+        pa.kmeansEliminatorParams.distanceType = DistanceComputer.NORMALIZED_EUCLIDEAN_DISTANCE;
+        //pa.kmeansEliminatorParams.distanceType = DistanceComputer.EUCLIDEAN_DISTANCE;
+        pa.kmeansEliminatorParams.isGlobalVariance = false;
+        
         //pa.kmeansEliminatorParams.eliminationAlgorithm = KMeansMappingEliminatorParams.ELIMINATE_USING_SUBCLUSTER_MEAN_DISTANCES;
         
-        tsd.lsf = 1.5;
+        pa.kmeansEliminatorParams.isSeparateClustering = false; //Cluster features separately(true) or together(false)?
+        
+        //Effective only when isSeparateClustering clustering is false
+        tsd.general = 0.05;
+        pa.kmeansEliminatorParams.numClusters = 30;
+        
+        //Effective only when isSeparateClustering clustering is true
+        tsd.lsf = 1.0;
         tsd.f0 = 1.0;
         tsd.duration = 1.0;
-        tsd.energy = 2.0;
-
-        pa.kmeansEliminatorParams.numClusters = 40;
-        pa.kmeansEliminatorParams.isActive = true; //Set to false if you do not want to use this eliminator at all
-        pa.kmeansEliminatorParams.isSeparateClustering = true; //Cluster features separately(true) or together(false)?
+        tsd.energy = 1.0;
+        pa.kmeansEliminatorParams.numClustersLsf = 30;
+        pa.kmeansEliminatorParams.numClustersF0 = 50;
+        pa.kmeansEliminatorParams.numClustersDuration = 5;
+        pa.kmeansEliminatorParams.numClustersEnergy = 5;
+        
         pa.kmeansEliminatorParams.isCheckLsfOutliers = true;    
         pa.kmeansEliminatorParams.isCheckF0Outliers = false; 
         pa.kmeansEliminatorParams.isCheckDurationOutliers = false;  
         pa.kmeansEliminatorParams.isCheckEnergyOutliers = false;
+        //
         
-        pa.kmeansEliminatorParams.eliminationLikelihood = 0.20;
         pa.kmeansEliminatorParams.totalStandardDeviations = new TotalStandardDeviations(tsd);
         //
         

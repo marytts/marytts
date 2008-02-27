@@ -34,6 +34,7 @@ package de.dfki.lt.mary.unitselection.adaptation.outlier;
  *
  */
 public class TotalStandardDeviations {
+    public double general;
     public double lsf;
     public double f0;
     public double duration;
@@ -42,6 +43,7 @@ public class TotalStandardDeviations {
     
     public TotalStandardDeviations()
     {
+        general = DEFAULT_TOTAL_STANDARD_DEVIATIONS;
         lsf = DEFAULT_TOTAL_STANDARD_DEVIATIONS;
         f0 = DEFAULT_TOTAL_STANDARD_DEVIATIONS;
         duration = DEFAULT_TOTAL_STANDARD_DEVIATIONS;
@@ -50,6 +52,7 @@ public class TotalStandardDeviations {
     
     public TotalStandardDeviations(TotalStandardDeviations existing)
     {
+        general = existing.general;
         lsf = existing.lsf;
         f0 = existing.f0;
         duration = existing.duration;
