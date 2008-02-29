@@ -823,17 +823,24 @@ public class MathUtils {
         double[][]y = null;
         int m = x.length;
         int n = x[0].length;
-        assert m==n;
-        int k;
-        for (k=1; k<m; k++)
-            assert x[k].length==n;
+        if (m==n)
+        {
+            int k;
+            for (k=1; k<m; k++)
+                assert x[k].length==n;
 
-        y = new double[m][n];
-        for (k=0; k<m; k++)
-            System.arraycopy(x[k], 0, y[k], 0, n);
-        
-        //Do in-place inversion on y here. Alternatives could be Gaussian-Jordan elimination (slower) or LU Decomposition(faster)
-        //
+            y = new double[m][n];
+            for (k=0; k<m; k++)
+                System.arraycopy(x[k], 0, y[k], 0, n);
+
+            //Do in-place inversion on y here. Alternatives could be Gaussian-Jordan elimination (slower) or LU Decomposition(faster)
+            //
+        }
+        else if (m==1) //This is for inversion of matrix diagonal
+        {
+            y = new double[1][n];
+            y[0] = inverse(x[0]);
+        }
 
         return y;
     }
@@ -2550,6 +2557,106 @@ public class MathUtils {
 
         return variances;
     }
+    
+    public static double getGaussianPdfValueConstantTerm(int featureDimension, double detCovarianceMatrix)
+    {
+        double constantTerm = Math.pow(2*Math.PI, 0.5*featureDimension);
+        constantTerm *= Math.sqrt(detCovarianceMatrix);
+        constantTerm = 1.0/constantTerm;
+        
+        return constantTerm;
+    }
+    
+    public static double getGaussianPdfValue(double[] x, double[] meanVector, double[] covarianceMatrix)
+    {
+        double constantTerm = getGaussianPdfValueConstantTerm(x.length, determinant(covarianceMatrix));
+        
+        return  getGaussianPdfValue(x, meanVector, covarianceMatrix, constantTerm);
+    }
+    
+    //Diagonal covariance case
+    // This version enables using pre-computed constant term
+    public static double getGaussianPdfValue(double[] x, double[] meanVector, double[] covarianceMatrix, double constantTerm)
+    {
+        double P = 0.0;
+        int i;
+
+        for (i=0; i<x.length; i++)
+            P += (x[i]-meanVector[i])*(x[i]-meanVector[i])/covarianceMatrix[i];
+
+        P *= -0.5;
+        
+        P = (float)(constantTerm*Math.exp(P));
+
+        return P;
+    }
+    
+    public static double getGaussianPdfValue(double[] x, double[] meanVector, double detCovarianceMatrix, double[][] inverseCovarianceMatrix)
+    {
+        double constantTerm = Math.pow(2*Math.PI, 0.5*x.length);
+        constantTerm *= Math.sqrt(detCovarianceMatrix);
+        constantTerm = 1.0/constantTerm;
+        
+        return getGaussianPdfValue(x, meanVector, inverseCovarianceMatrix, constantTerm);
+    }
+    
+    //Full covariance case
+    // This version enables using pre-computed constant term
+    public static double getGaussianPdfValue(double[] x, double[] meanVector, double[][] inverseCovarianceMatrix, double constantTerm)
+    {
+        double[][] z = new double[1][x.length];
+        z[0] = MathUtils.subtract(x, meanVector);
+        double[][] zT = MathUtils.transpoze(z);
+        
+        double[][] prod = MathUtils.matrixProduct(MathUtils.matrixProduct(z, inverseCovarianceMatrix), zT);
+
+        double P = -0.5*prod[0][0];
+        
+        P = (float)(constantTerm*Math.exp(P));
+
+        return P;
+    }
+    
+    //Computes the determinant of a diagonal matrix
+    public static double determinant(double[] diagonal) 
+    { 
+        double det = 1.0;
+        for (int i=0; i<diagonal.length; i++)
+            det *= diagonal[i];
+        
+        return det;
+    }
+    
+    //Computes the determinant of a square matrix
+    public static double determinant(double[][] matrix) 
+    { 
+        double result = 0;
+
+        if(matrix.length == 2) 
+        { 
+            result = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]; 
+            return result; 
+        }
+
+        for(int i = 0; i < matrix[0].length; i++) 
+        { 
+            double temp[][] = new double[matrix.length - 1][matrix[0].length - 1]; 
+            for(int j = 1; j < matrix.length; j++) 
+            {
+                for(int k = 0; k < matrix[0].length; k++) 
+                {
+                    if(k < i) 
+                        temp[j-1][k] = matrix[j][k];
+                    else if(k>i) 
+                        temp[j-1][k-1] = matrix[j][k];
+                }
+            }
+            
+            result += matrix[0][i]*Math.pow(-1,(double)i)*determinant(temp); 
+        }
+            
+        return result;
+    } 
     
     public static void main(String[] args)
     {
