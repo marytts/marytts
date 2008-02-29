@@ -162,6 +162,7 @@ public class VoiceInstaller extends Thread
                 String version;
                 int iMinus = voice.lastIndexOf('-');
                 int iLastDot = voice.lastIndexOf('.');
+                if (iLastDot == -1) iLastDot = voice.length();
                 if (iMinus != -1) {
                     name = voice.substring(0, iMinus);
                     version = voice.substring(iMinus+1, iLastDot);
