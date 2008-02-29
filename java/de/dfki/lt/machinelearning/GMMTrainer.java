@@ -29,10 +29,341 @@
 
 package de.dfki.lt.machinelearning;
 
+import de.dfki.lt.signalproc.util.MathUtils;
+
 /**
  * @author oytun.turk
  *
  */
 public class GMMTrainer {
+    public static final boolean IS_DIAGONAL_COVARIANCE_DEFAULT = true;
+    public static final int MINIMUM_ITERATIONS_DEFAULT = 20;
+    public static final int MAXIMUM_ITERATIONS_DEFAULT = 200;
+    public static final boolean IS_UPDATE_COVARIANCES_DEFAULT = true;
+    public static final double TINY_LOGLIKELIHOOD_CHANGE_DEFAULT = 0.01;
+    public static final double MINIMUM_COVARIANCE_ALLOWED_DEFAULT = 1e-4;
 
+    public double[] logLikelihoods;
+
+    public GMMTrainer()
+    {
+        logLikelihoods = null;
+    }
+
+    public GMM train(double[][] x, 
+            int totalComponents)
+    {
+        return train(x, 
+                totalComponents, 
+                IS_DIAGONAL_COVARIANCE_DEFAULT);
+    }
+
+    public GMM train(double[][] x, 
+            int totalComponents, 
+            boolean isDiagonalCovariance)
+    {
+        return train(x, 
+                totalComponents, 
+                isDiagonalCovariance, 
+                MINIMUM_ITERATIONS_DEFAULT);
+    }
+
+    public GMM train(double[][] x, 
+            int totalComponents, 
+            boolean isDiagonalCovariance, 
+            int minimumIterations)
+    {
+        return train(x, 
+                totalComponents, 
+                isDiagonalCovariance, 
+                minimumIterations, 
+                MAXIMUM_ITERATIONS_DEFAULT);
+    }
+
+    public GMM train(double[][] x, 
+            int totalComponents, 
+            boolean isDiagonalCovariance, 
+            int minimumIterations,
+            int maximumIterations)
+    {
+        return train(x, 
+                totalComponents, 
+                isDiagonalCovariance, 
+                minimumIterations, 
+                maximumIterations, 
+                IS_UPDATE_COVARIANCES_DEFAULT);
+    }
+
+    public GMM train(double[][] x, 
+            int totalComponents, 
+            boolean isDiagonalCovariance, 
+            int minimumIterations,
+            int maximumIterations, 
+            boolean isUpdateCovariances)
+    {
+        return train(x, 
+                totalComponents, 
+                isDiagonalCovariance, 
+                minimumIterations, 
+                maximumIterations, 
+                isUpdateCovariances, 
+                TINY_LOGLIKELIHOOD_CHANGE_DEFAULT);
+    }
+
+    public GMM train(double[][] x, 
+            int totalComponents, 
+            boolean isDiagonalCovariance, 
+            int minimumIterations,
+            int maximumIterations, 
+            boolean isUpdateCovariances, 
+            double tinyLogLikelihoodChange)
+    {
+        return train(x, 
+                totalComponents, 
+                isDiagonalCovariance, 
+                minimumIterations, 
+                maximumIterations, 
+                isUpdateCovariances, 
+                tinyLogLikelihoodChange,
+                MINIMUM_COVARIANCE_ALLOWED_DEFAULT);
+    }
+
+    public GMM train(double[][] x, 
+            int totalComponents, 
+            boolean isDiagonalCovariance, 
+            int minimumIterations,
+            int maximumIterations, 
+            boolean isUpdateCovariances, 
+            double tinyLogLikelihoodChange,
+            double minimumCovarianceAllowed)
+    {
+        GMM gmm = null;
+        if (x!=null && totalComponents>0)
+        {
+            int featureDimension = x[0].length;
+            int i;
+            for (i=1; i<x.length; i++)
+                assert x[i].length==featureDimension;
+
+            //Initialize components with KMeans clustering
+            KMeansClusteringTrainer kmeansClusterer = new KMeansClusteringTrainer();
+            kmeansClusterer.cluster(x, totalComponents, 
+                    KMeansClusteringTrainer.MAXIMUM_ITERATIONS_DEFAULT, 
+                    KMeansClusteringTrainer.MIN_CLUSTER_PERCENT_DEFAULT,
+                    isDiagonalCovariance);
+
+            //Create initial GMM according to KMeans clustering results
+            GMM initialGmm = new GMM(featureDimension, totalComponents, isDiagonalCovariance);
+
+            //Update model parameters with Expectation-Maximization
+            gmm = expectationMaximization(x, 
+                    initialGmm, 
+                    minimumIterations, 
+                    maximumIterations, 
+                    isUpdateCovariances, 
+                    tinyLogLikelihoodChange,
+                    minimumCovarianceAllowed);
+        }
+
+        return gmm;
+    }
+
+    // x: data matrix (each row is another observation)
+    // Model: initial mixture model
+    //
+    // Automatically stop iterating if alphas do not change much
+    // Now changed!!! Check the change in group means and stop if less than threshold!
+    // Added is_update_variances as an argument to the main
+    public GMM expectationMaximization(double[][] x, 
+            GMM initialGmm, 
+            int minimumIterations,
+            int maximumIterations, 
+            boolean isUpdateCovariances,
+            double tinyLogLikelihoodChange,
+            double minimumCovarianceAllowed)
+    {
+        int i, j,k;
+        int totalObservations = x.length;
+
+        GMM gmm = new GMM(initialGmm);
+
+        for (i=0; i<totalObservations; i++)
+            assert x[i].length == gmm.featureDimension;
+
+        int numIterations = 1;
+
+        double error = 0.0;
+        double prevErr;
+
+        for (k=0; k<gmm.totalComponents; k++)
+            gmm.weights[k] = 1.0f/gmm.totalComponents;
+
+        boolean bContinue = true;
+
+        double[] zDenum = new double[totalObservations];
+        double P_xj_tetak;
+
+        double[][] zNum = new double[totalObservations][gmm.totalComponents];
+        double[][] z = new double[totalObservations][gmm.totalComponents];
+
+        double[] num1 = new double[gmm.featureDimension];
+        double[] tmpMean = new double[gmm.featureDimension];
+
+        double[][] num2 = new double[gmm.featureDimension][gmm.featureDimension];
+
+        double tmpSum;
+        double mean_diff;
+        double denum;
+        double diffk; 
+        int d1, d2;
+        logLikelihoods = new double[maximumIterations];
+
+        while(bContinue)
+        {
+            //Expectation step
+            // Find zjk's at time (s+1) using alphak's at time (s)
+            for (j=0; j<totalObservations; j++)
+            {
+                zDenum[j] = 0.0f;
+                for (k=0; k<gmm.totalComponents; k++)
+                {
+                    //P(xj|teta_k)
+                    if (gmm.isDiagonalCovariance)
+                        P_xj_tetak = MathUtils.getGaussianPdfValue(x[j], gmm.components[k].meanVector, gmm.components[k].getCovMatrixDiagonal(), gmm.components[k].getConstantTerm()); 
+                    else
+                        P_xj_tetak = MathUtils.getGaussianPdfValue(x[j], gmm.components[k].meanVector, gmm.components[k].getInvCovMatrix(), gmm.components[k].getConstantTerm());
+
+                    zNum[j][k] = gmm.weights[k] * P_xj_tetak;
+                    zDenum[j] = zDenum[j] + zNum[j][k];
+                }
+            }
+
+            //Find zjk's at time (s+1)
+            for (j=0; j<totalObservations; j++)
+            {
+                for (k=0; k<gmm.totalComponents; k++)
+                    z[j][k] = zNum[j][k]/zDenum[j];
+            }
+
+            //Now update alphak's to find their values at time (s+1)
+            for (k=0; k<gmm.totalComponents; k++)
+            {
+                tmpSum = 0.0;
+                for (j=0; j<totalObservations; j++)
+                    tmpSum += z[j][k];
+
+                gmm.weights[k] = tmpSum/totalObservations;
+            }
+
+            //M step
+            // Find the model parameters at time (s+1) using zjk's at time (s+1)
+            mean_diff=0.0;
+            for (k=0; k<gmm.totalComponents; k++)
+            {
+                for (d1=0; d1<gmm.featureDimension; d1++)
+                {
+                    num1[d1] = 0.0f;
+                    for (d2=0; d2<gmm.featureDimension; d2++)
+                        num2[d1][d2] = 0.0f;
+                }
+
+                denum=0.0;
+
+                for (j=0; j<totalObservations; j++)
+                {
+                    for (d1=0; d1<gmm.featureDimension; d1++)
+                        num1[d1] += x[j][d1]*z[j][k];
+
+                    denum += z[j][k];
+
+                    for (d1=0; d1<gmm.featureDimension; d1++)
+                    {
+                        for (d2=0; d2<gmm.featureDimension; d2++)
+                            num2[d1][d2] += z[j][k]*(x[j][d1]-gmm.components[k].meanVector[d1])*(x[j][d2]-gmm.components[k].meanVector[d2]);
+                    }
+                }
+
+                for (d1=0; d1<gmm.featureDimension; d1++)
+                    tmpMean[d1] = (float)(num1[d1] / denum);
+
+                diffk = 0.0f;
+                for (d1=0; d1<gmm.featureDimension; d1++)
+                    diffk += (tmpMean[d1]-gmm.components[k].meanVector[d1])*(tmpMean[d1]-gmm.components[k].meanVector[d1]);
+                diffk = (float)Math.sqrt(diffk);
+                mean_diff += diffk;
+
+                for (d1=0; d1<gmm.featureDimension; d1++)
+                    gmm.components[k].meanVector[d1] = tmpMean[d1];
+
+                if (isUpdateCovariances)
+                {
+                    if (gmm.isDiagonalCovariance)
+                    {
+                        for (d1=0; d1<gmm.featureDimension; d1++)
+                            gmm.components[k].covMatrix[0][d1] = num2[d1][d1]/denum;
+                    }
+                    else
+                    {
+                        for (d1=0; d1<gmm.featureDimension; d1++)
+                        {
+                            for (d2=0; d2<gmm.featureDimension; d2++)
+                                gmm.components[k].covMatrix[d1][d2] = Math.max(minimumCovarianceAllowed, num2[d1][d2]/denum);
+                        }
+                    }
+
+                    gmm.components[k].setDerivedValues();
+                }
+            }
+
+            if (numIterations == 1)
+                error = mean_diff;
+            else
+            {
+                prevErr = error;
+                error = mean_diff;
+            }
+
+            logLikelihoods[numIterations-1] = 0.0;
+            for (j=0; j<totalObservations; j++)
+            {
+                double tmp=0.0;
+                for (k=0; k<gmm.totalComponents; k++)
+                {
+                    if (gmm.isDiagonalCovariance)
+                        P_xj_tetak = MathUtils.getGaussianPdfValue(x[j], gmm.components[k].meanVector, gmm.components[k].getCovMatrixDiagonal(), gmm.components[k].getConstantTerm()); 
+                    else
+                        P_xj_tetak = MathUtils.getGaussianPdfValue(x[j], gmm.components[k].meanVector, gmm.components[k].getInvCovMatrix(), gmm.components[k].getConstantTerm()); 
+
+                    tmp += gmm.weights[k]*P_xj_tetak;
+                }
+                logLikelihoods[numIterations-1] += Math.log(tmp);
+            }
+
+            System.out.println("Iteration no: " + String.valueOf(numIterations) + " with error " + String.valueOf(error) + " log-likelihood=" + String.valueOf(logLikelihoods[numIterations-1]));
+
+            if (numIterations+1>maximumIterations)
+                break;
+
+            /*
+         if (mean_diff<TINY_DIFF)
+             break;
+
+         if (numIterations>minimumIterations && prevErr-error<TINY_DIFF)
+             break;
+             */
+
+            if (numIterations>minimumIterations && logLikelihoods[numIterations-1]-logLikelihoods[numIterations-2]<Math.abs(logLikelihoods[numIterations-1]/100*tinyLogLikelihoodChange))
+                break;
+
+            numIterations++;
+        }
+
+        double[] tmpLogLikelihoods = new double[numIterations-1];
+        System.arraycopy(logLikelihoods, 0, tmpLogLikelihoods, 0, numIterations-1);
+        logLikelihoods = new double[numIterations-1];
+        System.arraycopy(tmpLogLikelihoods, 0, logLikelihoods, 0, numIterations-1);   
+
+        return gmm;
+    }
+    
 }
