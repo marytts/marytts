@@ -37,8 +37,8 @@ import java.util.*;
  */
 public abstract class VoiceImportComponent
 {
-    protected SortedMap props = null;
-    protected SortedMap props2Help = null;
+    protected SortedMap<String,String> props = null;
+    protected SortedMap<String,String> props2Help = null;
     protected BasenameList bnl;
     
     protected abstract void setupHelp();
@@ -52,7 +52,7 @@ public abstract class VoiceImportComponent
      * @param bnl the list of basenames
      * @param props the map from properties to values
      */
-    public final void initialise(BasenameList bnl, SortedMap props){
+    public final void initialise(BasenameList bnl, SortedMap<String,String> props){
         //setupHelp(); this is now done by DatabaseLayout
         this.props = props;
         this.bnl = bnl;
@@ -74,7 +74,7 @@ public abstract class VoiceImportComponent
      * containing the default values
      * @return map of props2values
      */
-    public abstract SortedMap getDefaultProps(DatabaseLayout db);
+    public abstract SortedMap<String,String> getDefaultProps(DatabaseLayout db);
     
     /**
      * Get the value for a property
@@ -82,7 +82,7 @@ public abstract class VoiceImportComponent
      * @return the value
      */
     public String getProp(String prop){
-        return (String) props.get(prop);
+        return props.get(prop);
     }
     
     /**
@@ -120,8 +120,7 @@ public abstract class VoiceImportComponent
                 +"</head>\n<body>\n"
                 +"<h2>Settings help for component "+getName()+"</h2>\n<dl>\n");
         try{
-        for (Iterator it=props2Help.keySet().iterator();it.hasNext();){
-            String key = (String) it.next();
+        for (String key : props2Help.keySet()){
             String value = (String) props2Help.get(key);
             helpText.append("<dt><strong>"+key+"</strong></dt>\n"
                     +"<dd>"+value+"</dd>\n");
@@ -136,7 +135,7 @@ public abstract class VoiceImportComponent
     }
     
     public String getHelpTextForProp(String propname){
-        return (String)props2Help.get(propname);
+        return props2Help.get(propname);
     }
     
 }
