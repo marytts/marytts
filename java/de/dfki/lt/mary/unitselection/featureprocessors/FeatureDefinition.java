@@ -441,6 +441,16 @@ public class FeatureDefinition
     }
     
     /**
+     * Indicate whether the feature definition contains the feature with the given name
+     * @param name the feature name in question, e.g. "mary_next_next_phoneme"
+     * @return 
+     */
+    public boolean hasFeature(String name)
+    {
+        return featureNames.contains(name);
+    }
+    
+    /**
      * Determine whether the feature with the given name is a byte feature.
      * @param featureName
      * @return true if the feature is a byte feature, false if the feature
@@ -618,6 +628,18 @@ public class FeatureDefinition
         throw new IndexOutOfBoundsException("Feature no. "+featureIndex+" is not a byte-valued or short-valued feature");
     }
 
+    /**
+     * Simple access to string-based features.
+     * @param featureName
+     * @param fv
+     * @return
+     */
+    public String getFeatureValueAsString(String featureName, FeatureVector fv)
+    {
+        int i = getFeatureIndex(featureName);
+        return getFeatureValueAsString(i, fv.getFeatureAsInt(i));
+    }
+    
     /**
      * For the feature with the given name, translate its String value
      * to its byte value.
