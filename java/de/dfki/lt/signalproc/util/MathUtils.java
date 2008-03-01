@@ -312,6 +312,7 @@ public class MathUtils {
         return mean;
     }
     
+    
     public static double standardDeviation(double[] data)
     {
         return standardDeviation(data, mean(data));
@@ -358,7 +359,42 @@ public class MathUtils {
         
         return var;
     }
-    
+
+    /**
+     * Returns the variance of rows or columns of matrix x
+     * @param x the matrix consisting of row vectors
+     * @param mean the vector of mean values -- a column vector if row-wise variances are to be
+     * computed, or a row vector if column-wise variances are to be calculated.
+     * param isAlongRows if true, compute the variance of x[0][0], x[1][0] etc. given mean[0];
+     * if false, compute the variances for the vectors x[0], x[1] etc. separately, given the respective mean[0], mean[1] etc.
+     */
+    public static double[] variance(double[][]x, double[] mean, boolean isAlongRows)
+    {
+        double[] var = null;
+        
+        if (x!=null && x[0]!=null && x[0].length>0 && mean != null)
+        {
+            if (isAlongRows) {
+                var = new double[x[0].length];
+                int j, i;
+                for (j=0; j<x[0].length; j++)
+                {
+                    for (i=0; i<x.length; i++)
+                        var[j] += (x[i][j]-mean[j])*(x[i][j]-mean[j]);
+                    
+                    var[j] /= x.length;
+                }
+            } else {
+                var = new double[x.length];
+                for (int i=0; i<x.length; i++) {
+                    var[i] = variance(x[i], mean[i]);
+                }
+            }
+        }
+        
+        return var;
+    }
+
     //If isAlongRows==true, the observations are row-by-row
     // if isAlongRows==false, they are column-by-column
     public static double[] mean(double[][] x, boolean isAlongRows)
@@ -1033,6 +1069,68 @@ public class MathUtils {
         return c;
     }
 
+    
+    public static float[] add(float[] a, float[] b)
+    {
+        if (a.length != b.length) {
+            throw new IllegalArgumentException("Arrays must be equal length");
+        }
+        float[] c = new float[a.length];
+        for (int i=0; i<a.length; i++) {
+            c[i] = a[i] + b[i];
+        }
+        return c;        
+    }
+
+    public static float[] add(float[] a, float b)
+    {
+        float[] c = new float[a.length];
+        for (int i=0; i<a.length; i++) {
+            c[i] = a[i] + b;
+        }
+        return c;        
+    }
+
+    public static float[] substract(float[] a, float[] b)
+    {
+        if (a.length != b.length) {
+            throw new IllegalArgumentException("Arrays must be equal length");
+        }
+        float[] c = new float[a.length];
+        for (int i=0; i<a.length; i++) {
+            c[i] = a[i] - b[i];
+        }
+        return c;
+    }
+    
+    public static float[] substract(float[] a, float b)
+    {
+        float[] c = new float[a.length];
+        for (int i=0; i<a.length; i++) {
+            c[i] = a[i] - b;
+        }
+        return c;
+    }
+ 
+    
+    public static double euclidianLength(float[] a)
+    {
+        double len = 0.;
+        for (int i=0; i<a.length; i++) {
+            len += a[i]*a[i];
+        }
+        return Math.sqrt(len);
+    }
+
+    public static double euclidianLength(double[] a)
+    {
+        double len = 0.;
+        for (int i=0; i<a.length; i++) {
+            len += a[i]*a[i];
+        }
+        return Math.sqrt(len);
+    }
+  
     /**
      * Convert a pair of arrays from cartesian (x, y) coordinates to 
      * polar (r, phi) coordinates. Phi will be in radians, i.e. a full circle is two pi.
