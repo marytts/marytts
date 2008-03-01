@@ -32,7 +32,9 @@ package de.dfki.lt.mary.modules;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -44,7 +46,9 @@ import de.dfki.lt.mary.MaryDataType;
 import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.mary.htsengine.HMMVoice;
 import de.dfki.lt.mary.modules.InternalModule;
+import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureProcessorManager;
+import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 import de.dfki.lt.mary.unitselection.featureprocessors.TargetFeatureComputer;
 import de.dfki.lt.mary.modules.synthesis.Voice;
 
@@ -249,6 +253,95 @@ public class HTSContextTranslator extends InternalModule {
     
     } /* method _process */
 
+    
+    /**Translate TARGETFEATURES_EN to HTSCONTEXT_EN
+     * (I have put this method public so I can use it from MaryClientHMM)
+     * This implementation is based on the FeatureDefinition class.
+     * @param String d text of a TARGETFEATURES data
+     * @return String
+     * @throws Exception
+     */
+    public String processTargetFeatures(String d, Vector<String> featureList)
+    throws Exception
+    {
+        FeatureDefinition def = new FeatureDefinition(new BufferedReader(new StringReader(d)), false);
+
+        Scanner lines = new Scanner(d).useDelimiter("\n");
+        // skip up to the first empty line
+        while (lines.hasNext()) {
+            String line = lines.next();
+            if (line.trim().equals("")) break;
+        }
+        // Now each of the following lines is a feature vector, up to the next empty line
+        StringBuffer output = new StringBuffer();
+        while (lines.hasNext()) {
+            String line = lines.next();
+            if (line.trim().equals("")) break;
+            FeatureVector fv = def.toFeatureVector(0, line);
+            String context = features2context(def, fv, featureList);
+            output.append(context);
+            output.append("\n");
+        }
+        return output.toString();
+    }
+    
+    
+    /**
+     * Convert the feature vector into a context model name to be used by HTS/HTK.
+     * @param def a feature definition
+     * @param featureVector a feature vector which must be consistent with the Feature definition
+     * @param featureList a list of features to use in constructing the context model name. If missing, all features in the feature definition are used.
+     * @return the string representation of one context name.
+     */
+    public String features2context(FeatureDefinition def, FeatureVector featureVector, Vector<String> featureList)
+    {
+        if (featureList == null) {
+            featureList = new Vector<String>(Arrays.asList(def.getFeatureNames().split("\\s+")));
+        }
+        
+        // construct quint-phone models:
+        int iPhoneme = def.getFeatureIndex("mary_phoneme");
+        int iPrevPhoneme = def.getFeatureIndex("mary_prev_phoneme");
+        int iNextPhoneme = def.getFeatureIndex("mary_next_phoneme");
+        String mary_phoneme = replaceTrickyPhones(
+                def.getFeatureValueAsString(iPhoneme, featureVector.getFeatureAsInt(iPhoneme))
+                );
+        String mary_prev_phoneme = replaceTrickyPhones(
+                def.getFeatureValueAsString(iPrevPhoneme, featureVector.getFeatureAsInt(iPrevPhoneme))
+                );
+        String mary_next_phoneme = replaceTrickyPhones(
+                def.getFeatureValueAsString(iNextPhoneme, featureVector.getFeatureAsInt(iNextPhoneme))
+                );
+        String mary_prev_prev_phoneme = "0";
+        if (def.hasFeature("mary_prev_prev_phoneme")) {
+            int ipp = def.getFeatureIndex("mary_prev_prev_phoneme");
+            mary_prev_prev_phoneme = replaceTrickyPhones(
+                    def.getFeatureValueAsString(ipp, featureVector.getFeatureAsInt(ipp))
+                    );
+        }
+        String mary_next_next_phoneme = "0";
+        if (def.hasFeature("mary_next_next_phoneme")) {
+            int inn = def.getFeatureIndex("mary_next_next_phoneme");
+            mary_next_next_phoneme = replaceTrickyPhones(
+                    def.getFeatureValueAsString(inn, featureVector.getFeatureAsInt(inn))
+                    );
+        }
+   
+        StringBuffer contextName = new StringBuffer();
+        contextName.append(mary_prev_prev_phoneme + "^" + mary_prev_phoneme + "-"
+                + mary_phoneme + "+" + mary_next_phoneme + "=" + mary_next_next_phoneme + "||");
+        for (String f : featureList) {
+            if (!def.hasFeature(f)) {
+                throw new IllegalArgumentException("Feature '"+f+"' is not known in the feature definition. Valid features are: "+def.getFeatureNames());
+            }
+            String shortF = shortenPfeat(f);
+            contextName.append(shortF+"="+def.getFeatureValueAsString(f, featureVector)+"|");
+        }
+        
+        return contextName.toString();
+    } /* method features2context */
+
+    
     
     /** Translation table for labels which are incompatible with HTK or shell filenames
      * See common_routines.pl in HTS training.
