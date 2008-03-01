@@ -33,11 +33,13 @@ import java.util.Map;
 
 public class FeatureProcessorManager 
 {
-    protected Map processors;
+    protected Map<String,MaryFeatureProcessor> processors;
+
+    protected Map<String, String[]> phonefeatures2values;
     
     public FeatureProcessorManager()
     {
-        processors = new HashMap();
+        processors = new HashMap<String,MaryFeatureProcessor>();
 
         MaryGenericFeatureProcessors.TargetItemNavigator segment = new MaryGenericFeatureProcessors.SegmentNavigator();
         MaryGenericFeatureProcessors.TargetItemNavigator prevSegment = new MaryGenericFeatureProcessors.PrevSegmentNavigator();
@@ -108,7 +110,25 @@ public class FeatureProcessorManager
         addFeatureProcessor(new MaryGenericFeatureProcessors.SentenceStyle());
         addFeatureProcessor(new MaryGenericFeatureProcessors.UnitDuration());
         addFeatureProcessor(new MaryGenericFeatureProcessors.UnitLogF0());
-        
+
+        // Set up default values for phone features:
+        phonefeatures2values = new HashMap<String, String[]>();
+        // cplace: 0-n/a l-labial a-alveolar p-palatal b-labio_dental d-dental v-velar g-?
+        phonefeatures2values.put("cplace", new String[] { "0", "l", "a", "p", "b", "d", "v", "g"});
+        // ctype: 0-n/a s-stop f-fricative a-affricative n-nasal l-liquid r-r
+        phonefeatures2values.put("ctype", new String[] {"0", "s", "f", "a", "n", "l", "r"});
+        // cvox: 0=n/a +=on -=off
+        phonefeatures2values.put("cvox", new String[] {"0", "+", "-"});
+        // vc: 0=n/a +=vowel -=consonant
+        phonefeatures2values.put("vc", new String[] {"0", "+", "-"});
+        // vfront: 0-n/a 1-front  2-mid 3-back
+        phonefeatures2values.put("vfront", new String[] {"0", "1", "2", "3"});
+        // vheight: 0-n/a 1-high 2-mid 3-low
+        phonefeatures2values.put("vheight", new String[] {"0", "1", "2", "3"});
+        // vlng: 0-n/a s-short l-long d-dipthong a-schwa
+        phonefeatures2values.put("vlng", new String[] {"0", "s", "l", "d", "a"});
+        // vrnd: 0=n/a +=on -=off
+        phonefeatures2values.put("vrnd", new String[] {"0", "+", "-"});
     }
     
     protected void addFeatureProcessor(MaryFeatureProcessor fp)
@@ -118,6 +138,40 @@ public class FeatureProcessorManager
     
     public MaryFeatureProcessor getFeatureProcessor(String name)
     {
-        return (MaryFeatureProcessor) processors.get(name);
+        return processors.get(name);
     }
+    
+    protected void setupPhonemeFeatureProcessors(PhoneSet phoneset, String[] phonemeValues)
+    {
+        MaryGenericFeatureProcessors.TargetItemNavigator segment = new MaryGenericFeatureProcessors.SegmentNavigator();
+
+        addFeatureProcessor(new MaryLanguageFeatureProcessors.Phoneme("mary_phoneme", phonemeValues, segment));
+        addFeatureProcessor(new MaryLanguageFeatureProcessors.HalfPhoneUnitName(phonemeValues));
+        addFeatureProcessor(new MaryLanguageFeatureProcessors.SegOnsetCoda(phoneset));
+        // Phone features:
+        for (String feature : phonefeatures2values.keySet()) {
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature
+                    (phoneset, "mary_ph_"+feature, feature, phonefeatures2values.get(feature), segment));
+        }
+
+        Map<String,MaryGenericFeatureProcessors.TargetItemNavigator> segments =
+            new HashMap<String, MaryGenericFeatureProcessors.TargetItemNavigator>();
+        segments.put("prev", new MaryGenericFeatureProcessors.PrevSegmentNavigator());
+        segments.put("prev_prev", new MaryGenericFeatureProcessors.PrevPrevSegmentNavigator());
+        segments.put("prev", new MaryGenericFeatureProcessors.NextSegmentNavigator());
+        segments.put("next_next", new MaryGenericFeatureProcessors.NextNextSegmentNavigator());
+
+        for (String position : segments.keySet()) {
+            MaryGenericFeatureProcessors.TargetItemNavigator navi = segments.get(position);
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.Phoneme("mary_"+position+"_phoneme", phonemeValues, segment));
+            // Phone features:
+            for (String feature : phonefeatures2values.keySet()) {
+                addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature
+                        (phoneset, "mary_"+position+"_"+feature, feature, phonefeatures2values.get(feature), navi));
+            }
+            
+        }
+
+    }
+
 }
