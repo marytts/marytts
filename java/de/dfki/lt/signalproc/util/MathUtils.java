@@ -218,6 +218,11 @@ public class MathUtils {
         return min;
     }
     
+    public static double mean(double[] data)
+    {
+       return mean(data, 0, data.length-1);
+    }
+    
     /**
      * Compute the mean of all elements in the array. No missing values (NaN) are allowed.
      * @throws IllegalArgumentException if the array contains NaN values. 
@@ -242,11 +247,6 @@ public class MathUtils {
         }
         mean /= total;
         return mean;
-    }
-    
-    public static double mean(double[] data)
-    {
-       return mean(data, 0, data.length-1);
     }
     
     /**
