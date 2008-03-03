@@ -72,8 +72,8 @@ public class KMeansClusteringTrainer {
     
     public void cluster(double[][] x, int numClusters, int maximumIterations, double minClusterPercent, boolean isDiagonalOutputCovariance)
     {
-        double[] globalVariances = new double[x[0].length];
-        Arrays.fill(globalVariances, 1.0);
+        double[] meanVector = MathUtils.mean(x, true);
+        double[] globalVariances = MathUtils.variance(x, meanVector, true);
         
         cluster(x, numClusters, maximumIterations, minClusterPercent, isDiagonalOutputCovariance, globalVariances);
     }
@@ -292,34 +292,38 @@ public class KMeansClusteringTrainer {
         }
 
         //Finally, calculate the cluster covariances
-        if (isDiagonalOutputCovariance)
+        double[][] tmpCov = null;
+        double[] diag = null;
+        for (i=0; i<numClusters; i++)
         {
-            for (i=0; i<numClusters; i++)
+            if (totalObservationsInClusters[i]>0)
             {
-                Arrays.fill(clusters[i].covMatrix[0], 0.0);
+                int[] indices = new int[totalObservationsInClusters[i]];
+                int count = 0;
                 for (t=0; t<observations; t++)
                 {
                     if (clusterIndices[t]==i)
-                    {
-                        for (d=0; d<dimension; d++)
-                            clusters[i].covMatrix[0][d] += (x[t][d]-clusters[i].meanVector[d])*(x[t][d]-clusters[i].meanVector[d]);
-                    }
+                        indices[count++] = t;
                 }
-                
-                for (d=0; d<dimension; d++)
+
+                if (isDiagonalOutputCovariance)
                 {
-                    if (totalObservationsInClusters[i]>=10)
-                        clusters[i].covMatrix[0][d] /= (totalObservationsInClusters[i]-1);
-                    else if (totalObservationsInClusters[i]>=5)
-                        clusters[i].covMatrix[0][d] /= totalObservationsInClusters[i];
-                    else
-                        clusters[i].covMatrix[0][d] = 1.0;
-                    
-                    clusters[i].covMatrix[0][d] = Math.max(MINIMUM_VARIANCE, clusters[i].covMatrix[0][d]);
+                    tmpCov = MathUtils.covariance(x, clusters[i].meanVector, true, indices);
+                    diag = MathUtils.diagonal(tmpCov);
+                    System.arraycopy(diag, 0, clusters[i].covMatrix[0], 0, diag.length);
+                    clusters[i].invCovMatrix[0] = MathUtils.inverse(clusters[i].covMatrix[0]);
+                }
+                else
+                {
+                    clusters[i].covMatrix = MathUtils.covariance(x, clusters[i].meanVector, true, indices);
+                    clusters[i].invCovMatrix = MathUtils.inverse(clusters[i].covMatrix);
                 }
             }
+        }
             
-            double[][] tmpCov = MathUtils.covariance(x, true);
+        if (isDiagonalOutputCovariance)
+        {
+            tmpCov = MathUtils.covariance(x, true);
             covMatrixGlobal = new double[1][tmpCov.length];
             covMatrixGlobal[0] = MathUtils.diagonal(tmpCov);
             invCovMatrixGlobal = new double[1][tmpCov.length];
@@ -327,34 +331,33 @@ public class KMeansClusteringTrainer {
         }
         else
         {
-            for (i=0; i<numClusters; i++)
-            {
-                Arrays.fill(clusters[i].covMatrix[0], 0.0);
-                for (t=0; t<observations; t++)
-                {
-                    if (clusterIndices[t]==i)
-                    {
-                        for (d=0; d<dimension; d++)
-                            clusters[i].covMatrix[0][d] += (x[t][d]-clusters[i].meanVector[d])*(x[t][d]-clusters[i].meanVector[d]);
-                    }
-                }
-                
-                for (d=0; d<dimension; d++)
-                {
-                    if (totalObservationsInClusters[i]>=10)
-                        clusters[i].covMatrix[0][d] /= (totalObservationsInClusters[i]-1);
-                    else if (totalObservationsInClusters[i]>=5)
-                        clusters[i].covMatrix[0][d] /= totalObservationsInClusters[i];
-                    else
-                        clusters[i].covMatrix[0][d] = 1.0;
-                    
-                    clusters[i].covMatrix[0][d] = Math.max(MINIMUM_VARIANCE, clusters[i].covMatrix[0][d]);
-                }
-            }
             
             covMatrixGlobal = MathUtils.covariance(x);
             invCovMatrixGlobal = MathUtils.inverse(covMatrixGlobal);
         }
-       
+    }
+    
+    public int getFeatureDimension()
+    {
+        if (clusters!=null && clusters[0].meanVector!=null)
+            return clusters[0].meanVector.length;
+        else
+            return 0;
+    }
+    
+    public int getTotalClusters()
+    {
+        if (clusters!=null)
+            return clusters.length;
+        else
+            return 0;
+    }
+    
+    public boolean isDiagonalCovariance()
+    {
+        if (clusters!=null)
+            return clusters[0].isDiagonalCovariance;
+        else
+            return false;
     }
 }

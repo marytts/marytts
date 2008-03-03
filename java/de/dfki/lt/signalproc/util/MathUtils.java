@@ -227,9 +227,10 @@ public class MathUtils {
         double mean = 0;
         int total = 0;
         startIndex = Math.max(startIndex, 0);
-        endIndex = Math.max(startIndex, 0);
         startIndex = Math.min(startIndex, data.length-1);
+        endIndex = Math.max(endIndex, 0);
         endIndex = Math.min(endIndex, data.length-1);
+
         if (startIndex>endIndex)
             startIndex = endIndex;
         
@@ -274,9 +275,10 @@ public class MathUtils {
         float mean = 0;
         int total = 0;
         startIndex = Math.max(startIndex, 0);
-        endIndex = Math.max(startIndex, 0);
         startIndex = Math.min(startIndex, data.length-1);
+        endIndex = Math.max(endIndex, 0);
         endIndex = Math.min(endIndex, data.length-1);
+        
         if (startIndex>endIndex)
             startIndex = endIndex;
         
@@ -311,7 +313,6 @@ public class MathUtils {
         mean /= inds.length;
         return mean;
     }
-    
     
     public static double standardDeviation(double[] data)
     {
@@ -354,12 +355,18 @@ public class MathUtils {
         for (int i=startIndex; i<=endIndex; i++)
             var += (data[i]-meanVal)*(data[i]-meanVal);
         
-        if (endIndex-startIndex+1>1)
-            var /= (endIndex-startIndex+1);
+        if (endIndex-startIndex>1)
+            var /= (endIndex-startIndex);
         
         return var;
     }
 
+   
+    public static double[] variance(double[][]x, double[] meanVector)
+    {
+        return variance(x, meanVector, true);   
+    }
+    
     /**
      * Returns the variance of rows or columns of matrix x
      * @param x the matrix consisting of row vectors
@@ -368,26 +375,29 @@ public class MathUtils {
      * param isAlongRows if true, compute the variance of x[0][0], x[1][0] etc. given mean[0];
      * if false, compute the variances for the vectors x[0], x[1] etc. separately, given the respective mean[0], mean[1] etc.
      */
-    public static double[] variance(double[][]x, double[] mean, boolean isAlongRows)
+    public static double[] variance(double[][]x, double[] meanVector, boolean isAlongRows)
     {
         double[] var = null;
         
-        if (x!=null && x[0]!=null && x[0].length>0 && mean != null)
+        if (x!=null && x[0]!=null && x[0].length>0 && meanVector != null)
         {
-            if (isAlongRows) {
+            if (isAlongRows) 
+            {
                 var = new double[x[0].length];
                 int j, i;
                 for (j=0; j<x[0].length; j++)
                 {
                     for (i=0; i<x.length; i++)
-                        var[j] += (x[i][j]-mean[j])*(x[i][j]-mean[j]);
+                        var[j] += (x[i][j]-meanVector[j])*(x[i][j]-meanVector[j]);
                     
-                    var[j] /= x.length;
+                    var[j] /= (x.length-1);
                 }
-            } else {
+            } 
+            else 
+            {
                 var = new double[x.length];
                 for (int i=0; i<x.length; i++) {
-                    var[i] = variance(x[i], mean[i]);
+                    var[i] = variance(x[i], meanVector[i]);
                 }
             }
         }
@@ -395,39 +405,65 @@ public class MathUtils {
         return var;
     }
 
+    public static double[] mean(double[][] x)
+    {
+        return mean(x, true);
+    }
+    
+    public static double[] mean(double[][] x, boolean isAlongRows)
+    {
+        int[] indices = null;
+        int i;
+        
+        if (isAlongRows)
+        {
+            indices = new int[x.length];
+            for (i=0; i<x.length; i++)
+                indices[i] = i;
+        }
+        else
+        {
+            indices = new int[x[0].length]; 
+            for (i=0; i<x[0].length; i++)
+                indices[i] = i;
+        }
+        
+        return mean(x, isAlongRows, indices);
+    }
+    
     //If isAlongRows==true, the observations are row-by-row
     // if isAlongRows==false, they are column-by-column
-    public static double[] mean(double[][] x, boolean isAlongRows)
+    public static double[] mean(double[][] x, boolean isAlongRows, int[] indicesOfX)
     {
         double[] meanVector = null;
         int i, j;
         if (isAlongRows)
         {
-            meanVector = new double[x[0].length];
+            meanVector = new double[x[indicesOfX[0]].length];
             Arrays.fill(meanVector, 0.0);
             
             for (i=0; i<x.length; i++)
             {
-                for (j=0; j<x[0].length; j++)
-                    meanVector[j] += x[i][j];
+                for (j=0; j<x[indicesOfX[0]].length; j++)
+                    meanVector[j] += x[indicesOfX[i]][j];
             }
             
-            for (j=0; j<x[0].length; j++)
-                meanVector[j] /= x.length;
+            for (j=0; j<meanVector.length; j++)
+                meanVector[j] /= indicesOfX.length;
         }
         else
         {
             meanVector = new double[x.length];
             Arrays.fill(meanVector, 0.0);
             
-            for (i=0; i<x[0].length; i++)
+            for (i=0; i<indicesOfX.length; i++)
             {
                 for (j=0; j<x.length; j++)
-                    meanVector[j] += x[i][j];
+                    meanVector[j] += x[j][indicesOfX[i]];
             }
             
-            for (j=0; j<x.length; j++)
-                meanVector[j] /= x[0].length;
+            for (j=0; j<meanVector.length; j++)
+                meanVector[j] /= indicesOfX.length;
         }
         
         return meanVector;
@@ -454,9 +490,31 @@ public class MathUtils {
         return covariance(x, meanVector, isAlongRows);
     }
     
+    public static double[][] covariance(double[][] x, double[] meanVector, boolean isAlongRows)
+    {
+        
+        int[] indices = null;
+        int i;
+        
+        if (isAlongRows)
+        {
+            indices = new int[x.length];
+            for (i=0; i<x.length; i++)
+                indices[i] = i;
+        }
+        else
+        {
+            indices = new int[x[0].length]; 
+            for (i=0; i<x[0].length; i++)
+                indices[i] = i;
+        }
+        
+        return covariance(x, meanVector, isAlongRows, indices);
+    }
+    
     //If isAlongRows==true, the observations are row-by-row
     // if isAlongRows==false, they are column-by-column
-    public static double[][] covariance(double[][] x, double[] meanVector, boolean isAlongRows)
+    public static double[][] covariance(double[][] x, double[] meanVector, boolean isAlongRows, int[] indicesOfX)
     {
         int numObservations;
         int dimension;
@@ -470,11 +528,11 @@ public class MathUtils {
         {
             if (isAlongRows)
             {
-                for (i=0; i<x.length; i++)
-                    assert meanVector.length == x[i].length;
+                for (i=0; i<indicesOfX.length; i++)
+                    assert meanVector.length == x[indicesOfX[i]].length;
 
-                numObservations = x.length;
-                dimension = x[0].length;
+                numObservations = indicesOfX.length;
+                dimension = x[indicesOfX[0]].length;
 
                 cov = new double[dimension][dimension];
                 tmpMatrix = new double[dimension][dimension];
@@ -486,7 +544,7 @@ public class MathUtils {
                 
                 for (i=0; i<numObservations; i++)
                 {
-                    tmpVector = subtract(x[i], meanVector);
+                    tmpVector = substract(x[indicesOfX[i]], meanVector);
                     zeroMean = transpoze(tmpVector);
                     zeroMeanTranspoze = transpoze(zeroMean);
                     
@@ -499,14 +557,14 @@ public class MathUtils {
             else
             {
                 assert meanVector.length == x.length;
-                numObservations = x[0].length;
+                numObservations = indicesOfX.length;
                 
-                for (i=1; i<x.length; i++)
-                    assert x[i].length==x[0].length;
+                for (i=1; i<indicesOfX.length; i++)
+                    assert x[indicesOfX[i]].length==x[indicesOfX[0]].length;
                 
                 dimension = x.length;
                 
-                cov = transpoze(covariance(transpoze(x), meanVector, true));
+                cov = transpoze(covariance(transpoze(x), meanVector, true, indicesOfX));
             }
         }
         
@@ -583,7 +641,7 @@ public class MathUtils {
         return c;        
     }
 
-    public static double[] subtract(double[] a, double[] b)
+    public static double[] substract(double[] a, double[] b)
     {
         if (a.length != b.length) {
             throw new IllegalArgumentException("Arrays must be equal length");
@@ -595,7 +653,7 @@ public class MathUtils {
         return c;
     }
     
-    public static double[] subtract(double[] a, double b)
+    public static double[] substract(double[] a, double b)
     {
         double[] c = new double[a.length];
         for (int i=0; i<a.length; i++) {
@@ -677,7 +735,7 @@ public class MathUtils {
     
     //Returns the difference of two matrices, i.e. x-y
     //x and y should be of same size
-    public static double[][] subtract(double[][] x, double[][] y)
+    public static double[][] substract(double[][] x, double[][] y)
     {
         double[][] z = null;
 
@@ -2703,7 +2761,7 @@ public class MathUtils {
     public static double getGaussianPdfValue(double[] x, double[] meanVector, double[][] inverseCovarianceMatrix, double constantTerm)
     {
         double[][] z = new double[1][x.length];
-        z[0] = MathUtils.subtract(x, meanVector);
+        z[0] = MathUtils.substract(x, meanVector);
         double[][] zT = MathUtils.transpoze(z);
         
         double[][] prod = MathUtils.matrixProduct(MathUtils.matrixProduct(z, inverseCovarianceMatrix), zT);
@@ -2729,6 +2787,9 @@ public class MathUtils {
     public static double determinant(double[][] matrix) 
     { 
         double result = 0;
+        
+        if (matrix.length==1 && matrix[0].length==1)
+            return matrix[0][0];
 
         if(matrix.length == 2) 
         { 
@@ -2756,6 +2817,20 @@ public class MathUtils {
         return result;
     } 
     
+    public static double[] random(int numSamples)
+    {
+        double[] x = null;
+        
+        if (numSamples>0)
+        {
+            x = new double[numSamples];
+            for (int i=0; i<numSamples; i++)
+                x[i] = Math.random();
+        }
+        
+        return x;
+    }
+    
     public static void main(String[] args)
     {
         double[] x = new double[4];
@@ -2766,9 +2841,9 @@ public class MathUtils {
         for (j=0; j<y.length; j++)
             y[j] = j+1;
         double[] z1 = MathUtils.add(x, y);
-        double[] z2 = MathUtils.subtract(x, y);
+        double[] z2 = MathUtils.substract(x, y);
         double[] z3 = MathUtils.add(x, 0.5);
-        double[] z4 = MathUtils.subtract(y, -10);
+        double[] z4 = MathUtils.substract(y, -10);
         double[][] x1= new double[x.length][1];
         double[][] y1= new double[1][y.length];
         for (i=0; i<x.length; i++)

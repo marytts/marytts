@@ -39,7 +39,7 @@ public class Cluster {
     public double[] meanVector;
     public double[][] covMatrix;
     public double[][] invCovMatrix; //This is not supported yet (requires matrix inversion)
-    public boolean isDiagonal;
+    public boolean isDiagonalCovariance;
     
     public Cluster()
     {
@@ -51,15 +51,15 @@ public class Cluster {
         allocate(dimension, isDiagonalCovariance);
     }
     
-    public void allocate(int dimension, boolean isDiagonalCovariance)
+    public void allocate(int dimension, boolean isDiagonalCovarianceIn)
     {
         if (dimension>0)
         {
-            isDiagonal = isDiagonalCovariance;
+            isDiagonalCovariance = isDiagonalCovarianceIn;
             meanVector = new double[dimension];
             Arrays.fill(meanVector, 0.0);
             
-            if (isDiagonal)
+            if (isDiagonalCovariance)
             {
                 covMatrix = new double[1][];
                 covMatrix[0] = new double[dimension];
@@ -101,7 +101,7 @@ public class Cluster {
         if (covMatrix!=null && covMatrix[0]!=null && covMatrix[0].length>0)
         {
             diagonal = new double[covMatrix[0].length];
-            if (isDiagonal)
+            if (isDiagonalCovariance)
                 System.arraycopy(covMatrix[0], 0, diagonal, 0, covMatrix[0].length);
             else
             {

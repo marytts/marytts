@@ -153,7 +153,7 @@ public class GMMTrainer {
                     isDiagonalCovariance);
 
             //Create initial GMM according to KMeans clustering results
-            GMM initialGmm = new GMM(featureDimension, totalComponents, isDiagonalCovariance);
+            GMM initialGmm = new GMM(kmeansClusterer);
 
             //Update model parameters with Expectation-Maximization
             gmm = expectationMaximization(x, 
@@ -255,7 +255,7 @@ public class GMMTrainer {
                 gmm.weights[k] = tmpSum/totalObservations;
             }
 
-            //M step
+            //Maximization step
             // Find the model parameters at time (s+1) using zjk's at time (s+1)
             mean_diff=0.0;
             for (k=0; k<gmm.totalComponents; k++)
@@ -366,4 +366,25 @@ public class GMMTrainer {
         return gmm;
     }
     
+    public static void main(String[] args)
+    {
+        int numClusters = 100;
+        int numSamplesInClusters = 200;
+        double variance = 0.08;
+        ClusteredDataGenerator c = new ClusteredDataGenerator(numClusters, numSamplesInClusters, variance);
+        double[][] x = new double[c.data.length][1];
+        
+        for (int i=0; i<c.data.length; i++)
+            x[i][0] = c.data[i];
+        
+        double[] m = MathUtils.mean(x);
+        double[] v = MathUtils.variance(x, m);
+        System.out.println(String.valueOf(m[0]) + " " + String.valueOf(v[0]));
+        
+        GMMTrainer g = new GMMTrainer();
+        GMM gmm = g.train(x, numClusters, true, 200);
+        
+        for (int i=0; i<gmm.totalComponents; i++)
+            System.out.println("Gaussian #" + String.valueOf(i+1) + " mean=" + String.valueOf(gmm.components[i].meanVector[0]) + " variance=" + String.valueOf(gmm.components[i].covMatrix[0][0]));
+    }
 }
