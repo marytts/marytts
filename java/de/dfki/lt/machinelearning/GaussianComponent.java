@@ -61,6 +61,11 @@ public class GaussianComponent {
         init(existing.meanVector, existing.covMatrix);
     }
     
+    public GaussianComponent(Cluster c)
+    {
+        init(c.meanVector, c.covMatrix);
+    }
+    
     public void init(int featureDimensionIn, boolean isDiagonal)
     {
         if (featureDimensionIn>0)

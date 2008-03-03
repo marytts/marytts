@@ -59,6 +59,14 @@ public class GMM {
         init(featureDimensionIn, totalComponentsIn, isDiagonalCovarIn);
     }
     
+    public GMM(KMeansClusteringTrainer kmeansClusterer)
+    {
+        init(kmeansClusterer.getFeatureDimension(), kmeansClusterer.getTotalClusters(), kmeansClusterer.isDiagonalCovariance());
+        
+        for (int i=0; i<kmeansClusterer.getTotalClusters(); i++)
+            components[i] = new GaussianComponent(kmeansClusterer.clusters[i]);
+    }
+    
     public GMM(GMM existing)
     {
         featureDimension = existing.featureDimension;
