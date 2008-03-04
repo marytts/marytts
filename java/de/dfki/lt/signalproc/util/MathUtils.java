@@ -46,16 +46,16 @@ public class MathUtils {
     protected static final double PASCAL = 2E-5;
     protected static final double PASCALSQUARE = 4E-10;
     protected static final double LOG10 = Math.log(10);
-    
+
     public static final double TWOPI = 2*Math.PI;
-    
+
     public static final int EQUALS = 0;
     public static final int GREATER_THAN = 1;
     public static final int GREATER_THAN_OR_EQUALS = 2;
     public static final int LESS_THAN = 3;
     public static final int LESS_THAN_OR_EQUALS = 4;
     public static final int NOT_EQUALS = 5;
-    
+
     public static boolean isPowerOfTwo(int N)
     {
         final int maxBits = 32;
@@ -66,7 +66,7 @@ public class MathUtils {
         }
         return false;
     }
-    
+
     public static int closestPowerOfTwoAbove(int N)
     {
         return 1<<(int) Math.ceil(Math.log(N)/Math.log(2));
@@ -87,7 +87,7 @@ public class MathUtils {
         }
         return data.length-1;
     }
-    
+
     /**
      * Find the maximum of all elements in the array, ignoring elements that are NaN.
      * @param data
@@ -106,7 +106,7 @@ public class MathUtils {
         }
         return imax;
     }
-    
+
     /**
      * Find the minimum of all elements in the array, ignoring elements that are NaN.
      * @param data
@@ -125,7 +125,7 @@ public class MathUtils {
         }
         return imin;
     }
-    
+
     /**
      * Build the sum of all elements in the array, ignoring elements that are NaN.
      * @param data
@@ -140,7 +140,7 @@ public class MathUtils {
         }
         return sum;
     }
-    
+
     //Computes sum_i=0^data.length-1 (data[i]+term)^2
     public static double sumSquared(double[] data, double term)
     {
@@ -151,7 +151,7 @@ public class MathUtils {
         }
         return sum;
     }
-    
+
     /**
      * Find the maximum of all elements in the array, ignoring elements that are NaN.
      * @param data
@@ -166,7 +166,7 @@ public class MathUtils {
         }
         return max;
     }
-    
+
     public static int max(int[] data)
     {
         int max = data[0];
@@ -207,7 +207,7 @@ public class MathUtils {
         }
         return min;
     }
-    
+
     public static int min(int[] data)
     {
         int min = data[0];
@@ -217,12 +217,12 @@ public class MathUtils {
         }
         return min;
     }
-    
+
     public static double mean(double[] data)
     {
-       return mean(data, 0, data.length-1);
+        return mean(data, 0, data.length-1);
     }
-    
+
     /**
      * Compute the mean of all elements in the array. No missing values (NaN) are allowed.
      * @throws IllegalArgumentException if the array contains NaN values. 
@@ -238,7 +238,7 @@ public class MathUtils {
 
         if (startIndex>endIndex)
             startIndex = endIndex;
-        
+
         for (int i=startIndex; i<=endIndex; i++) {
             if (Double.isNaN(data[i]))
                 throw new IllegalArgumentException("NaN not allowed in mean calculation");
@@ -248,7 +248,7 @@ public class MathUtils {
         mean /= total;
         return mean;
     }
-    
+
     /**
      * Compute the mean of all elements in the array with given indices. No missing values (NaN) are allowed.
      * @throws IllegalArgumentException if the array contains NaN values. 
@@ -265,7 +265,7 @@ public class MathUtils {
         mean /= inds.length;
         return mean;
     }
-    
+
     /**
      * Compute the mean of all elements in the array. No missing values (NaN) are allowed.
      * @throws IllegalArgumentException if the array contains NaN values. 
@@ -278,10 +278,10 @@ public class MathUtils {
         startIndex = Math.min(startIndex, data.length-1);
         endIndex = Math.max(endIndex, 0);
         endIndex = Math.min(endIndex, data.length-1);
-        
+
         if (startIndex>endIndex)
             startIndex = endIndex;
-        
+
         for (int i=startIndex; i<=endIndex; i++) {
             if (Float.isNaN(data[i]))
                 throw new IllegalArgumentException("NaN not allowed in mean calculation");
@@ -291,12 +291,12 @@ public class MathUtils {
         mean /= total;
         return mean;
     }
-    
+
     public static float mean(float[] data)
     {
-       return mean(data, 0, data.length-1);
+        return mean(data, 0, data.length-1);
     }
-    
+
     /**
      * Compute the mean of all elements in the array with given indices. No missing values (NaN) are allowed.
      * @throws IllegalArgumentException if the array contains NaN values. 
@@ -313,22 +313,22 @@ public class MathUtils {
         mean /= inds.length;
         return mean;
     }
-    
+
     public static double standardDeviation(double[] data)
     {
         return standardDeviation(data, mean(data));
     }
-    
+
     public static double standardDeviation(double[] data, double meanVal)
     {
         return standardDeviation(data, meanVal, 0, data.length-1);
     }
-    
+
     public static double standardDeviation(double[] data, double meanVal, int startIndex, int endIndex)
     {
         return Math.sqrt(variance(data, meanVal, startIndex, endIndex));
     }
-    
+
     public static double variance(double[] data)
     {
         return variance(data, mean(data));
@@ -336,13 +336,13 @@ public class MathUtils {
 
     public static double variance(double[] data, double meanVal)
     {
-       return variance(data, meanVal, 0, data.length-1);
+        return variance(data, meanVal, 0, data.length-1);
     }
-    
+
     public static double variance(double[] data, double meanVal, int startIndex, int endIndex)
     {
         double var = 0.0;
-        
+
         if (startIndex<0)
             startIndex=0;
         if (startIndex>data.length-1)
@@ -351,22 +351,22 @@ public class MathUtils {
             endIndex=startIndex;
         if (endIndex>data.length-1)
             endIndex=data.length-1;
-        
+
         for (int i=startIndex; i<=endIndex; i++)
             var += (data[i]-meanVal)*(data[i]-meanVal);
-        
+
         if (endIndex-startIndex>1)
             var /= (endIndex-startIndex);
-        
+
         return var;
     }
 
-   
+
     public static double[] variance(double[][]x, double[] meanVector)
     {
         return variance(x, meanVector, true);   
     }
-    
+
     /**
      * Returns the variance of rows or columns of matrix x
      * @param x the matrix consisting of row vectors
@@ -378,7 +378,7 @@ public class MathUtils {
     public static double[] variance(double[][]x, double[] meanVector, boolean isAlongRows)
     {
         double[] var = null;
-        
+
         if (x!=null && x[0]!=null && x[0].length>0 && meanVector != null)
         {
             if (isAlongRows) 
@@ -389,7 +389,7 @@ public class MathUtils {
                 {
                     for (i=0; i<x.length; i++)
                         var[j] += (x[i][j]-meanVector[j])*(x[i][j]-meanVector[j]);
-                    
+
                     var[j] /= (x.length-1);
                 }
             } 
@@ -401,7 +401,7 @@ public class MathUtils {
                 }
             }
         }
-        
+
         return var;
     }
 
@@ -409,12 +409,12 @@ public class MathUtils {
     {
         return mean(x, true);
     }
-    
+
     public static double[] mean(double[][] x, boolean isAlongRows)
     {
         int[] indices = null;
         int i;
-        
+
         if (isAlongRows)
         {
             indices = new int[x.length];
@@ -427,10 +427,10 @@ public class MathUtils {
             for (i=0; i<x[0].length; i++)
                 indices[i] = i;
         }
-        
+
         return mean(x, isAlongRows, indices);
     }
-    
+
     //If isAlongRows==true, the observations are row-by-row
     // if isAlongRows==false, they are column-by-column
     public static double[] mean(double[][] x, boolean isAlongRows, int[] indicesOfX)
@@ -441,13 +441,13 @@ public class MathUtils {
         {
             meanVector = new double[x[indicesOfX[0]].length];
             Arrays.fill(meanVector, 0.0);
-            
+
             for (i=0; i<x.length; i++)
             {
                 for (j=0; j<x[indicesOfX[0]].length; j++)
                     meanVector[j] += x[indicesOfX[i]][j];
             }
-            
+
             for (j=0; j<meanVector.length; j++)
                 meanVector[j] /= indicesOfX.length;
         }
@@ -455,47 +455,47 @@ public class MathUtils {
         {
             meanVector = new double[x.length];
             Arrays.fill(meanVector, 0.0);
-            
+
             for (i=0; i<indicesOfX.length; i++)
             {
                 for (j=0; j<x.length; j++)
                     meanVector[j] += x[j][indicesOfX[i]];
             }
-            
+
             for (j=0; j<meanVector.length; j++)
                 meanVector[j] /= indicesOfX.length;
         }
-        
+
         return meanVector;
     }
-    
+
     //The observations are taken row by row
     public static double[][] covariance(double[][] x)
     {
         return covariance(x, true);
     }
-    
-  //The observations are taken row by row
+
+    //The observations are taken row by row
     public static double[][] covariance(double[][] x, double[] meanVector)
     {        
         return covariance(x, meanVector, true);
     }
-    
+
     //If isAlongRows==true, the observations are row-by-row
     // if isAlongRows==false, they are column-by-column
     public static double[][] covariance(double[][] x, boolean isAlongRows)
     {
         double[] meanVector = mean(x, isAlongRows);
-        
+
         return covariance(x, meanVector, isAlongRows);
     }
-    
+
     public static double[][] covariance(double[][] x, double[] meanVector, boolean isAlongRows)
     {
-        
+
         int[] indices = null;
         int i;
-        
+
         if (isAlongRows)
         {
             indices = new int[x.length];
@@ -508,10 +508,10 @@ public class MathUtils {
             for (i=0; i<x[0].length; i++)
                 indices[i] = i;
         }
-        
+
         return covariance(x, meanVector, isAlongRows, indices);
     }
-    
+
     //If isAlongRows==true, the observations are row-by-row
     // if isAlongRows==false, they are column-by-column
     public static double[][] covariance(double[][] x, double[] meanVector, boolean isAlongRows, int[] indicesOfX)
@@ -523,7 +523,7 @@ public class MathUtils {
         double[][] tmpMatrix = null;
         double[][] zeroMean = null;
         double[][] zeroMeanTranspoze = null;
-        
+
         if (x!=null && meanVector!=null)
         {
             if (isAlongRows)
@@ -538,39 +538,39 @@ public class MathUtils {
                 tmpMatrix = new double[dimension][dimension];
                 zeroMean = new double[dimension][1];
                 double[] tmpVector;
-                
+
                 for (i=0; i<dimension; i++)
                     Arrays.fill(cov[i], 0.0);
-                
+
                 for (i=0; i<numObservations; i++)
                 {
                     tmpVector = substract(x[indicesOfX[i]], meanVector);
                     zeroMean = transpoze(tmpVector);
                     zeroMeanTranspoze = transpoze(zeroMean);
-                    
+
                     tmpMatrix = matrixProduct(zeroMean, zeroMeanTranspoze);
                     cov = add(cov, tmpMatrix);
                 }
-                
+
                 cov = divide(cov, numObservations-1);
             }
             else
             {
                 assert meanVector.length == x.length;
                 numObservations = indicesOfX.length;
-                
+
                 for (i=1; i<indicesOfX.length; i++)
                     assert x[indicesOfX[i]].length==x[indicesOfX[0]].length;
-                
+
                 dimension = x.length;
-                
+
                 cov = transpoze(covariance(transpoze(x), meanVector, true, indicesOfX));
             }
         }
-        
+
         return cov;
     }
-    
+
     public static double[] diagonal(double[][]x)
     {
         double[] d = null;
@@ -578,31 +578,31 @@ public class MathUtils {
         int i;
         for (i=1; i<dim; i++)
             assert x[i].length==dim;
-        
+
         if (x!=null)
         {
             d = new double[dim];
-            
+
             for (i=0; i<x.length; i++)
                 d[i] = x[i][i]; 
         }
-            
+
         return d;
     }
-    
+
     public static double[][] transpoze(double[] x)
     {
         double[][] y = new double[x.length][1];
         for (int i=0; i<x.length; i++)
             y[i][0] = x[i];
-        
+
         return y;
     }
-    
+
     public static double[][] transpoze(double[][] x)
     {
         double[][] y = null;
-        
+
         if (x!=null)
         {
             int i, j;
@@ -618,17 +618,17 @@ public class MathUtils {
                     y[j][i] = x[i][j];
             }
         }
-        
+
         return y;
     }
-    
+
     public static double[] add(double[] x, double[] y)
     {
         assert x.length==y.length;
         double[] z = new double[x.length];
         for (int i=0; i<x.length; i++)
             z[i] = x[i]+y[i];
-        
+
         return z;
     }
 
@@ -652,7 +652,7 @@ public class MathUtils {
         }
         return c;
     }
-    
+
     public static double[] substract(double[] a, double b)
     {
         double[] c = new double[a.length];
@@ -661,7 +661,7 @@ public class MathUtils {
         }
         return c;
     }
-    
+
     public static double[] multiply(double[] a, double[] b)
     {
         if (a.length != b.length) {
@@ -694,7 +694,7 @@ public class MathUtils {
         }
         return c;
     }
-    
+
     public static double[] divide(double[] a, double b)
     {
         double[] c = new double[a.length];
@@ -703,7 +703,7 @@ public class MathUtils {
         }
         return c;
     }
-    
+
     //Returns the summ of two matrices, i.e. x+y
     //x and y should be of same size
     public static double[][] add(double[][] x, double[][] y)
@@ -722,17 +722,17 @@ public class MathUtils {
 
             z = new double[x.length][x[0].length];
 
-            
+
             for (i=0; i<x.length; i++)
             {
                 for (j=0; j<x[i].length; j++)
                     z[i][j] = x[i][j]+y[i][j];
             }
         }
-        
+
         return z;
     }
-    
+
     //Returns the difference of two matrices, i.e. x-y
     //x and y should be of same size
     public static double[][] substract(double[][] x, double[][] y)
@@ -751,17 +751,17 @@ public class MathUtils {
 
             z = new double[x.length][x[0].length];
 
-            
+
             for (i=0; i<x.length; i++)
             {
                 for (j=0; j<x[i].length; j++)
                     z[i][j] = x[i][j]-y[i][j];
             }
         }
-        
+
         return z;
     }
-    
+
     //Returns multiplication of matrix entries with a constant, i.e. ax
     //x and y should be of same size
     public static double[][] multiply(double a, double[][] x)
@@ -782,17 +782,17 @@ public class MathUtils {
                     z[i][j] = a*x[i][j];
             }
         }
-        
+
         return z;
     }
-    
+
     //Returns the division of matrix entries with a constant, i.e. x/a
     //x and y should be of same size
     public static double[][] divide(double[][] x, double a)
     {
         return multiply(1.0/a, x);
     }
-    
+
     //This is a "*" product --> should return a matrix provided that the sizes are appropriate
     public static double[][] matrixProduct(double[][] x, double[][] y)
     {
@@ -810,7 +810,7 @@ public class MathUtils {
             for (i=1; i<y.length; i++)
                 assert y[i].length == colSizey;
             assert colSizex==rowSizey;
-            
+
             z = new double[rowSizex][colSizey];
             double tmpSum;
             for (i=0; i<rowSizex; i++)
@@ -820,15 +820,15 @@ public class MathUtils {
                     tmpSum = 0.0;
                     for (m=0; m<x[i].length; m++)
                         tmpSum += x[i][m]*y[m][j];
-                    
+
                     z[i][j] = tmpSum;
                 }
             }
         }
-        
+
         return z;
     }
-    
+
     //"x" product of two vectors
     public static double[][] vectorProduct(double[] x, boolean isColumnVectorX, double[] y, boolean isColumnVectorY)
     {
@@ -846,7 +846,7 @@ public class MathUtils {
             xx = new double[1][x.length];
             System.arraycopy(x, 0, xx[0], 0, x.length);
         }
-        
+
         if (isColumnVectorY)
         {
             yy = new double[y.length][1];
@@ -858,21 +858,21 @@ public class MathUtils {
             yy = new double[1][y.length];
             System.arraycopy(y, 0, yy[0], 0, y.length);
         }
-        
+
         return matrixProduct(xx, yy);
     }
-    
+
     public static double dotProduct(double[] x, double[] y)
     {
         assert x.length==y.length;
-        
+
         double tmpSum = 0.0;
         for (int i=0; i<x.length; i++)
             tmpSum += x[i]*y[i];
-        
+
         return tmpSum;
     }
-    
+
     public static double[][] dotProduct(double[][] x, double[][] y)
     {
         double[][] z = null;
@@ -896,47 +896,8 @@ public class MathUtils {
                     z[i][j] = x[i][j]*y[i][j];
             }
         }
-        
+
         return z;
-    }
-    
-    //Returns inverse of diagonal vector
-    public static double[] inverse(double[] x)
-    {
-        double[] invx = new double[x.length];
-        
-        for (int i=0; i<x.length; i++)
-            invx[i] = 1.0/(x.length*x[i]);
-        
-        return invx;
-    }
-
-    //matrix inversion using Gaussian elimination
-    public static double[][] inverse(double[][] x)
-    {   
-        double[][]y = null;
-        int m = x.length;
-        int n = x[0].length;
-        if (m==n)
-        {
-            int k;
-            for (k=1; k<m; k++)
-                assert x[k].length==n;
-
-            y = new double[m][n];
-            for (k=0; k<m; k++)
-                System.arraycopy(x[k], 0, y[k], 0, n);
-
-            //Do in-place inversion on y here. Alternatives could be Gaussian-Jordan elimination (slower) or LU Decomposition(faster)
-            //
-        }
-        else if (m==1) //This is for inversion of matrix diagonal
-        {
-            y = new double[1][n];
-            y[0] = inverse(x[0]);
-        }
-
-        return y;
     }
 
     /**
@@ -966,7 +927,7 @@ public class MathUtils {
         if (energy <= 0) return Double.NaN;
         else return 10 * log10(energy);
     }
-    
+
     public static double amp2db(double amp)
     {
         if (amp <= 0) return Double.NaN;
@@ -977,17 +938,17 @@ public class MathUtils {
     {
         return multiply(log10(energies), 10);
     }
-    
+
     public static double[] amp2db(double[] amps)
     {
         return multiply(log10(amps), 20);
     }
-    
+
     public static double[] amp2db(Complex c)
     {
         return amp2db(c, 0, c.real.length-1);
     }
-    
+
     public static double[] amp2db(Complex c, int startInd, int endInd)
     {
         if (startInd<0)
@@ -998,11 +959,11 @@ public class MathUtils {
             endInd=startInd;
         if (endInd>Math.min(c.real.length-1,c.imag.length-1))
             endInd=Math.min(c.real.length-1,c.imag.length-1);
-        
+
         double[] dbs = new double[endInd-startInd+1];
         for (int i=startInd; i<=endInd; i++)
             dbs[i-startInd] = 10*log10(c.real[i]*c.real[i]+c.imag[i]*c.imag[i]);
-        
+
         return dbs;
     }
 
@@ -1021,24 +982,24 @@ public class MathUtils {
     {
         return exp10(divide(dbEnergies, 10));
     }
-    
+
     public static float db2amplitude(float dbAmplitude)
     {
         if (Float.isNaN(dbAmplitude)) return 0.0f;
         else return (float)(Math.pow(10.0, dbAmplitude/20));
     }
-    
+
     public static double db2amplitude(double dbAmplitude)
     {
         if (Double.isNaN(dbAmplitude)) return 0.;
         else return Math.pow(10.0, dbAmplitude/20);
     }
-    
+
     public static float radian2degrees(float rad)
     {
         return (float)((rad/MathUtils.TWOPI)*360.0f);
     }
-    
+
     public static double radian2degrees(double rad)
     {
         return (rad/MathUtils.TWOPI)*360.0;
@@ -1064,12 +1025,12 @@ public class MathUtils {
         return sum;
     }
 
-    
+
     public static double log10(double x)
     {
         return Math.log(x)/LOG10;
     }
-    
+
     public static double[] log(double[] a)
     {
         double[] c = new double[a.length];
@@ -1094,7 +1055,7 @@ public class MathUtils {
         }
         return c;
     }
-    
+
     public static double[] log10(double[] a)
     {
         double[] c = new double[a.length];
@@ -1127,7 +1088,7 @@ public class MathUtils {
         return c;
     }
 
-    
+
     public static float[] add(float[] a, float[] b)
     {
         if (a.length != b.length) {
@@ -1160,7 +1121,7 @@ public class MathUtils {
         }
         return c;
     }
-    
+
     public static float[] substract(float[] a, float b)
     {
         float[] c = new float[a.length];
@@ -1169,8 +1130,8 @@ public class MathUtils {
         }
         return c;
     }
- 
-    
+
+
     public static double euclidianLength(float[] a)
     {
         double len = 0.;
@@ -1188,7 +1149,7 @@ public class MathUtils {
         }
         return Math.sqrt(len);
     }
-  
+
     /**
      * Convert a pair of arrays from cartesian (x, y) coordinates to 
      * polar (r, phi) coordinates. Phi will be in radians, i.e. a full circle is two pi.
@@ -1248,7 +1209,7 @@ public class MathUtils {
             angle[i] = angleToDefaultAngle(angle[i]);
         }
     }
-    
+
     /**
      * This is the Java source code for a Levinson Recursion.
      * from http://www.nauticom.net/www/jdtaft/JavaLevinson.htm
@@ -1272,7 +1233,7 @@ public class MathUtils {
         double e[] = new double[m + 1];
         double l[][] = new double[m + 1][m + 1];
         double[] coeffs = new double[m+1];
-        
+
         /* compute recursion  */
         for (i = 0; i <= m; i++) {
             for (j = i + 1; j <= m; j++) {
@@ -1302,26 +1263,26 @@ public class MathUtils {
         for (i = 1; i <= m; i++) {
             coeffs[i] = l[m][m - i];
         }
-/*        double sum = 0.;
+        /*        double sum = 0.;
         for (i = 0; i < m; i++) {
             sum += coeffs[i];
         }
         for (i = 0; i < m; i++) {
             coeffs[i] = coeffs[i] / sum;
         }
-*/
+         */
         return coeffs;
     }
 
     public static class Complex {
         public double [] real;
         public double [] imag;
-        
+
         public Complex(int len)
         {
             init(len);
         }
-        
+
         public Complex(Complex c)
         {
             if (c.real!=null && c.imag!=null && c.real.length==c.imag.length)
@@ -1331,14 +1292,14 @@ public class MathUtils {
                 System.arraycopy(c.imag, 0, imag, 0, c.imag.length);
             }
         }
-        
+
         public void init(int len)
         {
             if (len>0)
             {
                 real = new double[len];
                 imag = new double[len];
-                
+
                 Arrays.fill(real, 0.0);
                 Arrays.fill(imag, 0.0);
             }
@@ -1349,7 +1310,7 @@ public class MathUtils {
             }
         }
     }
-    
+
     /* Performs interpolation to increase or decrease the size of array x
        to newLength*/
     public static double [] interpolate(double [] x, int newLength)
@@ -1378,14 +1339,14 @@ public class MathUtils {
                 y = new double[newLength];
                 double Beta = ((float)newLength)/N;
                 double newBeta = 1.0;
-                
+
                 if (newLength>2)
                     newBeta=(N-2.0)/(newLength-2.0);
 
                 y[0] = x[0];
                 y[1] = x[1];
                 y[newLength-1] = x[N-1];
-                
+
                 double tmp, alpha;
                 int i, j;
                 for (i=2; i<=newLength-2; i++) 
@@ -1397,10 +1358,10 @@ public class MathUtils {
                 }
             }
         }
-        
+
         return y;
     }
-    
+
     public static int getMax(int [] x)
     {
         int maxx = x[0];
@@ -1409,50 +1370,50 @@ public class MathUtils {
             if (x[i]>maxx)
                 maxx = x[i];
         }
-        
+
         return maxx;
     }
-    
+
     public static int getMinIndex(int [] x)
     {
         return getMinIndex(x, 0);
     }
-    
+
     public static int getMinIndex(int [] x, int startInd)
     {
         return getMinIndex(x, startInd, x.length-1);
     }
-    
+
     public static int getMinIndex(int [] x, int startInd, int endInd)
     {
         return getExtremaIndex(x, false, startInd, endInd);
     }
-    
+
     public static int getMaxIndex(int [] x)
     {
         return getMaxIndex(x, 0);
     }
-    
+
     public static int getMaxIndex(int [] x, int startInd)
     {
         return getMaxIndex(x, startInd, x.length-1);
     }
-    
+
     public static int getMaxIndex(int [] x, int startInd, int endInd)
     {
         return getExtremaIndex(x, true, startInd, endInd);
     }
-    
+
     public static int getExtremaIndex(int [] x, boolean isMax)
     {
         return getExtremaIndex(x, isMax, 0);
     }
-    
+
     public static int getExtremaIndex(int [] x, boolean isMax, int startInd)
     {
         return getExtremaIndex(x, isMax, startInd, x.length-1);
     }
-    
+
     public static int getExtremaIndex(int [] x, boolean isMax, int startInd, int endInd)
     {
         int extrema = x[0];
@@ -1463,7 +1424,7 @@ public class MathUtils {
             endInd = x.length-1;
         if (startInd>endInd)
             startInd=endInd;
-        
+
         if (isMax)
         {
             for (int i=startInd; i<=endInd; i++)
@@ -1486,50 +1447,50 @@ public class MathUtils {
                 }
             }
         }
-        
+
         return extremaInd;
     }
-    
+
     public static int getMinIndex(float [] x)
     {
         return getMinIndex(x, 0);
     }
-    
+
     public static int getMinIndex(float [] x, int startInd)
     {
         return getMinIndex(x, startInd, x.length-1);
     }
-    
+
     public static int getMinIndex(float [] x, int startInd, int endInd)
     {
         return getExtremaIndex(x, false, startInd, endInd);
     }
-    
+
     public static int getMaxIndex(float [] x)
     {
         return getMaxIndex(x, 0);
     }
-    
+
     public static int getMaxIndex(float [] x, int startInd)
     {
         return getMaxIndex(x, startInd, x.length-1);
     }
-    
+
     public static int getMaxIndex(float [] x, int startInd, int endInd)
     {
         return getExtremaIndex(x, true, startInd, endInd);
     }
-    
+
     public static int getExtremaIndex(float [] x, boolean isMax)
     {
         return getExtremaIndex(x, isMax, 0);
     }
-    
+
     public static int getExtremaIndex(float [] x, boolean isMax, int startInd)
     {
         return getExtremaIndex(x, isMax, startInd, x.length-1);
     }
-    
+
     public static int getExtremaIndex(float [] x, boolean isMax, int startInd, int endInd)
     {
         float extrema = x[0];
@@ -1540,7 +1501,7 @@ public class MathUtils {
             endInd = x.length-1;
         if (startInd>endInd)
             startInd=endInd;
-        
+
         if (isMax)
         {
             for (int i=startInd; i<=endInd; i++)
@@ -1563,50 +1524,50 @@ public class MathUtils {
                 }
             }
         }
-        
+
         return extremaInd;
     }
-    
+
     public static int getMinIndex(double [] x)
     {
         return getMinIndex(x, 0);
     }
-    
+
     public static int getMinIndex(double [] x, int startInd)
     {
         return getMinIndex(x, startInd, x.length-1);
     }
-    
+
     public static int getMinIndex(double [] x, int startInd, int endInd)
     {
         return getExtremaIndex(x, false, startInd, endInd);
     }
-    
+
     public static int getMaxIndex(double [] x)
     {
         return getMaxIndex(x, 0);
     }
-    
+
     public static int getMaxIndex(double [] x, int startInd)
     {
         return getMaxIndex(x, startInd, x.length-1);
     }
-    
+
     public static int getMaxIndex(double [] x, int startInd, int endInd)
     {
         return getExtremaIndex(x, true, startInd, endInd);
     }
-    
+
     public static int getExtremaIndex(double [] x, boolean isMax)
     {
         return getExtremaIndex(x, isMax, 0);
     }
-    
+
     public static int getExtremaIndex(double [] x, boolean isMax, int startInd)
     {
         return getExtremaIndex(x, isMax, startInd, x.length-1);
     }
-    
+
     public static int getExtremaIndex(double [] x, boolean isMax, int startInd, int endInd)
     {
         double extrema = x[0];
@@ -1617,7 +1578,7 @@ public class MathUtils {
             endInd = x.length-1;
         if (startInd>endInd)
             startInd=endInd;
-        
+
         if (isMax)
         {
             for (int i=startInd; i<=endInd; i++)
@@ -1640,10 +1601,10 @@ public class MathUtils {
                 }
             }
         }
-        
+
         return extremaInd;
     }
-    
+
     public static double getMax(double [] x)
     {
         double maxx = x[0];
@@ -1652,10 +1613,10 @@ public class MathUtils {
             if (x[i]>maxx)
                 maxx = x[i];
         }
-        
+
         return maxx;
     }
-    
+
     public static float getMax(float [] x)
     {
         float maxx = x[0];
@@ -1664,10 +1625,10 @@ public class MathUtils {
             if (x[i]>maxx)
                 maxx = x[i];
         }
-        
+
         return maxx;
     }
-    
+
     public static int getMin(int [] x)
     {
         int minn = x[0];
@@ -1676,10 +1637,10 @@ public class MathUtils {
             if (x[i]<minn)
                 minn = x[i];
         }
-        
+
         return minn;
     }
-    
+
     public static double getMin(double [] x)
     {
         double minn = x[0];
@@ -1688,10 +1649,10 @@ public class MathUtils {
             if (x[i]<minn)
                 minn = x[i];
         }
-        
+
         return minn;
     }
-    
+
     public static float getMin(float [] x)
     {
         float maxx = x[0];
@@ -1700,15 +1661,15 @@ public class MathUtils {
             if (x[i]<maxx)
                 maxx = x[i];
         }
-        
+
         return maxx;
     }
-    
+
     public static double getAbsMax(double [] x)
     {
         return getAbsMax(x, 0, x.length-1);
     }
-    
+
     public static double getAbsMax(double [] x, int startInd, int endInd)
     {
         double maxx = Math.abs(x[startInd]);
@@ -1717,13 +1678,13 @@ public class MathUtils {
             if (Math.abs(x[i])>maxx)
                 maxx = Math.abs(x[i]);
         }
-        
+
         return maxx;
     }
-  
+
     //Return the local peak index for values x[startInd],x[startInd+1],...,x[endInd]
-    // Note that the returned index is in the range [startInd,endInd]
-    // If there is no local peak, -1 is returned. This means that the peak is either at [startInd] or [endInd].
+                                                                             // Note that the returned index is in the range [startInd,endInd]
+                                                                                                                              // If there is no local peak, -1 is returned. This means that the peak is either at [startInd] or [endInd].
     // However, it is the responsibility of the calling function to further check this situation as the returned index
     // will be -1 in both cases
     public static int getAbsMaxInd(double [] x, int startInd, int endInd)
@@ -1742,66 +1703,66 @@ public class MathUtils {
 
         return index;
     }
-    
+
     //Return an array where each entry is set to val
     public static double [] filledArray(double val, int len)
     {
         double [] x = null;
-        
+
         if (len>0)
         {
             x = new double[len];
             for (int i=0; i<len; i++)
                 x[i] = val;
         }
-        
+
         return x;
     }
-    
+
     //Return an array where each entry is set to val
     public static int [] filledArray(int val, int len)
     {
         int [] x = null;
-        
+
         if (len>0)
         {
             x = new int[len];
             for (int i=0; i<len; i++)
                 x[i] = val;
         }
-        
+
         return x;
     }
-    
+
     //Return an array filled with 0´s
     public static double [] zeros(int len)
     {
         return filledArray(0.0, len);
     }
-    
+
     //Return an array filled with 1´s
     public static double [] ones(int len)
     {
         return filledArray(1.0, len);
     }
-    
+
 //  Return an array filled with 0´s
     public static int [] zerosInt(int len)
     {
         return filledArray(0, len);
     }
-    
+
     //Return an array filled with 1´s
     public static int [] onesInt(int len)
     {
         return filledArray(1, len);
     }
-    
+
     public static int [] find(double[] x, int comparator, double val)
     {
         int [] inds = null;
         int totalFound = 0;
-        
+
         switch (comparator)
         {
         case EQUALS:
@@ -1847,12 +1808,12 @@ public class MathUtils {
             }
             break;
         }
-        
+
         if (totalFound>0)
         {
             int currentInd = 0;
             inds = new int[totalFound];
-            
+
             switch (comparator)
             {
             case EQUALS:
@@ -1917,19 +1878,19 @@ public class MathUtils {
                 break;
             }
         }
-        
+
         return inds;
     }
-    
+
     public static double [] interpolate_linear(int [] x, double [] y, int [] xi)
     {
         assert(x.length==y.length);
-        
+
         double [] yi = new double[xi.length];
         int i, j;
         boolean bFound;
         double alpha;
-        
+
         for (i=0; i<xi.length; i++)
         {
             bFound = false;
@@ -1941,130 +1902,130 @@ public class MathUtils {
                     break;
                 }
             }
-            
+
             if (bFound)
             {
                 alpha = (((double)xi[i])-x[j])/(x[j+1]-x[j]);
                 yi[i] = (1-alpha)*y[j] + alpha*y[j+1];
             }
         }
-        
+
         if (xi[xi.length-1]==x[x.length-1])
             yi[xi.length-1] = y[x.length-1];
-        
+
         return yi;
     }
-    
+
     public static int CheckLimits(int val, int minVal, int maxVal)
     {
         int ret = val;
 
         if (ret<minVal)
             ret = minVal;
-        
+
         if (ret>maxVal)
             ret = maxVal;
-        
+
         return ret;
     }
-    
+
     public static double CheckLimits(double val, double minVal, double maxVal)
     {
         double ret = val;
 
         if (ret<minVal)
             ret = minVal;
-        
+
         if (ret>maxVal)
             ret = maxVal;
-        
+
         return ret;
     }
-    
+
     public static float CheckLimits(float val, float minVal, float maxVal)
     {
         float ret = val;
 
         if (ret<minVal)
             ret = minVal;
-        
+
         if (ret>maxVal)
             ret = maxVal;
-        
+
         return ret;
     }
-    
+
     //Find the extremum points that are larger/smaller than numLefNs and numRightNs neighbours and larger/smaller than the given th value
     public static int [] getExtrema(double [] x, int numLeftN, int numRightN, boolean isMaxima)
     {
         return getExtrema(x, numLeftN, numRightN, isMaxima, 0); 
     }
-    
+
     public static int [] getExtrema(double [] x, int numLeftN, int numRightN, boolean isMaxima, int startInd)
     {
         return getExtrema(x, numLeftN, numRightN, isMaxima, startInd, x.length-1);
     }
-    
+
     public static int [] getExtrema(double [] x, int numLeftN, int numRightN, boolean isMaxima, int startInd, int endInd)
     {
         double th;
-        
+
         if (isMaxima)
             th = MathUtils.getMin(x)-1.0;
         else
             th = MathUtils.getMax(x)+1.0;
-        
+
         return getExtrema(x, numLeftN, numRightN, isMaxima, startInd, endInd, th);
     }
-    
+
     public static int [] getExtrema(double [] x, int numLeftN, int numRightN, boolean isMaxima, int startInd, int endInd, double th)
     {
         int [] numLeftNs = new int[x.length];
         int [] numRightNs = new int[x.length];
         Arrays.fill(numLeftNs, numLeftN);
         Arrays.fill(numRightNs, numRightN);
-        
+
         return getExtrema(x, numLeftNs, numRightNs, isMaxima, startInd, endInd, th); 
     }
-    
+
     public static int [] getExtrema(double [] x, int [] numLeftNs, int [] numRightNs, boolean isMaxima)
     { 
         return getExtrema(x, numLeftNs, numRightNs, isMaxima, 0);
     }
-    
+
     public static int [] getExtrema(double [] x, int [] numLeftNs, int [] numRightNs, boolean isMaxima, int startInd)
     {
         return getExtrema(x, numLeftNs, numRightNs, isMaxima, startInd, x.length-1);
     }
-    
+
     public static int [] getExtrema(double [] x, int [] numLeftNs, int [] numRightNs, boolean isMaxima, int startInd, int endInd)
     {   
         double th;
-        
+
         if (isMaxima)
             th = MathUtils.getMin(x)-1.0;
         else
             th = MathUtils.getMax(x)+1.0;
-        
+
         return getExtrema(x, numLeftNs, numRightNs, isMaxima, startInd, endInd, th);
     }
-    
+
     public static int [] getExtrema(double [] x, int [] numLeftNs, int [] numRightNs, boolean isMaxima, int startInd, int endInd, double th)
     {
         int [] tmpInds = new int[x.length];
         int [] inds = null;
         int total = 0;
-        
+
         int i, j;
         boolean bExtremum;
-        
+
         if (startInd<0)
             startInd=0;
         if (endInd>x.length-1)
             endInd=x.length-1;
         if (startInd>endInd)
             startInd=endInd;
-        
+
         if (isMaxima) //Search for maxima
         {
             for (i=startInd; i<=endInd; i++)
@@ -2156,27 +2117,27 @@ public class MathUtils {
                     tmpInds[total++] = i;
             }
         }  
-        
+
         if (total>0)
         {
             inds = new int[total];
             System.arraycopy(tmpInds, 0, inds, 0, total);
         }
-        
+
         return inds; 
     }
-    
+
     //Returns an array of values selected randomly in the interval [0.0,1.0)
     public static double [] getRandoms(int len)
     {
         return getRandoms(len, 0.0, 1.0);
     }
-    
+
     //Returns an array of values selected randomly in the interval minVal and maxVal
     public static double [] getRandoms(int len, double minVal, double maxVal)
     {
         double [] x = null;
-        
+
         if (len>0)
         {
             x = new double[len];
@@ -2190,10 +2151,10 @@ public class MathUtils {
             for (int i=0; i<len; i++)
                 x[i] = Math.random()*(maxVal-minVal)+minVal;
         }
-        
+
         return x; 
     }
-    
+
     //Return the zero-based index of the entry of x which is closest to val
     public static int findClosest(float [] x, float val)
     {
@@ -2203,7 +2164,7 @@ public class MathUtils {
             float minDiff = Math.abs(x[0]-val);
             float tmpDiff;
             ind = 0;
-            
+
             for (int i=1; i<x.length; i++)
             {
                 tmpDiff = Math.abs(x[i]-val);
@@ -2214,11 +2175,11 @@ public class MathUtils {
                 }
             }
         }
-        
+
         return ind;
     }
-    
-  //Return the zero-based index of the entry of x which is closest to val
+
+    //Return the zero-based index of the entry of x which is closest to val
     public static int findClosest(int [] x, int val)
     {
         int ind = -1;
@@ -2227,7 +2188,7 @@ public class MathUtils {
             int minDiff = Math.abs(x[0]-val);
             int tmpDiff;
             ind = 0;
-            
+
             for (int i=1; i<x.length; i++)
             {
                 tmpDiff = Math.abs(x[i]-val);
@@ -2238,14 +2199,14 @@ public class MathUtils {
                 }
             }
         }
-        
+
         return ind;
     }
-    
+
     public static float unwrap(float phaseInRadians, float prevPhaseInRadians)
     {
         float unwrappedPhaseInRadians = phaseInRadians;
-        
+
         while (Math.abs(unwrappedPhaseInRadians-prevPhaseInRadians)>0.5*TWOPI)
         {
             if (unwrappedPhaseInRadians>prevPhaseInRadians)
@@ -2253,10 +2214,10 @@ public class MathUtils {
             else
                 unwrappedPhaseInRadians += TWOPI;
         }
-        
+
         return unwrappedPhaseInRadians;
     }
-    
+
     //Unwarps phaseInDegrees to range [lowestDegree, lowestDegree+360.0)
     public static float unwrapToRange(float phaseInDegrees, float lowestDegree)
     {
@@ -2271,19 +2232,19 @@ public class MathUtils {
             while (retVal>=lowestDegree+360.0f)
                 retVal -= 360.0f;
         }
-        
+
         return retVal;
     }
-    
+
     public static double db2neper(double db)
     {
         return 20.0*db/Math.log(10.0);
     }
-    
+
     public static double [] db2neper(double [] dbs)
     {
         double [] nepers = null;
-        
+
         if (dbs!=null && dbs.length>0)
         {
             nepers = new double[dbs.length];
@@ -2291,19 +2252,19 @@ public class MathUtils {
             for (int i=0; i<nepers.length; i++)
                 nepers[i] = db2neper(dbs[i]);
         }
-        
+
         return nepers;
     }
-    
+
     public static double neper2db(double neper)
     {
         return (neper*Math.log(10.0))/20.0;
     }
-    
+
     public static double [] neper2db(double [] nepers)
     {
         double [] dbs = null;
-        
+
         if (nepers!=null && nepers.length>0)
         {
             dbs = new double[nepers.length];
@@ -2311,19 +2272,19 @@ public class MathUtils {
             for (int i=0; i<dbs.length; i++)
                 dbs[i] = neper2db(nepers[i]);
         }
-        
+
         return dbs;
     }
-    
+
     public static double neper2linear(double neper)
     {
         return Math.exp(neper);
     }
-    
+
     public static double [] neper2linear(double [] nepers)
     {
         double [] lins = null;
-        
+
         if (nepers!=null && nepers.length>0)
         {
             lins = new double[nepers.length];
@@ -2331,93 +2292,93 @@ public class MathUtils {
             for (int i=0; i<lins.length; i++)
                 lins[i] = neper2linear(nepers[i]);
         }
-        
+
         return lins;
     }
-    
+
     public static float[] sinc(float [] x, float N)
     {
         float [] y = null;
-        
+
         if (x.length>0)
         {
             y = new float[x.length];
             for (int i=0; i<y.length; i++)
                 y[i] = sinc(x[i], N);
         }
-        
+
         return y;
-        
+
     }
-    
+
     public static float sinc(float x, float N)
     {
         return (float)(Math.sin(N*0.5*x)/(N*Math.sin(0.5*x)));
     }
-    
+
     public static double sinc(double x, double N)
     {
         return Math.sin(N*0.5*x)/(N*Math.sin(0.5*x));
     }
-    
+
     public static float[] sinc(float[] x)
     {
         float [] y = null;
-        
+
         if (x.length>0)
         {
             y = new float[x.length];
             for (int i=0; i<y.length; i++)
                 y[i] = sinc(2*x[i], (float)(0.5*MathUtils.TWOPI));
         }
-        
+
         return y;
     }
-    
+
     public static double[] sinc(double[] x)
     {
         double [] y = null;
-        
+
         if (x.length>0)
         {
             y = new double[x.length];
             for (int i=0; i<y.length; i++)
                 y[i] = sinc(2*x[i], 0.5*MathUtils.TWOPI);
         }
-        
+
         return y;
     }
-    
+
     public static float sinc(float x)
     {
         return sinc(2*x, (float)(0.5*MathUtils.TWOPI));
     }
-    
+
     public static double sinc(double x)
     {
         return sinc(2*x, 0.5*MathUtils.TWOPI);
     }
-    
+
     //Returns the index of the smallest element that is larger than %percentSmallerThan of the data in x
     //  It simply sorts the data in x and then finds the smallest value that is larger than 
     //  the [percentSmallerThan/100.0*(x.length-1)]th entry
     public static double getSortedValue(double [] x, double percentSmallerThan)
     {
         int retInd = -1;
-        
+
         Vector<Double> v = new Vector<Double>();
         for (int i=0; i<x.length; i++)
             v.add(x[i]);
-        
+
         Collections.sort(v);
-        
+
         int index = (int)Math.floor(percentSmallerThan/100.0*(x.length-1)+0.5);
         index = Math.max(0, index);
         index = Math.min(index, x.length-1);
 
         return ((Double)(v.get(index))).doubleValue();
     }
-    
+
     //Factorial design of all possible paths
     // totalItemsInNodes is a vector containing the total number of element at each node,
     // The output is the zero-based indices of elements in successive nodes covering all possible paths
@@ -2433,12 +2394,12 @@ public class MathUtils {
             if (totalItemsInNodes[i]>0)
                 totalPaths *= totalItemsInNodes[i];
         }
-        
+
         int [][] pathInds = new int[totalPaths][totalItemsInNodes.length];
         int [] currentPath = new int[totalItemsInNodes.length];
-        
+
         int count = 0;
-        
+
         Arrays.fill(currentPath, 0);
         System.arraycopy(currentPath, 0, pathInds[count++], 0, currentPath.length);
 
@@ -2454,38 +2415,38 @@ public class MathUtils {
                 else
                     currentPath[i]=0;
             }
-            
+
             System.arraycopy(currentPath, 0, pathInds[count], 0, currentPath.length);
             count++;
         }
 
         return pathInds;
     }
-    
+
     //Returns the linearly mapped version of x which is in range xStart and xEnd in a new range
     // yStart and yEnd
     public static float linearMap(float x, float xStart, float xEnd, float yStart, float yEnd)
     {
         return (x-xStart)/(xEnd-xStart)*(yEnd-yStart)+yStart;
     }
-    
+
     public static int linearMap(int x, int xStart, int xEnd, int yStart, int yEnd)
     {
         return (int)Math.floor(((float)x-xStart)/((float)xEnd-xStart)*(yEnd-yStart)+yStart + 0.5);
     }
-    
+
     //In place sorting of array x, return value are the sorted 0-based indices 
     public static int[] quickSort(double[] x)
     {
         int[] indices = new int[x.length];
         for (int i=0; i<x.length; i++)
             indices[i] = i;
-        
+
         quickSort(x, indices);
-        
+
         return indices;
     }
-    
+
     //In place sorting of elements of array x between startIndex(included) and endIndex(included)
     public static int[] quickSort(double[] x, int startIndex, int endIndex)
     {
@@ -2497,34 +2458,34 @@ public class MathUtils {
             endIndex=startIndex;
         if (endIndex>x.length-1)
             endIndex=x.length-1;
-        
+
         int[] indices = new int[endIndex-startIndex+1];
         double[] x2 = new double[endIndex-startIndex+1];
         int i;
-        
+
         for (i=startIndex; i<=endIndex; i++)
         {
             indices[i-startIndex] = i;
             x2[i-startIndex] = x[i];
         }
-        
+
         quickSort(x2, indices);
-        
+
         for (i=startIndex; i<=endIndex; i++)
             x[i] = x2[i-startIndex];
-        
+
         return indices;
     }
-    
-    
+
+
     //Sorts x, y is also sorted as x so it can be used to obtain sorted indices
     public static void quickSort(double[] x, int[] y)
     {
         assert x.length==y.length;
-        
+
         quickSort(x, y, 0, x.length-1);
     }
-    
+
     public static void quickSort(double[] x, int[] y, int startIndex, int endIndex)
     {
         if(startIndex<endIndex) 
@@ -2542,7 +2503,7 @@ public class MathUtils {
         double t;
         int ty;
         double pivot = x[startIndex];
-        
+
         while(true)
         {
             do {
@@ -2558,61 +2519,61 @@ public class MathUtils {
 
             t = x[i]; 
             ty = y[i];
-            
+
             x[i] = x[j];
             y[i] = y[j];
-            
+
             x[j] = t;
             y[j] = ty;
         }
 
         t = x[startIndex]; 
         ty = y[startIndex];
-        
+
         x[startIndex] = x[j]; 
         y[startIndex] = y[j];
-        
+
         x[j] = t;
         y[j] = ty;
-        
+
         return j;
     }
-    
+
     public static double[] normalizeToSumUpTo(double[] x, double sumUp)
     {
         return normalizeToSumUpTo(x, x.length, sumUp);
     }
-    
+
     public static double[] normalizeToSumUpTo(double[] x, int len, double sumUp)
     {
         if (len>x.length)
             len=x.length;
-        
+
         double[] y = new double[len];
-        
+
         double total = 0.0;
         int i;
-        
+
         for (i=0; i<len; i++)
             total += x[i];
-        
+
         for (i=0; i<len; i++)
             y[i] = sumUp*(x[i]/total);
-        
+
         return y;
     }
-    
+
     public static double[] normalizeToRange(double[] x, int len, double minVal, double maxVal)
     {
         if (len>x.length)
             len=x.length;
-        
+
         double[] y = new double[len];
-        
+
         double xmin = MathUtils.min(x);
         double xmax = MathUtils.max(x);
         int i;
-        
+
         if (xmax>xmin)
         {
             for (i=0; i<len; i++)
@@ -2623,10 +2584,10 @@ public class MathUtils {
             for (i=0; i<len; i++)
                 y[i] = (x[i]-xmin)+0.5*(minVal+maxVal);
         }   
-        
+
         return y;
     }
-    
+
     //Shifts mean value of x
     public static void adjustMean(double[] x, double newMean)
     {
@@ -2636,49 +2597,49 @@ public class MathUtils {
             x[i] = (x[i]-currentMean) + newMean;
     }
     //
-    
+
     public static void adjustVariance(double[] x, double newVariance)
     {
         adjustStandardDeviation(x, Math.sqrt(newVariance));
     }
-    
+
     //Assigns new standard deviation while keeping the mean value of x
     public static void adjustStandardDeviation(double[] x, double newStandardDeviation)
     {
         double currentMean = mean(x);
         double currentStdDev = standardDeviation(x, currentMean);
-        
+
         for (int i=0; i<x.length; i++)
             x[i] = ((x[i]-currentMean)*newStandardDeviation/currentStdDev) + currentMean;
     }
     //
-    
+
     public static double median(double[] x)
     {
         quickSort(x);
-        
+
         int index = (int)Math.floor(0.5*x.length+0.5);
         if (index<0)
             index=0;
         if (index>x.length-1)
             index=x.length-1;
-        
+
         return x[index];
     }
-    
+
     //Returns 1/N sum_i=0^N-1(|x[i]|)
     public static double absMean(double[] x)
     {
         double m = 0.0;
-        
+
         for (int i=0; i<x.length; i++)
             m += Math.abs(x[i]);
-        
+
         m /= x.length;
-        
+
         return m;
     }
-    
+
     //Returns variances for each row
     public static double[] getVarianceRows(double[][] x)
     {   
@@ -2692,7 +2653,7 @@ public class MathUtils {
 
         return variances;
     }
-    
+
     //Returns variances for each column
     public static double[] getVarianceCols(double[][] x)
     {   
@@ -2706,30 +2667,30 @@ public class MathUtils {
             {
                 for (i=0; i<x.length; i++)
                     tmp[i] = x[i][j];
-                
+
                 variances[j] = MathUtils.variance(tmp);
             }
         }
 
         return variances;
     }
-    
+
     public static double getGaussianPdfValueConstantTerm(int featureDimension, double detCovarianceMatrix)
     {
         double constantTerm = Math.pow(2*Math.PI, 0.5*featureDimension);
         constantTerm *= Math.sqrt(detCovarianceMatrix);
         constantTerm = 1.0/constantTerm;
-        
+
         return constantTerm;
     }
-    
+
     public static double getGaussianPdfValue(double[] x, double[] meanVector, double[] covarianceMatrix)
     {
         double constantTerm = getGaussianPdfValueConstantTerm(x.length, determinant(covarianceMatrix));
-        
+
         return  getGaussianPdfValue(x, meanVector, covarianceMatrix, constantTerm);
     }
-    
+
     //Diagonal covariance case
     // This version enables using pre-computed constant term
     public static double getGaussianPdfValue(double[] x, double[] meanVector, double[] covarianceMatrix, double constantTerm)
@@ -2741,21 +2702,21 @@ public class MathUtils {
             P += (x[i]-meanVector[i])*(x[i]-meanVector[i])/covarianceMatrix[i];
 
         P *= -0.5;
-        
+
         P = (float)(constantTerm*Math.exp(P));
 
         return P;
     }
-    
+
     public static double getGaussianPdfValue(double[] x, double[] meanVector, double detCovarianceMatrix, double[][] inverseCovarianceMatrix)
     {
         double constantTerm = Math.pow(2*Math.PI, 0.5*x.length);
         constantTerm *= Math.sqrt(detCovarianceMatrix);
         constantTerm = 1.0/constantTerm;
-        
+
         return getGaussianPdfValue(x, meanVector, inverseCovarianceMatrix, constantTerm);
     }
-    
+
     //Full covariance case
     // This version enables using pre-computed constant term
     public static double getGaussianPdfValue(double[] x, double[] meanVector, double[][] inverseCovarianceMatrix, double constantTerm)
@@ -2763,31 +2724,31 @@ public class MathUtils {
         double[][] z = new double[1][x.length];
         z[0] = MathUtils.substract(x, meanVector);
         double[][] zT = MathUtils.transpoze(z);
-        
+
         double[][] prod = MathUtils.matrixProduct(MathUtils.matrixProduct(z, inverseCovarianceMatrix), zT);
 
         double P = -0.5*prod[0][0];
-        
+
         P = (float)(constantTerm*Math.exp(P));
 
         return P;
     }
-    
+
     //Computes the determinant of a diagonal matrix
     public static double determinant(double[] diagonal) 
     { 
         double det = 1.0;
         for (int i=0; i<diagonal.length; i++)
             det *= diagonal[i];
-        
+
         return det;
     }
-    
+
     //Computes the determinant of a square matrix
     public static double determinant(double[][] matrix) 
     { 
         double result = 0;
-        
+
         if (matrix.length==1 && matrix[0].length==1)
             return matrix[0][0];
 
@@ -2810,27 +2771,187 @@ public class MathUtils {
                         temp[j-1][k-1] = matrix[j][k];
                 }
             }
-            
+
             result += matrix[0][i]*Math.pow(-1,(double)i)*determinant(temp); 
         }
-            
+
         return result;
     } 
-    
+
     public static double[] random(int numSamples)
     {
         double[] x = null;
-        
+
         if (numSamples>0)
         {
             x = new double[numSamples];
             for (int i=0; i<numSamples; i++)
                 x[i] = Math.random();
         }
-        
+
         return x;
     }
+
+    //Returns inverse of diagonal vector
+    public static double[] inverse(double[] x)
+    {
+        double[] invx = new double[x.length];
+
+        for (int i=0; i<x.length; i++)
+            invx[i] = 1.0/(x.length*x[i]);
+
+        return invx;
+    }
     
+    //Square matrix inversion using LU decomposition
+    public static double[][] inverse(double[][] matrix)
+    {
+        double[][] invMatrix = new double[matrix.length][matrix.length];
+        for (int i=0; i<matrix.length; i++)
+        {
+            if (matrix.length!=matrix[i].length)
+                System.out.println("Matrix should be square!");
+            
+            System.arraycopy(matrix[i], 0, invMatrix[i], 0, matrix.length);
+        }
+        
+        inverseInPlace(invMatrix);
+        
+        return invMatrix;
+    }
+    
+    public static void inverseInPlace(double[][] matrix)
+    {
+        int dim = matrix.length;
+        int i,j;
+        
+        double[][] y;
+        double[] d = new double[1];
+        double[] col;
+
+        y = new double[dim][dim];
+
+        int[] indices = new int[dim];
+        col = new double[dim];
+
+        luDecompose(matrix, dim, indices, d);
+        for (j=0;j<dim;j++)
+        {
+            for (i=0;i<dim;i++) 
+                col[i] = 0.0;
+            col[j] = 1.0;
+            luSubstitute(matrix, indices, col);
+            for (i=0;i<dim;i++) 
+                y[i][j] = col[i];
+        }
+
+        for (i=0;i<dim;i++)
+            System.arraycopy(y[i], 0, matrix[i], 0, dim);
+    }
+    
+    public static void luDecompose(double [][]a, int n, int[] indx, double[] d)
+    {
+        double TINY = 1e-20;
+        int i,imax,j,k;
+        double big,dum,sum,temp;
+        double[] vv;
+        imax=0;
+
+        vv=new double[n];
+        d[0]=1.0;
+        
+        for (i=1;i<=n;i++) 
+        {
+            big=0.0;
+            for (j=1;j<=n;j++)
+                if ((temp=Math.abs(a[i-1][j-1])) > big) 
+                    big=temp;
+            if (big == 0.0) 
+                System.out.println("Singular matrix in routine ludcmp");
+            vv[i-1]=1.0/big;
+        }
+        
+        for (j=1;j<=n;j++) 
+        {
+            for (i=1;i<j;i++) 
+            {
+                sum=a[i-1][j-1];
+                for (k=1;k<i;k++) 
+                    sum -= a[i-1][k-1]*a[k-1][j-1];
+                a[i-1][j-1]=sum;
+            }
+            
+            big=0.0;
+            
+            for (i=j;i<=n;i++) 
+            {
+                sum=a[i-1][j-1];
+                for (k=1;k<j;k++)
+                    sum -= a[i-1][k-1]*a[k-1][j-1];
+                a[i-1][j-1]=sum;
+                if ( (dum=vv[i-1]*Math.abs(sum)) >= big) 
+                {
+                    big=dum;
+                    imax=i;
+                }
+            }
+            
+            if (j != imax) 
+            {
+                for (k=1;k<=n;k++) 
+                {
+                    dum=a[imax-1][k-1];
+                    a[imax-1][k-1]=a[j-1][k-1];
+                    a[j-1][k-1]=dum;
+                }
+                d[0] = -d[0];
+                vv[imax-1]=vv[j-1];
+            }
+            indx[j-1]=imax;
+            if (a[j-1][j-1] == 0.0) 
+                a[j-1][j-1]=TINY;
+            if (j != n) 
+            {
+                dum=1.0/(a[j-1][j-1]);
+                for (i=j+1;i<=n;i++) 
+                    a[i-1][j-1] *= dum;
+            }
+        }
+    }
+    
+    public static void luSubstitute(double[][] a, int[] indx, double b[])
+    {
+        int n = a.length;
+        int i=0;
+        int ii=0;
+        int ip,j;
+        double sum;
+
+        for (i=1;i<=n;i++) 
+        {
+            ip=indx[i-1];
+            sum=b[ip-1];
+            b[ip-1]=b[i-1];
+            if (ii!=0)
+            {
+                for (j=ii;j<=i-1;j++) 
+                    sum -= a[i-1][j-1]*b[j-1];
+            }
+            else if (sum!=0.0) 
+                ii=i;
+            b[i-1]=sum;
+        }
+        for (i=n;i>=1;i--) 
+        {
+            sum=b[i-1];
+            for (j=i+1;j<=n;j++) 
+                sum -= a[i-1][j-1]*b[j-1];
+            
+            b[i-1]=sum/a[i-1][i-1];
+        }
+    }
+    //
+
     public static void main(String[] args)
     {
         double[] x = new double[4];
@@ -2851,16 +2972,30 @@ public class MathUtils {
         System.arraycopy(y, 0, y1[0], 0, y.length);
         double[][] z5 = MathUtils.matrixProduct(x1, y1);
         double[][] z6 = MathUtils.vectorProduct(x, true, y, false);
-        
-        double[][] xx = new double[2][2];
+
+        double[][] xx = new double[4][4];
         xx[0][0] = 1;
         xx[0][1] = 2;
-        xx[1][0] = 3;
-        xx[1][1] = 4;
-
+        xx[0][2] = 3;
+        xx[0][3] = 4;
+        xx[1][0] = 2;
+        xx[1][1] = 5;
+        xx[1][2] = 7;
+        xx[1][3] = 9;
+        xx[2][0] = 0;
+        xx[2][1] = -1;
+        xx[2][2] = -4;
+        xx[2][3] = 2;
+        xx[3][0] = -10;
+        xx[3][1] = 11;
+        xx[3][2] = -11;
+        xx[3][3] = 10;
+        
+        double m=mean(xx[0]);
+        
         double[][] z7 = inverse(xx);
         double[][] z8 = matrixProduct(xx, z7);
-        
+
         System.out.println("Test completed...");
     }
 }

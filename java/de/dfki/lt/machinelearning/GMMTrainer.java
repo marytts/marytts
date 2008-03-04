@@ -300,14 +300,14 @@ public class GMMTrainer {
                     if (gmm.isDiagonalCovariance)
                     {
                         for (d1=0; d1<gmm.featureDimension; d1++)
-                            gmm.components[k].covMatrix[0][d1] = num2[d1][d1]/denum;
+                            gmm.components[k].covMatrix[0][d1] = Math.max(num2[d1][d1]/denum, minimumCovarianceAllowed);
                     }
                     else
                     {
                         for (d1=0; d1<gmm.featureDimension; d1++)
                         {
                             for (d2=0; d2<gmm.featureDimension; d2++)
-                                gmm.components[k].covMatrix[d1][d2] = Math.max(minimumCovarianceAllowed, num2[d1][d2]/denum);
+                                gmm.components[k].covMatrix[d1][d2] = Math.max(num2[d1][d2]/denum, minimumCovarianceAllowed);
                         }
                     }
 
@@ -336,6 +336,7 @@ public class GMMTrainer {
 
                     tmp += gmm.weights[k]*P_xj_tetak;
                 }
+                
                 logLikelihoods[numIterations-1] += Math.log(tmp);
             }
 
@@ -345,12 +346,12 @@ public class GMMTrainer {
                 break;
 
             /*
-         if (mean_diff<TINY_DIFF)
-             break;
+            if (mean_diff<TINY_DIFF)
+                 break;
 
-         if (numIterations>minimumIterations && prevErr-error<TINY_DIFF)
-             break;
-             */
+            if (numIterations>minimumIterations && prevErr-error<TINY_DIFF)
+                break;
+            */
 
             if (numIterations>minimumIterations && logLikelihoods[numIterations-1]-logLikelihoods[numIterations-2]<Math.abs(logLikelihoods[numIterations-1]/100*tinyLogLikelihoodChange))
                 break;
