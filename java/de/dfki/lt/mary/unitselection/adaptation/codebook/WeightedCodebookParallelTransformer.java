@@ -354,13 +354,13 @@ public class WeightedCodebookParallelTransformer extends
         pa.isDisplayProcessingFrameCount = true;
         
         pa.inputFolder = "d:\\1\\neutral50\\test1";
-        pa.outputBaseFolder = "d:\\1\\neutral_X_angry_50\\neutral2angryOut7";
+        pa.outputBaseFolder = "d:\\1\\neutral_X_angry_50\\neutral2angryOut8";
         
         pa.codebookFile = "d:\\1\\neutral_X_angry_50\\neutralL_X_angryL.wcf";
         pa.outputFolderInfoString = "labelsGaussKmeans";
         
         //Set codebook mapper parameters
-        pa.mapperParams.numBestMatches = 4; // Number of best matches in codebook
+        pa.mapperParams.numBestMatches = 6; // Number of best matches in codebook
         pa.mapperParams.weightingSteepness = 1.0; // Steepness of weighting function in range [WeightedCodebookMapperParams.MIN_STEEPNESS, WeightedCodebookMapperParams.MAX_STEEPNESS]
         pa.mapperParams.freqRange = 5000.0; //Frequency range to be considered around center freq when matching LSFs (note that center freq is estimated automatically as the middle of most closest LSFs)
         
@@ -382,7 +382,7 @@ public class WeightedCodebookParallelTransformer extends
         //
         
         pa.isForcedAnalysis = false;
-        pa.isSourceVocalTractSpectrumFromCodebook = false;
+        pa.isSourceVocalTractSpectrumFromCodebook = true;
         pa.isVocalTractTransformation = true;
         pa.isResynthesizeVocalTractFromSourceCodebook = false;
         pa.isVocalTractMatchUsingTargetCodebook = false;

@@ -29,6 +29,8 @@
 
 package de.dfki.lt.machinelearning;
 
+import de.dfki.lt.signalproc.util.MathUtils;
+
 /**
  * @author oytun.turk
  *
@@ -122,4 +124,52 @@ public class GMM {
         info = "";
     }
 
+    //P(x)
+    public double probability(double[] x)
+    {
+        double score = 0.0;
+        int i;
+        if (isDiagonalCovariance)
+        {
+            for (i=0; i<totalComponents; i++)
+                score += weights[i]*MathUtils.getGaussianPdfValue(x, components[i].meanVector, components[i].covMatrix[0], components[i].getConstantTerm());
+        }
+        else
+        {
+            for (i=0; i<totalComponents; i++)
+                score += weights[i]*MathUtils.getGaussianPdfValue(x, components[i].meanVector, components[i].getDetCovMatrix(), components[i].getInvCovMatrix());
+        }
+
+        return score;
+    }
+    
+    //P(Ci|x)
+    public double[] componentProbabilities(double[] x)
+    {
+        double[] probs = new double[totalComponents];
+        int i;
+        double totalProb = 0.0;
+        
+        if (isDiagonalCovariance)
+        {
+            for (i=0; i<totalComponents; i++)
+            {
+                probs[i] = weights[i]*MathUtils.getGaussianPdfValue(x, components[i].meanVector, components[i].covMatrix[0], components[i].getConstantTerm());
+                totalProb += probs[i];
+             }
+        }
+        else
+        {
+            for (i=0; i<totalComponents; i++)
+            {
+                probs[i] = weights[i]*MathUtils.getGaussianPdfValue(x, components[i].meanVector, components[i].getDetCovMatrix(), components[i].getInvCovMatrix());
+                totalProb += probs[i];
+            }
+        }
+        
+        for (i=0; i<totalComponents; i++)
+            probs[i] /= totalProb;
+        
+        return probs;
+    }
 }

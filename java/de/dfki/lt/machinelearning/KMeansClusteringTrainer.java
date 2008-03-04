@@ -294,6 +294,7 @@ public class KMeansClusteringTrainer {
         //Finally, calculate the cluster covariances
         double[][] tmpCov = null;
         double[] diag = null;
+        int d1, d2;
         for (i=0; i<numClusters; i++)
         {
             if (totalObservationsInClusters[i]>0)
@@ -310,12 +311,20 @@ public class KMeansClusteringTrainer {
                 {
                     tmpCov = MathUtils.covariance(x, clusters[i].meanVector, true, indices);
                     diag = MathUtils.diagonal(tmpCov);
+                    for (d1=0; d1<diag.length; d1++)
+                        diag[d1] = Math.max(diag[d1], MINIMUM_VARIANCE);
                     System.arraycopy(diag, 0, clusters[i].covMatrix[0], 0, diag.length);
                     clusters[i].invCovMatrix[0] = MathUtils.inverse(clusters[i].covMatrix[0]);
                 }
                 else
                 {
                     clusters[i].covMatrix = MathUtils.covariance(x, clusters[i].meanVector, true, indices);
+                    for (d1=0; d1<clusters[i].covMatrix.length; d1++)
+                    {
+                        for (d2=0; d2<clusters[i].covMatrix[d2].length; d2++)
+                            clusters[i].covMatrix[d1][d2] = Math.max(clusters[i].covMatrix[d1][d2], MINIMUM_VARIANCE);
+                    }
+                    
                     clusters[i].invCovMatrix = MathUtils.inverse(clusters[i].covMatrix);
                 }
             }
@@ -326,13 +335,23 @@ public class KMeansClusteringTrainer {
             tmpCov = MathUtils.covariance(x, true);
             covMatrixGlobal = new double[1][tmpCov.length];
             covMatrixGlobal[0] = MathUtils.diagonal(tmpCov);
+            
+            for (d1=0; d1<covMatrixGlobal[0].length; d1++)
+                covMatrixGlobal[0][d1] = Math.max(covMatrixGlobal[0][d1], MINIMUM_VARIANCE);
+            
             invCovMatrixGlobal = new double[1][tmpCov.length];
             invCovMatrixGlobal[0] = MathUtils.inverse(covMatrixGlobal[0]);
         }
         else
         {
-            
             covMatrixGlobal = MathUtils.covariance(x);
+     
+            for (d1=0; d1<covMatrixGlobal[0].length; d1++)
+            {
+                for (d2=0; d2<covMatrixGlobal[d1].length; d2++)
+                    covMatrixGlobal[d1][d2] = Math.max(covMatrixGlobal[d1][d2], MINIMUM_VARIANCE);
+            }
+            
             invCovMatrixGlobal = MathUtils.inverse(covMatrixGlobal);
         }
     }

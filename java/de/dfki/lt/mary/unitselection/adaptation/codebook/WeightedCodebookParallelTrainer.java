@@ -342,7 +342,7 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         
         //Gaussian outlier eliminator
         //Decreasing totalStandardDeviations will lead to more outlier eliminations, i.e. smaller codebooks
-        pa.gaussianEliminatorParams.isActive = false; //Set to false if you do not want to use this eliminator at all      
+        pa.gaussianEliminatorParams.isActive = true; //Set to false if you do not want to use this eliminator at all      
         pa.gaussianEliminatorParams.isCheckLsfOutliers = true;
         pa.gaussianEliminatorParams.isEliminateTooSimilarLsf = true;
         pa.gaussianEliminatorParams.isCheckF0Outliers = true; 
@@ -360,14 +360,14 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         pa.kmeansEliminatorParams.eliminationAlgorithm = KMeansMappingEliminatorParams.ELIMINATE_MEAN_DISTANCE_MISMATCHES; 
         pa.kmeansEliminatorParams.distanceType = DistanceComputer.NORMALIZED_EUCLIDEAN_DISTANCE;
         //pa.kmeansEliminatorParams.distanceType = DistanceComputer.EUCLIDEAN_DISTANCE;
-        pa.kmeansEliminatorParams.isGlobalVariance = false;
+        pa.kmeansEliminatorParams.isGlobalVariance = true;
         
         //pa.kmeansEliminatorParams.eliminationAlgorithm = KMeansMappingEliminatorParams.ELIMINATE_USING_SUBCLUSTER_MEAN_DISTANCES;
         
         pa.kmeansEliminatorParams.isSeparateClustering = false; //Cluster features separately(true) or together(false)?
         
         //Effective only when isSeparateClustering clustering is false
-        tsd.general = 0.05;
+        tsd.general = 0.1;
         pa.kmeansEliminatorParams.numClusters = 30;
         
         //Effective only when isSeparateClustering clustering is true
