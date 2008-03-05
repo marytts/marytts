@@ -158,7 +158,7 @@ public class FeatureProcessorManager
             new HashMap<String, MaryGenericFeatureProcessors.TargetItemNavigator>();
         segments.put("prev", new MaryGenericFeatureProcessors.PrevSegmentNavigator());
         segments.put("prev_prev", new MaryGenericFeatureProcessors.PrevPrevSegmentNavigator());
-        segments.put("prev", new MaryGenericFeatureProcessors.NextSegmentNavigator());
+        segments.put("next", new MaryGenericFeatureProcessors.NextSegmentNavigator());
         segments.put("next_next", new MaryGenericFeatureProcessors.NextNextSegmentNavigator());
 
         for (String position : segments.keySet()) {
