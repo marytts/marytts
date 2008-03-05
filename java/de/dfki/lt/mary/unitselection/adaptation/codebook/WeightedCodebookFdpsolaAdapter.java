@@ -43,6 +43,9 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchStatistics;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchTransformer;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.ProsodyTransformerParams;
+import de.dfki.lt.mary.unitselection.adaptation.smoothing.SmoothingDefinitions;
+import de.dfki.lt.mary.unitselection.adaptation.smoothing.SmoothingFile;
+import de.dfki.lt.mary.unitselection.adaptation.smoothing.TemporalSmoother;
 import de.dfki.lt.mary.util.FileUtils;
 import de.dfki.lt.mary.util.MaryUtils;
 import de.dfki.lt.signalproc.FFT;
@@ -81,8 +84,6 @@ public class WeightedCodebookFdpsolaAdapter {
     private boolean isVocalTractTransformation;
     private boolean isResynthesizeVocalTractFromSourceCodebook;
     private boolean isVocalTractMatchUsingTargetCodebook;
-    public static int WAVEFORM_MODIFICATION = 1;
-    public static int TTS_MODIFICATION = 2;
 
     protected DoubleDataSource input;
     protected AudioInputStream inputAudio;
@@ -101,10 +102,6 @@ public class WeightedCodebookFdpsolaAdapter {
     protected double ssFixedInSeconds;
     protected int numPeriods;
     protected static int NUM_PITCH_SYNC_PERIODS = 3;
-
-    protected static int FROM_CODE = 0;
-    protected static int FROM_FILE = 1;
-    protected static int FROM_TARGET = 2;
 
     public boolean bSilent;
     protected LEDataOutputStream dout; //Output stream for big-endian wav tests
@@ -157,7 +154,7 @@ public class WeightedCodebookFdpsolaAdapter {
     protected int halfWin;
     protected double [] newVScales;
     protected double [] tmpvsc;
-    protected boolean isWavFileOutput;
+    //protected boolean isWavFileOutput;
     protected int inputFrameIndex;
     protected static double MIN_PSCALE = 0.1;
     protected static double MAX_PSCALE = 5.0;
@@ -173,12 +170,22 @@ public class WeightedCodebookFdpsolaAdapter {
     private boolean bShowAGraph;
     
     private PitchTransformer pitchTransformer;
+    
+    private int smoothingState;
+    private String smoothedVocalTractFile;
+    private int smoothingMethod;
+    private SmoothingFile smoothingFile;
+    private double[][] smoothedVocalTract;
+    private int smoothedInd;
 
     public WeightedCodebookFdpsolaAdapter(String strInputFile, String strPitchFile, String strOutputFile, 
             boolean bVocalTractTransformation,
             boolean bFixedRateVocalTractTransformation,
             boolean bResynthesizeVocalTractFromSourceCodebook,
             boolean bVocalTractMatchUsingTargetCodebook,
+            int smoothingStateIn,
+            String smoothedVocalTractFileIn, //can be input or output
+            int smoothingMethodIn,
             double [] pscales, double [] tscales, double [] escales, double [] vscales
     ) throws UnsupportedAudioFileException, IOException
     {
@@ -186,17 +193,49 @@ public class WeightedCodebookFdpsolaAdapter {
         isFixedRateVocalTractTransformation = bFixedRateVocalTractTransformation;
         isResynthesizeVocalTractFromSourceCodebook = bResynthesizeVocalTractFromSourceCodebook;
         isVocalTractMatchUsingTargetCodebook = bVocalTractMatchUsingTargetCodebook;
+        smoothingState = smoothingStateIn;
+        smoothedVocalTractFile = smoothedVocalTractFileIn;
+        smoothingMethod = smoothingMethodIn;
         
         init(strInputFile, strPitchFile, strOutputFile,
-                pscales, tscales, escales, vscales, isFixedRateVocalTractTransformation);
+             pscales, tscales, escales, vscales, isFixedRateVocalTractTransformation);
     }
 
     protected void init(String strInputFile, String strPitchFile, String strOutputFile,
             double [] pscales, double [] tscales, double [] escales, double [] vscales,
             boolean isFixedRate)
     {
+        //Smoothing
+        smoothingFile = null;
+        if (smoothingState==SmoothingDefinitions.NONE)
+            smoothedVocalTractFile = "";
+        if (smoothingState==SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT)
+        {
+            if (smoothedVocalTractFile=="")
+                throw new IllegalArgumentException("smoothedVocalTractFile not valid");
+            else
+            {
+                smoothingFile = new SmoothingFile(smoothedVocalTractFile, SmoothingFile.OPEN_FOR_WRITE);
+                smoothingFile.smoothingMethod = smoothingMethod;
+                smoothingFile.writeHeader();
+            }
+        }
+
+        if (smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT &&
+            smoothingMethod!=SmoothingDefinitions.NO_SMOOTHING)
+        {
+            if (!FileUtils.exists(smoothedVocalTractFile))
+                throw new IllegalArgumentException("smoothedVocalTractFile not found");
+            else
+            {
+                smoothingFile = new SmoothingFile(smoothedVocalTractFile, SmoothingFile.OPEN_FOR_READ);
+                smoothedVocalTract = smoothingFile.readAll();
+                smoothedInd = 0;
+            }
+        }
+        //
+            
         pitchTransformer = new PitchTransformer();
-        isWavFileOutput = false;
         inputAudio = null;
         input = null;
         pm = null;
@@ -219,8 +258,6 @@ public class WeightedCodebookFdpsolaAdapter {
         tscaleSingle = 1.0;
 
         boolean bContinue = true;
-
-        isWavFileOutput = true;
 
         if (!FileUtils.exists(strInputFile))
         {
@@ -287,24 +324,16 @@ public class WeightedCodebookFdpsolaAdapter {
             if (outputFile != null)
                 tempOutBinaryFile = outputFile + ".bin";
 
-            if (isWavFileOutput)
-            {
-                if (!isFixedRate)
-                    psFrm = new PSOLAFrameProvider(input, pm, modParams.fs, modParams.numPeriods);
-                else
-                    psFrm = new PSOLAFrameProvider(input, wsFixedInSeconds, ssFixedInSeconds, modParams.fs, numfrm);
-
-                try {
-                    dout = new LEDataOutputStream(tempOutBinaryFile);
-                } catch (FileNotFoundException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
+            if (!isFixedRate)
+                psFrm = new PSOLAFrameProvider(input, pm, modParams.fs, modParams.numPeriods);
             else
-            {
-                psFrm = null;
-                dout = null;
+                psFrm = new PSOLAFrameProvider(input, wsFixedInSeconds, ssFixedInSeconds, modParams.fs, numfrm);
+
+            try {
+                dout = new LEDataOutputStream(tempOutBinaryFile);
+            } catch (FileNotFoundException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
 
             windowIn = new DynamicWindow(Window.HANN);
@@ -320,10 +349,7 @@ public class WeightedCodebookFdpsolaAdapter {
             sumLocalDurDiffs = 0.0;
             nextAdd = 0.0;
 
-            if (isWavFileOutput)
-                synthSt = pm.pitchMarks[0];
-            else
-                synthSt = 0;
+            synthSt = pm.pitchMarks[0];
 
             synthTotal = 0;
 
@@ -354,8 +380,8 @@ public class WeightedCodebookFdpsolaAdapter {
     }
 
     public void fdpsolaOnline(WeightedCodebookTransformerParams params,
-            WeightedCodebookMapper mapper,
-            WeightedCodebook codebook) throws IOException
+                              WeightedCodebookMapper mapper,
+                              WeightedCodebook codebook) throws IOException
     {   
         int i;
         double [] frmIn;
@@ -434,6 +460,24 @@ public class WeightedCodebookFdpsolaAdapter {
         convertToWav(inputAudio.getFormat());
         
         inputAudio.close();
+        
+        //Perform smoothing on the vocal tract parameter file
+        if (smoothingState==SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT)
+        {
+            System.out.println("Temporal smoothing started...");
+            smoothingFile.close();
+            smoothingFile = new SmoothingFile(smoothedVocalTractFile, SmoothingFile.OPEN_FOR_READ);
+            double[][] vts = smoothingFile.readAll();
+            vts = TemporalSmoother.smooth(vts, params.smoothingNumNeighbours);
+            
+            smoothingFile = new SmoothingFile(smoothedVocalTractFile, SmoothingFile.OPEN_FOR_WRITE, smoothingMethod);
+            smoothingFile.writeAll(vts);
+            System.out.println("Temporal smoothing completed...");
+        }
+        else if (smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT)
+            FileUtils.delete(smoothedVocalTractFile);
+            
+        //
    }
 
     //Voice conversion version
@@ -564,12 +608,13 @@ public class WeightedCodebookFdpsolaAdapter {
         Complex outputDft = null;
 
         double[] inputVocalTractSpectrum = null;
-        double [] interpolatedInputLpcs = null;
+        double[] interpolatedInputLpcs = null;
         double[] sourceVocalTractSpectrumEstimate = null;
         double[] targetVocalTractSpectrumEstimate = null;
         double[] interpolatedInputVocalTractSpectrum = null;
         double[] outputVocalTractSpectrum = null;
         double[] warpedOutputVocalTractSpectrum = null;
+        double[] transformationFilter = null;
         
         if (repeatSkipCount>-1)
         {
@@ -702,11 +747,31 @@ public class WeightedCodebookFdpsolaAdapter {
 
                 if (isVocalTractTransformation)
                 {
+                    //Smoothing
+                    if (smoothingMethod==SmoothingDefinitions.OUTPUT_LSFCONTOUR_SMOOTHING)
+                    {
+                        if (smoothingState==SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT)
+                        {
+                            if (!isResynthesizeVocalTractFromSourceCodebook)
+                                smoothingFile.writeSingle(codebookMatch.entry.targetItem.lsfs);
+                            else
+                                smoothingFile.writeSingle(codebookMatch.entry.sourceItem.lsfs);    
+                        }
+                        else if (smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT)
+                        {
+                            if (!isResynthesizeVocalTractFromSourceCodebook)
+                                codebookMatch.entry.targetItem.setLsfs(smoothedVocalTract[smoothedInd]);
+                            else
+                                codebookMatch.entry.sourceItem.setLsfs(smoothedVocalTract[smoothedInd]);  
+                        }
+                    }
+                    //
+                    
                     if (!isResynthesizeVocalTractFromSourceCodebook)
                         targetLpcs = LineSpectralFrequencies.lsfInHz2lpc(codebookMatch.entry.targetItem.lsfs, fs);
                     else
                         targetLpcs = LineSpectralFrequencies.lsfInHz2lpc(codebookMatch.entry.sourceItem.lsfs, fs);
-
+                        
                     if (fftSize!=newFftSize)
                     {
                         if (outputExpTerm==null || newMaxFreq*params.lsfParams.lpOrder!=outputExpTerm.real.length)
@@ -752,6 +817,26 @@ public class WeightedCodebookFdpsolaAdapter {
                     for (k=0; k<newMaxFreq; k++)
                         outputVocalTractSpectrum[k] = interpolatedInputVocalTractSpectrum[k];
                 }
+                
+                //Smoothing
+                if (smoothingMethod==SmoothingDefinitions.TRANSFORMATION_FILTER_SMOOTHING)
+                {
+                    if (smoothingState==SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT)    
+                    {
+                        transformationFilter = new double[newMaxFreq];
+
+                        for (k=0; k<newMaxFreq; k++)
+                            transformationFilter[k] = outputVocalTractSpectrum[k]/sourceVocalTractSpectrumEstimate[k];
+
+                        smoothingFile.writeSingle(transformationFilter);   
+                    }
+                    else if (smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT)  
+                    {
+                        for (k=0; k<newMaxFreq; k++)
+                            outputVocalTractSpectrum[k] = smoothedVocalTract[smoothedInd][k]*sourceVocalTractSpectrumEstimate[k];
+                    }
+                }
+                //
                 
                 //Perform additional vocal tract scaling
                 if (bWarp)
@@ -831,6 +916,21 @@ public class WeightedCodebookFdpsolaAdapter {
                 //Filter the output residual with the estimated target vocal tract spectrum
                 outputDft = new Complex(newFftSize);
  
+                //Smoothing
+                if (smoothingMethod==SmoothingDefinitions.OUTPUT_VOCALTRACTSPECTRUM_SMOOTHING)
+                {
+                    if (smoothingState==SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT)
+                    {
+                        smoothingFile.writeSingle(outputVocalTractSpectrum, newMaxFreq);   
+                    }
+                    else if (smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT)
+                    {
+                        for (k=0; k<newMaxFreq; k++)
+                            outputVocalTractSpectrum[k] = smoothedVocalTract[smoothedInd][k];
+                    }
+                }
+                //
+                
                 for (k=1; k<=newMaxFreq; k++)
                 {
                     outputDft.real[k-1] = outputResidual.real[k-1]*outputVocalTractSpectrum[k-1];
@@ -1077,48 +1177,12 @@ public class WeightedCodebookFdpsolaAdapter {
                     {
                         if (tscaleSingle!=1.0 || totalWrittenToFile+outBuffLen<=origLen)
                         {
-                            if (isWavFileOutput)
-                                dout.writeDouble(outBuff, 0, outBuffLen);
-                            else
-                            { 
-                                if (output == null)
-                                {
-                                    output = new double[outBuffLen];
-                                    System.arraycopy(outBuff, 0, output, 0, outBuffLen);
-                                }
-                                else
-                                {
-                                    outputTmp = new double[output.length];
-                                    System.arraycopy(output, 0, outputTmp, 0, output.length);
-                                    output = new double[outputTmp.length + outBuffLen];
-                                    System.arraycopy(outputTmp, 0, output, 0, outputTmp.length);
-                                    System.arraycopy(outBuff, 0, output, outputTmp.length, outBuffLen);
-                                }
-                            }
-
+                            dout.writeDouble(outBuff, 0, outBuffLen);
                             totalWrittenToFile += outBuffLen;
                         }
                         else
                         {   
-                            if (isWavFileOutput)
-                                dout.writeDouble(outBuff, 0, origLen-totalWrittenToFile);
-                            else
-                            { 
-                                if (output == null)
-                                {
-                                    output = new double[origLen-totalWrittenToFile];
-                                    System.arraycopy(outBuff, 0, output, 0, origLen-totalWrittenToFile);  
-                                }
-                                else
-                                {
-                                    outputTmp = new double[output.length];
-                                    System.arraycopy(output, 0, outputTmp, 0, output.length);
-                                    output = new double[outputTmp.length + origLen-totalWrittenToFile];
-                                    System.arraycopy(outputTmp, 0, output, 0, outputTmp.length);
-                                    System.arraycopy(outBuff, 0, output, outputTmp.length, origLen-totalWrittenToFile);
-                                }
-                            }
-
+                            dout.writeDouble(outBuff, 0, origLen-totalWrittenToFile);
                             totalWrittenToFile = origLen;
                         }
 
@@ -1191,48 +1255,12 @@ public class WeightedCodebookFdpsolaAdapter {
             {                
                 if (tscaleSingle!=1.0 || totalWrittenToFile+outBuffLen<=origLen)
                 {
-                    if (isWavFileOutput)
-                        dout.writeDouble(outBuff, 0, outBuffLen);
-                    else
-                    { 
-                        if (output == null)
-                        {
-                            output = new double[outBuffLen];
-                            System.arraycopy(outBuff, 0, output, 0, outBuffLen);
-                        }
-                        else
-                        {
-                            outputTmp = new double[output.length];
-                            System.arraycopy(output, 0, outputTmp, 0, output.length);
-                            output = new double[outputTmp.length + outBuffLen];
-                            System.arraycopy(outputTmp, 0, output, 0, outputTmp.length);
-                            System.arraycopy(outBuff, 0, output, outputTmp.length, outBuffLen);
-                        }
-                    }
-
+                    dout.writeDouble(outBuff, 0, outBuffLen);
                     totalWrittenToFile += outBuffLen;
                 }
                 else
                 {
-                    if (isWavFileOutput)
-                        dout.writeDouble(outBuff, 0, origLen-totalWrittenToFile);
-                    else
-                    {
-                        if (output == null)
-                        {
-                            output = new double[origLen-totalWrittenToFile];
-                            System.arraycopy(outBuff, 0, output, 0, origLen-totalWrittenToFile);
-                        }
-                        else
-                        {
-                            outputTmp = new double[output.length];
-                            System.arraycopy(output, 0, outputTmp, 0, output.length);
-                            output = new double[outputTmp.length + origLen-totalWrittenToFile];
-                            System.arraycopy(outputTmp, 0, output, 0, outputTmp.length);
-                            System.arraycopy(outBuff, 0, output, outputTmp.length, origLen-totalWrittenToFile);
-                        }
-                    }
-
+                    dout.writeDouble(outBuff, 0, origLen-totalWrittenToFile);
                     totalWrittenToFile = origLen;
                 }
                 outBuffStart=1;
@@ -1243,48 +1271,12 @@ public class WeightedCodebookFdpsolaAdapter {
         {            
             if (tscaleSingle!=1.0 || totalWrittenToFile+outBuffStart-1<=origLen)
             {
-                if (isWavFileOutput)
-                    dout.writeDouble(outBuff, 0, outBuffStart-1);
-                else
-                {
-                    if (output == null)
-                    {
-                        output = new double[outBuffStart-1];
-                        System.arraycopy(outBuff, 0, output, 0, outBuffStart-1);
-                    }
-                    else
-                    {
-                        outputTmp = new double[output.length];
-                        System.arraycopy(output, 0, outputTmp, 0, output.length);
-                        output = new double[outputTmp.length + outBuffStart-1];
-                        System.arraycopy(outputTmp, 0, output, 0, outputTmp.length);
-                        System.arraycopy(outBuff, 0, output, outputTmp.length, outBuffStart-1);
-                    }
-                }
-
+                dout.writeDouble(outBuff, 0, outBuffStart-1);
                 totalWrittenToFile += outBuffStart-1;
             }
             else
             {
-                if (isWavFileOutput)
-                    dout.writeDouble(outBuff, 0, origLen-totalWrittenToFile);
-                else
-                { 
-                    if (output == null)
-                    {
-                        output = new double[origLen-totalWrittenToFile];
-                        System.arraycopy(outBuff, 0, output, 0, origLen-totalWrittenToFile);
-                    }
-                    else
-                    {
-                        outputTmp = new double[output.length];
-                        System.arraycopy(output, 0, outputTmp, 0, output.length);
-                        output = new double[outputTmp.length + origLen-totalWrittenToFile];
-                        System.arraycopy(outputTmp, 0, output, 0, outputTmp.length);
-                        System.arraycopy(outBuff, 0, output, outputTmp.length, origLen-totalWrittenToFile);
-                    }
-                }
-
+                dout.writeDouble(outBuff, 0, origLen-totalWrittenToFile);
                 totalWrittenToFile = origLen;
             }
         }

@@ -30,6 +30,7 @@
 package de.dfki.lt.mary.unitselection.adaptation.codebook;
 
 import de.dfki.lt.mary.unitselection.adaptation.prosody.ProsodyTransformerParams;
+import de.dfki.lt.mary.unitselection.adaptation.smoothing.SmoothingDefinitions;
 import de.dfki.lt.signalproc.analysis.EnergyFileHeader;
 import de.dfki.lt.signalproc.analysis.LsfFileHeader;
 import de.dfki.lt.signalproc.analysis.PitchFileHeader;
@@ -64,6 +65,10 @@ public class WeightedCodebookTransformerParams extends WeightedCodebookBaselineP
     public boolean isSaveVocalTractOnlyVersion;
     public boolean isFixedRateVocalTractConversion;
     
+    public boolean isTemporalSmoothing;
+    public int smoothingMethod;
+    public int smoothingNumNeighbours;
+    
     public WeightedCodebookTransformerParams()
     {
         inputFolder = "";
@@ -89,6 +94,10 @@ public class WeightedCodebookTransformerParams extends WeightedCodebookBaselineP
         isSeparateProsody = true;
         isSaveVocalTractOnlyVersion = true;
         isFixedRateVocalTractConversion = true;
+        
+        isTemporalSmoothing = false;
+        smoothingMethod = SmoothingDefinitions.NO_SMOOTHING;
+        smoothingNumNeighbours = SmoothingDefinitions.DEFAULT_NUM_NEIGHBOURS;
     }
 }
 
