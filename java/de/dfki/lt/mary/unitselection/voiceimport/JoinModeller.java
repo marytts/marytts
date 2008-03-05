@@ -37,6 +37,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
+import java.io.FileWriter;
 
 import de.dfki.lt.mary.modules.HTSContextTranslator;
 import de.dfki.lt.mary.unitselection.FeatureFileReader;
@@ -60,10 +61,21 @@ public class JoinModeller extends VoiceImportComponent
     private int numberOfFeatures = 0;
     private float[] fw = null;
     private String[] wfun = null;
+    FileWriter statsStream = null;
+    FileWriter mmfStream = null;
+    FileWriter fullStream = null;
+
     
     public final String JOINCOSTFEATURESFILE = "JoinModeller.joinCostFeaturesFile";
     public final String UNITFEATURESFILE = "JoinModeller.unitFeaturesFile";
     public final String UNITFILE = "JoinModeller.unitFile";
+    public final String STATSFILE = "JoinModeller.statsFile";
+    public final String MMFFILE = "JoinModeller.mmfFile";
+    public final String FULLFILE = "JoinModeller.fullFile";
+    //public final String CXCHEDFILE = "JoinModeller.cxcJoinFile";
+    //public final String CNVHEDFILE = "JoinModeller.cnvJoinFile";
+    //public final String TRNCONFFILE = "JoinModeller.trnFile";
+    //public final String CNVCONFFILE = "JoinModeller.cnvFile";   
     
     
     public JoinModeller()
@@ -111,6 +123,9 @@ public class JoinModeller extends VoiceImportComponent
            props.put(JOINCOSTFEATURESFILE,filedir+"joinCostFeatures"+maryExt);
            props.put(UNITFEATURESFILE,filedir+"halfphoneFeatures"+maryExt);
            props.put(UNITFILE,filedir+"halfphoneUnits"+maryExt);
+           props.put(STATSFILE,filedir+"stats"+maryExt);
+           props.put(MMFFILE,filedir+"mmf"+maryExt);
+           props.put(FULLFILE, filedir+"fullList"+maryExt);
        }
        return props;
     }
@@ -120,6 +135,9 @@ public class JoinModeller extends VoiceImportComponent
         props2Help.put(JOINCOSTFEATURESFILE,"file containing all halfphone units and their join cost features");
         props2Help.put(UNITFEATURESFILE,"file containing all halfphone units and their target cost features");
         props2Help.put(UNITFILE,"file containing all halfphone units");
+        props2Help.put(STATSFILE,"output file containing statistics of the models in HTK stats format");
+        props2Help.put(MMFFILE,"output file containing one state HMM models, HTK format, representing join models (mean and variances are calculated in this class)");
+        props2Help.put(FULLFILE,"output file containing the full list of HMM model names");
     }
     
     public boolean compute() throws IOException, Exception
@@ -130,6 +148,16 @@ public class JoinModeller extends VoiceImportComponent
         FeatureFileReader unitFeatures = FeatureFileReader.getFeatureFileReader(getProp(UNITFEATURESFILE));
         JoinCostFeatures joinFeatures = new JoinCostFeatures(getProp(JOINCOSTFEATURESFILE));
         UnitFileReader units = new UnitFileReader(getProp(UNITFILE));
+        
+        statsStream = new FileWriter(getProp(STATSFILE));
+        mmfStream   = new FileWriter(getProp(MMFFILE));
+        fullStream  = new FileWriter(getProp(FULLFILE));
+        // output HTK model definition and dummy state-transition matrix, macro ~t "trP_1"
+        // is there a way to know the lenght of MFCC at this point? so then there is no need
+        // of hard coding 12.
+        mmfStream.write("~o\n" + "<VECSIZE> 12 <MFCC><DIAGC>\n" + "~t \"trP_1\"\n<TRANSP> 3\n" + "0 1 0\n0 0 1\n0 0 0\n");
+       
+         
         if (unitFeatures.getNumberOfUnits() != joinFeatures.getNumberOfUnits())
             throw new IllegalStateException("Number of units in unit and join feature files does not match!");
         if (unitFeatures.getNumberOfUnits() != units.getNumberOfUnits())
@@ -193,10 +221,11 @@ public class JoinModeller extends VoiceImportComponent
             }
         }
         
+        int numUniqueFea = 1;
         for (String fvString : uniqueFeatureVectors.keySet()) {
             double[][] diffVectors = uniqueFeatureVectors.get(fvString).toArray(new double[0][]);
             int n = diffVectors.length;
-            System.out.println(n + " of " + fvString);
+            //System.out.println(numUniqueFea + " " + n + " of " + fvString);
             // Compute means and variances of the features across difference vectors
             double[] means;
             double[] variances;
@@ -207,15 +236,37 @@ public class JoinModeller extends VoiceImportComponent
                 means = MathUtils.mean(diffVectors, true);
                 variances = MathUtils.variance(diffVectors, means, true);
             }
-            System.out.print("means: ");
-            for (int i=0; i<means.length; i++) System.out.printf("  %.3f", means[i]);
-            System.out.println();
-            System.out.print("vars : ");
-            for (int i=0; i<means.length; i++) System.out.printf("  %.3f", variances[i]);
-            System.out.println();
+            fullStream.write(fvString + "\n");
+            statsStream.write(numUniqueFea + " \"" + fvString + "\"    " + n + "    " + n + "\n");
+            
+            mmfStream.write("~h " + "\"" + fvString + "\"\n" );
+            mmfStream.write("<BEGINHMM>\n<NUMSTATES> 3\n<STATE> 2\n");
+            mmfStream.write("<MEAN> " + (means.length-1) + "\n");
+            //System.out.print("means: ");
+            //for (int i=0; i<means.length; i++) System.out.printf("  %.3f", means[i]);
+            for (int i=0; i<(means.length-1); i++)
+                mmfStream.write(means[i] + " ");
+            mmfStream.write("\n<VARIANCE> " + (means.length-1) + "\n");
+            //System.out.println();
+            //System.out.print("vars : ");
+            //for (int i=0; i<means.length; i++) System.out.printf("  %.3f", variances[i]);
+            for (int i=0; i<(means.length-1); i++)
+                mmfStream.write(variances[i] + " ");
+            mmfStream.write("\n~t \"trP_1\"\n<ENDHMM>\n");
+            //System.out.println();
+            numUniqueFea++;
         }
         
         System.out.println(uniqueFeatureVectors.keySet().size() + " unique feature vectors, "+numUnits +" units");
+        fullStream.close();
+        statsStream.close();
+        mmfStream.close();
+        
+        System.out.println("\nTree-based context clustering for joinModeller\n");
+        
+        
+        System.out.println("\nConverting mmfs to the hts_engine file format");
+        
         
         
         return true;
