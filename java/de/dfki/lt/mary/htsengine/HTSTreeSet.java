@@ -118,10 +118,13 @@ public class HTSTreeSet {
         _loadTreeSet(htsData.getTreeStrFile(), HMMData.STR);
       if( htsData.getTreeMagFile() != null)
         _loadTreeSet(htsData.getTreeMagFile(), HMMData.MAG);
-
+     
     }
     
-    
+    public void loadJoinModellerTreeSet(String fileName) throws Exception {
+        
+        _loadTreeSet(fileName, 0);  /* 0 because in this TreeSet there is just one tree, and it is an array of trees so starts in 0 */
+    }
     /** This function loads the trees and questions for a particular tree type 
      */
 	private void _loadTreeSet(String fileName, int type) throws Exception {

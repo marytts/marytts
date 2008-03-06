@@ -71,15 +71,18 @@ public class HTSModelSet {
 	private int mcepVsize;            /* vector size for mcep modeling */
 	private int strVsize;             /* vector size for strengths modeling */
 	private int magVsize;             /* vector size for Fourier magnitudes modeling */
+    private int joinVsize;            /* vector size for JoinModeller */
 
-	private int numLf0Pdf[];          /* # of pdfs for each state position (log F0) */
+	private int numLf0Pdf[];          /* # of pdfs for each state position (log F0), each pdf corresponds to a leaf in the tree*/
 	private int numMcepPdf[];         /* # of pdfs for each state position (mcep) */
 	private int numStrPdf[];          /* # of pdfs for each state position (str) */
 	private int numMagPdf[];          /* # of pdfs for each state position (mag) */
 	private int numDurPdf;            /* # of pdfs for duration */
+    private int numJoinPdf;           /* # of pdfs for JoinModeller */
 
 	private double durPdf[][];        /* pdfs for duration [#states][#leaves]*/
-	private double mcepPdf[][][];     /* pdfs for mcep     [#states][#leaves][vectorsize]   */
+    private double joinPdf[][];       /* pdfs for JoinModeller [#states][#leaves]*/
+    private double mcepPdf[][][];     /* pdfs for mcep     [#states][#leaves][vectorsize]   */
 	private double strPdf[][][];      /* pdfs for str      [#states][#leaves][vectorsize]   */
 	private double magPdf[][][];      /* pdfs for mag      [#states][#leaves][vectorsize]   */
 
@@ -93,7 +96,9 @@ public class HTSModelSet {
 	public int getMcepVsize(){ return mcepVsize; }
 	public int getStrVsize(){ return strVsize; }
 	public int getMagVsize(){ return magVsize; }
-	public int getnumDurPdf(){ return numDurPdf; }
+    public int getJoinVsize(){ return joinVsize; }
+    public int getnumDurPdf(){ return numDurPdf; }
+    public int getnumJoinPdf(){ return numJoinPdf; }
 	
 	/** This function finds duration pdf from pdf array and calculates the duration in frames
 	 *  for this model.
@@ -132,6 +137,8 @@ public class HTSModelSet {
 		m.setDur(s, (int)(data+dd+0.5));
 		if(m.getDur(s) < 1 )
 		  m.setDur(s, 1);
+        
+        System.out.println("   state: " + s + " dur=" + m.getDur(s));
                
 		m.setTotalDur(m.getTotalDur() + m.getDur(s));
         
@@ -214,6 +221,20 @@ public class HTSModelSet {
 	  
 	}
 	
+    /** findJoinPDF : find pdf for Fourier magnitudes from pdf array
+     * @param s
+     * @param m
+     */
+    public void findJoinPdf(int indexPdf, double mean[], double variance[]) {
+      int i,j;
+      int s = 0; /* only one state */
+      int idx = indexPdf-1;
+      for(i=0, j=0; j<joinVsize; i++,j++)
+        mean[i] = joinPdf[idx][j];
+      for(i=0, j=joinVsize; j<(2*joinVsize); i++,j++)
+        variance[i] = joinPdf[idx][j];
+      
+    }
     
     
 	/** This function loads the models set contained in files .pdf, it uses as input the names of 
@@ -257,7 +278,7 @@ public class HTSModelSet {
 	    for ( i = 0; i < numDurPdf; i++){
 	      for ( j = 0; j < (2 * numState); j++) {
 	    	  durPdf[i][j] = data_in.readFloat();
-	    	  //System.out.println("durpdf[" + i + "]" + "[" + j + "]:" + durpdf[i][j]);
+	    	  //System.out.println("durpdf[" + i + "]" + "[" + j + "]:" + durPdf[i][j]);
 	      }
 	    }  
 	    data_in.close (); 
@@ -428,7 +449,7 @@ public class HTSModelSet {
 	    
 	    data_in.close (); 
 	    data_in=null; 
-	    
+          
 	  
 	} catch (FileNotFoundException e) {
 	    logger.debug("LoadModelSet: " + e.getMessage());
@@ -438,7 +459,58 @@ public class HTSModelSet {
         throw new IOException("LoadModelSet: " + e.getMessage());
 	}
 	
-  } /* method loadModelSet */ 
+ } /* method loadModelSet */ 
+    
+  public void loadJoinModelSet(String joinPdfFile) throws Exception {
+        
+          DataInputStream data_in;
+          int i, j, k, l;
+          double vw, uvw;
+           
+          try {             
+            /*________________________________________________________________*/
+            /*-------------------- load pdfs for JoinModel --------------------*/ 
+            data_in = new DataInputStream (new BufferedInputStream(new FileInputStream(joinPdfFile)));
+            logger.info("LoadModelSet reading: " + joinPdfFile);
+              
+            /* read the number of states & the number of pdfs (leaf nodes) */
+            /* read the number of HMM states, this number is the same for all pdf's. */      
+            joinVsize = data_in.readInt();
+            
+            /* check number of vectorSize */
+            if( joinVsize < 0 )
+              throw new Exception("LoadJoinModelSet: #HMM states must be positive value.");
+            
+             
+            /* read the number of JoinModeller pdfs */
+            numJoinPdf = data_in.readInt();
+            
+            /* Now we know the number of JoinModeller pdfs and the vector size. */
+            /* Here the vector size is 2*nstate because the first vectorSize correspond 
+             * to the mean and the second vectorSize correspond to the diagonal variance vector, 
+             * the mean and variance are copied here in only one vector. */
+            joinPdf = new double[numJoinPdf][2*joinVsize];
+            
+            /* read pdfs (mean & variance) */
+            for ( i = 0; i < numJoinPdf; i++){
+              for ( j = 0; j < (2 * joinVsize); j++) {
+                  joinPdf[i][j] = data_in.readFloat();
+                  //System.out.println("durpdf[" + i + "]" + "[" + j + "]:" + durPdf[i][j]);
+              }
+            }  
+            data_in.close (); 
+            data_in=null;
+            
+        } catch (FileNotFoundException e) {
+            logger.debug("LoadModelSet: " + e.getMessage());
+              throw new FileNotFoundException("LoadModelSet: " + e.getMessage());
+        } catch (IOException e) {
+            logger.debug("LoadModelSet: " + e.getMessage());
+              throw new IOException("LoadModelSet: " + e.getMessage());
+        }
+        
+  }  /* method loadJoinModelSet */ 
+ 
 	
  
  
