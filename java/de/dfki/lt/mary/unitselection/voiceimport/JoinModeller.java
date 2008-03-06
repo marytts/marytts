@@ -32,10 +32,12 @@
 package de.dfki.lt.mary.unitselection.voiceimport;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.io.FileWriter;
 
@@ -72,10 +74,11 @@ public class JoinModeller extends VoiceImportComponent
     public final String STATSFILE = "JoinModeller.statsFile";
     public final String MMFFILE = "JoinModeller.mmfFile";
     public final String FULLFILE = "JoinModeller.fullFile";
-    //public final String CXCHEDFILE = "JoinModeller.cxcJoinFile";
-    //public final String CNVHEDFILE = "JoinModeller.cnvJoinFile";
-    //public final String TRNCONFFILE = "JoinModeller.trnFile";
-    //public final String CNVCONFFILE = "JoinModeller.cnvFile";   
+    public final String CXCHEDFILE = "JoinModeller.cxcJoinFile";
+    public final String CNVHEDFILE = "JoinModeller.cnvJoinFile";
+    public final String TRNCONFFILE = "JoinModeller.trnFile";
+    public final String CNVCONFFILE = "JoinModeller.cnvFile"; 
+    public final String HHEDCOMMAND = "JoinModeller.hhedCommand";
     
     
     public JoinModeller()
@@ -124,8 +127,13 @@ public class JoinModeller extends VoiceImportComponent
            props.put(UNITFEATURESFILE,filedir+"halfphoneFeatures"+maryExt);
            props.put(UNITFILE,filedir+"halfphoneUnits"+maryExt);
            props.put(STATSFILE,filedir+"stats"+maryExt);
-           props.put(MMFFILE,filedir+"mmf"+maryExt);
-           props.put(FULLFILE, filedir+"fullList"+maryExt);
+           props.put(MMFFILE,filedir+"join_mmf"+maryExt);
+           props.put(FULLFILE, filedir+"fullList"+maryExt);       
+           props.put(CXCHEDFILE, filedir+"cxc_join.hed");
+           props.put(CNVHEDFILE, filedir+"cnv_join.hed");
+           props.put(TRNCONFFILE, filedir+"trn.cnf");
+           props.put(CNVCONFFILE, filedir+"cnv.cnf");
+           props.put(HHEDCOMMAND, "/project/mary/marcela/sw/HTS_2.0.1/htk/bin/HHEd");
        }
        return props;
     }
@@ -134,15 +142,20 @@ public class JoinModeller extends VoiceImportComponent
         props2Help = new TreeMap<String,String>();
         props2Help.put(JOINCOSTFEATURESFILE,"file containing all halfphone units and their join cost features");
         props2Help.put(UNITFEATURESFILE,"file containing all halfphone units and their target cost features");
-        props2Help.put(UNITFILE,"file containing all halfphone units");
+        props2Help.put(UNITFILE,"file containing all halfphone units");      
         props2Help.put(STATSFILE,"output file containing statistics of the models in HTK stats format");
         props2Help.put(MMFFILE,"output file containing one state HMM models, HTK format, representing join models (mean and variances are calculated in this class)");
         props2Help.put(FULLFILE,"output file containing the full list of HMM model names");
+        props2Help.put(CXCHEDFILE,"HTK hed file used by HHEd, load stats file, contains questions for decision tree-based context clustering and outputs result in join-tree.inf");
+        props2Help.put(CNVHEDFILE,"HTK hed file used by HHEd to convert trees and mmf into hts_engine format");
+        props2Help.put(TRNCONFFILE,"HTK configuration file for context clustering");
+        props2Help.put(CNVCONFFILE,"HTK configuration file for converting to hts_engine format");
+        props2Help.put(HHEDCOMMAND,"HTS-HTK HHEd command, HTS version minimum HTS_2.0.1");
     }
     
     public boolean compute() throws IOException, Exception
     {
-        System.out.println("---- Training join models");
+        System.out.println("\n---- Training join models\n");
         
         
         FeatureFileReader unitFeatures = FeatureFileReader.getFeatureFileReader(getProp(UNITFEATURESFILE));
@@ -256,18 +269,38 @@ public class JoinModeller extends VoiceImportComponent
             //System.out.println();
             numUniqueFea++;
         }
-        
-        System.out.println(uniqueFeatureVectors.keySet().size() + " unique feature vectors, "+numUnits +" units");
         fullStream.close();
         statsStream.close();
         mmfStream.close();
         
-        System.out.println("\nTree-based context clustering for joinModeller\n");
+        Process proc = null;
+        String cmdLine = null;
+        BufferedReader procStdout = null;
+        String line = null;
+        String filedir = db.getProp(db.FILEDIR);
+        
+        System.out.println(uniqueFeatureVectors.keySet().size() + " unique feature vectors, "+numUnits +" units");
+        System.out.println("Generated files: " + getProp(STATSFILE) + " " + getProp(MMFFILE) + " " + getProp(FULLFILE));
         
         
-        System.out.println("\nConverting mmfs to the hts_engine file format");
+        System.out.println("\n---- Tree-based context clustering for joinModeller\n");
+        // here the input and output are the same MMFFILE.     
+        cmdLine = getProp(HHEDCOMMAND) + " -A -C " + getProp(TRNCONFFILE) + " -D -T 1 -p -i -H " + getProp(MMFFILE) + " -m -a 1.0 -w " + getProp(MMFFILE) + " " + getProp(CXCHEDFILE) + " " + getProp(FULLFILE);
+        launchProc(cmdLine, "HHEd", filedir);
         
+        System.out.println("\n---- Converting mmfs to the hts_engine file format\n");
+        // the input of this command are: join_mmf.mry and join_tree.inf and the output: trees.1 and pdf.1
+        cmdLine = getProp(HHEDCOMMAND) + " -A -C " + getProp(CNVCONFFILE) + " -D -T 1 -p -i -H " + getProp(MMFFILE) + " " + getProp(CNVHEDFILE) + " " + getProp(FULLFILE);
+        launchProc(cmdLine, "HHEd", filedir);
         
+        // the files trees.1 and pdf.1 are renamed as tree-joinModeller.inf and joinModeller.pdf
+        cmdLine = "mv " + filedir + "trees.1 " + filedir + "tree-joinModeller.inf";
+        launchProc(cmdLine, "mv", filedir);
+        
+        cmdLine = "mv " + filedir + "pdf.1 " + filedir + "joinModeller.pdf";
+        launchProc(cmdLine, "mv", filedir);
+        
+        System.out.println("\n---- Created files: tree-joinModeller.inf and joinModeller.pdf\n");
         
         return true;
     }
@@ -283,4 +316,53 @@ public class JoinModeller extends VoiceImportComponent
     }
 
 
+    /**
+     * A general process launcher for the various tasks
+     * (copied from ESTCaller.java)
+     * @param cmdLine the command line to be launched.
+     * @param task a task tag for error messages, such as "Pitchmarks" or "LPC".
+     * @param the basename of the file currently processed, for error messages.
+     */
+    private void launchProc( String cmdLine, String task, String baseName ) {
+        
+        Process proc = null;
+        BufferedReader procStdout = null;
+        String line = null;
+        // String[] cmd = null; // Java 5.0 compliant code
+        
+        try {
+            /* Java 5.0 compliant code below. */
+            /* Hook the command line to the process builder: */
+            /* cmd = cmdLine.split( " " );
+            pb.command( cmd ); /*
+            /* Launch the process: */
+            /*proc = pb.start(); */
+            
+            /* Java 1.0 equivalent: */
+            proc = Runtime.getRuntime().exec( cmdLine );
+            
+            /* Collect stdout and send it to System.out: */
+            procStdout = new BufferedReader( new InputStreamReader( proc.getInputStream() ) );
+            while( true ) {
+                line = procStdout.readLine();
+                if ( line == null ) break;
+                System.out.println( line );
+            }
+            /* Wait and check the exit value */
+            proc.waitFor();
+            if ( proc.exitValue() != 0 ) {
+                throw new RuntimeException( task + " computation failed on file [" + baseName + "]!\n"
+                        + "Command line was: [" + cmdLine + "]." );
+            }
+        }
+        catch ( IOException e ) {
+            throw new RuntimeException( task + " computation provoked an IOException on file [" + baseName + "].", e );
+        }
+        catch ( InterruptedException e ) {
+            throw new RuntimeException( task + " computation interrupted on file [" + baseName + "].", e );
+        }
+        
+    }
+    
+    
 }
