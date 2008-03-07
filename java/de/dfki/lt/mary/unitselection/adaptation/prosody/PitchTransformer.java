@@ -288,7 +288,7 @@ public class PitchTransformer {
             }
         }
         
-        if (param.pitchTransformationMethod!=ProsodyTransformerParams.NO_TRANSFORMATION)
+        if (false && param.pitchTransformationMethod!=ProsodyTransformerParams.NO_TRANSFORMATION)
         {
             MaryUtils.plotZoomed(f0s, "Input", 50.0);
             MaryUtils.plotZoomed(targetF0s, "Tranformed", 50.0);
