@@ -102,7 +102,9 @@ public class PitchTrainer {
                 if (statisticsType==PitchStatistics.STATISTICS_IN_LOGHERTZ)
                 {
                     f0s.contour = SignalProcUtils.getLogF0s(f0s.contour);
-                    voiceds = SignalProcUtils.getLogF0s(voiceds);
+                    if (voiceds!=null)
+                        voiceds = SignalProcUtils.getLogF0s(voiceds);
+                    
                     local.range = Math.log(local.range);
                 }
 
