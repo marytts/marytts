@@ -407,9 +407,9 @@ public class WeightedCodebookParallelTransformer extends
         pa.outputFolderInfoString = "labelsGaussKmeans";
         
         //Set codebook mapper parameters
-        pa.mapperParams.numBestMatches = 6; // Number of best matches in codebook
+        pa.mapperParams.numBestMatches = 10; // Number of best matches in codebook
         pa.mapperParams.weightingSteepness = 1.0; // Steepness of weighting function in range [WeightedCodebookMapperParams.MIN_STEEPNESS, WeightedCodebookMapperParams.MAX_STEEPNESS]
-        pa.mapperParams.freqRange = 5000.0; //Frequency range to be considered around center freq when matching LSFs (note that center freq is estimated automatically as the middle of most closest LSFs)
+        pa.mapperParams.freqRange = 8000.0; //Frequency range to be considered around center freq when matching LSFs (note that center freq is estimated automatically as the middle of most closest LSFs)
         
         // Distance measure for comparing source training and transformation features
         //pa.mapperParams.distanceMeasure = WeightedCodebookMapperParams.LSF_INVERSE_HARMONIC_DISTANCE;
@@ -429,7 +429,7 @@ public class WeightedCodebookParallelTransformer extends
         //
         
         pa.isForcedAnalysis = false;
-        pa.isSourceVocalTractSpectrumFromCodebook = true;
+        pa.isSourceVocalTractSpectrumFromCodebook = false;
         pa.isVocalTractTransformation = true;
         pa.isResynthesizeVocalTractFromSourceCodebook = false;
         pa.isVocalTractMatchUsingTargetCodebook = false;
@@ -470,7 +470,7 @@ public class WeightedCodebookParallelTransformer extends
         
         //Smoothing
         pa.isTemporalSmoothing = true;
-        pa.smoothingNumNeighbours = 5;
+        pa.smoothingNumNeighbours = 3;
         //pa.smoothingMethod = SmoothingDefinitions.OUTPUT_LSFCONTOUR_SMOOTHING;
         //pa.smoothingMethod = SmoothingDefinitions.OUTPUT_VOCALTRACTSPECTRUM_SMOOTHING;
         pa.smoothingMethod = SmoothingDefinitions.TRANSFORMATION_FILTER_SMOOTHING;

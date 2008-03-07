@@ -167,7 +167,7 @@ public class WeightedCodebookFdpsolaAdapter {
     protected double tscaleSingle;
     
     private double desiredFrameTime;
-    private boolean bShowAGraph;
+    private boolean bShowSpectralPlots;
     
     private PitchTransformer pitchTransformer;
     
@@ -390,7 +390,7 @@ public class WeightedCodebookFdpsolaAdapter {
         int currentPeriod;
         
         desiredFrameTime = 1.06;
-        bShowAGraph = false;
+        bShowSpectralPlots = false;
 
         fs = (int)inputAudio.getFormat().getSampleRate();
         
@@ -453,6 +453,14 @@ public class WeightedCodebookFdpsolaAdapter {
                          currentF0, targetF0s[index], modParams.tscalesVar[i], modParams.escalesVar[i], modParams.vscalesVar[i], 
                          isLastInputFrame, currentPeriod, inputFrameSize,
                          params, mapper, codebook);
+            
+            if (smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT &&
+                    smoothingMethod!=SmoothingDefinitions.NO_SMOOTHING)
+            {
+                smoothedInd++;
+                if (smoothedInd>smoothedVocalTract.length-1)
+                    smoothedInd=smoothedVocalTract.length-1;
+            }
         }
 
         writeFinal();
@@ -464,19 +472,27 @@ public class WeightedCodebookFdpsolaAdapter {
         //Perform smoothing on the vocal tract parameter file
         if (smoothingState==SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT)
         {
-            System.out.println("Temporal smoothing started...");
+            System.out.println("Temporal smoothing started using " + String.valueOf(params.smoothingNumNeighbours) + " neighbours...");
             smoothingFile.close();
             smoothingFile = new SmoothingFile(smoothedVocalTractFile, SmoothingFile.OPEN_FOR_READ);
             double[][] vts = smoothingFile.readAll();
+            
+            double[] tmp1 = new double[vts.length];
+            for (i=0; i<vts.length; i++)
+                tmp1[i] = vts[i][20];
+            
             vts = TemporalSmoother.smooth(vts, params.smoothingNumNeighbours);
+            
+            double[] tmp2 = new double[vts.length];
+            for (i=0; i<vts.length; i++)
+                tmp2[i] = vts[i][20];
             
             smoothingFile = new SmoothingFile(smoothedVocalTractFile, SmoothingFile.OPEN_FOR_WRITE, smoothingMethod);
             smoothingFile.writeAll(vts);
             System.out.println("Temporal smoothing completed...");
         }
         else if (smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT)
-            FileUtils.delete(smoothedVocalTractFile);
-            
+            FileUtils.delete(smoothedVocalTractFile);  
         //
    }
 
@@ -684,11 +700,11 @@ public class WeightedCodebookFdpsolaAdapter {
                 inputDft = FFTMixedRadix.fftComplex(inputDft);
 
                 //For checking
-                if (bShowAGraph && psFrm.getCurrentTime()>=desiredFrameTime)
+                if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime)
                 {
                     tmpComp = new Complex(inputDft);
                     tmpSpec = MathUtils.amp2db(tmpComp, 0, maxFreq);
-                    MaryUtils.plot(tmpSpec, "Input DFT");
+                    MaryUtils.plot(tmpSpec, "1.Input DFT");
                 }
                 //
 
@@ -700,7 +716,11 @@ public class WeightedCodebookFdpsolaAdapter {
                 //Use a weighted codebook estimate of the input vocal tract spectrum. This will result in a smoother transformation filter
                 if (params.isSourceVocalTractSpectrumFromCodebook && isVocalTractTransformation)
                 {
-                    interpolatedInputLpcs = LineSpectralFrequencies.lsfInHz2lpc(codebookMatch.entry.sourceItem.lsfs, fs);
+                    if (!isResynthesizeVocalTractFromSourceCodebook)
+                        interpolatedInputLpcs = LineSpectralFrequencies.lsfInHz2lpc(codebookMatch.entry.sourceItem.lsfs, fs);
+                    else
+                        interpolatedInputLpcs = LineSpectralFrequencies.lsfInHz2lpc(codebookMatch.entry.targetItem.lsfs, fs);
+                    
                     sourceVocalTractSpectrumEstimate = LPCAnalyser.calcSpecFromOneMinusA(interpolatedInputLpcs, 1.0f, newFftSize, outputExpTerm);
                 }
 
@@ -708,22 +728,22 @@ public class WeightedCodebookFdpsolaAdapter {
                     inputVocalTractSpectrum[k] *= sqrtInputGain;
 
                 //For checking
-                if (bShowAGraph && psFrm.getCurrentTime()>=desiredFrameTime)
+                if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime)
                 {
                     tmpSpec = new double[maxFreq];
                     System.arraycopy(inputVocalTractSpectrum, 0, tmpSpec, 0, tmpSpec.length);
                     tmpSpec = MathUtils.amp2db(tmpSpec);
-                    MaryUtils.plot(tmpSpec, "Input Vocal Tract");
+                    MaryUtils.plot(tmpSpec, "2.Input Vocal Tract");
                 }
                 //
                 
                 //For checking
-                if (bShowAGraph && psFrm.getCurrentTime()>=desiredFrameTime && params.isSourceVocalTractSpectrumFromCodebook && isVocalTractTransformation)
+                if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime && params.isSourceVocalTractSpectrumFromCodebook && isVocalTractTransformation)
                 {
                     tmpSpec = new double[maxFreq];
                     System.arraycopy(sourceVocalTractSpectrumEstimate, 0, tmpSpec, 0, tmpSpec.length);
                     tmpSpec = MathUtils.amp2db(tmpSpec);
-                    MaryUtils.plot(tmpSpec, "Source Vocal Tract Estimate");
+                    MaryUtils.plot(tmpSpec, "3.Source Vocal Tract Estimate");
                 }
                 //
 
@@ -737,11 +757,11 @@ public class WeightedCodebookFdpsolaAdapter {
                 }
 
                 //For checking
-                if (bShowAGraph && psFrm.getCurrentTime()>=desiredFrameTime)
+                if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime)
                 {
                     tmpComp = new Complex(inputResidual);
                     tmpSpec = MathUtils.amp2db(tmpComp, 0, maxFreq-1);
-                    MaryUtils.plot(tmpSpec, "Input Residual");
+                    MaryUtils.plot(tmpSpec, "4.Input Residual");
                 }
                 //
 
@@ -787,12 +807,12 @@ public class WeightedCodebookFdpsolaAdapter {
                 }
 
                 //For checking
-                if (bShowAGraph && psFrm.getCurrentTime()>=desiredFrameTime && isVocalTractTransformation)
+                if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime && isVocalTractTransformation)
                 {
                     tmpSpec = new double[newMaxFreq];
                     System.arraycopy(targetVocalTractSpectrumEstimate, 0, tmpSpec, 0, tmpSpec.length);
                     tmpSpec = MathUtils.amp2db(tmpSpec);
-                    MaryUtils.plot(tmpSpec, "Target Vocal Tract Estimate");
+                    MaryUtils.plot(tmpSpec, "5.Target Vocal Tract Estimate");
                 }
                 //
 
@@ -824,16 +844,50 @@ public class WeightedCodebookFdpsolaAdapter {
                     if (smoothingState==SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT)    
                     {
                         transformationFilter = new double[newMaxFreq];
-
-                        for (k=0; k<newMaxFreq; k++)
-                            transformationFilter[k] = outputVocalTractSpectrum[k]/sourceVocalTractSpectrumEstimate[k];
-
+                        
+                        if (params.isSourceVocalTractSpectrumFromCodebook)
+                        {
+                            for (k=0; k<newMaxFreq; k++)
+                                transformationFilter[k] = targetVocalTractSpectrumEstimate[k]/sourceVocalTractSpectrumEstimate[k];
+                        }
+                        else
+                        {
+                            for (k=0; k<newMaxFreq; k++)
+                                transformationFilter[k] = targetVocalTractSpectrumEstimate[k]/interpolatedInputVocalTractSpectrum[k];
+                        }
+                        
                         smoothingFile.writeSingle(transformationFilter);   
+                        
+                        //For checking
+                        if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime)
+                        {
+                            tmpSpec = new double[newMaxFreq];
+                            System.arraycopy(transformationFilter, 0, tmpSpec, 0, tmpSpec.length);
+                            tmpSpec = MathUtils.amp2db(tmpSpec);
+                            MaryUtils.plot(tmpSpec, "6.Transformation filter");
+                        }
                     }
                     else if (smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT)  
                     {
-                        for (k=0; k<newMaxFreq; k++)
-                            outputVocalTractSpectrum[k] = smoothedVocalTract[smoothedInd][k]*sourceVocalTractSpectrumEstimate[k];
+                        if (params.isSourceVocalTractSpectrumFromCodebook)
+                        {
+                            for (k=0; k<newMaxFreq; k++)
+                                outputVocalTractSpectrum[k] = smoothedVocalTract[smoothedInd][k]*sourceVocalTractSpectrumEstimate[k];
+                        }
+                        else
+                        {
+                            for (k=0; k<newMaxFreq; k++)
+                                outputVocalTractSpectrum[k] = smoothedVocalTract[smoothedInd][k]*interpolatedInputVocalTractSpectrum[k];
+                        }
+                        
+                        //For checking
+                        if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime)
+                        {
+                            tmpSpec = new double[newMaxFreq];
+                            System.arraycopy(smoothedVocalTract[smoothedInd], 0, tmpSpec, 0, tmpSpec.length);
+                            tmpSpec = MathUtils.amp2db(tmpSpec);
+                            MaryUtils.plot(tmpSpec, "6.Smoothed transformation filter");
+                        }
                     }
                 }
                 //
@@ -905,11 +959,11 @@ public class WeightedCodebookFdpsolaAdapter {
                 outputResidual.imag[newMaxFreq-1] = 0.0;
 
                 //For checking
-                if (bShowAGraph && psFrm.getCurrentTime()>=desiredFrameTime)
+                if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime)
                 {
                     tmpComp = new Complex(outputResidual);
                     tmpSpec = MathUtils.amp2db(tmpComp, 0, newMaxFreq-1);
-                    MaryUtils.plot(tmpSpec, "Output Residual");
+                    MaryUtils.plot(tmpSpec, "7.Output Residual");
                 }
                 //
 
@@ -931,6 +985,16 @@ public class WeightedCodebookFdpsolaAdapter {
                 }
                 //
                 
+                //For checking
+                if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime)
+                {
+                    tmpSpec = new double[newMaxFreq];
+                    System.arraycopy(outputVocalTractSpectrum, 0, tmpSpec, 0, tmpSpec.length);
+                    tmpSpec = MathUtils.amp2db(tmpSpec);
+                    MaryUtils.plot(tmpSpec, "8.Output Vocal Tract");
+                }
+                //
+                
                 for (k=1; k<=newMaxFreq; k++)
                 {
                     outputDft.real[k-1] = outputResidual.real[k-1]*outputVocalTractSpectrum[k-1];
@@ -944,12 +1008,12 @@ public class WeightedCodebookFdpsolaAdapter {
                 }
 
                 //For checking
-                if (bShowAGraph && psFrm.getCurrentTime()>=desiredFrameTime)
+                if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime)
                 {
                     tmpComp = new Complex(outputDft);
                     tmpSpec = MathUtils.amp2db(tmpComp, 0, newMaxFreq);
-                    MaryUtils.plot(tmpSpec, "Output DFT");
-                    bShowAGraph = false;
+                    MaryUtils.plot(tmpSpec, "9.Output DFT");
+                    bShowSpectralPlots = false;
                 }
                 //
 
