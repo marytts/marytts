@@ -65,6 +65,8 @@ public class WeightedCodebookTransformerParams extends WeightedCodebookBaselineP
     public boolean isSaveVocalTractOnlyVersion;
     public boolean isFixedRateVocalTractConversion;
     
+    public boolean isContextBasedPreselection;
+    
     public boolean isTemporalSmoothing;
     public int smoothingMethod;
     public int smoothingNumNeighbours;
@@ -94,6 +96,8 @@ public class WeightedCodebookTransformerParams extends WeightedCodebookBaselineP
         isSeparateProsody = true;
         isSaveVocalTractOnlyVersion = true;
         isFixedRateVocalTractConversion = true;
+        
+        isContextBasedPreselection = false;
         
         isTemporalSmoothing = false;
         smoothingMethod = SmoothingDefinitions.NO_SMOOTHING;

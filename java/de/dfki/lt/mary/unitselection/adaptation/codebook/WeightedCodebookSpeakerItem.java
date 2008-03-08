@@ -42,6 +42,7 @@ public class WeightedCodebookSpeakerItem {
     public double f0;
     public double duration;
     public double energy;
+    public String phn;
     
     public WeightedCodebookSpeakerItem()
     {
@@ -51,6 +52,7 @@ public class WeightedCodebookSpeakerItem {
     public WeightedCodebookSpeakerItem(int lpOrder)
     {
        allocate(lpOrder);
+       phn = "";
     }
     
     public void allocate(int lpOrder)
@@ -108,6 +110,28 @@ public class WeightedCodebookSpeakerItem {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+            
+            int phnLen = 0;
+            
+            if (phn!="")
+                phnLen = phn.length();
+            
+            try {
+                ler.writeInt(phnLen);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            
+            if (phnLen>0)
+            {
+                try {
+                    ler.writeChar(phn.toCharArray());
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
         }
     }
     
@@ -143,6 +167,25 @@ public class WeightedCodebookSpeakerItem {
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
+            }
+            
+            int phnLen = 0;
+            try {
+                phnLen = ler.readInt();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            
+            phn = "";
+            if (phnLen>0)
+            {
+                try {
+                    phn = String.copyValueOf(ler.readChar(phnLen));
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
         }
     }
