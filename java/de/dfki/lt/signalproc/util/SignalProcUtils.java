@@ -1277,8 +1277,15 @@ public class SignalProcUtils {
     
     public static int frameIndex2LabelIndex(int zeroBasedFrameIndex, ESTLabels labels, double windowSizeInSeconds, double skipSizeInSeconds)
     {
-        int index = -1;
         double time = zeroBasedFrameIndex*skipSizeInSeconds + 0.5*windowSizeInSeconds;
+        
+        return time2LabelIndex(time, labels);
+    }
+    
+    public static int time2LabelIndex(double time, ESTLabels labels)
+    {
+        int index = -1;
+        
         for (int i=0; i<labels.items.length; i++)
         {
             if (labels.items[i].time<=time)
@@ -1293,6 +1300,7 @@ public class SignalProcUtils {
             index=labels.items.length-1;
 
         return index;
+        
     }
     
     public static void main(String[] args)

@@ -265,7 +265,7 @@ public class WeightedCodebookParallelTransformer extends
             if (wctParams.isTemporalSmoothing) //This estimates the vocal tract filter but performs no prosody and vocal tract transformations
             {
                 adapter = new WeightedCodebookFdpsolaAdapter(
-                        inputItem.audioFile, inputItem.f0File, 
+                        inputItem.audioFile, inputItem.f0File, inputItem.labelFile,
                         firstPassOutputWavFile,
                         wctParams.isVocalTractTransformation,
                         wctParams.isFixedRateVocalTractConversion, 
@@ -274,13 +274,14 @@ public class WeightedCodebookParallelTransformer extends
                         SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT, //smoothingState
                         smoothedVocalTractFile, //smoothedVocalTractFile (output)
                         wctParams.smoothingMethod, //smoothingMethod
+                        wctParams.isContextBasedPreselection, //isContextBasedPreselection
                         pscalesTemp, tscalesTemp, escalesTemp, vscalesTemp);
                 
                 adapter.bSilent = !wctParams.isDisplayProcessingFrameCount;
                 adapter.fdpsolaOnline(wctParams, wcMapper, wCodebook); //Call voice conversion version
                 
                 adapter = new WeightedCodebookFdpsolaAdapter(
-                        inputItem.audioFile, inputItem.f0File, 
+                        inputItem.audioFile, inputItem.f0File, inputItem.labelFile,
                         firstPassOutputWavFile, 
                         wctParams.isVocalTractTransformation,
                         wctParams.isFixedRateVocalTractConversion, 
@@ -289,12 +290,13 @@ public class WeightedCodebookParallelTransformer extends
                         SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT, //smoothingState
                         smoothedVocalTractFile, //smoothedVocalTractFile (input)
                         wctParams.smoothingMethod, //smoothingMethod
+                        wctParams.isContextBasedPreselection, //isContextBasedPreselection
                         pscalesTemp, tscalesTemp, escalesTemp, vscalesTemp);
             }
             else
             {
                 adapter = new WeightedCodebookFdpsolaAdapter(
-                        inputItem.audioFile, inputItem.f0File, 
+                        inputItem.audioFile, inputItem.f0File, inputItem.labelFile,
                         firstPassOutputWavFile, 
                         wctParams.isVocalTractTransformation,
                         wctParams.isFixedRateVocalTractConversion, 
@@ -303,6 +305,7 @@ public class WeightedCodebookParallelTransformer extends
                         SmoothingDefinitions.NONE, //smoothingState
                         "", //smoothedVocalTractFile (not required here)
                         SmoothingDefinitions.NO_SMOOTHING, //smoothingMethod
+                        wctParams.isContextBasedPreselection, //isContextBasedPreselection
                         pscalesTemp, tscalesTemp, escalesTemp, vscalesTemp);
             }
             
@@ -319,7 +322,7 @@ public class WeightedCodebookParallelTransformer extends
                     wctParams.prosodyParams.pitchTransformationMethod = tmpPitchTransformationMethod;
 
                     adapter = new WeightedCodebookFdpsolaAdapter(
-                            firstPassOutputWavFile, inputItem.f0File, 
+                            firstPassOutputWavFile, inputItem.f0File, inputItem.labelFile,
                             outputItem.audioFile, 
                             false, //isVocalTractTransformation should be false 
                             false, //isFixedRateVocalTractConversion should be false to enable prosody modifications with FD-PSOLA
@@ -328,6 +331,7 @@ public class WeightedCodebookParallelTransformer extends
                             SmoothingDefinitions.NONE, //smoothingState
                             "", //smoothedVocalTractFile (not required here)
                             SmoothingDefinitions.NO_SMOOTHING, //smoothingMethod
+                            false, //isContextBasedPreselection: no effect
                             pscales, tscales, escales, vscales);
 
                     adapter.bSilent = true;
@@ -346,7 +350,7 @@ public class WeightedCodebookParallelTransformer extends
         else
         {
             adapter = new WeightedCodebookFdpsolaAdapter(
-                                  inputItem.audioFile, inputItem.f0File, 
+                                  inputItem.audioFile, inputItem.f0File, inputItem.labelFile,
                                   outputItem.audioFile, 
                                   wctParams.isVocalTractTransformation,
                                   wctParams.isFixedRateVocalTractConversion, 
@@ -355,6 +359,7 @@ public class WeightedCodebookParallelTransformer extends
                                   SmoothingDefinitions.NONE, //smoothingState
                                   "", //smoothedVocalTractFile (not required here)
                                   SmoothingDefinitions.NO_SMOOTHING, //smoothingMethod
+                                  wctParams.isContextBasedPreselection, //isContextBasedPreselection
                                   pscales, tscales, escales, vscales);
             
             adapter.bSilent = !wctParams.isDisplayProcessingFrameCount;
@@ -407,7 +412,7 @@ public class WeightedCodebookParallelTransformer extends
         pa.outputFolderInfoString = "labelsGaussKmeans";
         
         //Set codebook mapper parameters
-        pa.mapperParams.numBestMatches = 10; // Number of best matches in codebook
+        pa.mapperParams.numBestMatches = 3; // Number of best matches in codebook
         pa.mapperParams.weightingSteepness = 1.0; // Steepness of weighting function in range [WeightedCodebookMapperParams.MIN_STEEPNESS, WeightedCodebookMapperParams.MAX_STEEPNESS]
         pa.mapperParams.freqRange = 8000.0; //Frequency range to be considered around center freq when matching LSFs (note that center freq is estimated automatically as the middle of most closest LSFs)
         
@@ -437,6 +442,8 @@ public class WeightedCodebookParallelTransformer extends
         pa.isSeparateProsody = true;
         pa.isSaveVocalTractOnlyVersion = true;
         pa.isFixedRateVocalTractConversion = true;
+        
+        pa.isContextBasedPreselection = true;
         
         //Prosody transformation
         pa.prosodyParams.pitchStatisticsType = PitchStatistics.STATISTICS_IN_HERTZ;

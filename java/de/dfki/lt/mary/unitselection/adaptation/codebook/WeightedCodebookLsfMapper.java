@@ -124,17 +124,20 @@ public class WeightedCodebookLsfMapper {
                             lsfEntry.targetItem.f0 = targetF0s.contour[index];
                             //
                             
-                            //Duration
+                            //Duration & Phoneme
                             index = SignalProcUtils.frameIndex2LabelIndex(imap.files[0].indicesMap[j][0], sourceLabels, srcLsfs.params.winsize, srcLsfs.params.skipsize);
                             if (index>0)
                                 lsfEntry.sourceItem.duration = sourceLabels.items[index].time-sourceLabels.items[index-1].time;
                             else
                                 lsfEntry.sourceItem.duration = sourceLabels.items[index].time;
+                            lsfEntry.sourceItem.phn = sourceLabels.items[index].phn;
+                            
                             index = SignalProcUtils.frameIndex2LabelIndex(imap.files[0].indicesMap[j][1], targetLabels, tgtLsfs.params.winsize, tgtLsfs.params.skipsize);
                             if (index>0)  
                                 lsfEntry.targetItem.duration = targetLabels.items[index].time-targetLabels.items[index-1].time;
                             else
                                 lsfEntry.targetItem.duration = targetLabels.items[index].time;
+                            lsfEntry.targetItem.phn = targetLabels.items[index].phn;
                             //
                             
                             //Energy
@@ -174,6 +177,9 @@ public class WeightedCodebookLsfMapper {
         int targetTotalVoiceds;
         int sourceTotal;
         int targetTotal;
+        String sourcePhn = "";
+        String targetPhn = "";
+        int middle;
         
         boolean bSourceOK = false;
         boolean bTargetOK = false;
@@ -263,6 +269,7 @@ public class WeightedCodebookLsfMapper {
                         
                         totalFrames = 0;
                         bSourceOK = false;
+                        middle = (int)Math.floor(0.5*(imap.files[0].indicesMap[j][0] + imap.files[0].indicesMap[j][1])+0.5);
                         for (k=imap.files[0].indicesMap[j][0]; k<=imap.files[0].indicesMap[j][1]; k++)
                         {
                             if (k>=0 && k<srcLsfs.lsfs.length)
@@ -290,6 +297,11 @@ public class WeightedCodebookLsfMapper {
                                     sourceAverageDuration += sourceLabels.items[index].time;
                                 //
                                 
+                                //Phoneme: Middle frames phonetic identity
+                                if (k==middle)
+                                    sourcePhn = sourceLabels.items[index].phn;
+                                //
+                                
                                 //Energy
                                 index = MathUtils.linearMap(k, 0, srcLsfs.lsfs.length-1, 0, sourceEnergies.contour.length-1);
                                 sourceAverageEnergy += sourceEnergies.contour[index];
@@ -306,6 +318,7 @@ public class WeightedCodebookLsfMapper {
                             
                             totalFrames = 0;
                             bTargetOK = false;
+                            middle = (int)Math.floor(0.5*(imap.files[0].indicesMap[j][2] + imap.files[0].indicesMap[j][3])+0.5);
                             for (k=imap.files[0].indicesMap[j][2]; k<=imap.files[0].indicesMap[j][3]; k++)
                             {
                                 if (k>=0 && k<tgtLsfs.lsfs.length)
@@ -331,6 +344,11 @@ public class WeightedCodebookLsfMapper {
                                         targetAverageDuration += targetLabels.items[index].time-targetLabels.items[index-1].time;
                                     else
                                         targetAverageDuration += targetLabels.items[index].time;
+                                    //
+                                    
+                                    //Phoneme: Middle frames phonetic identity
+                                    if (k==middle)
+                                        targetPhn = targetLabels.items[index].phn;
                                     //
                                     
                                     //Energy
@@ -367,6 +385,11 @@ public class WeightedCodebookLsfMapper {
                                     sourceAverageDuration /= targetTotal;
                                 lsfEntry.sourceItem.duration = sourceAverageDuration;
                                 lsfEntry.targetItem.duration = targetAverageDuration;
+                                //
+                                
+                                //Phoneme
+                                lsfEntry.sourceItem.phn = sourcePhn;
+                                lsfEntry.targetItem.phn = targetPhn;
                                 //
                                 
                                 //Energy
@@ -412,6 +435,9 @@ public class WeightedCodebookLsfMapper {
         int targetTotalVoiceds;
         int sourceTotal;
         int targetTotal;
+        String sourcePhn = "";
+        String targetPhn = "";
+        int middle;
 
         WeightedCodebookLsfEntry lsfEntry = null;
 
@@ -503,6 +529,7 @@ public class WeightedCodebookLsfMapper {
 
                         totalFrames = 0;
                         bSourceOK = false;
+                        middle = (int)Math.floor(0.5*(imap.files[0].indicesMap[j][0] + imap.files[0].indicesMap[j][1])+0.5);
                         for (k=imap.files[0].indicesMap[j][0]; k<=imap.files[0].indicesMap[j][1]; k++)
                         {
                             if (k>=0 && k<srcLsfs.lsfs.length)
@@ -530,6 +557,11 @@ public class WeightedCodebookLsfMapper {
                                     sourceAverageDuration += sourceLabels.items[index].time;
                                 //
                                 
+                                //Phoneme: Middle frames phonetic identity
+                                if (k==middle)
+                                    sourcePhn = sourceLabels.items[index].phn;
+                                //
+                                
                                 //Energy
                                 index = MathUtils.linearMap(k, 0, srcLsfs.lsfs.length-1, 0, sourceEnergies.contour.length-1);
                                 sourceAverageEnergy += sourceEnergies.contour[index];
@@ -546,6 +578,7 @@ public class WeightedCodebookLsfMapper {
 
                             totalFrames = 0;
                             bTargetOK = false;
+                            middle = (int)Math.floor(0.5*(imap.files[0].indicesMap[j][2] + imap.files[0].indicesMap[j][3])+0.5);
                             for (k=imap.files[0].indicesMap[j][2]; k<=imap.files[0].indicesMap[j][3]; k++)
                             {
                                 if (k>=0 && k<tgtLsfs.lsfs.length)
@@ -571,6 +604,11 @@ public class WeightedCodebookLsfMapper {
                                         targetAverageDuration += targetLabels.items[index].time-targetLabels.items[index-1].time;
                                     else
                                         targetAverageDuration += targetLabels.items[index].time;
+                                    //
+                                    
+                                    //Phoneme: Middle frames phonetic identity
+                                    if (k==middle)
+                                        targetPhn = targetLabels.items[index].phn;
                                     //
                                     
                                     //Energy
@@ -609,6 +647,11 @@ public class WeightedCodebookLsfMapper {
                                 lsfEntry.targetItem.duration = targetAverageDuration;
                                 //
 
+                                //Phoneme
+                                lsfEntry.sourceItem.phn = sourcePhn;
+                                lsfEntry.targetItem.phn = targetPhn;
+                                //
+                                
                                 //Energy
                                 if (sourceTotal>0)
                                     sourceAverageEnergy /= sourceTotal;
