@@ -169,7 +169,8 @@ public class JoinModeller extends VoiceImportComponent
         // output HTK model definition and dummy state-transition matrix, macro ~t "trP_1"
         // is there a way to know the lenght of MFCC at this point? so then there is no need
         // of hard coding 12.
-        mmfStream.write("~o\n" + "<VECSIZE> 12 <MFCC><DIAGC>\n" + "~t \"trP_1\"\n<TRANSP> 3\n" + "0 1 0\n0 0 1\n0 0 0\n");
+        int numFeatures = joinFeatures.getNumberOfFeatures();
+        mmfStream.write("~o\n" + "<VECSIZE> " + numFeatures + " <MFCC><DIAGC>\n" + "~t \"trP_1\"\n<TRANSP> 3\n" + "0 1 0\n0 0 1\n0 0 0\n");
        
          
         if (unitFeatures.getNumberOfUnits() != joinFeatures.getNumberOfUnits())
@@ -250,17 +251,20 @@ public class JoinModeller extends VoiceImportComponent
                 means = MathUtils.mean(diffVectors, true);
                 variances = MathUtils.variance(diffVectors, means, true);
             }
+            
+            assert means.length == numFeatures : "expected to have " + numFeatures + " features, got " + means.length;
+            
             fullStream.write(fvString + "\n");
             statsStream.write(numUniqueFea + " \"" + fvString + "\"    " + n + "    " + n + "\n");
             
             mmfStream.write("~h " + "\"" + fvString + "\"\n" );
             mmfStream.write("<BEGINHMM>\n<NUMSTATES> 3\n<STATE> 2\n");
-            mmfStream.write("<MEAN> " + (means.length-1) + "\n");
+            mmfStream.write("<MEAN> " + numFeatures + "\n");
             //System.out.print("means: ");
             //for (int i=0; i<means.length; i++) System.out.printf("  %.3f", means[i]);
             for (int i=0; i<(means.length-1); i++)
                 mmfStream.write(means[i] + " ");
-            mmfStream.write("\n<VARIANCE> " + (means.length-1) + "\n");
+            mmfStream.write("\n<VARIANCE> " + numFeatures + "\n");
             //System.out.println();
             //System.out.print("vars : ");
             //for (int i=0; i<means.length; i++) System.out.printf("  %.3f", variances[i]);
