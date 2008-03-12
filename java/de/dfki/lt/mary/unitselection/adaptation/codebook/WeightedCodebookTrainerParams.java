@@ -39,6 +39,8 @@ import de.dfki.lt.signalproc.analysis.LsfFileHeader;
  *
  */
 public class WeightedCodebookTrainerParams extends WeightedCodebookBaselineParams {
+    public static final int MAXIMUM_CONTEXT = 10;
+    
     public WeightedCodebookFileHeader codebookHeader;
     
     public String trainingBaseFolder; //Training base directory

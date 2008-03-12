@@ -369,14 +369,18 @@ public class GMMTrainer {
     
     public static void main(String[] args)
     {
-        int numClusters = 100;
-        int numSamplesInClusters = 200;
+        int numClusters = 200;
+        int numSamplesInClusters = 100;
         double variance = 0.08;
         ClusteredDataGenerator c = new ClusteredDataGenerator(numClusters, numSamplesInClusters, variance);
-        double[][] x = new double[c.data.length][1];
+        int vectorDim = 25;
+        double[][] x = new double[c.data.length][vectorDim];
         
         for (int i=0; i<c.data.length; i++)
-            x[i][0] = c.data[i];
+        {
+            for (int j=0; j<vectorDim; j++)
+                x[i][j] = c.data[i];
+        }
         
         double[] m = MathUtils.mean(x);
         double[] v = MathUtils.variance(x, m);
