@@ -449,6 +449,7 @@ public class HTSContextTranslator extends InternalModule {
       s = s.replace("punctuation","punc");
       s = s.replace("frequency","freq");
       s = s.replace("position","pos");
+      s = s.replace("halfphone_lr", "lr");
       
       return s;     
     }

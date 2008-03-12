@@ -109,6 +109,7 @@ public class JoinModeller extends VoiceImportComponent
                 "mary_words_from_prev_punctuation",
                 "mary_words_to_next_punctuation",
                 "mary_word_frequency",
+                "mary_halfphone_lr"
         }));
         
     }
