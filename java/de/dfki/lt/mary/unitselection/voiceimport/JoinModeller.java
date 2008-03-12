@@ -262,13 +262,13 @@ public class JoinModeller extends VoiceImportComponent
             mmfStream.write("<MEAN> " + numFeatures + "\n");
             //System.out.print("means: ");
             //for (int i=0; i<means.length; i++) System.out.printf("  %.3f", means[i]);
-            for (int i=0; i<(means.length-1); i++)
+            for (int i=0; i<means.length; i++)
                 mmfStream.write(means[i] + " ");
             mmfStream.write("\n<VARIANCE> " + numFeatures + "\n");
             //System.out.println();
             //System.out.print("vars : ");
             //for (int i=0; i<means.length; i++) System.out.printf("  %.3f", variances[i]);
-            for (int i=0; i<(means.length-1); i++)
+            for (int i=0; i<means.length; i++)
                 mmfStream.write(variances[i] + " ");
             mmfStream.write("\n~t \"trP_1\"\n<ENDHMM>\n");
             //System.out.println();
