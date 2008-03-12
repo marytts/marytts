@@ -31,6 +31,7 @@ package de.dfki.lt.mary.unitselection.adaptation.codebook;
 
 import java.io.IOException;
 
+import de.dfki.lt.mary.unitselection.adaptation.Context;
 import de.dfki.lt.signalproc.util.MaryRandomAccessFile;
 
 /**
@@ -43,6 +44,7 @@ public class WeightedCodebookSpeakerItem {
     public double duration;
     public double energy;
     public String phn;
+    public Context context;
     
     public WeightedCodebookSpeakerItem()
     {
@@ -111,22 +113,44 @@ public class WeightedCodebookSpeakerItem {
                 e.printStackTrace();
             }
             
-            int phnLen = 0;
+            int tmpLen = 0;
             
             if (phn!="")
-                phnLen = phn.length();
+                tmpLen = phn.length();
             
             try {
-                ler.writeInt(phnLen);
+                ler.writeInt(tmpLen);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             
-            if (phnLen>0)
+            if (tmpLen>0)
             {
                 try {
                     ler.writeChar(phn.toCharArray());
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+            
+            tmpLen = 0;
+            
+            if (context.allContext!="")
+                tmpLen = context.allContext.length();
+            
+            try {
+                ler.writeInt(tmpLen);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            
+            if (tmpLen>0)
+            {
+                try {
+                    ler.writeChar(context.allContext.toCharArray());
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -169,19 +193,38 @@ public class WeightedCodebookSpeakerItem {
                 e.printStackTrace();
             }
             
-            int phnLen = 0;
+            int tmpLen = 0;
             try {
-                phnLen = ler.readInt();
+                tmpLen = ler.readInt();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             
             phn = "";
-            if (phnLen>0)
+            if (tmpLen>0)
             {
                 try {
-                    phn = String.copyValueOf(ler.readChar(phnLen));
+                    phn = String.copyValueOf(ler.readChar(tmpLen));
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+            
+            tmpLen = 0;
+            try {
+                tmpLen = ler.readInt();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            
+            context = null;
+            if (tmpLen>0)
+            {
+                try {
+                    context = new Context(String.copyValueOf(ler.readChar(tmpLen)));
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();

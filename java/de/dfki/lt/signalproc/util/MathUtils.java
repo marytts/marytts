@@ -2436,6 +2436,7 @@ public class MathUtils {
     }
 
     //In place sorting of array x, return value are the sorted 0-based indices 
+    //Sorting is from lowest to highest
     public static int[] quickSort(double[] x)
     {
         int[] indices = new int[x.length];
@@ -2448,6 +2449,7 @@ public class MathUtils {
     }
 
     //In place sorting of elements of array x between startIndex(included) and endIndex(included)
+    //Sorting is from lowest to highest
     public static int[] quickSort(double[] x, int startIndex, int endIndex)
     {
         if (startIndex<0)
@@ -2479,6 +2481,7 @@ public class MathUtils {
 
 
     //Sorts x, y is also sorted as x so it can be used to obtain sorted indices
+    //Sorting is from lowest to highest
     public static void quickSort(double[] x, int[] y)
     {
         assert x.length==y.length;
@@ -2486,9 +2489,10 @@ public class MathUtils {
         quickSort(x, y, 0, x.length-1);
     }
 
+    //Sorting is from lowest to highest
     public static void quickSort(double[] x, int[] y, int startIndex, int endIndex)
-    {
-        if(startIndex<endIndex) 
+    {   
+        if(startIndex<endIndex)
         {
             int j = partition(x, y, startIndex, endIndex);
             quickSort(x, y, startIndex, j-1);
@@ -2748,6 +2752,9 @@ public class MathUtils {
     public static double determinant(double[][] matrix) 
     { 
         double result = 0;
+        
+        if (matrix.length==1)
+            return determinant(matrix[0]);
 
         if (matrix.length==1 && matrix[0].length==1)
             return matrix[0][0];
@@ -2807,15 +2814,13 @@ public class MathUtils {
     public static double[][] inverse(double[][] matrix)
     {
         double[][] invMatrix = new double[matrix.length][matrix.length];
-        for (int i=0; i<matrix.length; i++)
-        {
-            if (matrix.length!=matrix[i].length)
-                System.out.println("Matrix should be square!");
-            
+        for (int i=0; i<matrix.length; i++)            
             System.arraycopy(matrix[i], 0, invMatrix[i], 0, matrix.length);
-        }
         
-        inverseInPlace(invMatrix);
+        if (matrix.length==1)
+            invMatrix[0] = inverse(invMatrix[0]);
+        else
+            inverseInPlace(invMatrix);
         
         return invMatrix;
     }

@@ -66,10 +66,14 @@ public class WeightedCodebookTransformerParams extends WeightedCodebookBaselineP
     public boolean isFixedRateVocalTractConversion;
     
     public boolean isContextBasedPreselection;
+    public int totalContextNeighbours;
     
     public boolean isTemporalSmoothing;
     public int smoothingMethod;
     public int smoothingNumNeighbours;
+    
+    public int smoothingState;
+    public String smoothedVocalTractFile;
     
     public WeightedCodebookTransformerParams()
     {
@@ -98,10 +102,51 @@ public class WeightedCodebookTransformerParams extends WeightedCodebookBaselineP
         isFixedRateVocalTractConversion = true;
         
         isContextBasedPreselection = false;
+        totalContextNeighbours = 0;
         
         isTemporalSmoothing = false;
         smoothingMethod = SmoothingDefinitions.NO_SMOOTHING;
         smoothingNumNeighbours = SmoothingDefinitions.DEFAULT_NUM_NEIGHBOURS;
+        
+        smoothingState = SmoothingDefinitions.NONE; 
+        smoothedVocalTractFile = "";
+    }
+    
+    public WeightedCodebookTransformerParams(WeightedCodebookTransformerParams existing)
+    {
+        inputFolder = existing.inputFolder;
+        outputBaseFolder = existing.outputBaseFolder;
+        outputFolder = existing.outputFolder;
+        outputFolderInfoString = existing.outputFolderInfoString;
+        codebookFile = existing.codebookFile;
+        isSourceToTarget = existing.isSourceToTarget;
+        isDisplayProcessingFrameCount = existing.isDisplayProcessingFrameCount;
+            
+        mapperParams = new WeightedCodebookMapperParams(existing.mapperParams);
+        prosodyParams = new ProsodyTransformerParams(existing.prosodyParams);
+        lsfParams = new LsfFileHeader(existing.lsfParams);
+        ptcParams = new PitchFileHeader(existing.ptcParams);
+        energyParams = new EnergyFileHeader(existing.energyParams);
+        
+        isForcedAnalysis = existing.isForcedAnalysis;
+        isSourceVocalTractSpectrumFromCodebook = existing.isSourceVocalTractSpectrumFromCodebook;
+        isVocalTractTransformation = existing.isVocalTractTransformation;
+        isResynthesizeVocalTractFromSourceCodebook = existing.isResynthesizeVocalTractFromSourceCodebook;
+        isVocalTractMatchUsingTargetCodebook = existing.isVocalTractMatchUsingTargetCodebook;
+        
+        isSeparateProsody = existing.isSeparateProsody;
+        isSaveVocalTractOnlyVersion = existing.isSaveVocalTractOnlyVersion;
+        isFixedRateVocalTractConversion = existing.isFixedRateVocalTractConversion;
+        
+        isContextBasedPreselection = existing.isContextBasedPreselection;
+        totalContextNeighbours = existing.totalContextNeighbours;
+        
+        isTemporalSmoothing = existing.isTemporalSmoothing;
+        smoothingMethod = existing.smoothingMethod;
+        smoothingNumNeighbours = existing.smoothingNumNeighbours;
+        
+        smoothingState = existing.smoothingState;
+        smoothedVocalTractFile = existing.smoothedVocalTractFile;
     }
 }
 

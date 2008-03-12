@@ -31,6 +31,7 @@ package de.dfki.lt.mary.unitselection.adaptation.codebook;
 
 import java.util.Arrays;
 
+import de.dfki.lt.mary.unitselection.adaptation.Context;
 import de.dfki.lt.signalproc.util.DistanceComputer;
 import de.dfki.lt.signalproc.util.MathUtils;
 import de.dfki.lt.signalproc.util.SignalProcUtils;
@@ -71,63 +72,49 @@ public class WeightedCodebookMapper {
     }
     
     //Simple phoneme based selection
-    public int[] preselect(String phoneme, WeightedCodebook codebook, boolean isMatchUsingTargetCodebook)
+    public int[] preselect(Context currentContext, WeightedCodebook codebook, boolean isMatchUsingTargetCodebook, int minimumCandidates)
     {
-        int[] indices = null;
+        double[] scores = new double[codebook.header.totalLsfEntries];
+        int[] indices = new int[codebook.header.totalLsfEntries];
         int total = 0;
-        int i;
+        int i, j;
         
         if (!isMatchUsingTargetCodebook)
         {
             for (i=0; i<codebook.lsfEntries.length; i++)
-            {
-                if (phoneme.compareTo(codebook.lsfEntries[i].sourceItem.phn)==0)
-                    total++;
-            }
+                scores[i] = currentContext.matchScore(codebook.lsfEntries[i].sourceItem.context);
         }
         else
         {
             for (i=0; i<codebook.lsfEntries.length; i++)
-            {
-                if (phoneme.compareTo(codebook.lsfEntries[i].targetItem.phn)==0)
-                    total++;
-            }
+                scores[i] = currentContext.matchScore(codebook.lsfEntries[i].targetItem.context);
         }
         
-        if (total>0)
+
+        double[] possibleScores = currentContext.getPossibleScores();
+        
+        total = 0;
+        for (i=0; i<possibleScores.length; i++)
         {
-            indices = new int[total];
-            int index = 0;
-            if (!isMatchUsingTargetCodebook)
+            for (j=0; j<scores.length; j++)
             {
-                for (i=0; i<codebook.lsfEntries.length; i++)
+                if (scores[j]==possibleScores[i])
                 {
-                    if (phoneme.compareTo(codebook.lsfEntries[i].sourceItem.phn)==0)
-                    {
-                        indices[index] = i;
-                        index++;
-                        
-                        if (index>=total)
-                            break;
-                    }
+                    indices[total] = j;
+                    total++;
                 }
             }
-            else
-            {
-                for (i=0; i<codebook.lsfEntries.length; i++)
-                {
-                    if (phoneme.compareTo(codebook.lsfEntries[i].targetItem.phn)==0)
-                    {
-                        indices[index] = i;
-                        index++;
-                        
-                        if (index>=total)
-                            break;
-                    }
-                }
-            }
+            
+            if (total>=minimumCandidates)
+                break;
         }
-       
+        
+        if (total<minimumCandidates)
+        {
+            for (i=0; i<codebook.lsfEntries.length; i++)
+                indices[i] = i;
+        }
+
         return indices;
     }
     

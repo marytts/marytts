@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationSet;
+import de.dfki.lt.mary.unitselection.adaptation.Context;
 import de.dfki.lt.mary.unitselection.adaptation.IndexMap;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchStatistics;
 import de.dfki.lt.signalproc.analysis.EnergyAnalyserRms;
@@ -130,7 +131,8 @@ public class WeightedCodebookLsfMapper {
                                 lsfEntry.sourceItem.duration = sourceLabels.items[index].time-sourceLabels.items[index-1].time;
                             else
                                 lsfEntry.sourceItem.duration = sourceLabels.items[index].time;
-                            lsfEntry.sourceItem.phn = sourceLabels.items[index].phn;
+                            lsfEntry.sourceItem.phn = sourceLabels.items[index].phn;                            
+                            lsfEntry.sourceItem.context = new Context(sourceLabels, index, WeightedCodebookTrainerParams.MAXIMUM_CONTEXT);
                             
                             index = SignalProcUtils.frameIndex2LabelIndex(imap.files[0].indicesMap[j][1], targetLabels, tgtLsfs.params.winsize, tgtLsfs.params.skipsize);
                             if (index>0)  
@@ -138,6 +140,7 @@ public class WeightedCodebookLsfMapper {
                             else
                                 lsfEntry.targetItem.duration = targetLabels.items[index].time;
                             lsfEntry.targetItem.phn = targetLabels.items[index].phn;
+                            lsfEntry.targetItem.context = new Context(targetLabels, index, WeightedCodebookTrainerParams.MAXIMUM_CONTEXT);
                             //
                             
                             //Energy
@@ -179,6 +182,8 @@ public class WeightedCodebookLsfMapper {
         int targetTotal;
         String sourcePhn = "";
         String targetPhn = "";
+        Context sourceContext = null;
+        Context targetContext = null;
         int middle;
         
         boolean bSourceOK = false;
@@ -299,7 +304,10 @@ public class WeightedCodebookLsfMapper {
                                 
                                 //Phoneme: Middle frames phonetic identity
                                 if (k==middle)
+                                {
                                     sourcePhn = sourceLabels.items[index].phn;
+                                    sourceContext = new Context(sourceLabels, index, WeightedCodebookTrainerParams.MAXIMUM_CONTEXT);
+                                }
                                 //
                                 
                                 //Energy
@@ -348,7 +356,10 @@ public class WeightedCodebookLsfMapper {
                                     
                                     //Phoneme: Middle frames phonetic identity
                                     if (k==middle)
+                                    {
                                         targetPhn = targetLabels.items[index].phn;
+                                        targetContext = new Context(targetLabels, index, WeightedCodebookTrainerParams.MAXIMUM_CONTEXT);
+                                    }
                                     //
                                     
                                     //Energy
@@ -390,6 +401,8 @@ public class WeightedCodebookLsfMapper {
                                 //Phoneme
                                 lsfEntry.sourceItem.phn = sourcePhn;
                                 lsfEntry.targetItem.phn = targetPhn;
+                                lsfEntry.sourceItem.context = new Context(sourceContext);
+                                lsfEntry.targetItem.context = new Context(targetContext);
                                 //
                                 
                                 //Energy
@@ -437,6 +450,8 @@ public class WeightedCodebookLsfMapper {
         int targetTotal;
         String sourcePhn = "";
         String targetPhn = "";
+        Context sourceContext = null;
+        Context targetContext = null;
         int middle;
 
         WeightedCodebookLsfEntry lsfEntry = null;
@@ -559,7 +574,10 @@ public class WeightedCodebookLsfMapper {
                                 
                                 //Phoneme: Middle frames phonetic identity
                                 if (k==middle)
+                                {
                                     sourcePhn = sourceLabels.items[index].phn;
+                                    sourceContext = new Context(sourceLabels, index, WeightedCodebookTrainerParams.MAXIMUM_CONTEXT);
+                                }
                                 //
                                 
                                 //Energy
@@ -608,7 +626,10 @@ public class WeightedCodebookLsfMapper {
                                     
                                     //Phoneme: Middle frames phonetic identity
                                     if (k==middle)
+                                    {
                                         targetPhn = targetLabels.items[index].phn;
+                                        targetContext = new Context(targetLabels, index, WeightedCodebookTrainerParams.MAXIMUM_CONTEXT);
+                                    }
                                     //
                                     
                                     //Energy
@@ -650,6 +671,8 @@ public class WeightedCodebookLsfMapper {
                                 //Phoneme
                                 lsfEntry.sourceItem.phn = sourcePhn;
                                 lsfEntry.targetItem.phn = targetPhn;
+                                lsfEntry.sourceItem.context = new Context(sourceContext);
+                                lsfEntry.targetItem.context = new Context(targetContext);
                                 //
                                 
                                 //Energy

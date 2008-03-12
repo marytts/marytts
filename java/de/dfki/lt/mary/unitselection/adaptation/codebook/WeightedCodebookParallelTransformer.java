@@ -248,100 +248,94 @@ public class WeightedCodebookParallelTransformer extends
         //
         
         WeightedCodebookFdpsolaAdapter adapter = null;
-
+        WeightedCodebookTransformerParams currentWctParams = new WeightedCodebookTransformerParams(wctParams);
+        
         String firstPassOutputWavFile = "";
         String smoothedVocalTractFile = "";
         
-        if (wctParams.isTemporalSmoothing) //Need to do two pass for smoothing
-            wctParams.isSeparateProsody = true;
+        if (currentWctParams.isTemporalSmoothing) //Need to do two pass for smoothing
+            currentWctParams.isSeparateProsody = true;
         
-        if (wctParams.isSeparateProsody)
+        
+        if (currentWctParams.isSeparateProsody)
         {
             firstPassOutputWavFile = StringUtil.getFolderName(outputItem.audioFile) + StringUtil.getFileName(outputItem.audioFile) + "_vt.wav";
             smoothedVocalTractFile = StringUtil.getFolderName(outputItem.audioFile) + StringUtil.getFileName(outputItem.audioFile) + "_vt.vtf";
-            int tmpPitchTransformationMethod = wctParams.prosodyParams.pitchTransformationMethod;
-            wctParams.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.NO_TRANSFORMATION;
+            int tmpPitchTransformationMethod = currentWctParams.prosodyParams.pitchTransformationMethod;
+            currentWctParams.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.NO_TRANSFORMATION;
 
-            if (wctParams.isTemporalSmoothing) //This estimates the vocal tract filter but performs no prosody and vocal tract transformations
+            if (currentWctParams.isTemporalSmoothing) //This estimates the vocal tract filter but performs no prosody and vocal tract transformations
             {
+                currentWctParams = new WeightedCodebookTransformerParams(currentWctParams);
+                currentWctParams.smoothingState = SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT;
+                currentWctParams.smoothedVocalTractFile = smoothedVocalTractFile; //It is an output at first pass
+                
                 adapter = new WeightedCodebookFdpsolaAdapter(
                         inputItem.audioFile, inputItem.f0File, inputItem.labelFile,
                         firstPassOutputWavFile,
-                        wctParams.isVocalTractTransformation,
-                        wctParams.isFixedRateVocalTractConversion, 
-                        wctParams.isResynthesizeVocalTractFromSourceCodebook,
-                        wctParams.isVocalTractMatchUsingTargetCodebook,
-                        SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT, //smoothingState
-                        smoothedVocalTractFile, //smoothedVocalTractFile (output)
-                        wctParams.smoothingMethod, //smoothingMethod
-                        wctParams.isContextBasedPreselection, //isContextBasedPreselection
+                        currentWctParams,
                         pscalesTemp, tscalesTemp, escalesTemp, vscalesTemp);
                 
-                adapter.bSilent = !wctParams.isDisplayProcessingFrameCount;
-                adapter.fdpsolaOnline(wctParams, wcMapper, wCodebook); //Call voice conversion version
+                adapter.bSilent = !currentWctParams.isDisplayProcessingFrameCount;
+                adapter.fdpsolaOnline(wcMapper, wCodebook); //Call voice conversion version
                 
+                currentWctParams.smoothingState = SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT;
+                currentWctParams.smoothedVocalTractFile = smoothedVocalTractFile; //Now it is an input
                 adapter = new WeightedCodebookFdpsolaAdapter(
                         inputItem.audioFile, inputItem.f0File, inputItem.labelFile,
                         firstPassOutputWavFile, 
-                        wctParams.isVocalTractTransformation,
-                        wctParams.isFixedRateVocalTractConversion, 
-                        wctParams.isResynthesizeVocalTractFromSourceCodebook,
-                        wctParams.isVocalTractMatchUsingTargetCodebook,
-                        SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT, //smoothingState
-                        smoothedVocalTractFile, //smoothedVocalTractFile (input)
-                        wctParams.smoothingMethod, //smoothingMethod
-                        wctParams.isContextBasedPreselection, //isContextBasedPreselection
+                        currentWctParams,
                         pscalesTemp, tscalesTemp, escalesTemp, vscalesTemp);
             }
             else
             {
+                currentWctParams = new WeightedCodebookTransformerParams(currentWctParams);
+                currentWctParams.smoothingMethod = SmoothingDefinitions.NO_SMOOTHING;
+                currentWctParams.smoothingState = SmoothingDefinitions.NONE;
+                currentWctParams.smoothedVocalTractFile = "";
+                
                 adapter = new WeightedCodebookFdpsolaAdapter(
                         inputItem.audioFile, inputItem.f0File, inputItem.labelFile,
                         firstPassOutputWavFile, 
-                        wctParams.isVocalTractTransformation,
-                        wctParams.isFixedRateVocalTractConversion, 
-                        wctParams.isResynthesizeVocalTractFromSourceCodebook,
-                        wctParams.isVocalTractMatchUsingTargetCodebook,
-                        SmoothingDefinitions.NONE, //smoothingState
-                        "", //smoothedVocalTractFile (not required here)
-                        SmoothingDefinitions.NO_SMOOTHING, //smoothingMethod
-                        wctParams.isContextBasedPreselection, //isContextBasedPreselection
+                        currentWctParams,
                         pscalesTemp, tscalesTemp, escalesTemp, vscalesTemp);
             }
             
             //Separate prosody modification
             if (adapter!=null)
             {
-                adapter.bSilent = !wctParams.isDisplayProcessingFrameCount;
-                adapter.fdpsolaOnline(wctParams, wcMapper, wCodebook); //Call voice conversion version
+                adapter.bSilent = !currentWctParams.isDisplayProcessingFrameCount;
+                adapter.fdpsolaOnline(wcMapper, wCodebook); //Call voice conversion version
 
                 if (isScalingsRequired(pscales, tscales, escales, vscales) || tmpPitchTransformationMethod!=ProsodyTransformerParams.NO_TRANSFORMATION)
                 {
                     System.out.println("Performing prosody modifications...");
 
-                    wctParams.prosodyParams.pitchTransformationMethod = tmpPitchTransformationMethod;
-
+                    currentWctParams = new WeightedCodebookTransformerParams(currentWctParams);
+                    currentWctParams.isVocalTractTransformation = false; //isVocalTractTransformation should be false 
+                    currentWctParams.isFixedRateVocalTractConversion = false; //isFixedRateVocalTractConversion should be false to enable prosody modifications with FD-PSOLA
+                    currentWctParams.isResynthesizeVocalTractFromSourceCodebook = false; //isResynthesizeVocalTractFromSourceCodebook should be false
+                    currentWctParams.isVocalTractMatchUsingTargetCodebook = false; //isVocalTractMatchUsingTargetCodebook should be false
+                    currentWctParams.prosodyParams.pitchTransformationMethod = tmpPitchTransformationMethod;
+                    currentWctParams.smoothingMethod = SmoothingDefinitions.NO_SMOOTHING;
+                    currentWctParams.smoothingState = SmoothingDefinitions.NONE;
+                    currentWctParams.smoothedVocalTractFile = "";
+                    currentWctParams.isContextBasedPreselection = false;
+                    
                     adapter = new WeightedCodebookFdpsolaAdapter(
                             firstPassOutputWavFile, inputItem.f0File, inputItem.labelFile,
                             outputItem.audioFile, 
-                            false, //isVocalTractTransformation should be false 
-                            false, //isFixedRateVocalTractConversion should be false to enable prosody modifications with FD-PSOLA
-                            false, //isResynthesizeVocalTractFromSourceCodebook should be false
-                            false, //isVocalTractMatchUsingTargetCodebook shuld be false
-                            SmoothingDefinitions.NONE, //smoothingState
-                            "", //smoothedVocalTractFile (not required here)
-                            SmoothingDefinitions.NO_SMOOTHING, //smoothingMethod
-                            false, //isContextBasedPreselection: no effect
+                            currentWctParams,
                             pscales, tscales, escales, vscales);
 
                     adapter.bSilent = true;
-                    adapter.fdpsolaOnline(wctParams, null, wCodebook);
+                    adapter.fdpsolaOnline(null, wCodebook);
                 }
                 else //Copy output file
                     FileUtils.copy(firstPassOutputWavFile, outputItem.audioFile);
 
                 //Delete first pass output file
-                if (!wctParams.isSaveVocalTractOnlyVersion)
+                if (!currentWctParams.isSaveVocalTractOnlyVersion)
                     FileUtils.delete(firstPassOutputWavFile);
 
                 System.out.println("Done...");
@@ -349,21 +343,19 @@ public class WeightedCodebookParallelTransformer extends
         }
         else
         {
+            currentWctParams = new WeightedCodebookTransformerParams(currentWctParams);
+            currentWctParams.smoothingMethod = SmoothingDefinitions.NO_SMOOTHING;
+            currentWctParams.smoothingState = SmoothingDefinitions.NONE;
+            currentWctParams.smoothedVocalTractFile = "";
+
             adapter = new WeightedCodebookFdpsolaAdapter(
                                   inputItem.audioFile, inputItem.f0File, inputItem.labelFile,
                                   outputItem.audioFile, 
-                                  wctParams.isVocalTractTransformation,
-                                  wctParams.isFixedRateVocalTractConversion, 
-                                  wctParams.isResynthesizeVocalTractFromSourceCodebook,
-                                  wctParams.isVocalTractMatchUsingTargetCodebook,
-                                  SmoothingDefinitions.NONE, //smoothingState
-                                  "", //smoothedVocalTractFile (not required here)
-                                  SmoothingDefinitions.NO_SMOOTHING, //smoothingMethod
-                                  wctParams.isContextBasedPreselection, //isContextBasedPreselection
+                                  currentWctParams,
                                   pscales, tscales, escales, vscales);
             
             adapter.bSilent = !wctParams.isDisplayProcessingFrameCount;
-            adapter.fdpsolaOnline(wctParams, wcMapper, wCodebook); //Call voice conversion version
+            adapter.fdpsolaOnline(wcMapper, wCodebook); //Call voice conversion version
         }
     }
     
@@ -444,6 +436,7 @@ public class WeightedCodebookParallelTransformer extends
         pa.isFixedRateVocalTractConversion = true;
         
         pa.isContextBasedPreselection = true;
+        pa.totalContextNeighbours = 2;
         
         //Prosody transformation
         pa.prosodyParams.pitchStatisticsType = PitchStatistics.STATISTICS_IN_HERTZ;

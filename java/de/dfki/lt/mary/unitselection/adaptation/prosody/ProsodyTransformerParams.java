@@ -84,4 +84,17 @@ public class ProsodyTransformerParams {
         
         pitchStatisticsType = PitchStatistics.DEFAULT_STATISTICS;
     }
+    
+    public ProsodyTransformerParams(ProsodyTransformerParams existing)
+    {
+        pitchTransformationMethod = existing.pitchTransformationMethod;
+  
+        isUseInputMean = existing.isUseInputMean;
+        isUseInputStdDev = existing.isUseInputStdDev;
+        isUseInputRange = existing.isUseInputRange;
+        isUseInputIntercept = existing.isUseInputIntercept;
+        isUseInputSlope = existing.isUseInputSlope;
+        
+        pitchStatisticsType = existing.pitchStatisticsType;
+    }
 }

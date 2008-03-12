@@ -40,6 +40,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import de.dfki.lt.mary.unitselection.adaptation.Context;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchStatistics;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchTransformer;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.ProsodyTransformerParams;
@@ -81,11 +82,7 @@ import de.dfki.lt.signalproc.window.Window;
  * 
  */
 public class WeightedCodebookFdpsolaAdapter {
-    private boolean isFixedRateVocalTractTransformation;
-    private boolean isVocalTractTransformation;
-    private boolean isResynthesizeVocalTractFromSourceCodebook;
-    private boolean isVocalTractMatchUsingTargetCodebook;
-
+    
     protected DoubleDataSource input;
     protected AudioInputStream inputAudio;
     protected DDSAudioInputStream outputAudio;
@@ -172,72 +169,56 @@ public class WeightedCodebookFdpsolaAdapter {
 
     private PitchTransformer pitchTransformer;
 
-    private int smoothingState;
-    private String smoothedVocalTractFile;
-    private int smoothingMethod;
     private SmoothingFile smoothingFile;
     private double[][] smoothedVocalTract;
     private int smoothedInd;
 
-    private boolean isContextBasedPreselection;
     private int[] preselectedIndices;
     private int[] allIndices;
     private ESTLabels labels;
     private int currentLabelIndex;
+    
+    private WeightedCodebookTransformerParams wctParams;
 
-    public WeightedCodebookFdpsolaAdapter(String strInputFile, String strPitchFile, String strLabelFile, String strOutputFile, 
-            boolean bVocalTractTransformation,
-            boolean bFixedRateVocalTractTransformation,
-            boolean bResynthesizeVocalTractFromSourceCodebook,
-            boolean bVocalTractMatchUsingTargetCodebook,
-            int smoothingStateIn,
-            String smoothedVocalTractFileIn, //can be input or output
-            int smoothingMethodIn,
-            boolean isContextBasedPreselectionIn,
+    public WeightedCodebookFdpsolaAdapter(
+            String strInputFile, String strPitchFile, String strLabelFile, String strOutputFile, 
+            WeightedCodebookTransformerParams wctParamsIn,
             double [] pscales, double [] tscales, double [] escales, double [] vscales
     ) throws UnsupportedAudioFileException, IOException
     {
-        isVocalTractTransformation = bVocalTractTransformation;
-        isFixedRateVocalTractTransformation = bFixedRateVocalTractTransformation;
-        isResynthesizeVocalTractFromSourceCodebook = bResynthesizeVocalTractFromSourceCodebook;
-        isVocalTractMatchUsingTargetCodebook = bVocalTractMatchUsingTargetCodebook;
-        smoothingState = smoothingStateIn;
-        smoothedVocalTractFile = smoothedVocalTractFileIn;
-        smoothingMethod = smoothingMethodIn;
-        isContextBasedPreselection = isContextBasedPreselectionIn;
-
+        wctParams = new WeightedCodebookTransformerParams(wctParamsIn);
+        
         init(strInputFile, strPitchFile, strLabelFile, strOutputFile,
-             pscales, tscales, escales, vscales, isFixedRateVocalTractTransformation);
+             pscales, tscales, escales, vscales);
     }
 
-    protected void init(String strInputFile, String strPitchFile, String strLabelFile, String strOutputFile,
-            double [] pscales, double [] tscales, double [] escales, double [] vscales,
-            boolean isFixedRate)
+    public void init(String strInputFile, String strPitchFile, String strLabelFile, String strOutputFile,
+                        double [] pscales, double [] tscales, double [] escales, double [] vscales)
     {
         //Smoothing
         smoothingFile = null;
-        if (smoothingState==SmoothingDefinitions.NONE)
-            smoothedVocalTractFile = "";
-        if (smoothingState==SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT)
+        if (wctParams.smoothingState==SmoothingDefinitions.NONE)
+            wctParams.smoothedVocalTractFile = "";
+        if (wctParams.smoothingState==SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT)
         {
-            if (smoothedVocalTractFile=="")
+            if (wctParams.smoothedVocalTractFile=="")
                 throw new IllegalArgumentException("smoothedVocalTractFile not valid");
             else
             {
-                smoothingFile = new SmoothingFile(smoothedVocalTractFile, SmoothingFile.OPEN_FOR_WRITE);
-                smoothingFile.smoothingMethod = smoothingMethod;
+                smoothingFile = new SmoothingFile(wctParams.smoothedVocalTractFile, SmoothingFile.OPEN_FOR_WRITE);
+                smoothingFile.smoothingMethod = wctParams.smoothingMethod;
                 smoothingFile.writeHeader();
             }
         }
 
-        if (smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT &&
-                smoothingMethod!=SmoothingDefinitions.NO_SMOOTHING)
+        if (wctParams.smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT &&
+                wctParams.smoothingMethod!=SmoothingDefinitions.NO_SMOOTHING)
         {
-            if (!FileUtils.exists(smoothedVocalTractFile))
+            if (!FileUtils.exists(wctParams.smoothedVocalTractFile))
                 throw new IllegalArgumentException("smoothedVocalTractFile not found");
             else
             {
-                smoothingFile = new SmoothingFile(smoothedVocalTractFile, SmoothingFile.OPEN_FOR_READ);
+                smoothingFile = new SmoothingFile(wctParams.smoothedVocalTractFile, SmoothingFile.OPEN_FOR_READ);
                 smoothedVocalTract = smoothingFile.readAll();
                 smoothedInd = 0;
             }
@@ -307,7 +288,7 @@ public class WeightedCodebookFdpsolaAdapter {
             pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, origLen, f0.header.ws, f0.header.ss, true);
 
             numfrmFixed = (int)(Math.floor(((double)(origLen + pm.totalZerosToPadd)/fs-0.5*wsFixedInSeconds)/ssFixedInSeconds+0.5)+2); //Total frames if the analysis was fixed skip-rate
-            if (!isFixedRate)
+            if (!wctParams.isFixedRateVocalTractConversion)
                 numfrm = pm.pitchMarks.length-numPeriods; //Total pitch synchronous frames (This is the actual number of frames to be processed)
             else
                 numfrm = numfrmFixed;
@@ -319,7 +300,7 @@ public class WeightedCodebookFdpsolaAdapter {
             modParams = new VoiceModificationParametersPreprocessor(fs, lpOrder,
                     pscales, tscales, escales, vscales,
                     pm.pitchMarks, wsFixedInSeconds, ssFixedInSeconds,
-                    numfrm, numfrmFixed, numPeriods, isFixedRate);
+                    numfrm, numfrmFixed, numPeriods, wctParams.isFixedRateVocalTractConversion);
             tscaleSingle = modParams.tscaleSingle;
 
             outputFile = strOutputFile;    
@@ -338,7 +319,7 @@ public class WeightedCodebookFdpsolaAdapter {
             if (outputFile != null)
                 tempOutBinaryFile = outputFile + ".bin";
 
-            if (!isFixedRate)
+            if (!wctParams.isFixedRateVocalTractConversion)
                 psFrm = new PSOLAFrameProvider(input, pm, modParams.fs, modParams.numPeriods);
             else
                 psFrm = new PSOLAFrameProvider(input, wsFixedInSeconds, ssFixedInSeconds, modParams.fs, numfrm);
@@ -392,9 +373,8 @@ public class WeightedCodebookFdpsolaAdapter {
         }
     }
 
-    public void fdpsolaOnline(WeightedCodebookTransformerParams params,
-            WeightedCodebookMapper mapper,
-            WeightedCodebook codebook) throws IOException
+    public void fdpsolaOnline(WeightedCodebookMapper mapper,
+                              WeightedCodebook codebook) throws IOException
     {   
         int i;
         double [] frmIn;
@@ -407,9 +387,9 @@ public class WeightedCodebookFdpsolaAdapter {
 
         fs = (int)inputAudio.getFormat().getSampleRate();
 
-        PitchStatistics inputF0Statistics = new PitchStatistics(params.prosodyParams.pitchStatisticsType, f0s);
+        PitchStatistics inputF0Statistics = new PitchStatistics(wctParams.prosodyParams.pitchStatisticsType, f0s);
 
-        double[] targetF0s = pitchTransformer.transform(params.prosodyParams,  
+        double[] targetF0s = pitchTransformer.transform(wctParams.prosodyParams,  
                 codebook.f0StatisticsMapping,
                 inputF0Statistics, 
                 f0s,
@@ -417,7 +397,7 @@ public class WeightedCodebookFdpsolaAdapter {
 
         preselectedIndices = null;
         allIndices = null;
-        if (codebook!=null && !isContextBasedPreselection)
+        if (codebook!=null && !wctParams.isContextBasedPreselection)
         {
             //Whole codebook
             allIndices = new int[codebook.lsfEntries.length];
@@ -438,7 +418,7 @@ public class WeightedCodebookFdpsolaAdapter {
             else
                 isLastInputFrame = false;
 
-            if (!isFixedRateVocalTractTransformation)
+            if (!wctParams.isFixedRateVocalTractConversion)
             {
                 currentPeriod = pm.pitchMarks[i+1]-pm.pitchMarks[i];
                 inputFrameSize = pm.pitchMarks[i+modParams.numPeriods]-pm.pitchMarks[i]+1;
@@ -456,7 +436,7 @@ public class WeightedCodebookFdpsolaAdapter {
                 index=targetF0s.length-1;
 
             boolean isVoiced;
-            if (!isFixedRateVocalTractTransformation)
+            if (!wctParams.isFixedRateVocalTractConversion)
                 isVoiced = pm.vuvs[i];
             else
             {
@@ -479,11 +459,10 @@ public class WeightedCodebookFdpsolaAdapter {
             
             processFrame(frmIn, isVoiced, 
                     currentF0, targetF0s[index], modParams.tscalesVar[i], modParams.escalesVar[i], modParams.vscalesVar[i], 
-                    isLastInputFrame, currentPeriod, inputFrameSize,
-                    params, mapper, codebook);
+                    isLastInputFrame, currentPeriod, inputFrameSize, mapper, codebook);
 
-            if (smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT &&
-                    smoothingMethod!=SmoothingDefinitions.NO_SMOOTHING)
+            if (wctParams.smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT &&
+                    wctParams.smoothingMethod!=SmoothingDefinitions.NO_SMOOTHING)
             {
                 smoothedInd++;
                 if (smoothedInd>smoothedVocalTract.length-1)
@@ -498,29 +477,29 @@ public class WeightedCodebookFdpsolaAdapter {
         inputAudio.close();
 
         //Perform smoothing on the vocal tract parameter file
-        if (smoothingState==SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT)
+        if (wctParams.smoothingState==SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT)
         {
-            System.out.println("Temporal smoothing started using " + String.valueOf(params.smoothingNumNeighbours) + " neighbours...");
+            System.out.println("Temporal smoothing started using " + String.valueOf(wctParams.smoothingNumNeighbours) + " neighbours...");
             smoothingFile.close();
-            smoothingFile = new SmoothingFile(smoothedVocalTractFile, SmoothingFile.OPEN_FOR_READ);
+            smoothingFile = new SmoothingFile(wctParams.smoothedVocalTractFile, SmoothingFile.OPEN_FOR_READ);
             double[][] vts = smoothingFile.readAll();
 
             double[] tmp1 = new double[vts.length];
             for (i=0; i<vts.length; i++)
                 tmp1[i] = vts[i][20];
 
-            vts = TemporalSmoother.smooth(vts, params.smoothingNumNeighbours);
+            vts = TemporalSmoother.smooth(vts, wctParams.smoothingNumNeighbours);
 
             double[] tmp2 = new double[vts.length];
             for (i=0; i<vts.length; i++)
                 tmp2[i] = vts[i][20];
 
-            smoothingFile = new SmoothingFile(smoothedVocalTractFile, SmoothingFile.OPEN_FOR_WRITE, smoothingMethod);
+            smoothingFile = new SmoothingFile(wctParams.smoothedVocalTractFile, SmoothingFile.OPEN_FOR_WRITE, wctParams.smoothingMethod);
             smoothingFile.writeAll(vts);
             System.out.println("Temporal smoothing completed...");
         }
-        else if (smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT)
-            FileUtils.delete(smoothedVocalTractFile);  
+        else if (wctParams.smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT)
+            FileUtils.delete(wctParams.smoothedVocalTractFile);  
         //
     }
 
@@ -528,7 +507,6 @@ public class WeightedCodebookFdpsolaAdapter {
     public double [] processFrame(double [] frmIn, boolean isVoiced, 
             double currentF0, double targetF0, double tscale, double escale, double vscale, 
             boolean isLastInputFrame, int currentPeriod, int inputFrameSize,
-            WeightedCodebookTransformerParams params,
             WeightedCodebookMapper mapper,
             WeightedCodebook codebook) throws IOException
    {   
@@ -557,8 +535,8 @@ public class WeightedCodebookFdpsolaAdapter {
         int kInd;
         WeightedCodebookMatch codebookMatch = null;
 
-        windowIn = new DynamicWindow(params.lsfParams.windowType);
-        windowOut = new DynamicWindow(params.lsfParams.windowType);
+        windowIn = new DynamicWindow(wctParams.lsfParams.windowType);
+        windowOut = new DynamicWindow(wctParams.lsfParams.windowType);
 
         repeatSkipCount = 0; // -1:skip frame, 0:no repetition (use synthesized frame as it is), >0: number of repetitions for synthesized frame
 
@@ -659,6 +637,7 @@ public class WeightedCodebookFdpsolaAdapter {
         double[] outputVocalTractSpectrum = null;
         double[] warpedOutputVocalTractSpectrum = null;
         double[] transformationFilter = null;
+        Context currentContext = null;
 
         if (repeatSkipCount>-1)
         {
@@ -700,24 +679,27 @@ public class WeightedCodebookFdpsolaAdapter {
                     frm[j] = frm[j]*wgt[j]; 
 
                 //Preemphasis
-                frm = SignalProcUtils.applyPreemphasis(frm, params.lsfParams.preCoef);
+                frm = SignalProcUtils.applyPreemphasis(frm, wctParams.lsfParams.preCoef);
 
                 // Compute LPC coefficients
-                inputLPCoeffs = LPCAnalyser.calcLPC(frm, params.lsfParams.lpOrder);
+                inputLPCoeffs = LPCAnalyser.calcLPC(frm, wctParams.lsfParams.lpOrder);
                 inputLpcs = inputLPCoeffs.getOneMinusA();
                 inputLsfs = LineSpectralFrequencies.lpc2lsfInHz(inputLpcs, fs); 
                 sqrtInputGain = inputLPCoeffs.getGain();
 
                 //Find target estimate from codebook
-                if (isVocalTractTransformation)
+                if (wctParams.isVocalTractTransformation)
                 {
-                    if (isContextBasedPreselection)
-                        preselectedIndices = mapper.preselect(labels.items[currentLabelIndex].phn, codebook, params.isVocalTractMatchUsingTargetCodebook);
+                    if (wctParams.isContextBasedPreselection)
+                    {
+                        currentContext = new Context(labels, currentLabelIndex, wctParams.totalContextNeighbours);
+                        preselectedIndices = mapper.preselect(currentContext, codebook, wctParams.isVocalTractMatchUsingTargetCodebook, wctParams.mapperParams.numBestMatches);
+                    }
                     
                     if (preselectedIndices!=null)
-                        codebookMatch = mapper.transform(inputLsfs, codebook, params.isVocalTractMatchUsingTargetCodebook, preselectedIndices);
+                        codebookMatch = mapper.transform(inputLsfs, codebook, wctParams.isVocalTractMatchUsingTargetCodebook, preselectedIndices);
                     else
-                        codebookMatch = mapper.transform(inputLsfs, codebook, params.isVocalTractMatchUsingTargetCodebook, allIndices);
+                        codebookMatch = mapper.transform(inputLsfs, codebook, wctParams.isVocalTractMatchUsingTargetCodebook, allIndices);
                         
                     //Use source for testing things. Don´t forget to set isSourceVocalTractFromCodeook=false
                     //codebookMatch = new WeightedCodebookMatch(inputLsfs, inputLsfs); 
@@ -743,15 +725,15 @@ public class WeightedCodebookFdpsolaAdapter {
                 }
                 //
 
-                inputExpTerm = LPCAnalyser.calcExpTerm(fftSize, params.lsfParams.lpOrder);
-                outputExpTerm = LPCAnalyser.calcExpTerm(newFftSize, params.lsfParams.lpOrder);
+                inputExpTerm = LPCAnalyser.calcExpTerm(fftSize, wctParams.lsfParams.lpOrder);
+                outputExpTerm = LPCAnalyser.calcExpTerm(newFftSize, wctParams.lsfParams.lpOrder);
 
-                inputVocalTractSpectrum = LPCAnalyser.calcSpecFromOneMinusA(inputLPCoeffs.getOneMinusA(), params.lsfParams.lpOrder, fftSize, inputExpTerm);
+                inputVocalTractSpectrum = LPCAnalyser.calcSpecFromOneMinusA(inputLPCoeffs.getOneMinusA(), wctParams.lsfParams.lpOrder, fftSize, inputExpTerm);
 
                 //Use a weighted codebook estimate of the input vocal tract spectrum. This will result in a smoother transformation filter
-                if (params.isSourceVocalTractSpectrumFromCodebook && isVocalTractTransformation)
+                if (wctParams.isSourceVocalTractSpectrumFromCodebook && wctParams.isVocalTractTransformation)
                 {
-                    if (!isResynthesizeVocalTractFromSourceCodebook)
+                    if (!wctParams.isResynthesizeVocalTractFromSourceCodebook)
                         interpolatedInputLpcs = LineSpectralFrequencies.lsfInHz2lpc(codebookMatch.entry.sourceItem.lsfs, fs);
                     else
                         interpolatedInputLpcs = LineSpectralFrequencies.lsfInHz2lpc(codebookMatch.entry.targetItem.lsfs, fs);
@@ -773,7 +755,7 @@ public class WeightedCodebookFdpsolaAdapter {
                 //
 
                 //For checking
-                if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime && params.isSourceVocalTractSpectrumFromCodebook && isVocalTractTransformation)
+                if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime && wctParams.isSourceVocalTractSpectrumFromCodebook && wctParams.isVocalTractTransformation)
                 {
                     tmpSpec = new double[maxFreq];
                     System.arraycopy(sourceVocalTractSpectrumEstimate, 0, tmpSpec, 0, tmpSpec.length);
@@ -800,21 +782,21 @@ public class WeightedCodebookFdpsolaAdapter {
                 }
                 //
 
-                if (isVocalTractTransformation)
+                if (wctParams.isVocalTractTransformation)
                 {
                     //Smoothing
-                    if (smoothingMethod==SmoothingDefinitions.OUTPUT_LSFCONTOUR_SMOOTHING)
+                    if (wctParams.smoothingMethod==SmoothingDefinitions.OUTPUT_LSFCONTOUR_SMOOTHING)
                     {
-                        if (smoothingState==SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT)
+                        if (wctParams.smoothingState==SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT)
                         {
-                            if (!isResynthesizeVocalTractFromSourceCodebook)
+                            if (!wctParams.isResynthesizeVocalTractFromSourceCodebook)
                                 smoothingFile.writeSingle(codebookMatch.entry.targetItem.lsfs);
                             else
                                 smoothingFile.writeSingle(codebookMatch.entry.sourceItem.lsfs);    
                         }
-                        else if (smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT)
+                        else if (wctParams.smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT)
                         {
-                            if (!isResynthesizeVocalTractFromSourceCodebook)
+                            if (!wctParams.isResynthesizeVocalTractFromSourceCodebook)
                                 codebookMatch.entry.targetItem.setLsfs(smoothedVocalTract[smoothedInd]);
                             else
                                 codebookMatch.entry.sourceItem.setLsfs(smoothedVocalTract[smoothedInd]);  
@@ -822,15 +804,15 @@ public class WeightedCodebookFdpsolaAdapter {
                     }
                     //
 
-                    if (!isResynthesizeVocalTractFromSourceCodebook)
+                    if (!wctParams.isResynthesizeVocalTractFromSourceCodebook)
                         targetLpcs = LineSpectralFrequencies.lsfInHz2lpc(codebookMatch.entry.targetItem.lsfs, fs);
                     else
                         targetLpcs = LineSpectralFrequencies.lsfInHz2lpc(codebookMatch.entry.sourceItem.lsfs, fs);
 
                     if (fftSize!=newFftSize)
                     {
-                        if (outputExpTerm==null || newMaxFreq*params.lsfParams.lpOrder!=outputExpTerm.real.length)
-                            outputExpTerm = LPCAnalyser.calcExpTerm(newFftSize, params.lsfParams.lpOrder);
+                        if (outputExpTerm==null || newMaxFreq*wctParams.lsfParams.lpOrder!=outputExpTerm.real.length)
+                            outputExpTerm = LPCAnalyser.calcExpTerm(newFftSize, wctParams.lsfParams.lpOrder);
 
                         targetVocalTractSpectrumEstimate = LPCAnalyser.calcSpecFromOneMinusA(targetLpcs, 1.0f, newFftSize, outputExpTerm);
                     }
@@ -842,7 +824,7 @@ public class WeightedCodebookFdpsolaAdapter {
                 }
 
                 //For checking
-                if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime && isVocalTractTransformation)
+                if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime && wctParams.isVocalTractTransformation)
                 {
                     tmpSpec = new double[newMaxFreq];
                     System.arraycopy(targetVocalTractSpectrumEstimate, 0, tmpSpec, 0, tmpSpec.length);
@@ -854,9 +836,9 @@ public class WeightedCodebookFdpsolaAdapter {
                 outputVocalTractSpectrum = new double[newMaxFreq];
                 interpolatedInputVocalTractSpectrum = MathUtils.interpolate(inputVocalTractSpectrum, newMaxFreq);
 
-                if (isVocalTractTransformation)
+                if (wctParams.isVocalTractTransformation)
                 {
-                    if (params.isSourceVocalTractSpectrumFromCodebook)
+                    if (wctParams.isSourceVocalTractSpectrumFromCodebook)
                     {
                         for (k=0; k<newMaxFreq; k++)
                             outputVocalTractSpectrum[k] = targetVocalTractSpectrumEstimate[k]/sourceVocalTractSpectrumEstimate[k]*interpolatedInputVocalTractSpectrum[k];
@@ -874,13 +856,13 @@ public class WeightedCodebookFdpsolaAdapter {
                 }
 
                 //Smoothing
-                if (smoothingMethod==SmoothingDefinitions.TRANSFORMATION_FILTER_SMOOTHING)
+                if (wctParams.smoothingMethod==SmoothingDefinitions.TRANSFORMATION_FILTER_SMOOTHING)
                 {
-                    if (smoothingState==SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT)    
+                    if (wctParams.smoothingState==SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT)    
                     {
                         transformationFilter = new double[newMaxFreq];
 
-                        if (params.isSourceVocalTractSpectrumFromCodebook)
+                        if (wctParams.isSourceVocalTractSpectrumFromCodebook)
                         {
                             for (k=0; k<newMaxFreq; k++)
                                 transformationFilter[k] = targetVocalTractSpectrumEstimate[k]/sourceVocalTractSpectrumEstimate[k];
@@ -902,9 +884,9 @@ public class WeightedCodebookFdpsolaAdapter {
                             MaryUtils.plot(tmpSpec, "6.Transformation filter");
                         }
                     }
-                    else if (smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT)  
+                    else if (wctParams.smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT)  
                     {
-                        if (params.isSourceVocalTractSpectrumFromCodebook)
+                        if (wctParams.isSourceVocalTractSpectrumFromCodebook)
                         {
                             for (k=0; k<newMaxFreq; k++)
                                 outputVocalTractSpectrum[k] = smoothedVocalTract[smoothedInd][k]*sourceVocalTractSpectrumEstimate[k];
@@ -1006,13 +988,13 @@ public class WeightedCodebookFdpsolaAdapter {
                 outputDft = new Complex(newFftSize);
 
                 //Smoothing
-                if (smoothingMethod==SmoothingDefinitions.OUTPUT_VOCALTRACTSPECTRUM_SMOOTHING)
+                if (wctParams.smoothingMethod==SmoothingDefinitions.OUTPUT_VOCALTRACTSPECTRUM_SMOOTHING)
                 {
-                    if (smoothingState==SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT)
+                    if (wctParams.smoothingState==SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT)
                     {
                         smoothingFile.writeSingle(outputVocalTractSpectrum, newMaxFreq);   
                     }
-                    else if (smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT)
+                    else if (wctParams.smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT)
                     {
                         for (k=0; k<newMaxFreq; k++)
                             outputVocalTractSpectrum[k] = smoothedVocalTract[smoothedInd][k];
@@ -1066,7 +1048,7 @@ public class WeightedCodebookFdpsolaAdapter {
                 frmy = new double[newFrmSize];
             }       
 
-            frmy = SignalProcUtils.removePreemphasis(frmy, params.lsfParams.preCoef);
+            frmy = SignalProcUtils.removePreemphasis(frmy, wctParams.lsfParams.preCoef);
 
             frmyEn = SignalProcUtils.getEnergy(frmy);
 
@@ -1084,7 +1066,7 @@ public class WeightedCodebookFdpsolaAdapter {
 
             for (j=1; j<=repeatSkipCount+1; j++)
             {
-                if (!isFixedRateVocalTractTransformation)
+                if (!wctParams.isFixedRateVocalTractConversion)
                 {
                     if (isVoiced)
                         newSkipSize = (int)Math.floor(currentPeriod/pscale+0.5);
