@@ -35,9 +35,11 @@ import java.io.FileReader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Vector;
 
@@ -63,6 +65,8 @@ import de.dfki.lt.mary.modules.synthesis.Voice;
 public class HTSContextTranslator extends InternalModule {
 
     private String contextFeatureFile;
+    
+    private Map<String,String> feat2shortFeat = new HashMap<String, String>();
  
     public HTSContextTranslator()
     {
@@ -427,7 +431,11 @@ public class HTSContextTranslator extends InternalModule {
      */
     private String shortenPfeat(String fea) {
       
-      String s;
+      // look up the feature in a table:
+      String s = feat2shortFeat.get(fea);
+      if (s!=null) return s;
+      
+      // First time: need to do the shortening:
       
      // s = s.replace("^mary_pos$/POS/g;  /* ??? */
       s = fea.replace("mary_", "");
@@ -451,7 +459,8 @@ public class HTSContextTranslator extends InternalModule {
       s = s.replace("position","pos");
       s = s.replace("halfphone_lr", "lr");
       
-      return s;     
+      feat2shortFeat.put(fea, s);
+      return s;
     }
     
 
