@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.mary.unitselection.voiceimport.MaryHeader;
 
 /**
@@ -73,6 +74,19 @@ public class PrecompiledJoinCostReader implements JoinCostFunction
     {
         load(fileName, null, null, 0);
     }
+    
+    /**
+     * Initialise this join cost function by reading the appropriate settings
+     * from the MaryProperties using the given configPrefix.
+     * @param configPrefix the prefix for the (voice-specific) config entries
+     * to use when looking up files to load.
+     */
+    public void init(String configPrefix) throws IOException
+    {
+        String precomputedJoinCostFileName = MaryProperties.getFilename(configPrefix+".precomputedJoinCostFile");
+        load(precomputedJoinCostFileName, null, null, 0);
+    }
+    
     
     /**
      * Load the given precompiled join cost file
@@ -129,7 +143,7 @@ public class PrecompiledJoinCostReader implements JoinCostFunction
      * Return the (precomputed) cost of joining the two given units;
      * if there is no precomputed cost, return Double.POSITIVE_INFINITY.
      */
-    public double cost(Unit uleft, Unit uright)
+    public double cost(Target t1, Unit uleft, Target t2, Unit uright)
     {
         Integer leftIndex = new Integer(uleft.getIndex());
         Map rightUnitsMap = (Map)left.get(leftIndex);

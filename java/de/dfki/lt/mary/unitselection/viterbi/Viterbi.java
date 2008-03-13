@@ -435,6 +435,7 @@ public  class Viterbi
         double cost;
         ViterbiPath newPath = new ViterbiPath();
 
+        Target candidateTarget = candidate.getTarget();
         Unit candidateUnit = candidate.getUnit();
         
         newPath.setCandidate(candidate);
@@ -448,8 +449,10 @@ public  class Viterbi
             joinCost = 0;
         } else {
             // Join costs:
-            Unit prevUnit = path.getCandidate().getUnit();
-            joinCost = joinCostFunction.cost(prevUnit, candidateUnit);
+            ViterbiCandidate prevCandidate = path.getCandidate();
+            Target prevTarget = prevCandidate.getTarget();
+            Unit prevUnit = prevCandidate.getUnit();
+            joinCost = joinCostFunction.cost(prevTarget, prevUnit, candidateTarget, candidateUnit);
         }
         // Total cost is a weighted sum of join cost and target cost:
         //     cost = (1-r) * joinCost + r * targetCost,

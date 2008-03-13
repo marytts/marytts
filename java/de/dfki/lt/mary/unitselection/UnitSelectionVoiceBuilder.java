@@ -126,13 +126,12 @@ public class UnitSelectionVoiceBuilder
             
             // build joinCostFunction
             logger.debug("...loading join cost function...");
-            String joinFileName = MaryProperties.needFilename(header+".joinCostFile");
-            String joinWeightFile = MaryProperties.getFilename(header + ".joinCostWeights");
             String joinCostClass = MaryProperties.needProperty(header+".joinCostClass");
-            String precomputedJoinCostFileName = MaryProperties.getFilename(header+".precomputedJoinCostFile");
             JoinCostFunction joinFunction = (JoinCostFunction) Class.forName(joinCostClass).newInstance();
-            float wSignal = Float.parseFloat(MaryProperties.getProperty(header+".joincostfunction.wSignal", "1.0"));
-            joinFunction.load(joinFileName, joinWeightFile, precomputedJoinCostFileName, wSignal);
+            joinFunction.init(header);
+            if (joinFunction instanceof JoinModelCost) {
+                ((JoinModelCost)joinFunction).setFeatureDefinition(targetFunction.getFeatureDefinition());
+            }
             
 	        // Build the various file readers
             logger.debug("...loading units file...");
