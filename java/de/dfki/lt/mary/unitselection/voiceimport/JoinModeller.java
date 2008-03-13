@@ -34,10 +34,12 @@ package de.dfki.lt.mary.unitselection.voiceimport;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.util.*;
 import java.io.FileWriter;
 
@@ -75,6 +77,7 @@ public class JoinModeller extends VoiceImportComponent
     public final String MMFFILE = "JoinModeller.mmfFile";
     public final String FULLFILE = "JoinModeller.fullFile";
     public final String CXCHEDFILE = "JoinModeller.cxcJoinFile";
+    public final String JOINTREEFILE = "JoinModeller.joinTreeFile";
     public final String CNVHEDFILE = "JoinModeller.cnvJoinFile";
     public final String TRNCONFFILE = "JoinModeller.trnFile";
     public final String CNVCONFFILE = "JoinModeller.cnvFile"; 
@@ -85,6 +88,33 @@ public class JoinModeller extends VoiceImportComponent
     {
         contextTranslator = new HTSContextTranslator();
         featureList = new Vector<String>(Arrays.asList(new String[] {
+                "mary_phoneme",
+                "mary_prev_phoneme",
+                "mary_next_phoneme",
+                "mary_ph_vc",
+                "mary_ph_cplace",
+                "mary_ph_ctype",
+                "mary_ph_cvox",
+                "mary_ph_vfront",
+                "mary_ph_vheight",
+                "mary_ph_vlng",
+                "mary_ph_vrnd",
+                "mary_prev_vc",
+                "mary_prev_cplace",
+                "mary_prev_ctype",
+                "mary_prev_cvox",
+                "mary_prev_vfront",
+                "mary_prev_vheight",
+                "mary_prev_vlng",
+                "mary_prev_vrnd",
+                "mary_next_vc",
+                "mary_next_cplace",
+                "mary_next_ctype",
+                "mary_next_cvox",
+                "mary_next_vfront",
+                "mary_next_vheight",
+                "mary_next_vlng",
+                "mary_next_vrnd",
                 "mary_stressed",
                 "mary_pos_in_syl",
                 "mary_position_type",
@@ -131,6 +161,7 @@ public class JoinModeller extends VoiceImportComponent
            props.put(MMFFILE,filedir+"join_mmf"+maryExt);
            props.put(FULLFILE, filedir+"fullList"+maryExt);       
            props.put(CXCHEDFILE, filedir+"cxc_join.hed");
+           props.put(JOINTREEFILE, filedir+"join_tree.inf");
            props.put(CNVHEDFILE, filedir+"cnv_join.hed");
            props.put(TRNCONFFILE, filedir+"trn.cnf");
            props.put(CNVCONFFILE, filedir+"cnv.cnf");
@@ -221,13 +252,11 @@ public class JoinModeller extends VoiceImportComponent
                 float[] nextLeftFrame = joinFeatures.getLeftJCF(i+1);
                 double[] difference = new double[myRightFrame.length];
                 for (int k=0, len=myRightFrame.length; k<len; k++) {
-                    // TODO: check why last difference is always 0
                     difference[k] = ((double)myRightFrame[k]) - nextLeftFrame[k];
                 }
 
-
                 // Group the units with the same feature vectors
-                String contextName = contextTranslator.features2context(def, fv, featureList);
+                String contextName = contextTranslator.features2LongContext(def, fv, featureList);
                 Set<double[]> unitsWithFV = uniqueFeatureVectors.get(contextName);
                 if (unitsWithFV == null) {
                     unitsWithFV = new HashSet<double[]>();
@@ -288,11 +317,51 @@ public class JoinModeller extends VoiceImportComponent
         System.out.println(uniqueFeatureVectors.keySet().size() + " unique feature vectors, "+numUnits +" units");
         System.out.println("Generated files: " + getProp(STATSFILE) + " " + getProp(MMFFILE) + " " + getProp(FULLFILE));
         
+        System.out.println("\n---- Creating tree clustering command file for HHEd\n");
+        PrintWriter pw = new PrintWriter(new File(getProp(CXCHEDFILE)));
+        pw.println("// load stats file");
+        pw.println("RO 000 \"" + getProp(STATSFILE)+"\"");
+        pw.println();
+        pw.println("TR 0");
+        pw.println();
+        pw.println("// questions for decision tree-based context clustering");
+        for (String f : featureList) {
+            int featureIndex = def.getFeatureIndex(f);
+            String[] values = def.getPossibleValues(featureIndex);
+            for (String v : values) {
+                pw.println("QS \""+f+"="+v+"\" {*|"+f+"="+v+"|*");
+            }
+            pw.println();
+        }
+        pw.println("TR 3");
+        pw.println();
+        pw.println("// construct decision trees");
+        pw.println("TB 000 join_s2_ {*.state[2]}");
+        pw.println();
+        pw.println("TR 1");
+        pw.println();
+        pw.println("// output constructed trees");
+        pw.println("ST \"" + getProp(JOINTREEFILE) + "\"");
+        pw.close();
         
         System.out.println("\n---- Tree-based context clustering for joinModeller\n");
         // here the input and output are the same MMFFILE.     
         cmdLine = getProp(HHEDCOMMAND) + " -A -C " + getProp(TRNCONFFILE) + " -D -T 1 -p -i -H " + getProp(MMFFILE) + " -m -a 1.0 -w " + getProp(MMFFILE) + " " + getProp(CXCHEDFILE) + " " + getProp(FULLFILE);
         launchProc(cmdLine, "HHEd", filedir);
+
+        System.out.println("\n---- Creating conversion-to-hts command file for HHEd\n");
+        pw = new PrintWriter(new File(getProp(CNVHEDFILE)));
+        pw.println("TR 2");
+        pw.println();
+        pw.println("// load trees for joinModeller");
+        pw.println("LT \"" + getProp(JOINTREEFILE) + "\"");
+        pw.println();
+        pw.println("// convert loaded trees for hts_engine format");
+        pw.println("CT \""+filedir+"\"");
+        pw.println();
+        pw.println("// convert mmf for hts_engine format");
+        pw.println("CM \"" + filedir + "\"");
+        pw.close();
         
         System.out.println("\n---- Converting mmfs to the hts_engine file format\n");
         // the input of this command are: join_mmf.mry and join_tree.inf and the output: trees.1 and pdf.1
