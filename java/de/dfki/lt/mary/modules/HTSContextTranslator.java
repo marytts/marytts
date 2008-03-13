@@ -332,19 +332,59 @@ public class HTSContextTranslator extends InternalModule {
         }
    
         StringBuffer contextName = new StringBuffer();
-        contextName.append(mary_prev_prev_phoneme + "^" + mary_prev_phoneme + "-"
-                + mary_phoneme + "+" + mary_next_phoneme + "=" + mary_next_next_phoneme + "||");
+        contextName.append(mary_prev_prev_phoneme);
+        contextName.append("^");
+        contextName.append(mary_prev_phoneme);
+        contextName.append("-");
+        contextName.append(mary_phoneme);
+        contextName.append("+");
+        contextName.append(mary_next_phoneme);
+        contextName.append("=");
+        contextName.append(mary_next_next_phoneme);
+        contextName.append("||");
         for (String f : featureList) {
             if (!def.hasFeature(f)) {
                 throw new IllegalArgumentException("Feature '"+f+"' is not known in the feature definition. Valid features are: "+def.getFeatureNames());
             }
             String shortF = shortenPfeat(f);
-            contextName.append(shortF+"="+def.getFeatureValueAsString(f, featureVector)+"|");
+            contextName.append(shortF);
+            contextName.append("=");
+            contextName.append(def.getFeatureValueAsString(f, featureVector));
+            contextName.append("|");
         }
         
         return contextName.toString();
     } /* method features2context */
 
+    /**
+     * Convert the feature vector into a context model name to be used by HTS/HTK.
+     * @param def a feature definition
+     * @param featureVector a feature vector which must be consistent with the Feature definition
+     * @param featureList a list of features to use in constructing the context model name. If missing, all features in the feature definition are used.
+     * @return the string representation of one context name.
+     */
+    public String features2LongContext(FeatureDefinition def, FeatureVector featureVector, Vector<String> featureList)
+    {
+        if (featureList == null) {
+            featureList = new Vector<String>(Arrays.asList(def.getFeatureNames().split("\\s+")));
+        }
+        StringBuffer contextName = new StringBuffer();
+        contextName.append("|");
+        for (String f : featureList) {
+            if (!def.hasFeature(f)) {
+                throw new IllegalArgumentException("Feature '"+f+"' is not known in the feature definition. Valid features are: "+def.getFeatureNames());
+            }
+            contextName.append(f);
+            contextName.append("=");
+            String value = def.getFeatureValueAsString(f, featureVector);
+            if (f.endsWith("phoneme")) 
+                value = replaceTrickyPhones(value);
+            contextName.append(value);
+            contextName.append("|");
+        }
+        
+        return contextName.toString();
+    } /* method features2context */
     
     
     /** Translation table for labels which are incompatible with HTK or shell filenames
