@@ -329,7 +329,7 @@ public class JoinModeller extends VoiceImportComponent
             int featureIndex = def.getFeatureIndex(f);
             String[] values = def.getPossibleValues(featureIndex);
             for (String v : values) {
-                pw.println("QS \""+f+"="+v+"\" {*|"+f+"="+v+"|*");
+                pw.println("QS \""+f+"="+v+"\" {*|"+f+"="+v+"|*}");
             }
             pw.println();
         }
