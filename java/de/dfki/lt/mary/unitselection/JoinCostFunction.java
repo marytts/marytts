@@ -41,13 +41,23 @@ import de.dfki.lt.mary.modules.phonemiser.PhonemeSet;
 public interface JoinCostFunction
 {
     /**
-     * Compute the goodness-of-fit of joining two units.
-     * @param u0 the proposed left unit
-     * @param u1 the proposed right unit
+     * Compute the goodness-of-fit of joining two units, given the corresponding targets
+     * @param t1 the left target
+     * @param u1 the proposed left unit
+     * @param t2 the right target
+     * @param u3 the proposed right unit
      * @return a non-negative number; smaller values mean better fit, i.e. smaller cost.
      */
-    public double cost(Unit u0, Unit u1);
+    public double cost(Target t1, Unit u1, Target t2, Unit u2);
 
+    /**
+     * Initialise this join cost function by reading the appropriate settings
+     * from the MaryProperties using the given configPrefix.
+     * @param configPrefix the prefix for the (voice-specific) config entries
+     * to use when looking up files to load.
+     */
+    public void init(String configPrefix) throws IOException;
+    
     /**
      * Load weights and values from the given file
      * @param joinFileName the file from which to read default weights and join cost features
@@ -56,6 +66,7 @@ public interface JoinCostFunction
      * @param wSignal Relative weight of the signal-based join costs relative to the
      *                phonetic join costs computed from the target 
      */
+    @Deprecated
     public void load(String joinFileName, String weightsFileName, String precompiledCostFileName,float wSignal) throws IOException;
     
 }

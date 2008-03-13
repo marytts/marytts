@@ -78,10 +78,10 @@ public class JoinCostFileMaker extends VoiceImportComponent {
         }
     }
     
-    public SortedMap getDefaultProps(DatabaseLayout db){
+    public SortedMap<String,String> getDefaultProps(DatabaseLayout db){
         this.db = db;
        if (props == null){
-           props = new TreeMap();
+           props = new TreeMap<String,String>();
            String filedir = db.getProp(db.FILEDIR);
            props.put(JOINCOSTFILE, filedir
                         +"joinCostFeatures"+db.getProp(db.MARYEXT));
@@ -100,7 +100,7 @@ public class JoinCostFileMaker extends VoiceImportComponent {
     }
     
     protected void setupHelp(){         
-        props2Help = new TreeMap();
+        props2Help = new TreeMap<String,String>();
         props2Help.put(JOINCOSTFILE, "file containing all halfphone units and their join cost features."
                 +" Will be created by this module");
         props2Help.put(MCEPTIMELINE, "file containing all mcep files");
@@ -186,10 +186,10 @@ public class JoinCostFileMaker extends VoiceImportComponent {
             /* - write the number of features: */
             jcf.writeInt( ufr.getNumberOfUnits() );
             /* - for each unit, write the left and right features: */
-            Vector buff = new Vector( 0, 5 );
+            Vector<Datagram> buff = new Vector<Datagram>( 0, 5 );
             // final int F0_HORIZON = 5;
             final int F0_HORIZON = 1;
-            boolean averageF0AcrossUnitBoundary = true;
+            boolean averageF0AcrossUnitBoundary = false;
             long median = 0;
             double leftF0 = 0.0d;
             double prevRightF0 = 0.0d;

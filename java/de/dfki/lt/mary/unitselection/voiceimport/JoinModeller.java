@@ -221,6 +221,7 @@ public class JoinModeller extends VoiceImportComponent
                 float[] nextLeftFrame = joinFeatures.getLeftJCF(i+1);
                 double[] difference = new double[myRightFrame.length];
                 for (int k=0, len=myRightFrame.length; k<len; k++) {
+                    // TODO: check why last difference is always 0
                     difference[k] = ((double)myRightFrame[k]) - nextLeftFrame[k];
                 }
 

@@ -100,6 +100,23 @@ public class JoinCostFeatures implements JoinCostFunction
         load(fileName, null, null,(float)0.5);
     }
     
+    /**
+     * Initialise this join cost function by reading the appropriate settings
+     * from the MaryProperties using the given configPrefix.
+     * @param configPrefix the prefix for the (voice-specific) config entries
+     * to use when looking up files to load.
+     */
+    public void init(String configPrefix) throws IOException
+    {
+        String joinFileName = MaryProperties.needFilename(configPrefix+".joinCostFile");
+        String joinWeightFile = MaryProperties.getFilename(configPrefix + ".joinCostWeights");
+        String precomputedJoinCostFileName = MaryProperties.getFilename(configPrefix+".precomputedJoinCostFile");
+        float wSignal = Float.parseFloat(MaryProperties.getProperty(configPrefix+".joincostfunction.wSignal", "1.0"));
+        load(joinFileName, joinWeightFile, precomputedJoinCostFileName, wSignal);
+    }
+    
+    
+    
    /**
      * Load weights and values from the given file
      * @param joinFileName the file from which to read default weights and join cost features
@@ -344,7 +361,7 @@ public class JoinCostFeatures implements JoinCostFunction
      * 
      * @return the cost of joining the left unit with the right unit, as a non-negative value.
      */
-    public double cost( Unit u1, Unit u2 ) {
+    public double cost(Target t1, Unit u1, Target t2, Unit u2 ) {
         // Units of length 0 cannot be joined:
         if (u1.getDuration() == 0 || u2.getDuration() == 0) return Double.POSITIVE_INFINITY;
         // In the case of diphones, replace them with the relevant part:
@@ -364,7 +381,7 @@ public class JoinCostFeatures implements JoinCostFunction
         // Either not half phone synthesis, or at a diphone boundary
         double cost = 1; // basic penalty for joins of non-contiguous units. 
         if (bothDiphones && precompiledCosts != null) {
-            cost += precompiledCosts.cost(u1, u2);
+            cost += precompiledCosts.cost(t1, u1, t2, u2);
         } else { // need to actually compute the cost
             cost += cost( u1.index, u2.index );
         }
