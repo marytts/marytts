@@ -2,6 +2,8 @@ package de.dfki.lt.mary.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A helper class converting between a given set of bytes and strings.
@@ -11,6 +13,8 @@ import java.util.Arrays;
 public class ByteStringTranslator
 {
     ArrayList<String> list;
+    Map<String,Byte> map;
+
     
     /**
      * Initialize empty byte-string two-way translator.
@@ -19,11 +23,13 @@ public class ByteStringTranslator
     public ByteStringTranslator()
     {
         list = new ArrayList<String>();
+        map = new HashMap<String, Byte>();
     }
 
     public ByteStringTranslator(byte initialRange)
     {
         list = new ArrayList<String>(initialRange);
+        map = new HashMap<String, Byte>();
     }
 
     /**
@@ -42,18 +48,22 @@ public class ByteStringTranslator
             throw new IllegalArgumentException("Too many strings for a byte-string translator: \n"+buf.toString()+ "("+strings.length+" strings)");
         }
         list = new ArrayList<String>(Arrays.asList(strings));
+        map = new HashMap<String, Byte>();
+        for (int i=0; i<strings.length; i++) {
+            map.put(strings[i], (byte)i);
+        }
+
     }
     
     public void set(byte b, String s)
     {
         list.add(b, s);
+        map.put(s, b);
     }
     
     public boolean contains(String s)
     {
-        int index = list.indexOf(s);
-        if (index == -1) return false;
-        return true;
+        return map.containsKey(s);
     }
     
     public boolean contains(byte b)
@@ -66,9 +76,10 @@ public class ByteStringTranslator
     
     public byte get(String s)
     {
-        int index = list.indexOf(s);
-        if (index == -1) throw new IllegalArgumentException("No byte value known for string [" + s + "]" );
-        return (byte)index;
+        Byte b = map.get(s);
+        if (b == null)
+            throw new IllegalArgumentException("No byte value known for string ["+s+"]");
+        return b.byteValue();
     }
     
     public String get(byte b)

@@ -2,6 +2,8 @@ package de.dfki.lt.mary.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A helper class converting between a given set of shorts and strings.
@@ -11,6 +13,8 @@ import java.util.Arrays;
 public class ShortStringTranslator
 {
     ArrayList<String> list;
+    Map<String,Short> map;
+
     
     /**
      * Initialize empty short-string two-way translator.
@@ -19,11 +23,13 @@ public class ShortStringTranslator
     public ShortStringTranslator()
     {
         list = new ArrayList<String>();
+        map = new HashMap<String, Short>();
     }
 
     public ShortStringTranslator(short initialRange)
     {
         list = new ArrayList<String>(initialRange);
+        map = new HashMap<String, Short>();
     }
 
     /**
@@ -36,18 +42,21 @@ public class ShortStringTranslator
     {
         if (strings.length > Short.MAX_VALUE) throw new IllegalArgumentException("Too many strings for a short-string translator");
         list = new ArrayList<String>(Arrays.asList(strings));
+        map = new HashMap<String, Short>();
+        for (int i=0; i<strings.length; i++) {
+            map.put(strings[i], (short)i);
+        }
     }
     
     public void set(short b, String s)
     {
         list.add(b, s);
+        map.put(s, b);
     }
     
     public boolean contains(String s)
     {
-        int index = list.indexOf(s);
-        if (index == -1) return false;
-        return true;
+        return map.containsKey(s);
     }
     
     public boolean contains(short b)
@@ -59,9 +68,10 @@ public class ShortStringTranslator
 
     public short get(String s)
     {
-        int index = list.indexOf(s);
-        if (index == -1) throw new IllegalArgumentException("No short value known for string ["+s+"]");
-        return (short)index;
+        Short index = map.get(s);
+        if (index == null)
+            throw new IllegalArgumentException("No short value known for string ["+s+"]");
+        return index.shortValue();
     }
     
     public String get(short b)

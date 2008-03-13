@@ -2,6 +2,8 @@ package de.dfki.lt.mary.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A helper class converting between a given set of integers and strings.
@@ -11,6 +13,7 @@ import java.util.Arrays;
 public class IntStringTranslator
 {
     ArrayList<String> list;
+    Map<String,Integer> map;
     
     /**
      * Initialize empty int-string two-way translator.
@@ -19,11 +22,13 @@ public class IntStringTranslator
     public IntStringTranslator()
     {
         list = new ArrayList<String>();
+        map = new HashMap<String, Integer>();
     }
 
     public IntStringTranslator(int initialRange)
     {
         list = new ArrayList<String>(initialRange);
+        map = new HashMap<String, Integer>();
     }
     
     /**
@@ -35,18 +40,21 @@ public class IntStringTranslator
     public IntStringTranslator(String[] strings)
     {
         list = new ArrayList<String>(Arrays.asList(strings));
+        map = new HashMap<String, Integer>();
+        for (int i=0; i<strings.length; i++) {
+            map.put(strings[i], i);
+        }
     }
     
     public void set(int i, String s)
     {
         list.add(i, s);
+        map.put(s, i);
     }
     
     public boolean contains(String s)
     {
-        int index = list.indexOf(s);
-        if (index == -1) return false;
-        return true;
+        return map.containsKey(s);
     }
     
     public boolean contains(int b)
@@ -58,9 +66,10 @@ public class IntStringTranslator
 
     public int get(String s)
     {
-        int index = list.indexOf(s);
-        if (index == -1) throw new IllegalArgumentException("No byte value known for string ["+s+"]");
-        return index;
+        Integer index = map.get(s);
+        if (index == null)
+            throw new IllegalArgumentException("No int value known for string ["+s+"]");
+        return index.intValue();
     }
     
     public String get(int i)
