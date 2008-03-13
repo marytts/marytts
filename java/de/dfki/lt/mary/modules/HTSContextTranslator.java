@@ -109,13 +109,12 @@ public class HTSContextTranslator extends InternalModule {
     
     public void setContextFeatureFile(String str){ contextFeatureFile = str; }
 
-    /**Translate TARGETFEATURES_EN to HTSCONTEXT_EN
-     * (I have put this method public so I can use it from MaryClientHMM)
+    /**Translate TARGETFEATURES to HTSCONTEXT
      * @param String d
      * @return String
      * @throws Exception
      */
-    public String _process(String d, Vector<String> featureList)
+    private String _process(String d, Vector<String> featureList)
     throws Exception
     {
       Hashtable<String,Integer> maryPfeats = new Hashtable<String,Integer>();
@@ -128,6 +127,10 @@ public class HTSContextTranslator extends InternalModule {
       int index_mary_phoneme = 0;
       int index_mary_prev_phoneme = 0;
       int index_mary_next_phoneme = 0;
+      int index_mary_sentence_punc = 0;
+      int index_mary_prev_punctuation = 0;
+      int index_mary_next_punctuation = 0;
+      int index_mary_tobi_accent = 0;
       
       Integer index;
       boolean first_blank_line = false;
@@ -158,6 +161,14 @@ public class HTSContextTranslator extends InternalModule {
               index_mary_prev_phoneme = num_mary_pfeats;
             else if(elem[0].contentEquals("mary_next_phoneme"))
               index_mary_next_phoneme = num_mary_pfeats;
+            else if(elem[0].contentEquals("mary_sentence_punc"))
+                index_mary_sentence_punc = num_mary_pfeats;
+            else if(elem[0].contentEquals("mary_prev_punctuation"))
+                index_mary_prev_punctuation = num_mary_pfeats;
+            else if(elem[0].contentEquals("mary_next_punctuation"))
+                index_mary_next_punctuation = num_mary_pfeats;
+            else if(elem[0].contentEquals("mary_tobi_accent"))
+                index_mary_tobi_accent = num_mary_pfeats;
             
             num_mary_pfeats++;
             
@@ -175,16 +186,20 @@ public class HTSContextTranslator extends InternalModule {
           if( elem.length > 1) { 
             currentPfeats.add(new Vector<String>()); 
             v = currentPfeats.get(num_phoneme);
-        
+    
+
             /* create a vector with the elements of this line */
             for(i=0; i<elem.length; i++) {
               //System.out.println("elem " + i + ": " + elem[i]);
               /* i need to convert tricky phonemes */               
-              if( i == index_mary_phoneme || 
-                  i == index_mary_prev_phoneme || 
-                  i == index_mary_next_phoneme) {               
+              if( i == index_mary_phoneme || i == index_mary_prev_phoneme || i == index_mary_next_phoneme  ) {               
                   v.addElement(replaceTrickyPhones(elem[i]));
               }
+              else if(i == index_mary_sentence_punc || i == index_mary_prev_punctuation || i == index_mary_next_punctuation) {
+                 v.addElement(replacePunc(elem[i])); 
+              }
+              else if(i == index_mary_tobi_accent )
+                 v.addElement(replaceToBI(elem[i])); 
               else        
                 v.addElement(elem[i]);
             }
@@ -258,7 +273,7 @@ public class HTSContextTranslator extends InternalModule {
     } /* method _process */
 
     
-    /**Translate TARGETFEATURES_EN to HTSCONTEXT_EN
+    /**Translate TARGETFEATURES to HTSCONTEXT
      * (I have put this method public so I can use it from MaryClientHMM)
      * This implementation is based on the FeatureDefinition class.
      * @param String d text of a TARGETFEATURES data
@@ -503,5 +518,41 @@ public class HTSContextTranslator extends InternalModule {
       return s;
     }
     
+    
+    private String replacePunc(String lab){
+        String s = lab;
+           
+        if(lab.contentEquals(".") )
+          s = "pt";
+        else if (lab.contentEquals(",") )
+          s = "cm";
+        else if (lab.contentEquals("(") )
+            s = "op";
+        else if (lab.contentEquals(")") )
+            s = "cp";
+        else if (lab.contentEquals("?") )
+            s = "in";
+        else if (lab.contentEquals("\"") )
+            s = "qt";
+        
+        return s;
+          
+      }
+    
+    private String replaceToBI(String lab){
+        String s = lab;
+        
+        if(lab.contains("*") )  
+          s = s.replace("*", "st");
+        
+        if(lab.contains("%") )
+          s = s.replace("%", "pc");
+        
+        if(lab.contains("^") )    
+          s = s.replace("^", "ht");
+        
+        return s;
+          
+      }
 
 } /* class HTSContextTranslator*/
