@@ -364,7 +364,12 @@ public class HTSContextTranslator extends InternalModule {
             String shortF = shortenPfeat(f);
             contextName.append(shortF);
             contextName.append("=");
-            contextName.append(def.getFeatureValueAsString(f, featureVector));
+            String value = def.getFeatureValueAsString(f, featureVector);
+            if (f.contains("sentence_punc") || f.contains("punctuation"))
+                value = replacePunc(value);
+            else if (f.contains("tobi"))
+                value = replaceToBI(value);
+            contextName.append(value);
             contextName.append("|");
         }
         
@@ -394,6 +399,10 @@ public class HTSContextTranslator extends InternalModule {
             String value = def.getFeatureValueAsString(f, featureVector);
             if (f.endsWith("phoneme")) 
                 value = replaceTrickyPhones(value);
+            else if (f.contains("sentence_punc") || f.contains("punctuation"))
+                value = replacePunc(value);
+            else if (f.contains("tobi"))
+                value = replaceToBI(value);
             contextName.append(value);
             contextName.append("|");
         }
@@ -407,7 +416,7 @@ public class HTSContextTranslator extends InternalModule {
      * @param lab
      * @return String
      */
-    private String replaceTrickyPhones(String lab){
+    public String replaceTrickyPhones(String lab){
       String s = lab;
       
       /** the replace is done for the labels: mary_phoneme, mary_prev_phoneme and mary_next_phoneme */
