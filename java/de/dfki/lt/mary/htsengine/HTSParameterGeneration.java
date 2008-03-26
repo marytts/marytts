@@ -49,6 +49,10 @@
 
 package de.dfki.lt.mary.htsengine;
 
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -114,7 +118,7 @@ public class HTSParameterGeneration {
 	  
 	int frame, uttFrame, lf0Frame;
 	int state, lw, rw, k, n, i;
-	boolean nobound;
+	boolean nobound, debug=false;
     HTSModel m;
     HTSModelSet ms = htsData.getModelSet();
     
@@ -158,10 +162,10 @@ public class HTSParameterGeneration {
 	for(i=0; i<um.getNumUttModel(); i++){
       m = um.getUttModel(i);          		
       for(state=0; state<ms.getNumState(); state++) {
-    	  
-        //System.out.println("m.get_dur(state="+ state + ")=" + m.get_dur(state));
-        
+    	         
       	for(frame=0; frame<m.getDur(state); frame++) {
+            
+          //System.out.println("uttFrame=" + uttFrame + "  phone frame=" + frame + "  phone state=" + state);
              
       	  /* copy pdfs for mcep */
       	  for(k=0; k<ms.getMcepVsize(); k++){
@@ -239,11 +243,50 @@ public class HTSParameterGeneration {
 	  magPst.mlpg(htsData);
     }
 	   
-	
+	String voice = "";
+    if(debug==false) {
+         String path = "/project/mary/marcela/gv-experiment/gmm-gv-test/"+voice;
+         if( htsData.getUseGV())
+             saveParam(path+"-mcep-gv.bin", mcepPst, HMMData.MCP);  
+         else if ( !htsData.getUseGV() ) 
+             saveParam(path+"-mcep.bin", mcepPst, HMMData.MCP);
+
+         if( htsData.getUseGV() )
+             saveParam(path+"-lf0-gv.bin", lf0Pst, HMMData.LF0);  
+         else if ( !htsData.getUseGV() ) 
+             saveParam(path+"-lf0.bin", lf0Pst, HMMData.LF0);
+     }
+    
 
 	  
   }  /* method htsMaximumLikelihoodParameterGeneration */
   
+ 
   
+  /* Save generated parameters in a binary file */
+  public void saveParam(String fileName, HTSPStream par, int type){
+    int t, m;
+    try{  
+      DataOutputStream data_out = new DataOutputStream (new FileOutputStream (fileName));
+      
+      if(type == HMMData.LF0 ) {
+          for(t=0; t<par.getT(); t++)
+             if( voiced[t] )
+               data_out.writeFloat((float)par.getPar(t,0));
+             else
+               data_out.writeFloat((float)0.0);  
+      } else {
+        for(t=0; t<par.getT(); t++)
+         for (m=0; m<par.getOrder(); m++)
+           data_out.writeFloat((float)par.getPar(t,m));
+      }
+      data_out.close();
+      
+      logger.info("saveParam in file: " + fileName);
+      
+    } catch (IOException e) {
+        logger.info("IO exception = " + e );
+    }    
+  }
   
 } /* class ParameterGeneration */

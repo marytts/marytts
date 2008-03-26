@@ -77,8 +77,9 @@ public class HMMVoice extends Voice {
            Gender gender, int topStart, int topEnd, int baseStart, int baseEnd,
            String Ftd, String Ftf, String Ftm, String Fts, String Fta, 
            String Fmd, String Fmf, String Fmm, String Fms, String Fma,
-           boolean useGV, String Fgvf, String Fgvm, String Fgvs, String Fgva,
-           String FeaList, String Flab, String Fif, int nFilters, int norderFilters) throws Exception {
+           String useMixExc, boolean useGV, boolean useGmmGV, String Fgvf, String Fgvm, 
+           String Fgvs, String Fgva, String Fgmmgvf, String Fgmmgvm,String FeaList, String Flab, 
+           String Fif, int nFilters, int norderFilters) throws Exception {
        super(nameArray, locale, dbAudioFormat, synthesizer, gender, topStart, topEnd, baseStart, baseEnd);
 
        this.htsData.setTreeDurFile(Ftd);  
@@ -93,12 +94,22 @@ public class HMMVoice extends Voice {
        this.htsData.setPdfStrFile(Fms);
        this.htsData.setPdfMagFile(Fma);
 
+       /* this way is done for usemixExc because previous versions do not have this variable 
+        * and the default value should be true. */
+       if(useMixExc != null)
+         this.htsData.setUseMixExc(Boolean.valueOf(useMixExc).booleanValue());
        this.htsData.setUseGV(useGV);
-       this.htsData.setPdfLf0GVFile(Fgvf);        
-       this.htsData.setPdfMcpGVFile(Fgvm);
-       this.htsData.setPdfStrGVFile(Fgvs);
-       this.htsData.setPdfMagGVFile(Fgva);
-       
+       this.htsData.setUseGmmGV(useGmmGV);
+       if(useGV){
+         this.htsData.setPdfLf0GVFile(Fgvf);        
+         this.htsData.setPdfMcpGVFile(Fgvm);
+         this.htsData.setPdfStrGVFile(Fgvs);
+         this.htsData.setPdfMagGVFile(Fgva);
+       } else if(useGmmGV){
+         this.htsData.setPdfLf0GVFile(Fgmmgvf);        
+         this.htsData.setPdfMcpGVFile(Fgmmgvm);
+       }
+            
        /* Feature list file */
        this.htsData.setFeaListFile(FeaList);
 

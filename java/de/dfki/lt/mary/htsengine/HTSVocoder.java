@@ -51,7 +51,9 @@ package de.dfki.lt.mary.htsengine;
 
 
 import java.io.ByteArrayInputStream;
+import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.util.Locale;
@@ -260,9 +262,10 @@ public class HTSVocoder {
 	  mc = new double[m];
 	  initVocoder(m-1, ms.getMcepVsize()-1, htsData);  /* m-1 because the SlideVector offsets count from 0-->24 */
       
-      if( htsData.getPdfStrFile() != null ) {
-	    initMixedExcitation(htsData);
-        mixedExcitation = true;
+      mixedExcitation = htsData.getUseMixExc();
+      
+      if( mixedExcitation && htsData.getPdfStrFile() != null ) {
+	    initMixedExcitation(htsData);      
 	    hp = new double[orderM];  
 	    hn = new double[orderM]; 
         
@@ -275,6 +278,9 @@ public class HTSVocoder {
         logger.info("HMM speech generation with mixed-excitation.");
       } else
         logger.info("HMM speech generation without mixed-excitation.");  
+   
+      DataOutputStream data_out = new DataOutputStream (new FileOutputStream ("/project/mary/marcela/gen-test/exc.bin"));
+      DataOutputStream data_out_mix = new DataOutputStream (new FileOutputStream ("/project/mary/marcela/gen-test/exc-mix.bin"));
       
       /* Clear content of SlideVector c, should be done if this function is
       called more than once with a new set of generated parameters. */
@@ -410,6 +416,9 @@ public class HTSVocoder {
             /* x is a pulse noise excitation and mix is mixed excitation */
             mix = fxp+fxn;
       
+            data_out.writeFloat((float)x);
+            data_out_mix.writeFloat((float)mix);
+            
             /* comment this line if no mixed excitation, just pulse and noise */
             x = mix;   /* excitation sample */
           }
@@ -441,6 +450,9 @@ public class HTSVocoder {
 	  
 	  } /* for each mcep frame */
 	
+      data_out.close();
+      data_out_mix.close();
+      
       logger.info("Finish processing " + mcepframe + " mcep frames." + "  Num samples in bytes s=" + s );
     	
 	  float sampleRate = 16000.0F;  //8000,11025,16000,22050,44100
