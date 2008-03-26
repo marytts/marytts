@@ -215,6 +215,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
             
            /** When creating a HMMVoice object it should create and initialise a 
             * TreeSet ts, a ModelSet ms and load the context feature list used in this voice. */
+            //MaryProperties.getBoolean("voice."+voiceName+".useMixExc")
             
             HMMVoice v = new HMMVoice (new String[] { voiceName },
                 locale, format, this, gender, -1, -1, -1, -1,
@@ -228,11 +229,15 @@ public class HMMSynthesizer implements WaveformSynthesizer {
                 MaryProperties.getFilename("voice."+voiceName+".Fmm"),     /* Model MCP */
                 MaryProperties.getFilename("voice."+voiceName+".Fms"),     /* Model STR */
                 MaryProperties.getFilename("voice."+voiceName+".Fma"),     /* Model MAG */
-                MaryProperties.getBoolean("voice."+voiceName+".useGV"),    /* Use Global Variance in parameter generation */
+                MaryProperties.getProperty("voice."+voiceName+".useMixExc"), /* Use Mixed excitation */
+                MaryProperties.getBoolean("voice."+voiceName+".useGV"),     /* Use Global Variance in parameter generation */
+                MaryProperties.getBoolean("voice."+voiceName+".useGmmGV"),  /* Use Global Variance as Gausian Mixture model */
                 MaryProperties.getFilename("voice."+voiceName+".Fgvf"),    /* GV Model LF0 */
                 MaryProperties.getFilename("voice."+voiceName+".Fgvm"),    /* GV Model MCP */
                 MaryProperties.getFilename("voice."+voiceName+".Fgvs"),    /* GV Model STR */
                 MaryProperties.getFilename("voice."+voiceName+".Fgva"),    /* GV Model MAG */
+                MaryProperties.getFilename("voice."+voiceName+".Fgmmgvf"), /* GMM GV Model LF0 */
+                MaryProperties.getFilename("voice."+voiceName+".Fgmmgvm"), /* GMM GV Model MCP */
                 MaryProperties.getFilename("voice."+voiceName+".FeaList"), /* Feature list file */
                 MaryProperties.getFilename("voice."+voiceName+".Flab"),    /* label file, for testing*/
                 MaryProperties.getFilename("voice."+voiceName+".Fif"),     /* Filter coefficients file for mixed excitation*/
@@ -346,8 +351,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
       String line, str[];
       Integer totalDur = 0;
       Integer auxDur = 0;
-      
-      
+    
       s = new Scanner(durations).useDelimiter("\n");
       while(s.hasNext()) {
          line = s.next();
