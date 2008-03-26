@@ -193,7 +193,10 @@ public class Syllabifier
                             // (6a) replace . with _
                             // two ph back, and the .:
                             it.previous(); it.previous(); it.previous();
-                            it.set("_"); // replace . with _
+
+                            // only use minuses, because underscores denote also pauses
+                            //it.set("_"); // replace . with _
+                            it.set("-"); // replace . with -
                         }
                     } else {
                         // unlikely case: no consonant after a 5
@@ -217,7 +220,9 @@ public class Syllabifier
         it = phoneList.listIterator(0);
         while (it.hasNext()) {
             String s = (String) it.next();
-            if (s.equals("_")) {
+            // only use minuses, because underscores denote also pauses
+            //if (s.equals("_")) {
+            if (s.equals("-")) {
                 Phoneme ph = getPhoneme((String)it.next());
                 if (ph != null && ph.name().equals("N")) {
                     ph = getPhoneme((String)it.next());
