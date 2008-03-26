@@ -87,7 +87,9 @@ public class HMMData {
 	private double uv      = 0.5;   /* variable for U/V threshold                 */
 	private boolean algnst = false; /* use state level alignment for duration     */
 	private boolean algnph = false; /* use phoneme level alignment for duration   */
-    private boolean useGV  = false; /* use global variance in parameter generation */
+    private boolean useMixExc = true;  /* use Mixed Excitation */
+    private boolean useGV     = false; /* use global variance in parameter generation */
+    private boolean useGmmGV  = false; /* use global variance as a Gaussian Mixture Model */
     
     /** variables for controling generation of speech in the vocoder                
      * these variables have default values but can be fixed and read from the      
@@ -169,7 +171,9 @@ public class HMMData {
 	public String getPdfStrFile() { return pdfStrFile; } 
 	public String getPdfMagFile() { return pdfMagFile; } 
     
+    public boolean getUseMixExc(){ return useMixExc; }
     public boolean getUseGV(){ return useGV; }
+    public boolean getUseGmmGV(){ return useGmmGV; }
     public String getPdfLf0GVFile() { return pdfLf0GVFile; }   
     public String getPdfMcpGVFile() { return pdfMcpGVFile; } 
     public String getPdfStrGVFile() { return pdfStrGVFile; } 
@@ -226,7 +230,10 @@ public class HMMData {
     public void setPdfStrFile(String str) { pdfStrFile = str; } 
     public void setPdfMagFile(String str) { pdfMagFile = str; } 
     
+    public void setUseMixExc(boolean bval){ useMixExc = bval; }
     public void setUseGV(boolean bval){ useGV = bval; }
+    public void setUseGmmGV(boolean bval){ useGmmGV = bval; }
+    
     public void setPdfLf0GVFile(String str) { pdfLf0GVFile = str; }   
     public void setPdfMcpGVFile(String str) { pdfMcpGVFile = str; } 
     public void setPdfStrGVFile(String str) { pdfStrGVFile = str; } 
@@ -244,8 +251,7 @@ public class HMMData {
     public void loadGVModelSet() throws Exception { gv.loadGVModelSet(this); } 
 	
 	/** Reads from configuration file all the data files in this class 
-     * this method is used when running stand alone, for example when calling
-     * from MaryClientUserHMM */
+     * this method is used when running HTSengine stand alone. */
 	public void initHMMData(String voice, String MaryBase, String ConfigFile) {		
       Properties props = new Properties();
       
@@ -266,11 +272,20 @@ public class HMMData {
     	  pdfStrFile = MaryBase + props.getProperty( "voice." + voice + ".Fms" ).substring(10);
     	 // pdfMagFile = MaryBase + props.getProperty( "voice." + voice + ".Fma" ).substring(10);
     	  
-          useGV = Boolean.valueOf(props.getProperty( "voice." + voice + ".useGV" )).booleanValue();
-          pdfLf0GVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgvf" ).substring(10);        
-          pdfMcpGVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgvm" ).substring(10);
-          pdfStrGVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgvs" ).substring(10);
-         // pdfMagGVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgva" ).substring(10);
+          if( props.getProperty( "voice." + voice + ".useMixExc" ) != null)
+            useMixExc = Boolean.valueOf(props.getProperty( "voice." + voice + ".useMixExc" )).booleanValue();
+          useGV     = Boolean.valueOf(props.getProperty( "voice." + voice + ".useGV" )).booleanValue();
+          useGmmGV  = Boolean.valueOf(props.getProperty( "voice." + voice + ".useGmmGV" )).booleanValue();
+          
+          if(useGV){
+            pdfLf0GVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgvf" ).substring(10);        
+            pdfMcpGVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgvm" ).substring(10);
+            pdfStrGVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgvs" ).substring(10);
+            // pdfMagGVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgva" ).substring(10);
+          }else if(useGmmGV){
+              pdfLf0GVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgmmgvf" ).substring(10);        
+              pdfMcpGVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgmmgvm" ).substring(10);
+          }
           
     	  /* Feature list file */
     	  featureListFile = MaryBase + props.getProperty( "voice." + voice + ".FeaList" ).substring(10);

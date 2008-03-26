@@ -175,16 +175,29 @@ public class HTSPStream {
      if( htsData.getUseGV() && (feaType == HMMData.MCP || feaType == HMMData.LF0 ) )
          logger.info("Generation using Global Variance");
      
+     htsData.getGVModelSet().setTotalNumIter(0);
+     htsData.getGVModelSet().setFirstIter(0);
+     
 	 for (m=0; m<M; m++) {
 	   calcWUWandWUM( m , debug);
 	   ldlFactorization(debug);   /* LDL factorization                               */
 	   forwardSubstitution();     /* forward substitution in Cholesky decomposition  */
 	   backwardSubstitution(m);   /* backward substitution in Cholesky decomposition */
-              
-       if( htsData.getUseGV() && feaType == HMMData.MCP ) {
-         logger.info("Optimization MCP feature: ("+ m + ")");    
-         gvParmGen(m, htsData.getGVModelSet().getGVmeanMcp(), htsData.getGVModelSet().getGVcovInvMcp());  
-       } else if ( htsData.getUseGV() && feaType == HMMData.LF0 ) {
+       
+       /* Global variance optimisation for MCP and LF0 */
+       if( (htsData.getUseGV() || htsData.getUseGmmGV() ) && ( feaType == HMMData.MCP || feaType == HMMData.LF0 ) ) {
+         if(feaType == HMMData.MCP)  
+           logger.info("Optimization MCP feature: ("+ m + ")"); 
+         if(feaType == HMMData.LF0)  
+             logger.info("Optimization LF0 feature: ("+ m + ")");
+         gvParmGen(m, htsData.getGVModelSet());  
+       
+         logger.info("\nTotal number of iterations = " + htsData.getGVModelSet().getTotalNumIter() + 
+                     "  average = " + htsData.getGVModelSet().getTotalNumIter()/M + 
+                     "  first iteration = " + htsData.getGVModelSet().getFirstIter() );
+       }
+       
+      /* } else if ( htsData.getUseGV() && feaType == HMMData.LF0 ) {
            logger.info("Optimization LF0 feature: ("+ m + ")");    
            gvParmGen(m, htsData.getGVModelSet().getGVmeanLf0(), htsData.getGVModelSet().getGVcovInvLf0());           
        } else if ( false && feaType == HMMData.STR ) {
@@ -194,7 +207,7 @@ public class HTSPStream {
            logger.info("Optimization MAG feature: ("+ m + ")");    
            gvParmGen(m, htsData.getGVModelSet().getGVmeanMag(), htsData.getGVModelSet().getGVcovInvMag());           
        }
-        
+*/        
        
 	 } 
 	 if(debug) {
@@ -206,17 +219,7 @@ public class HTSPStream {
 	   System.out.println();
 	 }
      
-	 if(debug) {
-	     if( htsData.getUseGV() && feaType == HMMData.MCP )
-	         saveParam("/project/mary/marcela/gen-test/mcp-gv.bin");  
-	     else if ( !htsData.getUseGV() && feaType == HMMData.MCP ) 
-	         saveParam("/project/mary/marcela/gen-test/mcp.bin");
-
-	     if( htsData.getUseGV() && feaType == HMMData.LF0 )
-	         saveParam("/project/mary/marcela/gen-test/lf0-gv.bin");  
-	     else if ( !htsData.getUseGV() && feaType == HMMData.LF0 ) 
-	         saveParam("/project/mary/marcela/gen-test/lf0e.bin");
-	 }
+	
 	 
   }  /* method mlpg */
   
@@ -352,7 +355,8 @@ public class HTSPStream {
   
   /*----------------- GV functions  -----------------------------*/
   
-  private void gvParmGen(int m, double gvmean[], double gvcovInv[]){
+ // private void gvParmGen(int m, int numMix, double gvmean[][], double gvcovInv[][]){
+  private void gvParmGen(int m, GVModelSet gv){
       
     int t,iter;
     double step=stepInit;
@@ -362,14 +366,32 @@ public class HTSPStream {
     mean=0.0;
     var=0.0;
     int numDown = 0;
+    int nmix;
+    double gvweights[];
+    double gvmean[][];
+    double gvcovInv[][];
     
+    /* make a copy in case there is problems during optimisation */
     for(t=0; t<nT; t++){
       g[t] = 0.0;
       par_ori[t] = par[t][m];  
     }
     
+    if( feaType == HMMData.MCP){
+      nmix = gv.getNumMix();
+      gvweights = gv.getGVweightsMcp();
+      gvmean = gv.getGVmeanMcp();
+      gvcovInv = gv.getGVcovInvMcp();
+    } else { //if( feaType == HMMData.LF0){
+      nmix = gv.getNumMix();  
+      gvweights = gv.getGVweightsLf0();
+      gvmean = gv.getGVmeanLf0();
+      gvcovInv = gv.getGVcovInvLf0();
+    } 
+    
+    
     /* first convert c (c=par) according to GV pdf and use it as the initial value */
-    convGV(m, gvmean, gvcovInv);
+    convGV(m, nmix, gvmean);
     
     /* recalculate R=WUW and r=WUM */
     calcWUWandWUM(m, false);
@@ -377,7 +399,7 @@ public class HTSPStream {
     /* iteratively optimize c */
     for (iter=1; iter<=maxGVIter; iter++) {
       /* calculate GV objective and its derivative with respect to c */
-      obj = calcGradient(m, gvmean, gvcovInv);
+      obj = calcGradient(m, nmix, gvweights, gvmean, gvcovInv);
     
       /* accelerate/decelerate step size */
       if(iter > 1) {
@@ -413,6 +435,9 @@ public class HTSPStream {
       /* convergence check (Euclid norm, objective function) */
       if(norm < minEucNorm || (iter > 1 && Math.abs(obj-prev) < GVepsilon )){
         logger.info("  Number of iterations: [   " + iter + "   ] GVobj=" + obj + " (HMMobj=" + HMMobj + "  GVobj=" + GVobj + ")");
+        gv.incTotalNumIter(iter);
+        if(m==0)
+          gv.setFirstIter(iter);
         if(iter > 1 )
             logger.info("  Converged (norm=" + norm + ", change=" + Math.abs(obj-prev) + ")");
         else
@@ -443,9 +468,10 @@ public class HTSPStream {
       
   }
   
-  private double calcGradient(int m, double gvmean[], double gvcovInv[]){
-   int t, i; 
-   double vd, h;
+  private double calcGradient(int m, int nmix, double gvweights[], double gvmean[][], double gvcovInv[][]){
+   int t, i,k; 
+   double vd[] = new double[nmix];
+   double h, aux;
    double w = 1.0 / (dw.getNum() * nT);
    
    /* recalculate GV of the current c = par */
@@ -453,9 +479,11 @@ public class HTSPStream {
    
    /* GV objective function and its derivative with respect to c */
    /* -1/2 * v(c)' U^-1 v(c) + v(c)' U^-1 mu + K  --> second part of eq (20) in Toda and Tokuda IEICE-2007 paper.*/
-   GVobj = -0.5 * w2 * (var - gvmean[m]) * gvcovInv[m] * (var - gvmean[m]);
-   vd = gvcovInv[m] * (var - gvmean[m]);
-   
+   GVobj = 0.0;
+   for(k=0; k<nmix; k++){
+     GVobj += gvweights[k] * -0.5 * w2 * (var - gvmean[k][m]) * gvcovInv[k][m] * (var - gvmean[k][m]);
+     vd[k] = gvcovInv[k][m] * (var - gvmean[k][m]);
+   }
      
    /* calculate g = R*c = WUW*c*/
    for(t=0; t<nT; t++) {
@@ -478,12 +506,19 @@ public class HTSPStream {
      //h = 1.0;
      /* case NEWTON */
      /* only diagonal elements of Hessian matrix are used */
-     h = -w1 * w * wuw[t][1-1] - w2 * 2.0 / (nT*nT) * ( ( nT-1) * vd + 2.0 * gvcovInv[m] * (par[t][m] - mean) * (par[t][m] - mean) );
+     h = 0.0;
+     for(k=0; k<nmix; k++)
+       h += gvweights[k] * ( ( nT-1) * vd[k] + 2.0 * gvcovInv[k][m] * (par[t][m] - mean) * (par[t][m] - mean) );
+     h = -w1 * w * wuw[t][1-1] - w2 * 2.0 / (nT*nT) * h;
      
      h = -1.0/h;
        
      /* gradient vector */
-     g[t] = h * ( w1 * w *(-g[t] + wum[t]) + w2 * (-2.0/nT * (par[t][m] - mean ) * vd ) ); 
+     aux = 0.0;
+     for(k=0; k<nmix; k++)
+       aux += gvweights[k] * (par[t][m] - mean ) * vd[k];   
+     
+     g[t] = h * ( w1 * w *(-g[t] + wum[t]) + w2 * -2.0/nT * aux ); 
      
      /*  Euclidian norm of gradient vector */  
      norm += g[t]*g[t];
@@ -498,14 +533,21 @@ public class HTSPStream {
    
   }
   
-  private void convGV(int m, double gvmean[], double gvcovInv[]){
-    int t;
-    double ratio; 
+  private void convGV(int m, int nmix, double gvmean[][]){
+    int t, k;
+    double ratio, mixmean; 
     /* calculate GV of c */
     calcGV(m);
-       
+     
+    /* calculate the mean of mixtures */
+    mixmean=0.0; 
+    for(k=0; k<nmix; k++)
+      mixmean += gvmean[k][m];
+    mixmean = mixmean / nmix;   
+    
+   
     /* ratio between GV mean and variance of c */
-    ratio = Math.sqrt(gvmean[m] / var);
+    ratio = Math.sqrt(mixmean / var);
    
     /* c'[t][d] = ratio * (c[t][d]-mean[d]) + mean[d]  eq. (34) in Toda and Tokuda IEICE-2007 paper. */
     
@@ -532,26 +574,7 @@ public class HTSPStream {
       
   }
   
-  /* Save generated parameters in a binary file */
-  public void saveParam(String fileName){
-    int t, m;
-    try{  
-      DataOutputStream data_out = new DataOutputStream (new FileOutputStream (fileName));
-      
-      for(t=0; t<nT; t++)
-        for (m=0; m<order; m++)
-          data_out.writeFloat((float)par[t][m]);
-      
-      data_out.close();
-      
-      System.out.println("saveParam in file: " + fileName);
-      
-    } catch (IOException e) {
-       System.out.println ("IO exception = " + e );
-    }
-      
-      
-  }
+ 
   
 
 } /* class PStream */

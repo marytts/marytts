@@ -138,7 +138,7 @@ public class HTSModelSet {
 		if(m.getDur(s) < 1 )
 		  m.setDur(s, 1);
         
-        System.out.println("   state: " + s + " dur=" + m.getDur(s));
+       // System.out.println("   state: " + s + " dur=" + m.getDur(s));
                
 		m.setTotalDur(m.getTotalDur() + m.getDur(s));
         
@@ -227,7 +227,7 @@ public class HTSModelSet {
      */
     public void findJoinPdf(int indexPdf, double mean[], double variance[]) {
       int i,j;
-      int s = 0; /* only one state */
+      
       int idx = indexPdf-1;
       for(i=0, j=0; j<joinVsize; i++,j++)
         mean[i] = joinPdf[idx][j];
@@ -493,10 +493,12 @@ public class HTSModelSet {
             
             /* read pdfs (mean & variance) */
             for ( i = 0; i < numJoinPdf; i++){
+               // System.out.print("joinPdf[" + i + "]: ");  
               for ( j = 0; j < (2 * joinVsize); j++) {
                   joinPdf[i][j] = data_in.readFloat();
-                  //System.out.println("durpdf[" + i + "]" + "[" + j + "]:" + durPdf[i][j]);
+                 // System.out.print(joinPdf[i][j] + " ");
               }
+              // System.out.println();
             }  
             data_in.close (); 
             data_in=null;
