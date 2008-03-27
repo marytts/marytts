@@ -29,6 +29,7 @@
 
 package de.dfki.lt.mary.unitselection.adaptation.codebook;
 
+import de.dfki.lt.mary.unitselection.adaptation.BaselineParams;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.ProsodyTransformerParams;
 import de.dfki.lt.mary.unitselection.adaptation.smoothing.SmoothingDefinitions;
 import de.dfki.lt.signalproc.analysis.EnergyFileHeader;
@@ -39,7 +40,7 @@ import de.dfki.lt.signalproc.analysis.PitchFileHeader;
  * @author oytun.turk
  *
  */
-public class WeightedCodebookTransformerParams extends WeightedCodebookBaselineParams {
+public class WeightedCodebookTransformerParams extends BaselineParams {
     public String inputFolder; //Folder of input files to be transformed
     public String outputBaseFolder; //Base folder of output files
     public String outputFolder; //Individual folder of output files (Note that this is automatically generated using parameter values)

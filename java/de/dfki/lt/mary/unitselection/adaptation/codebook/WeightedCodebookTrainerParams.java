@@ -29,6 +29,7 @@
 
 package de.dfki.lt.mary.unitselection.adaptation.codebook;
 
+import de.dfki.lt.mary.unitselection.adaptation.BaselineParams;
 import de.dfki.lt.mary.unitselection.adaptation.outlier.GaussianOutlierEliminator;
 import de.dfki.lt.mary.unitselection.adaptation.outlier.GaussianOutlierEliminatorParams;
 import de.dfki.lt.mary.unitselection.adaptation.outlier.KMeansMappingEliminatorParams;
@@ -38,7 +39,7 @@ import de.dfki.lt.signalproc.analysis.LsfFileHeader;
  * @author oytun.turk
  *
  */
-public class WeightedCodebookTrainerParams extends WeightedCodebookBaselineParams {
+public class WeightedCodebookTrainerParams extends BaselineParams {
     public static final int MAXIMUM_CONTEXT = 10;
     
     public WeightedCodebookFileHeader codebookHeader;
@@ -52,7 +53,7 @@ public class WeightedCodebookTrainerParams extends WeightedCodebookBaselineParam
     //Some filename extension for custom training file types
     public String indexMapFileExtension; //Index map file extensions
     
-    boolean isForcedAnalysis; //Set this to true if you want all acoustic features to be extracted even if their files exist
+    public boolean isForcedAnalysis; //Set this to true if you want all acoustic features to be extracted even if their files exist
     
     public GaussianOutlierEliminatorParams gaussianEliminatorParams;
     public KMeansMappingEliminatorParams kmeansEliminatorParams;

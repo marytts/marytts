@@ -36,12 +36,6 @@ import de.dfki.lt.signalproc.util.MathUtils;
  *
  */
 public class GMMTrainer {
-    public static final boolean IS_DIAGONAL_COVARIANCE_DEFAULT = true;
-    public static final int MINIMUM_ITERATIONS_DEFAULT = 20;
-    public static final int MAXIMUM_ITERATIONS_DEFAULT = 200;
-    public static final boolean IS_UPDATE_COVARIANCES_DEFAULT = true;
-    public static final double TINY_LOGLIKELIHOOD_CHANGE_DEFAULT = 0.01;
-    public static final double MINIMUM_COVARIANCE_ALLOWED_DEFAULT = 1e-4;
 
     public double[] logLikelihoods;
 
@@ -49,13 +43,25 @@ public class GMMTrainer {
     {
         logLikelihoods = null;
     }
+    
+    public GMM train(double[][] x, GMMTrainerParams gmmParams)
+    {
+        return train(x, 
+                     gmmParams.totalComponents, 
+                     gmmParams.isDiagonalCovariance, 
+                     gmmParams.minimumIterations,
+                     gmmParams.maximumIterations, 
+                     gmmParams.isUpdateCovariances, 
+                     gmmParams.tinyLogLikelihoodChange,
+                     gmmParams.minimumCovarianceAllowed);
+    }
 
     public GMM train(double[][] x, 
             int totalComponents)
     {
         return train(x, 
                 totalComponents, 
-                IS_DIAGONAL_COVARIANCE_DEFAULT);
+                GMMTrainerParams.IS_DIAGONAL_COVARIANCE_DEFAULT);
     }
 
     public GMM train(double[][] x, 
@@ -65,7 +71,7 @@ public class GMMTrainer {
         return train(x, 
                 totalComponents, 
                 isDiagonalCovariance, 
-                MINIMUM_ITERATIONS_DEFAULT);
+                GMMTrainerParams.MINIMUM_ITERATIONS_DEFAULT);
     }
 
     public GMM train(double[][] x, 
@@ -77,7 +83,7 @@ public class GMMTrainer {
                 totalComponents, 
                 isDiagonalCovariance, 
                 minimumIterations, 
-                MAXIMUM_ITERATIONS_DEFAULT);
+                GMMTrainerParams.MAXIMUM_ITERATIONS_DEFAULT);
     }
 
     public GMM train(double[][] x, 
@@ -91,7 +97,7 @@ public class GMMTrainer {
                 isDiagonalCovariance, 
                 minimumIterations, 
                 maximumIterations, 
-                IS_UPDATE_COVARIANCES_DEFAULT);
+                GMMTrainerParams.IS_UPDATE_COVARIANCES_DEFAULT);
     }
 
     public GMM train(double[][] x, 
@@ -107,7 +113,7 @@ public class GMMTrainer {
                 minimumIterations, 
                 maximumIterations, 
                 isUpdateCovariances, 
-                TINY_LOGLIKELIHOOD_CHANGE_DEFAULT);
+                GMMTrainerParams.TINY_LOGLIKELIHOOD_CHANGE_DEFAULT);
     }
 
     public GMM train(double[][] x, 
@@ -125,7 +131,7 @@ public class GMMTrainer {
                 maximumIterations, 
                 isUpdateCovariances, 
                 tinyLogLikelihoodChange,
-                MINIMUM_COVARIANCE_ALLOWED_DEFAULT);
+                GMMTrainerParams.MINIMUM_COVARIANCE_ALLOWED_DEFAULT);
     }
 
     public GMM train(double[][] x, 
@@ -284,12 +290,12 @@ public class GMMTrainer {
                 }
 
                 for (d1=0; d1<gmm.featureDimension; d1++)
-                    tmpMean[d1] = (float)(num1[d1] / denum);
+                    tmpMean[d1] = num1[d1] / denum;
 
                 diffk = 0.0f;
                 for (d1=0; d1<gmm.featureDimension; d1++)
                     diffk += (tmpMean[d1]-gmm.components[k].meanVector[d1])*(tmpMean[d1]-gmm.components[k].meanVector[d1]);
-                diffk = (float)Math.sqrt(diffk);
+                diffk = Math.sqrt(diffk);
                 mean_diff += diffk;
 
                 for (d1=0; d1<gmm.featureDimension; d1++)
@@ -369,9 +375,9 @@ public class GMMTrainer {
     
     public static void main(String[] args)
     {
-        int numClusters = 200;
+        int numClusters = 20;
         int numSamplesInClusters = 100;
-        double variance = 0.08;
+        double variance = 1.0; //Setting the variance too small, i.e. 0.08 results in ill-conditioned training - requires a log-domain implementation
         ClusteredDataGenerator c = new ClusteredDataGenerator(numClusters, numSamplesInClusters, variance);
         int vectorDim = 25;
         double[][] x = new double[c.data.length][vectorDim];

@@ -27,24 +27,25 @@
  * THIS SOFTWARE.
  */
 
-package de.dfki.lt.mary.unitselection.adaptation.codebook;
+package de.dfki.lt.mary.unitselection.adaptation.joint_gmm;
 
-import de.dfki.lt.mary.unitselection.adaptation.FeatureCollection;
-import de.dfki.lt.mary.util.StringUtil;
+import de.dfki.lt.machinelearning.GMMTrainerParams;
 
 /**
  * @author oytun.turk
  *
  */
-public class WeightedCodebookFeatureCollection extends FeatureCollection {
-    public String[] indexMapFiles;
+public class JointGMMParallelTrainerParams {
+    public GMMTrainerParams gmmEMTrainerParams;
     
-    public WeightedCodebookFeatureCollection(WeightedCodebookTrainerParams params, int numFiles)
+    public JointGMMParallelTrainerParams()
     {
-        if (numFiles>0)
-            indexMapFiles = StringUtil.indexedNameGenerator(params.trainingBaseFolder + params.codebookHeader.sourceTag + "_" + params.codebookHeader.targetTag + "_", numFiles, 1, "", params.indexMapFileExtension);
-        else
-            indexMapFiles = null;
+        gmmEMTrainerParams = new GMMTrainerParams();
     }
-
+    
+    public JointGMMParallelTrainerParams(JointGMMParallelTrainerParams existing)
+    {
+        gmmEMTrainerParams = new GMMTrainerParams(existing.gmmEMTrainerParams);
+        
+    }
 }

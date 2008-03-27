@@ -27,71 +27,100 @@
  * THIS SOFTWARE.
  */
 
-package de.dfki.lt.mary.unitselection.adaptation.codebook;
+package de.dfki.lt.mary.unitselection.adaptation.joint_gmm;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import de.dfki.lt.mary.unitselection.adaptation.AdaptationUtils;
-import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationItem;
-import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationSet;
-import de.dfki.lt.mary.unitselection.adaptation.IndexMap;
+import de.dfki.lt.machinelearning.ClusteredDataGenerator;
+import de.dfki.lt.machinelearning.GMM;
+import de.dfki.lt.machinelearning.GMMTrainer;
+import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebook;
+import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookFeatureExtractor;
+import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookFile;
+import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookFileHeader;
+import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookParallelTrainer;
+import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookPreprocessor;
+import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookTrainerParams;
 import de.dfki.lt.mary.unitselection.adaptation.outlier.KMeansMappingEliminatorParams;
 import de.dfki.lt.mary.unitselection.adaptation.outlier.TotalStandardDeviations;
-import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchTrainer;
-import de.dfki.lt.mary.unitselection.voiceimport.BasenameList;
-import de.dfki.lt.mary.util.FileUtils;
 import de.dfki.lt.mary.util.StringUtil;
-import de.dfki.lt.signalproc.analysis.Lsfs;
 import de.dfki.lt.signalproc.util.DistanceComputer;
-import de.dfki.lt.signalproc.util.MaryRandomAccessFile;
+import de.dfki.lt.signalproc.util.MathUtils;
 import de.dfki.lt.signalproc.window.Window;
 
 /**
  * @author oytun.turk
  *
- * This class implements training for weighted codebook mapping based voice conversion
- * using parallel training data (i.e. source and target data in pairs of audio recordings which have identical content)
  */
-public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
+public class JointGMMParallelTrainer extends JointGMMTrainer {
+    protected WeightedCodebookParallelTrainer wcpTrainer;
+    protected JointGMMParallelTrainerParams gmmParams;
     
-    public WeightedCodebookParallelTrainer(WeightedCodebookPreprocessor pp,
-                                           WeightedCodebookFeatureExtractor fe,
-                                           WeightedCodebookTrainerParams pa) 
+    public JointGMMParallelTrainer(WeightedCodebookPreprocessor pp,
+                           WeightedCodebookFeatureExtractor fe,
+                           WeightedCodebookTrainerParams pa,
+                           JointGMMParallelTrainerParams gp) 
     {
-        super(pp, fe, pa);
+        wcpTrainer = new WeightedCodebookParallelTrainer(pp, fe, pa);
+        gmmParams = new JointGMMParallelTrainerParams(gp);
     }
-    
-    //Call this function after initializing the trainer to perform training
-    public void run() throws IOException, UnsupportedAudioFileException
-    {
-        if (checkParams())
-        {
-            BaselineAdaptationSet sourceTrainingSet = getTrainingSet(wcParams.sourceTrainingFolder);
-            BaselineAdaptationSet targetTrainingSet = getTrainingSet(wcParams.targetTrainingFolder);
 
-            train(sourceTrainingSet, targetTrainingSet);
-        }
+    public void run()
+    {       
+        train();
     }
-      
-    //Parallel training
-    public void train(BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet) throws IOException, UnsupportedAudioFileException
+    
+    public void train()
     {
-        int [] map = getIndexedMapping(sourceTrainingSet, targetTrainingSet); 
+        //Parallel codebook training
+        try {
+            wcpTrainer.run();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (UnsupportedAudioFileException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        //
         
-        train(sourceTrainingSet, targetTrainingSet, map);
+        //Read parallel codebook
+        WeightedCodebookFile codebookFile = new WeightedCodebookFile(wcpTrainer.wcParams.codebookFile, WeightedCodebookFile.OPEN_FOR_READ);
+        WeightedCodebook codebook = null;
+        
+        try {
+            codebook = codebookFile.readCodebookFile();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        //
+        
+        //Read codebook entries in suitable format for GMM training and train joint GMMs
+        if (codebook!=null)
+        {
+            double[][] xy = new double[codebook.lsfEntries.length][2*codebook.header.lsfParams.lpOrder];
+            
+            for (int i=0; i<codebook.lsfEntries.length; i++)
+            {
+                System.arraycopy(codebook.lsfEntries[i].sourceItem.lsfs, 0, xy[i], 0, codebook.header.lsfParams.lpOrder);
+                System.arraycopy(codebook.lsfEntries[i].targetItem.lsfs, 0, xy[i], codebook.header.lsfParams.lpOrder, codebook.header.lsfParams.lpOrder);   
+            }
+
+            GMMTrainer g = new GMMTrainer();
+            GMM gmm = g.train(xy, gmmParams.gmmEMTrainerParams);
+        }
+        //
     }
     
     public static void main(String[] args) throws UnsupportedAudioFileException, IOException
     {
         WeightedCodebookPreprocessor pp = new WeightedCodebookPreprocessor();
         WeightedCodebookFeatureExtractor fe = new WeightedCodebookFeatureExtractor();
-        
         WeightedCodebookTrainerParams pa = new WeightedCodebookTrainerParams();
+        JointGMMParallelTrainerParams gp = new JointGMMParallelTrainerParams();
         
         pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAMES; //Frame-by-frame mapping of features
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAME_GROUPS; pa.codebookHeader.numNeighboursInFrameGroups = 3; //Mapping of frame average features (no label information but fixed amount of neighbouring frames is used)
@@ -187,10 +216,20 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         pa.kmeansEliminatorParams.totalStandardDeviations = new TotalStandardDeviations(tsd);
         //
         
-        WeightedCodebookParallelTrainer t = new WeightedCodebookParallelTrainer(pp, fe, pa);
+        //Gaussian trainer params: commenting out results in using default value for each
+        gp.gmmEMTrainerParams.totalComponents = 8;
+        gp.gmmEMTrainerParams.isDiagonalCovariance = true; 
+        gp.gmmEMTrainerParams.minimumIterations = 100;
+        gp.gmmEMTrainerParams.maximumIterations = 200;
+        gp.gmmEMTrainerParams.isUpdateCovariances = true;
+        //gp.gmmEMTrainerParams.tinyLogLikelihoodChange = 1e-10;
+        //gp.gmmEMTrainerParams.minimumCovarianceAllowed = 1e-5;
+        //
+        
+        JointGMMParallelTrainer t = new JointGMMParallelTrainer(pp, fe, pa, gp);
         
         t.run();
-        
-        System.out.println("Training completed...");
     }
+
+   
 }
