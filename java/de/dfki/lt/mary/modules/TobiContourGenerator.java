@@ -299,12 +299,15 @@ public class TobiContourGenerator extends InternalModule {
                 logger.info(
                     "Unexpected breakindex value `" + boundary.getAttribute("breakindex") + "', assuming " + bi);
             }
+            // TODO: removed because bi may be necessary later
+            /*
             if (bi < minBI) {
                 if (!boundary.hasAttribute("duration"))
                     boundary.getParentNode().removeChild(boundary);
                 else
                     boundary.removeAttribute("bi"); // but keep duration
             }
+            */
         }
         // Do we need to add any boundaries?
         if (bi1prosodyElements != null) {
