@@ -73,7 +73,13 @@ public class FeatureFileReader
         /* Open the file */
         DataInputStream dis = null;
         dis = new DataInputStream( new BufferedInputStream( new FileInputStream( fileName ) ) );
-        /* Load the Mary header */
+        
+        boolean loadSuccess = this.load(dis);
+        
+        if (!loadSuccess)
+            throw new IOException( "File [" + fileName + "] is not a valid Mary format file." );
+        
+        /*// --> load(dis)
         hdr = new MaryHeader( dis );
         if ( !hdr.isMaryHeader() ) {
             throw new IOException( "File [" + fileName + "] is not a valid Mary format file." );
@@ -88,6 +94,28 @@ public class FeatureFileReader
         for (int i=0; i<numberOfUnits; i++) {
             featureVectors[i] = featureDefinition.readFeatureVector(i,dis);
         }
+        */
+    }
+    
+    public boolean load(DataInputStream dis) throws IOException{
+        /* Load the Mary header */
+        hdr = new MaryHeader( dis );
+        if ( !hdr.isMaryHeader() ) {
+            return false;
+        }
+        if ( hdr.getType() != MaryHeader.UNITFEATS 
+                && hdr.getType() != MaryHeader.HALFPHONE_UNITFEATS) {
+            return false;
+        }
+        featureDefinition = new FeatureDefinition(dis);
+        int numberOfUnits = dis.readInt();
+        featureVectors = new FeatureVector[numberOfUnits];
+        for (int i=0; i<numberOfUnits; i++) {
+            featureVectors[i] = featureDefinition.readFeatureVector(i,dis);
+        }
+        
+        return true;
+
     }
     
 
