@@ -311,14 +311,22 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
     {
         private ByteStringTranslator values;
         private TargetItemNavigator navigator;
+        private String name;
 
-        public String getName() { return "mary_pos"; }
+        public String getName() { return this.name; }
         public String[] getValues() { return values.getStringValues(); }
         
         public Pos(String[] posValues)
         {
             this.values = new ByteStringTranslator(posValues);
             this.navigator = new WordNavigator();
+            this.name = "mary_pos";
+        }
+        
+        public Pos(String aName, String[] posValues, TargetItemNavigator wordNavi){
+            this.values = new ByteStringTranslator(posValues);
+            this.navigator =  wordNavi;
+            this.name = aName;
         }
         
     	/**
