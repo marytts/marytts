@@ -61,6 +61,7 @@ public class FeatureProcessorManager
         addFeatureProcessor(new MaryGenericFeatureProcessors.SylBreak("mary_syl_break", syllable));
         addFeatureProcessor(new MaryGenericFeatureProcessors.SylBreak("mary_prev_syl_break", prevSyllable));
         addFeatureProcessor(new MaryGenericFeatureProcessors.PositionType());
+        addFeatureProcessor(new MaryGenericFeatureProcessors.BreakIndex());
         addFeatureProcessor(new MaryGenericFeatureProcessors.IsPause("mary_prev_is_pause", prevSegment));
         addFeatureProcessor(new MaryGenericFeatureProcessors.IsPause("mary_next_is_pause", nextSegment));
         addFeatureProcessor(new MaryGenericFeatureProcessors.TobiAccent("mary_tobi_accent", syllable));

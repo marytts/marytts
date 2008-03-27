@@ -39,6 +39,7 @@ import com.sun.speech.freetts.ProcessException;
 import com.sun.speech.freetts.Relation;
 import com.sun.speech.freetts.Utterance;
 
+import de.dfki.lt.mary.MaryData;
 import de.dfki.lt.mary.unitselection.DiphoneTarget;
 import de.dfki.lt.mary.unitselection.HalfPhoneTarget;
 import de.dfki.lt.mary.unitselection.Target;
@@ -434,7 +435,81 @@ public class MaryGenericFeatureProcessors
             return firstWord;
         }
     }
+    
+    public static class NextWordNavigator implements TargetItemNavigator
+    {
+        public Item getItem(Target target)
+        {
+            Item segment = target.getItem();
+            if (segment == null) return null;
+            segment = segment.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (segment == null) return null;
+            Item syllable = segment.getParent();
+            if (syllable == null) return null;
+            Item word = syllable.getParent();
+            if (word == null) return null;
+            
+            return word.getNext();
+            
 
+        }
+    }
+    
+
+    
+    public static class FirstSegmentNextWordNavigator implements TargetItemNavigator
+    {
+        public Item getItem(Target target)
+        {
+            Item segment = target.getItem();
+            if (segment == null) return null;
+            segment = segment.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (segment == null) return null;
+            Item syllable = segment.getParent();
+            if (syllable == null) return null;
+            Item word = syllable.getParent();
+            if (word == null) return null;
+            
+            Item nextWord = word.getNext();
+            if (nextWord == null) return null;
+            
+            Item firstSyl = nextWord.getDaughter();
+            if (firstSyl == null) return null;
+            Item firstSeg = firstSyl.getDaughter();
+            return firstSeg;
+            
+
+        }
+    }
+
+    /*
+    public static class NextTokenWordNavigator implements TargetItemNavigator
+    {
+        public Item getItem(Target target)
+        {
+            Item segment = target.getItem();
+            if (segment == null) return null;
+            segment = segment.getItemAs(Relation.SYLLABLE_STRUCTURE);
+            if (segment == null) return null;
+            Item syllable = segment.getParent();
+            if (syllable == null) return null;
+            Item word = syllable.getParent();
+            if (word == null) return null;
+            
+          
+            Item token = word.getItemAs(Relation.TOKEN).getParent();
+            
+            if (null == token) return null;
+            
+            Item nextToken = token.getNext();
+            
+            if (null == nextToken) return null;
+            
+            return nextToken.getLastDaughter();
+            
+        }
+    }*/
+    
     public static class LastWordInPhraseNavigator implements TargetItemNavigator
     {
         public Item getItem(Target target)
@@ -1412,6 +1487,67 @@ public class MaryGenericFeatureProcessors
             }
         }
     }
+    
+    /**
+     * Classifies the the syllable as single, initial, mid or final.
+     */
+    public static class BreakIndex implements ByteValuedFeatureProcessor
+    {
+        protected TargetItemNavigator navigator;
+        protected ByteStringTranslator values;
+        public BreakIndex()
+        {
+            values = new ByteStringTranslator(new String[] {
+                    "0", "1", "2", "3", "4", "5", "6"
+            });
+            
+            // SyllableNavigator
+            navigator = new WordNavigator();
+        }
+        public String getName() { return "mary_breakindex"; }
+        public String[] getValues() { return values.getStringValues(); }
+                
+        public byte process(Target target)
+        {
+            Item word = navigator.getItem(target);
+            if (word == null) return values.get("0");
+                        
+            /*Item tokenWord = word.getItemAs(Relation.TOKEN);
+            if (tokenWord == null) return values.get("2");*/
+            
+            //Item token = tokenWord.getParent();
+            Item token = word.getItemAs(Relation.TOKEN).getParent();
+            if (token == null) return values.get("0");
+            
+
+            // check if last segment in token
+            SegmentNavigator segNavi = new SegmentNavigator();
+            LastSegmentInWordNavigator lastSegNavi = new LastSegmentInWordNavigator();     
+            Item segment = segNavi.getItem(target);
+            Item lastSegment = lastSegNavi.getItem(target);
+            
+            if (null == segment)
+                return values.get("0");
+
+             
+            if (!segment.equalsShared(lastSegment))
+                return values.get("0");
+            
+            String bi = token.getFeatures().getString("followingBoundaryBreakindex");
+            
+            // TODO: debugging
+            System.err.println("following bi: " + bi);
+            System.err.println("preceding bi: " + token.getFeatures().getString("precedingBoundaryBreakindex"));
+
+
+            
+            if (values.contains(bi)) return values.get(bi);
+            // unknown break index return "1"
+            return values.get("1");
+        }
+        
+    }
+    
 
     /**
      * The ToBI accent of the current syllable.
