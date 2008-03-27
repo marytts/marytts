@@ -60,12 +60,13 @@ public class GMM {
     {
         init(featureDimensionIn, totalComponentsIn, isDiagonalCovarIn);
     }
-    
+
     public GMM(KMeansClusteringTrainer kmeansClusterer)
     {
         init(kmeansClusterer.getFeatureDimension(), kmeansClusterer.getTotalClusters(), kmeansClusterer.isDiagonalCovariance());
         
-        for (int i=0; i<kmeansClusterer.getTotalClusters(); i++)
+        int i;
+        for (i=0; i<kmeansClusterer.getTotalClusters(); i++)
             components[i] = new GaussianComponent(kmeansClusterer.clusters[i]);
     }
     
@@ -110,7 +111,10 @@ public class GMM {
             weights = new double[totalComponents];
             
             for (int i=0; i<totalComponents; i++)
+            {
                 components[i] = new GaussianComponent(featureDimensionIn, isDiagonalCovarIn);
+                weights[i] = 1.0/totalComponents;
+            }
         }
         else
         {

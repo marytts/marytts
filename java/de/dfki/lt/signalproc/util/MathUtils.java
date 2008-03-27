@@ -1337,7 +1337,7 @@ public class MathUtils {
             else
             {
                 y = new double[newLength];
-                double Beta = ((float)newLength)/N;
+                double Beta = ((double)newLength)/N;
                 double newBeta = 1.0;
 
                 if (newLength>2)
@@ -2432,7 +2432,7 @@ public class MathUtils {
 
     public static int linearMap(int x, int xStart, int xEnd, int yStart, int yEnd)
     {
-        return (int)Math.floor(((float)x-xStart)/((float)xEnd-xStart)*(yEnd-yStart)+yStart + 0.5);
+        return (int)Math.floor(((double)x-xStart)/((double)xEnd-xStart)*(yEnd-yStart)+yStart + 0.5);
     }
 
     //In place sorting of array x, return value are the sorted 0-based indices 
@@ -2687,6 +2687,15 @@ public class MathUtils {
 
         return constantTerm;
     }
+    
+    public static double getGaussianPdfValueConstantTermLog(int featureDimension, double detCovarianceMatrix)
+    {
+        double constantTermLog = 0.5*featureDimension*Math.log(2*Math.PI); //double constantTerm = Math.pow(2*Math.PI, 0.5*featureDimension);
+        constantTermLog += Math.log(Math.sqrt(detCovarianceMatrix));
+        constantTermLog = -constantTermLog;
+
+        return constantTermLog;
+    }
 
     public static double getGaussianPdfValue(double[] x, double[] meanVector, double[] covarianceMatrix)
     {
@@ -2707,7 +2716,27 @@ public class MathUtils {
 
         P *= -0.5;
 
-        P = (float)(constantTerm*Math.exp(P));
+        P = constantTerm*Math.exp(P);
+
+        return P;
+    }
+    
+    //Log domain version
+    public static double getGaussianPdfValueLog(double[] x, double[] meanVector, double[] covarianceMatrix, double constantTermLog)
+    {
+        double P = Double.MIN_VALUE;
+        int i;
+        double z;
+        
+        for (i=0; i<x.length; i++)
+        {
+            z = (x[i]-meanVector[i])*(x[i]-meanVector[i]);
+            P = logAdd(P, Math.log(z)-Math.log(covarianceMatrix[i]));
+        }
+
+        P *= -0.5;
+
+        P = constantTermLog + P;
 
         return P;
     }
@@ -2733,7 +2762,7 @@ public class MathUtils {
 
         double P = -0.5*prod[0][0];
 
-        P = (float)(constantTerm*Math.exp(P));
+        P = constantTerm*Math.exp(P);
 
         return P;
     }
@@ -2956,6 +2985,25 @@ public class MathUtils {
         }
     }
     //
+    
+    public static double logAdd(double x, double y) 
+    {
+        if (y > x) 
+        {
+            double temp = x;
+            x = y;
+            y = temp;
+        }
+
+        if (x==Double.NEGATIVE_INFINITY)
+            return x;
+
+        double negDiff = y - x;
+        if (negDiff < -20)
+            return x;
+
+        return x + Math.log(1.0 + Math.exp(negDiff));
+    }
 
     public static void main(String[] args)
     {

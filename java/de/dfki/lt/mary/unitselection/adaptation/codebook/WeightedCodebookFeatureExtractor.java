@@ -9,6 +9,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationSet;
+import de.dfki.lt.mary.unitselection.adaptation.BaselineParams;
 import de.dfki.lt.mary.util.FileUtils;
 import de.dfki.lt.signalproc.analysis.EnergyAnalyserRms;
 import de.dfki.lt.signalproc.analysis.EnergyFileHeader;
@@ -81,7 +82,7 @@ public class WeightedCodebookFeatureExtractor {
         
     }
     
-    public void run(BaselineAdaptationSet fileSet, WeightedCodebookBaselineParams params, int desiredFeatures) throws IOException, UnsupportedAudioFileException
+    public void run(BaselineAdaptationSet fileSet, BaselineParams params, int desiredFeatures) throws IOException, UnsupportedAudioFileException
     {
         LsfFileHeader lsfParams = null;
         if (params instanceof WeightedCodebookTrainerParams)

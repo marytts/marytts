@@ -44,6 +44,7 @@ public class GaussianComponent {
     private double[][] invCovMatrix;
     private double detCovMatrix;
     private double constantTerm;
+    private double constantTermLog;
     //
     
     public GaussianComponent()
@@ -129,12 +130,14 @@ public class GaussianComponent {
             invCovMatrix = MathUtils.inverse(covMatrix);
             detCovMatrix = MathUtils.determinant(covMatrix);
             constantTerm = MathUtils.getGaussianPdfValueConstantTerm(covMatrix[0].length, detCovMatrix);
+            constantTermLog = MathUtils.getGaussianPdfValueConstantTermLog(covMatrix[0].length, detCovMatrix);
         }
         else
         {
             invCovMatrix = null;
             detCovMatrix = 0.0;
             constantTerm = 0.0;
+            constantTermLog = 0.0;
         }  
     }
     
@@ -170,5 +173,10 @@ public class GaussianComponent {
     public double getConstantTerm()
     {
         return constantTerm;
+    }
+    
+    public double getConstantTermLog()
+    {
+        return constantTermLog;
     }
 }
