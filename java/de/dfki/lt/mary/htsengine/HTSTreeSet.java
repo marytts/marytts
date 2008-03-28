@@ -380,7 +380,6 @@ public class HTSTreeSet {
 	public int searchTree(String name, HTSNode root_node, boolean debug){
 	   	 
         HTSNode aux_node = root_node;
-		
 		while (aux_node != null ){
 			
 			if( questionMatch(name, aux_node.getQuestion(),debug)) {
@@ -405,22 +404,20 @@ public class HTSTreeSet {
 		return -1;
 		
 	} /* method searchTree */
-	
+
+    /* looks if any pattern of the question is contained in the str name of the model. */
 	private boolean questionMatch(String str, HTSQuestion q, boolean debug) {
 		int i;
 		String pat;
-	    
-		for(i=0; i<q.getNumPatterns(); i++) {
-		   pat = q.getPattern(i);		   
-		   if(pat.startsWith("*"))
-			 pat = pat.substring(1);
-		   if(pat.endsWith("*"))
-			 pat = pat.substring(0, pat.length()-1);  
+        int N = q.getNumPatterns();
+   
+		for(i=0; i<N; i++) {
+		   pat = q.getPattern(i);
 		   if( str.contains(pat) ){
-			  if(debug) {  
+			  /*if(debug) {  
 			   q.printQuestion();
                System.out.println("    pattern matched: " + pat + "\n");
-			  }
+			  }*/
               return true;
 		   }
 		}

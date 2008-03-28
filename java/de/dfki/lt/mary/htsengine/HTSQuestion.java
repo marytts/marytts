@@ -84,7 +84,17 @@ public class HTSQuestion {
 	public void setQuestionName(String var){ qName = var; }
 	public String getQuestionName(){ return qName; }
 	
-	public void addPattern(String pat){ pattern.addElement(pat); }
+    /* when adding pattern the asteriks are removed so the questionMatch function does not have
+     * to do it all the time. */
+    public void addPattern(String pat){ 
+       if(pat.startsWith("*"))
+         pat = pat.substring(1);
+       if(pat.endsWith("*"))
+         pat = pat.substring(0, pat.length()-1);
+       pattern.addElement(pat); 
+    }
+    
+    
 	public String getPattern(int i){ return (String) pattern.elementAt(i); 	}
 	public int getNumPatterns(){ return pattern.size(); }
 	
