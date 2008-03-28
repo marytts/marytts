@@ -413,7 +413,8 @@ public class HTSTreeSet {
    
 		for(i=0; i<N; i++) {
 		   pat = q.getPattern(i);
-		   if( str.contains(pat) ){
+		   //if( str.contains(pat) ){
+           if( str.indexOf(pat) >= 0 ){
 			  /*if(debug) {  
 			   q.printQuestion();
                System.out.println("    pattern matched: " + pat + "\n");
