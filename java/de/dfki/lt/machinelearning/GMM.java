@@ -29,6 +29,9 @@
 
 package de.dfki.lt.machinelearning;
 
+import java.io.IOException;
+
+import de.dfki.lt.signalproc.util.MaryRandomAccessFile;
 import de.dfki.lt.signalproc.util.MathUtils;
 
 /**
@@ -175,5 +178,38 @@ public class GMM {
             probs[i] /= totalProb;
         
         return probs;
+    }
+    
+    public void write(MaryRandomAccessFile stream) throws IOException
+    {
+        stream.writeInt(featureDimension);
+        stream.writeInt(totalComponents);
+        stream.writeBoolean(isDiagonalCovariance);
+        stream.writeInt(info.length());
+        if (info.length()>0)
+            stream.writeChar(info.toCharArray());
+        
+        stream.writeDouble(weights);
+        for (int i=0; i<totalComponents; i++)
+            components[i].write(stream);  
+    }
+    
+    public void read(MaryRandomAccessFile stream) throws IOException
+    {
+        featureDimension = stream.readInt();
+        totalComponents = stream.readInt();
+        isDiagonalCovariance = stream.readBoolean();
+        int tmpLen = stream.readInt();
+        if (tmpLen>0)
+            info = String.copyValueOf(stream.readChar(tmpLen));
+        
+        weights = stream.readDouble(totalComponents);
+        
+        components = new GaussianComponent[totalComponents];
+        for (int i=0; i<totalComponents; i++)
+        {
+            components[i] = new GaussianComponent();
+            components[i].read(stream); 
+        }
     }
 }

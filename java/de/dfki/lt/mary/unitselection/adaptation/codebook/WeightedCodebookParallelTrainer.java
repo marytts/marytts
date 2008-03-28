@@ -114,7 +114,7 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         pa.codebookHeader.lsfParams.winsize = 0.020f;
         pa.codebookHeader.lsfParams.windowType = Window.HAMMING;
         
-        pa.codebookFile = StringUtil.checkLastSlash(pa.trainingBaseFolder) + pa.codebookHeader.sourceTag + "_X_" + pa.codebookHeader.targetTag + WeightedCodebookFile.defaultExtension;
+        pa.codebookFile = StringUtil.checkLastSlash(pa.trainingBaseFolder) + pa.codebookHeader.sourceTag + "_X_" + pa.codebookHeader.targetTag + WeightedCodebookFile.DEFAULT_FILE_EXTENSION;
 
         pa.isForcedAnalysis = false;
         

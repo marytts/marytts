@@ -41,6 +41,7 @@ import de.dfki.lt.signalproc.util.SignalProcUtils;
 public class ClusteredDataGenerator {
     public static final int DEFAULT_NUM_SAMPLES_IN_CLUSTERS = 50;
     public static final int DEFAULT_NUM_CLUSTERS = 10;
+    public static final double DEFAULT_INIT_MEAN = 10.0;
     public static final double DEFAULT_VARIANCE = 1.0;
     public double[] data;
     
@@ -54,14 +55,19 @@ public class ClusteredDataGenerator {
     
     public ClusteredDataGenerator(int numClusters, int numSamplesInClusters)
     {
-        this(numClusters, numSamplesInClusters, DEFAULT_VARIANCE);
+        this(numClusters, numSamplesInClusters, DEFAULT_INIT_MEAN);
     }
     
-    public ClusteredDataGenerator(int numClusters, int numSamplesInClusters, double variance)
+    public ClusteredDataGenerator(int numClusters, int numSamplesInClusters, double initMean)
+    {
+        this(numClusters, numSamplesInClusters, initMean, DEFAULT_VARIANCE);
+    }
+    
+    public ClusteredDataGenerator(int numClusters, int numSamplesInClusters, double initMean, double variance)
     {
         double[] clusterMeans = new double[numClusters];
         for (int i=0; i<numClusters; i++)
-            clusterMeans[i] = (i+1)*10.0;
+            clusterMeans[i] = (i+1)*initMean;
         
         init(clusterMeans, variance, numSamplesInClusters);
     }

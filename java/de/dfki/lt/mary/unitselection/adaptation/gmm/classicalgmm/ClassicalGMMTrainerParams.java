@@ -27,12 +27,18 @@
  * THIS SOFTWARE.
  */
 
-package de.dfki.lt.mary.unitselection.adaptation.codebook;
+package de.dfki.lt.mary.unitselection.adaptation.gmm.classicalgmm;
 
 /**
  * @author oytun.turk
  *
  */
-public class WeightedCodebookBaselineParams {
+public class ClassicalGMMTrainerParams {
+    //
+    public int trainingType;
+    public static final int FULL_CONVERSION = 1;
+    public static final int DIAGONAL_CONVERSION = 2;
+    public static final int VQ_CONVERSION = 3;
+    //
 
 }

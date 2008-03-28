@@ -57,10 +57,7 @@ public class WeightedCodebookTransformerParams extends BaselineParams {
     public EnergyFileHeader energyParams;
     
     public boolean isForcedAnalysis;
-    public boolean isSourceVocalTractSpectrumFromCodebook;
     public boolean isVocalTractTransformation;
-    public boolean isResynthesizeVocalTractFromSourceCodebook;
-    public boolean isVocalTractMatchUsingTargetCodebook;
     
     public boolean isSeparateProsody;
     public boolean isSaveVocalTractOnlyVersion;
@@ -93,10 +90,10 @@ public class WeightedCodebookTransformerParams extends BaselineParams {
         energyParams = new EnergyFileHeader();
         
         isForcedAnalysis = false;
-        isSourceVocalTractSpectrumFromCodebook = true;
+        isSourceVocalTractSpectrumFromModel = true;
         isVocalTractTransformation = true;
-        isResynthesizeVocalTractFromSourceCodebook = false;
-        isVocalTractMatchUsingTargetCodebook = false;
+        isResynthesizeVocalTractFromSourceModel = false;
+        isVocalTractMatchUsingTargetModel = false;
         
         isSeparateProsody = true;
         isSaveVocalTractOnlyVersion = true;
@@ -115,6 +112,8 @@ public class WeightedCodebookTransformerParams extends BaselineParams {
     
     public WeightedCodebookTransformerParams(WeightedCodebookTransformerParams existing)
     {
+        super((BaselineParams)existing);
+        
         inputFolder = existing.inputFolder;
         outputBaseFolder = existing.outputBaseFolder;
         outputFolder = existing.outputFolder;
@@ -130,10 +129,7 @@ public class WeightedCodebookTransformerParams extends BaselineParams {
         energyParams = new EnergyFileHeader(existing.energyParams);
         
         isForcedAnalysis = existing.isForcedAnalysis;
-        isSourceVocalTractSpectrumFromCodebook = existing.isSourceVocalTractSpectrumFromCodebook;
         isVocalTractTransformation = existing.isVocalTractTransformation;
-        isResynthesizeVocalTractFromSourceCodebook = existing.isResynthesizeVocalTractFromSourceCodebook;
-        isVocalTractMatchUsingTargetCodebook = existing.isVocalTractMatchUsingTargetCodebook;
         
         isSeparateProsody = existing.isSeparateProsody;
         isSaveVocalTractOnlyVersion = existing.isSaveVocalTractOnlyVersion;

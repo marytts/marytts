@@ -279,10 +279,10 @@ public class KMeansClusteringTrainer {
                 if  (changedPerc < MIN_CHANGE_PERCENT) //stop if number of clusters changed is less than %MIN_CHANGE_PERCENT of total observation
                     bCont = false;
                 
-                System.out.println("Iteration: " + String.valueOf(iter) + " with " + String.valueOf(changedPerc) + " percent of cluster assignments updated");
+                System.out.println("K-Means iteration: " + String.valueOf(iter) + " with " + String.valueOf(changedPerc) + " percent of cluster assignments updated");
             }
             else
-                System.out.println("Iteration: " + String.valueOf(iter) + " K-means initialized");
+                System.out.println("K-Means iteration: " + String.valueOf(iter) + " K-means initialized");
             
             for (t=1; t<=observations; t++)
             {
@@ -321,7 +321,7 @@ public class KMeansClusteringTrainer {
                     clusters[i].covMatrix = MathUtils.covariance(x, clusters[i].meanVector, true, indices);
                     for (d1=0; d1<clusters[i].covMatrix.length; d1++)
                     {
-                        for (d2=0; d2<clusters[i].covMatrix[d2].length; d2++)
+                        for (d2=0; d2<clusters[i].covMatrix[d1].length; d2++)
                             clusters[i].covMatrix[d1][d2] = Math.max(clusters[i].covMatrix[d1][d2], MINIMUM_VARIANCE);
                     }
                     
@@ -354,6 +354,8 @@ public class KMeansClusteringTrainer {
             
             invCovMatrixGlobal = MathUtils.inverse(covMatrixGlobal);
         }
+        
+        System.out.println("K-Means clustering completed...");
     }
     
     public int getFeatureDimension()

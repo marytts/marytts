@@ -800,28 +800,38 @@ public class MathUtils {
 
         if (x!=null && y!=null)
         {
-            int i, j, m;
-            int rowSizex = x.length;
-            int colSizex = x[0].length;
-            int rowSizey = y.length;
-            int colSizey = y[0].length;
-            for (i=1; i<x.length; i++)
-                assert x[i].length == colSizex;
-            for (i=1; i<y.length; i++)
-                assert y[i].length == colSizey;
-            assert colSizex==rowSizey;
-
-            z = new double[rowSizex][colSizey];
-            double tmpSum;
-            for (i=0; i<rowSizex; i++)
+            if (x.length==1 && y.length==1) //Special case -- diagonal matrix multiplication, returns a diagonal matrix
             {
-                for (j=0; j<colSizey; j++)
-                {
-                    tmpSum = 0.0;
-                    for (m=0; m<x[i].length; m++)
-                        tmpSum += x[i][m]*y[m][j];
+                assert x[0].length==y[0].length;
+                z = new double[1][x[0].length];
+                for (int i=0; i<x[0].length; i++)
+                    z[0][i] = x[0][i]*y[0][i];
+            }
+            else
+            {
+                int i, j, m;
+                int rowSizex = x.length;
+                int colSizex = x[0].length;
+                int rowSizey = y.length;
+                int colSizey = y[0].length;
+                for (i=1; i<x.length; i++)
+                    assert x[i].length == colSizex;
+                for (i=1; i<y.length; i++)
+                    assert y[i].length == colSizey;
+                assert colSizex==rowSizey;
 
-                    z[i][j] = tmpSum;
+                z = new double[rowSizex][colSizey];
+                double tmpSum;
+                for (i=0; i<rowSizex; i++)
+                {
+                    for (j=0; j<colSizey; j++)
+                    {
+                        tmpSum = 0.0;
+                        for (m=0; m<x[i].length; m++)
+                            tmpSum += x[i][m]*y[m][j];
+
+                        z[i][j] = tmpSum;
+                    }
                 }
             }
         }
@@ -2842,14 +2852,20 @@ public class MathUtils {
     //Square matrix inversion using LU decomposition
     public static double[][] inverse(double[][] matrix)
     {
-        double[][] invMatrix = new double[matrix.length][matrix.length];
-        for (int i=0; i<matrix.length; i++)            
-            System.arraycopy(matrix[i], 0, invMatrix[i], 0, matrix.length);
-        
-        if (matrix.length==1)
-            invMatrix[0] = inverse(invMatrix[0]);
-        else
+        double[][] invMatrix = null;
+        if (matrix.length==1) //Diagonal matrix
+        {
+            invMatrix = new double[1][matrix[0].length];
+            invMatrix[0] = inverse(matrix[0]);
+        }
+        else //Full square matrix
+        {
+            invMatrix = new double[matrix.length][matrix.length];
+            for (int i=0; i<matrix.length; i++)            
+                System.arraycopy(matrix[i], 0, invMatrix[i], 0, matrix[i].length);
+
             inverseInPlace(invMatrix);
+        }
         
         return invMatrix;
     }

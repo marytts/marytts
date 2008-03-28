@@ -1,4 +1,4 @@
-package de.dfki.lt.mary.unitselection.adaptation.joint_gmm;
+package de.dfki.lt.mary.unitselection.adaptation.gmm.jointgmm;
 
 import java.io.IOException;
 
