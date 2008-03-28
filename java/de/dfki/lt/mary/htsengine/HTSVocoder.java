@@ -250,6 +250,18 @@ public class HTSVocoder {
 	  int audio_size;  /* audio size in samples, calculated as num frames * frame period */
       double [] audio_double = null;
       HTSModelSet ms = htsData.getModelSet();
+      
+      /* --------------------------------------------------------------------------------
+       * these variables for allow saving excitation and mixed excitation in a binary file 
+       * if true please provide an appropriate path/name where to save these files, 
+       * the generated files can be seen using SPTK tools. */
+      boolean debug = false;
+      DataOutputStream data_out = null;
+      DataOutputStream data_out_mix = null;
+      String excFile = "/project/mary/marcela/gen-test/exc.bin";
+      String mixExcFile = "/project/mary/marcela/gen-test/exc-mix.bin";
+      /* --------------------------------------------------------------------------------*/
+      
 	    
       double f0, f0Std, f0Shift, f0MeanOri;
       double mc[] = null;  /* feature vector for a particular frame */
@@ -278,9 +290,11 @@ public class HTSVocoder {
         logger.info("HMM speech generation with mixed-excitation.");
       } else
         logger.info("HMM speech generation without mixed-excitation.");  
-   
-      DataOutputStream data_out = new DataOutputStream (new FileOutputStream ("/project/mary/marcela/gen-test/exc.bin"));
-      DataOutputStream data_out_mix = new DataOutputStream (new FileOutputStream ("/project/mary/marcela/gen-test/exc-mix.bin"));
+ 
+      if(debug){
+        data_out = new DataOutputStream (new FileOutputStream (excFile));
+        data_out_mix = new DataOutputStream (new FileOutputStream (mixExcFile));
+      }
       
       /* Clear content of SlideVector c, should be done if this function is
       called more than once with a new set of generated parameters. */
@@ -416,8 +430,10 @@ public class HTSVocoder {
             /* x is a pulse noise excitation and mix is mixed excitation */
             mix = fxp+fxn;
       
-            data_out.writeFloat((float)x);
-            data_out_mix.writeFloat((float)mix);
+            if(debug){
+              data_out.writeFloat((float)x);
+              data_out_mix.writeFloat((float)mix);
+            }
             
             /* comment this line if no mixed excitation, just pulse and noise */
             x = mix;   /* excitation sample */
@@ -450,8 +466,10 @@ public class HTSVocoder {
 	  
 	  } /* for each mcep frame */
 	
-      data_out.close();
-      data_out_mix.close();
+      if(debug){
+        data_out.close();
+        data_out_mix.close();
+      }
       
       logger.info("Finish processing " + mcepframe + " mcep frames." + "  Num samples in bytes s=" + s );
     	
