@@ -27,7 +27,7 @@
  * THIS SOFTWARE.
  */
 
-package de.dfki.lt.mary.unitselection.adaptation.joint_gmm;
+package de.dfki.lt.mary.unitselection.adaptation.gmm.jointgmm;
 
 import java.io.IOException;
 
@@ -45,6 +45,7 @@ import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookPreproc
 import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookTrainerParams;
 import de.dfki.lt.mary.unitselection.adaptation.outlier.KMeansMappingEliminatorParams;
 import de.dfki.lt.mary.unitselection.adaptation.outlier.TotalStandardDeviations;
+import de.dfki.lt.mary.util.FileUtils;
 import de.dfki.lt.mary.util.StringUtil;
 import de.dfki.lt.signalproc.util.DistanceComputer;
 import de.dfki.lt.signalproc.util.MathUtils;
@@ -56,15 +57,15 @@ import de.dfki.lt.signalproc.window.Window;
  */
 public class JointGMMParallelTrainer extends JointGMMTrainer {
     protected WeightedCodebookParallelTrainer wcpTrainer;
-    protected JointGMMParallelTrainerParams gmmParams;
+    protected JointGMMTrainerParams jgParams;
     
     public JointGMMParallelTrainer(WeightedCodebookPreprocessor pp,
                            WeightedCodebookFeatureExtractor fe,
                            WeightedCodebookTrainerParams pa,
-                           JointGMMParallelTrainerParams gp) 
+                           JointGMMTrainerParams gp) 
     {
         wcpTrainer = new WeightedCodebookParallelTrainer(pp, fe, pa);
-        gmmParams = new JointGMMParallelTrainerParams(gp);
+        jgParams = new JointGMMTrainerParams(gp);
     }
 
     public void run()
@@ -99,6 +100,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         //
         
         //Read codebook entries in suitable format for GMM training and train joint GMMs
+        GMM gmm = null;
         if (codebook!=null)
         {
             double[][] xy = new double[codebook.lsfEntries.length][2*codebook.header.lsfParams.lpOrder];
@@ -110,8 +112,25 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
             }
 
             GMMTrainer g = new GMMTrainer();
-            GMM gmm = g.train(xy, gmmParams.gmmEMTrainerParams);
+            gmm = g.train(xy, jgParams.gmmEMTrainerParams);
         }
+        //
+        
+        //Convert joint GMM into a suitable format for using in transformation and save to a binary output file
+        if (gmm!=null)
+        {
+            JointGMM jointGMM = new JointGMM(gmm);
+            
+            jointGMM.write(jgParams.jointGMMFile);
+            
+            JointGMM jointGMM2 = new JointGMM(jgParams.jointGMMFile); //Check if writing/reading identical
+            
+            System.out.println("Write/read test complete...");
+        }
+        //
+        
+        //Delete temporary codebook file
+        FileUtils.delete(wcpTrainer.wcParams.codebookFile);
         //
     }
     
@@ -120,7 +139,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         WeightedCodebookPreprocessor pp = new WeightedCodebookPreprocessor();
         WeightedCodebookFeatureExtractor fe = new WeightedCodebookFeatureExtractor();
         WeightedCodebookTrainerParams pa = new WeightedCodebookTrainerParams();
-        JointGMMParallelTrainerParams gp = new JointGMMParallelTrainerParams();
+        JointGMMTrainerParams gp = new JointGMMTrainerParams();
         
         pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAMES; //Frame-by-frame mapping of features
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAME_GROUPS; pa.codebookHeader.numNeighboursInFrameGroups = 3; //Mapping of frame average features (no label information but fixed amount of neighbouring frames is used)
@@ -131,7 +150,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         pa.codebookHeader.sourceTag = "neutralF"; //Source name tag (i.e. style or speaker identity)
         pa.codebookHeader.targetTag = "angryF"; //Target name tag (i.e. style or speaker identity)
         
-        pa.trainingBaseFolder = "d:\\1\\neutral_X_angry_50"; //Training base directory
+        pa.trainingBaseFolder = "d:\\1\\neutral_X_angry_50_jointGMM"; //Training base directory
         pa.sourceTrainingFolder = "d:\\1\\neutral50\\train"; //Source training folder
         pa.targetTrainingFolder = "d:\\1\\angry50\\train"; //Target training folder
 
@@ -143,7 +162,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         pa.codebookHeader.lsfParams.winsize = 0.020f;
         pa.codebookHeader.lsfParams.windowType = Window.HAMMING;
         
-        pa.codebookFile = StringUtil.checkLastSlash(pa.trainingBaseFolder) + pa.codebookHeader.sourceTag + "_X_" + pa.codebookHeader.targetTag + WeightedCodebookFile.defaultExtension;
+        pa.codebookFile = StringUtil.checkLastSlash(pa.trainingBaseFolder) + pa.codebookHeader.sourceTag + "_X_" + pa.codebookHeader.targetTag + WeightedCodebookFile.DEFAULT_FILE_EXTENSION;
 
         pa.isForcedAnalysis = false;
         
@@ -217,19 +236,21 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         //
         
         //Gaussian trainer params: commenting out results in using default value for each
-        gp.gmmEMTrainerParams.totalComponents = 8;
+        gp.gmmEMTrainerParams.totalComponents = 16;
         gp.gmmEMTrainerParams.isDiagonalCovariance = true; 
         gp.gmmEMTrainerParams.minimumIterations = 100;
         gp.gmmEMTrainerParams.maximumIterations = 200;
         gp.gmmEMTrainerParams.isUpdateCovariances = true;
         //gp.gmmEMTrainerParams.tinyLogLikelihoodChange = 1e-10;
         //gp.gmmEMTrainerParams.minimumCovarianceAllowed = 1e-5;
+        
+        gp.jointGMMFile = StringUtil.checkLastSlash(pa.trainingBaseFolder) + pa.codebookHeader.sourceTag + "_X_" + pa.codebookHeader.targetTag + JointGMM.DEFAULT_FILE_EXTENSION;
         //
         
         JointGMMParallelTrainer t = new JointGMMParallelTrainer(pp, fe, pa, gp);
         
         t.run();
+        
+        System.out.println("End of joint GMM training test...");
     }
-
-   
 }

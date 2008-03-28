@@ -53,7 +53,7 @@ public class WeightedCodebookFile {
     public MaryRandomAccessFile stream;
     public String currentFile;
     
-    public static String defaultExtension = ".wcf";
+    public static final String DEFAULT_FILE_EXTENSION = ".wcf";
     
     public WeightedCodebookFile()
     {

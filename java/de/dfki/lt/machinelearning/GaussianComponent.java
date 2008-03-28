@@ -29,6 +29,9 @@
 
 package de.dfki.lt.machinelearning;
 
+import java.io.IOException;
+
+import de.dfki.lt.signalproc.util.MaryRandomAccessFile;
 import de.dfki.lt.signalproc.util.MathUtils;
 
 /**
@@ -95,10 +98,21 @@ public class GaussianComponent {
     
     public void setMeanVector(double[] meanVectorIn)
     {
-        if (meanVectorIn!=null)
+        setMeanVector(meanVectorIn, 0, meanVectorIn.length);
+    }
+    
+    public void setMeanVector(double[] bigVector, int startIndex, int meanLength)
+    {
+        if (bigVector!=null && meanLength>0)
         {
-            meanVector = new double[meanVectorIn.length];
-            System.arraycopy(meanVectorIn, 0, meanVector, 0, meanVectorIn.length);
+            if (startIndex+meanLength>bigVector.length)
+                meanLength = bigVector.length-startIndex;
+
+            if (meanVector==null || meanLength!=meanVector.length)
+                meanVector = new double[meanLength];
+
+            for (int i=0; i<meanLength; i++)
+                meanVector[i] = bigVector[startIndex+i];
         }
         else
             meanVector = null;
@@ -106,14 +120,50 @@ public class GaussianComponent {
     
     public void setCovMatrix(double[][] covMatrixIn)
     {
-        if (covMatrixIn!=null)
+        if (covMatrixIn.length==1)
+            setCovMatrix(covMatrixIn, 0, 0, covMatrixIn[0].length);
+        else
+            setCovMatrix(covMatrixIn, 0, 0, covMatrixIn.length);
+    }
+    
+    public void setCovMatrix(double[][] bigCovMatrix, int rowStartIndex, int colStartIndex, int covLength)
+    {
+        if (bigCovMatrix!=null && covLength>0)
         {
-            covMatrix = new double[covMatrixIn.length][];
-
-            for (int i=0; i<covMatrixIn.length; i++)
+            if (bigCovMatrix.length==1) //Diagonal
             {
-                covMatrix[i] = new double[covMatrixIn[i].length];
-                System.arraycopy(covMatrixIn[i], 0, covMatrix[i], 0, covMatrixIn[i].length);
+                int startIndex = Math.max(rowStartIndex, colStartIndex);
+                if (startIndex+covLength>bigCovMatrix[0].length)
+                    covLength = bigCovMatrix[0].length-startIndex;
+                
+                if (covMatrix==null || covMatrix.length>1 || covMatrix[0].length!=covLength)
+                    covMatrix = new double[1][covLength];
+                
+                System.arraycopy(bigCovMatrix[0], startIndex, covMatrix[0], 0, covLength);
+            }
+            else //Full
+            {
+                int i, j;
+                for (i=0; i<bigCovMatrix.length; i++)
+                {
+                    if (colStartIndex+covLength>bigCovMatrix[i].length)
+                        covLength = bigCovMatrix[i].length-colStartIndex;
+                }
+                
+                if (rowStartIndex+covLength>bigCovMatrix.length)
+                    covLength = bigCovMatrix.length-rowStartIndex;
+                
+                if (covMatrix==null)
+                    covMatrix = new double[covLength][];
+                    
+                for (i=rowStartIndex; i<rowStartIndex+covLength; i++)
+                {
+                    if (covMatrix[i-rowStartIndex]==null || covMatrix[i-rowStartIndex].length!=covLength)
+                        covMatrix[i-rowStartIndex] = new double[covLength];
+                    
+                    for (j=colStartIndex; j<colStartIndex+covLength; j++)
+                        covMatrix[i-rowStartIndex][j-colStartIndex] = bigCovMatrix[i][j];
+                }
             }
         }
         else
@@ -178,5 +228,113 @@ public class GaussianComponent {
     public double getConstantTermLog()
     {
         return constantTermLog;
+    }
+    
+    public void write(MaryRandomAccessFile stream) throws IOException
+    {
+        if (meanVector!=null)
+        {
+            stream.writeInt(meanVector.length);
+            stream.writeDouble(meanVector);
+        }
+        else
+            stream.writeInt(0);
+         
+        int i;
+        
+        if (covMatrix!=null)
+            stream.writeInt(covMatrix.length);
+        else
+            stream.writeInt(0);
+            
+        if (covMatrix!=null)
+        { 
+            for (i=0; i<covMatrix.length; i++)
+            {
+                if (covMatrix[i]!=null)
+                {
+                    stream.writeInt(covMatrix[i].length);
+                    stream.writeDouble(covMatrix[i]);
+                }
+                else
+                    stream.writeInt(0);
+            }
+        }
+        
+        if (invCovMatrix!=null)
+            stream.writeInt(invCovMatrix.length);
+        else
+            stream.writeInt(0);
+            
+        if (invCovMatrix!=null)
+        { 
+            for (i=0; i<invCovMatrix.length; i++)
+            {
+                if (invCovMatrix[i]!=null)
+                {
+                    stream.writeInt(invCovMatrix[i].length);
+                    stream.writeDouble(invCovMatrix[i]);
+                }
+                else
+                    stream.writeInt(0);
+            }
+        }
+        
+        stream.writeDouble(detCovMatrix);
+        stream.writeDouble(constantTerm);
+        stream.writeDouble(constantTermLog);
+    }
+    
+    public void read(MaryRandomAccessFile stream) throws IOException
+    {
+        int tmpLen, tmpLen2;
+        tmpLen = stream.readInt();
+        
+        if (tmpLen>0)
+            meanVector = stream.readDouble(tmpLen);
+        else
+            meanVector = null;
+         
+        int i;
+        
+        tmpLen = stream.readInt();
+         
+        if (tmpLen>0)
+        { 
+            covMatrix = new double[tmpLen][];
+            
+            for (i=0; i<tmpLen; i++)
+            {
+                tmpLen2 = stream.readInt();
+                if (tmpLen2>0)
+                    covMatrix[i] = stream.readDouble(tmpLen2);
+                else
+                    covMatrix[i] = null;
+            }
+        }
+        else
+            covMatrix = null;
+        
+        tmpLen = stream.readInt();
+        
+        if (tmpLen>0)
+        { 
+            invCovMatrix = new double[tmpLen][];
+
+            for (i=0; i<tmpLen; i++)
+            {
+                tmpLen2 = stream.readInt();
+                if (tmpLen2>0)
+                    invCovMatrix[i] = stream.readDouble(tmpLen2);
+                else
+                    invCovMatrix[i] = null;
+            }
+        }
+        else
+            invCovMatrix = null;
+        
+        detCovMatrix = stream.readDouble();
+        constantTerm = stream.readDouble();
+        constantTermLog = stream.readDouble();
     }
 }

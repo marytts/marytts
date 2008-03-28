@@ -29,6 +29,7 @@
 
 package de.dfki.lt.mary.unitselection.adaptation.codebook;
 
+import de.dfki.lt.mary.unitselection.adaptation.TransformationData;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchStatistics;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchStatisticsCollection;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchStatisticsMapping;
@@ -37,7 +38,7 @@ import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchStatisticsMapping;
  * @author oytun.turk
  *
  */
-public class WeightedCodebook {
+public class WeightedCodebook extends TransformationData {
     //These are for feature requests from the codebook
     public static final int SOURCE = 1;
     public static final int TARGET = 2;
@@ -52,7 +53,7 @@ public class WeightedCodebook {
     //f0Statistics is always read from the codebook first
     //Then f0StatisticsMapping is created from f0Statistics using the function setF0StatisticsMapping()
     public PitchStatisticsCollection f0StatisticsCollection;
-    public PitchStatisticsMapping f0StatisticsMapping;
+    
     //
     
     public WeightedCodebook()

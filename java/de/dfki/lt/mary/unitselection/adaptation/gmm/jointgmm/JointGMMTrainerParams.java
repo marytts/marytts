@@ -27,7 +27,7 @@
  * THIS SOFTWARE.
  */
 
-package de.dfki.lt.mary.unitselection.adaptation.joint_gmm;
+package de.dfki.lt.mary.unitselection.adaptation.gmm.jointgmm;
 
 import de.dfki.lt.machinelearning.GMMTrainerParams;
 
@@ -35,17 +35,19 @@ import de.dfki.lt.machinelearning.GMMTrainerParams;
  * @author oytun.turk
  *
  */
-public class JointGMMParallelTrainerParams {
+public class JointGMMTrainerParams {
     public GMMTrainerParams gmmEMTrainerParams;
+    public String jointGMMFile;
     
-    public JointGMMParallelTrainerParams()
+    public JointGMMTrainerParams()
     {
         gmmEMTrainerParams = new GMMTrainerParams();
     }
     
-    public JointGMMParallelTrainerParams(JointGMMParallelTrainerParams existing)
+    public JointGMMTrainerParams(JointGMMTrainerParams existing)
     {
         gmmEMTrainerParams = new GMMTrainerParams(existing.gmmEMTrainerParams);
+        jointGMMFile = existing.jointGMMFile;
         
     }
 }

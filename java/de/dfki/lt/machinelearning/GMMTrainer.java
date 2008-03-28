@@ -346,7 +346,7 @@ public class GMMTrainer {
                 logLikelihoods[numIterations-1] += Math.log(tmp);
             }
 
-            System.out.println("Iteration no: " + String.valueOf(numIterations) + " with error " + String.valueOf(error) + " log-likelihood=" + String.valueOf(logLikelihoods[numIterations-1]));
+            System.out.println("EM iteration no: " + String.valueOf(numIterations) + " with error " + String.valueOf(error) + " log-likelihood=" + String.valueOf(logLikelihoods[numIterations-1]));
 
             if (numIterations+1>maximumIterations)
                 break;
@@ -369,23 +369,47 @@ public class GMMTrainer {
         System.arraycopy(logLikelihoods, 0, tmpLogLikelihoods, 0, numIterations-1);
         logLikelihoods = new double[numIterations-1];
         System.arraycopy(tmpLogLikelihoods, 0, logLikelihoods, 0, numIterations-1);   
+        
+        System.out.println("GMM training completed...");
 
         return gmm;
     }
     
     public static void main(String[] args)
     {
-        int numClusters = 20;
+        int numClusters = 5;
         int numSamplesInClusters = 100;
-        double variance = 1.0; //Setting the variance too small, i.e. 0.08 results in ill-conditioned training - requires a log-domain implementation
-        ClusteredDataGenerator c = new ClusteredDataGenerator(numClusters, numSamplesInClusters, variance);
-        int vectorDim = 25;
-        double[][] x = new double[c.data.length][vectorDim];
-        
-        for (int i=0; i<c.data.length; i++)
+        double[] variances = {1.0, 2.0}; //Setting the variance too small, i.e. 0.08 results in ill-conditioned training - requires a log-domain implementation
+        int vectorDim = 20;
+        ClusteredDataGenerator[] c = new ClusteredDataGenerator[vectorDim];
+        int i, j, n;
+        int totalVectors = 0;
+        for (i=0; i<vectorDim; i++)
         {
-            for (int j=0; j<vectorDim; j++)
-                x[i][j] = c.data[i];
+            if (i<variances.length)
+                c[i] = new ClusteredDataGenerator(numClusters, numSamplesInClusters, 10.0*(i+1), variances[i]);
+            else
+                c[i] = new ClusteredDataGenerator(numClusters, numSamplesInClusters, 10.0*(i+1), variances[0]);
+            
+            totalVectors += c[i].data.length;
+        }
+        
+        double[][] x = new double[totalVectors][vectorDim];
+        int counter=0;
+        for (n=0; n<c.length; n++)
+        {
+            for (i=0; i<c[n].data.length; i++)
+            {
+                for (j=0; j<vectorDim; j++)
+                    x[counter][j] = c[n].data[i];
+                
+                counter++;
+                if (counter>=totalVectors)
+                    break;
+            }
+            
+            if (counter>=totalVectors)
+                break;
         }
         
         double[] m = MathUtils.mean(x);
@@ -395,7 +419,7 @@ public class GMMTrainer {
         GMMTrainer g = new GMMTrainer();
         GMM gmm = g.train(x, numClusters, true, 200);
         
-        for (int i=0; i<gmm.totalComponents; i++)
+        for (i=0; i<gmm.totalComponents; i++)
             System.out.println("Gaussian #" + String.valueOf(i+1) + " mean=" + String.valueOf(gmm.components[i].meanVector[0]) + " variance=" + String.valueOf(gmm.components[i].covMatrix[0][0]));
     }
 }
