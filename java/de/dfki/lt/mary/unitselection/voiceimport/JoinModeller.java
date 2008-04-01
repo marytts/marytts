@@ -447,40 +447,6 @@ public class JoinModeller extends VoiceImportComponent
         
     }
     
-    private String shortenPfeat(String fea) {
-        
-        // look up the feature in a table:
-        String s = feat2shortFeat.get(fea);
-        if (s!=null) return s;
-        
-        // First time: need to do the shortening:
-        
-       // s = s.replace("^mary_pos$/POS/g;  /* ??? */
-        s = fea.replace("mary_", "");
-        s = s.replace("phoneme","phn");
-        s = s.replace("prev","p");
-        s = s.replace("next","n");
-        s = s.replace("sentence","snt");
-        s = s.replace("phrase","phr");
-        s = s.replace("word","wrd");
-        s = s.replace("from_","");
-        s = s.replace("to_","");
-        s = s.replace("in_","");
-        s = s.replace("is_","");
-        s = s.replace("break","brk");
-        s = s.replace("start","stt");
-        s = s.replace("accented","acc");
-        s = s.replace("accent","acc");
-        s = s.replace("stressed","str");
-        s = s.replace("punctuation","punc");
-        s = s.replace("frequency","freq");
-        s = s.replace("position","pos");
-        s = s.replace("halfphone_lr", "lr");
-        
-        feat2shortFeat.put(fea, s);
-        return s;
-      }
-    
     
     private String replacePunc(String lab){
         String s = lab;
