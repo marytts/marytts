@@ -61,6 +61,7 @@ public class JoinModeller extends VoiceImportComponent
     
     private HTSContextTranslator contextTranslator = null;
     private Vector<String> featureList = null;
+    private Map<String,String> feat2shortFeat = new HashMap<String, String>();
     
     private int numberOfFeatures = 0;
     private float[] fw = null;
@@ -201,6 +202,7 @@ public class JoinModeller extends VoiceImportComponent
         // is there a way to know the lenght of MFCC at this point? so then there is no need
         // of hard coding 12.
         int numFeatures = joinFeatures.getNumberOfFeatures();
+        numFeatures = numFeatures - 1;  // Not using for the moment feature[13] = f0
         mmfStream.write("~o\n" + "<VECSIZE> " + numFeatures + " <MFCC><DIAGC>\n" + "~t \"trP_1\"\n<TRANSP> 3\n" + "0 1 0\n0 0 1\n0 0 0\n");
        
          
@@ -250,11 +252,12 @@ public class JoinModeller extends VoiceImportComponent
                 // Compute the difference vector
                 float[] myRightFrame = joinFeatures.getRightJCF(i);
                 float[] nextLeftFrame = joinFeatures.getLeftJCF(i+1);
-                double[] difference = new double[myRightFrame.length];
-                for (int k=0, len=myRightFrame.length; k<len; k++) {
+                double[] difference = new double[myRightFrame.length-1];
+                
+                for (int k=0, len=myRightFrame.length-1; k<len; k++) {
                     difference[k] = ((double)myRightFrame[k]) - nextLeftFrame[k];
                 }
-
+                
                 // Group the units with the same feature vectors
                 String contextName = contextTranslator.features2LongContext(def, fv, featureList);
                 Set<double[]> unitsWithFV = uniqueFeatureVectors.get(contextName);
@@ -270,7 +273,6 @@ public class JoinModeller extends VoiceImportComponent
         for (String fvString : uniqueFeatureVectors.keySet()) {
             double[][] diffVectors = uniqueFeatureVectors.get(fvString).toArray(new double[0][]);
             int n = diffVectors.length;
-            //System.out.println(numUniqueFea + " " + n + " of " + fvString);
             // Compute means and variances of the features across difference vectors
             double[] means;
             double[] variances;
@@ -326,10 +328,15 @@ public class JoinModeller extends VoiceImportComponent
         pw.println();
         pw.println("// questions for decision tree-based context clustering");
         for (String f : featureList) {
+                
+                
             int featureIndex = def.getFeatureIndex(f);
             String[] values = def.getPossibleValues(featureIndex);
             for (String v : values) {
-                pw.println("QS \""+f+"="+v+"\" {*|"+f+"="+v+"|*}");
+                if(f.contains("mary_sentence_punc") || f.contains("mary_prev_punctuation") || f.contains("mary_next_punctuation"))
+                  pw.println("QS \""+f+"="+replacePunc(v)+"\" {*|"+f+"="+replacePunc(v)+"|*}");
+                else
+                  pw.println("QS \""+f+"="+v+"\" {*|"+f+"="+v+"|*}");
             }
             pw.println();
         }
@@ -345,8 +352,8 @@ public class JoinModeller extends VoiceImportComponent
         pw.close();
         
         System.out.println("\n---- Tree-based context clustering for joinModeller\n");
-        // here the input and output are the same MMFFILE.     
-        cmdLine = getProp(HHEDCOMMAND) + " -A -C " + getProp(TRNCONFFILE) + " -D -T 1 -p -i -H " + getProp(MMFFILE) + " -m -a 1.0 -w " + getProp(MMFFILE) + " " + getProp(CXCHEDFILE) + " " + getProp(FULLFILE);
+        // here the input file is join_mmf.mry and the output is  join_mmf.mry.clustered    
+        cmdLine = getProp(HHEDCOMMAND) + " -A -C " + getProp(TRNCONFFILE) + " -D -T 1 -p -i -H " + getProp(MMFFILE) + " -m -a 1.0 -w " + getProp(MMFFILE)+".clustered"  + " " + getProp(CXCHEDFILE) + " " + getProp(FULLFILE);
         launchProc(cmdLine, "HHEd", filedir);
 
         System.out.println("\n---- Creating conversion-to-hts command file for HHEd\n");
@@ -363,9 +370,10 @@ public class JoinModeller extends VoiceImportComponent
         pw.println("CM \"" + filedir + "\"");
         pw.close();
         
+        
         System.out.println("\n---- Converting mmfs to the hts_engine file format\n");
         // the input of this command are: join_mmf.mry and join_tree.inf and the output: trees.1 and pdf.1
-        cmdLine = getProp(HHEDCOMMAND) + " -A -C " + getProp(CNVCONFFILE) + " -D -T 1 -p -i -H " + getProp(MMFFILE) + " " + getProp(CNVHEDFILE) + " " + getProp(FULLFILE);
+        cmdLine = getProp(HHEDCOMMAND) + " -A -C " + getProp(CNVCONFFILE) + " -D -T 1 -p -i -H " + getProp(MMFFILE)+".clustered" + " " + getProp(CNVHEDFILE) + " " + getProp(FULLFILE);
         launchProc(cmdLine, "HHEd", filedir);
         
         // the files trees.1 and pdf.1 are renamed as tree-joinModeller.inf and joinModeller.pdf
@@ -438,6 +446,61 @@ public class JoinModeller extends VoiceImportComponent
         }
         
     }
+    
+    private String shortenPfeat(String fea) {
+        
+        // look up the feature in a table:
+        String s = feat2shortFeat.get(fea);
+        if (s!=null) return s;
+        
+        // First time: need to do the shortening:
+        
+       // s = s.replace("^mary_pos$/POS/g;  /* ??? */
+        s = fea.replace("mary_", "");
+        s = s.replace("phoneme","phn");
+        s = s.replace("prev","p");
+        s = s.replace("next","n");
+        s = s.replace("sentence","snt");
+        s = s.replace("phrase","phr");
+        s = s.replace("word","wrd");
+        s = s.replace("from_","");
+        s = s.replace("to_","");
+        s = s.replace("in_","");
+        s = s.replace("is_","");
+        s = s.replace("break","brk");
+        s = s.replace("start","stt");
+        s = s.replace("accented","acc");
+        s = s.replace("accent","acc");
+        s = s.replace("stressed","str");
+        s = s.replace("punctuation","punc");
+        s = s.replace("frequency","freq");
+        s = s.replace("position","pos");
+        s = s.replace("halfphone_lr", "lr");
+        
+        feat2shortFeat.put(fea, s);
+        return s;
+      }
+    
+    
+    private String replacePunc(String lab){
+        String s = lab;
+           
+        if(lab.contentEquals(".") )
+          s = "pt";
+        else if (lab.contentEquals(",") )
+          s = "cm";
+        else if (lab.contentEquals("(") )
+            s = "op";
+        else if (lab.contentEquals(")") )
+            s = "cp";
+        else if (lab.contentEquals("?") )
+            s = "in";
+        else if (lab.contentEquals("\"") )
+            s = "qt";
+        
+        return s;
+          
+      }
     
     
 }
