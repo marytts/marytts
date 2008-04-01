@@ -51,11 +51,12 @@ package de.dfki.lt.mary.htsengine;
 
 import java.io.FileNotFoundException;
 import java.util.Scanner;
-import java.io.FileReader;
-import java.io.BufferedReader;
 import java.io.*;
 
 import org.apache.log4j.Logger;
+
+import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
+import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 
 /**
  * Tree set containing trees and questions lists for DUR, logF0, MCP, STR and MAG
@@ -73,6 +74,7 @@ public class HTSTreeSet {
 	private HTSTree ttail[];
     
     private Logger logger = Logger.getLogger("TreeSet");
+    
 	
 	/** Constructor 
 	* TreeSet is initialised with the information in ModelSet,      
@@ -339,6 +341,151 @@ public class HTSTreeSet {
 	} /* method loadTree() */
 
 	
+    
+    public void loadJoinModellerTree(String fileName, FeatureDefinition featureDef) throws Exception {
+      
+      int type = 0;  /* only one tree, only one state */ 
+      
+      HTSTree t = new HTSTree(); /* so state=0; root=null; leaf=null; next=null; pattern=new Vector(); */
+      thead[type] = t;     /* first tree corresponds to state 2, next tree to state 3, ..., until state 6 */
+      ttail[type] = null;
+      nTrees[type] = 0;  
+      
+      HTSNode node = new HTSNode();
+      t.setRoot(node);
+      t.setLeaf(node);
+      int iaux, feaIndex;
+        
+      Scanner s = null;
+      Scanner sline = null;
+      String line, buf, aux;
+      boolean debug = false;
+        
+      assert featureDef != null : "Feature Definition was not set";
+
+      try {   
+          /* read lines of tree-*.inf fileName */ 
+          s = new Scanner(new BufferedInputStream(new FileInputStream(fileName))).useDelimiter("\n");
+
+          //System.out.println("LoadTreeSet reading: " + fileName);
+          logger.info("loadJoinModellerTree reading: " + fileName);
+
+          // skip questions section 
+          while(s.hasNext()) {
+              line = s.next();
+              if (line.indexOf("{*}") >= 0 ) break;
+          }
+          /* then it comes the trees per state, for joinModeller there is just one state */
+          while(s.hasNext()) {
+              line = s.next();               
+              if(line.indexOf("{") >= 0 ) break;          
+          }
+          while(s.hasNext()) {
+              line = s.next();
+              if(line.indexOf("}") >= 0 ) break;
+
+              //System.out.println("\nline:" + line);
+              /* then parse this line, it contains 4 fields */
+              /* 1: node index #  2: Question name 3: NO # node 4: YES # node */
+              sline = new Scanner(line);           
+
+              /* 1:  gets index node and looks for the node whose idx = buf */
+              buf = sline.next();
+              if(buf.startsWith("-")){
+                  node = findNode(t.getLeaf(),Integer.parseInt(buf.substring(1)),debug);
+                  //System.out.println("Node to find:" + Integer.parseInt(buf.substring(1)));
+              }
+              else{
+                  node = findNode(t.getLeaf(),Integer.parseInt(buf),debug);
+                  //System.out.println("root node");
+                  //System.out.println("Node to find:" + Integer.parseInt(buf));
+              }
+
+              /* once the node has been found */
+              if(node == null)
+                 throw new Exception("LoadTree: Node not found, index = " +  buf); 
+              else {
+                  
+              //System.out.println("node found = " + node);
+              /* 2: gets question name and and question name val */
+              buf = sline.next();
+              String [] fea_val = buf.split("=");   /* splits featureName=featureValue*/
+              feaIndex = featureDef.getFeatureIndex(fea_val[0]);
+              //System.out.println("Question: " + buf + "  fea:" + fea_val[0] + "  val:" + fea_val[1]);
+              
+              /* replace back punctuation values */
+              /* what about tricky phones??? */
+              if(fea_val[0].contains("mary_sentence_punc") || fea_val[0].contains("mary_prev_punctuation") || fea_val[0].contains("mary_next_punctuation"))
+                  fea_val[1] = replaceBackPunc(fea_val[1]);
+              
+              /* depending on the type set the corresponding value in this node, the HTSNode has now added with:
+               *   int questionFeaIndex;     
+                   byte questionFeaValByte;
+                   short questionFeaValShort;
+                   float questionFeaValFloat;   Not sure if i need Short and Float ???*/
+              if( featureDef.isByteFeature(feaIndex) ){
+                 node.setQuestionFeaValByte(featureDef.getFeatureValueAsByte(feaIndex, fea_val[1]));
+                 //System.out.println("Fea is Byte");
+              }
+              else if( featureDef.isShortFeature(feaIndex) ){
+                 node.setQuestionFeaValShort(featureDef.getFeatureValueAsShort(feaIndex, fea_val[1]));
+                 //System.out.println("Fea is Short");
+              }
+              else if( featureDef.isContinuousFeature(feaIndex) )
+                  System.out.println("Fea is Float?");
+              else 
+                  System.out.println("Fea not know type");
+
+              /* create nodes for NO and YES */
+              node.insertNo();
+              node.insertYes();
+
+              /* 3: add NO index */
+              buf = sline.next();
+              if(buf.startsWith("-")) {
+                  iaux = Integer.parseInt(buf.substring(1));
+                  node.getNo().setIdx(iaux);
+                  //System.out.println("No index node=" + iaux);
+              } else {  /*convert name of node to node index number */
+                  iaux = Integer.parseInt(buf.substring(buf.lastIndexOf("_")+1, buf.length()-1));
+                  node.getNo().setPdf(iaux);
+                  //System.out.println("No leaf PDF=" + iaux); 
+              }
+              node.getNo().setNext(t.getLeaf());
+              t.setLeaf(node.getNo());
+          
+              /* 4: add YES index */
+              buf = sline.next();
+              if(buf.startsWith("-")) {
+                  iaux = Integer.parseInt(buf.substring(1));
+                  node.getYes().setIdx(iaux);
+                  //System.out.println("Yes index node=" + iaux);
+              } else {  /*convert name of node to node index number */
+                  iaux = Integer.parseInt(buf.substring(buf.lastIndexOf("_")+1, buf.length()-1));
+                  node.getYes().setPdf(iaux);
+                  //System.out.println("Yes leaf PDF=" + iaux); 
+              }                            
+              node.getYes().setNext(t.getLeaf());
+              t.setLeaf(node.getYes());
+              
+              }  /* else node is not null */
+              sline.close();
+              sline=null;            
+          }
+          if (s != null)
+              s.close();
+
+      } catch (FileNotFoundException e) {
+          //logger.debug("FileNotFoundException: " + e.getMessage());
+          System.out.println("FileNotFoundException: " + e.getMessage());
+          throw new FileNotFoundException("LoadTreeSet: " + e.getMessage());
+      }
+
+    } /* method loadJoinModellerTree */
+         
+         
+    
+    
 	private HTSNode findNode(HTSNode node, int num, boolean debug){
 	  if(debug)
         System.out.print("Finding Node : " + num + "  "  );
@@ -404,6 +551,63 @@ public class HTSTreeSet {
 		return -1;
 		
 	} /* method searchTree */
+    
+    
+    public int searchJoinModellerTree(FeatureVector fv, FeatureDefinition featureDef, HTSNode root_node, boolean debug){
+         
+        HTSNode aux_node = root_node;
+        int feaIndex;
+        boolean match = false;
+        debug=true;
+        while (aux_node != null ){
+            feaIndex = aux_node.getQuestionFeaIndex(); /* get feaIndex of node */
+            if( featureDef.isByteFeature(feaIndex) ){
+                if(fv.getByteFeature(feaIndex) == aux_node.getQuestionFeaValByte()){
+                  match = true;
+                  //System.out.println("Fea is Byte TRUE");
+                }
+             }
+             else if( featureDef.isShortFeature(feaIndex) ){
+                if(fv.getFeature(feaIndex).shortValue() == aux_node.getQuestionFeaValShort() ){
+                  match = true;
+                  //System.out.println("Fea is Short TRUE");
+                }
+             }
+             else if( featureDef.isContinuousFeature(feaIndex) ){
+                 if(fv.getFeature(feaIndex).floatValue() == aux_node.getQuestionFeaValFloat() ){
+                     match = true;
+                     //System.out.println("Fea is Float TRUE");
+                   }
+             }
+             else 
+                 System.out.println("Fea not know type");
+            
+            
+            if( match ) {
+                if(aux_node.getYes().getPdf() > 0 ){
+                    if(debug)
+                      System.out.println("  QMatch=1 node->YES->idx=" + aux_node.getIdx() + "  aux_node.getYes().getPdf()=" + aux_node.getYes().getPdf());
+                    return aux_node.getYes().getPdf();
+                }
+                //System.out.println("Yes node: " + aux_node.getIdx());
+                aux_node = aux_node.getYes();
+                
+            } else {
+                if(aux_node.getNo().getPdf() > 0){
+                  if(debug)
+                    System.out.println("  QMatch=0 node->NO->idx=" + aux_node.getIdx() + "  aux_node.getNo().getPdf()=" + aux_node.getNo().getPdf() );  
+                  return(aux_node.getNo().getPdf());
+                }
+                //System.out.println("No node: " + aux_node.getIdx());
+                aux_node = aux_node.getNo();
+                
+            }
+            match = false;
+            
+        }
+        return -1;
+        
+    } /* method searchTree */
 
     /* looks if any pattern of the question is contained in the str name of the model. */
 	private boolean questionMatch(String str, HTSQuestion q, boolean debug) {
@@ -426,6 +630,26 @@ public class HTSTreeSet {
 	    return false;
 		
 	}
+    
+       private String replaceBackPunc(String lab){
+            String s = lab;
+               
+            if(lab.contentEquals("pt") )
+              s = ".";
+            else if (lab.contentEquals("cm") )
+              s = ",";
+            else if (lab.contentEquals("op") )
+                s = "(";
+            else if (lab.contentEquals("cp") )
+                s = ")";
+            else if (lab.contentEquals("?") )
+                s = "?";
+            else if (lab.contentEquals("qt") )
+                s = "\"";
+            
+            return s;
+              
+          }
 	
 
 } /* class TreeSet */

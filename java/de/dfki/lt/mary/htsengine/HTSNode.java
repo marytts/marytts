@@ -66,6 +66,11 @@ public class HTSNode {
 	private HTSNode next;       /* link to next node  */  
 	
 	private HTSQuestion quest;  /* question applied at this node */
+        
+    private int questionFeaIndex;     /* question index name and val for JoinModellerTree*/
+    private byte questionFeaValByte;
+    private short questionFeaValShort;
+    private float questionFeaValFloat;
 
 	
 	public void setIdx(int var){ idx = var; }
@@ -80,7 +85,19 @@ public class HTSNode {
 	
 	public void setQuestion(HTSQuestion q){ quest = q; }
 	public HTSQuestion getQuestion(){ return quest; }
+    
+    public void setQuestionFeaIndex(int val){ questionFeaIndex = val; }
+    public int getQuestionFeaIndex(){ return questionFeaIndex; }
+    
+    public void setQuestionFeaValByte(byte val){ questionFeaValByte = val; }
+    public byte getQuestionFeaValByte(){ return questionFeaValByte; }
 	
+    public void setQuestionFeaValShort(short val){ questionFeaValShort = val; }
+    public short getQuestionFeaValShort(){ return questionFeaValShort; }
+    
+    public void setQuestionFeaValFloat(byte val){ questionFeaValFloat = val; }
+    public float getQuestionFeaValFloat(){ return questionFeaValFloat; }
+    
 	public void insertNo(){ no = new HTSNode(); }
 	public HTSNode getNo(){ return no; }
 	
