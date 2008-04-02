@@ -411,13 +411,16 @@ public class HTSTreeSet {
               buf = sline.next();
               String [] fea_val = buf.split("=");   /* splits featureName=featureValue*/
               feaIndex = featureDef.getFeatureIndex(fea_val[0]);
-              //System.out.println("Question: " + buf + "  fea:" + fea_val[0] + "  val:" + fea_val[1]);
+              /* set the question name index */
+              node.setQuestionFeaIndex(feaIndex);
+              System.out.println("Question: " + buf + "  fea:" + fea_val[0] + "  val:" + fea_val[1]);
               
               /* replace back punctuation values */
               /* what about tricky phones??? */
               if(fea_val[0].contains("mary_sentence_punc") || fea_val[0].contains("mary_prev_punctuation") || fea_val[0].contains("mary_next_punctuation"))
                   fea_val[1] = replaceBackPunc(fea_val[1]);
               
+              /* set the question name value */
               /* depending on the type set the corresponding value in this node, the HTSNode has now added with:
                *   int questionFeaIndex;     
                    byte questionFeaValByte;
@@ -562,6 +565,7 @@ public class HTSTreeSet {
         while (aux_node != null ){
             feaIndex = aux_node.getQuestionFeaIndex(); /* get feaIndex of node */
             if( featureDef.isByteFeature(feaIndex) ){
+                System.out.println("feaIndex="+feaIndex+ " fv.getByteFeature(feaIndex)=" + fv.getByteFeature(feaIndex) + "  aux_node.getQuestionFeaValByte()=" + aux_node.getQuestionFeaValByte());
                 if(fv.getByteFeature(feaIndex) == aux_node.getQuestionFeaValByte()){
                   match = true;
                   //System.out.println("Fea is Byte TRUE");
