@@ -341,7 +341,9 @@ public class HTSTreeSet {
 	} /* method loadTree() */
 
 	
-    
+   /** Load a Tree which is slightly diferent from HTS format. The Questions contain only
+     * one feature name and feature Value in byte format, the idea is to make the search
+     * tree function fast and efficient using a FeatureVector instead of a String model name.*/
     public void loadJoinModellerTree(String fileName, FeatureDefinition featureDef) throws Exception {
       
       int type = 0;  /* only one tree, only one state */ 
@@ -367,7 +369,6 @@ public class HTSTreeSet {
           /* read lines of tree-*.inf fileName */ 
           s = new Scanner(new BufferedInputStream(new FileInputStream(fileName))).useDelimiter("\n");
 
-          //System.out.println("LoadTreeSet reading: " + fileName);
           logger.info("loadJoinModellerTree reading: " + fileName);
 
           // skip questions section 
@@ -375,16 +376,16 @@ public class HTSTreeSet {
               line = s.next();
               if (line.indexOf("{*}") >= 0 ) break;
           }
-          /* then it comes the trees per state, for joinModeller there is just one state */
+          /* a { indicates the beginning of the tree. */
           while(s.hasNext()) {
               line = s.next();               
               if(line.indexOf("{") >= 0 ) break;          
           }
+          /* then it comes the trees per state, for joinModeller there is just one state */
           while(s.hasNext()) {
               line = s.next();
               if(line.indexOf("}") >= 0 ) break;
-
-              //System.out.println("\nline:" + line);
+              
               /* then parse this line, it contains 4 fields */
               /* 1: node index #  2: Question name 3: NO # node 4: YES # node */
               sline = new Scanner(line);           
@@ -393,17 +394,14 @@ public class HTSTreeSet {
               buf = sline.next();
               if(buf.startsWith("-")){
                   node = findNode(t.getLeaf(),Integer.parseInt(buf.substring(1)),debug);
-                  //System.out.println("Node to find:" + Integer.parseInt(buf.substring(1)));
               }
               else{
                   node = findNode(t.getLeaf(),Integer.parseInt(buf),debug);
-                  //System.out.println("root node");
-                  //System.out.println("Node to find:" + Integer.parseInt(buf));
               }
 
               /* once the node has been found */
               if(node == null)
-                 throw new Exception("LoadTree: Node not found, index = " +  buf); 
+                 throw new Exception("loadJoinModellerTree: Node not found, index = " +  buf); 
               else {
                   
               //System.out.println("node found = " + node);
@@ -411,33 +409,27 @@ public class HTSTreeSet {
               buf = sline.next();
               String [] fea_val = buf.split("=");   /* splits featureName=featureValue*/
               feaIndex = featureDef.getFeatureIndex(fea_val[0]);
-              /* set the question name index */
+              /* set the Index question name */
               node.setQuestionFeaIndex(feaIndex);
               //System.out.println("Question: feaIndex="+ feaIndex + "  feaName=" + fea_val[0] + "  feaVal=" + fea_val[1]);
               
-              /* replace back punctuation values */
-              /* what about tricky phones??? */
+              /* Replace back punctuation values */
+              /* what about tricky phones, if using halfphones it would not be necessary */
               if(fea_val[0].contains("mary_sentence_punc") || fea_val[0].contains("mary_prev_punctuation") || fea_val[0].contains("mary_next_punctuation"))
                   fea_val[1] = replaceBackPunc(fea_val[1]);
               
               /* set the question name value */
-              /* depending on the type set the corresponding value in this node, the HTSNode has now added with:
-               *   int questionFeaIndex;     
+              /* depending on the value type set the corresponding value in this node, 
+               * the HTSNode has now added with:
+                   int questionFeaIndex;     
                    byte questionFeaValByte;
-                   short questionFeaValShort;
-                   float questionFeaValFloat;   Not sure if i need Short and Float ???*/
+                * At the moment Apr/2008 just byte values are used, but later on other values might be used as well. */
+              // TODO: If using other type of values, different from byte, set the corresponding variables.
               if( featureDef.isByteFeature(feaIndex) ){
                  node.setQuestionFeaValByte(featureDef.getFeatureValueAsByte(feaIndex, fea_val[1]));
-                 //System.out.println("Fea is Byte");
+              } else { 
+                  throw new Exception("loadJoinModellerTree: feature value type not supported yet, just byte values supported."); 
               }
-              else if( featureDef.isShortFeature(feaIndex) ){
-                 node.setQuestionFeaValShort(featureDef.getFeatureValueAsShort(feaIndex, fea_val[1]));
-                 //System.out.println("Fea is Short");
-              }
-              else if( featureDef.isContinuousFeature(feaIndex) )
-                  System.out.println("Fea is Float?");
-              else 
-                  System.out.println("Fea not know type");
 
               /* create nodes for NO and YES */
               node.insertNo();
@@ -479,8 +471,7 @@ public class HTSTreeSet {
               s.close();
 
       } catch (FileNotFoundException e) {
-          //logger.debug("FileNotFoundException: " + e.getMessage());
-          System.out.println("FileNotFoundException: " + e.getMessage());
+          logger.info("FileNotFoundException: " + e.getMessage());
           throw new FileNotFoundException("LoadTreeSet: " + e.getMessage());
       }
 
@@ -526,7 +517,7 @@ public class HTSTreeSet {
 		
 	} /* method findQuestion */
 	
-	
+   	
 	public int searchTree(String name, HTSNode root_node, boolean debug){
 	   	 
         HTSNode aux_node = root_node;
@@ -555,63 +546,44 @@ public class HTSTreeSet {
 		
 	} /* method searchTree */
     
-    
+   
+    /** Search on a Tree which is slightly diferent from HTS format. the Questions contain only
+     * one feature name and feature Value in byte format, so for searching is only necessary to
+     * find in the FeatureVector the feature that correspond to the feaIndex of a particular 
+     * node and then compare the byte values of the feature and the node. */
     public int searchJoinModellerTree(FeatureVector fv, FeatureDefinition featureDef, HTSNode root_node, boolean debug){
          
         HTSNode aux_node = root_node;
         int feaIndex;
         boolean match = false;
-   
         while (aux_node != null ){
             feaIndex = aux_node.getQuestionFeaIndex(); /* get feaIndex of node */
-            if( featureDef.isByteFeature(feaIndex) ){
-               // System.out.println("feaIndex="+feaIndex+ " fv.getByteFeature(feaIndex)=" + fv.getByteFeature(feaIndex) + "  aux_node.getQuestionFeaValByte()=" + aux_node.getQuestionFeaValByte());
-                if(fv.getByteFeature(feaIndex) == aux_node.getQuestionFeaValByte()){
-                  match = true;
-                  //System.out.println("Fea is Byte TRUE");
-                }
-             }
-             else if( featureDef.isShortFeature(feaIndex) ){
-                if(fv.getFeature(feaIndex).shortValue() == aux_node.getQuestionFeaValShort() ){
-                  match = true;
-                  //System.out.println("Fea is Short TRUE");
-                }
-             }
-             else if( featureDef.isContinuousFeature(feaIndex) ){
-                 if(fv.getFeature(feaIndex).floatValue() == aux_node.getQuestionFeaValFloat() ){
-                     match = true;
-                     //System.out.println("Fea is Float TRUE");
-                   }
-             }
-             else 
-                 System.out.println("Fea not know type");
-            
-            
-            if( match ) {
+ 
+            /* No need to cheek if the value is not byte??. Here it is assumed that all the values
+             * are byte for doing the processing faster.*/            
+            if( fv.getByteFeature(feaIndex) == aux_node.getQuestionFeaValByte() ) {
                 if(aux_node.getYes().getPdf() > 0 ){
                     if(debug)
                       System.out.println("  QMatch=1 node->YES->idx=" + aux_node.getIdx() + "  aux_node.getYes().getPdf()=" + aux_node.getYes().getPdf());
-                    return aux_node.getYes().getPdf();
-                }
+                    return aux_node.getYes().getPdf(); /* found or reached a leaf */
+                }                
                 //System.out.println("Yes node: " + aux_node.getIdx());
-                aux_node = aux_node.getYes();
-                
+                aux_node = aux_node.getYes();               
             } else {
                 if(aux_node.getNo().getPdf() > 0){
                   if(debug)
                     System.out.println("  QMatch=0 node->NO->idx=" + aux_node.getIdx() + "  aux_node.getNo().getPdf()=" + aux_node.getNo().getPdf() );  
-                  return(aux_node.getNo().getPdf());
+                  return(aux_node.getNo().getPdf()); /* found or reached a leaf */
                 }
                 //System.out.println("No node: " + aux_node.getIdx());
-                aux_node = aux_node.getNo();
-                
+                aux_node = aux_node.getNo();               
             }
-            match = false;
-            
         }
         return -1;
         
-    } /* method searchTree */
+    } /* method searchJoinModellerTree */
+    
+    
 
     /* looks if any pattern of the question is contained in the str name of the model. */
 	private boolean questionMatch(String str, HTSQuestion q, boolean debug) {
