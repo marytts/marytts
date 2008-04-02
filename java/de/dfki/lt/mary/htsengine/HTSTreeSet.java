@@ -413,7 +413,7 @@ public class HTSTreeSet {
               feaIndex = featureDef.getFeatureIndex(fea_val[0]);
               /* set the question name index */
               node.setQuestionFeaIndex(feaIndex);
-              System.out.println("Question: " + buf + "  fea:" + fea_val[0] + "  val:" + fea_val[1]);
+              //System.out.println("Question: feaIndex="+ feaIndex + "  feaName=" + fea_val[0] + "  feaVal=" + fea_val[1]);
               
               /* replace back punctuation values */
               /* what about tricky phones??? */
@@ -561,11 +561,11 @@ public class HTSTreeSet {
         HTSNode aux_node = root_node;
         int feaIndex;
         boolean match = false;
-        debug=true;
+   
         while (aux_node != null ){
             feaIndex = aux_node.getQuestionFeaIndex(); /* get feaIndex of node */
             if( featureDef.isByteFeature(feaIndex) ){
-                System.out.println("feaIndex="+feaIndex+ " fv.getByteFeature(feaIndex)=" + fv.getByteFeature(feaIndex) + "  aux_node.getQuestionFeaValByte()=" + aux_node.getQuestionFeaValByte());
+               // System.out.println("feaIndex="+feaIndex+ " fv.getByteFeature(feaIndex)=" + fv.getByteFeature(feaIndex) + "  aux_node.getQuestionFeaValByte()=" + aux_node.getQuestionFeaValByte());
                 if(fv.getByteFeature(feaIndex) == aux_node.getQuestionFeaValByte()){
                   match = true;
                   //System.out.println("Fea is Byte TRUE");
