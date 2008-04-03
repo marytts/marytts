@@ -128,10 +128,10 @@ public class UnitSelectionVoiceBuilder
             logger.debug("...loading join cost function...");
             String joinCostClass = MaryProperties.needProperty(header+".joinCostClass");
             JoinCostFunction joinFunction = (JoinCostFunction) Class.forName(joinCostClass).newInstance();
-            joinFunction.init(header);
             if (joinFunction instanceof JoinModelCost) {
                 ((JoinModelCost)joinFunction).setFeatureDefinition(targetFunction.getFeatureDefinition());
             }
+            joinFunction.init(header);
             
 	        // Build the various file readers
             logger.debug("...loading units file...");

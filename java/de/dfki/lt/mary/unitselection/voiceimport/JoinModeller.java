@@ -338,10 +338,12 @@ public class JoinModeller extends VoiceImportComponent
             int featureIndex = def.getFeatureIndex(f);
             String[] values = def.getPossibleValues(featureIndex);
             for (String v : values) {
-                if(f.contains("mary_sentence_punc") || f.contains("mary_prev_punctuation") || f.contains("mary_next_punctuation"))
-                  pw.println("QS \""+f+"="+replacePunc(v)+"\" {*|"+f+"="+replacePunc(v)+"|*}");
-                else
-                  pw.println("QS \""+f+"="+v+"\" {*|"+f+"="+v+"|*}");
+                if (f.endsWith("phoneme")) {
+                    v = contextTranslator.replaceTrickyPhones(v);
+                } else if (f.endsWith("sentence_punc") || f.endsWith("punctuation")) {
+                    v = replacePunc(v);
+                }
+                pw.println("QS \""+f+"="+v+"\" {*|"+f+"="+v+"|*}");
             }
             pw.println();
         }
