@@ -202,7 +202,7 @@ public class JoinModeller extends VoiceImportComponent
         // is there a way to know the lenght of MFCC at this point? so then there is no need
         // of hard coding 12.
         int numFeatures = joinFeatures.getNumberOfFeatures();
-        numFeatures = numFeatures - 1;  // Not using for the moment feature[13] = f0
+        numFeatures = numFeatures - 1; // TODO: ignoring F0 for the moment
         mmfStream.write("~o\n" + "<VECSIZE> " + numFeatures + " <MFCC><DIAGC>\n" + "~t \"trP_1\"\n<TRANSP> 3\n" + "0 1 0\n0 0 1\n0 0 0\n");
        
          
@@ -252,12 +252,17 @@ public class JoinModeller extends VoiceImportComponent
                 // Compute the difference vector
                 float[] myRightFrame = joinFeatures.getRightJCF(i);
                 float[] nextLeftFrame = joinFeatures.getLeftJCF(i+1);
+                //double[] difference = new double[myRightFrame.length];
+                //for (int k=0, len=myRightFrame.length; k<len; k++) {
+                //    difference[k] = ((double)myRightFrame[k]) - nextLeftFrame[k];
+                //}
+                // TODO: ignore F0 for the moment
                 double[] difference = new double[myRightFrame.length-1];
-                
                 for (int k=0, len=myRightFrame.length-1; k<len; k++) {
                     difference[k] = ((double)myRightFrame[k]) - nextLeftFrame[k];
                 }
                 
+
                 // Group the units with the same feature vectors
                 String contextName = contextTranslator.features2LongContext(def, fv, featureList);
                 Set<double[]> unitsWithFV = uniqueFeatureVectors.get(contextName);
