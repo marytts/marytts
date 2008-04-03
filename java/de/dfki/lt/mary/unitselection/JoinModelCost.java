@@ -178,6 +178,7 @@ public class JoinModelCost implements JoinCostFunction
     {
         jcf = new JoinCostFeatures(joinFileName);
 
+        assert featureDef != null : "Expected to have a feature definition, but it is null!";
         /* Load PDFs*/
         joinPdf = new HTSModelSet();
         try {
@@ -192,7 +193,7 @@ public class JoinModelCost implements JoinCostFunction
         int numTrees = 1;  /* just JoinModeller will be loaded */
         joinTree = new HTSTreeSet(numTrees);
         try {
-            joinTree.loadJoinModellerTreeSet(joinTreeFileName);
+            joinTree.loadJoinModellerTree(joinTreeFileName, featureDef);
         } catch (Exception e) {
             IOException ioe = new IOException("Cannot load join model trees from "+joinTreeFileName);
             ioe.initCause(e);
@@ -263,7 +264,7 @@ public class JoinModelCost implements JoinCostFunction
             fv1 = t1.getFeatureVector();
         }
         assert fv1 != null : "Target has no feature vector";
-        String modelName = contextTranslator.features2context(featureDef, fv1, featureList);
+        //String modelName = contextTranslator.features2context(featureDef, fv1, featureList);
         
         /* Given a context feature model name, find its join PDF mean and variance */
         /* first, find an index in the tree and then find the mean and variance that corresponds to that index in joinPdf */
@@ -272,7 +273,7 @@ public class JoinModelCost implements JoinCostFunction
         double[] mean = new double[vectorSize];
         double[] variance = new double[vectorSize];
         
-        indexPdf = joinTree.searchTree(modelName, joinTree.getTreeHead(0).getRoot(), false);
+        indexPdf = joinTree.searchJoinModellerTree(fv1, featureDef, joinTree.getTreeHead(0).getRoot(), false);
         
         joinPdf.findJoinPdf(indexPdf, mean, variance);
 
