@@ -32,13 +32,17 @@
 package de.dfki.lt.mary.modules.en;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Locale;
 
 import com.sun.speech.freetts.PartOfSpeech;
 import com.sun.speech.freetts.PartOfSpeechImpl;
-import com.sun.speech.freetts.PhoneSetImpl;
 import com.sun.speech.freetts.en.us.FeatureProcessors;
 import com.sun.speech.freetts.util.BulkTimer;
+
+import de.dfki.lt.mary.MaryProperties;
+import de.dfki.lt.mary.unitselection.featureprocessors.PhoneSet;
+import de.dfki.lt.mary.unitselection.featureprocessors.PhoneSetImpl;
 
 /**
  * Defines a dummy voice allowing to use FreeTTS UtteranceProcessors from
@@ -109,8 +113,10 @@ public class DummyFreeTTSVoice extends
                 com.sun.speech.freetts.en.us.CMUVoice.class
                         .getResource("part_of_speech.txt"), "content");
 
-        phoneSet = new PhoneSetImpl(com.sun.speech.freetts.en.us.CMUVoice.class
-                .getResource("phoneset.txt"));
+        //property is set in english.config
+        URL phoneSetURL = new URL("file:"
+            +MaryProperties.needFilename("english.freetts.phoneSetFile"));
+        phoneSet  = new PhoneSetImpl(phoneSetURL);
 
         addFeatureProcessor("word_break", new FeatureProcessors.WordBreak());
         addFeatureProcessor("word_punc", new FeatureProcessors.WordPunc());
