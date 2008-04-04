@@ -90,30 +90,33 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
      * containing the default values
      * @return map of props2values
      */
-    public SortedMap getDefaultProps(DatabaseLayout db){
+    public SortedMap<String,String> getDefaultProps(DatabaseLayout db){
         this.db = db;
        if (props == null){
-           props = new TreeMap();
-           props.put(treeDurFile, "hts/voices/qst001/ver1/tree-dur.inf"); 
-           props.put(treeLf0File, "hts/voices/qst001/ver1/tree-lf0.inf");
-           props.put(treeMcpFile, "hts/voices/qst001/ver1/tree-mgc.inf");
-           props.put(treeStrFile, "hts/voices/qst001/ver1/tree-str.inf");
-           props.put(treeMagFile, "hts/voices/qst001/ver1/tree-mag.inf");
-           props.put(pdfDurFile, "hts/voices/qst001/ver1/dur.pdf"); 
-           props.put(pdfLf0File, "hts/voices/qst001/ver1/lf0.pdf"); 
-           props.put(pdfMcpFile, "hts/voices/qst001/ver1/mgc.pdf"); 
-           props.put(pdfStrFile, "hts/voices/qst001/ver1/str.pdf");
-           props.put(pdfMagFile, "hts/voices/qst001/ver1/mag.pdf");
+           props = new TreeMap<String,String>();
+           
+           String rootdir = db.getProp(db.ROOTDIR);
+           
+           props.put(treeDurFile, "voices/qst001/ver1/tree-dur.inf"); 
+           props.put(treeLf0File, "voices/qst001/ver1/tree-lf0.inf");
+           props.put(treeMcpFile, "voices/qst001/ver1/tree-mgc.inf");
+           props.put(treeStrFile, "voices/qst001/ver1/tree-str.inf");
+           props.put(treeMagFile, "voices/qst001/ver1/tree-mag.inf");
+           props.put(pdfDurFile, "voices/qst001/ver1/dur.pdf"); 
+           props.put(pdfLf0File, "voices/qst001/ver1/lf0.pdf"); 
+           props.put(pdfMcpFile, "voices/qst001/ver1/mgc.pdf"); 
+           props.put(pdfStrFile, "voices/qst001/ver1/str.pdf");
+           props.put(pdfMagFile, "voices/qst001/ver1/mag.pdf");
            props.put(useGV, "true");
-           props.put(pdfLf0GVFile, "hts/data/gv/gv-lf0-littend.pdf"); 
-           props.put(pdfMcpGVFile, "hts/data/gv/gv-mgc-littend.pdf"); 
-           props.put(pdfStrGVFile, "hts/data/gv/gv-str-littend.pdf");
-           props.put(pdfMagGVFile, "hts/data/gv/gv-mag-littend.pdf");
-           props.put(mixFiltersFile, "hts/data/filters/mix_excitation_filters.txt"); 
+           props.put(pdfLf0GVFile, "data/gv/gv-lf0-littend.pdf"); 
+           props.put(pdfMcpGVFile, "data/gv/gv-mgc-littend.pdf"); 
+           props.put(pdfStrGVFile, "data/gv/gv-str-littend.pdf");
+           props.put(pdfMagGVFile, "data/gv/gv-mag-littend.pdf");
+           props.put(mixFiltersFile, "data/filters/mix_excitation_filters.txt"); 
            props.put(numFilters, "5");
            props.put(orderFilters, "48");
-           props.put(featureListFile, "hts/data/feature_list_en_05.pl");
-           props.put(labFile, "hts/data/labels/gen/gen_EM001_ARCTIC_0001.lab");
+           props.put(featureListFile, "data/feature_list_en.pl");
+           props.put(labFile, "data/labels/gen/gen_EM001_ARCTIC_0001.lab");
            
        }
        return props;
