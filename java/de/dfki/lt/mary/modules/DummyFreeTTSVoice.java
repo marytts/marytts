@@ -34,11 +34,12 @@ package de.dfki.lt.mary.modules;
 import java.io.IOException;
 
 import com.sun.speech.freetts.FeatureSet;
-import com.sun.speech.freetts.PhoneSet;
 import com.sun.speech.freetts.Tokenizer;
 import com.sun.speech.freetts.UtteranceProcessor;
 import com.sun.speech.freetts.lexicon.Lexicon;
 import com.sun.speech.freetts.util.BulkTimer;
+
+import de.dfki.lt.mary.unitselection.featureprocessors.PhoneSet;
 
 /**
  * Defines a dummy voice allowing to use FreeTTS UtteranceProcessors
