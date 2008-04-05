@@ -1,0 +1,196 @@
+package de.dfki.lt.mary.unitselection.voiceimport;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+public class HMMVoiceDataPreparation extends VoiceImportComponent{
+    
+    private DatabaseLayout db;
+    private String name = "HMMVoiceDataPreparation";
+    
+    /** Tree files and TreeSet object */
+    public final String RAW2WAVCOMMAND = name+".raw2wavCommand";
+    public final String WAV2RAWCOMMAND = name+".wav2rawCommand";
+    public final String UTT2TRANSCOMMAND = name+".utt2transCommand";
+    
+    public String getName(){
+        return name;
+    }
+    
+    /**
+     * Get the map of properties2values
+     * containing the default values
+     * @return map of props2values
+     */
+    public SortedMap<String,String> getDefaultProps(DatabaseLayout db){
+        this.db = db;
+       if (props == null){
+           props = new TreeMap<String,String>();
+           String rootdir = db.getProp(db.ROOTDIR);
+   
+           props.put(RAW2WAVCOMMAND, rootdir+"data/scripts/raw2wav.sh");
+           props.put(WAV2RAWCOMMAND, rootdir+"data/scripts/wav2raw.sh");
+           props.put(UTT2TRANSCOMMAND, rootdir+"data/scripts/utt2trans.sh");
+       }
+       return props;
+       }
+    
+    protected void setupHelp(){
+        props2Help = new TreeMap<String,String>();
+        
+        props2Help.put(RAW2WAVCOMMAND, "");
+        props2Help.put(WAV2RAWCOMMAND, "");
+        props2Help.put(UTT2TRANSCOMMAND, "");
+        
+    }
+
+    
+    
+    /**
+     * Do the computations required by this component.
+     * 
+     * @return true on success, false on failure
+     */
+    public boolean compute() throws Exception{
+        
+        System.out.println("\nChecking directories and files for running HTS training scripts...");
+        
+        String filedir = db.getProp(db.ROOTDIR);
+        String cmdLine;
+        boolean speech_transcriptions = true;
+ 
+       
+       File dirWav  = new File("wav");
+       File dirText = new File("text");
+       File dirRaw  = new File("data/raw");
+       File dirUtt  = new File("data/utts");
+       
+       /* Check if wav directory exist and have files */
+       /* if wav/* does not exist but data/raw/* exist then can be converted and copied from raw */
+       if( ( !dirWav.exists() || dirWav.list().length == 0 ) && (dirRaw.exists() && dirRaw.list().length > 0 ) ){
+         if(!dirWav.exists())
+           dirWav.mkdir();
+         /* set the script as executable */
+         cmdLine = "chmod +x " + getProp(RAW2WAVCOMMAND);
+         launchProc(cmdLine, "utt2trans", filedir);
+         cmdLine = getProp(RAW2WAVCOMMAND) + " " + filedir + "data/raw " + filedir + "wav" ;
+         launchProc(cmdLine, "raw2wav", filedir);
+       } else {
+           if( !dirWav.exists() || dirWav.list().length == 0 || !dirRaw.exists() || dirRaw.list().length == 0 ){ 
+            System.out.println("Problem with wav and data/raw directories: wav files and raw files do not exist.");
+            speech_transcriptions = false;
+          } else
+            System.out.println("\nwav directory exists and contains files.");    
+       }
+       
+       /* check if data/raw directory exist and have files */
+       /* if data/raw/* does not exist but wav/* exist then can be converted and copied from wav */
+       if((!dirRaw.exists() || dirRaw.list().length == 0) && (dirWav.exists() && dirWav.list().length > 0 ) ){
+         if(!dirRaw.exists())
+           dirRaw.mkdir();
+         /* set the script as executable */
+         cmdLine = "chmod +x " + getProp(WAV2RAWCOMMAND);
+         launchProc(cmdLine, "utt2trans", filedir);
+         cmdLine = getProp(WAV2RAWCOMMAND) + " " + filedir + "wav " + filedir + "data/raw" ;
+         launchProc(cmdLine, "wav2raw", filedir);
+       } else {
+           if( !dirWav.exists() || dirWav.list().length == 0 || !dirRaw.exists() || dirRaw.list().length == 0 ){
+             System.out.println("Problem with wav and data/raw directories: wav files and raw files do not exist.");
+             speech_transcriptions = false;
+           } else
+               System.out.println("\ndata/raw directory exists and contains files.");
+        }
+       
+       /* Check if text directory exist and have files */
+       if((!dirText.exists() || dirText.list().length == 0) && (dirUtt.exists() && dirUtt.list().length > 0 ) ){
+         if(!dirText.exists())
+           dirText.mkdir();
+         /* set the script as executable */
+         cmdLine = "chmod +x " + getProp(UTT2TRANSCOMMAND);
+         launchProc(cmdLine, "utt2trans", filedir);
+         cmdLine = getProp(UTT2TRANSCOMMAND) + " " + filedir + "data/utts " + filedir + "text" ;
+         launchProc(cmdLine, "utt2trans", filedir);      
+       } else {
+           if( !dirText.exists() || dirText.list().length == 0  || !dirUtt.exists() || dirUtt.list().length == 0  ){
+             System.out.println("Problem with transcription directories text or data/utts (Festival format): utts files and text files do not exist.");
+             System.out.println(" the transcriptions in the directory text will be used to generate the phonelab directory, if there are no data/utts files" +
+                    "(in Festival format), please provide the transcriptions of the files you are going to use for trainning.");
+             speech_transcriptions = false;
+           } else
+               System.out.println("\ntext directory exists and contains files.");
+        }
+       
+        
+       return true;
+       
+    }
+    
+    
+    /**
+     * Provide the progress of computation, in percent, or -1 if
+     * that feature is not implemented.
+     * @return -1 if not implemented, or an integer between 0 and 100.
+     */
+    public int getProgress(){
+        return -1;
+    }
+    
+
+   
+    /**
+     * A general process launcher for the various tasks
+     * (copied from ESTCaller.java)
+     * @param cmdLine the command line to be launched.
+     * @param task a task tag for error messages, such as "Pitchmarks" or "LPC".
+     * @param the basename of the file currently processed, for error messages.
+     */
+    private void launchProc( String cmdLine, String task, String baseName ) {
+        
+        Process proc = null;
+        BufferedReader procStdout = null;
+        String line = null;
+        System.out.println("Running: "+ cmdLine);
+        // String[] cmd = null; // Java 5.0 compliant code
+        
+        try {
+            /* Java 5.0 compliant code below. */
+            /* Hook the command line to the process builder: */
+            /* cmd = cmdLine.split( " " );
+            pb.command( cmd ); /*
+            /* Launch the process: */
+            /*proc = pb.start(); */
+            
+            /* Java 1.0 equivalent: */
+            proc = Runtime.getRuntime().exec( cmdLine );
+            
+            /* Collect stdout and send it to System.out: */
+            procStdout = new BufferedReader( new InputStreamReader( proc.getInputStream() ) );
+            while( true ) {
+                line = procStdout.readLine();
+                if ( line == null ) break;
+                System.out.println( line );
+            }
+            /* Wait and check the exit value */
+            proc.waitFor();
+            if ( proc.exitValue() != 0 ) {
+                throw new RuntimeException( task + " computation failed on file [" + baseName + "]!\n"
+                        + "Command line was: [" + cmdLine + "]." );
+            }
+        }
+        catch ( IOException e ) {
+            throw new RuntimeException( task + " computation provoked an IOException on file [" + baseName + "].", e );
+        }
+        catch ( InterruptedException e ) {
+            throw new RuntimeException( task + " computation interrupted on file [" + baseName + "].", e );
+        }
+        
+    }    
+
+
+    
+}
+
