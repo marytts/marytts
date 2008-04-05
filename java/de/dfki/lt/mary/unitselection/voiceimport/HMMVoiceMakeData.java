@@ -137,6 +137,9 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
       }
 
     
+      /* delete the temporary file*/
+      File tmpBatch = new File(filedir+"tmp.bat");
+      tmpBatch.delete();
  
       return true;
         
@@ -153,6 +156,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
     private void launchBatchProc( String cmdLine, String task, String baseName ) {
         
         Process proc = null;
+        Process proctmp = null;
         BufferedReader procStdout = null;
         String line = null;
         String filedir = db.getProp(db.ROOTDIR);
@@ -165,10 +169,8 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
             tmp.write(cmdLine);
             tmp.close();
             
-            
-            
             /* make it executable... */
-            proc = Runtime.getRuntime().exec( "chmod +x "+tmpFile );
+            proctmp = Runtime.getRuntime().exec( "chmod +x "+tmpFile );
             
             /* Java 5.0 compliant code below. */
             /* Hook the command line to the process builder: */
@@ -194,9 +196,6 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
                         + "Command line was: [" + cmdLine + "]." );
             }
             
-            /* delete the temporary file*/
-            File tmpBatch = new File(filedir+"tmp.bat");
-            tmpBatch.delete();
             
         }
         catch ( IOException e ) {

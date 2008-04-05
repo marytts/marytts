@@ -64,7 +64,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 
-/** Patch original hts training files */
+
 public class HMMVoiceConfigure extends VoiceImportComponent{
     
     private DatabaseLayout db;
@@ -83,9 +83,6 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
     public final String LOWERF0 = name+".lowerF0";
     public final String UPPERF0 = name+".upperF0";
     public final String NUMTESTFILES = name+".numTestFiles";
-    public final String RAW2WAVCOMMAND = name+".raw2wavCommand";
-    public final String WAV2RAWCOMMAND = name+".wav2rawCommand";
-    public final String UTT2TRANSCOMMAND = name+".utt2transCommand";
     
     public String getName(){
         return name;
@@ -114,9 +111,7 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
            props.put(LOWERF0, "80");
            props.put(UPPERF0, "350");
            props.put(NUMTESTFILES, "10");
-           props.put(RAW2WAVCOMMAND, rootdir+"data/scripts/raw2wav.sh");
-           props.put(WAV2RAWCOMMAND, rootdir+"data/scripts/wav2raw.sh");
-           props.put(UTT2TRANSCOMMAND, rootdir+"data/scripts/utt2trans.sh");
+
        }
        return props;
        }
@@ -136,9 +131,6 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
         props2Help.put(LOWERF0,     "Lower limit for F0 extraction in Hz (default=80)");
         props2Help.put(UPPERF0,     "Upper limit for F0 extraction in Hz (default=350)");
         props2Help.put(NUMTESTFILES, "Number of test files used for testing, these are copied from phonefeatures set.");
-        props2Help.put(RAW2WAVCOMMAND, "");
-        props2Help.put(WAV2RAWCOMMAND, "");
-        props2Help.put(UTT2TRANSCOMMAND, "");
         
     }
 
@@ -164,59 +156,25 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
        File dirUtt  = new File("data/utts");
        
        /* Check if wav directory exist and have files */
-       /* if wav/* does not exist but data/raw/* exist then can be converted and copied from raw */
-       if( ( !dirWav.exists() || dirWav.list().length == 0 ) && (dirRaw.exists() && dirRaw.list().length > 0 ) ){
-         if(!dirWav.exists())
-           dirWav.mkdir();
-         /* set the script as executable */
-         cmdLine = "chmod +x " + getProp(RAW2WAVCOMMAND);
-         launchProc(cmdLine, "utt2trans", filedir);
-         cmdLine = getProp(RAW2WAVCOMMAND) + " " + filedir + "data/raw " + filedir + "wav" ;
-         launchProc(cmdLine, "raw2wav", filedir);
-       } else {
-           if( !dirWav.exists() || dirWav.list().length == 0 || !dirRaw.exists() || dirRaw.list().length == 0 ){ 
-            System.out.println("Problem with wav and data/raw directories: wav files and raw files do not exist.");
-            speech_transcriptions = false;
-          } else
-            System.out.println("\nwav directory exists and contains files.");    
-       }
+
+       if( !dirWav.exists() || dirWav.list().length == 0 || !dirRaw.exists() || dirRaw.list().length == 0 ){ 
+         System.out.println("Problem with wav and data/raw directories: wav files and raw files do not exist.");
+         speech_transcriptions = false;
+       }  
        
        /* check if data/raw directory exist and have files */
-       /* if data/raw/* does not exist but wav/* exist then can be converted and copied from wav */
-       if((!dirRaw.exists() || dirRaw.list().length == 0) && (dirWav.exists() && dirWav.list().length > 0 ) ){
-         if(!dirRaw.exists())
-           dirRaw.mkdir();
-         /* set the script as executable */
-         cmdLine = "chmod +x " + getProp(WAV2RAWCOMMAND);
-         launchProc(cmdLine, "utt2trans", filedir);
-         cmdLine = getProp(WAV2RAWCOMMAND) + " " + filedir + "wav " + filedir + "data/raw" ;
-         launchProc(cmdLine, "wav2raw", filedir);
-       } else {
-           if( !dirWav.exists() || dirWav.list().length == 0 || !dirRaw.exists() || dirRaw.list().length == 0 ){
-             System.out.println("Problem with wav and data/raw directories: wav files and raw files do not exist.");
-             speech_transcriptions = false;
-           } else
-               System.out.println("\ndata/raw directory exists and contains files.");
-        }
+       if( !dirWav.exists() || dirWav.list().length == 0 || !dirRaw.exists() || dirRaw.list().length == 0 ){
+          System.out.println("Problem with wav and data/raw directories: wav files and raw files do not exist.");
+          speech_transcriptions = false;
+       } 
        
        /* Check if text directory exist and have files */
-       if((!dirText.exists() || dirText.list().length == 0) && (dirUtt.exists() && dirUtt.list().length > 0 ) ){
-         if(!dirText.exists())
-           dirText.mkdir();
-         /* set the script as executable */
-         cmdLine = "chmod +x " + getProp(UTT2TRANSCOMMAND);
-         launchProc(cmdLine, "utt2trans", filedir);
-         cmdLine = getProp(UTT2TRANSCOMMAND) + " " + filedir + "data/utts " + filedir + "text" ;
-         launchProc(cmdLine, "utt2trans", filedir);      
-       } else {
-           if( !dirText.exists() || dirText.list().length == 0  || !dirUtt.exists() || dirUtt.list().length == 0  ){
-             System.out.println("Problem with transcription directories text or data/utts (Festival format): utts files and text files do not exist.");
-             System.out.println(" the transcriptions in the directory text will be used to generate the phonelab directory, if there are no data/utts files" +
-                    "(in Festival format), please provide the transcriptions of the files you are going to use for trainning.");
-             speech_transcriptions = false;
-           } else
-               System.out.println("\ntext directory exists and contains files.");
-        }
+       if( !dirText.exists() || dirText.list().length == 0  || !dirUtt.exists() || dirUtt.list().length == 0  ){
+         System.out.println("Problem with transcription directories text or data/utts (Festival format): utts files and text files do not exist.");
+         System.out.println(" the transcriptions in the directory text will be used to generate the phonelab directory, if there are no data/utts files" +
+                   "(in Festival format), please provide the transcriptions of the files you are going to use for trainning.");
+         speech_transcriptions = false;
+       } 
        
        
        if(speech_transcriptions){
@@ -281,10 +239,11 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
        
         
        } else
-         System.out.println("Problems with directories phonefeatures or phonelab, they do not exist or theay are empty.");  
+         System.out.println("Problems with directories phonefeatures or phonelab, they do not exist or they are empty.");  
        
-       } /* if speech and transcriptions exist */
-        
+       } else /* if speech and transcriptions exist */
+         System.out.println("Problems with directories wav, text or data/raw, they do not exist or they are empty.");
+       
        return true;
        
     }
