@@ -72,17 +72,41 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
     
     /** Tree files and TreeSet object */
     public final String CONFIGUREFILE = name+".configureFile";
-    public final String HTSPATH = name+".htsPath";
-    public final String SPTKPATH = name+".sptkPath";
-    public final String TCLPATH = name+".tclPath";
-    public final String SOXPATH = name+".soxPath";
-    public final String FEATURELIST = name+".featureList";
-    public final String VOICELANG = name+".voiceLang";
-    public final String SPEAKER = name+".speaker";
-    public final String DATASET = name+".dataSet";
-    public final String LOWERF0 = name+".lowerF0";
-    public final String UPPERF0 = name+".upperF0";
-    public final String NUMTESTFILES = name+".numTestFiles";
+    public final String HTSPATH       = name+".htsPath";
+    public final String SPTKPATH      = name+".sptkPath";
+    public final String TCLPATH       = name+".tclPath";
+    public final String SOXPATH       = name+".soxPath";
+    public final String FEATURELIST   = name+".featureList";
+    public final String VOICELANG     = name+".voiceLang";
+    public final String SPEAKER       = name+".speaker";
+    public final String DATASET       = name+".dataSet";
+    public final String LOWERF0       = name+".lowerF0";
+    public final String UPPERF0       = name+".upperF0";
+    public final String NUMTESTFILES  = name+".numTestFiles";
+    
+    public final String VER           = name+".version";
+    public final String QNUM          = name+".qestionsNum";
+    public final String FRAMELEN      = name+".frameLen";
+    public final String FRAMESHIFT    = name+".frameShift";
+    public final String WINDOWTYPE    = name+".windowType";
+    public final String NORMALIZE     = name+".normalize";
+    public final String FFTLEN        = name+".fftLen";
+    public final String FREQWARP      = name+".freqWarp";
+    public final String GAMMA         = name+".gamma";
+    public final String MGCLSP        = name+".mgcLSP";
+    public final String MGCORDER      = name+".mgcOrder";
+    public final String STRORDER      = name+".strOrder";
+    public final String LNGAIN        = name+".lnGain";
+    public final String PSTFILTER     = name+".pstFilter";
+    public final String IMPLEN        = name+".impulseLen";
+    public final String SAMPFREQ      = name+".sampfreq";
+    public final String NMGCWIN       = name+".numMgcWin";
+    public final String NSTRWIN       = name+".numStrWin";
+    public final String NLF0WIN       = name+".numLf0Win";
+    public final String NSTATE        = name+".numState";
+    public final String NITER         = name+".numIterations";
+    public final String WFLOOR        = name+".weightFloor";
+     
     
     public String getName(){
         return name;
@@ -100,17 +124,40 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
            String rootdir = db.getProp(db.ROOTDIR);
            
            props.put(CONFIGUREFILE, rootdir+"configure");
-           props.put(HTSPATH, "/project/mary/marcela/sw/HTS_2.0.1/htk/bin");
-           props.put(SPTKPATH, "/project/mary/marcela/sw/SPTK-3.1/bin");
-           props.put(TCLPATH, "/opt/ActiveTcl-8.4/bin");
-           props.put(SOXPATH, "/usr/bin");
-           props.put(FEATURELIST, rootdir+"data/feature_list_en.pl");
-           props.put(VOICELANG, "en");
-           props.put(SPEAKER, "slt");
-           props.put(DATASET, "cmu_us_arctic");
-           props.put(LOWERF0, "80");
-           props.put(UPPERF0, "350");
-           props.put(NUMTESTFILES, "10");
+           props.put(HTSPATH,       "/project/mary/marcela/sw/HTS_2.0.1/htk/bin");
+           props.put(SPTKPATH,      "/project/mary/marcela/sw/SPTK-3.1/bin");
+           props.put(TCLPATH,       "/opt/ActiveTcl-8.4/bin");
+           props.put(SOXPATH,       "/usr/bin");
+           props.put(FEATURELIST,   rootdir+"data/feature_list_en.pl");
+           props.put(VOICELANG,     "en");
+           props.put(SPEAKER,       "slt");
+           props.put(DATASET,       "cmu_us_arctic");
+           props.put(LOWERF0,       "80");
+           props.put(UPPERF0,       "350");
+           props.put(NUMTESTFILES,  "10");
+           
+           props.put(VER,         "1");
+           props.put(QNUM,        "001");
+           props.put(FRAMELEN,    "400");
+           props.put(FRAMESHIFT,  "80");
+           props.put(WINDOWTYPE,  "1");
+           props.put(NORMALIZE,   "1");
+           props.put(FFTLEN,      "512");
+           props.put(FREQWARP,    "0.42");
+           props.put(GAMMA,       "0");
+           props.put(MGCLSP,      "0");
+           props.put(MGCORDER,    "24");
+           props.put(STRORDER,    "5");
+           props.put(LNGAIN,      "0");
+           props.put(PSTFILTER,   "1.4");
+           props.put(IMPLEN,      "4096");
+           props.put(SAMPFREQ,    "16000");
+           props.put(NMGCWIN,     "3");
+           props.put(NSTRWIN,     "3");
+           props.put(NLF0WIN,     "3");
+           props.put(NSTATE,      "5");
+           props.put(NITER,       "5");
+           props.put(WFLOOR,      "3");
 
        }
        return props;
@@ -119,18 +166,45 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
     protected void setupHelp(){
         props2Help = new TreeMap<String,String>();
         
-        props2Help.put(CONFIGUREFILE, "");
-        props2Help.put(HTSPATH, "");
-        props2Help.put(SPTKPATH, "");
-        props2Help.put(TCLPATH, "");
-        props2Help.put(SOXPATH, "");
-        props2Help.put(FEATURELIST, "Mary context features file (default='data/feature_list.pl')");
-        props2Help.put(VOICELANG,   "voice language (default='en')");
-        props2Help.put(SPEAKER,     "speaker name (default=slt)");
-        props2Help.put(DATASET,     "dataset (default=cmu_us_arctic)");
-        props2Help.put(LOWERF0,     "Lower limit for F0 extraction in Hz (default=80)");
-        props2Help.put(UPPERF0,     "Upper limit for F0 extraction in Hz (default=350)");
-        props2Help.put(NUMTESTFILES, "Number of test files used for testing, these are copied from phonefeatures set.");
+        props2Help.put(CONFIGUREFILE, "Path and name of configure file.");
+        props2Help.put(HTSPATH,       "Path to HTS_2.0.1 - HTK bin directory.");
+        props2Help.put(SPTKPATH,      "Path to SPTK-3.1 bin directory.");
+        props2Help.put(TCLPATH,       "Path to Tcl bin, it should support snack.");
+        props2Help.put(SOXPATH,       "Path to sox bin.");
+        props2Help.put(FEATURELIST,   "Mary context features file (default='data/feature_list.pl')");
+        props2Help.put(VOICELANG,     "voice language (default='en')");
+        props2Help.put(SPEAKER,       "speaker name (default=slt)");
+        props2Help.put(DATASET,       "dataset (default=cmu_us_arctic)");
+        props2Help.put(LOWERF0,       "Lower limit for F0 extraction in Hz (default=80)");
+        props2Help.put(UPPERF0,       "Upper limit for F0 extraction in Hz (default=350)");
+        props2Help.put(NUMTESTFILES,  "Number of test files used for testing, these are copied from phonefeatures set.");
+     
+        
+        props2Help.put(VER,         "version number of this setting (default=1)");
+        props2Help.put(QNUM,        "question set number (default='001')");
+        props2Help.put(FRAMELEN,    "Frame length in point (default=400)");
+        props2Help.put(FRAMESHIFT,  "Frame shift in point (default=80)");
+        props2Help.put(WINDOWTYPE,  "Window type -> 0: Blackman 1: Hamming 2: Hanning (default=1)");
+        props2Help.put(NORMALIZE,   "Normalization -> 0: none 1: by power 2: by magnitude (default=1)");
+        props2Help.put(FFTLEN,      "FFT length in point (default=512)");
+        props2Help.put(FREQWARP,    "Frequency warping factor (default=0.42)");
+        props2Help.put(GAMMA,       "Pole/Zero weight factor (0: mel-cepstral analysis 1: LPC analysis 2,3,...,N: mel-generalized cepstral (MGC) analysis) (default=0)");
+        props2Help.put(MGCLSP,      "Use MGC-LSPs instead of MGC coefficients (default=0)");
+        props2Help.put(MGCORDER,    "Order of MGC analysis (default=24 for cepstral form, default=12 for LSP form)");
+        props2Help.put(STRORDER,    "Order of strengths analysis (default=5 for 5 filter bands)");
+        props2Help.put(LNGAIN,      "Use logarithmic gain instead of linear gain (default=0)");
+        props2Help.put(PSTFILTER,   "Postfiltering factor (default=1.4)");
+        props2Help.put(IMPLEN,      "Length of impulse response (default=4096)");
+        props2Help.put(SAMPFREQ,    "Sampling frequency in Hz (default=16000)");
+        props2Help.put(NMGCWIN,     "number of delta windows for MGC coefficients (default=3)");
+        props2Help.put(NSTRWIN,     "number of delta windows for STR coefficients (default=3)");
+        props2Help.put(NLF0WIN,     "number of delta windows for log F0 values (default=3)");
+        props2Help.put(NSTATE,      "number of HMM states (default=5)");
+        props2Help.put(NITER,       "number of iterations of embedded training (default=5)");
+        props2Help.put(WFLOOR,      "mixture weight flooring scale (default=3)");
+       
+        
+        
         
     }
 
@@ -234,7 +308,31 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
        " SPEAKER=" + getProp(SPEAKER) +
        " DATASET=" + getProp(DATASET) +
        " VOICELANG=" + getProp(VOICELANG) +
-       " FEATURELIST=" + getProp(FEATURELIST); 
+       " FEATURELIST=" + getProp(FEATURELIST) +
+       
+       " VER=" + getProp(VER) +
+       " QNUM=" + getProp(QNUM) +
+       " FRAMELEN=" + getProp(FRAMELEN) +
+       " FRAMESHIFT=" + getProp(FRAMESHIFT) +
+       " WINDOWTYPE=" + getProp(WINDOWTYPE) +
+       " NORMALIZE=" + getProp(NORMALIZE) +
+       " FFTLEN=" + getProp(FFTLEN) +
+       " FREQWARP=" + getProp(FREQWARP) +
+       " GAMMA=" + getProp(GAMMA) +
+       " MGCLSP=" + getProp(MGCLSP) +
+       " MGCORDER=" + getProp(MGCORDER) +
+       " STRORDER=" + getProp(STRORDER) +
+       " LNGAIN=" + getProp(LNGAIN) +
+       " PSTFILTER=" + getProp(PSTFILTER) +
+       " IMPLEN=" + getProp(IMPLEN) +
+       " SAMPFREQ=" + getProp(SAMPFREQ) +
+       " NMGCWIN=" + getProp(NMGCWIN) +
+       " NSTRWIN=" + getProp(NSTRWIN) +
+       " NLF0WIN=" + getProp(NLF0WIN) +
+       " NSTATE=" + getProp(NSTATE) +
+       " NITER=" + getProp(NITER) +
+       " WFLOOR=" + getProp(WFLOOR);
+       
        launchProc(cmdLine, "Configure", filedir);
        
         
