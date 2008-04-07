@@ -231,6 +231,7 @@ public class PhoneFeatureFileWriter extends VoiceImportComponent
             index++;
             System.out.println( "Exiting at index (" + index + ")." );
             System.out.flush();
+            uttFeats.close();
         }
     }
 
