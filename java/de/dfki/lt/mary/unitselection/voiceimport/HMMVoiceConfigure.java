@@ -308,8 +308,7 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
        " SPEAKER=" + getProp(SPEAKER) +
        " DATASET=" + getProp(DATASET) +
        " VOICELANG=" + getProp(VOICELANG) +
-       " FEATURELIST=" + getProp(FEATURELIST) +
-       
+       " FEATURELIST=" + getProp(FEATURELIST) +      
        " VER=" + getProp(VER) +
        " QNUM=" + getProp(QNUM) +
        " FRAMELEN=" + getProp(FRAMELEN) +
