@@ -67,12 +67,13 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
     public final String pdfLf0GVFile = name+".Fgvf"; 
     public final String pdfMcpGVFile = name+".Fgvm";  
     public final String pdfStrGVFile = name+".Fgvs";  
-    public final String pdfMagGVFile = name+".Fgva";  
+    public final String pdfMagGVFile = name+".Fgva";
         
     /** Variables for mixed excitation */
+    public final String useMixExc      = name+".useMixExc";
     public final String mixFiltersFile = name+".Fif";
-    public final String numFilters = name+".in";
-    public final String orderFilters = name+".io";
+    public final String numFilters     = name+".in";
+    public final String orderFilters   = name+".io";
     
     /** Feature list file and Vector which will contain the loaded features from this file */
     public final String featureListFile = name+".FeaList";
@@ -112,6 +113,7 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
            props.put(pdfMcpGVFile, "data/gv/gv-mgc-littend.pdf"); 
            props.put(pdfStrGVFile, "data/gv/gv-str-littend.pdf");
            props.put(pdfMagGVFile, "data/gv/gv-mag-littend.pdf");
+           props.put(useMixExc, "true");
            props.put(mixFiltersFile, "data/filters/mix_excitation_filters.txt"); 
            props.put(numFilters, "5");
            props.put(orderFilters, "48");
@@ -139,12 +141,13 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
         props2Help.put(pdfLf0GVFile, "Global variance for Log F0, mean and (diagonal) variance PDF file"); 
         props2Help.put(pdfMcpGVFile, "Global variance for Mel-cepstral (or Mel-generalized cepstral mgc) mean and (diagonal) variance PDF file"); 
         props2Help.put(pdfStrGVFile, "Global variance for Bandpass voicing strengths mean and (diagonal) variance PDF file (optional: used for mixed excitation)");
-        props2Help.put(pdfMagGVFile, "Global variance for Fourier Magnitudes mean and (diagonal) variance PDF file (optional: used for mixed excitation)");        
+        props2Help.put(pdfMagGVFile, "Global variance for Fourier Magnitudes mean and (diagonal) variance PDF file (optional: used for mixed excitation)");
+        props2Help.put(useMixExc, "Use mixed excitation in speech generation (true/false)");
         props2Help.put(mixFiltersFile, "Filter taps of bandpass filters for mixed excitation (optional: used for mixed excitation)"); 
         props2Help.put(numFilters, "Number of filters in bandpass bank, default 5 filters (optional: used for mixed excitation)");
         props2Help.put(orderFilters, "Number of taps in bandpass filters, default 48 taps (optional: used for mixed excitation)");
         props2Help.put(featureListFile, "Requested features for the fullcontext names and tree questions");
-        props2Help.put(labFile, "File for testing the HMMSynthesiser, example of a file in HTSCONTEXT format");
+        props2Help.put(labFile, "File for testing the HMMSynthesiser, example of a file in HTSCONTEXT format. If the file is not provided or does not exist a file from data/labels/gen/ will be used.");
         
     }
 
@@ -250,9 +253,24 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
             in = new File(getProp(featureListFile));
             out = new File(newVoiceDir + getFileName(getProp(featureListFile)));
             copy(in,out);
+            
+            
             in = new File(getProp(labFile));
-            out = new File(newVoiceDir + getFileName(getProp(labFile)));
-            copy(in,out);
+            if(in.exists()){
+              out = new File(newVoiceDir + getFileName(getProp(labFile)));
+              copy(in,out); 
+            } else {
+              /* copy one example of hts context features file, it can be one of the 
+               * files used for testing in data/labels/gen/*.lab*/
+              File dirGenLab  = new File("data/labels/gen");
+              if( !dirGenLab.exists() && dirGenLab.list().length > 0 ){ 
+                String[] labFiles = dirGenLab.list();
+                in = new File(labFiles[0]);
+                out = new File(newVoiceDir + getFileName(getProp(labFile)));
+                copy(in,out);
+              } else
+                System.out.println("Problem copying one example of HTS context features, the directory data/labels/gen/ is empty or directory does not exist.");
+            }   
                
         }catch (IOException ioe){
             return false;
@@ -449,6 +467,9 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
                       "# Requested features for the fullcontext names and tree questions \n" +
                       voiceHeader+".FeaList = MARY_BASE/lib/voices/"+voicename+"/"+getFileName(getProp(featureListFile))+"\n\n");
               
+              configOut.println("\n# Information about Mixed Excitation");
+              configOut.println(voiceHeader+".useMixExc = "+ getProp(useMixExc));
+              configOut.println();
               if( new File(getProp(treeStrFile)).exists()) {
                 configOut.println("# Filter taps of bandpass filters for mixed excitation \n" +
                                 "# File format: for example if we have 5 filters each with 48 taps \n" +
