@@ -80,6 +80,9 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
        
     /** Example context feature file in HTSCONTEXT_EN format */
     public final String labFile = name+".Flab";
+    
+    public final String createZipFile = name+".createZipFile";
+    public final String zipCommand = name+".zipCommand";
 
     public String getName(){
         return name;
@@ -119,6 +122,8 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
            props.put(orderFilters, "48");
            props.put(featureListFile, "data/feature_list_en.pl");
            props.put(labFile, "data/labels/gen/gen_EM001_ARCTIC_0001.lab");
+           props.put(createZipFile, "false");
+           props.put(zipCommand, "/usr/bin/zip");
            
        }
        return props;
@@ -148,6 +153,8 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
         props2Help.put(orderFilters, "Number of taps in bandpass filters, default 48 taps (optional: used for mixed excitation)");
         props2Help.put(featureListFile, "Requested features for the fullcontext names and tree questions");
         props2Help.put(labFile, "File for testing the HMMSynthesiser, example of a file in HTSCONTEXT format. If the file is not provided or does not exist a file from data/labels/gen/ will be used.");
+        props2Help.put(createZipFile, "Create zip file for Mary voices installation (used by Mary voices administrator only).");
+        props2Help.put(zipCommand, "zip command to create a voice.zip file for voice installation.");
         
     }
 
@@ -265,8 +272,8 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
               File dirGenLab  = new File("data/labels/gen");
               if( dirGenLab.exists() && dirGenLab.list().length > 0 ){ 
                 String[] labFiles = dirGenLab.list();
-                in = new File(labFiles[0]);
-                out = new File(newVoiceDir + getFileName(getProp(labFile)));
+                in = new File("data/labels/gen/"+labFiles[0]);
+                out = new File(newVoiceDir + getFileName(labFiles[0]));
                 copy(in,out);
               } else
                 System.out.println("Problem copying one example of HTS context features, the directory data/labels/gen/ is empty or directory does not exist.");
@@ -299,11 +306,37 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
         					+".config";
         System.out.println("\nCreating config file: " + configFileName);
         createConfigFile(configFileName, newVoiceDir, cutLocale, longLocale);
-        System.out.println("... done! ");
+        System.out.println("... done! ");        
         System.out.println("To run the voice, restart your Mary server");
+        
+        /* create a zip file for installation */
+        if( getProp(createZipFile).contentEquals("true") ) {
+          System.out.println("\nCreating voice installation file: " + db.getProp(db.MARYBASE)+longLocale 
+                               + "-"+db.getProp(db.VOICENAME).toLowerCase() + ".zip\n");  
+          String maryBase = db.getProp(db.MARYBASE);
+          if(maryBase.contains(" ") ){  
+            int i = maryBase.indexOf(" ");
+            maryBase = maryBase.substring(0, i) + "\\ " + maryBase.substring(i+1);
+          }
+          String installZipFile = longLocale
+                               + "-"+db.getProp(db.VOICENAME).toLowerCase()
+                               + ".zip";
+          configFileName = "conf"+fileSeparator
+                         + longLocale
+                         + "-"+db.getProp(db.VOICENAME).toLowerCase()
+                         + ".config";
+          String cmdLine = "cd "+ maryBase + "\n" + getProp(zipCommand) + " " 
+                         + installZipFile + " " 
+                         + configFileName + " "
+                         + "lib/voices/" + db.getProp(db.VOICENAME).toLowerCase() + fileSeparator + "*";  
+          System.out.println("CommandLine:" + cmdLine)
+;          launchBatchProc(cmdLine, "zip", filedir);
+          System.out.println();
+        }
+        
         return true;
         }
-    
+ 
     private void copy(File source, File dest)throws IOException{
         try { 
             System.out.println("copying: " + source + "\n    --> " + dest);
@@ -514,6 +547,67 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
        return str;
         
     }
+    
+    /**
+     * A general process launcher for the various tasks but using an intermediate batch file
+     * (copied from ESTCaller.java)
+     * @param cmdLine the command line to be launched.
+     * @param task a task tag for error messages, such as "Pitchmarks" or "LPC".
+     * @param the basename of the file currently processed, for error messages.
+     */
+    private void launchBatchProc( String cmdLine, String task, String baseName ) {
+        
+        Process proc = null;
+        Process proctmp = null;
+        BufferedReader procStdout = null;
+        String line = null;
+        String filedir = db.getProp(db.ROOTDIR);
+        String tmpFile = filedir+"tmp.bat";
+
+        // String[] cmd = null; // Java 5.0 compliant code
+        
+        try {
+            FileWriter tmp = new FileWriter(tmpFile);
+            tmp.write(cmdLine);
+            tmp.close();
+            
+            /* make it executable... */
+            proctmp = Runtime.getRuntime().exec( "chmod +x "+tmpFile );
+            
+            /* Java 5.0 compliant code below. */
+            /* Hook the command line to the process builder: */
+            /* cmd = cmdLine.split( " " );
+            pb.command( cmd ); /*
+            /* Launch the process: */
+            /*proc = pb.start(); */
+            
+            /* Java 1.0 equivalent: */
+            proc = Runtime.getRuntime().exec( tmpFile );
+            
+            /* Collect stdout and send it to System.out: */
+            procStdout = new BufferedReader( new InputStreamReader( proc.getInputStream() ) );
+            while( true ) {
+                line = procStdout.readLine();
+                if ( line == null ) break;
+                System.out.println( line );
+            }
+            /* Wait and check the exit value */
+            proc.waitFor();
+            if ( proc.exitValue() != 0 ) {
+                throw new RuntimeException( task + " computation failed on file [" + baseName + "]!\n"
+                        + "Command line was: [" + cmdLine + "]." );
+            }
+            
+            
+        }
+        catch ( IOException e ) {
+            throw new RuntimeException( task + " computation provoked an IOException on file [" + baseName + "].", e );
+        }
+        catch ( InterruptedException e ) {
+            throw new RuntimeException( task + " computation interrupted on file [" + baseName + "].", e );
+        }
+        
+    }    
     
     /**
      * Provide the progress of computation, in percent, or -1 if
