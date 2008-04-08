@@ -263,7 +263,7 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
               /* copy one example of hts context features file, it can be one of the 
                * files used for testing in data/labels/gen/*.lab*/
               File dirGenLab  = new File("data/labels/gen");
-              if( !dirGenLab.exists() && dirGenLab.list().length > 0 ){ 
+              if( dirGenLab.exists() && dirGenLab.list().length > 0 ){ 
                 String[] labFiles = dirGenLab.list();
                 in = new File(labFiles[0]);
                 out = new File(newVoiceDir + getFileName(getProp(labFile)));
