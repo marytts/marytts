@@ -29,13 +29,14 @@
 
 package de.dfki.lt.mary.unitselection.adaptation;
 
+import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookLsfEntry;
+import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchStatisticsCollection;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchStatisticsMapping;
 
 /**
  * @author oytun.turk
  *
  */
-public class TransformationData {
-    public PitchStatisticsMapping f0StatisticsMapping;
-
+public class VocalTractTransformationData {
+    
 }
