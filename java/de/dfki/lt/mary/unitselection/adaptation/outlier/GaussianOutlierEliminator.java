@@ -216,11 +216,6 @@ public class GaussianOutlierEliminator {
                     codebookOut.writeLsfEntry(codebookIn.lsfEntries[i]);
             }
             
-            //Append pitch statistics
-            for (i=0; i<codebookIn.header.totalF0StatisticsEntries; i++)
-                codebookOut.writeF0StatisticsEntry(codebookIn.f0StatisticsCollection.entries[i]);
-            //
-            
             codebookOut.close();
             //
             
