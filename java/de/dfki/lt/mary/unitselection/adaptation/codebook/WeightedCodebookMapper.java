@@ -32,7 +32,7 @@ package de.dfki.lt.mary.unitselection.adaptation.codebook;
 import java.util.Arrays;
 
 import de.dfki.lt.mary.unitselection.adaptation.Context;
-import de.dfki.lt.mary.unitselection.adaptation.TransformationFunction;
+import de.dfki.lt.mary.unitselection.adaptation.VocalTractTransformationFunction;
 import de.dfki.lt.signalproc.util.DistanceComputer;
 import de.dfki.lt.signalproc.util.MathUtils;
 import de.dfki.lt.signalproc.util.SignalProcUtils;
@@ -44,7 +44,7 @@ import de.dfki.lt.signalproc.util.SignalProcUtils;
  * entries
  * 
  */
-public class WeightedCodebookMapper extends TransformationFunction {
+public class WeightedCodebookMapper extends VocalTractTransformationFunction {
     public WeightedCodebookMapperParams mapperParams;
     private double[] bestMatchDists;
     private int[] bestMatchIndices; //indices in codebook

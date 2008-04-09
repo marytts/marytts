@@ -50,6 +50,8 @@ public class WeightedCodebookTrainerParams extends BaselineParams {
     public String codebookFile; //Source and target codebook file
     public String temporaryCodebookFile; //Temporary codebook file
     
+    public String pitchMappingFile; //Source and target pitch mapping file
+    
     //Some filename extension for custom training file types
     public String indexMapFileExtension; //Index map file extensions
     
@@ -65,7 +67,10 @@ public class WeightedCodebookTrainerParams extends BaselineParams {
         trainingBaseFolder = ""; //Training base directory
         sourceTrainingFolder = ""; //Source training folder
         targetTrainingFolder = ""; //Target training folder
-        codebookFile = "";
+        codebookFile = "";  //Source and target codebook file
+        temporaryCodebookFile = ""; //Temporary codebook file
+        
+        pitchMappingFile = "";
         
         //Some filename extension for custom training file types
         indexMapFileExtension = ".imf";
@@ -76,20 +81,23 @@ public class WeightedCodebookTrainerParams extends BaselineParams {
         kmeansEliminatorParams = new KMeansMappingEliminatorParams();
     }
     
-    public WeightedCodebookTrainerParams(WeightedCodebookTrainerParams pa)
+    public WeightedCodebookTrainerParams(WeightedCodebookTrainerParams existing)
     {
-        codebookHeader = new WeightedCodebookFileHeader(pa.codebookHeader);
+        codebookHeader = new WeightedCodebookFileHeader(existing.codebookHeader);
         
-        trainingBaseFolder = pa.trainingBaseFolder;
-        sourceTrainingFolder = pa.sourceTrainingFolder;
-        targetTrainingFolder = pa.targetTrainingFolder;
-        codebookFile = pa.codebookFile;
+        trainingBaseFolder = existing.trainingBaseFolder;
+        sourceTrainingFolder = existing.sourceTrainingFolder;
+        targetTrainingFolder = existing.targetTrainingFolder;
+        codebookFile = existing.codebookFile;
+        temporaryCodebookFile = existing.temporaryCodebookFile;
+        
+        pitchMappingFile = existing.pitchMappingFile;
 
-        indexMapFileExtension = pa.indexMapFileExtension;
+        indexMapFileExtension = existing.indexMapFileExtension;
         
-        isForcedAnalysis = pa.isForcedAnalysis;
+        isForcedAnalysis = existing.isForcedAnalysis;
         
-        gaussianEliminatorParams = new GaussianOutlierEliminatorParams(pa.gaussianEliminatorParams);
-        kmeansEliminatorParams = new KMeansMappingEliminatorParams(pa.kmeansEliminatorParams);
+        gaussianEliminatorParams = new GaussianOutlierEliminatorParams(existing.gaussianEliminatorParams);
+        kmeansEliminatorParams = new KMeansMappingEliminatorParams(existing.kmeansEliminatorParams);
     }
 }

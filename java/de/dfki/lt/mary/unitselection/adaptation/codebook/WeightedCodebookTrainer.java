@@ -38,6 +38,7 @@ import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationSet;
 import de.dfki.lt.mary.unitselection.adaptation.BaselineTrainer;
 import de.dfki.lt.mary.unitselection.adaptation.FeatureCollection;
 import de.dfki.lt.mary.unitselection.adaptation.IndexMap;
+import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchMappingFile;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchTrainer;
 import de.dfki.lt.mary.unitselection.voiceimport.BasenameList;
 import de.dfki.lt.mary.util.FileUtils;
@@ -236,6 +237,7 @@ public class WeightedCodebookTrainer extends BaselineTrainer {
     {
         WeightedCodebookLsfMapper lsfMapper = new WeightedCodebookLsfMapper(wcParams);
         WeightedCodebookFile temporaryCodebookFile = new WeightedCodebookFile(wcParams.temporaryCodebookFile, WeightedCodebookFile.OPEN_FOR_WRITE);
+        PitchMappingFile pitchMappingFile = new PitchMappingFile(wcParams.pitchMappingFile, PitchMappingFile.OPEN_FOR_WRITE);
 
         if (wcParams.codebookHeader.codebookType==WeightedCodebookFileHeader.FRAMES)
             lsfMapper.learnMappingFrames(temporaryCodebookFile, (WeightedCodebookFeatureCollection)fcol, sourceTrainingSet, targetTrainingSet, map);
@@ -248,10 +250,12 @@ public class WeightedCodebookTrainer extends BaselineTrainer {
         else if (wcParams.codebookHeader.codebookType==WeightedCodebookFileHeader.SPEECH)
             lsfMapper.learnMappingSpeech(temporaryCodebookFile, (WeightedCodebookFeatureCollection)fcol, sourceTrainingSet, targetTrainingSet, map);
         
-        PitchTrainer ptcTrainer = new PitchTrainer(wcParams);
-        ptcTrainer.learnMapping(temporaryCodebookFile, (WeightedCodebookFeatureCollection)fcol, sourceTrainingSet, targetTrainingSet, map);
-        
         temporaryCodebookFile.close();
+        
+        PitchTrainer ptcTrainer = new PitchTrainer(wcParams);
+        ptcTrainer.learnMapping(pitchMappingFile, (WeightedCodebookFeatureCollection)fcol, sourceTrainingSet, targetTrainingSet, map);
+        
+        pitchMappingFile.close();
     }
     
     public void deleteTemporaryFiles(WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet)
