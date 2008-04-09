@@ -133,7 +133,8 @@ public class FileUtils
     //Silent version
     public static void delete(String file)
     {
-        delete(file, false);
+        if (exists(file))
+            delete(file, false);
     }
     
     public static void delete(String[] files, boolean bDisplayInfo)
