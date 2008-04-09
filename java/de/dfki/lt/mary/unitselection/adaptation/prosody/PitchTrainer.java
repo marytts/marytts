@@ -39,15 +39,18 @@ public class PitchTrainer {
     //
     // and all above parameters computed for log(f0s)
     // (This may work better since pitch perception is logarithmic)
-    public void learnMapping(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map)
+    public void learnMapping(PitchMappingFile pitchMappingFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map)
     {
-        getStatistics(codebookFile, fcol, sourceTrainingSet, true, map, PitchStatistics.STATISTICS_IN_HERTZ); //Source, Hertz: Locals+Global
-        getStatistics(codebookFile, fcol, sourceTrainingSet, true, map, PitchStatistics.STATISTICS_IN_LOGHERTZ); //Source, logHertz: Locals+Global
-        getStatistics(codebookFile, fcol, targetTrainingSet, false, map, PitchStatistics.STATISTICS_IN_HERTZ); //Target, Hertz: Locals+Global
-        getStatistics(codebookFile, fcol, targetTrainingSet, false, map, PitchStatistics.STATISTICS_IN_LOGHERTZ); //Target, logHertz: Locals+Global
+        PitchMappingFileHeader header = new PitchMappingFileHeader();
+        pitchMappingFile.writePitchMappingHeader(header);
+        
+        getStatistics(pitchMappingFile, fcol, sourceTrainingSet, true, map, PitchStatistics.STATISTICS_IN_HERTZ); //Source, Hertz: Locals+Global
+        getStatistics(pitchMappingFile, fcol, sourceTrainingSet, true, map, PitchStatistics.STATISTICS_IN_LOGHERTZ); //Source, logHertz: Locals+Global
+        getStatistics(pitchMappingFile, fcol, targetTrainingSet, false, map, PitchStatistics.STATISTICS_IN_HERTZ); //Target, Hertz: Locals+Global
+        getStatistics(pitchMappingFile, fcol, targetTrainingSet, false, map, PitchStatistics.STATISTICS_IN_LOGHERTZ); //Target, logHertz: Locals+Global
     }
     
-    public void getStatistics(WeightedCodebookFile codebookFile, 
+    public void getStatistics(PitchMappingFile pitchMappingFile, 
                               WeightedCodebookFeatureCollection fcol, 
                               BaselineAdaptationSet trainingSet, 
                               boolean isSource, 
@@ -129,7 +132,7 @@ public class PitchTrainer {
                     tiltCount++;
                 }
                 
-                codebookFile.writeF0StatisticsEntry(local);
+                pitchMappingFile.writeF0StatisticsEntry(local);
             } 
         }
         
@@ -175,6 +178,6 @@ public class PitchTrainer {
         else
             global.standardDeviation = 1.0;
         
-        codebookFile.writeF0StatisticsEntry(global);
+        pitchMappingFile.writeF0StatisticsEntry(global);
     }
 }
