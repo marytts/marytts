@@ -39,6 +39,7 @@ import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebook;
 import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookMapperParams;
 import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookMatch;
 import de.dfki.lt.mary.unitselection.adaptation.gmm.GMMMatch;
+import de.dfki.lt.signalproc.analysis.LsfFileHeader;
 import de.dfki.lt.signalproc.util.DistanceComputer;
 import de.dfki.lt.signalproc.util.MaryRandomAccessFile;
 import de.dfki.lt.signalproc.util.MathUtils;
@@ -56,8 +57,9 @@ public class JointGMM extends VocalTractTransformationData {
    public GMM targetMeans; //Means for target
    public GMM covarianceTerms; //Cross-covariance terms required for transformation
                                       // Cov(y,x)_i * inverse(Cov(x,x)_i)
+   public LsfFileHeader lsfParams;
    
-   public JointGMM(GMM gmm)
+   public JointGMM(GMM gmm, LsfFileHeader lsfParamsIn)
    {
        if (gmm!=null && gmm.featureDimension>0)
        {
@@ -78,12 +80,15 @@ public class JointGMM extends VocalTractTransformationData {
                //Multiply with inverse(Cov(x,x)_i)
                covarianceTerms.components[i].covMatrix = MathUtils.matrixProduct(covarianceTerms.components[i].covMatrix, source.components[i].getInvCovMatrix());
            }
+           
+           lsfParams = new LsfFileHeader(lsfParamsIn);
        }
        else
        {
            source = null;
            targetMeans = null;
            covarianceTerms = null;
+           lsfParams = null;
        }
    }
    
@@ -100,6 +105,13 @@ public class JointGMM extends VocalTractTransformationData {
        } catch (FileNotFoundException e) {
            // TODO Auto-generated catch block
            e.printStackTrace();
+       }
+       
+       try {
+           lsfParams.writeLsfHeader(stream);
+       } catch (IOException e1) {
+           // TODO Auto-generated catch block
+           e1.printStackTrace();
        }
 
        if (stream!=null)
@@ -140,6 +152,14 @@ public class JointGMM extends VocalTractTransformationData {
        } catch (FileNotFoundException e) {
            // TODO Auto-generated catch block
            e.printStackTrace();
+       }
+       
+       lsfParams = new LsfFileHeader();
+       try {
+           lsfParams.readLsfHeader(stream);
+       } catch (IOException e1) {
+           // TODO Auto-generated catch block
+           e1.printStackTrace();
        }
 
        if (stream!=null)

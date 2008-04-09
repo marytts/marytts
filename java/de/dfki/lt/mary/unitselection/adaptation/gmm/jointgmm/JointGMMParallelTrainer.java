@@ -120,7 +120,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         //Convert joint GMM into a suitable format for using in transformation and save to a binary output file
         if (gmm!=null)
         {
-            JointGMM jointGMM = new JointGMM(gmm);
+            JointGMM jointGMM = new JointGMM(gmm, codebook.header.lsfParams);
             
             jointGMM.write(jgParams.jointGMMFile);
             
@@ -240,7 +240,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         //
         
         //Gaussian trainer params: commenting out results in using default value for each
-        gp.gmmEMTrainerParams.totalComponents = 16;
+        gp.gmmEMTrainerParams.totalComponents = 64;
         gp.gmmEMTrainerParams.isDiagonalCovariance = true; 
         gp.gmmEMTrainerParams.minimumIterations = 100;
         gp.gmmEMTrainerParams.maximumIterations = 200;

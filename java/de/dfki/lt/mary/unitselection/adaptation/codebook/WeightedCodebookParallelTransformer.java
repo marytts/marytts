@@ -120,7 +120,7 @@ public class WeightedCodebookParallelTransformer extends
             System.out.println("Error: Pitch mapping file " + params.pitchMappingFile + " not found!");
             return false;     
         }
-        else //Read lsfParams from the codebook header
+        else //Read pitch mapping info from the pitch mapping file header
         {
             pitchMappingFile = new PitchMappingFile(params.pitchMappingFile, PitchMappingFile.OPEN_FOR_READ);
             pitchMapping = new PitchMapping();
@@ -427,9 +427,9 @@ public class WeightedCodebookParallelTransformer extends
         pa.isDisplayProcessingFrameCount = true;
         
         pa.inputFolder = "d:\\1\\neutral50\\test1";
-        pa.outputBaseFolder = "d:\\1\\neutral_X_angry_50_2\\neutral2angryOut";
+        pa.outputBaseFolder = "d:\\1\\neutral_X_angry_50\\neutral2angryOut_codebook";
         
-        String baseFile = "d:\\1\\neutral_X_angry_50_2\\neutralF_X_angryF";
+        String baseFile = "d:\\1\\neutral_X_angry_50\\neutralF_X_angryF";
         pa.codebookFile = baseFile + WeightedCodebookFile.DEFAULT_EXTENSION;
         pa.pitchMappingFile = baseFile + PitchMappingFile.DEFAULT_EXTENSION;
         
@@ -467,7 +467,7 @@ public class WeightedCodebookParallelTransformer extends
         pa.isSaveVocalTractOnlyVersion = true;
         pa.isFixedRateVocalTractConversion = true;
         
-        pa.isContextBasedPreselection = true;
+        pa.isContextBasedPreselection = false;
         pa.totalContextNeighbours = 2;
         
         //Prosody transformation
@@ -502,7 +502,7 @@ public class WeightedCodebookParallelTransformer extends
         
         //Smoothing
         pa.isTemporalSmoothing = true;
-        pa.smoothingNumNeighbours = 3;
+        pa.smoothingNumNeighbours = 2;
         //pa.smoothingMethod = SmoothingDefinitions.OUTPUT_LSFCONTOUR_SMOOTHING;
         //pa.smoothingMethod = SmoothingDefinitions.OUTPUT_VOCALTRACTSPECTRUM_SMOOTHING;
         pa.smoothingMethod = SmoothingDefinitions.TRANSFORMATION_FILTER_SMOOTHING;

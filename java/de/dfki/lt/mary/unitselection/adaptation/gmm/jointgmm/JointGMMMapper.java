@@ -39,8 +39,6 @@ import de.dfki.lt.signalproc.util.MathUtils;
  */
 public class JointGMMMapper extends GMMMapper {
     
-    public GMMMatch returnedMatch;
-    
     public JointGMMMapper()
     {
         
@@ -104,6 +102,6 @@ public class JointGMMMapper extends GMMMapper {
             }
         }
         
-        return returnedMatch;
+        return jointGMMMatch;
     }
 }
