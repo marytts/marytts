@@ -29,19 +29,39 @@
 
 package de.dfki.lt.mary.unitselection.adaptation;
 
+import de.dfki.lt.signalproc.analysis.EnergyFileHeader;
+import de.dfki.lt.signalproc.analysis.LsfFileHeader;
+import de.dfki.lt.signalproc.analysis.PitchFileHeader;
+
 /**
  * @author oytun.turk
  *
  */
-public class BaselineParams {
-   
-    public BaselineParams()
-    {
-        
-    }
+public class BaselineMappingFileHeader {
+    public String sourceTag; //Source name tag (i.e. style or speaker identity)
+    public String targetTag; //Target name tag (i.e. style or speaker identity)
     
-    public BaselineParams(BaselineParams existing)
+    public LsfFileHeader lsfParams;
+    public PitchFileHeader ptcParams;
+    public EnergyFileHeader energyParams;
+    
+    public BaselineMappingFileHeader() 
     {
+        sourceTag = "source"; //Source name tag (i.e. style or speaker identity)
+        targetTag = "target"; //Target name tag (i.e. style or speaker identity)
 
+        lsfParams = new LsfFileHeader();
+        ptcParams = new PitchFileHeader();
+        energyParams = new EnergyFileHeader();
+    }
+
+    public BaselineMappingFileHeader(BaselineMappingFileHeader existing) 
+    {
+        sourceTag = existing.sourceTag;
+        targetTag = existing.targetTag;
+
+        lsfParams = new LsfFileHeader(existing.lsfParams);
+        ptcParams = new PitchFileHeader(existing.ptcParams);
+        energyParams = new EnergyFileHeader(existing.energyParams);
     }
 }
