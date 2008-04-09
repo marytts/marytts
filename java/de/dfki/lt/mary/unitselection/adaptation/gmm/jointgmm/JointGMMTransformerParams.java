@@ -29,25 +29,28 @@
 
 package de.dfki.lt.mary.unitselection.adaptation.gmm.jointgmm;
 
-import de.dfki.lt.machinelearning.GMMTrainerParams;
-import de.dfki.lt.mary.unitselection.adaptation.BaselineParams;
+import de.dfki.lt.mary.unitselection.adaptation.BaselineTransformerParams;
+import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookMapperParams;
+import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookTransformerParams;
 
 /**
  * @author oytun.turk
  *
  */
-public class JointGMMTrainerParams extends BaselineParams {
-    public GMMTrainerParams gmmEMTrainerParams;
-    public String jointGMMFile;
+public class JointGMMTransformerParams extends BaselineTransformerParams {
+    public String jointGmmFile; //Joint GMM file
     
-    public JointGMMTrainerParams()
+    public JointGMMTransformerParams()
     {
-        gmmEMTrainerParams = new GMMTrainerParams();
+        super();
+        
+        jointGmmFile = "";
     }
     
-    public JointGMMTrainerParams(JointGMMTrainerParams existing)
+    public JointGMMTransformerParams(JointGMMTransformerParams existing)
     {
-        gmmEMTrainerParams = new GMMTrainerParams(existing.gmmEMTrainerParams);
-        jointGMMFile = existing.jointGMMFile;
-    }
+        super((BaselineTransformerParams)existing);
+        
+        jointGmmFile = existing.jointGmmFile;
+    }  
 }

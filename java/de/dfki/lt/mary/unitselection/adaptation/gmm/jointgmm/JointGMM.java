@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import de.dfki.lt.machinelearning.GMM;
-import de.dfki.lt.mary.unitselection.adaptation.TransformationData;
+import de.dfki.lt.mary.unitselection.adaptation.VocalTractTransformationData;
 import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebook;
 import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookMapperParams;
 import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookMatch;
@@ -49,8 +49,8 @@ import de.dfki.lt.signalproc.util.MathUtils;
  * This class is the dual of WeightedCodebook class in codebook mapping
  * 
  */
-public class JointGMM extends TransformationData {
-    public static final String DEFAULT_FILE_EXTENSION = ".jgf";
+public class JointGMM extends VocalTractTransformationData {
+   public static final String DEFAULT_EXTENSION = ".jgf";
     
    public GMM source; //Full GMM for source
    public GMM targetMeans; //Means for target
