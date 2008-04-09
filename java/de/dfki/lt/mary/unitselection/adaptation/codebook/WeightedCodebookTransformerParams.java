@@ -30,6 +30,7 @@
 package de.dfki.lt.mary.unitselection.adaptation.codebook;
 
 import de.dfki.lt.mary.unitselection.adaptation.BaselineParams;
+import de.dfki.lt.mary.unitselection.adaptation.BaselineTransformerParams;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.ProsodyTransformerParams;
 import de.dfki.lt.mary.unitselection.adaptation.smoothing.SmoothingDefinitions;
 import de.dfki.lt.signalproc.analysis.EnergyFileHeader;
@@ -40,110 +41,37 @@ import de.dfki.lt.signalproc.analysis.PitchFileHeader;
  * @author oytun.turk
  *
  */
-public class WeightedCodebookTransformerParams extends BaselineParams {
-    public String inputFolder; //Folder of input files to be transformed
-    public String outputBaseFolder; //Base folder of output files
-    public String outputFolder; //Individual folder of output files (Note that this is automatically generated using parameter values)
-    public String outputFolderInfoString; //An information string to be appended as a prefix to the output folder
+public class WeightedCodebookTransformerParams extends BaselineTransformerParams {
+
     public String codebookFile; //Codebook file
-    public boolean isSourceToTarget; //if true source is transformed to target, else target is transformed to source
-    public boolean isDisplayProcessingFrameCount; //Display processed frame indices while transforming?
     
     public WeightedCodebookMapperParams mapperParams;
-    public ProsodyTransformerParams prosodyParams;
-    
-    public LsfFileHeader lsfParams;
-    public PitchFileHeader ptcParams;
-    public EnergyFileHeader energyParams;
-    
-    public boolean isForcedAnalysis;
-    public boolean isVocalTractTransformation;
-    
-    public boolean isSeparateProsody;
-    public boolean isSaveVocalTractOnlyVersion;
-    public boolean isFixedRateVocalTractConversion;
     
     public boolean isContextBasedPreselection;
     public int totalContextNeighbours;
     
-    public boolean isTemporalSmoothing;
-    public int smoothingMethod;
-    public int smoothingNumNeighbours;
-    
-    public int smoothingState;
-    public String smoothedVocalTractFile;
-    
     public WeightedCodebookTransformerParams()
     {
-        inputFolder = "";
-        outputBaseFolder = "";
-        outputFolder = "";
-        outputFolderInfoString = "";
+        super();
+        
         codebookFile = "";
-        isSourceToTarget = true;
-        isDisplayProcessingFrameCount = false;
             
         mapperParams = new WeightedCodebookMapperParams();
-        prosodyParams = new ProsodyTransformerParams();
-        lsfParams = new LsfFileHeader();
-        ptcParams = new PitchFileHeader();
-        energyParams = new EnergyFileHeader();
-        
-        isForcedAnalysis = false;
-        isSourceVocalTractSpectrumFromModel = true;
-        isVocalTractTransformation = true;
-        isResynthesizeVocalTractFromSourceModel = false;
-        isVocalTractMatchUsingTargetModel = false;
-        
-        isSeparateProsody = true;
-        isSaveVocalTractOnlyVersion = true;
-        isFixedRateVocalTractConversion = true;
         
         isContextBasedPreselection = false;
         totalContextNeighbours = 0;
-        
-        isTemporalSmoothing = false;
-        smoothingMethod = SmoothingDefinitions.NO_SMOOTHING;
-        smoothingNumNeighbours = SmoothingDefinitions.DEFAULT_NUM_NEIGHBOURS;
-        
-        smoothingState = SmoothingDefinitions.NONE; 
-        smoothedVocalTractFile = "";
     }
     
     public WeightedCodebookTransformerParams(WeightedCodebookTransformerParams existing)
     {
-        super((BaselineParams)existing);
+        super((BaselineTransformerParams)existing);
         
-        inputFolder = existing.inputFolder;
-        outputBaseFolder = existing.outputBaseFolder;
-        outputFolder = existing.outputFolder;
-        outputFolderInfoString = existing.outputFolderInfoString;
         codebookFile = existing.codebookFile;
-        isSourceToTarget = existing.isSourceToTarget;
-        isDisplayProcessingFrameCount = existing.isDisplayProcessingFrameCount;
             
         mapperParams = new WeightedCodebookMapperParams(existing.mapperParams);
-        prosodyParams = new ProsodyTransformerParams(existing.prosodyParams);
-        lsfParams = new LsfFileHeader(existing.lsfParams);
-        ptcParams = new PitchFileHeader(existing.ptcParams);
-        energyParams = new EnergyFileHeader(existing.energyParams);
-        
-        isForcedAnalysis = existing.isForcedAnalysis;
-        isVocalTractTransformation = existing.isVocalTractTransformation;
-        
-        isSeparateProsody = existing.isSeparateProsody;
-        isSaveVocalTractOnlyVersion = existing.isSaveVocalTractOnlyVersion;
-        isFixedRateVocalTractConversion = existing.isFixedRateVocalTractConversion;
         
         isContextBasedPreselection = existing.isContextBasedPreselection;
         totalContextNeighbours = existing.totalContextNeighbours;
-        
-        isTemporalSmoothing = existing.isTemporalSmoothing;
-        smoothingMethod = existing.smoothingMethod;
-        smoothingNumNeighbours = existing.smoothingNumNeighbours;
-        
-        smoothingState = existing.smoothingState;
-        smoothedVocalTractFile = existing.smoothedVocalTractFile;
     }
 }
 

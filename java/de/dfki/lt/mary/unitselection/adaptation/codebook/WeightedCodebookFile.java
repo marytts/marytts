@@ -53,7 +53,7 @@ public class WeightedCodebookFile {
     public MaryRandomAccessFile stream;
     public String currentFile;
     
-    public static final String DEFAULT_FILE_EXTENSION = ".wcf";
+    public static final String DEFAULT_EXTENSION = ".wcf";
     
     public WeightedCodebookFile()
     {
@@ -214,12 +214,6 @@ public class WeightedCodebookFile {
         for (i=0; i<codebook.header.totalLsfEntries; i++)
             codebook.lsfEntries[i] = readLsfEntry(codebook.header.lsfParams.lpOrder);
         
-        codebook.f0StatisticsCollection = new PitchStatisticsCollection(codebook.header.totalF0StatisticsEntries);
-        for (i=0; i<codebook.header.totalF0StatisticsEntries; i++)
-            codebook.f0StatisticsCollection.entries[i] = readF0StatisticsEntry();
-        
-        codebook.setF0StatisticsMapping();
-        
         close();
         
         System.out.println("Reading completed...");
@@ -236,15 +230,12 @@ public class WeightedCodebookFile {
         }
 
         codebook.header.totalLsfEntries = codebook.lsfEntries.length;
-        codebook.header.totalF0StatisticsEntries = codebook.f0StatisticsCollection.entries.length;
+        
         writeCodebookHeader(codebookFile, codebook.header);
 
         int i;
         for (i=0; i<codebook.header.totalLsfEntries; i++)
             writeLsfEntry(codebook.lsfEntries[i]);
-        
-        for (i=0; i<codebook.header.totalF0StatisticsEntries; i++)
-            writeF0StatisticsEntry(codebook.f0StatisticsCollection.entries[i]);
         
         close();
     }
@@ -287,27 +278,6 @@ public class WeightedCodebookFile {
     }
     //
     
-    //Append a new lsf entry to a codebook file opened with write permission
-    public void writeF0StatisticsEntry(PitchStatistics p)
-    {        
-        if (status==OPEN_FOR_WRITE)
-        {
-            p.write(stream);
-            incrementTotalF0StatisticsEntries();
-        }
-    }
-    
-    //Read an lsf entry from a codebook file opened with read permission
-    public PitchStatistics readF0StatisticsEntry()
-    {
-        PitchStatistics p = new PitchStatistics();
-        
-        if (status==OPEN_FOR_READ)
-            p.read(stream);
-        
-        return p;
-    }
-    
     public void incrementTotalLsfEntries()
     {
         if (status==OPEN_FOR_WRITE)
@@ -327,25 +297,4 @@ public class WeightedCodebookFile {
             }
         }
     }
-    
-    public void incrementTotalF0StatisticsEntries()
-    {
-        if (status==OPEN_FOR_WRITE)
-        {
-            try {
-                long currentPos = stream.getFilePointer();
-                stream.seek(4);
-                int totalF0StatisticsEntries = stream.readInt();
-                totalF0StatisticsEntries++;
-                stream.seek(4);
-                stream.writeInt(totalF0StatisticsEntries);
-                System.out.println("Wrote f0 statistics entry " + String.valueOf(totalF0StatisticsEntries));
-                stream.seek(currentPos);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-    }
-    //
 }

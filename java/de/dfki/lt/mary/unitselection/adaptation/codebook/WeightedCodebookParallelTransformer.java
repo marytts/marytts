@@ -37,7 +37,10 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationItem;
 import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationSet;
 import de.dfki.lt.mary.unitselection.adaptation.FdpsolaAdapter;
+import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchMapping;
+import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchMappingFile;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchStatistics;
+import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchTransformationData;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.ProsodyTransformerParams;
 import de.dfki.lt.mary.unitselection.adaptation.smoothing.SmoothingDefinitions;
 import de.dfki.lt.mary.unitselection.voiceimport.BasenameList;
@@ -55,8 +58,12 @@ public class WeightedCodebookParallelTransformer extends
         WeightedCodebookTransformer {
     
     public WeightedCodebookMapper mapper;
-    public WeightedCodebook codebook;
+    
     private WeightedCodebookFile codebookFile;
+    public WeightedCodebook codebook;
+    
+    private PitchMappingFile pitchMappingFile;
+    public PitchMapping pitchMapping;
 
     public WeightedCodebookParallelTransformer(WeightedCodebookPreprocessor pp,
             WeightedCodebookFeatureExtractor fe,
@@ -90,6 +97,7 @@ public class WeightedCodebookParallelTransformer extends
         params.outputBaseFolder = StringUtil.checkLastSlash(params.outputBaseFolder);
         codebookFile = null;
         
+        //Read codebook header only
         if (!FileUtils.exists(params.codebookFile))
         {
             System.out.println("Error: Codebook file " + params.codebookFile + " not found!");
@@ -104,6 +112,22 @@ public class WeightedCodebookParallelTransformer extends
             params.lsfParams = new LsfFileHeader(codebook.header.lsfParams);
             params.mapperParams.lpOrder = params.lsfParams.lpOrder;
         }
+        //
+        
+        //Read pitch mapping file header
+        if (!FileUtils.exists(params.pitchMappingFile))
+        {
+            System.out.println("Error: Pitch mapping file " + params.pitchMappingFile + " not found!");
+            return false;     
+        }
+        else //Read lsfParams from the codebook header
+        {
+            pitchMappingFile = new PitchMappingFile(params.pitchMappingFile, PitchMappingFile.OPEN_FOR_READ);
+            pitchMapping = new PitchMapping();
+            
+            pitchMapping.header = pitchMappingFile.readPitchMappingHeader();
+        }
+        //
             
         if (!FileUtils.exists(params.inputFolder) || !FileUtils.isDirectory(params.inputFolder))
         {
@@ -200,6 +224,9 @@ public class WeightedCodebookParallelTransformer extends
             //Read the codebook
             codebookFile.readCodebookFileExcludingHeader(codebook);
             
+            //Read the pitch mapping file
+            pitchMappingFile.readPitchMappingFileExcludingHeader(pitchMapping);
+            
             //Create a mapper object
             mapper = new WeightedCodebookMapper(params.mapperParams);
             
@@ -207,7 +234,7 @@ public class WeightedCodebookParallelTransformer extends
             for (int i=0; i<numItems; i++)
             {
                 try {
-                    transformOneItem(inputSet.items[i], outputSet.items[i], params, mapper, codebook);
+                    transformOneItem(inputSet.items[i], outputSet.items[i], params, mapper, codebook, pitchMapping);
                 } catch (UnsupportedAudioFileException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -228,7 +255,8 @@ public class WeightedCodebookParallelTransformer extends
                                         BaselineAdaptationItem outputItem,
                                         WeightedCodebookTransformerParams wctParams,
                                         WeightedCodebookMapper wcMapper,
-                                        WeightedCodebook wCodebook
+                                        WeightedCodebook wCodebook,
+                                        PitchTransformationData pMap
                                         ) throws UnsupportedAudioFileException, IOException
     {   
         if (wctParams.isFixedRateVocalTractConversion)
@@ -278,7 +306,7 @@ public class WeightedCodebookParallelTransformer extends
                         pscalesTemp, tscalesTemp, escalesTemp, vscalesTemp);
                 
                 adapter.bSilent = !currentWctParams.isDisplayProcessingFrameCount;
-                adapter.fdpsolaOnline(wcMapper, wCodebook); //Call voice conversion version
+                adapter.fdpsolaOnline(wcMapper, wCodebook, pMap); //Call voice conversion version
                 
                 currentWctParams.smoothingState = SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT;
                 currentWctParams.smoothedVocalTractFile = smoothedVocalTractFile; //Now it is an input
@@ -306,7 +334,7 @@ public class WeightedCodebookParallelTransformer extends
             if (adapter!=null)
             {
                 adapter.bSilent = !currentWctParams.isDisplayProcessingFrameCount;
-                adapter.fdpsolaOnline(wcMapper, wCodebook); //Call voice conversion version
+                adapter.fdpsolaOnline(wcMapper, wCodebook, pMap); //Call voice conversion version
 
                 if (isScalingsRequired(pscales, tscales, escales, vscales) || tmpPitchTransformationMethod!=ProsodyTransformerParams.NO_TRANSFORMATION)
                 {
@@ -330,7 +358,7 @@ public class WeightedCodebookParallelTransformer extends
                             pscales, tscales, escales, vscales);
 
                     adapter.bSilent = true;
-                    adapter.fdpsolaOnline(null, wCodebook);
+                    adapter.fdpsolaOnline(null, wCodebook, pMap);
                 }
                 else //Copy output file
                     FileUtils.copy(firstPassOutputWavFile, outputItem.audioFile);
@@ -356,7 +384,7 @@ public class WeightedCodebookParallelTransformer extends
                                   pscales, tscales, escales, vscales);
             
             adapter.bSilent = !wctParams.isDisplayProcessingFrameCount;
-            adapter.fdpsolaOnline(wcMapper, wCodebook); //Call voice conversion version
+            adapter.fdpsolaOnline(wcMapper, wCodebook, pMap); //Call voice conversion version
         }
     }
     
@@ -399,9 +427,12 @@ public class WeightedCodebookParallelTransformer extends
         pa.isDisplayProcessingFrameCount = true;
         
         pa.inputFolder = "d:\\1\\neutral50\\test1";
-        pa.outputBaseFolder = "d:\\1\\neutral_X_angry_50\\neutral2angryOut9";
+        pa.outputBaseFolder = "d:\\1\\neutral_X_angry_50_2\\neutral2angryOut";
         
-        pa.codebookFile = "d:\\1\\neutral_X_angry_50\\neutralF_X_angryF.wcf";
+        String baseFile = "d:\\1\\neutral_X_angry_50_2\\neutralF_X_angryF";
+        pa.codebookFile = baseFile + WeightedCodebookFile.DEFAULT_EXTENSION;
+        pa.pitchMappingFile = baseFile + PitchMappingFile.DEFAULT_EXTENSION;
+        
         pa.outputFolderInfoString = "labelsGaussKmeans";
         
         //Set codebook mapper parameters

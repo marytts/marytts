@@ -43,7 +43,6 @@ import de.dfki.lt.signalproc.util.MaryRandomAccessFile;
  */
 public class WeightedCodebookFileHeader {
     public int totalLsfEntries;
-    public int totalF0StatisticsEntries;
     
     //Codebook type
     public int codebookType;
@@ -66,13 +65,12 @@ public class WeightedCodebookFileHeader {
     
     public WeightedCodebookFileHeader()
     {
-        this(0, 0);
+        this(0);
     } 
     
-    public WeightedCodebookFileHeader(int totalEntriesIn, int totalF0StatisticsEntriesIn)
+    public WeightedCodebookFileHeader(int totalEntriesIn)
     {
         totalLsfEntries = totalEntriesIn;
-        totalF0StatisticsEntries = totalF0StatisticsEntriesIn;
         
         codebookType = FRAMES;
         
@@ -87,7 +85,6 @@ public class WeightedCodebookFileHeader {
     public WeightedCodebookFileHeader(WeightedCodebookFileHeader h)
     {
         totalLsfEntries = h.totalLsfEntries;
-        totalF0StatisticsEntries = h.totalF0StatisticsEntries;
         
         codebookType = h.codebookType;
         
@@ -105,13 +102,11 @@ public class WeightedCodebookFileHeader {
     public void resetTotalEntries()
     {
         totalLsfEntries = 0;
-        totalF0StatisticsEntries = 0;
     }
 
     public void read(MaryRandomAccessFile ler) throws IOException
     {   
         totalLsfEntries = ler.readInt();
-        totalF0StatisticsEntries = ler.readInt();
         
         lsfParams = new LsfFileHeader();
         lsfParams.readLsfHeader(ler);
@@ -135,7 +130,6 @@ public class WeightedCodebookFileHeader {
     public void write(MaryRandomAccessFile ler) throws IOException
     {
         ler.writeInt(totalLsfEntries);
-        ler.writeInt(totalF0StatisticsEntries);
         
         lsfParams.writeLsfHeader(ler);
         ptcParams.writePitchHeader(ler);

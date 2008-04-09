@@ -29,16 +29,13 @@
 
 package de.dfki.lt.mary.unitselection.adaptation.codebook;
 
-import de.dfki.lt.mary.unitselection.adaptation.TransformationData;
-import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchStatistics;
-import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchStatisticsCollection;
-import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchStatisticsMapping;
+import de.dfki.lt.mary.unitselection.adaptation.VocalTractTransformationData;
 
 /**
  * @author oytun.turk
  *
  */
-public class WeightedCodebook extends TransformationData {
+public class WeightedCodebook extends VocalTractTransformationData {
     //These are for feature requests from the codebook
     public static final int SOURCE = 1;
     public static final int TARGET = 2;
@@ -49,13 +46,6 @@ public class WeightedCodebook extends TransformationData {
     public WeightedCodebookLsfEntry[] lsfEntries;
     public WeightedCodebookFileHeader header;
     
-    //These two contain identical information in different forms
-    //f0Statistics is always read from the codebook first
-    //Then f0StatisticsMapping is created from f0Statistics using the function setF0StatisticsMapping()
-    public PitchStatisticsCollection f0StatisticsCollection;
-    
-    //
-    
     public WeightedCodebook()
     {
         this(0, 0);
@@ -64,18 +54,18 @@ public class WeightedCodebook extends TransformationData {
     public WeightedCodebook(int totalLsfEntriesIn, int totalF0StatisticsIn)
     {
         if (header==null)
-            header = new WeightedCodebookFileHeader(totalLsfEntriesIn, totalF0StatisticsIn);
+            header = new WeightedCodebookFileHeader(totalLsfEntriesIn);
         
         allocate(); 
     }
     
     public void allocate()
     {
-        allocate(header.totalLsfEntries, header.totalF0StatisticsEntries);
+        allocate(header.totalLsfEntries);
     }
     
-    public void allocate(int totalLsfEntriesIn, int totalF0StatisticsIn)
-    {
+    public void allocate(int totalLsfEntriesIn)
+    {  
        if (totalLsfEntriesIn>0)
        {
            lsfEntries = new WeightedCodebookLsfEntry[totalLsfEntriesIn];
@@ -86,25 +76,6 @@ public class WeightedCodebook extends TransformationData {
            lsfEntries = null;
            header.totalLsfEntries = 0;
        }
-       
-       if (totalF0StatisticsIn>0)
-       {
-           f0StatisticsCollection = new PitchStatisticsCollection(totalF0StatisticsIn);
-           header.totalF0StatisticsEntries = totalF0StatisticsIn;
-       }
-       else
-       {
-           f0StatisticsCollection = null;
-           header.totalF0StatisticsEntries = 0;
-       }
-    }
-    
-    public void setF0StatisticsMapping()
-    {
-        if (f0StatisticsCollection!=null)
-            f0StatisticsMapping = new PitchStatisticsMapping(f0StatisticsCollection);
-        else
-            f0StatisticsMapping = null;
     }
     
     public double[][] getFeatures(int speakerType, int desiredFeatures)

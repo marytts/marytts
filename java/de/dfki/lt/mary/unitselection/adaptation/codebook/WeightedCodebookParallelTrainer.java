@@ -42,6 +42,7 @@ import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationSet;
 import de.dfki.lt.mary.unitselection.adaptation.IndexMap;
 import de.dfki.lt.mary.unitselection.adaptation.outlier.KMeansMappingEliminatorParams;
 import de.dfki.lt.mary.unitselection.adaptation.outlier.TotalStandardDeviations;
+import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchMappingFile;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchTrainer;
 import de.dfki.lt.mary.unitselection.voiceimport.BasenameList;
 import de.dfki.lt.mary.util.FileUtils;
@@ -93,18 +94,18 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         
         WeightedCodebookTrainerParams pa = new WeightedCodebookTrainerParams();
         
-        pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAMES; //Frame-by-frame mapping of features
+        //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAMES; //Frame-by-frame mapping of features
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAME_GROUPS; pa.codebookHeader.numNeighboursInFrameGroups = 3; //Mapping of frame average features (no label information but fixed amount of neighbouring frames is used)
-        //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABELS; //Mapping of label average features
+        pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABELS; //Mapping of label average features
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABEL_GROUPS; pa.codebookHeader.numNeighboursInLabelGroups = 1; //Mapping of average features collected across label groups (i.e. vowels, consonants, etc)
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.SPEECH; //Mapping of average features collected across all speech parts (i.e. like spectral equalization)
 
         pa.codebookHeader.sourceTag = "neutralF"; //Source name tag (i.e. style or speaker identity)
         pa.codebookHeader.targetTag = "angryF"; //Target name tag (i.e. style or speaker identity)
         
-        pa.trainingBaseFolder = "d:\\1\\neutral_X_angry_50"; //Training base directory
-        pa.sourceTrainingFolder = "d:\\1\\neutral50\\train"; //Source training folder
-        pa.targetTrainingFolder = "d:\\1\\angry50\\train"; //Target training folder
+        pa.trainingBaseFolder = "d:\\1\\neutral_X_angry_50_2"; //Training base directory
+        pa.sourceTrainingFolder = "d:\\1\\neutral50\\train2"; //Source training folder
+        pa.targetTrainingFolder = "d:\\1\\angry50\\train2"; //Target training folder
 
         pa.indexMapFileExtension = ".imf"; //Index map file extensions
         
@@ -114,8 +115,10 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         pa.codebookHeader.lsfParams.winsize = 0.020f;
         pa.codebookHeader.lsfParams.windowType = Window.HAMMING;
         
-        pa.codebookFile = StringUtil.checkLastSlash(pa.trainingBaseFolder) + pa.codebookHeader.sourceTag + "_X_" + pa.codebookHeader.targetTag + WeightedCodebookFile.DEFAULT_FILE_EXTENSION;
-
+        String baseFile = StringUtil.checkLastSlash(pa.trainingBaseFolder) + pa.codebookHeader.sourceTag + "_X_" + pa.codebookHeader.targetTag;
+        pa.codebookFile = baseFile + WeightedCodebookFile.DEFAULT_EXTENSION;
+        pa.pitchMappingFile = baseFile + PitchMappingFile.DEFAULT_EXTENSION;
+        
         pa.isForcedAnalysis = false;
         
         pa.codebookHeader.ptcParams.ws = 0.040;
