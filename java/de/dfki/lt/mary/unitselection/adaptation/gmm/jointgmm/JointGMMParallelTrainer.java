@@ -45,6 +45,7 @@ import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookPreproc
 import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookTrainerParams;
 import de.dfki.lt.mary.unitselection.adaptation.outlier.KMeansMappingEliminatorParams;
 import de.dfki.lt.mary.unitselection.adaptation.outlier.TotalStandardDeviations;
+import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchMappingFile;
 import de.dfki.lt.mary.util.FileUtils;
 import de.dfki.lt.mary.util.StringUtil;
 import de.dfki.lt.signalproc.util.DistanceComputer;
@@ -162,8 +163,11 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         pa.codebookHeader.lsfParams.winsize = 0.020f;
         pa.codebookHeader.lsfParams.windowType = Window.HAMMING;
         
-        pa.codebookFile = StringUtil.checkLastSlash(pa.trainingBaseFolder) + pa.codebookHeader.sourceTag + "_X_" + pa.codebookHeader.targetTag + WeightedCodebookFile.DEFAULT_FILE_EXTENSION;
-
+        String baseFile = StringUtil.checkLastSlash(pa.trainingBaseFolder) + pa.codebookHeader.sourceTag + "_X_" + pa.codebookHeader.targetTag;
+        pa.codebookFile = baseFile + WeightedCodebookFile.DEFAULT_EXTENSION;
+        pa.pitchMappingFile = baseFile + PitchMappingFile.DEFAULT_EXTENSION;
+        gp.jointGMMFile = baseFile + JointGMM.DEFAULT_EXTENSION;
+        
         pa.isForcedAnalysis = false;
         
         pa.codebookHeader.ptcParams.ws = 0.040;
@@ -244,8 +248,6 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         //gp.gmmEMTrainerParams.tinyLogLikelihoodChange = 1e-10;
         //gp.gmmEMTrainerParams.minimumCovarianceAllowed = 1e-5;
         
-        gp.jointGMMFile = StringUtil.checkLastSlash(pa.trainingBaseFolder) + pa.codebookHeader.sourceTag + "_X_" + pa.codebookHeader.targetTag + JointGMM.DEFAULT_FILE_EXTENSION;
-        //
         
         JointGMMParallelTrainer t = new JointGMMParallelTrainer(pp, fe, pa, gp);
         

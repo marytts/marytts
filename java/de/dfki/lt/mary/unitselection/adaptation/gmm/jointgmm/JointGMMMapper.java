@@ -31,6 +31,7 @@ package de.dfki.lt.mary.unitselection.adaptation.gmm.jointgmm;
 
 import de.dfki.lt.mary.unitselection.adaptation.gmm.GMMMapper;
 import de.dfki.lt.mary.unitselection.adaptation.gmm.GMMMatch;
+import de.dfki.lt.signalproc.util.MathUtils;
 
 /**
  * @author oytun.turk
@@ -40,9 +41,68 @@ public class JointGMMMapper extends GMMMapper {
     
     public GMMMatch returnedMatch;
     
+    public JointGMMMapper()
+    {
+        
+    }
+    
     public GMMMatch transform(double[] inputLsfs, JointGMM jointGMM, boolean isVocalTractMatchUsingTargetModel)
     {
-        returnedMatch = null;
+        JointGMMMatch jointGMMMatch = new JointGMMMatch(inputLsfs.length);
+        
+        int i, n;
+        double[] h = new double[jointGMM.source.totalComponents];
+        double totalP = 0.0;
+        for (i=0; i<jointGMM.source.totalComponents; i++)
+        {
+            h[i] = jointGMM.source.components[i].probability(inputLsfs);
+            totalP += h[i];
+        }
+        
+        for (i=0; i<jointGMM.source.totalComponents; i++)
+            h[i] = h[i]/totalP;
+        
+        if (jointGMM.covarianceTerms.isDiagonalCovariance) //Diagonal covariance, covariance terms are just vectors
+        {
+            for (n=0; n<inputLsfs.length; n++)
+            {
+                jointGMMMatch.outputLsfs[n] = 0.0;
+                
+                for (i=0; i<jointGMM.source.totalComponents; i++)
+                {
+                    jointGMMMatch.mappedSourceLsfs[n] += h[i]*jointGMM.source.components[i].meanVector[n];
+                    jointGMMMatch.outputLsfs[n] += h[i]*(jointGMM.targetMeans.components[i].meanVector[n] + jointGMM.covarianceTerms.components[i].covMatrix[0][n]*(inputLsfs[n]-jointGMM.source.components[i].meanVector[n]));
+                }
+            }
+        }
+        else //Full covariance
+        {
+            for (n=0; n<inputLsfs.length; n++)
+                jointGMMMatch.outputLsfs[n] = 0.0;
+            
+            double [] tmpMappedSourceLsfs = new double[inputLsfs.length];
+            double [] tmpOutputLsfs = new double[inputLsfs.length];
+
+            double[] inputMeanNormalized;
+            double[] covarianceTransformed;
+            double[] targetMeanAdded;
+            
+            for (i=0; i<jointGMM.source.totalComponents; i++)
+            {
+                tmpMappedSourceLsfs = MathUtils.multiply(jointGMM.source.components[i].meanVector, h[i]);
+                
+                inputMeanNormalized = MathUtils.substract(inputLsfs, jointGMM.source.components[i].meanVector);
+                covarianceTransformed = MathUtils.matrixProduct(jointGMM.covarianceTerms.components[i].covMatrix, inputMeanNormalized);
+                targetMeanAdded = MathUtils.add(jointGMM.targetMeans.components[i].meanVector, covarianceTransformed);
+                tmpOutputLsfs = MathUtils.multiply(targetMeanAdded, h[i]);
+            
+                for (n=0; n<inputLsfs.length; n++)
+                {
+                    jointGMMMatch.mappedSourceLsfs[n] += tmpMappedSourceLsfs[n];
+                    jointGMMMatch.outputLsfs[n] += tmpOutputLsfs[n];
+                }
+            }
+        }
         
         return returnedMatch;
     }

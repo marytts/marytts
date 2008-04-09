@@ -29,12 +29,12 @@
 
 package de.dfki.lt.mary.unitselection.adaptation.gmm;
 
-import de.dfki.lt.mary.unitselection.adaptation.TransformationFunction;
+import de.dfki.lt.mary.unitselection.adaptation.VocalTractTransformationFunction;
 
 /**
  * @author oytun.turk
  *
  */
-public class GMMMapper extends TransformationFunction {
+public class GMMMapper extends VocalTractTransformationFunction {
 
 }
