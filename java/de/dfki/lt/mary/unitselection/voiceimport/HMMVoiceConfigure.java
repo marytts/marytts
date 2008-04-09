@@ -171,12 +171,12 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
         props2Help.put(SPTKPATH,      "Path to SPTK-3.1 bin directory.");
         props2Help.put(TCLPATH,       "Path to Tcl bin, it should support snack.");
         props2Help.put(SOXPATH,       "Path to sox bin.");
-        props2Help.put(FEATURELIST,   "Mary context features file (default='data/feature_list.pl')");
+        props2Help.put(FEATURELIST,   "Mary context features file (default English=data/feature_list_en.pl, for German=data/feature_list_de.pl), this file can be modified according to the number of context features used.");
         props2Help.put(VOICELANG,     "voice language (default='en')");
         props2Help.put(SPEAKER,       "speaker name (default=slt)");
         props2Help.put(DATASET,       "dataset (default=cmu_us_arctic)");
-        props2Help.put(LOWERF0,       "Lower limit for F0 extraction in Hz (default=80)");
-        props2Help.put(UPPERF0,       "Upper limit for F0 extraction in Hz (default=350)");
+        props2Help.put(LOWERF0,       "Lower limit for F0 extraction in Hz (default slt=80 female=80, male=40)");
+        props2Help.put(UPPERF0,       "Upper limit for F0 extraction in Hz (default slt=350 female=350, male=280)");
         props2Help.put(NUMTESTFILES,  "Number of test files used for testing, these are copied from phonefeatures set.");
      
         
@@ -202,10 +202,7 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
         props2Help.put(NSTATE,      "number of HMM states (default=5)");
         props2Help.put(NITER,       "number of iterations of embedded training (default=5)");
         props2Help.put(WFLOOR,      "mixture weight flooring scale (default=3)");
-       
-        
-        
-        
+             
     }
 
     
@@ -243,7 +240,7 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
        } 
        
        /* Check if text directory exist and have files */
-       if( !dirText.exists() || dirText.list().length == 0  || !dirUtt.exists() || dirUtt.list().length == 0  ){
+       if( ( !dirText.exists() || dirText.list().length == 0 ) && ( !dirUtt.exists() || dirUtt.list().length == 0 ) ){
          System.out.println("Problem with transcription directories text or data/utts (Festival format): utts files and text files do not exist.");
          System.out.println(" the transcriptions in the directory text will be used to generate the phonelab directory, if there are no data/utts files" +
                    "(in Festival format), please provide the transcriptions of the files you are going to use for trainning.");

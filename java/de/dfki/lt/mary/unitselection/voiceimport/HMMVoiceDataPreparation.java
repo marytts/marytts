@@ -163,7 +163,7 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
          cmdLine = getProp(UTT2TRANSCOMMAND) + " " + filedir + "data/utts " + filedir + "text" ;
          launchProc(cmdLine, "utt2trans", filedir);      
        } else {
-           if( !dirText.exists() || dirText.list().length == 0  || !dirUtt.exists() || dirUtt.list().length == 0  ){
+           if( (!dirText.exists() || dirText.list().length == 0) && ( !dirUtt.exists() || dirUtt.list().length == 0 ) ){
              System.out.println("Problem with transcription directories text or data/utts (Festival format): utts files and text files do not exist.");
              System.out.println(" the transcriptions in the directory text will be used to generate the phonelab directory, if there are no data/utts files" +
                     "(in Festival format), please provide the transcriptions of the files you are going to use for trainning.");
