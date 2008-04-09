@@ -10,6 +10,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationSet;
 import de.dfki.lt.mary.unitselection.adaptation.BaselineParams;
+import de.dfki.lt.mary.unitselection.adaptation.gmm.jointgmm.JointGMMTransformerParams;
 import de.dfki.lt.mary.util.FileUtils;
 import de.dfki.lt.signalproc.analysis.EnergyAnalyserRms;
 import de.dfki.lt.signalproc.analysis.EnergyFileHeader;
@@ -89,24 +90,32 @@ public class WeightedCodebookFeatureExtractor {
             lsfParams = new LsfFileHeader(((WeightedCodebookTrainerParams)params).codebookHeader.lsfParams);
         else if (params instanceof WeightedCodebookTransformerParams)
             lsfParams = new LsfFileHeader(((WeightedCodebookTransformerParams)params).lsfParams);
+        else if (params instanceof JointGMMTransformerParams)
+            lsfParams = new LsfFileHeader(((JointGMMTransformerParams)params).lsfParams);
         
         PitchFileHeader ptcParams = null;
         if (params instanceof WeightedCodebookTrainerParams)
             ptcParams = new PitchFileHeader(((WeightedCodebookTrainerParams)params).codebookHeader.ptcParams);
         else if (params instanceof WeightedCodebookTransformerParams)
             ptcParams = new PitchFileHeader(((WeightedCodebookTransformerParams)params).ptcParams);
+        else if (params instanceof JointGMMTransformerParams)
+            ptcParams = new PitchFileHeader(((JointGMMTransformerParams)params).ptcParams);
         
         EnergyFileHeader energyParams = null;
         if (params instanceof WeightedCodebookTrainerParams)
             energyParams = new EnergyFileHeader(((WeightedCodebookTrainerParams)params).codebookHeader.energyParams);
         else if (params instanceof WeightedCodebookTransformerParams)
             energyParams = new EnergyFileHeader(((WeightedCodebookTransformerParams)params).energyParams);
+        else if (params instanceof JointGMMTransformerParams)
+            energyParams = new EnergyFileHeader(((JointGMMTransformerParams)params).energyParams);
         
         boolean isForcedAnalysis = false;
         if (params instanceof WeightedCodebookTrainerParams)
             isForcedAnalysis = ((WeightedCodebookTrainerParams)params).isForcedAnalysis;
         else if (params instanceof WeightedCodebookTransformerParams)
             isForcedAnalysis = ((WeightedCodebookTransformerParams)params).isForcedAnalysis;
+        else if (params instanceof JointGMMTransformerParams)
+            isForcedAnalysis = ((JointGMMTransformerParams)params).isForcedAnalysis;
         
         //ADD more analyses as necessary
         if (isDesired(LSF_FEATURES, desiredFeatures))

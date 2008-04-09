@@ -48,6 +48,7 @@ import de.dfki.lt.mary.unitselection.adaptation.gmm.GMMMapper;
 import de.dfki.lt.mary.unitselection.adaptation.gmm.GMMMatch;
 import de.dfki.lt.mary.unitselection.adaptation.gmm.jointgmm.JointGMM;
 import de.dfki.lt.mary.unitselection.adaptation.gmm.jointgmm.JointGMMMapper;
+import de.dfki.lt.mary.unitselection.adaptation.gmm.jointgmm.JointGMMMatch;
 import de.dfki.lt.mary.unitselection.adaptation.gmm.jointgmm.JointGMMTransformerParams;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchMapping;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchStatistics;
@@ -841,10 +842,20 @@ public class FdpsolaAdapter {
                     }
                     //
 
-                    if (!baseParams.isResynthesizeVocalTractFromSourceModel)
-                        targetLpcs = LineSpectralFrequencies.lsfInHz2lpc(codebookMatch.entry.targetItem.lsfs, fs);
-                    else
-                        targetLpcs = LineSpectralFrequencies.lsfInHz2lpc(codebookMatch.entry.sourceItem.lsfs, fs);
+                    if (mapper instanceof WeightedCodebookMapper)
+                    {
+                        if (!baseParams.isResynthesizeVocalTractFromSourceModel)
+                            targetLpcs = LineSpectralFrequencies.lsfInHz2lpc(codebookMatch.entry.targetItem.lsfs, fs);
+                        else
+                            targetLpcs = LineSpectralFrequencies.lsfInHz2lpc(codebookMatch.entry.sourceItem.lsfs, fs);
+                    }
+                    else if (mapper instanceof JointGMMMapper)
+                    {
+                        if (!baseParams.isResynthesizeVocalTractFromSourceModel)
+                            targetLpcs = LineSpectralFrequencies.lsfInHz2lpc(((JointGMMMatch)gmmMatch).outputLsfs, fs);
+                        else
+                            targetLpcs = LineSpectralFrequencies.lsfInHz2lpc(((JointGMMMatch)gmmMatch).mappedSourceLsfs, fs);
+                    }
 
                     if (fftSize!=newFftSize)
                     {
