@@ -240,7 +240,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         //
         
         //Gaussian trainer params: commenting out results in using default value for each
-        gp.gmmEMTrainerParams.totalComponents = 64;
+        gp.gmmEMTrainerParams.totalComponents = 16;
         gp.gmmEMTrainerParams.isDiagonalCovariance = true; 
         gp.gmmEMTrainerParams.minimumIterations = 100;
         gp.gmmEMTrainerParams.maximumIterations = 200;
