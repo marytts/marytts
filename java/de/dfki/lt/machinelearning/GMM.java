@@ -136,16 +136,9 @@ public class GMM {
     {
         double score = 0.0;
         int i;
-        if (isDiagonalCovariance)
-        {
-            for (i=0; i<totalComponents; i++)
-                score += weights[i]*MathUtils.getGaussianPdfValue(x, components[i].meanVector, components[i].covMatrix[0], components[i].getConstantTerm());
-        }
-        else
-        {
-            for (i=0; i<totalComponents; i++)
-                score += weights[i]*MathUtils.getGaussianPdfValue(x, components[i].meanVector, components[i].getDetCovMatrix(), components[i].getInvCovMatrix());
-        }
+
+        for (i=0; i<totalComponents; i++)
+            score += weights[i]*components[i].probability(x);
 
         return score;
     }
