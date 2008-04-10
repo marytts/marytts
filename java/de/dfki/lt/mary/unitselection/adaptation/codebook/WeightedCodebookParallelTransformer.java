@@ -166,7 +166,7 @@ public class WeightedCodebookParallelTransformer extends WeightedCodebookTransfo
             {
                 preprocessor.run(inputSet);
                 
-                int desiredFeatures = BaselineFeatureExtractor.F0_FEATURES;
+                int desiredFeatures = BaselineFeatureExtractor.F0_FEATURES + BaselineFeatureExtractor.ENERGY_FEATURES;
                 
                 try {
                     featureExtractor.run(inputSet, params, desiredFeatures);

@@ -333,7 +333,10 @@ public class FdpsolaAdapter {
                 tscaleSingle = modParams.tscaleSingle;
             }
             else
-            {                
+            {    
+                //inputItem.targetEnergyFile should be computed from inputItem.targetWavFile at this point
+                //inputItem.energyFile should be computed from inputItem.audioFile at this point
+                
                 modParams = new VoiceModificationParametersPreprocessor(inputItem.targetFestivalUttFile, inputItem.f0File,
                                                                         vscales,
                                                                         inputItem.labelFile,
