@@ -35,6 +35,8 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.dfki.lt.mary.unitselection.adaptation.AdaptationUtils;
 import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationSet;
+import de.dfki.lt.mary.unitselection.adaptation.BaselineFeatureExtractor;
+import de.dfki.lt.mary.unitselection.adaptation.BaselinePreprocessor;
 import de.dfki.lt.mary.unitselection.adaptation.BaselineTrainer;
 import de.dfki.lt.mary.unitselection.adaptation.FeatureCollection;
 import de.dfki.lt.mary.unitselection.adaptation.IndexMap;
@@ -49,18 +51,16 @@ import de.dfki.lt.mary.util.StringUtil;
  *
  */
 public class WeightedCodebookTrainer extends BaselineTrainer {
-    
-    public WeightedCodebookPreprocessor preprocessor;
-    public WeightedCodebookFeatureExtractor featureExtractor;
-    public WeightedCodebookOutlierEliminator outlierEliminator;
+  
     public WeightedCodebookTrainerParams wcParams;
-    
-    public WeightedCodebookTrainer(WeightedCodebookPreprocessor pp,
-            WeightedCodebookFeatureExtractor fe, 
+    public WeightedCodebookOutlierEliminator outlierEliminator;
+   
+    public WeightedCodebookTrainer(BaselinePreprocessor pp,
+            BaselineFeatureExtractor fe, 
             WeightedCodebookTrainerParams pa) 
     {
-        preprocessor = new WeightedCodebookPreprocessor(pp);
-        featureExtractor = new WeightedCodebookFeatureExtractor(fe);
+        super (pp, fe);
+
         wcParams = new WeightedCodebookTrainerParams(pa);
         outlierEliminator = new WeightedCodebookOutlierEliminator();
     }
@@ -128,9 +128,9 @@ public class WeightedCodebookTrainer extends BaselineTrainer {
                 preprocessor.run(sourceTrainingSet);
                 preprocessor.run(targetTrainingSet);
                 
-                int desiredFeatures = WeightedCodebookFeatureExtractor.LSF_FEATURES +
-                                      WeightedCodebookFeatureExtractor.F0_FEATURES + 
-                                      WeightedCodebookFeatureExtractor.ENERGY_FEATURES;
+                int desiredFeatures = BaselineFeatureExtractor.LSF_FEATURES +
+                                      BaselineFeatureExtractor.F0_FEATURES + 
+                                      BaselineFeatureExtractor.ENERGY_FEATURES;
                 
                 featureExtractor.run(sourceTrainingSet, wcParams, desiredFeatures);
                 featureExtractor.run(targetTrainingSet, wcParams, desiredFeatures);

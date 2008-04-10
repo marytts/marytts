@@ -29,26 +29,33 @@
 
 package de.dfki.lt.mary.unitselection.adaptation.codebook;
 
+import java.io.IOException;
+
+import de.dfki.lt.mary.unitselection.adaptation.BaselineTransformer;
+import de.dfki.lt.mary.unitselection.adaptation.BaselineFeatureExtractor;
+import de.dfki.lt.mary.unitselection.adaptation.BaselinePostprocessor;
+import de.dfki.lt.mary.unitselection.adaptation.BaselinePreprocessor;
+
 /**
  * @author oytun.turk
  *
  */
-public class WeightedCodebookTransformer {
+public class WeightedCodebookTransformer extends BaselineTransformer {
 
-    public WeightedCodebookPreprocessor preprocessor;
-    public WeightedCodebookFeatureExtractor featureExtractor;
-    public WeightedCodebookPostprocessor postprocessor;
     public WeightedCodebookTransformerParams params;
-    public static String wavExt = ".wav";
     
-    public WeightedCodebookTransformer(WeightedCodebookPreprocessor pp,
-            WeightedCodebookFeatureExtractor fe, 
-            WeightedCodebookPostprocessor po,
-            WeightedCodebookTransformerParams pa)
+    public WeightedCodebookTransformer(BaselinePreprocessor pp,
+                                       BaselineFeatureExtractor fe, 
+                                       BaselinePostprocessor po,
+                                       WeightedCodebookTransformerParams pa)
     {
-        preprocessor = pp;
-        featureExtractor = fe;
-        postprocessor = po;
-        params = pa;
+        super(pp, fe, po, pa);
+        
+        params = new WeightedCodebookTransformerParams(pa);
+    }
+    
+    public boolean checkParams() throws IOException
+    {
+        return super.checkParams();
     }
 }

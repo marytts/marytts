@@ -37,11 +37,11 @@ import de.dfki.lt.machinelearning.ClusteredDataGenerator;
 import de.dfki.lt.machinelearning.GMM;
 import de.dfki.lt.machinelearning.GMMTrainer;
 import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebook;
-import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookFeatureExtractor;
+import de.dfki.lt.mary.unitselection.adaptation.BaselineFeatureExtractor;
 import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookFile;
 import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookFileHeader;
 import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookParallelTrainer;
-import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookPreprocessor;
+import de.dfki.lt.mary.unitselection.adaptation.BaselinePreprocessor;
 import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookTrainerParams;
 import de.dfki.lt.mary.unitselection.adaptation.outlier.KMeansMappingEliminatorParams;
 import de.dfki.lt.mary.unitselection.adaptation.outlier.TotalStandardDeviations;
@@ -60,11 +60,13 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
     protected WeightedCodebookParallelTrainer wcpTrainer;
     protected JointGMMTrainerParams jgParams;
     
-    public JointGMMParallelTrainer(WeightedCodebookPreprocessor pp,
-                           WeightedCodebookFeatureExtractor fe,
-                           WeightedCodebookTrainerParams pa,
-                           JointGMMTrainerParams gp) 
+    public JointGMMParallelTrainer(BaselinePreprocessor pp,
+                                   BaselineFeatureExtractor fe,
+                                   WeightedCodebookTrainerParams pa,
+                                   JointGMMTrainerParams gp) 
     {
+        super(pp, fe, pa, gp);
+        
         wcpTrainer = new WeightedCodebookParallelTrainer(pp, fe, pa);
         jgParams = new JointGMMTrainerParams(gp);
     }
@@ -137,8 +139,8 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
     
     public static void main(String[] args) throws UnsupportedAudioFileException, IOException
     {
-        WeightedCodebookPreprocessor pp = new WeightedCodebookPreprocessor();
-        WeightedCodebookFeatureExtractor fe = new WeightedCodebookFeatureExtractor();
+        BaselinePreprocessor pp = new BaselinePreprocessor();
+        BaselineFeatureExtractor fe = new BaselineFeatureExtractor();
         WeightedCodebookTrainerParams pa = new WeightedCodebookTrainerParams();
         JointGMMTrainerParams gp = new JointGMMTrainerParams();
         

@@ -71,6 +71,10 @@ public class BaselineTransformerParams extends BaselineParams {
     public boolean isVocalTractMatchUsingTargetModel;
     
     public String pitchMappingFile;
+    
+    public boolean isPscaleFromFestivalUttFile;
+    public boolean isTscaleFromFestivalUttFile;
+    public boolean isEscaleFromTargetWavFile;
 
     public BaselineTransformerParams()
     {
@@ -107,6 +111,10 @@ public class BaselineTransformerParams extends BaselineParams {
         isVocalTractMatchUsingTargetModel = false;
         
         pitchMappingFile = "";
+        
+        isPscaleFromFestivalUttFile = false;
+        isTscaleFromFestivalUttFile = false;
+        isEscaleFromTargetWavFile = false;
     }
     
     public BaselineTransformerParams(BaselineTransformerParams existing)
@@ -141,6 +149,9 @@ public class BaselineTransformerParams extends BaselineParams {
         isVocalTractMatchUsingTargetModel = existing.isVocalTractMatchUsingTargetModel; 
         
         pitchMappingFile = existing.pitchMappingFile;
+        
+        isPscaleFromFestivalUttFile = existing.isPscaleFromFestivalUttFile;
+        isTscaleFromFestivalUttFile = existing.isTscaleFromFestivalUttFile;
+        isEscaleFromTargetWavFile = existing.isEscaleFromTargetWavFile;
     }
-
 }

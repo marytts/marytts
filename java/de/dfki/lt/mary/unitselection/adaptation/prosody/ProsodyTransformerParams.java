@@ -29,11 +29,13 @@
 
 package de.dfki.lt.mary.unitselection.adaptation.prosody;
 
+import de.dfki.lt.mary.unitselection.adaptation.BaselineParams;
+
 /**
  * @author oytun.turk
  *
  */
-public class ProsodyTransformerParams {
+public class ProsodyTransformerParams extends BaselineParams {
     
     public static final int NO_TRANSFORMATION = 0;
     

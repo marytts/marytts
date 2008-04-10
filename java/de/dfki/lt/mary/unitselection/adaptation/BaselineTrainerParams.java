@@ -33,6 +33,6 @@ package de.dfki.lt.mary.unitselection.adaptation;
  * @author oytun.turk
  *
  */
-public class BaselineTrainerParams {
+public class BaselineTrainerParams extends BaselineParams {
 
 }

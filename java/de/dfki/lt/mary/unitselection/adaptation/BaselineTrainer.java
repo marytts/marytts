@@ -35,6 +35,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.dfki.lt.mary.unitselection.adaptation.FeatureCollection;
 import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookTrainerParams;
+import de.dfki.lt.mary.unitselection.adaptation.gmm.jointgmm.JointGMMTrainerParams;
 import de.dfki.lt.mary.unitselection.voiceimport.BasenameList;
 
 /**
@@ -45,8 +46,15 @@ public class BaselineTrainer {
     
     public static final String wavExt = ".wav";
     
-    public BaselineTrainerParams params;
+    public BaselinePreprocessor preprocessor;
+    public BaselineFeatureExtractor featureExtractor;
     
+    public BaselineTrainer(BaselinePreprocessor pp,
+                           BaselineFeatureExtractor fe) 
+    {
+        preprocessor = new BaselinePreprocessor(pp);
+        featureExtractor = new BaselineFeatureExtractor(fe);
+    }
     
     //This baseline version does nothing. Please implement functionality in derived classes.
     public boolean checkParams()

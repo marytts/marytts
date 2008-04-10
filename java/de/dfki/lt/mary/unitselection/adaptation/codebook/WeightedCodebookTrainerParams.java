@@ -29,7 +29,7 @@
 
 package de.dfki.lt.mary.unitselection.adaptation.codebook;
 
-import de.dfki.lt.mary.unitselection.adaptation.BaselineParams;
+import de.dfki.lt.mary.unitselection.adaptation.BaselineTrainerParams;
 import de.dfki.lt.mary.unitselection.adaptation.outlier.GaussianOutlierEliminator;
 import de.dfki.lt.mary.unitselection.adaptation.outlier.GaussianOutlierEliminatorParams;
 import de.dfki.lt.mary.unitselection.adaptation.outlier.KMeansMappingEliminatorParams;
@@ -39,7 +39,7 @@ import de.dfki.lt.signalproc.analysis.LsfFileHeader;
  * @author oytun.turk
  *
  */
-public class WeightedCodebookTrainerParams extends BaselineParams {
+public class WeightedCodebookTrainerParams extends BaselineTrainerParams {
     public static final int MAXIMUM_CONTEXT = 10;
     
     public WeightedCodebookFileHeader codebookHeader;

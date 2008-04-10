@@ -27,12 +27,29 @@
  * THIS SOFTWARE.
  */
 
-package de.dfki.lt.mary.unitselection.adaptation.codebook;
+package de.dfki.lt.mary.unitselection.adaptation;
 
-/**
- * @author oytun.turk
- *
- */
-public class WeightedCodebookPostprocessor {
-
+public class BaselinePreprocessor {
+    
+    public BaselinePreprocessor()
+    {
+        this(null);
+    }
+    
+    public BaselinePreprocessor(BaselinePreprocessor existing)
+    {
+        if (existing!=null)
+        {
+            //Copy class members if you add any
+        }
+        else
+        {
+            //Set default class member values
+        }
+    }
+    
+    public void run(BaselineAdaptationSet trainingSet)
+    {
+        
+    }
 }
