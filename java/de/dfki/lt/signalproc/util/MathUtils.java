@@ -792,6 +792,35 @@ public class MathUtils {
     {
         return multiply(1.0/a, x);
     }
+    
+    //Matrix of size NxM multiplied by an appropriate sized vector, i.e. Mx1, returns a vector of size Nx1
+    public static double[] matrixProduct(double[][] x, double[] y)
+    {
+        double[][] y2 = new double[y.length][1];
+        int i;
+        for (i=0; i<y.length; i++)
+            y2[i][0] = y[i];
+        
+        y2 = matrixProduct(x, y2);
+        
+        double[] y3 = new double[y2.length];
+        for (i=0; i<y2.length; i++)
+            y3[i] = y2[i][0];
+        
+        return y3;
+    }
+    
+    //Vector of size N is multiplied with matrix of size NxM
+    // Returns a matrix of size NxM
+    public static double[][] matrixProduct(double[] x, double[][] y)
+    {
+        double[][] x2 = new double[x.length][1];
+        int i;
+        for (i=0; i<x.length; i++)
+            x2[i][0] = x[i];
+        
+        return matrixProduct(x2, y);
+    }
 
     //This is a "*" product --> should return a matrix provided that the sizes are appropriate
     public static double[][] matrixProduct(double[][] x, double[][] y)
