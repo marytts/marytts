@@ -24,6 +24,21 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
         
         initialise(pitchMarksIn, wsFixedIn, ssFixedIn, numfrm, numfrmFixed, numPeriodsIn, isFixedRate);
     }
+    
+    public VoiceModificationParametersPreprocessor(String targetFestivalUttFile, String sourcePitchFile,
+                                                   double[] vscalesIn,
+                                                   String sourceLabelFile, 
+                                                   String sourceEnergyFile,
+                                                   String targetLabelFile, 
+                                                   String targetEnergyFile,
+                                                   boolean isPscaleFromFestivalUttFile, 
+                                                   boolean isTscaleFromFestivalUttFile, 
+                                                   boolean isEscaleFromTargetWavFile)
+    {
+        //pscalesVar and tscalesVar from targetFestivalUttFile, sourcePitchFile, sourceLabelFile
+        //escalesVar from sourceLabelFile, sourceEnergyFile, targetLabelFile, targetEnergyFile
+        //vscalesVar from vscalesIn
+    }
 
     private void initialise(int [] pitchMarksIn, double wsFixedIn, double ssFixedIn, int numfrm, int numfrmFixed, int numPeriodsIn, boolean isFixedRate)
     {
