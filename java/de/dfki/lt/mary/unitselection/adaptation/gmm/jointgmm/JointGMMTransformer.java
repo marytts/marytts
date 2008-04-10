@@ -113,6 +113,55 @@ public class JointGMMTransformer extends BaselineTransformer {
         return true;
     }
     
+    public void run() throws IOException, UnsupportedAudioFileException
+    {
+        if (checkParams())
+        {
+            BaselineAdaptationSet inputSet = getInputSet(params.inputFolder);
+            if (inputSet==null)
+                System.out.println("No input files found in " + params.inputFolder);
+            else
+            {
+                BaselineAdaptationSet outputSet = getOutputSet(inputSet, params.outputFolder);
+
+                transform(inputSet, outputSet);
+            }
+        }
+    }
+    
+  //Create list of input files
+    public BaselineAdaptationSet getInputSet(String inputFolder)
+    {   
+        BasenameList b = new BasenameList(inputFolder, wavExt);
+        
+        BaselineAdaptationSet inputSet = new BaselineAdaptationSet(b.getListAsVector().size());
+        
+        for (int i=0; i<inputSet.items.length; i++)
+            inputSet.items[i].setFromWavFilename(inputFolder + b.getName(i) + wavExt);
+        
+        return inputSet;
+    }
+    //
+    
+    //Create list of output files using input set
+    public BaselineAdaptationSet getOutputSet(BaselineAdaptationSet inputSet, String outputFolder)
+    {   
+        BaselineAdaptationSet outputSet  = null;
+
+        outputFolder = StringUtil.checkLastSlash(outputFolder);
+        
+        if (inputSet!=null && inputSet.items!=null)
+        {
+            outputSet = new BaselineAdaptationSet(inputSet.items.length);
+
+            for (int i=0; i<inputSet.items.length; i++)
+                outputSet.items[i].audioFile = outputFolder + StringUtil.getFileName(inputSet.items[i].audioFile) + "_output" + wavExt;
+        }
+
+        return outputSet;
+    }
+    //
+    
     public void transform(BaselineAdaptationSet inputSet, BaselineAdaptationSet outputSet) throws UnsupportedAudioFileException
     {
         System.out.println("Transformation started...");
