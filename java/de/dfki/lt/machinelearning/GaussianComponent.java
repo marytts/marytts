@@ -337,4 +337,15 @@ public class GaussianComponent {
         constantTerm = stream.readDouble();
         constantTermLog = stream.readDouble();
     }
+    
+    public double probability(double[] x)
+    {
+        double P;
+        if (covMatrix.length==1) //Diagonal
+            P = MathUtils.getGaussianPdfValue(x, meanVector, covMatrix[0], getConstantTerm());
+        else //Full-covariance
+            P = MathUtils.getGaussianPdfValue(x, meanVector, getDetCovMatrix(), getInvCovMatrix());
+        
+        return P;
+    }
 }
