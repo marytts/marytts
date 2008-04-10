@@ -29,7 +29,6 @@
 
 package de.dfki.lt.mary.unitselection.adaptation.prosody;
 
-import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookFeatureExtractor;
 import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookFileHeader;
 import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookLsfEntry;
 

@@ -36,6 +36,9 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationItem;
 import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationSet;
+import de.dfki.lt.mary.unitselection.adaptation.BaselineFeatureExtractor;
+import de.dfki.lt.mary.unitselection.adaptation.BaselinePostprocessor;
+import de.dfki.lt.mary.unitselection.adaptation.BaselinePreprocessor;
 import de.dfki.lt.mary.unitselection.adaptation.FdpsolaAdapter;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchMapping;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchMappingFile;
@@ -54,8 +57,7 @@ import de.dfki.lt.signalproc.analysis.LsfFileHeader;
  * This class implements transformation for weighted codebook mapping based voice conversion
  * using parallel training data (i.e. source and target data in pairs of audio recordings which have identical content)
  */
-public class WeightedCodebookParallelTransformer extends
-        WeightedCodebookTransformer {
+public class WeightedCodebookParallelTransformer extends WeightedCodebookTransformer {
     
     public WeightedCodebookMapper mapper;
     
@@ -65,34 +67,20 @@ public class WeightedCodebookParallelTransformer extends
     private PitchMappingFile pitchMappingFile;
     public PitchMapping pitchMapping;
 
-    public WeightedCodebookParallelTransformer(WeightedCodebookPreprocessor pp,
-            WeightedCodebookFeatureExtractor fe,
-            WeightedCodebookPostprocessor po,
-            WeightedCodebookTransformerParams pa) {
+    public WeightedCodebookParallelTransformer(BaselinePreprocessor pp,
+                                               BaselineFeatureExtractor fe,
+                                               BaselinePostprocessor po,
+                                               WeightedCodebookTransformerParams pa) {
         super(pp, fe, po, pa);
         
         codebook = null;
         mapper = null;
     }
     
-    public void run() throws IOException, UnsupportedAudioFileException
-    {
-        if (checkParams())
-        {
-            BaselineAdaptationSet inputSet = getInputSet(params.inputFolder);
-            if (inputSet==null)
-                System.out.println("No input files found in " + params.inputFolder);
-            else
-            {
-                BaselineAdaptationSet outputSet = getOutputSet(inputSet, params.outputFolder);
-
-                transform(inputSet, outputSet);
-            }
-        }
-    }
-    
     public boolean checkParams() throws IOException
     {
+        super.checkParams();
+        
         params.inputFolder = StringUtil.checkLastSlash(params.inputFolder);
         params.outputBaseFolder = StringUtil.checkLastSlash(params.outputBaseFolder);
         codebookFile = null;
@@ -165,40 +153,6 @@ public class WeightedCodebookParallelTransformer extends
         return true;
     }
     
-    //Create list of input files
-    public BaselineAdaptationSet getInputSet(String inputFolder)
-    {   
-        BasenameList b = new BasenameList(inputFolder, wavExt);
-        
-        BaselineAdaptationSet inputSet = new BaselineAdaptationSet(b.getListAsVector().size());
-        
-        for (int i=0; i<inputSet.items.length; i++)
-            inputSet.items[i].setFromWavFilename(inputFolder + b.getName(i) + wavExt);
-        
-        return inputSet;
-    }
-    //
-    
-    //Create list of output files using input set
-    public BaselineAdaptationSet getOutputSet(BaselineAdaptationSet inputSet, String outputFolder)
-    {   
-        BaselineAdaptationSet outputSet  = null;
-
-        outputFolder = StringUtil.checkLastSlash(outputFolder);
-        
-        if (inputSet!=null && inputSet.items!=null)
-        {
-            outputSet = new BaselineAdaptationSet(inputSet.items.length);
-
-            for (int i=0; i<inputSet.items.length; i++)
-                outputSet.items[i].audioFile = outputFolder + StringUtil.getFileName(inputSet.items[i].audioFile) + "_output" + wavExt;
-        }
-
-        return outputSet;
-    }
-    //
-    
-    
     public void transform(BaselineAdaptationSet inputSet, BaselineAdaptationSet outputSet) throws UnsupportedAudioFileException
     {
         System.out.println("Transformation started...");
@@ -211,7 +165,7 @@ public class WeightedCodebookParallelTransformer extends
             {
                 preprocessor.run(inputSet);
                 
-                int desiredFeatures = WeightedCodebookFeatureExtractor.F0_FEATURES;
+                int desiredFeatures = BaselineFeatureExtractor.F0_FEATURES;
                 
                 try {
                     featureExtractor.run(inputSet, params, desiredFeatures);
@@ -270,10 +224,13 @@ public class WeightedCodebookParallelTransformer extends
         //
         
         //These are for fixed rate vocal tract transformation: Do not change these!!!
-        double [] pscalesTemp = {1.0};
-        double [] tscalesTemp = {1.0};
-        double [] escalesTemp = {1.0};
-        double [] vscalesTemp = {1.0};
+        double [] pscalesNone = {1.0};
+        double [] tscalesNone = {1.0};
+        double [] escalesNone = {1.0};
+        double [] vscalesNone = {1.0};
+        boolean noPscaleFromFestivalUttFile = false;
+        boolean noTscaleFromFestivalUttFile = false;
+        boolean noEscaleFromTargetWavFile = false;
         //
         
         FdpsolaAdapter adapter = null;
@@ -285,52 +242,52 @@ public class WeightedCodebookParallelTransformer extends
         if (currentWctParams.isTemporalSmoothing) //Need to do two pass for smoothing
             currentWctParams.isSeparateProsody = true;
         
-        
-        if (currentWctParams.isSeparateProsody)
+        if (currentWctParams.isSeparateProsody) //First pass with no prosody modifications
         {
             firstPassOutputWavFile = StringUtil.getFolderName(outputItem.audioFile) + StringUtil.getFileName(outputItem.audioFile) + "_vt.wav";
             smoothedVocalTractFile = StringUtil.getFolderName(outputItem.audioFile) + StringUtil.getFileName(outputItem.audioFile) + "_vt.vtf";
             int tmpPitchTransformationMethod = currentWctParams.prosodyParams.pitchTransformationMethod;
             currentWctParams.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.NO_TRANSFORMATION;
 
+            boolean tmpPscaleFromFestivalUttFile = currentWctParams.isPscaleFromFestivalUttFile;
+            boolean tmpTscaleFromFestivalUttFile = currentWctParams.isTscaleFromFestivalUttFile;
+            boolean tmpEscaleFromTargetWavFile = currentWctParams.isEscaleFromTargetWavFile;
+            currentWctParams.isPscaleFromFestivalUttFile = noPscaleFromFestivalUttFile;
+            currentWctParams.isTscaleFromFestivalUttFile = noTscaleFromFestivalUttFile;
+            currentWctParams.isEscaleFromTargetWavFile = noEscaleFromTargetWavFile;
+            
             if (currentWctParams.isTemporalSmoothing) //This estimates the vocal tract filter but performs no prosody and vocal tract transformations
             {
-                currentWctParams = new WeightedCodebookTransformerParams(currentWctParams);
                 currentWctParams.smoothingState = SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT;
                 currentWctParams.smoothedVocalTractFile = smoothedVocalTractFile; //It is an output at first pass
                 
-                adapter = new FdpsolaAdapter(
-                        inputItem.audioFile, inputItem.f0File, inputItem.labelFile,
-                        firstPassOutputWavFile,
-                        currentWctParams,
-                        pscalesTemp, tscalesTemp, escalesTemp, vscalesTemp);
+                adapter = new FdpsolaAdapter(inputItem, firstPassOutputWavFile, currentWctParams,
+                                             pscalesNone, tscalesNone, escalesNone, vscalesNone);
                 
                 adapter.bSilent = !currentWctParams.isDisplayProcessingFrameCount;
                 adapter.fdpsolaOnline(wcMapper, wCodebook, pMap); //Call voice conversion version
                 
                 currentWctParams.smoothingState = SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT;
                 currentWctParams.smoothedVocalTractFile = smoothedVocalTractFile; //Now it is an input
-                adapter = new FdpsolaAdapter(
-                        inputItem.audioFile, inputItem.f0File, inputItem.labelFile,
-                        firstPassOutputWavFile, 
-                        currentWctParams,
-                        pscalesTemp, tscalesTemp, escalesTemp, vscalesTemp);
+                
+                adapter = new FdpsolaAdapter(inputItem, firstPassOutputWavFile, currentWctParams,
+                                             pscalesNone, tscalesNone, escalesNone, vscalesNone);
             }
             else
             {
-                currentWctParams = new WeightedCodebookTransformerParams(currentWctParams);
                 currentWctParams.smoothingMethod = SmoothingDefinitions.NO_SMOOTHING;
                 currentWctParams.smoothingState = SmoothingDefinitions.NONE;
                 currentWctParams.smoothedVocalTractFile = "";
                 
-                adapter = new FdpsolaAdapter(
-                        inputItem.audioFile, inputItem.f0File, inputItem.labelFile,
-                        firstPassOutputWavFile, 
-                        currentWctParams,
-                        pscalesTemp, tscalesTemp, escalesTemp, vscalesTemp);
+                adapter = new FdpsolaAdapter(inputItem, firstPassOutputWavFile, currentWctParams,
+                                             pscalesNone, tscalesNone, escalesNone, vscalesNone);
             }
             
-            //Separate prosody modification
+            currentWctParams.isPscaleFromFestivalUttFile = tmpPscaleFromFestivalUttFile;
+            currentWctParams.isTscaleFromFestivalUttFile = tmpTscaleFromFestivalUttFile;
+            currentWctParams.isEscaleFromTargetWavFile = tmpEscaleFromTargetWavFile;
+            
+            //Then second step: prosody modification (with possible additional vocal tract scaling)
             if (adapter!=null)
             {
                 adapter.bSilent = !currentWctParams.isDisplayProcessingFrameCount;
@@ -340,7 +297,6 @@ public class WeightedCodebookParallelTransformer extends
                 {
                     System.out.println("Performing prosody modifications...");
 
-                    currentWctParams = new WeightedCodebookTransformerParams(currentWctParams);
                     currentWctParams.isVocalTractTransformation = false; //isVocalTractTransformation should be false 
                     currentWctParams.isFixedRateVocalTractConversion = false; //isFixedRateVocalTractConversion should be false to enable prosody modifications with FD-PSOLA
                     currentWctParams.isResynthesizeVocalTractFromSourceModel = false; //isResynthesizeVocalTractFromSourceCodebook should be false
@@ -351,12 +307,14 @@ public class WeightedCodebookParallelTransformer extends
                     currentWctParams.smoothedVocalTractFile = "";
                     currentWctParams.isContextBasedPreselection = false;
                     
-                    adapter = new FdpsolaAdapter(
-                            firstPassOutputWavFile, inputItem.f0File, inputItem.labelFile,
-                            outputItem.audioFile, 
-                            currentWctParams,
-                            pscales, tscales, escales, vscales);
+                    String tmpInputWavFile = inputItem.audioFile;
+                    inputItem.audioFile = firstPassOutputWavFile;
+                    
+                    adapter = new FdpsolaAdapter(inputItem, outputItem.audioFile, currentWctParams,
+                                                 pscales, tscales, escales, vscales);
 
+                    inputItem.audioFile = tmpInputWavFile;
+                        
                     adapter.bSilent = true;
                     adapter.fdpsolaOnline(null, wCodebook, pMap);
                 }
@@ -370,58 +328,24 @@ public class WeightedCodebookParallelTransformer extends
                 System.out.println("Done...");
             }
         }
-        else
+        else //Single-pass prosody+vocal tract transformation and modification
         {
-            currentWctParams = new WeightedCodebookTransformerParams(currentWctParams);
             currentWctParams.smoothingMethod = SmoothingDefinitions.NO_SMOOTHING;
             currentWctParams.smoothingState = SmoothingDefinitions.NONE;
             currentWctParams.smoothedVocalTractFile = "";
 
-            adapter = new FdpsolaAdapter(
-                                  inputItem.audioFile, inputItem.f0File, inputItem.labelFile,
-                                  outputItem.audioFile, 
-                                  currentWctParams,
-                                  pscales, tscales, escales, vscales);
+            adapter = new FdpsolaAdapter(inputItem, outputItem.audioFile, currentWctParams,
+                                         pscales, tscales, escales, vscales);
             
             adapter.bSilent = !wctParams.isDisplayProcessingFrameCount;
             adapter.fdpsolaOnline(wcMapper, wCodebook, pMap); //Call voice conversion version
         }
     }
-    
-    public static boolean isScalingsRequired(double[] pscales, double[] tscales, double[] escales, double[] vscales)
-    {
-        int i;
-        for (i=0; i<pscales.length; i++)
-        {
-            if (pscales[i]!=1.0)
-                return true;
-        }
-        
-        for (i=0; i<tscales.length; i++)
-        {
-            if (tscales[i]!=1.0)
-                return true;
-        }
-        
-        for (i=0; i<escales.length; i++)
-        {
-            if (escales[i]!=1.0)
-                return true;
-        }
-        
-        for (i=0; i<vscales.length; i++)
-        {
-            if (vscales[i]!=1.0)
-                return true;
-        }
-        
-        return false;
-    }
 
     public static void main(String[] args) throws IOException, UnsupportedAudioFileException {
-        WeightedCodebookPreprocessor pp = new WeightedCodebookPreprocessor();
-        WeightedCodebookFeatureExtractor fe = new WeightedCodebookFeatureExtractor();
-        WeightedCodebookPostprocessor po = new WeightedCodebookPostprocessor();
+        BaselinePreprocessor pp = new BaselinePreprocessor();
+        BaselineFeatureExtractor fe = new BaselineFeatureExtractor();
+        BaselinePostprocessor po = new BaselinePostprocessor();
         WeightedCodebookTransformerParams pa = new WeightedCodebookTransformerParams();
         
         pa.isDisplayProcessingFrameCount = true;
@@ -506,6 +430,12 @@ public class WeightedCodebookParallelTransformer extends
         //pa.smoothingMethod = SmoothingDefinitions.OUTPUT_LSFCONTOUR_SMOOTHING;
         //pa.smoothingMethod = SmoothingDefinitions.OUTPUT_VOCALTRACTSPECTRUM_SMOOTHING;
         pa.smoothingMethod = SmoothingDefinitions.TRANSFORMATION_FILTER_SMOOTHING;
+        //
+        
+        //TTS tests
+        pa.isPscaleFromFestivalUttFile = true;
+        pa.isTscaleFromFestivalUttFile = true;
+        pa.isEscaleFromTargetWavFile = true;
         //
         
         WeightedCodebookParallelTransformer t = new WeightedCodebookParallelTransformer(pp, fe, po, pa);

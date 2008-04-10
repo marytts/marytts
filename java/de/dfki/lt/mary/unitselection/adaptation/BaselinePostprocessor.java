@@ -27,39 +27,33 @@
  * THIS SOFTWARE.
  */
 
-package de.dfki.lt.mary.unitselection.adaptation.outlier;
-
-import de.dfki.lt.mary.unitselection.adaptation.BaselineParams;
+package de.dfki.lt.mary.unitselection.adaptation;
 
 /**
  * @author oytun.turk
  *
  */
-public class BaselineOutlierEliminatorParams extends BaselineParams {
-    public boolean isCheckLsfOutliers;
-    public boolean isCheckF0Outliers;
-    public boolean isCheckDurationOutliers;
-    public boolean isCheckEnergyOutliers;   
-    
-    public boolean isActive;
-    
-    public BaselineOutlierEliminatorParams()
+public class BaselinePostprocessor {
+    public BaselinePostprocessor()
     {
-        isCheckLsfOutliers = true;
-        isCheckF0Outliers = true;
-        isCheckDurationOutliers = true;
-        isCheckEnergyOutliers = true;
-        
-        isActive = true;
+        this(null);
     }
     
-    public BaselineOutlierEliminatorParams(BaselineOutlierEliminatorParams existing)
+    public BaselinePostprocessor(BaselinePostprocessor existing)
     {
-        isCheckLsfOutliers = existing.isCheckLsfOutliers;
-        isCheckF0Outliers = existing.isCheckF0Outliers;
-        isCheckDurationOutliers = existing.isCheckDurationOutliers;
-        isCheckEnergyOutliers = existing.isCheckEnergyOutliers;
-        
-        isActive = existing.isActive;
+        if (existing!=null)
+        {
+            //Copy class members if you add any
+        }
+        else
+        {
+            //Set default class member values
+        }
     }
+    
+    public void run(BaselineAdaptationSet trainingSet)
+    {
+        
+    }
+
 }

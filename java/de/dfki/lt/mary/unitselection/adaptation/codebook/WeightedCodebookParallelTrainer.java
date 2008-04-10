@@ -39,6 +39,8 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import de.dfki.lt.mary.unitselection.adaptation.AdaptationUtils;
 import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationItem;
 import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationSet;
+import de.dfki.lt.mary.unitselection.adaptation.BaselineFeatureExtractor;
+import de.dfki.lt.mary.unitselection.adaptation.BaselinePreprocessor;
 import de.dfki.lt.mary.unitselection.adaptation.IndexMap;
 import de.dfki.lt.mary.unitselection.adaptation.outlier.KMeansMappingEliminatorParams;
 import de.dfki.lt.mary.unitselection.adaptation.outlier.TotalStandardDeviations;
@@ -60,8 +62,8 @@ import de.dfki.lt.signalproc.window.Window;
  */
 public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
     
-    public WeightedCodebookParallelTrainer(WeightedCodebookPreprocessor pp,
-                                           WeightedCodebookFeatureExtractor fe,
+    public WeightedCodebookParallelTrainer(BaselinePreprocessor pp,
+                                           BaselineFeatureExtractor fe,
                                            WeightedCodebookTrainerParams pa) 
     {
         super(pp, fe, pa);
@@ -89,8 +91,8 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
     
     public static void main(String[] args) throws UnsupportedAudioFileException, IOException
     {
-        WeightedCodebookPreprocessor pp = new WeightedCodebookPreprocessor();
-        WeightedCodebookFeatureExtractor fe = new WeightedCodebookFeatureExtractor();
+        BaselinePreprocessor pp = new BaselinePreprocessor();
+        BaselineFeatureExtractor fe = new BaselineFeatureExtractor();
         
         WeightedCodebookTrainerParams pa = new WeightedCodebookTrainerParams();
         

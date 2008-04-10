@@ -27,6 +27,16 @@ public class BaselineAdaptationItem {
     public String cepsFile;         //Cepstrum coefficients file
     public String eggFile;          //Electro-glottograph file
     
+    //Mary TTS outputs to specify target features for tests, transplantation, etc
+    public String targetFestivalUttFile;  //FESTIVAL_UTT output which contains target timing and f0s (also the labels)
+                                          // This needs to be mapped with actual labels (i.e. labelFile) and f0s (pitchFile) to
+                                          // obtain required prosody modification factors
+    
+    public String targetLabelFile;        //Target labels for mapping
+    public String targetEnergyFile;       //Target energy file, to be used in transplantations
+    public String targetWavFile;          //Target waveform file
+    //
+    
     public String audioFile;        //Original waveform file
     
     public BaselineAdaptationItem()
@@ -54,5 +64,10 @@ public class BaselineAdaptationItem {
         lpResidualFile = StringUtil.modifyExtension(audioFile, ".lpr");   //Time-domain residual waveform after LP inverse filtering
         cepsFile = StringUtil.modifyExtension(audioFile, ".cep");    //Cepstrum coefficients file
         eggFile = StringUtil.modifyExtension(audioFile, ".egg");     //Electro-glottograph file
+        
+        targetFestivalUttFile = StringUtil.modifyExtension(audioFile, ".tutt"); //FESTIVAL_UTT file
+        targetLabelFile = StringUtil.modifyExtension(audioFile, ".tlab");  //Target labels for mapping
+        targetEnergyFile = StringUtil.getFileName(audioFile) + ".tene"; //Target energy file, to be used in transplantations
+        targetWavFile = StringUtil.getFileName(audioFile) + ".twav"; //Target waveform file
     }
 }

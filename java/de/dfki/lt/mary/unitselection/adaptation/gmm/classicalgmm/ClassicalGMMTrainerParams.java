@@ -29,11 +29,13 @@
 
 package de.dfki.lt.mary.unitselection.adaptation.gmm.classicalgmm;
 
+import de.dfki.lt.mary.unitselection.adaptation.BaselineTrainerParams;
+
 /**
  * @author oytun.turk
  *
  */
-public class ClassicalGMMTrainerParams {
+public class ClassicalGMMTrainerParams extends BaselineTrainerParams {
     //
     public int trainingType;
     public static final int FULL_CONVERSION = 1;

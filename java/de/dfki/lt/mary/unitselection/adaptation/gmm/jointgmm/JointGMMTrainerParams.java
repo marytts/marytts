@@ -30,13 +30,13 @@
 package de.dfki.lt.mary.unitselection.adaptation.gmm.jointgmm;
 
 import de.dfki.lt.machinelearning.GMMTrainerParams;
-import de.dfki.lt.mary.unitselection.adaptation.BaselineParams;
+import de.dfki.lt.mary.unitselection.adaptation.BaselineTrainerParams;
 
 /**
  * @author oytun.turk
  *
  */
-public class JointGMMTrainerParams extends BaselineParams {
+public class JointGMMTrainerParams extends BaselineTrainerParams {
     public GMMTrainerParams gmmEMTrainerParams;
     public String jointGMMFile;
     

@@ -1,37 +1,79 @@
-package de.dfki.lt.mary.unitselection.adaptation.codebook;
+/**
+ * Copyright 2007 DFKI GmbH.
+ * All Rights Reserved.  Use is subject to license terms.
+ * 
+ * Permission is hereby granted, free of charge, to use and distribute
+ * this software and its documentation without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of this work, and to
+ * permit persons to whom this work is furnished to do so, subject to
+ * the following conditions:
+ * 
+ * 1. The code must retain the above copyright notice, this list of
+ *    conditions and the following disclaimer.
+ * 2. Any modifications must be clearly marked as such.
+ * 3. Original authors' names are not deleted.
+ * 4. The authors' names are not used to endorse or promote products
+ *    derived from this software without specific prior written
+ *    permission.
+ *
+ * DFKI GMBH AND THE CONTRIBUTORS TO THIS WORK DISCLAIM ALL WARRANTIES WITH
+ * REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL DFKI GMBH NOR THE
+ * CONTRIBUTORS BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
+ * DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
+ * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
+ * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+ * THIS SOFTWARE.
+ */
 
-import java.io.File;
+package de.dfki.lt.mary.unitselection.adaptation;
+
 import java.io.IOException;
-import java.util.BitSet;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationSet;
-import de.dfki.lt.mary.unitselection.adaptation.BaselineParams;
+import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookTrainerParams;
+import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookTransformerParams;
 import de.dfki.lt.mary.unitselection.adaptation.gmm.jointgmm.JointGMMTransformerParams;
 import de.dfki.lt.mary.util.FileUtils;
 import de.dfki.lt.signalproc.analysis.EnergyAnalyserRms;
 import de.dfki.lt.signalproc.analysis.EnergyFileHeader;
-import de.dfki.lt.signalproc.analysis.F0ReaderWriter;
-import de.dfki.lt.signalproc.analysis.F0Tracker;
-import de.dfki.lt.signalproc.analysis.F0TrackerAutocorrelation;
 import de.dfki.lt.signalproc.analysis.LineSpectralFrequencies;
 import de.dfki.lt.signalproc.analysis.LsfFileHeader;
-import de.dfki.lt.signalproc.analysis.Lsfs;
 import de.dfki.lt.signalproc.analysis.PitchFileHeader;
 import de.dfki.lt.signalproc.analysis.PitchTrackerAutocorrelation;
-import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 
-public class WeightedCodebookFeatureExtractor {
+/**
+ * @author oytun.turk
+ *
+ */
+public class BaselineFeatureExtractor {
     //Add more as necessary & make sure you can discriminate each using AND(&) operator
     // from a single integer that represents desired analyses (See the function run())
-    public static int LSF_FEATURES      =   Integer.parseInt("00000001", 2);
-    public static int F0_FEATURES       =   Integer.parseInt("00000010", 2);
-    public static int ENERGY_FEATURES   =   Integer.parseInt("00000100", 2);
-    public static int DURATION_FEATURES =   Integer.parseInt("00001000", 2);
+    public static final int LSF_FEATURES      =   Integer.parseInt("00000001", 2);
+    public static final int F0_FEATURES       =   Integer.parseInt("00000010", 2);
+    public static final int ENERGY_FEATURES   =   Integer.parseInt("00000100", 2);
+    public static final int DURATION_FEATURES =   Integer.parseInt("00001000", 2);
     public static final int FEATURE_DESCRIBER_STRING_LENGTH = 8;
+    
+    public BaselineFeatureExtractor()
+    {
+        this(null);
+    }
+    
+    public BaselineFeatureExtractor(BaselineFeatureExtractor existing)
+    {
+        if (existing!=null)
+        {
+            //Copy class members if you add any
+        }
+        else
+        {
+            //Set default class member values
+        }
+        
+    }
     
     public static boolean isDesired(int featureDesired, int desiredFeatures)
     {
@@ -63,24 +105,6 @@ public class WeightedCodebookFeatureExtractor {
             bRet = true;
         
         return bRet;
-    }
-    
-    public WeightedCodebookFeatureExtractor()
-    {
-        this(null);
-    }
-    
-    public WeightedCodebookFeatureExtractor(WeightedCodebookFeatureExtractor fe)
-    {
-        if (fe!=null)
-        {
-            //Copy class members if you add any
-        }
-        else
-        {
-            //Set default class member values
-        }
-        
     }
     
     public void run(BaselineAdaptationSet fileSet, BaselineParams params, int desiredFeatures) throws IOException, UnsupportedAudioFileException

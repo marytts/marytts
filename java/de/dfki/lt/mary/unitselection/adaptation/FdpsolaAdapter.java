@@ -191,32 +191,30 @@ public class FdpsolaAdapter {
     
     private BaselineTransformerParams baseParams;
     
-    public FdpsolaAdapter(
-            String strInputFile, String strPitchFile, String strLabelFile, String strOutputFile, 
-            WeightedCodebookTransformerParams wctParamsIn,
-            double [] pscales, double [] tscales, double [] escales, double [] vscales
+    public FdpsolaAdapter(BaselineAdaptationItem inputItem, 
+                          String strOutputFile, 
+                          WeightedCodebookTransformerParams wctParamsIn,
+                          double [] pscales, double [] tscales, double [] escales, double [] vscales
     ) throws UnsupportedAudioFileException, IOException
     {
         baseParams = new WeightedCodebookTransformerParams(wctParamsIn);
         
-        init(strInputFile, strPitchFile, strLabelFile, strOutputFile,
-             pscales, tscales, escales, vscales);
+        init(inputItem, strOutputFile, pscales, tscales, escales, vscales);
     }
     
-    public FdpsolaAdapter(
-            String strInputFile, String strPitchFile, String strLabelFile, String strOutputFile, 
-            JointGMMTransformerParams jgmmParamsIn,
-            double [] pscales, double [] tscales, double [] escales, double [] vscales
+    public FdpsolaAdapter(BaselineAdaptationItem inputItem, 
+                          String strOutputFile, 
+                          JointGMMTransformerParams jgmmParamsIn,
+                          double [] pscales, double [] tscales, double [] escales, double [] vscales
     ) throws UnsupportedAudioFileException, IOException
     {
         baseParams = new JointGMMTransformerParams(jgmmParamsIn);
         
-        init(strInputFile, strPitchFile, strLabelFile, strOutputFile,
-             pscales, tscales, escales, vscales);
+        init(inputItem, strOutputFile, pscales, tscales, escales, vscales);
     }
 
-    public void init(String strInputFile, String strPitchFile, String strLabelFile, String strOutputFile,
-                        double [] pscales, double [] tscales, double [] escales, double [] vscales)
+    public void init(BaselineAdaptationItem inputItem, String strOutputFile,
+                     double [] pscales, double [] tscales, double [] escales, double [] vscales)
     {
         //Smoothing
         smoothingFile = null;
@@ -271,16 +269,16 @@ public class FdpsolaAdapter {
         tscaleSingle = 1.0;
 
         boolean bContinue = true;
-
-        if (!FileUtils.exists(strInputFile))
+        
+        if (!FileUtils.exists(inputItem.audioFile))
         {
-            System.out.println("Error! Pitch file " + strInputFile + " not found.");
+            System.out.println("Error! Pitch file " + inputItem.audioFile + " not found.");
             bContinue = false;
         }
 
-        if (!FileUtils.exists(strPitchFile))
+        if (!FileUtils.exists( inputItem.f0File))
         {
-            System.out.println("Error! Pitch file " + strPitchFile + " not found.");
+            System.out.println("Error! Pitch file " +  inputItem.f0File + " not found.");
             bContinue = false;
         }
 
@@ -293,7 +291,7 @@ public class FdpsolaAdapter {
         if (bContinue)
         {
             try {
-                inputAudio = AudioSystem.getAudioInputStream(new File(strInputFile));
+                inputAudio = AudioSystem.getAudioInputStream(new File(inputItem.audioFile));
             } catch (UnsupportedAudioFileException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -307,7 +305,7 @@ public class FdpsolaAdapter {
             origLen = (int)input.getDataLength();
             fs = (int)inputAudio.getFormat().getSampleRate();
 
-            F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
+            F0ReaderWriter f0 = new F0ReaderWriter(inputItem.f0File);
             pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, origLen, f0.header.ws, f0.header.ss, true);
 
             numfrmFixed = (int)(Math.floor(((double)(origLen + pm.totalZerosToPadd)/fs-0.5*wsFixedInSeconds)/ssFixedInSeconds+0.5)+2); //Total frames if the analysis was fixed skip-rate
@@ -328,8 +326,8 @@ public class FdpsolaAdapter {
 
             outputFile = strOutputFile;    
             
-            if (strLabelFile!="" && FileUtils.exists(strLabelFile))
-                labels = new ESTLabels(strLabelFile);
+            if (inputItem.labelFile!="" && FileUtils.exists(inputItem.labelFile))
+                labels = new ESTLabels(inputItem.labelFile);
             else
                 labels = null;
         }
