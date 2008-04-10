@@ -39,6 +39,7 @@ import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationSet;
 import de.dfki.lt.mary.unitselection.adaptation.BaselineFeatureExtractor;
 import de.dfki.lt.mary.unitselection.adaptation.BaselinePostprocessor;
 import de.dfki.lt.mary.unitselection.adaptation.BaselinePreprocessor;
+import de.dfki.lt.mary.unitselection.adaptation.BaselineTransformerParams;
 import de.dfki.lt.mary.unitselection.adaptation.FdpsolaAdapter;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchMapping;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchMappingFile;
@@ -58,7 +59,7 @@ import de.dfki.lt.signalproc.analysis.LsfFileHeader;
  * using parallel training data (i.e. source and target data in pairs of audio recordings which have identical content)
  */
 public class WeightedCodebookParallelTransformer extends WeightedCodebookTransformer {
-    
+    public WeightedCodebookTransformerParams pa;
     public WeightedCodebookMapper mapper;
     
     private WeightedCodebookFile codebookFile;
@@ -72,7 +73,7 @@ public class WeightedCodebookParallelTransformer extends WeightedCodebookTransfo
                                                BaselinePostprocessor po,
                                                WeightedCodebookTransformerParams pa) {
         super(pp, fe, po, pa);
-        
+               
         codebook = null;
         mapper = null;
     }
@@ -351,7 +352,7 @@ public class WeightedCodebookParallelTransformer extends WeightedCodebookTransfo
         pa.isDisplayProcessingFrameCount = true;
         
         pa.inputFolder = "d:\\1\\neutral50\\test1";
-        pa.outputBaseFolder = "d:\\1\\neutral_X_angry_50\\neutral2angryOut_codebook";
+        pa.outputBaseFolder = "d:\\1\\neutral_X_angry_50\\neutral2angryOut_codebook2";
         
         String baseFile = "d:\\1\\neutral_X_angry_50\\neutralF_X_angryF";
         pa.codebookFile = baseFile + WeightedCodebookFile.DEFAULT_EXTENSION;

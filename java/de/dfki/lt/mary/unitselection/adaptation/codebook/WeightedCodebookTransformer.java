@@ -31,10 +31,16 @@ package de.dfki.lt.mary.unitselection.adaptation.codebook;
 
 import java.io.IOException;
 
+import javax.sound.sampled.UnsupportedAudioFileException;
+
+import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationSet;
 import de.dfki.lt.mary.unitselection.adaptation.BaselineTransformer;
 import de.dfki.lt.mary.unitselection.adaptation.BaselineFeatureExtractor;
 import de.dfki.lt.mary.unitselection.adaptation.BaselinePostprocessor;
 import de.dfki.lt.mary.unitselection.adaptation.BaselinePreprocessor;
+import de.dfki.lt.mary.unitselection.adaptation.BaselineTransformerParams;
+import de.dfki.lt.mary.unitselection.voiceimport.BasenameList;
+import de.dfki.lt.mary.util.StringUtil;
 
 /**
  * @author oytun.turk
@@ -49,7 +55,7 @@ public class WeightedCodebookTransformer extends BaselineTransformer {
                                        BaselinePostprocessor po,
                                        WeightedCodebookTransformerParams pa)
     {
-        super(pp, fe, po, pa);
+        super(pp, fe, po, (BaselineTransformerParams)pa);
         
         params = new WeightedCodebookTransformerParams(pa);
     }
@@ -58,4 +64,53 @@ public class WeightedCodebookTransformer extends BaselineTransformer {
     {
         return super.checkParams();
     }
+    
+    public void run() throws IOException, UnsupportedAudioFileException
+    {
+        if (checkParams())
+        {
+            BaselineAdaptationSet inputSet = getInputSet(params.inputFolder);
+            if (inputSet==null)
+                System.out.println("No input files found in " + params.inputFolder);
+            else
+            {
+                BaselineAdaptationSet outputSet = getOutputSet(inputSet, params.outputFolder);
+
+                transform(inputSet, outputSet);
+            }
+        }
+    }
+    
+  //Create list of input files
+    public BaselineAdaptationSet getInputSet(String inputFolder)
+    {   
+        BasenameList b = new BasenameList(inputFolder, wavExt);
+        
+        BaselineAdaptationSet inputSet = new BaselineAdaptationSet(b.getListAsVector().size());
+        
+        for (int i=0; i<inputSet.items.length; i++)
+            inputSet.items[i].setFromWavFilename(inputFolder + b.getName(i) + wavExt);
+        
+        return inputSet;
+    }
+    //
+    
+    //Create list of output files using input set
+    public BaselineAdaptationSet getOutputSet(BaselineAdaptationSet inputSet, String outputFolder)
+    {   
+        BaselineAdaptationSet outputSet  = null;
+
+        outputFolder = StringUtil.checkLastSlash(outputFolder);
+        
+        if (inputSet!=null && inputSet.items!=null)
+        {
+            outputSet = new BaselineAdaptationSet(inputSet.items.length);
+
+            for (int i=0; i<inputSet.items.length; i++)
+                outputSet.items[i].audioFile = outputFolder + StringUtil.getFileName(inputSet.items[i].audioFile) + "_output" + wavExt;
+        }
+
+        return outputSet;
+    }
+    //
 }
