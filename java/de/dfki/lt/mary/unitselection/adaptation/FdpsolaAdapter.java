@@ -318,11 +318,43 @@ public class FdpsolaAdapter {
 
             lpOrder = SignalProcUtils.getLPOrder(fs);
 
-            modParams = new VoiceModificationParametersPreprocessor(fs, lpOrder,
-                    pscales, tscales, escales, vscales,
-                    pm.pitchMarks, wsFixedInSeconds, ssFixedInSeconds,
-                    numfrm, numfrmFixed, numPeriods, baseParams.isFixedRateVocalTractConversion);
-            tscaleSingle = modParams.tscaleSingle;
+            //Estimation of time varying pitch, duration, energy, and vocal tract scaling amounts using either:
+            // - pscales, tscales, escales, vscales
+            // - or FESTIVAL_UTT(for pitch and duration) and target wav file(for energy)
+            if (!baseParams.isPscaleFromFestivalUttFile 
+                    && !baseParams.isTscaleFromFestivalUttFile 
+                    && !baseParams.isEscaleFromTargetWavFile)
+            {
+                modParams = new VoiceModificationParametersPreprocessor(fs, lpOrder,
+                                                                        pscales, tscales, escales, vscales,
+                                                                        pm.pitchMarks, wsFixedInSeconds, ssFixedInSeconds,
+                                                                        numfrm, numfrmFixed, numPeriods, 
+                                                                        baseParams.isFixedRateVocalTractConversion);
+                tscaleSingle = modParams.tscaleSingle;
+            }
+            else
+            {                
+                modParams = new VoiceModificationParametersPreprocessor(inputItem.targetFestivalUttFile, inputItem.f0File,
+                                                                        vscales,
+                                                                        inputItem.labelFile,
+                                                                        inputItem.energyFile,
+                                                                        inputItem.targetLabelFile,
+                                                                        inputItem.targetEnergyFile,
+                                                                        baseParams.isPscaleFromFestivalUttFile, 
+                                                                        baseParams.isTscaleFromFestivalUttFile, 
+                                                                        baseParams.isEscaleFromTargetWavFile);
+                
+                tscaleSingle = 1.0;
+                for (int i=0; i<modParams.tscalesVar.length; i++)
+                {
+                    if (modParams.tscalesVar[i]!=1.0)
+                    {
+                        tscaleSingle = -1.0;
+                        break;
+                    }
+                }
+            }
+            
 
             outputFile = strOutputFile;    
             
