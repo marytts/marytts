@@ -153,7 +153,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         pa.codebookHeader.sourceTag = "neutralF"; //Source name tag (i.e. style or speaker identity)
         pa.codebookHeader.targetTag = "angryF"; //Target name tag (i.e. style or speaker identity)
         
-        pa.trainingBaseFolder = "d:\\1\\neutral_X_angry_50_jointGMM"; //Training base directory
+        pa.trainingBaseFolder = "d:\\1\\neutral_X_angry_50_new"; //Training base directory
         pa.sourceTrainingFolder = "d:\\1\\neutral50\\train"; //Source training folder
         pa.targetTrainingFolder = "d:\\1\\angry50\\train"; //Target training folder
 

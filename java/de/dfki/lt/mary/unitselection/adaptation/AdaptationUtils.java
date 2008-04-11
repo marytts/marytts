@@ -67,7 +67,7 @@ public class AdaptationUtils {
         if (sourceLabels.items!=null && targetLabels.items!=null)
         {
             //Find the optimum alignment between the source and the target labels since the phoneme sequences may not be identical due to silence periods etc.
-            int[] labelMap = StringUtil.alignLabels(sourceLabels.items, targetLabels.items);
+            int[][] labelMap = StringUtil.alignLabels(sourceLabels.items, targetLabels.items);
             //
 
             if (labelMap!=null)
@@ -97,7 +97,7 @@ public class AdaptationUtils {
                         }
                     }
 
-                    tgtLabInd = labelMap[srcLabInd];
+                    tgtLabInd = StringUtil.findInMap(labelMap, srcLabInd);
 
                     if (tgtLabInd>=0 && sourceLabels.items[srcLabInd].phn.compareTo(targetLabels.items[tgtLabInd].phn)==0)
                     {
@@ -152,7 +152,7 @@ public class AdaptationUtils {
         if (sourceLabels.items!=null && targetLabels.items!=null)
         {
             //Find the optimum alignment between the source and the target labels since the phoneme sequences may not be identical due to silence periods etc.
-            int[] labelMap = StringUtil.alignLabels(sourceLabels.items, targetLabels.items);
+            int[][] labelMap = StringUtil.alignLabels(sourceLabels.items, targetLabels.items);
             //
 
             if (labelMap!=null)
@@ -182,7 +182,7 @@ public class AdaptationUtils {
                         }
                     }
 
-                    tgtLabInd = labelMap[srcLabInd];
+                    tgtLabInd = StringUtil.findInMap(labelMap, srcLabInd);
 
                     if (tgtLabInd>=0 && sourceLabels.items[srcLabInd].phn.compareTo(targetLabels.items[tgtLabInd].phn)==0)
                     {
@@ -237,7 +237,7 @@ public class AdaptationUtils {
         if (sourceLabels.items!=null && targetLabels.items!=null)
         {
             //Find the optimum alignment between the source and the target labels since the phoneme sequences may not be identical due to silence periods etc.
-            int[] labelMap = StringUtil.alignLabels(sourceLabels.items, targetLabels.items);
+            int[][] labelMap = StringUtil.alignLabels(sourceLabels.items, targetLabels.items);
             //
 
             if (labelMap!=null)
@@ -257,7 +257,7 @@ public class AdaptationUtils {
                     else
                         srcStartTime = 0.0;
 
-                    tgtLabInd = labelMap[j];
+                    tgtLabInd = StringUtil.findInMap(labelMap, j);
 
                     if (tgtLabInd>=0 && sourceLabels.items[j].phn.compareTo(targetLabels.items[tgtLabInd].phn)==0)
                     {
@@ -305,7 +305,7 @@ public class AdaptationUtils {
         if (sourceLabels.items!=null && targetLabels.items!=null)
         {
             //Find the optimum alignment between the source and the target labels since the phoneme sequences may not be identical due to silence periods etc.
-            int[] labelMap = StringUtil.alignLabels(sourceLabels.items, targetLabels.items);
+            int[][] labelMap = StringUtil.alignLabels(sourceLabels.items, targetLabels.items);
             //
 
             if (labelMap!=null)
@@ -325,7 +325,7 @@ public class AdaptationUtils {
                     else
                         srcStartTime = 0.0;
 
-                    tgtLabInd = labelMap[j];
+                    tgtLabInd = StringUtil.findInMap(labelMap, j);
 
                     if (tgtLabInd>=0 && sourceLabels.items[j].phn.compareTo(targetLabels.items[tgtLabInd].phn)==0)
                     {

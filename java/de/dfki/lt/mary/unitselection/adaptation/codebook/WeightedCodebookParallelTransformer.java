@@ -351,17 +351,17 @@ public class WeightedCodebookParallelTransformer extends WeightedCodebookTransfo
         
         pa.isDisplayProcessingFrameCount = true;
         
-        pa.inputFolder = "d:\\1\\neutral50\\test1";
-        pa.outputBaseFolder = "d:\\1\\neutral_X_angry_50\\neutral2angryOut_codebook2";
+        pa.inputFolder = "d:\\1\\neutral50\\test_tts";
+        pa.outputBaseFolder = "d:\\1\\neutral_X_angry_50_new\\neutral2angryOut_codebookL";
         
-        String baseFile = "d:\\1\\neutral_X_angry_50\\neutralF_X_angryF";
+        String baseFile = "d:\\1\\neutral_X_angry_50_new\\neutralL_X_angryL";
         pa.codebookFile = baseFile + WeightedCodebookFile.DEFAULT_EXTENSION;
         pa.pitchMappingFile = baseFile + PitchMappingFile.DEFAULT_EXTENSION;
         
         pa.outputFolderInfoString = "labelsGaussKmeans";
         
         //Set codebook mapper parameters
-        pa.mapperParams.numBestMatches = 3; // Number of best matches in codebook
+        pa.mapperParams.numBestMatches = 6; // Number of best matches in codebook
         pa.mapperParams.weightingSteepness = 1.0; // Steepness of weighting function in range [WeightedCodebookMapperParams.MIN_STEEPNESS, WeightedCodebookMapperParams.MAX_STEEPNESS]
         pa.mapperParams.freqRange = 8000.0; //Frequency range to be considered around center freq when matching LSFs (note that center freq is estimated automatically as the middle of most closest LSFs)
         
@@ -383,7 +383,7 @@ public class WeightedCodebookParallelTransformer extends WeightedCodebookTransfo
         //
         
         pa.isForcedAnalysis = false;
-        pa.isSourceVocalTractSpectrumFromModel = false;
+        pa.isSourceVocalTractSpectrumFromModel = true;
         pa.isVocalTractTransformation = true;
         pa.isResynthesizeVocalTractFromSourceModel = false;
         pa.isVocalTractMatchUsingTargetModel= false;
@@ -427,7 +427,7 @@ public class WeightedCodebookParallelTransformer extends WeightedCodebookTransfo
         
         //Smoothing
         pa.isTemporalSmoothing = true;
-        pa.smoothingNumNeighbours = 2;
+        pa.smoothingNumNeighbours = 1;
         //pa.smoothingMethod = SmoothingDefinitions.OUTPUT_LSFCONTOUR_SMOOTHING;
         //pa.smoothingMethod = SmoothingDefinitions.OUTPUT_VOCALTRACTSPECTRUM_SMOOTHING;
         pa.smoothingMethod = SmoothingDefinitions.TRANSFORMATION_FILTER_SMOOTHING;
