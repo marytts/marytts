@@ -338,14 +338,16 @@ public class FdpsolaAdapter {
                 //inputItem.energyFile should be computed from inputItem.audioFile at this point
                 
                 modParams = new VoiceModificationParametersPreprocessor(inputItem.targetFestivalUttFile, inputItem.f0File,
-                                                                        vscales,
                                                                         inputItem.labelFile,
                                                                         inputItem.energyFile,
                                                                         inputItem.targetLabelFile,
                                                                         inputItem.targetEnergyFile,
                                                                         baseParams.isPscaleFromFestivalUttFile, 
                                                                         baseParams.isTscaleFromFestivalUttFile, 
-                                                                        baseParams.isEscaleFromTargetWavFile);
+                                                                        baseParams.isEscaleFromTargetWavFile,
+                                                                        pm.pitchMarks, wsFixedInSeconds, ssFixedInSeconds,
+                                                                        numfrm, numfrmFixed, numPeriods, 
+                                                                        baseParams.isFixedRateVocalTractConversion);
                 
                 tscaleSingle = 1.0;
                 for (int i=0; i<modParams.tscalesVar.length; i++)
