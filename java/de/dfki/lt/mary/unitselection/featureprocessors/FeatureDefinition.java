@@ -656,9 +656,7 @@ public class FeatureDefinition
     public byte getFeatureValueAsByte(String featureName, String value)
     {
         int featureIndex = getFeatureIndex(featureName);
-        if (featureIndex < numByteFeatures)
-            return byteFeatureValues[featureIndex].get(value);
-        throw new IndexOutOfBoundsException("Feature '"+featureName+"' is not a byte-valued feature");
+        return getFeatureValueAsByte(featureIndex, value);
     }
 
     /**
@@ -676,9 +674,18 @@ public class FeatureDefinition
      */
     public byte getFeatureValueAsByte(int featureIndex, String value)
     {
-        if (featureIndex < numByteFeatures)
+        if (featureIndex >= numByteFeatures)
+            throw new IndexOutOfBoundsException("Feature no. "+featureIndex+" is not a byte-valued feature");
+        try {
             return byteFeatureValues[featureIndex].get(value);
-        throw new IndexOutOfBoundsException("Feature no. "+featureIndex+" is not a byte-valued feature");
+        } catch (IllegalArgumentException iae) {
+            StringBuffer message = new StringBuffer("Illegal value '"+value+"' for feature "+getFeatureName(featureIndex)+"; Legal values are:\n");
+            for (String v : getPossibleValues(featureIndex)) {
+                message.append(" "+v);
+            }
+            throw new IllegalArgumentException(message.toString());
+        }
+        
     }
 
     /**
