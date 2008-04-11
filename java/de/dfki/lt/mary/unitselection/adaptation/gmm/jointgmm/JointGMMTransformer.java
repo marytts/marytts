@@ -132,12 +132,12 @@ public class JointGMMTransformer extends BaselineTransformer {
   //Create list of input files
     public BaselineAdaptationSet getInputSet(String inputFolder)
     {   
-        BasenameList b = new BasenameList(inputFolder, wavExt);
+        BasenameList b = new BasenameList(inputFolder, BaselineAdaptationSet.DEFAULT_WAV_EXTENSION);
         
         BaselineAdaptationSet inputSet = new BaselineAdaptationSet(b.getListAsVector().size());
         
         for (int i=0; i<inputSet.items.length; i++)
-            inputSet.items[i].setFromWavFilename(inputFolder + b.getName(i) + wavExt);
+            inputSet.items[i].setFromWavFilename(inputFolder + b.getName(i) + BaselineAdaptationSet.DEFAULT_WAV_EXTENSION);
         
         return inputSet;
     }
@@ -155,7 +155,7 @@ public class JointGMMTransformer extends BaselineTransformer {
             outputSet = new BaselineAdaptationSet(inputSet.items.length);
 
             for (int i=0; i<inputSet.items.length; i++)
-                outputSet.items[i].audioFile = outputFolder + StringUtil.getFileName(inputSet.items[i].audioFile) + "_output" + wavExt;
+                outputSet.items[i].audioFile = outputFolder + StringUtil.getFileName(inputSet.items[i].audioFile) + "_output" + BaselineAdaptationSet.DEFAULT_WAV_EXTENSION;
         }
 
         return outputSet;

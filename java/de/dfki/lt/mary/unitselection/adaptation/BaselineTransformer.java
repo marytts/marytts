@@ -50,8 +50,6 @@ public class BaselineTransformer {
     public BaselinePostprocessor postprocessor;
     BaselineTransformerParams params;
     
-    public static final String wavExt = ".wav";
-    
     public BaselineTransformer(BaselinePreprocessor pp,
                                BaselineFeatureExtractor fe, 
                                BaselinePostprocessor po,
