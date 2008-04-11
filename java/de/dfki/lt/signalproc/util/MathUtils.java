@@ -2469,6 +2469,11 @@ public class MathUtils {
         return (x-xStart)/(xEnd-xStart)*(yEnd-yStart)+yStart;
     }
 
+    public static double linearMap(double x, double xStart, double xEnd, double yStart, double yEnd)
+    {
+        return (x-xStart)/(xEnd-xStart)*(yEnd-yStart)+yStart;
+    }
+    
     public static int linearMap(int x, int xStart, int xEnd, int yStart, int yEnd)
     {
         return (int)Math.floor(((double)x-xStart)/((double)xEnd-xStart)*(yEnd-yStart)+yStart + 0.5);

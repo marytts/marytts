@@ -94,7 +94,6 @@ public class ESTLabels {
     
     public static ESTLabels readESTLabelFile(String labelFile)
     {
-        ESTLabels labels = null;
         ESTLabels labelsRet = null;
         String allText = null;
         try {
@@ -108,12 +107,30 @@ public class ESTLabels {
         {
             String[] lines = allText.split("\n");
 
+            labelsRet = parseFromLines(lines, 0, lines.length-1);
+        }
+        
+        return labelsRet;
+    }
+    
+    public static ESTLabels parseFromLines(String[] lines, int startLine, int endLine)
+    {
+        return parseFromLines(lines, startLine, endLine, 3);
+    }
+    
+    public static ESTLabels parseFromLines(String[] lines, int startLine, int endLine, int minimumItemsInOneLine)
+    {
+        ESTLabels labels = null;
+        ESTLabels labelsRet = null;
+
+        if (startLine<=endLine)
+        {
             int i;
             int count = 0;
-            for (i=0; i<lines.length; i++)
+            for (i=startLine; i<=endLine; i++)
             {
                 String[] labelInfos = lines[i].split(" ");
-                if (labelInfos.length>2)
+                if (labelInfos.length>=minimumItemsInOneLine)
                     count++;
             }
 
@@ -121,29 +138,55 @@ public class ESTLabels {
             if (count>0)
             {
                 labels = new ESTLabels(count);
-                for (i=0; i<lines.length; i++)
+                for (i=startLine; i<=endLine; i++)
                 {
                     if (tmpCount>count-1)
                         break;
-                    
+
                     String[] labelInfos = lines[i].split(" ");
-                    if (labelInfos.length>2 && 
+                    if (labelInfos.length>=minimumItemsInOneLine && 
                             StringUtil.isNumeric(labelInfos[0]) &&
                             StringUtil.isNumeric(labelInfos[1]))
                     {
-                        labels.items[tmpCount].time = (float)Float.valueOf(labelInfos[0]);
-                        labels.items[tmpCount].status = (int)Integer.valueOf(labelInfos[1]);
-                        labels.items[tmpCount].phn = labelInfos[2].trim();
+                        if (labelInfos.length>0)
+                            labels.items[tmpCount].time = (float)Float.valueOf(labelInfos[0]);
+                        
+                        if (labelInfos.length>1)
+                            labels.items[tmpCount].status = (int)Integer.valueOf(labelInfos[1]);
+                        
+                        if (labelInfos.length>2)
+                            labels.items[tmpCount].phn = labelInfos[2].trim();
 
+                        int restStartMin = 4;
                         if (labelInfos.length>3 && StringUtil.isNumeric(labelInfos[3]))
                             labels.items[tmpCount].ll = (float)Float.valueOf(labelInfos[3]);
                         else
+                        {
+                            restStartMin = 3;
                             labels.items[tmpCount].ll = (float)Float.NEGATIVE_INFINITY; 
+                        }
+                        
+                        //Read additional fields if any in String format
+                        //also convert these to double values if they are numeric
+                        if (labelInfos.length>restStartMin)
+                        {
+                            int numericCount = 0;
+                            labels.items[tmpCount].rest = new String[labelInfos.length-restStartMin];
+                            labels.items[tmpCount].valuesRest = new double[labelInfos.length-restStartMin];
+                            for (int j=0; j<labels.items[tmpCount].rest.length; j++)
+                            {
+                                labels.items[tmpCount].rest[j] = labelInfos[j+restStartMin];
+                                if (StringUtil.isNumeric(labels.items[tmpCount].rest[j]))
+                                    labels.items[tmpCount].valuesRest[j] = Double.valueOf(labels.items[tmpCount].rest[j]);
+                                else
+                                    labels.items[tmpCount].valuesRest[j] = Double.NEGATIVE_INFINITY;
+                            }
+                        }
 
                         tmpCount++;
                     }
                 }
-                
+
                 labelsRet = new ESTLabels(labels, 0, tmpCount-1);
             }
         }
@@ -167,5 +210,4 @@ public class ESTLabels {
         lab = new ESTLabels("d:\\m0001.lab");
         lab.print();
     }
-    
 }
