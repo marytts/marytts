@@ -342,12 +342,17 @@ public class SignalProcUtils {
         return f0s;
     }
     
+    public static double [] interpolate_pitch_uv(double [] f0s)
+    {
+        return interpolate_pitch_uv(f0s, 10.0);
+    }
+    
     // Interpolates unvoiced parts of the f0 contour 
     // using the neighbouring voiced parts
     // Linear interpolation is used
-    public static double [] interpolate_pitch_uv(double [] f0s)
+    public static double [] interpolate_pitch_uv(double [] f0s, double minVoicedVal)
     {
-        int [] ind_v = MathUtils.find(f0s, MathUtils.GREATER_THAN, 10);
+        int [] ind_v = MathUtils.find(f0s, MathUtils.GREATER_THAN, minVoicedVal);
         double [] new_f0s = null;
         
         if (ind_v==null)
@@ -1156,7 +1161,7 @@ public class SignalProcUtils {
         return (int)Math.max(0, Math.floor((time-0.5f*windowSizeInSeconds)/skipSizeInSeconds+0.5));
     }
     
-    public static int time2frameIndex(double time, float windowSizeInSeconds, float skipSizeInSeconds)
+    public static int time2frameIndex(double time, double windowSizeInSeconds, double skipSizeInSeconds)
     {
         return (int)Math.max(0, Math.floor((time-0.5*windowSizeInSeconds)/skipSizeInSeconds+0.5));
     }
