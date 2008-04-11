@@ -618,7 +618,7 @@ public class HTSTreeSet {
                 s = "(";
             else if (lab.contentEquals("cp") )
                 s = ")";
-            else if (lab.contentEquals("?") )
+            else if (lab.contentEquals("in") )
                 s = "?";
             else if (lab.contentEquals("qt") )
                 s = "\"";
