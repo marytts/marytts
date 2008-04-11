@@ -36,25 +36,52 @@ package de.dfki.lt.signalproc.util;
  * 
  */
 public class ESTLabel {
-    public float time; //Ending time of phonetic label
+    public double time; //Ending time of phonetic label
     public int status; //Status
     public String phn; //Phoneme
-    public float ll; //log likelihood
+    public double ll; //log likelihood
+    public String[] rest; //If the label contains more fields, get them as text
+    public double[] valuesRest; //If some of the <rest> are numbers, convert them to doubles and keep
     
-    public ESTLabel(float newTime, int newStatus, String newPhn, float newll)
+    public ESTLabel(double newTime, int newStatus, String newPhn, double newll)
+    {
+        this(newTime, newStatus, newPhn, newll, null, null);
+    }
+    
+    public ESTLabel()
+    {
+        this(-1.0, 0, "", Double.NEGATIVE_INFINITY, null, null);
+    }
+    
+    public ESTLabel(double newTime, int newStatus, String newPhn, double newll, String[] restIn)
+    {
+        this(newTime, newStatus, newPhn, newll, restIn, null);
+    }
+    
+    public ESTLabel(double newTime, int newStatus, String newPhn, double newll, String[] restIn, double[] valuesRestIn)
     {
         time = newTime;
         status = newStatus;
         phn = newPhn;
         ll = newll;
-    }
-    
-    public ESTLabel()
-    {
-        time = -1.0f;
-        status = 0;
-        phn = "";
-        ll = Float.NEGATIVE_INFINITY;
+        
+        if (restIn!=null && restIn.length>0)
+        {
+            rest = new String[restIn.length];
+            for (int i=0; i<restIn.length; i++)
+                rest[i] = restIn[i];
+        }
+        else
+            rest = null;
+        
+        if (valuesRestIn!=null && valuesRestIn.length>0)
+        {
+            valuesRest = new double[valuesRestIn.length];
+            for (int i=0; i<valuesRestIn.length; i++)
+                valuesRest[i] = valuesRestIn[i];
+        }
+        else
+            valuesRest = null;
     }
     
     public ESTLabel(ESTLabel lab)
@@ -68,6 +95,23 @@ public class ESTLabel {
         status = lab.status;
         phn = lab.phn;
         ll = lab.ll;
+        if (lab.rest!=null && lab.rest.length>0)
+        {
+            rest = new String[lab.rest.length];
+            for (int i=0; i<lab.rest.length; i++)
+                rest[i] = lab.rest[i];
+        }
+        else
+            rest = null;
+        
+        if (lab.valuesRest!=null && lab.valuesRest.length>0)
+        {
+            valuesRest = new double[lab.valuesRest.length];
+            for (int i=0; i<lab.valuesRest.length; i++)
+                valuesRest[i] = lab.valuesRest[i];
+        }
+        else
+            valuesRest = null;
     }
     
     //Display label entries

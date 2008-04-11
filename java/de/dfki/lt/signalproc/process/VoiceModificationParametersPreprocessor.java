@@ -1,5 +1,8 @@
 package de.dfki.lt.signalproc.process;
 
+import de.dfki.lt.mary.util.FestivalUtt;
+import de.dfki.lt.signalproc.analysis.F0ReaderWriter;
+import de.dfki.lt.signalproc.util.ESTLabels;
 import de.dfki.lt.signalproc.util.InterpolationUtils;
 import de.dfki.lt.signalproc.util.MathUtils;
 import de.dfki.lt.signalproc.util.SignalProcUtils;
@@ -15,29 +18,49 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
     public int numPeriods;
 
     public VoiceModificationParametersPreprocessor(int samplingRate, int LPOrder,
-            double[] pscalesIn, double[] tscalesIn, double[] escalesIn, double[] vscalesIn, 
-            int[] pitchMarksIn, 
-            double wsFixedIn, double ssFixedIn, 
-            int numfrm, int numfrmFixed, int numPeriodsIn, boolean isFixedRate) 
+                                                   double[] pscalesIn, 
+                                                   double[] tscalesIn, 
+                                                   double[] escalesIn, 
+                                                   double[] vscalesIn, 
+                                                   int[] pitchMarksIn, 
+                                                   double wsFixedIn, double ssFixedIn, 
+                                                   int numfrm, int numfrmFixed, int numPeriodsIn, 
+                                                   boolean isFixedRate) 
     {
         super(samplingRate, LPOrder, pscalesIn, tscalesIn, escalesIn, vscalesIn);
         
         initialise(pitchMarksIn, wsFixedIn, ssFixedIn, numfrm, numfrmFixed, numPeriodsIn, isFixedRate);
     }
     
-    public VoiceModificationParametersPreprocessor(String targetFestivalUttFile, String sourcePitchFile,
-                                                   double[] vscalesIn,
+    public VoiceModificationParametersPreprocessor(String targetFestivalUttFile, 
+                                                   String sourcePitchFile,
                                                    String sourceLabelFile, 
-                                                   String sourceEnergyFile,
-                                                   String targetLabelFile, 
-                                                   String targetEnergyFile,
+                                                   String sourceEnergyFile, //only required for escales
+                                                   String targetLabelFile, //only required for escales
+                                                   String targetEnergyFile, //only required for escales
                                                    boolean isPscaleFromFestivalUttFile, 
                                                    boolean isTscaleFromFestivalUttFile, 
-                                                   boolean isEscaleFromTargetWavFile)
+                                                   boolean isEscaleFromTargetWavFile,
+                                                   int[] pitchMarksIn, 
+                                                   double wsFixedIn, double ssFixedIn, 
+                                                   int numfrm, int numfrmFixed, int numPeriodsIn, 
+                                                   boolean isFixedRate)
     {
-        //pscalesVar and tscalesVar from targetFestivalUttFile, sourcePitchFile, sourceLabelFile
+        super();
+        
+        //These are not implemented!!! To do later after Interspeech 2008 paper
         //escalesVar from sourceLabelFile, sourceEnergyFile, targetLabelFile, targetEnergyFile
         //vscalesVar from vscalesIn
+        
+        //Read from files (only necessary ones, you will need to read more when implementing escales etc)
+        FestivalUtt festivalUtt = new FestivalUtt(targetFestivalUttFile);
+        F0ReaderWriter sourceF0s = new F0ReaderWriter(sourcePitchFile);
+        ESTLabels sourceLabels = new ESTLabels(sourceLabelFile);
+        
+        //pscalesVar and tscalesVar from targetFestivalUttFile, sourcePitchFile, sourceLabelFile
+        
+        
+        
     }
 
     private void initialise(int [] pitchMarksIn, double wsFixedIn, double ssFixedIn, int numfrm, int numfrmFixed, int numPeriodsIn, boolean isFixedRate)

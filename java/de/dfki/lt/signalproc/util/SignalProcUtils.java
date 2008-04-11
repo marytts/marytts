@@ -1156,6 +1156,11 @@ public class SignalProcUtils {
         return (int)Math.max(0, Math.floor((time-0.5f*windowSizeInSeconds)/skipSizeInSeconds+0.5));
     }
     
+    public static int time2frameIndex(double time, float windowSizeInSeconds, float skipSizeInSeconds)
+    {
+        return (int)Math.max(0, Math.floor((time-0.5*windowSizeInSeconds)/skipSizeInSeconds+0.5));
+    }
+    
     //Center-clipping using the amount <ratio>
     //Valid values of ratio are in the range [0.0,1.0]
     // greater values result in  more clipping (i.e. with 1.0 you will get all zeros at the output)
