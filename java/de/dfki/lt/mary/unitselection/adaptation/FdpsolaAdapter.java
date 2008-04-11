@@ -449,13 +449,28 @@ public class FdpsolaAdapter {
         PitchStatistics inputF0Statistics = new PitchStatistics(baseParams.prosodyParams.pitchStatisticsType, f0s);
 
         double[] targetF0s = null;
-        if (ptData instanceof PitchMapping)
+
+        if (!baseParams.isPscaleFromFestivalUttFile 
+                && !baseParams.isTscaleFromFestivalUttFile 
+                && !baseParams.isEscaleFromTargetWavFile)
         {
+            if (ptData instanceof PitchMapping)
+            {
+                targetF0s = pitchTransformer.transform(baseParams.prosodyParams,  
+                                                       ((PitchMapping)ptData).f0StatisticsMapping,
+                                                       inputF0Statistics, 
+                                                       f0s,
+                                                       modParams.pscalesVar);
+            }
+        }
+        else
+        {
+            baseParams.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.USE_ONLY_PSCALES;
             targetF0s = pitchTransformer.transform(baseParams.prosodyParams,  
-                                                   ((PitchMapping)ptData).f0StatisticsMapping,
-                                                   inputF0Statistics, 
-                                                   f0s,
-                                                   modParams.pscalesVar);
+                    ((PitchMapping)ptData).f0StatisticsMapping,
+                    inputF0Statistics, 
+                    f0s,
+                    modParams.pscalesVar);
         }
                                                         
 

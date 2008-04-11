@@ -102,10 +102,10 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABEL_GROUPS; pa.codebookHeader.numNeighboursInLabelGroups = 1; //Mapping of average features collected across label groups (i.e. vowels, consonants, etc)
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.SPEECH; //Mapping of average features collected across all speech parts (i.e. like spectral equalization)
 
-        pa.codebookHeader.sourceTag = "neutralF"; //Source name tag (i.e. style or speaker identity)
-        pa.codebookHeader.targetTag = "angryF"; //Target name tag (i.e. style or speaker identity)
+        pa.codebookHeader.sourceTag = "neutralL"; //Source name tag (i.e. style or speaker identity)
+        pa.codebookHeader.targetTag = "angryL"; //Target name tag (i.e. style or speaker identity)
         
-        pa.trainingBaseFolder = "d:\\1\\neutral_X_angry_50"; //Training base directory
+        pa.trainingBaseFolder = "d:\\1\\neutral_X_angry_50_new"; //Training base directory
         pa.sourceTrainingFolder = "d:\\1\\neutral50\\train"; //Source training folder
         pa.targetTrainingFolder = "d:\\1\\angry50\\train"; //Target training folder
 

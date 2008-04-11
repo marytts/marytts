@@ -37,10 +37,11 @@ import de.dfki.lt.mary.unitselection.adaptation.BaselineParams;
  */
 public class ProsodyTransformerParams extends BaselineParams {
     
-    public static final int NO_TRANSFORMATION = 0;
-    
     ////PITCH
     public int pitchTransformationMethod;
+    public static final int USE_ONLY_PSCALES = -1;
+    public static final int NO_TRANSFORMATION = 0;    
+    
     //Global transformations
     public static final int GLOBAL_MEAN = 1;
     public static final int GLOBAL_STDDEV = 2;
@@ -52,6 +53,7 @@ public class ProsodyTransformerParams extends BaselineParams {
     public static final int GLOBAL_INTERCEPT_STDDEV = 8;
     public static final int GLOBAL_INTERCEPT_SLOPE = 9;
     //
+    
     //Local transformations (i.e. sentence level, based on median of N-best sentence matches in the training database)
     public static final int SENTENCE_MEAN = 21;
     public static final int SENTENCE_STDDEV = 22;
