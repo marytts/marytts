@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.StringTokenizer;
 
 import de.dfki.lt.signalproc.util.ESTLabel;
+import de.dfki.lt.signalproc.util.ESTLabels;
 
 public class StringUtil {
     
@@ -187,157 +188,176 @@ public class StringUtil {
         return strNewname;
     }
     
-  //This version assumes that there can only be insertions and deletions but no substitutions 
+    
+    //This version assumes that there can only be insertions and deletions but no substitutions 
     // (i.e. text based alignment with possible differences in pauses only)
-    public static int[] alignLabels(ESTLabel[] seq1, ESTLabel[] seq2)
+    public static int[][] alignLabels(ESTLabel[] seq1, ESTLabel[] seq2)
     {
-        return alignLabels(seq1, seq2, 0.05, 0.05, 0.0);
+        return alignLabels(seq1, seq2, 0.05, 0.05, 0.05);
     }
     
-    //Finds the optimum alignment between two label sequences by considering insertions, deletions, and skippings
-    // using simple edit distance
-    // Deletion, insertion and substitution probabilities
-    public static int[] alignLabels(ESTLabel[] seq1, ESTLabel[] seq2, double PDeletion, double PInsertion, double PSubstitution)
+    public static int[][] alignLabels(ESTLabel[] labs1, ESTLabel[] labs2, double PDeletion, double PInsertion, double PSubstitution)
     {
-        int[] labelMap = null;
         double PCorrect = 1.0-(PDeletion+PInsertion+PSubstitution);
-        double TINY = 1e-30;
+        int n = labs1.length;
+        int m = labs2.length;
+        double D;
+        int[][] labelMap = null;
 
-        PCorrect = PCorrect+TINY;
-        PDeletion = PDeletion+TINY;
-        PInsertion = PInsertion+TINY;
-        PSubstitution = PSubstitution+TINY;
-        double summ = PCorrect+PDeletion+PInsertion+PSubstitution;
-        PCorrect = PCorrect/summ;
-        PDeletion = PDeletion/summ;
-        PInsertion = PInsertion/summ;
-        PSubstitution = PSubstitution/summ;
-
-        int n = seq1.length;
-        int m = seq2.length;
-        if (n!=0 && m!=0)
+        if (n==0 || m==0)
         {
-            double[][] d = new double[n+1][m+1];
-            int[][] p = new int[n+1][m+1];
-            int i, j;
-            for (i=0; i<n+1; i++)
-            {
-                for (j=0; j<m+1; j++)
-                {
-                    d[i][j] = TINY;
-                    p[i][j] = 0;
-                }
-            }
-    
-            double c;
-            double maxVal, tmpVal;
-            int event;
-            
-            d[0][0] = 1.0;
-            for (i=1; i<=n; i++)
-                d[i][0] = d[i-1][0]*PDeletion;
-  
+            D=m;
+            return labelMap;
+        }
+
+        int i, j;
+        double[][] d = new double[n+1][m+1];
+        for (i=0; i<d.length; i++)
+        {
+            for (j=0; j<d[i].length; j++)
+                d[i][j] = 0.0;
+        }
+
+        int[][] p = new int[n+1][m+1];
+        for (i=0; i<p.length; i++)
+        {
+            for (j=0; j<p[i].length; j++)
+                p[i][j] = 0;
+        }
+
+        double z = 1;
+        d[0][0] = z;
+        for (i=1; i<=n; i++)
+            d[i][0] = d[i-1][0]*PDeletion;
+
+        for (j=1; j<=m; j++)
+            d[0][j] = d[0][j-1]*PInsertion;
+
+        String strEvents = "DISC";
+        double c;
+        double tmp;
+        for (i=1; i<=n; i++)
+        {
             for (j=1; j<=m; j++)
-                d[0][j] = d[0][j-1]*PInsertion;
-    
-            for (i=1; i<=n; i++)
             {
-                for (j=1; j<=m; j++)
-                {
-                    if (seq1[i-1].phn.compareTo(seq2[j-1].phn)==0)
-                        c = PCorrect;
-                    else
-                        c = PSubstitution;
-
-                    maxVal = d[i-1][j]*PDeletion;
-                    event = 1;
-                    tmpVal = d[i][j-1]*PInsertion;
-                    if (tmpVal>maxVal)
-                    {
-                        maxVal = tmpVal;
-                        event = 2;
-                    }
-                    
-                    tmpVal = d[i-1][j-1]*c;
-                    if (tmpVal>maxVal)
-                    {
-                        maxVal = tmpVal;
-                        event = 3;
-                    }
-
-                    if (event==3 && seq1[i-1].phn.compareTo(seq2[j-1].phn)==0)
-                        event = 4;
- 
-                    //1:Deletion, 2:Insertion, 3:Substitution, 4:Correct
-                    p[i][j] = event;
-                }
-            }
-            
-            // Backtracking
-            int k = 1;
-            int[] E = new int[(n+1)*(m+1)];
-            
-            E[k-1] = p[n][m];
-            i=n+1;
-            j=m+1;
-            int t=m;
-            while (true)
-            {
-                if (E[k-1]==3 || E[k-1]==4)
-                {
-                    i=i-1;
-                    j=j-1;
-                }
-                else if (E[k-1]==2)
-                    j=j-1;
-                else if (E[k-1]==1)
-                    i=i-1;
-                
-                if (p[i-1][j-1]==0)
-                {
-                    while (j>1)
-                    {
-                        k=k+1;
-                        j=j-1;
-                        E[k-1] = 2;
-                    }
-                    break;
-                }
+                if (labs1[i-1].phn.compareTo(labs2[j-1].phn)==0)
+                    c = PCorrect;
                 else
+                    c = PSubstitution;
+
+                int ind = 1;
+                d[i][j] = d[i-1][j]*PDeletion;
+                tmp = d[i][j-1]*PInsertion;
+                if (tmp>d[i][j])
                 {
-                    k=k+1;
-                    E[k-1]=p[i-1][j-1];
+                    d[i][j] = tmp;
+                    ind = 2;
                 }
-                t=t-1;
+
+                tmp = d[i-1][j-1]*c;
+                if (tmp>d[i][j])
+                {
+                    d[i][j] = tmp;
+                    ind = 3;
+                }
+
+                if (ind==3 && labs1[i-1].phn.compareTo(labs2[j-1].phn)==0)
+                    ind = 4;
+
+                //Events 1:Deletion, 2:Insertion, 3:Substitution, 4:Correct
+                p[i][j] = ind;
             }
-            
-            // Reverse the order
-            int[] Events = new int[k];
-            for (t=k; t>=1; t--)
-                Events[t-1] = E[k-t];  
-            //
-            
-            int ind = 0;
-            labelMap = new int[Events.length];
-            
-            for (i=0; i<Events.length; i++)
+        }
+
+        //Backtracking
+        D = d[n][m];
+        int k = 1;
+        int[] E = new int[m*n];
+        E[k-1] = p[n][m];
+        i=n+1;
+        j=m+1;
+        int t=m;
+        while (true)
+        {
+            if (E[k-1]==3 || E[k-1]==4)
             {
-                if (Events[i]==1) //Deletion
-                    labelMap[i] = -Events[i];
-                else if (Events[i]==2) //Insertion
-                {
-                    labelMap[i] = -Events[i];
-                    ind++;  
+                i=i-1;
+                j=j-1;
+            }
+            else if (E[k-1]==2)
+                j=j-1;
+            else if (E[k-1]==1)
+                i=i-1;
+
+            if (p[i-1][j-1]==0)
+            {
+                while (j>1)
+                {    
+                    k=k+1;
+                    j=j-1;
+                    E[k-1]=2;
                 }
-                else if (Events[i]==3 || Events[i]==4) //You may want to discriminate between Substitution(3) and Correct(4) here
-                {
-                    labelMap[i] = ind;
-                    ind++;
-                }
+                break;
+            }
+            else
+            {
+                k=k+1;
+                E[k-1]=p[i-1][j-1];
+            }
+            t=t-1;
+        }
+
+        //Reverse the order
+        int[] Events = new int[k];
+        for (t=k; t>=1; t--)
+            Events[t-1] = E[k-t];
+        
+        int[][] tmpLabelMap = new int[n*m][2];
+        int ind = 0;
+        int ind1 = 0;
+        int ind2 = 0;
+        for (t=1; t<=k; t++)
+        {
+            if (Events[t-1]==3 || Events[t-1]==4) //Substitution or correct
+            {
+                tmpLabelMap[ind][0] = ind1;
+                tmpLabelMap[ind][1] = ind2;
+                ind1++;
+                ind2++;
+                ind++;
+            }
+            else if (Events[t-1]==1) //An item in seq1 is deleted in seq2
+            {
+                ind1++;
+            }
+            else if (Events[t-1]==2) //An item is inserted in seq2
+            {
+                ind2++;
+            }
+        }
+        
+        if (ind>0)
+        {
+            labelMap = new int[ind][2];
+            for (i=0; i<labelMap.length; i++)
+            {
+                labelMap[i][0] = tmpLabelMap[i][0];
+                labelMap[i][1] = tmpLabelMap[i][1];
             }
         }
 
         return labelMap;
+    }
+    
+    public static int findInMap(int[][] map, int ind1)
+    {
+        for (int i=0; i<map.length; i++)
+        {
+            if (map[i][0]==ind1)
+                return map[i][1];
+        }
+        
+        return -1;
     }
     
     public static boolean isNumeric(String str) 
@@ -394,5 +414,19 @@ public class StringUtil {
             foldername = fullpathFilename.substring(0, ind1+1);
         
         return foldername;
+    }
+    
+    public static void main(String[] args)
+    {
+        ESTLabels l = new ESTLabels("D:\\1\\neutral50\\test_tts\\neutral.lab");
+        FestivalUtt f = new FestivalUtt("D:\\1\\neutral50\\test_tts\\neutral.tutt");
+        
+        double PDeletion = 0.05;
+        double PInsertion = 0.05; 
+        double PSubstitution = 0.05;
+        int[][] map = alignLabels(l.items, f.labels[0].items, PDeletion, PInsertion, PSubstitution);
+        
+        for (int i=0; i<map.length; i++)
+            System.out.println(String.valueOf(map[i][0]) + "->" + String.valueOf(map[i][1]));
     }
 }

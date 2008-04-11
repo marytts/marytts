@@ -104,6 +104,29 @@ public class FestivalUtt {
                         labels[i] = ESTLabels.parseFromLines(lines, boundInds[i]+1, boundInds[i+1]-1, 2);
                     else
                         labels[i] = ESTLabels.parseFromLines(lines, boundInds[i]+1, lines.length-1, 2);
+                    
+                    //Shift all valuesRest by one, and put the f0 into valuesRest[0]
+                    if (keys[i].compareTo("==Target==")==0)
+                    {
+                        for (j=0; j<labels[i].items.length; j++)
+                        {
+                            int numTotalValuesRest = 0;
+                            if (labels[i].items[j].valuesRest!=null)
+                            {
+                                double[] tmpValues = new double[labels[i].items[j].valuesRest.length];
+                                System.arraycopy(labels[i].items[j].valuesRest, 0, tmpValues, 0, labels[i].items[j].valuesRest.length);
+                                labels[i].items[j].valuesRest = new double[tmpValues.length+1];
+                                labels[i].items[j].valuesRest[0] = Double.valueOf(labels[i].items[j].phn); 
+                                System.arraycopy(labels[i].items[j].valuesRest, 0, tmpValues, 1, labels[i].items[j].valuesRest.length);
+                            }
+                            else
+                            {
+                                labels[i].items[j].valuesRest = new double[1];
+                                labels[i].items[j].valuesRest[0] = Double.valueOf(labels[i].items[j].phn); 
+                            }
+                        }
+                    }
+                    //
                 }
                 else
                     labels[i] = null;
