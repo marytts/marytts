@@ -73,8 +73,8 @@ public class AdaptationUtils {
             if (labelMap!=null)
             {
                 int j, srcLabInd, tgtLabInd, tgtFrmInd;
-                float time1, time2;
-                float srcStartTime, srcEndTime, tgtStartTime, tgtEndTime;
+                double time1, time2;
+                double srcStartTime, srcEndTime, tgtStartTime, tgtEndTime;
 
                 srcLabInd = 0;
 
@@ -104,12 +104,12 @@ public class AdaptationUtils {
                         if (srcLabInd>0)   
                             srcStartTime = sourceLabels.items[srcLabInd-1].time;
                         else
-                            srcStartTime = 0.0f;
+                            srcStartTime = 0.0;
 
                         if (tgtLabInd>0) 
                             tgtStartTime = targetLabels.items[tgtLabInd-1].time;
                         else
-                            tgtStartTime = 0.0f;
+                            tgtStartTime = 0.0;
 
                         srcEndTime = sourceLabels.items[srcLabInd].time;
                         tgtEndTime = targetLabels.items[tgtLabInd].time;
@@ -158,8 +158,8 @@ public class AdaptationUtils {
             if (labelMap!=null)
             {
                 int j, srcLabInd, tgtLabInd, tgtFrmInd;
-                float time1, time2;
-                float srcStartTime, srcEndTime, tgtStartTime, tgtEndTime;
+                double time1, time2;
+                double srcStartTime, srcEndTime, tgtStartTime, tgtEndTime;
 
                 srcLabInd = 0;
 
@@ -189,12 +189,12 @@ public class AdaptationUtils {
                         if (srcLabInd>0)   
                             srcStartTime = sourceLabels.items[srcLabInd-1].time;
                         else
-                            srcStartTime = 0.0f;
+                            srcStartTime = 0.0;
 
                         if (tgtLabInd>0) 
                             tgtStartTime = targetLabels.items[tgtLabInd-1].time;
                         else
-                            tgtStartTime = 0.0f;
+                            tgtStartTime = 0.0;
 
                         srcEndTime = sourceLabels.items[srcLabInd].time;
                         tgtEndTime = targetLabels.items[tgtLabInd].time;
@@ -243,7 +243,7 @@ public class AdaptationUtils {
             if (labelMap!=null)
             {
                 int j, tgtLabInd;
-                float srcStartTime, srcEndTime, tgtStartTime, tgtEndTime;
+                double srcStartTime, srcEndTime, tgtStartTime, tgtEndTime;
 
                 //Find the corresponding target frame index for each source frame index
                 int count = 0;
@@ -255,7 +255,7 @@ public class AdaptationUtils {
                     if (j>0)
                         srcStartTime = sourceLabels.items[j-1].time;
                     else
-                        srcStartTime = 0.0f;
+                        srcStartTime = 0.0;
 
                     tgtLabInd = labelMap[j];
 
@@ -264,7 +264,7 @@ public class AdaptationUtils {
                         if (tgtLabInd>0) 
                             tgtStartTime = targetLabels.items[tgtLabInd-1].time;
                         else
-                            tgtStartTime = 0.0f;
+                            tgtStartTime = 0.0;
 
                         srcEndTime = sourceLabels.items[j].time;
                         tgtEndTime = targetLabels.items[tgtLabInd].time;
@@ -311,7 +311,7 @@ public class AdaptationUtils {
             if (labelMap!=null)
             {
                 int j, tgtLabInd;
-                float srcStartTime, srcEndTime, tgtStartTime, tgtEndTime;
+                double srcStartTime, srcEndTime, tgtStartTime, tgtEndTime;
 
                 //Find the corresponding target frame index for each source frame index
                 int count = 0;
@@ -323,7 +323,7 @@ public class AdaptationUtils {
                     if (j-numNeighbours-1>=0)
                         srcStartTime = sourceLabels.items[j-numNeighbours-1].time;
                     else
-                        srcStartTime = 0.0f;
+                        srcStartTime = 0.0;
 
                     tgtLabInd = labelMap[j];
 
@@ -332,7 +332,7 @@ public class AdaptationUtils {
                         if (tgtLabInd-numNeighbours-1>=0) 
                             tgtStartTime = targetLabels.items[tgtLabInd-numNeighbours-1].time;
                         else
-                            tgtStartTime = 0.0f;
+                            tgtStartTime = 0.0;
 
                         srcEndTime = sourceLabels.items[Math.min(j+numNeighbours, sourceLabels.items.length-1)].time;
                         tgtEndTime = targetLabels.items[Math.min(tgtLabInd+numNeighbours, targetLabels.items.length-1)].time;
