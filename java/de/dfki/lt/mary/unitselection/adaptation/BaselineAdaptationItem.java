@@ -44,9 +44,9 @@ public class BaselineAdaptationItem {
         
     }
     
-    public void setFromWavFilename(String wavFilename)
+    public void setFromWavFilename(String referenceFilename)
     {
-        audioFile = wavFilename;
+        audioFile = referenceFilename;
         
         sinesFile = StringUtil.modifyExtension(audioFile, ".sin"); //Sinusoids
         noiseFile = StringUtil.modifyExtension(audioFile, ".noi"); //Noise

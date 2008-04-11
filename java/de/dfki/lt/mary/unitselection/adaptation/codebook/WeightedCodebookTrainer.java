@@ -70,8 +70,8 @@ public class WeightedCodebookTrainer extends BaselineTrainer {
     {
         if (checkParams())
         {
-            BaselineAdaptationSet sourceTrainingSet = getTrainingSet(wcParams.sourceTrainingFolder);
-            BaselineAdaptationSet targetTrainingSet = getTrainingSet(wcParams.targetTrainingFolder);
+            BaselineAdaptationSet sourceTrainingSet = new BaselineAdaptationSet(wcParams.sourceTrainingFolder);
+            BaselineAdaptationSet targetTrainingSet = new BaselineAdaptationSet(wcParams.targetTrainingFolder);
             
             int[] map = getIndexedMapping(sourceTrainingSet, targetTrainingSet);
             

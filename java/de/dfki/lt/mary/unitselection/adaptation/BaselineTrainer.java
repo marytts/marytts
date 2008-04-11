@@ -44,8 +44,6 @@ import de.dfki.lt.mary.unitselection.voiceimport.BasenameList;
  */
 public class BaselineTrainer {
     
-    public static final String wavExt = ".wav";
-    
     public BaselinePreprocessor preprocessor;
     public BaselineFeatureExtractor featureExtractor;
     
@@ -60,19 +58,6 @@ public class BaselineTrainer {
     public boolean checkParams()
     {
         return true;
-    }
-    
-    //Create list of training files
-    public BaselineAdaptationSet getTrainingSet(String trainingFolder)
-    {   
-        BasenameList b = new BasenameList(trainingFolder, wavExt);
-        
-        BaselineAdaptationSet trainingSet = new BaselineAdaptationSet(b.getListAsVector().size());
-        
-        for (int i=0; i<trainingSet.items.length; i++)
-            trainingSet.items[i].setFromWavFilename(trainingFolder + b.getName(i) + wavExt);
-        
-        return trainingSet;
     }
     
     //This baseline version just returns identical target indices for each source entry

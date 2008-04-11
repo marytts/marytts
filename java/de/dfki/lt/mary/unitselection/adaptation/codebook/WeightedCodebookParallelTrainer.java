@@ -74,8 +74,8 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
     {
         if (checkParams())
         {
-            BaselineAdaptationSet sourceTrainingSet = getTrainingSet(wcParams.sourceTrainingFolder);
-            BaselineAdaptationSet targetTrainingSet = getTrainingSet(wcParams.targetTrainingFolder);
+            BaselineAdaptationSet sourceTrainingSet = new BaselineAdaptationSet(wcParams.sourceTrainingFolder);
+            BaselineAdaptationSet targetTrainingSet = new BaselineAdaptationSet(wcParams.targetTrainingFolder);
 
             train(sourceTrainingSet, targetTrainingSet);
         }

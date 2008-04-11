@@ -29,12 +29,15 @@
 
 package de.dfki.lt.mary.unitselection.adaptation;
 
+import de.dfki.lt.mary.unitselection.voiceimport.BasenameList;
+
 /**
  * @author oytun.turk
  *
  */
 public class BaselineAdaptationSet {
     public BaselineAdaptationItem[] items;
+    public static final String DEFAULT_WAV_EXTENSION = ".wav";
     
     public BaselineAdaptationSet()
     {
@@ -44,6 +47,21 @@ public class BaselineAdaptationSet {
     public BaselineAdaptationSet(int numItems)
     {
         allocate(numItems);
+    }
+    
+    public BaselineAdaptationSet(String folder)
+    {
+        this(folder, DEFAULT_WAV_EXTENSION);
+    }
+    
+    public BaselineAdaptationSet(String folder, String referenceFileExt)
+    {
+        BasenameList b = new BasenameList(folder, referenceFileExt);
+        
+        allocate(b.getListAsVector().size());
+        
+        for (int i=0; i<items.length; i++)
+            items[i].setFromWavFilename(folder + b.getName(i) + referenceFileExt);
     }
     
     public void allocate(int numItems)
