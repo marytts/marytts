@@ -563,6 +563,20 @@ public class SignalProcUtils {
         return frmOut;
     }
     
+    public static double[] freq2bark(double[] freqsInHz)
+    {
+        double[] barks = null;
+        
+        if (freqsInHz!=null)
+        {
+            barks = new double[freqsInHz.length];
+            for (int i=0; i<barks.length; i++)
+                barks[i] = freq2bark(freqsInHz[i]);
+        }
+        
+        return barks;
+    }
+    
     public static double freq2bark(double freqInHz)
     {
         return 13.0*Math.atan(0.00076*freqInHz)+3.5*Math.atan((freqInHz*freqInHz/(7500*7500)));
@@ -1311,6 +1325,19 @@ public class SignalProcUtils {
 
         return index;
         
+    }
+    
+    public static double getRmsDistance(double[] x, double[] y)
+    {
+        double rmsDist = 0.0;
+        
+        for (int i=0; i<Math.min(x.length, y.length); i++)
+            rmsDist += (x[i]-y[i])*(x[i]-y[i]);
+        
+        rmsDist /= Math.min(x.length, y.length);
+        rmsDist = Math.sqrt(rmsDist);
+        
+        return rmsDist;
     }
     
     public static void main(String[] args)
