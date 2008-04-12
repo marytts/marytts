@@ -103,15 +103,15 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.SPEECH; //Mapping of average features collected across all speech parts (i.e. like spectral equalization)
 
         pa.codebookHeader.sourceTag = "neutralL"; //Source name tag (i.e. style or speaker identity)
-        pa.codebookHeader.targetTag = "angryL"; //Target name tag (i.e. style or speaker identity)
+        pa.codebookHeader.targetTag = "happyL"; //Target name tag (i.e. style or speaker identity)
         
-        pa.trainingBaseFolder = "d:\\1\\neutral_X_angry_50_new"; //Training base directory
-        pa.sourceTrainingFolder = "d:\\1\\neutral50\\train"; //Source training folder
-        pa.targetTrainingFolder = "d:\\1\\angry50\\train"; //Target training folder
+        pa.trainingBaseFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08_out\\neutral2happy"; //Training base directory
+        pa.sourceTrainingFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08\\neutral\\train_350"; //Source training folder
+        pa.targetTrainingFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08\\happy\\train_350"; //Target training folder
 
         pa.indexMapFileExtension = ".imf"; //Index map file extensions
         
-        pa.codebookHeader.lsfParams.lpOrder = 0; //Auto set
+        pa.codebookHeader.lsfParams.lpOrder = 20; //Auto set
         pa.codebookHeader.lsfParams.preCoef = 0.97f;
         pa.codebookHeader.lsfParams.skipsize = 0.010f;
         pa.codebookHeader.lsfParams.winsize = 0.020f;
