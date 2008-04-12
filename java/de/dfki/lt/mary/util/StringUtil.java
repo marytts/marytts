@@ -1,6 +1,7 @@
 package de.dfki.lt.mary.util;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
@@ -416,17 +417,126 @@ public class StringUtil {
         return foldername;
     }
     
+    //Reads all rows as one String
+    public static String[][] readTextFile(String textFile)
+    {
+        return readTextFile(textFile, 1);
+    }
+    
+    public static String[][] readTextFile(String textFile, int minimumItemsInOneLine)
+    {
+        String[][] entries = null;
+        String allText = null;
+        try {
+            allText = FileUtils.getFileAsString(new File(textFile), "ASCII");
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        if (allText!=null)
+        {
+            String[] lines = allText.split("\n");
+
+            entries = parseFromLines(lines, minimumItemsInOneLine, 0, lines.length-1);
+        }
+        
+        return entries;
+    }
+    
+    public static String[][] parseFromLines(String[] lines, int minimumItemsInOneLine, int startLine, int endLine)
+    {
+        String[][] labels = null;
+        String[][] labelsRet = null;
+
+        if (startLine<=endLine)
+        {
+            int i, j;
+            int count = 0;
+            for (i=startLine; i<=endLine; i++)
+            {
+                String[] labelInfos = null;
+                if (minimumItemsInOneLine>1)
+                {
+                    labelInfos = lines[i].split(" ");
+                }
+                else
+                {
+                    labelInfos = new String[1];
+                    labelInfos[0] = lines[i];
+                }
+                
+                boolean isNotEmpty = false;
+                for (j=0; j<labelInfos.length; j++)
+                {
+                    labelInfos[j] = labelInfos[j].trim();
+                    if (labelInfos[j].length()!=0)
+                        isNotEmpty = true;
+                }
+                
+                if (labelInfos.length>0 && isNotEmpty)
+                    count++;
+            }
+
+            int tmpCount = 0;
+            if (count>0)
+            {
+                labels = new String[count][];
+                for (i=startLine; i<=endLine; i++)
+                {
+                    if (tmpCount>count-1)
+                        break;
+
+                    String[] labelInfos = null;
+                    if (minimumItemsInOneLine>1)
+                    {
+                        labelInfos = lines[i].split(" ");
+                    }
+                    else
+                    {
+                        labelInfos = new String[1];
+                        labelInfos[0] = lines[i];
+                    }
+                    
+                    boolean isNotEmpty = false;
+                    for (j=0; j<labelInfos.length; j++)
+                    {
+                        labelInfos[j] = labelInfos[j].trim();
+                        if (labelInfos[j].length()!=0)
+                            isNotEmpty = true;
+                    }
+                    
+                    if (labelInfos.length>0 && isNotEmpty)
+                    {
+                        labels[tmpCount] = new String[minimumItemsInOneLine];
+                        for (j=0; j<Math.min(labelInfos.length, minimumItemsInOneLine); j++) 
+                            labels[tmpCount][j] = labelInfos[j].trim();
+
+                        tmpCount++;
+                    }
+                }
+
+                labelsRet = new String[tmpCount][];
+                for (i=0; i<tmpCount; i++)
+                {
+                    labelsRet[i] = new String[minimumItemsInOneLine];
+                    for (j=0; j<minimumItemsInOneLine; j++)
+                        labelsRet[i][j] = labels[i][j];
+                }
+            }
+        }
+        
+        return labelsRet;
+    }
+    
     public static void main(String[] args)
     {
-        ESTLabels l = new ESTLabels("D:\\1\\neutral50\\test_tts\\neutral.lab");
-        FestivalUtt f = new FestivalUtt("D:\\1\\neutral50\\test_tts\\neutral.tutt");
+        String[][] names1 = readTextFile("D:\\Oytun\\DFKI\\voices\\Interspeech08\\mappings-mini-ea.txt");
         
-        double PDeletion = 0.05;
-        double PInsertion = 0.05; 
-        double PSubstitution = 0.05;
-        int[][] map = alignLabels(l.items, f.labels[0].items, PDeletion, PInsertion, PSubstitution);
+        String[][] names2 = readTextFile("D:\\Oytun\\DFKI\\voices\\Interspeech08\\mappings-mini-ea.txt", 2);
         
-        for (int i=0; i<map.length; i++)
-            System.out.println(String.valueOf(map[i][0]) + "->" + String.valueOf(map[i][1]));
+        String[][] names3 = readTextFile("D:\\Oytun\\DFKI\\voices\\Interspeech08\\mappings-mini-ea.txt", 3); //Should return the third column as null since there are only 2 columns in the text file
+        
+        System.out.println("Test completed....");
     }
 }
