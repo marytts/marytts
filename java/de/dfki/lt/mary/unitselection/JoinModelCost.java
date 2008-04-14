@@ -128,8 +128,12 @@ public class JoinModelCost implements JoinCostFunction
             "mary_halfphone_lr"
     }));
     
-    private HTSModelSet joinPdf = null;
-    private HTSTreeSet joinTree = null;
+    private HTSModelSet joinMcepPdf = null;
+    private HTSTreeSet joinMcepTree = null;
+    private HTSModelSet joinF0Pdf = null;
+    private HTSTreeSet joinF0Tree = null;
+    
+    private float f0Weight;
     
     private FeatureDefinition featureDef = null;
     
@@ -155,9 +159,17 @@ public class JoinModelCost implements JoinCostFunction
     public void init(String configPrefix) throws IOException
     {
         String joinFileName = MaryProperties.needFilename(configPrefix+".joinCostFile");
-        String joinPdfFileName = MaryProperties.getFilename(configPrefix + ".joinPdfFile");
-        String joinTreeFileName = MaryProperties.getFilename(configPrefix + ".joinTreeFile");
-        load(joinFileName, joinPdfFileName, joinTreeFileName);
+        String joinMcepPdfFileName = MaryProperties.getFilename(configPrefix + ".joinMcepPdfFile");
+        String joinMcepTreeFileName = MaryProperties.getFilename(configPrefix + ".joinMcepTreeFile");
+        String joinF0PdfFileName = MaryProperties.getFilename(configPrefix + ".joinF0PdfFile");
+        String joinF0TreeFileName = MaryProperties.getFilename(configPrefix + ".joinF0TreeFile");
+        String f0WeightString = MaryProperties.getProperty(configPrefix + ".joinF0Weight", "0.5");
+        try {
+            f0Weight = Float.valueOf(f0WeightString);
+        } catch (NumberFormatException nfe) {
+            throw new IOException("Illegal value '"+f0WeightString+"' for property '"+configPrefix + ".joinF0Weight' -- float value expected");
+        }
+        load(joinFileName, joinMcepPdfFileName, joinMcepTreeFileName, joinF0PdfFileName, joinF0TreeFileName, f0Weight);
     }
     
     @Deprecated
@@ -173,29 +185,46 @@ public class JoinModelCost implements JoinCostFunction
      * @param joinPdfFileName the file from which to read the Gaussian models in the leaves of the tree
      * @param joinTreeFileName the file from which to read the Tree, in HTS format.
      */
-    public void load(String joinFileName, String joinPdfFileName, String joinTreeFileName)
+    public void load(String joinFileName, String joinMcepPdfFileName, String joinMcepTreeFileName,
+            String joinF0PdfFileName, String joinF0TreeFileName, float joinF0Weight)
     throws IOException
     {
         jcf = new JoinCostFeatures(joinFileName);
 
         assert featureDef != null : "Expected to have a feature definition, but it is null!";
         /* Load PDFs*/
-        joinPdf = new HTSModelSet();
+        joinMcepPdf = new HTSModelSet();
         try {
-            joinPdf.loadJoinModelSet(joinPdfFileName);
+            joinMcepPdf.loadJoinModelSet(joinMcepPdfFileName);
         } catch (Exception e) {
-            IOException ioe = new IOException("Cannot load join model pdfs from "+joinPdfFileName);
+            IOException ioe = new IOException("Cannot load join model pdfs from "+joinMcepPdfFileName);
+            ioe.initCause(e);
+            throw ioe;
+        }
+        joinF0Pdf = new HTSModelSet();
+        try {
+            joinF0Pdf.loadJoinModelSet(joinF0PdfFileName);
+        } catch (Exception e) {
+            IOException ioe = new IOException("Cannot load join model pdfs from "+joinF0PdfFileName);
             ioe.initCause(e);
             throw ioe;
         }
         
         /* Load Trees */
         int numTrees = 1;  /* just JoinModeller will be loaded */
-        joinTree = new HTSTreeSet(numTrees);
+        joinMcepTree = new HTSTreeSet(numTrees);
         try {
-            joinTree.loadJoinModellerTree(joinTreeFileName, featureDef);
+            joinMcepTree.loadJoinModellerTree(joinMcepTreeFileName, featureDef);
         } catch (Exception e) {
-            IOException ioe = new IOException("Cannot load join model trees from "+joinTreeFileName);
+            IOException ioe = new IOException("Cannot load join model trees from "+joinMcepTreeFileName);
+            ioe.initCause(e);
+            throw ioe;
+        }
+        joinF0Tree = new HTSTreeSet(numTrees);
+        try {
+            joinF0Tree.loadJoinModellerTree(joinF0TreeFileName, featureDef);
+        } catch (Exception e) {
+            IOException ioe = new IOException("Cannot load join model trees from "+joinF0TreeFileName);
             ioe.initCause(e);
             throw ioe;
         }
@@ -246,11 +275,12 @@ public class JoinModelCost implements JoinCostFunction
         //for ( int i = 0; i < v1.length; i++ ) {
         //    diff[i] = (double)v1[i] - v2[i];
         //}
-        // TODO: ignore F0 for now 
-        double[] diff = new double[v1.length-1];
+        double[] mcepdiff = new double[v1.length-1];
         for ( int i = 0; i < v1.length-1; i++ ) {
-            diff[i] = (double)v1[i] - v2[i];
+            mcepdiff[i] = (double)v1[i] - v2[i];
         }
+        double[] f0diff = new double[1];
+        f0diff[0] = (double)v1[v1.length-1] - v2[v1.length-1];
         
         // Now evaluate likelihood of the diff under the join model
         // Compute the model name:
@@ -268,16 +298,31 @@ public class JoinModelCost implements JoinCostFunction
         
         /* Given a context feature model name, find its join PDF mean and variance */
         /* first, find an index in the tree and then find the mean and variance that corresponds to that index in joinPdf */
-        int indexPdf;
-        int vectorSize = joinPdf.getJoinVsize();
+        int indexMcepPdf;
+        int vectorSize = joinMcepPdf.getJoinVsize();
         double[] mean = new double[vectorSize];
         double[] variance = new double[vectorSize];
         
-        indexPdf = joinTree.searchJoinModellerTree(fv1, featureDef, joinTree.getTreeHead(0).getRoot(), false);
+        indexMcepPdf = joinMcepTree.searchJoinModellerTree(fv1, featureDef, joinMcepTree.getTreeHead(0).getRoot(), false);
         
-        joinPdf.findJoinPdf(indexPdf, mean, variance);
+        joinMcepPdf.findJoinPdf(indexMcepPdf, mean, variance);
 
-        double distance = DistanceComputer.getNormalizedEuclideanDistance(diff, mean, variance);
+        double mcepDistance = DistanceComputer.getNormalizedEuclideanDistance(mcepdiff, mean, variance);
+        
+        int indexF0Pdf;
+        int f0vectorSize = joinF0Pdf.getJoinVsize();
+        assert f0vectorSize == 1 : "Expected f0 to be one-dimensional!";
+        double[] f0mean = new double[f0vectorSize];
+        double[] f0variance = new double[f0vectorSize];
+        
+        indexF0Pdf = joinF0Tree.searchJoinModellerTree(fv1, featureDef, joinF0Tree.getTreeHead(0).getRoot(), false);
+        
+        joinF0Pdf.findJoinPdf(indexF0Pdf, mean, variance);
+
+        double f0Distance = DistanceComputer.getNormalizedEuclideanDistance(f0diff, f0mean, f0variance);
+        
+        double distance = f0Weight * f0Distance + (1-f0Weight) * mcepDistance;
+        
         cost += distance;
         
         return cost;
