@@ -317,7 +317,7 @@ public class JoinModelCost implements JoinCostFunction
         
         indexF0Pdf = joinF0Tree.searchJoinModellerTree(fv1, featureDef, joinF0Tree.getTreeHead(0).getRoot(), false);
         
-        joinF0Pdf.findJoinPdf(indexF0Pdf, mean, variance);
+        joinF0Pdf.findJoinPdf(indexF0Pdf, f0mean, f0variance);
 
         double f0Distance = DistanceComputer.getNormalizedEuclideanDistance(f0diff, f0mean, f0variance);
         
