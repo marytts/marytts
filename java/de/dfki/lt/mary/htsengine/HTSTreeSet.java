@@ -417,6 +417,8 @@ public class HTSTreeSet {
               /* what about tricky phones, if using halfphones it would not be necessary */
               if(fea_val[0].contains("mary_sentence_punc") || fea_val[0].contains("mary_prev_punctuation") || fea_val[0].contains("mary_next_punctuation"))
                   fea_val[1] = replaceBackPunc(fea_val[1]);
+              else if(fea_val[0].contains("mary_phoneme") || fea_val[0].contains("mary_prev_phoneme") || fea_val[0].contains("mary_next_phoneme") )
+                  fea_val[1] = replaceBackTrickyPhones(fea_val[1]);
               
               /* set the question name value */
               /* depending on the value type set the corresponding value in this node, 
@@ -555,7 +557,6 @@ public class HTSTreeSet {
          
         HTSNode aux_node = root_node;
         int feaIndex;
-        boolean match = false;
         while (aux_node != null ){
             feaIndex = aux_node.getQuestionFeaIndex(); /* get feaIndex of node */
  
@@ -626,6 +627,47 @@ public class HTSTreeSet {
             return s;
               
           }
+       
+       /** Translation table for labels which are incompatible with HTK or shell filenames
+        * See common_routines.pl in HTS training.
+        * In this function the phonemes as used internally in HTSEngine are changed
+        * back to the Mary TTS set, this function is necessary when correcting the 
+        * actual durations of AcousticPhonemes.
+        * @param lab
+        * @return String
+        */
+       public String replaceBackTrickyPhones(String lab){
+         String s = lab;
+         /** DE (replacements in German phoneme set) */     
+         if(lab.contentEquals("ER6") )
+           s = "6";
+         //else if (lab.contentEquals("ER6") )   /* CHECK ??? */
+         //  s = "6";
+         else if (lab.contentEquals("EU2") )
+             s = "2:";
+         else if (lab.contentEquals("EU9") )
+             s = "9";
+         else if (lab.contentEquals("UM9") )
+             s = "9~";
+         else if (lab.contentEquals("IMe") )
+             s = "e~";
+         else if (lab.contentEquals("ANa") )
+             s = "a~";
+         else if (lab.contentEquals("ONo") )
+             s = "o~";
+         else if (lab.contentEquals("gstop") )
+             s = "?";
+         /** EN (replacements in English phoneme set) */
+         else if (lab.contentEquals("rr") )
+             s = "r="; 
+         
+         //System.out.println("LAB=" + s);
+         
+         return s;
+           
+       }
+       
+       
 	
 
 } /* class TreeSet */
