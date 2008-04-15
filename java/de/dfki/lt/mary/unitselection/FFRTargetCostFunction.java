@@ -33,6 +33,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import org.apache.log4j.Logger;
+
 import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.mary.modules.synthesis.FreeTTSVoices;
 import de.dfki.lt.mary.modules.synthesis.Voice;
@@ -148,6 +150,7 @@ public class FFRTargetCostFunction implements TargetCostFunction
         this.featureDefinition = ffr.getFeatureDefinition();
         this.featureVectors = ffr.getFeatureVectors();
         if (weightsFile != null) {
+            Logger.getLogger("TargetCostFeatures").debug("Overwriting target cost weights from file "+weightsFile);
             // overwrite weights from file
             FeatureDefinition newWeights = new FeatureDefinition(new BufferedReader(new InputStreamReader(new FileInputStream(weightsFile), "UTF-8")), true);
             if (!newWeights.featureEquals(featureDefinition)) {
