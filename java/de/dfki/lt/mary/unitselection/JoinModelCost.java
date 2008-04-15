@@ -53,6 +53,7 @@ import de.dfki.lt.mary.modules.HTSContextTranslator;
 import de.dfki.lt.mary.modules.phonemiser.Phoneme;
 import de.dfki.lt.mary.modules.phonemiser.PhonemeSet;
 import de.dfki.lt.mary.unitselection.HalfPhoneFFRTargetCostFunction.TargetCostReporter;
+import de.dfki.lt.mary.unitselection.JoinCostFeatures.JoinCostReporter;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
 import de.dfki.lt.mary.unitselection.featureprocessors.MaryGenericFeatureProcessors;
@@ -136,6 +137,10 @@ public class JoinModelCost implements JoinCostFunction
     private float f0Weight;
     
     private FeatureDefinition featureDef = null;
+    
+    private boolean debugShowCostGraph = false;
+    private double[] cumulWeightedJoinCosts;
+    private JoinCostReporter jcr;
     
     /****************/
     /* CONSTRUCTORS */
@@ -228,6 +233,15 @@ public class JoinModelCost implements JoinCostFunction
             ioe.initCause(e);
             throw ioe;
         }
+        
+        if (MaryProperties.getBoolean("debug.show.cost.graph")) {
+            debugShowCostGraph = true;
+            cumulWeightedJoinCosts = new double[2];
+            jcr = new JoinCostReporter(cumulWeightedJoinCosts);
+            jcr.showInJFrame("Average signal join costs", false, false);
+            jcr.start();
+        }
+
     }
     
     /**
@@ -324,7 +338,12 @@ public class JoinModelCost implements JoinCostFunction
         double distance = f0Weight * f0Distance + (1-f0Weight) * mcepDistance;
         
         cost += distance;
-        
+
+        if (debugShowCostGraph) {
+            jcr.tick();
+            cumulWeightedJoinCosts[0] += (1-f0Weight) * mcepDistance;
+            cumulWeightedJoinCosts[1] += f0Weight * f0Distance;
+        }
         return cost;
     }
     

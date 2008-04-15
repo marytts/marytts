@@ -68,6 +68,8 @@ public class JoinCostFeatures implements JoinCostFunction
     
     protected PrecompiledJoinCostReader precompiledCosts;
     
+    protected JoinCostReporter jcr;
+    
     /****************/
     /* DATA FIELDS  */
     /****************/
@@ -196,7 +198,7 @@ public class JoinCostFeatures implements JoinCostFunction
         if (MaryProperties.getBoolean("debug.show.cost.graph")) {
             debugShowCostGraph = true;
             cumulWeightedSignalCosts = new double[featureWeight.length];
-            JoinCostReporter jcr = new JoinCostReporter(cumulWeightedSignalCosts);
+            jcr = new JoinCostReporter(cumulWeightedSignalCosts);
             jcr.showInJFrame("Average signal join costs", false, false);
             jcr.start();
         }
@@ -334,7 +336,9 @@ public class JoinCostFeatures implements JoinCostFunction
             throw new RuntimeException( "The right unit index [" + u2 +
                     "] is out of range: this file contains [" + getNumberOfUnits() + "] units." );
         }
-        nCostComputations++; // for debug
+        if (debugShowCostGraph) {
+            jcr.tick();
+        }
         /* Cumulate the join costs for each feature */
         double res = 0.0;
         float[] v1 = rightJCF[u1];
@@ -443,10 +447,12 @@ public class JoinCostFeatures implements JoinCostFunction
     
     
     
-    public class JoinCostReporter extends Histogram
+    public static class JoinCostReporter extends Histogram
     {
         private double[] data;
         private int lastN = 0;
+        private int nCostComputations = 0;
+        
         public JoinCostReporter(double[] data)
         {
             super(0, 1, data);
@@ -465,6 +471,14 @@ public class JoinCostFeatures implements JoinCostFunction
                     }
                 }
             }.start();
+        }
+        
+        /**
+         * Register one new cost computation
+         */
+        public void tick()
+        {
+            nCostComputations++;
         }
         
         protected void updateGraph()
