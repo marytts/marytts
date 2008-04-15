@@ -52,6 +52,8 @@ public class CARTBuilder extends VoiceImportComponent {
     private String wagonFeatsFile;
     private String wagonCartFile;
     private String wagonDisTabsFile;
+    private int numProcesses;
+    
     private DatabaseLayout db;
     private int percent = 0;
     public final String ACFEATUREFILE = "CARTBuilder.acFeatureFile";
@@ -64,6 +66,8 @@ public class CARTBuilder extends VoiceImportComponent {
     public final String READFEATURESEQUENCE = "CARTBuilder.readFeatureSequence";
     public final String MAXLEAFSIZE = "CARTBuilder.maxLeafSize";
     public final String ESTDIR = "CARTBuilder.estDir";
+    
+    public final String NUMPROCESSES = "CARTBuilder.numProcesses";
     
     
     public String getName(){
@@ -102,12 +106,23 @@ public class CARTBuilder extends VoiceImportComponent {
                 }
             }
         }
+        String numProcessesString = getProp(NUMPROCESSES);
+        if (numProcessesString == null) {
+            numProcesses = 1;
+        } else {
+            try {
+                numProcesses = Integer.parseInt(numProcessesString);
+            } catch(NumberFormatException nfe) {
+                numProcesses = 1;
+            }
+        }
+        if (numProcesses < 1) numProcesses = 1;
     }
     
-     public SortedMap getDefaultProps(DatabaseLayout db){
+     public SortedMap<String, String> getDefaultProps(DatabaseLayout db){
          this.db = db;
        if (props == null){
-           props = new TreeMap();
+           props = new TreeMap<String, String>();
            String filedir = db.getProp(db.FILEDIR);
            String maryext = db.getProp(db.MARYEXT);
            props.put(ACFEATUREFILE,filedir
@@ -130,6 +145,7 @@ public class CARTBuilder extends VoiceImportComponent {
                estdir = "/project/mary/Festival/speech_tools/";
            }
            props.put(ESTDIR,estdir);
+           props.put(NUMPROCESSES, "1");
        }
        
        return props;
@@ -137,7 +153,7 @@ public class CARTBuilder extends VoiceImportComponent {
      
      
      protected void setupHelp(){
-         props2Help = new TreeMap();
+         props2Help = new TreeMap<String, String>();
          props2Help.put(ACFEATUREFILE,"file containing all halfphone units and their target cost features"
                  +" plus the acoustic target cost features");
          props2Help.put(FEATURESEQFILE, "file containing the feature sequence for the basic tree");
@@ -149,6 +165,7 @@ public class CARTBuilder extends VoiceImportComponent {
                  +" if \"false\", basic tree is read from top level tree file.");
          props2Help.put(MAXLEAFSIZE,"the maximum number of units in a leaf of the basic tree");
          props2Help.put(ESTDIR,"directory containing the local installation of the Edinburgh Speech Tools");
+         props2Help.put(NUMPROCESSES, "number of wagon processes to run in parallel - bewteen 1 and the number of CPUs");
      }
      
      public boolean compute() throws Exception{
@@ -160,7 +177,7 @@ public class CARTBuilder extends VoiceImportComponent {
          FeatureVector[] featureVectorsCopy = ffr.getCopyOfFeatureVectors();
          FeatureDefinition featureDefinition = ffr.getFeatureDefinition(); 
          //remove the feature vectors of edge units
-         List fVList = new ArrayList();
+         List<FeatureVector> fVList = new ArrayList<FeatureVector>();
          int edgeIndex = 
              featureDefinition.getFeatureIndex(FeatureDefinition.EDGEFEATURE);
          for (int i=0;i<featureVectorsCopy.length;i++){
@@ -191,7 +208,7 @@ public class CARTBuilder extends VoiceImportComponent {
              //each line contains one feature
              String line = buf.readLine();
              //collect features in a list
-             List features = new ArrayList();
+             List<String> features = new ArrayList<String>();
              while (line != null){
                  // Skip empty lines and lines starting with #:
                  if (!(line.trim().equals("") || line.startsWith("#"))){
@@ -405,18 +422,17 @@ public class CARTBuilder extends VoiceImportComponent {
             PrintWriter out = new PrintWriter(new 
                 			FileOutputStream(new 
                 			        File(featureDefFile)));
-            Set featuresToIgnore = new HashSet();
+            Set<String> featuresToIgnore = new HashSet<String>();
             featuresToIgnore.add("mary_unit_logf0");
             featuresToIgnore.add("mary_unit_duration");
             featureDefinition.generateAllDotDescForWagon(out, featuresToIgnore);
             out.close();
 
-            int numProcesses = Integer.getInteger("wagon.numProcesses", 1).intValue();
             System.out.println("Will run "+numProcesses+" wagon processes in parallel");
             WagonCallerThread[] wagons = new WagonCallerThread[numProcesses];
             
             int stop = 50; // do not want leaves smaller than this
-            List leaves = new ArrayList();
+            List<LeafNode> leaves = new ArrayList<LeafNode>();
             for (LeafNode leaf = cart.getFirstLeafNode(); leaf != null; leaf = leaf.getNextLeafNode()) {
                 leaves.add(leaf);
             }
