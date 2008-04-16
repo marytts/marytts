@@ -119,7 +119,7 @@ public class JoinModeller extends VoiceImportComponent
                 "mary_stressed",
                 "mary_pos_in_syl",
                 "mary_position_type",
-                "mary_pos",
+                "mary_gpos",
                 "mary_sentence_punc",
                 "mary_sentence_numwords",
                 "mary_words_from_sentence_start",
