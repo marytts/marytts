@@ -105,7 +105,7 @@ public class JoinModelCost implements JoinCostFunction
             "mary_stressed",
             "mary_pos_in_syl",
             "mary_position_type",
-            "mary_pos",
+            "mary_gpos",
             "mary_sentence_punc",
             "mary_sentence_numwords",
             "mary_words_from_sentence_start",
@@ -164,10 +164,10 @@ public class JoinModelCost implements JoinCostFunction
     public void init(String configPrefix) throws IOException
     {
         String joinFileName = MaryProperties.needFilename(configPrefix+".joinCostFile");
-        String joinMcepPdfFileName = MaryProperties.getFilename(configPrefix + ".joinMcepPdfFile");
-        String joinMcepTreeFileName = MaryProperties.getFilename(configPrefix + ".joinMcepTreeFile");
-        String joinF0PdfFileName = MaryProperties.getFilename(configPrefix + ".joinF0PdfFile");
-        String joinF0TreeFileName = MaryProperties.getFilename(configPrefix + ".joinF0TreeFile");
+        String joinMcepPdfFileName = MaryProperties.needFilename(configPrefix + ".joinMcepPdfFile");
+        String joinMcepTreeFileName = MaryProperties.needFilename(configPrefix + ".joinMcepTreeFile");
+        String joinF0PdfFileName = MaryProperties.needFilename(configPrefix + ".joinF0PdfFile");
+        String joinF0TreeFileName = MaryProperties.needFilename(configPrefix + ".joinF0TreeFile");
         String f0WeightString = MaryProperties.getProperty(configPrefix + ".joinF0Weight", "0.5");
         try {
             f0Weight = Float.valueOf(f0WeightString);
@@ -238,7 +238,7 @@ public class JoinModelCost implements JoinCostFunction
             debugShowCostGraph = true;
             cumulWeightedJoinCosts = new double[2];
             jcr = new JoinCostReporter(cumulWeightedJoinCosts);
-            jcr.showInJFrame("Average signal join costs", false, false);
+            jcr.showInJFrame("Average join model cost", false, false);
             jcr.start();
         }
 
@@ -334,7 +334,7 @@ public class JoinModelCost implements JoinCostFunction
         joinF0Pdf.findJoinPdf(indexF0Pdf, f0mean, f0variance);
 
         double f0Distance = DistanceComputer.getNormalizedEuclideanDistance(f0diff, f0mean, f0variance);
-        
+
         double distance = f0Weight * f0Distance + (1-f0Weight) * mcepDistance;
         
         cost += distance;
