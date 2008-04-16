@@ -497,6 +497,7 @@ public class Voice
                     MaryModule mm = Mary.getModule(Class.forName(className));
                     if (mm == null) {
                         // need to create our own:
+                        logger.warn("Module "+className+" is not in the standard list of modules -- will start our own, but will not be able to shut it down at the end.");
                         mm = (MaryModule) Class.forName(className).newInstance();
                         mm.startup();
                     }
