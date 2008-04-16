@@ -139,6 +139,8 @@ public class InternalModule implements MaryModule
 
     public void shutdown()
     {
+        logger = Logger.getLogger(name());
+        logger.info("Module shut down.");
         state = MODULE_OFFLINE;
     }
 
