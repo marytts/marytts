@@ -429,7 +429,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
        
         
 	        int i=0,j=0;
-	        while (i<numLabelUnits && j<numFeatureUnits){
+	        while (i<numLabelUnits && j<numFeatureUnits) {
 	            //System.out.println("featureUnit : "+featureUnit
 	            //      +" labelUnit : "+labelUnit);
 	            labelUnitData = getLabelUnitData((String)labelUnits.get(i));
@@ -438,7 +438,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
 	            
 	            if (!featureUnit.equals(labelUnit)) {
                 
-	                if (featureUnit.equals("_")){
+	                if (featureUnit.equals("_")) {
 	                    //add pause in labels
 	                    System.out.println(" Adding pause unit in labels before unit "+i);
 	                    String pauseUnit;
@@ -456,121 +456,109 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
 	                    j++;
 	                    numLabelUnits =labelUnits.size();
 	                    continue;
-	                } else {
-	                    if (featureUnit.equals("__L")){
-	                        //add two pause units in labels
-	                        System.out.println(" Adding pause units in labels before unit "
-                                +i);
-	                        String pauseUnit;
-	                        if (i-1>=0){
-	                            ArrayList previousUnitData = 
-	                                getLabelUnitData((String)labelUnits.get(i-1));
-	                            pauseUnit = (String)previousUnitData.get(0)+" "
-	                            +(String) labelUnitData.get(1)+" __L\n";
-	                            labelUnits.add(i,pauseUnit);
-	                            i++;
-	                            pauseUnit = (String)previousUnitData.get(0)+" "
-	                            +(String) labelUnitData.get(1)+" __R\n";
-	                            labelUnits.add(i,pauseUnit);
-	                        } else {
-	                            //this is the first label-unit
-	                            pauseUnit = "0.00000 "
-	                                +(String) labelUnitData.get(1)+" __L\n";
-	                            labelUnits.add(i,pauseUnit);
-	                            i++;
-	                            pauseUnit = "0.00000 "
-	                                +(String) labelUnitData.get(1)+" __R\n";
-	                            labelUnits.add(i,pauseUnit);
-	                        }
-	                        i++;
-	                        j+=2;
-	                        numLabelUnits =labelUnits.size();
-	                        continue;
-	                    } else {
-	                        if (labelUnit.equals("_")){
-	    	                    //remove pause in labels
-	    	                    System.out.println(" Removing pause unit in labels at index "+i);                        		
-	    	                    labelUnits.remove(i);
-	    	                    numLabelUnits=labelUnits.size();
-	    	                    continue;
-	    	                } else {
-	    	                    if (labelUnit.equals("__L")){
-	    	                        //remove two pause units in labels
-	    	                        System.out.println(" Removing pause units in labels at index "
-	                                    +i);	    	                        
-	    	                        if (i-1>=0){
-	    	                            //lengthen the unit before the pause
-	    	                            ArrayList previousUnitData = 
-	    	                                getLabelUnitData((String)labelUnits.get(i-1));
-	    	                            labelUnits.set(i-1,(String)labelUnitData.get(0)
-	    	                                    +" "+(String)previousUnitData.get(1)
-	    	                                    +" "+(String)previousUnitData.get(2)+"\n");
-	    	                        } 
-	    	                        //remove the pauses
-	    	                        labelUnits.remove(i);
-	    	                        labelUnits.remove(i);
-		    	                    numLabelUnits=labelUnits.size();
-	    	                        continue;
-	    	                    } else {
-	    	                        //truely not matching
-	    	                        if (returnString == null){
-	    	                            //only remember the the first mismatch
-	    	                            int unitIndex = i-1;
-	    	                            returnString = " Non-matching units found: feature file '"
-	    	                                +featureUnit+"' vs. label file '"+labelUnit
-	    	                                +"' (Unit "+unitIndex+")";
-	    	                        }
-	    	                    }
-	    	                }
-	                    }   
-                    
-	                }
+                    } else  if (featureUnit.equals("__L")) {
+                        // add two pause units in labels
+                        System.out.println(" Adding pause units in labels before unit "+i);
+                        String pauseUnit;
+                        if (i-1>=0){
+                            ArrayList previousUnitData = getLabelUnitData((String)labelUnits.get(i-1));
+                            pauseUnit = (String)previousUnitData.get(0)+" "
+                                +(String) labelUnitData.get(1)+" __L\n";
+                            labelUnits.add(i,pauseUnit);
+                            i++;
+                            pauseUnit = (String)previousUnitData.get(0)+" "
+                                +(String) labelUnitData.get(1)+" __R\n";
+                            labelUnits.add(i,pauseUnit);
+                        } else {
+                            // this is the first label-unit
+                            pauseUnit = "0.00000 " + (String) labelUnitData.get(1)+" __L\n";
+                            labelUnits.add(i,pauseUnit);
+                            i++;
+                            pauseUnit = "0.00000 " +(String) labelUnitData.get(1)+" __R\n";
+                            labelUnits.add(i,pauseUnit);
+                        }
+                        i++;
+                        j+=2;
+                        numLabelUnits =labelUnits.size();
+                        continue;
+                    } else if (labelUnit.equals("_")) {
+                        //remove pause in labels
+                        System.out.println(" Removing pause unit in labels at index "+i);                               
+                        labelUnits.remove(i);
+                        numLabelUnits=labelUnits.size();
+                        continue;
+                    } else if (labelUnit.equals("__L")){
+                        //remove two pause units in labels
+                        System.out.println(" Removing pause units in labels at index "+i);                                    
+                        if (i-1>=0) {
+                            //lengthen the unit before the pause
+                            ArrayList previousUnitData = 
+                                getLabelUnitData((String)labelUnits.get(i-1));
+                            labelUnits.set(i-1,(String)labelUnitData.get(0)
+                                    +" "+(String)previousUnitData.get(1)
+                                    +" "+(String)previousUnitData.get(2)+"\n");
+                        }
+                        //remove the pauses
+                        labelUnits.remove(i);
+                        labelUnits.remove(i);
+                        numLabelUnits=labelUnits.size();
+                        continue;
+                    } else {
+                        //truely not matching
+                        if (returnString == null){
+                            //only remember the first mismatch
+                            int unitIndex = i-1;
+                            returnString = " Non-matching units found: feature file '"
+                                +featureUnit+"' vs. label file '"+labelUnit
+                                +"' (Unit "+unitIndex+")";
+                        }
+                    }
 	            }
 	            //increase both counters if you did not delete a pause
 	            i++;
 	            j++;            
 	        }
-	        if (numLabelUnits<numFeatureUnits){
+	        if (numLabelUnits<numFeatureUnits) {
 	            //check if the final pause is missing in the label file
 	            featureUnit = getFeatureUnit((String)featureUnits.get(numFeatureUnits-1));
 	            labelUnitData = getLabelUnitData((String)labelUnits.get(numLabelUnits-1));
 	            labelUnit = (String) labelUnitData.get(2);
 	            //add a pause at the end of label file
-	            if (featureUnit.equals("_")
-	                    && numLabelUnits+1 == numFeatureUnits){
+	            if (featureUnit.equals("_") && numLabelUnits+1 == numFeatureUnits) {
 	                String lastFeatureUnit = 
 	                    getFeatureUnit((String)featureUnits.get(numFeatureUnits-2));
-	                if (lastFeatureUnit.equals(labelUnit)){
+	                if (lastFeatureUnit.equals(labelUnit)) {
 	                    //add pause at the end
 	                    System.out.println(" Adding pause unit in labels after last unit");
 	                    String pauseUnit = (String)labelUnitData.get(0)+" "
 	                    +numLabelUnits+" _\n";	                    
 	                    labelUnits.add(pauseUnit);
-	                    
 	                    numLabelUnits =labelUnits.size();
 	                }
-	            } else {
-	                if (featureUnit.equals("__R")
-	                        && numLabelUnits+2 == numFeatureUnits){
-	                    String lastFeatureUnit = 
-	                        getFeatureUnit((String)featureUnits.get(numFeatureUnits-3));
-	                    if (lastFeatureUnit.equals(labelUnit)){
-	                        //add two pause units at the end of label file
-	                        System.out.println(" Adding pause units in labels after last unit");
-	                        int unitIndex = numLabelUnits-1;
-	                        String pauseUnit = (String)labelUnitData.get(0)+" "
+	            } else if (featureUnit.equals("__R") && numLabelUnits+2 == numFeatureUnits) {
+	                String lastFeatureUnit = 
+	                    getFeatureUnit((String)featureUnits.get(numFeatureUnits-3));
+	                if (lastFeatureUnit.equals(labelUnit)) {
+	                    //add two pause units at the end of label file
+	                    System.out.println(" Adding pause units in labels after last unit");
+	                    int unitIndex = numLabelUnits-1;
+	                    String pauseUnit = (String)labelUnitData.get(0)+" "
 	                        +unitIndex+" __L\n";	                        
-	                        labelUnits.add(pauseUnit);
+	                    labelUnits.add(pauseUnit);
 	                       
-	                        pauseUnit = (String)labelUnitData.get(0)+" "
+	                    pauseUnit = (String)labelUnitData.get(0)+" "
 	                        +numLabelUnits+" __R\n";
-	                        labelUnits.add(pauseUnit);
+	                    labelUnits.add(pauseUnit);
 	                        
-	                        numLabelUnits =labelUnits.size();
-	                    }
-	                } 
-	            }
-	            
+	                    numLabelUnits =labelUnits.size();
+	                }
+	            } else { // feature file is truly longer than label file
+                    if (returnString == null) {
+                        returnString = " Feature file is longer than label file: "
+                            +" unit "+numLabelUnits
+                            +" and greater do not exist in label file";  
+                    }
+                }
 	        }
 	        //return an error if label file is longer than feature file
 	        if (returnString == null && numLabelUnits > numFeatureUnits){
