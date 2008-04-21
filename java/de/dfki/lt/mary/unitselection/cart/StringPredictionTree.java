@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
-import com.sun.tools.javac.code.Attribute.Array;
+//import com.sun.tools.javac.code.Attribute.Array;
 
 import de.dfki.lt.mary.unitselection.Target;
 import de.dfki.lt.mary.unitselection.cart.LeafNode.IntAndFloatArrayLeafNode;
