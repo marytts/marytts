@@ -27,7 +27,7 @@
  * THIS SOFTWARE.
  */
 
-package de.dfki.lt.signalproc.util;
+package de.dfki.lt.signalproc.util.distance;
 
 /**
  * @author oytun.turk

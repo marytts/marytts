@@ -2605,8 +2605,16 @@ public class MathUtils {
         for (i=0; i<len; i++)
             total += x[i];
 
-        for (i=0; i<len; i++)
-            y[i] = sumUp*(x[i]/total);
+        if (total>0.0)
+        {
+            for (i=0; i<len; i++)
+                y[i] = sumUp*(x[i]/total);
+        }
+        else
+        {
+            for (i=0; i<len; i++)
+                y[i] = 1.0/len;
+        }
 
         return y;
     }
@@ -3053,6 +3061,26 @@ public class MathUtils {
             return x;
 
         return x + Math.log(1.0 + Math.exp(negDiff));
+    }
+    
+    //Returns the index of largest element in x which is smaller than val
+    //x should be sorted in increasing order to get a meaningful result
+    public static int getLargestIndexSmallerThan(double[] x, double val)
+    {
+        int index = -1;
+        
+        if (x!=null)
+        {
+            for (int i=0; i<x.length; i++)
+            {
+                if (x[i]<val)
+                    index=i;
+                else
+                    break;
+            }
+        }
+        
+        return index;
     }
 
     public static void main(String[] args)
