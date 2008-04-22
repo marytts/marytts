@@ -35,6 +35,15 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
         initialise(pitchMarksIn, wsFixedIn, ssFixedIn, numfrm, numfrmFixed, numPeriodsIn, isFixedRate);
     }
     
+    //To do: Handle all isPscaleFromFestivalUttFile, isTscaleFromFestivalUttFile, isEscaleFromTargetWavFile,
+    //       requests separately. Currently, there is no isEscaleFromTargetWavFile support
+    //       and no support for using isPscaleFromFestivalUttFile but not isTscaleFromFestivalUttFile
+    //       and vice versa.
+    //       This constructor should also be combined with the above constructor
+    //       which takes user specified scaling factors.
+    //       Therefore, in the final version the user can request all variations,
+    //       i.e. pscale as in the utt file with some additional scaling or shifting, 
+    //       escale using only scale values provided by the user, etc
     public VoiceModificationParametersPreprocessor(String targetFestivalUttFile, 
                                                    String sourcePitchFile,
                                                    String sourceLabelFile, 
