@@ -27,20 +27,33 @@
  * THIS SOFTWARE.
  */
 
-package de.dfki.lt.signalproc.util;
-
-import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationItem;
-import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationSet;
-import de.dfki.lt.mary.util.StringUtil;
-import de.dfki.lt.signalproc.analysis.Lsfs;
+package de.dfki.lt.signalproc.util.distance;
 
 /**
  * @author oytun.turk
  *
  */
-public class BaselineDistortionComputer {
-    public BaselineDistortionComputer()
+public class KullbackLeiblerLPSpectralEnvelopeDistanceComputer extends BaselineLPSpectralEnvelopeDistortionComputer {
+    public KullbackLeiblerLPSpectralEnvelopeDistanceComputer()
     {
+        super();
+    }
+    
+    public double frameDistance(double[] frm1, double[] frm2, int fftSize, int lpOrder)
+    {
+        super.frameDistance(frm1, frm2, fftSize, lpOrder);
         
+        //double dist = SpectralDistanceMeasures.kullbackLeiblerSymmetricSpectralDist(frm1, frm2, fftSize, lpOrder);
+        double dist = SpectralDistanceMeasures.kullbackLeiblerSpectralDist(frm1, frm2, fftSize, lpOrder);
+        
+        return dist;
+    }
+    
+    //Put source and target wav and lab files into two folders and call this function
+    public static void main(String[] args)
+    {
+        KullbackLeiblerLPSpectralEnvelopeDistanceComputer sdc = new KullbackLeiblerLPSpectralEnvelopeDistanceComputer();
+        
+        sdc.mainBase("kullbackLeiblerLPSpectralEnvelope.txt");
     }
 }

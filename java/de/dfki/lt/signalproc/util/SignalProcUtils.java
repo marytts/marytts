@@ -893,7 +893,7 @@ public class SignalProcUtils {
         int w;
         
         for (w=0; w<Xabs.length; w++)
-            Xabs[w] = Math.log(Xabs[w]);
+            Xabs[w] = Math.log(Xabs[w]+1e-50);
         
         Complex Y = FFTMixedRadix.fftReal(Xabs, Xabs.length);
         
@@ -1168,6 +1168,11 @@ public class SignalProcUtils {
     public static float frameIndex2Time(int zeroBasedFrameIndex, float windowSizeInSeconds, float skipSizeInSeconds)
     {
         return Math.max(0.0f, 0.5f*windowSizeInSeconds+zeroBasedFrameIndex*skipSizeInSeconds);
+    }
+    
+    public static double frameIndex2Time(int zeroBasedFrameIndex, double windowSizeInSeconds, double skipSizeInSeconds)
+    {
+        return Math.max(0.0, 0.5*windowSizeInSeconds+zeroBasedFrameIndex*skipSizeInSeconds);
     }
     
     public static int time2frameIndex(float time, float windowSizeInSeconds, float skipSizeInSeconds)
