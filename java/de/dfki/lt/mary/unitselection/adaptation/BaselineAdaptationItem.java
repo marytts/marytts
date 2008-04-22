@@ -44,6 +44,34 @@ public class BaselineAdaptationItem {
         
     }
     
+    public BaselineAdaptationItem(BaselineAdaptationItem existing)
+    {
+        sinesFile = existing.sinesFile;
+        noiseFile = existing.noiseFile;
+        transientsFile = existing.transientsFile;
+        residualFile = existing.residualFile;
+        
+        labelFile = existing.labelFile;
+        f0File = existing.f0File;
+        pitchMarkFile = existing.pitchMarkFile;
+        energyFile = existing.energyFile;
+        textFile = existing.textFile;
+        mfccFile = existing.mfccFile;
+        lsfFile = existing.lsfFile;
+        lpcFile = existing.lpcFile;
+        lpResidualFile = existing.lpResidualFile;
+        cepsFile = existing.cepsFile;
+        eggFile = existing.eggFile;
+        
+        targetFestivalUttFile = existing.targetFestivalUttFile;
+        
+        targetLabelFile = existing.targetLabelFile;
+        targetEnergyFile = existing.targetEnergyFile;
+        targetWavFile = existing.targetWavFile;
+        
+        audioFile = existing.audioFile;
+    }
+    
     public void setFromWavFilename(String referenceFilename)
     {
         audioFile = referenceFilename;

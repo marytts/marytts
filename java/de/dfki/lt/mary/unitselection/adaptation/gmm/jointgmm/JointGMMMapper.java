@@ -29,6 +29,8 @@
 
 package de.dfki.lt.mary.unitselection.adaptation.gmm.jointgmm;
 
+import java.util.Arrays;
+
 import de.dfki.lt.mary.unitselection.adaptation.gmm.GMMMapper;
 import de.dfki.lt.mary.unitselection.adaptation.gmm.GMMMatch;
 import de.dfki.lt.signalproc.util.MathUtils;
@@ -44,7 +46,43 @@ public class JointGMMMapper extends GMMMapper {
         
     }
     
-    public GMMMatch transform(double[] inputLsfs, JointGMM jointGMM, boolean isVocalTractMatchUsingTargetModel)
+    //Weights should sum up to unity
+    public GMMMatch transform(double[] inputLsfs, JointGMMSet jointGMMSet, double[] weights, boolean isVocalTractMatchUsingTargetModel)
+    {
+        JointGMMMatch jointGMMMatch = new JointGMMMatch(inputLsfs.length);
+        JointGMMMatch tmpGMMMatch = new JointGMMMatch(inputLsfs.length);
+        
+        int i, n;
+        Arrays.fill(jointGMMMatch.mappedSourceLsfs, 0.0);
+        Arrays.fill(jointGMMMatch.outputLsfs, 0.0);
+        
+        for (i=0; i<jointGMMSet.gmms.length; i++)
+        {
+            if (jointGMMSet.gmms[i]==null)
+                weights[i] = 0.0;
+        }
+        
+        weights = MathUtils.normalizeToSumUpTo(weights, 1.0);
+        
+        for (i=0; i<jointGMMSet.gmms.length; i++)
+        {
+            if (jointGMMSet.gmms[i]!=null)
+            {
+                tmpGMMMatch = transform(inputLsfs, jointGMMSet.gmms[i], isVocalTractMatchUsingTargetModel);
+            
+                for (n=0; n<inputLsfs.length; n++)
+                {
+                    jointGMMMatch.mappedSourceLsfs[n] += weights[i]*tmpGMMMatch.mappedSourceLsfs[n];
+                    jointGMMMatch.outputLsfs[n] += weights[i]*tmpGMMMatch.outputLsfs[n];
+                }
+            }
+            
+        }
+        
+        return jointGMMMatch;
+    }
+    
+    public JointGMMMatch transform(double[] inputLsfs, JointGMM jointGMM, boolean isVocalTractMatchUsingTargetModel)
     {
         JointGMMMatch jointGMMMatch = new JointGMMMatch(inputLsfs.length);
         
@@ -62,10 +100,11 @@ public class JointGMMMapper extends GMMMapper {
         
         if (jointGMM.covarianceTerms.isDiagonalCovariance) //Diagonal covariance, covariance terms are just vectors
         {
+            Arrays.fill(jointGMMMatch.mappedSourceLsfs, 0.0);
+            Arrays.fill(jointGMMMatch.outputLsfs, 0.0);
+            
             for (n=0; n<inputLsfs.length; n++)
-            {
-                jointGMMMatch.outputLsfs[n] = 0.0;
-                
+            {   
                 for (i=0; i<jointGMM.source.totalComponents; i++)
                 {
                     jointGMMMatch.mappedSourceLsfs[n] += h[i]*jointGMM.source.components[i].meanVector[n];
@@ -75,8 +114,8 @@ public class JointGMMMapper extends GMMMapper {
         }
         else //Full covariance
         {
-            for (n=0; n<inputLsfs.length; n++)
-                jointGMMMatch.outputLsfs[n] = 0.0;
+            Arrays.fill(jointGMMMatch.mappedSourceLsfs, 0.0);
+            Arrays.fill(jointGMMMatch.outputLsfs, 0.0);
             
             double [] tmpMappedSourceLsfs = new double[inputLsfs.length];
             double [] tmpOutputLsfs = new double[inputLsfs.length];

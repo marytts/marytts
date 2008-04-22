@@ -30,7 +30,7 @@
 package de.dfki.lt.mary.unitselection.adaptation.outlier;
 
 import de.dfki.lt.machinelearning.KMeansClusteringTrainer;
-import de.dfki.lt.signalproc.util.DistanceComputer;
+import de.dfki.lt.signalproc.util.distance.DistanceComputer;
 
 /**
  * @author oytun.turk

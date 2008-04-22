@@ -49,6 +49,7 @@ import de.dfki.lt.mary.unitselection.adaptation.gmm.GMMMatch;
 import de.dfki.lt.mary.unitselection.adaptation.gmm.jointgmm.JointGMM;
 import de.dfki.lt.mary.unitselection.adaptation.gmm.jointgmm.JointGMMMapper;
 import de.dfki.lt.mary.unitselection.adaptation.gmm.jointgmm.JointGMMMatch;
+import de.dfki.lt.mary.unitselection.adaptation.gmm.jointgmm.JointGMMSet;
 import de.dfki.lt.mary.unitselection.adaptation.gmm.jointgmm.JointGMMTransformerParams;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchMapping;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchStatistics;
@@ -789,7 +790,16 @@ public class FdpsolaAdapter {
                     }
                     else if (mapper instanceof JointGMMMapper)
                     {
-                        gmmMatch = ((JointGMMMapper)mapper).transform(inputLsfs, (JointGMM)data, baseParams.isVocalTractMatchUsingTargetModel);
+                        //Different weighting strategies can be tested here, i.e. doing a fuzzy phoneme classification
+                        double[] gmmWeights = new double[((JointGMMSet)data).gmms.length];
+                        Arrays.fill(gmmWeights, 0.0);
+                        int currentGmmIndex = ((JointGMMSet)data).cgParams.getClassIndex(labels.items[currentLabelIndex].phn);
+                        if (currentGmmIndex>0)
+                            gmmWeights[currentGmmIndex] = 1.0;
+
+                        gmmWeights = MathUtils.normalizeToSumUpTo(gmmWeights, 1.0);
+                        
+                        gmmMatch = ((JointGMMMapper)mapper).transform(inputLsfs, (JointGMMSet)data, gmmWeights, baseParams.isVocalTractMatchUsingTargetModel);
                     }
                 }
 
@@ -821,10 +831,20 @@ public class FdpsolaAdapter {
                 //Use a weighted codebook estimate of the input vocal tract spectrum. This will result in a smoother transformation filter
                 if (baseParams.isSourceVocalTractSpectrumFromModel && baseParams.isVocalTractTransformation)
                 {
-                    if (!baseParams.isResynthesizeVocalTractFromSourceModel)
-                        interpolatedInputLpcs = LineSpectralFrequencies.lsfInHz2lpc(codebookMatch.entry.sourceItem.lsfs, fs);
-                    else
-                        interpolatedInputLpcs = LineSpectralFrequencies.lsfInHz2lpc(codebookMatch.entry.targetItem.lsfs, fs);
+                    if (mapper instanceof WeightedCodebookMapper)
+                    {
+                        if (!baseParams.isResynthesizeVocalTractFromSourceModel)
+                            interpolatedInputLpcs = LineSpectralFrequencies.lsfInHz2lpc(codebookMatch.entry.sourceItem.lsfs, fs);
+                        else
+                            interpolatedInputLpcs = LineSpectralFrequencies.lsfInHz2lpc(codebookMatch.entry.targetItem.lsfs, fs);
+                    }
+                    else if (mapper instanceof JointGMMMapper)
+                    {
+                        if (!baseParams.isResynthesizeVocalTractFromSourceModel)
+                            interpolatedInputLpcs = LineSpectralFrequencies.lsfInHz2lpc(((JointGMMMatch)gmmMatch).mappedSourceLsfs, fs);
+                        else
+                            interpolatedInputLpcs = LineSpectralFrequencies.lsfInHz2lpc(((JointGMMMatch)gmmMatch).outputLsfs, fs);  
+                    }
 
                     sourceVocalTractSpectrumEstimate = LPCAnalyser.calcSpecFromOneMinusA(interpolatedInputLpcs, 1.0f, newFftSize, outputExpTerm);
                 }
