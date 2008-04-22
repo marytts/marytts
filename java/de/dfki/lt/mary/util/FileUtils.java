@@ -1,15 +1,19 @@
 package de.dfki.lt.mary.util;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
 
@@ -66,6 +70,29 @@ public class FileUtils
         }
         return sw.toString();
     }
+    
+    public static void writeToTextFile(double[] array, String textFile)
+    {
+        FileWriter outFile = null;
+        try {
+            outFile = new FileWriter(textFile);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        if (outFile!=null)
+        {
+            PrintWriter out = new PrintWriter(outFile);
+
+            for (int i=0; i<array.length; i++)
+                out.println(String.valueOf(array[i]));
+            out.close();
+        }
+        else
+            System.out.println("Error! Cannot create file: " + textFile);
+    }
+    
 
     public static void writeToBinaryFile(int[] pitchMarks, String filename) throws IOException 
     {
