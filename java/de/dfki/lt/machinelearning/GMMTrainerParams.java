@@ -29,6 +29,10 @@
 
 package de.dfki.lt.machinelearning;
 
+import java.io.IOException;
+
+import de.dfki.lt.signalproc.util.MaryRandomAccessFile;
+
 /**
  * @author oytun.turk
  *
@@ -71,5 +75,109 @@ public class GMMTrainerParams {
         tinyLogLikelihoodChange = existing.tinyLogLikelihoodChange;
         minimumCovarianceAllowed = existing.minimumCovarianceAllowed;
     }
+    
+    public GMMTrainerParams(MaryRandomAccessFile stream)
+    {
+        read(stream);
+    }
+    
+    public void write(MaryRandomAccessFile stream)
+    {
+        if (stream!=null)
+        {
+            try {
+                stream.writeInt(totalComponents);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            try {
+                stream.writeBoolean(isDiagonalCovariance);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } 
+            try {
+                stream.writeInt(minimumIterations);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            try {
+                stream.writeInt(maximumIterations);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            try {
+                stream.writeBoolean(isUpdateCovariances);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
 
+            try {
+                stream.writeDouble(tinyLogLikelihoodChange);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            try {
+                 stream.writeDouble(minimumCovarianceAllowed);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    public void read(MaryRandomAccessFile stream)
+    {
+        if (stream!=null)
+        {
+            try {
+                totalComponents = stream.readInt();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            try {
+                isDiagonalCovariance = stream.readBoolean();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } 
+            try {
+                minimumIterations = stream.readInt();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            try {
+                maximumIterations = stream.readInt();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            try {
+                isUpdateCovariances = stream.readBoolean();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            try {
+                tinyLogLikelihoodChange = stream.readDouble();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            try {
+                minimumCovarianceAllowed = stream.readDouble();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
 }

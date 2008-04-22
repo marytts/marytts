@@ -31,8 +31,8 @@ package de.dfki.lt.machinelearning;
 
 import java.util.Arrays;
 
-import de.dfki.lt.signalproc.util.DistanceComputer;
 import de.dfki.lt.signalproc.util.MathUtils;
+import de.dfki.lt.signalproc.util.distance.DistanceComputer;
 
 /**
  * @author oytun.turk
