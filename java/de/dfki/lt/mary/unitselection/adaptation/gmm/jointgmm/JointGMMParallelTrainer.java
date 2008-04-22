@@ -30,12 +30,26 @@
 package de.dfki.lt.mary.unitselection.adaptation.gmm.jointgmm;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Vector;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
 
 import de.dfki.lt.machinelearning.ClusteredDataGenerator;
+import de.dfki.lt.machinelearning.ContextualGMMParams;
 import de.dfki.lt.machinelearning.GMM;
 import de.dfki.lt.machinelearning.GMMTrainer;
+import de.dfki.lt.machinelearning.GMMTrainerParams;
+import de.dfki.lt.mary.MaryDataType;
+import de.dfki.lt.mary.MaryProperties;
+import de.dfki.lt.mary.NoSuchPropertyException;
+import de.dfki.lt.mary.client.MaryClient;
+import de.dfki.lt.mary.modules.phonemiser.PhonemeSet;
 import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebook;
 import de.dfki.lt.mary.unitselection.adaptation.BaselineFeatureExtractor;
 import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookFile;
@@ -48,8 +62,8 @@ import de.dfki.lt.mary.unitselection.adaptation.outlier.TotalStandardDeviations;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchMappingFile;
 import de.dfki.lt.mary.util.FileUtils;
 import de.dfki.lt.mary.util.StringUtil;
-import de.dfki.lt.signalproc.util.DistanceComputer;
 import de.dfki.lt.signalproc.util.MathUtils;
+import de.dfki.lt.signalproc.util.distance.DistanceComputer;
 import de.dfki.lt.signalproc.window.Window;
 
 /**
@@ -63,9 +77,10 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
     public JointGMMParallelTrainer(BaselinePreprocessor pp,
                                    BaselineFeatureExtractor fe,
                                    WeightedCodebookTrainerParams pa,
-                                   JointGMMTrainerParams gp) 
+                                   JointGMMTrainerParams gp,
+                                   ContextualGMMParams cg) 
     {
-        super(pp, fe, pa, gp);
+        super(pp, fe, pa, gp, cg);
         
         wcpTrainer = new WeightedCodebookParallelTrainer(pp, fe, pa);
         jgParams = new JointGMMTrainerParams(gp);
@@ -78,17 +93,20 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
     
     public void train()
     {
-        //Parallel codebook training
-        try {
-            wcpTrainer.run();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (UnsupportedAudioFileException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        if (!FileUtils.exists(codebookTrainerParams.codebookFile))
+        {
+            //Parallel codebook training
+            try {
+                wcpTrainer.run();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (UnsupportedAudioFileException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            //
         }
-        //
         
         //Read parallel codebook
         WeightedCodebookFile codebookFile = new WeightedCodebookFile(wcpTrainer.wcParams.codebookFile, WeightedCodebookFile.OPEN_FOR_READ);
@@ -102,47 +120,121 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         }
         //
         
-        //Read codebook entries in suitable format for GMM training and train joint GMMs
-        GMM gmm = null;
-        if (codebook!=null)
+        //Get codebook entries in suitable format for GMM training and train joint GMMs
+        if (cgParams==null || cgParams.phonemeClasses==null) //No context
         {
-            double[][] xy = new double[codebook.lsfEntries.length][2*codebook.header.lsfParams.lpOrder];
-            
-            for (int i=0; i<codebook.lsfEntries.length; i++)
+            JointGMMSet gmmSet = null;
+            GMM gmm = null;
+            if (codebook!=null)
             {
-                System.arraycopy(codebook.lsfEntries[i].sourceItem.lsfs, 0, xy[i], 0, codebook.header.lsfParams.lpOrder);
-                System.arraycopy(codebook.lsfEntries[i].targetItem.lsfs, 0, xy[i], codebook.header.lsfParams.lpOrder, codebook.header.lsfParams.lpOrder);   
+                double[][] xy = new double[codebook.lsfEntries.length][2*codebook.header.lsfParams.lpOrder];
+
+                for (int i=0; i<codebook.lsfEntries.length; i++)
+                {
+                    System.arraycopy(codebook.lsfEntries[i].sourceItem.lsfs, 0, xy[i], 0, codebook.header.lsfParams.lpOrder);
+                    System.arraycopy(codebook.lsfEntries[i].targetItem.lsfs, 0, xy[i], codebook.header.lsfParams.lpOrder, codebook.header.lsfParams.lpOrder);   
+                }
+
+                GMMTrainer g = new GMMTrainer();
+                gmmSet = new JointGMMSet(1, cgParams);
+                gmm = g.train(xy, jgParams.gmmEMTrainerParams);
+                gmmSet.gmms[0] = new JointGMM(gmm, codebook.header.lsfParams);
+            }
+            
+            //Convert joint GMM into a suitable format for using in transformation and save to a binary output file
+            if (gmmSet!=null)
+                gmmSet.write(jgParams.jointGMMFile);
+        }
+        else //Train contextual GMMs - a separate GMM will be trained for each phoneme class, all GMMs will be written to the same GMM file
+        {
+            double[][] xy = null;
+            int[] totals = new int[cgParams.phonemeClasses.length+1];
+            int[] classIndices = new int[codebook.lsfEntries.length];
+            Arrays.fill(totals, 0);
+            int i, n;
+            JointGMMSet gmmSet = new JointGMMSet(totals.length, cgParams);
+
+            if (codebook!=null)
+            {
+                for (i=0; i<codebook.lsfEntries.length; i++)
+                {
+                    classIndices[i] = cgParams.getClassIndex(codebook.lsfEntries[i].sourceItem.phn);
+                    if (classIndices[i]<0)
+                        classIndices[i] = totals.length-1;
+                       
+                    totals[classIndices[i]]++;
+                }
             }
 
-            GMMTrainer g = new GMMTrainer();
-            gmm = g.train(xy, jgParams.gmmEMTrainerParams);
+            for (n=0; n<totals.length; n++)
+            {
+                GMM gmm = null;
+                int count = 0;
+                if (totals[n]>0)
+                {
+                    xy = new double[totals[n]][2*codebook.header.lsfParams.lpOrder];
+
+                    for (i=0; i<classIndices.length; i++)
+                    {
+                        if (count>=totals[n])
+                            break;
+
+                        if (classIndices[i]==n)
+                        {
+                            System.arraycopy(codebook.lsfEntries[i].sourceItem.lsfs, 0, xy[count], 0, codebook.header.lsfParams.lpOrder);
+                            System.arraycopy(codebook.lsfEntries[i].targetItem.lsfs, 0, xy[count], codebook.header.lsfParams.lpOrder, codebook.header.lsfParams.lpOrder);
+                            count++;
+                        }
+                    }
+
+                    GMMTrainer g = new GMMTrainer();
+                    gmm = g.train(xy, cgParams.classTrainerParams[n]);
+                    if (n<totals.length-1)
+                    {
+                        gmm.info = "";
+                        for (i=0; i<cgParams.phonemeClasses[n].length-1; i++)
+                            gmm.info += cgParams.phonemeClasses[n][i] + " ";
+                        
+                        gmm.info += cgParams.phonemeClasses[n][cgParams.phonemeClasses[n].length-1];
+                    }
+                    else
+                        gmm.info = "other";
+                    
+                    codebook.header.lsfParams.numfrm = totals[n];
+                    gmmSet.gmms[n] = new JointGMM(gmm, codebook.header.lsfParams);
+                }
+            }
+            
+            //Convert joint GMM into a suitable format for using in transformation and save to a binary output file
+            if (gmmSet!=null)
+                gmmSet.write(jgParams.jointGMMFile);
+            //
         }
         //
         
-        //Convert joint GMM into a suitable format for using in transformation and save to a binary output file
-        if (gmm!=null)
-        {
-            JointGMM jointGMM = new JointGMM(gmm, codebook.header.lsfParams);
-            
-            jointGMM.write(jgParams.jointGMMFile);
-            
-            JointGMM jointGMM2 = new JointGMM(jgParams.jointGMMFile); //Check if writing/reading identical
-            
-            System.out.println("Write/read test complete...");
-        }
-        //
+        System.out.println("Joint source-target GMM training completed...");
+    }
+
+    public static void main(String[] args) throws UnsupportedAudioFileException, IOException
+    {   
+        boolean isContextualGMMs = true;
+        int numMixes = 4;
         
-        //Delete temporary codebook file
-        FileUtils.delete(wcpTrainer.wcParams.codebookFile);
-        //
+        mainParametric(numMixes, isContextualGMMs, "neutral", "angry");
+        
+        //mainParametric(numMixes, isContextualGMMs, "neutral", "happy");
+        
+        //mainParametric(numMixes, isContextualGMMs, "neutral", "sad");
     }
     
-    public static void main(String[] args) throws UnsupportedAudioFileException, IOException
+    public static void mainParametric(int numMixes, boolean isContextualGMMs, String sourceTag, String targetTag) throws UnsupportedAudioFileException, IOException
     {
         BaselinePreprocessor pp = new BaselinePreprocessor();
         BaselineFeatureExtractor fe = new BaselineFeatureExtractor();
         WeightedCodebookTrainerParams pa = new WeightedCodebookTrainerParams();
         JointGMMTrainerParams gp = new JointGMMTrainerParams();
+        ContextualGMMParams cg = null;
+        int numTrainingFiles = 200; //2, 20, 200, 350
         
         pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAMES; //Frame-by-frame mapping of features
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAME_GROUPS; pa.codebookHeader.numNeighboursInFrameGroups = 3; //Mapping of frame average features (no label information but fixed amount of neighbouring frames is used)
@@ -150,12 +242,12 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABEL_GROUPS; pa.codebookHeader.numNeighboursInLabelGroups = 1; //Mapping of average features collected across label groups (i.e. vowels, consonants, etc)
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.SPEECH; //Mapping of average features collected across all speech parts (i.e. like spectral equalization)
 
-        pa.codebookHeader.sourceTag = "neutralF"; //Source name tag (i.e. style or speaker identity)
-        pa.codebookHeader.targetTag = "angryF"; //Target name tag (i.e. style or speaker identity)
+        pa.codebookHeader.sourceTag = sourceTag + "F"; //Source name tag (i.e. style or speaker identity)
+        pa.codebookHeader.targetTag = targetTag + "F"; //Target name tag (i.e. style or speaker identity)
         
-        pa.trainingBaseFolder = "d:\\1\\neutral_X_angry_50_new"; //Training base directory
-        pa.sourceTrainingFolder = "d:\\1\\neutral50\\train"; //Source training folder
-        pa.targetTrainingFolder = "d:\\1\\angry50\\train"; //Target training folder
+        pa.trainingBaseFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08_out\\" + sourceTag + "2" + targetTag; //Training base directory
+        pa.sourceTrainingFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08\\" + sourceTag + "\\train_" + String.valueOf(numTrainingFiles); //Source training folder
+        pa.targetTrainingFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08\\" + targetTag + "\\train_" + String.valueOf(numTrainingFiles); //Target training folder
 
         pa.indexMapFileExtension = ".imf"; //Index map file extensions
         
@@ -165,11 +257,31 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         pa.codebookHeader.lsfParams.winsize = 0.020f;
         pa.codebookHeader.lsfParams.windowType = Window.HAMMING;
         
-        String baseFile = StringUtil.checkLastSlash(pa.trainingBaseFolder) + pa.codebookHeader.sourceTag + "_X_" + pa.codebookHeader.targetTag;
-        pa.codebookFile = baseFile + WeightedCodebookFile.DEFAULT_EXTENSION;
-        pa.pitchMappingFile = baseFile + PitchMappingFile.DEFAULT_EXTENSION;
-        gp.jointGMMFile = baseFile + JointGMM.DEFAULT_EXTENSION;
+        //Gaussian trainer params: commenting out results in using default value for each
+        gp.gmmEMTrainerParams.totalComponents = numMixes;
+        gp.gmmEMTrainerParams.isDiagonalCovariance = true; 
+        gp.gmmEMTrainerParams.minimumIterations = 50;
+        gp.gmmEMTrainerParams.maximumIterations = 150;
+        gp.gmmEMTrainerParams.isUpdateCovariances = true;
+        //gp.gmmEMTrainerParams.tinyLogLikelihoodChange = 1e-10;
+        //gp.gmmEMTrainerParams.minimumCovarianceAllowed = 1e-5;
         
+        if (isContextualGMMs)
+        {
+            String phonemeSetFile = "D:\\Mary TTS New\\lib\\modules\\de\\cap\\phoneme-list-de.xml";
+            cg = getContextualGMMParams(phonemeSetFile, gp.gmmEMTrainerParams);
+        }
+        
+        String baseFile = StringUtil.checkLastSlash(pa.trainingBaseFolder) + pa.codebookHeader.sourceTag + "_X_" + pa.codebookHeader.targetTag;
+        //pa.codebookFile = baseFile + "_" + String.valueOf(gp.gmmEMTrainerParams.totalComponents) + WeightedCodebookFile.DEFAULT_EXTENSION;
+        pa.codebookFile = baseFile + "_" + String.valueOf(numTrainingFiles) + WeightedCodebookFile.DEFAULT_EXTENSION;
+        pa.pitchMappingFile = baseFile + "_" + String.valueOf(numTrainingFiles) + PitchMappingFile.DEFAULT_EXTENSION;
+  
+        if (!isContextualGMMs)
+            gp.jointGMMFile = baseFile + "_" + String.valueOf(numTrainingFiles) + "_" + String.valueOf(gp.gmmEMTrainerParams.totalComponents) + JointGMMSet.DEFAULT_EXTENSION;
+        else
+            gp.jointGMMFile = baseFile + "_" + String.valueOf(numTrainingFiles) + "_context_" + String.valueOf(gp.gmmEMTrainerParams.totalComponents) + JointGMMSet.DEFAULT_EXTENSION;
+            
         pa.isForcedAnalysis = false;
         
         pa.codebookHeader.ptcParams.ws = 0.040;
@@ -240,21 +352,38 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         
         pa.kmeansEliminatorParams.totalStandardDeviations = new TotalStandardDeviations(tsd);
         //
-        
-        //Gaussian trainer params: commenting out results in using default value for each
-        gp.gmmEMTrainerParams.totalComponents = 16;
-        gp.gmmEMTrainerParams.isDiagonalCovariance = true; 
-        gp.gmmEMTrainerParams.minimumIterations = 100;
-        gp.gmmEMTrainerParams.maximumIterations = 200;
-        gp.gmmEMTrainerParams.isUpdateCovariances = true;
-        //gp.gmmEMTrainerParams.tinyLogLikelihoodChange = 1e-10;
-        //gp.gmmEMTrainerParams.minimumCovarianceAllowed = 1e-5;
-        
-        
-        JointGMMParallelTrainer t = new JointGMMParallelTrainer(pp, fe, pa, gp);
+
+        JointGMMParallelTrainer t = new JointGMMParallelTrainer(pp, fe, pa, gp, cg);
         
         t.run();
+    }
+    
+    public static ContextualGMMParams getContextualGMMParams(String phonemeSetFile, GMMTrainerParams commonParams)
+    {
+        ContextualGMMParams cg = null;
+        PhonemeSet phonemeSet = null;
         
-        System.out.println("End of joint GMM training test...");
+        try {
+            try {
+                phonemeSet = PhonemeSet.getPhonemeSet(phonemeSetFile);
+            } catch (NoSuchPropertyException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (SAXException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (ParserConfigurationException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        if (phonemeSet!=null)
+            cg = new ContextualGMMParams(phonemeSet, commonParams);
+
+        return cg;
     }
 }

@@ -133,15 +133,11 @@ public class WeightedCodebookParallelTransformer extends WeightedCodebookTransfo
         if (params.outputFolderInfoString!="")
         {
             params.outputFolder = params.outputBaseFolder + params.outputFolderInfoString + 
-                                  "_best" + String.valueOf(params.mapperParams.numBestMatches) + 
-                                  "_steep" + String.valueOf(params.mapperParams.weightingSteepness) +
                                   "_prosody" + String.valueOf(params.prosodyParams.pitchStatisticsType) + "x" + String.valueOf(params.prosodyParams.pitchTransformationMethod);
         }
         else
         {
             params.outputFolder = params.outputBaseFolder + 
-                                  "best" + String.valueOf(params.mapperParams.numBestMatches) +
-                                  "_steep" + String.valueOf(params.mapperParams.weightingSteepness) +
                                   "_prosody" + String.valueOf(params.prosodyParams.pitchStatisticsType) + "x" + String.valueOf(params.prosodyParams.pitchTransformationMethod);
         }
             
@@ -344,24 +340,75 @@ public class WeightedCodebookParallelTransformer extends WeightedCodebookTransfo
     }
 
     public static void main(String[] args) throws IOException, UnsupportedAudioFileException {
+        String emotion = "sad";
+        String method = "F";
+        String inputFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08\\neutral\\test_tts_" + emotion;
+        String outputBaseFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08_out\\neutral2" + emotion + "\\neutral2" + emotion + "Out_codebook" + method + "3";
+        String baseFile = "D:\\Oytun\\DFKI\\voices\\Interspeech08_out\\neutral2"+ emotion + "\\neutral"+ method + "_X_" + emotion + method + "_200";
+        
+        /*
+        //for method: L
+        boolean isSourceVocalTractSpectrumFromModel = true;
+        int numBestMatches = 15; // Number of best matches in codebook
+        boolean isTemporalSmoothing = false;
+        int smoothingNumNeighbours = 1;
+        boolean isContextBasedPreselection = false;
+        int totalContextNeighbours = 2;
+        boolean isPscaleFromFestivalUttFile = true; //false=>mean std dev tfm of pitch, true=>from target CART
+        boolean isTscaleFromFestivalUttFile = true;
+        */
+        
+        //for method: F
+        boolean isSourceVocalTractSpectrumFromModel = true;
+        int numBestMatches = 15; // Number of best matches in codebook
+        boolean isTemporalSmoothing = true;
+        int smoothingNumNeighbours = 1;
+        boolean isContextBasedPreselection = true;
+        int totalContextNeighbours = 5;
+        
+        //Note that these two can be true or false together, not yet implemented separate processing
+        boolean isPscaleFromFestivalUttFile = true; //false=>mean std dev tfm of pitch, true=>from target CART
+        boolean isTscaleFromFestivalUttFile = true;
+        //
+        
+        String outputFolderInfoString = "isSrc" + String.valueOf(isSourceVocalTractSpectrumFromModel ? 1:0) +
+                                        "_nBest" + String.valueOf(numBestMatches) + 
+                                        "_smooth" + String.valueOf(isTemporalSmoothing ? 1:0) + "_" + String.valueOf(smoothingNumNeighbours) +
+                                        "_context" + String.valueOf(isContextBasedPreselection ? 1:0) + "_" + String.valueOf(totalContextNeighbours) +
+                                        "_psUtt" + String.valueOf(isPscaleFromFestivalUttFile ? 1:0)+
+                                        "_tsUtt" + String.valueOf(isTscaleFromFestivalUttFile ? 1:0);
+        
+        mainParametric(inputFolder, outputBaseFolder, baseFile, outputFolderInfoString,
+                       isSourceVocalTractSpectrumFromModel,
+                       numBestMatches,
+                       isTemporalSmoothing, smoothingNumNeighbours, 
+                       isContextBasedPreselection, totalContextNeighbours,
+                       isPscaleFromFestivalUttFile, isTscaleFromFestivalUttFile);
+    }
+    
+    public static void mainParametric(String inputFolder, String outputBaseFolder, String baseFile, String outputFolderInfoString,
+                                      boolean isSourceVocalTractSpectrumFromModel,
+                                      int numBestMatches,
+                                      boolean isTemporalSmoothing, int smoothingNumNeighbours, 
+                                      boolean isContextBasedPreselection, int totalContextNeighbours,
+                                      boolean isPscaleFromFestivalUttFile, boolean isTscaleFromFestivalUttFile) throws IOException, UnsupportedAudioFileException
+    {
         BaselinePreprocessor pp = new BaselinePreprocessor();
         BaselineFeatureExtractor fe = new BaselineFeatureExtractor();
         BaselinePostprocessor po = new BaselinePostprocessor();
         WeightedCodebookTransformerParams pa = new WeightedCodebookTransformerParams();
         
         pa.isDisplayProcessingFrameCount = true;
-        
-        pa.inputFolder = "d:\\1\\neutral50\\test_tts";
-        pa.outputBaseFolder = "d:\\1\\neutral_X_angry_50_new\\neutral2angryOut_codebookL";
-        
-        String baseFile = "d:\\1\\neutral_X_angry_50_new\\neutralL_X_angryL";
+
+        pa.inputFolder = inputFolder;
+        pa.outputBaseFolder = outputBaseFolder;
         pa.codebookFile = baseFile + WeightedCodebookFile.DEFAULT_EXTENSION;
         pa.pitchMappingFile = baseFile + PitchMappingFile.DEFAULT_EXTENSION;
         
-        pa.outputFolderInfoString = "labelsGaussKmeans";
+        pa.outputFolderInfoString = outputFolderInfoString;
         
         //Set codebook mapper parameters
-        pa.mapperParams.numBestMatches = 6; // Number of best matches in codebook
+        pa.mapperParams.numBestMatches = numBestMatches; // Number of best matches in codebook
         pa.mapperParams.weightingSteepness = 1.0; // Steepness of weighting function in range [WeightedCodebookMapperParams.MIN_STEEPNESS, WeightedCodebookMapperParams.MAX_STEEPNESS]
         pa.mapperParams.freqRange = 8000.0; //Frequency range to be considered around center freq when matching LSFs (note that center freq is estimated automatically as the middle of most closest LSFs)
         
@@ -383,7 +430,7 @@ public class WeightedCodebookParallelTransformer extends WeightedCodebookTransfo
         //
         
         pa.isForcedAnalysis = false;
-        pa.isSourceVocalTractSpectrumFromModel = true;
+        pa.isSourceVocalTractSpectrumFromModel = isSourceVocalTractSpectrumFromModel;
         pa.isVocalTractTransformation = true;
         pa.isResynthesizeVocalTractFromSourceModel = false;
         pa.isVocalTractMatchUsingTargetModel= false;
@@ -392,15 +439,15 @@ public class WeightedCodebookParallelTransformer extends WeightedCodebookTransfo
         pa.isSaveVocalTractOnlyVersion = true;
         pa.isFixedRateVocalTractConversion = true;
         
-        pa.isContextBasedPreselection = false;
-        pa.totalContextNeighbours = 2;
+        pa.isContextBasedPreselection = isContextBasedPreselection;
+        pa.totalContextNeighbours = totalContextNeighbours;
         
         //Prosody transformation
         pa.prosodyParams.pitchStatisticsType = PitchStatistics.STATISTICS_IN_HERTZ;
         //pa.prosodyParams.pitchStatisticsType = PitchStatistics.STATISTICS_IN_LOGHERTZ;
         
         pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_MEAN;
-        //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_STDDEV;
+        pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_STDDEV;
         //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_RANGE;
         //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_SLOPE;
         //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_INTERCEPT;
@@ -426,16 +473,16 @@ public class WeightedCodebookParallelTransformer extends WeightedCodebookTransfo
         //
         
         //Smoothing
-        pa.isTemporalSmoothing = true;
-        pa.smoothingNumNeighbours = 1;
+        pa.isTemporalSmoothing = isTemporalSmoothing;
+        pa.smoothingNumNeighbours = smoothingNumNeighbours;
         //pa.smoothingMethod = SmoothingDefinitions.OUTPUT_LSFCONTOUR_SMOOTHING;
         //pa.smoothingMethod = SmoothingDefinitions.OUTPUT_VOCALTRACTSPECTRUM_SMOOTHING;
         pa.smoothingMethod = SmoothingDefinitions.TRANSFORMATION_FILTER_SMOOTHING;
         //
         
         //TTS tests
-        pa.isPscaleFromFestivalUttFile = true;
-        pa.isTscaleFromFestivalUttFile = true;
+        pa.isPscaleFromFestivalUttFile = isPscaleFromFestivalUttFile;
+        pa.isTscaleFromFestivalUttFile = isTscaleFromFestivalUttFile;
         pa.isEscaleFromTargetWavFile = true;
         //
         

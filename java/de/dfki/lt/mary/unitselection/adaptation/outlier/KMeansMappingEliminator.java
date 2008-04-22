@@ -39,8 +39,8 @@ import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebook;
 import de.dfki.lt.mary.unitselection.adaptation.BaselineFeatureExtractor;
 import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookFile;
 import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookFileHeader;
-import de.dfki.lt.signalproc.util.DistanceComputer;
 import de.dfki.lt.signalproc.util.MathUtils;
+import de.dfki.lt.signalproc.util.distance.DistanceComputer;
 
 /**
  * @author oytun.turk

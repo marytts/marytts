@@ -153,7 +153,14 @@ public class BaselineFeatureExtractor {
         //
     }
     
-    public void lsfAnalysis(BaselineAdaptationSet fileSet, LsfFileHeader lsfParams, boolean isForcedAnalysis) throws IOException
+    public static void lsfAnalysis(BaselineAdaptationItem item, LsfFileHeader lsfParams, boolean isForcedAnalysis) throws IOException
+    {
+        BaselineAdaptationSet fileSet = new BaselineAdaptationSet(1);
+        fileSet.items[0] = new BaselineAdaptationItem(item);
+        lsfAnalysis(fileSet, lsfParams, isForcedAnalysis);
+    }
+    
+    public static void lsfAnalysis(BaselineAdaptationSet fileSet, LsfFileHeader lsfParams, boolean isForcedAnalysis) throws IOException
     {
         System.out.println("Starting LSF analysis...");
         
@@ -180,7 +187,7 @@ public class BaselineFeatureExtractor {
         System.out.println("LSF analysis completed...");
     }
    
-    public void f0Analysis(BaselineAdaptationSet fileSet, PitchFileHeader ptcParams, boolean isForcedAnalysis) throws UnsupportedAudioFileException, IOException
+    public static void f0Analysis(BaselineAdaptationSet fileSet, PitchFileHeader ptcParams, boolean isForcedAnalysis) throws UnsupportedAudioFileException, IOException
     {
         System.out.println("Starting f0 analysis...");
         
@@ -207,7 +214,7 @@ public class BaselineFeatureExtractor {
         System.out.println("f0 analysis completed...");
     }
 
-    public void energyAnalysis(BaselineAdaptationSet fileSet, EnergyFileHeader energyParams, boolean isForcedAnalysis) throws UnsupportedAudioFileException, IOException
+    public static void energyAnalysis(BaselineAdaptationSet fileSet, EnergyFileHeader energyParams, boolean isForcedAnalysis) throws UnsupportedAudioFileException, IOException
     {
         System.out.println("Starting energy analysis...");
         

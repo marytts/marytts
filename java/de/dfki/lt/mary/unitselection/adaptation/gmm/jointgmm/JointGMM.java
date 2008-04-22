@@ -40,9 +40,9 @@ import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookMapperP
 import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookMatch;
 import de.dfki.lt.mary.unitselection.adaptation.gmm.GMMMatch;
 import de.dfki.lt.signalproc.analysis.LsfFileHeader;
-import de.dfki.lt.signalproc.util.DistanceComputer;
 import de.dfki.lt.signalproc.util.MaryRandomAccessFile;
 import de.dfki.lt.signalproc.util.MathUtils;
+import de.dfki.lt.signalproc.util.distance.DistanceComputer;
 
 /**
  * @author oytun.turk
@@ -50,14 +50,30 @@ import de.dfki.lt.signalproc.util.MathUtils;
  * This class is the dual of WeightedCodebook class in codebook mapping
  * 
  */
-public class JointGMM extends VocalTractTransformationData {
-   public static final String DEFAULT_EXTENSION = ".jgf";
-    
+public class JointGMM { 
    public GMM source; //Full GMM for source
    public GMM targetMeans; //Means for target
    public GMM covarianceTerms; //Cross-covariance terms required for transformation
                                       // Cov(y,x)_i * inverse(Cov(x,x)_i)
    public LsfFileHeader lsfParams;
+   
+   public JointGMM(JointGMM existing)
+   {
+       if (existing!=null)
+       {
+           source = new GMM(existing.source);
+           targetMeans = new GMM(existing.targetMeans);
+           covarianceTerms = new GMM(existing.covarianceTerms);
+           lsfParams = new LsfFileHeader(existing.lsfParams);
+       }
+       else
+       {
+           source = null;
+           targetMeans = null;
+           covarianceTerms = null;
+           lsfParams = null;
+       }
+   }
    
    public JointGMM(GMM gmm, LsfFileHeader lsfParamsIn)
    {
@@ -92,115 +108,91 @@ public class JointGMM extends VocalTractTransformationData {
        }
    }
    
-   public JointGMM(String jointGMMFile)
+   public JointGMM(MaryRandomAccessFile stream)
    {
-       read(jointGMMFile);
+       read(stream);
    }
    
-   public void write(String jointGMMFile)
+   public void write(MaryRandomAccessFile stream)
    {
-       MaryRandomAccessFile stream = null;
-       try {
-           stream = new MaryRandomAccessFile(jointGMMFile, "rw");
-       } catch (FileNotFoundException e) {
-           // TODO Auto-generated catch block
-           e.printStackTrace();
-       }
-       
-       try {
-           lsfParams.writeLsfHeader(stream);
-       } catch (IOException e1) {
-           // TODO Auto-generated catch block
-           e1.printStackTrace();
-       }
-
-       if (stream!=null)
+       if (stream != null)
        {
            try {
-               source.write(stream);
-           } catch (IOException e) {
+               lsfParams.writeLsfHeader(stream);
+           } catch (IOException e1) {
                // TODO Auto-generated catch block
-               e.printStackTrace();
-           }
-           try {
-               targetMeans.write(stream);
-           } catch (IOException e) {
-               // TODO Auto-generated catch block
-               e.printStackTrace();
-           }
-           try {
-               covarianceTerms.write(stream);
-           } catch (IOException e) {
-               // TODO Auto-generated catch block
-               e.printStackTrace();
+               e1.printStackTrace();
            }
 
-           try {
-               stream.close();
-           } catch (IOException e) {
-               // TODO Auto-generated catch block
-               e.printStackTrace();
+           if (stream!=null)
+           {
+               try {
+                   source.write(stream);
+               } catch (IOException e) {
+                   // TODO Auto-generated catch block
+                   e.printStackTrace();
+               }
+               try {
+                   targetMeans.write(stream);
+               } catch (IOException e) {
+                   // TODO Auto-generated catch block
+                   e.printStackTrace();
+               }
+               try {
+                   covarianceTerms.write(stream);
+               } catch (IOException e) {
+                   // TODO Auto-generated catch block
+                   e.printStackTrace();
+               }
            }
        }
    }
 
-   public void read(String jointGMMFile)
+   public void read( MaryRandomAccessFile stream)
    {
-       MaryRandomAccessFile stream = null;
-       try {
-           stream = new MaryRandomAccessFile(jointGMMFile, "r");
-       } catch (FileNotFoundException e) {
-           // TODO Auto-generated catch block
-           e.printStackTrace();
-       }
-       
-       lsfParams = new LsfFileHeader();
-       try {
-           lsfParams.readLsfHeader(stream);
-       } catch (IOException e1) {
-           // TODO Auto-generated catch block
-           e1.printStackTrace();
-       }
-
        if (stream!=null)
        {
-           if (source==null)
-               source = new GMM();
-           
+           lsfParams = new LsfFileHeader();
            try {
-               source.read(stream);
-           } catch (IOException e) {
+               lsfParams.readLsfHeader(stream);
+           } catch (IOException e1) {
                // TODO Auto-generated catch block
-               e.printStackTrace();
-           }
-           
-           if (targetMeans==null)
-               targetMeans = new GMM();
-           
-           try {
-               targetMeans.read(stream);
-           } catch (IOException e) {
-               // TODO Auto-generated catch block
-               e.printStackTrace();
-           }
-           
-           if (covarianceTerms==null)
-               covarianceTerms = new GMM();
-           
-           try {
-               covarianceTerms.read(stream);
-           } catch (IOException e) {
-               // TODO Auto-generated catch block
-               e.printStackTrace();
+               e1.printStackTrace();
            }
 
-           try {
-               stream.close();
-           } catch (IOException e) {
-               // TODO Auto-generated catch block
-               e.printStackTrace();
+           if (stream!=null)
+           {
+               if (source==null)
+                   source = new GMM();
+
+               try {
+                   source.read(stream);
+               } catch (IOException e) {
+                   // TODO Auto-generated catch block
+                   e.printStackTrace();
+               }
+
+               if (targetMeans==null)
+                   targetMeans = new GMM();
+
+               try {
+                   targetMeans.read(stream);
+               } catch (IOException e) {
+                   // TODO Auto-generated catch block
+                   e.printStackTrace();
+               }
+
+               if (covarianceTerms==null)
+                   covarianceTerms = new GMM();
+
+               try {
+                   covarianceTerms.read(stream);
+               } catch (IOException e) {
+                   // TODO Auto-generated catch block
+                   e.printStackTrace();
+               }
+
            }
        }
    }
-
 }
