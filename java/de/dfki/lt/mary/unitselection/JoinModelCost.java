@@ -61,7 +61,7 @@ import de.dfki.lt.mary.unitselection.voiceimport.MaryHeader;
 import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunc;
 import de.dfki.lt.mary.unitselection.weightingfunctions.WeightFunctionManager;
 import de.dfki.lt.signalproc.display.Histogram;
-import de.dfki.lt.signalproc.util.DistanceComputer;
+import de.dfki.lt.signalproc.util.distance.DistanceComputer;
 
 public class JoinModelCost implements JoinCostFunction
 {

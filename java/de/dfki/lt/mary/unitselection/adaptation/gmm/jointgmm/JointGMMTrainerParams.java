@@ -29,6 +29,7 @@
 
 package de.dfki.lt.mary.unitselection.adaptation.gmm.jointgmm;
 
+import de.dfki.lt.machinelearning.ContextualGMMParams;
 import de.dfki.lt.machinelearning.GMMTrainerParams;
 import de.dfki.lt.mary.unitselection.adaptation.BaselineTrainerParams;
 
@@ -37,16 +38,26 @@ import de.dfki.lt.mary.unitselection.adaptation.BaselineTrainerParams;
  *
  */
 public class JointGMMTrainerParams extends BaselineTrainerParams {
+    public boolean isContextualGMMs;
+    public int contextClassificationType; //Only active when isContextualGMMs=true
+    
     public GMMTrainerParams gmmEMTrainerParams;
     public String jointGMMFile;
-    
+
     public JointGMMTrainerParams()
     {
+        isContextualGMMs = false;
+        contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS;
+        
         gmmEMTrainerParams = new GMMTrainerParams();
+        jointGMMFile = "";
     }
     
     public JointGMMTrainerParams(JointGMMTrainerParams existing)
     {
+        isContextualGMMs = existing.isContextualGMMs;
+        contextClassificationType = existing.contextClassificationType;
+        
         gmmEMTrainerParams = new GMMTrainerParams(existing.gmmEMTrainerParams);
         jointGMMFile = existing.jointGMMFile;
     }

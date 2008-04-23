@@ -529,6 +529,86 @@ public class StringUtil {
         return labelsRet;
     }
     
+    public static int[] getDifferentItemsList(int[] items)
+    {
+        int[] differentItems = null;
+        int[] indices = getDifferentItemsIndices(items);
+        
+        if (indices!=null)
+        {
+            differentItems = new int[indices.length];
+            for (int i=0; i<indices.length; i++)
+                differentItems[i] = items[indices[i]];
+        }
+        
+        return differentItems;
+    }
+    
+    public static int[] getDifferentItemsIndices(int[] items)
+    {
+        String[] strItems = new String[items.length];
+        
+        for (int i=0; i<items.length; i++)
+            strItems[i] = String.valueOf(items[i]);
+        
+        return getDifferentItemsIndices(strItems);
+    }
+    
+    public static String[] getDifferentItemsList(String[] items)
+    {
+        String[] differentItems = null;
+        int[] indices = getDifferentItemsIndices(items);
+        
+        if (indices!=null)
+        {
+            differentItems = new String[indices.length];
+            for (int i=0; i<indices.length; i++)
+                differentItems[i] = items[indices[i]];
+        }
+        
+        return differentItems;
+    }
+    
+    public static int[] getDifferentItemsIndices(String[] items)
+    {
+        int[] differentItemIndices = null;
+
+        if (items!=null)
+        {
+            int[] tmpDifferentItemIndices = new int[items.length];
+            int differentCount = 1;
+            int i, j;
+            tmpDifferentItemIndices[0] = 0;
+            boolean bDifferent;
+            for (i=1; i<items.length; i++)
+            {
+                bDifferent = true;
+                for (j=0; j<i-1; j++)
+                {
+                    if (items[tmpDifferentItemIndices[j]].compareTo(items[tmpDifferentItemIndices[i]])==0)
+                    {
+                        bDifferent=false;
+                        break;
+                    }
+                }
+
+                if (bDifferent)
+                {
+                    tmpDifferentItemIndices[differentCount] = i;
+                    differentCount++;
+
+                    if (differentCount>=items.length)
+                        break;
+                }
+            }
+
+            differentItemIndices = new int[differentCount];
+            System.arraycopy(tmpDifferentItemIndices, 0, differentItemIndices, 0, differentCount);
+        }
+
+        return differentItemIndices;
+    }
+    
     public static void main(String[] args)
     {
         String[][] names1 = readTextFile("D:\\Oytun\\DFKI\\voices\\Interspeech08\\mappings-mini-ea.txt");

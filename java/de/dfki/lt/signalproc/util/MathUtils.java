@@ -35,6 +35,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Vector;
 
+import de.dfki.lt.mary.util.StringUtil;
+
 
 /**
  * @author Marc Schr&ouml;der
@@ -1797,6 +1799,111 @@ public class MathUtils {
         return filledArray(1, len);
     }
 
+    public static int [] find(int[] x, int comparator, int val)
+    {
+        double[] xd = new double[x.length];
+        for (int i=0; i<x.length; i++)
+            xd[i] = (double)x[i];
+        
+        return find(xd, comparator, val);
+    }
+    
+    public static int [] findAnd(int[] x, int comparator1, int val1, int comparator2, int val2)
+    {
+        double[] xd = new double[x.length];
+        for (int i=0; i<x.length; i++)
+            xd[i] = (double)x[i];
+        
+        return findAnd(xd, comparator1, val1, comparator2, val2);
+    }
+    
+    public static int [] findOr(int[] x, int comparator1, int val1, int comparator2, int val2)
+    {
+        double[] xd = new double[x.length];
+        for (int i=0; i<x.length; i++)
+            xd[i] = (double)x[i];
+        
+        return findOr(xd, comparator1, val1, comparator2, val2);
+    }
+    
+    //Returns the indices that satisfy both comparator1, val1 and comparator2, val2
+    public static int [] findAnd(double[] x, int comparator1, double val1, int comparator2, double val2)
+    {
+        int[] indices = null;
+        int[] indices1 = find(x, comparator1, val1);
+        int[] indices2 = find(x, comparator2, val2);
+        
+        if (indices1!=null && indices2!=null)
+        {
+            int total = 0;
+            int i, j;
+            for (i=0; i<indices1.length; i++)
+            {
+                for (j=0; j<indices2.length; j++)
+                {
+                    if (indices1[i]==indices2[j])
+                    {
+                        total++;
+                        break;
+                    }
+                }
+            }
+            
+            if (total>0)
+            {
+                indices = new int[total];
+                int count = 0;
+                for (i=0; i<indices1.length; i++)
+                {
+                    for (j=0; j<indices2.length; j++)
+                    {
+                        if (indices1[i]==indices2[j])
+                        {
+                            indices[count++]=indices1[i];
+                            break;
+                        }
+                    }
+                    
+                    if (count>=total)
+                        break;
+                }
+            }
+        }
+        
+        return indices;
+    }
+    
+    //Returns the indices that satisfy both comparator1, val1 or comparator2, val2
+    public static int [] findOr(double[] x, int comparator1, double val1, int comparator2, double val2)
+    {
+        int[] indices = null;
+        int[] indices1 = find(x, comparator1, val1);
+        int[] indices2 = find(x, comparator2, val2);
+        
+        if (indices1!=null || indices2!=null)
+        {
+            int total = 0;
+            if (indices1!=null)
+                total+=indices1.length;
+            if (indices2!=null)
+                total+=indices2.length;
+            int[] tmpIndices = new int[total];
+            int currentPos = 0;
+            if (indices1!=null)
+            {
+                System.arraycopy(indices1, 0, tmpIndices, 0, indices1.length);
+                currentPos = indices1.length;
+            }
+            if (indices2!=null)
+                System.arraycopy(indices2, 0, tmpIndices, currentPos, indices2.length);
+            
+            indices = StringUtil.getDifferentItemsList(tmpIndices);
+        }
+        
+        return indices;
+    }
+    
+    //Returns the indices satisying the condition specificed by the comparator and val
     public static int [] find(double[] x, int comparator, double val)
     {
         int [] inds = null;

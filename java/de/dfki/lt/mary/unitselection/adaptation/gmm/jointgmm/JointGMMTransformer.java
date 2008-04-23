@@ -369,11 +369,11 @@ public class JointGMMTransformer extends BaselineTransformer {
     {
         String emotion = "angry";
         String method = "F";
-        int numTrainingFiles = 20; //2, 20, 200, 350
-        int numMixes = 1;
+        int numTrainingFiles = 200; //2, 20, 200, 350
+        int numMixes = 16;
         boolean isContextualGMMs = true;
         
-        String inputFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08\\neutral\\test_tts_" + emotion + "2";
+        String inputFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08\\neutral\\test_tts_" + emotion;
         String outputBaseFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08_out\\neutral2" + emotion + "\\neutral2" + emotion + "Out_gmm" + method + "_" + String.valueOf(numTrainingFiles) + "_" + String.valueOf(numMixes);
         String baseFile = "D:\\Oytun\\DFKI\\voices\\Interspeech08_out\\neutral2"+ emotion + "\\neutral" + method + "_X_" + emotion + method + "_" + String.valueOf(numTrainingFiles);
         
