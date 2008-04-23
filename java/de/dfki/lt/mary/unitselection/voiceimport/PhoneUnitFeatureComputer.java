@@ -122,8 +122,7 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
     public void computeFeaturesFor(String basename) throws IOException
     {
         String text;
-        Locale localVoice;
-        localVoice = MaryClient.string2locale(locale);
+        Locale localVoice = MaryClient.string2locale(locale);
         
         // First, test if there is a corresponding .rawmaryxml file in textdir:
         File rawmaryxmlFile = new File(db.getProp(db.MARYXMLDIR)
@@ -139,6 +138,16 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
         
         OutputStream os = new BufferedOutputStream(new FileOutputStream(new File( unitfeatureDir, basename + featsExt )));
         MaryClient maryClient = getMaryClient();
+        
+        if(maryClient.getVoices(localVoice) == null){
+            if(locale.equals("en")){
+               locale  =  "en_US";
+               localVoice = MaryClient.string2locale(locale);
+            }
+            else
+               throw new RuntimeException("Maryserver could not contain voices with '"+locale+"' language");
+        }
+        
         Vector voices = maryClient.getVoices(localVoice);
         MaryClient.Voice defaultVoice = (MaryClient.Voice) voices.firstElement();
         String voiceName = defaultVoice.name();
