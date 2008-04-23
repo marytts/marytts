@@ -83,6 +83,9 @@ public class JointGMM {
            source = new GMM(actualFeatureDimension, gmm.totalComponents, gmm.isDiagonalCovariance);
            targetMeans = new GMM(actualFeatureDimension, gmm.totalComponents, true);
            covarianceTerms = new GMM(actualFeatureDimension, gmm.totalComponents, gmm.isDiagonalCovariance);
+           source.info = gmm.info;
+           targetMeans.info = gmm.info;
+           covarianceTerms.info = gmm.info;
            
            int i, j;
            for (i=0; i<gmm.totalComponents; i++)

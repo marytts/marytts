@@ -218,16 +218,24 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
     public static void main(String[] args) throws UnsupportedAudioFileException, IOException
     {   
         boolean isContextualGMMs = true;
-        int numMixes = 4;
+        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS;
+        //int contextClassificationType = ContextualGMMParams.PHONEME_IDENTITY;
+        //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS;
+        //int contextClassificationType = ContextualGMMParams.FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER;
+        //int contextClassificationType = ContextualGMMParams.VOWEL_CONSONANT_SILENCE;
         
-        mainParametric(numMixes, isContextualGMMs, "neutral", "angry");
+        int numMixes = 16;
         
-        //mainParametric(numMixes, isContextualGMMs, "neutral", "happy");
+        mainParametric(numMixes, isContextualGMMs, contextClassificationType, "neutral", "angry");
         
-        //mainParametric(numMixes, isContextualGMMs, "neutral", "sad");
+        //mainParametric(numMixes, isContextualGMMs, contextClassificationType, "neutral", "happy");
+        
+        //mainParametric(numMixes, isContextualGMMs, contextClassificationType, "neutral", "sad");
     }
     
-    public static void mainParametric(int numMixes, boolean isContextualGMMs, String sourceTag, String targetTag) throws UnsupportedAudioFileException, IOException
+    public static void mainParametric(int numMixes, 
+                                      boolean isContextualGMMs, int contextClassificationType, 
+                                      String sourceTag, String targetTag) throws UnsupportedAudioFileException, IOException
     {
         BaselinePreprocessor pp = new BaselinePreprocessor();
         BaselineFeatureExtractor fe = new BaselineFeatureExtractor();
@@ -258,6 +266,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         pa.codebookHeader.lsfParams.windowType = Window.HAMMING;
         
         //Gaussian trainer params: commenting out results in using default value for each
+        gp.isContextualGMMs = isContextualGMMs;
         gp.gmmEMTrainerParams.totalComponents = numMixes;
         gp.gmmEMTrainerParams.isDiagonalCovariance = true; 
         gp.gmmEMTrainerParams.minimumIterations = 50;
@@ -266,10 +275,10 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         //gp.gmmEMTrainerParams.tinyLogLikelihoodChange = 1e-10;
         //gp.gmmEMTrainerParams.minimumCovarianceAllowed = 1e-5;
         
-        if (isContextualGMMs)
+        if (gp.isContextualGMMs)
         {
             String phonemeSetFile = "D:\\Mary TTS New\\lib\\modules\\de\\cap\\phoneme-list-de.xml";
-            cg = getContextualGMMParams(phonemeSetFile, gp.gmmEMTrainerParams);
+            cg = getContextualGMMParams(phonemeSetFile, gp.gmmEMTrainerParams, contextClassificationType);
         }
         
         String baseFile = StringUtil.checkLastSlash(pa.trainingBaseFolder) + pa.codebookHeader.sourceTag + "_X_" + pa.codebookHeader.targetTag;
@@ -358,7 +367,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         t.run();
     }
     
-    public static ContextualGMMParams getContextualGMMParams(String phonemeSetFile, GMMTrainerParams commonParams)
+    public static ContextualGMMParams getContextualGMMParams(String phonemeSetFile, GMMTrainerParams commonParams, int contextClassificationType)
     {
         ContextualGMMParams cg = null;
         PhonemeSet phonemeSet = null;
@@ -382,7 +391,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         }
 
         if (phonemeSet!=null)
-            cg = new ContextualGMMParams(phonemeSet, commonParams);
+            cg = new ContextualGMMParams(phonemeSet, commonParams, contextClassificationType);
 
         return cg;
     }

@@ -66,7 +66,7 @@ public class JointGMMMapper extends GMMMapper {
         
         for (i=0; i<jointGMMSet.gmms.length; i++)
         {
-            if (jointGMMSet.gmms[i]!=null)
+            if (jointGMMSet.gmms[i]!=null && weights[i]>0.0)
             {
                 tmpGMMMatch = transform(inputLsfs, jointGMMSet.gmms[i], isVocalTractMatchUsingTargetModel);
             
