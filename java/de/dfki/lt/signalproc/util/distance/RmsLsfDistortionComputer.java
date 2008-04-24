@@ -39,7 +39,7 @@ import de.dfki.lt.mary.unitselection.adaptation.BaselineFeatureExtractor;
 import de.dfki.lt.mary.unitselection.adaptation.FileMap;
 import de.dfki.lt.mary.unitselection.adaptation.IndexMap;
 import de.dfki.lt.mary.util.FileUtils;
-import de.dfki.lt.mary.util.StringUtil;
+import de.dfki.lt.mary.util.StringUtils;
 import de.dfki.lt.signalproc.analysis.LineSpectralFrequencies;
 import de.dfki.lt.signalproc.analysis.LsfFileHeader;
 import de.dfki.lt.signalproc.analysis.Lsfs;
@@ -59,8 +59,8 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
     
     public double[] getDistances(String folder1, String folder2, double upperFreqInHz)
     {
-        folder1 = StringUtil.checkLastSlash(folder1);
-        folder2 = StringUtil.checkLastSlash(folder2);
+        folder1 = StringUtils.checkLastSlash(folder1);
+        folder2 = StringUtils.checkLastSlash(folder2);
         
         BaselineAdaptationSet set1 = new BaselineAdaptationSet(folder1, BaselineAdaptationSet.DEFAULT_WAV_EXTENSION);
         BaselineAdaptationSet set2 = new BaselineAdaptationSet(folder2, BaselineAdaptationSet.DEFAULT_WAV_EXTENSION);
@@ -70,8 +70,8 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
     
     public double[] getDistances(String folder1, String folder2, boolean isBark, double upperFreqInHz)
     {
-        folder1 = StringUtil.checkLastSlash(folder1);
-        folder2 = StringUtil.checkLastSlash(folder2);
+        folder1 = StringUtils.checkLastSlash(folder1);
+        folder2 = StringUtils.checkLastSlash(folder2);
         
         BaselineAdaptationSet set1 = new BaselineAdaptationSet(folder1, BaselineAdaptationSet.DEFAULT_WAV_EXTENSION);
         BaselineAdaptationSet set2 = new BaselineAdaptationSet(folder2, BaselineAdaptationSet.DEFAULT_WAV_EXTENSION);
@@ -150,7 +150,7 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
         if (labs1.items!=null && labs2.items!=null)
         {
             //Find the optimum alignment between the source and the target labels since the phoneme sequences may not be identical due to silence periods etc.
-            int[][] labelMap = StringUtil.alignLabels(labs1.items, labs2.items);
+            int[][] labelMap = StringUtils.alignLabels(labs1.items, labs2.items);
             //
 
             if (labelMap!=null)
@@ -183,7 +183,7 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
                     
                     if (labInd1>0 && labInd1<labs1.items.length-1) //Exclude first and last label)
                     {
-                        labInd2 = StringUtil.findInMap(labelMap, labInd1);
+                        labInd2 = StringUtils.findInMap(labelMap, labInd1);
 
                         if (labInd2>=0 && labs1.items[labInd1].phn.compareTo(labs2.items[labInd2].phn)==0)
                         {

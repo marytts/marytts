@@ -10,12 +10,10 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import org.apache.tools.ant.util.StringUtils;
-
 import de.dfki.lt.mary.htsengine.HMMVoice;
 import de.dfki.lt.mary.modules.synthesis.Voice;
 import de.dfki.lt.mary.modules.synthesis.WaveformSynthesizer;
-import de.dfki.lt.mary.util.StringUtil;
+import de.dfki.lt.mary.util.StringUtils;
 import de.dfki.lt.signalproc.process.Chorus;
 import de.dfki.lt.signalproc.process.FrameOverlapAddSource;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
@@ -108,8 +106,8 @@ public class EffectsApplier {
         
         if (param!="")
         {
-            param = StringUtil.deblank(param);
-            int [] effectInds = StringUtil.find(param, chEffectSeparator);
+            param = StringUtils.deblank(param);
+            int [] effectInds = StringUtils.find(param, chEffectSeparator);
             int numEffects = 0;
 
             if (effectInds!=null)
@@ -152,27 +150,27 @@ public class EffectsApplier {
                             strEffectName = param.substring(effectInds[i-1]+1, param.length());
                     }   
 
-                    strEffectName = StringUtil.deblank(strEffectName);
+                    strEffectName = StringUtils.deblank(strEffectName);
 
                     if (strEffectName!=null && strEffectName!="")
                     {
-                        paramInds = StringUtil.find(strEffectName, BaseAudioEffect.chEffectParamStart);
+                        paramInds = StringUtils.find(strEffectName, BaseAudioEffect.chEffectParamStart);
                         if (paramInds!=null)
                         {
                             int stParam = MathUtils.max(paramInds);
-                            paramInds = StringUtil.find(strEffectName, BaseAudioEffect.chEffectParamEnd);
+                            paramInds = StringUtils.find(strEffectName, BaseAudioEffect.chEffectParamEnd);
                             if (paramInds!=null)
                             {
                                 int enParam = MathUtils.min(paramInds);
 
                                 strParams = strEffectName.substring(stParam+1, enParam);
-                                strParams = StringUtil.deblank(strParams);
+                                strParams = StringUtils.deblank(strParams);
                             }
                             else
                                 strParams = "";
 
                             strEffectName = strEffectName.substring(0, stParam);
-                            strEffectName = StringUtil.deblank(strEffectName);
+                            strEffectName = StringUtils.deblank(strEffectName);
                         }
                         else
                             strParams = "";

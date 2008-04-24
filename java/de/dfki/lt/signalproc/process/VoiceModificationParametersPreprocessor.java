@@ -3,7 +3,7 @@ package de.dfki.lt.signalproc.process;
 import java.util.Arrays;
 
 import de.dfki.lt.mary.util.FestivalUtt;
-import de.dfki.lt.mary.util.StringUtil;
+import de.dfki.lt.mary.util.StringUtils;
 import de.dfki.lt.signalproc.analysis.F0ReaderWriter;
 import de.dfki.lt.signalproc.util.ESTLabels;
 import de.dfki.lt.signalproc.util.InterpolationUtils;
@@ -97,7 +97,7 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
         {
             if (festivalUtt.keys[i].compareTo("==Segment==")==0 && durationMap==null)
             {
-                durationMap = StringUtil.alignLabels(sourceLabels.items, festivalUtt.labels[i].items);
+                durationMap = StringUtils.alignLabels(sourceLabels.items, festivalUtt.labels[i].items);
                 targetDurationLabels = new ESTLabels(festivalUtt.labels[i]);
             }
             else if (festivalUtt.keys[i].compareTo("==Target==")==0)
@@ -120,7 +120,7 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
                 else
                     sourceDuration = sourceLabels.items[sourceLabInd].time;
 
-                targetDurationLabInd = StringUtil.findInMap(durationMap, sourceLabInd);
+                targetDurationLabInd = StringUtils.findInMap(durationMap, sourceLabInd);
                 if (targetDurationLabInd>=0)
                 {
                     if (targetDurationLabInd>0)
