@@ -61,7 +61,7 @@ import de.dfki.lt.mary.unitselection.adaptation.outlier.KMeansMappingEliminatorP
 import de.dfki.lt.mary.unitselection.adaptation.outlier.TotalStandardDeviations;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchMappingFile;
 import de.dfki.lt.mary.util.FileUtils;
-import de.dfki.lt.mary.util.StringUtil;
+import de.dfki.lt.mary.util.StringUtils;
 import de.dfki.lt.signalproc.util.MathUtils;
 import de.dfki.lt.signalproc.util.distance.DistanceComputer;
 import de.dfki.lt.signalproc.window.Window;
@@ -217,32 +217,36 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
 
     public static void main(String[] args) throws UnsupportedAudioFileException, IOException
     {   
-        boolean isContextualGMMs = true;
-        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS;
-        //int contextClassificationType = ContextualGMMParams.PHONEME_IDENTITY;
-        //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS;
-        //int contextClassificationType = ContextualGMMParams.FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER;
-        //int contextClassificationType = ContextualGMMParams.VOWEL_CONSONANT_SILENCE;
-        
+        String emotion = "angry";
+        String method = "F";
+        int numTrainingFiles = 200; //2, 20, 200, 350
         int numMixes = 16;
         
-        mainParametric(numMixes, isContextualGMMs, contextClassificationType, "neutral", "angry");
+        boolean isContextualGMMs = true;
+        //int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS;
+        //int contextClassificationType = ContextualGMMParams.PHONEME_IDENTITY;
+        //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS;
+        int contextClassificationType = ContextualGMMParams.FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER;
+        //int contextClassificationType = ContextualGMMParams.VOWEL_CONSONANT_SILENCE;
         
-        //mainParametric(numMixes, isContextualGMMs, contextClassificationType, "neutral", "happy");
+        mainParametric(numTrainingFiles, numMixes, isContextualGMMs, contextClassificationType, "neutral", emotion, method);
         
-        //mainParametric(numMixes, isContextualGMMs, contextClassificationType, "neutral", "sad");
+        /*
+        mainParametric(numTrainingFiles, numMixes, isContextualGMMs, contextClassificationType, "neutral", "angry", method);
+        mainParametric(numTrainingFiles, numMixes, isContextualGMMs, contextClassificationType, "neutral", "happy", method);  
+        mainParametric(numTrainingFiles, numMixes, isContextualGMMs, contextClassificationType, "neutral", "sad", method);
+        */
     }
     
-    public static void mainParametric(int numMixes, 
+    public static void mainParametric(int numTrainingFiles, int numMixes, 
                                       boolean isContextualGMMs, int contextClassificationType, 
-                                      String sourceTag, String targetTag) throws UnsupportedAudioFileException, IOException
+                                      String sourceTag, String targetTag, String method) throws UnsupportedAudioFileException, IOException
     {
         BaselinePreprocessor pp = new BaselinePreprocessor();
         BaselineFeatureExtractor fe = new BaselineFeatureExtractor();
         WeightedCodebookTrainerParams pa = new WeightedCodebookTrainerParams();
         JointGMMTrainerParams gp = new JointGMMTrainerParams();
         ContextualGMMParams cg = null;
-        int numTrainingFiles = 200; //2, 20, 200, 350
         
         pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAMES; //Frame-by-frame mapping of features
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAME_GROUPS; pa.codebookHeader.numNeighboursInFrameGroups = 3; //Mapping of frame average features (no label information but fixed amount of neighbouring frames is used)
@@ -250,8 +254,8 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABEL_GROUPS; pa.codebookHeader.numNeighboursInLabelGroups = 1; //Mapping of average features collected across label groups (i.e. vowels, consonants, etc)
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.SPEECH; //Mapping of average features collected across all speech parts (i.e. like spectral equalization)
 
-        pa.codebookHeader.sourceTag = sourceTag + "F"; //Source name tag (i.e. style or speaker identity)
-        pa.codebookHeader.targetTag = targetTag + "F"; //Target name tag (i.e. style or speaker identity)
+        pa.codebookHeader.sourceTag = sourceTag + method; //Source name tag (i.e. style or speaker identity)
+        pa.codebookHeader.targetTag = targetTag + method; //Target name tag (i.e. style or speaker identity)
         
         pa.trainingBaseFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08_out\\" + sourceTag + "2" + targetTag; //Training base directory
         pa.sourceTrainingFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08\\" + sourceTag + "\\train_" + String.valueOf(numTrainingFiles); //Source training folder
@@ -269,7 +273,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         gp.isContextualGMMs = isContextualGMMs;
         gp.gmmEMTrainerParams.totalComponents = numMixes;
         gp.gmmEMTrainerParams.isDiagonalCovariance = true; 
-        gp.gmmEMTrainerParams.minimumIterations = 50;
+        gp.gmmEMTrainerParams.minimumIterations = 100;
         gp.gmmEMTrainerParams.maximumIterations = 150;
         gp.gmmEMTrainerParams.isUpdateCovariances = true;
         //gp.gmmEMTrainerParams.tinyLogLikelihoodChange = 1e-10;
@@ -281,7 +285,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
             cg = getContextualGMMParams(phonemeSetFile, gp.gmmEMTrainerParams, contextClassificationType);
         }
         
-        String baseFile = StringUtil.checkLastSlash(pa.trainingBaseFolder) + pa.codebookHeader.sourceTag + "_X_" + pa.codebookHeader.targetTag;
+        String baseFile = StringUtils.checkLastSlash(pa.trainingBaseFolder) + pa.codebookHeader.sourceTag + "_X_" + pa.codebookHeader.targetTag;
         //pa.codebookFile = baseFile + "_" + String.valueOf(gp.gmmEMTrainerParams.totalComponents) + WeightedCodebookFile.DEFAULT_EXTENSION;
         pa.codebookFile = baseFile + "_" + String.valueOf(numTrainingFiles) + WeightedCodebookFile.DEFAULT_EXTENSION;
         pa.pitchMappingFile = baseFile + "_" + String.valueOf(numTrainingFiles) + PitchMappingFile.DEFAULT_EXTENSION;
@@ -289,7 +293,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         if (!isContextualGMMs)
             gp.jointGMMFile = baseFile + "_" + String.valueOf(numTrainingFiles) + "_" + String.valueOf(gp.gmmEMTrainerParams.totalComponents) + JointGMMSet.DEFAULT_EXTENSION;
         else
-            gp.jointGMMFile = baseFile + "_" + String.valueOf(numTrainingFiles) + "_context_" + String.valueOf(gp.gmmEMTrainerParams.totalComponents) + JointGMMSet.DEFAULT_EXTENSION;
+            gp.jointGMMFile = baseFile + "_" + String.valueOf(numTrainingFiles) + "_context" + String.valueOf(contextClassificationType) + "_"+ String.valueOf(gp.gmmEMTrainerParams.totalComponents) + JointGMMSet.DEFAULT_EXTENSION;
             
         pa.isForcedAnalysis = false;
         

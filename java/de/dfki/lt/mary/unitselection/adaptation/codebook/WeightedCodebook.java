@@ -31,6 +31,7 @@ package de.dfki.lt.mary.unitselection.adaptation.codebook;
 
 import de.dfki.lt.mary.unitselection.adaptation.BaselineFeatureExtractor;
 import de.dfki.lt.mary.unitselection.adaptation.VocalTractTransformationData;
+import de.dfki.lt.mary.util.StringUtils;
 
 /**
  * @author oytun.turk
@@ -92,22 +93,22 @@ public class WeightedCodebook extends VocalTractTransformationData {
             boolean isEnergyDesired = false;
             boolean isDurationDesired = false;
             
-            if (BaselineFeatureExtractor.isDesired(BaselineFeatureExtractor.LSF_FEATURES, desiredFeatures))
+            if (StringUtils.isDesired(BaselineFeatureExtractor.LSF_FEATURES, desiredFeatures))
             {
                 dimension += header.lsfParams.lpOrder;
                 isLsfDesired = true;
             }
-            if (BaselineFeatureExtractor.isDesired(BaselineFeatureExtractor.F0_FEATURES, desiredFeatures))
+            if (StringUtils.isDesired(BaselineFeatureExtractor.F0_FEATURES, desiredFeatures))
             {
                 dimension += 1;
                 isF0Desired = true;
             }
-            if (BaselineFeatureExtractor.isDesired(BaselineFeatureExtractor.ENERGY_FEATURES, desiredFeatures))
+            if (StringUtils.isDesired(BaselineFeatureExtractor.ENERGY_FEATURES, desiredFeatures))
             {
                 dimension += 1;
                 isEnergyDesired = true;
             }
-            if (BaselineFeatureExtractor.isDesired(BaselineFeatureExtractor.DURATION_FEATURES, desiredFeatures))
+            if (StringUtils.isDesired(BaselineFeatureExtractor.DURATION_FEATURES, desiredFeatures))
             {
                 dimension += 1;
                 isDurationDesired = true;

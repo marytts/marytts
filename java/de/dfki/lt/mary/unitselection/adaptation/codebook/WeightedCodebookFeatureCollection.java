@@ -30,7 +30,7 @@
 package de.dfki.lt.mary.unitselection.adaptation.codebook;
 
 import de.dfki.lt.mary.unitselection.adaptation.FeatureCollection;
-import de.dfki.lt.mary.util.StringUtil;
+import de.dfki.lt.mary.util.StringUtils;
 
 /**
  * @author oytun.turk
@@ -42,7 +42,7 @@ public class WeightedCodebookFeatureCollection extends FeatureCollection {
     public WeightedCodebookFeatureCollection(WeightedCodebookTrainerParams params, int numFiles)
     {
         if (numFiles>0)
-            indexMapFiles = StringUtil.indexedNameGenerator(params.trainingBaseFolder + params.codebookHeader.sourceTag + "_" + params.codebookHeader.targetTag + "_", numFiles, 1, "", params.indexMapFileExtension);
+            indexMapFiles = StringUtils.indexedNameGenerator(params.trainingBaseFolder + params.codebookHeader.sourceTag + "_" + params.codebookHeader.targetTag + "_", numFiles, 1, "", params.indexMapFileExtension);
         else
             indexMapFiles = null;
     }

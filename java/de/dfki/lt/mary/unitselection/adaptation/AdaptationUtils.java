@@ -33,7 +33,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import de.dfki.lt.mary.util.StringUtil;
+import de.dfki.lt.mary.util.StringUtils;
 import de.dfki.lt.signalproc.analysis.LineSpectralFrequencies;
 import de.dfki.lt.signalproc.analysis.LsfFileHeader;
 import de.dfki.lt.signalproc.util.ESTLabels;
@@ -67,7 +67,7 @@ public class AdaptationUtils {
         if (sourceLabels.items!=null && targetLabels.items!=null)
         {
             //Find the optimum alignment between the source and the target labels since the phoneme sequences may not be identical due to silence periods etc.
-            int[][] labelMap = StringUtil.alignLabels(sourceLabels.items, targetLabels.items);
+            int[][] labelMap = StringUtils.alignLabels(sourceLabels.items, targetLabels.items);
             //
 
             if (labelMap!=null)
@@ -97,7 +97,7 @@ public class AdaptationUtils {
                         }
                     }
 
-                    tgtLabInd = StringUtil.findInMap(labelMap, srcLabInd);
+                    tgtLabInd = StringUtils.findInMap(labelMap, srcLabInd);
 
                     if (tgtLabInd>=0 && sourceLabels.items[srcLabInd].phn.compareTo(targetLabels.items[tgtLabInd].phn)==0)
                     {
@@ -152,7 +152,7 @@ public class AdaptationUtils {
         if (sourceLabels.items!=null && targetLabels.items!=null)
         {
             //Find the optimum alignment between the source and the target labels since the phoneme sequences may not be identical due to silence periods etc.
-            int[][] labelMap = StringUtil.alignLabels(sourceLabels.items, targetLabels.items);
+            int[][] labelMap = StringUtils.alignLabels(sourceLabels.items, targetLabels.items);
             //
 
             if (labelMap!=null)
@@ -182,7 +182,7 @@ public class AdaptationUtils {
                         }
                     }
 
-                    tgtLabInd = StringUtil.findInMap(labelMap, srcLabInd);
+                    tgtLabInd = StringUtils.findInMap(labelMap, srcLabInd);
 
                     if (tgtLabInd>=0 && sourceLabels.items[srcLabInd].phn.compareTo(targetLabels.items[tgtLabInd].phn)==0)
                     {
@@ -237,7 +237,7 @@ public class AdaptationUtils {
         if (sourceLabels.items!=null && targetLabels.items!=null)
         {
             //Find the optimum alignment between the source and the target labels since the phoneme sequences may not be identical due to silence periods etc.
-            int[][] labelMap = StringUtil.alignLabels(sourceLabels.items, targetLabels.items);
+            int[][] labelMap = StringUtils.alignLabels(sourceLabels.items, targetLabels.items);
             //
 
             if (labelMap!=null)
@@ -257,7 +257,7 @@ public class AdaptationUtils {
                     else
                         srcStartTime = 0.0;
 
-                    tgtLabInd = StringUtil.findInMap(labelMap, j);
+                    tgtLabInd = StringUtils.findInMap(labelMap, j);
 
                     if (tgtLabInd>=0 && sourceLabels.items[j].phn.compareTo(targetLabels.items[tgtLabInd].phn)==0)
                     {
@@ -305,7 +305,7 @@ public class AdaptationUtils {
         if (sourceLabels.items!=null && targetLabels.items!=null)
         {
             //Find the optimum alignment between the source and the target labels since the phoneme sequences may not be identical due to silence periods etc.
-            int[][] labelMap = StringUtil.alignLabels(sourceLabels.items, targetLabels.items);
+            int[][] labelMap = StringUtils.alignLabels(sourceLabels.items, targetLabels.items);
             //
 
             if (labelMap!=null)
@@ -325,7 +325,7 @@ public class AdaptationUtils {
                     else
                         srcStartTime = 0.0;
 
-                    tgtLabInd = StringUtil.findInMap(labelMap, j);
+                    tgtLabInd = StringUtils.findInMap(labelMap, j);
 
                     if (tgtLabInd>=0 && sourceLabels.items[j].phn.compareTo(targetLabels.items[tgtLabInd].phn)==0)
                     {

@@ -49,7 +49,7 @@ import de.dfki.lt.mary.unitselection.adaptation.prosody.ProsodyTransformerParams
 import de.dfki.lt.mary.unitselection.adaptation.smoothing.SmoothingDefinitions;
 import de.dfki.lt.mary.unitselection.voiceimport.BasenameList;
 import de.dfki.lt.mary.util.FileUtils;
-import de.dfki.lt.mary.util.StringUtil;
+import de.dfki.lt.mary.util.StringUtils;
 import de.dfki.lt.signalproc.analysis.LsfFileHeader;
 
 /**
@@ -82,8 +82,8 @@ public class WeightedCodebookParallelTransformer extends WeightedCodebookTransfo
     {
         super.checkParams();
         
-        params.inputFolder = StringUtil.checkLastSlash(params.inputFolder);
-        params.outputBaseFolder = StringUtil.checkLastSlash(params.outputBaseFolder);
+        params.inputFolder = StringUtils.checkLastSlash(params.inputFolder);
+        params.outputBaseFolder = StringUtils.checkLastSlash(params.outputBaseFolder);
         codebookFile = null;
         
         //Read codebook header only
@@ -241,8 +241,8 @@ public class WeightedCodebookParallelTransformer extends WeightedCodebookTransfo
         
         if (currentWctParams.isSeparateProsody) //First pass with no prosody modifications
         {
-            firstPassOutputWavFile = StringUtil.getFolderName(outputItem.audioFile) + StringUtil.getFileName(outputItem.audioFile) + "_vt.wav";
-            smoothedVocalTractFile = StringUtil.getFolderName(outputItem.audioFile) + StringUtil.getFileName(outputItem.audioFile) + "_vt.vtf";
+            firstPassOutputWavFile = StringUtils.getFolderName(outputItem.audioFile) + StringUtils.getFileName(outputItem.audioFile) + "_vt.wav";
+            smoothedVocalTractFile = StringUtils.getFolderName(outputItem.audioFile) + StringUtils.getFileName(outputItem.audioFile) + "_vt.vtf";
             int tmpPitchTransformationMethod = currentWctParams.prosodyParams.pitchTransformationMethod;
             currentWctParams.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.NO_TRANSFORMATION;
 

@@ -34,7 +34,7 @@ import java.util.StringTokenizer;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import de.dfki.lt.mary.util.StringUtil;
+import de.dfki.lt.mary.util.StringUtils;
 import de.dfki.lt.signalproc.util.ESTLabels;
 
 /**
@@ -218,7 +218,7 @@ public class Context {
     
     public void parseAllContext()
     {
-        int[] leftInds = StringUtil.find(allContext, leftContextSeparator);
+        int[] leftInds = StringUtils.find(allContext, leftContextSeparator);
         int i, start;
         if (leftInds!=null)
         {
@@ -233,7 +233,7 @@ public class Context {
         else
             leftContexts = null;
         
-        int[] rightInds = StringUtil.find(allContext, rightContextSeparator);
+        int[] rightInds = StringUtils.find(allContext, rightContextSeparator);
         if (rightInds!=null)
         {
             rightContexts = new String[rightInds.length];

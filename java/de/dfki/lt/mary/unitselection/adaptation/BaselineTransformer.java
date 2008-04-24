@@ -38,7 +38,6 @@ import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookMapper;
 import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookTransformerParams;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchTransformationData;
 import de.dfki.lt.mary.unitselection.voiceimport.BasenameList;
-import de.dfki.lt.mary.util.StringUtil;
 
 /**
  * @author oytun.turk

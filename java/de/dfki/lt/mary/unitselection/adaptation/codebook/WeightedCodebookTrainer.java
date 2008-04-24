@@ -44,7 +44,7 @@ import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchMappingFile;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchTrainer;
 import de.dfki.lt.mary.unitselection.voiceimport.BasenameList;
 import de.dfki.lt.mary.util.FileUtils;
-import de.dfki.lt.mary.util.StringUtil;
+import de.dfki.lt.mary.util.StringUtils;
 
 /**
  * @author oytun.turk
@@ -84,9 +84,9 @@ public class WeightedCodebookTrainer extends BaselineTrainer {
     {
         boolean bContinue = true;
         
-        wcParams.trainingBaseFolder = StringUtil.checkLastSlash(wcParams.trainingBaseFolder);
-        wcParams.sourceTrainingFolder = StringUtil.checkLastSlash(wcParams.sourceTrainingFolder);
-        wcParams.targetTrainingFolder = StringUtil.checkLastSlash(wcParams.targetTrainingFolder);
+        wcParams.trainingBaseFolder = StringUtils.checkLastSlash(wcParams.trainingBaseFolder);
+        wcParams.sourceTrainingFolder = StringUtils.checkLastSlash(wcParams.sourceTrainingFolder);
+        wcParams.targetTrainingFolder = StringUtils.checkLastSlash(wcParams.targetTrainingFolder);
         
         FileUtils.createDirectory(wcParams.trainingBaseFolder);
         
