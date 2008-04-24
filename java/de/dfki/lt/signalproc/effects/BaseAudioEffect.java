@@ -10,7 +10,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import de.dfki.lt.mary.util.StringUtil;
+import de.dfki.lt.mary.util.StringUtils;
 import de.dfki.lt.signalproc.process.FrameOverlapAddSource;
 import de.dfki.lt.signalproc.process.InlineDataProcessor;
 import de.dfki.lt.signalproc.process.LPCWhisperiser;
@@ -180,15 +180,15 @@ public class BaseAudioEffect implements AudioEffect{
                         
                         //Extract param and val
                         strTmp = param.substring(stName, enName+1);
-                        strTmp = StringUtil.deblank(strTmp);
+                        strTmp = StringUtils.deblank(strTmp);
                         paramNames[i] = strTmp;
                         
                         strTmp = param.substring(stVal, enVal+1);
-                        strTmp = StringUtil.deblank(strTmp);
+                        strTmp = StringUtils.deblank(strTmp);
                         
                         try
                         {
-                            paramVals[i] = StringUtil.String2Float(strTmp);
+                            paramVals[i] = StringUtils.String2Float(strTmp);
                         }
                         catch(NumberFormatException e)
                         {

@@ -41,7 +41,6 @@ import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationItem;
 import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationSet;
 import de.dfki.lt.mary.unitselection.adaptation.BaselineFeatureExtractor;
 import de.dfki.lt.mary.util.FileUtils;
-import de.dfki.lt.mary.util.StringUtil;
 import de.dfki.lt.signalproc.analysis.LsfFileHeader;
 import de.dfki.lt.signalproc.analysis.Lsfs;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;

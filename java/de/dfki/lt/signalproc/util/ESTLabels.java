@@ -33,7 +33,7 @@ import java.io.File;
 import java.io.IOException;
 
 import de.dfki.lt.mary.util.FileUtils;
-import de.dfki.lt.mary.util.StringUtil;
+import de.dfki.lt.mary.util.StringUtils;
 
 /**
  * @author oytun.turk
@@ -145,8 +145,8 @@ public class ESTLabels {
 
                     String[] labelInfos = lines[i].split(" ");
                     if (labelInfos.length>=minimumItemsInOneLine && 
-                            StringUtil.isNumeric(labelInfos[0]) &&
-                            StringUtil.isNumeric(labelInfos[1]))
+                            StringUtils.isNumeric(labelInfos[0]) &&
+                            StringUtils.isNumeric(labelInfos[1]))
                     {
                         if (labelInfos.length>0)
                             labels.items[tmpCount].time = (float)Float.valueOf(labelInfos[0]);
@@ -158,7 +158,7 @@ public class ESTLabels {
                             labels.items[tmpCount].phn = labelInfos[2].trim();
 
                         int restStartMin = 4;
-                        if (labelInfos.length>3 && StringUtil.isNumeric(labelInfos[3]))
+                        if (labelInfos.length>3 && StringUtils.isNumeric(labelInfos[3]))
                             labels.items[tmpCount].ll = (float)Float.valueOf(labelInfos[3]);
                         else
                         {
@@ -176,7 +176,7 @@ public class ESTLabels {
                             for (int j=0; j<labels.items[tmpCount].rest.length; j++)
                             {
                                 labels.items[tmpCount].rest[j] = labelInfos[j+restStartMin];
-                                if (StringUtil.isNumeric(labels.items[tmpCount].rest[j]))
+                                if (StringUtils.isNumeric(labels.items[tmpCount].rest[j]))
                                     labels.items[tmpCount].valuesRest[j] = Double.valueOf(labels.items[tmpCount].rest[j]);
                                 else
                                     labels.items[tmpCount].valuesRest[j] = Double.NEGATIVE_INFINITY;

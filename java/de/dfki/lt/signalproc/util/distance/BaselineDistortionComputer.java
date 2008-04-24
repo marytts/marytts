@@ -29,11 +29,6 @@
 
 package de.dfki.lt.signalproc.util.distance;
 
-import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationItem;
-import de.dfki.lt.mary.unitselection.adaptation.BaselineAdaptationSet;
-import de.dfki.lt.mary.util.StringUtil;
-import de.dfki.lt.signalproc.analysis.Lsfs;
-
 /**
  * @author oytun.turk
  *

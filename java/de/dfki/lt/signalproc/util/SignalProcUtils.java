@@ -1345,6 +1345,50 @@ public class SignalProcUtils {
         return rmsDist;
     }
     
+    public static int[] merge(int[] x1, int[] x2)
+    {
+        int[] y = null;
+        int ylen = 0;
+        if (x1!=null)
+            ylen+=x1.length;
+        if (x2!=null)
+            ylen+=x2.length;
+        y = new int[ylen];
+        int pos = 0;
+        if (x1!=null)
+        {
+            System.arraycopy(x1, 0, y, 0, x1.length);
+            pos += x1.length;
+        }
+        
+        if (x2!=null)
+            System.arraycopy(x2, 0, y, pos, x2.length);
+        
+        return y;
+    }
+    
+    public static double[] merge(double[] x1, double[] x2)
+    {
+        double[] y = null;
+        int ylen = 0;
+        if (x1!=null)
+            ylen+=x1.length;
+        if (x2!=null)
+            ylen+=x2.length;
+        y = new double[ylen];
+        int pos = 0;
+        if (x1!=null)
+        {
+            System.arraycopy(x1, 0, y, 0, x1.length);
+            pos += x1.length;
+        }
+        
+        if (x2!=null)
+            System.arraycopy(x2, 0, y, pos, x2.length);
+        
+        return y;
+    }
+    
     public static void main(String[] args)
     {
         ESTLabels e = new ESTLabels("d:\\a0003.lab");

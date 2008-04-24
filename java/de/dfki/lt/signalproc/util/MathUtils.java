@@ -35,11 +35,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Vector;
 
-import de.dfki.lt.mary.util.StringUtil;
+import de.dfki.lt.mary.util.StringUtils;
 
 
 /**
- * @author Marc Schr&ouml;der
+ * @author Marc Schr&ouml;der, Oytun Tuerk
+ * 
  * 
  * An uninstantiable class, containing static utility methods in the Math domain.
  *
@@ -1897,7 +1898,7 @@ public class MathUtils {
             if (indices2!=null)
                 System.arraycopy(indices2, 0, tmpIndices, currentPos, indices2.length);
             
-            indices = StringUtil.getDifferentItemsList(tmpIndices);
+            indices = StringUtils.getDifferentItemsList(tmpIndices);
         }
         
         return indices;
@@ -2588,6 +2589,21 @@ public class MathUtils {
 
     //In place sorting of array x, return value are the sorted 0-based indices 
     //Sorting is from lowest to highest
+    public static int[] quickSort(int[] x)
+    {
+        double[] x2 = new double[x.length];
+        int i;
+        for (i=0; i<x.length; i++)
+            x2[i] = x[i];
+        
+        int[] inds = quickSort(x2);
+        
+        for (i=0; i<x.length; i++)
+            x[i] = (int)x2[i];
+        
+        return inds;
+    }
+    
     public static int[] quickSort(double[] x)
     {
         int[] indices = new int[x.length];
