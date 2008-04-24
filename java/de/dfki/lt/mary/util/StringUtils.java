@@ -1,14 +1,17 @@
 package de.dfki.lt.mary.util;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
+import de.dfki.lt.mary.modules.phonemiser.Phoneme;
 import de.dfki.lt.signalproc.util.ESTLabel;
 import de.dfki.lt.signalproc.util.ESTLabels;
 
-public class StringUtil {
+public class StringUtils {
     
     //Removes blanks in the beginning and at the end of a string
     public static String deblank(String str) 
@@ -418,12 +421,18 @@ public class StringUtil {
     }
     
     //Reads all rows as one String
-    public static String[][] readTextFile(String textFile)
+    public static String[] readTextFile(String textFile)
     {
-        return readTextFile(textFile, 1);
+        String[][] tmp = readTextFileInRows(textFile, 1);
+        
+        String[] strRet = new String[tmp.length];
+        for (int i=0; i<tmp.length; i++)
+            strRet[i] = tmp[i][0];
+        
+        return strRet;
     }
     
-    public static String[][] readTextFile(String textFile, int minimumItemsInOneLine)
+    public static String[][] readTextFileInRows(String textFile, int minimumItemsInOneLine)
     {
         String[][] entries = null;
         String allText = null;
@@ -583,9 +592,9 @@ public class StringUtil {
             for (i=1; i<items.length; i++)
             {
                 bDifferent = true;
-                for (j=0; j<i-1; j++)
+                for (j=0; j<differentCount; j++)
                 {
-                    if (items[tmpDifferentItemIndices[j]].compareTo(items[tmpDifferentItemIndices[i]])==0)
+                    if (items[i].compareTo(items[tmpDifferentItemIndices[j]])==0)
                     {
                         bDifferent=false;
                         break;
@@ -609,13 +618,141 @@ public class StringUtil {
         return differentItemIndices;
     }
     
+    public static boolean isDesired(int currentFeature, int desiredFeatures)
+    {
+        return isDesired(currentFeature, desiredFeatures, 0);
+    }
+    
+    public static boolean isDesired(int currentFeature, int desiredFeatures, int maxFeatureStringLen)
+    {
+        boolean bRet;
+        
+        String str1 = Integer.toBinaryString(desiredFeatures);
+        String str2 = Integer.toBinaryString(currentFeature);
+
+        if (maxFeatureStringLen<str1.length())
+            maxFeatureStringLen = str1.length();
+        if (maxFeatureStringLen<str2.length())
+            maxFeatureStringLen = str2.length();
+        
+        while (str1.length()<maxFeatureStringLen)
+            str1 = "0" + str1;
+        
+        while (str2.length()<maxFeatureStringLen)
+            str2 = "0" + str2;
+        
+        bRet = true;
+        for (int i=0; i<str1.length(); i++)
+        {
+            if (Integer.valueOf(String.valueOf(str1.charAt(i)))==1 && Integer.valueOf(String.valueOf(str2.charAt(i)))==0)
+                bRet = false;
+        }
+        
+        return bRet;
+    }
+    
+    public static void writeTextFile(Phoneme[] phns, String textFile)
+    {
+        String[] tmps = new String[phns.length];
+        int i;
+        int maxPhnLen = 0;
+        int maxIndLen = (int)Math.floor(Math.log10(phns.length)+1.5)+1;
+        for (i=0; i<phns.length; i++)
+        {
+            if (maxPhnLen<phns[i].name().length()+maxIndLen)
+                maxPhnLen=phns[i].name().length()+maxIndLen;
+        }
+        
+        for (i=0; i<phns.length; i++)
+        {
+            tmps[i] = String.valueOf(i) + " " + phns[i].name();
+            while (tmps[i].length()<maxPhnLen+1)
+                tmps[i] += " ";
+            
+            if (phns[i].isFricative())
+                tmps[i] += "+Fric" + " ";
+            else
+                tmps[i] += "-Fric" + " ";
+            
+            if (phns[i].isGlide())
+                tmps[i] += "+Glid" + " ";
+            else
+                tmps[i] += "-Glid" + " ";
+            
+            if (phns[i].isLiquid())
+                tmps[i] += "+Liqd" + " ";
+            else
+                tmps[i] += "-Liqd" + " ";
+            
+            if (phns[i].isNasal())
+                tmps[i] += "+Nasl" + " ";
+            else
+                tmps[i] += "-Nasl" + " ";
+            
+            if (phns[i].isPause())
+                tmps[i] += "+Paus" + " ";
+            else
+                tmps[i] += "-Paus" + " ";
+            
+            if (phns[i].isPlosive())
+                tmps[i] += "+Plos" + " ";
+            else
+                tmps[i] += "-Plos" + " ";
+            
+            if (phns[i].isSonorant())
+                tmps[i] += "+Sono" + " ";
+            else
+                tmps[i] += "-Sono" + " ";
+            
+            if (phns[i].isSyllabic())
+                tmps[i] += "+Syll" + " ";
+            else
+                tmps[i] += "-Syll" + " ";
+            
+            if (phns[i].isVoiced())
+                tmps[i] += "+Voic" + " ";
+            else
+                tmps[i] += "-Voic" + " ";
+            
+            if (phns[i].isVowel())
+                tmps[i] += "+Vowl";
+            else
+                tmps[i] += "-Vowl";
+        }
+        
+        writeTextFile(tmps, "d:\\phns.txt");
+    }
+    
+    public static void writeTextFile(String[] textInRows, String textFile)
+    {
+        PrintWriter out = null;
+        try {
+            out = new PrintWriter(new FileWriter(textFile));
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        if (out!=null)
+        {
+            for (int i=0; i<textInRows.length; i++)
+                out.println(textInRows[i]);
+        
+            out.close();
+        }
+        else
+            System.out.println("Error! Cannot create file: " + textFile);
+    }
+    
     public static void main(String[] args)
     {
-        String[][] names1 = readTextFile("D:\\Oytun\\DFKI\\voices\\Interspeech08\\mappings-mini-ea.txt");
+        String[] items1 = readTextFile("D:\\items.txt");
+        int[] inds1 = StringUtils.getDifferentItemsIndices(items1);
+        String[] diffItems1 = StringUtils.getDifferentItemsList(items1);
         
-        String[][] names2 = readTextFile("D:\\Oytun\\DFKI\\voices\\Interspeech08\\mappings-mini-ea.txt", 2);
-        
-        String[][] names3 = readTextFile("D:\\Oytun\\DFKI\\voices\\Interspeech08\\mappings-mini-ea.txt", 3); //Should return the third column as null since there are only 2 columns in the text file
+        int[] items2 = {1, 2, 3, 4, 1, 1, 2, 2, 4, 4, 10};
+        int[] inds2 = StringUtils.getDifferentItemsIndices(items2);
+        int[] diffItems2 = StringUtils.getDifferentItemsList(items2);
         
         System.out.println("Test completed....");
     }
