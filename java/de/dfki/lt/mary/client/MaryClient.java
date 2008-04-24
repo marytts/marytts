@@ -984,14 +984,21 @@ public class MaryClient {
             assert locale != null;
             if (!st.hasMoreTokens()) continue; // ignore entry
             String gender = st.nextToken();
-            String synthesizerType = st.nextToken();
                 
             Voice voice;
             if (!st.hasMoreTokens()){ //assume domain is general
-                voice = new Voice(name, locale, gender, synthesizerType, "general");}
+                voice = new Voice(name, locale, gender, "general");}
             else{ //read in the domain
                 String domain = st.nextToken();
-                voice = new Voice(name, locale, gender, synthesizerType, domain);}
+                voice = new Voice(name, locale, gender, domain);}
+            
+            String synthesizerType;
+            if (!st.hasMoreTokens())
+                synthesizerType = "non-specified";
+            else
+                synthesizerType = st.nextToken();
+            voice.setSynthesizerType(synthesizerType);
+            
             allVoices.add(voice);
             Vector<MaryClient.Voice> localeVoices = null;
             if (voicesByLocaleMap.containsKey(locale)) {
@@ -1298,25 +1305,27 @@ public class MaryClient {
         private String name;
         private Locale locale;
         private String gender;
-        private String synthesizerType;
         private String domain;
+        private String synthesizerType;
      
         private boolean isLimitedDomain;
-        Voice(String name, Locale locale, String gender, String synthesizerType, String domain)
+        Voice(String name, Locale locale, String gender, String domain)
         {
             this.name = name;
             this.locale = locale;
             this.gender = gender;
-            this.synthesizerType = synthesizerType;
             this.domain = domain;
             if (domain == null || domain.equals("general")){
                 isLimitedDomain = false;}
             else {isLimitedDomain = true;}
+            
+            this.synthesizerType = "not-specified";
         }
         public Locale getLocale() { return locale; }
         public String name() { return name; }
         public String gender() { return gender; }
         public String synthesizerType() {return synthesizerType;}
+        public void setSynthesizerType(String synthesizerTypeIn) {synthesizerType = synthesizerTypeIn;}
         public String toString() { return name + " (" + locale.getDisplayLanguage() + ", " + gender
         	+ (isLimitedDomain ? ", " + domain : "") +")";}
         public boolean isLimitedDomain() { return isLimitedDomain; }

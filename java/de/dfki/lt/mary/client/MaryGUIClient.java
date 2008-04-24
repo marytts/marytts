@@ -740,7 +740,9 @@ public class MaryGUIClient extends JPanel
             if (effectsBox!=null && effectsBox.mainPanel!=null)
                 effectsBox.mainPanel.setVisible(false);
 
-            showHideEffects.setText("Show Effects");
+            if (showHideEffects!=null)
+                showHideEffects.setText("Show Effects");
+            
             isButtonHide = false;
             showingAudioEffects = false;
         }
@@ -749,7 +751,9 @@ public class MaryGUIClient extends JPanel
             if (effectsBox!=null && effectsBox.mainPanel!=null)
                 effectsBox.mainPanel.setVisible(true);
 
-            showHideEffects.setText("Hide Effects");
+            if (showHideEffects!=null)
+                showHideEffects.setText("Hide Effects");
+            
             isButtonHide = true;
             showingAudioEffects = true;
         }
