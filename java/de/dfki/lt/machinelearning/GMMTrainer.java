@@ -346,7 +346,7 @@ public class GMMTrainer {
                 logLikelihoods[numIterations-1] += Math.log(tmp);
             }
 
-            System.out.println("EM iteration no: " + String.valueOf(numIterations) + " with error " + String.valueOf(error) + " log-likelihood=" + String.valueOf(logLikelihoods[numIterations-1]));
+            System.out.println("For " + String.valueOf(gmm.totalComponents) + " mixes - EM iteration no: " + String.valueOf(numIterations) + " with error " + String.valueOf(error) + " log-likelihood=" + String.valueOf(logLikelihoods[numIterations-1]));
 
             if (numIterations+1>maximumIterations)
                 break;
