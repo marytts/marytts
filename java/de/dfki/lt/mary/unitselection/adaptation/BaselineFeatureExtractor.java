@@ -30,6 +30,7 @@
 package de.dfki.lt.mary.unitselection.adaptation;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -37,6 +38,7 @@ import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookTrainer
 import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookTransformerParams;
 import de.dfki.lt.mary.unitselection.adaptation.gmm.jointgmm.JointGMMTransformerParams;
 import de.dfki.lt.mary.util.FileUtils;
+import de.dfki.lt.mary.util.StringUtils;
 import de.dfki.lt.signalproc.analysis.EnergyAnalyserRms;
 import de.dfki.lt.signalproc.analysis.EnergyFileHeader;
 import de.dfki.lt.signalproc.analysis.LineSpectralFrequencies;
@@ -55,7 +57,6 @@ public class BaselineFeatureExtractor {
     public static final int F0_FEATURES       =   Integer.parseInt("00000010", 2);
     public static final int ENERGY_FEATURES   =   Integer.parseInt("00000100", 2);
     public static final int DURATION_FEATURES =   Integer.parseInt("00001000", 2);
-    public static final int FEATURE_DESCRIBER_STRING_LENGTH = 8;
     
     public BaselineFeatureExtractor()
     {
@@ -75,37 +76,7 @@ public class BaselineFeatureExtractor {
         
     }
     
-    public static boolean isDesired(int featureDesired, int desiredFeatures)
-    {
-        boolean bRet = false;
-        
-        String str1 = Integer.toBinaryString(desiredFeatures);
-
-        while (str1.length()<FEATURE_DESCRIBER_STRING_LENGTH)
-            str1 = "0" + str1;
-        
-        String str2;
-        int pos = FEATURE_DESCRIBER_STRING_LENGTH;
-        
-        //ADD more as necessary
-        if (featureDesired==LSF_FEATURES)
-            pos = FEATURE_DESCRIBER_STRING_LENGTH-1;
-        else if (featureDesired==F0_FEATURES)
-            pos = FEATURE_DESCRIBER_STRING_LENGTH-2;
-        else if (featureDesired==ENERGY_FEATURES)
-            pos = FEATURE_DESCRIBER_STRING_LENGTH-3;
-        else if (featureDesired==DURATION_FEATURES)
-            pos = FEATURE_DESCRIBER_STRING_LENGTH-4;
-        //
-           
-        str2 = Integer.toBinaryString(featureDesired);
-        while (str2.length()<FEATURE_DESCRIBER_STRING_LENGTH)
-            str2 = "0" + str2;
-        if (pos<FEATURE_DESCRIBER_STRING_LENGTH && pos>=0 && str1.charAt(pos)==str2.charAt(pos))
-            bRet = true;
-        
-        return bRet;
-    }
+    
     
     public void run(BaselineAdaptationSet fileSet, BaselineParams params, int desiredFeatures) throws IOException, UnsupportedAudioFileException
     {
@@ -142,13 +113,13 @@ public class BaselineFeatureExtractor {
             isForcedAnalysis = ((JointGMMTransformerParams)params).isForcedAnalysis;
         
         //ADD more analyses as necessary
-        if (isDesired(LSF_FEATURES, desiredFeatures))
+        if (StringUtils.isDesired(LSF_FEATURES, desiredFeatures))
             lsfAnalysis(fileSet, lsfParams, isForcedAnalysis);
 
-        if (isDesired(F0_FEATURES, desiredFeatures))
+        if (StringUtils.isDesired(F0_FEATURES, desiredFeatures))
             f0Analysis(fileSet, ptcParams, isForcedAnalysis);       
         
-        if (isDesired(ENERGY_FEATURES, desiredFeatures))
+        if (StringUtils.isDesired(ENERGY_FEATURES, desiredFeatures))
             energyAnalysis(fileSet, energyParams, isForcedAnalysis); 
         //
     }

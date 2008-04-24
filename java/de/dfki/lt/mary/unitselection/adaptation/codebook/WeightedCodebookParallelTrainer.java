@@ -48,7 +48,7 @@ import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchMappingFile;
 import de.dfki.lt.mary.unitselection.adaptation.prosody.PitchTrainer;
 import de.dfki.lt.mary.unitselection.voiceimport.BasenameList;
 import de.dfki.lt.mary.util.FileUtils;
-import de.dfki.lt.mary.util.StringUtil;
+import de.dfki.lt.mary.util.StringUtils;
 import de.dfki.lt.signalproc.analysis.Lsfs;
 import de.dfki.lt.signalproc.util.MaryRandomAccessFile;
 import de.dfki.lt.signalproc.util.distance.DistanceComputer;
@@ -134,7 +134,7 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         pa.codebookHeader.lsfParams.winsize = 0.020f;
         pa.codebookHeader.lsfParams.windowType = Window.HAMMING;
         
-        String baseFile = StringUtil.checkLastSlash(pa.trainingBaseFolder) + pa.codebookHeader.sourceTag + "_X_" + pa.codebookHeader.targetTag;
+        String baseFile = StringUtils.checkLastSlash(pa.trainingBaseFolder) + pa.codebookHeader.sourceTag + "_X_" + pa.codebookHeader.targetTag;
         pa.codebookFile = baseFile + "_200" + WeightedCodebookFile.DEFAULT_EXTENSION;
         pa.pitchMappingFile = baseFile + "_200" + PitchMappingFile.DEFAULT_EXTENSION;
         
@@ -244,7 +244,7 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         pa.codebookHeader.lsfParams.winsize = 0.020f;
         pa.codebookHeader.lsfParams.windowType = Window.HAMMING;
         
-        String baseFile = StringUtil.checkLastSlash(pa.trainingBaseFolder) + pa.codebookHeader.sourceTag + "_X_" + pa.codebookHeader.targetTag;
+        String baseFile = StringUtils.checkLastSlash(pa.trainingBaseFolder) + pa.codebookHeader.sourceTag + "_X_" + pa.codebookHeader.targetTag;
         pa.codebookFile = baseFile + "_200" + WeightedCodebookFile.DEFAULT_EXTENSION;
         pa.pitchMappingFile = baseFile + "_200" + PitchMappingFile.DEFAULT_EXTENSION;
         
@@ -354,7 +354,7 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         pa.codebookHeader.lsfParams.winsize = 0.020f;
         pa.codebookHeader.lsfParams.windowType = Window.HAMMING;
         
-        String baseFile = StringUtil.checkLastSlash(pa.trainingBaseFolder) + pa.codebookHeader.sourceTag + "_X_" + pa.codebookHeader.targetTag;
+        String baseFile = StringUtils.checkLastSlash(pa.trainingBaseFolder) + pa.codebookHeader.sourceTag + "_X_" + pa.codebookHeader.targetTag;
         pa.codebookFile = baseFile + "_200" + WeightedCodebookFile.DEFAULT_EXTENSION;
         pa.pitchMappingFile = baseFile + "_200" + PitchMappingFile.DEFAULT_EXTENSION;
         

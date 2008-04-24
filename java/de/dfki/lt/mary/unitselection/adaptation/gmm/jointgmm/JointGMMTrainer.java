@@ -18,7 +18,6 @@ import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookTrainer
 import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebookTrainerParams;
 import de.dfki.lt.mary.unitselection.adaptation.outlier.KMeansMappingEliminatorParams;
 import de.dfki.lt.mary.unitselection.adaptation.outlier.TotalStandardDeviations;
-import de.dfki.lt.mary.util.StringUtil;
 import de.dfki.lt.signalproc.util.distance.DistanceComputer;
 import de.dfki.lt.signalproc.window.Window;
 

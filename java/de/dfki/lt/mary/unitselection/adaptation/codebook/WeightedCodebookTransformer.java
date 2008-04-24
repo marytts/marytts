@@ -40,7 +40,7 @@ import de.dfki.lt.mary.unitselection.adaptation.BaselinePostprocessor;
 import de.dfki.lt.mary.unitselection.adaptation.BaselinePreprocessor;
 import de.dfki.lt.mary.unitselection.adaptation.BaselineTransformerParams;
 import de.dfki.lt.mary.unitselection.voiceimport.BasenameList;
-import de.dfki.lt.mary.util.StringUtil;
+import de.dfki.lt.mary.util.StringUtils;
 
 /**
  * @author oytun.turk
@@ -100,14 +100,14 @@ public class WeightedCodebookTransformer extends BaselineTransformer {
     {   
         BaselineAdaptationSet outputSet  = null;
 
-        outputFolder = StringUtil.checkLastSlash(outputFolder);
+        outputFolder = StringUtils.checkLastSlash(outputFolder);
         
         if (inputSet!=null && inputSet.items!=null)
         {
             outputSet = new BaselineAdaptationSet(inputSet.items.length);
 
             for (int i=0; i<inputSet.items.length; i++)
-                outputSet.items[i].audioFile = outputFolder + StringUtil.getFileName(inputSet.items[i].audioFile) + "_output" + BaselineAdaptationSet.DEFAULT_WAV_EXTENSION;
+                outputSet.items[i].audioFile = outputFolder + StringUtils.getFileName(inputSet.items[i].audioFile) + "_output" + BaselineAdaptationSet.DEFAULT_WAV_EXTENSION;
         }
 
         return outputSet;

@@ -32,7 +32,7 @@ package de.dfki.lt.mary.unitselection.adaptation.tester;
 import java.io.IOException;
 
 import de.dfki.lt.mary.util.FileUtils;
-import de.dfki.lt.mary.util.StringUtil;
+import de.dfki.lt.mary.util.StringUtils;
 
 /**
  * @author oytun.turk
@@ -72,12 +72,12 @@ public class FileCopier {
                      String sourceTrainingBaseDir, //Output
                      String targetTrainingBaseDir) //Output
     {
-        String[][] stNameMap = StringUtil.readTextFile(sourceTargetFile, 2);
+        String[][] stNameMap = StringUtils.readTextFileInRows(sourceTargetFile, 2);
         int i;
         
         //Determine source and target input sub directories
-        sourceInputBaseDir = StringUtil.checkLastSlash(sourceInputBaseDir);
-        targetInputBaseDir = StringUtil.checkLastSlash(targetInputBaseDir);
+        sourceInputBaseDir = StringUtils.checkLastSlash(sourceInputBaseDir);
+        targetInputBaseDir = StringUtils.checkLastSlash(targetInputBaseDir);
         String sourceInputWavDir = sourceInputBaseDir + "wav\\";
         String targetInputWavDir = targetInputBaseDir + "wav\\";
         String sourceInputLabDir = sourceInputBaseDir + "lab\\";
@@ -105,8 +105,8 @@ public class FileCopier {
         //
         
         //Create training sub-folders for source and target
-        sourceTrainingBaseDir = StringUtil.checkLastSlash(sourceTrainingBaseDir);
-        targetTrainingBaseDir = StringUtil.checkLastSlash(targetTrainingBaseDir);
+        sourceTrainingBaseDir = StringUtils.checkLastSlash(sourceTrainingBaseDir);
+        targetTrainingBaseDir = StringUtils.checkLastSlash(targetTrainingBaseDir);
         FileUtils.createDirectory(sourceTrainingBaseDir);
         FileUtils.createDirectory(targetTrainingBaseDir);
         //

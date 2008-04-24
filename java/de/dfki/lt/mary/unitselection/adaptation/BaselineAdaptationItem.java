@@ -1,6 +1,6 @@
 package de.dfki.lt.mary.unitselection.adaptation;
 
-import de.dfki.lt.mary.util.StringUtil;
+import de.dfki.lt.mary.util.StringUtils;
 
 // This class keeps information on each specific training item
 // For example, a training item for a sentence based voice conversion training database
@@ -76,26 +76,26 @@ public class BaselineAdaptationItem {
     {
         audioFile = referenceFilename;
         
-        sinesFile = StringUtil.modifyExtension(audioFile, ".sin"); //Sinusoids
-        noiseFile = StringUtil.modifyExtension(audioFile, ".noi"); //Noise
-        transientsFile = StringUtil.modifyExtension(audioFile, ".tra"); //Transients
-        residualFile = StringUtil.modifyExtension(audioFile, ".res"); //Residual (what remains after all model based decomposition)
+        sinesFile = StringUtils.modifyExtension(audioFile, ".sin"); //Sinusoids
+        noiseFile = StringUtils.modifyExtension(audioFile, ".noi"); //Noise
+        transientsFile = StringUtils.modifyExtension(audioFile, ".tra"); //Transients
+        residualFile = StringUtils.modifyExtension(audioFile, ".res"); //Residual (what remains after all model based decomposition)
         
-        labelFile = StringUtil.modifyExtension(audioFile, ".lab");   //Labels
-        f0File = StringUtil.modifyExtension(audioFile, ".ptc");      //f0 contour
-        pitchMarkFile = StringUtil.modifyExtension(audioFile, ".pm");   //Pitch marks
-        energyFile = StringUtil.modifyExtension(audioFile, ".ene"); //Energy contour
-        textFile = StringUtil.modifyExtension(audioFile, ".txt");    //Text
-        mfccFile = StringUtil.modifyExtension(audioFile, ".mfc");    //Mel frequency cepstral coefficients
-        lsfFile = StringUtil.modifyExtension(audioFile, ".lsf");     //Line spectral frequencies
-        lpcFile = StringUtil.modifyExtension(audioFile, ".lpc");     //Linear prediction coefficients
-        lpResidualFile = StringUtil.modifyExtension(audioFile, ".lpr");   //Time-domain residual waveform after LP inverse filtering
-        cepsFile = StringUtil.modifyExtension(audioFile, ".cep");    //Cepstrum coefficients file
-        eggFile = StringUtil.modifyExtension(audioFile, ".egg");     //Electro-glottograph file
+        labelFile = StringUtils.modifyExtension(audioFile, ".lab");   //Labels
+        f0File = StringUtils.modifyExtension(audioFile, ".ptc");      //f0 contour
+        pitchMarkFile = StringUtils.modifyExtension(audioFile, ".pm");   //Pitch marks
+        energyFile = StringUtils.modifyExtension(audioFile, ".ene"); //Energy contour
+        textFile = StringUtils.modifyExtension(audioFile, ".txt");    //Text
+        mfccFile = StringUtils.modifyExtension(audioFile, ".mfc");    //Mel frequency cepstral coefficients
+        lsfFile = StringUtils.modifyExtension(audioFile, ".lsf");     //Line spectral frequencies
+        lpcFile = StringUtils.modifyExtension(audioFile, ".lpc");     //Linear prediction coefficients
+        lpResidualFile = StringUtils.modifyExtension(audioFile, ".lpr");   //Time-domain residual waveform after LP inverse filtering
+        cepsFile = StringUtils.modifyExtension(audioFile, ".cep");    //Cepstrum coefficients file
+        eggFile = StringUtils.modifyExtension(audioFile, ".egg");     //Electro-glottograph file
         
-        targetFestivalUttFile = StringUtil.modifyExtension(audioFile, ".tutt"); //FESTIVAL_UTT file
-        targetLabelFile = StringUtil.modifyExtension(audioFile, ".tlab");  //Target labels for mapping
-        targetEnergyFile = StringUtil.getFileName(audioFile) + ".tene"; //Target energy file, to be used in transplantations
-        targetWavFile = StringUtil.getFileName(audioFile) + ".twav"; //Target waveform file
+        targetFestivalUttFile = StringUtils.modifyExtension(audioFile, ".tutt"); //FESTIVAL_UTT file
+        targetLabelFile = StringUtils.modifyExtension(audioFile, ".tlab");  //Target labels for mapping
+        targetEnergyFile = StringUtils.getFileName(audioFile) + ".tene"; //Target energy file, to be used in transplantations
+        targetWavFile = StringUtils.getFileName(audioFile) + ".twav"; //Target waveform file
     }
 }
