@@ -30,14 +30,16 @@
 package de.dfki.lt.machinelearning;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
 
 import de.dfki.lt.mary.modules.phonemiser.Phoneme;
 import de.dfki.lt.mary.modules.phonemiser.PhonemeSet;
-import de.dfki.lt.mary.util.StringUtil;
+import de.dfki.lt.mary.util.StringUtils;
 import de.dfki.lt.signalproc.util.MaryRandomAccessFile;
 import de.dfki.lt.signalproc.util.MathUtils;
+import de.dfki.lt.signalproc.util.SignalProcUtils;
 
 /**
  * @author oytun.turk
@@ -61,6 +63,15 @@ public class ContextualGMMParams {
     public static final int PHONOLOGY_CLASS = 1;
     public static final int FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER = 2;
     public static final int VOWEL_CONSONANT_SILENCE = 3;
+    
+    public static final int FRICATIVE_MULTIPLIER   = 1;
+    public static final int GLIDELIQUID_MULTIPLIER = 1;
+    public static final int NASAL_MULTIPLIER       = 1;
+    public static final int PLOSIVE_MULTIPLIER     = 1;
+    public static final int VOWEL_MULTIPLIER       = 8;
+    public static final int OTHER_MULTIPLIER       = 1;
+    public static final int CONSONANT_MULTIPLIER   = 4;
+    public static final int SILENCE_MULTIPLIER     = 1;
     
     public String[][] phonemeClasses; //Each row corresponds to a String arrray of phonemes that are grouped in the same class
     public GMMTrainerParams[] classTrainerParams; //Training parameters for each context class
@@ -173,8 +184,13 @@ public class ContextualGMMParams {
     public void setClasses(Phoneme[] phns, GMMTrainerParams commonParams)
     {
         if (phns!=null)
-        {
+        {   
             int i;
+            
+            //Print phns to a text file for easy comparison
+            //StringUtils.writeTextFile(phns, "d:\\phns.txt");
+            //
+            
             if (contextClassificationType==NO_PHONEME_CLASS) //All phonemes go to the same class, this is identical to non-contextual GMM training
             {
                 phonemeClasses = new String[1][phns.length];
@@ -190,7 +206,7 @@ public class ContextualGMMParams {
                 for (i=0; i<phns.length; i++)
                     allPhonemes[i] = phns[i].name();
                 
-                String[] differentPhonemes = StringUtil.getDifferentItemsList(allPhonemes);
+                String[] differentPhonemes = StringUtils.getDifferentItemsList(allPhonemes);
                 
                 phonemeClasses = new String[differentPhonemes.length][1];
                 classTrainerParams = new GMMTrainerParams[differentPhonemes.length];
@@ -204,7 +220,7 @@ public class ContextualGMMParams {
             else if (contextClassificationType==PHONOLOGY_CLASS) //Each phonology class goes into a separate class, however this cannot handle phoneme replications since labels do not have phonology information that could be used in transformation phase
             {
                 int[] phonologyClasses = getPhonologyClasses(phns);
-                int[] differentPhonologyClasses = StringUtil.getDifferentItemsList(phonologyClasses);
+                int[] differentPhonologyClasses = StringUtils.getDifferentItemsList(phonologyClasses);
 
                 phonemeClasses = new String[differentPhonologyClasses.length][];
                 classTrainerParams = new GMMTrainerParams[differentPhonologyClasses.length];
@@ -222,20 +238,25 @@ public class ContextualGMMParams {
             else if(contextClassificationType==FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER)
             {
                 int[] phonologyClasses = getPhonologyClasses(phns);
-                int[] differentPhonologyClasses = StringUtil.getDifferentItemsList(phonologyClasses);
+                int[] differentPhonologyClasses = StringUtils.getDifferentItemsList(phonologyClasses);
                 int[][] inds = new int[6][];
                 
                 //Fricatives
-                inds[0] = MathUtils.find(phonologyClasses, MathUtils.LESS_THAN_OR_EQUALS, FRICATIVE);
+                inds[0] = findIndices(phonologyClasses, FRICATIVE);
                 //Glide or liquids
-                inds[1] = MathUtils.findOr(phonologyClasses, MathUtils.GREATER_THAN_OR_EQUALS, GLIDE, MathUtils.LESS_THAN_OR_EQUALS, LIQUID);
+                int[] tmpInds1 = findIndices(phonologyClasses, GLIDE);
+                int[] tmpInds2 = findIndices(phonologyClasses, LIQUID);
+                int[] tmpInds = SignalProcUtils.merge(tmpInds1, tmpInds2);
+                MathUtils.quickSort(tmpInds);
+                inds[1] = StringUtils.getDifferentItemsList(tmpInds);
+                
                 //Nasals
-                inds[2] = MathUtils.findOr(phonologyClasses, MathUtils.GREATER_THAN, NASAL-1, MathUtils.LESS_THAN_OR_EQUALS, NASAL);
+                inds[2] = findIndices(phonologyClasses, NASAL);
                 //Plosives
-                inds[3] = MathUtils.findOr(phonologyClasses, MathUtils.GREATER_THAN, PLOSIVE-1, MathUtils.LESS_THAN_OR_EQUALS, PLOSIVE);
+                inds[3] = findIndices(phonologyClasses, PLOSIVE);
                 //Vowels
-                inds[4] = MathUtils.findOr(phonologyClasses, MathUtils.GREATER_THAN, VOWEL-1, MathUtils.LESS_THAN_OR_EQUALS, VOWEL);
-                //Remaining will be other, i.e. pauses in inds[5]
+                inds[4] = findIndices(phonologyClasses, VOWEL);
+                //Remaining will be other in inds[5]
                 
                 int j;
                 int totalOther = 0;
@@ -244,7 +265,7 @@ public class ContextualGMMParams {
                     boolean bFound = false;
                     for (j=0; j<inds.length-1; j++)
                     {
-                        if (MathUtils.find(inds[j], MathUtils.EQUALS, j)!=null)
+                        if (MathUtils.find(inds[j], MathUtils.EQUALS, i)!=null)
                         {
                             bFound=true;
                             break;
@@ -265,7 +286,7 @@ public class ContextualGMMParams {
                         boolean bFound = false;
                         for (j=0; j<inds.length-1; j++)
                         {
-                            if (MathUtils.find(inds[j], MathUtils.EQUALS, j)!=null)
+                            if (MathUtils.find(inds[j], MathUtils.EQUALS, i)!=null)
                             {
                                 bFound=true;
                                 break;
@@ -304,6 +325,19 @@ public class ContextualGMMParams {
                         
                         classTrainerParams[count] = new GMMTrainerParams(commonParams);
                         
+                        if (i==0)
+                            classTrainerParams[count].totalComponents *= FRICATIVE_MULTIPLIER;
+                        else if (i==1)
+                            classTrainerParams[count].totalComponents *= GLIDELIQUID_MULTIPLIER;
+                        else if (i==2)
+                            classTrainerParams[count].totalComponents *= NASAL_MULTIPLIER;
+                        else if (i==3)
+                            classTrainerParams[count].totalComponents *= PLOSIVE_MULTIPLIER;
+                        else if (i==4)
+                            classTrainerParams[count].totalComponents *= VOWEL_MULTIPLIER;
+                        else if (i==5)
+                            classTrainerParams[count].totalComponents *= OTHER_MULTIPLIER;
+                        
                         count++;
                     }
                 }
@@ -311,13 +345,13 @@ public class ContextualGMMParams {
             else if (contextClassificationType==VOWEL_CONSONANT_SILENCE)
             {
                 int[] phonologyClasses = getPhonologyClasses(phns);
-                int[] differentPhonologyClasses = StringUtil.getDifferentItemsList(phonologyClasses);
+                int[] differentPhonologyClasses = StringUtils.getDifferentItemsList(phonologyClasses);
                 int[][] inds = new int[3][];
                 
                 //Vowels
-                inds[0] = MathUtils.findOr(phonologyClasses, MathUtils.GREATER_THAN_OR_EQUALS, VOWEL-1, MathUtils.LESS_THAN_OR_EQUALS, VOWEL);
+                inds[0] = findIndices(phonologyClasses, VOWEL);
                 //Silences
-                inds[1] = MathUtils.findOr(phonologyClasses, MathUtils.GREATER_THAN, PAUSE-1, MathUtils.LESS_THAN_OR_EQUALS, PAUSE);
+                inds[1] = findIndices(phonologyClasses, PAUSE);
                 //Remaining will be inds[2], i.e. consonants
                 
                 int j;
@@ -327,7 +361,7 @@ public class ContextualGMMParams {
                     boolean bFound = false;
                     for (j=0; j<inds.length-1; j++)
                     {
-                        if (MathUtils.find(inds[j], MathUtils.EQUALS, j)!=null)
+                        if (MathUtils.find(inds[j], MathUtils.EQUALS, i)!=null)
                         {
                             bFound=true;
                             break;
@@ -348,7 +382,7 @@ public class ContextualGMMParams {
                         boolean bFound = false;
                         for (j=0; j<inds.length-1; j++)
                         {
-                            if (MathUtils.find(inds[j], MathUtils.EQUALS, j)!=null)
+                            if (MathUtils.find(inds[j], MathUtils.EQUALS, i)!=null)
                             {
                                 bFound=true;
                                 break;
@@ -386,6 +420,13 @@ public class ContextualGMMParams {
                             phonemeClasses[count][j] = phns[inds[i][j]].name();
                         
                         classTrainerParams[count] = new GMMTrainerParams(commonParams);
+                        
+                        if (i==0)
+                            classTrainerParams[count].totalComponents *= VOWEL_MULTIPLIER;
+                        else if (i==1)
+                            classTrainerParams[count].totalComponents *= SILENCE_MULTIPLIER;
+                        else if (i==2)
+                            classTrainerParams[count].totalComponents *= CONSONANT_MULTIPLIER;
                         
                         count++;
                     }
@@ -444,6 +485,40 @@ public class ContextualGMMParams {
         }
 
         return phonologyClasses;
+    }
+    
+    public static int[] findIndices(int[] phonologyClasses, int desiredClasses)
+    {
+        int[] indices = null;
+        
+        boolean[] desireds = new boolean[phonologyClasses.length];
+        int i;
+        int total = 0;
+        for (i=0; i<phonologyClasses.length; i++)
+        {
+            desireds[i] = StringUtils.isDesired(phonologyClasses[i], desiredClasses);
+            if (desireds[i])
+                total++;
+        }
+        
+        if (total>0)
+        {
+            indices = new int[total];
+            int count = 0;
+            for (i=0; i<desireds.length; i++)
+            {
+                if (desireds[i])
+                {
+                    indices[count] = i;
+                    count++;
+                    
+                    if (count>=total)
+                        break;
+                }
+            }
+        }
+        
+        return indices;
     }
     
     public void setClass(int classIndex, String[] phonemes)
