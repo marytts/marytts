@@ -1022,7 +1022,8 @@ public class MaryGUIClient extends JPanel
                     if (effectsBox.mainPanel!=null)
                         effectsBox.mainPanel.setVisible(false);
                 
-                    showHidePanel.setVisible(false);
+                    if (showHidePanel!=null)
+                        showHidePanel.setVisible(false);
                 }
                 
                 outputScrollPane.setVisible(true);
@@ -1040,7 +1041,8 @@ public class MaryGUIClient extends JPanel
                 
                 if (effectsBox!=null && effectsBox.mainPanel!=null)
                  {
-                    showHidePanel.setVisible(true);
+                    if (showHidePanel!=null)
+                        showHidePanel.setVisible(true);
                     
                     if (effectsBox.mainPanel!=null && isButtonHide)
                         effectsBox.mainPanel.setVisible(true);
