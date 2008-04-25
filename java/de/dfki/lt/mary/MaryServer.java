@@ -197,7 +197,7 @@ public class MaryServer {
         }
     }
 
-    private int getID() {
+    private synchronized int getID() {
         return runningNumber++;
     }
 
