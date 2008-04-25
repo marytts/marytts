@@ -186,6 +186,8 @@ public class MaryGUIClient extends JPanel
     private GridBagConstraints gridC;
     
     static FocusTraversalPolicy maryGUITraversal;
+    
+    private String serverVersion;
 
     /**
      * Create a MaryGUIClient instance that connects to the server host
@@ -212,7 +214,7 @@ public class MaryGUIClient extends JPanel
         }
         allowSave = true;
         init();
-    }
+    } 
 
     /**
      * Create a MaryGUIClient instance that connects to the given server host
@@ -241,6 +243,53 @@ public class MaryGUIClient extends JPanel
         allowSave = false;
         init();
     }
+    
+    public void getServerVersion()
+    {
+        String[] serverInfo = null;
+        try {
+            serverInfo = processor.getServerVersionInfo();
+        } catch (UnknownHostException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        } catch (IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        
+        if (serverInfo!=null)
+        {
+            int startIndex = 0;
+            int endIndex = serverInfo[0].length();
+            int dotIndex = serverInfo[0].indexOf('.');
+            if (dotIndex>-1)
+            {
+                int spaceIndex1 = serverInfo[0].lastIndexOf(' ', dotIndex);
+                if (spaceIndex1<0)
+                    spaceIndex1=-1;
+                int spaceIndex2 = serverInfo[0].indexOf(' ', dotIndex);
+                if (spaceIndex2<0)
+                    spaceIndex2=serverInfo[0].length();
+                
+                startIndex = spaceIndex1+1;
+                endIndex = spaceIndex2;
+            }
+            
+            serverVersion = serverInfo[0].substring(startIndex, endIndex);
+        }
+        else
+            serverVersion = "";
+    }
+    
+    public boolean isServerNotOlderThan(String currentServer, String serverVersionToCompare)
+    {
+        int tmp = currentServer.compareToIgnoreCase(serverVersionToCompare);
+        
+        if (tmp>=0)
+            return true;
+        else
+            return false;
+    }
 
     /**
      * Create an instance of the MaryClient class which does the processing,
@@ -248,6 +297,8 @@ public class MaryGUIClient extends JPanel
      */
     public void init() throws IOException, UnknownHostException {
 
+        getServerVersion();
+        
         maryGUITraversal = new MaryGUIFocusTraversalPolicy();
         //if this is a normal gui
         if (mainFrame != null){
@@ -1059,6 +1110,14 @@ public class MaryGUIClient extends JPanel
     private File lastDirectory = null;
     private String lastExtension = null;
     private void saveOutput()
+    {   
+        if (isServerNotOlderThan(serverVersion, "3.5.0"))
+            saveOutputNew();
+        else
+            saveOutputOld();
+    }
+    
+    private void saveOutputNew()
     {
         if (!allowSave) return;
         try {
@@ -1126,6 +1185,77 @@ public class MaryGUIClient extends JPanel
                                 ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
                                 "",
                                 getAudioEffectsAsString(),
+                                new FileOutputStream(saveFile));
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            showErrorMessage("IOException",e.getMessage());
+        }
+    }
+    
+    private void saveOutputOld()
+    {
+        if (!allowSave) return;
+        try {
+            if (showingTextOutput) {
+                JFileChooser fc = new JFileChooser();
+                if (lastDirectory != null) {
+                    fc.setCurrentDirectory(lastDirectory);
+                }
+                int returnVal = fc.showSaveDialog(this);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    File saveFile = fc.getSelectedFile();
+                    lastDirectory = saveFile.getParentFile();
+                    PrintWriter w = new PrintWriter(new FileWriter(saveFile));
+                    w.print(outputText.getText());
+                    w.close();
+                }
+            } else { // audio data
+                JFileChooser fc = new JFileChooser();
+                if (lastDirectory != null) {
+                    fc.setCurrentDirectory(lastDirectory);
+                }
+                AudioFileFormat.Type[] knownAudioTypes = AudioSystem.getAudioFileTypes();
+                FileFilter defaultFilter = null;
+                for (int i=0; i<knownAudioTypes.length; i++) {
+                    FileFilter ff = new SimpleFileFilter(knownAudioTypes[i].getExtension(),
+                            knownAudioTypes[i].toString() + "(." + knownAudioTypes[i].getExtension() + ")");
+                    fc.addChoosableFileFilter(ff);
+                    if (lastExtension != null && lastExtension.equals(knownAudioTypes[i].getExtension())) {
+                        defaultFilter = ff;
+                    }
+                    if (defaultFilter != null) {
+                        fc.setFileFilter(defaultFilter);
+                    }
+                }
+                int returnVal = fc.showSaveDialog(this);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    File saveFile = fc.getSelectedFile();
+                    String ext = MaryUtils.getExtension(saveFile);
+                    if (ext == null) { // no extension in the file name, append from filefilter
+                        ext = ((SimpleFileFilter)fc.getFileFilter()).getExtension();
+                        saveFile = new File(saveFile.getAbsolutePath()+"."+ext);
+                    }
+                    lastDirectory = saveFile.getParentFile();
+                    lastExtension = ext;
+                    AudioFileFormat.Type audioType = null;
+                    for (int i=0; i<knownAudioTypes.length; i++) {
+                        if (knownAudioTypes[i].getExtension().equals(ext)) {
+                            audioType = knownAudioTypes[i];
+                            break;
+                        }
+                    }
+                    if (audioType == null) { // file has unknown extension
+                        showErrorMessage("Unknown audio type",
+                                "Cannot write file of type `." + ext + "'");
+                    } else { // OK, we know what to do
+                        processor.process(inputText.getText(),
+                                ((MaryClient.DataType)cbInputType.getSelectedItem()).name(),
+                                "AUDIO",
+                                audioType.toString(),
+                                ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
                                 new FileOutputStream(saveFile));
                     }
                 }
