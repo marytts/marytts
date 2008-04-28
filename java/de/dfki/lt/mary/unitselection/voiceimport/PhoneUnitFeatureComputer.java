@@ -139,16 +139,23 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
         OutputStream os = new BufferedOutputStream(new FileOutputStream(new File( unitfeatureDir, basename + featsExt )));
         MaryClient maryClient = getMaryClient();
         
-        if(maryClient.getVoices(localVoice) == null){
-            if(locale.equals("en")){
+        Vector<MaryClient.Voice> voices = maryClient.getVoices(localVoice);
+        if (voices == null) {
+            if(locale.equals("en")) {
                locale  =  "en_US";
                localVoice = MaryClient.string2locale(locale);
-            }
-            else
-               throw new RuntimeException("Maryserver could not contain voices with '"+locale+"' language");
+               voices = maryClient.getVoices(localVoice);
+            } 
         }
-        
-        Vector voices = maryClient.getVoices(localVoice);
+        // try again:
+        if (voices == null) {
+            StringBuffer buf = new StringBuffer("Mary server has no voices for locale '"+localVoice+"' -- known voices are:\n");
+            Vector<MaryClient.Voice> allVoices = maryClient.getVoices();
+            for (MaryClient.Voice v: allVoices) {
+                buf.append(v.toString()); buf.append("\n");
+            }
+            throw new RuntimeException(buf.toString());
+        }
         MaryClient.Voice defaultVoice = (MaryClient.Voice) voices.firstElement();
         String voiceName = defaultVoice.name();
         //maryClient.process(text, maryInputType, maryOutputType, null, null, os);
