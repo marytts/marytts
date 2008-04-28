@@ -38,6 +38,7 @@ import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
 
 import de.dfki.lt.mary.MaryProperties;
 
@@ -51,7 +52,7 @@ public class InstallationUtils
         URLClassLoader aUrlCL = new URLClassLoader(new URL[] {installerURL}, aCL);
         Thread.currentThread().setContextClassLoader(aUrlCL);
         File autoinstallFile = createAutoInstaller(component);
-        Class installerClass = Class.forName("com.izforge.izpack.installer.AutomatedInstaller", true, aUrlCL);
+        Class installerClass = Class.forName("de.dfki.lt.izpack.AutomatedInstaller", true, aUrlCL);
         Constructor constr = installerClass.getConstructors()[0];
         constr.newInstance(new Object[] {autoinstallFile.getPath()});
         // this is: new AutomatedInstaller(autoinstallFile.getPath());
@@ -92,12 +93,12 @@ public class InstallationUtils
         }
         System.err.print(" calling installer...");
         File autoinstallFile = createAutoInstaller(component);
-
         String[] cmd = new String[] {
                 System.getProperty("java.home")+"/bin/java",
                 "-Dlicensepanel.title=\"Installing_"+component+"\"",
-                "-jar",
+                "-cp",
                 targetFile.getPath(),
+                "de.dfki.lt.izpack.AutomatedInstaller",
                 autoinstallFile.getPath()};
         Process process = Runtime.getRuntime().exec(cmd);
         BufferedReader errReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
@@ -132,13 +133,16 @@ public class InstallationUtils
         String auto2 = "</installpath>\n" +
             "    </com.izforge.izpack.panels.TargetPanel>\n" +
             "    <com.izforge.izpack.panels.PacksPanel>\n" +
-            "        <selected><pack name=\"";
-        String auto3 = "\"/></selected>\n" +
+            "        <pack name=\"";
+        String auto3 = "\" selected=\"true\"/>\n" +
             "    </com.izforge.izpack.panels.PacksPanel>\n" +
             "    <de.dfki.lt.izpack.LicensePanel/>\n" +
             "    <de.dfki.lt.izpack.LicensePanel/>\n" +
             "    <de.dfki.lt.izpack.LicensePanel/>\n" +
             "    <com.izforge.izpack.panels.InstallPanel/>\n" +
+            "    <com.izforge.izpack.panels.ShortcutPanel/>\n" +
+            "    <com.izforge.izpack.panels.XInfoPanel/>\n" +
+            "    <com.izforge.izpack.panels.ProcessPanel/>\n" +
             "    <com.izforge.izpack.panels.SimpleFinishPanel/>\n" +
             "</AutomatedInstallation>";
         File f = File.createTempFile("autoinstall", ".xml");
