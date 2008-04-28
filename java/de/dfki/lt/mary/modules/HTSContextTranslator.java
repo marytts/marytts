@@ -214,6 +214,8 @@ public class HTSContextTranslator extends InternalModule {
           s.close();
    
    /* produce output with phonemes in context */
+    /* A context feature vector can be created with at least 3 phonemes */
+    if( num_phoneme >= 3 ) {
     String pp_phn, p_phn, cur_phn, n_phn, nn_phn;
     v    = currentPfeats.get(0);
     n_v  = currentPfeats.get(1);
@@ -264,6 +266,10 @@ public class HTSContextTranslator extends InternalModule {
       lab += "\n";
       //System.out.println();
            
+    } 
+    } else {  /* there are less than 3 phonemes */
+        logger.debug("HTSContextTranslator: error no sampa symbols to process.");
+        throw new Exception("HTSContextTranslator: error no sampa symbols to process."); 
     }
     
     //logger.debug("\nLAB:\n" + lab);
