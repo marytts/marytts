@@ -92,7 +92,7 @@ THIS SOFTWARE.
     <property name="javadocdir" value="doc/javadoc"/>
     <mkdir dir="${javadocdir}"/>
     <javadoc packagenames="de.dfki.lt.mary.*,de.dfki.lt.signalproc.*"
-             classpath="java/tritonus_share.jar;java/freetts-en_us.jar;java/log4j-1.2.8.jar;java/freetts-mbrola.jar;java/tritonus_mp3.jar;java/junit.jar;java/freetts-cmu_us_kal.jar;java/freetts-de.jar;java/jtok.jar;build/standalone-compiler.jar;java/tritonus_src.jar;java/jl1.0.jar;java/jsresources.jar;java/java-diff.jar;java/tritonus_remaining.jar;java/freetts-cmudict04.jar;java/freetts-germanlex.jar;java/freetts.jar;java/JavaOpenAIR.jar;java/Jama-1.0.2.jar;java/jl1.0.jar"
+             classpath="java/tritonus_share-0.3.6.jar;java/freetts-en_us.jar;java/log4j-1.2.8.jar;java/freetts-mbrola.jar;java/tritonus_mp3-0.3.6.jar;java/junit.jar;java/freetts-de.jar;java/jtok.jar;build/standalone-compiler.jar;java/tritonus_remaining-0.3.6.jar;java/jl1.0.jar;java/jsresources.jar;java/java-diff.jar;java/freetts-cmudict04.jar;java/freetts-germanlex.jar;java/freetts.jar;java/JavaOpenAIR.jar;java/Jama-1.0.2.jar;java/jl1.0.jar;java/fast-md5.jar"
              sourcepath="${src}"
              destdir="${javadocdir}"
              author="true"
@@ -367,7 +367,14 @@ THIS SOFTWARE.
     </delete>
   </target>
 
-	<target name="de.dfki.lt.izpack.LicensePanel.jar" depends="compile">
+	<target name="de.dfki.lt.izpack.LicensePanel.jar">
+           <!-- As of version 3.10.2, izpack requires java 1.4 class files -->
+            <delete>
+              <fileset dir="${dest}" includes="de/dfki/lt/izpack/LicensePanel*.class"/>
+            </delete>
+            <javac srcdir="${src}" includes="de/dfki/lt/izpack/LicensePanel*.java" 
+                   classpathref="project.classpath" source="1.4"
+                   target="1.4" encoding="UTF-8" debug="on"/>
 	    <jar destfile="build/bin/panels/de.dfki.lt.izpack.LicensePanel.jar"
 	         basedir="${src}"
 	         includes="de/dfki/lt/izpack/LicensePanel*.class">
@@ -380,14 +387,34 @@ THIS SOFTWARE.
 	      </manifest>
 	    </jar>
 	  </target>
+
+       <target name="de.dfki.lt.izpack.AutomatedInstaller.jar" depends="compile">
+           <!-- As of version 3.10.2, izpack requires java 1.4 class files -->
+            <delete>
+              <fileset dir="${dest}" includes="de/dfki/lt/izpack/AutomatedInstaller*.class"/>
+            </delete>
+            <javac srcdir="${src}" includes="de/dfki/lt/izpack/AutomatedInstaller*.java" 
+                   classpathref="project.classpath" source="1.4"
+                   target="1.4" encoding="UTF-8" debug="on"/>
+            <jar destfile="build/de.dfki.lt.izpack.AutomatedInstaller.jar"
+                 basedir="${src}"
+                 includes="de/dfki/lt/izpack/AutomatedInstaller*.class">
+              <manifest>
+                <attribute name="Built-By" value="${user.name}"/>
+                <attribute name="Specification-Version"
+                           value="${specification.version}"/>
+                <attribute name="Implementation-Version"
+                           value="${implementation.version}"/>
+              </manifest>
+            </jar>
+        </target>
 	
-	
-    <target name="installer" depends="jars,de.dfki.lt.izpack.LicensePanel.jar">
+    <target name="installer" depends="jars,de.dfki.lt.izpack.LicensePanel.jar,de.dfki.lt.izpack.AutomatedInstaller.jar">
     	<java dir="build" jar="build/standalone-compiler.jar" fork="true">
 			<arg line="openmary-install.xml -b .. -k webdir -o ../dist/openmary-install-${specification.version}.jar"/>
         </java>
     </target>
-    <target name="standalone-installer" depends="jars,de.dfki.lt.izpack.LicensePanel.jar">
+    <target name="standalone-installer" depends="jars,de.dfki.lt.izpack.LicensePanel.jar,de.dfki.lt.izpack.AutomatedInstaller.jar">
     	<java dir="build" jar="build/standalone-compiler.jar" fork="true">
 			<arg line="openmary-install.xml -b .. -k standard -o ../dist/openmary-standalone-install-${specification.version}.jar"/>
         </java>
