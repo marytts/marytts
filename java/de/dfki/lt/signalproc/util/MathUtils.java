@@ -364,7 +364,6 @@ public class MathUtils {
         return var;
     }
 
-
     public static double[] variance(double[][]x, double[] meanVector)
     {
         return variance(x, meanVector, true);   
@@ -445,7 +444,7 @@ public class MathUtils {
             meanVector = new double[x[indicesOfX[0]].length];
             Arrays.fill(meanVector, 0.0);
 
-            for (i=0; i<x.length; i++)
+            for (i=0; i<indicesOfX.length; i++)
             {
                 for (j=0; j<x[indicesOfX[0]].length; j++)
                     meanVector[j] += x[indicesOfX[i]][j];
