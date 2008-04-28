@@ -348,18 +348,13 @@ public class MaryProperties
                 if (!providesMap.containsKey(requirement)) {
                     // Missing dependency
                     String component = tryToSolveDependencyProblem(requirement, requirer, "component is missing");
-                    // TODO: The following code is untested because
-                    // IzPack AutomatedInstaller will not return.
-                    // If we ever replace it with something that returns,
-                    // the following code is intended to recursively solve
-                    // all dependencies in one go and then start the server:
                     if (component != null) { // could solve one
                         // add new config file, re-check
                         File configFile = new File(maryBase+"/conf/"+component+".config");
                         assert configFile.exists();
                         allConfigs.addAll(readConfigFiles(new File[] {configFile}));
                         // recursive call
-                        allThere = checkDependencies(allConfigs);
+                        return checkDependencies(allConfigs);
                     } else { // failed, cannot solve
                         allThere = false;
                     }
@@ -473,13 +468,12 @@ public class MaryProperties
                 try {
                     // TODO: The AutomatedInstaller in IzPack calls System.exit(),
                     // so this does not return -- replace with own AutomatedInstaller?
-                    InstallationUtils.directRunInstaller(new URL(download), component);
-                    
+                    //InstallationUtils.directRunInstaller(new URL(download), component);
+                    InstallationUtils.downloadAndRunInstaller(new URL(download), component);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     return null;
                 }
-                //InstallationUtils.downloadAndRunInstaller(new URL(download), missing);
                 if (new File(maryBase()+"/conf/"+component+".config").exists()) {
                     // apparently, the component has now been installed
                     return component;
