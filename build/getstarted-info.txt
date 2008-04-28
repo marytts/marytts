@@ -1,6 +1,10 @@
-The MARY TTS system has now been installed in $INSTALL_PATH !
+The core of the MARY TTS system has now been installed in $INSTALL_PATH !
 
-Now, to run the system, you need to start TWO programs:
+To install additional voices, run the Voice installer from the start menu
+or from $INSTALL_PATH/bin/installvoices.
+
+
+In order to run the system, you will need to start TWO programs:
 
 1. The MARY server
    The server is the core of the system, doing the actual work.
