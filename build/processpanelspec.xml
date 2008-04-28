@@ -1,0 +1,11 @@
+<processing> 
+  <job name="installvoices"> 
+    <os family="windows" /> 
+    <executefile name="$INSTALL_PATH/bin/installvoices.bat"/> 
+  </job> 
+  <job name="installvoices"> 
+    <os family="unix" /> 
+    <executefile name="$INSTALL_PATH/bin/installvoices"/> 
+  </job> 
+</processing> 
+
