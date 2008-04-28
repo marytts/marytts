@@ -719,6 +719,57 @@ public class MaryClient {
         }
         return serverVersionInfo;
     }
+    
+    public String getServerVersionNo()
+    {
+        String serverVersionNo = "";
+        String[] serverInfo = null;
+        try {
+            serverInfo = getServerVersionInfo();
+        } catch (UnknownHostException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        } catch (IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        
+        if (serverInfo!=null)
+        {
+            int startIndex = 0;
+            int endIndex = serverInfo[0].length();
+            int dotIndex = serverInfo[0].indexOf('.');
+            if (dotIndex>-1)
+            {
+                int spaceIndex1 = serverInfo[0].lastIndexOf(' ', dotIndex);
+                if (spaceIndex1<0)
+                    spaceIndex1=-1;
+                int spaceIndex2 = serverInfo[0].indexOf(' ', dotIndex);
+                if (spaceIndex2<0)
+                    spaceIndex2=serverInfo[0].length();
+                
+                startIndex = spaceIndex1+1;
+                endIndex = spaceIndex2;
+            }
+            
+            serverVersionNo = serverInfo[0].substring(startIndex, endIndex);
+        }
+        else
+            serverVersionNo = "";
+        
+        return serverVersionNo;
+    }
+    
+    public boolean isServerNotOlderThan(String serverVersionToCompare)
+    {
+        String currentServer = getServerVersionNo();
+        int tmp = currentServer.compareToIgnoreCase(serverVersionToCompare);
+        
+        if (tmp>=0)
+            return true;
+        else
+            return false;
+    }
 
     /**
      * Obtain a list of all data types known to the server. If the information is not
@@ -984,20 +1035,44 @@ public class MaryClient {
             assert locale != null;
             if (!st.hasMoreTokens()) continue; // ignore entry
             String gender = st.nextToken();
-                
-            Voice voice;
-            if (!st.hasMoreTokens()){ //assume domain is general
-                voice = new Voice(name, locale, gender, "general");}
-            else{ //read in the domain
-                String domain = st.nextToken();
-                voice = new Voice(name, locale, gender, domain);}
             
-            String synthesizerType;
-            if (!st.hasMoreTokens())
-                synthesizerType = "non-specified";
+            Voice voice = null;
+            if (isServerNotOlderThan("3.5.0"))
+            {
+                String synthesizerType;
+                if (!st.hasMoreTokens())
+                    synthesizerType = "non-specified";
+                else
+                    synthesizerType = st.nextToken();
+
+                if (!st.hasMoreTokens())
+                { 
+                    //assume domain is general
+                    voice = new Voice(name, locale, gender, "general");
+                }
+                else
+                { 
+                    //read in the domain
+                    String domain = st.nextToken();
+                    voice = new Voice(name, locale, gender, domain);
+                }
+
+                voice.setSynthesizerType(synthesizerType);
+            }
             else
-                synthesizerType = st.nextToken();
-            voice.setSynthesizerType(synthesizerType);
+            {
+                if (!st.hasMoreTokens())
+                { 
+                    //assume domain is general
+                    voice = new Voice(name, locale, gender, "general");
+                }
+                else
+                { 
+                    //read in the domain
+                    String domain = st.nextToken();
+                    voice = new Voice(name, locale, gender, domain);
+                }
+            }
             
             allVoices.add(voice);
             Vector<MaryClient.Voice> localeVoices = null;
