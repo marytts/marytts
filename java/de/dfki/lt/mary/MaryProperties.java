@@ -447,8 +447,7 @@ public class MaryProperties
         if (missing.contains("voice")) {
             int answer = JOptionPane.showConfirmDialog(null,
                     problem+"\n"+
-                    "Would you like to download `"+ component +"'\nusing the MARY Voice Installer?\n"
-                    + "After installation, please re-start the MARY server.",
+                    "Would you like to download `"+ component +"'\nusing the MARY Voice Installer?",
                     "Dependency problem",
                     JOptionPane.YES_NO_OPTION);
             if (answer == JOptionPane.YES_OPTION) {
