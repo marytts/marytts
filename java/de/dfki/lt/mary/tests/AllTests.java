@@ -46,6 +46,7 @@ public class AllTests {
         suite.addTest(new TestSuite(RequestTest.class));
         suite.addTest(new TestSuite(EnvironmentTests.class));
         suite.addTest(new TestSuite(TimelineTest.class));
+        suite.addTest(new TestSuite(EmospeakTest.class));
         return suite;
     }
 }
