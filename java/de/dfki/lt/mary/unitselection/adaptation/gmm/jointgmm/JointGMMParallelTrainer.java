@@ -220,13 +220,13 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         String emotion = "angry";
         String method = "F";
         int numTrainingFiles = 200; //2, 20, 200, 350
-        int numMixes = 16;
+        int numMixes = 128;
         
         boolean isContextualGMMs = true;
-        //int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS;
+        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS;
         //int contextClassificationType = ContextualGMMParams.PHONEME_IDENTITY;
         //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS;
-        int contextClassificationType = ContextualGMMParams.FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER;
+        //int contextClassificationType = ContextualGMMParams.FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER;
         //int contextClassificationType = ContextualGMMParams.VOWEL_CONSONANT_SILENCE;
         
         mainParametric(numTrainingFiles, numMixes, isContextualGMMs, contextClassificationType, "neutral", emotion, method);
@@ -273,11 +273,14 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         gp.isContextualGMMs = isContextualGMMs;
         gp.gmmEMTrainerParams.totalComponents = numMixes;
         gp.gmmEMTrainerParams.isDiagonalCovariance = true; 
-        gp.gmmEMTrainerParams.minimumIterations = 100;
-        gp.gmmEMTrainerParams.maximumIterations = 150;
+        gp.gmmEMTrainerParams.kmeansMaximumIterations = 200;
+        gp.gmmEMTrainerParams.kmeansMinClusterChangePercent = 0.0001;
+        gp.gmmEMTrainerParams.emMinimumIterations = 1000;
+        gp.gmmEMTrainerParams.emMaximumIterations = 2000;
         gp.gmmEMTrainerParams.isUpdateCovariances = true;
-        //gp.gmmEMTrainerParams.tinyLogLikelihoodChange = 1e-10;
-        //gp.gmmEMTrainerParams.minimumCovarianceAllowed = 1e-5;
+        gp.gmmEMTrainerParams.tinyLogLikelihoodChange = 1e-6;
+        gp.gmmEMTrainerParams.minimumCovarianceAllowed = 1e-5;
+        gp.gmmEMTrainerParams.useNativeCLibTrainer = true;
         
         if (gp.isContextualGMMs)
         {

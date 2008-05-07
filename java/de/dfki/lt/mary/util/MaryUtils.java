@@ -31,7 +31,9 @@ package de.dfki.lt.mary.util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -46,6 +48,7 @@ import java.util.TimerTask;
 
 import javax.swing.JFrame;
 
+import de.dfki.lt.machinelearning.GMM;
 import de.dfki.lt.mary.MaryProperties;
 import de.dfki.lt.signalproc.display.FunctionGraph;
 import de.dfki.lt.signalproc.util.MathUtils;
@@ -927,5 +930,64 @@ public class MaryUtils {
             try { Thread.sleep(milliSecondsToClose); } catch (InterruptedException e) {}
             frame.dispose();
         }
+    }
+    
+    public static boolean isLittleEndian()
+    {
+        ByteOrder b = ByteOrder.nativeOrder();
+        if (b.equals(ByteOrder.BIG_ENDIAN))
+            return false;
+        else
+            return true;
+    }
+    
+    public static int shellExecute(String strCommand)
+    {
+        return shellExecute(strCommand, true);
+    }
+    
+    public static int shellExecute(String strCommand, boolean bDisplayProgramOutput)
+    {
+        Process p = null;
+        try {
+            p = Runtime.getRuntime().exec(strCommand);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (p!=null)
+        {
+            BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            String line = "";
+            try {
+                line = input.readLine();
+                if (bDisplayProgramOutput && line!=null)
+                    System.out.println(line);
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+            while (line != null) {
+                try {
+                    line = input.readLine();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                if (bDisplayProgramOutput && line!=null)
+                    System.out.println(line);
+            }
+
+            try {
+                p.waitFor();
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            return p.exitValue();
+        }
+        
+        return -1;
     }
 }

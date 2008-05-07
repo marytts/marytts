@@ -73,9 +73,9 @@ public class KMeansMappingEliminatorParams extends BaselineOutlierEliminatorPara
         numClustersDuration = DEFAULT_NUM_CLUSTERS;
         numClustersEnergy = DEFAULT_NUM_CLUSTERS;
         
-        maximumIterations = KMeansClusteringTrainer.MAXIMUM_ITERATIONS_DEFAULT;
-        minClusterPercent = KMeansClusteringTrainer.MIN_CLUSTER_PERCENT_DEFAULT;
-        isDiagonalCovariance = KMeansClusteringTrainer.IS_DIAGONAL_COVARIANCE_DEFAULT;
+        maximumIterations = KMeansClusteringTrainer.KMEANS_MAXIMUM_ITERATIONS_DEFAULT;
+        minClusterPercent = KMeansClusteringTrainer.KMEANS_MIN_CLUSTER_CHANGE_PERCENT_DEFAULT;
+        isDiagonalCovariance = KMeansClusteringTrainer.KMEANS_IS_DIAGONAL_COVARIANCE_DEFAULT;
         isSeparateClustering = false;
         eliminationAlgorithm = ELIMINATE_LEAST_LIKELY_MAPPINGS;
         eliminationLikelihood = 0.1;

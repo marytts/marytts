@@ -232,20 +232,23 @@ public class GaussianComponent {
     
     public void write(MaryRandomAccessFile stream) throws IOException
     {
+        boolean isDiagonal = isDiagonalCovariance();
+        stream.writeBooleanEndian(isDiagonal);
+        
         if (meanVector!=null)
         {
-            stream.writeInt(meanVector.length);
-            stream.writeDouble(meanVector);
+            stream.writeIntEndian(meanVector.length);
+            stream.writeDoubleEndian(meanVector);
         }
         else
-            stream.writeInt(0);
+            stream.writeIntEndian(0);
          
         int i;
         
         if (covMatrix!=null)
-            stream.writeInt(covMatrix.length);
+            stream.writeIntEndian(covMatrix.length);
         else
-            stream.writeInt(0);
+            stream.writeIntEndian(0);
             
         if (covMatrix!=null)
         { 
@@ -253,18 +256,18 @@ public class GaussianComponent {
             {
                 if (covMatrix[i]!=null)
                 {
-                    stream.writeInt(covMatrix[i].length);
-                    stream.writeDouble(covMatrix[i]);
+                    stream.writeIntEndian(covMatrix[i].length);
+                    stream.writeDoubleEndian(covMatrix[i]);
                 }
                 else
-                    stream.writeInt(0);
+                    stream.writeIntEndian(0);
             }
         }
         
         if (invCovMatrix!=null)
-            stream.writeInt(invCovMatrix.length);
+            stream.writeIntEndian(invCovMatrix.length);
         else
-            stream.writeInt(0);
+            stream.writeIntEndian(0);
             
         if (invCovMatrix!=null)
         { 
@@ -272,32 +275,34 @@ public class GaussianComponent {
             {
                 if (invCovMatrix[i]!=null)
                 {
-                    stream.writeInt(invCovMatrix[i].length);
-                    stream.writeDouble(invCovMatrix[i]);
+                    stream.writeIntEndian(invCovMatrix[i].length);
+                    stream.writeDoubleEndian(invCovMatrix[i]);
                 }
                 else
-                    stream.writeInt(0);
+                    stream.writeIntEndian(0);
             }
         }
         
-        stream.writeDouble(detCovMatrix);
-        stream.writeDouble(constantTerm);
-        stream.writeDouble(constantTermLog);
+        stream.writeDoubleEndian(detCovMatrix);
+        stream.writeDoubleEndian(constantTerm);
+        stream.writeDoubleEndian(constantTermLog);
     }
     
     public void read(MaryRandomAccessFile stream) throws IOException
     {
+        boolean isDiagonal = stream.readBooleanEndian(); //This is for compatibility with C version
+        
         int tmpLen, tmpLen2;
-        tmpLen = stream.readInt();
+        tmpLen = stream.readIntEndian();
         
         if (tmpLen>0)
-            meanVector = stream.readDouble(tmpLen);
+            meanVector = stream.readDoubleEndian(tmpLen);
         else
             meanVector = null;
          
         int i;
         
-        tmpLen = stream.readInt();
+        tmpLen = stream.readIntEndian();
          
         if (tmpLen>0)
         { 
@@ -305,9 +310,9 @@ public class GaussianComponent {
             
             for (i=0; i<tmpLen; i++)
             {
-                tmpLen2 = stream.readInt();
+                tmpLen2 = stream.readIntEndian();
                 if (tmpLen2>0)
-                    covMatrix[i] = stream.readDouble(tmpLen2);
+                    covMatrix[i] = stream.readDoubleEndian(tmpLen2);
                 else
                     covMatrix[i] = null;
             }
@@ -315,7 +320,7 @@ public class GaussianComponent {
         else
             covMatrix = null;
         
-        tmpLen = stream.readInt();
+        tmpLen = stream.readIntEndian();
         
         if (tmpLen>0)
         { 
@@ -323,9 +328,9 @@ public class GaussianComponent {
 
             for (i=0; i<tmpLen; i++)
             {
-                tmpLen2 = stream.readInt();
+                tmpLen2 = stream.readIntEndian();
                 if (tmpLen2>0)
-                    invCovMatrix[i] = stream.readDouble(tmpLen2);
+                    invCovMatrix[i] = stream.readDoubleEndian(tmpLen2);
                 else
                     invCovMatrix[i] = null;
             }
@@ -333,9 +338,9 @@ public class GaussianComponent {
         else
             invCovMatrix = null;
         
-        detCovMatrix = stream.readDouble();
-        constantTerm = stream.readDouble();
-        constantTermLog = stream.readDouble();
+        detCovMatrix = stream.readDoubleEndian();
+        constantTerm = stream.readDoubleEndian();
+        constantTermLog = stream.readDoubleEndian();
     }
     
     public double probability(double[] x)
