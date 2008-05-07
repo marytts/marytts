@@ -29,6 +29,7 @@
 
 package de.dfki.lt.machinelearning;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import de.dfki.lt.signalproc.util.MaryRandomAccessFile;
@@ -102,6 +103,16 @@ public class GMM {
         info = existing.info;
     }
     
+    public GMM(String gmmFile)
+    {
+        try {
+            read(gmmFile);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+    
     public void init(int featureDimensionIn, int totalMixturesIn, boolean isDiagonalCovarIn)
     {
         featureDimension = featureDimensionIn;
@@ -173,30 +184,44 @@ public class GMM {
         return probs;
     }
     
+    public void write(String gmmFile) throws IOException
+    {
+        MaryRandomAccessFile stream = new MaryRandomAccessFile(gmmFile, "rw");
+        write(stream);
+        stream.close();
+    }
+    
     public void write(MaryRandomAccessFile stream) throws IOException
     {
-        stream.writeInt(featureDimension);
-        stream.writeInt(totalComponents);
-        stream.writeBoolean(isDiagonalCovariance);
-        stream.writeInt(info.length());
+        stream.writeIntEndian(featureDimension);
+        stream.writeIntEndian(totalComponents);
+        stream.writeBooleanEndian(isDiagonalCovariance);
+        stream.writeIntEndian(info.length());
         if (info.length()>0)
-            stream.writeChar(info.toCharArray());
+            stream.writeCharEndian(info.toCharArray());
         
-        stream.writeDouble(weights);
+        stream.writeDoubleEndian(weights);
         for (int i=0; i<totalComponents; i++)
             components[i].write(stream);  
     }
     
+    public void read(String gmmFile) throws IOException
+    {
+        MaryRandomAccessFile stream = new MaryRandomAccessFile(gmmFile, "r");
+        read(stream);
+        stream.close();
+    }
+    
     public void read(MaryRandomAccessFile stream) throws IOException
     {
-        featureDimension = stream.readInt();
-        totalComponents = stream.readInt();
-        isDiagonalCovariance = stream.readBoolean();
-        int tmpLen = stream.readInt();
+        featureDimension = stream.readIntEndian();
+        totalComponents = stream.readIntEndian();
+        isDiagonalCovariance = stream.readBooleanEndian();
+        int tmpLen = stream.readIntEndian();
         if (tmpLen>0)
-            info = String.copyValueOf(stream.readChar(tmpLen));
+            info = String.copyValueOf(stream.readCharEndian(tmpLen));
         
-        weights = stream.readDouble(totalComponents);
+        weights = stream.readDoubleEndian(totalComponents);
         
         components = new GaussianComponent[totalComponents];
         for (int i=0; i<totalComponents; i++)

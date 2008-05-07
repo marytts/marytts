@@ -40,40 +40,50 @@ import de.dfki.lt.signalproc.util.MaryRandomAccessFile;
 public class GMMTrainerParams {
     public static final int TOTAL_COMPONENTS_DEFAULT = 1;
     public static final boolean IS_DIAGONAL_COVARIANCE_DEFAULT = true;
-    public static final int MINIMUM_ITERATIONS_DEFAULT = 20;
-    public static final int MAXIMUM_ITERATIONS_DEFAULT = 200;
+    public static final int EM_MINIMUM_ITERATIONS_DEFAULT = 20;
+    public static final int EM_MAXIMUM_ITERATIONS_DEFAULT = 200;
     public static final boolean IS_UPDATE_COVARIANCES_DEFAULT = true;
-    public static final double TINY_LOGLIKELIHOOD_CHANGE_DEFAULT = 0.01;
+    public static final double TINY_LOGLIKELIHOOD_CHANGE_PERCENT_DEFAULT = 0.0001;
     public static final double MINIMUM_COVARIANCE_ALLOWED_DEFAULT = 1e-4;
+    public static final boolean USE_NATIVE_C_LIB_TRAINER_DEFAULT = false;
     
     public int totalComponents;
     public boolean isDiagonalCovariance; 
-    public int minimumIterations;
-    public int maximumIterations;
+    public int kmeansMaximumIterations;
+    public double kmeansMinClusterChangePercent;
+    public int emMinimumIterations;
+    public int emMaximumIterations;
     public boolean isUpdateCovariances;
     public double tinyLogLikelihoodChange;
     public double minimumCovarianceAllowed;
+    public boolean useNativeCLibTrainer;
     
     public GMMTrainerParams()
     {
         totalComponents = TOTAL_COMPONENTS_DEFAULT;
         isDiagonalCovariance = IS_DIAGONAL_COVARIANCE_DEFAULT; 
-        minimumIterations = MINIMUM_ITERATIONS_DEFAULT;
-        maximumIterations = MAXIMUM_ITERATIONS_DEFAULT;
+        kmeansMaximumIterations = KMeansClusteringTrainer.KMEANS_MAXIMUM_ITERATIONS_DEFAULT;
+        kmeansMinClusterChangePercent = KMeansClusteringTrainer.KMEANS_MIN_CLUSTER_CHANGE_PERCENT_DEFAULT;
+        emMinimumIterations = EM_MINIMUM_ITERATIONS_DEFAULT;
+        emMaximumIterations = EM_MAXIMUM_ITERATIONS_DEFAULT;
         isUpdateCovariances = IS_UPDATE_COVARIANCES_DEFAULT;
-        tinyLogLikelihoodChange = TINY_LOGLIKELIHOOD_CHANGE_DEFAULT;
+        tinyLogLikelihoodChange = TINY_LOGLIKELIHOOD_CHANGE_PERCENT_DEFAULT;
         minimumCovarianceAllowed = MINIMUM_COVARIANCE_ALLOWED_DEFAULT;
+        useNativeCLibTrainer = USE_NATIVE_C_LIB_TRAINER_DEFAULT;
     }
     
     public GMMTrainerParams(GMMTrainerParams existing)
     {
         totalComponents = existing.totalComponents;
         isDiagonalCovariance = existing.isDiagonalCovariance; 
-        minimumIterations = existing.minimumIterations;
-        maximumIterations = existing.maximumIterations;
+        kmeansMaximumIterations = existing.kmeansMaximumIterations;
+        kmeansMinClusterChangePercent = existing.kmeansMinClusterChangePercent;
+        emMinimumIterations = existing.emMinimumIterations;
+        emMaximumIterations = existing.emMaximumIterations;
         isUpdateCovariances = existing.isUpdateCovariances;
         tinyLogLikelihoodChange = existing.tinyLogLikelihoodChange;
         minimumCovarianceAllowed = existing.minimumCovarianceAllowed;
+        useNativeCLibTrainer = existing.useNativeCLibTrainer;
     }
     
     public GMMTrainerParams(MaryRandomAccessFile stream)
@@ -98,13 +108,25 @@ public class GMMTrainerParams {
                 e.printStackTrace();
             } 
             try {
-                stream.writeInt(minimumIterations);
+                stream.writeInt(kmeansMaximumIterations);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } 
+            try {
+                stream.writeDouble(kmeansMinClusterChangePercent);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } 
+            try {
+                stream.writeInt(emMinimumIterations);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             try {
-                stream.writeInt(maximumIterations);
+                stream.writeInt(emMaximumIterations);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -129,6 +151,13 @@ public class GMMTrainerParams {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+
+            try {
+                stream.writeBoolean(useNativeCLibTrainer);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
     }
     
@@ -142,38 +171,65 @@ public class GMMTrainerParams {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+            
             try {
                 isDiagonalCovariance = stream.readBoolean();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             } 
+            
             try {
-                minimumIterations = stream.readInt();
+                kmeansMaximumIterations = stream.readInt();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } 
+            
+            try {
+                kmeansMinClusterChangePercent = stream.readDouble();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } 
+            
+            try {
+                emMinimumIterations = stream.readInt();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+            
             try {
-                maximumIterations = stream.readInt();
+                emMaximumIterations = stream.readInt();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+            
             try {
                 isUpdateCovariances = stream.readBoolean();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+           
             try {
                 tinyLogLikelihoodChange = stream.readDouble();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+            
             try {
                 minimumCovarianceAllowed = stream.readDouble();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            
+            try {
+                useNativeCLibTrainer = stream.readBoolean();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
