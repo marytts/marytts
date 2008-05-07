@@ -1535,11 +1535,6 @@ public class MaryGenericFeatureProcessors
             
             String bi = token.getFeatures().getString("followingBoundaryBreakindex");
             
-            // TODO: debugging
-            System.err.println("following bi: " + bi);
-            System.err.println("preceding bi: " + token.getFeatures().getString("precedingBoundaryBreakindex"));
-
-
             
             if (values.contains(bi)) return values.get(bi);
             // unknown break index return "1"
