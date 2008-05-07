@@ -219,6 +219,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
             
             /* make it executable... */
             proctmp = Runtime.getRuntime().exec( "chmod +x "+tmpFile );
+            proctmp.waitFor();
             
             /* Java 5.0 compliant code below. */
             /* Hook the command line to the process builder: */
