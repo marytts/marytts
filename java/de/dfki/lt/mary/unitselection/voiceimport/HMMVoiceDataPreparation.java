@@ -61,6 +61,7 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
     private String name = "HMMVoiceDataPreparation";
     
     /** Tree files and TreeSet object */
+    public final String ADAPTSCRIPTS = name+".adaptScripts";
     public final String RAW2WAVCOMMAND = name+".raw2wavCommand";
     public final String WAV2RAWCOMMAND = name+".wav2rawCommand";
     public final String UTT2TRANSCOMMAND = name+".utt2transCommand";
@@ -80,6 +81,7 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
            props = new TreeMap<String,String>();
            String rootdir = db.getProp(db.ROOTDIR);
    
+           props.put(ADAPTSCRIPTS, "false");
            props.put(RAW2WAVCOMMAND, rootdir+"data/scripts/raw2wav.sh");
            props.put(WAV2RAWCOMMAND, rootdir+"data/scripts/wav2raw.sh");
            props.put(UTT2TRANSCOMMAND, rootdir+"data/scripts/utt2trans.sh");
@@ -90,9 +92,10 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
     protected void setupHelp(){
         props2Help = new TreeMap<String,String>();
         
-        props2Help.put(RAW2WAVCOMMAND, "");
-        props2Help.put(WAV2RAWCOMMAND, "");
-        props2Help.put(UTT2TRANSCOMMAND, "");
+        props2Help.put(ADAPTSCRIPTS, "ADAPTSCRIPTS=false: speaker dependent scripts, ADAPTSCRIPTS=true:  speaker adaptation/adaptive scripts.  ");
+        props2Help.put(RAW2WAVCOMMAND, "raw2wav command");
+        props2Help.put(WAV2RAWCOMMAND, "wav2raw command");
+        props2Help.put(UTT2TRANSCOMMAND, "utt2trans command");
         
     }
 
@@ -108,70 +111,140 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
         System.out.println("\nChecking directories and files for running HTS training scripts...");
         
         String filedir = db.getProp(db.ROOTDIR);
+        String adaptScripts = getProp(ADAPTSCRIPTS);
         String cmdLine;
-        boolean speech_transcriptions = true;
- 
+        System.out.println("adaptScripts = " + adaptScripts);
        
        File dirWav  = new File("wav");
        File dirText = new File("text");
        File dirRaw  = new File("data/raw");
        File dirUtt  = new File("data/utts");
        
-       /* Check if wav directory exist and have files */
+       /* Check if the wav directory exist and have files */
        /* if wav/* does not exist but data/raw/* exist then can be converted and copied from raw */
+       if(adaptScripts.contentEquals("false") ) {
        if( ( !dirWav.exists() || dirWav.list().length == 0 ) && (dirRaw.exists() && dirRaw.list().length > 0 ) ){
          if(!dirWav.exists())
            dirWav.mkdir();
          /* set the script as executable */
          cmdLine = "chmod +x " + getProp(RAW2WAVCOMMAND);
-         launchProc(cmdLine, "utt2trans", filedir);
-         cmdLine = getProp(RAW2WAVCOMMAND) + " " + filedir + "data/raw " + filedir + "wav" ;
+         launchProc(cmdLine, "raw2wav", filedir);
+         cmdLine = getProp(RAW2WAVCOMMAND) + " data/raw wav" ;
          launchProc(cmdLine, "raw2wav", filedir);
        } else {
            if( !dirWav.exists() || dirWav.list().length == 0 || !dirRaw.exists() || dirRaw.list().length == 0 ){ 
             System.out.println("Problem with wav and data/raw directories: wav files and raw files do not exist.");
-            speech_transcriptions = false;
           } else
             System.out.println("\nwav directory exists and contains files.");    
+       } 
+       } else {  /* adaptScripts = true */
+           if( ( !dirWav.exists() || dirWav.list().length == 0 ) && (dirRaw.exists() && dirRaw.list().length > 0 ) ){
+             if(!dirWav.exists())
+               dirWav.mkdir();
+             /* set the script as executable */
+             cmdLine = "chmod +x " + getProp(RAW2WAVCOMMAND);
+             launchProc(cmdLine, "raw2wav", filedir);
+             
+             String[] dirRawList = dirRaw.list();
+             for (int i=0; (i<dirRawList.length); i++) {
+               System.out.println("RAW DIR: " + dirRawList[i] );
+               File tmp = new File("wav/" + dirRawList[i]);
+               tmp.mkdir();
+               cmdLine = getProp(RAW2WAVCOMMAND) + " data/raw/" + dirRawList[i] + " wav/" + dirRawList[i];
+               launchProc(cmdLine, "raw2wav", filedir);
+             }             
+           } else {
+               if( !dirWav.exists() || dirWav.list().length == 0 || !dirRaw.exists() || dirRaw.list().length == 0 ){ 
+                   System.out.println("Problem with wav and data/raw directories: wav directories and raw directories do not exist.");
+                 } else
+                   System.out.println("\nwav directory exists and contains directories.");    
+              }     
        }
        
        /* check if data/raw directory exist and have files */
        /* if data/raw/* does not exist but wav/* exist then can be converted and copied from wav */
+       if(adaptScripts.contentEquals("false") ) {
        if((!dirRaw.exists() || dirRaw.list().length == 0) && (dirWav.exists() && dirWav.list().length > 0 ) ){
          if(!dirRaw.exists())
            dirRaw.mkdir();
          /* set the script as executable */
          cmdLine = "chmod +x " + getProp(WAV2RAWCOMMAND);
-         launchProc(cmdLine, "utt2trans", filedir);
-         cmdLine = getProp(WAV2RAWCOMMAND) + " " + filedir + "wav " + filedir + "data/raw" ;
+         launchProc(cmdLine, "wav2raw", filedir);
+         cmdLine = getProp(WAV2RAWCOMMAND) + " wav data/raw" ;
          launchProc(cmdLine, "wav2raw", filedir);
        } else {
            if( !dirWav.exists() || dirWav.list().length == 0 || !dirRaw.exists() || dirRaw.list().length == 0 ){
              System.out.println("Problem with wav and data/raw directories: wav files and raw files do not exist.");
-             speech_transcriptions = false;
            } else
                System.out.println("\ndata/raw directory exists and contains files.");
         }
+       } else {  /* adaptScripts = true */
+           if((!dirRaw.exists() || dirRaw.list().length == 0) && (dirWav.exists() && dirWav.list().length > 0 ) ){
+             if(!dirRaw.exists())
+               dirRaw.mkdir();
+             /* set the script as executable */
+             cmdLine = "chmod +x " + getProp(WAV2RAWCOMMAND);
+             launchProc(cmdLine, "wav2raw", filedir);
+                        
+             String[] dirWavList = dirWav.list();
+             for (int i=0; (i<dirWavList.length); i++) {
+             System.out.println("WAV DIR: " + dirWavList[i] );
+             File tmp = new File("data/raw/" + dirWavList[i]);
+             tmp.mkdir();
+             cmdLine = getProp(WAV2RAWCOMMAND) + " wav/" + dirWavList[i] + " data/raw/" + dirWavList[i];
+             launchProc(cmdLine, "raw2wav", filedir);
+           }
+         } else {
+             if( !dirWav.exists() || dirWav.list().length == 0 || !dirRaw.exists() || dirRaw.list().length == 0 ){
+                 System.out.println("Problem with wav and data/raw directories: wav directories and raw directories do not exist.");
+               } else
+                   System.out.println("\ndata/raw directory exists and contains directories.");
+            }
+       }
        
        /* Check if text directory exist and have files */
+       if(adaptScripts.contentEquals("false") ) {
        if((!dirText.exists() || dirText.list().length == 0) && (dirUtt.exists() && dirUtt.list().length > 0 ) ){
          if(!dirText.exists())
            dirText.mkdir();
          /* set the script as executable */
          cmdLine = "chmod +x " + getProp(UTT2TRANSCOMMAND);
          launchProc(cmdLine, "utt2trans", filedir);
-         cmdLine = getProp(UTT2TRANSCOMMAND) + " " + filedir + "data/utts " + filedir + "text" ;
+         cmdLine = getProp(UTT2TRANSCOMMAND) + " data/utts text" ;
          launchProc(cmdLine, "utt2trans", filedir);      
        } else {
            if( (!dirText.exists() || dirText.list().length == 0) && ( !dirUtt.exists() || dirUtt.list().length == 0 ) ){
              System.out.println("Problem with transcription directories text or data/utts (Festival format): utts files and text files do not exist.");
              System.out.println(" the transcriptions in the directory text will be used to generate the phonelab directory, if there are no data/utts files" +
                     "(in Festival format), please provide the transcriptions of the files you are going to use for trainning.");
-             speech_transcriptions = false;
            } else
                System.out.println("\ntext directory exists and contains files.");
         }
-       
+       } else {  /* adaptScripts = true */
+           if((!dirText.exists() || dirText.list().length == 0) && (dirUtt.exists() && dirUtt.list().length > 0 ) ){
+               if(!dirText.exists())
+                 dirText.mkdir();
+               /* set the script as executable */
+               cmdLine = "chmod +x " + getProp(UTT2TRANSCOMMAND);
+               launchProc(cmdLine, "utt2trans", filedir);
+               
+               String[] dirUttList = dirUtt.list();
+               for (int i=0; (i<dirUttList.length); i++) {
+                 System.out.println("UTT DIR: " + dirUttList[i] );
+                 File tmp = new File("text/" + dirUttList[i]);
+                 tmp.mkdir();
+                 cmdLine = getProp(UTT2TRANSCOMMAND) + " data/utts/" + dirUttList[i] + " text/" + dirUttList[i];
+                 launchProc(cmdLine, "utt2trans", filedir);
+               }
+           } else {
+               if( (!dirText.exists() || dirText.list().length == 0) && ( !dirUtt.exists() || dirUtt.list().length == 0 ) ){
+                   System.out.println("Problem with transcription directories text or data/utts (Festival format): utts files and text files do not exist.");
+                   System.out.println(" the transcriptions in the directory text will be used to generate the phonelab directory, if there are no data/utts files" +
+                          "(in Festival format), please provide the transcriptions of the files you are going to use for trainning.");
+                 } else
+                     System.out.println("\ntext directory exists and contains directories.");
+              }
+       }
         
        return true;
        
