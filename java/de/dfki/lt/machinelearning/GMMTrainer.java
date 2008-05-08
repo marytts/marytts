@@ -56,173 +56,6 @@ public class GMMTrainer {
     
     public GMM train(double[][] x, GMMTrainerParams gmmParams)
     {
-        return train(x, 
-                     gmmParams.totalComponents, 
-                     gmmParams.isDiagonalCovariance, 
-                     gmmParams.kmeansMaximumIterations,
-                     gmmParams.kmeansMinClusterChangePercent,
-                     gmmParams.emMinimumIterations,
-                     gmmParams.emMaximumIterations, 
-                     gmmParams.isUpdateCovariances, 
-                     gmmParams.tinyLogLikelihoodChange,
-                     gmmParams.minimumCovarianceAllowed,
-                     gmmParams.useNativeCLibTrainer);
-    }
-
-    public GMM train(double[][] x, 
-            int totalComponents)
-    {
-        return train(x, 
-                totalComponents, 
-                GMMTrainerParams.IS_DIAGONAL_COVARIANCE_DEFAULT);
-    }
-
-    public GMM train(double[][] x, 
-            int totalComponents, 
-            boolean isDiagonalCovariance)
-    {
-        return train(x, 
-                     totalComponents, 
-                     isDiagonalCovariance, 
-                     KMeansClusteringTrainer.KMEANS_MAXIMUM_ITERATIONS_DEFAULT);
-    }
-    
-    public GMM train(double[][] x, 
-            int totalComponents, 
-            boolean isDiagonalCovariance,
-            int kmeansMaximumIterations)
-    {
-        return train(x, 
-                     totalComponents, 
-                     isDiagonalCovariance,
-                     kmeansMaximumIterations,
-                     KMeansClusteringTrainer.KMEANS_MIN_CLUSTER_CHANGE_PERCENT_DEFAULT);
-    }
-    
-    public GMM train(double[][] x, 
-            int totalComponents, 
-            boolean isDiagonalCovariance,
-            int kmeansMaximumIterations,
-            double kmeansMinClusterChangePercent)
-    {
-        return train(x, 
-                     totalComponents, 
-                     isDiagonalCovariance,
-                     kmeansMaximumIterations,
-                     kmeansMinClusterChangePercent,
-                     GMMTrainerParams.EM_MINIMUM_ITERATIONS_DEFAULT);
-    }
-
-    public GMM train(double[][] x, 
-            int totalComponents, 
-            boolean isDiagonalCovariance,
-            int kmeansMaximumIterations,
-            double kmeansMinClusterChangePercent,
-            int emMinimumIterations)
-    {
-        return train(x, 
-                totalComponents, 
-                isDiagonalCovariance, 
-                emMinimumIterations, 
-                GMMTrainerParams.EM_MAXIMUM_ITERATIONS_DEFAULT);
-    }
-
-    public GMM train(double[][] x, 
-            int totalComponents, 
-            boolean isDiagonalCovariance, 
-            int kmeansMaximumIterations,
-            double kmeansMinClusterChangePercent,
-            int emMinimumIterations,
-            int emMaximumIterations)
-    {
-        return train(x, 
-                totalComponents, 
-                isDiagonalCovariance, 
-                kmeansMaximumIterations,
-                kmeansMinClusterChangePercent,
-                emMinimumIterations, 
-                emMaximumIterations, 
-                GMMTrainerParams.IS_UPDATE_COVARIANCES_DEFAULT);
-    }
-
-    public GMM train(double[][] x, 
-            int totalComponents, 
-            boolean isDiagonalCovariance, 
-            int kmeansMaximumIterations,
-            double kmeansMinClusterChangePercent,
-            int emMinimumIterations,
-            int emMaximumIterations, 
-            boolean isUpdateCovariances)
-    {
-        return train(x, 
-                totalComponents, 
-                isDiagonalCovariance, 
-                kmeansMaximumIterations,
-                kmeansMinClusterChangePercent,
-                emMinimumIterations, 
-                emMaximumIterations, 
-                isUpdateCovariances, 
-                GMMTrainerParams.TINY_LOGLIKELIHOOD_CHANGE_PERCENT_DEFAULT);
-    }
-
-    public GMM train(double[][] x, 
-            int totalComponents, 
-            boolean isDiagonalCovariance, 
-            int kmeansMaximumIterations,
-            double kmeansMinClusterChangePercent,
-            int emMinimumIterations,
-            int emMaximumIterations, 
-            boolean isUpdateCovariances, 
-            double tinyLogLikelihoodChangePercent)
-    {
-        return train(x, 
-                totalComponents, 
-                isDiagonalCovariance, 
-                kmeansMaximumIterations,
-                kmeansMinClusterChangePercent,
-                emMinimumIterations, 
-                emMaximumIterations, 
-                isUpdateCovariances, 
-                tinyLogLikelihoodChangePercent,
-                GMMTrainerParams.MINIMUM_COVARIANCE_ALLOWED_DEFAULT);
-    }
-    
-    public GMM train(double[][] x, 
-            int totalComponents, 
-            boolean isDiagonalCovariance, 
-            int kmeansMaximumIterations,
-            double kmeansMinClusterChangePercent,
-            int emMinimumIterations,
-            int emMaximumIterations, 
-            boolean isUpdateCovariances, 
-            double tinyLogLikelihoodChangePercent,
-            double minimumCovarianceAllowed)
-    {
-        return train(x, 
-                totalComponents, 
-                isDiagonalCovariance, 
-                kmeansMaximumIterations,
-                kmeansMinClusterChangePercent,
-                emMinimumIterations,
-                emMaximumIterations, 
-                isUpdateCovariances, 
-                tinyLogLikelihoodChangePercent,
-                minimumCovarianceAllowed,
-                GMMTrainerParams.USE_NATIVE_C_LIB_TRAINER_DEFAULT);
-    }
-    
-    public GMM train(double[][] x, 
-            int totalComponents, 
-            boolean isDiagonalCovariance, 
-            int kmeansMaximumIterations,
-            double kmeansMinClusterChangePercent,
-            int emMinimumIterations,
-            int emMaximumIterations, 
-            boolean isUpdateCovariances, 
-            double tinyLogLikelihoodChangePercent,
-            double minimumCovarianceAllowed,
-            boolean useNativeCLibTrainer)
-    {
         long startTime, endTime;
         
         /*
@@ -249,12 +82,12 @@ public class GMMTrainer {
         startTime = System.currentTimeMillis();
         
         GMM gmm = null;
-        if (x!=null && totalComponents>0)
+        if (x!=null && gmmParams.totalComponents>0)
         {
             if (!MaryUtils.isWindows())
-                useNativeCLibTrainer = false;
+                gmmParams.useNativeCLibTrainer = false;
             
-            if (!useNativeCLibTrainer) //Java training
+            if (!gmmParams.useNativeCLibTrainer) //Java training
             {
                 int featureDimension = x[0].length;
                 int i;
@@ -262,69 +95,59 @@ public class GMMTrainer {
                     assert x[i].length==featureDimension;
 
                 //Initialize components with KMeans clustering
+                KMeansClusteringTrainerParams kmeansParams = new KMeansClusteringTrainerParams(gmmParams);
                 KMeansClusteringTrainer kmeansClusterer = new KMeansClusteringTrainer();
-                kmeansClusterer.cluster(x, totalComponents, 
-                        kmeansMaximumIterations, 
-                        kmeansMinClusterChangePercent,
-                        isDiagonalCovariance);
+                kmeansClusterer.train(x, kmeansParams);
 
                 //Create initial GMM according to KMeans clustering results
                 GMM initialGmm = new GMM(kmeansClusterer);
 
                 //Update model parameters with Expectation-Maximization
                 gmm = expectationMaximization(x, 
-                        initialGmm, 
-                        emMinimumIterations, 
-                        emMaximumIterations, 
-                        isUpdateCovariances, 
-                        tinyLogLikelihoodChangePercent,
-                        minimumCovarianceAllowed);
+                                              initialGmm, 
+                                              gmmParams.emMinIterations, 
+                                              gmmParams.emMaxIterations, 
+                                              gmmParams.isUpdateCovariances, 
+                                              gmmParams.tinyLogLikelihoodChange,
+                                              gmmParams.minCovarianceAllowed);
             }
             else //native C Library training (only available for Windows)
-            {
-                File tempFile = null;
-                try {
-                    tempFile = File.createTempFile("gmm", ".dat");
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                
-                if (tempFile!=null)
+            {   
+                String strIsBigEndian = "1";
+                String dataFile = StringUtils.getRandomFileName("d:\\gmmTemp_", 8, ".dat");
+                DoubleData d = new DoubleData(x);
+                d.write(dataFile);
+
+                String gmmFile = StringUtils.modifyExtension(dataFile, ".gmm");
+                String logFile = StringUtils.modifyExtension(dataFile, ".log");
+                String strCommand = "GMMTrainer.exe " +
+                                    "\"" + dataFile + "\" " +
+                                    "\"" + gmmFile + "\" " +
+                                    String.valueOf(gmmParams.totalComponents) + " " +
+                                    strIsBigEndian + " " +
+                                    String.valueOf(gmmParams.isDiagonalCovariance==true ? 1 : 0) + " " +
+                                    String.valueOf(gmmParams.kmeansMaxIterations) + " " + 
+                                    String.valueOf(gmmParams.kmeansMinClusterChangePercent) + " " +
+                                    String.valueOf(gmmParams.kmeansMinSamplesInOneCluster) + " " +
+                                    String.valueOf(gmmParams.emMinIterations) + " " +
+                                    String.valueOf(gmmParams.emMaxIterations) + " " +
+                                    String.valueOf(gmmParams.isUpdateCovariances==true ? 1 : 0) + " " +
+                                    String.valueOf(gmmParams.tinyLogLikelihoodChange) + " " +
+                                    String.valueOf(gmmParams.minCovarianceAllowed) + " " +
+                                    "\"" + logFile + "\"";
+
+                int exitVal = MaryUtils.shellExecute(strCommand, true);
+
+                if (exitVal == 0) 
                 {
-                    String strIsBigEndian = "1";
-                    String dataFile = tempFile.getPath();
-                    DoubleData d = new DoubleData(x);
-                    d.write(dataFile);
-                    
-                    String gmmFile = StringUtils.modifyExtension(dataFile, ".gmm");
-                    String strCommand = "GMMTrainer.exe " +
-                                        "\"" + dataFile + "\" " +
-                                        "\"" + gmmFile + "\" " +
-                                        String.valueOf(totalComponents) + " " +
-                                        strIsBigEndian + " " +
-                                        String.valueOf(isDiagonalCovariance==true ? 1 : 0) + " " +
-                                        String.valueOf(kmeansMaximumIterations) + " " + 
-                                        String.valueOf(kmeansMinClusterChangePercent) + " " +
-                                        String.valueOf(emMinimumIterations) + " " +
-                                        String.valueOf(emMaximumIterations) + " " +
-                                        String.valueOf(isUpdateCovariances==true ? 1 : 0) + " " +
-                                        String.valueOf(tinyLogLikelihoodChangePercent) + " " +
-                                        String.valueOf(minimumCovarianceAllowed);
-
-                    int exitVal = MaryUtils.shellExecute(strCommand, true);
-                    
-                    if (exitVal == 0) 
-                    {
-                        System.out.println("GMM training with native C library done...");
-                        gmm = new GMM(gmmFile);
-                        FileUtils.delete(gmmFile); 
-                    }
-                    else
-                        System.out.println("Error executing native C library with exit code " + exitVal);
-
-                    FileUtils.delete(dataFile);
+                    System.out.println("GMM training with native C library done...");
+                    gmm = new GMM(gmmFile);
+                    FileUtils.delete(gmmFile); 
                 }
+                else
+                    System.out.println("Error executing native C library with exit code " + exitVal);
+
+                FileUtils.delete(dataFile);
             }
         }
         
@@ -609,10 +432,10 @@ public class GMMTrainer {
     
     public static void main(String[] args)
     {
-        int numClusters = 16;
+        int numClusters = 4;
         int numSamplesInClusters = 1000;
-        double[] variances = {2.0};
-        int vectorDim = 1;
+        double[] variances = {0.1};
+        int vectorDim = 2;
         ClusteredDataGenerator[] c = new ClusteredDataGenerator[vectorDim];
         int i, j, n;
         int totalVectors = 0;
@@ -651,14 +474,15 @@ public class GMMTrainer {
         GMMTrainerParams gmmParams = new GMMTrainerParams();
         gmmParams.totalComponents = numClusters;
         gmmParams.isDiagonalCovariance = true; 
-        gmmParams.kmeansMaximumIterations = 100;
+        gmmParams.kmeansMaxIterations = 100;
         gmmParams.kmeansMinClusterChangePercent = 0.001;
-        gmmParams.emMinimumIterations = 1000;
-        gmmParams.emMaximumIterations = 2000; 
+        gmmParams.kmeansMinSamplesInOneCluster = 15;
+        gmmParams.emMinIterations = 500;
+        gmmParams.emMaxIterations = 2000; 
         gmmParams.isUpdateCovariances = true;
         gmmParams.tinyLogLikelihoodChange = 0.001;
-        gmmParams.minimumCovarianceAllowed = 1e-5;
-        gmmParams.useNativeCLibTrainer = true;
+        gmmParams.minCovarianceAllowed = 1e-5;
+        gmmParams.useNativeCLibTrainer = false;
         
         GMMTrainer g = new GMMTrainer();
         GMM gmm = g.train(x, gmmParams);

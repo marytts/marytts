@@ -34,6 +34,7 @@ import java.util.Arrays;
 
 import de.dfki.lt.machinelearning.KMeansClusteringTester;
 import de.dfki.lt.machinelearning.KMeansClusteringTrainer;
+import de.dfki.lt.machinelearning.KMeansClusteringTrainerParams;
 import de.dfki.lt.mary.unitselection.adaptation.OutlierStatus;
 import de.dfki.lt.mary.unitselection.adaptation.codebook.WeightedCodebook;
 import de.dfki.lt.mary.unitselection.adaptation.BaselineFeatureExtractor;
@@ -268,7 +269,15 @@ public class KMeansMappingEliminator {
 
         clusterer= new KMeansClusteringTrainer();
         double[] globalVariances = MathUtils.getVarianceCols(features);
-        clusterer.cluster(features, numClusters, params.maximumIterations, params.minClusterPercent, params.isDiagonalCovariance, globalVariances);
+        
+        KMeansClusteringTrainerParams kmeansParams = new KMeansClusteringTrainerParams();
+        kmeansParams.numClusters = numClusters;
+        kmeansParams.maxIterations = params.maxIterations;
+        kmeansParams.minClusterChangePercent = params.minClusterChangePercent;
+        kmeansParams.isDiagonalOutputCovariance = params.isDiagonalCovariance;
+        kmeansParams.setGlobalVariances(globalVariances);
+        
+        clusterer.train(features, kmeansParams);
         features = null; //Memory clean-up
 
         return clusterer;

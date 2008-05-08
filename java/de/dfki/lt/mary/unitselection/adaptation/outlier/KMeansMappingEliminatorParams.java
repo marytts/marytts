@@ -29,7 +29,7 @@
 
 package de.dfki.lt.mary.unitselection.adaptation.outlier;
 
-import de.dfki.lt.machinelearning.KMeansClusteringTrainer;
+import de.dfki.lt.machinelearning.KMeansClusteringTrainerParams;
 import de.dfki.lt.signalproc.util.distance.DistanceComputer;
 
 /**
@@ -59,8 +59,8 @@ public class KMeansMappingEliminatorParams extends BaselineOutlierEliminatorPara
     public int numClustersEnergy;
     public static final int DEFAULT_NUM_CLUSTERS = 30;
     
-    public int maximumIterations; 
-    public double minClusterPercent;
+    public int maxIterations; 
+    public double minClusterChangePercent;
     public boolean isDiagonalCovariance;
     
     public KMeansMappingEliminatorParams()
@@ -73,9 +73,9 @@ public class KMeansMappingEliminatorParams extends BaselineOutlierEliminatorPara
         numClustersDuration = DEFAULT_NUM_CLUSTERS;
         numClustersEnergy = DEFAULT_NUM_CLUSTERS;
         
-        maximumIterations = KMeansClusteringTrainer.KMEANS_MAXIMUM_ITERATIONS_DEFAULT;
-        minClusterPercent = KMeansClusteringTrainer.KMEANS_MIN_CLUSTER_CHANGE_PERCENT_DEFAULT;
-        isDiagonalCovariance = KMeansClusteringTrainer.KMEANS_IS_DIAGONAL_COVARIANCE_DEFAULT;
+        maxIterations = KMeansClusteringTrainerParams.KMEANS_MAX_ITERATIONS_DEFAULT;
+        minClusterChangePercent = KMeansClusteringTrainerParams.KMEANS_MIN_CLUSTER_CHANGE_PERCENT_DEFAULT;
+        isDiagonalCovariance = KMeansClusteringTrainerParams.KMEANS_IS_DIAGONAL_COVARIANCE_DEFAULT;
         isSeparateClustering = false;
         eliminationAlgorithm = ELIMINATE_LEAST_LIKELY_MAPPINGS;
         eliminationLikelihood = 0.1;
@@ -94,8 +94,8 @@ public class KMeansMappingEliminatorParams extends BaselineOutlierEliminatorPara
         numClustersDuration = existing.numClustersDuration;
         numClustersEnergy = existing.numClustersEnergy;
         
-        maximumIterations = existing.maximumIterations;
-        minClusterPercent = existing.minClusterPercent;
+        maxIterations = existing.maxIterations;
+        minClusterChangePercent = existing.minClusterChangePercent;
         isDiagonalCovariance = existing.isDiagonalCovariance;
         isSeparateClustering = existing.isSeparateClustering;
         eliminationAlgorithm = existing.eliminationAlgorithm;
