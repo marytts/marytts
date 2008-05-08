@@ -38,52 +38,24 @@ import de.dfki.lt.signalproc.util.distance.DistanceComputer;
  * @author oytun.turk
  *
  */
-public class KMeansClusteringTrainer {
-    
-    private static final double KMEANS_TINY = 1.0e-3;
-    private static final double KMEANS_MIN_CHANGE_PERCENT = 0.1; //minimum change in cluster assignments in percent of whole data size
-    private static final double KMEANS_TINY_CLUSTER_PERCENT = 1e-3;
-    private static final double KMEANS_MINIMUM_VARIANCE = 1e-5;
-    
-    public static final int KMEANS_MAXIMUM_ITERATIONS_DEFAULT = 200;
-    public static final double KMEANS_MIN_CLUSTER_CHANGE_PERCENT_DEFAULT = 0.0001;
-    public static final boolean KMEANS_IS_DIAGONAL_COVARIANCE_DEFAULT = true;
-    public static final int KMEANS_MIN_SAMPLES_IN_ONE_CLUSTER = 10;
-    
+public class KMeansClusteringTrainer {    
     public Cluster[] clusters;
     public int[] totalObservationsInClusters;
     public int[] clusterIndices;
     public double[][] covMatrixGlobal;
     public double[][] invCovMatrixGlobal;
     
-    public void cluster(double[][] x, int numClusters)
-    {   
-        cluster(x, numClusters, KMEANS_MAXIMUM_ITERATIONS_DEFAULT);
-    }
-    
-    public void cluster(double[][] x, int numClusters, int maximumIterations)
-    {   
-        cluster(x, numClusters, maximumIterations, KMEANS_MIN_CLUSTER_CHANGE_PERCENT_DEFAULT);
-    }
-    
-    public void cluster(double[][] x, int numClusters, int maximumIterations, double minClusterPercent)
-    {   
-        cluster(x, numClusters, maximumIterations, minClusterPercent, KMEANS_IS_DIAGONAL_COVARIANCE_DEFAULT);
-    }
-    
-    public void cluster(double[][] x, int numClusters, int maximumIterations, double minClusterPercent, boolean isDiagonalOutputCovariance)
-    {
-        double[] meanVector = MathUtils.mean(x, true);
-        double[] globalVariances = MathUtils.variance(x, meanVector, true);
-        
-        cluster(x, numClusters, maximumIterations, minClusterPercent, isDiagonalOutputCovariance, globalVariances);
-    }
-    
     //K-Means clustering algorithm
     // numClusters: Desired number of clusters
     // minClusterPercent: Minimum cluster size in percent of whole data size
-    public void cluster(double[][] x, int numClusters, int maximumIterations, double minClusterPercent, boolean isDiagonalOutputCovariance, double[] globalVariances)
+    public void train(double[][] x, KMeansClusteringTrainerParams kmeansParams)
     {   
+        if (kmeansParams.globalVariances==null)
+        {
+            double[] meanVector = MathUtils.mean(x, true);
+            kmeansParams.globalVariances = MathUtils.variance(x, meanVector, true);
+        }
+        
         int observations = x.length;
         int dimension = x[0].length;
         
@@ -93,28 +65,28 @@ public class KMeansClusteringTrainer {
         double rnd, tmpDist;
         double minDist = Double.MIN_VALUE;
         
-        double[][] m_new = new double[numClusters][];
-        for (k=0; k<numClusters; k++)
+        double[][] m_new = new double[kmeansParams.numClusters][];
+        for (k=0; k<kmeansParams.numClusters; k++)
             m_new[k] = new double[dimension];
         
         int[][] b = new int[observations][];
         for (t=0; t<observations; t++)
-            b[t] = new int[numClusters];
+            b[t] = new int[kmeansParams.numClusters];
         
         int[][] b_old = new int[observations][];
         for (t=0; t<observations; t++)
-            b_old[t] = new int[numClusters];
+            b_old[t] = new int[kmeansParams.numClusters];
         
-        int[] prev_totals = new int[numClusters];
+        int[] prev_totals = new int[kmeansParams.numClusters];
         double changedPerc;
 
         double[] mAll = new double[dimension];
         
-        clusters = new Cluster[numClusters];
-        for (k=0; k<numClusters; k++)
-            clusters[k] = new Cluster(dimension, isDiagonalOutputCovariance);
+        clusters = new Cluster[kmeansParams.numClusters];
+        for (k=0; k<kmeansParams.numClusters; k++)
+            clusters[k] = new Cluster(dimension, kmeansParams.isDiagonalOutputCovariance);
         
-        for (k=1; k<=numClusters; k++)
+        for (k=1; k<=kmeansParams.numClusters; k++)
         {
             for (d=1; d<=dimension; d++)
                 clusters[k-1].meanVector[d-1] = 0.0;
@@ -128,24 +100,24 @@ public class KMeansClusteringTrainer {
         
         k = 1;
         double[] dists = new double[observations];
-        double[] tmp = new double[numClusters+1];
+        double[] tmp = new double[kmeansParams.numClusters+1];
         double maxD = Double.MAX_VALUE;
         int maxInd = -1;
         
-        while(k<=numClusters)
+        while(k<=kmeansParams.numClusters)
         {
             for (t=1; t<=observations; t++)
             {
                 if (k>1)
                 {
                     for (i=1; i<=k-1; i++)
-                        tmp[i-1] = DistanceComputer.getNormalizedEuclideanDistance(clusters[i-1].meanVector, x[t-1], globalVariances);
+                        tmp[i-1] = DistanceComputer.getNormalizedEuclideanDistance(clusters[i-1].meanVector, x[t-1], kmeansParams.globalVariances);
                     
-                    tmp[k-1] = DistanceComputer.getNormalizedEuclideanDistance(mAll, x[t-1], globalVariances);
+                    tmp[k-1] = DistanceComputer.getNormalizedEuclideanDistance(mAll, x[t-1], kmeansParams.globalVariances);
                     dists[t-1] = MathUtils.mean(tmp, 0, k-1);
                 }
                 else
-                    dists[t-1] = DistanceComputer.getNormalizedEuclideanDistance(mAll, x[t-1], globalVariances);
+                    dists[t-1] = DistanceComputer.getNormalizedEuclideanDistance(mAll, x[t-1], kmeansParams.globalVariances);
             }
 
             for (t=1; t<=observations; t++)
@@ -165,11 +137,11 @@ public class KMeansClusteringTrainer {
         }
         //
 
-        int[] tinyClusterInds = new int[numClusters];
+        int[] tinyClusterInds = new int[kmeansParams.numClusters];
         int numTinyClusters = 0;
-        double[] tmps = new double[numClusters];
+        double[] tmps = new double[kmeansParams.numClusters];
         int[] inds;
-        totalObservationsInClusters = new int[numClusters];
+        totalObservationsInClusters = new int[kmeansParams.numClusters];
         clusterIndices = new int[observations];
 
         iter = 0;
@@ -178,9 +150,9 @@ public class KMeansClusteringTrainer {
         {
             for (t=1; t<=observations; t++) //Overall observations
             {
-                for (i=1; i<=numClusters; i++) //Overall classes
+                for (i=1; i<=kmeansParams.numClusters; i++) //Overall classes
                 {
-                    tmpDist = DistanceComputer.getNormalizedEuclideanDistance(clusters[i-1].meanVector, x[t-1], globalVariances);
+                    tmpDist = DistanceComputer.getNormalizedEuclideanDistance(clusters[i-1].meanVector, x[t-1], kmeansParams.globalVariances);
                     b[t-1][i-1] = 0;
                     if (i==1 || tmpDist<minDist)
                     {
@@ -188,7 +160,7 @@ public class KMeansClusteringTrainer {
                         ind = i;  
                     }
                 }
-                for (i=1; i<=numClusters; i++) //Overall classes
+                for (i=1; i<=kmeansParams.numClusters; i++) //Overall classes
                 {
                     if (i==ind)
                         b[t-1][i-1] = 1;  
@@ -196,14 +168,14 @@ public class KMeansClusteringTrainer {
             }
             
             //Update means
-            for (i=1; i<=numClusters; i++)
+            for (i=1; i<=kmeansParams.numClusters; i++)
             {
                 totalObservationsInClusters[i-1] = 0;
                 tinyClusterInds[i-1] = 0;
             }
             
             c=1;
-            for (i=1; i<=numClusters; i++)
+            for (i=1; i<=kmeansParams.numClusters; i++)
             {
                 for (d=1; d<=dimension; d++)
                     m_new[i-1][d-1]=0.0f;
@@ -222,7 +194,7 @@ public class KMeansClusteringTrainer {
                 
                 //Do something if totalObservationsInClusters[i-1] is less than some value 
                 // (i.e. there are too few observations for the cluster)
-                if ((double)totalObservationsInClusters[i-1]/observations*100.0<minClusterPercent)
+                if ((double)totalObservationsInClusters[i-1]/observations*100.0<kmeansParams.minClusterChangePercent)
                 {
                     tinyClusterInds[c-1] = i;
                     numTinyClusters++;
@@ -235,10 +207,10 @@ public class KMeansClusteringTrainer {
             for (i=0; i<totalObservationsInClusters.length; i++)
                 tmps[i] = totalObservationsInClusters[i];
             
-            inds = MathUtils.quickSort(tmps, 0,  numClusters-1); 
-            for (i=1; i<=numClusters; i++)
+            inds = MathUtils.quickSort(tmps, 0,  kmeansParams.numClusters-1); 
+            for (i=1; i<=kmeansParams.numClusters; i++)
             {
-                if (((double)totalObservationsInClusters[i-1]/observations*100)>=minClusterPercent)
+                if (((double)totalObservationsInClusters[i-1]/observations*100)>=kmeansParams.minClusterChangePercent)
                 {
                     for (d=1; d<=dimension; d++)
                         clusters[i-1].meanVector[d-1] = m_new[i-1][d-1]/totalObservationsInClusters[i-1];
@@ -247,26 +219,26 @@ public class KMeansClusteringTrainer {
                 {
                     for (d=1; d<=dimension; d++)
                     {
-                        rnd = Math.random()*Math.abs(clusters[inds[numClusters-c-1]].meanVector[d-1])*0.01;
-                        clusters[i-1].meanVector[d-1] = clusters[inds[numClusters-c-1]].meanVector[d-1] + rnd;
+                        rnd = Math.random()*Math.abs(clusters[inds[kmeansParams.numClusters-c-1]].meanVector[d-1])*0.01;
+                        clusters[i-1].meanVector[d-1] = clusters[inds[kmeansParams.numClusters-c-1]].meanVector[d-1] + rnd;
                     }
                     c++;
                 }
             }
             
-            for (i=1; i<=numClusters; i++)
+            for (i=1; i<=kmeansParams.numClusters; i++)
                 prev_totals[i-1] = totalObservationsInClusters[i-1];
             
             iter++;
             totChanged = 0;
             if (iter>1)
             {
-                if (iter>=maximumIterations)
+                if (iter>=kmeansParams.maxIterations)
                     bCont=false;    
                 
                 for (t=1; t<=observations; t++)
                 {
-                    for (i=1; i<=numClusters; i++)
+                    for (i=1; i<=kmeansParams.numClusters; i++)
                     {
                         if (b_old[t-1][i-1] != b[t-1][i-1])
                         {
@@ -277,7 +249,7 @@ public class KMeansClusteringTrainer {
                 }
                 
                 changedPerc = (double)totChanged/observations*100.0;
-                if  (changedPerc < KMEANS_MIN_CHANGE_PERCENT) //stop if number of clusters changed is less than %MIN_CHANGE_PERCENT of total observation
+                if  (changedPerc < kmeansParams.minClusterChangePercent) //stop if number of clusters changed is less than %MIN_CHANGE_PERCENT of total observation
                     bCont = false;
                 
                 System.out.println("K-Means iteration: " + String.valueOf(iter) + " with " + String.valueOf(changedPerc) + " percent of cluster assignments updated");
@@ -287,7 +259,7 @@ public class KMeansClusteringTrainer {
             
             for (t=1; t<=observations; t++)
             {
-                for (k2=1; k2<=numClusters; k2++)
+                for (k2=1; k2<=kmeansParams.numClusters; k2++)
                     b_old[t-1][k2-1] = b[t-1][k2-1];
             }
         }
@@ -296,7 +268,7 @@ public class KMeansClusteringTrainer {
         double[][] tmpCov = null;
         double[] diag = null;
         int d1, d2;
-        for (i=0; i<numClusters; i++)
+        for (i=0; i<kmeansParams.numClusters; i++)
         {
             if (totalObservationsInClusters[i]>0)
             {
@@ -308,12 +280,12 @@ public class KMeansClusteringTrainer {
                         indices[count++] = t;
                 }
 
-                if (isDiagonalOutputCovariance)
+                if (kmeansParams.isDiagonalOutputCovariance)
                 {
                     tmpCov = MathUtils.covariance(x, clusters[i].meanVector, true, indices);
                     diag = MathUtils.diagonal(tmpCov);
                     for (d1=0; d1<diag.length; d1++)
-                        diag[d1] = Math.max(diag[d1], KMEANS_MINIMUM_VARIANCE);
+                        diag[d1] = Math.max(diag[d1], kmeansParams.minCovarianceAllowed);
                     System.arraycopy(diag, 0, clusters[i].covMatrix[0], 0, diag.length);
                     clusters[i].invCovMatrix[0] = MathUtils.inverse(clusters[i].covMatrix[0]);
                 }
@@ -323,7 +295,7 @@ public class KMeansClusteringTrainer {
                     for (d1=0; d1<clusters[i].covMatrix.length; d1++)
                     {
                         for (d2=0; d2<clusters[i].covMatrix[d1].length; d2++)
-                            clusters[i].covMatrix[d1][d2] = Math.max(clusters[i].covMatrix[d1][d2], KMEANS_MINIMUM_VARIANCE);
+                            clusters[i].covMatrix[d1][d2] = Math.max(clusters[i].covMatrix[d1][d2], kmeansParams.minCovarianceAllowed);
                     }
                     
                     clusters[i].invCovMatrix = MathUtils.inverse(clusters[i].covMatrix);
@@ -333,17 +305,17 @@ public class KMeansClusteringTrainer {
         
         //There can be no observations for some clusters, i.e. when the number of clusters is large as compared to the actual clusters in data
         //In this case, assign largest cluster´s mean, covariance, nad inverse covariance to these empty clusters
-        for (i=0; i<numClusters; i++)
+        for (i=0; i<kmeansParams.numClusters; i++)
             tmps[i] = totalObservationsInClusters[i];
 
-        inds = MathUtils.quickSort(tmps, 0,  numClusters-1);
-        int largestClusterInd = inds[numClusters-1];
-        for (i=0; i<numClusters; i++)
+        inds = MathUtils.quickSort(tmps, 0,  kmeansParams.numClusters-1);
+        int largestClusterInd = inds[kmeansParams.numClusters-1];
+        for (i=0; i<kmeansParams.numClusters; i++)
         {
-            if (totalObservationsInClusters[i]<KMEANS_MIN_SAMPLES_IN_ONE_CLUSTER)
+            if (totalObservationsInClusters[i]<kmeansParams.minSamplesInOneCluster)
             {
                 System.arraycopy(clusters[largestClusterInd].meanVector, 0, clusters[i].meanVector, 0, dimension);
-                if (isDiagonalOutputCovariance)
+                if (kmeansParams.isDiagonalOutputCovariance)
                 {
                     System.arraycopy(clusters[largestClusterInd].covMatrix[0], 0, clusters[i].covMatrix[0], 0, dimension);
                     System.arraycopy(clusters[largestClusterInd].invCovMatrix[0], 0, clusters[i].invCovMatrix[0], 0, dimension);
@@ -360,14 +332,14 @@ public class KMeansClusteringTrainer {
         }
         //
             
-        if (isDiagonalOutputCovariance)
+        if (kmeansParams.isDiagonalOutputCovariance)
         {
             tmpCov = MathUtils.covariance(x, true);
             covMatrixGlobal = new double[1][tmpCov.length];
             covMatrixGlobal[0] = MathUtils.diagonal(tmpCov);
             
             for (d1=0; d1<covMatrixGlobal[0].length; d1++)
-                covMatrixGlobal[0][d1] = Math.max(covMatrixGlobal[0][d1], KMEANS_MINIMUM_VARIANCE);
+                covMatrixGlobal[0][d1] = Math.max(covMatrixGlobal[0][d1], kmeansParams.minCovarianceAllowed);
             
             invCovMatrixGlobal = new double[1][tmpCov.length];
             invCovMatrixGlobal[0] = MathUtils.inverse(covMatrixGlobal[0]);
@@ -379,7 +351,7 @@ public class KMeansClusteringTrainer {
             for (d1=0; d1<covMatrixGlobal[0].length; d1++)
             {
                 for (d2=0; d2<covMatrixGlobal[d1].length; d2++)
-                    covMatrixGlobal[d1][d2] = Math.max(covMatrixGlobal[d1][d2], KMEANS_MINIMUM_VARIANCE);
+                    covMatrixGlobal[d1][d2] = Math.max(covMatrixGlobal[d1][d2], kmeansParams.minCovarianceAllowed);
             }
             
             invCovMatrixGlobal = MathUtils.inverse(covMatrixGlobal);

@@ -38,51 +38,54 @@ import de.dfki.lt.signalproc.util.MaryRandomAccessFile;
  *
  */
 public class GMMTrainerParams {
-    public static final int TOTAL_COMPONENTS_DEFAULT = 1;
-    public static final boolean IS_DIAGONAL_COVARIANCE_DEFAULT = true;
-    public static final int EM_MINIMUM_ITERATIONS_DEFAULT = 20;
-    public static final int EM_MAXIMUM_ITERATIONS_DEFAULT = 200;
-    public static final boolean IS_UPDATE_COVARIANCES_DEFAULT = true;
-    public static final double TINY_LOGLIKELIHOOD_CHANGE_PERCENT_DEFAULT = 0.0001;
-    public static final double MINIMUM_COVARIANCE_ALLOWED_DEFAULT = 1e-4;
-    public static final boolean USE_NATIVE_C_LIB_TRAINER_DEFAULT = false;
+    public static final int EM_TOTAL_COMPONENTS_DEFAULT = 1;
+    public static final boolean EM_IS_DIAGONAL_COVARIANCE_DEFAULT = true;
+    public static final int EM_MIN_ITERATIONS_DEFAULT = 20;
+    public static final int EM_MAX_ITERATIONS_DEFAULT = 200;
+    public static final boolean EM_IS_UPDATE_COVARIANCES_DEFAULT = true;
+    public static final double EM_TINY_LOGLIKELIHOOD_CHANGE_PERCENT_DEFAULT = 0.0001;
+    public static final double EM_MIN_COVARIANCE_ALLOWED_DEFAULT = 1e-4;
+    public static final boolean EM_USE_NATIVE_C_LIB_TRAINER_DEFAULT = false;
     
     public int totalComponents;
     public boolean isDiagonalCovariance; 
-    public int kmeansMaximumIterations;
+    public int kmeansMaxIterations;
     public double kmeansMinClusterChangePercent;
-    public int emMinimumIterations;
-    public int emMaximumIterations;
+    public int kmeansMinSamplesInOneCluster;
+    public int emMinIterations;
+    public int emMaxIterations;
     public boolean isUpdateCovariances;
     public double tinyLogLikelihoodChange;
-    public double minimumCovarianceAllowed;
+    public double minCovarianceAllowed;
     public boolean useNativeCLibTrainer;
     
     public GMMTrainerParams()
     {
-        totalComponents = TOTAL_COMPONENTS_DEFAULT;
-        isDiagonalCovariance = IS_DIAGONAL_COVARIANCE_DEFAULT; 
-        kmeansMaximumIterations = KMeansClusteringTrainer.KMEANS_MAXIMUM_ITERATIONS_DEFAULT;
-        kmeansMinClusterChangePercent = KMeansClusteringTrainer.KMEANS_MIN_CLUSTER_CHANGE_PERCENT_DEFAULT;
-        emMinimumIterations = EM_MINIMUM_ITERATIONS_DEFAULT;
-        emMaximumIterations = EM_MAXIMUM_ITERATIONS_DEFAULT;
-        isUpdateCovariances = IS_UPDATE_COVARIANCES_DEFAULT;
-        tinyLogLikelihoodChange = TINY_LOGLIKELIHOOD_CHANGE_PERCENT_DEFAULT;
-        minimumCovarianceAllowed = MINIMUM_COVARIANCE_ALLOWED_DEFAULT;
-        useNativeCLibTrainer = USE_NATIVE_C_LIB_TRAINER_DEFAULT;
+        totalComponents = EM_TOTAL_COMPONENTS_DEFAULT;
+        isDiagonalCovariance = EM_IS_DIAGONAL_COVARIANCE_DEFAULT; 
+        kmeansMaxIterations = KMeansClusteringTrainerParams.KMEANS_MAX_ITERATIONS_DEFAULT;
+        kmeansMinClusterChangePercent = KMeansClusteringTrainerParams.KMEANS_MIN_CLUSTER_CHANGE_PERCENT_DEFAULT;
+        kmeansMinSamplesInOneCluster = KMeansClusteringTrainerParams.KMEANS_MIN_SAMPLES_IN_ONE_CLUSTER_DEFAULT;
+        emMinIterations = EM_MIN_ITERATIONS_DEFAULT;
+        emMaxIterations = EM_MAX_ITERATIONS_DEFAULT;
+        isUpdateCovariances = EM_IS_UPDATE_COVARIANCES_DEFAULT;
+        tinyLogLikelihoodChange = EM_TINY_LOGLIKELIHOOD_CHANGE_PERCENT_DEFAULT;
+        minCovarianceAllowed = EM_MIN_COVARIANCE_ALLOWED_DEFAULT;
+        useNativeCLibTrainer = EM_USE_NATIVE_C_LIB_TRAINER_DEFAULT;
     }
     
     public GMMTrainerParams(GMMTrainerParams existing)
     {
         totalComponents = existing.totalComponents;
         isDiagonalCovariance = existing.isDiagonalCovariance; 
-        kmeansMaximumIterations = existing.kmeansMaximumIterations;
+        kmeansMaxIterations = existing.kmeansMaxIterations;
         kmeansMinClusterChangePercent = existing.kmeansMinClusterChangePercent;
-        emMinimumIterations = existing.emMinimumIterations;
-        emMaximumIterations = existing.emMaximumIterations;
+        kmeansMinSamplesInOneCluster = existing.kmeansMinSamplesInOneCluster;
+        emMinIterations = existing.emMinIterations;
+        emMaxIterations = existing.emMaxIterations;
         isUpdateCovariances = existing.isUpdateCovariances;
         tinyLogLikelihoodChange = existing.tinyLogLikelihoodChange;
-        minimumCovarianceAllowed = existing.minimumCovarianceAllowed;
+        minCovarianceAllowed = existing.minCovarianceAllowed;
         useNativeCLibTrainer = existing.useNativeCLibTrainer;
     }
     
@@ -108,7 +111,7 @@ public class GMMTrainerParams {
                 e.printStackTrace();
             } 
             try {
-                stream.writeInt(kmeansMaximumIterations);
+                stream.writeInt(kmeansMaxIterations);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -120,13 +123,19 @@ public class GMMTrainerParams {
                 e.printStackTrace();
             } 
             try {
-                stream.writeInt(emMinimumIterations);
+                stream.writeInt(kmeansMinSamplesInOneCluster);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }            
+            try {
+                stream.writeInt(emMinIterations);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             try {
-                stream.writeInt(emMaximumIterations);
+                stream.writeInt(emMaxIterations);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -146,7 +155,7 @@ public class GMMTrainerParams {
             }
 
             try {
-                 stream.writeDouble(minimumCovarianceAllowed);
+                 stream.writeDouble(minCovarianceAllowed);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -180,7 +189,7 @@ public class GMMTrainerParams {
             } 
             
             try {
-                kmeansMaximumIterations = stream.readInt();
+                kmeansMaxIterations = stream.readInt();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -194,14 +203,21 @@ public class GMMTrainerParams {
             } 
             
             try {
-                emMinimumIterations = stream.readInt();
+                kmeansMinSamplesInOneCluster = stream.readInt();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } 
+            
+            try {
+                emMinIterations = stream.readInt();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             
             try {
-                emMaximumIterations = stream.readInt();
+                emMaxIterations = stream.readInt();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -222,7 +238,7 @@ public class GMMTrainerParams {
             }
             
             try {
-                minimumCovarianceAllowed = stream.readDouble();
+                minCovarianceAllowed = stream.readDouble();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

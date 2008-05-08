@@ -196,9 +196,13 @@ public class GMM {
         stream.writeIntEndian(featureDimension);
         stream.writeIntEndian(totalComponents);
         stream.writeBooleanEndian(isDiagonalCovariance);
-        stream.writeIntEndian(info.length());
-        if (info.length()>0)
+        if (info!=null && info.length()>0)
+        {
+            stream.writeIntEndian(info.length());
             stream.writeCharEndian(info.toCharArray());
+        }
+        else
+            stream.writeIntEndian(0);
         
         stream.writeDoubleEndian(weights);
         for (int i=0; i<totalComponents; i++)

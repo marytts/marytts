@@ -220,9 +220,9 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         String emotion = "angry";
         String method = "F";
         int numTrainingFiles = 200; //2, 20, 200, 350
-        int numMixes = 128;
+        int numMixes = 64;
         
-        boolean isContextualGMMs = true;
+        boolean isContextualGMMs = false;
         int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS;
         //int contextClassificationType = ContextualGMMParams.PHONEME_IDENTITY;
         //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS;
@@ -273,13 +273,14 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         gp.isContextualGMMs = isContextualGMMs;
         gp.gmmEMTrainerParams.totalComponents = numMixes;
         gp.gmmEMTrainerParams.isDiagonalCovariance = true; 
-        gp.gmmEMTrainerParams.kmeansMaximumIterations = 200;
+        gp.gmmEMTrainerParams.kmeansMaxIterations = 200;
         gp.gmmEMTrainerParams.kmeansMinClusterChangePercent = 0.0001;
-        gp.gmmEMTrainerParams.emMinimumIterations = 1000;
-        gp.gmmEMTrainerParams.emMaximumIterations = 2000;
+        gp.gmmEMTrainerParams.kmeansMinSamplesInOneCluster = 10;
+        gp.gmmEMTrainerParams.emMinIterations = 100;
+        gp.gmmEMTrainerParams.emMaxIterations = 2000;
         gp.gmmEMTrainerParams.isUpdateCovariances = true;
         gp.gmmEMTrainerParams.tinyLogLikelihoodChange = 1e-6;
-        gp.gmmEMTrainerParams.minimumCovarianceAllowed = 1e-5;
+        gp.gmmEMTrainerParams.minCovarianceAllowed = 1e-5;
         gp.gmmEMTrainerParams.useNativeCLibTrainer = true;
         
         if (gp.isContextualGMMs)
