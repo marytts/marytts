@@ -253,7 +253,8 @@ public class SettingsGUI {
         java.util.List propList = new ArrayList();
         for (int i=0;i<tableProps.length;i++){
             String[] keyAndValue = tableProps[i];
-            if (keyAndValue[0].startsWith(name)){
+            //System.err.println(keyAndValue[0]+" --- "+name);
+            if (keyAndValue[0].startsWith(name+".")){
                 propList.add(keyAndValue);
             }
         }
