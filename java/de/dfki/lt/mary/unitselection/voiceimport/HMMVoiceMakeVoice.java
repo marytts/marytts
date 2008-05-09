@@ -97,6 +97,7 @@ public class HMMVoiceMakeVoice extends VoiceImportComponent{
     public final String step24_$PGEN2 = name+".runStep24_$PGEN2";
     public final String step25_$WGEN2 = name+".runStep25_$WGEN2";
 
+    private ArrayList<String> steps = new ArrayList<String>();
     
     public String getName(){
         return name;
@@ -146,32 +147,58 @@ public class HMMVoiceMakeVoice extends VoiceImportComponent{
         props2Help = new TreeMap<String,String>();
         
         props2Help.put(PERLCOMMAND, "perl command used for executing scripts/Training.pl scripts.");
-        props2Help.put(step1_$MKEMV, "preparing environments"); 
-        props2Help.put(step2_$HCMPV, "computing a global variance");
-        props2Help.put(step3_$IN_RE, "initialization & reestimation");
-        props2Help.put(step4_$MMMMF, "making a monophone mmf");
-        props2Help.put(step5_$ERST0, "embedded reestimation (monophone)");
-        props2Help.put(step6_$MN2FL, "copying monophone mmf to fullcontext one");
-        props2Help.put(step7_$ERST1, "embedded reestimation (fullcontext)");
-        props2Help.put(step8_$CXCL1, "tree-based context clustering (cmp)");
-        props2Help.put(step9_$ERST2, "embedded reestimation (clustered)");
-        props2Help.put(step10_$UNTIE, "untying the parameter sharing structure");
-        props2Help.put(step11_$ERST3, "embedded reestimation (untied)");
-        props2Help.put(step12_$CXCL2, "tree-based context clustering (cmp)");
-        props2Help.put(step13_$ERST4, "embedded reestimation (re-clustered)");
-        props2Help.put(step14_$CXCL3, "tree-based context clustering (dur)");
-        props2Help.put(step15_$MKUN1, "making unseen models (1mix)");
-        props2Help.put(step16_$PGEN1, "generating speech parameter sequences (1mix)");
-        props2Help.put(step17_$WGEN1, "synthesizing waveforms (1mix)");
-        props2Help.put(step18_$CONVM, "converting mmfs to the hts_engine file format");
-        props2Help.put(step19_$ENGIN, "synthesizing waveforms using hts_engine");
-        props2Help.put(step20_$UPMIX, "increasing the number of mixture components (1mix -> 2mix)");
-        props2Help.put(step21_$ERST5, "embedded reestimation (2mix)");
-        props2Help.put(step22_$CXCL4, "tree-based context clustering (dur, 2mix)");
-        props2Help.put(step23_$MKUN2, "making unseen models (2mix)");
-        props2Help.put(step24_$PGEN2, "generating speech parameter sequences (2mix)");
-        props2Help.put(step25_$WGEN2, "synthesizing waveforms (2mix)");
-
+        
+        steps.add("preparing environments"); 
+        steps.add("computing a global variance");
+        steps.add("initialization & reestimation");
+        steps.add("making a monophone mmf");
+        steps.add("embedded reestimation (monophone)");
+        steps.add("copying monophone mmf to fullcontext one");
+        steps.add("embedded reestimation (fullcontext)");
+        steps.add("tree-based context clustering (cmp)");
+        steps.add("embedded reestimation (clustered)");
+        steps.add("untying the parameter sharing structure");
+        steps.add("embedded reestimation (untied)");
+        steps.add("tree-based context clustering (cmp)");
+        steps.add("embedded reestimation (re-clustered)");
+        steps.add("tree-based context clustering (dur)");
+        steps.add("making unseen models (1mix)");
+        steps.add("generating speech parameter sequences (1mix)");
+        steps.add("synthesizing waveforms (1mix)");
+        steps.add("converting mmfs to the hts_engine file format");
+        steps.add("synthesizing waveforms using hts_engine");
+        steps.add("increasing the number of mixture components (1mix -> 2mix)");
+        steps.add("embedded reestimation (2mix)");
+        steps.add("tree-based context clustering (dur, 2mix)");
+        steps.add("making unseen models (2mix)");
+        steps.add("generating speech parameter sequences (2mix)");
+        steps.add("synthesizing waveforms (2mix)");
+        
+        props2Help.put(step1_$MKEMV, steps.get(0)); 
+        props2Help.put(step2_$HCMPV, steps.get(1));
+        props2Help.put(step3_$IN_RE, steps.get(2));
+        props2Help.put(step4_$MMMMF, steps.get(3));
+        props2Help.put(step5_$ERST0, steps.get(4));
+        props2Help.put(step6_$MN2FL, steps.get(5));
+        props2Help.put(step7_$ERST1, steps.get(6));
+        props2Help.put(step8_$CXCL1, steps.get(7));
+        props2Help.put(step9_$ERST2, steps.get(8));
+        props2Help.put(step10_$UNTIE, steps.get(9));
+        props2Help.put(step11_$ERST3, steps.get(10));
+        props2Help.put(step12_$CXCL2, steps.get(11));
+        props2Help.put(step13_$ERST4, steps.get(12));
+        props2Help.put(step14_$CXCL3, steps.get(13));
+        props2Help.put(step15_$MKUN1, steps.get(14));
+        props2Help.put(step16_$PGEN1, steps.get(15));
+        props2Help.put(step17_$WGEN1, steps.get(16));
+        props2Help.put(step18_$CONVM, steps.get(17));
+        props2Help.put(step19_$ENGIN, steps.get(18));
+        props2Help.put(step20_$UPMIX, steps.get(19));
+        props2Help.put(step21_$ERST5, steps.get(20));
+        props2Help.put(step22_$CXCL4, steps.get(21));
+        props2Help.put(step23_$MKUN2, steps.get(22));
+        props2Help.put(step24_$PGEN2, steps.get(23));
+        props2Help.put(step25_$WGEN2, steps.get(24));
 
     }
  
@@ -298,11 +325,17 @@ public class HMMVoiceMakeVoice extends VoiceImportComponent{
             /* Collect stdout and send it to System.out: */
             procStdout = new BufferedReader( new InputStreamReader( proc.getInputStream() ) );
             while( true ) {
-                line = procStdout.readLine();
+                line = procStdout.readLine();                 
                 if ( line == null ) break;
                 if(line.contains("Start ")){
-                  System.out.println( "\nStep (" + numSteps + "): " + line );
-                  numSteps++;
+                  for( String stepLine : steps){
+                    if( line.contains(stepLine) ){
+                      //System.out.println("STEP: " + steps.indexOf(stepLine));
+                      numSteps = steps.indexOf(stepLine);
+                      break;
+                    }
+                  }  
+                  System.out.println( "\nStep (" + (numSteps+1) + "): " + line );
                 }
                 log.write(line+"\n");
             }

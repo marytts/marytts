@@ -110,7 +110,7 @@ public class HMMVoiceMakeVoiceAdapt extends VoiceImportComponent{
     public final String step36_$ENGIN = name+".runStep36_$ENGIN";
    
 
-    ArrayList<String> stepsAdapt = new ArrayList<String>();
+    private ArrayList<String> stepsAdapt = new ArrayList<String>();
     
     public String getName(){
         return name;
@@ -195,7 +195,6 @@ public class HMMVoiceMakeVoiceAdapt extends VoiceImportComponent{
         stepsAdapt.add("speaker adaptation (speaker independent)");
         stepsAdapt.add("generating speech parameter sequences (speaker adapted)");
         stepsAdapt.add("synthesizing waveforms (speaker adapted)");
-        
         stepsAdapt.add("estimating transforms for speaker adaptive training (SAT) (1st iteration)");
         stepsAdapt.add("embedded reestimation (SAT, 1st iteration)");
         stepsAdapt.add("reestimating transforms for SAT (2nd iteration)");
@@ -398,7 +397,6 @@ public class HMMVoiceMakeVoiceAdapt extends VoiceImportComponent{
                     }
                   }  
                   System.out.println( "\nStep (" + (numSteps+1) + "): " + line );
-                  //numSteps++;
                 }
                 log.write(line+"\n");
             }
