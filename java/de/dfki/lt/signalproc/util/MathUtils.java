@@ -46,6 +46,11 @@ import de.dfki.lt.mary.util.StringUtils;
  *
  */
 public class MathUtils {
+    public static final double TINY_PROBABILITY = 1e-50;
+    public static final double TINY_PROBABILITY_LOG = Math.log(TINY_PROBABILITY);
+    public static final double TINY = 1e-50;
+    public static final double TINY_LOG = Math.log(TINY);
+    
     protected static final double PASCAL = 2E-5;
     protected static final double PASCALSQUARE = 4E-10;
     protected static final double LOG10 = Math.log(10);

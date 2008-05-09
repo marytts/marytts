@@ -373,14 +373,13 @@ public class JointGMMTransformer extends BaselineTransformer {
         int numTrainingFiles = 200; //2, 20, 200, 350
         int numMixes = 16;
         
-        boolean isContextualGMMs = true;
-        //int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS;
-        //int contextClassificationType = ContextualGMMParams.PHONEME_IDENTITY;
-        //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS;
-        int contextClassificationType = ContextualGMMParams.FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER;
+        boolean isContextualGMMs = false;
+        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS;
+        //int contextClassificationType = ContextualGMMParams.SPEECH_SILENCE;
         //int contextClassificationType = ContextualGMMParams.VOWEL_CONSONANT_SILENCE;
-        
-        
+        //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS;
+        //int contextClassificationType = ContextualGMMParams.FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER;
+        //int contextClassificationType = ContextualGMMParams.PHONEME_IDENTITY; 
         
         String inputFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08\\neutral\\test_tts_" + emotion;
         String outputBaseFolder;
