@@ -59,10 +59,12 @@ public class ContextualGMMParams {
     
     public int contextClassificationType;
     public static final int NO_PHONEME_CLASS = -1;
-    public static final int PHONEME_IDENTITY = 0;
-    public static final int PHONOLOGY_CLASS = 1;
-    public static final int FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER = 2;
-    public static final int VOWEL_CONSONANT_SILENCE = 3;
+    public static final int SILENCE_SPEECH = 1;
+    public static final int VOWEL_CONSONANT_SILENCE = 2;
+    public static final int PHONOLOGY_CLASS = 3;
+    public static final int FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER = 4;
+    public static final int PHONEME_IDENTITY = 5;
+    
     
     public static final int FRICATIVE_MULTIPLIER   = 1;
     public static final int GLIDELIQUID_MULTIPLIER = 1;
@@ -72,6 +74,7 @@ public class ContextualGMMParams {
     public static final int OTHER_MULTIPLIER       = 1;
     public static final int CONSONANT_MULTIPLIER   = 4;
     public static final int SILENCE_MULTIPLIER     = 1;
+    public static final int SPEECH_MULTIPLIER      = 8;
     
     public String[][] phonemeClasses; //Each row corresponds to a String arrray of phonemes that are grouped in the same class
     public GMMTrainerParams[] classTrainerParams; //Training parameters for each context class
@@ -200,22 +203,187 @@ public class ContextualGMMParams {
                 for (i=0; i<phns.length; i++)
                     phonemeClasses[0][i] = phns[i].name();
             }
-            else if (contextClassificationType==PHONEME_IDENTITY) //Each phoneme goes into a separate class, phoneme replications are taken care of
+            else if (contextClassificationType==SILENCE_SPEECH)
             {
-                String[] allPhonemes = new String[phns.length];
-                for (i=0; i<phns.length; i++)
-                    allPhonemes[i] = phns[i].name();
+                //TO DO: Speech vs silence discrimination
+                //TO DO(2): Implement mechanism to specify number of mixtures for different classes
+                //          If only one number of mixtures is given, use it with the multiplier definitions above 
+                //                            to calculate number of mixtures for each class automatically
+                //          If an array is given that matches the number of classes in size, then use
+                //                           the specified number of mixtures value for each class
+                int[] phonologyClasses = getPhonologyClasses(phns);
+                int[] differentPhonologyClasses = StringUtils.getDifferentItemsList(phonologyClasses);
+                int[][] inds = new int[2][];
                 
-                String[] differentPhonemes = StringUtils.getDifferentItemsList(allPhonemes);
-                
-                phonemeClasses = new String[differentPhonemes.length][1];
-                classTrainerParams = new GMMTrainerParams[differentPhonemes.length];
-                
-                for (i=0; i<differentPhonemes.length; i++)
+                //Silences
+                inds[0] = findIndices(phonologyClasses, PAUSE);
+
+                //Remaining will be inds[1], i.e. speech
+                int j;
+                int totalOther = 0;
+                for (i=0; i<phonologyClasses.length; i++)
                 {
-                    phonemeClasses[i][0] = differentPhonemes[i];
-                    classTrainerParams[i] = new GMMTrainerParams(commonParams);
+                    boolean bFound = false;
+                    for (j=0; j<inds.length-1; j++)
+                    {
+                        if (MathUtils.find(inds[j], MathUtils.EQUALS, i)!=null)
+                        {
+                            bFound=true;
+                            break;
+                        }
+                    }
+                    
+                    if (!bFound)
+                        totalOther++;      
                 }
+                
+                int count = 0;
+                if (totalOther>0)
+                {
+                    inds[1] = new int[totalOther];
+                    
+                    for (i=0; i<phonologyClasses.length; i++)
+                    {
+                        boolean bFound = false;
+                        for (j=0; j<inds.length-1; j++)
+                        {
+                            if (MathUtils.find(inds[j], MathUtils.EQUALS, i)!=null)
+                            {
+                                bFound=true;
+                                break;
+                            }
+                        }
+                        
+                        if (!bFound)
+                        {
+                            inds[1][count] = i;
+                            count++;      
+                        }
+                        
+                        if (count>=totalOther)
+                            break;
+                    }
+                }
+                
+                int total = 0;
+                for (i=0; i<inds.length; i++)
+                {
+                    if (inds[i]!=null)
+                        total++;
+                }
+                
+                phonemeClasses = new String[total][];
+                classTrainerParams = new GMMTrainerParams[total];
+                
+                count = 0;
+                for (i=0; i<total; i++)
+                {
+                    if (inds[i]!=null)
+                    {
+                        phonemeClasses[count] = new String[inds[i].length];
+                        for (j=0; j<inds[i].length; j++)
+                            phonemeClasses[count][j] = phns[inds[i][j]].name();
+                        
+                        classTrainerParams[count] = new GMMTrainerParams(commonParams);
+                        
+                        if (i==0)
+                            classTrainerParams[count].totalComponents *= SILENCE_MULTIPLIER;
+                        else if (i==1)
+                            classTrainerParams[count].totalComponents *= SPEECH_MULTIPLIER;
+                        
+                        count++;
+                    }
+                }
+            }
+            else if (contextClassificationType==VOWEL_CONSONANT_SILENCE)
+            {
+                int[] phonologyClasses = getPhonologyClasses(phns);
+                int[] differentPhonologyClasses = StringUtils.getDifferentItemsList(phonologyClasses);
+                int[][] inds = new int[3][];
+                
+                //Vowels
+                inds[0] = findIndices(phonologyClasses, VOWEL);
+                //Silences
+                inds[1] = findIndices(phonologyClasses, PAUSE);
+                //Remaining will be inds[2], i.e. consonants
+                
+                int j;
+                int totalOther = 0;
+                for (i=0; i<phonologyClasses.length; i++)
+                {
+                    boolean bFound = false;
+                    for (j=0; j<inds.length-1; j++)
+                    {
+                        if (MathUtils.find(inds[j], MathUtils.EQUALS, i)!=null)
+                        {
+                            bFound=true;
+                            break;
+                        }
+                    }
+                    
+                    if (!bFound)
+                        totalOther++;      
+                }
+                
+                int count = 0;
+                if (totalOther>0)
+                {
+                    inds[2] = new int[totalOther];
+                    
+                    for (i=0; i<phonologyClasses.length; i++)
+                    {
+                        boolean bFound = false;
+                        for (j=0; j<inds.length-1; j++)
+                        {
+                            if (MathUtils.find(inds[j], MathUtils.EQUALS, i)!=null)
+                            {
+                                bFound=true;
+                                break;
+                            }
+                        }
+                        
+                        if (!bFound)
+                        {
+                            inds[2][count] = i;
+                            count++;      
+                        }
+                        
+                        if (count>=totalOther)
+                            break;
+                    }
+                }
+                
+                int total = 0;
+                for (i=0; i<inds.length; i++)
+                {
+                    if (inds[i]!=null)
+                        total++;
+                }
+                
+                phonemeClasses = new String[total][];
+                classTrainerParams = new GMMTrainerParams[total];
+                
+                count = 0;
+                for (i=0; i<total; i++)
+                {
+                    if (inds[i]!=null)
+                    {
+                        phonemeClasses[count] = new String[inds[i].length];
+                        for (j=0; j<inds[i].length; j++)
+                            phonemeClasses[count][j] = phns[inds[i][j]].name();
+                        
+                        classTrainerParams[count] = new GMMTrainerParams(commonParams);
+                        
+                        if (i==0)
+                            classTrainerParams[count].totalComponents *= VOWEL_MULTIPLIER;
+                        else if (i==1)
+                            classTrainerParams[count].totalComponents *= SILENCE_MULTIPLIER;
+                        else if (i==2)
+                            classTrainerParams[count].totalComponents *= CONSONANT_MULTIPLIER;
+                        
+                        count++;
+                    }
+                } 
             }
             else if (contextClassificationType==PHONOLOGY_CLASS) //Each phonology class goes into a separate class, however this cannot handle phoneme replications since labels do not have phonology information that could be used in transformation phase
             {
@@ -342,96 +510,22 @@ public class ContextualGMMParams {
                     }
                 }
             }
-            else if (contextClassificationType==VOWEL_CONSONANT_SILENCE)
+            else if (contextClassificationType==PHONEME_IDENTITY) //Each phoneme goes into a separate class, phoneme replications are taken care of
             {
-                int[] phonologyClasses = getPhonologyClasses(phns);
-                int[] differentPhonologyClasses = StringUtils.getDifferentItemsList(phonologyClasses);
-                int[][] inds = new int[3][];
+                String[] allPhonemes = new String[phns.length];
+                for (i=0; i<phns.length; i++)
+                    allPhonemes[i] = phns[i].name();
                 
-                //Vowels
-                inds[0] = findIndices(phonologyClasses, VOWEL);
-                //Silences
-                inds[1] = findIndices(phonologyClasses, PAUSE);
-                //Remaining will be inds[2], i.e. consonants
+                String[] differentPhonemes = StringUtils.getDifferentItemsList(allPhonemes);
                 
-                int j;
-                int totalOther = 0;
-                for (i=0; i<phonologyClasses.length; i++)
+                phonemeClasses = new String[differentPhonemes.length][1];
+                classTrainerParams = new GMMTrainerParams[differentPhonemes.length];
+                
+                for (i=0; i<differentPhonemes.length; i++)
                 {
-                    boolean bFound = false;
-                    for (j=0; j<inds.length-1; j++)
-                    {
-                        if (MathUtils.find(inds[j], MathUtils.EQUALS, i)!=null)
-                        {
-                            bFound=true;
-                            break;
-                        }
-                    }
-                    
-                    if (!bFound)
-                        totalOther++;      
+                    phonemeClasses[i][0] = differentPhonemes[i];
+                    classTrainerParams[i] = new GMMTrainerParams(commonParams);
                 }
-                
-                int count = 0;
-                if (totalOther>0)
-                {
-                    inds[2] = new int[totalOther];
-                    
-                    for (i=0; i<phonologyClasses.length; i++)
-                    {
-                        boolean bFound = false;
-                        for (j=0; j<inds.length-1; j++)
-                        {
-                            if (MathUtils.find(inds[j], MathUtils.EQUALS, i)!=null)
-                            {
-                                bFound=true;
-                                break;
-                            }
-                        }
-                        
-                        if (!bFound)
-                        {
-                            inds[2][count] = i;
-                            count++;      
-                        }
-                        
-                        if (count>=totalOther)
-                            break;
-                    }
-                }
-                
-                int total = 0;
-                for (i=0; i<inds.length; i++)
-                {
-                    if (inds[i]!=null)
-                        total++;
-                }
-                
-                phonemeClasses = new String[total][];
-                classTrainerParams = new GMMTrainerParams[total];
-                
-                count = 0;
-                for (i=0; i<total; i++)
-                {
-                    if (inds[i]!=null)
-                    {
-                        phonemeClasses[count] = new String[inds[i].length];
-                        for (j=0; j<inds[i].length; j++)
-                            phonemeClasses[count][j] = phns[inds[i][j]].name();
-                        
-                        classTrainerParams[count] = new GMMTrainerParams(commonParams);
-                        
-                        if (i==0)
-                            classTrainerParams[count].totalComponents *= VOWEL_MULTIPLIER;
-                        else if (i==1)
-                            classTrainerParams[count].totalComponents *= SILENCE_MULTIPLIER;
-                        else if (i==2)
-                            classTrainerParams[count].totalComponents *= CONSONANT_MULTIPLIER;
-                        
-                        count++;
-                    }
-                }
-                
             }
             else
             {

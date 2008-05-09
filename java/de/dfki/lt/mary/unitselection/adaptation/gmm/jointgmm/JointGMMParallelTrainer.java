@@ -224,10 +224,11 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         
         boolean isContextualGMMs = false;
         int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS;
-        //int contextClassificationType = ContextualGMMParams.PHONEME_IDENTITY;
+        //int contextClassificationType = ContextualGMMParams.SPEECH_SILENCE;
+        //int contextClassificationType = ContextualGMMParams.VOWEL_CONSONANT_SILENCE;
         //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS;
         //int contextClassificationType = ContextualGMMParams.FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER;
-        //int contextClassificationType = ContextualGMMParams.VOWEL_CONSONANT_SILENCE;
+        //int contextClassificationType = ContextualGMMParams.PHONEME_IDENTITY;
         
         mainParametric(numTrainingFiles, numMixes, isContextualGMMs, contextClassificationType, "neutral", emotion, method);
         

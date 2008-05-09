@@ -77,6 +77,7 @@ public class GMMTrainer {
             d0 = new DoubleData(x);
             d0.write(dataFile0);
         }
+        //
         */
         
         startTime = System.currentTimeMillis();
@@ -204,11 +205,16 @@ public class GMMTrainer {
         double mean_diff;
         double denum;
         double diffk; 
+        double tmpZeroMean;
         int d1, d2;
         logLikelihoods = new double[emMaximumIterations];
 
+        long start, end;
+        start = end = 0;
+        
         while(bContinue)
         {
+            start = System.currentTimeMillis();
             //Expectation step
             // Find zjk's at time (s+1) using alphak's at time (s)
             for (j=0; j<totalObservations; j++)
@@ -222,6 +228,9 @@ public class GMMTrainer {
                     else
                         P_xj_tetak = MathUtils.getGaussianPdfValue(x[j], gmm.components[k].meanVector, gmm.components[k].getInvCovMatrix(), gmm.components[k].getConstantTerm());
 
+                    if (P_xj_tetak<MathUtils.TINY_PROBABILITY)
+                        P_xj_tetak=MathUtils.TINY_PROBABILITY;
+                    
                     zNum[j][k] = gmm.weights[k] * P_xj_tetak;
                     zDenum[j] = zDenum[j] + zNum[j][k];
                 }
@@ -248,7 +257,7 @@ public class GMMTrainer {
             // Find the model parameters at time (s+1) using zjk's at time (s+1)
             mean_diff=0.0;
             for (k=0; k<gmm.totalComponents; k++)
-            {
+            {                
                 for (d1=0; d1<gmm.featureDimension; d1++)
                 {
                     num1[d1] = 0.0f;
@@ -260,15 +269,16 @@ public class GMMTrainer {
 
                 for (j=0; j<totalObservations; j++)
                 {
-                    for (d1=0; d1<gmm.featureDimension; d1++)
-                        num1[d1] += x[j][d1]*z[j][k];
-
                     denum += z[j][k];
 
                     for (d1=0; d1<gmm.featureDimension; d1++)
                     {
+                        num1[d1] += x[j][d1]*z[j][k];
+                        
+                        tmpZeroMean = x[j][d1]-gmm.components[k].meanVector[d1];
+                        
                         for (d2=0; d2<gmm.featureDimension; d2++)
-                            num2[d1][d2] += z[j][k]*(x[j][d1]-gmm.components[k].meanVector[d1])*(x[j][d2]-gmm.components[k].meanVector[d2]);
+                            num2[d1][d2] += z[j][k]*tmpZeroMean*(x[j][d2]-gmm.components[k].meanVector[d2]);
                     }
                 }
 
@@ -277,7 +287,10 @@ public class GMMTrainer {
 
                 diffk = 0.0f;
                 for (d1=0; d1<gmm.featureDimension; d1++)
-                    diffk += (tmpMean[d1]-gmm.components[k].meanVector[d1])*(tmpMean[d1]-gmm.components[k].meanVector[d1]);
+                {
+                    tmpZeroMean = tmpMean[d1]-gmm.components[k].meanVector[d1];
+                    diffk += tmpZeroMean*tmpZeroMean;
+                }
                 diffk = Math.sqrt(diffk);
                 mean_diff += diffk;
 
@@ -313,23 +326,46 @@ public class GMMTrainer {
             }
 
             logLikelihoods[numIterations-1] = 0.0;
-            for (j=0; j<totalObservations; j++)
+            if (gmm.isDiagonalCovariance)
             {
-                double tmp=0.0;
-                for (k=0; k<gmm.totalComponents; k++)
+                for (j=0; j<totalObservations; j++)
                 {
-                    if (gmm.isDiagonalCovariance)
+                    double tmp=0.0;
+                    for (k=0; k<gmm.totalComponents; k++)
+                    {
                         P_xj_tetak = MathUtils.getGaussianPdfValue(x[j], gmm.components[k].meanVector, gmm.components[k].getCovMatrixDiagonal(), gmm.components[k].getConstantTerm()); 
-                    else
+
+                        if (P_xj_tetak<MathUtils.TINY_PROBABILITY)
+                            P_xj_tetak=MathUtils.TINY_PROBABILITY;
+
+                        tmp += gmm.weights[k]*P_xj_tetak;
+                    }
+
+                    logLikelihoods[numIterations-1] += Math.log(tmp);
+                }
+            }
+            else
+            {
+                for (j=0; j<totalObservations; j++)
+                {
+                    double tmp=0.0;
+                    for (k=0; k<gmm.totalComponents; k++)
+                    {
                         P_xj_tetak = MathUtils.getGaussianPdfValue(x[j], gmm.components[k].meanVector, gmm.components[k].getInvCovMatrix(), gmm.components[k].getConstantTerm()); 
 
-                    tmp += gmm.weights[k]*P_xj_tetak;
+                        if (P_xj_tetak<MathUtils.TINY_PROBABILITY)
+                            P_xj_tetak=MathUtils.TINY_PROBABILITY;
+
+                        tmp += gmm.weights[k]*P_xj_tetak;
+                    }
+
+                    logLikelihoods[numIterations-1] += Math.log(tmp);
                 }
-                
-                logLikelihoods[numIterations-1] += Math.log(tmp);
             }
 
-            System.out.println("For " + String.valueOf(gmm.totalComponents) + " mixes - EM iteration no: " + String.valueOf(numIterations) + " with error " + String.valueOf(error) + " log-likelihood=" + String.valueOf(logLikelihoods[numIterations-1]));
+            end = System.currentTimeMillis();
+            
+            System.out.println("For " + String.valueOf(gmm.totalComponents) + " mixes - EM iteration no: " + String.valueOf(numIterations) + " with error " + String.valueOf(error) + " log-likelihood=" + String.valueOf(logLikelihoods[numIterations-1]) + " in " +  String.valueOf((end-start)/1000.0) + " sec");
 
             if (numIterations+1>emMaximumIterations)
                 break;
@@ -432,10 +468,10 @@ public class GMMTrainer {
     
     public static void main(String[] args)
     {
-        int numClusters = 4;
-        int numSamplesInClusters = 1000;
-        double[] variances = {0.1};
-        int vectorDim = 2;
+        int numClusters = 20;
+        int numSamplesInClusters = 10000;
+        double[] variances = {0.01};
+        int vectorDim = 5;
         ClusteredDataGenerator[] c = new ClusteredDataGenerator[vectorDim];
         int i, j, n;
         int totalVectors = 0;
@@ -445,26 +481,16 @@ public class GMMTrainer {
                 c[i] = new ClusteredDataGenerator(numClusters, numSamplesInClusters, 10.0*(i+1), variances[i]);
             else
                 c[i] = new ClusteredDataGenerator(numClusters, numSamplesInClusters, 10.0*(i+1), variances[0]);
-            
-            totalVectors += c[i].data.length;
         }
+        
+        totalVectors = c[0].data.length;
         
         double[][] x = new double[totalVectors][vectorDim];
         int counter=0;
         for (n=0; n<c.length; n++)
         {
             for (i=0; i<c[n].data.length; i++)
-            {
-                for (j=0; j<vectorDim; j++)
-                    x[counter][j] = c[n].data[i];
-                
-                counter++;
-                if (counter>=totalVectors)
-                    break;
-            }
-            
-            if (counter>=totalVectors)
-                break;
+                x[i][n] = c[n].data[i];
         }
         
         double[] m = MathUtils.mean(x);
@@ -476,7 +502,7 @@ public class GMMTrainer {
         gmmParams.isDiagonalCovariance = true; 
         gmmParams.kmeansMaxIterations = 100;
         gmmParams.kmeansMinClusterChangePercent = 0.001;
-        gmmParams.kmeansMinSamplesInOneCluster = 15;
+        gmmParams.kmeansMinSamplesInOneCluster = 10;
         gmmParams.emMinIterations = 500;
         gmmParams.emMaxIterations = 2000; 
         gmmParams.isUpdateCovariances = true;
