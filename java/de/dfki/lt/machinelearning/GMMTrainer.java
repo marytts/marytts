@@ -478,9 +478,9 @@ public class GMMTrainer {
     public static void main(String[] args)
     {
         int numClusters = 20;
-        int numSamplesInClusters = 10000;
+        int numSamplesInClusters = 2000;
         double[] variances = {0.01};
-        int vectorDim = 5;
+        int vectorDim = 100;
         ClusteredDataGenerator[] c = new ClusteredDataGenerator[vectorDim];
         int i, j, n;
         int totalVectors = 0;
@@ -502,6 +502,8 @@ public class GMMTrainer {
                 x[i][n] = c[n].data[i];
         }
         
+        x = MathUtils.randomSort(x);
+        
         double[] m = MathUtils.mean(x);
         double[] v = MathUtils.variance(x, m);
         System.out.println(String.valueOf(m[0]) + " " + String.valueOf(v[0]));
@@ -510,14 +512,14 @@ public class GMMTrainer {
         gmmParams.totalComponents = numClusters;
         gmmParams.isDiagonalCovariance = true; 
         gmmParams.kmeansMaxIterations = 100;
-        gmmParams.kmeansMinClusterChangePercent = 0.001;
+        gmmParams.kmeansMinClusterChangePercent = 0.01;
         gmmParams.kmeansMinSamplesInOneCluster = 10;
-        gmmParams.emMinIterations = 500;
-        gmmParams.emMaxIterations = 2000; 
+        gmmParams.emMinIterations = 1;
+        gmmParams.emMaxIterations = 2; 
         gmmParams.isUpdateCovariances = true;
         gmmParams.tinyLogLikelihoodChangePercent = 0.001;
         gmmParams.minCovarianceAllowed = 1e-5;
-        gmmParams.useNativeCLibTrainer = true;
+        gmmParams.useNativeCLibTrainer = false;
         
         GMMTrainer g = new GMMTrainer();
         GMM gmm = g.train(x, gmmParams);

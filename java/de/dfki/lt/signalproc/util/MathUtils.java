@@ -3210,6 +3210,55 @@ public class MathUtils {
         return index;
     }
 
+    public static int[] randomSort(int[] x)
+    {
+        int i, ind;
+        int[] tmpx = new int[x.length];
+        int[] y = new int[x.length];
+        int[] tmpx2;
+        System.arraycopy(x, 0, tmpx, 0, x.length);
+        
+        for (i=1; i<x.length; i++)
+        {
+            ind = (int)(Math.random()*tmpx.length);
+            if (ind>tmpx.length-1)
+                ind = tmpx.length-1;
+            y[i-1] = tmpx[ind];
+            tmpx2 = new int[tmpx.length-1];
+            System.arraycopy(tmpx, 0, tmpx2, 0, ind);
+            System.arraycopy(tmpx, ind+1, tmpx2, ind, tmpx.length-ind-1);
+            
+            tmpx = new int[tmpx2.length];
+            System.arraycopy(tmpx2, 0, tmpx, 0, tmpx2.length);
+        }
+        y[x.length-1] = tmpx[0];
+        
+        return y;
+    }
+    
+    //Randomly sorts each row of x
+    public static double[][] randomSort(double[][] x)
+    {
+        double[][] y = null;
+        if (x!=null)
+        {
+            int[] indsRnd = new int[x.length];
+            int i;
+            for (i=0; i<x.length; i++)
+                indsRnd[i] = i;
+            indsRnd = randomSort(indsRnd);
+            
+            y = new double[x.length][];
+            for (i=0; i<x.length; i++)
+            {
+                y[i] = new double[x[indsRnd[i]].length];
+                System.arraycopy(x[indsRnd[i]], 0, y[i], 0, x[indsRnd[i]].length);
+            }
+        }
+        
+        return y;
+    }
+    
     public static void main(String[] args)
     {
         double[] x = new double[4];
