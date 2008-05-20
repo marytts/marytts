@@ -38,27 +38,34 @@ import de.dfki.lt.signalproc.util.MaryRandomAccessFile;
  *
  */
 public class GMMTrainerParams {
+    
+    //A set of default values for GMM  training parameters
     public static final int EM_TOTAL_COMPONENTS_DEFAULT = 1;
     public static final boolean EM_IS_DIAGONAL_COVARIANCE_DEFAULT = true;
-    public static final int EM_MIN_ITERATIONS_DEFAULT = 20;
-    public static final int EM_MAX_ITERATIONS_DEFAULT = 200;
+    public static final int EM_MIN_ITERATIONS_DEFAULT = 500;
+    public static final int EM_MAX_ITERATIONS_DEFAULT = 2000;
     public static final boolean EM_IS_UPDATE_COVARIANCES_DEFAULT = true;
     public static final double EM_TINY_LOGLIKELIHOOD_CHANGE_PERCENT_DEFAULT = 0.0001;
     public static final double EM_MIN_COVARIANCE_ALLOWED_DEFAULT = 1e-4;
     public static final boolean EM_USE_NATIVE_C_LIB_TRAINER_DEFAULT = false;
+    //
     
-    public int totalComponents;
-    public boolean isDiagonalCovariance; 
-    public int kmeansMaxIterations;
-    public double kmeansMinClusterChangePercent;
-    public int kmeansMinSamplesInOneCluster;
-    public int emMinIterations;
-    public int emMaxIterations;
-    public boolean isUpdateCovariances;
-    public double tinyLogLikelihoodChange;
-    public double minCovarianceAllowed;
-    public boolean useNativeCLibTrainer;
+    public int totalComponents; //Total number of Gaussians in the GMM
+    public boolean isDiagonalCovariance; //Estimate diagonal covariance matrices? 
+                                         //  Full-covariance training is likely to result in ill-conditioned training due to insufficient training data
+    public int kmeansMaxIterations; //Minimum number of K-Means iterations to initialize the GMM
+    public double kmeansMinClusterChangePercent; //Maximum number of K-Means iterations to initialize the GMM
+    public int kmeansMinSamplesInOneCluster; //Minimum number of observations in one cluster while initializing the GMM with K-Means
+    public int emMinIterations;  //Minimum number of EM iterations for which the algorithm will not quit
+                                 //  even when the total likelihood does not change much with additional iterations
+    public int emMaxIterations;  //Maximum number of EM iterations for which the algorithm will quit 
+                                 //  even when total likelihood has not settled yet
+    public boolean isUpdateCovariances; //Update covariance matrices in EM iterations?
+    public double tinyLogLikelihoodChangePercent; //Threshold to compare percent decrease in total log-likelihood to stop iterations automatically
+    public double minCovarianceAllowed; //Minimum covariance value allowed - should be a small positive number to avoid ill-conditioned training
+    public boolean useNativeCLibTrainer; //Use native C library trainer (Windows OS only)
     
+    //Default constructor
     public GMMTrainerParams()
     {
         totalComponents = EM_TOTAL_COMPONENTS_DEFAULT;
@@ -69,11 +76,12 @@ public class GMMTrainerParams {
         emMinIterations = EM_MIN_ITERATIONS_DEFAULT;
         emMaxIterations = EM_MAX_ITERATIONS_DEFAULT;
         isUpdateCovariances = EM_IS_UPDATE_COVARIANCES_DEFAULT;
-        tinyLogLikelihoodChange = EM_TINY_LOGLIKELIHOOD_CHANGE_PERCENT_DEFAULT;
+        tinyLogLikelihoodChangePercent = EM_TINY_LOGLIKELIHOOD_CHANGE_PERCENT_DEFAULT;
         minCovarianceAllowed = EM_MIN_COVARIANCE_ALLOWED_DEFAULT;
         useNativeCLibTrainer = EM_USE_NATIVE_C_LIB_TRAINER_DEFAULT;
     }
     
+    //Constructor using an existing parameter set
     public GMMTrainerParams(GMMTrainerParams existing)
     {
         totalComponents = existing.totalComponents;
@@ -84,16 +92,18 @@ public class GMMTrainerParams {
         emMinIterations = existing.emMinIterations;
         emMaxIterations = existing.emMaxIterations;
         isUpdateCovariances = existing.isUpdateCovariances;
-        tinyLogLikelihoodChange = existing.tinyLogLikelihoodChange;
+        tinyLogLikelihoodChangePercent = existing.tinyLogLikelihoodChangePercent;
         minCovarianceAllowed = existing.minCovarianceAllowed;
         useNativeCLibTrainer = existing.useNativeCLibTrainer;
     }
     
+    //Constructor that reads GMM training parameters from a binary file stream
     public GMMTrainerParams(MaryRandomAccessFile stream)
     {
         read(stream);
     }
     
+    //Function to write GMM training parameters to a binary file stream
     public void write(MaryRandomAccessFile stream)
     {
         if (stream!=null)
@@ -148,7 +158,7 @@ public class GMMTrainerParams {
             }
 
             try {
-                stream.writeDouble(tinyLogLikelihoodChange);
+                stream.writeDouble(tinyLogLikelihoodChangePercent);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -170,6 +180,7 @@ public class GMMTrainerParams {
         }
     }
     
+    //Function that reads GMM training parameters from a binary file stream 
     public void read(MaryRandomAccessFile stream)
     {
         if (stream!=null)
@@ -231,7 +242,7 @@ public class GMMTrainerParams {
             }
            
             try {
-                tinyLogLikelihoodChange = stream.readDouble();
+                tinyLogLikelihoodChangePercent = stream.readDouble();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

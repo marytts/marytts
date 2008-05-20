@@ -39,15 +39,21 @@ import de.dfki.lt.signalproc.util.distance.DistanceComputer;
  *
  */
 public class KMeansClusteringTrainer {    
-    public Cluster[] clusters;
-    public int[] totalObservationsInClusters;
-    public int[] clusterIndices;
-    public double[][] covMatrixGlobal;
-    public double[][] invCovMatrixGlobal;
+    public Cluster[] clusters; //Parameters of each cluster
+    public int[] totalObservationsInClusters; //Total number of observations in each cluster
+    public int[] clusterIndices; //Assigned cluster for each observation vector
+    public double[][] covMatrixGlobal; //Global covariance matrix of data
+    public double[][] invCovMatrixGlobal; //Inverse of global covariance matrix of data
     
-    //K-Means clustering algorithm
-    // numClusters: Desired number of clusters
-    // minClusterPercent: Minimum cluster size in percent of whole data size
+    //This function clusters multi-dimensional feature vectors using K-Means clustering procedure
+    //  Each row of x, i.e. x[0], x[1], ... corresponds to an observation vector.
+    //  The dimension of each vector should be identical.
+    //  All training parameters are given by kmeansParams (See KMeansClusteringTrainerParams.java for details)
+    //  Training consists of four steps:
+    //  (a) Initialization (random assignment of cluster means using data points that are far away from each other + slight random shifts)
+    //  (b) Hard clustering of samples according to new cluster means
+    //  (c) Update of cluster means using assigned samples
+    //  (d) Re-iteration of (b) and (c) until convergence, i.e. when overall cluster occupancy does not change much
     public void train(double[][] x, KMeansClusteringTrainerParams kmeansParams)
     {   
         if (kmeansParams.globalVariances==null)
@@ -304,7 +310,7 @@ public class KMeansClusteringTrainer {
         }
         
         //There can be no observations for some clusters, i.e. when the number of clusters is large as compared to the actual clusters in data
-        //In this case, assign largest cluster´s mean, covariance, nad inverse covariance to these empty clusters
+        //In this case, assign largest cluster´s mean, covariance, and inverse covariance to these empty clusters
         for (i=0; i<kmeansParams.numClusters; i++)
             tmps[i] = totalObservationsInClusters[i];
 
