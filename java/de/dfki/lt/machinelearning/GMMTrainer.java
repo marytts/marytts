@@ -480,7 +480,7 @@ public class GMMTrainer {
         int numClusters = 20;
         int numSamplesInClusters = 2000;
         double[] variances = {0.01};
-        int vectorDim = 100;
+        int vectorDim = 10;
         ClusteredDataGenerator[] c = new ClusteredDataGenerator[vectorDim];
         int i, j, n;
         int totalVectors = 0;
@@ -514,12 +514,12 @@ public class GMMTrainer {
         gmmParams.kmeansMaxIterations = 100;
         gmmParams.kmeansMinClusterChangePercent = 0.01;
         gmmParams.kmeansMinSamplesInOneCluster = 10;
-        gmmParams.emMinIterations = 1;
-        gmmParams.emMaxIterations = 2; 
+        gmmParams.emMinIterations = 100;
+        gmmParams.emMaxIterations = 2000; 
         gmmParams.isUpdateCovariances = true;
         gmmParams.tinyLogLikelihoodChangePercent = 0.001;
         gmmParams.minCovarianceAllowed = 1e-5;
-        gmmParams.useNativeCLibTrainer = false;
+        gmmParams.useNativeCLibTrainer = true;
         
         GMMTrainer g = new GMMTrainer();
         GMM gmm = g.train(x, gmmParams);
