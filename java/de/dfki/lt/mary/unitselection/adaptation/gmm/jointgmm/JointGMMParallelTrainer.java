@@ -220,11 +220,10 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         String emotion = "angry";
         String method = "F";
         int numTrainingFiles = 200; //2, 20, 200, 350
-        //int[] numComponents = {128};
         
-        boolean isContextualGMMs = true;
-        //int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {128};
-        int contextClassificationType = ContextualGMMParams.SILENCE_SPEECH; int[] numComponents = {16, 128};
+        boolean isContextualGMMs = false;
+        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {128};
+        //int contextClassificationType = ContextualGMMParams.SILENCE_SPEECH; int[] numComponents = {16, 128};
         //int contextClassificationType = ContextualGMMParams.VOWEL_SILENCE_CONSONANT; int[] numComponents = {128, 16, 128};
         //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS; int[] numComponents = {numMixes};
         //int contextClassificationType = ContextualGMMParams.FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER; int[] numComponents = {128, 128, 128, 128, 128, 16};
@@ -275,13 +274,13 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         gp.gmmEMTrainerParams.totalComponents = numComponents[0];
         gp.gmmEMTrainerParams.isDiagonalCovariance = true; 
         gp.gmmEMTrainerParams.kmeansMaxIterations = 200;
-        gp.gmmEMTrainerParams.kmeansMinClusterChangePercent = 0.001;
-        gp.gmmEMTrainerParams.kmeansMinSamplesInOneCluster = 10;
-        gp.gmmEMTrainerParams.emMinIterations = 500;
+        gp.gmmEMTrainerParams.kmeansMinClusterChangePercent = 0.1;
+        gp.gmmEMTrainerParams.kmeansMinSamplesInOneCluster = 50;
+        gp.gmmEMTrainerParams.emMinIterations = 100;
         gp.gmmEMTrainerParams.emMaxIterations = 2000;
         gp.gmmEMTrainerParams.isUpdateCovariances = true;
         gp.gmmEMTrainerParams.tinyLogLikelihoodChangePercent = 0.001;
-        gp.gmmEMTrainerParams.minCovarianceAllowed = 1e-5;
+        gp.gmmEMTrainerParams.minCovarianceAllowed = 1e-4;
         gp.gmmEMTrainerParams.useNativeCLibTrainer = true;
         
         if (gp.isContextualGMMs)

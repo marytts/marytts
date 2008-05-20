@@ -243,8 +243,10 @@ public class GMMTrainer {
                     else
                         P_xj_tetak = MathUtils.getGaussianPdfValue(x[j], gmm.components[k].meanVector, gmm.components[k].getInvCovMatrix(), gmm.components[k].getConstantTerm());
 
+                    /*
                     if (P_xj_tetak<MathUtils.TINY_PROBABILITY)
                         P_xj_tetak=MathUtils.TINY_PROBABILITY;
+                        */
                     
                     zNum[j][k] = gmm.weights[k] * P_xj_tetak;
                     zDenum[j] = zDenum[j] + zNum[j][k];
@@ -350,8 +352,10 @@ public class GMMTrainer {
                     {
                         P_xj_tetak = MathUtils.getGaussianPdfValue(x[j], gmm.components[k].meanVector, gmm.components[k].getCovMatrixDiagonal(), gmm.components[k].getConstantTerm()); 
 
+                        /*
                         if (P_xj_tetak<MathUtils.TINY_PROBABILITY)
                             P_xj_tetak=MathUtils.TINY_PROBABILITY;
+                            */
 
                         tmp += gmm.weights[k]*P_xj_tetak;
                     }
@@ -368,8 +372,10 @@ public class GMMTrainer {
                     {
                         P_xj_tetak = MathUtils.getGaussianPdfValue(x[j], gmm.components[k].meanVector, gmm.components[k].getInvCovMatrix(), gmm.components[k].getConstantTerm()); 
 
+                        /*
                         if (P_xj_tetak<MathUtils.TINY_PROBABILITY)
                             P_xj_tetak=MathUtils.TINY_PROBABILITY;
+                            */
 
                         tmp += gmm.weights[k]*P_xj_tetak;
                     }
