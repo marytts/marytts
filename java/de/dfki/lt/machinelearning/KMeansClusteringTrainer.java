@@ -123,7 +123,9 @@ public class KMeansClusteringTrainer {
                     dists[t-1] = MathUtils.mean(tmp, 0, k-1);
                 }
                 else
+                {
                     dists[t-1] = DistanceComputer.getNormalizedEuclideanDistance(mAll, x[t-1], kmeansParams.globalVariances);
+                }
             }
 
             for (t=1; t<=observations; t++)
@@ -200,7 +202,7 @@ public class KMeansClusteringTrainer {
                 
                 //Do something if totalObservationsInClusters[i-1] is less than some value 
                 // (i.e. there are too few observations for the cluster)
-                if ((double)totalObservationsInClusters[i-1]/observations*100.0<kmeansParams.minClusterChangePercent)
+                if ((double)totalObservationsInClusters[i-1]<kmeansParams.minSamplesInOneCluster)
                 {
                     tinyClusterInds[c-1] = i;
                     numTinyClusters++;
@@ -216,7 +218,7 @@ public class KMeansClusteringTrainer {
             inds = MathUtils.quickSort(tmps, 0,  kmeansParams.numClusters-1); 
             for (i=1; i<=kmeansParams.numClusters; i++)
             {
-                if (((double)totalObservationsInClusters[i-1]/observations*100)>=kmeansParams.minClusterChangePercent)
+                if (totalObservationsInClusters[i-1]>=kmeansParams.minSamplesInOneCluster)
                 {
                     for (d=1; d<=dimension; d++)
                         clusters[i-1].meanVector[d-1] = m_new[i-1][d-1]/totalObservationsInClusters[i-1];

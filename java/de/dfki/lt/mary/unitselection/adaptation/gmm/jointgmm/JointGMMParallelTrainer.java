@@ -220,17 +220,17 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         String emotion = "angry";
         String method = "F";
         int numTrainingFiles = 200; //2, 20, 200, 350
-        int numMixes = 128;
+        //int[] numComponents = {128};
         
-        boolean isContextualGMMs = false;
-        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS;
-        //int contextClassificationType = ContextualGMMParams.SPEECH_SILENCE;
-        //int contextClassificationType = ContextualGMMParams.VOWEL_CONSONANT_SILENCE;
-        //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS;
-        //int contextClassificationType = ContextualGMMParams.FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER;
-        //int contextClassificationType = ContextualGMMParams.PHONEME_IDENTITY;
+        boolean isContextualGMMs = true;
+        //int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {128};
+        int contextClassificationType = ContextualGMMParams.SILENCE_SPEECH; int[] numComponents = {16, 128};
+        //int contextClassificationType = ContextualGMMParams.VOWEL_SILENCE_CONSONANT; int[] numComponents = {128, 16, 128};
+        //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS; int[] numComponents = {numMixes};
+        //int contextClassificationType = ContextualGMMParams.FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER; int[] numComponents = {128, 128, 128, 128, 128, 16};
+        //int contextClassificationType = ContextualGMMParams.PHONEME_IDENTITY; int[] numComponents = {numMixes};
         
-        mainParametric(numTrainingFiles, numMixes, isContextualGMMs, contextClassificationType, "neutral", emotion, method);
+        mainParametric(numTrainingFiles, numComponents, isContextualGMMs, contextClassificationType, "neutral", emotion, method);
         
         /*
         mainParametric(numTrainingFiles, numMixes, isContextualGMMs, contextClassificationType, "neutral", "angry", method);
@@ -239,7 +239,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         */
     }
     
-    public static void mainParametric(int numTrainingFiles, int numMixes, 
+    public static void mainParametric(int numTrainingFiles, int[] numComponents, 
                                       boolean isContextualGMMs, int contextClassificationType, 
                                       String sourceTag, String targetTag, String method) throws UnsupportedAudioFileException, IOException
     {
@@ -272,22 +272,28 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         
         //Gaussian trainer params: commenting out results in using default value for each
         gp.isContextualGMMs = isContextualGMMs;
-        gp.gmmEMTrainerParams.totalComponents = numMixes;
+        gp.gmmEMTrainerParams.totalComponents = numComponents[0];
         gp.gmmEMTrainerParams.isDiagonalCovariance = true; 
         gp.gmmEMTrainerParams.kmeansMaxIterations = 200;
-        gp.gmmEMTrainerParams.kmeansMinClusterChangePercent = 0.0001;
+        gp.gmmEMTrainerParams.kmeansMinClusterChangePercent = 0.001;
         gp.gmmEMTrainerParams.kmeansMinSamplesInOneCluster = 10;
-        gp.gmmEMTrainerParams.emMinIterations = 100;
+        gp.gmmEMTrainerParams.emMinIterations = 500;
         gp.gmmEMTrainerParams.emMaxIterations = 2000;
         gp.gmmEMTrainerParams.isUpdateCovariances = true;
-        gp.gmmEMTrainerParams.tinyLogLikelihoodChangePercent = 1e-6;
+        gp.gmmEMTrainerParams.tinyLogLikelihoodChangePercent = 0.001;
         gp.gmmEMTrainerParams.minCovarianceAllowed = 1e-5;
         gp.gmmEMTrainerParams.useNativeCLibTrainer = true;
         
         if (gp.isContextualGMMs)
         {
+            GMMTrainerParams[] gmmParams = new GMMTrainerParams[numComponents.length];
+            for (int i=0; i<numComponents.length; i++)
+            {
+                gmmParams[i] = new GMMTrainerParams(gp.gmmEMTrainerParams);
+                gmmParams[i].totalComponents = numComponents[i];
+            }
             String phonemeSetFile = "D:\\Mary TTS New\\lib\\modules\\de\\cap\\phoneme-list-de.xml";
-            cg = getContextualGMMParams(phonemeSetFile, gp.gmmEMTrainerParams, contextClassificationType);
+            cg = getContextualGMMParams(phonemeSetFile, gmmParams, contextClassificationType);
         }
         
         String baseFile = StringUtils.checkLastSlash(pa.trainingBaseFolder) + pa.codebookHeader.sourceTag + "_X_" + pa.codebookHeader.targetTag;
@@ -376,7 +382,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         t.run();
     }
     
-    public static ContextualGMMParams getContextualGMMParams(String phonemeSetFile, GMMTrainerParams commonParams, int contextClassificationType)
+    public static ContextualGMMParams getContextualGMMParams(String phonemeSetFile, GMMTrainerParams[] params, int contextClassificationType)
     {
         ContextualGMMParams cg = null;
         PhonemeSet phonemeSet = null;
@@ -400,7 +406,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         }
 
         if (phonemeSet!=null)
-            cg = new ContextualGMMParams(phonemeSet, commonParams, contextClassificationType);
+            cg = new ContextualGMMParams(phonemeSet, params, contextClassificationType);
 
         return cg;
     }
