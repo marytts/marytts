@@ -220,7 +220,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         String emotion = "angry";
         String method = "F";
         int numTrainingFiles = 200; //2, 20, 200, 350
-        int numMixes = 64;
+        int numMixes = 128;
         
         boolean isContextualGMMs = false;
         int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS;

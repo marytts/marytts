@@ -125,7 +125,7 @@ public class GMMTrainer {
             else //native C library based training (only available for Windows OS)
             {   
                 String strIsBigEndian = "1";
-                String dataFile = StringUtils.getRandomFileName("c:\\gmmTemp_", 8, ".dat");
+                String dataFile = StringUtils.getRandomFileName("d:\\gmmTemp_", 8, ".dat");
                 DoubleData d = new DoubleData(x);
                 d.write(dataFile);
 
