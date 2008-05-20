@@ -32,7 +32,6 @@ package de.dfki.lt.mary.unitselection.adaptation.outlier;
 import java.io.IOException;
 import java.util.Arrays;
 
-import de.dfki.lt.machinelearning.KMeansClusteringTester;
 import de.dfki.lt.machinelearning.KMeansClusteringTrainer;
 import de.dfki.lt.machinelearning.KMeansClusteringTrainerParams;
 import de.dfki.lt.mary.unitselection.adaptation.OutlierStatus;

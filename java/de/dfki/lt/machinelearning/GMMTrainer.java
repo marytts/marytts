@@ -54,6 +54,16 @@ public class GMMTrainer {
         logLikelihoods = null;
     }
     
+    //This function calls the Expectation-Maximization (EM) algorithm
+    //  to fit a Gaussian Mixture Model (GMM) to multi-dimensional data in x.
+    //  Each row of x, i.e. x[0], x[1], ... corresponds to an observation vector.
+    //  The dimension of each vector should be identical.
+    //  Either a java implementation or a native C implementation (in Windows OS only) can be used.
+    //  Note that native C implementation (GMMTrainer.exe) works 5 to 10 times faster.
+    //  All training parameters are given by gmmParams (See GMMTrainerParams.java for details)
+    //  Training consists of two steps:
+    //  (a) Initialization using K-Means clustering
+    //  (b) EM iterations to increase total log-likelihood of the model given the data
     public GMM train(double[][] x, GMMTrainerParams gmmParams)
     {
         long startTime, endTime;
@@ -88,7 +98,7 @@ public class GMMTrainer {
             if (!MaryUtils.isWindows())
                 gmmParams.useNativeCLibTrainer = false;
             
-            if (!gmmParams.useNativeCLibTrainer) //Java training
+            if (!gmmParams.useNativeCLibTrainer) //Java based training
             {
                 int featureDimension = x[0].length;
                 int i;
@@ -109,13 +119,13 @@ public class GMMTrainer {
                                               gmmParams.emMinIterations, 
                                               gmmParams.emMaxIterations, 
                                               gmmParams.isUpdateCovariances, 
-                                              gmmParams.tinyLogLikelihoodChange,
+                                              gmmParams.tinyLogLikelihoodChangePercent,
                                               gmmParams.minCovarianceAllowed);
             }
-            else //native C Library training (only available for Windows)
+            else //native C library based training (only available for Windows OS)
             {   
                 String strIsBigEndian = "1";
-                String dataFile = StringUtils.getRandomFileName("d:\\gmmTemp_", 8, ".dat");
+                String dataFile = StringUtils.getRandomFileName("c:\\gmmTemp_", 8, ".dat");
                 DoubleData d = new DoubleData(x);
                 d.write(dataFile);
 
@@ -133,7 +143,7 @@ public class GMMTrainer {
                                     String.valueOf(gmmParams.emMinIterations) + " " +
                                     String.valueOf(gmmParams.emMaxIterations) + " " +
                                     String.valueOf(gmmParams.isUpdateCovariances==true ? 1 : 0) + " " +
-                                    String.valueOf(gmmParams.tinyLogLikelihoodChange) + " " +
+                                    String.valueOf(gmmParams.tinyLogLikelihoodChangePercent) + " " +
                                     String.valueOf(gmmParams.minCovarianceAllowed) + " " +
                                     "\"" + logFile + "\"";
 
@@ -158,19 +168,23 @@ public class GMMTrainer {
         return gmm;
     }
 
-    // x: data matrix (each row is another observation)
-    // Model: initial mixture model
-    //
-    // Automatically stop iterating if alphas do not change much
-    // Now changed!!! Check the change in group means and stop if less than threshold!
-    // Added is_update_variances as an argument to the main
+    // EM algorithm to fit a GMM to multi-dimensional data
+    // x: Data matrix (Each row is another observation vector)
+    // initialGMM: Initial GMM model (can be initialized using K-Means clustering (See function train)
+    // emMinimumIterations: Minimum number of EM iterations for which the algorithm will not quit 
+    //                      even when the total likelihood does not change much with additional iterations)
+    // emMaximumIterations: Maximum number of EM iterations for which the algorithm will quit even when total likelihood
+    //                      has not settled yet
+    // isUpdateCovariances: Update covariance matrices in EM iterations?
+    // tinyLogLikelihoodChangePercent: Threshold to compare percent decrease in total log-likelihood to stop iterations automatically
+    // minimumCovarianceAllowed: Minimum covariance value allowed - should be a small positive number to avoid ill-conditioned training
     public GMM expectationMaximization(double[][] x, 
-            GMM initialGmm, 
-            int emMinimumIterations,
-            int emMaximumIterations, 
-            boolean isUpdateCovariances,
-            double tinyLogLikelihoodChange,
-            double minimumCovarianceAllowed)
+                                       GMM initialGmm, 
+                                       int emMinimumIterations,
+                                       int emMaximumIterations, 
+                                       boolean isUpdateCovariances,
+                                       double tinyLogLikelihoodChangePercent,
+                                       double minimumCovarianceAllowed)
     {
         int i, j,k;
         int totalObservations = x.length;
@@ -212,6 +226,7 @@ public class GMMTrainer {
         long start, end;
         start = end = 0;
         
+        //Main EM iteartions loop
         while(bContinue)
         {
             start = System.currentTimeMillis();
@@ -367,18 +382,12 @@ public class GMMTrainer {
             
             System.out.println("For " + String.valueOf(gmm.totalComponents) + " mixes - EM iteration no: " + String.valueOf(numIterations) + " with error " + String.valueOf(error) + " log-likelihood=" + String.valueOf(logLikelihoods[numIterations-1]) + " in " +  String.valueOf((end-start)/1000.0) + " sec");
 
+            //Force iterations to stop if maximum number of iterations has been reached
             if (numIterations+1>emMaximumIterations)
                 break;
 
-            /*
-            if (mean_diff<TINY_DIFF)
-                 break;
-
-            if (numIterations>emMinimumIterations && prevErr-error<TINY_DIFF)
-                break;
-            */
-
-            if (numIterations>emMinimumIterations && logLikelihoods[numIterations-1]-logLikelihoods[numIterations-2]<Math.abs(logLikelihoods[numIterations-1]/100*tinyLogLikelihoodChange))
+            //Force iterations to stop if minimum number of iterations has been reached AND total log likelihood does not change much
+            if (numIterations>emMinimumIterations && logLikelihoods[numIterations-1]-logLikelihoods[numIterations-2]<Math.abs(logLikelihoods[numIterations-1]/100*tinyLogLikelihoodChangePercent))
                 break;
 
             numIterations++;
@@ -506,9 +515,9 @@ public class GMMTrainer {
         gmmParams.emMinIterations = 500;
         gmmParams.emMaxIterations = 2000; 
         gmmParams.isUpdateCovariances = true;
-        gmmParams.tinyLogLikelihoodChange = 0.001;
+        gmmParams.tinyLogLikelihoodChangePercent = 0.001;
         gmmParams.minCovarianceAllowed = 1e-5;
-        gmmParams.useNativeCLibTrainer = false;
+        gmmParams.useNativeCLibTrainer = true;
         
         GMMTrainer g = new GMMTrainer();
         GMM gmm = g.train(x, gmmParams);
