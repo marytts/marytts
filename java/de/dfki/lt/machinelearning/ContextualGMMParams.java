@@ -79,6 +79,16 @@ public class ContextualGMMParams {
     public String[][] phonemeClasses; //Each row corresponds to a String arrray of phonemes that are grouped in the same class
     public GMMTrainerParams[] classTrainerParams; //Training parameters for each context class
     
+    public ContextualGMMParams()
+    {
+        this(null, null);
+    }
+    
+    public ContextualGMMParams(PhonemeSet phonemeSet, GMMTrainerParams commonParams)
+    {
+        this(phonemeSet, commonParams, NO_PHONEME_CLASS);
+    }
+    
     public ContextualGMMParams(PhonemeSet phonemeSet, GMMTrainerParams commonParams, int contextClassificationTypeIn)
     {
         //To do: Use contextClassificationType to actually create classes here
