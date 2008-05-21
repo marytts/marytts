@@ -275,7 +275,7 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
                 in = new File("data/labels/gen/"+labFiles[0]);
                 out = new File(newVoiceDir + getFileName(labFiles[0]));
                 copy(in,out);
-                props.put(labFile, "data/labels/gen/"+labFiles[0]);   // NEW CHECK!!!!
+                props.put(labFile, "data/labels/gen/"+labFiles[0]);
               } else
                 System.out.println("Problem copying one example of HTS context features, the directory data/labels/gen/ is empty or directory does not exist.");
             }   
