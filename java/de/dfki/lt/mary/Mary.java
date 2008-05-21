@@ -169,7 +169,7 @@ public class Mary {
             seenTypes);
     }
     
-    private static void addJarsToClasspath() throws Exception
+    protected static void addJarsToClasspath() throws Exception
     {
         File jarDir = new File(MaryProperties.maryBase()+"/java");
         File[] jarFiles = jarDir.listFiles(new FilenameFilter() {
@@ -371,6 +371,7 @@ public class Mary {
             logger.debug("os.name = " + System.getProperty("os.name"));
             logger.debug("os.arch = " + System.getProperty("os.arch"));
             logger.debug("os.version = " + System.getProperty("os.version"));
+            logger.debug("file.encoding = " + System.getProperty("file.encoding"));
             logger.debug(
                 "file.separator = " + System.getProperty("file.separator"));
             logger.debug(
