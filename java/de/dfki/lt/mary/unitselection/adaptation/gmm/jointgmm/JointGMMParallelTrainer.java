@@ -222,12 +222,12 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         int numTrainingFiles = 200; //2, 20, 200, 350
         
         boolean isContextualGMMs = false;
-        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {128};
+        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {256};
         //int contextClassificationType = ContextualGMMParams.SILENCE_SPEECH; int[] numComponents = {16, 128};
         //int contextClassificationType = ContextualGMMParams.VOWEL_SILENCE_CONSONANT; int[] numComponents = {128, 16, 128};
         //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS; int[] numComponents = {numMixes};
         //int contextClassificationType = ContextualGMMParams.FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER; int[] numComponents = {128, 128, 128, 128, 128, 16};
-        //int contextClassificationType = ContextualGMMParams.PHONEME_IDENTITY; int[] numComponents = {numMixes};
+        //int contextClassificationType = ContextualGMMParams.PHONEME_IDENTITY; int[] numComponents = {128};
         
         mainParametric(numTrainingFiles, numComponents, isContextualGMMs, contextClassificationType, "neutral", emotion, method);
         
@@ -247,6 +247,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         WeightedCodebookTrainerParams pa = new WeightedCodebookTrainerParams();
         JointGMMTrainerParams gp = new JointGMMTrainerParams();
         ContextualGMMParams cg = null;
+        int i;
         
         pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAMES; //Frame-by-frame mapping of features
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAME_GROUPS; pa.codebookHeader.numNeighboursInFrameGroups = 3; //Mapping of frame average features (no label information but fixed amount of neighbouring frames is used)
@@ -276,17 +277,17 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         gp.gmmEMTrainerParams.kmeansMaxIterations = 200;
         gp.gmmEMTrainerParams.kmeansMinClusterChangePercent = 0.1;
         gp.gmmEMTrainerParams.kmeansMinSamplesInOneCluster = 50;
-        gp.gmmEMTrainerParams.emMinIterations = 100;
+        gp.gmmEMTrainerParams.emMinIterations = 500;
         gp.gmmEMTrainerParams.emMaxIterations = 2000;
         gp.gmmEMTrainerParams.isUpdateCovariances = true;
-        gp.gmmEMTrainerParams.tinyLogLikelihoodChangePercent = 0.001;
+        gp.gmmEMTrainerParams.tinyLogLikelihoodChangePercent = 1e-10;
         gp.gmmEMTrainerParams.minCovarianceAllowed = 1e-4;
         gp.gmmEMTrainerParams.useNativeCLibTrainer = true;
         
         if (gp.isContextualGMMs)
         {
             GMMTrainerParams[] gmmParams = new GMMTrainerParams[numComponents.length];
-            for (int i=0; i<numComponents.length; i++)
+            for (i=0; i<numComponents.length; i++)
             {
                 gmmParams[i] = new GMMTrainerParams(gp.gmmEMTrainerParams);
                 gmmParams[i].totalComponents = numComponents[i];
@@ -303,7 +304,13 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         if (!isContextualGMMs)
             gp.jointGMMFile = baseFile + "_" + String.valueOf(numTrainingFiles) + "_" + String.valueOf(gp.gmmEMTrainerParams.totalComponents) + JointGMMSet.DEFAULT_EXTENSION;
         else
-            gp.jointGMMFile = baseFile + "_" + String.valueOf(numTrainingFiles) + "_context" + String.valueOf(contextClassificationType) + "_"+ String.valueOf(gp.gmmEMTrainerParams.totalComponents) + JointGMMSet.DEFAULT_EXTENSION;
+        {
+            gp.jointGMMFile = baseFile + "_" + String.valueOf(numTrainingFiles) + "_context" + String.valueOf(contextClassificationType);
+            for (i=0; i<numComponents.length; i++)
+                gp.jointGMMFile += "_" + String.valueOf(numComponents[i]);
+            
+            gp.jointGMMFile += JointGMMSet.DEFAULT_EXTENSION;
+        }
             
         pa.isForcedAnalysis = false;
         
