@@ -252,9 +252,9 @@ public class QualityControl extends VoiceImportComponent {
                }
             if (!featureUnit.equals(labelUnit)) {
                 //label and feature unit do not match
-                System.err.println("Non-matching units found: feature file '"
-                +featureUnit+"' vs. label file '"+labelUnit
-                +"' (Unit "+unitIndex+")");
+                System.err.println("Non-matching units found: feature unit '"
+                +featureUnit+"' vs. label unit '"+labelUnit
+                +"' ( in basename: "+basename+")");
             }
             
         baseN = basename;
@@ -397,7 +397,7 @@ public class QualityControl extends VoiceImportComponent {
                   //label and feature unit do not match
                   System.err.println("Non-matching units found: feature file '"
                   +featureUnit+"' vs. label file '"+labelUnit
-                  +"' (Unit "+unitIndex+")");
+                  +"' (in Basename: "+baseName+" Unit: "+labelUnit+" )");
                }
                  
                if(isFricative(line,ph_Ctype_idx) && getProp(MHFREQEGY).equals("true")){
@@ -423,6 +423,7 @@ public class QualityControl extends VoiceImportComponent {
               
             features.close();
             labels.close();
+            ais.close();
          }
        
         return fricativeHash;
