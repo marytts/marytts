@@ -457,7 +457,7 @@ public class DatabaseLayout
             marybase = "/path/to/marybase/";
         }
         basicprops.put(MARYBASE,marybase);
-        basicprops.put(MARYBASEVERSION, "3.5.0");
+        basicprops.put(MARYBASEVERSION, "3.6.0");
         basicprops.put(VOICENAME,"my_voice");
         basicprops.put(GENDER,"female");
         basicprops.put(DOMAIN,"general");
