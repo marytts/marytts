@@ -349,6 +349,8 @@ public class MaryProperties
                     // Missing dependency
                     String component = tryToSolveDependencyProblem(requirement, requirer, "component is missing");
                     if (component != null) { // could solve one
+                        // update classpath, in case a new jar file was installed
+                        Mary.addJarsToClasspath();
                         // add new config file, re-check
                         File configFile = new File(maryBase+"/conf/"+component+".config");
                         assert configFile.exists();
@@ -374,12 +376,9 @@ public class MaryProperties
                             if (problem != null) {
                                 String component = tryToSolveDependencyProblem(requirement, requirer,
                                         "version number "+reqVersion+" is required, and component `"+provider.getProperty("name")+"' provides "+problem);
-                                // TODO: The following code is untested because
-                                // IzPack AutomatedInstaller will not return.
-                                // If we ever replace it with something that returns,
-                                // the following code is intended to recursively solve
-                                // all dependencies in one go and then start the server:
                                 if (component != null) { // could solve one
+                                    // update classpath, in case a new jar file was installed
+                                    Mary.addJarsToClasspath();
                                     // add new config file, re-check
                                     File configFile = new File(maryBase+"/conf/"+component+".config");
                                     assert configFile.exists();
@@ -458,8 +457,7 @@ public class MaryProperties
         } else if (download != null) {
             int answer = JOptionPane.showConfirmDialog(null,
                     problem+"\n"+
-                    "Would you like to download `"+ component +"' from\n" + download + "?\n"
-                    + "After installation, please re-start the MARY server.",
+                    "Would you like to download `"+ component +"' from\n" + download + "?",
                     "Dependency problem",
                     JOptionPane.YES_NO_OPTION);
             if (answer == JOptionPane.YES_OPTION) {
