@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -349,21 +350,27 @@ public class AlignerTrainer {
      * 
      * @param entryNr
      */
-    public String[] getAlignment(int entryNr){
+    public List<String>[] getAlignment(int entryNr){
         
         String align = this.distanceAlign(graphemeStrings[entryNr], phoneStrings[entryNr]);
         
         String[] in = graphemeStrings[entryNr].trim().split(" ");
         String[] out = align.concat(" ").split("#");
         
-        String[] ret = new String[in.length];
-        
+        // TODO: maybe do everything with lists
+        ArrayList<String>[] listArray = new ArrayList[in.length];
+                
         for (int pos = 0; pos < in.length ; pos++){
-            ret[pos] = in[pos] + ":" + out[pos].trim().replaceAll(" ", "");
+            
+            ArrayList<String> alList = new ArrayList<String>(2);
+            alList.add(in[pos].trim());            
+            alList.add(out[pos].trim().replaceAll(" ", ""));
+            
+            listArray[pos] = alList;
+            
         }
         
-        return ret;
-        
+        return listArray;
     }
     
     private double log2(double d){
