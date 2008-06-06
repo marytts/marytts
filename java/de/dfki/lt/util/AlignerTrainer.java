@@ -62,11 +62,12 @@ public class AlignerTrainer {
     private double logOf2 = Math.log(2.0);
 
     
-    protected String[] graphemeStrings;
-    protected String[] phoneStrings;
+    protected List<String> graphemeStrings;
+    protected List<String> phoneStrings;
 
     private PhonemeSet phonemeSet;
     protected Set<String> graphemeSet;
+    //protected Set<String> outSymbolSet;
     
     
     private Locale locale;
@@ -79,6 +80,10 @@ public class AlignerTrainer {
     public AlignerTrainer(PhonemeSet aPhSet, Locale aLocale){
         this.skipcost = this.defaultcost;
         this.aligncost = new HashMap<String, Integer>();
+        
+        this.graphemeStrings = new ArrayList<String>();
+        this.phoneStrings = new ArrayList<String>();
+        this.graphemeSet = new HashSet<String>();
 
         this.phonemeSet = aPhSet;
         this.locale = aLocale;
@@ -96,12 +101,11 @@ public class AlignerTrainer {
      */
     public void readLexicon(BufferedReader lexicon) throws IOException{
         
+        
+        // TODO: replace
         ArrayList<String> graphemeStringList = new ArrayList<String>();
         ArrayList<String> phoneStringList = new ArrayList<String>();
-        
-        // store set of graphemes
-        this.graphemeSet = new HashSet<String>();
-        
+                
         String line;
         
         while ((line = lexicon.readLine()) != null){
@@ -153,8 +157,8 @@ public class AlignerTrainer {
             
         }
         
-        this.graphemeStrings = graphemeStringList.toArray(new String[]{});
-        this.phoneStrings    = phoneStringList.toArray(new String[]{});       
+        this.graphemeStrings = graphemeStringList;//.toArray(new String[]{});
+        this.phoneStrings    = phoneStringList;//.toArray(new String[]{});       
     }
     
     /**
@@ -172,12 +176,10 @@ public class AlignerTrainer {
      */
     public void readSampaLexicon(BufferedReader lexicon, boolean considerStress) throws IOException{
         
+        // TODO: replace
         ArrayList<String> graphemeStringList = new ArrayList<String>();
         ArrayList<String> phoneStringList = new ArrayList<String>();
-        
-        // store set of graphemes
-        this.graphemeSet = new HashSet<String>();
-        
+                
         String line;
         
         while ((line = lexicon.readLine()) != null){
@@ -232,8 +234,51 @@ public class AlignerTrainer {
             
         }
         
-        this.graphemeStrings = graphemeStringList.toArray(new String[]{});
-        this.phoneStrings    = phoneStringList.toArray(new String[]{});       
+        this.graphemeStrings = graphemeStringList;//.toArray(new String[]{});
+        this.phoneStrings    = phoneStringList;//.toArray(new String[]{});       
+    }
+    
+    public void readLexiconSimply(BufferedReader lexicon, String splitSym) throws IOException{
+        
+        String line;
+        
+        while ((line = lexicon.readLine()) != null){
+            String[] lineParts = line.trim().split(splitSym);
+            
+            this.addSimply(lineParts[0], lineParts[1]);
+            
+        }
+        
+    }
+    
+    /**
+     * This adds the input and output string in the most simple way: symbols
+     * are simply the characters of the strings - no phonemisation/syllabification
+     * or whatsoever is performed. No PhonemeSet has to be specified for that.
+     * 
+     * @param inString
+     * @param outString
+     */
+    public void addSimply(String inStr, String outStr){
+        
+        String separatedGraphemes="";
+        
+        for ( int i = 0 ; i < inStr.length() ; i++ ){
+            
+            this.graphemeSet.add(inStr.substring(i, i+1));
+            
+            separatedGraphemes += inStr.substring(i, i+1) + " ";
+        }
+        
+        String separatedPhonemes="";
+        
+        for ( int i = 0 ; i < outStr.length() ; i++ ){            
+            separatedPhonemes += outStr.substring(i, i+1) + " ";
+        }
+        
+        this.graphemeStrings.add(separatedGraphemes);
+        this.phoneStrings.add(separatedPhonemes);
+        
     }
     
     /**
@@ -259,15 +304,15 @@ public class AlignerTrainer {
         int symDels = 0;
         
         // for every alignment pair collect counts
-        for ( int i = 0; i < this.phoneStrings.length; i++ ){
+        for ( int i = 0; i < this.phoneStrings.size(); i++ ){
             
-            String alignment = this.distanceAlign(this.graphemeStrings[i], this.phoneStrings[i]);
+            String alignment = this.distanceAlign(this.graphemeStrings.get(i), this.phoneStrings.get(i));
             
             //System.out.println("---");
             //System.out.println(this.graphemeStrings[i]);
             //System.out.println(alignment);
             
-            String[] in = this.graphemeStrings[i].trim().split(" ");
+            String[] in = this.graphemeStrings.get(i).trim().split(" ");
             // assure that there is at least one space sign after last '#'
             String[] out = alignment.concat(" ").split("#");
             
@@ -338,7 +383,7 @@ public class AlignerTrainer {
     }
     
     public int lexiconSize(){
-        return this.graphemeStrings.length;
+        return this.graphemeStrings.size();
     }
     
     /**
@@ -352,9 +397,9 @@ public class AlignerTrainer {
      */
     public List<String>[] getAlignment(int entryNr){
         
-        String align = this.distanceAlign(graphemeStrings[entryNr], phoneStrings[entryNr]);
+        String align = this.distanceAlign(graphemeStrings.get(entryNr), phoneStrings.get(entryNr));
         
-        String[] in = graphemeStrings[entryNr].trim().split(" ");
+        String[] in = graphemeStrings.get(entryNr).trim().split(" ");
         String[] out = align.concat(" ").split("#");
         
         // TODO: maybe do everything with lists
@@ -518,15 +563,15 @@ public class AlignerTrainer {
     
     private void showLexiconAlignment(){
 
-        for ( int i = 0; i < this.phoneStrings.length; i++ ){
+        for ( int i = 0; i < this.phoneStrings.size(); i++ ){
             
-            String alignment = this.distanceAlign(this.graphemeStrings[i], this.phoneStrings[i]);
+            String alignment = this.distanceAlign(this.graphemeStrings.get(i), this.phoneStrings.get(i));
             
             System.out.println("---");
-            System.out.println(this.graphemeStrings[i]);
+            System.out.println(this.graphemeStrings.get(i));
             System.out.println(alignment);
             
-            String[] in = this.graphemeStrings[i].trim().split(" ");
+            String[] in = this.graphemeStrings.get(i).trim().split(" ");
             // assure that there is at least one space sign after last '#'
             String[] out = alignment.concat(" ").split("#");
             
