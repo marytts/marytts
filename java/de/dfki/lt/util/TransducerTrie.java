@@ -40,7 +40,7 @@ import de.dfki.lt.util.Trie.TrieNode;
 public class TransducerTrie extends Trie< List<String> > {
 
 
-    // TODO: an add method that checks every label beforehend whether it
+    // TODO: an add method that checks every label beforehand whether it
     // contains input and output symbol
     
     public void writeFST(DataOutputStream out) throws IOException{
@@ -172,7 +172,7 @@ public class TransducerTrie extends Trie< List<String> > {
                 new FileInputStream(path + "sampa-lexicon.txt"),"ISO-8859-1"));
         
         // specify location of output
-        String fstLocation = path + "lexicon.fst";
+        String fstLocation = path + "lexicon_smplalign.fst";
         
      
         
@@ -182,14 +182,14 @@ public class TransducerTrie extends Trie< List<String> > {
         System.out.println("reading lexicon...");
         
         // read lexicon for training
-        at.readSampaLexicon(lexReader, true);
+        at.readLexiconSimply(lexReader, " ");
         
         System.out.println("...done!");
 
         System.out.println("aligning...");
         // make some alignment iterations
         for ( int i = 0 ; i < 8 ; i++ ){
-            System.out.println(" iteration " + i);
+            System.out.println(" iteration " + (i+1));
             at.alignIteration();
             
         }
