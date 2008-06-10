@@ -53,12 +53,12 @@ public class TransducerTrie extends Trie< List<String> > {
             
         // first has offset one (consider additional start arc)
         arcOffsets[0] = 1;
-           
-        for (int i=0; i< reprs.size(); i++){
-           arcOffsets[i+1] = arcOffsets[i] + reprs.get(i).getArcMap().size();
+                   
+        for (int i=0; i< rlist.size(); i++){
+           arcOffsets[i+1] = arcOffsets[i] + rlist.get(i).getArcMap().size();
            
            // if final, consider the added "final arc"
-           if (reprs.get(i).isFinal){
+           if (rlist.get(i).isFinal){
                arcOffsets[i+1] += 1;
            }
         }
@@ -74,7 +74,7 @@ public class TransducerTrie extends Trie< List<String> > {
                 
         // write arcs, final nodes have final arc as last with same empty label as start
         // dont forget to add one
-        for (TrieNode repr : reprs){
+        for (TrieNode repr : rlist){
             
             List<Integer> arcVals = new ArrayList<Integer>();
             
@@ -172,7 +172,7 @@ public class TransducerTrie extends Trie< List<String> > {
                 new FileInputStream(path + "sampa-lexicon.txt"),"ISO-8859-1"));
         
         // specify location of output
-        String fstLocation = path + "lexicon_smplalign.fst";
+        String fstLocation = path + "lexicon_hash.fst";
         
      
         
@@ -188,7 +188,7 @@ public class TransducerTrie extends Trie< List<String> > {
 
         System.out.println("aligning...");
         // make some alignment iterations
-        for ( int i = 0 ; i < 8 ; i++ ){
+        for ( int i = 0 ; i < 5 ; i++ ){
             System.out.println(" iteration " + (i+1));
             at.alignIteration();
             
