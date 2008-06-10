@@ -73,6 +73,9 @@ public class Trie<Symbol> {
     // class to store nodes of a trie
     class TrieNode{
         
+        private boolean hashcodeFixed = false;
+        int hashcode = -1;
+        
         // maps a string to the node the corresponding arc leads to
         private Map<Integer,TrieNode> labelId2node = new HashMap<Integer, TrieNode>();
         
@@ -138,20 +141,53 @@ public class Trie<Symbol> {
         protected boolean hasSuccessor(){
             return this.labelId2node.size() > 0;
         }
+        
+        @Override
+        public int hashCode() {
+            
+            if (this.hashcodeFixed)
+                return this.hashcode;
+            
+            int hc = (this.isFinal) ? 1:0;
+            
+            //sortedIds = 
+            
+            for (Integer labelId : this.labelId2node.keySet()){
+                hc += labelId ^ labelId2node.get(labelId).id;
+            }
+            
+            return hc;
+        }
 
-        protected boolean identicalTo(TrieNode other) {
+
+        
+        /*
+         * equals compares everything important but _not_ id
+         */
+        public boolean equals(Object other) {
+            
+            TrieNode otherNode;
+            
+            try{
+             otherNode = (TrieNode) other;
+            } catch (ClassCastException e) {
+                return false;
+            } 
+            
+
+            //System.out.println("comparing two TrieNodes");
             
             // both nodes have to be final
-            if (this.isFinal != other.isFinal)
+            if (this.isFinal != otherNode.isFinal)
                 return false;
 
             // both nodes have to have same outgoing edges
-            if (!this.labelId2node.keySet().equals(other.labelId2node.keySet()))
+            if (!this.labelId2node.keySet().equals(otherNode.labelId2node.keySet()))
                 return false;
             
             // edges must lead to nodes of same equivalence class
             for (Integer labelId : this.labelId2node.keySet()){
-                if (labelId2node.get(labelId).id != other.labelId2node.get(labelId).id)
+                if (labelId2node.get(labelId).id != otherNode.labelId2node.get(labelId).id)
                     return false;
             }
                 
@@ -164,6 +200,8 @@ public class Trie<Symbol> {
 
         public void setId(int id2) {
             this.id = id2;
+            this.hashcode = this.hashCode();
+            this.hashcodeFixed = true;
             
         }
 
@@ -224,8 +262,11 @@ public class Trie<Symbol> {
     protected List<TrieNode> finalNodes;
     
     // mapping from nodes to representatives in a minimized transducer view.
+    
+    protected Map<TrieNode, Integer> reprs = null;
+    
     // mapping is done via list indices
-    protected List<TrieNode> reprs = null;
+    protected List<TrieNode> rlist = null;
     
     // back and forth mapping from labels to ids
     protected Map<Symbol, Integer> label2id;
@@ -272,7 +313,11 @@ public class Trie<Symbol> {
         }
         
         // store the representants of the equivalence classes
-        this.reprs = new ArrayList<TrieNode>();
+        this.rlist = new ArrayList<TrieNode>();
+        
+        // maps nodes to their Id/representative
+        //this.reprs = new HashMap<TrieNode, TrieNode>();
+        this.reprs = new HashMap<TrieNode, Integer>();        
         
         // for each identity candidate check to which nodes it is identical,
         // make new equivalence classes when needed and produce new candidates
@@ -282,17 +327,24 @@ public class Trie<Symbol> {
             TrieNode currCan = identityCandidates.remove();
             
             // does it belong to one of the already identified equiv. classes?
-            for (TrieNode repr : reprs){
+            if (this.reprs.containsKey(currCan)){
+                currCan.setId(reprs.get(currCan));
+                //System.out.println("identifies identical nodes for class " + currCan.getId());
+            }
+                
+            
+            /*for (TrieNode repr : reprs){
                 if ( currCan.identicalTo(repr) ){
                     currCan.setId( repr.getId() );
                     break;
                 }
-            }
+            }*/
             
             // ... if not, let it represent a new class
             if (! currCan.hasId() ){
                 currCan.setId(reprs.size());
-                reprs.add(currCan);
+                reprs.put(currCan, currCan.getId());
+                rlist.add(currCan);
             }
             
             TrieNode pred = currCan.getBackPointer();
@@ -312,7 +364,7 @@ public class Trie<Symbol> {
         
         StringBuffer sb = new StringBuffer();
         
-        for (TrieNode r : this.reprs){
+        for (TrieNode r : this.reprs.keySet()){
             sb.append("\n");
             sb.append(r.toString());
         }
