@@ -38,6 +38,8 @@ import de.dfki.lt.util.Trie.TrieNode;
  *
  */
 public class TransducerTrie extends Trie< List<String> > {
+    static int ARCOFFSET_BITS = 20;
+    static int LABELID_BITS = 11;
 
 
     // TODO: an add method that checks every label beforehand whether it
@@ -63,8 +65,19 @@ public class TransducerTrie extends Trie< List<String> > {
            }
         }
         
+        
         // write number of arcs
-        out.writeInt(arcOffsets[arcOffsets.length-1]);
+        int maxAO = arcOffsets[arcOffsets.length-1];
+        out.writeInt(maxAO);
+        
+        // to ensure that number can be encoded:
+        // shift to right by the number of available bits and look if something remains
+        if ( (maxAO >> ARCOFFSET_BITS)!=0 )
+            throw new IOException("To many arcs to be encoded in binary fst format.");
+
+        int maxLID = this.labels.size() + 2;
+        if ( (maxLID >> LABELID_BITS)!=0 )
+            throw new IOException("To many arc-labels to be encoded in binary fst format.");      
         
         // write starting arc:
         //      pointing to start node offset - empty label - final
@@ -105,7 +118,6 @@ public class TransducerTrie extends Trie< List<String> > {
            
         for (int i=0; i< labels.size(); i++){
             
-            // TODO: make split symbol argument
             List<String> ioSym = labels.get(i); 
             
             // offset of outS determined by offset of inS
@@ -172,7 +184,7 @@ public class TransducerTrie extends Trie< List<String> > {
                 new FileInputStream(path + "sampa-lexicon.txt"),"ISO-8859-1"));
         
         // specify location of output
-        String fstLocation = path + "lexicon_hash.fst";
+        String fstLocation = path + "lexicon_hash1iter.fst";
         
      
         
@@ -188,7 +200,7 @@ public class TransducerTrie extends Trie< List<String> > {
 
         System.out.println("aligning...");
         // make some alignment iterations
-        for ( int i = 0 ; i < 5 ; i++ ){
+        for ( int i = 0 ; i < 1 ; i++ ){
             System.out.println(" iteration " + (i+1));
             at.alignIteration();
             
