@@ -70,33 +70,6 @@ public class FSTLookup
     }
 
     /**
-     * Initialise the finite state transducer lookup. This constructor will
-     * assume that the file uses the system default encoding.
-     * @param fileName the name of the file from which to load the FST.
-     * @param verbose whether to write a report to stderr after loading.
-     * @throws IOException if the FST cannot be loaded from the given file.
-     */
-    public FSTLookup(String fileName, boolean verbose) throws IOException
-    {
-	fst = new FST(fileName, verbose);
-    }
-
-    /**
-     * Initialise the finite state transducer lookup.
-     * @param fileName the name of the file from which to load the FST.
-     * @param encoding the name of the encoding used in the file (e.g., UTF-8
-     * or ISO-8859-1).
-     * @param verbose whether to write a report to stderr after loading.
-     * @throws IOException if the FST cannot be loaded from the given file.
-     * @throws UnsupportedEncodingException if the encoding is not supported.
-     */
-    public FSTLookup(String fileName, String encoding, boolean verbose)
-    throws IOException, UnsupportedEncodingException
-    {
-	fst = new FST(fileName, verbose);
-    }
-
-    /**
      * Look up a word in the FST. The FST runs in normal mode, i.e. it
      * generates the expanded forms from the original forms. This method is
      * thread-safe.
@@ -165,7 +138,7 @@ public class FSTLookup
             System.exit(-1);
         }
         
-        FSTLookup fstLookup = new FSTLookup(args[0], true);
+        FSTLookup fstLookup = new FSTLookup(args[0]);
         
         if(args.length==1 || (args.length ==2 && args[1].equals("-g"))) {
             boolean generate = false;
