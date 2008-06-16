@@ -39,13 +39,19 @@ import de.dfki.lt.util.Trie.TrieNode;
  */
 public class TransducerTrie extends Trie< List<String> > {
     static int ARCOFFSET_BITS = 20;
-    static int LABELID_BITS = 11;
+    //static int LABELID_BITS = 11;
+    
+    static int OVERALL_BITS = 32;// for example
+    static int LABELID_BITS = OVERALL_BITS - (ARCOFFSET_BITS + 1);
+    //
+    //
+    
 
 
     // TODO: an add method that checks every label beforehand whether it
     // contains input and output symbol
     
-    public void writeFST(DataOutputStream out) throws IOException{
+    public void writeFST(DataOutputStream out, String encoding) throws IOException{
         
         if (null == this.reprs)
             throw new IllegalStateException("Cannot write transducer. First compute minimization of trie.");
@@ -64,11 +70,9 @@ public class TransducerTrie extends Trie< List<String> > {
                arcOffsets[i+1] += 1;
            }
         }
-        
-        
+
         // write number of arcs
         int maxAO = arcOffsets[arcOffsets.length-1];
-        out.writeInt(maxAO);
         
         // to ensure that number can be encoded:
         // shift to right by the number of available bits and look if something remains
@@ -77,15 +81,29 @@ public class TransducerTrie extends Trie< List<String> > {
 
         int maxLID = this.labels.size() + 2;
         if ( (maxLID >> LABELID_BITS)!=0 )
-            throw new IOException("To many arc-labels to be encoded in binary fst format.");      
+            throw new IOException("To many arc-labels to be encoded in binary fst format.");
+
+        // TODO: check if encoding supported
         
+        // write encoding in modified UTF-8
+        out.writeInt(encoding.length());
+        out.write(encoding.getBytes("UTF-8"));
+        // write overall bits
+        out.writeInt(OVERALL_BITS);
+        // write bits used for encoding arc_offsets
+        out.writeInt(ARCOFFSET_BITS);
+        
+
+        out.writeInt(maxAO);
+        
+               
         // write starting arc:
         //      pointing to start node offset - empty label - final
         int startArc = arcOffsets[root.getId()] | 1 << 20 | 1 <<31;
         
         out.writeInt(startArc);
                 
-        // write arcs, final nodes have final arc as last with same empty label as start
+        // write arcs, final nodes have final arc as last with empty label
         // dont forget to add one
         for (TrieNode repr : rlist){
             
@@ -123,14 +141,14 @@ public class TransducerTrie extends Trie< List<String> > {
             // offset of outS determined by offset of inS
             labelOffsets[i*2+1] = labelOffsets[i*2];
             // offset increased by length of inS
-            labelOffsets[i*2+1] += ioSym.get(0).getBytes().length;// TODO: use encoding
+            labelOffsets[i*2+1] += ioSym.get(0).getBytes(encoding).length;
             // additionally increased by one because of stop byte
             labelOffsets[i*2+1] += 1;
                 
             if (i+1<labels.size()){
                 // offset of next inS determined by this outS
                 labelOffsets[(i+1)*2] = labelOffsets[i*2+1];
-                labelOffsets[(i+1)*2] += ioSym.get(1).getBytes().length;// TODO: use encoding
+                labelOffsets[(i+1)*2] += ioSym.get(1).getBytes(encoding).length;
                 labelOffsets[(i+1)*2] += 1;
             }
             
@@ -162,9 +180,9 @@ public class TransducerTrie extends Trie< List<String> > {
             
             List<String> ioSym = labels.get(i); 
                        
-            out.write(ioSym.get(0).getBytes());// TODO: use encoding
+            out.write(ioSym.get(0).getBytes(encoding));
             out.writeByte(0);
-            out.write(ioSym.get(1).getBytes());// TODO: use encoding
+            out.write(ioSym.get(1).getBytes(encoding));// TODO: use encoding
             out.writeByte(0);
         }
         
@@ -186,7 +204,7 @@ public class TransducerTrie extends Trie< List<String> > {
         // specify location of output
         String fstLocation = path + "lexicon_hash1iter.fst";
         
-     
+     /*
         
         // initialize trainer 
         AlignerTrainer at = new AlignerTrainer(PhonemeSet.getPhonemeSet(phFileLoc), Locale.ENGLISH);
@@ -225,11 +243,11 @@ public class TransducerTrie extends Trie< List<String> > {
         
         DataOutputStream os = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(of)));
         
-        t.writeFST(os);
+        t.writeFST(os,"UTF-8");
         os.flush();
         os.close();
         System.out.println("...done!");
-
+*/
         
         System.out.println("looking up test words...");
         FSTLookup fst = new FSTLookup(fstLocation);
