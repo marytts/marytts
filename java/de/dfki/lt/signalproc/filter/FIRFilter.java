@@ -94,6 +94,7 @@ public class FIRFilter implements InlineDataProcessor {
         this.impulseResponseLength = impulseResponse.length;
         this.sliceLength = sliceLen;
         transformedIR = new double[sliceLen+impulseResponse.length];
+        
         System.arraycopy(impulseResponse, 0, transformedIR, 0, impulseResponse.length);
         FFT.realTransform(transformedIR, false);
         // This means, we are not actually saving the impulseResponse, but only

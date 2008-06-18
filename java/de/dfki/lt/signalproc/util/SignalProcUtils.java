@@ -18,6 +18,7 @@ import de.dfki.lt.signalproc.filter.HighPassFilter;
 import de.dfki.lt.signalproc.filter.LowPassFilter;
 import de.dfki.lt.signalproc.filter.RecursiveFilter;
 import de.dfki.lt.signalproc.util.MathUtils.Complex;
+import de.dfki.lt.signalproc.window.HammingWindow;
 import de.dfki.lt.signalproc.window.Window;
 
 public class SignalProcUtils {
@@ -1732,7 +1733,7 @@ public class SignalProcUtils {
             
             y = filter(tmpb, tmpa, y, false, zi);
             y = SignalProcUtils.reverse(y);
-            
+
             // remove extrapolated pieces of y to write the output to x
             yRet = new double[x.length];
             for (i=0; i<x.length; i++)
@@ -1742,8 +1743,88 @@ public class SignalProcUtils {
         {
             yRet = filter(b,a, x);
         }
-        
+
         return yRet;
+    }
+
+    public static double[] filterfd(double[] filterFFTAbsMag, double[] x, int samplingRate)
+    {
+        return filterfd(filterFFTAbsMag, x, samplingRate, 0.020);
+    }
+    
+    public static double[] filterfd(double[] filterFFTAbsMag, double[] x, int samplingRate, double winsize)
+    {
+        return filterfd(filterFFTAbsMag, x, samplingRate, winsize, 0.010);
+    }
+    
+    public static double[] filterfd(double[] filterFFTAbsMag, double[] x, int samplingRate, double winsize, double skipsize)
+    {
+        double[] y = null;
+
+        if (x!=null && filterFFTAbsMag!=null)
+        {
+            int ws = (int)Math.floor(winsize*samplingRate + 0.5);
+            int ss = (int)Math.floor(skipsize*samplingRate + 0.5);
+
+            int maxFreq = filterFFTAbsMag.length;
+            int fftSize = 2*(maxFreq-1);
+            if (ws>fftSize)
+                ws = fftSize;
+
+            int numfrm = (int)Math.floor((x.length-0.5*ws)/ss+0.5)+1;
+            HammingWindow wgt = new HammingWindow(ws);
+            wgt.normalize(1.0f);
+
+            y = new double[x.length];
+            Arrays.fill(y, 0.0);
+            double[] w = new double[x.length];
+            Arrays.fill(w, 0.0);
+            int i, j;
+
+            Complex XFRM = new Complex(fftSize);
+            double[] yfrm = new double[ws];
+
+            for (i=1; i<=numfrm; i++)
+            {
+                Arrays.fill(XFRM.real, 0.0);
+                Arrays.fill(XFRM.imag, 0.0);
+                for (j=1; j<=Math.min(ws, x.length-(i-1)*ss); j++)
+                    XFRM.real[j-1] = x[(i-1)*ss+j-1];
+
+                wgt.applyInline(XFRM.real, 0, ws);
+
+                FFT.transform(XFRM.real, XFRM.imag, false);
+
+                for (j=0; j<maxFreq; j++)
+                {
+                    XFRM.real[j] *= filterFFTAbsMag[j];
+                    XFRM.imag[j] *= filterFFTAbsMag[j];
+                }
+
+                for (j=maxFreq+1; j<=fftSize; j++)
+                {
+                    XFRM.real[j-1] = XFRM.real[2*maxFreq-1-j];
+                    XFRM.imag[j-1] = -XFRM.imag[2*maxFreq-1-j];
+                }
+
+                FFT.transform(XFRM.real, XFRM.imag, true);
+                System.arraycopy(XFRM.real, 0, yfrm, 0, ws);
+
+                for (j=(i-1)*ss+1; j<=Math.min(x.length, (i-1)*ss+ws); j++)
+                {
+                    y[j-1] += wgt.value(j-(i-1)*ss-1)*yfrm[j-(i-1)*ss-1];
+                    w[j-1] += wgt.value(j-(i-1)*ss-1)*wgt.value(j-(i-1)*ss-1);
+                }
+            }
+
+            for (i=1; i<=x.length; i++)
+            {
+                if (w[i-1]>0.0)
+                    y[i-1] /= w[i-1];
+            }
+        }
+
+        return y;
     }
     
     public static void main(String[] args)
