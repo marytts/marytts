@@ -138,10 +138,19 @@ public class HarmonicPitchTracker extends BaseSinusoidalPitchTracker {
         int spectralEnvelopeType = SinusoidalAnalyzer.SEEVOC_SPEC;
         //int spectralEnvelopeType = SinusoidalAnalyzer.LP_SPEC;
         
+        boolean bRefinePeakEstimatesParabola = false;
+        boolean bRefinePeakEstimatesBias = false;
+        boolean bSpectralReassignment = false;
+        boolean bAdjustNeighFreqDependent = false;
+        
         String strPitchFileIn = args[0].substring(0, args[0].length()-4) + ".ptc";
         F0ReaderWriter f0 = new F0ReaderWriter(strPitchFileIn);
         PitchMarker pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true);
-        PitchSynchronousSinusoidalAnalyzer sa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, true, true);
+        PitchSynchronousSinusoidalAnalyzer sa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, 
+                                                                                       bRefinePeakEstimatesParabola, 
+                                                                                       bRefinePeakEstimatesBias, 
+                                                                                       bSpectralReassignment,
+                                                                                       bAdjustNeighFreqDependent);
         
         SinusoidalSpeechSignal ss = sa.extractSinusoidsFixedRate(x, windowSizeInSeconds, skipSizeInSeconds, deltaInHz, spectralEnvelopeType, f0.contour, (float)f0.header.ws, (float)f0.header.ss);
         

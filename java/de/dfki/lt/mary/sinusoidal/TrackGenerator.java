@@ -59,7 +59,7 @@ public class TrackGenerator {
      * 
      * This version uses a simple search mechanism to compare a current sinusoid frequecny with the previous and if the difference is smaller than
      * +-deltaInHz, assigns the new sinusoid to the previous sinusoid´s track
-     * In the assignment, longer previous paths are favoured in a wighted manner, i.e. the longer a candidate track, 
+     * In the assignment, longer previous paths are favoured in a weighted manner, i.e. the longer a candidate track, 
      * the more likely the current sinusoid gets assigned to that track
      * 
      */
