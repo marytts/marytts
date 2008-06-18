@@ -277,10 +277,10 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         gp.gmmEMTrainerParams.kmeansMaxIterations = 200;
         gp.gmmEMTrainerParams.kmeansMinClusterChangePercent = 0.1;
         gp.gmmEMTrainerParams.kmeansMinSamplesInOneCluster = 50;
-        gp.gmmEMTrainerParams.emMinIterations = 500;
+        gp.gmmEMTrainerParams.emMinIterations = 200;
         gp.gmmEMTrainerParams.emMaxIterations = 2000;
         gp.gmmEMTrainerParams.isUpdateCovariances = true;
-        gp.gmmEMTrainerParams.tinyLogLikelihoodChangePercent = 1e-10;
+        gp.gmmEMTrainerParams.tinyLogLikelihoodChangePercent = 1e-5;
         gp.gmmEMTrainerParams.minCovarianceAllowed = 1e-4;
         gp.gmmEMTrainerParams.useNativeCLibTrainer = true;
         
