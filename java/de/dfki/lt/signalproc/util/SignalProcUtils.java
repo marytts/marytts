@@ -50,6 +50,16 @@ public class SignalProcUtils {
         return dftSize;
     }
     
+    //Returns an odd filter order depending on the sampling rate for FIR filter design
+    public static int getFIRFilterOrder(int fs)
+    {
+        int oddFilterOrder = getDFTSize(fs) - 1;
+        if (oddFilterOrder%2==0)
+            oddFilterOrder++;
+        
+        return oddFilterOrder;
+    }
+    
     public static int getLifterOrder(int fs){
         int lifterOrder = 2*(int)(fs/1000.0f+2);
         
@@ -608,8 +618,40 @@ public class SignalProcUtils {
         return index;
     }
     
+    //Convert frequency in Hz to frequency sample index
+    // maxFreq corresponds to half sampling rate, i.e. sample no: fftSize/2+1 where freq sample indices are 0,1,...,maxFreq-1
+    public static double[] freq2indexDouble(double [] freqsInHz, int samplingRateInHz, int maxFreq)
+    {
+        double [] inds = null;
+        
+        if (freqsInHz!=null && freqsInHz.length>0)
+        {
+            inds = new double[freqsInHz.length];
+            
+            for (int i=0; i<inds.length; i++)
+                inds[i] = freq2indexDouble(freqsInHz[i], samplingRateInHz, maxFreq);
+        }
+        
+        return inds;
+    }
+    
+    public static double freq2indexDouble(double freqInHz, int samplingRateInHz, int maxFreqIndex)
+    {
+        double index = freqInHz/(0.5*samplingRateInHz)*(maxFreqIndex-1);
+        index = Math.max(0, index);
+        index = Math.min(index, maxFreqIndex);
+        
+        return index;
+    }
+    
     //Convert a zero based spectrum index value to frequency in Hz
     public static double index2freq(int zeroBasedFreqIndex, int samplingRateInHz, int zeroBasedMaxFreqIndex)
+    {
+        return zeroBasedFreqIndex*(0.5*samplingRateInHz)/zeroBasedMaxFreqIndex;
+    }
+    
+    //Convert a zero based spectrum index value to frequency in Hz
+    public static double indexDouble2freq(double zeroBasedFreqIndex, int samplingRateInHz, int zeroBasedMaxFreqIndex)
     {
         return zeroBasedFreqIndex*(0.5*samplingRateInHz)/zeroBasedMaxFreqIndex;
     }
@@ -1389,12 +1431,356 @@ public class SignalProcUtils {
         return y;
     }
     
-    public static void main(String[] args)
-    {
-        ESTLabels e = new ESTLabels("d:\\a0003.lab");
+    //Decimate data by a factor D
+    //For non-integer index values, linear interpolation is performed
+    public static double[] decimate(double[] x, double D)
+    {        
+        double[] y = null;
         
-        for (int i=0; i<e.items.length; i++)
-            System.out.println(String.valueOf(e.items[i].time) + " " + String.valueOf(e.items[i].status) + " " + e.items[i].phn + " " + String.valueOf(e.items[i].ll));
+        if (x!=null)
+        {
+            int ylen = (int)Math.floor(x.length/D+0.5);
+            y = new double[ylen];
+            double dind = 0.5*D;
+            int total = 0;
+            int ind1, ind2;
+            while (total<ylen)
+            {
+                ind1 = (int)Math.floor(dind);
+                ind2 = ind1+1;
+                if (ind2>x.length-1)
+                    ind2 = x.length-1;
+                ind1 = ind2-1;
+                
+                y[total++] = (ind2-dind)*x[ind1]+(dind-ind1)*x[ind2];
+                
+                dind += D;
+            }
+        }
+        
+        return y;
+    }
+    
+    //Interpolate data by a factor D
+    //For non-integer index values, linear interpolation is performed
+    public static double[] interpolate(double[] x, double D)
+    {   
+        double[] y = null;
+        
+        if (x!=null)
+        {
+            int ylen = (int)Math.floor(x.length*D+0.5);
+            y = new double[ylen];
+            int xind;
+            double xindDouble;
+            for (int i=0; i<ylen; i++)
+            {
+                xindDouble = i/D;
+                xind = (int)Math.floor(xindDouble);
+                
+                if (xind<=0)
+                    y[i] = (xind-xindDouble)*(2*x[0]-x[1]) + (1-xind+xindDouble)*x[xind];
+                else if (xind>x.length-1)
+                    y[i] = (x[x.length-1]-x[x.length-2])*(xindDouble-x.length+1)+x[x.length-1];
+                else
+                    y[i] = (xind-xindDouble)*x[xind-1] + (1-xind+xindDouble)*x[xind];
+            }
+        }
+        
+        return y;
+    }
+    
+    public static double energy(double[] x)
+    {
+        double e = 0.0;
+        for (int i=0; i<x.length; i++)
+            e += x[i]*x[i];
+        
+        return e;
+    }
+    
+    public static double[] filter(double[] b, double[] x)
+    {
+        double[] a = new double[1];
+        a[0] = 1.0;
+        
+        return filter(b, a, x);
+    }
+    
+    public static double[] filter(double[] b, double[] a, double[] x)
+    {
+        return filter(b, a, x, false);
+    }
+    
+    public static double[] filter(double[] b, double[] x, boolean bNormalize)
+    {
+        double[] a = new double[1];
+        a[0] = 1.0;
+        
+        return filter(b, a, x, bNormalize);
+    }
+    
+    public static double[] filter(double[] b, double[] a, double[] x, boolean bNormalize)
+    {
+        double[] zi = new double[Math.max(a.length, b.length)-1];
+        Arrays.fill(zi, 0.0);
+        
+        return filter(b, a, x, bNormalize, zi);
+    }
+    
+    public static double[] filter(double[] b, double[] x, boolean bNormalize, double[] zi)
+    {
+        double[] a = new double[1];
+        a[0] = 1.0;
+        
+        return filter(b, a, x, bNormalize, zi);
+    }
+    
+    //Time domain digital filtering
+    //  a[0]*y[n] = b[0]*x[n] + b[1]*x[n-1] + ... + b[nb]*x[n-nb]
+    //              - a[1]*y[n-1] - ... - a[na]*y[n-na]  
+    //  b and a are filter coefficients (impulse response of the filter)
+    //  If bNormalize is true, all the coeffs are normalized with a[0].
+    // The initial conditions should be specified in zi.
+    // Setting zi to all zeroes causes no initial conditions to be used.
+    // Length of zi should be max(a.length, b.length)-1.
+    public static double[] filter(double[] b, double[] a, double[] x, boolean bNormalize, double[] zi)
+    {
+        int n;
+        double x_terms;
+        double y_terms;
+        int ind;
+
+        double[] y = new double[x.length];
+
+        int nb = b.length-1;
+        int na = a.length-1;
+
+        if (bNormalize)
+        {
+            //Normalize with a[0] first
+            if (a[0]!=1.0)
+            {
+                for (n=0; n<b.length; n++)
+                    b[n] /= a[0];
+                for (n=0; n<a.length; n++)
+                    a[n] /= a[0];
+            }
+        }
+
+        for (n=0; n<x.length; n++)
+        {
+            x_terms = 0.0;
+            for (ind=n; ind>n-nb-1; ind--)
+            {
+                if (ind>=0)
+                    x_terms += b[n-ind]*x[ind];
+                else 
+                    x_terms += b[n-ind]*zi[-ind-1];
+            }
+
+            y_terms = 0.0;
+            for (ind=n-1; ind>n-na-1; ind--)
+            {
+                if (ind>=0)
+                    y_terms += -a[n-ind]*y[ind];
+            }
+
+            y[n] = x_terms + y_terms;
+        }
+
+        return y;
+    }
+    
+    //Time domain digital filtering with phase distortion correction
+    // using filter denumerator b. The numerator is 1.0, i.e. applies FIR filtering
+    public static double[] filtfilt(double[] b, double[] x)
+    {
+        double[] a = new double[1];
+        a[0] = 1.0;
+        
+        return filtfilt(b, a, x);
+    }
+    
+    //Time domain digital filtering with phase distortion correction
+    // using filter denumerator b and numerator a
+    public static double[] filtfilt(double[] b, double[] a, double[] x)
+    {
+        int nfilt;
+        int i, j;
+        double[] tmpb = null;
+        double[] tmpa = null;
+        
+        if (b.length>a.length)
+        {
+            nfilt = b.length;
+            tmpb = new double[nfilt];
+            tmpa = new double[nfilt];
+            
+            for (i=0; i<b.length; i++)
+                tmpb[i] = b[i];
+            for (i=0; i<a.length; i++)
+                tmpa[i] = a[i];
+            for (i=a.length; i<nfilt; i++)
+                tmpa[i] = 0.0;
+        }
+        else
+        {
+            nfilt = a.length;
+            tmpb = new double[nfilt];
+            tmpa = new double[nfilt];
+            
+            for (i=0; i<a.length; i++)
+                tmpa[i] = a[i];
+            for (i=0; i<b.length; i++)
+                tmpb[i] = b[i];
+            for (i=b.length; i<nfilt; i++)
+                tmpb[i] = 0.0;
+        }
+        
+        int nfact = 3*(nfilt-1); //Length of edge transients
+        int rwlen = 3*nfilt-5;
+        
+        int ylen = 2*nfact+x.length;
+        double[] y = new double[ylen];
+        
+        double[] yRet = null;
+        if (!(x.length<=nfact)) //Input data too short!
+        {   
+            //Solve system of linear equations for initial conditions
+            //  zi are the steady-state states of the filter b(z)/a(z) in the state-space 
+            //  implementation of the 'filter' command.
+            int[] rows = new int[rwlen];
+            for (i=0; i<=nfilt-2; i++)
+                rows[i] = i;
+            for (i=nfilt-1; i<=2*nfilt-4; i++)
+                rows[i] = i-nfilt+2;
+            for (i=2*nfilt-3; i<=3*nfilt-6; i++)
+                rows[i] = i-2*nfilt+3;
+            
+            int[] cols = new int[rwlen];
+            for (i=0; i<=nfilt-2; i++)
+                cols[i] = 0;
+            for (i=nfilt-1; i<=2*nfilt-4; i++)
+                cols[i] = i-nfilt+2;
+            for (i=2*nfilt-3; i<=3*nfilt-6; i++)
+                cols[i] = i-2*nfilt+4;
+            
+            double[] data = new double[rwlen];
+            data[0] = 1.0+tmpa[1];
+            for (i=1; i<=nfilt-2; i++)
+                data[i] = tmpa[i+1];
+            for (i=nfilt-1; i<=2*nfilt-4; i++)
+                data[i] = 1.0;
+            for (i=2*nfilt-3; i<=3*nfilt-6; i++)
+                data[i] = -1.0;
+            
+            int N = nfilt-1;
+            double[][] sp = new double[N][N];
+            
+            for (i=0; i<N; i++)
+            {
+                for (j=0; j<N; j++)
+                    sp[i][j] = 0.0f;
+            }
+            
+            for (i=0; i<rwlen; i++)
+                sp[rows[i]][cols[i]] = data[i];
+            
+            double[] denum = new double[N];
+            for (i=0; i<N; i++)
+                denum[i] = 0.0;
+            for (i=2; i<nfilt+1; i++)
+                denum[i-2] = b[i-1]-tmpa[i-1]*b[0];
+            
+            double[] zi = new double[N];
+            for (i=0; i<N; i++)
+                zi[i] = 0.0;
+            
+            sp = MathUtils.inverse(sp);
+            
+            double tmp;
+            for (i=0; i<N; i++)
+            {
+                tmp=0.0;
+                
+                for (j=0; j<N; j++) 
+                    tmp += sp[i][j]*denum[i];
+                
+                zi[i] = tmp;
+            }
+            
+            //Extrapolate beginning and end of data sequence using a "reflection
+            //  method".  Slopes of original and extrapolated sequences match at
+            //  the end points.
+            //  This reduces end effects.
+            for (i=0; i<nfact; i++)
+                y[i] = 2*x[0]-x[nfact-i];
+            
+            for (i=0; i<x.length; i++)
+                y[i+nfact] = x[i];
+            
+            for (i=0; i<nfact; i++)
+                y[nfact+x.length+i] = 2*x[x.length-1]-x[x.length-2-i];
+            
+            //Filter, reverse the data, filter again, and reverse the data again
+            for (i=0; i<N; i++)
+                zi[i] = zi[i]*y[0];
+            
+            y = filter(tmpb, tmpa, y, false, zi);
+            y = SignalProcUtils.reverse(y);
+            
+            y = filter(tmpb, tmpa, y, false, zi);
+            y = SignalProcUtils.reverse(y);
+            
+            // remove extrapolated pieces of y to write the output to x
+            yRet = new double[x.length];
+            for (i=0; i<x.length; i++)
+                yRet[i] = y[i+nfact];
+        }
+        else
+        {
+            yRet = filter(b,a, x);
+        }
+        
+        return yRet;
+    }
+    
+    public static void main(String[] args)
+    {  
+        LowPassFilter f = new LowPassFilter(0.25, 11);
+        
+        double[] b = f.getDenumeratorCoefficients();
+        
+        double[] a = new double[1];
+        a[0] = 1.0;
+        
+        double[] x;
+        double[] y;
+        
+        int i;
+        String str;
+        
+        x = new double[100];
+        for (i=0; i<x.length; i++)
+            x[i] = i;
+        
+        str = "";
+        for (i=0; i<x.length; i++)
+            str += String.valueOf(x[i]) + " ";
+        System.out.println(str);
+        
+        y = filter(b, a, x);
+        str = "filtered=";
+        for (i=0; i<y.length; i++)
+            str += String.valueOf(y[i]) + " ";
+        System.out.println(str);
+        
+        y = filtfilt(b, a, x);
+        str = "filtfilted=";
+        for (i=0; i<y.length; i++)
+            str += String.valueOf(y[i]) + " ";
+        System.out.println(str);
     }
 }
 

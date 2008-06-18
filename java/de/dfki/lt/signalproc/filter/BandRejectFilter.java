@@ -46,7 +46,9 @@ import de.dfki.lt.signalproc.util.MathUtils;
  */
 public class BandRejectFilter extends FIRFilter {
     public static double DEFAULT_TRANSITIONBANDWIDTH = 0.01;
-
+    public double lowerNormalisedCutoffFrequency;
+    public double upperNormalisedCutoffFrequency;
+    
     /**
      * Create a new band reject filter with the given normalised cutoff frequencies and
      * a default transition band width.
@@ -59,8 +61,8 @@ public class BandRejectFilter extends FIRFilter {
      * For example, with a sampling rate of 16000 Hz and a desired cutoff frequency of 
      * 6000 Hz, the upperNormalisedCutoffFrequency would have to be 0.375. 
      */
-    public BandRejectFilter(double lowerNormalisedCutoffFrequency, double upperNormalisedCutoffFrequency) {
-        this(lowerNormalisedCutoffFrequency, upperNormalisedCutoffFrequency, DEFAULT_TRANSITIONBANDWIDTH);
+    public BandRejectFilter(double lowerNormalisedCutoffFrequencyIn, double upperNormalisedCutoffFrequencyIn) {
+        this(lowerNormalisedCutoffFrequencyIn, upperNormalisedCutoffFrequencyIn, DEFAULT_TRANSITIONBANDWIDTH);
     }
     
     /**
@@ -79,8 +81,8 @@ public class BandRejectFilter extends FIRFilter {
      * but also the larger the filter kernel (impulse response) and computationally costly the filter.
      * Usual range of this parameter is [0.002, 0.2].
      */
-    public BandRejectFilter(double lowerNormalisedCutoffFrequency, double upperNormalisedCutoffFrequency, double normalisedTransitionBandwidth) {
-        this(lowerNormalisedCutoffFrequency, upperNormalisedCutoffFrequency, bandwidth2kernelLength(normalisedTransitionBandwidth));
+    public BandRejectFilter(double lowerNormalisedCutoffFrequencyIn, double upperNormalisedCutoffFrequencyIn, double normalisedTransitionBandwidth) {
+        this(lowerNormalisedCutoffFrequencyIn, upperNormalisedCutoffFrequencyIn, bandwidth2kernelLength(normalisedTransitionBandwidth));
     }
     
     /**
@@ -101,11 +103,14 @@ public class BandRejectFilter extends FIRFilter {
      * @throws IllegalArgumentException if the kernel length is not a positive, odd number,
      * or if normalisedCutoffFrequency is not in the range between 0 and 0.5.
      */
-    public BandRejectFilter(double lowerNormalisedCutoffFrequency, double upperNormalisedCutoffFrequency, int kernelLength) {
+    public BandRejectFilter(double lowerNormalisedCutoffFrequencyIn, double upperNormalisedCutoffFrequencyIn, int kernelLength) {
         super();
         if (kernelLength <= 0 || kernelLength%2==0) {
             throw new IllegalArgumentException("Kernel length must be an odd positive number, got " + kernelLength);
         }
+        
+        lowerNormalisedCutoffFrequency = lowerNormalisedCutoffFrequencyIn;
+        upperNormalisedCutoffFrequency = upperNormalisedCutoffFrequencyIn;
         if (lowerNormalisedCutoffFrequency <= 0 || lowerNormalisedCutoffFrequency >= 0.5
                 || upperNormalisedCutoffFrequency <= 0 || upperNormalisedCutoffFrequency >= 0.5) {
             throw new IllegalArgumentException("Normalised cutoff frequencies must be between 0 and 0.5, got " + lowerNormalisedCutoffFrequency + " and " + upperNormalisedCutoffFrequency);
@@ -131,10 +136,10 @@ public class BandRejectFilter extends FIRFilter {
     /**
      * Compute the band-reject filter kernel, as the sum of a low-pass filter kernel and a high-pass filter kernel.
      */
-    protected static double[] getKernel(double lowerNormalisedCutoffFrequency, double upperNormalisedCutoffFrequency, int kernelLength)
+    protected static double[] getKernel(double lowerNormalisedCutoffFrequencyIn, double upperNormalisedCutoffFrequencyIn, int kernelLength)
     {
-        double[] lowPassKernel = LowPassFilter.getKernel(lowerNormalisedCutoffFrequency, kernelLength);
-        double[] highPassKernel = HighPassFilter.getKernel(upperNormalisedCutoffFrequency, kernelLength);
+        double[] lowPassKernel = LowPassFilter.getKernel(lowerNormalisedCutoffFrequencyIn, kernelLength);
+        double[] highPassKernel = HighPassFilter.getKernel(upperNormalisedCutoffFrequencyIn, kernelLength);
         double[] kernel = new double[kernelLength];
         for (int i=0; i<kernelLength; i++) {
             kernel[i] = lowPassKernel[i] + highPassKernel[i];

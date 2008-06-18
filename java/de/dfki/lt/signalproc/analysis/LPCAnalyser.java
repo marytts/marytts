@@ -146,6 +146,15 @@ public class LPCAnalyser extends FrameBasedAnalyser
         double[] coeffs = MathUtils.levinson(r, p);
         // gain factor:
         double g = Math.sqrt(MathUtils.sum(MathUtils.multiply(coeffs, r)));
+        
+        /*
+        //Oytun: Correct gain computation might be as follows!
+        double g2 = r[0];
+        for (i=1; i<=p; i++)
+            g2 -= coeffs[i-1]*r[i];
+        g2 = Math.sqrt(g2);
+        //
+        */
 
         return new LPCoeffs(coeffs, g);
     }

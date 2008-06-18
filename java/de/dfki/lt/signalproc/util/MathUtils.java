@@ -1026,7 +1026,12 @@ public class MathUtils {
 
     public static double[] db2linear(double[] dbEnergies)
     {
-        return exp10(divide(dbEnergies, 10));
+        return exp10(divide(dbEnergies, 10.0));
+    }
+    
+    public static double[] linear2db(double[] linears)
+    {
+        return multiply(log10(linears), 10.0);
     }
 
     public static float db2amplitude(float dbAmplitude)

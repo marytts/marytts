@@ -1124,7 +1124,8 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                 bWarp=true; 
             else
                 bWarp=false; 
-            
+
+            //if (isVoiced || bWarp) //For forcing FDPSOLA to be applied even when pscale=1.0
             if ((isVoiced && pscale!=1.0) || bWarp)
             {
                 if (fftSize<frmSize)
@@ -1702,20 +1703,115 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         }
     }
     
-    public static void main(String[] args) throws Exception
+    public static void mainParametric(String inputWavFile, double[] pscales, double[] tscales, double[] escales, double[] vscales) throws UnsupportedAudioFileException, IOException
     {  
-        String strOutputFile = args[0].substring(0, args[0].length()-4) + "_fdJav.wav";
-        String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
-        
-        double [] pscales = {0.52};
-        double [] tscales = {1.0};
-        double [] escales = {1.0};
-        double [] vscales = {1.0};
+        String strExt = "";
+        String strTmp;
+        if (pscales.length==1 && tscales.length==1)
+        {
+            if (pscales[0]!=1.0)
+            {
+                strTmp = String.valueOf(pscales[0]);
+                while (strTmp.length()<4)
+                    strTmp+= "0";
+                
+                strTmp = strTmp.substring(0, 1) + strTmp.substring(2,3) + strTmp.substring(3,4);
+                strExt +=  "_p" + strTmp;
+            }
+
+            if (tscales[0]!=1.0)
+            {
+                strTmp = String.valueOf(tscales[0]);
+                while (strTmp.length()<4)
+                    strTmp+= "0";
+                
+                strTmp = strTmp.substring(0, 1) + strTmp.substring(2,3) + strTmp.substring(3,4);
+                strExt +=  "_d" + strTmp;
+            }
+            
+            if (pscales[0]==1.0 && tscales[0]==1.0)
+                strExt = "_none";
+        }
+        else
+            strExt = "_pvar_dvar";
        
-        FDPSOLAProcessor fd = new FDPSOLAProcessor(args[0], strPitchFile, strOutputFile, 
+        String strOutputFile = inputWavFile.substring(0, inputWavFile.length()-4) + "_fd" + strExt + ".wav";
+        String strPitchFile = inputWavFile.substring(0, inputWavFile.length()-4) + ".ptc";
+
+        FDPSOLAProcessor fd = new FDPSOLAProcessor(inputWavFile, strPitchFile, strOutputFile, 
                                                     pscales, tscales, escales, vscales);
         
         fd.fdpsolaOnline();
+    }
+    
+    public static void main(String[] args) throws Exception
+    {  
+        if (true) //Test with only one setting
+        {
+            //double [] pscales = {0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95, 1.05, 1.10, 1.15, 1.20, 1.25, 1.30, 1.35, 1.40, 1.45, 1.50};
+            //double [] tscales = {1.50, 1.45, 1.40, 1.35, 1.30, 1.25, 1.20, 1.15, 1.10, 1.05, 0.95, 0.90, 0.85, 0.80, 0.75, 0.70, 0.65, 0.60};
+            double [] pscales = {1.5};
+            double [] tscales = {1.5};
+            double [] escales = {1.0};
+            double [] vscales = {1.0};
+            mainParametric(args[0], pscales, tscales, escales, vscales);
+        }
+        else //Test with multiple settings
+        {
+            double [] escales = {1.0};
+            double [] vscales = {1.0};
+            
+            double [] pscales = {1.0};
+            double [] tscales = {1.0};
+            mainParametric(args[0], pscales, tscales, escales, vscales);
+            
+            pscales[0] = 0.55;
+            tscales[0] = 1.0;
+            mainParametric(args[0], pscales, tscales, escales, vscales);
+            
+            pscales[0] = 0.80;
+            mainParametric(args[0], pscales, tscales, escales, vscales);
+            
+            pscales[0] = 1.50;
+            mainParametric(args[0], pscales, tscales, escales, vscales);
+            
+            pscales[0] = 2.50;
+            mainParametric(args[0], pscales, tscales, escales, vscales);
+            
+            pscales[0] = 1.0;
+            tscales[0] = 0.55;
+            mainParametric(args[0], pscales, tscales, escales, vscales);
+            
+            tscales[0] = 0.80;
+            mainParametric(args[0], pscales, tscales, escales, vscales);
+            
+            tscales[0] = 1.50;
+            mainParametric(args[0], pscales, tscales, escales, vscales);
+            
+            tscales[0] = 2.50;
+            mainParametric(args[0], pscales, tscales, escales, vscales);
+            
+            pscales[0] = 0.55;
+            tscales[0] = 0.80;
+            mainParametric(args[0], pscales, tscales, escales, vscales);
+            
+            pscales[0] = 0.80;
+            tscales[0] = 2.50;
+            mainParametric(args[0], pscales, tscales, escales, vscales);
+            
+            pscales[0] = 1.50;
+            tscales[0] = 0.55;
+            mainParametric(args[0], pscales, tscales, escales, vscales);
+            
+            pscales[0] = 2.50;
+            tscales[0] = 1.50;
+            mainParametric(args[0], pscales, tscales, escales, vscales);
+            
+            double [] pscalesVar = {0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95, 1.05, 1.10, 1.15, 1.20, 1.25, 1.30, 1.35, 1.40, 1.45, 1.50};
+            double [] tscalesVar = {1.50, 1.45, 1.40, 1.35, 1.30, 1.25, 1.20, 1.15, 1.10, 1.05, 0.95, 0.90, 0.85, 0.80, 0.75, 0.70, 0.65, 0.60};
+            mainParametric(args[0], pscalesVar, tscalesVar, escales, vscales);
+        }
         
+        System.out.println("FDPSOLA test completed...");
     }
 }
