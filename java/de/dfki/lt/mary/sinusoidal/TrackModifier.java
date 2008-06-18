@@ -326,6 +326,20 @@ public class TrackModifier {
                                             float [] pScalesTimes)
     {   
         int i, j, lShift;
+        
+        if (tScalesTimes==null)
+        {
+            tScalesTimes = new float[tScales.length];
+            for (i=0; i<tScales.length; i++)
+                tScalesTimes[i] = (float)((i+0.5)/tScales.length*trIn.origDur);
+        }
+        
+        if (pScalesTimes==null)
+        {
+            pScalesTimes = new float[pScales.length];
+            for (i=0; i<pScales.length; i++)
+                pScalesTimes[i] = (float)((i+0.5)/pScales.length*trIn.origDur);
+        }
 
         //Pitch scale pitch contour
         double [] f0sMod = SignalProcUtils.pitchScalePitchContour(f0s, f0_ws, f0_ss, pScales, pScalesTimes);

@@ -53,7 +53,7 @@ import de.dfki.lt.signalproc.window.Window;
  * 
  * Sinusoidal Modeling Synthesis Module
  * Given tracks of sinusoids estimated during analysis and after possible modifications,
- * synthesis of output speech is performed
+ * output speech is synthesized.
  * 
  */
 public class SinusoidalSynthesizer {
@@ -226,14 +226,15 @@ public class SinusoidalSynthesizer {
         
         boolean isSilentSynthesis = false;
         
-        boolean bRefinePeakEstimatesParabola = false;
-        boolean bRefinePeakEstimatesBias = false;
+        boolean bRefinePeakEstimatesParabola = true;
+        boolean bRefinePeakEstimatesBias = true;
+        boolean bSpectralReassignment = true;
         boolean bAdjustNeighFreqDependent = false;
         double absMaxOriginal;
         
         int spectralEnvelopeType = SinusoidalAnalyzer.SEEVOC_SPEC;
         
-        boolean isFixedRateAnalysis = true;
+        boolean isFixedRateAnalysis = false;
         boolean isRealSpeech = true;
         
         if (isFixedRateAnalysis)
@@ -242,7 +243,11 @@ public class SinusoidalSynthesizer {
             double [] f0s = null;
             float ws_f0 = -1.0f;
             float ss_f0 = -1.0f;
-            sa = new SinusoidalAnalyzer(samplingRate, Window.HANN, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bAdjustNeighFreqDependent);
+            sa = new SinusoidalAnalyzer(samplingRate, Window.HANN, 
+                                        bRefinePeakEstimatesParabola, 
+                                        bRefinePeakEstimatesBias, 
+                                        bSpectralReassignment,
+                                        bAdjustNeighFreqDependent);
             
             if (spectralEnvelopeType == SinusoidalAnalyzer.SEEVOC_SPEC) //Pitch info needed
             {
@@ -263,7 +268,12 @@ public class SinusoidalSynthesizer {
             String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
             F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
             PitchMarker pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true);
-            pa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HANN, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bAdjustNeighFreqDependent);
+            pa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HANN, 
+                                                        bRefinePeakEstimatesParabola, 
+                                                        bRefinePeakEstimatesBias, 
+                                                        bSpectralReassignment, 
+                                                        bAdjustNeighFreqDependent);
+            
             st = pa.analyzePitchSynchronous(x, pm.pitchMarks, numPeriods, -1.0f, deltaInHz);
             isSilentSynthesis = false;
 

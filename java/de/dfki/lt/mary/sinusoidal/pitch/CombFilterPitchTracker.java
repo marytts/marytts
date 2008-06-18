@@ -96,10 +96,20 @@ public class CombFilterPitchTracker extends BaseSinusoidalPitchTracker {
         float skipSizeInSeconds = SinusoidalAnalyzer.DEFAULT_ANALYSIS_SKIP_SIZE;
         float deltaInHz  = SinusoidalAnalyzer.DEFAULT_DELTA_IN_HZ;
         
+        boolean bRefinePeakEstimatesParabola = true;
+        boolean bRefinePeakEstimatesBias = true;
+        boolean bSpectralReassignment = true;
+        boolean bAdjustNeighFreqDependent = true;
+        
         String strPitchFileIn = args[0].substring(0, args[0].length()-4) + ".ptc";
         F0ReaderWriter f0 = new F0ReaderWriter(strPitchFileIn);
         PitchMarker pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true);
-        PitchSynchronousSinusoidalAnalyzer sa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, true, true);
+        PitchSynchronousSinusoidalAnalyzer sa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, 
+                                                                                       bRefinePeakEstimatesParabola, 
+                                                                                       bRefinePeakEstimatesBias, 
+                                                                                       bSpectralReassignment,
+                                                                                       bAdjustNeighFreqDependent);
+        
         //sa.setSinAnaFFTSize(4096);
         SinusoidalSpeechSignal ss = sa.extractSinusoidsFixedRate(x, windowSizeInSeconds, skipSizeInSeconds, deltaInHz);
         

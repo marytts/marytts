@@ -37,12 +37,15 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import de.dfki.lt.signalproc.FFT;
+import de.dfki.lt.signalproc.FFTMixedRadix;
 import de.dfki.lt.signalproc.analysis.F0ReaderWriter;
 import de.dfki.lt.signalproc.analysis.PitchMarker;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.DoubleDataSource;
 import de.dfki.lt.signalproc.util.MathUtils;
 import de.dfki.lt.signalproc.util.SignalProcUtils;
+import de.dfki.lt.signalproc.util.MathUtils.Complex;
 import de.dfki.lt.signalproc.window.Window;
 
 /**
@@ -57,29 +60,13 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
     // bRefinePeakEstimatesParabola: Refine peak and frequency estimates by fitting parabolas?
     // bRefinePeakEstimatesBias: Further refine peak and frequency estimates by correcting bias? 
     //                           (Only effective when bRefinePeakEstimatesParabola=true)
-    public PitchSynchronousSinusoidalAnalyzer(int samplingRate, int windowTypeIn, boolean bRefinePeakEstimatesParabolaIn, boolean bRefinePeakEstimatesBiasIn, boolean bAdjustNeighFreqDependentIn)
+    public PitchSynchronousSinusoidalAnalyzer(int samplingRate, int windowTypeIn, 
+                                              boolean bRefinePeakEstimatesParabolaIn, 
+                                              boolean bRefinePeakEstimatesBiasIn, 
+                                              boolean bSpectralReassignmentIn,
+                                              boolean bAdjustNeighFreqDependentIn)
     {
-        super(samplingRate, windowTypeIn, bRefinePeakEstimatesParabolaIn, bRefinePeakEstimatesBiasIn, bAdjustNeighFreqDependentIn);
-    }
-    
-    public PitchSynchronousSinusoidalAnalyzer(int samplingRate, int windowTypeIn, boolean bRefinePeakEstimatesParabolaIn, boolean bRefinePeakEstimatesBiasIn)
-    {
-        super(samplingRate, windowTypeIn, bRefinePeakEstimatesParabolaIn, bRefinePeakEstimatesBiasIn, false);
-    }
-    
-    public PitchSynchronousSinusoidalAnalyzer(int samplingRate, int windowTypeIn, boolean bRefinePeakEstimatesParabolaIn)
-    {
-        this(samplingRate, windowTypeIn, bRefinePeakEstimatesParabolaIn, true);
-    }
-    
-    public PitchSynchronousSinusoidalAnalyzer(int samplingRate, int windowTypeIn)
-    {
-        this(samplingRate, windowTypeIn, true);
-    }
-    
-    public PitchSynchronousSinusoidalAnalyzer(int samplingRate)
-    {
-        this(samplingRate, Window.HAMMING);
+        super(samplingRate, windowTypeIn, bRefinePeakEstimatesParabolaIn, bRefinePeakEstimatesBiasIn, bSpectralReassignmentIn, bAdjustNeighFreqDependentIn);
     }
     //
     
@@ -177,6 +164,7 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         int pmInd = 0;
         int currentTimeInd = 0;
         float f0;
+        float currentTime;
         
         for (i=0; i<totalFrm; i++)
         {   
@@ -243,20 +231,24 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
                 totalNonNull++;
                 peakCount = sinSignal.framesSins[i].sinusoids.length;
             }
-            
+
+
             if (!bFixedSkipRate)
             {
-                //sinSignal.framesSins[i].time = (float)(0.5*(pitchMarks[i+1]+pitchMarks[i])/fs);
-                sinSignal.framesSins[i].time = (float)((pitchMarks[i]+0.5f*ws)/fs);
+                //currentTime = (float)(0.5*(pitchMarks[i+1]+pitchMarks[i])/fs);
+                currentTime = (float)((pitchMarks[i]+0.5f*ws)/fs);
             }
             else
             {
-                //sinSignal.framesSins[i].time = (currentTimeInd+0.5f*T0)/fs;
-                sinSignal.framesSins[i].time = (currentTimeInd+0.5f*ws)/fs;
+                //currentTime = (currentTimeInd+0.5f*T0)/fs;
+                currentTime = (currentTimeInd+0.5f*ws)/fs;
                 currentTimeInd += ss;
             }
-            
-            System.out.println("Analysis complete at " + String.valueOf(sinSignal.framesSins[i].time) + "s. for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm) + "(found " + String.valueOf(peakCount) + " peaks)");
+
+            if (sinSignal.framesSins[i]!=null)
+                sinSignal.framesSins[i].time = currentTime;
+
+            System.out.println("Analysis complete at " + String.valueOf(currentTime) + "s. for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm) + "(found " + String.valueOf(peakCount) + " peaks)"); 
         }
         //
         
@@ -296,7 +288,7 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
         F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
         PitchMarker pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true);
-        PitchSynchronousSinusoidalAnalyzer sa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, true, true);
+        PitchSynchronousSinusoidalAnalyzer sa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, true, true, true, true);
         
         SinusoidalTracks st = sa.analyzePitchSynchronous(x, pm.pitchMarks);        
     }
