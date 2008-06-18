@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -46,15 +47,11 @@ public class TransducerTrie extends Trie< List<String> > {
     //
     //
     
-
-
-    // TODO: an add method that checks every label beforehand whether it
-    // contains input and output symbol
     
     public void writeFST(DataOutputStream out, String encoding) throws IOException{
         
         if (null == this.reprs)
-            throw new IllegalStateException("Cannot write transducer. First compute minimization of trie.");
+            throw new IllegalStateException("Cannot write transducer: first compute minimization of trie.");
         
         // compute arc offsets
         int[] arcOffsets = new int[this.reprs.size()+1];
@@ -77,15 +74,17 @@ public class TransducerTrie extends Trie< List<String> > {
         // to ensure that number can be encoded:
         // shift to right by the number of available bits and look if something remains
         if ( (maxAO >> ARCOFFSET_BITS)!=0 )
-            throw new IOException("To many arcs to be encoded in binary fst format.");
+            throw new IOException("Cannot write transducer: too many arcs to be encoded in binary fst format.");
 
         int maxLID = this.labels.size() + 2;
         if ( (maxLID >> LABELID_BITS)!=0 )
-            throw new IOException("To many arc-labels to be encoded in binary fst format.");
+            throw new IOException("Cannot write transducer: too many arc-labels to be encoded in binary fst format.");
 
-        // TODO: check if encoding supported
+        if (!Charset.isSupported(encoding)) 
+            throw new IOException("Cannot write transducer: encoding not supported.");
+
         
-        // write encoding in modified UTF-8
+        // write encoding in UTF-8
         out.writeInt(encoding.length());
         out.write(encoding.getBytes("UTF-8"));
         // write overall bits
@@ -182,7 +181,7 @@ public class TransducerTrie extends Trie< List<String> > {
                        
             out.write(ioSym.get(0).getBytes(encoding));
             out.writeByte(0);
-            out.write(ioSym.get(1).getBytes(encoding));// TODO: use encoding
+            out.write(ioSym.get(1).getBytes(encoding));
             out.writeByte(0);
         }
         
@@ -191,28 +190,29 @@ public class TransducerTrie extends Trie< List<String> > {
     public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException {
         // example usage
         
-        String path = "/Users/benjaminroth/Desktop/mary/fst/";
+        String path = "/Users/benjaminroth/Desktop/mary/fst/german/";
         
         // specify phone set definition
-        String  phFileLoc = path + "phoneme-list-engb.xml";
+        //String  phFileLoc = path + "phoneme-list-engb.xml";
 
         // specify location of lexicon you want to encode
         BufferedReader lexReader = new BufferedReader(
                 new InputStreamReader(
-                new FileInputStream(path + "sampa-lexicon.txt"),"ISO-8859-1"));
+                new FileInputStream(path + "lexicon.txt"),"ISO-8859-1"));
         
         // specify location of output
-        String fstLocation = path + "lexicon_hash1iter.fst";
+        String fstLocation = path + "lexicon.fst";
         
-     /*
-        
+     
+        /*
         // initialize trainer 
-        AlignerTrainer at = new AlignerTrainer(PhonemeSet.getPhonemeSet(phFileLoc), Locale.ENGLISH);
+        //AlignerTrainer at = new AlignerTrainer(PhonemeSet.getPhonemeSet(phFileLoc), Locale.ENGLISH);
+        AlignerTrainer at = new AlignerTrainer(null, Locale.GERMAN);
         
         System.out.println("reading lexicon...");
         
         // read lexicon for training
-        at.readLexiconSimply(lexReader, " ");
+        at.readLexiconSimply(lexReader, "\\\\", true);
         
         System.out.println("...done!");
 
@@ -230,6 +230,7 @@ public class TransducerTrie extends Trie< List<String> > {
         System.out.println("entering alignments in trie...");
         for (int i = 0; i<at.lexiconSize(); i++){
             t.add(at.getAlignment(i));
+            t.add(at.getInfoAlignment(i));
         }
         System.out.println("...done!");
 
@@ -247,17 +248,21 @@ public class TransducerTrie extends Trie< List<String> > {
         os.flush();
         os.close();
         System.out.println("...done!");
-*/
+        */
+
         
         System.out.println("looking up test words...");
         FSTLookup fst = new FSTLookup(fstLocation);
 
-        System.out.println(" zoroastrians -> " + Arrays.toString(fst.lookup("zoroastrians")));
-        System.out.println(" the -> " + Arrays.toString(fst.lookup("the")));
-        System.out.println(" thanks -> " + Arrays.toString(fst.lookup("thanks")));
-        System.out.println(" xylophone -> " + Arrays.toString(fst.lookup("xylophone")));
-
-        
+        System.out.println(" Fahrrad -> " + Arrays.toString(fst.lookup("Fahrrad")));
+        System.out.println(" fahren -> " + Arrays.toString(fst.lookup("fahren")));
+        System.out.println(" Umwelt -> " + Arrays.toString(fst.lookup("Umwelt")));
+        System.out.println(" schonen -> " + Arrays.toString(fst.lookup("schonen")));
+        System.out.println(" abgerechnet -> " + Arrays.toString(fst.lookup("abgerechnet")));
+        System.out.println(" abgerechnet(A) -> " + Arrays.toString(fst.lookup("abgerechnet(A)")));
+        System.out.println(" absorbieren -> " + Arrays.toString(fst.lookup("absorbieren")));
+        System.out.println(" absorbieren(WV1b) -> " + Arrays.toString(fst.lookup("absorbieren(WV1b)")));
+        System.out.println(" übersetzen -> " + Arrays.toString(fst.lookup("übersetzen")));
         System.out.println("...done!");
         
         }
