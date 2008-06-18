@@ -64,6 +64,7 @@ public class AlignerTrainer {
     
     protected List<String> graphemeStrings;
     protected List<String> phoneStrings;
+    protected List<String> optInfo;
 
     private PhonemeSet phonemeSet;
     protected Set<String> graphemeSet;
@@ -94,7 +95,7 @@ public class AlignerTrainer {
      * This reads in a lexicon in "mary" format, lines are of the kind:
      * graphemechain\phonemechain\otherinformation
      * 
-     * stress is preserved (TODO: make stress handling optional)
+     * stress is preserved
      * 
      * @param lexicon reader with the lines of the lexicon
      * @throws IOException
@@ -238,7 +239,25 @@ public class AlignerTrainer {
         this.phoneStrings    = phoneStringList;//.toArray(new String[]{});       
     }
     
-    public void readLexiconSimply(BufferedReader lexicon, String splitSym) throws IOException{
+    /**
+     * 
+     * This reads a lexicon where input and output strings are seperated by a
+     * delimiter that can be specified (splitSym). Strings are taken as they are
+     * no normalization (eg. stress/syllable symbol removal, lower-casing ...)
+     * is performed. In a third row additional info (eg. part of speech) can be
+     * given.
+     * 
+     * @param lexicon reader for lexicon
+     * @param splitSym symbol to split columns of lexicon
+     * @param hasOptInfo whether the lexicon has optional info in a third column eg. POS
+     * @throws IOException
+     */
+    public void readLexiconSimply(BufferedReader lexicon, String splitSym, boolean hasOptInfo) throws IOException{
+        
+        
+        if (hasOptInfo){
+            this.optInfo = new ArrayList<String>();
+        }
         
         String line;
         
@@ -246,6 +265,9 @@ public class AlignerTrainer {
             String[] lineParts = line.trim().split(splitSym);
             
             this.addSimply(lineParts[0], lineParts[1]);
+            
+            if (hasOptInfo)
+                this.optInfo.add(lineParts.length > 2 ? lineParts[2]:"");
             
         }
         
@@ -401,6 +423,44 @@ public class AlignerTrainer {
         
         String[] in = graphemeStrings.get(entryNr).trim().split(" ");
         String[] out = align.concat(" ").split("#");
+        
+        // TODO: maybe do everything with lists
+        ArrayList<String>[] listArray = new ArrayList[in.length];
+                
+        for (int pos = 0; pos < in.length ; pos++){
+            
+            ArrayList<String> alList = new ArrayList<String>(2);
+            alList.add(in[pos].trim());            
+            alList.add(out[pos].trim().replaceAll(" ", ""));
+            
+            listArray[pos] = alList;
+            
+        }
+        
+        return listArray;
+    }
+    
+    /**
+     * 
+     * gets an alignment of the graphemes to the phonemes of an entry.
+     * a String array is returned, where every entry contains a grapheme 
+     * together with the phoneme sequence it it mapped to, seperated by a
+     * colon.
+     * 
+     * @param entryNr
+     */
+    public List<String>[] getInfoAlignment(int entryNr){
+        
+        String align = this.distanceAlign(graphemeStrings.get(entryNr), phoneStrings.get(entryNr));
+        
+        
+        //System.out.println("---");
+        //System.out.println(">"+graphemeStrings.get(entryNr).concat(optInfo.get(entryNr) ).trim()+"<");
+        //System.out.println(">"+align.concat(" # ")+"<");
+        
+        
+        String[] in = graphemeStrings.get(entryNr).concat(optInfo.get(entryNr) ).trim().split(" ");
+        String[] out = align.concat(" # ").split("#");
         
         // TODO: maybe do everything with lists
         ArrayList<String>[] listArray = new ArrayList[in.length];

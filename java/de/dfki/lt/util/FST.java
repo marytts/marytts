@@ -142,10 +142,6 @@ public class FST
         in.read(encBytes,0,encLen);
         String encoding = new String(encBytes,"UTF-8");
         
-       
-        
-        // TODO
-        System.out.println("encoding: " + encoding);
         
         if (!Charset.isSupported(encoding)) 
             throw new IOException("Encoding of FST file not correctly specified. Maybe file in old format.");
