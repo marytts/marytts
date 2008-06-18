@@ -148,7 +148,7 @@ public class FIRBandPassFilterBankAnalyser {
             else
                 lowerCutOffsInHz[i] = upperCutOffsInHz[i-1];
             
-            overlapInHz = 0.5*(upperCutOffsInHz[i]+lowerCutOffsInHz[i])/(1000.0/OVERLAP_AROUND_1000HZ);
+            overlapInHz = 0.5*(upperCutOffsInHz[i]+lowerCutOffsInHz[i])/(1000.0/FIRBandPassFilterBankAnalyser.OVERLAP_AROUND_1000HZ);
             
             if (i>0)
                 lowerCutOffsInHz[i] -= overlapInHz;
