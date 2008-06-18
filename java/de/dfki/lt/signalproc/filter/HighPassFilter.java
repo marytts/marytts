@@ -46,7 +46,8 @@ import de.dfki.lt.signalproc.util.MathUtils;
  */
 public class HighPassFilter extends FIRFilter {
     public static double DEFAULT_TRANSITIONBANDWIDTH = 0.01;
-
+    public double normalisedCutoffFrequency;
+    
     /**
      * Create a new highpass filter with the given normalised cutoff frequency and
      * a default transition band width.
@@ -55,8 +56,8 @@ public class HighPassFilter extends FIRFilter {
      * For example, with a sampling rate of 16000 Hz and a desired cutoff frequency of 
      * 4000 Hz, the normalisedCutoffFrequency would have to be 0.25. 
      */
-    public HighPassFilter(double normalisedCutoffFrequency) {
-        this(normalisedCutoffFrequency, DEFAULT_TRANSITIONBANDWIDTH);
+    public HighPassFilter(double normalisedCutoffFrequencyIn) {
+        this(normalisedCutoffFrequencyIn, DEFAULT_TRANSITIONBANDWIDTH);
     }
     
     /**
@@ -71,8 +72,8 @@ public class HighPassFilter extends FIRFilter {
      * but also the larger the filter kernel (impulse response) and computationally costly the filter.
      * Usual range of this parameter is [0.002, 0.2].
      */
-    public HighPassFilter(double normalisedCutoffFrequency, double normalisedTransitionBandwidth) {
-        this(normalisedCutoffFrequency, bandwidth2kernelLength(normalisedTransitionBandwidth));
+    public HighPassFilter(double normalisedCutoffFrequencyIn, double normalisedTransitionBandwidth) {
+        this(normalisedCutoffFrequencyIn, bandwidth2kernelLength(normalisedTransitionBandwidth));
     }
     
     /**
@@ -89,11 +90,13 @@ public class HighPassFilter extends FIRFilter {
      * @throws IllegalArgumentException if the kernel length is not a positive, odd number,
      * or if normalisedCutoffFrequency is not in the range between 0 and 0.5.
      */
-    public HighPassFilter(double normalisedCutoffFrequency, int kernelLength) {
+    public HighPassFilter(double normalisedCutoffFrequencyIn, int kernelLength) {
         super();
         if (kernelLength <= 0 || kernelLength%2==0) {
             throw new IllegalArgumentException("Kernel length must be an odd positive number, got " + kernelLength);
         }
+        
+        normalisedCutoffFrequency = normalisedCutoffFrequencyIn;
         if (normalisedCutoffFrequency <= 0 || normalisedCutoffFrequency >= 0.5) {
             throw new IllegalArgumentException("Normalised cutoff frequency must be between 0 and 0.5, got " + normalisedCutoffFrequency);
         }
@@ -118,9 +121,9 @@ public class HighPassFilter extends FIRFilter {
     /**
      * Compute the high-pass filter kernel, as a spectrally inverted low-pass filter kernel.
      */
-    protected static double[] getKernel(double normalisedCutoffFrequency, int kernelLength)
+    protected static double[] getKernel(double normalisedCutoffFrequencyIn, int kernelLength)
     {
-        double[] lowPassKernel = LowPassFilter.getKernel(normalisedCutoffFrequency, kernelLength);
+        double[] lowPassKernel = LowPassFilter.getKernel(normalisedCutoffFrequencyIn, kernelLength);
         double[] kernel = new double[kernelLength];
         for (int i=0; i<kernelLength; i++) {
             kernel[i] = -lowPassKernel[i];

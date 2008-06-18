@@ -187,11 +187,9 @@ public class SEEVOCAnalyser {
         //double [] excIndB = new double[H.length];
         //for (i=0; i<H.length; i++)
         //    excIndB[i] = absMagSpecIndB[i]-H[i];
-        
-        //JFrame frame1 = showGraph(excIndB, "DFT spectrum");
-        
-        //JFrame frame1 = showGraph(H, "SEEVOC1");
-        //JFrame frame2 = showGraph(H2, "SEEVOC2");
+
+        //JFrame frame1 = showGraph(absMagSpecIndB, "DFT spectrum");
+        //JFrame frame2 = showGraph(H, "SEEVOC");
         //try { Thread.sleep(3000); } catch (InterruptedException e) {}
         //frame1.dispose();
         //frame2.dispose();

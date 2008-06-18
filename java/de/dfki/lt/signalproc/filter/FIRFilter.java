@@ -49,7 +49,8 @@ public class FIRFilter implements InlineDataProcessor {
     protected double[] transformedIR;
     protected int impulseResponseLength;
     protected int sliceLength;
-    
+    protected double[] denumeratorCoefficients; //Digital filter coefficients for time domain digital filtering
+
     /**
      * Create a new, uninitialised FIR filter. Subclasses need to call
      * @see #initialise() separately.
@@ -85,6 +86,9 @@ public class FIRFilter implements InlineDataProcessor {
      */
     protected void initialise(double[] impulseResponse, int sliceLen)
     {
+        denumeratorCoefficients = new double[impulseResponse.length];
+        System.arraycopy(impulseResponse, 0, denumeratorCoefficients, 0, impulseResponse.length);
+   
         if (!MathUtils.isPowerOfTwo(impulseResponse.length+sliceLen))
             throw new IllegalArgumentException("Impulse response length plus slice length must be a power of two");
         this.impulseResponseLength = impulseResponse.length;
@@ -175,5 +179,15 @@ public class FIRFilter implements InlineDataProcessor {
         double [] dataOut = apply(data);
        
         System.arraycopy(dataOut, 0, data, 0, len);
+    }
+    
+    public int getImpulseResponseLength()
+    {
+        return impulseResponseLength;
+    }
+    
+    public double[] getDenumeratorCoefficients()
+    {
+        return denumeratorCoefficients;
     }
 }

@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import de.dfki.lt.mary.util.FileUtils;
 import de.dfki.lt.signalproc.analysis.F0Tracker.F0Contour;
 import de.dfki.lt.signalproc.util.LEDataOutputStream;
 import de.dfki.lt.signalproc.util.LittleEndianBinaryReader;
@@ -91,24 +92,29 @@ public class F0ReaderWriter {
     
     public void read_pitch_file(String ptcFile) throws IOException
     {
-        LEDataInputStream lr = new LEDataInputStream(new DataInputStream(new FileInputStream(ptcFile)));
-        
-        if (lr!=null)
+        if (FileUtils.exists(ptcFile))
         {
-            int winsize = (int)lr.readFloat();
-            int skipsize = (int)lr.readFloat();
-            header.fs = (int)lr.readFloat();
-            header.numfrm = (int)lr.readFloat();
+            LEDataInputStream lr = new LEDataInputStream(new DataInputStream(new FileInputStream(ptcFile)));
 
-            header.ws = ((double)winsize)/header.fs;
-            header.ss = ((double)skipsize)/header.fs;
-            contour = new double[header.numfrm];
-            
-            for (int i=0; i<header.numfrm; i++)
-                contour[i] = (double)lr.readFloat();
+            if (lr!=null)
+            {
+                int winsize = (int)lr.readFloat();
+                int skipsize = (int)lr.readFloat();
+                header.fs = (int)lr.readFloat();
+                header.numfrm = (int)lr.readFloat();
 
-            lr.close();
+                header.ws = ((double)winsize)/header.fs;
+                header.ss = ((double)skipsize)/header.fs;
+                contour = new double[header.numfrm];
+
+                for (int i=0; i<header.numfrm; i++)
+                    contour[i] = (double)lr.readFloat();
+
+                lr.close();
+            }
         }
+        else
+            System.out.println("Pitch file not found: " + ptcFile);
     } 
     
     public static void write_pitch_file(String ptcFile, double [] f0s, float windowSizeInSeconds, float skipSizeInSeconds, int samplingRate) throws IOException
