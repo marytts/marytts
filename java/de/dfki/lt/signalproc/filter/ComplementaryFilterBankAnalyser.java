@@ -55,7 +55,7 @@ import de.dfki.lt.signalproc.util.SignalProcUtils;
  *    modeling for wideband audio with modifications", in Proc. of the IEEE ICASSP 1998, 
  *    Volume 6, Issue , 12-15 May 1998, pp. 3585-3588.
  */
-public class ComplementaryFilterBankAnalyser {
+public class ComplementaryFilterBankAnalyser extends FilterBankAnalyserBase {
     public int numLevels;
     public int numBands; //We always have 2^numLevels subbands
     public int baseFilterOrder;

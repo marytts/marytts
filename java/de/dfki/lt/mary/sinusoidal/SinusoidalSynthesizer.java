@@ -58,7 +58,7 @@ import de.dfki.lt.signalproc.window.Window;
  */
 public class SinusoidalSynthesizer {
     public int fs; //Sampling rate in Hz
-    public static double DEFAULT_ABS_MAX_OUT = 0.90;
+    public static float DEFAULT_ABS_MAX_OUT = 0.90f;
     
     public SinusoidalSynthesizer(int samplingRate)
     {
@@ -67,20 +67,15 @@ public class SinusoidalSynthesizer {
     
     public double [] synthesize(SinusoidalTracks st)
     {
-        return synthesize(st, DEFAULT_ABS_MAX_OUT, false);
-    }
-    
-    public double [] synthesize(SinusoidalTracks st, double absMaxDesired)
-    {
-        return synthesize(st, absMaxDesired, false);
+        return synthesize(st, false);
     }
     
     //st: Sinusoidal tracks
     //absMaxDesired: Desired absolute maximum of the output
-    public double [] synthesize(SinusoidalTracks st, double absMaxDesired, boolean isSilentSynthesis)
+    public double [] synthesize(SinusoidalTracks st, boolean isSilentSynthesis)
     {
-        if (absMaxDesired<0.0f)
-            absMaxDesired = DEFAULT_ABS_MAX_OUT;
+        if (st.absMaxOriginal<0.0f)
+            st.absMaxOriginal = DEFAULT_ABS_MAX_OUT;
         
         int n; //discrete time index
         int i, j;
@@ -185,7 +180,7 @@ public class SinusoidalSynthesizer {
         
         double maxy = MathUtils.getAbsMax(y);
         for (i=0; i<y.length; i++)
-            y[i] = absMaxDesired*y[i]/maxy;
+            y[i] = st.absMaxOriginal*y[i]/maxy;
         
         return y;
     }
@@ -226,15 +221,14 @@ public class SinusoidalSynthesizer {
         
         boolean isSilentSynthesis = false;
         
-        boolean bRefinePeakEstimatesParabola = true;
-        boolean bRefinePeakEstimatesBias = true;
-        boolean bSpectralReassignment = true;
+        boolean bRefinePeakEstimatesParabola = false;
+        boolean bRefinePeakEstimatesBias = false;
+        boolean bSpectralReassignment = false;
         boolean bAdjustNeighFreqDependent = false;
-        double absMaxOriginal;
         
-        int spectralEnvelopeType = SinusoidalAnalyzer.SEEVOC_SPEC;
+        int spectralEnvelopeType = SinusoidalAnalyzer.LP_SPEC;
         
-        boolean isFixedRateAnalysis = false;
+        boolean isFixedRateAnalysis = true;
         boolean isRealSpeech = true;
         
         if (isFixedRateAnalysis)
@@ -259,7 +253,6 @@ public class SinusoidalSynthesizer {
             }
                 
             st = sa.analyzeFixedRate(x, 0.020f, 0.010f, deltaInHz, spectralEnvelopeType, f0s, ws_f0, ss_f0);
-            absMaxOriginal = sa.getAbsMaxOriginal();
             //
         }
         else
@@ -276,14 +269,18 @@ public class SinusoidalSynthesizer {
             
             st = pa.analyzePitchSynchronous(x, pm.pitchMarks, numPeriods, -1.0f, deltaInHz);
             isSilentSynthesis = false;
-
-            absMaxOriginal = pa.getAbsMaxOriginal();
         }
         //
         
         //Resynthesis
         SinusoidalSynthesizer ss = new SinusoidalSynthesizer(samplingRate);
-        x = ss.synthesize(st, absMaxOriginal, isSilentSynthesis);
+        x = ss.synthesize(st, isSilentSynthesis);
+        //
+        
+        //This scaling is only for comparison among different parameter sets, different synthesizer outputs etc
+        double maxx = MathUtils.getAbsMax(x);
+        for (int i=0; i<x.length; i++)
+            x[i] = x[i]/maxx*0.9;
         //
         
         //File output

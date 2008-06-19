@@ -121,6 +121,8 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
             getGrossStatistics(sinTracks);
         }
         
+        sinTracks.absMaxOriginal = (float)getAbsMaxOriginal();
+        
         return sinTracks;
     }
     
