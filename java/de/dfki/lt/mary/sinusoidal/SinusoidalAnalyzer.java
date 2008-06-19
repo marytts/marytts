@@ -282,7 +282,7 @@ public class SinusoidalAnalyzer {
      * ss_f0s: Skip size in seconds used for f0 extraction (Functional only for SEEVOC based envelope estimation and when f0s are not null)                      
      */
     public SinusoidalTracks analyzeFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz,
-                                             int spectralEnvelopeType, double [] f0s, float ws_f0, float ss_f0)
+                                             int spectralEnvelopeType, double[] f0s, float ws_f0, float ss_f0)
     {
         SinusoidalSpeechSignal sinSignal = extractSinusoidsFixedRate(x, winSizeInSeconds, skipSizeInSeconds, deltaInHz,
                                                                      spectralEnvelopeType, f0s, ws_f0, ss_f0);
@@ -297,6 +297,8 @@ public class SinusoidalAnalyzer {
             getGrossStatistics(sinTracks);
         }
         //
+        
+        sinTracks.absMaxOriginal = (float)getAbsMaxOriginal();
         
         return sinTracks;
     }

@@ -168,7 +168,7 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
         */
         
         //Synthesis
-        return synthesize(stMod, absMaxDesired, isSilentSynthesis);
+        return synthesize(stMod, isSilentSynthesis);
     }
     
     public static void main(String[] args) throws UnsupportedAudioFileException, IOException

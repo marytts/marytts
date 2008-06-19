@@ -82,7 +82,7 @@ public class FIRBandPassFilterBankSynthesiser {
             for (j=0; j<maxFreq; j++)
                 Hw[j] = 1.0/Hw[j];
 
-            MaryUtils.plot(Hw, "Normalization filter", false);
+            MaryUtils.plot(Hw, "Normalization filter");
             //
 
             //Add all subbands up and then apply the smooth gain normalization filter
@@ -113,34 +113,9 @@ public class FIRBandPassFilterBankSynthesiser {
         
         int i;
         int numBands = 4;
-        double halfSamplingRate = 0.5*samplingRate;
-        double[] lowerCutOffsInHz = new double[numBands];
-        double[] upperCutOffsInHz = new double[numBands];
-        double overlapInHz;
-        
-        for (i=0; i<numBands; i++)
-        {
-            if (i<numBands-1)
-                upperCutOffsInHz[i] = samplingRate/Math.pow(2, numBands-i);
-            else
-                upperCutOffsInHz[i] = halfSamplingRate;
+        double overlapAround1000Hz = 100.0;
             
-            if (i==0)
-                lowerCutOffsInHz[i] = 0.0;
-            else
-                lowerCutOffsInHz[i] = upperCutOffsInHz[i-1];
-            
-            overlapInHz = 0.5*(upperCutOffsInHz[i]+lowerCutOffsInHz[i])/(1000.0/FIRBandPassFilterBankAnalyser.OVERLAP_AROUND_1000HZ);
-            
-            if (i>0)
-                lowerCutOffsInHz[i] -= overlapInHz;
-            if (i<numBands-1)
-                upperCutOffsInHz[i] += overlapInHz;
-            
-            System.out.println("Subband #" + String.valueOf(i+1) + " - Lower cutoff: " + String.valueOf(lowerCutOffsInHz[i]) + " Upper cutoff: " + String.valueOf(upperCutOffsInHz[i]));
-        }
-            
-        FIRBandPassFilterBankAnalyser analyser = new FIRBandPassFilterBankAnalyser(lowerCutOffsInHz, upperCutOffsInHz, samplingRate);
+        FIRBandPassFilterBankAnalyser analyser = new FIRBandPassFilterBankAnalyser(numBands, samplingRate, overlapAround1000Hz);
         Subband[] subbands = analyser.apply(x, samplingRate);
         
         DDSAudioInputStream outputAudio;

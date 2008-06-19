@@ -52,11 +52,62 @@ import de.dfki.lt.signalproc.util.SignalProcUtils;
  * Given a sampling rate and a set of lower and upper cutoff frequency values in Hz,
  *  a set of bandpass filters that overlap by some amount in frequency
  */
-public class FIRBandPassFilterBankAnalyser {
-    public static final double OVERLAP_AROUND_1000HZ = 100.0;
+public class FIRBandPassFilterBankAnalyser extends FilterBankAnalyserBase {
+    public static final double OVERLAP_AROUND_1000HZ_DEFAULT = 100.0;
+    public double overlapAround1000Hz;
+    
     public FIRFilter[] filters;
     
+    public FIRBandPassFilterBankAnalyser(int numBands, int samplingRateInHz)
+    {
+        this(numBands, samplingRateInHz, OVERLAP_AROUND_1000HZ_DEFAULT);
+    }
+    
+    public FIRBandPassFilterBankAnalyser(int numBands, int samplingRateInHz, double overlapAround1000HzIn)
+    {
+        double halfSamplingRate = 0.5*samplingRateInHz;
+        double[] lowerCutOffsInHz = new double[numBands];
+        double[] upperCutOffsInHz = new double[numBands];
+        double overlapInHz;
+        int i;
+        overlapAround1000Hz = overlapAround1000HzIn;
+        
+        for (i=0; i<numBands; i++)
+        {
+            if (i<numBands-1)
+                upperCutOffsInHz[i] = samplingRateInHz/Math.pow(2, numBands-i);
+            else
+                upperCutOffsInHz[i] = halfSamplingRate;
+            
+            if (i==0)
+                lowerCutOffsInHz[i] = 0.0;
+            else
+                lowerCutOffsInHz[i] = upperCutOffsInHz[i-1];
+            
+            overlapInHz = 0.5*(upperCutOffsInHz[i]+lowerCutOffsInHz[i])/(1000.0/overlapAround1000Hz);
+            
+            if (i>0)
+                lowerCutOffsInHz[i] -= overlapInHz;
+            if (i<numBands-1)
+                upperCutOffsInHz[i] += overlapInHz;
+            
+            System.out.println("Subband #" + String.valueOf(i+1) + " - Lower cutoff: " + String.valueOf(lowerCutOffsInHz[i]) + " Upper cutoff: " + String.valueOf(upperCutOffsInHz[i]));
+        }
+        
+        initialise(lowerCutOffsInHz, upperCutOffsInHz, samplingRateInHz, overlapAround1000HzIn);
+    }
+    
     public FIRBandPassFilterBankAnalyser(double[] lowerCutOffsInHz, double[] upperCutOffsInHz, int samplingRateInHz)
+    {
+        this(lowerCutOffsInHz, upperCutOffsInHz, samplingRateInHz, OVERLAP_AROUND_1000HZ_DEFAULT);
+    }
+    
+    public FIRBandPassFilterBankAnalyser(double[] lowerCutOffsInHz, double[] upperCutOffsInHz, int samplingRateInHz, double overlapAround1000HzIn)
+    {
+        initialise(lowerCutOffsInHz, upperCutOffsInHz, samplingRateInHz, overlapAround1000HzIn);
+    }
+    
+    public void initialise(double[] lowerCutOffsInHz, double[] upperCutOffsInHz, int samplingRateInHz, double overlapAround1000HzIn)
     {
         if (lowerCutOffsInHz!=null && upperCutOffsInHz!=null)
         {
@@ -66,6 +117,8 @@ public class FIRBandPassFilterBankAnalyser {
             int filterOrder = SignalProcUtils.getFIRFilterOrder(samplingRateInHz);
             double normalizedLowerCutoff;
             double normalizedUpperCutoff;
+            
+            overlapAround1000Hz = overlapAround1000HzIn;
             
             for (i=0; i<lowerCutOffsInHz.length; i++)
                 assert lowerCutOffsInHz[i]<upperCutOffsInHz[i];
@@ -131,34 +184,9 @@ public class FIRBandPassFilterBankAnalyser {
         
         int i;
         int numBands = 4;
-        double halfSamplingRate = 0.5*samplingRate;
-        double[] lowerCutOffsInHz = new double[numBands];
-        double[] upperCutOffsInHz = new double[numBands];
-        double overlapInHz;
-        
-        for (i=0; i<numBands; i++)
-        {
-            if (i<numBands-1)
-                upperCutOffsInHz[i] = samplingRate/Math.pow(2, numBands-i);
-            else
-                upperCutOffsInHz[i] = halfSamplingRate;
+        double overlapAround1000Hz = 100.0;
             
-            if (i==0)
-                lowerCutOffsInHz[i] = 0.0;
-            else
-                lowerCutOffsInHz[i] = upperCutOffsInHz[i-1];
-            
-            overlapInHz = 0.5*(upperCutOffsInHz[i]+lowerCutOffsInHz[i])/(1000.0/FIRBandPassFilterBankAnalyser.OVERLAP_AROUND_1000HZ);
-            
-            if (i>0)
-                lowerCutOffsInHz[i] -= overlapInHz;
-            if (i<numBands-1)
-                upperCutOffsInHz[i] += overlapInHz;
-            
-            System.out.println("Subband #" + String.valueOf(i+1) + " - Lower cutoff: " + String.valueOf(lowerCutOffsInHz[i]) + " Upper cutoff: " + String.valueOf(upperCutOffsInHz[i]));
-        }
-            
-        FIRBandPassFilterBankAnalyser analyser = new FIRBandPassFilterBankAnalyser(lowerCutOffsInHz, upperCutOffsInHz, samplingRate);
+        FIRBandPassFilterBankAnalyser analyser = new FIRBandPassFilterBankAnalyser(numBands, samplingRate, overlapAround1000Hz);
         Subband[] subbands = analyser.apply(x, samplingRate);
         
         DDSAudioInputStream outputAudio;

@@ -29,10 +29,119 @@
 
 package de.dfki.lt.mary.sinusoidal.multiresolution;
 
+import java.io.File;
+import java.io.IOException;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
+import de.dfki.lt.mary.sinusoidal.SinusoidalAnalyzer;
+import de.dfki.lt.mary.sinusoidal.SinusoidalTracks;
+import de.dfki.lt.signalproc.analysis.F0ReaderWriter;
+import de.dfki.lt.signalproc.filter.ComplementaryFilterBankAnalyser;
+import de.dfki.lt.signalproc.filter.FIRBandPassFilterBankAnalyser;
+import de.dfki.lt.signalproc.filter.FilterBankAnalyserBase;
+import de.dfki.lt.signalproc.filter.Subband;
+import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
+import de.dfki.lt.signalproc.util.MathUtils;
+import de.dfki.lt.signalproc.util.SignalProcUtils;
+import de.dfki.lt.signalproc.window.Window;
+
 /**
  * @author oytun.turk
  *
  */
 public class MultiresolutionSinusoidalAnalyzer {
+    public static final int FIR_BANDPASS_FILTERBANK = 1;
+    public static final int COMPLEMENTARY_FILTERBANK = 2;
+    
+    public MultiresolutionSinusoidalAnalyzer()
+    {
+        
+    }
+    
+    public SinusoidalTracks[] analyzeFixedRate(double[] x, int samplingRate,
+                                               int multiresolutionFilterbankType,
+                                               int numBands,
+                                               double lowestBandWindowSizeInSeconds,
+                                               int windowType,
+                                               boolean bRefinePeakEstimatesParabola,
+                                               boolean bRefinePeakEstimatesBias,
+                                               boolean bSpectralReassignment,
+                                               boolean bAdjustNeighFreqDependent)
+    {
+        SinusoidalTracks[] subbandTracks = new SinusoidalTracks[numBands];
+        
+        Subband[] subbands = null;
+        FilterBankAnalyserBase analyser = null;
+        
+        if (multiresolutionFilterbankType==FIR_BANDPASS_FILTERBANK)
+        {
+            double overlapAround1000Hz = 100.0;
+                
+            analyser = new FIRBandPassFilterBankAnalyser(numBands, samplingRate, overlapAround1000Hz);            
+        }
+        else if (multiresolutionFilterbankType==COMPLEMENTARY_FILTERBANK)
+        {
+            if (MathUtils.isPowerOfTwo(numBands))
+            {
+                int tmpNumBands = 2;
+                while (tmpNumBands<numBands)
+                    tmpNumBands*=2;
+                numBands = tmpNumBands;
+                System.out.println("Number of bands should be a power of two for the complementary filterbank");
+            }
+                
+            int baseFilterOrder = SignalProcUtils.getFIRFilterOrder(samplingRate);
+            int numLevels = (int)(Math.log(numBands)/Math.log(2));
+            analyser = new ComplementaryFilterBankAnalyser(numLevels, baseFilterOrder);
+        }
+        
+        if (analyser!=null)
+        {
+            subbands = analyser.apply(x, samplingRate);
+        
+            for (int i=0; i<subbands.length; i++)
+            {
+                SinusoidalAnalyzer sa = new SinusoidalAnalyzer(subbands[i].samplingRate, windowType, 
+                        bRefinePeakEstimatesParabola, 
+                        bRefinePeakEstimatesBias,
+                        bSpectralReassignment,
+                        bAdjustNeighFreqDependent);
 
+                float winSizeInSeconds = (float)(lowestBandWindowSizeInSeconds/Math.pow(2.0, i));
+                float skipSizeInSeconds = 0.5f*winSizeInSeconds;
+                float deltaInHz = 50.0f; //Also make this frequency range dependent??
+
+                //To do: peak detection procedure should be limited by the subband signals frequency range
+                subbandTracks[i] = sa.analyzeFixedRate(x, winSizeInSeconds, skipSizeInSeconds, deltaInHz, SinusoidalAnalyzer.LP_SPEC);
+            }
+        }
+        
+        return subbandTracks;
+    }
+    
+
+    public static void main(String[] args) throws UnsupportedAudioFileException, IOException
+    {
+        AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(args[0]));
+        int samplingRate = (int)inputAudio.getFormat().getSampleRate();
+        AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
+        double [] x = signal.getAllData();
+
+        int multiresolutionFilterbankType = MultiresolutionSinusoidalAnalyzer.FIR_BANDPASS_FILTERBANK;
+        //int multiresolutionFilterbankType = MultiresolutionSinusoidalAnalyzer.COMPLEMENTARY_FILTERBANK;
+        int numBands = 4;
+        double lowestBandWindowSizeInSeconds = 0.020;
+        int windowType = Window.HAMMING;
+        boolean bRefinePeakEstimatesParabola = true;
+        boolean bRefinePeakEstimatesBias = true;
+        boolean bSpectralReassignment = true;
+        boolean bAdjustNeighFreqDependent = true;
+
+        MultiresolutionSinusoidalAnalyzer msa = new MultiresolutionSinusoidalAnalyzer();
+
+        SinusoidalTracks[] subbandTracks = msa.analyzeFixedRate(x, samplingRate, multiresolutionFilterbankType, numBands, lowestBandWindowSizeInSeconds, windowType, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent);
+    }
 }

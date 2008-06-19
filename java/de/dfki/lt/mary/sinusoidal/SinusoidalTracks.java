@@ -43,12 +43,13 @@ import de.dfki.lt.signalproc.util.SignalProcUtils;
  *
  */
 public class SinusoidalTracks {
-    public SinusoidalTrack [] tracks;
+    public SinusoidalTrack[] tracks;
     public int totalTracks;
     public int currentIndex;
     public int fs; //Sampling rate in Hz, you can change this using setSamplingRate to synthesize speech at a different sampling rate
     public float origDur; //Original duration of the signal modeled by sinusoidal tracks in seconds
-    public float [] voicings; //Voicing probabilities
+    public float[] voicings; //Voicing probabilities
+    public float absMaxOriginal; //Absolute maximum of the original waveform
     
     public LinkedList<double[]> sysAmps; //System amplitudes for each speech frame
     public LinkedList<double[]> sysPhases; //System phases for each speech frame
@@ -100,6 +101,8 @@ public class SinusoidalTracks {
     //  including startSinIndex and endSinIndex
     public void copy(SinusoidalTracks srcTracks, int startTrackIndex, int endTrackIndex)
     {
+        absMaxOriginal = srcTracks.absMaxOriginal;
+        
         if (startTrackIndex<0)
             startTrackIndex=0;
         if (endTrackIndex<0)
