@@ -23,6 +23,7 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
     protected File textDir;
     protected File unitfeatureDir;
     protected String featsExt = ".pfeats";
+    protected String xmlExt = ".xml";
     protected String locale;
     protected MaryClient mary;
     protected String maryInputType;
@@ -32,6 +33,7 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
     protected int percent = 0;
     
     public String FEATUREDIR = "PhoneUnitFeatureComputer.featureDir";
+    public String INTONISED = "PhoneUnitFeatureComputer.correctedIntonisedXMLDir";
     public String MARYSERVERHOST = "PhoneUnitFeatureComputer.maryServerHost";
     public String MARYSERVERPORT = "PhoneUnitFeatureComputer.maryServerPort";
        
@@ -48,7 +50,7 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
             "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
             "xmlns=\"http://mary.dfki.de/2002/MaryXML\"\n" +
             "xml:lang=\"" + locale + "\">\n" +
-            "<boundary duration=\"100\"/>\n";
+            "<boundary  breakindex=\"2\" duration=\"100\"/>\n";
         
     }
     
@@ -65,9 +67,14 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
                 throw new Error("Could not create FEATUREDIR");
             }
             System.out.print("Created successfully.\n");
-        }    
+        }  
         
-        maryInputType = "RAWMARYXML";
+        if(locale.startsWith("en")){
+            maryInputType = "INTONATION_EN";
+        }
+        else if(locale.startsWith("de")){
+            maryInputType = "INTONISED_DE";
+        }
         maryOutputType = "TARGETFEATURES";
     }
      
@@ -78,9 +85,13 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
              props.put(FEATUREDIR, db.getProp(db.ROOTDIR)
                      +"phonefeatures"
                      +System.getProperty("file.separator"));
+             props.put(INTONISED, db.getProp(db.ROOTDIR)
+                     +"correctedIntonisedXML"
+                     +System.getProperty("file.separator"));
              props.put(MARYSERVERHOST,"localhost");
              props.put(MARYSERVERPORT,"59125");
          } 
+         
          return props;
      }
      
@@ -88,6 +99,7 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
          props2Help = new TreeMap();
          props2Help.put(FEATUREDIR, "directory containing the phone features." 
                  +"Will be created if it does not exist");
+         props2Help.put(INTONISED, "Directory of corrected Intonised XML files.");
          props2Help.put(MARYSERVERHOST,"the host were the Mary server is running, default: \"localhost\"");
          props2Help.put(MARYSERVERPORT,"the port were the Mary server is listening, default: \"59125\"");
      }
@@ -135,6 +147,9 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
                         		+ basename + db.getProp(db.TEXTEXT)), "UTF-8")
                 + "</maryxml>";
         }
+        File intonisedxmlFile = new File(getProp(INTONISED)
+                + basename + xmlExt);
+        text = FileUtils.getFileAsString(intonisedxmlFile, "UTF-8");
         
         OutputStream os = new BufferedOutputStream(new FileOutputStream(new File( unitfeatureDir, basename + featsExt )));
         MaryClient maryClient = getMaryClient();
