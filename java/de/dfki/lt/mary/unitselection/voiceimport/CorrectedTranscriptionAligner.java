@@ -57,13 +57,13 @@ import de.dfki.lt.signalproc.display.Histogram;
 public class CorrectedTranscriptionAligner extends VoiceImportComponent {
     
     private DatabaseLayout db;
-    
+    private String locale;
     // properties
     public final String ORIGTRANS = "CorrectedTranscriptionAligner.original";
     public final String CORRTRANS = "CorrectedTranscriptionAligner.corrected";
     public final String RESULTTRANS = "CorrectedTranscriptionAligner.results";
     //public final String SYMCOSTS = "CorrectedTranscriptionAligner.costfile";
-    public final String PHONSET = "CorrectedTranscriptionAligner.phonset";
+    public final String PHONEMEXML = "CorrectedTranscriptionAligner.phonesetXML";
     private int progress;
     
     Map<String, Integer> aligncost;
@@ -93,6 +93,8 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
     
     public SortedMap getDefaultProps(DatabaseLayout db) {
         this.db = db;
+        String phonemeXml;
+        locale = db.getProp(db.LOCALE);
         if (props == null){
             props = new TreeMap();
             
@@ -138,15 +140,17 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
             props.put(SYMCOSTS,symCosts);*/
             
             // alignment costs
-            String phonSet = System.getProperty(PHONSET);
-            if ( phonSet == null ) {
-                phonSet = db.getProp(db.ROOTDIR)
-                +"temp"
-                +System.getProperty("file.separator")
-                +"phoneme-list-de.xml"; 
-                //"/project/mary/lib/modules/de/cap/phoneme-list-de.xml";
+            if(locale.startsWith("de")){
+                phonemeXml = db.getProp(db.MARYBASE)
+                        +File.separator+"lib"+File.separator+"modules"
+                        +File.separator+"de"+File.separator+"cap"+File.separator+"phoneme-list-de.xml";
             }
-            props.put(PHONSET,phonSet);
+            else{
+                phonemeXml = db.getProp(db.MARYBASE)
+                        +File.separator+"lib"+File.separator+"modules"
+                        +File.separator+"en"+File.separator+"cap"+File.separator+"phoneme-list-en.xml";
+            }
+            props.put(PHONEMEXML, phonemeXml);
 
         }
         return props;
@@ -222,7 +226,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
         
         
         // phoneme set is used for splitting the sampa strings and setting the costs
-        this.setPhonemeSet(PhonemeSet.getPhonemeSet((String) props.get(this.PHONSET)));
+        this.setPhonemeSet(PhonemeSet.getPhonemeSet((String) props.get(this.PHONEMEXML)));
 
         this.setDistance();
         
