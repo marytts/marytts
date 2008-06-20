@@ -140,7 +140,7 @@ public class IntonisedXMLExtractor extends VoiceImportComponent
         if (rawmaryxmlFile.exists()) {
             text = FileUtils.getFileAsString(rawmaryxmlFile, "UTF-8");
         } else {
-            text = PhoneUnitFeatureComputer.getMaryXMLHeaderWithInitialBoundary(locale)
+            text = getMaryXMLHeaderWithInitialBoundary(locale)
                 + FileUtils.getFileAsString(new File(db.getProp(db.TEXTDIR) 
                                 + basename + db.getProp(db.TEXTEXT)), "UTF-8")
                 + "</maryxml>";
@@ -174,6 +174,17 @@ public class IntonisedXMLExtractor extends VoiceImportComponent
         os.close();
     }
 
+    public static String getMaryXMLHeaderWithInitialBoundary(String locale)
+    {
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
+            "<maryxml version=\"0.4\"\n" +
+            "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+            "xmlns=\"http://mary.dfki.de/2002/MaryXML\"\n" +
+            "xml:lang=\"" + locale + "\">\n" +
+            "<boundary  breakindex=\"2\" duration=\"100\"/>\n";
+        
+    }
+    
     /**
      * Provide the progress of computation, in percent, or -1 if
      * that feature is not implemented.
