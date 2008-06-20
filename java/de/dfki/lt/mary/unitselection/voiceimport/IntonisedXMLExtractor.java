@@ -17,7 +17,7 @@ import de.dfki.lt.mary.MaryDataType;
  * @author Benjamin Roth, adapted from Sathish Chandra Pammi
  *
  */
-public class IntonisedXML extends VoiceImportComponent
+public class IntonisedXMLExtractor extends VoiceImportComponent
 {
     protected File textDir;
     protected File unitfeatureDir;
@@ -30,14 +30,14 @@ public class IntonisedXML extends VoiceImportComponent
     protected DatabaseLayout db = null;
     protected int percent = 0;
     
-    public String INTONISED = "IntonisedXML.intonisedDir";
-    public String MARYSERVERHOST = "IntonisedXML.maryServerHost";
-    public String MARYSERVERPORT = "IntonisedXML.maryServerPort";
+    public String INTONISED = "IntonisedXMLExtractor.intonisedDir";
+    public String MARYSERVERHOST = "IntonisedXMLExtractor.maryServerHost";
+    public String MARYSERVERPORT = "IntonisedXMLExtractor.maryServerPort";
        
    
     
    public String getName(){
-        return "IntonisedXML";
+        return "IntonisedXMLExtractor";
     }
      
    public void initialiseComp()
@@ -55,9 +55,14 @@ public class IntonisedXML extends VoiceImportComponent
             System.out.print("Created successfully.\n");
         }    
         
-        //maryInputType = "RAWMARYXML";
-        maryInputType = "TEXT_DE";
-        maryOutputType = "INTONISED_DE";
+        maryInputType = "RAWMARYXML";
+        if(locale.startsWith("en")){
+            maryOutputType = "INTONATION_EN";
+        }
+        else if(locale.startsWith("de")){
+            maryOutputType = "INTONISED_DE";
+        }
+        
     }
      
      public SortedMap getDefaultProps(DatabaseLayout db){
@@ -75,7 +80,7 @@ public class IntonisedXML extends VoiceImportComponent
      
      protected void setupHelp(){
          props2Help = new TreeMap();
-         props2Help.put(INTONISED, "directory containing the phone features." 
+         props2Help.put(INTONISED, "directory to store intonationXML files." 
                  +"Will be created if it does not exist");
          props2Help.put(MARYSERVERHOST,"the host were the Mary server is running, default: \"localhost\"");
          props2Help.put(MARYSERVERPORT,"the port were the Mary server is listening, default: \"59125\"");
@@ -98,13 +103,13 @@ public class IntonisedXML extends VoiceImportComponent
     {
         
         textDir = new File(db.getProp(db.TEXTDIR));
-        System.out.println( "Computing unit features for " + bnl.getLength() + " files" );
+        System.out.println( "Computing IntonisedXML files for "+ bnl.getLength() + " files" );
         for (int i=0; i<bnl.getLength(); i++) {
             percent = 100*i/bnl.getLength();
             computeFeaturesFor( bnl.getName(i) );
             System.out.println( "    " + bnl.getName(i) );
         }
-        System.out.println("Finished computing the unit features.");
+        System.out.println("...Done.");
         return true;
     }
 
@@ -128,21 +133,40 @@ public class IntonisedXML extends VoiceImportComponent
         File textFile = new File(fullFileName);
         text = FileUtils.getFileAsString(textFile, "UTF-8");
         
-        /*// First, test if there is a corresponding .rawmaryxml file in textdir:
+        
+        // First, test if there is a corresponding .rawmaryxml file in textdir:
         File rawmaryxmlFile = new File(db.getProp(db.MARYXMLDIR)
                                 + basename + db.getProp(db.MARYXMLEXT));
         if (rawmaryxmlFile.exists()) {
             text = FileUtils.getFileAsString(rawmaryxmlFile, "UTF-8");
         } else {
-            text = getMaryXMLHeaderWithInitialBoundary(locale)
+            text = PhoneUnitFeatureComputer.getMaryXMLHeaderWithInitialBoundary(locale)
                 + FileUtils.getFileAsString(new File(db.getProp(db.TEXTDIR) 
                                 + basename + db.getProp(db.TEXTEXT)), "UTF-8")
                 + "</maryxml>";
-        }*/
+        }
         
         OutputStream os = new BufferedOutputStream(new FileOutputStream(new File( unitfeatureDir, basename + featsExt )));
         MaryClient maryClient = getMaryClient();
-        Vector voices = maryClient.getVoices(localVoice);
+        
+        Vector<MaryClient.Voice> voices = maryClient.getVoices(localVoice);
+        if (voices == null) {
+            if(locale.equals("en")) {
+               locale  =  "en_US";
+               localVoice = MaryClient.string2locale(locale);
+               voices = maryClient.getVoices(localVoice);
+            } 
+        }
+        // try again:
+        if (voices == null) {
+            StringBuffer buf = new StringBuffer("Mary server has no voices for locale '"+localVoice+"' -- known voices are:\n");
+            Vector<MaryClient.Voice> allVoices = maryClient.getVoices();
+            for (MaryClient.Voice v: allVoices) {
+                buf.append(v.toString()); buf.append("\n");
+            }
+            throw new RuntimeException(buf.toString());
+        }
+        
         MaryClient.Voice defaultVoice = (MaryClient.Voice) voices.firstElement();
         String voiceName = defaultVoice.name();
         maryClient.process(text, maryInputType, maryOutputType, null, voiceName, os);
