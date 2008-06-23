@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import de.dfki.lt.mary.modules.phonemiser.Phoneme;
 import de.dfki.lt.mary.modules.phonemiser.PhonemeSet;
@@ -73,12 +74,23 @@ public class AlignerTrainer {
     
     private Locale locale;
     
+    // Default regular expressions for delimiters
+    private String alignDelim = "#";
+    private String symDelim = " ";
+
     /**
-     * This initializes the letter-to-sound trainer with the phoneme set
-     *  that is mainly used for splitting phoneme chains, and a Locale
-     *  that tells eg. how to lowercase words.
+     * 
+     * @param aPhSet PhonemeSet that is used to seperate symbols. When the 
+     * 'simply'-methods are used (readLexiconSimply, addSimply) every characer
+     * is treated as a single symbol. aPhSet can be null in that case.
+     * @param aLocale used for lowercasing (eg. for letter-to-sound alignments)
+     * @param alignmentDelimiter delimiter to indicate alignment boundaries. It
+     * must not occurr in the output strings that are to be aligned.
+     * @param symbolDelimiter delimiter to indicate symbol boundaries. It must 
+     * neither occurr in input nor output strings.
      */
-    public AlignerTrainer(PhonemeSet aPhSet, Locale aLocale){
+    public AlignerTrainer(PhonemeSet aPhSet, Locale aLocale, String alignmentDelimiter, String symbolDelimiter){
+        
         this.skipcost = this.defaultcost;
         this.aligncost = new HashMap<String, Integer>();
         
@@ -88,8 +100,22 @@ public class AlignerTrainer {
 
         this.phonemeSet = aPhSet;
         this.locale = aLocale;
+        
+        this.alignDelim = alignmentDelimiter;
+        this.symDelim = symbolDelimiter;
+        
     }
     
+    /**
+     * This initializes the letter-to-sound trainer with the phoneme set
+     *  that is mainly used for splitting phoneme chains, and a Locale
+     *  that tells eg. how to lowercase words.
+     */
+    public AlignerTrainer(PhonemeSet aPhSet, Locale aLocale){
+        this(aPhSet,aLocale, "#", " ");
+
+    }
+
     /**
      * 
      * This reads in a lexicon in "mary" format, lines are of the kind:
@@ -141,7 +167,7 @@ public class AlignerTrainer {
                         stress = false;
                     }
                     
-                    seperatedPhones += " ";
+                    seperatedPhones += symDelim;
                 }// ... for each phoneme
                 
             }
@@ -150,7 +176,7 @@ public class AlignerTrainer {
                 
                 this.graphemeSet.add(graphStr.substring(i, i+1));
                 
-                seperatedGraphemes += graphStr.substring(i, i+1) + " ";
+                seperatedGraphemes += graphStr.substring(i, i+1) + symDelim;
             }
             
             graphemeStringList.add(seperatedGraphemes);
@@ -184,7 +210,7 @@ public class AlignerTrainer {
         String line;
         
         while ((line = lexicon.readLine()) != null){
-            String[] lineParts = line.trim().split(" ");
+            String[] lineParts = line.trim().split(Pattern.quote(symDelim));
             // TODO: remove all non-standard symbols from input side, not only ' and -
             String graphStr = lineParts[0].toLowerCase(this.locale).replaceAll("['-.]", "");
             
@@ -215,7 +241,7 @@ public class AlignerTrainer {
                         stress = false;
                     }
                     
-                    separatedPhones += " ";
+                    separatedPhones += symDelim;
                 }// ... for each phoneme
                 
             }
@@ -227,7 +253,7 @@ public class AlignerTrainer {
                 
                 this.graphemeSet.add(graphStr.substring(i, i+1));
                 
-                separatedGraphemes += graphStr.substring(i, i+1) + " ";
+                separatedGraphemes += graphStr.substring(i, i+1) + symDelim;
             }
             
             graphemeStringList.add(separatedGraphemes);
@@ -289,13 +315,13 @@ public class AlignerTrainer {
             
             this.graphemeSet.add(inStr.substring(i, i+1));
             
-            separatedGraphemes += inStr.substring(i, i+1) + " ";
+            separatedGraphemes += inStr.substring(i, i+1) + symDelim;
         }
         
         String separatedPhonemes="";
         
         for ( int i = 0 ; i < outStr.length() ; i++ ){            
-            separatedPhonemes += outStr.substring(i, i+1) + " ";
+            separatedPhonemes += outStr.substring(i, i+1) + symDelim;
         }
         
         this.graphemeStrings.add(separatedGraphemes);
@@ -334,9 +360,9 @@ public class AlignerTrainer {
             //System.out.println(this.graphemeStrings[i]);
             //System.out.println(alignment);
             
-            String[] in = this.graphemeStrings.get(i).trim().split(" ");
+            String[] in = this.graphemeStrings.get(i).trim().split( Pattern.quote(symDelim) );
             // assure that there is at least one space sign after last '#'
-            String[] out = alignment.concat(" ").split("#");
+            String[] out = alignment.concat(symDelim).split(Pattern.quote(alignDelim));
             
             assert(in.length == out.length);
             
@@ -354,7 +380,7 @@ public class AlignerTrainer {
                 } else {
                     // mapped to one or several symbols
                     
-                    String[] outs = outStr.split(" ");
+                    String[] outs = outStr.split(Pattern.quote(symDelim));
                     
                     // increase count of overall mappings for this symbol
                     Integer c = symMapCount.get(in[inNr]);
@@ -368,7 +394,7 @@ public class AlignerTrainer {
                     for (int outNr = 0; outNr < outs.length; outNr ++){
                         
                         // get key for mapping symbol to symbol
-                        String key = in[inNr].trim() + " " + outs[outNr].trim();
+                        String key = in[inNr].trim() + symDelim + outs[outNr].trim();
                         
                         Integer mapC = sym2symCount.get(key);
                         if (null == mapC){                    
@@ -392,7 +418,7 @@ public class AlignerTrainer {
         
         for (String mapping : sym2symCount.keySet()){
             
-            String firstSym = mapping.split(" ")[0];
+            String firstSym = mapping.split(Pattern.quote(symDelim))[0];
             
             double fraction = (double) sym2symCount.get(mapping) / symMapCount.get(firstSym);
             int cost = (int) -this.log2( fraction );
@@ -421,8 +447,8 @@ public class AlignerTrainer {
         
         String align = this.distanceAlign(graphemeStrings.get(entryNr), phoneStrings.get(entryNr));
         
-        String[] in = graphemeStrings.get(entryNr).trim().split(" ");
-        String[] out = align.concat(" ").split("#");
+        String[] in = graphemeStrings.get(entryNr).trim().split(Pattern.quote(symDelim));
+        String[] out = align.concat(symDelim).split(Pattern.quote(alignDelim));
         
         // TODO: maybe do everything with lists
         ArrayList<String>[] listArray = new ArrayList[in.length];
@@ -431,7 +457,7 @@ public class AlignerTrainer {
             
             ArrayList<String> alList = new ArrayList<String>(2);
             alList.add(in[pos].trim());            
-            alList.add(out[pos].trim().replaceAll(" ", ""));
+            alList.add(out[pos].trim().replaceAll(Pattern.quote(symDelim), ""));
             
             listArray[pos] = alList;
             
@@ -459,8 +485,8 @@ public class AlignerTrainer {
         //System.out.println(">"+align.concat(" # ")+"<");
         
         
-        String[] in = graphemeStrings.get(entryNr).concat(optInfo.get(entryNr) ).trim().split(" ");
-        String[] out = align.concat(" # ").split("#");
+        String[] in = graphemeStrings.get(entryNr).concat(optInfo.get(entryNr) ).trim().split(Pattern.quote(symDelim));
+        String[] out = align.concat(" # ").split(Pattern.quote(alignDelim));
         
         // TODO: maybe do everything with lists
         ArrayList<String>[] listArray = new ArrayList[in.length];
@@ -469,7 +495,7 @@ public class AlignerTrainer {
             
             ArrayList<String> alList = new ArrayList<String>(2);
             alList.add(in[pos].trim());            
-            alList.add(out[pos].trim().replaceAll(" ", ""));
+            alList.add(out[pos].trim().replaceAll(Pattern.quote(symDelim), ""));
             
             listArray[pos] = alList;
             
@@ -484,7 +510,7 @@ public class AlignerTrainer {
     
     private int symDist(String aString1, String aString2) {
         
-        String key = aString1 + " " + aString2;
+        String key = aString1 + symDelim + aString2;
         
         // if a value is stored, return it
         if (this.aligncost.containsKey(key)){
@@ -517,9 +543,9 @@ public class AlignerTrainer {
      * @return
      */
     protected String distanceAlign(String in, String out ) {
-        String[] istr = in.split(" ");
-        String[] ostr = out.split(" ");
-        String delim = "#";
+        String[] istr = in.split( Pattern.quote(symDelim) );
+        String[] ostr = out.split( Pattern.quote(symDelim) );
+
         
         // distances:
         // 1. previous distance (= previous column in matrix)
@@ -550,7 +576,7 @@ public class AlignerTrainer {
         for (int j = 1; j < ostr.length + 1; j++){
             // only possibility first is to align the first letter 
             // of the input string to everything
-            p_al[j] = p_al[j-1] + " " + ostr[j-1]; 
+            p_al[j] = p_al[j-1] + symDelim + ostr[j-1]; 
             p_d[j] = p_d[j-1] + symDist(istr[0],ostr[j-1]);
             p_sk[j] = false;        
         }
@@ -564,7 +590,7 @@ public class AlignerTrainer {
             
             // zero'st row stands for skipping from the beginning on
             d[0] = p_d[0] + skConst ;//+ this.skipDist(istr[i-1]);
-            al[0] = p_al[0] + " " + delim;
+            al[0] = p_al[0] + symDelim + alignDelim;
             sk[0] = true;
             
             for (int j = 1 ; j < ostr.length + 1; j++ ) {
@@ -583,7 +609,7 @@ public class AlignerTrainer {
                     // cost is cost from previous input char + skipping
                     d[j]  = sk_cost + p_d[j];
                     // alignment is from prev. input + delimiter
-                    al[j] = p_al[j] + " " + delim;
+                    al[j] = p_al[j] + symDelim + alignDelim;
                     // yes, we skipped
                     sk[j] = true;
                     
@@ -593,7 +619,7 @@ public class AlignerTrainer {
                     // cost is that from previously aligned output + distance
                     d[j]  = tr_cost + d[j-1];
                     // alignment continues from previously aligned
-                    al[j] = al[j-1] + " " + ostr[j-1];
+                    al[j] = al[j-1] + symDelim + ostr[j-1];
                     // nope, didn't skip
                     sk[j] = false;
                     
@@ -631,9 +657,9 @@ public class AlignerTrainer {
             System.out.println(this.graphemeStrings.get(i));
             System.out.println(alignment);
             
-            String[] in = this.graphemeStrings.get(i).trim().split(" ");
+            String[] in = this.graphemeStrings.get(i).trim().split( Pattern.quote(symDelim));
             // assure that there is at least one space sign after last '#'
-            String[] out = alignment.concat(" ").split("#");
+            String[] out = alignment.concat(symDelim).split(Pattern.quote(alignDelim));
             
             // for every input symbol...
             for ( int inNr = 0; inNr < in.length; inNr++){
