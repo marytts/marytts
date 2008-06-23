@@ -204,7 +204,7 @@ public class TransducerTrie extends Trie< List<String> > {
         String fstLocation = path + "lexicon.fst";
         
      
-        /*
+        
         // initialize trainer 
         //AlignerTrainer at = new AlignerTrainer(PhonemeSet.getPhonemeSet(phFileLoc), Locale.ENGLISH);
         AlignerTrainer at = new AlignerTrainer(null, Locale.GERMAN);
@@ -248,7 +248,7 @@ public class TransducerTrie extends Trie< List<String> > {
         os.flush();
         os.close();
         System.out.println("...done!");
-        */
+        
 
         
         System.out.println("looking up test words...");
