@@ -50,6 +50,7 @@ public class SinusoidalTracks {
     public float origDur; //Original duration of the signal modeled by sinusoidal tracks in seconds
     public float[] voicings; //Voicing probabilities
     public float absMaxOriginal; //Absolute maximum of the original waveform
+    public float totalEnergy; //Total energy of the original waveform
     
     public LinkedList<double[]> sysAmps; //System amplitudes for each speech frame
     public LinkedList<double[]> sysPhases; //System phases for each speech frame
@@ -102,6 +103,7 @@ public class SinusoidalTracks {
     public void copy(SinusoidalTracks srcTracks, int startTrackIndex, int endTrackIndex)
     {
         absMaxOriginal = srcTracks.absMaxOriginal;
+        totalEnergy = srcTracks.totalEnergy;
         
         if (startTrackIndex<0)
             startTrackIndex=0;

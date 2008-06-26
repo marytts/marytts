@@ -45,10 +45,10 @@ public class TrackModifier {
                                                                  // because the time scaling resolution will only be as low as the skip size
     
     public static SinusoidalTracks modifyTimeScale(SinusoidalTracks trIn, 
-                                                    double [] f0s, 
+                                                    double[] f0s, 
                                                     float f0_ss, float f0_ws,
-                                                    int [] pitchMarks,
-                                                    float [] voicings, 
+                                                    int[] pitchMarks,
+                                                    float[] voicings, 
                                                     float numPeriods,
                                                     boolean isVoicingAdaptiveTimeScaling, 
                                                     float timeScalingVoicingThreshold, 
@@ -312,18 +312,18 @@ public class TrackModifier {
      */
 
     public static SinusoidalTracks modify(SinusoidalTracks trIn, 
-                                            double [] f0s, 
+                                            double[] f0s, 
                                             float f0_ss, float f0_ws,
-                                            int [] pitchMarks,
-                                            float [] voicings, 
+                                            int[] pitchMarks,
+                                            float[] voicings, 
                                             float numPeriods,
                                             boolean isVoicingAdaptiveTimeScaling, 
                                             float timeScalingVoicingThreshold, 
                                             boolean isVoicingAdaptivePitchScaling, 
-                                            float [] tScales,
-                                            float [] tScalesTimes,
-                                            float [] pScales,
-                                            float [] pScalesTimes)
+                                            float[] tScales,
+                                            float[] tScalesTimes,
+                                            float[] pScales,
+                                            float[] pScalesTimes)
     {   
         int i, j, lShift;
         
@@ -342,7 +342,7 @@ public class TrackModifier {
         }
 
         //Pitch scale pitch contour
-        double [] f0sMod = SignalProcUtils.pitchScalePitchContour(f0s, f0_ws, f0_ss, pScales, pScalesTimes);
+        double[] f0sMod = SignalProcUtils.pitchScalePitchContour(f0s, f0_ws, f0_ss, pScales, pScalesTimes);
 
         //Time scale pitch contour
         f0sMod = SignalProcUtils.timeScalePitchContour(f0sMod, f0_ws, f0_ss, tScales, tScalesTimes);

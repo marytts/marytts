@@ -143,6 +143,9 @@ public class HarmonicPitchTracker extends BaseSinusoidalPitchTracker {
         boolean bSpectralReassignment = false;
         boolean bAdjustNeighFreqDependent = false;
         
+        double startFreq = 0.0;
+        double endFreq = 0.5*samplingRate;
+        
         String strPitchFileIn = args[0].substring(0, args[0].length()-4) + ".ptc";
         F0ReaderWriter f0 = new F0ReaderWriter(strPitchFileIn);
         PitchMarker pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true);
@@ -150,7 +153,8 @@ public class HarmonicPitchTracker extends BaseSinusoidalPitchTracker {
                                                                                        bRefinePeakEstimatesParabola, 
                                                                                        bRefinePeakEstimatesBias, 
                                                                                        bSpectralReassignment,
-                                                                                       bAdjustNeighFreqDependent);
+                                                                                       bAdjustNeighFreqDependent,
+                                                                                       startFreq, endFreq);
         
         SinusoidalSpeechSignal ss = sa.extractSinusoidsFixedRate(x, windowSizeInSeconds, skipSizeInSeconds, deltaInHz, spectralEnvelopeType, f0.contour, (float)f0.header.ws, (float)f0.header.ss);
         

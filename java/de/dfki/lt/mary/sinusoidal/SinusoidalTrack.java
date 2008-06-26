@@ -41,24 +41,24 @@ import de.dfki.lt.signalproc.util.SignalProcUtils;
  */
 public class SinusoidalTrack {
 
-    float [] amps; //Amplitudes of the sinusoids
-    float [] freqs; //Frequencies of the sinusoids
-    float [] phases; //Phases of the sinusoids in radians
-    int [] frameIndices; //Frame indices of sinusoids
-    float [] times; //Times of the sinusoids in seconds
-    int [] states; //State of the track for a given index (one of the flags below, by default: LIVING
+    public float [] amps; //Amplitudes of the sinusoids
+    public float [] freqs; //Frequencies of the sinusoids
+    public float [] phases; //Phases of the sinusoids in radians
+    public int [] frameIndices; //Frame indices of sinusoids
+    public float [] times; //Times of the sinusoids in seconds
+    public int [] states; //State of the track for a given index (one of the flags below, by default: LIVING
     
     public static int ACTIVE = 0; //The track has been turned on in a previous frame and has not been turned off until now
     public static int TURNED_ON = 1; //The track is turned on at the current time instant
     public static int TURNED_OFF = 2; //The track is turned off until next turning on event
     
-    int currentIndex;
-    int totalSins;
+    public int currentIndex;
+    public int totalSins;
     
     //These two parameters are used for keeping temporary information 
     // on new sinusoid candidates to be appended to the current track during track generation
-    Sinusoid newCandidate;
-    int newCandidateInd;
+    protected Sinusoid newCandidate;
+    protected int newCandidateInd;
     //
     
     //These are for checking some statistics and debugging only, not required for actual analysis/synthesis

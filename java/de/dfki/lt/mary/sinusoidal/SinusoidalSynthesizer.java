@@ -65,18 +65,49 @@ public class SinusoidalSynthesizer {
         fs = samplingRate;
     }
     
-    public double [] synthesize(SinusoidalTracks st)
+    public double[] synthesize(SinusoidalTracks st)
     {
         return synthesize(st, false);
     }
     
+    public double[] synthesize(SinusoidalTracks[] sts)
+    {
+        return synthesize(sts, false);
+    }
+    
+    public double[] synthesize(SinusoidalTracks[] sts, boolean isSilentSynthesis)
+    {
+        double[] y = null;
+        double[] tmpy = null;
+        for (int i=0; i<sts.length; i++)
+        {
+            if (y==null)
+                y = synthesize(sts[i], isSilentSynthesis);
+            else
+            {
+                tmpy = synthesize(sts[i], isSilentSynthesis);
+
+                if (tmpy.length>y.length)
+                {
+                    double[] tmpy2 = new double[y.length];
+                    System.arraycopy(y, 0, tmpy2, 0, y.length);
+                    y = new double[tmpy.length];
+                    Arrays.fill(y, 0.0);
+                    System.arraycopy(tmpy2, 0, y, 0, tmpy2.length);
+                    
+                    for (int j=0; j<tmpy.length; j++)
+                        y[i] += tmpy[i];
+                }
+            }
+        }
+        
+        return y;
+    }
+    
     //st: Sinusoidal tracks
     //absMaxDesired: Desired absolute maximum of the output
-    public double [] synthesize(SinusoidalTracks st, boolean isSilentSynthesis)
+    public double[] synthesize(SinusoidalTracks st, boolean isSilentSynthesis)
     {
-        if (st.absMaxOriginal<0.0f)
-            st.absMaxOriginal = DEFAULT_ABS_MAX_OUT;
-        
         int n; //discrete time index
         int i, j;
         int nStart, nEnd, pStart, pEnd;
@@ -98,7 +129,6 @@ public class SinusoidalSynthesizer {
         double oneOverTwoPi = 1.0/MathUtils.TWOPI;
         double term1, term2;
         
-        st = perceptualProcessing(st);
         float currentTime; //For debugging purposes
         
         for (i=0; i<st.totalTracks; i++) 
@@ -178,28 +208,12 @@ public class SinusoidalSynthesizer {
                 System.out.println("Synthesized track " + String.valueOf(i+1) + " of " + String.valueOf(st.totalTracks));
         }   
         
-        double maxy = MathUtils.getAbsMax(y);
+        double scale = SignalProcUtils.energy(y);
+        scale = Math.sqrt(st.totalEnergy)/Math.sqrt(scale);
         for (i=0; i<y.length; i++)
-            y[i] = st.absMaxOriginal*y[i]/maxy;
+            y[i] = scale*y[i];
         
         return y;
-    }
-    
-    //Turn-off segments of tracks that are masked by more strong components in other tracks
-    //This is a basic implementation that performs some amplitude comparison in freq-time bins of sinusoidal tracks
-    //Segments that contain relatively weak sinusoids are turned off
-    //In fact, this module can be extended to use perceptual masking phenomena from psycho-acoustics
-    //Current version checks only for simple spectral and temporal masking as follows:
-    //
-    //It would be nice to add: 
-    // - Support for spectral and temporal masking as in MPEG
-    // - Pre-processing with an absolute hearing threshold curve
-    // - Grouping of spectrum in perceptually relevant segments, i.e. like in Bark-scale
-    public SinusoidalTracks perceptualProcessing(SinusoidalTracks st)
-    {
-        //TO-DO
-        
-        return st;
     }
     
     public static void main(String[] args) throws UnsupportedAudioFileException, IOException
@@ -230,6 +244,8 @@ public class SinusoidalSynthesizer {
         
         boolean isFixedRateAnalysis = true;
         boolean isRealSpeech = true;
+        double startFreq = 0.0;
+        double endFreq = 0.5*samplingRate;
         
         if (isFixedRateAnalysis)
         {
@@ -241,7 +257,8 @@ public class SinusoidalSynthesizer {
                                         bRefinePeakEstimatesParabola, 
                                         bRefinePeakEstimatesBias, 
                                         bSpectralReassignment,
-                                        bAdjustNeighFreqDependent);
+                                        bAdjustNeighFreqDependent, 
+                                        startFreq, endFreq);
             
             if (spectralEnvelopeType == SinusoidalAnalyzer.SEEVOC_SPEC) //Pitch info needed
             {
@@ -265,7 +282,8 @@ public class SinusoidalSynthesizer {
                                                         bRefinePeakEstimatesParabola, 
                                                         bRefinePeakEstimatesBias, 
                                                         bSpectralReassignment, 
-                                                        bAdjustNeighFreqDependent);
+                                                        bAdjustNeighFreqDependent,
+                                                        startFreq, endFreq);
             
             st = pa.analyzePitchSynchronous(x, pm.pitchMarks, numPeriods, -1.0f, deltaInHz);
             isSilentSynthesis = false;
@@ -277,11 +295,14 @@ public class SinusoidalSynthesizer {
         x = ss.synthesize(st, isSilentSynthesis);
         //
         
+        /*
         //This scaling is only for comparison among different parameter sets, different synthesizer outputs etc
         double maxx = MathUtils.getAbsMax(x);
         for (int i=0; i<x.length; i++)
             x[i] = x[i]/maxx*0.9;
         //
+         */
+        
         
         //File output
         DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(x), inputAudio.getFormat());
