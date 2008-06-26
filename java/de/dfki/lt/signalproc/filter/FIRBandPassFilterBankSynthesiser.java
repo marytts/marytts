@@ -54,8 +54,13 @@ public class FIRBandPassFilterBankSynthesiser {
     {
         
     }
-
+    
     public double[] apply(FIRBandPassFilterBankAnalyser analyser, Subband[] subbands)
+    {
+        return apply(analyser,  subbands, true);
+    }
+
+    public double[] apply(FIRBandPassFilterBankAnalyser analyser, Subband[] subbands, boolean bNormalizeInOverlappingRegions)
     {
         double[] x = null;
 
@@ -64,27 +69,7 @@ public class FIRBandPassFilterBankSynthesiser {
             int i, j, maxLen;
             
             assert analyser.filters.length == subbands.length;
-
-            int maxFreq = analyser.filters[0].transformedIR.length/2 + 1;
-
-            //Estimate a smooth gain normalization filter
-            double[] Hw = new double[maxFreq];
-            Arrays.fill(Hw, 0.0);
-
-            for (i=0; i<analyser.filters.length; i++)
-            {
-                Hw[0] += Math.abs(analyser.filters[i].transformedIR[0]);
-                Hw[maxFreq-1] += Math.abs(analyser.filters[i].transformedIR[1]);
-                for (j=1; j<maxFreq-1; j++)   
-                    Hw[j] += Math.sqrt(analyser.filters[i].transformedIR[2*j]*analyser.filters[i].transformedIR[2*j] + analyser.filters[i].transformedIR[2*j+1]*analyser.filters[i].transformedIR[2*j+1]);    
-            }
             
-            for (j=0; j<maxFreq; j++)
-                Hw[j] = 1.0/Hw[j];
-
-            MaryUtils.plot(Hw, "Normalization filter");
-            //
-
             //Add all subbands up and then apply the smooth gain normalization filter
             maxLen = subbands[0].waveform.length;
             for (i=1; i<subbands.length; i++)
@@ -98,7 +83,7 @@ public class FIRBandPassFilterBankSynthesiser {
                     x[j] += subbands[i].waveform[j];
             }
             
-            x = SignalProcUtils.filterfd(Hw, x, subbands[0].samplingRate);
+            x = SignalProcUtils.filterfd(analyser.normalizationFilterTransformedIR, x, subbands[0].samplingRate);
         }
 
         return x;

@@ -31,6 +31,7 @@ package de.dfki.lt.signalproc.filter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -38,6 +39,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import de.dfki.lt.mary.util.MaryUtils;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
 import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
 import de.dfki.lt.signalproc.util.DDSAudioInputStream;
@@ -57,6 +59,7 @@ public class FIRBandPassFilterBankAnalyser extends FilterBankAnalyserBase {
     public double overlapAround1000Hz;
     
     public FIRFilter[] filters;
+    public double[] normalizationFilterTransformedIR;
     
     public FIRBandPassFilterBankAnalyser(int numBands, int samplingRateInHz)
     {
@@ -109,6 +112,8 @@ public class FIRBandPassFilterBankAnalyser extends FilterBankAnalyserBase {
     
     public void initialise(double[] lowerCutOffsInHz, double[] upperCutOffsInHz, int samplingRateInHz, double overlapAround1000HzIn)
     {
+        normalizationFilterTransformedIR = null;
+        
         if (lowerCutOffsInHz!=null && upperCutOffsInHz!=null)
         {
             assert lowerCutOffsInHz.length == upperCutOffsInHz.length;
@@ -148,7 +153,28 @@ public class FIRBandPassFilterBankAnalyser extends FilterBankAnalyserBase {
                     
                     filters[i] = new BandPassFilter(normalizedLowerCutoff, normalizedUpperCutoff, filterOrder);
                 }
-            }   
+            } 
+            
+            int maxFreq = filters[0].transformedIR.length/2 + 1;
+
+            //Estimate a smooth gain normalization filter
+            normalizationFilterTransformedIR = new double[maxFreq];
+            Arrays.fill(normalizationFilterTransformedIR, 0.0);
+
+            int j;
+            for (i=0; i<filters.length; i++)
+            {
+                normalizationFilterTransformedIR[0] += Math.abs(filters[i].transformedIR[0]);
+                normalizationFilterTransformedIR[maxFreq-1] += Math.abs(filters[i].transformedIR[1]);
+                for (j=1; j<maxFreq-1; j++)   
+                    normalizationFilterTransformedIR[j] += Math.sqrt(filters[i].transformedIR[2*j]*filters[i].transformedIR[2*j] + filters[i].transformedIR[2*j+1]*filters[i].transformedIR[2*j+1]);    
+            }
+            
+            for (j=0; j<maxFreq; j++)
+                normalizationFilterTransformedIR[j] = 1.0/normalizationFilterTransformedIR[j];
+
+            //MaryUtils.plot(normalizationFilterTransformedIR, "Normalization filter");
+            //
         }
     }
     

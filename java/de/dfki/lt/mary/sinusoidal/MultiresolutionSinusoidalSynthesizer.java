@@ -27,7 +27,7 @@
  * THIS SOFTWARE.
  */
 
-package de.dfki.lt.mary.sinusoidal.multiresolution;
+package de.dfki.lt.mary.sinusoidal;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,10 +37,6 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import de.dfki.lt.mary.sinusoidal.PitchSynchronousSinusoidalAnalyzer;
-import de.dfki.lt.mary.sinusoidal.SinusoidalAnalyzer;
-import de.dfki.lt.mary.sinusoidal.SinusoidalSynthesizer;
-import de.dfki.lt.mary.sinusoidal.SinusoidalTracks;
 import de.dfki.lt.signalproc.analysis.F0ReaderWriter;
 import de.dfki.lt.signalproc.analysis.PitchMarker;
 import de.dfki.lt.signalproc.util.AudioDoubleDataSource;
@@ -108,12 +104,12 @@ public class MultiresolutionSinusoidalSynthesizer {
         boolean bSpectralReassignment = false;
         boolean bAdjustNeighFreqDependent = false;
         boolean isSilentSynthesis = false;
+        boolean bFreqLimitedAnalysis = false;
 
         MultiresolutionSinusoidalAnalyzer msa = new MultiresolutionSinusoidalAnalyzer();
 
-        SinusoidalTracks[] subbandTracks = msa.analyzeFixedRate(x, samplingRate, multiresolutionFilterbankType, numBands, lowestBandWindowSizeInSeconds, windowType, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent);
+        SinusoidalTracks[] subbandTracks = msa.analyzeFixedRate(x, samplingRate, multiresolutionFilterbankType, numBands, lowestBandWindowSizeInSeconds, windowType, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, bFreqLimitedAnalysis);
        
-
         //Resynthesis
         MultiresolutionSinusoidalSynthesizer mss = new MultiresolutionSinusoidalSynthesizer();
         x = mss.synthesize(subbandTracks, isSilentSynthesis);
@@ -125,7 +121,6 @@ public class MultiresolutionSinusoidalSynthesizer {
             x[i] = x[i]/maxx*0.9;
         //
         
-
         //File output
         DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(x), inputAudio.getFormat());
         String outFileName = args[0].substring(0, args[0].length()-4) + "_multiResSinResynth.wav";

@@ -64,31 +64,35 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
                                               boolean bRefinePeakEstimatesParabolaIn, 
                                               boolean bRefinePeakEstimatesBiasIn, 
                                               boolean bSpectralReassignmentIn,
-                                              boolean bAdjustNeighFreqDependentIn)
+                                              boolean bAdjustNeighFreqDependentIn,
+                                              double startFreqInHz,
+                                              double endFreqInHz)
     {
-        super(samplingRate, windowTypeIn, bRefinePeakEstimatesParabolaIn, bRefinePeakEstimatesBiasIn, bSpectralReassignmentIn, bAdjustNeighFreqDependentIn);
+        super(samplingRate, windowTypeIn, 
+              bRefinePeakEstimatesParabolaIn, bRefinePeakEstimatesBiasIn, bSpectralReassignmentIn, bAdjustNeighFreqDependentIn,
+              startFreqInHz, endFreqInHz);
     }
     //
     
     //Pitch synchronous analysis
-    public SinusoidalTracks analyzePitchSynchronous(double [] x, int [] pitchMarks)
+    public SinusoidalTracks analyzePitchSynchronous(double[] x, int[] pitchMarks)
     {
         return analyzePitchSynchronous(x, pitchMarks, DEFAULT_ANALYSIS_PERIODS, -1.0f);
     }
     
     //Pitch synchronous analysis
-    public SinusoidalTracks analyzePitchSynchronous(double [] x, int [] pitchMarks, float numPeriods)
+    public SinusoidalTracks analyzePitchSynchronous(double[] x, int[] pitchMarks, float numPeriods)
     {
         return analyzePitchSynchronous(x, pitchMarks, numPeriods, -1.0f);
     }
     
     //Pitch synchronous analysis using a fixed skip size
-    public SinusoidalTracks analyzePitchSynchronous(double [] x, int [] pitchMarks, float numPeriods, float skipSizeInSeconds)
+    public SinusoidalTracks analyzePitchSynchronous(double[] x, int[] pitchMarks, float numPeriods, float skipSizeInSeconds)
     {
         return analyzePitchSynchronous(x, pitchMarks, numPeriods, skipSizeInSeconds, DEFAULT_DELTA_IN_HZ);
     }
     
-    public SinusoidalTracks analyzePitchSynchronous(double [] x, int [] pitchMarks, float numPeriods, float skipSizeInSeconds, float deltaInHz)
+    public SinusoidalTracks analyzePitchSynchronous(double[] x, int[] pitchMarks, float numPeriods, float skipSizeInSeconds, float deltaInHz)
     {
         return analyzePitchSynchronous(x, pitchMarks, numPeriods, skipSizeInSeconds, deltaInHz, SinusoidalAnalyzer.LP_SPEC); 
     }
@@ -107,7 +111,7 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
      *                       LP_SPEC (linear prediction based envelope)
      *                       SEEVOC_SPEC (Spectral Envelope Estimation Vocoder based envelope)
      */
-    public SinusoidalTracks analyzePitchSynchronous(double [] x, int [] pitchMarks, float numPeriods, float skipSizeInSeconds, float deltaInHz, int spectralEnvelopeType)
+    public SinusoidalTracks analyzePitchSynchronous(double[] x, int[] pitchMarks, float numPeriods, float skipSizeInSeconds, float deltaInHz, int spectralEnvelopeType)
     {
         SinusoidalSpeechSignal sinSignal = extracSinusoidsPitchSynchronous(x, pitchMarks, numPeriods, skipSizeInSeconds, deltaInHz, spectralEnvelopeType);
         
@@ -121,19 +125,23 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
             getGrossStatistics(sinTracks);
         }
         
-        sinTracks.absMaxOriginal = (float)getAbsMaxOriginal();
+        sinTracks.absMaxOriginal = (float)absMax;
+        sinTracks.totalEnergy = (float)totalEnergy;
+        
+        //Add post-processin gfuncitonality to here
         
         return sinTracks;
     }
     
-    public SinusoidalSpeechSignal extracSinusoidsPitchSynchronous(double [] x, int [] pitchMarks, float numPeriods, float skipSizeInSeconds, float deltaInHz)
+    public SinusoidalSpeechSignal extracSinusoidsPitchSynchronous(double[] x, int[] pitchMarks, float numPeriods, float skipSizeInSeconds, float deltaInHz)
     {
         return extracSinusoidsPitchSynchronous(x, pitchMarks, numPeriods, skipSizeInSeconds, deltaInHz, SinusoidalAnalyzer.LP_SPEC);
     }
     
-    public SinusoidalSpeechSignal extracSinusoidsPitchSynchronous(double [] x, int [] pitchMarks, float numPeriods, float skipSizeInSeconds, float deltaInHz, int spectralEnvelopeType)
+    public SinusoidalSpeechSignal extracSinusoidsPitchSynchronous(double[] x, int[] pitchMarks, float numPeriods, float skipSizeInSeconds, float deltaInHz, int spectralEnvelopeType)
     {
         absMax = MathUtils.getAbsMax(x);
+        totalEnergy = SignalProcUtils.energy(x);
  
         boolean bFixedSkipRate = false;
         if (skipSizeInSeconds>0.0f) //Perform fixed skip rate but pitch synchronous analysis. This is useful for time/pitch scale modification
@@ -290,7 +298,7 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
         F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
         PitchMarker pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true);
-        PitchSynchronousSinusoidalAnalyzer sa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, true, true, true, true);
+        PitchSynchronousSinusoidalAnalyzer sa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, true, true, true, true, 0.0, 0.5*samplingRate);
         
         SinusoidalTracks st = sa.analyzePitchSynchronous(x, pm.pitchMarks);        
     }

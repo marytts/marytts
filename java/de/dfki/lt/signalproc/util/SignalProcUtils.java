@@ -610,6 +610,7 @@ public class SignalProcUtils {
         return inds;
     }
     
+    //maxFreqIndex: Actually we have indices from 0,...,maxFreqIndex-1
     public static int freq2index(double freqInHz, int samplingRateInHz, int maxFreqIndex)
     {
         int index = (int)Math.floor(freqInHz/(0.5*samplingRateInHz)*(maxFreqIndex-1)+0.5);

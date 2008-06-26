@@ -343,7 +343,6 @@ public class FFT
         }
     }
 
-    
     /**
      * Carry out the FFT or inverse FFT, and return the result in the same arrays given
      * as parameters. This works exactly like #transform(real, imag, boolean),
@@ -520,7 +519,6 @@ public class FFT
         }
         return result;
     }
-
     
     /**
      * Compute the convolution of two signals, by multipying them in the frequency domain.

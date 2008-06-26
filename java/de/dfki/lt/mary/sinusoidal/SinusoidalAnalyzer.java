@@ -70,7 +70,7 @@ import de.dfki.lt.signalproc.window.Window;
  * Optional amplitude and phase continuity constraints can be employed during track generation
  * The implementation consists of ideas and algorithms from various papers as described in function headers
  */
-public class SinusoidalAnalyzer {
+public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
     public static float DEFAULT_DELTA_IN_HZ = 50.0f;
     public static float DEFAULT_ANALYSIS_WINDOW_SIZE = 0.020f;
     public static float DEFAULT_ANALYSIS_SKIP_SIZE = 0.010f;
@@ -92,6 +92,9 @@ public class SinusoidalAnalyzer {
     protected int LPOrder; //LP analysis order
     protected int lifterOrder; //Cepstral lifting order
     
+    protected double startFreq; //Lowest analysis frequnecy in Hz
+    protected double endFreq; //Highest analysis frequency in Hz
+    
     protected boolean bRefinePeakEstimatesParabola; //Refine peak and frequency estimates by fitting parabolas?
     protected boolean bRefinePeakEstimatesBias; //Further refine peak and frequency estimates by correcting bias? 
                                                 //       (Only effective when bRefinePeakEstimatesParabola=true)
@@ -108,7 +111,8 @@ public class SinusoidalAnalyzer {
     public static float MIN_WINDOW_SIZE = 0.020f; 
     protected int minWindowSize; //Minimum window size allowed to satisfy 100 Hz criterion for unvoiced sounds computed from MIN_WINDOW_SIZE and sampling rate
     
-    protected double absMax; //Keep absolute max of the input signal for normalization after resynthesis
+    public double absMax; //Keep absolute max of the input signal for normalization after resynthesis
+    public double totalEnergy; //Keep total energy for normalization after resynthesis
     
     // fs: Sampling rate in Hz
     // windowType: Type of window (See class Window for details)
@@ -119,9 +123,18 @@ public class SinusoidalAnalyzer {
                               boolean bRefinePeakEstimatesParabolaIn, 
                               boolean bRefinePeakEstimatesBiasIn, 
                               boolean bSpectralReassignmentIn,
-                              boolean bAdjustNeighFreqDependentIn)
+                              boolean bAdjustNeighFreqDependentIn,
+                              double startFreqInHz, double endFreqInHz)
     {
         fs = samplingRate;
+        startFreq = startFreqInHz;
+        if (startFreq<0.0)
+            startFreq=0.0;
+        
+        endFreq = endFreqInHz;
+        if (endFreq<0.0)
+            endFreq=0.5*fs;
+        
         windowType = windowTypeIn;
         setSinAnaFFTSize(getDefaultFFTSize(fs));
         
@@ -134,7 +147,8 @@ public class SinusoidalAnalyzer {
         if (minWindowSize%2==0) //Always use an odd window size to have a zero-phase analysis window
             minWindowSize++;
         
-        absMax = -1.0f;
+        absMax = -1.0;
+        totalEnergy = 0.0;
         LPOrder = SignalProcUtils.getLPOrder(fs);
         lifterOrder = SignalProcUtils.getLifterOrder(fs);
     }
@@ -298,7 +312,12 @@ public class SinusoidalAnalyzer {
         }
         //
         
-        sinTracks.absMaxOriginal = (float)getAbsMaxOriginal();
+        sinTracks.absMaxOriginal = (float)absMax;
+        sinTracks.totalEnergy = (float)totalEnergy;
+        
+        int numSinusoidsPerFrame = 20;
+        
+        sinTracks = postProcessing(sinTracks, numSinusoidsPerFrame);
         
         return sinTracks;
     }
@@ -322,6 +341,7 @@ public class SinusoidalAnalyzer {
         int i, j;
         int f0Ind;
         absMax = MathUtils.getAbsMax(x);
+        totalEnergy = SignalProcUtils.energy(x);
         
         ws = (int)Math.floor(winSizeInSeconds*fs + 0.5);
         if (ws%2==0) //Always use an odd window size to have a zero-phase analysis window
@@ -546,9 +566,16 @@ public class SinusoidalAnalyzer {
             }
             //
             
+            int startInd = 0;
+            int endInd = Ydb.length-1;
+            if (startFreq>=0)
+                startInd = SignalProcUtils.freq2index(startFreq, fs, maxFreq);
+            if (endFreq>=0)
+                endInd = SignalProcUtils.freq2index(endFreq, fs, maxFreq);
+            
             //Determine peak amplitude indices and the corresponding amplitudes, frequencies, and phases 
             if (!bManualPeakPickingTest)
-                freqInds = MathUtils.getExtrema(Ydb, freqSampNeighs, freqSampNeighs, true, 0, Ydb.length-1, MIN_PEAK_IN_DB);
+                freqInds = MathUtils.getExtrema(Ydb, freqSampNeighs, freqSampNeighs, true, startInd, endInd, MIN_PEAK_IN_DB);
 
             if (freqInds != null)
             {
@@ -784,9 +811,20 @@ public class SinusoidalAnalyzer {
         return freqIndsRefined;
     }
     
-    public double getAbsMaxOriginal()
+    //This function turns part of the sinusoidal components off to satisfy different requirements
+    // (1) Model based approaches require a fixed number of sinusiodal parameters for each speech frame
+    //     Therefore, a mechanism is required to reduce/fix the number of components at each frame
+    // (2) Perceptual masking can be used to reduce the number of relevant components
+    public SinusoidalTracks postProcessing(SinusoidalTracks st, int numSinusoidsPerFrame)
     {
-        return absMax;
+        //Simplest method: Take the first numSinusoidsPerFrame highest amplitude components, turn the remanining off
+        int i, j;
+        for (i=0; i<st.times.length; i++)
+        {
+            
+        }
+        
+        return st;
     }
     
     public static void main(String[] args) throws UnsupportedAudioFileException, IOException
@@ -802,11 +840,16 @@ public class SinusoidalAnalyzer {
         boolean bSpectralReassignment = true;
         boolean bAdjustNeighFreqDependent = false;
         
+        double startFreq = 0.0;
+        double endFreq = 0.5*samplingRate;
+        
         SinusoidalAnalyzer sa = new SinusoidalAnalyzer(samplingRate, windowType, 
                                                        bRefinePeakEstimatesParabola, 
                                                        bRefinePeakEstimatesBias,
                                                        bSpectralReassignment,
-                                                       bAdjustNeighFreqDependent);
+                                                       bAdjustNeighFreqDependent,
+                                                       startFreq,
+                                                       endFreq);
         
         float winSizeInSeconds = 0.020f;
         float skipSizeInSeconds = 0.010f;

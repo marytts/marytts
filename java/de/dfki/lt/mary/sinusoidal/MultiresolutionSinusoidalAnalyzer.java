@@ -27,7 +27,7 @@
  * THIS SOFTWARE.
  */
 
-package de.dfki.lt.mary.sinusoidal.multiresolution;
+package de.dfki.lt.mary.sinusoidal;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,8 +36,6 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import de.dfki.lt.mary.sinusoidal.SinusoidalAnalyzer;
-import de.dfki.lt.mary.sinusoidal.SinusoidalTracks;
 import de.dfki.lt.signalproc.analysis.F0ReaderWriter;
 import de.dfki.lt.signalproc.filter.ComplementaryFilterBankAnalyser;
 import de.dfki.lt.signalproc.filter.FIRBandPassFilterBankAnalyser;
@@ -52,7 +50,7 @@ import de.dfki.lt.signalproc.window.Window;
  * @author oytun.turk
  *
  */
-public class MultiresolutionSinusoidalAnalyzer {
+public class MultiresolutionSinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
     public static final int FIR_BANDPASS_FILTERBANK = 1;
     public static final int COMPLEMENTARY_FILTERBANK = 2;
     
@@ -69,20 +67,21 @@ public class MultiresolutionSinusoidalAnalyzer {
                                                boolean bRefinePeakEstimatesParabola,
                                                boolean bRefinePeakEstimatesBias,
                                                boolean bSpectralReassignment,
-                                               boolean bAdjustNeighFreqDependent)
+                                               boolean bAdjustNeighFreqDependent,
+                                               boolean bFreqLimitedAnalysis)
     {
         SinusoidalTracks[] subbandTracks = new SinusoidalTracks[numBands];
         
         Subband[] subbands = null;
         FilterBankAnalyserBase analyser = null;
         
-        if (multiresolutionFilterbankType==FIR_BANDPASS_FILTERBANK)
+        if (multiresolutionFilterbankType==MultiresolutionSinusoidalAnalyzer.FIR_BANDPASS_FILTERBANK)
         {
             double overlapAround1000Hz = 100.0;
                 
             analyser = new FIRBandPassFilterBankAnalyser(numBands, samplingRate, overlapAround1000Hz);            
         }
-        else if (multiresolutionFilterbankType==COMPLEMENTARY_FILTERBANK)
+        else if (multiresolutionFilterbankType==MultiresolutionSinusoidalAnalyzer.COMPLEMENTARY_FILTERBANK)
         {
             if (MathUtils.isPowerOfTwo(numBands))
             {
@@ -104,24 +103,56 @@ public class MultiresolutionSinusoidalAnalyzer {
         
             for (int i=0; i<subbands.length; i++)
             {
-                SinusoidalAnalyzer sa = new SinusoidalAnalyzer(subbands[i].samplingRate, windowType, 
-                        bRefinePeakEstimatesParabola, 
-                        bRefinePeakEstimatesBias,
-                        bSpectralReassignment,
-                        bAdjustNeighFreqDependent);
+                SinusoidalAnalyzer sa = null;
+                if (bFreqLimitedAnalysis)
+                {
+                    sa = new SinusoidalAnalyzer(subbands[i].samplingRate, windowType, 
+                                                bRefinePeakEstimatesParabola, 
+                                                bRefinePeakEstimatesBias,
+                                                bSpectralReassignment,
+                                                bAdjustNeighFreqDependent,
+                                                subbands[i].lowestFreqInHz, subbands[i].highestFreqInHz);
+                }
+                else
+                {
+                    sa = new SinusoidalAnalyzer(subbands[i].samplingRate, windowType, 
+                                                bRefinePeakEstimatesParabola, 
+                                                bRefinePeakEstimatesBias,
+                                                bSpectralReassignment,
+                                                bAdjustNeighFreqDependent,
+                                                0.0, 0.5*subbands[i].samplingRate);
+                }
 
                 float winSizeInSeconds = (float)(lowestBandWindowSizeInSeconds/Math.pow(2.0, i));
                 float skipSizeInSeconds = 0.5f*winSizeInSeconds;
                 float deltaInHz = 50.0f; //Also make this frequency range dependent??
 
-                //To do: peak detection procedure should be limited by the subband signals frequency range
+                //To do: peak detection procedure should be limited by the subband signal´s frequency range
                 subbandTracks[i] = sa.analyzeFixedRate(x, winSizeInSeconds, skipSizeInSeconds, deltaInHz, SinusoidalAnalyzer.LP_SPEC);
+            
+                //Normalize overlapping frequency region gains if an overlapping subband stucture is used
+                if (multiresolutionFilterbankType==MultiresolutionSinusoidalAnalyzer.FIR_BANDPASS_FILTERBANK)
+                    normalizeSinusoidalAmplitudes(subbandTracks[i], samplingRate, ((FIRBandPassFilterBankAnalyser)analyser).normalizationFilterTransformedIR);
             }
         }
         
         return subbandTracks;
     }
     
+    //Normalizes sinusoidal amplitudes when an overlapping subband filterbank structure is used
+    public void normalizeSinusoidalAmplitudes(SinusoidalTracks sinTracks, int samplingRate, double[] normalizationFilterTransformedIR)
+    {
+        int i, j, k;
+        int maxFreq = normalizationFilterTransformedIR.length;
+        for (i=0; i<sinTracks.tracks.length; i++)
+        {
+            for (j=0; j<sinTracks.tracks[i].totalSins; j++)
+            { 
+                k = SignalProcUtils.freq2index(SignalProcUtils.radian2Hz(sinTracks.tracks[i].freqs[j], sinTracks.fs), samplingRate, maxFreq);
+                sinTracks.tracks[i].amps[j] *= normalizationFilterTransformedIR[k];
+            }
+        }
+    }
 
     public static void main(String[] args) throws UnsupportedAudioFileException, IOException
     {
@@ -139,9 +170,10 @@ public class MultiresolutionSinusoidalAnalyzer {
         boolean bRefinePeakEstimatesBias = true;
         boolean bSpectralReassignment = true;
         boolean bAdjustNeighFreqDependent = true;
+        boolean bFreqLimitedAnalysis = false;
 
         MultiresolutionSinusoidalAnalyzer msa = new MultiresolutionSinusoidalAnalyzer();
 
-        SinusoidalTracks[] subbandTracks = msa.analyzeFixedRate(x, samplingRate, multiresolutionFilterbankType, numBands, lowestBandWindowSizeInSeconds, windowType, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent);
+        SinusoidalTracks[] subbandTracks = msa.analyzeFixedRate(x, samplingRate, multiresolutionFilterbankType, numBands, lowestBandWindowSizeInSeconds, windowType, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, bFreqLimitedAnalysis);
     }
 }
