@@ -260,6 +260,7 @@ public class JoinModeller extends VoiceImportComponent
                 double aux;              
                 for (int k=0, len=myRightFrame.length; k<len; k++) {
                     if(k==(len-1)){
+                        // TODO: find out in JoinCostFeatureFileWriter why Infinity values occur, and fix it.
                       if(myRightFrame[k] == Float.POSITIVE_INFINITY || nextLeftFrame[k] == Float.POSITIVE_INFINITY ){    
                         aux= 0.0 ;
                         System.out.println("WARNING: numUnit="+ i + " myRightFrame[k]="+myRightFrame[k] + " nextLeftFrame[k]=" + nextLeftFrame[k]);
