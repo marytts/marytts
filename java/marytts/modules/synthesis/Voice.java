@@ -135,7 +135,7 @@ public class Voice
     		return v2.getName().compareTo(v1.getName());
     	}
     });
-    /** This map associates a value de.dfki.lt.mary.modules.synthesis.Voice to
+    /** This map associates a value marytts.modules.synthesis.Voice to
      * a key Locale: */
     private static Map<Locale,Voice> defaultVoices = new HashMap<Locale,Voice>();
     /** logger */

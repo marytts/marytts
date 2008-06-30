@@ -274,7 +274,7 @@ public class FeatureMakerMaryServer{
 		System.out.println("Usage:\n"
 				+"java -cp $CLASSPATH -ea -Dendorsed.dirs=$MARYBASE/lib/endorsed "
 				+"-Dmary.base=$MARYBASE "
-				+"de.dfki.lt.mary.dbselection.FeatureMakerMaryServer\n"
+				+"marytts.tools.dbselection.FeatureMakerMaryServer\n"
 				+"Please see readme file for details of starting this program\n\n"
 				+"Arguments:\n"
 				+"-textFiles <file>: File containing the list of text files to be "

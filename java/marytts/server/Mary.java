@@ -451,11 +451,11 @@ public class Mary {
      * <p>Usage:<p>
      * As a socket server:
      * <pre>
-     * java -Dmary.base=$MARY_BASE -Dserver=true de.dfki.lt.mary.Mary
+     * java -Dmary.base=$MARY_BASE -Dserver=true marytts.server.Mary
      * </pre><p>
      * As a stand-alone program:
      * <pre>
-     * java -Dmary.base=$MARY_BASE de.dfki.lt.mary.Mary myfile.txt
+     * java -Dmary.base=$MARY_BASE marytts.server.Mary myfile.txt
      * </pre>
      * @see MaryProperties
      * @see MaryServer

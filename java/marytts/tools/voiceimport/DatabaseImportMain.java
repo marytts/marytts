@@ -342,7 +342,7 @@ public class DatabaseImportMain extends JFrame
                 } else {
                     //we have a component
                     //line looks like 
-                    //"de.dfki.lt.mary.unitselection.new_voiceimport.WaveTimelineMaker basic_data"
+                    //"marytts.tools.voiceimport.WaveformTimelineMaker basic_data"
                     if (groups2Components.containsKey(lineSplit[1])){
                         List comps = (List) groups2Components.get(lineSplit[1]);
                         comps.add(lineSplit[0]);

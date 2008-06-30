@@ -483,7 +483,7 @@ public class DatabaseSelector{
     private static void printUsage(){
         System.out.println("Usage:\n"
                 +"java -cp path/to/mary/java/mary-common.jar "
-                +"de.dfki.lt.mary.dbselection.DatabaseSelector"
+                +"marytts.tools.dbselection.DatabaseSelector"
                 +" -basenames <file>"
                 +" -featDef <file>"                
                 +" -stop <stopCriterion>"

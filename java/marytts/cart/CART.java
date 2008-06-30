@@ -31,27 +31,16 @@
  */
 package marytts.cart;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.DataInput;
-import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.StringTokenizer;
 
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-import marytts.tools.voiceimport.MaryHeader;
 import marytts.unitselection.select.Target;
 
 import org.apache.log4j.Logger;
-
-import de.dfki.lt.mary.unitselection.FeatureArrayIndexer;
-import de.dfki.lt.mary.unitselection.FeatureFileIndexer;
-import de.dfki.lt.mary.unitselection.MaryNode;
 
 
 public abstract class CART 

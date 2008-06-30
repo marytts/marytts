@@ -335,7 +335,7 @@ public class VoiceInstaller extends VoiceImportComponent{
                           "# Phoneme conversion for English voices \n"+
                           voiceHeader+".sampamapfile = MARY_BASE/lib/modules/en/synthesis/sampa2mrpa_en.map\n\n"+
                           "# Language-specific feature processor manager:\n"+
-                          voiceHeader+".featureProcessorsClass = de.dfki.lt.mary.unitselection.featureprocessors.en.FeatureProcessorManager\n");                  
+                          voiceHeader+".featureProcessorsClass = marytts.language.en.features.FeatureProcessorManager\n");                  
               } else {
                   //cutLocale.equals("de")
                   configOut.println("# Sampa mapping for German voices \n"+
@@ -349,14 +349,14 @@ public class VoiceInstaller extends VoiceImportComponent{
               
               //unit selection classes
               configOut.println("# Java classes to use for the various unit selection components\n"+
-                      voiceHeader+".databaseClass            = de.dfki.lt.mary.unitselection.DiphoneUnitDatabase\n"+
-                      voiceHeader+".selectorClass            = de.dfki.lt.mary.unitselection.DiphoneUnitSelector\n"+
-                      voiceHeader+".concatenatorClass        = de.dfki.lt.mary.unitselection.concat.OverlapUnitConcatenator\n"+
-                      voiceHeader+".targetCostClass          = de.dfki.lt.mary.unitselection.DiphoneFFRTargetCostFunction\n"+
-                      voiceHeader+".joinCostClass            = de.dfki.lt.mary.unitselection.JoinCostFeatures\n"+
-                      voiceHeader+".unitReaderClass          = de.dfki.lt.mary.unitselection.UnitFileReader\n"+
+                      voiceHeader+".databaseClass            = marytts.unitselection.data.DiphoneUnitDatabase\n"+
+                      voiceHeader+".selectorClass            = marytts.unitselection.select.DiphoneUnitSelector\n"+
+                      voiceHeader+".concatenatorClass        = marytts.unitselection.concat.OverlapUnitConcatenator\n"+
+                      voiceHeader+".targetCostClass          = marytts.unitselection.select.DiphoneFFRTargetCostFunction\n"+
+                      voiceHeader+".joinCostClass            = marytts.unitselection.select.JoinCostFeatures\n"+
+                      voiceHeader+".unitReaderClass          = marytts.unitselection.UnitFileReader\n"+
                       voiceHeader+".cartReaderClass          = marytts.cart.ClassificationTree\n"+
-              		  voiceHeader+".audioTimelineReaderClass = de.dfki.lt.mary.unitselection.TimelineReader\n");
+              		  voiceHeader+".audioTimelineReaderClass = marytts.unitselection.data.TimelineReader\n");
              
               //voice data
               configOut.println("# Voice-specific files\n"+
