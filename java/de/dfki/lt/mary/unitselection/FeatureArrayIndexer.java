@@ -31,8 +31,9 @@ package de.dfki.lt.mary.unitselection;
 import java.io.IOException;
 import java.util.Arrays;
 
-import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
-import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
+import marytts.features.FeatureDefinition;
+import marytts.features.FeatureVector;
+
 
 /**
  * A class branched from FeatureFileIndexer which works directly on

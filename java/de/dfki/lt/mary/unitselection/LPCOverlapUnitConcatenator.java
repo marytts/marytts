@@ -38,13 +38,21 @@ import java.util.List;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 
+import marytts.signalproc.window.HannWindow;
+import marytts.signalproc.window.Window;
+import marytts.unitselection.concat.UnitConcatenator;
+import marytts.unitselection.data.Datagram;
+import marytts.unitselection.data.LPCDatagram;
+import marytts.unitselection.data.LPCTimelineReader;
+import marytts.unitselection.data.Unit;
+import marytts.unitselection.data.UnitDatabase;
+import marytts.unitselection.select.SelectedUnit;
+import marytts.util.FloatList;
+import marytts.util.audio.BufferedDoubleDataSource;
+import marytts.util.audio.DDSAudioInputStream;
+
 import org.apache.log4j.Logger;
 
-import de.dfki.lt.mary.util.FloatList;
-import de.dfki.lt.signalproc.util.BufferedDoubleDataSource;
-import de.dfki.lt.signalproc.util.DDSAudioInputStream;
-import de.dfki.lt.signalproc.window.HannWindow;
-import de.dfki.lt.signalproc.window.Window;
 
 /**
  * Concatenates ClusterUnits and returns
