@@ -30,7 +30,8 @@ package de.dfki.lt.mary.unitselection;
 
 import java.util.Comparator;
 
-import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
+import marytts.features.FeatureVector;
+
 
 public class FeatureComparator implements Comparator<FeatureVector> {
  

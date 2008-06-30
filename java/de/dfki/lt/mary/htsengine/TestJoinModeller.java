@@ -6,9 +6,12 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Scanner;
 
-import de.dfki.lt.mary.unitselection.JoinModelCost;
-import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
-import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
+import marytts.features.FeatureDefinition;
+import marytts.features.FeatureVector;
+import marytts.htsengine.HTSModelSet;
+import marytts.htsengine.HTSTreeSet;
+import marytts.unitselection.select.JoinModelCost;
+
 
 public class TestJoinModeller {
 

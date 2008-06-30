@@ -28,7 +28,7 @@
  */
 package de.dfki.lt.mary.unitselection;
 
-import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
+import marytts.features.FeatureVector;
 
 /**
  * A generic node class for the tree structures.

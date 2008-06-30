@@ -32,9 +32,12 @@ import java.io.IOException;
 import java.io.DataOutput;
 import java.util.Arrays;
 
-import de.dfki.lt.mary.unitselection.featureprocessors.FeatureVector;
-import de.dfki.lt.mary.unitselection.cart.CART;
-import de.dfki.lt.mary.unitselection.featureprocessors.FeatureDefinition;
+import marytts.cart.CART;
+import marytts.features.FeatureDefinition;
+import marytts.features.FeatureVector;
+import marytts.unitselection.data.FeatureFileReader;
+import marytts.unitselection.select.Target;
+
 
 public class FeatureFileIndexer extends FeatureFileReader {
     
