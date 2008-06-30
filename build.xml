@@ -2,7 +2,7 @@
 <!-- Mary TTS -->
 <!-- This is the main build file for the system. -->
 <!--
-Copyright 2000-2006 DFKI GmbH.
+Copyright 2000-2008 DFKI GmbH.
 All Rights Reserved.  Use is subject to license terms.
 
 Permission is hereby granted, free of charge, to use and distribute
@@ -54,14 +54,14 @@ THIS SOFTWARE.
   <target name="version" depends="init">
     <!-- Determine version information -->
     <loadfile property="specification.version"
-              srcFile="${src}/de/dfki/lt/mary/specification-version.txt">
+              srcFile="${src}/marytts/specification-version.txt">
       <filterchain>
         <striplinebreaks/>
       </filterchain>
     </loadfile>
     <property name="implementation.version"
               value="${DSTAMP}"/>
-    <echo file="${src}/de/dfki/lt/mary/implementation-version.txt"
+    <echo file="${src}/marytts/implementation-version.txt"
           message="${implementation.version}"/>
     <echo>Building OpenMary version '${specification.version}'</echo>
   </target>
@@ -82,7 +82,7 @@ THIS SOFTWARE.
       <formatter type="plain"/>
       <test name="de.dfki.lt.mary.tests.AllTests" todir="log"/>
     </junit>
-    <echo>See log/TEST-de.dfki.lt.mary.tests.AllTests.txt and
+    <echo>See log/TEST-marytts.tests.AllTests.txt and
     log/junittest.mary.log for details.</echo>
   </target>
 
@@ -91,7 +91,7 @@ THIS SOFTWARE.
     <!-- javadoc directory -->
     <property name="javadocdir" value="doc/javadoc"/>
     <mkdir dir="${javadocdir}"/>
-    <javadoc packagenames="de.dfki.lt.mary.*,de.dfki.lt.signalproc.*"
+    <javadoc packagenames="marytts.*"
              classpath="java/tritonus_share-0.3.6.jar;java/freetts-en_us.jar;java/log4j-1.2.8.jar;java/freetts-mbrola.jar;java/tritonus_mp3-0.3.6.jar;java/junit.jar;java/freetts-de.jar;java/jtok.jar;build/standalone-compiler.jar;java/tritonus_remaining-0.3.6.jar;java/jl1.0.jar;java/jsresources.jar;java/java-diff.jar;java/freetts-cmudict04.jar;java/freetts-germanlex.jar;java/freetts.jar;java/JavaOpenAIR.jar;java/Jama-1.0.2.jar;java/jl1.0.jar;java/fast-md5.jar"
              sourcepath="${src}"
              destdir="${javadocdir}"
@@ -101,7 +101,7 @@ THIS SOFTWARE.
              source="1.5"
              access="protected"
              encoding="UTF-8"
-             overview="${src}/de/dfki/lt/mary/overview.html"
+             overview="${src}/marytts/overview.html"
              doctitle="The Mary Text-to-Speech Synthesis system, version ${specification.version}"
              windowtitle="Mary Java API"
      />
@@ -110,31 +110,25 @@ THIS SOFTWARE.
   <target name="mary-common.jar" depends="compile,version">
     <jar destfile="${dest}/mary-common.jar"
          basedir="${src}"
-         includes="de/dfki/lt/mary/**/*.class
-                   de/dfki/lt/mary/util/normalise-maryxml.xsl
-                   de/dfki/lt/mary/modules/ssml-to-mary.xsl
-                   de/dfki/lt/mary/modules/sable-to-mary.xsl
-                   de/dfki/lt/mary/modules/apml-to-mary.xsl
-                   de/dfki/lt/mary/modules/emotion-to-mary.xsl
-                   de/dfki/lt/mary/specification-version.txt
-                   de/dfki/lt/mary/implementation-version.txt
-  				   de/dfki/lt/mary/unitselection/voiceimport/configure.png
-    			   de/dfki/lt/mary/unitselection/voiceimport/help_import_main.html
-    			   de/dfki/lt/mary/unitselection/voiceimport/importMain.config"
-        excludes="de/dfki/lt/mary/modules/synthesis/FreeTTSSynthesizer.class
-		   	  de/dfki/lt/mary/modules/synthesis/FreeTTSVoices.class
-			  de/dfki/lt/mary/modules/DummyFreeTTSVoice.class
-    	      de.dfki.lt.mary.modules.XML2UttAcoustParams.class
-        	  de.dfki.lt.mary.modules.Utt2XMLAcoustParams.class
-	          de.dfki.lt.mary.modules.FreeTTS2FestivalUtt.class
-	    	  de/dfki/lt/mary/modules/en/**/*
-    	      de/dfki/lt/mary/modules/tib/**/*
-    	      de/dfki/lt/mary/datatypes/FREETTS*_Definer.class
-              de/dfki/lt/mary/datatypes/*_EN_Definer.class
-              de/dfki/lt/mary/datatypes/*_TIB_Definer.class
+         includes="marytts/**/*.class
+                   marytts/util/normalise-maryxml.xsl
+                   marytts/modules/ssml-to-mary.xsl
+                   marytts/modules/sable-to-mary.xsl
+                   marytts/modules/apml-to-mary.xsl
+                   marytts/modules/emotion-to-mary.xsl
+                   marytts/specification-version.txt
+                   marytts/implementation-version.txt"
+        excludes="marytts/modules/synthesis/FreeTTSSynthesizer.class
+		   	  marytts/modules/synthesis/FreeTTSVoices.class
+			  marytts/modules/DummyFreeTTSVoice.class
+	          marytts/modules/FreeTTS2FestivalUtt.class
+              marytts/datatypes/FREETTS*_Definer.class
+              marytts/datatypes/*_EN_Definer.class
+              marytts/datatypes/*_TIB_Definer.class
               **/*Mbrola* **/*MBROLA*
-    	      de/dfki/lt/mary/recsessionmgr/**/*
-    	      de/dfki/lt/mary/sinusoidal/**/*">
+	    	  marytts/language/**/*
+    	      marytts/tools/**/*
+    	      marytts/signalproc/**/*">
       <manifest>
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Specification-Version" value="${specification.version}"/>
@@ -146,13 +140,11 @@ THIS SOFTWARE.
   <target name="mary-freetts.jar" depends="compile,version">
     <jar destfile="${dest}/mary-freetts.jar"
          basedir="${src}"
-         includes="de/dfki/lt/mary/modules/synthesis/FreeTTSSynthesizer.class
-		   	de/dfki/lt/mary/modules/synthesis/FreeTTSVoices.class
-	    	de/dfki/lt/mary/modules/DummyFreeTTSVoice.class
-            de.dfki.lt.mary.modules.XML2UttAcoustParams.class
-            de.dfki.lt.mary.modules.Utt2XMLAcoustParams.class
-            de.dfki.lt.mary.modules.FreeTTS2FestivalUtt.class
-		    de/dfki/lt/mary/datatypes/FREETTS_ACOUSTPARAMS_Definer.class">
+         includes="marytts/modules/synthesis/FreeTTSSynthesizer.class
+		   	marytts/modules/synthesis/FreeTTSVoices.class
+	    	marytts/modules/DummyFreeTTSVoice.class
+            marytts/modules/FreeTTS2FestivalUtt.class
+		    marytts/datatypes/FREETTS_ACOUSTPARAMS_Definer.class">
       <manifest>
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Specification-Version" value="${specification.version}"/>
@@ -165,15 +157,15 @@ THIS SOFTWARE.
   <target name="mary-mbrola.jar" depends="compile,version">
     <jar destfile="${dest}/mary-mbrola.jar"
          basedir="${src}"
-         includes="de/dfki/lt/mary/datatypes/MBROLA_Definer.class
-	           de/dfki/lt/mary/modules/MaryXMLToMbrola.class
-	           de/dfki/lt/mary/modules/MbrolaCaller*.class
-	           de/dfki/lt/mary/modules/MbrolaJniCaller.class
-	           de/dfki/lt/mary/modules/MbrolaPhoneme.class
-                   de/dfki/lt/mary/modules/synthesis/MbrolaSynthesizer.class
-                   de/dfki/lt/mary/modules/synthesis/MbrolaVoiceSectioner.class
-                   de/dfki/lt/mary/modules/synthesis/MBROLAPhoneme.class
-    	       de/dfki/lt/mary/modules/synthesis/MbrolaVoice.class">
+         includes="marytts/datatypes/MBROLA_Definer.class
+                   marytts/modules/MaryXMLToMbrola.class
+                   marytts/modules/MbrolaCaller*.class
+                   marytts/modules/MbrolaJniCaller.class
+                   marytts/modules/MbrolaPhoneme.class
+                   marytts/modules/synthesis/MbrolaSynthesizer.class
+                   marytts/modules/synthesis/MbrolaVoiceSectioner.class
+                   marytts/modules/synthesis/MBROLAPhoneme.class
+                   marytts/modules/synthesis/MbrolaVoice.class">
       <manifest>
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Specification-Version" value="${specification.version}"/>
@@ -185,9 +177,8 @@ THIS SOFTWARE.
   <target name="mary-english.jar" depends="compile,version">
     <jar destfile="${dest}/mary-english.jar"
          basedir="${src}"
-         includes="de/dfki/lt/mary/datatypes/*_EN_Definer.class
-                   de/dfki/lt/mary/modules/en/**/*.class
-		   de/dfki/lt/mary/modules/de/cap/Phoneme.class">
+         includes="marytts/datatypes/*_EN_Definer.class
+                   marytts/language/en/**/*.class">
       <manifest>
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Specification-Version" value="${specification.version}"/>
@@ -199,10 +190,10 @@ THIS SOFTWARE.
   <target name="mary-tibetan.jar" depends="compile,version">
     <jar destfile="${dest}/mary-tibetan.jar"
          basedir="${src}"
-         includes="de/dfki/lt/mary/datatypes/*_TIB_Definer.class
-                   de/dfki/lt/mary/modules/tib/**/*.class
-			       de/dfki/lt/mary/modules/tib/**/*.txt
-                   de/dfki/lt/mary/modules/tib/**/*.xml">
+         includes="marytts/datatypes/*_TIB_Definer.class
+                   marytts/language/tib/**/*.class
+			       marytts/language/tib/**/*.txt
+                   marytts/language/tib/**/*.xml">
       <manifest>
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Specification-Version" value="${specification.version}"/>
@@ -214,14 +205,14 @@ THIS SOFTWARE.
   <target name="maryclient.jar" depends="compile,version">
     <jar destfile="${dest}/maryclient.jar"
          basedir="${src}"
-         includes="de/dfki/lt/mary/client/*.class
-                   de/dfki/lt/mary/util/MaryUtils*.class
-    	           de/dfki/lt/signalproc/util/AudioPlayer*.class
-                   de/dfki/lt/signalproc/util/MonoAudioInputStream.class
-                   de/dfki/lt/signalproc/util/StereoAudioInputStream.class
-                   de/dfki/lt/mary/Version.class
-                   de/dfki/lt/mary/specification-version.txt
-                   de/dfki/lt/mary/implementation-version.txt">
+         includes="marytts/client/*.class
+                   marytts/util/MaryUtils*.class
+    	           marytts/util/audio/AudioPlayer*.class
+                   marytts/util/audio/MonoAudioInputStream.class
+                   marytts/util/audio/StereoAudioInputStream.class
+                   marytts/Version.class
+                   marytts/specification-version.txt
+                   marytts/implementation-version.txt">
       <zipfileset src="${src}/freetts.jar"
           includes="com/sun/speech/freetts/audio/AudioPlayer.class
 			      	com/sun/speech/freetts/util/Utilities.class
@@ -231,9 +222,9 @@ THIS SOFTWARE.
       <manifest>
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Main-Class"
-                   value="de.dfki.lt.mary.client.MaryGUIClient"/>
+                   value="marytts.client.MaryGUIClient"/>
         <attribute name="Class-Path"
-                   value="java-diff.jar  tritonus_mp3.jar jl1.0.jar"/>
+                   value="java-diff.jar"/>
         <attribute name="Specification-Version"
                    value="${specification.version}"/>
         <attribute name="Implementation-Version"
@@ -245,15 +236,15 @@ THIS SOFTWARE.
   <target name="emospeak.jar" depends="compile">
     <jar destfile="${dest}/emospeak.jar"
          basedir="${src}"
-         includes="de/dfki/lt/mary/emospeak/*.class
-				   de/dfki/lt/mary/emospeak/*.txt
-                   de/dfki/lt/mary/emospeak/emotion-to-mary.xsl"
-         excludes="de/dfki/lt/mary/emospeak/EmoSpeakApplet*.class">
+         includes="marytts/tools/emospeak/*.class
+				   marytts/tools/emospeak/*.txt
+                   marytts/tools/emospeak/emotion-to-mary.xsl"
+         excludes="marytts/tools/emospeak/EmoSpeakApplet*.class">
       <manifest>
         <attribute name="Built-By" value="${user.name}"/>
 	<attribute name="Main-Class"
-         value="de.dfki.lt.mary.emospeak.EmoSpeak"/>
-	 <attribute name="Class-Path" value="maryclient.jar java-diff.jar tritonus_mp3.jar jl1.0.jar"/>
+         value="marytts.tools.emospeak.EmoSpeak"/>
+	 <attribute name="Class-Path" value="maryclient.jar java-diff.jar"/>
       </manifest>
     </jar>
   </target>
@@ -261,16 +252,16 @@ THIS SOFTWARE.
   <target name="emospeakapplet.jar" depends="compile">
     <jar destfile="${dest}/emospeakapplet.jar"
          basedir="${src}"
-         includes="de/dfki/lt/mary/emospeak/*.class
-				   de/dfki/lt/mary/emospeak/*.txt
-                   de/dfki/lt/mary/emospeak/emotion-to-mary.xsl"
-         excludes="de/dfki/lt/mary/emospeak/EmoSpeak.class
-    	de/dfki/lt/mary/emospeak/EmoSpeak$*.class">
+         includes="marytts/tools/emospeak/*.class
+				   marytts/tools/emospeak/*.txt
+                   marytts/tools/emospeak/emotion-to-mary.xsl"
+         excludes="marytts/tools/emospeak/EmoSpeak.class
+    	marytts/tools/emospeak/EmoSpeak$*.class">
       <manifest>
         <attribute name="Built-By" value="${user.name}"/>
 	<attribute name="Main-Class"
-         value="de.dfki.lt.mary.emospeak.EmoSpeakApplet"/>
-		 <attribute name="Class-Path" value="maryclient.jar java-diff.jar tritonus_mp3.jar jl1.0.jar"/>
+         value="marytts.tools.emospeak.EmoSpeakApplet"/>
+		 <attribute name="Class-Path" value="maryclient.jar java-diff.jar"/>
       </manifest>
     </jar>
   </target>
@@ -279,8 +270,9 @@ THIS SOFTWARE.
   <target name="signalproc.jar" depends="compile,version">
     <jar destfile="${dest}/signalproc.jar"
          basedir="${src}"
-         includes="de/dfki/lt/signalproc/**/*.class
-                   de/dfki/lt/util/**/*.class">
+         includes="marytts/signalproc/**/*.class
+                   marytts/util/audio/**/*.class
+                   marytts/util/*.class">
       <manifest>
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Specification-Version"
@@ -294,14 +286,14 @@ THIS SOFTWARE.
   <target name="redstart.jar" depends="compile">
 	    <jar destfile="${dest}/redstart.jar"
 	         basedir="${src}"
-	         includes="de/dfki/lt/mary/recsessionmgr/**/*.class
-	                   de/dfki/lt/mary/recsessionmgr/**/*.wav
-	                   de/dfki/lt/mary/recsessionmgr/**/*.options
-	                   de/dfki/lt/mary/recsessionmgr/**/*.png">
+	         includes="marytts/tools/redstart/**/*.class
+	                   marytts/tools/redstart/**/*.wav
+	                   marytts/tools/redstart/**/*.options
+	                   marytts/tools/redstart/**/*.png">
 	      <manifest>
 	        <attribute name="Built-By" value="${user.name}"/>
 	        <attribute name="Main-Class"
-	                   value="de.dfki.lt.mary.recsessionmgr.Redstart"/>
+	                   value="marytts.tools.redstart.Redstart"/>
 	        <attribute name="Class-Path"
 	                   value="signalproc.jar swing-layout-1.0.jar jsresources.jar"/>
 
@@ -312,14 +304,15 @@ THIS SOFTWARE.
  <target name="voiceimport.jar" depends="compile">
 	<jar destfile="${dest}/voiceimport.jar"
              basedir="${src}"
-             includes="de/dfki/lt/mary/unitselection/voiceimport/*.class
-                       de/dfki/lt/mary/unitselection/voiceimport/*.config
-                       de/dfki/lt/mary/unitselection/voiceimport/*.png">
+             includes="marytts/tools/voiceimport/*.class
+                       marytts/tools/voiceimport/*.config
+                       marytts/tools/voiceimport/*.png
+                       marytts/tools/voiceimport/*.html">
         <manifest>
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Main-Class"
-         value="de.dfki.lt.mary.unitselection.voiceimport.DatabaseImportMain"/>
-        <attribute name="Class-Path" value="mary-common.jar signalproc.jar freetts.jar jsresources.jar log4j-1.2.8.jar"/>
+         value="marytts.tools.voiceimport.DatabaseImportMain"/>
+        <attribute name="Class-Path" value="mary-common.jar signalproc.jar jsresources.jar log4j-1.2.8.jar"/>
         </manifest>
         </jar>
   </target>
@@ -327,11 +320,11 @@ THIS SOFTWARE.
  <target name="installvoices.jar" depends="compile">
         <jar destfile="${dest}/installvoices.jar"
              basedir="${src}"
-             includes="de/dfki/lt/mary/installvoices/*.class">
+             includes="marytts/tools/installvoices/*.class">
         <manifest>
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Main-Class"
-         value="de.dfki.lt.mary.installvoices.VoiceInstaller"/>
+         value="marytts.tools.installvoices.VoiceInstaller"/>
         <attribute name="Class-Path" value="fast-md5.jar"/>
         </manifest>
         </jar>
