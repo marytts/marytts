@@ -115,7 +115,7 @@ public class MaryDataType
     
     /**
      * The preferred way to create a data type. In order to define a MaryDataType "XYZ",
-     * create a de.dfki.lt.mary.datatyes.XYZ_Definer extends MaryDataType, which in a
+     * create a marytts.datatyes.XYZ_Definer extends MaryDataType, which in a
      * static {} block calls this method define(). When a MaryDataType is requested 
      * using get("XYZ"), the definer class is initialised, which causes this define()
      * method to be called with the appropriate parameters, so that the data type is
@@ -213,7 +213,7 @@ public class MaryDataType
         if (t == null) { // try to initialize the _Definer class
         // This should initialize the class, i.e. execute the static { } blocks.
 	    try {
-                Class.forName("de.dfki.lt.mary.datatypes." + name + "_Definer");
+                Class.forName("marytts.datatypes." + name + "_Definer");
             } catch (ClassNotFoundException e) {
                 throw new Error("Unknown MaryDataType `" + name + "'", e);
             }

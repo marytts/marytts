@@ -59,7 +59,7 @@ public class FreeTTSVoices
 
     /**
      * The keys in this map are instances of
-     * <code>de.dfki.lt.mary.modules.synthesis.Voice</code>; the values are
+     * <code>marytts.modules.synthesis.Voice</code>; the values are
      * instances of <code>com.sun.speech.freetts.Voice</code>.
      */
     private static Map<marytts.modules.synthesis.Voice, com.sun.speech.freetts.Voice> mary2freettsVoices = null;
@@ -67,7 +67,7 @@ public class FreeTTSVoices
      * The keys in this map are instances of
      * <code>com.sun.speech.freetts.Voice</code>;
      * the values are instances of
-     * <code>de.dfki.lt.mary.modules.synthesis.Voice</code>.
+     * <code>marytts.modules.synthesis.Voice</code>.
      */
     private static Map<com.sun.speech.freetts.Voice, marytts.modules.synthesis.Voice> freetts2maryVoices = null;
     private static Lexicon usenLexicon = null;
@@ -131,7 +131,7 @@ public class FreeTTSVoices
         DummyFreeTTSVoice freeTTSVoice;
         if (maryVoice.getLocale() != null && maryVoice.getLocale().equals(Locale.US)) {
             try {
-                freeTTSVoice = (DummyFreeTTSVoice) Class.forName("de.dfki.lt.mary.modules.en.DummyFreeTTSVoice").newInstance();
+                freeTTSVoice = (DummyFreeTTSVoice) Class.forName("marytts.language.en.DummyFreeTTSVoice").newInstance();
             } catch (InstantiationException e) {
                 throw new RuntimeException(e);
             } catch (IllegalAccessException e) {

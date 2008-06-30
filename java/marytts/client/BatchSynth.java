@@ -43,7 +43,7 @@ public class BatchSynth
 
     /**
      * Generate a set of audio files from text. Example call:
-     * java -cp maryclient.jar -Dserver.host=localhost -Dserver.port=59125 -Dvoice=kevin16 de.dfki.lt.mary.client.BatchSynth target/dir path/to/texts.txt 
+     * java -cp maryclient.jar -Dserver.host=localhost -Dserver.port=59125 -Dvoice=kevin16 marytts.client.BatchSynth target/dir path/to/texts.txt 
      * The text file must contain a target audio file name and the corresponding text in each line.
      * @param args first argument, the output directory; 
      * the rest, file names containing text files. Each text file contains, in each line, a file name followed by the sentence to generate as a .wav file.

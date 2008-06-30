@@ -40,7 +40,7 @@ import junit.framework.TestSuite;
 public class AllTests {
 
     public static Test suite() {
-        TestSuite suite = new TestSuite("Test for de.dfki.lt.mary.tests");
+        TestSuite suite = new TestSuite("Test for marytts.tests");
         suite.addTest(new TestSuite(MaryDataTest.class));
         suite.addTest(new TestSuite(MaryTest.class));
         suite.addTest(new TestSuite(RequestTest.class));

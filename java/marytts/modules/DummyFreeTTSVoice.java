@@ -58,7 +58,7 @@ public class DummyFreeTTSVoice extends com.sun.speech.freetts.Voice {
 
     /**
      * Creates a simple voice containing a reference to a
-     * <code>de.dfki.lt.mary.modules.synthesis.Voice</code>.
+     * <code>marytts.modules.synthesis.Voice</code>.
      *
      * This default constructor must be followed by a meaningful
      * call to initialise().
@@ -69,7 +69,7 @@ public class DummyFreeTTSVoice extends com.sun.speech.freetts.Voice {
 
     /**
      * Creates a simple voice containing a reference to a
-     * <code>de.dfki.lt.mary.modules.synthesis.Voice</code>.
+     * <code>marytts.modules.synthesis.Voice</code>.
      *
      * @param lexiconClassName if not null, automatically load up
      * the specified lexicon; otherwise, don't load any lexicon.
@@ -83,7 +83,7 @@ public class DummyFreeTTSVoice extends com.sun.speech.freetts.Voice {
 
     /**
      * Creates a simple voice containing a reference to a
-     * <code>de.dfki.lt.mary.modules.synthesis.Voice</code>.
+     * <code>marytts.modules.synthesis.Voice</code>.
      *
      * @param lexiconClassName if not null, automatically load up
      * the specified lexicon; otherwise, don't load any lexicon.
@@ -221,7 +221,7 @@ public class DummyFreeTTSVoice extends com.sun.speech.freetts.Voice {
     }
 
     /**
-     * Gets the de.dfki.lt.mary.modules.synthesis.Voice associated with this voice.
+     * Gets the marytts.modules.synthesis.Voice associated with this voice.
      */
     public marytts.modules.synthesis.Voice getMaryVoice()
     {
