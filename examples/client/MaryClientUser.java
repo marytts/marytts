@@ -39,7 +39,7 @@ import javax.sound.sampled.LineListener;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.dfki.lt.signalproc.util.AudioPlayer;
-import de.dfki.lt.mary.client.MaryClient;
+import marytts.client.MaryClient;
 
 
 /**

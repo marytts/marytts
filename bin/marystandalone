@@ -55,4 +55,4 @@ if [ $cygwin = 1 ] ; then
 fi
 
 
-java -ea -Xms40m -Xmx128m -Dmary.base=$MARY_BASE -Djava.endorsed.dirs=$MARY_BASE/lib/endorsed -Dserver=false $* de.dfki.lt.mary.Mary
+java -ea -Xms40m -Xmx128m -Dmary.base=$MARY_BASE -Djava.endorsed.dirs=$MARY_BASE/lib/endorsed -Dserver=false $* marytts.server.Mary
