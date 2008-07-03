@@ -81,8 +81,6 @@ import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.Relation;
 import com.sun.speech.freetts.Utterance;
 
-
-
 public class CorrectedTranscriptionAligner extends VoiceImportComponent {
     
     private DatabaseLayout db;
@@ -91,7 +89,6 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
     public final String ORIGTRANS = "CorrectedTranscriptionAligner.original";
     public final String CORRTRANS = "CorrectedTranscriptionAligner.corrected";
     public final String RESULTTRANS = "CorrectedTranscriptionAligner.results";
-    //public final String SYMCOSTS = "CorrectedTranscriptionAligner.costfile";
     public final String PHONEMEXML = "CorrectedTranscriptionAligner.phonesetXML";
     private int progress;
     
@@ -102,8 +99,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
     
     // String for a baundary
     private String possibleBnd = "_";
-    // String for pause boundary
-    //private String pauseBnd = "_";
+
     
     public CorrectedTranscriptionAligner() {
         this.aligncost = new HashMap<String, Integer>();
@@ -153,21 +149,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
                 +System.getProperty("file.separator");
             }
             props.put(RESULTTRANS,resultTrans);
-            
-            // TODO: at the moment, for convenience, disrances are taken from 
-            // phonset, so that the user does not have to specify alignment costs
-            /*
-            // alignment costs
-            String symCosts = System.getProperty(SYMCOSTS);
-            if ( symCosts == null ) {
-                symCosts = db.getProp(db.ROOTDIR)
-                +"temp"
-                +System.getProperty("file.separator")
-                +"alignmentcosts_de.txt";
-                //"/project/mary/lib/modules/de/cap/alignmentcosts_de.txt";
-            }
-            props.put(SYMCOSTS,symCosts);*/
-            
+                        
             // alignment costs
             if(locale.startsWith("de")){
                 phonemeXml = db.getProp(db.MARYBASE)
@@ -207,25 +189,16 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
      * 
      */
     private void useDefaultBoundaryCosts(){
-
-
         int max = 20 * this.defaultcost;
-        //int max = 20;
         
         for (String phName : this.phonemeSet.getPhonemeNames()){
             // dont align boundaries with anything else
-            //this.aligncost.put( this.pauseBnd    + " " + phName         ,max);
             this.aligncost.put( this.possibleBnd + " " + phName         ,max);
-            //this.aligncost.put( phName          + " " + this.pauseBnd   ,max);
             this.aligncost.put( phName          + " " + this.possibleBnd,max);
         }
         
         // distance between pauses is zero, with slight conservative bias
-        //this.aligncost.put(this.pauseBnd + " " + this.pauseBnd,0);
-        this.aligncost.put(this.possibleBnd + " " + this.possibleBnd,0);        
-        //this.aligncost.put(this.pauseBnd + " " + this.possibleBnd,1);
-        //this.aligncost.put(this.possibleBnd + " " + this.pauseBnd,1+this.skipcost);
-
+        this.aligncost.put(this.possibleBnd + " " + this.possibleBnd,0);
     }
     
     public int getProgress() {
@@ -244,15 +217,6 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
     public boolean compute() throws IOException, TransformerException, ParserConfigurationException, SAXException, XPathExpressionException{
         
         // set costs used for distance computation
-        
-        /* TODO: make use of cost file dependent on settings
-        try{
-            this.setDistance(new BufferedReader(new FileReader ((String) props.get(this.SYMCOSTS))));
-        } catch (FileNotFoundException e) {
-            throw new IllegalStateException("File with symbol costs not set: " + (String) props.get(this.SYMCOSTS));
-        }
-        */
-        
         
         // phoneme set is used for splitting the sampa strings and setting the costs
         this.setPhonemeSet(PhonemeSet.getPhonemeSet((String) props.get(this.PHONEMEXML)));
@@ -278,7 +242,6 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
         TransformerFactory tFactory = TransformerFactory.newInstance();
         Transformer transformer = tFactory.newTransformer();
 
-        // TODO: debugging
         System.out.println("traversing through " + bnl.getLength() + " files");
        
         for (int i=0;i<bnl.getLength();i++){
@@ -286,8 +249,8 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
             File nextFile = new File(props.get(this.ORIGTRANS)
                     +System.getProperty("file.separator")
                     +bnl.getName(i)+".xml");
-            // TODO: reinstall
-            //System.out.println(bnl.getName(i));
+
+            System.out.println(bnl.getName(i));
             
             // get original xml file
             Document doc = db.parse(nextFile);
@@ -303,10 +266,6 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
             try{
 
                 String trfdir = (String) props.get(this.CORRTRANS);
-
-                
-                //if (!trfdir.endsWith(System.getProperty("File.separator")))
-                //        trfdir += System.getProperty("File.separator");
                 
                 String trfname = trfdir + 
                 nextFile.getName().substring(0, nextFile.getName().length() - 4) + ".lab";
@@ -345,7 +304,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
 
     /**
      * This reads in a label file and returns a String of the phonetic symbols,
-     * seperated by white spaces. Pause symbols ("_") are disregarded (skipped).
+     * separated by white spaces. Pause symbols ("_") are disregarded (skipped).
      * 
      * @throws IOException if something goes wrong with opening/reading the file
      * 
@@ -372,7 +331,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
            
         }
         
-        // TODO: check
+        // todo: check
         // if Label File does not start with pause symbol, insert it
         // as well as a pause duration of zero (...)
         if(! result.startsWith("_")){
@@ -415,98 +374,11 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
                 
                 String key = fromSym + " " + toSym;
                 
-                //System.out.println(key + " " + diff);
-                
                 this.aligncost.put(key, diff);
             }
         }
     }
     
-    /**
-     * DEPRECATED / no longer used by compute()
-     * 
-     * unless you want to specify special costs, set the distance with the phonemeset instead
-     * 
-     * This sets the distance between two symbols from a feature/cost 
-     * description, usually a file.
-     * 
-     * This file may contain two types of lines.
-     * 1.) feature enumerations: 
-     *     suppose we have symbols s1 and s2, and features f1, f2, f3.
-     *     possible lines are:
-     *     
-     * s1 f1_of_s1 f2_of_s1 f3_of_s1
-     * s2 f1_of_s2 f2_of_s2 f3_of_s2
-     * 
-     *     The distance between two symbols is then the number of the
-     *     cases where they disagree in a feature.
-     *     
-     * 2.) Explicit cost statements. The override the feature difference costs.
-     *     For example, to state that mapping s2 to s1 has costs 4 simply add
-     *     the line:
-     *     
-     * >> s2 s1 4
-     * 
-     */
-    private void setDistance(BufferedReader input) throws IOException{
-        String l;
-        
-        String[] lineLmnts;
-        List<String[]> symFeats =  new ArrayList<String[]>();
-        
-
-        
-        // read data for costs
-        while ((l = input.readLine()) != null) {
-            l = l.trim();
-            
-            // comment line
-            if ( l.equals("") || l.startsWith("#"))
-                continue;
-            
-            lineLmnts = l.split("\\s+");
-            
-            if ( lineLmnts[0].equals(">>") ){
-                // collect specified costs
-                
-                String key = lineLmnts[1] + " " + lineLmnts[2];
-                
-                try{
-                    Integer value = Integer.valueOf(lineLmnts[3]);
-                    this.aligncost.put(key, value);
-                } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("Expected number in alignment cost definition");
-                }
-                
-            } else {
-                // store features to compute costs if unspecified
-                symFeats.add(lineLmnts);
-            }
-            
-            // TODO: for efficiency reasons only compute "triangle matrix"
-            // for the feature combinations of all symbols compute distances
-            for (String[] feats1 : symFeats){
-                for (String[] feats2 : symFeats){
-                    
-                    int distance = 0;
-                    
-                    // compare similarity (first element is not a feature but the symbol)
-                    for (int i = 1; i < feats1.length; i++){
-                        
-                        if (!feats1[i].equals(feats2[i]))
-                            distance++;
-                    }
-                    
-                    String key = feats1[0] + " " + feats2[0];
-                    
-                    // if no value is set, set this distance
-                    if (!this.aligncost.containsKey(key)){
-                        this.aligncost.put(key, distance);
-                    }                    
-                }
-            }    
-        }
-    }
     
     /**
      * 
@@ -638,7 +510,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
      * 
      * This changes the transcription of a MaryData object into a corrected
      * transcription. The Mary data is changed. 
-     * The symbols of the original transcription aligned aligned to corrected 
+     * The symbols of the original transcription are aligned to corrected 
      * ones, with which they are replaced in turn.
      * 
      * @param d
@@ -654,14 +526,13 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
         XPath xpath = XPathFactory.newInstance().newXPath();
         // we rely on the assumption that the result of the evaluation is 
         // a list rather than a set and that it is retrieved in document order
-        // TODO: check that assumption
-        NodeList tokens = (NodeList) xpath.evaluate("//t | //boundary", doc, XPathConstants.NODESET);
+        NodeList tokens = (NodeList) xpath.evaluate("//t[@sampa] | //boundary", doc, XPathConstants.NODESET);
                 
         String orig = this.collectTranscription(tokens);
         
         // now we align the transcriptions and split it at the delimiters
         String al = this.distanceAlign(orig.trim(),correct.trim()) + " ";
-        
+
         String[] alignments = al.split("#");
         
         // change the transcription in xml according to the aligned one
@@ -682,13 +553,14 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
      */
     private String collectTranscription(NodeList tokens) {
 
-        // TODO: make delims argument
+        // todo: make delims argument
         // String Tokenizer devides transcriptions into syllables
         // syllable delimiters and stress symbols are retained
         String delims = "',-";
 
         // String storing the original transcription begins with a pause
-        String orig = this.possibleBnd + " " ;
+        String orig = " " + this.possibleBnd + " " ;
+
         
         // get original phoneme String
         for (int tNr = 0; tNr < tokens.getLength() ; tNr++ ){
@@ -708,32 +580,22 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
                     
                     if (delims.indexOf(currTok) == -1) {
                         // current Token is no delimiter
+                        
+                        
                         for ( Phoneme ph : phonemeSet.splitIntoPhonemes(currTok)){
+                            
+                            
                             orig += ph.name() + " ";
                         }// ... for each phoneme
+                        
+                        
                     }// ... if no delimiter
                 }// ... while there are more tokens    
             }
-                
-            // TODO: simplify
-            if ( token.getTagName().equals("t") ){
-                                
-                // if the following element is no boundary, insert a non-pause delimiter
-                if (tNr == tokens.getLength()-1 || 
-                    !((Element) tokens.item(tNr+1)).getTagName().equals("boundary") ){
-                        orig += this.possibleBnd + " ";
-                        
-                    }
-                                                       
-            } else if ( token.getTagName().equals("boundary")){
-                                
-                    orig += this.possibleBnd + " ";
-
-            } else {
-                // should be "t" or "boundary" elements
-                assert(false);
-            }
-                        
+            
+            if ( token.hasAttribute("sampa") )
+                orig += this.possibleBnd + " ";
+                                        
         }// ... for each t-Element
         
         return orig;
@@ -753,14 +615,14 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
      */
     private Document changeTranscriptions(Document doc, NodeList tokens, String orig, String[] alignments){
         
-        // TODO: make argument
+        // todo: make delims argument
         // String Tokenizer devides transcriptions into syllables
         // syllable delimiters and stress symbols are retained
         String delims = "',-";
         
         // counter to keep track of the position in alignment array
         // starts with 1 since transcription begins with a pause
-        int currAl = 1;
+        int currAl = 0;
         
         // second looping: get original phoneme String
         for (int tNr = 0; tNr < tokens.getLength() ; tNr++ ){
@@ -819,10 +681,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
                         } else { //...
                             newSampa += currTok;
 
-                        }
-                        
-
-                        
+                        }                      
                     }
                 }// ... while there are more tokens 
                 
@@ -839,28 +698,41 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
             }// ... if there is transcription
             
             // treat boundaries
-            // TODO: simplify
             if ( token.getTagName().equals("t") ){
                 
                 // if the following element is no boundary, a delimiter was inserted
                 if (tNr == tokens.getLength()-1 || 
                     !((Element) tokens.item(tNr+1)).getTagName().equals("boundary") ){
-                                            
+                    
+                    if (alignments[currAl].indexOf(possibleBnd) > -1){
+                        
+                            System.out.println("  inserted boundary in xml");
+                            Element b = doc.createElement("boundary");
+                            b.setAttribute("breakindex", "3");
+                            token.getParentNode().insertBefore(b, token.getNextSibling());
+                        }
+                        
                         currAl += 1;                        
                     }
                                    
             } else if ( token.getTagName().equals("boundary")){
                 
+                if (!alignments[currAl].trim().equals(possibleBnd)){
 
-                    currAl += 1;                     
+                    // TODO: delete or change bi?
+                    System.out.println("  deleted boundary from xml");
+                    token.getParentNode().removeChild(token);
 
+                }
+
+                    currAl += 1;   
+                             
             } else {
                 // should be "t" or "boundary" elements
                 assert(false);
             }
 
         }// ... for each t-Element
-
 
         return doc;
     }
@@ -895,6 +767,4 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
             return (aString1.equals(aString2))? 0:this.defaultcost;
         }
     }
-
-
 }
