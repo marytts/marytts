@@ -232,6 +232,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
                 MaryProperties.getFilename("voice."+voiceName+".Fms"),     /* Model STR */
                 MaryProperties.getFilename("voice."+voiceName+".Fma"),     /* Model MAG */
                 MaryProperties.getProperty("voice."+voiceName+".useMixExc"), /* Use Mixed excitation */
+                MaryProperties.getProperty("voice."+voiceName+".useFourierMag"), /* Use Fourier magnitudes in Mixed excitation */
                 MaryProperties.getBoolean("voice."+voiceName+".useGV"),     /* Use Global Variance in parameter generation */
                 MaryProperties.getBoolean("voice."+voiceName+".useGmmGV"),  /* Use Global Variance as Gausian Mixture model */
                 MaryProperties.getFilename("voice."+voiceName+".Fgvf"),    /* GV Model LF0 */

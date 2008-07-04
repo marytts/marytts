@@ -73,15 +73,15 @@ public class HMMVoice extends Voice {
     
    /** 
     * constructor */ 
-   public HMMVoice(String[] nameArray, Locale locale, 
-           AudioFormat dbAudioFormat, WaveformSynthesizer synthesizer, 
-           Gender gender, int topStart, int topEnd, int baseStart, int baseEnd,
-           String Ftd, String Ftf, String Ftm, String Fts, String Fta, 
-           String Fmd, String Fmf, String Fmm, String Fms, String Fma,
-           String useMixExc, boolean useGV, boolean useGmmGV, String Fgvf, String Fgvm, 
-           String Fgvs, String Fgva, String Fgmmgvf, String Fgmmgvm,String FeaList, String Flab, 
-           String Fif, int nFilters, int norderFilters) throws Exception {
-       super(nameArray, locale, dbAudioFormat, synthesizer, gender, topStart, topEnd, baseStart, baseEnd);
+    public HMMVoice(String[] nameArray, Locale locale, 
+            AudioFormat dbAudioFormat, WaveformSynthesizer synthesizer, 
+            Gender gender, int topStart, int topEnd, int baseStart, int baseEnd,
+            String Ftd, String Ftf, String Ftm, String Fts, String Fta, 
+            String Fmd, String Fmf, String Fmm, String Fms, String Fma,
+            String useMixExc, String useFourierMag, boolean useGV, boolean useGmmGV, String Fgvf, String Fgvm, 
+            String Fgvs, String Fgva, String Fgmmgvf, String Fgmmgvm,String FeaList, String Flab, 
+            String Fif, int nFilters, int norderFilters) throws Exception {
+        super(nameArray, locale, dbAudioFormat, synthesizer, gender, topStart, topEnd, baseStart, baseEnd);
 
        this.htsData.setTreeDurFile(Ftd);  
        this.htsData.setTreeLf0File(Ftf);           
@@ -99,6 +99,10 @@ public class HMMVoice extends Voice {
         * and the default value should be true. */
        if(useMixExc != null)
          this.htsData.setUseMixExc(Boolean.valueOf(useMixExc).booleanValue());
+       
+       if(useFourierMag != null)
+           this.htsData.setUseFourierMag(Boolean.valueOf(useFourierMag).booleanValue());
+       
        this.htsData.setUseGV(useGV);
        this.htsData.setUseGmmGV(useGmmGV);
        if(useGV){
@@ -118,9 +122,13 @@ public class HMMVoice extends Voice {
        this.htsData.setLabFile(Flab);
 
        /* Configuration for mixed excitation */
-       this.htsData.setMixFiltersFile(Fif); 
-       this.htsData.setNumFilters(nFilters);
-       this.htsData.setOrderFilters(norderFilters);
+       if(Fif != null){
+         this.htsData.setMixFiltersFile(Fif); 
+         this.htsData.setNumFilters(nFilters);
+         this.htsData.setOrderFilters(norderFilters);
+         logger.info("Loading Mixed Excitation Filters File:");
+         this.htsData.readMixedExcitationFiltersFile();
+       }
 
        /* Load ModelSet ts */
        logger.info("Loading Model Set:");

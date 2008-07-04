@@ -82,18 +82,22 @@ public class HTSParameterGeneration {
   public double getMcep(int i, int j){ return mcepPst.getPar(i, j); }
   public int getMcepOrder(){ return mcepPst.getOrder(); }
   public int getMcepT(){ return mcepPst.getT(); }
-  
+  public HTSPStream getMcepPst(){ return mcepPst;}
   
   public double getStr(int i, int j){ return strPst.getPar(i, j); }
   public int getStrOrder(){ return strPst.getOrder(); }
+  public HTSPStream getStrPst(){ return strPst;}
   
   public double getMag(int i, int j){ return magPst.getPar(i, j); }
   public int getMagOrder(){ return magPst.getOrder(); }
+  public HTSPStream getMagPst(){ return magPst;}
   
   public double getLf0(int i, int j){ return lf0Pst.getPar(i, j); }
   public int getLf0Order(){ return lf0Pst.getOrder(); }
+  public HTSPStream getlf0Pst(){ return lf0Pst;}
   
   public boolean getVoiced(int i){ return voiced[i]; }
+  public boolean [] getVoicedArray(){ return voiced; }
 	
   /* Inverse of a given double */
   /* We actually need the inverse of the matrix of covariance, but since this matrix */ 

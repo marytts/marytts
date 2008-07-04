@@ -85,11 +85,12 @@ public class HMMData {
 	private double alpha   = 0.42;  /* variable for frequency warping parameter   */
 	private double beta    = 0.0;   /* variable for postfiltering                 */
 	private double uv      = 0.5;   /* variable for U/V threshold                 */
-	private boolean algnst = false; /* use state level alignment for duration     */
-	private boolean algnph = false; /* use phoneme level alignment for duration   */
-    private boolean useMixExc = true;  /* use Mixed Excitation */
-    private boolean useGV     = false; /* use global variance in parameter generation */
-    private boolean useGmmGV  = false; /* use global variance as a Gaussian Mixture Model */
+	private boolean algnst        = false; /* use state level alignment for duration     */
+	private boolean algnph        = false; /* use phoneme level alignment for duration   */
+    private boolean useMixExc     = true;  /* use Mixed Excitation */
+    private boolean useFourierMag = false;   /* use Fourier magnitudes for pulse generation */
+    private boolean useGV         = false; /* use global variance in parameter generation */
+    private boolean useGmmGV      = false; /* use global variance as a Gaussian Mixture Model */
     
     /** variables for controling generation of speech in the vocoder                
      * these variables have default values but can be fixed and read from the      
@@ -136,6 +137,7 @@ public class HMMData {
 	private String mixFiltersFile; /* this file contains the filter taps for mixed excitation */
 	private int numFilters;
 	private int orderFilters;
+    private double mixFilters[][];      /* filters for mixed excitation */
 	
 	/* Feature list file and Vector which will contain the loaded features from this file */
 	private String featureListFile;
@@ -172,6 +174,7 @@ public class HMMData {
 	public String getPdfMagFile() { return pdfMagFile; } 
     
     public boolean getUseMixExc(){ return useMixExc; }
+    public boolean getUseFourierMag(){ return useFourierMag; }
     public boolean getUseGV(){ return useGV; }
     public boolean getUseGmmGV(){ return useGmmGV; }
     public String getPdfLf0GVFile() { return pdfLf0GVFile; }   
@@ -187,6 +190,7 @@ public class HMMData {
 	public String getMixFiltersFile() { return mixFiltersFile; } 
 	public int getNumFilters(){ return numFilters; }
 	public int getOrderFilters(){ return orderFilters; }
+    public double [][] getMixFilters(){ return mixFilters; }
     
     /* These variables have default values but can be modified with setting in 
      * audio effects component. */
@@ -231,6 +235,7 @@ public class HMMData {
     public void setPdfMagFile(String str) { pdfMagFile = str; } 
     
     public void setUseMixExc(boolean bval){ useMixExc = bval; }
+    public void setUseFourierMag(boolean bval){ useFourierMag = bval; }
     public void setUseGV(boolean bval){ useGV = bval; }
     public void setUseGmmGV(boolean bval){ useGmmGV = bval; }
     
@@ -256,56 +261,68 @@ public class HMMData {
       Properties props = new Properties();
       
       try {
-    	  FileInputStream fis = new FileInputStream( MaryBase+"conf/"+ConfigFile );
-    	  props.load( fis );
-    	  fis.close();
-    	      	  
-    	  treeDurFile = MaryBase + props.getProperty( "voice." + voice + ".Ftd" ).substring(10);
-     	  treeLf0File = MaryBase + props.getProperty( "voice." + voice + ".Ftf" ).substring(10);     	  
-    	  treeMcpFile = MaryBase + props.getProperty( "voice." + voice + ".Ftm" ).substring(10);
-    	  treeStrFile = MaryBase + props.getProperty( "voice." + voice + ".Fts" ).substring(10);
-    	 // treeMagFile = MaryBase + props.getProperty( "voice." + voice + ".Fta" ).substring(10);
-    	  
-    	  pdfDurFile = MaryBase + props.getProperty( "voice." + voice + ".Fmd" ).substring(10);
-    	  pdfLf0File = MaryBase + props.getProperty( "voice." + voice + ".Fmf" ).substring(10);     	  
-    	  pdfMcpFile = MaryBase + props.getProperty( "voice." + voice + ".Fmm" ).substring(10);
-    	  pdfStrFile = MaryBase + props.getProperty( "voice." + voice + ".Fms" ).substring(10);
-    	 // pdfMagFile = MaryBase + props.getProperty( "voice." + voice + ".Fma" ).substring(10);
-    	  
+          FileInputStream fis = new FileInputStream( MaryBase+"conf/"+ConfigFile );
+          props.load( fis );
+          fis.close();
+                  
+          treeDurFile = MaryBase + props.getProperty( "voice." + voice + ".Ftd" ).substring(10);
+          treeLf0File = MaryBase + props.getProperty( "voice." + voice + ".Ftf" ).substring(10);          
+          treeMcpFile = MaryBase + props.getProperty( "voice." + voice + ".Ftm" ).substring(10);
+          if( props.getProperty( "voice." + voice + ".Fts" ) != null)
+            treeStrFile = MaryBase + props.getProperty( "voice." + voice + ".Fts" ).substring(10);
+          if( props.getProperty( "voice." + voice + ".Fta" ) != null)
+            treeMagFile = MaryBase + props.getProperty( "voice." + voice + ".Fta" ).substring(10);
+          
+          pdfDurFile = MaryBase + props.getProperty( "voice." + voice + ".Fmd" ).substring(10);
+          pdfLf0File = MaryBase + props.getProperty( "voice." + voice + ".Fmf" ).substring(10);           
+          pdfMcpFile = MaryBase + props.getProperty( "voice." + voice + ".Fmm" ).substring(10);
+          if( props.getProperty( "voice." + voice + ".Fms" ) != null)
+            pdfStrFile = MaryBase + props.getProperty( "voice." + voice + ".Fms" ).substring(10);
+          if( props.getProperty( "voice." + voice + ".Fma" ) != null)
+            pdfMagFile = MaryBase + props.getProperty( "voice." + voice + ".Fma" ).substring(10);
+          
           if( props.getProperty( "voice." + voice + ".useMixExc" ) != null)
             useMixExc = Boolean.valueOf(props.getProperty( "voice." + voice + ".useMixExc" )).booleanValue();
+          if( props.getProperty( "voice." + voice + ".useFourierMag" ) != null)
+            useFourierMag = Boolean.valueOf(props.getProperty( "voice." + voice + ".useFourierMag" )).booleanValue();
           useGV     = Boolean.valueOf(props.getProperty( "voice." + voice + ".useGV" )).booleanValue();
           useGmmGV  = Boolean.valueOf(props.getProperty( "voice." + voice + ".useGmmGV" )).booleanValue();
           
           if(useGV){
             pdfLf0GVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgvf" ).substring(10);        
             pdfMcpGVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgvm" ).substring(10);
-            pdfStrGVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgvs" ).substring(10);
-            // pdfMagGVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgva" ).substring(10);
+            if( props.getProperty( "voice." + voice + ".Fgvs" ) != null)
+              pdfStrGVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgvs" ).substring(10);
+            if( props.getProperty( "voice." + voice + ".Fgva" ) != null)
+              pdfMagGVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgva" ).substring(10);
           }else if(useGmmGV){
               pdfLf0GVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgmmgvf" ).substring(10);        
               pdfMcpGVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgmmgvm" ).substring(10);
           }
           
-    	  /* Feature list file */
-    	  featureListFile = MaryBase + props.getProperty( "voice." + voice + ".FeaList" ).substring(10);
+          /* Feature list file */
+          featureListFile = MaryBase + props.getProperty( "voice." + voice + ".FeaList" ).substring(10);
           
           /* Example context feature file in HTSCONTEXT_EN format */
           labFile = MaryBase + props.getProperty( "voice." + voice + ".FLab" ).substring(10);
-    	  
-    	  /* Configuration for mixed excitation */
+          
+          /* Configuration for mixed excitation */
           if( treeStrFile != null ) {
-    	    mixFiltersFile = MaryBase + props.getProperty( "voice." + voice + ".Fif" ).substring(10); 
-    	    numFilters     = Integer.parseInt(props.getProperty( "voice." + voice + ".in" ));
-    	    orderFilters   = Integer.parseInt(props.getProperty( "voice." + voice + ".io" ));
+            mixFiltersFile = MaryBase + props.getProperty( "voice." + voice + ".Fif" ).substring(10); 
+            numFilters     = Integer.parseInt(props.getProperty( "voice." + voice + ".in" ));
+            orderFilters   = Integer.parseInt(props.getProperty( "voice." + voice + ".io" ));
+            logger.info("Loading Mixed Excitation Filters File:");
+            readMixedExcitationFiltersFile();
           }
-    	  
-    	  props.clear();
+          
+          props.clear();
           
       } 
       catch (IOException e) {
           logger.debug("Caught IOException: " +  e.getMessage());
-	  }	
+	  }	catch (Exception e) {
+          logger.debug(e.getMessage()); 
+      }
       
       try {
         /* Load TreeSet ts and ModelSet ms for current voice*/
@@ -370,6 +387,44 @@ public class HMMData {
     } /* method ReadFeatureList */
 
     
-    
+    /** Initialisation for mixed excitation : it loads the filter taps are read from 
+     * MixFilterFile specified in the configuration file. */
+    public void readMixedExcitationFiltersFile() throws Exception {
+      String line;
+      mixFilters = new double[numFilters][orderFilters];  
+      /* get the filter coefficients */
+      Scanner s = null;
+        int i,j;
+        try {
+          s = new Scanner(new BufferedReader(new FileReader(mixFiltersFile)));
+          s.useLocale(Locale.US);
+          
+          logger.debug("reading mixed excitation filters file: " + mixFiltersFile);
+          while ( s.hasNext("#") ) {  /* skip comment lines */
+            line = s.nextLine(); 
+            //System.out.println("comment: " + line ); 
+          }
+          for(i=0; i<numFilters; i++){
+            for(j=0; j<orderFilters; j++) {                  
+              if (s.hasNextDouble()) {
+                mixFilters[i][j] = s.nextDouble();
+                //System.out.println("h["+i+"]["+j+"]="+h[i][j]);
+              }
+              else{
+                logger.debug("initMixedExcitation: not enough fiter taps in file = " + mixFiltersFile);
+                throw new Exception("initMixedExcitation: not enough fiter taps in file = " + mixFiltersFile);
+              }
+            }
+          }   
+        } catch (FileNotFoundException e) {
+            logger.debug("initMixedExcitation: " + e.getMessage());
+            throw new FileNotFoundException("initMixedExcitation: " + e.getMessage());
+        } finally {
+            s.close();
+        }   
+        
+    } /* method readMixedExcitationFiltersFile() */
+
+
 	
 }
