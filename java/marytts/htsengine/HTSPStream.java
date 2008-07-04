@@ -135,9 +135,13 @@ public class HTSPStream {
     
   }
 
+  public void setVsize(int val){ vSize=val; }
+  public int getVsize(){ return vSize; }
+  
   public void setOrder(int val){ order=val; }
   public int getOrder(){ return order; }
   
+  public void setPar(int i, int j, double val){ par[i][j] = val; }
   public double getPar(int i, int j){ return par[i][j]; }
   public int getT(){ return nT; }
   
@@ -187,12 +191,13 @@ public class HTSPStream {
        /* Global variance optimisation for MCP and LF0 */
        if( (htsData.getUseGV() || htsData.getUseGmmGV() ) && ( feaType == HMMData.MCP || feaType == HMMData.LF0 ) ) {
          if(feaType == HMMData.MCP)  
-           logger.info("Optimization MCP feature: ("+ m + ")"); 
+           logger.info("GV optimization for MCP feature: ("+ m + ")"); 
          if(feaType == HMMData.LF0)  
-             logger.info("Optimization LF0 feature: ("+ m + ")");
-         gvParmGen(m, htsData.getGVModelSet());  
+             logger.info("GV optimization for LF0 feature: ("+ m + ")");
+         gvParmGen(m, htsData.getGVModelSet(), debug);  
        
-         logger.info("\nTotal number of iterations = " + htsData.getGVModelSet().getTotalNumIter() + 
+        if(debug) 
+        logger.info("Total number of iterations = " + htsData.getGVModelSet().getTotalNumIter() + 
                      "  average = " + htsData.getGVModelSet().getTotalNumIter()/M + 
                      "  first iteration = " + htsData.getGVModelSet().getFirstIter() );
        }
@@ -356,7 +361,7 @@ public class HTSPStream {
   /*----------------- GV functions  -----------------------------*/
   
  // private void gvParmGen(int m, int numMix, double gvmean[][], double gvcovInv[][]){
-  private void gvParmGen(int m, GVModelSet gv){
+  private void gvParmGen(int m, GVModelSet gv, boolean debug){
       
     int t,iter;
     double step=stepInit;
@@ -429,19 +434,24 @@ public class HTSPStream {
            }
         }
           
-      } else
-       logger.info("  First iteration:  GVobj=" + obj + " (HMMobj=" + HMMobj + "  GVobj=" + GVobj + ")");
+      } else {
+       if(debug)   
+         logger.info("  First iteration:  GVobj=" + obj + " (HMMobj=" + HMMobj + "  GVobj=" + GVobj + ")");
+      }
       
       /* convergence check (Euclid norm, objective function) */
       if(norm < minEucNorm || (iter > 1 && Math.abs(obj-prev) < GVepsilon )){
-        logger.info("  Number of iterations: [   " + iter + "   ] GVobj=" + obj + " (HMMobj=" + HMMobj + "  GVobj=" + GVobj + ")");
+        if(debug)  
+          logger.info("  Number of iterations: [   " + iter + "   ] GVobj=" + obj + " (HMMobj=" + HMMobj + "  GVobj=" + GVobj + ")");
         gv.incTotalNumIter(iter);
         if(m==0)
           gv.setFirstIter(iter);
-        if(iter > 1 )
+        if(debug){
+          if(iter > 1 )  
             logger.info("  Converged (norm=" + norm + ", change=" + Math.abs(obj-prev) + ")");
-        else
+          else            
             logger.info("  Converged (norm=" + norm + ")");
+        }
         break;
       }
       

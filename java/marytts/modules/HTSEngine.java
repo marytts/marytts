@@ -99,7 +99,6 @@ import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 
 
-
 /**
  * HTSEngine: a compact HMM-based speech synthesis engine.
  * 
@@ -406,8 +405,8 @@ public class HTSEngine extends InternalModule
       
       /* For initialise provide the name of the hmm voice and the name of its configuration file,
        * also indicate the name of your MARY_BASE directory.*/
-      String MaryBase = "/project/mary/marcela/MARY TTS/";
-      htsData.initHMMData("hmm-bits1", MaryBase, "german-hmm-bits1.config");
+      String MaryBase = "/project/mary/marcela/MARY-TTS/";
+      htsData.initHMMData("hmm-mag-slt", MaryBase, "english-hmm-mag-slt.config");
     
       /** The utterance model, um, is a Vector (or linked list) of Model objects. 
        * It will contain the list of models for current label file. */
@@ -441,7 +440,13 @@ public class HTSEngine extends InternalModule
             AudioSystem.write(ais, AudioFileFormat.Type.WAVE, fileOut);
           }
 
-          System.exit(0);
+          System.out.println("Calling audioplayer:");
+          AudioPlayer player = new AudioPlayer(fileOut);
+          player.start();  
+          player.join();
+          System.out.println("audioplayer finished...");
+          
+          //System.exit(0);
 
       } catch (Exception e) {
           System.err.println("Exception: " + e.getMessage());
