@@ -41,7 +41,7 @@ import marytts.util.ArrayUtils;
 import marytts.util.FFT;
 import marytts.util.FFTMixedRadix;
 import marytts.util.MathUtils;
-import marytts.util.MathUtils.Complex;
+import marytts.util.ComplexArray;
 
 
 /**
@@ -54,9 +54,9 @@ public class VocalTractModifier implements InlineDataProcessor {
     protected int fs;
     protected int fftSize;
     protected int maxFreq;
-    protected Complex h;
+    protected ComplexArray h;
     protected double [] vtSpectrum;
-    private Complex expTerm;
+    private ComplexArray expTerm;
     private boolean bAnalysisOnly;
     public static int tmpCount = 0;
     /**
@@ -78,17 +78,17 @@ public class VocalTractModifier implements InlineDataProcessor {
     }
     
     //If bAnalysisOnly is true, it will not process the spectrum and after each call to applyInline, you will obtain
-    // the real valued vocal tract spectrum in vtSpectrum and the complex valued excitation spectrum in real and imag
+    // the real valued vocal tract spectrum in vtSpectrum and the ComplexArray valued excitation spectrum in real and imag
     public void initialise(int pIn, int fsIn, int fftSizeIn, boolean bAnalysisOnlyIn)
     {
         this.p = pIn;
         this.fs = fsIn;
         this.fftSize = fftSizeIn;
         fftSize = MathUtils.closestPowerOfTwoAbove(fftSize);
-        h = new Complex(fftSize);
+        h = new ComplexArray(fftSize);
         this.maxFreq = SignalProcUtils.halfSpectrumSize(fftSize);
         this.vtSpectrum = new double[maxFreq];
-        this.expTerm = new Complex(p*maxFreq);
+        this.expTerm = new ComplexArray(p*maxFreq);
         this.expTerm = LPCAnalyser.calcExpTerm(fftSize, p);
         this.bAnalysisOnly = bAnalysisOnlyIn;
     }
@@ -126,7 +126,7 @@ public class VocalTractModifier implements InlineDataProcessor {
         Arrays.fill(h.imag, 0, h.imag.length-1, 0);
         
         // Convert to polar coordinates in frequency domain
-        //h = FFTMixedRadix.fftComplex(h);
+        //h = FFTMixedRadix.fftComplexArray(h);
         FFT.transform(h.real, h.imag, false);
         
         vtSpectrum = LPCAnalyser.calcSpec(coeffs.getA(), p, fftSize, expTerm);

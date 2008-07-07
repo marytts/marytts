@@ -27,14 +27,14 @@
  * THIS SOFTWARE.
  */
 
-package marytts.signalproc.distance;
+package marytts.signalproc.analysis.distance;
 
 /**
  * @author oytun.turk
  *
  */
-public class KullbackLeiblerLPSpectralEnvelopeDistanceComputer extends BaselineLPSpectralEnvelopeDistortionComputer {
-    public KullbackLeiblerLPSpectralEnvelopeDistanceComputer()
+public class ItakuraSaitoDistanceComputer extends BaselineLPSpectralEnvelopeDistortionComputer {
+    public ItakuraSaitoDistanceComputer()
     {
         super();
     }
@@ -43,8 +43,7 @@ public class KullbackLeiblerLPSpectralEnvelopeDistanceComputer extends BaselineL
     {
         super.frameDistance(frm1, frm2, fftSize, lpOrder);
         
-        //double dist = SpectralDistanceMeasures.kullbackLeiblerSymmetricSpectralDist(frm1, frm2, fftSize, lpOrder);
-        double dist = SpectralDistanceMeasures.kullbackLeiblerSpectralDist(frm1, frm2, fftSize, lpOrder);
+        double dist = SpectralDistanceMeasures.itakuraSaitoDist(frm1, frm2, fftSize, lpOrder);
         
         return dist;
     }
@@ -52,8 +51,8 @@ public class KullbackLeiblerLPSpectralEnvelopeDistanceComputer extends BaselineL
     //Put source and target wav and lab files into two folders and call this function
     public static void main(String[] args)
     {
-        KullbackLeiblerLPSpectralEnvelopeDistanceComputer sdc = new KullbackLeiblerLPSpectralEnvelopeDistanceComputer();
+        ItakuraSaitoDistanceComputer sdc = new ItakuraSaitoDistanceComputer();
         
-        sdc.mainBase("kullbackLeiblerLPSpectralEnvelope.txt");
+        sdc.mainBase("itakuraSaitoLPSpectralEnvelope.txt");
     }
 }

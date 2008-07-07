@@ -27,35 +27,14 @@
  * THIS SOFTWARE.
  */
 
-package marytts.signalproc.distance;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
-
-import marytts.signalproc.adaptation.BaselineAdaptationItem;
-import marytts.signalproc.adaptation.BaselineAdaptationSet;
-import marytts.signalproc.adaptation.BaselineFeatureExtractor;
-import marytts.signalproc.analysis.LsfFileHeader;
-import marytts.signalproc.analysis.Lsfs;
-import marytts.signalproc.util.ESTLabels;
-import marytts.signalproc.util.SignalProcUtils;
-import marytts.util.FileUtils;
-import marytts.util.MathUtils;
-import marytts.util.audio.AudioDoubleDataSource;
-
+package marytts.signalproc.analysis.distance;
 
 /**
  * @author oytun.turk
  *
  */
-public class RmsLogLPSpectralEnvelopeDistortionComputer extends BaselineLPSpectralEnvelopeDistortionComputer {
-    
-    public RmsLogLPSpectralEnvelopeDistortionComputer()
+public class CoshDistanceComputer extends BaselineLPSpectralEnvelopeDistortionComputer {
+    public CoshDistanceComputer()
     {
         super();
     }
@@ -64,14 +43,16 @@ public class RmsLogLPSpectralEnvelopeDistortionComputer extends BaselineLPSpectr
     {
         super.frameDistance(frm1, frm2, fftSize, lpOrder);
         
-        return SpectralDistanceMeasures.rmsLogSpectralDist(frm1, frm2, fftSize, lpOrder);
+        double dist = SpectralDistanceMeasures.coshDist(frm1, frm2, fftSize, lpOrder);
+        
+        return dist;
     }
     
     //Put source and target wav and lab files into two folders and call this function
     public static void main(String[] args)
     {
-        RmsLogLPSpectralEnvelopeDistortionComputer sdc = new RmsLogLPSpectralEnvelopeDistortionComputer();
+        CoshDistanceComputer sdc = new CoshDistanceComputer();
         
-        sdc.mainBase("rmsLogLPSpectralEnvelope.txt");
+        sdc.mainBase("coshLPSpectralEnvelope.txt");
     }
 }

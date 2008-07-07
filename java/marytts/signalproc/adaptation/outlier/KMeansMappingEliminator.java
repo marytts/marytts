@@ -39,7 +39,7 @@ import marytts.signalproc.adaptation.OutlierStatus;
 import marytts.signalproc.adaptation.codebook.WeightedCodebook;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookFile;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookFileHeader;
-import marytts.signalproc.distance.DistanceComputer;
+import marytts.signalproc.analysis.distance.DistanceComputer;
 import marytts.util.MathUtils;
 
 

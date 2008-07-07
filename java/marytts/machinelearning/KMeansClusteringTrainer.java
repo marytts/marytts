@@ -31,7 +31,7 @@ package marytts.machinelearning;
 
 import java.util.Arrays;
 
-import marytts.signalproc.distance.DistanceComputer;
+import marytts.signalproc.analysis.distance.DistanceComputer;
 import marytts.util.MathUtils;
 
 

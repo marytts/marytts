@@ -69,7 +69,6 @@ import marytts.signalproc.process.FDPSOLAProcessor;
 import marytts.signalproc.process.PSOLAFrameProvider;
 import marytts.signalproc.process.VoiceModificationParametersPreprocessor;
 import marytts.signalproc.util.ESTLabels;
-import marytts.signalproc.util.InterpolationUtils;
 import marytts.signalproc.util.LEDataInputStream;
 import marytts.signalproc.util.LEDataOutputStream;
 import marytts.signalproc.util.SignalProcUtils;
@@ -80,7 +79,7 @@ import marytts.util.FFTMixedRadix;
 import marytts.util.FileUtils;
 import marytts.util.MaryUtils;
 import marytts.util.MathUtils;
-import marytts.util.MathUtils.Complex;
+import marytts.util.ComplexArray;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DDSAudioInputStream;
@@ -156,7 +155,7 @@ public class FdpsolaAdapter {
 
     protected double [] inputVT;
     protected double [] py2;
-    protected Complex hy;
+    protected ComplexArray hy;
     protected double [] frmy;
     protected double frmEn;
     protected double frmyEn;
@@ -697,7 +696,7 @@ public class FdpsolaAdapter {
         }
 
         double [] tmpSpec;
-        Complex tmpComp;
+        ComplexArray tmpComp;
 
         LPCoeffs inputLPCoeffs = null;
         double[] inputLpcs = null;
@@ -705,12 +704,12 @@ public class FdpsolaAdapter {
         double sqrtInputGain; 
         double [] targetLpcs = null;
 
-        Complex inputDft = null;
-        Complex inputExpTerm = null;
-        Complex outputExpTerm = null;
-        Complex inputResidual = null;
-        Complex outputResidual = null;
-        Complex outputDft = null;
+        ComplexArray inputDft = null;
+        ComplexArray inputExpTerm = null;
+        ComplexArray outputExpTerm = null;
+        ComplexArray inputResidual = null;
+        ComplexArray outputResidual = null;
+        ComplexArray outputDft = null;
 
         double[] inputVocalTractSpectrum = null;
         double[] interpolatedInputLpcs = null;
@@ -804,7 +803,7 @@ public class FdpsolaAdapter {
                     }
                 }
 
-                inputDft = new Complex(fftSize);
+                inputDft = new ComplexArray(fftSize);
 
                 System.arraycopy(frm, 0, inputDft.real, 0, Math.min(frmSize, inputDft.real.length));
 
@@ -818,7 +817,7 @@ public class FdpsolaAdapter {
                 //For checking
                 if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime)
                 {
-                    tmpComp = new Complex(inputDft);
+                    tmpComp = new ComplexArray(inputDft);
                     tmpSpec = MathUtils.amp2db(tmpComp, 0, maxFreq);
                     MaryUtils.plot(tmpSpec, "1.Input DFT");
                 }
@@ -873,7 +872,7 @@ public class FdpsolaAdapter {
                 }
                 //
 
-                inputResidual = new Complex(fftSize);
+                inputResidual = new ComplexArray(fftSize);
 
                 // Filter out vocal tract to obtain the input residual spectrum (note that this is the real residual spectrum)
                 for (k=0; k<maxFreq; k++)
@@ -885,7 +884,7 @@ public class FdpsolaAdapter {
                 //For checking
                 if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime)
                 {
-                    tmpComp = new Complex(inputResidual);
+                    tmpComp = new ComplexArray(inputResidual);
                     tmpSpec = MathUtils.amp2db(tmpComp, 0, maxFreq-1);
                     MaryUtils.plot(tmpSpec, "4.Input Residual");
                 }
@@ -1032,7 +1031,7 @@ public class FdpsolaAdapter {
                 if (bWarp)
                 {
                     tmpvsc[0] = vscale;
-                    newVScales = InterpolationUtils.modifySize(tmpvsc, newMaxFreq); //Modify length to match current length of spectrum
+                    newVScales = MathUtils.modifySize(tmpvsc, newMaxFreq); //Modify length to match current length of spectrum
 
                     for (k=0; k<newVScales.length; k++)
                     {
@@ -1057,7 +1056,7 @@ public class FdpsolaAdapter {
                 }
 
                 //Create output DFT spectrum
-                outputResidual = new Complex(newFftSize);
+                outputResidual = new ComplexArray(newFftSize);
                 outputResidual.real = MathUtils.zeros(newFftSize);
                 outputResidual.imag = MathUtils.zeros(newFftSize);
 
@@ -1097,14 +1096,14 @@ public class FdpsolaAdapter {
                 //For checking
                 if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime)
                 {
-                    tmpComp = new Complex(outputResidual);
+                    tmpComp = new ComplexArray(outputResidual);
                     tmpSpec = MathUtils.amp2db(tmpComp, 0, newMaxFreq-1);
                     MaryUtils.plot(tmpSpec, "7.Output Residual");
                 }
                 //
 
                 //Filter the output residual with the estimated target vocal tract spectrum
-                outputDft = new Complex(newFftSize);
+                outputDft = new ComplexArray(newFftSize);
 
                 //Smoothing
                 if (baseParams.smoothingMethod==SmoothingDefinitions.OUTPUT_VOCALTRACTSPECTRUM_SMOOTHING)
@@ -1146,7 +1145,7 @@ public class FdpsolaAdapter {
                 //For checking
                 if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime)
                 {
-                    tmpComp = new Complex(outputDft);
+                    tmpComp = new ComplexArray(outputDft);
                     tmpSpec = MathUtils.amp2db(tmpComp, 0, newMaxFreq);
                     MaryUtils.plot(tmpSpec, "9.Output DFT");
                     bShowSpectralPlots = false;

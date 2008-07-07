@@ -54,7 +54,7 @@ import marytts.util.FFT;
 import marytts.util.FFTMixedRadix;
 import marytts.util.MaryUtils;
 import marytts.util.MathUtils;
-import marytts.util.MathUtils.Complex;
+import marytts.util.ComplexArray;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DDSAudioInputStream;
@@ -488,7 +488,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         setNeighFreq();
 
         int maxFreq = (int) (Math.floor(0.5*fftSize+0.5)+1);
-        Complex Y = new Complex(fftSize);
+        ComplexArray Y = new ComplexArray(fftSize);
         int i;
         
         //Perform circular buffering as described in (Quatieri, 2001) to provide correct phase estimates
@@ -498,10 +498,10 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         //
 
         //Take windowed frame derivative´s FFT for spectral reassignment
-        Complex windowedFrameDerivativeFFT = null;
+        ComplexArray windowedFrameDerivativeFFT = null;
         if (bSpectralReassignment)
         {
-            windowedFrameDerivativeFFT = new Complex(fftSize);
+            windowedFrameDerivativeFFT = new ComplexArray(fftSize);
             double[] dfrm = new double[frm.length];
             
             dfrm[0] = frm[0];
@@ -783,7 +783,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
     //               in IEEE Trans. on Signal Proc., Vol. 43, Issue 5, May 1995, pp. 1068-1089.
     //            Borum, S. and Jensen, K., 1999, "Additive analysis/synthesis using analytically derived windows", 
     //               in Proc. of the 2nd COST G-6 Workshop on Digital Audio Effects (DAFx-99), NTNU, Trondheim,  
-    public float[] refineBySpectralReassignment(Complex windowedFrameFFT, Complex windowedFrameDerivativeFFT, float[] freqInds)
+    public float[] refineBySpectralReassignment(ComplexArray windowedFrameFFT, ComplexArray windowedFrameDerivativeFFT, float[] freqInds)
     {
         float[] freqIndsRefined = null;
 

@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.util.ESTLabels;
-import marytts.signalproc.util.InterpolationUtils;
 import marytts.signalproc.util.SignalProcUtils;
 import marytts.util.FestivalUtt;
 import marytts.util.MathUtils;
@@ -190,16 +189,16 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
 
         //Find pscale, tscale and escale values corresponding to each fixed skip rate frame
         if (pscales.length != numfrmFixed)
-            pscales = InterpolationUtils.modifySize(pscales, numfrmFixed);
+            pscales = MathUtils.modifySize(pscales, numfrmFixed);
         
         if (tscales.length !=numfrmFixed)
-            tscales = InterpolationUtils.modifySize(tscales, numfrmFixed);
+            tscales = MathUtils.modifySize(tscales, numfrmFixed);
         
         if (escales.length != numfrmFixed)
-            escales = InterpolationUtils.modifySize(escales, numfrmFixed);
+            escales = MathUtils.modifySize(escales, numfrmFixed);
         
         if (vscales.length != numfrmFixed)
-            vscales = InterpolationUtils.modifySize(vscales, numfrmFixed);
+            vscales = MathUtils.modifySize(vscales, numfrmFixed);
         //
 
         //Determine the pitch, time, and energy scaling factors corresponding to each pitch synchronous frame

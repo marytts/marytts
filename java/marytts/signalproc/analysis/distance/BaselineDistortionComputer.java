@@ -27,32 +27,15 @@
  * THIS SOFTWARE.
  */
 
-package marytts.signalproc.distance;
+package marytts.signalproc.analysis.distance;
 
 /**
  * @author oytun.turk
  *
  */
-public class CoshDistanceComputer extends BaselineLPSpectralEnvelopeDistortionComputer {
-    public CoshDistanceComputer()
+public class BaselineDistortionComputer {
+    public BaselineDistortionComputer()
     {
-        super();
-    }
-    
-    public double frameDistance(double[] frm1, double[] frm2, int fftSize, int lpOrder)
-    {
-        super.frameDistance(frm1, frm2, fftSize, lpOrder);
         
-        double dist = SpectralDistanceMeasures.coshDist(frm1, frm2, fftSize, lpOrder);
-        
-        return dist;
-    }
-    
-    //Put source and target wav and lab files into two folders and call this function
-    public static void main(String[] args)
-    {
-        CoshDistanceComputer sdc = new CoshDistanceComputer();
-        
-        sdc.mainBase("coshLPSpectralEnvelope.txt");
     }
 }
