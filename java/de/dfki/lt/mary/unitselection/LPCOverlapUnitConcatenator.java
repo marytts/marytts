@@ -29,7 +29,7 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-package marytts.signalproc.process;
+package de.dfki.lt.mary.unitselection;
 
 import java.io.IOException;
 import java.util.Iterator;
