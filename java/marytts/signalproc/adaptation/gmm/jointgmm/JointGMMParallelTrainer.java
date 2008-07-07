@@ -58,7 +58,7 @@ import marytts.signalproc.adaptation.codebook.WeightedCodebookTrainerParams;
 import marytts.signalproc.adaptation.outlier.KMeansMappingEliminatorParams;
 import marytts.signalproc.adaptation.outlier.TotalStandardDeviations;
 import marytts.signalproc.adaptation.prosody.PitchMappingFile;
-import marytts.signalproc.util.distance.DistanceComputer;
+import marytts.signalproc.distance.DistanceComputer;
 import marytts.signalproc.window.Window;
 import marytts.util.FileUtils;
 import marytts.util.MathUtils;

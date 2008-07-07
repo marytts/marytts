@@ -33,8 +33,8 @@ import java.util.Arrays;
 
 import marytts.signalproc.adaptation.Context;
 import marytts.signalproc.adaptation.VocalTractTransformationFunction;
+import marytts.signalproc.distance.DistanceComputer;
 import marytts.signalproc.util.SignalProcUtils;
-import marytts.signalproc.util.distance.DistanceComputer;
 import marytts.util.MathUtils;
 
 
