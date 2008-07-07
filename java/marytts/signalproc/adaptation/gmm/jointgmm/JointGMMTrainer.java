@@ -16,7 +16,7 @@ import marytts.signalproc.adaptation.codebook.WeightedCodebookTrainer;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookTrainerParams;
 import marytts.signalproc.adaptation.outlier.KMeansMappingEliminatorParams;
 import marytts.signalproc.adaptation.outlier.TotalStandardDeviations;
-import marytts.signalproc.util.distance.DistanceComputer;
+import marytts.signalproc.distance.DistanceComputer;
 import marytts.signalproc.window.Window;
 
 
