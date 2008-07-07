@@ -70,9 +70,9 @@ import marytts.util.audio.DDSAudioInputStream;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.MathUtils;
-import marytts.util.MathUtils.Complex;
-import marytts.signalproc.FFTMixedRadix;
-import marytts.signalproc.FFT;
+import marytts.util.ComplexArray;
+import marytts.util.FFTMixedRadix;
+import marytts.util.FFT;
 
 import org.apache.log4j.Logger;
 
@@ -1174,7 +1174,7 @@ public class HTSVocoder {
       
       /* get the pulse */      
       pulse = new double[T];
-      MathUtils.Complex magPulse = new MathUtils.Complex(T*2);
+      ComplexArray magPulse = new ComplexArray(T*2);
       
       
 //      System.out.println("  n: " + n + "  f0=" + T);
@@ -1198,7 +1198,7 @@ public class HTSVocoder {
       //double [] ifftReal(Complex x, int ifftSize)
       //p = FFTMixedRadix.ifftReal(magPulse, T);
       //Complex ifft(Complex x)
-      MathUtils.Complex ifftPulse;
+      ComplexArray ifftPulse;
       ifftPulse = FFTMixedRadix.ifft(magPulse);
       
       for(i=0; i<T; i++){
@@ -1245,7 +1245,7 @@ public class HTSVocoder {
     
     
     /** 
-     * Stand alone testing reading parameters form files in SPTK format and little-endian. */
+     * Stand alone testing reading parameters from files in SPTK format and little-endian. */
     public static void main(String[] args) throws IOException, InterruptedException, Exception{
        /* configure log info */
        org.apache.log4j.BasicConfigurator.configure();
@@ -1308,12 +1308,23 @@ public class HTSVocoder {
            voiceExample = "cmu_us_arctic_slt_a0001";
            htsData.initHMMData(voiceName, MaryBase, "english-hmm-"+voiceHMM+".config");    
 
+       /* parameters extracted from real data */
+           
        lf0File = "/project/mary/marcela/hmm-gen-experiment/lf0/cmu_us_arctic_slt_a0001-littend.lf0";
        mcepFile = "/project/mary/marcela/hmm-gen-experiment/mgc/cmu_us_arctic_slt_a0001-littend.mgc";
        strFile = "/project/mary/marcela/hmm-gen-experiment/str/cmu_us_arctic_slt_a0001-littend.str";
        magFile = "/project/mary/marcela/hmm-gen-experiment/mag/cmu_us_arctic_slt_a0001-littend.mag";
-       //resFile = "/project/mary/marcela/hmm-gen-experiment/residual_sinResynth/cmu_us_arctic_slt_a0001_res.wav";
-       resFile = "/project/mary/marcela/hmm-gen-experiment/residual_sinResynth/cmu_us_arctic_slt_a0001_res_sinResynth.wav";
+       
+       /* parameters generated from HMMs */
+        /*  
+       lf0File = "/project/mary/marcela/hmm-mag-experiment/gen-par/slt-gen.lf0";
+       mcepFile = "/project/mary/marcela/hmm-mag-experiment/gen-par/slt-gen.mgc";
+       strFile = "/project/mary/marcela/hmm-mag-experiment/gen-par/slt-gen.str";
+       magFile = "/project/mary/marcela/hmm-mag-experiment/gen-par/slt-gen.mag";
+       */
+       
+       resFile = "/project/mary/marcela/hmm-gen-experiment/residual_sinResynth/cmu_us_arctic_slt_a0001_res.wav";
+       //resFile = "/project/mary/marcela/hmm-gen-experiment/residual_sinResynth/cmu_us_arctic_slt_a0001_res_sinResynth.wav";
        }
        
         
@@ -1409,8 +1420,8 @@ public class HTSVocoder {
        double [] audio_double = null;
        
        HTSVocoder par2speech = new HTSVocoder();
-       audio_double = par2speech.htsMLSAVocoder(lf0Pst, mcepPst, strPst, magPst, voiced, htsData);
-       //audio_double = par2speech.htsMLSAVocoder_residual(lf0Pst, mcepPst, strPst, magPst, voiced, htsData, resFile);
+       //audio_double = par2speech.htsMLSAVocoder(lf0Pst, mcepPst, strPst, magPst, voiced, htsData);
+       audio_double = par2speech.htsMLSAVocoder_residual(lf0Pst, mcepPst, strPst, magPst, voiced, htsData, resFile);
        
        long lengthInSamples = (audio_double.length * 2 ) / (sampleSizeInBits/8);
        par2speech.logger.info("length in samples=" + lengthInSamples );
@@ -1424,16 +1435,7 @@ public class HTSVocoder {
        
        
        String fileOutName;         
-      /* if(!htsData.getUseGV() && htsData.getUseMixExc())
-           fileOutName = "/project/mary/marcela/hmm-gen-experiment/" +voiceHMM+"-nogv-mix-" + voiceExample + ".wav";
-       else if(htsData.getUseGV() && !htsData.getUseMixExc())
-           fileOutName = "/project/mary/marcela/hmm-gen-experiment/" +voiceHMM+"-gv-nomix-" + voiceExample + ".wav";
-       else if(!htsData.getUseGV() && !htsData.getUseMixExc())
-           fileOutName = "/project/mary/marcela/hmm-gen-experiment/" +voiceHMM+"-nogv-nomix-" + voiceExample + ".wav";
-       else
-           fileOutName = "/project/mary/marcela/hmm-gen-experiment/" +voiceHMM+"-gv-mix-" + voiceExample + ".wav";
-       */
-       fileOutName = "/project/mary/marcela/hmm-gen-experiment/residual_sinResynth/mlsa_res/" + voiceExample + ".wav"; 
+       fileOutName = "/project/mary/marcela/hmm-mag-experiment/gen-par/" + voiceExample + ".wav"; 
        File fileOut = new File(fileOutName);
        System.out.println("saving to file: " + fileOutName);
            
