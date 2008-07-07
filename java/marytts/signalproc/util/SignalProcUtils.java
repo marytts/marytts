@@ -56,7 +56,7 @@ public class SignalProcUtils {
     //Returns an odd filter order depending on the sampling rate for FIR filter design
     public static int getFIRFilterOrder(int fs)
     {
-        int oddFilterOrder = getDFTSize(fs) - 1;
+        int oddFilterOrder = getDFTSize(fs)-1;
         if (oddFilterOrder%2==0)
             oddFilterOrder++;
         
@@ -1750,17 +1750,17 @@ public class SignalProcUtils {
         return yRet;
     }
 
-    public static double[] filterfd(double[] filterFFTAbsMag, double[] x, int samplingRate)
+    public static double[] filterfd(double[] filterFFTAbsMag, double[] x, double samplingRate)
     {
         return filterfd(filterFFTAbsMag, x, samplingRate, 0.020);
     }
     
-    public static double[] filterfd(double[] filterFFTAbsMag, double[] x, int samplingRate, double winsize)
+    public static double[] filterfd(double[] filterFFTAbsMag, double[] x, double samplingRate, double winsize)
     {
         return filterfd(filterFFTAbsMag, x, samplingRate, winsize, 0.010);
     }
     
-    public static double[] filterfd(double[] filterFFTAbsMag, double[] x, int samplingRate, double winsize, double skipsize)
+    public static double[] filterfd(double[] filterFFTAbsMag, double[] x, double samplingRate, double winsize, double skipsize)
     {
         double[] y = null;
 

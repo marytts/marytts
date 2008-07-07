@@ -45,6 +45,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.PitchMarker;
+import marytts.signalproc.filter.FilterBankAnalyserBase;
 import marytts.signalproc.util.SignalProcUtils;
 import marytts.signalproc.window.Window;
 import marytts.util.FileUtils;
@@ -165,25 +166,25 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
         }
         else if (analyzerType==BaseSinusoidalAnalyzer.FIXEDRATE_MULTIRESOLUTION_ANALYZER)
         {
-            an = new MultiresolutionSinusoidalAnalyzer();
-            
             //These should be input as well
-            int multiresolutionFilterbankType = MultiresolutionSinusoidalAnalyzer.FIR_BANDPASS_FILTERBANK;
+            int multiresolutionFilterbankType = FilterBankAnalyserBase.FIR_BANDPASS_FILTERBANK;
             int numBands = 4;
             double lowestBandWindowSizeInSeconds = 0.020;
             boolean bFreqLimitedAnalysis = true;
             //
             
-            st = ((MultiresolutionSinusoidalAnalyzer)an).analyzeFixedRate(x, fs,
-                                                                          multiresolutionFilterbankType,
-                                                                          numBands,
-                                                                          lowestBandWindowSizeInSeconds,
-                                                                          windowType,
-                                                                          bRefinePeakEstimatesParabola,
-                                                                          bRefinePeakEstimatesBias,
-                                                                          bSpectralReassignment,
-                                                                          bAdjustNeighFreqDependent,
-                                                                          bFreqLimitedAnalysis);
+            an = new MultiresolutionSinusoidalAnalyzer(multiresolutionFilterbankType, numBands, fs);
+            
+            
+            
+            st = ((MultiresolutionSinusoidalAnalyzer)an).analyze(x,
+                                                                 lowestBandWindowSizeInSeconds,
+                                                                 windowType,
+                                                                 bRefinePeakEstimatesParabola,
+                                                                 bRefinePeakEstimatesBias,
+                                                                 bSpectralReassignment,
+                                                                 bAdjustNeighFreqDependent,
+                                                                 bFreqLimitedAnalysis);
         } 
         else if (analyzerType==BaseSinusoidalAnalyzer.PITCHSYNCHRONOUS_MULTIRESOLUTION_ANALYZER)
         {

@@ -205,7 +205,9 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
             if (ws%2==0) //Always use an odd window size to have a zero-phase analysis window
                 ws++;
             
+            //System.out.println("ws=" + String.valueOf(ws) + " minWindowSize=" + String.valueOf(minWindowSize));
             ws = Math.max(ws, minWindowSize);
+         
             frm = new double[ws];
             
             Arrays.fill(frm, 0.0);

@@ -108,10 +108,10 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
     protected int [] freqSampNeighs; //Number of neighbouring samples to search for a peak in the spectrum
     protected boolean bAdjustNeighFreqDependent; //Adjust number of neighbouring samples to search for a peak adaptively depending on frequency?
     public static int DEFAULT_FREQ_SAMP_NEIGHS = 2; //Default search range for all frequencies for spectral peak detection
-    
+   
     public static float MIN_WINDOW_SIZE = 0.020f; 
     protected int minWindowSize; //Minimum window size allowed to satisfy 100 Hz criterion for unvoiced sounds computed from MIN_WINDOW_SIZE and sampling rate
-    
+
     public double absMax; //Keep absolute max of the input signal for normalization after resynthesis
     public double totalEnergy; //Keep total energy for normalization after resynthesis
     
@@ -147,7 +147,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         minWindowSize = (int)(Math.floor(fs*MIN_WINDOW_SIZE+0.5));
         if (minWindowSize%2==0) //Always use an odd window size to have a zero-phase analysis window
             minWindowSize++;
-        
+
         absMax = -1.0;
         totalEnergy = 0.0;
         LPOrder = SignalProcUtils.getLPOrder(fs);
@@ -348,6 +348,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         if (ws%2==0) //Always use an odd window size to have a zero-phase analysis window
             ws++;
         
+        //System.out.println("ws=" + String.valueOf(ws) + " minWindowSize=" + String.valueOf(minWindowSize));
         ws = Math.max(ws, minWindowSize);
         
         ss = (int)Math.floor(skipSizeInSeconds*fs + 0.5);
@@ -403,9 +404,11 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
                 peakCount = sinSignal.framesSins[i].sinusoids.length;
             }   
             
-            sinSignal.framesSins[i].time = currentTime;
-            
-            System.out.println("Analysis complete at " + String.valueOf(sinSignal.framesSins[i].time) + "s. for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm) + "(found " + String.valueOf(peakCount) + " peaks)");
+            if (sinSignal.framesSins[i]!=null)
+            {
+                sinSignal.framesSins[i].time = currentTime;
+                System.out.println("Analysis complete at " + String.valueOf(sinSignal.framesSins[i].time) + "s. for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm) + "(found " + String.valueOf(peakCount) + " peaks)");
+            }
         }
         //
         

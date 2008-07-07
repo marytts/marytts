@@ -34,5 +34,5 @@ package marytts.signalproc.filter;
  *
  */
 public interface FilterBankAnalyser {
-    public Subband[] apply(double[] x, int samplingRateInHz);
+    public Subband[] apply(double[] x);
 }

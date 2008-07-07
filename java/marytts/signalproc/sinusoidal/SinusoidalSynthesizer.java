@@ -208,11 +208,13 @@ public class SinusoidalSynthesizer {
             if (!isSilentSynthesis)
                 System.out.println("Synthesized track " + String.valueOf(i+1) + " of " + String.valueOf(st.totalTracks));
         }   
-        
+       
+        /*
         double scale = SignalProcUtils.energy(y);
         scale = Math.sqrt(st.totalEnergy)/Math.sqrt(scale);
         for (i=0; i<y.length; i++)
             y[i] = scale*y[i];
+            */
         
         return y;
     }
@@ -243,7 +245,7 @@ public class SinusoidalSynthesizer {
         
         int spectralEnvelopeType = SinusoidalAnalyzer.LP_SPEC;
         
-        boolean isFixedRateAnalysis = true;
+        boolean isFixedRateAnalysis = false;
         boolean isRealSpeech = true;
         double startFreq = 0.0;
         double endFreq = 0.5*samplingRate;
@@ -302,12 +304,11 @@ public class SinusoidalSynthesizer {
         for (int i=0; i<x.length; i++)
             x[i] = x[i]/maxx*0.9;
         //
-         */
-        
+        */
         
         //File output
         DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(x), inputAudio.getFormat());
-        String outFileName = args[0].substring(0, args[0].length()-4) + "_sinResynth.wav";
+        String outFileName = args[0].substring(0, args[0].length()-4) + "_sinResynthFullbandPitchSynch.wav";
         AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
         //
     }

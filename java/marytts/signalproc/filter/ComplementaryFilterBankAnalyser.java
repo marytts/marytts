@@ -135,7 +135,7 @@ public class ComplementaryFilterBankAnalyser extends FilterBankAnalyserBase {
         //Write highpass components 0 to numLevels-1
         for (int i=0; i<subbands.length; i++)
         {
-            outputFormat = new AudioFormat(subbands[i].samplingRate, inputAudio.getFormat().getSampleSizeInBits(),  inputAudio.getFormat().getChannels(), true, true);
+            outputFormat = new AudioFormat((int)(subbands[i].samplingRate), inputAudio.getFormat().getSampleSizeInBits(),  inputAudio.getFormat().getChannels(), true, true);
             outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(subbands[i].waveform), outputFormat);
             outFileName = args[0].substring(0, args[0].length()-4) + "_sb" + String.valueOf(i+1) + ".wav";
             AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
