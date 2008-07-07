@@ -503,7 +503,7 @@ private String[] lpCrossSynthFiles = {"bird.wav",
                         }
                     } else 
                     {
-                        playFile = ChangeMyVoiceUI.class.getResourceAsStream("demo/"+((String) builtInFileNameList.get(inputIndex-1)));
+                        playFile = ChangeMyVoiceUI.class.getResourceAsStream("wav/samples"+((String) builtInFileNameList.get(inputIndex-1)));
                     }
                     AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(playFile);
                     AudioFormat format = audioInputStream.getFormat();
@@ -851,7 +851,7 @@ private String[] lpCrossSynthFiles = {"bird.wav",
                     }
                 }
                 else
-                    inputFile = ChangeMyVoiceUI.class.getResourceAsStream("demo/"+((String)builtInFileNameList.get(inputIndex-1))); 
+                    inputFile = ChangeMyVoiceUI.class.getResourceAsStream("wav/samples/"+((String)builtInFileNameList.get(inputIndex-1))); 
             }
             else
                 inputFile = null;
@@ -989,22 +989,22 @@ private String[] lpCrossSynthFiles = {"bird.wav",
         }
         else if (targetNames[targetIndex]=="Helicopter Pilot")
         {
-            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[0]);
+            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("wav/mix/"+mixFiles[0]);
             effect = new AudioMixer(mixFile, 0.05, 0.2, modParams.fs, bufferSize, 0.3+0.5*amount, true);
         }
         else if (targetNames[targetIndex]=="Jungle")
         {
-            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[1]);
+            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("wav/mix/"+mixFiles[1]);
             effect = new AudioMixer(mixFile, 0.05, 0.2, modParams.fs, bufferSize, 0.05+0.2*amount, true);
         }
         else if (targetNames[targetIndex]=="Monster1")
         {
-            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[2]);
+            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("wav/mix/"+mixFiles[2]);
             effect = new AudioMixer(mixFile, 0.05, 0.2, modParams.fs, bufferSize, 0.05+0.2*amount, false);
         }
         else if (targetNames[targetIndex]=="Alien")
         {
-            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("mix/"+mixFiles[3]);
+            mixFile = ChangeMyVoiceUI.class.getResourceAsStream("wav/mix/"+mixFiles[3]);
             effect = new AudioMixer(mixFile, 0.05, 0.2, modParams.fs, bufferSize, 0.01+0.2*amount, false);
         }
         else if (targetNames[targetIndex]=="Bird")
@@ -1196,7 +1196,7 @@ private String[] lpCrossSynthFiles = {"bird.wav",
     {
         InlineDataProcessor effect = null;
       
-        effect = new LPCCrossSynthesisOnline(SignalProcUtils.getLPOrder(modParams.fs), bufferSize, "lp_cross_synth/"+lpCrossSynthFiles[lpCrossSynthFileInd], modParams.fs);
+        effect = new LPCCrossSynthesisOnline(SignalProcUtils.getLPOrder(modParams.fs), bufferSize, "wav/lp_cross_synth/"+lpCrossSynthFiles[lpCrossSynthFileInd], modParams.fs);
         
         return effect;
     }
