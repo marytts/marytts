@@ -27,7 +27,7 @@
  * THIS SOFTWARE.
  */
 
-package marytts.signalproc.adaptation.tester;
+package marytts.signalproc.adaptation;
 
 import java.io.IOException;
 
