@@ -44,7 +44,7 @@ import marytts.signalproc.window.Window;
 import marytts.util.ArrayUtils;
 import marytts.util.FFT;
 import marytts.util.MathUtils;
-import marytts.util.MathUtils.Complex;
+import marytts.util.ComplexArray;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.DoubleDataSource;
 
@@ -173,7 +173,7 @@ public class LPCAnalyser extends FrameBasedAnalyser
     }
     
     //Computes LP smoothed spectrum of a windowed speech frame
-    public static double [] calcSpecFrame(double [] windowedFrame, int p, int fftSize, Complex expTerm)
+    public static double [] calcSpecFrame(double [] windowedFrame, int p, int fftSize, ComplexArray expTerm)
     {
         LPCoeffs c = calcLPC(windowedFrame, p);
         
@@ -183,7 +183,7 @@ public class LPCAnalyser extends FrameBasedAnalyser
             return calcSpec(c.getA(), c.getGain(), fftSize, expTerm);
     }
     
-    public static double [] calcSpecFromOneMinusA(double [] oneMinusA,  float gain, int fftSize, Complex expTerm)
+    public static double [] calcSpecFromOneMinusA(double [] oneMinusA,  float gain, int fftSize, ComplexArray expTerm)
     {  
         double[] alpha = new double[oneMinusA.length-1];
         for (int i=1; i<oneMinusA.length; i++)
@@ -192,13 +192,13 @@ public class LPCAnalyser extends FrameBasedAnalyser
     }
     
     //Computes LP smoothed spectrum from LP coefficients
-    public static double [] calcSpec(double [] alpha, int fftSize, Complex expTerm)
+    public static double [] calcSpec(double [] alpha, int fftSize, ComplexArray expTerm)
     {  
         return calcSpec(alpha, 1.0f, fftSize, expTerm);
     }
     
     //Computes LP smoothed spectrum from LP coefficients
-    public static double [] calcSpec(double [] alpha, double gain, int fftSize, Complex expTerm)
+    public static double [] calcSpec(double [] alpha, double gain, int fftSize, ComplexArray expTerm)
     {
         int p = alpha.length;
         int maxFreq = SignalProcUtils.halfSpectrumSize(fftSize);
@@ -208,7 +208,7 @@ public class LPCAnalyser extends FrameBasedAnalyser
             expTerm = calcExpTerm(fftSize, p);
         
         int w, i, fInd;
-        Complex tmp = new Complex(1);
+        ComplexArray tmp = new ComplexArray(1);
 
         for (w=0; w<=maxFreq-1; w++)
         {
@@ -227,10 +227,10 @@ public class LPCAnalyser extends FrameBasedAnalyser
         return vtSpectrum;
     }
   
-    public static Complex calcExpTerm(int fftSize, int p)
+    public static ComplexArray calcExpTerm(int fftSize, int p)
     {
         int maxFreq = SignalProcUtils.halfSpectrumSize(fftSize);
-        Complex expTerm = new Complex(p*maxFreq);
+        ComplexArray expTerm = new ComplexArray(p*maxFreq);
         int i, w;
         double r;
 

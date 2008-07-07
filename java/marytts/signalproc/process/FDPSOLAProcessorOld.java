@@ -14,16 +14,15 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.PitchMarker;
-import marytts.signalproc.util.InterpolationUtils;
 import marytts.signalproc.util.LEDataInputStream;
 import marytts.signalproc.util.LEDataOutputStream;
 import marytts.signalproc.util.SignalProcUtils;
 import marytts.signalproc.window.DynamicTwoHalvesWindow;
 import marytts.signalproc.window.DynamicWindow;
 import marytts.signalproc.window.Window;
+import marytts.util.ComplexArray;
 import marytts.util.FFTMixedRadix;
 import marytts.util.MathUtils;
-import marytts.util.MathUtils.Complex;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DDSAudioInputStream;
@@ -91,7 +90,7 @@ public class FDPSOLAProcessorOld extends VocalTractModifier {
     
     private double [] py;
     private double [] py2;
-    private Complex hy;
+    private ComplexArray hy;
     private double [] frmy;
     private double frmEn;
     private double frmyEn;
@@ -321,7 +320,7 @@ public class FDPSOLAProcessorOld extends VocalTractModifier {
                     if (bWarp)
                     {
                         tmpvsc[0] = modParams.vscalesVar[i];
-                        newVScales = InterpolationUtils.modifySize(tmpvsc, newMaxFreq); //Modify length to match current length of spectrum
+                        newVScales = MathUtils.modifySize(tmpvsc, newMaxFreq); //Modify length to match current length of spectrum
                         
                         for (k=0; k<newVScales.length; k++)
                         {
@@ -346,7 +345,7 @@ public class FDPSOLAProcessorOld extends VocalTractModifier {
                     }
 
                     //Create output DFT spectrum
-                    hy = new Complex(newFftSize);
+                    hy = new ComplexArray(newFftSize);
                     hy.real = MathUtils.zeros(newFftSize);
                     hy.imag = MathUtils.zeros(newFftSize);
 

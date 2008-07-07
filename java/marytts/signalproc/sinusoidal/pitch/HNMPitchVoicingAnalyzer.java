@@ -52,7 +52,7 @@ import marytts.util.FFT;
 import marytts.util.FFTMixedRadix;
 import marytts.util.MaryUtils;
 import marytts.util.MathUtils;
-import marytts.util.MathUtils.Complex;
+import marytts.util.ComplexArray;
 import marytts.util.audio.AudioDoubleDataSource;
 
 
@@ -251,7 +251,7 @@ public class HNMPitchVoicingAnalyzer {
                 fftSize++;
 
             int maxFreq = (int) (Math.floor(0.5*fftSize+0.5)+1);
-            Complex Y = new Complex(fftSize);
+            ComplexArray Y = new ComplexArray(fftSize);
 
             //Perform circular buffering as described in (Quatieri, 2001) to provide correct phase estimates
             int midPoint = (int) Math.floor(0.5*frm.length+0.5);

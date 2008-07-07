@@ -23,7 +23,6 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.PitchMarker;
-import marytts.signalproc.util.InterpolationUtils;
 import marytts.signalproc.util.LEDataInputStream;
 import marytts.signalproc.util.LEDataOutputStream;
 import marytts.signalproc.util.SignalProcUtils;
@@ -38,7 +37,7 @@ import marytts.unitselection.select.SelectedUnit;
 import marytts.util.FFTMixedRadix;
 import marytts.util.FileUtils;
 import marytts.util.MathUtils;
-import marytts.util.MathUtils.Complex;
+import marytts.util.ComplexArray;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DDSAudioInputStream;
@@ -113,7 +112,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
     
     protected double [] inputVT;
     protected double [] py2;
-    protected Complex hy;
+    protected ComplexArray hy;
     protected double [] frmy;
     protected double frmEn;
     protected double frmyEn;
@@ -1164,7 +1163,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                 if (bWarp)
                 {
                     tmpvsc[0] = vscale;
-                    newVScales = InterpolationUtils.modifySize(tmpvsc, newMaxFreq); //Modify length to match current length of spectrum
+                    newVScales = MathUtils.modifySize(tmpvsc, newMaxFreq); //Modify length to match current length of spectrum
                     
                     for (k=0; k<newVScales.length; k++)
                     {
@@ -1189,7 +1188,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                 }
 
                 //Create output DFT spectrum
-                hy = new Complex(newFftSize);
+                hy = new ComplexArray(newFftSize);
                 hy.real = MathUtils.zeros(newFftSize);
                 hy.imag = MathUtils.zeros(newFftSize);
 

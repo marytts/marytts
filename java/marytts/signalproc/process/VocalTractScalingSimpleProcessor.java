@@ -34,7 +34,7 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import marytts.signalproc.util.InterpolationUtils;
+import marytts.util.MathUtils;
 import marytts.signalproc.window.Window;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.BufferedDoubleDataSource;
@@ -58,7 +58,7 @@ public class VocalTractScalingSimpleProcessor extends FrequencyDomainProcessor {
     {
         if (vscalesIn.length>0)
         {
-            vscales = InterpolationUtils.modifySize(vscalesIn, maxFreq); //Modify length to match current length of spectrum
+            vscales = MathUtils.modifySize(vscalesIn, maxFreq); //Modify length to match current length of spectrum
             
             for (int i=0; i<maxFreq; i++)
             {

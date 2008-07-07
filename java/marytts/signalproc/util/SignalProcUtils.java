@@ -20,7 +20,7 @@ import marytts.util.FFT;
 import marytts.util.FFTMixedRadix;
 import marytts.util.FileUtils;
 import marytts.util.MathUtils;
-import marytts.util.MathUtils.Complex;
+import marytts.util.ComplexArray;
 
 
 public class SignalProcUtils {
@@ -846,7 +846,7 @@ public class SignalProcUtils {
         return f0sNew;
     }
     
-    public static Complex hilbert(double [] x)
+    public static ComplexArray hilbert(double [] x)
     {
         return hilbert(x, x.length);
     }
@@ -860,9 +860,9 @@ public class SignalProcUtils {
     //   H[w]=0 for w=N/2+1,...,N-1
     // - x[n] and h[n] are convolved (i.e. X(w) and H(w) multiplied)
     // - y[n], the Discrete Hilbert Transform of x[n] is computed by y[n]=IFFT(X(w)H(w)) for n=0,...,N-1
-    public static Complex hilbert(double [] x, int N)
+    public static ComplexArray hilbert(double [] x, int N)
     {
-        Complex X = FFTMixedRadix.fftReal(x, N);
+        ComplexArray X = FFTMixedRadix.fftReal(x, N);
         double [] H = new double[N];
         
         int NOver2 = (int)Math.floor(N/2+0.5);
@@ -907,7 +907,7 @@ public class SignalProcUtils {
     //Returns the phase response(in radians) of a minimum phase system given the system amplitudes in dB
     public static double [] minimumPhaseResponseInRadians(double [] systemAmpsInNeper)
     {
-        Complex phaseResponse = minimumPhaseResponse(systemAmpsInNeper);
+        ComplexArray phaseResponse = minimumPhaseResponse(systemAmpsInNeper);
         
         //Perform in-place conversion from complex values to radians
         for (int w=0; w<phaseResponse.real.length; w++)
@@ -917,11 +917,11 @@ public class SignalProcUtils {
     }
     
     //Returns the phase response of a minimum phase system given the system amplitudes in dB
-    public static Complex minimumPhaseResponse(double [] systemAmpsInNeper)
+    public static ComplexArray minimumPhaseResponse(double [] systemAmpsInNeper)
     {
         int w;
     
-        Complex phaseResponse = hilbert(systemAmpsInNeper);
+        ComplexArray phaseResponse = hilbert(systemAmpsInNeper);
         for (w=0; w<phaseResponse.real.length; w++)
         {
             phaseResponse.real[w] *= -1.0;
@@ -941,7 +941,7 @@ public class SignalProcUtils {
         for (w=0; w<Xabs.length; w++)
             Xabs[w] = Math.log(Xabs[w]+1e-50);
         
-        Complex Y = FFTMixedRadix.fftReal(Xabs, Xabs.length);
+        ComplexArray Y = FFTMixedRadix.fftReal(Xabs, Xabs.length);
         
         return Y.real;
     }
@@ -969,7 +969,7 @@ public class SignalProcUtils {
             rceps[i] *= w[i];
         
         //Inverse cepstrum step
-        Complex y = FFTMixedRadix.fftReal(rceps, rceps.length);
+        ComplexArray y = FFTMixedRadix.fftReal(rceps, rceps.length);
         
         return y.real;
         //
@@ -1784,7 +1784,7 @@ public class SignalProcUtils {
             Arrays.fill(w, 0.0);
             int i, j;
 
-            Complex XFRM = new Complex(fftSize);
+            ComplexArray XFRM = new ComplexArray(fftSize);
             double[] yfrm = new double[ws];
 
             for (i=1; i<=numfrm; i++)

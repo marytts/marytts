@@ -35,7 +35,6 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import marytts.signalproc.util.InterpolationUtils;
 import marytts.signalproc.util.SignalProcUtils;
 import marytts.signalproc.window.Window;
 import marytts.util.MathUtils;
@@ -63,7 +62,7 @@ public class VocalTractScalingProcessor extends VocalTractModifier {
         
         if (vscalesIn.length>0)
         {
-            vscales = InterpolationUtils.modifySize(vscalesIn, this.maxFreq); //Modify length to match current length of spectrum
+            vscales = MathUtils.modifySize(vscalesIn, this.maxFreq); //Modify length to match current length of spectrum
             
             for (int i=0; i<this.maxFreq; i++)
             {

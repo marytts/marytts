@@ -27,14 +27,35 @@
  * THIS SOFTWARE.
  */
 
-package marytts.signalproc.distance;
+package marytts.signalproc.analysis.distance;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
+import marytts.signalproc.adaptation.BaselineAdaptationItem;
+import marytts.signalproc.adaptation.BaselineAdaptationSet;
+import marytts.signalproc.adaptation.BaselineFeatureExtractor;
+import marytts.signalproc.analysis.LsfFileHeader;
+import marytts.signalproc.analysis.Lsfs;
+import marytts.signalproc.util.ESTLabels;
+import marytts.signalproc.util.SignalProcUtils;
+import marytts.util.FileUtils;
+import marytts.util.MathUtils;
+import marytts.util.audio.AudioDoubleDataSource;
+
 
 /**
  * @author oytun.turk
  *
  */
-public class ItakuraSaitoDistanceComputer extends BaselineLPSpectralEnvelopeDistortionComputer {
-    public ItakuraSaitoDistanceComputer()
+public class RmsLogLPSpectralEnvelopeDistortionComputer extends BaselineLPSpectralEnvelopeDistortionComputer {
+    
+    public RmsLogLPSpectralEnvelopeDistortionComputer()
     {
         super();
     }
@@ -43,16 +64,14 @@ public class ItakuraSaitoDistanceComputer extends BaselineLPSpectralEnvelopeDist
     {
         super.frameDistance(frm1, frm2, fftSize, lpOrder);
         
-        double dist = SpectralDistanceMeasures.itakuraSaitoDist(frm1, frm2, fftSize, lpOrder);
-        
-        return dist;
+        return SpectralDistanceMeasures.rmsLogSpectralDist(frm1, frm2, fftSize, lpOrder);
     }
     
     //Put source and target wav and lab files into two folders and call this function
     public static void main(String[] args)
     {
-        ItakuraSaitoDistanceComputer sdc = new ItakuraSaitoDistanceComputer();
+        RmsLogLPSpectralEnvelopeDistortionComputer sdc = new RmsLogLPSpectralEnvelopeDistortionComputer();
         
-        sdc.mainBase("itakuraSaitoLPSpectralEnvelope.txt");
+        sdc.mainBase("rmsLogLPSpectralEnvelope.txt");
     }
 }

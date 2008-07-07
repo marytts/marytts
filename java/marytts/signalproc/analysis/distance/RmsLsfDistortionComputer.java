@@ -27,7 +27,7 @@
  * THIS SOFTWARE.
  */
 
-package marytts.signalproc.distance;
+package marytts.signalproc.analysis.distance;
 
 import java.io.IOException;
 

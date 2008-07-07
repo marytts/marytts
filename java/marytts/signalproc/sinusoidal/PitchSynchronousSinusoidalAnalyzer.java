@@ -44,7 +44,7 @@ import marytts.signalproc.window.Window;
 import marytts.util.FFT;
 import marytts.util.FFTMixedRadix;
 import marytts.util.MathUtils;
-import marytts.util.MathUtils.Complex;
+import marytts.util.ComplexArray;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.DoubleDataSource;
 

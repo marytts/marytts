@@ -40,7 +40,7 @@ import marytts.signalproc.adaptation.codebook.WeightedCodebookMapperParams;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookMatch;
 import marytts.signalproc.adaptation.gmm.GMMMatch;
 import marytts.signalproc.analysis.LsfFileHeader;
-import marytts.signalproc.distance.DistanceComputer;
+import marytts.signalproc.analysis.distance.DistanceComputer;
 import marytts.util.MaryRandomAccessFile;
 import marytts.util.MathUtils;
 

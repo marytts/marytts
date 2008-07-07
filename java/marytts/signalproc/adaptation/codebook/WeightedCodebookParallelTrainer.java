@@ -47,7 +47,7 @@ import marytts.signalproc.adaptation.outlier.TotalStandardDeviations;
 import marytts.signalproc.adaptation.prosody.PitchMappingFile;
 import marytts.signalproc.adaptation.prosody.PitchTrainer;
 import marytts.signalproc.analysis.Lsfs;
-import marytts.signalproc.distance.DistanceComputer;
+import marytts.signalproc.analysis.distance.DistanceComputer;
 import marytts.signalproc.window.Window;
 import marytts.tools.voiceimport.BasenameList;
 import marytts.util.FileUtils;
