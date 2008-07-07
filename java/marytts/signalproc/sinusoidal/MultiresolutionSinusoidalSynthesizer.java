@@ -39,6 +39,10 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.PitchMarker;
+import marytts.signalproc.filter.FIRWaveletFilterBankAnalyser;
+import marytts.signalproc.filter.FIRWaveletFilterBankSynthesiser;
+import marytts.signalproc.filter.FilterBankAnalyserBase;
+import marytts.signalproc.filter.Subband;
 import marytts.signalproc.util.SignalProcUtils;
 import marytts.signalproc.window.Window;
 import marytts.util.MathUtils;
@@ -52,10 +56,11 @@ import marytts.util.audio.DDSAudioInputStream;
  *
  */
 public class MultiresolutionSinusoidalSynthesizer {
+    public MultiresolutionSinusoidalAnalyzer analyser;
     
-    public MultiresolutionSinusoidalSynthesizer()
+    public MultiresolutionSinusoidalSynthesizer(MultiresolutionSinusoidalAnalyzer analyserIn)
     {
-        
+        analyser = analyserIn;
     }
     
     public double[] synthesize(SinusoidalTracks[] subbandTracks, boolean isSilentSynthesis)
@@ -67,20 +72,36 @@ public class MultiresolutionSinusoidalSynthesizer {
             int i, j;
             
             //Sinusoidal resynthesis
-            for (i=0; i<subbandTracks.length; i++)
+            if (analyser.multiresolutionFilterbankType == FilterBankAnalyserBase.FIR_WAVELET_FILTERBANK)
             {
-                SinusoidalSynthesizer ss = new SinusoidalSynthesizer(subbandTracks[i].fs);
-                tmpy = ss.synthesize(subbandTracks[i], isSilentSynthesis);
-                
-                if (i==0)
+                Subband[] subbands = new Subband[subbandTracks.length];
+                for (i=0; i<subbandTracks.length; i++)
                 {
-                    y = new double[tmpy.length];
-                    System.arraycopy(tmpy, 0, y, 0, tmpy.length);
+                    SinusoidalSynthesizer ss = new SinusoidalSynthesizer(subbandTracks[i].fs);
+                    tmpy = ss.synthesize(subbandTracks[i], isSilentSynthesis);
+                    subbands[i] = new Subband(tmpy, subbandTracks[i].fs);
                 }
-                else
+                
+                FIRWaveletFilterBankSynthesiser filterbankSynthesiser = new FIRWaveletFilterBankSynthesiser();
+                y = filterbankSynthesiser.apply((FIRWaveletFilterBankAnalyser)(analyser.filterbankAnalyser), subbands, false);
+            }
+            else
+            {
+                for (i=0; i<subbandTracks.length; i++)
                 {
-                    for (j=0; j<Math.min(y.length, tmpy.length); j++)
-                        y[j] += tmpy[j];
+                    SinusoidalSynthesizer ss = new SinusoidalSynthesizer(subbandTracks[i].fs);
+                    tmpy = ss.synthesize(subbandTracks[i], isSilentSynthesis);
+
+                    if (i==0)
+                    {
+                        y = new double[tmpy.length];
+                        System.arraycopy(tmpy, 0, y, 0, tmpy.length);
+                    }
+                    else
+                    {
+                        for (j=0; j<Math.min(y.length, tmpy.length); j++)
+                            y[j] += tmpy[j];
+                    }
                 }
             }
         }
@@ -95,9 +116,11 @@ public class MultiresolutionSinusoidalSynthesizer {
         AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
         double [] x = signal.getAllData();
 
-        int multiresolutionFilterbankType = MultiresolutionSinusoidalAnalyzer.FIR_BANDPASS_FILTERBANK;
-        //int multiresolutionFilterbankType = MultiresolutionSinusoidalAnalyzer.COMPLEMENTARY_FILTERBANK;
-        int numBands = 4;
+        int multiresolutionFilterbankType;
+        //multiresolutionFilterbankType = FilterBankAnalyserBase.FIR_BANDPASS_FILTERBANK;
+        multiresolutionFilterbankType = FilterBankAnalyserBase.FIR_WAVELET_FILTERBANK;
+        //multiresolutionFilterbankType = FilterBankAnalyserBase.COMPLEMENTARY_FILTERBANK;
+        int numBands = 2;
         double lowestBandWindowSizeInSeconds = 0.020;
         int windowType = Window.HANN;
         boolean bRefinePeakEstimatesParabola = false;
@@ -105,14 +128,28 @@ public class MultiresolutionSinusoidalSynthesizer {
         boolean bSpectralReassignment = false;
         boolean bAdjustNeighFreqDependent = false;
         boolean isSilentSynthesis = false;
-        boolean bFreqLimitedAnalysis = false;
+        boolean bFreqLimitedAnalysis = false; //Only used for FIR_BANDPASS_FILTERBANK
+        boolean bPitchSynchronous = false;
+        float numPeriods = 2.5f;
 
-        MultiresolutionSinusoidalAnalyzer msa = new MultiresolutionSinusoidalAnalyzer();
+        MultiresolutionSinusoidalAnalyzer msa = new MultiresolutionSinusoidalAnalyzer(multiresolutionFilterbankType, numBands, samplingRate);
 
-        SinusoidalTracks[] subbandTracks = msa.analyzeFixedRate(x, samplingRate, multiresolutionFilterbankType, numBands, lowestBandWindowSizeInSeconds, windowType, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, bFreqLimitedAnalysis);
+        SinusoidalTracks[] subbandTracks = null;
+        
+        if (!bPitchSynchronous)
+            subbandTracks = msa.analyze(x, lowestBandWindowSizeInSeconds, windowType, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, bFreqLimitedAnalysis);
+        else
+        {
+            String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
+            F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
+            PitchMarker pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true);
+            PitchSynchronousSinusoidalAnalyzer sa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, true, true, true, true, 0.0, 0.5*samplingRate);
        
+            subbandTracks = msa.analyze(x, lowestBandWindowSizeInSeconds, windowType, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, bFreqLimitedAnalysis, true, pm.pitchMarks, numPeriods);
+        }
+                
         //Resynthesis
-        MultiresolutionSinusoidalSynthesizer mss = new MultiresolutionSinusoidalSynthesizer();
+        MultiresolutionSinusoidalSynthesizer mss = new MultiresolutionSinusoidalSynthesizer(msa);
         x = mss.synthesize(subbandTracks, isSilentSynthesis);
         //
         
@@ -124,7 +161,7 @@ public class MultiresolutionSinusoidalSynthesizer {
         
         //File output
         DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(x), inputAudio.getFormat());
-        String outFileName = args[0].substring(0, args[0].length()-4) + "_multiResSinResynth.wav";
+        String outFileName = args[0].substring(0, args[0].length()-4) + "_multiResWaveletFixedRate.wav";
         AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
         //
     }

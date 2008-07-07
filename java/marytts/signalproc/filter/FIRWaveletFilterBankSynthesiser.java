@@ -40,51 +40,50 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.util.SignalProcUtils;
-import marytts.util.MaryUtils;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DDSAudioInputStream;
-
 
 /**
  * @author oytun.turk
  *
  */
-public class FIRBandPassFilterBankSynthesiser {
-    public FIRBandPassFilterBankSynthesiser()
+public class FIRWaveletFilterBankSynthesiser {
+    public FIRWaveletFilterBankSynthesiser()
     {
-        
-    }
-    
-    public double[] apply(FIRBandPassFilterBankAnalyser analyser, Subband[] subbands)
-    {
-        return apply(analyser,  subbands, true);
+
     }
 
-    public double[] apply(FIRBandPassFilterBankAnalyser analyser, Subband[] subbands, boolean bNormalizeInOverlappingRegions)
+    public double[] apply(FIRWaveletFilterBankAnalyser analyser, Subband[] subbands, boolean bNormalizeInOverlappingRegions)
     {
         double[] x = null;
-
+        double[] lowBandIntFilt = null;
+        double[] highBandIntFilt = null;
+        
         if (analyser!=null && analyser.filters!=null && subbands!=null)
         {
-            int i, j, maxLen;
-            
-            assert analyser.filters.length == subbands.length;
-            
-            //Add all subbands up and then apply the smooth gain normalization filter
-            maxLen = subbands[0].waveform.length;
-            for (i=1; i<subbands.length; i++)
-                maxLen = Math.max(maxLen, subbands[i].waveform.length);
-            
-            x = new double[maxLen];
-            Arrays.fill(x, 0.0);
-            for (i=0; i<subbands.length; i++)
+            int i, j;
+            for (i=subbands.length-2; i>=0; i--)
             {
-                for (j=0; j<subbands[i].waveform.length; j++)
-                    x[j] += subbands[i].waveform[j];
+                if (i==subbands.length-2)
+                    lowBandIntFilt = SignalProcUtils.interpolate(subbands[i+1].waveform, 2.0);
+                else
+                    lowBandIntFilt = SignalProcUtils.interpolate(x, 2.0);
+
+                lowBandIntFilt = analyser.filters[i][0].apply(lowBandIntFilt);
+                
+                highBandIntFilt = SignalProcUtils.interpolate(subbands[i].waveform, 2.0);
+                highBandIntFilt = analyser.filters[i][1].apply(highBandIntFilt);
+                
+                x = new double[Math.max(lowBandIntFilt.length, highBandIntFilt.length)];
+                Arrays.fill(x, 0.0);
+                System.arraycopy(lowBandIntFilt, 0, x, 0, lowBandIntFilt.length);
+                for (j=0; j<highBandIntFilt.length; j++)
+                    x[j] += highBandIntFilt[j];
+                
+                if (bNormalizeInOverlappingRegions)
+                    x = SignalProcUtils.filterfd(analyser.normalizationFilterTransformedIRs[i], x, 2.0*analyser.samplingRates[i]);
             }
-            
-            x = SignalProcUtils.filterfd(analyser.normalizationFilterTransformedIR, x, subbands[0].samplingRate);
         }
 
         return x;
@@ -98,10 +97,10 @@ public class FIRBandPassFilterBankSynthesiser {
         double [] x = signal.getAllData();
         
         int i;
-        int numBands = 4;
-        double overlapAround1000Hz = 100.0;
+        int numLevels = 3;
+        boolean bNormalizeInOverlappingRegions = false;
             
-        FIRBandPassFilterBankAnalyser analyser = new FIRBandPassFilterBankAnalyser(numBands, samplingRate, overlapAround1000Hz);
+        FIRWaveletFilterBankAnalyser analyser = new FIRWaveletFilterBankAnalyser(numLevels, samplingRate);
         Subband[] subbands = analyser.apply(x);
         
         DDSAudioInputStream outputAudio;
@@ -117,10 +116,10 @@ public class FIRBandPassFilterBankSynthesiser {
             AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
         }
         
-        FIRBandPassFilterBankSynthesiser synthesiser = new FIRBandPassFilterBankSynthesiser();
-        double[] y = synthesiser.apply(analyser, subbands);
+        FIRWaveletFilterBankSynthesiser synthesiser = new FIRWaveletFilterBankSynthesiser();
+        double[] y = synthesiser.apply(analyser, subbands, bNormalizeInOverlappingRegions);
         
-        outputFormat = new AudioFormat((int)(subbands[0].samplingRate), inputAudio.getFormat().getSampleSizeInBits(),  inputAudio.getFormat().getChannels(), true, true);
+        outputFormat = new AudioFormat(samplingRate, inputAudio.getFormat().getSampleSizeInBits(),  inputAudio.getFormat().getChannels(), true, true);
         outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(y), outputFormat);
         outFileName = args[0].substring(0, args[0].length()-4) + "_resynthesis" + ".wav";
         AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));

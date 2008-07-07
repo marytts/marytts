@@ -35,11 +35,21 @@ package marytts.signalproc.filter;
  */
 public class Subband {
     public double[] waveform;
-    public int samplingRate;
+    public double samplingRate;
     public double lowestFreqInHz;
     public double highestFreqInHz;
     
-    public Subband(double[] waveformIn, int samplingRateIn, double lowestFreqInHzIn, double highestFreqInHzIn)
+    public Subband(double[] waveformIn, double samplingRateIn)
+    {
+        this(waveformIn, samplingRateIn, 0.0);
+    }
+    
+    public Subband(double[] waveformIn, double samplingRateIn, double lowestFreqInHzIn)
+    {
+        this(waveformIn, samplingRateIn, lowestFreqInHzIn, 0.5*samplingRateIn);
+    }
+    
+    public Subband(double[] waveformIn, double samplingRateIn, double lowestFreqInHzIn, double highestFreqInHzIn)
     {
         waveform = null;
         if (waveformIn!=null)

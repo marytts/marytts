@@ -37,8 +37,10 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.analysis.F0ReaderWriter;
+import marytts.signalproc.analysis.PitchMarker;
 import marytts.signalproc.filter.ComplementaryFilterBankAnalyser;
 import marytts.signalproc.filter.FIRBandPassFilterBankAnalyser;
+import marytts.signalproc.filter.FIRWaveletFilterBankAnalyser;
 import marytts.signalproc.filter.FilterBankAnalyserBase;
 import marytts.signalproc.filter.Subband;
 import marytts.signalproc.util.SignalProcUtils;
@@ -52,39 +54,34 @@ import marytts.util.audio.AudioDoubleDataSource;
  *
  */
 public class MultiresolutionSinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
-    public static final int FIR_BANDPASS_FILTERBANK = 1;
-    public static final int COMPLEMENTARY_FILTERBANK = 2;
+    public FilterBankAnalyserBase filterbankAnalyser;
+    public int multiresolutionFilterbankType;
+    public int numBands;
+    public int samplingRate;
     
-    public MultiresolutionSinusoidalAnalyzer()
+    public MultiresolutionSinusoidalAnalyzer(int multiresolutionFilterbankTypeIn, int numBandsIn, int samplingRateIn)
     {
+        multiresolutionFilterbankType = multiresolutionFilterbankTypeIn;
+        numBands = numBandsIn;
+        samplingRate = samplingRateIn;
         
-    }
-    
-    public SinusoidalTracks[] analyzeFixedRate(double[] x, int samplingRate,
-                                               int multiresolutionFilterbankType,
-                                               int numBands,
-                                               double lowestBandWindowSizeInSeconds,
-                                               int windowType,
-                                               boolean bRefinePeakEstimatesParabola,
-                                               boolean bRefinePeakEstimatesBias,
-                                               boolean bSpectralReassignment,
-                                               boolean bAdjustNeighFreqDependent,
-                                               boolean bFreqLimitedAnalysis)
-    {
-        SinusoidalTracks[] subbandTracks = new SinusoidalTracks[numBands];
+        filterbankAnalyser = null;
         
-        Subband[] subbands = null;
-        FilterBankAnalyserBase analyser = null;
-        
-        if (multiresolutionFilterbankType==MultiresolutionSinusoidalAnalyzer.FIR_BANDPASS_FILTERBANK)
+        if (multiresolutionFilterbankType==FilterBankAnalyserBase.FIR_BANDPASS_FILTERBANK)
         {
             double overlapAround1000Hz = 100.0;
                 
-            analyser = new FIRBandPassFilterBankAnalyser(numBands, samplingRate, overlapAround1000Hz);            
+            filterbankAnalyser = new FIRBandPassFilterBankAnalyser(numBands, samplingRate, overlapAround1000Hz);            
         }
-        else if (multiresolutionFilterbankType==MultiresolutionSinusoidalAnalyzer.COMPLEMENTARY_FILTERBANK)
+        else if (multiresolutionFilterbankType==FilterBankAnalyserBase.FIR_WAVELET_FILTERBANK)
         {
-            if (MathUtils.isPowerOfTwo(numBands))
+            double overlapAround1000Hz = 100.0;
+                
+            filterbankAnalyser = new FIRWaveletFilterBankAnalyser(numBands, samplingRate);            
+        }
+        else if (multiresolutionFilterbankType==FilterBankAnalyserBase.COMPLEMENTARY_FILTERBANK)
+        {
+            if (!MathUtils.isPowerOfTwo(numBands))
             {
                 int tmpNumBands = 2;
                 while (tmpNumBands<numBands)
@@ -94,46 +91,124 @@ public class MultiresolutionSinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
             }
                 
             int baseFilterOrder = SignalProcUtils.getFIRFilterOrder(samplingRate);
-            int numLevels = (int)(Math.log(numBands)/Math.log(2));
-            analyser = new ComplementaryFilterBankAnalyser(numLevels, baseFilterOrder);
+            int numLevels = numBands-1;
+            filterbankAnalyser = new ComplementaryFilterBankAnalyser(numLevels, baseFilterOrder);
         }
+    }
+    
+    //Fixed rate version
+    public SinusoidalTracks[] analyze(double[] x,
+                                      double lowestBandWindowSizeInSeconds,
+                                      int windowType,
+                                      boolean bRefinePeakEstimatesParabola,
+                                      boolean bRefinePeakEstimatesBias,
+                                      boolean bSpectralReassignment,
+                                      boolean bAdjustNeighFreqDependent,
+                                      boolean bFreqLimitedAnalysis)
+    {
+        return analyze(x,
+                       lowestBandWindowSizeInSeconds,
+                       windowType,
+                       bRefinePeakEstimatesParabola,
+                       bRefinePeakEstimatesBias,
+                       bSpectralReassignment,
+                       bAdjustNeighFreqDependent,
+                       bFreqLimitedAnalysis,
+                       false, null, 0.0f);
+    }
+    
+    //Fixed rate and pitch synchronous version.
+    //Set bPitchSynchronousAnalysis=false to get fixed rate version. In this case pitchMarks can be anything (i.e. null) 
+    // and numPeriods can be a dummy value since they are only used for ptich synchronous processing
+    public SinusoidalTracks[] analyze(double[] x,
+                                      double lowestBandWindowSizeInSeconds,
+                                      int windowType,
+                                      boolean bRefinePeakEstimatesParabola,
+                                      boolean bRefinePeakEstimatesBias,
+                                      boolean bSpectralReassignment,
+                                      boolean bAdjustNeighFreqDependent,
+                                      boolean bFreqLimitedAnalysis,
+                                      boolean bPitchSynchronousAnalysis,
+                                      int[] pitchMarks, //Only used when bPitchSynchronousAnalysis=true
+                                      float numPeriods) //Only used when bPitchSynchronousAnalysis=true
+    {
+        SinusoidalTracks[] subbandTracks = new SinusoidalTracks[numBands];
+        Subband[] subbands = null;
         
-        if (analyser!=null)
+        //When there is downsampling, no need for frequency limited analysis
+        if (multiresolutionFilterbankType!=FilterBankAnalyserBase.FIR_BANDPASS_FILTERBANK)
+            bFreqLimitedAnalysis = false; 
+        
+        if (filterbankAnalyser!=null)
         {
-            subbands = analyser.apply(x, samplingRate);
+            subbands = filterbankAnalyser.apply(x);
         
             for (int i=0; i<subbands.length; i++)
             {
-                SinusoidalAnalyzer sa = null;
-                if (bFreqLimitedAnalysis)
+                if (!bPitchSynchronousAnalysis || i>0) //Pitch synchrounous subband analysis is only performed at the lowest frequency subband
                 {
-                    sa = new SinusoidalAnalyzer(subbands[i].samplingRate, windowType, 
-                                                bRefinePeakEstimatesParabola, 
-                                                bRefinePeakEstimatesBias,
-                                                bSpectralReassignment,
-                                                bAdjustNeighFreqDependent,
-                                                subbands[i].lowestFreqInHz, subbands[i].highestFreqInHz);
+                    SinusoidalAnalyzer sa = null;
+                    if (bFreqLimitedAnalysis)
+                    {
+                        sa = new SinusoidalAnalyzer((int)(subbands[i].samplingRate), windowType, 
+                                                    bRefinePeakEstimatesParabola, 
+                                                    bRefinePeakEstimatesBias,
+                                                    bSpectralReassignment,
+                                                    bAdjustNeighFreqDependent,
+                                                    subbands[i].lowestFreqInHz, subbands[i].highestFreqInHz);
+                    }
+                    else
+                    {
+                        sa = new SinusoidalAnalyzer((int)(subbands[i].samplingRate), windowType, 
+                                                    bRefinePeakEstimatesParabola, 
+                                                    bRefinePeakEstimatesBias,
+                                                    bSpectralReassignment,
+                                                    bAdjustNeighFreqDependent,
+                                                    0.0, 0.5*subbands[i].samplingRate);
+                    }
+
+                    float winSizeInSeconds = (float)(lowestBandWindowSizeInSeconds/Math.pow(2.0,i));
+                    float skipSizeInSeconds = 0.5f*winSizeInSeconds;
+                    float deltaInHz = 50.0f; //Also make this frequency range dependent??
+
+                    if (multiresolutionFilterbankType==FilterBankAnalyserBase.FIR_WAVELET_FILTERBANK)
+                        subbandTracks[i] =  sa.analyzeFixedRate(subbands[i].waveform, winSizeInSeconds, skipSizeInSeconds, deltaInHz, SinusoidalAnalyzer.LP_SPEC);
+                    else
+                        subbandTracks[i] =  sa.analyzeFixedRate(x, winSizeInSeconds, skipSizeInSeconds, deltaInHz, SinusoidalAnalyzer.LP_SPEC);
+
+                    //Normalize overlapping frequency region gains if an overlapping subband stucture is used
+                    if (multiresolutionFilterbankType==FilterBankAnalyserBase.FIR_BANDPASS_FILTERBANK)
+                        normalizeSinusoidalAmplitudes(subbandTracks[i], samplingRate, ((FIRBandPassFilterBankAnalyser)filterbankAnalyser).normalizationFilterTransformedIR);
                 }
                 else
                 {
-                    sa = new SinusoidalAnalyzer(subbands[i].samplingRate, windowType, 
-                                                bRefinePeakEstimatesParabola, 
-                                                bRefinePeakEstimatesBias,
-                                                bSpectralReassignment,
-                                                bAdjustNeighFreqDependent,
-                                                0.0, 0.5*subbands[i].samplingRate);
+                    PitchSynchronousSinusoidalAnalyzer sa = null;
+                    if (bFreqLimitedAnalysis)
+                    {
+                        sa = new PitchSynchronousSinusoidalAnalyzer((int)(subbands[i].samplingRate), windowType, 
+                                                                    bRefinePeakEstimatesParabola, 
+                                                                    bRefinePeakEstimatesBias,
+                                                                    bSpectralReassignment,
+                                                                    bAdjustNeighFreqDependent,
+                                                                    subbands[i].lowestFreqInHz, subbands[i].highestFreqInHz);
+                    }
+                    else
+                    {
+                        sa = new PitchSynchronousSinusoidalAnalyzer((int)(subbands[i].samplingRate), windowType, 
+                                                                    bRefinePeakEstimatesParabola, 
+                                                                    bRefinePeakEstimatesBias,
+                                                                    bSpectralReassignment,
+                                                                    bAdjustNeighFreqDependent,
+                                                                    0.0, 0.5*subbands[i].samplingRate);
+                    }
+
+                    float winSizeInSeconds = (float)(lowestBandWindowSizeInSeconds/Math.pow(2.0,i)); //This is computed only for determining skip rate
+                    float skipSizeInSeconds = 0.5f*winSizeInSeconds;
+                    float deltaInHz = 50.0f; //Also make this frequency range dependent??
+                    float numPeriodsCurrent = (float)(numPeriods/Math.pow(2.0,i)); //This iteratively halves the effective window size for higher frequency subbands
+
+                    subbandTracks[i] = sa.analyzePitchSynchronous(x, pitchMarks, numPeriodsCurrent, skipSizeInSeconds, deltaInHz, SinusoidalAnalyzer.LP_SPEC);
                 }
-
-                float winSizeInSeconds = (float)(lowestBandWindowSizeInSeconds/Math.pow(2.0, i));
-                float skipSizeInSeconds = 0.5f*winSizeInSeconds;
-                float deltaInHz = 50.0f; //Also make this frequency range dependent??
-
-                //To do: peak detection procedure should be limited by the subband signal´s frequency range
-                subbandTracks[i] = sa.analyzeFixedRate(x, winSizeInSeconds, skipSizeInSeconds, deltaInHz, SinusoidalAnalyzer.LP_SPEC);
-            
-                //Normalize overlapping frequency region gains if an overlapping subband stucture is used
-                if (multiresolutionFilterbankType==MultiresolutionSinusoidalAnalyzer.FIR_BANDPASS_FILTERBANK)
-                    normalizeSinusoidalAmplitudes(subbandTracks[i], samplingRate, ((FIRBandPassFilterBankAnalyser)analyser).normalizationFilterTransformedIR);
             }
         }
         
@@ -162,8 +237,11 @@ public class MultiresolutionSinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
         double [] x = signal.getAllData();
 
-        int multiresolutionFilterbankType = MultiresolutionSinusoidalAnalyzer.FIR_BANDPASS_FILTERBANK;
-        //int multiresolutionFilterbankType = MultiresolutionSinusoidalAnalyzer.COMPLEMENTARY_FILTERBANK;
+        int multiresolutionFilterbankType;
+        //multiresolutionFilterbankType = FilterBankAnalyserBase.FIR_BANDPASS_FILTERBANK;
+        multiresolutionFilterbankType = FilterBankAnalyserBase.FIR_WAVELET_FILTERBANK;
+        //multiresolutionFilterbankType = FilterBankAnalyserBase.COMPLEMENTARY_FILTERBANK;
+        
         int numBands = 4;
         double lowestBandWindowSizeInSeconds = 0.020;
         int windowType = Window.HAMMING;
@@ -172,9 +250,23 @@ public class MultiresolutionSinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         boolean bSpectralReassignment = true;
         boolean bAdjustNeighFreqDependent = true;
         boolean bFreqLimitedAnalysis = false;
+        boolean bPitchSynchronous = false;
+        float numPeriods = 2.5f;
+        
+        MultiresolutionSinusoidalAnalyzer msa = new MultiresolutionSinusoidalAnalyzer(multiresolutionFilterbankType, numBands, samplingRate);
 
-        MultiresolutionSinusoidalAnalyzer msa = new MultiresolutionSinusoidalAnalyzer();
-
-        SinusoidalTracks[] subbandTracks = msa.analyzeFixedRate(x, samplingRate, multiresolutionFilterbankType, numBands, lowestBandWindowSizeInSeconds, windowType, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, bFreqLimitedAnalysis);
+        SinusoidalTracks[] subbandTracks = null;
+        
+        if (!bPitchSynchronous)
+            subbandTracks = msa.analyze(x, lowestBandWindowSizeInSeconds, windowType, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, bFreqLimitedAnalysis);
+        else
+        {
+            String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
+            F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
+            PitchMarker pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true);
+            PitchSynchronousSinusoidalAnalyzer sa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, true, true, true, true, 0.0, 0.5*samplingRate);
+       
+            subbandTracks = msa.analyze(x, lowestBandWindowSizeInSeconds, windowType, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, bFreqLimitedAnalysis, true, pm.pitchMarks, numPeriods);
+        }   
     }
 }

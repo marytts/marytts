@@ -58,20 +58,24 @@ import marytts.util.audio.DDSAudioInputStream;
 public class FIRBandPassFilterBankAnalyser extends FilterBankAnalyserBase {
     public static final double OVERLAP_AROUND_1000HZ_DEFAULT = 100.0;
     public double overlapAround1000Hz;
+    public int samplingRateInHz;
     
     public FIRFilter[] filters;
     public double[] normalizationFilterTransformedIR;
+    public double[] lowerCutOffsInHz;
+    public double[] upperCutOffsInHz;
     
     public FIRBandPassFilterBankAnalyser(int numBands, int samplingRateInHz)
     {
         this(numBands, samplingRateInHz, OVERLAP_AROUND_1000HZ_DEFAULT);
     }
     
-    public FIRBandPassFilterBankAnalyser(int numBands, int samplingRateInHz, double overlapAround1000HzIn)
+    public FIRBandPassFilterBankAnalyser(int numBands, int samplingRateInHzIn, double overlapAround1000HzIn)
     {
+        samplingRateInHz = samplingRateInHzIn;
         double halfSamplingRate = 0.5*samplingRateInHz;
-        double[] lowerCutOffsInHz = new double[numBands];
-        double[] upperCutOffsInHz = new double[numBands];
+        lowerCutOffsInHz = new double[numBands];
+        upperCutOffsInHz = new double[numBands];
         double overlapInHz;
         int i;
         overlapAround1000Hz = overlapAround1000HzIn;
@@ -98,26 +102,32 @@ public class FIRBandPassFilterBankAnalyser extends FilterBankAnalyserBase {
             System.out.println("Subband #" + String.valueOf(i+1) + " - Lower cutoff: " + String.valueOf(lowerCutOffsInHz[i]) + " Upper cutoff: " + String.valueOf(upperCutOffsInHz[i]));
         }
         
-        initialise(lowerCutOffsInHz, upperCutOffsInHz, samplingRateInHz, overlapAround1000HzIn);
+        initialise(lowerCutOffsInHz, upperCutOffsInHz, overlapAround1000HzIn);
     }
     
-    public FIRBandPassFilterBankAnalyser(double[] lowerCutOffsInHz, double[] upperCutOffsInHz, int samplingRateInHz)
+    public FIRBandPassFilterBankAnalyser(double[] lowerCutOffsInHzIn, double[] upperCutOffsInHzIn, int samplingRateInHzIn)
     {
-        this(lowerCutOffsInHz, upperCutOffsInHz, samplingRateInHz, OVERLAP_AROUND_1000HZ_DEFAULT);
+        this(lowerCutOffsInHzIn, upperCutOffsInHzIn, samplingRateInHzIn, OVERLAP_AROUND_1000HZ_DEFAULT);
     }
     
-    public FIRBandPassFilterBankAnalyser(double[] lowerCutOffsInHz, double[] upperCutOffsInHz, int samplingRateInHz, double overlapAround1000HzIn)
+    public FIRBandPassFilterBankAnalyser(double[] lowerCutOffsInHzIn, double[] upperCutOffsInHzIn, int samplingRateInHzIn, double overlapAround1000HzIn)
     {
-        initialise(lowerCutOffsInHz, upperCutOffsInHz, samplingRateInHz, overlapAround1000HzIn);
+        samplingRateInHz = samplingRateInHzIn;
+        initialise(lowerCutOffsInHzIn, upperCutOffsInHzIn, overlapAround1000HzIn);
     }
     
-    public void initialise(double[] lowerCutOffsInHz, double[] upperCutOffsInHz, int samplingRateInHz, double overlapAround1000HzIn)
+    public void initialise(double[] lowerCutOffsInHzIn, double[] upperCutOffsInHzIn, double overlapAround1000HzIn)
     {
         normalizationFilterTransformedIR = null;
         
-        if (lowerCutOffsInHz!=null && upperCutOffsInHz!=null)
+        if (lowerCutOffsInHzIn!=null && upperCutOffsInHzIn!=null)
         {
-            assert lowerCutOffsInHz.length == upperCutOffsInHz.length;
+            assert lowerCutOffsInHzIn.length == upperCutOffsInHzIn.length;
+            lowerCutOffsInHz = new double[lowerCutOffsInHzIn.length];
+            upperCutOffsInHz = new double[upperCutOffsInHzIn.length];
+            System.arraycopy(lowerCutOffsInHzIn, 0, lowerCutOffsInHz, 0, lowerCutOffsInHzIn.length);
+            System.arraycopy(upperCutOffsInHzIn, 0, upperCutOffsInHz, 0, upperCutOffsInHzIn.length);
+            
             int i;
             filters = new FIRFilter[lowerCutOffsInHz.length];
             int filterOrder = SignalProcUtils.getFIRFilterOrder(samplingRateInHz);
@@ -179,7 +189,7 @@ public class FIRBandPassFilterBankAnalyser extends FilterBankAnalyserBase {
         }
     }
     
-    public Subband[] apply(double[] x, int samplingRateInHz)
+    public Subband[] apply(double[] x)
     {
         Subband[] subbands = null;
         
@@ -214,7 +224,7 @@ public class FIRBandPassFilterBankAnalyser extends FilterBankAnalyserBase {
         double overlapAround1000Hz = 100.0;
             
         FIRBandPassFilterBankAnalyser analyser = new FIRBandPassFilterBankAnalyser(numBands, samplingRate, overlapAround1000Hz);
-        Subband[] subbands = analyser.apply(x, samplingRate);
+        Subband[] subbands = analyser.apply(x);
         
         DDSAudioInputStream outputAudio;
         AudioFormat outputFormat;
@@ -223,7 +233,7 @@ public class FIRBandPassFilterBankAnalyser extends FilterBankAnalyserBase {
         //Write highpass components 0 to numLevels-1
         for (i=0; i<subbands.length; i++)
         {
-            outputFormat = new AudioFormat(subbands[i].samplingRate, inputAudio.getFormat().getSampleSizeInBits(),  inputAudio.getFormat().getChannels(), true, true);
+            outputFormat = new AudioFormat((int)(subbands[i].samplingRate), inputAudio.getFormat().getSampleSizeInBits(),  inputAudio.getFormat().getChannels(), true, true);
             outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(subbands[i].waveform), outputFormat);
             outFileName = args[0].substring(0, args[0].length()-4) + "_band" + String.valueOf(i+1) + ".wav";
             AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
