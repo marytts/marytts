@@ -40,12 +40,12 @@ import marytts.signalproc.display.MultiDisplay;
 import marytts.signalproc.process.Robotiser;
 import marytts.signalproc.window.BlackmanWindow;
 import marytts.signalproc.window.Window;
-import marytts.util.FFT;
-import marytts.util.MathUtils;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DDSAudioInputStream;
 import marytts.util.audio.DoubleDataSource;
+import marytts.util.math.FFT;
+import marytts.util.math.MathUtils;
 
 
 /**

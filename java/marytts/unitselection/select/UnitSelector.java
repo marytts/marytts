@@ -40,7 +40,7 @@ import marytts.modules.XML2UttAcoustParams;
 import marytts.modules.synthesis.FreeTTSVoices;
 import marytts.server.Mary;
 import marytts.unitselection.data.UnitDatabase;
-import marytts.util.PrintfFormat;
+import marytts.util.string.PrintfFormat;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;

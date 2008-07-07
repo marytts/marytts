@@ -57,7 +57,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import marytts.signalproc.analysis.CepstrumAnalyser;
+import marytts.signalproc.analysis.CepstrumSpeechAnalyser;
 import marytts.signalproc.analysis.FrameBasedAnalyser;
 import marytts.signalproc.analysis.LPCAnalyser;
 import marytts.signalproc.analysis.ShortTermLogSpectrumAnalyser;
@@ -65,12 +65,12 @@ import marytts.signalproc.filter.FIRFilter;
 import marytts.signalproc.window.HammingWindow;
 import marytts.signalproc.window.RectWindow;
 import marytts.signalproc.window.Window;
-import marytts.util.ArrayUtils;
-import marytts.util.FFT;
-import marytts.util.MathUtils;
-import marytts.util.PrintfFormat;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.BufferedDoubleDataSource;
+import marytts.util.math.ArrayUtils;
+import marytts.util.math.FFT;
+import marytts.util.math.MathUtils;
+import marytts.util.string.PrintfFormat;
 
 
 
@@ -654,7 +654,7 @@ public class Spectrogram  extends FunctionGraph
             // Create a zero-padded version of the signal excerpt:
             double[] signalExcerpt = new double[2*windowLength];
             new HammingWindow(windowLength).apply(signal, leftIndex, signalExcerpt, 0);
-            double[] realCepstrum = CepstrumAnalyser.calcRealCepstrum(signalExcerpt);
+            double[] realCepstrum = CepstrumSpeechAnalyser.realCepstrum(signalExcerpt);
             if (graph == null) {
                 graph = new FunctionGraph(300, 200, 0, samplingRate, realCepstrum);
             } else {
@@ -663,7 +663,7 @@ public class Spectrogram  extends FunctionGraph
             super.updateGraph(graph, "Cepstrum at "+new PrintfFormat("%.3f").sprintf(x)+" s");
 
             // And the spectral envelope computed from a low-pass cut-off version of the cepstrum:
-            double[] lowCepstrum = CepstrumAnalyser.filterLowPass(realCepstrum, cepstrumCutoff);
+            double[] lowCepstrum = CepstrumSpeechAnalyser.filterLowPass(realCepstrum, cepstrumCutoff);
             double[] real = lowCepstrum;
             double[] imag = new double[real.length];
             FFT.transform(real, imag, false);

@@ -30,7 +30,7 @@
 package marytts.signalproc.adaptation.codebook;
 
 import marytts.signalproc.adaptation.FeatureCollection;
-import marytts.util.StringUtils;
+import marytts.util.string.StringUtils;
 
 /**
  * @author oytun.turk

@@ -40,7 +40,7 @@ import marytts.signalproc.adaptation.BaselinePreprocessor;
 import marytts.signalproc.adaptation.BaselineTransformer;
 import marytts.signalproc.adaptation.BaselineTransformerParams;
 import marytts.tools.voiceimport.BasenameList;
-import marytts.util.StringUtils;
+import marytts.util.string.StringUtils;
 
 
 /**

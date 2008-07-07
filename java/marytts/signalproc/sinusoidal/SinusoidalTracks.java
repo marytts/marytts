@@ -35,8 +35,8 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Vector;
 
-import marytts.signalproc.util.SignalProcUtils;
-import marytts.util.MathUtils;
+import marytts.util.math.MathUtils;
+import marytts.util.signal.SignalProcUtils;
 
 
 /**

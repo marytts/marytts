@@ -35,8 +35,8 @@ import java.io.IOException;
 import marytts.signalproc.adaptation.codebook.WeightedCodebook;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookFileHeader;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookLsfEntry;
-import marytts.util.FileUtils;
-import marytts.util.MaryRandomAccessFile;
+import marytts.util.io.FileUtils;
+import marytts.util.io.MaryRandomAccessFile;
 
 
 /**

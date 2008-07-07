@@ -30,8 +30,8 @@
 package marytts.signalproc.tests;
 
 import marytts.signalproc.process.FrameProvider;
-import marytts.util.MathUtils;
 import marytts.util.audio.BufferedDoubleDataSource;
+import marytts.util.math.MathUtils;
 import junit.framework.TestCase;
 
 public class FrameProviderTest extends TestCase

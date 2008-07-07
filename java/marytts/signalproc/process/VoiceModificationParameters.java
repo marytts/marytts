@@ -29,8 +29,8 @@
 
 package marytts.signalproc.process;
 
-import marytts.signalproc.util.SignalProcUtils;
-import marytts.util.MathUtils;
+import marytts.util.math.MathUtils;
+import marytts.util.signal.SignalProcUtils;
 
 /**
  * @author oytun.turk

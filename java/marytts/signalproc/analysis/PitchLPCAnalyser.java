@@ -36,21 +36,20 @@ import java.util.Arrays;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
+import marytts.signalproc.Defaults;
 import marytts.signalproc.analysis.FrameBasedAnalyser.FrameAnalysisResult;
 import marytts.signalproc.analysis.LPCAnalyser.LPCoeffs;
 import marytts.signalproc.display.FunctionGraph;
 import marytts.signalproc.display.SignalGraph;
 import marytts.signalproc.filter.FIRFilter;
 import marytts.signalproc.process.PitchFrameProvider;
-import marytts.signalproc.util.Defaults;
 import marytts.signalproc.window.Window;
-import marytts.util.ArrayUtils;
-import marytts.util.FFT;
-import marytts.util.MathUtils;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.DoubleDataSource;
-import marytts.util.audio.ESTTextfileDoubleDataSource;
-
+import marytts.util.io.ESTTextfileDoubleDataSource;
+import marytts.util.math.ArrayUtils;
+import marytts.util.math.FFT;
+import marytts.util.math.MathUtils;
 
 /**
  * A Pitch-synchronous LPC analyser.

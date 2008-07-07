@@ -31,10 +31,10 @@ package marytts.signalproc.tests;
 
 import javax.sound.sampled.AudioFormat;
 
-import marytts.util.MathUtils;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DDSAudioInputStream;
+import marytts.util.math.MathUtils;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;

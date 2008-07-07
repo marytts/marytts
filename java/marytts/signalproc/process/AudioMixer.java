@@ -9,8 +9,8 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.process.InlineDataProcessor;
-import marytts.signalproc.util.SignalProcUtils;
 import marytts.util.audio.AudioDoubleDataSource;
+import marytts.util.signal.SignalProcUtils;
 
 
 //Mixes the given audio source with a pre-recorded audio file

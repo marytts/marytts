@@ -39,15 +39,14 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import marytts.signalproc.Defaults;
 import marytts.signalproc.analysis.LPCAnalyser.LPCoeffs;
-import marytts.signalproc.util.Defaults;
-import marytts.signalproc.util.SignalProcUtils;
 import marytts.signalproc.window.DynamicWindow;
 import marytts.signalproc.window.Window;
-import marytts.util.MaryRandomAccessFile;
-import marytts.util.MathUtils;
 import marytts.util.audio.AudioDoubleDataSource;
-
+import marytts.util.io.MaryRandomAccessFile;
+import marytts.util.math.MathUtils;
+import marytts.util.signal.SignalProcUtils;
 
 /* Demonstration program to accompany the subroutines described in the        */
 /* articles by J. Rothweiler, on computing the Line Spectral Frequencies.     */
