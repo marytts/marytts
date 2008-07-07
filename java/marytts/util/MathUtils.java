@@ -989,12 +989,12 @@ public class MathUtils {
         return multiply(log10(amps), 20);
     }
 
-    public static double[] amp2db(Complex c)
+    public static double[] amp2db(ComplexArray c)
     {
         return amp2db(c, 0, c.real.length-1);
     }
 
-    public static double[] amp2db(Complex c, int startInd, int endInd)
+    public static double[] amp2db(ComplexArray c, int startInd, int endInd)
     {
         if (startInd<0)
             startInd=0;
@@ -1322,43 +1322,6 @@ public class MathUtils {
         }
          */
         return coeffs;
-    }
-
-    public static class Complex {
-        public double [] real;
-        public double [] imag;
-
-        public Complex(int len)
-        {
-            init(len);
-        }
-
-        public Complex(Complex c)
-        {
-            if (c.real!=null && c.imag!=null && c.real.length==c.imag.length)
-            {
-                init(c.real.length);
-                System.arraycopy(c.real, 0, real, 0, c.real.length);
-                System.arraycopy(c.imag, 0, imag, 0, c.imag.length);
-            }
-        }
-
-        public void init(int len)
-        {
-            if (len>0)
-            {
-                real = new double[len];
-                imag = new double[len];
-
-                Arrays.fill(real, 0.0);
-                Arrays.fill(imag, 0.0);
-            }
-            else
-            {
-                real = null;
-                imag = null;
-            }
-        }
     }
 
     /* Performs interpolation to increase or decrease the size of array x
@@ -3261,6 +3224,41 @@ public class MathUtils {
         }
         
         return y;
+    }
+    
+ // This funciton is NOT an interpolation function
+    // It just repeats/removes entries in x to create y that is of size newLen
+    static public double [] modifySize(double [] x, int newLen)
+    {
+        double [] y = null;
+        
+        if (newLen<1)
+            return y;
+
+        if (x.length==newLen || newLen==1)
+        {
+            y = new double[x.length];
+            System.arraycopy(x, 0, y, 0, x.length);
+            return y;
+        }
+        else
+        {
+            y = new double[newLen];
+            int mappedInd;
+            int i;
+            for (i=1;i<=newLen; i++)
+            { 
+                mappedInd = (int)(Math.floor((i-1.0)/(newLen-1.0)*(x.length-1.0)+1.5));
+                if (mappedInd<1)
+                    mappedInd=1;
+                else if (mappedInd>x.length)
+                    mappedInd=x.length; 
+
+                y[i-1] = x[mappedInd-1];
+            }
+            
+            return y;
+        } 
     }
     
     public static void main(String[] args)
