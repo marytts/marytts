@@ -31,8 +31,8 @@ package marytts.signalproc.analysis;
 
 import java.util.Arrays;
 
-import marytts.signalproc.FFT;
 import marytts.signalproc.window.Window;
+import marytts.util.FFT;
 import marytts.util.MathUtils;
 import marytts.util.audio.DoubleDataSource;
 

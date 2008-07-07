@@ -37,8 +37,6 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import marytts.signalproc.FFT;
-import marytts.signalproc.FFTMixedRadix;
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.LPCAnalyser;
 import marytts.signalproc.analysis.PitchMarker;
@@ -50,6 +48,8 @@ import marytts.signalproc.sinusoidal.SinusoidalSpeechFrame;
 import marytts.signalproc.sinusoidal.SinusoidalSpeechSignal;
 import marytts.signalproc.util.SignalProcUtils;
 import marytts.signalproc.window.Window;
+import marytts.util.FFT;
+import marytts.util.FFTMixedRadix;
 import marytts.util.MaryUtils;
 import marytts.util.MathUtils;
 import marytts.util.MathUtils.Complex;

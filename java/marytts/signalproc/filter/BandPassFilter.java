@@ -33,9 +33,9 @@ import java.io.File;
 
 import javax.sound.sampled.AudioSystem;
 
-import marytts.signalproc.FFT;
 import marytts.signalproc.display.FunctionGraph;
 import marytts.signalproc.display.MultiDisplay;
+import marytts.util.FFT;
 import marytts.util.MathUtils;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.DoubleDataSource;

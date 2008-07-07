@@ -29,10 +29,10 @@
 
 package marytts.signalproc.filter;
 
-import marytts.signalproc.FFT;
 import marytts.signalproc.process.FrameProvider;
 import marytts.signalproc.process.InlineDataProcessor;
 import marytts.signalproc.util.SignalProcUtils;
+import marytts.util.FFT;
 import marytts.util.MathUtils;
 import marytts.util.audio.BlockwiseDoubleDataSource;
 import marytts.util.audio.BufferedDoubleDataSource;

@@ -21,7 +21,6 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import marytts.signalproc.FFTMixedRadix;
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.PitchMarker;
 import marytts.signalproc.util.InterpolationUtils;
@@ -36,6 +35,7 @@ import marytts.unitselection.concat.DatagramOverlapDoubleDataSource;
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.select.SelectedUnit;
+import marytts.util.FFTMixedRadix;
 import marytts.util.FileUtils;
 import marytts.util.MathUtils;
 import marytts.util.MathUtils.Complex;

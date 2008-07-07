@@ -14,13 +14,13 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import marytts.signalproc.FFTMixedRadix;
 import marytts.signalproc.analysis.FrameBasedAnalyser;
 import marytts.signalproc.analysis.LPCAnalyser;
 import marytts.signalproc.analysis.LineSpectralFrequencies;
 import marytts.signalproc.analysis.LPCAnalyser.LPCoeffs;
 import marytts.signalproc.util.SignalProcUtils;
 import marytts.signalproc.window.HammingWindow;
+import marytts.util.FFTMixedRadix;
 import marytts.util.MathUtils;
 import marytts.util.audio.AudioDoubleDataSource;
 
