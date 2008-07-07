@@ -35,12 +35,12 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import marytts.signalproc.FFT;
 import marytts.signalproc.display.FunctionGraph;
 import marytts.signalproc.display.MultiDisplay;
 import marytts.signalproc.process.Robotiser;
 import marytts.signalproc.window.BlackmanWindow;
 import marytts.signalproc.window.Window;
+import marytts.util.FFT;
 import marytts.util.MathUtils;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.BufferedDoubleDataSource;

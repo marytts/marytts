@@ -57,7 +57,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import marytts.signalproc.FFT;
 import marytts.signalproc.analysis.CepstrumAnalyser;
 import marytts.signalproc.analysis.FrameBasedAnalyser;
 import marytts.signalproc.analysis.LPCAnalyser;
@@ -67,6 +66,7 @@ import marytts.signalproc.window.HammingWindow;
 import marytts.signalproc.window.RectWindow;
 import marytts.signalproc.window.Window;
 import marytts.util.ArrayUtils;
+import marytts.util.FFT;
 import marytts.util.MathUtils;
 import marytts.util.PrintfFormat;
 import marytts.util.audio.AudioDoubleDataSource;

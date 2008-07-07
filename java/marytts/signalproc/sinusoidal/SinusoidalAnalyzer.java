@@ -40,8 +40,6 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JFrame;
 
-import marytts.signalproc.FFT;
-import marytts.signalproc.FFTMixedRadix;
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.LPCAnalyser;
 import marytts.signalproc.analysis.SEEVOCAnalyser;
@@ -52,6 +50,8 @@ import marytts.signalproc.process.LPCCrossSynthesis;
 import marytts.signalproc.sinusoidal.pitch.HNMPitchVoicingAnalyzer;
 import marytts.signalproc.util.SignalProcUtils;
 import marytts.signalproc.window.Window;
+import marytts.util.FFT;
+import marytts.util.FFTMixedRadix;
 import marytts.util.MaryUtils;
 import marytts.util.MathUtils;
 import marytts.util.MathUtils.Complex;

@@ -37,7 +37,6 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
 import marytts.client.SimpleFileFilter;
-import marytts.signalproc.FFT;
 import marytts.signalproc.demo.OnlineAudioEffects;
 import marytts.signalproc.display.FunctionGraph;
 import marytts.signalproc.filter.*;
@@ -57,6 +56,7 @@ import marytts.signalproc.process.VoiceModificationParameters;
 import marytts.signalproc.process.Robotiser.PhaseRemover;
 import marytts.signalproc.util.SignalProcUtils;
 import marytts.signalproc.window.Window;
+import marytts.util.FFT;
 import marytts.util.MaryUtils;
 import marytts.util.MathUtils;
 import marytts.util.audio.AudioDoubleDataSource;

@@ -31,8 +31,8 @@ package marytts.signalproc.process;
 
 import java.util.Arrays;
 
-import marytts.signalproc.FFT;
 import marytts.signalproc.util.SignalProcUtils;
+import marytts.util.FFT;
 import marytts.util.MathUtils;
 
 

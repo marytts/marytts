@@ -35,7 +35,6 @@ import java.util.Arrays;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import marytts.signalproc.FFT;
 import marytts.signalproc.display.FunctionGraph;
 import marytts.signalproc.display.SignalGraph;
 import marytts.signalproc.filter.FIRFilter;
@@ -43,6 +42,7 @@ import marytts.signalproc.util.Defaults;
 import marytts.signalproc.util.SignalProcUtils;
 import marytts.signalproc.window.Window;
 import marytts.util.ArrayUtils;
+import marytts.util.FFT;
 import marytts.util.MathUtils;
 import marytts.util.MathUtils.Complex;
 import marytts.util.audio.AudioDoubleDataSource;

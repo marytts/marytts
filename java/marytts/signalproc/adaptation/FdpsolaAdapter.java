@@ -40,8 +40,6 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import marytts.signalproc.FFT;
-import marytts.signalproc.FFTMixedRadix;
 import marytts.signalproc.adaptation.codebook.WeightedCodebook;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookMapper;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookMatch;
@@ -77,6 +75,8 @@ import marytts.signalproc.util.LEDataOutputStream;
 import marytts.signalproc.util.SignalProcUtils;
 import marytts.signalproc.window.DynamicWindow;
 import marytts.signalproc.window.Window;
+import marytts.util.FFT;
+import marytts.util.FFTMixedRadix;
 import marytts.util.FileUtils;
 import marytts.util.MaryUtils;
 import marytts.util.MathUtils;

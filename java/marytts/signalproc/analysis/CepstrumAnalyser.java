@@ -29,8 +29,8 @@
 
 package marytts.signalproc.analysis;
 
-import marytts.signalproc.FFT;
 import marytts.util.ComplexArray;
+import marytts.util.FFT;
 import marytts.util.MathUtils;
 
 /**

@@ -8,8 +8,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Vector;
 
-import marytts.signalproc.FFT;
-import marytts.signalproc.FFTMixedRadix;
 import marytts.signalproc.analysis.PitchMarker;
 import marytts.signalproc.filter.BandPassFilter;
 import marytts.signalproc.filter.FIRFilter;
@@ -18,6 +16,8 @@ import marytts.signalproc.filter.LowPassFilter;
 import marytts.signalproc.filter.RecursiveFilter;
 import marytts.signalproc.window.HammingWindow;
 import marytts.signalproc.window.Window;
+import marytts.util.FFT;
+import marytts.util.FFTMixedRadix;
 import marytts.util.FileUtils;
 import marytts.util.MathUtils;
 import marytts.util.MathUtils.Complex;
