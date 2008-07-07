@@ -35,11 +35,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import marytts.util.FileUtils;
-import marytts.util.MaryRandomAccessFile;
 import marytts.util.MaryUtils;
-import marytts.util.MathUtils;
-import marytts.util.StringUtils;
+import marytts.util.io.FileUtils;
+import marytts.util.io.MaryRandomAccessFile;
+import marytts.util.math.DoubleMatrix;
+import marytts.util.math.MathUtils;
+import marytts.util.string.StringUtils;
 
 
 /**
@@ -127,7 +128,7 @@ public class GMMTrainer {
             {   
                 String strIsBigEndian = "1";
                 String dataFile = StringUtils.getRandomFileName("d:\\gmmTemp_", 8, ".dat");
-                DoubleData d = new DoubleData(x);
+                DoubleMatrix d = new DoubleMatrix(x);
                 d.write(dataFile);
 
                 String gmmFile = StringUtils.modifyExtension(dataFile, ".gmm");

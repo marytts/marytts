@@ -51,7 +51,7 @@ import marytts.unitselection.data.Unit;
 import marytts.unitselection.data.UnitFileReader;
 import marytts.unitselection.select.JoinCostFeatures;
 import marytts.unitselection.select.PrecompiledJoinCostReader;
-import marytts.util.MathUtils;
+import marytts.util.math.MathUtils;
 
 
 public class JoinModeller extends VoiceImportComponent

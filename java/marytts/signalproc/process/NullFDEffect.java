@@ -1,6 +1,6 @@
 package marytts.signalproc.process;
 
-import marytts.util.MathUtils;
+import marytts.util.math.MathUtils;
 
 public class NullFDEffect extends PolarFrequencyProcessor {
     public NullFDEffect(int fftSize)

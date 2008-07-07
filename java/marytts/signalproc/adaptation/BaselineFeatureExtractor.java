@@ -43,8 +43,8 @@ import marytts.signalproc.analysis.LineSpectralFrequencies;
 import marytts.signalproc.analysis.LsfFileHeader;
 import marytts.signalproc.analysis.PitchFileHeader;
 import marytts.signalproc.analysis.PitchTrackerAutocorrelation;
-import marytts.util.FileUtils;
-import marytts.util.StringUtils;
+import marytts.util.io.FileUtils;
+import marytts.util.string.StringUtils;
 
 
 /**

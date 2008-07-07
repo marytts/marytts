@@ -70,7 +70,7 @@ import marytts.unitselection.data.UnitFileReader;
 import marytts.util.MaryUtils;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DoubleDataSource;
-import marytts.util.audio.MaryAudioUtils;
+import marytts.util.audio.AudioUtils;
 import marytts.util.audio.WavWriter;
 
 import de.dfki.lt.mary.unitselection.FeatureFileIndexer;
@@ -814,7 +814,7 @@ public class CARTAnalyzer {
                     }
                     outln("Playing last unit(s) again.");
                     // use mary audio utils directly for this one
-                    MaryAudioUtils.playWavFile(fName, 0);
+                    AudioUtils.playWavFile(fName, 0);
                     continue;
                 } // end replay
 
@@ -1710,7 +1710,7 @@ public class CARTAnalyzer {
             outln("Playing " + ulength + " units, first unit: " + units[0]
                     + ", last unit: " + units[ulength - 1]);
             for (int i = 0; i <= loop; i++) {
-                MaryAudioUtils.playWavFile(fName, 0);
+                AudioUtils.playWavFile(fName, 0);
                 // allow for user control if loop > 0
                 if (i < loop)
                     input("Press Enter for next loop...");
@@ -1739,7 +1739,7 @@ public class CARTAnalyzer {
                         + "]");
                 outln("Now playing unit " + units[i]);
                 for (int j = 0; j <= loop; j++) {
-                    MaryAudioUtils.playWavFile(fName, 0);
+                    AudioUtils.playWavFile(fName, 0);
                 }
                 // allow for some user control, else it would be chaos
                 if (i < (ulength - 1))
@@ -1955,7 +1955,7 @@ public class CARTAnalyzer {
                 + " normal values and " + outlierNew.length + " outliers...");
         ww.export(fName, 16000, buf);
         outln("Playing...");
-        MaryAudioUtils.playWavFile(fName, 0);
+        AudioUtils.playWavFile(fName, 0);
 
     }
 
@@ -2016,7 +2016,7 @@ public class CARTAnalyzer {
                 + " below values and " + outlierNew.length + " above...");
         ww.export(fName, 16000, buf);
         outln("Playing...");
-        MaryAudioUtils.playWavFile(fName, 0);
+        AudioUtils.playWavFile(fName, 0);
     }
 
     /**

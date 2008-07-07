@@ -31,10 +31,10 @@ package marytts.signalproc.tests;
 
 import marytts.signalproc.display.FunctionGraph;
 import marytts.signalproc.filter.FIRFilter;
-import marytts.util.FFT;
-import marytts.util.MathUtils;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DoubleDataSource;
+import marytts.util.math.FFT;
+import marytts.util.math.MathUtils;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 

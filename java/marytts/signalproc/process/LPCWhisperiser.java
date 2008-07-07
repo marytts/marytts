@@ -37,10 +37,10 @@ import javax.sound.sampled.AudioSystem;
 
 import marytts.signalproc.analysis.LPCAnalyser.LPCoeffs;
 import marytts.signalproc.window.Window;
-import marytts.util.MathUtils;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DDSAudioInputStream;
+import marytts.util.math.MathUtils;
 
 
 /**

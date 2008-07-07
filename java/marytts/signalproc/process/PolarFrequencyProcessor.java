@@ -29,7 +29,7 @@
 
 package marytts.signalproc.process;
 
-import marytts.util.MathUtils;
+import marytts.util.math.MathUtils;
 
 /**
  * @author Marc Schr&ouml;der

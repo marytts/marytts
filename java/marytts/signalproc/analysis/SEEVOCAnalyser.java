@@ -32,8 +32,8 @@ package marytts.signalproc.analysis;
 import javax.swing.JFrame;
 
 import marytts.signalproc.display.FunctionGraph;
-import marytts.signalproc.util.SignalProcUtils;
-import marytts.util.MathUtils;
+import marytts.util.math.MathUtils;
+import marytts.util.signal.SignalProcUtils;
 
 
 /**

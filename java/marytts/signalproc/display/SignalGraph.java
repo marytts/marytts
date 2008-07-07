@@ -42,7 +42,7 @@ import javax.sound.sampled.DataLine;
 import javax.swing.AbstractAction;
 import javax.swing.KeyStroke;
 
-import marytts.util.AudioUtils;
+import marytts.util.audio.AudioUtils;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DDSAudioInputStream;
 

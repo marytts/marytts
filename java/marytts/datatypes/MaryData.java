@@ -56,11 +56,11 @@ import javax.xml.transform.TransformerException;
 
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
-import marytts.util.LoggingErrorHandler;
-import marytts.util.MaryNormalisedWriter;
 import marytts.util.MaryUtils;
-import marytts.util.ReaderSplitter;
-import marytts.util.UncloseableBufferedReader;
+import marytts.util.io.LoggingErrorHandler;
+import marytts.util.io.MaryNormalisedWriter;
+import marytts.util.io.ReaderSplitter;
+import marytts.util.io.UncloseableBufferedReader;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
