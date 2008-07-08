@@ -33,10 +33,10 @@ import java.util.Arrays;
 
 import marytts.signalproc.window.BlackmanWindow;
 import marytts.signalproc.window.Window;
+import marytts.util.FFT;
+import marytts.util.MathUtils;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DoubleDataSource;
-import marytts.util.math.FFT;
-import marytts.util.math.MathUtils;
 
 
 /**

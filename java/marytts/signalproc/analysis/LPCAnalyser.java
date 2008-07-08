@@ -35,18 +35,19 @@ import java.util.Arrays;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import marytts.signalproc.Defaults;
 import marytts.signalproc.display.FunctionGraph;
 import marytts.signalproc.display.SignalGraph;
 import marytts.signalproc.filter.FIRFilter;
+import marytts.signalproc.util.Defaults;
+import marytts.signalproc.util.SignalProcUtils;
 import marytts.signalproc.window.Window;
+import marytts.util.ArrayUtils;
+import marytts.util.FFT;
+import marytts.util.MathUtils;
+import marytts.util.ComplexArray;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.DoubleDataSource;
-import marytts.util.math.ArrayUtils;
-import marytts.util.math.ComplexArray;
-import marytts.util.math.FFT;
-import marytts.util.math.MathUtils;
-import marytts.util.signal.SignalProcUtils;
+
 
 /**
  * @author Marc Schr&ouml;der
@@ -433,7 +434,7 @@ public class LPCAnalyser extends FrameBasedAnalyser
          */
         public double[] getLPCC( int cepstrumOrder )
         {
-            if ( lpcc == null ) lpcc = CepstrumLPCAnalyser.lpc2lpcc( oneMinusA, gain, cepstrumOrder );
+            if ( lpcc == null ) lpcc = LPCCepstrum.lpc2lpcc( oneMinusA, gain, cepstrumOrder );
             return( (double[]) lpcc.clone() );
         }
         
@@ -445,7 +446,7 @@ public class LPCAnalyser extends FrameBasedAnalyser
         public void setLPCC( double[] someLpcc, int LPCOrder )
         {
             this.lpcc = (double[]) someLpcc.clone();
-            oneMinusA = CepstrumLPCAnalyser.lpcc2lpc( lpcc, LPCOrder );
+            oneMinusA = LPCCepstrum.lpcc2lpc( lpcc, LPCOrder );
             gain = Math.exp( lpcc[0] );
             // Clean the cache:
             this.lsf = null;

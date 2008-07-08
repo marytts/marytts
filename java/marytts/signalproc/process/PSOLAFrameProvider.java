@@ -3,12 +3,12 @@ package marytts.signalproc.process;
 import java.util.Arrays;
 
 import marytts.signalproc.analysis.PitchMarker;
+import marytts.signalproc.util.SignalProcUtils;
 import marytts.signalproc.window.DynamicTwoHalvesWindow;
 import marytts.signalproc.window.Window;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DoubleDataSource;
 import marytts.util.audio.SequenceDoubleDataSource;
-import marytts.util.signal.SignalProcUtils;
 
 
 public class PSOLAFrameProvider {

@@ -56,7 +56,6 @@ import marytts.datatypes.MaryDataType;
 import marytts.modules.MaryModule;
 import marytts.modules.Synthesis;
 import marytts.modules.synthesis.Voice;
-import marytts.util.audio.AudioUtils;
 import marytts.util.audio.MaryAudioUtils;
 
 import org.apache.log4j.BasicConfigurator;
@@ -507,12 +506,12 @@ public class Mary {
                     audioTypeName = "WAVE";
                     logger.warn("-Daudio.type not set! Assuming default -Daudio.type="+audioTypeName);
                 }
-                AudioFileFormat.Type audioType = AudioUtils.getAudioFileFormatType(audioTypeName);
+                AudioFileFormat.Type audioType = MaryAudioUtils.getAudioFileFormatType(audioTypeName);
                 AudioFormat audioFormat = null;
                 if (audioType.toString().equals("MP3")) {
-                    if (!AudioUtils.canCreateMP3())
+                    if (!MaryAudioUtils.canCreateMP3())
                         throw new UnsupportedAudioFileException("Conversion to MP3 not supported.");
-                    audioFormat = AudioUtils.getMP3AudioFormat();
+                    audioFormat = MaryAudioUtils.getMP3AudioFormat();
                 } else {
                     Voice ref = (voice != null) ? voice : Voice.getDefaultVoice(Locale.GERMAN);
                     audioFormat = ref.dbAudioFormat();

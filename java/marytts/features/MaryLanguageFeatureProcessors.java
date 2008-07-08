@@ -42,7 +42,7 @@ import marytts.fst.FSTLookup;
 import marytts.modules.synthesis.FreeTTSVoices;
 import marytts.unitselection.select.HalfPhoneTarget;
 import marytts.unitselection.select.Target;
-import marytts.util.string.ByteStringTranslator;
+import marytts.util.ByteStringTranslator;
 
 import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.ProcessException;

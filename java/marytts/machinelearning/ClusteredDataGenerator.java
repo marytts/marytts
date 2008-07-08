@@ -31,8 +31,8 @@ package marytts.machinelearning;
 
 import java.util.Arrays;
 
-import marytts.util.math.MathUtils;
-import marytts.util.signal.SignalProcUtils;
+import marytts.signalproc.util.SignalProcUtils;
+import marytts.util.MathUtils;
 
 
 /**

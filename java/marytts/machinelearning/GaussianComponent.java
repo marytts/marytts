@@ -31,8 +31,8 @@ package marytts.machinelearning;
 
 import java.io.IOException;
 
-import marytts.util.io.MaryRandomAccessFile;
-import marytts.util.math.MathUtils;
+import marytts.util.MaryRandomAccessFile;
+import marytts.util.MathUtils;
 
 
 /**

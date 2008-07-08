@@ -46,7 +46,7 @@ import marytts.datatypes.MaryDataType;
 import marytts.exceptions.NoSuchPropertyException;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
-import marytts.util.io.StreamLogger;
+import marytts.util.StreamLogger;
 
 import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
@@ -177,7 +177,7 @@ public class ExternalModule implements MaryModule
      * <code>StreamLogger</code> thread.
      * @see #to()
      * @see #from()
-     * @see marytts.util.io.StreamLogger
+     * @see marytts.util.StreamLogger
      */
     protected void open()
         throws IOException {

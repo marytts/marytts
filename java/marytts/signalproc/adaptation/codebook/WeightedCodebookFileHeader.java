@@ -35,7 +35,7 @@ import marytts.signalproc.analysis.EnergyAnalyserRms;
 import marytts.signalproc.analysis.EnergyFileHeader;
 import marytts.signalproc.analysis.LsfFileHeader;
 import marytts.signalproc.analysis.PitchFileHeader;
-import marytts.util.io.MaryRandomAccessFile;
+import marytts.util.MaryRandomAccessFile;
 
 
 /**

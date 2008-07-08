@@ -39,8 +39,8 @@ import javax.sound.sampled.AudioSystem;
 import javax.xml.transform.TransformerException;
 
 import marytts.datatypes.MaryDataType;
+import marytts.util.LoggingReader;
 import marytts.util.MaryUtils;
-import marytts.util.io.LoggingReader;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;

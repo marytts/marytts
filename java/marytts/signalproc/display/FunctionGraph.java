@@ -53,7 +53,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 
-import marytts.util.string.PrintfFormat;
+import marytts.util.PrintfFormat;
 
 
 /**

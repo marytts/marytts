@@ -38,7 +38,7 @@ import marytts.signalproc.adaptation.codebook.WeightedCodebookFile;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookFileHeader;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookMapperParams;
 import marytts.signalproc.analysis.distance.DistanceComputer;
-import marytts.util.math.MathUtils;
+import marytts.util.MathUtils;
 
 
 /**

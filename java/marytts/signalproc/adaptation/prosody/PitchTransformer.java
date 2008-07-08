@@ -1,8 +1,8 @@
 package marytts.signalproc.adaptation.prosody;
 
+import marytts.signalproc.util.SignalProcUtils;
 import marytts.util.MaryUtils;
-import marytts.util.math.MathUtils;
-import marytts.util.signal.SignalProcUtils;
+import marytts.util.MathUtils;
 
 public class PitchTransformer {    
     public PitchTransformer()

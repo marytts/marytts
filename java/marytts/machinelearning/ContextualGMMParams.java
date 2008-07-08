@@ -36,10 +36,10 @@ import java.util.Set;
 
 import marytts.modules.phonemiser.Phoneme;
 import marytts.modules.phonemiser.PhonemeSet;
-import marytts.util.io.MaryRandomAccessFile;
-import marytts.util.math.MathUtils;
-import marytts.util.signal.SignalProcUtils;
-import marytts.util.string.StringUtils;
+import marytts.signalproc.util.SignalProcUtils;
+import marytts.util.MaryRandomAccessFile;
+import marytts.util.MathUtils;
+import marytts.util.StringUtils;
 
 
 /**

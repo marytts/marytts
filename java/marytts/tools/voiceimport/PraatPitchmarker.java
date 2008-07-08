@@ -38,7 +38,7 @@ import java.io.PrintWriter;
 import java.io.FileWriter;
 
 import marytts.util.MaryUtils;
-import marytts.util.io.PraatTextfileDoubleDataSource;
+import marytts.util.audio.PraatTextfileDoubleDataSource;
 
 
 public class PraatPitchmarker extends VoiceImportComponent

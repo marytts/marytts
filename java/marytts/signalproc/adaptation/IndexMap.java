@@ -32,8 +32,8 @@ package marytts.signalproc.adaptation;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import marytts.util.io.LEDataInputStream;
-import marytts.util.io.LEDataOutputStream;
+import marytts.signalproc.util.LEDataInputStream;
+import marytts.signalproc.util.LEDataOutputStream;
 
 
 /**

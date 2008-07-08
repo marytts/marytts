@@ -31,7 +31,7 @@ package marytts.signalproc.window;
 
 import marytts.signalproc.display.FunctionGraph;
 import marytts.signalproc.display.LogSpectrum;
-import marytts.util.math.MathUtils;
+import marytts.util.MathUtils;
 
 
 /**

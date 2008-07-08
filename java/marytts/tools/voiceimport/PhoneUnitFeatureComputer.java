@@ -9,7 +9,7 @@ import java.util.*;
 
 import marytts.client.MaryClient;
 import marytts.datatypes.MaryDataType;
-import marytts.util.io.FileUtils;
+import marytts.util.FileUtils;
 
 
 

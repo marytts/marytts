@@ -32,7 +32,7 @@ package marytts.signalproc.adaptation.codebook;
 import java.io.IOException;
 
 import marytts.signalproc.adaptation.Context;
-import marytts.util.io.MaryRandomAccessFile;
+import marytts.util.MaryRandomAccessFile;
 
 
 /**

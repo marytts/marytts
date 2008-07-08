@@ -29,8 +29,8 @@
 
 package marytts.signalproc.effects;
 
+import marytts.util.MathUtils;
 import marytts.util.audio.DoubleDataSource;
-import marytts.util.math.MathUtils;
 
 /**
  * @author oytun.turk

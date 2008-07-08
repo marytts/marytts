@@ -34,11 +34,11 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
+import marytts.util.MathUtils;
 import marytts.signalproc.window.Window;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DDSAudioInputStream;
-import marytts.util.math.MathUtils;
 
 
 /**

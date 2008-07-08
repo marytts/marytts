@@ -33,7 +33,7 @@ import java.util.Arrays;
 
 import marytts.signalproc.adaptation.gmm.GMMMapper;
 import marytts.signalproc.adaptation.gmm.GMMMatch;
-import marytts.util.math.MathUtils;
+import marytts.util.MathUtils;
 
 
 /**

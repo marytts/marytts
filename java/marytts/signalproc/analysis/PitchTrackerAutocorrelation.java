@@ -40,12 +40,12 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import marytts.signalproc.filter.BandPassFilter;
 import marytts.signalproc.filter.FIRFilter;
 import marytts.signalproc.filter.LowPassFilter;
+import marytts.signalproc.util.SignalProcUtils;
 import marytts.signalproc.window.DynamicWindow;
 import marytts.signalproc.window.Window;
 import marytts.util.MaryUtils;
+import marytts.util.MathUtils;
 import marytts.util.audio.AudioDoubleDataSource;
-import marytts.util.math.MathUtils;
-import marytts.util.signal.SignalProcUtils;
 
 
 

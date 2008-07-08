@@ -47,7 +47,7 @@ import marytts.server.MaryProperties;
 import marytts.unitselection.data.DiphoneUnit;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.data.UnitDatabase;
-import marytts.util.string.PrintfFormat;
+import marytts.util.PrintfFormat;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;

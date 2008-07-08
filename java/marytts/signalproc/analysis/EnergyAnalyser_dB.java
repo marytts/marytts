@@ -30,8 +30,8 @@
 package marytts.signalproc.analysis;
 
 import marytts.signalproc.window.RectWindow;
+import marytts.util.MathUtils;
 import marytts.util.audio.DoubleDataSource;
-import marytts.util.math.MathUtils;
 
 /**
  * A class that analyses the energy distribution, and computes a silence cutoff threshold,

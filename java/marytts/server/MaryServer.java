@@ -59,7 +59,6 @@ import marytts.signalproc.effects.BaseAudioEffect;
 import marytts.signalproc.effects.EffectsApplier;
 import marytts.unitselection.UnitSelectionVoice;
 import marytts.unitselection.interpolation.InterpolatingVoice;
-import marytts.util.audio.AudioUtils;
 import marytts.util.audio.MaryAudioUtils;
 
 import org.apache.log4j.Logger;
@@ -720,9 +719,9 @@ public class MaryServer {
                         	String typeString = tt.nextToken();
                         	if (typeString.startsWith("STREAMING_")) {
                         		streamingAudio = true;
-                        		audioFileFormatType = AudioUtils.getAudioFileFormatType(typeString.substring(10));
+                        		audioFileFormatType = MaryAudioUtils.getAudioFileFormatType(typeString.substring(10));
                         	} else {
-                        		audioFileFormatType = AudioUtils.getAudioFileFormatType(typeString);
+                        		audioFileFormatType = MaryAudioUtils.getAudioFileFormatType(typeString);
                         	}
                         }
                     } else { // no AUDIO field
@@ -846,13 +845,13 @@ public class MaryServer {
                 }
                 AudioFormat audioFormat = voice.dbAudioFormat();
                 if (audioFileFormatType.toString().equals("MP3")) {
-                    if (!AudioUtils.canCreateMP3())
+                    if (!MaryAudioUtils.canCreateMP3())
                         throw new UnsupportedAudioFileException("Conversion to MP3 not supported.");
-                    audioFormat = AudioUtils.getMP3AudioFormat();
+                    audioFormat = MaryAudioUtils.getMP3AudioFormat();
                 } else if (audioFileFormatType.toString().equals("Vorbis")) {
-                    if (!AudioUtils.canCreateOgg())
+                    if (!MaryAudioUtils.canCreateOgg())
                         throw new UnsupportedAudioFileException("Conversion to OGG Vorbis format not supported.");
-                    audioFormat = AudioUtils.getOggAudioFormat();
+                    audioFormat = MaryAudioUtils.getOggAudioFormat();
                 }
                 audioFileFormat = new AudioFileFormat(audioFileFormatType, audioFormat, AudioSystem.NOT_SPECIFIED);
 

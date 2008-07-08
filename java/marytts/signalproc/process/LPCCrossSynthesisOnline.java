@@ -11,12 +11,12 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import marytts.signalproc.analysis.LPCAnalyser;
 import marytts.signalproc.analysis.LPCAnalyser.LPCoeffs;
 import marytts.signalproc.demo.ChangeMyVoiceUI;
+import marytts.signalproc.util.SignalProcUtils;
 import marytts.signalproc.window.Window;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DoubleDataSource;
 import marytts.util.audio.SequenceDoubleDataSource;
-import marytts.util.signal.SignalProcUtils;
 
 
 public class LPCCrossSynthesisOnline extends LPCAnalysisResynthesis {
