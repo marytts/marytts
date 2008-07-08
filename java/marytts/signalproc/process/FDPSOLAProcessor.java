@@ -23,9 +23,6 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.PitchMarker;
-import marytts.signalproc.util.LEDataInputStream;
-import marytts.signalproc.util.LEDataOutputStream;
-import marytts.signalproc.util.SignalProcUtils;
 import marytts.signalproc.window.DynamicTwoHalvesWindow;
 import marytts.signalproc.window.DynamicWindow;
 import marytts.signalproc.window.Window;
@@ -34,14 +31,17 @@ import marytts.unitselection.concat.DatagramOverlapDoubleDataSource;
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.select.SelectedUnit;
-import marytts.util.FFTMixedRadix;
-import marytts.util.FileUtils;
-import marytts.util.MathUtils;
-import marytts.util.ComplexArray;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DDSAudioInputStream;
 import marytts.util.audio.DoubleDataSource;
+import marytts.util.io.FileUtils;
+import marytts.util.io.LEDataInputStream;
+import marytts.util.io.LEDataOutputStream;
+import marytts.util.math.ComplexArray;
+import marytts.util.math.FFTMixedRadix;
+import marytts.util.math.MathUtils;
+import marytts.util.signal.SignalProcUtils;
 
 
 public class FDPSOLAProcessor extends VocalTractModifier {

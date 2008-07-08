@@ -1,6 +1,6 @@
 package marytts.signalproc.adaptation;
 
-import marytts.util.StringUtils;
+import marytts.util.string.StringUtils;
 
 // This class keeps information on each specific training item
 // For example, a training item for a sentence based voice conversion training database

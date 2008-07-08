@@ -31,7 +31,7 @@ package marytts.signalproc.adaptation.smoothing;
 
 import marytts.signalproc.window.DynamicWindow;
 import marytts.signalproc.window.Window;
-import marytts.util.MathUtils;
+import marytts.util.math.MathUtils;
 
 /**
  * @author oytun.turk

@@ -43,12 +43,12 @@ import marytts.signalproc.filter.FIRWaveletFilterBankAnalyser;
 import marytts.signalproc.filter.FIRWaveletFilterBankSynthesiser;
 import marytts.signalproc.filter.FilterBankAnalyserBase;
 import marytts.signalproc.filter.Subband;
-import marytts.signalproc.util.SignalProcUtils;
 import marytts.signalproc.window.Window;
-import marytts.util.MathUtils;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DDSAudioInputStream;
+import marytts.util.math.MathUtils;
+import marytts.util.signal.SignalProcUtils;
 
 
 /**

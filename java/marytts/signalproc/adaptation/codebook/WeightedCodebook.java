@@ -31,7 +31,7 @@ package marytts.signalproc.adaptation.codebook;
 
 import marytts.signalproc.adaptation.BaselineFeatureExtractor;
 import marytts.signalproc.adaptation.VocalTractTransformationData;
-import marytts.util.StringUtils;
+import marytts.util.string.StringUtils;
 
 /**
  * @author oytun.turk

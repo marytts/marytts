@@ -62,17 +62,16 @@ import java.util.Random;
 import java.io.*;
 import javax.sound.sampled.*;
 
-import marytts.util.MathUtils;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DDSAudioInputStream;
 import marytts.util.audio.AudioPlayer;
 import marytts.util.audio.DDSAudioInputStream;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.AudioDoubleDataSource;
-import marytts.util.MathUtils;
-import marytts.util.ComplexArray;
-import marytts.util.FFTMixedRadix;
-import marytts.util.FFT;
+import marytts.util.math.ComplexArray;
+import marytts.util.math.FFT;
+import marytts.util.math.FFTMixedRadix;
+import marytts.util.math.MathUtils;
 
 import org.apache.log4j.Logger;
 

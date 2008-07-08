@@ -20,12 +20,12 @@ import marytts.signalproc.process.InlineDataProcessor;
 import marytts.signalproc.process.LPCWhisperiser;
 import marytts.signalproc.process.Robotiser;
 import marytts.signalproc.process.Robotiser.PhaseRemover;
-import marytts.signalproc.util.SignalProcUtils;
-import marytts.util.MathUtils;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DDSAudioInputStream;
 import marytts.util.audio.DoubleDataSource;
+import marytts.util.math.MathUtils;
+import marytts.util.signal.SignalProcUtils;
 
 
 public class OnlineAudioEffects extends Thread

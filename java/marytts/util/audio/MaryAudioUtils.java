@@ -42,14 +42,13 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
 
 import marytts.modules.synthesis.Voice;
+import marytts.util.audio.AudioDoubleDataSource;
 
 import org.jsresources.AudioRecorder;
 import org.jsresources.SequenceAudioInputStream;
 import org.jsresources.TimedAudioRecorder;
 import org.tritonus.share.sampled.AudioFileTypes;
 import org.tritonus.share.sampled.Encodings;
-
-
 
 /**
  * @author Marc Schr&ouml;der
@@ -301,5 +300,7 @@ public class MaryAudioUtils {
     	m_clip.close();  	
     }
 
-
+    public static double[] getSamplesAsDoubleArray(AudioInputStream ais) {
+        return new AudioDoubleDataSource(ais).getAllData();
+    }
 }

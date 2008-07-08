@@ -33,12 +33,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import marytts.signalproc.analysis.ESTLabels;
 import marytts.signalproc.analysis.LineSpectralFrequencies;
 import marytts.signalproc.analysis.LsfFileHeader;
-import marytts.signalproc.util.ESTLabels;
-import marytts.signalproc.util.SignalProcUtils;
-import marytts.util.MathUtils;
-import marytts.util.StringUtils;
+import marytts.util.math.MathUtils;
+import marytts.util.signal.SignalProcUtils;
+import marytts.util.string.StringUtils;
 
 
 /**

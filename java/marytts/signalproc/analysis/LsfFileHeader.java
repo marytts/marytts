@@ -33,7 +33,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import marytts.signalproc.window.Window;
-import marytts.util.MaryRandomAccessFile;
+import marytts.util.io.MaryRandomAccessFile;
 
 /**
  * @author oytun.turk

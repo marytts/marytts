@@ -35,9 +35,9 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import marytts.util.AudioUtils;
-import marytts.util.FFT;
-import marytts.util.MathUtils;
+import marytts.util.audio.MaryAudioUtils;
+import marytts.util.math.FFT;
+import marytts.util.math.MathUtils;
 
 
 /**
@@ -59,7 +59,7 @@ public class SignalSpectrum  extends FunctionGraph
             throw new IllegalArgumentException("Can only deal with mono audio signals");
         }
         int samplingRate = (int) ais.getFormat().getSampleRate();
-        double[] signal = AudioUtils.getSamplesAsDoubleArray(ais);
+        double[] signal = MaryAudioUtils.getSamplesAsDoubleArray(ais);
         initialise(signal, samplingRate, width, height);
     }
     

@@ -38,13 +38,13 @@ import javax.sound.sampled.AudioSystem;
 
 import marytts.signalproc.analysis.LPCAnalyser;
 import marytts.signalproc.analysis.LPCAnalyser.LPCoeffs;
-import marytts.util.FileUtils;
-import marytts.util.PrintfFormat;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DDSAudioInputStream;
 import marytts.util.audio.DoubleDataSource;
 import marytts.util.audio.LabelfileDoubleDataSource;
+import marytts.util.io.FileUtils;
+import marytts.util.string.PrintfFormat;
 
 
 /**

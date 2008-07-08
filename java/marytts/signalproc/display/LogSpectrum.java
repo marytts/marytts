@@ -34,7 +34,7 @@ import java.io.File;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import marytts.util.MathUtils;
+import marytts.util.math.MathUtils;
 
 
 

@@ -30,8 +30,8 @@
 package marytts.signalproc.sinusoidal;
 
 import marytts.signalproc.analysis.PitchMarker;
-import marytts.signalproc.util.SignalProcUtils;
-import marytts.util.MathUtils;
+import marytts.util.math.MathUtils;
+import marytts.util.signal.SignalProcUtils;
 
 /**
  * @author oytun.turk

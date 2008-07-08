@@ -38,9 +38,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.Iterator;
 
-import marytts.util.ByteStringTranslator;
-import marytts.util.IntStringTranslator;
-import marytts.util.ShortStringTranslator;
+import marytts.util.string.ByteStringTranslator;
+import marytts.util.string.IntStringTranslator;
+import marytts.util.string.ShortStringTranslator;
 
 
 /**

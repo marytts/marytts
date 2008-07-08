@@ -40,7 +40,7 @@ import marytts.signalproc.analysis.LPCAnalyser;
 import marytts.signalproc.analysis.LPCAnalyser.LPCoeffs;
 import marytts.signalproc.filter.FIRFilter;
 import marytts.signalproc.window.Window;
-import marytts.util.ArrayUtils;
+import marytts.util.math.ArrayUtils;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DDSAudioInputStream;
