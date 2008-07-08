@@ -44,6 +44,7 @@ import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.modules.synthesis.FreeTTSVoices;
 import marytts.modules.synthesis.Voice;
+import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.io.MaryNormalisedWriter;
 
@@ -69,8 +70,8 @@ public abstract class Utt2XMLBase extends InternalModule {
     protected DocumentBuilderFactory factory = null;
     protected DocumentBuilder docBuilder = null;
 
-    public Utt2XMLBase(String name, MaryDataType input, MaryDataType output) {
-        super(name, input, output);
+    public Utt2XMLBase(String name, MaryDataType input, MaryDataType output, Locale locale) {
+        super(name, input, output, locale);
     }
 
     public void startup() throws Exception {
@@ -89,9 +90,9 @@ public abstract class Utt2XMLBase extends InternalModule {
     public MaryData process(MaryData d) throws Exception {
         Document doc = MaryXML.newDocument();
         Element insertHere = doc.getDocumentElement();
-        Locale locale = outputType().getLocale();
+        Locale locale = d.getLocale();
         if (locale != null) {
-            insertHere.setAttribute("xml:lang", locale.getLanguage());
+            insertHere.setAttribute("xml:lang", MaryUtils.locale2xmllang(locale));
         }
         insertHere = MaryXML.appendChildElement(insertHere, MaryXML.PARAGRAPH);
 
@@ -151,7 +152,7 @@ public abstract class Utt2XMLBase extends InternalModule {
             logger.debug(debugOut.toString());
         }
 
-        MaryData output = new MaryData(outputType());
+        MaryData output = new MaryData(outputType(), d.getLocale());
         output.setDocument(doc);
         return output;
     }

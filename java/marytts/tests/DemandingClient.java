@@ -77,8 +77,9 @@ public class DemandingClient {
         // Do one first call for creating a reference file, all others will then
         // be compared to its size.
         MaryClient mc = new MaryClient();
-        String inputType = System.getProperty("input.type", "TEXT_DE");
+        String inputType = System.getProperty("input.type", "TEXT");
         String outputType = System.getProperty("output.type", "AUDIO");
+        String locale = System.getProperty("locale", "en_US");
         String audioType = System.getProperty("audio.type", "WAVE");
         if (!(audioType.equals("AIFC")
             || audioType.equals("AIFF")
@@ -97,7 +98,7 @@ public class DemandingClient {
         long startTime = System.currentTimeMillis();
         try {
             FileOutputStream fos = new FileOutputStream(referenceFile);
-            mc.process(input, inputType, outputType, audioType, defaultVoiceName, fos);
+            mc.process(input, inputType, outputType, locale, audioType, defaultVoiceName, fos);
             fos.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -142,7 +143,7 @@ public class DemandingClient {
             try {
                 FileOutputStream fos = new FileOutputStream(testFile);
 
-                mc.process(input, inputType, outputType, audioType, defaultVoiceName, fos, timeout);
+                mc.process(input, inputType, outputType, locale, audioType, defaultVoiceName, fos, timeout);
                 fos.close();
                 long testSize = testFile.length();
                 if (testSize != referenceSize) {

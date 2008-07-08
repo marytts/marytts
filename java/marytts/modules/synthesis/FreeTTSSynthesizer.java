@@ -50,6 +50,7 @@ import marytts.datatypes.MaryDataType;
 import marytts.exceptions.NoSuchPropertyException;
 import marytts.exceptions.SynthesisException;
 import marytts.modules.MaryModule;
+import marytts.modules.ModuleRegistry;
 import marytts.modules.XML2UttAcoustParams;
 import marytts.server.Mary;
 import marytts.server.MaryProperties;
@@ -87,7 +88,7 @@ public class FreeTTSSynthesizer implements WaveformSynthesizer {
         // Try to get instances of our tools from Mary; if we cannot get them,
         // instantiate new objects.
         try{ 
-            x2u = (XML2UttAcoustParams) Mary.getModule(XML2UttAcoustParams.class);
+            x2u = (XML2UttAcoustParams) ModuleRegistry.getModule(XML2UttAcoustParams.class);
         } catch(NullPointerException npe){
             x2u = null;
         }
@@ -201,33 +202,32 @@ public class FreeTTSSynthesizer implements WaveformSynthesizer {
      public synchronized void powerOnSelfTest() throws Error
      {
          try {
-             MaryData in = new MaryData(x2u.inputType());
              Collection myVoices = Voice.getAvailableVoices(this);
              if (myVoices.size() == 0) {
                  return;
              }
              
              Voice v = (Voice) myVoices.iterator().next();
+             MaryData in = new MaryData(x2u.inputType(), v.getLocale());
              com.sun.speech.freetts.Voice freettsVoice = FreeTTSVoices.getFreeTTSVoice(v);
              assert freettsVoice != null;
              if (!freettsVoice.getDomain().equals("general")) {
                  logger.info("Cannot perform power-on self test using limited-domain voice '" + v.getName() + "' - skipping.");
                  return;
              }
-             String exampleText;
-             if (v.getLocale().equals(Locale.GERMAN)) {
-                 exampleText = MaryDataType.get("ACOUSTPARAMS_DE").exampleText();
+             String exampleText = MaryDataType.ACOUSTPARAMS.exampleText(v.getLocale());
+             if (exampleText != null) {
+                 in.readFrom(new StringReader(exampleText));
+                 in.setDefaultVoice(v);
+                 MaryData d1 = x2u.process(in);
+                 Utterance utt = (Utterance) d1.getUtterances().get(0);
+                 verifyDebugLog(utt, x2u.name());
+                 process(utt, v);
+                 AudioInputStream ais = extractAudio(utt);
+                 assert ais != null;
              } else {
-                 exampleText = MaryDataType.get("ACOUSTPARAMS_EN").exampleText();
+                 logger.debug("No example text -- no power-on self test!");
              }
-             in.readFrom(new StringReader(exampleText));
-             in.setDefaultVoice(v);
-             MaryData d1 = x2u.process(in);
-             Utterance utt = (Utterance) d1.getUtterances().get(0);
-             verifyDebugLog(utt, x2u.name());
-             process(utt, v);
-             AudioInputStream ais = extractAudio(utt);
-             assert ais != null;
          } catch (Throwable t) {
              throw new Error("Module " + toString() + ": Power-on self test failed.", t);
          }

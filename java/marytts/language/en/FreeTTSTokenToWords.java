@@ -32,9 +32,11 @@ package marytts.language.en;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
+import marytts.language.en_US.datatypes.USEnglishDataTypes;
 import marytts.modules.InternalModule;
 import marytts.modules.synthesis.FreeTTSVoices;
 
@@ -60,8 +62,9 @@ public class FreeTTSTokenToWords extends InternalModule
     public FreeTTSTokenToWords()
     {
         super("TokenToWords",
-              MaryDataType.get("FREETTS_TOKENS_EN"),
-              MaryDataType.get("FREETTS_WORDS_EN")
+              USEnglishDataTypes.FREETTS_TOKENS,
+              USEnglishDataTypes.FREETTS_WORDS,
+              Locale.ENGLISH
               );
     }
 
@@ -89,7 +92,7 @@ public class FreeTTSTokenToWords extends InternalModule
             Utterance utterance = (Utterance) it.next();
             processor.processUtterance(utterance);
         }
-        MaryData output = new MaryData(outputType());
+        MaryData output = new MaryData(outputType(), d.getLocale());
         output.setUtterances(utterances);
         return output;
     }

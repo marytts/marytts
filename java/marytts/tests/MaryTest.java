@@ -36,6 +36,7 @@ import java.util.Locale;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
+import marytts.modules.ModuleRegistry;
 import marytts.modules.synthesis.Voice;
 import marytts.server.Mary;
 import marytts.server.MaryProperties;
@@ -60,7 +61,7 @@ public class MaryTest extends TestCase {
 
     public void testModulesRequired1() {
         try {
-            Mary.modulesRequiredForProcessing(null, MaryDataType.get("AUDIO"), Locale.ENGLISH);
+            ModuleRegistry.modulesRequiredForProcessing(null, MaryDataType.AUDIO, Locale.ENGLISH);
         } catch (NullPointerException e) {
             return;
         }
@@ -69,7 +70,7 @@ public class MaryTest extends TestCase {
 
     public void testModulesRequired2() {
         try {
-            Mary.modulesRequiredForProcessing(MaryDataType.get("TEXT_EN"), null, Locale.ENGLISH);
+            ModuleRegistry.modulesRequiredForProcessing(MaryDataType.TEXT, null, Locale.ENGLISH);
         } catch (NullPointerException e) {
             return;
         }
@@ -78,7 +79,7 @@ public class MaryTest extends TestCase {
 
     public void testModulesRequired3() {
         try {
-            Mary.modulesRequiredForProcessing(MaryDataType.get("TEXT_EN"), MaryDataType.get("AUDIO"), null);
+            ModuleRegistry.modulesRequiredForProcessing(MaryDataType.TEXT, MaryDataType.AUDIO, null);
         } catch (NullPointerException e) {
             return;
         }
@@ -87,52 +88,52 @@ public class MaryTest extends TestCase {
 
     public void testTextToSpeechPossibleEnglish() {
         List modules =
-            Mary.modulesRequiredForProcessing(
-                MaryDataType.get("TEXT_EN"),
-                MaryDataType.get("AUDIO"),
+            ModuleRegistry.modulesRequiredForProcessing(
+                MaryDataType.TEXT,
+                MaryDataType.AUDIO,
                 Locale.US);
         Assert.assertTrue(modules != null && !modules.isEmpty());
     }
 
     public void testValidMaryXML1() throws Exception {
-        convertToAndValidate("test1.maryxml", MaryDataType.get("RAWMARYXML"), MaryDataType.get("TOKENS_EN"));
+        convertToAndValidate("test1.maryxml", MaryDataType.get("RAWMARYXML"), MaryDataType.get("TOKENS_EN"), Locale.ENGLISH);
     }
 
     public void testValidMaryXML2() throws Exception {
-        convertToAndValidate("test1.maryxml", MaryDataType.get("RAWMARYXML"), MaryDataType.get("INTONATION_EN"));
+        convertToAndValidate("test1.maryxml", MaryDataType.get("RAWMARYXML"), MaryDataType.get("INTONATION_EN"), Locale.US);
     }
 
     public void testValidMaryXML3() throws Exception {
-        convertToAndValidate("test1.maryxml", MaryDataType.get("RAWMARYXML"), MaryDataType.get("ACOUSTPARAMS"));
+        convertToAndValidate("test1.maryxml", MaryDataType.get("RAWMARYXML"), MaryDataType.get("ACOUSTPARAMS"), Locale.US);
     }
 
     public void testValidMaryXML4() throws Exception {
-        convertToAndValidate("test1.ssml", MaryDataType.get("SSML"), MaryDataType.get("TOKENS_EN"));
+        convertToAndValidate("test1.ssml", MaryDataType.get("SSML"), MaryDataType.get("TOKENS_EN"), Locale.ENGLISH);
     }
 
     public void testValidMaryXML5() throws Exception {
-        convertToAndValidate("test1.ssml", MaryDataType.get("SSML"), MaryDataType.get("INTONATION_EN"));
+        convertToAndValidate("test1.ssml", MaryDataType.get("SSML"), MaryDataType.get("INTONATION_EN"), Locale.US);
     }
 
     public void testValidMaryXML6() throws Exception {
-        convertToAndValidate("test1.ssml", MaryDataType.get("SSML"), MaryDataType.get("ACOUSTPARAMS"));
+        convertToAndValidate("test1.ssml", MaryDataType.get("SSML"), MaryDataType.get("ACOUSTPARAMS"), Locale.US);
     }
 
-    protected void convertToAndValidate(String resourceName, MaryDataType inputType, MaryDataType targetType)
+    protected void convertToAndValidate(String resourceName, MaryDataType inputType, MaryDataType targetType, Locale locale)
     throws Exception {
         Assert.assertTrue(MaryProperties.getBoolean("maryxml.validate.input"));
         InputStream maryxml = this.getClass().getResourceAsStream(resourceName);
         Assert.assertTrue(maryxml != null);
-        MaryData inputData = new MaryData(inputType);
+        MaryData inputData = new MaryData(inputType, locale);
         inputData.readFrom(maryxml, null);
-        Request r = new Request(inputType, targetType, null, "", "", 1, null);
+        Request r = new Request(inputType, targetType, locale, null, "", "", 1, null);
         r.setInputData(inputData);
         r.process();
         MaryData outputData = r.getOutputData();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         outputData.writeTo(baos);
         // And now a validating parse:
-        MaryData testData = new MaryData(outputData.type());        
+        MaryData testData = new MaryData(outputData.getType(), locale);        
         testData.readFrom(new ByteArrayInputStream(baos.toByteArray()), null);
     }
 

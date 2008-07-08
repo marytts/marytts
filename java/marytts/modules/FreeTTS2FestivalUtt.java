@@ -54,9 +54,9 @@ public class FreeTTS2FestivalUtt extends InternalModule
     public FreeTTS2FestivalUtt() throws Exception
     {
         super("FreeTTS2FestivalUtt",
-              MaryDataType.get("FREETTS_ACOUSTPARAMS"),
-              MaryDataType.get("FESTIVAL_UTT")
-              );
+              MaryDataType.FREETTS_ACOUSTPARAMS,
+              MaryDataType.FESTIVAL_UTT,
+              null);
     }
 
 
@@ -69,7 +69,7 @@ public class FreeTTS2FestivalUtt extends InternalModule
             buf.append(convertUtt(utt));
     	}
     	
-    	MaryData result = new MaryData(outputType());
+    	MaryData result = new MaryData(outputType(), d.getLocale());
     	result.setPlainText(buf.toString());
     	return result;
     }

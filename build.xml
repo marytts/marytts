@@ -207,6 +207,7 @@ THIS SOFTWARE.
          basedir="${src}"
          includes="marytts/client/*.class
                    marytts/util/MaryUtils*.class
+                   marytts/util/FileUtils.class
     	           marytts/util/audio/AudioPlayer*.class
                    marytts/util/audio/MonoAudioInputStream.class
                    marytts/util/audio/StereoAudioInputStream.class

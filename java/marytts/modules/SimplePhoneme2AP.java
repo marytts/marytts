@@ -28,6 +28,7 @@
  */
 package marytts.modules;
 
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -39,6 +40,7 @@ import marytts.datatypes.MaryXML;
 import marytts.modules.phonemiser.Phoneme;
 import marytts.modules.phonemiser.PhonemeSet;
 import marytts.modules.synthesis.Voice;
+import marytts.util.MaryUtils;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -57,12 +59,12 @@ public class SimplePhoneme2AP extends InternalModule
     private DocumentBuilder docBuilder = null;
     protected PhonemeSet phonemeSet;
 
-    public SimplePhoneme2AP(MaryDataType inputType, MaryDataType outputType)
+    public SimplePhoneme2AP(MaryDataType inputType, MaryDataType outputType, Locale locale)
     {
         super("SimplePhoneme2AP",
               inputType,
-              outputType
-              );
+              outputType,
+              locale);
     }
 
     public void startup() throws Exception
@@ -84,10 +86,10 @@ public class SimplePhoneme2AP extends InternalModule
     throws Exception
     {
         String phonemeString = d.getPlainText();
-        MaryData result = new MaryData(outputType(), true);
+        MaryData result = new MaryData(outputType(), d.getLocale(), true);
         Document doc = result.getDocument();
         Element root = doc.getDocumentElement();
-        root.setAttribute("xml:lang", inputType().getLocale().toString());
+        root.setAttribute("xml:lang", MaryUtils.locale2xmllang(d.getLocale()));
         Element insertHere = root;
         Voice defaultVoice = d.getDefaultVoice();
         if (defaultVoice != null) {

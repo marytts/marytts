@@ -228,38 +228,12 @@ public class MaryClient {
      * @see #getInputDataTypes()
      * @see #getVoices()
      */
-    public void streamAudio(String input, String inputType, String audioType, String defaultVoiceName, String defaultStyle, String defaultEffects, marytts.util.audio.AudioPlayer audioPlayer, AudioPlayerListener listener)
+    public void streamAudio(String input, String inputType, String locale, String audioType, String defaultVoiceName, String defaultStyle, String defaultEffects, marytts.util.audio.AudioPlayer audioPlayer, AudioPlayerListener listener)
     throws UnknownHostException, IOException
     {
-        _process(input, inputType, "AUDIO", audioType, defaultVoiceName, defaultStyle, defaultEffects, audioPlayer, 0, true, listener);
+        _process(input, inputType, "AUDIO", locale, audioType, defaultVoiceName, defaultStyle, defaultEffects, audioPlayer, 0, true, listener);
     }
 
-    /**
-     * Call the mary client to stream audio via the given audio player. The server will
-     * provide audio data as it is being generated. If the connection to the server is
-     * not too slow, streaming will be attractive because it reduces considerably the
-     * amount of time one needs to wait for the first audio to play. 
-     * @param input a textual representation of the input data 
-     * @param inputType the name of the input data type, e.g. TEXT or RAWMARYXML.
-     * @param audioType the name of the audio format, e.g. "WAVE" or "MP3".
-     * @param defaultVoiceName the name of the voice to use, e.g. de7 or us1.
-     * @param audioPlayer the FreeTTS audio player with which to play the synthesised audio data. The
-     * given audio player must already be instanciated. See the package
-     * <code>com.sun.speech.freetts.audio</code> in FreeTTS for implementations of AudioPlayer.
-     * @param listener a means for letting calling code know that the AudioPlayer has finished.
-     * @throws IOException if communication with the server fails
-     * @throws UnknownHostException if the host could not be found
-     * @see #getInputDataTypes()
-     * @see #getVoices()
-     */
-    @Deprecated
-    public void streamAudio(String input, String inputType, String audioType, String defaultVoiceName, String defaultStyle, String defaultEffects, com.sun.speech.freetts.audio.AudioPlayer audioPlayer, AudioPlayerListener listener)
-    throws UnknownHostException, IOException
-    {
-        _process(input, inputType, "AUDIO", audioType, defaultVoiceName, defaultStyle, defaultEffects, audioPlayer, 0, true, listener);
-    }
-
-    
     
     
     /**
@@ -278,18 +252,18 @@ public class MaryClient {
      * @see #getOutputDataTypes()
      * @see #getVoices()
      */
-    public void process(String input, String inputType, String outputType,
+    public void process(String input, String inputType, String outputType, String locale,
         String audioType, String defaultVoiceName, String defaultStyle, String defaultEffects, OutputStream output)
         throws UnknownHostException, IOException
     {
-        _process(input, inputType, outputType, audioType, defaultVoiceName, defaultStyle, defaultEffects, output, 0, false, null);
+        _process(input, inputType, outputType, locale, audioType, defaultVoiceName, defaultStyle, defaultEffects, output, 0, false, null);
     }
     
-    public void process(String input, String inputType, String outputType,
+    public void process(String input, String inputType, String outputType, String locale,
             String audioType, String defaultVoiceName, OutputStream output)
             throws UnknownHostException, IOException
     {
-        process( input,  inputType,  outputType, audioType,  defaultVoiceName,  "", "", output);
+        process( input,  inputType,  outputType, locale, audioType,  defaultVoiceName,  "", "", output);
     }
 
     /**
@@ -310,19 +284,21 @@ public class MaryClient {
      * @see #getOutputDataTypes()
      * @see #getVoices()
      */
-    public void process(String input, String inputType, String outputType,
+    public void process(String input, String inputType, String outputType, String locale,
         String audioType, String defaultVoiceName, String defaultStyle, String defaultEffects, OutputStream output, long timeout)
         throws UnknownHostException, IOException
     {
-        _process(input, inputType, outputType, audioType, defaultVoiceName, defaultStyle, defaultEffects, output, timeout, false, null);
+        _process(input, inputType, outputType, locale, audioType, defaultVoiceName, defaultStyle, defaultEffects, output, timeout, false, null);
     }
 
-    public void process(String input, String inputType, String outputType,
+    public void process(String input, String inputType, String outputType, String locale,
          String audioType, String defaultVoiceName, OutputStream output, long timeout)
          throws UnknownHostException, IOException
     {
-        process(input,  inputType, outputType, audioType,  defaultVoiceName, "",  "", output, timeout);
+        process(input,  inputType, outputType, locale, audioType,  defaultVoiceName, "",  "", output, timeout);
     }
+    
+    
     /**
      * The easiest way to call the MARY client when the output is to
      * be played via a FreeTTS audio player. 
@@ -337,17 +313,17 @@ public class MaryClient {
      * @throws UnknownHostException if the host could not be found
      */
     @Deprecated
-    public void process(String input, String inputType, String defaultVoiceName, String defaultStyle,  String defaultEffects, com.sun.speech.freetts.audio.AudioPlayer player)
+    public void process(String input, String inputType, String locale, String defaultVoiceName, String defaultStyle,  String defaultEffects, com.sun.speech.freetts.audio.AudioPlayer player)
         throws UnknownHostException, IOException
     {
-        _process(input, inputType, "AUDIO", "AU", defaultVoiceName, defaultStyle, defaultEffects, player, 0, false, null);
+        _process(input, inputType, "AUDIO", locale, "AU", defaultVoiceName, defaultStyle, defaultEffects, player, 0, false, null);
     }
     
     @Deprecated
-    public void process(String input, String inputType, String defaultVoiceName, com.sun.speech.freetts.audio.AudioPlayer player)
+    public void process(String input, String inputType, String locale, String defaultVoiceName, com.sun.speech.freetts.audio.AudioPlayer player)
     throws UnknownHostException, IOException
     {
-        process(input, inputType, defaultVoiceName, "", "", player);
+        process(input, inputType, locale, defaultVoiceName, "", "", player);
     }
 
     /**
@@ -368,22 +344,24 @@ public class MaryClient {
      * @see #getVoices()
      */
     @Deprecated
-    public void process(String input, String inputType, String defaultVoiceName, String defaultStyle, String defaultEffects, com.sun.speech.freetts.audio.AudioPlayer player, long timeout)
+    public void process(String input, String inputType, String locale, String defaultVoiceName, String defaultStyle, String defaultEffects, com.sun.speech.freetts.audio.AudioPlayer player, long timeout)
         throws UnknownHostException, IOException
     {
-        _process(input, inputType, "AUDIO", "AU", defaultVoiceName, defaultStyle, defaultEffects, player, timeout, false, null);
+        _process(input, inputType, "AUDIO", locale, "AU", defaultVoiceName, defaultStyle, defaultEffects, player, timeout, false, null);
     }
 
     @Deprecated
-    public void process(String input, String inputType, String defaultVoiceName, com.sun.speech.freetts.audio.AudioPlayer player, long timeout)
+    public void process(String input, String inputType, String locale, String defaultVoiceName, com.sun.speech.freetts.audio.AudioPlayer player, long timeout)
     throws UnknownHostException, IOException
     {
-        process( input, inputType, defaultVoiceName, "", "", player, timeout);
+        process( input, inputType, locale, defaultVoiceName, "", "", player, timeout);
     }
+
+    
+        
     
     
-    
-    private void _process(String input, String inputType, String outputType, String audioType, 
+    private void _process(String input, String inputType, String outputType, String locale, String audioType, 
             String defaultVoiceName, String defaultStyle, String defaultEffects, 
             Object output, long timeout, boolean streamingAudio, AudioPlayerListener playerListener)
         throws UnknownHostException, IOException
@@ -411,7 +389,7 @@ public class MaryClient {
 
         // Formulate Request to Server:
         //System.err.println("Writing request to server.");
-        toServerInfo.print("MARY IN=" + inputType + " OUT=" + outputType);
+        toServerInfo.print("MARY IN=" + inputType + " OUT=" + outputType + " LOCALE="+ locale);
         if (audioType != null) {
         	if (streamingAudio && serverCanStream) {
         		toServerInfo.print(" AUDIO=STREAMING_"+audioType);
@@ -851,15 +829,13 @@ public class MaryClient {
             Locale locale = null;
             while (st.hasMoreTokens()) {
                 String t = st.nextToken();
-                if (t.startsWith("LOCALE=")) {
-                    locale = string2locale(t.substring("LOCALE=".length()).trim());
-                } else if (t.equals("INPUT")) {
+                if (t.equals("INPUT")) {
                     isInputType = true;
                 } else if (t.equals("OUTPUT")) {
                     isOutputType = true;
                 }
             }
-            DataType dt = new DataType(name, locale, isInputType, isOutputType);
+            DataType dt = new DataType(name, isInputType, isOutputType);
             allDataTypes.add(dt);
             if (dt.isInputType()) {
                 inputDataTypes.add(dt);
@@ -1122,20 +1098,20 @@ public class MaryClient {
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    public String getServerExampleText(String dataType) throws IOException, UnknownHostException
+    public String getServerExampleText(String dataType, String locale) throws IOException, UnknownHostException
     {
-        if (!serverExampleTexts.containsKey(dataType)) {
+        if (!serverExampleTexts.containsKey(dataType+" "+locale)) {
             Socket marySocket = new Socket(host, port);
             String info = getServerInfo(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
                 new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
-                "MARY EXAMPLETEXT " + dataType);
+                "MARY EXAMPLETEXT " + dataType + " " + locale);
             if (info.length() == 0)
                 throw new IOException("Could not get example text from Mary server");
-            serverExampleTexts.put(dataType, info.replaceAll("\n", System.getProperty("line.separator")));
+            serverExampleTexts.put(dataType+" "+locale, info.replaceAll("\n", System.getProperty("line.separator")));
             marySocket.close();
             
         }
-        return serverExampleTexts.get(dataType);
+        return serverExampleTexts.get(dataType+" "+locale);
     }
 
     /**
@@ -1306,6 +1282,7 @@ public class MaryClient {
         // read requested input/output type from properties:
         String inputType = System.getProperty("input.type", "TEXT_DE");
         String outputType = System.getProperty("output.type", "AUDIO");
+        String locale = System.getProperty("locale", "en_US");
         String audioType = System.getProperty("audio.type", "WAVE");
         if (!(audioType.equals("AIFC")
             || audioType.equals("AIFF")
@@ -1339,7 +1316,7 @@ public class MaryClient {
         }
 
         try {
-            mc.process(sb.toString(), inputType, outputType, audioType, defaultVoiceName, defaultStyle, defaultEffects, System.out);
+            mc.process(sb.toString(), inputType, outputType, locale, audioType, defaultVoiceName, defaultStyle, defaultEffects, System.out);
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
@@ -1422,17 +1399,14 @@ public class MaryClient {
     public static class DataType
     {
         private String name;
-        private Locale locale;
         private boolean isInputType;
         private boolean isOutputType;
-        DataType(String name, Locale locale, boolean isInputType, boolean isOutputType) {
+        DataType(String name, boolean isInputType, boolean isOutputType) {
             this.name = name;
-            this.locale = locale;
             this.isInputType = isInputType;
             this.isOutputType = isOutputType;
         }
         public String name() { return name; }
-        public Locale getLocale() { return locale; }
         public boolean isInputType() { return isInputType; }
         public boolean isOutputType() { return isOutputType; }
         public boolean isTextType() { return !name.equals("AUDIO"); }

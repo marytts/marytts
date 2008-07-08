@@ -28,7 +28,10 @@
  */
 package marytts.language.en;
 
+import java.util.Locale;
+
 import marytts.datatypes.MaryDataType;
+import marytts.language.en_US.datatypes.USEnglishDataTypes;
 import marytts.modules.XML2UttBase;
 
 import org.w3c.dom.Element;
@@ -49,9 +52,9 @@ public class XML2UttTokensEn extends XML2UttBase
     public XML2UttTokensEn()
     {
         super("XML2Utt TokensEn",
-              MaryDataType.get("TOKENS_EN"),
-              MaryDataType.get("FREETTS_TOKENS_EN")
-              );
+              MaryDataType.TOKENS,
+              USEnglishDataTypes.FREETTS_TOKENS,
+              Locale.ENGLISH);
     }
 
     /**

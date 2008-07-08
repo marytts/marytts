@@ -113,9 +113,9 @@ public class HTSEngine extends InternalModule
     public HTSEngine()
     {
         super("HTSEngine",
-              MaryDataType.get("HTSCONTEXT"),
-              MaryDataType.get("AUDIO")
-              );
+              MaryDataType.HTSCONTEXT,
+              MaryDataType.AUDIO,
+              null);
     }
 
     /**
@@ -166,7 +166,7 @@ public class HTSEngine extends InternalModule
         /* Synthesize speech waveform, generate speech out of sequence of parameters */
         ais = par2speech.htsMLSAVocoder(pdf2par, hmmv.getHMMData());
        
-        MaryData output = new MaryData(outputType());
+        MaryData output = new MaryData(outputType(), d.getLocale());
         if (d.getAudioFileFormat() != null) {
             output.setAudioFileFormat(d.getAudioFileFormat());
             if (d.getAudio() != null) {

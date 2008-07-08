@@ -49,7 +49,7 @@ public class HalfPhoneTargetFeatureLister extends TargetFeatureLister
 
     public HalfPhoneTargetFeatureLister()
     {
-        super(MaryDataType.get("HALFPHONE_TARGETFEATURES"));
+        super(MaryDataType.HALFPHONE_TARGETFEATURES);
     }
     
     /**

@@ -30,9 +30,11 @@ package marytts.language.en;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
+import marytts.language.en_US.datatypes.USEnglishDataTypes;
 import marytts.modules.InternalModule;
 import marytts.modules.synthesis.FreeTTSVoices;
 
@@ -56,8 +58,9 @@ public class FreeTTSIntonator extends InternalModule
     public FreeTTSIntonator()
     {
         super("Intonator",
-              MaryDataType.get("FREETTS_PAUSES_EN"),
-              MaryDataType.get("FREETTS_INTONATION_EN")
+              USEnglishDataTypes.FREETTS_PAUSES,
+              USEnglishDataTypes.FREETTS_INTONATION,
+              Locale.ENGLISH
               );
     }
 
@@ -83,7 +86,7 @@ public class FreeTTSIntonator extends InternalModule
             Utterance utterance = (Utterance) it.next();
             processor.processUtterance(utterance);
         }
-        MaryData output = new MaryData(outputType());
+        MaryData output = new MaryData(outputType(), d.getLocale());
         output.setUtterances(utterances);
         return output;
     }

@@ -176,14 +176,14 @@ public class BMLSpeechPsydule extends MarySpeechPsydule
     private String ssml2acoustparams(String ssml) throws Exception
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        mary.process(ssml, "SSML", "ACOUSTPARAMS", "WAVE", DEFAULTVOICE, baos);
+        mary.process(ssml, "SSML", "ACOUSTPARAMS", "en_US", "WAVE", DEFAULTVOICE, baos);
         return new String(baos.toByteArray(), "UTF-8");
     }
     
     private byte[] acoustparams2audio(String acoustparams) throws Exception
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        mary.process(acoustparams, "ACOUSTPARAMS", "AUDIO", "WAVE", DEFAULTVOICE, baos);
+        mary.process(acoustparams, "ACOUSTPARAMS", "AUDIO", "en_US", "WAVE", DEFAULTVOICE, baos);
         return baos.toByteArray();
     }
     

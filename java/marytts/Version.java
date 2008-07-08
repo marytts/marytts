@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import marytts.util.FileUtils;
 import marytts.util.MaryUtils;
 
 
@@ -48,8 +49,7 @@ public class Version {
             getResourceAsStream("specification-version.txt");
         if (specVersionStream != null) {
             try {
-                specificationVersion = MaryUtils.getContentAsString
-                    (new InputStreamReader(specVersionStream)).trim();
+                specificationVersion = FileUtils.getStreamAsString(specVersionStream, "UTF-8").trim();
             } catch (IOException e) {
                 specificationVersion = "undeterminable";
             }
@@ -61,8 +61,7 @@ public class Version {
             getResourceAsStream("implementation-version.txt");
         if (implVersionStream != null) {
             try {
-                implementationVersion = MaryUtils.getContentAsString
-                    (new InputStreamReader(implVersionStream)).trim();
+                implementationVersion = FileUtils.getStreamAsString(implVersionStream, "UTF-8").trim();
             } catch (IOException e) {
                 implementationVersion = "undeterminable";
             }

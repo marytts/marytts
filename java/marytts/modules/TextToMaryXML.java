@@ -28,6 +28,8 @@
  */
 package marytts.modules;
 
+import java.util.Locale;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -54,11 +56,10 @@ public class TextToMaryXML extends InternalModule
     private DocumentBuilder docBuilder = null;
     private boolean splitIntoParagraphs;
 
-    public TextToMaryXML(MaryDataType inputType, MaryDataType outputType)
+    public TextToMaryXML()
     {
-        super("TextToMaryXML", inputType, outputType);
-        // Just to activate the generic data type, "the" default input type:
-        MaryDataType.get("TEXT");
+        super("TextToMaryXML",
+                MaryDataType.TEXT, MaryDataType.RAWMARYXML, null);
         splitIntoParagraphs = MaryProperties.getBoolean("texttomaryxml.splitintoparagraphs");
     }
 
@@ -78,22 +79,20 @@ public class TextToMaryXML extends InternalModule
     throws Exception
     {
         String plainText = MaryUtils.normaliseUnicodePunctuation(d.getPlainText());
-        MaryData result = new MaryData(outputType(), true);
+        MaryData result = new MaryData(outputType(), d.getLocale(), true);
         Document doc = result.getDocument();
         Element root = doc.getDocumentElement();
-        String language = getLanguage(plainText);
-        if (language == null)
-            throw new NullPointerException("Cannot determine language");
-        root.setAttribute("xml:lang", language);
+        Locale l = determineLocale(plainText, d.getLocale());
+        root.setAttribute("xml:lang", MaryUtils.locale2xmllang(l));
         if (splitIntoParagraphs) { // Empty lines separate paragraphs
             String[] inputTexts = plainText.split("\\n(\\s*\\n)+");
             for (int i=0; i<inputTexts.length; i++) {
                 String paragraph = inputTexts[i].trim();
                 if (paragraph.length() == 0) continue;
-                appendParagraph(paragraph, root);
+                appendParagraph(paragraph, root, d.getLocale());
             }
         } else { // The whole text as one single paragraph
-            appendParagraph(plainText, root);
+            appendParagraph(plainText, root, d.getLocale());
         }
         result.setDocument(doc);
         return result;
@@ -107,11 +106,12 @@ public class TextToMaryXML extends InternalModule
      * @param text the paragraph text.
      * @param root the root node of the rawmaryxml document, where to insert
      * the paragraph.
+     * @param defaultLocale the default locale, in case the language of the text cannot be determined.
      */
-    private void appendParagraph(String text, Element root) {        
+    private void appendParagraph(String text, Element root, Locale defaultLocale) {        
         Element insertHere = root;
         String rootLanguage = root.getAttribute("xml:lang");
-        String textLanguage = getLanguage(text);
+        String textLanguage = MaryUtils.locale2xmllang(determineLocale(text, defaultLocale));
         if (!textLanguage.equals(rootLanguage)) {
             Element voiceElement = MaryXML.appendChildElement(root, MaryXML.VOICE);
             voiceElement.setAttribute("xml:lang", textLanguage);
@@ -126,11 +126,16 @@ public class TextToMaryXML extends InternalModule
         logger.debug("textNodeString=`" + textNodeString + "'");
     }
 
-    protected String getLanguage(String text)
+    /**
+     * Try to determine the locale of the given text. This implementation simply returns the default locale;
+     * subclasses can try to do something fancy here.
+     * @param text the text whose locale to determine
+     * @param defaultLocale the default locale of the document.
+     * @return the locale as inferred from the text and the default locale
+     */
+    protected Locale determineLocale(String text, Locale defaultLocale)
     {
-        if (inputType().getLocale() != null)
-            return inputType().getLocale().getLanguage();
-        return null;
+        return defaultLocale;
     }
 
 }

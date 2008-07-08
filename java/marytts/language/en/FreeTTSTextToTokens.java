@@ -35,6 +35,7 @@ import java.util.Locale;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
+import marytts.language.en_US.datatypes.USEnglishDataTypes;
 import marytts.modules.InternalModule;
 import marytts.modules.synthesis.FreeTTSVoices;
 
@@ -56,8 +57,9 @@ public class FreeTTSTextToTokens extends InternalModule
     public FreeTTSTextToTokens()
     {
         super("TextToTokens",
-              MaryDataType.get("TEXT_EN"),
-              MaryDataType.get("FREETTS_TOKENS_EN")
+              MaryDataType.TEXT,
+              USEnglishDataTypes.FREETTS_TOKENS,
+              Locale.ENGLISH
               );
     }
 
@@ -117,7 +119,7 @@ public class FreeTTSTextToTokens extends InternalModule
             utterance.setLast(!tokenizer.hasMoreTokens());
             utteranceList.add(utterance);
         }
-        MaryData output = new MaryData(outputType());
+        MaryData output = new MaryData(outputType(), d.getLocale());
         output.setUtterances(utteranceList);
         return output;
     }

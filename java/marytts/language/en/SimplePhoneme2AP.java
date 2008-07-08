@@ -28,6 +28,8 @@
  */
 package marytts.language.en;
 
+import java.util.Locale;
+
 import marytts.datatypes.MaryDataType;
 import marytts.modules.phonemiser.PhonemeSet;
 import marytts.server.MaryProperties;
@@ -43,8 +45,9 @@ public class SimplePhoneme2AP extends marytts.modules.SimplePhoneme2AP
 {
     public SimplePhoneme2AP()
     {
-        super(MaryDataType.get("SIMPLEPHONEMES_EN"),
-              MaryDataType.get("ACOUSTPARAMS")
+        super(MaryDataType.SIMPLEPHONEMES,
+              MaryDataType.ACOUSTPARAMS,
+              Locale.ENGLISH
               );
     }
 

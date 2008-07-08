@@ -30,6 +30,7 @@ package marytts.modules;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.Locale;
 import java.util.Properties;
 
 import marytts.datatypes.MaryData;
@@ -59,8 +60,9 @@ public abstract class JTokeniser extends InternalModule {
 
     private JTok jtok;
 
-    public JTokeniser(MaryDataType inputType, MaryDataType outputType) {
-        super("JTokeniser", inputType, outputType);
+    public JTokeniser(MaryDataType inputType, MaryDataType outputType,
+            Locale locale) {
+        super("JTokeniser", inputType, outputType, locale);
     }
 
      public void startup() throws Exception
@@ -124,7 +126,7 @@ public abstract class JTokeniser extends InternalModule {
         // Now maryText is the input text annotated with the Text nodes in the
         // MaryXML document.
         // Tokenise:
-        AnnotatedString tokenisedText = jtok.tokenize(inputText.toString(), inputType().getLocale().getLanguage());
+        AnnotatedString tokenisedText = jtok.tokenize(inputText.toString(), getLocale().getLanguage());
         //System.err.println("maryText: `" + maryText.toString() + "'"); 
         //System.err.println("tokenisedText: `" + tokenisedText.toString() + "'"); 
         //assert tokenisedText.toString().equals(maryText.toString());
@@ -235,7 +237,7 @@ public abstract class JTokeniser extends InternalModule {
                     MaryXML.PARAGRAPH);
             }
         }
-        MaryData result = new MaryData(outputType());
+        MaryData result = new MaryData(outputType(), d.getLocale());
         result.setDocument(doc);
         return result;
     }

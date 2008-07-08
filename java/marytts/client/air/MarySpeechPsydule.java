@@ -149,7 +149,7 @@ public class MarySpeechPsydule
     private byte[] ssml2audio(String acoustparams) throws Exception
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        mary.process(acoustparams, "SSML", "AUDIO", "WAVE", DEFAULTVOICE, baos);
+        mary.process(acoustparams, "SSML", "AUDIO", "en_US", "WAVE", DEFAULTVOICE, baos);
         return baos.toByteArray();
     }
     

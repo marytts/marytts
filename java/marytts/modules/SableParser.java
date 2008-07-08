@@ -64,9 +64,9 @@ public class SableParser extends InternalModule
     public SableParser()
     {
         super("SableParser",
-              MaryDataType.get("SABLE"),
-              MaryDataType.get("RAWMARYXML")
-              );
+              MaryDataType.SABLE,
+              MaryDataType.RAWMARYXML,
+              null);
     }
 
     public boolean getWarnClient() { return doWarnClient; }
@@ -111,7 +111,7 @@ public class SableParser extends InternalModule
         Document maryxmlDocument = docBuilder.newDocument();
         DOMResult domResult = new DOMResult(maryxmlDocument);
         transformer.transform(domSource, domResult);
-        MaryData result = new MaryData(outputType());
+        MaryData result = new MaryData(outputType(), d.getLocale());
         result.setDocument(maryxmlDocument);
         return result;
     }

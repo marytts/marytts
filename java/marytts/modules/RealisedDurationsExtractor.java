@@ -64,16 +64,16 @@ public class RealisedDurationsExtractor extends InternalModule
     public RealisedDurationsExtractor()
     {
         super("Realised durations extractor",
-              MaryDataType.get("AUDIO"),
-              MaryDataType.get("REALISED_DURATIONS")
-              );
+              MaryDataType.AUDIO,
+              MaryDataType.REALISED_DURATIONS,
+              null);
     }
 
     public MaryData process(MaryData d)
     throws Exception
     {
         Document doc = d.getDocument();
-        MaryData result = new MaryData(outputType());
+        MaryData result = new MaryData(outputType(), d.getLocale());
         StringBuffer buf = new StringBuffer();
         buf.append("#\n");
         NodeIterator ni = ((DocumentTraversal)doc).createNodeIterator(doc, NodeFilter.SHOW_ELEMENT,

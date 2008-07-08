@@ -30,6 +30,7 @@ package marytts.modules;
 
 // Log4j Logging classes
 import java.io.StringReader;
+import java.util.Locale;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioSystem;
@@ -86,17 +87,19 @@ public class InternalModule implements MaryModule
     private String name = null;
     private MaryDataType inputType = null;
     private MaryDataType outputType = null;
+    private Locale locale = null;
     protected int state;
     /** The logger instance to be used by this module.
      * It will identify the origin of the log message in the log file.
      */
     protected Logger logger;
 
-    protected InternalModule(String name, MaryDataType inputType, MaryDataType outputType)
+    protected InternalModule(String name, MaryDataType inputType, MaryDataType outputType, Locale locale)
     {
         this.name = name;
         this.inputType = inputType;
         this.outputType = outputType;
+        this.locale = locale;
         this.state = MODULE_OFFLINE;
     }
 
@@ -104,11 +107,13 @@ public class InternalModule implements MaryModule
     public String name() { return name; }
     public MaryDataType inputType() { return inputType; }
     public MaryDataType outputType() { return outputType; }
+    public Locale getLocale() { return locale; }
     public int getState() { return state; }
     public void startup() throws Exception {
         assert state == MODULE_OFFLINE;
         logger = Logger.getLogger(name());
-        logger.info("Module started.");
+        logger.info("Module started ("+inputType()+"->"+outputType()+", locale "+getLocale()+").");
+
         state = MODULE_RUNNING;
     }
 
@@ -121,16 +126,18 @@ public class InternalModule implements MaryModule
         assert state == MODULE_RUNNING;
         logger.info("Starting power-on self test.");
         try {
-            if (inputType.exampleText() == null) {
-                return; // cannot test
+            MaryData in = new MaryData(inputType, getLocale());
+            String example = inputType.exampleText(getLocale());
+            if (example != null) {
+                in.readFrom(new StringReader(example));
+                if (outputType.equals(MaryDataType.get("AUDIO")))
+                    in.setAudioFileFormat(new AudioFileFormat(
+                            AudioFileFormat.Type.WAVE, Voice.AF22050, AudioSystem.NOT_SPECIFIED)
+                    );
+                process(in);
+            } else {
+                logger.debug("No example text -- no power-on self test!");
             }
-            MaryData in = new MaryData(inputType);
-            in.readFrom(new StringReader(inputType.exampleText()));
-            if (outputType.equals(MaryDataType.get("AUDIO")))
-                in.setAudioFileFormat(new AudioFileFormat(
-                    AudioFileFormat.Type.WAVE, Voice.AF22050, AudioSystem.NOT_SPECIFIED)
-                );
-            process(in);
         } catch (Throwable t) {
             throw new Error("Module " + name + ": Power-on self test failed.", t);
         }

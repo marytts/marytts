@@ -662,6 +662,7 @@ implements AudioFileReceiver, ProsodyXMLDisplayer
             synchronousSynthesiser.process(tpProsodyXML.getText(),
                     "RAWMARYXML",
                     "AUDIO",
+                    ((MaryClient.Voice) cbVoice.getSelectedItem()).getLocale().toString(),
                     "AU",
                     ((MaryClient.Voice) cbVoice.getSelectedItem()).name(),
                     os);

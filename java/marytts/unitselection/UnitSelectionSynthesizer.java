@@ -119,37 +119,36 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
      public void powerOnSelfTest() throws Error
      {
         try {
-            MaryData in = new MaryData(MaryDataType.get("ACOUSTPARAMS"));
             Collection myVoices = Voice.getAvailableVoices(this);
             if (myVoices.size() == 0) {
                 return;
             }
             UnitSelectionVoice unitSelVoice = (UnitSelectionVoice) myVoices.iterator().next();
             assert unitSelVoice != null;
+            MaryData in = new MaryData(MaryDataType.get("ACOUSTPARAMS"), unitSelVoice.getLocale());
             if (!unitSelVoice.getDomain().equals("general")) {
                 logger.info("Cannot perform power-on self test using limited-domain voice '" + unitSelVoice.getName() + "' - skipping.");
                 return;
             }
-            String exampleText;
-            if (unitSelVoice.getLocale().equals(Locale.GERMAN)) {
-                exampleText = MaryDataType.get("ACOUSTPARAMS_DE").exampleText();
+            String exampleText = MaryDataType.ACOUSTPARAMS.exampleText(unitSelVoice.getLocale());
+            if (exampleText != null) {
+                in.readFrom(new StringReader(exampleText));
+                in.setDefaultVoice(unitSelVoice);
+                if (in == null){
+                    System.out.println(exampleText+" is null");}
+                List<Element> tokensAndBoundaries = new ArrayList<Element>();
+                TreeWalker tw = ((DocumentTraversal)in.getDocument()).createTreeWalker(
+                        in.getDocument(), NodeFilter.SHOW_ELEMENT,
+                        new NameNodeFilter(new String[] {MaryXML.TOKEN, MaryXML.BOUNDARY}),
+                        false);
+                Element el = null;
+                while ((el = (Element)tw.nextNode()) != null)
+                    tokensAndBoundaries.add(el);
+                AudioInputStream ais = synthesize(tokensAndBoundaries, unitSelVoice);
+                assert ais != null;
             } else {
-                exampleText = MaryDataType.get("ACOUSTPARAMS_EN").exampleText();
+                logger.debug("No example text -- no power-on self test!");
             }
-            in.readFrom(new StringReader(exampleText));
-            in.setDefaultVoice(unitSelVoice);
-            if (in == null){
-                System.out.println(exampleText+" is null");}
-            List<Element> tokensAndBoundaries = new ArrayList<Element>();
-            TreeWalker tw = ((DocumentTraversal)in.getDocument()).createTreeWalker(
-                    in.getDocument(), NodeFilter.SHOW_ELEMENT,
-                    new NameNodeFilter(new String[] {MaryXML.TOKEN, MaryXML.BOUNDARY}),
-                    false);
-            Element el = null;
-            while ((el = (Element)tw.nextNode()) != null)
-                tokensAndBoundaries.add(el);
-            AudioInputStream ais = synthesize(tokensAndBoundaries, unitSelVoice);
-            assert ais != null;
         } catch (Throwable t) {
             t.printStackTrace();
             throw new Error("Module " + toString() + ": Power-on self test failed.", t);

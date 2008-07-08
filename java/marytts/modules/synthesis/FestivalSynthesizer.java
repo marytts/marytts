@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 import javax.sound.sampled.AudioInputStream;
@@ -42,6 +43,7 @@ import marytts.exceptions.SynthesisException;
 import marytts.modules.FestivalCaller;
 import marytts.modules.FreeTTS2FestivalUtt;
 import marytts.modules.MaryModule;
+import marytts.modules.ModuleRegistry;
 import marytts.modules.XML2UttAcoustParams;
 import marytts.server.Mary;
 import marytts.server.MaryProperties;
@@ -73,7 +75,7 @@ public class FestivalSynthesizer implements WaveformSynthesizer {
         logger = Logger.getLogger(this.toString());
         // Try to get instances of our tools from Mary; if we cannot get them,
         // instantiate new objects.
-        x2u = (XML2UttAcoustParams) Mary.getModule(XML2UttAcoustParams.class);
+        x2u = (XML2UttAcoustParams) ModuleRegistry.getModule(XML2UttAcoustParams.class);
         if (x2u == null) {
             logger.info("Starting my own XML2UttAcoustParams");
             x2u = new XML2UttAcoustParams();
@@ -81,7 +83,7 @@ public class FestivalSynthesizer implements WaveformSynthesizer {
         } else if (x2u.getState() == MaryModule.MODULE_OFFLINE) {
             x2u.startup();
         }
-        f2f = (FreeTTS2FestivalUtt) Mary.getModule(FreeTTS2FestivalUtt.class);
+        f2f = (FreeTTS2FestivalUtt) ModuleRegistry.getModule(FreeTTS2FestivalUtt.class);
         if (f2f == null) {
             logger.info("Starting my own FreeTTS2FestivalUtt");
             f2f = new FreeTTS2FestivalUtt();
@@ -89,7 +91,7 @@ public class FestivalSynthesizer implements WaveformSynthesizer {
         } else if (f2f.getState() == MaryModule.MODULE_OFFLINE) {
             f2f.startup();
         }
-        caller = (FestivalCaller) Mary.getModule(FestivalCaller.class);
+        caller = (FestivalCaller) ModuleRegistry.getModule(FestivalCaller.class);
         if (caller == null) {
             logger.info("Starting my own FestivalCaller");
             caller = new FestivalCaller();
@@ -126,18 +128,23 @@ public class FestivalSynthesizer implements WaveformSynthesizer {
      public synchronized void powerOnSelfTest() throws Error
      {
          try {
-             MaryData in = new MaryData(x2u.inputType());
              Collection myVoices = Voice.getAvailableVoices(this);
              if (myVoices.size() == 0) {
                  return;
              }
              Voice v = (Voice) myVoices.iterator().next();
-             in.readFrom(new StringReader(MaryDataType.get("ACOUSTPARAMS_EN").exampleText()));
-             in.setDefaultVoice(v);
-             MaryData d1 = x2u.process(in);
-             Utterance utt = (Utterance) d1.getUtterances().get(0);
-             AudioInputStream ais = process(utt, v);
-             assert ais != null;
+             MaryData in = new MaryData(x2u.inputType(), v.getLocale());
+             String example = MaryDataType.ACOUSTPARAMS.exampleText(Locale.US);
+             if (example != null) {
+                 in.readFrom(new StringReader(example));
+                 in.setDefaultVoice(v);
+                 MaryData d1 = x2u.process(in);
+                 Utterance utt = (Utterance) d1.getUtterances().get(0);
+                 AudioInputStream ais = process(utt, v);
+                 assert ais != null;
+             } else {
+                 logger.debug("No example text -- no power-on self test!");
+             }
          } catch (Throwable t) {
              throw new Error("Module " + toString() + ": Power-on self test failed.", t);
          }

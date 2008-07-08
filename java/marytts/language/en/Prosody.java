@@ -28,6 +28,8 @@
  */
 package marytts.language.en;
 
+import java.util.Locale;
+
 import marytts.datatypes.MaryDataType;
 import marytts.modules.ProsodyGeneric;
 
@@ -35,7 +37,9 @@ public class Prosody extends ProsodyGeneric
 {
     public Prosody()
     {
-        super(MaryDataType.get("SEGMENTS_EN"), MaryDataType.get("INTONATION_EN"),
+        super(MaryDataType.PHONEMES,
+                MaryDataType.INTONATION,
+                Locale.ENGLISH,
         		"english.prosody.tobipredparams","english.prosody.accentPriorities","english.prosody.syllableaccents", "english.prosody.paragraphdeclination");
     }
 }

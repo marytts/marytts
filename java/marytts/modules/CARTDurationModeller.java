@@ -36,6 +36,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import marytts.cart.CART;
 import marytts.cart.RegressionTree;
@@ -83,9 +84,10 @@ public class CARTDurationModeller extends InternalModule
      * @param propertyPrefix the prefix to be used when looking up entries in the config files, e.g. "english.duration"
      */
     protected CARTDurationModeller(String name, MaryDataType inputType, MaryDataType outputType,
+            Locale locale,
                String propertyPrefix, FeatureProcessorManager featureProcessorManager)
     {
-        super(name, inputType, outputType);
+        super(name, inputType, outputType, locale);
         if (propertyPrefix.endsWith(".")) this.propertyPrefix = propertyPrefix;
         else this.propertyPrefix = propertyPrefix + ".";
         this.featureProcessorManager = featureProcessorManager;
@@ -193,7 +195,7 @@ public class CARTDurationModeller extends InternalModule
                 //System.out.println("Duration predicted: ["+segName+"] "+durInSeconds);
             }
         }
-        MaryData output = new MaryData(outputType());
+        MaryData output = new MaryData(outputType(), d.getLocale());
         output.setUtterances(utterances);
         return output;
     }

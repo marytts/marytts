@@ -86,6 +86,7 @@ import marytts.modules.HTSEngine;
 import marytts.modules.MaryModule;
 import marytts.modules.MaryXMLToMbrola;
 import marytts.modules.MbrolaCaller;
+import marytts.modules.ModuleRegistry;
 import marytts.modules.TargetFeatureLister;
 import marytts.modules.XML2UttAcoustParams;
 import marytts.modules.synthesis.Voice.Gender;
@@ -135,7 +136,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
         // instantiate new objects.
 
         try{
-            x2u = (XML2UttAcoustParams) Mary.getModule(XML2UttAcoustParams.class);
+            x2u = (XML2UttAcoustParams) ModuleRegistry.getModule(XML2UttAcoustParams.class);
         } catch (NullPointerException npe){
             x2u = null;
         }
@@ -148,7 +149,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
         }
 
         try{
-            targetFeatureLister = (TargetFeatureLister) Mary.getModule(TargetFeatureLister.class);
+            targetFeatureLister = (TargetFeatureLister) ModuleRegistry.getModule(TargetFeatureLister.class);
         } catch (NullPointerException npe){
             targetFeatureLister = null;
         }
@@ -161,7 +162,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
         }
 
         try{
-            htsContextTranslator = (HTSContextTranslator) Mary.getModule(HTSContextTranslator.class);
+            htsContextTranslator = (HTSContextTranslator) ModuleRegistry.getModule(HTSContextTranslator.class);
         } catch (NullPointerException npe){
             htsContextTranslator = null;
         }
@@ -174,7 +175,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
         }
 
         try{
-            htsEngine = (HTSEngine) Mary.getModule(HTSEngine.class);
+            htsEngine = (HTSEngine) ModuleRegistry.getModule(HTSEngine.class);
         } catch (NullPointerException npe){
             htsEngine = null;
         }
@@ -262,40 +263,39 @@ public class HMMSynthesizer implements WaveformSynthesizer {
 
          logger.info("Starting power-on self test.");
          try {
-             MaryData in = new MaryData(x2u.inputType());
              Collection myVoices = Voice.getAvailableVoices(this);
              if (myVoices.size() == 0) {
                  return;
              }
              
              Voice v = (Voice) myVoices.iterator().next();
+             MaryData in = new MaryData(x2u.inputType(), v.getLocale());
             
-             String exampleText;
-             if (v.getLocale().equals(Locale.GERMAN)) {
-                 exampleText = MaryDataType.get("ACOUSTPARAMS_DE").exampleText();
+             String exampleText = MaryDataType.ACOUSTPARAMS.exampleText(v.getLocale());
+             if (exampleText != null) {
+                 in.readFrom(new StringReader(exampleText));
+                 in.setDefaultVoice(v);
+
+                 MaryData d1 = x2u.process(in);
+                 Utterance utt = (Utterance) d1.getUtterances().get(0);           
+                 MaryData freettsAcoustparams = new MaryData(x2u.outputType(), v.getLocale());
+                 List<Utterance> utts = new ArrayList<Utterance>();
+                 utts.add(utt);
+                 freettsAcoustparams.setUtterances(utts);
+                 freettsAcoustparams.setDefaultVoice(v);
+                 MaryData targetFeatures = targetFeatureLister.process(freettsAcoustparams);
+                 targetFeatures.setDefaultVoice(v);
+                 MaryData htsContext = htsContextTranslator.process(targetFeatures);
+                 htsContext.setDefaultVoice(v);
+                 
+                 /* add the ACOUSTPARAMS Document to the HTSCONTEXT Mary data Object */
+                 htsContext.setDocument(in.getDocument()); 
+                 MaryData audio = htsEngine.process(htsContext);
+                 
+                 assert audio.getAudio() != null;
              } else {
-                 exampleText = MaryDataType.get("ACOUSTPARAMS_EN").exampleText();
+                 logger.debug("No example text -- no power-on self test!");
              }
-             in.readFrom(new StringReader(exampleText));
-             in.setDefaultVoice(v);
-             MaryData d1 = x2u.process(in);
-             Utterance utt = (Utterance) d1.getUtterances().get(0);           
-             MaryData freettsAcoustparams = new MaryData(x2u.outputType());
-             List<Utterance> utts = new ArrayList<Utterance>();
-             utts.add(utt);
-             freettsAcoustparams.setUtterances(utts);
-             freettsAcoustparams.setDefaultVoice(v);
-             MaryData targetFeatures = targetFeatureLister.process(freettsAcoustparams);
-             targetFeatures.setDefaultVoice(v);
-             MaryData htsContext = htsContextTranslator.process(targetFeatures);
-             htsContext.setDefaultVoice(v);
-             
-             /* add the ACOUSTPARAMS Document to the HTSCONTEXT Mary data Object */
-             htsContext.setDocument(in.getDocument()); 
-             MaryData audio = htsEngine.process(htsContext);
-             
-             assert audio.getAudio() != null;
-             
          } catch (Throwable t) {
              throw new Error("Module " + toString() + ": Power-on self test failed.", t);
          }
@@ -318,7 +318,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
         logger.info("Synthesizing one sentence.");
         logger.info("Synthesizing one utterance.");
         Utterance utt = x2u.convert(tokensAndBoundaries, voice);
-        MaryData freettsAcoustparams = new MaryData(x2u.outputType());
+        MaryData freettsAcoustparams = new MaryData(x2u.outputType(), voice.getLocale());
         List<Utterance> utts = new ArrayList<Utterance>();
         utts.add(utt);
         freettsAcoustparams.setUtterances(utts);
