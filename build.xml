@@ -177,8 +177,10 @@ THIS SOFTWARE.
   <target name="mary-english.jar" depends="compile,version">
     <jar destfile="${dest}/mary-english.jar"
          basedir="${src}"
-         includes="marytts/datatypes/*_EN_Definer.class
-                   marytts/language/en/**/*.class">
+         includes="marytts/language/en/**/*.class
+                   marytts/language/en_US/**/*.class
+                   marytts/language/en/datatypes/*.example
+                   marytts/language/en_US/datatypes/*.example">
       <manifest>
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Specification-Version" value="${specification.version}"/>
