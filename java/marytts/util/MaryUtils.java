@@ -51,7 +51,6 @@ import javax.swing.JFrame;
 import marytts.machinelearning.GMM;
 import marytts.server.MaryProperties;
 import marytts.signalproc.display.FunctionGraph;
-import marytts.util.math.MathUtils;
 
 
 /**

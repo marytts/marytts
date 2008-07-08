@@ -39,14 +39,14 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.PitchMarker;
+import marytts.signalproc.util.SignalProcUtils;
 import marytts.signalproc.window.Window;
+import marytts.util.FFT;
+import marytts.util.FFTMixedRadix;
+import marytts.util.MathUtils;
+import marytts.util.ComplexArray;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.DoubleDataSource;
-import marytts.util.math.ComplexArray;
-import marytts.util.math.FFT;
-import marytts.util.math.FFTMixedRadix;
-import marytts.util.math.MathUtils;
-import marytts.util.signal.SignalProcUtils;
 
 
 /**

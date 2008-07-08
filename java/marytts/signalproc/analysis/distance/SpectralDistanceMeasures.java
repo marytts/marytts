@@ -18,11 +18,11 @@ import marytts.signalproc.analysis.FrameBasedAnalyser;
 import marytts.signalproc.analysis.LPCAnalyser;
 import marytts.signalproc.analysis.LineSpectralFrequencies;
 import marytts.signalproc.analysis.LPCAnalyser.LPCoeffs;
+import marytts.signalproc.util.SignalProcUtils;
 import marytts.signalproc.window.HammingWindow;
+import marytts.util.FFTMixedRadix;
+import marytts.util.MathUtils;
 import marytts.util.audio.AudioDoubleDataSource;
-import marytts.util.math.FFTMixedRadix;
-import marytts.util.math.MathUtils;
-import marytts.util.signal.SignalProcUtils;
 
 
 public class SpectralDistanceMeasures {

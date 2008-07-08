@@ -47,7 +47,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 
-import marytts.util.audio.AudioUtils;
+import marytts.util.AudioUtils;
 
 
 /**

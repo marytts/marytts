@@ -31,8 +31,8 @@ package marytts.signalproc.adaptation;
 
 import java.io.IOException;
 
-import marytts.util.io.FileUtils;
-import marytts.util.string.StringUtils;
+import marytts.util.FileUtils;
+import marytts.util.StringUtils;
 
 
 /**

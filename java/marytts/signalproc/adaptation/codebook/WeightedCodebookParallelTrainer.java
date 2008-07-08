@@ -50,9 +50,9 @@ import marytts.signalproc.analysis.Lsfs;
 import marytts.signalproc.analysis.distance.DistanceComputer;
 import marytts.signalproc.window.Window;
 import marytts.tools.voiceimport.BasenameList;
-import marytts.util.io.FileUtils;
-import marytts.util.io.MaryRandomAccessFile;
-import marytts.util.string.StringUtils;
+import marytts.util.FileUtils;
+import marytts.util.MaryRandomAccessFile;
+import marytts.util.StringUtils;
 
 
 /**

@@ -38,10 +38,10 @@ import java.io.PrintWriter;
 import java.io.FileWriter;
 
 import marytts.signalproc.analysis.PitchMarker;
+import marytts.signalproc.util.SignalProcUtils;
 import marytts.tools.voiceimport.SphinxTrainer.StreamGobbler;
 import marytts.util.MaryUtils;
-import marytts.util.io.SnackTextfileDoubleDataSource;
-import marytts.util.signal.SignalProcUtils;
+import marytts.util.audio.SnackTextfileDoubleDataSource;
 
 
 

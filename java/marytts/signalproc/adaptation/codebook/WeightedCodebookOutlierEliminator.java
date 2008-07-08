@@ -32,7 +32,7 @@ package marytts.signalproc.adaptation.codebook;
 import marytts.signalproc.adaptation.outlier.GMMOutlierEliminator;
 import marytts.signalproc.adaptation.outlier.GaussianOutlierEliminator;
 import marytts.signalproc.adaptation.outlier.KMeansMappingEliminator;
-import marytts.util.io.FileUtils;
+import marytts.util.FileUtils;
 
 /**
  * @author oytun.turk

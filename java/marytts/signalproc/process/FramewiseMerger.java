@@ -4,10 +4,10 @@ import java.util.Arrays;
 
 import marytts.signalproc.window.DynamicTwoHalvesWindow;
 import marytts.signalproc.window.Window;
+import marytts.util.PrintfFormat;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DoubleDataSource;
 import marytts.util.audio.SequenceDoubleDataSource;
-import marytts.util.string.PrintfFormat;
 
 
 /**

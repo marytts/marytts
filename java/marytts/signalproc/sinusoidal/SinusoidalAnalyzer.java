@@ -40,7 +40,6 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JFrame;
 
-import marytts.signalproc.analysis.CepstrumSpeechAnalyser;
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.LPCAnalyser;
 import marytts.signalproc.analysis.SEEVOCAnalyser;
@@ -49,18 +48,18 @@ import marytts.signalproc.process.FrameOverlapAddSource;
 import marytts.signalproc.process.FrameProvider;
 import marytts.signalproc.process.LPCCrossSynthesis;
 import marytts.signalproc.sinusoidal.pitch.HNMPitchVoicingAnalyzer;
+import marytts.signalproc.util.SignalProcUtils;
 import marytts.signalproc.window.Window;
+import marytts.util.FFT;
+import marytts.util.FFTMixedRadix;
 import marytts.util.MaryUtils;
+import marytts.util.MathUtils;
+import marytts.util.ComplexArray;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DDSAudioInputStream;
 import marytts.util.audio.DoubleDataSource;
 import marytts.util.audio.SequenceDoubleDataSource;
-import marytts.util.math.ComplexArray;
-import marytts.util.math.FFT;
-import marytts.util.math.FFTMixedRadix;
-import marytts.util.math.MathUtils;
-import marytts.util.signal.SignalProcUtils;
 
 
 /**
@@ -657,7 +656,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
                     tmpSpec[i] = tmpSpec[fftSize-i];
                 //
                 
-                double [] tmpPhase = CepstrumSpeechAnalyser.minimumPhaseResponseInRadians(tmpSpec);
+                double [] tmpPhase = SignalProcUtils.minimumPhaseResponseInRadians(tmpSpec);
                 double [] vocalTractPhase = new double[fftSize/2+1];
                 System.arraycopy(tmpPhase, 0, vocalTractPhase, 0, vocalTractPhase.length);
                

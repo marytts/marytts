@@ -41,9 +41,9 @@ import marytts.signalproc.analysis.EnergyAnalyser;
 import marytts.signalproc.analysis.EnergyAnalyser_dB;
 import marytts.signalproc.analysis.FrameBasedAnalyser.FrameAnalysisResult;
 import marytts.tools.redstart.Test;
+import marytts.util.MathUtils;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.BufferedDoubleDataSource;
-import marytts.util.math.MathUtils;
 
 import org.jsresources.AudioRecorder;
 

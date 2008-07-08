@@ -29,7 +29,7 @@
 
 package marytts.signalproc.adaptation.codebook;
 
-import marytts.util.io.MaryRandomAccessFile;
+import marytts.util.MaryRandomAccessFile;
 
 /**
  * @author oytun.turk

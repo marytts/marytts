@@ -43,8 +43,8 @@ import marytts.signalproc.adaptation.IndexMap;
 import marytts.signalproc.adaptation.prosody.PitchMappingFile;
 import marytts.signalproc.adaptation.prosody.PitchTrainer;
 import marytts.tools.voiceimport.BasenameList;
-import marytts.util.io.FileUtils;
-import marytts.util.string.StringUtils;
+import marytts.util.FileUtils;
+import marytts.util.StringUtils;
 
 
 /**

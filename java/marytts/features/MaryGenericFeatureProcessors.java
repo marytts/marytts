@@ -48,7 +48,7 @@ import marytts.fst.FSTLookup;
 import marytts.unitselection.select.DiphoneTarget;
 import marytts.unitselection.select.HalfPhoneTarget;
 import marytts.unitselection.select.Target;
-import marytts.util.string.ByteStringTranslator;
+import marytts.util.ByteStringTranslator;
 
 /**
  * A collection of feature processors that operate on Target objects.

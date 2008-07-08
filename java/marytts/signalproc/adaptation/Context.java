@@ -34,8 +34,8 @@ import java.util.StringTokenizer;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import marytts.signalproc.analysis.ESTLabels;
-import marytts.util.string.StringUtils;
+import marytts.signalproc.util.ESTLabels;
+import marytts.util.StringUtils;
 
 
 /**

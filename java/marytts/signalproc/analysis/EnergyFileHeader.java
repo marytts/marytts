@@ -31,7 +31,7 @@ package marytts.signalproc.analysis;
 
 import java.io.IOException;
 
-import marytts.util.io.MaryRandomAccessFile;
+import marytts.util.MaryRandomAccessFile;
 
 
 /**

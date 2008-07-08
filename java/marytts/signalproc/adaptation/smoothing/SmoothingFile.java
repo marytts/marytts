@@ -32,8 +32,8 @@ package marytts.signalproc.adaptation.smoothing;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import marytts.util.io.FileUtils;
-import marytts.util.io.MaryRandomAccessFile;
+import marytts.util.FileUtils;
+import marytts.util.MaryRandomAccessFile;
 
 
 /**

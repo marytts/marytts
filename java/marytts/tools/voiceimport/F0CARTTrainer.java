@@ -48,7 +48,7 @@ import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.TimelineReader;
 import marytts.unitselection.data.UnitFileReader;
-import marytts.util.string.PrintfFormat;
+import marytts.util.PrintfFormat;
 
 
 /**

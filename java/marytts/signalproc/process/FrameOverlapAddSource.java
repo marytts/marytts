@@ -39,13 +39,13 @@ import javax.sound.sampled.AudioSystem;
 import marytts.signalproc.display.FunctionGraph;
 import marytts.signalproc.display.SignalGraph;
 import marytts.signalproc.window.Window;
+import marytts.util.MathUtils;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.BlockwiseDoubleDataSource;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DDSAudioInputStream;
 import marytts.util.audio.DoubleDataSource;
 import marytts.util.audio.SequenceDoubleDataSource;
-import marytts.util.math.MathUtils;
 
 
 /**

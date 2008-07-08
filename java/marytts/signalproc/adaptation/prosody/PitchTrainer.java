@@ -12,8 +12,8 @@ import marytts.signalproc.adaptation.codebook.WeightedCodebookLsfEntry;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookTrainerParams;
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.Lsfs;
-import marytts.util.math.MathUtils;
-import marytts.util.signal.SignalProcUtils;
+import marytts.signalproc.util.SignalProcUtils;
+import marytts.util.MathUtils;
 
 
 public class PitchTrainer {

@@ -31,10 +31,11 @@ package marytts.signalproc.analysis;
 
 import java.io.IOException;
 
+import marytts.signalproc.util.LEDataInputStream;
+import marytts.signalproc.util.LEDataOutputStream;
 import marytts.signalproc.window.Window;
-import marytts.util.io.LEDataInputStream;
-import marytts.util.io.LEDataOutputStream;
-import marytts.util.io.MaryRandomAccessFile;
+import marytts.util.MaryRandomAccessFile;
+
 
 /**
  * @author oytun.turk

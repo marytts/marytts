@@ -42,10 +42,10 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
 
 import marytts.signalproc.window.RectWindow;
+import marytts.util.MathUtils;
+import marytts.util.PrintfFormat;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.DoubleDataSource;
-import marytts.util.math.MathUtils;
-import marytts.util.string.PrintfFormat;
 
 
 /**

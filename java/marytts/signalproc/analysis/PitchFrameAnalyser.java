@@ -31,6 +31,7 @@ package marytts.signalproc.analysis;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import marytts.signalproc.analysis.FrameBasedAnalyser.FrameAnalysisResult;
 import marytts.signalproc.process.FrameProvider;
 import marytts.signalproc.process.InlineDataProcessor;

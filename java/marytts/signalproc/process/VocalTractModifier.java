@@ -36,12 +36,12 @@ import marytts.signalproc.analysis.LPCAnalyser.LPCoeffs;
 import marytts.signalproc.filter.FIRFilter;
 import marytts.signalproc.filter.RecursiveFilter;
 import marytts.signalproc.process.InlineDataProcessor;
-import marytts.util.math.ArrayUtils;
-import marytts.util.math.ComplexArray;
-import marytts.util.math.FFT;
-import marytts.util.math.FFTMixedRadix;
-import marytts.util.math.MathUtils;
-import marytts.util.signal.SignalProcUtils;
+import marytts.signalproc.util.SignalProcUtils;
+import marytts.util.ArrayUtils;
+import marytts.util.FFT;
+import marytts.util.FFTMixedRadix;
+import marytts.util.MathUtils;
+import marytts.util.ComplexArray;
 
 
 /**

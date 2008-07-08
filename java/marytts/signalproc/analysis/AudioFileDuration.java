@@ -37,18 +37,16 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
 import marytts.signalproc.window.RectWindow;
+import marytts.util.MathUtils;
+import marytts.util.PrintfFormat;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.DoubleDataSource;
-import marytts.util.math.MathUtils;
-import marytts.util.string.PrintfFormat;
 
 
 
 /**
  * @author Marc Schr&ouml;der
  *
- * Prints durations of audio files that are specified as fullpath arguments in String[] args
- * 
  */
 public class AudioFileDuration 
 {

@@ -36,6 +36,7 @@ import marytts.signalproc.process.FrameProvider;
 import marytts.signalproc.window.Window;
 import marytts.util.audio.DoubleDataSource;
 
+
 /**
  * @author Marc Schr&ouml;der
  * The base class for all frame-based signal analysis algorithms.

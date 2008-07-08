@@ -31,9 +31,9 @@ package marytts.signalproc.adaptation.prosody;
 
 import java.io.IOException;
 
-import marytts.util.io.MaryRandomAccessFile;
-import marytts.util.math.MathUtils;
-import marytts.util.signal.SignalProcUtils;
+import marytts.signalproc.util.SignalProcUtils;
+import marytts.util.MaryRandomAccessFile;
+import marytts.util.MathUtils;
 
 
 /**

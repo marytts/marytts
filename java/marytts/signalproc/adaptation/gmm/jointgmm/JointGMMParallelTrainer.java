@@ -60,9 +60,9 @@ import marytts.signalproc.adaptation.outlier.TotalStandardDeviations;
 import marytts.signalproc.adaptation.prosody.PitchMappingFile;
 import marytts.signalproc.analysis.distance.DistanceComputer;
 import marytts.signalproc.window.Window;
-import marytts.util.io.FileUtils;
-import marytts.util.math.MathUtils;
-import marytts.util.string.StringUtils;
+import marytts.util.FileUtils;
+import marytts.util.MathUtils;
+import marytts.util.StringUtils;
 
 import org.xml.sax.SAXException;
 

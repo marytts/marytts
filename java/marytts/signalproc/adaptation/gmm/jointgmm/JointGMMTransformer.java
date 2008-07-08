@@ -21,8 +21,8 @@ import marytts.signalproc.adaptation.prosody.ProsodyTransformerParams;
 import marytts.signalproc.adaptation.smoothing.SmoothingDefinitions;
 import marytts.signalproc.analysis.LsfFileHeader;
 import marytts.tools.voiceimport.BasenameList;
-import marytts.util.io.FileUtils;
-import marytts.util.string.StringUtils;
+import marytts.util.FileUtils;
+import marytts.util.StringUtils;
 
 
 public class JointGMMTransformer extends BaselineTransformer {

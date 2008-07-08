@@ -36,12 +36,12 @@ import marytts.signalproc.adaptation.BaselineAdaptationSet;
 import marytts.signalproc.adaptation.Context;
 import marytts.signalproc.adaptation.IndexMap;
 import marytts.signalproc.adaptation.prosody.PitchStatistics;
-import marytts.signalproc.analysis.ESTLabels;
 import marytts.signalproc.analysis.EnergyAnalyserRms;
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.Lsfs;
-import marytts.util.math.MathUtils;
-import marytts.util.signal.SignalProcUtils;
+import marytts.signalproc.util.ESTLabels;
+import marytts.signalproc.util.SignalProcUtils;
+import marytts.util.MathUtils;
 
 
 /**

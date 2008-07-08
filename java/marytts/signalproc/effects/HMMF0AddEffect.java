@@ -30,9 +30,9 @@
 package marytts.signalproc.effects;
 
 import marytts.signalproc.process.Robotiser;
+import marytts.util.MathUtils;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DoubleDataSource;
-import marytts.util.math.MathUtils;
 
 /**
  * @author oytun.turk
