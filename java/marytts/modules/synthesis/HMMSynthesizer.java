@@ -403,7 +403,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
          } else if( e.getTagName().contentEquals(MaryXML.BOUNDARY) ) {
              if(e.hasAttribute("duration")) {
                index = ph.indexOf("_");  
-             
+               totalDur = totalDur + dur.elementAt(index);
                e.setAttribute("duration", dur.elementAt(index).toString());   
                /* remove this element of the vector otherwise next time it will return the same */
                ph.set(index, "");
