@@ -201,13 +201,10 @@ public class JoinModeller extends VoiceImportComponent
         fullStream  = new FileWriter(getProp(FULLFILE));
         // output HTK model definition and dummy state-transition matrix, macro ~t "trP_1"
         int numFeatures = joinFeatures.getNumberOfFeatures();             
-        int numFeaturesMcep = numFeatures - 1; 
-        int numFeaturesF0 = 1;
-        /* two streams, first of size 12 (MCEP) and the second of size 1 (F0) */
         mmfStream.write("~o\n" + "<VECSIZE> " + numFeatures 
-                + " <USER><DIAGC>" 
-                + "<STREAMINFO> 2 "+numFeaturesMcep+" "+numFeaturesF0 +"\n" 
+                + " <USER><DIAGC>\n"  
                 + "~t \"trP_1\"\n<TRANSP> 3\n" + "0 1 0\n0 0 1\n0 0 0\n");
+       
        
          
         if (unitFeatures.getNumberOfUnits() != joinFeatures.getNumberOfUnits())
@@ -257,29 +254,16 @@ public class JoinModeller extends VoiceImportComponent
                 float[] myRightFrame = joinFeatures.getRightJCF(i);
                 float[] nextLeftFrame = joinFeatures.getLeftJCF(i+1);
  
-                double[] difference = new double[myRightFrame.length];
-                double aux;              
+                double[] difference = new double[myRightFrame.length];                 
                 for (int k=0, len=myRightFrame.length; k<len; k++) {
-                    if(k==(len-1)){
-                        // TODO: find out in JoinCostFeatureFileWriter why Infinity values occur, and fix it.
-                      if(myRightFrame[k] == Float.POSITIVE_INFINITY || nextLeftFrame[k] == Float.POSITIVE_INFINITY ){    
-                        aux= 0.0 ;
-                        System.out.println("WARNING: numUnit="+ i + " myRightFrame[k]="+myRightFrame[k] + " nextLeftFrame[k]=" + nextLeftFrame[k]);
-                      }else
-                        aux = (double)myRightFrame[k] - nextLeftFrame[k];
-                     
-                      difference[k] = aux;
-                      // if using logarithm ?
-                      // if(aux == 0.0)
-                      //   difference[k] = -1.0e10;
-                      // else
-                      //   difference[k] = Math.log(Math.abs(aux));
-                      //System.out.println("k=" + k + " F0Right=" + myRightFrame[k] + " F0Left=" + nextLeftFrame[k] + "   log(abs(F0diff))=" + difference[k]);   
+                    if(k==(len-1) && (myRightFrame[k] == Float.POSITIVE_INFINITY || nextLeftFrame[k] == Float.POSITIVE_INFINITY) ){
+                      // TODO: find out in JoinCostFeatureFileWriter why Infinity values occur, and fix it.
+                      difference[k] = 0.0;  
+                      System.out.println("WARNING: numUnit="+ i + " myRightFrame[k]="+myRightFrame[k] + " nextLeftFrame[k]=" + nextLeftFrame[k]);
                     }
                     else
                       difference[k] = ((double)myRightFrame[k]) - nextLeftFrame[k];                   
-                }                
-                
+                 }   
                 
 
                 // Group the units with the same feature vectors
@@ -298,42 +282,21 @@ public class JoinModeller extends VoiceImportComponent
         for (String fvString : uniqueFeatureVectors.keySet()) {
             double[][] diffVectors = uniqueFeatureVectors.get(fvString).toArray(new double[0][]);
             n = diffVectors.length;
-            m = diffVectors[0].length;
-            double[][] diffVectorsMcep = new double[n][m-1];
-            double[][] diffVectorsF0 = new double[n][1];
-            for(i=0; i< n ; i++){
-               for(j=0; j< m; j++){
-                  if(j== m-1){
-                    diffVectorsF0[i][0] = diffVectors[i][j];
-                    //System.out.println("diff["+i+"]["+j+"]="+diffVectorsF0[i][0]);
-                  }
-                  else
-                    diffVectorsMcep[i][j] = diffVectors[i][j]; 
-                 //System.out.println("diff["+i+"]["+j+"]="+diffVectors[i][j]);
-               }
-            }
+            
             // Compute means and variances of the features across difference vectors         
-            double[] meansMcep;
-            double[] variancesMcep;
-            double[] meansF0;
-            double[] variancesF0;
-            double mix1, mix2;
+            double[] means;
+            double[] variances;
             if (n == 1) {
-                meansMcep = diffVectorsMcep[0];
-                variancesMcep = MathUtils.zeros(meansMcep.length);
-                
-                meansF0 = diffVectorsF0[0];
-                variancesF0 = MathUtils.zeros(meansF0.length);
+                means = diffVectors[0];
+                variances = MathUtils.zeros(means.length);
+               
             } else {
-                meansMcep = MathUtils.mean(diffVectorsMcep, true);
-                variancesMcep = MathUtils.variance(diffVectorsMcep, meansMcep, true);
-                
-                meansF0 = MathUtils.mean(diffVectorsF0, true);
-                variancesF0 = MathUtils.variance(diffVectorsF0, meansF0, true);
+                means = MathUtils.mean(diffVectors, true);
+                variances = MathUtils.variance(diffVectors, means, true);
+      
             }
             
-            assert meansMcep.length == numFeaturesMcep : "expected to have " + numFeaturesMcep + " features, got " + meansMcep.length;
-                        
+            assert means.length == numFeatures : "expected to have " + numFeatures + " features, got " + means.length;            
             
             fullStream.write(fvString + "\n");
             statsStream.write(numUniqueFea + " \"" + fvString + "\"    " + n + "    " + n + "\n");
@@ -341,23 +304,14 @@ public class JoinModeller extends VoiceImportComponent
             mmfStream.write("~h " + "\"" + fvString + "\"\n" );
 
             /* Stream 1*/
-            mmfStream.write("<BEGINHMM>\n<NUMSTATES> 3\n<STATE> 2\n<STREAM> 1\n");
-            mmfStream.write("<MEAN> " + numFeaturesMcep + "\n");
-            for (i=0; i<meansMcep.length; i++)
-              mmfStream.write(meansMcep[i] + " ");
-            mmfStream.write("\n<VARIANCE> " + numFeaturesMcep + "\n");
-            for (i=0; i<variancesMcep.length; i++)
-              mmfStream.write(variancesMcep[i] + " ");
-
-            /* Stream 2 */
-            mmfStream.write("\n<STREAM> 2\n");
-              mmfStream.write("<MEAN> " + numFeaturesF0 + "\n");
-              for (i=0; i<meansF0.length; i++)
-                mmfStream.write(meansF0[i] + " ");
-              mmfStream.write("\n<VARIANCE> " + numFeaturesF0 + "\n");
-              for (i=0; i<variancesF0.length; i++)
-                mmfStream.write(variancesF0[i] + " ");
-              
+            mmfStream.write("<BEGINHMM>\n<NUMSTATES> 3\n<STATE> 2\n");
+            mmfStream.write("<MEAN> " + numFeatures + "\n");
+            for (i=0; i<means.length; i++)
+              mmfStream.write(means[i] + " ");
+            mmfStream.write("\n<VARIANCE> " + numFeatures + "\n");
+            for (i=0; i<variances.length; i++)
+              mmfStream.write(variances[i] + " ");
+  
             mmfStream.write("\n~t \"trP_1\"\n<ENDHMM>\n");
             numUniqueFea++;
         }
@@ -382,9 +336,7 @@ public class JoinModeller extends VoiceImportComponent
         pw.println("TR 0");
         pw.println();
         pw.println("// questions for decision tree-based context clustering");
-        for (String f : featureList) {
-                
-                
+        for (String f : featureList) {               
             int featureIndex = def.getFeatureIndex(f);
             String[] values = def.getPossibleValues(featureIndex);
             for (String v : values) {
@@ -400,23 +352,22 @@ public class JoinModeller extends VoiceImportComponent
         pw.println("TR 3");
         pw.println();
         pw.println("// construct decision trees");
-        pw.println("TB 000 join_mcep_s2_ {*.state[2].stream[1-1]}");
-        pw.println("TB 000 join_f0_s2_ {*.state[2].stream[2-2]}");
+        pw.println("TB 000 join_ {*.state[2]}");
         pw.println();
         pw.println("TR 1");
         pw.println();
-        pw.println("// output constructed trees");
+        pw.println("// output constructed tree");
         pw.println("ST \"" + getProp(JOINTREEFILE) + "\"");
         pw.close();
         
         System.out.println("\n---- Tree-based context clustering for joinModeller\n");
         // here the input file is join_mmf.mry and the output is  join_mmf.mry.clustered    
-        cmdLine = getProp(HHEDCOMMAND) + " -A -C " + getProp(TRNCONFFILE) + " -D -T 1 -p -i -H " + getProp(MMFFILE) + " -m -a 1.0 -w " + getProp(MMFFILE)+".clustered"  + " " + getProp(CXCHEDFILE) + " " + getProp(FULLFILE);
+        cmdLine = getProp(HHEDCOMMAND) + " -A -C " + getProp(TRNCONFFILE) + " -D -T 2 -p -i -H " + getProp(MMFFILE) + " -m -a 1.0 -w " + getProp(MMFFILE)+".clustered"  + " " + getProp(CXCHEDFILE) + " " + getProp(FULLFILE);
         launchProc(cmdLine, "HHEd", filedir);
 
         System.out.println("\n---- Creating conversion-to-hts command file for HHEd\n");
         pw = new PrintWriter(new File(getProp(CNVHEDFILE)));
-        pw.println("TR 2");
+        pw.println("TR 3");
         pw.println();
         pw.println("// load trees for joinModeller");
         pw.println("LT \"" + getProp(JOINTREEFILE) + "\"");
@@ -434,20 +385,14 @@ public class JoinModeller extends VoiceImportComponent
         cmdLine = getProp(HHEDCOMMAND) + " -A -C " + getProp(CNVCONFFILE) + " -D -T 1 -p -i -H " + getProp(MMFFILE)+".clustered" + " " + getProp(CNVHEDFILE) + " " + getProp(FULLFILE);
         launchProc(cmdLine, "HHEd", filedir);
         
-        // the files trees.1 and pdf.1 produced by the previous command are renamed as tree-mcep-joinModeller.inf and mcep-joinModeller.pdf
-        // the files trees.2 and pdf.2 produced by the previous command are renamed as tree-f0-joinModeller.inf and f0-joinModeller.pdf
-        cmdLine = "mv " + filedir + "trees.1 " + filedir + "tree-mcep-joinModeller.inf";
-        launchProc(cmdLine, "mv", filedir);
-        cmdLine = "mv " + filedir + "trees.2 " + filedir + "tree-f0-joinModeller.inf";
+        // the files trees.1 and pdf.1 produced by the previous command are renamed as tree-joinModeller.inf and joinModeller.pdf
+        cmdLine = "mv " + filedir + "trees.1 " + filedir + "tree-joinModeller.inf";
         launchProc(cmdLine, "mv", filedir);
         
-        cmdLine = "mv " + filedir + "pdf.1 " + filedir + "mcep-joinModeller.pdf";
-        launchProc(cmdLine, "mv", filedir);
-        cmdLine = "mv " + filedir + "pdf.2 " + filedir + "f0-joinModeller.pdf";
+        cmdLine = "mv " + filedir + "pdf.1 " + filedir + "joinModeller.pdf";
         launchProc(cmdLine, "mv", filedir);
         
-        System.out.println("\n---- Created files: tree-mcep-joinModeller.inf, mcep-joinModeller.pdf");
-        System.out.println("                      tree-f0-joinModeller.inf, f0-joinModeller.pdf\n");
+        System.out.println("\n---- Created files: tree-joinModeller.inf, joinModeller.pdf");
         
         return true;
     }
