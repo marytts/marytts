@@ -47,7 +47,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 
-import marytts.util.AudioUtils;
+import marytts.util.audio.MaryAudioUtils;
 
 
 /**
@@ -98,7 +98,7 @@ public class MultiDisplay extends JFrame
                     "Can only deal with mono audio signals");
         }
         int samplingRate = (int) ais.getFormat().getSampleRate();
-        double[] audioData = AudioUtils.getSamplesAsDoubleArray(ais);
+        double[] audioData = MaryAudioUtils.getSamplesAsDoubleArray(ais);
         initialise(audioData, samplingRate, width, height, exitOnClose);
     }
 

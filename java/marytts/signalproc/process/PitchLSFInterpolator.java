@@ -38,7 +38,6 @@ import javax.sound.sampled.AudioSystem;
 
 import marytts.signalproc.window.DynamicTwoHalvesWindow;
 import marytts.signalproc.window.Window;
-import marytts.util.FileUtils;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DDSAudioInputStream;
@@ -47,6 +46,7 @@ import marytts.util.audio.ESTTextfileDoubleDataSource;
 import marytts.util.audio.LabelfileDoubleDataSource;
 import marytts.util.audio.PraatTextfileDoubleDataSource;
 import marytts.util.audio.SequenceDoubleDataSource;
+import marytts.util.io.FileUtils;
 
 
 public class PitchLSFInterpolator

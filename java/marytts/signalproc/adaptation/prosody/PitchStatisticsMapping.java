@@ -31,7 +31,7 @@ package marytts.signalproc.adaptation.prosody;
 
 import java.util.Arrays;
 
-import marytts.util.MathUtils;
+import marytts.util.math.MathUtils;
 
 
 /**

@@ -31,7 +31,7 @@ package marytts.util.audio;
 
 import java.util.Arrays;
 
-import marytts.util.MathUtils;
+import marytts.util.math.MathUtils;
 
 public class NoiseDoubleDataSource extends BaseDoubleDataSource {
     protected long n;

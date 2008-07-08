@@ -36,7 +36,7 @@ import marytts.machinelearning.ContextualGMMParams;
 import marytts.machinelearning.GMM;
 import marytts.signalproc.adaptation.VocalTractTransformationData;
 import marytts.signalproc.analysis.LsfFileHeader;
-import marytts.util.MaryRandomAccessFile;
+import marytts.util.io.MaryRandomAccessFile;
 
 
 /**

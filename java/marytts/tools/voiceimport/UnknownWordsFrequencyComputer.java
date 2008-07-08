@@ -19,10 +19,10 @@ import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.modules.InternalModule;
-import marytts.util.FileUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
+import marytts.util.io.FileUtils;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

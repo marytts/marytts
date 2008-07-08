@@ -2,12 +2,12 @@ package marytts.signalproc.process;
 
 import java.util.Arrays;
 
+import marytts.signalproc.analysis.ESTLabels;
 import marytts.signalproc.analysis.F0ReaderWriter;
-import marytts.signalproc.util.ESTLabels;
-import marytts.signalproc.util.SignalProcUtils;
-import marytts.util.FestivalUtt;
-import marytts.util.MathUtils;
-import marytts.util.StringUtils;
+import marytts.signalproc.analysis.FestivalUtt;
+import marytts.util.math.MathUtils;
+import marytts.util.signal.SignalProcUtils;
+import marytts.util.string.StringUtils;
 
 
 public class VoiceModificationParametersPreprocessor extends VoiceModificationParameters 

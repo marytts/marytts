@@ -42,7 +42,7 @@ import javax.sound.sampled.DataLine;
 import javax.swing.AbstractAction;
 import javax.swing.KeyStroke;
 
-import marytts.util.AudioUtils;
+import marytts.util.audio.MaryAudioUtils;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DDSAudioInputStream;
 
@@ -68,7 +68,7 @@ public class SignalGraph extends FunctionGraph
             throw new IllegalArgumentException("Can only deal with mono audio signals");
         }
         int samplingRate = (int) ais.getFormat().getSampleRate();
-        double[] audioData = AudioUtils.getSamplesAsDoubleArray(ais);
+        double[] audioData = MaryAudioUtils.getSamplesAsDoubleArray(ais);
         initialise(audioData, samplingRate, width, height);
     }
 

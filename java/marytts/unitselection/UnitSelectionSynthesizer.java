@@ -56,8 +56,8 @@ import marytts.unitselection.select.HalfPhoneTarget;
 import marytts.unitselection.select.SelectedUnit;
 import marytts.unitselection.select.Target;
 import marytts.unitselection.select.UnitSelector;
-import marytts.util.MaryNormalisedWriter;
 import marytts.util.dom.NameNodeFilter;
+import marytts.util.io.MaryNormalisedWriter;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;

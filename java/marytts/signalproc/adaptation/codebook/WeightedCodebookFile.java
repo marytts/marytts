@@ -35,10 +35,10 @@ import java.io.IOException;
 
 import marytts.signalproc.adaptation.prosody.PitchStatistics;
 import marytts.signalproc.adaptation.prosody.PitchStatisticsCollection;
-import marytts.signalproc.util.LEDataInputStream;
-import marytts.signalproc.util.LEDataOutputStream;
-import marytts.util.FileUtils;
-import marytts.util.MaryRandomAccessFile;
+import marytts.util.io.FileUtils;
+import marytts.util.io.LEDataInputStream;
+import marytts.util.io.LEDataOutputStream;
+import marytts.util.io.MaryRandomAccessFile;
 
 
 /**

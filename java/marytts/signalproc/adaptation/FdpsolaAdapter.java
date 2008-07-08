@@ -59,6 +59,7 @@ import marytts.signalproc.adaptation.prosody.ProsodyTransformerParams;
 import marytts.signalproc.adaptation.smoothing.SmoothingDefinitions;
 import marytts.signalproc.adaptation.smoothing.SmoothingFile;
 import marytts.signalproc.adaptation.smoothing.TemporalSmoother;
+import marytts.signalproc.analysis.ESTLabels;
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.LPCAnalyser;
 import marytts.signalproc.analysis.LineSpectralFrequencies;
@@ -68,22 +69,21 @@ import marytts.signalproc.analysis.LPCAnalyser.LPCoeffs;
 import marytts.signalproc.process.FDPSOLAProcessor;
 import marytts.signalproc.process.PSOLAFrameProvider;
 import marytts.signalproc.process.VoiceModificationParametersPreprocessor;
-import marytts.signalproc.util.ESTLabels;
-import marytts.signalproc.util.LEDataInputStream;
-import marytts.signalproc.util.LEDataOutputStream;
-import marytts.signalproc.util.SignalProcUtils;
 import marytts.signalproc.window.DynamicWindow;
 import marytts.signalproc.window.Window;
-import marytts.util.FFT;
-import marytts.util.FFTMixedRadix;
-import marytts.util.FileUtils;
 import marytts.util.MaryUtils;
-import marytts.util.MathUtils;
-import marytts.util.ComplexArray;
 import marytts.util.audio.AudioDoubleDataSource;
 import marytts.util.audio.BufferedDoubleDataSource;
 import marytts.util.audio.DDSAudioInputStream;
 import marytts.util.audio.DoubleDataSource;
+import marytts.util.io.FileUtils;
+import marytts.util.io.LEDataInputStream;
+import marytts.util.io.LEDataOutputStream;
+import marytts.util.math.ComplexArray;
+import marytts.util.math.FFT;
+import marytts.util.math.FFTMixedRadix;
+import marytts.util.math.MathUtils;
+import marytts.util.signal.SignalProcUtils;
 
 
 /**
