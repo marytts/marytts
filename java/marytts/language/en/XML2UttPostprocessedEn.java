@@ -28,7 +28,10 @@
  */
 package marytts.language.en;
 
+import java.util.Locale;
+
 import marytts.datatypes.MaryDataType;
+import marytts.language.en_US.datatypes.USEnglishDataTypes;
 import marytts.modules.XML2UttBase;
 
 import org.w3c.dom.Element;
@@ -49,9 +52,9 @@ public class XML2UttPostprocessedEn extends XML2UttBase
     public XML2UttPostprocessedEn()
     {
         super("XML2Utt PostprocessedEn",
-              MaryDataType.get("POSTPROCESSED_EN"),
-              MaryDataType.get("FREETTS_POSTPROCESSED_EN")
-              );
+              MaryDataType.ALLOPHONES,
+              USEnglishDataTypes.FREETTS_POSTPROCESSED,
+              Locale.ENGLISH);
     }
 
     /**

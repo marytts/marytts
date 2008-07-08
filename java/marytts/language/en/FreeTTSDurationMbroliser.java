@@ -30,9 +30,11 @@ package marytts.language.en;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
+import marytts.language.en_US.datatypes.USEnglishDataTypes;
 import marytts.modules.InternalModule;
 import marytts.modules.synthesis.FreeTTSVoices;
 
@@ -55,8 +57,9 @@ public class FreeTTSDurationMbroliser extends InternalModule
     public FreeTTSDurationMbroliser()
     {
         super("Duration Mbroliser",
-              MaryDataType.get("FREETTS_DURATIONS_EN"),
-              MaryDataType.get("FREETTS_MBROLISED_DURATIONS_EN")
+              USEnglishDataTypes.FREETTS_DURATIONS,
+              USEnglishDataTypes.FREETTS_MBROLISED_DURATIONS,
+              Locale.ENGLISH
               );
     }
 
@@ -78,7 +81,7 @@ public class FreeTTSDurationMbroliser extends InternalModule
             Utterance utterance = (Utterance) it.next();
             processor.processUtterance(utterance);
         }
-        MaryData output = new MaryData(outputType());
+        MaryData output = new MaryData(outputType(), d.getLocale());
         output.setUtterances(utterances);
         return output;
     }

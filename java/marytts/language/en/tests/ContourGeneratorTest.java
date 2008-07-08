@@ -49,7 +49,7 @@ public class ContourGeneratorTest extends MaryModuleTestCase {
     }
     
     public void testDownstepMtu() throws Exception {
-        MaryData inData = new MaryData(module.inputType());
+        MaryData inData = new MaryData(module.inputType(), module.getLocale());
         inData.readFrom(this.getClass().getResourceAsStream("downstep_in_mtu.postprocessed"), null);
         MaryData outData = module.process(inData);
         try {

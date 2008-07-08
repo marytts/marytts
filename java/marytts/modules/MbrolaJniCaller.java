@@ -74,7 +74,7 @@ public class MbrolaJniCaller extends MbrolaCaller {
 
 
     public MbrolaJniCaller() {
-        super("MbrolaJniCaller", MaryDataType.get("MBROLA"), MaryDataType.get("AUDIO"));
+        super("MbrolaJniCaller", MaryDataType.MBROLA, MaryDataType.AUDIO);
     }
 
     public synchronized void startup() throws Exception {

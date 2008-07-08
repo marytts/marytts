@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -47,6 +48,7 @@ import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.NoSuchPropertyException;
+import marytts.language.tib.datatypes.TibetanDataTypes;
 import marytts.modules.InternalModule;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
@@ -110,7 +112,10 @@ public class Tokeniser extends InternalModule {
      *  initialises the Data-inputTyes and -outputTypes
      */
     public Tokeniser () {
-        super("TibetanTokeniser", MaryDataType.get("RAWMARYXML_TIB"), MaryDataType.get("PARSEDSYL_TIB"));
+        super("TibetanTokeniser", 
+                MaryDataType.RAWMARYXML, 
+                TibetanDataTypes.PARSEDSYL_TIB,
+                new Locale("tib"));
     }
 
     
@@ -312,7 +317,7 @@ public class Tokeniser extends InternalModule {
      */
 	public MaryData process(MaryData d) throws Exception
 	{
-		MaryData result = new MaryData(outputType());
+		MaryData result = new MaryData(outputType(), d.getLocale());
 		
 		Document doc = d.getDocument();
 		NodeIterator ni = ((DocumentTraversal)doc).createNodeIterator(

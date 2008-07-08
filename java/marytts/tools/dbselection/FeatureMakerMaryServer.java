@@ -495,9 +495,9 @@ public class FeatureMakerMaryServer{
 		try{                    
 			ByteArrayOutputStream os = new ByteArrayOutputStream();
 			//process and dump
-			mary.process(nextSentence, "TEXT_DE","TARGETFEATURES_DE" , null, null, os);
+			mary.process(nextSentence, "TEXT","TARGETFEATURES", "de", null, null, os);
 			//read into mary data object                
-			d = new MaryData(MaryDataType.get("TARGETFEATURES_DE"));
+			d = new MaryData(MaryDataType.get("TARGETFEATURES"), null);
 			d.readFrom(new ByteArrayInputStream(os.toByteArray()));			
 		} catch (Exception e){
 			e.printStackTrace();
@@ -784,9 +784,9 @@ public class FeatureMakerMaryServer{
 			try{
 				ByteArrayOutputStream os = new ByteArrayOutputStream();
 				//process and dump
-				mary.process(textString, "TEXT_DE","PHONEMISED_DE" , null, null, os);
+				mary.process(textString, "TEXT","PHONEMES", "de", null, null, os);
 				//read into mary data object                
-				MaryData maryData = new MaryData(MaryDataType.get("PHONEMISED_DE"));
+				MaryData maryData = new MaryData(MaryDataType.PHONEMES, Locale.GERMAN);
 				maryData.readFrom(new ByteArrayInputStream(os.toByteArray()));
 				return maryData.getDocument();
 			} catch (Exception e){

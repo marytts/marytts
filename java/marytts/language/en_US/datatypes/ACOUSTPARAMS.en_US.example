@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<maryxml xmlns="http://mary.dfki.de/2002/MaryXML"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.4"
+xml:lang="en">
+<s>
+<phrase>
+<t accent="H*" pos="content" sampa="'wElk-@m">
+Welcome
+<syllable accent="H*" sampa="'wElk" stress="1">
+<ph d="61" end="61" f0="(0,221)" p="w"/>
+<ph d="120" end="182" f0="(50,232)" p="E"/>
+<ph d="102" end="284" p="l"/>
+<ph d="96" end="380" p="k"/>
+</syllable>
+<syllable sampa="@m">
+<ph d="59" end="440" f0="(50,176)" p="@"/>
+<ph d="104" end="544" f0="(100,156)" p="m"/>
+</syllable>
+</t>
+<boundary breakindex="4" duration="200" tone="L-L%"/>
+<t pos="$PUNCT">
+!
+</t>
+</phrase>
+</s>
+</maryxml>

@@ -75,9 +75,9 @@ public class Synthesis extends InternalModule
     public Synthesis()
     {
         super("Synthesis",
-              MaryDataType.get("ACOUSTPARAMS"),
-              MaryDataType.get("AUDIO")
-              );
+              MaryDataType.ACOUSTPARAMS,
+              MaryDataType.AUDIO,
+              null);
     }
 
     public void startup() throws Exception
@@ -142,7 +142,7 @@ public class Synthesis extends InternalModule
                          defaultVoice.getName());
         }
 
-        MaryData result = new MaryData(outputType());
+        MaryData result = new MaryData(outputType(), d.getLocale());
         // Also remember XML document in "AUDIO" output data, to keep track of phone durations:
         result.setDocument(doc);
         result.setAudioFileFormat(d.getAudioFileFormat());

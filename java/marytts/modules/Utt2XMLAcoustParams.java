@@ -52,9 +52,9 @@ public class Utt2XMLAcoustParams extends Utt2XMLBase
     public Utt2XMLAcoustParams()
     {
         super("Utt2XML AcoustParams",
-              MaryDataType.get("FREETTS_ACOUSTPARAMS"),
-              MaryDataType.get("ACOUSTPARAMS")
-              );
+              MaryDataType.FREETTS_ACOUSTPARAMS,
+              MaryDataType.ACOUSTPARAMS,
+              null);
     }
 
     /**

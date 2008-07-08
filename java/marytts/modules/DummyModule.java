@@ -28,6 +28,8 @@
  */
 package marytts.modules;
 
+import java.util.Locale;
+
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 
@@ -43,11 +45,15 @@ public class DummyModule implements MaryModule
     public String name() { return "Dummy"; }
 
     public MaryDataType inputType() {
-        return MaryDataType.get("MBROLA");
+        return MaryDataType.MBROLA;
     }
 
     public MaryDataType outputType() {
-        return MaryDataType.get("AUDIO");
+        return MaryDataType.AUDIO;
+    }
+    
+    public Locale getLocale() {
+        return null;
     }
 
     public void startup() throws Exception {}

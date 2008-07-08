@@ -29,6 +29,8 @@
 package marytts.language.en;
 
 
+import java.util.Locale;
+
 import marytts.datatypes.MaryDataType;
 import marytts.modules.TobiContourGenerator;
 
@@ -41,7 +43,9 @@ import marytts.modules.TobiContourGenerator;
 public class ContourGenerator extends TobiContourGenerator {
     public ContourGenerator()
     {
-        super(MaryDataType.get("DURATIONS_EN"), MaryDataType.get("ACOUSTPARAMS"),
+        super(MaryDataType.DURATIONS,
+                MaryDataType.ACOUSTPARAMS,
+                Locale.ENGLISH,
         "english.phonemeset", "english.contourgenerator.tobirulefile");
     }
 

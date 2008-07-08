@@ -54,7 +54,9 @@ public class JTokeniser extends marytts.modules.JTokeniser {
      * 
      */
     public JTokeniser() {
-        super(MaryDataType.get("RAWMARYXML_EN"), MaryDataType.get("TOKENS_EN"));
+        super(MaryDataType.RAWMARYXML,
+                MaryDataType.TOKENS,
+                Locale.ENGLISH);
     }
 
     public MaryData process(MaryData d) throws Exception

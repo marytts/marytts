@@ -28,7 +28,10 @@
  */
 package marytts.language.en;
 
+import java.util.Locale;
+
 import marytts.datatypes.MaryDataType;
+import marytts.language.en_US.datatypes.USEnglishDataTypes;
 import marytts.modules.XML2UttBase;
 
 import org.w3c.dom.Element;
@@ -49,9 +52,9 @@ public class XML2UttPausesEn extends XML2UttBase
     public XML2UttPausesEn()
     {
         super("XML2Utt PausesEn",
-              MaryDataType.get("PAUSES_EN"),
-              MaryDataType.get("FREETTS_PAUSES_EN")
-              );
+              USEnglishDataTypes.PAUSES_US,
+              USEnglishDataTypes.FREETTS_PAUSES,
+              Locale.ENGLISH);
     }
 
     /**

@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -87,9 +88,11 @@ public class ProsodyGeneric extends InternalModule {
 	protected HashMap tobiPredMap = new HashMap(); // map that will be filled with the rules
 	protected HashMap listMap = new HashMap(); // map that will contain the lists defined in the xml rule file
 	
-    public ProsodyGeneric(MaryDataType inputType,MaryDataType outputType,String tobipredFileName,String accentPriorities, String syllableAccents, String paragraphDeclination)
+    public ProsodyGeneric(MaryDataType inputType,MaryDataType outputType,
+            Locale locale,
+            String tobipredFileName,String accentPriorities, String syllableAccents, String paragraphDeclination)
     {
-        super("Prosody",inputType,outputType);
+        super("Prosody",inputType,outputType, locale);
         
         this.tobiPredFilename = tobipredFileName;
         this.accentPriorities = accentPriorities;
@@ -259,7 +262,7 @@ public class ProsodyGeneric extends InternalModule {
                 }
             }            
         }
-        MaryData result = new MaryData(outputType());
+        MaryData result = new MaryData(outputType(), d.getLocale());
         result.setDocument(doc);
         return result;
     }

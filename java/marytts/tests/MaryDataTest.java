@@ -31,6 +31,7 @@ package marytts.tests;
 import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Locale;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -60,7 +61,7 @@ public class MaryDataTest extends TestCase {
 
     public void testConstructor1() {
         try {
-            MaryData md = new MaryData(null);
+            MaryData md = new MaryData(null, Locale.GERMAN);
         } catch (NullPointerException e) {
             return;
         }
@@ -68,47 +69,47 @@ public class MaryDataTest extends TestCase {
     }
 
     public void testConstructor2() {
-        MaryData md = new MaryData(MaryDataType.get("RAWMARYXML"), false);
+        MaryData md = new MaryData(MaryDataType.get("RAWMARYXML"), null, false);
         Assert.assertTrue(md.getDocument() == null);
     }
 
     public void testConstructor3() {
-        MaryData md = new MaryData(MaryDataType.get("RAWMARYXML"), true);
+        MaryData md = new MaryData(MaryDataType.get("RAWMARYXML"), null, true);
         Assert.assertTrue(md.getDocument() != null);
     }
 
     public void testConstructor4() {
-        MaryData md = new MaryData(MaryDataType.get("RAWMARYXML"), true);
+        MaryData md = new MaryData(MaryDataType.get("RAWMARYXML"), null, true);
         Assert.assertTrue(md.getPlainText() == null);
     }
 
     public void testConstructor5() {
-        MaryData md = new MaryData(MaryDataType.get("RAWMARYXML"), true);
+        MaryData md = new MaryData(MaryDataType.get("RAWMARYXML"), null, true);
         Assert.assertTrue(md.getAudio() == null);
     }
 
     public void testConstructor6() {
-        MaryData md = new MaryData(MaryDataType.get("RAWMARYXML"), true);
+        MaryData md = new MaryData(MaryDataType.get("RAWMARYXML"), null, true);
         Assert.assertTrue(md.getData() instanceof Document);
     }
 
     public void testConstructor7() {
-        MaryData md = new MaryData(MaryDataType.get("TEXT_DE"), true);
+        MaryData md = new MaryData(MaryDataType.get("TEXT_DE"), Locale.GERMAN, true);
         Assert.assertTrue(md.getDocument() == null);
     }
 
     public void testConstructor8() {
-        MaryData md = new MaryData(MaryDataType.get("AUDIO"), true);
+        MaryData md = new MaryData(MaryDataType.get("AUDIO"), null, true);
         Assert.assertTrue(md.getDocument() == null);
     }
 
     public void testConstructor9() {
-        MaryData md = new MaryData(MaryDataType.get("SSML"), true);
+        MaryData md = new MaryData(MaryDataType.get("SSML"), null, true);
         Assert.assertTrue(md.getDocument() == null);
     }
 
     public void testTextRead1() throws Exception {
-        MaryData md = new MaryData(MaryDataType.get("TEXT_DE"));
+        MaryData md = new MaryData(MaryDataType.get("TEXT_DE"), Locale.GERMAN);
         md.readFrom(new StringReader(textString), null);
         Assert.assertTrue(md.getPlainText().trim().equals(textString.trim()));
     }
@@ -120,7 +121,7 @@ public class MaryDataTest extends TestCase {
     }
 
     public void testTextWrite() throws Exception {
-        MaryData md = new MaryData(MaryDataType.get("TEXT_DE"));
+        MaryData md = new MaryData(MaryDataType.get("TEXT_DE"), Locale.GERMAN);
         md.readFrom(new StringReader(textString), null);
         StringWriter sw = new StringWriter();
         md.writeTo(sw);
@@ -128,7 +129,7 @@ public class MaryDataTest extends TestCase {
     }
 
     public void testXMLRead1() throws Exception {
-        MaryData md = new MaryData(MaryDataType.get("TOKENISED_DE"));
+        MaryData md = new MaryData(MaryDataType.get("TOKENISED_DE"), Locale.GERMAN);
         md.readFrom(new StringReader(maryxmlString), null);
         Assert.assertTrue(md.getDocument() != null);
     }
@@ -140,7 +141,7 @@ public class MaryDataTest extends TestCase {
     }
 
     public void testXMLWrite() throws Exception {
-        MaryData md = new MaryData(MaryDataType.get("TOKENISED_DE"));
+        MaryData md = new MaryData(MaryDataType.get("TOKENISED_DE"), Locale.GERMAN);
         md.readFrom(new StringReader(maryxmlString), null);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         md.writeTo(baos);

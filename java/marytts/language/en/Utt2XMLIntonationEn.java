@@ -28,8 +28,11 @@
  */
 package marytts.language.en;
 
+import java.util.Locale;
+
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
+import marytts.language.en_US.datatypes.USEnglishDataTypes;
 import marytts.modules.Utt2XMLBase;
 
 import org.w3c.dom.Document;
@@ -53,9 +56,9 @@ public class Utt2XMLIntonationEn extends Utt2XMLBase
     public Utt2XMLIntonationEn()
     {
         super("Utt2XML IntonationEn",
-              MaryDataType.get("FREETTS_INTONATION_EN"),
-              MaryDataType.get("INTONATION_EN")
-              );
+              USEnglishDataTypes.FREETTS_INTONATION,
+              MaryDataType.INTONATION,
+              Locale.ENGLISH);
     }
 
     /**

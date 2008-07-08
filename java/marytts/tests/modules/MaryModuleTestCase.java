@@ -31,6 +31,7 @@ package marytts.tests.modules;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Locale;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
@@ -70,7 +71,7 @@ public class MaryModuleTestCase extends TestCase {
         Document doc = MaryXML.newDocument();
         doc.getDocumentElement().setAttribute("xml:lang", "en");
         doc.getDocumentElement().appendChild(doc.createTextNode(text));
-        MaryData md = new MaryData(MaryDataType.get("RAWMARYXML_EN"));
+        MaryData md = new MaryData(MaryDataType.get("RAWMARYXML_EN"), Locale.ENGLISH);
         md.setDocument(doc);
         return md;
     }
@@ -96,10 +97,10 @@ public class MaryModuleTestCase extends TestCase {
             String in = loadResourceIntoString(basename + "." + inputEnding());
             input = createMaryDataFromText(in);
         } else {
-            input = new MaryData(module.inputType());
+            input = new MaryData(module.inputType(), input.getLocale());
             input.readFrom(this.getClass().getResourceAsStream(basename + "." + inputEnding()), null);
         }
-        MaryData targetOut = new MaryData(module.outputType());
+        MaryData targetOut = new MaryData(module.outputType(), input.getLocale());
         targetOut.readFrom(this.getClass().getResourceAsStream(basename + "." + outputEnding()), null);
         MaryData processedOut = module.process(input);
         try {

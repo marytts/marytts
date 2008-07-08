@@ -64,16 +64,16 @@ public class RealisedAcoustparamsExtractor extends InternalModule
     public RealisedAcoustparamsExtractor()
     {
         super("Realised acoustparams extractor",
-              MaryDataType.get("AUDIO"),
-              MaryDataType.get("REALISED_ACOUSTPARAMS")
-              );
+              MaryDataType.AUDIO,
+              MaryDataType.REALISED_ACOUSTPARAMS,
+              null);
     }
 
     public MaryData process(MaryData d)
     throws Exception
     {
         Document doc = d.getDocument();
-        MaryData result = new MaryData(outputType());
+        MaryData result = new MaryData(outputType(), d.getLocale());
         result.setDocument(doc);
         return result;
     }

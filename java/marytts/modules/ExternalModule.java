@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.util.LinkedList;
+import java.util.Locale;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioSystem;
@@ -119,6 +120,7 @@ public class ExternalModule implements MaryModule
     private String cmd;
     private MaryDataType inputType;
     private MaryDataType outputType;
+    private Locale locale;
     protected int state;
     protected Process process;
     protected OutputStream to;
@@ -156,7 +158,7 @@ public class ExternalModule implements MaryModule
      */
     protected Process getProcess() { return process; }
 
-    protected ExternalModule(String name, String cmd, MaryDataType inputType, MaryDataType outputType)
+    protected ExternalModule(String name, String cmd, MaryDataType inputType, MaryDataType outputType, Locale locale)
     throws NoSuchPropertyException
     {
         // Exceptions ocurring at this stage should make the program abort.
@@ -164,6 +166,7 @@ public class ExternalModule implements MaryModule
         this.cmd = cmd;
         this.inputType = inputType;
         this.outputType = outputType;
+        this.locale = locale;
         this.timeLimit = MaryProperties.needInteger("modules.timeout");
         this.requestQueue = new LinkedList();
         this.state = MODULE_OFFLINE;
@@ -235,6 +238,7 @@ public class ExternalModule implements MaryModule
     public String name() { return name; }
     public MaryDataType inputType() { return inputType; }
     public MaryDataType outputType() { return outputType; }
+    public Locale getLocale() { return locale; }
     public int getState() { return state; }
     public synchronized void startup() throws Exception {
         assert state == MODULE_OFFLINE;
@@ -242,7 +246,7 @@ public class ExternalModule implements MaryModule
         open();
         setNeedToRestart(false);
         logger = Logger.getLogger(name());
-        logger.info("Module started.");
+        logger.info("Module started ("+inputType()+"->"+outputType()+", locale "+getLocale()+").");
         state = MODULE_RUNNING;
     }
 
@@ -255,13 +259,18 @@ public class ExternalModule implements MaryModule
         assert state == MODULE_RUNNING;
         logger.info("Starting power-on self test.");
         try {
-            MaryData in = new MaryData(inputType);
-            in.readFrom(new StringReader(inputType.exampleText()));
-            if (outputType.equals(MaryDataType.get("AUDIO")))
-                in.setAudioFileFormat(new AudioFileFormat(
-                    AudioFileFormat.Type.WAVE, Voice.AF22050, AudioSystem.NOT_SPECIFIED)
-                );
-            process(in);
+            MaryData in = new MaryData(inputType, getLocale());
+            String example = inputType.exampleText(getLocale());
+            if (example != null) {
+                in.readFrom(new StringReader(example));
+                if (outputType.equals(MaryDataType.get("AUDIO")))
+                    in.setAudioFileFormat(new AudioFileFormat(
+                            AudioFileFormat.Type.WAVE, Voice.AF22050, AudioSystem.NOT_SPECIFIED)
+                    );
+                process(in);
+            } else {
+                logger.debug("No example text -- no power-on self test!");
+            }
         } catch (Throwable t) {
             throw new Error("Module " + name + ": Power-on self test failed.", t);
         }
@@ -298,7 +307,7 @@ public class ExternalModule implements MaryModule
         d.writeTo(to());
         // Read from external module
         logger.info("Reading from module.");
-        MaryData result = new MaryData(outputType());
+        MaryData result = new MaryData(outputType(), d.getLocale());
         result.readFrom(from(), outputType().endMarker());
         logger.info("Read complete.");
         return result;

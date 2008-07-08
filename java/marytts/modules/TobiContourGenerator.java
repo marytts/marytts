@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Stack;
 import java.util.WeakHashMap;
@@ -94,9 +95,11 @@ public class TobiContourGenerator extends InternalModule {
     private Map tobiMap;
     private String tobirulefilePropertyName;
 
-    public TobiContourGenerator(MaryDataType inputType, MaryDataType outputType, String phonemeSetPropertyName, String tobirulefilePropertyName)
+    public TobiContourGenerator(MaryDataType inputType, MaryDataType outputType, 
+            Locale locale,
+            String phonemeSetPropertyName, String tobirulefilePropertyName)
     {
-        super("ContourGenerator", inputType, outputType);
+        super("ContourGenerator", inputType, outputType, locale);
         this.phonemeSetPropertyName = phonemeSetPropertyName;
         this.tobirulefilePropertyName = tobirulefilePropertyName;
     }
@@ -106,7 +109,7 @@ public class TobiContourGenerator extends InternalModule {
         // We depend on the Synthesis module:
         MaryModule synthesis;
         try{ 
-            synthesis= Mary.getModule(marytts.modules.Synthesis.class);
+            synthesis = ModuleRegistry.getModule(marytts.modules.Synthesis.class);
         } catch (NullPointerException npe){
             synthesis = new Synthesis();
         }
@@ -160,7 +163,7 @@ public class TobiContourGenerator extends InternalModule {
             Element sentence = (Element) sentences.item(i);
             processSentence(sentence);
         }
-        MaryData result = new MaryData(outputType());
+        MaryData result = new MaryData(outputType(), d.getLocale());
         result.setDocument(doc);
         return result;
     }
@@ -377,7 +380,7 @@ public class TobiContourGenerator extends InternalModule {
         // In any case, if we do not have a voice now,
         // use the global default voice:
         if (voice == null) {
-            voice = Voice.getDefaultVoice(inputType().getLocale());
+            voice = Voice.getDefaultVoice(getLocale());
         }
         int topStart = voice.topStart();
         int topEnd = voice.topEnd();

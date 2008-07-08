@@ -64,9 +64,9 @@ public class MaryXMLToMbrola extends InternalModule
     public MaryXMLToMbrola()
     {
         super("MaryXMLToMbrola",
-              MaryDataType.get("ACOUSTPARAMS"),
-              MaryDataType.get("MBROLA")
-              );
+              MaryDataType.ACOUSTPARAMS,
+              MaryDataType.MBROLA,
+              null);
     }
 
     public MaryData process(MaryData d)
@@ -121,7 +121,7 @@ public class MaryXMLToMbrola extends InternalModule
         if (!elements.isEmpty()) {
             buf.append(convertToMbrola(elements, currentVoice));
         }
-        MaryData result = new MaryData(outputType());
+        MaryData result = new MaryData(outputType(), d.getLocale());
         result.setPlainText(buf.toString());
         return result;
     }

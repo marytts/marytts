@@ -102,6 +102,7 @@ public class AsynchronousThreadedMaryClient extends Thread {
         processor.process(latestRequest,
                           "RAWMARYXML",
                           "AUDIO",
+                          latestRequestVoice.getLocale().toString(),
                           "AU",
                           latestRequestVoice.name(),
                           os);

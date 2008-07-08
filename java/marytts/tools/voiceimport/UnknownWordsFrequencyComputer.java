@@ -89,7 +89,7 @@ public class UnknownWordsFrequencyComputer extends VoiceImportComponent
         }    
         
         maryInputType = "RAWMARYXML";
-        maryOutputType = "PHONEMISED_EN";
+        maryOutputType = "PHONEMES";
     }
      
      public SortedMap getDefaultProps(DatabaseLayout db){
@@ -165,7 +165,7 @@ public class UnknownWordsFrequencyComputer extends VoiceImportComponent
         String voiceName = defaultVoice.name();*/
         //maryClient.process(text, maryInputType, maryOutputType, null, null, os);
        
-        maryClient.process(text, maryInputType, maryOutputType, null, "slt-arctic", os);
+        maryClient.process(text, maryInputType, maryOutputType, locale, null, "slt-arctic", os);
         //maryClient.process(text, maryInputType, maryOutputType, null, "slt-arctic", os, timeout);
         //maryClient.getOutputDataTypes().size()
         //MaryData result = new MaryData(os);
@@ -176,7 +176,7 @@ public class UnknownWordsFrequencyComputer extends VoiceImportComponent
         //System.out.println(" TO STRING: "+new FileReader(pfeatFile).toString());
         //BufferedReader bfr = new BufferedReader(new FileReader(pfeatFile)); 
         String line;
-        MaryData d = new MaryData(MaryDataType.get("PHONEMISED_EN"));
+        MaryData d = new MaryData(MaryDataType.get("PHONEMISED_EN"), Locale.US);
         //d.readFrom(new ByteArrayInputStream(os.toByteArray()));
         d.readFrom(new FileReader(pfeatFile));
        

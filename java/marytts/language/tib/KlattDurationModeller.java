@@ -32,6 +32,7 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.WeakHashMap;
@@ -39,8 +40,10 @@ import java.util.WeakHashMap;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
+import marytts.language.tib.datatypes.TibetanDataTypes;
 import marytts.modules.InternalModule;
 import marytts.modules.MaryModule;
+import marytts.modules.ModuleRegistry;
 import marytts.modules.phonemiser.Phoneme;
 import marytts.modules.phonemiser.PhonemeSet;
 import marytts.server.Mary;
@@ -79,13 +82,16 @@ public class KlattDurationModeller extends InternalModule {
 
     public KlattDurationModeller()
     {
-        super("KlattDurationModeller", MaryDataType.get("PHRASES_TIB"), MaryDataType.get("DURATIONS_TIB"));
+        super("KlattDurationModeller", 
+                TibetanDataTypes.PHRASES_TIB, 
+                MaryDataType.DURATIONS,
+                new Locale("tib"));
     }
 
     public void startup() throws Exception {
         super.startup();
         // We depend on the Synthesis module:
-        MaryModule synthesis = Mary.getModule(marytts.modules.Synthesis.class);
+        MaryModule synthesis = ModuleRegistry.getModule(marytts.modules.Synthesis.class);
         assert synthesis != null;
         if (synthesis.getState() == MaryModule.MODULE_OFFLINE)
             synthesis.startup();
@@ -111,7 +117,7 @@ public class KlattDurationModeller extends InternalModule {
             Element sentence = (Element) sentences.item(i);
             processSentence(sentence);
         }
-        MaryData result = new MaryData(outputType());
+        MaryData result = new MaryData(outputType(), d.getLocale());
         result.setDocument(doc);
         return result;
     }

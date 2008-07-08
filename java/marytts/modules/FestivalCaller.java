@@ -74,8 +74,8 @@ public class FestivalCaller extends SynthesisCallerBase
     public FestivalCaller()
     {
         super("FestivalCaller",
-              MaryDataType.get("FESTIVAL_UTT"),
-              MaryDataType.get("AUDIO")
+              MaryDataType.FESTIVAL_UTT,
+              MaryDataType.AUDIO
               );
         timeout = MaryProperties.needInteger("modules.timeout");
 

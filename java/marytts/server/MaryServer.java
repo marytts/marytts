@@ -40,6 +40,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -59,6 +60,7 @@ import marytts.signalproc.effects.BaseAudioEffect;
 import marytts.signalproc.effects.EffectsApplier;
 import marytts.unitselection.UnitSelectionVoice;
 import marytts.unitselection.interpolation.InterpolatingVoice;
+import marytts.util.MaryUtils;
 import marytts.util.audio.MaryAudioUtils;
 
 import org.apache.log4j.Logger;
@@ -105,7 +107,7 @@ import org.apache.log4j.Logger;
  * The list of input and output data types can be requested from the server by
  * sending it a line "MARY LIST DATATYPES". The server will reply with a list of lines
  * where each line represents one data type, e.g. "RAWMARYXML INPUT OUTPUT",
-        "TEXT_DE LOCALE=de INPUT" or "AUDIO OUTPUT".
+        "TEXT INPUT" or "AUDIO OUTPUT".
  * See the code in MaryClient.fillDataTypes().  
  * <p>
  * The optional AUDIO=AUDIOTYPE specifies the type of audio file
@@ -290,12 +292,9 @@ public class MaryServer {
             } else if (inputLine.startsWith("MARY LIST DATATYPES")) {
                 logger.debug("InfoRequest " + inputLine);
                 // List all known datatypes
-                Vector allTypes = MaryDataType.getDataTypes();
-                for (Iterator it = allTypes.iterator(); it.hasNext();) {
-                    MaryDataType t = (MaryDataType) it.next();
+                List<MaryDataType> allTypes = MaryDataType.getDataTypes();
+                for (MaryDataType t : allTypes) {
                     outputWriter.print(t.name());
-                    if (t.getLocale() != null)
-                        outputWriter.print(" LOCALE=" + t.getLocale());
                     if (t.isInputType())
                         outputWriter.print(" INPUT");
                     if (t.isOutputType())
@@ -356,12 +355,15 @@ public class MaryServer {
                 if (st.hasMoreTokens()) {
                     String typeName = st.nextToken();
                     try {
+                        // next should be locale:
+                        Locale locale = MaryUtils.string2locale(st.nextToken());
                         MaryDataType type = MaryDataType.get(typeName);
-                        // if we get here, the type exists
-                        assert type != null;
-                        String exampleText = type.exampleText();
-                        if (exampleText != null)
-                            outputWriter.println(exampleText.trim());
+                        if (type != null) {
+                            String exampleText = type.exampleText(locale);
+                            if (exampleText != null)
+                                outputWriter.println(exampleText.trim());
+                            
+                        }
                     } catch (Error err) {} // type doesn't exist
                 }
                 // upon failure, simply return nothing
@@ -662,6 +664,7 @@ public class MaryServer {
                 String helper = null;
                 MaryDataType inputType = null;
                 MaryDataType outputType = null;
+                Locale locale = null;
                 Voice voice = null;
                 String style = "";
                 String effects = "";
@@ -678,9 +681,8 @@ public class MaryServer {
                     if (tt.countTokens() == 2 && tt.nextToken().equals("IN")) {
                         // The value of IN=
                         helper = tt.nextToken(); // the input type
-                        if (MaryDataType.exists(helper)) {
-                            inputType = MaryDataType.get(helper);
-                        } else {
+                        inputType = MaryDataType.get(helper);
+                        if (inputType == null) {
                             throw new Exception("Invalid input type: " + helper);
                         }
                     } else {
@@ -696,9 +698,8 @@ public class MaryServer {
                     if (tt.countTokens() == 2 && tt.nextToken().equals("OUT")) {
                         // The value of OUT=
                         helper = tt.nextToken(); // the output type
-                        if (MaryDataType.exists(helper)) {
-                            outputType = MaryDataType.get(helper);
-                        } else {
+                        outputType = MaryDataType.get(helper);
+                        if (outputType == null) {
                             throw new Exception("Invalid output type: " + helper);
                         }
                     } else {
@@ -706,6 +707,20 @@ public class MaryServer {
                     }
                 } else { // OUT is required
                     throw new Exception("Expected OUT=<OUTPUTTYPE>");
+                }
+                // LOCALE=
+                if (t.hasMoreTokens()) {
+                    String token = t.nextToken();
+                    StringTokenizer tt = new StringTokenizer(token, "=");
+                    if (tt.countTokens() == 2 && tt.nextToken().equals("LOCALE")) {
+                        // The value of LOCALE=
+                        helper = tt.nextToken(); // the output type
+                        locale = MaryUtils.string2locale(helper);
+                    } else {
+                        throw new Exception("Expected LOCALE=<locale>");
+                    }
+                } else { // LOCALE is required
+                    throw new Exception("Expected LOCALE=<locale>");
                 }
                 if (t.hasMoreTokens()) {
                     String token = t.nextToken();
@@ -743,11 +758,8 @@ public class MaryServer {
                             // the values of VOICE=
                             String voiceName = tt.nextToken();
                             if ((voiceName.equals("male") || voiceName.equals("female"))
-                                && (inputType.getLocale() != null || outputType.getLocale() != null)) {
+                                && locale != null) {
                                 // Locale-specific interpretation of gender
-                                Locale locale = inputType.getLocale();
-                                if (locale == null)
-                                    locale = outputType.getLocale();
                                 voice = Voice.getVoice(locale, new Voice.Gender(voiceName));
                             } else {
                                 // Plain old voice name
@@ -763,11 +775,6 @@ public class MaryServer {
                     }
                     if (voice == null) {
                         // no voice tag -- use locale default
-                        Locale locale = inputType.getLocale();
-                        if (locale == null)
-                            locale = outputType.getLocale();
-                        if (locale == null)
-                            locale = Locale.GERMAN;
                         voice = Voice.getDefaultVoice(locale);
                         logger.debug("No voice requested -- using default " + voice);
                     }
@@ -855,7 +862,7 @@ public class MaryServer {
                 }
                 audioFileFormat = new AudioFileFormat(audioFileFormatType, audioFormat, AudioSystem.NOT_SPECIFIED);
 
-                Request request = new Request(inputType, outputType, voice, effects, style, id, audioFileFormat, streamingAudio);
+                Request request = new Request(inputType, outputType, locale, voice, effects, style, id, audioFileFormat, streamingAudio);
                 outputWriter.println(id);
                 //   -- create new clientMap entry
                 Object[] value = new Object[2];

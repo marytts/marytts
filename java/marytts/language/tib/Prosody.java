@@ -28,7 +28,10 @@
  */
 package marytts.language.tib;
 
+import java.util.Locale;
+
 import marytts.datatypes.MaryDataType;
+import marytts.language.tib.datatypes.TibetanDataTypes;
 import marytts.modules.ProsodyGeneric;
 import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
@@ -45,7 +48,9 @@ public class Prosody extends ProsodyGeneric
 {
     public Prosody()
     {
-        super(MaryDataType.get("TONES_TIB"), MaryDataType.get("PHRASES_TIB"),
+        super(TibetanDataTypes.TONES_TIB,
+                TibetanDataTypes.PHRASES_TIB,
+                new Locale("tib"),
             "tibetan.prosody.tobipredparams", null, null, "tibetan.prosody.paragraphdeclination");
     }
     

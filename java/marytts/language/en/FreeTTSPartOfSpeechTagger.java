@@ -34,11 +34,13 @@ import java.io.FileReader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
+import marytts.language.en_US.datatypes.USEnglishDataTypes;
 import marytts.modules.InternalModule;
 import marytts.modules.synthesis.FreeTTSVoices;
 import marytts.server.MaryProperties;
@@ -68,8 +70,9 @@ public class FreeTTSPartOfSpeechTagger extends InternalModule
     public FreeTTSPartOfSpeechTagger()
     {
         super("PartOfSpeechTagger",
-              MaryDataType.get("FREETTS_WORDS_EN"),
-              MaryDataType.get("FREETTS_POS_EN")
+              USEnglishDataTypes.FREETTS_WORDS,
+              USEnglishDataTypes.FREETTS_POS,
+              Locale.ENGLISH
               );
         
     }
@@ -94,7 +97,7 @@ public class FreeTTSPartOfSpeechTagger extends InternalModule
             //processor.processUtterance(utterance);
             processUtterance(utterance);
         }
-        MaryData output = new MaryData(outputType());
+        MaryData output = new MaryData(outputType(), d.getLocale());
         output.setUtterances(utterances);
         return output;
     }

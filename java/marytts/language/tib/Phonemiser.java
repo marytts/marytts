@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -47,6 +48,7 @@ import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.NoSuchPropertyException;
+import marytts.language.tib.datatypes.TibetanDataTypes;
 import marytts.modules.InternalModule;
 import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
@@ -77,7 +79,10 @@ public class Phonemiser extends InternalModule {
      * Constructor
      */
     public Phonemiser() {
-        super("TibetanPhonemiser", MaryDataType.get("PARSEDSYL_TIB"), MaryDataType.get("PHONEMISED_TIB"));
+        super("TibetanPhonemiser",
+                TibetanDataTypes.PARSEDSYL_TIB,
+                MaryDataType.PHONEMES,
+                new Locale("tib"));
     }
     
     //  document that is parsed 	
@@ -493,7 +498,7 @@ public class Phonemiser extends InternalModule {
             processToken(token);
         }
         //store the result in a new MaryData object and return it
-        MaryData result = new MaryData(outputType());
+        MaryData result = new MaryData(outputType(), d.getLocale());
         result.setDocument(doc);
         return result;
     }

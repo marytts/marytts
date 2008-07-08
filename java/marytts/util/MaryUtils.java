@@ -220,20 +220,6 @@ public class MaryUtils {
         // So now <code>sum</code> is the resulting number.
         return sum;
     }
-
-    /**
-     * Read from Reader until end of file and return the content as one single String.
-     */
-    public static String getContentAsString(Reader r) throws IOException {
-        BufferedReader br = new BufferedReader(r);
-        StringBuffer buf = new StringBuffer();
-        String line;
-        while ((line = br.readLine()) != null) {
-            buf.append(line);
-            buf.append("\n");
-        }
-        return buf.toString();
-    }
     
     /**
       * Tell whether the string contains a positive or negative percentage
@@ -447,7 +433,7 @@ public class MaryUtils {
     public static Locale string2locale(String localeString)
     {
         Locale locale = null;
-        StringTokenizer localeST = new StringTokenizer(localeString, "_");
+        StringTokenizer localeST = new StringTokenizer(localeString, "_-");
         String language = localeST.nextToken();
         String country = "";
         String variant = "";
@@ -461,6 +447,20 @@ public class MaryUtils {
         return locale;
     }
 
+    /**
+     * Convert a locale into a string that is conform with XML's xml:lang attribute.
+     * Basically it is language-COUNTRY, e.g. en-US.
+     * @param locale a locale, must not be null
+     * @return
+     * @throws IllegalArgumentException if locale is null
+     */
+    public static String locale2xmllang(Locale locale) 
+    {
+        if (locale == null) throw new IllegalArgumentException("Locale must not be null");
+        return locale.getLanguage()+"-"+locale.getCountry();
+    }
+    
+    
     /**
      * Test for lax Locale equality. More precisely, returns true if
      * (a) both are equal; (b) general only specifies language, and

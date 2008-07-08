@@ -84,6 +84,7 @@ import org.xml.sax.SAXException;
  */
 public class MaryData {
     private MaryDataType type;
+    private Locale locale;
     // Only one of the following data representations should be non-null
     // for a given instance; which one depends on our type.
     private Document xmlDocument = null;
@@ -108,14 +109,15 @@ public class MaryData {
     private boolean doValidate;
     private boolean doWarnClient = false;
 
-    public MaryData(MaryDataType type) {
-        this(type, false);
+    public MaryData(MaryDataType type, Locale locale) {
+        this(type, locale, false);
     }
 
-    public MaryData(MaryDataType type, boolean createStubDocument) {
+    public MaryData(MaryDataType type, Locale locale, boolean createStubDocument) {
         if (type == null)
             throw new NullPointerException("Received null type for MaryData");
         this.type = type;
+        this.locale = locale;
         // The following is the default setting for module output (we suppose
         // that for the input data, setValidating() is called as appropriate):
         doValidate = MaryProperties.getBoolean("maryxml.validate.modules", false);
@@ -226,8 +228,13 @@ public class MaryData {
         }
     }
 
-    public MaryDataType type() {
+    public MaryDataType getType() {
         return type;
+    }
+    
+    public Locale getLocale()
+    {
+        return locale;
     }
 
     /**
@@ -467,8 +474,8 @@ public class MaryData {
         // check that voice locale fits before accepting the voice:
         Locale voiceLocale = null;
         if (voice != null) voiceLocale = voice.getLocale();
-        Locale docLocale = type().getLocale();
-        if (docLocale == null && type().isXMLType() && getDocument() != null
+        Locale docLocale = getLocale();
+        if (docLocale == null && getType().isXMLType() && getDocument() != null
                 && getDocument().getDocumentElement().hasAttribute("xml:lang")) {
             docLocale = MaryUtils.string2locale(getDocument().getDocumentElement().getAttribute("xml:lang"));
         }
@@ -523,24 +530,24 @@ public class MaryData {
     {
         if (md == null)
             throw new NullPointerException("Received null marydata");
-        if (!md.type().equals(this.type()))
+        if (!md.getType().equals(this.getType()))
             throw new IllegalArgumentException("Cannot append mary data of type `" +
-              md.type().name() + "' to mary data of type `" + this.type().name() + "'");
-        if (type().isXMLType()) {
+              md.getType().name() + "' to mary data of type `" + this.getType().name() + "'");
+        if (getType().isXMLType()) {
             NodeList kids = md.getDocument().getDocumentElement().getChildNodes();
             logger.debug("Appending " + kids.getLength() + " nodes to MaryXML structure");
             Element docEl = this.getDocument().getDocumentElement();
             for (int i=0; i<kids.getLength(); i++) {
                 docEl.appendChild(this.getDocument().importNode(kids.item(i), true));
             }
-        } else if (type().isTextType()) {
+        } else if (getType().isTextType()) {
             // Attention: XML type is a text type!
             this.plainText = this.plainText + "\n\n" + md.getPlainText();
-        } else if (type().equals(MaryDataType.get("AUDIO"))) {
+        } else if (getType().equals(MaryDataType.get("AUDIO"))) {
             appendAudio(md.getAudio());
         } else {
             throw new UnsupportedOperationException("Cannot append two mary data items of type `"
-             + type() + "'");
+             + getType() + "'");
         }
     }
 

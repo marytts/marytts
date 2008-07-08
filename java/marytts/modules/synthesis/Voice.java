@@ -61,6 +61,7 @@ import marytts.exceptions.SynthesisException;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.TargetFeatureComputer;
 import marytts.modules.MaryModule;
+import marytts.modules.ModuleRegistry;
 import marytts.modules.phonemiser.Phoneme;
 import marytts.modules.phonemiser.PhonemeSet;
 import marytts.modules.phonemiser.Syllabifier;
@@ -496,7 +497,7 @@ public class Voice
             while (st.hasMoreTokens()) {
                 String className = st.nextToken();
                 try {
-                    MaryModule mm = Mary.getModule(Class.forName(className));
+                    MaryModule mm = ModuleRegistry.getModule(Class.forName(className));
                     if (mm == null) {
                         // need to create our own:
                         logger.warn("Module "+className+" is not in the standard list of modules -- will start our own, but will not be able to shut it down at the end.");
@@ -855,8 +856,8 @@ public class Voice
 
 
     public static Voice getSuitableVoice(MaryData d) {
-        Locale docLocale = d.type().getLocale();
-        if (docLocale == null && d.type().isXMLType() && d.getDocument() != null
+        Locale docLocale = d.getLocale();
+        if (docLocale == null && d.getType().isXMLType() && d.getDocument() != null
                 && d.getDocument().getDocumentElement().hasAttribute("xml:lang")) {
             docLocale = MaryUtils.string2locale(d.getDocument().getDocumentElement().getAttribute("xml:lang"));
         }

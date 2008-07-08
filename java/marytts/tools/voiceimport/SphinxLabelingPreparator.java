@@ -36,6 +36,7 @@ import marytts.client.MaryClient;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
+import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
@@ -306,9 +307,9 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
                 //System.out.println(nextTrans);
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
                 //process and dump
-                mary.process(nextTrans, inputFormat, outputFormat, null, null, os);
+                mary.process(nextTrans, inputFormat, outputFormat, locale, null, null, os);
                 //read into mary data object                
-                MaryData maryData = new MaryData(MaryDataType.get(outputFormat));
+                MaryData maryData = new MaryData(MaryDataType.get(outputFormat), MaryUtils.string2locale(locale));
                 maryData.readFrom(new ByteArrayInputStream(os.toByteArray()));
                 Document doc = maryData.getDocument();
                 

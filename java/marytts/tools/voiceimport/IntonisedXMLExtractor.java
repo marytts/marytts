@@ -57,13 +57,7 @@ public class IntonisedXMLExtractor extends VoiceImportComponent
         }    
         
         maryInputType = "RAWMARYXML";
-        if(locale.startsWith("en")){
-            maryOutputType = "INTONATION_EN";
-        }
-        else if(locale.startsWith("de")){
-            maryOutputType = "INTONISED_DE";
-        }
-        
+        maryOutputType = "INTONATION";
     }
      
      public SortedMap getDefaultProps(DatabaseLayout db){
@@ -170,7 +164,7 @@ public class IntonisedXMLExtractor extends VoiceImportComponent
         
         MaryClient.Voice defaultVoice = (MaryClient.Voice) voices.firstElement();
         String voiceName = defaultVoice.name();
-        maryClient.process(text, maryInputType, maryOutputType, null, voiceName, os);
+        maryClient.process(text, maryInputType, maryOutputType, db.getProp(db.LOCALE), null, voiceName, os);
         os.flush();
         os.close();
     }

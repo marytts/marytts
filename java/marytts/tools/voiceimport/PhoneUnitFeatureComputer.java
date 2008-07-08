@@ -70,12 +70,7 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
             System.out.print("Created successfully.\n");
         }  
         
-        if(locale.startsWith("en")){
-            maryInputType = "INTONATION_EN";
-        }
-        else if(locale.startsWith("de")){
-            maryInputType = "INTONISED_DE";
-        }
+        maryInputType = "INTONATION";
         maryOutputType = "TARGETFEATURES";
     }
      
@@ -175,7 +170,7 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
         MaryClient.Voice defaultVoice = (MaryClient.Voice) voices.firstElement();
         String voiceName = defaultVoice.name();
         //maryClient.process(text, maryInputType, maryOutputType, null, null, os);
-        maryClient.process(text, maryInputType, maryOutputType, null, voiceName, os);
+        maryClient.process(text, maryInputType, maryOutputType, locale, null, voiceName, os);
         os.flush();
         os.close();
     }

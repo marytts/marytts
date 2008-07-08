@@ -67,7 +67,7 @@ public abstract class SynthesisCallerBase extends InternalModule
     protected SynthesisCallerBase(String name, MaryDataType inputType,
 			       MaryDataType outputType)
     {
-        super(name, inputType, outputType);
+        super(name, inputType, outputType, null);
     }
         
     public synchronized void startup() throws Exception {
@@ -120,7 +120,7 @@ public abstract class SynthesisCallerBase extends InternalModule
                          defaultVoice.getName());
         }
         
-        MaryData result = new MaryData(outputType());
+        MaryData result = new MaryData(outputType(), d.getLocale());
         result.setAudioFileFormat(d.getAudioFileFormat());
         AudioFormat targetFormat = d.getAudioFileFormat().getFormat();
         if (d.getAudio() != null) {

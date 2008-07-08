@@ -167,9 +167,9 @@ public class MaryGUIClient extends JPanel
     private MaryClient processor;
 
     private marytts.util.audio.AudioPlayer audioPlayer = null;
-    private Vector availableVoices = null;
-    private Vector inputTypes = null;
-    private Vector outputTypes = null;
+    private Vector<MaryClient.Voice> availableVoices = null;
+    private Vector<MaryClient.DataType> inputTypes = null;
+    private Vector<MaryClient.DataType> outputTypes = null;
     private boolean allowSave;
     private boolean streamMp3 = false;
     private MaryClient.Voice prevVoice = null;
@@ -340,7 +340,6 @@ public class MaryGUIClient extends JPanel
         cbInputType.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
-                    verifyDefaultVoices();
                     verifyExamplesVisible();
                     if (doReplaceInput) {
                         setExampleInputText();
@@ -348,7 +347,7 @@ public class MaryGUIClient extends JPanel
                         // input text was set by other code
                         doReplaceInput = true;
                     }
-                    setOutputTypeItems();
+                    //setOutputTypeItems();
                 }
             }
         });
@@ -917,20 +916,7 @@ public class MaryGUIClient extends JPanel
             setInputText((String) cbVoiceExampleText.getSelectedItem());
         } else {
             try {
-                String key = inputType.name();
-                String exampleText;
-                if (inputType.getLocale() == null) {
-                    // for data types without locale, test if we can get example text.
-                    // If not, try to get example text with voice locale.
-                    try {
-                        exampleText = processor.getServerExampleText(key);
-                    } catch (IOException err) {
-                        key = inputType.name() + "_" + defaultVoice.getLocale().getLanguage().toUpperCase();
-                        exampleText = processor.getServerExampleText(key);
-                    }
-                } else {
-                    exampleText = processor.getServerExampleText(key);
-                }
+                String exampleText = processor.getServerExampleText(inputType.name(), defaultVoice.getLocale().toString());
                 setInputText(exampleText);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -993,28 +979,19 @@ public class MaryGUIClient extends JPanel
         }
     }
 
+    
     /**
      * Verify that the list of voices in cbDefaultVoices matches the language of the input format.
      */
     private void verifyDefaultVoices() 
     {
         MaryClient.DataType inputType = (MaryClient.DataType)cbInputType.getSelectedItem();
-        Locale inputLocale = null;
-        if (inputType != null) inputLocale = inputType.getLocale();
         // Is the default voice still suitable for the input locale?
         MaryClient.Voice defaultVoice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
-        Locale voiceLocale = null;
-        if (defaultVoice != null) voiceLocale = defaultVoice.getLocale();
-        if (inputLocale != null && voiceLocale != null && !voiceLocale.equals(inputLocale))
-            defaultVoice = null;
         // Reset the list, just in case
         cbDefaultVoice.removeAllItems();
-        Iterator it = availableVoices.iterator();
-        while (it.hasNext()) {
-            MaryClient.Voice v = (MaryClient.Voice) it.next();
-            if (inputLocale == null || v.getLocale().equals(inputLocale)) {
-                cbDefaultVoice.addItem(v);
-            }
+        for (MaryClient.Voice v : availableVoices) {
+            cbDefaultVoice.addItem(v);
         }
         if (defaultVoice != null) {
             cbDefaultVoice.setSelectedItem(defaultVoice);
@@ -1022,6 +999,7 @@ public class MaryGUIClient extends JPanel
             cbDefaultVoice.setSelectedIndex(0);
         }
     }
+
 
     /**
      * Divides the example text of a voice into
@@ -1040,17 +1018,10 @@ public class MaryGUIClient extends JPanel
     private void setOutputTypeItems()
     {
         MaryClient.DataType inputType = (MaryClient.DataType) cbInputType.getSelectedItem();
-        Locale inputLocale = inputType.getLocale();
         MaryClient.DataType selectedItem = (MaryClient.DataType) cbOutputType.getSelectedItem();
         cbOutputType.removeAllItems();
-        for (Iterator it = outputTypes.iterator(); it.hasNext(); ) {
-            MaryClient.DataType d = (MaryClient.DataType) it.next();
-            Locale locale = d.getLocale();
-            if (inputLocale == null ||
-                    locale == null ||
-                    inputLocale.equals(locale)) {
-                cbOutputType.addItem(d);
-            }
+        for (MaryClient.DataType d : outputTypes) {
+            cbOutputType.addItem(d);
         }
         cbOutputType.setSelectedItem(selectedItem);
     }
@@ -1178,6 +1149,7 @@ public class MaryGUIClient extends JPanel
                     } else { // OK, we know what to do
                         processor.process(inputText.getText(),
                                 ((MaryClient.DataType)cbInputType.getSelectedItem()).name(),
+                                ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).getLocale().toString(),
                                 "AUDIO",
                                 audioType,
                                 ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
@@ -1251,6 +1223,7 @@ public class MaryGUIClient extends JPanel
                     } else { // OK, we know what to do
                         processor.process(inputText.getText(),
                                 ((MaryClient.DataType)cbInputType.getSelectedItem()).name(),
+                                ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).getLocale().toString(),
                                 "AUDIO",
                                 audioType.toString(),
                                 ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
@@ -1322,6 +1295,7 @@ public class MaryGUIClient extends JPanel
                 audioPlayer = new marytts.util.audio.AudioPlayer();
                 processor.streamAudio(inputText.getText(), 
                         ((MaryClient.DataType)cbInputType.getSelectedItem()).name(),
+                        ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).getLocale().toString(),
                         streamMp3 ? "MP3":"WAVE",
                                 ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
                                 "",
@@ -1351,6 +1325,7 @@ public class MaryGUIClient extends JPanel
                 os = new ByteArrayOutputStream();
                 processor.process(inputText.getText(),
                         ((MaryClient.DataType)cbInputType.getSelectedItem()).name(),
+                        ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).getLocale().toString(),
                         outputType.name(),
                         null,
                         ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),

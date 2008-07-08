@@ -28,7 +28,10 @@
  */
 package marytts.language.en;
 
+import java.util.Locale;
+
 import marytts.datatypes.MaryDataType;
+import marytts.language.en_US.datatypes.USEnglishDataTypes;
 import marytts.modules.Utt2XMLBase;
 
 import org.w3c.dom.Element;
@@ -51,9 +54,9 @@ public class Utt2XMLWordsEn extends Utt2XMLBase
     public Utt2XMLWordsEn()
     {
         super("Utt2XML WordsEn",
-              MaryDataType.get("FREETTS_WORDS_EN"),
-              MaryDataType.get("WORDS_EN")
-              );
+              USEnglishDataTypes.FREETTS_WORDS,
+              MaryDataType.WORDS,
+              Locale.ENGLISH);
     }
 
     /**

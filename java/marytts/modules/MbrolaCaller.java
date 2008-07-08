@@ -69,7 +69,7 @@ public class MbrolaCaller extends SynthesisCallerBase {
     }
 
     public MbrolaCaller() throws NoSuchPropertyException {
-        super("MbrolaCaller", MaryDataType.get("MBROLA"), MaryDataType.get("AUDIO"));
+        super("MbrolaCaller", MaryDataType.MBROLA, MaryDataType.AUDIO);
         String basePath = System.getProperty("mary.base") + File.separator + "bin" + File.separator;
         baseCmd = basePath + "mbrola";
         timeout = MaryProperties.needInteger("modules.timeout");

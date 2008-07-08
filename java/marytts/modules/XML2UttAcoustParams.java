@@ -30,6 +30,7 @@ package marytts.modules;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import marytts.datatypes.MaryDataType;
 import marytts.modules.synthesis.FreeTTSVoices;
@@ -55,9 +56,9 @@ public class XML2UttAcoustParams extends XML2UttBase
     public XML2UttAcoustParams()
     {
         super("XML2Utt AcoustParams",
-              MaryDataType.get("ACOUSTPARAMS"),
-              MaryDataType.get("FREETTS_ACOUSTPARAMS")
-              );
+              MaryDataType.ACOUSTPARAMS,
+              MaryDataType.FREETTS_ACOUSTPARAMS,
+              null);
     }
 
     public void powerOnSelfTest() throws Error

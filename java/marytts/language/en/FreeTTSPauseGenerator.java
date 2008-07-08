@@ -30,9 +30,11 @@ package marytts.language.en;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
+import marytts.language.en_US.datatypes.USEnglishDataTypes;
 import marytts.modules.InternalModule;
 import marytts.modules.synthesis.FreeTTSVoices;
 
@@ -55,8 +57,9 @@ public class FreeTTSPauseGenerator extends InternalModule
     public FreeTTSPauseGenerator()
     {
         super("PauseGenerator",
-              MaryDataType.get("FREETTS_SEGMENTS_EN"),
-              MaryDataType.get("FREETTS_PAUSES_EN")
+              USEnglishDataTypes.FREETTS_SEGMENTS,
+              USEnglishDataTypes.FREETTS_PAUSES,
+              Locale.ENGLISH
               );
     }
 
@@ -78,7 +81,7 @@ public class FreeTTSPauseGenerator extends InternalModule
             Utterance utterance = (Utterance) it.next();
             processor.processUtterance(utterance);
         }
-        MaryData output = new MaryData(outputType());
+        MaryData output = new MaryData(outputType(), d.getLocale());
         output.setUtterances(utterances);
         return output;
     }

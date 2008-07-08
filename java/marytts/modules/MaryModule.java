@@ -29,6 +29,8 @@
 package marytts.modules;
 
 // DOM classes
+import java.util.Locale;
+
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 
@@ -60,6 +62,13 @@ public interface MaryModule
     /** The type of output data produced by this module. */
     public MaryDataType outputType();
 
+    /** The locale of this module, i.e. the locale of data that this
+     * module can process. If null, indicates that the module can use
+     * data of any locale (i.e., the module is language-independent.) 
+     * @return the locale of this module, if any, or null
+     */ 
+    public Locale getLocale();
+    
     /**
      * Allow the module to start up, performing whatever is necessary
      * to become operational. After successful completion, getState()

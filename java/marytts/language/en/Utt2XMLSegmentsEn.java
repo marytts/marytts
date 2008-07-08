@@ -28,8 +28,11 @@
  */
 package marytts.language.en;
 
+import java.util.Locale;
+
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
+import marytts.language.en_US.datatypes.USEnglishDataTypes;
 import marytts.modules.Utt2XMLBase;
 
 import org.w3c.dom.Document;
@@ -53,9 +56,9 @@ public class Utt2XMLSegmentsEn extends Utt2XMLBase
     public Utt2XMLSegmentsEn()
     {
         super("Utt2XML SegmentsEn",
-              MaryDataType.get("FREETTS_SEGMENTS_EN"),
-              MaryDataType.get("SEGMENTS_EN")
-              );
+              USEnglishDataTypes.FREETTS_SEGMENTS,
+              MaryDataType.PHONEMES,
+              Locale.ENGLISH);
     }
 
     /**

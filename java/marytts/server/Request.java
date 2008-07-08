@@ -52,6 +52,7 @@ import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.modules.MaryModule;
+import marytts.modules.ModuleRegistry;
 import marytts.modules.synthesis.Voice;
 import marytts.util.MaryUtils;
 import marytts.util.dom.DomUtils;
@@ -89,6 +90,7 @@ public class Request {
     private MaryDataType outputType;
     private AudioFileFormat audioFileFormat;
     private AppendableSequenceAudioInputStream appendableAudioStream;
+    private Locale defaultLocale;
     private Voice defaultVoice;
     private String defaultStyle;
     private String defaultEffects;
@@ -105,14 +107,14 @@ public class Request {
     private Set<MaryModule> usedModules;
     private Map<MaryModule,Long> timingInfo;
 
-    public Request(MaryDataType inputType, MaryDataType outputType, 
+    public Request(MaryDataType inputType, MaryDataType outputType, Locale defaultLocale,
                    Voice defaultVoice, String defaultEffects, String defaultStyle,
                    int id, AudioFileFormat audioFileFormat)
     {
-    	this(inputType, outputType, defaultVoice, defaultEffects, defaultStyle, id, audioFileFormat, false);
+    	this(inputType, outputType, defaultLocale, defaultVoice, defaultEffects, defaultStyle, id, audioFileFormat, false);
     }
     
-    public Request(MaryDataType inputType, MaryDataType outputType, 
+    public Request(MaryDataType inputType, MaryDataType outputType, Locale defaultLocale,
                    Voice defaultVoice, String defaultEffects, String defaultStyle,
                    int id, AudioFileFormat audioFileFormat, boolean streamAudio)
     {
@@ -122,6 +124,7 @@ public class Request {
             throw new IllegalArgumentException("not an output type: " + outputType.name());
         this.inputType = inputType;
         this.outputType = outputType;
+        this.defaultLocale = defaultLocale;
         this.defaultVoice = defaultVoice;
         this.defaultEffects = defaultEffects;
         this.defaultStyle = defaultStyle;
@@ -166,6 +169,11 @@ public class Request {
     public MaryDataType getOutputType() {
         return outputType;
     }
+    
+    public Locale getDefaultLocale() {
+        return defaultLocale;
+    }
+    
     public Voice getDefaultVoice() {
         return defaultVoice;
     }
@@ -204,12 +212,12 @@ public class Request {
      * of a MaryData object.
      */
     public void setInputData(MaryData inputData) {
-        if (inputData != null && inputData.type() != inputType) {
+        if (inputData != null && inputData.getType() != inputType) {
             throw new IllegalArgumentException(
                 "Input data has wrong data type (expected "
                     + inputType.toString()
                     + ", got "
-                    + inputData.type().toString());
+                    + inputData.getType().toString());
         }
         if (defaultVoice == null) {
             defaultVoice = Voice.getSuitableVoice(inputData);
@@ -229,7 +237,7 @@ public class Request {
      * Read the input data from a Reader.
      */
     public void readInputData(Reader inputReader) throws Exception {
-        inputData = new MaryData(inputType);
+        inputData = new MaryData(inputType, defaultLocale);
         inputData.setWarnClient(true); // log warnings to client
         // For RAWMARYXML, a validating parse is not possible
         // because RAWMARYXML is not tokenised, so it does not yet
@@ -284,13 +292,13 @@ public class Request {
             if (appendableAudioStream != null) appendableAudioStream.doneAppending();
             return;
         }
-        assert rawmaryxml != null && rawmaryxml.type().equals(MaryDataType.get("RAWMARYXML"))
+        assert rawmaryxml != null && rawmaryxml.getType().equals(MaryDataType.get("RAWMARYXML"))
         && rawmaryxml.getDocument() != null;
         moveBoundariesIntoParagraphs(rawmaryxml.getDocument()); 
         
         // Now the beyond-RAWMARYXML processing:
         if (outputType.isMaryXML()) {
-            outputData = new MaryData(outputType);
+            outputData = new MaryData(outputType, defaultLocale);
             // use the input or intermediate MaryXML document
             // as the starting point for MaryXML output types,
             // in order to gradually enrich them:
@@ -318,7 +326,7 @@ public class Request {
                     //assert outParagraphList.getLength() == 1;
                     outputNodeList = outParagraphList;
                 } else { // output is not MaryXML, e.g. text or audio
-                    if (outputData == null || outputData.type().equals(MaryDataType.get("AUDIO"))) {
+                    if (outputData == null || outputData.getType().equals(MaryDataType.get("AUDIO"))) {
                         // Appending is done elsewhere for audio
                         outputData = oneOutputData;
                     } else {
@@ -349,9 +357,9 @@ public class Request {
     private MaryData processOneChunk(MaryData oneInputData, MaryDataType oneOutputType) 
     throws TransformerConfigurationException, FileNotFoundException, TransformerException, IOException, Exception {
         if (logger.getEffectiveLevel().equals(Level.DEBUG)
-            && (oneInputData.type().isTextType() || oneInputData.type().isXMLType())) {
+            && (oneInputData.getType().isTextType() || oneInputData.getType().isXMLType())) {
             logger.debug("Now converting the following input data from "
-                    + oneInputData.type() + " to " + oneOutputType + ":");
+                    + oneInputData.getType() + " to " + oneOutputType + ":");
             ByteArrayOutputStream dummy = new ByteArrayOutputStream();
             oneInputData.writeTo(dummy);
             // side effect: writeTo() writes to log if debug
@@ -359,7 +367,7 @@ public class Request {
         Locale locale = determineLocale(oneInputData);
         assert locale != null;
         logger.debug("Determining which modules to use");
-        List<MaryModule> neededModules = Mary.modulesRequiredForProcessing(oneInputData.type(), oneOutputType, locale, oneInputData.getDefaultVoice());
+        List<MaryModule> neededModules = ModuleRegistry.modulesRequiredForProcessing(oneInputData.getType(), oneOutputType, locale, oneInputData.getDefaultVoice());
         // Now neededModules contains references to the needed modules,
         // in the order in which they are to process the data.
         if (neededModules == null) {
@@ -396,7 +404,7 @@ public class Request {
                 currentData.setAudio(appendableAudioStream);
             }
             if (logger.getEffectiveLevel().equals(Level.DEBUG)
-                && (currentData.type().isTextType() || currentData.type().isXMLType())) {
+                && (currentData.getType().isTextType() || currentData.getType().isXMLType())) {
                 logger.debug("Handing the following data to the next module:");
                 ByteArrayOutputStream dummy = new ByteArrayOutputStream();
                 currentData.writeTo(dummy);
@@ -444,10 +452,11 @@ public class Request {
      */
     private NodeList splitIntoChunks(MaryData rawmaryxml)
     {
+        // TODO: replace this with code that combines this and the splitting functionality of Synthesis: one chunk is one locale and one voice
         if (rawmaryxml == null)
             throw new NullPointerException("Received null data");
-        if (rawmaryxml.type() != MaryDataType.get("RAWMARYXML"))
-            throw new IllegalArgumentException("Expected data of type RAWMARYXML, got " + rawmaryxml.type());
+        if (rawmaryxml.getType() != MaryDataType.get("RAWMARYXML"))
+            throw new IllegalArgumentException("Expected data of type RAWMARYXML, got " + rawmaryxml.getType());
         if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
                 logger.debug("Now splitting the following RAWMARYXML data into chunks:");
                 ByteArrayOutputStream dummy = new ByteArrayOutputStream();
@@ -602,15 +611,11 @@ public class Request {
      */
     private MaryData extractParagraphAsMaryData(MaryData maryxml, Element paragraph)
     {
-        if (!maryxml.type().isMaryXML()) {
+        if (!maryxml.getType().isMaryXML()) {
             throw new IllegalArgumentException("Expected MaryXML data");
         }
-        MaryData md = new MaryData(maryxml.type());
         String rootLanguage = maryxml.getDocument().getDocumentElement().getAttribute("xml:lang");
-        md.setDefaultVoice(maryxml.getDefaultVoice());
-        //md.setAudioEffects(maryxml.getAudioEffects());
         Document newDoc = MaryXML.newDocument();
-        md.setDocument(newDoc);
         Element newRoot = newDoc.getDocumentElement();
         // Now import not only the paragraph itself (with substructure,
         // but also all the nodes above it (without substructure).
@@ -637,6 +642,10 @@ public class Request {
             }
         }
         newRoot.setAttribute("xml:lang", language);
+        MaryData md = new MaryData(maryxml.getType(), MaryUtils.string2locale(language));
+        md.setDefaultVoice(maryxml.getDefaultVoice());
+        //md.setAudioEffects(maryxml.getAudioEffects());
+        md.setDocument(newDoc);
         return md;
     }
 
@@ -648,36 +657,23 @@ public class Request {
      * @return
      */
     private Locale determineLocale(MaryData data) {
-        Locale locale = data.type().getLocale();
-        if (locale == null) {
-        	if (data.type().isXMLType()) {
-	            // We can determine the locale if the document element
-	            // has an xml:lang attribute.
-	            Document doc = data.getDocument();
-	            if (doc != null) {
-	                Element docEl = doc.getDocumentElement();
-	                if (docEl != null) {
-	                    String langCode = docEl.getAttribute("xml:lang");
-	                    if (langCode.equals("")) {
-	                        logger.debug("XML root element does not have an xml:lang attribute -- assuming English");
-	                        locale = Locale.ENGLISH;
-	                    } else {
-	                        locale = MaryUtils.string2locale(langCode);
-	                    }
-	                }
-	            }
-        	} else if (data.type().name().equals("TEXT")) {
-	            Voice voice = data.getDefaultVoice();
-	            if (voice != null) locale = voice.getLocale();
-        	}
+        Locale locale = null;
+        if (data.getType().isXMLType()) {
+            // We can determine the locale if the document element
+            // has an xml:lang attribute.
+            Document doc = data.getDocument();
+            if (doc != null) {
+                Element docEl = doc.getDocumentElement();
+                if (docEl != null) {
+                    String langCode = docEl.getAttribute("xml:lang");
+                    if (!langCode.equals("")) {
+                        locale = MaryUtils.string2locale(langCode);
+                    }
+                }
+            }
         }
-
-        // If we get here and still do not have a locale, it is usually
-        // an error (but not always, e.g. not for MBROLA input data)
         if (locale == null) {
-            locale = Locale.getDefault();
-            logger.warn("Received null locale for data of type " + data.type().name() +
-            " -- setting to default " + locale);
+            locale = defaultLocale;
         }
         return locale;
     }

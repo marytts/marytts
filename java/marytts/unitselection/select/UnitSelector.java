@@ -36,6 +36,7 @@ import java.util.List;
 import marytts.exceptions.SynthesisException;
 import marytts.features.FeatureVector;
 import marytts.modules.MaryModule;
+import marytts.modules.ModuleRegistry;
 import marytts.modules.XML2UttAcoustParams;
 import marytts.modules.synthesis.FreeTTSVoices;
 import marytts.server.Mary;
@@ -77,7 +78,7 @@ public class UnitSelector
         // Try to get instances of our tools from Mary; if we cannot get them,
         // instantiate new objects.
         try {
-            x2u = (XML2UttAcoustParams) Mary.getModule(XML2UttAcoustParams.class);
+            x2u = (XML2UttAcoustParams) ModuleRegistry.getModule(XML2UttAcoustParams.class);
         }catch(NullPointerException npe){
             x2u = null;
         }

@@ -50,6 +50,7 @@ import marytts.exceptions.SynthesisException;
 import marytts.modules.MaryModule;
 import marytts.modules.MaryXMLToMbrola;
 import marytts.modules.MbrolaCaller;
+import marytts.modules.ModuleRegistry;
 import marytts.modules.synthesis.Voice.Gender;
 import marytts.server.Mary;
 import marytts.server.MaryProperties;
@@ -77,7 +78,7 @@ public class MbrolaSynthesizer implements WaveformSynthesizer {
         // instantiate new objects.
         try{
         maryxmlToMbrola =
-            (MaryXMLToMbrola) Mary.getModule(MaryXMLToMbrola.class);
+            (MaryXMLToMbrola) ModuleRegistry.getModule(MaryXMLToMbrola.class);
         } catch (NullPointerException npe){
             maryxmlToMbrola = null;
         }
@@ -97,7 +98,7 @@ public class MbrolaSynthesizer implements WaveformSynthesizer {
 		Class mbrolaClass = MaryProperties.needClass(mbrolaCallerProperty);
 		Object obj;
 		try {
-		    obj = Mary.getModule(mbrolaClass);
+		    obj = ModuleRegistry.getModule(mbrolaClass);
 		} catch (NullPointerException npe){
 		    obj = null;
 		}
@@ -174,18 +175,20 @@ public class MbrolaSynthesizer implements WaveformSynthesizer {
                  throw new Error("No MBROLA voices present");
              Voice v = (Voice) voices.iterator().next();
              assert v != null;
-             MaryData in = new MaryData(inType);
-             MaryDataType langSpecType = MaryDataType.getLanguageSpecificVersion(inType, v.getLocale());
-             if (langSpecType == null)
-                 throw new NullPointerException("Could not get language specific data type for type "+ inType.name() + ", language "+v.getLocale());
-             in.readFrom(new StringReader(langSpecType.exampleText()));
-             in.setDefaultVoice(v);
-             MaryData mbrola = maryxmlToMbrola.process(in);
-             mbrola.setAudioFileFormat(new AudioFileFormat(
-                     AudioFileFormat.Type.WAVE, Voice.AF22050, AudioSystem.NOT_SPECIFIED)
-                 );
-             mbrola.setDefaultVoice(v);
-             mbrolaCaller.process(mbrola);
+             MaryData in = new MaryData(inType, v.getLocale());
+             String example = inType.exampleText(v.getLocale());
+             if (example != null) {
+                 in.readFrom(new StringReader(example));
+                 in.setDefaultVoice(v);
+                 MaryData mbrola = maryxmlToMbrola.process(in);
+                 mbrola.setAudioFileFormat(new AudioFileFormat(
+                         AudioFileFormat.Type.WAVE, Voice.AF22050, AudioSystem.NOT_SPECIFIED)
+                     );
+                 mbrola.setDefaultVoice(v);
+                 mbrolaCaller.process(mbrola);
+             } else {
+                 logger.debug("No example text -- no power-on self test!");
+             }
          } catch (Throwable t) {
              throw new Error("Module " + toString() + ": Power-on self test failed.", t);
          }

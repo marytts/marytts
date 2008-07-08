@@ -64,8 +64,8 @@ public class RequestTest extends TestCase {
     }
 
     public void testSetInputData() {
-        Request r = new Request(MaryDataType.get("TEXT_DE"), MaryDataType.get("ACOUSTPARAMS"), null, "", "", 1, null);
-        MaryData md = new MaryData(MaryDataType.get("RAWMARYXML"));
+        Request r = new Request(MaryDataType.get("TEXT_DE"), MaryDataType.get("ACOUSTPARAMS"), Locale.GERMAN, null, "", "", 1, null);
+        MaryData md = new MaryData(MaryDataType.get("RAWMARYXML"), null);
         try {
             r.setInputData(md);
         } catch (IllegalArgumentException e) {
@@ -75,7 +75,7 @@ public class RequestTest extends TestCase {
     }
 
     public void testProcess1() throws Exception {
-        Request r = new Request(MaryDataType.get("TEXT_EN"), MaryDataType.get("ACOUSTPARAMS"), null, "", "", 1, null);
+        Request r = new Request(MaryDataType.get("TEXT_EN"), MaryDataType.get("ACOUSTPARAMS"), Locale.US, null, "", "", 1, null);
         try {
             r.process();
         } catch (NullPointerException e) {
@@ -85,8 +85,8 @@ public class RequestTest extends TestCase {
     }
 
     public void testProcess2() throws Exception {
-        Request r = new Request(MaryDataType.get("RAWMARYXML"), MaryDataType.get("ACOUSTPARAMS"), null, "", "", 1, null);
-        MaryData md = new MaryData(MaryDataType.get("RAWMARYXML"), true);
+        Request r = new Request(MaryDataType.get("RAWMARYXML"), MaryDataType.get("ACOUSTPARAMS"), null, null, "", "", 1, null);
+        MaryData md = new MaryData(MaryDataType.get("RAWMARYXML"), null, true);
         Document d = md.getDocument();
         Element elt = d.getDocumentElement();
         if (elt.hasAttribute("xml:lang"))
@@ -102,9 +102,9 @@ public class RequestTest extends TestCase {
 
     public void testProcess3() throws Exception {
         // ask for an impossible conversion:
-        Request r = new Request(MaryDataType.get("INTONATION_EN"), MaryDataType.get("TOKENS_EN"), null, "", "", 1, null);
-        MaryData md = new MaryData(MaryDataType.get("INTONATION_EN"));
-        md.readFrom(new StringReader(MaryDataType.get("INTONATION_EN").exampleText()), null);
+        Request r = new Request(MaryDataType.get("INTONATION"), MaryDataType.get("TOKENS"), Locale.US, null, "", "", 1, null);
+        MaryData md = new MaryData(MaryDataType.get("INTONATION"), Locale.US);
+        md.readFrom(new StringReader(MaryDataType.get("INTONATION").exampleText(Locale.US)), null);
         r.setInputData(md);
         try {
             r.process();
@@ -119,9 +119,9 @@ public class RequestTest extends TestCase {
         AudioFormat af = voice.dbAudioFormat();
         AudioFileFormat aff = new AudioFileFormat(AudioFileFormat.Type.WAVE,
             af, AudioSystem.NOT_SPECIFIED);
-        Request r = new Request(MaryDataType.get("TEXT_EN"), MaryDataType.get("AUDIO"),
+        Request r = new Request(MaryDataType.get("TEXT_EN"), MaryDataType.get("AUDIO"), Locale.US, 
             voice, "", "", 1, aff);
-        MaryData md = new MaryData(MaryDataType.get("TEXT_EN"));
+        MaryData md = new MaryData(MaryDataType.get("TEXT_EN"), Locale.US);
         md.setPlainText("This is a test.");
         r.setInputData(md);
         r.process();
@@ -133,13 +133,13 @@ public class RequestTest extends TestCase {
         InputStream maryxml = this.getClass().getResourceAsStream("test2.maryxml");
         Assert.assertTrue(maryxml != null);
         MaryDataType rawmaryxml = MaryDataType.get("RAWMARYXML");
-        MaryData inputData = new MaryData(rawmaryxml);
+        MaryData inputData = new MaryData(rawmaryxml, null);
         inputData.readFrom(maryxml, null);
-        Request r = new Request(rawmaryxml, rawmaryxml, null, "", "", 1, null);
+        Request r = new Request(rawmaryxml, rawmaryxml, null, null, "", "", 1, null);
         r.setInputData(inputData);
         r.process();
         MaryData processedOut = r.getOutputData();
-        MaryData targetOut = new MaryData(rawmaryxml);
+        MaryData targetOut = new MaryData(rawmaryxml, null);
         targetOut.readFrom(this.getClass().getResourceAsStream("test2_result.maryxml"), null);
         try {
             assertTrue(DomUtils.areEqual(targetOut.getDocument(), processedOut.getDocument()));
@@ -155,9 +155,9 @@ public class RequestTest extends TestCase {
     }
     
     public void testWriteOutputData1() throws Exception {
-        Request r = new Request(MaryDataType.get("RAWMARYXML"), MaryDataType.get("RAWMARYXML"), null, "", "", 1, null);
-        MaryData md = new MaryData(MaryDataType.get("RAWMARYXML"));
-        md.readFrom(new StringReader(MaryDataType.get("RAWMARYXML_EN").exampleText()), null);
+        Request r = new Request(MaryDataType.get("RAWMARYXML"), MaryDataType.get("RAWMARYXML"), null, null, "", "", 1, null);
+        MaryData md = new MaryData(MaryDataType.get("RAWMARYXML"), null);
+        md.readFrom(new StringReader(MaryDataType.get("RAWMARYXML").exampleText(Locale.US)), null);
         r.setInputData(md);
         r.process();
         try {
@@ -173,9 +173,9 @@ public class RequestTest extends TestCase {
         AudioFormat af = voice.dbAudioFormat();
         AudioFileFormat aff = new AudioFileFormat(AudioFileFormat.Type.WAVE,
             af, AudioSystem.NOT_SPECIFIED);
-        Request r = new Request(MaryDataType.get("TEXT_EN"), MaryDataType.get("AUDIO"),
+        Request r = new Request(MaryDataType.get("TEXT"), MaryDataType.get("AUDIO"), Locale.US,
             voice, "", "", 1, aff);
-        MaryData md = new MaryData(MaryDataType.get("TEXT_EN"));
+        MaryData md = new MaryData(MaryDataType.get("TEXT"), Locale.US);
         md.setPlainText("This is a test.");
         r.setInputData(md);
         r.process();

@@ -28,8 +28,11 @@
  */
 package marytts.language.en;
 
+import java.util.Locale;
+
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
+import marytts.language.en_US.datatypes.USEnglishDataTypes;
 import marytts.modules.Utt2XMLBase;
 
 import org.w3c.dom.Document;
@@ -53,9 +56,9 @@ public class Utt2XMLDurationsEn extends Utt2XMLBase
     public Utt2XMLDurationsEn()
     {
         super("Utt2XML DurationsEn",
-              MaryDataType.get("FREETTS_MBROLISED_DURATIONS_EN"),
-              MaryDataType.get("DURATIONS_EN")
-              );
+              USEnglishDataTypes.FREETTS_MBROLISED_DURATIONS,
+              MaryDataType.DURATIONS,
+              Locale.ENGLISH);
     }
 
     /**

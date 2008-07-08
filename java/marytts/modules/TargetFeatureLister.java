@@ -64,14 +64,15 @@ public class TargetFeatureLister extends InternalModule
     public TargetFeatureLister(MaryDataType outputType)
     {
         super("TargetFeatureLister",
-                MaryDataType.get("FREETTS_ACOUSTPARAMS"), 
-                outputType);
+                MaryDataType.FREETTS_ACOUSTPARAMS, 
+                outputType,
+                null);
     }
 
 
     public TargetFeatureLister()
     {
-        this(MaryDataType.get("TARGETFEATURES"));
+        this(MaryDataType.TARGETFEATURES);
     }
     
     public MaryData process(MaryData d)
@@ -111,7 +112,7 @@ public class TargetFeatureLister extends InternalModule
         }
         // Leave an empty line between sections:
         String out = header + "\n" + text + "\n" + bin;
-        MaryData result = new MaryData(outputType());
+        MaryData result = new MaryData(outputType(), d.getLocale());
         result.setPlainText(out);
         return result;
     }

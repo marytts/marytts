@@ -28,8 +28,11 @@
  */
 package marytts.language.en;
 
+import java.util.Locale;
+
 import marytts.datatypes.MaryDataType;
 import marytts.language.en.features.FeatureProcessorManager;
+import marytts.language.en_US.datatypes.USEnglishDataTypes;
 
 
 /**
@@ -43,8 +46,9 @@ public class CARTF0Modeller extends marytts.modules.CARTF0Modeller
     public CARTF0Modeller()
     {
         super("CARTF0Modeller",
-                MaryDataType.get("FREETTS_MBROLISED_DURATIONS_EN"),
-                MaryDataType.get("FREETTS_ACOUSTPARAMS"),
+                USEnglishDataTypes.FREETTS_MBROLISED_DURATIONS,
+                MaryDataType.FREETTS_ACOUSTPARAMS,
+                Locale.ENGLISH,
                 "english.f0.",
                 new FeatureProcessorManager()
               );

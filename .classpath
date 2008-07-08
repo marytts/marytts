@@ -13,7 +13,7 @@
 	<classpathentry kind="lib" path="java/java-diff.jar"/>
 	<classpathentry kind="lib" path="java/freetts-germanlex.jar"/>
 	<classpathentry kind="lib" path="java/freetts-de.jar"/>
-	<classpathentry kind="lib" path="build/standalone-compiler.jar"/>
+	<classpathentry kind="lib" path="build/standalone-compiler.jar" sourcepath="/Users/marc/src/IzPack-3.10.2/src/lib"/>
 	<classpathentry kind="lib" path="java/jl1.0.jar"/>
 	<classpathentry kind="lib" path="java/JavaOpenAIR.jar"/>
 	<classpathentry kind="lib" path="java/Jama-1.0.2.jar"/>
@@ -25,5 +25,6 @@
 	<classpathentry kind="lib" path="java/jorbis-0.0.15.jar"/>
 	<classpathentry kind="lib" path="java/jogg-0.0.7.jar"/>
 	<classpathentry kind="lib" path="java/fast-md5.jar"/>
+	<classpathentry kind="lib" path="java/commons-collections-3.2.1.jar" sourcepath="java/commons-collections-3.2.1-sources.jar"/>
 	<classpathentry kind="output" path="java"/>
 </classpath>

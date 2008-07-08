@@ -36,6 +36,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import marytts.cart.CART;
 import marytts.cart.RegressionTree;
@@ -84,9 +85,10 @@ public class CARTF0Modeller extends InternalModule
      * @param propertyPrefix the prefix to be used when looking up entries in the config files, e.g. "english.f0"
      */
     protected CARTF0Modeller(String name, MaryDataType inputType, MaryDataType outputType,
+            Locale locale,
             String propertyPrefix, FeatureProcessorManager featureProcessorManager)
     {
-        super(name, inputType, outputType);
+        super(name, inputType, outputType, locale);
         if (propertyPrefix.endsWith(".")) this.propertyPrefix = propertyPrefix;
         else this.propertyPrefix = propertyPrefix + ".";
         this.featureProcessorManager = featureProcessorManager;
@@ -221,7 +223,7 @@ public class CARTF0Modeller extends InternalModule
                 }
             }
         }
-        MaryData output = new MaryData(outputType());
+        MaryData output = new MaryData(outputType(), d.getLocale());
         output.setUtterances(utterances);
         return output;
     }

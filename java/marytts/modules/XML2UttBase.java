@@ -77,9 +77,9 @@ public abstract class XML2UttBase extends InternalModule
     protected int nextTargetIndex = 1;
     
     
-    public XML2UttBase(String name, MaryDataType input, MaryDataType output)
+    public XML2UttBase(String name, MaryDataType input, MaryDataType output, Locale locale)
     {
-        super(name, input, output);
+        super(name, input, output, locale);
     }
 
 
@@ -154,7 +154,7 @@ public abstract class XML2UttBase extends InternalModule
             lastUtt.setLast(true);
         }
 
-        MaryData output = new MaryData(outputType());
+        MaryData output = new MaryData(outputType(), d.getLocale());
         output.setUtterances(utterances);
         return output;
     }

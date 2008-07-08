@@ -53,7 +53,8 @@ public class BatchSynth
         File globalOutputDir = new File(args[0]);
         MaryClient mary = new MaryClient();
         String voice = System.getProperty("voice", "us1");
-        String inputFormat = "TEXT_"+System.getProperty("locale", "en").toUpperCase();
+        String inputFormat = "TEXT";
+        String locale = System.getProperty("locale", "en_US");
         long globalStartTime = System.currentTimeMillis();
         int globalCounter = 0;
         for (int i=1; i<args.length; i++) {
@@ -78,7 +79,7 @@ public class BatchSynth
                //remove all backslashes
                sentence = sentence.replaceAll("\\\\","");
                FileOutputStream audio = new FileOutputStream(outputDir+"/"+basename+".wav");
-               mary.process(sentence, inputFormat, "AUDIO", "WAVE", voice, audio);
+               mary.process(sentence, inputFormat, "AUDIO", locale, "WAVE", voice, audio);
                audio.close();
                long endTime = System.currentTimeMillis();
                System.out.println(basename+" synthesized in "+ ((float)(endTime-startTime)/1000.) + " s");
