@@ -643,11 +643,14 @@ public class StringUtils {
         while (str2.length()<maxFeatureStringLen)
             str2 = "0" + str2;
         
-        bRet = true;
+        bRet = false;
         for (int i=0; i<str1.length(); i++)
         {
-            if (Integer.valueOf(String.valueOf(str1.charAt(i)))==1 && Integer.valueOf(String.valueOf(str2.charAt(i)))==0)
-                bRet = false;
+            if (Integer.valueOf(String.valueOf(str1.charAt(i)))==1 && Integer.valueOf(String.valueOf(str2.charAt(i)))==1)
+            {
+                bRet = true;
+                break;
+            }
         }
         
         return bRet;

@@ -109,7 +109,8 @@ public class LsfFileHeader {
     {
         MaryRandomAccessFile stream = new MaryRandomAccessFile(lsfFile, "rw");
 
-        readLsfHeader(stream, bLeaveStreamOpen);
+        if (stream!=null)
+            readLsfHeader(stream, bLeaveStreamOpen);
         
         return stream;
     }

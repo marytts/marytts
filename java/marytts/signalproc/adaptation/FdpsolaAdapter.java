@@ -539,8 +539,8 @@ public class FdpsolaAdapter {
                 currentLabelIndex = -1; 
 
             processFrame(frmIn, isVoiced, 
-                    currentF0, targetF0s[index], modParams.tscalesVar[i], modParams.escalesVar[i], modParams.vscalesVar[i], 
-                    isLastInputFrame, currentPeriod, inputFrameSize, vtMapper, vtData);
+                         currentF0, targetF0s[index], modParams.tscalesVar[i], modParams.escalesVar[i], modParams.vscalesVar[i], 
+                         isLastInputFrame, currentPeriod, inputFrameSize, vtMapper, vtData);
 
             if (baseParams.smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT &&
                     baseParams.smoothingMethod!=SmoothingDefinitions.NO_SMOOTHING)
@@ -793,7 +793,9 @@ public class FdpsolaAdapter {
                         //Different weighting strategies can be tested here, i.e. doing a fuzzy phoneme classification
                         double[] gmmWeights = new double[((JointGMMSet)data).gmms.length];
                         Arrays.fill(gmmWeights, 0.0);
-                        int currentGmmIndex = ((JointGMMSet)data).cgParams.getClassIndex(labels.items[currentLabelIndex].phn);
+                        int currentGmmIndex = -1;
+                        if (currentLabelIndex>=0 && currentLabelIndex<labels.items.length)
+                            currentGmmIndex = ((JointGMMSet)data).cgParams.getClassIndex(labels.items[currentLabelIndex].phn);
                         if (currentGmmIndex>0)
                             gmmWeights[currentGmmIndex] = 1.0;
 
