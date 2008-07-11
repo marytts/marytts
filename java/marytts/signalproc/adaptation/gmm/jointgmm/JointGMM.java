@@ -34,11 +34,13 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import marytts.machinelearning.GMM;
+import marytts.signalproc.adaptation.BaselineFeatureExtractor;
 import marytts.signalproc.adaptation.VocalTractTransformationData;
 import marytts.signalproc.adaptation.codebook.WeightedCodebook;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookMapperParams;
-import marytts.signalproc.adaptation.codebook.WeightedCodebookMatch;
+import marytts.signalproc.adaptation.codebook.WeightedCodebookLsfMatch;
 import marytts.signalproc.adaptation.gmm.GMMMatch;
+import marytts.signalproc.analysis.FeatureFileHeader;
 import marytts.signalproc.analysis.LsfFileHeader;
 import marytts.signalproc.analysis.distance.DistanceComputer;
 import marytts.util.io.MaryRandomAccessFile;
@@ -56,7 +58,8 @@ public class JointGMM {
    public GMM targetMeans; //Means for target
    public GMM covarianceTerms; //Cross-covariance terms required for transformation
                                       // Cov(y,x)_i * inverse(Cov(x,x)_i)
-   public LsfFileHeader lsfParams;
+   public int featureType;
+   public FeatureFileHeader featureParams;
    
    public JointGMM(JointGMM existing)
    {
@@ -65,18 +68,22 @@ public class JointGMM {
            source = new GMM(existing.source);
            targetMeans = new GMM(existing.targetMeans);
            covarianceTerms = new GMM(existing.covarianceTerms);
-           lsfParams = new LsfFileHeader(existing.lsfParams);
+           featureType = existing.featureType;
+           
+           if (existing.featureType == BaselineFeatureExtractor.LSF_FEATURES)
+               featureParams = new LsfFileHeader((LsfFileHeader)existing.featureParams);
        }
        else
        {
            source = null;
            targetMeans = null;
            covarianceTerms = null;
-           lsfParams = null;
+           featureType = BaselineFeatureExtractor.NOT_DEFINED;
+           featureParams = null;
        }
    }
    
-   public JointGMM(GMM gmm, LsfFileHeader lsfParamsIn)
+   public JointGMM(GMM gmm, FeatureFileHeader featureParamsIn)
    {
        if (gmm!=null && gmm.featureDimension>0)
        {
@@ -87,6 +94,9 @@ public class JointGMM {
            source.info = gmm.info;
            targetMeans.info = gmm.info;
            covarianceTerms.info = gmm.info;
+           
+           if (featureParamsIn instanceof LsfFileHeader)
+               featureType = BaselineFeatureExtractor.LSF_FEATURES;
            
            int i, j;
            for (i=0; i<gmm.totalComponents; i++)
@@ -101,14 +111,16 @@ public class JointGMM {
                covarianceTerms.components[i].covMatrix = MathUtils.matrixProduct(covarianceTerms.components[i].covMatrix, source.components[i].getInvCovMatrix());
            }
            
-           lsfParams = new LsfFileHeader(lsfParamsIn);
+           if (featureType==BaselineFeatureExtractor.LSF_FEATURES)
+               featureParams = new LsfFileHeader((LsfFileHeader)featureParamsIn);
        }
        else
        {
            source = null;
            targetMeans = null;
            covarianceTerms = null;
-           lsfParams = null;
+           featureType = BaselineFeatureExtractor.NOT_DEFINED;
+           featureParams = null;
        }
    }
    
@@ -122,10 +134,17 @@ public class JointGMM {
        if (stream != null)
        {
            try {
-               lsfParams.writeLsfHeader(stream);
-           } catch (IOException e1) {
+               stream.writeIntEndian(featureType);
+           } catch (IOException e) {
                // TODO Auto-generated catch block
-               e1.printStackTrace();
+               e.printStackTrace();
+           }
+
+           try {
+               featureParams.writeHeader(stream);
+           } catch (IOException e) {
+               // TODO Auto-generated catch block
+               e.printStackTrace();
            }
 
            if (stream!=null)
@@ -152,16 +171,30 @@ public class JointGMM {
        }
    }
 
-   public void read( MaryRandomAccessFile stream)
+   public void read(MaryRandomAccessFile stream)
    {
        if (stream!=null)
        {
-           lsfParams = new LsfFileHeader();
            try {
-               lsfParams.readLsfHeader(stream);
-           } catch (IOException e1) {
+               featureType = stream.readIntEndian();
+           } catch (IOException e) {
                // TODO Auto-generated catch block
-               e1.printStackTrace();
+               e.printStackTrace();
+           }
+
+           if (featureType==BaselineFeatureExtractor.LSF_FEATURES)
+               featureParams = new LsfFileHeader();
+           else
+               featureParams = null;
+           
+           if (featureParams!=null)
+           {
+               try {
+                   featureParams.readHeader(stream);
+               } catch (IOException e) {
+                   // TODO Auto-generated catch block
+                   e.printStackTrace();
+               }
            }
 
            if (stream!=null)
@@ -195,7 +228,6 @@ public class JointGMM {
                    // TODO Auto-generated catch block
                    e.printStackTrace();
                }
-
            }
        }
    }

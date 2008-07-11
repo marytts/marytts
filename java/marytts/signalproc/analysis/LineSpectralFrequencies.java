@@ -442,8 +442,8 @@ public class LineSpectralFrequencies
         int ws =  (int)Math.floor(params.winsize*params.samplingRate+0.5);
         int ss = (int)Math.floor(params.skipsize*params.samplingRate+0.5);
 
-        if (params.lpOrder<1)
-            params.lpOrder = SignalProcUtils.getLPOrder(params.samplingRate);
+        if (params.dimension<1)
+            params.dimension = SignalProcUtils.getLPOrder(params.samplingRate);
         
         AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
         double[] x = signal.getAllData();
@@ -455,7 +455,7 @@ public class LineSpectralFrequencies
         else
             params.numfrm = 0;
         
-        double[][] lsfs = new double[params.numfrm][params.lpOrder];
+        double[][] lsfs = new double[params.numfrm][params.dimension];
         
         double[] wgt;
         int j;
@@ -464,20 +464,20 @@ public class LineSpectralFrequencies
             Arrays.fill(frm, 0.0);
             System.arraycopy(x, i*ss, frm, 0, Math.min(ws, x.length-i*ss));
            
-            lsfs[i] = nonPreemphasizedFrame2LsfsInHz(frm, params.lpOrder, params.samplingRate, params.windowType, params.preCoef);
+            lsfs[i] = nonPreemphasizedFrame2LsfsInHz(frm, params.dimension, params.samplingRate, params.windowType, params.preCoef);
         }
        
         return lsfs;
     }
     
-    public static double[] nonPreemphasizedFrame2Lpcs(double[] nonPreemphasizedFrame, int lpOrder, int samplingRate, int windowType, float preCoef)
+    public static double[] nonPreemphasizedFrame2Lpcs(double[] nonPreemphasizedFrame, int dimension, int samplingRate, int windowType, float preCoef)
     {
         double[] preemphasizedFrame = SignalProcUtils.applyPreemphasis(nonPreemphasizedFrame, preCoef);
         
-        return preemphasizedFrame2Lpcs(preemphasizedFrame, lpOrder, samplingRate, windowType);
+        return preemphasizedFrame2Lpcs(preemphasizedFrame, dimension, samplingRate, windowType);
     }
     
-    public static double[] preemphasizedFrame2Lpcs(double[] preemphasizedFrame, int lpOrder, int samplingRate, int windowType)
+    public static double[] preemphasizedFrame2Lpcs(double[] preemphasizedFrame, int dimension, int samplingRate, int windowType)
     {                    
         DynamicWindow window = new DynamicWindow(windowType);
         double[] wgt = window.values(preemphasizedFrame.length);
@@ -487,24 +487,24 @@ public class LineSpectralFrequencies
             windowedAndPreemphasizedFrame[j] = preemphasizedFrame[j]*wgt[j]; //Windowing
 
 
-        return windowedAndPreemphasizedFrame2Lpcs(windowedAndPreemphasizedFrame, lpOrder, samplingRate);
+        return windowedAndPreemphasizedFrame2Lpcs(windowedAndPreemphasizedFrame, dimension, samplingRate);
     }
     
-    public static double[] windowedAndPreemphasizedFrame2Lpcs(double[] windowedAndPreemphasizedFrame, int lpOrder, int samplingRate)
+    public static double[] windowedAndPreemphasizedFrame2Lpcs(double[] windowedAndPreemphasizedFrame, int dimension, int samplingRate)
     {
         //LPC and LSF analysis
-        LPCoeffs l = LPCAnalyser.calcLPC(windowedAndPreemphasizedFrame, lpOrder);
+        LPCoeffs l = LPCAnalyser.calcLPC(windowedAndPreemphasizedFrame, dimension);
         return l.getOneMinusA();
     }
     
-    public static double[] nonPreemphasizedFrame2LsfsInHz(double[] nonPreemphasizedFrame, int lpOrder, int samplingRate, int windowType, float preCoef)
+    public static double[] nonPreemphasizedFrame2LsfsInHz(double[] nonPreemphasizedFrame, int dimension, int samplingRate, int windowType, float preCoef)
     {
         double[] preemphasizedFrame = SignalProcUtils.applyPreemphasis(nonPreemphasizedFrame, preCoef);
 
-        return preemphasizedFrame2LsfsInHz(preemphasizedFrame, lpOrder, samplingRate, windowType);
+        return preemphasizedFrame2LsfsInHz(preemphasizedFrame, dimension, samplingRate, windowType);
     }
     
-    public static double[] preemphasizedFrame2LsfsInHz(double[] preemphasizedFrame, int lpOrder, int samplingRate, int windowType)
+    public static double[] preemphasizedFrame2LsfsInHz(double[] preemphasizedFrame, int dimension, int samplingRate, int windowType)
     {  
         DynamicWindow window = new DynamicWindow(windowType);
         double[] wgt = window.values(preemphasizedFrame.length);
@@ -514,12 +514,12 @@ public class LineSpectralFrequencies
             windowedAndPreemphasizedFrame[j] = preemphasizedFrame[j]*wgt[j]; //Windowing
         
 
-        return windowedAndPreemphasizedFrame2LsfsInHz(windowedAndPreemphasizedFrame, lpOrder, samplingRate);
+        return windowedAndPreemphasizedFrame2LsfsInHz(windowedAndPreemphasizedFrame, dimension, samplingRate);
     }
     
-    public static double[] windowedAndPreemphasizedFrame2LsfsInHz(double[] windowedAndPreemphasizedFrame, int lpOrder, int samplingRate)
+    public static double[] windowedAndPreemphasizedFrame2LsfsInHz(double[] windowedAndPreemphasizedFrame, int dimension, int samplingRate)
     {
-        double [] lpcs = windowedAndPreemphasizedFrame2Lpcs(windowedAndPreemphasizedFrame, lpOrder, samplingRate);
+        double [] lpcs = windowedAndPreemphasizedFrame2Lpcs(windowedAndPreemphasizedFrame, dimension, samplingRate);
         
         return LineSpectralFrequencies.lpc2lsfInHz(lpcs, samplingRate);
     }
@@ -546,7 +546,7 @@ public class LineSpectralFrequencies
     public static void writeLsfFile(double[][] lsfs, String lsfFileOut, LsfFileHeader params) throws IOException
     {
         params.numfrm = lsfs.length;
-        MaryRandomAccessFile stream = params.writeLsfHeader(lsfFileOut, true);
+        MaryRandomAccessFile stream = params.writeHeader(lsfFileOut, true);
         writeLsfs(stream, lsfs);
     }
     
@@ -564,7 +564,7 @@ public class LineSpectralFrequencies
     public static double[][] readLsfFile(String lsfFile) throws IOException
     {
         LsfFileHeader params = new LsfFileHeader();
-        MaryRandomAccessFile stream = params.readLsfHeader(lsfFile, true);
+        MaryRandomAccessFile stream = params.readHeader(lsfFile, true);
         return readLsfs(stream, params);
     }
     
@@ -572,12 +572,12 @@ public class LineSpectralFrequencies
     {
         double[][] lsfs = null;
         
-        if (stream!=null && params.numfrm>0 && params.lpOrder>0)
+        if (stream!=null && params.numfrm>0 && params.dimension>0)
         {
             lsfs = new double[params.numfrm][];
             
             for (int i=0; i<lsfs.length; i++)
-                lsfs[i] = stream.readDouble(params.lpOrder);
+                lsfs[i] = stream.readDouble(params.dimension);
             
             stream.close();
         }

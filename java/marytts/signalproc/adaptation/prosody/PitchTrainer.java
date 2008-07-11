@@ -8,7 +8,7 @@ import marytts.signalproc.adaptation.IndexMap;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookFeatureCollection;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookFile;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookFileHeader;
-import marytts.signalproc.adaptation.codebook.WeightedCodebookLsfEntry;
+import marytts.signalproc.adaptation.codebook.WeightedCodebookEntry;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookTrainerParams;
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.Lsfs;

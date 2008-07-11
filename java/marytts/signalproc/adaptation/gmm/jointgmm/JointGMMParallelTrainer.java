@@ -128,12 +128,12 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
             GMM gmm = null;
             if (codebook!=null)
             {
-                double[][] xy = new double[codebook.lsfEntries.length][2*codebook.header.lsfParams.lpOrder];
+                double[][] xy = new double[codebook.entries.length][2*codebook.header.lsfParams.dimension];
 
-                for (int i=0; i<codebook.lsfEntries.length; i++)
+                for (int i=0; i<codebook.entries.length; i++)
                 {
-                    System.arraycopy(codebook.lsfEntries[i].sourceItem.lsfs, 0, xy[i], 0, codebook.header.lsfParams.lpOrder);
-                    System.arraycopy(codebook.lsfEntries[i].targetItem.lsfs, 0, xy[i], codebook.header.lsfParams.lpOrder, codebook.header.lsfParams.lpOrder);   
+                    System.arraycopy(codebook.entries[i].sourceItem.lsfs, 0, xy[i], 0, codebook.header.lsfParams.dimension);
+                    System.arraycopy(codebook.entries[i].targetItem.lsfs, 0, xy[i], codebook.header.lsfParams.dimension, codebook.header.lsfParams.dimension);   
                 }
 
                 GMMTrainer g = new GMMTrainer();
@@ -150,16 +150,16 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         {
             double[][] xy = null;
             int[] totals = new int[cgParams.phonemeClasses.length+1];
-            int[] classIndices = new int[codebook.lsfEntries.length];
+            int[] classIndices = new int[codebook.entries.length];
             Arrays.fill(totals, 0);
             int i, n;
             JointGMMSet gmmSet = new JointGMMSet(totals.length, cgParams);
 
             if (codebook!=null)
             {
-                for (i=0; i<codebook.lsfEntries.length; i++)
+                for (i=0; i<codebook.entries.length; i++)
                 {
-                    classIndices[i] = cgParams.getClassIndex(codebook.lsfEntries[i].sourceItem.phn);
+                    classIndices[i] = cgParams.getClassIndex(codebook.entries[i].sourceItem.phn);
                     if (classIndices[i]<0)
                         classIndices[i] = totals.length-1;
                        
@@ -173,7 +173,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
                 int count = 0;
                 if (totals[n]>0)
                 {
-                    xy = new double[totals[n]][2*codebook.header.lsfParams.lpOrder];
+                    xy = new double[totals[n]][2*codebook.header.lsfParams.dimension];
 
                     for (i=0; i<classIndices.length; i++)
                     {
@@ -182,8 +182,8 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
 
                         if (classIndices[i]==n)
                         {
-                            System.arraycopy(codebook.lsfEntries[i].sourceItem.lsfs, 0, xy[count], 0, codebook.header.lsfParams.lpOrder);
-                            System.arraycopy(codebook.lsfEntries[i].targetItem.lsfs, 0, xy[count], codebook.header.lsfParams.lpOrder, codebook.header.lsfParams.lpOrder);
+                            System.arraycopy(codebook.entries[i].sourceItem.lsfs, 0, xy[count], 0, codebook.header.lsfParams.dimension);
+                            System.arraycopy(codebook.entries[i].targetItem.lsfs, 0, xy[count], codebook.header.lsfParams.dimension, codebook.header.lsfParams.dimension);
                             count++;
                         }
                     }
@@ -228,14 +228,15 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
     //Then, any HMM output is to be transformed with the voice conversion function to make it closer to original recordings
     public static void mainHmmVoiceConversion(String[] args) throws UnsupportedAudioFileException, IOException
     {
-        String wavBaseFolder = "D:\\Oytun\\DFKI\\voices\\hmmVoiceConversionTest\\";
+        String wavBaseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/";
+        //String wavBaseFolder = "/home/oytun/";
         String sourceTag = "hmmSource";
         String targetTag = "origTarget";
         String method;
         
-        int numTrainingFiles = 100;
+        int numTrainingFiles = 10;
         boolean isContextualGMMs = false;
-        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {64};
+        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {4};
         //int contextClassificationType = ContextualGMMParams.SILENCE_SPEECH; int[] numComponents = {16, 128};
         //int contextClassificationType = ContextualGMMParams.VOWEL_SILENCE_CONSONANT; int[] numComponents = {128, 16, 128};
         //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS; int[] numComponents = {numMixes};
@@ -249,26 +250,32 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         ContextualGMMParams cg = null;
         int i;
         
-        //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAMES; method = "F"; //Frame-by-frame mapping of features
+        pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAMES; method = "F"; //Frame-by-frame mapping of features
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.FRAME_GROUPS; method = "FG"; pa.codebookHeader.numNeighboursInFrameGroups = 3; //Mapping of frame average features (no label information but fixed amount of neighbouring frames is used)
-        pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABELS; method = "L"; //Mapping of label average features
+        //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABELS; method = "L"; //Mapping of label average features
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABEL_GROUPS; method = "LG"; pa.codebookHeader.numNeighboursInLabelGroups = 1; //Mapping of average features collected across label groups (i.e. vowels, consonants, etc)
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.SPEECH; method = "S"; //Mapping of average features collected across all speech parts (i.e. like spectral equalization)
 
+        pa.vocalTractFeature = BaselineFeatureExtractor.LSF_FEATURES; //Use Lsf features - full speech to speech transformation
+        //pa.vocalTractFeature = BaselineFeatureExtractor.MFCC_FEATURES; //Use MFCC features - currently supports only feature to featur etransformation
+            
         pa.codebookHeader.sourceTag = sourceTag + method; //Source name tag (i.e. style or speaker identity)
         pa.codebookHeader.targetTag = targetTag + method; //Target name tag (i.e. style or speaker identity)
         
-        pa.trainingBaseFolder = "D:\\Oytun\\DFKI\\voices\\hmmVoiceConversionTest\\output\\" + sourceTag + "2" + targetTag; //Training base directory
-        pa.sourceTrainingFolder = wavBaseFolder + sourceTag + "\\train_" + String.valueOf(numTrainingFiles); //Source training folder
-        pa.targetTrainingFolder = wavBaseFolder + targetTag + "\\train_" + String.valueOf(numTrainingFiles); //Target training folder
+        pa.trainingBaseFolder = wavBaseFolder + "output/" + sourceTag + "2" + targetTag; //Training base directory
+        pa.sourceTrainingFolder = wavBaseFolder + sourceTag + "/train_" + String.valueOf(numTrainingFiles) + "/"; //Source training folder
+        pa.targetTrainingFolder = wavBaseFolder + targetTag + "/train_" + String.valueOf(numTrainingFiles) + "/"; //Target training folder
 
         pa.indexMapFileExtension = ".imf"; //Index map file extensions
         
-        pa.codebookHeader.lsfParams.lpOrder = 0; //Auto set
+        pa.codebookHeader.lsfParams.dimension = 0; //Auto set
         pa.codebookHeader.lsfParams.preCoef = 0.97f;
         pa.codebookHeader.lsfParams.skipsize = 0.010f;
         pa.codebookHeader.lsfParams.winsize = 0.020f;
         pa.codebookHeader.lsfParams.windowType = Window.HAMMING;
+        
+        gp.vocalTractFeatureType = BaselineFeatureExtractor.LSF_FEATURES; //Use LSFs for training and transformation - Full wav-to-wav conversion implemented
+        //gp.vocalTractFeatureType = BaselineFeatureExtractor.MFCC_FEATURES; //Use MFCCs for training and transformation - Only feature vector conversion is implemented
         
         //Gaussian trainer params: commenting out results in using default value for each
         gp.isContextualGMMs = isContextualGMMs;
@@ -292,7 +299,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
                 gmmParams[i] = new GMMTrainerParams(gp.gmmEMTrainerParams);
                 gmmParams[i].totalComponents = numComponents[i];
             }
-            String phonemeSetFile = "D:\\Mary TTS New\\lib\\modules\\de\\cap\\phoneme-list-de.xml";
+            String phonemeSetFile = "D:/Mary TTS New/lib/modules/de/cap/phoneme-list-de.xml";
             cg = getContextualGMMParams(phonemeSetFile, gmmParams, contextClassificationType);
         }
         
@@ -431,13 +438,13 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         pa.codebookHeader.sourceTag = sourceTag + method; //Source name tag (i.e. style or speaker identity)
         pa.codebookHeader.targetTag = targetTag + method; //Target name tag (i.e. style or speaker identity)
         
-        pa.trainingBaseFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08_out\\" + sourceTag + "2" + targetTag; //Training base directory
-        pa.sourceTrainingFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08\\" + sourceTag + "\\train_" + String.valueOf(numTrainingFiles); //Source training folder
-        pa.targetTrainingFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08\\" + targetTag + "\\train_" + String.valueOf(numTrainingFiles); //Target training folder
+        pa.trainingBaseFolder = "D:/Oytun/DFKI/voices/Interspeech08_out/" + sourceTag + "2" + targetTag; //Training base directory
+        pa.sourceTrainingFolder = "D:/Oytun/DFKI/voices/Interspeech08/" + sourceTag + "/train_" + String.valueOf(numTrainingFiles); //Source training folder
+        pa.targetTrainingFolder = "D:/Oytun/DFKI/voices/Interspeech08/" + targetTag + "/train_" + String.valueOf(numTrainingFiles); //Target training folder
 
         pa.indexMapFileExtension = ".imf"; //Index map file extensions
         
-        pa.codebookHeader.lsfParams.lpOrder = 0; //Auto set
+        pa.codebookHeader.lsfParams.dimension = 0; //Auto set
         pa.codebookHeader.lsfParams.preCoef = 0.97f;
         pa.codebookHeader.lsfParams.skipsize = 0.010f;
         pa.codebookHeader.lsfParams.winsize = 0.020f;
@@ -465,7 +472,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
                 gmmParams[i] = new GMMTrainerParams(gp.gmmEMTrainerParams);
                 gmmParams[i].totalComponents = numComponents[i];
             }
-            String phonemeSetFile = "D:\\Mary TTS New\\lib\\modules\\de\\cap\\phoneme-list-de.xml";
+            String phonemeSetFile = "D:/Mary TTS New/lib/modules/de/cap/phoneme-list-de.xml";
             cg = getContextualGMMParams(phonemeSetFile, gmmParams, contextClassificationType);
         }
         

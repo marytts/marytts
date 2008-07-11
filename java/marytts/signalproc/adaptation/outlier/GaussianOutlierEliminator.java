@@ -63,28 +63,28 @@ public class GaussianOutlierEliminator {
         
         if (codebookIn!=null)
         {
-            int[] acceptanceStatus = new int[codebookIn.header.totalLsfEntries];
+            int[] acceptanceStatus = new int[codebookIn.header.totalEntries];
             
             double[] lsfDistances = null;
             if (params.isCheckLsfOutliers)
-                lsfDistances = new double[codebookIn.header.totalLsfEntries];
+                lsfDistances = new double[codebookIn.header.totalEntries];
             
             double[] f0Distances = null;
             int[] voicedInds = null;
             if (params.isCheckF0Outliers)
             {
-                f0Distances = new double[codebookIn.header.totalLsfEntries];
-                voicedInds = new int[codebookIn.header.totalLsfEntries];
+                f0Distances = new double[codebookIn.header.totalEntries];
+                voicedInds = new int[codebookIn.header.totalEntries];
                 Arrays.fill(voicedInds, -1);
             }
             
             double[] durationDistances = null;
             if (params.isCheckDurationOutliers)
-                durationDistances = new double[codebookIn.header.totalLsfEntries];
+                durationDistances = new double[codebookIn.header.totalEntries];
             
             double[] energyDistances = null;
             if (params.isCheckEnergyOutliers)
-                energyDistances = new double[codebookIn.header.totalLsfEntries];
+                energyDistances = new double[codebookIn.header.totalEntries];
             
             Arrays.fill(acceptanceStatus, OutlierStatus.NON_OUTLIER);
             
@@ -101,23 +101,23 @@ public class GaussianOutlierEliminator {
             int i;
             
             //Estimate mean of distances between source and target entries
-            for (i=0; i<codebookIn.header.totalLsfEntries; i++)
+            for (i=0; i<codebookIn.header.totalEntries; i++)
             {
                 if (params.isCheckLsfOutliers)
-                    lsfDistances[i] = DistanceComputer.getLsfInverseHarmonicDistance(codebookIn.lsfEntries[i].sourceItem.lsfs, codebookIn.lsfEntries[i].targetItem.lsfs, WeightedCodebookMapperParams.DEFAULT_FREQ_RANGE_FOR_LSF_MATCH);
+                    lsfDistances[i] = DistanceComputer.getLsfInverseHarmonicDistance(codebookIn.entries[i].sourceItem.lsfs, codebookIn.entries[i].targetItem.lsfs, WeightedCodebookMapperParams.DEFAULT_FREQ_RANGE_FOR_LSF_MATCH);
                 
-                if (params.isCheckF0Outliers && codebookIn.lsfEntries[i].sourceItem.f0>10.0 && codebookIn.lsfEntries[i].targetItem.f0>10.0)
+                if (params.isCheckF0Outliers && codebookIn.entries[i].sourceItem.f0>10.0 && codebookIn.entries[i].targetItem.f0>10.0)
                 {
-                    f0Distances[totalVoiced] = codebookIn.lsfEntries[i].sourceItem.f0-codebookIn.lsfEntries[i].targetItem.f0;
+                    f0Distances[totalVoiced] = codebookIn.entries[i].sourceItem.f0-codebookIn.entries[i].targetItem.f0;
                     voicedInds[totalVoiced] = i;
                     totalVoiced++;
                 }
                 
                 if (params.isCheckDurationOutliers)
-                    durationDistances[i] = codebookIn.lsfEntries[i].sourceItem.duration-codebookIn.lsfEntries[i].targetItem.duration;
+                    durationDistances[i] = codebookIn.entries[i].sourceItem.duration-codebookIn.entries[i].targetItem.duration;
                 
                 if (params.isCheckEnergyOutliers)
-                    energyDistances[i] = codebookIn.lsfEntries[i].sourceItem.energy-codebookIn.lsfEntries[i].targetItem.energy;
+                    energyDistances[i] = codebookIn.entries[i].sourceItem.energy-codebookIn.entries[i].targetItem.energy;
             }
             
             if (params.isCheckLsfOutliers)
@@ -139,7 +139,7 @@ public class GaussianOutlierEliminator {
             energyDistanceStdDev = 0.5*Double.MAX_VALUE; 
             f0DistanceStdDev = 0.5*Double.MAX_VALUE;
             
-            if (codebookIn.header.totalLsfEntries>1)
+            if (codebookIn.header.totalEntries>1)
             {
                 if (params.isCheckLsfOutliers)
                     lsfDistanceStdDev = MathUtils.standardDeviation(lsfDistances, lsfDistanceMean);
@@ -159,7 +159,7 @@ public class GaussianOutlierEliminator {
             int totalDurationOutliers = 0;
             int totalF0Outliers = 0;
             int totalEnergyOutliers = 0;
-            for (i=0; i<codebookIn.header.totalLsfEntries; i++)
+            for (i=0; i<codebookIn.header.totalEntries; i++)
             {
                 if (params.isCheckLsfOutliers)
                 {
@@ -198,7 +198,7 @@ public class GaussianOutlierEliminator {
             }
             
             int newTotalEntries = 0;
-            for (i=0; i<codebookIn.header.totalLsfEntries; i++)
+            for (i=0; i<codebookIn.header.totalEntries; i++)
             {
                 if (acceptanceStatus[i]==OutlierStatus.NON_OUTLIER)
                     newTotalEntries++;
@@ -211,16 +211,16 @@ public class GaussianOutlierEliminator {
             headerOut.resetTotalEntries();
             codebookOut.writeCodebookHeader(headerOut);
 
-            for (i=0; i<codebookIn.header.totalLsfEntries; i++)
+            for (i=0; i<codebookIn.header.totalEntries; i++)
             {
                 if (acceptanceStatus[i]==OutlierStatus.NON_OUTLIER)
-                    codebookOut.writeLsfEntry(codebookIn.lsfEntries[i]);
+                    codebookOut.writeEntry(codebookIn.entries[i]);
             }
             
             codebookOut.close();
             //
             
-            System.out.println("Outliers detected = " + String.valueOf(codebookIn.header.totalLsfEntries-newTotalEntries) + " of " + String.valueOf(codebookIn.header.totalLsfEntries));
+            System.out.println("Outliers detected = " + String.valueOf(codebookIn.header.totalEntries-newTotalEntries) + " of " + String.valueOf(codebookIn.header.totalEntries));
             System.out.println("Total lsf outliers = " + String.valueOf(totalLsfOutliers));
             System.out.println("Total f0 outliers = " + String.valueOf(totalF0Outliers));
             System.out.println("Total duration outliers = " + String.valueOf(totalDurationOutliers));

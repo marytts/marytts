@@ -212,8 +212,8 @@ public class WeightedCodebookFile {
         System.out.println("Reading codebook file: "+ currentFile + "...");
         
         int i;
-        for (i=0; i<codebook.header.totalLsfEntries; i++)
-            codebook.lsfEntries[i] = readLsfEntry(codebook.header.lsfParams.lpOrder);
+        for (i=0; i<codebook.header.totalEntries; i++)
+            codebook.entries[i] = readEntry(codebook.header.lsfParams.dimension, codebook.header.mfccParams.dimension);
         
         close();
         
@@ -230,19 +230,19 @@ public class WeightedCodebookFile {
             init(codebookFile, OPEN_FOR_WRITE);
         }
 
-        codebook.header.totalLsfEntries = codebook.lsfEntries.length;
+        codebook.header.totalEntries = codebook.entries.length;
         
         writeCodebookHeader(codebookFile, codebook.header);
 
         int i;
-        for (i=0; i<codebook.header.totalLsfEntries; i++)
-            writeLsfEntry(codebook.lsfEntries[i]);
+        for (i=0; i<codebook.header.totalEntries; i++)
+            writeEntry(codebook.entries[i]);
         
         close();
     }
     
-    //Append a new lsf entry to a codebook file opened with write permission
-    public void writeLsfEntry(WeightedCodebookLsfEntry w)
+    //Append a new codebook entry to a codebook file opened with write permission
+    public void writeEntry(WeightedCodebookEntry w)
     {
         if (status!=OPEN_FOR_WRITE)
         {
@@ -255,14 +255,14 @@ public class WeightedCodebookFile {
         if (status==OPEN_FOR_WRITE)
         {
             w.write(stream);
-            incrementTotalLsfEntries();
+            incrementTotalEntries();
         }
     }
     
-    //Read an lsf entry from a codebook file opened with read permission
-    public WeightedCodebookLsfEntry readLsfEntry(int lpOrder)
+    //Read a codebook entry from a codebook file opened with read permission
+    public WeightedCodebookEntry readEntry(int lpOrder, int mfccDimension)
     {
-        WeightedCodebookLsfEntry w = new WeightedCodebookLsfEntry();
+        WeightedCodebookEntry w = new WeightedCodebookEntry();
         
         if (status!=OPEN_FOR_READ)
         {
@@ -273,24 +273,24 @@ public class WeightedCodebookFile {
         }
         
         if (status==OPEN_FOR_READ)
-            w.read(stream, lpOrder);
+            w.read(stream, lpOrder, mfccDimension);
         
         return w;
     }
     //
     
-    public void incrementTotalLsfEntries()
+    public void incrementTotalEntries()
     {
         if (status==OPEN_FOR_WRITE)
         {
             try {
                 long currentPos = stream.getFilePointer();
                 stream.seek(0);
-                int totalLsfEntries = stream.readInt();
-                totalLsfEntries++;
+                int totalEntries = stream.readInt();
+                totalEntries++;
                 stream.seek(0);
-                stream.writeInt(totalLsfEntries);
-                System.out.println("Wrote LSF entry " + String.valueOf(totalLsfEntries));
+                stream.writeInt(totalEntries);
+                System.out.println("Wrote codebook entry " + String.valueOf(totalEntries));
                 stream.seek(currentPos);
             } catch (IOException e) {
                 // TODO Auto-generated catch block

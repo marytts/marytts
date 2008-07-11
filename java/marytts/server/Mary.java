@@ -147,7 +147,6 @@ public class Mary {
             if (MaryProperties.getAutoBoolean("modules.poweronselftest", false)) {
                 m.powerOnSelfTest();
             }
-
         }
     }
 

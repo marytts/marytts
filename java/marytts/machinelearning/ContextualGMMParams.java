@@ -234,7 +234,7 @@ public class ContextualGMMParams {
             int i;
             
             //Print phns to a text file for easy comparison
-            //StringUtils.writeTextFile(phns, "d:\\phns.txt");
+            //StringUtils.writeTextFile(phns, "d:/phns.txt");
             //
             
             if (contextClassificationType==NO_PHONEME_CLASS) //All phonemes go to the same class, this is identical to non-contextual GMM training

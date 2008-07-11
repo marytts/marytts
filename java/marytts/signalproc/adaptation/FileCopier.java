@@ -79,10 +79,10 @@ public class FileCopier {
         //Determine source and target input sub directories
         sourceInputBaseDir = StringUtils.checkLastSlash(sourceInputBaseDir);
         targetInputBaseDir = StringUtils.checkLastSlash(targetInputBaseDir);
-        String sourceInputWavDir = sourceInputBaseDir + "wav\\";
-        String targetInputWavDir = targetInputBaseDir + "wav\\";
-        String sourceInputLabDir = sourceInputBaseDir + "lab\\";
-        String targetInputLabDir = targetInputBaseDir + "lab\\";
+        String sourceInputWavDir = sourceInputBaseDir + "wav/";
+        String targetInputWavDir = targetInputBaseDir + "wav/";
+        String sourceInputLabDir = sourceInputBaseDir + "lab/";
+        String targetInputLabDir = targetInputBaseDir + "lab/";
         if (!FileUtils.exists(sourceInputWavDir))
         {
             System.out.println("Error! Folder not found: " + sourceInputWavDir); 
@@ -218,23 +218,23 @@ public class FileCopier {
         FileCopier f = new FileCopier();
         String sourceTargetFile, sourceInputBaseDir, targetInputBaseDir, sourceTrainingBaseDir, targetTrainingBaseDir;
         
-        sourceTargetFile = "D:\\Oytun\\DFKI\\voices\\Interspeech08\\mappings-mini-ea.txt";
-        sourceInputBaseDir = "D:\\Oytun\\DFKI\\voices\\DFKI_German_Neutral";
-        sourceTrainingBaseDir = "D:\\Oytun\\DFKI\\voices\\Interspeech08\\neutral";
+        sourceTargetFile = "D:/Oytun/DFKI/voices/Interspeech08/mappings-mini-ea.txt";
+        sourceInputBaseDir = "D:/Oytun/DFKI/voices/DFKI_German_Neutral";
+        sourceTrainingBaseDir = "D:/Oytun/DFKI/voices/Interspeech08/neutral";
         
         //Obadiah_Sad
-        targetInputBaseDir = "D:\\Oytun\\DFKI\\voices\\DFKI_German_Obadiah_Sad";
-        targetTrainingBaseDir = "D:\\Oytun\\DFKI\\voices\\Interspeech08\\sad";
+        targetInputBaseDir = "D:/Oytun/DFKI/voices/DFKI_German_Obadiah_Sad";
+        targetTrainingBaseDir = "D:/Oytun/DFKI/voices/Interspeech08/sad";
         f.copy(sourceTargetFile, sourceInputBaseDir, targetInputBaseDir, sourceTrainingBaseDir, targetTrainingBaseDir);
         
         //Poppy_Happy
-        targetInputBaseDir = "D:\\Oytun\\DFKI\\voices\\DFKI_German_Poppy_Happy";
-        targetTrainingBaseDir = "D:\\Oytun\\DFKI\\voices\\Interspeech08\\happy";
+        targetInputBaseDir = "D:/Oytun/DFKI/voices/DFKI_German_Poppy_Happy";
+        targetTrainingBaseDir = "D:/Oytun/DFKI/voices/Interspeech08/happy";
         f.copy(sourceTargetFile, sourceInputBaseDir, targetInputBaseDir, sourceTrainingBaseDir, targetTrainingBaseDir);
 
         //Spike_Angry
-        targetInputBaseDir = "D:\\Oytun\\DFKI\\voices\\DFKI_German_Spike_Angry";
-        targetTrainingBaseDir = "D:\\Oytun\\DFKI\\voices\\Interspeech08\\angry";
+        targetInputBaseDir = "D:/Oytun/DFKI/voices/DFKI_German_Spike_Angry";
+        targetTrainingBaseDir = "D:/Oytun/DFKI/voices/Interspeech08/angry";
         f.copy(sourceTargetFile, sourceInputBaseDir, targetInputBaseDir, sourceTrainingBaseDir, targetTrainingBaseDir);
     }
 

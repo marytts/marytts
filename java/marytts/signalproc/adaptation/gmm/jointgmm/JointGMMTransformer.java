@@ -75,7 +75,7 @@ public class JointGMMTransformer extends BaselineTransformer {
             }
             
             if (nonNullGmm!=null)
-                params.lsfParams = new LsfFileHeader(nonNullGmm.lsfParams);
+                params.lsfParams = new LsfFileHeader((LsfFileHeader)nonNullGmm.featureParams);
         }
         
         if (nonNullGmm==null)
@@ -376,45 +376,45 @@ public class JointGMMTransformer extends BaselineTransformer {
     
     public static void mainHmmVoiceConversion(String[] args) throws UnsupportedAudioFileException, IOException
     {
-        String wavBaseFolder = "D:\\Oytun\\DFKI\\voices\\hmmVoiceConversionTest\\";
+        String wavBaseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/";
         String sourceTag = "hmmSource";
         String targetTag = "origTarget";
-        String method = "L";
+        String method = "F";
         
         BaselinePreprocessor pp = new BaselinePreprocessor();
         BaselineFeatureExtractor fe = new BaselineFeatureExtractor();
         BaselinePostprocessor po = new BaselinePostprocessor();
         JointGMMTransformerParams pa = new JointGMMTransformerParams();
         
-        int numTrainingFiles = 100; //2, 20, 200, 350
+        int numTrainingFiles = 10;
         int i;
         
         boolean isContextualGMMs = false;
-        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {64};
+        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {512};
         //int contextClassificationType = ContextualGMMParams.SILENCE_SPEECH; int[] numComponents = {16, 128};
         //int contextClassificationType = ContextualGMMParams.VOWEL_SILENCE_CONSONANT; int[] numComponents = {128, 16, 128};
         //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS; int[] numComponents = {numMixes};
         //int contextClassificationType = ContextualGMMParams.FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER; int[] numComponents = {128, 128, 128, 128, 128, 16};
         //int contextClassificationType = ContextualGMMParams.PHONEME_IDENTITY; int[] numComponents = {128};
         
-        String inputFolder = wavBaseFolder + "\\" + sourceTag + "\\test_10\\";
+        String inputFolder = wavBaseFolder + "/" + sourceTag + "/test_40/";
         String outputBaseFolder;
         if (!isContextualGMMs)
         {
-            outputBaseFolder = wavBaseFolder + "output\\gmm" + method + "_" + String.valueOf(numTrainingFiles) + "_" + 
+            outputBaseFolder = wavBaseFolder + "output/gmm" + method + "_" + String.valueOf(numTrainingFiles) + "_" + 
                                String.valueOf(numComponents[0]);
         }
         else
         {
 
-            outputBaseFolder = wavBaseFolder + "output\\gmm" + method + "_" + String.valueOf(numTrainingFiles) + "_" + 
+            outputBaseFolder = wavBaseFolder + "output/gmm" + method + "_" + String.valueOf(numTrainingFiles) + "_" + 
                                "context" + String.valueOf(contextClassificationType);
             
             for (i=0; i<numComponents.length; i++)
                 outputBaseFolder += "_" + String.valueOf(numComponents[i]);
         }
         
-        String baseFile = wavBaseFolder + "output\\" + sourceTag + "2" + targetTag + "\\" + sourceTag + method + "_X_" + targetTag + method + "_" + String.valueOf(numTrainingFiles);
+        String baseFile = wavBaseFolder + "output/" + sourceTag + "2" + targetTag + "/" + sourceTag + method + "_X_" + targetTag + method + "_" + String.valueOf(numTrainingFiles);
         
         pa.isForcedAnalysis = false;
         pa.isSourceVocalTractSpectrumFromModel = true;
@@ -498,18 +498,18 @@ public class JointGMMTransformer extends BaselineTransformer {
         //int contextClassificationType = ContextualGMMParams.FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER; int[] numComponents = {128, 128, 128, 128, 128, 16};
         //int contextClassificationType = ContextualGMMParams.PHONEME_IDENTITY; int[] numComponents = {128}; 
         
-        String inputFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08\\neutral\\test_tts_" + emotion;
+        String inputFolder = "D:/Oytun/DFKI/voices/Interspeech08/neutral/test_tts_" + emotion;
         String outputBaseFolder;
         if (!isContextualGMMs)
         {
-            outputBaseFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08_out\\neutral2" + emotion + "\\neutral2" + emotion + 
+            outputBaseFolder = "D:/Oytun/DFKI/voices/Interspeech08_out/neutral2" + emotion + "/neutral2" + emotion + 
                                "Out_gmm" + method + "_" + String.valueOf(numTrainingFiles) + "_" + 
                                String.valueOf(numComponents[0]);
         }
         else
         {
 
-            outputBaseFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08_out\\neutral2" + emotion + "\\neutral2" + emotion + 
+            outputBaseFolder = "D:/Oytun/DFKI/voices/Interspeech08_out/neutral2" + emotion + "/neutral2" + emotion + 
                                "Out_gmm" + method + "_" + String.valueOf(numTrainingFiles) + "_" + 
                                "context" + String.valueOf(contextClassificationType);
             
@@ -517,7 +517,7 @@ public class JointGMMTransformer extends BaselineTransformer {
                 outputBaseFolder += "_" + String.valueOf(numComponents[i]);
         }
         
-        String baseFile = "D:\\Oytun\\DFKI\\voices\\Interspeech08_out\\neutral2"+ emotion + "\\neutral" + method + "_X_" + emotion + method + "_" + String.valueOf(numTrainingFiles);
+        String baseFile = "D:/Oytun/DFKI/voices/Interspeech08_out/neutral2"+ emotion + "/neutral" + method + "_X_" + emotion + method + "_" + String.valueOf(numTrainingFiles);
         
         boolean isSourceVocalTractSpectrumFromModel = false;
         boolean isTemporalSmoothing = false;

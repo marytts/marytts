@@ -123,13 +123,13 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         pa.codebookHeader.sourceTag = "neutralF"; //Source name tag (i.e. style or speaker identity)
         pa.codebookHeader.targetTag = "angryF"; //Target name tag (i.e. style or speaker identity)
         
-        pa.trainingBaseFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08_out\\neutral2angry"; //Training base directory
-        pa.sourceTrainingFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08\\neutral\\train_200"; //Source training folder
-        pa.targetTrainingFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08\\angry\\train_200"; //Target training folder
+        pa.trainingBaseFolder = "D:/Oytun/DFKI/voices/Interspeech08_out/neutral2angry"; //Training base directory
+        pa.sourceTrainingFolder = "D:/Oytun/DFKI/voices/Interspeech08/neutral/train_200"; //Source training folder
+        pa.targetTrainingFolder = "D:/Oytun/DFKI/voices/Interspeech08/angry/train_200"; //Target training folder
 
         pa.indexMapFileExtension = ".imf"; //Index map file extensions
         
-        pa.codebookHeader.lsfParams.lpOrder = 20; //Auto set
+        pa.codebookHeader.lsfParams.dimension = 20; //0:Auto set LP order
         pa.codebookHeader.lsfParams.preCoef = 0.97f;
         pa.codebookHeader.lsfParams.skipsize = 0.010f;
         pa.codebookHeader.lsfParams.winsize = 0.020f;
@@ -233,13 +233,13 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         pa.codebookHeader.sourceTag = "neutralF"; //Source name tag (i.e. style or speaker identity)
         pa.codebookHeader.targetTag = "happyF"; //Target name tag (i.e. style or speaker identity)
         
-        pa.trainingBaseFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08_out\\neutral2happy"; //Training base directory
-        pa.sourceTrainingFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08\\neutral\\train_200"; //Source training folder
-        pa.targetTrainingFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08\\happy\\train_200"; //Target training folder
+        pa.trainingBaseFolder = "D:/Oytun/DFKI/voices/Interspeech08_out/neutral2happy"; //Training base directory
+        pa.sourceTrainingFolder = "D:/Oytun/DFKI/voices/Interspeech08/neutral/train_200"; //Source training folder
+        pa.targetTrainingFolder = "D:/Oytun/DFKI/voices/Interspeech08/happy/train_200"; //Target training folder
 
         pa.indexMapFileExtension = ".imf"; //Index map file extensions
         
-        pa.codebookHeader.lsfParams.lpOrder = 20; //Auto set
+        pa.codebookHeader.lsfParams.dimension = 20; //0:Auto set LP order
         pa.codebookHeader.lsfParams.preCoef = 0.97f;
         pa.codebookHeader.lsfParams.skipsize = 0.010f;
         pa.codebookHeader.lsfParams.winsize = 0.020f;
@@ -343,13 +343,13 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         pa.codebookHeader.sourceTag = "neutralF"; //Source name tag (i.e. style or speaker identity)
         pa.codebookHeader.targetTag = "sadF"; //Target name tag (i.e. style or speaker identity)
         
-        pa.trainingBaseFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08_out\\neutral2sad"; //Training base directory
-        pa.sourceTrainingFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08\\neutral\\train_200"; //Source training folder
-        pa.targetTrainingFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08\\sad\\train_200"; //Target training folder
+        pa.trainingBaseFolder = "D:/Oytun/DFKI/voices/Interspeech08_out/neutral2sad"; //Training base directory
+        pa.sourceTrainingFolder = "D:/Oytun/DFKI/voices/Interspeech08/neutral/train_200"; //Source training folder
+        pa.targetTrainingFolder = "D:/Oytun/DFKI/voices/Interspeech08/sad/train_200"; //Target training folder
 
         pa.indexMapFileExtension = ".imf"; //Index map file extensions
         
-        pa.codebookHeader.lsfParams.lpOrder = 20; //Auto set
+        pa.codebookHeader.lsfParams.dimension = 20; //0:Auto set LP order
         pa.codebookHeader.lsfParams.preCoef = 0.97f;
         pa.codebookHeader.lsfParams.skipsize = 0.010f;
         pa.codebookHeader.lsfParams.winsize = 0.020f;

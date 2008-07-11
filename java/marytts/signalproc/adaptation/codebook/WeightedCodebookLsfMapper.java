@@ -33,12 +33,14 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import marytts.signalproc.adaptation.BaselineAdaptationSet;
+import marytts.signalproc.adaptation.BaselineFeatureExtractor;
 import marytts.signalproc.adaptation.Context;
 import marytts.signalproc.adaptation.IndexMap;
 import marytts.signalproc.adaptation.prosody.PitchStatistics;
 import marytts.signalproc.analysis.ESTLabels;
 import marytts.signalproc.analysis.EnergyAnalyserRms;
 import marytts.signalproc.analysis.F0ReaderWriter;
+import marytts.signalproc.analysis.LsfFileHeader;
 import marytts.signalproc.analysis.Lsfs;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
@@ -62,11 +64,11 @@ public class WeightedCodebookLsfMapper {
         IndexMap imap = new IndexMap();
         int i, j, index;
 
-        WeightedCodebookLsfEntry lsfEntry = null;
+        WeightedCodebookEntry entry = null;
 
         boolean bHeaderWritten = false;
 
-        //Take directly the corresponding source-target frame LSF vectors and write them as a new entry
+        //Take directly the corresponding source-target frame vocal tract feature vectors and write them as a new entry
         for (i=0; i<fcol.indexMapFiles.length; i++)
         {
             System.out.println("LSF mapping for pair " + String.valueOf(i+1) + " of " + String.valueOf(fcol.indexMapFiles.length) + ":");
@@ -81,8 +83,8 @@ public class WeightedCodebookLsfMapper {
             if (imap.files!=null && sourceTrainingSet.items.length>i && targetTrainingSet.items.length>i)
             {
                 //Lsfs
-                Lsfs srcLsfs = new Lsfs(sourceTrainingSet.items[i].lsfFile);
-                Lsfs tgtLsfs = new Lsfs(targetTrainingSet.items[map[i]].lsfFile);
+                Lsfs srcFeatures = new Lsfs(sourceTrainingSet.items[i].lsfFile);
+                Lsfs tgtFeatures = new Lsfs(targetTrainingSet.items[map[i]].lsfFile);
                 //
                 
                 //Pitch: for outlier elimination not prosody modeling!
@@ -102,60 +104,60 @@ public class WeightedCodebookLsfMapper {
                 
                 if (!bHeaderWritten)
                 {
-                    params.codebookHeader.lsfParams.lpOrder = srcLsfs.params.lpOrder;
-                    params.codebookHeader.lsfParams.samplingRate = srcLsfs.params.samplingRate;
+                    params.codebookHeader.lsfParams.dimension = ((LsfFileHeader)(srcFeatures.params)).dimension;
+                    params.codebookHeader.lsfParams.samplingRate = ((LsfFileHeader)(srcFeatures.params)).samplingRate;
                     
                     codebookFile.writeCodebookHeader(params.codebookHeader);
                     bHeaderWritten = true;
                 }
                 
-                if (srcLsfs.lsfs!=null && tgtLsfs.lsfs!=null)
+                if (srcFeatures.lsfs!=null && srcFeatures.lsfs!=null)
                 {
                     for (j=0; j<imap.files[0].indicesMap.length; j++) //j is the index for labels
                     {
-                        if (srcLsfs.lsfs.length>imap.files[0].indicesMap[j][0] && tgtLsfs.lsfs.length>imap.files[0].indicesMap[j][1])
+                        if (srcFeatures.lsfs.length>imap.files[0].indicesMap[j][0] && tgtFeatures.lsfs.length>imap.files[0].indicesMap[j][1])
                         {
                             //Write to codebook file
-                            lsfEntry = new WeightedCodebookLsfEntry(srcLsfs.params.lpOrder);
-                            lsfEntry.setLsfs(srcLsfs.lsfs[imap.files[0].indicesMap[j][0]], tgtLsfs.lsfs[imap.files[0].indicesMap[j][1]]);
-                            
+                            entry = new WeightedCodebookEntry(((LsfFileHeader)(srcFeatures.params)).dimension, 0);
+                            entry.setLsfs(srcFeatures.lsfs[imap.files[0].indicesMap[j][0]], tgtFeatures.lsfs[imap.files[0].indicesMap[j][1]]);
+
                             //Pitch
-                            index = MathUtils.linearMap(imap.files[0].indicesMap[j][0], 0, srcLsfs.lsfs.length-1, 0, sourceF0s.contour.length-1);
-                            lsfEntry.sourceItem.f0 = sourceF0s.contour[index];
-                            index = MathUtils.linearMap(imap.files[0].indicesMap[j][1], 0, tgtLsfs.lsfs.length-1, 0, targetF0s.contour.length-1);
-                            lsfEntry.targetItem.f0 = targetF0s.contour[index];
+                            index = MathUtils.linearMap(imap.files[0].indicesMap[j][0], 0, srcFeatures.lsfs.length-1, 0, sourceF0s.contour.length-1);
+                            entry.sourceItem.f0 = sourceF0s.contour[index];
+                            index = MathUtils.linearMap(imap.files[0].indicesMap[j][1], 0, tgtFeatures.lsfs.length-1, 0, targetF0s.contour.length-1);
+                            entry.targetItem.f0 = targetF0s.contour[index];
                             //
-                            
+
                             //Duration & Phoneme
-                            index = SignalProcUtils.frameIndex2LabelIndex(imap.files[0].indicesMap[j][0], sourceLabels, srcLsfs.params.winsize, srcLsfs.params.skipsize);
+                            index = SignalProcUtils.frameIndex2LabelIndex(imap.files[0].indicesMap[j][0], sourceLabels, ((LsfFileHeader)(srcFeatures.params)).winsize, ((LsfFileHeader)(srcFeatures.params)).skipsize);
                             if (index>0)
-                                lsfEntry.sourceItem.duration = sourceLabels.items[index].time-sourceLabels.items[index-1].time;
+                                entry.sourceItem.duration = sourceLabels.items[index].time-sourceLabels.items[index-1].time;
                             else
-                                lsfEntry.sourceItem.duration = sourceLabels.items[index].time;
-                            lsfEntry.sourceItem.phn = sourceLabels.items[index].phn;                            
-                            lsfEntry.sourceItem.context = new Context(sourceLabels, index, WeightedCodebookTrainerParams.MAXIMUM_CONTEXT);
-                            
-                            index = SignalProcUtils.frameIndex2LabelIndex(imap.files[0].indicesMap[j][1], targetLabels, tgtLsfs.params.winsize, tgtLsfs.params.skipsize);
+                                entry.sourceItem.duration = sourceLabels.items[index].time;
+                            entry.sourceItem.phn = sourceLabels.items[index].phn;                            
+                            entry.sourceItem.context = new Context(sourceLabels, index, WeightedCodebookTrainerParams.MAXIMUM_CONTEXT);
+
+                            index = SignalProcUtils.frameIndex2LabelIndex(imap.files[0].indicesMap[j][1], targetLabels, ((LsfFileHeader)(tgtFeatures.params)).winsize, ((LsfFileHeader)(tgtFeatures.params)).skipsize);
                             if (index>0)  
-                                lsfEntry.targetItem.duration = targetLabels.items[index].time-targetLabels.items[index-1].time;
+                                entry.targetItem.duration = targetLabels.items[index].time-targetLabels.items[index-1].time;
                             else
-                                lsfEntry.targetItem.duration = targetLabels.items[index].time;
-                            lsfEntry.targetItem.phn = targetLabels.items[index].phn;
-                            lsfEntry.targetItem.context = new Context(targetLabels, index, WeightedCodebookTrainerParams.MAXIMUM_CONTEXT);
+                                entry.targetItem.duration = targetLabels.items[index].time;
+                            entry.targetItem.phn = targetLabels.items[index].phn;
+                            entry.targetItem.context = new Context(targetLabels, index, WeightedCodebookTrainerParams.MAXIMUM_CONTEXT);
                             //
-                            
+
                             //Energy
-                            index = MathUtils.linearMap(imap.files[0].indicesMap[j][0], 0, srcLsfs.lsfs.length-1, 0, sourceEnergies.contour.length-1);
-                            lsfEntry.sourceItem.energy = sourceEnergies.contour[index];
-                            index = MathUtils.linearMap(imap.files[0].indicesMap[j][1], 0, tgtLsfs.lsfs.length-1, 0, targetEnergies.contour.length-1);
-                            lsfEntry.targetItem.energy = targetEnergies.contour[index];
+                            index = MathUtils.linearMap(imap.files[0].indicesMap[j][0], 0, srcFeatures.lsfs.length-1, 0, sourceEnergies.contour.length-1);
+                            entry.sourceItem.energy = sourceEnergies.contour[index];
+                            index = MathUtils.linearMap(imap.files[0].indicesMap[j][1], 0, tgtFeatures.lsfs.length-1, 0, targetEnergies.contour.length-1);
+                            entry.targetItem.energy = targetEnergies.contour[index];
                             //
-                            
-                            codebookFile.writeLsfEntry(lsfEntry);
+
+                            codebookFile.writeEntry(entry);
                             //
                         }
                     }
-                    
+
                     System.out.println("Frame pairs processed in file " + String.valueOf(i+1) + " of " + String.valueOf(fcol.indexMapFiles.length));
                 }
             } 
@@ -168,8 +170,8 @@ public class WeightedCodebookLsfMapper {
 
         IndexMap imap = new IndexMap();
         int i, j, k, n, totalFrames, index;
-        double [] meanSourceLsfs = null;
-        double [] meanTargetLsfs = null;
+        double [] meanSourceEntries = null;
+        double [] meanTargetEntries= null;
         
         double sourceAverageF0;
         double targetAverageF0;
@@ -190,7 +192,7 @@ public class WeightedCodebookLsfMapper {
         boolean bSourceOK = false;
         boolean bTargetOK = false;
 
-        WeightedCodebookLsfEntry lsfEntry = null;
+        WeightedCodebookEntry entry = null;
  
         boolean bHeaderWritten = false;
 
@@ -208,60 +210,62 @@ public class WeightedCodebookLsfMapper {
 
             if (imap.files!=null && sourceTrainingSet.items.length>i && targetTrainingSet.items.length>i)
             {
-                Lsfs srcLsfs = new Lsfs(sourceTrainingSet.items[i].lsfFile);
-                Lsfs tgtLsfs = new Lsfs(targetTrainingSet.items[map[i]].lsfFile);
-                
+                //Lsfs
+                Lsfs srcFeatures = new Lsfs(sourceTrainingSet.items[i].lsfFile);
+                Lsfs tgtFeatures = new Lsfs(targetTrainingSet.items[map[i]].lsfFile);
+                //
+
                 //Pitch: for outlier elimination not prosody modeling!
                 F0ReaderWriter sourceF0s = new F0ReaderWriter(sourceTrainingSet.items[i].f0File);
                 F0ReaderWriter targetF0s = new F0ReaderWriter(targetTrainingSet.items[map[i]].f0File);
                 //
-                
+
                 //Duration
                 ESTLabels sourceLabels = new ESTLabels(sourceTrainingSet.items[i].labelFile);
                 ESTLabels targetLabels = new ESTLabels(targetTrainingSet.items[map[i]].labelFile);
                 //
-                
+
                 //Energy
                 EnergyAnalyserRms sourceEnergies = EnergyAnalyserRms.ReadEnergyFile(sourceTrainingSet.items[i].energyFile);
                 EnergyAnalyserRms targetEnergies = EnergyAnalyserRms.ReadEnergyFile(targetTrainingSet.items[map[i]].energyFile);
                 //
-                
+
                 if (!bHeaderWritten)
                 {
-                    params.codebookHeader.lsfParams.lpOrder = srcLsfs.params.lpOrder;
-                    params.codebookHeader.lsfParams.samplingRate = srcLsfs.params.samplingRate;
-                    
+                    params.codebookHeader.lsfParams.dimension = ((LsfFileHeader)(srcFeatures.params)).dimension;
+                    params.codebookHeader.lsfParams.samplingRate = ((LsfFileHeader)(srcFeatures.params)).samplingRate;
+
                     codebookFile.writeCodebookHeader(params.codebookHeader);
                     bHeaderWritten = true;
                 }
-                
+
                 if (i==0)
                 {
-                    meanSourceLsfs = new double[srcLsfs.params.lpOrder];
-                    meanTargetLsfs = new double[tgtLsfs.params.lpOrder];
+                    meanSourceEntries = new double[((LsfFileHeader)(srcFeatures.params)).dimension];
+                    meanTargetEntries = new double[((LsfFileHeader)(tgtFeatures.params)).dimension];
                 }
                 else
                 {
-                    if (meanSourceLsfs.length!=srcLsfs.params.lpOrder)
+                    if (meanSourceEntries.length!=((LsfFileHeader)(srcFeatures.params)).dimension)
                     {
                         System.out.println("Error! LSF vector size mismatch in source lsf file " + sourceTrainingSet.items[i].lsfFile);
                         return;
                     }
 
-                    if (meanTargetLsfs.length!=tgtLsfs.params.lpOrder)
+                    if (meanTargetEntries.length!=((LsfFileHeader)(tgtFeatures.params)).dimension)
                     {
                         System.out.println("Error! LSF vector size mismatch in target lsf file " + targetTrainingSet.items[map[i]].lsfFile);
                         return;
                     }
                 }  
-                
-                if (srcLsfs.lsfs!=null && tgtLsfs.lsfs!=null)
+
+                if (srcFeatures.lsfs!=null && tgtFeatures.lsfs!=null)
                 {
                     for (j=0; j<imap.files[0].indicesMap.length; j++) //j is the index for labels
                     {
-                        Arrays.fill(meanSourceLsfs, 0.0);
-                        Arrays.fill(meanTargetLsfs, 0.0);
-                        
+                        Arrays.fill(meanSourceEntries, 0.0);
+                        Arrays.fill(meanTargetEntries, 0.0);
+
                         sourceAverageF0 = 0.0;
                         targetAverageF0 = 0.0;
                         sourceAverageDuration = 0.0;
@@ -272,37 +276,37 @@ public class WeightedCodebookLsfMapper {
                         targetTotalVoiceds = 0;
                         sourceTotal = 0;
                         targetTotal = 0;
-                        
+
                         totalFrames = 0;
                         bSourceOK = false;
                         middle = (int)Math.floor(0.5*(imap.files[0].indicesMap[j][0] + imap.files[0].indicesMap[j][1])+0.5);
                         for (k=imap.files[0].indicesMap[j][0]; k<=imap.files[0].indicesMap[j][1]; k++)
                         {
-                            if (k>=0 && k<srcLsfs.lsfs.length)
+                            if (k>=0 && k<srcFeatures.lsfs.length)
                             {
                                 totalFrames++;
                                 bSourceOK = true;
-                                
-                                for (n=0; n<srcLsfs.params.lpOrder; n++)
-                                    meanSourceLsfs[n] += srcLsfs.lsfs[k][n];
-                                
+
+                                for (n=0; n<((LsfFileHeader)(srcFeatures.params)).dimension; n++)
+                                    meanSourceEntries[n] += srcFeatures.lsfs[k][n];
+
                                 //Pitch
-                                index = MathUtils.linearMap(k, 0, srcLsfs.lsfs.length-1, 0, sourceF0s.contour.length-1);
+                                index = MathUtils.linearMap(k, 0, srcFeatures.lsfs.length-1, 0, sourceF0s.contour.length-1);
                                 if (sourceF0s.contour[index]>10.0)
                                 {
                                     sourceAverageF0 += sourceF0s.contour[index];
                                     sourceTotalVoiceds++;
                                 }
                                 //
-                                
+
                                 //Duration
-                                index = SignalProcUtils.frameIndex2LabelIndex(k, sourceLabels, srcLsfs.params.winsize, srcLsfs.params.skipsize);
+                                index = SignalProcUtils.frameIndex2LabelIndex(k, sourceLabels, ((LsfFileHeader)(srcFeatures.params)).winsize, ((LsfFileHeader)(srcFeatures.params)).skipsize);
                                 if (index>0)
                                     sourceAverageDuration += sourceLabels.items[index].time-sourceLabels.items[index-1].time;
                                 else
                                     sourceAverageDuration += sourceLabels.items[index].time;
                                 //
-                                
+
                                 //Phoneme: Middle frames phonetic identity
                                 if (k==middle)
                                 {
@@ -310,51 +314,51 @@ public class WeightedCodebookLsfMapper {
                                     sourceContext = new Context(sourceLabels, index, WeightedCodebookTrainerParams.MAXIMUM_CONTEXT);
                                 }
                                 //
-                                
+
                                 //Energy
-                                index = MathUtils.linearMap(k, 0, srcLsfs.lsfs.length-1, 0, sourceEnergies.contour.length-1);
+                                index = MathUtils.linearMap(k, 0, srcFeatures.lsfs.length-1, 0, sourceEnergies.contour.length-1);
                                 sourceAverageEnergy += sourceEnergies.contour[index];
                                 //
-                                
+
                                 sourceTotal++;
                             }
                         }
-                        
+
                         if (bSourceOK)
                         {
-                            for (n=0; n<srcLsfs.params.lpOrder; n++)
-                                meanSourceLsfs[n] /= totalFrames;
-                            
+                            for (n=0; n<((LsfFileHeader)(srcFeatures.params)).dimension; n++)
+                                meanSourceEntries[n] /= totalFrames;
+
                             totalFrames = 0;
                             bTargetOK = false;
                             middle = (int)Math.floor(0.5*(imap.files[0].indicesMap[j][2] + imap.files[0].indicesMap[j][3])+0.5);
                             for (k=imap.files[0].indicesMap[j][2]; k<=imap.files[0].indicesMap[j][3]; k++)
                             {
-                                if (k>=0 && k<tgtLsfs.lsfs.length)
+                                if (k>=0 && k<tgtFeatures.lsfs.length)
                                 {
                                     totalFrames++;
                                     bTargetOK = true;
-                                    
-                                    for (n=0; n<tgtLsfs.params.lpOrder; n++)
-                                        meanTargetLsfs[n] += tgtLsfs.lsfs[k][n];
-                                    
+
+                                    for (n=0; n<((LsfFileHeader)(tgtFeatures.params)).dimension; n++)
+                                        meanTargetEntries[n] += tgtFeatures.lsfs[k][n];
+
                                     //Pitch
-                                    index = MathUtils.linearMap(k, 0, tgtLsfs.lsfs.length-1, 0, targetF0s.contour.length-1);
+                                    index = MathUtils.linearMap(k, 0, tgtFeatures.lsfs.length-1, 0, targetF0s.contour.length-1);
                                     if (targetF0s.contour[index]>10.0)
                                     {
                                         targetAverageF0 += targetF0s.contour[index];
                                         targetTotalVoiceds++;
                                     }
                                     //
-                                    
+
                                     //Duration
-                                    index = SignalProcUtils.frameIndex2LabelIndex(k, targetLabels, tgtLsfs.params.winsize, tgtLsfs.params.skipsize);
+                                    index = SignalProcUtils.frameIndex2LabelIndex(k, targetLabels, ((LsfFileHeader)(tgtFeatures.params)).winsize, ((LsfFileHeader)(tgtFeatures.params)).skipsize);
                                     if (index>0)
                                         targetAverageDuration += targetLabels.items[index].time-targetLabels.items[index-1].time;
                                     else
                                         targetAverageDuration += targetLabels.items[index].time;
                                     //
-                                    
+
                                     //Phoneme: Middle frames phonetic identity
                                     if (k==middle)
                                     {
@@ -362,65 +366,65 @@ public class WeightedCodebookLsfMapper {
                                         targetContext = new Context(targetLabels, index, WeightedCodebookTrainerParams.MAXIMUM_CONTEXT);
                                     }
                                     //
-                                    
+
                                     //Energy
-                                    index = MathUtils.linearMap(k, 0, tgtLsfs.lsfs.length-1, 0, targetEnergies.contour.length-1);
+                                    index = MathUtils.linearMap(k, 0, tgtFeatures.lsfs.length-1, 0, targetEnergies.contour.length-1);
                                     targetAverageEnergy += targetEnergies.contour[index];
                                     //
-                                    
+
                                     targetTotal++;
                                 }
                             }
-                            
+
                             if (bTargetOK)
                             {
-                                for (n=0; n<tgtLsfs.params.lpOrder; n++)
-                                    meanTargetLsfs[n] /= totalFrames;
+                                for (n=0; n<((LsfFileHeader)(tgtFeatures.params)).dimension; n++)
+                                    meanTargetEntries[n] /= totalFrames;
 
                                 //Write to codebook file
-                                lsfEntry = new WeightedCodebookLsfEntry(meanSourceLsfs.length);
-                                lsfEntry.setLsfs(meanSourceLsfs, meanTargetLsfs);
-                                
+                                entry = new WeightedCodebookEntry(meanSourceEntries.length, 0);
+                                entry.setLsfs(meanSourceEntries, meanTargetEntries);
+
                                 //Pitch
                                 if (sourceTotalVoiceds>0)
                                     sourceAverageF0 /= sourceTotalVoiceds;
                                 if (targetTotalVoiceds>0)
                                     targetAverageF0 /= targetTotalVoiceds;
-                                lsfEntry.sourceItem.f0 = sourceAverageF0;
-                                lsfEntry.targetItem.f0 = targetAverageF0;
+                                entry.sourceItem.f0 = sourceAverageF0;
+                                entry.targetItem.f0 = targetAverageF0;
                                 //
-                                
+
                                 //Duration
                                 if (sourceTotal>0)
                                     sourceAverageDuration /= sourceTotal;
                                 if (targetTotal>0)
                                     sourceAverageDuration /= targetTotal;
-                                lsfEntry.sourceItem.duration = sourceAverageDuration;
-                                lsfEntry.targetItem.duration = targetAverageDuration;
+                                entry.sourceItem.duration = sourceAverageDuration;
+                                entry.targetItem.duration = targetAverageDuration;
                                 //
-                                
+
                                 //Phoneme
-                                lsfEntry.sourceItem.phn = sourcePhn;
-                                lsfEntry.targetItem.phn = targetPhn;
-                                lsfEntry.sourceItem.context = new Context(sourceContext);
-                                lsfEntry.targetItem.context = new Context(targetContext);
+                                entry.sourceItem.phn = sourcePhn;
+                                entry.targetItem.phn = targetPhn;
+                                entry.sourceItem.context = new Context(sourceContext);
+                                entry.targetItem.context = new Context(targetContext);
                                 //
-                                
+
                                 //Energy
                                 if (sourceTotal>0)
                                     sourceAverageEnergy /= sourceTotal;
                                 if (targetTotal>0)
                                     targetAverageEnergy /= targetTotal;
-                                lsfEntry.sourceItem.energy = sourceAverageEnergy;
-                                lsfEntry.targetItem.energy = targetAverageEnergy;
+                                entry.sourceItem.energy = sourceAverageEnergy;
+                                entry.targetItem.energy = targetAverageEnergy;
                                 //
 
-                                codebookFile.writeLsfEntry(lsfEntry);
+                                codebookFile.writeEntry(entry);
                                 //
                             }
                         }
                     }
-                    
+
                     System.out.println("Frame pairs processed in file " + String.valueOf(i+1) + " of " + String.valueOf(fcol.indexMapFiles.length));
                 }
             } 
@@ -436,8 +440,8 @@ public class WeightedCodebookLsfMapper {
         boolean bSourceOK = false;
         boolean bTargetOK = false;
 
-        double [] meanSourceLsfs = null;
-        double [] meanTargetLsfs = null;
+        double [] meanSourceEntries = null;
+        double [] meanTargetEntries = null;
         
         double sourceAverageF0;
         double targetAverageF0;
@@ -455,7 +459,7 @@ public class WeightedCodebookLsfMapper {
         Context targetContext = null;
         int middle;
 
-        WeightedCodebookLsfEntry lsfEntry = null;
+        WeightedCodebookEntry entry = null;
 
         boolean bHeaderWritten = false;
 
@@ -478,8 +482,8 @@ public class WeightedCodebookLsfMapper {
 
             if (imap.files!=null && sourceTrainingSet.items.length>i && targetTrainingSet.items.length>i)
             {
-                Lsfs srcLsfs = new Lsfs(sourceTrainingSet.items[i].lsfFile);
-                Lsfs tgtLsfs = new Lsfs(targetTrainingSet.items[map[i]].lsfFile);
+                Lsfs srcFeatures = new Lsfs(sourceTrainingSet.items[i].lsfFile);
+                Lsfs tgtFeatures = new Lsfs(targetTrainingSet.items[map[i]].lsfFile);
                 
                 //Pitch: for outlier elimination not prosody modeling!
                 F0ReaderWriter sourceF0s = new F0ReaderWriter(sourceTrainingSet.items[i].f0File);
@@ -498,8 +502,8 @@ public class WeightedCodebookLsfMapper {
                 
                 if (!bHeaderWritten)
                 {
-                    params.codebookHeader.lsfParams.lpOrder = srcLsfs.params.lpOrder;
-                    params.codebookHeader.lsfParams.samplingRate =  srcLsfs.params.samplingRate;
+                    params.codebookHeader.lsfParams.dimension = ((LsfFileHeader)(srcFeatures.params)).dimension;
+                    params.codebookHeader.lsfParams.samplingRate =  ((LsfFileHeader)(srcFeatures.params)).samplingRate;
                     
                     codebookFile.writeCodebookHeader(params.codebookHeader);
                     bHeaderWritten = true;
@@ -507,30 +511,30 @@ public class WeightedCodebookLsfMapper {
 
                 if (i==0)
                 {
-                    meanSourceLsfs = new double[srcLsfs.params.lpOrder];
-                    meanTargetLsfs = new double[tgtLsfs.params.lpOrder];
+                    meanSourceEntries = new double[((LsfFileHeader)(srcFeatures.params)).dimension];
+                    meanTargetEntries = new double[((LsfFileHeader)(tgtFeatures.params)).dimension];
                 }
                 else
                 {
-                    if (meanSourceLsfs.length!=srcLsfs.params.lpOrder)
+                    if (meanSourceEntries.length!=((LsfFileHeader)(srcFeatures.params)).dimension)
                     {
                         System.out.println("Error! LSF vector size mismatch in source lsf file " + sourceTrainingSet.items[i].lsfFile);
                         return;
                     }
 
-                    if (meanTargetLsfs.length!=tgtLsfs.params.lpOrder)
+                    if (meanTargetEntries.length!=((LsfFileHeader)(tgtFeatures.params)).dimension)
                     {
                         System.out.println("Error! LSF vector size mismatch in target lsf file " + targetTrainingSet.items[map[i]].lsfFile);
                         return;
                     }
                 }  
 
-                if (srcLsfs.lsfs!=null && tgtLsfs.lsfs!=null)
+                if (srcFeatures.lsfs!=null && tgtFeatures.lsfs!=null)
                 {
                     for (j=0; j<imap.files[0].indicesMap.length; j++) //j is the index for labels
                     {
-                        Arrays.fill(meanSourceLsfs, 0.0);
-                        Arrays.fill(meanTargetLsfs, 0.0);
+                        Arrays.fill(meanSourceEntries, 0.0);
+                        Arrays.fill(meanTargetEntries, 0.0);
                         
                         sourceAverageF0 = 0.0;
                         targetAverageF0 = 0.0;
@@ -548,16 +552,16 @@ public class WeightedCodebookLsfMapper {
                         middle = (int)Math.floor(0.5*(imap.files[0].indicesMap[j][0] + imap.files[0].indicesMap[j][1])+0.5);
                         for (k=imap.files[0].indicesMap[j][0]; k<=imap.files[0].indicesMap[j][1]; k++)
                         {
-                            if (k>=0 && k<srcLsfs.lsfs.length)
+                            if (k>=0 && k<srcFeatures.lsfs.length)
                             {
                                 totalFrames++;
                                 bSourceOK = true;
 
-                                for (n=0; n<srcLsfs.params.lpOrder; n++)
-                                    meanSourceLsfs[n] += srcLsfs.lsfs[k][n];
+                                for (n=0; n<((LsfFileHeader)(srcFeatures.params)).dimension; n++)
+                                    meanSourceEntries[n] += srcFeatures.lsfs[k][n];
                                 
                                 //Pitch
-                                index = MathUtils.linearMap(k, 0, srcLsfs.lsfs.length-1, 0, sourceF0s.contour.length-1);
+                                index = MathUtils.linearMap(k, 0, srcFeatures.lsfs.length-1, 0, sourceF0s.contour.length-1);
                                 if (sourceF0s.contour[index]>10.0)
                                 {
                                     sourceAverageF0 += sourceF0s.contour[index];
@@ -566,7 +570,7 @@ public class WeightedCodebookLsfMapper {
                                 //
                                 
                                 //Duration
-                                index = SignalProcUtils.frameIndex2LabelIndex(k, sourceLabels, srcLsfs.params.winsize, srcLsfs.params.skipsize);
+                                index = SignalProcUtils.frameIndex2LabelIndex(k, sourceLabels, ((LsfFileHeader)(srcFeatures.params)).winsize, ((LsfFileHeader)(srcFeatures.params)).skipsize);
                                 if (index>0)
                                     sourceAverageDuration += sourceLabels.items[index].time-sourceLabels.items[index-1].time;
                                 else
@@ -582,7 +586,7 @@ public class WeightedCodebookLsfMapper {
                                 //
                                 
                                 //Energy
-                                index = MathUtils.linearMap(k, 0, srcLsfs.lsfs.length-1, 0, sourceEnergies.contour.length-1);
+                                index = MathUtils.linearMap(k, 0, srcFeatures.lsfs.length-1, 0, sourceEnergies.contour.length-1);
                                 sourceAverageEnergy += sourceEnergies.contour[index];
                                 //
                                 
@@ -592,24 +596,24 @@ public class WeightedCodebookLsfMapper {
 
                         if (bSourceOK)
                         {
-                            for (n=0; n<srcLsfs.params.lpOrder; n++)
-                                meanSourceLsfs[n] /= totalFrames;
+                            for (n=0; n<((LsfFileHeader)(srcFeatures.params)).dimension; n++)
+                                meanSourceEntries[n] /= totalFrames;
 
                             totalFrames = 0;
                             bTargetOK = false;
                             middle = (int)Math.floor(0.5*(imap.files[0].indicesMap[j][2] + imap.files[0].indicesMap[j][3])+0.5);
                             for (k=imap.files[0].indicesMap[j][2]; k<=imap.files[0].indicesMap[j][3]; k++)
                             {
-                                if (k>=0 && k<tgtLsfs.lsfs.length)
+                                if (k>=0 && k<tgtFeatures.lsfs.length)
                                 {
                                     totalFrames++;
                                     bTargetOK = true;
 
-                                    for (n=0; n<tgtLsfs.params.lpOrder; n++)
-                                        meanTargetLsfs[n] += tgtLsfs.lsfs[k][n];
+                                    for (n=0; n<((LsfFileHeader)(tgtFeatures.params)).dimension; n++)
+                                        meanTargetEntries[n] += tgtFeatures.lsfs[k][n];
                                     
                                     //Pitch
-                                    index = MathUtils.linearMap(k, 0, tgtLsfs.lsfs.length-1, 0, targetF0s.contour.length-1);
+                                    index = MathUtils.linearMap(k, 0, tgtFeatures.lsfs.length-1, 0, targetF0s.contour.length-1);
                                     if (targetF0s.contour[index]>10.0)
                                     {
                                         targetAverageF0 += targetF0s.contour[index];
@@ -618,7 +622,7 @@ public class WeightedCodebookLsfMapper {
                                     //
                                     
                                     //Duration
-                                    index = SignalProcUtils.frameIndex2LabelIndex(k, targetLabels, tgtLsfs.params.winsize, tgtLsfs.params.skipsize);
+                                    index = SignalProcUtils.frameIndex2LabelIndex(k, targetLabels, ((LsfFileHeader)(tgtFeatures.params)).winsize, ((LsfFileHeader)(tgtFeatures.params)).skipsize);
                                     if (index>0)
                                         targetAverageDuration += targetLabels.items[index].time-targetLabels.items[index-1].time;
                                     else
@@ -634,7 +638,7 @@ public class WeightedCodebookLsfMapper {
                                     //
                                     
                                     //Energy
-                                    index = MathUtils.linearMap(k, 0, tgtLsfs.lsfs.length-1, 0, targetEnergies.contour.length-1);
+                                    index = MathUtils.linearMap(k, 0, tgtFeatures.lsfs.length-1, 0, targetEnergies.contour.length-1);
                                     targetAverageEnergy += targetEnergies.contour[index];
                                     //
                                     
@@ -644,20 +648,20 @@ public class WeightedCodebookLsfMapper {
 
                             if (bTargetOK)
                             {
-                                for (n=0; n<tgtLsfs.params.lpOrder; n++)
-                                    meanTargetLsfs[n] /= totalFrames;
+                                for (n=0; n<((LsfFileHeader)(tgtFeatures.params)).dimension; n++)
+                                    meanTargetEntries[n] /= totalFrames;
 
                                 //Write to codebook file
-                                lsfEntry = new WeightedCodebookLsfEntry(meanSourceLsfs.length);
-                                lsfEntry.setLsfs(meanSourceLsfs, meanTargetLsfs);
+                                entry = new WeightedCodebookEntry(meanSourceEntries.length, 0);
+                                entry.setLsfs(meanSourceEntries, meanTargetEntries);
 
                                 //Pitch
                                 if (sourceTotalVoiceds>0)
                                     sourceAverageF0 /= sourceTotalVoiceds;
                                 if (targetTotalVoiceds>0)
                                     targetAverageF0 /= targetTotalVoiceds;
-                                lsfEntry.sourceItem.f0 = sourceAverageF0;
-                                lsfEntry.targetItem.f0 = targetAverageF0;
+                                entry.sourceItem.f0 = sourceAverageF0;
+                                entry.targetItem.f0 = targetAverageF0;
                                 //
 
                                 //Duration
@@ -665,15 +669,15 @@ public class WeightedCodebookLsfMapper {
                                     sourceAverageDuration /= sourceTotal;
                                 if (targetTotal>0)
                                     sourceAverageDuration /= targetTotal;
-                                lsfEntry.sourceItem.duration = sourceAverageDuration;
-                                lsfEntry.targetItem.duration = targetAverageDuration;
+                                entry.sourceItem.duration = sourceAverageDuration;
+                                entry.targetItem.duration = targetAverageDuration;
                                 //
 
                                 //Phoneme
-                                lsfEntry.sourceItem.phn = sourcePhn;
-                                lsfEntry.targetItem.phn = targetPhn;
-                                lsfEntry.sourceItem.context = new Context(sourceContext);
-                                lsfEntry.targetItem.context = new Context(targetContext);
+                                entry.sourceItem.phn = sourcePhn;
+                                entry.targetItem.phn = targetPhn;
+                                entry.sourceItem.context = new Context(sourceContext);
+                                entry.targetItem.context = new Context(targetContext);
                                 //
                                 
                                 //Energy
@@ -681,11 +685,11 @@ public class WeightedCodebookLsfMapper {
                                     sourceAverageEnergy /= sourceTotal;
                                 if (targetTotal>0)
                                     targetAverageEnergy /= targetTotal;
-                                lsfEntry.sourceItem.energy = sourceAverageEnergy;
-                                lsfEntry.targetItem.energy = targetAverageEnergy;
+                                entry.sourceItem.energy = sourceAverageEnergy;
+                                entry.targetItem.energy = targetAverageEnergy;
                                 //
                                 
-                                codebookFile.writeLsfEntry(lsfEntry);
+                                codebookFile.writeEntry(entry);
                                 //
 
                                 System.out.println("Label pair " + String.valueOf(j+1) + " of " + String.valueOf(imap.files[0].indicesMap.length));
@@ -709,10 +713,10 @@ public class WeightedCodebookLsfMapper {
 
         int i, j, n;
         
-        double [] meanSourceLsfs = null;
-        double [] meanTargetLsfs = null;
+        double [] meanSourceEntries = null;
+        double [] meanTargetEntries = null;
 
-        WeightedCodebookLsfEntry lsfEntry = null;
+        WeightedCodebookEntry entry = null;
        
         boolean bHeaderWritten = false;
 
@@ -734,13 +738,13 @@ public class WeightedCodebookLsfMapper {
 
             if (sourceTrainingSet.items.length>i)
             {
-                Lsfs srcLsfs = new Lsfs(sourceTrainingSet.items[i].lsfFile);
-                Lsfs tgtLsfs = new Lsfs(targetTrainingSet.items[map[i]].lsfFile);
+                Lsfs srcFeatures = new Lsfs(sourceTrainingSet.items[i].lsfFile);
+                Lsfs tgtFeatures = new Lsfs(targetTrainingSet.items[map[i]].lsfFile);
                 
                 if (!bHeaderWritten)
                 {
-                    params.codebookHeader.lsfParams.lpOrder = srcLsfs.params.lpOrder;
-                    params.codebookHeader.lsfParams.samplingRate = srcLsfs.params.samplingRate;
+                    params.codebookHeader.lsfParams.dimension = ((LsfFileHeader)(srcFeatures.params)).dimension;
+                    params.codebookHeader.lsfParams.samplingRate = ((LsfFileHeader)(srcFeatures.params)).samplingRate;
                     
                     codebookFile.writeCodebookHeader(params.codebookHeader);
                     bHeaderWritten = true;
@@ -748,47 +752,47 @@ public class WeightedCodebookLsfMapper {
                 
                 if (i==0)
                 {
-                    meanSourceLsfs = new double[srcLsfs.params.lpOrder];
-                    meanTargetLsfs = new double[tgtLsfs.params.lpOrder];
-                    Arrays.fill(meanSourceLsfs, 0.0);
-                    Arrays.fill(meanTargetLsfs, 0.0);
-                    lpOrderSrc = srcLsfs.params.lpOrder; 
-                    lpOrderTgt = srcLsfs.params.lpOrder;
+                    meanSourceEntries = new double[((LsfFileHeader)(srcFeatures.params)).dimension];
+                    meanTargetEntries = new double[((LsfFileHeader)(tgtFeatures.params)).dimension];
+                    Arrays.fill(meanSourceEntries, 0.0);
+                    Arrays.fill(meanTargetEntries, 0.0);
+                    lpOrderSrc = ((LsfFileHeader)(srcFeatures.params)).dimension; 
+                    lpOrderTgt = ((LsfFileHeader)(srcFeatures.params)).dimension;
                 }
                 else
                 {
-                    if (meanSourceLsfs.length!=srcLsfs.params.lpOrder)
+                    if (meanSourceEntries.length!=((LsfFileHeader)(srcFeatures.params)).dimension)
                     {
                         System.out.println("Error! LSF vector size mismatch in source lsf file " + sourceTrainingSet.items[i].lsfFile);
                         return;
                     }
                     
-                    if (meanTargetLsfs.length!=tgtLsfs.params.lpOrder)
+                    if (meanTargetEntries.length!=((LsfFileHeader)(tgtFeatures.params)).dimension)
                     {
                         System.out.println("Error! LSF vector size mismatch in target lsf file " + targetTrainingSet.items[map[i]].lsfFile);
                         return;
                     }
                 }  
 
-                if (srcLsfs.lsfs!=null)
+                if (srcFeatures.lsfs!=null)
                 {
-                    for (j=0; j<srcLsfs.params.numfrm; j++)
+                    for (j=0; j<((LsfFileHeader)(srcFeatures.params)).numfrm; j++)
                     {
                         totalFramesSrc++;
                         bSourceOK = true;
                         for (n=0; n<lpOrderSrc; n++)
-                            meanSourceLsfs[n] += srcLsfs.lsfs[j][n];
+                            meanSourceEntries[n] += srcFeatures.lsfs[j][n];
                     }
                 }
                 
-                if (tgtLsfs.lsfs!=null)
+                if (tgtFeatures.lsfs!=null)
                 {
-                    for (j=0; j<tgtLsfs.params.numfrm; j++)
+                    for (j=0; j<((LsfFileHeader)(tgtFeatures.params)).numfrm; j++)
                     {
                         totalFramesTgt++;
                         bTargetOK = true;
                         for (n=0; n<lpOrderTgt; n++)
-                            meanTargetLsfs[n] += tgtLsfs.lsfs[j][n];
+                            meanTargetEntries[n] += tgtFeatures.lsfs[j][n];
                     }
                 }
             }
@@ -797,21 +801,21 @@ public class WeightedCodebookLsfMapper {
         if (bSourceOK)
         {
             for (n=0; n<lpOrderSrc; n++)
-                meanSourceLsfs[n] /= totalFramesSrc;
+                meanSourceEntries[n] /= totalFramesSrc;
         }
         
         if (bTargetOK)
         {
             for (n=0; n<lpOrderTgt; n++)
-                meanTargetLsfs[n] /= totalFramesTgt;
+                meanTargetEntries[n] /= totalFramesTgt;
         }  
         
         if (bSourceOK && bTargetOK)
         {
             //Write to codebook file
-            lsfEntry = new WeightedCodebookLsfEntry(meanSourceLsfs.length);
-            lsfEntry.setLsfs(meanSourceLsfs, meanTargetLsfs);
-            codebookFile.writeLsfEntry(lsfEntry);
+            entry = new WeightedCodebookEntry(meanSourceEntries.length, 0);
+            entry.setLsfs(meanSourceEntries, meanTargetEntries);
+            codebookFile.writeEntry(entry);
             //
         }     
     }

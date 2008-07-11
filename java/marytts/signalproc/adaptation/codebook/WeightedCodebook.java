@@ -45,7 +45,7 @@ public class WeightedCodebook extends VocalTractTransformationData {
     public static final int TARGET_SOURCE = 4;
     //
     
-    public WeightedCodebookLsfEntry[] lsfEntries;
+    public WeightedCodebookEntry[] entries;
     public WeightedCodebookFileHeader header;
     
     public WeightedCodebook()
@@ -63,20 +63,20 @@ public class WeightedCodebook extends VocalTractTransformationData {
     
     public void allocate()
     {
-        allocate(header.totalLsfEntries);
+        allocate(header.totalEntries);
     }
     
-    public void allocate(int totalLsfEntriesIn)
+    public void allocate(int totalEntriesIn)
     {  
-       if (totalLsfEntriesIn>0)
+       if (totalEntriesIn>0)
        {
-           lsfEntries = new WeightedCodebookLsfEntry[totalLsfEntriesIn];
-           header.totalLsfEntries = totalLsfEntriesIn;
+           entries = new WeightedCodebookEntry[totalEntriesIn];
+           header.totalEntries = totalEntriesIn;
        }
        else
        {
-           lsfEntries = null;
-           header.totalLsfEntries = 0;
+           entries = null;
+           header.totalEntries = 0;
        }
     }
     
@@ -84,18 +84,19 @@ public class WeightedCodebook extends VocalTractTransformationData {
     {
         double[][] features = null;
         
-        if (lsfEntries!=null)
+        if (entries!=null)
         {
-            features = new double[header.totalLsfEntries][];
+            features = new double[header.totalEntries][];
             int dimension = 0;
             boolean isLsfDesired = false;
             boolean isF0Desired = false;
             boolean isEnergyDesired = false;
             boolean isDurationDesired = false;
+            boolean isMfccDesired = false;
             
             if (StringUtils.isDesired(BaselineFeatureExtractor.LSF_FEATURES, desiredFeatures))
             {
-                dimension += header.lsfParams.lpOrder;
+                dimension += header.lsfParams.dimension;
                 isLsfDesired = true;
             }
             if (StringUtils.isDesired(BaselineFeatureExtractor.F0_FEATURES, desiredFeatures))
@@ -113,9 +114,14 @@ public class WeightedCodebook extends VocalTractTransformationData {
                 dimension += 1;
                 isDurationDesired = true;
             }
+            if (StringUtils.isDesired(BaselineFeatureExtractor.MFCC_FEATURES, desiredFeatures))
+            {
+                dimension += header.mfccParams.dimension;
+                isMfccDesired = true;
+            }
             
             int currentPos;
-            for (int i=0; i<header.totalLsfEntries; i++)
+            for (int i=0; i<header.totalEntries; i++)
             {
                 features[i] = new double[dimension];
                 currentPos = 0;
@@ -123,25 +129,30 @@ public class WeightedCodebook extends VocalTractTransformationData {
                 //Source
                 if (speakerType==SOURCE || speakerType==SOURCE_TARGET)
                 {
-                    if (isLsfDesired)
+                    if (isLsfDesired && entries[i].sourceItem.lsfs!=null)
                     {
-                        System.arraycopy(lsfEntries[i].sourceItem.lsfs, 0, features[i], currentPos, header.lsfParams.lpOrder);
-                        currentPos += header.lsfParams.lpOrder;
+                        System.arraycopy(entries[i].sourceItem.lsfs, 0, features[i], currentPos, header.lsfParams.dimension);
+                        currentPos += header.lsfParams.dimension;
                     }
                     if (isF0Desired)
                     {
-                        features[i][currentPos] = lsfEntries[i].sourceItem.f0;
+                        features[i][currentPos] = entries[i].sourceItem.f0;
                         currentPos += 1;
                     }
                     if (isEnergyDesired)
                     {
-                        features[i][currentPos] = lsfEntries[i].sourceItem.energy;
+                        features[i][currentPos] = entries[i].sourceItem.energy;
                         currentPos += 1;
                     }
                     if (isDurationDesired)
                     {
-                        features[i][currentPos] = lsfEntries[i].sourceItem.duration;
+                        features[i][currentPos] = entries[i].sourceItem.duration;
                         currentPos += 1;
+                    } 
+                    if (isMfccDesired)
+                    {
+                        System.arraycopy(entries[i].sourceItem.mfccs, 0, features[i], currentPos, header.mfccParams.dimension);
+                        currentPos += header.mfccParams.dimension;
                     } 
                 }
                 
@@ -150,24 +161,29 @@ public class WeightedCodebook extends VocalTractTransformationData {
                 {
                     if (isLsfDesired)
                     {
-                        System.arraycopy(lsfEntries[i].targetItem.lsfs, 0, features[i], currentPos, header.lsfParams.lpOrder);
-                        currentPos += header.lsfParams.lpOrder;
+                        System.arraycopy(entries[i].targetItem.lsfs, 0, features[i], currentPos, header.lsfParams.dimension);
+                        currentPos += header.lsfParams.dimension;
                     }
                     if (isF0Desired)
                     {
-                        features[i][currentPos] = lsfEntries[i].targetItem.f0;
+                        features[i][currentPos] = entries[i].targetItem.f0;
                         currentPos += 1;
                     }
                     if (isEnergyDesired)
                     {
-                        features[i][currentPos] = lsfEntries[i].targetItem.energy;
+                        features[i][currentPos] = entries[i].targetItem.energy;
                         currentPos += 1;
                     }
                     if (isDurationDesired)
                     {
-                        features[i][currentPos] = lsfEntries[i].targetItem.duration;
+                        features[i][currentPos] = entries[i].targetItem.duration;
                         currentPos += 1;
                     } 
+                    if (isMfccDesired)
+                    {
+                        System.arraycopy(entries[i].targetItem.mfccs, 0, features[i], currentPos, header.mfccParams.dimension);
+                        currentPos += header.mfccParams.dimension;
+                    }
                 } 
                 
                 //Repeat Source here (i.e. target is requested first)
@@ -175,24 +191,29 @@ public class WeightedCodebook extends VocalTractTransformationData {
                 {
                     if (isLsfDesired)
                     {
-                        System.arraycopy(lsfEntries[i].sourceItem.lsfs, 0, features[i], currentPos, header.lsfParams.lpOrder);
-                        currentPos += header.lsfParams.lpOrder;
+                        System.arraycopy(entries[i].sourceItem.lsfs, 0, features[i], currentPos, header.lsfParams.dimension);
+                        currentPos += header.lsfParams.dimension;
                     }
                     if (isF0Desired)
                     {
-                        features[i][currentPos] = lsfEntries[i].sourceItem.f0;
+                        features[i][currentPos] = entries[i].sourceItem.f0;
                         currentPos += 1;
                     }
                     if (isEnergyDesired)
                     {
-                        features[i][currentPos] = lsfEntries[i].sourceItem.energy;
+                        features[i][currentPos] = entries[i].sourceItem.energy;
                         currentPos += 1;
                     }
                     if (isDurationDesired)
                     {
-                        features[i][currentPos] = lsfEntries[i].sourceItem.duration;
+                        features[i][currentPos] = entries[i].sourceItem.duration;
                         currentPos += 1;
-                    } 
+                    }
+                    if (isMfccDesired)
+                    {
+                        System.arraycopy(entries[i].sourceItem.mfccs, 0, features[i], currentPos, header.mfccParams.dimension);
+                        currentPos += header.mfccParams.dimension;
+                    }
                 }
             }
         }

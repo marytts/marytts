@@ -41,6 +41,7 @@ import marytts.util.io.MaryRandomAccessFile;
  */
 public class WeightedCodebookSpeakerItem {
     public double [] lsfs;
+    public double [] mfccs;
     public double f0;
     public double duration;
     public double energy;
@@ -49,16 +50,22 @@ public class WeightedCodebookSpeakerItem {
     
     public WeightedCodebookSpeakerItem()
     {
-       this(0);
+       this(0, 0);
     }
     
-    public WeightedCodebookSpeakerItem(int lpOrder)
+    public WeightedCodebookSpeakerItem(int lpOrder, int mffcDimension)
     {
-       allocate(lpOrder);
+       allocate(lpOrder, mffcDimension);
        phn = "";
     }
     
-    public void allocate(int lpOrder)
+    public void allocate(int lpOrder, int mfccDimension)
+    {
+        allocateLsfs(lpOrder);
+        allocateMfccs(mfccDimension);
+    }
+    
+    public void allocateLsfs(int lpOrder)
     {
         if (lsfs==null || lpOrder!=lsfs.length)
         {
@@ -66,15 +73,26 @@ public class WeightedCodebookSpeakerItem {
                 lsfs = new double[lpOrder];
             else
                 lsfs = null;
-        }   
+        }  
     }
     
-    public void setLsfs(double [] lsfsIn)
+    public void allocateMfccs(int mffcDimension)
+    {
+        if (mfccs==null || mffcDimension!=mfccs.length)
+        {
+            if (mffcDimension>0)
+                mfccs = new double[mffcDimension];
+            else
+                mfccs = null;
+        }  
+    }
+    
+    public void setLsfs(double[] lsfsIn)
     {
         if (lsfsIn!=null)
         {
             if (lsfs==null || lsfsIn.length!=lsfs.length)
-                allocate(lsfsIn.length);
+                allocateLsfs(lsfsIn.length);
             
             System.arraycopy(lsfsIn, 0, lsfs, 0, lsfsIn.length);
         }
@@ -82,50 +100,106 @@ public class WeightedCodebookSpeakerItem {
             lsfs = null;
     }
     
+    public void setMfccs(double[] mfccsIn)
+    {
+        if (mfccsIn!=null)
+        {
+            if (mfccs==null || mfccsIn.length!=mfccs.length)
+                allocateMfccs(mfccsIn.length);
+            
+            System.arraycopy(mfccsIn, 0, mfccs, 0, mfccsIn.length);
+        }
+        else
+            mfccs = null;
+    }
+    
     public void write(MaryRandomAccessFile ler)
     {
-        if (lsfs!=null)
+        if (lsfs!=null || mfccs!=null)
         {
-            try {
-                ler.writeDouble(lsfs);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            if (lsfs!=null)
+            {
+                try {
+                    ler.writeInt(lsfs.length);
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+                try {
+                    ler.writeDouble(lsfs);
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+            else
+            {
+                try {
+                    ler.writeInt(0);
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
             }
             
+            if (mfccs!=null)
+            {
+                try {
+                    ler.writeInt(mfccs.length);
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+                try {
+                    ler.writeDouble(mfccs);
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+            else
+            {
+                try {
+                    ler.writeInt(0);
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+            }
+
             try {
                 ler.writeDouble(f0);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            
+
             try {
                 ler.writeDouble(duration);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            
+
             try {
                 ler.writeDouble(energy);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            
+
             int tmpLen = 0;
-            
+
             if (phn!="")
                 tmpLen = phn.length();
-            
+
             try {
                 ler.writeInt(tmpLen);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            
+
             if (tmpLen>0)
             {
                 try {
@@ -135,19 +209,19 @@ public class WeightedCodebookSpeakerItem {
                     e.printStackTrace();
                 }
             }
-            
+
             tmpLen = 0;
-            
+
             if (context.allContext!="")
                 tmpLen = context.allContext.length();
-            
+
             try {
                 ler.writeInt(tmpLen);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            
+
             if (tmpLen>0)
             {
                 try {
@@ -160,17 +234,50 @@ public class WeightedCodebookSpeakerItem {
         }
     }
     
-    public void read(MaryRandomAccessFile ler, int lpOrder)
+    public void read(MaryRandomAccessFile ler, int lpOrder, int mfccDimension)
     {
-        allocate(lpOrder);
+        allocate(lpOrder, mfccDimension);
         
-        if (lsfs!=null && lpOrder>0)
+        if ((lsfs!=null && lpOrder>0) || (mfccs!=null && mfccDimension>0))
         {
+            int lpOrderInFile = 0;
+            
             try {
-                lsfs = ler.readDouble(lpOrder);
-            } catch (IOException e) {
+                lpOrderInFile = ler.readInt();
+            } catch (IOException e1) {
                 // TODO Auto-generated catch block
-                e.printStackTrace();
+                e1.printStackTrace();
+            }
+            assert lpOrderInFile==lpOrder;
+            
+            if (lpOrderInFile>0)
+            {
+                try {
+                    lsfs = ler.readDouble(lpOrder);
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+            
+            int mfccDimensionInFile = 0;
+            
+            try {
+                mfccDimensionInFile = ler.readInt();
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+            assert mfccDimensionInFile==mfccDimension;
+            
+            if (mfccDimensionInFile>0)
+            {
+                try {
+                    mfccs = ler.readDouble(mfccDimension);
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
             
             try {

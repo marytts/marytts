@@ -61,7 +61,7 @@ public class Lsfs {
         {
             MaryRandomAccessFile stream = null;
             try {
-                stream = params.readLsfHeader(lsfFile, true);
+                stream = params.readHeader(lsfFile, true);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -85,7 +85,7 @@ public class Lsfs {
         {
             MaryRandomAccessFile stream = null;
             try {
-                stream = params.writeLsfHeader(lsfFile, true);
+                stream = params.writeHeader(lsfFile, true);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -104,26 +104,26 @@ public class Lsfs {
     }
     public void allocate()
     {
-        allocate(params.numfrm, params.lpOrder);
+        allocate(params.numfrm, params.dimension);
     }
     
-    public void allocate(int numEntries, int lpOrder)
+    public void allocate(int numEntries, int dimension)
     {
         lsfs = null;
         params.numfrm = 0;
-        params.lpOrder = 0;
+        params.dimension = 0;
         
         if (numEntries>0)
         {
             lsfs = new double[numEntries][];
             params.numfrm = numEntries;
             
-            if (lpOrder>0)
+            if (dimension>0)
             {
-                params.lpOrder = lpOrder;
+                params.dimension = dimension;
                 
                 for (int i=0; i<numEntries; i++)
-                    lsfs[i] = new double[lpOrder];
+                    lsfs[i] = new double[dimension];
             }
         }
     }
@@ -131,7 +131,7 @@ public class Lsfs {
     public static void main(String[] args)
     {
         Lsfs l1 = new Lsfs();
-        l1.params.lpOrder = 5;
+        l1.params.dimension = 5;
         l1.params.numfrm = 1;
         l1.allocate();
         l1.lsfs[0][0] = 1.5;
@@ -141,7 +141,7 @@ public class Lsfs {
         l1.lsfs[0][4] = 5.5;
 
 
-        String lsfFile = "d:\\1.lsf";
+        String lsfFile = "d:/1.lsf";
         l1.writeLsfFile(lsfFile);
         Lsfs l2 = new Lsfs(lsfFile);
 

@@ -205,10 +205,10 @@ public class ESTLabels {
     {
         ESTLabels lab = null;
         
-        lab = new ESTLabels("d:\\m0001_poppyPhoneLab.lab");
+        lab = new ESTLabels("d:/m0001_poppyPhoneLab.lab");
         lab.print();
         
-        lab = new ESTLabels("d:\\m0001.lab");
+        lab = new ESTLabels("d:/m0001.lab");
         lab.print();
     }
 }

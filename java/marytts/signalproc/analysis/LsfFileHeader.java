@@ -39,97 +39,63 @@ import marytts.util.io.MaryRandomAccessFile;
  * @author oytun.turk
  *
  */
-public class LsfFileHeader {
-    public int numfrm; //Total number of frames
-    public int lpOrder; //Linear prediction order
+public class LsfFileHeader extends FeatureFileHeader {
     public float preCoef; //Preemphasis coefficient
-    public float winsize; //Analysis window size in seconds
-    public float skipsize; //Analysis skip size in seconds
-    public int samplingRate; //Sampling rate in Hz
     public int windowType; //Type of analysis window (See class marytts.signalproc.window.Window for details
     
     public LsfFileHeader()
     {
-        numfrm = 0;
-        lpOrder = 0;
+        super();
+        
         preCoef = 0.0f;
-        winsize = 0.020f;
-        skipsize = 0.010f;
-        samplingRate = 0;
         windowType = Window.HAMMING;
     }
     
     public LsfFileHeader(LsfFileHeader existingHeader)
     {
-        numfrm = existingHeader.numfrm;
-        lpOrder = existingHeader.lpOrder;
+        super((FeatureFileHeader)existingHeader);
+
         preCoef = existingHeader.preCoef;
-        winsize = existingHeader.winsize;
-        skipsize = existingHeader.skipsize;
-        samplingRate = existingHeader.samplingRate;
         windowType = existingHeader.windowType;
-    }
-    
-    public boolean isIdenticalAnalysisParams(LsfFileHeader hdr)
-    {
-        boolean bRet = true;
-        
-        if (this.lpOrder!=hdr.lpOrder)
-            return false;
-        if (this.preCoef!=hdr.preCoef)
-            return false;
-        if (this.winsize!=hdr.winsize)
-            return false;
-        if (this.skipsize!=hdr.skipsize)
-            return false;
-        if (this.samplingRate!=hdr.samplingRate)
-            return false;
-        if (this.windowType!=hdr.windowType)
-            return false;
-        
-        return bRet;
     }
     
     public LsfFileHeader(String lsfFile)
     {
+        super(lsfFile);
+        
         try {
-            readLsfHeader(lsfFile);
+            readHeader(lsfFile);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
     
-    public void readLsfHeader(String lsfFile) throws IOException
+    public boolean isIdenticalAnalysisParams(LsfFileHeader hdr)
     {
-        readLsfHeader(lsfFile, false);
-    }
-    
-    public MaryRandomAccessFile readLsfHeader(String lsfFile, boolean bLeaveStreamOpen) throws IOException
-    {
-        MaryRandomAccessFile stream = new MaryRandomAccessFile(lsfFile, "rw");
-
-        if (stream!=null)
-            readLsfHeader(stream, bLeaveStreamOpen);
+        if (!(hdr instanceof LsfFileHeader))
+            return false;
         
-        return stream;
+        boolean bRet = super.isIdenticalAnalysisParams((FeatureFileHeader)hdr);
+       
+        if (bRet==false)
+            return false;
+
+        if (this.preCoef!=((LsfFileHeader)hdr).preCoef)
+            return false;
+        if (this.windowType!=((LsfFileHeader)hdr).windowType)
+            return false;
+        
+        return bRet;
     }
     
-    public void readLsfHeader(MaryRandomAccessFile stream) throws IOException
-    {
-        readLsfHeader(stream, true);
-    }
-    
-    public void readLsfHeader(MaryRandomAccessFile stream, boolean bLeaveStreamOpen) throws IOException
+    public void readHeader(MaryRandomAccessFile stream, boolean bLeaveStreamOpen) throws IOException
     {
         if (stream!=null)
         {
-            lpOrder = stream.readInt();
-            numfrm = stream.readInt();
+            super.readHeader(stream, true);
+            
             preCoef = stream.readFloat();
-            winsize = stream.readFloat();
-            skipsize = stream.readFloat();
-            samplingRate = stream.readInt();
             windowType = stream.readInt();
             
             if (!bLeaveStreamOpen)
@@ -140,39 +106,11 @@ public class LsfFileHeader {
         }
     }
     
-    public void writeLsfHeader(String lsfFile) throws IOException
-    {
-        writeLsfHeader(lsfFile, false);
-    }
-    
-    //This version returns the file output stream for further use, i.e. if you want to write additional information
-    // in the file use this version
-    public MaryRandomAccessFile writeLsfHeader(String lsfFile, boolean bLeaveStreamOpen) throws IOException
-    {
-        MaryRandomAccessFile stream = new MaryRandomAccessFile(lsfFile, "rw");
-
-        if (stream!=null)
-        {
-            writeLsfHeader(stream);
-            
-            if (!bLeaveStreamOpen)
-            {
-                stream.close();
-                stream = null;
-            }
-        }
-        
-        return stream;
-    }
-    
-    public void writeLsfHeader(MaryRandomAccessFile ler) throws IOException
+    public void writeHeader(MaryRandomAccessFile ler) throws IOException
     {   
-        ler.writeInt(lpOrder);
-        ler.writeInt(numfrm);
+        super.writeHeader(ler);
+        
         ler.writeFloat(preCoef);
-        ler.writeFloat(winsize);
-        ler.writeFloat(skipsize);
-        ler.writeInt(samplingRate);
         ler.writeInt(windowType);
     }
 }

@@ -90,7 +90,7 @@ public class KMeansMappingEliminator {
             e.printStackTrace();
         }
 
-        int[] acceptanceStatus = new int[codebookIn.header.totalLsfEntries];
+        int[] acceptanceStatus = new int[codebookIn.header.totalEntries];
         Arrays.fill(acceptanceStatus, OutlierStatus.NON_OUTLIER);
 
         int totalLsfOutliers = 0;
@@ -234,7 +234,7 @@ public class KMeansMappingEliminator {
             }
 
             int newTotalEntries = 0;
-            for (i=0; i<codebookIn.header.totalLsfEntries; i++)
+            for (i=0; i<codebookIn.header.totalEntries; i++)
             {
                 if (acceptanceStatus[i]==OutlierStatus.NON_OUTLIER)
                     newTotalEntries++;
@@ -247,16 +247,16 @@ public class KMeansMappingEliminator {
             headerOut.resetTotalEntries();
             codebookOut.writeCodebookHeader(headerOut);
 
-            for (i=0; i<codebookIn.header.totalLsfEntries; i++)
+            for (i=0; i<codebookIn.header.totalEntries; i++)
             {
                 if (acceptanceStatus[i]==OutlierStatus.NON_OUTLIER)
-                    codebookOut.writeLsfEntry(codebookIn.lsfEntries[i]);
+                    codebookOut.writeEntry(codebookIn.entries[i]);
             }
 
             codebookOut.close();
             //
 
-            System.out.println("Outliers detected = " + String.valueOf(codebookIn.header.totalLsfEntries-newTotalEntries) + " of " + String.valueOf(codebookIn.header.totalLsfEntries));
+            System.out.println("Outliers detected = " + String.valueOf(codebookIn.header.totalEntries-newTotalEntries) + " of " + String.valueOf(codebookIn.header.totalEntries));
         }
     }
 
