@@ -58,6 +58,7 @@ import marytts.signalproc.adaptation.codebook.WeightedCodebookTrainerParams;
 import marytts.signalproc.adaptation.outlier.KMeansMappingEliminatorParams;
 import marytts.signalproc.adaptation.outlier.TotalStandardDeviations;
 import marytts.signalproc.adaptation.prosody.PitchMappingFile;
+import marytts.signalproc.analysis.MfccFileHeader;
 import marytts.signalproc.analysis.distance.DistanceComputer;
 import marytts.signalproc.window.Window;
 import marytts.util.io.FileUtils;
@@ -256,9 +257,9 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABEL_GROUPS; method = "LG"; pa.codebookHeader.numNeighboursInLabelGroups = 1; //Mapping of average features collected across label groups (i.e. vowels, consonants, etc)
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.SPEECH; method = "S"; //Mapping of average features collected across all speech parts (i.e. like spectral equalization)
 
-        pa.vocalTractFeature = BaselineFeatureExtractor.LSF_FEATURES; //Use Lsf features - full speech to speech transformation
-        //pa.vocalTractFeature = BaselineFeatureExtractor.MFCC_FEATURES; //Use MFCC features - currently supports only feature to featur etransformation
-            
+        //pa.vocalTractFeature = BaselineFeatureExtractor.LSF_FEATURES; //Use Lsf features - full speech to speech transformation
+        pa.vocalTractFeature = BaselineFeatureExtractor.MFCC_FEATURES; //Use MFCC features - currently supports only feature to featur etransformation
+        
         pa.codebookHeader.sourceTag = sourceTag + method; //Source name tag (i.e. style or speaker identity)
         pa.codebookHeader.targetTag = targetTag + method; //Target name tag (i.e. style or speaker identity)
         

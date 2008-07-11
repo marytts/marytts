@@ -286,27 +286,38 @@ public class WeightedCodebookTrainer extends BaselineTrainer {
     //This function generates the codebooks from training pairs
     public void learnMapping(WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map)
     {
-        WeightedCodebookLsfMapper lsfMapper = new WeightedCodebookLsfMapper(wcParams);
-        WeightedCodebookFile temporaryCodebookFile = new WeightedCodebookFile(wcParams.temporaryCodebookFile, WeightedCodebookFile.OPEN_FOR_WRITE);
-        PitchMappingFile pitchMappingFile = new PitchMappingFile(wcParams.pitchMappingFile, PitchMappingFile.OPEN_FOR_WRITE);
+        WeightedCodebookFeatureMapper featureMapper = null;
+        
+        if (wcParams.vocalTractFeature==BaselineFeatureExtractor.LSF_FEATURES)
+            featureMapper = new WeightedCodebookLsfMapper(wcParams);
+        else if (wcParams.vocalTractFeature==BaselineFeatureExtractor.MFCC_FEATURES)
+            featureMapper = new WeightedCodebookMfccMapper(wcParams);
+        
+        if (featureMapper!=null)
+        {
+            WeightedCodebookFile temporaryCodebookFile = new WeightedCodebookFile(wcParams.temporaryCodebookFile, WeightedCodebookFile.OPEN_FOR_WRITE);
+            PitchMappingFile pitchMappingFile = new PitchMappingFile(wcParams.pitchMappingFile, PitchMappingFile.OPEN_FOR_WRITE);
 
-        if (wcParams.codebookHeader.codebookType==WeightedCodebookFileHeader.FRAMES)
-            lsfMapper.learnMappingFrames(temporaryCodebookFile, (WeightedCodebookFeatureCollection)fcol, sourceTrainingSet, targetTrainingSet, map);
-        else if (wcParams.codebookHeader.codebookType==WeightedCodebookFileHeader.FRAME_GROUPS)
-            lsfMapper.learnMappingFrameGroups(temporaryCodebookFile, (WeightedCodebookFeatureCollection)fcol, sourceTrainingSet, targetTrainingSet, map);
-        else if (wcParams.codebookHeader.codebookType==WeightedCodebookFileHeader.LABELS)
-            lsfMapper.learnMappingLabels(temporaryCodebookFile, (WeightedCodebookFeatureCollection)fcol, sourceTrainingSet, targetTrainingSet, map);
-        else if (wcParams.codebookHeader.codebookType==WeightedCodebookFileHeader.LABEL_GROUPS)
-            lsfMapper.learnMappingLabelGroups(temporaryCodebookFile, (WeightedCodebookFeatureCollection)fcol, sourceTrainingSet, targetTrainingSet, map);
-        else if (wcParams.codebookHeader.codebookType==WeightedCodebookFileHeader.SPEECH)
-            lsfMapper.learnMappingSpeech(temporaryCodebookFile, (WeightedCodebookFeatureCollection)fcol, sourceTrainingSet, targetTrainingSet, map);
-        
-        temporaryCodebookFile.close();
-        
-        PitchTrainer ptcTrainer = new PitchTrainer(wcParams);
-        ptcTrainer.learnMapping(pitchMappingFile, (WeightedCodebookFeatureCollection)fcol, sourceTrainingSet, targetTrainingSet, map);
-        
-        pitchMappingFile.close();
+            if (wcParams.codebookHeader.codebookType==WeightedCodebookFileHeader.FRAMES)
+                featureMapper.learnMappingFrames(temporaryCodebookFile, (WeightedCodebookFeatureCollection)fcol, sourceTrainingSet, targetTrainingSet, map);
+            else if (wcParams.codebookHeader.codebookType==WeightedCodebookFileHeader.FRAME_GROUPS)
+                featureMapper.learnMappingFrameGroups(temporaryCodebookFile, (WeightedCodebookFeatureCollection)fcol, sourceTrainingSet, targetTrainingSet, map);
+            else if (wcParams.codebookHeader.codebookType==WeightedCodebookFileHeader.LABELS)
+                featureMapper.learnMappingLabels(temporaryCodebookFile, (WeightedCodebookFeatureCollection)fcol, sourceTrainingSet, targetTrainingSet, map);
+            else if (wcParams.codebookHeader.codebookType==WeightedCodebookFileHeader.LABEL_GROUPS)
+                featureMapper.learnMappingLabelGroups(temporaryCodebookFile, (WeightedCodebookFeatureCollection)fcol, sourceTrainingSet, targetTrainingSet, map);
+            else if (wcParams.codebookHeader.codebookType==WeightedCodebookFileHeader.SPEECH)
+                featureMapper.learnMappingSpeech(temporaryCodebookFile, (WeightedCodebookFeatureCollection)fcol, sourceTrainingSet, targetTrainingSet, map);
+
+            temporaryCodebookFile.close();
+
+            PitchTrainer ptcTrainer = new PitchTrainer(wcParams);
+            ptcTrainer.learnMapping(pitchMappingFile, (WeightedCodebookFeatureCollection)fcol, sourceTrainingSet, targetTrainingSet, map);
+
+            pitchMappingFile.close();
+        }
+        else
+            System.out.println("Error! Specified feature mapper does not exist...");     
     }
     
     public void deleteTemporaryFiles(WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet)

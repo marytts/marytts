@@ -10,6 +10,7 @@ import java.util.StringTokenizer;
 import marytts.modules.phonemiser.Phoneme;
 import marytts.signalproc.analysis.ESTLabel;
 import marytts.signalproc.analysis.ESTLabels;
+import marytts.util.MaryUtils;
 import marytts.util.io.FileUtils;
 
 
@@ -97,8 +98,13 @@ public class StringUtils {
         
         char last = strIn.charAt(strIn.length()-1);
         
-        if (last != File.separatorChar && last != '\\')
-            strOut = strOut + File.separatorChar;
+        if (last != File.separatorChar && last != '\\' && last != '/')
+        {
+            if (!MaryUtils.isWindows())
+                strOut = strOut + "/";
+            else
+                strOut = strOut + File.separatorChar;
+        }
         
         return strOut;
     }

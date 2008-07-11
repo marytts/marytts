@@ -11,9 +11,11 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.StringWriter;
 import java.util.Arrays;
 
@@ -61,15 +63,27 @@ public class FileUtils
      */
     public static String getFileAsString(File file, String encoding) throws IOException
     {
+        return getStreamAsString(new FileInputStream(file), encoding);
+    }
+
+    public static String getStreamAsString(InputStream inputStream, String encoding) throws IOException
+    {
+        return getReaderAsString(new InputStreamReader(inputStream, encoding));
+    }
+    
+    public static String getReaderAsString(Reader reader) throws IOException
+    {
         StringWriter sw = new StringWriter();
-        BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding));
+        BufferedReader in = new BufferedReader(reader);
         char[] buf = new char[8192];
         int n;
         while ((n=in.read(buf))> 0) {
             sw.write(buf, 0, n);
         }
         return sw.toString();
+        
     }
+    
     
     public static void writeToTextFile(double[] array, String textFile)
     {

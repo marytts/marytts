@@ -33,6 +33,7 @@ import marytts.signalproc.adaptation.prosody.ProsodyTransformerParams;
 import marytts.signalproc.adaptation.smoothing.SmoothingDefinitions;
 import marytts.signalproc.analysis.EnergyFileHeader;
 import marytts.signalproc.analysis.LsfFileHeader;
+import marytts.signalproc.analysis.MfccFileHeader;
 import marytts.signalproc.analysis.PitchFileHeader;
 
 /**
@@ -52,6 +53,7 @@ public class BaselineTransformerParams extends BaselineParams {
     public LsfFileHeader lsfParams;
     public PitchFileHeader ptcParams;
     public EnergyFileHeader energyParams;
+    public MfccFileHeader mfccParams;
     
     public boolean isForcedAnalysis;
     public boolean isVocalTractTransformation;
@@ -89,6 +91,7 @@ public class BaselineTransformerParams extends BaselineParams {
         lsfParams = new LsfFileHeader();
         ptcParams = new PitchFileHeader();
         energyParams = new EnergyFileHeader();
+        mfccParams = new MfccFileHeader();
         
         isForcedAnalysis = false;
         isSourceVocalTractSpectrumFromModel = true;
@@ -130,6 +133,7 @@ public class BaselineTransformerParams extends BaselineParams {
         lsfParams = new LsfFileHeader(existing.lsfParams);
         ptcParams = new PitchFileHeader(existing.ptcParams);
         energyParams = new EnergyFileHeader(existing.energyParams);
+        mfccParams = new MfccFileHeader(existing.mfccParams);
         
         isForcedAnalysis = existing.isForcedAnalysis;
         isVocalTractTransformation = existing.isVocalTractTransformation;

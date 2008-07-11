@@ -41,6 +41,7 @@ import marytts.signalproc.analysis.EnergyAnalyserRms;
 import marytts.signalproc.analysis.EnergyFileHeader;
 import marytts.signalproc.analysis.LineSpectralFrequencies;
 import marytts.signalproc.analysis.LsfFileHeader;
+import marytts.signalproc.analysis.MfccFileHeader;
 import marytts.signalproc.analysis.PitchFileHeader;
 import marytts.signalproc.analysis.PitchTrackerAutocorrelation;
 import marytts.util.io.FileUtils;
@@ -107,6 +108,14 @@ public class BaselineFeatureExtractor {
         else if (params instanceof JointGMMTransformerParams)
             energyParams = new EnergyFileHeader(((JointGMMTransformerParams)params).energyParams);
         
+        MfccFileHeader mfccParams = null;
+        if (params instanceof WeightedCodebookTrainerParams)
+            mfccParams = new MfccFileHeader(((WeightedCodebookTrainerParams)params).codebookHeader.mfccParams);
+        else if (params instanceof WeightedCodebookTransformerParams)
+            mfccParams = new MfccFileHeader(((WeightedCodebookTransformerParams)params).mfccParams);
+        else if (params instanceof JointGMMTransformerParams)
+            mfccParams = new MfccFileHeader(((JointGMMTransformerParams)params).mfccParams);
+        
         boolean isForcedAnalysis = false;
         if (params instanceof WeightedCodebookTrainerParams)
             isForcedAnalysis = ((WeightedCodebookTrainerParams)params).isForcedAnalysis;
@@ -124,6 +133,9 @@ public class BaselineFeatureExtractor {
         
         if (StringUtils.isDesired(ENERGY_FEATURES, desiredFeatures))
             energyAnalysis(fileSet, energyParams, isForcedAnalysis); 
+        
+        if (StringUtils.isDesired(MFCC_FEATURES, desiredFeatures))
+            mfccAnalysis(fileSet, mfccParams, isForcedAnalysis); 
         //
     }
     
@@ -215,4 +227,31 @@ public class BaselineFeatureExtractor {
         System.out.println("Energy analysis completed...");
     }
 
+    public static void mfccAnalysis(BaselineAdaptationSet fileSet, MfccFileHeader mfccParams, boolean isForcedAnalysis) throws IOException
+    {
+        System.out.println("Starting MFCC analysis...");
+        
+        boolean bAnalyze;
+        for (int i=0; i<fileSet.items.length; i++)
+        {
+            bAnalyze = true;
+            if (!isForcedAnalysis && FileUtils.exists(fileSet.items[i].mfccFile))
+            {
+                MfccFileHeader tmpParams = new MfccFileHeader(fileSet.items[i].mfccFile);
+                if (tmpParams.isIdenticalAnalysisParams(mfccParams))
+                    bAnalyze = false;
+            }
+                
+            if (bAnalyze)
+            {
+                //TO DO: MelCepstralFrequencies.mfccAnalyzeWavFile(fileSet.items[i].audioFile, fileSet.items[i].mfccFile, mfccParams);
+                //System.out.println("Extracted MFCCs: " + fileSet.items[i].mfccFile);
+                System.out.println("MFCC analysis not implemented yet!Please use SPTK generated raw MFCC file named as " + fileSet.items[i].mfccFile);
+            }
+            else
+                System.out.println("MFCC file found with identical analysis parameters: " + fileSet.items[i].lsfFile);
+        }
+        
+        System.out.println("MFCC analysis completed...");
+    }
 }
