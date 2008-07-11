@@ -47,8 +47,8 @@ import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
 import marytts.modules.synthesis.Voice;
 import marytts.server.Mary;
-import marytts.util.FileUtils;
 import marytts.util.MaryUtils;
+import marytts.util.io.FileUtils;
 
 /**
  * A representation of the data types available as input/output of (partial)

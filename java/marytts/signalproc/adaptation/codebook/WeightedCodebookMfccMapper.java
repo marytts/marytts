@@ -40,8 +40,8 @@ import marytts.signalproc.adaptation.prosody.PitchStatistics;
 import marytts.signalproc.analysis.ESTLabels;
 import marytts.signalproc.analysis.EnergyAnalyserRms;
 import marytts.signalproc.analysis.F0ReaderWriter;
-import marytts.signalproc.analysis.LsfFileHeader;
-import marytts.signalproc.analysis.Lsfs;
+import marytts.signalproc.analysis.MfccFileHeader;
+import marytts.signalproc.analysis.Mfccs;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
@@ -50,9 +50,9 @@ import marytts.util.signal.SignalProcUtils;
  * @author oytun.turk
  *
  */
-public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
+public class WeightedCodebookMfccMapper extends WeightedCodebookFeatureMapper {
     private WeightedCodebookTrainerParams params;
-    public WeightedCodebookLsfMapper(WeightedCodebookTrainerParams pa)
+    public WeightedCodebookMfccMapper(WeightedCodebookTrainerParams pa)
     {
         params = new WeightedCodebookTrainerParams(pa);
     }
@@ -82,9 +82,9 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
 
             if (imap.files!=null && sourceTrainingSet.items.length>i && targetTrainingSet.items.length>i)
             {
-                //Lsfs
-                Lsfs srcFeatures = new Lsfs(sourceTrainingSet.items[i].lsfFile);
-                Lsfs tgtFeatures = new Lsfs(targetTrainingSet.items[map[i]].lsfFile);
+                //Mfccs
+                Mfccs srcFeatures = new Mfccs(sourceTrainingSet.items[i].mfccFile);
+                Mfccs tgtFeatures = new Mfccs(targetTrainingSet.items[map[i]].mfccFile);
                 //
                 
                 //Pitch: for outlier elimination not prosody modeling!
@@ -104,32 +104,32 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                 
                 if (!bHeaderWritten)
                 {
-                    params.codebookHeader.lsfParams.dimension = ((LsfFileHeader)(srcFeatures.params)).dimension;
-                    params.codebookHeader.lsfParams.samplingRate = ((LsfFileHeader)(srcFeatures.params)).samplingRate;
+                    params.codebookHeader.mfccParams.dimension = ((MfccFileHeader)(srcFeatures.params)).dimension;
+                    params.codebookHeader.mfccParams.samplingRate = ((MfccFileHeader)(srcFeatures.params)).samplingRate;
                     
                     codebookFile.writeCodebookHeader(params.codebookHeader);
                     bHeaderWritten = true;
                 }
                 
-                if (srcFeatures.lsfs!=null && srcFeatures.lsfs!=null)
+                if (srcFeatures.mfccs!=null && srcFeatures.mfccs!=null)
                 {
                     for (j=0; j<imap.files[0].indicesMap.length; j++) //j is the index for labels
                     {
-                        if (srcFeatures.lsfs.length>imap.files[0].indicesMap[j][0] && tgtFeatures.lsfs.length>imap.files[0].indicesMap[j][1])
+                        if (srcFeatures.mfccs.length>imap.files[0].indicesMap[j][0] && tgtFeatures.mfccs.length>imap.files[0].indicesMap[j][1])
                         {
                             //Write to codebook file
-                            entry = new WeightedCodebookEntry(((LsfFileHeader)(srcFeatures.params)).dimension, 0);
-                            entry.setLsfs(srcFeatures.lsfs[imap.files[0].indicesMap[j][0]], tgtFeatures.lsfs[imap.files[0].indicesMap[j][1]]);
+                            entry = new WeightedCodebookEntry(((MfccFileHeader)(srcFeatures.params)).dimension, 0);
+                            entry.setMfccs(srcFeatures.mfccs[imap.files[0].indicesMap[j][0]], tgtFeatures.mfccs[imap.files[0].indicesMap[j][1]]);
 
                             //Pitch
-                            index = MathUtils.linearMap(imap.files[0].indicesMap[j][0], 0, srcFeatures.lsfs.length-1, 0, sourceF0s.contour.length-1);
+                            index = MathUtils.linearMap(imap.files[0].indicesMap[j][0], 0, srcFeatures.mfccs.length-1, 0, sourceF0s.contour.length-1);
                             entry.sourceItem.f0 = sourceF0s.contour[index];
-                            index = MathUtils.linearMap(imap.files[0].indicesMap[j][1], 0, tgtFeatures.lsfs.length-1, 0, targetF0s.contour.length-1);
+                            index = MathUtils.linearMap(imap.files[0].indicesMap[j][1], 0, tgtFeatures.mfccs.length-1, 0, targetF0s.contour.length-1);
                             entry.targetItem.f0 = targetF0s.contour[index];
                             //
 
                             //Duration & Phoneme
-                            index = SignalProcUtils.frameIndex2LabelIndex(imap.files[0].indicesMap[j][0], sourceLabels, ((LsfFileHeader)(srcFeatures.params)).winsize, ((LsfFileHeader)(srcFeatures.params)).skipsize);
+                            index = SignalProcUtils.frameIndex2LabelIndex(imap.files[0].indicesMap[j][0], sourceLabels, ((MfccFileHeader)(srcFeatures.params)).winsize, ((MfccFileHeader)(srcFeatures.params)).skipsize);
                             if (index>0)
                                 entry.sourceItem.duration = sourceLabels.items[index].time-sourceLabels.items[index-1].time;
                             else
@@ -137,7 +137,7 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                             entry.sourceItem.phn = sourceLabels.items[index].phn;                            
                             entry.sourceItem.context = new Context(sourceLabels, index, WeightedCodebookTrainerParams.MAXIMUM_CONTEXT);
 
-                            index = SignalProcUtils.frameIndex2LabelIndex(imap.files[0].indicesMap[j][1], targetLabels, ((LsfFileHeader)(tgtFeatures.params)).winsize, ((LsfFileHeader)(tgtFeatures.params)).skipsize);
+                            index = SignalProcUtils.frameIndex2LabelIndex(imap.files[0].indicesMap[j][1], targetLabels, ((MfccFileHeader)(tgtFeatures.params)).winsize, ((MfccFileHeader)(tgtFeatures.params)).skipsize);
                             if (index>0)  
                                 entry.targetItem.duration = targetLabels.items[index].time-targetLabels.items[index-1].time;
                             else
@@ -147,9 +147,9 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                             //
 
                             //Energy
-                            index = MathUtils.linearMap(imap.files[0].indicesMap[j][0], 0, srcFeatures.lsfs.length-1, 0, sourceEnergies.contour.length-1);
+                            index = MathUtils.linearMap(imap.files[0].indicesMap[j][0], 0, srcFeatures.mfccs.length-1, 0, sourceEnergies.contour.length-1);
                             entry.sourceItem.energy = sourceEnergies.contour[index];
-                            index = MathUtils.linearMap(imap.files[0].indicesMap[j][1], 0, tgtFeatures.lsfs.length-1, 0, targetEnergies.contour.length-1);
+                            index = MathUtils.linearMap(imap.files[0].indicesMap[j][1], 0, tgtFeatures.mfccs.length-1, 0, targetEnergies.contour.length-1);
                             entry.targetItem.energy = targetEnergies.contour[index];
                             //
 
@@ -210,9 +210,9 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
 
             if (imap.files!=null && sourceTrainingSet.items.length>i && targetTrainingSet.items.length>i)
             {
-                //Lsfs
-                Lsfs srcFeatures = new Lsfs(sourceTrainingSet.items[i].lsfFile);
-                Lsfs tgtFeatures = new Lsfs(targetTrainingSet.items[map[i]].lsfFile);
+                //Mfccs
+                Mfccs srcFeatures = new Mfccs(sourceTrainingSet.items[i].mfccFile);
+                Mfccs tgtFeatures = new Mfccs(targetTrainingSet.items[map[i]].mfccFile);
                 //
 
                 //Pitch: for outlier elimination not prosody modeling!
@@ -232,8 +232,8 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
 
                 if (!bHeaderWritten)
                 {
-                    params.codebookHeader.lsfParams.dimension = ((LsfFileHeader)(srcFeatures.params)).dimension;
-                    params.codebookHeader.lsfParams.samplingRate = ((LsfFileHeader)(srcFeatures.params)).samplingRate;
+                    params.codebookHeader.mfccParams.dimension = ((MfccFileHeader)(srcFeatures.params)).dimension;
+                    params.codebookHeader.mfccParams.samplingRate = ((MfccFileHeader)(srcFeatures.params)).samplingRate;
 
                     codebookFile.writeCodebookHeader(params.codebookHeader);
                     bHeaderWritten = true;
@@ -241,25 +241,25 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
 
                 if (i==0)
                 {
-                    meanSourceEntries = new double[((LsfFileHeader)(srcFeatures.params)).dimension];
-                    meanTargetEntries = new double[((LsfFileHeader)(tgtFeatures.params)).dimension];
+                    meanSourceEntries = new double[((MfccFileHeader)(srcFeatures.params)).dimension];
+                    meanTargetEntries = new double[((MfccFileHeader)(tgtFeatures.params)).dimension];
                 }
                 else
                 {
-                    if (meanSourceEntries.length!=((LsfFileHeader)(srcFeatures.params)).dimension)
+                    if (meanSourceEntries.length!=((MfccFileHeader)(srcFeatures.params)).dimension)
                     {
-                        System.out.println("Error! LSF vector size mismatch in source lsf file " + sourceTrainingSet.items[i].lsfFile);
+                        System.out.println("Error! LSF vector size mismatch in source lsf file " + sourceTrainingSet.items[i].mfccFile);
                         return;
                     }
 
-                    if (meanTargetEntries.length!=((LsfFileHeader)(tgtFeatures.params)).dimension)
+                    if (meanTargetEntries.length!=((MfccFileHeader)(tgtFeatures.params)).dimension)
                     {
-                        System.out.println("Error! LSF vector size mismatch in target lsf file " + targetTrainingSet.items[map[i]].lsfFile);
+                        System.out.println("Error! LSF vector size mismatch in target lsf file " + targetTrainingSet.items[map[i]].mfccFile);
                         return;
                     }
                 }  
 
-                if (srcFeatures.lsfs!=null && tgtFeatures.lsfs!=null)
+                if (srcFeatures.mfccs!=null && tgtFeatures.mfccs!=null)
                 {
                     for (j=0; j<imap.files[0].indicesMap.length; j++) //j is the index for labels
                     {
@@ -282,16 +282,16 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                         middle = (int)Math.floor(0.5*(imap.files[0].indicesMap[j][0] + imap.files[0].indicesMap[j][1])+0.5);
                         for (k=imap.files[0].indicesMap[j][0]; k<=imap.files[0].indicesMap[j][1]; k++)
                         {
-                            if (k>=0 && k<srcFeatures.lsfs.length)
+                            if (k>=0 && k<srcFeatures.mfccs.length)
                             {
                                 totalFrames++;
                                 bSourceOK = true;
 
-                                for (n=0; n<((LsfFileHeader)(srcFeatures.params)).dimension; n++)
-                                    meanSourceEntries[n] += srcFeatures.lsfs[k][n];
+                                for (n=0; n<((MfccFileHeader)(srcFeatures.params)).dimension; n++)
+                                    meanSourceEntries[n] += srcFeatures.mfccs[k][n];
 
                                 //Pitch
-                                index = MathUtils.linearMap(k, 0, srcFeatures.lsfs.length-1, 0, sourceF0s.contour.length-1);
+                                index = MathUtils.linearMap(k, 0, srcFeatures.mfccs.length-1, 0, sourceF0s.contour.length-1);
                                 if (sourceF0s.contour[index]>10.0)
                                 {
                                     sourceAverageF0 += sourceF0s.contour[index];
@@ -300,7 +300,7 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                                 //
 
                                 //Duration
-                                index = SignalProcUtils.frameIndex2LabelIndex(k, sourceLabels, ((LsfFileHeader)(srcFeatures.params)).winsize, ((LsfFileHeader)(srcFeatures.params)).skipsize);
+                                index = SignalProcUtils.frameIndex2LabelIndex(k, sourceLabels, ((MfccFileHeader)(srcFeatures.params)).winsize, ((MfccFileHeader)(srcFeatures.params)).skipsize);
                                 if (index>0)
                                     sourceAverageDuration += sourceLabels.items[index].time-sourceLabels.items[index-1].time;
                                 else
@@ -316,7 +316,7 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                                 //
 
                                 //Energy
-                                index = MathUtils.linearMap(k, 0, srcFeatures.lsfs.length-1, 0, sourceEnergies.contour.length-1);
+                                index = MathUtils.linearMap(k, 0, srcFeatures.mfccs.length-1, 0, sourceEnergies.contour.length-1);
                                 sourceAverageEnergy += sourceEnergies.contour[index];
                                 //
 
@@ -326,7 +326,7 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
 
                         if (bSourceOK)
                         {
-                            for (n=0; n<((LsfFileHeader)(srcFeatures.params)).dimension; n++)
+                            for (n=0; n<((MfccFileHeader)(srcFeatures.params)).dimension; n++)
                                 meanSourceEntries[n] /= totalFrames;
 
                             totalFrames = 0;
@@ -334,16 +334,16 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                             middle = (int)Math.floor(0.5*(imap.files[0].indicesMap[j][2] + imap.files[0].indicesMap[j][3])+0.5);
                             for (k=imap.files[0].indicesMap[j][2]; k<=imap.files[0].indicesMap[j][3]; k++)
                             {
-                                if (k>=0 && k<tgtFeatures.lsfs.length)
+                                if (k>=0 && k<tgtFeatures.mfccs.length)
                                 {
                                     totalFrames++;
                                     bTargetOK = true;
 
-                                    for (n=0; n<((LsfFileHeader)(tgtFeatures.params)).dimension; n++)
-                                        meanTargetEntries[n] += tgtFeatures.lsfs[k][n];
+                                    for (n=0; n<((MfccFileHeader)(tgtFeatures.params)).dimension; n++)
+                                        meanTargetEntries[n] += tgtFeatures.mfccs[k][n];
 
                                     //Pitch
-                                    index = MathUtils.linearMap(k, 0, tgtFeatures.lsfs.length-1, 0, targetF0s.contour.length-1);
+                                    index = MathUtils.linearMap(k, 0, tgtFeatures.mfccs.length-1, 0, targetF0s.contour.length-1);
                                     if (targetF0s.contour[index]>10.0)
                                     {
                                         targetAverageF0 += targetF0s.contour[index];
@@ -352,7 +352,7 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                                     //
 
                                     //Duration
-                                    index = SignalProcUtils.frameIndex2LabelIndex(k, targetLabels, ((LsfFileHeader)(tgtFeatures.params)).winsize, ((LsfFileHeader)(tgtFeatures.params)).skipsize);
+                                    index = SignalProcUtils.frameIndex2LabelIndex(k, targetLabels, ((MfccFileHeader)(tgtFeatures.params)).winsize, ((MfccFileHeader)(tgtFeatures.params)).skipsize);
                                     if (index>0)
                                         targetAverageDuration += targetLabels.items[index].time-targetLabels.items[index-1].time;
                                     else
@@ -368,7 +368,7 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                                     //
 
                                     //Energy
-                                    index = MathUtils.linearMap(k, 0, tgtFeatures.lsfs.length-1, 0, targetEnergies.contour.length-1);
+                                    index = MathUtils.linearMap(k, 0, tgtFeatures.mfccs.length-1, 0, targetEnergies.contour.length-1);
                                     targetAverageEnergy += targetEnergies.contour[index];
                                     //
 
@@ -378,12 +378,12 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
 
                             if (bTargetOK)
                             {
-                                for (n=0; n<((LsfFileHeader)(tgtFeatures.params)).dimension; n++)
+                                for (n=0; n<((MfccFileHeader)(tgtFeatures.params)).dimension; n++)
                                     meanTargetEntries[n] /= totalFrames;
 
                                 //Write to codebook file
                                 entry = new WeightedCodebookEntry(meanSourceEntries.length, 0);
-                                entry.setLsfs(meanSourceEntries, meanTargetEntries);
+                                entry.setMfccs(meanSourceEntries, meanTargetEntries);
 
                                 //Pitch
                                 if (sourceTotalVoiceds>0)
@@ -482,8 +482,8 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
 
             if (imap.files!=null && sourceTrainingSet.items.length>i && targetTrainingSet.items.length>i)
             {
-                Lsfs srcFeatures = new Lsfs(sourceTrainingSet.items[i].lsfFile);
-                Lsfs tgtFeatures = new Lsfs(targetTrainingSet.items[map[i]].lsfFile);
+                Mfccs srcFeatures = new Mfccs(sourceTrainingSet.items[i].mfccFile);
+                Mfccs tgtFeatures = new Mfccs(targetTrainingSet.items[map[i]].mfccFile);
                 
                 //Pitch: for outlier elimination not prosody modeling!
                 F0ReaderWriter sourceF0s = new F0ReaderWriter(sourceTrainingSet.items[i].f0File);
@@ -502,8 +502,8 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                 
                 if (!bHeaderWritten)
                 {
-                    params.codebookHeader.lsfParams.dimension = ((LsfFileHeader)(srcFeatures.params)).dimension;
-                    params.codebookHeader.lsfParams.samplingRate =  ((LsfFileHeader)(srcFeatures.params)).samplingRate;
+                    params.codebookHeader.mfccParams.dimension = ((MfccFileHeader)(srcFeatures.params)).dimension;
+                    params.codebookHeader.mfccParams.samplingRate =  ((MfccFileHeader)(srcFeatures.params)).samplingRate;
                     
                     codebookFile.writeCodebookHeader(params.codebookHeader);
                     bHeaderWritten = true;
@@ -511,25 +511,25 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
 
                 if (i==0)
                 {
-                    meanSourceEntries = new double[((LsfFileHeader)(srcFeatures.params)).dimension];
-                    meanTargetEntries = new double[((LsfFileHeader)(tgtFeatures.params)).dimension];
+                    meanSourceEntries = new double[((MfccFileHeader)(srcFeatures.params)).dimension];
+                    meanTargetEntries = new double[((MfccFileHeader)(tgtFeatures.params)).dimension];
                 }
                 else
                 {
-                    if (meanSourceEntries.length!=((LsfFileHeader)(srcFeatures.params)).dimension)
+                    if (meanSourceEntries.length!=((MfccFileHeader)(srcFeatures.params)).dimension)
                     {
-                        System.out.println("Error! LSF vector size mismatch in source lsf file " + sourceTrainingSet.items[i].lsfFile);
+                        System.out.println("Error! LSF vector size mismatch in source lsf file " + sourceTrainingSet.items[i].mfccFile);
                         return;
                     }
 
-                    if (meanTargetEntries.length!=((LsfFileHeader)(tgtFeatures.params)).dimension)
+                    if (meanTargetEntries.length!=((MfccFileHeader)(tgtFeatures.params)).dimension)
                     {
-                        System.out.println("Error! LSF vector size mismatch in target lsf file " + targetTrainingSet.items[map[i]].lsfFile);
+                        System.out.println("Error! LSF vector size mismatch in target lsf file " + targetTrainingSet.items[map[i]].mfccFile);
                         return;
                     }
                 }  
 
-                if (srcFeatures.lsfs!=null && tgtFeatures.lsfs!=null)
+                if (srcFeatures.mfccs!=null && tgtFeatures.mfccs!=null)
                 {
                     for (j=0; j<imap.files[0].indicesMap.length; j++) //j is the index for labels
                     {
@@ -552,16 +552,16 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                         middle = (int)Math.floor(0.5*(imap.files[0].indicesMap[j][0] + imap.files[0].indicesMap[j][1])+0.5);
                         for (k=imap.files[0].indicesMap[j][0]; k<=imap.files[0].indicesMap[j][1]; k++)
                         {
-                            if (k>=0 && k<srcFeatures.lsfs.length)
+                            if (k>=0 && k<srcFeatures.mfccs.length)
                             {
                                 totalFrames++;
                                 bSourceOK = true;
 
-                                for (n=0; n<((LsfFileHeader)(srcFeatures.params)).dimension; n++)
-                                    meanSourceEntries[n] += srcFeatures.lsfs[k][n];
+                                for (n=0; n<((MfccFileHeader)(srcFeatures.params)).dimension; n++)
+                                    meanSourceEntries[n] += srcFeatures.mfccs[k][n];
                                 
                                 //Pitch
-                                index = MathUtils.linearMap(k, 0, srcFeatures.lsfs.length-1, 0, sourceF0s.contour.length-1);
+                                index = MathUtils.linearMap(k, 0, srcFeatures.mfccs.length-1, 0, sourceF0s.contour.length-1);
                                 if (sourceF0s.contour[index]>10.0)
                                 {
                                     sourceAverageF0 += sourceF0s.contour[index];
@@ -570,7 +570,7 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                                 //
                                 
                                 //Duration
-                                index = SignalProcUtils.frameIndex2LabelIndex(k, sourceLabels, ((LsfFileHeader)(srcFeatures.params)).winsize, ((LsfFileHeader)(srcFeatures.params)).skipsize);
+                                index = SignalProcUtils.frameIndex2LabelIndex(k, sourceLabels, ((MfccFileHeader)(srcFeatures.params)).winsize, ((MfccFileHeader)(srcFeatures.params)).skipsize);
                                 if (index>0)
                                     sourceAverageDuration += sourceLabels.items[index].time-sourceLabels.items[index-1].time;
                                 else
@@ -586,7 +586,7 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                                 //
                                 
                                 //Energy
-                                index = MathUtils.linearMap(k, 0, srcFeatures.lsfs.length-1, 0, sourceEnergies.contour.length-1);
+                                index = MathUtils.linearMap(k, 0, srcFeatures.mfccs.length-1, 0, sourceEnergies.contour.length-1);
                                 sourceAverageEnergy += sourceEnergies.contour[index];
                                 //
                                 
@@ -596,7 +596,7 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
 
                         if (bSourceOK)
                         {
-                            for (n=0; n<((LsfFileHeader)(srcFeatures.params)).dimension; n++)
+                            for (n=0; n<((MfccFileHeader)(srcFeatures.params)).dimension; n++)
                                 meanSourceEntries[n] /= totalFrames;
 
                             totalFrames = 0;
@@ -604,16 +604,16 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                             middle = (int)Math.floor(0.5*(imap.files[0].indicesMap[j][2] + imap.files[0].indicesMap[j][3])+0.5);
                             for (k=imap.files[0].indicesMap[j][2]; k<=imap.files[0].indicesMap[j][3]; k++)
                             {
-                                if (k>=0 && k<tgtFeatures.lsfs.length)
+                                if (k>=0 && k<tgtFeatures.mfccs.length)
                                 {
                                     totalFrames++;
                                     bTargetOK = true;
 
-                                    for (n=0; n<((LsfFileHeader)(tgtFeatures.params)).dimension; n++)
-                                        meanTargetEntries[n] += tgtFeatures.lsfs[k][n];
+                                    for (n=0; n<((MfccFileHeader)(tgtFeatures.params)).dimension; n++)
+                                        meanTargetEntries[n] += tgtFeatures.mfccs[k][n];
                                     
                                     //Pitch
-                                    index = MathUtils.linearMap(k, 0, tgtFeatures.lsfs.length-1, 0, targetF0s.contour.length-1);
+                                    index = MathUtils.linearMap(k, 0, tgtFeatures.mfccs.length-1, 0, targetF0s.contour.length-1);
                                     if (targetF0s.contour[index]>10.0)
                                     {
                                         targetAverageF0 += targetF0s.contour[index];
@@ -622,7 +622,7 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                                     //
                                     
                                     //Duration
-                                    index = SignalProcUtils.frameIndex2LabelIndex(k, targetLabels, ((LsfFileHeader)(tgtFeatures.params)).winsize, ((LsfFileHeader)(tgtFeatures.params)).skipsize);
+                                    index = SignalProcUtils.frameIndex2LabelIndex(k, targetLabels, ((MfccFileHeader)(tgtFeatures.params)).winsize, ((MfccFileHeader)(tgtFeatures.params)).skipsize);
                                     if (index>0)
                                         targetAverageDuration += targetLabels.items[index].time-targetLabels.items[index-1].time;
                                     else
@@ -638,7 +638,7 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                                     //
                                     
                                     //Energy
-                                    index = MathUtils.linearMap(k, 0, tgtFeatures.lsfs.length-1, 0, targetEnergies.contour.length-1);
+                                    index = MathUtils.linearMap(k, 0, tgtFeatures.mfccs.length-1, 0, targetEnergies.contour.length-1);
                                     targetAverageEnergy += targetEnergies.contour[index];
                                     //
                                     
@@ -648,12 +648,12 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
 
                             if (bTargetOK)
                             {
-                                for (n=0; n<((LsfFileHeader)(tgtFeatures.params)).dimension; n++)
+                                for (n=0; n<((MfccFileHeader)(tgtFeatures.params)).dimension; n++)
                                     meanTargetEntries[n] /= totalFrames;
 
                                 //Write to codebook file
                                 entry = new WeightedCodebookEntry(meanSourceEntries.length, 0);
-                                entry.setLsfs(meanSourceEntries, meanTargetEntries);
+                                entry.setMfccs(meanSourceEntries, meanTargetEntries);
 
                                 //Pitch
                                 if (sourceTotalVoiceds>0)
@@ -738,13 +738,13 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
 
             if (sourceTrainingSet.items.length>i)
             {
-                Lsfs srcFeatures = new Lsfs(sourceTrainingSet.items[i].lsfFile);
-                Lsfs tgtFeatures = new Lsfs(targetTrainingSet.items[map[i]].lsfFile);
+                Mfccs srcFeatures = new Mfccs(sourceTrainingSet.items[i].mfccFile);
+                Mfccs tgtFeatures = new Mfccs(targetTrainingSet.items[map[i]].mfccFile);
                 
                 if (!bHeaderWritten)
                 {
-                    params.codebookHeader.lsfParams.dimension = ((LsfFileHeader)(srcFeatures.params)).dimension;
-                    params.codebookHeader.lsfParams.samplingRate = ((LsfFileHeader)(srcFeatures.params)).samplingRate;
+                    params.codebookHeader.mfccParams.dimension = ((MfccFileHeader)(srcFeatures.params)).dimension;
+                    params.codebookHeader.mfccParams.samplingRate = ((MfccFileHeader)(srcFeatures.params)).samplingRate;
                     
                     codebookFile.writeCodebookHeader(params.codebookHeader);
                     bHeaderWritten = true;
@@ -752,47 +752,47 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                 
                 if (i==0)
                 {
-                    meanSourceEntries = new double[((LsfFileHeader)(srcFeatures.params)).dimension];
-                    meanTargetEntries = new double[((LsfFileHeader)(tgtFeatures.params)).dimension];
+                    meanSourceEntries = new double[((MfccFileHeader)(srcFeatures.params)).dimension];
+                    meanTargetEntries = new double[((MfccFileHeader)(tgtFeatures.params)).dimension];
                     Arrays.fill(meanSourceEntries, 0.0);
                     Arrays.fill(meanTargetEntries, 0.0);
-                    lpOrderSrc = ((LsfFileHeader)(srcFeatures.params)).dimension; 
-                    lpOrderTgt = ((LsfFileHeader)(srcFeatures.params)).dimension;
+                    lpOrderSrc = ((MfccFileHeader)(srcFeatures.params)).dimension; 
+                    lpOrderTgt = ((MfccFileHeader)(srcFeatures.params)).dimension;
                 }
                 else
                 {
-                    if (meanSourceEntries.length!=((LsfFileHeader)(srcFeatures.params)).dimension)
+                    if (meanSourceEntries.length!=((MfccFileHeader)(srcFeatures.params)).dimension)
                     {
-                        System.out.println("Error! LSF vector size mismatch in source lsf file " + sourceTrainingSet.items[i].lsfFile);
+                        System.out.println("Error! LSF vector size mismatch in source lsf file " + sourceTrainingSet.items[i].mfccFile);
                         return;
                     }
                     
-                    if (meanTargetEntries.length!=((LsfFileHeader)(tgtFeatures.params)).dimension)
+                    if (meanTargetEntries.length!=((MfccFileHeader)(tgtFeatures.params)).dimension)
                     {
-                        System.out.println("Error! LSF vector size mismatch in target lsf file " + targetTrainingSet.items[map[i]].lsfFile);
+                        System.out.println("Error! LSF vector size mismatch in target lsf file " + targetTrainingSet.items[map[i]].mfccFile);
                         return;
                     }
                 }  
 
-                if (srcFeatures.lsfs!=null)
+                if (srcFeatures.mfccs!=null)
                 {
-                    for (j=0; j<((LsfFileHeader)(srcFeatures.params)).numfrm; j++)
+                    for (j=0; j<((MfccFileHeader)(srcFeatures.params)).numfrm; j++)
                     {
                         totalFramesSrc++;
                         bSourceOK = true;
                         for (n=0; n<lpOrderSrc; n++)
-                            meanSourceEntries[n] += srcFeatures.lsfs[j][n];
+                            meanSourceEntries[n] += srcFeatures.mfccs[j][n];
                     }
                 }
                 
-                if (tgtFeatures.lsfs!=null)
+                if (tgtFeatures.mfccs!=null)
                 {
-                    for (j=0; j<((LsfFileHeader)(tgtFeatures.params)).numfrm; j++)
+                    for (j=0; j<((MfccFileHeader)(tgtFeatures.params)).numfrm; j++)
                     {
                         totalFramesTgt++;
                         bTargetOK = true;
                         for (n=0; n<lpOrderTgt; n++)
-                            meanTargetEntries[n] += tgtFeatures.lsfs[j][n];
+                            meanTargetEntries[n] += tgtFeatures.mfccs[j][n];
                     }
                 }
             }
@@ -814,7 +814,7 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
         {
             //Write to codebook file
             entry = new WeightedCodebookEntry(meanSourceEntries.length, 0);
-            entry.setLsfs(meanSourceEntries, meanTargetEntries);
+            entry.setMfccs(meanSourceEntries, meanTargetEntries);
             codebookFile.writeEntry(entry);
             //
         }     
