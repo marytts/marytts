@@ -100,7 +100,7 @@ public class WeightedCodebookParallelTransformer extends WeightedCodebookTransfo
             
             codebook.header = codebookFile.readCodebookHeader();
             params.lsfParams = new LsfFileHeader(codebook.header.lsfParams);
-            params.mapperParams.lpOrder = params.lsfParams.lpOrder;
+            params.mapperParams.lpOrder = params.lsfParams.dimension;
         }
         //
         
@@ -343,9 +343,9 @@ public class WeightedCodebookParallelTransformer extends WeightedCodebookTransfo
     public static void main(String[] args) throws IOException, UnsupportedAudioFileException {
         String emotion = "sad";
         String method = "F";
-        String inputFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08\\neutral\\test_tts_" + emotion;
-        String outputBaseFolder = "D:\\Oytun\\DFKI\\voices\\Interspeech08_out\\neutral2" + emotion + "\\neutral2" + emotion + "Out_codebook" + method + "3";
-        String baseFile = "D:\\Oytun\\DFKI\\voices\\Interspeech08_out\\neutral2"+ emotion + "\\neutral"+ method + "_X_" + emotion + method + "_200";
+        String inputFolder = "D:/Oytun/DFKI/voices/Interspeech08/neutral/test_tts_" + emotion;
+        String outputBaseFolder = "D:/Oytun/DFKI/voices/Interspeech08_out/neutral2" + emotion + "/neutral2" + emotion + "Out_codebook" + method + "3";
+        String baseFile = "D:/Oytun/DFKI/voices/Interspeech08_out/neutral2"+ emotion + "/neutral"+ method + "_X_" + emotion + method + "_200";
         
         /*
         //for method: L

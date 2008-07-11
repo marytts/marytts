@@ -222,7 +222,7 @@ public class AudioFileMixer
         }
         else //Simple mixing of two files
         {
-            mixTwoFiles("d:\\1_2klpf_sinTScaled.wav", 1.0, "d:\\1_2khpf.wav", 1.0, "d:\\1_merged.wav");
+            mixTwoFiles("d:/1_2klpf_sinTScaled.wav", 1.0, "d:/1_2khpf.wav", 1.0, "d:/1_merged.wav");
         }
     }
 

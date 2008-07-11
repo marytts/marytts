@@ -349,11 +349,11 @@ public class BaselineLPSpectralEnvelopeDistortionComputer extends BaselineDistor
     
     public void mainParametric(String method, String emotion, String outputTextFileExtension)
     {  
-        String baseDir = "D:\\Oytun\\DFKI\\voices\\Interspeech08_out\\objective_test\\";
+        String baseDir = "D:/Oytun/DFKI/voices/Interspeech08_out/objective_test/";
 
-        String tgtFolder = baseDir + "target\\" + emotion;
-        String srcFolder = baseDir + "source\\" + emotion;
-        String tfmFolder = baseDir + method + "\\" + emotion;
+        String tgtFolder = baseDir + "target/" + emotion;
+        String srcFolder = baseDir + "source/" + emotion;
+        String tfmFolder = baseDir + method + "/" + emotion;
         
         String outputFile = baseDir + method + "_" + emotion + "_" + outputTextFileExtension;
   

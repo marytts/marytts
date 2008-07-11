@@ -31,6 +31,7 @@ package marytts.signalproc.adaptation.gmm.jointgmm;
 
 import marytts.machinelearning.ContextualGMMParams;
 import marytts.machinelearning.GMMTrainerParams;
+import marytts.signalproc.adaptation.BaselineFeatureExtractor;
 import marytts.signalproc.adaptation.BaselineTrainerParams;
 
 /**
@@ -43,6 +44,8 @@ public class JointGMMTrainerParams extends BaselineTrainerParams {
     
     public GMMTrainerParams gmmEMTrainerParams;
     public String jointGMMFile;
+    
+    public int vocalTractFeatureType;
 
     public JointGMMTrainerParams()
     {
@@ -51,6 +54,8 @@ public class JointGMMTrainerParams extends BaselineTrainerParams {
         
         gmmEMTrainerParams = new GMMTrainerParams();
         jointGMMFile = "";
+        
+        vocalTractFeatureType = BaselineFeatureExtractor.LSF_FEATURES;
     }
     
     public JointGMMTrainerParams(JointGMMTrainerParams existing)
@@ -60,5 +65,7 @@ public class JointGMMTrainerParams extends BaselineTrainerParams {
         
         gmmEMTrainerParams = new GMMTrainerParams(existing.gmmEMTrainerParams);
         jointGMMFile = existing.jointGMMFile;
+        
+        vocalTractFeatureType = existing.vocalTractFeatureType;
     }
 }

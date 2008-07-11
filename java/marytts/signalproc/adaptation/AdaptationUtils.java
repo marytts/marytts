@@ -34,8 +34,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import marytts.signalproc.analysis.ESTLabels;
+import marytts.signalproc.analysis.FeatureFileHeader;
 import marytts.signalproc.analysis.LineSpectralFrequencies;
 import marytts.signalproc.analysis.LsfFileHeader;
+import marytts.signalproc.analysis.MfccFileHeader;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 import marytts.util.string.StringUtils;
@@ -50,8 +52,9 @@ public class AdaptationUtils {
     public static int ALL_AVAILABLE_TRAINING_FRAMES = -1;
 
     //An optimal alignment is found by dynamic programming if the labels are not identical
-    public static IndexMap lsfFramesMapping(String sourceLabelFile, String targetLabelFile, 
-                                            String sourceLsfFile, String targetLsfFile)
+    public static IndexMap mapFramesFeatures(String sourceLabelFile, String targetLabelFile, 
+                                             String sourceFeatureFile, String targetFeatureFile,
+                                             int vocalTractFeature)
     {
         IndexMap im = null;
 
@@ -60,12 +63,23 @@ public class AdaptationUtils {
         ESTLabels targetLabels = new ESTLabels(targetLabelFile);
         //
         
-        //Read LSF file headers
-        LsfFileHeader hdr1 = new LsfFileHeader(sourceLsfFile);
-        LsfFileHeader hdr2 = new LsfFileHeader(targetLsfFile);
+        //Read feature file headers
+        FeatureFileHeader hdr1 = null;
+        FeatureFileHeader hdr2 = null; 
+        
+        if (vocalTractFeature==BaselineFeatureExtractor.LSF_FEATURES)
+        { 
+            hdr1 = new LsfFileHeader(sourceFeatureFile);
+            hdr2 = new LsfFileHeader(targetFeatureFile); 
+        }
+        else if (vocalTractFeature==BaselineFeatureExtractor.MFCC_FEATURES)
+        {
+            hdr1 = new MfccFileHeader(sourceFeatureFile);
+            hdr2 = new MfccFileHeader(targetFeatureFile);    
+        }
         //
 
-        if (sourceLabels.items!=null && targetLabels.items!=null)
+        if (hdr1!=null && hdr2!=null && sourceLabels.items!=null && targetLabels.items!=null)
         {
             //Find the optimum alignment between the source and the target labels since the phoneme sequences may not be identical due to silence periods etc.
             int[][] labelMap = StringUtils.alignLabels(sourceLabels.items, targetLabels.items);
@@ -134,9 +148,9 @@ public class AdaptationUtils {
     }
 
     //Each frame is mapped as a group of frames, i.e. with frames on the left and right context
-    public static IndexMap lsfFrameGroupsMapping(String sourceLabelFile, String targetLabelFile, 
-                                                 String sourceLsfFile, String targetLsfFile,
-                                                 int numNeighbours)
+    public static IndexMap mapFrameGroupsFeatures(String sourceLabelFile, String targetLabelFile, 
+                                                  String sourceFeatureFile, String targetFeatureFile,
+                                                  int numNeighbours, int vocalTractFeature)
     {
         IndexMap im = null;
 
@@ -145,12 +159,23 @@ public class AdaptationUtils {
         ESTLabels targetLabels = new ESTLabels(targetLabelFile);
         //
         
-        //Read LSF file headers
-        LsfFileHeader hdr1 = new LsfFileHeader(sourceLsfFile);
-        LsfFileHeader hdr2 = new LsfFileHeader(targetLsfFile);
+        //Read feature file headers
+        FeatureFileHeader hdr1 = null;
+        FeatureFileHeader hdr2 = null; 
+        
+        if (vocalTractFeature==BaselineFeatureExtractor.LSF_FEATURES)
+        { 
+            hdr1 = new LsfFileHeader(sourceFeatureFile);
+            hdr2 = new LsfFileHeader(targetFeatureFile); 
+        }
+        else if (vocalTractFeature==BaselineFeatureExtractor.MFCC_FEATURES)
+        {
+            hdr1 = new MfccFileHeader(sourceFeatureFile);
+            hdr2 = new MfccFileHeader(targetFeatureFile);    
+        }
         //
 
-        if (sourceLabels.items!=null && targetLabels.items!=null)
+        if (hdr1!=null && hdr2!=null && sourceLabels.items!=null && targetLabels.items!=null)
         {
             //Find the optimum alignment between the source and the target labels since the phoneme sequences may not be identical due to silence periods etc.
             int[][] labelMap = StringUtils.alignLabels(sourceLabels.items, targetLabels.items);
@@ -220,8 +245,9 @@ public class AdaptationUtils {
         return im; 
     }
 
-    public static IndexMap lsfLabelsMapping(String sourceLabelFile, String targetLabelFile, 
-                                            String sourceLsfFile, String targetLsfFile)
+    public static IndexMap mapLabelsFeatures(String sourceLabelFile, String targetLabelFile, 
+                                             String sourceFeatureFile, String targetFeatureFile,
+                                             int vocalTractFeature)
     {
         IndexMap im = null;
 
@@ -230,12 +256,23 @@ public class AdaptationUtils {
         ESTLabels targetLabels = new ESTLabels(targetLabelFile);
         //
         
-        //Read LSF file headers
-        LsfFileHeader hdr1 = new LsfFileHeader(sourceLsfFile);
-        LsfFileHeader hdr2 = new LsfFileHeader(targetLsfFile);
+        //Read feature file headers
+        FeatureFileHeader hdr1 = null;
+        FeatureFileHeader hdr2 = null; 
+        
+        if (vocalTractFeature==BaselineFeatureExtractor.LSF_FEATURES)
+        { 
+            hdr1 = new LsfFileHeader(sourceFeatureFile);
+            hdr2 = new LsfFileHeader(targetFeatureFile); 
+        }
+        else if (vocalTractFeature==BaselineFeatureExtractor.MFCC_FEATURES)
+        {
+            hdr1 = new MfccFileHeader(sourceFeatureFile);
+            hdr2 = new MfccFileHeader(targetFeatureFile);    
+        }
         //
 
-        if (sourceLabels.items!=null && targetLabels.items!=null)
+        if (hdr1!=null && hdr2!=null && sourceLabels.items!=null && targetLabels.items!=null)
         {
             //Find the optimum alignment between the source and the target labels since the phoneme sequences may not be identical due to silence periods etc.
             int[][] labelMap = StringUtils.alignLabels(sourceLabels.items, targetLabels.items);
@@ -287,9 +324,9 @@ public class AdaptationUtils {
         return im; 
     }
 
-    public static IndexMap lsfLabelGroupsMapping(String sourceLabelFile, String targetLabelFile, 
-                                                 String sourceLsfFile, String targetLsfFile,
-                                                 int numNeighbours)
+    public static IndexMap mapLabelGroupsFeatures(String sourceLabelFile, String targetLabelFile, 
+                                                  String sourceFeatureFile, String targetFeatureFile,
+                                                  int numNeighbours, int vocalTractFeature)
     {
         IndexMap im = null;
 
@@ -298,12 +335,23 @@ public class AdaptationUtils {
         ESTLabels targetLabels = new ESTLabels(targetLabelFile);
         //
         
-        //Read LSF file headers
-        LsfFileHeader hdr1 = new LsfFileHeader(sourceLsfFile);
-        LsfFileHeader hdr2 = new LsfFileHeader(targetLsfFile);
+        //Read feature file headers
+        FeatureFileHeader hdr1 = null;
+        FeatureFileHeader hdr2 = null; 
+        
+        if (vocalTractFeature==BaselineFeatureExtractor.LSF_FEATURES)
+        { 
+            hdr1 = new LsfFileHeader(sourceFeatureFile);
+            hdr2 = new LsfFileHeader(targetFeatureFile); 
+        }
+        else if (vocalTractFeature==BaselineFeatureExtractor.MFCC_FEATURES)
+        {
+            hdr1 = new MfccFileHeader(sourceFeatureFile);
+            hdr2 = new MfccFileHeader(targetFeatureFile);    
+        }
         //
 
-        if (sourceLabels.items!=null && targetLabels.items!=null)
+        if (hdr1!=null && hdr2!=null && sourceLabels.items!=null && targetLabels.items!=null)
         {
             //Find the optimum alignment between the source and the target labels since the phoneme sequences may not be identical due to silence periods etc.
             int[][] labelMap = StringUtils.alignLabels(sourceLabels.items, targetLabels.items);
@@ -355,7 +403,7 @@ public class AdaptationUtils {
         return im;  
     }
     
-    public static IndexMap lsfSpeechMapping()
+    public static IndexMap mapSpeechFeatures()
     {
         IndexMap im = new IndexMap(1);
         im.files[0] = new FileMap(1,1);

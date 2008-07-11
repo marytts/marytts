@@ -42,7 +42,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.adaptation.codebook.WeightedCodebook;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookMapper;
-import marytts.signalproc.adaptation.codebook.WeightedCodebookMatch;
+import marytts.signalproc.adaptation.codebook.WeightedCodebookLsfMatch;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookTransformerParams;
 import marytts.signalproc.adaptation.gmm.GMMMapper;
 import marytts.signalproc.adaptation.gmm.GMMMatch;
@@ -481,7 +481,7 @@ public class FdpsolaAdapter {
             baseParams instanceof WeightedCodebookTransformerParams && !((WeightedCodebookTransformerParams)baseParams).isContextBasedPreselection)
         {
             //Whole codebook
-            allIndices = new int[((WeightedCodebook)vtData).lsfEntries.length];
+            allIndices = new int[((WeightedCodebook)vtData).entries.length];
             for (i=0; i<allIndices.length; i++)
                 allIndices[i] = i;
         }
@@ -614,7 +614,7 @@ public class FdpsolaAdapter {
         int tmpFix, tmpAdd, tmpMul;
         int remain;
         int kInd;
-        WeightedCodebookMatch codebookMatch = null;
+        WeightedCodebookLsfMatch codebookMatch = null;
         GMMMatch gmmMatch = null;
 
         windowIn = new DynamicWindow(baseParams.lsfParams.windowType);
@@ -764,7 +764,7 @@ public class FdpsolaAdapter {
                 frm = SignalProcUtils.applyPreemphasis(frm, baseParams.lsfParams.preCoef);
 
                 // Compute LPC coefficients
-                inputLPCoeffs = LPCAnalyser.calcLPC(frm, baseParams.lsfParams.lpOrder);
+                inputLPCoeffs = LPCAnalyser.calcLPC(frm, baseParams.lsfParams.dimension);
                 inputLpcs = inputLPCoeffs.getOneMinusA();
                 inputLsfs = LineSpectralFrequencies.lpc2lsfInHz(inputLpcs, fs); 
                 sqrtInputGain = inputLPCoeffs.getGain();
@@ -825,10 +825,10 @@ public class FdpsolaAdapter {
                 }
                 //
 
-                inputExpTerm = LPCAnalyser.calcExpTerm(fftSize, baseParams.lsfParams.lpOrder);
-                outputExpTerm = LPCAnalyser.calcExpTerm(newFftSize, baseParams.lsfParams.lpOrder);
+                inputExpTerm = LPCAnalyser.calcExpTerm(fftSize, baseParams.lsfParams.dimension);
+                outputExpTerm = LPCAnalyser.calcExpTerm(newFftSize, baseParams.lsfParams.dimension);
 
-                inputVocalTractSpectrum = LPCAnalyser.calcSpecFromOneMinusA(inputLPCoeffs.getOneMinusA(), baseParams.lsfParams.lpOrder, fftSize, inputExpTerm);
+                inputVocalTractSpectrum = LPCAnalyser.calcSpecFromOneMinusA(inputLPCoeffs.getOneMinusA(), baseParams.lsfParams.dimension, fftSize, inputExpTerm);
 
                 //Use a weighted codebook estimate of the input vocal tract spectrum. This will result in a smoother transformation filter
                 if (baseParams.isSourceVocalTractSpectrumFromModel && baseParams.isVocalTractTransformation)
@@ -931,8 +931,8 @@ public class FdpsolaAdapter {
 
                     if (fftSize!=newFftSize)
                     {
-                        if (outputExpTerm==null || newMaxFreq*baseParams.lsfParams.lpOrder!=outputExpTerm.real.length)
-                            outputExpTerm = LPCAnalyser.calcExpTerm(newFftSize, baseParams.lsfParams.lpOrder);
+                        if (outputExpTerm==null || newMaxFreq*baseParams.lsfParams.dimension!=outputExpTerm.real.length)
+                            outputExpTerm = LPCAnalyser.calcExpTerm(newFftSize, baseParams.lsfParams.dimension);
 
                         targetVocalTractSpectrumEstimate = LPCAnalyser.calcSpecFromOneMinusA(targetLpcs, 1.0f, newFftSize, outputExpTerm);
                     }

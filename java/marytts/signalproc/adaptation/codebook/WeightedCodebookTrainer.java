@@ -129,7 +129,7 @@ public class WeightedCodebookTrainer extends BaselineTrainer {
                 preprocessor.run(sourceTrainingSet);
                 preprocessor.run(targetTrainingSet);
                 
-                int desiredFeatures = BaselineFeatureExtractor.LSF_FEATURES +
+                int desiredFeatures = wcParams.vocalTractFeature +
                                       BaselineFeatureExtractor.F0_FEATURES + 
                                       BaselineFeatureExtractor.ENERGY_FEATURES;
                 
@@ -158,8 +158,19 @@ public class WeightedCodebookTrainer extends BaselineTrainer {
         {
             for (i=0; i<map.length; i++)
             {
-                imap = AdaptationUtils.lsfFramesMapping(sourceTrainingSet.items[i].labelFile, targetTrainingSet.items[map[i]].labelFile, 
-                                                        sourceTrainingSet.items[i].lsfFile, targetTrainingSet.items[map[i]].lsfFile);
+                if (wcParams.vocalTractFeature == BaselineFeatureExtractor.LSF_FEATURES)
+                {
+                    imap = AdaptationUtils.mapFramesFeatures(sourceTrainingSet.items[i].labelFile, targetTrainingSet.items[map[i]].labelFile, 
+                                                             sourceTrainingSet.items[i].lsfFile, targetTrainingSet.items[map[i]].lsfFile,
+                                                             wcParams.vocalTractFeature);
+                }
+                else if (wcParams.vocalTractFeature == BaselineFeatureExtractor.MFCC_FEATURES)
+                {
+                    imap = AdaptationUtils.mapFramesFeatures(sourceTrainingSet.items[i].labelFile, targetTrainingSet.items[map[i]].labelFile, 
+                                                             sourceTrainingSet.items[i].mfccFile, targetTrainingSet.items[map[i]].mfccFile,
+                                                             wcParams.vocalTractFeature);
+                }
+                
                 try {
                     imap.writeToFile(fcol.indexMapFiles[i]);
                 } catch (IOException e) {
@@ -172,9 +183,21 @@ public class WeightedCodebookTrainer extends BaselineTrainer {
         {
             for (i=0; i<map.length; i++)
             {
-                imap = AdaptationUtils.lsfFrameGroupsMapping(sourceTrainingSet.items[i].labelFile, targetTrainingSet.items[map[i]].labelFile, 
-                                                             sourceTrainingSet.items[i].lsfFile, targetTrainingSet.items[map[i]].lsfFile,
-                                                             wcParams.codebookHeader.numNeighboursInFrameGroups);
+                if (wcParams.vocalTractFeature == BaselineFeatureExtractor.LSF_FEATURES)
+                {
+                    imap = AdaptationUtils.mapFrameGroupsFeatures(sourceTrainingSet.items[i].labelFile, targetTrainingSet.items[map[i]].labelFile, 
+                                                                  sourceTrainingSet.items[i].lsfFile, targetTrainingSet.items[map[i]].lsfFile,
+                                                                  wcParams.codebookHeader.numNeighboursInFrameGroups,
+                                                                  wcParams.vocalTractFeature);
+                }
+                else if (wcParams.vocalTractFeature == BaselineFeatureExtractor.MFCC_FEATURES)
+                {
+                    imap = AdaptationUtils.mapFrameGroupsFeatures(sourceTrainingSet.items[i].labelFile, targetTrainingSet.items[map[i]].labelFile, 
+                                                                  sourceTrainingSet.items[i].mfccFile, targetTrainingSet.items[map[i]].mfccFile,
+                                                                  wcParams.codebookHeader.numNeighboursInFrameGroups,
+                                                                  wcParams.vocalTractFeature);
+                }
+                    
                 try {
                     imap.writeToFile(fcol.indexMapFiles[i]);
                 } catch (IOException e) {
@@ -187,8 +210,19 @@ public class WeightedCodebookTrainer extends BaselineTrainer {
         {
             for (i=0; i<map.length; i++)
             {
-                imap = AdaptationUtils.lsfLabelsMapping(sourceTrainingSet.items[i].labelFile, targetTrainingSet.items[map[i]].labelFile, 
-                                                        sourceTrainingSet.items[i].lsfFile, targetTrainingSet.items[map[i]].lsfFile);
+                if (wcParams.vocalTractFeature == BaselineFeatureExtractor.LSF_FEATURES)
+                {
+                    imap = AdaptationUtils.mapLabelsFeatures(sourceTrainingSet.items[i].labelFile, targetTrainingSet.items[map[i]].labelFile, 
+                                                             sourceTrainingSet.items[i].lsfFile, targetTrainingSet.items[map[i]].lsfFile,
+                                                             wcParams.vocalTractFeature);
+                }
+                else if (wcParams.vocalTractFeature == BaselineFeatureExtractor.MFCC_FEATURES)
+                {
+                    imap = AdaptationUtils.mapLabelsFeatures(sourceTrainingSet.items[i].labelFile, targetTrainingSet.items[map[i]].labelFile, 
+                                                             sourceTrainingSet.items[i].mfccFile, targetTrainingSet.items[map[i]].mfccFile,
+                                                             wcParams.vocalTractFeature);
+                }
+                
                 try {
                     imap.writeToFile(fcol.indexMapFiles[i]);
                 } catch (IOException e) {
@@ -201,9 +235,21 @@ public class WeightedCodebookTrainer extends BaselineTrainer {
         {
             for (i=0; i<map.length; i++)
             {
-                imap = AdaptationUtils.lsfLabelGroupsMapping(sourceTrainingSet.items[i].labelFile, targetTrainingSet.items[map[i]].labelFile, 
-                                                             sourceTrainingSet.items[i].lsfFile, targetTrainingSet.items[map[i]].lsfFile,
-                                                             wcParams.codebookHeader.numNeighboursInLabelGroups);
+                if (wcParams.vocalTractFeature == BaselineFeatureExtractor.LSF_FEATURES)
+                {
+                    imap = AdaptationUtils.mapLabelGroupsFeatures(sourceTrainingSet.items[i].labelFile, targetTrainingSet.items[map[i]].labelFile, 
+                                                                  sourceTrainingSet.items[i].lsfFile, targetTrainingSet.items[map[i]].lsfFile,
+                                                                  wcParams.codebookHeader.numNeighboursInLabelGroups,
+                                                                  wcParams.vocalTractFeature);
+                }
+                else if (wcParams.vocalTractFeature == BaselineFeatureExtractor.MFCC_FEATURES)
+                {
+                    imap = AdaptationUtils.mapLabelGroupsFeatures(sourceTrainingSet.items[i].labelFile, targetTrainingSet.items[map[i]].labelFile, 
+                                                                  sourceTrainingSet.items[i].mfccFile, targetTrainingSet.items[map[i]].mfccFile,
+                                                                  wcParams.codebookHeader.numNeighboursInLabelGroups,
+                                                                  wcParams.vocalTractFeature);
+                }
+                
                 try {
                     imap.writeToFile(fcol.indexMapFiles[i]);
                 } catch (IOException e) {
@@ -214,7 +260,11 @@ public class WeightedCodebookTrainer extends BaselineTrainer {
         }
         else if (wcParams.codebookHeader.codebookType==WeightedCodebookFileHeader.SPEECH)
         {
-            imap = AdaptationUtils.lsfSpeechMapping();
+            if (wcParams.vocalTractFeature == BaselineFeatureExtractor.LSF_FEATURES)
+                imap = AdaptationUtils.mapSpeechFeatures();
+            else if (wcParams.vocalTractFeature == BaselineFeatureExtractor.MFCC_FEATURES)
+                imap = AdaptationUtils.mapSpeechFeatures();
+            
             try {
                 imap.writeToFile(fcol.indexMapFiles[0]);
             } catch (IOException e) {

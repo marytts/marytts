@@ -54,10 +54,12 @@ import marytts.util.string.StringUtils;
 public class BaselineFeatureExtractor {
     //Add more as necessary & make sure you can discriminate each using AND(&) operator
     // from a single integer that represents desired analyses (See the function run())
+    public static final int NOT_DEFINED       =   Integer.parseInt("00000000", 2);
     public static final int LSF_FEATURES      =   Integer.parseInt("00000001", 2);
     public static final int F0_FEATURES       =   Integer.parseInt("00000010", 2);
     public static final int ENERGY_FEATURES   =   Integer.parseInt("00000100", 2);
     public static final int DURATION_FEATURES =   Integer.parseInt("00001000", 2);
+    public static final int MFCC_FEATURES     =   Integer.parseInt("00010000", 2);
     
     public BaselineFeatureExtractor()
     {

@@ -144,7 +144,7 @@ public class FestivalUtt {
     
     public static void main(String[] args)
     {
-        FestivalUtt f = new FestivalUtt("d:\\a.utt");
+        FestivalUtt f = new FestivalUtt("d:/a.utt");
         
         System.out.println("Test completed...");
     }

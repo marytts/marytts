@@ -34,6 +34,7 @@ import java.io.IOException;
 import marytts.signalproc.analysis.EnergyAnalyserRms;
 import marytts.signalproc.analysis.EnergyFileHeader;
 import marytts.signalproc.analysis.LsfFileHeader;
+import marytts.signalproc.analysis.MfccFileHeader;
 import marytts.signalproc.analysis.PitchFileHeader;
 import marytts.util.io.MaryRandomAccessFile;
 
@@ -43,7 +44,7 @@ import marytts.util.io.MaryRandomAccessFile;
  *
  */
 public class WeightedCodebookFileHeader {
-    public int totalLsfEntries;
+    public int totalEntries;
     
     //Codebook type
     public int codebookType;
@@ -60,6 +61,7 @@ public class WeightedCodebookFileHeader {
     public LsfFileHeader lsfParams;
     public PitchFileHeader ptcParams;
     public EnergyFileHeader energyParams;
+    public MfccFileHeader mfccParams;
     
     public int numNeighboursInFrameGroups; //Functional only when codebookType == FRAME_GROUPS
     public int numNeighboursInLabelGroups; //Functional only when codebookType == LABEL_GROUPS
@@ -71,7 +73,7 @@ public class WeightedCodebookFileHeader {
     
     public WeightedCodebookFileHeader(int totalEntriesIn)
     {
-        totalLsfEntries = totalEntriesIn;
+        totalEntries = totalEntriesIn;
         
         codebookType = FRAMES;
         
@@ -81,11 +83,12 @@ public class WeightedCodebookFileHeader {
         lsfParams = new LsfFileHeader();
         ptcParams = new PitchFileHeader();
         energyParams = new EnergyFileHeader();
+        mfccParams = new MfccFileHeader();
     } 
     
     public WeightedCodebookFileHeader(WeightedCodebookFileHeader h)
     {
-        totalLsfEntries = h.totalLsfEntries;
+        totalEntries = h.totalEntries;
         
         codebookType = h.codebookType;
         
@@ -95,6 +98,7 @@ public class WeightedCodebookFileHeader {
         lsfParams = new LsfFileHeader(h.lsfParams);
         ptcParams = new PitchFileHeader(h.ptcParams);
         energyParams = new EnergyFileHeader(h.energyParams);
+        mfccParams = new MfccFileHeader(h.mfccParams);
         
         numNeighboursInFrameGroups = h.numNeighboursInFrameGroups;
         numNeighboursInLabelGroups = h.numNeighboursInLabelGroups;
@@ -102,21 +106,23 @@ public class WeightedCodebookFileHeader {
     
     public void resetTotalEntries()
     {
-        totalLsfEntries = 0;
+        totalEntries = 0;
     }
 
     public void read(MaryRandomAccessFile ler) throws IOException
     {   
-        totalLsfEntries = ler.readInt();
+        totalEntries = ler.readInt();
         
         lsfParams = new LsfFileHeader();
-        lsfParams.readLsfHeader(ler);
+        lsfParams.readHeader(ler);
         
         ptcParams = new PitchFileHeader();
         ptcParams.readPitchHeader(ler);
         
         energyParams = new EnergyFileHeader();
         energyParams.read(ler, true);
+        
+        mfccParams.readHeader(ler);
         
         codebookType = ler.readInt();
         numNeighboursInFrameGroups = ler.readInt();
@@ -130,11 +136,12 @@ public class WeightedCodebookFileHeader {
     
     public void write(MaryRandomAccessFile ler) throws IOException
     {
-        ler.writeInt(totalLsfEntries);
+        ler.writeInt(totalEntries);
         
-        lsfParams.writeLsfHeader(ler);
+        lsfParams.writeHeader(ler);
         ptcParams.writePitchHeader(ler);
         energyParams.write(ler);
+        mfccParams.writeHeader(ler);
         
         ler.writeInt(codebookType);
         ler.writeInt(numNeighboursInFrameGroups);

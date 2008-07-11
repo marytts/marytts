@@ -97,7 +97,7 @@ public class StringUtils {
         
         char last = strIn.charAt(strIn.length()-1);
         
-        if (last != File.separatorChar)
+        if (last != File.separatorChar && last != '\\')
             strOut = strOut + File.separatorChar;
         
         return strOut;

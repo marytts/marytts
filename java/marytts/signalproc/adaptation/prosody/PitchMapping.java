@@ -30,7 +30,7 @@
 package marytts.signalproc.adaptation.prosody;
 
 import marytts.signalproc.adaptation.codebook.WeightedCodebookFileHeader;
-import marytts.signalproc.adaptation.codebook.WeightedCodebookLsfEntry;
+import marytts.signalproc.adaptation.codebook.WeightedCodebookEntry;
 
 /**
  * @author oytun.turk

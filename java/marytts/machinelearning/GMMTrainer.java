@@ -72,7 +72,7 @@ public class GMMTrainer {
         
         /*
         //For testing Java and native C versions with identical data
-        String dataFile0 = "d:\\gmmTester2.dat";
+        String dataFile0 = "d:/gmmTester2.dat";
         DoubleData d0 = null;
         if (FileUtils.exists(dataFile0))
         {
@@ -127,7 +127,7 @@ public class GMMTrainer {
             else //native C library based training (only available for Windows OS)
             {   
                 String strIsBigEndian = "1";
-                String dataFile = StringUtils.getRandomFileName("d:\\gmmTemp_", 8, ".dat");
+                String dataFile = StringUtils.getRandomFileName("d:/gmmTemp_", 8, ".dat");
                 DoubleMatrix d = new DoubleMatrix(x);
                 d.write(dataFile);
 
@@ -421,7 +421,7 @@ public class GMMTrainer {
         float f1 = 44.4f;
         long l1 = 555;
         
-        String javaFile = "d:\\endianJava.tmp";
+        String javaFile = "d:/endianJava.tmp";
         MaryRandomAccessFile fp = new MaryRandomAccessFile(javaFile, "rw");
         if (fp!=null)
         {
@@ -444,7 +444,7 @@ public class GMMTrainer {
         float f2;
         long l2;
 
-        String cFile = "d:\\endianC.tmp";
+        String cFile = "d:/endianC.tmp";
         
         if (FileUtils.exists(cFile))
         {
