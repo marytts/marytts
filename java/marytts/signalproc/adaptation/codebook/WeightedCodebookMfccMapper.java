@@ -71,7 +71,7 @@ public class WeightedCodebookMfccMapper extends WeightedCodebookFeatureMapper {
         //Take directly the corresponding source-target frame vocal tract feature vectors and write them as a new entry
         for (i=0; i<fcol.indexMapFiles.length; i++)
         {
-            System.out.println("LSF mapping for pair " + String.valueOf(i+1) + " of " + String.valueOf(fcol.indexMapFiles.length) + ":");
+            System.out.println("MFCC mapping for pair " + String.valueOf(i+1) + " of " + String.valueOf(fcol.indexMapFiles.length) + ":");
 
             try {
                 imap.readFromFile(fcol.indexMapFiles[i]); //imap keeps information about a single source-target pair only
@@ -118,7 +118,7 @@ public class WeightedCodebookMfccMapper extends WeightedCodebookFeatureMapper {
                         if (srcFeatures.mfccs.length>imap.files[0].indicesMap[j][0] && tgtFeatures.mfccs.length>imap.files[0].indicesMap[j][1])
                         {
                             //Write to codebook file
-                            entry = new WeightedCodebookEntry(((MfccFileHeader)(srcFeatures.params)).dimension, 0);
+                            entry = new WeightedCodebookEntry(0, ((MfccFileHeader)(srcFeatures.params)).dimension);
                             entry.setMfccs(srcFeatures.mfccs[imap.files[0].indicesMap[j][0]], tgtFeatures.mfccs[imap.files[0].indicesMap[j][1]]);
 
                             //Pitch
@@ -382,7 +382,7 @@ public class WeightedCodebookMfccMapper extends WeightedCodebookFeatureMapper {
                                     meanTargetEntries[n] /= totalFrames;
 
                                 //Write to codebook file
-                                entry = new WeightedCodebookEntry(meanSourceEntries.length, 0);
+                                entry = new WeightedCodebookEntry(0, meanSourceEntries.length);
                                 entry.setMfccs(meanSourceEntries, meanTargetEntries);
 
                                 //Pitch
@@ -652,7 +652,7 @@ public class WeightedCodebookMfccMapper extends WeightedCodebookFeatureMapper {
                                     meanTargetEntries[n] /= totalFrames;
 
                                 //Write to codebook file
-                                entry = new WeightedCodebookEntry(meanSourceEntries.length, 0);
+                                entry = new WeightedCodebookEntry(0, meanSourceEntries.length);
                                 entry.setMfccs(meanSourceEntries, meanTargetEntries);
 
                                 //Pitch
@@ -813,7 +813,7 @@ public class WeightedCodebookMfccMapper extends WeightedCodebookFeatureMapper {
         if (bSourceOK && bTargetOK)
         {
             //Write to codebook file
-            entry = new WeightedCodebookEntry(meanSourceEntries.length, 0);
+            entry = new WeightedCodebookEntry(0, meanSourceEntries.length);
             entry.setMfccs(meanSourceEntries, meanTargetEntries);
             codebookFile.writeEntry(entry);
             //

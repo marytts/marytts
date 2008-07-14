@@ -136,9 +136,9 @@ public class WeightedCodebookSpeakerItem {
             {
                 try {
                     ler.writeInt(0);
-                } catch (IOException e1) {
+                } catch (IOException e) {
                     // TODO Auto-generated catch block
-                    e1.printStackTrace();
+                    e.printStackTrace();
                 }
             }
             
@@ -161,9 +161,9 @@ public class WeightedCodebookSpeakerItem {
             {
                 try {
                     ler.writeInt(0);
-                } catch (IOException e1) {
+                } catch (IOException e) {
                     // TODO Auto-generated catch block
-                    e1.printStackTrace();
+                    e.printStackTrace();
                 }
             }
 
@@ -212,8 +212,11 @@ public class WeightedCodebookSpeakerItem {
 
             tmpLen = 0;
 
-            if (context.allContext!="")
-                tmpLen = context.allContext.length();
+            if (context!=null)
+            {
+                if (context.allContext!="")
+                    tmpLen = context.allContext.length();
+            }
 
             try {
                 ler.writeInt(tmpLen);
@@ -241,7 +244,7 @@ public class WeightedCodebookSpeakerItem {
         if ((lsfs!=null && lpOrder>0) || (mfccs!=null && mfccDimension>0))
         {
             int lpOrderInFile = 0;
-            
+
             try {
                 lpOrderInFile = ler.readInt();
             } catch (IOException e1) {
@@ -249,19 +252,21 @@ public class WeightedCodebookSpeakerItem {
                 e1.printStackTrace();
             }
             assert lpOrderInFile==lpOrder;
-            
+
             if (lpOrderInFile>0)
             {
                 try {
-                    lsfs = ler.readDouble(lpOrder);
+                    lsfs = ler.readDouble(lpOrderInFile);
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
-            
+            else
+                lsfs = null;
+
             int mfccDimensionInFile = 0;
-            
+
             try {
                 mfccDimensionInFile = ler.readInt();
             } catch (IOException e1) {
@@ -269,16 +274,18 @@ public class WeightedCodebookSpeakerItem {
                 e1.printStackTrace();
             }
             assert mfccDimensionInFile==mfccDimension;
-            
+
             if (mfccDimensionInFile>0)
             {
                 try {
-                    mfccs = ler.readDouble(mfccDimension);
+                    mfccs = ler.readDouble(mfccDimensionInFile);
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
+            else
+                mfccs = null;
             
             try {
                 f0 = ler.readDouble();

@@ -114,7 +114,7 @@ public class WeightedCodebook extends VocalTractTransformationData {
                 dimension += 1;
                 isDurationDesired = true;
             }
-            if (StringUtils.isDesired(BaselineFeatureExtractor.MFCC_FEATURES, desiredFeatures))
+            if (StringUtils.isDesired(BaselineFeatureExtractor.MFCC_FEATURES_FROM_FILES, desiredFeatures))
             {
                 dimension += header.mfccParams.dimension;
                 isMfccDesired = true;

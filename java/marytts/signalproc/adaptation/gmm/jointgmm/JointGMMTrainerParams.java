@@ -45,7 +45,7 @@ public class JointGMMTrainerParams extends BaselineTrainerParams {
     public GMMTrainerParams gmmEMTrainerParams;
     public String jointGMMFile;
     
-    public int vocalTractFeatureType;
+    public int vocalTractFeature;
 
     public JointGMMTrainerParams()
     {
@@ -55,7 +55,7 @@ public class JointGMMTrainerParams extends BaselineTrainerParams {
         gmmEMTrainerParams = new GMMTrainerParams();
         jointGMMFile = "";
         
-        vocalTractFeatureType = BaselineFeatureExtractor.LSF_FEATURES;
+        vocalTractFeature = BaselineFeatureExtractor.LSF_FEATURES;
     }
     
     public JointGMMTrainerParams(JointGMMTrainerParams existing)
@@ -66,6 +66,6 @@ public class JointGMMTrainerParams extends BaselineTrainerParams {
         gmmEMTrainerParams = new GMMTrainerParams(existing.gmmEMTrainerParams);
         jointGMMFile = existing.jointGMMFile;
         
-        vocalTractFeatureType = existing.vocalTractFeatureType;
+        vocalTractFeature = existing.vocalTractFeature;
     }
 }

@@ -30,6 +30,7 @@
 package marytts.signalproc.adaptation;
 
 import marytts.tools.voiceimport.BasenameList;
+import marytts.util.string.StringUtils;
 
 /**
  * @author oytun.turk
@@ -37,8 +38,28 @@ import marytts.tools.voiceimport.BasenameList;
  */
 public class BaselineAdaptationSet {
     public BaselineAdaptationItem[] items;
-    public static final String DEFAULT_WAV_EXTENSION = ".wav";
-    
+    public static final String WAV_EXTENSION_DEFAULT = ".wav";
+    public static final String SINUSOID_EXTENSION_DEFAULT = ".sin";
+    public static final String NOISE_EXTENSION_DEFAULT = ".noi";
+    public static final String TRANSIENT_EXTENSION_DEFAULT = ".tra";
+    public static final String RESIDUAL_EXTENSION_DEFAULT = ".res";
+    public static final String LABEL_EXTENSION_DEFAULT = ".lab";
+    public static final String PITCH_EXTENSION_DEFAULT = ".ptc";
+    public static final String PITCHMARK_EXTENSION_DEFAULT = ".pm";
+    public static final String ENERGY_EXTENSION_DEFAULT = ".ene";
+    public static final String TEXT_EXTENSION_DEFAULT= ".txt";
+    public static final String RAWMFCC_EXTENSION_DEFAULT = ".mgc";
+    public static final String MFCC_EXTENSION_DEFAULT = ".mfc";
+    public static final String LSF_EXTENSION_DEFAULT = ".lsf";
+    public static final String LPC_EXTENSION_DEFAULT = ".lpc";
+    public static final String LPRESIDUAL_EXTENSION_DEFAULT = ".lpr";
+    public static final String CEPSTRUM_EXTENSION_DEFAULT = ".cep";
+    public static final String EGG_EXTENSION_DEFAULT = ".egg";
+    public static final String TARGETFESTIVALUTT_EXTENSION_DEFAULT = ".tutt";
+    public static final String TARGETLABEL_EXTENSION_DEFAULT = ".tlab";
+    public static final String TARGETENERGY_EXTENSION_DEFAULT = ".tene";
+    public static final String TARGETWAV_EXTENSION_DEFAULT = ".twav";
+
     public BaselineAdaptationSet()
     {
         items = null;   
@@ -51,7 +72,7 @@ public class BaselineAdaptationSet {
     
     public BaselineAdaptationSet(String folder)
     {
-        this(folder, DEFAULT_WAV_EXTENSION);
+        this(folder, WAV_EXTENSION_DEFAULT);
     }
     
     public BaselineAdaptationSet(String folder, String referenceFileExt)
@@ -178,6 +199,19 @@ public class BaselineAdaptationSet {
         }
         
         return fileList;    
+    }
+    
+    public String[] getRawMfccFiles()
+    {
+        String [] fileList = null;
+        if (items!=null && items.length>0)
+        {
+            fileList = new String[items.length];
+            for (int i=0; i<items.length; i++)
+                fileList[i] = items[i].rawMfccFile;
+        }
+        
+        return fileList;
     }
     
     public String[] getMfccFiles()

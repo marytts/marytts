@@ -85,12 +85,12 @@ public class WeightedCodebookTransformer extends BaselineTransformer {
   //Create list of input files
     public BaselineAdaptationSet getInputSet(String inputFolder)
     {   
-        BasenameList b = new BasenameList(inputFolder, BaselineAdaptationSet.DEFAULT_WAV_EXTENSION);
+        BasenameList b = new BasenameList(inputFolder, BaselineAdaptationSet.WAV_EXTENSION_DEFAULT);
         
         BaselineAdaptationSet inputSet = new BaselineAdaptationSet(b.getListAsVector().size());
         
         for (int i=0; i<inputSet.items.length; i++)
-            inputSet.items[i].setFromWavFilename(inputFolder + b.getName(i) + BaselineAdaptationSet.DEFAULT_WAV_EXTENSION);
+            inputSet.items[i].setFromWavFilename(inputFolder + b.getName(i) + BaselineAdaptationSet.WAV_EXTENSION_DEFAULT);
         
         return inputSet;
     }
@@ -108,7 +108,7 @@ public class WeightedCodebookTransformer extends BaselineTransformer {
             outputSet = new BaselineAdaptationSet(inputSet.items.length);
 
             for (int i=0; i<inputSet.items.length; i++)
-                outputSet.items[i].audioFile = outputFolder + StringUtils.getFileName(inputSet.items[i].audioFile) + "_output" + BaselineAdaptationSet.DEFAULT_WAV_EXTENSION;
+                outputSet.items[i].audioFile = outputFolder + StringUtils.getFileName(inputSet.items[i].audioFile) + "_output" + BaselineAdaptationSet.WAV_EXTENSION_DEFAULT;
         }
 
         return outputSet;

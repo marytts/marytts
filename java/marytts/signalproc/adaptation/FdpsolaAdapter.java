@@ -273,7 +273,7 @@ public class FdpsolaAdapter {
         
         if (!FileUtils.exists(inputItem.audioFile))
         {
-            System.out.println("Error! Pitch file " + inputItem.audioFile + " not found.");
+            System.out.println("Error! Audio file " + inputItem.audioFile + " not found.");
             bContinue = false;
         }
 
@@ -361,7 +361,6 @@ public class FdpsolaAdapter {
                 }
             }
             
-
             outputFile = strOutputFile;    
             
             if (inputItem.labelFile!="" && FileUtils.exists(inputItem.labelFile))
@@ -585,11 +584,11 @@ public class FdpsolaAdapter {
     }
 
     //Voice conversion version
-    public double [] processFrame(double [] frmIn, boolean isVoiced, 
-            double currentF0, double targetF0, double tscale, double escale, double vscale, 
-            boolean isLastInputFrame, int currentPeriod, int inputFrameSize,
-            VocalTractTransformationFunction mapper,
-            VocalTractTransformationData data) throws IOException
+    public double[] processFrame(double [] frmIn, boolean isVoiced, 
+                                 double currentF0, double targetF0, double tscale, double escale, double vscale, 
+                                 boolean isLastInputFrame, int currentPeriod, int inputFrameSize,
+                                 VocalTractTransformationFunction mapper,
+                                 VocalTractTransformationData data) throws IOException
    {   
         double pscale;
 
@@ -843,9 +842,9 @@ public class FdpsolaAdapter {
                     else if (mapper instanceof JointGMMMapper)
                     {
                         if (!baseParams.isResynthesizeVocalTractFromSourceModel)
-                            interpolatedInputLpcs = LineSpectralFrequencies.lsfInHz2lpc(((JointGMMMatch)gmmMatch).mappedSourceLsfs, fs);
+                            interpolatedInputLpcs = LineSpectralFrequencies.lsfInHz2lpc(((JointGMMMatch)gmmMatch).mappedSourceFeatures, fs);
                         else
-                            interpolatedInputLpcs = LineSpectralFrequencies.lsfInHz2lpc(((JointGMMMatch)gmmMatch).outputLsfs, fs);  
+                            interpolatedInputLpcs = LineSpectralFrequencies.lsfInHz2lpc(((JointGMMMatch)gmmMatch).outputFeatures, fs);  
                     }
 
                     sourceVocalTractSpectrumEstimate = LPCAnalyser.calcSpecFromOneMinusA(interpolatedInputLpcs, 1.0f, newFftSize, outputExpTerm);
@@ -924,9 +923,9 @@ public class FdpsolaAdapter {
                     else if (mapper instanceof JointGMMMapper)
                     {
                         if (!baseParams.isResynthesizeVocalTractFromSourceModel)
-                            targetLpcs = LineSpectralFrequencies.lsfInHz2lpc(((JointGMMMatch)gmmMatch).outputLsfs, fs);
+                            targetLpcs = LineSpectralFrequencies.lsfInHz2lpc(((JointGMMMatch)gmmMatch).outputFeatures, fs);
                         else
-                            targetLpcs = LineSpectralFrequencies.lsfInHz2lpc(((JointGMMMatch)gmmMatch).mappedSourceLsfs, fs);
+                            targetLpcs = LineSpectralFrequencies.lsfInHz2lpc(((JointGMMMatch)gmmMatch).mappedSourceFeatures, fs);
                     }
 
                     if (fftSize!=newFftSize)
@@ -1419,7 +1418,7 @@ public class FdpsolaAdapter {
         inputFrameIndex++;
 
         return output;
-            }
+    }
 
     public double [] writeFinal() throws IOException
     {

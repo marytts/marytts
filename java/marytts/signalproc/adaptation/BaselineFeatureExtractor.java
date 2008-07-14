@@ -55,12 +55,12 @@ import marytts.util.string.StringUtils;
 public class BaselineFeatureExtractor {
     //Add more as necessary & make sure you can discriminate each using AND(&) operator
     // from a single integer that represents desired analyses (See the function run())
-    public static final int NOT_DEFINED       =   Integer.parseInt("00000000", 2);
-    public static final int LSF_FEATURES      =   Integer.parseInt("00000001", 2);
-    public static final int F0_FEATURES       =   Integer.parseInt("00000010", 2);
-    public static final int ENERGY_FEATURES   =   Integer.parseInt("00000100", 2);
-    public static final int DURATION_FEATURES =   Integer.parseInt("00001000", 2);
-    public static final int MFCC_FEATURES     =   Integer.parseInt("00010000", 2);
+    public static final int NOT_DEFINED              = Integer.parseInt("00000000", 2);
+    public static final int LSF_FEATURES             = Integer.parseInt("00000001", 2);
+    public static final int F0_FEATURES              = Integer.parseInt("00000010", 2);
+    public static final int ENERGY_FEATURES          = Integer.parseInt("00000100", 2);
+    public static final int DURATION_FEATURES        = Integer.parseInt("00001000", 2);
+    public static final int MFCC_FEATURES_FROM_FILES = Integer.parseInt("00010000", 2);
     
     public BaselineFeatureExtractor()
     {
@@ -134,8 +134,8 @@ public class BaselineFeatureExtractor {
         if (StringUtils.isDesired(ENERGY_FEATURES, desiredFeatures))
             energyAnalysis(fileSet, energyParams, isForcedAnalysis); 
         
-        if (StringUtils.isDesired(MFCC_FEATURES, desiredFeatures))
-            mfccAnalysis(fileSet, mfccParams, isForcedAnalysis); 
+        if (StringUtils.isDesired(MFCC_FEATURES_FROM_FILES, desiredFeatures))
+            checkMfccFiles(fileSet, mfccParams, isForcedAnalysis); 
         //
     }
     
@@ -227,31 +227,16 @@ public class BaselineFeatureExtractor {
         System.out.println("Energy analysis completed...");
     }
 
-    public static void mfccAnalysis(BaselineAdaptationSet fileSet, MfccFileHeader mfccParams, boolean isForcedAnalysis) throws IOException
+    public static void checkMfccFiles(BaselineAdaptationSet fileSet, MfccFileHeader mfccParams, boolean isForcedAnalysis) throws IOException
     {
-        System.out.println("Starting MFCC analysis...");
+        System.out.println("Attempting to read MFCC parameters from files...");
         
-        boolean bAnalyze;
         for (int i=0; i<fileSet.items.length; i++)
         {
-            bAnalyze = true;
-            if (!isForcedAnalysis && FileUtils.exists(fileSet.items[i].mfccFile))
-            {
-                MfccFileHeader tmpParams = new MfccFileHeader(fileSet.items[i].mfccFile);
-                if (tmpParams.isIdenticalAnalysisParams(mfccParams))
-                    bAnalyze = false;
-            }
-                
-            if (bAnalyze)
-            {
-                //TO DO: MelCepstralFrequencies.mfccAnalyzeWavFile(fileSet.items[i].audioFile, fileSet.items[i].mfccFile, mfccParams);
-                //System.out.println("Extracted MFCCs: " + fileSet.items[i].mfccFile);
-                System.out.println("MFCC analysis not implemented yet!Please use SPTK generated raw MFCC file named as " + fileSet.items[i].mfccFile);
-            }
-            else
-                System.out.println("MFCC file found with identical analysis parameters: " + fileSet.items[i].lsfFile);
+            if (!FileUtils.exists(fileSet.items[i].mfccFile))
+                System.out.println("MFCC files not found!Please use SPTK generated raw MFCC file named as " + fileSet.items[i].mfccFile);
         }
         
-        System.out.println("MFCC analysis completed...");
+        System.out.println("MFCC files verified...");
     }
 }

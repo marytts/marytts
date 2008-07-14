@@ -20,6 +20,7 @@ public class BaselineAdaptationItem {
     public String pitchMarkFile;    //Pitch marks
     public String energyFile;       //Energy contour
     public String textFile;         //Text
+    public String rawMfccFile;      //Raw mel frequency cepstral coefficients
     public String mfccFile;         //Mel frequency cepstral coefficients
     public String lsfFile;          //Line spectral frequencies
     public String lpcFile;          //Linear prediction coefficients
@@ -56,6 +57,7 @@ public class BaselineAdaptationItem {
         pitchMarkFile = existing.pitchMarkFile;
         energyFile = existing.energyFile;
         textFile = existing.textFile;
+        rawMfccFile = existing.rawMfccFile;
         mfccFile = existing.mfccFile;
         lsfFile = existing.lsfFile;
         lpcFile = existing.lpcFile;
@@ -76,26 +78,27 @@ public class BaselineAdaptationItem {
     {
         audioFile = referenceFilename;
         
-        sinesFile = StringUtils.modifyExtension(audioFile, ".sin"); //Sinusoids
-        noiseFile = StringUtils.modifyExtension(audioFile, ".noi"); //Noise
-        transientsFile = StringUtils.modifyExtension(audioFile, ".tra"); //Transients
-        residualFile = StringUtils.modifyExtension(audioFile, ".res"); //Residual (what remains after all model based decomposition)
+        sinesFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.SINUSOID_EXTENSION_DEFAULT); //Sinusoids
+        noiseFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.NOISE_EXTENSION_DEFAULT); //Noise
+        transientsFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.TRANSIENT_EXTENSION_DEFAULT); //Transients
+        residualFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.RESIDUAL_EXTENSION_DEFAULT); //Residual (what remains after all model based decomposition)
         
-        labelFile = StringUtils.modifyExtension(audioFile, ".lab");   //Labels
-        f0File = StringUtils.modifyExtension(audioFile, ".ptc");      //f0 contour
-        pitchMarkFile = StringUtils.modifyExtension(audioFile, ".pm");   //Pitch marks
-        energyFile = StringUtils.modifyExtension(audioFile, ".ene"); //Energy contour
-        textFile = StringUtils.modifyExtension(audioFile, ".txt");    //Text
-        mfccFile = StringUtils.modifyExtension(audioFile, ".mfc");    //Mel frequency cepstral coefficients
-        lsfFile = StringUtils.modifyExtension(audioFile, ".lsf");     //Line spectral frequencies
-        lpcFile = StringUtils.modifyExtension(audioFile, ".lpc");     //Linear prediction coefficients
-        lpResidualFile = StringUtils.modifyExtension(audioFile, ".lpr");   //Time-domain residual waveform after LP inverse filtering
-        cepsFile = StringUtils.modifyExtension(audioFile, ".cep");    //Cepstrum coefficients file
-        eggFile = StringUtils.modifyExtension(audioFile, ".egg");     //Electro-glottograph file
+        labelFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.LABEL_EXTENSION_DEFAULT);   //Labels
+        f0File = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.PITCH_EXTENSION_DEFAULT);      //f0 contour
+        pitchMarkFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.PITCHMARK_EXTENSION_DEFAULT);   //Pitch marks
+        energyFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.ENERGY_EXTENSION_DEFAULT); //Energy contour
+        textFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.TEXT_EXTENSION_DEFAULT);    //Text
+        mfccFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.MFCC_EXTENSION_DEFAULT);    //Mel frequency cepstral coefficients
+        rawMfccFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.RAWMFCC_EXTENSION_DEFAULT);
+        lsfFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.LSF_EXTENSION_DEFAULT);     //Line spectral frequencies
+        lpcFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.LPC_EXTENSION_DEFAULT);     //Linear prediction coefficients
+        lpResidualFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.LPRESIDUAL_EXTENSION_DEFAULT);   //Time-domain residual waveform after LP inverse filtering
+        cepsFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.CEPSTRUM_EXTENSION_DEFAULT);    //Cepstrum coefficients file
+        eggFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.EGG_EXTENSION_DEFAULT);     //Electro-glottograph file
         
-        targetFestivalUttFile = StringUtils.modifyExtension(audioFile, ".tutt"); //FESTIVAL_UTT file
-        targetLabelFile = StringUtils.modifyExtension(audioFile, ".tlab");  //Target labels for mapping
-        targetEnergyFile = StringUtils.getFileName(audioFile) + ".tene"; //Target energy file, to be used in transplantations
-        targetWavFile = StringUtils.getFileName(audioFile) + ".twav"; //Target waveform file
+        targetFestivalUttFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.TARGETFESTIVALUTT_EXTENSION_DEFAULT); //FESTIVAL_UTT file
+        targetLabelFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.TARGETLABEL_EXTENSION_DEFAULT);  //Target labels for mapping
+        targetEnergyFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.TARGETENERGY_EXTENSION_DEFAULT); //Target energy file, to be used in transplantations
+        targetWavFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.TARGETWAV_EXTENSION_DEFAULT); //Target waveform file
     }
 }

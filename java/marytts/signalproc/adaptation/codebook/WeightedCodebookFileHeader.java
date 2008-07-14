@@ -31,6 +31,7 @@ package marytts.signalproc.adaptation.codebook;
 
 import java.io.IOException;
 
+import marytts.signalproc.adaptation.BaselineFeatureExtractor;
 import marytts.signalproc.analysis.EnergyAnalyserRms;
 import marytts.signalproc.analysis.EnergyFileHeader;
 import marytts.signalproc.analysis.LsfFileHeader;
@@ -66,6 +67,8 @@ public class WeightedCodebookFileHeader {
     public int numNeighboursInFrameGroups; //Functional only when codebookType == FRAME_GROUPS
     public int numNeighboursInLabelGroups; //Functional only when codebookType == LABEL_GROUPS
     
+    public int vocalTractFeature; //Feature to be used for representing vocal tract 
+    
     public WeightedCodebookFileHeader()
     {
         this(0);
@@ -84,6 +87,8 @@ public class WeightedCodebookFileHeader {
         ptcParams = new PitchFileHeader();
         energyParams = new EnergyFileHeader();
         mfccParams = new MfccFileHeader();
+        
+        vocalTractFeature = BaselineFeatureExtractor.LSF_FEATURES;
     } 
     
     public WeightedCodebookFileHeader(WeightedCodebookFileHeader h)
@@ -102,6 +107,8 @@ public class WeightedCodebookFileHeader {
         
         numNeighboursInFrameGroups = h.numNeighboursInFrameGroups;
         numNeighboursInLabelGroups = h.numNeighboursInLabelGroups;
+        
+        vocalTractFeature = h.vocalTractFeature;
     } 
     
     public void resetTotalEntries()
@@ -132,6 +139,8 @@ public class WeightedCodebookFileHeader {
         sourceTag = String.copyValueOf(ler.readChar(tagLen));
         tagLen = ler.readInt();
         targetTag = String.copyValueOf(ler.readChar(tagLen));
+        
+        vocalTractFeature = ler.readInt();
     }
     
     public void write(MaryRandomAccessFile ler) throws IOException
@@ -154,5 +163,7 @@ public class WeightedCodebookFileHeader {
         tagLen = targetTag.length();
         ler.writeInt(tagLen);
         ler.writeChar(targetTag.toCharArray());
+        
+        ler.writeInt(vocalTractFeature);
     }
 }

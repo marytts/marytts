@@ -129,18 +129,42 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
             GMM gmm = null;
             if (codebook!=null)
             {
-                double[][] xy = new double[codebook.entries.length][2*codebook.header.lsfParams.dimension];
-
-                for (int i=0; i<codebook.entries.length; i++)
+                double[][] xy = null;
+                boolean bFeatureExisting = false;
+                
+                if (codebookTrainerParams.codebookHeader.vocalTractFeature==BaselineFeatureExtractor.LSF_FEATURES)
                 {
-                    System.arraycopy(codebook.entries[i].sourceItem.lsfs, 0, xy[i], 0, codebook.header.lsfParams.dimension);
-                    System.arraycopy(codebook.entries[i].targetItem.lsfs, 0, xy[i], codebook.header.lsfParams.dimension, codebook.header.lsfParams.dimension);   
+                    xy = new double[codebook.entries.length][2*codebook.header.lsfParams.dimension];
+                    for (int i=0; i<codebook.entries.length; i++)
+                    {
+                        System.arraycopy(codebook.entries[i].sourceItem.lsfs, 0, xy[i], 0, codebook.header.lsfParams.dimension);
+                        System.arraycopy(codebook.entries[i].targetItem.lsfs, 0, xy[i], codebook.header.lsfParams.dimension, codebook.header.lsfParams.dimension);   
+                    }
+                    
+                    bFeatureExisting = true;
+                }
+                else if (codebookTrainerParams.codebookHeader.vocalTractFeature==BaselineFeatureExtractor.MFCC_FEATURES_FROM_FILES)
+                {
+                    xy = new double[codebook.entries.length][2*codebook.header.mfccParams.dimension];
+                    for (int i=0; i<codebook.entries.length; i++)
+                    {
+                        System.arraycopy(codebook.entries[i].sourceItem.mfccs, 0, xy[i], 0, codebook.header.mfccParams.dimension);
+                        System.arraycopy(codebook.entries[i].targetItem.mfccs, 0, xy[i], codebook.header.mfccParams.dimension, codebook.header.mfccParams.dimension);   
+                    }
+                    
+                    bFeatureExisting = true;
                 }
 
+                assert bFeatureExisting == true;
+                
                 GMMTrainer g = new GMMTrainer();
                 gmmSet = new JointGMMSet(1, cgParams);
                 gmm = g.train(xy, jgParams.gmmEMTrainerParams);
-                gmmSet.gmms[0] = new JointGMM(gmm, codebook.header.lsfParams);
+                
+                if (codebookTrainerParams.codebookHeader.vocalTractFeature==BaselineFeatureExtractor.LSF_FEATURES)
+                    gmmSet.gmms[0] = new JointGMM(gmm, codebook.header.lsfParams);
+                else if (codebookTrainerParams.codebookHeader.vocalTractFeature==BaselineFeatureExtractor.MFCC_FEATURES_FROM_FILES)
+                    gmmSet.gmms[0] = new JointGMM(gmm, codebook.header.mfccParams);
             }
             
             //Convert joint GMM into a suitable format for using in transformation and save to a binary output file
@@ -174,18 +198,38 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
                 int count = 0;
                 if (totals[n]>0)
                 {
-                    xy = new double[totals[n]][2*codebook.header.lsfParams.dimension];
+                    if (codebookTrainerParams.codebookHeader.vocalTractFeature==BaselineFeatureExtractor.LSF_FEATURES)
+                    {    
+                        xy = new double[totals[n]][2*codebook.header.lsfParams.dimension];
 
-                    for (i=0; i<classIndices.length; i++)
-                    {
-                        if (count>=totals[n])
-                            break;
-
-                        if (classIndices[i]==n)
+                        for (i=0; i<classIndices.length; i++)
                         {
-                            System.arraycopy(codebook.entries[i].sourceItem.lsfs, 0, xy[count], 0, codebook.header.lsfParams.dimension);
-                            System.arraycopy(codebook.entries[i].targetItem.lsfs, 0, xy[count], codebook.header.lsfParams.dimension, codebook.header.lsfParams.dimension);
-                            count++;
+                            if (count>=totals[n])
+                                break;
+
+                            if (classIndices[i]==n)
+                            {
+                                System.arraycopy(codebook.entries[i].sourceItem.lsfs, 0, xy[count], 0, codebook.header.lsfParams.dimension);
+                                System.arraycopy(codebook.entries[i].targetItem.lsfs, 0, xy[count], codebook.header.lsfParams.dimension, codebook.header.lsfParams.dimension);
+                                count++;
+                            }
+                        }
+                    }
+                    else if (codebookTrainerParams.codebookHeader.vocalTractFeature==BaselineFeatureExtractor.MFCC_FEATURES_FROM_FILES)
+                    {
+                        xy = new double[totals[n]][2*codebook.header.mfccParams.dimension];
+                        
+                        for (i=0; i<classIndices.length; i++)
+                        {
+                            if (count>=totals[n])
+                                break;
+
+                            if (classIndices[i]==n)
+                            {
+                                System.arraycopy(codebook.entries[i].sourceItem.mfccs, 0, xy[count], 0, codebook.header.mfccParams.dimension);
+                                System.arraycopy(codebook.entries[i].targetItem.mfccs, 0, xy[count], codebook.header.mfccParams.dimension, codebook.header.mfccParams.dimension);
+                                count++;
+                            }
                         }
                     }
 
@@ -202,8 +246,16 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
                     else
                         gmm.info = "other";
                     
-                    codebook.header.lsfParams.numfrm = totals[n];
-                    gmmSet.gmms[n] = new JointGMM(gmm, codebook.header.lsfParams);
+                    if (codebookTrainerParams.codebookHeader.vocalTractFeature==BaselineFeatureExtractor.LSF_FEATURES)
+                    {
+                        codebook.header.lsfParams.numfrm = totals[n];
+                        gmmSet.gmms[n] = new JointGMM(gmm, codebook.header.lsfParams);
+                    }
+                    else if (codebookTrainerParams.codebookHeader.vocalTractFeature==BaselineFeatureExtractor.MFCC_FEATURES_FROM_FILES)
+                    {
+                        codebook.header.mfccParams.numfrm = totals[n];
+                        gmmSet.gmms[n] = new JointGMM(gmm, codebook.header.mfccParams);
+                    }
                 }
             }
             
@@ -235,9 +287,9 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         String targetTag = "origTarget";
         String method;
         
-        int numTrainingFiles = 10;
+        int numTrainingFiles = 100;
         boolean isContextualGMMs = false;
-        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {4};
+        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {64};
         //int contextClassificationType = ContextualGMMParams.SILENCE_SPEECH; int[] numComponents = {16, 128};
         //int contextClassificationType = ContextualGMMParams.VOWEL_SILENCE_CONSONANT; int[] numComponents = {128, 16, 128};
         //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS; int[] numComponents = {numMixes};
@@ -257,8 +309,8 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABEL_GROUPS; method = "LG"; pa.codebookHeader.numNeighboursInLabelGroups = 1; //Mapping of average features collected across label groups (i.e. vowels, consonants, etc)
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.SPEECH; method = "S"; //Mapping of average features collected across all speech parts (i.e. like spectral equalization)
 
-        //pa.vocalTractFeature = BaselineFeatureExtractor.LSF_FEATURES; //Use Lsf features - full speech to speech transformation
-        pa.vocalTractFeature = BaselineFeatureExtractor.MFCC_FEATURES; //Use MFCC features - currently supports only feature to featur etransformation
+        //pa.codebookHeader.vocalTractFeature = BaselineFeatureExtractor.LSF_FEATURES; //Use Lsf features - full speech to speech transformation
+        pa.codebookHeader.vocalTractFeature = BaselineFeatureExtractor.MFCC_FEATURES_FROM_FILES; //Use MFCC features - currently supports only feature to featur etransformation
         
         pa.codebookHeader.sourceTag = sourceTag + method; //Source name tag (i.e. style or speaker identity)
         pa.codebookHeader.targetTag = targetTag + method; //Target name tag (i.e. style or speaker identity)
@@ -275,10 +327,8 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         pa.codebookHeader.lsfParams.winsize = 0.020f;
         pa.codebookHeader.lsfParams.windowType = Window.HAMMING;
         
-        gp.vocalTractFeatureType = BaselineFeatureExtractor.LSF_FEATURES; //Use LSFs for training and transformation - Full wav-to-wav conversion implemented
-        //gp.vocalTractFeatureType = BaselineFeatureExtractor.MFCC_FEATURES; //Use MFCCs for training and transformation - Only feature vector conversion is implemented
-        
         //Gaussian trainer params: commenting out results in using default value for each
+        gp.vocalTractFeature = pa.codebookHeader.vocalTractFeature;
         gp.isContextualGMMs = isContextualGMMs;
         gp.gmmEMTrainerParams.totalComponents = numComponents[0];
         gp.gmmEMTrainerParams.isDiagonalCovariance = true; 
@@ -345,11 +395,11 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         //Gaussian outlier eliminator
         //Decreasing totalStandardDeviations will lead to more outlier eliminations, i.e. smaller codebooks
         pa.gaussianEliminatorParams.isActive = true; //Set to false if you do not want to use this eliminator at all      
-        pa.gaussianEliminatorParams.isCheckLsfOutliers = true;
-        pa.gaussianEliminatorParams.isEliminateTooSimilarLsf = true;
-        pa.gaussianEliminatorParams.isCheckF0Outliers = true; 
-        pa.gaussianEliminatorParams.isCheckDurationOutliers = true;    
-        pa.gaussianEliminatorParams.isCheckEnergyOutliers = true;
+        pa.gaussianEliminatorParams.isCheckLsfOutliers = false;
+        pa.gaussianEliminatorParams.isEliminateTooSimilarLsf = false;
+        pa.gaussianEliminatorParams.isCheckF0Outliers = false; 
+        pa.gaussianEliminatorParams.isCheckDurationOutliers = false;    
+        pa.gaussianEliminatorParams.isCheckEnergyOutliers = false;
         pa.gaussianEliminatorParams.totalStandardDeviations = new TotalStandardDeviations(tsd);
         //
         
@@ -382,7 +432,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         pa.kmeansEliminatorParams.numClustersDuration = 5;
         pa.kmeansEliminatorParams.numClustersEnergy = 5;
         
-        pa.kmeansEliminatorParams.isCheckLsfOutliers = true;    
+        pa.kmeansEliminatorParams.isCheckLsfOutliers = false;    
         pa.kmeansEliminatorParams.isCheckF0Outliers = false; 
         pa.kmeansEliminatorParams.isCheckDurationOutliers = false;  
         pa.kmeansEliminatorParams.isCheckEnergyOutliers = false;

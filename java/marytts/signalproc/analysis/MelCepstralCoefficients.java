@@ -39,10 +39,10 @@ import marytts.util.io.MaryRandomAccessFile;
  */
 public class MelCepstralCoefficients {
     
-    public static void writeMfccFile(double[][] mfccs, String lsfFileOut, MfccFileHeader params) throws IOException
+    public static void writeMfccFile(double[][] mfccs, String mfccFileOut, MfccFileHeader params) throws IOException
     {
         params.numfrm = mfccs.length;
-        MaryRandomAccessFile stream = params.writeHeader(lsfFileOut, true);
+        MaryRandomAccessFile stream = params.writeHeader(mfccFileOut, true);
         writeMfccs(stream, mfccs);
     }
     
@@ -53,6 +53,17 @@ public class MelCepstralCoefficients {
             for (int i=0; i<mfccs.length; i++)
                 stream.writeDouble(mfccs[i]);
             
+            stream.close();
+        }
+    }
+    
+    public static void writeRawMfccFile(double[][] mfccs, String mfccFileOut) throws IOException
+    {
+        MaryRandomAccessFile stream = new MaryRandomAccessFile(mfccFileOut, "rw");
+
+        if (stream!=null)
+        {
+            writeMfccs(stream, mfccs);
             stream.close();
         }
     }

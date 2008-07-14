@@ -72,7 +72,7 @@ public class AdaptationUtils {
             hdr1 = new LsfFileHeader(sourceFeatureFile);
             hdr2 = new LsfFileHeader(targetFeatureFile); 
         }
-        else if (vocalTractFeature==BaselineFeatureExtractor.MFCC_FEATURES)
+        else if (vocalTractFeature==BaselineFeatureExtractor.MFCC_FEATURES_FROM_FILES)
         {
             hdr1 = new MfccFileHeader(sourceFeatureFile);
             hdr2 = new MfccFileHeader(targetFeatureFile);    
@@ -168,7 +168,7 @@ public class AdaptationUtils {
             hdr1 = new LsfFileHeader(sourceFeatureFile);
             hdr2 = new LsfFileHeader(targetFeatureFile); 
         }
-        else if (vocalTractFeature==BaselineFeatureExtractor.MFCC_FEATURES)
+        else if (vocalTractFeature==BaselineFeatureExtractor.MFCC_FEATURES_FROM_FILES)
         {
             hdr1 = new MfccFileHeader(sourceFeatureFile);
             hdr2 = new MfccFileHeader(targetFeatureFile);    
@@ -265,7 +265,7 @@ public class AdaptationUtils {
             hdr1 = new LsfFileHeader(sourceFeatureFile);
             hdr2 = new LsfFileHeader(targetFeatureFile); 
         }
-        else if (vocalTractFeature==BaselineFeatureExtractor.MFCC_FEATURES)
+        else if (vocalTractFeature==BaselineFeatureExtractor.MFCC_FEATURES_FROM_FILES)
         {
             hdr1 = new MfccFileHeader(sourceFeatureFile);
             hdr2 = new MfccFileHeader(targetFeatureFile);    
@@ -344,7 +344,7 @@ public class AdaptationUtils {
             hdr1 = new LsfFileHeader(sourceFeatureFile);
             hdr2 = new LsfFileHeader(targetFeatureFile); 
         }
-        else if (vocalTractFeature==BaselineFeatureExtractor.MFCC_FEATURES)
+        else if (vocalTractFeature==BaselineFeatureExtractor.MFCC_FEATURES_FROM_FILES)
         {
             hdr1 = new MfccFileHeader(sourceFeatureFile);
             hdr2 = new MfccFileHeader(targetFeatureFile);    

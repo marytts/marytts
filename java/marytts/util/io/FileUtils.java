@@ -270,5 +270,13 @@ public class FileUtils
             return false;
     }
     
+    public static void rename(String existingFile, String newFilename)
+    {
+        if (exists(existingFile))
+        {
+            File oldFile = new File(existingFile); 
+            oldFile.renameTo(new File(newFilename));
+        }
+    }
     
 }
