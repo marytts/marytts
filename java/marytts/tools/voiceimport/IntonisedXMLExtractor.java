@@ -96,19 +96,19 @@ public class IntonisedXMLExtractor extends VoiceImportComponent
 
     public boolean compute() throws IOException
     {
-        
+        String inputDir = db.getProp(db.TEXTDIR);
         textDir = new File(db.getProp(db.TEXTDIR));
         System.out.println( "Computing IntonisedXML files for "+ bnl.getLength() + " files" );
         for (int i=0; i<bnl.getLength(); i++) {
             percent = 100*i/bnl.getLength();
-            computeFeaturesFor( bnl.getName(i) );
+            computeFeaturesFor( bnl.getName(i), inputDir, unitfeatureDir.getAbsolutePath());
             System.out.println( "    " + bnl.getName(i) );
         }
         System.out.println("...Done.");
         return true;
     }
 
-    public void computeFeaturesFor(String basename) throws IOException
+    public void computeFeaturesFor(String basename, String inputDir, String outputDir) throws IOException
     {
         String text;
         Locale localVoice;
@@ -118,11 +118,11 @@ public class IntonisedXMLExtractor extends VoiceImportComponent
         
         if (db.getProp(db.TEXTEXT).startsWith(System.getProperty("file.separator"))){
             // absolute path
-            fullFileName = db.getProp(db.TEXTDIR) + basename + db.getProp(db.TEXTEXT);
+            fullFileName = inputDir + File.separator + basename + db.getProp(db.TEXTEXT);
         } else {
             // relative path
-            fullFileName = db.getProp(db.ROOTDIR) + System.getProperty("file.separator") + db.getProp(db.TEXTDIR)
-            + basename + db.getProp(db.TEXTEXT);
+            fullFileName = db.getProp(db.ROOTDIR) + System.getProperty("file.separator") + inputDir
+            +File.separator+ basename + db.getProp(db.TEXTEXT);
         }
         
         File textFile = new File(fullFileName);
@@ -130,18 +130,18 @@ public class IntonisedXMLExtractor extends VoiceImportComponent
         
         
         // First, test if there is a corresponding .rawmaryxml file in textdir:
-        File rawmaryxmlFile = new File(db.getProp(db.MARYXMLDIR)
+        File rawmaryxmlFile = new File(db.getProp(db.MARYXMLDIR) + File.separator
                                 + basename + db.getProp(db.MARYXMLEXT));
         if (rawmaryxmlFile.exists()) {
             text = FileUtils.getFileAsString(rawmaryxmlFile, "UTF-8");
         } else {
             text = getMaryXMLHeaderWithInitialBoundary(locale)
-                + FileUtils.getFileAsString(new File(db.getProp(db.TEXTDIR) 
+                + FileUtils.getFileAsString(new File(inputDir 
                                 + basename + db.getProp(db.TEXTEXT)), "UTF-8")
                 + "</maryxml>";
         }
         
-        OutputStream os = new BufferedOutputStream(new FileOutputStream(new File( unitfeatureDir, basename + featsExt )));
+        OutputStream os = new BufferedOutputStream(new FileOutputStream(new File( outputDir, basename + featsExt )));
         MaryClient maryClient = getMaryClient();
         
         Vector<MaryClient.Voice> voices = maryClient.getVoices(localVoice);
