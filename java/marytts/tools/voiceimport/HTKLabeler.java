@@ -229,11 +229,14 @@ public class HTKLabeler extends VoiceImportComponent {
             hviteAligning();
             System.out.println("... Done.");
             
+            htkExtraModels();
+            
             System.out.println("Generating Labels in required format...");
             getProperLabelFormat();
             System.out.println(" ... done.");
             System.out.println("Label file Generation Successfully completed using HTK !"); 
-           
+         
+            
             return true;
         }
         
@@ -850,6 +853,101 @@ public class HTKLabeler extends VoiceImportComponent {
             
             
         }
+        
+        
+      private void  htkExtraModels() throws Exception{
+            
+            String hlstats = getProp(HTKDIR)+File.separator
+                +"bin"+File.separator+"HLStats";
+            String hbuild = getProp(HTKDIR)+File.separator
+                +"bin"+File.separator+"HBuild";
+            
+            File htkFile = new File(hlstats);
+            if (!htkFile.exists()) {
+                throw new RuntimeException("File "+htkFile.getAbsolutePath()+" does not exist");
+            }
+            String configFile = getProp(HTDIR)+File.separator
+                +"config"+File.separator+"htkTrain.conf";
+            String bigFile = getProp(HTDIR)+File.separator
+                +"etc"+File.separator+"htk.phones.big";
+            String phoneList = getProp(HTDIR)+File.separator
+                +"etc"+File.separator+"htk.phone.list";
+            String phoneMlf = getProp(HTDIR)+File.separator
+                +"etc"+File.separator+"htk.phones.mlf";
+            String phoneDict = getProp(HTDIR)+File.separator
+                +"etc"+File.separator+"htk.phone.dict";
+            String phoneAugDict = getProp(HTDIR)+File.separator
+                +"etc"+File.separator+"htk.aug.phone.dict";
+            String phoneAugList = getProp(HTDIR)+File.separator
+            +"etc"+File.separator+"htk.aug.phone.list";
+        
+            String netFile = getProp(HTDIR)+File.separator
+                +"etc"+File.separator+"htk.phones.net";
+    
+            Runtime rtime = Runtime.getRuntime();
+            //get a shell
+            Process process = rtime.exec("/bin/bash");
+            //get an output stream to write to the shell
+            PrintWriter pw = new PrintWriter(
+                    new OutputStreamWriter(process.getOutputStream()));
+            System.out.println("( "
+                    +hlstats+" -T 1 -C "+configFile+" -b "+bigFile
+                    +" -o "+phoneList+" "+phoneMlf
+                    +"; exit )\n");
+            
+            pw.println("( "
+                    +hlstats+" -T 1 -C "+configFile+" -b "+bigFile
+                    +" -o "+phoneList+" "+phoneMlf
+                    +"; exit )\n");
+            
+            pw.flush();
+            //shut down
+            pw.close();
+            process.waitFor();
+            process.exitValue();
+            
+            String fileDict = FileUtils.getFileAsString(new File(phoneDict), "ASCII");
+            PrintWriter augPhoneDict = new PrintWriter(new FileWriter(phoneAugDict));
+            augPhoneDict.println("!ENTER sil");
+            augPhoneDict.print(fileDict);
+            augPhoneDict.println("!EXIT sil");
+            augPhoneDict.flush();
+            augPhoneDict.close();
+            
+            String fileList = FileUtils.getFileAsString(new File(phoneList), "ASCII");
+            PrintWriter augPhoneList = new PrintWriter(new FileWriter(phoneAugList));
+            augPhoneList.println("!ENTER");
+            augPhoneList.print(fileList);
+            augPhoneList.println("!EXIT");
+            augPhoneList.flush();
+            augPhoneList.close();
+            
+            
+            rtime = Runtime.getRuntime();
+            //get a shell
+            process = rtime.exec("/bin/bash");
+            //get an output stream to write to the shell
+            pw = new PrintWriter(
+                    new OutputStreamWriter(process.getOutputStream()));
+            System.out.println("( "
+                    +hbuild+" -T 1 -C "+configFile+" -n "+bigFile
+                    +" "+phoneAugList+" "+netFile
+                    +"; exit )\n");
+            
+            pw.println("( "
+                    +hbuild+" -T 1 -C "+configFile+" -n "+bigFile
+                    +" "+phoneAugList+" "+netFile
+                    +"; exit )\n");
+            
+            
+            pw.flush();
+            //shut down
+            pw.close();
+            process.waitFor();
+            process.exitValue();
+            
+        }
+
         
         /**
          * Create phone sequence file, which is 
