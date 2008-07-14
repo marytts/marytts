@@ -12,6 +12,7 @@ import marytts.signalproc.adaptation.BaselinePostprocessor;
 import marytts.signalproc.adaptation.BaselinePreprocessor;
 import marytts.signalproc.adaptation.BaselineTransformer;
 import marytts.signalproc.adaptation.FdpsolaAdapter;
+import marytts.signalproc.adaptation.MfccAdapter;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookFile;
 import marytts.signalproc.adaptation.prosody.PitchMapping;
 import marytts.signalproc.adaptation.prosody.PitchMappingFile;
@@ -20,6 +21,7 @@ import marytts.signalproc.adaptation.prosody.PitchTransformationData;
 import marytts.signalproc.adaptation.prosody.ProsodyTransformerParams;
 import marytts.signalproc.adaptation.smoothing.SmoothingDefinitions;
 import marytts.signalproc.analysis.LsfFileHeader;
+import marytts.signalproc.analysis.MfccFileHeader;
 import marytts.tools.voiceimport.BasenameList;
 import marytts.util.io.FileUtils;
 import marytts.util.string.StringUtils;
@@ -75,7 +77,12 @@ public class JointGMMTransformer extends BaselineTransformer {
             }
             
             if (nonNullGmm!=null)
-                params.lsfParams = new LsfFileHeader((LsfFileHeader)nonNullGmm.featureParams);
+            {
+                if (nonNullGmm.featureType == BaselineFeatureExtractor.LSF_FEATURES)
+                    params.lsfParams = new LsfFileHeader((LsfFileHeader)nonNullGmm.featureParams);
+                else if (nonNullGmm.featureType == BaselineFeatureExtractor.MFCC_FEATURES_FROM_FILES)
+                    params.mfccParams = new MfccFileHeader((MfccFileHeader)nonNullGmm.featureParams);
+            }
         }
         
         if (nonNullGmm==null)
@@ -153,12 +160,12 @@ public class JointGMMTransformer extends BaselineTransformer {
   //Create list of input files
     public BaselineAdaptationSet getInputSet(String inputFolder)
     {   
-        BasenameList b = new BasenameList(inputFolder, BaselineAdaptationSet.DEFAULT_WAV_EXTENSION);
+        BasenameList b = new BasenameList(inputFolder, BaselineAdaptationSet.WAV_EXTENSION_DEFAULT);
         
         BaselineAdaptationSet inputSet = new BaselineAdaptationSet(b.getListAsVector().size());
         
         for (int i=0; i<inputSet.items.length; i++)
-            inputSet.items[i].setFromWavFilename(inputFolder + b.getName(i) + BaselineAdaptationSet.DEFAULT_WAV_EXTENSION);
+            inputSet.items[i].setFromWavFilename(inputFolder + b.getName(i) + BaselineAdaptationSet.WAV_EXTENSION_DEFAULT);
         
         return inputSet;
     }
@@ -176,7 +183,10 @@ public class JointGMMTransformer extends BaselineTransformer {
             outputSet = new BaselineAdaptationSet(inputSet.items.length);
 
             for (int i=0; i<inputSet.items.length; i++)
-                outputSet.items[i].audioFile = outputFolder + StringUtils.getFileName(inputSet.items[i].audioFile) + "_output" + BaselineAdaptationSet.DEFAULT_WAV_EXTENSION;
+            {
+                outputSet.items[i].audioFile = outputFolder + StringUtils.getFileName(inputSet.items[i].audioFile) + "_output" + BaselineAdaptationSet.WAV_EXTENSION_DEFAULT;
+                outputSet.items[i].rawMfccFile = StringUtils.modifyExtension(outputSet.items[i].audioFile, BaselineAdaptationSet.RAWMFCC_EXTENSION_DEFAULT);
+            }
         }
 
         return outputSet;
@@ -239,131 +249,152 @@ public class JointGMMTransformer extends BaselineTransformer {
                                         JointGMMSet jgSet,
                                         PitchTransformationData pMap
                                        ) throws UnsupportedAudioFileException, IOException
-    {   
-        if (wctParams.isFixedRateVocalTractConversion)
-            wctParams.isSeparateProsody = true;
-
-        //Desired values should be specified in the following four parameters
-        double [] pscales = {1.0};
-        double [] tscales = {1.0};
-        double [] escales = {1.0};
-        double [] vscales = {1.0};
-
-        //These are for fixed rate vocal tract transformation: Do not change these!!!
-        double [] pscalesNone = {1.0};
-        double [] tscalesNone = {1.0};
-        double [] escalesNone = {1.0};
-        double [] vscalesNone = {1.0};
-        boolean noPscaleFromFestivalUttFile = false;
-        boolean noTscaleFromFestivalUttFile = false;
-        boolean noEscaleFromTargetWavFile = false;
-        //
-
-        FdpsolaAdapter adapter = null;
-        JointGMMTransformerParams currentWctParams = new JointGMMTransformerParams(wctParams);
-
-        String firstPassOutputWavFile = "";
-        String smoothedVocalTractFile = "";
-
-        if (currentWctParams.isTemporalSmoothing) //Need to do two pass for smoothing
-            currentWctParams.isSeparateProsody = true;
-
-        if (currentWctParams.isSeparateProsody) //First pass with no prosody modifications
+    {  
+        //LSF transformation is done fully from audio to audio
+        if (jgSet.gmms[0].featureType==BaselineFeatureExtractor.LSF_FEATURES)
         {
-            firstPassOutputWavFile = StringUtils.getFolderName(outputItem.audioFile) + StringUtils.getFileName(outputItem.audioFile) + "_vt.wav";
-            smoothedVocalTractFile = StringUtils.getFolderName(outputItem.audioFile) + StringUtils.getFileName(outputItem.audioFile) + "_vt.vtf";
-            int tmpPitchTransformationMethod = currentWctParams.prosodyParams.pitchTransformationMethod;
-            currentWctParams.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.NO_TRANSFORMATION;
+            if (wctParams.isFixedRateVocalTractConversion)
+                wctParams.isSeparateProsody = true;
 
-            boolean tmpPscaleFromFestivalUttFile = currentWctParams.isPscaleFromFestivalUttFile;
-            boolean tmpTscaleFromFestivalUttFile = currentWctParams.isTscaleFromFestivalUttFile;
-            boolean tmpEscaleFromTargetWavFile = currentWctParams.isEscaleFromTargetWavFile;
-            currentWctParams.isPscaleFromFestivalUttFile = noPscaleFromFestivalUttFile;
-            currentWctParams.isTscaleFromFestivalUttFile = noTscaleFromFestivalUttFile;
-            currentWctParams.isEscaleFromTargetWavFile = noEscaleFromTargetWavFile;
-            
-            if (currentWctParams.isTemporalSmoothing) //This estimates the vocal tract filter but performs no prosody and vocal tract transformations
+            //Desired values should be specified in the following four parameters
+            double[] pscales = {1.0};
+            double[] tscales = {1.0};
+            double[] escales = {1.0};
+            double[] vscales = {1.0};
+
+            //These are for fixed rate vocal tract transformation: Do not change these!!!
+            double[] pscalesNone = {1.0};
+            double[] tscalesNone = {1.0};
+            double[] escalesNone = {1.0};
+            double[] vscalesNone = {1.0};
+            boolean noPscaleFromFestivalUttFile = false;
+            boolean noTscaleFromFestivalUttFile = false;
+            boolean noEscaleFromTargetWavFile = false;
+            //
+
+            FdpsolaAdapter adapter = null;
+            JointGMMTransformerParams currentWctParams = new JointGMMTransformerParams(wctParams);
+
+            String firstPassOutputWavFile = "";
+            String smoothedVocalTractFile = "";
+
+            if (currentWctParams.isTemporalSmoothing) //Need to do two pass for smoothing
+                currentWctParams.isSeparateProsody = true;
+
+            if (currentWctParams.isSeparateProsody) //First pass with no prosody modifications
             {
-                currentWctParams.smoothingState = SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT;
-                currentWctParams.smoothedVocalTractFile = smoothedVocalTractFile; //It is an output at first pass
+                firstPassOutputWavFile = StringUtils.getFolderName(outputItem.audioFile) + StringUtils.getFileName(outputItem.audioFile) + "_vt.wav";
+                smoothedVocalTractFile = StringUtils.getFolderName(outputItem.audioFile) + StringUtils.getFileName(outputItem.audioFile) + "_vt.vtf";
+                int tmpPitchTransformationMethod = currentWctParams.prosodyParams.pitchTransformationMethod;
+                currentWctParams.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.NO_TRANSFORMATION;
 
-                adapter = new FdpsolaAdapter(inputItem, firstPassOutputWavFile, currentWctParams,
-                                             pscalesNone, tscalesNone, escalesNone, vscalesNone);
+                boolean tmpPscaleFromFestivalUttFile = currentWctParams.isPscaleFromFestivalUttFile;
+                boolean tmpTscaleFromFestivalUttFile = currentWctParams.isTscaleFromFestivalUttFile;
+                boolean tmpEscaleFromTargetWavFile = currentWctParams.isEscaleFromTargetWavFile;
+                currentWctParams.isPscaleFromFestivalUttFile = noPscaleFromFestivalUttFile;
+                currentWctParams.isTscaleFromFestivalUttFile = noTscaleFromFestivalUttFile;
+                currentWctParams.isEscaleFromTargetWavFile = noEscaleFromTargetWavFile;
 
-                adapter.bSilent = !currentWctParams.isDisplayProcessingFrameCount;
-                adapter.fdpsolaOnline(jgMapper, jgSet, pMap); //Call voice conversion version
+                if (currentWctParams.isTemporalSmoothing) //This estimates the vocal tract filter but performs no prosody and vocal tract transformations
+                {
+                    currentWctParams.smoothingState = SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT;
+                    currentWctParams.smoothedVocalTractFile = smoothedVocalTractFile; //It is an output at first pass
 
-                currentWctParams.smoothingState = SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT;
-                currentWctParams.smoothedVocalTractFile = smoothedVocalTractFile; //Now it is an input
-                
-                adapter = new FdpsolaAdapter(inputItem, firstPassOutputWavFile, currentWctParams,
-                                             pscalesNone, tscalesNone, escalesNone, vscalesNone);
+                    adapter = new FdpsolaAdapter(inputItem, firstPassOutputWavFile, currentWctParams,
+                                                 pscalesNone, tscalesNone, escalesNone, vscalesNone);
+
+                    adapter.bSilent = !currentWctParams.isDisplayProcessingFrameCount;
+                    adapter.fdpsolaOnline(jgMapper, jgSet, pMap); //Call voice conversion version
+
+                    currentWctParams.smoothingState = SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT;
+                    currentWctParams.smoothedVocalTractFile = smoothedVocalTractFile; //Now it is an input
+
+                    adapter = new FdpsolaAdapter(inputItem, firstPassOutputWavFile, currentWctParams,
+                            pscalesNone, tscalesNone, escalesNone, vscalesNone);
+                }
+                else
+                {
+                    currentWctParams.smoothingMethod = SmoothingDefinitions.NO_SMOOTHING;
+                    currentWctParams.smoothingState = SmoothingDefinitions.NONE;
+                    currentWctParams.smoothedVocalTractFile = "";
+
+                    adapter = new FdpsolaAdapter(inputItem, firstPassOutputWavFile, currentWctParams,
+                                                 pscalesNone, tscalesNone, escalesNone, vscalesNone);
+                }
+
+                currentWctParams.isPscaleFromFestivalUttFile = tmpPscaleFromFestivalUttFile;
+                currentWctParams.isTscaleFromFestivalUttFile = tmpTscaleFromFestivalUttFile;
+                currentWctParams.isEscaleFromTargetWavFile = tmpEscaleFromTargetWavFile;
+
+                //Then second step: prosody modification (with possible additional vocal tract scaling)
+                if (adapter!=null)
+                {
+                    adapter.bSilent = !currentWctParams.isDisplayProcessingFrameCount;
+                    adapter.fdpsolaOnline(jgMapper, jgSet, pMap); //Call voice conversion version
+
+                    if (isScalingsRequired(pscales, tscales, escales, vscales) || tmpPitchTransformationMethod!=ProsodyTransformerParams.NO_TRANSFORMATION)
+                    {
+                        System.out.println("Performing prosody modifications...");
+
+                        currentWctParams.isVocalTractTransformation = false; //isVocalTractTransformation should be false 
+                        currentWctParams.isFixedRateVocalTractConversion = false; //isFixedRateVocalTractConversion should be false to enable prosody modifications with FD-PSOLA
+                        currentWctParams.isResynthesizeVocalTractFromSourceModel = false; //isResynthesizeVocalTractFromSourceCodebook should be false
+                        currentWctParams.isVocalTractMatchUsingTargetModel = false; //isVocalTractMatchUsingTargetCodebook should be false
+                        currentWctParams.prosodyParams.pitchTransformationMethod = tmpPitchTransformationMethod;
+                        currentWctParams.smoothingMethod = SmoothingDefinitions.NO_SMOOTHING;
+                        currentWctParams.smoothingState = SmoothingDefinitions.NONE;
+                        currentWctParams.smoothedVocalTractFile = "";
+
+                        String tmpInputWavFile = inputItem.audioFile;
+                        inputItem.audioFile = firstPassOutputWavFile;
+
+                        adapter = new FdpsolaAdapter(inputItem, outputItem.audioFile, currentWctParams,
+                                                     pscales, tscales, escales, vscales);
+
+                        inputItem.audioFile = tmpInputWavFile;
+
+                        adapter.bSilent = true;
+                        adapter.fdpsolaOnline(null, jgSet, pMap);
+                    }
+                    else //Copy output file
+                        FileUtils.copy(firstPassOutputWavFile, outputItem.audioFile);
+
+                    //Delete first pass output file
+                    if (!currentWctParams.isSaveVocalTractOnlyVersion)
+                        FileUtils.delete(firstPassOutputWavFile);
+
+                    System.out.println("Done...");
+                }
             }
-            else
+            else //Single-pass prosody+vocal tract transformation and modification
             {
                 currentWctParams.smoothingMethod = SmoothingDefinitions.NO_SMOOTHING;
                 currentWctParams.smoothingState = SmoothingDefinitions.NONE;
                 currentWctParams.smoothedVocalTractFile = "";
 
-                adapter = new FdpsolaAdapter(inputItem, firstPassOutputWavFile, currentWctParams,
-                                             pscalesNone, tscalesNone, escalesNone, vscalesNone);
-            }
-            
-            currentWctParams.isPscaleFromFestivalUttFile = tmpPscaleFromFestivalUttFile;
-            currentWctParams.isTscaleFromFestivalUttFile = tmpTscaleFromFestivalUttFile;
-            currentWctParams.isEscaleFromTargetWavFile = tmpEscaleFromTargetWavFile;
+                adapter = new FdpsolaAdapter(inputItem, outputItem.audioFile, currentWctParams,
+                        pscales, tscales, escales, vscales);
 
-            //Then second step: prosody modification (with possible additional vocal tract scaling)
+                adapter.bSilent = !wctParams.isDisplayProcessingFrameCount;
+                adapter.fdpsolaOnline(jgMapper, jgSet, pMap); //Call voice conversion version
+            }
+        }
+        else if (jgSet.gmms[0].featureType==BaselineFeatureExtractor.MFCC_FEATURES_FROM_FILES)
+        {
+            //MFCC transformation is done from MFCC file to MFCC file
+            MfccAdapter adapter = null;
+            JointGMMTransformerParams currentWctParams = new JointGMMTransformerParams(wctParams);
+
+            adapter = new MfccAdapter(inputItem, outputItem.rawMfccFile, currentWctParams);
+
+            //Then second step: vocal tract transformation
             if (adapter!=null)
             {
                 adapter.bSilent = !currentWctParams.isDisplayProcessingFrameCount;
-                adapter.fdpsolaOnline(jgMapper, jgSet, pMap); //Call voice conversion version
-
-                if (isScalingsRequired(pscales, tscales, escales, vscales) || tmpPitchTransformationMethod!=ProsodyTransformerParams.NO_TRANSFORMATION)
-                {
-                    System.out.println("Performing prosody modifications...");
-
-                    currentWctParams.isVocalTractTransformation = false; //isVocalTractTransformation should be false 
-                    currentWctParams.isFixedRateVocalTractConversion = false; //isFixedRateVocalTractConversion should be false to enable prosody modifications with FD-PSOLA
-                    currentWctParams.isResynthesizeVocalTractFromSourceModel = false; //isResynthesizeVocalTractFromSourceCodebook should be false
-                    currentWctParams.isVocalTractMatchUsingTargetModel = false; //isVocalTractMatchUsingTargetCodebook should be false
-                    currentWctParams.prosodyParams.pitchTransformationMethod = tmpPitchTransformationMethod;
-                    currentWctParams.smoothingMethod = SmoothingDefinitions.NO_SMOOTHING;
-                    currentWctParams.smoothingState = SmoothingDefinitions.NONE;
-                    currentWctParams.smoothedVocalTractFile = "";
-
-                    String tmpInputWavFile = inputItem.audioFile;
-                    inputItem.audioFile = firstPassOutputWavFile;
-                    
-                    adapter = new FdpsolaAdapter(inputItem, outputItem.audioFile, currentWctParams,
-                                                 pscales, tscales, escales, vscales);
-                    
-                    inputItem.audioFile = tmpInputWavFile;
-
-                    adapter.bSilent = true;
-                    adapter.fdpsolaOnline(null, jgSet, pMap);
-                }
-                else //Copy output file
-                    FileUtils.copy(firstPassOutputWavFile, outputItem.audioFile);
-
-                //Delete first pass output file
-                if (!currentWctParams.isSaveVocalTractOnlyVersion)
-                    FileUtils.delete(firstPassOutputWavFile);
+                adapter.transformOnline(jgMapper, jgSet); //Call voice conversion version
 
                 System.out.println("Done...");
             }
-        }
-        else //Single-pass prosody+vocal tract transformation and modification
-        {
-            currentWctParams.smoothingMethod = SmoothingDefinitions.NO_SMOOTHING;
-            currentWctParams.smoothingState = SmoothingDefinitions.NONE;
-            currentWctParams.smoothedVocalTractFile = "";
-
-            adapter = new FdpsolaAdapter(inputItem, outputItem.audioFile, currentWctParams,
-                                         pscales, tscales, escales, vscales);
-
-            adapter.bSilent = !wctParams.isDisplayProcessingFrameCount;
-            adapter.fdpsolaOnline(jgMapper, jgSet, pMap); //Call voice conversion version
         }
     }
 
@@ -386,18 +417,18 @@ public class JointGMMTransformer extends BaselineTransformer {
         BaselinePostprocessor po = new BaselinePostprocessor();
         JointGMMTransformerParams pa = new JointGMMTransformerParams();
         
-        int numTrainingFiles = 10;
+        int numTrainingFiles = 100;
         int i;
         
         boolean isContextualGMMs = false;
-        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {512};
+        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {64};
         //int contextClassificationType = ContextualGMMParams.SILENCE_SPEECH; int[] numComponents = {16, 128};
         //int contextClassificationType = ContextualGMMParams.VOWEL_SILENCE_CONSONANT; int[] numComponents = {128, 16, 128};
         //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS; int[] numComponents = {numMixes};
         //int contextClassificationType = ContextualGMMParams.FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER; int[] numComponents = {128, 128, 128, 128, 128, 16};
         //int contextClassificationType = ContextualGMMParams.PHONEME_IDENTITY; int[] numComponents = {128};
         
-        String inputFolder = wavBaseFolder + "/" + sourceTag + "/test_40/";
+        String inputFolder = wavBaseFolder + "/" + sourceTag + "/test_10/";
         String outputBaseFolder;
         if (!isContextualGMMs)
         {
@@ -406,7 +437,6 @@ public class JointGMMTransformer extends BaselineTransformer {
         }
         else
         {
-
             outputBaseFolder = wavBaseFolder + "output/gmm" + method + "_" + String.valueOf(numTrainingFiles) + "_" + 
                                "context" + String.valueOf(contextClassificationType);
             
@@ -417,7 +447,7 @@ public class JointGMMTransformer extends BaselineTransformer {
         String baseFile = wavBaseFolder + "output/" + sourceTag + "2" + targetTag + "/" + sourceTag + method + "_X_" + targetTag + method + "_" + String.valueOf(numTrainingFiles);
         
         pa.isForcedAnalysis = false;
-        pa.isSourceVocalTractSpectrumFromModel = true;
+        pa.isSourceVocalTractSpectrumFromModel = false;
         pa.isVocalTractTransformation = true;
         pa.isResynthesizeVocalTractFromSourceModel = false;
         pa.isVocalTractMatchUsingTargetModel= false;

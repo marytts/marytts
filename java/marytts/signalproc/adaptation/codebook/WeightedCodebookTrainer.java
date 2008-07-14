@@ -129,7 +129,7 @@ public class WeightedCodebookTrainer extends BaselineTrainer {
                 preprocessor.run(sourceTrainingSet);
                 preprocessor.run(targetTrainingSet);
                 
-                int desiredFeatures = wcParams.vocalTractFeature +
+                int desiredFeatures = wcParams.codebookHeader.vocalTractFeature +
                                       BaselineFeatureExtractor.F0_FEATURES + 
                                       BaselineFeatureExtractor.ENERGY_FEATURES;
                 
@@ -158,17 +158,17 @@ public class WeightedCodebookTrainer extends BaselineTrainer {
         {
             for (i=0; i<map.length; i++)
             {
-                if (wcParams.vocalTractFeature == BaselineFeatureExtractor.LSF_FEATURES)
+                if (wcParams.codebookHeader.vocalTractFeature == BaselineFeatureExtractor.LSF_FEATURES)
                 {
                     imap = AdaptationUtils.mapFramesFeatures(sourceTrainingSet.items[i].labelFile, targetTrainingSet.items[map[i]].labelFile, 
                                                              sourceTrainingSet.items[i].lsfFile, targetTrainingSet.items[map[i]].lsfFile,
-                                                             wcParams.vocalTractFeature);
+                                                             wcParams.codebookHeader.vocalTractFeature);
                 }
-                else if (wcParams.vocalTractFeature == BaselineFeatureExtractor.MFCC_FEATURES)
+                else if (wcParams.codebookHeader.vocalTractFeature == BaselineFeatureExtractor.MFCC_FEATURES_FROM_FILES)
                 {
                     imap = AdaptationUtils.mapFramesFeatures(sourceTrainingSet.items[i].labelFile, targetTrainingSet.items[map[i]].labelFile, 
                                                              sourceTrainingSet.items[i].mfccFile, targetTrainingSet.items[map[i]].mfccFile,
-                                                             wcParams.vocalTractFeature);
+                                                             wcParams.codebookHeader.vocalTractFeature);
                 }
                 
                 try {
@@ -183,19 +183,19 @@ public class WeightedCodebookTrainer extends BaselineTrainer {
         {
             for (i=0; i<map.length; i++)
             {
-                if (wcParams.vocalTractFeature == BaselineFeatureExtractor.LSF_FEATURES)
+                if (wcParams.codebookHeader.vocalTractFeature == BaselineFeatureExtractor.LSF_FEATURES)
                 {
                     imap = AdaptationUtils.mapFrameGroupsFeatures(sourceTrainingSet.items[i].labelFile, targetTrainingSet.items[map[i]].labelFile, 
                                                                   sourceTrainingSet.items[i].lsfFile, targetTrainingSet.items[map[i]].lsfFile,
                                                                   wcParams.codebookHeader.numNeighboursInFrameGroups,
-                                                                  wcParams.vocalTractFeature);
+                                                                  wcParams.codebookHeader.vocalTractFeature);
                 }
-                else if (wcParams.vocalTractFeature == BaselineFeatureExtractor.MFCC_FEATURES)
+                else if (wcParams.codebookHeader.vocalTractFeature == BaselineFeatureExtractor.MFCC_FEATURES_FROM_FILES)
                 {
                     imap = AdaptationUtils.mapFrameGroupsFeatures(sourceTrainingSet.items[i].labelFile, targetTrainingSet.items[map[i]].labelFile, 
                                                                   sourceTrainingSet.items[i].mfccFile, targetTrainingSet.items[map[i]].mfccFile,
                                                                   wcParams.codebookHeader.numNeighboursInFrameGroups,
-                                                                  wcParams.vocalTractFeature);
+                                                                  wcParams.codebookHeader.vocalTractFeature);
                 }
                     
                 try {
@@ -210,17 +210,17 @@ public class WeightedCodebookTrainer extends BaselineTrainer {
         {
             for (i=0; i<map.length; i++)
             {
-                if (wcParams.vocalTractFeature == BaselineFeatureExtractor.LSF_FEATURES)
+                if (wcParams.codebookHeader.vocalTractFeature == BaselineFeatureExtractor.LSF_FEATURES)
                 {
                     imap = AdaptationUtils.mapLabelsFeatures(sourceTrainingSet.items[i].labelFile, targetTrainingSet.items[map[i]].labelFile, 
                                                              sourceTrainingSet.items[i].lsfFile, targetTrainingSet.items[map[i]].lsfFile,
-                                                             wcParams.vocalTractFeature);
+                                                             wcParams.codebookHeader.vocalTractFeature);
                 }
-                else if (wcParams.vocalTractFeature == BaselineFeatureExtractor.MFCC_FEATURES)
+                else if (wcParams.codebookHeader.vocalTractFeature == BaselineFeatureExtractor.MFCC_FEATURES_FROM_FILES)
                 {
                     imap = AdaptationUtils.mapLabelsFeatures(sourceTrainingSet.items[i].labelFile, targetTrainingSet.items[map[i]].labelFile, 
                                                              sourceTrainingSet.items[i].mfccFile, targetTrainingSet.items[map[i]].mfccFile,
-                                                             wcParams.vocalTractFeature);
+                                                             wcParams.codebookHeader.vocalTractFeature);
                 }
                 
                 try {
@@ -235,19 +235,19 @@ public class WeightedCodebookTrainer extends BaselineTrainer {
         {
             for (i=0; i<map.length; i++)
             {
-                if (wcParams.vocalTractFeature == BaselineFeatureExtractor.LSF_FEATURES)
+                if (wcParams.codebookHeader.vocalTractFeature == BaselineFeatureExtractor.LSF_FEATURES)
                 {
                     imap = AdaptationUtils.mapLabelGroupsFeatures(sourceTrainingSet.items[i].labelFile, targetTrainingSet.items[map[i]].labelFile, 
                                                                   sourceTrainingSet.items[i].lsfFile, targetTrainingSet.items[map[i]].lsfFile,
                                                                   wcParams.codebookHeader.numNeighboursInLabelGroups,
-                                                                  wcParams.vocalTractFeature);
+                                                                  wcParams.codebookHeader.vocalTractFeature);
                 }
-                else if (wcParams.vocalTractFeature == BaselineFeatureExtractor.MFCC_FEATURES)
+                else if (wcParams.codebookHeader.vocalTractFeature == BaselineFeatureExtractor.MFCC_FEATURES_FROM_FILES)
                 {
                     imap = AdaptationUtils.mapLabelGroupsFeatures(sourceTrainingSet.items[i].labelFile, targetTrainingSet.items[map[i]].labelFile, 
                                                                   sourceTrainingSet.items[i].mfccFile, targetTrainingSet.items[map[i]].mfccFile,
                                                                   wcParams.codebookHeader.numNeighboursInLabelGroups,
-                                                                  wcParams.vocalTractFeature);
+                                                                  wcParams.codebookHeader.vocalTractFeature);
                 }
                 
                 try {
@@ -260,9 +260,9 @@ public class WeightedCodebookTrainer extends BaselineTrainer {
         }
         else if (wcParams.codebookHeader.codebookType==WeightedCodebookFileHeader.SPEECH)
         {
-            if (wcParams.vocalTractFeature == BaselineFeatureExtractor.LSF_FEATURES)
+            if (wcParams.codebookHeader.vocalTractFeature == BaselineFeatureExtractor.LSF_FEATURES)
                 imap = AdaptationUtils.mapSpeechFeatures();
-            else if (wcParams.vocalTractFeature == BaselineFeatureExtractor.MFCC_FEATURES)
+            else if (wcParams.codebookHeader.vocalTractFeature == BaselineFeatureExtractor.MFCC_FEATURES_FROM_FILES)
                 imap = AdaptationUtils.mapSpeechFeatures();
             
             try {
@@ -288,9 +288,9 @@ public class WeightedCodebookTrainer extends BaselineTrainer {
     {
         WeightedCodebookFeatureMapper featureMapper = null;
         
-        if (wcParams.vocalTractFeature==BaselineFeatureExtractor.LSF_FEATURES)
+        if (wcParams.codebookHeader.vocalTractFeature==BaselineFeatureExtractor.LSF_FEATURES)
             featureMapper = new WeightedCodebookLsfMapper(wcParams);
-        else if (wcParams.vocalTractFeature==BaselineFeatureExtractor.MFCC_FEATURES)
+        else if (wcParams.codebookHeader.vocalTractFeature==BaselineFeatureExtractor.MFCC_FEATURES_FROM_FILES)
             featureMapper = new WeightedCodebookMfccMapper(wcParams);
         
         if (featureMapper!=null)

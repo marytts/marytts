@@ -54,8 +54,8 @@ public class JointGMMMapper extends GMMMapper {
         JointGMMMatch tmpGMMMatch = new JointGMMMatch(inputLsfs.length);
         
         int i, n;
-        Arrays.fill(jointGMMMatch.mappedSourceLsfs, 0.0);
-        Arrays.fill(jointGMMMatch.outputLsfs, 0.0);
+        Arrays.fill(jointGMMMatch.mappedSourceFeatures, 0.0);
+        Arrays.fill(jointGMMMatch.outputFeatures, 0.0);
         
         for (i=0; i<jointGMMSet.gmms.length; i++)
         {
@@ -73,8 +73,8 @@ public class JointGMMMapper extends GMMMapper {
             
                 for (n=0; n<inputLsfs.length; n++)
                 {
-                    jointGMMMatch.mappedSourceLsfs[n] += weights[i]*tmpGMMMatch.mappedSourceLsfs[n];
-                    jointGMMMatch.outputLsfs[n] += weights[i]*tmpGMMMatch.outputLsfs[n];
+                    jointGMMMatch.mappedSourceFeatures[n] += weights[i]*tmpGMMMatch.mappedSourceFeatures[n];
+                    jointGMMMatch.outputFeatures[n] += weights[i]*tmpGMMMatch.outputFeatures[n];
                 }
             }
             
@@ -101,22 +101,22 @@ public class JointGMMMapper extends GMMMapper {
         
         if (jointGMM.covarianceTerms.isDiagonalCovariance) //Diagonal covariance, covariance terms are just vectors
         {
-            Arrays.fill(jointGMMMatch.mappedSourceLsfs, 0.0);
-            Arrays.fill(jointGMMMatch.outputLsfs, 0.0);
+            Arrays.fill(jointGMMMatch.mappedSourceFeatures, 0.0);
+            Arrays.fill(jointGMMMatch.outputFeatures, 0.0);
             
             for (n=0; n<inputLsfs.length; n++)
             {   
                 for (i=0; i<jointGMM.source.totalComponents; i++)
                 {
-                    jointGMMMatch.mappedSourceLsfs[n] += h[i]*jointGMM.source.components[i].meanVector[n];
-                    jointGMMMatch.outputLsfs[n] += h[i]*(jointGMM.targetMeans.components[i].meanVector[n] + jointGMM.covarianceTerms.components[i].covMatrix[0][n]*(inputLsfs[n]-jointGMM.source.components[i].meanVector[n]));
+                    jointGMMMatch.mappedSourceFeatures[n] += h[i]*jointGMM.source.components[i].meanVector[n];
+                    jointGMMMatch.outputFeatures[n] += h[i]*(jointGMM.targetMeans.components[i].meanVector[n] + jointGMM.covarianceTerms.components[i].covMatrix[0][n]*(inputLsfs[n]-jointGMM.source.components[i].meanVector[n]));
                 }
             }
         }
         else //Full covariance
         {
-            Arrays.fill(jointGMMMatch.mappedSourceLsfs, 0.0);
-            Arrays.fill(jointGMMMatch.outputLsfs, 0.0);
+            Arrays.fill(jointGMMMatch.mappedSourceFeatures, 0.0);
+            Arrays.fill(jointGMMMatch.outputFeatures, 0.0);
             
             double [] tmpMappedSourceLsfs = new double[inputLsfs.length];
             double [] tmpOutputLsfs = new double[inputLsfs.length];
@@ -136,8 +136,8 @@ public class JointGMMMapper extends GMMMapper {
             
                 for (n=0; n<inputLsfs.length; n++)
                 {
-                    jointGMMMatch.mappedSourceLsfs[n] += tmpMappedSourceLsfs[n];
-                    jointGMMMatch.outputLsfs[n] += tmpOutputLsfs[n];
+                    jointGMMMatch.mappedSourceFeatures[n] += tmpMappedSourceLsfs[n];
+                    jointGMMMatch.outputFeatures[n] += tmpOutputLsfs[n];
                 }
             }
         }

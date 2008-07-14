@@ -77,7 +77,7 @@ public class WeightedCodebookEntry {
     
     public void allocate(int lpOrder, int mfccDimension)
     {
-        if (lpOrder>0)
+        if (lpOrder>0 || mfccDimension>0)
         {
             sourceItem = new WeightedCodebookSpeakerItem(lpOrder, mfccDimension);
             targetItem = new WeightedCodebookSpeakerItem(lpOrder, mfccDimension);

@@ -61,8 +61,6 @@ public class WeightedCodebookTrainerParams extends BaselineTrainerParams {
     public GaussianOutlierEliminatorParams gaussianEliminatorParams;
     public KMeansMappingEliminatorParams kmeansEliminatorParams;
     
-    public int vocalTractFeature; //Feature to be used for representing vocal tract 
-    
     public WeightedCodebookTrainerParams()
     {
         codebookHeader = new WeightedCodebookFileHeader();
@@ -82,8 +80,6 @@ public class WeightedCodebookTrainerParams extends BaselineTrainerParams {
         
         gaussianEliminatorParams = new GaussianOutlierEliminatorParams();
         kmeansEliminatorParams = new KMeansMappingEliminatorParams();
-        
-        vocalTractFeature = BaselineFeatureExtractor.NOT_DEFINED;
     }
     
     public WeightedCodebookTrainerParams(WeightedCodebookTrainerParams existing)
@@ -104,7 +100,5 @@ public class WeightedCodebookTrainerParams extends BaselineTrainerParams {
         
         gaussianEliminatorParams = new GaussianOutlierEliminatorParams(existing.gaussianEliminatorParams);
         kmeansEliminatorParams = new KMeansMappingEliminatorParams(existing.kmeansEliminatorParams);
-        
-        vocalTractFeature = existing.vocalTractFeature;
     }
 }

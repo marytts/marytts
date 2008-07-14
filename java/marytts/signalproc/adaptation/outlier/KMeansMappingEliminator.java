@@ -220,15 +220,18 @@ public class KMeansMappingEliminator {
                 if (params.isCheckDurationOutliers)
                     desiredFeatures += BaselineFeatureExtractor.DURATION_FEATURES;
 
-                sourceClusterer = clusterFeatures(codebookIn, desiredFeatures, WeightedCodebook.SOURCE, params, params.numClusters);
-                targetClusterer = clusterFeatures(codebookIn, desiredFeatures, WeightedCodebook.TARGET, params, params.numClusters);
+                if (desiredFeatures!=0)
+                {
+                    sourceClusterer = clusterFeatures(codebookIn, desiredFeatures, WeightedCodebook.SOURCE, params, params.numClusters);
+                    targetClusterer = clusterFeatures(codebookIn, desiredFeatures, WeightedCodebook.TARGET, params, params.numClusters);
 
-                if (params.eliminationAlgorithm == KMeansMappingEliminatorParams.ELIMINATE_LEAST_LIKELY_MAPPINGS)
-                    totalOutliers = eliminateLeastLikelyMappings(sourceClusterer, targetClusterer, acceptanceStatus, desiredFeatures, OutlierStatus.GENERAL_OUTLIER, params.eliminationLikelihood, params.distanceType);
-                else if (params.eliminationAlgorithm == KMeansMappingEliminatorParams.ELIMINATE_MEAN_DISTANCE_MISMATCHES)
-                    totalOutliers = eliminateMeanDistanceMismatches(codebookIn, sourceClusterer, targetClusterer, acceptanceStatus, BaselineFeatureExtractor.LSF_FEATURES, OutlierStatus.LSF_OUTLIER, params.totalStandardDeviations.general, params.distanceType, params.isGlobalVariance);
-                else if (params.eliminationAlgorithm == KMeansMappingEliminatorParams.ELIMINATE_USING_SUBCLUSTER_MEAN_DISTANCES)
-                    totalOutliers = eliminateUsingSubclusterMeanDistances(codebookIn, sourceClusterer, targetClusterer, acceptanceStatus, BaselineFeatureExtractor.LSF_FEATURES, OutlierStatus.LSF_OUTLIER, params.totalStandardDeviations.general, params.distanceType);
+                    if (params.eliminationAlgorithm == KMeansMappingEliminatorParams.ELIMINATE_LEAST_LIKELY_MAPPINGS)
+                        totalOutliers = eliminateLeastLikelyMappings(sourceClusterer, targetClusterer, acceptanceStatus, desiredFeatures, OutlierStatus.GENERAL_OUTLIER, params.eliminationLikelihood, params.distanceType);
+                    else if (params.eliminationAlgorithm == KMeansMappingEliminatorParams.ELIMINATE_MEAN_DISTANCE_MISMATCHES)
+                        totalOutliers = eliminateMeanDistanceMismatches(codebookIn, sourceClusterer, targetClusterer, acceptanceStatus, BaselineFeatureExtractor.LSF_FEATURES, OutlierStatus.LSF_OUTLIER, params.totalStandardDeviations.general, params.distanceType, params.isGlobalVariance);
+                    else if (params.eliminationAlgorithm == KMeansMappingEliminatorParams.ELIMINATE_USING_SUBCLUSTER_MEAN_DISTANCES)
+                        totalOutliers = eliminateUsingSubclusterMeanDistances(codebookIn, sourceClusterer, targetClusterer, acceptanceStatus, BaselineFeatureExtractor.LSF_FEATURES, OutlierStatus.LSF_OUTLIER, params.totalStandardDeviations.general, params.distanceType);
+                }
                 
                 System.out.println("Total outliers = " + String.valueOf(totalOutliers));
             }

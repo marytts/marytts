@@ -63,8 +63,8 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
         folder1 = StringUtils.checkLastSlash(folder1);
         folder2 = StringUtils.checkLastSlash(folder2);
         
-        BaselineAdaptationSet set1 = new BaselineAdaptationSet(folder1, BaselineAdaptationSet.DEFAULT_WAV_EXTENSION);
-        BaselineAdaptationSet set2 = new BaselineAdaptationSet(folder2, BaselineAdaptationSet.DEFAULT_WAV_EXTENSION);
+        BaselineAdaptationSet set1 = new BaselineAdaptationSet(folder1, BaselineAdaptationSet.WAV_EXTENSION_DEFAULT);
+        BaselineAdaptationSet set2 = new BaselineAdaptationSet(folder2, BaselineAdaptationSet.WAV_EXTENSION_DEFAULT);
         
         return getDistances(set1, set2, false, upperFreqInHz);
     }
@@ -74,8 +74,8 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
         folder1 = StringUtils.checkLastSlash(folder1);
         folder2 = StringUtils.checkLastSlash(folder2);
         
-        BaselineAdaptationSet set1 = new BaselineAdaptationSet(folder1, BaselineAdaptationSet.DEFAULT_WAV_EXTENSION);
-        BaselineAdaptationSet set2 = new BaselineAdaptationSet(folder2, BaselineAdaptationSet.DEFAULT_WAV_EXTENSION);
+        BaselineAdaptationSet set1 = new BaselineAdaptationSet(folder1, BaselineAdaptationSet.WAV_EXTENSION_DEFAULT);
+        BaselineAdaptationSet set2 = new BaselineAdaptationSet(folder2, BaselineAdaptationSet.WAV_EXTENSION_DEFAULT);
         
         return getDistances(set1, set2, isBark, upperFreqInHz);
     }

@@ -42,6 +42,7 @@ import marytts.signalproc.adaptation.codebook.WeightedCodebookLsfMatch;
 import marytts.signalproc.adaptation.gmm.GMMMatch;
 import marytts.signalproc.analysis.FeatureFileHeader;
 import marytts.signalproc.analysis.LsfFileHeader;
+import marytts.signalproc.analysis.MfccFileHeader;
 import marytts.signalproc.analysis.distance.DistanceComputer;
 import marytts.util.io.MaryRandomAccessFile;
 import marytts.util.math.MathUtils;
@@ -72,6 +73,8 @@ public class JointGMM {
            
            if (existing.featureType == BaselineFeatureExtractor.LSF_FEATURES)
                featureParams = new LsfFileHeader((LsfFileHeader)existing.featureParams);
+           else if (existing.featureType == BaselineFeatureExtractor.MFCC_FEATURES_FROM_FILES)
+               featureParams = new MfccFileHeader((MfccFileHeader)existing.featureParams);
        }
        else
        {
@@ -97,6 +100,8 @@ public class JointGMM {
            
            if (featureParamsIn instanceof LsfFileHeader)
                featureType = BaselineFeatureExtractor.LSF_FEATURES;
+           else if (featureParamsIn instanceof MfccFileHeader)
+               featureType = BaselineFeatureExtractor.MFCC_FEATURES_FROM_FILES;
            
            int i, j;
            for (i=0; i<gmm.totalComponents; i++)
@@ -113,6 +118,8 @@ public class JointGMM {
            
            if (featureType==BaselineFeatureExtractor.LSF_FEATURES)
                featureParams = new LsfFileHeader((LsfFileHeader)featureParamsIn);
+           else if (featureType==BaselineFeatureExtractor.MFCC_FEATURES_FROM_FILES)
+               featureParams = new MfccFileHeader((MfccFileHeader)featureParamsIn);
        }
        else
        {
@@ -184,6 +191,8 @@ public class JointGMM {
 
            if (featureType==BaselineFeatureExtractor.LSF_FEATURES)
                featureParams = new LsfFileHeader();
+           else if (featureType==BaselineFeatureExtractor.MFCC_FEATURES_FROM_FILES)
+               featureParams = new MfccFileHeader();
            else
                featureParams = null;
            

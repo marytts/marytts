@@ -42,8 +42,6 @@ public class MfccFileHeader extends FeatureFileHeader {
     
     public static final int DEFAULT_SPTK_MFCC_VECTOR_SIZE = 25;
     
-    public int mfccFileFormat;
-    
     public MfccFileHeader()
     {
         super();
