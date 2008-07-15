@@ -44,7 +44,7 @@ import marytts.util.data.text.*;
 import marytts.util.io.FileUtils;
 
 
-public class PitchLSFInterpolator
+public class PitchLsfInterpolator
 {
 
     public static void main(String[] args) throws Exception

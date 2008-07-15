@@ -60,7 +60,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
     protected int origLen;
     protected PitchMarks pm;
     protected double[] f0s;
-    protected PSOLAFrameProvider psFrm;
+    protected PsolaFrameProvider psFrm;
     protected double wsFixedInSeconds;
     protected double ssFixedInSeconds;
     protected int numPeriods;
@@ -265,9 +265,9 @@ public class FDPSOLAProcessor extends VocalTractModifier {
             if (isWavFileOutput)
             {
                 if (!isFixedRate)
-                    psFrm = new PSOLAFrameProvider(input, pm, modParams.fs, modParams.numPeriods);
+                    psFrm = new PsolaFrameProvider(input, pm, modParams.fs, modParams.numPeriods);
                 else
-                    psFrm = new PSOLAFrameProvider(input, wsFixedInSeconds, ssFixedInSeconds, modParams.fs, numfrm);
+                    psFrm = new PsolaFrameProvider(input, wsFixedInSeconds, ssFixedInSeconds, modParams.fs, numfrm);
 
                 try {
                     dout = new LEDataOutputStream(tempOutBinaryFile);
