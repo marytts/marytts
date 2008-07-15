@@ -43,8 +43,6 @@ import marytts.util.MaryUtils;
 import marytts.util.data.text.SnackTextfileDoubleDataSource;
 import marytts.util.signal.SignalProcUtils;
 
-
-
 public class SnackPitchmarker extends VoiceImportComponent
 {
     protected DatabaseLayout db = null;
