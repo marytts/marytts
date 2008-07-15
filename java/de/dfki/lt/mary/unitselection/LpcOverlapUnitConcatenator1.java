@@ -38,7 +38,7 @@ import java.util.List;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 
-import marytts.signalproc.window.HannWindow;
+import marytts.signalproc.window.HanningWindow;
 import marytts.signalproc.window.Window;
 import marytts.unitselection.concat.UnitConcatenator;
 import marytts.unitselection.data.Datagram;
@@ -61,7 +61,7 @@ import org.apache.log4j.Logger;
  * @author Anna Hunecke
  *
  */
-public class LPCOverlapUnitConcatenator implements UnitConcatenator
+public class LpcOverlapUnitConcatenator1 implements UnitConcatenator
 {
     protected Logger logger;
     protected UnitDatabase database;
@@ -103,7 +103,7 @@ public class LPCOverlapUnitConcatenator implements UnitConcatenator
      * Empty Constructor; need to call load(UnitDatabase separately)
      * @see #load(UnitDatabase)
      */
-    public LPCOverlapUnitConcatenator()
+    public LpcOverlapUnitConcatenator1()
     {
         logger = Logger.getLogger(this.getClass());
     }
@@ -275,12 +275,12 @@ public class LPCOverlapUnitConcatenator implements UnitConcatenator
             // Now apply the left half of a Hann window to the first frame and 
             // the right half of a Hann window to the right context frame:
             int firstPeriodLength = lpcData.getPeriodLength(0);
-            Window hannWindow = new HannWindow(2*firstPeriodLength);
+            Window hannWindow = new HanningWindow(2*firstPeriodLength);
             // start overlap at iTotal:
             for (int i=0; i<firstPeriodLength; i++, iTotal++) {
                 totalAudio[iTotal] += audio[i] * hannWindow.value(i);
             }
-            hannWindow = new HannWindow(2*rightContextFrameLength);
+            hannWindow = new HanningWindow(2*rightContextFrameLength);
             for (int i=0; i<rightContextFrameLength; i++) {
                 audio[nSamples+i] *= hannWindow.value(rightContextFrameLength+i);
             }
