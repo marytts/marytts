@@ -93,8 +93,9 @@ public class SnackPitchmarker extends VoiceImportComponent
                 props.put(MAXPITCH,"300");
             }
             if (MaryUtils.isWindows())
-                props.put(SNACKDIR, "c:\\tcl\\lib\\snack2.2\\");
-            else props.put(SNACKDIR, "/usr/lib/snack2.2/");
+                props.put(SNACKDIR, "c:/tcl/lib/snack2.2/");
+            else 
+                props.put(SNACKDIR, "/usr/lib/snack2.2/");
             
             props.put(PMDIR, db.getProp(db.ROOTDIR)
                     +"pm"
