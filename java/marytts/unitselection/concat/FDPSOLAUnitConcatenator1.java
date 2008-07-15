@@ -37,7 +37,7 @@ import java.util.List;
 import javax.sound.sampled.AudioInputStream;
 
 import marytts.modules.phonemiser.Phoneme;
-import marytts.signalproc.process.FDPSOLAProcessor;
+import marytts.signalproc.process.FdpsolaProcessor;
 import marytts.unitselection.concat.BaseUnitConcatenator.UnitData;
 import marytts.unitselection.concat.OverlapUnitConcatenator.OverlapUnitData;
 import marytts.unitselection.data.Datagram;
@@ -52,7 +52,7 @@ import marytts.util.data.audio.DDSAudioInputStream;
  * @author oytun.turk
  *
  */
-public class FDPSOLAUnitConcatenator extends OverlapUnitConcatenator {
+public class FDPSOLAUnitConcatenator1 extends OverlapUnitConcatenator {
     private boolean [][] voicings;
     private double [][] pscales;
     private double [][] tscales;
@@ -62,7 +62,7 @@ public class FDPSOLAUnitConcatenator extends OverlapUnitConcatenator {
     /**
      * 
      */
-    public FDPSOLAUnitConcatenator() 
+    public FDPSOLAUnitConcatenator1() 
     {
         super();
     }
@@ -370,6 +370,6 @@ public class FDPSOLAUnitConcatenator extends OverlapUnitConcatenator {
     protected AudioInputStream generateAudioStream(List<SelectedUnit> units)
     {
         // TODO: this does not seem thread-safe -- what happens if several threads call FDPSOLAUnitConcatenator? Store all data in units.
-        return (new FDPSOLAProcessor()).process(datagrams, rightContexts, audioformat, voicings, pscales, tscales);
+        return (new FdpsolaProcessor()).process(datagrams, rightContexts, audioformat, voicings, pscales, tscales);
     }
 }
