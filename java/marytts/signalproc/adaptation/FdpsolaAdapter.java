@@ -66,7 +66,7 @@ import marytts.signalproc.analysis.LsfAnalyser;
 import marytts.signalproc.analysis.Lsfs;
 import marytts.signalproc.analysis.PitchMarks;
 import marytts.signalproc.analysis.LpcAnalyser.LpCoeffs;
-import marytts.signalproc.process.PSOLAFrameProvider;
+import marytts.signalproc.process.PsolaFrameProvider;
 import marytts.signalproc.process.VoiceModificationParametersPreprocessor;
 import marytts.signalproc.window.DynamicWindow;
 import marytts.signalproc.window.Window;
@@ -106,7 +106,7 @@ public class FdpsolaAdapter {
     protected int origLen;
     protected PitchMarks pm;
     protected double[] f0s;
-    protected PSOLAFrameProvider psFrm;
+    protected PsolaFrameProvider psFrm;
     protected double wsFixedInSeconds;
     protected double ssFixedInSeconds;
     protected int numPeriods;
@@ -377,9 +377,9 @@ public class FdpsolaAdapter {
                 tempOutBinaryFile = outputFile + ".bin";
 
             if (!baseParams.isFixedRateVocalTractConversion)
-                psFrm = new PSOLAFrameProvider(input, pm, modParams.fs, modParams.numPeriods);
+                psFrm = new PsolaFrameProvider(input, pm, modParams.fs, modParams.numPeriods);
             else
-                psFrm = new PSOLAFrameProvider(input, wsFixedInSeconds, ssFixedInSeconds, modParams.fs, numfrm);
+                psFrm = new PsolaFrameProvider(input, wsFixedInSeconds, ssFixedInSeconds, modParams.fs, numfrm);
 
             try {
                 dout = new LEDataOutputStream(tempOutBinaryFile);

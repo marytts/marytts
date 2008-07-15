@@ -11,7 +11,7 @@ import marytts.util.data.SequenceDoubleDataSource;
 import marytts.util.signal.SignalProcUtils;
 
 
-public class PSOLAFrameProvider {
+public class PsolaFrameProvider {
     protected double [] buffer;
     protected DoubleDataSource input;
     protected int index; //Pitch mark index for pitch synchronous processing, and frame index for fixed window size & rate processing
@@ -29,7 +29,7 @@ public class PSOLAFrameProvider {
     private int samplingRate;
     
     //Pitch synchronous frame provider
-    public PSOLAFrameProvider(DoubleDataSource inputSource, PitchMarks pm, int fs, int psPeriods)
+    public PsolaFrameProvider(DoubleDataSource inputSource, PitchMarks pm, int fs, int psPeriods)
     {
         this.input = inputSource;
         this.numPeriods = psPeriods;
@@ -50,7 +50,7 @@ public class PSOLAFrameProvider {
     }
     
     //Fixed rate frame provider
-    public PSOLAFrameProvider(DoubleDataSource inputSource, double fixedWindowSizeInSeconds, double fixedSkipSizeInSeconds, int fs, int totalFrames)
+    public PsolaFrameProvider(DoubleDataSource inputSource, double fixedWindowSizeInSeconds, double fixedSkipSizeInSeconds, int fs, int totalFrames)
     {
         this.input = inputSource;
         this.numPeriods = -1;

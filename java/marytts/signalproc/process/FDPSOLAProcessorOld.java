@@ -41,7 +41,7 @@ public class FDPSOLAProcessorOld extends VocalTractModifier {
     private String tempOutBinaryFile;
     private int origLen;
     private PitchMarks pm;
-    private PSOLAFrameProvider psFrm;
+    private PsolaFrameProvider psFrm;
     private double wsFixed;
     private double ssFixed;
     private int numPeriods;
@@ -140,7 +140,7 @@ public class FDPSOLAProcessorOld extends VocalTractModifier {
         //Arrays.fill(x, 0.0);
         //System.arraycopy(tmpx, 0, x, 0, origLen);
         
-        psFrm = new PSOLAFrameProvider(input, pm, modParams.fs, modParams.numPeriods);
+        psFrm = new PsolaFrameProvider(input, pm, modParams.fs, modParams.numPeriods);
         
         tempOutBinaryFile = outputFile + ".bin";
         dout = new LEDataOutputStream(tempOutBinaryFile);
