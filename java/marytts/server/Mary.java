@@ -60,7 +60,7 @@ import marytts.modules.ModuleRegistry;
 import marytts.modules.Synthesis;
 import marytts.modules.synthesis.Voice;
 import marytts.util.MaryUtils;
-import marytts.util.audio.MaryAudioUtils;
+import marytts.util.data.audio.MaryAudioUtils;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Category;

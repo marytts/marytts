@@ -38,7 +38,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import marytts.server.MaryProperties;
-import marytts.util.io.MaryNormalisedWriter;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;

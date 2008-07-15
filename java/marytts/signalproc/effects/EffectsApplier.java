@@ -45,10 +45,10 @@ import marytts.modules.synthesis.WaveformSynthesizer;
 import marytts.signalproc.process.Chorus;
 import marytts.signalproc.process.FrameOverlapAddSource;
 import marytts.signalproc.window.Window;
-import marytts.util.audio.AudioDoubleDataSource;
-import marytts.util.audio.BufferedDoubleDataSource;
-import marytts.util.audio.DDSAudioInputStream;
-import marytts.util.audio.DoubleDataSource;
+import marytts.util.data.AudioDoubleDataSource;
+import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.data.DoubleDataSource;
+import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.math.MathUtils;
 import marytts.util.string.StringUtils;
 

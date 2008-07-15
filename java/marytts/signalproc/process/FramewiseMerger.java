@@ -4,9 +4,9 @@ import java.util.Arrays;
 
 import marytts.signalproc.window.DynamicTwoHalvesWindow;
 import marytts.signalproc.window.Window;
-import marytts.util.audio.BufferedDoubleDataSource;
-import marytts.util.audio.DoubleDataSource;
-import marytts.util.audio.SequenceDoubleDataSource;
+import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.data.DoubleDataSource;
+import marytts.util.data.SequenceDoubleDataSource;
 import marytts.util.string.PrintfFormat;
 
 

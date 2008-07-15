@@ -28,8 +28,8 @@
  */
 package marytts.signalproc.process;
 
-import marytts.util.audio.BufferedDoubleDataSource;
-import marytts.util.audio.DoubleDataSource;
+import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.data.DoubleDataSource;
 
 /**
  * @author Marc Schr&ouml;der

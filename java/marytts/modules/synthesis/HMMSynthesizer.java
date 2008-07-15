@@ -94,7 +94,7 @@ import marytts.server.Mary;
 import marytts.server.MaryProperties;
 import marytts.unitselection.UnitSelectionVoice;
 import marytts.util.MaryUtils;
-import marytts.util.audio.AudioPlayer;
+import marytts.util.data.audio.AudioPlayer;
 import marytts.util.dom.NameNodeFilter;
 
 import org.apache.log4j.Logger;

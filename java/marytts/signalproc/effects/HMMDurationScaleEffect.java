@@ -29,7 +29,7 @@
 
 package marytts.signalproc.effects;
 
-import marytts.util.audio.DoubleDataSource;
+import marytts.util.data.DoubleDataSource;
 import marytts.util.math.MathUtils;
 
 /**

@@ -83,9 +83,9 @@ import marytts.htsengine.HTSVocoder;
 import marytts.modules.InternalModule;
 import marytts.modules.synthesis.Voice;
 import marytts.tests.AllTests;
-import marytts.util.audio.AudioPlayer;
-import marytts.util.audio.DDSAudioInputStream;
-import marytts.util.audio.NoiseDoubleDataSource;
+import marytts.util.data.NoiseDoubleDataSource;
+import marytts.util.data.audio.AudioPlayer;
+import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.dom.NameNodeFilter;
 
 import org.apache.log4j.Logger;

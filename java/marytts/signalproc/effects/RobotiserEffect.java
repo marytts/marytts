@@ -34,10 +34,10 @@ import javax.sound.sampled.AudioInputStream;
 
 import marytts.signalproc.process.InlineDataProcessor;
 import marytts.signalproc.process.Robotiser;
-import marytts.util.audio.AudioDoubleDataSource;
-import marytts.util.audio.BufferedDoubleDataSource;
-import marytts.util.audio.DDSAudioInputStream;
-import marytts.util.audio.DoubleDataSource;
+import marytts.util.data.AudioDoubleDataSource;
+import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.data.DoubleDataSource;
+import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.math.MathUtils;
 
 /**

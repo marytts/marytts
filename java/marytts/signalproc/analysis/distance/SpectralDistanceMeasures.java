@@ -19,7 +19,7 @@ import marytts.signalproc.analysis.LPCAnalyser;
 import marytts.signalproc.analysis.LineSpectralFrequencies;
 import marytts.signalproc.analysis.LPCAnalyser.LPCoeffs;
 import marytts.signalproc.window.HammingWindow;
-import marytts.util.audio.AudioDoubleDataSource;
+import marytts.util.data.AudioDoubleDataSource;
 import marytts.util.math.FFTMixedRadix;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;

@@ -44,8 +44,8 @@ import marytts.modules.synthesis.Voice;
 import marytts.util.MaryUtils;
 import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
+import marytts.util.dom.MaryNormalisedWriter;
 import marytts.util.dom.NameNodeFilter;
-import marytts.util.io.MaryNormalisedWriter;
 
 import org.apache.log4j.Level;
 import org.w3c.dom.Document;

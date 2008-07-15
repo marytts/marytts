@@ -29,7 +29,7 @@
 
 package marytts.signalproc.tests;
 
-import marytts.util.audio.BufferedDoubleDataSource;
+import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.math.MathUtils;
 import junit.framework.Assert;
 import junit.framework.TestCase;

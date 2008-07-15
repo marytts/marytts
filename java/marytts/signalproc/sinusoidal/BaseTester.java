@@ -37,8 +37,8 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 
 import marytts.signalproc.analysis.F0ReaderWriter;
-import marytts.util.audio.BufferedDoubleDataSource;
-import marytts.util.audio.DDSAudioInputStream;
+import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.io.FileUtils;
 import marytts.util.math.MathUtils;
 

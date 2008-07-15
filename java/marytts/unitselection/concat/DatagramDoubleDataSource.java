@@ -34,8 +34,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import marytts.unitselection.data.Datagram;
-import marytts.util.audio.BufferedDoubleDataSource;
-import marytts.util.audio.DoubleDataSource;
+import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.data.DoubleDataSource;
 
 
 public class DatagramDoubleDataSource extends BufferedDoubleDataSource

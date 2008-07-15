@@ -228,7 +228,7 @@ public class MaryClient {
      * @see #getInputDataTypes()
      * @see #getVoices()
      */
-    public void streamAudio(String input, String inputType, String locale, String audioType, String defaultVoiceName, String defaultStyle, String defaultEffects, marytts.util.audio.AudioPlayer audioPlayer, AudioPlayerListener listener)
+    public void streamAudio(String input, String inputType, String locale, String audioType, String defaultVoiceName, String defaultStyle, String defaultEffects, marytts.util.data.audio.AudioPlayer audioPlayer, AudioPlayerListener listener)
     throws UnknownHostException, IOException
     {
         _process(input, inputType, "AUDIO", locale, audioType, defaultVoiceName, defaultStyle, defaultEffects, audioPlayer, 0, true, listener);
@@ -370,7 +370,7 @@ public class MaryClient {
         boolean isMaryAudioPlayer = false;
         if (output instanceof com.sun.speech.freetts.audio.AudioPlayer) {
             isFreettsAudioPlayer = true;
-        } else if (output instanceof marytts.util.audio.AudioPlayer) {
+        } else if (output instanceof marytts.util.data.audio.AudioPlayer) {
             isMaryAudioPlayer = true;
         } else if (output instanceof OutputStream) {
         } else {
@@ -515,7 +515,7 @@ public class MaryClient {
                 
             }
         } else if (isMaryAudioPlayer) {
-            final marytts.util.audio.AudioPlayer player = (marytts.util.audio.AudioPlayer) output;
+            final marytts.util.data.audio.AudioPlayer player = (marytts.util.data.audio.AudioPlayer) output;
             final AudioPlayerListener listener = playerListener;
             Thread t = new Thread() {
                 public void run() 

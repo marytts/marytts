@@ -32,7 +32,7 @@ package marytts.signalproc.effects;
 import javax.sound.sampled.AudioFormat;
 
 import marytts.signalproc.process.InlineDataProcessor;
-import marytts.util.audio.DoubleDataSource;
+import marytts.util.data.DoubleDataSource;
 
 /**
  * @author oytun.turk

@@ -40,7 +40,7 @@ import java.io.FileWriter;
 import marytts.signalproc.analysis.PitchMarker;
 import marytts.tools.voiceimport.SphinxTrainer.StreamGobbler;
 import marytts.util.MaryUtils;
-import marytts.util.audio.SnackTextfileDoubleDataSource;
+import marytts.util.data.text.SnackTextfileDoubleDataSource;
 import marytts.util.signal.SignalProcUtils;
 
 

@@ -43,7 +43,7 @@ import marytts.signalproc.Defaults;
 import marytts.signalproc.analysis.LPCAnalyser.LPCoeffs;
 import marytts.signalproc.window.DynamicWindow;
 import marytts.signalproc.window.Window;
-import marytts.util.audio.AudioDoubleDataSource;
+import marytts.util.data.AudioDoubleDataSource;
 import marytts.util.io.MaryRandomAccessFile;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;

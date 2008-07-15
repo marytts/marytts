@@ -33,8 +33,8 @@ import marytts.signalproc.process.Chorus;
 import marytts.signalproc.process.FrameOverlapAddSource;
 import marytts.signalproc.process.Robotiser;
 import marytts.signalproc.window.Window;
-import marytts.util.audio.BufferedDoubleDataSource;
-import marytts.util.audio.DoubleDataSource;
+import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.data.DoubleDataSource;
 import marytts.util.math.MathUtils;
 
 /**
