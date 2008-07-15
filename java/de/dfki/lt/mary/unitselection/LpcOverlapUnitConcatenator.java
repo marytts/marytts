@@ -61,7 +61,7 @@ import org.apache.log4j.Logger;
  * @author Anna Hunecke
  *
  */
-public class LpcOverlapUnitConcatenator1 implements UnitConcatenator
+public class LpcOverlapUnitConcatenator implements UnitConcatenator
 {
     protected Logger logger;
     protected UnitDatabase database;
@@ -103,7 +103,7 @@ public class LpcOverlapUnitConcatenator1 implements UnitConcatenator
      * Empty Constructor; need to call load(UnitDatabase separately)
      * @see #load(UnitDatabase)
      */
-    public LpcOverlapUnitConcatenator1()
+    public LpcOverlapUnitConcatenator()
     {
         logger = Logger.getLogger(this.getClass());
     }
