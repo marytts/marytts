@@ -42,7 +42,6 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
 
 import marytts.modules.synthesis.Voice;
-import marytts.util.data.AudioDoubleDataSource;
 
 import org.jsresources.AudioRecorder;
 import org.jsresources.SequenceAudioInputStream;

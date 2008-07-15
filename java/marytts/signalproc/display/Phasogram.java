@@ -42,8 +42,8 @@ import marytts.signalproc.analysis.FrameBasedAnalyser;
 import marytts.signalproc.analysis.ShortTermPhaseSpectrumAnalyser;
 import marytts.signalproc.window.GaussWindow;
 import marytts.signalproc.window.Window;
-import marytts.util.data.AudioDoubleDataSource;
 import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.data.audio.AudioDoubleDataSource;
 
 
 

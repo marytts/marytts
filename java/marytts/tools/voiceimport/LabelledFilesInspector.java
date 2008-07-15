@@ -30,8 +30,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import marytts.util.data.AudioDoubleDataSource;
 import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.data.text.ESTTextfileDoubleDataSource;
 import marytts.util.io.FileUtils;

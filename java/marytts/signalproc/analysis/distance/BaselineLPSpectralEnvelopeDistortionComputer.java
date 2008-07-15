@@ -40,7 +40,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import marytts.signalproc.adaptation.BaselineAdaptationItem;
 import marytts.signalproc.adaptation.BaselineAdaptationSet;
 import marytts.signalproc.analysis.Labels;
-import marytts.util.data.AudioDoubleDataSource;
+import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.io.FileUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;

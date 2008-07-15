@@ -12,10 +12,10 @@ import marytts.signalproc.analysis.LpcAnalyser;
 import marytts.signalproc.analysis.LpcAnalyser.LpCoeffs;
 import marytts.signalproc.demo.ChangeMyVoiceUI;
 import marytts.signalproc.window.Window;
-import marytts.util.data.AudioDoubleDataSource;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.SequenceDoubleDataSource;
+import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.signal.SignalProcUtils;
 
 

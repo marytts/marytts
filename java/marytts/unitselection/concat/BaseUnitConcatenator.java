@@ -49,9 +49,9 @@ import marytts.unitselection.data.TimelineReader;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.data.UnitDatabase;
 import marytts.unitselection.select.SelectedUnit;
-import marytts.util.data.AudioDoubleDataSource;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
+import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
 
 import org.apache.log4j.Logger;

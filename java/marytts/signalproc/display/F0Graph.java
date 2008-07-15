@@ -38,9 +38,9 @@ import javax.sound.sampled.AudioSystem;
 
 import marytts.signalproc.analysis.F0Tracker;
 import marytts.signalproc.analysis.F0TrackerAutocorrelationDP;
-import marytts.util.data.AudioDoubleDataSource;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
+import marytts.util.data.audio.AudioDoubleDataSource;
 
 
 /**

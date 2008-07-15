@@ -42,9 +42,9 @@ import javax.sound.sampled.AudioSystem;
 import marytts.signalproc.process.FrameOverlapAddSource;
 import marytts.signalproc.process.InlineDataProcessor;
 import marytts.signalproc.window.Window;
-import marytts.util.data.AudioDoubleDataSource;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
+import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.string.StringUtils;
 
