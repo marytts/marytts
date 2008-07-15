@@ -39,36 +39,38 @@ import marytts.util.string.StringUtils;
 /**
  * @author oytun.turk
  *
+ * A collection of EST formatted labels with ascii text file input/output functionality
+ * 
  */
-public class ESTLabels {
-    public ESTLabel[] items;
+public class Labels {
+    public Label[] items;
     
-    public ESTLabels(int count)
+    public Labels(int count)
     {
         items = null;
         
         if (count>0)
         {
-            items = new ESTLabel[count];
+            items = new Label[count];
             for (int i=0; i<count; i++)
-                items[i] = new ESTLabel();
+                items[i] = new Label();
         }
     }
     
     //Create ESTLabels from existing ones
-    public ESTLabels(ESTLabels e)
+    public Labels(Labels e)
     {
         this(e, 0);
     }
     
   //Create ESTLabels from existing ones
-    public ESTLabels(ESTLabels e, int startPos)
+    public Labels(Labels e, int startPos)
     {
         this(e, startPos, e.items.length-1);
     }
     
     //Create ESTLabels using labels between [startPos,endPos] 
-    public ESTLabels(ESTLabels e, int startPos, int endPos)
+    public Labels(Labels e, int startPos, int endPos)
     {
         items = null;
         if (e!=null && e.items!=null)
@@ -82,20 +84,20 @@ public class ESTLabels {
             if (endPos>e.items.length-1)
                 endPos=e.items.length-1;
             
-            items = new ESTLabel[endPos-startPos+1];
+            items = new Label[endPos-startPos+1];
             for (int i=startPos; i<=endPos; i++)
-                items[i-startPos] = new ESTLabel(e.items[i]);
+                items[i-startPos] = new Label(e.items[i]);
         }
     }
     
-    public ESTLabels(String labelFile)
+    public Labels(String labelFile)
     {
         this(readESTLabelFile(labelFile));
     }
     
-    public static ESTLabels readESTLabelFile(String labelFile)
+    public static Labels readESTLabelFile(String labelFile)
     {
-        ESTLabels labelsRet = null;
+        Labels labelsRet = null;
         String allText = null;
         try {
             allText = FileUtils.getFileAsString(new File(labelFile), "ASCII");
@@ -114,15 +116,15 @@ public class ESTLabels {
         return labelsRet;
     }
     
-    public static ESTLabels parseFromLines(String[] lines, int startLine, int endLine)
+    public static Labels parseFromLines(String[] lines, int startLine, int endLine)
     {
         return parseFromLines(lines, startLine, endLine, 3);
     }
     
-    public static ESTLabels parseFromLines(String[] lines, int startLine, int endLine, int minimumItemsInOneLine)
+    public static Labels parseFromLines(String[] lines, int startLine, int endLine, int minimumItemsInOneLine)
     {
-        ESTLabels labels = null;
-        ESTLabels labelsRet = null;
+        Labels labels = null;
+        Labels labelsRet = null;
 
         if (startLine<=endLine)
         {
@@ -138,7 +140,7 @@ public class ESTLabels {
             int tmpCount = 0;
             if (count>0)
             {
-                labels = new ESTLabels(count);
+                labels = new Labels(count);
                 for (i=startLine; i<=endLine; i++)
                 {
                     if (tmpCount>count-1)
@@ -188,7 +190,7 @@ public class ESTLabels {
                     }
                 }
 
-                labelsRet = new ESTLabels(labels, 0, tmpCount-1);
+                labelsRet = new Labels(labels, 0, tmpCount-1);
             }
         }
         
@@ -203,12 +205,12 @@ public class ESTLabels {
     
     public static void main(String[] args)
     {
-        ESTLabels lab = null;
+        Labels lab = null;
         
-        lab = new ESTLabels("d:/m0001_poppyPhoneLab.lab");
+        lab = new Labels("d:/m0001_poppyPhoneLab.lab");
         lab.print();
         
-        lab = new ESTLabels("d:/m0001.lab");
+        lab = new Labels("d:/m0001.lab");
         lab.print();
     }
 }

@@ -35,7 +35,7 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import marytts.signalproc.analysis.LPCAnalyser.LPCoeffs;
+import marytts.signalproc.analysis.LpcAnalyser.LpCoeffs;
 import marytts.signalproc.window.Window;
 import marytts.util.data.AudioDoubleDataSource;
 import marytts.util.data.BufferedDoubleDataSource;
@@ -70,7 +70,7 @@ public class LPCWhisperiser extends LPCAnalysisResynthesis
     /**
      * Replace residual with white noise
      */
-    protected void processLPC(LPCoeffs coeffs, double[] residual)
+    protected void processLPC(LpCoeffs coeffs, double[] residual)
     {
         // Determine average residual energy:
         double totalResidualEnergy = coeffs.getGain() * coeffs.getGain();
@@ -89,7 +89,7 @@ public class LPCWhisperiser extends LPCAnalysisResynthesis
             AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
             int frameLength = Integer.getInteger("signalproc.lpcanalysissynthesis.framelength", 512).intValue();
             int predictionOrder = Integer.getInteger("signalproc.lpcwhisperiser.predictionorder", 20).intValue();
-            FrameOverlapAddSource foas = new FrameOverlapAddSource(signal, Window.HANN, true, frameLength, samplingRate,
+            FrameOverlapAddSource foas = new FrameOverlapAddSource(signal, Window.HANNING, true, frameLength, samplingRate,
                     new LPCWhisperiser(predictionOrder));
             DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(foas), inputAudio.getFormat());
             String outFileName = args[i].substring(0, args[i].length()-4) + "_lpcwhisperised.wav";

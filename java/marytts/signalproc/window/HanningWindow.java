@@ -36,15 +36,16 @@ import marytts.util.math.MathUtils;
 
 /**
  * @author Marc Schr&ouml;der
+ * 
  */
-public class HannWindow extends Window
+public class HanningWindow extends Window
 {
-    public HannWindow(int length)
+    public HanningWindow(int length)
     {
         super(length);
     }
     
-    public HannWindow(int length, double prescalingFactor)
+    public HanningWindow(int length, double prescalingFactor)
     {
         super(length, prescalingFactor);
     }
@@ -71,7 +72,7 @@ public class HannWindow extends Window
         // If both are given, use window length in milliseconds:
         if(windowLengthMs != 0) windowLength = windowLengthMs * samplingRate / 1000;
         int fftSize = Math.max(4096, MathUtils.closestPowerOfTwoAbove(windowLength));
-        Window w = new HannWindow(windowLength);
+        Window w = new HanningWindow(windowLength);
         FunctionGraph timeGraph = new FunctionGraph(0, 1./samplingRate, w.window);
         timeGraph.showInJFrame(w.toString() + " in time domain", true, false);
         double[] fftSignal = new double[fftSize];

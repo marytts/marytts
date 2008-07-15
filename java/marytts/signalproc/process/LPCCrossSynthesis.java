@@ -36,16 +36,16 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import marytts.signalproc.analysis.LPCAnalyser;
-import marytts.signalproc.analysis.LPCAnalyser.LPCoeffs;
+import marytts.signalproc.analysis.LpcAnalyser;
+import marytts.signalproc.analysis.LpcAnalyser.LpCoeffs;
 import marytts.signalproc.filter.FIRFilter;
 import marytts.signalproc.window.Window;
 import marytts.util.math.ArrayUtils;
 import marytts.util.data.AudioDoubleDataSource;
 import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.SequenceDoubleDataSource;
-import marytts.util.data.audio.DDSAudioInputStream;
 
 
 /**
@@ -66,13 +66,13 @@ public class LPCCrossSynthesis extends LPCAnalysisResynthesis
      * Replace residual with new residual from audio signal,
      * adapting the gain in order to maintain overall volume.
      */
-    protected void processLPC(LPCoeffs coeffs, double[] residual)
+    protected void processLPC(LpCoeffs coeffs, double[] residual)
     {
         double gain = coeffs.getGain();
         double[] frame = newResidualAudioFrames.getNextFrame();
         assert frame.length == residual.length;
         int excP = 3;
-        LPCoeffs newCoeffs = LPCAnalyser.calcLPC(frame, excP);
+        LpCoeffs newCoeffs = LpcAnalyser.calcLPC(frame, excP);
         double newResidualGain = newCoeffs.getGain();
         //double[] newResidual = ArrayUtils.subarray(new FIRFilter(oneMinusA).apply(frame),0,frame.length);
         //System.arraycopy(newResidual, 0, residual, 0, residual.length);
@@ -100,8 +100,8 @@ public class LPCCrossSynthesis extends LPCAnalysisResynthesis
         int predictionOrder = Integer.getInteger("signalproc.lpcanalysisresynthesis.predictionorder", 20).intValue();
         DoubleDataSource padding1 = new BufferedDoubleDataSource(new double[3*frameLength/4]);
         DoubleDataSource paddedExcitation = new SequenceDoubleDataSource(new DoubleDataSource[]{padding1, newResidual});
-        FrameProvider newResidualAudioFrames = new FrameProvider(paddedExcitation, Window.get(Window.HANN, frameLength, 0.5), frameLength, frameLength/4, samplingRate, true);
-        FrameOverlapAddSource foas = new FrameOverlapAddSource(signal, Window.HANN, false, frameLength, samplingRate,
+        FrameProvider newResidualAudioFrames = new FrameProvider(paddedExcitation, Window.get(Window.HANNING, frameLength, 0.5), frameLength, frameLength/4, samplingRate, true);
+        FrameOverlapAddSource foas = new FrameOverlapAddSource(signal, Window.HANNING, false, frameLength, samplingRate,
                 new LPCCrossSynthesis(newResidualAudioFrames, predictionOrder));
         DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(foas), inputAudio.getFormat());
         String outFileName = args[0].substring(0, args[0].length()-4) + "_" + args[1].substring(args[1].lastIndexOf("\\")+1, args[1].length()-4)+"_lpcCrossSynth.wav";

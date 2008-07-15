@@ -26,49 +26,38 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-package marytts.signalproc.process;
 
-import marytts.util.data.BufferedDoubleDataSource;
-import marytts.util.data.DoubleDataSource;
+package marytts.signalproc.analysis;
 
 /**
- * @author Marc Schr&ouml;der
+ * @author oytun.turk
  *
+ * A wrapper class to store pitch marks as integer sample indices
+ * 
  */
-public class Signal2EnergyConverter extends BufferedDoubleDataSource {
-    protected static InlineDataProcessor processor = new InlineDataProcessor() {
-        /**
-         * For each signal sample, compute the signal energy as the square of the signal sample. 
-         */
-        public void applyInline(double[] buf, int off, int len)
+public class PitchMarks {
+
+    public int [] pitchMarks;
+    public boolean [] vuvs;
+    public int totalZerosToPadd;
+    
+    //count=total pitch marks
+    public PitchMarks(int count, int [] pitchMarksIn, boolean [] vuvsIn, int totalZerosToPaddIn)
+    {
+        if (count>1)
         {
-            for (int i=off; i<off+len; i++) {
-                buf[i] = buf[i]*buf[i];
-                assert buf[i] >= 0;
-            }
+            pitchMarks = new int[count];
+            vuvs = new boolean[count-1];
+        
+            System.arraycopy(pitchMarksIn, 0, pitchMarks, 0, Math.min(pitchMarksIn.length, count));
+            System.arraycopy(vuvsIn, 0, vuvs, 0, Math.min(vuvsIn.length, count-1));
         }
-    };
-
-    public Signal2EnergyConverter(double[] signal)
-    {
-        super(signal, processor);
-    }
-    
-    public Signal2EnergyConverter(DoubleDataSource signal)
-    {
-        super(signal, processor);
-    }
-    
-    /**
-     * For each signal sample, compute the signal energy as the square of the signal sample. 
-     * @param nNew the number of items in buf preceding writePos to process
-     */
-    public void processNewData(int off, int len)
-    {
-        for (int i=off; i<off+len; i++) {
-            buf[i] = buf[i]*buf[i];
-            assert buf[i] >= 0;
+        else
+        {
+            pitchMarks = null;
+            vuvs = null;
         }
+        
+        totalZerosToPadd = Math.max(0, totalZerosToPaddIn);
     }
-
 }

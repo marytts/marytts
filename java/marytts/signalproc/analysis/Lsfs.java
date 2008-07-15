@@ -37,6 +37,9 @@ import marytts.util.io.MaryRandomAccessFile;
 /**
  * @author oytun.turk
  *
+ * A wrapper class for line spectral frequencies.
+ * For Actual LSF analysis, check LsfAnalyser.
+ * 
  */
 public class Lsfs {
     public double[][] lsfs;
@@ -70,7 +73,7 @@ public class Lsfs {
             if (stream != null)
             {
                 try {
-                    lsfs = LineSpectralFrequencies.readLsfs(stream, params);
+                    lsfs = LsfAnalyser.readLsfs(stream, params);
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -94,7 +97,7 @@ public class Lsfs {
             if (stream != null)
             {
                 try {
-                    LineSpectralFrequencies.writeLsfs(stream, lsfs);
+                    LsfAnalyser.writeLsfs(stream, lsfs);
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();

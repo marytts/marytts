@@ -59,7 +59,7 @@ import javax.swing.event.ChangeListener;
 
 import marytts.signalproc.analysis.CepstrumSpeechAnalyser;
 import marytts.signalproc.analysis.FrameBasedAnalyser;
-import marytts.signalproc.analysis.LPCAnalyser;
+import marytts.signalproc.analysis.LpcAnalyser;
 import marytts.signalproc.analysis.ShortTermLogSpectrumAnalyser;
 import marytts.signalproc.filter.FIRFilter;
 import marytts.signalproc.window.HammingWindow;
@@ -554,7 +554,7 @@ public class Spectrogram  extends FunctionGraph
             int leftIndex = centerIndex - windowLength/2;
             if (leftIndex < 0) leftIndex = 0;
             double[] signalExcerpt = new HammingWindow(windowLength).apply(signal, leftIndex);
-            LPCAnalyser.LPCoeffs lpc = LPCAnalyser.calcLPC(signalExcerpt, lpcOrder);
+            LpcAnalyser.LpCoeffs lpc = LpcAnalyser.calcLPC(signalExcerpt, lpcOrder);
             double[] coeffs = lpc.getOneMinusA();
             double g_db = 2*MathUtils.db(lpc.getGain()); // *2 because g is signal, not energy
             double[] fftCoeffs = new double[windowLength];

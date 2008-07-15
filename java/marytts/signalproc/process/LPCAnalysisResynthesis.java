@@ -35,8 +35,8 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import marytts.signalproc.analysis.LPCAnalyser;
-import marytts.signalproc.analysis.LPCAnalyser.LPCoeffs;
+import marytts.signalproc.analysis.LpcAnalyser;
+import marytts.signalproc.analysis.LpcAnalyser.LpCoeffs;
 import marytts.signalproc.filter.FIRFilter;
 import marytts.signalproc.filter.RecursiveFilter;
 import marytts.signalproc.window.Window;
@@ -70,7 +70,7 @@ public class LPCAnalysisResynthesis implements InlineDataProcessor
         assert off==0;
         assert len==data.length;
         // Compute LPC coefficients and residual
-        LPCoeffs coeffs = LPCAnalyser.calcLPC(data, p);
+        LpCoeffs coeffs = LpcAnalyser.calcLPC(data, p);
         //double gain = coeffs.getGain();
         double[] residual = ArrayUtils.subarray(new FIRFilter(coeffs.getOneMinusA()).apply(data),0,len);
         // Do something fancy with the lpc coefficients and/or the residual
@@ -88,7 +88,7 @@ public class LPCAnalysisResynthesis implements InlineDataProcessor
      * @param coeffs the LPC coefficients
      * @param residual the residual, of length framelength
      */
-    protected void processLPC(LPCoeffs coeffs, double[] residual) {}
+    protected void processLPC(LpCoeffs coeffs, double[] residual) {}
 
 
     public static void main(String[] args) throws Exception
@@ -99,7 +99,7 @@ public class LPCAnalysisResynthesis implements InlineDataProcessor
             AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
             int frameLength = Integer.getInteger("signalproc.lpcanalysissynthesis.framelength", 512).intValue();
             int predictionOrder = Integer.getInteger("signalproc.lpcanalysissynthesis.predictionorder", 20).intValue();
-            FrameOverlapAddSource foas = new FrameOverlapAddSource(signal, Window.HANN, true, frameLength, samplingRate, new LPCAnalysisResynthesis(predictionOrder));
+            FrameOverlapAddSource foas = new FrameOverlapAddSource(signal, Window.HANNING, true, frameLength, samplingRate, new LPCAnalysisResynthesis(predictionOrder));
             DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(foas), inputAudio.getFormat());
             String outFileName = args[i].substring(0, args[i].length()-4) + "_lpc_ar.wav";
             AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));

@@ -34,7 +34,8 @@ import marytts.util.data.DoubleDataSource;
 import marytts.util.math.MathUtils;
 
 /**
- * A class that analyses the energy distribution, and computes a silence cutoff threshold,
+ * A class that analyses the energy distribution, 
+ * and computes a silence cutoff threshold,
  * in the dB energy domain.
  * @author Marc Schr&ouml;der
  *

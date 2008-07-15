@@ -41,7 +41,6 @@ import javax.sound.sampled.AudioSystem;
 
 import marytts.signalproc.process.FrameOverlapAddSource;
 import marytts.signalproc.process.InlineDataProcessor;
-import marytts.signalproc.process.LPCWhisperiser;
 import marytts.signalproc.window.Window;
 import marytts.util.data.AudioDoubleDataSource;
 import marytts.util.data.BufferedDoubleDataSource;

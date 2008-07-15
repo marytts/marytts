@@ -130,7 +130,7 @@ public class VocalTractScalingProcessor extends VocalTractModifier {
             int p = SignalProcUtils.getLPOrder(samplingRate);
             int fftSize = Math.max(SignalProcUtils.getDFTSize(samplingRate), 1024);
             AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
-            FrameOverlapAddSource foas = new FrameOverlapAddSource(signal, Window.HANN, true, fftSize, samplingRate,
+            FrameOverlapAddSource foas = new FrameOverlapAddSource(signal, Window.HANNING, true, fftSize, samplingRate,
                     new VocalTractScalingProcessor(p, samplingRate, fftSize, vscales));
             DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(foas), inputAudio.getFormat());
             String outFileName = args[i].substring(0, args[i].length()-4) + "_vocalTractScaled.wav";

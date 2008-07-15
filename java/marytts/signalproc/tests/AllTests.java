@@ -36,7 +36,7 @@ import junit.framework.TestSuite;
  * @author Marc Schr&ouml;der
  *
  * Group all the test cases in this package.
-
+ * 
  */
 public class AllTests {
 

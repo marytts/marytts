@@ -37,7 +37,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.analysis.F0ReaderWriter;
-import marytts.signalproc.analysis.PitchMarker;
+import marytts.signalproc.analysis.PitchMarks;
 import marytts.signalproc.sinusoidal.PitchSynchronousSinusoidalAnalyzer;
 import marytts.signalproc.sinusoidal.SinusoidalAnalyzer;
 import marytts.signalproc.sinusoidal.SinusoidalSpeechFrame;
@@ -51,7 +51,9 @@ import marytts.util.signal.SignalProcUtils;
 
 /**
  * @author oytun.turk
+ * 
  * This pitch tracker is based on Quatieri´s book
+ * 
  */
 public class HarmonicPitchTracker extends BaseSinusoidalPitchTracker {
     
@@ -149,7 +151,7 @@ public class HarmonicPitchTracker extends BaseSinusoidalPitchTracker {
         
         String strPitchFileIn = args[0].substring(0, args[0].length()-4) + ".ptc";
         F0ReaderWriter f0 = new F0ReaderWriter(strPitchFileIn);
-        PitchMarker pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true);
+        PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true);
         PitchSynchronousSinusoidalAnalyzer sa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, 
                                                                                        bRefinePeakEstimatesParabola, 
                                                                                        bRefinePeakEstimatesBias, 

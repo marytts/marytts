@@ -29,7 +29,7 @@
 
 package marytts.signalproc.sinusoidal;
 
-import marytts.signalproc.analysis.PitchMarker;
+import marytts.signalproc.analysis.PitchMarks;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
@@ -350,7 +350,7 @@ public class TrackModifier {
         float maxDur = SignalProcUtils.timeScaledTime(trIn.origDur, tScales, tScalesTimes);
 
         //Find modified onsets
-        PitchMarker pmMod = SignalProcUtils.pitchContour2pitchMarks(f0sMod, trIn.fs, (int)Math.floor(maxDur*trIn.fs+0.5), f0_ws, f0_ss, false);
+        PitchMarks pmMod = SignalProcUtils.pitchContour2pitchMarks(f0sMod, trIn.fs, (int)Math.floor(maxDur*trIn.fs+0.5), f0_ws, f0_ss, false);
 
         float tScaleCurrent;
         float pScaleCurrent;

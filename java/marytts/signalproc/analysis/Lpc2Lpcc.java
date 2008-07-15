@@ -36,35 +36,39 @@ import java.io.IOException;
 import marytts.tools.voiceimport.ESTTrackReader;
 import marytts.tools.voiceimport.ESTTrackWriter;
 
-public class ESTlpccToESTlpc {
-
-    /**
-     * Internally does the conversion between LPCCs and LPCs.
-     *
-     */
-    private static float[][] convertData( float[][] lpcc, int lpcOrder ) {
-        
-        int nCep = lpcc[0].length;
-        double[] c = new double[nCep];
-        double[] a = new double[lpcOrder+1];
-        float[][] lpc = new float[lpcc.length][lpcOrder+1];
+/**
+ * Internally does the conversion between LPCs and LPCCs.
+ *
+ */
+public class Lpc2Lpcc 
+{
+    private static float[][] convertData( float[][] lpc, int cepstrumOrder ) 
+    { 
+        int nLPC = lpc[0].length;
+        double gain = 0;
+        double[] a = new double[nLPC];
+        a[0] = 1.0; // Set a[0] to 1.0 once and for all
+        double[] c = new double[cepstrumOrder+1];
+        float[][] lpcc = new float[lpc.length][cepstrumOrder+1];
         
         // For each LPC vector:
-        for ( int i = 0; i < lpcc.length; i++ ) {
-            // Cast the LPCC coeffs from float to double
-            for ( int k = 0; k < nCep; k++ ) {
-                c[k] = (double)( lpcc[i][k] );
+        for ( int i = 0; i < lpc.length; i++ ) {
+            // Dereference the gain, stored as a[0] in the EST format
+            gain = (double)( lpc[i][0] );
+            // Cast the LPC coeffs from float to double
+            // Note: a[0] has been permanently set to one in the above.
+            for ( int k = 1; k < nLPC; k++ ) {
+                a[k] = (double)( lpc[i][k] );
             }
             // Do the conversion
-            a = CepstrumLPCAnalyser.lpcc2lpc( c, lpcOrder );
-            // Recover the energy from the cepstrum vector
-            lpc[i][0] = (float)( Math.exp( c[0] ) );
-            // Cast the LPCs back to floats
-            for ( int k = 1; k <= lpcOrder; k++ ) {
-                lpc[i][k] = (float)( a[k] );
+            c = CepstrumLPCAnalyser.lpc2lpcc( a, gain, cepstrumOrder );
+            // Cast the cesptrum back to floats
+            for ( int k = 0; k <= cepstrumOrder; k++ ) {
+                lpcc[i][k] = (float)( c[k] );
             }
+            // Note: lpcc[i][0] is now set to log(gain).
         }
-        return( lpc );
+        return( lpcc );
     }
     
     /**
@@ -76,21 +80,22 @@ public class ESTlpccToESTlpc {
      * 
      * @throws IOException
      */
-    public static void convert( String inFileName, String outFileName, int lpcOrder ) throws IOException {
+    public static void convert( String inFileName, String outFileName, int cepstrumOrder ) throws IOException {
         // Load the input file
         ESTTrackReader etr = new ESTTrackReader( inFileName );
         // Convert
-        float[][] lpc = convertData( etr.getFrames(), lpcOrder );
+        float[][] lpcc = convertData( etr.getFrames(), cepstrumOrder );
         // Output the lpcc
-        ESTTrackWriter etw = new ESTTrackWriter( etr.getTimes(), lpc, "lpc" );
+        ESTTrackWriter etw = new ESTTrackWriter( etr.getTimes(), lpcc, "lpcc" );
         etw.doWriteAndClose( outFileName, etr.isBinary(), etr.isBigEndian() );
+        
     }
-
+    
     /**
      * @param args
      */
     public static void main(String[] args) throws IOException {
-        // Usage: ESTlpccToESTlpc lpcOrder inFileName outFileName
+        // Usage: ESTlpcToESTlpcc cepstrumOrder inFileName outFileName
         convert( args[1], args[2], new Integer( args[0] ).intValue() );
     }
 

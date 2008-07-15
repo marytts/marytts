@@ -35,7 +35,7 @@ package marytts.signalproc.analysis;
  * A class to keep all information on a single EST format label
  * 
  */
-public class ESTLabel {
+public class Label {
     public double time; //Ending time of phonetic label
     public int status; //Status
     public String phn; //Phoneme
@@ -43,22 +43,22 @@ public class ESTLabel {
     public String[] rest; //If the label contains more fields, get them as text
     public double[] valuesRest; //If some of the <rest> are numbers, convert them to doubles and keep
     
-    public ESTLabel(double newTime, int newStatus, String newPhn, double newll)
+    public Label(double newTime, int newStatus, String newPhn, double newll)
     {
         this(newTime, newStatus, newPhn, newll, null, null);
     }
     
-    public ESTLabel()
+    public Label()
     {
         this(-1.0, 0, "", Double.NEGATIVE_INFINITY, null, null);
     }
     
-    public ESTLabel(double newTime, int newStatus, String newPhn, double newll, String[] restIn)
+    public Label(double newTime, int newStatus, String newPhn, double newll, String[] restIn)
     {
         this(newTime, newStatus, newPhn, newll, restIn, null);
     }
     
-    public ESTLabel(double newTime, int newStatus, String newPhn, double newll, String[] restIn, double[] valuesRestIn)
+    public Label(double newTime, int newStatus, String newPhn, double newll, String[] restIn, double[] valuesRestIn)
     {
         time = newTime;
         status = newStatus;
@@ -84,12 +84,12 @@ public class ESTLabel {
             valuesRest = null;
     }
     
-    public ESTLabel(ESTLabel lab)
+    public Label(Label lab)
     {
         copyFrom(lab);
     }
     
-    public void copyFrom(ESTLabel lab)
+    public void copyFrom(Label lab)
     {
         time = lab.time;
         status = lab.status;

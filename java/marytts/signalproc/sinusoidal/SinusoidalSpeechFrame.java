@@ -34,8 +34,9 @@ import java.util.Vector;
 /**
  * @author oytun.turk
  *
+ * Single speech frame sinusoids with spectrum
+ * 
  */
-// Single speech frame sinusoids with spectrum
 public class SinusoidalSpeechFrame {
     public Sinusoid [] sinusoids;
     public double [] systemAmps;

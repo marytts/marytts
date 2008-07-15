@@ -36,6 +36,9 @@ import marytts.util.math.MathUtils;
 
 /**
  * @author Marc Schr&ouml;der
+ *
+ * Implements a Blackman window
+ * 
  */
 public class BlackmanWindow extends Window
 {

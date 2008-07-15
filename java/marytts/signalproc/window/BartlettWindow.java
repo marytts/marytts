@@ -36,6 +36,9 @@ import marytts.util.math.MathUtils;
 
 /**
  * @author Marc Schr&ouml;der
+ * 
+ * Implements a Bartlett window
+ * 
  */
 public class BartlettWindow extends Window
 {

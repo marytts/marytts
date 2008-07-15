@@ -42,10 +42,11 @@ import marytts.util.math.MathUtils;
 /**
  * @author Marc Schr&ouml;der
  *
+ * Autocorrelation based F0 tracker with dynamic programming
+ * 
  */
-public class F0TrackerAutocorrelation extends F0Tracker
+public class F0TrackerAutocorrelationDP extends F0Tracker
 {
-    
     protected DoubleDataSource preprocess(DoubleDataSource signal)
     {
         double CENTERCLIPPING_THRESHOLD = 0.2;

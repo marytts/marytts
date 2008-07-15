@@ -39,7 +39,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.analysis.F0ReaderWriter;
-import marytts.signalproc.analysis.PitchMarker;
+import marytts.signalproc.analysis.PitchMarks;
 import marytts.signalproc.window.Window;
 import marytts.util.data.AudioDoubleDataSource;
 import marytts.util.data.BufferedDoubleDataSource;
@@ -256,7 +256,7 @@ public class SinusoidalSynthesizer {
             double [] f0s = null;
             float ws_f0 = -1.0f;
             float ss_f0 = -1.0f;
-            sa = new SinusoidalAnalyzer(samplingRate, Window.HANN, 
+            sa = new SinusoidalAnalyzer(samplingRate, Window.HANNING, 
                                         bRefinePeakEstimatesParabola, 
                                         bRefinePeakEstimatesBias, 
                                         bSpectralReassignment,
@@ -280,8 +280,8 @@ public class SinusoidalSynthesizer {
             //Pitch synchronous analysis
             String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
             F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
-            PitchMarker pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true);
-            pa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HANN, 
+            PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true);
+            pa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HANNING, 
                                                         bRefinePeakEstimatesParabola, 
                                                         bRefinePeakEstimatesBias, 
                                                         bSpectralReassignment, 

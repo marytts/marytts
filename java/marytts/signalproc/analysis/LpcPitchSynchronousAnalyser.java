@@ -38,7 +38,7 @@ import javax.sound.sampled.AudioSystem;
 
 import marytts.signalproc.Defaults;
 import marytts.signalproc.analysis.FrameBasedAnalyser.FrameAnalysisResult;
-import marytts.signalproc.analysis.LPCAnalyser.LPCoeffs;
+import marytts.signalproc.analysis.LpcAnalyser.LpCoeffs;
 import marytts.signalproc.display.FunctionGraph;
 import marytts.signalproc.display.SignalGraph;
 import marytts.signalproc.filter.FIRFilter;
@@ -53,11 +53,12 @@ import marytts.util.math.MathUtils;
 
 
 /**
+ * 
  * A Pitch-synchronous LPC analyser.
  * @author Marc Schr&ouml;der
  *
  */
-public class PitchLPCAnalyser extends PitchFrameAnalyser
+public class LpcPitchSynchronousAnalyser extends PitchFrameAnalyser
 {
     public static int lpOrder = 0;
     
@@ -68,7 +69,7 @@ public class PitchLPCAnalyser extends PitchFrameAnalyser
      * @param windowType type of analysis window to use, @see{de.dfki.signalproc.window.Window#getAvailableTypes()}
      * @param samplingRate the number of samples in one second.
      */
-    public PitchLPCAnalyser(DoubleDataSource signal, DoubleDataSource pitchmarks, int windowType, int samplingRate)
+    public LpcPitchSynchronousAnalyser(DoubleDataSource signal, DoubleDataSource pitchmarks, int windowType, int samplingRate)
     {
         super(signal, pitchmarks, windowType, samplingRate);
     }
@@ -83,7 +84,7 @@ public class PitchLPCAnalyser extends PitchFrameAnalyser
      * @param framePeriods number of periods that each frame should contain
      * @param shiftPeriods number of periods that frames should be shifted by
      */
-    public PitchLPCAnalyser(DoubleDataSource signal, DoubleDataSource pitchmarks, int windowType, int samplingRate, int framePeriods, int shiftPeriods)
+    public LpcPitchSynchronousAnalyser(DoubleDataSource signal, DoubleDataSource pitchmarks, int windowType, int samplingRate, int framePeriods, int shiftPeriods)
     {
         super(signal, pitchmarks, windowType, samplingRate, framePeriods, shiftPeriods);
     }
@@ -107,7 +108,7 @@ public class PitchLPCAnalyser extends PitchFrameAnalyser
                     + "(" + periodLengths.length + " periods)"
                     + ", got " + frame.length);
 
-        return LPCAnalyser.calcLPC(frame, lpOrder);
+        return LpcAnalyser.calcLPC(frame, lpOrder);
     }
 
     public static void main(String[] args) throws Exception
@@ -123,10 +124,10 @@ public class PitchLPCAnalyser extends PitchFrameAnalyser
         int fftSize = Defaults.getFFTSize();
         int p = Integer.getInteger("signalproc.lpcorder", 24).intValue();
         
-        PitchLPCAnalyser pla = new PitchLPCAnalyser(signal, pitchmarks, windowType, samplingRate, 2, 1);
+        LpcPitchSynchronousAnalyser pla = new LpcPitchSynchronousAnalyser(signal, pitchmarks, windowType, samplingRate, 2, 1);
         FrameAnalysisResult[] far = pla.analyseAllFrames();
         for (int i=0; i<far.length; i++) {
-            LPCoeffs coeffs = (LPCoeffs) far[i].get();
+            LpCoeffs coeffs = (LpCoeffs) far[i].get();
             System.out.print(far[i].getStartTime()+": gain "+coeffs.getGain()
                     +", coffs: ");
             for (int j=0; j<coeffs.getOrder(); j++) {

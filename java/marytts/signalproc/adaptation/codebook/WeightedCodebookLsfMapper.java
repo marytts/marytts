@@ -37,8 +37,8 @@ import marytts.signalproc.adaptation.BaselineFeatureExtractor;
 import marytts.signalproc.adaptation.Context;
 import marytts.signalproc.adaptation.IndexMap;
 import marytts.signalproc.adaptation.prosody.PitchStatistics;
-import marytts.signalproc.analysis.ESTLabels;
-import marytts.signalproc.analysis.EnergyAnalyserRms;
+import marytts.signalproc.analysis.Labels;
+import marytts.signalproc.analysis.EnergyContourRms;
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.LsfFileHeader;
 import marytts.signalproc.analysis.Lsfs;
@@ -93,13 +93,13 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                 //
                 
                 //Duration
-                ESTLabels sourceLabels = new ESTLabels(sourceTrainingSet.items[i].labelFile);
-                ESTLabels targetLabels = new ESTLabels(targetTrainingSet.items[map[i]].labelFile);
+                Labels sourceLabels = new Labels(sourceTrainingSet.items[i].labelFile);
+                Labels targetLabels = new Labels(targetTrainingSet.items[map[i]].labelFile);
                 //
                 
                 //Energy
-                EnergyAnalyserRms sourceEnergies = EnergyAnalyserRms.ReadEnergyFile(sourceTrainingSet.items[i].energyFile);
-                EnergyAnalyserRms targetEnergies = EnergyAnalyserRms.ReadEnergyFile(targetTrainingSet.items[map[i]].energyFile);
+                EnergyContourRms sourceEnergies = EnergyContourRms.ReadEnergyFile(sourceTrainingSet.items[i].energyFile);
+                EnergyContourRms targetEnergies = EnergyContourRms.ReadEnergyFile(targetTrainingSet.items[map[i]].energyFile);
                 //
                 
                 if (!bHeaderWritten)
@@ -221,13 +221,13 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                 //
 
                 //Duration
-                ESTLabels sourceLabels = new ESTLabels(sourceTrainingSet.items[i].labelFile);
-                ESTLabels targetLabels = new ESTLabels(targetTrainingSet.items[map[i]].labelFile);
+                Labels sourceLabels = new Labels(sourceTrainingSet.items[i].labelFile);
+                Labels targetLabels = new Labels(targetTrainingSet.items[map[i]].labelFile);
                 //
 
                 //Energy
-                EnergyAnalyserRms sourceEnergies = EnergyAnalyserRms.ReadEnergyFile(sourceTrainingSet.items[i].energyFile);
-                EnergyAnalyserRms targetEnergies = EnergyAnalyserRms.ReadEnergyFile(targetTrainingSet.items[map[i]].energyFile);
+                EnergyContourRms sourceEnergies = EnergyContourRms.ReadEnergyFile(sourceTrainingSet.items[i].energyFile);
+                EnergyContourRms targetEnergies = EnergyContourRms.ReadEnergyFile(targetTrainingSet.items[map[i]].energyFile);
                 //
 
                 if (!bHeaderWritten)
@@ -491,13 +491,13 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                 //
                 
                 //Duration
-                ESTLabels sourceLabels = new ESTLabels(sourceTrainingSet.items[i].labelFile);
-                ESTLabels targetLabels = new ESTLabels(targetTrainingSet.items[map[i]].labelFile);
+                Labels sourceLabels = new Labels(sourceTrainingSet.items[i].labelFile);
+                Labels targetLabels = new Labels(targetTrainingSet.items[map[i]].labelFile);
                 //
                 
                 //Energy
-                EnergyAnalyserRms sourceEnergies = EnergyAnalyserRms.ReadEnergyFile(sourceTrainingSet.items[i].energyFile);
-                EnergyAnalyserRms targetEnergies = EnergyAnalyserRms.ReadEnergyFile(targetTrainingSet.items[map[i]].energyFile);
+                EnergyContourRms sourceEnergies = EnergyContourRms.ReadEnergyFile(sourceTrainingSet.items[i].energyFile);
+                EnergyContourRms targetEnergies = EnergyContourRms.ReadEnergyFile(targetTrainingSet.items[map[i]].energyFile);
                 //
                 
                 if (!bHeaderWritten)

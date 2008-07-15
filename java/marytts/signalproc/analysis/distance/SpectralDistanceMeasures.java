@@ -15,9 +15,9 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.analysis.FrameBasedAnalyser;
-import marytts.signalproc.analysis.LPCAnalyser;
-import marytts.signalproc.analysis.LineSpectralFrequencies;
-import marytts.signalproc.analysis.LPCAnalyser.LPCoeffs;
+import marytts.signalproc.analysis.LpcAnalyser;
+import marytts.signalproc.analysis.LsfAnalyser;
+import marytts.signalproc.analysis.LpcAnalyser.LpCoeffs;
 import marytts.signalproc.window.HammingWindow;
 import marytts.util.data.AudioDoubleDataSource;
 import marytts.util.math.FFTMixedRadix;
@@ -78,13 +78,13 @@ public class SpectralDistanceMeasures {
         //
         
         //LP analysis
-        LPCoeffs lpcs1 = LPCAnalyser.calcLPC(windowedSpeechFrame1, lpOrder);
-        LPCoeffs lpcs2 = LPCAnalyser.calcLPC(windowedSpeechFrame2, lpOrder);
+        LpCoeffs lpcs1 = LpcAnalyser.calcLPC(windowedSpeechFrame1, lpOrder);
+        LpCoeffs lpcs2 = LpcAnalyser.calcLPC(windowedSpeechFrame2, lpOrder);
         //
         
         //LPC to LSF conversion
-        double [] lsfs1 = LineSpectralFrequencies.lpc2lsfInHz(lpcs1.getOneMinusA(), samplingRate);
-        double [] lsfs2 = LineSpectralFrequencies.lpc2lsfInHz(lpcs2.getOneMinusA(), samplingRate);
+        double [] lsfs1 = LsfAnalyser.lpc2lsfInHz(lpcs1.getOneMinusA(), samplingRate);
+        double [] lsfs2 = LsfAnalyser.lpc2lsfInHz(lpcs2.getOneMinusA(), samplingRate);
         //
         
         return getLsfDist(lsfs1, lsfs2, samplingRate);
@@ -172,8 +172,8 @@ public class SpectralDistanceMeasures {
         w2.apply(windowedSpeechFrame2, 0);
         //
 
-        double[] Xabs1 = LPCAnalyser.calcSpecFrame(speechFrame1, lpOrder, fftSize);
-        double[] Xabs2 = LPCAnalyser.calcSpecFrame(speechFrame2, lpOrder, fftSize);
+        double[] Xabs1 = LpcAnalyser.calcSpecFrame(speechFrame1, lpOrder, fftSize);
+        double[] Xabs2 = LpcAnalyser.calcSpecFrame(speechFrame2, lpOrder, fftSize);
         
         int w;        
         double dist = 0.0;
@@ -198,8 +198,8 @@ public class SpectralDistanceMeasures {
         w2.apply(windowedSpeechFrame2, 0);
         //
 
-        double[] Xabs1 = LPCAnalyser.calcSpecFrame(speechFrame1, lpOrder, fftSize);
-        double[] Xabs2 = LPCAnalyser.calcSpecFrame(speechFrame2, lpOrder, fftSize);
+        double[] Xabs1 = LpcAnalyser.calcSpecFrame(speechFrame1, lpOrder, fftSize);
+        double[] Xabs2 = LpcAnalyser.calcSpecFrame(speechFrame2, lpOrder, fftSize);
 
         int w;        
         double klDist = 0.0;
@@ -224,8 +224,8 @@ public class SpectralDistanceMeasures {
         w2.apply(windowedSpeechFrame2, 0);
         //
 
-        double[] Xabs1 = LPCAnalyser.calcSpecFrame(speechFrame1, lpOrder, fftSize);
-        double[] Xabs2 = LPCAnalyser.calcSpecFrame(speechFrame2, lpOrder, fftSize);
+        double[] Xabs1 = LpcAnalyser.calcSpecFrame(speechFrame1, lpOrder, fftSize);
+        double[] Xabs2 = LpcAnalyser.calcSpecFrame(speechFrame2, lpOrder, fftSize);
 
         int w;
 
@@ -258,8 +258,8 @@ public class SpectralDistanceMeasures {
         //
         
         int w;
-        double[] Xabs1 = LPCAnalyser.calcSpecFrame(speechFrame1, lpOrder, fftSize);
-        double[] Xabs2 = LPCAnalyser.calcSpecFrame(speechFrame2, lpOrder, fftSize);
+        double[] Xabs1 = LpcAnalyser.calcSpecFrame(speechFrame1, lpOrder, fftSize);
+        double[] Xabs2 = LpcAnalyser.calcSpecFrame(speechFrame2, lpOrder, fftSize);
         
         //Itakura-Saito distance using power spectrum: pf1/pf2 - log(pf1/pf2) - 1
         double dist = 0.0;
@@ -293,8 +293,8 @@ public class SpectralDistanceMeasures {
         //
         
         int w;
-        double[] Xabs1 = LPCAnalyser.calcSpecFrame(speechFrame1, lpOrder, fftSize);
-        double[] Xabs2 = LPCAnalyser.calcSpecFrame(speechFrame2, lpOrder, fftSize);
+        double[] Xabs1 = LpcAnalyser.calcSpecFrame(speechFrame1, lpOrder, fftSize);
+        double[] Xabs2 = LpcAnalyser.calcSpecFrame(speechFrame2, lpOrder, fftSize);
         
         //COSH distance using power spectrum: 
         // dcosh = 0.5(d12+d21) where

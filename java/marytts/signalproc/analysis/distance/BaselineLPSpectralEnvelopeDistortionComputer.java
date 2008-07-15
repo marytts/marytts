@@ -39,7 +39,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.adaptation.BaselineAdaptationItem;
 import marytts.signalproc.adaptation.BaselineAdaptationSet;
-import marytts.signalproc.analysis.ESTLabels;
+import marytts.signalproc.analysis.Labels;
 import marytts.util.data.AudioDoubleDataSource;
 import marytts.util.io.FileUtils;
 import marytts.util.math.MathUtils;
@@ -50,6 +50,8 @@ import marytts.util.string.StringUtils;
 /**
  * @author oytun.turk
  *
+ * Implements an LP spectral envelope based distortion measure
+ * 
  */
 public class BaselineLPSpectralEnvelopeDistortionComputer extends BaselineDistortionComputer {
     public static final double DEFAULT_WINDOWSIZE = 0.020;
@@ -224,8 +226,8 @@ public class BaselineLPSpectralEnvelopeDistortionComputer extends BaselineDistor
                 lpOrder = Math.max(SignalProcUtils.getLPOrder(samplingRate1), SignalProcUtils.getLPOrder(samplingRate2));
             //
 
-            ESTLabels labs1 = new ESTLabels(item1.labelFile);
-            ESTLabels labs2 = new ESTLabels(item2.labelFile);
+            Labels labs1 = new Labels(item1.labelFile);
+            Labels labs2 = new Labels(item2.labelFile);
 
             int count = 0;
 

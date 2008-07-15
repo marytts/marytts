@@ -132,7 +132,7 @@ public class VocalTractScalingSimpleProcessor extends FrequencyDomainProcessor {
             AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(args[i]));
             int samplingRate = (int)inputAudio.getFormat().getSampleRate();
             AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
-            FrameOverlapAddSource foas = new FrameOverlapAddSource(signal, Window.HANN, true, 1024, samplingRate,
+            FrameOverlapAddSource foas = new FrameOverlapAddSource(signal, Window.HANNING, true, 1024, samplingRate,
                     new VocalTractScalingSimpleProcessor(1024, vscales));
             DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(foas), inputAudio.getFormat());
             String outFileName = args[i].substring(0, args[i].length()-4) + "_vocalTractSimpleScaled.wav";

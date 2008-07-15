@@ -37,7 +37,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.FileWriter;
 
-import marytts.signalproc.analysis.PitchMarker;
+import marytts.signalproc.analysis.PitchMarks;
 import marytts.tools.voiceimport.SphinxTrainer.StreamGobbler;
 import marytts.util.MaryUtils;
 import marytts.util.data.text.SnackTextfileDoubleDataSource;
@@ -177,7 +177,7 @@ public class SnackPitchmarker extends VoiceImportComponent
 
             WavReader wf = new WavReader(wavFile);
             int sampleRate = wf.getSampleRate();
-            PitchMarker snackPitchmarker = SignalProcUtils.pitchContour2pitchMarks(pm,sampleRate,wf.getNumSamples(),0.0075,0.01,false);
+            PitchMarks snackPitchmarker = SignalProcUtils.pitchContour2pitchMarks(pm,sampleRate,wf.getNumSamples(),0.0075,0.01,false);
             int[] pitchmarkSamples = snackPitchmarker.pitchMarks; 
 
             float[] pitchmarkSeconds = new float[pitchmarkSamples.length];

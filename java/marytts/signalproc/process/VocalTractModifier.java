@@ -31,8 +31,8 @@ package marytts.signalproc.process;
 
 import java.util.Arrays;
 
-import marytts.signalproc.analysis.LPCAnalyser;
-import marytts.signalproc.analysis.LPCAnalyser.LPCoeffs;
+import marytts.signalproc.analysis.LpcAnalyser;
+import marytts.signalproc.analysis.LpcAnalyser.LpCoeffs;
 import marytts.signalproc.filter.FIRFilter;
 import marytts.signalproc.filter.RecursiveFilter;
 import marytts.signalproc.process.InlineDataProcessor;
@@ -89,7 +89,7 @@ public class VocalTractModifier implements InlineDataProcessor {
         this.maxFreq = SignalProcUtils.halfSpectrumSize(fftSize);
         this.vtSpectrum = new double[maxFreq];
         this.expTerm = new ComplexArray(p*maxFreq);
-        this.expTerm = LPCAnalyser.calcExpTerm(fftSize, p);
+        this.expTerm = LpcAnalyser.calcExpTerm(fftSize, p);
         this.bAnalysisOnly = bAnalysisOnlyIn;
     }
     
@@ -115,7 +115,7 @@ public class VocalTractModifier implements InlineDataProcessor {
         double origAvgEnergy = SignalProcUtils.getAverageSampleEnergy(data);
         
         // Compute LPC coefficients
-        LPCoeffs coeffs = LPCAnalyser.calcLPC(data, p);
+        LpCoeffs coeffs = LpcAnalyser.calcLPC(data, p);
         double sqrtGain = coeffs.getGain();
         
         System.arraycopy(data, 0, h.real, 0, Math.min(len, h.real.length));
@@ -129,7 +129,7 @@ public class VocalTractModifier implements InlineDataProcessor {
         //h = FFTMixedRadix.fftComplexArray(h);
         FFT.transform(h.real, h.imag, false);
         
-        vtSpectrum = LPCAnalyser.calcSpec(coeffs.getA(), p, fftSize, expTerm);
+        vtSpectrum = LpcAnalyser.calcSpec(coeffs.getA(), p, fftSize, expTerm);
         
         for (k=0; k<maxFreq; k++)
             vtSpectrum[k] *= sqrtGain;

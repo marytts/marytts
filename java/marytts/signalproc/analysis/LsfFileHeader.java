@@ -38,6 +38,9 @@ import marytts.util.io.MaryRandomAccessFile;
 /**
  * @author oytun.turk
  *
+ * Implements a structured header with file I/O functionality 
+ * for binary files that store frame based line spectral frequency vectors 
+ * 
  */
 public class LsfFileHeader extends FeatureFileHeader {
     public float preCoef; //Preemphasis coefficient

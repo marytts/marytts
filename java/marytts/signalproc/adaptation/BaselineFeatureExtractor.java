@@ -37,13 +37,13 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookTrainerParams;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookTransformerParams;
 import marytts.signalproc.adaptation.gmm.jointgmm.JointGMMTransformerParams;
-import marytts.signalproc.analysis.EnergyAnalyserRms;
+import marytts.signalproc.analysis.EnergyContourRms;
 import marytts.signalproc.analysis.EnergyFileHeader;
-import marytts.signalproc.analysis.LineSpectralFrequencies;
+import marytts.signalproc.analysis.LsfAnalyser;
 import marytts.signalproc.analysis.LsfFileHeader;
 import marytts.signalproc.analysis.MfccFileHeader;
 import marytts.signalproc.analysis.PitchFileHeader;
-import marytts.signalproc.analysis.PitchTrackerAutocorrelation;
+import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
 import marytts.util.io.FileUtils;
 import marytts.util.string.StringUtils;
 
@@ -163,7 +163,7 @@ public class BaselineFeatureExtractor {
                 
             if (bAnalyze)
             {
-                LineSpectralFrequencies.lsfAnalyzeWavFile(fileSet.items[i].audioFile, fileSet.items[i].lsfFile, lsfParams);
+                LsfAnalyser.lsfAnalyzeWavFile(fileSet.items[i].audioFile, fileSet.items[i].lsfFile, lsfParams);
                 System.out.println("Extracted LSFs: " + fileSet.items[i].lsfFile);
             }
             else
@@ -178,7 +178,7 @@ public class BaselineFeatureExtractor {
         System.out.println("Starting f0 analysis...");
         
         boolean bAnalyze;
-        PitchTrackerAutocorrelation p = new PitchTrackerAutocorrelation(ptcParams);
+        F0TrackerAutocorrelationHeuristic p = new F0TrackerAutocorrelationHeuristic(ptcParams);
         
         for (int i=0; i<fileSet.items.length; i++)
         {
@@ -205,7 +205,7 @@ public class BaselineFeatureExtractor {
         System.out.println("Starting energy analysis...");
         
         boolean bAnalyze;
-        EnergyAnalyserRms e = null;
+        EnergyContourRms e = null;
         
         for (int i=0; i<fileSet.items.length; i++)
         {
@@ -216,7 +216,7 @@ public class BaselineFeatureExtractor {
                 
             if (bAnalyze)
             { 
-                e = new EnergyAnalyserRms(fileSet.items[i].audioFile, fileSet.items[i].energyFile, energyParams.windowSizeInSeconds, energyParams.skipSizeInSeconds);
+                e = new EnergyContourRms(fileSet.items[i].audioFile, fileSet.items[i].energyFile, energyParams.windowSizeInSeconds, energyParams.skipSizeInSeconds);
                 
                 System.out.println("Extracted energy contour: " + fileSet.items[i].energyFile);
             }

@@ -37,7 +37,6 @@ import marytts.signalproc.sinusoidal.SinusoidalSpeechSignal;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
-
 /**
  * @author oytun.turk
  *

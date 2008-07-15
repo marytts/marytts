@@ -232,7 +232,7 @@ import marytts.util.math.MathUtils;
  * @author Marc Schr&ouml;der
  */
 public class FrameOverlapAddSource extends BlockwiseDoubleDataSource {
-    public static final int DEFAULT_WINDOWTYPE = Window.HANN;
+    public static final int DEFAULT_WINDOWTYPE = Window.HANNING;
     protected FrameProvider frameProvider;
     protected Window outputWindow;
     protected double[] memory;
@@ -269,7 +269,7 @@ public class FrameOverlapAddSource extends BlockwiseDoubleDataSource {
         double overlapFraction;
         double prescale = 1;
         switch(windowType) {
-        case Window.HANN:
+        case Window.HANNING:
             overlapFraction = 0.75;
             // Prescale to allow for perfect restitution for rate factor 1:
             // If we overlap-add simple hann windows by 3/4, we increase the amplitude by 2;

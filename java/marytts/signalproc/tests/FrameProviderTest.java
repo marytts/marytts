@@ -34,6 +34,10 @@ import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.math.MathUtils;
 import junit.framework.TestCase;
 
+/**
+ * @author Marc Schr&ouml;der
+ *
+ */
 public class FrameProviderTest extends TestCase
 {
     public void testIdentity1()

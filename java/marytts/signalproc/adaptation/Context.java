@@ -34,7 +34,7 @@ import java.util.StringTokenizer;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import marytts.signalproc.analysis.ESTLabels;
+import marytts.signalproc.analysis.Labels;
 import marytts.util.string.StringUtils;
 
 
@@ -77,7 +77,7 @@ public class Context {
         parseAllContext();
     }
     
-    public Context(ESTLabels labels, int currentLabelIndex, int totalNeighbours)
+    public Context(Labels labels, int currentLabelIndex, int totalNeighbours)
     {
         this(labels, currentLabelIndex, totalNeighbours, totalNeighbours);
     }
@@ -95,7 +95,7 @@ public class Context {
     // rightContexts[totalRightNeighbours-1] = labels.items[currentLabelIndex+totalRightNeighbours].phn
     // 
     // Note that non-existing context entries are represented by ""
-    public Context(ESTLabels labels, int currentLabelIndex, int totalLeftNeighbours, int totalRightNeighbours)
+    public Context(Labels labels, int currentLabelIndex, int totalLeftNeighbours, int totalRightNeighbours)
     {
         leftContexts = null;
         rightContexts = null;
@@ -296,8 +296,8 @@ public class Context {
     
     public static void main(String[] args)
     {
-        ESTLabels labels1 = new ESTLabels(5);
-        ESTLabels labels2 = new ESTLabels(5);
+        Labels labels1 = new Labels(5);
+        Labels labels2 = new Labels(5);
         
         labels1.items[0].phn = "A";
         labels1.items[1].phn = "B";

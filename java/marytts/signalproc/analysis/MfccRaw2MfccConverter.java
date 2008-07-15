@@ -41,7 +41,7 @@ import marytts.util.string.StringUtils;
 /**
  * @author oytun.turk
  *
- * This class converts binary MFCC files in raw SPTK format into Mary MFCC file format
+ * Converts binary MFCC files in raw SPTK format into Mary MFCC file format
  * with header
  *  
  */
@@ -110,7 +110,7 @@ public class MfccRaw2MfccConverter {
             if (stream != null)
             {
                 try {
-                    MelCepstralCoefficients.readMfccsFromFloat(stream, params, m.mfccs);
+                    Mfccs.readMfccsFromFloat(stream, params, m.mfccs);
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();

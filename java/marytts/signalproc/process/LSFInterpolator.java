@@ -36,12 +36,12 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import marytts.signalproc.analysis.LPCAnalyser;
-import marytts.signalproc.analysis.LPCAnalyser.LPCoeffs;
+import marytts.signalproc.analysis.LpcAnalyser;
+import marytts.signalproc.analysis.LpcAnalyser.LpCoeffs;
 import marytts.util.data.AudioDoubleDataSource;
 import marytts.util.data.BufferedDoubleDataSource;
-import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
+import marytts.util.data.DoubleDataSource;
 import marytts.util.data.text.LabelfileDoubleDataSource;
 import marytts.util.io.FileUtils;
 import marytts.util.string.PrintfFormat;
@@ -105,16 +105,16 @@ public class LSFInterpolator extends LPCAnalysisResynthesis implements InlineFra
      * between these and the corresponding frame in the "other" signal.
      * @param a the LPC coefficients
      */
-    protected void processLPC(LPCoeffs coeffs, double[] residual) 
+    protected void processLPC(LpCoeffs coeffs, double[] residual) 
     {
         if (otherFrame1 == null) return; // no more other audio -- leave signal as is
-        LPCoeffs otherCoeffs = LPCAnalyser.calcLPC(otherFrame1, p);
+        LpCoeffs otherCoeffs = LpcAnalyser.calcLPC(otherFrame1, p);
         double[] otherlsf = otherCoeffs.getLSF();
         double[] lsf = coeffs.getLSF();
         assert lsf.length == otherlsf.length;
         if (otherFrame2 != null && relativeWeightOther1 < 1) { // optionally, interpolate between two "other" frames before merging into the signal
             assert 0 <= relativeWeightOther1;
-            LPCoeffs other2Coeffs = LPCAnalyser.calcLPC(otherFrame2, p);
+            LpCoeffs other2Coeffs = LpcAnalyser.calcLPC(otherFrame2, p);
             double[] other2lsf = other2Coeffs.getLSF();
             /*PrintfFormat f = new PrintfFormat("%      .1f ");
             System.out.print("LSF     ");
