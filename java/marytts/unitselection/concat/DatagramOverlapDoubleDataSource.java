@@ -122,11 +122,11 @@ public class DatagramOverlapDoubleDataSource extends BufferedDoubleDataSource
                 if (q == 0 && p > 0 && rightContexts[p-1] != null) {
                     // overlap-add situation
                     // window the data that we have just read with the left half of a HANN window:
-                    new DynamicTwoHalvesWindow(Window.HANN).applyInlineLeftHalf(buf, writePos, read);
+                    new DynamicTwoHalvesWindow(Window.HANNING).applyInlineLeftHalf(buf, writePos, read);
                     // and overlap-add the previous right context, windowed with the right half of a HANN window:
                     double[] context = new double[(int) rightContexts[p-1].getDuration()];
                     readDatagram(rightContexts[p-1], context, 0);
-                    new DynamicTwoHalvesWindow(Window.HANN).applyInlineRightHalf(context, 0, context.length);
+                    new DynamicTwoHalvesWindow(Window.HANNING).applyInlineRightHalf(context, 0, context.length);
                     for (int i=0, iMax = Math.min(read, context.length); i<iMax; i++) {
                         buf[writePos+i] += context[i];
                     }

@@ -42,7 +42,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 
 import marytts.signalproc.process.FrameOverlapAddSource;
-import marytts.signalproc.window.HannWindow;
+import marytts.signalproc.window.HanningWindow;
 import marytts.signalproc.window.Window;
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.TimelineReader;
