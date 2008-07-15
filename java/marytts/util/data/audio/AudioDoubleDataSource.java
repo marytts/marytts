@@ -27,13 +27,16 @@
  * THIS SOFTWARE.
  */
 
-package marytts.util.data;
+package marytts.util.data.audio;
 
 import java.io.IOException;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+
+import marytts.util.data.BaseDoubleDataSource;
+import marytts.util.data.DoubleDataSource;
 
 
 

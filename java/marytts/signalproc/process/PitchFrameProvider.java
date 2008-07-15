@@ -36,8 +36,8 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
 import marytts.signalproc.window.DynamicTwoHalvesWindow;
-import marytts.util.data.AudioDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
+import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.text.ESTTextfileDoubleDataSource;
 
 

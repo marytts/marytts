@@ -38,10 +38,10 @@ import javax.sound.sampled.AudioSystem;
 
 import marytts.signalproc.process.FrameProvider;
 import marytts.signalproc.process.PitchFrameProvider;
-import marytts.util.data.AudioDoubleDataSource;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.SequenceDoubleDataSource;
+import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.text.ESTTextfileDoubleDataSource;
 import marytts.util.math.MathUtils;
 

@@ -44,7 +44,7 @@ import marytts.signalproc.sinusoidal.SinusoidalSpeechFrame;
 import marytts.signalproc.sinusoidal.SinusoidalSpeechSignal;
 import marytts.signalproc.sinusoidal.SinusoidalTracks;
 import marytts.signalproc.window.Window;
-import marytts.util.data.AudioDoubleDataSource;
+import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 

@@ -38,7 +38,7 @@ import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.signalproc.filter.BandPassFilter;
 import marytts.util.MaryUtils;
-import marytts.util.data.AudioDoubleDataSource;
+import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 import marytts.util.math.FFTMixedRadix;

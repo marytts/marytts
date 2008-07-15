@@ -41,13 +41,13 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import marytts.util.data.AudioDoubleDataSource;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.MixerDoubleDataSource;
 import marytts.util.data.NoiseDoubleDataSource;
 import marytts.util.data.SequenceDoubleDataSource;
 import marytts.util.data.SilenceDoubleDataSource;
+import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.data.audio.SilenceAudioInputStream;
 
