@@ -43,7 +43,9 @@ import marytts.util.data.DoubleDataSource;
 
 /**
  * @author Marc Schr&ouml;der
+ * 
  * The base class for all frame-based signal analysis algorithms.
+ * 
  */
 public abstract class PitchFrameAnalyser extends PitchFrameProvider
 {

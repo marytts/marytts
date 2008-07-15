@@ -44,9 +44,10 @@ import marytts.util.signal.SignalProcUtils;
 
 
 /**
+ * @author Marc Schr&ouml;der
+ * 
  * Create a robot-like impression on the output, by setting all phases to zero in each frame. This effectively
  * creates a pitch equalling the output frame shift.
- * @author Marc Schr&ouml;der
  *
  */
 public class Robotiser extends FrameOverlapAddSource
@@ -62,7 +63,7 @@ public class Robotiser extends FrameOverlapAddSource
     {
         //int frameLength = Integer.getInteger("signalproc.robotiser.framelength", 256).intValue();
         int frameLength = SignalProcUtils.getDFTSize(samplingRate);
-        initialise(inputSource, Window.HANN, true, frameLength, samplingRate, new PhaseRemover(frameLength, amount));
+        initialise(inputSource, Window.HANNING, true, frameLength, samplingRate, new PhaseRemover(frameLength, amount));
     }
     
     public Robotiser(DoubleDataSource inputSource, int samplingRate)

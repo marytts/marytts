@@ -43,8 +43,9 @@ import marytts.util.math.MathUtils;
 
 
 /**
- * A simple whisperiser destroying the voicedness of the speech by setting all phases to random.
  * @author Marc Schr&ouml;der
+ * 
+ * A simple whisperiser destroying the voicedness of the speech by setting all phases to random.
  *
  */
 public class Whisperiser extends PolarFrequencyProcessor
@@ -78,7 +79,7 @@ public class Whisperiser extends PolarFrequencyProcessor
             int samplingRate = (int)inputAudio.getFormat().getSampleRate();
             AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
             int frameLength = Integer.getInteger("signalproc.whisperiser.framelength", 64).intValue();
-            FrameOverlapAddSource foas = new FrameOverlapAddSource(signal, Window.HANN, true, frameLength, samplingRate,
+            FrameOverlapAddSource foas = new FrameOverlapAddSource(signal, Window.HANNING, true, frameLength, samplingRate,
                     new Whisperiser(frameLength));
             DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(foas), inputAudio.getFormat());
             String outFileName = args[i].substring(0, args[i].length()-4) + "_whisperised.wav";

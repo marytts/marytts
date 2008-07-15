@@ -40,7 +40,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import marytts.signalproc.adaptation.BaselineAdaptationItem;
 import marytts.signalproc.adaptation.BaselineAdaptationSet;
 import marytts.signalproc.adaptation.BaselineFeatureExtractor;
-import marytts.signalproc.analysis.ESTLabels;
+import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.LsfFileHeader;
 import marytts.signalproc.analysis.Lsfs;
 import marytts.util.data.AudioDoubleDataSource;
@@ -52,6 +52,8 @@ import marytts.util.signal.SignalProcUtils;
 /**
  * @author oytun.turk
  *
+ * Implements root-mean-square LP spectral envelope distance between two speech frames
+ * 
  */
 public class RmsLogLPSpectralEnvelopeDistortionComputer extends BaselineLPSpectralEnvelopeDistortionComputer {
     

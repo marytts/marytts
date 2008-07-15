@@ -22,7 +22,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.analysis.F0ReaderWriter;
-import marytts.signalproc.analysis.PitchMarker;
+import marytts.signalproc.analysis.PitchMarks;
 import marytts.signalproc.window.DynamicTwoHalvesWindow;
 import marytts.signalproc.window.DynamicWindow;
 import marytts.signalproc.window.Window;
@@ -33,8 +33,8 @@ import marytts.unitselection.data.Unit;
 import marytts.unitselection.select.SelectedUnit;
 import marytts.util.data.AudioDoubleDataSource;
 import marytts.util.data.BufferedDoubleDataSource;
-import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
+import marytts.util.data.DoubleDataSource;
 import marytts.util.io.FileUtils;
 import marytts.util.io.LEDataInputStream;
 import marytts.util.io.LEDataOutputStream;
@@ -58,7 +58,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
     protected String outputFile;
     protected String tempOutBinaryFile;
     protected int origLen;
-    protected PitchMarker pm;
+    protected PitchMarks pm;
     protected double[] f0s;
     protected PSOLAFrameProvider psFrm;
     protected double wsFixedInSeconds;
@@ -282,8 +282,8 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                 dout = null;
             }
 
-            windowIn = new DynamicWindow(Window.HANN);
-            windowOut = new DynamicWindow(Window.HANN);
+            windowIn = new DynamicWindow(Window.HANNING);
+            windowOut = new DynamicWindow(Window.HANNING);
 
             frmSize = 0;
             newFrmSize = 0;

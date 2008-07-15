@@ -42,11 +42,12 @@ import marytts.util.data.text.ESTTextfileDoubleDataSource;
 
 
 /**
+ * @author Marc Schr&ouml;der
+ * 
  * Cut frames out of a given signal, and provide them one by one,
  * optionally applying a processor to the frame.
  * This implementation provides non-overlapping frames of varying
  * length, delimited by a series of markers (e.g., pitchmarks).
- * @author Marc Schr&ouml;der
  *
  */
 public class PitchFrameProvider extends FrameProvider

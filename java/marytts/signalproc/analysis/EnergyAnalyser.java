@@ -49,7 +49,8 @@ import marytts.util.string.PrintfFormat;
 
 
 /**
- * A class that analyses the energy distribution, and computes a silence cutoff threshold,
+ * A class that analyses the energy distribution, 
+ * and computes a silence cutoff threshold,
  * in the linear energy domain.
  * @author Marc Schr&ouml;der
  *
@@ -103,7 +104,7 @@ public class EnergyAnalyser extends FrameBasedAnalyser {
                     + ", got " + frame.length);
         double totalEnergy = 0;
         for (int i=0; i<frame.length; i++) {
-            totalEnergy += frame[i] * frame[i];
+            totalEnergy += frame[i]*frame[i];
         }
         rememberFrameEnergy(totalEnergy);
         return new Double(totalEnergy);

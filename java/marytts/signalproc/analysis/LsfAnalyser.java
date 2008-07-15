@@ -40,7 +40,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.Defaults;
-import marytts.signalproc.analysis.LPCAnalyser.LPCoeffs;
+import marytts.signalproc.analysis.LpcAnalyser.LpCoeffs;
 import marytts.signalproc.window.DynamicWindow;
 import marytts.signalproc.window.Window;
 import marytts.util.data.AudioDoubleDataSource;
@@ -48,12 +48,15 @@ import marytts.util.io.MaryRandomAccessFile;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
-
-/* Demonstration program to accompany the subroutines described in the        */
-/* articles by J. Rothweiler, on computing the Line Spectral Frequencies.     */
-/* From http://mysite.verizon.net/vzenxj75/myown1/joe/lsf/a2lsp.c             */
-
-public class LineSpectralFrequencies
+/**
+ * @author Marc Schr&ouml;der
+ *
+ * Demonstration program to accompany the subroutines described in the     
+ * articles by J. Rothweiler, on computing the Line Spectral Frequencies.
+ * From http://mysite.verizon.net/vzenxj75/myown1/joe/lsf/a2lsp.c   
+ *           
+ */
+public class LsfAnalyser
 {
     /* Operations counters. Not needed in a real application. */
     static int mpy=0;
@@ -493,7 +496,7 @@ public class LineSpectralFrequencies
     public static double[] windowedAndPreemphasizedFrame2Lpcs(double[] windowedAndPreemphasizedFrame, int dimension, int samplingRate)
     {
         //LPC and LSF analysis
-        LPCoeffs l = LPCAnalyser.calcLPC(windowedAndPreemphasizedFrame, dimension);
+        LpCoeffs l = LpcAnalyser.calcLPC(windowedAndPreemphasizedFrame, dimension);
         return l.getOneMinusA();
     }
     
@@ -521,7 +524,7 @@ public class LineSpectralFrequencies
     {
         double [] lpcs = windowedAndPreemphasizedFrame2Lpcs(windowedAndPreemphasizedFrame, dimension, samplingRate);
         
-        return LineSpectralFrequencies.lpc2lsfInHz(lpcs, samplingRate);
+        return LsfAnalyser.lpc2lsfInHz(lpcs, samplingRate);
     }
     
     public static void lsfAnalyzeWavFile(String wavFileIn, String lsfFileOut, LsfFileHeader params) throws IOException
@@ -596,11 +599,11 @@ public class LineSpectralFrequencies
         AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(args[0]));
         int samplingRate = (int)inputAudio.getFormat().getSampleRate();
         AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
-        LPCAnalyser lpcAnalyser = new LPCAnalyser(signal, windowSize, frameShift, samplingRate);
+        LpcAnalyser lpcAnalyser = new LpcAnalyser(signal, windowSize, frameShift, samplingRate);
         FrameBasedAnalyser.FrameAnalysisResult[] results = lpcAnalyser.analyseAllFrames();
         for (int i=0; i<results.length; i++) {
             System.out.println("Line spectral frequencies for frame "+i+":");            
-            double[] lpc = ((LPCAnalyser.LPCoeffs)results[i].get()).getOneMinusA();
+            double[] lpc = ((LpcAnalyser.LpCoeffs)results[i].get()).getOneMinusA();
             double[] lsf = lpc2lsf(lpc,4);
             for (int j=0; j<lsf.length; j++) {
                 System.out.println(j+": "+lsf[j]+" = "+lsf[j]*samplingRate);

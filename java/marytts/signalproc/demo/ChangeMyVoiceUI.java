@@ -1,7 +1,30 @@
-/*
- * ChangeMyVoiceUI.java
+/**
+ * Copyright 2007 DFKI GmbH.
+ * All Rights Reserved.  Use is subject to license terms.
+ * 
+ * Permission is hereby granted, free of charge, to use and distribute
+ * this software and its documentation without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of this work, and to
+ * permit persons to whom this work is furnished to do so, subject to
+ * the following conditions:
+ * 
+ * 1. The code must retain the above copyright notice, this list of
+ *    conditions and the following disclaimer.
+ * 2. Any modifications must be clearly marked as such.
+ * 3. Original authors' names are not deleted.
+ * 4. The authors' names are not used to endorse or promote products
+ *    derived from this software without specific prior written
+ *    permission.
  *
- * Created on June 21, 2007, 7:52 AM
+ * DFKI GMBH AND THE CONTRIBUTORS TO THIS WORK DISCLAIM ALL WARRANTIES WITH
+ * REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL DFKI GMBH NOR THE
+ * CONTRIBUTORS BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
+ * DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
+ * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
+ * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+ * THIS SOFTWARE.
  */
 
 package marytts.signalproc.demo;
@@ -45,7 +68,6 @@ import marytts.signalproc.process.Chorus;
 import marytts.signalproc.process.FrameOverlapAddSource;
 import marytts.signalproc.process.FrameProvider;
 import marytts.signalproc.process.InlineDataProcessor;
-import marytts.signalproc.process.LPCCrossSynthesis;
 import marytts.signalproc.process.LPCCrossSynthesisOnline;
 import marytts.signalproc.process.LPCWhisperiser;
 import marytts.signalproc.process.Robotiser;
@@ -69,10 +91,13 @@ import marytts.util.signal.SignalProcUtils;
 import org.jsresources.AudioCommon;
 import org.jsresources.AudioRecorder.BufferingRecorder;
 
-
 /**
  *
  * @author  oytun.turk
+ * 
+ * A demonstration GUI for real-time voice modification using various audio effects, 
+ * signal processing, and modification
+ * 
  */
 
 public class ChangeMyVoiceUI extends javax.swing.JFrame {

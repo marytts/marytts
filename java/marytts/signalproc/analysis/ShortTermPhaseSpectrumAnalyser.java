@@ -39,6 +39,8 @@ import marytts.util.math.FFT;
 /**
  * @author Marc Schr&ouml;der
  *
+ * Implements a frame based phase spectrum analyser
+ * 
  */
 public class ShortTermPhaseSpectrumAnalyser extends ShortTermSpectrumAnalyser {
     

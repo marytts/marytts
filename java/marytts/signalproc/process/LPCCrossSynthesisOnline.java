@@ -8,8 +8,8 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import marytts.signalproc.analysis.LPCAnalyser;
-import marytts.signalproc.analysis.LPCAnalyser.LPCoeffs;
+import marytts.signalproc.analysis.LpcAnalyser;
+import marytts.signalproc.analysis.LpcAnalyser.LpCoeffs;
 import marytts.signalproc.demo.ChangeMyVoiceUI;
 import marytts.signalproc.window.Window;
 import marytts.util.data.AudioDoubleDataSource;
@@ -50,7 +50,7 @@ public class LPCCrossSynthesisOnline extends LPCAnalysisResynthesis {
      * Replace residual with new residual from audio signal,
      * adapting the gain in order to maintain overall volume.
      */
-    protected void processLPC(LPCoeffs coeffs, double[] residual)
+    protected void processLPC(LpCoeffs coeffs, double[] residual)
     {   
         if (newResidualAudioFrames==null || !newResidualAudioFrames.hasMoreData())
         {
@@ -68,7 +68,7 @@ public class LPCCrossSynthesisOnline extends LPCAnalysisResynthesis {
             newResidual = new AudioDoubleDataSource(residualStream);
             padding1 = new BufferedDoubleDataSource(new double[3*frameLength/4]);
             paddedExcitation = new SequenceDoubleDataSource(new DoubleDataSource[]{padding1, newResidual});
-            newResidualAudioFrames = new FrameProvider(paddedExcitation, Window.get(Window.HANN, frameLength, 0.5), frameLength, frameLength/4, samplingRate, false);
+            newResidualAudioFrames = new FrameProvider(paddedExcitation, Window.get(Window.HANNING, frameLength, 0.5), frameLength, frameLength/4, samplingRate, false);
         }
         
         double gain = coeffs.getGain();
@@ -77,7 +77,7 @@ public class LPCCrossSynthesisOnline extends LPCAnalysisResynthesis {
         assert frame.length == residual.length;
         
         int excP = 3;
-        LPCoeffs newCoeffs = LPCAnalyser.calcLPC(frame, excP);
+        LpCoeffs newCoeffs = LpcAnalyser.calcLPC(frame, excP);
         double newResidualGain = newCoeffs.getGain();
         //double[] newResidual = ArrayUtils.subarray(new FIRFilter(oneMinusA).apply(frame),0,frame.length);
         //System.arraycopy(newResidual, 0, residual, 0, residual.length);

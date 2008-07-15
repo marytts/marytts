@@ -68,7 +68,7 @@ public class PhaseVocoder extends FrameOverlapAddSource
         int s = samplingRate;
         while ((s*=2)<=44100) frameLength /= 2;
         //System.err.println("PhaseVocoder: for samplingRate "+samplingRate+", using framelength "+frameLength);
-        initialise(inputSource, Window.HANN, true, frameLength, samplingRate, null);
+        initialise(inputSource, Window.HANNING, true, frameLength, samplingRate, null);
         processor = new PhaseUnwrapper(frameLength);
     }
 

@@ -57,7 +57,7 @@ public class FramewiseMerger extends FrameOverlapAddSource
         prevOtherLabel = 0;
         currentOtherLabel = 0;
 
-        InlineDataProcessor analysisWindow = new DynamicTwoHalvesWindow(Window.HANN, 0.5);
+        InlineDataProcessor analysisWindow = new DynamicTwoHalvesWindow(Window.HANNING, 0.5);
         // Overlap-add a properly windowed first period by hand:
         // Read out the first pitchmark:
         double firstPitchmark = pitchmarks.getData(1)[0];
@@ -124,10 +124,10 @@ public class FramewiseMerger extends FrameOverlapAddSource
     {
         DoubleDataSource paddingOther1 = new BufferedDoubleDataSource(new double[3*frameLength/4]);
         DoubleDataSource paddedOtherSource = new SequenceDoubleDataSource(new DoubleDataSource[]{paddingOther1, otherSource});
-        this.otherFrameProvider = new FrameProvider(paddedOtherSource, Window.get(Window.HANN, frameLength, 0.5), frameLength, frameLength/4, samplingRate, true);
+        this.otherFrameProvider = new FrameProvider(paddedOtherSource, Window.get(Window.HANNING, frameLength, 0.5), frameLength, frameLength/4, samplingRate, true);
         this.blockSize = frameLength/4;
         int inputFrameshift = blockSize;
-        Window window = Window.get(Window.HANN, frameLength+1, 0.5);
+        Window window = Window.get(Window.HANNING, frameLength+1, 0.5);
         this.outputWindow = null;
         this.memory = new double[frameLength];
         // This is used when the last input frame has already been read,

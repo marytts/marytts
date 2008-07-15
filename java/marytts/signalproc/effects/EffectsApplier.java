@@ -270,7 +270,7 @@ public class EffectsApplier {
         else if (strEffectName.compareToIgnoreCase("JetPilot")==0)
             return new JetPilotEffect(samplingRate);
         else if (strEffectName.compareToIgnoreCase("Whisper")==0)
-            return new LPCWhisperiserEffect(samplingRate);
+            return new LpcWhisperiserEffect(samplingRate);
         else if (strEffectName.compareToIgnoreCase("TractScaler")==0)
             return new VocalTractLinearScalerEffect(samplingRate);
         else if (strEffectName.compareToIgnoreCase("F0Add")==0)

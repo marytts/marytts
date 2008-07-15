@@ -31,6 +31,8 @@ package marytts.signalproc.analysis.distance;
 
 /**
  * @author oytun.turk
+ * 
+ * Implements Itakura-Saito distance measure between two speech frames
  *
  */
 public class ItakuraSaitoDistanceComputer extends BaselineLPSpectralEnvelopeDistortionComputer {

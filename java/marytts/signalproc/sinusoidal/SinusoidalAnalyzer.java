@@ -42,13 +42,11 @@ import javax.swing.JFrame;
 
 import marytts.signalproc.analysis.CepstrumSpeechAnalyser;
 import marytts.signalproc.analysis.F0ReaderWriter;
-import marytts.signalproc.analysis.LPCAnalyser;
-import marytts.signalproc.analysis.SEEVOCAnalyser;
+import marytts.signalproc.analysis.LpcAnalyser;
+import marytts.signalproc.analysis.SeevocAnalyser;
 import marytts.signalproc.display.FunctionGraph;
 import marytts.signalproc.process.FrameOverlapAddSource;
 import marytts.signalproc.process.FrameProvider;
-import marytts.signalproc.process.LPCCrossSynthesis;
-import marytts.signalproc.sinusoidal.pitch.HNMPitchVoicingAnalyzer;
 import marytts.signalproc.window.Window;
 import marytts.util.MaryUtils;
 import marytts.util.data.AudioDoubleDataSource;
@@ -62,7 +60,6 @@ import marytts.util.math.FFTMixedRadix;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
-
 /**
  * @author oytun.turk
  *
@@ -71,6 +68,7 @@ import marytts.util.signal.SignalProcUtils;
  * Then, sinusoids that are close in frequency are grouped together to form sinusoidal tracks
  * Optional amplitude and phase continuity constraints can be employed during track generation
  * The implementation consists of ideas and algorithms from various papers as described in function headers
+ *
  */
 public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
     public static float DEFAULT_DELTA_IN_HZ = 50.0f;
@@ -644,9 +642,9 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
                 //Vocal tract magnitude spectrum & phase analysis
                 double [] vocalTractSpec = null;
                 if (spectralEnvelopeType==LP_SPEC)
-                    vocalTractSpec = LPCAnalyser.calcSpecFrame(frm, LPOrder, fftSize);
+                    vocalTractSpec = LpcAnalyser.calcSpecFrame(frm, LPOrder, fftSize);
                 else if (spectralEnvelopeType==SEEVOC_SPEC)
-                    vocalTractSpec = SEEVOCAnalyser.calcSpecEnvelopeLinear(Ydb, fs, f0); //Note that Ydb is in dB but the computed envelope is returned as linear
+                    vocalTractSpec = SeevocAnalyser.calcSpecEnvelopeLinear(Ydb, fs, f0); //Note that Ydb is in dB but the computed envelope is returned as linear
  
                 double [] tmpSpec = null;
                 //tmpSpec = SignalProcUtils.cepstralSmoothedSpectrumInNeper(frm, fftSize, lifterOrder); //Use cepstral processing to find minimum phase system response
@@ -737,7 +735,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         //The Zp values are for a max bias of 0.01% in frequency and amplitude as given in Table 3 (Abe and Smith III, 2004)
         switch (windowType)
         {
-        case Window.HANN:
+        case Window.HANNING:
             Zpf = 1.5;
             ZpA = 1.9;
             c[0] = 0.247560;

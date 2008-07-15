@@ -46,7 +46,6 @@ import marytts.util.io.FileUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
-
 /**
  * @author oytun.turk
  *

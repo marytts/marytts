@@ -47,7 +47,9 @@ import marytts.util.signal.SignalProcUtils;
 
 /**
  * @author oytun.turk
- *
+ * 
+ * File I/O for binary pitch contour files
+ * 
  */
 public class F0ReaderWriter {
     public PitchFileHeader header;

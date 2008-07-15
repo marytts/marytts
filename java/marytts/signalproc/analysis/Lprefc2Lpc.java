@@ -36,12 +36,11 @@ import java.io.IOException;
 import marytts.tools.voiceimport.ESTTrackReader;
 import marytts.tools.voiceimport.ESTTrackWriter;
 
-public class ESTlprefcToESTlpc {
-
-    /**
-     * Internally does the conversion between reflection coefficients and LPCs.
-     *
-     */
+/**
+ * Internally does the conversion between reflection coefficients and LPCs.
+ *
+ */
+public class Lprefc2Lpc {
     private static float[][] convertData( float[][] lprefc ) {
         
         int lpcOrder = lprefc[0].length;

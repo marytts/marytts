@@ -34,7 +34,6 @@ import javax.sound.sampled.AudioInputStream;
 
 import marytts.signalproc.process.Chorus;
 import marytts.signalproc.process.FrameOverlapAddSource;
-import marytts.signalproc.process.LPCWhisperiser;
 import marytts.signalproc.process.Robotiser;
 import marytts.signalproc.process.VocalTractScalingProcessor;
 import marytts.signalproc.window.Window;
@@ -172,7 +171,7 @@ public class ChorusEffectBase extends BaseAudioEffect {
     {
         Chorus chorus = new Chorus(delaysInMiliseconds, amps, fs);
         
-        FrameOverlapAddSource foas = new FrameOverlapAddSource(input, Window.HANN, true, 1024, fs, chorus);
+        FrameOverlapAddSource foas = new FrameOverlapAddSource(input, Window.HANNING, true, 1024, fs, chorus);
         
         return new BufferedDoubleDataSource(foas);
     }
@@ -219,7 +218,7 @@ public class ChorusEffectBase extends BaseAudioEffect {
     {
         Chorus c = new Chorus(delaysInMiliseconds, amps, fs);
 
-        FrameOverlapAddSource foas = new FrameOverlapAddSource(input, Window.HANN, true, frameLength, fs, c);
+        FrameOverlapAddSource foas = new FrameOverlapAddSource(input, Window.HANNING, true, frameLength, fs, c);
         
         return (DoubleDataSource)(new BufferedDoubleDataSource(foas));
     }

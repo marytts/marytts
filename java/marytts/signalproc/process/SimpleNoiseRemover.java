@@ -43,10 +43,12 @@ import marytts.util.data.audio.DDSAudioInputStream;
 
 
 /**
+ * 
+ * @author Marc Schr&ouml;der
+ * 
  * A simple implementation of a separator of periodic and aperiodic components, based on an attenuation function
  * for signals below a given threshold.
  * This class provides the periodic (voiced) components, as the exact complement of @see SimpleNoiseKeeper.
- * @author Marc Schr&ouml;der
  *
  */
 public class SimpleNoiseRemover extends PolarFrequencyProcessor
@@ -83,7 +85,7 @@ public class SimpleNoiseRemover extends PolarFrequencyProcessor
             AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
             int frameLength = Integer.getInteger("signalproc.simplenoiseremover.framelength", 1024).intValue();
             double threshold = Double.parseDouble(System.getProperty("signalproc.simplenoiseremover.threshold", "50.0"));
-            FrameOverlapAddSource foas = new FrameOverlapAddSource(signal, Window.HANN, true, frameLength, samplingRate, new SimpleNoiseRemover(frameLength, threshold));
+            FrameOverlapAddSource foas = new FrameOverlapAddSource(signal, Window.HANNING, true, frameLength, samplingRate, new SimpleNoiseRemover(frameLength, threshold));
             DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(foas), inputAudio.getFormat());
             String outFileName = args[i].substring(0, args[i].length()-4) + "_denoised.wav";
             AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));

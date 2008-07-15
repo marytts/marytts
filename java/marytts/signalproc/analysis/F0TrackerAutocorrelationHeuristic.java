@@ -47,13 +47,14 @@ import marytts.util.data.AudioDoubleDataSource;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
-
-
 /**
  * @author oytun.turk
  *
+ * Autocorrelation based F0 tracker with heuristic rules based on statistics for smoothing
+ * and halving/doubling prevention
+ *
  */
-public class PitchTrackerAutocorrelation { 
+public class F0TrackerAutocorrelationHeuristic { 
     public double[] f0s;
     
     protected PitchFileHeader params;
@@ -77,7 +78,7 @@ public class PitchTrackerAutocorrelation {
     private int ws;
     private int ss;
     
-    public PitchTrackerAutocorrelation(PitchFileHeader paramsIn)
+    public F0TrackerAutocorrelationHeuristic(PitchFileHeader paramsIn)
     {
         params = new PitchFileHeader(paramsIn);
         

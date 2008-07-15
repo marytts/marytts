@@ -26,36 +26,50 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-
 package marytts.signalproc.analysis;
 
+import marytts.signalproc.process.InlineDataProcessor;
+import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.data.DoubleDataSource;
+
 /**
- * @author oytun.turk
+ * @author Marc Schr&ouml;der
  *
  */
-public class PitchMarker {
+public class Signal2EnergyConverter extends BufferedDoubleDataSource {
+    protected static InlineDataProcessor processor = new InlineDataProcessor() {
+        /**
+         * For each signal sample, compute the signal energy as the square of the signal sample. 
+         */
+        public void applyInline(double[] buf, int off, int len)
+        {
+            for (int i=off; i<off+len; i++) {
+                buf[i] = buf[i]*buf[i];
+                assert buf[i] >= 0;
+            }
+        }
+    };
 
-    public int [] pitchMarks;
-    public boolean [] vuvs;
-    public int totalZerosToPadd;
-    
-    //count=total pitch marks
-    public PitchMarker(int count, int [] pitchMarksIn, boolean [] vuvsIn, int totalZerosToPaddIn)
+    public Signal2EnergyConverter(double[] signal)
     {
-        if (count>1)
-        {
-            pitchMarks = new int[count];
-            vuvs = new boolean[count-1];
-        
-            System.arraycopy(pitchMarksIn, 0, pitchMarks, 0, Math.min(pitchMarksIn.length, count));
-            System.arraycopy(vuvsIn, 0, vuvs, 0, Math.min(vuvsIn.length, count-1));
-        }
-        else
-        {
-            pitchMarks = null;
-            vuvs = null;
-        }
-        
-        totalZerosToPadd = Math.max(0, totalZerosToPaddIn);
+        super(signal, processor);
     }
+    
+    public Signal2EnergyConverter(DoubleDataSource signal)
+    {
+        super(signal, processor);
+    }
+    
+    /**
+     * For each signal sample, compute the signal energy as the square of the signal sample. 
+     * @param nNew the number of items in buf preceding writePos to process
+     */
+    public void processNewData(int off, int len)
+    {
+        for (int i=off; i<off+len; i++) {
+            buf[i] = buf[i]*buf[i];
+            assert buf[i] >= 0;
+        }
+    }
+
 }

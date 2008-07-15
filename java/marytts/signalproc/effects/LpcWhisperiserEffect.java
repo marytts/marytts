@@ -29,42 +29,49 @@
 
 package marytts.signalproc.effects;
 
+import java.io.File;
+
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
 
+import marytts.signalproc.process.Chorus;
 import marytts.signalproc.process.FrameOverlapAddSource;
-import marytts.signalproc.process.VocalTractScalingProcessor;
+import marytts.signalproc.process.LPCWhisperiser;
+import marytts.signalproc.process.Robotiser;
 import marytts.signalproc.window.Window;
 import marytts.util.data.AudioDoubleDataSource;
 import marytts.util.data.BufferedDoubleDataSource;
-import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
+import marytts.util.data.DoubleDataSource;
 import marytts.util.math.MathUtils;
-import marytts.util.signal.SignalProcUtils;
+
 
 /**
  * @author oytun.turk
  *
  */
-public class VocalTractLinearScalerEffect extends BaseAudioEffect {
-    
+public class LpcWhisperiserEffect extends BaseAudioEffect {
+
+    int frameLength;
+    int predictionOrder;
     float amount;
-    public static float MAX_AMOUNT = 4.0f;
-    public static float MIN_AMOUNT = 0.25f;
-    public static float DEFAULT_AMOUNT = 1.5f;
+    public static float DEFAULT_AMOUNT = 100.0f;
+    public static float MAX_AMOUNT = 100.0f;
+    public static float MIN_AMOUNT = 0.0f;
     
-    public VocalTractLinearScalerEffect()
+    public LpcWhisperiserEffect()
     {
         this(16000);
     }
     
-    public VocalTractLinearScalerEffect(int samplingRate)
+    public LpcWhisperiserEffect(int samplingRate)
     {
         super(samplingRate);
         
-        setExampleParameters("amount" + chParamEquals + Float.toString(DEFAULT_AMOUNT) + chParamSeparator);
+        setExampleParameters("amount" + chParamEquals + "100.0" + chParamSeparator);
         
-        strHelpText = getHelpText();  
+        strHelpText = getHelpText(); 
     }
     
     public void parseParameters(String param)
@@ -75,35 +82,30 @@ public class VocalTractLinearScalerEffect extends BaseAudioEffect {
         
         if (amount == NULL_FLOAT_PARAM)
             amount = DEFAULT_AMOUNT;
-    }
-    
-    public DoubleDataSource process(DoubleDataSource inputAudio)
-    {        
+        
         amount = MathUtils.CheckLimits(amount, MIN_AMOUNT, MAX_AMOUNT);
         
-        double [] vscales = {amount};
-
-        int frameLength = SignalProcUtils.getDFTSize(fs);
-        int predictionOrder = SignalProcUtils.getLPOrder(fs);
+        frameLength = Integer.getInteger("signalproc.lpcanalysissynthesis.framelength", 512).intValue();
+        predictionOrder = Integer.getInteger("signalproc.lpcwhisperiser.predictionorder", 20).intValue();
+    }
+    
+    public DoubleDataSource process(DoubleDataSource input)
+    {
+        LPCWhisperiser whisperiser = new LPCWhisperiser(predictionOrder, amount/100.0f);
         
-        VocalTractScalingProcessor p = new VocalTractScalingProcessor(predictionOrder, fs, frameLength, vscales);
-        FrameOverlapAddSource foas = new FrameOverlapAddSource(inputAudio, Window.HANNING, true, frameLength, fs, p);
+        FrameOverlapAddSource foas = new FrameOverlapAddSource(input, Window.HANNING, true, frameLength, fs, whisperiser);
         
         return new BufferedDoubleDataSource(foas);
     }
-    
-    public String getHelpText() {
 
-        String strHelp = "Vocal Tract Linear Scaling Effect:" + strLineBreak +
-                         "Creates a shortened or lengthened vocal tract effect by shifting the formants." + strLineBreak +
+    public String getHelpText() {
+        
+        String strHelp = "Whisper Effect:" + strLineBreak +
+                         "Creates a whispered voice by replacing the LPC residual with white noise." + strLineBreak +
                          "Parameter:" + strLineBreak +
                          "   <amount>" +
-                         "   Definition : The amount of formant shifting" + strLineBreak +
+                         "   Definition : The amount of whisperised voice at the output" + strLineBreak +
                          "   Range      : [" + String.valueOf(MIN_AMOUNT) + "," + String.valueOf(MAX_AMOUNT) + "]" + strLineBreak +
-                         "   For values of <amount> less than 1.0, the formants are shifted to lower frequencies" + strLineBreak +
-                         "       resulting in a longer vocal tract (i.e. a deeper voice)." + strLineBreak +
-                         "   Values greater than 1.0 shift the formants to higher frequencies." + strLineBreak +
-                         "       The result is a shorter vocal tract.\n" + strLineBreak +
                          "Example:" + strLineBreak +
                          getExampleParameters();
                         
@@ -111,6 +113,6 @@ public class VocalTractLinearScalerEffect extends BaseAudioEffect {
     }
 
     public String getName() {
-        return "TractScaler";
+        return "Whisper";
     }
 }

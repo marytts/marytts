@@ -38,8 +38,8 @@ import marytts.signalproc.adaptation.BaselineAdaptationSet;
 import marytts.signalproc.adaptation.BaselineFeatureExtractor;
 import marytts.signalproc.adaptation.FileMap;
 import marytts.signalproc.adaptation.IndexMap;
-import marytts.signalproc.analysis.ESTLabels;
-import marytts.signalproc.analysis.LineSpectralFrequencies;
+import marytts.signalproc.analysis.Labels;
+import marytts.signalproc.analysis.LsfAnalyser;
 import marytts.signalproc.analysis.LsfFileHeader;
 import marytts.signalproc.analysis.Lsfs;
 import marytts.util.io.FileUtils;
@@ -51,6 +51,8 @@ import marytts.util.string.StringUtils;
 /**
  * @author oytun.turk
  *
+ * Implements root-mean-square line spectral frequency vector distance given two sets of paired files
+ * 
  */
 public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
     public RmsLsfDistortionComputer()
@@ -142,8 +144,8 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
         Lsfs lsfs1 = new Lsfs(item1.lsfFile);
         Lsfs lsfs2 = new Lsfs(item2.lsfFile);
         
-        ESTLabels labs1 = new ESTLabels(item1.labelFile);
-        ESTLabels labs2 = new ESTLabels(item2.labelFile);
+        Labels labs1 = new Labels(item1.labelFile);
+        Labels labs2 = new Labels(item2.labelFile);
  
         double[] frameDistances = null;
         int count = 0;

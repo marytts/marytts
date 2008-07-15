@@ -37,7 +37,6 @@ import marytts.signalproc.adaptation.gmm.jointgmm.JointGMMMapper;
 import marytts.signalproc.adaptation.gmm.jointgmm.JointGMMMatch;
 import marytts.signalproc.adaptation.gmm.jointgmm.JointGMMSet;
 import marytts.signalproc.adaptation.gmm.jointgmm.JointGMMTransformerParams;
-import marytts.signalproc.analysis.MelCepstralCoefficients;
 import marytts.signalproc.analysis.Mfccs;
 import marytts.util.io.FileUtils;
 
@@ -100,7 +99,7 @@ public class MfccAdapter {
             inputMfccs.mfccs[i] = processFrame(inputMfccs.mfccs[i], vtMapper, vtData);
         
         try {
-            MelCepstralCoefficients.writeRawMfccFile(inputMfccs.mfccs, outputFile);
+            Mfccs.writeRawMfccFile(inputMfccs.mfccs, outputFile);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

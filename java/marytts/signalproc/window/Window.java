@@ -45,7 +45,7 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
     public static final int RECT = 0;
     public static final int HAMMING = 1;
     public static final int BLACKMAN = 2;
-    public static final int HANN = 3;
+    public static final int HANNING = 3;
     public static final int GAUSS = 4;
     public static final int BARTLETT = 5;
     
@@ -267,7 +267,7 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
         if (this instanceof RectWindow) return RECT;
         else if (this instanceof HammingWindow) return HAMMING;
         else if (this instanceof BlackmanWindow) return BLACKMAN;
-        else if (this instanceof HannWindow) return HANN;
+        else if (this instanceof HanningWindow) return HANNING;
         else if (this instanceof GaussWindow) return GAUSS;
         else if (this instanceof BartlettWindow) return BARTLETT;
         else return -1;
@@ -304,8 +304,8 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
             return new HammingWindow(length, prescale);
         case BLACKMAN:
             return new BlackmanWindow(length, prescale);
-        case HANN:
-            return new HannWindow(length, prescale);
+        case HANNING:
+            return new HanningWindow(length, prescale);
         case GAUSS:
             return new GaussWindow(length, prescale);
         case BARTLETT:
@@ -321,11 +321,11 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
      */
     public static int[] getAvailableTypes()
     {
-        return new int[] { RECT, HAMMING, BLACKMAN, HANN, GAUSS, BARTLETT }; 
+        return new int[] { RECT, HAMMING, BLACKMAN, HANNING, GAUSS, BARTLETT }; 
     }
     
     /**
-     * For a given type name (e.g., "Hann window", or "BARTLETT"),
+     * For a given type name (e.g., "Hanning window", or "BARTLETT"),
      * return the type code. Matching is done as case-insensitive prefix matching.
      * @param typeName the type name.
      * @return the type code corresponding to typeName, or -1 if none could be determined.
@@ -336,7 +336,7 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
         if (tomatch.startsWith("HAMMING")) return HAMMING;
         else if (tomatch.startsWith("RECT")) return RECT;
         else if (tomatch.startsWith("BLACKMAN")) return BLACKMAN;
-        else if (tomatch.startsWith("HANN")) return HANN;
+        else if (tomatch.startsWith("HANNING")) return HANNING;
         else if (tomatch.startsWith("GAUSS")) return GAUSS;
         else if (tomatch.startsWith("BARTLETT")) return BARTLETT;
         else return -1;

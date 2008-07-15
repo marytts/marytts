@@ -39,7 +39,10 @@ import marytts.util.math.MathUtils;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-
+/**
+ * @author Marc Schr&ouml;der
+ *
+ */
 public class AudioDoubleDataSourceTest extends TestCase
 {
 

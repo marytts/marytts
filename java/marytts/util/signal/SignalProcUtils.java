@@ -8,8 +8,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Vector;
 
-import marytts.signalproc.analysis.ESTLabels;
-import marytts.signalproc.analysis.PitchMarker;
+import marytts.signalproc.analysis.Labels;
+import marytts.signalproc.analysis.PitchMarks;
 import marytts.signalproc.filter.BandPassFilter;
 import marytts.signalproc.filter.FIRFilter;
 import marytts.signalproc.filter.HighPassFilter;
@@ -233,7 +233,7 @@ public class SignalProcUtils {
     // To do:
     // Perform marking on the residual by trying to locate glottal closure instants (might be implemented as a separate function indeed)
     // This may improve PSOLA performance also */
-    public static PitchMarker pitchContour2pitchMarks(double [] f0s, int fs, int len, double ws, double ss, boolean bPaddZerosForFinalPitchMark)
+    public static PitchMarks pitchContour2pitchMarks(double [] f0s, int fs, int len, double ws, double ss, boolean bPaddZerosForFinalPitchMark)
     {
         //Interpolate unvoiced segments
         double [] interpf0s = interpolate_pitch_uv(f0s);
@@ -279,18 +279,18 @@ public class SignalProcUtils {
             }
         }
 
-        PitchMarker pm = null;
+        PitchMarks pm = null;
         if (count>1)
         {
             //Check if last pitch mark corresponds to the end of signal, otherwise put an additional pitch mark to match the last period and note to padd sufficient zeros
             if (bPaddZerosForFinalPitchMark && tmpPitchMarks[count-1] != len-1)
             {
-                pm = new PitchMarker(count+1, tmpPitchMarks, tmpVuvs, 0);
+                pm = new PitchMarks(count+1, tmpPitchMarks, tmpVuvs, 0);
                 pm.pitchMarks[pm.pitchMarks.length-1] = pm.pitchMarks[pm.pitchMarks.length-2]+(pm.pitchMarks[pm.pitchMarks.length-2]-pm.pitchMarks[pm.pitchMarks.length-3]);
                 pm.totalZerosToPadd = pm.pitchMarks[pm.pitchMarks.length-1]-(len-1);
             }
             else
-                pm = new PitchMarker(count, tmpPitchMarks, tmpVuvs, 0);
+                pm = new PitchMarks(count, tmpPitchMarks, tmpVuvs, 0);
         }
         
         return pm;
@@ -325,7 +325,7 @@ public class SignalProcUtils {
         return f0s;
     }
     
-    public static double[] fixedRateF0Values(PitchMarker pm, double wsFixedInSeconds, double ssFixedInSeconds, int numfrm, int samplingRate)
+    public static double[] fixedRateF0Values(PitchMarks pm, double wsFixedInSeconds, double ssFixedInSeconds, int numfrm, int samplingRate)
     {
         double[] f0s = new double[numfrm];
 
@@ -1222,14 +1222,14 @@ public class SignalProcUtils {
         return range;
     }
     
-    public static int frameIndex2LabelIndex(int zeroBasedFrameIndex, ESTLabels labels, double windowSizeInSeconds, double skipSizeInSeconds)
+    public static int frameIndex2LabelIndex(int zeroBasedFrameIndex, Labels labels, double windowSizeInSeconds, double skipSizeInSeconds)
     {
         double time = zeroBasedFrameIndex*skipSizeInSeconds + 0.5*windowSizeInSeconds;
         
         return time2LabelIndex(time, labels);
     }
     
-    public static int time2LabelIndex(double time, ESTLabels labels)
+    public static int time2LabelIndex(double time, Labels labels)
     {
         int index = -1;
         

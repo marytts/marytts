@@ -8,8 +8,8 @@ import java.util.Arrays;
 import java.util.StringTokenizer;
 
 import marytts.modules.phonemiser.Phoneme;
-import marytts.signalproc.analysis.ESTLabel;
-import marytts.signalproc.analysis.ESTLabels;
+import marytts.signalproc.analysis.Label;
+import marytts.signalproc.analysis.Labels;
 import marytts.util.MaryUtils;
 import marytts.util.io.FileUtils;
 
@@ -203,12 +203,12 @@ public class StringUtils {
     
     //This version assumes that there can only be insertions and deletions but no substitutions 
     // (i.e. text based alignment with possible differences in pauses only)
-    public static int[][] alignLabels(ESTLabel[] seq1, ESTLabel[] seq2)
+    public static int[][] alignLabels(Label[] seq1, Label[] seq2)
     {
         return alignLabels(seq1, seq2, 0.05, 0.05, 0.05);
     }
     
-    public static int[][] alignLabels(ESTLabel[] labs1, ESTLabel[] labs2, double PDeletion, double PInsertion, double PSubstitution)
+    public static int[][] alignLabels(Label[] labs1, Label[] labs2, double PDeletion, double PInsertion, double PSubstitution)
     {
         double PCorrect = 1.0-(PDeletion+PInsertion+PSubstitution);
         int n = labs1.length;

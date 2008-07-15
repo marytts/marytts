@@ -63,7 +63,7 @@ public class NaiveVocoder extends FrameOverlapAddSource
     public NaiveVocoder(DoubleDataSource inputSource, int samplingRate, double rateChangeFactor)
     {
         this.rateChangeFactor = rateChangeFactor;
-        initialise(inputSource, Window.HANN, true, DEFAULT_FRAMELENGTH,
+        initialise(inputSource, Window.HANNING, true, DEFAULT_FRAMELENGTH,
                 samplingRate, null);
     }
 

@@ -1,15 +1,47 @@
+/**
+ * Copyright 2007 DFKI GmbH.
+ * All Rights Reserved.  Use is subject to license terms.
+ * 
+ * Permission is hereby granted, free of charge, to use and distribute
+ * this software and its documentation without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of this work, and to
+ * permit persons to whom this work is furnished to do so, subject to
+ * the following conditions:
+ * 
+ * 1. The code must retain the above copyright notice, this list of
+ *    conditions and the following disclaimer.
+ * 2. Any modifications must be clearly marked as such.
+ * 3. Original authors' names are not deleted.
+ * 4. The authors' names are not used to endorse or promote products
+ *    derived from this software without specific prior written
+ *    permission.
+ *
+ * DFKI GMBH AND THE CONTRIBUTORS TO THIS WORK DISCLAIM ALL WARRANTIES WITH
+ * REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL DFKI GMBH NOR THE
+ * CONTRIBUTORS BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
+ * DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
+ * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
+ * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+ * THIS SOFTWARE.
+ */
+
 package marytts.signalproc.process;
 
 import java.util.Arrays;
 
-import marytts.signalproc.analysis.ESTLabels;
+import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.FestivalUtt;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 import marytts.util.string.StringUtils;
 
-
+/**
+ * @author oytun.turk
+ *
+ */
 public class VoiceModificationParametersPreprocessor extends VoiceModificationParameters 
 {    
     public double [] pscalesVar;
@@ -69,7 +101,7 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
         //Read from files (only necessary ones, you will need to read more when implementing escales etc)
         FestivalUtt festivalUtt = new FestivalUtt(targetFestivalUttFile);
         F0ReaderWriter sourceF0s = new F0ReaderWriter(sourcePitchFile);
-        ESTLabels sourceLabels = new ESTLabels(sourceLabelFile);
+        Labels sourceLabels = new Labels(sourceLabelFile);
         
         //Find pscalesVar and tscalesVar from targetFestivalUttFile, sourcePitchFile, sourceLabelFile
         tscaleSingle=-1;
@@ -90,18 +122,18 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
         //Find the optimum alignment between the source and the target labels since the phoneme sequences may not be identical due to silence periods etc.
         int[][] durationMap = null;
 
-        ESTLabels targetDurationLabels = null;
-        ESTLabels targetPitchLabels = null;
+        Labels targetDurationLabels = null;
+        Labels targetPitchLabels = null;
         
         for (i=0; i<festivalUtt.labels.length; i++)
         {
             if (festivalUtt.keys[i].compareTo("==Segment==")==0 && durationMap==null)
             {
                 durationMap = StringUtils.alignLabels(sourceLabels.items, festivalUtt.labels[i].items);
-                targetDurationLabels = new ESTLabels(festivalUtt.labels[i]);
+                targetDurationLabels = new Labels(festivalUtt.labels[i]);
             }
             else if (festivalUtt.keys[i].compareTo("==Target==")==0)
-                targetPitchLabels = new ESTLabels(festivalUtt.labels[i]);
+                targetPitchLabels = new Labels(festivalUtt.labels[i]);
         }
         //
         

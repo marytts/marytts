@@ -33,9 +33,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import marytts.signalproc.analysis.ESTLabels;
+import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.FeatureFileHeader;
-import marytts.signalproc.analysis.LineSpectralFrequencies;
+import marytts.signalproc.analysis.LsfAnalyser;
 import marytts.signalproc.analysis.LsfFileHeader;
 import marytts.signalproc.analysis.MfccFileHeader;
 import marytts.util.math.MathUtils;
@@ -59,8 +59,8 @@ public class AdaptationUtils {
         IndexMap im = null;
 
         //Read label files
-        ESTLabels sourceLabels = new ESTLabels(sourceLabelFile);
-        ESTLabels targetLabels = new ESTLabels(targetLabelFile);
+        Labels sourceLabels = new Labels(sourceLabelFile);
+        Labels targetLabels = new Labels(targetLabelFile);
         //
         
         //Read feature file headers
@@ -155,8 +155,8 @@ public class AdaptationUtils {
         IndexMap im = null;
 
         //Read label files
-        ESTLabels sourceLabels = new ESTLabels(sourceLabelFile);
-        ESTLabels targetLabels = new ESTLabels(targetLabelFile);
+        Labels sourceLabels = new Labels(sourceLabelFile);
+        Labels targetLabels = new Labels(targetLabelFile);
         //
         
         //Read feature file headers
@@ -252,8 +252,8 @@ public class AdaptationUtils {
         IndexMap im = null;
 
         //Read label files
-        ESTLabels sourceLabels = new ESTLabels(sourceLabelFile);
-        ESTLabels targetLabels = new ESTLabels(targetLabelFile);
+        Labels sourceLabels = new Labels(sourceLabelFile);
+        Labels targetLabels = new Labels(targetLabelFile);
         //
         
         //Read feature file headers
@@ -331,8 +331,8 @@ public class AdaptationUtils {
         IndexMap im = null;
 
         //Read label files
-        ESTLabels sourceLabels = new ESTLabels(sourceLabelFile);
-        ESTLabels targetLabels = new ESTLabels(targetLabelFile);
+        Labels sourceLabels = new Labels(sourceLabelFile);
+        Labels targetLabels = new Labels(targetLabelFile);
         //
         
         //Read feature file headers

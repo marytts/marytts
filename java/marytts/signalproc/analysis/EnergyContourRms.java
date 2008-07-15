@@ -43,28 +43,29 @@ import marytts.util.signal.SignalProcUtils;
 
 /**
  * @author oytun.turk
- *
+ * A class that extracts frame based root-mean-square (RMS) energy contour
+ * 
  */
-public class EnergyAnalyserRms {
+public class EnergyContourRms {
     EnergyFileHeader header;
     public double[] contour;
 
-    public EnergyAnalyserRms()
+    public EnergyContourRms()
     {
         this("");
     }
     
-    public EnergyAnalyserRms(String wavFile)
+    public EnergyContourRms(String wavFile)
     {
         this(wavFile, 0.020, 0.010);
     }
     
-    public EnergyAnalyserRms(String wavFileIn, double windowSizeInSecondsIn, double skipSizeInSecondsIn)
+    public EnergyContourRms(String wavFileIn, double windowSizeInSecondsIn, double skipSizeInSecondsIn)
     {   
         this(wavFileIn, "", windowSizeInSecondsIn, skipSizeInSecondsIn);
     }
     
-    public EnergyAnalyserRms(String wavFileIn, String energyFileOut, double windowSizeInSecondsIn, double skipSizeInSecondsIn)
+    public EnergyContourRms(String wavFileIn, String energyFileOut, double windowSizeInSecondsIn, double skipSizeInSecondsIn)
     {   
         header = new EnergyFileHeader();
         
@@ -100,7 +101,7 @@ public class EnergyAnalyserRms {
         }
     }
     
-    public static void WriteEnergyFile(EnergyAnalyserRms en, String energyFile)
+    public static void WriteEnergyFile(EnergyContourRms en, String energyFile)
     {
         if (en.contour!=null)
         {
@@ -135,9 +136,9 @@ public class EnergyAnalyserRms {
         }
     }
 
-    public static EnergyAnalyserRms ReadEnergyFile(String energyFile)
+    public static EnergyContourRms ReadEnergyFile(String energyFile)
     {
-        EnergyAnalyserRms en = null;
+        EnergyContourRms en = null;
         MaryRandomAccessFile ler = null;
         try {
             ler = new MaryRandomAccessFile(energyFile, "r");
@@ -148,7 +149,7 @@ public class EnergyAnalyserRms {
 
         if (ler!=null)
         {
-            en = new EnergyAnalyserRms();
+            en = new EnergyContourRms();
             en.header.read(ler, true);
 
             try {

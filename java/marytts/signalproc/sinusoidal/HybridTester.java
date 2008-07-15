@@ -39,13 +39,13 @@ import marytts.util.signal.SignalProcUtils;
 /**
  * @author oytun.turk
  *
- */
-//This class combines SinusoidsTester and NoiseTester classes
-// You can simply give a SinusoidsTester object and NoiseTester object
-// and generate the superposition of the outputs of the two objects,
-// i.e. multiple sinusoids located at desired instants of time plus white or pink noise
-// with desired bandwidth at desired time instants
-// Using this class one can generate fairly complicated yet parametric test signals
+ * This class combines SinusoidsTester and NoiseTester classes
+ * You can simply give a SinusoidsTester object and NoiseTester object
+ * and generate the superposition of the outputs of the two objects,
+ * i.e. multiple sinusoids located at desired instants of time plus white or pink noise
+ * with desired bandwidth at desired time instants
+ * Using this class one can generate fairly complicated yet parametric test signals
+ **/
 public class HybridTester extends BaseTester{
     public HybridTester(SinusoidsTester s, NoiseTester n)
     {

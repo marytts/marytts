@@ -39,6 +39,8 @@ import marytts.util.math.FFT;
 /**
  * @author Marc Schr&ouml;der
  *
+ * Implements a frame based autocorrelation analyser
+ * 
  */
 public class ShortTermAutocorrelationAnalyser extends FrameBasedAnalyser {
     protected double[] correlationInput;

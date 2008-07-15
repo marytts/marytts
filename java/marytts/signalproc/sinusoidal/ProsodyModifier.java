@@ -29,11 +29,6 @@
 
 package marytts.signalproc.sinusoidal;
 
-/**
- * @author oytun.turk
- *
- */
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -44,7 +39,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.analysis.F0ReaderWriter;
-import marytts.signalproc.analysis.PitchMarker;
+import marytts.signalproc.analysis.PitchMarks;
 import marytts.signalproc.filter.FilterBankAnalyserBase;
 import marytts.signalproc.window.Window;
 import marytts.util.data.AudioDoubleDataSource;
@@ -54,7 +49,10 @@ import marytts.util.io.FileUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
-
+/**
+ * @author oytun.turk
+ *
+ */
 public class ProsodyModifier extends SinusoidalSynthesizer {
     
     public ProsodyModifier(int samplingRate) {
@@ -136,9 +134,9 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
                              int spectralEnvelopeType,
                              int analyzerType)
     {     
-        int windowType = Window.HANN;
+        int windowType = Window.HANNING;
         //Analysis
-        PitchMarker pm = SignalProcUtils.pitchContour2pitchMarks(f0s, fs, x.length, f0_ws, f0_ss, false);
+        PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0s, fs, x.length, f0_ws, f0_ss, false);
         
         BaseSinusoidalAnalyzer an = null;
         SinusoidalTracks[] st = null;

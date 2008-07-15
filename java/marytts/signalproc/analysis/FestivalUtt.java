@@ -39,9 +39,11 @@ import marytts.util.io.FileUtils;
 /**
  * @author oytun.turk
  *
+ * A wrapper class to read fields in Festival UTT files
+ * 
  */
 public class FestivalUtt {
-    public ESTLabels[] labels;
+    public Labels[] labels;
     public String[] keys;
     
     public FestivalUtt()
@@ -59,7 +61,7 @@ public class FestivalUtt {
         keys[4] = "==IntEvent==";
         keys[5] = "==Phrase==";
         
-        labels = new ESTLabels[keys.length];
+        labels = new Labels[keys.length];
         
         if (FileUtils.exists(festivalUttFile))
         {
@@ -102,9 +104,9 @@ public class FestivalUtt {
                 if (boundInds[i]>-1)
                 {
                     if (i<keys.length-1)
-                        labels[i] = ESTLabels.parseFromLines(lines, boundInds[i]+1, boundInds[i+1]-1, 2);
+                        labels[i] = Labels.parseFromLines(lines, boundInds[i]+1, boundInds[i+1]-1, 2);
                     else
-                        labels[i] = ESTLabels.parseFromLines(lines, boundInds[i]+1, lines.length-1, 2);
+                        labels[i] = Labels.parseFromLines(lines, boundInds[i]+1, lines.length-1, 2);
                     
                     //Shift all valuesRest by one, and put the f0 into valuesRest[0]
                     if (keys[i].compareTo("==Target==")==0)
