@@ -447,7 +447,7 @@ public class JointGMMTransformer extends BaselineTransformer {
         String baseFile = wavBaseFolder + "output/" + sourceTag + "2" + targetTag + "/" + sourceTag + method + "_X_" + targetTag + method + "_" + String.valueOf(numTrainingFiles);
         
         pa.isForcedAnalysis = false;
-        pa.isSourceVocalTractSpectrumFromModel = false;
+        pa.isSourceVocalTractSpectrumFromModel = true;
         pa.isVocalTractTransformation = true;
         pa.isResynthesizeVocalTractFromSourceModel = false;
         pa.isVocalTractMatchUsingTargetModel= false;
