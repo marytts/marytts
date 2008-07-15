@@ -38,7 +38,7 @@ import marytts.signalproc.process.InlineDataProcessor;
 import marytts.signalproc.process.PitchFrameProvider;
 import marytts.signalproc.window.DynamicWindow;
 import marytts.signalproc.window.Window;
-import marytts.util.audio.DoubleDataSource;
+import marytts.util.data.DoubleDataSource;
 
 
 /**

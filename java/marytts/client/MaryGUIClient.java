@@ -166,7 +166,7 @@ public class MaryGUIClient extends JPanel
     /* -------------------- Data and Processing stuff -------------------- */
     private MaryClient processor;
 
-    private marytts.util.audio.AudioPlayer audioPlayer = null;
+    private marytts.util.data.audio.AudioPlayer audioPlayer = null;
     private Vector<MaryClient.Voice> availableVoices = null;
     private Vector<MaryClient.DataType> inputTypes = null;
     private Vector<MaryClient.DataType> outputTypes = null;
@@ -1292,7 +1292,7 @@ public class MaryGUIClient extends JPanel
         MaryClient.DataType outputType = (MaryClient.DataType)cbOutputType.getSelectedItem();
         if (outputType.name().equals("AUDIO")) {
             try {
-                audioPlayer = new marytts.util.audio.AudioPlayer();
+                audioPlayer = new marytts.util.data.audio.AudioPlayer();
                 processor.streamAudio(inputText.getText(), 
                         ((MaryClient.DataType)cbInputType.getSelectedItem()).name(),
                         ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).getLocale().toString(),

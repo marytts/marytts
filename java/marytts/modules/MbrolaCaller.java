@@ -42,8 +42,8 @@ import marytts.exceptions.NoSuchPropertyException;
 import marytts.modules.synthesis.MbrolaVoice;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
-import marytts.util.audio.AudioDestination;
-import marytts.util.audio.AudioReader;
+import marytts.util.data.audio.AudioDestination;
+import marytts.util.data.audio.AudioReader;
 import marytts.util.io.StreamLogger;
 
 

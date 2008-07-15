@@ -36,8 +36,8 @@ import java.util.LinkedList;
 import marytts.signalproc.window.DynamicTwoHalvesWindow;
 import marytts.signalproc.window.Window;
 import marytts.unitselection.data.Datagram;
-import marytts.util.audio.BufferedDoubleDataSource;
-import marytts.util.audio.DoubleDataSource;
+import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.data.DoubleDataSource;
 
 
 public class DatagramOverlapDoubleDataSource extends BufferedDoubleDataSource

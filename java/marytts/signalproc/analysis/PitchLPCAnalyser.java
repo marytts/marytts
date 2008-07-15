@@ -45,9 +45,9 @@ import marytts.signalproc.filter.FIRFilter;
 import marytts.signalproc.process.PitchFrameProvider;
 import marytts.signalproc.window.Window;
 import marytts.util.math.ArrayUtils;
-import marytts.util.audio.AudioDoubleDataSource;
-import marytts.util.audio.DoubleDataSource;
-import marytts.util.audio.ESTTextfileDoubleDataSource;
+import marytts.util.data.AudioDoubleDataSource;
+import marytts.util.data.DoubleDataSource;
+import marytts.util.data.text.ESTTextfileDoubleDataSource;
 import marytts.util.math.FFT;
 import marytts.util.math.MathUtils;
 

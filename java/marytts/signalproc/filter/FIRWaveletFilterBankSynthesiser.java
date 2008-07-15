@@ -39,9 +39,9 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import marytts.util.audio.AudioDoubleDataSource;
-import marytts.util.audio.BufferedDoubleDataSource;
-import marytts.util.audio.DDSAudioInputStream;
+import marytts.util.data.AudioDoubleDataSource;
+import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.signal.SignalProcUtils;
 
 /**

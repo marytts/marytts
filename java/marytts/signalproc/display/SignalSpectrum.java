@@ -35,7 +35,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import marytts.util.audio.MaryAudioUtils;
+import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.math.FFT;
 import marytts.util.math.MathUtils;
 

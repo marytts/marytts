@@ -62,7 +62,7 @@ import marytts.tools.redstart.Prompt;
 import marytts.tools.redstart.RecSession;
 import marytts.tools.redstart.Recording;
 import marytts.tools.redstart.Speech;
-import marytts.util.audio.MonoAudioInputStream;
+import marytts.util.data.audio.MonoAudioInputStream;
 
 
 /**

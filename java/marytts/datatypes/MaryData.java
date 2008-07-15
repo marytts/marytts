@@ -57,10 +57,10 @@ import javax.xml.transform.TransformerException;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
+import marytts.util.data.text.UncloseableBufferedReader;
+import marytts.util.dom.MaryNormalisedWriter;
 import marytts.util.io.LoggingErrorHandler;
-import marytts.util.io.MaryNormalisedWriter;
 import marytts.util.io.ReaderSplitter;
-import marytts.util.io.UncloseableBufferedReader;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;

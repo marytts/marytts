@@ -35,7 +35,7 @@ import javax.sound.sampled.AudioInputStream;
 import marytts.datatypes.MaryDataType;
 import marytts.modules.synthesis.MbrolaVoice;
 import marytts.modules.synthesis.Voice;
-import marytts.util.audio.AudioDestination;
+import marytts.util.data.audio.AudioDestination;
 
 
 /**

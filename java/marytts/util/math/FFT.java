@@ -36,7 +36,7 @@ import javax.sound.sampled.AudioSystem;
 
 import marytts.signalproc.display.FunctionGraph;
 import marytts.signalproc.display.SignalSpectrum;
-import marytts.util.audio.MaryAudioUtils;
+import marytts.util.data.audio.MaryAudioUtils;
 
 
 /**

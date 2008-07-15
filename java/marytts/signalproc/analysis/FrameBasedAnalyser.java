@@ -34,7 +34,7 @@ import java.util.List;
 
 import marytts.signalproc.process.FrameProvider;
 import marytts.signalproc.window.Window;
-import marytts.util.audio.DoubleDataSource;
+import marytts.util.data.DoubleDataSource;
 
 
 /**

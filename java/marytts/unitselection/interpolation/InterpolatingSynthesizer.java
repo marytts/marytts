@@ -54,10 +54,10 @@ import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.UnitDatabase;
 import marytts.unitselection.select.SelectedUnit;
 import marytts.unitselection.select.UnitSelector;
-import marytts.util.audio.AudioDoubleDataSource;
-import marytts.util.audio.BufferedDoubleDataSource;
-import marytts.util.audio.DDSAudioInputStream;
-import marytts.util.audio.DoubleDataSource;
+import marytts.util.data.AudioDoubleDataSource;
+import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.data.DoubleDataSource;
+import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.dom.MaryDomUtils;
 
 import org.apache.log4j.Logger;

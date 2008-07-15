@@ -47,7 +47,7 @@ import marytts.modules.synthesis.MbrolaVoiceSectioner;
 import marytts.modules.synthesis.Voice;
 import marytts.modules.synthesis.VoiceSection;
 import marytts.modules.synthesis.VoiceSectioner;
-import marytts.util.audio.MaryAudioUtils;
+import marytts.util.data.audio.MaryAudioUtils;
 
 import org.apache.log4j.Logger;
 import org.jsresources.AppendableSequenceAudioInputStream;

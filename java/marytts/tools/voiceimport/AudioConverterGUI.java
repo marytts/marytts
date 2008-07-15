@@ -17,8 +17,8 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import marytts.util.audio.AudioConverterUtils;
-import marytts.util.audio.AudioPlayer;
+import marytts.util.data.audio.AudioConverterUtils;
+import marytts.util.data.audio.AudioPlayer;
 
 /**
  * A GUI Interface to support Audio Conversion  

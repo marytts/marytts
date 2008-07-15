@@ -37,9 +37,9 @@ import javax.sound.sampled.AudioSystem;
 
 import marytts.signalproc.analysis.EnergyAnalyser;
 import marytts.signalproc.analysis.EnergyAnalyser_dB;
-import marytts.util.audio.AudioDoubleDataSource;
-import marytts.util.audio.BufferedDoubleDataSource;
-import marytts.util.audio.DoubleDataSource;
+import marytts.util.data.AudioDoubleDataSource;
+import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.data.DoubleDataSource;
 
 
 /**

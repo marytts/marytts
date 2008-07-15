@@ -43,9 +43,9 @@ import marytts.signalproc.process.LPCWhisperiser;
 import marytts.signalproc.process.Robotiser;
 import marytts.signalproc.process.VocalTractScalingProcessor;
 import marytts.signalproc.window.Window;
-import marytts.util.audio.AudioDoubleDataSource;
-import marytts.util.audio.BufferedDoubleDataSource;
-import marytts.util.audio.DoubleDataSource;
+import marytts.util.data.AudioDoubleDataSource;
+import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.data.DoubleDataSource;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 

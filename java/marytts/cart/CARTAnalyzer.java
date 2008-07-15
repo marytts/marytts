@@ -68,10 +68,10 @@ import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.TimelineReader;
 import marytts.unitselection.data.UnitFileReader;
 import marytts.util.MaryUtils;
-import marytts.util.audio.BufferedDoubleDataSource;
-import marytts.util.audio.DoubleDataSource;
-import marytts.util.audio.MaryAudioUtils;
-import marytts.util.audio.WavWriter;
+import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.data.DoubleDataSource;
+import marytts.util.data.audio.MaryAudioUtils;
+import marytts.util.data.audio.WavWriter;
 
 import de.dfki.lt.mary.unitselection.FeatureFileIndexer;
 

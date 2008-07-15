@@ -43,7 +43,7 @@ import marytts.signalproc.adaptation.BaselineFeatureExtractor;
 import marytts.signalproc.analysis.ESTLabels;
 import marytts.signalproc.analysis.LsfFileHeader;
 import marytts.signalproc.analysis.Lsfs;
-import marytts.util.audio.AudioDoubleDataSource;
+import marytts.util.data.AudioDoubleDataSource;
 import marytts.util.io.FileUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
