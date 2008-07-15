@@ -46,6 +46,21 @@ public class MelCepstralCoefficients {
         writeMfccs(stream, mfccs);
     }
     
+    public static void writeMfccsFloat(MaryRandomAccessFile stream, double[][] mfccs) throws IOException
+    {
+        if (stream!=null && mfccs!=null && mfccs.length>0)
+        {
+            int i, j;
+            for (i=0; i<mfccs.length; i++)
+            {
+                for (j=0; j<mfccs[i].length; j++)
+                    stream.writeFloat((float)mfccs[i][j]);
+            }
+            
+            stream.close();
+        }
+    }
+    
     public static void writeMfccs(MaryRandomAccessFile stream, double[][] mfccs) throws IOException
     {
         if (stream!=null && mfccs!=null && mfccs.length>0)
@@ -63,7 +78,7 @@ public class MelCepstralCoefficients {
 
         if (stream!=null)
         {
-            writeMfccs(stream, mfccs);
+            writeMfccsFloat(stream, mfccs);
             stream.close();
         }
     }
