@@ -34,6 +34,7 @@ import marytts.util.data.DoubleDataSource;
 import marytts.util.math.MathUtils;
 
 /**
+ * 
  * @author Marc Schr&ouml;der
  *
  * Implements a frame based log spectrum analyser

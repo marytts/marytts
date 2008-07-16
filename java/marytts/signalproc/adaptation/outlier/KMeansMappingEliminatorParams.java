@@ -33,7 +33,10 @@ import marytts.machinelearning.KMeansClusteringTrainerParams;
 import marytts.signalproc.analysis.distance.DistanceComputer;
 
 /**
+ * 
  * @author oytun.turk
+ * 
+ * Parameters for K-Means clustering and mapping based outlier elimination
  *
  */
 public class KMeansMappingEliminatorParams extends BaselineOutlierEliminatorParams {

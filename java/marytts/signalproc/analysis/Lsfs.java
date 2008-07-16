@@ -35,6 +35,7 @@ import marytts.util.io.MaryRandomAccessFile;
 
 
 /**
+ * 
  * @author oytun.turk
  *
  * A wrapper class for line spectral frequencies.

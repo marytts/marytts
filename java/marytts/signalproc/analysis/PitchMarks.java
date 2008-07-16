@@ -30,6 +30,7 @@
 package marytts.signalproc.analysis;
 
 /**
+ * 
  * @author oytun.turk
  *
  * A wrapper class to store pitch marks as integer sample indices

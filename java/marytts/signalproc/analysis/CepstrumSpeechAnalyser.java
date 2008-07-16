@@ -39,11 +39,12 @@ import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
 /**
+ * 
  * @author Marc Schr&ouml;der, oytun.turk
  *
  * Computes real and complex cepstrum directly from speech spectrum
- * Note that this is different than LP cepstrum 
- *   which is implemented in CepstrumLPCAnalyser
+ * Note that this is different than LP cepstrum which is implemented in CepstrumLPCAnalyser
+ * 
  */
 public class CepstrumSpeechAnalyser
 {

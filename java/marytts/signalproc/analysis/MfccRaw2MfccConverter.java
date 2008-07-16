@@ -39,6 +39,7 @@ import marytts.util.io.MaryRandomAccessFile;
 import marytts.util.string.StringUtils;
 
 /**
+ * 
  * @author oytun.turk
  *
  * Converts binary MFCC files in raw SPTK format into Mary MFCC file format

@@ -34,7 +34,10 @@ import marytts.signalproc.adaptation.codebook.WeightedCodebookMapperParams;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookTransformerParams;
 
 /**
+ * 
  * @author oytun.turk
+ * 
+ * Parameters for joint-GMM based voice conversion transformation stage
  *
  */
 public class JointGMMTransformerParams extends BaselineTransformerParams {

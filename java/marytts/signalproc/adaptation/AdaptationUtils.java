@@ -45,6 +45,8 @@ import marytts.util.string.StringUtils;
 
 /**
  * @author oytun.turk
+ * 
+ * Generic utilities for voice conversion
  *
  */
 public class AdaptationUtils {    

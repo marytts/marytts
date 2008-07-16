@@ -32,8 +32,10 @@ package marytts.signalproc;
 import marytts.signalproc.window.Window;
 
 /**
- * A set of static getters for System properties.
+ * 
  * @author Marc Schr&ouml;der
+ *
+ * A set of static getters for System properties.
  *
  */
 public class Defaults

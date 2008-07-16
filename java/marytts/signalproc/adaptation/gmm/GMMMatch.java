@@ -30,7 +30,10 @@
 package marytts.signalproc.adaptation.gmm;
 
 /**
+ * 
  * @author oytun.turk
+ * 
+ * GMM output for voice conversion transformation
  *
  */
 public class GMMMatch {

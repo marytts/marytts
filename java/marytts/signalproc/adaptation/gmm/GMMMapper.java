@@ -32,7 +32,10 @@ package marytts.signalproc.adaptation.gmm;
 import marytts.signalproc.adaptation.VocalTractTransformationFunction;
 
 /**
+ * 
  * @author oytun.turk
+ * 
+ * Baseline class for GMM based voice conversion source-target mapping
  *
  */
 public class GMMMapper extends VocalTractTransformationFunction {

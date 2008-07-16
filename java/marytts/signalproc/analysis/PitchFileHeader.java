@@ -38,6 +38,7 @@ import marytts.util.io.MaryRandomAccessFile;
 
 
 /**
+ * 
  * @author oytun.turk
  *
  * Implements a structured header with file I/O functionality 

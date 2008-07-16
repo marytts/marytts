@@ -41,7 +41,10 @@ import marytts.tools.voiceimport.BasenameList;
 
 
 /**
+ * 
  * @author oytun.turk
+ *
+ * Baseline class for voice conversion transformation
  *
  */
 public class BaselineTransformer {

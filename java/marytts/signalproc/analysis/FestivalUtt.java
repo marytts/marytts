@@ -37,6 +37,7 @@ import marytts.util.io.FileUtils;
 
 
 /**
+ * 
  * @author oytun.turk
  *
  * A wrapper class to read fields in Festival UTT files

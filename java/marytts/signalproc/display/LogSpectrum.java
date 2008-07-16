@@ -37,9 +37,11 @@ import javax.sound.sampled.AudioSystem;
 import marytts.util.math.MathUtils;
 
 
-
 /**
+ * 
  * @author Marc Schr&ouml;der
+ * 
+ * Computes log of DFT spectrum
  *
  */
 public class LogSpectrum  extends SignalSpectrum

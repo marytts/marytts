@@ -35,7 +35,10 @@ import marytts.signalproc.adaptation.BaselineFeatureExtractor;
 import marytts.signalproc.adaptation.BaselineTrainerParams;
 
 /**
+ * 
  * @author oytun.turk
+ * 
+ * Parameters for joint-GMM based voice conversion training
  *
  */
 public class JointGMMTrainerParams extends BaselineTrainerParams {

@@ -44,7 +44,10 @@ import marytts.util.data.audio.AudioDoubleDataSource;
 
 
 /**
+ * 
  * @author Marc Schr&ouml;der
+ * 
+ * Shows silence regions on the input signal using automatic silence detection based on energy histogram 
  *
  */
 public class SilenceMarker extends Histogram

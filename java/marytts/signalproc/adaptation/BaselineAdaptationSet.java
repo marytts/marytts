@@ -34,6 +34,8 @@ import marytts.util.string.StringUtils;
 
 /**
  * @author oytun.turk
+ * 
+ * Baseline class for speaker specific voice conversion training set
  *
  */
 public class BaselineAdaptationSet {

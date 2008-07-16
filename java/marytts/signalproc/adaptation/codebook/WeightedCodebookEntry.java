@@ -32,8 +32,11 @@ package marytts.signalproc.adaptation.codebook;
 import marytts.util.io.MaryRandomAccessFile;
 
 /**
+ * 
  * @author oytun.turk
  *
+ * Wrapper class for a single weighted codebook entry
+ * 
  */
 public class WeightedCodebookEntry {
     public WeightedCodebookSpeakerItem sourceItem;

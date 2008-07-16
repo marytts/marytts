@@ -42,9 +42,11 @@ import marytts.signalproc.adaptation.codebook.WeightedCodebookFileHeader;
 import marytts.signalproc.analysis.distance.DistanceComputer;
 import marytts.util.math.MathUtils;
 
-
 /**
+ * 
  * @author oytun.turk
+ * 
+ * K-Means clustering and mapping based outlier elimination
  *
  */
 public class KMeansMappingEliminator {

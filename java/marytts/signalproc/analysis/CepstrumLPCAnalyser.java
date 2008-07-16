@@ -30,11 +30,12 @@
 package marytts.signalproc.analysis;
 
 /**
+ * 
+ * @author sacha
+ * 
  * Implements the conversion between the Linear Prediction
  * Coefficients (LPC) and the corresponding Linear Prediction
  * Cepstrum Coefficients.
- * 
- * @author sacha
  *
  */
 public class CepstrumLPCAnalyser {

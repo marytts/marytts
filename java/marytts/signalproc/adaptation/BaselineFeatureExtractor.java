@@ -49,7 +49,10 @@ import marytts.util.string.StringUtils;
 
 
 /**
+ * 
  * @author oytun.turk
+ * 
+ * Baseline class for acoustic feature analysis for voice conversion
  *
  */
 public class BaselineFeatureExtractor {
@@ -79,8 +82,6 @@ public class BaselineFeatureExtractor {
         }
         
     }
-    
-    
     
     public void run(BaselineAdaptationSet fileSet, BaselineParams params, int desiredFeatures) throws IOException, UnsupportedAudioFileException
     {

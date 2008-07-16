@@ -34,7 +34,10 @@ import marytts.signalproc.adaptation.VocalTractTransformationData;
 import marytts.util.string.StringUtils;
 
 /**
+ * 
  * @author oytun.turk
+ *
+ * Wrapper class for weighted codebooks for voice conversion
  *
  */
 public class WeightedCodebook extends VocalTractTransformationData {

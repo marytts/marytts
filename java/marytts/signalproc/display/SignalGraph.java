@@ -48,7 +48,10 @@ import marytts.util.data.audio.MaryAudioUtils;
 
 
 /**
+ * 
  * @author Marc Schr&ouml;der
+ * 
+ * Displays a zoomable and playable signal graph
  *
  */
 public class SignalGraph extends FunctionGraph

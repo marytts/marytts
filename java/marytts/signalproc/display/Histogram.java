@@ -4,17 +4,18 @@
 package marytts.signalproc.display;
 
 /**
+ * 
  * @author Marc Schr&ouml;der
  *
+ * Display a 2d graph showing y(x), with labelled scales.
+ * This constructor is for subclasses only, which may need
+ * to perform some operations before calling initialise().
+ * 
  */
 public class Histogram extends FunctionGraph
 {
 
-    /**
-     * Display a 2d graph showing y(x), with labelled scales.
-     * This constructor is for subclasses only, which may need
-     * to perform some operations before calling initialise().
-     */
+    
     protected Histogram()
     {
         super();
