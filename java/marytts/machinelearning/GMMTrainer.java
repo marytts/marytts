@@ -42,9 +42,10 @@ import marytts.util.math.DoubleMatrix;
 import marytts.util.math.MathUtils;
 import marytts.util.string.StringUtils;
 
-
 /**
  * @author oytun.turk
+ * 
+ * Expectation-Maximization (EM) based GMM training
  *
  */
 public class GMMTrainer {

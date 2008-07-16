@@ -32,6 +32,8 @@ package marytts.machinelearning;
 /**
  * @author oytun.turk
  *
+ * Wrapper class for K-Means clustering training parameters
+ *
  */
 public class KMeansClusteringTrainerParams {
     

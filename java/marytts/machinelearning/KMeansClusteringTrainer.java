@@ -37,6 +37,8 @@ import marytts.util.math.MathUtils;
 
 /**
  * @author oytun.turk
+ * 
+ * K-Means clustering training algorithm
  *
  */
 public class KMeansClusteringTrainer {    
