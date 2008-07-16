@@ -82,8 +82,17 @@ public class HMMData {
 	private int rate       = 16000; /* sampling rate                              */
 	private int fperiod    = 80;    /* frame period (point)                       */
 	private double rho     = 0.0;   /* variable for speaking rate control         */
-	private double alpha   = 0.42;  /* variable for frequency warping parameter   */
-	private double beta    = 0.0;   /* variable for postfiltering                 */
+    
+    /* MGC: stage=gamma=0.0 alpha=0.42 linear gain  
+     * LSP: gamma>0.0 
+     *     LSP: gamma=1.0 alpha=0.0  
+     * Mel-LSP: gamma=1.0 alpha=0.42 
+     * MGC-LSP: gamma=3.0 alpha=0.42 */
+    private int stage          = 0;      /* defines gamma=-1/stage : if stage=0 then Gamma=0 */
+    private double alpha       = 0.42;   /* variable for frequency warping parameter   */
+    private double beta        = 0.0;    /* variable for postfiltering                 */
+    private boolean useLogGain = false;  /* log gain flag (for LSP) */
+    
 	private double uv      = 0.5;   /* variable for U/V threshold                 */
 	private boolean algnst        = false; /* use state level alignment for duration     */
 	private boolean algnph        = false; /* use phoneme level alignment for duration   */
@@ -152,6 +161,8 @@ public class HMMData {
 	public double getRho() { return rho; } 
 	public double getAlpha() { return alpha; }
 	public double getBeta() { return beta; }
+    public int getStage() { return stage; }
+    public boolean getUseLogGain(){ return useLogGain; }
 	public double getUV() { return  uv; }
 	public boolean getAlgnst() { return algnst; }
 	public boolean getAlgnph() { return algnph; }
@@ -191,6 +202,11 @@ public class HMMData {
 	public int getNumFilters(){ return numFilters; }
 	public int getOrderFilters(){ return orderFilters; }
     public double [][] getMixFilters(){ return mixFilters; }
+    
+    public void setAlpha(double dval){ alpha = dval; }
+    public void setBeta(double dval){ beta = dval; }
+    public void setStage(int ival){ stage = ival; }
+    public void setUseLogGain(boolean bval){ useLogGain = bval; }
     
     /* These variables have default values but can be modified with setting in 
      * audio effects component. */
@@ -264,6 +280,15 @@ public class HMMData {
           FileInputStream fis = new FileInputStream( MaryBase+"conf/"+ConfigFile );
           props.load( fis );
           fis.close();
+          
+          if( props.getProperty( "voice." + voice + ".alpha" ) != null)
+            alpha = Double.parseDouble(props.getProperty( "voice." + voice + ".alpha" ));
+          if( props.getProperty( "voice." + voice + ".gamma" ) != null)
+            stage = Integer.parseInt(props.getProperty( "voice." + voice + ".gamma" ));
+          if( props.getProperty( "voice." + voice + ".logGain" ) != null)
+            useLogGain = Boolean.valueOf(props.getProperty( "voice." + voice + ".logGain" )).booleanValue();  
+          if( props.getProperty( "voice." + voice + ".beta" ) != null)
+            beta = Double.parseDouble(props.getProperty( "voice." + voice + ".beta" ));
                   
           treeDurFile = MaryBase + props.getProperty( "voice." + voice + ".Ftd" ).substring(10);
           treeLf0File = MaryBase + props.getProperty( "voice." + voice + ".Ftf" ).substring(10);          

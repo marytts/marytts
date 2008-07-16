@@ -248,17 +248,10 @@ public class HTSParameterGeneration {
     }
 	   
 	String voice = "";
-    if(debug==false) {
-         String path = "/project/mary/marcela/gv-experiment/gmm-gv-test/"+voice;
-         if( htsData.getUseGV())
-             saveParam(path+"-mcep-gv.bin", mcepPst, HMMData.MCP);  
-         else if ( !htsData.getUseGV() ) 
-             saveParam(path+"-mcep.bin", mcepPst, HMMData.MCP);
-
-         if( htsData.getUseGV() )
-             saveParam(path+"-lf0-gv.bin", lf0Pst, HMMData.LF0);  
-         else if ( !htsData.getUseGV() ) 
-             saveParam(path+"-lf0.bin", lf0Pst, HMMData.LF0);
+    if(debug) {
+         String path = "/project/mary/marcela/hmm-mag-experiment/gen-par/"+voice;
+         saveParam(path+"mcep.bin", mcepPst, HMMData.MCP);
+         saveParam(path+"lf0.bin", lf0Pst, HMMData.LF0);
      }
     
 
