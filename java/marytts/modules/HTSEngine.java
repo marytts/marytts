@@ -405,9 +405,13 @@ public class HTSEngine extends InternalModule
       
       /* For initialise provide the name of the hmm voice and the name of its configuration file,
        * also indicate the name of your MARY_BASE directory.*/
-      String MaryBase = "/project/mary/marcela/MARY-TTS/";
-      htsData.initHMMData("hmm-mag-slt", MaryBase, "english-hmm-mag-slt.config");
-    
+      String MaryBase = "/project/mary/marcela/openmary/";
+      //htsData.initHMMData("hmm-mag-slt", MaryBase, "english-hmm-mag-slt.config");
+      htsData.initHMMData("hsmm-mlsp-slt", MaryBase, "english-hsmm-mlsp-slt.config");
+      htsData.setUseGV(true);
+      htsData.setUseMixExc(true);
+      htsData.setUseFourierMag(false);
+      
       /** The utterance model, um, is a Vector (or linked list) of Model objects. 
        * It will contain the list of models for current label file. */
       HTSUttModel um = new HTSUttModel();

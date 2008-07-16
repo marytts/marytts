@@ -222,6 +222,10 @@ public class HMMSynthesizer implements WaveformSynthesizer {
             
             HMMVoice v = new HMMVoice (new String[] { voiceName },
                 locale, format, this, gender, -1, -1, -1, -1,
+                MaryProperties.getProperty("voice."+voiceName+".alpha"),
+                MaryProperties.getProperty("voice."+voiceName+".gamma"),
+                MaryProperties.getProperty("voice."+voiceName+".logGain"),
+                MaryProperties.getProperty("voice."+voiceName+".beta"),
                 MaryProperties.getFilename("voice."+voiceName+".Ftd"),     /* Tree DUR */
                 MaryProperties.getFilename("voice."+voiceName+".Ftf"),     /* Tree LF0 */
                 MaryProperties.getFilename("voice."+voiceName+".Ftm"),     /* Tree MCP */
