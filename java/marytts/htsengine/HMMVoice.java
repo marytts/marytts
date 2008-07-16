@@ -76,12 +76,22 @@ public class HMMVoice extends Voice {
     public HMMVoice(String[] nameArray, Locale locale, 
             AudioFormat dbAudioFormat, WaveformSynthesizer synthesizer, 
             Gender gender, int topStart, int topEnd, int baseStart, int baseEnd,
+            String alpha, String gamma, String logGain, String beta,
             String Ftd, String Ftf, String Ftm, String Fts, String Fta, 
             String Fmd, String Fmf, String Fmm, String Fms, String Fma,
             String useMixExc, String useFourierMag, boolean useGV, boolean useGmmGV, String Fgvf, String Fgvm, 
             String Fgvs, String Fgva, String Fgmmgvf, String Fgmmgvm,String FeaList, String Flab, 
             String Fif, int nFilters, int norderFilters) throws Exception {
         super(nameArray, locale, dbAudioFormat, synthesizer, gender, topStart, topEnd, baseStart, baseEnd);
+        
+       if(alpha != null) 
+         this.htsData.setAlpha(Double.parseDouble(alpha));
+       if(gamma != null)
+         this.htsData.setStage(Integer.parseInt(gamma));
+       if(logGain != null)
+         this.htsData.setUseLogGain(Boolean.valueOf(logGain).booleanValue());
+       if(beta != null)
+         this.htsData.setBeta(Double.parseDouble(beta));
 
        this.htsData.setTreeDurFile(Ftd);  
        this.htsData.setTreeLf0File(Ftf);           
@@ -95,8 +105,6 @@ public class HMMVoice extends Voice {
        this.htsData.setPdfStrFile(Fms);
        this.htsData.setPdfMagFile(Fma);
 
-       /* this way is done for usemixExc because previous versions do not have this variable 
-        * and the default value should be true. */
        if(useMixExc != null)
          this.htsData.setUseMixExc(Boolean.valueOf(useMixExc).booleanValue());
        

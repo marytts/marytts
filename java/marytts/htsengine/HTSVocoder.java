@@ -63,7 +63,7 @@ import java.io.*;
 import javax.sound.sampled.*;
 
 import marytts.util.data.BufferedDoubleDataSource;
-import marytts.util.data.audio.AudioDoubleDataSource;
+import marytts.util.data.AudioDoubleDataSource;
 import marytts.util.data.audio.AudioPlayer;
 import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.math.ComplexArray;
@@ -95,49 +95,63 @@ public class HTSVocoder {
     public static final int B31_    = 0x7fffffff;
     public static final int Z       = 0x00000000;   
     public static final boolean GAUSS = true;
-    public static final int PADEORDER = 5;
-    public static final int IRLENG    = 96;
+    public static final int PADEORDER = 5;       /* pade order for MLSA filter */
+    public static final int IRLENG    = 96;      /* length of impulse response */
+    
+    /* for MGLSA filter (mel-generalised log spectrum approximation filter) */
+    public static final boolean NORMFLG1 = true;
+    public static final boolean NORMFLG2 = false;
+    public static final boolean MULGFLG1 = true;
+    public static final boolean MULGFLG2 = false;
+    public static final boolean NGAIN    = false;
+    
+    public static final double ZERO  = 1.0e-10;            /* ~(0) */
+    public static final double LZERO = (-1.0e+10);         /* ~log(0) */
+    public static final double LTPI  = 1.83787706640935;   /* log(2*PI) */
+    
     
     private Logger logger = Logger.getLogger("Vocoder");
     
     Random rand;
-    
-    private int fprd;
-    private int iprd;
-    private int pd;
-    private boolean gauss;
-    private double p1;
-    private double pc;
-    private double pade[];
-    private int ppade;  /* offset for vector ppade */  
+    private int stage;             /* Gamma=-1/stage : if stage=0 then Gamma=0 */
+    private double gamma;          /* Gamma */
+    private boolean use_log_gain;  /* log gain flag (for LSP) */
+    private int fprd;              /* frame shift */
+    private int iprd;              /* interpolation period */
+    private boolean gauss;         /* flag to use Gaussian noise */
+    private double p1;             /* used in excitation generation */
+    private double pc;             /* used in excitation generation */
+    private double pade[];         /* used in mlsadf */
+    private int ppade;             /* offset for vector ppade */  
 
-    private double C[];  
-    private int cc;     /* offsets for vector c */ 
-    private int cinc;   /* offsets for vector c */ 
-    private int d1;     /* offsets for vector c */ 
+    private double C[];            /* used in the MLSA/MGLSA filter */
+    private double CC[];           /* used in the MLSA/MGLSA filter */
+    private double CINC[];         /* used in the MLSA/MGLSA filter */
+    private double D1[];           /* used in the MLSA/MGLSA filter */
+    
+    private double freqt_buff[];        /* used in freqt */
+    private int    freqt_size;          /* buffer size for freqt */
+    private double spectrum2en_buff[];  /* used in spectrum2en */
+    private int    spectrum2en_size;    /* buffer size for spectrum2en */
+    private double postfilter_buff[];   /* used in postfiltering */
+    private int    postfilter_size;     /* buffer size for postfiltering */
+    private double lsp2lpc_buff[];      /* used in lsp2lpc */
+    private int    lsp2lpc_size;        /* buffer size of lsp2lpc */
+    private double gc2gc_buff[];        /* used in gc2gc */
+    private int    gc2gc_size;          /* buffer size for gc2gc */
     
     private double rate;
-    int pt1;
-    int pt2;
-    int pt3[];
+    int pt1;                            /* used in mlsadf1 */
+    int pt2;                            /* used in mlsadf2 */
+    int pt3[];                          /* used in mlsadf2 */
     
-    /* for postfiltering */
-    private int size;
-    private double d[];
-    private int g;    /* offset applied to the index of d */
-    private double mc[];
-    private int cep;  /* offset applied to the index of mc */
-    private int ir;   /* offset applied to the index of mc */
-    private int o;
-    private int irleng;
-
     /* mixed excitation variables */  
-    private int numM;          /* Number of bandpass filters for mixed excitation */
-    private int orderM;        /* Order of filters for mixed excitation */
-    private double h[][];      /* filters for mixed excitation */  
-    private double xpulseSignal[];   /* the size of this should be orderM */
-    private double xnoiseSignal[];   /* the size of this should be orderM */
-    private boolean mixedExcitation = false;
+    private int numM;                  /* Number of bandpass filters for mixed excitation */
+    private int orderM;                /* Order of filters for mixed excitation */
+    private double h[][];              /* filters for mixed excitation */  
+    private double xpulseSignal[];     /* the size of this should be orderM */
+    private double xnoiseSignal[];     /* the size of this should be orderM */
+    private boolean mixedExcitation   = false;
     private boolean fourierMagnitudes = false;
     
     
@@ -146,82 +160,73 @@ public class HTSVocoder {
       * size of the mcep vector file, etc. */
     private void initVocoder(int mcep_order, int mcep_vsize, HMMData htsData) {
         int vector_size;
+        
+        stage = htsData.getStage();
+        if(stage != 0)
+          gamma = -1.0 / stage;
+        else
+          gamma = 0.0;
+        use_log_gain = htsData.getUseLogGain();
+        
         fprd  = htsData.getFperiod();
         rate  = htsData.getRate();
         iprd  = IPERIOD;
-        pd    = PADEORDER;
         gauss = GAUSS;
         
         rand = new Random();
 
-        vector_size=21;
-        pade = new double[vector_size];      
-        ppade = pd*(pd+1)/2;  /* offset for vector pade */
-        pade[0] = 1.0;
-        pade[1] = 1.0; 
-        pade[2] = 0.0;
-        pade[3] = 1.0; 
-        pade[4] = 0.0;       
-        pade[5] = 0.0;
-        pade[6] = 1.0; 
-        pade[7] = 0.0;       
-        pade[8] = 0.0;        
-        pade[9] = 0.0;
-        pade[10] = 1.0;
-        pade[11] = 0.4999273; 
-        pade[12] = 0.1067005; 
-        pade[13] = 0.01170221; 
-        pade[14] = 0.0005656279;
-        pade[15] = 1.0; 
-        pade[16] = 0.4999391; 
-        pade[17] = 0.1107098; 
-        pade[18] = 0.01369984; 
-        pade[19] = 0.0009564853;
-        pade[20] = 0.00003041721;
-        /* ppade will be a copy of pade in mlsadf() function
-         * ppade = &( pade[pd*(pd+1)/2] ); */
+        if(stage == 0 ){  /* for MCP */
+            
+          /* mcep_order=74 and pd=PADEORDER=5 (if no HTS_EMBEDDED is used) */
+          vector_size = (mcep_vsize * ( 3 + PADEORDER) + 5 * PADEORDER + 6) - (3 * (mcep_order+1));
+          C    = new double[(mcep_order+1)];
+          CC   = new double[(mcep_order+1)];
+          CINC = new double[(mcep_order+1)];
+          D1   = new double[vector_size];
+            
+          vector_size=21;
+          pade = new double[vector_size];
+          /* ppade is a copy of pade in mlsadf() function : ppade = &( pade[pd*(pd+1)/2] ); */
+          ppade = PADEORDER*(PADEORDER+1)/2;  /* offset for vector pade */
+          pade[0] = 1.0;
+          pade[1] = 1.0; 
+          pade[2] = 0.0;
+          pade[3] = 1.0; 
+          pade[4] = 0.0;       
+          pade[5] = 0.0;
+          pade[6] = 1.0; 
+          pade[7] = 0.0;       
+          pade[8] = 0.0;        
+          pade[9] = 0.0;
+          pade[10] = 1.0;
+          pade[11] = 0.4999273; 
+          pade[12] = 0.1067005; 
+          pade[13] = 0.01170221; 
+          pade[14] = 0.0005656279;
+          pade[15] = 1.0; 
+          pade[16] = 0.4999391; 
+          pade[17] = 0.1107098; 
+          pade[18] = 0.01369984; 
+          pade[19] = 0.0009564853;
+          pade[20] = 0.00003041721;
         
-        /* mcep_order=74 and pd=PADEORDER=5 (if no HTS_EMBEDDED is used) 
-         * so the order of c is c[623].
-         * cc, cinc and d1 are copies of c:
-         * c    = new double[623]              --> c[0]   c[1]   ... c[622] size=623
-         * cc   = c+m+1                        --> c[75]  c[76]  ... c[622] size=548
-         * cinc = cc+m+1   = (c+m+1)+m+1       --> c[150] c[151] ... c[622] size=473
-         * d1   = cinc+m+1 = ((c+m+1)+m+1)+m+1 --> c[225] c[226] ... c[622] size=398 
-         * pt1 = &d1[pd+1]        in function mlsadf1() 
-         * pt2 = &d1[pd * (m+2)]  in function mlsadf2()
-         * pt3 = &d1[ 2*(pd+1) ]  in function mlsadf() */
-        /* All the previous is replaced by the class SlideVector, it has to be 
-         * initialised with mcep_order and pd=PADEORDER */
-        vector_size = ( 3*(mcep_vsize+1) + 3*(pd+1) + pd*(mcep_vsize+2) );
-        //System.out.println("C SIZE="+ vector_size + "  mcep_vsize=" + mcep_vsize );
-        C = new double[vector_size];
-        /* offsets for vector C:
-        * vector_size = ( 3*(m+1) + 3*(pd+1) + pd*(m+2) ), m=mcep_vsize;
-        * vector_size = 623 with mcep_vsize=74
-        * C    =                              --> C[0]...  
-        * cc   = c+m+1                        --> C[75]... 
-        * cinc = cc+m+1   = (c+m+1)+m+1       --> C[150]... 
-        * d1   = cinc+m+1 = ((c+m+1)+m+1)+m+1 --> C[225]... */
-        cc   = 1*(mcep_order+1);
-        cinc = 2*(mcep_order+1);
-        d1   = 3*(mcep_order+1);
+          pt1 = PADEORDER+1;
+          pt2 = ( 2 * (PADEORDER+1)) + (PADEORDER * (mcep_order+2));
+          pt3 = new int[PADEORDER+1];
+          for(int i=PADEORDER; i>=1; i--)
+            pt3[i] = ( 2 * (PADEORDER+1)) + ((i-1)*(mcep_order+2));
+          
+        } else { /* for LSP */
+            vector_size = ((mcep_vsize+1) * (stage+3)) - ( 3 * (mcep_order+1));
+            C  = new double[(mcep_order+1)];
+            CC = new double[(mcep_order+1)];
+            CINC = new double[(mcep_order+1)];
+            D1 = new double[vector_size];   
+        }
         
-        pt1 = pd+1;
-        pt2 = ( 2 * (pd+1)) + (pd * (mcep_order+2));
-        pt3 = new int[pd+1];
-        for(int i=pd; i>=1; i--)
-          pt3[i] = ( 2 * (pd+1)) + ((i-1)*(mcep_order+2));
-
+        /* excitation initialisation */
         p1 = -1;
-        pc = 0.0;  /* double */
-        
-        /* for postilter */
-        mc = null;
-        o = 0;
-        d = null;
-        irleng = IRLENG;
-        
+        pc = 0.0;  
     
     } /* method initVocoder */
     
@@ -342,28 +347,26 @@ public class HTSVocoder {
       boolean debug = false;
       DataOutputStream data_out = null;
       DataOutputStream data_out_mix = null;
-      String excFile = "/project/mary/marcela/hmm-gen-experiment/exc.bin";
-      String mixExcFile = "/project/mary/marcela/hmm-gen-experiment/exc-mix.bin";
+      String excFile = "/project/mary/marcela/hmm-mag-experiment/gen-par/exc.bin";
+      String mixExcFile = "/project/mary/marcela/hmm-mag-experiment/gen-par/exc-mix.bin";
       /* --------------------------------------------------------------------------------*/
       
         
       double f0, f0Std, f0Shift, f0MeanOri;
-      double mcp[] = null;  /* feature vector for a particular frame */
+      double mc[] = null;  /* feature vector for a particular frame */
       double hp[] = null;   /* pulse shaping filter, it is initialised once it is known orderM */  
       double hn[] = null;   /* noise shaping filter, it is initialised once it is known orderM */  
       
       /* Initialise vocoder and mixed excitation, once initialised it is known the order
        * of the filters so the shaping filters hp and hn can be initialised. */
       m = mcepPst.getOrder();
-      mcp = new double[m];
-      initVocoder(m-1, mcepPst.getVsize()-1, htsData);  /* Vsize-1 because the SlideVector offsets count from 0-->24 */
+      mc = new double[m];
+      initVocoder(m-1, mcepPst.getVsize()-1, htsData);
       
       mixedExcitation = htsData.getUseMixExc();
       fourierMagnitudes = htsData.getUseFourierMag();
-      
-     
-      if( mixedExcitation && htsData.getPdfStrFile() != null ) {
-        
+         
+      if( mixedExcitation && htsData.getPdfStrFile() != null ) {  
         numM = htsData.getNumFilters();
         orderM = htsData.getOrderFilters();
         
@@ -405,8 +408,9 @@ public class HTSVocoder {
       /* Clear content of c, should be done if this function is
       called more than once with a new set of generated parameters. */
       for(i=0; i< C.length; i++)
-        C[i]=0.0;
-     
+        C[i] = CC[i] = CINC[i] = 0.0;
+      for(i=0; i< D1.length; i++)
+          D1[i]=0.0;
     
       f0Std = htsData.getF0Std();
       f0Shift = htsData.getF0Mean();
@@ -435,10 +439,8 @@ public class HTSVocoder {
        
         /* get current feature vector mcp */ 
         for(i=0; i<m; i++)
-          mcp[i] = mcepPst.getPar(mcepframe, i); 
-        
-        //System.out.println("htsData.getF0Std()=" + htsData.getF0Std() + " htsData.getF0Mean()="+ htsData.getF0Mean());
-        
+          mc[i] = mcepPst.getPar(mcepframe, i); 
+   
         /* f0 modification through the MARY audio effects */
         if(voiced[mcepframe]){
           f0 = f0Std * Math.exp(lf0Pst.getPar(lf0frame, 0)) + (1-f0Std) * f0MeanOri + f0Shift;       
@@ -449,7 +451,6 @@ public class HTSVocoder {
         else{
           f0 = 0.0;          
         }
-        //System.out.println("mcepframe=" + mcepframe +  "  f0=" + f0);
          
         /* if mixed excitation get shaping filters for this frame */
         if(mixedExcitation){
@@ -468,23 +469,49 @@ public class HTSVocoder {
         if(f0 != 0.0)
            f0 = rate/f0;
         
+        /* p1 is initialised in -1, so this will be done just for the first frame */
         if( p1 < 0 ) {  
           p1   = f0;           
-          pc   = p1;           
+          pc   = p1;   
+          /* for LSP */
+          if(stage != 0){
+            if( use_log_gain)
+              C[0] = LZERO;
+            else
+              C[0] = ZERO;
+            for(i=0; i<m; i++ )  
+              C[i] = i * Math.PI / m;
+            /* LSP -> MGC */
+            lsp2mgc(C, C, (m-1), alpha);
+            mc2b(C, C, (m-1), alpha);
+            gnorm(C, C, (m-1), gamma);
+            for(i=1; i<m; i++)
+              C[i] *= gamma;   
+          }
+          
         }
-        //System.out.println("  [f0=(rate/f0)=  >>> " + f0 + " <<<  ]  ***pc=" + pc + "  p1=" + p1 );
         
-        /* mc2b: transform mel-cepstrum to MLSA digital fillter coefficients */
-         mc2b(mcp,m,alpha);
-       
-        /* postfiltering, this is done if beta>0.0 */
-         postfilter(mcp, m, alpha, beta);
-         
+        if(stage == 0){         
+          /* postfiltering, this is done if beta>0.0 */
+          postfilter_mcp(mc, (m-1), alpha, beta);
+          /* mc2b: transform mel-cepstrum to MLSA digital filter coefficients */   
+          mc2b(mc, CC, (m-1), alpha);
+          for(i=0; i<m; i++)
+            CINC[i] = (CC[i] - C[i]) * iprd / fprd;
+        } else {
+          lsp2mgc(mc, CC, (m-1), alpha );
+          mc2b(CC, CC, (m-1), alpha);
+          gnorm(CC, CC, (m-1), gamma);
+          for(i=1; i<m; i++)
+            CC[i] *= gamma;
+          for(i=0; i<m; i++)
+            CINC[i] = (CC[i] - C[i]) * iprd / fprd;
+            
+        } 
         
-        for(k=0; k<m; k++){
-          C[cinc+k] = ( C[cc+k] - C[k] ) * (double)iprd/(double)fprd;  
-          //System.out.println("cinc["+ k + "]=" + c.getCINC(k) );
-        }
+        
+     
+           
         
         /* p=f0 in c code!!! */
         if( p1 != 0.0 && f0 != 0.0 ) {
@@ -593,12 +620,16 @@ public class HTSVocoder {
             /* comment this line if no mixed excitation, just pulse and noise */
             x = mix;   /* excitation sample */
           }
-          //System.out.print(x + " ");          
-          if(x != 0.0 )
-            x *= Math.exp(C[0]);
- //         System.out.print("    [X=" + x + "]  ");
                    
-          x = mlsadf(x, m, alpha, aa);
+          if(stage == 0 ){
+            if(x != 0.0 )
+              x *= Math.exp(C[0]);
+            x = mlsadf(x, C, m, alpha, aa, D1);
+          } else {
+             if(!NGAIN)
+               x *= C[0];
+             x = mglsadf(x, C, (m-1), alpha, D1);
+          }
         
         
           
@@ -608,7 +639,7 @@ public class HTSVocoder {
           if((--i) == 0 ) {
             p1 += inc;
             for(k=0; k<m; k++){
-              C[k] += C[cinc+k];  
+              C[k] += CINC[k];  
               //System.out.println("   " + k + "=" + c.get(k));
             }
             i = iprd;
@@ -620,10 +651,12 @@ public class HTSVocoder {
        // System.out.println();
         
         p1 = f0;
+     
         
         /* move elements in c */
+        /* HTS_movem(v->cc, v->c, m + 1); */
         for(i=0; i<m; i++){
-          C[i] = C[cc+i];  
+          C[i] = CC[i];  
         }
       
       } /* for each mcep frame */
@@ -639,242 +672,96 @@ public class HTSVocoder {
       
     } /* method htsMLSAVocoder() */
     
-
-    
-    public double [] htsMLSAVocoder_residual(HTSPStream lf0Pst, HTSPStream mcepPst, HTSPStream strPst, HTSPStream magPst, 
-            boolean [] voiced, HMMData htsData, String resFile )
-    throws Exception {
-
-      double inc, x, MaxSample;
-      short sx;
-      double xp=0.0,xn=0.0,fxp,fxn,mix;  /* samples for pulse and for noise and the filtered ones */
-      int i, j, k, m, s, mcepframe, lf0frame, s_double; 
-      double a = htsData.getAlpha();
-      double aa = 1-a*a;
-      int audio_size;  /* audio size in samples, calculated as num frames * frame period */
-      double [] audio_double = null;
-      double [] magPulse = null;      /* pulse generated from Fourier magnitudes */
-      int magSample, magPulseSize;
-      boolean aperiodicFlag = false;
-      
-      /* --------------------------------------------------------------------------------
-       * these variables for allow saving excitation and mixed excitation in a binary file 
-       * if true please provide an appropriate path/name where to save these files, 
-       * the generated files can be seen using SPTK tools. */
-      boolean debug = true;
-      DataOutputStream data_out = null;
-      DataOutputStream data_out_mix = null;
-      String excFile = "/project/mary/marcela/hmm-gen-experiment/exc.bin";
-      String mixExcFile = "/project/mary/marcela/hmm-gen-experiment/exc-mix.bin";
-      /* --------------------------------------------------------------------------------*/
-      
-        
-      double f0, f0Std, f0Shift, f0MeanOri;
-      double mcp[] = null;  /* feature vector for a particular frame */
-      double hp[] = null;  /* pulse shaping filter, it is initialised once it is known orderM */  
-      double hn[] = null;  /* noise shaping filter, it is initialised once it is known orderM */  
-      
-      /* Initialise vocoder and mixed excitation, once initialised it is known the order
-       * of the filters so the shaping filters hp and hn can be initialised. */
-      m = mcepPst.getOrder();
-      mcp = new double[m];
-      initVocoder(m-1, mcepPst.getVsize()-1, htsData);  /* Vsize-1 because the SlideVector offsets count from 0-->24 */
-      
-      mixedExcitation = htsData.getUseMixExc();
-      fourierMagnitudes = htsData.getUseFourierMag();
-      
-      if( mixedExcitation && htsData.getPdfStrFile() != null ) {
-        
-       numM = htsData.getNumFilters();
-       orderM = htsData.getOrderFilters();
-          
-       xpulseSignal = new double[orderM];
-       xnoiseSignal = new double[orderM];
-       /* initialise xp_sig and xn_sig */
-       for(i=0; i<orderM; i++)
-         xpulseSignal[i] = xnoiseSignal[i] = 0;    
-          
-        h = htsData.getMixFilters();
-        hp = new double[orderM];  
-        hn = new double[orderM]; 
-        
-        /* Check if the number of filters is equal to the order of strpst 
-         * i.e. the number of filters is equal to the number of generated strengths per frame. */
-        if(numM != strPst.getOrder()) {
-          logger.debug("htsMLSAVocoder: error num mix-excitation filters =" + numM + " in configuration file is different from generated str order=" + strPst.getOrder());
-          throw new Exception("htsMLSAVocoder: error num mix-excitation filters = " + numM + " in configuration file is different from generated str order=" + strPst.getOrder());
-        }
-        logger.info("HMM speech generation with mixed-excitation.");
-      } else
-        logger.info("HMM speech generation without mixed-excitation.");  
- 
-      if(debug){
-        data_out = new DataOutputStream (new FileOutputStream (excFile));
-        data_out_mix = new DataOutputStream (new FileOutputStream (mixExcFile));
-      }
-      
-      /* Clear content of SlideVector c, should be done if this function is
-      called more than once with a new set of generated parameters. */
-      for(i=0; i< C.length; i++)
-        C[i]=0.0;
-    
-      f0Std = htsData.getF0Std();
-      f0Shift = htsData.getF0Mean();
-      f0MeanOri = 0.0;
-
-      
-      for(mcepframe=0,lf0frame=0; mcepframe<mcepPst.getT(); mcepframe++) {
-        if(voiced[mcepframe]){  
-          f0MeanOri = f0MeanOri + Math.exp(lf0Pst.getPar(lf0frame, 0));
-          //System.out.print(Math.exp(lf0Pst.getPar(lf0frame, 0)) + "  ");
-          lf0frame++;
-        }
-        //else
-          //System.out.print("0.0  ");  
-      }
-      f0MeanOri = f0MeanOri/lf0frame;
-    
-      
-      
-      
-      /* read the residual file */
-      AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(resFile));
-      int samplingRate = (int)inputAudio.getFormat().getSampleRate();
-      AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
-      double [] res = signal.getAllData(); 
-         
-      
-      
-      /* _______________________Synthesize speech waveforms_____________________ */
-      /* generate Nperiod samples per mcepframe */
-      s = 0;   /* number of samples */
-      s_double = 0;
-      audio_size = (mcepPst.getT()) * (fprd) ;
-      audio_double = new double[audio_size];  /* initialise buffer for audio */
-      magSample = 1;
-      magPulseSize = 0;
   
-      
-      
-      
-      int sample = 0;
-      for(mcepframe=0,lf0frame=0; mcepframe<mcepPst.getT(); mcepframe++) {
-       
-        /* get current feature vector mc */ 
-        for(i=0; i<m; i++)
-          mcp[i] = mcepPst.getPar(mcepframe, i); 
-        
-        //System.out.println("htsData.getF0Std()=" + htsData.getF0Std() + " htsData.getF0Mean()="+ htsData.getF0Mean());
-        
-        /* f0 modification through the MARY audio effects */
-        if(voiced[mcepframe]){
-          f0 = f0Std * Math.exp(lf0Pst.getPar(lf0frame, 0)) + (1-f0Std) * f0MeanOri + f0Shift;       
-          lf0frame++;
-          if(f0 < 0.0)
-            f0 = 0.0;
-        }
-        else{
-          f0 = 0.0;          
-        }
-        //System.out.println("mcepframe=" + mcepframe +  "  f0=" + f0);
-         
-        /* if mixed excitation get shaping filters for this frame */
-        if(mixedExcitation){
-          for(j=0; j<orderM; j++) {
-            hp[j] = hn[j] = 0.0;
-            for(i=0; i<numM; i++) {
-              //System.out.println("str=" + pdf2par.get_str(mcepframe, i) + "  h[i][j]=" + h[i][j])  ;
-              hp[j] += strPst.getPar(mcepframe, i) * h[i][j];
-              hn[j] += ( 1 - strPst.getPar(mcepframe, i) ) * h[i][j];
-            }
-          }
-        }
-        
-        /* f0 -> pitch , in original code here it is used p, so f0=p in the c code */
-        //System.out.println("\nmcepframe=" + mcepframe + "  f0=" + f0 );
-        if(f0 != 0.0)
-           f0 = rate/f0;
-        
-        if( p1 < 0 ) {  
-          p1   = f0;           
-          pc   = p1;           
-        }
-        //System.out.println("  [f0=(rate/f0)=  >>> " + f0 + " <<<  ]  ***pc=" + pc + "  p1=" + p1 );
-        
-        /* mc2b: transform mel-cepstrum to MLSA digital fillter coefficients */
-         mc2b(mcp,m,a);
-       
-        /* postfiltering  ( Not implemented yet )*/
-        /* this is done if beta>0.0 */
-        
-        for(k=0; k<m; k++){  
-          C[cinc+k] = ( C[cc+k] - C[k] ) * (double)iprd/(double)fprd;    
-          //System.out.println("cinc["+ k + "]=" + c.getCINC(k) );
-        }
-        
-        /* p=f0 in c code!!! */
-        if( p1 != 0.0 && f0 != 0.0 ) {
-          inc = (f0 - p1) * (double)iprd/(double)fprd;
-          //System.out.println("  inc=(f0-p1)/80=" + inc );
-        } else {
-          inc = 0.0;
-          pc = f0;
-          p1 = 0.0; 
-          //System.out.println("  inc=" + inc + "  ***pc=" + pc + "  p1=" + p1);
-        }
-        
-        
-        
-        /* Here i need to generate both xp:pulse and xn:noise signals separately  */ 
-        gauss = false; /* Mixed excitation works better with nomal noise */
-      
-        /* Generate fperiod samples per feature vector, normally 80 samples per frame */
-        //p1=0.0;
-        gauss=false;
-        for(j=fprd-1, i=(iprd+1)/2; j>=0; j--) {
-//          System.out.print("j=" + j + "  i=" + i);  
-            
-          x = res[sample];       
-          x = mlsadf(x, m, a, aa);
-          
-          audio_double[s_double] = x;
-          s_double++;
-          
-          if((--i) == 0 ) {
-            p1 += inc;
-            for(k=0; k<m; k++){
-              C[k] = C[k] + C[cinc+k];   
-              //System.out.println("   " + k + "=" + c.get(k));
-            }
-            i = iprd;
-          }
- //         System.out.println("  i=" + i + "  inc=" + inc + "  pc=" + pc + "  p1=" + p1);
-          sample++;
-        } /* for each sample in a period fprd */
-        
-       // System.out.println();
-        
-        p1 = f0;
-        
-        /* move elements in c */
-        for(i=0; i<m; i++){
-          C[i] = C[cc+i];
-        }
-      
-      } /* for each mcep frame */
     
-      if(debug){
-        data_out.close();
-        data_out_mix.close();
+    /** mlsafir: sub functions for MLSA filter */
+    private double mlsafir(double x, double b[], int m, double a, double aa, double d[], int _pt3 ) {
+      double y = 0.0;
+      int i, k;
+
+      d[_pt3+0] = x;
+      d[_pt3+1] = aa * d[_pt3+0] + ( a * d[_pt3+1] );
+
+      for(i=2; i<=m; i++){
+        d[_pt3+i] +=  a * ( d[_pt3+i+1] - d[_pt3+i-1]);
       }
       
-      logger.info("Finish processing " + mcepframe + " mcep frames." + "  Num samples in bytes s=" + s );
+      for(i=2; i<=m; i++){ 
+        y += d[_pt3+i] * b[i];
+      }
+       
+      for(i=m+1; i>1; i--){
+        d[_pt3+i] = d[_pt3+i-1];  
+      }
+       
+      return(y);
+    }
+
+    
+    /** mlsdaf1:  sub functions for MLSA filter */
+    private double mlsadf1(double x, double b[], int m, double a, double aa, double d[]) {
+      double v;
+      double out = 0.0;
+      int i, k;
+      //pt1 --> pt = &d1[pd+1]  
+       
+      for(i=PADEORDER; i>=1; i--) {
+        d[i] = aa * d[pt1+i-1] + a * d[i];  
+        d[pt1+i] = d[i] * b[1];
+        v = d[pt1+i] * pade[ppade+i];
+      
+        //x += (1 & i) ? v : -v;
+        if(i == 1 || i == 3 || i == 5)
+          x += v;
+        else 
+          x += -v;
+        out += v;
+      }
+      d[pt1+0] = x;
+      out += x;
+      
+      
+      return(out);
+      
+    }
+
+    /** mlsdaf2: sub functions for MLSA filter */
+    private double mlsadf2(double x, double b[], int m, double a, double aa, double d[]) {
+      double v;
+      double out = 0.0;
+      int i, k; 
+      // pt2 --> pt = &d1[pd * (m+2)] 
+      // pt3 --> pt = &d1[ 2*(pd+1) ] 
+      
+      
+      for(i=PADEORDER; i>=1; i--) {   
+        d[pt2+i] = mlsafir(d[(pt2+i)-1], b, m, a, aa, d, pt3[i]);
+        v = d[pt2+i] * pade[ppade+i];
+          
+        if(i == 1 || i == 3 || i == 5)
+          x += v;
+        else
+          x += -v;
+        out += v;
         
-      
-      return(audio_double);
-      
-    } /* method htsMLSAVocoder() */
-      
+      }
+      d[pt2+0] = x;
+      out += x;
+       
+      return out;     
+    }
+    
+    
+    /** mlsadf: HTS Mel Log Spectrum Approximation filter */
+    private double mlsadf(double x, double b[], int m, double a, double aa, double d[]) {
+      int k;   
+        
+      x = mlsadf1(x, b, m,   a, aa, d);  
+      x = mlsadf2(x, b, m-1, a, aa, d);
+       
+      return x; 
+    }
+    
     
     /** uniform_rand: generate uniformly distributed random numbers 1 or -1 */
     private double uniformRand() {  
@@ -885,222 +772,376 @@ public class HTSVocoder {
       else
         return -1.0;
     }
-    
-        
+       
     
     /** mc2b: transform mel-cepstrum to MLSA digital filter coefficients */
-    private void mc2b(double mcp[], int m, double a ) {
+  /*  private void mc2b(double mcp[], int ccIndex, int m, double a ) {
       int i;
-      C[cc+m-1] = mcp[m-1];
+      C[ccIndex+m-1] = mcp[m-1];
       for(i=m-2; i>=0; i--) {
-        C[cc+i] = mcp[i] - a * C[cc+i+1];  
+        C[ccIndex+i] = mcp[i] - a * C[ccIndex+i+1];  
       }
-    }
+    }*/
+    private void mc2b(double mc[], double b[], int m, double a ) {
+        int i;
+        b[m] = mc[m];
+        for(m--; m>=0; m--) {
+          b[m] = mc[m] - a * b[m+1];  
+        }
+      }
     
     /** b2mc: transform MLSA digital filter coefficients to mel-cepstrum */
-    private void b2mc(double mcp[], int m, double a){
-      double daux, oaux;
+    private void b2mc(double b[], double mc[], int m, double a){
+      double d, o;
       int i;
-      daux = mcp[m-1] = C[cc+m-1];
-      for(i=m-2; i>=0; i--) {
-        oaux = C[cc+i] + (a * daux);
-        daux = C[cc+i];
-        mcp[i] = oaux;
+      d = mc[m] = b[m];
+      for(i=m--; i>=0; i--) {
+        o = b[i] + (a * d);
+        d = b[i];
+        mc[i] = o;
       }
     }
     
  
    /** freqt: frequency transformation */
-   private void freqt(double c1[], int m1, int cepIndex, int m2, double a){
+   //private void freqt(double c1[], int m1, int cepIndex, int m2, double a){
+    private void freqt(double c1[], int m1, double c2[], int m2, double a){
      int i, j;
-     double b;
-     
-     if( d == null ){
-       size = m2;
-       d = new double[size + size + 2];
-       g = size+1;
+     double b = 1 - a * a;
+     int g; /* offset of freqt_buff */
+       
+     if(m2 > freqt_size) {
+       freqt_buff = new double[(m2 + m2 + 2)];
+       freqt_size = m2;  
      }
-     
-     if(m2 > size) {
-       size = m2;
-       d = new double[size + size +2];
-       g = size +1;  
-     }
-     b = 1 - a * a;
+     g = freqt_size +1;
      
      for(i = 0; i < m2+1; i++)
-        d[g+i] = 0.0;
+       freqt_buff[g+i] = 0.0;
      
      for(i = -m1; i <= 0; i++){
        if(0 <= m2 )  
-         d[g+0] = c1[-i] + a * (d[0] = d[g+0]);
+         freqt_buff[g+0] = c1[-i] + a * (freqt_buff[0] = freqt_buff[g+0]);
        if(1 <= m2)
-         d[g+1] = b * d[0] + a * (d[1] = d[g+1]);
+         freqt_buff[g+1] = b * freqt_buff[0] + a * (freqt_buff[1] = freqt_buff[g+1]);
            
        for(j=2; j<=m2; j++)
-         d[g+j] = d[j-1] + a * (d[j] = d[g+j] - d[g+j-1]);
+         freqt_buff[g+j] = freqt_buff[j-1] + a * ( (freqt_buff[j] = freqt_buff[g+j]) - freqt_buff[g+j-1]);
            
      }
      
      /* move memory */
      for(i=0; i<m2+1; i++)
-       c1[cepIndex+i] = d[g+i];
+       c2[i] = freqt_buff[g+i];
        
    }
    
    /** c2ir: The minimum phase impulse response is evaluated from the minimum phase cepstrum */
-   private void c2ir(double c1[], int cepIndex, int nc, int irIndex, int leng ){
-     int n, k, up1;
-     double daux;
+   private void c2ir(double c[], int nc, double hh[], int leng ){
+     int n, k, upl;
+     double d;
 
-     c1[irIndex + 0] = Math.exp(c1[cepIndex + 0]);
+     hh[0] = Math.exp(c[0]);
      for(n = 1; n < leng; n++) {
-       daux = 0;
-       if(n >= nc )
-         up1 = nc -1;
-       else
-         up1 = n;
-       for(k = 1; k <= up1; k++ )
-         daux += k * c1[cepIndex + k] * c1[irIndex + n - k];
-       c1[irIndex + n] = daux / n;
-       
+       d = 0;
+       upl = (n >= nc) ? nc - 1 : n;
+       for(k = 1; k <= upl; k++ )
+         d += k * c[k] * hh[n - k];
+       hh[n] = d / n;
      }
    }
    
-   /* b2en: functions for postfiltering */ 
-   private double b2en(int m, double a){
-      double en;
-      int k;
+   /** b2en: functions for postfiltering */ 
+   private double b2en(double b[], int m, double a){
+      double en = 0.0;
+      int i, k;
+      double cep[], ir[]; 
       
-      if (o < m ){
-        mc = new double[(m+1) +2 * irleng ];
-        cep = (m+1);
-        ir = (m+1) + irleng;    
+      if(spectrum2en_size < m) {
+        spectrum2en_buff = new double[(m+1) + 2 * IRLENG];        
+        spectrum2en_size = m;
       }
-      b2mc(mc, m, a);
+      cep = new double[(m+1) + 2 * IRLENG]; /* CHECK! these sizes!!! */
+      ir = new double[(m+1) + 2 * IRLENG];
+      
+      b2mc(b, spectrum2en_buff, m, a);
       /* freqt(vs->mc, m, vs->cep, vs->irleng - 1, -a);*/
-      freqt(mc, m, cep, irleng-1, -a);
+      freqt(spectrum2en_buff, m, cep, IRLENG-1, -a);
       /* HTS_c2ir(vs->cep, vs->irleng, vs->ir, vs->irleng); */
-      c2ir(mc, cep, irleng, ir, irleng);
+      c2ir(cep, IRLENG, ir, IRLENG);
       en = 0.0;
       
-      for(k = 0; k < irleng; k++)
-        en += mc[ir+k] * mc[ir+k];
-      
+      for(i = 0; i < IRLENG; i++)
+        en += ir[i] * ir[i];
       
       return(en);  
     }  
     
+    /** ignorm: inverse gain normalization */
+    private void ignorm(double c1[], double c2[], int m, double ng){
+      double k;
+      int i;
+      if(ng != 0.0 ) {
+        k = Math.pow(c1[0], ng);
+        for(i=m; i>=1; i--)
+          c2[i] = k * c1[i];
+        c2[0] = (k - 1.0) / ng;
+      } else {
+         /* movem */  
+         for(i=1; i<m; i++)  
+           c2[i] = c1[i];
+         c2[0] = Math.log(c1[0]);   
+      }
+    }
    
+    /** ignorm: gain normalization */
+    private void gnorm(double c1[], double c2[], int m, double g){
+      double k;
+      int i;
+      if(g != 0.0) {
+        k = 1.0 + g * c1[0];
+        for(; m>=1; m--)
+          c2[m] = c1[m] / k;
+        c2[0] = Math.pow(k, 1.0 / g);
+      } else {
+        /* movem */  
+        for(i=1; i<=m; i++)  
+          c2[i] = c1[i];
+        c2[0] = Math.exp(c1[0]);
+      }
+       
+    }
+   
+    /** lsp2lpc: transform LSP to LPC. lsp[1..m] --> a=lpc[0..m]  a[0]=1.0 */
+    private void lsp2lpc(double lsp[], double a[], int m){
+      int i, k, mh1, mh2, flag_odd;
+      double xx, xf, xff;
+      int p, q;                    /* offsets of lsp2lpc_buff */
+      int a0, a1, a2, b0, b1, b2;  /* offsets of lsp2lpc_buff */
+      
+      flag_odd = 0;
+      if(m % 2 == 0)
+        mh1 = mh2 = m / 2;
+      else {
+        mh1 = (m+1) / 2;
+        mh2 = (m-1) / 2;
+        flag_odd = 1;
+      }
+      
+      if(m > lsp2lpc_size){
+        lsp2lpc_buff = new double[(5 * m + 6)];
+        lsp2lpc_size = m;
+      }
+      
+      /* offsets of lsp2lpcbuff */
+      p = m;
+      q = p + mh1;
+      a0 = q + mh2;
+      a1 = a0 + (mh1 +1);
+      a2 = a1 + (mh1 +1);
+      b0 = a2 + (mh1 +1);
+      b1 = b0 + (mh2 +1);
+      b2 = b1 + (mh2 +1);
+      
+      /* move lsp -> lsp2lpc_buff */
+      for(i=0; i<m; i++)
+        lsp2lpc_buff[i] = lsp[i+1];
+      
+      for (i = 0; i < mh1 + 1; i++)
+        lsp2lpc_buff[a0 + i] = 0.0;
+      for (i = 0; i < mh1 + 1; i++)
+        lsp2lpc_buff[a1 + i] = 0.0;
+      for (i = 0; i < mh1 + 1; i++)
+        lsp2lpc_buff[a2 + i] = 0.0;
+      for (i = 0; i < mh2 + 1; i++)
+        lsp2lpc_buff[b0 + i] = 0.0;
+      for (i = 0; i < mh2 + 1; i++)
+        lsp2lpc_buff[b1 + i] = 0.0;
+      for (i = 0; i < mh2 + 1; i++)
+        lsp2lpc_buff[b2 + i] = 0.0;
+
+      /* lsp filter parameters */
+      for (i = k = 0; i < mh1; i++, k += 2)
+        lsp2lpc_buff[p + i] = -2.0 * Math.cos(lsp2lpc_buff[k]);
+      for (i = k = 0; i < mh2; i++, k += 2)
+        lsp2lpc_buff[q + i] = -2.0 * Math.cos(lsp2lpc_buff[k + 1]);
+      
+      /* impulse response of analysis filter */
+      xx = 1.0;
+      xf = xff = 0.0;
+      
+      for (k = 0; k <= m; k++) {
+          if (flag_odd == 1) {
+             lsp2lpc_buff[a0 + 0] = xx;
+             lsp2lpc_buff[b0 + 0] = xx - xff;
+             xff = xf;
+             xf = xx;
+          } else {
+             lsp2lpc_buff[a0 + 0] = xx + xf;
+             lsp2lpc_buff[b0 + 0] = xx - xf;
+             xf = xx;
+          }
+
+          for (i = 0; i < mh1; i++) {
+             lsp2lpc_buff[a0 + i + 1] = lsp2lpc_buff[a0 + i] + lsp2lpc_buff[p + i] * lsp2lpc_buff[a1 + i] + lsp2lpc_buff[a2 + i];
+             lsp2lpc_buff[a2 + i] = lsp2lpc_buff[a1 + i];
+             lsp2lpc_buff[a1 + i] = lsp2lpc_buff[a0 + i];
+          }
+
+          for (i = 0; i < mh2; i++) {
+             lsp2lpc_buff[b0 + i + 1] = lsp2lpc_buff[b0 + i] + lsp2lpc_buff[q + i] * lsp2lpc_buff[b1 + i] + lsp2lpc_buff[b2 + i];
+             lsp2lpc_buff[b2 + i] = lsp2lpc_buff[b1 + i];
+             lsp2lpc_buff[b1 + i] = lsp2lpc_buff[b0 + i];
+          }
+
+          if (k != 0)
+            a[k - 1] = -0.5 * (lsp2lpc_buff[a0 + mh1] + lsp2lpc_buff[b0 + mh2]);
+           xx = 0.0;
+        }
+
+        for (i = m - 1; i >= 0; i--)
+           a[i + 1] = -a[i];
+        a[0] = 1.0;
+      
+        
+    }
+    
+    /** gc2gc: generalized cepstral transformation */
+    private void gc2gc(double c1[], int m1, double g1, double c2[], int m2, double g2){
+      int i, min, k, mk;
+      double ss1, ss2, cc;
+      
+      gc2gc_buff = new double[m1 + 1]; /* check if these buffers should be created all the time */
+      gc2gc_size = m1; 
+      
+      /* movem*/
+      for(i=0; i<(m1+1); i++)
+        gc2gc_buff[i] = c1[i];
+      c2[0] = gc2gc_buff[0];
+      
+      for( i=1; i<=m2; i++){
+        ss1 = ss2 = 0.0;
+        min = m1 < i ? m1 : i - 1;
+        for(k=1; k<=min; k++){
+          mk = i - k;
+          cc = gc2gc_buff[k] * c2[mk];
+          ss2 += k * cc;
+          ss1 += mk * cc;
+        }
+        
+        if(i <= m1)
+          c2[i] = gc2gc_buff[i] + (g2 * ss2 - g1 * ss1) / i;
+        else
+          c2[i] = (g2 * ss2 - g1 * ss1) / i;   
+      }
+    }
+    
+    /** mgc2mgc: frequency and generalized cepstral transformation */
+    private void mgc2mgc(double c1[], int m1, double a1, double g1, double c2[], int m2, double a2, double g2){
+      double a;
+      
+      if(a1 == a2){
+        gnorm(c1, c1, m1, g1);
+        gc2gc(c1, m1, g1, c2, m2, g2);
+        ignorm(c2, c2, m2, g2);          
+      } else {
+        a = (a2 -a1) / (1 - a1 * a2);
+        freqt(c1, m1, c2, m2, a);
+        gnorm(c2, c2, m2, g1);
+        gc2gc(c2, m2, g1, c2, m2, g2);
+        ignorm(c2, c2, m2, g2);
+          
+      }
+        
+        
+    }
+    
+    /** lsp2mgc: transform LSP to MGC.  lsp=C[0..m]  mgc=C[0..m] */
+    private void lsp2mgc(double lsp[], double mgc[], int m, double alpha){
+      int i;
+      /* lsp2lpc */
+      lsp2lpc(lsp, mgc, m);  /* lsp starts in 1!  lsp[1..m] --> mgc[0..m] */
+      if(use_log_gain)
+        mgc[0] = Math.exp(lsp[0]);
+      else
+        mgc[0] = lsp[0];
+      
+      /* mgc2mgc*/
+      if(NORMFLG1)
+        ignorm(mgc, mgc, m, gamma);
+      else if(MULGFLG1)
+        mgc[0] = (1.0 - mgc[0]) * stage;
+      
+      if(MULGFLG1)
+        for(i=m; i>=1; i--) 
+          mgc[i] *= -stage;    
+      
+      mgc2mgc(mgc, m, alpha, gamma, mgc, m, alpha, gamma); /* input and output is in mgc=C */
+      
+      if(NORMFLG2)
+        gnorm(mgc, mgc, m, gamma);
+      else if(MULGFLG2)
+        mgc[0] = mgc[0] * gamma + 1.0;
+      
+      if(MULGFLG2)
+        for(i=m; i>=1; i--)
+          mgc[i] *= gamma;
+        
+    }
+    
+    /** mglsadff: sub functions for MGLSA filter */
+    private double mglsadff(double x) {
+        
+      return x;
+    }
+   
+    /** mglsadf: sub functions for MGLSA filter */
+    private double mglsadf(double x, double b[], int m, double a, double d[]){
+      int i;
+      double y;
+      y = d[0] * b[1];
+      
+      for(i=1; i<m; i++) {
+        d[i] += a * (d[i+1] -d[i-1]);
+        y += d[i] * b[i+1];
+      }
+      x -= y;
+      
+      for(i=m; i>0; i--)
+        d[i] = d[i-1];
+      d[0] = a * d[0] + (1 - a * a) * x;
+      
+      return x;
+    }
+    
+    
     /** posfilter: postfilter for mel-cepstrum. It uses alpha and beta defined in HMMData */
-    private void postfilter(double mcp[], int m, double alpha, double beta) {
+    private void postfilter_mcp(double mcp[], int m, double alpha, double beta) {
         
       double e1, e2;
       int k;
       
       if(beta > 0.0 && m > 1){
-        e1 = b2en(m,alpha);
-        C[cc+1] -= beta * alpha * mcp[2];
-        for(k = 2; k < m; k++)
-          C[cc+k] *= (1.0 +beta);
-        e2 = b2en(m, alpha);
-        C[cc+0] += Math.log(e1/e2) / 2;
+        if(postfilter_size < m){
+          postfilter_buff = new double[m+1];
+          postfilter_size = m;
+        }
+        mc2b(mcp, postfilter_buff, m, alpha);
+        e1 = b2en(postfilter_buff, m, alpha);
         
-        for(k = 0; k < m; k++)
-          mcp[k] = C[k];
+        postfilter_buff[1] -= beta * alpha * mcp[2];
+        for(k = 2; k < m; k++)
+          postfilter_buff[k] *= (1.0 +beta);
+        e2 = b2en(postfilter_buff, m, alpha);
+        postfilter_buff[0] += Math.log(e1/e2) / 2;
+        b2mc(postfilter_buff, mcp, m, alpha);
           
       }
             
     }
-    
-    
-    /** mlsadf: HTS Mel Log Spectrum Approximation filter */
-    private double mlsadf(double x, int m, double a, double aa) {
-      int k;   
-        
-      x = mlsadf1(x, a, aa);  
-      x = mlsadf2(x, m-1, a, aa);
-       
-      return x; 
-    }
-    
-    /** mlsdaf1:  */
-    private double mlsadf1(double x, double a, double aa) {
-      double v;
-      double out = 0.0;
-      int i, k;
-      //pt1 --> pt = &d1[pd+1]  
-       
-      for(i=pd; i>=1; i--) {
-        C[d1+i] = aa * C[d1+pt1+i-1] + a * C[d1+i];  
-        C[d1+pt1+i] = C[d1+i] * C[1];
-        v = C[d1+pt1+i] * pade[ppade+i];
-        
-        if(i == 1 || i == 3 || i == 5)
-          x += v;
-        else 
-          x += -v;
-        out += v;
-      }
-      C[d1+pt1+0] = x;
-      out += x;
-      
-      
-      return(out);
-      
-    }
-
-    /** mlsdaf2: */
-    private double mlsadf2(double x, int m, double a, double aa) {
-      double v;
-      double out = 0.0;
-      int i, k; 
-      // pt2 --> pt = &d1[pd * (m+2)] 
-      // pt3 --> pt = &d1[ 2*(pd+1) ] 
-      
-      
-      for(i=pd; i>=1; i--) {   
-        C[d1+pt2+i] = mlsafir(C[d1+(pt2+i)-1],m,a,aa,pt3[i]);
-        v = C[d1+pt2+i] * pade[ppade+i];
-          
-        if(i == 1 || i == 3 || i == 5)
-          x += v;
-        else
-          x += -v;
-        out += v;
-        
-      }
-      C[d1+pt2+0] = x;
-      out += x;
-       
-      return out;     
-    }
-    
-    /** mlsafir: */
-    private double mlsafir(double x, int m, double a, double aa, int _pt3 ) {
-      double y = 0.0;
-      int i, k;
-
-      C[d1+_pt3+0] = x;
-      C[d1+_pt3+1] = aa * C[d1+_pt3+0] + ( a * C[d1+_pt3+1] );
-
-      for(i=2; i<=m; i++){
-        C[d1+_pt3+i] +=  a * ( C[d1+_pt3+i+1] - C[d1+_pt3+i-1]);
-      }
-      
-      for(i=2; i<=m; i++){ 
-        y += C[d1+_pt3+i] * C[i];
-      }
-       
-      for(i=m+1; i>1; i--){
-        C[d1+_pt3+i] = C[d1+_pt3+i-1];  
-      }
-       
-      return(y);
-    }
-    
+              
   
-       /** Generate one pitch period from Fourier magnitudes */
+    /** Generate one pitch period from Fourier magnitudes */
     private double[] genPulseFromFourierMag(HTSPStream mag, int n, double f0, boolean aperiodicFlag){
         
       int numHarm = mag.getOrder();
@@ -1417,8 +1458,8 @@ public class HTSVocoder {
        double [] audio_double = null;
        
        HTSVocoder par2speech = new HTSVocoder();
-       //audio_double = par2speech.htsMLSAVocoder(lf0Pst, mcepPst, strPst, magPst, voiced, htsData);
-       audio_double = par2speech.htsMLSAVocoder_residual(lf0Pst, mcepPst, strPst, magPst, voiced, htsData, resFile);
+       audio_double = par2speech.htsMLSAVocoder(lf0Pst, mcepPst, strPst, magPst, voiced, htsData);
+      // audio_double = par2speech.htsMLSAVocoder_residual(lf0Pst, mcepPst, strPst, magPst, voiced, htsData, resFile);
        
        long lengthInSamples = (audio_double.length * 2 ) / (sampleSizeInBits/8);
        par2speech.logger.info("length in samples=" + lengthInSamples );
