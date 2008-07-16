@@ -45,9 +45,11 @@ import marytts.signalproc.analysis.Mfccs;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
-
 /**
+ * 
  * @author oytun.turk
+ * 
+ * Implements mapping functionality of MFCCs between source and target
  *
  */
 public class WeightedCodebookMfccMapper extends WeightedCodebookFeatureMapper {

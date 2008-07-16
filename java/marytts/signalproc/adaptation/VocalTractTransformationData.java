@@ -35,6 +35,8 @@ import marytts.signalproc.adaptation.prosody.PitchStatisticsMapping;
 
 /**
  * @author oytun.turk
+ * 
+ * Baseline class for voice conversion transformation data
  *
  */
 public class VocalTractTransformationData {

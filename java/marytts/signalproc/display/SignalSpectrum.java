@@ -41,7 +41,10 @@ import marytts.util.math.MathUtils;
 
 
 /**
+ * 
  * @author Marc Schr&ouml;der
+ * 
+ * Displays the DFT spectrum of input signal
  *
  */
 public class SignalSpectrum  extends FunctionGraph

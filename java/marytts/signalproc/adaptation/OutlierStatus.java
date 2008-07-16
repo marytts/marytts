@@ -30,7 +30,10 @@
 package marytts.signalproc.adaptation;
 
 /**
+ * 
  * @author oytun.turk
+ * 
+ * Flags for outliers in source and target training data
  *
  */
 public class OutlierStatus {

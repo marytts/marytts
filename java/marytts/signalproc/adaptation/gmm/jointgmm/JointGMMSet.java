@@ -40,6 +40,7 @@ import marytts.util.io.MaryRandomAccessFile;
 
 
 /**
+ * 
  * @author oytun.turk
  *
  * A collection of JointGMMs, 

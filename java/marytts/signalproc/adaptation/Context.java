@@ -41,7 +41,7 @@ import marytts.util.string.StringUtils;
 /**
  * @author oytun.turk
  *
- * A representation of phonetic context
+ * A wrapper class for representing phonetic context
  * 
  */
 public class Context {

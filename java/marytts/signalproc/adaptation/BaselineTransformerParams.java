@@ -37,7 +37,12 @@ import marytts.signalproc.analysis.MfccFileHeader;
 import marytts.signalproc.analysis.PitchFileHeader;
 
 /**
+ * 
  * @author oytun.turk
+ * 
+ * Baseline class for voice conversion transformation parameters
+ * All specific implementations of transformation stage of a given voice conversion algorithm should use
+ * a parameter set that is derived from this class
  *
  */
 public class BaselineTransformerParams extends BaselineParams {

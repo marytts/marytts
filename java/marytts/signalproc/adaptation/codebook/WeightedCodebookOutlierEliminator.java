@@ -36,7 +36,10 @@ import marytts.signalproc.adaptation.outlier.KMeansMappingEliminator;
 import marytts.util.io.FileUtils;
 
 /**
+ * 
  * @author oytun.turk
+ * 
+ * A collection of outlier eliminators for weighted codebook mapping
  *
  */
 public class WeightedCodebookOutlierEliminator {

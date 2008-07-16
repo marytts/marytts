@@ -27,12 +27,15 @@
  * THIS SOFTWARE.
  */
 
-package marytts.signalproc.adaptation;
+package marytts.machinelearning;
 
 /**
  * @author oytun.turk
+ * 
+ * TO Do: Implement a GMM based classifier that takes as input several GMMs and data
+ * and outputs the probability of each GMM generating the data, the most likely GMM, etc
  *
  */
-public class FeatureCollection {
+public class GMMClassifier {
 
 }

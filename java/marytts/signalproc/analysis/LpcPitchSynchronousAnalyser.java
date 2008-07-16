@@ -54,8 +54,9 @@ import marytts.util.math.MathUtils;
 
 /**
  * 
- * A Pitch-synchronous LPC analyser.
  * @author Marc Schr&ouml;der
+ * 
+ *  A Pitch-synchronous LPC analyser.
  *
  */
 public class LpcPitchSynchronousAnalyser extends PitchFrameAnalyser

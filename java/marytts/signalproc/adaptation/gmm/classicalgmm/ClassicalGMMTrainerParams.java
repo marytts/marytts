@@ -32,7 +32,10 @@ package marytts.signalproc.adaptation.gmm.classicalgmm;
 import marytts.signalproc.adaptation.BaselineTrainerParams;
 
 /**
+ * 
  * @author oytun.turk
+ * 
+ * Parameters if classical GMM training
  *
  */
 public class ClassicalGMMTrainerParams extends BaselineTrainerParams {

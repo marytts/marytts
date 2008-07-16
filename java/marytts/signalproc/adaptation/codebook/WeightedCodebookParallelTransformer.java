@@ -54,10 +54,12 @@ import marytts.util.string.StringUtils;
 
 
 /**
+ * 
  * @author oytun.turk
  *
  * This class implements transformation for weighted codebook mapping based voice conversion
  * using parallel training data (i.e. source and target data in pairs of audio recordings which have identical content)
+ *
  */
 public class WeightedCodebookParallelTransformer extends WeightedCodebookTransformer {
     public WeightedCodebookTransformerParams pa;

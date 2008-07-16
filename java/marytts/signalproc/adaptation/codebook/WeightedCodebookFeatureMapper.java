@@ -32,7 +32,10 @@ package marytts.signalproc.adaptation.codebook;
 import marytts.signalproc.adaptation.BaselineAdaptationSet;
 
 /**
+ * 
  * @author oytun.turk
+ * 
+ * Baseline class for mapping different acoustic features
  *
  */
 public abstract class WeightedCodebookFeatureMapper {

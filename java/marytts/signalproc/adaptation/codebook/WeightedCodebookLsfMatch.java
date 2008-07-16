@@ -30,7 +30,10 @@
 package marytts.signalproc.adaptation.codebook;
 
 /**
+ * 
  * @author oytun.turk
+ *
+ * Wrapper class for a single weighted codebook entry LSF match
  *
  */
 public class WeightedCodebookLsfMatch {

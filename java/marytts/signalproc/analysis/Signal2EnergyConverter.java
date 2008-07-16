@@ -33,8 +33,11 @@ import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 
 /**
+ * 
  * @author Marc Schr&ouml;der
  *
+ * Computes energy of the input signal
+ * 
  */
 public class Signal2EnergyConverter extends BufferedDoubleDataSource {
     protected static InlineDataProcessor processor = new InlineDataProcessor() {

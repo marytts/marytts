@@ -38,7 +38,7 @@ import marytts.signalproc.adaptation.BaselineAdaptationSet;
 import marytts.signalproc.adaptation.BaselineFeatureExtractor;
 import marytts.signalproc.adaptation.BaselinePreprocessor;
 import marytts.signalproc.adaptation.BaselineTrainer;
-import marytts.signalproc.adaptation.FeatureCollection;
+import marytts.signalproc.adaptation.BaselineFeatureCollection;
 import marytts.signalproc.adaptation.IndexMap;
 import marytts.signalproc.adaptation.prosody.PitchMappingFile;
 import marytts.signalproc.adaptation.prosody.PitchTrainer;
@@ -48,7 +48,10 @@ import marytts.util.string.StringUtils;
 
 
 /**
+ * 
  * @author oytun.turk
+ * 
+ * Baseline class for weighted codebook training
  *
  */
 public class WeightedCodebookTrainer extends BaselineTrainer {
@@ -276,7 +279,7 @@ public class WeightedCodebookTrainer extends BaselineTrainer {
         return fcol;
     }
     
-    public void learnMapping(FeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map)
+    public void learnMapping(BaselineFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map)
     {
         assert fcol instanceof WeightedCodebookFeatureCollection;
         

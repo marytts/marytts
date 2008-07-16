@@ -37,7 +37,10 @@ import marytts.util.math.MathUtils;
 
 
 /**
+ * 
  * @author oytun.turk
+ * 
+ * Implements joint-GMM based speaker feature transformation from source acoustic space to target acoustic space
  *
  */
 public class JointGMMMapper extends GMMMapper {

@@ -29,14 +29,17 @@
 
 package marytts.signalproc.adaptation.codebook;
 
-import marytts.signalproc.adaptation.FeatureCollection;
+import marytts.signalproc.adaptation.BaselineFeatureCollection;
 import marytts.util.string.StringUtils;
 
 /**
+ * 
  * @author oytun.turk
+ * 
+ *  A wrapper class for indexed binary files of acoustic feature sets
  *
  */
-public class WeightedCodebookFeatureCollection extends FeatureCollection {
+public class WeightedCodebookFeatureCollection extends BaselineFeatureCollection {
     public String[] indexMapFiles;
     
     public WeightedCodebookFeatureCollection(WeightedCodebookTrainerParams params, int numFiles)

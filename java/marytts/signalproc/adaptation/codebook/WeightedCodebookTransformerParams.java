@@ -38,7 +38,10 @@ import marytts.signalproc.analysis.LsfFileHeader;
 import marytts.signalproc.analysis.PitchFileHeader;
 
 /**
+ * 
  * @author oytun.turk
+ * 
+ * Parameters of weighted codebook based transformation
  *
  */
 public class WeightedCodebookTransformerParams extends BaselineTransformerParams {

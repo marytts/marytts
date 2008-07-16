@@ -50,7 +50,10 @@ import marytts.util.signal.SignalProcUtils;
 
 
 /**
+ * 
  * @author Marc Schr&ouml;der
+ * 
+ * A class for linear prediction analysis
  *
  */
 public class LpcAnalyser extends FrameBasedAnalyser

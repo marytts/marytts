@@ -48,7 +48,10 @@ import marytts.util.data.audio.AudioDoubleDataSource;
 
 
 /**
+ * 
  * @author Marc Schr&ouml;der
+ * 
+ * Shows a phasogram of input signal
  *
  */
 public class Phasogram  extends Spectrogram

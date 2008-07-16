@@ -42,13 +42,16 @@ import marytts.util.data.DoubleDataSource;
 
 
 /**
+ * 
  * @author Marc Schr&ouml;der
+ * 
  * A common basis for F0 tracking algorithms.
  * The following main steps are assumed:
  * 1. preprocessing of the signal
  * 2. estimation of candidates for F0
  * 3. selection of a path through the candidates
  * 4. post-processing of the F0 contour
+ * 
  */
 public abstract class F0Tracker
 {

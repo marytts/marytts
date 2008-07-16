@@ -44,7 +44,10 @@ import marytts.util.string.StringUtils;
 
 
 /**
+ * 
  * @author oytun.turk
+ * 
+ * Weighted codebook transformation class
  *
  */
 public class WeightedCodebookTransformer extends BaselineTransformer {

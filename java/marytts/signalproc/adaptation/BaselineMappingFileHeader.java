@@ -35,6 +35,8 @@ import marytts.signalproc.analysis.PitchFileHeader;
 
 /**
  * @author oytun.turk
+ * 
+ * Baseline class for voice conversion function binary file header
  *
  */
 public class BaselineMappingFileHeader {

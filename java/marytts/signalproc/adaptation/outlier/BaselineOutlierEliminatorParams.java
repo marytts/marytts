@@ -32,7 +32,10 @@ package marytts.signalproc.adaptation.outlier;
 import marytts.signalproc.adaptation.BaselineParams;
 
 /**
+ * 
  * @author oytun.turk
+ * 
+ * Baseline class for outlier elimination parameters
  *
  */
 public class BaselineOutlierEliminatorParams extends BaselineParams {

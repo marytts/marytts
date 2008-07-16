@@ -30,7 +30,10 @@
 package marytts.signalproc.adaptation;
 
 /**
+ * 
  * @author oytun.turk
+ * 
+ * Baseline class for vocal tract transformation functions for voice conversion
  *
  */
 public class VocalTractTransformationFunction {

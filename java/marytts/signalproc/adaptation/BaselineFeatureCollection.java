@@ -27,34 +27,15 @@
  * THIS SOFTWARE.
  */
 
-package marytts.signalproc.adaptation.gmm.classicalgmm;
-
-import marytts.machinelearning.GMMTrainer;
-import marytts.signalproc.adaptation.codebook.WeightedCodebookParallelTrainer;
+package marytts.signalproc.adaptation;
 
 /**
- * @author oytun.turk
- *
- * TO DO: Classical GMM based spectral conversion (Stylianou, 1998)
  * 
+ * @author oytun.turk
+ * 
+ * Baseline class for indexed binary files of acoustic feature sets 
+ *
  */
-public class ClassicalGMMTrainer {
-    
-    private WeightedCodebookParallelTrainer wgpTrainer;
-    private GMMTrainer gmmTrainer;
-    
-    public void run()
-    {
-        
-    }
-    
-    public boolean checkParams()
-    {
-        return true;
-    }
-    
-    public static void main(String[] args) 
-    {
+public class BaselineFeatureCollection {
 
-    }
 }

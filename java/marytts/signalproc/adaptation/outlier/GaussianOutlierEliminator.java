@@ -42,7 +42,10 @@ import marytts.util.math.MathUtils;
 
 
 /**
+ * 
  * @author oytun.turk
+ * 
+ * Single Gaussian based outlier elimination
  *
  */
 public class GaussianOutlierEliminator {

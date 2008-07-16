@@ -30,6 +30,7 @@
 package marytts.signalproc.analysis;
 
 /**
+ * 
  * @author oytun.turk
  *
  * A class to keep all information on a single EST format label

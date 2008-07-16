@@ -37,7 +37,10 @@ import marytts.signalproc.adaptation.outlier.KMeansMappingEliminatorParams;
 import marytts.signalproc.analysis.LsfFileHeader;
 
 /**
+ * 
  * @author oytun.turk
+ * 
+ * Parameters of weighted codebook training
  *
  */
 public class WeightedCodebookTrainerParams extends BaselineTrainerParams {

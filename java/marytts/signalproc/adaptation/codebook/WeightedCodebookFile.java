@@ -42,7 +42,10 @@ import marytts.util.io.MaryRandomAccessFile;
 
 
 /**
+ * 
  * @author oytun.turk
+ * 
+ * A class for handling file I/O of binary weighted codebook files
  *
  */
 public class WeightedCodebookFile {
