@@ -44,6 +44,9 @@ import marytts.util.string.StringUtils;
 
 /**
  * @author oytun.turk
+ * 
+ * Wrapper for contextual parameters for GMM training - includes various phoneme identity or class
+ * based groups
  *
  */
 public class ContextualGMMParams {

@@ -39,7 +39,7 @@ import marytts.util.math.MathUtils;
 /**
  * @author oytun.turk
  *
- * Gaussian mixture model
+ * Wrapper for a Gaussian Mixture Model
  * 
  */
 public class GMM {

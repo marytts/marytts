@@ -37,6 +37,8 @@ import marytts.util.signal.SignalProcUtils;
 
 /**
  * @author oytun.turk
+ * 
+ * Generates clustered data for testing machine learning algorithms
  *
  */
 public class ClusteredDataGenerator {

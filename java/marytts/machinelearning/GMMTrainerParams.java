@@ -36,6 +36,8 @@ import marytts.util.io.MaryRandomAccessFile;
 
 /**
  * @author oytun.turk
+ * 
+ * Wrapper class for GMM training parameters
  *
  */
 public class GMMTrainerParams {
