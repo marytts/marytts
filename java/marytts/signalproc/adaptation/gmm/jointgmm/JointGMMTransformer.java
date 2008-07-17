@@ -443,6 +443,9 @@ public class JointGMMTransformer extends BaselineTransformer {
     public static void mainHmmVoiceConversion(String[] args) throws UnsupportedAudioFileException, IOException
     {
         String wavBaseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/lsp_21Dimensional/";
+        //String wavBaseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/mellsp_21Dimensional/";
+        //String wavBaseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/hsmmMfcc_25Dimensional/";
+        
         String sourceTag = "hmmSource";
         String targetTag = "origTarget";
         String method = "F";
@@ -463,7 +466,7 @@ public class JointGMMTransformer extends BaselineTransformer {
         //int contextClassificationType = ContextualGMMParams.FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER; int[] numComponents = {128, 128, 128, 128, 128, 16};
         //int contextClassificationType = ContextualGMMParams.PHONEME_IDENTITY; int[] numComponents = {128};
         
-        String inputFolder = wavBaseFolder + "/" + sourceTag + "/test_10/";
+        String inputFolder = wavBaseFolder + "/" + sourceTag + "/test_39/";
         String outputBaseFolder;
         if (!isContextualGMMs)
         {
@@ -482,7 +485,7 @@ public class JointGMMTransformer extends BaselineTransformer {
         String baseFile = wavBaseFolder + "output/" + sourceTag + "2" + targetTag + "/" + sourceTag + method + "_X_" + targetTag + method + "_" + String.valueOf(numTrainingFiles);
         
         pa.isForcedAnalysis = false;
-        pa.isSourceVocalTractSpectrumFromModel = true;
+        pa.isSourceVocalTractSpectrumFromModel = false;
         pa.isVocalTractTransformation = true;
         pa.isResynthesizeVocalTractFromSourceModel = false;
         pa.isVocalTractMatchUsingTargetModel= false;

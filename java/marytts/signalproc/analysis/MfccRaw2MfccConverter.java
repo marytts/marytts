@@ -138,9 +138,10 @@ public class MfccRaw2MfccConverter {
         String rawMfccFileExtension = ".mgc";
         String outputMfccFileExtension = ".mfc";
         int dimension = 25;
+        //int dimension = 21;
         int samplingRateInHz = 16000;
-        float windowSizeInSeconds = 0.020f;
-        float skipSizeInSeconds = 0.010f;
+        float windowSizeInSeconds = 0.040f; //400 samples
+        float skipSizeInSeconds = 0.005f; //80 samples
         
         folder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/hsmm-24-mel-cepstrum/hmm_gen_parameters";
         MfccRaw2MfccConverter.convertFolder(folder, rawMfccFileExtension, outputMfccFileExtension, dimension, samplingRateInHz, windowSizeInSeconds, skipSizeInSeconds);
