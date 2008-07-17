@@ -99,12 +99,7 @@ public class StringUtils {
         char last = strIn.charAt(strIn.length()-1);
         
         if (last != File.separatorChar && last != '\\' && last != '/')
-        {
-            if (!MaryUtils.isWindows())
-                strOut = strOut + "/";
-            else
-                strOut = strOut + File.separatorChar;
-        }
+            strOut = strOut + "/";
         
         return strOut;
     }

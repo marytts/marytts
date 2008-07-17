@@ -31,6 +31,7 @@ package marytts.signalproc.analysis;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -42,6 +43,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
 
 import marytts.signalproc.window.RectWindow;
+import marytts.util.MaryUtils;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.math.MathUtils;
@@ -246,6 +248,33 @@ public class EnergyAnalyser extends FrameBasedAnalyser {
         double minEnergy = getMinFrameEnergy();
         double maxEnergy = getMaxFrameEnergy();
         double cutoffEnergy = minEnergy + (maxEnergy-minEnergy)*iCutoff/hist.length;
+        
+        return cutoffEnergy;
+    }
+    
+    public double getSilenceCutoffFromSortedEnergies(FrameAnalysisResult[] far, double silenceThreshold)
+    {
+        double[] energies = new double[far.length];
+        double cutoffEnergy;
+        
+        for (int i=0; i<far.length; i++)
+            energies[i] = ((Double)far[i].get()).doubleValue();
+        
+        MathUtils.quickSort(energies);
+        int cutoffIndex = (int)Math.floor(silenceThreshold*energies.length);
+            
+        while (energies[cutoffIndex]==0.0)
+        {
+            cutoffIndex++;
+            if (cutoffIndex>energies.length-1)
+            {
+                cutoffIndex = energies.length-1;
+                break;
+            }
+        }
+        
+        cutoffEnergy = energies[cutoffIndex];
+        
         return cutoffEnergy;
     }
 
@@ -314,6 +343,162 @@ public class EnergyAnalyser extends FrameBasedAnalyser {
         return (double[][])stretches.toArray(new double[0][0]);
     }
     
+    /**
+     * 
+     */
+    public double[][] getSpeechStretchesUsingEnergyHistory()
+    {
+        int i, j;
+        double minSilenceDur = Double.parseDouble(System.getProperty("signalproc.minsilenceduration", "0.3"));
+        double minSpeechDur = Double.parseDouble(System.getProperty("signalproc.minspeechduration", "0.3"));
+        double endPointWindowDuration = Double.parseDouble(System.getProperty("signalproc.endpointwindowduration", "0.3"));
+        FrameAnalysisResult[] far = analyseAllFrames();
+        
+        int energyBufferLength = (int)Math.floor(endPointWindowDuration/getFrameShiftTime()+0.5);
+        double silenceThreshold = 0.10; //Increasing this will make silence more likely
+        double speechStartEnergyThreshold = 0.9; //Increasing this will make speech segments shorter and less likely
+        double silenceStartEnergyThreshold = 1.0; //Increasing this will make silence segments longer and more likely
+        
+        double silenceCutoff = getSilenceCutoffFromSortedEnergies(far, silenceThreshold);
+        //double silenceCutoff = getSilenceCutoff();
+        LinkedList stretches = new LinkedList();
+        
+        if (energyBufferLength>far.length)
+            energyBufferLength=far.length;
+        
+        double[] energyBuffer = new double[energyBufferLength];
+        boolean[] isSpeechs = new boolean[energyBufferLength];
+        
+        int speechCount = 0;
+        for (i=0; i<energyBufferLength; i++)
+        {
+            energyBuffer[i] = ((Double)far[i].get()).doubleValue();
+            if (energyBuffer[i]>silenceCutoff)
+            {
+                isSpeechs[i] = true;
+                speechCount++;
+            }
+            else
+                isSpeechs[i] = false;
+        }
+        
+        boolean withinSpeech;
+        double speechStart = -1.0;
+        double speechEnd = -1.0;
+        if (speechCount>speechStartEnergyThreshold*energyBufferLength)
+        {
+            withinSpeech = true;
+            speechStart = Math.max(0.0, i*getFrameShiftTime()-0.5*getFrameLengthTime());
+        }
+        else
+            withinSpeech = false;
+        
+        int bufferIndex = energyBufferLength-1;
+        
+        for (i=energyBufferLength; i<far.length; i++) 
+        {
+            bufferIndex++;
+            if (bufferIndex>energyBufferLength-1)
+                bufferIndex = 0;
+            
+            energyBuffer[bufferIndex] = ((Double)far[i].get()).doubleValue();
+            
+            if (energyBuffer[bufferIndex]>silenceCutoff)
+                isSpeechs[bufferIndex] = true;
+            else
+                isSpeechs[bufferIndex] = false;
+            
+            speechCount = 0;
+            for (j=0; j<energyBufferLength; j++)
+            {
+                if (isSpeechs[j])
+                    speechCount++;
+            }
+            
+            if (!withinSpeech)
+            {
+                if (speechCount>speechStartEnergyThreshold*energyBufferLength) //Start of new speech segment
+                {
+                    withinSpeech = true;
+                    speechStart = Math.max(0.0, i*getFrameShiftTime()-0.5*getFrameLengthTime());
+                }
+            }
+            else
+            {
+                if (speechCount<=silenceStartEnergyThreshold*energyBufferLength) //End of speech segment
+                {
+                    speechEnd = Math.max(0.0, i*getFrameShiftTime()-0.5*getFrameLengthTime());
+                    withinSpeech = false;
+                }
+            }
+            
+            if (speechStart>=0.0 && speechEnd>=0.0) //A new speech segment detected
+            {
+                double[] newStretch = new double[2];
+                newStretch[0] = speechStart;
+                newStretch[1] = speechEnd;
+                stretches.add(newStretch);
+                
+                speechStart = -1.0;
+                speechEnd = -1.0;
+                withinSpeech = false;
+            }
+        }
+        
+        if (withinSpeech)
+        {
+            speechEnd = Math.max(0, (int)Math.floor((far.length-1)*getFrameShiftTime()-0.5*getFrameLengthTime()+0.5));
+
+            double[] newStretch = new double[2];
+            newStretch[0] = speechStart;
+            newStretch[1] = speechEnd;
+            stretches.add(newStretch);
+            
+            speechStart = -1;
+            speechEnd = -1;
+            withinSpeech = false;
+        }
+        
+        double[][] speechStretches = (double[][])stretches.toArray(new double[0][0]);
+        boolean[] bRemoveds = new boolean[speechStretches.length];
+        Arrays.fill(bRemoveds, false);
+        
+        //Check overlapping segments and short silence segments
+        double[] stretch1 = new double[2];
+        double[] stretch2 = new double[2];
+        for (i=speechStretches.length-1; i>0; i--)
+        {
+            if (speechStretches[i][0]-speechStretches[i-1][1]<minSilenceDur)
+            {
+                speechStretches[i-1][1] = speechStretches[i][1];
+                bRemoveds[i] = true;
+            }
+        }
+        //
+        
+        //Check and remove short speech segments
+        for (i=0; i<speechStretches.length; i++)
+        {
+            if (!bRemoveds[i] && speechStretches[i][1]-speechStretches[i][0]<minSpeechDur)
+                bRemoveds[i] = true;
+        }
+        //
+        
+        stretches.clear();
+        for (i=0; i<bRemoveds.length; i++)
+        {
+            if (!bRemoveds[i])
+            {
+                double[] newStretch = new double[2];
+                newStretch[0] = speechStretches[i][0];
+                newStretch[1] = speechStretches[i][1];
+                stretches.add(newStretch);
+            }
+        }
+                
+        return (double[][])stretches.toArray(new double[0][0]);
+    }
+    
     public static void main(String[] args) throws Exception
     {
         if (args.length > 0) {
@@ -329,12 +514,20 @@ public class EnergyAnalyser extends FrameBasedAnalyser {
                 DoubleDataSource signal = new AudioDoubleDataSource(ais);
                 int framelength = (int)(0.01 /*seconds*/ * samplingRate);
                 EnergyAnalyser ea = new EnergyAnalyser(signal, framelength, framelength, samplingRate);
-                double[][] speechStretches = ea.getSpeechStretches();
-                System.out.println("Speech stretches in "+args[file]+":");
+                double[][] speechStretches1 = ea.getSpeechStretches();
+                double[][] speechStretches2 = ea.getSpeechStretchesUsingEnergyHistory();
+                
+                System.out.println("Speech stretches1 in "+args[file]+":");
                 PrintfFormat format = new PrintfFormat("%.4f");
-                for (int i=0; i<speechStretches.length; i++) {
-                    System.out.println(format.sprintf(speechStretches[i][0])
-                            +" "+format.sprintf(speechStretches[i][1]));
+                for (int i=0; i<speechStretches1.length; i++) {
+                    System.out.println(format.sprintf(speechStretches1[i][0])
+                            +" "+format.sprintf(speechStretches1[i][1]));
+                }
+                
+                System.out.println("Speech stretches2 in "+args[file]+":");
+                for (int i=0; i<speechStretches2.length; i++) {
+                    System.out.println(format.sprintf(speechStretches2[i][0])
+                            +" "+format.sprintf(speechStretches2[i][1]));
                 }
             }
             
