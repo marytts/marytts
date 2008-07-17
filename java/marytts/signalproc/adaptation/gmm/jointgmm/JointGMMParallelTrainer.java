@@ -284,7 +284,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
     //Then, any HMM output is to be transformed with the voice conversion function to make it closer to original recordings
     public static void mainHmmVoiceConversion(String[] args) throws UnsupportedAudioFileException, IOException
     {
-        String wavBaseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/";
+        String wavBaseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/lsp_21Dimensional/";
         //String wavBaseFolder = "/home/oytun/";
         String sourceTag = "hmmSource";
         String targetTag = "origTarget";

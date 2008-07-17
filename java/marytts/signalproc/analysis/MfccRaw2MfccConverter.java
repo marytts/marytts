@@ -142,16 +142,16 @@ public class MfccRaw2MfccConverter {
         float windowSizeInSeconds = 0.020f;
         float skipSizeInSeconds = 0.010f;
         
-        folder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/mgc-littend/hmm_train";
+        folder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/hsmm-24-mel-cepstrum/hmm_gen_parameters";
         MfccRaw2MfccConverter.convertFolder(folder, rawMfccFileExtension, outputMfccFileExtension, dimension, samplingRateInHz, windowSizeInSeconds, skipSizeInSeconds);
 
-        folder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/mgc-littend/hmm_test";
+        folder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/hsmm-24-mel-cepstrum/original_parameters";
         MfccRaw2MfccConverter.convertFolder(folder, rawMfccFileExtension, outputMfccFileExtension, dimension, samplingRateInHz, windowSizeInSeconds, skipSizeInSeconds);
 
-        folder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/mgc-littend/orig_train";
+        folder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/hsmm-24-mel-cepstrum/test/hmm_gen_parameters";
         MfccRaw2MfccConverter.convertFolder(folder, rawMfccFileExtension, outputMfccFileExtension, dimension, samplingRateInHz, windowSizeInSeconds, skipSizeInSeconds);
 
-        folder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/mgc-littend/orig_test";
+        folder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/hsmm-24-mel-cepstrum/test/original_parameters";
         MfccRaw2MfccConverter.convertFolder(folder, rawMfccFileExtension, outputMfccFileExtension, dimension, samplingRateInHz, windowSizeInSeconds, skipSizeInSeconds);
     }
 }

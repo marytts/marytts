@@ -442,7 +442,7 @@ public class JointGMMTransformer extends BaselineTransformer {
     
     public static void mainHmmVoiceConversion(String[] args) throws UnsupportedAudioFileException, IOException
     {
-        String wavBaseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/";
+        String wavBaseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/lsp_21Dimensional/";
         String sourceTag = "hmmSource";
         String targetTag = "origTarget";
         String method = "F";
