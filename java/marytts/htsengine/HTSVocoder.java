@@ -63,7 +63,7 @@ import java.io.*;
 import javax.sound.sampled.*;
 
 import marytts.util.data.BufferedDoubleDataSource;
-import marytts.util.data.AudioDoubleDataSource;
+import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.AudioPlayer;
 import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.math.ComplexArray;
@@ -183,6 +183,12 @@ public class HTSVocoder {
           CC   = new double[(mcep_order+1)];
           CINC = new double[(mcep_order+1)];
           D1   = new double[vector_size];
+                    
+          freqt_size       = 0;
+          spectrum2en_size = 0;
+          postfilter_size  = 0;
+          lsp2lpc_size     = 0;
+          gc2gc_size       = 0;
             
           vector_size=21;
           pade = new double[vector_size];
@@ -499,20 +505,20 @@ public class HTSVocoder {
           for(i=0; i<m; i++)
             CINC[i] = (CC[i] - C[i]) * iprd / fprd;
         } else {
+          
           lsp2mgc(mc, CC, (m-1), alpha );
+          
           mc2b(CC, CC, (m-1), alpha);
+          
           gnorm(CC, CC, (m-1), gamma);
+          
           for(i=1; i<m; i++)
             CC[i] *= gamma;
           for(i=0; i<m; i++)
             CINC[i] = (CC[i] - C[i]) * iprd / fprd;
-            
+        
         } 
-        
-        
-     
-           
-        
+          
         /* p=f0 in c code!!! */
         if( p1 != 0.0 && f0 != 0.0 ) {
           inc = (f0 - p1) * (double)iprd/(double)fprd;
@@ -628,7 +634,7 @@ public class HTSVocoder {
           } else {
              if(!NGAIN)
                x *= C[0];
-             x = mglsadf(x, C, (m-1), alpha, D1);
+             x = mglsadf(x, C, (m-1), alpha, stage, D1);
           }
         
         
@@ -672,7 +678,13 @@ public class HTSVocoder {
       
     } /* method htsMLSAVocoder() */
     
-  
+    
+    private void printVector(String val, int m, double vec[]){
+      int i;  
+      System.out.println(val);
+      for(i=0; i<m; i++)
+        System.out.println("v[" + i + "]=" + vec[i]);
+    }
     
     /** mlsafir: sub functions for MLSA filter */
     private double mlsafir(double x, double b[], int m, double a, double aa, double d[], int _pt3 ) {
@@ -1011,12 +1023,15 @@ public class HTSVocoder {
       int i, min, k, mk;
       double ss1, ss2, cc;
       
-      gc2gc_buff = new double[m1 + 1]; /* check if these buffers should be created all the time */
-      gc2gc_size = m1; 
+      if( m1 > gc2gc_size ) {
+        gc2gc_buff = new double[m1 + 1]; /* check if these buffers should be created all the time */
+        gc2gc_size = m1;
+      }
       
       /* movem*/
       for(i=0; i<(m1+1); i++)
         gc2gc_buff[i] = c1[i];
+      
       c2[0] = gc2gc_buff[0];
       
       for( i=1; i<=m2; i++){
@@ -1090,26 +1105,30 @@ public class HTSVocoder {
     }
     
     /** mglsadff: sub functions for MGLSA filter */
-    private double mglsadff(double x) {
+    private double mglsadf(double x, double b[], int m, double a, int n, double d[]) {
         
+      int i;
+      for(i=0; i<n; i++)
+        x = mglsadff(x, b, m, a, d, (i*(m+1)));  
+              
       return x;
     }
    
     /** mglsadf: sub functions for MGLSA filter */
-    private double mglsadf(double x, double b[], int m, double a, double d[]){
+    private double mglsadff(double x, double b[], int m, double a, double d[], int d_offset){
       int i;
       double y;
-      y = d[0] * b[1];
+      y = d[d_offset+0] * b[1];
       
       for(i=1; i<m; i++) {
-        d[i] += a * (d[i+1] -d[i-1]);
-        y += d[i] * b[i+1];
+        d[d_offset+i] += a * (d[d_offset+i+1] -d[d_offset+i-1]);
+        y += d[d_offset+i] * b[i+1];
       }
       x -= y;
       
       for(i=m; i>0; i--)
-        d[i] = d[i-1];
-      d[0] = a * d[0] + (1 - a * a) * x;
+        d[d_offset+i] = d[d_offset+i-1];
+      d[d_offset+0] = a * d[d_offset+0] + (1 - a * a) * x;
       
       return x;
     }
@@ -1294,17 +1313,18 @@ public class HTSVocoder {
        DataInputStream lf0Data, mcepData, strData, magData;
        String lf0File, mcepFile, strFile, magFile, resFile;
        String voiceExample;
+       String voiceHMM, voiceName, parDir="";
        
        int ex = 4;
        //Author of the danger trail, Philip Steels, etc.
-       String MaryBase = "/project/mary/marcela/MARY-TTS/";
-       htsData.setUseMixExc(true);
-       htsData.setUseFourierMag(true);  /* use Fourier magnitudes for pulse generation */
+       String MaryBase = "/project/mary/marcela/openmary/";
+       htsData.setUseMixExc(false);
+       htsData.setUseFourierMag(false);  /* use Fourier magnitudes for pulse generation */
       
        // bits1, german
        if(ex == 1){
-           String voiceHMM = "bits1";
-           String voiceName = "hmm-"+voiceHMM;
+           voiceHMM = "bits1";
+           voiceName = "hmm-"+voiceHMM;
            voiceExample = "US10010003_0";
            htsData.initHMMData(voiceName, MaryBase, "german-hmm-"+voiceHMM+".config");    
        lf0File = "/project/mary/marcela/hmm-gen-experiment/lf0/US10010003_0-littend.lf0";
@@ -1315,8 +1335,8 @@ public class HTSVocoder {
        //resFile = "/project/mary/marcela/hmm-gen-experiment/residual_sinResynth/US10010003_0_res_sinResynth.wav";
        } else if (ex == 2){
        // bits2, german
-           String voiceHMM = "bits2";
-           String voiceName = "hmm-"+voiceHMM;
+           voiceHMM = "bits2";
+           voiceName = "hmm-"+voiceHMM;
            voiceExample = "US10020003_0";
            htsData.initHMMData(voiceName, MaryBase, "german-hmm-"+voiceHMM+".config");    
            
@@ -1328,8 +1348,8 @@ public class HTSVocoder {
        //resFile = "/project/mary/marcela/hmm-gen-experiment/residual_sinResynth/US10020003_0_res_sinResynth.wav";
        } else if (ex == 3){       
        // neutral, german
-           String voiceHMM = "neutral";
-           String voiceName = "hmm-"+voiceHMM;
+           voiceHMM = "neutral";
+           voiceName = "hmm-"+voiceHMM;
            voiceExample = "a0093";
            htsData.initHMMData(voiceName, MaryBase, "german-hmm-"+voiceHMM+".config");    
 
@@ -1341,17 +1361,26 @@ public class HTSVocoder {
        resFile = "/project/mary/marcela/hmm-gen-experiment/residual_sinResynth/a0093_res_sinResynth.wav";
        } else {       
        // slt, english
-           String voiceHMM = "slt";
-           String voiceName = "hmm-"+voiceHMM;
+           voiceHMM = "20-mgc-lsp";
+           //voiceHMM = "24-mel-cepstrum";
+           voiceName = "hsmm-"+voiceHMM;
+           parDir = "/project/mary/marcela/hmm-voice-conversion-experiment/gen-par/" + voiceName + "/";
            voiceExample = "cmu_us_arctic_slt_a0001";
-           htsData.initHMMData(voiceName, MaryBase, "english-hmm-"+voiceHMM+".config");    
+           htsData.initHMMData(voiceName, MaryBase, "english-hsmm-"+voiceHMM+".config");    
 
        /* parameters extracted from real data */
-           
+       /*    
        lf0File = "/project/mary/marcela/hmm-gen-experiment/lf0/cmu_us_arctic_slt_a0001-littend.lf0";
        mcepFile = "/project/mary/marcela/hmm-gen-experiment/mgc/cmu_us_arctic_slt_a0001-littend.mgc";
        strFile = "/project/mary/marcela/hmm-gen-experiment/str/cmu_us_arctic_slt_a0001-littend.str";
        magFile = "/project/mary/marcela/hmm-gen-experiment/mag/cmu_us_arctic_slt_a0001-littend.mag";
+       */
+           
+       lf0File  = parDir + "cmu_us_arctic_slt_a0001-littend.lf0";
+       mcepFile = parDir + "cmu_us_arctic_slt_a0001-littend.mgc";
+       strFile  = parDir + "cmu_us_arctic_slt_a0001-littend.str";
+       magFile  = parDir + "cmu_us_arctic_slt_a0001-littend.mag";
+       
        
        /* parameters generated from HMMs */
         /*  
@@ -1361,13 +1390,14 @@ public class HTSVocoder {
        magFile = "/project/mary/marcela/hmm-mag-experiment/gen-par/slt-gen.mag";
        */
        
-       resFile = "/project/mary/marcela/hmm-gen-experiment/residual_sinResynth/cmu_us_arctic_slt_a0001_res.wav";
+       //resFile = "/project/mary/marcela/hmm-gen-experiment/residual_sinResynth/cmu_us_arctic_slt_a0001_res.wav";
        //resFile = "/project/mary/marcela/hmm-gen-experiment/residual_sinResynth/cmu_us_arctic_slt_a0001_res_sinResynth.wav";
        }
        
         
        int i, j;
-       int mcepVsize = 75;  /* here the sizes include mcep + delta + delta^2, but just mcep will be loaded */
+       //int mcepVsize = 75;  /* here the sizes include mcep + delta + delta^2, but just mcep will be loaded */
+       int mcepVsize = 63;
        int strVsize = 15;
        int lf0Vsize = 3;
        int magVsize = 30;
@@ -1388,7 +1418,7 @@ public class HTSVocoder {
        lf0Data.close();
        
        /* CHECK: I do not know why mcep has totalframe-2 frames less than lf0 and str ???*/
-       //totalFrame = totalFrame - 2;
+       totalFrame = totalFrame - 2;
        System.out.println("Total number of Frames = " + totalFrame);
        voiced = new boolean[totalFrame];
        
@@ -1473,7 +1503,8 @@ public class HTSVocoder {
        
        
        String fileOutName;         
-       fileOutName = "/project/mary/marcela/hmm-mag-experiment/gen-par/" + voiceExample + ".wav"; 
+       //fileOutName = "/project/mary/marcela/hmm-mag-experiment/gen-par/" + voiceExample + ".wav";
+       fileOutName = parDir + voiceExample + ".wav";
        File fileOut = new File(fileOutName);
        System.out.println("saving to file: " + fileOutName);
            
