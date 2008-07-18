@@ -138,21 +138,69 @@ public class MfccRaw2MfccConverter {
         String rawMfccFileExtension = ".mgc";
         String outputMfccFileExtension = ".mfc";
         int dimension = 25;
-        //int dimension = 21;
+ 
         int samplingRateInHz = 16000;
         float windowSizeInSeconds = 0.040f; //400 samples
         float skipSizeInSeconds = 0.005f; //80 samples
         
-        folder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/hsmm-24-mel-cepstrum/hmm_gen_parameters";
+        String baseFolder;
+        
+        /*
+        baseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/hsmmMfccRaw_25Dimensional/";
+        folder = baseFolder + "hmm_gen_parameters";
         MfccRaw2MfccConverter.convertFolder(folder, rawMfccFileExtension, outputMfccFileExtension, dimension, samplingRateInHz, windowSizeInSeconds, skipSizeInSeconds);
 
-        folder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/hsmm-24-mel-cepstrum/original_parameters";
+        folder = baseFolder + "original_parameters";
         MfccRaw2MfccConverter.convertFolder(folder, rawMfccFileExtension, outputMfccFileExtension, dimension, samplingRateInHz, windowSizeInSeconds, skipSizeInSeconds);
 
-        folder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/hsmm-24-mel-cepstrum/test/hmm_gen_parameters";
+        folder = baseFolder + "test/hmm_gen_parameters";
         MfccRaw2MfccConverter.convertFolder(folder, rawMfccFileExtension, outputMfccFileExtension, dimension, samplingRateInHz, windowSizeInSeconds, skipSizeInSeconds);
 
-        folder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/hsmm-24-mel-cepstrum/test/original_parameters";
+        folder = baseFolder + "test/original_parameters";
+        MfccRaw2MfccConverter.convertFolder(folder, rawMfccFileExtension, outputMfccFileExtension, dimension, samplingRateInHz, windowSizeInSeconds, skipSizeInSeconds);
+        
+        dimension = 21;
+        baseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/lspRaw_21Dimensional/";
+        folder = baseFolder + "hmm_gen_parameters";
+        MfccRaw2MfccConverter.convertFolder(folder, rawMfccFileExtension, outputMfccFileExtension, dimension, samplingRateInHz, windowSizeInSeconds, skipSizeInSeconds);
+
+        folder = baseFolder + "original_parameters";
+        MfccRaw2MfccConverter.convertFolder(folder, rawMfccFileExtension, outputMfccFileExtension, dimension, samplingRateInHz, windowSizeInSeconds, skipSizeInSeconds);
+
+        folder = baseFolder + "test/hmm_gen_parameters";
+        MfccRaw2MfccConverter.convertFolder(folder, rawMfccFileExtension, outputMfccFileExtension, dimension, samplingRateInHz, windowSizeInSeconds, skipSizeInSeconds);
+
+        folder = baseFolder + "test/original_parameters";
+        MfccRaw2MfccConverter.convertFolder(folder, rawMfccFileExtension, outputMfccFileExtension, dimension, samplingRateInHz, windowSizeInSeconds, skipSizeInSeconds);
+    
+    
+        dimension = 21;
+        baseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/mellspRaw_21Dimensional/";
+        folder = baseFolder + "hmm_gen_parameters";
+        MfccRaw2MfccConverter.convertFolder(folder, rawMfccFileExtension, outputMfccFileExtension, dimension, samplingRateInHz, windowSizeInSeconds, skipSizeInSeconds);
+
+        folder = baseFolder + "original_parameters";
+        MfccRaw2MfccConverter.convertFolder(folder, rawMfccFileExtension, outputMfccFileExtension, dimension, samplingRateInHz, windowSizeInSeconds, skipSizeInSeconds);
+
+        folder = baseFolder + "test/hmm_gen_parameters";
+        MfccRaw2MfccConverter.convertFolder(folder, rawMfccFileExtension, outputMfccFileExtension, dimension, samplingRateInHz, windowSizeInSeconds, skipSizeInSeconds);
+
+        folder = baseFolder + "test/original_parameters";
+        MfccRaw2MfccConverter.convertFolder(folder, rawMfccFileExtension, outputMfccFileExtension, dimension, samplingRateInHz, windowSizeInSeconds, skipSizeInSeconds);
+        */
+        
+        dimension = 25;
+        baseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/mfccRaw_25Dimensional/";
+        folder = baseFolder + "hmm_train";
+        MfccRaw2MfccConverter.convertFolder(folder, rawMfccFileExtension, outputMfccFileExtension, dimension, samplingRateInHz, windowSizeInSeconds, skipSizeInSeconds);
+
+        folder = baseFolder + "hmm_test";
+        MfccRaw2MfccConverter.convertFolder(folder, rawMfccFileExtension, outputMfccFileExtension, dimension, samplingRateInHz, windowSizeInSeconds, skipSizeInSeconds);
+
+        folder = baseFolder + "orig_train";
+        MfccRaw2MfccConverter.convertFolder(folder, rawMfccFileExtension, outputMfccFileExtension, dimension, samplingRateInHz, windowSizeInSeconds, skipSizeInSeconds);
+
+        folder = baseFolder + "orig_test";
         MfccRaw2MfccConverter.convertFolder(folder, rawMfccFileExtension, outputMfccFileExtension, dimension, samplingRateInHz, windowSizeInSeconds, skipSizeInSeconds);
     }
 }
