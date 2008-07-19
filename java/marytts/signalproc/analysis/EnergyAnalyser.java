@@ -354,6 +354,17 @@ public class EnergyAnalyser extends FrameBasedAnalyser {
         double endPointWindowDuration = Double.parseDouble(System.getProperty("signalproc.endpointwindowduration", "0.3"));
         FrameAnalysisResult[] far = analyseAllFrames();
         
+        double[] energies = new double[far.length];
+        for (i=0; i<far.length; i++)
+            energies[i] = ((Double)far[i].get()).doubleValue();
+        
+        double[] deltaEnergies = new double[far.length-1];
+        for (i=1; i<far.length; i++)
+            deltaEnergies[i-1] = energies[i]-energies[i-1];
+        
+        MaryUtils.plot(energies);
+        MaryUtils.plot(deltaEnergies);
+        
         int energyBufferLength = (int)Math.floor(endPointWindowDuration/getFrameShiftTime()+0.5);
         double silenceThreshold = 0.10; //Increasing this will make silence more likely
         double speechStartEnergyThreshold = 0.9; //Increasing this will make speech segments shorter and less likely

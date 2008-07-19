@@ -284,8 +284,8 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
     //Then, any HMM output is to be transformed with the voice conversion function to make it closer to original recordings
     public static void mainHmmVoiceConversion(String[] args) throws UnsupportedAudioFileException, IOException
     {
-        //String wavBaseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/hsmmMfcc_25Dimensional/";
-        String wavBaseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/lsp_21Dimensional/";
+        String wavBaseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/hsmmMfcc_25Dimensional/";
+        //String wavBaseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/lsp_21Dimensional/";
         //String wavBaseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/mellsp_21Dimensional/";
         //String baseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/mfcc_25Dimensional/";
         //String wavBaseFolder = "/home/oytun/";
@@ -294,9 +294,9 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         String targetTag = "origTarget";
         String method;
         
-        int numTrainingFiles = 100;
+        int numTrainingFiles = 40;
         boolean isContextualGMMs = false;
-        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {8};
+        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {128};
         //int contextClassificationType = ContextualGMMParams.SILENCE_SPEECH; int[] numComponents = {16, 128};
         //int contextClassificationType = ContextualGMMParams.VOWEL_SILENCE_CONSONANT; int[] numComponents = {128, 16, 128};
         //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS; int[] numComponents = {numMixes};
