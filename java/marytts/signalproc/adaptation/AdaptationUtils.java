@@ -133,7 +133,7 @@ public class AdaptationUtils {
 
                         time2 = MathUtils.linearMap(time1, srcStartTime, srcEndTime, tgtStartTime, tgtEndTime);
 
-                        tgtFrmInd = SignalProcUtils.time2frameIndex(time2, hdr1.winsize, hdr1.skipsize);
+                        tgtFrmInd = SignalProcUtils.time2frameIndex(time2, hdr2.winsize, hdr2.skipsize);
 
                         im.files[0].indicesMap[count][0] = j;
                         im.files[0].indicesMap[count][1] = tgtFrmInd; 
@@ -229,7 +229,7 @@ public class AdaptationUtils {
 
                         time2 = MathUtils.linearMap(time1, srcStartTime, srcEndTime, tgtStartTime, tgtEndTime);
 
-                        tgtFrmInd = SignalProcUtils.time2frameIndex(time2, hdr1.winsize, hdr1.skipsize);
+                        tgtFrmInd = SignalProcUtils.time2frameIndex(time2, hdr2.winsize, hdr2.skipsize);
 
                         im.files[0].indicesMap[count][0] = Math.max(0, j-numNeighbours);
                         im.files[0].indicesMap[count][1] = Math.min(j+numNeighbours, hdr1.numfrm-1);
@@ -311,8 +311,8 @@ public class AdaptationUtils {
 
                         im.files[0].indicesMap[count][0] = SignalProcUtils.time2frameIndex(srcStartTime, hdr1.winsize, hdr1.skipsize);
                         im.files[0].indicesMap[count][1] = SignalProcUtils.time2frameIndex(srcEndTime, hdr1.winsize, hdr1.skipsize);
-                        im.files[0].indicesMap[count][2] = SignalProcUtils.time2frameIndex(tgtStartTime, hdr1.winsize, hdr1.skipsize);
-                        im.files[0].indicesMap[count][3] = SignalProcUtils.time2frameIndex(tgtEndTime, hdr1.winsize, hdr1.skipsize);
+                        im.files[0].indicesMap[count][2] = SignalProcUtils.time2frameIndex(tgtStartTime, hdr2.winsize, hdr2.skipsize);
+                        im.files[0].indicesMap[count][3] = SignalProcUtils.time2frameIndex(tgtEndTime, hdr2.winsize, hdr2.skipsize);
                         
                         count++;
 
@@ -390,8 +390,8 @@ public class AdaptationUtils {
 
                         im.files[0].indicesMap[count][0] = SignalProcUtils.time2frameIndex(srcStartTime, hdr1.winsize, hdr1.skipsize);
                         im.files[0].indicesMap[count][1] = SignalProcUtils.time2frameIndex(srcEndTime, hdr1.winsize, hdr1.skipsize);
-                        im.files[0].indicesMap[count][2] = SignalProcUtils.time2frameIndex(tgtStartTime, hdr1.winsize, hdr1.skipsize);
-                        im.files[0].indicesMap[count][3] = SignalProcUtils.time2frameIndex(tgtEndTime, hdr1.winsize, hdr1.skipsize);
+                        im.files[0].indicesMap[count][2] = SignalProcUtils.time2frameIndex(tgtStartTime, hdr2.winsize, hdr2.skipsize);
+                        im.files[0].indicesMap[count][3] = SignalProcUtils.time2frameIndex(tgtEndTime, hdr2.winsize, hdr2.skipsize);
                         
                         count++;
 

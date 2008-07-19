@@ -456,11 +456,11 @@ public class JointGMMTransformer extends BaselineTransformer {
         BaselinePostprocessor po = new BaselinePostprocessor();
         JointGMMTransformerParams pa = new JointGMMTransformerParams();
         
-        int numTrainingFiles = 100;
+        int numTrainingFiles = 40;
         int i;
         
         boolean isContextualGMMs = false;
-        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {8};
+        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {128};
         //int contextClassificationType = ContextualGMMParams.SILENCE_SPEECH; int[] numComponents = {16, 128};
         //int contextClassificationType = ContextualGMMParams.VOWEL_SILENCE_CONSONANT; int[] numComponents = {128, 16, 128};
         //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS; int[] numComponents = {numMixes};
@@ -486,7 +486,10 @@ public class JointGMMTransformer extends BaselineTransformer {
         String baseFile = wavBaseFolder + "output/" + sourceTag + "2" + targetTag + "/" + sourceTag + method + "_X_" + targetTag + method + "_" + String.valueOf(numTrainingFiles);
         
         pa.isForcedAnalysis = false;
+        
         pa.isSourceVocalTractSpectrumFromModel = false;
+        //pa.isSourceVocalTractSpectrumFromModel = true;
+ 
         pa.isVocalTractTransformation = true;
         pa.isResynthesizeVocalTractFromSourceModel = false;
         pa.isVocalTractMatchUsingTargetModel= false;
