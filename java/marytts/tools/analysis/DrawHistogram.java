@@ -1,5 +1,6 @@
 package marytts.tools.analysis;
 
+import java.text.DecimalFormat;
 import gov.noaa.pmel.sgt.dm.SGTData;
 import gov.noaa.pmel.sgt.dm.SimpleLine;
 import gov.noaa.pmel.sgt.dm.SGTMetaData;
@@ -31,6 +32,7 @@ public class DrawHistogram extends javax.swing.JFrame {
     
     private void drawFirstHistogram(int nbins){
         try{
+            DecimalFormat df = new DecimalFormat(" ##0.0000;-##0.0000");
             layout_ = new JPlotLayout(false, false, false,
                                   "Trajectory data",
                                   null,
@@ -40,10 +42,13 @@ public class DrawHistogram extends javax.swing.JFrame {
             bandwidth.setValue(nbins);
             histogram.add(this.getHistogram());
             histogram.updateUI();
-            //System.out.println("Mean: "+histData.mean());
-            //System.out.println("Variance: "+histData.variance());
-            //System.out.println("Max: "+histData.max());
-            //System.out.println("Min: "+histData.min());
+            jLabel4.setText(""+df.format(histData.mean()));
+            jLabel6.setText(""+df.format(histData.variance()));
+        
+            System.out.println("Mean: "+histData.mean());
+            System.out.println("Variance: "+histData.variance());
+            System.out.println("Max: "+histData.max());
+            System.out.println("Min: "+histData.min());
             
         }
         catch(Exception e){
@@ -67,6 +72,10 @@ public class DrawHistogram extends javax.swing.JFrame {
         bandwidth = new javax.swing.JSlider();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -96,6 +105,14 @@ public class DrawHistogram extends javax.swing.JFrame {
 
         jLabel2.setText("25");
 
+        jLabel3.setText("Mean :");
+
+        jLabel4.setText("0");
+
+        jLabel5.setText("Variance :");
+
+        jLabel6.setText("0");
+
         javax.swing.GroupLayout controlsLayout = new javax.swing.GroupLayout(controls);
         controls.setLayout(controlsLayout);
         controlsLayout.setHorizontalGroup(
@@ -104,23 +121,42 @@ public class DrawHistogram extends javax.swing.JFrame {
                 .addGroup(controlsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(controlsLayout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(bandwidth, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(bandwidth, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(74, 74, 74)
+                        .addGroup(controlsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel5))
+                        .addGap(18, 18, 18)
+                        .addGroup(controlsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel6)
+                            .addComponent(jLabel4)))
                     .addGroup(controlsLayout.createSequentialGroup()
                         .addGap(43, 43, 43)
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel2)))
-                .addContainerGap(310, Short.MAX_VALUE))
+                .addContainerGap(146, Short.MAX_VALUE))
         );
         controlsLayout.setVerticalGroup(
             controlsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(controlsLayout.createSequentialGroup()
-                .addComponent(bandwidth, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(controlsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
+                .addGroup(controlsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(controlsLayout.createSequentialGroup()
+                        .addComponent(bandwidth, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(controlsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(controlsLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(controlsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel4))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(controlsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel5)
+                            .addComponent(jLabel6))))
+                .addContainerGap(25, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -140,7 +176,7 @@ public class DrawHistogram extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(histogram, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(controls, javax.swing.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE)
+                .addComponent(controls, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -156,6 +192,8 @@ private void changeBandWidth(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:eve
         this.getHistogram().resize(histogram.size());
         histogram.add(this.getHistogram());
         histogram.updateUI();
+        //jLabel4.setText(""+histData.mean());
+        //jLabel6.setText(""+histData.variance());
         //this.setVisible(true);
         
     }
@@ -227,6 +265,10 @@ private void changeBandWidth(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:eve
     private javax.swing.JPanel histogram;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     // End of variables declaration//GEN-END:variables
 
 }
