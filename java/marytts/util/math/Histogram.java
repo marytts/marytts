@@ -71,7 +71,7 @@ public class Histogram {
         for(double x: m_data){
             fill(x);
         }
-        dataProcess();
+        m_binCenters = this.setSampleArray();
     }
 
     
@@ -83,17 +83,10 @@ public class Histogram {
         for(double x: m_data){
             fill(x);
         }
-        dataProcess();
+        m_binCenters = this.setSampleArray();
     }
 
     
-    private void dataProcess(){
-        double binWidth = this.getBandWidth();
-        for (int i=0; i<m_nbins; i++){
-            m_binCenters[i] = m_min + (double)((i+1) * binWidth) / 2.0;
-         }
-    }
-
         /** Enter data into the histogram. The fill method takes the given
          * value, works out which bin this corresponds to, and increments
          * this bin by one.
@@ -223,7 +216,18 @@ public class Histogram {
                     df.format(m_hist[i]) );
         }
     }
-
+    
+    public  double[] setSampleArray(){
+        double[] binCenters = new double[m_nbins];
+        double binWidth = (m_max - m_min)/m_nbins;
+        for (int i=0; i<m_nbins; i++){
+            double binLowEdge = m_min + i * binWidth;
+            double binHighEdge = binLowEdge + binWidth;
+            binCenters[i] = (binLowEdge + binHighEdge) / 2.0 ;
+        }
+        return binCenters;
+    }
+   
         /** Get number of entries in the histogram. This should correspond
          * to the number of times the fill method has been used.  
          * @return number of entries
