@@ -1149,8 +1149,8 @@ public class MaryGUIClient extends JPanel
                     } else { // OK, we know what to do
                         processor.process(inputText.getText(),
                                 ((MaryClient.DataType)cbInputType.getSelectedItem()).name(),
-                                ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).getLocale().toString(),
                                 "AUDIO",
+                                ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).getLocale().toString(),
                                 audioType,
                                 ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
                                 "",
@@ -1325,8 +1325,8 @@ public class MaryGUIClient extends JPanel
                 os = new ByteArrayOutputStream();
                 processor.process(inputText.getText(),
                         ((MaryClient.DataType)cbInputType.getSelectedItem()).name(),
-                        ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).getLocale().toString(),
                         outputType.name(),
+                        ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).getLocale().toString(),
                         null,
                         ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
                         "",
