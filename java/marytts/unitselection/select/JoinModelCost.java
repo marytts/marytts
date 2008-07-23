@@ -76,62 +76,6 @@ public class JoinModelCost implements JoinCostFunction
     private JoinCostFeatures jcf = null;
     
     private HTSContextTranslator contextTranslator = new HTSContextTranslator();
-    // TODO: the list of features should be read, not hard-coded
-    private Vector<String> featureList = new Vector<String>(Arrays.asList(new String[] {
-            "mary_phoneme",
-            "mary_prev_phoneme",
-            "mary_next_phoneme",
-            "mary_ph_vc",
-            "mary_ph_cplace",
-            "mary_ph_ctype",
-            "mary_ph_cvox",
-            "mary_ph_vfront",
-            "mary_ph_vheight",
-            "mary_ph_vlng",
-            "mary_ph_vrnd",
-            "mary_prev_vc",
-            "mary_prev_cplace",
-            "mary_prev_ctype",
-            "mary_prev_cvox",
-            "mary_prev_vfront",
-            "mary_prev_vheight",
-            "mary_prev_vlng",
-            "mary_prev_vrnd",
-            "mary_next_vc",
-            "mary_next_cplace",
-            "mary_next_ctype",
-            "mary_next_cvox",
-            "mary_next_vfront",
-            "mary_next_vheight",
-            "mary_next_vlng",
-            "mary_next_vrnd",
-            "mary_stressed",
-            "mary_pos_in_syl",
-            "mary_position_type",
-            "mary_gpos",
-            "mary_sentence_punc",
-            "mary_sentence_numwords",
-            "mary_words_from_sentence_start",
-            "mary_words_from_sentence_end",
-            "mary_word_numsyls",
-            "mary_syls_from_word_start",
-            "mary_syls_from_word_end",
-            "mary_word_numsegs",
-            "mary_segs_from_word_start",
-            "mary_segs_from_word_end",
-            "mary_syl_numsegs",
-            "mary_segs_from_syl_start",
-            "mary_segs_from_syl_end",
-            "mary_syls_from_prev_stressed",
-            "mary_syls_to_next_stressed",
-            "mary_prev_punctuation",
-            "mary_next_punctuation",
-            "mary_words_from_prev_punctuation",
-            "mary_words_to_next_punctuation",
-            "mary_word_frequency",
-            "mary_halfphone_lr"
-    }));
-    
     private HTSModelSet joinPdf = null;
     private HTSTreeSet joinTree = null;
     
