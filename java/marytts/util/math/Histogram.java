@@ -268,6 +268,10 @@ public class Histogram {
         return MathUtils.variance(m_data);
     }
     
+    public double stdDev(){
+        return MathUtils.standardDeviation(m_data);
+    }
+    
         /** Get upper end of histogram range
          * @return maximum x value covered by histogram
          */
