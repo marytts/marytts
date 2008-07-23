@@ -49,6 +49,7 @@ import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.htsengine.HTSModelSet;
 import marytts.htsengine.HTSTreeSet;
+import marytts.htsengine.HMMData;
 import marytts.modules.HTSContextTranslator;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.Unit;
@@ -66,6 +67,7 @@ public class JoinModeller extends VoiceImportComponent
     private int percent = 0;
     
     private HTSContextTranslator contextTranslator = null;
+    private HMMData htsData = null;  /* for using the function readFeatureList() */
     private Vector<String> featureList = null;
     private Map<String,String> feat2shortFeat = new HashMap<String, String>();
     
@@ -89,66 +91,11 @@ public class JoinModeller extends VoiceImportComponent
     public final String TRNCONFFILE = "JoinModeller.trnFile";
     public final String CNVCONFFILE = "JoinModeller.cnvFile"; 
     public final String HHEDCOMMAND = "JoinModeller.hhedCommand";
-    
+    public final String FEATURELISTFILE = "JoinModeller.featureListFile";
     
     public JoinModeller()
     {
         contextTranslator = new HTSContextTranslator();
-        featureList = new Vector<String>(Arrays.asList(new String[] {
-                "mary_phoneme",
-                "mary_prev_phoneme",
-                "mary_next_phoneme",
-                "mary_ph_vc",
-                "mary_ph_cplace",
-                "mary_ph_ctype",
-                "mary_ph_cvox",
-                "mary_ph_vfront",
-                "mary_ph_vheight",
-                "mary_ph_vlng",
-                "mary_ph_vrnd",
-                "mary_prev_vc",
-                "mary_prev_cplace",
-                "mary_prev_ctype",
-                "mary_prev_cvox",
-                "mary_prev_vfront",
-                "mary_prev_vheight",
-                "mary_prev_vlng",
-                "mary_prev_vrnd",
-                "mary_next_vc",
-                "mary_next_cplace",
-                "mary_next_ctype",
-                "mary_next_cvox",
-                "mary_next_vfront",
-                "mary_next_vheight",
-                "mary_next_vlng",
-                "mary_next_vrnd",
-                "mary_stressed",
-                "mary_pos_in_syl",
-                "mary_position_type",
-                "mary_gpos",
-                "mary_sentence_punc",
-                "mary_sentence_numwords",
-                "mary_words_from_sentence_start",
-                "mary_words_from_sentence_end",
-                "mary_word_numsyls",
-                "mary_syls_from_word_start",
-                "mary_syls_from_word_end",
-                "mary_word_numsegs",
-                "mary_segs_from_word_start",
-                "mary_segs_from_word_end",
-                "mary_syl_numsegs",
-                "mary_segs_from_syl_start",
-                "mary_segs_from_syl_end",
-                "mary_syls_from_prev_stressed",
-                "mary_syls_to_next_stressed",
-                "mary_prev_punctuation",
-                "mary_next_punctuation",
-                "mary_words_from_prev_punctuation",
-                "mary_words_to_next_punctuation",
-                "mary_word_frequency",
-                "mary_halfphone_lr"
-        }));
-        
     }
     
     public String getName(){
@@ -166,7 +113,8 @@ public class JoinModeller extends VoiceImportComponent
            props.put(UNITFILE,filedir+"halfphoneUnits"+maryExt);
            props.put(STATSFILE,filedir+"stats"+maryExt);
            props.put(MMFFILE,filedir+"join_mmf"+maryExt);
-           props.put(FULLFILE, filedir+"fullList"+maryExt);       
+           props.put(FULLFILE, filedir+"fullList"+maryExt);
+           props.put(FEATURELISTFILE, filedir+"featureListFile"+maryExt);
            props.put(CXCHEDFILE, filedir+"cxc_join.hed");
            props.put(JOINTREEFILE, filedir+"join_tree.inf");
            props.put(CNVHEDFILE, filedir+"cnv_join.hed");
@@ -185,6 +133,7 @@ public class JoinModeller extends VoiceImportComponent
         props2Help.put(STATSFILE,"output file containing statistics of the models in HTK stats format");
         props2Help.put(MMFFILE,"output file containing one state HMM models, HTK format, representing join models (mean and variances are calculated in this class)");
         props2Help.put(FULLFILE,"output file containing the full list of HMM model names");
+        props2Help.put(FEATURELISTFILE,"feature list for making fullcontext names and questions");        
         props2Help.put(CXCHEDFILE,"HTK hed file used by HHEd, load stats file, contains questions for decision tree-based context clustering and outputs result in join-tree.inf");
         props2Help.put(CNVHEDFILE,"HTK hed file used by HHEd to convert trees and mmf into hts_engine format");
         props2Help.put(TRNCONFFILE,"HTK configuration file for context clustering");
@@ -194,13 +143,15 @@ public class JoinModeller extends VoiceImportComponent
     
     public boolean compute() throws IOException, Exception
     {
-        System.out.println("\n---- Training join models\n");
-        
+        System.out.println("\n---- Training join models\n");       
         
         FeatureFileReader unitFeatures = FeatureFileReader.getFeatureFileReader(getProp(UNITFEATURESFILE));
         JoinCostFeatures joinFeatures = new JoinCostFeatures(getProp(JOINCOSTFEATURESFILE));
         UnitFileReader units = new UnitFileReader(getProp(UNITFILE));
         
+        featureList = new Vector<String>(); 
+        readFeatureList(getProp(FEATURELISTFILE));
+              
         statsStream = new FileWriter(getProp(STATSFILE));
         mmfStream   = new FileWriter(getProp(MMFFILE));
         fullStream  = new FileWriter(getProp(FULLFILE));
@@ -481,6 +432,44 @@ public class JoinModeller extends VoiceImportComponent
         return s;
           
       }
+    
+    /** This function reads the feature list file, for example feature_list_en_05.pl
+     * and fills in a vector the elements in that list that are un-commented 
+     */
+    private void readFeatureList(String featureListFile) throws FileNotFoundException {
+      String line;
+      int i;
+  
+      //System.out.println("featureListFile: " + featureListFile);
+      Scanner s = null;
+      try {
+        s = new Scanner(new BufferedReader(new FileReader(featureListFile))).useDelimiter("\n");
+          
+        while (s.hasNext()) {
+          line = s.next();
+          //System.out.println("fea: "+ line);
+          if(!line.contains("#") && line.length()>0){    /* if it is not commented */
+            String[] elem = line.split(",");
+            for(i=0; i<elem.length; i++)
+              if(elem[i].contains("mary_")){  /* if starts with mary_ */                 
+                featureList.addElement(elem[i].substring(elem[i].indexOf("\"")+1, elem[i].lastIndexOf("\"")));
+                //System.out.println("  -->  "+ featureList.lastElement()); 
+              }
+          }
+        }
+                
+        if (s != null) { 
+          s.close();
+        }
+        
+      } catch (FileNotFoundException e) {
+          System.out.println("readFeatureList:  " + e.getMessage());
+      }
+      
+      System.out.println("readFeatureList: loaded " + featureList.size() + " context features from " + featureListFile);
+      
+    } /* method ReadFeatureList */
+
  
     
     public static void main(String[] args) throws IOException, InterruptedException{
