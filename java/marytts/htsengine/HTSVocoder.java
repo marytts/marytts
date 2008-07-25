@@ -154,6 +154,9 @@ public class HTSVocoder {
     private boolean mixedExcitation   = false;
     private boolean fourierMagnitudes = false;
     
+    private boolean lpcVocoder        = false;     /* true if lpc vocoder is used, then the input should be lsp parameters */
+    
+    public void setUseLpcVocoder(boolean bval){ lpcVocoder = bval; }
     
     /** The initialisation of VocoderSetup should be done when there is already 
       * information about the number of feature vectors to be processed,
@@ -346,6 +349,8 @@ public class HTSVocoder {
       int magSample, magPulseSize;
       boolean aperiodicFlag = false;
       
+      double d[];                        /* used in the lpc vocoder */
+      
       /* --------------------------------------------------------------------------------
        * these variables for allow saving excitation and mixed excitation in a binary file 
        * if true please provide an appropriate path/name where to save these files, 
@@ -369,6 +374,13 @@ public class HTSVocoder {
       mc = new double[m];
       initVocoder(m-1, mcepPst.getVsize()-1, htsData);
       
+      
+      d = new double[m];
+      if(lpcVocoder){
+        logger.info("Using LPC vocoder"); 
+        for(i=0; i<m; i++)
+          d[i] = 0.0;
+      }
       mixedExcitation = htsData.getUseMixExc();
       fourierMagnitudes = htsData.getUseFourierMag();
          
@@ -509,14 +521,15 @@ public class HTSVocoder {
           lsp2mgc(mc, CC, (m-1), alpha );
           
           mc2b(CC, CC, (m-1), alpha);
-          
+         
           gnorm(CC, CC, (m-1), gamma);
-          
+         
           for(i=1; i<m; i++)
             CC[i] *= gamma;
+         
           for(i=0; i<m; i++)
             CINC[i] = (CC[i] - C[i]) * iprd / fprd;
-        
+          
         } 
           
         /* p=f0 in c code!!! */
@@ -529,18 +542,14 @@ public class HTSVocoder {
           p1 = 0.0; 
           //System.out.println("  inc=" + inc + "  ***pc=" + pc + "  p1=" + p1);
         }
-        
-        
-        
+              
         /* Here i need to generate both xp:pulse and xn:noise signals separately  */ 
         gauss = false; /* Mixed excitation works better with nomal noise */
       
         /* Generate fperiod samples per feature vector, normally 80 samples per frame */
         //p1=0.0;
         gauss=false;
-        for(j=fprd-1, i=(iprd+1)/2; j>=0; j--) {
-//          System.out.print("j=" + j + "  i=" + i);  
-            
+        for(j=fprd-1, i=(iprd+1)/2; j>=0; j--) {          
           if(p1 == 0.0) {
             if(gauss)
               x = rand.nextGaussian();  /* returns double, gaussian distribution mean=0.0 and var=1.0 */
@@ -626,11 +635,23 @@ public class HTSVocoder {
             /* comment this line if no mixed excitation, just pulse and noise */
             x = mix;   /* excitation sample */
           }
-                   
-          if(stage == 0 ){
+           
+          if(lpcVocoder){
+            // LPC filter  C[k=0] = gain is not used!
+            if(!NGAIN)
+              x *= C[0];
+            for(k=(m-1); k>1; k--){
+              x = x - (C[k] * d[k]);
+              d[k] = d[k-1];
+            }
+            x = x - (C[1] * d[1]);
+            d[1] = x;
+               
+          } else if(stage == 0 ){
             if(x != 0.0 )
               x *= Math.exp(C[0]);
             x = mlsadf(x, C, m, alpha, aa, D1);
+            
           } else {
              if(!NGAIN)
                x *= C[0];
@@ -787,13 +808,6 @@ public class HTSVocoder {
        
     
     /** mc2b: transform mel-cepstrum to MLSA digital filter coefficients */
-  /*  private void mc2b(double mcp[], int ccIndex, int m, double a ) {
-      int i;
-      C[ccIndex+m-1] = mcp[m-1];
-      for(i=m-2; i>=0; i--) {
-        C[ccIndex+i] = mcp[i] - a * C[ccIndex+i+1];  
-      }
-    }*/
     private void mc2b(double mc[], double b[], int m, double a ) {
         int i;
         b[m] = mc[m];
@@ -1083,15 +1097,15 @@ public class HTSVocoder {
       
       /* mgc2mgc*/
       if(NORMFLG1)
-        ignorm(mgc, mgc, m, gamma);
+        ignorm(mgc, mgc, m, gamma);  
       else if(MULGFLG1)
-        mgc[0] = (1.0 - mgc[0]) * stage;
+        mgc[0] = (1.0 - mgc[0]) * stage; 
       
       if(MULGFLG1)
         for(i=m; i>=1; i--) 
           mgc[i] *= -stage;    
       
-      mgc2mgc(mgc, m, alpha, gamma, mgc, m, alpha, gamma); /* input and output is in mgc=C */
+      mgc2mgc(mgc, m, alpha, gamma, mgc, m, alpha, gamma);  /* input and output is in mgc=C */
       
       if(NORMFLG2)
         gnorm(mgc, mgc, m, gamma);
@@ -1301,6 +1315,165 @@ public class HTSVocoder {
     }
     
     
+    /** this vocoder read the residual signal from resFile */
+    public double [] htsMLSAVocoder_residual(HMMData htsData, HTSPStream mcepPst, String resFile)
+    throws Exception {
+
+      double x;  
+      int i, j, k, m, s, mcepframe, lf0frame, s_double; 
+      double alpha = htsData.getAlpha();
+      double beta  = htsData.getBeta();
+      double aa = 1-alpha*alpha;
+      int audio_size;                    /* audio size in samples, calculated as num frames * frame period */
+      double [] audio_double = null;
+      double d[];                        /* used in the lpc vocoder */
+   
+      /* read the residual file */
+      AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(resFile));
+      int samplingRate = (int)inputAudio.getFormat().getSampleRate();
+      AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
+      double [] res = signal.getAllData(); 
+      inputAudio.close();     
+        
+      double mc[] = null;  /* feature vector for a particular frame */
+      
+      /* Initialise vocoder and mixed excitation, once initialised it is known the order
+       * of the filters so the shaping filters hp and hn can be initialised. */
+      m = mcepPst.getOrder();
+      mc = new double[m];
+      initVocoder(m-1, mcepPst.getVsize()-1, htsData);
+      
+      d = new double[m];
+      if(lpcVocoder){
+        logger.info("Using LPC vocoder");  
+        for(i=0; i<m; i++)
+          d[i] = 0.0;
+      }
+          
+      if(beta != 0.0)
+        logger.info("Postfiltering applied with beta=" + beta);
+      else
+        logger.info("No postfiltering applied.");
+          
+      /* Clear content of c, should be done if this function is
+      called more than once with a new set of generated parameters. */
+      for(i=0; i< C.length; i++)
+        C[i] = CC[i] = CINC[i] = 0.0;
+      for(i=0; i< D1.length; i++)
+          D1[i]=0.0;
+    
+    
+      /* _______________________Synthesize speech waveforms_____________________ */
+      /* generate Nperiod samples per mcepframe */
+      s = 0;   /* number of samples */
+      s_double = 0;
+      audio_size = (mcepPst.getT()) * (fprd) ;
+      audio_double = new double[audio_size];  /* initialise buffer for audio */
+      p1 = -1;
+      int sample = 0;
+      for(mcepframe=0,lf0frame=0; mcepframe<mcepPst.getT(); mcepframe++) {
+       
+        /* get current feature vector mcp */ 
+        for(i=0; i<m; i++)
+          mc[i] = mcepPst.getPar(mcepframe, i); 
+   
+        
+        /* p1 is initialised in -1, so this will be done just for the first frame */
+        if( p1 < 0 ) {  
+          p1   = 1;       /* this has to be done the first time...*/    
+          // pc   = p1;   
+          /* for LSP */
+          if(stage != 0){
+            if( use_log_gain)
+              C[0] = LZERO;
+            else
+              C[0] = ZERO;
+            for(i=0; i<m; i++ )  
+              C[i] = i * Math.PI / m;
+            /* LSP -> MGC */
+            lsp2mgc(C, C, (m-1), alpha);
+            mc2b(C, C, (m-1), alpha);
+            gnorm(C, C, (m-1), gamma);
+            for(i=1; i<m; i++)
+              C[i] *= gamma;   
+          }
+          
+        }
+        
+        if(stage == 0){         
+          /* postfiltering, this is done if beta>0.0 */
+          postfilter_mcp(mc, (m-1), alpha, beta);
+          /* mc2b: transform mel-cepstrum to MLSA digital filter coefficients */   
+          mc2b(mc, CC, (m-1), alpha);
+          for(i=0; i<m; i++)
+            CINC[i] = (CC[i] - C[i]) * iprd / fprd;
+        } else {
+          
+          lsp2mgc(mc, CC, (m-1), alpha );
+          
+          mc2b(CC, CC, (m-1), alpha);
+          
+          gnorm(CC, CC, (m-1), gamma);
+          
+          for(i=1; i<m; i++)
+            CC[i] *= gamma;
+          for(i=0; i<m; i++)
+            CINC[i] = (CC[i] - C[i]) * iprd / fprd;
+        
+        } 
+          
+        for(j=fprd-1, i=(iprd+1)/2; j>=0; j--) {
+          
+          x = res[sample];
+          
+          if(lpcVocoder){
+              // LPC filter  k=0 is not used!
+              for(k=(m-1); k>1; k--){
+                x = x - (C[k] * d[k]);
+                d[k] = d[k-1];
+              }
+              x = x - (C[1] * d[1]);
+              d[1] = x;
+                 
+          } else if(stage == 0 ){
+            if(x != 0.0 )
+              x *= Math.exp(C[0]);
+            x = mlsadf(x, C, m, alpha, aa, D1);
+          } else {
+             if(!NGAIN)
+               x *= C[0];
+             x = mglsadf(x, C, (m-1), alpha, stage, D1);
+          }
+               
+          audio_double[s_double] = x;
+          s_double++;
+          
+          if((--i) == 0 ) {
+            //p1 += inc;
+            for(k=0; k<m; k++){
+              C[k] += CINC[k];  
+            }
+            i = iprd;
+          }
+          sample++;
+        } /* for each sample in a period fprd */
+        
+        /* move elements in c */
+        /* HTS_movem(v->cc, v->c, m + 1); */
+        for(i=0; i<m; i++){
+          C[i] = CC[i];  
+        }
+      
+      } /* for each mcep frame */
+      
+      logger.info("Finish processing " + mcepframe + " mcep frames." + "  Num samples in bytes s=" + s );
+        
+      return(audio_double);
+      
+    } /* method htsMLSAVocoder_residual() */
+    
+  
+    
     /** 
      * Stand alone testing reading parameters from files in SPTK format and little-endian. */
     public static void main(String[] args) throws IOException, InterruptedException, Exception{
@@ -1312,16 +1485,13 @@ public class HTSVocoder {
        boolean [] voiced = null;
        DataInputStream lf0Data, mcepData, strData, magData;
        String lf0File, mcepFile, strFile, magFile, resFile;
-       String voiceExample;
-       String voiceHMM, voiceName, parDir="";
+       String voiceExample, outFile="";
+       String voiceHMM, voiceName, parDir="", outDir="";
        
        int ex = 4;
        //Author of the danger trail, Philip Steels, etc.
        String MaryBase = "/project/mary/marcela/openmary/";
-       htsData.setUseMixExc(false);
-       htsData.setUseFourierMag(false);  /* use Fourier magnitudes for pulse generation */
-      
-       // bits1, german
+         // bits1, german
        if(ex == 1){
            voiceHMM = "bits1";
            voiceName = "hmm-"+voiceHMM;
@@ -1361,43 +1531,38 @@ public class HTSVocoder {
        resFile = "/project/mary/marcela/hmm-gen-experiment/residual_sinResynth/a0093_res_sinResynth.wav";
        } else {       
        // slt, english
-           voiceHMM = "20-mgc-lsp";
+                      
+           voiceHMM = "20-lsp";
+           //voiceHMM = "20-mel-lsp";
+           //voiceHMM = "20-mgc-lsp";
            //voiceHMM = "24-mel-cepstrum";
            voiceName = "hsmm-"+voiceHMM;
            parDir = "/project/mary/marcela/hmm-voice-conversion-experiment/gen-par/" + voiceName + "/";
+           //outDir = "/project/mary/marcela/hmm-gen-experiment/MLSA-MGLSA/" + voiceName + "/";
+           outDir = "/project/mary/marcela/openmary/tmp/";
            voiceExample = "cmu_us_arctic_slt_a0001";
+           outFile = "slt-lpc-vocoder-gen-exc";
            htsData.initHMMData(voiceName, MaryBase, "english-hsmm-"+voiceHMM+".config");    
 
-       /* parameters extracted from real data */
-       /*    
-       lf0File = "/project/mary/marcela/hmm-gen-experiment/lf0/cmu_us_arctic_slt_a0001-littend.lf0";
-       mcepFile = "/project/mary/marcela/hmm-gen-experiment/mgc/cmu_us_arctic_slt_a0001-littend.mgc";
-       strFile = "/project/mary/marcela/hmm-gen-experiment/str/cmu_us_arctic_slt_a0001-littend.str";
-       magFile = "/project/mary/marcela/hmm-gen-experiment/mag/cmu_us_arctic_slt_a0001-littend.mag";
-       */
+       /* parameters extracted from real data */   
            
        lf0File  = parDir + "cmu_us_arctic_slt_a0001-littend.lf0";
        mcepFile = parDir + "cmu_us_arctic_slt_a0001-littend.mgc";
        strFile  = parDir + "cmu_us_arctic_slt_a0001-littend.str";
        magFile  = parDir + "cmu_us_arctic_slt_a0001-littend.mag";
-       
-       
-       /* parameters generated from HMMs */
-        /*  
-       lf0File = "/project/mary/marcela/hmm-mag-experiment/gen-par/slt-gen.lf0";
-       mcepFile = "/project/mary/marcela/hmm-mag-experiment/gen-par/slt-gen.mgc";
-       strFile = "/project/mary/marcela/hmm-mag-experiment/gen-par/slt-gen.str";
-       magFile = "/project/mary/marcela/hmm-mag-experiment/gen-par/slt-gen.mag";
-       */
-       
+         
        //resFile = "/project/mary/marcela/hmm-gen-experiment/residual_sinResynth/cmu_us_arctic_slt_a0001_res.wav";
-       //resFile = "/project/mary/marcela/hmm-gen-experiment/residual_sinResynth/cmu_us_arctic_slt_a0001_res_sinResynth.wav";
+       resFile = "/project/mary/marcela/hmm-gen-experiment/residual_sinResynth/cmu_us_arctic_slt_a0001_res_sinResynth.wav";
        }
        
         
        int i, j;
-       //int mcepVsize = 75;  /* here the sizes include mcep + delta + delta^2, but just mcep will be loaded */
-       int mcepVsize = 63;
+       int mcepVsize;
+       if(voiceHMM.contentEquals("24-mel-cepstrum") )
+         mcepVsize = 75;  /* here the sizes include mcep + delta + delta^2, but just mcep will be loaded */
+       else
+         mcepVsize = 63;  /* normally 20 coeff for lsp parameters */
+       
        int strVsize = 15;
        int lf0Vsize = 3;
        int magVsize = 30;
@@ -1486,10 +1651,17 @@ public class HTSVocoder {
              signed,
              bigEndian);
        double [] audio_double = null;
-       
+
+      
        HTSVocoder par2speech = new HTSVocoder();
+       
+       //par2speech.setUseLpcVocoder(true);
+       htsData.setUseMixExc(true);
+       htsData.setUseFourierMag(false);  /* use Fourier magnitudes for pulse generation */
+          
        audio_double = par2speech.htsMLSAVocoder(lf0Pst, mcepPst, strPst, magPst, voiced, htsData);
-      // audio_double = par2speech.htsMLSAVocoder_residual(lf0Pst, mcepPst, strPst, magPst, voiced, htsData, resFile);
+       //audio_double = par2speech.htsMLSAVocoder_residual(htsData, mcepPst, resFile);
+      
        
        long lengthInSamples = (audio_double.length * 2 ) / (sampleSizeInBits/8);
        par2speech.logger.info("length in samples=" + lengthInSamples );
@@ -1504,7 +1676,8 @@ public class HTSVocoder {
        
        String fileOutName;         
        //fileOutName = "/project/mary/marcela/hmm-mag-experiment/gen-par/" + voiceExample + ".wav";
-       fileOutName = parDir + voiceExample + ".wav";
+       //fileOutName = parDir + voiceExample + ".wav";
+       fileOutName = outDir + outFile + ".wav";
        File fileOut = new File(fileOutName);
        System.out.println("saving to file: " + fileOutName);
            
