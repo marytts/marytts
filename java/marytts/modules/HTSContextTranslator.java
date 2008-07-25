@@ -466,7 +466,7 @@ public class HTSContextTranslator extends InternalModule {
      * @param lab
      * @return String
      */
-    public String replaceBackTrickyPhones(String lab){
+    public static String replaceBackTrickyPhones(String lab){
       String s = lab;
       /** DE (replacements in German phoneme set) */     
       if(lab.contentEquals("ER6") )
@@ -535,7 +535,7 @@ public class HTSContextTranslator extends InternalModule {
     }
     
     
-    private String replacePunc(String lab){
+    public static String replacePunc(String lab){
         String s = lab;
            
         if(lab.contentEquals(".") )
@@ -554,6 +554,27 @@ public class HTSContextTranslator extends InternalModule {
         return s;
           
       }
+    
+    public static String replaceBackPunc(String lab){
+        String s = lab;
+           
+        if(lab.contentEquals("pt") )
+          s = ".";
+        else if (lab.contentEquals("cm") )
+          s = ",";
+        else if (lab.contentEquals("op") )
+            s = "(";
+        else if (lab.contentEquals("cp") )
+            s = ")";
+        else if (lab.contentEquals("in") )
+            s = "?";
+        else if (lab.contentEquals("qt") )
+            s = "\"";
+        
+        return s;
+          
+      }
+   
     
     private String replaceToBI(String lab){
         String s = lab;

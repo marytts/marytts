@@ -299,7 +299,7 @@ public class JoinModeller extends VoiceImportComponent
                 if (f.endsWith("phoneme")) {
                     v = contextTranslator.replaceTrickyPhones(v);
                 } else if (f.endsWith("sentence_punc") || f.endsWith("punctuation")) {
-                    v = replacePunc(v);
+                    v = HTSContextTranslator.replacePunc(v);
                 }
                 pw.println("QS \""+f+"="+v+"\" {*|"+f+"="+v+"|*}");
             }
@@ -412,26 +412,6 @@ public class JoinModeller extends VoiceImportComponent
         
     }
     
-    
-    private String replacePunc(String lab){
-        String s = lab;
-           
-        if(lab.contentEquals(".") )
-          s = "pt";
-        else if (lab.contentEquals(",") )
-          s = "cm";
-        else if (lab.contentEquals("(") )
-            s = "op";
-        else if (lab.contentEquals(")") )
-            s = "cp";
-        else if (lab.contentEquals("?") )
-            s = "in";
-        else if (lab.contentEquals("\"") )
-            s = "qt";
-        
-        return s;
-          
-      }
     
     /** This function reads the feature list file, for example feature_list_en_05.pl
      * and fills in a vector the elements in that list that are un-commented 
