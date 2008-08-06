@@ -154,9 +154,10 @@ public class FeatureProcessorManager
             addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature
                     (phoneset, "mary_ph_"+feature, feature, phonefeatures2values.get(feature), segment));
         }
-
+      
         Map<String,MaryGenericFeatureProcessors.TargetItemNavigator> segments =
             new HashMap<String, MaryGenericFeatureProcessors.TargetItemNavigator>();
+        
         segments.put("prev", new MaryGenericFeatureProcessors.PrevSegmentNavigator());
         segments.put("prev_prev", new MaryGenericFeatureProcessors.PrevPrevSegmentNavigator());
         segments.put("next", new MaryGenericFeatureProcessors.NextSegmentNavigator());
@@ -164,7 +165,7 @@ public class FeatureProcessorManager
 
         for (String position : segments.keySet()) {
             MaryGenericFeatureProcessors.TargetItemNavigator navi = segments.get(position);
-            addFeatureProcessor(new MaryLanguageFeatureProcessors.Phoneme("mary_"+position+"_phoneme", phonemeValues, segment));
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.Phoneme("mary_"+position+"_phoneme", phonemeValues, navi));
             // Phone features:
             for (String feature : phonefeatures2values.keySet()) {
                 addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature
@@ -174,5 +175,6 @@ public class FeatureProcessorManager
         }
 
     }
+    
 
 }
