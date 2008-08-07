@@ -32,6 +32,7 @@ package marytts.modules;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,7 +67,7 @@ import marytts.server.MaryProperties;
 public class HTSContextTranslator extends InternalModule {
 
     private String contextFeatureFile;
-    
+    private int iPhoneme, iPrevPhoneme, iPrevPrevPhoneme, iNextPhoneme, iNextNextPhoneme;
     private Map<String,String> feat2shortFeat = new HashMap<String, String>();
  
     public HTSContextTranslator()
@@ -102,7 +103,16 @@ public class HTSContextTranslator extends InternalModule {
         
         String lab;   
         
-        lab = _process(d.getPlainText(), hmmv.getFeatureList());       
+        //System.out.println("contextfeatures=" + d.getPlainText());
+        
+        //lab = processTargetFeatures(d.getPlainText(), hmmv.getFeatureList()); 
+        //System.out.println("(1) lab =\n" + lab);
+        
+        lab = _process(d.getPlainText(), hmmv.getFeatureList()); 
+        System.out.println("(2) lab =\n" + lab); 
+        
+        
+
         output.setPlainText(lab);
         
         return output;
@@ -291,24 +301,48 @@ public class HTSContextTranslator extends InternalModule {
     throws Exception
     {
         FeatureDefinition def = new FeatureDefinition(new BufferedReader(new StringReader(d)), false);
+        
+        if (!def.hasFeature("mary_prev_prev_phoneme") && !def.hasFeature("mary_next_next_phoneme")){
+          /* for processing quint-phones we need the definitions of prev_prev and next_next, this should be default in MARY 4.0 ???*/
+          throw new Exception("HTSContextTranslator: there is no defined mary_prev_prev_phoneme and mary_next_next_phoneme features for processing quinphones."); 
+        } else {
+        // indexes for the quinphone elements:
+          iPhoneme = def.getFeatureIndex("mary_phoneme");
+          iPrevPhoneme = def.getFeatureIndex("mary_prev_phoneme");
+          iNextPhoneme = def.getFeatureIndex("mary_next_phoneme");
+          iPrevPrevPhoneme = def.getFeatureIndex("mary_prev_prev_phoneme");
+          iNextNextPhoneme = def.getFeatureIndex("mary_next_next_phoneme");
 
-        Scanner lines = new Scanner(d).useDelimiter("\n");
-        // skip up to the first empty line
-        while (lines.hasNext()) {
+          Scanner lines = new Scanner(d).useDelimiter("\n");
+          // skip up to the first empty line
+          while (lines.hasNext()) {
             String line = lines.next();
             if (line.trim().equals("")) break;
-        }
-        // Now each of the following lines is a feature vector, up to the next empty line
-        StringBuffer output = new StringBuffer();
-        while (lines.hasNext()) {
+          }
+          // skip up to the second empty line
+          while (lines.hasNext()) {
             String line = lines.next();
             if (line.trim().equals("")) break;
-            FeatureVector fv = def.toFeatureVector(0, line);
+          }
+          // Now each of the following lines is a feature vector, up to the next empty line
+          StringBuffer output = new StringBuffer();
+          while (lines.hasNext()) {
+            String line = lines.next();
+            if (line.trim().equals("")) break;
+            FeatureVector fv = def.toFeatureVector(0, line); 
             String context = features2context(def, fv, featureList);
+            
+            /* NOTE: (see also NOTE in HHMData readFeatureList() )
+             * if i use this function adding  "mary_phoneme","mary_prev_phoneme","mary_prev_prev_phoneme","mary_next_phoneme",
+             * "mary_next_next_phoneme" to the featureList, it works but the when there is no defined prev, prev_prev next, or
+             * next_next then it writes 0, one soultion could be modifying the features processors to return the current phoneme when
+             * next or prev do not exit and prev or next when prev_prev or next_next do not exist... as it is done in features2context()*/
+            //String context = features2LongContext(def, fv, featureList);
             output.append(context);
             output.append("\n");
-        }
-        return output.toString();
+          }
+          return output.toString();  
+        }      
     }
     
     
@@ -321,55 +355,62 @@ public class HTSContextTranslator extends InternalModule {
      */
     public String features2context(FeatureDefinition def, FeatureVector featureVector, Vector<String> featureList)
     {
+         
+        int feaAsInt;
+        String mary_phoneme, mary_prev_phoneme, mary_prev_prev_phoneme, mary_next_phoneme, mary_next_next_phoneme;
+        
         if (featureList == null) {
             featureList = new Vector<String>(Arrays.asList(def.getFeatureNames().split("\\s+")));
         }
+            
+        feaAsInt = featureVector.getFeatureAsInt(iPhoneme);
+        mary_phoneme = replaceTrickyPhones(def.getFeatureValueAsString(iPhoneme, feaAsInt));
+              
+        feaAsInt = featureVector.getFeatureAsInt(iPrevPhoneme);        
+        if(feaAsInt > 0)
+          mary_prev_phoneme = replaceTrickyPhones(def.getFeatureValueAsString(iPrevPhoneme, feaAsInt));
+        else
+          mary_prev_phoneme = mary_phoneme;
+        //System.out.println("iPrevPhoneme=" + iPrevPhoneme +  "  val=" + feaAsInt);
         
-        // construct quint-phone models:
-        int iPhoneme = def.getFeatureIndex("mary_phoneme");
-        int iPrevPhoneme = def.getFeatureIndex("mary_prev_phoneme");
-        int iNextPhoneme = def.getFeatureIndex("mary_next_phoneme");
-        String mary_phoneme = replaceTrickyPhones(
-                def.getFeatureValueAsString(iPhoneme, featureVector.getFeatureAsInt(iPhoneme))
-                );
-        String mary_prev_phoneme = replaceTrickyPhones(
-                def.getFeatureValueAsString(iPrevPhoneme, featureVector.getFeatureAsInt(iPrevPhoneme))
-                );
-        String mary_next_phoneme = replaceTrickyPhones(
-                def.getFeatureValueAsString(iNextPhoneme, featureVector.getFeatureAsInt(iNextPhoneme))
-                );
-        String mary_prev_prev_phoneme = "0";
-        if (def.hasFeature("mary_prev_prev_phoneme")) {
-            int ipp = def.getFeatureIndex("mary_prev_prev_phoneme");
-            mary_prev_prev_phoneme = replaceTrickyPhones(
-                    def.getFeatureValueAsString(ipp, featureVector.getFeatureAsInt(ipp))
-                    );
-        }
-        String mary_next_next_phoneme = "0";
-        if (def.hasFeature("mary_next_next_phoneme")) {
-            int inn = def.getFeatureIndex("mary_next_next_phoneme");
-            mary_next_next_phoneme = replaceTrickyPhones(
-                    def.getFeatureValueAsString(inn, featureVector.getFeatureAsInt(inn))
-                    );
-        }
+        feaAsInt = featureVector.getFeatureAsInt(iPrevPrevPhoneme);    
+        if ( feaAsInt > 0 )
+          mary_prev_prev_phoneme = replaceTrickyPhones(def.getFeatureValueAsString(iPrevPrevPhoneme, feaAsInt));
+        else
+          mary_prev_prev_phoneme = mary_prev_phoneme;
+        //System.out.println("iPrevPrevPhoneme=" + iPrevPrevPhoneme + "  val=" + feaAsInt);
+        
+        
+        feaAsInt = featureVector.getFeatureAsInt(iNextPhoneme);
+        if(feaAsInt > 0)
+          mary_next_phoneme = replaceTrickyPhones(def.getFeatureValueAsString(iNextPhoneme, feaAsInt));
+        else
+          mary_next_phoneme = mary_phoneme;  
+        //System.out.println("iNextPhoneme=" + iNextPhoneme + "  val=" + feaAsInt);
+      
+        feaAsInt = featureVector.getFeatureAsInt(iNextNextPhoneme);
+        if (feaAsInt > 0) 
+          mary_next_next_phoneme = replaceTrickyPhones(def.getFeatureValueAsString(iNextNextPhoneme, feaAsInt));         
+        else
+          mary_next_next_phoneme = mary_next_phoneme;
+        //System.out.println("iNextNextPhoneme=" + iNextNextPhoneme + "  val=" + feaAsInt + "\n");
+      
    
         StringBuffer contextName = new StringBuffer();
-        contextName.append(mary_prev_prev_phoneme);
-        contextName.append("^");
-        contextName.append(mary_prev_phoneme);
-        contextName.append("-");
-        contextName.append(mary_phoneme);
-        contextName.append("+");
-        contextName.append(mary_next_phoneme);
-        contextName.append("=");
-        contextName.append(mary_next_next_phoneme);
+        contextName.append("mary_prev_prev_phoneme=" + mary_prev_prev_phoneme);
+        contextName.append("|mary_prev_phoneme=" + mary_prev_phoneme);
+        contextName.append("|mary_phoneme=" + mary_phoneme);
+        contextName.append("|mary_next_phoneme=" + mary_next_phoneme);
+        contextName.append("|mary_next_next_phoneme=" + mary_next_next_phoneme);
         contextName.append("||");
+        /* append the other context features included in the featureList */
         for (String f : featureList) {
             if (!def.hasFeature(f)) {
                 throw new IllegalArgumentException("Feature '"+f+"' is not known in the feature definition. Valid features are: "+def.getFeatureNames());
             }
-            String shortF = shortenPfeat(f);
-            contextName.append(shortF);
+            //String shortF = shortenPfeat(f);
+            //contextName.append(shortF);
+            contextName.append(f);
             contextName.append("=");
             String value = def.getFeatureValueAsString(f, featureVector);
             if (f.contains("sentence_punc") || f.contains("punctuation"))
@@ -591,5 +632,6 @@ public class HTSContextTranslator extends InternalModule {
         return s;
           
       }
+    
 
 } /* class HTSContextTranslator*/
