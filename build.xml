@@ -209,10 +209,10 @@ THIS SOFTWARE.
          basedir="${src}"
          includes="marytts/client/*.class
                    marytts/util/MaryUtils*.class
-                   marytts/util/FileUtils.class
-    	           marytts/util/audio/AudioPlayer*.class
-                   marytts/util/audio/MonoAudioInputStream.class
-                   marytts/util/audio/StereoAudioInputStream.class
+                   marytts/util/io/FileUtils.class
+    	           marytts/util/data/audio/AudioPlayer*.class
+                   marytts/util/data/audio/MonoAudioInputStream.class
+                   marytts/util/data/audio/StereoAudioInputStream.class
                    marytts/Version.class
                    marytts/specification-version.txt
                    marytts/implementation-version.txt">
@@ -274,7 +274,7 @@ THIS SOFTWARE.
     <jar destfile="${dest}/signalproc.jar"
          basedir="${src}"
          includes="marytts/signalproc/**/*.class
-                   marytts/util/audio/**/*.class
+                   marytts/util/data/audio/**/*.class
                    marytts/util/*.class">
       <manifest>
         <attribute name="Built-By" value="${user.name}"/>
