@@ -52,10 +52,14 @@ package marytts.modules;
 
 
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -71,6 +75,8 @@ import javax.sound.sampled.AudioFileFormat;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
+import marytts.features.FeatureDefinition;
+import marytts.features.FeatureVector;
 import marytts.htsengine.HMMData;
 import marytts.htsengine.HMMVoice;
 import marytts.htsengine.HTSModel;
@@ -109,6 +115,7 @@ import org.w3c.dom.traversal.NodeIterator;
 public class HTSEngine extends InternalModule
 {
     private Logger logger = Logger.getLogger("HTSEngine");
+    private String realisedDurations;
     
     public HTSEngine()
     {
@@ -149,14 +156,14 @@ public class HTSEngine extends InternalModule
         HMMVoice hmmv = (HMMVoice)v;
               
         String context = d.getPlainText();
-        
-        
+        //System.out.println("CONTEXT:" + context);
+              
         /* Process label file of Mary context features and creates UttModel um */
         processUtt(context, um, hmmv.getHMMData());
 
         /* Process UttModel */
         /* Generate sequence of speech parameter vectors, generate parameters out of sequence of pdf's */     
-        pdf2par.htsMaximumLikelihoodParameterGeneration(um, hmmv.getHMMData());
+        pdf2par.htsMaximumLikelihoodParameterGeneration(um, hmmv.getHMMData(),"/project/mary/marcela/openmary/tmp/tmp");
     
         
         /* set parameters for generation: f0Std, f0Mean and length, default values 1.0, 0.0 and 0.0 */
@@ -209,8 +216,8 @@ public class HTSEngine extends InternalModule
         processUtt(context, um, htsData);
 
         /* Process UttModel */
-        /* Generate sequence of speech parameter vectors, generate parameters out of sequence of pdf's */     
-        pdf2par.htsMaximumLikelihoodParameterGeneration(um, htsData);
+        /* Generate sequence of speech parameter vectors, generate parameters out of sequence of pdf's */  
+        pdf2par.htsMaximumLikelihoodParameterGeneration(um, htsData, "/project/mary/marcela/openmary/tmp/tmp");
     
         /* Process generated parameters */
         /* Synthesize speech waveform, generate speech out of sequence of parameters */
@@ -275,20 +282,43 @@ public class HTSEngine extends InternalModule
         double var = 0.0;
         HTSTree auxTree;
         float fperiodmillisec = ((float)htsData.getFperiod() / (float)htsData.getRate()) * 1000;
+        float fperiodsec = ((float)htsData.getFperiod() / (float)htsData.getRate());
         Integer dur;
         boolean firstPh = true; 
         boolean lastPh = false;
+        realisedDurations = "#\n";
+        Float durSec;
+        Integer numLab=0;
+        FeatureVector fv;
+        FeatureDefinition feaDef;
+        feaDef = htsData.getFeatureDefinition();
         
-        /* parse text */
+        /* skip mary_ context features definition */
+        while (s.hasNext()) {
+          nextLine = s.nextLine(); 
+          if (nextLine.trim().equals("")) break;
+        }
+        /* skip until byte values */
+        while (s.hasNext()) {
+            nextLine = s.nextLine(); 
+          if (nextLine.trim().equals("")) break;
+        }
+     
+        
+        /* parse byte values  */
         i=0;
         while (s.hasNext()) {
-            nextLine = s.next();
+            nextLine = s.nextLine();
             //System.out.println("STR: " + nextLine);
+            
+            fv = feaDef.toFeatureVector(0, nextLine);
+            //indexPdf = joinTree.searchJoinModellerTree(fv, def, joinTree.getTreeHead(0).getRoot(), false);
+            
             um.addUttModel(new HTSModel(ms));            
 
             m = um.getUttModel(i);
             /* this function also sets the phoneme name, the phoneme between - and + */
-            m.setName(nextLine);  
+            m.setName(fv.toString(), fv.getFeatureAsString(0, feaDef));  
             
             if(!(s.hasNext()) )
               lastPh = true;
@@ -301,32 +331,34 @@ public class HTSEngine extends InternalModule
              * be idx-1 !!!
              * 2. Calculate duration using the pdf idx found in the tree, function: FindDurPDF */
             auxTree = ts.getTreeHead(HMMData.DUR);
-            m.setDurPdf( ts.searchTree(nextLine, auxTree.getRoot(), false));
+            m.setDurPdf( ts.searchTreeGeneral(fv, feaDef, auxTree.getRoot(), false));
             
             
             //System.out.println("dur->pdf=" + m.getDurPdf());
-
+            
             if (htsData.getLength() == 0.0 ) {
                 diffdurNew = ms.findDurPdf(m, firstPh, lastPh, htsData.getRho(), diffdurOld, htsData.getDurationScale());                
                 m.setTotalDurMillisec((int)(fperiodmillisec * m.getTotalDur()));                
                 diffdurOld = diffdurNew;
                 um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());
+                durSec = um.getTotalFrame() * fperiodsec;
+                //realisedDurations += durSec.toString() +  " 125 " + HTSContextTranslator.replaceBackTrickyPhones(m.getPhoneName()) + "\n";
+                realisedDurations += durSec.toString() +  " " + numLab.toString() + " " + HTSContextTranslator.replaceBackTrickyPhones(m.getPhoneName()) + "\n";
+                numLab++;
                 dur = m.getTotalDurMillisec();
                 um.concatRealisedAcoustParams(m.getPhoneName() + " " + dur.toString() + "\n"); 
             } /* else : when total length of generated speech is specified (not implemented yet) */
             
-            //m.printDuration(ms.getNumState());
-
             /* Find pdf for LF0 */               
             for(auxTree=ts.getTreeHead(HMMData.LF0), mstate=0; auxTree != ts.getTreeTail(HMMData.LF0); auxTree=auxTree.getNext(), mstate++ ) {           
-                m.setLf0Pdf(mstate, ts.searchTree(nextLine,auxTree.getRoot(),false));
+                m.setLf0Pdf(mstate, ts.searchTreeGeneral(fv, feaDef,auxTree.getRoot(), false));
                 //System.out.println("lf0pdf[" + mstate + "]=" + m.getLf0Pdf(mstate));
                 ms.findLf0Pdf(mstate, m, htsData.getUV());
             }
 
             /* Find pdf for MCP */
             for(auxTree=ts.getTreeHead(HMMData.MCP), mstate=0; auxTree != ts.getTreeTail(HMMData.MCP); auxTree=auxTree.getNext(), mstate++ ) {           
-                m.setMcepPdf(mstate, ts.searchTree(nextLine,auxTree.getRoot(),false));
+                m.setMcepPdf(mstate, ts.searchTreeGeneral(fv, feaDef, auxTree.getRoot(), false));
                 //System.out.println("mceppdf[" + mstate + "]=" + m.getMcepPdf(mstate));
                 ms.findMcpPdf(mstate, m);
             }              
@@ -334,7 +366,7 @@ public class HTSEngine extends InternalModule
             /* Find pdf for strengths */
             /* If there is no STRs then auxTree=null=ts.getTreeTail so it will not try to find pdf for strengths */
             for(auxTree=ts.getTreeHead(HMMData.STR), mstate=0; auxTree != ts.getTreeTail(HMMData.STR); auxTree=auxTree.getNext(), mstate++ ) {           
-                m.setStrPdf(mstate, ts.searchTree(nextLine,auxTree.getRoot(),false));
+                m.setStrPdf(mstate, ts.searchTreeGeneral(fv, feaDef, auxTree.getRoot(), false));
                 //System.out.println("strpdf[" + mstate + "]=" + m.getStrPdf(mstate));
                 ms.findStrPdf(mstate, m);                    
             }
@@ -342,7 +374,7 @@ public class HTSEngine extends InternalModule
             /* Find pdf for Fourier magnitudes */
             /* If there is no MAGs then auxTree=null=ts.getTreeTail so it will not try to find pdf for Fourier magnitudes */
             for(auxTree=ts.getTreeHead(HMMData.MAG), mstate=0; auxTree != ts.getTreeTail(HMMData.MAG); auxTree=auxTree.getNext(), mstate++ ) {           
-                m.setMagPdf(mstate, ts.searchTree(nextLine,auxTree.getRoot(),false));
+                m.setMagPdf(mstate, ts.searchTreeGeneral(fv, feaDef, auxTree.getRoot(), false));
                 //System.out.println("magpdf[" + mstate + "]=" + m.getMagPdf(mstate));
                 ms.findMagPdf(mstate, m);
             }
@@ -369,7 +401,6 @@ public class HTSEngine extends InternalModule
 
         logger.info("Number of models in sentence numModel=" + um.getNumModel() + "  Total number of states numState=" + um.getNumState());
         logger.info("Total number of frames=" + um.getTotalFrame() + "  Number of voiced frames=" + um.getLf0Frame());    
-
         
     } /* method _ProcessUtt */
 
@@ -380,8 +411,9 @@ public class HTSEngine extends InternalModule
      * @param args
      * @throws IOException
      */
-    public static void main(String[] args) throws IOException, InterruptedException{
-        
+    public static void mainList(String[] args) throws IOException, InterruptedException{
+       
+      int i, j;  
       /* configure log info */
       org.apache.log4j.BasicConfigurator.configure();
 
@@ -406,21 +438,210 @@ public class HTSEngine extends InternalModule
       /* For initialise provide the name of the hmm voice and the name of its configuration file,
        * also indicate the name of your MARY_BASE directory.*/
       String MaryBase = "/project/mary/marcela/openmary/";
-      //htsData.initHMMData("hmm-mag-slt", MaryBase, "english-hmm-mag-slt.config");
-      htsData.initHMMData("hsmm-mlsp-slt", MaryBase, "english-hsmm-mlsp-slt.config");
-      htsData.setUseGV(true);
+      String voice = "";
+      String outputDir, hmmSourceDir, origTargetDir, outWavFile, testFilesList;
+    
+      // Mel-Cepstrum voices
+      //voice = "hmm-mag-slt";
+      //voice = "hsmm-24-mel-cepstrum";            
+      // LSP voices
+      voice = "hsmm-12-lsp";
+      //voice = "hsmm-40-lsp";
+      //voice = "hsmm-20-lsp";
+      //voice = "hsmm-20-mel-lsp";
+      //voice = "hsmm-20-mgc-lsp";
+      
+      htsData.initHMMData(voice, MaryBase, "english-" + voice + ".config");
+      
+      // for LSP voices do not use GV
+      htsData.setUseGV(false);
       htsData.setUseMixExc(true);
       htsData.setUseFourierMag(false);
       
-      /** The utterance model, um, is a Vector (or linked list) of Model objects. 
-       * It will contain the list of models for current label file. */
-      HTSUttModel um = new HTSUttModel();
-      HTSParameterGeneration pdf2par = new HTSParameterGeneration();
-      HTSVocoder par2speech = new HTSVocoder();
-      AudioInputStream ais;
+      String feaFile, parFile, durFile, mgcModifiedFile;
+      Scanner testFiles;
+      String flab;
+      String labDir = "/project/mary/marcela/hmmVoiceConversion/lab_htscontext_all/";
+      outputDir = "/project/mary/marcela/hmmVoiceConversion/lsp_13Dimensional/";
+        
+      /* list of files to train */
       
+      testFilesList = "/project/mary/marcela/hmmVoiceConversion/phonefeatures-100-list.txt";     
+      hmmSourceDir = "hmmSource/train_100/";
+      origTargetDir = "origTarget/train_100/";
+     
+      /* list of files to test */
+      /*
+      testFilesList = "/project/mary/marcela/hmmVoiceConversion/phonefeatures-test-list.txt";
+      hmmSourceDir = "hmmSource/test_39/";
+      origTargetDir = "origTarget/test_39/";
+      */
+      /* generate files out of HMMs */
+      try {
+      testFiles = new Scanner(new BufferedReader(new FileReader(testFilesList))); 
+      while (testFiles.hasNext()) {
+        feaFile = testFiles.nextLine();
+ 
+        flab       = labDir + feaFile + ".lab";
+        parFile    = outputDir + hmmSourceDir + feaFile;            /* generated parameters */
+        durFile    = outputDir + hmmSourceDir + feaFile + ".lab";   /* realised durations */
+        outWavFile = outputDir + hmmSourceDir + feaFile + ".wav";   /* generated wav file */
+       
+  
+        /** The utterance model, um, is a Vector (or linked list) of Model objects. 
+         * It will contain the list of models for current label file. */
+        HTSUttModel um = new HTSUttModel();
+        HTSParameterGeneration pdf2par = new HTSParameterGeneration();
+        HTSVocoder par2speech = new HTSVocoder();
+        AudioInputStream ais;
+        
+        /* Process label file of Mary context features and creates UttModel um.   */
+        hmm_tts.processUttFromFile(flab, um, htsData);
+          
+        /* save realised durations in a lab file */
+        FileWriter outputStream = new FileWriter(durFile);
+        outputStream.write(hmm_tts.realisedDurations);
+        outputStream.close();
+
+        /* Generate sequence of speech parameter vectors, generate parameters out of sequence of pdf's */     
+        pdf2par.htsMaximumLikelihoodParameterGeneration(um, htsData, parFile);
+          
+        /* Synthesize speech waveform, generate speech out of sequence of parameters */
+        ais = par2speech.htsMLSAVocoder(pdf2par, htsData);
+     
+        System.out.println("saving to file: " + outWavFile);
+        File fileOut = new File(outWavFile);
+         
+        if (AudioSystem.isFileTypeSupported(AudioFileFormat.Type.WAVE,ais)) {
+          AudioSystem.write(ais, AudioFileFormat.Type.WAVE, fileOut);
+        }
+/*
+          System.out.println("Calling audioplayer:");
+          AudioPlayer player = new AudioPlayer(fileOut);
+          player.start();  
+          player.join();
+          System.out.println("audioplayer finished...");
+*/
+        
+               
+        }  // while files in testFiles   
+         testFiles.close();
+         
+      } catch (Exception e) {
+          System.err.println("Exception: " + e.getMessage());
+      }
+      
+    }  /* main method */
+    
+    
+    /** 
+     * Stand alone testing using an HTSCONTEXT file as input. 
+     * @param args
+     * @throws IOException
+     */
+    public static void mainSingleFile(String[] args) throws IOException, InterruptedException{
+       
+      int i, j;  
+      /* configure log info */
+      org.apache.log4j.BasicConfigurator.configure();
+
+      /* To run the stand alone version of HTSEngine, it is necessary to pass a configuration
+       * file. It can be one of the hmm configuration files in MARY_BASE/conf/*hmm*.config 
+       * The input for creating a sound file is a label file in HTSCONTEXT format, there
+       * is an example indicated in the configuration file as well, if one wants to 
+       * change this example file, another HTSCONTEX file, for whatever text, can be generated 
+       * and saved in a file with MARY system.
+       * The output sound file is located in MARY_BASE/tmp/tmp.wav */
+      HTSEngine hmm_tts = new HTSEngine();
+      
+      /* htsData contains:
+       * Data in the configuration file, .pdf, tree-xxx.inf file names and other parameters. 
+       * After initHMMData it contains TreeSet ts and ModelSet ms 
+       * ModelSet: Contains the .pdf's (means and variances) for dur, lf0, mcp, str and mag
+       *           these are all the HMMs trained for a particular voice 
+       * TreeSet: Contains the tree-xxx.inf, xxx: dur, lf0, mcp, str and mag 
+       *          these are all the trees trained for a particular voice. */
+      HMMData htsData = new HMMData();
+      
+      /* For initialise provide the name of the hmm voice and the name of its configuration file,
+       * also indicate the name of your MARY_BASE directory.*/
+      String MaryBase = "/project/mary/marcela/openmary/";
+      String voice = "";
+      String outputDir, outWavFile, testFilesList;
+    
+      // Mel-Cepstrum voices
+      //voice = "hmm-mag-slt";
+      //voice = "hmm-slt";
+      voice = "hsmm-24-mel-cepstrum";            
+      // LSP voices
+      //voice = "hsmm-12-lsp";
+      //voice = "hsmm-40-lsp";
+      //voice = "hsmm-20-lsp";
+      //voice = "hsmm-20-mel-lsp";
+      //voice = "hsmm-20-mgc-lsp";
+      
+      htsData.initHMMData(voice, MaryBase, "english-" + voice + ".config");
+      
+      // for LSP voices do not use GV
+      htsData.setUseGV(false);
+      htsData.setUseMixExc(true);
+      htsData.setUseFourierMag(false);
+       
+      String feaFile, parFile, durFile, mgcModifiedFile;
+      Scanner testFiles;
+      String flab;
+      String labDir = "/project/mary/marcela/hmmVoiceConversion/lab_htscontext_all/";
+      
+        //feaFile         = "cmu_us_arctic_slt_b0503";
+        feaFile         = "cmu_us_arctic_slt_a0001";
+        //flab            = labDir + feaFile + ".lab";
+        flab = htsData.getLabFile();
+        
+        //outputDir       = "/project/mary/marcela/hmmVoiceConversion/lsp_13Dimensional/output/gmmF_500_128/isSrc0_smooth0_0_mixes128_prosody1x2/";
+        //outputDir       = "/project/mary/marcela/hmmVoiceConversion/lsp_13Dimensional/output/gmmF_100_64/isSrc0_smooth0_0_mixes64_prosody1x2/";
+        //outputDir       = "/project/mary/marcela/hmmVoiceConversion/hsmmMfcc_25Dimensional/gmmF_100_8/isSrc0_smooth0_0_mixes8_prosody1x2/";
+        outputDir       = "/project/mary/marcela/openmary/tmp/";
+        mgcModifiedFile = outputDir + feaFile + "_output.mgc";
+        //outWavFile      = outputDir + feaFile + "_output.wav";        
+   
+        outWavFile      = outputDir + feaFile + "_output.wav";
+        //outWavFile        = "/project/mary/marcela/hmmVoiceConversion/lsp_13Dimensional/hmmSource/train_100/cmu_us_arctic_slt_a0001-test.wav";
+        //outWavFile      = "/project/mary/marcela/openmary/tmp/tmp.wav";
+        //outWavFile      = "/project/mary/marcela/hmm-gen-experiment/MLSA-MGLSA/hsmm-20-lsp/slt-lpc-vocoder-gen-par-gen-exc.wav";
+        
+        parFile           = outputDir + feaFile + "_output";
+        //parFile           = "/project/mary/marcela/hmmVoiceConversion/lsp_13Dimensional/hmmSource/train_100/cmu_us_arctic_slt_a0001-test";
+        //parFile         = outputDir + "gen" + feaFile + ".mgc";
+        
+        
+
+       // mgcModifiedFile = outputDir + "original_parameters/" + feaFile + ".mgc";
+       // outWavFile = outputDir + "original_parameters/" + feaFile + ".wav";
+       // mgcModifiedFile = outputDir + "hmm_gen_parameters/" + feaFile + ".mgc";
+       // outWavFile = outputDir + "hmm_gen_parameters/" + feaFile + ".wav";
+        
+       // mgcModifiedFile = outputDir + feaFile + "_output.mgc";
+       // outWavFile = outputDir + "hsmm-lsp20-gmmF_100_64/isSrc1_smooth0_0_mixes64_prosody1x2/" + feaFile + "_output.wav";
+        
+       // mgcModifiedFile = outputDir + "hsmmMfcc_25Dimensional/gmmF_100_8/isSrc1_smooth0_0_mixes8_prosody1x2/" + feaFile + "_output.mgc";
+       // outWavFile = outputDir + "hsmmMfcc_25Dimensional/gmmF_100_8/isSrc1_smooth0_0_mixes8_prosody1x2/" + feaFile + "_output.wav";
+        
+        
+        /** The utterance model, um, is a Vector (or linked list) of Model objects. 
+         * It will contain the list of models for current label file. */
+        HTSUttModel um = new HTSUttModel();
+        HTSParameterGeneration pdf2par = new HTSParameterGeneration();        
+        HTSVocoder par2speech = new HTSVocoder();
+        AudioInputStream ais;
+        
+        
       /** Example of HTSCONTEXT_EN context features file */
-      String flab = htsData.getLabFile();
+     // flab = htsData.getLabFile();
+        /* flab now is a mary contextfeatures file! but this file should be generated 
+         * with next, next_next, prev and prev_prev phonemes features  ...*/
+        flab = "/project/mary/marcela/openmary/tmp/tmp.fea";
+        
+        /* convert MfccRaw2Mfcc */
 
       try {
           /* Process label file of Mary context features and creates UttModel um, a linked             
@@ -428,17 +649,57 @@ public class HTSEngine extends InternalModule
            * cmp, etc, the pdf index that corresponds to a triphone context feature and with           
            * that index retrieves from the ModelSet the mean and variance for each state of the HMM.   */
           hmm_tts.processUttFromFile(flab, um, htsData);
-
+          
 
           /* Generate sequence of speech parameter vectors, generate parameters out of sequence of pdf's */     
-          pdf2par.htsMaximumLikelihoodParameterGeneration(um, htsData);
-
+          pdf2par.htsMaximumLikelihoodParameterGeneration(um, htsData, parFile);
+          
+//////////////// load modified parameters mgc data
+ /*         
+          //mgcModifiedFile = "/project/mary/marcela/hmmVoiceConversion/lspRaw_13Dimensional/test_files/original_parameters/cmu_us_arctic_slt_b0501.mfc";
+          mgcModifiedFile = "/project/mary/marcela/HMM-voices/MARY-PATCH-2.1/HTS-demo_CMU-ARCTIC-SLT-mary-12lsp/data/mgc/cmu_us_arctic_slt_a0001.mfc";
+          //mgcModifiedFile = "/project/mary/marcela/HMM-voices/MARY-PATCH-2.1/HTS-demo_CMU-ARCTIC-SLT-mary-12lsp/data/tmp.mfc";
+          //mgcModifiedFile = "/project/mary/marcela/hmmVoiceConversion/lsp_13Dimensional/hmmSource/train_100/cmu_us_arctic_slt_a0001-test.mfc";
+          System.out.println("loaded mgc from: " + mgcModifiedFile);
+          DataInputStream mcepData = new DataInputStream (new BufferedInputStream(new FileInputStream(mgcModifiedFile)));
+          int frm = mcepData.readInt();
+          int dim = mcepData.readInt();
+          float winsize = mcepData.readFloat();
+          float skipsize = mcepData.readFloat();
+          int sr = mcepData.readInt();
+          //ler.writeInt(numfrm);
+          //ler.writeInt(dimension);
+          //ler.writeFloat(winsize);
+          //ler.writeFloat(skipsize);
+          //ler.writeInt(samplingRate);
+          double val;
+          for(i=0; i<frm; i++){ 
+            for(j=0; j<dim; j++){
+              val = mcepData.readDouble();
+              System.out.println(val);
+            }
+          }
+          mcepData.close();
+   */       
+ /*        
+          System.out.println("loaded mgc from: " + mgcModifiedFile);
+          DataInputStream mcepData = new DataInputStream (new BufferedInputStream(new FileInputStream(mgcModifiedFile)));
+          for(i=0; i<um.getTotalFrame(); i++){ 
+            for(j=0; j<pdf2par.getMcepOrder(); j++)
+              pdf2par.getMcepPst().setPar(i, j, mcepData.readFloat());
+          }
+          mcepData.close();
+*/          
+///////////////
 
           /* Synthesize speech waveform, generate speech out of sequence of parameters */
+//          par2speech.setUseLpcVocoder(true);
           ais = par2speech.htsMLSAVocoder(pdf2par, htsData);
      
-          System.out.println("saving to file: " + MaryBase + "tmp/tmp.wav");
-          File fileOut = new File(MaryBase + "tmp/tmp.wav");
+          //System.out.println("saving to file: " + MaryBase + "tmp/" + voice + ".wav");
+          //File fileOut = new File(MaryBase + "tmp/" + voice + ".wav");
+          System.out.println("saving to file: " + outWavFile);
+          File fileOut = new File(outWavFile);
           
           if (AudioSystem.isFileTypeSupported(AudioFileFormat.Type.WAVE,ais)) {
             AudioSystem.write(ais, AudioFileFormat.Type.WAVE, fileOut);
@@ -449,17 +710,18 @@ public class HTSEngine extends InternalModule
           player.start();  
           player.join();
           System.out.println("audioplayer finished...");
-          
-          //System.exit(0);
-
+     
       } catch (Exception e) {
           System.err.println("Exception: " + e.getMessage());
       }
-
     }  /* main method */
     
-    
-
+ 
+    public static void main(String[] args) throws IOException, InterruptedException{
+        
+       mainSingleFile(args);     
+       //mainList(args);
+    }
 
 }  /* class HTSEngine*/
 

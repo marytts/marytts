@@ -109,10 +109,6 @@ import org.w3c.dom.traversal.NodeIterator;
 import com.sun.speech.freetts.Utterance;
 
 
-
-
-
-
 /**
  * HTS-HMM synthesiser.
  *
@@ -289,12 +285,13 @@ public class HMMSynthesizer implements WaveformSynthesizer {
                  freettsAcoustparams.setDefaultVoice(v);
                  MaryData targetFeatures = targetFeatureLister.process(freettsAcoustparams);
                  targetFeatures.setDefaultVoice(v);
-                 MaryData htsContext = htsContextTranslator.process(targetFeatures);
-                 htsContext.setDefaultVoice(v);
+ //                MaryData htsContext = htsContextTranslator.process(targetFeatures);
+ //                htsContext.setDefaultVoice(v);
                  
                  /* add the ACOUSTPARAMS Document to the HTSCONTEXT Mary data Object */
-                 htsContext.setDocument(in.getDocument()); 
-                 MaryData audio = htsEngine.process(htsContext);
+//                 htsContext.setDocument(in.getDocument()); 
+//                 MaryData audio = htsEngine.process(htsContext);
+                 MaryData audio = htsEngine.process(targetFeatures);
                  
                  assert audio.getAudio() != null;
              } else {
@@ -331,10 +328,12 @@ public class HMMSynthesizer implements WaveformSynthesizer {
         try {
             MaryData targetFeatures = targetFeatureLister.process(freettsAcoustparams);
             targetFeatures.setDefaultVoice(voice);
-            MaryData htsContext = htsContextTranslator.process(targetFeatures);
+       //     MaryData htsContext = htsContextTranslator.process(targetFeatures);
             
-            htsContext.setDefaultVoice(voice);
-            MaryData audio = htsEngine.process(htsContext);
+       //     htsContext.setDefaultVoice(voice);
+       //     MaryData audio = htsEngine.process(htsContext);
+            
+            MaryData audio = htsEngine.process(targetFeatures);
             
             setActualDurations(tokensAndBoundaries, audio.getPlainText());
             
@@ -363,7 +362,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
       while(s.hasNext()) {
          line = s.next();
          str = line.split(" ");
-         ph.add(htsContextTranslator.replaceBackTrickyPhones(str[0]));
+         ph.add(HTSContextTranslator.replaceBackTrickyPhones(str[0]));
          dur.add(Integer.valueOf(str[1]));
          
       }
