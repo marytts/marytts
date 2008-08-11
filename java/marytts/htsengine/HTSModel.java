@@ -85,9 +85,9 @@ public class HTSModel {
   private boolean voiced[];         /* voiced/unvoiced decision for each state of this HMM */
   
   /** This function also sets the phoneName */
-  public void setName(String var){ 
+  public void setName(String var, String phonemeName){ 
       name = var;
-      phoneName = getShortPhoneName();
+      phoneName = phonemeName;
   }
   public String getName(){return name;}
   

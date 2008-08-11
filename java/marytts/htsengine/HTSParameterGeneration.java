@@ -52,6 +52,9 @@ package marytts.htsengine;
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import marytts.signalproc.analysis.F0ReaderWriter;
+import marytts.signalproc.analysis.Mfccs;
+import marytts.util.io.LEDataOutputStream;
 
 import org.apache.log4j.Logger;
 
@@ -118,11 +121,11 @@ public class HTSParameterGeneration {
   * @param um  : utterance model sequence after processing Mary context features
   * @param ms  : HMM pdfs model set.
   */
-  public void htsMaximumLikelihoodParameterGeneration(HTSUttModel um, HMMData htsData) throws Exception{
+  public void htsMaximumLikelihoodParameterGeneration(HTSUttModel um, HMMData htsData, String feaFile) throws Exception{
 	  
 	int frame, uttFrame, lf0Frame;
 	int state, lw, rw, k, n, i;
-	boolean nobound, debug=false;
+	boolean nobound;
     HTSModel m;
     HTSModelSet ms = htsData.getModelSet();
     
@@ -248,36 +251,137 @@ public class HTSParameterGeneration {
     }
 	   
 	String voice = "";
+    boolean debug=true;
     if(debug) {
-         String path = "/project/mary/marcela/hmm-mag-experiment/gen-par/"+voice;
-         saveParam(path+"mcep.bin", mcepPst, HMMData.MCP);
-         saveParam(path+"lf0.bin", lf0Pst, HMMData.LF0);
+        // String path = "/project/mary/marcela/hmm-mag-experiment/gen-par/"+voice;
+        // saveParam(path+"mcep.bin", mcepPst, HMMData.MCP);
+        // saveParam(path+"lf0.bin", lf0Pst, HMMData.LF0);
+        saveParamMaryFormat(feaFile, mcepPst, HMMData.MCP);
+        saveParamMaryFormat(feaFile, lf0Pst, HMMData.LF0);
      }
     
 
 	  
   }  /* method htsMaximumLikelihoodParameterGeneration */
   
- 
+  
+  
+  /* Save generated parameters in a binary file */
+  public void saveParamMaryFormat(String fileName, HTSPStream par, int type){
+    int t, m, i;
+    double ws = 0.025; /* window size in seconds */
+    double ss = 0.005; /* skip size in seconds */
+    int fs = 16000;    /* sampling rate */
+    
+    //try{  
+        
+      if(type == HMMData.LF0 ) {          
+          fileName += ".ptc";
+          /*
+          DataOutputStream data_out = new DataOutputStream (new FileOutputStream (fileName));
+          data_out.writeFloat((float)(ws*fs));
+          data_out.writeFloat((float)(ss*fs));
+          data_out.writeFloat((float)fs);          
+          data_out.writeFloat(voiced.length);
+          
+          i=0;
+          for(t=0; t<voiced.length; t++){    // here par.getT are just the voiced!!! so the actual length of frames can be taken from the voiced array 
+             if( voiced[t] ){
+               data_out.writeFloat((float)Math.exp(par.getPar(i,0)));
+               i++;
+             }
+             else
+               data_out.writeFloat((float)0.0);
+          }
+          data_out.close();
+          */
+          
+          i=0;
+          double f0s[] = new double[voiced.length];
+          //System.out.println("voiced.length=" + voiced.length);
+          for(t=0; t<voiced.length; t++){    // here par.getT are just the voiced!!! so the actual length of frames can be taken from the voiced array 
+             if( voiced[t] ){
+               f0s[t] = Math.exp(par.getPar(i,0));               
+               i++;
+             }
+             else
+               f0s[t] = 0.0;
+             //System.out.println("f0s[" + t + "]=" + f0s[t]);
+             
+          }
+          /* i am using this function but it changes the values of sw, and ss  *samplingrate+0.5??? for the HTS values ss=0.005 and sw=0.025 is not a problem though */
+         // F0ReaderWriter.write_pitch_file(fileName, f0s, (float)(ws), (float)(ss), fs);
+          
+          
+      } else if(type == HMMData.MCP ){
+          
+        int numfrm =  par.getT();
+        int dimension = par.getOrder();
+        Mfccs mgc = new Mfccs(numfrm, dimension);  
+               
+        fileName += ".mfc";
+                 
+        for(t=0; t<par.getT(); t++)
+         for (m=0; m<par.getOrder(); m++)
+           mgc.mfccs[t][m] = par.getPar(t,m);
+        
+        mgc.params.samplingRate = fs;         /* samplingRateInHz */
+        mgc.params.skipsize     = (float)ss;  /* skipSizeInSeconds */
+        mgc.params.winsize      = (float)ws;  /* windowSizeInSeconds */
+        
+        
+        mgc.writeMfccFile(fileName);
+        
+        /* The whole set for header is in the following order:   
+        ler.writeInt(numfrm);
+        ler.writeInt(dimension);
+        ler.writeFloat(winsize);
+        ler.writeFloat(skipsize);
+        ler.writeInt(samplingRate);
+        */
+        
+      }
+      
+      
+      logger.info("saveParam in file: " + fileName);
+    
+      
+    //} catch (IOException e) {
+    //    logger.info("IO exception = " + e );
+    //}    
+  }
+
+  
   
   /* Save generated parameters in a binary file */
   public void saveParam(String fileName, HTSPStream par, int type){
-    int t, m;
+    int t, m, i;
     try{  
-      DataOutputStream data_out = new DataOutputStream (new FileOutputStream (fileName));
+      
       
       if(type == HMMData.LF0 ) {
-          for(t=0; t<par.getT(); t++)
-             if( voiced[t] )
-               data_out.writeFloat((float)par.getPar(t,0));
+          fileName += ".f0";
+          DataOutputStream data_out = new DataOutputStream (new FileOutputStream (fileName));
+          i=0;
+          for(t=0; t<voiced.length; t++){    /* here par.getT are just the voiced!!!*/
+             if( voiced[t] ){
+               data_out.writeFloat((float)Math.exp(par.getPar(i,0)));
+               i++;
+             }
              else
-               data_out.writeFloat((float)0.0);  
-      } else {
+               data_out.writeFloat((float)0.0);
+          }
+          data_out.close();
+          
+      } else if(type == HMMData.MCP ){
+        fileName += ".mgc";
+        DataOutputStream data_out = new DataOutputStream (new FileOutputStream (fileName));  
         for(t=0; t<par.getT(); t++)
          for (m=0; m<par.getOrder(); m++)
            data_out.writeFloat((float)par.getPar(t,m));
+        data_out.close();
       }
-      data_out.close();
+      
       
       logger.info("saveParam in file: " + fileName);
       
