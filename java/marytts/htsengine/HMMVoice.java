@@ -93,6 +93,7 @@ public class HMMVoice extends Voice {
        if(beta != null)
          this.htsData.setBeta(Double.parseDouble(beta));
 
+       this.htsData.setFeatureDefinition(FeaList);
        this.htsData.setTreeDurFile(Ftd);  
        this.htsData.setTreeLf0File(Ftf);           
        this.htsData.setTreeMcpFile(Ftm);
@@ -152,7 +153,7 @@ public class HMMVoice extends Voice {
        
        /* Load (un-commented) context feature list from featureListFile */
        logger.info("Loading Context feature list:");      
-       this.htsData.readFeatureList();
+       this.htsData.readFeatureList(this.htsData.getFeatureList(), FeaList);
 
        if( getFeatureList().size() == 0)
           logger.debug("Warning feature list file empty or feature list not loaded. ");

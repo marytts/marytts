@@ -61,18 +61,19 @@ public class HTSNode {
 	private int idx;         /* index of this node */
 	private int pdf;         /* index of pdf for this node  ( leaf node only ) */
 	
-	private HTSNode yes;        /* link to child node (yes) */
-	private HTSNode no;         /* link to child node (no)  */
-	private HTSNode next;       /* link to next node  */  
+	private HTSNode yes;         /* link to child node (yes) */
+	private HTSNode no;          /* link to child node (no)  */
+	private HTSNode next;        /* link to next node  */  
 	
-	private HTSQuestion quest;  /* question applied at this node */
+	private HTSQuestion quest;   /* question applied at this node */
+    private MaryQuestion mquest; /* question applied at this node in MARY context feature format */
         
-    private int questionFeaIndex;     /* question index name for JoinModellerTree*/
-    private byte questionFeaValByte;  /* question index val for JoinModellerTree*/
-    // Not used for the moment
-    //private short questionFeaValShort;
-    //private float questionFeaValFloat;
-
+    public HTSNode() {
+      idx = 0;
+      pdf = 0;
+      yes = no = next = null;
+      mquest = new MaryQuestion();
+    }
 	
 	public void setIdx(int var){ idx = var; }
 	public int getIdx(){ return idx; }
@@ -87,18 +88,12 @@ public class HTSNode {
 	public void setQuestion(HTSQuestion q){ quest = q; }
 	public HTSQuestion getQuestion(){ return quest; }
     
-    public void setQuestionFeaIndex(int val){ questionFeaIndex = val; }
-    public int getQuestionFeaIndex(){ return questionFeaIndex; }
+    public void setMaryQuestionFeaIndex(int val){ mquest.setQuestionFeaIndex(val); }
+    public int getMaryQuestionFeaIndex(){ return mquest.getQuestionFeaIndex();}
     
-    public void setQuestionFeaValByte(byte val){ questionFeaValByte = val; }
-    public byte getQuestionFeaValByte(){ return questionFeaValByte; }
+    public void setMaryQuestionFeaValByte(byte val){ mquest.setQuestionFeaValByte(val); }
+    public byte getMaryQuestionFeaValByte(){ return mquest.getQuestionFeaValByte();}
 	
-    // Not used for the moment.
-    //public void setQuestionFeaValShort(short val){ questionFeaValShort = val; }
-    //public short getQuestionFeaValShort(){ return questionFeaValShort; }
-    //public void setQuestionFeaValFloat(byte val){ questionFeaValFloat = val; }
-    //public float getQuestionFeaValFloat(){ return questionFeaValFloat; }
-    
 	public void insertNo(){ no = new HTSNode(); }
 	public HTSNode getNo(){ return no; }
 	

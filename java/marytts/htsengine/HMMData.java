@@ -53,9 +53,10 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.StringReader;
 import java.util.*;
 import java.io.IOException;
-
+import marytts.features.FeatureDefinition;
 import org.apache.log4j.Logger;
 
 /**
@@ -111,11 +112,12 @@ public class HMMData {
     private double durationScale = 1.0; /* less than 1.0 is faster and more than 1.0 is slower, min=0.1 max=3.0 */
 	
 	/** Tree files and TreeSet object */
-	private String treeDurFile; /* durations tree file */
-	private String treeLf0File; /* lf0 tree file */
-	private String treeMcpFile; /* MCP tree file */
-	private String treeStrFile; /* Strengths tree file */
-	private String treeMagFile; /* Fourier magnitudes tree file */
+	private String treeDurFile;         /* durations tree file */
+	private String treeLf0File;         /* lf0 tree file */
+	private String treeMcpFile;         /* MCP tree file */
+	private String treeStrFile;         /* Strengths tree file */
+	private String treeMagFile;         /* Fourier magnitudes tree file */   
+    private FeatureDefinition feaDef;   /* The feature definition is used for loading the tree using questions in MARY format */
     
      /** TreeSet contains the tree-xxx.inf, xxx: dur, lf0, mcp, str and mag 
      * these are all the trees trained for a particular voice. */
@@ -177,6 +179,7 @@ public class HMMData {
 	public String getTreeMcpFile() { return treeMcpFile; }  
 	public String getTreeStrFile() { return treeStrFile; } 
 	public String getTreeMagFile() { return treeMagFile; }  
+    public FeatureDefinition getFeatureDefinition() { return feaDef; }
 	
 	public String getPdfDurFile() { return pdfDurFile; }   
 	public String getPdfLf0File() { return pdfLf0File; }   
@@ -243,6 +246,22 @@ public class HMMData {
     public void setTreeMcpFile(String str) { treeMcpFile = str; }  
     public void setTreeStrFile(String str) { treeStrFile = str; } 
     public void setTreeMagFile(String str) { treeMagFile = str; }  
+    public void setFeatureDefinition(String contextFile) /* this file should include next, next_next, prev, prev_prev phoneme features */
+    throws Exception                                     
+    { 
+      //feaDef = new FeatureDefinition(new BufferedReader(new StringReader(d)), false);
+        contextFile = "/project/mary/marcela/openmary/tmp/tmp.fea";
+        Scanner context = new Scanner(new BufferedReader(new FileReader(contextFile)));
+        String strContext="";
+        while (context.hasNext()) {
+          strContext += context.nextLine(); 
+          strContext += "\n";
+        }
+        context.close();
+        //System.out.println(strContext);
+        feaDef = new FeatureDefinition(new BufferedReader(new StringReader(strContext)), false);
+          
+    }
     
     public void setPdfDurFile(String str) { pdfDurFile = str; }   
     public void setPdfLf0File(String str) { pdfLf0File = str; }   
@@ -267,7 +286,7 @@ public class HMMData {
     public void setNumFilters(int val){ numFilters = val; }
     public void setOrderFilters(int val){ orderFilters = val; }
     
-    public void loadTreeSet() throws Exception { ts.loadTreeSet(this); }   
+    public void loadTreeSet() throws Exception { ts.loadTreeSet(this, feaDef); }   
     public void loadModelSet() throws Exception { ms.loadModelSet(this); }  
     public void loadGVModelSet() throws Exception { gv.loadGVModelSet(this); } 
 	
@@ -352,7 +371,8 @@ public class HMMData {
       try {
         /* Load TreeSet ts and ModelSet ms for current voice*/
         logger.info("Loading Tree Set:");
-        ts.loadTreeSet(this);   
+        setFeatureDefinition(labFile); /* first set the feature definition with one example of context feature file */
+        ts.loadTreeSet(this, feaDef);   
        
         logger.info("Loading Model Set:");
         ms.loadModelSet(this);
@@ -362,7 +382,7 @@ public class HMMData {
       
         /* Load (un-commented) context feature list from featureListFile */
         logger.info("Loading Feature List:");
-        readFeatureList();
+        readFeatureList(featureList, featureListFile);
       }
       catch (Exception e) {
           logger.debug(e.getMessage()); 
@@ -377,13 +397,21 @@ public class HMMData {
     /** This function reads the feature list file, for example feature_list_en_05.pl
      * and fills in a vector the elements in that list that are un-commented 
      */
-    public void readFeatureList() throws FileNotFoundException {
+    public void readFeatureList(Vector<String> feaList, String feaListFile) throws FileNotFoundException {
       String line;
       int i;
       
       Scanner s = null;
       try {
-        s = new Scanner(new BufferedReader(new FileReader(featureListFile))).useDelimiter("\n");
+        s = new Scanner(new BufferedReader(new FileReader(feaListFile))).useDelimiter("\n");
+         
+        /*  see NOTE in HTSCONTEXTTRANSLATOR processTargetFeatures() 
+        feaList.addElement("mary_phoneme");
+        feaList.addElement("mary_prev_phoneme");
+        feaList.addElement("mary_prev_prev_phoneme");
+        feaList.addElement("mary_next_phoneme");
+        feaList.addElement("mary_next_next_phoneme");
+        */
         
         while (s.hasNext()) {
           line = s.next();
@@ -392,7 +420,7 @@ public class HMMData {
             String[] elem = line.split(",");
             for(i=0; i<elem.length; i++)
               if(elem[i].contains("mary_")){  /* if starts with mary_ */                 
-                featureList.addElement(elem[i].substring(elem[i].indexOf("\"")+1, elem[i].lastIndexOf("\"")));
+                feaList.addElement(elem[i].substring(elem[i].indexOf("\"")+1, elem[i].lastIndexOf("\"")));
                 //System.out.println("  -->  "+ featureList.lastElement()); 
               }
           }
@@ -407,7 +435,7 @@ public class HMMData {
           throw new FileNotFoundException("readFeatureList " + e.getMessage());
       }
       
-      logger.info("readFeatureList: loaded " + featureList.size() + " context features from " + featureListFile);
+      logger.info("readFeatureList: loaded " + feaList.size() + " context features from " + featureListFile);
       
     } /* method ReadFeatureList */
 
