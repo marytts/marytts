@@ -155,8 +155,8 @@ public class HMMData {
     private Vector<String> featureList = new Vector<String>();
     
     
-    /* Example context feature file in HTSCONTEXT_EN format */
-    private String labFile;
+    /* Example CONTEXTFEATURE file in MARY format */
+    private String feaFile;
 	
 	public int getRate() { return rate; }
 	public int getFperiod() { return fperiod; } 
@@ -199,7 +199,7 @@ public class HMMData {
 	public String getFeatureListFile() { return featureListFile; }
     /* This function returns the feature list already loaded in a Vector */
     public Vector<String> getFeatureList() { return featureList; }  
-    public String getLabFile() { return labFile; }
+    public String getFeaFile() { return feaFile; }
 	
 	public String getMixFiltersFile() { return mixFiltersFile; } 
 	public int getNumFilters(){ return numFilters; }
@@ -249,8 +249,6 @@ public class HMMData {
     public void setFeatureDefinition(String contextFile) /* this file should include next, next_next, prev, prev_prev phoneme features */
     throws Exception                                     
     { 
-      //feaDef = new FeatureDefinition(new BufferedReader(new StringReader(d)), false);
-        contextFile = "/project/mary/marcela/openmary/tmp/tmp.fea";
         Scanner context = new Scanner(new BufferedReader(new FileReader(contextFile)));
         String strContext="";
         while (context.hasNext()) {
@@ -280,7 +278,7 @@ public class HMMData {
     public void setPdfMagGVFile(String str) { pdfMagGVFile = str; } 
     
     public void setFeaListFile(String str) { featureListFile = str; }
-    public void setLabFile(String str) { labFile = str; }
+    public void setFeaFile(String str) { feaFile = str; }
     
     public void setMixFiltersFile(String str) { mixFiltersFile = str; } 
     public void setNumFilters(int val){ numFilters = val; }
@@ -348,7 +346,7 @@ public class HMMData {
           featureListFile = MaryBase + props.getProperty( "voice." + voice + ".FeaList" ).substring(10);
           
           /* Example context feature file in HTSCONTEXT_EN format */
-          labFile = MaryBase + props.getProperty( "voice." + voice + ".FLab" ).substring(10);
+          feaFile = MaryBase + props.getProperty( "voice." + voice + ".FeaFile" ).substring(10);
           
           /* Configuration for mixed excitation */
           if( treeStrFile != null ) {
@@ -371,7 +369,7 @@ public class HMMData {
       try {
         /* Load TreeSet ts and ModelSet ms for current voice*/
         logger.info("Loading Tree Set:");
-        setFeatureDefinition(labFile); /* first set the feature definition with one example of context feature file */
+        setFeatureDefinition(feaFile); /* first set the feature definition with one example of context feature file */
         ts.loadTreeSet(this, feaDef);   
        
         logger.info("Loading Model Set:");
