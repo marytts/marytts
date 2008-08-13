@@ -121,7 +121,7 @@ public class HTSParameterGeneration {
   * @param um  : utterance model sequence after processing Mary context features
   * @param ms  : HMM pdfs model set.
   */
-  public void htsMaximumLikelihoodParameterGeneration(HTSUttModel um, HMMData htsData, String feaFile) throws Exception{
+  public void htsMaximumLikelihoodParameterGeneration(HTSUttModel um, HMMData htsData, String parFileName, boolean debug) throws Exception{
 	  
 	int frame, uttFrame, lf0Frame;
 	int state, lw, rw, k, n, i;
@@ -250,14 +250,11 @@ public class HTSParameterGeneration {
 	  magPst.mlpg(htsData);
     }
 	   
-	String voice = "";
-    boolean debug=true;
     if(debug) {
-        // String path = "/project/mary/marcela/hmm-mag-experiment/gen-par/"+voice;
-        // saveParam(path+"mcep.bin", mcepPst, HMMData.MCP);
-        // saveParam(path+"lf0.bin", lf0Pst, HMMData.LF0);
-        saveParamMaryFormat(feaFile, mcepPst, HMMData.MCP);
-        saveParamMaryFormat(feaFile, lf0Pst, HMMData.LF0);
+        // saveParam(parFileName+"mcep.bin", mcepPst, HMMData.MCP);  // no header
+        // saveParam(parFileName+"lf0.bin", lf0Pst, HMMData.LF0);    // no header
+        saveParamMaryFormat(parFileName, mcepPst, HMMData.MCP);
+        saveParamMaryFormat(parFileName, lf0Pst, HMMData.LF0);
      }
     
 
@@ -273,7 +270,7 @@ public class HTSParameterGeneration {
     double ss = 0.005; /* skip size in seconds */
     int fs = 16000;    /* sampling rate */
     
-    //try{  
+    try{  
         
       if(type == HMMData.LF0 ) {          
           fileName += ".ptc";
@@ -310,7 +307,7 @@ public class HTSParameterGeneration {
              
           }
           /* i am using this function but it changes the values of sw, and ss  *samplingrate+0.5??? for the HTS values ss=0.005 and sw=0.025 is not a problem though */
-         // F0ReaderWriter.write_pitch_file(fileName, f0s, (float)(ws), (float)(ss), fs);
+         F0ReaderWriter.write_pitch_file(fileName, f0s, (float)(ws), (float)(ss), fs);
           
           
       } else if(type == HMMData.MCP ){
@@ -346,9 +343,9 @@ public class HTSParameterGeneration {
       logger.info("saveParam in file: " + fileName);
     
       
-    //} catch (IOException e) {
-    //    logger.info("IO exception = " + e );
-    //}    
+    } catch (IOException e) {
+        logger.info("IO exception = " + e );
+    }    
   }
 
   

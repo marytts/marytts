@@ -80,7 +80,7 @@ public class HMMVoice extends Voice {
             String Ftd, String Ftf, String Ftm, String Fts, String Fta, 
             String Fmd, String Fmf, String Fmm, String Fms, String Fma,
             String useMixExc, String useFourierMag, boolean useGV, boolean useGmmGV, String Fgvf, String Fgvm, 
-            String Fgvs, String Fgva, String Fgmmgvf, String Fgmmgvm,String FeaList, String Flab, 
+            String Fgvs, String Fgva, String Fgmmgvf, String Fgmmgvm,String FeaList, String FeaFile, 
             String Fif, int nFilters, int norderFilters) throws Exception {
         super(nameArray, locale, dbAudioFormat, synthesizer, gender, topStart, topEnd, baseStart, baseEnd);
         
@@ -93,7 +93,7 @@ public class HMMVoice extends Voice {
        if(beta != null)
          this.htsData.setBeta(Double.parseDouble(beta));
 
-       this.htsData.setFeatureDefinition(FeaList);
+       this.htsData.setFeatureDefinition(FeaFile);
        this.htsData.setTreeDurFile(Ftd);  
        this.htsData.setTreeLf0File(Ftf);           
        this.htsData.setTreeMcpFile(Ftm);
@@ -127,8 +127,8 @@ public class HMMVoice extends Voice {
        /* Feature list file */
        this.htsData.setFeaListFile(FeaList);
 
-       /* Example context feature file in HTSCONTEXT_EN format */
-       this.htsData.setLabFile(Flab);
+       /* Example context feature file in TARGETFEATURES format */
+       this.htsData.setFeaFile(FeaFile);
 
        /* Configuration for mixed excitation */
        if(Fif != null){
