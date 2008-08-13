@@ -90,6 +90,8 @@ public class TargetFeatureLister extends InternalModule
         StringBuffer bin = new StringBuffer();
         for (int i=0, len=uttList.size(); i<len; i++) {
             Utterance utt = (Utterance)uttList.get(i);
+            
+            
             if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
                 StringWriter sw = new StringWriter();
                 PrintWriter pw = new PrintWriter(sw);
