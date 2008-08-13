@@ -483,9 +483,8 @@ public class JoinModeller extends VoiceImportComponent
             jm.setFeatureDefinition(def);
             
             int numTrees = 1;  /* just JoinModeller will be loaded */
-            HTSTreeSet joinTree = new HTSTreeSet(numTrees);
-            joinTree.loadJoinModellerTree(joinTreeFile, def);
-             
+            HTSTreeSet joinTree = new HTSTreeSet(numTrees);            
+            joinTree.loadTreeSetGeneral(joinTreeFile, 0, def);
             
             
             /* Given a context feature model name, find its join PDF mean and variance */
@@ -518,7 +517,7 @@ public class JoinModeller extends VoiceImportComponent
                 //System.out.println(feaLine);
             
             fv = def.toFeatureVector(0, feaLine);
-            indexPdf = joinTree.searchJoinModellerTree(fv, def, joinTree.getTreeHead(0).getRoot(), false);
+            indexPdf = joinTree.searchTreeGeneral(fv, def, joinTree.getTreeHead(0).getRoot(), false);
             
             //--- old indexPdf = joinTree.searchTree(modelName, joinTree.getTreeHead(0).getRoot(), false);
             

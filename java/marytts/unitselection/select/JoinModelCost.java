@@ -146,7 +146,7 @@ public class JoinModelCost implements JoinCostFunction
         int numTrees = 1;  /* just JoinModeller will be loaded */
         joinTree = new HTSTreeSet(numTrees);
         try {
-            joinTree.loadJoinModellerTree(joinTreeFileName, featureDef);
+            joinTree.loadTreeSetGeneral(joinTreeFileName, 0, featureDef);
         } catch (Exception e) {
             IOException ioe = new IOException("Cannot load join model trees from "+joinTreeFileName);
             ioe.initCause(e);
@@ -227,7 +227,7 @@ public class JoinModelCost implements JoinCostFunction
         double[] mean = new double[vectorSize];
         double[] variance = new double[vectorSize];
         
-        indexPdf = joinTree.searchJoinModellerTree(fv1, featureDef, joinTree.getTreeHead(0).getRoot(), false);
+        indexPdf = joinTree.searchTreeGeneral(fv1, featureDef, joinTree.getTreeHead(0).getRoot(), false);
         
         joinPdf.findJoinPdf(indexPdf, mean, variance);
 
