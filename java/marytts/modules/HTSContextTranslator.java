@@ -103,10 +103,9 @@ public class HTSContextTranslator extends InternalModule {
         
         String lab;   
         
-        //System.out.println("contextfeatures=" + d.getPlainText());
-        
-        //lab = processTargetFeatures(d.getPlainText(), hmmv.getFeatureList()); 
-        //System.out.println("(1) lab =\n" + lab);
+        System.out.println("contextfeatures=" + d.getPlainText());
+        lab = processTargetFeatures(d.getPlainText(), hmmv.getFeatureList()); 
+        System.out.println("(1) lab =\n" + lab);
         
         lab = _process(d.getPlainText(), hmmv.getFeatureList()); 
         System.out.println("(2) lab =\n" + lab); 
@@ -265,6 +264,7 @@ public class HTSContextTranslator extends InternalModule {
           /* maybe i need to check first if the value is allowed ??? in the hash table */
           /* that is the value should exist in mary_v   */
           fea_out = shortenPfeat(fea_out);
+           
            
           lab += fea_out + "=" + v.get(index.intValue()) + "|";
           //System.out.print(fea_out + "=" + v.get(index.intValue()) + "|");
