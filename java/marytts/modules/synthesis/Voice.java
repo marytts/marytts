@@ -101,7 +101,8 @@ public class Voice
          2, // nr. of bytes per frame
          16000, // nr. of frames per second
          (System.getProperty("os.arch").equals("x86") ||
-          System.getProperty("os.arch").equals("i386")) ? // byteorder
+          System.getProperty("os.arch").equals("i386") ||
+          System.getProperty("os.arch").equals("amd64")) ? // byteorder
          false // little-endian
          : true); // big-endian
     /** Audio format: 16kHz,16bit,mono, big endian */

@@ -265,7 +265,8 @@ public class MbrolaSynthesizer implements WaveformSynthesizer {
             // (which stems from PowerPC times) produces big-endian 
             // even on an i386 machine
         } else if (System.getProperty("os.arch").equals("x86") ||
-                System.getProperty("os.arch").equals("i386")) {
+                System.getProperty("os.arch").equals("i386") ||
+                System.getProperty("os.arch").equals("amd64")) {
             bigEndian = false;
         } else {
             // all others -- e.g., sparc
