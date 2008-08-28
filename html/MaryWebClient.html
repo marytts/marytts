@@ -1,0 +1,217 @@
+<html>
+
+  <head>
+    <title>MARY Web Client</title>
+    <link rel="STYLESHEET" type="text/css" href="/style/jsc.css">
+  </head>
+
+  <body>
+
+    <table>
+      <tr>
+        <td><img src="favicon.ico"/></td>
+        <td><h1><font STYLE="font-family: Verdana; color: #587D9D">MARY Web Client</font></h1></td>
+      </tr>
+    </table>
+
+    <form id="MARY_WEB_CLIENT" action="http://localhost:59125" method="post" target="_blank">
+
+      <br>
+
+      <table id="table1" border="1">
+        <tr>
+          <td>
+            <table id="server">
+              SERVER
+              <br><br>
+              <tr>
+                <td>Host:</td>
+                <td><input type="text" name="host" value="" size="25" readonly></td>
+              </tr>
+              <tr>
+                <td>Port:</td>
+                <td><input type="text" name="port" value="" size="25" readonly></td>
+              </tr>
+              <tr>
+                <td>Version:</td>
+                <td><input type="text" name="version" value="" size="25" readonly></td>
+              </tr>
+              <tr>
+                <td>Version No:</td>
+                <td><input type="text" name="versionNo" value="" size="25" readonly></td>
+              </tr>
+            </table>
+          </td>
+
+          <td>
+            <table id="voice">
+              VOICE
+              <br><br>
+              <tr>
+                <td>All:</td>
+                <td>
+                  <select name="allVoices" size="1">
+                    <option>time-awb (English, male, limited)</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td>General Domain:</td>
+                <td>
+                  <select name="generalDomainVoices" size="1">
+                    <option>hsmm-slt (English, female)</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td>Limited Domain:</td>
+                <td>
+                  <select name="limitedDomainVoices" size="1">
+                    <option>time-awb (English, male, limited)</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td>Voice Example Text:</td>
+                <td>
+                  <select name="voiceExampleText" size="1">
+                    <option>The time is now, exactly five past one, in the morning.</option>
+                    <option>The time is now, just after five to one, in the afternoon.</option>
+                    <option>The time is now, almost twenty past eight, in the evening.</option>
+                  </select>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <table id="data">
+              DATA
+              <br><br>
+              <tr>
+                <td>All Types:</td>
+                <td>
+                  <select name="allDataTypes" size="1">
+                    <option>TEXT</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td>Server Example Text:</td>
+                <td>
+                  <textarea name="serverExampleText" rows="8" cols="30" readonly>
+Server example text for selected data type (selection made in the "All" selection box above)
+                  </textarea>
+                </td>
+              </tr>
+              <tr>
+                <td>Input Type:</td>
+                <td>
+                  <select name="inputDataTypes" size="1">
+                    <option>TEXT</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td>Output Type:</td>
+                <td>
+                  <select name="outputDataTypes" size="1">
+                    <option>AUDIO</option>
+                  </select>
+                </td>
+              </tr>
+            </table>
+          </td>
+
+          <td>
+            <table id="effect">
+              EFFECT
+              <br><br>
+              <tr>
+                <td>Effects:</td>
+                <td>
+                  <select name="effects" size="1">
+                    <option>Volume</option>
+                    <option>TractScaler</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td>Default Parameters:</td>
+                <td><input type="text" name="defaultParameters" value="amount=2.0" size="25" readonly></td>
+              </tr>
+              <tr>
+                <td>Parameters:</td>
+                <td><input type="text" name="parameters" value="amount=2.0" size="25"></td>
+              </tr>
+              <tr>
+                <td>Full Effect:</td>
+                <td><input type="text" name="fullEffect" value="" size="25" readonly></td>
+              </tr>
+              <tr>
+                <td>Only Available for HMM Voices?</td>
+                <td><input type="text" name="fullEffect" value="true" size="25" readonly></td>
+              </tr>
+              <tr>
+                <td>Help Text Linebreak:</td>
+                <td><input type="text" name="helpTextLinebreak" value="" size="25" readonly></td>
+              </tr>
+              <tr>
+                <td>Help Text:</td>
+                <td>
+                  <textarea name="helpText" rows="8" cols="30" readonly>Help text of the selected effect...</textarea>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+
+      <br>
+
+      <table id="table2" border="1">
+        <tr>
+          <td>
+            <table id="synthesis" border="1">
+              SYNTHESIS
+              <br><br>
+              <tr>
+                <td>Input Text:</td>
+                <td>
+                  <textarea name="inputText" rows="8" cols="30">
+Input text (could be a text to be synthesized if "Input Text" is TEXT or a document generated from TEXT based on the type selected in "Input" above)
+                  </textarea>
+                </td>
+              
+                <td>Output Text:</td>
+
+                <td>
+                  <textarea name="outputText" rows="8" cols="30" readonly>
+Output text (only if "Output Type" is not AUDIO)
+                  </textarea>
+                </td>
+              </tr>
+              <tr>
+                <td>Output File Name:</td>
+                <td>
+                  <select name="outputAudioFormats" size="1">
+                    <option>WAV</option>
+                    <option>MP3</option>
+                  </select>
+                </td>
+
+                <td>Output Audio Format:</td>
+                <td><input type="text" name="outputFileName" value="" size="25"></td>
+              </tr>
+            </table>
+            PLEASE PRESS TO START 
+            <button name="process">Process/Play</button>
+          </td>
+        </tr>
+      </table>
+
+    </form>
+  </body>
+</html>
