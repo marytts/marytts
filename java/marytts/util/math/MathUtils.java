@@ -2768,6 +2768,20 @@ public class MathUtils {
 
     public static double median(double[] x)
     {
+        return median(x, 0, x.length-1);
+    }
+    
+    public static double median(double[] xin, int firstIndex, int lastIndex)
+    {
+        if (firstIndex<0)
+            firstIndex=0;
+        if (lastIndex>xin.length-1)
+            lastIndex=xin.length-1;
+        if (lastIndex<firstIndex)
+            lastIndex=firstIndex;
+        
+        double[] x = new double[lastIndex-firstIndex];
+        System.arraycopy(xin, firstIndex, x, 0, x.length);
         quickSort(x);
 
         int index = (int)Math.floor(0.5*x.length+0.5);
