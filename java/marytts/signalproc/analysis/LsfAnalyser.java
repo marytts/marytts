@@ -360,8 +360,7 @@ public class LsfAnalyser
      * as in A(z) = a0 - sum { ai * z^-i } . a0 = 1.
      */
     public static double[] lsfInHz2lpc(double[] lsf, int samplingRate)
-    {
-     
+    {   
         double[] normalised_lsf = new double[lsf.length];
         for (int i=0; i<lsf.length; i++) {
             normalised_lsf[i] = lsf[i]/samplingRate;
@@ -382,6 +381,8 @@ public class LsfAnalyser
      */
     public static double[] lsf2lpc(double[] lsf)
     {
+        MathUtils.quickSort(lsf);
+        
         int P = lsf.length;
         int half_order = P/2;
         int i, j;
