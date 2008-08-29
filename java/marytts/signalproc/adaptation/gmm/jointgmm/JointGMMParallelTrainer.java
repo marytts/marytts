@@ -284,17 +284,19 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
     //Then, any HMM output is to be transformed with the voice conversion function to make it closer to original recordings
     public static void mainHmmVoiceConversion(String[] args) throws UnsupportedAudioFileException, IOException
     {
-        String wavBaseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/hsmmMfcc_25Dimensional/";
+        //String wavBaseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/hsmmMfcc_25Dimensional/";
         //String wavBaseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/lsp_21Dimensional/";
         //String wavBaseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/mellsp_21Dimensional/";
         //String baseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/mfcc_25Dimensional/";
         //String wavBaseFolder = "/home/oytun/";
         
-        String sourceTag = "hmmSource";
+        String wavBaseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest2/";
+        
+        String sourceTag = "hmmSource_nogv";
         String targetTag = "origTarget";
         String method;
         
-        int numTrainingFiles = 40;
+        int numTrainingFiles = 500;
         boolean isContextualGMMs = false;
         int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {128};
         //int contextClassificationType = ContextualGMMParams.SILENCE_SPEECH; int[] numComponents = {16, 128};
@@ -316,8 +318,8 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.LABEL_GROUPS; method = "LG"; pa.codebookHeader.numNeighboursInLabelGroups = 1; //Mapping of average features collected across label groups (i.e. vowels, consonants, etc)
         //pa.codebookHeader.codebookType = WeightedCodebookFileHeader.SPEECH; method = "S"; //Mapping of average features collected across all speech parts (i.e. like spectral equalization)
 
-        //pa.codebookHeader.vocalTractFeature = BaselineFeatureExtractor.LSF_FEATURES; //Use Lsf features - full speech to speech transformation
-        pa.codebookHeader.vocalTractFeature = BaselineFeatureExtractor.MFCC_FEATURES_FROM_FILES; //Use MFCC features - currently supports only feature to featur etransformation
+        pa.codebookHeader.vocalTractFeature = BaselineFeatureExtractor.LSF_FEATURES; //Use Lsf features - full speech to speech transformation
+        //pa.codebookHeader.vocalTractFeature = BaselineFeatureExtractor.MFCC_FEATURES_FROM_FILES; //Use MFCC features - currently supports only feature to featur etransformation
         
         pa.codebookHeader.sourceTag = sourceTag + method; //Source name tag (i.e. style or speaker identity)
         pa.codebookHeader.targetTag = targetTag + method; //Target name tag (i.e. style or speaker identity)
@@ -342,8 +344,8 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         gp.gmmEMTrainerParams.kmeansMaxIterations = 200;
         gp.gmmEMTrainerParams.kmeansMinClusterChangePercent = 0.1;
         gp.gmmEMTrainerParams.kmeansMinSamplesInOneCluster = 50;
-        gp.gmmEMTrainerParams.emMinIterations = 200;
-        gp.gmmEMTrainerParams.emMaxIterations = 2000;
+        gp.gmmEMTrainerParams.emMinIterations = 100;
+        gp.gmmEMTrainerParams.emMaxIterations = 400;
         gp.gmmEMTrainerParams.isUpdateCovariances = true;
         gp.gmmEMTrainerParams.tinyLogLikelihoodChangePercent = 1e-5;
         gp.gmmEMTrainerParams.minCovarianceAllowed = 1e-4;
