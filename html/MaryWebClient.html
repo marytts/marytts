@@ -6,15 +6,27 @@
   </head>
 
   <body>
-
+    <font STYLE="font-family: Verdana">
     <table>
       <tr>
-        <td><img src="favicon.ico"/></td>
-        <td><h1><font STYLE="font-family: Verdana; color: #587D9D">MARY Web Client</font></h1></td>
-      </tr>
+          <td><img src="favicon.ico"/></td>  
+          <td>        
+            <table>
+              <tr>
+                <td></td>
+              </tr>
+	      <tr>
+                <td><h1><font STYLE="color: #587D9D">MARY Web Client</font></h1></td>
+              </tr>
+              <tr>
+                <td></td>
+              </tr>
+	    </table>
+          </td>
+        </tr>
     </table>
 
-    <form id="MARY_WEB_CLIENT" action="http://localhost:59125" method="post" target="_blank">
+    <form id="maryWebClient" action="http://localhost:59125" method="post">
 
       <br>
 
@@ -22,8 +34,7 @@
         <tr>
           <td>
             <table id="server">
-              SERVER
-              <br><br>
+              <b><h2>SERVER</h2></bt>
               <tr>
                 <td>Host:</td>
                 <td><input type="text" name="host" value="" size="25" readonly></td>
@@ -45,8 +56,7 @@
 
           <td>
             <table id="voice">
-              VOICE
-              <br><br>
+              <b><h2>VOICE</h2></b>
               <tr>
                 <td>All:</td>
                 <td>
@@ -88,8 +98,7 @@
         <tr>
           <td>
             <table id="data">
-              DATA
-              <br><br>
+              <b><h2>DATA</h2></b>
               <tr>
                 <td>All Types:</td>
                 <td>
@@ -127,8 +136,7 @@ Server example text for selected data type (selection made in the "All" selectio
 
           <td>
             <table id="effect">
-              EFFECT
-              <br><br>
+              <b><h2>EFFECT</h2></b>
               <tr>
                 <td>Effects:</td>
                 <td>
@@ -140,23 +148,24 @@ Server example text for selected data type (selection made in the "All" selectio
               </tr>
               <tr>
                 <td>Default Parameters:</td>
-                <td><input type="text" name="defaultParameters" value="amount=2.0" size="25" readonly></td>
+                <td><input type="text" name="defaultParameters" value="amount=2.0" size="40" readonly></td>
               </tr>
               <tr>
                 <td>Parameters:</td>
-                <td><input type="text" name="parameters" value="amount=2.0" size="25"></td>
+                <td><input type="text" name="parameters" value="amount=2.0" size="40"></td>
+                <td><button name="Default">Default</button></td>
               </tr>
               <tr>
                 <td>Full Effect:</td>
-                <td><input type="text" name="fullEffect" value="" size="25" readonly></td>
+                <td><input type="text" name="fullEffect" value="" size="40" readonly></td>
               </tr>
               <tr>
                 <td>Only Available for HMM Voices?</td>
-                <td><input type="text" name="fullEffect" value="true" size="25" readonly></td>
+                <td><input type="text" name="fullEffect" value="true" size="40" readonly></td>
               </tr>
               <tr>
                 <td>Help Text Linebreak:</td>
-                <td><input type="text" name="helpTextLinebreak" value="" size="25" readonly></td>
+                <td><input type="text" name="helpTextLinebreak" value="" size="40" readonly></td>
               </tr>
               <tr>
                 <td>Help Text:</td>
@@ -175,8 +184,7 @@ Server example text for selected data type (selection made in the "All" selectio
         <tr>
           <td>
             <table id="synthesis" border="1">
-              SYNTHESIS
-              <br><br>
+              <b><h2>SYNTHESIS</h2></b>
               <tr>
                 <td>Input Text:</td>
                 <td>
@@ -194,7 +202,7 @@ Output text (only if "Output Type" is not AUDIO)
                 </td>
               </tr>
               <tr>
-                <td>Output File Name:</td>
+                <td>Output Audio Format:</td>
                 <td>
                   <select name="outputAudioFormats" size="1">
                     <option>WAV</option>
@@ -202,16 +210,57 @@ Output text (only if "Output Type" is not AUDIO)
                   </select>
                 </td>
 
-                <td>Output Audio Format:</td>
-                <td><input type="text" name="outputFileName" value="" size="25"></td>
+                <td>Output File Name:</td>
+                <td><input type="text" name="outputFileName" value="" size="40"></td>
               </tr>
             </table>
-            PLEASE PRESS TO START 
-            <button name="process">Process/Play</button>
+            <font STYLE="color: #FF0000"><b>PLEASE PRESS TO START</b></font> 
+            <input type="submit" value="Process/Play">
           </td>
         </tr>
       </table>
 
     </form>
+    </font>
   </body>
+
+  <script language="JavaScript">
+  function submitform()
+  {
+    document.maryWebClient.submit();
+  }
+  </script> 
+
+  <script language="JavaScript" type="text/javascript">
+    var frmvalidator = new Validator("maryWebClient");
+    frmvalidator.addValidation("FirstName","req","Please enter your First Name");
+    frmvalidator.addValidation("FirstName","maxlen=20","Max length for FirstName is 20");
+    frmvalidator.addValidation("FirstName","alpha");
+    frmvalidator.addValidation("LastName","req");
+    frmvalidator.addValidation("LastName","maxlen=20");
+    frmvalidator.addValidation("Email","maxlen=50");
+    frmvalidator.addValidation("Email","req");
+    frmvalidator.addValidation("Email","email");
+    frmvalidator.addValidation("Phone","maxlen=50");
+    frmvalidator.addValidation("Phone","numeric");
+    frmvalidator.addValidation("Address","maxlen=50");
+    frmvalidator.addValidation("Country","dontselect=0");
+  </script>
+
+  <script language="JavaScript">
+  function DoCustomValidation()
+  {
+    var frm = document.forms["maryWebClient"];
+    if(frm.pwd1.value != frm.pwd2.value)
+    {
+      alert('The Password and verified password does not match!');
+      return false;
+    }
+    else
+    {
+      return true;
+    }
+  }
+  </script>
+
 </html>
