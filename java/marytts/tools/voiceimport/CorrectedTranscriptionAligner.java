@@ -70,7 +70,7 @@ import marytts.modules.synthesis.Voice;
 import marytts.signalproc.display.Histogram;
 import marytts.unitselection.select.Target;
 
-import org.apache.tools.ant.types.CommandlineJava.SysProperties;
+//import org.apache.tools.ant.types.CommandlineJava.SysProperties;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
