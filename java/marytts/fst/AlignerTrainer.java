@@ -26,12 +26,12 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-
 package marytts.fst;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -54,232 +54,70 @@ import marytts.modules.phonemiser.PhonemeSet;
  *
  */
 public class AlignerTrainer {
-    
-    private Map<String, Integer> aligncost;
 
-    private int maxCost = 10; // maybe we only need maxCost
-    private int defaultcost = maxCost;
+    // cost of translating first element of the pair into the second
+    private HashMap<StringPair, Integer> aligncost;
+
+    private int defaultcost = 10;
+    // cost of deleting an element
     private int skipcost;
 
     private double logOf2 = Math.log(2.0);
 
-    
-    protected List<String> graphemeStrings;
-    protected List<String> phoneStrings;
+    // optional info, eg. part-of-speech
     protected List<String> optInfo;
+    // input side (eg. graphemes) of string pairs, split into symbols
+    protected List<String[]> inSplit;
+    // output side (eg. phonemes) of string pairs, split into symbols
+    protected List<String[]> outSplit;
 
-    private PhonemeSet phonemeSet;
     protected Set<String> graphemeSet;
-    //protected Set<String> outSymbolSet;
     
-    
-    private Locale locale;
-    
-    // Default regular expressions for delimiters
-    private String alignDelim = "#";
-    private String symDelim = " ";
+    private boolean inIsOut;
 
     /**
      * 
-     * @param aPhSet PhonemeSet that is used to seperate symbols. When the 
-     * 'simply'-methods are used (readLexiconSimply, addSimply) every characer
-     * is treated as a single symbol. aPhSet can be null in that case.
-     * @param aLocale used for lowercasing (eg. for letter-to-sound alignments)
-     * @param alignmentDelimiter delimiter to indicate alignment boundaries. It
-     * must not occurr in the output strings that are to be aligned.
-     * @param symbolDelimiter delimiter to indicate symbol boundaries. It must 
-     * neither occurr in input nor output strings.
+     * @param inIsOutAlphabet boolean indicating as input and output strings
+     * should be considered as belonging to the same symbol sets (alignment
+     * between identical symbol is then cost-free)
      */
-    public AlignerTrainer(PhonemeSet aPhSet, Locale aLocale, String alignmentDelimiter, String symbolDelimiter){
+    public AlignerTrainer(boolean inIsOutAlphabet){
         
         this.skipcost = this.defaultcost;
-        this.aligncost = new HashMap<String, Integer>();
+        this.aligncost = new HashMap<StringPair, Integer>();
         
-        this.graphemeStrings = new ArrayList<String>();
-        this.phoneStrings = new ArrayList<String>();
+        this.inSplit = new ArrayList<String[]>();
+        this.outSplit = new ArrayList<String[]>();
         this.graphemeSet = new HashSet<String>();
 
-        this.phonemeSet = aPhSet;
-        this.locale = aLocale;
-        
-        this.alignDelim = alignmentDelimiter;
-        this.symDelim = symbolDelimiter;
-        
+        this.inIsOut = inIsOutAlphabet;
     }
     
     /**
-     * This initializes the letter-to-sound trainer with the phoneme set
-     *  that is mainly used for splitting phoneme chains, and a Locale
-     *  that tells eg. how to lowercase words.
+     * New AlignerTrainer for pairs of different symbol sets
      */
-    public AlignerTrainer(PhonemeSet aPhSet, Locale aLocale){
-        this(aPhSet,aLocale, "#", " ");
+    public AlignerTrainer(){
+        this(false);
 
-    }
-
-    /**
-     * 
-     * This reads in a lexicon in "mary" format, lines are of the kind:
-     * graphemechain\phonemechain\otherinformation
-     * 
-     * stress is preserved
-     * 
-     * @param lexicon reader with the lines of the lexicon
-     * @throws IOException
-     */
-    public void readLexicon(BufferedReader lexicon) throws IOException{
-        
-        
-        // TODO: replace
-        ArrayList<String> graphemeStringList = new ArrayList<String>();
-        ArrayList<String> phoneStringList = new ArrayList<String>();
-                
-        String line;
-        
-        while ((line = lexicon.readLine()) != null){
-            String[] lineParts = line.trim().split("\\\\");
-
-            String graphStr = lineParts[0].toLowerCase(this.locale);
-            
-            // remove all secondary stress markers
-            String phonStr = lineParts[1].replaceAll(",", "");
-            
-            String[] syllables = phonStr.split("-");
-            
-            
-            String seperatedPhones = "";
-            String seperatedGraphemes = "";
-            
-            for (String syl : syllables){
-            
-                boolean stress = false;
-                
-                if (syl.startsWith("'")){
-                    syl = syl.substring(1);
-                    stress = true;
-                }
-                
-                for ( Phoneme ph : phonemeSet.splitIntoPhonemes(syl)){
-                    seperatedPhones += ph.name();
-                    
-                    if (stress && ph.isVowel()){
-                        
-                        seperatedPhones += "1";
-                        stress = false;
-                    }
-                    
-                    seperatedPhones += symDelim;
-                }// ... for each phoneme
-                
-            }
-            
-            for ( int i = 0 ; i < graphStr.length() ; i++ ){
-                
-                this.graphemeSet.add(graphStr.substring(i, i+1));
-                
-                seperatedGraphemes += graphStr.substring(i, i+1) + symDelim;
-            }
-            
-            graphemeStringList.add(seperatedGraphemes);
-            phoneStringList.add(seperatedPhones);
-            
-        }
-        
-        this.graphemeStrings = graphemeStringList;//.toArray(new String[]{});
-        this.phoneStrings    = phoneStringList;//.toArray(new String[]{});       
     }
     
     /**
      * 
-     * reads in a lexicon in "sampa" format, lines are of the kind:
-     * 
-     * graphemechain\phonemechain\otherinformation
-     * 
-     * Stress is optionally preserved, marking the firsr vowel of a stressed
-     * syllable with "1".
-     * 
-     * @param lexicon reader with lines of lexicon
-     * @param considerStress indicator if stress is preserved
-     * @throws IOException
-     */
-    public void readSampaLexicon(BufferedReader lexicon, boolean considerStress) throws IOException{
-        
-        // TODO: replace
-        ArrayList<String> graphemeStringList = new ArrayList<String>();
-        ArrayList<String> phoneStringList = new ArrayList<String>();
-                
-        String line;
-        
-        while ((line = lexicon.readLine()) != null){
-            String[] lineParts = line.trim().split(Pattern.quote(symDelim));
-            // TODO: remove all non-standard symbols from input side, not only ' and -
-            String graphStr = lineParts[0].toLowerCase(this.locale).replaceAll("['-.]", "");
-            
-            // remove all secondary stress markers
-            String phonStr = lineParts[1].replaceAll(",", "");
-            
-            String[] syllables = phonStr.split("-");
-            
-            
-            String separatedPhones = "";
-            String separatedGraphemes = "";
-            
-            for (String syl : syllables){
-            
-                boolean stress = false;
-                
-                if (syl.startsWith("'")){
-                    syl = syl.substring(1);
-                    stress = true;
-                }
-                
-                for ( Phoneme ph : phonemeSet.splitIntoPhonemes(syl)){
-                    separatedPhones += ph.name();
-                    
-                    if (stress && considerStress && ph.isVowel()){
-                        
-                        separatedPhones += "1";
-                        stress = false;
-                    }
-                    
-                    separatedPhones += symDelim;
-                }// ... for each phoneme
-                
-            }
-
-            
-            
-            
-            for ( int i = 0 ; i < graphStr.length() ; i++ ){
-                
-                this.graphemeSet.add(graphStr.substring(i, i+1));
-                
-                separatedGraphemes += graphStr.substring(i, i+1) + symDelim;
-            }
-            
-            graphemeStringList.add(separatedGraphemes);
-            phoneStringList.add(separatedPhones);
-            
-        }
-        
-        this.graphemeStrings = graphemeStringList;//.toArray(new String[]{});
-        this.phoneStrings    = phoneStringList;//.toArray(new String[]{});       
-    }
-    
-    /**
-     * 
-     * This reads a lexicon where input and output strings are seperated by a
+     * This reads a lexicon where input and output strings are separated by a
      * delimiter that can be specified (splitSym). Strings are taken as they are
      * no normalization (eg. stress/syllable symbol removal, lower-casing ...)
      * is performed. In a third row additional info (eg. part of speech) can be
      * given.
+     * Strings are stored split into symbols. For the phonemic part this split
+     * can be done by using a phonemeset.
      * 
      * @param lexicon reader for lexicon
      * @param splitSym symbol to split columns of lexicon
-     * @param hasOptInfo whether the lexicon has optional info in a third column eg. POS
+     * @param hasOptInfo whether the lexicon has optional info in a third column
+     * eg. POS
      * @throws IOException
      */
-    public void readLexiconSimply(BufferedReader lexicon, String splitSym, boolean hasOptInfo) throws IOException{
+    public void readLexicon(BufferedReader lexicon, String splitSym, boolean hasOptInfo) throws IOException{
         
         
         if (hasOptInfo){
@@ -291,14 +129,15 @@ public class AlignerTrainer {
         while ((line = lexicon.readLine()) != null){
             String[] lineParts = line.trim().split(splitSym);
             
-            this.addSimply(lineParts[0], lineParts[1]);
+            this.splitAndAdd(lineParts[0], lineParts[1]);
             
             if (hasOptInfo)
-                this.optInfo.add(lineParts.length > 2 ? lineParts[2]:"");
+                this.optInfo.add(lineParts.length > 2 ? lineParts[2]:null);
             
         }
         
     }
+
     
     /**
      * This adds the input and output string in the most simple way: symbols
@@ -308,246 +147,244 @@ public class AlignerTrainer {
      * @param inString
      * @param outString
      */
-    public void addSimply(String inStr, String outStr){
+    public void splitAndAdd(String inStr, String outStr){
         
-        String separatedGraphemes="";
+        String[] inStrSplit = new String[inStr.length()];
         
         for ( int i = 0 ; i < inStr.length() ; i++ ){
             
             this.graphemeSet.add(inStr.substring(i, i+1));
-            
-            separatedGraphemes += inStr.substring(i, i+1) + symDelim;
+
+            inStrSplit[i] = inStr.substring(i, i+1);
         }
         
-        String separatedPhonemes="";
+        String[] outStrSplit = new String[outStr.length()];
         
-        for ( int i = 0 ; i < outStr.length() ; i++ ){            
-            separatedPhonemes += outStr.substring(i, i+1) + symDelim;
+        for ( int i = 0 ; i < outStr.length() ; i++ ){
+            outStrSplit[i] = outStr.substring(i, i+1);
         }
         
-        this.graphemeStrings.add(separatedGraphemes);
-        this.phoneStrings.add(separatedPhonemes);
+        this.inSplit.add(inStrSplit);
+        this.outSplit.add(outStrSplit);
         
     }
     
-    /**
-     * One iteration of alignment, using adapted Levenshtein distance. 
+    public void addAlreadySplit(List<String> inStr, List<String> outStr){
+        this.inSplit.add(inStr.toArray(new String[]{}));
+        this.outSplit.add(outStr.toArray(new String[]{}));
+    }
+
+     /**
+     * One iteration of alignment, using adapted Levenshtein distance.
      * After the iteration, the costs between a grapheme and a phoneme are
      * set by the log probability of the phoneme given the grapheme. Analogously,
      * The deletion cost is set by the log of deletion probability.
      * In the first iteration, all operations cost maxCost.
-     * 
+     *
      */
     public void alignIteration(){
-        
+
         // this counts how many times a symbol is mapped to symbols
         Map<String, Integer> symMapCount = new HashMap<String, Integer>();
-        
+
         // this counts how often particular mappings from one symbol to another occurred
-        Map<String, Integer> sym2symCount = new HashMap<String, Integer>();
-        
+        Map<StringPair, Integer> sym2symCount = new HashMap<StringPair, Integer>();
+
         // how many symbols are on input side
         int symCount = 0;
-        
+
         // how many symbols are deleted
         int symDels = 0;
-        
+            
         // for every alignment pair collect counts
-        for ( int i = 0; i < this.phoneStrings.size(); i++ ){
-            
-            String alignment = this.distanceAlign(this.graphemeStrings.get(i), this.phoneStrings.get(i));
-            
-            //System.out.println("---");
-            //System.out.println(this.graphemeStrings[i]);
-            //System.out.println(alignment);
-            
-            String[] in = this.graphemeStrings.get(i).trim().split( Pattern.quote(symDelim) );
-            // assure that there is at least one space sign after last '#'
-            String[] out = alignment.concat(symDelim).split(Pattern.quote(alignDelim));
-            
-            assert(in.length == out.length);
-            
+        for ( int i = 0; i < this.outSplit.size(); i++ ){
+
+            String[] in = this.inSplit.get(i);
+            String[] out = this.outSplit.get(i);
+            int[] alignment = this.align(in, out);
+
             symCount += in.length;
-            
+
+            int pre = 0;
+
             // for every input symbol...
             for ( int inNr = 0; inNr < in.length; inNr++){
                 
-                String outStr = out[inNr].trim();
-                                
-                if (outStr.length() == 0){
+                if (alignment[inNr] == pre){
                     // is mapped to empty string
-                    
                     symDels++;
                 } else {
                     // mapped to one or several symbols
-                    
-                    String[] outs = outStr.split(Pattern.quote(symDelim));
-                    
+
                     // increase count of overall mappings for this symbol
                     Integer c = symMapCount.get(in[inNr]);
-                    if (null == c){                    
-                        symMapCount.put(in[inNr], outs.length);
+                    if (null == c){
+                        symMapCount.put(in[inNr], alignment[inNr] - pre);
                     } else {
-                        symMapCount.put(in[inNr], outs.length + c);
+                        symMapCount.put(in[inNr], c + alignment[inNr] - pre);
                     }
-                    
+
                     // for every corresponding output symbol
-                    for (int outNr = 0; outNr < outs.length; outNr ++){
-                        
+                    for (int outNr = pre; outNr < alignment[inNr]; outNr ++){
+
                         // get key for mapping symbol to symbol
-                        String key = in[inNr].trim() + symDelim + outs[outNr].trim();
-                        
+                        StringPair key = new StringPair(in[inNr], out[outNr]);
+
                         Integer mapC = sym2symCount.get(key);
-                        if (null == mapC){                    
+                        if (null == mapC){
                             sym2symCount.put(key, 1);
                         } else {
                             sym2symCount.put(key, 1 + mapC);
                         }
                     } // ...for each output-symbol
-                } // ...if > 0 output-symbols    
+                } // ...if > 0 output-symbols
+                pre = alignment[inNr];
             } // ...for each input symbol
         } // ...for each input string
-        
+
         // now build fractions, to estimate the new costs
-        
+
         // first reset skip costs
         double delFraction = (double) symDels / symCount ;
         this.skipcost = (int) -this.log2(delFraction);
-        
+
         // now reset aligncosts
         this.aligncost.clear();
-        
-        for (String mapping : sym2symCount.keySet()){
-            
-            String firstSym = mapping.split(Pattern.quote(symDelim))[0];
-            
+
+        for (StringPair mapping : sym2symCount.keySet()){
+
+            String firstSym = mapping.getString1();
+
             double fraction = (double) sym2symCount.get(mapping) / symMapCount.get(firstSym);
             int cost = (int) -this.log2( fraction );
-            
-            if ( cost < this.maxCost ) {
+
+            if ( cost < this.defaultcost ) {
                 this.aligncost.put(mapping, cost);
-                //System.out.println(mapping + " -> " + cost);
             }
-        }        
+        }
     }
     
     public int lexiconSize(){
-        return this.graphemeStrings.size();
+        return this.inSplit.size();
     }
-    
-    /**
-     * 
+
+     /**
+     *
      * gets an alignment of the graphemes to the phonemes of an entry.
-     * a String array is returned, where every entry contains a grapheme 
-     * together with the phoneme sequence it it mapped to, seperated by a
-     * colon.
-     * 
-     * @param entryNr
+     * a StringPair array is returned, where every entry contains a grapheme
+     * together with the phoneme sequence it is mapped to. The phoneme String is
+      * just the concatenation of the symbols in the aligned sequence.
+     *
+     * @param entryNr nr of the lexicon entry
      */
-    public List<String>[] getAlignment(int entryNr){
-        
-        String align = this.distanceAlign(graphemeStrings.get(entryNr), phoneStrings.get(entryNr));
-        
-        String[] in = graphemeStrings.get(entryNr).trim().split(Pattern.quote(symDelim));
-        String[] out = align.concat(symDelim).split(Pattern.quote(alignDelim));
-        
-        // TODO: maybe do everything with lists
-        ArrayList<String>[] listArray = new ArrayList[in.length];
-                
+    public StringPair[] getAlignment(int entryNr){
+
+        String[] in = this.inSplit.get(entryNr);
+        String[] out = this.outSplit.get(entryNr);
+        int[] align = this.align(in, out);
+
+        StringPair[] listArray = new StringPair[in.length];
+
+        int pre = 0;
         for (int pos = 0; pos < in.length ; pos++){
-            
-            ArrayList<String> alList = new ArrayList<String>(2);
-            alList.add(in[pos].trim());            
-            alList.add(out[pos].trim().replaceAll(Pattern.quote(symDelim), ""));
-            
-            listArray[pos] = alList;
-            
+            String inStr = in[pos];
+            String oStr = "";
+
+            for (int alPos = pre; alPos < align[pos]; alPos++){
+                oStr += out[alPos];
+            }
+            pre = align[pos];
+
+            listArray[pos] = new StringPair(inStr,oStr);
         }
-        
+
         return listArray;
     }
-    
-    /**
-     * 
+
+     /**
+     *
      * gets an alignment of the graphemes to the phonemes of an entry.
-     * a String array is returned, where every entry contains a grapheme 
-     * together with the phoneme sequence it it mapped to, seperated by a
-     * colon.
-     * 
-     * @param entryNr
+     * a StringPair array is returned, where every entry contains a grapheme
+     * together with the phoneme sequence it is mapped to. The phoneme String is
+      * just the concatenation of the symbols in the aligned sequence.
+      * In addition, the extra info (eg. POS) is appended as one symbol on the
+      * input side.
+     *
+     * @param entryNr nr of the lexicon entry
      */
-    public List<String>[] getInfoAlignment(int entryNr){
-        
-        String align = this.distanceAlign(graphemeStrings.get(entryNr), phoneStrings.get(entryNr));
-        
-        
-        //System.out.println("---");
-        //System.out.println(">"+graphemeStrings.get(entryNr).concat(optInfo.get(entryNr) ).trim()+"<");
-        //System.out.println(">"+align.concat(" # ")+"<");
-        
-        
-        String[] in = graphemeStrings.get(entryNr).concat(optInfo.get(entryNr) ).trim().split(Pattern.quote(symDelim));
-        String[] out = align.concat(" # ").split(Pattern.quote(alignDelim));
-        
-        // TODO: maybe do everything with lists
-        ArrayList<String>[] listArray = new ArrayList[in.length];
-                
+    public StringPair[] getInfoAlignment(int entryNr){
+
+        if (null == optInfo.get(entryNr))
+            return getAlignment(entryNr);
+
+        String[] in = this.inSplit.get(entryNr);
+        String[] out = this.outSplit.get(entryNr);
+        int[] align = this.align(in, out);
+
+        StringPair[] listArray = new StringPair[in.length+1];
+
+        int pre = 0;
         for (int pos = 0; pos < in.length ; pos++){
-            
-            ArrayList<String> alList = new ArrayList<String>(2);
-            alList.add(in[pos].trim());            
-            alList.add(out[pos].trim().replaceAll(Pattern.quote(symDelim), ""));
-            
-            listArray[pos] = alList;
-            
+            String inStr = in[pos];
+            String oStr = "";
+
+            for (int alPos = pre; alPos < align[pos]; alPos++){
+                oStr += out[alPos];
+            }
+            pre = align[pos];
+
+            listArray[pos] = new StringPair(inStr,oStr);
         }
-        
+
+        listArray[in.length] = new StringPair(optInfo.get(entryNr),"");
+
         return listArray;
     }
     
     private double log2(double d){
         return Math.log(d) / logOf2;
     }
-    
-    private int symDist(String aString1, String aString2) {
-        
-        String key = aString1 + symDelim + aString2;
-        
-        // if a value is stored, return it
-        if (this.aligncost.containsKey(key)){
-            return aligncost.get(key);
-        } else {       
-            // otherwise use 0 for equal symbols and defaultcost for different symbols
-            return (aString1.equals(aString2))? 0:this.defaultcost;
+
+    private int symDist(StringPair key) {
+
+        Integer cost = aligncost.get(key);
+
+        if (null == cost){
+            if (this.inIsOut)
+                return (key.getString1().equals(key.getString2()))? 0:this.defaultcost;
+            else 
+                return this.defaultcost;
         }
+
+        return cost;
     }
-    
-    /**
-     * 
-     * This computes the alignment that has the lowest distance between two 
+
+     /**
+     *
+     * This computes the alignment that has the lowest distance between two
      * Strings.
-     * 
+     *
      * There are three differences to the normal Levenshtein-distance:
-     * 
-     * 1. Only insertions and deletions are allowed, no replacements (i.e. no 
+     *
+     * 1. Only insertions and deletions are allowed, no replacements (i.e. no
      *    "diagonal" transitions)
      * 2. insertion costs are dependent on a particular phone on the input side
      *    (the one they are aligned to)
-     * 3. deletion is equivalent to a symbol on the input side that is not 
+     * 3. deletion is equivalent to a symbol on the input side that is not
      *    aligned. There are costs associated with that.
-     *    
-     * The method returns the output string with alignment boundaries ('#') 
-     * inserted.
-     * 
+     *
+     * The method returns for each input symbol the indix of the right alignment
+     * boundary. eg. for input ['a','b'] and output ['a','a','b'] a correct
+     * alignment would be: [2,3]
+     *
      * @param in
      * @param out
      * @return
      */
-    protected String distanceAlign(String in, String out ) {
-        String[] istr = in.split( Pattern.quote(symDelim) );
-        String[] ostr = out.split( Pattern.quote(symDelim) );
+    public int[] align(String[] istr, String[] ostr ) {
 
-        
+        StringPair key = new StringPair(null, null);
+
         // distances:
         // 1. previous distance (= previous column in matrix)
         int[] p_d = new int[ostr.length+1];
@@ -555,78 +392,80 @@ public class AlignerTrainer {
         int[] d = new int[ostr.length+1];
         // 3. dummy array for swapping, when switching to new column
         int[] _d;
-        
+
         // array indicating if a skip was performed (= if current character has not been aligned)
         // same arrays as for distances
         boolean[] p_sk = new boolean[ ostr.length + 1 ];
         boolean[] sk   = new boolean[ ostr.length + 1 ];
         boolean[] _sk;
-        
-        // arrays storing the alignments corresponding to distances
-        String[] p_al = new String[ ostr.length + 1 ];
-        String[] al   = new String[ ostr.length + 1 ];
-        String[] _al;
-        
+
+        // arrays storing the alignment boundaries
+        int[][] p_al = new int[ ostr.length + 1 ][istr.length];
+        int[][] al   = new int[ ostr.length + 1 ][istr.length];
+        int[][] _al;
+
         // initialize values
         p_d[0]  = 0;
-        p_al[0] = "";
         p_sk[0] = true;
 
-        
         // ... still initializing
         for (int j = 1; j < ostr.length + 1; j++){
-            // only possibility first is to align the first letter 
+            // only possibility first is to align the first letter
             // of the input string to everything
-            p_al[j] = p_al[j-1] + symDelim + ostr[j-1]; 
-            p_d[j] = p_d[j-1] + symDist(istr[0],ostr[j-1]);
-            p_sk[j] = false;        
+            p_al[j][0] = j;
+
+            key.setString1(istr[0]);
+            key.setString2(ostr[j-1]);
+            p_d[j] = p_d[j-1] + symDist(key);
+            p_sk[j] = false;
         }
-        
+
         // constant penalty for not aligning a character
         int skConst = this.skipcost;
-        
+
         // align
         // can start at 1, since 0 has been treated in initialization
         for (int i=1; i < istr.length; i++) {
-            
+
             // zero'st row stands for skipping from the beginning on
-            d[0] = p_d[0] + skConst ;//+ this.skipDist(istr[i-1]);
-            al[0] = p_al[0] + symDelim + alignDelim;
+            d[0] = p_d[0] + skConst ;
             sk[0] = true;
-            
+           
             for (int j = 1 ; j < ostr.length + 1; j++ ) {
-                
-                // translation cost between symbols ( j-1, because 0 row 
+
+                // translation cost between symbols ( j-1, because 0 row
                 // inserted for not aligning at beginning)
-                int tr_cost = symDist(istr[i], ostr[j-1]);
-                
-                // skipping cost greater zero if not yet aligned 
-                int sk_cost = p_sk[j]? skConst : 0; //this.skipDist(istr[i-1]):0;
-                
+                key.setString1(istr[i]);
+                key.setString2(ostr[j-1]);
+                int tr_cost = symDist(key);
+
+                // skipping cost greater zero if not yet aligned
+                int sk_cost = p_sk[j]? skConst : 0;
+
                 if ( sk_cost + p_d[j] < tr_cost + d[j-1]) {
                     // skipping cheaper
-                    
-                    
+
                     // cost is cost from previous input char + skipping
                     d[j]  = sk_cost + p_d[j];
                     // alignment is from prev. input + delimiter
-                    al[j] = p_al[j] + symDelim + alignDelim;
+                    al[j] = p_al[j];
+                    al[j][i] = j;
                     // yes, we skipped
                     sk[j] = true;
-                    
+
                 } else {
                     // aligning cheaper
-                                
+
                     // cost is that from previously aligned output + distance
                     d[j]  = tr_cost + d[j-1];
                     // alignment continues from previously aligned
-                    al[j] = al[j-1] + symDelim + ostr[j-1];
+                    System.arraycopy(al[j-1],0,al[j],0,i);// copy of...
+                    al[j][i] = j;
+
                     // nope, didn't skip
                     sk[j] = false;
-                    
                 }
             }
-            
             // swapping
             _d  = p_d;
             p_d = d;
@@ -635,41 +474,16 @@ public class AlignerTrainer {
             _sk  = p_sk;
             p_sk = sk;
             sk   = _sk;
-            
+
             _al  = p_al;
             p_al = al;
             al   = _al;
+
         }
-        
-        
+
         return p_al[ostr.length];
-        
+
     }
     
-
-    
-    private void showLexiconAlignment(){
-
-        for ( int i = 0; i < this.phoneStrings.size(); i++ ){
-            
-            String alignment = this.distanceAlign(this.graphemeStrings.get(i), this.phoneStrings.get(i));
-            
-            System.out.println("---");
-            System.out.println(this.graphemeStrings.get(i));
-            System.out.println(alignment);
-            
-            String[] in = this.graphemeStrings.get(i).trim().split( Pattern.quote(symDelim));
-            // assure that there is at least one space sign after last '#'
-            String[] out = alignment.concat(symDelim).split(Pattern.quote(alignDelim));
-            
-            // for every input symbol...
-            for ( int inNr = 0; inNr < in.length; inNr++){
-
-                String outStr = out[inNr].trim();
-            }
-            
-        }
-        
-    }
-
 }
+
