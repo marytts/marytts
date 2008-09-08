@@ -47,8 +47,6 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import marytts.modules.phonemiser.PhonemeSet;
-
 import org.xml.sax.SAXException;
 
 
