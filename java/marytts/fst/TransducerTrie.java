@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,20 +13,13 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
-
-import javax.xml.parsers.ParserConfigurationException;
 
 import marytts.fst.Trie.TrieNode;
-import marytts.modules.phonemiser.PhonemeSet;
-
-import org.xml.sax.SAXException;
-
 
 /**
  * 
- * This is a particular Trie whose Symbols are List of Strings. It is required 
- * that every list has two elements, the first of which is interpreted as an 
+ * This is a particular Trie whose Symbols are Pairs of Strings, the first of
+ * which is interpreted as an
  * input symbol and the second as an output symbol. The transducer obtained by 
  * trie minimization can be written to a file in the transducer format used by 
  * MARY.
@@ -39,15 +33,11 @@ import org.xml.sax.SAXException;
  * @author benjaminroth
  *
  */
-public class TransducerTrie extends Trie< List<String> > {
+public class TransducerTrie extends Trie< StringPair > {
     static int ARCOFFSET_BITS = 20;
-    //static int LABELID_BITS = 11;
     
     static int OVERALL_BITS = 32;// for example
     static int LABELID_BITS = OVERALL_BITS - (ARCOFFSET_BITS + 1);
-    //
-    //
-    
     
     public void writeFST(DataOutputStream out, String encoding) throws IOException{
         
@@ -84,18 +74,15 @@ public class TransducerTrie extends Trie< List<String> > {
         if (!Charset.isSupported(encoding)) 
             throw new IOException("Cannot write transducer: encoding not supported.");
 
-        
         // write encoding in UTF-8
         out.writeInt(encoding.length());
         out.write(encoding.getBytes("UTF-8"));
         // write overall bits
         out.writeInt(OVERALL_BITS);
         // write bits used for encoding arc_offsets
-        out.writeInt(ARCOFFSET_BITS);
-        
+        out.writeInt(ARCOFFSET_BITS);        
 
         out.writeInt(maxAO);
-        
                
         // write starting arc:
         //      pointing to start node offset - empty label - final
@@ -136,19 +123,19 @@ public class TransducerTrie extends Trie< List<String> > {
            
         for (int i=0; i< labels.size(); i++){
             
-            List<String> ioSym = labels.get(i); 
+            StringPair ioSym = labels.get(i);
             
             // offset of outS determined by offset of inS
             labelOffsets[i*2+1] = labelOffsets[i*2];
             // offset increased by length of inS
-            labelOffsets[i*2+1] += ioSym.get(0).getBytes(encoding).length;
+            labelOffsets[i*2+1] += ioSym.getString1().getBytes(encoding).length;
             // additionally increased by one because of stop byte
             labelOffsets[i*2+1] += 1;
                 
             if (i+1<labels.size()){
                 // offset of next inS determined by this outS
                 labelOffsets[(i+1)*2] = labelOffsets[i*2+1];
-                labelOffsets[(i+1)*2] += ioSym.get(1).getBytes(encoding).length;
+                labelOffsets[(i+1)*2] += ioSym.getString2().getBytes(encoding).length;
                 labelOffsets[(i+1)*2] += 1;
             }
             
@@ -178,56 +165,59 @@ public class TransducerTrie extends Trie< List<String> > {
         // write pairs
         for (int i=0; i< labels.size(); i++){
             
-            List<String> ioSym = labels.get(i); 
+            StringPair ioSym = labels.get(i);
                        
-            out.write(ioSym.get(0).getBytes(encoding));
+            out.write(ioSym.getString1().getBytes(encoding));
             out.writeByte(0);
-            out.write(ioSym.get(1).getBytes(encoding));
+            out.write(ioSym.getString2().getBytes(encoding));
             out.writeByte(0);
         }
         
     }
     
-    public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException {
+    public static void main(String[] args) throws IOException {
         // example usage
         
         String path = "/Users/benjaminroth/Desktop/mary/fst/german/";
-        
-        // specify phone set definition
-        //String  phFileLoc = path + "phoneme-list-engb.xml";
 
         // specify location of lexicon you want to encode
         BufferedReader lexReader = new BufferedReader(
                 new InputStreamReader(
                 new FileInputStream(path + "lexicon.txt"),"ISO-8859-1"));
-        
+
         // specify location of output
         String fstLocation = path + "lexicon.fst";
-        
-     
-        
-        // initialize trainer 
+
+        // initialize trainer
         //AlignerTrainer at = new AlignerTrainer(PhonemeSet.getPhonemeSet(phFileLoc), Locale.ENGLISH);
-        AlignerTrainer at = new AlignerTrainer(null, Locale.GERMAN);
-        
+        AlignerTrainer at = new AlignerTrainer();
+
         System.out.println("reading lexicon...");
-        
+
         // read lexicon for training
-        at.readLexiconSimply(lexReader, "\\\\", true);
-        
+        at.readLexicon(lexReader, "\\\\", true);
+
         System.out.println("...done!");
 
         System.out.println("aligning...");
+
+        long start = System.currentTimeMillis();
+
         // make some alignment iterations
-        for ( int i = 0 ; i < 1 ; i++ ){
+        for ( int i = 0 ; i < 4 ; i++ ){
             System.out.println(" iteration " + (i+1));
             at.alignIteration();
-            
+
         }
+
+        long time = System.currentTimeMillis() - start;
+
         System.out.println("...done!");
-        
+
+        System.out.println("alignment took " +time+ "ms");
+
         TransducerTrie t = new TransducerTrie();
-        
+
         System.out.println("entering alignments in trie...");
         for (int i = 0; i<at.lexiconSize(); i++){
             t.add(at.getAlignment(i));
@@ -238,20 +228,19 @@ public class TransducerTrie extends Trie< List<String> > {
         System.out.println("minimizing trie...");
         t.computeMinimization();
         System.out.println("...done!");
-        
+
         System.out.println("writing transducer to disk...");
         File of = new File(fstLocation);
 
-        
         DataOutputStream os = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(of)));
-        
+
         t.writeFST(os,"UTF-8");
         os.flush();
         os.close();
         System.out.println("...done!");
-        
 
-        
+
+
         System.out.println("looking up test words...");
         FSTLookup fst = new FSTLookup(fstLocation);
 
@@ -268,4 +257,5 @@ public class TransducerTrie extends Trie< List<String> > {
         
         }
 
+    
 }
