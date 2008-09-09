@@ -440,7 +440,7 @@ public class FdpsolaAdapter {
         int inputFrameSize;
         int currentPeriod;
 
-        desiredFrameTime = 1.06;
+        desiredFrameTime = 1.05;
         bShowSpectralPlots = false;
 
         fs = (int)inputAudio.getFormat().getSampleRate();
@@ -973,24 +973,26 @@ public class FdpsolaAdapter {
                         outputVocalTractSpectrum[k] = interpolatedInputVocalTractSpectrum[k];
                 }
 
+                //Estimate transfor mation filter
+                transformationFilter = new double[newMaxFreq];
+
+                if (baseParams.isSourceVocalTractSpectrumFromModel)
+                {
+                    for (k=0; k<newMaxFreq; k++)
+                        transformationFilter[k] = targetVocalTractSpectrumEstimate[k]/sourceVocalTractSpectrumEstimate[k];
+                }
+                else
+                {
+                    for (k=0; k<newMaxFreq; k++)
+                        transformationFilter[k] = targetVocalTractSpectrumEstimate[k]/interpolatedInputVocalTractSpectrum[k];
+                }
+                //
+                
                 //Smoothing
                 if (baseParams.smoothingMethod==SmoothingDefinitions.TRANSFORMATION_FILTER_SMOOTHING)
                 {
                     if (baseParams.smoothingState==SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT)    
                     {
-                        transformationFilter = new double[newMaxFreq];
-
-                        if (baseParams.isSourceVocalTractSpectrumFromModel)
-                        {
-                            for (k=0; k<newMaxFreq; k++)
-                                transformationFilter[k] = targetVocalTractSpectrumEstimate[k]/sourceVocalTractSpectrumEstimate[k];
-                        }
-                        else
-                        {
-                            for (k=0; k<newMaxFreq; k++)
-                                transformationFilter[k] = targetVocalTractSpectrumEstimate[k]/interpolatedInputVocalTractSpectrum[k];
-                        }
-
                         smoothingFile.writeSingle(transformationFilter);   
 
                         //For checking
@@ -1023,6 +1025,28 @@ public class FdpsolaAdapter {
                             tmpSpec = MathUtils.amp2db(tmpSpec);
                             MaryUtils.plot(tmpSpec, "6.Smoothed transformation filter");
                         }
+                    }
+                    else
+                    {
+                        //For checking
+                        if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime)
+                        {
+                            tmpSpec = new double[newMaxFreq];
+                            System.arraycopy(transformationFilter, 0, tmpSpec, 0, tmpSpec.length);
+                            tmpSpec = MathUtils.amp2db(tmpSpec);
+                            MaryUtils.plot(tmpSpec, "6.Transformation filter");
+                        }
+                    }
+                }
+                else
+                {
+                    //For checking
+                    if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime)
+                    {
+                        tmpSpec = new double[newMaxFreq];
+                        System.arraycopy(transformationFilter, 0, tmpSpec, 0, tmpSpec.length);
+                        tmpSpec = MathUtils.amp2db(tmpSpec);
+                        MaryUtils.plot(tmpSpec, "6.Transformation filter");
                     }
                 }
                 //

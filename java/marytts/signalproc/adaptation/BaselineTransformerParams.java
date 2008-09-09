@@ -62,7 +62,7 @@ public class BaselineTransformerParams extends BaselineParams {
     
     public boolean isForcedAnalysis;
     public boolean isVocalTractTransformation;
-    
+
     public boolean isSeparateProsody;
     public boolean isSaveVocalTractOnlyVersion;
     public boolean isFixedRateVocalTractConversion;
@@ -101,6 +101,7 @@ public class BaselineTransformerParams extends BaselineParams {
         isForcedAnalysis = false;
         isSourceVocalTractSpectrumFromModel = true;
         isVocalTractTransformation = true;
+        
         isResynthesizeVocalTractFromSourceModel = false;
         isVocalTractMatchUsingTargetModel = false;
         

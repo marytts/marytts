@@ -114,7 +114,7 @@ public class MfccAdapter {
         GMMMatch gmmMatch = null;
 
         //Find target estimate from codebook
-        if (baseParams.isVocalTractTransformation)
+        if (baseParams.isVocalTractTransformation) //isTransformUnvoiced=false not supported for MFCCs currently! Voicing information should be passed here to support this feature
         {
             if (mapper instanceof JointGMMMapper)
             {

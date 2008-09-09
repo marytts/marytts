@@ -173,6 +173,9 @@ public class JointGMMTransformer extends BaselineTransformer {
             FileUtils.createDirectory(params.outputFolder);
         }
         
+        if (!params.isSeparateProsody)
+            params.isSaveVocalTractOnlyVersion = false;
+        
         return true;
     }
     
@@ -288,7 +291,7 @@ public class JointGMMTransformer extends BaselineTransformer {
         //LSF transformation is done fully from audio to audio
         if (jgSet.gmms[0].featureType==BaselineFeatureExtractor.LSF_FEATURES)
         {
-            if (wctParams.isFixedRateVocalTractConversion)
+            if (wctParams.isFixedRateVocalTractConversion && wctParams.prosodyParams.pitchTransformationMethod!=ProsodyTransformerParams.NO_TRANSFORMATION)
                 wctParams.isSeparateProsody = true;
 
             //Desired values should be specified in the following four parameters
@@ -458,23 +461,22 @@ public class JointGMMTransformer extends BaselineTransformer {
         BaselinePostprocessor po = new BaselinePostprocessor();
         JointGMMTransformerParams pa = new JointGMMTransformerParams();
         
-        int numTrainingFiles = 200;
+        int numTrainingFiles = 1092;
         int i;
         
         boolean isContextualGMMs = false;
-        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {256};
+        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {128};
         //int contextClassificationType = ContextualGMMParams.SILENCE_SPEECH; int[] numComponents = {16, 128};
         //int contextClassificationType = ContextualGMMParams.VOWEL_SILENCE_CONSONANT; int[] numComponents = {128, 16, 128};
         //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS; int[] numComponents = {numMixes};
         //int contextClassificationType = ContextualGMMParams.FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER; int[] numComponents = {128, 128, 128, 128, 128, 16};
         //int contextClassificationType = ContextualGMMParams.PHONEME_IDENTITY; int[] numComponents = {128};
         
-        String inputFolder = wavBaseFolder + "/" + sourceTag + "/validate_20/";
+        String inputFolder = wavBaseFolder + "/" + sourceTag + "/test_1/";
         String outputBaseFolder;
         if (!isContextualGMMs)
         {
-            outputBaseFolder = wavBaseFolder + "output/" + sourceTag + "2" + targetTag + "/gmm" + method + "_" + String.valueOf(numTrainingFiles) + "_" + 
-                               String.valueOf(numComponents[0]);
+            outputBaseFolder = wavBaseFolder + "output/" + sourceTag + "2" + targetTag + "/gmm" + method + "_" + String.valueOf(numTrainingFiles);
         }
         else
         {
@@ -498,7 +500,7 @@ public class JointGMMTransformer extends BaselineTransformer {
         
         //Smoothing
         pa.isTemporalSmoothing = false;
-        pa.smoothingNumNeighbours = 1;
+        pa.smoothingNumNeighbours = 3;
         if (!pa.isTemporalSmoothing)
             pa.smoothingNumNeighbours = 0;
         
@@ -529,16 +531,17 @@ public class JointGMMTransformer extends BaselineTransformer {
                                     "_smooth" + String.valueOf(pa.isTemporalSmoothing ? 1:0) + 
                                     "_" + String.valueOf(pa.smoothingNumNeighbours);
         
-        pa.isSeparateProsody = true;
-        pa.isSaveVocalTractOnlyVersion = true;
+        pa.isSeparateProsody = false;
+        pa.isSaveVocalTractOnlyVersion = false;
         pa.isFixedRateVocalTractConversion = true;
         
         //Prosody transformation
         pa.prosodyParams.pitchStatisticsType = PitchStatistics.STATISTICS_IN_HERTZ;
         //pa.prosodyParams.pitchStatisticsType = PitchStatistics.STATISTICS_IN_LOGHERTZ;
         
+        //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.NO_TRANSFORMATION;
         //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_MEAN;
-        pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_STDDEV;
+        //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_STDDEV;
         
         pa.prosodyParams.isUseInputMean = false;
         pa.prosodyParams.isUseInputStdDev = false;

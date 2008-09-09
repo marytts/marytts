@@ -3277,6 +3277,18 @@ public class MathUtils {
         } 
     }
     
+    //mean+-returnValue will be %95 confidence interval
+    public static double getConfidenceInterval95(double standardDeviation)
+    {
+        return 1.96*standardDeviation;
+    }
+    
+   //mean+-returnValue will be %99 confidence interval
+    public static double getConfidenceInterval99(double standardDeviation)
+    {
+        return 2.58*standardDeviation;
+    } 
+    
     public static void main(String[] args)
     {
         double[] x = new double[4];

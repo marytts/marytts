@@ -292,13 +292,13 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         
         String wavBaseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest2/";
         
-        String sourceTag = "hmmSource_nogv";
+        String sourceTag = "hmmSource_gv";
         String targetTag = "origTarget";
         String method;
         
-        int numTrainingFiles = 500;
+        int numTrainingFiles = 1092;
         boolean isContextualGMMs = false;
-        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {128};
+        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {32};
         //int contextClassificationType = ContextualGMMParams.SILENCE_SPEECH; int[] numComponents = {16, 128};
         //int contextClassificationType = ContextualGMMParams.VOWEL_SILENCE_CONSONANT; int[] numComponents = {128, 16, 128};
         //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS; int[] numComponents = {numMixes};
@@ -404,16 +404,16 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         //Gaussian outlier eliminator
         //Decreasing totalStandardDeviations will lead to more outlier eliminations, i.e. smaller codebooks
         pa.gaussianEliminatorParams.isActive = true; //Set to false if you do not want to use this eliminator at all      
-        pa.gaussianEliminatorParams.isCheckLsfOutliers = false;
+        pa.gaussianEliminatorParams.isCheckLsfOutliers = true;
         pa.gaussianEliminatorParams.isEliminateTooSimilarLsf = false;
-        pa.gaussianEliminatorParams.isCheckF0Outliers = false; 
-        pa.gaussianEliminatorParams.isCheckDurationOutliers = false;    
-        pa.gaussianEliminatorParams.isCheckEnergyOutliers = false;
+        pa.gaussianEliminatorParams.isCheckF0Outliers = true; 
+        pa.gaussianEliminatorParams.isCheckDurationOutliers = true;    
+        pa.gaussianEliminatorParams.isCheckEnergyOutliers = true;
         pa.gaussianEliminatorParams.totalStandardDeviations = new TotalStandardDeviations(tsd);
         //
         
         //KMeans one-to-many and many-to-one mapping eliminator
-        pa.kmeansEliminatorParams.isActive = true; //Set to false if you do not want to use this eliminator at all
+        pa.kmeansEliminatorParams.isActive = false; //Set to false if you do not want to use this eliminator at all
         
         //pa.kmeansEliminatorParams.eliminationAlgorithm = KMeansMappingEliminatorParams.ELIMINATE_LEAST_LIKELY_MAPPINGS; 
         //pa.kmeansEliminatorParams.eliminationLikelihood = 0.20;
