@@ -244,7 +244,7 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
         return frameDistances;
     }
     
-    public static void mainParametric(String method, String emotion, boolean isBark)
+    public static void mainParametricInterspeech2008(String method, String emotion, boolean isBark)
     {  
         String baseDir = "D:/Oytun/DFKI/voices/Interspeech08_out/objective_test/";
 
@@ -263,47 +263,163 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
         double s1 = MathUtils.standardDeviation(distances1, m1);
         double m2 = MathUtils.mean(distances2);
         double s2 = MathUtils.standardDeviation(distances2, m2);
+        double conf95_1 = MathUtils.getConfidenceInterval95(s1);
+        double conf99_1 = MathUtils.getConfidenceInterval99(s1);
+        double conf95_2 = MathUtils.getConfidenceInterval95(s2);
+        double conf99_2 = MathUtils.getConfidenceInterval99(s2);
         
-        double[] tmpOut = new double[distances1.length+distances2.length + 6];
+        double[] tmpOut = new double[distances1.length+distances2.length + 9];
         tmpOut[0] = m1; //tgt-src mean
         tmpOut[1] = s1; //tgt-src std
         tmpOut[2] = m2; //tgt-tfm mean
         tmpOut[3] = s2; //tgt-tfm std
         tmpOut[4] = m1-m2; //decrease in tgt-src distance by tfm
-        System.arraycopy(distances1, 0, tmpOut, 5, distances1.length);
-        System.arraycopy(distances2, 0, tmpOut, distances1.length+5, distances2.length);
+        tmpOut[5] = conf95_1; //95% confidence interval for distance tgt-src distances
+        tmpOut[6] = conf99_1; //99% confidence interval for distance tgt-src distances
+        tmpOut[7] = conf95_2; //95% confidence interval for distance tgt-tfm distances
+        tmpOut[8] = conf99_2; //99% confidence interval for distance tgt-tfm distances
+        
+        System.arraycopy(distances1, 0, tmpOut, 9, distances1.length);
+        System.arraycopy(distances2, 0, tmpOut, distances1.length + 9, distances2.length);
         FileUtils.writeToTextFile(tmpOut, outputFile);
+        
+        double c1Left95 = m1-conf95_1;
+        double c1Left99 = m1-conf99_1;
+        double c1Right95 = m1+conf95_1;
+        double c1Right99 = m1+conf99_1;
+        double c2Left95 = m2-conf95_2;
+        double c2Left99 = m2-conf99_2;
+        double c2Right95 = m2+conf95_2;
+        double c2Right99 = m2+conf99_2;
         
         System.out.println(method + " " + emotion + " tgt-src: MeanDist=" + String.valueOf(m1) + " " + "StdDist=" + String.valueOf(s1));
         System.out.println(method + " " + emotion + " tgt-tfm: MeanDist=" + String.valueOf(m2) + " " + "StdDist=" + String.valueOf(s2));
         System.out.println(method + " " + emotion + " distance reduction=" + String.valueOf(m1-m2));
+        System.out.println("Confidence intervals tgt-src %95:  " + String.valueOf(conf95_1) + " --> [" + String.valueOf(c1Left95) + "," + String.valueOf(c1Right95) + "]");
+        System.out.println("Confidence intervals tgt-src %99:  " + String.valueOf(conf99_1) + " --> [" + String.valueOf(c1Left99) + "," + String.valueOf(c1Right99) + "]");
+        System.out.println("Confidence intervals tgt-tfm %95:  " + String.valueOf(conf95_2) + " --> [" + String.valueOf(c2Left95) + "," + String.valueOf(c2Right95) + "]");
+        System.out.println("Confidence intervals tgt-tfm %99:  " + String.valueOf(conf99_2) + " --> [" + String.valueOf(c2Left99) + "," + String.valueOf(c2Right99) + "]");
+        System.out.println("---------------------------------");
     }
     
-  //Put source and target wav and lab files into two folders and call this function
-    public static void main(String[] args)
+    //Put source and target wav and lab files into two folders and call this function
+    public static void mainInterspeech2008()
     {
         boolean isBark = true;
         String method; //"1_codebook"; "2_frame"; "3_gmm";
         String emotion; //"angry"; "happy"; "sad"; "all";
         
         method = "1_codebook";
-        emotion = "angry";  mainParametric(method, emotion, isBark);
-        emotion = "happy";  mainParametric(method, emotion, isBark);
-        emotion = "sad";    mainParametric(method, emotion, isBark);
-        emotion = "all";    mainParametric(method, emotion, isBark);
+        emotion = "angry";  mainParametricInterspeech2008(method, emotion, isBark);
+        emotion = "happy";  mainParametricInterspeech2008(method, emotion, isBark);
+        emotion = "sad";    mainParametricInterspeech2008(method, emotion, isBark);
+        emotion = "all";    mainParametricInterspeech2008(method, emotion, isBark);
         
         method = "2_frame";
-        emotion = "angry";  mainParametric(method, emotion, isBark);
-        emotion = "happy";  mainParametric(method, emotion, isBark);
-        emotion = "sad";    mainParametric(method, emotion, isBark);
-        emotion = "all";    mainParametric(method, emotion, isBark);
+        emotion = "angry";  mainParametricInterspeech2008(method, emotion, isBark);
+        emotion = "happy";  mainParametricInterspeech2008(method, emotion, isBark);
+        emotion = "sad";    mainParametricInterspeech2008(method, emotion, isBark);
+        emotion = "all";    mainParametricInterspeech2008(method, emotion, isBark);
 
         method = "3_gmm";
-        emotion = "angry";  mainParametric(method, emotion, isBark);
-        emotion = "happy";  mainParametric(method, emotion, isBark);
-        emotion = "sad";    mainParametric(method, emotion, isBark);
-        emotion = "all";    mainParametric(method, emotion, isBark);
+        emotion = "angry";  mainParametricInterspeech2008(method, emotion, isBark);
+        emotion = "happy";  mainParametricInterspeech2008(method, emotion, isBark);
+        emotion = "sad";    mainParametricInterspeech2008(method, emotion, isBark);
+        emotion = "all";    mainParametricInterspeech2008(method, emotion, isBark);
         
         System.out.println("Objective test completed...");
+    }
+    
+    public static void mainHmmVoiceConversion(String method1, String method2, String folder1, String folder2, String referenceFolder, String outputFile, boolean isBark)
+    {  
+        RmsLsfDistortionComputer r = new RmsLsfDistortionComputer();
+  
+        double[] distances1 = r.getDistances(referenceFolder, folder1, isBark, 8000);
+        double[] distances2 = r.getDistances(referenceFolder, folder2, isBark, 8000);
+        
+        double m1 = MathUtils.mean(distances1);
+        double s1 = MathUtils.standardDeviation(distances1, m1);
+        double m2 = MathUtils.mean(distances2);
+        double s2 = MathUtils.standardDeviation(distances2, m2);
+        double conf95_1 = MathUtils.getConfidenceInterval95(s1);
+        double conf99_1 = MathUtils.getConfidenceInterval99(s1);
+        double conf95_2 = MathUtils.getConfidenceInterval95(s2);
+        double conf99_2 = MathUtils.getConfidenceInterval99(s2);
+        
+        double[] tmpOut = new double[distances1.length+distances2.length + 9];
+        tmpOut[0] = m1; //tgt-src mean
+        tmpOut[1] = s1; //tgt-src std
+        tmpOut[2] = m2; //tgt-tfm mean
+        tmpOut[3] = s2; //tgt-tfm std
+        tmpOut[4] = m1-m2; //decrease in tgt-src distance by tfm
+        tmpOut[5] = conf95_1; //95% confidence interval for distance tgt-src distances
+        tmpOut[6] = conf99_1; //99% confidence interval for distance tgt-src distances
+        tmpOut[7] = conf95_2; //95% confidence interval for distance tgt-tfm distances
+        tmpOut[8] = conf99_2; //99% confidence interval for distance tgt-tfm distances
+        
+        System.arraycopy(distances1, 0, tmpOut, 9, distances1.length);
+        System.arraycopy(distances2, 0, tmpOut, distances1.length + 9, distances2.length);
+        FileUtils.writeToTextFile(tmpOut, outputFile);
+        
+        double c1Left95 = m1-conf95_1;
+        double c1Left99 = m1-conf99_1;
+        double c1Right95 = m1+conf95_1;
+        double c1Right99 = m1+conf99_1;
+        double c2Left95 = m2-conf95_2;
+        double c2Left99 = m2-conf99_2;
+        double c2Right95 = m2+conf95_2;
+        double c2Right99 = m2+conf99_2;
+        
+        System.out.println(method1+ " tgt-src: MeanDist=" + String.valueOf(m1) + " " + "StdDist=" + String.valueOf(s1));
+        System.out.println(method2 + " tgt-tfm: MeanDist=" + String.valueOf(m2) + " " + "StdDist=" + String.valueOf(s2));
+        System.out.println("Distance reduction=" + String.valueOf(m1-m2));
+        System.out.println("Confidence intervals reference-method1 %95:  " + String.valueOf(conf95_1) + " --> [" + String.valueOf(c1Left95) + "," + String.valueOf(c1Right95) + "]");
+        System.out.println("Confidence intervals reference-method1 %99:  " + String.valueOf(conf99_1) + " --> [" + String.valueOf(c1Left99) + "," + String.valueOf(c1Right99) + "]");
+        System.out.println("Confidence intervals reference-method2 %95:  " + String.valueOf(conf95_2) + " --> [" + String.valueOf(c2Left95) + "," + String.valueOf(c2Right95) + "]");
+        System.out.println("Confidence intervals reference-method2 %99:  " + String.valueOf(conf99_2) + " --> [" + String.valueOf(c2Left99) + "," + String.valueOf(c2Right99) + "]");
+        System.out.println("---------------------------------");
+    }
+    
+    public static void mainHmmVoiceConversion()
+    {
+        String baseInputFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest2/output/final/";
+        String baseOutputFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest2/objective_test/";
+        boolean isBark = true;
+        String method1, method2, folder1, folder2, referenceFolder, outputFile;
+        
+        referenceFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest2/output/final/origTarget";
+        
+        //No-GV vs GV
+        method1 = "NOGV";
+        method2 = "GV";
+        folder1 = baseInputFolder + "hmmSource_nogv";
+        folder2 = baseInputFolder + "hmmSource_gv";
+        outputFile = baseOutputFolder + "lsf_" + method1 + "_" + method2 + ".txt";
+        mainHmmVoiceConversion(method1, method2, folder1, folder2, referenceFolder, outputFile, isBark);
+        
+        //No-GV vs SC 
+        method1 = "NOGV";
+        method2 = "NOGV+SC";
+        folder1 = baseInputFolder + "hmmSource_nogv";
+        folder2 = baseInputFolder + "tfm_nogv_1092files_128mixes";
+        outputFile = baseOutputFolder + "lsf_" + method1 + "_" + method2 + ".txt";
+        mainHmmVoiceConversion(method1, method2, folder1, folder2, referenceFolder, outputFile, isBark);
+        
+        //GV vs SC 
+        method1 = "GV";
+        method2 = "GV+SC";
+        folder1 = baseInputFolder + "hmmSource_gv";
+        folder2 = baseInputFolder + "tfm_gv_1092files_128mixes";
+        outputFile = baseOutputFolder + "lsf_" + method1 + "_" + method2 + ".txt";
+        mainHmmVoiceConversion(method1, method2, folder1, folder2, referenceFolder, outputFile, isBark);
+        
+        System.out.println("Objective test completed...");
+    }
+    
+    public static void main(String[] args)
+    {
+        //mainInterspeech2008();
+        
+        mainHmmVoiceConversion();
     }
 }

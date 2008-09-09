@@ -150,6 +150,9 @@ public class WeightedCodebookParallelTransformer extends WeightedCodebookTransfo
             FileUtils.createDirectory(params.outputFolder);
         }
         
+        if (!params.isSeparateProsody)
+            params.isSaveVocalTractOnlyVersion = false;
+        
         return true;
     }
     
@@ -213,7 +216,7 @@ public class WeightedCodebookParallelTransformer extends WeightedCodebookTransfo
                                         PitchTransformationData pMap
                                         ) throws UnsupportedAudioFileException, IOException
     {   
-        if (wctParams.isFixedRateVocalTractConversion)
+        if (wctParams.isFixedRateVocalTractConversion && wctParams.prosodyParams.pitchTransformationMethod!=ProsodyTransformerParams.NO_TRANSFORMATION)
             wctParams.isSeparateProsody = true;
             
         //Desired values should be specified in the following four parameters

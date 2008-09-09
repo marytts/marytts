@@ -438,13 +438,7 @@ public class StringUtils {
     public static String[][] readTextFileInRows(String textFile, int minimumItemsInOneLine)
     {
         String[][] entries = null;
-        String allText = null;
-        try {
-            allText = FileUtils.getFileAsString(new File(textFile), "ASCII");
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        String allText = readTextFileIntoString(textFile);
         
         if (allText!=null)
         {
@@ -456,6 +450,20 @@ public class StringUtils {
         return entries;
     }
     
+    //Read text file as a single concatenated string
+    public static String readTextFileIntoString(String textFile)
+    {
+        String allText = null;
+        try {
+            allText = FileUtils.getFileAsString(new File(textFile), "ASCII");
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        return allText;
+    }
+   
     public static String[][] parseFromLines(String[] lines, int minimumItemsInOneLine, int startLine, int endLine)
     {
         String[][] labels = null;
