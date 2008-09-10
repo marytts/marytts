@@ -307,8 +307,8 @@ public class FreeTTS2FestivalUtt extends InternalModule
         int lastSymbolInSyllable = -1; // index i for last symbol in current syllable
         int phraseNumber = 0;
         while ((e = (Element)tw.nextNode()) != null) {
-            if (e.getTagName().equals(MaryXML.TOKEN) && e.hasAttribute("sampa")) {
-                String sampa = e.getAttribute("sampa");
+            if (e.getTagName().equals(MaryXML.TOKEN) && e.hasAttribute("ph")) {
+                String sampa = e.getAttribute("ph");
                 int j = 0; // index in sampa
                 while (j < sampa.length() && i < symbols.size()) {
                     // one syllable:

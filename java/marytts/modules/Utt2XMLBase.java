@@ -230,7 +230,7 @@ public abstract class Utt2XMLBase extends InternalModule {
             MaryDomUtils.setTokenText(t, tokenItem.toString());
             if (insertPhones) {
                 String[] phones = (String[]) tokenItem.getFeatures().getObject("phones");
-                t.setAttribute("sampa", maryVoice.voicePhonemeArray2sampaString(phones));
+                t.setAttribute("ph", maryVoice.voicePhonemeArray2sampaString(phones));
                 insertPhones = false;
             }
             if (tokenFeatureSet.isPresent("accent")) {
@@ -256,7 +256,7 @@ public abstract class Utt2XMLBase extends InternalModule {
                 MaryDomUtils.setTokenText(t, tokenText);
                 if (insertPhones) {
                     String[] phones = (String[]) tokenItem.getFeatures().getObject("phones");
-                    t.setAttribute("sampa", maryVoice.voicePhonemeArray2sampaString(phones));
+                    t.setAttribute("ph", maryVoice.voicePhonemeArray2sampaString(phones));
                     insertPhones = false;
                 }
                 if (tokenFeatureSet.isPresent("accent")) {
@@ -278,7 +278,7 @@ public abstract class Utt2XMLBase extends InternalModule {
                 }
             }
             if (sampa.length() > 0)
-                t.setAttribute("sampa", sampa.toString());
+                t.setAttribute("ph", sampa.toString());
             tokenDaughter = tokenDaughter.getNext();
         }
         // Any marks after the word but before the punctuation?
@@ -403,7 +403,7 @@ public abstract class Utt2XMLBase extends InternalModule {
         }
         String sampaString = sampa.toString();
         if (deep)
-            syllable.setAttribute("sampa", sampaString);
+            syllable.setAttribute("ph", sampaString);
         // Any boundary?
         if (syllableItem.getFeatures().isPresent("endtone")
             && !tokenItemHasFollowingBoundary(syllableItem.getParent().getItemAs(Relation.TOKEN).getParent())) {

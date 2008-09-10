@@ -604,7 +604,7 @@ THIS SOFTWARE.
         <xsd:attribute name="ending" type="ending.type"/>
         <xsd:attribute name="g2p_method" type="g2pmethod.type"/>
         <xsd:attribute name="pos" type="xsd:string"/>
-        <xsd:attribute name="sampa" type="xsd:string"/>
+        <xsd:attribute name="ph" type="xsd:string"/>
         <xsd:attribute name="sounds_like" type="xsd:string"/>
         <xsd:attribute name="syn_attach" type="xsd:string"/>
         <xsd:attribute name="syn_phrase" type="xsd:string"/>
@@ -617,7 +617,7 @@ THIS SOFTWARE.
             <!-- The phonemes composing the syllable -->
             <xsd:element maxOccurs="unbounded" name="ph" type="ph"/>
         </xsd:sequence>
-        <xsd:attribute name="sampa" type="xsd:string"/>
+        <xsd:attribute name="ph" type="xsd:string"/>
         <xsd:attribute default="0" name="stress">
             <xsd:simpleType>
                 <xsd:restriction base="xsd:nonNegativeInteger">

@@ -399,12 +399,12 @@ public abstract class XML2UttBase extends InternalModule
                 for (int i=0; i<tokens.getLength(); i++) {
                     Element t = (Element) tokens.item(i);
                     if (!createSylStructRelation &&
-                        t.hasAttribute("sampa")) {
+                        t.hasAttribute("ph")) {
                         // If any of the <t>s inside an <mtu> have a
                         // sampa attribute, the concatenated sampa
                         // attribute values will be used as the
                         // pronunciation of the entire <mtu>.
-                        List onePhonemeList = maryVoice.sampaString2voicePhonemeList(t.getAttribute("sampa"));
+                        List onePhonemeList = maryVoice.sampaString2voicePhonemeList(t.getAttribute("ph"));
                         if (phonemeList == null) {
                             phonemeList = onePhonemeList;
                         } else {
@@ -443,8 +443,8 @@ public abstract class XML2UttBase extends InternalModule
                 if (mark != null)
                     tokenItem.getFeatures().setString("precedingMarks", mark);
                 if (!createSylStructRelation) {
-                    if (t.hasAttribute("sampa")) {
-                        phonemeList = maryVoice.sampaString2voicePhonemeList(t.getAttribute("sampa"));
+                    if (t.hasAttribute("ph")) {
+                        phonemeList = maryVoice.sampaString2voicePhonemeList(t.getAttribute("ph"));
                     }
                     if (t.hasAttribute("accent")) {
                         tokenItem.getFeatures().setString("accent", t.getAttribute("accent"));

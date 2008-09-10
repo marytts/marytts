@@ -402,7 +402,7 @@ public class KlattDurationModeller extends InternalModule {
         if (syls.getLength() > 0) {
             for (int i=0; i<syls.getLength(); i++) {
                 Element syl = (Element) syls.item(i);
-                if (!syl.hasAttribute("sampa")) {
+                if (!syl.hasAttribute("ph")) {
                     logger.warn("Ignoring syllable element without sampa attribute in token '"+MaryDomUtils.tokenText(token));
                 } else {
                     createPhonemes(syl, vq);
@@ -411,7 +411,7 @@ public class KlattDurationModeller extends InternalModule {
             return;
         }
         // If we get here, we need to create syllable elements
-        String sampa = token.getAttribute("sampa");
+        String sampa = token.getAttribute("ph");
         if (sampa.equals(""))
             return; // nothing to do
 
@@ -435,7 +435,7 @@ public class KlattDurationModeller extends InternalModule {
                 sylString = sylString.substring(1);
             }
             // Remember transcription without stress sign in sampa attribute:
-            syllable.setAttribute("sampa", sylString);
+            syllable.setAttribute("ph", sylString);
             // Now identify the composing segments:
             createPhonemes(syllable, vq);
         }
@@ -451,10 +451,10 @@ public class KlattDurationModeller extends InternalModule {
     {
         if (syllable == null)
             throw new NullPointerException("Received null syllable");
-        if (!syllable.hasAttribute("sampa"))
+        if (!syllable.hasAttribute("ph"))
             throw new IllegalArgumentException("Cannot create phonemes if syllable has no sampa attribute");
         Document document = syllable.getOwnerDocument();
-        Phoneme[] phonemes = phonemeSet.splitIntoPhonemes(syllable.getAttribute("sampa"));
+        Phoneme[] phonemes = phonemeSet.splitIntoPhonemes(syllable.getAttribute("ph"));
         for (int i = 0; i < phonemes.length; i++) {
             Element segment = MaryXML.createElement(document, MaryXML.PHONE);
             syllable.appendChild(segment);

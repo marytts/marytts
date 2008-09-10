@@ -105,13 +105,13 @@ public class SimplePhoneme2AP extends InternalModule
             Element token = MaryXML.createElement(doc, MaryXML.TOKEN);
             insertHere.appendChild(token);
             String tokenPhonemes = stTokens.nextToken();
-            token.setAttribute("sampa", tokenPhonemes);
+            token.setAttribute("ph", tokenPhonemes);
             StringTokenizer stSyllables = new StringTokenizer(tokenPhonemes, "-_");
             while (stSyllables.hasMoreTokens()) { 
                 Element syllable = MaryXML.createElement(doc, MaryXML.SYLLABLE);
                 token.appendChild(syllable);
                 String syllablePhonemes = stSyllables.nextToken();
-                syllable.setAttribute("sampa", syllablePhonemes);
+                syllable.setAttribute("ph", syllablePhonemes);
                 int stress = 0;
                 if (syllablePhonemes.startsWith("'")) stress = 1;
                 else if (syllablePhonemes.startsWith(",")) stress = 2;
