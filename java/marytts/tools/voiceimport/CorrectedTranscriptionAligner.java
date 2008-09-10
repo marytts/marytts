@@ -544,7 +544,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
     /**
      * 
      * This computes a string of phonetic symbols out of an intonised mary xml:
-     * - standard phonemes are taken from "sampa" attribute
+     * - standard phonemes are taken from "ph" attribute
      * - after each token-element (except those followed by a "boundary"-element), 
      *   a "bnd" symbol is inserted (standing for a possible pause)
      * 
@@ -568,9 +568,9 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
             Element token = (Element) tokens.item(tNr);
             
             // only look at it if there is a sampa to change
-            if ( token.hasAttribute("sampa") ){                   
+            if ( token.hasAttribute("ph") ){                   
                 
-                String sampa = token.getAttribute("sampa");
+                String sampa = token.getAttribute("ph");
     
                 List<String> sylsAndDelims = new ArrayList<String>();
                 StringTokenizer sTok = new StringTokenizer(sampa, delims, true);
@@ -593,7 +593,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
                 }// ... while there are more tokens    
             }
             
-            if ( token.hasAttribute("sampa") )
+            if ( token.hasAttribute("ph") )
                 orig += this.possibleBnd + " ";
                                         
         }// ... for each t-Element
@@ -628,14 +628,14 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
         for (int tNr = 0; tNr < tokens.getLength() ; tNr++ ){
             Element token = (Element) tokens.item(tNr);
    
-            String sampa = token.getAttribute("sampa");
+            String sampa = token.getAttribute("ph");
             
             // the transcription to which the old is aligned
             String newSampa = "";
             
                 
             // only look at it if there is a sampa to change
-            if ( ((Element) tokens.item(tNr)).hasAttribute("sampa") ){   
+            if ( ((Element) tokens.item(tNr)).hasAttribute("ph") ){   
                 List<String> sylsAndDelims = new ArrayList<String>();
                 StringTokenizer sTok = new StringTokenizer(sampa, delims, true);
                 
@@ -693,7 +693,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
                 }
                 
                 // set new sampa
-                token.setAttribute("sampa", newSampa);
+                token.setAttribute("ph", newSampa);
                 
             }// ... if there is transcription
             

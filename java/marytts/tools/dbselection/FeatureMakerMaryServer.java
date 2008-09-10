@@ -566,7 +566,7 @@ public class FeatureMakerMaryServer{
 	 */
 	protected static boolean checkCredibility(Element t){
 		boolean usefulSentence = true;	
-		if (t.hasAttribute("sampa")){
+		if (t.hasAttribute("ph")){
 			//we have a transcription
 			if (t.hasAttribute("g2p_method")) {
 				//check method of transcription

@@ -289,7 +289,7 @@ public class ProsodyGeneric extends InternalModule {
         boolean inVorfeld = true; // default
         for(int i=0; i<tokens.getLength();i++) { // search for the first word in sentence
         	Element token = ((Element)tokens.item(i));
-        	if(!token.getAttribute("sampa").equals("")) { // first word found
+        	if(!token.getAttribute("ph").equals("")) { // first word found
         		String posFirstWord = token.getAttribute("pos");
         		// if pos value of first word in sentence is contained in set noVorfeld, vorfeld doens't exist 
         		HashSet noVorfeld = (HashSet)listMap.get("noVorfeld");
@@ -364,7 +364,7 @@ public class ProsodyGeneric extends InternalModule {
                		/*** end user input check, accent position ***/
                		// no user input
                		// the rules in the xml file are applied
-               	} else if(token.getAttribute("sampa").equals("")) { // test if token is punctuation
+               	} else if(token.getAttribute("ph").equals("")) { // test if token is punctuation
                		token.removeAttribute("accent"); // doesn't receive an accent
                	} else { // default behaviour: determine by rule whether to assign an accent
                     getAccentPosition(token, tokens, i, sentenceType, specialPositionType);
@@ -377,7 +377,7 @@ public class ProsodyGeneric extends InternalModule {
                 // if not, check if current token is the best candidate
                 if(hasAccent == false &&
                         !(token.getAttribute("accent").equals("none") || forceAccent.equals("none")) &&
-                        !token.getAttribute("sampa").equals("")) {
+                        !token.getAttribute("ph").equals("")) {
                     if(bestCandidate == null) { // no candidate yet
                         bestCandidate=token;
                     } else {
@@ -574,7 +574,7 @@ public class ProsodyGeneric extends InternalModule {
             		  nucleusAssigned = true; // user has already assigned an accent type
             	/*** end user input check, accent type ***/
             				
-            	} else if(token.getAttribute("sampa").equals("")) { // test if token is a word (no punctuation)
+            	} else if(token.getAttribute("ph").equals("")) { // test if token is a word (no punctuation)
            			// punctuation, doesn't receive an accent
             	} else // xml file rules are applied
            			// assignment of accent type
@@ -1029,7 +1029,7 @@ public class ProsodyGeneric extends InternalModule {
     			int requiredNum = Integer.parseInt(currentVal.substring(0,1));
     			int num = 0;
     			for(int i=position+1;i<tokens.getLength();i++) {
-    				if(!((Element)tokens.item(i)).getAttribute("sampa").equals("")) num++;
+    				if(!((Element)tokens.item(i)).getAttribute("ph").equals("")) num++;
     			}
     			if(currentVal.length() == 1) { // rule requires exactly num words after current token  
        				if(num != requiredNum) return false;
@@ -1061,7 +1061,7 @@ public class ProsodyGeneric extends InternalModule {
     			int requiredNum = Integer.parseInt(currentVal.substring(0,1));
     			int num = 0;
     			for(int i=position-1;i>=0;i--) {
-    				if(!((Element)tokens.item(i)).getAttribute("sampa").equals("")) num++;
+    				if(!((Element)tokens.item(i)).getAttribute("ph").equals("")) num++;
     			}
     			if(currentVal.length() == 1) { // rule requires exactly num words after current token  
        				if(num != requiredNum) return false;
@@ -1300,7 +1300,7 @@ public class ProsodyGeneric extends InternalModule {
     	if(sentenceType.equals("interrog")) {
     		for (int i=0; i<tokens.getLength()-1; i++) { // search for the first word in sentence
     			Element t = (Element) tokens.item(i);
-    			if(!t.getAttribute("sampa").equals("")) {
+    			if(!t.getAttribute("ph").equals("")) {
     				Element firstToken = (Element)tokens.item(i);
             	
     				// setInterrogYN contains possible part of speechs of first word in yes-no question

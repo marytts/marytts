@@ -1045,7 +1045,7 @@ public class HTKLabeler extends VoiceImportComponent {
         /**
          * 
          * This computes a string of phonetic symbols out of an intonised mary xml:
-         * - standard phonemes are taken from "sampa" attribute
+         * - standard phonemes are taken from "ph" attribute
          * @param tokens
          * @return
          */
@@ -1065,9 +1065,9 @@ public class HTKLabeler extends VoiceImportComponent {
                 Element token = (Element) tokens.item(tNr);
                 
                 // only look at it if there is a sampa to change
-                if ( token.hasAttribute("sampa") ){                   
+                if ( token.hasAttribute("ph") ){                   
                     
-                    String sampa = token.getAttribute("sampa");
+                    String sampa = token.getAttribute("ph");
         
                     List<String> sylsAndDelims = new ArrayList<String>();
                     StringTokenizer sTok = new StringTokenizer(sampa, delims, true);

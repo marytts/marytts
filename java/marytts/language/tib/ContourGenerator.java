@@ -756,7 +756,7 @@ public class ContourGenerator extends InternalModule {
                     "Now assigning targets for tone `"
                         + rule.getAttribute("name")
                         + "' on syllable ["
-                        + referenceSyllable.getAttribute("sampa")
+                        + referenceSyllable.getAttribute("ph")
                         + "]");
                 // We have some targets to assign
                 // For each target in the rule, first determine its location:
@@ -821,7 +821,7 @@ public class ContourGenerator extends InternalModule {
                             prosSyllable = referenceSyllable;
                         }
                         logger.debug(
-                            "  upstep/downstep starting with syllable [" + prosSyllable.getAttribute("sampa") + "]");
+                            "  upstep/downstep starting with syllable [" + prosSyllable.getAttribute("ph") + "]");
                         // Insert a prosody element into the syllable such
                         // that it encloses this syllable and the last
                         // syllable in the syllable.

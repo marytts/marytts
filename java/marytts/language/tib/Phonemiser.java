@@ -396,7 +396,7 @@ public class Phonemiser extends InternalModule {
      */
     public void testFailAction(Element act, String num, HashSet atts){
     	try{
-    		String toDo = act.getAttribute("sampa");
+    		String toDo = act.getAttribute("ph");
     		//if the sampa consists of several parts
     		if (toDo.indexOf("+")!=-1){
     			String[] st = toDo.split("\\+");
@@ -543,7 +543,7 @@ public class Phonemiser extends InternalModule {
     			//else add a "-" plus onset and rhyme sound
     			else {tokenSound.append("-"+onsetSampa+rhymeSampa);}
     			//store onset and rhyme sound also in the syllable node
-    			syllable.setAttribute("sampa", onsetSampa+rhymeSampa);
+    			syllable.setAttribute("ph", onsetSampa+rhymeSampa);
     		}
     		//else token is in lexicon
     		else {
@@ -554,11 +554,11 @@ public class Phonemiser extends InternalModule {
     			//else add a "-" plus the syllable soudn
     			else {tokenSound.append("-"+result[i]);}
     			//store syllable sound also in the syllable node
-    			syllable.setAttribute("sampa", result[i]);
+    			syllable.setAttribute("ph", result[i]);
     		}
     	}
     	//store the overall token sound in the token node
-    	token.setAttribute("sampa", tokenSound.toString());
+    	token.setAttribute("ph", tokenSound.toString());
     }	
 	
     /**
@@ -755,7 +755,7 @@ public class Phonemiser extends InternalModule {
     public String act(Element action, Element syllable){
 	//result will be filled with the sampa
     	String result = "";
-    	String toDo = action.getAttribute("sampa");
+    	String toDo = action.getAttribute("ph");
 	//if there is more than one action
     	if (toDo.indexOf("+")!=-1){
 	    //split up the actions
