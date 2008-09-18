@@ -52,5 +52,9 @@ public class StringPair{
     public String getString2() {
         return string2;
     }
+    
+    public String toString(){
+        return string1 + " " + string2;
+    }
 }
 
