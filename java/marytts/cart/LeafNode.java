@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
+import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 
 
@@ -183,8 +184,8 @@ public abstract class LeafNode extends Node {
 
     public static class IntAndFloatArrayLeafNode extends LeafNode{
     	
-    	private int[] data;
-    	private float[] floats;
+    	protected int[] data;
+    	protected float[] floats;
     	
     	public IntAndFloatArrayLeafNode(int[] data, float[] floats)
         {
@@ -307,6 +308,101 @@ public abstract class LeafNode extends Node {
         }
     }
     
+    public static class StringAndFloatLeafNode extends IntAndFloatArrayLeafNode{
+
+        FeatureDefinition fd;
+        int tf;
+        public StringAndFloatLeafNode(int[] data, float[] floats, FeatureDefinition featDef, int targetFeature) {
+            super(data, floats);
+            this.fd = featDef;
+            this.tf = targetFeature;
+        }
+        
+        /**
+         * Writes the Cart to the given DataOut in Wagon Format
+         * 
+         * @param out
+         *            the outputStream
+         * @param extension
+         *            the extension that is added to the last daughter
+         */
+        public void toWagonFormat(DataOutputStream out, String extension,
+                PrintWriter pw) throws IOException {
+            StringBuffer sb = new StringBuffer();
+            // open three brackets
+            sb.append("(((");
+            // for each index, write the index and then its float
+            for (int i = 0; i < data.length; i++) {
+                sb.append("(" + fd.getFeatureValueAsString(tf, data[i]) + " "+floats[i]+")");
+                if (i + 1 != data.length) {
+                    sb.append(" ");
+                }
+            }
+            // write the ending
+            sb.append(") 0))" + extension);
+            // dump the whole stuff
+            if (out != null) {
+                // write to output stream
+
+                CART.writeStringToOutput(sb.toString(), out);
+            } else {
+                // write to Standard out
+                // System.out.println(sb.toString());
+            }
+            if (pw != null) {
+                // dump to printwriter
+                // TODO: change print to println
+                pw.print(sb.toString());
+            }
+        }
+        
+        public String toString(String prefix){
+            StringBuffer sb = new StringBuffer();
+            
+            String lineBreak = System.getProperty("line.separator");
+            
+            int maxData = 0;
+            float maxFloat = 0.0f;
+            
+            sb.append(lineBreak);
+            // open three brackets
+            sb.append(prefix + "(((");
+            // for each index, write the index and then its float
+            for (int i = 0; i < data.length; i++) {
+                
+                if ( floats[i] > maxFloat ){
+                    maxFloat = floats[i];
+                    maxData = data[i];
+                }
+
+                sb.append("(" + fd.getFeatureValueAsString(tf, data[i]) + " "+floats[i]+")");                
+
+                if (i + 1 != data.length) {
+                    sb.append(" ");
+                }
+            }
+            // write the ending
+            sb.append(") " + fd.getFeatureValueAsString(tf,maxData) + "))");
+                    
+            return sb.toString();
+        }
+
+        public String maxString() {
+            int bestInd = 0;
+            float maxProb = 0f;
+            
+            for ( int i = 0 ; i < data.length ; i++ ){
+                if ( floats[i] > maxProb ){
+                    maxProb = floats[i];
+                    bestInd = data[i];
+                }
+            }
+            
+            // get the String representation
+            return this.fd.getFeatureValueAsString(tf, bestInd);
+        }
+        
+    }
 
     
     public static class FeatureVectorLeafNode extends LeafNode
