@@ -257,33 +257,15 @@ public class CARTDurationModeller extends InternalModule
             
 
         }
-        
-        
-        /*
-        Item nextSegment = s.getNext();
-        
-        if (null != nextSegment){
-            
-            Item tokenItem = getSegmentToken(nextSegment);
-            
-            if (null == tokenItem)
-                throw new IllegalArgumentException("Pause segments successor does not belong to a token.");
-
-            // use already set duration if there is one
-            if (tokenItem.getFeatures().isPresent("precedingBoundaryDuration")){
-                duration = tokenItem.getFeatures().getString("precedingBoundaryDuration");
-            } else if (null != duration) {
-                //tokenItem.getFeatures().setString("precedingBoundaryDuration", duration);
                 
-            }    
-            
-        }*/
-        
         if (null == duration)
             // nothing set in token, so behave as before
             return .4f;
         else{
-            return Float.parseFloat(duration) / 1000;            
+            float result = Float.parseFloat(duration) / 1000f;
+            // TODO: make this configurable
+            // return not more than duration of .4
+            return Math.min(result, .4f);            
         }
 
     }
