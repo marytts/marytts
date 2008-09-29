@@ -40,6 +40,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
+
 import marytts.modules.phonemiser.Phoneme;
 import marytts.modules.phonemiser.PhonemeSet;
 
@@ -173,6 +177,11 @@ public class AlignerTrainer {
         this.inSplit.add(inStr.toArray(new String[]{}));
         this.outSplit.add(outStr.toArray(new String[]{}));
     }
+    
+    public void addAlreadySplit(String[] inStr, String[] outStr){
+        this.inSplit.add(inStr);
+        this.outSplit.add(outStr);
+    }
 
      /**
      * One iteration of alignment, using adapted Levenshtein distance.
@@ -300,6 +309,31 @@ public class AlignerTrainer {
 
         return listArray;
     }
+    
+    public String[] getAlignmentString(int entryNr){
+
+        String[] in = this.inSplit.get(entryNr);
+        String[] out = this.outSplit.get(entryNr);
+        int[] align = this.align(in, out);
+
+        String[] stringArray = new String[in.length];
+
+        int pre = 0;
+        for (int pos = 0; pos < in.length ; pos++){
+            String inStr = in[pos];
+            String oStr = "";
+
+            for (int alPos = pre; alPos < align[pos]; alPos++){
+                oStr += " " + out[alPos];
+            }
+            pre = align[pos];
+
+            stringArray[pos] = inStr + oStr;
+        }
+
+        return stringArray;
+    }
+    
 
      /**
      *
@@ -341,6 +375,26 @@ public class AlignerTrainer {
         return listArray;
     }
     
+    
+    
+    public Set<String> getInputSyms(){
+        if (this.graphemeSet == null || this.graphemeSet.isEmpty()){
+            return this.collectInputSyms();
+        } else {
+            return this.graphemeSet;
+        }
+    }
+    
+    private Set<String> collectInputSyms() {
+        this.graphemeSet = new HashSet<String>();
+        for (String[] is : this.inSplit){
+            for (String sym : is){
+                this.graphemeSet.add(sym);
+            }
+        }
+        return this.graphemeSet;
+    }
+
     private double log2(double d){
         return Math.log(d) / logOf2;
     }
