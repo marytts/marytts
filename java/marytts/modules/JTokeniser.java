@@ -60,6 +60,12 @@ public abstract class JTokeniser extends InternalModule {
 
     private JTok jtok;
 
+    public JTokeniser() {
+        this(MaryDataType.RAWMARYXML,
+                MaryDataType.TOKENS,
+                Locale.ENGLISH);
+    }
+    
     public JTokeniser(MaryDataType inputType, MaryDataType outputType,
             Locale locale) {
         super("JTokeniser", inputType, outputType, locale);
