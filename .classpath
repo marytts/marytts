@@ -27,5 +27,6 @@
 	<classpathentry kind="lib" path="java/sgt_v30.jar"/>
 	<classpathentry kind="lib" path="java/fast-md5.jar"/>
 	<classpathentry kind="lib" path="java/commons-collections-3.2.1.jar" sourcepath="java/commons-collections-3.2.1-sources.jar"/>
+	<classpathentry kind="lib" path="java/weka.jar"/>
 	<classpathentry kind="output" path="java"/>
 </classpath>
