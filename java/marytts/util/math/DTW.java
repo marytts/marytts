@@ -118,6 +118,30 @@ public class DTW {
             return sumDist;
         }
         
+        public void printBestPath(){
+            
+            Node cNode = nodes[xlen-1][ylen-1];
+            
+            //int dist = 0;
+            //while(cNode != null){
+            //    dist++;
+            //    cNode = cNode.prevNode;
+            //}
+            //double[][] path =  new double[dist][dist]; 
+            //cNode = nodes[xlen-1][ylen-1];
+            //for(int i=0, j=0; cNode != null; i++, j++){
+            //dist++;
+            //    path[i][j] =  ;
+            //}
+            
+            System.out.println("Printing best path:");
+            while(cNode != null){
+                System.out.println(cNode.x+" "+cNode.y);
+                cNode = cNode.prevNode;
+            }
+            //return path;
+        }
+        
         public double euclideanDistance(double x1, double y1, double x2, double y2) {
             double xsQ = (x1 - x2) * (x1 - x2);
             double ysQ = (y1 - y2) * (y1 - y2);
