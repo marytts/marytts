@@ -49,7 +49,7 @@ public abstract class Node {
     // the index of the node in the daughters array of its mother
     protected int nodeIndex;
 
-    
+ 
     /**
      * set the mother node of this node
      * 
@@ -106,6 +106,7 @@ public abstract class Node {
     public int getNodeIndex() {
         return nodeIndex;
     }
+    
     
     public Node getRootNode()
     {
@@ -169,6 +170,15 @@ public abstract class Node {
      */
     public abstract void toWagonFormat(DataOutputStream out,
             String extension, PrintWriter pw) throws IOException;
+    
+    
+    public abstract String addUniqueNodeId(int numLeafs[], int numDecNodes[]) throws IOException;
+    
+    public abstract void printDecisionNodesNewFormat(DataOutputStream out,
+            String extension, PrintWriter pw, int numLeafs[], int numDecNodes[]) throws IOException;
+    
+    public abstract void printLeafNodesNewFormat(DataOutputStream out, PrintWriter pw) throws IOException;
+    
     
     public String toString(String prefix){
         return prefix + this.toString();

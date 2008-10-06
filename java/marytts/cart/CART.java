@@ -218,6 +218,30 @@ public abstract class CART
             throw newIOE;
         }
     }
+    
+    public void toTextOutNewFormat(PrintWriter pw) throws IOException {
+        try {
+            int leafs[]= new int[1];
+            int decNodes[]= new int [1];
+            leafs[0]=0;
+            decNodes[0]=0;
+           
+            //System.out.println("Total number of nodes:" + rootNode.getNumberOfNodes());
+            rootNode.addUniqueNodeId(leafs, decNodes);
+            //pw.println("\n----------------\n");
+            rootNode.printDecisionNodesNewFormat(null, "", pw, leafs, decNodes);
+            pw.println("\n----------------\n");
+            rootNode.printLeafNodesNewFormat(null, pw);
+            
+            pw.flush();
+            pw.close();
+        } catch (IOException ioe) {
+            IOException newIOE = new IOException(
+                    "Error dumping CART to standard output");
+            newIOE.initCause(ioe);
+            throw newIOE;
+        }
+    }
 
     /**
      * Write the given String to the given data output (Replacement for
