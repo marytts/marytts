@@ -34,6 +34,10 @@ public abstract class DecisionNode extends Node {
 
     // the total number of data in the leaves below this node
     protected int nData;
+    
+    //  unique index used in HTS format
+    protected int uniqueDecisionNodeId;
+    protected String decNode;
 
     /**
      * Construct a new DecisionNode
@@ -186,6 +190,7 @@ public abstract class DecisionNode extends Node {
         }
         return nNodes;
     }
+    
 
     public int getNumberOfData() {
         return nData;
@@ -236,6 +241,16 @@ public abstract class DecisionNode extends Node {
      * @return
      */
     public abstract String getDecisionPath(int daughterIndex);
+    
+    
+    //  unique index used in HTS format
+    public void setUniqueDecisionNodeId(int id) {
+        this.uniqueDecisionNodeId = id;
+    }
+    public int getUniqueDecisionNodeId() {
+        return uniqueDecisionNodeId;
+    }
+    
 
     /**
      * Writes the Cart to the given DataOut in Wagon Format
@@ -308,6 +323,76 @@ public abstract class DecisionNode extends Node {
             }
         }
     }
+  
+    public String addUniqueNodeId(int idLeaf[], int idNode[]) throws IOException {
+        
+        idNode[0]++;
+        setUniqueDecisionNodeId(idNode[0]);
+        String strNode = "";
+        this.decNode = "";
+        int thisIdNode = idNode[0];
+        
+        strNode = "\n-" + thisIdNode + " " + getNodeDefinition() + " ";
+            this.decNode = "\n-" + thisIdNode + " " + getNodeDefinition() + " ";
+        // add Ids to the daughters
+        for (int i = 0; i < daughters.length; i++) {
+           strNode += daughters[i].addUniqueNodeId(idLeaf, idNode);
+           this.decNode = strNode;
+        }
+ 
+       return "-" + thisIdNode + " ";
+    }
+    
+    
+    public void printDecisionNodesNewFormat(DataOutputStream out, String extension,
+            PrintWriter pw, int idLeaf[], int idNode[]) throws IOException {
+        
+        if (out != null) {
+            // dump to output stream
+            // two open brackets + definition of node
+            CART.writeStringToOutput("-" + idNode[0] + " ((" + getNodeDefinition() + ")", out);
+        } else {
+            // dump to Standard out
+            // two open brackets + definition of node
+            // System.out.println("(("+getNodeDefinition());
+        }
+        if (pw != null) {
+            // dump to print writer
+            pw.println(this.decNode);
+        }
+        // add the daughters
+        for (int i = 0; i < daughters.length; i++) {
+            if(daughters[i].getNumberOfNodes() != 1)
+              daughters[i].printDecisionNodesNewFormat(out, "", pw, idLeaf, idNode);
+        }
+       
+    }
+    
+    
+    public void printLeafNodesNewFormat(DataOutputStream out, PrintWriter pw) throws IOException {
+        
+        if (out != null) {
+            // dump to output stream
+            // two open brackets + definition of node
+            //CART.writeStringToOutput("-" + getUniqueDecisionNodeId() + " ((" + getNodeDefinition() + ")", out);
+        } else {
+            // dump to Standard out
+            // two open brackets + definition of node
+            // System.out.println("(("+getNodeDefinition());
+        }
+        if (pw != null) {
+            // dump to print writer
+            // two open brackets + definition of node
+            //pw.println("-" + getUniqueDecisionNodeId() + " ((" + getNodeDefinition() + ")");
+        }
+        // add the daughters
+        for (int i = 0; i < daughters.length; i++) {
+           // we are in the root node, add a closing bracket
+           daughters[i].printLeafNodesNewFormat(out, pw);
+        }
+      // return uIdLeaf;
+    }
+    
     
     /**
      * This returns a String representation of this node. A prefix is given to

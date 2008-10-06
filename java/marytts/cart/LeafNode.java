@@ -14,7 +14,9 @@ import marytts.features.FeatureVector;
  */
 public abstract class LeafNode extends Node {
 
-
+    // unique index used in HTS format
+    protected int uniqueLeafId;
+    
 
     /**
      * Create a new LeafNode.
@@ -62,6 +64,19 @@ public abstract class LeafNode extends Node {
     {
         return 1;
     }
+    
+    //  unique index used in HTS format
+    public void setUniqueLeafId(int id) {
+        this.uniqueLeafId = id;
+    }
+    public int getUniqueLeafId() {
+        return uniqueLeafId;
+    }
+    
+    public void printDecisionNodesNewFormat(DataOutputStream out, String extension,
+            PrintWriter pw, int idLeaf[], int idNode[]) throws IOException {
+        
+    }
 
     /**
      * Count all the data available at and below this node.
@@ -95,6 +110,9 @@ public abstract class LeafNode extends Node {
      */
     protected abstract void fillData(Object target, int pos, int len);
 
+    
+    
+    
 
     /**
      * An LeafNode class suitable for representing the leaves of 
@@ -174,6 +192,54 @@ public abstract class LeafNode extends Node {
             }
         }
         
+        
+        public String addUniqueNodeId(int idLeaf[], int idNode[]) throws IOException {
+            int uId;
+            if(data.length > 0){              
+              idLeaf[0]++;  
+              setUniqueLeafId(idLeaf[0]);
+            }
+            else {
+              setUniqueLeafId(0);  // empty leaf
+            }           
+            return "idIA" + getUniqueLeafId() + " ";  
+        }
+
+        
+        public void printLeafNodesNewFormat(DataOutputStream out, PrintWriter pw) throws IOException {
+                        
+            StringBuffer sb = new StringBuffer();
+            
+            if( getUniqueLeafId() != 0) {
+            sb.append("idIA" + getUniqueLeafId() + " ");
+            // open three brackets
+            sb.append("(((");
+            // for each index, write the index and then a pseudo float
+            for (int i = 0; i < data.length; i++) {
+                sb.append("(" + data[i] + " 0)");
+                if (i + 1 != data.length) {
+                    sb.append(" ");
+                }
+            }
+            // write the ending
+            sb.append(") 0))");
+            
+            // dump the whole stuff
+            if (out != null) {
+                // write to output stream
+                CART.writeStringToOutput(sb.toString(), out);
+            } else {
+                // write to Standard out
+                // System.out.println(sb.toString());
+            }
+            if (pw != null) {
+                // dump to printwriter
+                pw.print(sb.toString());
+            }
+            }
+          
+        }
+        
         public String toString()
         {
             if (data == null) return "int[null]";
@@ -181,6 +247,10 @@ public abstract class LeafNode extends Node {
         }
 
     }
+    
+    
+    
+    
 
     public static class IntAndFloatArrayLeafNode extends LeafNode{
     	
@@ -273,6 +343,56 @@ public abstract class LeafNode extends Node {
             }
         }
         
+        public String addUniqueNodeId(int idLeaf[], int idNode[]) throws IOException {
+            
+            int uId;
+            if(data.length > 0){
+                idLeaf[0]++;  
+                setUniqueLeafId(idLeaf[0]);
+              }
+              else {
+                setUniqueLeafId(0);  // empty leaf
+              }
+            
+            return "idIAF" + getUniqueLeafId() + " ";
+        }
+        
+        public void printLeafNodesNewFormat(DataOutputStream out, PrintWriter pw) throws IOException {
+            
+            StringBuffer sb = new StringBuffer();
+            
+            if( getUniqueLeafId() != 0) {
+            sb.append("idIAF" + getUniqueLeafId() + " ");    
+            // open three brackets
+            sb.append("(((");
+            // for each index, write the index and then its float
+            for (int i = 0; i < data.length; i++) {
+                sb.append("(" + data[i] + " "+floats[i]+")");
+                if (i + 1 != data.length) {
+                    sb.append(" ");
+                }
+            }
+            // write the ending
+            sb.append(") 0))");
+            
+            // dump the whole stuff
+            if (out != null) {
+                // write to output stream
+
+                CART.writeStringToOutput(sb.toString(), out);
+            } else {
+                // write to Standard out
+                // System.out.println(sb.toString());
+            }
+            if (pw != null) {
+                // dump to printwriter
+                // TODO: change print to println
+                pw.print(sb.toString());
+            }
+            }
+
+        }
+        
         /**
          * This returns a String representation of this node. A prefix is given to
          * indent the nodes.
@@ -354,6 +474,57 @@ public abstract class LeafNode extends Node {
                 // TODO: change print to println
                 pw.print(sb.toString());
             }
+        }
+        
+        
+        public String addUniqueNodeId(int idLeaf[], int idNode[]) throws IOException {
+            
+            int uId;
+            if(data.length > 0){
+                idLeaf[0]++;  
+                setUniqueLeafId(idLeaf[0]);
+              }
+              else {
+                setUniqueLeafId(0);  // empty leaf
+              }
+            
+          return "idSAF" + getUniqueLeafId() + " ";
+        }
+        
+        public void printLeafNodesNewFormat(DataOutputStream out, PrintWriter pw) throws IOException {
+            
+            StringBuffer sb = new StringBuffer();
+            
+            if( getUniqueLeafId() != 0) {
+            sb.append("idSAF" + getUniqueLeafId() + " ");    
+            // open three brackets
+            sb.append("(((");
+            // for each index, write the index and then its float
+            for (int i = 0; i < data.length; i++) {
+                sb.append("(" + fd.getFeatureValueAsString(tf, data[i]) + " "+floats[i]+")");
+                if (i + 1 != data.length) {
+                    sb.append(" ");
+                }
+            }
+            // write the ending
+            sb.append(") 0))");
+           
+            // dump the whole stuff
+            if (out != null) {
+                // write to output stream
+
+                CART.writeStringToOutput(sb.toString(), out);
+            } else {
+                // write to Standard out
+                // System.out.println(sb.toString());
+            }
+            if (pw != null) {
+                // dump to printwriter
+                // TODO: change print to println
+                pw.print(sb.toString());
+            }
+            }
+   
         }
         
         public String toString(String prefix){
@@ -541,6 +712,63 @@ public abstract class LeafNode extends Node {
             }
         }
         
+        public String addUniqueNodeId(int idLeaf[], int idNode[]) throws IOException {
+            
+            int uId;
+            if(featureVectors.length > 0){
+                idLeaf[0]++;  
+                setUniqueLeafId(idLeaf[0]);
+              }
+              else {
+                setUniqueLeafId(0);  // empty leaf
+              }
+            return  "idFV" + getUniqueLeafId() + " ";
+        }
+        
+        public void printLeafNodesNewFormat(DataOutputStream out, PrintWriter pw) throws IOException {
+          
+            StringBuffer sb = new StringBuffer();
+            
+            if( getUniqueLeafId() != 0) {
+            sb.append("idFV" + getUniqueLeafId() + " ");
+            // open three brackets
+            sb.append("(((");
+            //make sure that we have a feature vector array
+            if (growable && 
+                     (featureVectors == null
+                             || featureVectors.length == 0)){
+                featureVectors = (FeatureVector[])
+                    featureVectorList.toArray(
+                        new FeatureVector[featureVectorList.size()]);
+            }
+            // for each index, write the index and then a pseudo float
+            for (int i = 0; i < featureVectors.length; i++) {
+                sb.append("(" + featureVectors[i].getUnitIndex() + " 0)");
+                if (i + 1 != featureVectors.length) {
+                    sb.append(" ");
+                }
+            }
+            // write the ending
+            sb.append(") 0))");
+            
+            // dump the whole stuff
+            if (out != null) {
+                // write to output stream
+
+                CART.writeStringToOutput(sb.toString(), out);
+            } else {
+                // write to Standard out
+                // System.out.println(sb.toString());
+            }
+            if (pw != null) {
+                // dump to printwriter
+                pw.println(sb.toString());
+            }
+            }
+          //return uId;
+        }
+        
+        
         public String toString()
         {
             if (growable) return "fv["+featureVectorList.size()+"]";
@@ -615,6 +843,45 @@ public abstract class LeafNode extends Node {
                 pw.print(s);
             }
         }
+        
+        public String addUniqueNodeId(int idLeaf[], int idNode[]) throws IOException {
+            
+            int uId;
+            if(data.length > 0){
+                idLeaf[0]++;  
+                setUniqueLeafId(idLeaf[0]);
+              }
+              else {
+                setUniqueLeafId(0);  // empty leaf
+              }
+            
+            return  "idF" + getUniqueLeafId() + " ";
+        }
+        
+        public void printLeafNodesNewFormat(DataOutputStream out, PrintWriter pw) throws IOException {
+            
+            String s = "((**"
+                + data[0] // stddev
+                + " "
+                + data[1] // mean
+                + "**))";
+            // dump the whole stuff
+            if (out != null) {
+                // write to output stream
+
+                CART.writeStringToOutput(s, out);
+            } else {
+                // write to Standard out
+                // System.out.println(sb.toString());
+            }
+            if (pw != null) {
+                // dump to printwriter
+                pw.print(s);
+            }
+            
+         //return uId;   
+        }
+        
         
         public String toString()
         {
