@@ -29,30 +29,31 @@
 
 package marytts.signalproc.analysis.distance;
 
+import marytts.util.io.FileUtils;
+
 /**
  * @author oytun.turk
- * 
- * Implements Kullback-Leibler LP spectral envelope distance between two speech frames
  *
  */
-public class KullbackLeiblerLPSpectralEnvelopeDistanceComputer extends BaselineLPSpectralEnvelopeDistortionComputer {
-    public KullbackLeiblerLPSpectralEnvelopeDistanceComputer()
+public class ComparativeStatisticsItem {
+    public StatisticsItem referenceVsMethod1;
+    public StatisticsItem referenceVsMethod2;
+    
+    public ComparativeStatisticsItem(double[] x1, double[] x2)
     {
-        super();
+        referenceVsMethod1 = new StatisticsItem(x1);
+        referenceVsMethod2 = new StatisticsItem(x2);
     }
     
-    public double frameDistance(double[] frm1, double[] frm2, int fftSize, int lpOrder)
+    public void writeToTextFile(String textFile)
     {
-        super.frameDistance(frm1, frm2, fftSize, lpOrder);
-        
-        double dist = SpectralDistanceMeasures.kullbackLeiblerSpectralDist(frm1, frm2, fftSize, lpOrder);
-        
-        return dist;
-    }
-    
-    //Put source and target wav and lab files into two folders and call this function
-    public static void main(String[] args)
-    {
-        
+        double[] tmpOut = new double[5];
+        tmpOut[0] = referenceVsMethod1.mean;
+        tmpOut[1] = referenceVsMethod1.std;
+        tmpOut[2] = referenceVsMethod2.mean;
+        tmpOut[3] = referenceVsMethod1.std; 
+        tmpOut[4] = referenceVsMethod1.mean-referenceVsMethod2.mean;
+
+        FileUtils.writeToTextFile(tmpOut, textFile);
     }
 }

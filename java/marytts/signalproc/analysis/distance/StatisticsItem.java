@@ -29,30 +29,25 @@
 
 package marytts.signalproc.analysis.distance;
 
+import marytts.util.math.MathUtils;
+
 /**
  * @author oytun.turk
- * 
- * Implements Kullback-Leibler LP spectral envelope distance between two speech frames
  *
  */
-public class KullbackLeiblerLPSpectralEnvelopeDistanceComputer extends BaselineLPSpectralEnvelopeDistortionComputer {
-    public KullbackLeiblerLPSpectralEnvelopeDistanceComputer()
+public class StatisticsItem {
+    public double mean;
+    public double std;
+
+    public StatisticsItem(double meanIn, double stdIn)
     {
-        super();
+        mean = meanIn;
+        std = stdIn;
     }
     
-    public double frameDistance(double[] frm1, double[] frm2, int fftSize, int lpOrder)
+    public StatisticsItem(double[] x)
     {
-        super.frameDistance(frm1, frm2, fftSize, lpOrder);
-        
-        double dist = SpectralDistanceMeasures.kullbackLeiblerSpectralDist(frm1, frm2, fftSize, lpOrder);
-        
-        return dist;
-    }
-    
-    //Put source and target wav and lab files into two folders and call this function
-    public static void main(String[] args)
-    {
-        
+        mean = MathUtils.mean(x);
+        std = MathUtils.standardDeviation(x, mean);
     }
 }

@@ -94,7 +94,7 @@ public class EnergyContourRms {
                 AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
 
                 contour = SignalProcUtils.getEnergyContourRms(signal.getAllData(), header.windowSizeInSeconds, header.skipSizeInSeconds, header.samplingRate);
-
+                
                 header.totalFrames = contour.length;
 
                 if (energyFileOut!=null && energyFileOut!="")

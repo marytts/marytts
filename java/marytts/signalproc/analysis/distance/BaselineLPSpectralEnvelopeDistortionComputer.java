@@ -197,6 +197,7 @@ public class BaselineLPSpectralEnvelopeDistortionComputer extends BaselineDistor
         
         if (inputAudio1!=null && inputAudio2!=null)
         {
+            int i;
             int samplingRate1 = (int)inputAudio1.getFormat().getSampleRate();
             int ws1 =  (int)Math.floor(winSizeInSeconds*samplingRate1+0.5);
             int ss1 = (int)Math.floor(skipSizeInSeconds*samplingRate1+0.5);
@@ -204,6 +205,9 @@ public class BaselineLPSpectralEnvelopeDistortionComputer extends BaselineDistor
             double[] x1 = signal1.getAllData();
             double[] frm1 = new double[ws1];
             int numfrm1 = (int)Math.floor((x1.length-ws1)/((double)ss1)+0.5);
+            double max1 = MathUtils.absMax(x1);
+            for (i=0; i<x1.length; i++)
+                x1[i] = x1[i]/max1*20000;
 
             int samplingRate2 = (int)inputAudio2.getFormat().getSampleRate();
             int ws2 =  (int)Math.floor(winSizeInSeconds*samplingRate2+0.5);
@@ -212,6 +216,9 @@ public class BaselineLPSpectralEnvelopeDistortionComputer extends BaselineDistor
             double[] x2 = signal2.getAllData();
             double[] frm2 = new double[ws2];
             int numfrm2 = (int)Math.floor((x2.length-ws2)/((double)ss2)+0.5);
+            double max2 = MathUtils.absMax(x2);
+            for (i=0; i<x2.length; i++)
+                x2[i] = x2[i]/max2*20000;
 
             if (fftSize<0)
             {
@@ -310,6 +317,9 @@ public class BaselineLPSpectralEnvelopeDistortionComputer extends BaselineDistor
                                     Arrays.fill(frm2, 0.0);
                                     System.arraycopy(x2, x2Start, frm2, 0, x2.length-x2Start);
                                 }
+                                
+                                SignalProcUtils.addWhiteNoise(frm1, 1e-10);
+                                SignalProcUtils.addWhiteNoise(frm2, 1e-10);
 
                                 frameDistances[count] = frameDistance(frm1, frm2, fftSize, lpOrder);
                                 
@@ -343,68 +353,22 @@ public class BaselineLPSpectralEnvelopeDistortionComputer extends BaselineDistor
         return frameDistances;
     }
     
-    //Implement functionality in dervied classes
+    //Implement functionality in derived classes
     public double frameDistance(double[] frm1, double[] frm2, int fftSize, int lpOrder)
     {
         return 1.0;
     }
     
-    public void mainParametric(String method, String emotion, String outputTextFileExtension)
+    public void mainParametric(String srcFolder, String tgtFolder, String tfmFolder, String outputFile, String infoString)
     {  
-        String baseDir = "D:/Oytun/DFKI/voices/Interspeech08_out/objective_test/";
-
-        String tgtFolder = baseDir + "target/" + emotion;
-        String srcFolder = baseDir + "source/" + emotion;
-        String tfmFolder = baseDir + method + "/" + emotion;
-        
-        String outputFile = baseDir + method + "_" + emotion + "_" + outputTextFileExtension;
-  
         double[] distances1 = getDistances(tgtFolder, srcFolder);
         double[] distances2 = getDistances(tgtFolder, tfmFolder);
         
-        double m1 = MathUtils.mean(distances1);
-        double s1 = MathUtils.standardDeviation(distances1, m1);
-        double m2 = MathUtils.mean(distances2);
-        double s2 = MathUtils.standardDeviation(distances2, m2);
+        ComparativeStatisticsItem stats = new ComparativeStatisticsItem(distances1, distances2);
+        stats.writeToTextFile(outputFile);
         
-        double[] tmpOut = new double[distances1.length+distances2.length + 6];
-        tmpOut[0] = m1; //tgt-src mean
-        tmpOut[1] = s1; //tgt-src std
-        tmpOut[2] = m2; //tgt-tfm mean
-        tmpOut[3] = s2; //tgt-tfm std
-        tmpOut[4] = m1-m2; //decrease in tgt-src distance by tfm
-        System.arraycopy(distances1, 0, tmpOut, 5, distances1.length);
-        System.arraycopy(distances2, 0, tmpOut, distances1.length+5, distances2.length);
-        FileUtils.writeToTextFile(tmpOut, outputFile);
-        
-        System.out.println(method + " " + emotion + " tgt-src: MeanDist=" + String.valueOf(m1) + " " + "StdDist=" + String.valueOf(s1));
-        System.out.println(method + " " + emotion + " tgt-tfm: MeanDist=" + String.valueOf(m2) + " " + "StdDist=" + String.valueOf(s2));
-        System.out.println(method + " " + emotion + " distance reduction=" + String.valueOf(m1-m2));
-    }
-    
-    public void mainBase(String outputTextFileExtension)
-    {   
-        String method; //"1_codebook"; "2_frame"; "3_gmm";
-        String emotion; //"angry"; "happy"; "sad"; "all";
-        
-        method = "1_codebook";
-        emotion = "angry";  mainParametric(method, emotion, outputTextFileExtension);
-        emotion = "happy";  mainParametric(method, emotion, outputTextFileExtension);
-        emotion = "sad";    mainParametric(method, emotion, outputTextFileExtension);
-        emotion = "all";    mainParametric(method, emotion, outputTextFileExtension);
-        
-        method = "2_frame";
-        emotion = "angry";  mainParametric(method, emotion, outputTextFileExtension);
-        emotion = "happy";  mainParametric(method, emotion, outputTextFileExtension);
-        emotion = "sad";    mainParametric(method, emotion, outputTextFileExtension);
-        emotion = "all";    mainParametric(method, emotion, outputTextFileExtension);
-
-        method = "3_gmm";
-        emotion = "angry";  mainParametric(method, emotion, outputTextFileExtension);
-        emotion = "happy";  mainParametric(method, emotion, outputTextFileExtension);
-        emotion = "sad";    mainParametric(method, emotion, outputTextFileExtension);
-        emotion = "all";    mainParametric(method, emotion, outputTextFileExtension);
-
-        System.out.println("Objective test completed...");
+        System.out.println(infoString + " reference-method1: MeanDist=" + String.valueOf(stats.referenceVsMethod1.mean) + " " + "StdDist=" + String.valueOf(stats.referenceVsMethod1.std));
+        System.out.println(infoString + " reference-method2: MeanDist=" + String.valueOf(stats.referenceVsMethod2.mean) + " " + "StdDist=" + String.valueOf(stats.referenceVsMethod2.std));
+        System.out.println(infoString + " distance reduction=" + String.valueOf(stats.referenceVsMethod1.mean-stats.referenceVsMethod2.mean));
     }
 }
