@@ -53,6 +53,7 @@ import marytts.util.signal.SignalProcUtils;
  * 
  */
 public class SpectralDistanceMeasures {
+    public static double MAX_SPECTRAL_DISTANCE = 1e+10;
   
     /*
      * Inverse harmonic weighting based LSF distance
@@ -207,7 +208,7 @@ public class SpectralDistanceMeasures {
         for (w=0; w<Xabs1.length; w++)
             dist += 10*Math.log(Xabs1[w]*Xabs1[w]) - 10*Math.log10(Xabs2[w]*Xabs2[w]);
         
-        return dist;
+        return Math.min(dist, MAX_SPECTRAL_DISTANCE);
     }
 
     public static double kullbackLeiblerSpectralDist(double[] speechFrame1, double[] speechFrame2, int fftSize, int lpOrder)
@@ -233,7 +234,7 @@ public class SpectralDistanceMeasures {
         for (w=0; w<Xabs1.length; w++)
             klDist += Xabs1[w]*Math.log(Xabs1[w]/(Xabs2[w]+1e-20)+1e-20);
 
-        return klDist;
+        return Math.min(klDist, MAX_SPECTRAL_DISTANCE);
     }
 
     public static double kullbackLeiblerSymmetricSpectralDist(double[] speechFrame1, double[] speechFrame2, int fftSize, int lpOrder)
@@ -263,9 +264,14 @@ public class SpectralDistanceMeasures {
         for (w=0; w<Xabs2.length; w++)
             klDist21 += Xabs2[w]*Math.log(Xabs2[w]/(Xabs1[w]+1e-20)+1e-20);
 
-        return 0.5*(klDist12+klDist21);
+        return Math.min(0.5*(klDist12+klDist21), MAX_SPECTRAL_DISTANCE);
     }
 
+    public static double itakuraSaitoDistSymmetric(double[] speechFrame1, double[] speechFrame2, int fftSize, int lpOrder)
+    {
+        return 0.5*itakuraSaitoDist(speechFrame1, speechFrame2, fftSize, lpOrder)+0.5*itakuraSaitoDist(speechFrame2, speechFrame1, fftSize, lpOrder);
+    }
+    
     public static double itakuraSaitoDist(double[] speechFrame1, double[] speechFrame2, int fftSize, int lpOrder)
     {
         double[] preemphasizedFrame1 = SignalProcUtils.applyPreemphasis(speechFrame1, 0.97);
@@ -295,9 +301,9 @@ public class SpectralDistanceMeasures {
         for (w=0; w<Xabs2.length; w++)
             Xabs2[w] = Xabs2[w]*Xabs2[w];
         for (w=0; w<Xabs1.length; w++)
-            dist += Xabs1[w]/(Xabs2[w]+1e-20)-Math.log(Xabs1[w]/(Xabs2[w]+1e-20)+1e-20) - 1;
+            dist += Xabs1[w]/Math.max(Xabs2[w],1e-20)-Math.log(Math.max(Xabs1[w],1e-20))+Math.log(Math.max(Xabs2[w],1e-20))-1.0;
         
-        return dist;
+        return Math.min(dist, MAX_SPECTRAL_DISTANCE);
     }
     
     //This is in fact the symmetrical version of Itakura-Saito distance
@@ -337,7 +343,7 @@ public class SpectralDistanceMeasures {
         for (w=0; w<Xabs2.length; w++)
             dist21 += Xabs2[w]/(Xabs1[w]+1e-20)-Math.log(Xabs2[w]/(Xabs1[w]+1e-20)+1e-20) - 1;
         
-        return 0.5*(dist12+dist21);
+        return Math.min(0.5*(dist12+dist21), MAX_SPECTRAL_DISTANCE);
     }
    
     public static void main(String[] args)

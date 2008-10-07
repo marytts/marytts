@@ -53,8 +53,6 @@ public class CoshDistanceComputer extends BaselineLPSpectralEnvelopeDistortionCo
     //Put source and target wav and lab files into two folders and call this function
     public static void main(String[] args)
     {
-        CoshDistanceComputer sdc = new CoshDistanceComputer();
-        
-        sdc.mainBase("coshLPSpectralEnvelope.txt");
+        //mainBase("coshLPSpectralEnvelope.txt");
     }
 }
