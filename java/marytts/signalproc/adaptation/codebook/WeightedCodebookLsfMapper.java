@@ -151,12 +151,16 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
 
                             //Energy
                             index = MathUtils.linearMap(imap.files[0].indicesMap[j][0], 0, srcFeatures.lsfs.length-1, 0, sourceEnergies.contour.length-1);
+                            index = MathUtils.CheckLimits(index, 0, sourceEnergies.contour.length-1);
                             entry.sourceItem.energy = sourceEnergies.contour[index];
                             index = MathUtils.linearMap(imap.files[0].indicesMap[j][1], 0, tgtFeatures.lsfs.length-1, 0, targetEnergies.contour.length-1);
+                            index = MathUtils.CheckLimits(index, 0, targetEnergies.contour.length-1);
                             entry.targetItem.energy = targetEnergies.contour[index];
                             //
 
-                            codebookFile.writeEntry(entry);
+                            //Write only if both voiced or both unvoiced
+                            if ((entry.sourceItem.f0>10.0 && entry.targetItem.f0>10.0) || (entry.sourceItem.f0<=10.0 && entry.targetItem.f0<=10.0))
+                                codebookFile.writeEntry(entry);
                             //
                         }
                     }
@@ -320,6 +324,7 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
 
                                 //Energy
                                 index = MathUtils.linearMap(k, 0, srcFeatures.lsfs.length-1, 0, sourceEnergies.contour.length-1);
+                                index = MathUtils.CheckLimits(index, 0, sourceEnergies.contour.length-1);
                                 sourceAverageEnergy += sourceEnergies.contour[index];
                                 //
 
@@ -372,6 +377,7 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
 
                                     //Energy
                                     index = MathUtils.linearMap(k, 0, tgtFeatures.lsfs.length-1, 0, targetEnergies.contour.length-1);
+                                    index = MathUtils.CheckLimits(index, 0, targetEnergies.contour.length-1);
                                     targetAverageEnergy += targetEnergies.contour[index];
                                     //
 
@@ -422,7 +428,8 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                                 entry.targetItem.energy = targetAverageEnergy;
                                 //
 
-                                codebookFile.writeEntry(entry);
+                                if ((entry.sourceItem.f0>10.0 && entry.targetItem.f0>10.0) || (entry.sourceItem.f0<=10.0 && entry.targetItem.f0<=10.0))
+                                    codebookFile.writeEntry(entry);
                                 //
                             }
                         }
@@ -590,6 +597,7 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                                 
                                 //Energy
                                 index = MathUtils.linearMap(k, 0, srcFeatures.lsfs.length-1, 0, sourceEnergies.contour.length-1);
+                                index = MathUtils.CheckLimits(index, 0, sourceEnergies.contour.length-1);
                                 sourceAverageEnergy += sourceEnergies.contour[index];
                                 //
                                 
@@ -642,6 +650,7 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                                     
                                     //Energy
                                     index = MathUtils.linearMap(k, 0, tgtFeatures.lsfs.length-1, 0, targetEnergies.contour.length-1);
+                                    index = MathUtils.CheckLimits(index, 0, targetEnergies.contour.length-1);
                                     targetAverageEnergy += targetEnergies.contour[index];
                                     //
                                     
@@ -692,7 +701,8 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                                 entry.targetItem.energy = targetAverageEnergy;
                                 //
                                 
-                                codebookFile.writeEntry(entry);
+                                if ((entry.sourceItem.f0>10.0 && entry.targetItem.f0>10.0) || (entry.sourceItem.f0<=10.0 && entry.targetItem.f0<=10.0))
+                                    codebookFile.writeEntry(entry);
                                 //
 
                                 System.out.println("Label pair " + String.valueOf(j+1) + " of " + String.valueOf(imap.files[0].indicesMap.length));

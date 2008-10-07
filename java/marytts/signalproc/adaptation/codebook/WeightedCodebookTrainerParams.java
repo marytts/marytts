@@ -64,6 +64,8 @@ public class WeightedCodebookTrainerParams extends BaselineTrainerParams {
     public GaussianOutlierEliminatorParams gaussianEliminatorParams;
     public KMeansMappingEliminatorParams kmeansEliminatorParams;
     
+    public String[] labelsToExcludeFromTraining; //These labels are excluded from training
+    
     public WeightedCodebookTrainerParams()
     {
         codebookHeader = new WeightedCodebookFileHeader();
@@ -83,6 +85,8 @@ public class WeightedCodebookTrainerParams extends BaselineTrainerParams {
         
         gaussianEliminatorParams = new GaussianOutlierEliminatorParams();
         kmeansEliminatorParams = new KMeansMappingEliminatorParams();
+        
+        labelsToExcludeFromTraining = null;
     }
     
     public WeightedCodebookTrainerParams(WeightedCodebookTrainerParams existing)
@@ -103,5 +107,7 @@ public class WeightedCodebookTrainerParams extends BaselineTrainerParams {
         
         gaussianEliminatorParams = new GaussianOutlierEliminatorParams(existing.gaussianEliminatorParams);
         kmeansEliminatorParams = new KMeansMappingEliminatorParams(existing.kmeansEliminatorParams);
+        
+        labelsToExcludeFromTraining = existing.labelsToExcludeFromTraining;
     }
 }
