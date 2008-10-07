@@ -83,6 +83,7 @@ import marytts.util.math.FFT;
 import marytts.util.math.FFTMixedRadix;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
+import marytts.util.string.StringUtils;
 
 
 /**
@@ -859,6 +860,7 @@ public class FdpsolaAdapter {
                     System.arraycopy(inputVocalTractSpectrum, 0, tmpSpec, 0, tmpSpec.length);
                     tmpSpec = MathUtils.amp2db(tmpSpec);
                     MaryUtils.plot(tmpSpec, "2.Input Vocal Tract");
+                    FileUtils.writeToTextFile(inputVocalTractSpectrum, "d:/hmmTest_inputVT.txt");
                 }
                 //
 
@@ -869,6 +871,7 @@ public class FdpsolaAdapter {
                     System.arraycopy(sourceVocalTractSpectrumEstimate, 0, tmpSpec, 0, tmpSpec.length);
                     tmpSpec = MathUtils.amp2db(tmpSpec);
                     MaryUtils.plot(tmpSpec, "3.Source Vocal Tract Estimate");
+                    FileUtils.writeToTextFile(sourceVocalTractSpectrumEstimate, "d:/hmmTest_estimateVT.txt");
                 }
                 //
 

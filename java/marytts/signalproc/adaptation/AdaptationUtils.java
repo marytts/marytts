@@ -56,7 +56,8 @@ public class AdaptationUtils {
     //An optimal alignment is found by dynamic programming if the labels are not identical
     public static IndexMap mapFramesFeatures(String sourceLabelFile, String targetLabelFile, 
                                              String sourceFeatureFile, String targetFeatureFile,
-                                             int vocalTractFeature)
+                                             int vocalTractFeature, 
+                                             String[] labelsToExcludeFromTraining)
     {
         IndexMap im = null;
 
@@ -118,29 +119,38 @@ public class AdaptationUtils {
 
                     if (tgtLabInd>=0 && sourceLabels.items[srcLabInd].phn.compareTo(targetLabels.items[tgtLabInd].phn)==0)
                     {
-                        if (srcLabInd>0)   
-                            srcStartTime = sourceLabels.items[srcLabInd-1].time;
-                        else
-                            srcStartTime = 0.0;
+                        boolean isLabelDesired = true;
+                        if (labelsToExcludeFromTraining!=null)
+                            isLabelDesired = !StringUtils.isOneOf(sourceLabels.items[srcLabInd].phn, labelsToExcludeFromTraining);
+                        
+                        if (isLabelDesired)
+                        {
+                            if (srcLabInd>0)   
+                                srcStartTime = sourceLabels.items[srcLabInd-1].time;
+                            else
+                                srcStartTime = 0.0;
 
-                        if (tgtLabInd>0) 
-                            tgtStartTime = targetLabels.items[tgtLabInd-1].time;
-                        else
-                            tgtStartTime = 0.0;
+                            if (tgtLabInd>0) 
+                                tgtStartTime = targetLabels.items[tgtLabInd-1].time;
+                            else
+                                tgtStartTime = 0.0;
 
-                        srcEndTime = sourceLabels.items[srcLabInd].time;
-                        tgtEndTime = targetLabels.items[tgtLabInd].time;
+                            srcEndTime = sourceLabels.items[srcLabInd].time;
+                            tgtEndTime = targetLabels.items[tgtLabInd].time;
 
-                        time2 = MathUtils.linearMap(time1, srcStartTime, srcEndTime, tgtStartTime, tgtEndTime);
+                            time2 = MathUtils.linearMap(time1, srcStartTime, srcEndTime, tgtStartTime, tgtEndTime);
 
-                        tgtFrmInd = SignalProcUtils.time2frameIndex(time2, hdr2.winsize, hdr2.skipsize);
+                            tgtFrmInd = SignalProcUtils.time2frameIndex(time2, hdr2.winsize, hdr2.skipsize);
+                            tgtFrmInd = Math.max(0, tgtFrmInd);
+                            tgtFrmInd = Math.min(tgtFrmInd, hdr2.numfrm-1);
 
-                        im.files[0].indicesMap[count][0] = j;
-                        im.files[0].indicesMap[count][1] = tgtFrmInd; 
-                        count++;
+                            im.files[0].indicesMap[count][0] = j;
+                            im.files[0].indicesMap[count][1] = tgtFrmInd; 
+                            count++;
 
-                        if (count>hdr1.numfrm-1)
-                            break;
+                            if (count>hdr1.numfrm-1)
+                                break;
+                        }
                     } 
                 }
             }
@@ -152,7 +162,8 @@ public class AdaptationUtils {
     //Each frame is mapped as a group of frames, i.e. with frames on the left and right context
     public static IndexMap mapFrameGroupsFeatures(String sourceLabelFile, String targetLabelFile, 
                                                   String sourceFeatureFile, String targetFeatureFile,
-                                                  int numNeighbours, int vocalTractFeature)
+                                                  int numNeighbours, int vocalTractFeature, 
+                                                  String[] labelsToExcludeFromTraining)
     {
         IndexMap im = null;
 
@@ -214,31 +225,38 @@ public class AdaptationUtils {
 
                     if (tgtLabInd>=0 && sourceLabels.items[srcLabInd].phn.compareTo(targetLabels.items[tgtLabInd].phn)==0)
                     {
-                        if (srcLabInd>0)   
-                            srcStartTime = sourceLabels.items[srcLabInd-1].time;
-                        else
-                            srcStartTime = 0.0;
+                        boolean isLabelDesired = true;
+                        if (labelsToExcludeFromTraining!=null)
+                            isLabelDesired = !StringUtils.isOneOf(sourceLabels.items[srcLabInd].phn, labelsToExcludeFromTraining);
+                        
+                        if (isLabelDesired)
+                        {
+                            if (srcLabInd>0)   
+                                srcStartTime = sourceLabels.items[srcLabInd-1].time;
+                            else
+                                srcStartTime = 0.0;
 
-                        if (tgtLabInd>0) 
-                            tgtStartTime = targetLabels.items[tgtLabInd-1].time;
-                        else
-                            tgtStartTime = 0.0;
+                            if (tgtLabInd>0) 
+                                tgtStartTime = targetLabels.items[tgtLabInd-1].time;
+                            else
+                                tgtStartTime = 0.0;
 
-                        srcEndTime = sourceLabels.items[srcLabInd].time;
-                        tgtEndTime = targetLabels.items[tgtLabInd].time;
+                            srcEndTime = sourceLabels.items[srcLabInd].time;
+                            tgtEndTime = targetLabels.items[tgtLabInd].time;
 
-                        time2 = MathUtils.linearMap(time1, srcStartTime, srcEndTime, tgtStartTime, tgtEndTime);
+                            time2 = MathUtils.linearMap(time1, srcStartTime, srcEndTime, tgtStartTime, tgtEndTime);
 
-                        tgtFrmInd = SignalProcUtils.time2frameIndex(time2, hdr2.winsize, hdr2.skipsize);
+                            tgtFrmInd = SignalProcUtils.time2frameIndex(time2, hdr2.winsize, hdr2.skipsize);
 
-                        im.files[0].indicesMap[count][0] = Math.max(0, j-numNeighbours);
-                        im.files[0].indicesMap[count][1] = Math.min(j+numNeighbours, hdr1.numfrm-1);
-                        im.files[0].indicesMap[count][2] = Math.max(0, tgtFrmInd-numNeighbours); 
-                        im.files[0].indicesMap[count][3] = Math.min(tgtFrmInd+numNeighbours, hdr2.numfrm-1); 
-                        count++;
+                            im.files[0].indicesMap[count][0] = Math.max(0, j-numNeighbours);
+                            im.files[0].indicesMap[count][1] = Math.min(j+numNeighbours, hdr1.numfrm-1);
+                            im.files[0].indicesMap[count][2] = Math.max(0, tgtFrmInd-numNeighbours); 
+                            im.files[0].indicesMap[count][3] = Math.min(tgtFrmInd+numNeighbours, hdr2.numfrm-1); 
+                            count++;
 
-                        if (count>hdr1.numfrm-1)
-                            break;
+                            if (count>hdr1.numfrm-1)
+                                break;
+                        }
                     } 
                 }
             }
@@ -249,7 +267,8 @@ public class AdaptationUtils {
 
     public static IndexMap mapLabelsFeatures(String sourceLabelFile, String targetLabelFile, 
                                              String sourceFeatureFile, String targetFeatureFile,
-                                             int vocalTractFeature)
+                                             int vocalTractFeature, 
+                                             String[] labelsToExcludeFromTraining)
     {
         IndexMap im = null;
 
@@ -301,23 +320,30 @@ public class AdaptationUtils {
 
                     if (tgtLabInd>=0 && sourceLabels.items[j].phn.compareTo(targetLabels.items[tgtLabInd].phn)==0)
                     {
-                        if (tgtLabInd>0) 
-                            tgtStartTime = targetLabels.items[tgtLabInd-1].time;
-                        else
-                            tgtStartTime = 0.0;
+                        boolean isLabelDesired = true;
+                        if (labelsToExcludeFromTraining!=null)
+                            isLabelDesired = !StringUtils.isOneOf(sourceLabels.items[j].phn, labelsToExcludeFromTraining);
 
-                        srcEndTime = sourceLabels.items[j].time;
-                        tgtEndTime = targetLabels.items[tgtLabInd].time;
+                        if (isLabelDesired)
+                        {
+                            if (tgtLabInd>0) 
+                                tgtStartTime = targetLabels.items[tgtLabInd-1].time;
+                            else
+                                tgtStartTime = 0.0;
 
-                        im.files[0].indicesMap[count][0] = SignalProcUtils.time2frameIndex(srcStartTime, hdr1.winsize, hdr1.skipsize);
-                        im.files[0].indicesMap[count][1] = SignalProcUtils.time2frameIndex(srcEndTime, hdr1.winsize, hdr1.skipsize);
-                        im.files[0].indicesMap[count][2] = SignalProcUtils.time2frameIndex(tgtStartTime, hdr2.winsize, hdr2.skipsize);
-                        im.files[0].indicesMap[count][3] = SignalProcUtils.time2frameIndex(tgtEndTime, hdr2.winsize, hdr2.skipsize);
-                        
-                        count++;
+                            srcEndTime = sourceLabels.items[j].time;
+                            tgtEndTime = targetLabels.items[tgtLabInd].time;
 
-                        if (count>sourceLabels.items.length-1)
-                            break;
+                            im.files[0].indicesMap[count][0] = SignalProcUtils.time2frameIndex(srcStartTime, hdr1.winsize, hdr1.skipsize);
+                            im.files[0].indicesMap[count][1] = SignalProcUtils.time2frameIndex(srcEndTime, hdr1.winsize, hdr1.skipsize);
+                            im.files[0].indicesMap[count][2] = SignalProcUtils.time2frameIndex(tgtStartTime, hdr2.winsize, hdr2.skipsize);
+                            im.files[0].indicesMap[count][3] = SignalProcUtils.time2frameIndex(tgtEndTime, hdr2.winsize, hdr2.skipsize);
+
+                            count++;
+
+                            if (count>sourceLabels.items.length-1)
+                                break;
+                        }
                     } 
                 }
             }
@@ -328,7 +354,8 @@ public class AdaptationUtils {
 
     public static IndexMap mapLabelGroupsFeatures(String sourceLabelFile, String targetLabelFile, 
                                                   String sourceFeatureFile, String targetFeatureFile,
-                                                  int numNeighbours, int vocalTractFeature)
+                                                  int numNeighbours, int vocalTractFeature, 
+                                                  String[] labelsToExcludeFromTraining)
     {
         IndexMap im = null;
 
@@ -380,23 +407,30 @@ public class AdaptationUtils {
 
                     if (tgtLabInd>=0 && sourceLabels.items[j].phn.compareTo(targetLabels.items[tgtLabInd].phn)==0)
                     {
-                        if (tgtLabInd-numNeighbours-1>=0) 
-                            tgtStartTime = targetLabels.items[tgtLabInd-numNeighbours-1].time;
-                        else
-                            tgtStartTime = 0.0;
+                        boolean isLabelDesired = true;
+                        if (labelsToExcludeFromTraining!=null)
+                            isLabelDesired = !StringUtils.isOneOf(sourceLabels.items[j].phn, labelsToExcludeFromTraining);
 
-                        srcEndTime = sourceLabels.items[Math.min(j+numNeighbours, sourceLabels.items.length-1)].time;
-                        tgtEndTime = targetLabels.items[Math.min(tgtLabInd+numNeighbours, targetLabels.items.length-1)].time;
+                        if (isLabelDesired)
+                        {
+                            if (tgtLabInd-numNeighbours-1>=0) 
+                                tgtStartTime = targetLabels.items[tgtLabInd-numNeighbours-1].time;
+                            else
+                                tgtStartTime = 0.0;
 
-                        im.files[0].indicesMap[count][0] = SignalProcUtils.time2frameIndex(srcStartTime, hdr1.winsize, hdr1.skipsize);
-                        im.files[0].indicesMap[count][1] = SignalProcUtils.time2frameIndex(srcEndTime, hdr1.winsize, hdr1.skipsize);
-                        im.files[0].indicesMap[count][2] = SignalProcUtils.time2frameIndex(tgtStartTime, hdr2.winsize, hdr2.skipsize);
-                        im.files[0].indicesMap[count][3] = SignalProcUtils.time2frameIndex(tgtEndTime, hdr2.winsize, hdr2.skipsize);
-                        
-                        count++;
+                            srcEndTime = sourceLabels.items[Math.min(j+numNeighbours, sourceLabels.items.length-1)].time;
+                            tgtEndTime = targetLabels.items[Math.min(tgtLabInd+numNeighbours, targetLabels.items.length-1)].time;
 
-                        if (count>sourceLabels.items.length-1)
-                            break;
+                            im.files[0].indicesMap[count][0] = SignalProcUtils.time2frameIndex(srcStartTime, hdr1.winsize, hdr1.skipsize);
+                            im.files[0].indicesMap[count][1] = SignalProcUtils.time2frameIndex(srcEndTime, hdr1.winsize, hdr1.skipsize);
+                            im.files[0].indicesMap[count][2] = SignalProcUtils.time2frameIndex(tgtStartTime, hdr2.winsize, hdr2.skipsize);
+                            im.files[0].indicesMap[count][3] = SignalProcUtils.time2frameIndex(tgtEndTime, hdr2.winsize, hdr2.skipsize);
+
+                            count++;
+
+                            if (count>sourceLabels.items.length-1)
+                                break;
+                        }
                     } 
                 }
             }
