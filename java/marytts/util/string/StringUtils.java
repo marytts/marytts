@@ -771,6 +771,21 @@ public class StringUtils {
         return randomName;
     }
     
+    public static boolean isOneOf(String item, String[] list)
+    {
+        boolean isFound = false;
+        for (int i=0; i<list.length; i++)
+        {
+            if (item.compareTo(list[i])==0)
+            {
+                isFound = true;
+                break;
+            }
+        }
+            
+        return isFound;
+    }
+    
     public static void main(String[] args)
     {
         String[] items1 = readTextFile("D:\\items.txt");

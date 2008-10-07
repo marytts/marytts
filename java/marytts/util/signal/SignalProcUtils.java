@@ -183,7 +183,7 @@ public class SignalProcUtils {
                     energies[i] += frm[j]*frm[j];
                 energies[i] /= ws;
                 energies[i] = Math.sqrt(energies[i]);
-                energies[i] = MathUtils.amp2db(energies[i]);
+                energies[i] = MathUtils.amp2db(energies[i]+1e-20);
             }
         }
         
@@ -1700,6 +1700,26 @@ public class SignalProcUtils {
         }
 
         return y;
+    }
+    
+    public static void addWhiteNoise(double[] x, double level)
+    {
+        for (int i=0; i<x.length; i++)
+            x[i] += level*Math.random();
+    }
+    
+    public static double[] getWhiteNoise(int totalSamples, double maxAbsGain)
+    {
+        double[] n = null;
+        
+        if (totalSamples>0)
+        {
+            n = new double[totalSamples];
+            for (int i=0; i<totalSamples; i++)
+                n[i] = 2.0*maxAbsGain*(Math.random()-0.5);
+        }
+        
+        return n;
     }
     
     public static void main(String[] args)

@@ -352,7 +352,7 @@ public class DTW {
   
   
   // methods to compute distance between two frames    
-  private double frameDistance(double f1[], double f2[], String distanceType) {
+  protected double frameDistance(double f1[], double f2[], String distanceType) {
   double dis = 0.0;
   if(distanceType == "Mahalanobis")
       dis = mahalanobis(f1, f2, sigma2);
