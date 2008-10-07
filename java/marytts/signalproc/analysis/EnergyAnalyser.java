@@ -351,7 +351,11 @@ public class EnergyAnalyser extends FrameBasedAnalyser {
      * Then, the energy threshold is selected using the lowest and highest energy cluster centers
      * 
      */
-    public double[][] getSpeechStretchesUsingEnergyHistory()
+    public double[][] getSpeechStretchesUsingEnergyHistory(int energyBufferLength, 
+                                                           double speechStartLikelihood, 
+                                                           double speechEndLikelihood, 
+                                                           double shiftFromMinimumEnergyCenter,
+                                                           int numClusters)
     {
         int i, j;
         double minSilenceDur = Double.parseDouble(System.getProperty("signalproc.minsilenceduration", "0.3"));
@@ -367,8 +371,8 @@ public class EnergyAnalyser extends FrameBasedAnalyser {
         Arrays.fill(isSpeechsAll, 0.0);
         
         KMeansClusteringTrainerParams p = new KMeansClusteringTrainerParams();
-        p.numClusters = 3;
-        p.maxIterations = 10;
+        p.numClusters = numClusters;
+        p.maxIterations = 40;
         KMeansClusteringTrainer t = new KMeansClusteringTrainer();
         t.train(energies, p);
         
@@ -382,12 +386,8 @@ public class EnergyAnalyser extends FrameBasedAnalyser {
         double minEnCenter = MathUtils.getMin(meanEns);
         double maxEnCenter = MathUtils.getMax(meanEns);
         
-        double energyTh = minEnCenter + 0.1*(maxEnCenter-minEnCenter);
+        double energyTh = minEnCenter + shiftFromMinimumEnergyCenter*(maxEnCenter-minEnCenter);
         System.out.println(String.valueOf(energyTh)); 
-        
-        int energyBufferLength = 30;
-        double speechStartLikelihood = 0.6;
-        double speechEndLikelihood = 0.2;
         
         LinkedList stretches = new LinkedList();
         
@@ -523,7 +523,13 @@ public class EnergyAnalyser extends FrameBasedAnalyser {
                 int framelength = (int)(0.01 /*seconds*/ * samplingRate);
                 EnergyAnalyser ea = new EnergyAnalyser(signal, framelength, framelength, samplingRate);
                 double[][] speechStretches1 = ea.getSpeechStretches();
-                double[][] speechStretches2 = ea.getSpeechStretchesUsingEnergyHistory();
+                int energyBufferLength = 30;
+                double speechStartLikelihood = 0.6;
+                double speechEndLikelihood = 0.2;
+                double shiftFromMinimumEnergyCenter = 0.1;
+                int numClusters = 3;
+                double[][] speechStretches2 = ea.getSpeechStretchesUsingEnergyHistory(energyBufferLength, speechStartLikelihood, speechEndLikelihood, 
+                                                                                      shiftFromMinimumEnergyCenter, numClusters);
                 
                 System.out.println("Speech stretches1 in "+args[file]+":");
                 PrintfFormat format = new PrintfFormat("%.4f");
