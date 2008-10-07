@@ -73,8 +73,8 @@ public abstract class LeafNode extends Node {
         return uniqueLeafId;
     }
     
-    public void printDecisionNodesNewFormat(DataOutputStream out, String extension,
-            PrintWriter pw, int idLeaf[], int idNode[]) throws IOException {
+    // ??? is this wrong? can i leave this function empty? how is the correct way of doing this?
+    public void printDecisionNodesNewFormat(DataOutputStream out, PrintWriter pw) throws IOException {
         
     }
 
@@ -201,8 +201,12 @@ public abstract class LeafNode extends Node {
             }
             else {
               setUniqueLeafId(0);  // empty leaf
-            }           
-            return "idIA" + getUniqueLeafId() + " ";  
+            } 
+            if(getUniqueLeafId() == 0)
+              return  "0 ";
+            else
+              return  "idIA" + getUniqueLeafId() + " ";
+            //return "idIA" + getUniqueLeafId() + " ";  
         }
 
         
@@ -212,17 +216,12 @@ public abstract class LeafNode extends Node {
             
             if( getUniqueLeafId() != 0) {
             sb.append("idIA" + getUniqueLeafId() + " ");
-            // open three brackets
-            sb.append("(((");
+            
             // for each index, write the index and then a pseudo float
+            // ??? is it neccessary this pseudo float
             for (int i = 0; i < data.length; i++) {
                 sb.append("(" + data[i] + " 0)");
-                if (i + 1 != data.length) {
-                    sb.append(" ");
-                }
             }
-            // write the ending
-            sb.append(") 0))");
             
             // dump the whole stuff
             if (out != null) {
@@ -234,7 +233,7 @@ public abstract class LeafNode extends Node {
             }
             if (pw != null) {
                 // dump to printwriter
-                pw.print(sb.toString());
+                pw.println(sb.toString());
             }
             }
           
@@ -353,8 +352,11 @@ public abstract class LeafNode extends Node {
               else {
                 setUniqueLeafId(0);  // empty leaf
               }
-            
-            return "idIAF" + getUniqueLeafId() + " ";
+            if(getUniqueLeafId() == 0)
+              return  "0 ";
+            else
+              return  "idIAF" + getUniqueLeafId() + " ";            
+            //return "idIAF" + getUniqueLeafId() + " ";
         }
         
         public void printLeafNodesNewFormat(DataOutputStream out, PrintWriter pw) throws IOException {
@@ -363,22 +365,14 @@ public abstract class LeafNode extends Node {
             
             if( getUniqueLeafId() != 0) {
             sb.append("idIAF" + getUniqueLeafId() + " ");    
-            // open three brackets
-            sb.append("(((");
+            
             // for each index, write the index and then its float
             for (int i = 0; i < data.length; i++) {
                 sb.append("(" + data[i] + " "+floats[i]+")");
-                if (i + 1 != data.length) {
-                    sb.append(" ");
-                }
             }
-            // write the ending
-            sb.append(") 0))");
-            
             // dump the whole stuff
             if (out != null) {
                 // write to output stream
-
                 CART.writeStringToOutput(sb.toString(), out);
             } else {
                 // write to Standard out
@@ -386,8 +380,7 @@ public abstract class LeafNode extends Node {
             }
             if (pw != null) {
                 // dump to printwriter
-                // TODO: change print to println
-                pw.print(sb.toString());
+                pw.println(sb.toString());
             }
             }
 
@@ -487,8 +480,11 @@ public abstract class LeafNode extends Node {
               else {
                 setUniqueLeafId(0);  // empty leaf
               }
-            
-          return "idSAF" + getUniqueLeafId() + " ";
+            if(getUniqueLeafId() == 0)
+              return  "0 ";
+            else
+              return  "idSAF" + getUniqueLeafId() + " ";            
+          //return "idSAF" + getUniqueLeafId() + " ";
         }
         
         public void printLeafNodesNewFormat(DataOutputStream out, PrintWriter pw) throws IOException {
@@ -497,22 +493,15 @@ public abstract class LeafNode extends Node {
             
             if( getUniqueLeafId() != 0) {
             sb.append("idSAF" + getUniqueLeafId() + " ");    
-            // open three brackets
-            sb.append("(((");
+          
             // for each index, write the index and then its float
             for (int i = 0; i < data.length; i++) {
                 sb.append("(" + fd.getFeatureValueAsString(tf, data[i]) + " "+floats[i]+")");
-                if (i + 1 != data.length) {
-                    sb.append(" ");
-                }
             }
-            // write the ending
-            sb.append(") 0))");
            
             // dump the whole stuff
             if (out != null) {
                 // write to output stream
-
                 CART.writeStringToOutput(sb.toString(), out);
             } else {
                 // write to Standard out
@@ -520,8 +509,7 @@ public abstract class LeafNode extends Node {
             }
             if (pw != null) {
                 // dump to printwriter
-                // TODO: change print to println
-                pw.print(sb.toString());
+                pw.println(sb.toString());
             }
             }
    
@@ -722,7 +710,11 @@ public abstract class LeafNode extends Node {
               else {
                 setUniqueLeafId(0);  // empty leaf
               }
-            return  "idFV" + getUniqueLeafId() + " ";
+            if(getUniqueLeafId() == 0)
+              return  "0 ";
+            else
+              return  "idFV" + getUniqueLeafId() + " ";
+            //return  "idFV" + getUniqueLeafId() + " ";
         }
         
         public void printLeafNodesNewFormat(DataOutputStream out, PrintWriter pw) throws IOException {
@@ -731,8 +723,7 @@ public abstract class LeafNode extends Node {
             
             if( getUniqueLeafId() != 0) {
             sb.append("idFV" + getUniqueLeafId() + " ");
-            // open three brackets
-            sb.append("(((");
+           
             //make sure that we have a feature vector array
             if (growable && 
                      (featureVectors == null
@@ -743,14 +734,9 @@ public abstract class LeafNode extends Node {
             }
             // for each index, write the index and then a pseudo float
             for (int i = 0; i < featureVectors.length; i++) {
-                sb.append("(" + featureVectors[i].getUnitIndex() + " 0)");
-                if (i + 1 != featureVectors.length) {
-                    sb.append(" ");
-                }
+                sb.append("(" + featureVectors[i].getUnitIndex() + " 0)");               
             }
-            // write the ending
-            sb.append(") 0))");
-            
+ 
             // dump the whole stuff
             if (out != null) {
                 // write to output stream
@@ -765,7 +751,6 @@ public abstract class LeafNode extends Node {
                 pw.println(sb.toString());
             }
             }
-          //return uId;
         }
         
         
@@ -854,21 +839,24 @@ public abstract class LeafNode extends Node {
               else {
                 setUniqueLeafId(0);  // empty leaf
               }
-            
-            return  "idF" + getUniqueLeafId() + " ";
+            if(getUniqueLeafId() == 0)
+                return  "0 ";
+              else
+                return  "idF" + getUniqueLeafId() + " ";           
+            //return  "idF" + getUniqueLeafId() + " ";
         }
         
         public void printLeafNodesNewFormat(DataOutputStream out, PrintWriter pw) throws IOException {
             
-            String s = "((**"
+            // How to test this??? remove the ** after testing!!!
+            String s = "idF " + getUniqueLeafId() + " (**"
                 + data[0] // stddev
                 + " "
                 + data[1] // mean
-                + "**))";
+                + "**)";
             // dump the whole stuff
             if (out != null) {
                 // write to output stream
-
                 CART.writeStringToOutput(s, out);
             } else {
                 // write to Standard out
@@ -876,10 +864,8 @@ public abstract class LeafNode extends Node {
             }
             if (pw != null) {
                 // dump to printwriter
-                pw.print(s);
+                pw.println(s);
             }
-            
-         //return uId;   
         }
         
         

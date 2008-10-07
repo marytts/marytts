@@ -229,7 +229,7 @@ public abstract class CART
             //System.out.println("Total number of nodes:" + rootNode.getNumberOfNodes());
             rootNode.addUniqueNodeId(leafs, decNodes);
             //pw.println("\n----------------\n");
-            rootNode.printDecisionNodesNewFormat(null, "", pw, leafs, decNodes);
+            rootNode.printDecisionNodesNewFormat(null, pw);
             pw.println("\n----------------\n");
             rootNode.printLeafNodesNewFormat(null, pw);
             
