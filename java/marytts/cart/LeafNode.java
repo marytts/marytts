@@ -205,8 +205,7 @@ public abstract class LeafNode extends Node {
             if(getUniqueLeafId() == 0)
               return  "0 ";
             else
-              return  "idIA" + getUniqueLeafId() + " ";
-            //return "idIA" + getUniqueLeafId() + " ";  
+              return  "id" + getUniqueLeafId() + " ";
         }
 
         
@@ -214,19 +213,18 @@ public abstract class LeafNode extends Node {
                         
             StringBuffer sb = new StringBuffer();
             
-            if( getUniqueLeafId() != 0) {
-            sb.append("idIA" + getUniqueLeafId() + " ");
+            if( getUniqueLeafId() != 0) {          
+            sb.append("id" + getUniqueLeafId() + " IntArrayLeafNode " + data.length + " ");
             
-            // for each index, write the index and then a pseudo float
-            // ??? is it neccessary this pseudo float
             for (int i = 0; i < data.length; i++) {
-                sb.append("(" + data[i] + " 0)");
+                sb.append(data[i] + " ");
             }
             
             // dump the whole stuff
             if (out != null) {
                 // write to output stream
                 CART.writeStringToOutput(sb.toString(), out);
+                
             } else {
                 // write to Standard out
                 // System.out.println(sb.toString());
@@ -355,8 +353,7 @@ public abstract class LeafNode extends Node {
             if(getUniqueLeafId() == 0)
               return  "0 ";
             else
-              return  "idIAF" + getUniqueLeafId() + " ";            
-            //return "idIAF" + getUniqueLeafId() + " ";
+              return  "id" + getUniqueLeafId() + " ";            
         }
         
         public void printLeafNodesNewFormat(DataOutputStream out, PrintWriter pw) throws IOException {
@@ -364,16 +361,17 @@ public abstract class LeafNode extends Node {
             StringBuffer sb = new StringBuffer();
             
             if( getUniqueLeafId() != 0) {
-            sb.append("idIAF" + getUniqueLeafId() + " ");    
-            
+            sb.append("id" + getUniqueLeafId() + " IntAndFloatArrayLeafNode " + data.length + " ");
+                
             // for each index, write the index and then its float
             for (int i = 0; i < data.length; i++) {
-                sb.append("(" + data[i] + " "+floats[i]+")");
+                sb.append(data[i] + " " + floats[i] + " ");
             }
             // dump the whole stuff
             if (out != null) {
                 // write to output stream
                 CART.writeStringToOutput(sb.toString(), out);
+                
             } else {
                 // write to Standard out
                 // System.out.println(sb.toString());
@@ -483,8 +481,7 @@ public abstract class LeafNode extends Node {
             if(getUniqueLeafId() == 0)
               return  "0 ";
             else
-              return  "idSAF" + getUniqueLeafId() + " ";            
-          //return "idSAF" + getUniqueLeafId() + " ";
+              return  "id" + getUniqueLeafId() + " ";            
         }
         
         public void printLeafNodesNewFormat(DataOutputStream out, PrintWriter pw) throws IOException {
@@ -492,17 +489,18 @@ public abstract class LeafNode extends Node {
             StringBuffer sb = new StringBuffer();
             
             if( getUniqueLeafId() != 0) {
-            sb.append("idSAF" + getUniqueLeafId() + " ");    
+            sb.append("id" + getUniqueLeafId() + " StringAndFloatLeafNode " + data.length + " ");
           
             // for each index, write the index and then its float
             for (int i = 0; i < data.length; i++) {
-                sb.append("(" + fd.getFeatureValueAsString(tf, data[i]) + " "+floats[i]+")");
+                sb.append(fd.getFeatureValueAsString(tf, data[i]) + " " + floats[i] + " ");
             }
            
             // dump the whole stuff
             if (out != null) {
                 // write to output stream
                 CART.writeStringToOutput(sb.toString(), out);
+                
             } else {
                 // write to Standard out
                 // System.out.println(sb.toString());
@@ -713,8 +711,7 @@ public abstract class LeafNode extends Node {
             if(getUniqueLeafId() == 0)
               return  "0 ";
             else
-              return  "idFV" + getUniqueLeafId() + " ";
-            //return  "idFV" + getUniqueLeafId() + " ";
+              return  "id" + getUniqueLeafId() + " ";
         }
         
         public void printLeafNodesNewFormat(DataOutputStream out, PrintWriter pw) throws IOException {
@@ -722,7 +719,8 @@ public abstract class LeafNode extends Node {
             StringBuffer sb = new StringBuffer();
             
             if( getUniqueLeafId() != 0) {
-            sb.append("idFV" + getUniqueLeafId() + " ");
+            //sb.append("idFV" + getUniqueLeafId() + " ");
+             sb.append("id" + getUniqueLeafId() + " FeatureVectorLeafNode " + featureVectors.length + " ");
            
             //make sure that we have a feature vector array
             if (growable && 
@@ -734,14 +732,14 @@ public abstract class LeafNode extends Node {
             }
             // for each index, write the index and then a pseudo float
             for (int i = 0; i < featureVectors.length; i++) {
-                sb.append("(" + featureVectors[i].getUnitIndex() + " 0)");               
+                sb.append(featureVectors[i].getUnitIndex() + " ");               
             }
  
             // dump the whole stuff
             if (out != null) {
                 // write to output stream
-
                 CART.writeStringToOutput(sb.toString(), out);
+                
             } else {
                 // write to Standard out
                 // System.out.println(sb.toString());
@@ -842,22 +840,22 @@ public abstract class LeafNode extends Node {
             if(getUniqueLeafId() == 0)
                 return  "0 ";
               else
-                return  "idF" + getUniqueLeafId() + " ";           
-            //return  "idF" + getUniqueLeafId() + " ";
+                return  "id" + getUniqueLeafId() + " ";           
         }
         
         public void printLeafNodesNewFormat(DataOutputStream out, PrintWriter pw) throws IOException {
             
             // How to test this??? remove the ** after testing!!!
-            String s = "idF " + getUniqueLeafId() + " (**"
+            String s = "id" + getUniqueLeafId() + " FloatLeafNode 1 "
                 + data[0] // stddev
                 + " "
-                + data[1] // mean
-                + "**)";
+                + data[1]; // mean
+                
             // dump the whole stuff
             if (out != null) {
                 // write to output stream
                 CART.writeStringToOutput(s, out);
+                
             } else {
                 // write to Standard out
                 // System.out.println(sb.toString());

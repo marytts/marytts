@@ -199,6 +199,32 @@ public abstract class CART
         }
     }
 
+    public void dumpBinaryNewFormat(DataOutput os) throws IOException {
+        try {
+            
+            int leaves[]= new int[1];
+            int decNodes[]= new int [1];
+            leaves[0]=0;
+            decNodes[0]=0;           
+            // first add unique identificators to decision nodes and leaf nodes           
+            rootNode.addUniqueNodeId(leaves, decNodes);
+            
+            // write the number of decision nodes and the number of leaves.
+            os.writeInt(decNodes[0]);
+            os.writeInt(leaves[0]);
+            // lines that start with a negative number are decision nodes
+            rootNode.printDecisionNodesNewFormat((DataOutputStream) os, null);
+            // lines that start with id are leaf nodes
+            rootNode.printLeafNodesNewFormat((DataOutputStream) os, null);
+            
+        } catch (IOException ioe) {
+            IOException newIOE = new IOException(
+                    "Error dumping CART to output stream");
+            newIOE.initCause(ioe);
+            throw newIOE;
+        }
+    }
+    
     /**
      * Debug output to a text file
      * 
@@ -228,6 +254,7 @@ public abstract class CART
            
             //System.out.println("Total number of nodes:" + rootNode.getNumberOfNodes());
             rootNode.addUniqueNodeId(leafs, decNodes);
+            pw.println("Num decision nodes= " + decNodes[0] + "  Num leaf nodes= " + leafs[0]);
             //pw.println("\n----------------\n");
             rootNode.printDecisionNodesNewFormat(null, pw);
             pw.println("\n----------------\n");
