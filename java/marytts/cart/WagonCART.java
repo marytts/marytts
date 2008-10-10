@@ -379,19 +379,19 @@ public abstract class WagonCART extends CART
         int numDecNodes = raf.readInt();  // number of decision nodes
         int numLeafNodes = raf.readInt(); // number of leaves, it does not include empty leaves
         
-        // load the CART
+        // Load the CART
         featDef = featDefinition;       
         Vector<String> decNodeLines = new Vector<String>();
         
-        // (1) read the decision lines first and keep them in a Vector of strings
+        // (1) Read the decision lines first and keep them in a Vector of strings
         for(j= 0; j<numDecNodes; j++){
           length = raf.readInt();
           decNodeLines.add(readNextLine(raf, length));
-          System.out.println(decNodeLines.elementAt(j));
+          //System.out.println(decNodeLines.elementAt(j));
         }
-        // (2) parse each of the lines in Vector decNodeLines and add the node
-        // whenever a leaf node is required reading a new line of raf, the leaf nodes
-        // will be created in the order they appear in the tree.
+        // (2) Parse each of the lines in Vector decNodeLines and add the nodes.
+        // Whenever a leaf node is required, we need to read a new line of raf.
+        // The leaf nodes with id will be created in the order they appear in the tree.
         int numLine=0;
         addDecisionNode(raf, decNodeLines, numLine);
    
