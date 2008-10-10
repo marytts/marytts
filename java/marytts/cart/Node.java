@@ -172,7 +172,7 @@ public abstract class Node {
             String extension, PrintWriter pw) throws IOException;
     
     
-    public abstract String addUniqueNodeId(int numLeafs[], int numDecNodes[]) throws IOException;
+    public abstract String addUniqueNodeId(int numLeaves[], int numDecNodes[]) throws IOException;
     
     public abstract void printDecisionNodesNewFormat(DataOutputStream out, PrintWriter pw) throws IOException;
     

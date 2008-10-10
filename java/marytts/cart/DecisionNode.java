@@ -250,7 +250,6 @@ public abstract class DecisionNode extends Node {
     public int getUniqueDecisionNodeId() {
         return uniqueDecisionNodeId;
     }
-    
 
     /**
      * Writes the Cart to the given DataOut in Wagon Format
@@ -332,8 +331,8 @@ public abstract class DecisionNode extends Node {
         this.decNodeStr = "";
         int thisIdNode = idNode[0];
         
-        strNode = "\n-" + thisIdNode + " " + getNodeDefinition() + " ";
-            this.decNodeStr = "\n-" + thisIdNode + " " + getNodeDefinition() + " ";
+        strNode = "-" + thisIdNode + " " + getNodeDefinition() + " ";
+        this.decNodeStr = strNode;
         // add Ids to the daughters
         for (int i = 0; i < daughters.length; i++) {
            strNode += daughters[i].addUniqueNodeId(idLeaf, idNode);
