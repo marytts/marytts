@@ -196,6 +196,11 @@ public abstract class DecisionNode extends Node {
         return nData;
     }
 
+    /** Number of daughters of current node. */
+    public int getNumberOfDaugthers() {
+        return daughters.length;
+    }
+    
     /**
      * Try to find a leaf node below the given daughter index. If there is no
      * such daughter, backtrace to our mother, and make the mother continue to
@@ -243,13 +248,21 @@ public abstract class DecisionNode extends Node {
     public abstract String getDecisionPath(int daughterIndex);
     
     
-    //  unique index used in HTS format
+    //  unique index used in MaryCART format
     public void setUniqueDecisionNodeId(int id) {
         this.uniqueDecisionNodeId = id;
     }
     public int getUniqueDecisionNodeId() {
         return uniqueDecisionNodeId;
     }
+    
+    public void setDecNodeStr(String str) {
+        this.decNodeStr = str;
+    }
+    public String getDecNodeStr() {
+        return this.decNodeStr;
+    }
+    
 
     /**
      * Writes the Cart to the given DataOut in Wagon Format
@@ -487,7 +500,7 @@ public abstract class DecisionNode extends Node {
     /**
      * A binary decision Node that compares two short values.
      */
-    static class BinaryShortDecisionNode extends DecisionNode {
+    public static class BinaryShortDecisionNode extends DecisionNode {
 
         // the value of this node
         private short value;
@@ -556,7 +569,7 @@ public abstract class DecisionNode extends Node {
     /**
      * A binary decision Node that compares two float values.
      */
-    static class BinaryFloatDecisionNode extends DecisionNode {
+    public static class BinaryFloatDecisionNode extends DecisionNode {
 
         // the value of this node
         private float value;
@@ -637,7 +650,7 @@ public abstract class DecisionNode extends Node {
      * An decision Node with an arbitrary number of daughters. Value of the
      * target corresponds to the index number of next daughter.
      */
-    static class ByteDecisionNode extends DecisionNode {
+    public static class ByteDecisionNode extends DecisionNode {
 
         /**
          * Build a new byte decision node
@@ -702,7 +715,7 @@ public abstract class DecisionNode extends Node {
      * An decision Node with an arbitrary number of daughters. Value of the
      * target corresponds to the index number of next daughter.
      */
-    static class ShortDecisionNode extends DecisionNode {
+    public static class ShortDecisionNode extends DecisionNode {
 
         /**
          * Build a new short decision node

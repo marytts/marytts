@@ -138,7 +138,8 @@ public abstract class LeafNode extends Node {
         public Object getAllData() {
             return data;
         }
-
+        public int[] getIntData(){ return data; }
+        
         protected void fillData(Object target, int pos, int len)
         {
             if (!(target instanceof int[])) 
@@ -428,6 +429,9 @@ public abstract class LeafNode extends Node {
             this.fd = featDef;
             this.tf = targetFeature;
         }
+        
+        public int getTargetfeature(){return tf; }
+        public FeatureDefinition getFeatureDefinition(){return fd; }
         
         /**
          * Writes the Cart to the given DataOut in Wagon Format
@@ -785,6 +789,9 @@ public abstract class LeafNode extends Node {
         public Object getAllData() {
             return data;
         }
+        
+        public float getMean() { return data[1]; }
+        public float getStDeviation() { return data[0]; }
 
         protected void fillData(Object target, int pos, int len)
         {

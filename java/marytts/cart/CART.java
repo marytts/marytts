@@ -169,6 +169,10 @@ public abstract class CART
         return rootNode;
     }
 
+    public void setRootNode(Node rNode) {
+        rootNode = rNode;
+    }
+    
     /**
      * Get the number of nodes in this CART
      * 
