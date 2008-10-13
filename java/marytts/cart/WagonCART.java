@@ -43,7 +43,6 @@ import java.util.Vector;
 
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-//import marytts.htsengine.HTSModel;
 import marytts.tools.voiceimport.MaryHeader;
 
 
@@ -574,7 +573,6 @@ public abstract class WagonCART extends CART
                   probs[i] = Float.parseFloat(probNum);
              }
              nextLeafNode = new LeafNode.IntAndFloatArrayLeafNode(indices,probs);
-              
             
           } else if(typeLeafNode.contentEquals("FloatLeafNode")){
             // this will not work, need to be corrected
