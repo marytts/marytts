@@ -18,8 +18,7 @@ public abstract class DecisionNode extends Node {
     protected boolean TRACE = false; 
     // for debugging:
     protected FeatureDefinition featureDefinition;
-    
-    
+       
     // a decision node has an array of daughters
     protected Node[] daughters;
 
@@ -35,8 +34,10 @@ public abstract class DecisionNode extends Node {
     // the total number of data in the leaves below this node
     protected int nData;
     
-    //  unique index used in HTS format
+    // unique index used in MaryCART format
     protected int uniqueDecisionNodeId;
+    
+    // string used when writing a tree in MaryCART format
     protected String decNodeStr;
 
     /**
@@ -230,7 +231,8 @@ public abstract class DecisionNode extends Node {
      * the tree. This needs to be done once for the entire tree.
      * 
      */
-    protected void countData() {
+    //protected void countData() {
+    public void countData() {
         nData = 0;
         for (int i = 0; i < daughters.length; i++) {
             if (daughters[i] instanceof DecisionNode)
@@ -262,132 +264,7 @@ public abstract class DecisionNode extends Node {
     public String getDecNodeStr() {
         return this.decNodeStr;
     }
-    
-
-    /**
-     * Writes the Cart to the given DataOut in Wagon Format
-     * 
-     * @param out
-     *            the outputStream
-     * @param extension
-     *            the extension that is added to the last daughter
-     */
-    public void toWagonFormat(DataOutputStream out, String extension,
-            PrintWriter pw) throws IOException {
-        if (out != null) {
-            // dump to output stream
-            // two open brackets + definition of node
-            CART.writeStringToOutput("((" + getNodeDefinition() + ")", out);
-        } else {
-            // dump to Standard out
-            // two open brackets + definition of node
-            // System.out.println("(("+getNodeDefinition());
-        }
-        if (pw != null) {
-            // dump to print writer
-            // two open brackets + definition of node
-            pw.println("((" + getNodeDefinition() + ")");
-        }
-        // add the daughters
-        for (int i = 0; i < daughters.length; i++) {
-
-            if (daughters[i] == null) {
-                String nullDaughter = "";
-
-                if (i + 1 != daughters.length) {
-                    nullDaughter = "((() 0))";
-
-                } else {
-                    // extension must be added to last daughter
-                    if (extension != null) {
-                        nullDaughter = "((() 0)))" + extension;
-
-                    } else {
-                        // we are in the root node, add a closing bracket
-                        nullDaughter = "((() 0)))";
-                    }
-                }
-
-                if (out != null) {
-                    // dump to output stream
-                    CART.writeStringToOutput(nullDaughter, out);
-                } else {
-                    // dump to Standard out
-                    // System.out.println(nullDaughter);
-                }
-                if (pw != null) {
-                    pw.println(" " + nullDaughter);
-                }
-            } else {
-                if (i + 1 != daughters.length) {
-
-                    daughters[i].toWagonFormat(out, "", pw);
-                } else {
-
-                    // extension must be added to last daughter
-                    if (extension != null) {
-                        daughters[i].toWagonFormat(out, ")" + extension, pw);
-                    } else {
-                        // we are in the root node, add a closing bracket
-                        daughters[i].toWagonFormat(out, ")", pw);
-                    }
-                }
-            }
-        }
-    }
-  
-    public String addUniqueNodeId(int idLeaf[], int idNode[]) throws IOException {
-        
-        idNode[0]++;
-        setUniqueDecisionNodeId(idNode[0]);
-        String strNode = "";
-        this.decNodeStr = "";
-        int thisIdNode = idNode[0];
-        
-        strNode = "-" + thisIdNode + " " + getNodeDefinition() + " ";
-        this.decNodeStr = strNode;
-        // add Ids to the daughters
-        for (int i = 0; i < daughters.length; i++) {
-           strNode += daughters[i].addUniqueNodeId(idLeaf, idNode);
-           this.decNodeStr = strNode;
-        }
- 
-       return "-" + thisIdNode + " ";
-    }
-    
-    
-    public void printDecisionNodesNewFormat(DataOutputStream out, PrintWriter pw) throws IOException {
-        
-        if (out != null) {
-            // dump to output stream
-            CART.writeStringToOutput(this.decNodeStr, out);
-        } else {
-            // dump to Standard out
-            // two open brackets + definition of node
-            // System.out.println(this.decNodeStr);
-        }
-        if (pw != null) {
-            // dump to print writer
-            pw.println(this.decNodeStr);
-        }
-        // add the daughters
-        for (int i = 0; i < daughters.length; i++) {
-            if(daughters[i].getNumberOfNodes() != 1)
-              daughters[i].printDecisionNodesNewFormat(out, pw);
-        }
-       
-    }
-    
-    /** This function will print the leaf nodes only, therefore just the leafNode 
-     * functions are used to print the values. */
-    public void printLeafNodesNewFormat(DataOutputStream out, PrintWriter pw) throws IOException {
-        // If the node does not have leaves then it just return.
-        // I we are int he root print the leaves of the daughters.
-        for (int i = 0; i < daughters.length; i++) {
-           daughters[i].printLeafNodesNewFormat(out, pw);
-        }
-    }
-    
+   
     
     /**
      * This returns a String representation of this node. A prefix is given to

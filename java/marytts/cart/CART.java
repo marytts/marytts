@@ -69,7 +69,7 @@ public abstract class CART
      * initialise a FeatureFileIndexer but unused in the case of an actual CART tree.
      * @throws IOException if a problem occurs while loading
      */
-    public abstract void load(String fileName, FeatureDefinition featDefinition, String[] setFeatureSequence ) throws IOException;
+     // public abstract void load(String fileName, FeatureDefinition featDefinition, String[] setFeatureSequence ) throws IOException;
 
     /**
      * Passes the given item through this CART and returns the
@@ -169,6 +169,11 @@ public abstract class CART
         return rootNode;
     }
 
+    /**
+     * Set the root node of this CART
+     * 
+     * @param the root node
+     */
     public void setRootNode(Node rNode) {
         rootNode = rNode;
     }
@@ -182,112 +187,7 @@ public abstract class CART
         if (rootNode == null) return 0;
         return rootNode.getNumberOfNodes();
     }
-
-    /**
-     * Dumps this CART to the output stream in WagonFormat.
-     * 
-     * @param os
-     *            the output stream
-     * 
-     * @throws IOException
-     *             if an error occurs during output
-     */
-    public void dumpBinary(DataOutput os) throws IOException {
-        try {
-            rootNode.toWagonFormat((DataOutputStream) os, null, null);
-        } catch (IOException ioe) {
-            IOException newIOE = new IOException(
-                    "Error dumping CART to output stream");
-            newIOE.initCause(ioe);
-            throw newIOE;
-        }
-    }
-
-    public void dumpBinaryNewFormat(DataOutput os) throws IOException {
-        try {
-            
-            int leaves[]= new int[1];
-            int decNodes[]= new int [1];
-            leaves[0]=0;
-            decNodes[0]=0;           
-            // first add unique identificators to decision nodes and leaf nodes           
-            rootNode.addUniqueNodeId(leaves, decNodes);
-            
-            // write the number of decision nodes and the number of leaves.
-            os.writeInt(decNodes[0]);
-            os.writeInt(leaves[0]);
-            // lines that start with a negative number are decision nodes
-            rootNode.printDecisionNodesNewFormat((DataOutputStream) os, null);
-            // lines that start with id are leaf nodes
-            rootNode.printLeafNodesNewFormat((DataOutputStream) os, null);
-            
-        } catch (IOException ioe) {
-            IOException newIOE = new IOException(
-                    "Error dumping CART to output stream");
-            newIOE.initCause(ioe);
-            throw newIOE;
-        }
-    }
-    
-    /**
-     * Debug output to a text file
-     * 
-     * @param pw
-     *            the print writer of the text file
-     * @throws IOException
-     */
-    public void toTextOut(PrintWriter pw) throws IOException {
-        try {
-            rootNode.toWagonFormat(null, "", pw);
-            pw.flush();
-            pw.close();
-        } catch (IOException ioe) {
-            IOException newIOE = new IOException(
-                    "Error dumping CART to standard output");
-            newIOE.initCause(ioe);
-            throw newIOE;
-        }
-    }
-    
-    public void toTextOutNewFormat(PrintWriter pw) throws IOException {
-        try {
-            int leafs[]= new int[1];
-            int decNodes[]= new int [1];
-            leafs[0]=0;
-            decNodes[0]=0;
-           
-            //System.out.println("Total number of nodes:" + rootNode.getNumberOfNodes());
-            rootNode.addUniqueNodeId(leafs, decNodes);
-            pw.println("Num decision nodes= " + decNodes[0] + "  Num leaf nodes= " + leafs[0]);
-            //pw.println("\n----------------\n");
-            rootNode.printDecisionNodesNewFormat(null, pw);
-            pw.println("\n----------------\n");
-            rootNode.printLeafNodesNewFormat(null, pw);
-            
-            pw.flush();
-            pw.close();
-        } catch (IOException ioe) {
-            IOException newIOE = new IOException(
-                    "Error dumping CART to standard output");
-            newIOE.initCause(ioe);
-            throw newIOE;
-        }
-    }
-
-    /**
-     * Write the given String to the given data output (Replacement for
-     * writeUTF)
-     * 
-     * @param str
-     *            the String
-     * @param out
-     *            the data output
-     */
-    public static void writeStringToOutput(String str, DataOutput out)
-            throws IOException {
-        out.writeInt(str.length());
-        out.writeChars(str);
-    }
+   
     
     public String toString(){
         return this.rootNode.toString("");

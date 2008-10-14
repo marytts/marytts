@@ -1,5 +1,5 @@
 /**
- * Copyright 2007 DFKI GmbH.
+ * Copyright 2006 DFKI GmbH.
  * All Rights Reserved.  Use is subject to license terms.
  * 
  * Permission is hereby granted, free of charge, to use and distribute
@@ -26,109 +26,39 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-
-package marytts.cart;
+package marytts.cart.io;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Stack;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
+import marytts.cart.DecisionNode;
+import marytts.cart.LeafNode;
+import marytts.cart.Node;
 import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
 import marytts.tools.voiceimport.MaryHeader;
 
-
 /**
- * This class can build a CART either reading from a text file or from a binary
- * file. The format is an extended Wagon format: A node looks like this:
- * ((comparison)(daughter1)(daugther2)(daughter3)...(daughterN))
+ * IO functions for CARTs in WagonCART format
  * 
- * (comparison) is of form: (<feature-index> is <value>) : binary decision
- * node; a feature-index beginning with b means byte feature; beginning with s
- * means short feature (<feature-index> < <value>) : binary float decision node (<feature-index>
- * oneByteOf <n>) : n-ary byte decision node (<feature-index> oneShortOf <n>) :
- * n-ary short decision node
- * 
- * (daughter) is either a node (see above) or a leaf: ((<index1> <float1>)...(<indexN>
- * <floatN>)) : leaf with unit indices and (dummy) floats
- * 
- * @author Anna Hunecke, Marc Schröder
+ * @author Anna Hunecke, Marc Schröder, Marcela Charfuelan
  */
-
-public abstract class WagonCART extends CART 
-{
-    private Node lastNode;
+public class WagonCARTReader {
     
-    private int openBrackets;
+   private Node rootNode;
+   private Node lastNode;
 
-    public WagonCART()
-    {
-        super();
-    }
-    
-    /**
-     * Creates a new CART by reading from the given reader. This method is to be
-     * called when a CART created by Wagon is read in.
-     * 
-     * @param reader
-     *            the source of the CART data
-     * @throws IOException
-     *             if errors occur while reading the data
-     */
-    public WagonCART(BufferedReader reader, FeatureDefinition featDefinition)
-            throws IOException {
-        this.load(reader, featDefinition);
+   // knows the index numbers and types of the features used in DecisionNodes
+   private FeatureDefinition featDef;
+  
+   private int openBrackets;
 
-    }
-    
-    /**
-     * 
-     * This loads a cart from a wagon tree in textual format, from a reader.
-     * This method exists to be called from the constructor.
-     * 
-     * @param reader the Reader providing the wagon tree
-     * @param featDefinition
-     * @throws IOException 
-     */
-    protected void load(BufferedReader reader, FeatureDefinition featDefinition) throws IOException{
-        featDef = featDefinition;
-        openBrackets = 0;
-        String line = reader.readLine(); 
-        if (line.equals("")){// first line is empty, read again
-            line = reader.readLine();
-        }
-        // each line corresponds to a node
-        // for each line
-        while (line != null) {
-            if (!line.startsWith(";;")
-                    && !line.equals("")) {
-                // parse the line and add the node
-                
-                
-                parseAndAdd(line);
-            }
-            line = reader.readLine();
-        }
-        // make sure we closed as many brackets as we opened
-        if (openBrackets != 0) {
-            throw new IOException("Error loading CART: bracket mismatch");
-        }
-        // Now count all data once, so that getNumberOfData()
-        // will return the correct figure.
-        if (rootNode instanceof DecisionNode)
-            ((DecisionNode)rootNode).countData();
-        
-    }
-
-
+   
     /**
      * Load the cart from the given file
      * 
@@ -141,7 +71,7 @@ public abstract class WagonCART extends CART
      * @throws IOException
      *             if a problem occurs while loading
      */
-    public void load(String fileName, FeatureDefinition featDefinition, String[] dummy )
+    public Node load(String fileName, FeatureDefinition featDefinition, String[] dummy )
             throws IOException {
         //System.out.println("Loading file");
         // open the CART-File and read the header
@@ -191,6 +121,8 @@ public abstract class WagonCART extends CART
         if (rootNode instanceof DecisionNode)
             ((DecisionNode)rootNode).countData();
         //System.out.println("Done");
+        
+        return rootNode;
     }
 
     /**
@@ -328,19 +260,91 @@ public abstract class WagonCART extends CART
         }
     }
 
+        
+    // This leafNode creation is from ExtendedClassificationTree
+    // so this WagonCARTReader just create leaves of the type IntAndFloatArrayLeafNode
+    // this need to be fixed!
     /**
      * For a line representing a leaf in Wagon format, create a leaf.
      * This method decides which implementation of LeafNode is used, i.e.
      * which data format is appropriate.
+     * This implementation creates an IntAndFloatArrayLeafNode, representing the leaf
+     * as an array of ints and floats.
      * Lines are of the form
      * ((<index1> <float1>)...(<indexN> <floatN>)) 0))
      * 
      * @param line a line from a wagon cart file, representing a leaf
      * @return a leaf node representing the line.
      */
-    protected abstract LeafNode createLeafNode(String line);
-    
-    
-    
+    protected LeafNode createLeafNode(String line) {
+        StringTokenizer tok = new StringTokenizer(line, " ");
+        // read the indices from the tokenized String
+        int numTokens = tok.countTokens();
+        int index = 0;
+        // The data to be saved in the leaf node:
+        int[] indices;
+        // The floats to be saved in the leaf node:
+        float[] probs;
+        
+        //System.out.println("Line: "+line+", numTokens: "+numTokens);
+        
+        if (numTokens == 2) { // we do not have any indices
+            // discard useless token
+            tok.nextToken();
+            indices = new int[0];
+            probs = new float[0];
+        } else {
+            indices = new int[(numTokens - 1) / 2];
+            // same length
+            probs = new float[indices.length];
+            
+            while (index * 2 < numTokens - 1){
+                String token = tok.nextToken();
+                if (index == 0){
+                    token = token.substring(4);
+                }else{
+                    token = token.substring(1);
+                }
+                //System.out.println("int-token: "+token);
+                indices[index] = Integer.parseInt(token);
+                    
+                token = tok.nextToken();
+                int lastIndex = token.length() - 1;
+                if ((index*2) == (numTokens - 3)){
+                    token = token.substring(0,lastIndex-1);
+                    if (token.equals("inf")){
+                        probs[index]=10000;
+                        index++;
+                        continue;
+                    }
+                    if (token.equals("nan")){
+                        probs[index]=-1;
+                        index++;
+                        continue;
+                    }
+                }else{
+                    token = token.substring(0,lastIndex);
+                    if (token.equals("inf")){
+                        probs[index]=1000000;
+                        index++;
+                        continue;
+                    }
+                    if (token.equals("nan")){
+                        probs[index]=-1;
+                        index++;
+                        continue;
+                    }
+                }
+                //System.out.println("float-token: "+token);
+                probs[index] = Float.parseFloat(token);
+                index++;    
+            } // end while
        
+        } // end if
+        
+        return new LeafNode.IntAndFloatArrayLeafNode(indices,probs);
+    }
+
+
+
 }
