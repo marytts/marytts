@@ -47,6 +47,7 @@ import java.util.Set;
 
 import marytts.cart.CART;
 import marytts.cart.ClassificationTree;
+import marytts.cart.io.WagonCARTWriter;
 import marytts.features.FeatureDefinition;
 
 
@@ -114,6 +115,7 @@ public class FestivalCARTImporter {
            try {
                 //dump CARTS to binary file
                 System.out.println("Dumping CARTS to "+destDir+"/CARTs.bin");
+                WagonCARTWriter ww = new WagonCARTWriter();
         
                 //Open the destination file (CARTS.bin) and output the header
                 DataOutputStream out = new DataOutputStream(new
@@ -133,8 +135,10 @@ public class FestivalCARTImporter {
                     CART cart =  (CART) cartMap.get(name);
                     //dump name and CART
                     out.writeUTF(name);
-                    cart.dumpBinary(out);
-                    cart.toTextOut(new PrintWriter(System.out));
+                    //cart.dumpBinary(out);  //old version
+                    ww.dumpBinary(cart, out);
+                    //cart.toTextOut(new PrintWriter(System.out));    //old version
+                    ww.toTextOut(cart, new PrintWriter(System.out));  
                 }
                 //finish
                 out.close();
