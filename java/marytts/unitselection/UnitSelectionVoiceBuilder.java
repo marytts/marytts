@@ -37,6 +37,7 @@ import java.io.*;
 
 import marytts.cart.CART;
 import marytts.cart.RegressionTree;
+import marytts.cart.io.WagonCARTReader;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.modules.phonemiser.PhonemeSet;
@@ -152,7 +153,10 @@ public class UnitSelectionVoiceBuilder
             String cartReaderClass = MaryProperties.needProperty(header+".cartReaderClass");
             String cartFile = MaryProperties.getFilename(header+".cartFile");
             CART cart = (CART) Class.forName(cartReaderClass).newInstance();
-            cart.load(cartFile, targetFunction.getFeatureDefinition(),null);
+            
+            //cart.load(cartFile, targetFunction.getFeatureDefinition(),null); // old version
+            WagonCARTReader wagonReader = new WagonCARTReader();
+            cart.setRootNode(wagonReader.load(cartFile, targetFunction.getFeatureDefinition(),null));
             
             logger.debug("...loading audio time line...");
             String timelineReaderClass = MaryProperties.needProperty(header+".audioTimelineReaderClass");

@@ -33,6 +33,11 @@ import java.util.*;
 
 import marytts.cart.*;
 import marytts.cart.LeafNode.FeatureVectorLeafNode;
+import marytts.cart.io.MaryCARTReader;
+import marytts.cart.io.MaryCARTWriter;
+import marytts.cart.io.WagonCARTWriter;
+import marytts.cart.io.WagonCARTReader;
+
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.unitselection.data.Datagram;
@@ -170,7 +175,10 @@ public class CARTBuilder extends VoiceImportComponent {
      }
      
      public boolean compute() throws Exception{
+         
+         WagonCARTWriter wr = new WagonCARTWriter();
          long time = System.currentTimeMillis();
+         
          //read in the features with feature file indexer
          System.out.println("Reading feature file ...");
          String featureFile = getProp(ACFEATUREFILE);
@@ -239,7 +247,8 @@ public class CARTBuilder extends VoiceImportComponent {
                  new PrintWriter(
                          new FileWriter(
                                  new File("./test.txt")));
-             topLevelCART.toTextOut(pw);
+             //topLevelCART.toTextOut(pw);
+             wr.toTextOut(topLevelCART, pw);
              System.out.println(" ... done!");
              
          }else {
@@ -302,9 +311,9 @@ public class CARTBuilder extends VoiceImportComponent {
          } else {
              System.out.println("... OK!");
          }
-         
+ 
          boolean callWagon = System.getProperty("db.cartbuilder.callwagon", "true").equals("true");
-         
+        
          if (callWagon) {
              boolean ok = replaceLeaves(topLevelCART,featureDefinition);
              if(!ok) {
@@ -312,18 +321,22 @@ public class CARTBuilder extends VoiceImportComponent {
                  return false;
              }
          }
+    
          
-         //dump big CART to binary file
+         // dump big CART to binary file
          String destinationFile = getProp(CARTFILE);
-         dumpCART(destinationFile,topLevelCART);
-         
-         /**
-          //Dump the resulting Cart to text file
-           PrintWriter pw = 
-           new PrintWriter(
-           new FileWriter(
-           new File("./mary_files/cartTextDump.txt")));
-           topLevelCART.toTextOut(pw);**/
+         WagonCARTWriter ww = new WagonCARTWriter();
+         ww.dumpWagonCART(topLevelCART, destinationFile);         
+             
+         //Dump the resulting Cart to a text file
+         /*
+         PrintWriter pw = 
+             new PrintWriter(
+             new FileWriter(
+             new File("cartTextDump.txt")));
+         ww.toTextOut(topLevelCART, pw);
+         */
+      
          //say how long you took
          long timeDiff = System.currentTimeMillis() - time;
          System.out.println("Processing took "+timeDiff+" milliseconds.");
@@ -344,10 +357,13 @@ public class CARTBuilder extends VoiceImportComponent {
     {
         try{
             //open CART-File
+            WagonCARTReader wr = new WagonCARTReader();
             System.out.println("Reading CART from "+filename+" ...");
             //build and return CART
             CART cart = new ExtendedClassificationTree();
-            cart.load(filename,featDef,null);
+            //cart.load(filename,featDef,null);
+            cart.setRootNode(wr.load(filename, featDef, null));
+            
             //cart.toStandardOut();
             System.out.println(" ... done!");
             return cart;
@@ -358,38 +374,8 @@ public class CARTBuilder extends VoiceImportComponent {
         }
     }
        
-    /**
-     * Dump the CARTs in the cart map
-     * to destinationDir/CARTS.bin
-     * 
-     * @param destDir the destination directory
-     */
-    public void dumpCART(String destFile,
-                        CART cart)
-    throws IOException
-    {
-        System.out.println("Dumping CART to "+destFile+" ...");
-        
-        //Open the destination file (cart.bin) and output the header
-        DataOutputStream out = new DataOutputStream(new
-                BufferedOutputStream(new 
-                FileOutputStream(destFile)));
-        //create new CART-header and write it to output file
-        MaryHeader hdr = new MaryHeader(MaryHeader.CARTS);
-        hdr.writeTo(out);
-
-        //write number of nodes
-        out.writeInt(cart.getNumNodes());
-        String name = "";
-        //dump name and CART
-        out.writeUTF(name);
-        //dump CART
-        cart.dumpBinary(out);
-      
-        //finish
-        out.close();
-        System.out.println(" ... done\n");
-    }     
+ 
+    
     
     /**
      * For each leaf in the CART, 
@@ -1012,9 +998,12 @@ public class CARTBuilder extends VoiceImportComponent {
         CARTBuilder cartBuilder = new CARTBuilder();
         DatabaseLayout db = new DatabaseLayout(cartBuilder);
         //compute        
+     
         boolean ok = cartBuilder.compute();
         if (ok) System.out.println("Finished successfully!");
         else System.out.println("Failed.");
+    
+        
     }
     
 }
