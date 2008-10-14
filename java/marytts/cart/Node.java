@@ -160,24 +160,6 @@ public abstract class Node {
      */
     protected abstract void fillData(Object target, int pos, int len);
     
-    /**
-     * Writes the Cart to the given DataOut in Wagon Format
-     * 
-     * @param out
-     *            the outputStream
-     * @param extension
-     *            the extension that is added to the last daughter
-     */
-    public abstract void toWagonFormat(DataOutputStream out,
-            String extension, PrintWriter pw) throws IOException;
-    
-    
-    public abstract String addUniqueNodeId(int numLeaves[], int numDecNodes[]) throws IOException;
-    
-    public abstract void printDecisionNodesNewFormat(DataOutputStream out, PrintWriter pw) throws IOException;
-    
-    public abstract void printLeafNodesNewFormat(DataOutputStream out, PrintWriter pw) throws IOException;
-    
     
     public String toString(String prefix){
         return prefix + this.toString();

@@ -73,10 +73,6 @@ public abstract class LeafNode extends Node {
         return uniqueLeafId;
     }
     
-    // ??? is this wrong? can i leave this function empty? how is the correct way of doing this?
-    public void printDecisionNodesNewFormat(DataOutputStream out, PrintWriter pw) throws IOException {
-        
-    }
 
     /**
      * Count all the data available at and below this node.
@@ -155,88 +151,6 @@ public abstract class LeafNode extends Node {
             return 0;
         }
 
-
-        /**
-         * Writes the Cart to the given DataOut in Wagon Format
-         * 
-         * @param out
-         *            the outputStream
-         * @param extension
-         *            the extension that is added to the last daughter
-         */
-        public void toWagonFormat(DataOutputStream out, String extension,
-                PrintWriter pw) throws IOException {
-            StringBuffer sb = new StringBuffer();
-            // open three brackets
-            sb.append("(((");
-            // for each index, write the index and then a pseudo float
-            for (int i = 0; i < data.length; i++) {
-                sb.append("(" + data[i] + " 0)");
-                if (i + 1 != data.length) {
-                    sb.append(" ");
-                }
-            }
-            // write the ending
-            sb.append(") 0))" + extension);
-            // dump the whole stuff
-            if (out != null) {
-                // write to output stream
-
-                CART.writeStringToOutput(sb.toString(), out);
-            } else {
-                // write to Standard out
-                // System.out.println(sb.toString());
-            }
-            if (pw != null) {
-                // dump to printwriter
-                pw.print(sb.toString());
-            }
-        }
-        
-        
-        public String addUniqueNodeId(int idLeaf[], int idNode[]) throws IOException {
-            int uId;
-            if(data.length > 0){              
-              idLeaf[0]++;  
-              setUniqueLeafId(idLeaf[0]);
-            }
-            else {
-              setUniqueLeafId(0);  // empty leaf
-            } 
-            if(getUniqueLeafId() == 0)
-              return  "0 ";
-            else
-              return  "id" + getUniqueLeafId() + " ";
-        }
-
-        
-        public void printLeafNodesNewFormat(DataOutputStream out, PrintWriter pw) throws IOException {
-                        
-            StringBuffer sb = new StringBuffer();
-            
-            if( getUniqueLeafId() != 0) {          
-            sb.append("id" + getUniqueLeafId() + " IntArrayLeafNode " + data.length + " ");
-            
-            for (int i = 0; i < data.length; i++) {
-                sb.append(data[i] + " ");
-            }
-            
-            // dump the whole stuff
-            if (out != null) {
-                // write to output stream
-                CART.writeStringToOutput(sb.toString(), out);
-                
-            } else {
-                // write to Standard out
-                // System.out.println(sb.toString());
-            }
-            if (pw != null) {
-                // dump to printwriter
-                pw.println(sb.toString());
-            }
-            }
-          
-        }
         
         public String toString()
         {
@@ -245,10 +159,7 @@ public abstract class LeafNode extends Node {
         }
 
     }
-    
-    
-    
-    
+     
 
     public static class IntAndFloatArrayLeafNode extends LeafNode{
     	
@@ -303,88 +214,7 @@ public abstract class LeafNode extends Node {
         	floats = newFloats;
         }
         
-        /**
-         * Writes the Cart to the given DataOut in Wagon Format
-         * 
-         * @param out
-         *            the outputStream
-         * @param extension
-         *            the extension that is added to the last daughter
-         */
-        public void toWagonFormat(DataOutputStream out, String extension,
-                PrintWriter pw) throws IOException {
-            StringBuffer sb = new StringBuffer();
-            // open three brackets
-            sb.append("(((");
-            // for each index, write the index and then its float
-            for (int i = 0; i < data.length; i++) {
-                sb.append("(" + data[i] + " "+floats[i]+")");
-                if (i + 1 != data.length) {
-                    sb.append(" ");
-                }
-            }
-            // write the ending
-            sb.append(") 0))" + extension);
-            // dump the whole stuff
-            if (out != null) {
-                // write to output stream
-
-                CART.writeStringToOutput(sb.toString(), out);
-            } else {
-                // write to Standard out
-                // System.out.println(sb.toString());
-            }
-            if (pw != null) {
-                // dump to printwriter
-                // TODO: change print to println
-                pw.print(sb.toString());
-            }
-        }
-        
-        public String addUniqueNodeId(int idLeaf[], int idNode[]) throws IOException {
-            
-            int uId;
-            if(data.length > 0){
-                idLeaf[0]++;  
-                setUniqueLeafId(idLeaf[0]);
-              }
-              else {
-                setUniqueLeafId(0);  // empty leaf
-              }
-            if(getUniqueLeafId() == 0)
-              return  "0 ";
-            else
-              return  "id" + getUniqueLeafId() + " ";            
-        }
-        
-        public void printLeafNodesNewFormat(DataOutputStream out, PrintWriter pw) throws IOException {
-            
-            StringBuffer sb = new StringBuffer();
-            
-            if( getUniqueLeafId() != 0) {
-            sb.append("id" + getUniqueLeafId() + " IntAndFloatArrayLeafNode " + data.length + " ");
-                
-            // for each index, write the index and then its float
-            for (int i = 0; i < data.length; i++) {
-                sb.append(data[i] + " " + floats[i] + " ");
-            }
-            // dump the whole stuff
-            if (out != null) {
-                // write to output stream
-                CART.writeStringToOutput(sb.toString(), out);
-                
-            } else {
-                // write to Standard out
-                // System.out.println(sb.toString());
-            }
-            if (pw != null) {
-                // dump to printwriter
-                pw.println(sb.toString());
-            }
-            }
-
-        }
-        
+         
         /**
          * This returns a String representation of this node. A prefix is given to
          * indent the nodes.
@@ -433,90 +263,7 @@ public abstract class LeafNode extends Node {
         public int getTargetfeature(){return tf; }
         public FeatureDefinition getFeatureDefinition(){return fd; }
         
-        /**
-         * Writes the Cart to the given DataOut in Wagon Format
-         * 
-         * @param out
-         *            the outputStream
-         * @param extension
-         *            the extension that is added to the last daughter
-         */
-        public void toWagonFormat(DataOutputStream out, String extension,
-                PrintWriter pw) throws IOException {
-            StringBuffer sb = new StringBuffer();
-            // open three brackets
-            sb.append("(((");
-            // for each index, write the index and then its float
-            for (int i = 0; i < data.length; i++) {
-                sb.append("(" + fd.getFeatureValueAsString(tf, data[i]) + " "+floats[i]+")");
-                if (i + 1 != data.length) {
-                    sb.append(" ");
-                }
-            }
-            // write the ending
-            sb.append(") 0))" + extension);
-            // dump the whole stuff
-            if (out != null) {
-                // write to output stream
-
-                CART.writeStringToOutput(sb.toString(), out);
-            } else {
-                // write to Standard out
-                // System.out.println(sb.toString());
-            }
-            if (pw != null) {
-                // dump to printwriter
-                // TODO: change print to println
-                pw.print(sb.toString());
-            }
-        }
-        
-        
-        public String addUniqueNodeId(int idLeaf[], int idNode[]) throws IOException {
-            
-            int uId;
-            if(data.length > 0){
-                idLeaf[0]++;  
-                setUniqueLeafId(idLeaf[0]);
-              }
-              else {
-                setUniqueLeafId(0);  // empty leaf
-              }
-            if(getUniqueLeafId() == 0)
-              return  "0 ";
-            else
-              return  "id" + getUniqueLeafId() + " ";            
-        }
-        
-        public void printLeafNodesNewFormat(DataOutputStream out, PrintWriter pw) throws IOException {
-            
-            StringBuffer sb = new StringBuffer();
-            
-            if( getUniqueLeafId() != 0) {
-            sb.append("id" + getUniqueLeafId() + " StringAndFloatLeafNode " + data.length + " ");
-          
-            // for each index, write the index and then its float
-            for (int i = 0; i < data.length; i++) {
-                sb.append(fd.getFeatureValueAsString(tf, data[i]) + " " + floats[i] + " ");
-            }
-           
-            // dump the whole stuff
-            if (out != null) {
-                // write to output stream
-                CART.writeStringToOutput(sb.toString(), out);
-                
-            } else {
-                // write to Standard out
-                // System.out.println(sb.toString());
-            }
-            if (pw != null) {
-                // dump to printwriter
-                pw.println(sb.toString());
-            }
-            }
-   
-        }
-        
+  
         public String toString(String prefix){
             StringBuffer sb = new StringBuffer();
             
@@ -654,108 +401,7 @@ public abstract class LeafNode extends Node {
             if (featureVectors != null) return featureVectors.length;
             return 0;
         }
-
-        
-
-        /**
-         * Writes the Cart to the given DataOut in Wagon Format
-         * 
-         * @param out
-         *            the outputStream
-         * @param extension
-         *            the extension that is added to the last daughter
-         */
-        public void toWagonFormat(DataOutputStream out, String extension,
-                PrintWriter pw) throws IOException {
-            StringBuffer sb = new StringBuffer();
-            // open three brackets
-            sb.append("(((");
-            //make sure that we have a feature vector array
-            if (growable && 
-                     (featureVectors == null
-                             || featureVectors.length == 0)){
-                featureVectors = (FeatureVector[])
-                    featureVectorList.toArray(
-                        new FeatureVector[featureVectorList.size()]);
-            }
-            // for each index, write the index and then a pseudo float
-            for (int i = 0; i < featureVectors.length; i++) {
-                sb.append("(" + featureVectors[i].getUnitIndex() + " 0)");
-                if (i + 1 != featureVectors.length) {
-                    sb.append(" ");
-                }
-            }
-            // write the ending
-            sb.append(") 0))" + extension);
-            // dump the whole stuff
-            if (out != null) {
-                // write to output stream
-
-                CART.writeStringToOutput(sb.toString(), out);
-            } else {
-                // write to Standard out
-                // System.out.println(sb.toString());
-            }
-            if (pw != null) {
-                // dump to printwriter
-                pw.println(sb.toString());
-            }
-        }
-        
-        public String addUniqueNodeId(int idLeaf[], int idNode[]) throws IOException {
-            
-            int uId;
-            if(featureVectors.length > 0){
-                idLeaf[0]++;  
-                setUniqueLeafId(idLeaf[0]);
-              }
-              else {
-                setUniqueLeafId(0);  // empty leaf
-              }
-            if(getUniqueLeafId() == 0)
-              return  "0 ";
-            else
-              return  "id" + getUniqueLeafId() + " ";
-        }
-        
-        public void printLeafNodesNewFormat(DataOutputStream out, PrintWriter pw) throws IOException {
-          
-            StringBuffer sb = new StringBuffer();
-            
-            if( getUniqueLeafId() != 0) {
-            //sb.append("idFV" + getUniqueLeafId() + " ");
-             sb.append("id" + getUniqueLeafId() + " FeatureVectorLeafNode " + featureVectors.length + " ");
-           
-            //make sure that we have a feature vector array
-            if (growable && 
-                     (featureVectors == null
-                             || featureVectors.length == 0)){
-                featureVectors = (FeatureVector[])
-                    featureVectorList.toArray(
-                        new FeatureVector[featureVectorList.size()]);
-            }
-            // for each index, write the index and then a pseudo float
-            for (int i = 0; i < featureVectors.length; i++) {
-                sb.append(featureVectors[i].getUnitIndex() + " ");               
-            }
- 
-            // dump the whole stuff
-            if (out != null) {
-                // write to output stream
-                CART.writeStringToOutput(sb.toString(), out);
-                
-            } else {
-                // write to Standard out
-                // System.out.println(sb.toString());
-            }
-            if (pw != null) {
-                // dump to printwriter
-                pw.println(sb.toString());
-            }
-            }
-        }
-        
-        
+       
         public String toString()
         {
             if (growable) return "fv["+featureVectorList.size()+"]";
@@ -789,7 +435,8 @@ public abstract class LeafNode extends Node {
         public Object getAllData() {
             return data;
         }
-        
+             
+        public int getDataLength() {return data.length; }
         public float getMean() { return data[1]; }
         public float getStDeviation() { return data[0]; }
 
@@ -802,78 +449,7 @@ public abstract class LeafNode extends Node {
         {
             return 1;
         }
-
-
-        /**
-         * Writes the Cart to the given DataOut in Wagon Format
-         * 
-         * @param out
-         *            the outputStream
-         * @param extension
-         *            the extension that is added to the last daughter
-         */
-        public void toWagonFormat(DataOutputStream out, String extension,
-                PrintWriter pw) throws IOException {
-            String s = "(("
-                + data[0] // stddev
-                + " "
-                + data[1] // mean
-                + "))";
-            // dump the whole stuff
-            if (out != null) {
-                // write to output stream
-
-                CART.writeStringToOutput(s, out);
-            } else {
-                // write to Standard out
-                // System.out.println(sb.toString());
-            }
-            if (pw != null) {
-                // dump to printwriter
-                pw.print(s);
-            }
-        }
-        
-        public String addUniqueNodeId(int idLeaf[], int idNode[]) throws IOException {
-            
-            int uId;
-            if(data.length > 0){
-                idLeaf[0]++;  
-                setUniqueLeafId(idLeaf[0]);
-              }
-              else {
-                setUniqueLeafId(0);  // empty leaf
-              }
-            if(getUniqueLeafId() == 0)
-                return  "0 ";
-              else
-                return  "id" + getUniqueLeafId() + " ";           
-        }
-        
-        public void printLeafNodesNewFormat(DataOutputStream out, PrintWriter pw) throws IOException {
-            
-            // How to test this??? remove the ** after testing!!!
-            String s = "id" + getUniqueLeafId() + " FloatLeafNode 1 "
-                + data[0] // stddev
-                + " "
-                + data[1]; // mean
-                
-            // dump the whole stuff
-            if (out != null) {
-                // write to output stream
-                CART.writeStringToOutput(s, out);
-                
-            } else {
-                // write to Standard out
-                // System.out.println(sb.toString());
-            }
-            if (pw != null) {
-                // dump to printwriter
-                pw.println(s);
-            }
-        }
-        
-        
+ 
         public String toString()
         {
             if (data == null) return "mean=null, stddev=null";
