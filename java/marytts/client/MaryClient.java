@@ -1247,8 +1247,8 @@ public class MaryClient {
                     "MARY LIST AUDIOFILEFORMATTYPES");
             
             marySocket.close();
-            
         }
+        
         return audioFileFormatTypes;
     }
 
