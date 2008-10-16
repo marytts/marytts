@@ -47,8 +47,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-
-
 import marytts.util.io.ReaderSplitter;
 
 import org.apache.log4j.Logger;
@@ -124,7 +122,7 @@ public class MaryNormalisedWriter {
         transformer.transform(input, destination);
         //logger.debug("After transform");
     }
-
+    
     /**
      * Output any Source to stdout.
      */

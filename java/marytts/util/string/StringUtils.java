@@ -1,11 +1,15 @@
 package marytts.util.string;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.StringTokenizer;
+import java.util.Vector;
 
 import marytts.modules.phonemiser.Phoneme;
 import marytts.signalproc.analysis.Label;
@@ -784,6 +788,85 @@ public class StringUtils {
         }
             
         return isFound;
+    }
+    
+    public static String[] string2StringArray(String allInOneLine)
+    {
+        if (allInOneLine=="")
+        {
+            Vector<String> result = new Vector<String>();
+
+            StringTokenizer s = new StringTokenizer(allInOneLine, System.getProperty("line.separator"));
+            String line = null;
+            // Read until either end of file or an empty line
+            while((line = s.nextToken()) != null && !line.equals(""))
+                result.add(line);
+
+            return result.toArray(new String[0]);
+        }
+        else
+            return null;
+    }
+    
+    public static InputStream string2InputStream(String str)
+    {
+        ByteArrayInputStream stream = null;
+        try {
+            stream = new ByteArrayInputStream(str.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return stream;
+    }
+    
+    public static InputStream stringArray2InputStream(String[] stringArray)
+    {
+        return stringArray2InputStream(stringArray, 0);
+    }
+    
+    public static InputStream stringArray2InputStream(String[] stringArray, int startIndex)
+    {
+        return stringArray2InputStream(stringArray, startIndex, stringArray.length);
+    }
+    
+    public static InputStream stringArray2InputStream(String[] stringArray, int startIndex, int endIndex)
+    {
+        String str = stringArray2String(stringArray, startIndex, endIndex);
+        
+        return string2InputStream(str);
+    }
+    
+    public static String stringArray2String(String[] stringArray)
+    {
+        return stringArray2String(stringArray, 0);
+    }
+    
+    public static String stringArray2String(String[] stringArray, int startIndex)
+    {
+        return stringArray2String(stringArray, startIndex, stringArray.length-1);
+    }
+    
+    public static String stringArray2String(String[] stringArray, int startIndex, int endIndex)
+    {
+        if (startIndex<0)
+            startIndex=0;
+        if (startIndex>stringArray.length-1)
+            startIndex=stringArray.length-1;
+        if (endIndex<startIndex)
+            endIndex=startIndex;
+        if (endIndex>stringArray.length-1)
+            endIndex=stringArray.length-1;
+        
+        String str = "";
+        if (stringArray!=null)
+        {
+            for (int i=startIndex; i<=endIndex; i++)
+                str += stringArray[i] + System.getProperty("line.separator");
+        }
+        
+        return str;
     }
     
     public static void main(String[] args)

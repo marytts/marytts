@@ -56,12 +56,16 @@ import javax.xml.transform.TransformerException;
 
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
+import marytts.server.http.MaryHttpServerUtils;
 import marytts.util.MaryUtils;
 import marytts.util.data.text.UncloseableBufferedReader;
 import marytts.util.dom.MaryNormalisedWriter;
 import marytts.util.io.LoggingErrorHandler;
 import marytts.util.io.ReaderSplitter;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.nio.entity.NByteArrayEntity;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jsresources.AppendableSequenceAudioInputStream;
@@ -397,6 +401,49 @@ public class MaryData {
             os.flush();
         }
     }
+    
+    public void writeTo(HttpResponse response)
+    throws TransformerConfigurationException, FileNotFoundException, TransformerException, IOException, Exception {
+        if (type.isUtterances())
+            throw new IOException("Cannot write out utterance-based data type!");
+
+        if (type.isXMLType()) 
+        {
+            if (writer == null)
+                writer = new MaryNormalisedWriter();
+            if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
+                ByteArrayOutputStream debugOut = new ByteArrayOutputStream();
+                writer.output(xmlDocument, debugOut);
+                logger.debug(debugOut.toString());
+            }
+            
+            //writer.output(xmlDocument, new BufferedOutputStream(os));
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            writer.output(xmlDocument, new BufferedOutputStream(baos));
+            NByteArrayEntity body = new NByteArrayEntity(baos.toByteArray());
+            body.setContentType("text/html; charset=UTF-8");
+            response.setEntity(body);
+        } 
+        else if (type.isTextType()) // caution: XML types are text types!
+        { 
+            //writeTo(new OutputStreamWriter(os, "UTF-8"));
+            
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            writeTo(new OutputStreamWriter(baos, "UTF-8"));
+            NByteArrayEntity body = new NByteArrayEntity(baos.toByteArray());
+            body.setContentType("text/html; charset=UTF-8");
+            response.setEntity(body);
+        } 
+        else // audio
+        { 
+            logger.debug("Writing audio output, frame length "+audio.getFrameLength());
+            //AudioSystem.write(audio, audioFileFormat.getType(), os);
+            //os.flush();
+            MaryHttpServerUtils.respondWithAudio(audio, audioFileFormat.getType(), response);
+        }
+    }
+    
     /**
      * Write our internal representation to writer <code>w</code>,
      * in the appropriate way as determined by our <code>type</code>.
