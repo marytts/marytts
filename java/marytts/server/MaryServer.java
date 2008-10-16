@@ -231,9 +231,8 @@ public class MaryServer {
                 }
             }
         }
-        /**
-         * Implement the protocol for communicating with a socket client.
-         */
+        
+        //Implement the protocol for communicating with a socket client.
         private void handle() throws Exception {
             // !!!! reject all clients that are not from authorized domains?
 

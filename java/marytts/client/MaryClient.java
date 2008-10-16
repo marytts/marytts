@@ -1215,6 +1215,9 @@ public class MaryClient {
         String info = getServerInfo(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
                 new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
                 "MARY VOICE ISHMMAUDIOEFFECT " + effectName);
+        
+        marySocket.close();
+        
         if (info.length() == 0)
             return false;
 
@@ -1238,9 +1241,12 @@ public class MaryClient {
     {
         if (audioFileFormatTypes == null) {
             Socket marySocket = new Socket(host, port);
+            
             audioFileFormatTypes = getServerInfoLines(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
                     new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
                     "MARY LIST AUDIOFILEFORMATTYPES");
+            
+            marySocket.close();
             
         }
         return audioFileFormatTypes;
