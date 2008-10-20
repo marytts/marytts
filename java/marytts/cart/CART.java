@@ -43,7 +43,7 @@ import marytts.unitselection.select.Target;
 import org.apache.log4j.Logger;
 
 
-public abstract class CART 
+public class CART 
 {
 
     protected Logger logger = Logger.getLogger(this.getClass().getName());
@@ -69,7 +69,7 @@ public abstract class CART
      * initialise a FeatureFileIndexer but unused in the case of an actual CART tree.
      * @throws IOException if a problem occurs while loading
      */
-     public abstract void load(String fileName, FeatureDefinition featDefinition, String[] setFeatureSequence ) throws IOException;
+     //public abstract void load(String fileName, FeatureDefinition featDefinition, String[] setFeatureSequence ) throws IOException;
 
     /**
      * Passes the given item through this CART and returns the
