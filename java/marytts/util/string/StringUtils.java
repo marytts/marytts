@@ -792,14 +792,14 @@ public class StringUtils {
     
     public static String[] string2StringArray(String allInOneLine)
     {
-        if (allInOneLine=="")
+        if (allInOneLine!="")
         {
             Vector<String> result = new Vector<String>();
 
             StringTokenizer s = new StringTokenizer(allInOneLine, System.getProperty("line.separator"));
             String line = null;
             // Read until either end of file or an empty line
-            while((line = s.nextToken()) != null && !line.equals(""))
+            while(s.hasMoreTokens() && ((line = s.nextToken())!=null) && (!line.equals("")))
                 result.add(line);
 
             return result.toArray(new String[0]);
@@ -869,6 +869,24 @@ public class StringUtils {
         return str;
     }
     
+    public static String replace(String str, String pattern, String replacement) 
+    {
+        int s = 0;
+        int e = 0;
+        StringBuffer result = new StringBuffer();
+    
+        while ((e = str.indexOf(pattern, s)) >= 0) 
+        {
+            result.append(str.substring(s, e));
+            result.append(replacement);
+            s = e+pattern.length();
+        }
+        
+        result.append(str.substring(s));
+        
+        return result.toString();
+    }
+
     public static void main(String[] args)
     {
         String[] items1 = readTextFile("D:\\items.txt");
