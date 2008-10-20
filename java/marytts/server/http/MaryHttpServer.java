@@ -67,6 +67,7 @@ import marytts.unitselection.UnitSelectionVoice;
 import marytts.unitselection.interpolation.InterpolatingVoice;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.MaryAudioUtils;
+import marytts.util.string.StringUtils;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -290,65 +291,43 @@ public class MaryHttpServer {
 
         public void handle(final HttpRequest request, final HttpResponse response, final HttpContext context) throws HttpException, IOException 
         {
-            /*
-            if (request instanceof HttpEntityEnclosingRequest) 
-            {
-                HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
-                byte[] entityContent = EntityUtils.toByteArray(entity);
-                System.out.println("Incoming entity content (bytes): " + entityContent.length);
-            }
-            */
-
             Header[] tmp = request.getHeaders("Host");
-            String clientAddress = tmp[0].getValue();
+            
+            String clientAddress = getClientAddress(tmp[0].getValue().toString());
             
             String method = request.getRequestLine().getMethod().toUpperCase(Locale.ENGLISH);
-            //String fullParameters = null;
-            BufferedReader buffReader = null;
             
-            if (method.equals("GET"))
-            {           
-                if (request instanceof BasicHttpRequest)
+            BufferedReader buffReader = null;
+            String fullParameters = null;
+            
+            if (method.equals("GET") || method.equals("POST"))
+            {   
+                if ((request instanceof BasicHttpRequest) || (request instanceof BasicHttpEntityEnclosingRequest))
                 {
-                    String fullParameters = request.getRequestLine().getUri();
+                    fullParameters = request.getRequestLine().getUri().toString();
+                    fullParameters = preprocess(fullParameters);
                     buffReader = new BufferedReader(new StringReader(fullParameters));
-                    
-                    //System.out.println("Incoming request: " + fullParameters);
                 }
             }
+            /*
             else if (method.equals("POST"))
             {
                 if (request instanceof BasicHttpEntityEnclosingRequest) 
                 {
-                    //fullParameters = "";
-                    
                     HttpEntity entity = ((BasicHttpEntityEnclosingRequest) request).getEntity();
                     InputStream is = entity.getContent(); //This is how to get a direct input stream from server. Mary client can use this as audio data source from server etc
 
                     if (is!=null)
-                    {
                         buffReader = new BufferedReader(new InputStreamReader(is));
-                        /*
-                        String line = "";
-                        System.out.println("--- Incoming bytes from client to server ---");
-                        while((line = br.readLine()) != null)
-                        {
-                            System.out.println(line);
-                            fullParameters += line;
-                        }
-                        System.out.println("--- That was all from client ---");
-                        */
-                    }
-
-                    //System.out.println("Incoming request: " + fullParameters);
                 }
             }
+            */
             else
             {
                 throw new MethodNotSupportedException(method + " method not supported"); 
             }
 
-            //Parse fullParameters, extract request, and create appropriate response
+            //Parse request and create appropriate response
             try {
                 handleClientRequest(buffReader, response, clientAddress);
             }
@@ -363,7 +342,17 @@ public class MaryHttpServer {
             }
         }
         
-        /*
+        private String getClientAddress(String fullHeader)
+        {
+            String clientAddress = fullHeader.trim();
+            int index = clientAddress.indexOf('?');
+            
+            if (index>0)
+                clientAddress = clientAddress.substring(0, index-1);
+            
+            return clientAddress;
+        }
+        
         private String preprocess(String fullParameters)
         {
             String preprocessedParameters = fullParameters.trim();
@@ -376,12 +365,12 @@ public class MaryHttpServer {
                 index=index2+1;
             
             preprocessedParameters = preprocessedParameters.substring(index);
+            preprocessedParameters = StringUtils.replace(preprocessedParameters, "%20", " ");
             
             System.out.println("Preprocessed request: " + preprocessedParameters);
          
             return preprocessedParameters;
         }
-        */
 
         /**
          * Implement the protocol for communicating with an HTTP client.
