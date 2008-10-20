@@ -38,9 +38,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
+import weka.classifiers.trees.j48.StringPredictionTree;
+
 import marytts.cart.CART;
-import marytts.cart.RegressionTree;
-import marytts.cart.StringPredictionTree;
+// old: import marytts.cart.RegressionTree;
+import marytts.cart.io.WagonCARTReader;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.features.FeatureDefinition;
@@ -69,7 +71,8 @@ import de.dfki.lt.freetts.mbrola.ParametersToMbrolaConverter;
 
 public class CARTDurationModeller extends InternalModule
 {
-    protected CART cart;
+    // old: protected CART cart;
+    protected CART cart = new CART();
     protected StringPredictionTree pausetree;
     protected TargetFeatureComputer featureComputer;
     protected TargetFeatureComputer pauseFeatureComputer;
@@ -100,7 +103,10 @@ public class CARTDurationModeller extends InternalModule
         FeatureDefinition featureDefinition = new FeatureDefinition(new BufferedReader(new FileReader(fdFile)), true);
         File cartFile = new File(MaryProperties.needFilename(propertyPrefix+"cart"));
         
-        cart = new RegressionTree(new BufferedReader(new FileReader(cartFile)), featureDefinition);
+        //cart = new RegressionTree(new BufferedReader(new FileReader(cartFile)), featureDefinition);
+        //CART cart = new CART();
+        WagonCARTReader wagonRegReader = new WagonCARTReader("RegressionTree");
+        cart.setRootNode(wagonRegReader.load(new BufferedReader(new FileReader(cartFile)), featureDefinition));
         
 
         //String pausefileName = "/project/mary/pavoque/Voice_Building/DFKI_German_Poker/durations.tree";        

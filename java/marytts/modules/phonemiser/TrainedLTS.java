@@ -10,13 +10,14 @@ import java.util.Locale;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import marytts.cart.StringCART;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.modules.phonemiser.PhonemeSet;
 import marytts.modules.phonemiser.Syllabifier;
 
 import org.xml.sax.SAXException;
+
+import weka.classifiers.trees.j48.StringCART;
 
 
 /**
