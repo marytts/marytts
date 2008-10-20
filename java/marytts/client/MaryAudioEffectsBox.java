@@ -48,7 +48,7 @@ import javax.swing.border.Border;
  *
  */
 public class MaryAudioEffectsBox {
-    MaryAudioEffectControl [] effectControls;
+    public MaryAudioEffectControl [] effectControls;
     
     public JPanel mainPanel;
     public JLabel effectsBoxLabel;

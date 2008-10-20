@@ -45,6 +45,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -54,12 +55,15 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.nio.DefaultClientIOEventDispatch;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
+import org.apache.http.message.BasicHttpRequest;
+import org.apache.http.message.BasicRequestLine;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.protocol.BufferingHttpClientHandler;
 import org.apache.http.nio.protocol.EventListener;
 import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
+import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.nio.reactor.SessionRequestCallback;
 import org.apache.http.params.BasicHttpParams;
@@ -82,20 +86,45 @@ import org.apache.http.protocol.RequestUserAgent;
             
 public class MaryHttpRequester 
 {
+    private HttpParams params;
+    private ConnectingIOReactor ioReactor;
+    private BasicHttpProcessor httpproc;
+    
     public MaryHttpRequester()
     {
-         
+       
     }
     
-    //TO DO
-    public String[] requestMultipleLines(String host, int port, String strRequest)
+    public String[] requestMultipleLines(String host, int port, String strRequest) throws IOException
     {
-        return null;
+        HttpResponse response = null;
+        try {
+            response = request(host, port, strRequest);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        if (response!=null)
+            return MaryHttpClientUtils.response2StringArray(response);
+        else 
+            return null; 
     }
     
-    public String requestSingleLine(String host, int port, String strRequest)
+    public String requestSingleLine(String host, int port, String strRequest) throws IOException
     {
-        return null;
+        HttpResponse response = null;
+        try {
+            response = request(host, port, strRequest);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        if (response!=null)
+            return MaryHttpClientUtils.response2String(response);
+        else 
+            return null; 
     }
    
     public InputStream requestInputStream(String host, int port, String strRequest) throws Exception
@@ -107,19 +136,9 @@ public class MaryHttpRequester
         return is;
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     public HttpResponse request(String host, int port, String strRequest) throws Exception
-    {
-        HttpParams params = new BasicHttpParams();
+    {    
+        params = new BasicHttpParams();
         params
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 50000)
             .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 10000)
@@ -127,20 +146,27 @@ public class MaryHttpRequester
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.USER_AGENT, "HttpComponents/1.1");
+        
+        ioReactor = null;
+        try {
+            ioReactor = new DefaultConnectingIOReactor(1, params);
+        } catch (IOReactorException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
-        final ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor(2, params);
-
-        BasicHttpProcessor httpproc = new BasicHttpProcessor();
+        httpproc = new BasicHttpProcessor();
         httpproc.addInterceptor(new RequestContent());
         httpproc.addInterceptor(new RequestTargetHost());
         httpproc.addInterceptor(new RequestConnControl());
         httpproc.addInterceptor(new RequestUserAgent());
         httpproc.addInterceptor(new RequestExpectContinue());
         
-        int numRequests = 1;
+        strRequest = preprocessRequestString(strRequest);
+        
         // We are going to use this object to synchronize between the 
         // I/O event and main threads
-        CountDownLatch requestCount = new CountDownLatch(numRequests);
+        CountDownLatch requestCount = new CountDownLatch(1);
         
         MaryHttpRequestExecutionHandler maryReqExeHandler = new MaryHttpRequestExecutionHandler(requestCount);
         
@@ -166,37 +192,28 @@ public class MaryHttpRequester
                 }
                 System.out.println("Shutdown");
             }
-            
         });
         t.start();
 
-        SessionRequest[] reqs = new SessionRequest[numRequests];
-
-        /*
-        reqs[0] = ioReactor.connect(
-                new InetSocketAddress("localhost", 59125), 
-                null,
-                new HttpHost("localhost:59125"),
-                new MySessionRequestCallback(requestCount));
-                */
-        
-        reqs[0] = ioReactor.connect(
-                new InetSocketAddress(host, port), 
-                null,
-                new HttpHost(host + ":" + String.valueOf(port) + "?" + strRequest),
-                new MySessionRequestCallback(requestCount));
+        ioReactor.connect(new InetSocketAddress(host, port), 
+                          null,
+                          new HttpHost(host + ":" + String.valueOf(port) + "?" + strRequest),
+                          new MySessionRequestCallback(requestCount));
         
         // Block until all connections signal
         // completion of the request execution
         requestCount.await();
         
-        System.out.println("Shutting down I/O reactor");
-        
         ioReactor.shutdown();
         
-        System.out.println("Done");
-        
         return maryReqExeHandler.responseOut;
+    }
+    
+    public static String preprocessRequestString(String strRequest)
+    {
+        String strProcessed = StringUtils.replace(strRequest, " ", "%20");
+        
+        return strProcessed;
     }
     
     static class MaryHttpRequestExecutionHandler implements HttpRequestExecutionHandler 
@@ -238,11 +255,13 @@ public class MaryHttpRequester
                 System.out.println("Sending request from client to server " + targetHost.toURI());
                 System.out.println("--------------");
                
-                String command = "getAvailableVoices&" + "setAudioEffects=Robot(amount=50.0)";
+                //BasicRequestLine requestLine = new BasicRequestLine("GET", targetHost.toURI(), HttpVersion.HTTP_1_1);
+                BasicRequestLine requestLine = new BasicRequestLine("POST", targetHost.toURI(), HttpVersion.HTTP_1_1);
                 
-                //return new BasicHttpRequest("GET", command);
-                return new BasicHttpEntityEnclosingRequest("POST", command);
-            } else {
+                return new BasicHttpEntityEnclosingRequest(requestLine);
+            } 
+            else 
+            {
                 // No new request to submit
                 return null;
             }
