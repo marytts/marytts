@@ -29,8 +29,10 @@
 
 package marytts.client.http;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 
 import marytts.util.string.StringUtils;
@@ -55,25 +57,25 @@ public class MaryHttpClientUtils {
         return sendHttpRequest(client, host, port, query, "POST");
     }
     
-    public static String httpPostRequestStringResponse(DefaultHttpClient client, String host, int port, String query) throws HttpException
+    public static String httpPostRequestStringResponse(DefaultHttpClient client, String host, int port, String query) throws HttpException, IOException
     {
         HttpResponse response =  sendHttpRequest(client, host, port, query, "POST");
         
-        return responseBody2String(response);
+        return response2String(response);
     }
     
-    public static String[] httpPostRequestStringArrayResponse(DefaultHttpClient client, String host, int port, String query) throws HttpException
+    public static String[] httpPostRequestStringArrayResponse(DefaultHttpClient client, String host, int port, String query) throws HttpException, IOException
     {
         HttpResponse response =  sendHttpRequest(client, host, port, query, "POST");
         
-        return responseBody2StringArray(response);
+        return response2StringArray(response);
     }
     
-    public static InputStream httpPostRequestInputStreamResponse(DefaultHttpClient client, String host, int port, String query) throws HttpException
+    public static InputStream httpPostRequestInputStreamResponse(DefaultHttpClient client, String host, int port, String query) throws HttpException, IOException
     {
         HttpResponse response =  sendHttpRequest(client, host, port, query, "POST");
         
-        return responseBody2InputStream(response);
+        return response2InputStream(response);
     }
     
     public static HttpResponse sendHttpGetRequest(DefaultHttpClient client, String host, int port, String query) throws HttpException
@@ -81,25 +83,25 @@ public class MaryHttpClientUtils {
         return sendHttpRequest(client, host, port, query, "GET");
     }
     
-    public static String httpGetRequestStringResponse(DefaultHttpClient client, String host, int port, String query) throws HttpException
+    public static String httpGetRequestStringResponse(DefaultHttpClient client, String host, int port, String query) throws HttpException, IOException
     {
         HttpResponse response =  sendHttpRequest(client, host, port, query, "GET");
         
-        return responseBody2String(response);
+        return response2String(response);
     }
     
-    public static String[] httpGetRequestStringArrayResponse(DefaultHttpClient client, String host, int port, String query) throws HttpException
+    public static String[] httpGetRequestStringArrayResponse(DefaultHttpClient client, String host, int port, String query) throws HttpException, IOException
     {
         HttpResponse response =  sendHttpRequest(client, host, port, query, "GET");
         
-        return responseBody2StringArray(response);
+        return response2StringArray(response);
     }
     
-    public static InputStream httpGetRequestInputStreamResponse(DefaultHttpClient client, String host, int port, String query) throws HttpException
+    public static InputStream httpGetRequestInputStreamResponse(DefaultHttpClient client, String host, int port, String query) throws HttpException, IOException
     {
         HttpResponse response =  sendHttpRequest(client, host, port, query, "GET");
         
-        return responseBody2InputStream(response);
+        return response2InputStream(response);
     }
     
     public static HttpResponse sendHttpRequest(DefaultHttpClient client, String host, int port, String query, String requestMethod) throws HttpException
@@ -148,15 +150,29 @@ public class MaryHttpClientUtils {
         return response;
     }
     
-    public static String responseBody2String(HttpResponse response)
+    public static String response2String(HttpResponse response) throws IOException
     {
         String responseString = "";
         
         if (response!=null)
         {
             HttpEntity entity = response.getEntity();
+            InputStream is = entity.getContent(); //This is how to get a direct input stream from server. Mary client can use this as audio data source from server etc
 
-            responseString = response.getStatusLine().toString();
+            if (is!=null)
+            {
+                BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                String line = "";
+                System.out.println("--- Incoming bytes from server to client ---");
+                while((line = br.readLine()) != null)
+                {
+                    responseString += line + System.getProperty("line.separator");
+                    System.out.println(line);
+                }
+
+                System.out.println("--- That was all from server ---");
+            }
+            
             try {
                 entity.consumeContent();
             } catch (IOException e) {
@@ -168,45 +184,39 @@ public class MaryHttpClientUtils {
         return responseString;
     }
     
-    public static String[] responseBody2StringArray(HttpResponse response)
+    public static String[] response2StringArray(HttpResponse response) throws IOException
     {
-        String allInOneLine = responseBody2String(response);
+        String allInOneLine = response2String(response);
         
         return StringUtils.string2StringArray(allInOneLine);
     }
     
-    public static InputStream responseBody2InputStream(HttpResponse response)
+    public static InputStream response2InputStream(HttpResponse response) throws IOException
     {
-        String responseString = "";
+        InputStream is = null;
         
         if (response!=null)
         {
-            HttpEntity entity = response.getEntity();
 
-            responseString = response.getStatusLine().toString();
-            try {
-                entity.consumeContent();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            HttpEntity entity = response.getEntity();
+            is = entity.getContent(); //This is how to get a direct input stream from server. Mary client can use this as audio data source from server etc
         }
         
-        return StringUtils.string2InputStream(responseString);
+        return is;
     }
     
-    public static String getHttpServerInfoLine(DefaultHttpClient client, String host, int port, String query) throws HttpException
+    public static String getHttpServerInfoLine(DefaultHttpClient client, String host, int port, String query) throws HttpException, IOException
     {
         HttpResponse response = sendHttpPostRequest(client, host, port, query);
         
-        return responseBody2String(response);
+        return response2String(response);
     }
     
-    public static String[] getHttpServerInfoLines(DefaultHttpClient client, String host, int port, String query) throws HttpException
+    public static String[] getHttpServerInfoLines(DefaultHttpClient client, String host, int port, String query) throws HttpException, IOException
     {
         HttpResponse response = sendHttpPostRequest(client, host, port, query);
         
-        return responseBody2StringArray(response);
+        return response2StringArray(response);
     }
     //
 }
