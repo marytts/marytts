@@ -36,8 +36,8 @@ import java.util.*;
 import java.io.*;
 
 import marytts.cart.CART;
-import marytts.cart.RegressionTree;
-//import marytts.cart.io.WagonCARTReader;
+// old: import marytts.cart.RegressionTree;
+import marytts.cart.io.WagonCARTReader;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.modules.phonemiser.PhonemeSet;
@@ -152,11 +152,16 @@ public class UnitSelectionVoiceBuilder
             logger.debug("...loading cart file...");
             String cartReaderClass = MaryProperties.needProperty(header+".cartReaderClass");
             String cartFile = MaryProperties.getFilename(header+".cartFile");
-            CART cart = (CART) Class.forName(cartReaderClass).newInstance();
+           
+            // old: CART cart = (CART) Class.forName(cartReaderClass).newInstance();
+            CART cart = new CART();
             
-            cart.load(cartFile, targetFunction.getFeatureDefinition(),null); // old version
-            //WagonCARTReader wagonReader = new WagonCARTReader();
-            //cart.setRootNode(wagonReader.load(cartFile, targetFunction.getFeatureDefinition(),null));
+            // old: cart.load(cartFile, targetFunction.getFeatureDefinition(),null);
+            String treeType = cartReaderClass.substring(cartReaderClass.lastIndexOf(".")+1);
+            //System.out.println("\ntreeType = " + treeType);
+            
+            WagonCARTReader wagonReader = new WagonCARTReader(treeType);
+            cart.setRootNode(wagonReader.load(cartFile, targetFunction.getFeatureDefinition(),null));
             
             logger.debug("...loading audio time line...");
             String timelineReaderClass = MaryProperties.needProperty(header+".audioTimelineReaderClass");
@@ -211,13 +216,18 @@ public class UnitSelectionVoiceBuilder
 			
             // see if there are any voice-specific duration and f0 models to load
             CART durationCart = null;
+            WagonCARTReader wagonDurReader = new WagonCARTReader("RegressionTree");
+            
             FeatureDefinition durationCartFeatDef = null;
             String durationCartFile = MaryProperties.getFilename(header+".duration.cart");
             if (durationCartFile != null) {
                 logger.debug("...loading duration tree...");
                 File fdFile = new File(MaryProperties.needFilename(header+".duration.featuredefinition"));
                 durationCartFeatDef = new FeatureDefinition(new BufferedReader(new FileReader(fdFile)), true);
-                durationCart = new RegressionTree(new BufferedReader(new FileReader(durationCartFile)), durationCartFeatDef);
+                
+                // old: durationCart = new RegressionTree(new BufferedReader(new FileReader(durationCartFile)), durationCartFeatDef);
+                durationCart.setRootNode(wagonDurReader.load(new BufferedReader(new FileReader(durationCartFile)), 
+                                                             durationCartFeatDef));
             }
             CART[] f0Carts = null;
             FeatureDefinition f0CartsFeatDef = null;
@@ -228,13 +238,18 @@ public class UnitSelectionVoiceBuilder
                 f0CartsFeatDef = new FeatureDefinition(new BufferedReader(new FileReader(fdFile)), true);
                 f0Carts = new CART[3];
                 // left cart:
-                f0Carts[0] = new RegressionTree(new BufferedReader(new FileReader(leftF0CartFile)), f0CartsFeatDef);
+                // old: f0Carts[0] = new RegressionTree(new BufferedReader(new FileReader(leftF0CartFile)), f0CartsFeatDef);
+                f0Carts[0].setRootNode(wagonDurReader.load(new BufferedReader(new FileReader(leftF0CartFile)), f0CartsFeatDef));
                 String midF0CartFile = MaryProperties.needFilename(header+".f0.cart.mid");
+                
                 // mid cart:
-                f0Carts[1] = new RegressionTree(new BufferedReader(new FileReader(midF0CartFile)), f0CartsFeatDef);
+                // old: f0Carts[1] = new RegressionTree(new BufferedReader(new FileReader(midF0CartFile)), f0CartsFeatDef);
+                f0Carts[1].setRootNode(wagonDurReader.load(new BufferedReader(new FileReader(midF0CartFile)), f0CartsFeatDef));
                 String rightF0CartFile = MaryProperties.needFilename(header+".f0.cart.right");
+                
                 // right cart:
-                f0Carts[2] = new RegressionTree(new BufferedReader(new FileReader(rightF0CartFile)), f0CartsFeatDef);
+                // old: f0Carts[2] = new RegressionTree(new BufferedReader(new FileReader(rightF0CartFile)), f0CartsFeatDef);
+                f0Carts[2].setRootNode(wagonDurReader.load(new BufferedReader(new FileReader(rightF0CartFile)), f0CartsFeatDef));
             }
 
 	        //build the voice
