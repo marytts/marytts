@@ -22,7 +22,6 @@ import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import marytts.cart.StringCART;
 import marytts.features.FeatureDefinition;
 import marytts.fst.AlignerTrainer;
 import marytts.fst.StringPair;
@@ -33,6 +32,7 @@ import org.xml.sax.SAXException;
 
 import weka.classifiers.trees.j48.BinC45ModelSelection;
 import weka.classifiers.trees.j48.C45PruneableClassifierTree;
+import weka.classifiers.trees.j48.StringCART;
 import weka.classifiers.trees.j48.TreeConverter;
 import weka.core.Attribute;
 import weka.core.FastVector;

@@ -260,12 +260,20 @@ public class CARTBuilder extends VoiceImportComponent {
                          new InputStreamReader(
                                  new FileInputStream(
                                          new File(filename)),"UTF-8"));
-             topLevelCART = new TopLevelTree(reader, featureDefinition);
+             
+             // old: topLevelCART = new TopLevelTree(reader, featureDefinition);
+             topLevelCART = new CART();
+             WagonCARTReader wagonReader = new WagonCARTReader("TopLeavelTree");
+             topLevelCART.setRootNode(wagonReader.load(reader, featureDefinition));
+             
              System.out.println(" ... done!");
              
              //fill in the leafs of the tree
              System.out.println("Filling leafs of top-level tree ...");
-             ((TopLevelTree)topLevelCART).fillLeafs(featureVectors);
+             
+             // old: ((TopLevelTree)topLevelCART).fillLeafs(featureVectors);
+             wagonReader.fillLeafs(topLevelCART.getRootNode(), featureVectors);
+             
              System.out.println(" ... done!");
          }
          
@@ -357,14 +365,17 @@ public class CARTBuilder extends VoiceImportComponent {
     {
         try{
             //open CART-File
-            WagonCARTReader wr = new WagonCARTReader();
             System.out.println("Reading CART from "+filename+" ...");
-            //build and return CART
-            CART cart = new ExtendedClassificationTree();
-            //cart.load(filename,featDef,null);
-            cart.setRootNode(wr.load(filename, featDef, null));
             
-            //cart.toStandardOut();
+            // create a wagon cart reader for this class of tree
+            WagonCARTReader wagonReader = new WagonCARTReader("ExtendedClasificationTree");
+            
+            //build and return CART
+            // old: CART cart = new ExtendedClassificationTree();
+            CART cart = new CART();        
+            // old: cart.load(filename,featDef,null);
+            cart.setRootNode(wagonReader.load(filename, featDef, null));
+            
             System.out.println(" ... done!");
             return cart;
         } catch (IOException ioe){
@@ -926,8 +937,12 @@ public class CARTBuilder extends VoiceImportComponent {
                     System.out.println(id+"> Reading CART");
                     BufferedReader buf = new BufferedReader(
                             new FileReader(cartFile));
-                    CART newCART = new ExtendedClassificationTree(buf, featureDefinition);    
+                    // old CART newCART = new ExtendedClassificationTree(buf, featureDefinition);
+                    CART newCART = new CART();
+                    WagonCARTReader wagonReader = new WagonCARTReader("ExtendedClassificationTree");
+                    newCART.setRootNode(wagonReader.load(buf, featureDefinition));
                     buf.close();
+                    
                     // Fix the new cart's leaves:
                     // They are currently the index numbers in featureVectors;
                     // but what we need is the unit index numbers!
