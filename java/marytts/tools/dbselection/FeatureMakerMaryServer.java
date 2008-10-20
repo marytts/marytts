@@ -31,6 +31,7 @@ package marytts.tools.dbselection;
 
 
 import java.io.*;
+import java.net.UnknownHostException;
 import java.util.*;
 import java.util.regex.*;
 
@@ -144,6 +145,7 @@ public class FeatureMakerMaryServer{
 		File featOutDir = new File(featOutDirName);
 		if (!featOutDir.exists()) featOutDir.mkdir();
 		
+        sentOutDirName = "/project/mary/marcela/anna_wikipedia/sentences1";
 		File sentOutDir = new File(sentOutDirName);
 		if (!sentOutDir.exists()) sentOutDir.mkdir();
 		
@@ -328,7 +330,7 @@ public class FeatureMakerMaryServer{
 		while (args.length>i){
 			System.out.println(args[i]);
 			if (args[i].equals("-basenames")){
-				if (args.length<i+1){
+				if (args.length>i+1){
 					i++;
 					basenamesOutFile = args[i];
 					System.out.println("-basenames "+args[i]);
@@ -340,7 +342,7 @@ public class FeatureMakerMaryServer{
 				continue;
 			}
 			if (args[i].equals("-textFiles")){
-				if (args.length<i+1){
+				if (args.length>i+1){
 					i++;
 					textFiles = args[i];
 					System.out.println("-textFiles "+args[i]);
@@ -352,7 +354,7 @@ public class FeatureMakerMaryServer{
 				continue;
 			}
 			if (args[i].equals("-featureDir")){
-				if (args.length<i+1){
+				if (args.length>i+1){
 					i++;
 					featOutDirName = args[i];
 					System.out.println("-featureDir "+args[i]);
@@ -365,7 +367,7 @@ public class FeatureMakerMaryServer{
 			}
 			
 			if (args[i].equals("-doneFile")){
-				if (args.length<i+1){
+				if (args.length>i+1){
 					i++;
 					doneFileName = args[i];
 					System.out.println("-doneFile "+args[i]);
@@ -377,7 +379,7 @@ public class FeatureMakerMaryServer{
 				continue;
 			}
 			if (args[i].equals("-host")){
-				if (args.length<i+1){
+				if (args.length>i+1){
 					i++;
 					maryHost = args[i];
 					System.out.println("-host "+args[i]);
@@ -389,7 +391,7 @@ public class FeatureMakerMaryServer{
 				continue;
 			}
 			if (args[i].equals("-port")){
-				if (args.length<i+1){
+				if (args.length>i+1){
 					i++;
 					maryPort = args[i];
 					System.out.println("-port "+args[i]);
@@ -401,7 +403,7 @@ public class FeatureMakerMaryServer{
 				continue;
 			}
 			if (args[i].equals("-timeOut")){
-				if (args.length<i+1){
+				if (args.length>i+1){
 					i++;
 					timeOutAfter = Integer.parseInt(args[i]);
 					System.out.println("-timeOut "+args[i]);
@@ -413,7 +415,7 @@ public class FeatureMakerMaryServer{
 				continue;
 			}
 			if (args[i].equals("-unreliableLog")){
-				if (args.length<i+1){
+				if (args.length>i+1){
 					i++;
 					unreliableLogFile = args[i];
 					System.out.println("unreliableLog "+unreliableLogFile);
@@ -425,7 +427,7 @@ public class FeatureMakerMaryServer{
 				continue;
 			}
 			if (args[i].equals("-credibility")){
-				if (args.length<i+1){
+				if (args.length>i+1){
 					i++;
 					String credibilitySetting = args[i];
 					if (credibilitySetting.equals("strict")
@@ -495,9 +497,11 @@ public class FeatureMakerMaryServer{
 		try{                    
 			ByteArrayOutputStream os = new ByteArrayOutputStream();
 			//process and dump
-			mary.process(nextSentence, "TEXT","TARGETFEATURES", "de", null, null, os);
+			mary.process(nextSentence, "TEXT","TARGETFEATURES", "en_US", null, "time-awb", os);
 			//read into mary data object                
-			d = new MaryData(MaryDataType.get("TARGETFEATURES"), null);
+			//d = new MaryData(MaryDataType.get("TARGETFEATURES"), null);
+            d = new MaryData(MaryDataType.TARGETFEATURES, Locale.US);
+            
 			d.readFrom(new ByteArrayInputStream(os.toByteArray()));			
 		} catch (Exception e){
 			e.printStackTrace();
@@ -627,8 +631,10 @@ public class FeatureMakerMaryServer{
 			/* get the indices of our features */
 			int phoneIndex = featDef.getFeatureIndex("mary_phoneme");
 			int nextPhoneIndex = featDef.getFeatureIndex("mary_next_phoneme");
-			int nextPhoneClassIndex = featDef.getFeatureIndex("mary_selection_next_phone_class");
-			int prosodyIndex = featDef.getFeatureIndex("mary_selection_prosody");
+			
+            // these two are not available in EN
+            //int nextPhoneClassIndex = featDef.getFeatureIndex("mary_selection_next_phone_class");
+			//int prosodyIndex = featDef.getFeatureIndex("mary_selection_prosody");
 			/* loop over the feature vectors */
 			List featureLines = new ArrayList();
 			while ((line = featsDis.readLine()) != null){
@@ -647,10 +653,12 @@ public class FeatureMakerMaryServer{
 					featDef.getFeatureValueAsByte(phoneIndex,phoneString);
 				nextVector[1] = 
 					featDef.getFeatureValueAsByte(nextPhoneIndex,fv[nextPhoneIndex]);
+                /*
 				nextVector[2] = 
 					featDef.getFeatureValueAsByte(nextPhoneClassIndex,fv[nextPhoneClassIndex]);
 				nextVector[3] = 
 					featDef.getFeatureValueAsByte(prosodyIndex,fv[prosodyIndex]);
+                    */
 				featVects[i] = nextVector;
 				
 				
@@ -784,10 +792,14 @@ public class FeatureMakerMaryServer{
 			try{
 				ByteArrayOutputStream os = new ByteArrayOutputStream();
 				//process and dump
-				mary.process(textString, "TEXT","PHONEMES", "de", null, null, os);
-				//read into mary data object                
-				MaryData maryData = new MaryData(MaryDataType.PHONEMES, Locale.GERMAN);
+				mary.process(textString, "TEXT","PHONEMES", "en_US", null, "time-awb", os);
+                
+                //read into mary data object                
+				//MaryData maryData = new MaryData(MaryDataType.PHONEMES, Locale.GERMAN);
+                MaryData maryData = new MaryData(MaryDataType.PHONEMES, Locale.US);
+                
 				maryData.readFrom(new ByteArrayInputStream(os.toByteArray()));
+               
 				return maryData.getDocument();
 			} catch (Exception e){
 				e.printStackTrace();

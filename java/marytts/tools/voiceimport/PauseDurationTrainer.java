@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import marytts.cart.StringPredictionTree;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.machinelearning.GmmDiscretizer;
@@ -21,6 +20,7 @@ import marytts.tools.voiceimport.DatabaseLayout;
 import marytts.tools.voiceimport.VoiceImportComponent;
 import weka.classifiers.trees.j48.BinC45ModelSelection;
 import weka.classifiers.trees.j48.C45PruneableClassifierTree;
+import weka.classifiers.trees.j48.StringPredictionTree;
 import weka.classifiers.trees.j48.TreeConverter;
 import weka.core.Attribute;
 import weka.core.FastVector;
