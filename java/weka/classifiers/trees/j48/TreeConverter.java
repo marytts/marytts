@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import marytts.cart.DecisionNode;
-import marytts.cart.ExtendedClassificationTree;
+// old: import marytts.cart.ExtendedClassificationTree; why this was here? it seems that is is not used
 import marytts.cart.LeafNode;
 import marytts.cart.Node;
-import marytts.cart.StringPredictionTree;
-import marytts.cart.StringCART;
 import marytts.features.FeatureDefinition;
 import weka.classifiers.trees.j48.BinC45Split;
 import weka.classifiers.trees.j48.C45PruneableClassifierTree;
