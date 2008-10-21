@@ -1,4 +1,4 @@
-package weka.classifiers.trees.j48;
+package marytts.cart;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -6,14 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import marytts.cart.CART;
-import marytts.cart.io.WagonCARTReader;
-import marytts.cart.DecisionNode;
-import marytts.cart.LeafNode;
-import marytts.cart.Node;
-import marytts.cart.DecisionNode.ByteDecisionNode;
-import marytts.cart.LeafNode.IntAndFloatArrayLeafNode;
 import marytts.cart.LeafNode.StringAndFloatLeafNode;
+import marytts.cart.io.WagonCARTReader;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.unitselection.select.Target;
