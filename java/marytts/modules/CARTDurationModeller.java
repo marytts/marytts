@@ -38,9 +38,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
-import weka.classifiers.trees.j48.StringPredictionTree;
 
 import marytts.cart.CART;
+import marytts.cart.StringPredictionTree;
 // old: import marytts.cart.RegressionTree;
 import marytts.cart.io.WagonCARTReader;
 import marytts.datatypes.MaryData;
