@@ -1013,11 +1013,46 @@ public class CARTBuilder extends VoiceImportComponent {
         CARTBuilder cartBuilder = new CARTBuilder();
         DatabaseLayout db = new DatabaseLayout(cartBuilder);
         //compute        
-     
+     /*
         boolean ok = cartBuilder.compute();
         if (ok) System.out.println("Finished successfully!");
         else System.out.println("Failed.");
-    
+    */
+        // loading a cart in MaryCART format  
+        String path = "/project/mary/marcela/Unit-Selection-voices/DFKI_German_Poker/mary_files/";
+        String halfPhonesFile = path + "halfphoneFeatures.mry";
+        FeatureFileReader ffr = FeatureFileReader.getFeatureFileReader(halfPhonesFile);
+        FeatureDefinition feaDef = ffr.getFeatureDefinition();
+        
+        CART cart = new CART();
+        String cartFile = path + "cart.mry.new";
+        MaryCARTReader rm = new MaryCARTReader();
+        cart.setRootNode(rm.load(cartFile, feaDef, null));
+        
+        // loading a cart in WagonCART format
+        //String cartFile = path + "cart.mry"; 
+        //WagonCARTReader wr = new WagonCARTReader("ExtendedClassificationTree");
+        //cart.setRootNode(wr.load(cartFile,feaDef, null));
+        
+        System.out.println("Finished  loading the tree!");
+                
+        // check the leaves and their decision paths
+        String pwFile = path + "decnodes.txt";
+        PrintWriter pw = new PrintWriter(new FileWriter(new File(pwFile)));
+        System.out.println("Number of nodes loaded: " + cart.getNumNodes());       
+        int i=0;
+        for (LeafNode leaf = cart.getFirstLeafNode(); leaf != null; leaf = leaf.getNextLeafNode()){
+            if(leaf.getNumberOfData() > 0){
+              i++;
+              pw.println(i + ": " + leaf.getDecisionPath());
+            }else
+              pw.println("   " + leaf.getDecisionPath());            
+        }
+        pw.close();
+        System.out.println("Generated decision paths file:" + pwFile);
+      
+        
+        
         
     }
     

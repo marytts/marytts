@@ -46,7 +46,6 @@ import marytts.features.FeatureVector;
 import marytts.features.MaryGenericFeatureProcessors;
 import marytts.htsengine.HTSModelSet;
 import marytts.htsengine.HTSTreeSet;
-import marytts.modules.HTSContextTranslator;
 import marytts.modules.phonemiser.Phoneme;
 import marytts.modules.phonemiser.PhonemeSet;
 import marytts.server.MaryProperties;
@@ -75,7 +74,6 @@ public class JoinModelCost implements JoinCostFunction
     /****************/
     private JoinCostFeatures jcf = null;
     
-    private HTSContextTranslator contextTranslator = new HTSContextTranslator();
     private HTSModelSet joinPdf = null;
     private HTSTreeSet joinTree = null;
     
