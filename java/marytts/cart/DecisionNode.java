@@ -265,29 +265,6 @@ public abstract class DecisionNode extends Node {
         return this.decNodeStr;
     }
    
-    
-    /**
-     * This returns a String representation of this node. A prefix is given to
-     * indent the nodes.
-     */
-    public String toString(String prefix){
-        StringBuffer sb = new StringBuffer();
-        
-        String lineBreak = System.getProperty("line.separator");
-
-        sb.append(lineBreak);
-        sb.append(prefix + "((" + getNodeDefinition() + ")");
-        
-        // add the daughters
-        for (int i = 0; i < daughters.length; i++) {
-            sb.append(daughters[i].toString(prefix + " "));
-            
-        }
-        
-        sb.append(")");
-        
-        return sb.toString();
-    }
 
     /**
      * Gets the String that defines the decision done in the node

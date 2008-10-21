@@ -109,8 +109,6 @@ public class WagonCARTReader {
     * For a line representing a leaf in Wagon format, create a leaf.
     * This method decides which implementation of LeafNode is used, i.e.
     * which data format is appropriate.
-    * This implementation creates an IntAndFloatArrayLeafNode, representing the leaf
-    * as an array of ints and floats.
     * Lines are of the form
     * ((<index1> <float1>)...(<indexN> <floatN>)) 0))
     * 
@@ -127,7 +125,7 @@ public class WagonCARTReader {
       else if(leafType == 4)    
         return(createFeatureVectorLeafNode(line));      // 4 for TopLeavelTree
       else if(leafType == 5)
-        return(createStringAndFloatLeafNode(line));     // 5 for StringAndFloat
+        return(createStringAndFloatLeafNode(line));     // 5 for StringCART
       else
         return null;
    }

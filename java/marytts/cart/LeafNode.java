@@ -215,39 +215,11 @@ public abstract class LeafNode extends Node {
         }
         
          
-        /**
-         * This returns a String representation of this node. A prefix is given to
-         * indent the nodes.
-         */
-        public String toString(String prefix){
-            StringBuffer sb = new StringBuffer();
-            
-            String lineBreak = System.getProperty("line.separator");
-            
-            int maxData = 0;
-            float maxFloat = 0.0f;
-            
-            sb.append(lineBreak);
-            // open three brackets
-            sb.append(prefix + "(((");
-            // for each index, write the index and then its float
-            for (int i = 0; i < data.length; i++) {
-                
-                if ( floats[i] > maxFloat ){
-                    maxFloat = floats[i];
-                    maxData = data[i];
-                }
-                
-                sb.append("(" + data[i] + " "+floats[i]+")");
-                if (i + 1 != data.length) {
-                    sb.append(" ");
-                }
-            }
-            // write the ending
-            sb.append(") " + maxData+ "))");
-                    
-            return sb.toString();
+        public String toString(){
+            if (data == null) return "int[null]";
+            return "int and floats["+data.length+"]";
         }
+        
     }
     
     public static class StringAndFloatLeafNode extends IntAndFloatArrayLeafNode{
@@ -264,37 +236,6 @@ public abstract class LeafNode extends Node {
         public FeatureDefinition getFeatureDefinition(){return fd; }
         
   
-        public String toString(String prefix){
-            StringBuffer sb = new StringBuffer();
-            
-            String lineBreak = System.getProperty("line.separator");
-            
-            int maxData = 0;
-            float maxFloat = 0.0f;
-            
-            sb.append(lineBreak);
-            // open three brackets
-            sb.append(prefix + "(((");
-            // for each index, write the index and then its float
-            for (int i = 0; i < data.length; i++) {
-                
-                if ( floats[i] > maxFloat ){
-                    maxFloat = floats[i];
-                    maxData = data[i];
-                }
-
-                sb.append("(" + fd.getFeatureValueAsString(tf, data[i]) + " "+floats[i]+")");                
-
-                if (i + 1 != data.length) {
-                    sb.append(" ");
-                }
-            }
-            // write the ending
-            sb.append(") " + fd.getFeatureValueAsString(tf,maxData) + "))");
-                    
-            return sb.toString();
-        }
-
         public String maxString() {
             int bestInd = 0;
             float maxProb = 0f;
@@ -308,6 +249,11 @@ public abstract class LeafNode extends Node {
             
             // get the String representation
             return this.fd.getFeatureValueAsString(tf, bestInd);
+        }
+        
+        public String toString(){
+            if (data == null) return "int[null]";
+            return "int and floats["+data.length+"]";
         }
         
     }
