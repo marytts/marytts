@@ -50,7 +50,7 @@ import marytts.features.FeatureVector;
 import marytts.htsengine.HTSModelSet;
 import marytts.htsengine.HTSTreeSet;
 import marytts.htsengine.HMMData;
-import marytts.modules.HTSContextTranslator;
+import marytts.htsengine.PhoneTranslator;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.data.UnitFileReader;
@@ -66,7 +66,8 @@ public class JoinModeller extends VoiceImportComponent
     private DatabaseLayout db = null;
     private int percent = 0;
     
-    private HTSContextTranslator contextTranslator = null;
+    private PhoneTranslator contextTranslator = null;  // CHECK this class, with the new version of HMM voices
+                                                       // will not be needed.
     private HMMData htsData = null;  /* for using the function readFeatureList() */
     private Vector<String> featureList = null;
     private Map<String,String> feat2shortFeat = new HashMap<String, String>();
@@ -95,7 +96,7 @@ public class JoinModeller extends VoiceImportComponent
     
     public JoinModeller()
     {
-        contextTranslator = new HTSContextTranslator();
+        contextTranslator = new PhoneTranslator();
     }
     
     public String getName(){
@@ -299,7 +300,7 @@ public class JoinModeller extends VoiceImportComponent
                 if (f.endsWith("phoneme")) {
                     v = contextTranslator.replaceTrickyPhones(v);
                 } else if (f.endsWith("sentence_punc") || f.endsWith("punctuation")) {
-                    v = HTSContextTranslator.replacePunc(v);
+                    v = PhoneTranslator.replacePunc(v);
                 }
                 pw.println("QS \""+f+"="+v+"\" {*|"+f+"="+v+"|*}");
             }

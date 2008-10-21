@@ -86,6 +86,7 @@ import marytts.htsengine.HTSTree;
 import marytts.htsengine.HTSTreeSet;
 import marytts.htsengine.HTSUttModel;
 import marytts.htsengine.HTSVocoder;
+import marytts.htsengine.PhoneTranslator;
 import marytts.modules.InternalModule;
 import marytts.modules.synthesis.Voice;
 import marytts.signalproc.analysis.Mfccs;
@@ -122,7 +123,7 @@ public class HTSEngine extends InternalModule
     public HTSEngine()
     {
         super("HTSEngine",
-              MaryDataType.HTSCONTEXT,
+              MaryDataType.TARGETFEATURES,
               MaryDataType.AUDIO,
               null);
     }
@@ -158,7 +159,7 @@ public class HTSEngine extends InternalModule
         HMMVoice hmmv = (HMMVoice)v;
               
         String context = d.getPlainText();
-        //System.out.println("CONTEXT:" + context);
+        //System.out.println("TARGETFEATURES:" + TARGETFEATURES);
               
         /* Process label file of Mary context features and creates UttModel um */
         processUtt(context, um, hmmv.getHMMData());
@@ -213,7 +214,7 @@ public class HTSEngine extends InternalModule
          *          these are all the trees trained for a particular voice. */
  
         
-        logger.info("CONTEXT:" + context);
+        logger.info("TARGETFEATURES:" + context);
         
         /* Process label file of Mary context features and creates UttModel um */
         processUtt(context, um, htsData);
@@ -347,7 +348,7 @@ public class HTSEngine extends InternalModule
                 um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());
                 durSec = um.getTotalFrame() * fperiodsec;
                 //realisedDurations += durSec.toString() +  " 125 " + HTSContextTranslator.replaceBackTrickyPhones(m.getPhoneName()) + "\n";
-                realisedDurations += durSec.toString() +  " " + numLab.toString() + " " + HTSContextTranslator.replaceBackTrickyPhones(m.getPhoneName()) + "\n";
+                realisedDurations += durSec.toString() +  " " + numLab.toString() + " " + PhoneTranslator.replaceBackTrickyPhones(m.getPhoneName()) + "\n";
                 numLab++;
                 dur = m.getTotalDurMillisec();
                 um.concatRealisedAcoustParams(m.getPhoneName() + " " + dur.toString() + "\n"); 
@@ -409,7 +410,7 @@ public class HTSEngine extends InternalModule
     } /* method _ProcessUtt */
 
     /** 
-     * Stand alone testing using an TARGETFEATURES file as input. 
+     * Stand alone testing using a TARGETFEATURES file as input. 
      * @param args
      * @throws IOException
      */
@@ -504,7 +505,7 @@ public class HTSEngine extends InternalModule
 
     
     /** 
-     * Stand alone testing using an TARGETFEATURES list of files as input. 
+     * Stand alone testing using a TARGETFEATURES list of files as input. 
      * @param args
      * @throws IOException
      */

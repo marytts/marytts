@@ -53,7 +53,7 @@ import marytts.tools.voiceimport.VoiceImportComponent;
 import marytts.util.io.FileUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
-import marytts.modules.HTSContextTranslator;
+
 
 /**
  * HTK Phone Recogniser
@@ -78,7 +78,6 @@ public class HTKPhoneRecogniser extends VoiceImportComponent {
         protected File intonisedXMLDir;
         protected Map<String, TreeMap<String, String>> dictionary;
         protected PhonemeSet phonemeSet;
-        protected HTSContextTranslator contextTranslator;
         private BasenameList bnlist;
         
         public final String HTDIR = "HTKPhoneRecogniser.htDir";

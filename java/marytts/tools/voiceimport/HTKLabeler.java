@@ -53,7 +53,7 @@ import marytts.tools.voiceimport.VoiceImportComponent;
 import marytts.util.io.FileUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
-import marytts.modules.HTSContextTranslator;
+
 
 /**
  * Automatic Labelling using HTK labeller
@@ -81,7 +81,7 @@ public class HTKLabeler extends VoiceImportComponent {
         protected int MAX_ITERATIONS = 15;
         protected int SP_ITERATION = 5;
         protected int noIterCompleted = 0;
-        protected HTSContextTranslator contextTranslator;
+        
         
         public final String HTDIR = "HTKLabeler.htDir";
         public final String HTKDIR = "HTKLabeler.htkDir";
@@ -185,7 +185,7 @@ public class HTKLabeler extends VoiceImportComponent {
             
             MAX_ITERATIONS = Integer.valueOf((getProp(MAXITER)));
             SP_ITERATION   = Integer.valueOf((getProp(SPITER)));
-            contextTranslator = new HTSContextTranslator();
+   
             System.out.println("Preparing voice database for labelling using HTK :");
             //get the voicename        
             voicename = db.getProp(db.VOICENAME);

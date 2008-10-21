@@ -54,7 +54,7 @@ import java.util.Scanner;
 import java.io.*;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-import marytts.modules.HTSContextTranslator;
+import marytts.htsengine.PhoneTranslator;
 import org.apache.log4j.Logger;
 
 
@@ -240,10 +240,10 @@ public class HTSTreeSet {
               /* Replace back punctuation values */
               /* what about tricky phones, if using halfphones it would not be necessary */
               if(fea_val[0].contains("mary_sentence_punc") || fea_val[0].contains("mary_prev_punctuation") || fea_val[0].contains("mary_next_punctuation"))
-                  fea_val[1] = HTSContextTranslator.replaceBackPunc(fea_val[1]);
+                  fea_val[1] = PhoneTranslator.replaceBackPunc(fea_val[1]);
               //else if(fea_val[0].contains("mary_phoneme") || fea_val[0].contains("mary_prev_phoneme") || fea_val[0].contains("mary_next_phoneme") )
               else if(fea_val[0].contains("_phoneme") )
-                  fea_val[1] = HTSContextTranslator.replaceBackTrickyPhones(fea_val[1]);
+                  fea_val[1] = PhoneTranslator.replaceBackTrickyPhones(fea_val[1]);
               
               /* set the question name value */
               /* depending on the value type set the corresponding value in this node, 

@@ -81,7 +81,7 @@ import marytts.htsengine.HTSParameterGeneration;
 import marytts.htsengine.HTSTreeSet;
 import marytts.htsengine.HTSUttModel;
 import marytts.htsengine.HTSVocoder;
-import marytts.modules.HTSContextTranslator;
+import marytts.htsengine.PhoneTranslator;
 import marytts.modules.HTSEngine;
 import marytts.modules.MaryModule;
 import marytts.modules.MaryXMLToMbrola;
@@ -119,7 +119,6 @@ import com.sun.speech.freetts.Utterance;
 public class HMMSynthesizer implements WaveformSynthesizer {
     private XML2UttAcoustParams x2u;
     private TargetFeatureLister targetFeatureLister;
-    private HTSContextTranslator htsContextTranslator;
     private HTSEngine htsEngine;
     private Logger logger;
 
@@ -155,19 +154,6 @@ public class HMMSynthesizer implements WaveformSynthesizer {
             targetFeatureLister.startup();
         } else if (targetFeatureLister.getState() == MaryModule.MODULE_OFFLINE) {
             targetFeatureLister.startup();
-        }
-
-        try{
-            htsContextTranslator = (HTSContextTranslator) ModuleRegistry.getModule(HTSContextTranslator.class);
-        } catch (NullPointerException npe){
-            htsContextTranslator = null;
-        }
-        if (htsContextTranslator == null) {
-            logger.info("Starting my own HTSContextTranslator");
-            htsContextTranslator = new HTSContextTranslator();
-            htsContextTranslator.startup();
-        } else if (htsContextTranslator.getState() == MaryModule.MODULE_OFFLINE) {
-            htsContextTranslator.startup();
         }
 
         try{
@@ -285,12 +271,6 @@ public class HMMSynthesizer implements WaveformSynthesizer {
                  freettsAcoustparams.setDefaultVoice(v);
                  MaryData targetFeatures = targetFeatureLister.process(freettsAcoustparams);
                  targetFeatures.setDefaultVoice(v);
- //                MaryData htsContext = htsContextTranslator.process(targetFeatures);
- //                htsContext.setDefaultVoice(v);
-                 
-                 /* add the ACOUSTPARAMS Document to the HTSCONTEXT Mary data Object */
-//                 htsContext.setDocument(in.getDocument()); 
-//                 MaryData audio = htsEngine.process(htsContext);
                  MaryData audio = htsEngine.process(targetFeatures);
                  
                  assert audio.getAudio() != null;
@@ -328,17 +308,10 @@ public class HMMSynthesizer implements WaveformSynthesizer {
         try {
             MaryData targetFeatures = targetFeatureLister.process(freettsAcoustparams);
             targetFeatures.setDefaultVoice(voice);
-       //     MaryData htsContext = htsContextTranslator.process(targetFeatures);
-            
-       //     htsContext.setDefaultVoice(voice);
-       //     MaryData audio = htsEngine.process(htsContext);
-            
-            MaryData audio = htsEngine.process(targetFeatures);
-            
+            MaryData audio = htsEngine.process(targetFeatures);     
             setActualDurations(tokensAndBoundaries, audio.getPlainText());
             
-            return audio.getAudio();
-            
+            return audio.getAudio();           
                      
         } catch (Exception e) {
             throw new SynthesisException("HMM Synthesiser could not synthesise: ", e);
@@ -362,7 +335,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
       while(s.hasNext()) {
          line = s.next();
          str = line.split(" ");
-         ph.add(HTSContextTranslator.replaceBackTrickyPhones(str[0]));
+         ph.add(PhoneTranslator.replaceBackTrickyPhones(str[0]));
          dur.add(Integer.valueOf(str[1]));
          
       }
