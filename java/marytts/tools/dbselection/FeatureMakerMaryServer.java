@@ -60,7 +60,6 @@ import com.sun.speech.freetts.Utterance;
 
 
 
-
 /**
  * Takes text and converts to features
  * Needs a running Mary server
@@ -77,7 +76,7 @@ public class FeatureMakerMaryServer{
 	//stores result of credibility check for current sentence
 	protected static boolean usefulSentence;	
 	//list of sentences of a chunk of text
-	protected static Map index2sentences;    
+	protected static Map <Integer,String>index2sentences;    
 	//feature definition
 	protected static FeatureDefinition featDef;
 	//print writer for writing list of processed files
@@ -86,27 +85,19 @@ public class FeatureMakerMaryServer{
 	protected static PrintWriter unreliableLog;
 	//the list of files containing the text to be processed
 	protected static String textFiles;
-	//directory containing the features
-	protected static String featOutDirName;
-	//directory containing the sentences for the features
-	protected static String sentOutDirName;
 	//file containing the list of already processed sentences
 	protected static String doneFileName;
-	//host of the Mary server
+    //host of the Mary server
 	protected static String maryHost;
 	//port of the Mary server
 	protected static String maryPort;
 	//maximum time in ms to process a chunk of text
 	protected static int timeOutAfter;
-	//log file for unreliable sentences
-	protected static String unreliableLogFile;
-	//if true, credibility is strict, else crebibility is lax
+    //if true, credibility is strict, else crebibility is lax
 	protected static boolean strictCredibility;
-	//file for the final list of basenames
-	protected static String basenamesOutFile;
-	//index of the feature/sentence directory
-	protected static int outDirIndex;
-	
+
+    protected static int numSentences = 0;
+    protected static int numUnreliableSentences = 0;
 	
 	public static void main(String[] args)throws Exception{
 		
@@ -123,7 +114,7 @@ public class FeatureMakerMaryServer{
 					new FileReader(
 							new File(textFiles)));
 		String line;
-		List basenames = new ArrayList();
+		List<String> basenames = new ArrayList<String>();
 		while ((line=basenameIn.readLine())!= null){
 			if (line.equals("")) continue;
 			basenames.add(line.trim());
@@ -135,31 +126,16 @@ public class FeatureMakerMaryServer{
 		mary = new MaryClient();
 		
 		/* start the Credibility Checker */
-		unreliableLog = 
-			new PrintWriter(
-					new OutputStreamWriter(
-							new FileOutputStream(
-									new File(unreliableLogFile),true)),true);   
-		
-		/* create output dirs */
-		File featOutDir = new File(featOutDirName);
-		if (!featOutDir.exists()) featOutDir.mkdir();
-		
-        sentOutDirName = "/project/mary/marcela/anna_wikipedia/sentences1";
-		File sentOutDir = new File(sentOutDirName);
-		if (!sentOutDir.exists()) sentOutDir.mkdir();
-		
+	
 		/* read in the list of already processed files */
 		List alreadyDone = readInDoneFiles(doneFileName);
+		       
+        /* Here the DB connection for reliable sentences is open */
+         DBHandler wikiToDB = new DBHandler();
+         wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123"); 
+        
 		
-		/* open the file to write the basenames to */
-		PrintWriter basenamesOut = 
-			new PrintWriter(
-					new OutputStreamWriter(
-							new FileOutputStream(
-									new File(basenamesOutFile),true)),true);   
-		
-		/* loop over the files */
+		/* loop over the text files */
 		System.out.println("Looping over files...");
 		for (Iterator it = basenames.iterator();it.hasNext();){
 			String filename = (String) it.next();
@@ -196,75 +172,44 @@ public class FeatureMakerMaryServer{
 				// resolution was stopped due to time out
 				mct.interrupt();
 				mct.join();
-				System.out.println("Timeout when processing sentence "+filename);
+				System.out.println("Timeout when processing sentence in "+filename);
 				doneOut.println(filename);
 				continue;
 			}
 			if (!mct.wasSuccessful()){
-				System.out.println("Could not process sentence "+filename);
+				System.out.println("Could not process sentence in "+filename);
 				doneOut.println(filename);
 				continue;
 			}
 			mct = null;
-			File newFeatDir;
-			File newSentDir;
-			String f = filename.substring(0, filename.lastIndexOf('.'));
-			f = f.substring(f.lastIndexOf('/'),f.length());
-			try{
-				newFeatDir = new File(featOutDirName+"/"+f);
-				newFeatDir.mkdir();
-				newSentDir = new File(sentOutDirName+"/"+f);
-				newSentDir.mkdir();
-			}catch(Exception e){
-				//the featOutDir is full
-				//choose a different output dir
-				outDirIndex++;
-				featOutDirName = featOutDirName+outDirIndex;
-				sentOutDirName = sentOutDirName+outDirIndex;
-				//make new feature and sentence directories
-				File newDir = new File(featOutDirName);
-				if (!newDir.exists()) newDir.mkdir();
-				newDir = new File(sentOutDirName);
-				if (!newDir.exists()) newDir.mkdir();
-				//make new directory for the current text
-				newFeatDir = new File(featOutDirName+"/"+f);
-				newFeatDir.mkdir();
-				newSentDir = new File(sentOutDirName+"/"+f);
-				newSentDir.mkdir();
-			}
+		
 			int index=0;
-			boolean wroteNothing = true;
 			
+            /* loop over the sentences */
+            String feas;
 			for (Iterator it2=index2sentences.keySet().iterator();it2.hasNext();){
 				Integer nextKey = (Integer) it2.next();
-				try{
-					String sentence = (String) index2sentences.get(nextKey);
-                    //System.out.println(sentence);
-					index = nextKey.intValue();
-					MaryData d = 
-						processSentence(sentence,filename);
-					if (d==null) continue;
-					/* get and dump the features of the sentence */                     
-					getFeatures(newFeatDir+"/"+f+"_"+index+".feats",d);     
-					/* dump the sentence */
-					dumpSentence(newSentDir+"/"+f+"_"+index+".txt",sentence);
-					basenamesOut.println(newFeatDir+"/"+f+"_"+index+".feats");
-					wroteNothing = false;
-				}catch (Exception e){
-					System.out.println("Error processing sentence "
-							+newFeatDir+"_"+index+" :");
-					e.printStackTrace();
-				}
+				
+				String newSentence = (String) index2sentences.get(nextKey);
+                //System.out.println(sentence);
+				index = nextKey.intValue();
+				MaryData d = processSentence(newSentence,filename);
+				if (d==null) continue;
+                    
+				/* get the features of the sentence */  
+				feas = getFeatures(d);     
+	
+                /* Insert in the database the new sentence and its features. */
+                numSentences++;
+                wikiToDB.insertSentenceAndFeatures(numSentences,filename,newSentence,feas);
+                     		
 			}//end of loop over sentences
-			if (wroteNothing){
-				//no feature files have actually been created
-				//remove directories
-				newFeatDir.delete();
-				newSentDir.delete();
-			}             
-		} //end of loop over articles             
+                         
+		} //end of loop over articles    
+        
+        wikiToDB.closeDBConnection();
+        
 		doneOut.close();
-		basenamesOut.close();
 		System.out.println("Done");
 	}//end of main method
 	
@@ -317,30 +262,15 @@ public class FeatureMakerMaryServer{
 		//initialise default values
 		textFiles = "./textFiles.txt";
 		doneFileName = "./done.txt";
-		featOutDirName = "./features1";
 		maryHost = "localhost";
 		maryPort = "59125";
 		timeOutAfter = 30000;
-		unreliableLogFile = "./unreliableSents.log";
 		strictCredibility = true;
-		basenamesOutFile = "./basenames.lst";
 		
 		//now parse the args
 		int i = 0;
 		while (args.length>i){
 			System.out.println(args[i]);
-			if (args[i].equals("-basenames")){
-				if (args.length>i+1){
-					i++;
-					basenamesOutFile = args[i];
-					System.out.println("-basenames "+args[i]);
-				} else {
-					System.out.println("Please specify a file after -basenames");
-					return false;
-				}
-				i++;
-				continue;
-			}
 			if (args[i].equals("-textFiles")){
 				if (args.length>i+1){
 					i++;
@@ -353,19 +283,6 @@ public class FeatureMakerMaryServer{
 				i++;
 				continue;
 			}
-			if (args[i].equals("-featureDir")){
-				if (args.length>i+1){
-					i++;
-					featOutDirName = args[i];
-					System.out.println("-featureDir "+args[i]);
-				} else {
-					System.out.println("Please specify a directory after -featureDir");
-					return false;
-				}
-				i++;
-				continue;
-			}
-			
 			if (args[i].equals("-doneFile")){
 				if (args.length>i+1){
 					i++;
@@ -414,18 +331,6 @@ public class FeatureMakerMaryServer{
 				i++;
 				continue;
 			}
-			if (args[i].equals("-unreliableLog")){
-				if (args.length>i+1){
-					i++;
-					unreliableLogFile = args[i];
-					System.out.println("unreliableLog "+unreliableLogFile);
-				} else {
-					System.out.println("Please specify a file after -unreliableLog");
-					return false;
-				}
-				i++;
-				continue;
-			}
 			if (args[i].equals("-credibility")){
 				if (args.length>i+1){
 					i++;
@@ -456,26 +361,7 @@ public class FeatureMakerMaryServer{
 			System.out.println("Unknown argument "+args[i]);
 			return false;
 		}
-		//construct the name of the sentence dir from the feature dir
-		outDirIndex = 1;
-		if (featOutDirName.equals("features1")){
-			//default name
-			sentOutDirName = "./sentences1";
-		} else {
-			if (featOutDirName.matches(".*\\d+")){
-				//featOutDir ends with digit
-				//add digit to end of sentOutDirName
-				Pattern digitPattern = Pattern.compile("\\d+");
-				Matcher m = digitPattern.matcher(featOutDirName);
-				m.find();
-				outDirIndex = Integer.parseInt(m.group());  
-				sentOutDirName = "./sentences"+outDirIndex;
-			} else {
-				//no digit at end of feature dir name - add one
-				featOutDirName = featOutDirName+"1";
-				sentOutDirName = "./sentences1";
-			}
-		}
+
 		return true;
 	}
 	
@@ -569,7 +455,7 @@ public class FeatureMakerMaryServer{
 	 * @return
 	 */
 	protected static boolean checkCredibility(Element t){
-		boolean usefulSentence = true;	
+		boolean newUsefulSentence = true;	
 		if (t.hasAttribute("ph")){
 			//we have a transcription
 			if (t.hasAttribute("g2p_method")) {
@@ -579,14 +465,14 @@ public class FeatureMakerMaryServer{
 						!method.equals("userdict")){
 					if (strictCredibility){
 						//method other than lexicon or userdict -> unreliable
-						usefulSentence = false;
+						newUsefulSentence = false;
 					} else {
 						//lax credibility criterion
 						if (!method.equals("phonemiseDenglish") &&
 								!method.equals("compound")){
 							//method other than lexicon, userdict, phonemiseDenglish 
 							//or compound -> unreliable
-							usefulSentence = false;
+							newUsefulSentence = false;
 						} //else method is phonemiseDenglish or compound -> credible						
 					}
 				}// else method is lexicon or userdict -> credible				
@@ -596,11 +482,11 @@ public class FeatureMakerMaryServer{
 			if (t.hasAttribute("pos") &&
 					!t.getAttribute("pos").startsWith("$")){					
 				//no transcription given -> unreliable	
-				usefulSentence = false;
+				newUsefulSentence = false;
 				
 			} //else punctuation -> credible
 		} 
-		return usefulSentence;
+		return newUsefulSentence;
 	}
 		
 		
@@ -613,7 +499,7 @@ public class FeatureMakerMaryServer{
 		 * @param d the target features as Mary Data object
 		 * @throws Exception
 		 */
-		protected static void getFeatures(String filename,MaryData d)throws Exception{
+		protected static String getFeatures(MaryData d)throws Exception{
 			BufferedReader featsDis = 
 				new BufferedReader(
 						new InputStreamReader(
@@ -635,8 +521,9 @@ public class FeatureMakerMaryServer{
             // these two are not available in EN
             //int nextPhoneClassIndex = featDef.getFeatureIndex("mary_selection_next_phone_class");
 			//int prosodyIndex = featDef.getFeatureIndex("mary_selection_prosody");
+            
 			/* loop over the feature vectors */
-			List featureLines = new ArrayList();
+			List<String> featureLines = new ArrayList<String>();
 			while ((line = featsDis.readLine()) != null){
 				if (line.equals("")) break;
 				featureLines.add(line);
@@ -663,46 +550,25 @@ public class FeatureMakerMaryServer{
 				
 				
 			} //end of while-loop over the feature vectors
-			/* write the features to disk */
-			DataOutputStream features = 
-				new DataOutputStream(
-						new BufferedOutputStream(
-								new FileOutputStream(
-										new File(filename))));           
-			features.writeInt(numLines);
+            
+         
+            StringBuffer feas  = new StringBuffer();
+            feas.append(numLines + " 4 ");
+           
 			for (int i=0;i<featVects.length;i++){
 				byte[] nextFeatVects = featVects[i];
 				if (nextFeatVects == null){
 					System.out.println("nextFeatVects are null at index "+i);
 				}
-				features.writeByte(nextFeatVects[0]);
-				features.writeByte(nextFeatVects[1]);
-				features.writeByte(nextFeatVects[2]);
-				features.writeByte(nextFeatVects[3]);
+			    feas.append(nextFeatVects[0] + " ");
+                feas.append(nextFeatVects[1] + " ");
+                feas.append(nextFeatVects[2] + " ");
+                feas.append(nextFeatVects[3] + " ");
 			}
-			features.flush();
-			features.close();
 			
+            //System.out.println("feas=" + feas);
+            return feas.toString();
 			
-		}
-		
-		/**
-		 * Print the given sentence to the given file
-		 * 
-		 * @param filename the file
-		 * @param sentence the sentence
-		 * @throws Exception
-		 */
-		protected static void dumpSentence(String filename, String sentence)
-		throws Exception{
-			
-			PrintWriter out = 
-				new PrintWriter(
-						new OutputStreamWriter(
-								new FileOutputStream(
-										new File(filename)),"UTF-8"));
-			out.println(sentence);
-			out.close();        
 		}
 		
 		
@@ -715,7 +581,7 @@ public class FeatureMakerMaryServer{
 		 */
 		protected static List readInDoneFiles(String doneFilesTextName) throws Exception{
 			File doneDirsText = new File(doneFilesTextName);
-			List doneList = new ArrayList();
+			List<String> doneList = new ArrayList<String>();
 			
 			if (doneDirsText.exists()){
 				
@@ -742,7 +608,7 @@ public class FeatureMakerMaryServer{
 		 * @throws Exception
 		 */
 		protected static boolean splitIntoSentences(String text, String filename)throws Exception{
-			index2sentences = new TreeMap();
+			index2sentences = new TreeMap<Integer,String>();
 			Document doc = phonemiseText(text);
 			if (doc == null) return false;
 			NodeList sentences = doc.getElementsByTagName("s");   
@@ -768,8 +634,18 @@ public class FeatureMakerMaryServer{
 						index2sentences.put(new Integer(sentenceIndex),sentence.toString());  
 					} else {
 						//just print useless sentence to log file
-						unreliableLog.println(filename+"; "+sentenceIndex+": "+sentence
+						System.out.println(filename+"; "+sentenceIndex+": "+sentence
 								+" : is unreliable");
+                        
+                       
+                        numUnreliableSentences++;
+                        System.out.println("Inserting unreliable sentence:");
+                        DBHandler wikiToDB = new DBHandler();
+                        wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123"); 
+                        wikiToDB.insertUnreliableSentence(numUnreliableSentences,filename,sentence.toString());
+                        wikiToDB.closeDBConnection();
+                        
+                        
 					}
 					sentenceIndex++;
 				} else {
