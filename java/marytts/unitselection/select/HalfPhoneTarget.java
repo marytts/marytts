@@ -32,9 +32,6 @@ import marytts.features.MaryGenericFeatureProcessors;
 
 import org.w3c.dom.Element;
 
-import com.sun.speech.freetts.Item;
-import com.sun.speech.freetts.Relation;
-
 
 public class HalfPhoneTarget extends Target
 {
@@ -50,9 +47,9 @@ public class HalfPhoneTarget extends Target
      * @param isLeftHalf true if this target represents the left half
      * of the phone, false if it represents the right half of the phone
      */
-    public HalfPhoneTarget(String name, Element maryxmlElement, Item item, boolean isLeftHalf)
+    public HalfPhoneTarget(String name, Element maryxmlElement, boolean isLeftHalf)
     {
-        super(name, maryxmlElement, item);
+        super(name, maryxmlElement);
         this.isLeftHalf = isLeftHalf;
     }
 

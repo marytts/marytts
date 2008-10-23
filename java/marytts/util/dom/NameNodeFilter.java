@@ -39,13 +39,8 @@ import org.w3c.dom.traversal.NodeFilter;
 public class NameNodeFilter implements NodeFilter
 {
     private String[] names;
-    public NameNodeFilter(String name)
-    {
-        this.names = new String[1];
-        this.names[0] = name;
-    }
 
-    public NameNodeFilter(String[] names)
+    public NameNodeFilter(String... names)
     {
         this.names = names;
     }

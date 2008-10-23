@@ -709,7 +709,7 @@ public class HTKPhoneRecogniser extends VoiceImportComponent {
         public String replaceTrickyPhones(String lab){
           String s = lab;
           
-          /** the replace is done for the labels: mary_phoneme, mary_prev_phoneme and mary_next_phoneme */
+          /** the replace is done for the labels: phoneme, prev_phoneme and next_phoneme */
           
           /** DE (replacements in German phoneme set) */     
           if(lab.contentEquals("6") )

@@ -100,7 +100,7 @@ public class CARTBuilder extends VoiceImportComponent {
                     featSeqOut.println("# Automatically generated feature sequence file for CARTBuilder\n"
                             +"# Add features to refine\n"
                             +"# Defines the feature sequence used to build the top-level CART\n"
-                            +"mary_phoneme\nmary_stressed\nmary_next_phoneme");
+                            +"phoneme\nstressed\nnext_phoneme");
                     featSeqOut.flush();
                     featSeqOut.close();
                 } catch (Exception e){
@@ -421,8 +421,8 @@ public class CARTBuilder extends VoiceImportComponent {
                 			FileOutputStream(new 
                 			        File(featureDefFile)));
             Set<String> featuresToIgnore = new HashSet<String>();
-            featuresToIgnore.add("mary_unit_logf0");
-            featuresToIgnore.add("mary_unit_duration");
+            featuresToIgnore.add("unit_logf0");
+            featuresToIgnore.add("unit_duration");
             featureDefinition.generateAllDotDescForWagon(out, featuresToIgnore);
             out.close();
 
@@ -681,7 +681,7 @@ public class CARTBuilder extends VoiceImportComponent {
     
     private double f0Dist(FeatureVector fv1, FeatureVector fv2, FeatureDefinition fd)
     {
-        int iLogF0 = fd.getFeatureIndex("mary_unit_logf0");
+        int iLogF0 = fd.getFeatureIndex("unit_logf0");
         float logf0_1 = fv1.getContinuousFeature(iLogF0);
         float logF0_2 = fv2.getContinuousFeature(iLogF0);
         return Math.abs(logf0_1-logF0_2);
@@ -689,7 +689,7 @@ public class CARTBuilder extends VoiceImportComponent {
 
     private double durDist(FeatureVector fv1, FeatureVector fv2, FeatureDefinition fd)
     {
-        int iLogF0 = fd.getFeatureIndex("mary_unit_duration");
+        int iLogF0 = fd.getFeatureIndex("unit_duration");
         float logf0_1 = fv1.getContinuousFeature(iLogF0);
         float logF0_2 = fv2.getContinuousFeature(iLogF0);
         return Math.abs(logf0_1-logF0_2);

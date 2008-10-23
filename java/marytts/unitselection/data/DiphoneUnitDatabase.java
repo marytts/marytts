@@ -64,7 +64,7 @@ public class DiphoneUnitDatabase extends UnitDatabase {
         HalfPhoneTarget right = diphoneTarget.getRight();
         String leftName = left.getName().substring(0, left.getName().lastIndexOf("_"));
         String rightName = right.getName().substring(0, right.getName().lastIndexOf("_"));
-        int iPhoneme = targetCostFunction.getFeatureDefinition().getFeatureIndex("mary_phoneme");
+        int iPhoneme = targetCostFunction.getFeatureDefinition().getFeatureIndex("phoneme");
         byte bleftName = targetCostFunction.getFeatureDefinition().getFeatureValueAsByte(iPhoneme, leftName);
         byte brightName = targetCostFunction.getFeatureDefinition().getFeatureValueAsByte(iPhoneme, rightName);
 
@@ -102,13 +102,13 @@ public class DiphoneUnitDatabase extends UnitDatabase {
         // Now, clist is an array of halfphone unit indexes.
         for (int i = 0; i < clist.length; i++) {
             Unit unit = unitReader.getUnit(clist[i]);
-            String unitName = targetCostFunction.getFeature(unit, "mary_phoneme");
+            String unitName = targetCostFunction.getFeature(unit, "phoneme");
             // force correct phoneme symbol:
             if (!unitName.equals(rightName)) continue;
             int iLeftNeighbour = clist[i]-1;
             if (iLeftNeighbour >= 0) {
                 Unit leftNeighbour = unitReader.getUnit(iLeftNeighbour);
-                String leftUnitName = targetCostFunction.getFeature(leftNeighbour, "mary_phoneme");
+                String leftUnitName = targetCostFunction.getFeature(leftNeighbour, "phoneme");
                 if (leftUnitName.equals(leftName)) {
                     // Found a diphone -- add it to candidates
                     DiphoneUnit diphoneUnit = new DiphoneUnit(leftNeighbour, unit);

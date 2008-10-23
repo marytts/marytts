@@ -239,7 +239,7 @@ public class CoverageDefinition{
                     if (key.equals("missingPhones")){
                         phonesToIgnore = new ArrayList();
                         phoneFeatIndex = 
-                            featDef.getFeatureIndex("mary_phoneme");
+                            featDef.getFeatureIndex("phoneme");
                         phonesToIgnore.add(
                                 new Integer(featDef.getFeatureValueAsByte(phoneFeatIndex,value)));
                         while(tok.hasMoreTokens()){
@@ -279,17 +279,17 @@ public class CoverageDefinition{
         Set simpleFeatVectTypes = new HashSet();
         Set clusteredFeatVectTypes = new HashSet();
         phoneFeatIndex = 
-            featDef.getFeatureIndex("mary_phoneme");
+            featDef.getFeatureIndex("phoneme");
 
-        phoneClassesIndex = featDef.getFeatureIndex("mary_selection_next_phone_class");
+        phoneClassesIndex = featDef.getFeatureIndex("selection_next_phone_class");
         numPhoneClasses = featDef.getNumberOfValues(phoneClassesIndex);
         numPhoneValues = featDef.getNumberOfValues(phoneFeatIndex);
         numPhoneValuesMinusIgnored = numPhoneValues-phonesToIgnore.size()-1;
 
         diphoneFeatIndex = 
-            featDef.getFeatureIndex("mary_next_phoneme");
+            featDef.getFeatureIndex("next_phoneme");
 
-        prosodyIndex = featDef.getFeatureIndex("mary_selection_prosody");
+        prosodyIndex = featDef.getFeatureIndex("selection_prosody");
         int numPhoneTypes = 0;
         int numPhoneClassesTypes = 0;
         numSimpleDiphoneTypes = 0; numClusteredDiphoneTypes = 0;
@@ -1244,12 +1244,12 @@ public class CoverageDefinition{
             String[] basenames)throws Exception{
         this.featDef = featDef;
         phoneFeatIndex = 
-            featDef.getFeatureIndex("mary_phoneme");        
-        phoneClassesIndex = featDef.getFeatureIndex("mary_selection_next_phone_class");
+            featDef.getFeatureIndex("phoneme");        
+        phoneClassesIndex = featDef.getFeatureIndex("selection_next_phone_class");
         numPhoneClasses = featDef.getNumberOfValues(phoneClassesIndex);        
         diphoneFeatIndex = 
-            featDef.getFeatureIndex("mary_next_phoneme");        
-        prosodyIndex = featDef.getFeatureIndex("mary_selection_prosody");
+            featDef.getFeatureIndex("next_phoneme");        
+        prosodyIndex = featDef.getFeatureIndex("selection_prosody");
         numPhoneValues = featDef.getNumberOfValues(phoneFeatIndex);
         numPhoneValuesMinusIgnored = numPhoneValues-phonesToIgnore.size()-1;
         numPossibleSimpleDiphones = numPhoneValuesMinusIgnored*(numPhoneValuesMinusIgnored+1);

@@ -9,7 +9,6 @@
                 <root id="src.dir" name="java"/>
             </source-roots>
             <test-roots/>
-            <explicit-platform explicit-source-supported="true"/>
         </data>
     </configuration>
 </project>

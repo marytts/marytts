@@ -203,7 +203,7 @@ public class HTSParameterGeneration {
       		nobound = true;
       		/* check if current frame is voiced/unvoiced boundary or not */
       		for(n=lw; n<=rw; n++)
-      		  if( (uttFrame+n) <= 0 || um.getTotalFrame() < (uttFrame+n))
+      		  if( (uttFrame+n) <= 0 || um.getTotalFrame() <= (uttFrame+n))
       			 nobound = false;
       		  else
       			 nobound = ( nobound && voiced[uttFrame+n] );

@@ -32,11 +32,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import marytts.datatypes.MaryDataType;
+import marytts.datatypes.MaryXML;
 import marytts.features.TargetFeatureComputer;
 import marytts.modules.synthesis.FreeTTSVoices;
 import marytts.modules.synthesis.Voice;
 import marytts.unitselection.select.HalfPhoneTarget;
 import marytts.unitselection.select.Target;
+import marytts.unitselection.select.UnitSelector;
 
 import org.w3c.dom.Element;
 
@@ -63,23 +65,6 @@ public class HalfPhoneTargetFeatureLister extends TargetFeatureLister
     }
 
 
-    /**
-     * Create the list of targets from the Segments in the utterance.
-     * @param segs the Segment relation
-     * @return a list of Target objects -- in this case, halfphone targets
-     */
-    protected List<Target> createTargets(Relation segs)
-    {
-        List<Target> targets = new ArrayList<Target>();
-        for (Item s = segs.getHead(); s != null; s = s.getNext()) {
-            Element maryxmlElement = (Element) s.getFeatures().getObject("maryxmlElement");
-            String segName = s.getFeatures().getString("name");
-            targets.add(new HalfPhoneTarget(segName+"_L", maryxmlElement, s, true)); // left half
-            targets.add(new HalfPhoneTarget(segName+"_R", maryxmlElement, s, false)); // right half
-        }
-        return targets;
-    }
-
     
     /**
      * Access the code from within the our own code so that a subclass
@@ -87,65 +72,37 @@ public class HalfPhoneTargetFeatureLister extends TargetFeatureLister
      * @param segs
      * @return
      */
-    protected List<Target> overridableCreateTargetsWithPauses(Relation segs)
+    protected List<Target> overridableCreateTargetsWithPauses(List<Element> segmentsAndBoundaries)
     {
-        return HalfPhoneTargetFeatureLister.createTargetsWithPauses(segs);
+        return HalfPhoneTargetFeatureLister.createTargetsWithPauses(segmentsAndBoundaries);
     }
-
+    
     /**
-     * Create the list of targets from the Segments in the utterance.
-     * Make sure that first item is a pause
-     * @param segs the Segment relation
+     * Create the list of targets from the segments to be synthesized
+     * Prepend and append pauses if necessary
+     * @param segmentsAndBoundaries a list of MaryXML phone and boundary elements
      * @return a list of Target objects
      */
-    public static List<Target> createTargetsWithPauses(Relation segs) {
+    public static List<Target> createTargetsWithPauses(List<Element> segmentsAndBoundaries) {
         List<Target> targets = new ArrayList<Target>();
-
-        boolean first = true;
-        Item s = segs.getHead();
-        Voice v = FreeTTSVoices.getMaryVoice(s.getUtterance().getVoice());
-        String silenceSymbol = v.sampa2voice("_");
-        Target lastTarget = null;
-        Item lastItem = s;
-        for (; s != null; s = s.getNext()) {
-            Element maryxmlElement = (Element) s.getFeatures().getObject("maryxmlElement");
-            //create next target
-            String segName = s.getFeatures().getString("name");
-            Target nextLeftTarget = new HalfPhoneTarget(segName+"_L", maryxmlElement, s, true); 
-            Target nextRightTarget = new HalfPhoneTarget(segName+"_R", maryxmlElement, s, false);
-            //if first target is not a pause, add one
-            if (first){
-                first = false;
-                //if (! segName.equals(silenceSymbol)){
-                if (! nextLeftTarget.isSilence()){
-                    //System.out.println("Adding two pause targets: "
-                      //          +silenceSymbol+"_L and "
-                        //        +silenceSymbol+"_R");
-                    //build new pause item
-                    Item newPauseItem = s.prependItem(null);
-                    newPauseItem.getFeatures().setString("name", silenceSymbol);
-                    
-                    //add new targets for item
-                    targets.add(new HalfPhoneTarget(silenceSymbol+"_L", null, newPauseItem, true)); 
-                    targets.add(new HalfPhoneTarget(silenceSymbol+"_R", null, newPauseItem, false));
-                }
-            }
-            targets.add(nextLeftTarget);
-            targets.add(nextRightTarget);
-            lastTarget = nextRightTarget;
-            lastItem = s;
-        }  
-        if (! lastTarget.isSilence()){
-                   //System.out.println("Adding pause target "
-                     //           +silenceSymbol);
-                   //build new pause item
-                   Item newPauseItem = lastItem.appendItem(null);
-                   newPauseItem.getFeatures().setString("name", silenceSymbol);
-                   
-                   //add new targets for item
-                    targets.add(new HalfPhoneTarget(silenceSymbol+"_L", null, newPauseItem, true)); 
-                    targets.add(new HalfPhoneTarget(silenceSymbol+"_R", null, newPauseItem, false));
-                }
+        if (segmentsAndBoundaries.size() == 0) return targets;
+        // TODO: how can we know the silence symbol here?
+        String silenceSymbol = "_";
+        Element first = segmentsAndBoundaries.get(0);
+        if (!first.getTagName().equals(MaryXML.BOUNDARY)) {
+            // need to insert a dummy silence target
+            targets.add(new HalfPhoneTarget(silenceSymbol+"_L", null, true));
+            targets.add(new HalfPhoneTarget(silenceSymbol+"_R", null, false));
+        }
+        for (Element sOrB : segmentsAndBoundaries) {
+            String phone = UnitSelector.getPhoneSymbol(sOrB);
+            targets.add(new HalfPhoneTarget(phone+"_L", sOrB, true));
+            targets.add(new HalfPhoneTarget(phone+"_R", sOrB, false));
+        }
+        if (!targets.get(targets.size()-1).isSilence()) {
+            targets.add(new HalfPhoneTarget(silenceSymbol+"_L", null, true));
+            targets.add(new HalfPhoneTarget(silenceSymbol+"_R", null, false));
+        }
         return targets;
     }
     

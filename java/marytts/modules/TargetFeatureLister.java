@@ -36,6 +36,7 @@ import java.util.Map;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
+import marytts.datatypes.MaryXML;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureVector;
 import marytts.features.TargetFeatureComputer;
@@ -43,8 +44,16 @@ import marytts.modules.synthesis.FreeTTSVoices;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
 import marytts.unitselection.select.Target;
+import marytts.unitselection.select.UnitSelector;
+import marytts.util.dom.MaryDomUtils;
+import marytts.util.dom.NameNodeFilter;
 
 import org.apache.log4j.Level;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.traversal.DocumentTraversal;
+import org.w3c.dom.traversal.NodeFilter;
+import org.w3c.dom.traversal.TreeWalker;
 
 import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.Relation;
@@ -64,7 +73,7 @@ public class TargetFeatureLister extends InternalModule
     public TargetFeatureLister(MaryDataType outputType)
     {
         super("TargetFeatureLister",
-                MaryDataType.FREETTS_ACOUSTPARAMS, 
+                MaryDataType.ACOUSTPARAMS, 
                 outputType,
                 null);
     }
@@ -84,39 +93,45 @@ public class TargetFeatureLister extends InternalModule
         }
         TargetFeatureComputer featureComputer = getTargetFeatureComputer(voice);
         assert featureComputer != null : "Voice provides null instead of a feature computer!";
-        List uttList = d.getUtterances();
-        String header = featureComputer.getAllFeatureProcessorNamesAndValues();
-        StringBuffer text = new StringBuffer();
-        StringBuffer bin = new StringBuffer();
-        for (int i=0, len=uttList.size(); i<len; i++) {
-            Utterance utt = (Utterance)uttList.get(i);
-            
-            
-            if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
-                StringWriter sw = new StringWriter();
-                PrintWriter pw = new PrintWriter(sw);
-                utt.dump(pw, 2, name(), true); // padding, justRelations
-                logger.debug("Converting the following Utterance to target features:\n"+sw.toString());
-            }
-            // Create target chain for the utterance
-            Relation segs = utt.getRelation(Relation.SEGMENT);
-            List targets = overridableCreateTargetsWithPauses(segs);
-            //List targets = createTargets(segs);
-            // create target feature string for the target chain
-            for (int j=0, nTargets = targets.size(); j<nTargets; j++) {
-                Target target = (Target) targets.get(j);
-                FeatureVector features = featureComputer.computeFeatureVector(target);
-                text.append(featureComputer.toStringValues(features));
-                text.append("\n");
-                bin.append(features.toString());
-                bin.append("\n");
-            }
+        Document doc = d.getDocument();
+        // First, get the list of segments and boundaries in the current document
+        TreeWalker tw = MaryDomUtils.createTreeWalker(doc, doc, MaryXML.PHONE, MaryXML.BOUNDARY);
+        List<Element> segmentsAndBoundaries = new ArrayList<Element>();
+        Element e;
+        while ((e = (Element) tw.nextNode()) != null) {
+            segmentsAndBoundaries.add(e);
         }
-        // Leave an empty line between sections:
-        String out = header + "\n" + text + "\n" + bin;
+        // Second, construct targets
+        String out = listTargetFeatures(featureComputer, segmentsAndBoundaries);
         MaryData result = new MaryData(outputType(), d.getLocale());
         result.setPlainText(out);
         return result;
+    }
+
+
+    /**
+     * For the given elements and using the given feature computer, create a string representation of the 
+     * target features.
+     * @param featureComputer
+     * @param segmentsAndBoundaries
+     * @return a multi-line string.
+     */
+    public String listTargetFeatures(TargetFeatureComputer featureComputer, List<Element> segmentsAndBoundaries) 
+    {
+        List<Target> targets = overridableCreateTargetsWithPauses(segmentsAndBoundaries);
+        // Third, compute the feature vectors and convert them to text
+        String header = featureComputer.getAllFeatureProcessorNamesAndValues();
+        StringBuilder text = new StringBuilder();
+        StringBuilder bin = new StringBuilder();
+        for (Target target : targets) {
+            FeatureVector features = featureComputer.computeFeatureVector(target);
+            text.append(featureComputer.toStringValues(features)).append("\n");
+            bin.append(features.toString()).append("\n");
+        }
+        
+        // Leave an empty line between sections:
+        String out = header + "\n" + text + "\n" + bin;
+        return out;
     }
     
     /**
@@ -129,19 +144,6 @@ public class TargetFeatureLister extends InternalModule
         return v.getTargetFeatureComputer();
     }
 
-    /**
-     * Create the list of targets from the Segments in the utterance.
-     * @param segs the Segment relation
-     * @return a list of Target objects
-     */
-    protected List<Target> createTargets(Relation segs) {
-        List<Target> targets = new ArrayList<Target>();
-        for (Item s = segs.getHead(); s != null; s = s.getNext()) {
-            String segName = s.getFeatures().getString("name");;
-            targets.add(new Target(segName, s));
-        }
-        return targets;
-    }
     
     
     /**
@@ -150,58 +152,34 @@ public class TargetFeatureLister extends InternalModule
      * @param segs
      * @return
      */
-    protected List<Target> overridableCreateTargetsWithPauses(Relation segs)
+    protected List<Target> overridableCreateTargetsWithPauses(List<Element> segmentsAndBoundaries)
     {
-        return TargetFeatureLister.createTargetsWithPauses(segs);
+        return TargetFeatureLister.createTargetsWithPauses(segmentsAndBoundaries);
     }
     
     /**
-     * Create the list of targets from the Segments in the utterance.
-     * Make sure that first item is a pause
-     * @param segs the Segment relation
+     * Create the list of targets from the segments to be synthesized
+     * Prepend and append pauses if necessary
+     * @param segmentsAndBoundaries a list of MaryXML phone and boundary elements
      * @return a list of Target objects
      */
-    public static List<Target> createTargetsWithPauses(Relation segs) {
+    public static List<Target> createTargetsWithPauses(List<Element> segmentsAndBoundaries) {
         List<Target> targets = new ArrayList<Target>();
-
-        boolean first = true;
-        Item s = segs.getHead();
-        Voice v = FreeTTSVoices.getMaryVoice(s.getUtterance().getVoice());
-        String silenceSymbol = v.sampa2voice("_");
-        Item lastItem = s;
-        Target lastTarget = null;
-        for (; s != null; s = s.getNext()) {
-            //create next target
-            String segName = s.getFeatures().getString("name");
-            Target nextTarget = new Target(segName, s);
-            //if first target is not a pause, add one
-            if (first){
-                first = false;
-                if (! nextTarget.isSilence()){
-                   //System.out.println("Adding pause target "
-                     //           +silenceSymbol);
-                   //build new pause item
-                   Item newPauseItem = s.prependItem(null);
-                   newPauseItem.getFeatures().setString("name", silenceSymbol);
-                   
-                   //add new target for item
-                   targets.add(new Target(silenceSymbol, newPauseItem)); 
-                }
-            }
-            targets.add(nextTarget);
-            lastItem=s;
-            lastTarget=nextTarget;
-        }        
-        if (! lastTarget.isSilence()){
-                   //System.out.println("Adding pause target "
-                     //           +silenceSymbol);
-                   //build new pause item
-                   Item newPauseItem = lastItem.appendItem(null);
-                   newPauseItem.getFeatures().setString("name", silenceSymbol);
-                   
-                   //add new target for item
-                   targets.add(new Target(silenceSymbol, newPauseItem)); 
-                }
+        if (segmentsAndBoundaries.size() == 0) return targets;
+        // TODO: how can we know the silence symbol here?
+        String silenceSymbol = "_";
+        Element first = segmentsAndBoundaries.get(0);
+        if (!first.getTagName().equals(MaryXML.BOUNDARY)) {
+            // need to insert a dummy silence target
+            targets.add(new Target(silenceSymbol, null));
+        }
+        for (Element sOrB : segmentsAndBoundaries) {
+            String phone = UnitSelector.getPhoneSymbol(sOrB);
+            targets.add(new Target(phone, sOrB));
+        }
+        if (!targets.get(targets.size()-1).isSilence()) {
+            targets.add(new Target(silenceSymbol, null)); 
+        }
         return targets;
     }
 }

@@ -96,7 +96,7 @@ public class Utt2XMLSegmentsEn extends Utt2XMLBase
             }
         } else { // no phrase relation
             while (tokenItem != null) {
-                insertToken(tokenItem, sentence, true); // deep
+                insertToken(tokenItem, sentence, false); // false = not deep
                 tokenItem = tokenItem.getNext();
             }
         }

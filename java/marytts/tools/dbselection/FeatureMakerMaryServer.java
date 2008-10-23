@@ -515,12 +515,12 @@ public class FeatureMakerMaryServer{
 			}
 			
 			/* get the indices of our features */
-			int phoneIndex = featDef.getFeatureIndex("mary_phoneme");
-			int nextPhoneIndex = featDef.getFeatureIndex("mary_next_phoneme");
+			int phoneIndex = featDef.getFeatureIndex("phoneme");
+			int nextPhoneIndex = featDef.getFeatureIndex("next_phoneme");
 			
             // these two are not available in EN
-            //int nextPhoneClassIndex = featDef.getFeatureIndex("mary_selection_next_phone_class");
-			//int prosodyIndex = featDef.getFeatureIndex("mary_selection_prosody");
+            //int nextPhoneClassIndex = featDef.getFeatureIndex("selection_next_phone_class");
+			//int prosodyIndex = featDef.getFeatureIndex("selection_prosody");
             
 			/* loop over the feature vectors */
 			List<String> featureLines = new ArrayList<String>();

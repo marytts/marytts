@@ -46,8 +46,8 @@ public class CARTF0Modeller extends marytts.modules.CARTF0Modeller
     public CARTF0Modeller()
     {
         super("CARTF0Modeller",
-                USEnglishDataTypes.FREETTS_MBROLISED_DURATIONS,
-                MaryDataType.FREETTS_ACOUSTPARAMS,
+                MaryDataType.DURATIONS,
+                MaryDataType.ACOUSTPARAMS,
                 Locale.ENGLISH,
                 "english.f0.",
                 new FeatureProcessorManager()

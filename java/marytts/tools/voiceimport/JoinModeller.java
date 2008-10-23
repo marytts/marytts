@@ -171,12 +171,12 @@ public class JoinModeller extends VoiceImportComponent
         int numUnits = unitFeatures.getNumberOfUnits();
         FeatureDefinition def = unitFeatures.getFeatureDefinition();
 
-        int iPhoneme = def.getFeatureIndex("mary_phoneme");
+        int iPhoneme = def.getFeatureIndex("phoneme");
         int nPhonemes = def.getNumberOfValues(iPhoneme);
-        int iLeftRight = def.getFeatureIndex("mary_halfphone_lr");
+        int iLeftRight = def.getFeatureIndex("halfphone_lr");
         byte vLeft = def.getFeatureValueAsByte(iLeftRight, "L");
         byte vRight = def.getFeatureValueAsByte(iLeftRight, "R");
-        int iEdge = def.getFeatureIndex("mary_edge");
+        int iEdge = def.getFeatureIndex("edge");
         byte vNoEdge = def.getFeatureValueAsByte(iEdge, "0");
         byte vStartEdge = def.getFeatureValueAsByte(iEdge, "start");
         byte vEndEdge = def.getFeatureValueAsByte(iEdge, "end");
@@ -430,11 +430,20 @@ public class JoinModeller extends VoiceImportComponent
           line = s.next();
           //System.out.println("fea: "+ line);
           if(!line.contains("#") && line.length()>0){    /* if it is not commented */
-            String[] elem = line.split(",");
-            for(i=0; i<elem.length; i++)
-              if(elem[i].contains("mary_")){  /* if starts with mary_ */                 
-                featureList.addElement(elem[i].substring(elem[i].indexOf("\"")+1, elem[i].lastIndexOf("\"")));
-                //System.out.println("  -->  "+ featureList.lastElement()); 
+              // MS, 20 Oct 2008: as the feature names don't contain the prefix "mary_" anymore,
+              // we cannot identify feature names as before.
+              // However, it seems that, when there is a comma in the line, 
+              // the first element should be the right one in all examples I found.
+              if (line.contains(",")) { // it contains a comma
+                  String[] elem = line.split(",");
+                  String feaString = elem[0];
+                  assert feaString.contains("\"") : "Unlikely to contain a feature name: '"+feaString+"'!";
+                  featureList.addElement(feaString.substring(feaString.indexOf("\"")+1, feaString.lastIndexOf("\"")));
+                  //for(i=0; i<elem.length; i++)
+                  //  if(elem[i].contains("mary_")){  /* if starts with mary_ */                 
+                  //    feaList.addElement(elem[i].substring(elem[i].indexOf("\"")+1, elem[i].lastIndexOf("\"")));
+                  //    //System.out.println("  -->  "+ featureList.lastElement()); 
+                  //  }                  
               }
           }
         }

@@ -178,12 +178,12 @@ public class F0CARTTrainer extends VoiceImportComponent
         System.out.println("F0 CART trainer: exporting f0 features");
         
         FeatureDefinition featureDefinition = featureFile.getFeatureDefinition();
-        byte isVowel = featureDefinition.getFeatureValueAsByte("mary_ph_vc", "+");
-        int iVC = featureDefinition.getFeatureIndex("mary_ph_vc");
-        int iSegsFromSylStart = featureDefinition.getFeatureIndex("mary_segs_from_syl_start");
-        int iSegsFromSylEnd = featureDefinition.getFeatureIndex("mary_segs_from_syl_end");
-        int iCVoiced = featureDefinition.getFeatureIndex("mary_ph_cvox");
-        byte isCVoiced = featureDefinition.getFeatureValueAsByte("mary_ph_cvox", "+");
+        byte isVowel = featureDefinition.getFeatureValueAsByte("ph_vc", "+");
+        int iVC = featureDefinition.getFeatureIndex("ph_vc");
+        int iSegsFromSylStart = featureDefinition.getFeatureIndex("segs_from_syl_start");
+        int iSegsFromSylEnd = featureDefinition.getFeatureIndex("segs_from_syl_end");
+        int iCVoiced = featureDefinition.getFeatureIndex("ph_cvox");
+        byte isCVoiced = featureDefinition.getFeatureValueAsByte("ph_cvox", "+");
 
         int nSyllables = 0;
         for (int i=0, len=unitFile.getNumberOfUnits(); i<len; i++) {

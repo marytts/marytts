@@ -127,7 +127,7 @@ public class JoinCostPrecomputer extends VoiceImportComponent
             throw new IllegalStateException("Number of units in unit file and unit feature file does not match!");
         int numUnits = unitFeatures.getNumberOfUnits();
         FeatureDefinition def = unitFeatures.getFeatureDefinition();
-        int iPhoneme = def.getFeatureIndex("mary_phoneme");
+        int iPhoneme = def.getFeatureIndex("phoneme");
         int nPhonemes = def.getNumberOfValues(iPhoneme);
         List[] left = new List[nPhonemes]; // left half phones grouped by phoneme
         List[] right = new List[nPhonemes]; // right half phones grouped by phoneme
@@ -135,7 +135,7 @@ public class JoinCostPrecomputer extends VoiceImportComponent
             left[i] = new ArrayList();
             right[i] = new ArrayList();
         }
-        int iLeftRight = def.getFeatureIndex("mary_halfphone_lr");
+        int iLeftRight = def.getFeatureIndex("halfphone_lr");
         byte vLeft = def.getFeatureValueAsByte(iLeftRight, "L");
         byte vRight = def.getFeatureValueAsByte(iLeftRight, "R");
         for (int i=0; i<numUnits; i++) {

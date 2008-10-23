@@ -44,36 +44,6 @@ is divided into following sections:
         <property file="nbproject/project.properties"/>
     </target>
     <target name="-do-init" depends="-pre-init,-init-private,-init-user,-init-project,-init-macrodef-property">
-        <j2seproject1:property name="platform.home" value="platforms.${platform.active}.home"/>
-        <j2seproject1:property name="platform.bootcp" value="platforms.${platform.active}.bootclasspath"/>
-        <j2seproject1:property name="platform.compiler" value="platforms.${platform.active}.compile"/>
-        <j2seproject1:property name="platform.javac.tmp" value="platforms.${platform.active}.javac"/>
-        <condition property="platform.javac" value="${platform.home}/bin/javac">
-            <equals arg1="${platform.javac.tmp}" arg2="$${platforms.${platform.active}.javac}"/>
-        </condition>
-        <property name="platform.javac" value="${platform.javac.tmp}"/>
-        <j2seproject1:property name="platform.java.tmp" value="platforms.${platform.active}.java"/>
-        <condition property="platform.java" value="${platform.home}/bin/java">
-            <equals arg1="${platform.java.tmp}" arg2="$${platforms.${platform.active}.java}"/>
-        </condition>
-        <property name="platform.java" value="${platform.java.tmp}"/>
-        <j2seproject1:property name="platform.javadoc.tmp" value="platforms.${platform.active}.javadoc"/>
-        <condition property="platform.javadoc" value="${platform.home}/bin/javadoc">
-            <equals arg1="${platform.javadoc.tmp}" arg2="$${platforms.${platform.active}.javadoc}"/>
-        </condition>
-        <property name="platform.javadoc" value="${platform.javadoc.tmp}"/>
-        <condition property="platform.invalid" value="true">
-            <or>
-                <contains string="${platform.javac}" substring="$${platforms."/>
-                <contains string="${platform.java}" substring="$${platforms."/>
-                <contains string="${platform.javadoc}" substring="$${platforms."/>
-            </or>
-        </condition>
-        <fail unless="platform.home">Must set platform.home</fail>
-        <fail unless="platform.bootcp">Must set platform.bootcp</fail>
-        <fail unless="platform.java">Must set platform.java</fail>
-        <fail unless="platform.javac">Must set platform.javac</fail>
-        <fail if="platform.invalid">Platform is not correctly set up</fail>
         <available file="${manifest.file}" property="manifest.available"/>
         <condition property="manifest.available+main.class">
             <and>
@@ -150,7 +120,7 @@ is divided into following sections:
             <attribute name="debug" default="${javac.debug}"/>
             <element name="customize" optional="true"/>
             <sequential>
-                <javac srcdir="@{srcdir}" destdir="@{destdir}" debug="@{debug}" deprecation="${javac.deprecation}" source="${javac.source}" target="${javac.target}" fork="yes" executable="${platform.javac}" tempdir="${java.io.tmpdir}" includeantruntime="false">
+                <javac srcdir="@{srcdir}" destdir="@{destdir}" debug="@{debug}" deprecation="${javac.deprecation}" source="${javac.source}" target="${javac.target}" includeantruntime="false">
                     <classpath>
                         <path path="@{classpath}"/>
                     </classpath>
@@ -164,7 +134,7 @@ is divided into following sections:
         <macrodef name="junit" uri="http://www.netbeans.org/ns/j2se-project/3">
             <attribute name="includes" default="**/*Test.java"/>
             <sequential>
-                <junit showoutput="true" fork="true" dir="${basedir}" failureproperty="tests.failed" errorproperty="tests.failed" jvm="${platform.java}">
+                <junit showoutput="true" fork="true" dir="${basedir}" failureproperty="tests.failed" errorproperty="tests.failed">
                     <batchtest todir="${build.test.results.dir}"/>
                     <classpath>
                         <path path="${run.test.classpath}"/>
@@ -190,9 +160,6 @@ is divided into following sections:
                     <classpath>
                         <path path="@{classpath}"/>
                     </classpath>
-                    <bootclasspath>
-                        <path path="${platform.bootcp}"/>
-                    </bootclasspath>
                 </nbjpdastart>
             </sequential>
         </macrodef>
@@ -211,7 +178,7 @@ is divided into following sections:
             <attribute name="classpath" default="${debug.classpath}"/>
             <element name="customize" optional="true"/>
             <sequential>
-                <java fork="true" classname="@{classname}" dir="${work.dir}" jvm="${platform.java}">
+                <java fork="true" classname="@{classname}" dir="${work.dir}">
                     <jvmarg value="-Xdebug"/>
                     <jvmarg value="-Xnoagent"/>
                     <jvmarg value="-Djava.compiler=none"/>
@@ -234,7 +201,7 @@ is divided into following sections:
             <attribute name="classname" default="${main.class}"/>
             <element name="customize" optional="true"/>
             <sequential>
-                <java fork="true" classname="@{classname}" dir="${work.dir}" jvm="${platform.java}">
+                <java fork="true" classname="@{classname}" dir="${work.dir}">
                     <jvmarg line="${run.jvmargs}"/>
                     <classpath>
                         <path path="${run.classpath}"/>
@@ -329,7 +296,7 @@ is divided into following sections:
             <path path="${run.classpath}"/>
             <map from="${build.classes.dir.resolved}" to="${dist.jar.resolved}"/>
         </pathconvert>
-        <echo>${platform.java} -cp "${run.classpath.with.dist.jar}" ${main.class}</echo>
+        <echo>java -cp "${run.classpath.with.dist.jar}" ${main.class}</echo>
     </target>
     <target name="-do-jar-with-libraries" depends="init,compile,-pre-pre-jar,-pre-jar" if="manifest.available+main.class+mkdist.available">
         <property name="build.classes.dir.resolved" location="${build.classes.dir}"/>
@@ -354,7 +321,7 @@ is divided into following sections:
         </copylibs>
         <echo>To run this application from the command line without Ant, try:</echo>
         <property name="dist.jar.resolved" location="${dist.jar}"/>
-        <echo>${platform.java} -jar "${dist.jar.resolved}"</echo>
+        <echo>java -jar "${dist.jar.resolved}"</echo>
     </target>
     <target name="-post-jar">
         <!-- Empty placeholder for easier customization. -->
@@ -417,7 +384,7 @@ is divided into following sections:
     -->
     <target name="-javadoc-build" depends="init">
         <mkdir dir="${dist.javadoc.dir}"/>
-        <javadoc destdir="${dist.javadoc.dir}" source="${javac.source}" notree="${javadoc.notree}" use="${javadoc.use}" nonavbar="${javadoc.nonavbar}" noindex="${javadoc.noindex}" splitindex="${javadoc.splitindex}" author="${javadoc.author}" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}" private="${javadoc.private}" additionalparam="${javadoc.additionalparam}" failonerror="true" useexternalfile="true" executable="${platform.javadoc}">
+        <javadoc destdir="${dist.javadoc.dir}" source="${javac.source}" notree="${javadoc.notree}" use="${javadoc.use}" nonavbar="${javadoc.nonavbar}" noindex="${javadoc.noindex}" splitindex="${javadoc.splitindex}" author="${javadoc.author}" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}" private="${javadoc.private}" additionalparam="${javadoc.additionalparam}" failonerror="true" useexternalfile="true">
             <classpath>
                 <path path="${javac.classpath}"/>
             </classpath>

@@ -12,7 +12,7 @@ import marytts.features.MaryGenericFeatureProcessors;
 import marytts.features.MaryLanguageFeatureProcessors;
 import marytts.features.PhoneSet;
 import marytts.features.PhoneSetImpl;
-import marytts.features.MaryGenericFeatureProcessors.TargetItemNavigator;
+import marytts.features.MaryGenericFeatureProcessors.TargetElementNavigator;
 import marytts.server.MaryProperties;
 
 
@@ -29,12 +29,12 @@ public class FeatureProcessorManager extends
     {
         super();
         try{
-            Map posConverter = loadPosConverter();
+            Map<String,String> posConverter = loadPosConverter();
             addFeatureProcessor(new MaryLanguageFeatureProcessors.Gpos(posConverter));
 
             //property is set in english.config
             URL phoneSetURL = new URL("file:"
-                +MaryProperties.needFilename("english.freetts.phoneSetFile"));
+                +MaryProperties.needFilename("english.phoneSetFile"));
             PhoneSet phoneSet  = new PhoneSetImpl(phoneSetURL);
             
           
@@ -61,7 +61,8 @@ public class FeatureProcessorManager extends
             phonemeValues[0] = "0";
             System.arraycopy(phonemes, 0, phonemeValues, 1, phonemes.length);*/
 
-            setupPhonemeFeatureProcessors(phoneSet, phonemeValues);
+            String pauseSymbol = "_";  // TODO: get pause symbol from phone set
+            setupPhonemeFeatureProcessors(phoneSet, phonemeValues, pauseSymbol);
 
             String wordFrequencyFilename = MaryProperties.getFilename("english.wordFrequency.fst");
             String wordFrequencyEncoding = MaryProperties.getProperty("english.wordFrequency.encoding");
@@ -121,7 +122,7 @@ public class FeatureProcessorManager extends
             phone2Classes.put("h","c_glottal");
             phone2Classes.put("_","0");
            
-            MaryGenericFeatureProcessors.TargetItemNavigator nextSegment = new MaryGenericFeatureProcessors.NextSegmentNavigator();
+            MaryGenericFeatureProcessors.TargetElementNavigator nextSegment = new MaryGenericFeatureProcessors.NextSegmentNavigator();
 
            addFeatureProcessor(new MaryLanguageFeatureProcessors.Selection_PhoneClass(
                    phone2Classes, phoneClasses, nextSegment));
@@ -166,7 +167,7 @@ public class FeatureProcessorManager extends
      * Loads the PoS conversion file, if it is needed
      * @return the PoS conversion map
      */
-    private Map loadPosConverter(){
+    private Map<String,String> loadPosConverter(){
         try{
             //property is set in english.shprot
         String file = 
@@ -191,7 +192,7 @@ public class FeatureProcessorManager extends
             //if file name is not given,
             //the english tagger is not loaded
             //and we do not need a conversion map;
-            return new HashMap();}
+            return new HashMap<String, String>();}
     }catch(Exception e){
         e.printStackTrace();
         throw new Error("Error reading pos conversion map");

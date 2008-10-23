@@ -52,26 +52,13 @@ public class Target
 {
     protected String name;
     protected Element maryxmlElement;
-    protected Item item;
     
     protected FeatureVector featureVector = null;
     
     protected float duration = -1;
     protected float f0 = -1;
-    protected Logger logger;
     protected int isSilence =-1;
 
-    /**
-     * Create a target associated to the given segment item.
-     * @param name a name for the target, which may or may not
-     * coincide with the segment name.
-     * @param item the phone segment item in the Utterance structure,
-     * to be associated to this target 
-     */
-    public Target(String name, Item item)
-    {
-        this(name, null, item);
-    }
     
     /**
      * Create a target associated to the given element in the MaryXML tree.
@@ -82,31 +69,12 @@ public class Target
      */
     public Target(String name, Element maryxmlElement)
     {
-        this(name, maryxmlElement, null);
-    }
-    
-    /**
-     * Create a target associated to the given element in the MaryXML tree and with
-     * the given segment item.
-     * @param name a name for the target, which may or may not
-     * coincide with the segment name.
-     * @param maryxmlElement the phone or boundary element in the MaryXML tree
-     * to be associated with this target.
-     * @param item the phone segment item in the Utterance structure,
-     * to be associated to this target 
-     */
-    public Target(String name, Element maryxmlElement, Item item)
-    {
-        logger = Logger.getLogger("Target");
         this.name = name;
         this.maryxmlElement = maryxmlElement;
-        this.item = item;
     }
     
     public Element getMaryxmlElement() { return maryxmlElement; }
-    
-    public Item getItem() { return item; }
-    
+        
     public String getName() { return name; }
     
     public FeatureVector getFeatureVector() { return featureVector; }
@@ -121,8 +89,8 @@ public class Target
         if (duration != -1){
             return duration;
         } else {
-        if (item == null)
-            throw new NullPointerException("Target "+name+" does not have an item.");
+        if (maryxmlElement == null)
+            throw new NullPointerException("Target "+name+" does not have a maryxml element.");
         duration = new MaryGenericFeatureProcessors.UnitDuration().process(this);
         return duration;
         }
@@ -133,12 +101,12 @@ public class Target
         if (f0 != -1){
             return f0;
         } else {
-        if (item == null)
-            throw new NullPointerException("Target "+name+" does not have an item.");
-        float logf0 = new MaryGenericFeatureProcessors.UnitLogF0().process(this);
-        if (logf0 == 0) f0 = 0;
-        else f0 = (float) Math.exp(logf0);
-        return f0;
+            if (maryxmlElement == null)
+                throw new NullPointerException("Target "+name+" does not have a maryxml element.");
+            float logf0 = new MaryGenericFeatureProcessors.UnitLogF0().process(this);
+            if (logf0 == 0) f0 = 0;
+            else f0 = (float) Math.exp(logf0);
+            return f0;
         }
     }
 
@@ -153,19 +121,15 @@ public class Target
     {
         
         if (isSilence == -1) {
-            String silenceSymbol = "_"; // we now use SAMPA in all of our voices
+            // TODO: how do we know the silence symbol here?
+            String silenceSymbol = "_";
             if (name.startsWith(silenceSymbol)) {
                 isSilence = 1; //true
             } else {
-                silenceSymbol = "pau"; // try MRPA just in case
-                if (name.startsWith(silenceSymbol)) {
-                    isSilence = 1; //true
-                } else {
-                    isSilence = 0; //false
-                }
+                isSilence = 0; //false
             }
         }
-        if (isSilence == 1){
+        if (isSilence == 1) {
             return true;
         } else {
             return false;
@@ -176,10 +140,7 @@ public class Target
     
     public Phoneme getSampaPhoneme()
     {
-        if (item != null) {
-            Voice v = FreeTTSVoices.getMaryVoice(item.getUtterance().getVoice());
-            return v.getSampaPhoneme(v.voice2sampa(item.toString()));
-        } else if (maryxmlElement != null) {
+        if (maryxmlElement != null) {
             Element voiceElement = (Element) MaryDomUtils.getAncestor(maryxmlElement, MaryXML.VOICE);
             if (voiceElement != null) {
                 Voice v = Voice.getVoice(voiceElement);
