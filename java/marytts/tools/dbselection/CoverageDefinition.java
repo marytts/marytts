@@ -278,18 +278,40 @@ public class CoverageDefinition{
         clusteredDiphones2Frequency = new TreeMap();
         Set simpleFeatVectTypes = new HashSet();
         Set clusteredFeatVectTypes = new HashSet();
+<<<<<<< .mine
+        
+        // DE original
+        /*
+        phoneFeatIndex = featDef.getFeatureIndex("mary_phoneme");
+=======
         phoneFeatIndex = 
             featDef.getFeatureIndex("phoneme");
 
+>>>>>>> .r1512
         phoneClassesIndex = featDef.getFeatureIndex("selection_next_phone_class");
+        diphoneFeatIndex = featDef.getFeatureIndex("mary_next_phoneme");
+        prosodyIndex = featDef.getFeatureIndex("mary_selection_prosody");
+        */
+        
+        // EN for testing
+        phoneFeatIndex = featDef.getFeatureIndex("mary_phoneme");
+        phoneClassesIndex = featDef.getFeatureIndex("mary_next_next_phoneme");
+        diphoneFeatIndex = featDef.getFeatureIndex("mary_next_phoneme");
+        prosodyIndex = featDef.getFeatureIndex("mary_pos_in_syl");
+        
+        
         numPhoneClasses = featDef.getNumberOfValues(phoneClassesIndex);
         numPhoneValues = featDef.getNumberOfValues(phoneFeatIndex);
         numPhoneValuesMinusIgnored = numPhoneValues-phonesToIgnore.size()-1;
 
+<<<<<<< .mine
+        
+=======
         diphoneFeatIndex = 
             featDef.getFeatureIndex("next_phoneme");
 
         prosodyIndex = featDef.getFeatureIndex("selection_prosody");
+>>>>>>> .r1512
         int numPhoneTypes = 0;
         int numPhoneClassesTypes = 0;
         numSimpleDiphoneTypes = 0; numClusteredDiphoneTypes = 0;
@@ -305,13 +327,20 @@ public class CoverageDefinition{
         //build Cover
         buildCover();
 
+        
+        DBHandler wikiToDB = new DBHandler();
+        wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");                        
+        
+        numSentences = wikiToDB.getNumberOfReliableSentences();
 
-        numSentences = basenames.length;
+        //numSentences = basenames.length;
         trueNumSentences = numSentences;
         if (holdVectorsInMemory && needToReadVectors){
             vectorArray = new byte[numSentences][];
         }
-        int tenPercent = numSentences/10; 
+        int tenPercent = numSentences/10;
+        
+        
         //loop over the feature vectors  
         for (int index=0;index<numSentences;index++){
             if ((index % tenPercent) == 0 && index!=0){
@@ -321,37 +350,46 @@ public class CoverageDefinition{
             //for each vector, get the values for the relevant features
             //add them to the list of possible values   
             //System.out.println(basenames[index]);
-            String nextBasename = basenames[index];
+     
+           // String nextBasename = basenames[index];
             byte[] vectorBuf;
             int numFeatVects;
             if (needToReadVectors){
-                FileInputStream fis;
-                try{ 
-                    fis =
-                        new FileInputStream(new File(nextBasename));
-                } catch (FileNotFoundException fnfe){
+             //   FileInputStream fis;
+             //   try{ 
+             //       fis =
+             //           new FileInputStream(new File(nextBasename));
+             //   } catch (FileNotFoundException fnfe){
                     //skip file
-                    System.out.println("Could not find file "+nextBasename);
-                    if (holdVectorsInMemory){
-                        vectorArray[index] = null;
-                    }
+             //       System.out.println("Could not find file "+nextBasename);
+             //       if (holdVectorsInMemory){
+             //           vectorArray[index] = null;
+             //       }
                     trueNumSentences--;
-                    basenames[index] = null;
-                    continue;
-                }
-                //construct the number of vectors from the first 4 bytes
-                byte[] vlength = new byte[4];
-                fis.read(vlength);
-                numFeatVects = (((vlength[0] & 0xff) << 24) 
-                        | ((vlength[1] & 0xff) << 16) 
-                        | ((vlength[2] & 0xff) << 8)
-                        | (vlength[3] & 0xff));
-                vectorBuf = new byte[4*numFeatVects];
+              //      basenames[index] = null;
+              //      continue;
+              //  }
+                
+              //construct the number of vectors from the first 4 bytes
+              // first two numbers are number of features in a sentence and
+              // the second in the number features to analyse, 4 for 
+              // "mary_phoneme", "mary_next_phoneme", "mary_next_next_phoneme", "mary_pos_in_syl".
+                    
+              // byte[] vlength = new byte[4];
+              //  fis.read(vlength);
+              //  numFeatVects = (((vlength[0] & 0xff) << 24) 
+              //          | ((vlength[1] & 0xff) << 16) 
+              //          | ((vlength[2] & 0xff) << 8)
+              //          | (vlength[3] & 0xff));
+                    
+              vectorBuf = wikiToDB.getFeatures(index+1);  // the indexes in the DB start in 1
+              numFeatVects = vectorBuf.length;
+              //  vectorBuf = new byte[4*numFeatVects];
                 //read the feature vectors
-                int yeah = fis.read(vectorBuf);
+              //  int yeah = fis.read(vectorBuf);
                 //make sure we read all vectors
-                assert (yeah == numFeatVects*4);
-                fis.close();           
+              //  assert (yeah == numFeatVects*4);
+              //  fis.close();           
 
                 if (holdVectorsInMemory){
                     vectorArray[index] = vectorBuf;
@@ -361,6 +399,9 @@ public class CoverageDefinition{
                 vectorBuf = vectorArray[index];
                 numFeatVects = vectorBuf.length;
             }
+           
+            
+            
             //compute statistics of sentence length
             averageSentLength += numFeatVects;
             if (numFeatVects>maxSentLength)
@@ -462,6 +503,11 @@ public class CoverageDefinition{
 
             } 
         }//end of for-loop over feature vectors
+        
+        
+        wikiToDB.closeDBConnection();
+        
+        
 
         //compute average sentence length
         averageSentLength = averageSentLength/(double) trueNumSentences;
