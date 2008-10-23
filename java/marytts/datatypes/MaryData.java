@@ -439,7 +439,12 @@ public class MaryData {
             logger.debug("Writing audio output, frame length "+audio.getFrameLength());
             //AudioSystem.write(audio, audioFileFormat.getType(), os);
             //os.flush();
-            MaryHttpServerUtils.toResponse(audio, response);
+            
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            AudioSystem.write(audio, audioFileFormat.getType(), output);
+            output.flush();
+            
+            MaryHttpServerUtils.toResponse(output.toByteArray(), response);   
         }
     }
     
