@@ -30,7 +30,11 @@
 package marytts.server.http;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -47,6 +51,8 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.AudioFileFormat.Type;
 
 import marytts.server.Request;
+import marytts.util.ConversionUtils;
+import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.string.StringUtils;
 
 import org.apache.http.HttpEntity;
@@ -62,11 +68,13 @@ import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.nio.DefaultClientIOEventDispatch;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
+import org.apache.http.nio.entity.BufferingNHttpEntity;
 import org.apache.http.nio.entity.NByteArrayEntity;
 import org.apache.http.nio.protocol.BufferingHttpClientHandler;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.SessionRequest;
+import org.apache.http.nio.util.DirectByteBufferAllocator;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
@@ -82,84 +90,33 @@ import org.apache.http.protocol.RequestUserAgent;
  * @author oytun.turk
  *
  */
-public class MaryHttpServerUtils {
+public class MaryHttpServerUtils 
+{
+    public static void toResponse(AudioInputStream audio, HttpResponse response) throws IOException
+    {
+        AudioDoubleDataSource signal = new AudioDoubleDataSource(audio);
 
-    public static EntityTemplate string2responseBody(String responseLine)
-    {
-        EntityTemplate body = new EntityTemplate(new MaryContentProducer(responseLine));
-        body.setContentType("text/html; charset=UTF-8");
-        
-        return body;
+        toResponse(signal.getAllData(), response);
     }
     
-    public static EntityTemplate stringArray2responseBody(String[] responseLines)
-    {
-        EntityTemplate body = new EntityTemplate(new MaryContentProducer(responseLines));
-        body.setContentType("text/html; charset=UTF-8");
-        
-        return body;
+    public static void toResponse(double[] x, HttpResponse response) throws IOException
+    {   
+        toResponse(ConversionUtils.toByteArray(x), response);
     }
     
-    public static EntityTemplate vector2responseBody(Vector<String> responseLines)
-    {
-        EntityTemplate body = new EntityTemplate(new MaryContentProducer(responseLines));
-        body.setContentType("text/html; charset=UTF-8");
-        
-        return body;
+    public static void toResponse(int[] x, HttpResponse response) throws IOException
+    {   
+        toResponse(ConversionUtils.toByteArray(x), response);
     }
     
-    public static EntityTemplate textFile2responseBody(String filename)
-    {
-        String responsePage = StringUtils.readTextFileIntoString(filename);
-        
-        EntityTemplate body = new EntityTemplate(new MaryContentProducer(responsePage));
-        body.setContentType("text/html; charset=UTF-8");
-        
-        return body;
+    public static void toResponse(String x, HttpResponse response) throws IOException
+    {   
+        toResponse(ConversionUtils.toByteArray(x), response);
     }
     
-    //TO DO: How to send audio data to client and how to process it in the client?
-    public static void respondWithAudio(AudioInputStream audio, Type type, HttpResponse response) throws IOException
+    public static void toResponse(byte[] byteArray, HttpResponse response)
     {
-        //OutputStream output = null;
-        //AudioSystem.write(audio, type, output);
-        //output.flush();
-    }
-    
-    //TO DO: How to send error message to client and how to process it in the client?
-    public static void respondWithErrorMessage(String host, int port, String errorMessage)
-    {
-        
-    }
-    
-    //TO DO: How to send text data to client and how to process it in the client?
-    public static void respondWithText(String text, HttpResponse response)
-    {
-        
-    }
-    
-    //TO DO: How to get text data from client
-    public static void getTextFromClient(String clientAddress, String endMarker)
-    {
-        
-    }
-    
-    //TO DO: How to send error message to client
-    public static void respondWithErrorMessage(String clientAddress, String errorMessage)
-    {
-        
-    }
-    
-    //TO DO: How to send error message to client
-    public static void respondWithWarningMessage(String clientAddress, String warningMessage)
-    {
-        
-    }
-    
-    public static void string2response(String output, HttpResponse response)
-    {
-        NByteArrayEntity body = new NByteArrayEntity(output.getBytes());
-
+        NByteArrayEntity body = new NByteArrayEntity(byteArray);
         body.setContentType("text/html; charset=UTF-8");
         response.setEntity(body);
     }

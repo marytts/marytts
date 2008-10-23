@@ -29,12 +29,15 @@
 package marytts.server.http;
 
 // General Java Classes
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.net.Socket;
 
+import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.xml.transform.TransformerException;
 
@@ -64,7 +67,7 @@ public class RequestHttpHandler extends Thread {
     //private Logger clientLogger;
     
     private String clientAddress;
-    private HttpResponse response;
+    public HttpResponse response;
 
     /**
      * Constructor to be used for Socket processing (running as a standalone
@@ -103,7 +106,12 @@ public class RequestHttpHandler extends Thread {
             */
         // No stack trace on clientLogger
         
-        MaryHttpServerUtils.respondWithWarningMessage(clientAddress, message + "\n" + e.toString());
+        try {
+            MaryHttpServerUtils.toResponse(message + "\n" + e.toString(), response);
+        } catch (IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
     }
 
     private void clientLogError(String message, Throwable e) {
@@ -117,7 +125,14 @@ public class RequestHttpHandler extends Thread {
         // No stack trace on clientLogger
         
         if (!(e instanceof TransformerException || e instanceof SAXParseException))
-            MaryHttpServerUtils.respondWithErrorMessage(clientAddress, message + "\n" + MaryUtils.getThrowableAndCausesAsString(e));
+        {
+            try {
+                MaryHttpServerUtils.toResponse(message + "\n" + MaryUtils.getThrowableAndCausesAsString(e), response);
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -155,6 +170,7 @@ public class RequestHttpHandler extends Thread {
         StreamingOutputWriter rw = null;
         // Process input data to output data
         if (ok)
+        {
             try {
                 if (request.getOutputType().equals(MaryDataType.get("AUDIO"))
                         && request.getStreamAudio()) {
@@ -171,8 +187,9 @@ public class RequestHttpHandler extends Thread {
                 clientLogError(message, e);
                 ok = false;
             }
+        }
 
-            /*
+        /*
         // For simple clients, we need to close the infoSocket before sending
         // the data on dataSocket. Otherwise there may be deadlock.
         try {
@@ -188,7 +205,8 @@ public class RequestHttpHandler extends Thread {
         */
 
         // Write output:
-        if (ok) {
+        if (ok) 
+        {
             if (!streamingOutput) 
             {
                 try {
@@ -249,13 +267,15 @@ public class RequestHttpHandler extends Thread {
         public void run()
         {
             try {
-                /*
+                ByteArrayOutputStream output = new ByteArrayOutputStream();
                 AudioSystem.write(request.getAudio(), request.getAudioFileFormat().getType(), output);
                 output.flush();
-                */
-                MaryHttpServerUtils.respondWithAudio(request.getAudio(), request.getAudioFileFormat().getType(), response);
+                
+                //MaryHttpServerUtils.toResponse(request.getAudio(), response);
+                MaryHttpServerUtils.toResponse(output.toByteArray(), response);
                 
                 logger.info("Finished writing output");
+                
             } catch (IOException ioe) {
                 logger.info("Cannot write output, client seems to have disconnected. ", ioe);
                 request.abort();
