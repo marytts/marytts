@@ -320,7 +320,6 @@ public class Mary {
             });
             System.err.println(" started in " + (System.currentTimeMillis()-startTime)/1000. + " s");
             new MaryServer().run();
-            //new MaryHttpServer().run();
         } else { // command-line mode
             startup();
             String inputTypeName = MaryProperties.getProperty("input.type");

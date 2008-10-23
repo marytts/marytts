@@ -48,13 +48,12 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
+import marytts.datatypes.MaryData;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
 import marytts.modules.synthesis.Voice;
-import marytts.server.Mary;
 import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 import marytts.util.dom.DomUtils;
@@ -266,7 +265,7 @@ public class RequestHttp {
      * @see #writeOutputData for writing the output data to a stream
      */
     public void process() throws Exception {
-        assert Mary.currentState() == Mary.STATE_RUNNING;
+        assert MaryHttp.currentState() == MaryHttp.STATE_RUNNING;
         long startTime = System.currentTimeMillis();
         if (inputData == null)
             throw new NullPointerException("Input data is not set.");

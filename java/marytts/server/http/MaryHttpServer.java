@@ -218,7 +218,7 @@ public class MaryHttpServer {
     //private ServerSocket server;
     private static Logger logger;
     private int runningNumber = 1;
-    private Map<Integer,Object[]> clientMap;
+    //private Map<Integer,Object[]> clientMap;
 
     public MaryHttpServer() {
         logger = Logger.getLogger("server");
@@ -227,7 +227,7 @@ public class MaryHttpServer {
     public void run() throws IOException, NoSuchPropertyException 
     {
         logger.info("Starting server.");
-        clientMap = Collections.synchronizedMap(new HashMap<Integer,Object[]>());
+        //clientMap = Collections.synchronizedMap(new HashMap<Integer,Object[]>());
         
         int localPort = MaryProperties.needInteger("socket.port");
         
@@ -302,26 +302,10 @@ public class MaryHttpServer {
             
             if (method.equals("GET") || method.equals("POST"))
             {   
-                if ((request instanceof BasicHttpRequest) || (request instanceof BasicHttpEntityEnclosingRequest))
-                {
                     fullParameters = request.getRequestLine().getUri().toString();
                     fullParameters = preprocess(fullParameters);
                     buffReader = new BufferedReader(new StringReader(fullParameters));
-                }
             }
-            /*
-            else if (method.equals("POST"))
-            {
-                if (request instanceof BasicHttpEntityEnclosingRequest) 
-                {
-                    HttpEntity entity = ((BasicHttpEntityEnclosingRequest) request).getEntity();
-                    InputStream is = entity.getContent(); //This is how to get a direct input stream from server. Mary client can use this as audio data source from server etc
-
-                    if (is!=null)
-                        buffReader = new BufferedReader(new InputStreamReader(is));
-                }
-            }
-            */
             else
             {
                 throw new MethodNotSupportedException(method + " method not supported"); 
@@ -338,7 +322,7 @@ public class MaryHttpServer {
                 String errorMessage = "";
                 errorMessage += "Error parsing request:" + System.getProperty("line.separator");
                 errorMessage += e.getMessage() + System.getProperty("line.separator");
-                MaryHttpServerUtils.respondWithErrorMessage(clientAddress, errorMessage);
+                MaryHttpServerUtils.toResponse(errorMessage, response);
             }
         }
         
@@ -348,7 +332,7 @@ public class MaryHttpServer {
             int index = clientAddress.indexOf('?');
             
             if (index>0)
-                clientAddress = clientAddress.substring(0, index-1);
+                clientAddress = clientAddress.substring(0, index);
             
             return clientAddress;
         }
@@ -366,6 +350,7 @@ public class MaryHttpServer {
             
             preprocessedParameters = preprocessedParameters.substring(index);
             preprocessedParameters = StringUtils.replace(preprocessedParameters, "%20", " ");
+            preprocessedParameters = StringUtils.replace(preprocessedParameters, "_HTTPREQUESTLINEBREAK_", System.getProperty("line.separator"));
             
             System.out.println("Preprocessed request: " + preprocessedParameters);
          
@@ -392,72 +377,27 @@ public class MaryHttpServer {
             logger.debug("read request: `"+line+"'");
             if (line == null) //This can be a web client asking for the default Mary Web client page
             {
-                //logger.info("Client seems to have disconnected - cannot read.");
-
+                response.setStatusCode(HttpStatus.SC_OK);
+                
                 //Send the MARY Web Client page by first filling in fields appropriately 
                 // using information from Mary server
                 //String webClientHtmlFile = "D:/Oytun/DFKI/java/workspace/OpenMary/trunk/html/MaryWebClient.html";
                 final String responsePage = "<html><body><h1>123456</h1></body></html>";
-                
-                response.setStatusCode(HttpStatus.SC_OK);
-                /*
-                EntityTemplate body = new EntityTemplate(new ContentProducer() {
-                    
-                    public void writeTo(final OutputStream outstream) throws IOException {
-                        OutputStreamWriter writer = new OutputStreamWriter(outstream, "UTF-8"); 
-                        writer.write(responsePage);
-                        writer.flush();
-                    }
-                });
-                */
-                
-                /* 
-                //This is how to send strings
-                NStringEntity body = null;
-                try {
-                    body = new NStringEntity(responsePage);
-                } catch (UnsupportedEncodingException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                */
-                
-                // This is how to directly send bytes, can be used to send audio data etc in Mary
-                NByteArrayEntity body = new NByteArrayEntity(responsePage.getBytes());
-                
-                body.setContentType("text/html; charset=UTF-8");
-                response.setEntity(body);
-                System.out.println("Server responded with the Mary Web Client page.");
+
+                MaryHttpServerUtils.toResponse(responsePage, response);
 
                 return;
             }
             
-            // A: General information request, no synthesis.
-            // This may consist of one or several lines of info requests and
-            // may either stand alone or precede another request.
-            /*
-            while (handleInfoRequest(line, response)) 
-            {
-                // In case this precedes another request, try to read another line:
-                line = buffReader.readLine();
-                if (line == null)
-                    return;
-            }
-            */
-            
+            String outputLine = "";
             if (handleInfoRequest(line, response)) 
             {
                 return;
             }
-            else if (handleSynthesisRequest(line, response, clientAddress)) // VARIANT B1: Synthesis request.
+            else if (handleSynthesisRequest(line, buffReader, response, clientAddress)) //Synthesis request.
             {
                 return;
-                
-            } 
-            else if (handleNumberRequest(line, buffReader, response, clientAddress)) // VARIANT B2: Second connection of synthesis request.
-            {
-                return;
-            } 
+            }  
             else 
             {
                 // complain
@@ -471,7 +411,7 @@ public class MaryHttpServer {
             }
         }
 
-        private boolean handleInfoRequest(String inputLine, HttpResponse response) 
+        private boolean handleInfoRequest(String inputLine, HttpResponse response) throws IOException 
         {
             String output = "";
             // Optional version information:
@@ -485,7 +425,7 @@ public class MaryHttpServer {
                 // Empty line marks end of info:
                 output += System.getProperty("line.separator");
                 
-                MaryHttpServerUtils.string2response(output, response);
+                MaryHttpServerUtils.toResponse(output, response);
                 
                 return true;
             } 
@@ -507,7 +447,7 @@ public class MaryHttpServer {
                 // Empty line marks end of info:
                 output += System.getProperty("line.separator");
                 
-                MaryHttpServerUtils.string2response(output, response);
+                MaryHttpServerUtils.toResponse(output, response);
                 
                 return true;
             } 
@@ -550,7 +490,7 @@ public class MaryHttpServer {
                 // Empty line marks end of info:
                 output += System.getProperty("line.separator");
                 
-                MaryHttpServerUtils.string2response(output, response);
+                MaryHttpServerUtils.toResponse(output, response);
                 
                 return true;
             } 
@@ -564,7 +504,7 @@ public class MaryHttpServer {
                 // Empty line marks end of info:
                 output += System.getProperty("line.separator");
                 
-                MaryHttpServerUtils.string2response(output, response);
+                MaryHttpServerUtils.toResponse(output, response);
                 
                 return true;
             } 
@@ -593,7 +533,7 @@ public class MaryHttpServer {
                 // upon failure, simply return nothing
                 output += System.getProperty("line.separator");
                 
-                MaryHttpServerUtils.string2response(output, response);
+                MaryHttpServerUtils.toResponse(output, response);
                 
                 return true;
             } 
@@ -620,7 +560,7 @@ public class MaryHttpServer {
                 // upon failure, simply return nothing
                 output += System.getProperty("line.separator");
                 
-                MaryHttpServerUtils.string2response(output, response);
+                MaryHttpServerUtils.toResponse(output, response);
                 
                 return true; 
             }
@@ -663,7 +603,7 @@ public class MaryHttpServer {
                 // upon failure, simply return nothing
                 output += System.getProperty("line.separator");
                 
-                MaryHttpServerUtils.string2response(output, response);
+                MaryHttpServerUtils.toResponse(output, response);
                 
                 return true;
             }
@@ -676,7 +616,7 @@ public class MaryHttpServer {
                 // upon failure, simply return nothing
                 output += System.getProperty("line.separator");
                 
-                MaryHttpServerUtils.string2response(output, response);
+                MaryHttpServerUtils.toResponse(output, response);
                 
                 return true;
             }
@@ -713,7 +653,7 @@ public class MaryHttpServer {
                         // upon failure, simply return nothing
                         output += System.getProperty("line.separator");
                         
-                        MaryHttpServerUtils.string2response(output, response);
+                        MaryHttpServerUtils.toResponse(output, response);
                         
                         return true;
                     }
@@ -755,7 +695,7 @@ public class MaryHttpServer {
                         // upon failure, simply return nothing
                         output += System.getProperty("line.separator");
                         
-                        MaryHttpServerUtils.string2response(output, response);
+                        MaryHttpServerUtils.toResponse(output, response);
                         
                         return true;
                     }
@@ -805,7 +745,7 @@ public class MaryHttpServer {
                         // upon failure, simply return nothing
                         output += System.getProperty("line.separator");
                         
-                        MaryHttpServerUtils.string2response(output, response);
+                        MaryHttpServerUtils.toResponse(output, response);
                         
                         return true;
                     }
@@ -815,8 +755,6 @@ public class MaryHttpServer {
             }
             else if (inputLine.startsWith("MARY VOICE GETAUDIOEFFECTHELPTEXT "))
             {
-                int zz = MaryProperties.effectClasses().size();
-                
                 for (int i=0; i<MaryProperties.effectNames().size(); i++)
                 {
                     int tmpInd = inputLine.indexOf("MARY VOICE GETAUDIOEFFECTHELPTEXT " + MaryProperties.effectNames().elementAt(i));
@@ -848,7 +786,7 @@ public class MaryHttpServer {
                         // upon failure, simply return nothing
                         output += System.getProperty("line.separator");
                         
-                        MaryHttpServerUtils.string2response(output, response);
+                        MaryHttpServerUtils.toResponse(output, response);
                         
                         return true;
                     }
@@ -893,7 +831,7 @@ public class MaryHttpServer {
                         // upon failure, simply return nothing
                         output += System.getProperty("line.separator");
                         
-                        MaryHttpServerUtils.string2response(output, response);
+                        MaryHttpServerUtils.toResponse(output, response);
                         
                         return true;
                     }
@@ -905,8 +843,9 @@ public class MaryHttpServer {
                 return false;
         }
 
-        private boolean handleSynthesisRequest(String inputLine, HttpResponse response, String clientAddress) throws Exception 
+        private boolean handleSynthesisRequest(String inputLine, BufferedReader reader, HttpResponse response, String clientAddress) throws Exception 
         {
+            String outputLine = null;
             int id = 0;
             // * if MARY ..., then
             if (inputLine.startsWith("MARY")) 
@@ -1095,6 +1034,7 @@ public class MaryHttpServer {
                 // Now, the parse is complete.
                 // this request's id:
                 id = getID();
+                
                 // Construct audio file format -- even when output is not AUDIO,
                 // in case we need to pass via audio to get our output type.
                 AudioFileFormat audioFileFormat = null;
@@ -1116,67 +1056,79 @@ public class MaryHttpServer {
                 RequestHttp request = new RequestHttp(inputType, outputType, locale, voice, effects, style, id, audioFileFormat, streamingAudio);
                 
                 //   -- create new clientMap entry
-                Object[] value = new Object[2];
-                value[0] = clientAddress;
-                value[1] = request;
-                clientMap.put(id, value);
+                //Object[] value = new Object[2];
+                //value[0] = clientAddress;
+                //value[1] = request;
+                //clientMap.put(id, value);
                 
-                String output = String.valueOf(id) + System.getProperty("line.separator");
-                MaryHttpServerUtils.string2response(output, response);
+                //String output = String.valueOf(id) + System.getProperty("line.separator");
+                //MaryHttpServerUtils.string2response(output, response);
+                //outputLine = output;
+                
+                //inputLine = outputLine.trim();
+                
+                // * if number
+                //int id = 0;
+                //try {
+                //    id = Integer.parseInt(inputLine);
+                //} catch (NumberFormatException e) {
+                //    return false;
+                //}
+                
+                //   -- find corresponding infoSocket and request in clientMap
+                //Socket infoSocket = null;
+                //String infoSocketAddress = null;
+                String infoSocketAddress = clientAddress;
+                //RequestHttp request = null;
+                
+                /*
+                // Wait up to TIMEOUT milliseconds for the first ClientHandler
+                // to write its clientMap entry:
+                long TIMEOUT = 1000;
+                long startTime = System.currentTimeMillis();
+                Object[] value = null;
+                do {
+                    Thread.yield();
+                    value = (Object[]) clientMap.get(id);
+                } while (value == null && System.currentTimeMillis() - startTime < TIMEOUT);
+                if (value != null) {
+                    infoSocketAddress = (String) value[0];
+                    request = (RequestHttp) value[1];
+                }
+                // Verify that the request is non-null and that the
+                // corresponding socket comes from the same IP address:
+                if (request == null
+                    || infoSocketAddress == null
+                    || !infoSocketAddress.equals(clientAddress)) {
+                    throw new Exception("Invalid identification number.");
+                    // Don't be more specific, because in general it is none of
+                    // their business whether in principle someone else has
+                    // this id.
+                }
+
+                //   -- delete clientMap entry
+                try {
+                    clientMap.remove(id);
+                } catch (UnsupportedOperationException e) {
+                    logger.info("Cannot remove clientMap entry", e);
+                }
+                */
+                
+                Thread.yield();
+                
+                //   -- send off to new request
+                RequestHttpHandler rh = new RequestHttpHandler(request, response, infoSocketAddress, reader);
+                
+                rh.start();
+                
+                rh.join();
+                
+                response = rh.response;
                 
                 return true;
             }
             
             return false;
-        }
-
-        private boolean handleNumberRequest(String inputLine, Reader reader, HttpResponse response, String clientAddress) throws Exception 
-        {
-            // * if number
-            int id = 0;
-            try {
-                id = Integer.parseInt(inputLine);
-            } catch (NumberFormatException e) {
-                return false;
-            }
-            //   -- find corresponding infoSocket and request in clientMap
-            //Socket infoSocket = null;
-            String infoSocketAddress = null;
-            RequestHttp request = null;
-            // Wait up to TIMEOUT milliseconds for the first ClientHandler
-            // to write its clientMap entry:
-            long TIMEOUT = 1000;
-            long startTime = System.currentTimeMillis();
-            Object[] value = null;
-            do {
-                Thread.yield();
-                value = (Object[]) clientMap.get(id);
-            } while (value == null && System.currentTimeMillis() - startTime < TIMEOUT);
-            if (value != null) {
-                infoSocketAddress = (String) value[0];
-                request = (RequestHttp) value[1];
-            }
-            // Verify that the request is non-null and that the
-            // corresponding socket comes from the same IP address:
-            if (request == null
-                || infoSocketAddress == null
-                || !infoSocketAddress.equals(clientAddress)) {
-                throw new Exception("Invalid identification number.");
-                // Don't be more specific, because in general it is none of
-                // their business whether in principle someone else has
-                // this id.
-            }
-
-            //   -- delete clientMap entry
-            try {
-                clientMap.remove(id);
-            } catch (UnsupportedOperationException e) {
-                logger.info("Cannot remove clientMap entry", e);
-            }
-            //   -- send off to new request
-            RequestHttpHandler rh = new RequestHttpHandler(request, response, infoSocketAddress, reader);
-            rh.start();
-            return true;
         }
     }
     
