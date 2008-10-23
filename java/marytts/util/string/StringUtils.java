@@ -790,7 +790,7 @@ public class StringUtils {
         return isFound;
     }
     
-    public static String[] string2StringArray(String allInOneLine)
+    public static String[] toStringArray(String allInOneLine)
     {
         if (allInOneLine!="")
         {
@@ -808,7 +808,7 @@ public class StringUtils {
             return null;
     }
     
-    public static InputStream string2InputStream(String str)
+    public static InputStream toInputStream(String str)
     {
         ByteArrayInputStream stream = null;
         try {
@@ -821,34 +821,34 @@ public class StringUtils {
         return stream;
     }
     
-    public static InputStream stringArray2InputStream(String[] stringArray)
+    public static InputStream toInputStream(String[] stringArray)
     {
-        return stringArray2InputStream(stringArray, 0);
+        return toInputStream(stringArray, 0);
     }
     
-    public static InputStream stringArray2InputStream(String[] stringArray, int startIndex)
+    public static InputStream toInputStream(String[] stringArray, int startIndex)
     {
-        return stringArray2InputStream(stringArray, startIndex, stringArray.length);
+        return toInputStream(stringArray, startIndex, stringArray.length);
     }
     
-    public static InputStream stringArray2InputStream(String[] stringArray, int startIndex, int endIndex)
+    public static InputStream toInputStream(String[] stringArray, int startIndex, int endIndex)
     {
-        String str = stringArray2String(stringArray, startIndex, endIndex);
+        String str = toString(stringArray, startIndex, endIndex);
         
-        return string2InputStream(str);
+        return toInputStream(str);
     }
     
-    public static String stringArray2String(String[] stringArray)
+    public static String toString(String[] stringArray)
     {
-        return stringArray2String(stringArray, 0);
+        return toString(stringArray, 0);
     }
     
-    public static String stringArray2String(String[] stringArray, int startIndex)
+    public static String toString(String[] stringArray, int startIndex)
     {
-        return stringArray2String(stringArray, startIndex, stringArray.length-1);
+        return toString(stringArray, startIndex, stringArray.length-1);
     }
     
-    public static String stringArray2String(String[] stringArray, int startIndex, int endIndex)
+    public static String toString(String[] stringArray, int startIndex, int endIndex)
     {
         if (startIndex<0)
             startIndex=0;
