@@ -278,16 +278,13 @@ public class CoverageDefinition{
         clusteredDiphones2Frequency = new TreeMap();
         Set simpleFeatVectTypes = new HashSet();
         Set clusteredFeatVectTypes = new HashSet();
-<<<<<<< .mine
+
         
         // DE original
         /*
         phoneFeatIndex = featDef.getFeatureIndex("mary_phoneme");
-=======
         phoneFeatIndex = 
             featDef.getFeatureIndex("phoneme");
-
->>>>>>> .r1512
         phoneClassesIndex = featDef.getFeatureIndex("selection_next_phone_class");
         diphoneFeatIndex = featDef.getFeatureIndex("mary_next_phoneme");
         prosodyIndex = featDef.getFeatureIndex("mary_selection_prosody");
@@ -303,15 +300,9 @@ public class CoverageDefinition{
         numPhoneClasses = featDef.getNumberOfValues(phoneClassesIndex);
         numPhoneValues = featDef.getNumberOfValues(phoneFeatIndex);
         numPhoneValuesMinusIgnored = numPhoneValues-phonesToIgnore.size()-1;
-
-<<<<<<< .mine
-        
-=======
-        diphoneFeatIndex = 
-            featDef.getFeatureIndex("next_phoneme");
-
+        diphoneFeatIndex = featDef.getFeatureIndex("next_phoneme");
         prosodyIndex = featDef.getFeatureIndex("selection_prosody");
->>>>>>> .r1512
+
         int numPhoneTypes = 0;
         int numPhoneClassesTypes = 0;
         numSimpleDiphoneTypes = 0; numClusteredDiphoneTypes = 0;
