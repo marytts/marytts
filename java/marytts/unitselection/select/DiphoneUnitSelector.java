@@ -53,37 +53,31 @@ public class DiphoneUnitSelector extends UnitSelector
         super();
     }
 
+
+    
     /**
-     * Create the list of targets from the Segments in the utterance.
-     * @param segs the Segment relation
-     * @return a list of Target objects -- in this case, diphone targets
+     * Create the list of targets from the XML elements to synthesize.
+     * @param segmentsAndBoundaries a list of MaryXML phone and boundary elements
+     * @return a list of Target objects
      */
-    protected List<Target> createTargets(Relation segs)
+    protected List<Target> createTargets(List<Element> segmentsAndBoundaries)
     {
         List<Target> targets = new ArrayList<Target>();
+        // TODO: how can we know the silence symbol here?
         String silenceSymbol = "_"; // in sampa
 
         // Insert an initial silence with duration 0 (needed as context)
-        Item initialSilence = new Item(segs, new ItemContents());
-        initialSilence.getFeatures().setFloat("end", 0.000f);
-        HalfPhoneTarget prev = new HalfPhoneTarget(silenceSymbol+"_R", null, initialSilence, false);
-        for (Item s = segs.getHead(); s != null; s = s.getNext()) {
-            Element maryxmlElement = (Element) s.getFeatures().getObject("maryxmlElement");
-            String segName = s.getFeatures().getString("name");
-            String sampa = FreeTTSVoices.getMaryVoice(s.getUtterance().getVoice()).voice2sampa(segName);
-            HalfPhoneTarget leftHalfPhone = new HalfPhoneTarget(sampa+"_L", maryxmlElement, s, true); // left half
-            HalfPhoneTarget rightHalfPhone = new HalfPhoneTarget(sampa+"_R", maryxmlElement, s, false); // right half
+        HalfPhoneTarget prev = new HalfPhoneTarget(silenceSymbol+"_R", null, false);
+        for (Element sOrB : segmentsAndBoundaries) {
+            String phone = getPhoneSymbol(sOrB);
+            HalfPhoneTarget leftHalfPhone = new HalfPhoneTarget(phone+"_L", sOrB, true); // left half
+            HalfPhoneTarget rightHalfPhone = new HalfPhoneTarget(phone+"_R", sOrB, false); // right half
             targets.add(new DiphoneTarget(prev, leftHalfPhone));
             prev = rightHalfPhone;
         }
         // Make sure there is a final silence
-        if (!prev.getName().startsWith(silenceSymbol)) {
-            // need to append final silence of length 0 (needed as context)
-            assert prev.getItem().getFeatures().isPresent("end") : "Item '"+prev.getItem()+"' for target '"+prev.getName()+" has no 'end' feature";
-            float prevEnd = prev.getItem().getFeatures().getFloat("end");
-            Item finalSilence = new Item(segs, new ItemContents());
-            finalSilence.getFeatures().setFloat("end", prevEnd+0.000f); // same end time
-            HalfPhoneTarget silence = new HalfPhoneTarget(silenceSymbol+"_L", null, finalSilence, true);
+        if (!prev.isSilence()) {
+            HalfPhoneTarget silence = new HalfPhoneTarget(silenceSymbol+"_L", null, true);
             targets.add(new DiphoneTarget(prev, silence));
         }
         return targets;

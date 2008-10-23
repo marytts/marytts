@@ -32,7 +32,6 @@ import java.util.Locale;
 
 import marytts.datatypes.MaryDataType;
 import marytts.language.en.features.FeatureProcessorManager;
-import marytts.language.en_US.datatypes.USEnglishDataTypes;
 
 
 /**
@@ -46,8 +45,8 @@ public class CARTDurationModeller extends marytts.modules.CARTDurationModeller
     public CARTDurationModeller()
     {
         super("CARTDurationModeller",
-              USEnglishDataTypes.FREETTS_POSTPROCESSED,
-              USEnglishDataTypes.FREETTS_MBROLISED_DURATIONS,
+              MaryDataType.ALLOPHONES,
+              MaryDataType.DURATIONS,
               Locale.ENGLISH,
               "english.duration.",
               new FeatureProcessorManager()

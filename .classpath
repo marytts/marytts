@@ -5,7 +5,6 @@
 	<classpathentry kind="lib" path="java/log4j-1.2.8.jar"/>
 	<classpathentry kind="lib" path="java/freetts.jar"/>
 	<classpathentry kind="lib" path="java/jsresources.jar" sourcepath="java/jsresources.jar"/>
-	<classpathentry kind="lib" path="java/junit.jar"/>
 	<classpathentry kind="lib" path="java/freetts-cmudict04.jar"/>
 	<classpathentry kind="lib" path="java/freetts-en_us.jar"/>
 	<classpathentry kind="lib" path="java/freetts-mbrola.jar"/>
@@ -28,5 +27,9 @@
 	<classpathentry kind="lib" path="java/fast-md5.jar"/>
 	<classpathentry kind="lib" path="java/commons-collections-3.2.1.jar" sourcepath="java/commons-collections-3.2.1-sources.jar"/>
 	<classpathentry kind="lib" path="java/weka.jar"/>
+	<classpathentry kind="lib" path="java/httpcore-4.0-beta2.jar"/>
+	<classpathentry kind="lib" path="java/httpclient-4.0-alpha4.jar"/>
+	<classpathentry kind="lib" path="java/httpcore-nio-4.0-beta2.jar"/>
+	<classpathentry kind="lib" path="java/junit-4.5.jar"/>
 	<classpathentry kind="output" path="java"/>
 </classpath>

@@ -41,36 +41,36 @@ public class FeatureProcessorManager
     {
         processors = new HashMap<String,MaryFeatureProcessor>();
 
-        MaryGenericFeatureProcessors.TargetItemNavigator segment = new MaryGenericFeatureProcessors.SegmentNavigator();
-        MaryGenericFeatureProcessors.TargetItemNavigator prevSegment = new MaryGenericFeatureProcessors.PrevSegmentNavigator();
-        MaryGenericFeatureProcessors.TargetItemNavigator nextSegment = new MaryGenericFeatureProcessors.NextSegmentNavigator();
-        MaryGenericFeatureProcessors.TargetItemNavigator syllable = new MaryGenericFeatureProcessors.SyllableNavigator();
-        MaryGenericFeatureProcessors.TargetItemNavigator prevSyllable = new MaryGenericFeatureProcessors.PrevSyllableNavigator();
-        MaryGenericFeatureProcessors.TargetItemNavigator nextSyllable = new MaryGenericFeatureProcessors.NextSyllableNavigator();
-        MaryGenericFeatureProcessors.TargetItemNavigator nextNextSyllable = new MaryGenericFeatureProcessors.NextNextSyllableNavigator();
-        MaryGenericFeatureProcessors.TargetItemNavigator lastWord = new MaryGenericFeatureProcessors.LastWordInSentenceNavigator();
+        MaryGenericFeatureProcessors.TargetElementNavigator segment = new MaryGenericFeatureProcessors.SegmentNavigator();
+        MaryGenericFeatureProcessors.TargetElementNavigator prevSegment = new MaryGenericFeatureProcessors.PrevSegmentNavigator();
+        MaryGenericFeatureProcessors.TargetElementNavigator nextSegment = new MaryGenericFeatureProcessors.NextSegmentNavigator();
+        MaryGenericFeatureProcessors.TargetElementNavigator syllable = new MaryGenericFeatureProcessors.SyllableNavigator();
+        MaryGenericFeatureProcessors.TargetElementNavigator prevSyllable = new MaryGenericFeatureProcessors.PrevSyllableNavigator();
+        MaryGenericFeatureProcessors.TargetElementNavigator nextSyllable = new MaryGenericFeatureProcessors.NextSyllableNavigator();
+        MaryGenericFeatureProcessors.TargetElementNavigator nextNextSyllable = new MaryGenericFeatureProcessors.NextNextSyllableNavigator();
+        MaryGenericFeatureProcessors.TargetElementNavigator lastWord = new MaryGenericFeatureProcessors.LastWordInSentenceNavigator();
 
         addFeatureProcessor(new MaryGenericFeatureProcessors.Edge());
         addFeatureProcessor(new MaryGenericFeatureProcessors.HalfPhoneLeftRight());
-        addFeatureProcessor(new MaryGenericFeatureProcessors.Accented("mary_accented", syllable));
-        addFeatureProcessor(new MaryGenericFeatureProcessors.Stressed("mary_stressed", syllable));
-        addFeatureProcessor(new MaryGenericFeatureProcessors.Stressed("mary_prev_stressed", prevSyllable));
-        addFeatureProcessor(new MaryGenericFeatureProcessors.Stressed("mary_next_stressed", nextSyllable));
+        addFeatureProcessor(new MaryGenericFeatureProcessors.Accented("accented", syllable));
+        addFeatureProcessor(new MaryGenericFeatureProcessors.Stressed("stressed", syllable));
+        addFeatureProcessor(new MaryGenericFeatureProcessors.Stressed("prev_stressed", prevSyllable));
+        addFeatureProcessor(new MaryGenericFeatureProcessors.Stressed("next_stressed", nextSyllable));
         addFeatureProcessor(new MaryGenericFeatureProcessors.WordNumSyls());
         addFeatureProcessor(new MaryGenericFeatureProcessors.PosInSyl());
-        addFeatureProcessor(new MaryGenericFeatureProcessors.SylBreak("mary_syl_break", syllable));
-        addFeatureProcessor(new MaryGenericFeatureProcessors.SylBreak("mary_prev_syl_break", prevSyllable));
+        addFeatureProcessor(new MaryGenericFeatureProcessors.SylBreak("syl_break", syllable));
+        addFeatureProcessor(new MaryGenericFeatureProcessors.SylBreak("prev_syl_break", prevSyllable));
         addFeatureProcessor(new MaryGenericFeatureProcessors.PositionType());
         addFeatureProcessor(new MaryGenericFeatureProcessors.BreakIndex());
-        addFeatureProcessor(new MaryGenericFeatureProcessors.IsPause("mary_prev_is_pause", prevSegment));
-        addFeatureProcessor(new MaryGenericFeatureProcessors.IsPause("mary_next_is_pause", nextSegment));
-        addFeatureProcessor(new MaryGenericFeatureProcessors.TobiAccent("mary_tobi_accent", syllable));
-        addFeatureProcessor(new MaryGenericFeatureProcessors.TobiAccent("mary_next_tobi_accent", nextSyllable));
-        addFeatureProcessor(new MaryGenericFeatureProcessors.TobiAccent("mary_nextnext_tobi_accent", nextNextSyllable));
-        addFeatureProcessor(new MaryGenericFeatureProcessors.TobiEndtone("mary_tobi_endtone", syllable));
-        addFeatureProcessor(new MaryGenericFeatureProcessors.TobiEndtone("mary_next_tobi_endtone", nextSyllable));
-        addFeatureProcessor(new MaryGenericFeatureProcessors.TobiEndtone("mary_nextnext_tobi_endtone", nextNextSyllable));
-        addFeatureProcessor(new MaryGenericFeatureProcessors.WordPunc("mary_sentence_punc", lastWord));
+        addFeatureProcessor(new MaryGenericFeatureProcessors.IsPause("prev_is_pause", prevSegment));
+        addFeatureProcessor(new MaryGenericFeatureProcessors.IsPause("next_is_pause", nextSegment));
+        addFeatureProcessor(new MaryGenericFeatureProcessors.TobiAccent("tobi_accent", syllable));
+        addFeatureProcessor(new MaryGenericFeatureProcessors.TobiAccent("next_tobi_accent", nextSyllable));
+        addFeatureProcessor(new MaryGenericFeatureProcessors.TobiAccent("nextnext_tobi_accent", nextNextSyllable));
+        addFeatureProcessor(new MaryGenericFeatureProcessors.TobiEndtone("tobi_endtone", syllable));
+        addFeatureProcessor(new MaryGenericFeatureProcessors.TobiEndtone("next_tobi_endtone", nextSyllable));
+        addFeatureProcessor(new MaryGenericFeatureProcessors.TobiEndtone("nextnext_tobi_endtone", nextNextSyllable));
+        addFeatureProcessor(new MaryGenericFeatureProcessors.WordPunc("sentence_punc", lastWord));
         addFeatureProcessor(new MaryGenericFeatureProcessors.SylsFromPhraseStart());
         addFeatureProcessor(new MaryGenericFeatureProcessors.SylsFromPhraseEnd());
         addFeatureProcessor(new MaryGenericFeatureProcessors.StressedSylsFromPhraseStart());
@@ -142,21 +142,21 @@ public class FeatureProcessorManager
         return processors.get(name);
     }
     
-    protected void setupPhonemeFeatureProcessors(PhoneSet phoneset, String[] phonemeValues)
+    protected void setupPhonemeFeatureProcessors(PhoneSet phoneset, String[] phonemeValues, String pauseSymbol)
     {
-        MaryGenericFeatureProcessors.TargetItemNavigator segment = new MaryGenericFeatureProcessors.SegmentNavigator();
+        MaryGenericFeatureProcessors.TargetElementNavigator segment = new MaryGenericFeatureProcessors.SegmentNavigator();
 
-        addFeatureProcessor(new MaryLanguageFeatureProcessors.Phoneme("mary_phoneme", phonemeValues, segment));
-        addFeatureProcessor(new MaryLanguageFeatureProcessors.HalfPhoneUnitName(phonemeValues));
+        addFeatureProcessor(new MaryLanguageFeatureProcessors.Phoneme("phoneme", phonemeValues, pauseSymbol, segment));
+        addFeatureProcessor(new MaryLanguageFeatureProcessors.HalfPhoneUnitName(phonemeValues, pauseSymbol));
         addFeatureProcessor(new MaryLanguageFeatureProcessors.SegOnsetCoda(phoneset));
         // Phone features:
         for (String feature : phonefeatures2values.keySet()) {
             addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature
-                    (phoneset, "mary_ph_"+feature, feature, phonefeatures2values.get(feature), segment));
+                    (phoneset, "ph_"+feature, feature, phonefeatures2values.get(feature), pauseSymbol, segment));
         }
       
-        Map<String,MaryGenericFeatureProcessors.TargetItemNavigator> segments =
-            new HashMap<String, MaryGenericFeatureProcessors.TargetItemNavigator>();
+        Map<String,MaryGenericFeatureProcessors.TargetElementNavigator> segments =
+            new HashMap<String, MaryGenericFeatureProcessors.TargetElementNavigator>();
         
         segments.put("prev", new MaryGenericFeatureProcessors.PrevSegmentNavigator());
         segments.put("prev_prev", new MaryGenericFeatureProcessors.PrevPrevSegmentNavigator());
@@ -164,12 +164,12 @@ public class FeatureProcessorManager
         segments.put("next_next", new MaryGenericFeatureProcessors.NextNextSegmentNavigator());
 
         for (String position : segments.keySet()) {
-            MaryGenericFeatureProcessors.TargetItemNavigator navi = segments.get(position);
-            addFeatureProcessor(new MaryLanguageFeatureProcessors.Phoneme("mary_"+position+"_phoneme", phonemeValues, navi));
+            MaryGenericFeatureProcessors.TargetElementNavigator navi = segments.get(position);
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.Phoneme(position+"_phoneme", phonemeValues, pauseSymbol, navi));
             // Phone features:
             for (String feature : phonefeatures2values.keySet()) {
                 addFeatureProcessor(new MaryLanguageFeatureProcessors.PhoneFeature
-                        (phoneset, "mary_"+position+"_"+feature, feature, phonefeatures2values.get(feature), navi));
+                        (phoneset, position+"_"+feature, feature, phonefeatures2values.get(feature), pauseSymbol, navi));
             }
             
         }

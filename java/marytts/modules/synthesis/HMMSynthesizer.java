@@ -95,6 +95,7 @@ import marytts.server.MaryProperties;
 import marytts.unitselection.UnitSelectionVoice;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.AudioPlayer;
+import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
 import org.apache.log4j.Logger;
@@ -117,7 +118,6 @@ import com.sun.speech.freetts.Utterance;
  * @author Marc Schr&ouml;der, Marcela Charfuelan 
  */
 public class HMMSynthesizer implements WaveformSynthesizer {
-    private XML2UttAcoustParams x2u;
     private TargetFeatureLister targetFeatureLister;
     private HTSEngine htsEngine;
     private Logger logger;
@@ -129,19 +129,6 @@ public class HMMSynthesizer implements WaveformSynthesizer {
         logger = Logger.getLogger(this.toString());
         // Try to get instances of our tools from Mary; if we cannot get them,
         // instantiate new objects.
-
-        try{
-            x2u = (XML2UttAcoustParams) ModuleRegistry.getModule(XML2UttAcoustParams.class);
-        } catch (NullPointerException npe){
-            x2u = null;
-        }
-        if (x2u == null) {
-            logger.info("Starting my own XML2UttAcoustParams");
-            x2u = new XML2UttAcoustParams();
-            x2u.startup();
-        } else if (x2u.getState() == MaryModule.MODULE_OFFLINE) {
-            x2u.startup();
-        }
 
         try{
             targetFeatureLister = (TargetFeatureLister) ModuleRegistry.getModule(TargetFeatureLister.class);
@@ -249,27 +236,20 @@ public class HMMSynthesizer implements WaveformSynthesizer {
 
          logger.info("Starting power-on self test.");
          try {
-             Collection myVoices = Voice.getAvailableVoices(this);
+             Collection<Voice> myVoices = Voice.getAvailableVoices(this);
              if (myVoices.size() == 0) {
                  return;
              }
              
              Voice v = (Voice) myVoices.iterator().next();
-             MaryData in = new MaryData(x2u.inputType(), v.getLocale());
+             MaryData in = new MaryData(MaryDataType.ACOUSTPARAMS, v.getLocale());
             
              String exampleText = MaryDataType.ACOUSTPARAMS.exampleText(v.getLocale());
              if (exampleText != null) {
                  in.readFrom(new StringReader(exampleText));
                  in.setDefaultVoice(v);
 
-                 MaryData d1 = x2u.process(in);
-                 Utterance utt = (Utterance) d1.getUtterances().get(0);           
-                 MaryData freettsAcoustparams = new MaryData(x2u.outputType(), v.getLocale());
-                 List<Utterance> utts = new ArrayList<Utterance>();
-                 utts.add(utt);
-                 freettsAcoustparams.setUtterances(utts);
-                 freettsAcoustparams.setDefaultVoice(v);
-                 MaryData targetFeatures = targetFeatureLister.process(freettsAcoustparams);
+                 MaryData targetFeatures = targetFeatureLister.process(in);
                  targetFeatures.setDefaultVoice(v);
                  MaryData audio = htsEngine.process(targetFeatures);
                  
@@ -297,16 +277,28 @@ public class HMMSynthesizer implements WaveformSynthesizer {
                 "Voice " + voice.getName() + " is not an HMM voice.");
         }
         logger.info("Synthesizing one sentence.");
-        logger.info("Synthesizing one utterance.");
-        Utterance utt = x2u.convert(tokensAndBoundaries, voice);
-        MaryData freettsAcoustparams = new MaryData(x2u.outputType(), voice.getLocale());
-        List<Utterance> utts = new ArrayList<Utterance>();
-        utts.add(utt);
-        freettsAcoustparams.setUtterances(utts);
-        freettsAcoustparams.setDefaultVoice(voice);
-       
+
+        // from tokens and boundaries, extract segments and boundaries:
+        List<Element> segmentsAndBoundaries = new ArrayList<Element>();
+        Document doc = null;
+        for (Element tOrB : tokensAndBoundaries) {
+            if (tOrB.getTagName().equals(MaryXML.BOUNDARY)) {
+                segmentsAndBoundaries.add(tOrB);
+            } else { // a token -- add all segments below it
+                if (doc == null) {
+                    doc = tOrB.getOwnerDocument();
+                }
+                NodeIterator ni = MaryDomUtils.createNodeIterator(doc, tOrB, MaryXML.PHONE);
+                Element s;
+                while ((s = (Element) ni.nextNode()) != null) {
+                    segmentsAndBoundaries.add(s);
+                }
+            }
+        }
         try {
-            MaryData targetFeatures = targetFeatureLister.process(freettsAcoustparams);
+            String targetFeatureString = targetFeatureLister.listTargetFeatures(voice.getTargetFeatureComputer(), segmentsAndBoundaries);
+            MaryData targetFeatures = new MaryData(targetFeatureLister.outputType(), voice.getLocale());
+            targetFeatures.setPlainText(targetFeatureString);
             targetFeatures.setDefaultVoice(voice);
             MaryData audio = htsEngine.process(targetFeatures);     
             setActualDurations(tokensAndBoundaries, audio.getPlainText());

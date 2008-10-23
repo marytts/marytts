@@ -59,7 +59,7 @@ public class PauseDurationTrainer extends VoiceImportComponent {
     }
     
     // maybe specify in config file?
-    public final String[] featureNames = new String[]{"mary_breakindex","mary_ph_cplace","mary_ph_ctype","mary_next_pos","mary_next_wordbegin_ctype","mary_next_wordbegin_cplace","mary_words_from_phrase_end","mary_words_from_phrase_start"/**/};
+    public final String[] featureNames = new String[]{"breakindex","ph_cplace","ph_ctype","next_pos","next_wordbegin_ctype","next_wordbegin_cplace","words_from_phrase_end","words_from_phrase_start"/**/};
     
     // feature files used for training ("pause features")
     public final String FVFILES =    "PauseDurationTrainer.featureDir";
@@ -164,8 +164,8 @@ public class PauseDurationTrainer extends VoiceImportComponent {
                
             }
             
-            int symbolFeature = fd.getFeatureIndex("mary_phoneme");
-            int breakindexFeature = fd.getFeatureIndex("mary_breakindex");
+            int symbolFeature = fd.getFeatureIndex("phoneme");
+            int breakindexFeature = fd.getFeatureIndex("breakindex");
             
             int currLabelNr = 0;
             
@@ -260,7 +260,7 @@ public class PauseDurationTrainer extends VoiceImportComponent {
             Instance currInst = data.instance(i);
             int dur = durs.get(i);
             
-            //System.out.println(" mapping " + dur + " to " + discr.discretize(dur) + " - bi:" + data.instance(i).value(data.attribute("mary_breakindex")));
+            //System.out.println(" mapping " + dur + " to " + discr.discretize(dur) + " - bi:" + data.instance(i).value(data.attribute("breakindex")));
             
             currInst.setValue( data.numAttributes() - 1 , discr.discretize(dur) + "ms" );
             
@@ -300,8 +300,8 @@ public class PauseDurationTrainer extends VoiceImportComponent {
             
             String attName = fd.getFeatureName(attribute);
 
-            // skip mary_phoneme
-            if (attName.equals("mary_phoneme")){
+            // skip phoneme
+            if (attName.equals("phoneme")){
                 continue;
             }
 
@@ -335,10 +335,10 @@ public class PauseDurationTrainer extends VoiceImportComponent {
 
         try{
             // for later checks, get index of phone identity feature
-            fd.getFeatureIndex("mary_phoneme");
-            fd.getFeatureIndex("mary_breakindex");
+            fd.getFeatureIndex("phoneme");
+            fd.getFeatureIndex("breakindex");
         } catch ( IllegalArgumentException e ) {
-            throw new IOException("Unexpected FeatureDefinition: Does not contain the features 'mary_phoneme' and 'mary_breakindex'.");
+            throw new IOException("Unexpected FeatureDefinition: Does not contain the features 'phoneme' and 'breakindex'.");
         }
         
         // skip section with string representation

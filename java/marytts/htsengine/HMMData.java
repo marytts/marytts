@@ -404,22 +404,31 @@ public class HMMData {
         s = new Scanner(new BufferedReader(new FileReader(feaListFile))).useDelimiter("\n");
          
         /*  see NOTE in HTSCONTEXTTRANSLATOR processTargetFeatures() 
-        feaList.addElement("mary_phoneme");
-        feaList.addElement("mary_prev_phoneme");
-        feaList.addElement("mary_prev_prev_phoneme");
-        feaList.addElement("mary_next_phoneme");
-        feaList.addElement("mary_next_next_phoneme");
+        feaList.addElement("phoneme");
+        feaList.addElement("prev_phoneme");
+        feaList.addElement("prev_prev_phoneme");
+        feaList.addElement("next_phoneme");
+        feaList.addElement("next_next_phoneme");
         */
         
         while (s.hasNext()) {
           line = s.next();
           //System.out.println("fea: "+ line);
           if(!line.contains("#") && line.length()>0){    /* if it is not commented */
-            String[] elem = line.split(",");
-            for(i=0; i<elem.length; i++)
-              if(elem[i].contains("mary_")){  /* if starts with mary_ */                 
-                feaList.addElement(elem[i].substring(elem[i].indexOf("\"")+1, elem[i].lastIndexOf("\"")));
-                //System.out.println("  -->  "+ featureList.lastElement()); 
+              // MS, 20 Oct 2008: as the feature names don't contain the prefix "mary_" anymore,
+              // we cannot identify feature names as before.
+              // However, it seems that, when there is a comma in the line, 
+              // the first element should be the right one in all examples I found.
+              if (line.contains(",")) { // it contains a comma
+                  String[] elem = line.split(",");
+                  String feaString = elem[0];
+                  assert feaString.contains("\"") : "Unlikely to contain a feature name: '"+feaString+"'!";
+                  feaList.addElement(feaString.substring(feaString.indexOf("\"")+1, feaString.lastIndexOf("\"")));
+                  //for(i=0; i<elem.length; i++)
+                  //  if(elem[i].contains("mary_")){  /* if starts with mary_ */                 
+                  //    feaList.addElement(elem[i].substring(elem[i].indexOf("\"")+1, elem[i].lastIndexOf("\"")));
+                  //    //System.out.println("  -->  "+ featureList.lastElement()); 
+                  //  }                  
               }
           }
         }

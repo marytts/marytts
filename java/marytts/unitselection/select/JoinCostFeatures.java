@@ -40,6 +40,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Vector;
 
+import marytts.features.ByteValuedFeatureProcessor;
+import marytts.features.MaryFeatureProcessor;
 import marytts.features.MaryGenericFeatureProcessors;
 import marytts.modules.phonemiser.Phoneme;
 import marytts.modules.phonemiser.PhonemeSet;
@@ -406,19 +408,10 @@ public class JoinCostFeatures implements JoinCostFunction
         // TODO: This is really ad hoc for the moment. Redo once we know what we are doing.
         // Add penalties for a number of criteria.
         double cost = 0;
+        ByteValuedFeatureProcessor stressProcessor = new MaryGenericFeatureProcessors.Stressed("", new MaryGenericFeatureProcessors.SyllableNavigator());
         // Stressed?
-        boolean stressed1 = false;
-        Item syllable1 = new MaryGenericFeatureProcessors.SyllableNavigator().getItem(t1);
-        if (syllable1 != null) {
-            String value = syllable1.getFeatures().getString("stress");
-            if (value != null && value.equals("1")) stressed1 = true;
-        }
-        boolean stressed2 = false;
-        Item syllable2 = new MaryGenericFeatureProcessors.SyllableNavigator().getItem(t2);
-        if (syllable2 != null) {
-            String value = syllable2.getFeatures().getString("stress");
-            if (value != null && value.equals("1")) stressed2 = true;
-        }
+        boolean stressed1 = stressProcessor.process(t1) == (byte)1;
+        boolean stressed2 = stressProcessor.process(t1) == (byte)1;
         // Try to avoid joining in a stressed syllable:
         if (stressed1 || stressed2) cost += 0.2;
         Phoneme p1 = t1.getSampaPhoneme();

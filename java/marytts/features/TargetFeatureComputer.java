@@ -30,9 +30,9 @@ public class TargetFeatureComputer
      */
     public TargetFeatureComputer(FeatureProcessorManager manager, String featureProcessorNames)
     {
-        List byteValuedFeatureProcessors = new ArrayList();
-        List shortValuedFeatureProcessors = new ArrayList();
-        List continuousValuedFeatureProcessors = new ArrayList();
+        List<MaryFeatureProcessor> byteValuedFeatureProcessors = new ArrayList<MaryFeatureProcessor>();
+        List<MaryFeatureProcessor> shortValuedFeatureProcessors = new ArrayList<MaryFeatureProcessor>();
+        List<MaryFeatureProcessor> continuousValuedFeatureProcessors = new ArrayList<MaryFeatureProcessor>();
 
         StringTokenizer st = new StringTokenizer(featureProcessorNames);
         while (st.hasMoreTokens()) {

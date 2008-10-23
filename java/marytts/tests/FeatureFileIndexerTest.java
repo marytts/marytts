@@ -118,8 +118,8 @@ public class FeatureFileIndexerTest extends TestCase {
 //      feaFinalSeq[0] = 0; // Cheat this value to force phoneme ID
 //      feaFinalSeq[1] = 3; // c_place
         
-        //String[] feaList = { "mary_phoneme", "mary_ph_cplace" };
-        String[] feaList = { "mary_ph_cplace", "mary_phoneme" };
+        //String[] feaList = { "phoneme", "ph_cplace" };
+        String[] feaList = { "ph_cplace", "phoneme" };
         feaFinalSeq = ffi.getFeatureDefinition().getFeatureIndexArray( feaList );
         
         // Phonemes in context

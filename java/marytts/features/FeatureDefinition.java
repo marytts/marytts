@@ -60,7 +60,7 @@ public class FeatureDefinition
     public static final String SHORTFEATURES = "ShortValuedFeatureProcessors";
     public static final String CONTINUOUSFEATURES = "ContinuousFeatureProcessors";
     public static final char WEIGHT_SEPARATOR = '|';
-    public static final String EDGEFEATURE = "mary_edge";
+    public static final String EDGEFEATURE = "edge";
     public static final String EDGEFEATURE_START = "start";
     public static final String EDGEFEATURE_END = "end";
     public static final String NULLVALUE = "0";
@@ -98,7 +98,7 @@ public class FeatureDefinition
         if (!line.trim().equals(BYTEFEATURES)) {
             throw new IOException("Unexpected input: expected '"+BYTEFEATURES+"', read '"+line+"'");
         }
-        List byteFeatureLines = new ArrayList();
+        List<String> byteFeatureLines = new ArrayList<String>();
         while (true) {
             line = input.readLine();
             if (line == null) throw new IOException("Could not read from input");
@@ -107,7 +107,7 @@ public class FeatureDefinition
             byteFeatureLines.add(line);            
         }
         // Section SHORTFEATURES
-        List shortFeatureLines = new ArrayList();
+        List<String> shortFeatureLines = new ArrayList<String>();
         while (true) {
             line = input.readLine();
             if (line == null) throw new IOException("Could not read from input");
@@ -116,7 +116,7 @@ public class FeatureDefinition
             shortFeatureLines.add(line);            
         }
         // Section CONTINUOUSFEATURES
-        List continuousFeatureLines = new ArrayList();
+        List<String> continuousFeatureLines = new ArrayList<String>();
         while ((line = input.readLine()) != null) { // it's OK if we hit the end of the file now
             line = line.trim();
             if (line.equals("")) break; // empty line: end of section
@@ -136,7 +136,7 @@ public class FeatureDefinition
         }
         
         for (int i=0; i<numByteFeatures; i++) {
-            line = (String) byteFeatureLines.get(i);
+            line = byteFeatureLines.get(i);
             String featureDef;
             if (readWeights) {
                 int seppos = line.indexOf(WEIGHT_SEPARATOR);
@@ -158,7 +158,7 @@ public class FeatureDefinition
         }
 
         for (int i=0; i<numShortFeatures; i++) {
-            line = (String) shortFeatureLines.get(i);
+            line = shortFeatureLines.get(i);
             String featureDef;
             if (readWeights) {
                 int seppos = line.indexOf(WEIGHT_SEPARATOR);
@@ -180,7 +180,7 @@ public class FeatureDefinition
         }
         
         for (int i=0; i<numContinuousFeatures; i++) {
-            line = (String) continuousFeatureLines.get(i);
+            line = continuousFeatureLines.get(i);
             String featureDef;
             if (readWeights) {
                 int seppos = line.indexOf(WEIGHT_SEPARATOR);
@@ -443,7 +443,7 @@ public class FeatureDefinition
     
     /**
      * Indicate whether the feature definition contains the feature with the given name
-     * @param name the feature name in question, e.g. "mary_next_next_phoneme"
+     * @param name the feature name in question, e.g. "next_next_phoneme"
      * @return 
      */
     public boolean hasFeature(String name)
@@ -1022,7 +1022,7 @@ public class FeatureDefinition
      * @param featuresToIgnore a set of Strings containing the names of features that 
      * wagon should ignore. Can be null.
      */
-    public void generateAllDotDescForWagon(PrintWriter out, Set featuresToIgnore)
+    public void generateAllDotDescForWagon(PrintWriter out, Set<String> featuresToIgnore)
     {
         out.println("(");
         out.println("(occurid cluster)");
@@ -1038,7 +1038,7 @@ public class FeatureDefinition
                         out.print("  ");
                         // Print values surrounded by double quotes, and make sure any
                         // double quotes in the value are preceded by a backslash --
-                        // otherwise, we get problems e.g. for mary_sentence_punc
+                        // otherwise, we get problems e.g. for sentence_punc
                         String val = getFeatureValueAsString(i, v);
                         if (val.indexOf('"') != -1) {
                             StringBuffer buf = new StringBuffer();
@@ -1093,17 +1093,17 @@ public class FeatureDefinition
                 +"# THIS FILE WAS GENERATED AUTOMATICALLY");
         out.println();
         out.println("ByteValuedFeatureProcessors");
-        List getValuesOf10 = new ArrayList();
-        getValuesOf10.add("mary_phoneme");
-        getValuesOf10.add("mary_ph_vc");
-        getValuesOf10.add("mary_prev_phoneme");
-        getValuesOf10.add("mary_next_phoneme");
-        getValuesOf10.add("mary_stressed");
-        getValuesOf10.add("mary_syl_break");
-        getValuesOf10.add("mary_prev_syl_break");
-        getValuesOf10.add("mary_next_is_pause");
-        getValuesOf10.add("mary_prev_is_pause");
-        List getValuesOf5 = new ArrayList();
+        List<String> getValuesOf10 = new ArrayList<String>();
+        getValuesOf10.add("phoneme");
+        getValuesOf10.add("ph_vc");
+        getValuesOf10.add("prev_phoneme");
+        getValuesOf10.add("next_phoneme");
+        getValuesOf10.add("stressed");
+        getValuesOf10.add("syl_break");
+        getValuesOf10.add("prev_syl_break");
+        getValuesOf10.add("next_is_pause");
+        getValuesOf10.add("prev_is_pause");
+        List<String> getValuesOf5 = new ArrayList<String>();
         getValuesOf5.add("cplace");
         getValuesOf5.add("ctype");
         getValuesOf5.add("cvox");
@@ -1118,8 +1118,8 @@ public class FeatureDefinition
                 out.print("10 | "+featureName);
             } else {
                 boolean found = false;
-                for (Iterator it = getValuesOf5.iterator();it.hasNext();){
-                    if (featureName.matches(".*"+(String)it.next())){
+                for (String match : getValuesOf5){
+                    if (featureName.matches(".*"+match)){
                         out.print("5 | "+featureName);
                         found=true;
                         break;

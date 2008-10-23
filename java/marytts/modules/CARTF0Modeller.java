@@ -38,11 +38,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.traversal.DocumentTraversal;
+import org.w3c.dom.traversal.NodeFilter;
+import org.w3c.dom.traversal.NodeIterator;
+import org.w3c.dom.traversal.TreeWalker;
+
 import marytts.cart.CART;
 //import marytts.cart.RegressionTree;
 import marytts.cart.io.WagonCARTReader;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
+import marytts.datatypes.MaryXML;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.MaryFeatureProcessor;
@@ -54,6 +62,10 @@ import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
 import marytts.unitselection.UnitSelectionVoice;
 import marytts.unitselection.select.Target;
+import marytts.unitselection.select.UnitSelector;
+import marytts.util.MaryUtils;
+import marytts.util.dom.MaryDomUtils;
+import marytts.util.dom.NameNodeFilter;
 
 import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.Relation;
@@ -124,11 +136,24 @@ public class CARTF0Modeller extends InternalModule
     public MaryData process(MaryData d)
     throws Exception
     {
-        List utterances = d.getUtterances();
-        Iterator it = utterances.iterator();
-        while (it.hasNext()) {
-            Utterance utterance = (Utterance) it.next();
-            Voice maryVoice = FreeTTSVoices.getMaryVoice(utterance.getVoice());
+        Document doc = d.getDocument(); 
+        NodeIterator sentenceIt = ((DocumentTraversal)doc).
+            createNodeIterator(doc, NodeFilter.SHOW_ELEMENT,
+                           new NameNodeFilter(MaryXML.SENTENCE), false);
+        Element sentence = null;
+        while ((sentence = (Element) sentenceIt.nextNode()) != null) {
+            // Make sure we have the correct voice:
+            Element voice = (Element) MaryDomUtils.getAncestor(sentence, MaryXML.VOICE);
+            Voice maryVoice = Voice.getVoice(voice);
+            if (maryVoice == null) {                
+                maryVoice = d.getDefaultVoice();
+            }
+            if (maryVoice == null) {
+                // Determine Locale in order to use default voice
+                Locale locale = MaryUtils.string2locale(doc.getDocumentElement().getAttribute("xml:lang"));
+                maryVoice = Voice.getDefaultVoice(locale);
+            }
+            assert maryVoice != null;
             CART currentLeftCart  = leftCart;
             CART currentMidCart   = midCart;
             CART currentRightCart = rightCart;
@@ -149,18 +174,20 @@ public class CARTF0Modeller extends InternalModule
                     logger.debug("Using voice feature definition");
                 }
             }
-            Relation targets = utterance.createRelation(Relation.TARGET);
-            Relation syls = utterance.getRelation(Relation.SYLLABLE);
-            for (Item syl = syls.getHead(); syl != null; syl = syl.getNext()) {
-                Item sylStruct = syl.getItemAs(Relation.SYLLABLE_STRUCTURE);
-                Item firstVoiced = null;
-                Item vowel = null;
-                Item lastVoiced = null;
-                for (Item s = sylStruct.getDaughter(); s != null; s = s.getNext()) {
-                    String sampaString = maryVoice.voice2sampa(s.toString());
-                    assert sampaString != null;
-                    Phoneme sampaPhoneme = maryVoice.getSampaPhoneme(sampaString);
-                    assert sampaPhoneme != null : "Unknown phoneme: ["+sampaString+"]";
+            
+            TreeWalker tw = ((DocumentTraversal)doc).createTreeWalker(sentence, 
+                    NodeFilter.SHOW_ELEMENT, new NameNodeFilter(MaryXML.SYLLABLE), false);
+            Element syllable;
+            Element previous = null;
+            while ((syllable = (Element)tw.nextNode()) != null) {
+                Element firstVoiced = null;
+                Element vowel = null;
+                Element lastVoiced = null;
+                for (Element s = MaryDomUtils.getFirstChildElement(syllable); s != null; s = MaryDomUtils.getNextSiblingElement(s)) {
+                    assert s.getTagName().equals(MaryXML.PHONE) : "expected phone element, found "+s.getTagName();
+                    String phone = s.getAttribute("p");
+                    Phoneme sampaPhoneme = maryVoice.getSampaPhoneme(phone);
+                    assert sampaPhoneme != null : "Unknown phoneme: ["+phone+"]";
                     if (sampaPhoneme.isVowel()) {
                         // found a vowel
                         if (firstVoiced == null) firstVoiced = s;
@@ -176,25 +203,9 @@ public class CARTF0Modeller extends InternalModule
                 if (vowel != null) {
                     assert firstVoiced != null : "First voiced should not be null";
                     assert lastVoiced != null : "Last voiced should not be null";
-                    // Get the time information for the f0 targets:
-                    float leftTime;
-                    Item prev = firstVoiced.getItemAs(Relation.SEGMENT).getPrevious();
-                    if (prev == null) leftTime = 0;
-                    else leftTime = prev.getFeatures().getFloat("end");
-                    float midTime;
-                    prev = vowel.getItemAs(Relation.SEGMENT).getPrevious();
-                    float vowelStart;
-                    if (prev == null) vowelStart = 0;
-                    else vowelStart = prev.getFeatures().getFloat("end");
-                    float vowelEnd = vowel.getFeatures().getFloat("end");
-                    midTime = (vowelStart + vowelEnd) / 2;
-                    float rightTime = lastVoiced.getFeatures().getFloat("end");
                     // Now predict the f0 values using the CARTs:ssh 
-                    String segName = vowel.getFeatures().getString("name");
-                    assert segName != null;
-                    String sampaName = maryVoice.voice2sampa(segName);
-                    assert sampaName != null;
-                    Target t = new Target(segName, vowel);
+                    String phone = vowel.getAttribute("p");
+                    Target t = new Target(phone, vowel);
                     t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));
                     float[] left = (float[])currentLeftCart.interpret(t, 0);
                     assert left != null : "Null frequency";
@@ -212,32 +223,41 @@ public class CARTF0Modeller extends InternalModule
                     float rightF0InHz = right[1];
                     float rightStddevInHz = right[0];
                     // Now set targets:
-                    Item targetItem = targets.appendItem();
-                    targetItem.getFeatures().setFloat("pos", leftTime);
-                    targetItem.getFeatures().setFloat("f0", leftF0InHz);
-                    targetItem = targets.appendItem();
-                    targetItem.getFeatures().setFloat("pos", midTime);
-                    targetItem.getFeatures().setFloat("f0", midF0InHz);
-                    targetItem = targets.appendItem();
-                    targetItem.getFeatures().setFloat("pos", rightTime);
-                    targetItem.getFeatures().setFloat("f0", rightF0InHz);
-                    // and in MBROLA format:
-                    firstVoiced.getFeatures().setString("mbr_targets", "(0,"+((int)leftF0InHz)+")");
-                    String mbrTargets = "(50,"+((int)midF0InHz)+")";
-                    if (vowel.getFeatures().isPresent("mbr_targets")) { // e.g., because firstVoiced == vowel
-                        mbrTargets = vowel.getFeatures().getString("mbr_targets")+mbrTargets;
+                    String leftTargetString = "(0,"+((int)leftF0InHz)+")";
+                    String currentVal = firstVoiced.getAttribute("f0");
+                    String newVal;
+                    if (!currentVal.equals("")) {
+                        newVal = currentVal+" "+leftTargetString;
+                    } else {
+                        newVal = leftTargetString;
                     }
-                    vowel.getFeatures().setString("mbr_targets", mbrTargets);
-                    mbrTargets = "(100,"+((int)rightF0InHz)+")";
-                    if (lastVoiced.getFeatures().isPresent("mbr_targets")) { // e.g., because vowel == lastVoiced
-                        mbrTargets = lastVoiced.getFeatures().getString("mbr_targets")+mbrTargets;
+                    firstVoiced.setAttribute("f0", newVal);
+                    
+                    String midTargetString = "(50,"+((int)midF0InHz)+")";
+                    currentVal = vowel.getAttribute("f0");
+                    // for example, if firstVoiced == vowel, then we have just set a first f0 value
+                    if (!currentVal.equals("")) {
+                        newVal = currentVal+" "+midTargetString;
+                    } else {
+                        newVal = midTargetString;
                     }
-                    lastVoiced.getFeatures().setString("mbr_targets", mbrTargets);
+                    vowel.setAttribute("f0", newVal);
+                    
+                    String rightTargetString = "(100,"+((int)rightF0InHz)+")";
+                    currentVal = lastVoiced.getAttribute("f0");
+                    // for example, if lastVoiced == vowel, then we have just set a first f0 value
+                    if (!currentVal.equals("")) {
+                        newVal = currentVal+" "+rightTargetString;
+                    } else {
+                        newVal = rightTargetString;
+                    }
+                    lastVoiced.setAttribute("f0", newVal);
+                    
                 }
             }
         }
         MaryData output = new MaryData(outputType(), d.getLocale());
-        output.setUtterances(utterances);
+        output.setDocument(doc);
         return output;
     }
 

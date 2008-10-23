@@ -596,4 +596,25 @@ public class DomUtils
         }
         parent.removeChild(oldElement);
     }
+    
+    
+    public static TreeWalker createTreeWalker(Document doc, Node root, String... tagNames)
+    {
+        return ((DocumentTraversal)doc).createTreeWalker(root, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(tagNames), false);
+    }
+    
+    public static TreeWalker createTreeWalker(Node root, String... tagNames)
+    {
+        return createTreeWalker(root.getOwnerDocument(), root, tagNames);
+    }
+
+    public static NodeIterator createNodeIterator(Document doc, Node root, String... tagNames)
+    {
+        return ((DocumentTraversal)doc).createNodeIterator(root, NodeFilter.SHOW_ELEMENT, new NameNodeFilter(tagNames), false);
+    }
+
+    public static NodeIterator createNodeIterator(Node root, String... tagNames)
+    {
+        return createNodeIterator(root.getOwnerDocument(), root, tagNames);
+    }
 }

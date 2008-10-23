@@ -33,6 +33,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import marytts.datatypes.MaryXML;
 import marytts.exceptions.SynthesisException;
 import marytts.features.FeatureVector;
 import marytts.modules.MaryModule;
@@ -41,11 +42,13 @@ import marytts.modules.XML2UttAcoustParams;
 import marytts.modules.synthesis.FreeTTSVoices;
 import marytts.server.Mary;
 import marytts.unitselection.data.UnitDatabase;
+import marytts.util.dom.MaryDomUtils;
 import marytts.util.string.PrintfFormat;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.Relation;
@@ -63,8 +66,6 @@ public class UnitSelector
     protected UnitDatabase database;
     protected Logger logger;
     protected float targetCostWeight;
-    
-    private XML2UttAcoustParams x2u;
 
     
     /**
@@ -74,22 +75,6 @@ public class UnitSelector
     public UnitSelector() throws Exception
     {
         logger = Logger.getLogger(this.getClass());
-        
-        // Try to get instances of our tools from Mary; if we cannot get them,
-        // instantiate new objects.
-        try {
-            x2u = (XML2UttAcoustParams) ModuleRegistry.getModule(XML2UttAcoustParams.class);
-        }catch(NullPointerException npe){
-            x2u = null;
-        }
-        if (x2u == null) {
-            logger.info("Starting my own XML2UttAcoustParams");
-            x2u = new XML2UttAcoustParams();
-            x2u.startup();
-        } else if (x2u.getState() == MaryModule.MODULE_OFFLINE) {
-            x2u.startup();
-        }
-
     }
     
     public void load(UnitDatabase unitDatabase, float targetCostWeight)
@@ -116,20 +101,25 @@ public class UnitSelector
     throws SynthesisException
     {
         long time = System.currentTimeMillis();
-        Utterance utt = x2u.convert(tokensAndBoundaries, voice);
-        if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            utt.dump(pw, 2, this.getClass().getName(), true); // padding, justRelations
-            logger.debug("Input to unit selection from voice "+voice.getName()+":\n"+sw.toString());
+
+        List<Element> segmentsAndBoundaries = new ArrayList<Element>();
+        for (Element tOrB : tokensAndBoundaries) {
+            if (tOrB.getTagName().equals(MaryXML.BOUNDARY)) {
+                segmentsAndBoundaries.add(tOrB);
+            } else {
+                assert tOrB.getTagName().equals(MaryXML.TOKEN) : "Expected token, got "+tOrB.getTagName();
+                NodeList segs = tOrB.getElementsByTagName(MaryXML.PHONE);
+                for (int i=0, max=segs.getLength(); i<max; i++) {
+                    segmentsAndBoundaries.add((Element)segs.item(i));
+                }
+            }
         }
 
-        // Create target chain for the utterance
-        Relation segs = utt.getRelation(Relation.SEGMENT);
-        List<Target> targets = createTargets(segs);
+        List<Target> targets = createTargets(segmentsAndBoundaries);
         // compute target features for each target in the chain
+        TargetCostFunction tcf = database.getTargetCostFunction();
         for (Target target : targets) {
-            database.getTargetCostFunction().computeTargetFeatures(target);
+            tcf.computeTargetFeatures(target);
         }
 
         //Select the best candidates using Viterbi and the join cost function.
@@ -147,20 +137,32 @@ public class UnitSelector
     }
     
     /**
-     * Create the list of targets from the Segments in the utterance.
-     * @param segs the Segment relation
+     * Create the list of targets from the XML elements to synthesize.
+     * @param segmentsAndBoundaries a list of MaryXML phone and boundary elements
      * @return a list of Target objects
      */
-    protected List<Target> createTargets(Relation segs)
+    protected List<Target> createTargets(List<Element> segmentsAndBoundaries)
     {
         List<Target> targets = new ArrayList<Target>();
-        for (Item s = segs.getHead(); s != null; s = s.getNext()) {
-            Element maryxmlElement = (Element) s.getFeatures().getObject("maryxmlElement");
-            String segName = s.getFeatures().getString("name");
-            String sampa = FreeTTSVoices.getMaryVoice(s.getUtterance().getVoice()).voice2sampa(segName);
-            targets.add(new Target(sampa, maryxmlElement, s));
+        for (Element sOrB : segmentsAndBoundaries) {
+            String phone = getPhoneSymbol(sOrB);
+            targets.add(new Target(phone, sOrB));
         }
         return targets;
+    }
+    
+    public static String getPhoneSymbol(Element segmentOrBoundary)
+    {
+        String phone;
+        if (segmentOrBoundary.getTagName().equals(MaryXML.PHONE)) {
+            phone = segmentOrBoundary.getAttribute("p");
+        } else {
+            assert segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY) 
+                : "Expected boundary element, but got "+segmentOrBoundary.getTagName();
+            // TODO: how can we know the silence symbol here?
+            phone = "_";
+        }
+        return phone;
     }
     
 

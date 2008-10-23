@@ -38,6 +38,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.traversal.DocumentTraversal;
+import org.w3c.dom.traversal.NodeFilter;
+import org.w3c.dom.traversal.NodeIterator;
+import org.w3c.dom.traversal.TreeWalker;
+
 
 import marytts.cart.CART;
 import marytts.cart.StringPredictionTree;
@@ -45,6 +52,7 @@ import marytts.cart.StringPredictionTree;
 import marytts.cart.io.WagonCARTReader;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
+import marytts.datatypes.MaryXML;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.TargetFeatureComputer;
@@ -54,6 +62,10 @@ import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
 import marytts.unitselection.UnitSelectionVoice;
 import marytts.unitselection.select.Target;
+import marytts.unitselection.select.UnitSelector;
+import marytts.util.MaryUtils;
+import marytts.util.dom.MaryDomUtils;
+import marytts.util.dom.NameNodeFilter;
 
 import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.Relation;
@@ -73,6 +85,7 @@ public class CARTDurationModeller extends InternalModule
 {
     // old: protected CART cart;
     protected CART cart = new CART();
+    // TODO: use a simple regression tree, with FloatLeafNode, for pausetree:
     protected StringPredictionTree pausetree;
     protected TargetFeatureComputer featureComputer;
     protected TargetFeatureComputer pauseFeatureComputer;
@@ -108,44 +121,48 @@ public class CARTDurationModeller extends InternalModule
         WagonCARTReader wagonRegReader = new WagonCARTReader("RegressionTree");
         cart.setRootNode(wagonRegReader.load(new BufferedReader(new FileReader(cartFile)), featureDefinition));
         
-
-        //String pausefileName = "/project/mary/pavoque/Voice_Building/DFKI_German_Poker/durations.tree";        
-        
         if ( null != MaryProperties.getFilename(propertyPrefix+"pausetree")){
             String pausefileName = MaryProperties.needFilename(propertyPrefix+"pausetree");
-            
 
             File pauseFdFile = new File(MaryProperties.needFilename(propertyPrefix+"pausefeatures"));
-
-            
             
             FeatureDefinition pauseFeatureDefinition = new FeatureDefinition(new BufferedReader(new FileReader(pauseFdFile)), false);
             pauseFeatureComputer = new TargetFeatureComputer(featureProcessorManager, pauseFeatureDefinition.getFeatureNames());
-
             
             File pauseFile = new File(pausefileName);
             
             this.pausetree = new StringPredictionTree(new BufferedReader(new FileReader(pauseFile)), pauseFeatureDefinition );
-            
-            
         } else {
-            
             this.pausetree = null;
         }
-        
         featureComputer = new TargetFeatureComputer(featureProcessorManager, featureDefinition.getFeatureNames());
     }
 
     public MaryData process(MaryData d)
     throws Exception
     {
-        List utterances = d.getUtterances();
-        Iterator it = utterances.iterator();
-        while (it.hasNext()) {
-            Utterance utterance = (Utterance) it.next();
-            Voice maryVoice = FreeTTSVoices.getMaryVoice(utterance.getVoice());
+        Document doc = d.getDocument(); 
+        NodeIterator sentenceIt = ((DocumentTraversal)doc).
+            createNodeIterator(doc, NodeFilter.SHOW_ELEMENT,
+                           new NameNodeFilter(MaryXML.SENTENCE), false);
+        Element sentence = null;
+        while ((sentence = (Element) sentenceIt.nextNode()) != null) {
+            // Make sure we have the correct voice:
+            Element voice = (Element) MaryDomUtils.getAncestor(sentence, MaryXML.VOICE);
+            Voice maryVoice = Voice.getVoice(voice);
+            if (maryVoice == null) {                
+                maryVoice = d.getDefaultVoice();
+            }
+            if (maryVoice == null) {
+                // Determine Locale in order to use default voice
+                Locale locale = MaryUtils.string2locale(doc.getDocumentElement().getAttribute("xml:lang"));
+                maryVoice = Voice.getDefaultVoice(locale);
+            }
+            assert maryVoice != null;
+
             CART currentCart = cart;
             TargetFeatureComputer currentFeatureComputer = featureComputer;
+            // TODO: cleanup: shouldn't all voices have the option of including their own CART?
             if (maryVoice instanceof UnitSelectionVoice) {
                 CART voiceCart = ((UnitSelectionVoice)maryVoice).getDurationTree();
                 if (voiceCart != null) {
@@ -160,33 +177,21 @@ public class CARTDurationModeller extends InternalModule
                     logger.debug("Using voice feature definition");
                 }
             }
-            Relation segs = utterance.getRelation(Relation.SEGMENT);
-            // Simple boundary treatment: Insert pause segments for boundaries
-            Relation words = utterance.getRelation(Relation.WORD);
-            for (Item w = words.getHead(); w != null; w = w.getNext()) {
-                Item ss = w.getItemAs(Relation.SYLLABLE_STRUCTURE);
-                Item lastSyl = ss.getLastDaughter();
-                if (lastSyl != null && lastSyl.getFeatures().isPresent("endtone")) {
-                    Item lastSeg = lastSyl.getLastDaughter();
-                    assert lastSeg != null;
-                    lastSeg = lastSeg.getItemAs(Relation.SEGMENT);
-                    assert lastSeg != null;
-                    Item pauseSeg = lastSeg.appendItem(null);
-                    pauseSeg.getFeatures().setString("name", maryVoice.sampa2voice("_"));
-                }
-            }
-            float end = 0; // end time of segment, in seconds
-            for (Item s = segs.getHead(); s != null; s = s.getNext()) {
-                String segName = s.getFeatures().getString("name");
-                assert segName != null;
-                String sampaName = maryVoice.voice2sampa(segName);
-                assert sampaName != null;
-                Target t = new Target(sampaName, s);
+            
+            // cumulative duration from beginning of sentence, in seconds:
+            float end = 0;
+
+            TreeWalker tw = ((DocumentTraversal)doc).createTreeWalker(sentence, 
+                    NodeFilter.SHOW_ELEMENT, new NameNodeFilter(MaryXML.PHONE, MaryXML.BOUNDARY), false);
+            Element segmentOrBoundary;
+            Element previous = null;
+            while ((segmentOrBoundary = (Element)tw.nextNode()) != null) {
+                String phone = UnitSelector.getPhoneSymbol(segmentOrBoundary);
+                Target t = new Target(phone, segmentOrBoundary);
                 t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));
                 float durInSeconds;
-                if (sampaName.equals("_")) { // a pause
-                    //durInSeconds = 0.4f; // TODO: distinguish types of boundaries?
-                    durInSeconds = enterPauseDuration(s, maryVoice);
+                if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) { // a pause
+                    durInSeconds = enterPauseDuration(segmentOrBoundary, previous, maryVoice);
                 } else {
                     float[] dur = (float[])currentCart.interpret(t, 0);
                     assert dur != null : "Null duration";
@@ -196,13 +201,17 @@ public class CARTDurationModeller extends InternalModule
                 }
                 end += durInSeconds;
                 int durInMillis = (int) (1000 * durInSeconds);
-                s.getFeatures().setFloat("end", end);
-                s.getFeatures().setInt("mbr_dur", durInMillis);
-                //System.out.println("Duration predicted: ["+segName+"] "+durInSeconds);
+                if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) {
+                    segmentOrBoundary.setAttribute("dur", String.valueOf(durInMillis));
+                } else { // phone
+                    segmentOrBoundary.setAttribute("d", String.valueOf(durInMillis));
+                    segmentOrBoundary.setAttribute("end", String.valueOf(end));
+                }
+                previous = segmentOrBoundary;
             }
         }
         MaryData output = new MaryData(outputType(), d.getLocale());
-        output.setUtterances(utterances);
+        output.setDocument(doc);
         return output;
     }
 
@@ -212,83 +221,45 @@ public class CARTDurationModeller extends InternalModule
      * 
      * @param s
      * @param maryVoice 
-     * @return
+     * @return pause duration, in seconds
      */
-    private float enterPauseDuration(Item s, Voice maryVoice) {
-        // check that it is called for pauses only
-        String segNameCheck = s.getFeatures().getString("name");
-        assert segNameCheck != null;
-        String sampaNameCheck = maryVoice.voice2sampa(segNameCheck);
-        assert sampaNameCheck != null;
-        if (!sampaNameCheck.equals("_"))
-            throw new IllegalArgumentException("cannot call enterPauseDuration for non-pause item");
+    private float enterPauseDuration(Element boundary, Element previous, Voice maryVoice)
+    {
+        if (!boundary.getTagName().equals(MaryXML.BOUNDARY))
+            throw new IllegalArgumentException("cannot call enterPauseDuration for non-pause element");
         
-        // if there is no pause duration tree, treat pauses as done before
+        // If there is already a duration, keep it:
+        if (boundary.hasAttribute("dur")) {
+            try {
+                return Float.parseFloat(boundary.getAttribute("dur"))  * 0.001f;
+            } catch (NumberFormatException nfe) {}
+        }
+
+        float duration = 0.4f; // default value
+
+        if (previous == null || !previous.getTagName().equals(MaryXML.PHONE))
+            return duration;
+        
         if (null == this.pausetree)
-            return .4f;
+            return duration;
         
-        //float duration = 0f;
-        String duration = null;
+        String phone = previous.getAttribute("p");
+        Target t = new Target(phone, previous);
+        t.setFeatureVector(this.pauseFeatureComputer.computeFeatureVector(t));
+                
+        String durationString = this.pausetree.getMostProbableString(t);
+        // strip off "ms"
+        durationString = durationString.substring(0, durationString.length() - 2);
+        try {
+            duration = Float.parseFloat(durationString);
+        } catch (NumberFormatException nfe) {}
         
-        
-        Item prevSegment = s.getPrevious();
-
-
-        if (null != prevSegment){
-            Item tokenItem = getSegmentToken(prevSegment);
-            
-            if (null == tokenItem)
-                throw new IllegalArgumentException("Pause segments predecessor does not belong to a token.");
-            
-            // use already set duration if there is one
-            if (tokenItem.getFeatures().isPresent("followingBoundaryDuration")){
-                duration = tokenItem.getFeatures().getString("followingBoundaryDuration");
-            } else {
-                
-                
-                String segName = prevSegment.getFeatures().getString("name");
-                assert segName != null;
-                String sampaName = maryVoice.voice2sampa(segName);
-                assert sampaName != null;
-                Target t = new Target(sampaName, prevSegment);
-                t.setFeatureVector(this.pauseFeatureComputer.computeFeatureVector(t));
-                
-                String durationString = this.pausetree.getMostProbableString(t);
-                
-                // strip off "ms"
-                duration = durationString.substring(0, durationString.length() - 2);
-                tokenItem.getFeatures().setString("followingBoundaryDuration", duration);
-                
-            }     
-            
-
+        if (duration > 2000) {
+            logger.debug("Cutting long duration to 2000 ms -- was " + duration);
+            duration = 2000;
         }
-                
-        if (null == duration)
-            // nothing set in token, so behave as before
-            return .4f;
-        else{
-            float result = Float.parseFloat(duration) / 1000f;
-            // TODO: make this configurable
-            // return not more than duration of .4
-            return Math.min(result, .4f);            
-        }
-
+        return duration;
     }
-
-    private Item getSegmentToken(Item segment) {
-
-        // segment -> getItemAs(Rel.Sylsstruct) -> getParent.getParent - Word-Item -> getItemas(Rel.Token) -> getParent 
-
-        Item sylItem = segment.getItemAs(Relation.SYLLABLE_STRUCTURE).getParent();
-        Item wordItem = sylItem.getParent();
-        Item tokenItem = wordItem.getItemAs(Relation.TOKEN).getParent();
-        
-
-        return tokenItem;
-    }
-
-
 
 
 }

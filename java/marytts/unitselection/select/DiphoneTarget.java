@@ -28,12 +28,12 @@
  */
 package marytts.unitselection.select;
 
+import org.w3c.dom.Element;
+
 import marytts.features.FeatureVector;
 import marytts.modules.phonemiser.Phoneme;
 import marytts.modules.synthesis.FreeTTSVoices;
 import marytts.modules.synthesis.Voice;
-
-import com.sun.speech.freetts.Item;
 
 
 public class DiphoneTarget extends Target {
@@ -42,7 +42,7 @@ public class DiphoneTarget extends Target {
     
     public DiphoneTarget(HalfPhoneTarget left, HalfPhoneTarget right)
     {
-        super(null, null, null);
+        super(null, null);
         this.name = left.name.substring(0, left.name.lastIndexOf("_"))
             + "-" + right.name.substring(0, right.name.lastIndexOf("_"));
         assert left.isRightHalf(); // the left half of this diphone must be the right half of a phone
@@ -61,7 +61,8 @@ public class DiphoneTarget extends Target {
         return right;
     }
 
-    public Item getItem()
+    @Override
+    public Element getMaryxmlElement()
     {
         throw new IllegalStateException("This method should not be called for DiphoneTargets.");
     }

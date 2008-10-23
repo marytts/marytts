@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.4" xml:lang="en-US">
+<p>
+<voice name="hsmm-slt">
+<s>
+<prosody pitch="+5%" range="+20%">
+<phrase>
+<t accent="L+H*" ph="h@l-'@U" pos="content">
+Hello
+<syllable ph="h@l">
+<ph d="142" end="0.142098" p="h"/>
+<ph d="33" end="0.1759239" f0="(0,125) (50,90)" p="@"/>
+<ph d="88" end="0.2640489" f0="(100,98)" p="l"/>
+</syllable>
+<syllable accent="L+H*" ph="@U" stress="1">
+<ph d="138" end="0.40244192" f0="(0,91) (50,102) (100,89)" p="@U"/>
+</syllable>
+</t>
+<t pos="$,">
+,
+</t>
+<boundary breakindex="4" dur="400" tone="H-L%"/>
+</phrase>
+</prosody>
+<prosody pitch="-5%" range="-20%">
+<phrase>
+<t ph="'mAI" pos="pps">
+my
+<syllable ph="mAI" stress="1">
+<ph d="96" end="0.89937115" f0="(0,85)" p="m"/>
+<ph d="97" end="0.99721044" f0="(50,96) (100,109)" p="AI"/>
+</syllable>
+</t>
+<t accent="L+H*" ph="'nEIm" pos="content">
+name
+<syllable accent="L+H*" ph="nEIm" stress="1">
+<ph d="73" end="1.0703534" f0="(0,95)" p="n"/>
+<ph d="80" end="1.1507332" f0="(50,115)" p="EI"/>
+<ph d="89" end="1.2401457" f0="(100,113)" p="m"/>
+</syllable>
+</t>
+<t ph="'Iz" pos="aux">
+is
+<syllable ph="Iz" stress="1">
+<ph d="43" end="1.2833124" f0="(0,116) (50,87)" p="I"/>
+<ph d="96" end="1.3797694" f0="(100,108)" p="z"/>
+</syllable>
+</t>
+<t accent="!H*" ph="'mEr-i" pos="content">
+Mary
+<syllable accent="!H*" ph="mEr" stress="1">
+<ph d="78" end="1.4587338" f0="(0,78)" p="m"/>
+<ph d="78" end="1.5372269" f0="(50,121)" p="E"/>
+<ph d="124" end="1.6615169" f0="(100,110)" p="r"/>
+</syllable>
+<syllable ph="i">
+<ph d="123" end="1.784946" f0="(0,92) (50,115) (100,108)" p="i"/>
+</syllable>
+</t>
+<t pos="$PUNCT">
+.
+</t>
+<boundary breakindex="5" dur="400" tone="L-L%"/>
+</phrase>
+</prosody>
+</s>
+</voice>
+</p>
+</maryxml>

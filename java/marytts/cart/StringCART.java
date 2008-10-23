@@ -58,7 +58,7 @@ public class StringCART extends CART{
 
  
     public String maxString(FeatureVector aFV){
-        Target t = new Target(null,null,null);
+        Target t = new Target(null,null);
         t.setFeatureVector(aFV);
         StringAndFloatLeafNode n = (StringAndFloatLeafNode) interpretToNode(t, 0);
         return n.maxString();

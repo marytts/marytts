@@ -215,10 +215,10 @@ public class QualityControl extends VoiceImportComponent {
         // Skip features file header:
         for(int lineCount = 0 ;(line = features.readLine()) != null; lineCount++){   
            
-            if(line.startsWith("mary_ph_vc")){
+            if(line.startsWith("ph_vc")){
                 ph_VC_idx = lineCount - 1;                 
             }
-            if(line.startsWith("mary_ph_ctype")){
+            if(line.startsWith("ph_ctype")){
                 ph_Ctype_idx = lineCount - 1;                 
             }
             
@@ -361,7 +361,7 @@ public class QualityControl extends VoiceImportComponent {
           // Skip features file header:
           for(int lineCount = 0 ;(line = features.readLine()) != null; lineCount++){   
              
-              if(line.startsWith("mary_ph_ctype")){
+              if(line.startsWith("ph_ctype")){
                   ph_Ctype_idx = lineCount - 1;                 
               }
               

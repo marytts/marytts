@@ -66,13 +66,13 @@ public class ListenToPreselection {
         WavWriter ww = new WavWriter();
         
         System.out.println( "Indexing the phonemes..." );
-        String[] feaSeq = { "mary_phoneme" }; // Sort by phoneme name
+        String[] feaSeq = { "phoneme" }; // Sort by phoneme name
         ffi.deepSort( feaSeq );
         
         /* Loop across possible phonemes */
         long tic = System.currentTimeMillis();
-        int mary_phonemeIndex = feaDef.getFeatureIndex("mary_phoneme");
-        int nbPhonVal = feaDef.getNumberOfValues( feaDef.getFeatureIndex( "mary_phoneme" ) );
+        int mary_phonemeIndex = feaDef.getFeatureIndex("phoneme");
+        int nbPhonVal = feaDef.getNumberOfValues( feaDef.getFeatureIndex( "phoneme" ) );
         for ( int phon = 1; phon < nbPhonVal; phon++ ) {
         // for ( int phon = 14; phon < nbPhonVal; phon++ ) {
             String phonID = feaDef.getFeatureValueAsString( 0, phon );

@@ -52,19 +52,17 @@ public class HalfPhoneUnitSelector extends UnitSelector
     }
 
     /**
-     * Create the list of targets from the Segments in the utterance.
-     * @param segs the Segment relation
-     * @return a list of Target objects -- in this case, halfphone targets
+     * Create the list of targets from the XML elements to synthesize.
+     * @param segmentsAndBoundaries a list of MaryXML phone and boundary elements
+     * @return a list of Target objects
      */
-    protected List<Target> createTargets(Relation segs)
+    protected List<Target> createTargets(List<Element> segmentsAndBoundaries)
     {
         List<Target> targets = new ArrayList<Target>();
-        for (Item s = segs.getHead(); s != null; s = s.getNext()) {
-            Element maryxmlElement = (Element) s.getFeatures().getObject("maryxmlElement");
-            String segName = s.getFeatures().getString("name");
-            String sampa = FreeTTSVoices.getMaryVoice(s.getUtterance().getVoice()).voice2sampa(segName);
-            targets.add(new HalfPhoneTarget(sampa+"_L", maryxmlElement, s, true)); // left half
-            targets.add(new HalfPhoneTarget(sampa+"_R", maryxmlElement, s, false)); // right half
+        for (Element sOrB : segmentsAndBoundaries) {
+            String phone = getPhoneSymbol(sOrB);
+            targets.add(new HalfPhoneTarget(phone+"_L", sOrB, true)); // left half
+            targets.add(new HalfPhoneTarget(phone+"_R", sOrB, false)); // right half
         }
         return targets;
     }

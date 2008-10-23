@@ -62,6 +62,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -298,7 +299,9 @@ public class HTSEngine extends InternalModule
         FeatureDefinition feaDef;
         feaDef = htsData.getFeatureDefinition();
         
-        /* skip mary_ context features definition */
+        //feaDef.writeTo(new PrintWriter(System.out, true), false);
+        
+        /* skip mary context features definition */
         while (s.hasNext()) {
           nextLine = s.nextLine(); 
           if (nextLine.trim().equals("")) break;

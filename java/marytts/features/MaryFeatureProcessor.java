@@ -39,16 +39,6 @@ import com.sun.speech.freetts.ProcessException;
  */
 public interface MaryFeatureProcessor {
 
-    /**
-     * Performs some processing on the given item.
-     * TODO: remove? see ByteValuedFeatureProcessor etc.
-     * @param  item  the item to process
-     *
-     * @throws ProcessException if an exception occurred during the
-     *   processing
-     */
-    //public String process(Item item) throws ProcessException;
-    
     public String getName();
 }
 

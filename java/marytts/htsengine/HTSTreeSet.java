@@ -52,9 +52,9 @@ package marytts.htsengine;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.io.*;
+import java.util.StringTokenizer;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-import marytts.htsengine.PhoneTranslator;
 import org.apache.log4j.Logger;
 
 
@@ -132,26 +132,24 @@ public class HTSTreeSet {
           ttail[type] = null;
           nTrees[type] = 0;
           
-          Scanner s = null;
+          BufferedReader s = null;
           String line, aux;
           
           assert featureDef != null : "Feature Definition was not set";
               
           try {   
             /* read lines of tree-*.inf fileName */ 
-            s = new Scanner(new BufferedInputStream(new FileInputStream(fileName))).useDelimiter("\n");
+            s = new BufferedReader(new InputStreamReader(new FileInputStream(fileName)));
               
             //System.out.println("LoadTreeSet reading: " + fileName + " tree type: " + type);
             logger.info("LoadTreeSet reading: " + fileName);
             
-            // skip questions section 
-            while(s.hasNext()) {
-                line = s.next();
+            // skip questions section
+            while((line = s.readLine()) != null) {
                 if (line.indexOf("QS") < 0 ) break;   /* a new state is indicated by {*}[2], {*}[3], ... */
             }
             
-            while(s.hasNext()) {
-              line = s.next();
+            while((line = s.readLine()) != null) {
                
               if(line.indexOf("{*}") >= 0 ){  /* this is the indicator of a new state-tree */
                 aux = line.substring(line.indexOf("[")+1, line.indexOf("]")); 
@@ -195,8 +193,8 @@ public class HTSTreeSet {
      * @param type: corresponds to one of DUR, logF0, MCP, STR and MAG
      * @param debug: when true print out detailled information
      */
-    private void loadTreeStateGeneral(Scanner s, HTSTree t, int type, FeatureDefinition featureDef, boolean debug) throws Exception {
-      Scanner sline;
+    private void loadTreeStateGeneral(BufferedReader s, HTSTree t, int type, FeatureDefinition featureDef, boolean debug) throws Exception {
+      StringTokenizer sline;
       String aux,buf;
       HTSNode node = new HTSNode();
       t.setRoot(node);
@@ -206,18 +204,17 @@ public class HTSTreeSet {
       
       //System.out.println("root node = " + node + "  t.leaf = " + t.get_leaf() + "  t.root = " + t.get_root());
       
-      aux = s.next();   /* next line for this state tree must be { */
+      aux = s.readLine();   /* next line for this state tree must be { */
       if(aux.indexOf("{") >= 0 ) {
-        while ( s.hasNext() ){  /* last line for this state tree must be } */
-          aux = s.next();
+        while ( (aux = s.readLine()) != null ){  /* last line for this state tree must be } */
           //System.out.println("next=" + aux);
           if(aux.indexOf("}") < 0 ) {
             /* then parse this line, it contains 4 fields */
             /* 1: node index #  2: Question name 3: NO # node 4: YES # node */
-            sline = new Scanner(aux);
+            sline = new StringTokenizer(aux);
           
             /* 1:  gets index node and looks for the node whose idx = buf */
-            buf = sline.next();
+            buf = sline.nextToken();
             //System.out.println("\nNode to find: " + buf + " starting in leaf node: " + t.get_leaf());
             if(buf.startsWith("-"))
               node = findNode(t.getLeaf(),Integer.parseInt(buf.substring(1)),debug);  
@@ -230,7 +227,7 @@ public class HTSTreeSet {
         
               //System.out.println("node found = " + node);
               /* 2: gets question name and question name val */
-              buf = sline.next();
+              buf = sline.nextToken();
               String [] fea_val = buf.split("=");   /* splits featureName=featureValue*/
               feaIndex = featureDef.getFeatureIndex(fea_val[0]);
               /* set the Index question name */
@@ -239,10 +236,10 @@ public class HTSTreeSet {
               
               /* Replace back punctuation values */
               /* what about tricky phones, if using halfphones it would not be necessary */
-              if(fea_val[0].contains("mary_sentence_punc") || fea_val[0].contains("mary_prev_punctuation") || fea_val[0].contains("mary_next_punctuation"))
+              if(fea_val[0].contains("sentence_punc") || fea_val[0].contains("prev_punctuation") || fea_val[0].contains("next_punctuation"))
                   fea_val[1] = PhoneTranslator.replaceBackPunc(fea_val[1]);
-              //else if(fea_val[0].contains("mary_phoneme") || fea_val[0].contains("mary_prev_phoneme") || fea_val[0].contains("mary_next_phoneme") )
-              else if(fea_val[0].contains("_phoneme") )
+              //else if(fea_val[0].contains("phoneme") || fea_val[0].contains("prev_phoneme") || fea_val[0].contains("next_phoneme") )
+              else if(fea_val[0].contains("phoneme") )
                   fea_val[1] = PhoneTranslator.replaceBackTrickyPhones(fea_val[1]);
               
               /* set the question name value */
@@ -263,7 +260,7 @@ public class HTSTreeSet {
               node.insertYes();
           
               /* NO index */
-              buf = sline.next();
+              buf = sline.nextToken();
               //System.out.print("  NO:" + buf + "   ");
               if(buf.startsWith("-")) {
                 iaux = Integer.parseInt(buf.substring(1));
@@ -280,7 +277,7 @@ public class HTSTreeSet {
           
               
               /* YES index */
-              buf = sline.next();
+              buf = sline.nextToken();
               //System.out.print("  YES: " + buf + "   ");
               if(buf.startsWith("-")) {
                 iaux = Integer.parseInt(buf.substring(1));
@@ -300,7 +297,6 @@ public class HTSTreeSet {
               //node.get_yes().PrintNode();
             }  /* if node not null */
           
-            sline.close();
             sline=null;
             
          }else { /* if "}", so last line for this tree */
