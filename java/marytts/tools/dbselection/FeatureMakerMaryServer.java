@@ -133,6 +133,8 @@ public class FeatureMakerMaryServer{
         /* Here the DB connection for reliable sentences is open */
          DBHandler wikiToDB = new DBHandler();
          wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123"); 
+         // check if tables exist
+         wikiToDB.createDataBases();
         
 		
 		/* loop over the text files */
@@ -186,7 +188,7 @@ public class FeatureMakerMaryServer{
 			int index=0;
 			
             /* loop over the sentences */
-            String feas;
+            byte feas[];  // for directly saving a vector of bytes as BLOB in mysql DB
 			for (Iterator it2=index2sentences.keySet().iterator();it2.hasNext();){
 				Integer nextKey = (Integer) it2.next();
 				
@@ -201,7 +203,8 @@ public class FeatureMakerMaryServer{
 	
                 /* Insert in the database the new sentence and its features. */
                 numSentences++;
-                wikiToDB.insertSentenceAndFeatures(numSentences,filename,newSentence,feas);
+                wikiToDB.insertSentenceAndFeatures(getShortFileName(nextKey,filename),
+                                                   newSentence,feas);
                      		
 			}//end of loop over sentences
                          
@@ -499,7 +502,7 @@ public class FeatureMakerMaryServer{
 		 * @param d the target features as Mary Data object
 		 * @throws Exception
 		 */
-		protected static String getFeatures(MaryData d)throws Exception{
+		protected static byte[] getFeatures(MaryData d)throws Exception{
 			BufferedReader featsDis = 
 				new BufferedReader(
 						new InputStreamReader(
@@ -515,12 +518,30 @@ public class FeatureMakerMaryServer{
 			}
 			
 			/* get the indices of our features */
+<<<<<<< .mine
+            // DE example
+            /*
+			int phoneIndex = featDef.getFeatureIndex("mary_phoneme");
+			int nextPhoneIndex = featDef.getFeatureIndex("mary_next_phoneme");
+=======
 			int phoneIndex = featDef.getFeatureIndex("phoneme");
 			int nextPhoneIndex = featDef.getFeatureIndex("next_phoneme");
+>>>>>>> .r1512
+<<<<<<< .mine
+			int nextPhoneClassIndex = featDef.getFeatureIndex("mary_selection_next_phone_class");
+			int prosodyIndex = featDef.getFeatureIndex("mary_selection_prosody");
+            */
+            // EN example (not sure if these features are adequate! just for testing)
+            int phoneIndex = featDef.getFeatureIndex("mary_phoneme");
+            int nextPhoneIndex = featDef.getFeatureIndex("mary_next_phoneme");
+            int nextPhoneClassIndex = featDef.getFeatureIndex("mary_next_next_phoneme");
+            int prosodyIndex = featDef.getFeatureIndex("mary_pos_in_syl");
+=======
 			
             // these two are not available in EN
             //int nextPhoneClassIndex = featDef.getFeatureIndex("selection_next_phone_class");
 			//int prosodyIndex = featDef.getFeatureIndex("selection_prosody");
+>>>>>>> .r1512
             
 			/* loop over the feature vectors */
 			List<String> featureLines = new ArrayList<String>();
@@ -540,34 +561,32 @@ public class FeatureMakerMaryServer{
 					featDef.getFeatureValueAsByte(phoneIndex,phoneString);
 				nextVector[1] = 
 					featDef.getFeatureValueAsByte(nextPhoneIndex,fv[nextPhoneIndex]);
-                /*
 				nextVector[2] = 
 					featDef.getFeatureValueAsByte(nextPhoneClassIndex,fv[nextPhoneClassIndex]);
 				nextVector[3] = 
-					featDef.getFeatureValueAsByte(prosodyIndex,fv[prosodyIndex]);
-                    */
+					featDef.getFeatureValueAsByte(prosodyIndex,fv[prosodyIndex]);                
 				featVects[i] = nextVector;
 				
 				
 			} //end of while-loop over the feature vectors
+              
+            // create a byte vector with the reults
+            System.out.println("number of lines=" + numLines);
+            byte feasVector[] = new byte[(numLines*4)];
             
-         
-            StringBuffer feas  = new StringBuffer();
-            feas.append(numLines + " 4 ");
-           
-			for (int i=0;i<featVects.length;i++){
+			for (int n=0,i=0;i<featVects.length;i++){
 				byte[] nextFeatVects = featVects[i];
 				if (nextFeatVects == null){
 					System.out.println("nextFeatVects are null at index "+i);
 				}
-			    feas.append(nextFeatVects[0] + " ");
-                feas.append(nextFeatVects[1] + " ");
-                feas.append(nextFeatVects[2] + " ");
-                feas.append(nextFeatVects[3] + " ");
+			    feasVector[n++] = nextFeatVects[0];
+                feasVector[n++] = nextFeatVects[1];
+                feasVector[n++] = nextFeatVects[2];
+                feasVector[n++] = nextFeatVects[3];
 			}
 			
             //System.out.println("feas=" + feas);
-            return feas.toString();
+            return feasVector;
 			
 		}
 		
@@ -613,7 +632,7 @@ public class FeatureMakerMaryServer{
 			if (doc == null) return false;
 			NodeList sentences = doc.getElementsByTagName("s");   
 			
-			int sentenceIndex = 1;
+            int sentenceIndex = 1;
 			for (int j=0;j<sentences.getLength();j++){
 				Node nextSentence = sentences.item(j);
 				//ignore all non-element children
@@ -641,8 +660,9 @@ public class FeatureMakerMaryServer{
                         numUnreliableSentences++;
                         System.out.println("Inserting unreliable sentence:");
                         DBHandler wikiToDB = new DBHandler();
-                        wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123"); 
-                        wikiToDB.insertUnreliableSentence(numUnreliableSentences,filename,sentence.toString());
+                        wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");                        
+                        wikiToDB.insertUnreliableSentence(getShortFileName(sentenceIndex,filename),
+                                                          sentence.toString());
                         wikiToDB.closeDBConnection();
                         
                         
@@ -656,6 +676,15 @@ public class FeatureMakerMaryServer{
 			return true;
 		}
 		
+        
+        private static String getShortFileName(int index, String longName){
+          // find last  /   /* this will not work in windows! */
+          String shortName = longName.substring(longName.lastIndexOf("/")+1);
+          shortName = shortName + "_" + ((Integer) index).toString();
+            
+          return shortName;  
+        }
+        
 		/**
 		 * Process the given text with the MaryClient
 		 * from Text to Chunked

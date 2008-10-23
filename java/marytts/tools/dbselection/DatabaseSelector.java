@@ -105,14 +105,19 @@ public class DatabaseSelector{
     public static byte[][] main2(String[] args,byte[][] vectorArray)throws Exception{
         /* Sort out the filenames and dirs for the logfiles */
         System.out.println("Starting Database Selection...");
+        
         long time = System.currentTimeMillis();
         PrintWriter logOut;
+        /*
         DateFormat fullDate = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss");
         DateFormat day = new SimpleDateFormat("dd_MM_yyyy");
         Date date = new Date();
         String dateString = fullDate.format(date);
         String dateDir = day.format(date);
-
+        */
+        String dateDir = "10.23.2008"; 
+        String dateString = "10.23.2008-14:00";
+        
         System.out.println("Reading arguments ...");
         StringBuffer logBuf = new StringBuffer();
         if (!readArgs(args,logBuf))
@@ -152,8 +157,8 @@ public class DatabaseSelector{
         logOut.println(logBuf.toString());
 
         /* Load the filenames */   
-        System.out.println("Loading basenames...");
-        loadBasenames();
+ //       System.out.println("Loading basenames...");
+ //       loadBasenames();
 
         /* Read in the feature definition */
         System.out.println("Loading feature definition...");

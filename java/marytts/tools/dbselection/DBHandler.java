@@ -92,16 +92,65 @@ public class DBHandler {
         e.printStackTrace();
     } 
   }
+  
+  public void createDataBases() {
+      String dbselection = "CREATE TABLE dbselection ( id INT NOT NULL AUTO_INCREMENT, " +
+                           "fromFile TEXT, sentence TEXT, features BLOB, primary key(id));";
+      String unreliable = "CREATE TABLE unreliable  ( id INT NOT NULL AUTO_INCREMENT, " +
+                           "fromFile TEXT, sentence TEXT, primary key(id));";
+      boolean dbExist = false;
+      boolean unExist = false;
+      // if databases do not exist create them      
+      System.out.println("Checking if databases already exist.");
+      try {
+          rs = st.executeQuery("SHOW TABLES;");
+      } catch (Exception e) {
+          e.printStackTrace();
+      }
+      
+      try { 
+          while( rs.next() ) {
+            String str = rs.getString(1);
+            if( str.contentEquals("dbselection") ){
+               System.out.println("TABLE = " + str + " already exist.");
+               dbExist = true;
+            } else if( str.contentEquals("unreliable") ) {
+                System.out.println("TABLE = " + str + " already exist.");
+                unExist = true;  
+            }
+          }
+          if( !dbExist ) {
+              boolean res = st.execute( dbselection );
+              System.out.println("TABLE = dbselection succesfully created.");   
+          }
+          if( !unExist ) {
+              boolean res = st.execute( unreliable );
+              System.out.println("TABLE = unreliable succesfully created.");
+          }
+          
+      } catch (SQLException e) {
+          e.printStackTrace();
+      } 
+      
+      
+      /*
+      try {
+          st.close();   // do we need this all the time???
+      } catch (SQLException e) {
+          e.printStackTrace();
+      }
+      */  
+      
+  }
 
   public void setDBTable(String table){
     currentTable = table;
   }
 
-  public void insertSentenceAndFeatures(int id, String file, String sentence, String features){
-    
+  public void insertSentenceAndFeatures(String file, String sentence, String features){  
     String dbInsert = "INSERT INTO " + "dbselection" 
-                    + " VALUES (\"" + id 
-                    + "\", \"" + file
+                    + " VALUES (null"   // id is auto_increment
+                    + ", \"" + file
                     + "\", \"" + sentence 
                     + "\", \"" + features 
                     + "\")";
@@ -109,11 +158,27 @@ public class DBHandler {
     
   }
   
-  public void insertUnreliableSentence(int id, String file, String sentence){     
+  public void insertSentenceAndFeatures(String file, String sentence, byte features[]){
+    System.out.println("inserting in dbselection: file=" + file + " Num features=" + features.length + " sentence=" + sentence);
+    try {  
+      PreparedStatement ps = cn.prepareStatement("INSERT INTO dbselection VALUES (null, ?, ?, ?)");
+    
+      ps.setString(1, file);
+      ps.setString(2, sentence);
+      ps.setBytes(3, features);
+      ps.execute();
+      
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+  }
+  
+  
+  public void insertUnreliableSentence(String file, String sentence){     
       sentence = mysqlEscapeCharacters(sentence);
       String dbInsert = "INSERT INTO " + "unreliable" 
-                      + " VALUES (\"" + id
-                      + "\", \"" + file 
+                      + " VALUES (null"  // id is autoincrement
+                      + ", \"" + file 
                       + "\", \"" + sentence 
                       + "\")";
       insertIntoTable(dbInsert);
@@ -144,16 +209,21 @@ public class DBHandler {
      
   }
   
+  
+  public int getNumberOfReliableSentences(){
+      String dbQuery = "SELECT MAX(id) FROM dbselection";
+      String str = queryTable(dbQuery);
+      return Integer.parseInt(str);
+  }
+  
   public String getSentenceFromTable(int id)
   {
-      String str = "";
       String dbQuery = "Select sentence FROM " + currentTable + " WHERE id=" + id;
       return queryTable(dbQuery);      
   }
   
   public String getFeaturesFromTable(int id)
   {
-      String str = "";
       String dbQuery = "Select features FROM " + currentTable + " WHERE id=" + id;
       return queryTable(dbQuery);
       
@@ -192,6 +262,40 @@ public class DBHandler {
       
   }
 
+  public byte[] getFeatures(int id)
+  {
+      byte[] fea = null;
+      String dbQuery = "Select features FROM dbselection WHERE id=" + id;
+      System.out.println("querying: " + dbQuery);
+      try {
+          rs = st.executeQuery( dbQuery );
+      } catch (Exception e) {
+          e.printStackTrace();
+      } 
+
+      try {   
+          while( rs.next() ) {
+              //String url = rs.getString(2);
+              //str = rs.getString(field);
+              fea = rs.getBytes(1);
+          }
+      } catch (SQLException e) {
+          e.printStackTrace();
+      } 
+
+      //Close database statement  // do i need to do this all the time???
+      /*
+      try {
+          st.close();
+      } catch (SQLException e) {
+          e.printStackTrace();
+      }    
+      */
+      return fea;
+      
+  }
+
+  
   /** The following characteres should be escaped:
    * \0  An ASCII 0 (NUL) character.
    * \'  A single quote (“'”) character.
@@ -213,8 +317,30 @@ public class DBHandler {
 
       wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");
       wikiToDB.setDBTable("dbselection");
+      
+      wikiToDB.createDataBases();
+      
+      int num = wikiToDB.getNumberOfReliableSentences();
+      
+      String feas = wikiToDB.getFeaturesFromTable(1);
+      
+      
+      byte [] tmp = new byte[4];
+      tmp[0] = 10;
+      tmp[1] = 20;
+      tmp[2] = 30;
+      tmp[3] = 40;
+      
+      wikiToDB.insertSentenceAndFeatures("file1", "sentence1", tmp);
+      
+      byte res[];
+      
+      res = wikiToDB.getFeatures(1);
+      
+      /*
+      
       for(int i= 1; i<5; i++) {
-        wikiToDB.insertSentenceAndFeatures(i,"file1", "this is a ( )"+ i + " test", "long feature string "+i);
+        wikiToDB.insertSentenceAndFeatures("file1", "this is a ( )"+ i + " test", "long feature string "+i);
       }
       wikiToDB.closeDBConnection();
 
@@ -228,6 +354,7 @@ public class DBHandler {
       String fea = wikiToDB.getFeaturesFromTable(3);
       System.out.println("feature 3 = " + fea );
       
+      */
       wikiToDB.closeDBConnection();
 
   } // end of main()
