@@ -219,6 +219,7 @@ public class MaryHttpServer {
     private static Logger logger;
     private int runningNumber = 1;
     //private Map<Integer,Object[]> clientMap;
+    public static final String WEB_BROWSER_CLIENT_REQUEST_HEADER = "WEB_BROWSER_CLIENT";
 
     public MaryHttpServer() {
         logger = Logger.getLogger("server");
@@ -375,8 +376,10 @@ public class MaryHttpServer {
             line = buffReader.readLine();
             
             logger.debug("read request: `"+line+"'");
+            boolean isWebFormClient = false;
             if (line == null) //This can be a web client asking for the default Mary Web client page
             {
+                isWebFormClient = true;
                 response.setStatusCode(HttpStatus.SC_OK);
                 
                 //Send the MARY Web Client page by first filling in fields appropriately 
@@ -389,8 +392,14 @@ public class MaryHttpServer {
                 return;
             }
             
+            if (line.startsWith(WEB_BROWSER_CLIENT_REQUEST_HEADER))
+            {
+                isWebFormClient = true;
+                line = line.substring(WEB_BROWSER_CLIENT_REQUEST_HEADER.length());
+            }
+            
             String outputLine = "";
-            if (handleInfoRequest(line, response)) 
+            if (handleInfoRequest(line, response, isWebFormClient)) 
             {
                 return;
             }
@@ -411,7 +420,7 @@ public class MaryHttpServer {
             }
         }
 
-        private boolean handleInfoRequest(String inputLine, HttpResponse response) throws IOException 
+        private boolean handleInfoRequest(String inputLine, HttpResponse response, boolean isWebFormClient) throws IOException 
         {
             String output = "";
             // Optional version information:
