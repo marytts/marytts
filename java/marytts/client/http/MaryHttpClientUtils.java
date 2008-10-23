@@ -30,11 +30,13 @@
 package marytts.client.http;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 
+import marytts.util.ConversionUtils;
 import marytts.util.string.StringUtils;
 
 import org.apache.http.HttpEntity;
@@ -50,173 +52,55 @@ import org.apache.http.impl.client.DefaultHttpClient;
  * @author oytun.turk
  *
  */
-public class MaryHttpClientUtils {
-    //Check if these are still required
-    public static HttpResponse sendHttpPostRequest(DefaultHttpClient client, String host, int port, String query) throws HttpException
-    {
-        return sendHttpRequest(client, host, port, query, "POST");
-    }
-    
-    public static String httpPostRequestStringResponse(DefaultHttpClient client, String host, int port, String query) throws HttpException, IOException
-    {
-        HttpResponse response =  sendHttpRequest(client, host, port, query, "POST");
-        
-        return response2String(response);
-    }
-    
-    public static String[] httpPostRequestStringArrayResponse(DefaultHttpClient client, String host, int port, String query) throws HttpException, IOException
-    {
-        HttpResponse response =  sendHttpRequest(client, host, port, query, "POST");
-        
-        return response2StringArray(response);
-    }
-    
-    public static InputStream httpPostRequestInputStreamResponse(DefaultHttpClient client, String host, int port, String query) throws HttpException, IOException
-    {
-        HttpResponse response =  sendHttpRequest(client, host, port, query, "POST");
-        
-        return response2InputStream(response);
-    }
-    
-    public static HttpResponse sendHttpGetRequest(DefaultHttpClient client, String host, int port, String query) throws HttpException
-    {
-        return sendHttpRequest(client, host, port, query, "GET");
-    }
-    
-    public static String httpGetRequestStringResponse(DefaultHttpClient client, String host, int port, String query) throws HttpException, IOException
-    {
-        HttpResponse response =  sendHttpRequest(client, host, port, query, "GET");
-        
-        return response2String(response);
-    }
-    
-    public static String[] httpGetRequestStringArrayResponse(DefaultHttpClient client, String host, int port, String query) throws HttpException, IOException
-    {
-        HttpResponse response =  sendHttpRequest(client, host, port, query, "GET");
-        
-        return response2StringArray(response);
-    }
-    
-    public static InputStream httpGetRequestInputStreamResponse(DefaultHttpClient client, String host, int port, String query) throws HttpException, IOException
-    {
-        HttpResponse response =  sendHttpRequest(client, host, port, query, "GET");
-        
-        return response2InputStream(response);
-    }
-    
-    public static HttpResponse sendHttpRequest(DefaultHttpClient client, String host, int port, String query, String requestMethod) throws HttpException
-    {
-        HttpResponse response = null;
-        
-        String completeQuery = host + ":" + String.valueOf(port) + "?" + query;
-        requestMethod = requestMethod.toUpperCase();
-        
-        HttpUriRequest sender = null;
-        
-        if (requestMethod.equals("GET"))
-        {
-            try {
-                sender = new HttpGet(completeQuery);
-            } catch (URISyntaxException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        else if (requestMethod.equals("POST"))
-        {
-            try {
-                sender = new HttpPost(completeQuery);
-            } catch (URISyntaxException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        else
-            throw new MethodNotSupportedException(requestMethod + " method not supported");
-        
-        if (sender!=null)
-        {
-            try {
-                response = client.execute(sender);
-            } catch (HttpException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-          
-        return response;
-    }
-    
-    public static String response2String(HttpResponse response) throws IOException
-    {
-        String responseString = "";
-        
-        if (response!=null)
-        {
-            HttpEntity entity = response.getEntity();
-            InputStream is = entity.getContent(); //This is how to get a direct input stream from server. Mary client can use this as audio data source from server etc
-
-            if (is!=null)
-            {
-                BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                String line = "";
-                System.out.println("--- Incoming bytes from server to client ---");
-                while((line = br.readLine()) != null)
-                {
-                    responseString += line + System.getProperty("line.separator");
-                    System.out.println(line);
-                }
-
-                System.out.println("--- That was all from server ---");
-            }
-            
-            try {
-                entity.consumeContent();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        
-        return responseString;
-    }
-    
-    public static String[] response2StringArray(HttpResponse response) throws IOException
-    {
-        String allInOneLine = response2String(response);
-        
-        return StringUtils.string2StringArray(allInOneLine);
-    }
-    
-    public static InputStream response2InputStream(HttpResponse response) throws IOException
+public class MaryHttpClientUtils 
+{    
+    public static InputStream toInputStream(HttpResponse response) throws IOException
     {
         InputStream is = null;
         
         if (response!=null)
         {
-
             HttpEntity entity = response.getEntity();
-            is = entity.getContent(); //This is how to get a direct input stream from server. Mary client can use this as audio data source from server etc
+            is = entity.getContent();
         }
         
         return is;
     }
     
-    public static String getHttpServerInfoLine(DefaultHttpClient client, String host, int port, String query) throws HttpException, IOException
+    public static byte[] toByteArray(HttpResponse response) throws IOException
     {
-        HttpResponse response = sendHttpPostRequest(client, host, port, query);
+        InputStream is = toInputStream(response);
         
-        return response2String(response);
+        if (is!=null)
+        {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            int byteVal;
+            while ((byteVal=is.read())!=-1)
+                baos.write(byteVal);
+            
+            return baos.toByteArray();
+        }
+        else
+            return null;    
     }
     
-    public static String[] getHttpServerInfoLines(DefaultHttpClient client, String host, int port, String query) throws HttpException, IOException
+    public static String toString(HttpResponse response) throws IOException
     {
-        HttpResponse response = sendHttpPostRequest(client, host, port, query);
-        
-        return response2StringArray(response);
+        return ConversionUtils.toString(toByteArray(response));
     }
-    //
+    
+    public static String[] toStringArray(HttpResponse response) throws IOException
+    {
+        return StringUtils.toStringArray(toString(response));
+    }
+
+    public static double[] toDoubleArray(HttpResponse response) throws IOException
+    {
+        return ConversionUtils.toDoubleArray(toByteArray(response));
+    }
+    
+    public static int[] toIntArray(HttpResponse response) throws IOException
+    {
+        return ConversionUtils.toIntArray(toByteArray(response));
+    }
 }

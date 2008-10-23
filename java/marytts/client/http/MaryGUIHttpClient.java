@@ -108,7 +108,7 @@ import com.sun.speech.freetts.audio.AudioPlayer;
 /**
  * A GUI Interface to the Mary Client, allowing to access and modify
  * intermediate processing results.
- * @author oytun.turk
+ * @author Marc.Schroeder, oytun.turk
  * @see MaryHttpClient The client implementation
  */
 
@@ -196,7 +196,7 @@ public class MaryGUIHttpClient extends JPanel
      * @throws IOException
      * @throws UnknownHostException
      */
-    public MaryGUIHttpClient() throws IOException, UnknownHostException
+    public MaryGUIHttpClient() throws Exception
     {
         super();
         // First the MaryHttpClient processor class, because it may provide
@@ -224,7 +224,7 @@ public class MaryGUIHttpClient extends JPanel
      * @throws IOException
      * @throws UnknownHostException
      */
-    public MaryGUIHttpClient(String host, int port, JApplet applet) throws IOException, UnknownHostException
+    public MaryGUIHttpClient(String host, int port, JApplet applet) throws Exception
     {
         super();
         // First the MaryHttpClient processor class, because it may provide
@@ -249,10 +249,7 @@ public class MaryGUIHttpClient extends JPanel
         String[] serverInfo = null;
         try {
             serverInfo = processor.getServerVersionInfo();
-        } catch (UnknownHostException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        } catch (IOException e1) {
+        } catch (Exception e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
@@ -294,8 +291,9 @@ public class MaryGUIHttpClient extends JPanel
     /**
      * Create an instance of the MaryHttpClient class which does the processing,
      * and initialise the GUI.
+     * @throws Exception 
      */
-    public void init() throws IOException, UnknownHostException {
+    public void init() throws Exception {
 
         getServerVersion();
         
@@ -762,20 +760,14 @@ public class MaryGUIHttpClient extends JPanel
         
         try {
             availableAudioEffects = processor.getAudioEffects();
-        } catch (UnknownHostException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
         
         try {
             strLineBreak = processor.getAudioEffectHelpTextLineBreak();
-        } catch (UnknownHostException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -833,10 +825,7 @@ public class MaryGUIHttpClient extends JPanel
                             if (processor.isHMMEffect(effectName))  
                                 effectsBox.effectControls[i].setVisible(false);  
                                 
-                        } catch (UnknownHostException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        } catch (IOException e) {
+                        } catch (Exception e) {
                             // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
@@ -870,10 +859,7 @@ public class MaryGUIHttpClient extends JPanel
                         String strTmp = "";
                         try {
                             strTmp = processor.requestEffectParametersChange(effectsBox.effectNames[i], effectsBox.effectControls[i].txtParams.getText());
-                        } catch (UnknownHostException e1) {
-                            // TODO Auto-generated catch block
-                            e1.printStackTrace();
-                        } catch (IOException e1) {
+                        } catch (Exception e1) {
                             // TODO Auto-generated catch block
                             e1.printStackTrace();
                         }
@@ -885,10 +871,7 @@ public class MaryGUIHttpClient extends JPanel
                         strTmpParam = "";
                         try {
                             strTmpParam = processor.requestFullEffectAsString(effectsBox.effectNames[i]);
-                        } catch (UnknownHostException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        } catch (IOException e) {
+                        } catch (Exception e) {
                             // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
@@ -920,7 +903,7 @@ public class MaryGUIHttpClient extends JPanel
             try {
                 String exampleText = processor.getServerExampleText(inputType.name(), defaultVoice.getLocale().toString());
                 setInputText(exampleText);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
