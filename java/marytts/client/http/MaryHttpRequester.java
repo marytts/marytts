@@ -30,6 +30,7 @@
 package marytts.client.http;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -58,6 +59,8 @@ import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.BasicRequestLine;
 import org.apache.http.nio.NHttpConnection;
+import org.apache.http.nio.entity.BufferingNHttpEntity;
+import org.apache.http.nio.entity.NByteArrayEntity;
 import org.apache.http.nio.protocol.BufferingHttpClientHandler;
 import org.apache.http.nio.protocol.EventListener;
 import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
@@ -82,8 +85,7 @@ import org.apache.http.protocol.RequestUserAgent;
 /**
  * @author oytun.turk
  *
- */
-            
+ */       
 public class MaryHttpRequester 
 {
     private HttpParams params;
@@ -95,45 +97,41 @@ public class MaryHttpRequester
        
     }
     
-    public String[] requestMultipleLines(String host, int port, String strRequest) throws IOException
+    public String[] requestStringArray(String host, int port, String strRequest) throws Exception
     {
-        HttpResponse response = null;
-        try {
-            response = request(host, port, strRequest);
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        HttpResponse response = request(host, port, strRequest);
         
-        if (response!=null)
-            return MaryHttpClientUtils.response2StringArray(response);
-        else 
-            return null; 
+        return MaryHttpClientUtils.toStringArray(response); 
     }
     
-    public String requestSingleLine(String host, int port, String strRequest) throws IOException
+    public String requestString(String host, int port, String strRequest) throws Exception
     {
-        HttpResponse response = null;
-        try {
-            response = request(host, port, strRequest);
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        HttpResponse response = request(host, port, strRequest);
         
-        if (response!=null)
-            return MaryHttpClientUtils.response2String(response);
-        else 
-            return null; 
+        return MaryHttpClientUtils.toString(response);
     }
    
     public InputStream requestInputStream(String host, int port, String strRequest) throws Exception
     {
         HttpResponse response = request(host, port, strRequest);
-        HttpEntity entity = response.getEntity();
-        InputStream is = entity.getContent(); //This is how to get a direct input stream from server. Mary client can use this as audio data source from server etc
-        
+       
+        InputStream is = response.getEntity().getContent();
+ 
         return is;
+    }
+    
+    public int[] requestIntArray(String host, int port, String strRequest) throws Exception
+    {
+        HttpResponse response = request(host, port, strRequest);
+        
+        return MaryHttpClientUtils.toIntArray(response);
+    }
+    
+    public double[] requestDoubleArray(String host, int port, String strRequest) throws Exception
+    {
+        HttpResponse response = request(host, port, strRequest);
+        
+        return MaryHttpClientUtils.toDoubleArray(response);
     }
     
     public HttpResponse request(String host, int port, String strRequest) throws Exception
@@ -212,6 +210,7 @@ public class MaryHttpRequester
     public static String preprocessRequestString(String strRequest)
     {
         String strProcessed = StringUtils.replace(strRequest, " ", "%20");
+        strProcessed = StringUtils.replace(strProcessed, System.getProperty("line.separator"), "_HTTPREQUESTLINEBREAK_");
         
         return strProcessed;
     }
