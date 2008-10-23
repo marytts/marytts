@@ -64,7 +64,6 @@ import marytts.util.io.LoggingErrorHandler;
 import marytts.util.io.ReaderSplitter;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.nio.entity.NByteArrayEntity;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -440,7 +439,7 @@ public class MaryData {
             logger.debug("Writing audio output, frame length "+audio.getFrameLength());
             //AudioSystem.write(audio, audioFileFormat.getType(), os);
             //os.flush();
-            MaryHttpServerUtils.respondWithAudio(audio, audioFileFormat.getType(), response);
+            MaryHttpServerUtils.toResponse(audio, response);
         }
     }
     
