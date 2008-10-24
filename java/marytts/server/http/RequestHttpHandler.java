@@ -57,7 +57,7 @@ import org.xml.sax.SAXParseException;
 /**
  * A lightweight process handling one Request in a thread of its own.
  * This is to be used when running as a socket server.
- * @author Marc Schr&ouml;der
+ * @author Marc Schr&ouml;der, oytun.turk
  */
 
 public class RequestHttpHandler extends Thread {
