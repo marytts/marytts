@@ -386,7 +386,7 @@ public class FeatureMakerMaryServer{
 		try{                    
 			ByteArrayOutputStream os = new ByteArrayOutputStream();
 			//process and dump
-			mary.process(nextSentence, "TEXT","TARGETFEATURES", "en_US", null, "time-awb", os);
+			mary.process(nextSentence, "TEXT","TARGETFEATURES", "en_US", null, "hsmm-slt", os);
 			//read into mary data object                
 			//d = new MaryData(MaryDataType.get("TARGETFEATURES"), null);
             d = new MaryData(MaryDataType.TARGETFEATURES, Locale.US);
@@ -521,18 +521,18 @@ public class FeatureMakerMaryServer{
             
             // DE example
             /*
-			int phoneIndex = featDef.getFeatureIndex("mary_phoneme");
-			int nextPhoneIndex = featDef.getFeatureIndex("mary_next_phoneme");
 			int phoneIndex = featDef.getFeatureIndex("phoneme");
 			int nextPhoneIndex = featDef.getFeatureIndex("next_phoneme");
-			int nextPhoneClassIndex = featDef.getFeatureIndex("mary_selection_next_phone_class");
-			int prosodyIndex = featDef.getFeatureIndex("mary_selection_prosody");
+			int phoneIndex = featDef.getFeatureIndex("phoneme");
+			int nextPhoneIndex = featDef.getFeatureIndex("next_phoneme");
+			int nextPhoneClassIndex = featDef.getFeatureIndex("selection_next_phone_class");
+			int prosodyIndex = featDef.getFeatureIndex("selection_prosody");
             */
             // EN example (not sure if these features are adequate! just for testing)
-            int phoneIndex = featDef.getFeatureIndex("mary_phoneme");
-            int nextPhoneIndex = featDef.getFeatureIndex("mary_next_phoneme");
-            int nextPhoneClassIndex = featDef.getFeatureIndex("mary_next_next_phoneme");
-            int prosodyIndex = featDef.getFeatureIndex("mary_pos_in_syl");
+            int phoneIndex = featDef.getFeatureIndex("phoneme");
+            int nextPhoneIndex = featDef.getFeatureIndex("next_phoneme");
+            int nextPhoneClassIndex = featDef.getFeatureIndex("gpos");
+            int prosodyIndex = featDef.getFeatureIndex("position_type");
             // these two are not available in EN
             //int nextPhoneClassIndex = featDef.getFeatureIndex("selection_next_phone_class");
 			//int prosodyIndex = featDef.getFeatureIndex("selection_prosody");
@@ -691,7 +691,7 @@ public class FeatureMakerMaryServer{
 			try{
 				ByteArrayOutputStream os = new ByteArrayOutputStream();
 				//process and dump
-				mary.process(textString, "TEXT","PHONEMES", "en_US", null, "time-awb", os);
+				mary.process(textString, "TEXT","PHONEMES", "en_US", null, "hsmm-slt", os);
                 
                 //read into mary data object                
 				//MaryData maryData = new MaryData(MaryDataType.PHONEMES, Locale.GERMAN);
