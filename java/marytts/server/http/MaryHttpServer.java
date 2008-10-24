@@ -210,8 +210,8 @@ import org.apache.log4j.Logger;
  * </li>
  * </ol>
  *
- * @see RequestHandler
- * @author Marc Schr&ouml;der
+ * @see RequestHttpHandler
+ * @author Marc Schr&ouml;der, oytun.turk
  */
 
 public class MaryHttpServer {
