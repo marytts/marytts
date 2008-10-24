@@ -83,11 +83,8 @@ public class DBHandler {
       p.put("user",user);
       p.put("password",passwd);
       p.put("database", db);
-      cn = DriverManager.getConnection( url, p );
-      
-     
+      cn = DriverManager.getConnection( url, p );    
       st = cn.createStatement();
-    
     } catch (Exception e) {
         e.printStackTrace();
     } 
@@ -131,16 +128,6 @@ public class DBHandler {
       } catch (SQLException e) {
           e.printStackTrace();
       } 
-      
-      
-      /*
-      try {
-          st.close();   // do we need this all the time???
-      } catch (SQLException e) {
-          e.printStackTrace();
-      }
-      */  
-      
   }
 
   public void setDBTable(String table){
@@ -191,13 +178,6 @@ public class DBHandler {
       } catch (Exception e) {
           e.printStackTrace();
       }
-      /*
-      try {
-          st.close();   // do we need this all the time???
-      } catch (SQLException e) {
-          e.printStackTrace();
-      }
-      */ 
     }
 
   public void closeDBConnection(){
@@ -210,21 +190,24 @@ public class DBHandler {
   }
   
   
-  public int getNumberOfReliableSentences(){
+  public int getNumberOfReliableSentences() {
       String dbQuery = "SELECT MAX(id) FROM dbselection";
       String str = queryTable(dbQuery);
       return Integer.parseInt(str);
   }
   
-  public String getSentenceFromTable(int id)
-  {
-      String dbQuery = "Select sentence FROM " + currentTable + " WHERE id=" + id;
+  public String getFileNameFromTable(int id, String table) {
+      String dbQuery = "Select fromFile FROM " + table + " WHERE id=" + id;
       return queryTable(dbQuery);      
   }
   
-  public String getFeaturesFromTable(int id)
-  {
-      String dbQuery = "Select features FROM " + currentTable + " WHERE id=" + id;
+  public String getSentenceFromTable(int id, String table) {
+      String dbQuery = "Select sentence FROM " + table + " WHERE id=" + id;
+      return queryTable(dbQuery);      
+  }
+  
+  public String getFeaturesFromTable(int id, String table) {
+      String dbQuery = "Select features FROM " + table + " WHERE id=" + id;
       return queryTable(dbQuery);
       
   }
@@ -233,7 +216,7 @@ public class DBHandler {
   {
       String str = "";
       //String dbQuery = "Select * FROM " + currentTable;
-      System.out.println("querying: " + dbQuery);
+      //System.out.println("querying: " + dbQuery);
       try {
           rs = st.executeQuery( dbQuery );
       } catch (Exception e) {
@@ -249,15 +232,6 @@ public class DBHandler {
       } catch (SQLException e) {
           e.printStackTrace();
       } 
-
-      //Close database statement  // do i need to do this all the time???
-      /*
-      try {
-          st.close();
-      } catch (SQLException e) {
-          e.printStackTrace();
-      }    
-      */
       return str;
       
   }
@@ -266,7 +240,7 @@ public class DBHandler {
   {
       byte[] fea = null;
       String dbQuery = "Select features FROM dbselection WHERE id=" + id;
-      System.out.println("querying: " + dbQuery);
+      //System.out.println("querying: " + dbQuery);
       try {
           rs = st.executeQuery( dbQuery );
       } catch (Exception e) {
@@ -275,22 +249,11 @@ public class DBHandler {
 
       try {   
           while( rs.next() ) {
-              //String url = rs.getString(2);
-              //str = rs.getString(field);
               fea = rs.getBytes(1);
           }
       } catch (SQLException e) {
           e.printStackTrace();
       } 
-
-      //Close database statement  // do i need to do this all the time???
-      /*
-      try {
-          st.close();
-      } catch (SQLException e) {
-          e.printStackTrace();
-      }    
-      */
       return fea;
       
   }
@@ -322,7 +285,7 @@ public class DBHandler {
       
       int num = wikiToDB.getNumberOfReliableSentences();
       
-      String feas = wikiToDB.getFeaturesFromTable(1);
+      String feas = wikiToDB.getFeaturesFromTable(1, "dbselection");
       
       
       byte [] tmp = new byte[4];
@@ -332,12 +295,9 @@ public class DBHandler {
       tmp[3] = 40;
       
       wikiToDB.insertSentenceAndFeatures("file1", "sentence1", tmp);
-      
       byte res[];
       
       res = wikiToDB.getFeatures(1);
-      
-      /*
       
       for(int i= 1; i<5; i++) {
         wikiToDB.insertSentenceAndFeatures("file1", "this is a ( )"+ i + " test", "long feature string "+i);
@@ -348,13 +308,12 @@ public class DBHandler {
       wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");
       wikiToDB.setDBTable("dbselection");
       //String sentence = wikiToDB.queryTable(3, "sentence");
-      String sentence = wikiToDB.getSentenceFromTable(3);
+      String sentence = wikiToDB.getSentenceFromTable(3, "dbselection");
       System.out.println("sentence 3 = " + sentence );
       
-      String fea = wikiToDB.getFeaturesFromTable(3);
+      String fea = wikiToDB.getFeaturesFromTable(3, "dbselection");
       System.out.println("feature 3 = " + fea );
       
-      */
       wikiToDB.closeDBConnection();
 
   } // end of main()

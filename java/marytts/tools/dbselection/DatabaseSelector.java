@@ -87,9 +87,19 @@ public class DatabaseSelector{
      * @param args the command line args (see printUsage for details)
      */
     public static void main(String[] args)throws Exception{
-        main2(args,null);
+        //main2(args,null);
+        main1(args);
     }
 
+    
+    public static void main1(String[] args)throws Exception{
+      
+      byte[][] vecArray = main2(args,null);
+      
+      main2(args,vecArray);
+        
+    }
+    
     
     /**
      * Main method to be run from the directory where the data is.
@@ -108,15 +118,15 @@ public class DatabaseSelector{
         
         long time = System.currentTimeMillis();
         PrintWriter logOut;
-        /*
+        
         DateFormat fullDate = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss");
         DateFormat day = new SimpleDateFormat("dd_MM_yyyy");
         Date date = new Date();
         String dateString = fullDate.format(date);
         String dateDir = day.format(date);
-        */
-        String dateDir = "10.23.2008"; 
-        String dateString = "10.23.2008-14:00";
+        
+        //String dateDir = "10.23.2008"; 
+        //String dateString = "10.23.2008-14:00";
         
         System.out.println("Reading arguments ...");
         StringBuffer logBuf = new StringBuffer();
@@ -181,16 +191,18 @@ public class DatabaseSelector{
         if (!covSetFile.exists()){
             //coverage has to be initialised
             readCovFromFile = false;
-            covDef.initialiseCoverage(basenameList);
+            basenameList = covDef.initialiseCoverage();   // pass here the dbselection DB
             System.out.println("Writing coverage to file "+initFileName);
-            covDef.writeCoverageBin(initFileName); 
+            covDef.writeCoverageBin(initFileName);   // generate here the file taking the basenames from dbselection DB
         } else {                
             //coverage can be read from file 
             covDef.readCoverageBin(initFileName,featDef,basenameList);
         }
+        
         if (vectorArrayNull) vectorArray = covDef.getVectorArray();
+        
         /* add already selected sentences to cover */
-        if (selectedSentsFile !=null){
+        if (selectedSentsFile !=null){     // at start this file should not exist??
             addSelectedSents(covDef);
         } else {
             selectedSents = new ArrayList();
