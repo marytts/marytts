@@ -110,11 +110,11 @@ public class PhoneTranslator  {
       
    
         StringBuffer contextName = new StringBuffer();
-        contextName.append("mary_prev_prev_phoneme=" + mary_prev_prev_phoneme);
-        contextName.append("|mary_prev_phoneme=" + mary_prev_phoneme);
-        contextName.append("|mary_phoneme=" + mary_phoneme);
-        contextName.append("|mary_next_phoneme=" + mary_next_phoneme);
-        contextName.append("|mary_next_next_phoneme=" + mary_next_next_phoneme);
+        contextName.append("prev_prev_phoneme=" + mary_prev_prev_phoneme);
+        contextName.append("|prev_phoneme=" + mary_prev_phoneme);
+        contextName.append("|phoneme=" + mary_phoneme);
+        contextName.append("|next_phoneme=" + mary_next_phoneme);
+        contextName.append("|next_next_phoneme=" + mary_next_next_phoneme);
         contextName.append("||");
         /* append the other context features included in the featureList */
         for (String f : featureList) {
@@ -180,7 +180,7 @@ public class PhoneTranslator  {
     public String replaceTrickyPhones(String lab){
       String s = lab;
       
-      /** the replace is done for the labels: mary_phoneme, mary_prev_phoneme and mary_next_phoneme */
+      /** the replace is done for the labels: phoneme, prev_phoneme and next_phoneme */
       
       /** DE (replacements in German phoneme set) */     
       if(lab.contentEquals("6") )
@@ -262,7 +262,7 @@ public class PhoneTranslator  {
       
       // First time: need to do the shortening:
       
-     // s = s.replace("^mary_pos$/POS/g;  /* ??? */
+     // s = s.replace("^pos$/POS/g;  /* ??? */
       s = fea.replace("mary_", "");
       s = s.replace("phoneme","phn");
       s = s.replace("prev","p");
