@@ -61,7 +61,8 @@ public class Allophone
         } else {
             throw new IllegalArgumentException("Element must be one of <vowel>, <consonant> and <silence>, but is <"+a.getTagName()+">");
         }
-        Map<String, String> feats = new HashMap<String, String>(); 
+        Map<String, String> feats = new HashMap<String, String>();
+        feats.put("vc", vc);
         for (String f : featureNames) {
             feats.put(f, getAttribute(a, f));
         }
