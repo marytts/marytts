@@ -66,7 +66,7 @@ public class RequestHttpHandler extends Thread {
     private Logger logger;
     //private Logger clientLogger;
     
-    private String clientAddress;
+    //private String clientAddress;
     public HttpResponse response;
 
     /**
@@ -79,13 +79,13 @@ public class RequestHttpHandler extends Thread {
     public RequestHttpHandler(
         RequestHttp request,
         HttpResponse response,
-        String clientAddress,
+        //String clientAddress,
         Reader inputReader) {
         if (request == null)
             throw new NullPointerException("Cannot handle null request");
         this.request = request;
         
-        this.clientAddress = clientAddress;
+        //this.clientAddress = clientAddress;
         this.response = response;
 
         this.setName("RH " + request.getId());
