@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
@@ -52,7 +51,6 @@ import marytts.modules.MaryXMLToMbrola;
 import marytts.modules.MbrolaCaller;
 import marytts.modules.ModuleRegistry;
 import marytts.modules.synthesis.Voice.Gender;
-import marytts.server.Mary;
 import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 

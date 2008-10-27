@@ -19,9 +19,8 @@ import marytts.datatypes.MaryXML;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.TargetFeatureComputer;
-import marytts.modules.InternalModule;
-import marytts.modules.phonemiser.Phoneme;
-import marytts.modules.phonemiser.PhonemeSet;
+import marytts.modules.phonemiser.Allophone;
+import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
 import marytts.unitselection.select.Target;
@@ -141,10 +140,10 @@ public class PronunciationModel extends InternalModule{
 
         TreeWalker tw = MaryDomUtils.createTreeWalker(doc, doc, MaryXML.TOKEN);
         Element t;
-        PhonemeSet phonemeSet = null;
+        AllophoneSet allophoneSet = null;
         while ((t = (Element) tw.nextNode()) != null) {
             // First, create the substructure of <t> elements: <syllable> and <ph>.
-            if (phonemeSet == null) { // need to determine it once, then assume it is the same for all
+            if (allophoneSet == null) { // need to determine it once, then assume it is the same for all
                 Element voice = (Element) MaryDomUtils.getAncestor(t, MaryXML.VOICE);
                 Voice maryVoice = Voice.getVoice(voice);
                 if (maryVoice == null) {                
@@ -156,9 +155,10 @@ public class PronunciationModel extends InternalModule{
                     maryVoice = Voice.getDefaultVoice(locale);
                 }
                 assert maryVoice != null;
-                phonemeSet = maryVoice.getSampaPhonemeSet();
+                allophoneSet = maryVoice.getAllophoneSet();
+                assert allophoneSet != null;
             }
-            createSubStructure(t, phonemeSet);
+            createSubStructure(t, allophoneSet);
             
             if (treeMap == null) continue;
             
@@ -242,13 +242,13 @@ public class PronunciationModel extends InternalModule{
     }
     
     
-    private void createSubStructure(Element token, PhonemeSet phonemeSet)
+    private void createSubStructure(Element token, AllophoneSet allophoneSet)
     {
         String phone = token.getAttribute("ph");
         if (phone.equals(""))
             return; // nothing to do
 
-        StringTokenizer tok = new StringTokenizer(phone, "-_");
+        StringTokenizer tok = new StringTokenizer(phone, "-");
         Document document = token.getOwnerDocument();
         while (tok.hasMoreTokens()) {
             String sylString = tok.nextToken();
@@ -271,11 +271,11 @@ public class PronunciationModel extends InternalModule{
             // Remember transcription without stress sign in ph attribute:
             syllable.setAttribute("ph", sylString);
             // Now identify the composing segments:
-            Phoneme[] phonemes = phonemeSet.splitIntoPhonemes(sylString);
-            for (int i = 0; i < phonemes.length; i++) {
+            Allophone[] allophones = allophoneSet.splitIntoAllophones(sylString);
+            for (int i = 0; i < allophones.length; i++) {
                 Element segment = MaryXML.createElement(document, MaryXML.PHONE);
                 syllable.appendChild(segment);
-                segment.setAttribute("p", phonemes[i].name());
+                segment.setAttribute("p", allophones[i].name());
                 // TODO: need to set loudness-specific voice quality attribute "vq" for de6 and de7
             }
         }

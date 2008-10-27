@@ -31,7 +31,6 @@ package marytts.signalproc.process;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -49,9 +48,6 @@ import marytts.util.data.SequenceDoubleDataSource;
 import marytts.util.data.SilenceDoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
-import marytts.util.data.audio.SilenceAudioInputStream;
-
-import org.jsresources.SequenceAudioInputStream;
 
 
 public class AudioFileMixer

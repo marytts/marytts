@@ -3,16 +3,13 @@ package marytts.language.en.features;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
 import marytts.features.MaryGenericFeatureProcessors;
 import marytts.features.MaryLanguageFeatureProcessors;
-import marytts.features.PhoneSet;
-import marytts.features.PhoneSetImpl;
-import marytts.features.MaryGenericFeatureProcessors.TargetElementNavigator;
+import marytts.modules.phonemiser.AllophoneSet;
 import marytts.server.MaryProperties;
 
 
@@ -33,10 +30,7 @@ public class FeatureProcessorManager extends
             addFeatureProcessor(new MaryLanguageFeatureProcessors.Gpos(posConverter));
 
             //property is set in english.config
-            URL phoneSetURL = new URL("file:"
-                +MaryProperties.needFilename("english.phoneSetFile"));
-            PhoneSet phoneSet  = new PhoneSetImpl(phoneSetURL);
-            
+            AllophoneSet allophoneSet = AllophoneSet.getAllophoneSet(MaryProperties.needFilename("english.allophoneset"));
           
             // Phonetic features of the current segment:
             
@@ -61,8 +55,8 @@ public class FeatureProcessorManager extends
             phonemeValues[0] = "0";
             System.arraycopy(phonemes, 0, phonemeValues, 1, phonemes.length);*/
 
-            String pauseSymbol = "_";  // TODO: get pause symbol from phone set
-            setupPhonemeFeatureProcessors(phoneSet, phonemeValues, pauseSymbol);
+            String pauseSymbol = allophoneSet.getSilence().name();
+            setupPhonemeFeatureProcessors(allophoneSet, phonemeValues, pauseSymbol);
 
             String wordFrequencyFilename = MaryProperties.getFilename("english.wordFrequency.fst");
             String wordFrequencyEncoding = MaryProperties.getProperty("english.wordFrequency.encoding");

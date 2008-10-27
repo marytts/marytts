@@ -30,8 +30,6 @@
 package marytts.signalproc.adaptation.gmm.jointgmm;
 
 import marytts.signalproc.adaptation.BaselineTransformerParams;
-import marytts.signalproc.adaptation.codebook.WeightedCodebookMapperParams;
-import marytts.signalproc.adaptation.codebook.WeightedCodebookTransformerParams;
 
 /**
  * 

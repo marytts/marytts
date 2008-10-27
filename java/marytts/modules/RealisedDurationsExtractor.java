@@ -29,21 +29,9 @@
 package marytts.modules;
 
 // DOM classes
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Vector;
-
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
-import marytts.modules.synthesis.MBROLAPhoneme;
-import marytts.modules.synthesis.MbrolaVoice;
-import marytts.modules.synthesis.Voice;
-import marytts.util.MaryUtils;
-import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
 import org.w3c.dom.Document;

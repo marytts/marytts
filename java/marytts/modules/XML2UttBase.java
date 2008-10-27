@@ -39,6 +39,8 @@ import java.util.StringTokenizer;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
+import marytts.modules.phonemiser.Allophone;
+import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.FreeTTSVoices;
 import marytts.modules.synthesis.Voice;
 import marytts.util.MaryUtils;
@@ -301,7 +303,7 @@ public abstract class XML2UttBase extends InternalModule
     {
         Voice maryVoice = FreeTTSVoices.getMaryVoice(utterance.getVoice());
         StringBuffer sentenceBuf = new StringBuffer();
-        List phonemeList = null;
+        List<String> phoneList = null;
         Relation tokenRelation = utterance.getRelation(Relation.TOKEN);
         assert tokenRelation != null;
         Relation wordRelation = null;
@@ -353,9 +355,9 @@ public abstract class XML2UttBase extends InternalModule
                         Item segItem = segmentRelation.appendItem();
                         segItem.getFeatures().setObject("maryxmlElement", element);
                         // Silence symbol in voice-specific phonetic alphabet:
-                        String silence = maryVoice.sampa2voice("_");
+                        String silence = maryVoice.getAllophoneSet().getSilence().name();
                         assert silence != null;
-                        logger.debug("In voice '"+maryVoice.getName()+"', voice silence symbol is '"+silence+"'");
+                        logger.debug("In voice '"+maryVoice.getName()+"', silence symbol is '"+silence+"'");
                         segItem.getFeatures().setString("name", silence);
                         segItem.getFeatures().setInt("mbr_dur", dur);
                         segItem.getFeatures().setFloat("end", end);
@@ -404,11 +406,11 @@ public abstract class XML2UttBase extends InternalModule
                         // sampa attribute, the concatenated sampa
                         // attribute values will be used as the
                         // pronunciation of the entire <mtu>.
-                        List onePhonemeList = maryVoice.sampaString2voicePhonemeList(t.getAttribute("ph"));
-                        if (phonemeList == null) {
-                            phonemeList = onePhonemeList;
+                        List<String> onePhoneList = phoneString2phoneList(maryVoice.getAllophoneSet(), t.getAttribute("ph"));
+                        if (phoneList == null) {
+                            phoneList = onePhoneList;
                         } else {
-                            phonemeList.addAll(onePhonemeList);
+                            phoneList.addAll(onePhoneList);
                         }
                     }
                     // Each t corresponds to one word item
@@ -444,7 +446,7 @@ public abstract class XML2UttBase extends InternalModule
                     tokenItem.getFeatures().setString("precedingMarks", mark);
                 if (!createSylStructRelation) {
                     if (t.hasAttribute("ph")) {
-                        phonemeList = maryVoice.sampaString2voicePhonemeList(t.getAttribute("ph"));
+                        phoneList = phoneString2phoneList(maryVoice.getAllophoneSet(), t.getAttribute("ph"));
                     }
                     if (t.hasAttribute("accent")) {
                         tokenItem.getFeatures().setString("accent", t.getAttribute("accent"));
@@ -457,11 +459,11 @@ public abstract class XML2UttBase extends InternalModule
                 }
             }
         }
-        if (phonemeList != null) {
-            String[] phonemeArray = (String[]) phonemeList.toArray(new String[]{});
+        if (phoneList != null) {
+            String[] phonemeArray = (String[]) phoneList.toArray(new String[]{});
             tokenRelation.getTail().getFeatures().setObject
                 ("phones", phonemeArray);
-            phonemeList = null;
+            phoneList = null;
         }
         return sentenceBuf.toString();
     }
@@ -571,12 +573,9 @@ public abstract class XML2UttBase extends InternalModule
                 Item segItem = segRelation.appendItem();
                 segItem.getFeatures().setObject("maryxmlElement", segElement);
                 sylStructSylItem.addDaughter(segItem);
-                String sampa = segElement.getAttribute("p");
-                assert !sampa.equals("");
-                // Convert to voice-specific phonetic alphabet
-                String phoneSymbol = maryVoice.sampa2voice(sampa);
-                assert phoneSymbol != null;
-                segItem.getFeatures().setString("name", phoneSymbol);
+                String phone = segElement.getAttribute("p");
+                assert !phone.equals("");
+                segItem.getFeatures().setString("name", phone);
                 int dur = 0; // in case we have duration info, in millisecs
                 if (segElement.hasAttribute("d")) {
                     try {
@@ -735,6 +734,33 @@ public abstract class XML2UttBase extends InternalModule
             else mark = mark+ "," + prev.getAttribute("name");
         }
         return mark;
+    }
+
+    
+    /** Converts a full phonetic string including stress markers into a list. 
+     * Syllable boundaries, if
+     * present, will be ignored. Stress markers, if present, will lead to a "1"
+     * appended to the voice-specific versions of the vowels in the syllable.
+     * @return a List of String objects.
+     */
+    public List<String> phoneString2phoneList(AllophoneSet allophoneSet, String phoneString)
+    {
+        List<String> voicePhonemeList = new ArrayList<String>();
+        StringTokenizer st = new StringTokenizer(phoneString, "-");
+        while (st.hasMoreTokens()) {
+            String syllable = st.nextToken();
+            boolean stressed = false;
+            if (syllable.startsWith("'")) {
+                stressed = true;
+            }
+            Allophone[] allophones = allophoneSet.splitIntoAllophones(syllable);
+            for (int i=0; i<allophones.length; i++) {
+                String phoneSymbol = allophones[i].name();
+                if (stressed && allophones[i].isVowel()) phoneSymbol = phoneSymbol + "1";
+                voicePhonemeList.add(phoneSymbol);
+            }
+        }
+        return voicePhonemeList;
     }
 
 }

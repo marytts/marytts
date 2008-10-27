@@ -46,7 +46,7 @@ public class ContourGenerator extends TobiContourGenerator {
         super(MaryDataType.DURATIONS,
                 MaryDataType.ACOUSTPARAMS,
                 Locale.ENGLISH,
-        "english.phonemeset", "english.contourgenerator.tobirulefile");
+        "english.allophoneset", "english.contourgenerator.tobirulefile");
     }
 
  }

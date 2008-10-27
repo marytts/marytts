@@ -29,7 +29,6 @@
 
 package marytts.signalproc.sinusoidal;
 
-import java.util.Vector;
 
 /**
  * @author oytun.turk

@@ -30,7 +30,6 @@ package marytts.language.tib;
 
 import java.util.Locale;
 
-import marytts.datatypes.MaryDataType;
 import marytts.language.tib.datatypes.TibetanDataTypes;
 import marytts.modules.ProsodyGeneric;
 import marytts.util.dom.DomUtils;

@@ -30,8 +30,6 @@ package marytts.tools.redstart;
 
 import javax.swing.table.AbstractTableModel;
 
-import marytts.tools.redstart.Prompt;
-
 
 /**
  *

@@ -29,15 +29,9 @@
 
 package marytts.signalproc.effects;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-
-import marytts.signalproc.process.InlineDataProcessor;
 import marytts.signalproc.process.Robotiser;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
-import marytts.util.data.audio.AudioDoubleDataSource;
-import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.math.MathUtils;
 
 /**

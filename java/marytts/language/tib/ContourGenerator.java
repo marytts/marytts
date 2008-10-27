@@ -52,10 +52,10 @@ import marytts.exceptions.NoSuchPropertyException;
 import marytts.modules.InternalModule;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
-import marytts.modules.phonemiser.Phoneme;
-import marytts.modules.phonemiser.PhonemeSet;
+import marytts.modules.phonemiser.Allophone;
+import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.synthesis.MbrolaVoice;
 import marytts.modules.synthesis.Voice;
-import marytts.server.Mary;
 import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
@@ -93,8 +93,8 @@ public class ContourGenerator extends InternalModule {
      * As this is a WeakHashMap, entries will automatically be deleted when not in
      * regular use anymore. */
     private WeakHashMap defaultVoiceMap;
-    /** The phonemeSet used for this language */
-    private PhonemeSet phonemeSet;
+    /** The allophoneSet used for this language */
+    private AllophoneSet allophoneSet;
     /** The tone realisation rules for this language */
     private String tonerulefilePropertyName = "tibetan.cap.tonerulefile";
     private Map toneMap;    
@@ -115,7 +115,7 @@ public class ContourGenerator extends InternalModule {
          if (synthesis.getState() == MaryModule.MODULE_OFFLINE)
              synthesis.startup();
         // load phoneme list
-        phonemeSet = PhonemeSet.getPhonemeSet(MaryProperties.needFilename("tibetan.cap.phonemelistfile"));
+        allophoneSet = AllophoneSet.getAllophoneSet(MaryProperties.needFilename("tibetan.cap.phonemelistfile"));
         // load tone rules
         toneMap = new HashMap();
         loadToneRules();
@@ -379,10 +379,14 @@ public class ContourGenerator extends InternalModule {
         if (voice == null) {
             voice = Voice.getDefaultVoice(getLocale());
         }
-        int topStart = voice.topStart();
-        int topEnd = voice.topEnd();
-        int baseStart = voice.baseStart();
-        int baseEnd = voice.baseEnd();
+        if (!(voice instanceof MbrolaVoice)) {
+            throw new IllegalStateException("This contour generator can only be used with an MBROLA voice, but "+voice.getName()+" is a "+voice.getClass());
+        }
+        MbrolaVoice mVoice = (MbrolaVoice) voice;
+        int topStart = mVoice.topStart();
+        int topEnd = mVoice.topEnd();
+        int baseStart = mVoice.baseStart();
+        int baseEnd = mVoice.baseEnd();
         TopBaseConfiguration tbConf = new TopBaseConfiguration(topStart, topEnd, baseStart, baseEnd);
 
         // Now see if there are any global modifiers (<prosody> elements
@@ -1461,7 +1465,7 @@ public class ContourGenerator extends InternalModule {
     }
 
     private boolean isInOnset(Element segment) {
-        Phoneme ph = phonemeSet.getPhoneme(segment.getAttribute("p"));
+        Allophone ph = allophoneSet.getAllophone(segment.getAttribute("p"));
         assert ph != null;
         if (ph.isSyllabic()) {
             return false;
@@ -1471,7 +1475,7 @@ public class ContourGenerator extends InternalModule {
         for (Element e = MaryDomUtils.getNextSiblingElement(segment);
             e != null;
             e = MaryDomUtils.getNextSiblingElement(e)) {
-            ph = phonemeSet.getPhoneme(e.getAttribute("p"));
+            ph = allophoneSet.getAllophone(e.getAttribute("p"));
             assert ph != null;
             if (ph.isSyllabic()) {
                 return true;
@@ -1481,13 +1485,13 @@ public class ContourGenerator extends InternalModule {
     }
 
     private boolean isInNucleus(Element segment) {
-        Phoneme ph = phonemeSet.getPhoneme(segment.getAttribute("p"));
+        Allophone ph = allophoneSet.getAllophone(segment.getAttribute("p"));
         assert ph != null;
         return ph.isSyllabic();
     }
 
     private boolean isInCoda(Element segment) {
-        Phoneme ph = phonemeSet.getPhoneme(segment.getAttribute("p"));
+        Allophone ph = allophoneSet.getAllophone(segment.getAttribute("p"));
         assert ph != null;
         if (ph.isSyllabic()) {
             return false;
@@ -1497,7 +1501,7 @@ public class ContourGenerator extends InternalModule {
         for (Element e = MaryDomUtils.getPreviousSiblingElement(segment);
             e != null;
             e = MaryDomUtils.getPreviousSiblingElement(e)) {
-            ph = phonemeSet.getPhoneme(e.getAttribute("p"));
+            ph = allophoneSet.getAllophone(e.getAttribute("p"));
             assert ph != null;
             if (ph.isSyllabic()) {
                 return true;
@@ -1506,39 +1510,6 @@ public class ContourGenerator extends InternalModule {
         return false;
     }
 
-    private boolean isConsonant(Element segment) {
-        return !isVowel(segment);
-    }
-
-    private boolean isVowel(Element segment) {
-        Phoneme ph = phonemeSet.getPhoneme(segment.getAttribute("p"));
-        assert ph != null;
-        return ph.isVowel();
-    }
-
-    private boolean isLiquid(Element segment) {
-        Phoneme ph = phonemeSet.getPhoneme(segment.getAttribute("p"));
-        assert ph != null;
-        return ph.isLiquid();
-    }
-
-    private boolean isGlide(Element segment) {
-        Phoneme ph = phonemeSet.getPhoneme(segment.getAttribute("p"));
-        assert ph != null;
-        return ph.isGlide();
-    }
-
-    private boolean isNasal(Element segment) {
-        Phoneme ph = phonemeSet.getPhoneme(segment.getAttribute("p"));
-        assert ph != null;
-        return ph.isNasal();
-    }
-
-    private boolean isFricative(Element segment) {
-        Phoneme ph = phonemeSet.getPhoneme(segment.getAttribute("p"));
-        assert ph != null;
-        return ph.isFricative();
-    }
 
     private int getBreakindex(Element boundary) {
         int breakindex = 0;

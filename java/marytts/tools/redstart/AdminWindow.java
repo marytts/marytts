@@ -58,10 +58,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import marytts.signalproc.display.MultiDisplay;
-import marytts.tools.redstart.Prompt;
-import marytts.tools.redstart.RecSession;
-import marytts.tools.redstart.Recording;
-import marytts.tools.redstart.Speech;
 import marytts.util.data.audio.MonoAudioInputStream;
 
 

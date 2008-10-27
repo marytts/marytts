@@ -33,13 +33,8 @@ import java.util.Arrays;
 
 import marytts.signalproc.analysis.LpcAnalyser;
 import marytts.signalproc.analysis.LpcAnalyser.LpCoeffs;
-import marytts.signalproc.filter.FIRFilter;
-import marytts.signalproc.filter.RecursiveFilter;
-import marytts.signalproc.process.InlineDataProcessor;
-import marytts.util.math.ArrayUtils;
 import marytts.util.math.ComplexArray;
 import marytts.util.math.FFT;
-import marytts.util.math.FFTMixedRadix;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 

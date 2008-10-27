@@ -38,7 +38,6 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineListener;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.sound.sampled.AudioFormat.Encoding;
 
 /**
  * This audio player is used by the example code MaryClientUser, but not by

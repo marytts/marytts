@@ -31,7 +31,6 @@
  */
 package marytts.features;
 
-import com.sun.speech.freetts.ProcessException;
 
 /**
  * Performs a specific type of processing on an item and returns an

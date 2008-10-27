@@ -31,7 +31,6 @@ package marytts.signalproc.analysis;
 
 import java.io.File;
 import java.io.FileReader;
-import java.util.Arrays;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -39,17 +38,9 @@ import javax.sound.sampled.AudioSystem;
 import marytts.signalproc.Defaults;
 import marytts.signalproc.analysis.FrameBasedAnalyser.FrameAnalysisResult;
 import marytts.signalproc.analysis.LpcAnalyser.LpCoeffs;
-import marytts.signalproc.display.FunctionGraph;
-import marytts.signalproc.display.SignalGraph;
-import marytts.signalproc.filter.FIRFilter;
-import marytts.signalproc.process.PitchFrameProvider;
-import marytts.signalproc.window.Window;
-import marytts.util.math.ArrayUtils;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.text.ESTTextfileDoubleDataSource;
-import marytts.util.math.FFT;
-import marytts.util.math.MathUtils;
 
 
 /**

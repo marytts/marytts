@@ -1,19 +1,13 @@
 package marytts.signalproc.process;
 
 import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StreamTokenizer;
 import java.util.Arrays;
-import java.util.List;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -23,18 +17,14 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.PitchMarks;
-import marytts.signalproc.window.DynamicTwoHalvesWindow;
 import marytts.signalproc.window.DynamicWindow;
 import marytts.signalproc.window.Window;
 import marytts.unitselection.concat.DatagramDoubleDataSource;
-import marytts.unitselection.concat.DatagramOverlapDoubleDataSource;
 import marytts.unitselection.data.Datagram;
-import marytts.unitselection.data.Unit;
-import marytts.unitselection.select.SelectedUnit;
 import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
-import marytts.util.data.DoubleDataSource;
 import marytts.util.io.FileUtils;
 import marytts.util.io.LEDataInputStream;
 import marytts.util.io.LEDataOutputStream;

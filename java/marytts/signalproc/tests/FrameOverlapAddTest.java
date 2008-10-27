@@ -29,11 +29,11 @@
 
 package marytts.signalproc.tests;
 
+import junit.framework.TestCase;
 import marytts.signalproc.process.FrameOverlapAddSource;
 import marytts.signalproc.process.NaiveVocoder;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.math.MathUtils;
-import junit.framework.TestCase;
 
 /**
  * @author Marc Schr&ouml;der

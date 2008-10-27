@@ -29,24 +29,17 @@
 package marytts.cart.io;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.DataInput;
 import java.io.DataInputStream;
-import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import marytts.cart.Node;
 import marytts.cart.DecisionNode;
-import marytts.cart.DecisionNode.*;
 import marytts.cart.LeafNode;
-import marytts.cart.LeafNode.*;
+import marytts.cart.Node;
 import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
 import marytts.tools.voiceimport.MaryHeader;
 
 /**

@@ -30,7 +30,8 @@
 package marytts.tools.voiceimport;
 
 import java.io.File;
-import java.util.*;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * @author marc

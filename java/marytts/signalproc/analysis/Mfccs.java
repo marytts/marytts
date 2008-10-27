@@ -29,11 +29,8 @@
 
 package marytts.signalproc.analysis;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import marytts.util.io.FileUtils;
 import marytts.util.io.MaryRandomAccessFile;
 
 

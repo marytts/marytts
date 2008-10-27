@@ -29,30 +29,23 @@
 
 package marytts.signalproc.demo;
 
-import java.io.File;
 import java.io.IOException;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
-import javax.sound.sampled.Line;
 import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
-import javax.swing.JButton;
 
 import marytts.signalproc.process.FrameOverlapAddSource;
 import marytts.signalproc.process.InlineDataProcessor;
 import marytts.signalproc.process.Robotiser;
-import marytts.signalproc.process.Robotiser.PhaseRemover;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
-import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
 /**

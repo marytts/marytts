@@ -31,30 +31,33 @@ package marytts.modules.phonemiser;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import marytts.util.MaryUtils;
-
 
 public class Syllabifier
 {
-    protected PhonemeSet phonemeSet;
+    protected AllophoneSet allophoneSet;
     
-    public Syllabifier(PhonemeSet phonemeSet)
+    public Syllabifier(AllophoneSet allophoneSet)
     {
-        this.phonemeSet = phonemeSet;
+        this.allophoneSet = allophoneSet;
     }
 
     /**
-     * Syllabify a phonemic string, marking syllable boundaries with dash characters in the output.
+     * Syllabify a phonetic string, marking syllable boundaries with dash characters in the output.
      * If the input marks stressed vowels with a suffix "1", these marks are removed, and
      * single quotes (') are inserted at the beginning of the corresponding syllable. 
-     * @param phonemeString the phoneme string to syllabify.
-     * @return a syllabified phone string
+     * @param phoneString the phoneme string to syllabify.
+     * @return a syllabified phone string, with space characters inserted between individual phone symbols
      */
-    public String syllabify(String phonemeString)
+    public String syllabify(String phoneString)
     {
-        LinkedList phonemeList = splitIntoPhonemes(phonemeString);
-        syllabify(phonemeList);
-        return MaryUtils.joinStrings(phonemeList);
+        LinkedList<String> phoneList = splitIntoAllophones(phoneString);
+        syllabify(phoneList);
+        StringBuilder sb = new StringBuilder();
+        for (String p : phoneList) {
+            if (sb.length() > 0) sb.append(" ");
+            sb.append(p);
+        }
+        return sb.toString();
     }
 
     /**
@@ -63,7 +66,7 @@ public class Syllabifier
      * @return a linked list of phoneme strings with inserted "-" strings at
      * syllable boundaries.
      */
-    public LinkedList syllabify(LinkedList phoneList)
+    public void syllabify(LinkedList<String> phoneList)
     {
         // Regel(1a)
         // Jede Grenze einer morphologischen Wurzel stellt eine
@@ -84,18 +87,15 @@ public class Syllabifier
 
         // Only one such component as long as we don't have morpheme boundaries
 
-        if (phoneList == null) return null;
-        ListIterator it = phoneList.listIterator(0);
-        if (!it.hasNext()) return phoneList;
-        Phoneme previous = getPhoneme((String)it.next());
-        boolean previousIsVowel = false;
-        if (previous != null && previous.sonority() >= 4)
-            previousIsVowel = true;
+        if (phoneList == null) return;
+        ListIterator<String> it = phoneList.listIterator(0);
+        if (!it.hasNext()) return;
+        Allophone previous = getAllophone(it.next());
+        boolean previousIsVowel = (previous != null && previous.sonority() >= 4);
         while (it.hasNext()) {
-            Phoneme next = getPhoneme((String)it.next());
-            boolean nextIsVowel = false;
-            if (next != null && next.sonority() >= 4)
-                nextIsVowel = true;
+            Allophone next = getAllophone(it.next());
+            boolean nextIsVowel = (next != null && next.sonority() >= 4);
+
             // Regel(5)
             // Wenn zwischen zwei Vokalen keine weiteren Phoneme sind,
             // dann setze die Silbengrenze vor den zweiten Vokal.
@@ -117,13 +117,13 @@ public class Syllabifier
         int minSonority = 7; // one higher than possible maximum.
         int minIndex = -1; // position of the sonority minimum
         while (it.hasNext()) {
-            String s = (String)it.next();
+            String s = it.next();
             if (s.equals("-")) {
                 // Forget about all valleys:
                 minSonority = 7;
                 minIndex = -1;
             } else {
-                Phoneme ph = getPhoneme(s);
+                Allophone ph = getAllophone(s);
                 if (ph != null && ph.sonority() < minSonority) {
                     minSonority = ph.sonority();
                     minIndex = it.previousIndex();
@@ -172,17 +172,17 @@ public class Syllabifier
         // normalen Silbengrenze.
         it = phoneList.listIterator(0);
         while (it.hasNext()) {
-            String s = (String) it.next();
+            String s = it.next();
             if (s.equals(".")) {
                 it.previous(); // skip . backwards
-                Phoneme ph = getPhoneme((String)it.previous());
+                Allophone ph = getAllophone(it.previous());
                 it.next(); it.next(); // skip ph and . forwards
                 if (ph != null && ph.sonority() == 5) {
                     // The phoneme just after the marker:
-                    ph = getPhoneme((String)it.next());
+                    ph = getAllophone(it.next());
                     if (ph != null && ph.sonority() <= 3) {
                         // Now the big question: another consonant or not?
-                        ph = getPhoneme((String)it.next());
+                        ph = getAllophone(it.next());
                         if (ph != null && ph.sonority() <= 3) {
                             // (6b) remove ., go one further, insert -
                             // two ph back, and the .:
@@ -220,13 +220,13 @@ public class Syllabifier
         // --> N-([v5,6])
         it = phoneList.listIterator(0);
         while (it.hasNext()) {
-            String s = (String) it.next();
+            String s = it.next();
             // only use minuses, because underscores denote also pauses
             //if (s.equals("_")) {
             if (s.equals("-")) {
-                Phoneme ph = getPhoneme((String)it.next());
+                Allophone ph = getAllophone(it.next());
                 if (ph != null && ph.name().equals("N")) {
-                    ph = getPhoneme((String)it.next());
+                    ph = getAllophone(it.next());
                     if (ph != null && ph.sonority() >= 5) {
                         // (7) remove _, put a - after the N
                         // skip vowel, N, and _ backwards:
@@ -239,7 +239,6 @@ public class Syllabifier
             }
         }
         correctStressSymbol(phoneList);
-        return phoneList;
     }
     
     
@@ -247,12 +246,12 @@ public class Syllabifier
      * For those syllables containing a "1" character, remove that "1"
      * character and add a stress marker ' at the beginning of the syllable.
      */
-    protected LinkedList correctStressSymbol(LinkedList phoneList)
+    protected void correctStressSymbol(LinkedList<String> phoneList)
     {
         boolean stressFound = false;
-        ListIterator it = phoneList.listIterator(0);
+        ListIterator<String> it = phoneList.listIterator(0);
         while (it.hasNext()) {
-            String s = (String) it.next();
+            String s = it.next();
             if (s.endsWith("1")) {
                 it.set(s.substring(0, s.length()-1)); // delete "1"
                 if (!stressFound) {
@@ -261,7 +260,7 @@ public class Syllabifier
                     int steps = 0;
                     while (it.hasPrevious()) {
                         steps++;
-                        String t = (String) it.previous();
+                        String t = it.previous();
                         if (t.equals("-") || t.equals("_")) { // syllable boundary
                             it.next();
                             steps--;
@@ -282,14 +281,14 @@ public class Syllabifier
             // Stress first non-schwa syllable
             it = phoneList.listIterator(0);
             while (it.hasNext()) {
-                String s = (String) it.next();
-                Phoneme ph = phonemeSet.getPhoneme(s);
+                String s = it.next();
+                Allophone ph = allophoneSet.getAllophone(s);
                 if (ph != null && ph.sonority() >= 5) { // non-schwa vowel
                     // Search backwards for syllable boundary or beginning of word:
                     int steps = 0;
                     while (it.hasPrevious()) {
                         steps++;
-                        String t = (String) it.previous();
+                        String t = it.previous();
                         if (t.equals("-") || t.equals("_")) { // syllable boundary
                             it.next();
                             steps--;
@@ -305,29 +304,28 @@ public class Syllabifier
                 }
             }
         }
-        return phoneList;
     }
 
 
     /**
-     * Convert a phoneme string into a list of string representations of
-     * individual phonemes. The input can use the suffix "1" to indicate
+     * Convert a phone string into a list of string representations of
+     * individual phones. The input can use the suffix "1" to indicate
      * stressed vowels.  
-     * @param phonemeString the phoneme string to split
-     * @return a linked list of strings, each string representing an individual phoneme
+     * @param phoneString the phone string to split
+     * @return a linked list of strings, each string representing an individual phone
      */
-    protected LinkedList splitIntoPhonemes(String phonemeString)
+    protected LinkedList<String> splitIntoAllophones(String phoneString)
     {
-        LinkedList phoneList = new LinkedList();
-        for (int i=0; i<phonemeString.length(); i++) {
+        LinkedList<String> phoneList = new LinkedList<String>();
+        for (int i=0; i<phoneString.length(); i++) {
             // Try to cut off individual segments, 
             // starting with the longest prefixes,
             // and allowing for a suffix "1" marking stress:
             String name = null;
             for (int j=3; j>=1; j--) {
-                if (i+j <= phonemeString.length()) {
-                    String candidate = phonemeString.substring(i, i+j);
-                    if (getPhoneme(candidate) != null) { // found
+                if (i+j <= phoneString.length()) {
+                    String candidate = phoneString.substring(i, i+j);
+                    if (getAllophone(candidate) != null) { // found
                         name = candidate;
                         i+=j-1; // so that the next i++ goes beyond current phoneme
                         break;
@@ -343,15 +341,15 @@ public class Syllabifier
 
     
     /**
-     * Get the Phoneme object named phoneme; if phoneme ends with "1",
-     * discard the "1" and use the rest of the string as the phoneme symbol.
+     * Get the Allophone object named phone; if phone ends with "1",
+     * discard the "1" and use the rest of the string as the phone symbol.
      */
-    protected Phoneme getPhoneme(String phoneme)
+    protected Allophone getAllophone(String phone)
     {
-        if (phoneme.endsWith("1"))
-            return phonemeSet.getPhoneme(phoneme.substring(0,phoneme.length()-1));
+        if (phone.endsWith("1"))
+            return allophoneSet.getAllophone(phone.substring(0,phone.length()-1));
         else
-            return phonemeSet.getPhoneme(phoneme);
+            return allophoneSet.getAllophone(phone);
     }
 
 }

@@ -41,10 +41,8 @@ import java.io.IOException;
 import java.util.Vector;
 
 import marytts.features.ByteValuedFeatureProcessor;
-import marytts.features.MaryFeatureProcessor;
 import marytts.features.MaryGenericFeatureProcessors;
-import marytts.modules.phonemiser.Phoneme;
-import marytts.modules.phonemiser.PhonemeSet;
+import marytts.modules.phonemiser.Allophone;
 import marytts.server.MaryProperties;
 import marytts.signalproc.display.Histogram;
 import marytts.tools.voiceimport.MaryHeader;
@@ -53,10 +51,7 @@ import marytts.unitselection.data.Unit;
 import marytts.unitselection.weightingfunctions.WeightFunc;
 import marytts.unitselection.weightingfunctions.WeightFunctionManager;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-
-import com.sun.speech.freetts.Item;
 
 
 public class JoinCostFeatures implements JoinCostFunction
@@ -414,8 +409,8 @@ public class JoinCostFeatures implements JoinCostFunction
         boolean stressed2 = stressProcessor.process(t1) == (byte)1;
         // Try to avoid joining in a stressed syllable:
         if (stressed1 || stressed2) cost += 0.2;
-        Phoneme p1 = t1.getSampaPhoneme();
-        Phoneme p2 = t2.getSampaPhoneme();
+        Allophone p1 = t1.getAllophone();
+        Allophone p2 = t2.getAllophone();
                 
         // Discourage joining vowels:
         if (p1.isVowel() || p2.isVowel()) cost += 0.2;

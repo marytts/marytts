@@ -31,7 +31,6 @@ package marytts.signalproc.analysis;
 
 import java.io.IOException;
 
-import marytts.signalproc.window.Window;
 import marytts.util.io.MaryRandomAccessFile;
 
 /**

@@ -8,7 +8,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
 
 /**
  * Compute unit labels from phone labels.

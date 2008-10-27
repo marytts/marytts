@@ -1,9 +1,7 @@
 package marytts.cart;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;

@@ -31,8 +31,17 @@
  */
 package marytts.tools.voiceimport;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.Vector;
 
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.TimelineReader;

@@ -31,11 +31,6 @@
  */
 package marytts.cart;
 
-import java.io.DataOutput;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.unitselection.select.Target;

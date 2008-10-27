@@ -28,16 +28,35 @@
  */
 package marytts.tools.voiceimport;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
-import marytts.cart.*;
+import marytts.cart.CART;
+import marytts.cart.FeatureVectorCART;
+import marytts.cart.LeafNode;
+import marytts.cart.Node;
 import marytts.cart.LeafNode.FeatureVectorLeafNode;
 import marytts.cart.io.MaryCARTReader;
-import marytts.cart.io.MaryCARTWriter;
-import marytts.cart.io.WagonCARTWriter;
 import marytts.cart.io.WagonCARTReader;
-
+import marytts.cart.io.WagonCARTWriter;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.unitselection.data.Datagram;
@@ -45,9 +64,8 @@ import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.MCepDatagram;
 import marytts.unitselection.data.MCepTimelineReader;
 import marytts.unitselection.data.UnitFileReader;
-
-import de.dfki.lt.mary.unitselection.MaryNode;
 import de.dfki.lt.mary.unitselection.FeatureArrayIndexer;
+import de.dfki.lt.mary.unitselection.MaryNode;
 
 public class CARTBuilder extends VoiceImportComponent {
     

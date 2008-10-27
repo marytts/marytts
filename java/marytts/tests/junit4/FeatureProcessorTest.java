@@ -1,9 +1,10 @@
 package marytts.tests.junit4;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -13,7 +14,6 @@ import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.features.ByteValuedFeatureProcessor;
 import marytts.features.FeatureProcessorManager;
-import marytts.features.MaryFeatureProcessor;
 import marytts.features.MaryGenericFeatureProcessors;
 import marytts.features.MaryGenericFeatureProcessors.TargetElementNavigator;
 import marytts.server.MaryProperties;
@@ -22,7 +22,6 @@ import marytts.unitselection.select.Target;
 import marytts.util.dom.MaryDomUtils;
 
 import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.FileAppender;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.WriterAppender;
 import org.junit.Before;

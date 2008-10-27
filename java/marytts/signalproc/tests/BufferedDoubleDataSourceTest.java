@@ -29,10 +29,10 @@
 
 package marytts.signalproc.tests;
 
-import marytts.util.data.BufferedDoubleDataSource;
-import marytts.util.math.MathUtils;
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.math.MathUtils;
 
 /**
  * @author Marc Schr&ouml;der

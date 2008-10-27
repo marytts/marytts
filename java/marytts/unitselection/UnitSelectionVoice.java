@@ -40,16 +40,13 @@ import java.util.Locale;
 import javax.sound.sampled.AudioFormat;
 
 import marytts.cart.CART;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.modules.synthesis.Voice;
 import marytts.modules.synthesis.WaveformSynthesizer;
 import marytts.unitselection.concat.UnitConcatenator;
 import marytts.unitselection.data.UnitDatabase;
 import marytts.unitselection.select.UnitSelector;
-
-import com.sun.speech.freetts.lexicon.Lexicon;
-
-import de.dfki.lt.freetts.ClusterUnitNamer;
 
 /**
  * A Unit Selection Voice
@@ -93,12 +90,13 @@ public class UnitSelectionVoice extends Voice {
     public UnitSelectionVoice(UnitDatabase database, UnitSelector unitSelector,
             UnitConcatenator concatenator, String[] nameArray, Locale locale, 
             AudioFormat dbAudioFormat, WaveformSynthesizer synthesizer, 
-            Gender gender, int topStart, int topEnd, int baseStart, int baseEnd,
+            Gender gender,
             String domain,
             String exampleTextFile, CART durationCart, CART[] f0Carts,
             FeatureDefinition durationCartFeatDef, FeatureDefinition f0CartsFeatDef)
+    throws MaryConfigurationException
     {
-        super(nameArray, locale, dbAudioFormat, synthesizer, gender, topStart, topEnd, baseStart, baseEnd);
+        super(nameArray, locale, dbAudioFormat, synthesizer, gender);
         this.database = database; 
         this.unitSelector = unitSelector;
         this.concatenator = concatenator;

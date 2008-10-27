@@ -2,9 +2,7 @@ package marytts.cart;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import marytts.cart.LeafNode.StringAndFloatLeafNode;
 import marytts.cart.io.WagonCARTReader;

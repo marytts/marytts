@@ -32,11 +32,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
+import junit.framework.Assert;
 import marytts.tools.voiceimport.TimelineWriter;
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.TimelineReader;
-
-import junit.framework.Assert;
 
 /**
  * Provides the actual timeline test case for the timeline reading/writing symmetry.

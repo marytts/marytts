@@ -1,9 +1,5 @@
 package marytts.util.signal;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Vector;
@@ -16,11 +12,8 @@ import marytts.signalproc.filter.HighPassFilter;
 import marytts.signalproc.filter.LowPassFilter;
 import marytts.signalproc.filter.RecursiveFilter;
 import marytts.signalproc.window.HammingWindow;
-import marytts.signalproc.window.Window;
 import marytts.util.math.ComplexArray;
 import marytts.util.math.FFT;
-import marytts.util.math.FFTMixedRadix;
-import marytts.util.math.Hilbert;
 import marytts.util.math.MathUtils;
 
 

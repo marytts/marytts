@@ -29,10 +29,6 @@
 
 package marytts.unitselection.concat;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedList;
-
 import marytts.signalproc.window.DynamicTwoHalvesWindow;
 import marytts.signalproc.window.Window;
 import marytts.unitselection.data.Datagram;

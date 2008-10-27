@@ -37,7 +37,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
-import java.util.*;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import marytts.unitselection.data.UnitFileReader;
 

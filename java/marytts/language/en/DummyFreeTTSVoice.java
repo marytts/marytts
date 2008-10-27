@@ -32,16 +32,10 @@
 package marytts.language.en;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.Locale;
-
-import marytts.features.PhoneSet;
-import marytts.features.PhoneSetImpl;
-import marytts.server.MaryProperties;
 
 import com.sun.speech.freetts.PartOfSpeech;
 import com.sun.speech.freetts.PartOfSpeechImpl;
-import com.sun.speech.freetts.en.us.FeatureProcessors;
 import com.sun.speech.freetts.util.BulkTimer;
 
 
@@ -114,69 +108,6 @@ public class DummyFreeTTSVoice extends
                 com.sun.speech.freetts.en.us.CMUVoice.class
                         .getResource("part_of_speech.txt"), "content");
 
-        //property is set in english.config
-        URL phoneSetURL = new URL("file:"
-            +MaryProperties.needFilename("english.freetts.phoneSetFile"));
-        phoneSet  = new PhoneSetImpl(phoneSetURL);
-
-        addFeatureProcessor("word_break", new FeatureProcessors.WordBreak());
-        addFeatureProcessor("word_punc", new FeatureProcessors.WordPunc());
-        addFeatureProcessor("gpos", new FeatureProcessors.Gpos(pos));
-        addFeatureProcessor("word_numsyls", new FeatureProcessors.WordNumSyls());
-        addFeatureProcessor("ssyl_in", new FeatureProcessors.StressedSylIn());
-        addFeatureProcessor("syl_in", new FeatureProcessors.SylIn());
-        addFeatureProcessor("syl_out", new FeatureProcessors.SylOut());
-        addFeatureProcessor("ssyl_out", new FeatureProcessors.StressedSylOut());
-        addFeatureProcessor("syl_break", new FeatureProcessors.SylBreak());
-        addFeatureProcessor("old_syl_break", new FeatureProcessors.SylBreak());
-        addFeatureProcessor("num_digits", new FeatureProcessors.NumDigits());
-        addFeatureProcessor("month_range", new FeatureProcessors.MonthRange());
-        addFeatureProcessor("token_pos_guess",
-                new FeatureProcessors.TokenPosGuess());
-        addFeatureProcessor("segment_duration",
-                new FeatureProcessors.SegmentDuration());
-        addFeatureProcessor("sub_phrases", new FeatureProcessors.SubPhrases());
-        addFeatureProcessor("asyl_in", new FeatureProcessors.AccentedSylIn());
-        addFeatureProcessor("last_accent", new FeatureProcessors.LastAccent());
-        addFeatureProcessor("pos_in_syl", new FeatureProcessors.PosInSyl());
-        addFeatureProcessor("position_type",
-                new FeatureProcessors.PositionType());
-
-        addFeatureProcessor("ph_cplace", new FeatureProcessors.PH_CPlace());
-        addFeatureProcessor("ph_ctype", new FeatureProcessors.PH_CType());
-        addFeatureProcessor("ph_cvox", new FeatureProcessors.PH_CVox());
-        addFeatureProcessor("ph_vc", new FeatureProcessors.PH_VC());
-        addFeatureProcessor("ph_vfront", new FeatureProcessors.PH_VFront());
-        addFeatureProcessor("ph_vheight", new FeatureProcessors.PH_VHeight());
-        addFeatureProcessor("ph_vlng", new FeatureProcessors.PH_VLength());
-        addFeatureProcessor("ph_vrnd", new FeatureProcessors.PH_VRnd());
-
-        addFeatureProcessor("seg_coda_fric",
-                new FeatureProcessors.SegCodaFric());
-        addFeatureProcessor("seg_onset_fric",
-                new FeatureProcessors.SegOnsetFric());
-
-        addFeatureProcessor("seg_coda_stop",
-                new FeatureProcessors.SegCodaStop());
-        addFeatureProcessor("seg_onset_stop",
-                new FeatureProcessors.SegOnsetStop());
-
-        addFeatureProcessor("seg_coda_nasal",
-                new FeatureProcessors.SegCodaNasal());
-        addFeatureProcessor("seg_onset_nasal",
-                new FeatureProcessors.SegOnsetNasal());
-
-        addFeatureProcessor("seg_coda_glide",
-                new FeatureProcessors.SegCodaGlide());
-        addFeatureProcessor("seg_onset_glide",
-                new FeatureProcessors.SegOnsetGlide());
-
-        addFeatureProcessor("seg_onsetcoda",
-                new FeatureProcessors.SegOnsetCoda());
-        addFeatureProcessor("syl_codasize", new FeatureProcessors.SylCodaSize());
-        addFeatureProcessor("syl_onsetsize",
-                new FeatureProcessors.SylOnsetSize());
-        addFeatureProcessor("accented", new FeatureProcessors.Accented());
         BulkTimer.LOAD.stop("FeatureProcessing");
     }
 

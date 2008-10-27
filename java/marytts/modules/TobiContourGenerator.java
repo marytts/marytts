@@ -49,10 +49,10 @@ import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.NoSuchPropertyException;
-import marytts.modules.phonemiser.Phoneme;
-import marytts.modules.phonemiser.PhonemeSet;
+import marytts.modules.phonemiser.Allophone;
+import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.synthesis.MbrolaVoice;
 import marytts.modules.synthesis.Voice;
-import marytts.server.Mary;
 import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
@@ -78,21 +78,21 @@ public class TobiContourGenerator extends InternalModule {
      * currently used phrase and sub-phrase prosody elements. As this is a
      * WeakHashMap, entries will automatically be deleted when not in regular
      * use anymore. */
-    private WeakHashMap topBaseConfMap;
+    private WeakHashMap<Element, TopBaseConfiguration> topBaseConfMap;
     /** This map contains the prosodic settings, as ProsodicSettings objects,
      * for the currently used prosody elements. As this is a WeakHashMap,
      * entries will automatically be deleted when not in regular use
      * anymore. */
-    private WeakHashMap prosodyMap;
+    private WeakHashMap<Element, ProsodicSettings> prosodyMap;
     /** This map contains the default voice element for a given document.
      * As this is a WeakHashMap, entries will automatically be deleted when not in
      * regular use anymore. */
-    private WeakHashMap defaultVoiceMap;
-    /** The phonemeSet used for this language */
-    private PhonemeSet phonemeSet;
+    private WeakHashMap<Document, Voice> defaultVoiceMap;
+    /** The allophoneSet used for this language */
+    private AllophoneSet allophoneSet;
     private String phonemeSetPropertyName;
     /** The tobi realisation rules for this language */
-    private Map tobiMap;
+    private Map<String, Element> tobiMap;
     private String tobirulefilePropertyName;
 
     public TobiContourGenerator(MaryDataType inputType, MaryDataType outputType, 
@@ -117,18 +117,18 @@ public class TobiContourGenerator extends InternalModule {
          if (synthesis.getState() == MaryModule.MODULE_OFFLINE)
              synthesis.startup();
         // load phoneme list
-        phonemeSet = PhonemeSet.getPhonemeSet(MaryProperties.needFilename(phonemeSetPropertyName));
+        allophoneSet = AllophoneSet.getAllophoneSet(MaryProperties.needFilename(phonemeSetPropertyName));
         // load tobi rules
-        tobiMap = new HashMap();
+        tobiMap = new HashMap<String, Element>();
         loadTobiRules();
         // instantiate the Map in which settings are associated with elements:
         // (when the objects serving as keys are not in ordinary use any more,
         // the key-value pairs are deleted from the WeakHashMap earlier or
         // later; that means we do not need to keep track of the hashmaps per
         // thread)
-        topBaseConfMap = new WeakHashMap();
-        prosodyMap = new WeakHashMap();
-        defaultVoiceMap = new WeakHashMap();
+        topBaseConfMap = new WeakHashMap<Element, TopBaseConfiguration>();
+        prosodyMap = new WeakHashMap<Element, ProsodicSettings>();
+        defaultVoiceMap = new WeakHashMap<Document, Voice>();
     }
 
     private synchronized void loadTobiRules()
@@ -268,7 +268,7 @@ public class TobiContourGenerator extends InternalModule {
                 new NameNodeFilter(MaryXML.BOUNDARY),
                 false);
         Element boundary = null;
-        List bi1prosodyElements = null;
+        List<Element> bi1prosodyElements = null;
         while ((boundary = (Element) it.nextNode()) != null) {
             int minBI = 3;
             Element prosody = (Element) MaryDomUtils.getAncestor(boundary, MaryXML.PROSODY);
@@ -291,7 +291,7 @@ public class TobiContourGenerator extends InternalModule {
                 if (minBI == 1) {
                     // Remember that the current prosody element wants bi 1 boundaries:
                     if (bi1prosodyElements == null)
-                        bi1prosodyElements = new ArrayList();
+                        bi1prosodyElements = new ArrayList<Element>();
                     bi1prosodyElements.add(prosody);
                 }
             }
@@ -315,7 +315,7 @@ public class TobiContourGenerator extends InternalModule {
         }
         // Do we need to add any boundaries?
         if (bi1prosodyElements != null) {
-            Iterator elIt = bi1prosodyElements.iterator();
+            Iterator<Element> elIt = bi1prosodyElements.iterator();
             while (elIt.hasNext()) {
                 Element prosody = (Element) elIt.next();
                 NodeIterator nodeIt =
@@ -382,10 +382,14 @@ public class TobiContourGenerator extends InternalModule {
         if (voice == null) {
             voice = Voice.getDefaultVoice(getLocale());
         }
-        int topStart = voice.topStart();
-        int topEnd = voice.topEnd();
-        int baseStart = voice.baseStart();
-        int baseEnd = voice.baseEnd();
+        if (!(voice instanceof MbrolaVoice)) {
+            throw new IllegalStateException("TobiContourGenerator can be used only for MBROLA voices, but voice "+voice.getName()+" is a "+voice.getClass().toString());
+        }
+        MbrolaVoice mVoice = (MbrolaVoice) voice;
+        int topStart = mVoice.topStart();
+        int topEnd = mVoice.topEnd();
+        int baseStart = mVoice.baseStart();
+        int baseEnd = mVoice.baseEnd();
         TopBaseConfiguration tbConf = new TopBaseConfiguration(topStart, topEnd, baseStart, baseEnd);
 
         // Now see if there are any global modifiers (<prosody> elements
@@ -393,7 +397,7 @@ public class TobiContourGenerator extends InternalModule {
         // there is one; start with the outermost <prosody> element and
         // superpose them one after the other):
         Element current = phrase;
-        Stack prosodyElements = new Stack();
+        Stack<Element> prosodyElements = new Stack<Element>();
         while (MaryDomUtils.hasAncestor(current, MaryXML.PROSODY)) {
             current = (Element) MaryDomUtils.getAncestor(current, MaryXML.PROSODY);
             prosodyElements.push(current);
@@ -404,7 +408,7 @@ public class TobiContourGenerator extends InternalModule {
             }
         }
         while (!prosodyElements.empty()) {
-            Element prosody = (Element) prosodyElements.pop();
+            Element prosody = prosodyElements.pop();
             tbConf = calculateTopBase(prosody, tbConf);
         }
 
@@ -719,7 +723,7 @@ public class TobiContourGenerator extends InternalModule {
         Element prevToneSyllable = null;
         char prevTone = 0; // valid values: 'H' and 'L'
         int lastHFreq = 0; // in Hertz
-        List allTargetList = new ArrayList();
+        List<Target> allTargetList = new ArrayList<Target>();
         // Go through all tokens and boundaries in the phrase, from left to
         // right:
         TreeWalker tw =
@@ -770,7 +774,7 @@ public class TobiContourGenerator extends InternalModule {
                         + "]");
                 // We have some targets to assign
                 // For each target in the rule, first determine its location:
-                List targetList = new ArrayList();
+                List<Target> targetList = new ArrayList<Target>();
                 Target starTarget = null;
                 TreeWalker rtw =
                     ((DocumentTraversal) rule.getOwnerDocument()).createTreeWalker(
@@ -839,7 +843,7 @@ public class TobiContourGenerator extends InternalModule {
                     }
                 }
                 // Adjust location of "plus" type targets if necessary:
-                Iterator it = targetList.iterator();
+                Iterator<Target> it = targetList.iterator();
                 while (it.hasNext()) {
                     Target target = (Target) it.next();
                     target.setMyStar(starTarget);
@@ -871,7 +875,7 @@ public class TobiContourGenerator extends InternalModule {
         }
         // Now verify that targets don't overlap, and that no target is closer
         // to another tone's target than to its own "star".
-        ListIterator it = allTargetList.listIterator();
+        ListIterator<Target> it = allTargetList.listIterator();
         Target prev = null;
         Target current = null;
         Target next = null;
@@ -1522,7 +1526,7 @@ public class TobiContourGenerator extends InternalModule {
     }
 
     private boolean isInOnset(Element segment) {
-        Phoneme ph = phonemeSet.getPhoneme(segment.getAttribute("p"));
+        Allophone ph = allophoneSet.getAllophone(segment.getAttribute("p"));
         assert ph != null;
         if (ph.isSyllabic()) {
             return false;
@@ -1532,7 +1536,7 @@ public class TobiContourGenerator extends InternalModule {
         for (Element e = MaryDomUtils.getNextSiblingElement(segment);
             e != null;
             e = MaryDomUtils.getNextSiblingElement(e)) {
-            ph = phonemeSet.getPhoneme(e.getAttribute("p"));
+            ph = allophoneSet.getAllophone(e.getAttribute("p"));
             assert ph != null;
             if (ph.isSyllabic()) {
                 return true;
@@ -1542,13 +1546,13 @@ public class TobiContourGenerator extends InternalModule {
     }
 
     private boolean isInNucleus(Element segment) {
-        Phoneme ph = phonemeSet.getPhoneme(segment.getAttribute("p"));
+        Allophone ph = allophoneSet.getAllophone(segment.getAttribute("p"));
         assert ph != null;
         return ph.isSyllabic();
     }
 
     private boolean isInCoda(Element segment) {
-        Phoneme ph = phonemeSet.getPhoneme(segment.getAttribute("p"));
+        Allophone ph = allophoneSet.getAllophone(segment.getAttribute("p"));
         assert ph != null;
         if (ph.isSyllabic()) {
             return false;
@@ -1558,7 +1562,7 @@ public class TobiContourGenerator extends InternalModule {
         for (Element e = MaryDomUtils.getPreviousSiblingElement(segment);
             e != null;
             e = MaryDomUtils.getPreviousSiblingElement(e)) {
-            ph = phonemeSet.getPhoneme(e.getAttribute("p"));
+            ph = allophoneSet.getAllophone(e.getAttribute("p"));
             assert ph != null;
             if (ph.isSyllabic()) {
                 return true;
@@ -1567,39 +1571,6 @@ public class TobiContourGenerator extends InternalModule {
         return false;
     }
 
-    private boolean isConsonant(Element segment) {
-        return !isVowel(segment);
-    }
-
-    private boolean isVowel(Element segment) {
-        Phoneme ph = phonemeSet.getPhoneme(segment.getAttribute("p"));
-        assert ph != null;
-        return ph.isVowel();
-    }
-
-    private boolean isLiquid(Element segment) {
-        Phoneme ph = phonemeSet.getPhoneme(segment.getAttribute("p"));
-        assert ph != null;
-        return ph.isLiquid();
-    }
-
-    private boolean isGlide(Element segment) {
-        Phoneme ph = phonemeSet.getPhoneme(segment.getAttribute("p"));
-        assert ph != null;
-        return ph.isGlide();
-    }
-
-    private boolean isNasal(Element segment) {
-        Phoneme ph = phonemeSet.getPhoneme(segment.getAttribute("p"));
-        assert ph != null;
-        return ph.isNasal();
-    }
-
-    private boolean isFricative(Element segment) {
-        Phoneme ph = phonemeSet.getPhoneme(segment.getAttribute("p"));
-        assert ph != null;
-        return ph.isFricative();
-    }
 
     private int getBreakindex(Element boundary) {
         int breakindex = 0;

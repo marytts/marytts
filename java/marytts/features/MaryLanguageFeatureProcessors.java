@@ -31,22 +31,17 @@
  */
 package marytts.features;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
-
-import org.w3c.dom.Element;
 
 import marytts.datatypes.MaryXML;
-import marytts.features.MaryGenericFeatureProcessors.TargetElementNavigator;
-import marytts.features.MaryGenericFeatureProcessors.WordNavigator;
 import marytts.fst.FSTLookup;
-import marytts.modules.synthesis.FreeTTSVoices;
+import marytts.modules.phonemiser.AllophoneSet;
 import marytts.unitselection.select.HalfPhoneTarget;
 import marytts.unitselection.select.Target;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.string.ByteStringTranslator;
+
+import org.w3c.dom.Element;
 
 
 
@@ -159,13 +154,13 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
      */
     public static class PhoneFeature implements ByteValuedFeatureProcessor
     {
-        protected PhoneSet phoneSet;
+        protected AllophoneSet phoneSet;
         protected String name;
         protected String phonesetQuery;
         protected ByteStringTranslator values;
         protected String pauseSymbol;
         protected TargetElementNavigator navigator;
-        public PhoneFeature(PhoneSet phoneSet, String name, String phonesetQuery,
+        public PhoneFeature(AllophoneSet phoneSet, String name, String phonesetQuery,
                 String[] possibleValues, String pauseSymbol, TargetElementNavigator segmentNavigator)
         {
             this.phoneSet = phoneSet;
@@ -295,9 +290,9 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
     public static class SegOnsetCoda implements ByteValuedFeatureProcessor
     {
         protected ByteStringTranslator values;
-        private PhoneSet phoneSet;
+        private AllophoneSet phoneSet;
 
-        public SegOnsetCoda(PhoneSet phoneSet)
+        public SegOnsetCoda(AllophoneSet phoneSet)
         {
             this.phoneSet = phoneSet;
             this.values = new ByteStringTranslator(new String[] {"0", "onset", "coda"});

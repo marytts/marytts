@@ -28,41 +28,16 @@
  */
 package marytts.unitselection.select;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Vector;
 
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-import marytts.features.MaryGenericFeatureProcessors;
 import marytts.htsengine.HTSModelSet;
 import marytts.htsengine.HTSTreeSet;
-import marytts.modules.phonemiser.Phoneme;
-import marytts.modules.phonemiser.PhonemeSet;
 import marytts.server.MaryProperties;
 import marytts.signalproc.analysis.distance.DistanceComputer;
-import marytts.signalproc.display.Histogram;
-import marytts.tools.voiceimport.MaryHeader;
 import marytts.unitselection.data.DiphoneUnit;
 import marytts.unitselection.data.Unit;
-import marytts.unitselection.select.HalfPhoneFFRTargetCostFunction.TargetCostReporter;
-import marytts.unitselection.select.JoinCostFeatures.JoinCostReporter;
-import marytts.unitselection.weightingfunctions.WeightFunc;
-import marytts.unitselection.weightingfunctions.WeightFunctionManager;
-
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
-import com.sun.speech.freetts.Item;
 
 
 public class JoinModelCost implements JoinCostFunction

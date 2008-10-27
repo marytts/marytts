@@ -33,7 +33,6 @@ package marytts.unitselection.data;
 import java.io.IOException;
 
 import marytts.cart.CART;
-import marytts.tools.voiceimport.BasenameList;
 import marytts.unitselection.select.JoinCostFunction;
 import marytts.unitselection.select.Target;
 import marytts.unitselection.select.TargetCostFunction;

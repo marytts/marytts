@@ -31,9 +31,9 @@ package marytts.signalproc.process;
 
 import java.util.Arrays;
 
-import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.FestivalUtt;
+import marytts.signalproc.analysis.Labels;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 import marytts.util.string.StringUtils;

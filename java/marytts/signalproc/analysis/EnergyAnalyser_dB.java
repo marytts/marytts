@@ -29,7 +29,6 @@
 
 package marytts.signalproc.analysis;
 
-import marytts.signalproc.window.RectWindow;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.math.MathUtils;
 

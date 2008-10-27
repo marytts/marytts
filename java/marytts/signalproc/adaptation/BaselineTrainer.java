@@ -29,14 +29,6 @@
 
 package marytts.signalproc.adaptation;
 
-import java.io.IOException;
-
-import javax.sound.sampled.UnsupportedAudioFileException;
-
-import marytts.signalproc.adaptation.BaselineFeatureCollection;
-import marytts.signalproc.adaptation.codebook.WeightedCodebookTrainerParams;
-import marytts.signalproc.adaptation.gmm.jointgmm.JointGMMTrainerParams;
-import marytts.tools.voiceimport.BasenameList;
 
 
 /**

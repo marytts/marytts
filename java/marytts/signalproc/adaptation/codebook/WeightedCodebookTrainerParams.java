@@ -29,12 +29,9 @@
 
 package marytts.signalproc.adaptation.codebook;
 
-import marytts.signalproc.adaptation.BaselineFeatureExtractor;
 import marytts.signalproc.adaptation.BaselineTrainerParams;
-import marytts.signalproc.adaptation.outlier.GaussianOutlierEliminator;
 import marytts.signalproc.adaptation.outlier.GaussianOutlierEliminatorParams;
 import marytts.signalproc.adaptation.outlier.KMeansMappingEliminatorParams;
-import marytts.signalproc.analysis.LsfFileHeader;
 
 /**
  * 

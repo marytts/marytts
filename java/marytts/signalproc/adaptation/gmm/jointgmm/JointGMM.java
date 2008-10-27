@@ -29,21 +29,13 @@
 
 package marytts.signalproc.adaptation.gmm.jointgmm;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
 
 import marytts.machinelearning.GMM;
 import marytts.signalproc.adaptation.BaselineFeatureExtractor;
-import marytts.signalproc.adaptation.VocalTractTransformationData;
-import marytts.signalproc.adaptation.codebook.WeightedCodebook;
-import marytts.signalproc.adaptation.codebook.WeightedCodebookMapperParams;
-import marytts.signalproc.adaptation.codebook.WeightedCodebookLsfMatch;
-import marytts.signalproc.adaptation.gmm.GMMMatch;
 import marytts.signalproc.analysis.FeatureFileHeader;
 import marytts.signalproc.analysis.LsfFileHeader;
 import marytts.signalproc.analysis.MfccFileHeader;
-import marytts.signalproc.analysis.distance.DistanceComputer;
 import marytts.util.io.MaryRandomAccessFile;
 import marytts.util.math.MathUtils;
 

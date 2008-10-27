@@ -29,14 +29,14 @@
 
 package marytts.signalproc.tests;
 
+import junit.framework.Assert;
+import junit.framework.TestCase;
 import marytts.signalproc.display.FunctionGraph;
 import marytts.signalproc.filter.FIRFilter;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.math.FFT;
 import marytts.util.math.MathUtils;
-import junit.framework.Assert;
-import junit.framework.TestCase;
 
 /**
  * @author Marc Schr&ouml;der

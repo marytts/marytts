@@ -49,7 +49,11 @@
 
 package marytts.htsengine;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import org.apache.log4j.Logger;
 

@@ -31,12 +31,9 @@ package marytts.unitselection.select;
 import java.util.ArrayList;
 import java.util.List;
 
-import marytts.modules.synthesis.FreeTTSVoices;
+import marytts.unitselection.data.UnitDatabase;
 
 import org.w3c.dom.Element;
-
-import com.sun.speech.freetts.Item;
-import com.sun.speech.freetts.Relation;
 
 
 public class HalfPhoneUnitSelector extends UnitSelector

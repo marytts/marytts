@@ -40,7 +40,6 @@ import javax.sound.sampled.AudioSystem;
 import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
-
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.modules.synthesis.Voice;

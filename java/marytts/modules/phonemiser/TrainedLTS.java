@@ -13,8 +13,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import marytts.cart.StringCART;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-import marytts.modules.phonemiser.PhonemeSet;
-import marytts.modules.phonemiser.Syllabifier;
 
 import org.xml.sax.SAXException;
 
@@ -31,7 +29,7 @@ public class TrainedLTS {
     
     private StringCART tree;
     private int context = 2;
-    private PhonemeSet phonemeSet;
+    private AllophoneSet allophoneSet;
     Locale locale;
     
     /**
@@ -44,14 +42,14 @@ public class TrainedLTS {
      * @throws IOException 
      * 
      */
-    public TrainedLTS(PhonemeSet aPhonSet, Locale aLocale, String treeDirName) throws IOException {
-        this.phonemeSet = aPhonSet;
+    public TrainedLTS(AllophoneSet aPhonSet, Locale aLocale, String treeDirName) throws IOException {
+        this.allophoneSet = aPhonSet;
         this.locale = aLocale;
         this.loadTree(treeDirName);
     }
     
-    public TrainedLTS(PhonemeSet aPhonSet, Locale aLocale, StringCART predictionTree) {
-        this.phonemeSet = aPhonSet;
+    public TrainedLTS(AllophoneSet aPhonSet, Locale aLocale, StringCART predictionTree) {
+        this.allophoneSet = aPhonSet;
         this.locale = aLocale;
         this.tree = predictionTree;
     }
@@ -134,7 +132,7 @@ public class TrainedLTS {
      */
     public String syllabify(String phonemes){
         
-        Syllabifier sfr = new Syllabifier(this.phonemeSet);
+        Syllabifier sfr = new Syllabifier(this.allophoneSet);
         
         return sfr.syllabify(phonemes);
     }
@@ -144,7 +142,7 @@ public class TrainedLTS {
         //String  phFileLoc = "/home/sathish/Work/blizzard2008/lts/phoneme-list-en_gb.xml";
         String  phFileLoc = "/Users/benjaminroth/Desktop/mary/english/phoneme-list-engba.xml";
         
-        TrainedLTS lts = new TrainedLTS(PhonemeSet.getPhonemeSet(phFileLoc), Locale.ENGLISH, "/Users/benjaminroth/Desktop/mary/english/trees/");
+        TrainedLTS lts = new TrainedLTS(AllophoneSet.getAllophoneSet(phFileLoc), Locale.ENGLISH, "/Users/benjaminroth/Desktop/mary/english/trees/");
         
         System.out.println(lts.predictPronunciation("tuition"));
 

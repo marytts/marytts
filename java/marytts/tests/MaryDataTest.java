@@ -35,7 +35,6 @@ import java.util.Locale;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
-
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 

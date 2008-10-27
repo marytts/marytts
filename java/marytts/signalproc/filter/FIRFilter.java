@@ -37,7 +37,6 @@ import marytts.util.data.DoubleDataSource;
 import marytts.util.data.SequenceDoubleDataSource;
 import marytts.util.math.FFT;
 import marytts.util.math.MathUtils;
-import marytts.util.signal.SignalProcUtils;
 
 /**
  * @author Marc Schr&ouml;der

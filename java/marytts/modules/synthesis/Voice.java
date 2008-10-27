@@ -31,8 +31,6 @@ package marytts.modules.synthesis;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -40,7 +38,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -56,16 +53,15 @@ import javax.sound.sampled.AudioInputStream;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.NoSuchPropertyException;
 import marytts.exceptions.SynthesisException;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.TargetFeatureComputer;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
-import marytts.modules.phonemiser.Phoneme;
-import marytts.modules.phonemiser.PhonemeSet;
-import marytts.modules.phonemiser.Syllabifier;
-import marytts.server.Mary;
+import marytts.modules.phonemiser.Allophone;
+import marytts.modules.phonemiser.AllophoneSet;
 import marytts.server.MaryProperties;
 import marytts.unitselection.interpolation.InterpolatingSynthesizer;
 import marytts.unitselection.interpolation.InterpolatingVoice;
@@ -76,9 +72,6 @@ import org.w3c.dom.Element;
 
 import com.sun.speech.freetts.en.us.CMULexicon;
 import com.sun.speech.freetts.lexicon.Lexicon;
-
-import de.dfki.lt.freetts.ClusterUnitVoice;
-import de.dfki.lt.freetts.DiphoneVoice;
 
 /**
  * A helper class for the synthesis module; each Voice object represents one
@@ -137,13 +130,14 @@ public class Voice
     		return v2.getName().compareTo(v1.getName());
     	}
     });
-    /** This map associates a value marytts.modules.synthesis.Voice to
-     * a key Locale: */
+
     private static Map<Locale,Voice> defaultVoices = new HashMap<Locale,Voice>();
-    /** logger */
-    private static Logger logger = Logger.getLogger("Voice");
+
+    protected static Logger logger = Logger.getLogger("Voice");
+
     /** A local map of already-instantiated target feature computers */
     private static Map<String,TargetFeatureComputer> knownTargetFeatureComputers = new HashMap<String,TargetFeatureComputer>();
+    
     /** A local map of already-instantiated Lexicons */
     private static Map<String, Lexicon> lexicons = new HashMap<String, Lexicon>();
 
@@ -153,15 +147,8 @@ public class Voice
     private AudioFormat dbAudioFormat = null;
     private WaveformSynthesizer synthesizer;
     private Gender gender;
-    private int topStart;
-    private int topEnd;
-    private int baseStart;
-    private int baseEnd;
-    private Map<String, String> sampa2voiceMap;
-    private Map<String, String> voice2sampaMap;
-    private boolean useVoicePAInOutput;
     private int wantToBeDefault;
-    private PhonemeSet phonemeSet;
+    private AllophoneSet allophoneSet;
     String preferredModulesClasses;
     private Vector<MaryModule> preferredModules;
     private TargetFeatureComputer targetFeatureComputer;
@@ -172,8 +159,8 @@ public class Voice
     public Voice(String[] nameArray, Locale locale, 
                  AudioFormat dbAudioFormat,
                  WaveformSynthesizer synthesizer,
-                 Gender gender,
-                 int topStart, int topEnd, int baseStart, int baseEnd) 
+                 Gender gender)
+    throws MaryConfigurationException
     {
         this.names = new ArrayList<String>();
         for (int i=0; i<nameArray.length; i++)
@@ -182,29 +169,22 @@ public class Voice
         this.dbAudioFormat = dbAudioFormat;
         this.synthesizer = synthesizer;
         this.gender = gender;
-        this.topStart = topStart;
-        this.topEnd = topEnd;
-        this.baseStart = baseStart;
-        this.baseEnd = baseEnd;
-        fillSampaMap();
         
         // Read settings from config file:
         String header = "voice."+getName();
-        this.useVoicePAInOutput = MaryProperties.getBoolean(header+".use.voicepa.in.output", true);
         this.wantToBeDefault = MaryProperties.getInteger(header+".wants.to.be.default", 0);
-        String phonemesetFilename = MaryProperties.getFilename(header+".phonemeset");
-        if (phonemesetFilename == null && getLocale() != null) {
+        String allphonesetFilename = MaryProperties.getFilename(header+".allophoneset");
+        if (allphonesetFilename == null && getLocale() != null) {
             // No specific phoneme set for voice, use locale default
-            phonemesetFilename = MaryProperties.getFilename(MaryProperties.localePrefix(getLocale())+".phonemeset");
+            allphonesetFilename = MaryProperties.getFilename(MaryProperties.localePrefix(getLocale())+".allophoneset");
         }
-        if (phonemesetFilename == null) {
-            phonemeSet = null;
-        } else {
-            try {
-                phonemeSet = PhonemeSet.getPhonemeSet(phonemesetFilename);
-            } catch (Exception e) {
-                phonemeSet = null;
-            }
+        if (allphonesetFilename == null) {
+            throw new MaryConfigurationException("No allophone set specified -- neither for voice '"+getName()+"' nor for locale '"+getLocale()+"'");
+        }
+        try {
+            allophoneSet = AllophoneSet.getAllophoneSet(allphonesetFilename);
+        } catch (Exception e) {
+            throw new MaryConfigurationException("Cannot load allophone set", e);
         }
         preferredModulesClasses = MaryProperties.getProperty(header+".preferredModules");
         
@@ -276,216 +256,24 @@ public class Voice
     }
     
 
-    /**
-     * Constructor for creating a MARY voice from a FreeTTS voice.
-     * @param freeTTSVoice an existing FreeTTS voice
-     * @param synthesizer the freeTTS synthesizer working with this voice.
-     */
-    @Deprecated
-    public Voice(com.sun.speech.freetts.Voice freeTTSVoice, WaveformSynthesizer synthesizer)
-    {
-        this.names = new ArrayList<String>();
-        String domain = freeTTSVoice.getDomain();
-        String name;
-        if (domain.equals("general")) name = freeTTSVoice.getName();
-        else name = freeTTSVoice.getName() + "_" + domain;
-        names.add(name);
-        this.locale = freeTTSVoice.getLocale();
-        int samplingRate = 16000; // fallback
-        if (freeTTSVoice instanceof DiphoneVoice) {
-            samplingRate = ((DiphoneVoice)freeTTSVoice).getSampleInfo().getSampleRate();
-        } else if (freeTTSVoice instanceof ClusterUnitVoice) {
-            samplingRate = ((ClusterUnitVoice)freeTTSVoice).getSampleInfo().getSampleRate();
-        }
-        this.dbAudioFormat = new AudioFormat
-        (AudioFormat.Encoding.PCM_SIGNED,
-                samplingRate, // samples per second
-                16, // bits per sample
-                1, // mono
-                2, // nr. of bytes per frame
-                samplingRate, // nr. of frames per second
-                true); // big-endian;
-        this.synthesizer = synthesizer;
-        if (freeTTSVoice.getGender().equals(com.sun.speech.freetts.Gender.FEMALE)) {
-            this.gender = FEMALE;
-        } else {
-            this.gender = MALE;
-        }
-        this.topStart  = (int) (freeTTSVoice.getPitch() + freeTTSVoice.getPitchRange());
-        this.topEnd    = (int) freeTTSVoice.getPitch();
-        this.baseStart = (int) freeTTSVoice.getPitch();
-        this.baseEnd   = (int) (freeTTSVoice.getPitch() - freeTTSVoice.getPitchRange());
-        fillSampaMap();
-        this.wantToBeDefault = MaryProperties.getInteger("voice."+getName()+".wants.to.be.default", 0);
-    }
-    
-    private void fillSampaMap()
-    {
-        // Any phoneme inventory mappings?
-        String sampamapFilename = MaryProperties.getFilename("voice."+getName()+".sampamapfile");
-        if (sampamapFilename != null) {
-            logger.debug("For voice "+getName()+", filling sampa map from file "+sampamapFilename);
-            try {
-                BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sampamapFilename), "UTF-8"));
-                String line;
-                while ((line = br.readLine()) != null) {
-                    line = line.trim();
-                    if (line.equals("") || line.startsWith("#")) {
-                        continue; // ignore empty and comment lines
-                    }
-                    try {
-                        addSampaMapEntry(line);
-                    } catch (IllegalArgumentException iae) {
-                        logger.warn("Ignoring invalid entry in sampa map file "+sampamapFilename);
-                    }
-                }
-            } catch (IOException ioe) {
-                logger.warn("Cannot open file '"+sampamapFilename+"' referenced in mary config file field voice."+getName()+".sampamapfile");
-            }
-            
-        }
-        String sampamap = MaryProperties.getProperty("voice."+getName()+".sampamap");
-        if (sampamap != null) {
-            logger.debug("For voice "+getName()+", filling sampa map from config file");
-            for (StringTokenizer sst=new StringTokenizer(sampamap); sst.hasMoreTokens(); ) {
-                try {
-                    addSampaMapEntry(sst.nextToken());
-                } catch (IllegalArgumentException iae) {
-                    logger.warn("Ignoring invalid entry in mary config file, field voice."+getName()+".sampamap");
-                }
-            }
-        }
-    }
-
-    private void addSampaMapEntry(String entry) throws IllegalArgumentException
-    {
-        boolean s2v = false;
-        boolean v2s = false;
-        String[] parts = null;
-        // For one-to-many mappings, '+' can be used to group phoneme symbols.
-        // E.g., the line "EI->E:+I" would map "EI" to "E:" and "I" 
-        entry.replace('+', ' ');
-        if (entry.indexOf("<->") != -1) {
-            parts = entry.split("<->");
-            s2v = true;
-            v2s = true;
-        } else if (entry.indexOf("->") != -1) {
-            parts = entry.split("->");
-            s2v = true;
-        } else if (entry.indexOf("<-") != -1) {
-            parts = entry.split("<-");
-            v2s = true;
-        }
-        if (parts == null || parts.length != 2) { // invalid entry
-            throw new IllegalArgumentException();
-        }
-        if (s2v) {
-            if (sampa2voiceMap == null) sampa2voiceMap = new HashMap<String, String>();
-            sampa2voiceMap.put(parts[0].trim(), parts[1].trim());
-        }
-        if (v2s) {
-            if (voice2sampaMap == null) voice2sampaMap = new HashMap<String, String>();
-            voice2sampaMap.put(parts[1].trim(), parts[0].trim());
-        }
-    }
-
-    /** Converts a single phonetic symbol in the voice phonetic alphabet representation
-     * representation into its equivalent in MARY sampa representation.
-     * @return the converted phoneme, or the input string if no known conversion exists.
-     */
-    public String voice2sampa(String voicePhoneme)
-    {
-        if (voice2sampaMap != null && voice2sampaMap.containsKey(voicePhoneme))
-            return (String) voice2sampaMap.get(voicePhoneme);
-        else
-            return voicePhoneme;
-    }
-
-    /** Converts a single phonetic symbol in MARY sampa representation into its
-     * equivalent in voice-specific phonetic alphabet representation.
-     * @return the converted phoneme, or the input string if no known conversion exists.
-     */
-    public String sampa2voice(String sampaPhoneme)
-    {
-        if (sampa2voiceMap != null && sampa2voiceMap.containsKey(sampaPhoneme))
-            return (String) sampa2voiceMap.get(sampaPhoneme);
-        else
-            return sampaPhoneme;
-    }
-
-    /** Converts a full phonetic string including stress markers from MARY sampa
-     * into the voice-specific representation. Syllable boundaries, if
-     * present, will be ignored. Stress markers, if present, will lead to a "1"
-     * appended to the voice-specific versions of the vowels in the syllable.
-     * @return a List of String objects.
-     */
-    public List<String> sampaString2voicePhonemeList(String sampa)
-    {
-        List<String> voicePhonemeList = new ArrayList<String>();
-        StringTokenizer st = new StringTokenizer(sampa, "-_");
-        while (st.hasMoreTokens()) {
-            String syllable = st.nextToken();
-            boolean stressed = false;
-            if (syllable.startsWith("'")) {
-                stressed = true;
-            }
-            Phoneme[] phonemes = PAConverter.sampa(getLocale()).splitIntoPhonemes(syllable);
-            for (int i=0; i<phonemes.length; i++) {
-                String voicePhoneme = sampa2voice(phonemes[i].name());
-                if (stressed && phonemes[i].isVowel()) voicePhoneme = voicePhoneme + "1";
-                voicePhonemeList.add(voicePhoneme);
-            }
-        }
-        return voicePhonemeList;
-    }
-
-    /** Converts an array of phoneme symbol strings in voice-specific representation
-     *  into a single MARY sampa string.
-     * If stress is marked on voice phoneme symbols ("1" appended), a crude
-     * syllabification is done on the sampa string.
-     */
-    public String voicePhonemeArray2sampaString(String[] voicePhonemes)
-    {
-        StringBuffer sampaBuf = new StringBuffer();
-        for (int i=0; i<voicePhonemes.length; i++) {
-            String sampa;
-            if (voicePhonemes[i].endsWith("1")) {
-                sampa = voice2sampa(voicePhonemes[i].substring(0, voicePhonemes[i].length()-1)) + "1"; 
-            } else {
-                sampa = voice2sampa(voicePhonemes[i]);
-            }
-            assert sampa != null;
-            sampaBuf.append(sampa);
-        }
-        PhonemeSet sampaPhonemeSet = PAConverter.sampa(getLocale());
-        if (sampaPhonemeSet != null) {
-            Syllabifier syllabifier = sampaPhonemeSet.getSyllabifier();
-            return syllabifier.syllabify(sampaBuf.toString());
-        }
-        // Fallback if we have no syllabifier:
-        return sampaBuf.toString();
-    }
 
     /**
-     * Get the SAMPA phoneme set associated with this voice.
+     * Get the allophone set associated with this voice.
      * @return
      */
-    public PhonemeSet getSampaPhonemeSet()
+    public AllophoneSet getAllophoneSet()
     {
-        return phonemeSet;
+        return allophoneSet;
     }
 
     /**
-     * If a phoneme set is available, return a Phoneme object
-     * for the given sampa symbol.
-     * @param sampaSymbol sampa symbol for one phoneme -- use voice2sampa() to
-     * create this from a voice phoneme symbol.
-     * @return a Phoneme object, or null.
+     * Get the Allophone set for the given phone symbol.
+     * @param phoneSymbol
+     * @return an Allophone object if phoneSymbol is a known phone symbol in the voice's AllophoneSet, or null.
      */
-    public Phoneme getSampaPhoneme(String sampaSymbol)
+    public Allophone getAllophone(String phoneSymbol)
     {
-        if (phonemeSet == null) return null;
-        return phonemeSet.getPhoneme(sampaSymbol);
+        return allophoneSet.getAllophone(phoneSymbol);
     }
     
     
@@ -536,10 +324,6 @@ public class Voice
     public AudioFormat dbAudioFormat() { return dbAudioFormat; }
     public WaveformSynthesizer synthesizer() { return synthesizer; }
     public Gender gender() { return gender; }
-    public int topStart() { return topStart; }
-    public int topEnd() { return topEnd; }
-    public int baseStart() { return baseStart; }
-    public int baseEnd() { return baseEnd; }
 
     /**
      * Get the target feature computer to be used in conjunction with this voice
@@ -575,67 +359,6 @@ public class Voice
     public TargetFeatureComputer getHalfphoneTargetFeatureComputer()
     {
         return halfphoneTargetFeatureComputer;
-    }
-
-    /**
-     * Whether to use this voice's phonetic alphabet in the output.
-     */
-    public boolean useVoicePAInOutput() { return useVoicePAInOutput; }
-
-    /** Convert the SAMPA dialect used in MARY into the SAMPA version
-     * used in this voice. Allow for one-to-many translations,
-     * taking care of duration and f0 target adjustments.
-     * @return a vector of MBROLAPhoneme objects realising this phoneme
-     * for this voice.
-     */
-    public Vector<MBROLAPhoneme> convertSampa(MBROLAPhoneme maryPhoneme)
-    {
-        Vector<MBROLAPhoneme> phonemes = new Vector<MBROLAPhoneme>();
-        String marySampa = maryPhoneme.getSymbol();
-        if (sampa2voiceMap != null && useVoicePAInOutput && sampa2voiceMap.containsKey(marySampa)) {
-            String newSampa = (String) sampa2voiceMap.get(marySampa);
-            // Check if more than one phoneme:
-            Vector<String> newSampas = new Vector<String>();
-            StringTokenizer st = new StringTokenizer(newSampa);
-            while (st.hasMoreTokens()) {
-                newSampas.add(st.nextToken());
-            }
-            // Now, how many new phonemes do we have:
-            int n = newSampas.size();
-            int totalDur = maryPhoneme.getDuration();
-            Vector<int []> allTargets = maryPhoneme.getTargets();
-            // Distribute total duration evenly across the phonemes
-            // and put the targets where they belong:
-            for (int i=0; i<newSampas.size(); i++) {
-                String sampa = (String) newSampas.get(i);
-                int dur = totalDur / n;
-                Vector<int []> newTargets = null;
-                // Percentage limit belonging to this phoneme
-                int maxP = 100 * (i+1) / n;
-                boolean ok = true;
-                while (allTargets != null && allTargets.size() > 0 && ok) {
-                    int[] oldTarget = (int[]) allTargets.get(0);
-                    if (oldTarget[0] <= maxP) {
-                        // this target falls into this phoneme
-                        int[] newTarget = new int[2];
-                        newTarget[0] = oldTarget[0] * n; // percentage
-                        newTarget[1] = oldTarget[1]; // f0
-                        if (newTargets == null) newTargets = new Vector<int []>();
-                        newTargets.add(newTarget);
-                        // Delete from original list:
-                        allTargets.remove(0);
-                    } else {
-                        ok = false;
-                    }
-                }
-                MBROLAPhoneme mp = new MBROLAPhoneme
-                    (sampa, dur, newTargets, maryPhoneme.getVoiceQuality());
-                phonemes.add(mp);
-            }
-        } else { // just return the thing itself
-            phonemes.add(maryPhoneme);
-        }
-        return phonemes;
     }
 
     

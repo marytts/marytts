@@ -1,31 +1,22 @@
 package marytts.tools.voiceimport;
 
-import java.io.*;
-import java.util.*;
-import java.util.regex.*;
-
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -33,26 +24,14 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import marytts.client.MaryClient;
+import marytts.modules.phonemiser.Allophone;
+import marytts.modules.phonemiser.AllophoneSet;
+import marytts.util.io.FileUtils;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.traversal.DocumentTraversal;
-import org.w3c.dom.traversal.NodeFilter;
-import org.w3c.dom.traversal.NodeIterator;
-
-import marytts.client.MaryClient;
-import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
-import marytts.datatypes.MaryXML;
-import marytts.modules.phonemiser.Phoneme;
-import marytts.modules.phonemiser.PhonemeSet;
-import marytts.tools.voiceimport.DatabaseLayout;
-import marytts.tools.voiceimport.VoiceImportComponent;
-import marytts.util.io.FileUtils;
-import marytts.util.dom.MaryDomUtils;
-import marytts.util.dom.NameNodeFilter;
 
 
 /**
@@ -77,7 +56,7 @@ public class HTKPhoneRecogniser extends VoiceImportComponent {
         protected int percent = 0;
         protected File intonisedXMLDir;
         protected Map<String, TreeMap<String, String>> dictionary;
-        protected PhonemeSet phonemeSet;
+        protected AllophoneSet allophoneSet;
         private BasenameList bnlist;
         
         public final String HTDIR = "HTKPhoneRecogniser.htDir";
@@ -195,7 +174,7 @@ public class HTKPhoneRecogniser extends VoiceImportComponent {
             htkTest= new File(getProp(HTKTESTDIR)+File.separator);
             // get the output directory of files used by HTK 
             outputDir = htkTest.getAbsolutePath()+File.separator+"etc";
-            phonemeSet = PhonemeSet.getPhonemeSet(getProp(PHONEMEXML));
+            allophoneSet = AllophoneSet.getAllophoneSet(getProp(PHONEMEXML));
             File dictFile = new File(db.getProp(db.ROOTDIR)+File.separator+"htk"+File.separator+"etc"+File.separator+"htk.dict");
             
             // part 1: HTK basic setup and create required files
@@ -583,7 +562,7 @@ public class HTKPhoneRecogniser extends VoiceImportComponent {
                         
                         if (delims.indexOf(currTok) == -1) {
                             // current Token is no delimiter
-                            for ( Phoneme ph : phonemeSet.splitIntoPhonemes(currTok)){
+                            for (Allophone ph : allophoneSet.splitIntoAllophones(currTok)){
                                 // orig += ph.name() + " ";
                                 if(ph.name().trim().equals("_")) continue;
                                 orig += replaceTrickyPhones(ph.name().trim()) + " "; 

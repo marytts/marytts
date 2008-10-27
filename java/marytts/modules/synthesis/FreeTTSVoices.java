@@ -28,7 +28,6 @@
  */
 package marytts.modules.synthesis;
 
-import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -42,7 +41,6 @@ import marytts.unitselection.UnitSelectionVoice;
 
 import org.apache.log4j.Logger;
 
-import com.sun.speech.freetts.VoiceManager;
 import com.sun.speech.freetts.en.us.CMULexicon;
 import com.sun.speech.freetts.lexicon.Lexicon;
 

@@ -31,7 +31,6 @@ package marytts.signalproc.sinusoidal;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -45,7 +44,6 @@ import marytts.signalproc.window.Window;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
-import marytts.util.io.FileUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 

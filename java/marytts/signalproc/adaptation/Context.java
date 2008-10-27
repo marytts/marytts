@@ -29,11 +29,6 @@
 
 package marytts.signalproc.adaptation;
 
-import java.io.IOException;
-import java.util.StringTokenizer;
-
-import javax.sound.sampled.UnsupportedAudioFileException;
-
 import marytts.signalproc.analysis.Labels;
 import marytts.util.string.StringUtils;
 

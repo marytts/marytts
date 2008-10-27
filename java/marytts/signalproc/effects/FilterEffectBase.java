@@ -29,22 +29,15 @@
 
 package marytts.signalproc.effects;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-
 import marytts.signalproc.filter.BandPassFilter;
 import marytts.signalproc.filter.BandRejectFilter;
 import marytts.signalproc.filter.HighPassFilter;
 import marytts.signalproc.filter.LowPassFilter;
-import marytts.signalproc.process.Chorus;
 import marytts.signalproc.process.FrameOverlapAddSource;
 import marytts.signalproc.process.InlineDataProcessor;
-import marytts.signalproc.process.Robotiser;
-import marytts.signalproc.process.VocalTractScalingProcessor;
 import marytts.signalproc.window.Window;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
-import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 

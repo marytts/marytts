@@ -45,7 +45,6 @@ import marytts.modules.synthesis.Voice;
 
 import org.jsresources.AudioRecorder;
 import org.jsresources.SequenceAudioInputStream;
-import org.jsresources.TimedAudioRecorder;
 import org.tritonus.share.sampled.AudioFileTypes;
 import org.tritonus.share.sampled.Encodings;
 

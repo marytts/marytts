@@ -1,7 +1,9 @@
 package marytts.tools.voiceimport;
 
 
-import java.util.*;
+import java.util.SortedMap;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
 
 /**
  * Compute unit labels from phone labels.

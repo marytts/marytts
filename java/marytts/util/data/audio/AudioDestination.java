@@ -42,7 +42,6 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JFrame;
 
-
 import marytts.server.MaryProperties;
 import marytts.signalproc.display.FunctionGraph;
 import marytts.util.MaryUtils;

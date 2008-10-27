@@ -29,26 +29,12 @@
 package marytts.modules;
 
 import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.traversal.DocumentTraversal;
-import org.w3c.dom.traversal.NodeFilter;
-import org.w3c.dom.traversal.NodeIterator;
-import org.w3c.dom.traversal.TreeWalker;
-
 
 import marytts.cart.CART;
 import marytts.cart.StringPredictionTree;
-// old: import marytts.cart.RegressionTree;
 import marytts.cart.io.WagonCARTReader;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
@@ -56,8 +42,6 @@ import marytts.datatypes.MaryXML;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.TargetFeatureComputer;
-import marytts.modules.InternalModule;
-import marytts.modules.synthesis.FreeTTSVoices;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
 import marytts.unitselection.UnitSelectionVoice;
@@ -67,12 +51,12 @@ import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
-import com.sun.speech.freetts.Item;
-import com.sun.speech.freetts.Relation;
-import com.sun.speech.freetts.Utterance;
-import com.sun.speech.freetts.UtteranceProcessor;
-
-import de.dfki.lt.freetts.mbrola.ParametersToMbrolaConverter;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.traversal.DocumentTraversal;
+import org.w3c.dom.traversal.NodeFilter;
+import org.w3c.dom.traversal.NodeIterator;
+import org.w3c.dom.traversal.TreeWalker;
 
 
 /**

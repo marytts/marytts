@@ -28,8 +28,6 @@
  */
 package marytts.language.tib.datatypes;
 
-import java.util.Locale;
-
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 

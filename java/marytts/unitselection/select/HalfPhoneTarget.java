@@ -28,8 +28,6 @@
  */
 package marytts.unitselection.select;
 
-import marytts.features.MaryGenericFeatureProcessors;
-
 import org.w3c.dom.Element;
 
 

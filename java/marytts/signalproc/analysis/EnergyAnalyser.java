@@ -30,10 +30,8 @@
 package marytts.signalproc.analysis;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.List;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -45,7 +43,6 @@ import javax.sound.sampled.TargetDataLine;
 import marytts.machinelearning.KMeansClusteringTrainer;
 import marytts.machinelearning.KMeansClusteringTrainerParams;
 import marytts.signalproc.window.RectWindow;
-import marytts.util.MaryUtils;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.math.MathUtils;

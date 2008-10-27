@@ -29,13 +29,7 @@
 
 package marytts.signalproc.adaptation.codebook;
 
-import marytts.signalproc.adaptation.BaselineParams;
 import marytts.signalproc.adaptation.BaselineTransformerParams;
-import marytts.signalproc.adaptation.prosody.ProsodyTransformerParams;
-import marytts.signalproc.adaptation.smoothing.SmoothingDefinitions;
-import marytts.signalproc.analysis.EnergyFileHeader;
-import marytts.signalproc.analysis.LsfFileHeader;
-import marytts.signalproc.analysis.PitchFileHeader;
 
 /**
  * 

@@ -33,7 +33,8 @@ package marytts.tools.voiceimport;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.util.*;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import marytts.unitselection.data.Datagram;
 

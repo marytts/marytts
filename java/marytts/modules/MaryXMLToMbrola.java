@@ -30,7 +30,6 @@ package marytts.modules;
 
 // DOM classes
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -133,6 +132,8 @@ public class MaryXMLToMbrola extends InternalModule
      */
     public String convertToMbrola(List<Element> phonemesAndBoundaries, Voice voice)
     {
+        if (!(voice instanceof MbrolaVoice))
+            throw new IllegalArgumentException("Expected an MBROLA voice, but "+voice.getName()+" is a "+voice.getClass());
         StringBuffer buf = new StringBuffer();
         // In order to test for missing diphones, we need to
         // look at two subsequent phonemes. General case:
@@ -172,12 +173,11 @@ public class MaryXMLToMbrola extends InternalModule
                     vq = null;
                 }
                 MBROLAPhoneme newP = new MBROLAPhoneme(s, dur, targets, vq);
-                Vector<MBROLAPhoneme> p2vect = voice.convertSampa(newP);
+                Vector<MBROLAPhoneme> p2vect = ((MbrolaVoice)voice).convertSampa(newP);
                 mbrolaPhonemes.addAll(p2vect);
                 // Verify if diphone exists:
                 while (mbrolaPhonemes.size() > 1) { // at least 2 phonemes
-                    if (voice instanceof MbrolaVoice 
-                            && !((MbrolaVoice)voice).hasDiphone
+                    if (!((MbrolaVoice)voice).hasDiphone
                                 (mbrolaPhonemes.get(0), mbrolaPhonemes.get(1))) {
                         // Replace the first two phonemes:
                         MBROLAPhoneme p1 = mbrolaPhonemes.removeFirst();

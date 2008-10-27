@@ -29,24 +29,6 @@
 
 package marytts.signalproc.analysis.distance;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
-
-import marytts.signalproc.adaptation.BaselineAdaptationItem;
-import marytts.signalproc.adaptation.BaselineAdaptationSet;
-import marytts.signalproc.adaptation.BaselineFeatureExtractor;
-import marytts.signalproc.analysis.Labels;
-import marytts.signalproc.analysis.LsfFileHeader;
-import marytts.signalproc.analysis.Lsfs;
-import marytts.util.data.audio.AudioDoubleDataSource;
-import marytts.util.io.FileUtils;
-import marytts.util.math.MathUtils;
-import marytts.util.signal.SignalProcUtils;
 
 
 /**

@@ -32,7 +32,6 @@ import java.util.Locale;
 
 import marytts.datatypes.MaryDataType;
 import marytts.language.en.features.FeatureProcessorManager;
-import marytts.language.en_US.datatypes.USEnglishDataTypes;
 
 
 /**

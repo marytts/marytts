@@ -53,16 +53,14 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.util.*;
-import java.text.*;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class HMMVoiceMakeVoiceAdapt extends VoiceImportComponent{
     

@@ -31,17 +31,13 @@ package marytts.signalproc.analysis;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import marytts.signalproc.analysis.F0Tracker.F0Contour;
 import marytts.util.io.FileUtils;
 import marytts.util.io.LEDataInputStream;
 import marytts.util.io.LEDataOutputStream;
-import marytts.util.io.LittleEndianBinaryReader;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 

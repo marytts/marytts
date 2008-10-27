@@ -35,15 +35,10 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.SortedMap;
-import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.zip.ZipInputStream;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;

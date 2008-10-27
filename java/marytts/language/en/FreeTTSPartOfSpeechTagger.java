@@ -39,7 +39,6 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
 import marytts.language.en_US.datatypes.USEnglishDataTypes;
 import marytts.modules.InternalModule;
 import marytts.modules.synthesis.FreeTTSVoices;

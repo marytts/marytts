@@ -47,7 +47,6 @@ import java.util.Set;
 
 import marytts.cart.CART;
 import marytts.cart.io.WagonCARTReader;
-// old: import marytts.cart.ClassificationTree;
 import marytts.cart.io.WagonCARTWriter;
 import marytts.features.FeatureDefinition;
 

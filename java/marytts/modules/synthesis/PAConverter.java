@@ -33,8 +33,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import marytts.modules.phonemiser.Phoneme;
-import marytts.modules.phonemiser.PhonemeSet;
+import marytts.modules.phonemiser.Allophone;
+import marytts.modules.phonemiser.AllophoneSet;
 import marytts.server.MaryProperties;
 
 import org.apache.log4j.Logger;
@@ -53,34 +53,32 @@ public class PAConverter
     private static Logger logger = Logger.getLogger("PAConverter");
 
     // The following map has as its keys Locales and as its values PhonemeSets.
-    private static Map sampa;
+    private static Map<Locale, AllophoneSet> sampa;
     
-    private static Map sampaEn2sampaDe;
+    private static Map<String,String> sampaEn2sampaDe;
  
     // Static constructor:
     static {
-        sampa = new HashMap();
+        sampa = new HashMap<Locale, AllophoneSet>();
         try {
-            PhonemeSet usenSampa = PhonemeSet.getPhonemeSet
-                (MaryProperties.needFilename("english.phonemeset"));
+            AllophoneSet usenSampa = AllophoneSet.getAllophoneSet
+                (MaryProperties.needFilename("english.allophoneset"));
             sampa.put(Locale.US, usenSampa);
-            // This is not clean but it is a start:
-            sampa.put(Locale.UK, usenSampa);
         } catch (Exception e) {
-            logger.warn("Cannot load US English phoneme set", e);
+            logger.warn("Cannot load US English allophone set", e);
         }
         try {
-            PhonemeSet deSampa = PhonemeSet.getPhonemeSet
-                (MaryProperties.needFilename("german.phonemeset"));
+            AllophoneSet deSampa = AllophoneSet.getAllophoneSet
+                (MaryProperties.needFilename("german.allophoneset"));
             sampa.put(Locale.GERMAN, deSampa);
         } catch (Exception e) {
-            logger.warn("Cannot load German phoneme set", e);
+            logger.warn("Cannot load German allophone set", e);
         }
 
 
 
         //English Sampa to German Sampa
-        sampaEn2sampaDe = new HashMap();
+        sampaEn2sampaDe = new HashMap<String, String>();
         sampaEn2sampaDe.put("p_h", "p");
         sampaEn2sampaDe.put("t_h", "t");
         sampaEn2sampaDe.put("4", "t");
@@ -124,7 +122,7 @@ public class PAConverter
     			result.append("'");
     			stressed = true;
     		}
-    		Phoneme[] phon = sampa(Locale.US).splitIntoPhonemes(syl);
+    		Allophone[] phon = sampa(Locale.US).splitIntoAllophones(syl);
     		for(int i=0; i<phon.length; i++){
     			String eng = phon[i].name();
     			String sDe = sampaEn2sampaDe(eng);
@@ -142,9 +140,9 @@ public class PAConverter
     	
     }
 
-    public static PhonemeSet sampa(Locale locale)
+    public static AllophoneSet sampa(Locale locale)
     {
-        return (PhonemeSet) sampa.get(locale);
+        return sampa.get(locale);
     }
 
 

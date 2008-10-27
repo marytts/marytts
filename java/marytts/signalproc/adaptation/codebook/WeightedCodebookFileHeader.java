@@ -32,7 +32,6 @@ package marytts.signalproc.adaptation.codebook;
 import java.io.IOException;
 
 import marytts.signalproc.adaptation.BaselineFeatureExtractor;
-import marytts.signalproc.analysis.EnergyContourRms;
 import marytts.signalproc.analysis.EnergyFileHeader;
 import marytts.signalproc.analysis.LsfFileHeader;
 import marytts.signalproc.analysis.MfccFileHeader;

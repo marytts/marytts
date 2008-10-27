@@ -26,8 +26,8 @@ import marytts.cart.StringCART;
 import marytts.features.FeatureDefinition;
 import marytts.fst.AlignerTrainer;
 import marytts.fst.StringPair;
-import marytts.modules.phonemiser.Phoneme;
-import marytts.modules.phonemiser.PhonemeSet;
+import marytts.modules.phonemiser.Allophone;
+import marytts.modules.phonemiser.AllophoneSet;
 
 import org.xml.sax.SAXException;
 
@@ -63,13 +63,13 @@ import weka.core.Instances;
 
 public class LTSTrainer extends AlignerTrainer{
 
-    PhonemeSet phSet;
+    AllophoneSet phSet;
     Locale loc;
 
     
     int context = 2;
     
-    public LTSTrainer(PhonemeSet aPhSet, Locale aLoc) {
+    public LTSTrainer(AllophoneSet aPhSet, Locale aLoc) {
         super();
         this.phSet = aPhSet;
         this.loc = aLoc;
@@ -320,7 +320,7 @@ public class LTSTrainer extends AlignerTrainer{
                     stress = true;
                 }
                 
-                for ( Phoneme ph : phSet.splitIntoPhonemes(syl)){
+                for (Allophone ph : phSet.splitIntoAllophones(syl)){
                     currPh = ph.name();
                     
                     if (stress && considerStress && ph.isVowel()){
@@ -354,7 +354,7 @@ public class LTSTrainer extends AlignerTrainer{
 
         
         // initialize trainer 
-        LTSTrainer tp = new LTSTrainer(PhonemeSet.getPhonemeSet(phFileLoc), Locale.ENGLISH);
+        LTSTrainer tp = new LTSTrainer(AllophoneSet.getAllophoneSet(phFileLoc), Locale.ENGLISH);
 
         BufferedReader lexReader = new BufferedReader(
                 new InputStreamReader(

@@ -75,6 +75,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.sun.speech.freetts.Utterance;
+
 
 /**
  * A representation of any type of mary data, be it input, intermediate or
@@ -94,7 +96,7 @@ public class MaryData {
     private String plainText = null;
     private AudioInputStream audio = null;
     private AudioFileFormat audioFileFormat = null;
-    private List utterances = null; // List of Utterance objects
+    private List<Utterance> utterances = null;
     private Logger logger = Logger.getLogger("IO");
 
     // for plainText, allow additional information:
@@ -511,11 +513,11 @@ public class MaryData {
         this.audio = audio;
     }
 
-    public List getUtterances() {
+    public List<Utterance> getUtterances() {
         return utterances;
     }
 
-    public void setUtterances(List utterances) {
+    public void setUtterances(List<Utterance> utterances) {
         this.utterances = utterances;
     }
 

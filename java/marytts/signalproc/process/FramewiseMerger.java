@@ -7,7 +7,6 @@ import marytts.signalproc.window.Window;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.SequenceDoubleDataSource;
-import marytts.util.string.PrintfFormat;
 
 
 /**

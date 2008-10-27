@@ -40,15 +40,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
 
-import org.apache.commons.collections.map.MultiKeyMap;
-import org.apache.log4j.Logger;
-
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
 import marytts.modules.synthesis.Voice;
-import marytts.server.Mary;
-import marytts.util.MaryUtils;
 import marytts.util.io.FileUtils;
+
+import org.apache.log4j.Logger;
 
 /**
  * A representation of the data types available as input/output of (partial)

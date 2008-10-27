@@ -31,15 +31,11 @@ package marytts.unitselection.select;
 import marytts.datatypes.MaryXML;
 import marytts.features.FeatureVector;
 import marytts.features.MaryGenericFeatureProcessors;
-import marytts.modules.phonemiser.Phoneme;
-import marytts.modules.synthesis.FreeTTSVoices;
+import marytts.modules.phonemiser.Allophone;
 import marytts.modules.synthesis.Voice;
 import marytts.util.dom.MaryDomUtils;
 
-import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
-
-import com.sun.speech.freetts.Item;
 
 
 /**
@@ -138,7 +134,7 @@ public class Target
         
     }
     
-    public Phoneme getSampaPhoneme()
+    public Allophone getAllophone()
     {
         if (maryxmlElement != null) {
             Element voiceElement = (Element) MaryDomUtils.getAncestor(maryxmlElement, MaryXML.VOICE);
@@ -152,7 +148,7 @@ public class Target
                         assert maryxmlElement.getNodeName().equals(MaryXML.BOUNDARY);
                         sampa = "_";
                     }
-                    return v.getSampaPhoneme(sampa);
+                    return v.getAllophone(sampa);
                 }
             }
         }

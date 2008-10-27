@@ -30,7 +30,6 @@
 package marytts.signalproc.adaptation;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -39,11 +38,11 @@ import marytts.signalproc.adaptation.codebook.WeightedCodebookTransformerParams;
 import marytts.signalproc.adaptation.gmm.jointgmm.JointGMMTransformerParams;
 import marytts.signalproc.analysis.EnergyContourRms;
 import marytts.signalproc.analysis.EnergyFileHeader;
+import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
 import marytts.signalproc.analysis.LsfAnalyser;
 import marytts.signalproc.analysis.LsfFileHeader;
 import marytts.signalproc.analysis.MfccFileHeader;
 import marytts.signalproc.analysis.PitchFileHeader;
-import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
 import marytts.util.io.FileUtils;
 import marytts.util.string.StringUtils;
 

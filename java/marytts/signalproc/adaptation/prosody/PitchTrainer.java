@@ -1,17 +1,12 @@
 package marytts.signalproc.adaptation.prosody;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import marytts.signalproc.adaptation.BaselineAdaptationSet;
 import marytts.signalproc.adaptation.IndexMap;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookFeatureCollection;
-import marytts.signalproc.adaptation.codebook.WeightedCodebookFile;
-import marytts.signalproc.adaptation.codebook.WeightedCodebookFileHeader;
-import marytts.signalproc.adaptation.codebook.WeightedCodebookEntry;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookTrainerParams;
 import marytts.signalproc.analysis.F0ReaderWriter;
-import marytts.signalproc.analysis.Lsfs;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 

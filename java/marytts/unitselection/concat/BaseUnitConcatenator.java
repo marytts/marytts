@@ -31,27 +31,20 @@
  */
 package marytts.unitselection.concat;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 
-import marytts.signalproc.process.FrameOverlapAddSource;
-import marytts.signalproc.window.HanningWindow;
-import marytts.signalproc.window.Window;
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.TimelineReader;
-import marytts.unitselection.data.Unit;
 import marytts.unitselection.data.UnitDatabase;
 import marytts.unitselection.select.SelectedUnit;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
-import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
 
 import org.apache.log4j.Logger;

@@ -16,7 +16,6 @@ import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.SequenceDoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
-import marytts.util.signal.SignalProcUtils;
 
 
 public class LPCCrossSynthesisOnline extends LPCAnalysisResynthesis {

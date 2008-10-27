@@ -50,18 +50,13 @@
 
 package marytts.htsengine;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.FileNotFoundException;
 import java.util.Locale;
-import java.util.Properties;
 import java.util.Vector;
 
 import javax.sound.sampled.AudioFormat;
 
 import marytts.modules.synthesis.Voice;
 import marytts.modules.synthesis.WaveformSynthesizer;
-import marytts.modules.synthesis.Voice.Gender;
 
 import org.apache.log4j.Logger;
 
@@ -75,14 +70,14 @@ public class HMMVoice extends Voice {
     * constructor */ 
     public HMMVoice(String[] nameArray, Locale locale, 
             AudioFormat dbAudioFormat, WaveformSynthesizer synthesizer, 
-            Gender gender, int topStart, int topEnd, int baseStart, int baseEnd,
+            Gender gender,
             String alpha, String gamma, String logGain, String beta,
             String Ftd, String Ftf, String Ftm, String Fts, String Fta, 
             String Fmd, String Fmf, String Fmm, String Fms, String Fma,
             String useMixExc, String useFourierMag, boolean useGV, boolean useGmmGV, String Fgvf, String Fgvm, 
             String Fgvs, String Fgva, String Fgmmgvf, String Fgmmgvm,String FeaList, String FeaFile, 
             String Fif, int nFilters, int norderFilters) throws Exception {
-        super(nameArray, locale, dbAudioFormat, synthesizer, gender, topStart, topEnd, baseStart, baseEnd);
+        super(nameArray, locale, dbAudioFormat, synthesizer, gender);
         
        if(alpha != null) 
          this.htsData.setAlpha(Double.parseDouble(alpha));

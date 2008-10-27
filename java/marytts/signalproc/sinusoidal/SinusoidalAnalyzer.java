@@ -32,28 +32,17 @@ package marytts.signalproc.sinusoidal;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Vector;
 
-import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.swing.JFrame;
 
 import marytts.signalproc.analysis.CepstrumSpeechAnalyser;
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.LpcAnalyser;
 import marytts.signalproc.analysis.SeevocAnalyser;
-import marytts.signalproc.display.FunctionGraph;
-import marytts.signalproc.process.FrameOverlapAddSource;
-import marytts.signalproc.process.FrameProvider;
 import marytts.signalproc.window.Window;
-import marytts.util.MaryUtils;
-import marytts.util.data.BufferedDoubleDataSource;
-import marytts.util.data.DoubleDataSource;
-import marytts.util.data.SequenceDoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
-import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.math.ComplexArray;
 import marytts.util.math.FFT;
 import marytts.util.math.FFTMixedRadix;

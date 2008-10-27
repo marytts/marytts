@@ -46,7 +46,6 @@ import marytts.unitselection.data.Unit;
 import marytts.unitselection.weightingfunctions.WeightFunc;
 import marytts.unitselection.weightingfunctions.WeightFunctionManager;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 

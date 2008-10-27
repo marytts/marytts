@@ -28,9 +28,16 @@
  */
 package marytts.tools.voiceimport;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.text.DecimalFormat;
+import java.util.SortedMap;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
 
 import marytts.tools.voiceimport.SphinxTrainer.StreamGobbler;
 

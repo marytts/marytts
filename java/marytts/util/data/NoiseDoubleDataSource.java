@@ -29,8 +29,6 @@
 
 package marytts.util.data;
 
-import java.util.Arrays;
-
 import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.math.MathUtils;
 

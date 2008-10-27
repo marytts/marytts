@@ -1,34 +1,24 @@
 package marytts.tools.voiceimport;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.ByteArrayInputStream;
-
-import java.util.*;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-
+import java.util.Locale;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import marytts.client.MaryClient;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
-import marytts.modules.InternalModule;
-import marytts.util.MaryUtils;
-import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 import marytts.util.io.FileUtils;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;

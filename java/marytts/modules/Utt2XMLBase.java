@@ -42,6 +42,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
+import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.phonemiser.Syllabifier;
 import marytts.modules.synthesis.FreeTTSVoices;
 import marytts.modules.synthesis.Voice;
 import marytts.util.MaryUtils;
@@ -230,7 +232,7 @@ public abstract class Utt2XMLBase extends InternalModule {
             MaryDomUtils.setTokenText(t, tokenItem.toString());
             if (insertPhones) {
                 String[] phones = (String[]) tokenItem.getFeatures().getObject("phones");
-                t.setAttribute("ph", maryVoice.voicePhonemeArray2sampaString(phones));
+                t.setAttribute("ph", phoneArray2phoneString(maryVoice.getAllophoneSet(), phones));
                 insertPhones = false;
             }
             if (tokenFeatureSet.isPresent("accent")) {
@@ -256,7 +258,7 @@ public abstract class Utt2XMLBase extends InternalModule {
                 MaryDomUtils.setTokenText(t, tokenText);
                 if (insertPhones) {
                     String[] phones = (String[]) tokenItem.getFeatures().getObject("phones");
-                    t.setAttribute("ph", maryVoice.voicePhonemeArray2sampaString(phones));
+                    t.setAttribute("ph", phoneArray2phoneString(maryVoice.getAllophoneSet(), phones));
                     insertPhones = false;
                 }
                 if (tokenFeatureSet.isPresent("accent")) {
@@ -435,12 +437,11 @@ public abstract class Utt2XMLBase extends InternalModule {
         }
         String segmentString = segmentItem.toString();
         Voice maryVoice = FreeTTSVoices.getMaryVoice(segmentItem.getUtterance().getVoice());
-        String sampaSegmentString = maryVoice.voice2sampa(segmentString);
         if (deep) {
             Document doc = syllable.getOwnerDocument();
             Element segment = MaryXML.createElement(doc, MaryXML.PHONE);
             syllable.appendChild(segment);
-            segment.setAttribute("p", sampaSegmentString);
+            segment.setAttribute("p", segmentString);
             if (segmentItem.getFeatures().isPresent("end")) {
                 float endInSeconds = segmentItem.getFeatures().getFloat("end");
                 int endInMillis = (int) (1000 * endInSeconds);
@@ -457,7 +458,7 @@ public abstract class Utt2XMLBase extends InternalModule {
                 }
             }
         }
-        return sampaSegmentString;
+        return segmentString;
     }
 
     /**
@@ -487,4 +488,21 @@ public abstract class Utt2XMLBase extends InternalModule {
         return prosody;
     }
 
+
+    /** Converts an array of phone symbol strings 
+     *  into a single phone string.
+     * If stress is marked on input phone symbols ("1" appended), a crude
+     * syllabification is done on the phone string.
+     */
+    public String phoneArray2phoneString(AllophoneSet allophoneSet, String[] voicePhones)
+    {
+        StringBuffer phoneBuf = new StringBuffer();
+        for (int i=0; i<voicePhones.length; i++) {
+            phoneBuf.append(voicePhones[i]);
+        }
+        Syllabifier syllabifier = allophoneSet.getSyllabifier();
+        return syllabifier.syllabify(phoneBuf.toString());
+    }
+
+    
 }

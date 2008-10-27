@@ -29,15 +29,10 @@
 
 package marytts.signalproc.adaptation.codebook;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import marytts.signalproc.adaptation.prosody.PitchStatistics;
-import marytts.signalproc.adaptation.prosody.PitchStatisticsCollection;
 import marytts.util.io.FileUtils;
-import marytts.util.io.LEDataInputStream;
-import marytts.util.io.LEDataOutputStream;
 import marytts.util.io.MaryRandomAccessFile;
 
 

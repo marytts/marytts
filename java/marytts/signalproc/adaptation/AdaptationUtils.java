@@ -29,13 +29,8 @@
 
 package marytts.signalproc.adaptation;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
-import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.FeatureFileHeader;
-import marytts.signalproc.analysis.LsfAnalyser;
+import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.LsfFileHeader;
 import marytts.signalproc.analysis.MfccFileHeader;
 import marytts.util.math.MathUtils;

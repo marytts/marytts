@@ -1,7 +1,9 @@
 package marytts.util.math;
 
-import java.io.*; 
-import java.text.*;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.DecimalFormat;
 
 public class Histogram {
 

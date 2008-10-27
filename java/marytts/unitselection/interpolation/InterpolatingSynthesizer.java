@@ -34,7 +34,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import javax.sound.sampled.AudioInputStream;
 
@@ -42,16 +41,12 @@ import marytts.datatypes.MaryXML;
 import marytts.exceptions.SynthesisException;
 import marytts.modules.synthesis.Voice;
 import marytts.modules.synthesis.WaveformSynthesizer;
-import marytts.server.MaryProperties;
 import marytts.signalproc.process.FramewiseMerger;
 import marytts.signalproc.process.LSFInterpolator;
-import marytts.unitselection.UnitSelectionSynthesizer;
 import marytts.unitselection.UnitSelectionVoice;
-import marytts.unitselection.UnitSelectionVoiceBuilder;
 import marytts.unitselection.concat.BaseUnitConcatenator;
 import marytts.unitselection.concat.UnitConcatenator;
 import marytts.unitselection.data.Datagram;
-import marytts.unitselection.data.UnitDatabase;
 import marytts.unitselection.select.SelectedUnit;
 import marytts.unitselection.select.UnitSelector;
 import marytts.util.data.BufferedDoubleDataSource;

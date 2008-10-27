@@ -30,22 +30,15 @@
 package marytts.unitselection.concat;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.sound.sampled.AudioInputStream;
 
-import marytts.modules.phonemiser.Phoneme;
+import marytts.modules.phonemiser.Allophone;
 import marytts.signalproc.process.FDPSOLAProcessor;
-import marytts.unitselection.concat.BaseUnitConcatenator.UnitData;
-import marytts.unitselection.concat.OverlapUnitConcatenator.OverlapUnitData;
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.select.SelectedUnit;
-import marytts.util.data.BufferedDoubleDataSource;
-import marytts.util.data.DoubleDataSource;
-import marytts.util.data.audio.DDSAudioInputStream;
 
 
 /**
@@ -155,13 +148,13 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
         {
             unit = (SelectedUnit) units.get(i);
 
-            Phoneme sampaPhoneme = unit.getTarget().getSampaPhoneme();
+            Allophone allophone = unit.getTarget().getAllophone();
 
             voicings[i] = new boolean[datagrams[i].length];
             
             for (j=0; j<datagrams[i].length; j++)
             {
-                if (sampaPhoneme != null && (sampaPhoneme.isVowel() || sampaPhoneme.isVoiced()))
+                if (allophone != null && (allophone.isVowel() || allophone.isVoiced()))
                     voicings[i][j] = true;
                 else
                     voicings[i][j] = false;
@@ -206,7 +199,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
             else
                 nextUnit = null;
             
-            Phoneme sampaPhoneme = unit.getTarget().getSampaPhoneme();
+            Allophone allophone = unit.getTarget().getAllophone();
 
             int totalDatagrams = 0;
             averageUnitF0InHz = 0.0;
@@ -217,7 +210,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
             {
                 for (j=0; j<datagrams[i-1].length; j++)
                 {
-                    if (sampaPhoneme != null && (sampaPhoneme.isVowel() || sampaPhoneme.isVoiced()))
+                    if (allophone != null && (allophone.isVowel() || allophone.isVoiced()))
                     {
                         averageUnitF0InHz += ((double)timeline.getSampleRate())/((double)datagrams[i-1][j].getDuration());
                         totalDatagrams++;
@@ -230,7 +223,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
             
             for (j=0; j<datagrams[i].length; j++)
             {
-                if (sampaPhoneme != null && (sampaPhoneme.isVowel() || sampaPhoneme.isVoiced()))
+                if (allophone != null && (allophone.isVowel() || allophone.isVoiced()))
                 {
                     averageUnitF0InHz += ((double)timeline.getSampleRate())/((double)datagrams[i][j].getDuration());
                     totalDatagrams++;
@@ -244,7 +237,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
             {
                 for (j=0; j<datagrams[i+1].length; j++)
                 {
-                    if (sampaPhoneme != null && (sampaPhoneme.isVowel() || sampaPhoneme.isVoiced()))
+                    if (allophone != null && (allophone.isVowel() || allophone.isVoiced()))
                     {
                         averageUnitF0InHz += ((double)timeline.getSampleRate())/((double)datagrams[i+1][j].getDuration());
                         totalDatagrams++;
@@ -263,7 +256,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
             
             for (j=0; j<datagrams[i].length; j++)
             {
-                if (sampaPhoneme != null && (sampaPhoneme.isVowel() || sampaPhoneme.isVoiced()))
+                if (allophone != null && (allophone.isVowel() || allophone.isVoiced()))
                 {
                     voicings[i][j] = true;
                     
