@@ -30,16 +30,12 @@
 package marytts.signalproc.analysis;
 
 import java.io.File;
-import java.util.LinkedList;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import marytts.signalproc.window.RectWindow;
-import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
-import marytts.util.math.MathUtils;
 import marytts.util.string.PrintfFormat;
 
 

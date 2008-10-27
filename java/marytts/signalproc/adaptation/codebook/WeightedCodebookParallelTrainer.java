@@ -29,29 +29,18 @@
 
 package marytts.signalproc.adaptation.codebook;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import marytts.signalproc.adaptation.AdaptationUtils;
-import marytts.signalproc.adaptation.BaselineAdaptationItem;
 import marytts.signalproc.adaptation.BaselineAdaptationSet;
 import marytts.signalproc.adaptation.BaselineFeatureExtractor;
 import marytts.signalproc.adaptation.BaselinePreprocessor;
-import marytts.signalproc.adaptation.IndexMap;
 import marytts.signalproc.adaptation.outlier.KMeansMappingEliminatorParams;
 import marytts.signalproc.adaptation.outlier.TotalStandardDeviations;
 import marytts.signalproc.adaptation.prosody.PitchMappingFile;
-import marytts.signalproc.adaptation.prosody.PitchTrainer;
-import marytts.signalproc.analysis.Lsfs;
 import marytts.signalproc.analysis.distance.DistanceComputer;
 import marytts.signalproc.window.Window;
-import marytts.tools.voiceimport.BasenameList;
-import marytts.util.io.FileUtils;
-import marytts.util.io.MaryRandomAccessFile;
 import marytts.util.string.StringUtils;
 
 

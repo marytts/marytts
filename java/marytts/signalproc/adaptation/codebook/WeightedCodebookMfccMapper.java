@@ -33,13 +33,11 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import marytts.signalproc.adaptation.BaselineAdaptationSet;
-import marytts.signalproc.adaptation.BaselineFeatureExtractor;
 import marytts.signalproc.adaptation.Context;
 import marytts.signalproc.adaptation.IndexMap;
-import marytts.signalproc.adaptation.prosody.PitchStatistics;
-import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.EnergyContourRms;
 import marytts.signalproc.analysis.F0ReaderWriter;
+import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.MfccFileHeader;
 import marytts.signalproc.analysis.Mfccs;
 import marytts.util.math.MathUtils;

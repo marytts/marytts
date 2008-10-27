@@ -29,13 +29,9 @@
 
 package marytts.signalproc.sinusoidal.pitch;
 
-import javax.swing.JFrame;
-
-import marytts.signalproc.display.FunctionGraph;
 import marytts.signalproc.sinusoidal.SinusoidalSpeechFrame;
 import marytts.signalproc.sinusoidal.SinusoidalSpeechSignal;
 import marytts.util.math.MathUtils;
-import marytts.util.signal.SignalProcUtils;
 
 /**
  * @author oytun.turk

@@ -1,9 +1,5 @@
 package marytts.cart;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-
 import marytts.cart.LeafNode.FeatureVectorLeafNode;
 import marytts.cart.LeafNode.IntArrayLeafNode;
 import marytts.features.FeatureDefinition;

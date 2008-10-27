@@ -29,8 +29,6 @@
 package marytts.modules;
 
 // DOM classes
-import java.util.Locale;
-
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;

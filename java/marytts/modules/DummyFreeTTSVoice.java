@@ -33,9 +33,8 @@ package marytts.modules;
 
 import java.io.IOException;
 
-import marytts.features.PhoneSet;
+import marytts.modules.synthesis.MbrolaVoice;
 
-import com.sun.speech.freetts.FeatureSet;
 import com.sun.speech.freetts.Tokenizer;
 import com.sun.speech.freetts.UtteranceProcessor;
 import com.sun.speech.freetts.lexicon.Lexicon;
@@ -51,7 +50,6 @@ import com.sun.speech.freetts.util.BulkTimer;
  */
 public class DummyFreeTTSVoice extends com.sun.speech.freetts.Voice {
     protected marytts.modules.synthesis.Voice maryVoice;
-    protected PhoneSet phoneSet;
     protected boolean useBinaryIO =
     System.getProperty("com.sun.speech.freetts.useBinaryIO",
         "true").equals("true");
@@ -106,10 +104,16 @@ public class DummyFreeTTSVoice extends com.sun.speech.freetts.Voice {
             }
         }
         setRate(135f);
-            float topMean  = (aMaryVoice.topStart()  + aMaryVoice.topEnd())  * 0.5f;
-            float baseMean = (aMaryVoice.baseStart() + aMaryVoice.baseEnd()) * 0.5f;
-        setPitch     ( (baseMean + topMean) / 2);
-        setPitchRange( (topMean - baseMean) / 2);
+        if (aMaryVoice instanceof MbrolaVoice) {
+            MbrolaVoice mv = (MbrolaVoice) aMaryVoice;
+            float topMean  = (mv.topStart()  + mv.topEnd())  * 0.5f;
+            float baseMean = (mv.baseStart() + mv.baseEnd()) * 0.5f;
+            setPitch     ( (baseMean + topMean) / 2);
+            setPitchRange( (topMean - baseMean) / 2);
+        } else {
+            setPitch (100);
+            setPitchRange(30);
+        }
     }
 
     /**
@@ -166,11 +170,6 @@ public class DummyFreeTTSVoice extends com.sun.speech.freetts.Voice {
      */
     protected void setupFeatureSet()
     {
-    BulkTimer.LOAD.start("FeatureSet");
-        FeatureSet features = getFeatures();
-    features.setString(FEATURE_SILENCE, "pau");
-    features.setString("join_type", "simple_join");
-    BulkTimer.LOAD.stop("FeatureSet");
     }
 
     /**
@@ -191,10 +190,7 @@ public class DummyFreeTTSVoice extends com.sun.speech.freetts.Voice {
      * @return the feature with the given name, or null if it cannot be found.
      */
     public String getPhoneFeature(String phone, String featureName) {
-        if (phoneSet != null)
-            return phoneSet.getPhoneFeature(phone, featureName);
-        else
-            return null;
+        return null;
     }
 
     /**

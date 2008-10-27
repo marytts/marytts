@@ -31,8 +31,6 @@ package marytts.tools.redstart;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import marytts.tools.redstart.AdminWindow;
-
 
 /**
  *

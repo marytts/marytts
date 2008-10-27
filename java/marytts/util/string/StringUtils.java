@@ -7,14 +7,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import marytts.modules.phonemiser.Phoneme;
+import marytts.modules.phonemiser.Allophone;
 import marytts.signalproc.analysis.Label;
-import marytts.signalproc.analysis.Labels;
-import marytts.util.MaryUtils;
 import marytts.util.io.FileUtils;
 
 
@@ -669,7 +666,7 @@ public class StringUtils {
         return bRet;
     }
     
-    public static void writeTextFile(Phoneme[] phns, String textFile)
+    public static void writeTextFile(Allophone[] phns, String textFile)
     {
         String[] tmps = new String[phns.length];
         int i;

@@ -38,7 +38,6 @@ import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Arrays;
 
 import marytts.server.MaryProperties;
 

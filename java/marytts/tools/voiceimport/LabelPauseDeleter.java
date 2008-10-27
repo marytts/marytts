@@ -1,47 +1,19 @@
 package marytts.tools.voiceimport;
 
-import java.io.*;
-import java.util.*;
-import java.util.regex.*;
-
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
-
-import marytts.client.MaryClient;
-import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
-import marytts.datatypes.MaryXML;
-import marytts.util.dom.MaryDomUtils;
-import marytts.util.dom.NameNodeFilter;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.traversal.DocumentTraversal;
-import org.w3c.dom.traversal.NodeFilter;
-import org.w3c.dom.traversal.NodeIterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class LabelPauseDeleter extends VoiceImportComponent {

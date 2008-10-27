@@ -30,24 +30,17 @@
 package marytts.signalproc.adaptation.gmm.jointgmm;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Vector;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.xml.parsers.ParserConfigurationException;
 
-import marytts.client.MaryClient;
-import marytts.datatypes.MaryDataType;
 import marytts.exceptions.NoSuchPropertyException;
-import marytts.machinelearning.ClusteredDataGenerator;
 import marytts.machinelearning.ContextualGMMParams;
 import marytts.machinelearning.GMM;
 import marytts.machinelearning.GMMTrainer;
 import marytts.machinelearning.GMMTrainerParams;
-import marytts.modules.phonemiser.PhonemeSet;
-import marytts.server.MaryProperties;
+import marytts.modules.phonemiser.AllophoneSet;
 import marytts.signalproc.adaptation.BaselineFeatureExtractor;
 import marytts.signalproc.adaptation.BaselinePreprocessor;
 import marytts.signalproc.adaptation.codebook.WeightedCodebook;
@@ -58,11 +51,9 @@ import marytts.signalproc.adaptation.codebook.WeightedCodebookTrainerParams;
 import marytts.signalproc.adaptation.outlier.KMeansMappingEliminatorParams;
 import marytts.signalproc.adaptation.outlier.TotalStandardDeviations;
 import marytts.signalproc.adaptation.prosody.PitchMappingFile;
-import marytts.signalproc.analysis.MfccFileHeader;
 import marytts.signalproc.analysis.distance.DistanceComputer;
 import marytts.signalproc.window.Window;
 import marytts.util.io.FileUtils;
-import marytts.util.math.MathUtils;
 import marytts.util.string.StringUtils;
 
 import org.xml.sax.SAXException;
@@ -809,11 +800,11 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
     public static ContextualGMMParams getContextualGMMParams(String phonemeSetFile, GMMTrainerParams[] params, int contextClassificationType)
     {
         ContextualGMMParams cg = null;
-        PhonemeSet phonemeSet = null;
+        AllophoneSet allophoneSet = null;
         
         try {
             try {
-                phonemeSet = PhonemeSet.getPhonemeSet(phonemeSetFile);
+                allophoneSet = AllophoneSet.getAllophoneSet(phonemeSetFile);
             } catch (NoSuchPropertyException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -829,8 +820,8 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
             e.printStackTrace();
         }
 
-        if (phonemeSet!=null)
-            cg = new ContextualGMMParams(phonemeSet, params, contextClassificationType);
+        if (allophoneSet!=null)
+            cg = new ContextualGMMParams(allophoneSet, params, contextClassificationType);
 
         return cg;
     }

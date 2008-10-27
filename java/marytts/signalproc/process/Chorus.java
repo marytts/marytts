@@ -30,8 +30,6 @@
 package marytts.signalproc.process;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -39,11 +37,8 @@ import javax.sound.sampled.AudioSystem;
 
 import marytts.signalproc.window.Window;
 import marytts.util.data.BufferedDoubleDataSource;
-import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
-import marytts.util.math.FFT;
-import marytts.util.math.MathUtils;
 
 
 /**

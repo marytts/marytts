@@ -30,8 +30,6 @@ package marytts.unitselection.select;
 
 import java.io.IOException;
 
-
-import marytts.modules.phonemiser.PhonemeSet;
 import marytts.unitselection.data.Unit;
 
 

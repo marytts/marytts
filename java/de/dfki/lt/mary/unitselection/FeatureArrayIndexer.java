@@ -28,7 +28,6 @@
  */
 package de.dfki.lt.mary.unitselection;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 import marytts.features.FeatureDefinition;

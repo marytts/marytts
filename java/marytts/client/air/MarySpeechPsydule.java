@@ -30,28 +30,13 @@
 package marytts.client.air;
 
 import java.io.ByteArrayOutputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Source;
-import javax.xml.transform.Templates;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.URIResolver;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 
 import marytts.client.MaryClient;
-
-import org.w3c.dom.Element;
 
 import com.cmlabs.air.DataSample;
 import com.cmlabs.air.JavaAIRPlug;
 import com.cmlabs.air.Message;
 import com.cmlabs.air.Time;
-import com.cmlabs.air.Utils;
 
 
 /**

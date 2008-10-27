@@ -4,8 +4,6 @@ package marytts.features;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import marytts.features.FeatureDefinition;
-
 /**
  * Compact representation of a list of byte-valued, short-valued and float-valued
  * (continuous) features.

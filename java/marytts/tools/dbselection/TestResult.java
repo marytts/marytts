@@ -28,7 +28,7 @@
  */
 package marytts.tools.dbselection;
 
-import java.io.*;
+import java.io.BufferedReader;
 
 /**
  * Represents the result of one test run

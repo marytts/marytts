@@ -34,6 +34,8 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
 
+import junit.framework.Assert;
+import junit.framework.TestCase;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.modules.ModuleRegistry;
@@ -41,9 +43,6 @@ import marytts.modules.synthesis.Voice;
 import marytts.server.Mary;
 import marytts.server.MaryProperties;
 import marytts.server.Request;
-
-import junit.framework.Assert;
-import junit.framework.TestCase;
 
 public class MaryTest extends TestCase {
     public void setUp() throws Exception {

@@ -31,9 +31,8 @@ package marytts.tests;
 import java.io.IOException;
 import java.util.Random;
 
-import marytts.features.FeatureDefinition;
-
 import junit.framework.TestCase;
+import marytts.features.FeatureDefinition;
 import de.dfki.lt.mary.unitselection.FeatureFileIndexer;
 
 /**

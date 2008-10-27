@@ -29,7 +29,6 @@
 
 package marytts.machinelearning;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import marytts.util.io.MaryRandomAccessFile;

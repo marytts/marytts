@@ -29,11 +29,7 @@
 
 package marytts.machinelearning;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 import marytts.util.MaryUtils;
 import marytts.util.io.FileUtils;

@@ -53,10 +53,15 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.StringReader;
-import java.util.*;
 import java.io.IOException;
+import java.io.StringReader;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.Scanner;
+import java.util.Vector;
+
 import marytts.features.FeatureDefinition;
+
 import org.apache.log4j.Logger;
 
 /**

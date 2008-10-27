@@ -1,14 +1,10 @@
 package marytts.unitselection.concat;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.sound.sampled.AudioInputStream;
 
-import marytts.unitselection.concat.BaseUnitConcatenator.UnitData;
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.select.SelectedUnit;

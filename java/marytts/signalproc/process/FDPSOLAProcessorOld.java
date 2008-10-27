@@ -1,11 +1,8 @@
 package marytts.signalproc.process;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -14,13 +11,12 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.PitchMarks;
-import marytts.signalproc.window.DynamicTwoHalvesWindow;
 import marytts.signalproc.window.DynamicWindow;
 import marytts.signalproc.window.Window;
 import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
-import marytts.util.data.DoubleDataSource;
 import marytts.util.io.LEDataInputStream;
 import marytts.util.io.LEDataOutputStream;
 import marytts.util.math.ComplexArray;

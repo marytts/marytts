@@ -1,21 +1,15 @@
 package marytts.tools.voiceimport;
 
-import javax.swing.JFileChooser;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.OutputStreamWriter;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.SwingUtilities;
+import java.io.PrintWriter;
 
-import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+import javax.swing.JFileChooser;
 
 import marytts.util.data.audio.AudioConverterUtils;
 import marytts.util.data.audio.AudioPlayer;

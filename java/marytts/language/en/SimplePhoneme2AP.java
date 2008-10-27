@@ -31,7 +31,7 @@ package marytts.language.en;
 import java.util.Locale;
 
 import marytts.datatypes.MaryDataType;
-import marytts.modules.phonemiser.PhonemeSet;
+import marytts.modules.phonemiser.AllophoneSet;
 import marytts.server.MaryProperties;
 
 
@@ -53,7 +53,7 @@ public class SimplePhoneme2AP extends marytts.modules.SimplePhoneme2AP
 
     public void startup() throws Exception
     {
-        phonemeSet = PhonemeSet.getPhonemeSet(MaryProperties.needFilename("english.phonemeset"));
+        allophoneSet = AllophoneSet.getAllophoneSet(MaryProperties.needFilename("english.allophoneset"));
         super.startup();
     }
 }

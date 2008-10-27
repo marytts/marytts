@@ -52,9 +52,9 @@ package marytts.htsengine;
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.Mfccs;
-import marytts.util.io.LEDataOutputStream;
 
 import org.apache.log4j.Logger;
 

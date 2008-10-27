@@ -38,13 +38,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
-import java.util.Vector;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -59,7 +53,6 @@ import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
 import marytts.modules.Synthesis;
 import marytts.modules.synthesis.Voice;
-import marytts.server.http.MaryHttpServer;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.MaryAudioUtils;
 

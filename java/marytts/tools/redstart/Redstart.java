@@ -35,10 +35,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import marytts.tools.redstart.Test;
-import marytts.tools.redstart.AdminWindow;
-import marytts.tools.redstart.Splash;
-
 
 public class Redstart {
 

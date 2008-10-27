@@ -41,7 +41,8 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.*;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;

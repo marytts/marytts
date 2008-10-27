@@ -3,10 +3,6 @@ package marytts.machinelearning;
 import java.util.ArrayList;
 import java.util.List;
 
-import marytts.machinelearning.GMM;
-import marytts.machinelearning.GMMTrainer;
-import marytts.machinelearning.GMMTrainerParams;
-
 
 /**
  * 

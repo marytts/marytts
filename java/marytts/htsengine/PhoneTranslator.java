@@ -30,24 +30,15 @@
 package marytts.htsengine;
 
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.Vector;
 
-import org.apache.log4j.Logger;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
+
+import org.apache.log4j.Logger;
 
 
 /**

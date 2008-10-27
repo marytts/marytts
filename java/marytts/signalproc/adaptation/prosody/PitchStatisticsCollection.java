@@ -29,7 +29,6 @@
 
 package marytts.signalproc.adaptation.prosody;
 
-import java.util.Arrays;
 
 /**
  * @author oytun.turk

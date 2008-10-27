@@ -51,9 +51,6 @@ import javax.sound.sampled.TargetDataLine;
 import javax.swing.JOptionPane;
 
 import marytts.signalproc.display.MultiDisplay;
-import marytts.tools.redstart.Test;
-import marytts.tools.redstart.Recording;
-import marytts.tools.redstart.Speech;
 import marytts.util.data.audio.AudioPlayer;
 import marytts.util.data.audio.MonoAudioInputStream;
 

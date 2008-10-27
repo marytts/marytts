@@ -30,7 +30,6 @@
 package marytts.signalproc.adaptation;
 
 import marytts.tools.voiceimport.BasenameList;
-import marytts.util.string.StringUtils;
 
 /**
  * @author oytun.turk

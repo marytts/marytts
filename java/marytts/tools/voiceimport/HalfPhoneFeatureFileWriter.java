@@ -29,7 +29,8 @@
 package marytts.tools.voiceimport;
 
 
-import java.util.*;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import marytts.features.FeatureDefinition;
 

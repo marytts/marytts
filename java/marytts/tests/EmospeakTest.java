@@ -28,34 +28,16 @@
  */
 package marytts.tests;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.util.Locale;
-
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 
-import junit.framework.Assert;
-import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
-
-import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
-import marytts.modules.synthesis.Voice;
-import marytts.server.Mary;
-import marytts.server.Request;
 import marytts.tools.emospeak.EmoTransformer;
-import marytts.util.dom.DomUtils;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 
 /**

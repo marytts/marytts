@@ -41,10 +41,6 @@ import javax.sound.sampled.AudioSystem;
 
 import marytts.htsengine.HMMVoice;
 import marytts.modules.synthesis.Voice;
-import marytts.modules.synthesis.WaveformSynthesizer;
-import marytts.signalproc.process.Chorus;
-import marytts.signalproc.process.FrameOverlapAddSource;
-import marytts.signalproc.window.Window;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;

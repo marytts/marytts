@@ -35,9 +35,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 
-import marytts.tools.redstart.Test;
-import marytts.tools.redstart.AdminWindow;
-
 
 
 /**

@@ -34,16 +34,12 @@ import java.util.List;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.features.TargetFeatureComputer;
-import marytts.modules.synthesis.FreeTTSVoices;
 import marytts.modules.synthesis.Voice;
 import marytts.unitselection.select.HalfPhoneTarget;
 import marytts.unitselection.select.Target;
 import marytts.unitselection.select.UnitSelector;
 
 import org.w3c.dom.Element;
-
-import com.sun.speech.freetts.Item;
-import com.sun.speech.freetts.Relation;
 
 
 public class HalfPhoneTargetFeatureLister extends TargetFeatureLister 

@@ -35,7 +35,6 @@ import marytts.signalproc.adaptation.Context;
 import marytts.signalproc.adaptation.VocalTractTransformationFunction;
 import marytts.signalproc.analysis.distance.DistanceComputer;
 import marytts.util.math.MathUtils;
-import marytts.util.signal.SignalProcUtils;
 
 
 /**

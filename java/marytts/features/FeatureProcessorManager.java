@@ -31,6 +31,8 @@ package marytts.features;
 import java.util.HashMap;
 import java.util.Map;
 
+import marytts.modules.phonemiser.AllophoneSet;
+
 public class FeatureProcessorManager 
 {
     protected Map<String,MaryFeatureProcessor> processors;
@@ -142,7 +144,7 @@ public class FeatureProcessorManager
         return processors.get(name);
     }
     
-    protected void setupPhonemeFeatureProcessors(PhoneSet phoneset, String[] phonemeValues, String pauseSymbol)
+    protected void setupPhonemeFeatureProcessors(AllophoneSet phoneset, String[] phonemeValues, String pauseSymbol)
     {
         MaryGenericFeatureProcessors.TargetElementNavigator segment = new MaryGenericFeatureProcessors.SegmentNavigator();
 

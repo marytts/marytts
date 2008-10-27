@@ -10,24 +10,26 @@
  */
 package marytts.language.en;
 
-import com.sun.speech.freetts.UtteranceProcessor;
-import com.sun.speech.freetts.Utterance;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import marytts.server.MaryProperties;
+
 import com.sun.speech.freetts.FeatureSet;
 import com.sun.speech.freetts.Item;
-import com.sun.speech.freetts.Relation;
 import com.sun.speech.freetts.ProcessException;
-
+import com.sun.speech.freetts.Relation;
+import com.sun.speech.freetts.Utterance;
+import com.sun.speech.freetts.UtteranceProcessor;
 import com.sun.speech.freetts.lexicon.Lexicon;
-import com.sun.speech.freetts.lexicon.LexiconImpl;
-
-import java.io.*;
-import java.net.URL;
-import java.util.*;
-
-import marytts.features.PhoneSet;
-import marytts.features.PhoneSetImpl;
-import marytts.modules.phonemiser.*;
-import marytts.server.MaryProperties;
 
 
 /**

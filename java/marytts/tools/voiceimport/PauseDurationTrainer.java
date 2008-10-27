@@ -17,8 +17,6 @@ import marytts.cart.StringPredictionTree;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.machinelearning.GmmDiscretizer;
-import marytts.tools.voiceimport.DatabaseLayout;
-import marytts.tools.voiceimport.VoiceImportComponent;
 import weka.classifiers.trees.j48.BinC45ModelSelection;
 import weka.classifiers.trees.j48.C45PruneableClassifierTree;
 import weka.classifiers.trees.j48.TreeConverter;

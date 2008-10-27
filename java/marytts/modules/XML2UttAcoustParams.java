@@ -28,9 +28,7 @@
  */
 package marytts.modules;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 
 import marytts.datatypes.MaryDataType;
 import marytts.modules.synthesis.FreeTTSVoices;

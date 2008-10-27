@@ -28,12 +28,10 @@
  */
 package marytts.unitselection.select;
 
-import org.w3c.dom.Element;
-
 import marytts.features.FeatureVector;
-import marytts.modules.phonemiser.Phoneme;
-import marytts.modules.synthesis.FreeTTSVoices;
-import marytts.modules.synthesis.Voice;
+import marytts.modules.phonemiser.Allophone;
+
+import org.w3c.dom.Element;
 
 
 public class DiphoneTarget extends Target {
@@ -92,7 +90,7 @@ public class DiphoneTarget extends Target {
         throw new IllegalStateException("This method should not be called for DiphoneTargets.");
     }
     
-    public Phoneme getSampaPhoneme()
+    public Allophone getAllophone()
     {
         throw new IllegalStateException("This method should not be called for DiphoneTargets.");
     }

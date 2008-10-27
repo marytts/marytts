@@ -29,8 +29,6 @@
 
 package marytts.signalproc.effects;
 
-import marytts.signalproc.process.Robotiser;
-import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.math.MathUtils;
 

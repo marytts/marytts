@@ -41,7 +41,6 @@ import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.TimelineReader;
 import marytts.unitselection.data.UnitFileReader;
 import marytts.util.data.audio.WavWriter;
-
 import de.dfki.lt.mary.unitselection.FeatureFileIndexer;
 import de.dfki.lt.mary.unitselection.FeatureFileIndexingResult;
 

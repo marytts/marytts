@@ -35,7 +35,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import junit.framework.TestCase;
-
 import marytts.datatypes.MaryXML;
 
 import org.tritonus.share.sampled.Encodings;

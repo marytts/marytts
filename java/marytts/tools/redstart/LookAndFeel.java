@@ -42,8 +42,6 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
-import marytts.tools.redstart.Test;
-
 
 /**
  *

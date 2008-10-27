@@ -33,11 +33,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import marytts.signalproc.analysis.FrameBasedAnalyser.FrameAnalysisResult;
-import marytts.signalproc.process.FrameProvider;
-import marytts.signalproc.process.InlineDataProcessor;
 import marytts.signalproc.process.PitchFrameProvider;
 import marytts.signalproc.window.DynamicWindow;
-import marytts.signalproc.window.Window;
 import marytts.util.data.DoubleDataSource;
 
 

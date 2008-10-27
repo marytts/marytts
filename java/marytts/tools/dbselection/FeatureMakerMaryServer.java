@@ -30,31 +30,34 @@
 package marytts.tools.dbselection;
 
 
-import java.io.*;
-import java.net.UnknownHostException;
-import java.util.*;
-import java.util.regex.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 
 import marytts.client.MaryClient;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
-import marytts.datatypes.MaryXML;
 import marytts.features.FeatureDefinition;
-import marytts.modules.TargetFeatureLister;
-import marytts.modules.XML2UttAcoustParams;
-import marytts.server.MaryProperties;
-import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
-import marytts.util.dom.NameNodeFilter;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.traversal.DocumentTraversal;
-import org.w3c.dom.traversal.NodeFilter;
-import org.w3c.dom.traversal.NodeIterator;
 
 import com.sun.speech.freetts.Utterance;
 

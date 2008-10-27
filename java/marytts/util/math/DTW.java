@@ -1,10 +1,5 @@
 package marytts.util.math;
 
-import java.io.File;
-import java.io.BufferedReader;
-import java.io.FileReader;
-
-import marytts.util.math.MathUtils;
 import marytts.signalproc.window.HammingWindow;
 import marytts.signalproc.window.Window;
 

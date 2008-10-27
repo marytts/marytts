@@ -2,7 +2,6 @@ package marytts.cart;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.regex.Pattern;
 
 import marytts.cart.LeafNode.IntAndFloatArrayLeafNode;

@@ -37,13 +37,10 @@ import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureVector;
 import marytts.features.TargetFeatureComputer;
-import marytts.modules.synthesis.FreeTTSVoices;
-import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
 import marytts.signalproc.display.Histogram;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.Unit;
-import marytts.unitselection.select.HalfPhoneFFRTargetCostFunction.TargetCostReporter;
 import marytts.unitselection.weightingfunctions.WeightFunc;
 import marytts.unitselection.weightingfunctions.WeightFunctionManager;
 

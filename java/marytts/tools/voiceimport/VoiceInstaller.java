@@ -28,10 +28,19 @@
  */
 package marytts.tools.voiceimport;
 
-import java.util.*;
-import java.io.*;
-import java.nio.channels.FileChannel;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * Install a voice by copying the voice data to marybase/lib/voices/voicename/

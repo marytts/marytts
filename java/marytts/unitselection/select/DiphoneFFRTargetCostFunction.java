@@ -28,22 +28,15 @@
  */
 package marytts.unitselection.select;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureVector;
-import marytts.features.TargetFeatureComputer;
 import marytts.unitselection.data.DiphoneUnit;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.HalfPhoneFeatureFileReader;
 import marytts.unitselection.data.Unit;
-import marytts.unitselection.weightingfunctions.WeightFunc;
-import marytts.unitselection.weightingfunctions.WeightFunctionManager;
 
 
 public class DiphoneFFRTargetCostFunction implements TargetCostFunction 

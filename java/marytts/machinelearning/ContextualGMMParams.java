@@ -30,12 +30,11 @@
 package marytts.machinelearning;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
 
-import marytts.modules.phonemiser.Phoneme;
-import marytts.modules.phonemiser.PhonemeSet;
+import marytts.modules.phonemiser.Allophone;
+import marytts.modules.phonemiser.AllophoneSet;
 import marytts.util.io.MaryRandomAccessFile;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
@@ -88,26 +87,26 @@ public class ContextualGMMParams {
         this(null, null);
     }
     
-    public ContextualGMMParams(PhonemeSet phonemeSet, GMMTrainerParams commonParams)
+    public ContextualGMMParams(AllophoneSet allophoneSet, GMMTrainerParams commonParams)
     {
-        this(phonemeSet, commonParams, NO_PHONEME_CLASS);
+        this(allophoneSet, commonParams, NO_PHONEME_CLASS);
     }
     
-    public ContextualGMMParams(PhonemeSet phonemeSet, GMMTrainerParams commonParams, int contextClassificationTypeIn)
+    public ContextualGMMParams(AllophoneSet allophoneSet, GMMTrainerParams commonParams, int contextClassificationTypeIn)
     {
         //To do: Use contextClassificationType to actually create classes here
         contextClassificationType = contextClassificationTypeIn;
         
-        if (phonemeSet!=null)
+        if (allophoneSet!=null)
         {
-            Set<String> tmpPhonemes = phonemeSet.getPhonemeNames();
+            Set<String> tmpPhonemes = allophoneSet.getAllophoneNames();
             
             allocate(tmpPhonemes.size());
             int count = 0;
-            Phoneme[] phns = new Phoneme[tmpPhonemes.size()];
+            Allophone[] phns = new Allophone[tmpPhonemes.size()];
             for (Iterator<String> it=tmpPhonemes.iterator(); it.hasNext();)
             {
-                phns[count] = phonemeSet.getPhoneme(it.next());
+                phns[count] = allophoneSet.getAllophone(it.next());
                 count++;
                 
                 if (count>=tmpPhonemes.size())
@@ -122,21 +121,21 @@ public class ContextualGMMParams {
         }
     }
     
-    public ContextualGMMParams(PhonemeSet phonemeSet, GMMTrainerParams[] params, int contextClassificationTypeIn)
+    public ContextualGMMParams(AllophoneSet allophoneSet, GMMTrainerParams[] params, int contextClassificationTypeIn)
     {
         //To do: Use contextClassificationType to actually create classes here
         contextClassificationType = contextClassificationTypeIn;
         
-        if (phonemeSet!=null)
+        if (allophoneSet!=null)
         {
-            Set<String> tmpPhonemes = phonemeSet.getPhonemeNames();
+            Set<String> tmpPhonemes = allophoneSet.getAllophoneNames();
             
             allocate(tmpPhonemes.size());
             int count = 0;
-            Phoneme[] phns = new Phoneme[tmpPhonemes.size()];
+            Allophone[] phns = new Allophone[tmpPhonemes.size()];
             for (Iterator<String> it=tmpPhonemes.iterator(); it.hasNext();)
             {
-                phns[count] = phonemeSet.getPhoneme(it.next());
+                phns[count] = allophoneSet.getAllophone(it.next());
                 count++;
                 
                 if (count>=tmpPhonemes.size())
@@ -222,7 +221,7 @@ public class ContextualGMMParams {
         }
     }
     
-    public void setClasses(Phoneme[] phns, GMMTrainerParams commonParams)
+    public void setClasses(Allophone[] phns, GMMTrainerParams commonParams)
     {
         GMMTrainerParams[] params = new GMMTrainerParams[1];
         params[0] = new GMMTrainerParams(commonParams);
@@ -230,7 +229,7 @@ public class ContextualGMMParams {
         setClasses(phns, params);
     }
     
-    public void setClasses(Phoneme[] phns, GMMTrainerParams[] params)
+    public void setClasses(Allophone[] phns, GMMTrainerParams[] params)
     {
         if (phns!=null)
         {   
@@ -591,7 +590,7 @@ public class ContextualGMMParams {
         }
     }
     
-    public int[] getPhonologyClasses(Phoneme[] phns)
+    public int[] getPhonologyClasses(Allophone[] phns)
     {
         int[] phonologyClasses = null;
         

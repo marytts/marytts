@@ -41,12 +41,10 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.adaptation.codebook.WeightedCodebook;
-import marytts.signalproc.adaptation.codebook.WeightedCodebookMapper;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookLsfMatch;
+import marytts.signalproc.adaptation.codebook.WeightedCodebookMapper;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookTransformerParams;
-import marytts.signalproc.adaptation.gmm.GMMMapper;
 import marytts.signalproc.adaptation.gmm.GMMMatch;
-import marytts.signalproc.adaptation.gmm.jointgmm.JointGMM;
 import marytts.signalproc.adaptation.gmm.jointgmm.JointGMMMapper;
 import marytts.signalproc.adaptation.gmm.jointgmm.JointGMMMatch;
 import marytts.signalproc.adaptation.gmm.jointgmm.JointGMMSet;
@@ -59,11 +57,10 @@ import marytts.signalproc.adaptation.prosody.ProsodyTransformerParams;
 import marytts.signalproc.adaptation.smoothing.SmoothingDefinitions;
 import marytts.signalproc.adaptation.smoothing.SmoothingFile;
 import marytts.signalproc.adaptation.smoothing.TemporalSmoother;
-import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.F0ReaderWriter;
+import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.LpcAnalyser;
 import marytts.signalproc.analysis.LsfAnalyser;
-import marytts.signalproc.analysis.Lsfs;
 import marytts.signalproc.analysis.PitchMarks;
 import marytts.signalproc.analysis.LpcAnalyser.LpCoeffs;
 import marytts.signalproc.process.PsolaFrameProvider;
@@ -79,11 +76,9 @@ import marytts.util.io.FileUtils;
 import marytts.util.io.LEDataInputStream;
 import marytts.util.io.LEDataOutputStream;
 import marytts.util.math.ComplexArray;
-import marytts.util.math.FFT;
 import marytts.util.math.FFTMixedRadix;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
-import marytts.util.string.StringUtils;
 
 
 /**

@@ -29,7 +29,6 @@
 
 package marytts.signalproc.analysis;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import marytts.signalproc.window.Window;

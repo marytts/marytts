@@ -29,29 +29,14 @@
 
 package marytts.unitselection.interpolation;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
-import java.util.StringTokenizer;
-import java.util.Vector;
 
 import javax.sound.sampled.AudioFormat;
 
-import marytts.cart.CART;
-import marytts.modules.phonemiser.Phoneme;
-import marytts.modules.phonemiser.PhonemeSet;
-import marytts.modules.phonemiser.Syllabifier;
-import marytts.modules.synthesis.MBROLAPhoneme;
-import marytts.modules.synthesis.PAConverter;
+import marytts.exceptions.MaryConfigurationException;
+import marytts.modules.phonemiser.Allophone;
+import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
-import marytts.modules.synthesis.WaveformSynthesizer;
-import marytts.modules.synthesis.Voice.Gender;
-import marytts.unitselection.UnitSelectionVoice;
-import marytts.unitselection.concat.UnitConcatenator;
-import marytts.unitselection.data.UnitDatabase;
-import marytts.unitselection.select.UnitSelector;
-
-import com.sun.speech.freetts.lexicon.Lexicon;
 
 
 /**
@@ -82,8 +67,9 @@ public class InterpolatingVoice extends Voice {
     protected Voice firstVoice = null;
     
     public InterpolatingVoice(InterpolatingSynthesizer is, String name)
+    throws MaryConfigurationException
     {
-        super(new String[] {name}, null, null, is, null, -1, -1, -1, -1);
+        super(new String[] {name}, null, null, is, null);
         if (isInterpolatingVoiceName(name)) {
             String[] parts = name.split("\\s+");
             firstVoice = Voice.getVoice(parts[0]);
@@ -122,40 +108,16 @@ public class InterpolatingVoice extends Voice {
 
     // Forward most of the public methods which are meaningful in a unit selection context to firstVoice:
     
-    public String voice2sampa(String voicePhoneme)
+    public AllophoneSet getAllophoneSet()
     {
         if (firstVoice == null) return null;
-        return firstVoice.voice2sampa(voicePhoneme);
+        return firstVoice.getAllophoneSet();
     }
 
-    public String sampa2voice(String sampaPhoneme)
+    public Allophone getAllophone(String phoneSymbol)
     {
         if (firstVoice == null) return null;
-        return firstVoice.sampa2voice(sampaPhoneme);
-    }
-
-    public List sampaString2voicePhonemeList(String sampa)
-    {
-        if (firstVoice == null) return null;
-        return firstVoice.sampaString2voicePhonemeList(sampa);
-    }
-
-    public String voicePhonemeArray2sampaString(String[] voicePhonemes)
-    {
-        if (firstVoice == null) return null;
-        return firstVoice.voicePhonemeArray2sampaString(voicePhonemes);
-    }
-
-    public PhonemeSet getSampaPhonemeSet()
-    {
-        if (firstVoice == null) return null;
-        return firstVoice.getSampaPhonemeSet();
-    }
-
-    public Phoneme getSampaPhoneme(String sampaSymbol)
-    {
-        if (firstVoice == null) return null;
-        return firstVoice.getSampaPhoneme(sampaSymbol);
+        return firstVoice.getAllophone(phoneSymbol);
     }
     
 
@@ -175,15 +137,5 @@ public class InterpolatingVoice extends Voice {
         return firstVoice.gender();
     }
 
-    public boolean useVoicePAInOutput()
-    {
-        if (firstVoice == null) return false;
-        return firstVoice.useVoicePAInOutput();
-    }
 
-    public Vector convertSampa(MBROLAPhoneme maryPhoneme)
-    {
-        if (firstVoice == null) return null;
-        return firstVoice.convertSampa(maryPhoneme);
-    }
 }

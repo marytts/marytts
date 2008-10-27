@@ -42,14 +42,10 @@ import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.SynthesisException;
-import marytts.htsengine.HMMVoice;
 import marytts.modules.synthesis.Voice;
 import marytts.modules.synthesis.WaveformSynthesizer;
 import marytts.server.MaryProperties;
 import marytts.signalproc.effects.EffectsApplier;
-import marytts.signalproc.effects.HMMDurationScaleEffect;
-import marytts.signalproc.effects.HMMF0AddEffect;
-import marytts.signalproc.effects.HMMF0ScaleEffect;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 

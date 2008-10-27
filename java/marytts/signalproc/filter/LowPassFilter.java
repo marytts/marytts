@@ -36,8 +36,6 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
 import marytts.signalproc.display.FunctionGraph;
-import marytts.signalproc.display.MultiDisplay;
-import marytts.signalproc.process.Robotiser;
 import marytts.signalproc.window.BlackmanWindow;
 import marytts.signalproc.window.Window;
 import marytts.util.data.BufferedDoubleDataSource;

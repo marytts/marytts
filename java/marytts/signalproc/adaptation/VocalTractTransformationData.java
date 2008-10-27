@@ -29,9 +29,6 @@
 
 package marytts.signalproc.adaptation;
 
-import marytts.signalproc.adaptation.codebook.WeightedCodebookEntry;
-import marytts.signalproc.adaptation.prosody.PitchStatisticsCollection;
-import marytts.signalproc.adaptation.prosody.PitchStatisticsMapping;
 
 /**
  * @author oytun.turk

@@ -35,8 +35,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import marytts.tools.voiceimport.General;
-
 
 public class MCepDatagram extends Datagram {
     

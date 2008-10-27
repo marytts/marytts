@@ -49,65 +49,40 @@
 
 package marytts.modules.synthesis;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.SynthesisException;
-import marytts.htsengine.HMMData;
 import marytts.htsengine.HMMVoice;
-import marytts.htsengine.HTSModel;
-import marytts.htsengine.HTSModelSet;
-import marytts.htsengine.HTSParameterGeneration;
-import marytts.htsengine.HTSTreeSet;
-import marytts.htsengine.HTSUttModel;
-import marytts.htsengine.HTSVocoder;
 import marytts.htsengine.PhoneTranslator;
 import marytts.modules.HTSEngine;
 import marytts.modules.MaryModule;
-import marytts.modules.MaryXMLToMbrola;
-import marytts.modules.MbrolaCaller;
 import marytts.modules.ModuleRegistry;
 import marytts.modules.TargetFeatureLister;
-import marytts.modules.XML2UttAcoustParams;
 import marytts.modules.synthesis.Voice.Gender;
-import marytts.server.Mary;
 import marytts.server.MaryProperties;
-import marytts.unitselection.UnitSelectionVoice;
 import marytts.util.MaryUtils;
-import marytts.util.data.audio.AudioPlayer;
 import marytts.util.dom.MaryDomUtils;
-import marytts.util.dom.NameNodeFilter;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.traversal.DocumentTraversal;
-import org.w3c.dom.traversal.NodeFilter;
+import org.w3c.dom.NodeList;
 import org.w3c.dom.traversal.NodeIterator;
-
-import com.sun.speech.freetts.Utterance;
 
 
 /**
@@ -190,7 +165,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
             //MaryProperties.getBoolean("voice."+voiceName+".useMixExc")
             
             HMMVoice v = new HMMVoice (new String[] { voiceName },
-                locale, format, this, gender, -1, -1, -1, -1,
+                locale, format, this, gender,
                 MaryProperties.getProperty("voice."+voiceName+".alpha"),
                 MaryProperties.getProperty("voice."+voiceName+".gamma"),
                 MaryProperties.getProperty("voice."+voiceName+".logGain"),

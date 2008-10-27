@@ -30,17 +30,17 @@
 package marytts.unitselection;
 
 
-import java.lang.reflect.Constructor;
-import java.net.URL;
-import java.util.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 import marytts.cart.CART;
-// old: import marytts.cart.RegressionTree;
 import marytts.cart.io.WagonCARTReader;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
-import marytts.modules.phonemiser.PhonemeSet;
 import marytts.modules.synthesis.Voice;
 import marytts.modules.synthesis.WaveformSynthesizer;
 import marytts.modules.synthesis.Voice.Gender;
@@ -56,10 +56,6 @@ import marytts.unitselection.select.UnitSelector;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
-
-import com.sun.speech.freetts.VoiceManager;
-import com.sun.speech.freetts.en.us.CMULexicon;
-import com.sun.speech.freetts.lexicon.Lexicon;
 
 
 
@@ -208,10 +204,6 @@ public class UnitSelectionVoiceBuilder
 	        //standard values for some parameters
 	        String[] nameArray = new String[1];
 	        nameArray[0] = voice;
-	        int topStart = MaryProperties.getInteger(header+".topline.start", -1);
-	        int topEnd = MaryProperties.getInteger(header+".topline.end", -1);
-	        int baseStart = MaryProperties.getInteger(header+".baseline.start", -1);
-	        int baseEnd = MaryProperties.getInteger(header+".baseline.end", -1);
 	        
 			
             // see if there are any voice-specific duration and f0 models to load
@@ -258,7 +250,6 @@ public class UnitSelectionVoiceBuilder
 	                    unitConcatenator,
                     nameArray, voiceLocale, unitConcatenator.getAudioFormat(), 
                     synth, voiceGender,
-                    topStart, topEnd, baseStart, baseEnd,
                     domain,
                     exampleTextFile, durationCart, f0Carts,
                     durationCartFeatDef, f0CartsFeatDef);

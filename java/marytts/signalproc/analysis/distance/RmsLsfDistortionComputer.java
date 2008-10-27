@@ -31,15 +31,10 @@ package marytts.signalproc.analysis.distance;
 
 import java.io.IOException;
 
-import javax.sound.sampled.UnsupportedAudioFileException;
-
 import marytts.signalproc.adaptation.BaselineAdaptationItem;
 import marytts.signalproc.adaptation.BaselineAdaptationSet;
 import marytts.signalproc.adaptation.BaselineFeatureExtractor;
-import marytts.signalproc.adaptation.FileMap;
-import marytts.signalproc.adaptation.IndexMap;
 import marytts.signalproc.analysis.Labels;
-import marytts.signalproc.analysis.LsfAnalyser;
 import marytts.signalproc.analysis.LsfFileHeader;
 import marytts.signalproc.analysis.Lsfs;
 import marytts.util.io.FileUtils;

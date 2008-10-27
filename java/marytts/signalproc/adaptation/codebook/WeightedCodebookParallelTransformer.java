@@ -29,7 +29,6 @@
 
 package marytts.signalproc.adaptation.codebook;
 
-import java.io.File;
 import java.io.IOException;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -39,7 +38,6 @@ import marytts.signalproc.adaptation.BaselineAdaptationSet;
 import marytts.signalproc.adaptation.BaselineFeatureExtractor;
 import marytts.signalproc.adaptation.BaselinePostprocessor;
 import marytts.signalproc.adaptation.BaselinePreprocessor;
-import marytts.signalproc.adaptation.BaselineTransformerParams;
 import marytts.signalproc.adaptation.FdpsolaAdapter;
 import marytts.signalproc.adaptation.prosody.PitchMapping;
 import marytts.signalproc.adaptation.prosody.PitchMappingFile;
@@ -48,7 +46,6 @@ import marytts.signalproc.adaptation.prosody.PitchTransformationData;
 import marytts.signalproc.adaptation.prosody.ProsodyTransformerParams;
 import marytts.signalproc.adaptation.smoothing.SmoothingDefinitions;
 import marytts.signalproc.analysis.LsfFileHeader;
-import marytts.tools.voiceimport.BasenameList;
 import marytts.util.io.FileUtils;
 import marytts.util.string.StringUtils;
 

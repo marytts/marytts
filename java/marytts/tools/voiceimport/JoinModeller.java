@@ -31,32 +31,34 @@
  */
 package marytts.tools.voiceimport;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringReader;
-import java.util.*;
-import java.io.FileWriter;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.Vector;
 
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
+import marytts.htsengine.HMMData;
 import marytts.htsengine.HTSModelSet;
 import marytts.htsengine.HTSTreeSet;
-import marytts.htsengine.HMMData;
 import marytts.htsengine.PhoneTranslator;
 import marytts.unitselection.data.FeatureFileReader;
-import marytts.unitselection.data.Unit;
 import marytts.unitselection.data.UnitFileReader;
 import marytts.unitselection.select.JoinCostFeatures;
 import marytts.unitselection.select.JoinModelCost;
-import marytts.unitselection.select.PrecompiledJoinCostReader;
 import marytts.util.math.MathUtils;
 
 

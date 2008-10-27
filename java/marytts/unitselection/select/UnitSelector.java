@@ -28,31 +28,16 @@
  */
 package marytts.unitselection.select;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.SynthesisException;
-import marytts.features.FeatureVector;
-import marytts.modules.MaryModule;
-import marytts.modules.ModuleRegistry;
-import marytts.modules.XML2UttAcoustParams;
-import marytts.modules.synthesis.FreeTTSVoices;
-import marytts.server.Mary;
 import marytts.unitselection.data.UnitDatabase;
-import marytts.util.dom.MaryDomUtils;
-import marytts.util.string.PrintfFormat;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-
-import com.sun.speech.freetts.Item;
-import com.sun.speech.freetts.Relation;
-import com.sun.speech.freetts.Utterance;
 
 
 /**

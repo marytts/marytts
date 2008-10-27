@@ -28,7 +28,7 @@
  */
 package marytts.tools.voiceimport;
 
-import java.util.*;
+import java.util.SortedMap;
 
 /**
  * A component in the process of importing a voice into MARY format.

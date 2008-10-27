@@ -30,8 +30,6 @@
 package marytts.signalproc.analysis;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -42,7 +40,6 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import marytts.signalproc.Defaults;
 import marytts.signalproc.analysis.LpcAnalyser.LpCoeffs;
 import marytts.signalproc.window.DynamicWindow;
-import marytts.signalproc.window.Window;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.io.MaryRandomAccessFile;
 import marytts.util.math.MathUtils;

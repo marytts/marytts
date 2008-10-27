@@ -34,30 +34,22 @@
 package marytts.features;
 
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.traversal.DocumentTraversal;
-import org.w3c.dom.traversal.NodeFilter;
-import org.w3c.dom.traversal.NodeIterator;
-import org.w3c.dom.traversal.TreeWalker;
-
-import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryXML;
-import marytts.fst.FSTLookup;
 import marytts.unitselection.select.DiphoneTarget;
 import marytts.unitselection.select.HalfPhoneTarget;
 import marytts.unitselection.select.Target;
-import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
-import marytts.util.dom.NameNodeFilter;
 import marytts.util.string.ByteStringTranslator;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.traversal.TreeWalker;
 
 /**
  * A collection of feature processors that operate on Target objects.

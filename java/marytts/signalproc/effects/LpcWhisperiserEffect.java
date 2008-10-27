@@ -29,20 +29,10 @@
 
 package marytts.signalproc.effects;
 
-import java.io.File;
-
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-
-import marytts.signalproc.process.Chorus;
 import marytts.signalproc.process.FrameOverlapAddSource;
 import marytts.signalproc.process.LPCWhisperiser;
-import marytts.signalproc.process.Robotiser;
 import marytts.signalproc.window.Window;
 import marytts.util.data.BufferedDoubleDataSource;
-import marytts.util.data.audio.AudioDoubleDataSource;
-import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.math.MathUtils;
 

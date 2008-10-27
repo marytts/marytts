@@ -32,7 +32,6 @@ import java.io.File;
 
 import javax.sound.sampled.SourceDataLine;
 
-import marytts.tools.redstart.Test;
 import marytts.util.data.audio.AudioPlayer;
 
 

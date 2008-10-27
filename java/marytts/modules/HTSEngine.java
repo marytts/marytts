@@ -52,30 +52,20 @@ package marytts.modules;
 
 
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Scanner;
 
-import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.AudioFileFormat;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
-import marytts.datatypes.MaryXML;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.htsengine.HMMData;
@@ -88,25 +78,12 @@ import marytts.htsengine.HTSTreeSet;
 import marytts.htsengine.HTSUttModel;
 import marytts.htsengine.HTSVocoder;
 import marytts.htsengine.PhoneTranslator;
-import marytts.modules.InternalModule;
 import marytts.modules.synthesis.Voice;
-import marytts.signalproc.analysis.Mfccs;
-import marytts.tests.AllTests;
-import marytts.util.data.NoiseDoubleDataSource;
-import marytts.util.data.audio.AudioPlayer;
-import marytts.util.data.audio.DDSAudioInputStream;
-import marytts.util.dom.NameNodeFilter;
 import marytts.signalproc.analysis.F0ReaderWriter;
+import marytts.util.data.audio.AudioPlayer;
 
 import org.apache.log4j.Logger;
 import org.jsresources.AppendableSequenceAudioInputStream;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.traversal.DocumentTraversal;
-import org.w3c.dom.traversal.NodeFilter;
-import org.w3c.dom.traversal.NodeIterator;
 
 
 /**

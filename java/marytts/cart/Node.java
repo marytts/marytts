@@ -31,9 +31,6 @@
  */
 package marytts.cart;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
 
 /**
  * A node for the CART. All node types inherit from this class

@@ -28,14 +28,22 @@
  */
 package marytts.language.tib;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.WeakHashMap;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
@@ -44,9 +52,8 @@ import marytts.language.tib.datatypes.TibetanDataTypes;
 import marytts.modules.InternalModule;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
-import marytts.modules.phonemiser.Phoneme;
-import marytts.modules.phonemiser.PhonemeSet;
-import marytts.server.Mary;
+import marytts.modules.phonemiser.Allophone;
+import marytts.modules.phonemiser.AllophoneSet;
 import marytts.server.MaryProperties;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
@@ -58,6 +65,7 @@ import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.dom.traversal.TreeWalker;
+import org.xml.sax.SAXException;
 
 
 /**
@@ -67,7 +75,8 @@ import org.w3c.dom.traversal.TreeWalker;
  */
 
 public class KlattDurationModeller extends InternalModule {
-    private PhonemeSet phonemeSet;
+    private AllophoneSet allophoneSet;
+    private KlattDurationParams klattDurationParams;
     private Properties klattRuleParams;
     /** This map contains the topline-baseline frequency configurations for the
      * currently used phrase and sub-phrase prosody elements. As this is a
@@ -98,7 +107,8 @@ public class KlattDurationModeller extends InternalModule {
         // load klatt rules
         klattRuleParams = new Properties();
         klattRuleParams.load(new FileInputStream(MaryProperties.needFilename("tibetan.cap.klattrulefile")));        // load phoneme list
-        phonemeSet = PhonemeSet.getPhonemeSet(MaryProperties.needFilename("tibetan.cap.phonemelistfile"));
+        allophoneSet = AllophoneSet.getAllophoneSet(MaryProperties.needFilename("tibetan.allophoneset"));
+        klattDurationParams = new KlattDurationParams(MaryProperties.needFilename("tibetan.cap.klattdurfile"));
         // instantiate the Map in which settings are associated with elements:
         // (when the objects serving as keys are not in ordinary use any more,
         // the key-value pairs are deleted from the WeakHashMap earlier or
@@ -454,7 +464,7 @@ public class KlattDurationModeller extends InternalModule {
         if (!syllable.hasAttribute("ph"))
             throw new IllegalArgumentException("Cannot create phonemes if syllable has no sampa attribute");
         Document document = syllable.getOwnerDocument();
-        Phoneme[] phonemes = phonemeSet.splitIntoPhonemes(syllable.getAttribute("ph"));
+        Allophone[] phonemes = allophoneSet.splitIntoAllophones(syllable.getAttribute("ph"));
         for (int i = 0; i < phonemes.length; i++) {
             Element segment = MaryXML.createElement(document, MaryXML.PHONE);
             syllable.appendChild(segment);
@@ -754,7 +764,7 @@ public class KlattDurationModeller extends InternalModule {
             int rate = settings.rate();
             // Duration is the inverse of rate:
             int durFactor = 10000 / rate;
-            Phoneme ph = phonemeSet.getPhoneme(segment.getAttribute("p"));
+            Allophone ph = allophoneSet.getAllophone(segment.getAttribute("p"));
             if (ph != null) {
                 if (ph.isVowel())
                     durFactor = (durFactor * settings.vowelDuration()) / 100;
@@ -984,9 +994,7 @@ public class KlattDurationModeller extends InternalModule {
     }
 
     private int getMinDuration(Element segment) {
-        Phoneme ph = phonemeSet.getPhoneme(segment.getAttribute("p"));
-        assert ph != null;
-        int minDuration = ph.minimalDuration();
+        int minDuration = klattDurationParams.getMinDuration(segment.getAttribute("p"));
 
         // additional reduction for unstressed segments:
         // (this comes from klatt's original rule no. 7)
@@ -1000,9 +1008,7 @@ public class KlattDurationModeller extends InternalModule {
     }
 
     private int getInhDuration(Element segment) {
-        Phoneme ph = phonemeSet.getPhoneme(segment.getAttribute("p"));
-        assert ph != null;
-        return ph.inherentDuration();
+        return klattDurationParams.getInhDuration(segment.getAttribute("p"));
     }
 
     private boolean isPronoun(Element token) {
@@ -1102,7 +1108,7 @@ public class KlattDurationModeller extends InternalModule {
     }
 
     private boolean isInOnset(Element segment) {
-        Phoneme ph = phonemeSet.getPhoneme(segment.getAttribute("p"));
+        Allophone ph = allophoneSet.getAllophone(segment.getAttribute("p"));
         assert ph != null;
         if (ph.isSyllabic()) {
             return false;
@@ -1112,7 +1118,7 @@ public class KlattDurationModeller extends InternalModule {
         for (Element e = MaryDomUtils.getNextSiblingElement(segment);
             e != null;
             e = MaryDomUtils.getNextSiblingElement(e)) {
-            ph = phonemeSet.getPhoneme(e.getAttribute("p"));
+            ph = allophoneSet.getAllophone(e.getAttribute("p"));
             assert ph != null;
             if (ph.isSyllabic()) {
                 return true;
@@ -1122,13 +1128,13 @@ public class KlattDurationModeller extends InternalModule {
     }
 
     private boolean isInNucleus(Element segment) {
-        Phoneme ph = phonemeSet.getPhoneme(segment.getAttribute("p"));
+        Allophone ph = allophoneSet.getAllophone(segment.getAttribute("p"));
         assert ph != null;
         return ph.isSyllabic();
     }
 
     private boolean isInCoda(Element segment) {
-        Phoneme ph = phonemeSet.getPhoneme(segment.getAttribute("p"));
+        Allophone ph = allophoneSet.getAllophone(segment.getAttribute("p"));
         assert ph != null;
         if (ph.isSyllabic()) {
             return false;
@@ -1138,7 +1144,7 @@ public class KlattDurationModeller extends InternalModule {
         for (Element e = MaryDomUtils.getPreviousSiblingElement(segment);
             e != null;
             e = MaryDomUtils.getPreviousSiblingElement(e)) {
-            ph = phonemeSet.getPhoneme(e.getAttribute("p"));
+            ph = allophoneSet.getAllophone(e.getAttribute("p"));
             assert ph != null;
             if (ph.isSyllabic()) {
                 return true;
@@ -1152,31 +1158,31 @@ public class KlattDurationModeller extends InternalModule {
     }
 
     private boolean isVowel(Element segment) {
-        Phoneme ph = phonemeSet.getPhoneme(segment.getAttribute("p"));
+        Allophone ph = allophoneSet.getAllophone(segment.getAttribute("p"));
         assert ph != null;
         return ph.isVowel();
     }
 
     private boolean isLiquid(Element segment) {
-        Phoneme ph = phonemeSet.getPhoneme(segment.getAttribute("p"));
+        Allophone ph = allophoneSet.getAllophone(segment.getAttribute("p"));
         assert ph != null;
         return ph.isLiquid();
     }
 
     private boolean isGlide(Element segment) {
-        Phoneme ph = phonemeSet.getPhoneme(segment.getAttribute("p"));
+        Allophone ph = allophoneSet.getAllophone(segment.getAttribute("p"));
         assert ph != null;
         return ph.isGlide();
     }
 
     private boolean isNasal(Element segment) {
-        Phoneme ph = phonemeSet.getPhoneme(segment.getAttribute("p"));
+        Allophone ph = allophoneSet.getAllophone(segment.getAttribute("p"));
         assert ph != null;
         return ph.isNasal();
     }
 
     private boolean isFricative(Element segment) {
-        Phoneme ph = phonemeSet.getPhoneme(segment.getAttribute("p"));
+        Allophone ph = allophoneSet.getAllophone(segment.getAttribute("p"));
         assert ph != null;
         return ph.isFricative();
     }
@@ -1584,5 +1590,39 @@ public class KlattDurationModeller extends InternalModule {
 
     }
 
-
+    public static class KlattDurationParams
+    {
+        private Map<String,Integer> inh = new HashMap<String, Integer>();
+        private Map<String,Integer> min = new HashMap<String, Integer>();
+        
+        public KlattDurationParams(String filename)
+        throws SAXException, IOException, ParserConfigurationException
+        {
+            // parse the xml file:
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setValidating(false);
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(new File(filename));
+            // In document, ignore everything that is not a segment element:
+            NodeList segElements = document.getElementsByTagName("segment");
+            for (int i=0; i<segElements.getLength(); i++) {
+                Element seg = (Element) segElements.item(i);
+                String name = seg.getAttribute("s");
+                int inherentDuration = Integer.parseInt(seg.getAttribute("inh"));
+                int minimalDuration = Integer.parseInt(seg.getAttribute("min"));
+                inh.put(name, inherentDuration);
+                min.put(name, minimalDuration);
+            }
+        }
+        
+        public int getInhDuration(String ph)
+        {
+            return inh.get(ph);
+        }
+        
+        public int getMinDuration(String ph)
+        {
+            return min.get(ph);
+        }
+    }
 }

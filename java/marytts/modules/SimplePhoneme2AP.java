@@ -37,8 +37,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
-import marytts.modules.phonemiser.Phoneme;
-import marytts.modules.phonemiser.PhonemeSet;
+import marytts.modules.phonemiser.Allophone;
+import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.synthesis.MbrolaVoice;
 import marytts.modules.synthesis.Voice;
 import marytts.util.MaryUtils;
 
@@ -57,7 +58,7 @@ public class SimplePhoneme2AP extends InternalModule
 {
     private DocumentBuilderFactory factory = null;
     private DocumentBuilder docBuilder = null;
-    protected PhonemeSet phonemeSet;
+    protected AllophoneSet allophoneSet;
 
     public SimplePhoneme2AP(MaryDataType inputType, MaryDataType outputType, Locale locale)
     {
@@ -69,8 +70,8 @@ public class SimplePhoneme2AP extends InternalModule
 
     public void startup() throws Exception
     {
-        if (phonemeSet == null) {
-            throw new NullPointerException("Subclass needs to instantiate phonemeSet");
+        if (allophoneSet == null) {
+            throw new NullPointerException("Subclass needs to instantiate allophoneSet");
         }
         if (factory == null) {
             factory = DocumentBuilderFactory.newInstance();
@@ -120,12 +121,13 @@ public class SimplePhoneme2AP extends InternalModule
                     syllable.setAttribute("accent", "*");
                     token.setAttribute("accent", "*");
                 }
-                Phoneme[] phonemes = phonemeSet.splitIntoPhonemes(syllablePhonemes);
+                Allophone[] phonemes = allophoneSet.splitIntoAllophones(syllablePhonemes);
                 for (int i=0; i<phonemes.length; i++) {
                     Element ph = MaryXML.createElement(doc, MaryXML.PHONE);
                     ph.setAttribute("p", phonemes[i].name());
-                    int dur = phonemes[i].inherentDuration();
+                    int dur = 70;
                     if (phonemes[i].isVowel()) {
+                        dur = 100;
                         if (stress == 1) dur *= 1.5;
                         else if (stress == 2) dur *= 1.2;
                     }
@@ -133,14 +135,14 @@ public class SimplePhoneme2AP extends InternalModule
                     cumulDur += dur;
                     ph.setAttribute("end", String.valueOf(cumulDur));
                     // Set top start for first and base end for last segment:
-                    if (defaultVoice != null) {
+                    if (defaultVoice != null && defaultVoice instanceof MbrolaVoice) {
                         if (isFirst) {
                             isFirst = false;
-                            ph.setAttribute("f0", "(0," + defaultVoice.topStart() + ")");
+                            ph.setAttribute("f0", "(0," + ((MbrolaVoice)defaultVoice).topStart() + ")");
                         } else if (i == phonemes.length - 1 &&
                                    !stTokens.hasMoreTokens() &&
                                    !stSyllables.hasMoreTokens()) {
-                            ph.setAttribute("f0", "(100," + defaultVoice.baseEnd() + ")");
+                            ph.setAttribute("f0", "(100," + ((MbrolaVoice)defaultVoice).baseEnd() + ")");
                         }
                     }
                     token.appendChild(ph);

@@ -28,12 +28,19 @@
  */
 package marytts.tools.voiceimport;
 
-import java.util.*;
-import java.io.*;
-import java.nio.channels.FileChannel;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.nio.MappedByteBuffer;
-
-import marytts.htsengine.HTSTreeSet;
+import java.nio.channels.FileChannel;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 
 /**

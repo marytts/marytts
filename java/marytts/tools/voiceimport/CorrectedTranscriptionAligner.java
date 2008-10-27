@@ -34,14 +34,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -61,25 +56,13 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import marytts.datatypes.MaryData;
-import marytts.modules.TargetFeatureLister;
-import marytts.modules.phonemiser.Phoneme;
-import marytts.modules.phonemiser.PhonemeSet;
-import marytts.modules.synthesis.FreeTTSVoices;
-import marytts.modules.synthesis.Voice;
-import marytts.signalproc.display.Histogram;
-import marytts.unitselection.select.Target;
+import marytts.modules.phonemiser.Allophone;
+import marytts.modules.phonemiser.AllophoneSet;
 
-//import org.apache.tools.ant.types.CommandlineJava.SysProperties;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
-import com.sun.speech.freetts.Item;
-import com.sun.speech.freetts.Relation;
-import com.sun.speech.freetts.Utterance;
 
 public class CorrectedTranscriptionAligner extends VoiceImportComponent {
     
@@ -95,7 +78,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
     Map<String, Integer> aligncost;
     int defaultcost;
     int skipcost;
-    PhonemeSet phonemeSet;
+    AllophoneSet allophoneSet;
     
     // String for a baundary
     private String possibleBnd = "_";
@@ -191,7 +174,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
     private void useDefaultBoundaryCosts(){
         int max = 20 * this.defaultcost;
         
-        for (String phName : this.phonemeSet.getPhonemeNames()){
+        for (String phName : this.allophoneSet.getAllophoneNames()){
             // dont align boundaries with anything else
             this.aligncost.put( this.possibleBnd + " " + phName         ,max);
             this.aligncost.put( phName          + " " + this.possibleBnd,max);
@@ -219,7 +202,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
         // set costs used for distance computation
         
         // phoneme set is used for splitting the sampa strings and setting the costs
-        this.setPhonemeSet(PhonemeSet.getPhonemeSet((String) props.get(this.PHONEMEXML)));
+        this.setAllophoneSet(AllophoneSet.getAllophoneSet((String) props.get(this.PHONEMEXML)));
 
         this.setDistance();
         
@@ -298,8 +281,8 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
     }
      
     
-    public void setPhonemeSet(PhonemeSet aPhonemeSet) {
-        this.phonemeSet = aPhonemeSet;
+    public void setAllophoneSet(AllophoneSet aSet) {
+        this.allophoneSet = aSet;
     }
 
     /**
@@ -348,16 +331,16 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
      */
     private void setDistance(){
         
-        if (null == this.phonemeSet )
+        if (null == this.allophoneSet )
             throw new IllegalStateException("Phoneme set must be specified before generic distance method can be executed.");
         
-        for (String fromSym : this.phonemeSet.getPhonemeNames()){
-            for (String toSym : this.phonemeSet.getPhonemeNames()){
+        for (String fromSym : this.allophoneSet.getAllophoneNames()){
+            for (String toSym : this.allophoneSet.getAllophoneNames()){
                 
                 int diff = 0;
                 
-                Phoneme fromPh = this.phonemeSet.getPhoneme(fromSym);
-                Phoneme toPh = this.phonemeSet.getPhoneme(toSym);
+                Allophone fromPh = this.allophoneSet.getAllophone(fromSym);
+                Allophone toPh = this.allophoneSet.getAllophone(toSym);
                 
                 // for each difference increase distance
                 diff += (!fromSym.equals(toSym))? 2:0;
@@ -582,7 +565,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
                         // current Token is no delimiter
                         
                         
-                        for ( Phoneme ph : phonemeSet.splitIntoPhonemes(currTok)){
+                        for (Allophone ph : allophoneSet.splitIntoAllophones(currTok)){
                             
                             
                             orig += ph.name() + " ";
@@ -644,7 +627,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
                     
                     if (delims.indexOf(currTok) == -1) {
                         // current Token is no delimiter
-                        for ( Phoneme ph : phonemeSet.splitIntoPhonemes(currTok)){
+                        for (Allophone ph : allophoneSet.splitIntoAllophones(currTok)){
                             orig += ph.name();
                            
                             // new transciption is the aligned ones without white spaces

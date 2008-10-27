@@ -31,7 +31,6 @@ package marytts.modules;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Locale;
-import java.util.Vector;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -47,9 +46,7 @@ import marytts.modules.synthesis.MbrolaVoiceSectioner;
 import marytts.modules.synthesis.Voice;
 import marytts.modules.synthesis.VoiceSection;
 import marytts.modules.synthesis.VoiceSectioner;
-import marytts.util.data.audio.MaryAudioUtils;
 
-import org.apache.log4j.Logger;
 import org.jsresources.AppendableSequenceAudioInputStream;
 import org.xml.sax.SAXException;
 

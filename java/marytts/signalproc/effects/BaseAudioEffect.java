@@ -29,23 +29,7 @@
 
 package marytts.signalproc.effects;
 
-import java.io.File;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-
-import marytts.signalproc.process.FrameOverlapAddSource;
-import marytts.signalproc.process.InlineDataProcessor;
-import marytts.signalproc.window.Window;
-import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
-import marytts.util.data.audio.AudioDoubleDataSource;
-import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.string.StringUtils;
 
 /**

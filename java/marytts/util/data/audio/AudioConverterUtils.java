@@ -29,24 +29,14 @@
 
 package marytts.util.data.audio;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.ByteArrayInputStream;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.AudioFileFormat;
 
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.LineListener;
-import javax.sound.sampled.SourceDataLine;
-import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.sound.sampled.AudioFormat.Encoding;
-
-import marytts.signalproc.filter.*;
+import marytts.signalproc.filter.HighPassFilter;
+import marytts.signalproc.filter.LowPassFilter;
 import marytts.util.data.BufferedDoubleDataSource;
-import marytts.util.data.audio.DDSAudioInputStream;
 
 /**
  * 

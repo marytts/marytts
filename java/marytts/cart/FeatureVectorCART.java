@@ -29,12 +29,10 @@
 
 package marytts.cart;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-
 import de.dfki.lt.mary.unitselection.FeatureArrayIndexer;
 import de.dfki.lt.mary.unitselection.MaryNode;
 

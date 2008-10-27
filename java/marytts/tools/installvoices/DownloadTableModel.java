@@ -1,8 +1,11 @@
 package marytts.tools.installvoices;
 
-import java.util.*;
-import javax.swing.*;
-import javax.swing.table.*;
+import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
+
+import javax.swing.JProgressBar;
+import javax.swing.table.AbstractTableModel;
 
 import marytts.tools.installvoices.InstallableVoice.Status;
 

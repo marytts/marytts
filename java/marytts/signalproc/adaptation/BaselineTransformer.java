@@ -33,11 +33,7 @@ import java.io.IOException;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import marytts.signalproc.adaptation.codebook.WeightedCodebook;
-import marytts.signalproc.adaptation.codebook.WeightedCodebookMapper;
-import marytts.signalproc.adaptation.codebook.WeightedCodebookTransformerParams;
 import marytts.signalproc.adaptation.prosody.PitchTransformationData;
-import marytts.tools.voiceimport.BasenameList;
 
 
 /**

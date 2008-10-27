@@ -29,18 +29,15 @@
 
 package marytts.signalproc.demo;
 
-import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Vector;
-import java.awt.Point;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -60,35 +57,20 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
 import marytts.client.SimpleFileFilter;
-import marytts.signalproc.demo.OnlineAudioEffects;
-import marytts.signalproc.display.FunctionGraph;
-import marytts.signalproc.filter.*;
+import marytts.signalproc.filter.BandPassFilter;
+import marytts.signalproc.filter.LowPassFilter;
 import marytts.signalproc.process.AudioMixer;
 import marytts.signalproc.process.Chorus;
-import marytts.signalproc.process.FrameOverlapAddSource;
-import marytts.signalproc.process.FrameProvider;
 import marytts.signalproc.process.InlineDataProcessor;
 import marytts.signalproc.process.LPCCrossSynthesisOnline;
 import marytts.signalproc.process.LPCWhisperiser;
 import marytts.signalproc.process.Robotiser;
-import marytts.signalproc.process.VocalTractModifier;
 import marytts.signalproc.process.VocalTractScalingProcessor;
 import marytts.signalproc.process.VocalTractScalingSimpleProcessor;
 import marytts.signalproc.process.VoiceModificationParameters;
-import marytts.signalproc.process.Robotiser.PhaseRemover;
-import marytts.signalproc.window.Window;
-import marytts.util.MaryUtils;
-import marytts.util.data.BufferedDoubleDataSource;
-import marytts.util.data.DoubleDataSource;
-import marytts.util.data.SequenceDoubleDataSource;
-import marytts.util.data.audio.AudioDoubleDataSource;
-import marytts.util.data.audio.DDSAudioInputStream;
-import marytts.util.data.audio.MaryAudioUtils;
-import marytts.util.math.FFT;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
-import org.jsresources.AudioCommon;
 import org.jsresources.AudioRecorder.BufferingRecorder;
 
 /**

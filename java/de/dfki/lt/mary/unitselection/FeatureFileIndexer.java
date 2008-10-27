@@ -28,11 +28,10 @@
  */
 package de.dfki.lt.mary.unitselection;
 
-import java.io.IOException;
 import java.io.DataOutput;
+import java.io.IOException;
 import java.util.Arrays;
 
-import marytts.cart.CART;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.unitselection.data.FeatureFileReader;

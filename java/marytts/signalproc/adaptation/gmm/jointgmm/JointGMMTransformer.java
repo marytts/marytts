@@ -42,7 +42,6 @@ import marytts.signalproc.adaptation.BaselinePreprocessor;
 import marytts.signalproc.adaptation.BaselineTransformer;
 import marytts.signalproc.adaptation.FdpsolaAdapter;
 import marytts.signalproc.adaptation.MfccAdapter;
-import marytts.signalproc.adaptation.codebook.WeightedCodebookFile;
 import marytts.signalproc.adaptation.prosody.PitchMapping;
 import marytts.signalproc.adaptation.prosody.PitchMappingFile;
 import marytts.signalproc.adaptation.prosody.PitchStatistics;

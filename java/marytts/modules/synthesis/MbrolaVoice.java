@@ -2,39 +2,60 @@ package marytts.modules.synthesis;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.Vector;
 
 import javax.sound.sampled.AudioFormat;
 
-import marytts.modules.synthesis.Voice.Gender;
+import marytts.exceptions.MaryConfigurationException;
+import marytts.server.MaryProperties;
 
 
 
 public class MbrolaVoice extends Voice
 {
     private String path;
-    private Set missingDiphones;
-    private List knownVoiceQualities;
+    private Set<String> missingDiphones;
+    private List<String> knownVoiceQualities;
+    private int topStart;
+    private int topEnd;
+    private int baseStart;
+    private int baseEnd;
+    private Map<String, String> sampa2voiceMap;
+    private Map<String, String> voice2sampaMap;
+
 
 
     public MbrolaVoice(String path, String[] nameArray, Locale locale,
             AudioFormat dbAudioFormat, WaveformSynthesizer synthesizer,
             Gender gender, int topStart, int topEnd, int baseStart,
             int baseEnd, String[] knownVoiceQualities,
-            String missingDiphonesPath) {
-        super(nameArray, locale, dbAudioFormat, synthesizer, gender,
-                topStart, topEnd, baseStart, baseEnd);
+            String missingDiphonesPath) 
+    throws MaryConfigurationException
+    {
+        super(nameArray, locale, dbAudioFormat, synthesizer, gender);
         
+        this.topStart = topStart;
+        this.topEnd = topEnd;
+        this.baseStart = baseStart;
+        this.baseEnd = baseEnd;
+
+        fillSampaMap();
+
         this.path = path;
 
-        this.knownVoiceQualities = new ArrayList();
+        this.knownVoiceQualities = new ArrayList<String>();
         if (knownVoiceQualities != null)
             for (int j=0; j<knownVoiceQualities.length; j++)
                 this.knownVoiceQualities.add(knownVoiceQualities[j]);
@@ -45,7 +66,7 @@ public class MbrolaVoice extends Voice
                 BufferedReader br =
                     new BufferedReader(new FileReader(missingDiphonesFile));
                 String diphone = null;
-                missingDiphones = new HashSet();
+                missingDiphones = new HashSet<String>();
                 while ((diphone = br.readLine()) != null) {
                     missingDiphones.add(diphone);
                 }
@@ -58,8 +79,170 @@ public class MbrolaVoice extends Voice
 
     public String path() { return path; }
 
+    public int topStart() { return topStart; }
+    public int topEnd() { return topEnd; }
+    public int baseStart() { return baseStart; }
+    public int baseEnd() { return baseEnd; }
+
+    
     public boolean hasVoiceQuality(String vq)
     { return knownVoiceQualities.contains(vq); }
+    
+    
+    
+    private void fillSampaMap()
+    {
+        // Any phoneme inventory mappings?
+        String sampamapFilename = MaryProperties.getFilename("voice."+getName()+".sampamapfile");
+        if (sampamapFilename != null) {
+            logger.debug("For voice "+getName()+", filling sampa map from file "+sampamapFilename);
+            try {
+                BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sampamapFilename), "UTF-8"));
+                String line;
+                while ((line = br.readLine()) != null) {
+                    line = line.trim();
+                    if (line.equals("") || line.startsWith("#")) {
+                        continue; // ignore empty and comment lines
+                    }
+                    try {
+                        addSampaMapEntry(line);
+                    } catch (IllegalArgumentException iae) {
+                        logger.warn("Ignoring invalid entry in sampa map file "+sampamapFilename);
+                    }
+                }
+            } catch (IOException ioe) {
+                logger.warn("Cannot open file '"+sampamapFilename+"' referenced in mary config file field voice."+getName()+".sampamapfile");
+            }
+            
+        }
+        String sampamap = MaryProperties.getProperty("voice."+getName()+".sampamap");
+        if (sampamap != null) {
+            logger.debug("For voice "+getName()+", filling sampa map from config file");
+            for (StringTokenizer sst=new StringTokenizer(sampamap); sst.hasMoreTokens(); ) {
+                try {
+                    addSampaMapEntry(sst.nextToken());
+                } catch (IllegalArgumentException iae) {
+                    logger.warn("Ignoring invalid entry in mary config file, field voice."+getName()+".sampamap");
+                }
+            }
+        }
+    }
+
+    private void addSampaMapEntry(String entry) throws IllegalArgumentException
+    {
+        boolean s2v = false;
+        boolean v2s = false;
+        String[] parts = null;
+        // For one-to-many mappings, '+' can be used to group phoneme symbols.
+        // E.g., the line "EI->E:+I" would map "EI" to "E:" and "I" 
+        entry.replace('+', ' ');
+        if (entry.indexOf("<->") != -1) {
+            parts = entry.split("<->");
+            s2v = true;
+            v2s = true;
+        } else if (entry.indexOf("->") != -1) {
+            parts = entry.split("->");
+            s2v = true;
+        } else if (entry.indexOf("<-") != -1) {
+            parts = entry.split("<-");
+            v2s = true;
+        }
+        if (parts == null || parts.length != 2) { // invalid entry
+            throw new IllegalArgumentException();
+        }
+        if (s2v) {
+            if (sampa2voiceMap == null) sampa2voiceMap = new HashMap<String, String>();
+            sampa2voiceMap.put(parts[0].trim(), parts[1].trim());
+        }
+        if (v2s) {
+            if (voice2sampaMap == null) voice2sampaMap = new HashMap<String, String>();
+            voice2sampaMap.put(parts[1].trim(), parts[0].trim());
+        }
+    }
+
+    /** Converts a single phonetic symbol in the voice phonetic alphabet representation
+     * representation into its equivalent in MARY sampa representation.
+     * @return the converted phoneme, or the input string if no known conversion exists.
+     */
+    public String voice2sampa(String voicePhoneme)
+    {
+        if (voice2sampaMap != null && voice2sampaMap.containsKey(voicePhoneme))
+            return (String) voice2sampaMap.get(voicePhoneme);
+        else
+            return voicePhoneme;
+    }
+
+    /** Converts a single phonetic symbol in MARY sampa representation into its
+     * equivalent in voice-specific phonetic alphabet representation.
+     * @return the converted phoneme, or the input string if no known conversion exists.
+     */
+    public String sampa2voice(String sampaPhoneme)
+    {
+        if (sampa2voiceMap != null && sampa2voiceMap.containsKey(sampaPhoneme))
+            return (String) sampa2voiceMap.get(sampaPhoneme);
+        else
+            return sampaPhoneme;
+    }
+
+
+
+    /** Convert the SAMPA dialect used in MARY into the SAMPA version
+     * used in this voice. Allow for one-to-many translations,
+     * taking care of duration and f0 target adjustments.
+     * @return a vector of MBROLAPhoneme objects realising this phoneme
+     * for this voice.
+     */
+    public Vector<MBROLAPhoneme> convertSampa(MBROLAPhoneme maryPhoneme)
+    {
+        Vector<MBROLAPhoneme> phonemes = new Vector<MBROLAPhoneme>();
+        String marySampa = maryPhoneme.getSymbol();
+        if (sampa2voiceMap != null && sampa2voiceMap.containsKey(marySampa)) {
+            String newSampa = (String) sampa2voiceMap.get(marySampa);
+            // Check if more than one phoneme:
+            Vector<String> newSampas = new Vector<String>();
+            StringTokenizer st = new StringTokenizer(newSampa);
+            while (st.hasMoreTokens()) {
+                newSampas.add(st.nextToken());
+            }
+            // Now, how many new phonemes do we have:
+            int n = newSampas.size();
+            int totalDur = maryPhoneme.getDuration();
+            Vector<int []> allTargets = maryPhoneme.getTargets();
+            // Distribute total duration evenly across the phonemes
+            // and put the targets where they belong:
+            for (int i=0; i<newSampas.size(); i++) {
+                String sampa = (String) newSampas.get(i);
+                int dur = totalDur / n;
+                Vector<int []> newTargets = null;
+                // Percentage limit belonging to this phoneme
+                int maxP = 100 * (i+1) / n;
+                boolean ok = true;
+                while (allTargets != null && allTargets.size() > 0 && ok) {
+                    int[] oldTarget = (int[]) allTargets.get(0);
+                    if (oldTarget[0] <= maxP) {
+                        // this target falls into this phoneme
+                        int[] newTarget = new int[2];
+                        newTarget[0] = oldTarget[0] * n; // percentage
+                        newTarget[1] = oldTarget[1]; // f0
+                        if (newTargets == null) newTargets = new Vector<int []>();
+                        newTargets.add(newTarget);
+                        // Delete from original list:
+                        allTargets.remove(0);
+                    } else {
+                        ok = false;
+                    }
+                }
+                MBROLAPhoneme mp = new MBROLAPhoneme
+                    (sampa, dur, newTargets, maryPhoneme.getVoiceQuality());
+                phonemes.add(mp);
+            }
+        } else { // just return the thing itself
+            phonemes.add(maryPhoneme);
+        }
+        return phonemes;
+    }
+
+
 
     public boolean hasDiphone(MBROLAPhoneme p1, MBROLAPhoneme p2)
     {

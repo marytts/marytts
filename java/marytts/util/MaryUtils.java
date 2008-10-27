@@ -32,13 +32,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -48,7 +46,6 @@ import java.util.TimerTask;
 
 import javax.swing.JFrame;
 
-import marytts.machinelearning.GMM;
 import marytts.server.MaryProperties;
 import marytts.signalproc.display.FunctionGraph;
 import marytts.util.math.MathUtils;
@@ -89,24 +86,15 @@ public class MaryUtils {
      * indicated by the collection's iterator.
      * @param strings a collection containing exclusively String objects
      * @return a single String object
-     * @throws IllegalArgumentException if the collection contains an element
-     * that is not a String
      */
-    public static String joinStrings(Collection strings)
+    public static String joinStrings(Collection<String> strings)
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         if (strings == null) {
             throw new NullPointerException("Received null collection");
         }
-        for (Iterator it=strings.iterator(); it.hasNext(); ) {
-            Object obj = it.next();
-            if (obj == null) {
-                throw new NullPointerException("Received collection containing null object");
-            }
-            if (!(obj instanceof String)) {
-                throw new IllegalArgumentException("Received collection containing non-String object: "+obj.toString());
-            }
-            buf.append((String)obj);
+        for (String s : strings) {
+            buf.append(s);
         }
         return buf.toString();
     }
