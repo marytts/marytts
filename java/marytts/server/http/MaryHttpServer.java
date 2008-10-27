@@ -279,6 +279,7 @@ public class MaryHttpServer {
             Header[] tmp = request.getHeaders("Host");
             
             String clientAddress = getClientAddress(tmp[0].getValue().toString());
+            logger.info("Connection from client at: " + clientAddress);
             
             String method = request.getRequestLine().getMethod().toUpperCase(Locale.ENGLISH);
             
@@ -298,7 +299,7 @@ public class MaryHttpServer {
 
             //Parse request and create appropriate response
             try {
-                handleClientRequest(buffReader, response, clientAddress);
+                handleClientRequest(buffReader, response);
             }
             catch (Exception e)
             {
@@ -347,7 +348,7 @@ public class MaryHttpServer {
          * This function is the modified version of MaryServer.ClientHandler.handle() for HTTP version
          *  
          */
-        private void handleClientRequest(BufferedReader buffReader, HttpResponse response, String clientAddress) throws Exception 
+        private void handleClientRequest(BufferedReader buffReader, HttpResponse response) throws Exception 
         {                 
             // !!!! reject all clients that are not from authorized domains?
 
@@ -387,7 +388,7 @@ public class MaryHttpServer {
             {
                 return;
             }
-            else if (handleSynthesisRequest(line, buffReader, response, clientAddress)) //Synthesis request.
+            else if (handleSynthesisRequest(line, buffReader, response))//(handleSynthesisRequest(line, buffReader, response, clientAddress)) //Synthesis request.
             {
                 return;
             }  
@@ -836,7 +837,8 @@ public class MaryHttpServer {
                 return false;
         }
 
-        private boolean handleSynthesisRequest(String inputLine, BufferedReader reader, HttpResponse response, String clientAddress) throws Exception 
+        //private boolean handleSynthesisRequest(String inputLine, BufferedReader reader, HttpResponse response, String clientAddress) throws Exception 
+        private boolean handleSynthesisRequest(String inputLine, BufferedReader reader, HttpResponse response) throws Exception 
         {
             String outputLine = null;
             int id = 0;
@@ -1071,7 +1073,7 @@ public class MaryHttpServer {
                 //   -- find corresponding infoSocket and request in clientMap
                 //Socket infoSocket = null;
                 //String infoSocketAddress = null;
-                String infoSocketAddress = clientAddress;
+                //String infoSocketAddress = clientAddress;
                 //RequestHttp request = null;
                 
                 /*
@@ -1110,7 +1112,8 @@ public class MaryHttpServer {
                 Thread.yield();
                 
                 //   -- send off to new request
-                RequestHttpHandler rh = new RequestHttpHandler(request, response, infoSocketAddress, reader);
+                //RequestHttpHandler rh = new RequestHttpHandler(request, response, infoSocketAddress, reader);
+                RequestHttpHandler rh = new RequestHttpHandler(request, response, reader);
                 
                 rh.start();
                 
