@@ -86,6 +86,7 @@ public class Allophone
     public String toString() { return name; }
     public boolean isVowel() { return vc.equals("+"); }
     public boolean isSyllabic() { return isVowel(); }
+    public boolean isConsonant() { return vc.equals("-"); }
     
     public boolean isVoiced()
     {
