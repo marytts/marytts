@@ -274,7 +274,7 @@ public abstract class Utt2XMLBase extends InternalModule {
                 Item syllableItem = sylStruct.getDaughter();
                 while (syllableItem != null) {
                     if (sampa.length() > 0)
-                        sampa.append("-");
+                        sampa.append(" - ");
                     sampa.append(insertSyllable(syllableItem, t, deep));
                     syllableItem = syllableItem.getNext();
                 }
@@ -375,7 +375,7 @@ public abstract class Utt2XMLBase extends InternalModule {
         }
         Document doc = token.getOwnerDocument();
         Element syllable = null;
-        StringBuffer sampa = new StringBuffer();
+        StringBuilder sampa = new StringBuilder();
         if (deep) {
             syllable = MaryXML.createElement(doc, MaryXML.SYLLABLE);
             token.appendChild(syllable);
@@ -400,6 +400,7 @@ public abstract class Utt2XMLBase extends InternalModule {
         // Any segments?
         Item segmentItem = syllableItem.getDaughter();
         while (segmentItem != null) {
+            if (sampa.length() > 0) sampa.append(" ");
             sampa.append(insertSegment(segmentItem, syllable, deep));
             segmentItem = segmentItem.getNext();
         }
@@ -496,7 +497,7 @@ public abstract class Utt2XMLBase extends InternalModule {
      */
     public String phoneArray2phoneString(AllophoneSet allophoneSet, String[] voicePhones)
     {
-        StringBuffer phoneBuf = new StringBuffer();
+        StringBuilder phoneBuf = new StringBuilder();
         for (int i=0; i<voicePhones.length; i++) {
             phoneBuf.append(voicePhones[i]);
         }

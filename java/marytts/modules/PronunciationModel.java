@@ -1,3 +1,31 @@
+/**
+ * Copyright 2008 DFKI GmbH.
+ * All Rights Reserved.  Use is subject to license terms.
+ * 
+ * Permission is hereby granted, free of charge, to use and distribute
+ * this software and its documentation without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of this work, and to
+ * permit persons to whom this work is furnished to do so, subject to
+ * the following conditions:
+ * 
+ * 1. The code must retain the above copyright notice, this list of
+ *    conditions and the following disclaimer.
+ * 2. Any modifications must be clearly marked as such.
+ * 3. Original authors' names are not deleted.
+ * 4. The authors' names are not used to endorse or promote products
+ *    derived from this software without specific prior written
+ *    permission.
+ *
+ * DFKI GMBH AND THE CONTRIBUTORS TO THIS WORK DISCLAIM ALL WARRANTIES WITH
+ * REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL DFKI GMBH NOR THE
+ * CONTRIBUTORS BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
+ * DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
+ * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
+ * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+ * THIS SOFTWARE.
+ */
 package marytts.modules;
 
 import java.io.BufferedReader;
@@ -46,7 +74,8 @@ import org.w3c.dom.traversal.TreeWalker;
  * @author ben
  *
  */
-public class PronunciationModel extends InternalModule{
+public class PronunciationModel extends InternalModule
+{
 
 	// for prediction, core of the model - maps phonemes to decision trees
 	private Map<String, StringPredictionTree> treeMap;
@@ -62,10 +91,15 @@ public class PronunciationModel extends InternalModule{
 	 * 
 	 */
 	public PronunciationModel() {
+	    this(null);
+	}
+	
+	public PronunciationModel(Locale locale)
+	{
         super("PronunciationModel",
                 MaryDataType.INTONATION,
                 MaryDataType.ALLOPHONES,
-                null);
+                locale);
 	}
 
     public void startup() throws Exception
@@ -119,12 +153,21 @@ public class PronunciationModel extends InternalModule{
             FeatureProcessorManager manager = (FeatureProcessorManager) Class.forName(managerClass).newInstance();
             String features = MaryProperties.needProperty("german.pronunciation.targetfeaturelister.features");
             this.featureComputer = new TargetFeatureComputer(manager, features);
-
         }
-
-
         logger.debug("Building feature computer finished.");
+    }
+    
 
+    /**
+     * Optionally, a language-specific subclass can implement any postlexical rules
+     * on the document.
+     * @param token a <t> element with a <syllable> and <ph> substructure. 
+     * @param allophoneSet
+     * @return true if something was changed, false otherwise
+     */
+    protected boolean postlexicalRules(Element token, AllophoneSet allophoneSet)
+    {
+        return false;
     }
     
     /**
@@ -160,8 +203,15 @@ public class PronunciationModel extends InternalModule{
             }
             createSubStructure(t, allophoneSet);
             
-            if (treeMap == null) continue;
+            // Modify by rule:
+            boolean changedSomething = postlexicalRules(t, allophoneSet);
+            if (changedSomething) {
+                updatePhAttributesFromPhElements(t);
+            }
             
+            if (treeMap == null) continue;
+
+            // Modify by trained model:
             assert featureComputer != null;
             
             // Now, predict modified pronunciations, adapt <ph> elements accordingly,
@@ -263,12 +313,10 @@ public class PronunciationModel extends InternalModule{
                 if (token.hasAttribute("accent")) {
                     syllable.setAttribute("accent", token.getAttribute("accent"));
                 }
-                sylString = sylString.substring(1);
             } else if (first.equals(",")) {
                 syllable.setAttribute("stress", "2");
-                sylString = sylString.substring(1);
             }
-            // Remember transcription without stress sign in ph attribute:
+            // Remember transcription in ph attribute:
             syllable.setAttribute("ph", sylString);
             // Now identify the composing segments:
             Allophone[] allophones = allophoneSet.splitIntoAllophones(sylString);
@@ -279,5 +327,33 @@ public class PronunciationModel extends InternalModule{
                 // TODO: need to set loudness-specific voice quality attribute "vq" for de6 and de7
             }
         }
+    }
+    
+    protected void updatePhAttributesFromPhElements(Element token)
+    {
+        if (token == null) throw new NullPointerException("Got null token");
+        if (!token.getTagName().equals(MaryXML.TOKEN)) {
+            throw new IllegalArgumentException("Argument should be a <"+MaryXML.TOKEN+">, not a <"+token.getTagName()+">");
+        }
+        StringBuilder tPh = new StringBuilder();
+        TreeWalker sylWalker = MaryDomUtils.createTreeWalker(token, MaryXML.SYLLABLE);
+        Element syl;
+        while ((syl = (Element) sylWalker.nextNode()) != null) {
+            StringBuilder sylPh = new StringBuilder();
+            String stress = syl.getAttribute("stress");
+            if (stress.equals("1")) sylPh.append("'");
+            else if (stress.equals("2")) sylPh.append(",");
+            TreeWalker phWalker = MaryDomUtils.createTreeWalker(syl, MaryXML.PHONE);
+            Element ph;
+            while ((ph = (Element) phWalker.nextNode()) != null) {
+                if (sylPh.length() > 0) sylPh.append(" ");
+                sylPh.append(ph.getAttribute("p"));
+            }
+            String sylPhString = sylPh.toString();
+            syl.setAttribute("ph", sylPhString);
+            if (tPh.length() > 0) tPh.append(" - ");
+            tPh.append(sylPhString);
+        }
+        token.setAttribute("ph", tPh.toString());
     }
 }
