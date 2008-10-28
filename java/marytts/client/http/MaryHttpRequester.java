@@ -198,6 +198,7 @@ public class MaryHttpRequester
     {
         String strProcessed = StringUtils.replace(strRequest, " ", "%20");
         strProcessed = StringUtils.replace(strProcessed, System.getProperty("line.separator"), "_HTTPREQUESTLINEBREAK_");
+        strProcessed = StringUtils.replace(strProcessed, "\n", "_HTTPREQUESTLINEBREAK_");
         
         return strProcessed;
     }
