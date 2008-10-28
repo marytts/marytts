@@ -77,17 +77,33 @@ public class CARTDurationModeller extends InternalModule
     private FeatureProcessorManager featureProcessorManager;
 
     /**
-     * Constructor to be called from subclasses.
-     * @param name the module's name (for logging)
-     * @param inputType the input type
-     * @param outputType the output type
+     * Constructor which can be directly called from init info in the config file.
+     * Different languages can call this code with different settings.
+     * @param locale a locale string, e.g. "en"
      * @param propertyPrefix the prefix to be used when looking up entries in the config files, e.g. "english.duration"
+     * @param featprocClass a package name for an instance of FeatureProcessorManager, e.g. "marytts.language.en.FeatureProcessorManager"
+     * @throws Exception
      */
-    protected CARTDurationModeller(String name, MaryDataType inputType, MaryDataType outputType,
+    public CARTDurationModeller(String locale, String propertyPrefix, String featprocClass)
+    throws Exception
+    {
+        this(MaryUtils.string2locale(locale), propertyPrefix,
+                (FeatureProcessorManager)Class.forName(featprocClass).newInstance());
+    }
+    
+    /**
+     * Constructor to be called with instantiated objects.
+     * @param locale
+     * @param propertyPrefix the prefix to be used when looking up entries in the config files, e.g. "english.duration"
+     * @praam featureProcessorManager the manager to use when looking up feature processors.
+     */
+    protected CARTDurationModeller(
             Locale locale,
                String propertyPrefix, FeatureProcessorManager featureProcessorManager)
     {
-        super(name, inputType, outputType, locale);
+        super("CARTDurationModeller",
+                MaryDataType.ALLOPHONES,
+                MaryDataType.DURATIONS, locale);
         if (propertyPrefix.endsWith(".")) this.propertyPrefix = propertyPrefix;
         else this.propertyPrefix = propertyPrefix + ".";
         this.featureProcessorManager = featureProcessorManager;

@@ -29,6 +29,8 @@
 
 package marytts.modules;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -39,6 +41,7 @@ import java.util.Locale;
 
 import marytts.datatypes.MaryDataType;
 import marytts.modules.synthesis.Voice;
+import marytts.server.MaryProperties;
 
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.log4j.Logger;
@@ -74,7 +77,59 @@ public class ModuleRegistry
         logger = Logger.getLogger("ModuleRegistry");
     }
     
+    //////////////////////////////////////////////////////////////////
+    ///////////////////////// instantiation //////////////////////////
+    //////////////////////////////////////////////////////////////////
+
+    /**
+     * From the given module init info, instantiate a new mary module.
+     * @param moduleInitInfo a string description of the module to instantiate.
+     * The moduleInitInfo is expected to have one of the following forms:
+     * <ol>
+     *   <li> my.class.which.extends.MaryModule</li>
+     *   <li> my.class.which.extends.MaryModule(any,string,args,without,spaces)</li>
+     *   <li>my.class.which.extends.MaryModule(arguments,$my.special.property,other,args)</li>
+     * </ol>
+     * where 'my.special.property' is a property in the property file.
+     */
+    public static MaryModule instantiateModule(String moduleInitInfo)
+    throws ClassNotFoundException, InstantiationException, IllegalAccessException,
+    InvocationTargetException, NoSuchMethodException
+    {
+        MaryModule m = null;
+        String[] args = null;
+        String className = null;
+        if (moduleInitInfo.contains("(")) { // arguments
+            className = moduleInitInfo.substring(0, moduleInitInfo.indexOf('('));
+            args = moduleInitInfo.substring(moduleInitInfo.indexOf('(')+1, moduleInitInfo.indexOf(')')).split(",");
+            for (int i=0; i<args.length; i++) {
+                if (args[i].startsWith("$")) {
+                    // replace value with content of property named after the $
+                    args[i] = MaryProperties.getProperty(args[i].substring(1));
+                }
+            }
+        } else { // no arguments
+            className = moduleInitInfo;
+        }
+        logger.info("Now initiating class '"+className+"'");
+        Class<? extends MaryModule> theClass = Class.forName(className).asSubclass(MaryModule.class);
+        // Now invoke Constructor with args.length String arguments
+        if (args != null) {
+            Class<String>[] constructorArgTypes = new Class[args.length];
+            Object[] constructorArgs = new Object[args.length];
+            for (int i=0; i<args.length; i++) {
+                constructorArgTypes[i] = String.class;
+                constructorArgs[i] = args[i];
+            }
+            Constructor<? extends MaryModule> constructor = (Constructor<? extends MaryModule>) theClass.getConstructor(constructorArgTypes);
+            m = constructor.newInstance(constructorArgs);
+        } else {
+            m = theClass.newInstance();
+        }
+        return m;
+    }
     
+
     //////////////////////////////////////////////////////////////////
     ///////////////////////// registration ///////////////////////////
     //////////////////////////////////////////////////////////////////
