@@ -117,8 +117,8 @@ public class Mary {
     private static void startModules()
         throws ClassNotFoundException, InstantiationException, Exception {
         // TODO: add parameterisation here, to be able to provide configuration parameters to modules at startup time 
-        for (String moduleClassName : MaryProperties.moduleClasses()) {
-            MaryModule m = (MaryModule) Class.forName(moduleClassName).newInstance();
+        for (String moduleClassName : MaryProperties.moduleInitInfo()) {
+            MaryModule m = ModuleRegistry.instantiateModule(moduleClassName);
             // Partially fill module repository here; 
             // TODO: voice-specific entries will be added when each voice is loaded.
             ModuleRegistry.registerModule(m, m.getLocale(), null);

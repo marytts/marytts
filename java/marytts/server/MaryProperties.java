@@ -49,6 +49,7 @@ import java.util.Vector;
 import javax.swing.JOptionPane;
 
 import marytts.exceptions.NoSuchPropertyException;
+import marytts.modules.ModuleRegistry;
 import marytts.signalproc.effects.BaseAudioEffect;
 import marytts.tools.installvoices.VoiceInstaller;
 import marytts.util.InstallationUtils;
@@ -73,7 +74,7 @@ public class MaryProperties
     // Global configuration settings independent of any particular request:
     private static String maryBase = null;
     private static boolean logToFile = false;
-    private static Vector<String> moduleClasses = new Vector<String>();
+    private static Vector<String> moduleInitInfo = new Vector<String>();
     private static Vector<String> synthClasses = new Vector<String>();
     private static Vector<String> audioEffectClasses = new Vector<String>();
     private static Vector<String> audioEffectNames = new Vector<String>();
@@ -98,8 +99,10 @@ public class MaryProperties
     }
     /** Whether to log to the log file or to the screen */
     public static boolean logToFile() { return logToFile; }
-    /** Names of the classes to use as modules. */
-    public static Vector<String> moduleClasses() { return moduleClasses; }
+    /** Names of the classes to use as modules, plus optional parameter info.
+     * @see marytts.modules.ModuleRegistry#instantiateModule(String) for details on expected format.
+     */
+    public static Vector<String> moduleInitInfo() { return moduleInitInfo; }
     /** Names of the classes to use as waveform synthesizers. */
     public static Vector<String> synthesizerClasses() { return synthClasses; }
     /** Names of the classes to use as audio effects. */
@@ -197,7 +200,7 @@ public class MaryProperties
         Set<String> ignoreModuleClasses = new HashSet<String>();
         helperString = getProperty("ignore.modules.classes.list");
         if (helperString != null) {
-            // allow whitespace and comma as list delimiters
+            // allow whitespace as list delimiters
             st = new StringTokenizer(helperString, ", \t\n\r\f");
             while (st.hasMoreTokens()) {
                 ignoreModuleClasses.add(st.nextToken());
@@ -205,17 +208,17 @@ public class MaryProperties
         }
         
         helperString = needProperty("modules.classes.list");
-        // allow whitespace and comma as list delimiters
-        st = new StringTokenizer(helperString, ", \t\n\r\f");
+        // allow whitespace as list delimiters
+        st = new StringTokenizer(helperString, " \t\n\r\f");
         while (st.hasMoreTokens()) {
             String className = st.nextToken();
             if (!ignoreModuleClasses.contains(className))
-                moduleClasses.add(className);
+                moduleInitInfo.add(className);
         }
 
         helperString = needProperty("synthesizers.classes.list");
-        // allow whitespace and comma as list delimiters
-        st = new StringTokenizer(helperString, ", \t\n\r\f");
+        // allow whitespace as list delimiters
+        st = new StringTokenizer(helperString, " \t\n\r\f");
         while (st.hasMoreTokens()) {
             synthClasses.add(st.nextToken());
         }
@@ -224,8 +227,8 @@ public class MaryProperties
         helperString = getProperty("audioeffects.classes.list");
         if (helperString!=null)
         {
-            // allow whitespace and comma as list delimiters
-            st = new StringTokenizer(helperString, ", \t\n\r\f");
+            // allow whitespace as list delimiters
+            st = new StringTokenizer(helperString, " \t\n\r\f");
             while (st.hasMoreTokens()) {
                 audioEffectClassName = st.nextToken();
                 audioEffectClasses.add(audioEffectClassName);
