@@ -61,13 +61,17 @@ public class TransducerTrie extends Trie< StringPair > {
         
         // to ensure that number can be encoded:
         // shift to right by the number of available bits and look if something remains
-        if ( (maxAO >> ARCOFFSET_BITS)!=0 )
-            throw new IOException("Cannot write transducer: too many arcs to be encoded in binary fst format.");
+        if ( (maxAO >> ARCOFFSET_BITS)!=0 ) {
+            int numBitsNeeded = (int) Math.ceil(Math.log(maxAO)/Math.log(2));
+            throw new IOException("Cannot write transducer: too many arcs to be encoded in binary fst format (would need "+numBitsNeeded+" bits, have "+ARCOFFSET_BITS+")");
+        }
 
         int maxLID = this.labels.size() + 2;
-        if ( (maxLID >> LABELID_BITS)!=0 )
-            throw new IOException("Cannot write transducer: too many arc-labels to be encoded in binary fst format.");
-
+        if ( (maxLID >> LABELID_BITS)!=0 ) {
+            int numBitsNeeded = (int) Math.ceil(Math.log(maxLID)/Math.log(2));
+            throw new IOException("Cannot write transducer: too many arc-labels to be encoded in binary fst format (would need "+numBitsNeeded+" bits, have "+LABELID_BITS+")");
+        }
+        
         if (!Charset.isSupported(encoding)) 
             throw new IOException("Cannot write transducer: encoding not supported.");
 
