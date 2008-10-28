@@ -12,7 +12,7 @@ import marytts.features.FeatureVector;
  */
 public abstract class LeafNode extends Node {
 
-    // unique index used in HTS format
+    // unique index used in MaryCART format
     protected int uniqueLeafId;
     
 
@@ -63,7 +63,7 @@ public abstract class LeafNode extends Node {
         return 1;
     }
     
-    //  unique index used in HTS format
+    //  unique index used in MaryCART format
     public void setUniqueLeafId(int id) {
         this.uniqueLeafId = id;
     }
@@ -402,4 +402,74 @@ public abstract class LeafNode extends Node {
 
     }
 
+    
+    /**
+     * A leaf class that is suitable for regression trees.
+     * Here, a leaf consists of a mean and a diagonal covariance vectors. 
+     * This node will be used in HTS CART trees.
+     *
+     */
+    public static class PdfLeafNode extends LeafNode
+    {
+        private int vectorSize;
+        private float[] mean;
+        private float[] variance;   // diagonal covariance
+        
+        // A unique index number is needed when creating a PdfLeafNode.
+        // this is because the HTS files contain the tree and pdf data in different
+        // files, first the tree indexes are read and afterwards the pdf's are added
+        // according to the unique indexes.
+        public PdfLeafNode(int id)
+        {
+          super();  
+          this.setUniqueLeafId(id); 
+        }
+        
+        public void setPdf(float[] mean, float[] variance)
+        {
+            if(mean.length == variance.length)
+               this.vectorSize = mean.length;
+            else throw new IllegalStateException("Mean and variance should be the same size.");
+                
+            this.mean = mean;
+            this.variance = variance;
+        }
+             
+        public int getDataLength() {return mean.length; }
+        public float[] getMean() { return mean; }
+        public float[] getVariance() { return variance; }
+
+       
+        public int getVectorSize()
+        {
+            return vectorSize;
+        }
+ 
+        protected void fillData(Object target, int pos, int len)
+        {
+            throw new IllegalStateException("This method should not be called for PdfLeafNodes");
+        }
+
+        // not meaningful here.
+        public Object getAllData() {
+            return null;
+        }
+        
+        // not meaningful here.
+        public int getNumberOfData()
+        {
+            return -1;
+        }
+        
+        public String toString()
+        {
+            if (mean == null) return "mean=null, stddev=null";
+            return "mean=[" + vectorSize + "], stddev=[" + vectorSize + "]";
+        }
+
+    }
+    
+    
+    
+    
 }

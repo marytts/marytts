@@ -69,6 +69,17 @@ public abstract class DecisionNode extends Node {
         // for trace and getDecisionPath():
         this.featureDefinition = featureDefinition;
     }
+    
+    //mch
+    public DecisionNode(int numDaughters, FeatureDefinition featureDefinition) {
+        //this.featureIndex = featureIndex;
+        //this.feature = featureDefinition.getFeatureName(featureIndex);
+        daughters = new Node[numDaughters];
+        isRoot = false;
+        // for trace and getDecisionPath():
+        this.featureDefinition = featureDefinition;
+    }
+    
 
     /**
      * Get the name of the feature
@@ -298,7 +309,22 @@ public abstract class DecisionNode extends Node {
             super(feature, 2, featureDefinition);
             this.value = featureDefinition.getFeatureValueAsByte(feature, value);
         }
-
+        
+        // mch creates an empty node with a unique id
+        public BinaryByteDecisionNode(int uniqueId, FeatureDefinition featureDefinition) {
+            super(2, featureDefinition);
+            this.uniqueDecisionNodeId = uniqueId;
+        }
+        
+        
+        //mch
+        public void setFeatureAndFeatureValue(String feature, String value) {
+            this.feature = feature;
+            this.featureIndex = featureDefinition.getFeatureIndex(feature);
+            this.value = featureDefinition.getFeatureValueAsByte(feature, value);
+        }
+        
+        
         /**
          * Select a daughter node according to the value in the given target
          * 
