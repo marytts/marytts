@@ -139,15 +139,18 @@ public class WagonCARTWriter {
         
         else if( node instanceof FloatLeafNode ) 
             toWagonFormat(((FloatLeafNode) node), out, extension, pw);
-        
+
+        // need to have StringAndFloatLeafNode before IntAndFloatArrayLeafNode, because
+        // the former extends the latter
+        else if( node instanceof StringAndFloatLeafNode ) 
+            toWagonFormat(((StringAndFloatLeafNode) node), out, extension, pw);  
+
         else if( node instanceof IntAndFloatArrayLeafNode ) 
             toWagonFormat(((IntAndFloatArrayLeafNode) node), out, extension, pw);
         
         else if( node instanceof IntArrayLeafNode ) 
             toWagonFormat(((IntArrayLeafNode) node), out, extension, pw);
         
-        else if( node instanceof StringAndFloatLeafNode ) 
-            toWagonFormat(((StringAndFloatLeafNode) node), out, extension, pw);  
         
     }
     
@@ -305,7 +308,7 @@ public class WagonCARTWriter {
         }
         if (pw != null) {
             // dump to printwriter
-            pw.print(s);
+            pw.println(s);
         }
     }
     
@@ -346,8 +349,7 @@ public class WagonCARTWriter {
         }
         if (pw != null) {
             // dump to printwriter
-            // TODO: change print to println
-            pw.print(sb.toString());
+            pw.println(sb.toString());
         }
     }  
     
@@ -386,7 +388,7 @@ public class WagonCARTWriter {
         }
         if (pw != null) {
             // dump to printwriter
-            pw.print(sb.toString());
+            pw.println(sb.toString());
         }
     }
        
@@ -428,8 +430,7 @@ public class WagonCARTWriter {
         }
         if (pw != null) {
             // dump to printwriter
-            // TODO: change print to println
-            pw.print(sb.toString());
+            pw.println(sb.toString());
         }
     }
     

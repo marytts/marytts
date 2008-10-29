@@ -191,12 +191,12 @@ public class TransducerTrie extends Trie< StringPair > {
 
         // initialize trainer
         //AlignerTrainer at = new AlignerTrainer(PhonemeSet.getPhonemeSet(phFileLoc), Locale.ENGLISH);
-        AlignerTrainer at = new AlignerTrainer();
+        AlignerTrainer at = new AlignerTrainer(false, true);
 
         System.out.println("reading lexicon...");
 
         // read lexicon for training
-        at.readLexicon(lexReader, "\\\\", true);
+        at.readLexicon(lexReader, "\\\\");
 
         System.out.println("...done!");
 
