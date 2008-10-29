@@ -66,7 +66,7 @@ public class HTSTree {
     private HTSNode leaf;  /* leaf nodes of this decision tree */
     private HTSTree next;  /* link to next tree */
     
-    private Vector pattern;  /* pattern list for this tree */
+ //   private Vector pattern;  /* pattern list for this tree */
     
     /* Every time a new Tree is created a new vector of patterns is created */
 	public HTSTree(){
@@ -74,7 +74,7 @@ public class HTSTree {
 		root = null;
 		leaf = null;
 		next = null;
-		pattern = new Vector();
+//		pattern = new Vector();
 	}
 	public void insertNext(){ next = new HTSTree(); }
 	public HTSTree getNext(){ return next; }
