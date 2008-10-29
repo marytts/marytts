@@ -37,36 +37,30 @@ import marytts.tools.voiceimport.MaryHeader;
  */
 public class HTSCARTReader
 {
-    //private Node rootNode;  //there will be one root node for each CART[state]
-
-    // knows the index numbers and types of the features used in DecisionNodes
-    private FeatureDefinition featDef;
-   
-    //private Node lastNode;
     
+    private FeatureDefinition featDef; 
     private Logger logger = Logger.getLogger("HTSCARTReader");
     
-    /**
-     * Load the cart from the given file
-     * 
-     * @param fileName
-     *            the file to load the cart from
-     * @param featDefinition
-     *            the feature definition
-     * @return CART[]
-     *            returns an array of CART trees, one per state.
-     * @throws IOException
-     *             if a problem occurs while loading
-     */
-    public CART[] load(int numStates, String fileName, FeatureDefinition featDefinition)
-            throws Exception {
-        //System.out.println("Loading file");
+/**
+ * Load the cart from the given file
+ * @param nummStates
+ *            number of states in the HTS model, it will create one cart tree per state.
+ * @param treefileName
+ *            the HTS tree text file, example tree-mgc.inf.
+ * @param pdfFileName
+ *            the corresponding HTS pdf binary file, example mgc.pdf.
+ * @param featDefinition
+ *            the feature definition
+ * @return CART[]
+ *            returns an array of CART trees, one per state.
+ * @throws IOException
+ *             if a problem occurs while loading
+ */
+public CART[] load(int numStates, String treeFileName, String pdfFileName, FeatureDefinition featDefinition)
+       throws Exception {
         
         featDef = featDefinition;
-      
         int i, j, length, state;
-        DataInput raf = new DataInputStream(new BufferedInputStream(new FileInputStream(fileName)));
-        
         BufferedReader s = null;
         String line, aux;
         
@@ -74,45 +68,54 @@ public class HTSCARTReader
         CART treeSet[] = new CART[numStates];
         for(i=0; i<numStates; i++)
            treeSet[i] = new CART();
-        
+       
+        // First load pdfs, so when creates the tree fill the leaf nodes with 
+        // the corresponding mean and variances.
+        /**
+         * load pdf's, mean and variance
+         * pdfs format    : pdf[numStates][numPdfs][numStreams][2*vectorSize]
+         * -------------------------------------------------------------------
+         * for dur        : pdf[   1     ][numPdfs][    1     ][2*numStates ]
+         * for mgc,str,mag: pdf[numStates][numPdfs][    1     ][2*vectorSize]; 
+         * for joinModel  : pdf[numStates][numPdfs][    1     ][2*vectorSize]; 
+         * for lf0        : pdf[numStates][numPdfs][numStreams][     4      ]
+         * ------------------------------------------------------------------
+         * - numPdf       : corresponds to the unique leaf node id.
+         * - 2*vectorSize : means that mean and variance are in the same vector.
+         * - 4 in lf0     : means 0: mean, 1: variance, 2: voiced weight and 
+         *                  3: unvoiced weight
+         * ------------------------------------------------------------------ */
+        double pdf[][][][];     
+        pdf = loadPdfs(numStates, pdfFileName);
+               
         assert featDefinition != null : "Feature Definition was not set";
             
         try {   
           /* read lines of tree-*.inf fileName */ 
-          s = new BufferedReader(new InputStreamReader(new FileInputStream(fileName)));
-            
-          //System.out.println("LoadTreeSet reading: " + fileName + " tree type: " + type);
-          logger.info("LoadTreeSet reading: " + fileName);
+          s = new BufferedReader(new InputStreamReader(new FileInputStream(treeFileName)));
+          logger.info("load: reading " + treeFileName);
           
           // skip questions section
           while((line = s.readLine()) != null) {
               if (line.indexOf("QS") < 0 ) break;   /* a new state is indicated by {*}[2], {*}[3], ... */
           }
           
-          while((line = s.readLine()) != null) {
-             
+          while((line = s.readLine()) != null) {            
             if(line.indexOf("{*}") >= 0 ){  /* this is the indicator of a new state-tree */
               aux = line.substring(line.indexOf("[")+1, line.indexOf("]")); 
               state = Integer.parseInt(aux);
-              //System.out.println("Loading tree type=" + type + " TREE STATE: " +  t.get_state() );
-                            
-              ////////////////////
-              // the state numbers start in 2 until 7
-              //Node rootNode = loadStateTree(s, false);
-              //treeSet[state-2].setRootNode(rootNode);   /* load one tree per state */
-              System.out.println("Loading state:" + state);
-              treeSet[state-2].setRootNode(loadStateTree(s, false));
-              
-            }
-           
+              // loads one cart tree per state
+              treeSet[state-2].setRootNode(loadStateTree(s, pdf[state-2]));
+              logger.info("load: CART[" + (state-2) + "], total number of nodes in this CART: " + treeSet[state-2].getNumNodes());            
+            }         
           } /* while */  
           if (s != null)
             s.close();
           
           /* check that the tree was correctly loaded */
           if( treeSet.length == 0 ) {
-            logger.debug("LoadTreeSet: error no trees loaded from " + fileName);  
-            throw new Exception("LoadTreeSet: error no trees loaded from  " + fileName);   
+            logger.debug("LoadTreeSet: error no trees loaded from " + treeFileName);  
+            throw new Exception("LoadTreeSet: error no trees loaded from  " + treeFileName);   
           }
           
           
@@ -127,12 +130,10 @@ public class HTSCARTReader
     }
 
 /** Load a tree per state
- * @param s: text scanner of the whole tree-*.inf file
- * @param t: tree to be filled
- * @param type: corresponds to one of DUR, logF0, MCP, STR and MAG
- * @param debug: when true print out detailled information
+ * @param s    : text scanner of the whole tree-*.inf file
+ * @param pdf  : the pdfs for this state, pdf[numPdfs][numStreams][2*vectorSize]
  */
-private Node loadStateTree(BufferedReader s, boolean debug) throws Exception {
+private Node loadStateTree(BufferedReader s, double pdf[][][]) throws Exception {
     
   Node rootNode=null;
   Node lastNode=null;
@@ -140,18 +141,20 @@ private Node loadStateTree(BufferedReader s, boolean debug) throws Exception {
   StringTokenizer sline;
   String aux,buf;
   
-  // create an empy binary decision node with unique id=0
+  // create an empty binary decision node with unique id=0, this will be the rootNode
   Node nextNode = new DecisionNode.BinaryByteDecisionNode(0, featDef);
   
   // this is the rootNode
   rootNode = nextNode;
   nextNode.setIsRoot(true);
  
-  int iaux, feaIndex;
-  
+  int iaux, feaIndex, ndec, nleaf;
+  ndec=0;
+  nleaf=0;
   Node node = null;
   aux = s.readLine();   /* next line for this state tree must be { */
   int id;
+
   if(aux.indexOf("{") >= 0 ) {
     while ( (aux = s.readLine()) != null && aux.indexOf("}") < 0 ){  /* last line for this state tree must be } */
         /* then parse this line, it contains 4 fields */
@@ -160,20 +163,19 @@ private Node loadStateTree(BufferedReader s, boolean debug) throws Exception {
       
         /* 1:  gets index node and looks for the node whose idx = buf */
         buf = sline.nextToken();      
-        if(buf.startsWith("-"))
-          id = Integer.parseInt(buf.substring(1)); 
+        if(buf.startsWith("-")){
+          id = Integer.parseInt(buf.substring(1));
+          ndec++;
+        } else if (buf.contentEquals("0"))
+          id = 0;  
         else
-          id = Integer.parseInt(buf);  
-        
-        //System.out.println("searching node id=" + id);
-        //if(id==239)
-        //    System.out.println("searching node id=" + id);   
+          throw new Exception("LoadStateTree: line does not start with a decision node (-id), line=" +  aux);   
+        // 1. find the node in the tree, it has to be already created.
         node = findDecisionNode(rootNode,id);
-        //System.out.println();
-      
+        
         if(node == null)
-            throw new Exception("LoadTree: Node not found, index = " +  buf); 
-        else {    
+            throw new Exception("LoadStateTree: Node not found, index = " +  buf); 
+        else {             
           /* 2: gets question name and question name val */
           buf = sline.nextToken();
           String [] fea_val = buf.split("=");   /* splits featureName=featureValue*/
@@ -192,8 +194,6 @@ private Node loadStateTree(BufferedReader s, boolean debug) throws Exception {
           // add NO and YES indexes to the daughther nodes 
           /* NO index */
           buf = sline.nextToken();
-          //System.out.print("  NO:" + buf + "   ");
-          
           if(buf.startsWith("-")) {  // Decision node
             iaux = Integer.parseInt(buf.substring(1));
             // create an empty binary decision node with unique id
@@ -202,37 +202,44 @@ private Node loadStateTree(BufferedReader s, boolean debug) throws Exception {
             ((DecisionNode) node).replaceDaughter(auxnode, 0);
           } else {                  // LeafNode
             iaux = Integer.parseInt(buf.substring(buf.lastIndexOf("_")+1, buf.length()-1));
-            // create an empty PdfLeafNode, just with id
-            PdfLeafNode auxnode = new LeafNode.PdfLeafNode(iaux);
+            // create an empty PdfLeafNode
+            PdfLeafNode auxnode = new LeafNode.PdfLeafNode(iaux, pdf[iaux-1]);
             auxnode.setMother(node);
             ((DecisionNode) node).replaceDaughter(auxnode, 0);
+            nleaf++;
           }
+
           /* YES index */
           buf = sline.nextToken();
-          //System.out.print("  YES: " + buf + "   ");
-          if(buf.startsWith("-")) {
+          if(buf.startsWith("-")) {   // Decision node 
             iaux = Integer.parseInt(buf.substring(1));
             // create an empty binary decision node with unique id=0
             BinaryByteDecisionNode auxnode = new DecisionNode.BinaryByteDecisionNode(iaux, featDef);
             auxnode.setMother(node);
             ((DecisionNode) node).replaceDaughter(auxnode, 1);
-          } else {  /*convert name of node to node index number */
+          } else {                   // LeafNode
             iaux = Integer.parseInt(buf.substring(buf.lastIndexOf("_")+1, buf.length()-1));
-            // create an empty PdfLeafNode, just with id
-            PdfLeafNode auxnode = new LeafNode.PdfLeafNode(iaux);
+            // create an empty PdfLeafNode
+            PdfLeafNode auxnode = new LeafNode.PdfLeafNode(iaux, pdf[iaux-1]);
             auxnode.setMother(node);
             ((DecisionNode) node).replaceDaughter(auxnode, 1);
-          }
+            nleaf++;
+          } 
         }  /* if node not null */
         sline=null;
     } /* while there is another line and the line does not contain }*/
   }  /* if not "{" */
- 
+  
+  logger.info("loadStateTree: loaded CART contains " + (ndec+1) + " Decision nodes and " + nleaf + " Leaf nodes.");
   return rootNode;
   
 } /* method loadTree() */
 
- 
+/**
+ * @param node, decision node
+ * @param numId, index to look for.
+ * @return
+ */ 
 private Node findDecisionNode(Node node, int numId){
     
     Node aux = null;  
@@ -253,30 +260,194 @@ private Node findDecisionNode(Node node, int numId){
        
   } /* method findDecisionNode */
 
-private Node findNode(Node node, int numId){
-  
-  Node aux = null;  
+
+/** Load pdf's, mean and variance 
+* the #leaves corresponds to the unique leaf node id
+* pdf --> [#states][#leaves][#streams][vectorsize]   
+* The format of pdf files for mgc, str or mag is:
+* header:
+*   4 byte int: dimension feature vector 
+*   4 byte int: # of leaf nodes for state 1
+*   4 byte int: # of leaf nodes for state 2 
+*   ...
+*   4 byte int: # of leaf nodes for state N
+* probability distributions:
+*   4 byte float means and variances (2*pdfVsize): all leaves for state 1 
+*   4 byte float means and variances (2*pdfVsize): all leaves for state 2
+*   ...
+*   4 byte float means and variances (2*pdfVsize): all leaves for state N 
+*   ---------------------------------------------------------------------
+* The format of pdf files for dur is:
+* header:
+*   4 byte int: # of HMM states <-- this is the dimension of vector in duration
+*   4 byte int: # of leaf nodes for state 1 <-- dur has just one state
+* probability distributions:
+*   4 byte float means and variances (2*HMMsize): all leaves for state 1
+*   ---------------------------------------------------------------------
+* The format of pdf files for lf0 is:
+* header:
+*   4 byte int: dimension feature vector 
+*   4 byte int: # of leaf nodes for state 1
+*   4 byte int: # of leaf nodes for state 2 
+*   ...
+*   4 byte int: # of leaf nodes for state N
+* probability distributions:
+*   4 byte float mean, variance, voiced, unvoiced (4 floats): stream 1..S, leaf 1..L, state 1
+*   4 byte float mean, variance, voiced, unvoiced (4 floats): stream 1..S, leaf 1..L, state 2
+*   ...
+*   4 byte float mean, variance, voiced, unvoiced (4 floats): stream 1..S, leaf 1..L, state N   
+*/
+private double [][][][] loadPdfs(int numState, String pdfFileName) throws Exception {
     
-    if (node instanceof DecisionNode){
-      //System.out.print(" id=" + ((DecisionNode)node).getUniqueDecisionNodeId());  
-      if( ((DecisionNode)node).getUniqueDecisionNodeId() == numId ) 
-        return node;
-      else {
-        for(int i=0; i< ((DecisionNode)node).getNumberOfDaugthers(); i++){
-          aux = findNode( ((DecisionNode)node).getDaughter(i), numId );
-          if(aux != null)
-            return aux;
+    DataInputStream data_in;
+    int i, j, k, l, numDurPdf, lf0Stream;
+    double vw, uvw;
+    int vsize;
+    int numPdf[];
+    int numStream; 
+    double pdf[][][][]= null;  // pdf[numState][numPdf][stream][vsize];
+       
+    try {  
+        
+    if(pdfFileName.contains("dur.pdf")) {    
+      /*________________________________________________________________*/
+      /*-------------------- load pdfs for duration --------------------*/ 
+        data_in = new DataInputStream (new BufferedInputStream(new FileInputStream(pdfFileName)));
+      logger.info("loadPdfs reading: " + pdfFileName);
+        
+      /* read the number of states & the number of pdfs (leaf nodes) */
+      /* read the number of HMM states, this number is the same for all pdf's. */        
+        numState = data_in.readInt();
+        //System.out.println("loadPdfs: nstate = " + nstate);
+        
+        /* check number of states */
+        if( numState < 0 )
+        throw new Exception("loadPdfs: #HMM states must be positive value.");
+      
+         
+        /* read the number of duration pdfs */
+        numDurPdf = data_in.readInt();
+        logger.info("loadPdfs: numPdf[state:0]=" + numDurPdf);
+        
+        /* Now we know the number of duration pdfs and the vector size which is */
+        /* the number of states in each HMM. Here the vector size is 2*nstate because*/
+        /* the first nstate correspond to the mean and the second nstate correspond */
+        /* to the diagonal variance vector, the mean and variance are copied here in */
+        /* only one vector. */
+        /* 2*nstate because the vector size for duration is the number of states */
+        pdf = new double[1][numDurPdf][1][2*numState];  // just one state and one stream
+        
+        /* read pdfs (mean & variance) */
+        for ( i = 0; i < numDurPdf; i++){
+          for ( j = 0; j < (2 * numState); j++) {
+              pdf[0][i][0][j] = data_in.readFloat();
+              //System.out.println("durpdf[" + i + "]" + "[" + j + "]:" + durPdf[i][j]);
+          }
+        }  
+        data_in.close (); 
+        data_in=null;
+        
+    } else if(pdfFileName.contains("lf0.pdf")) {    
+        /*____________________________________________________________________*/
+        /*-------------------- load pdfs for Log F0 --------------*/
+        data_in = new DataInputStream (new BufferedInputStream(new FileInputStream (pdfFileName)));
+      logger.info("loadPdfs reading: " + pdfFileName);
+        /* read the number of streams for f0 modeling */
+      lf0Stream  = data_in.readInt();
+        //System.out.println("loadPdfs: lf0stream = " + lf0stream);
+      
+        if( lf0Stream < 0 )
+        throw new Exception("loadPdfs:  #stream for log f0 part must be positive value.");
+        
+        /* read the number of pdfs for each state position */
+        pdf = new double[numState][][][];
+        numPdf = new int[numState];
+        for(i=0; i< numState; i++){
+           numPdf[i] = data_in.readInt();
+           logger.info("loadPdfs: numPdf[state:"+ i + "]=" + numPdf[i]);
+           if( numPdf[i] < 0 )
+           throw new Exception("loadPdfs: #lf0 pdf at state " + i + " must be positive value.");
+           //System.out.println("nlf0pdf[" + i + "] = " + nlf0pdf[i]);
+           /* Now i know the size of pdfs for lf0 [#states][#leaves][#streams][lf0_vectorsize] */
+           /* lf0_vectorsize = 4: mean, variance, voiced weight, and unvoiced weight */
+           /* so i can allocate memory for lf0pdf[][][] */
+           pdf[i] = new double[numPdf[i]][lf0Stream][4];         
         }
+        
+        /* read lf0 pdfs (mean, variance and weight).  */
+        for(i=0; i< numState; i++){
+          for( j=0; j<numPdf[i]; j++){     
+              for( k=0; k<lf0Stream; k++ ){
+                  for( l=0; l<4; l++){
+                    pdf[i][j][k][l] = data_in.readFloat();
+                    //System.out.println("pdf["+i+ "]["+j+"]["+k+"]["+l+"] =" + pdf[i][j][k][l]);
+                  }
+                  vw  = pdf[i][j][k][2]; /* voiced weight */
+                  uvw = pdf[i][j][k][3]; /* unvoiced weight */
+                  if (vw<0.0 || uvw<0.0 || vw+uvw<0.99 || vw+uvw>1.01 )
+                  throw new Exception("loadPdfs: voiced/unvoiced weights must be within 0.99 to 1.01.");
+              }
+          }
+        }
+        
+        data_in.close (); 
+        data_in=null;
+        
+    } else if(pdfFileName.contains("mgc.pdf") || 
+              pdfFileName.contains("str.pdf") ||
+              pdfFileName.contains("mag.pdf") ) {       
+      /*___________________________________________________________________________*/
+      /*-------------------- load pdfs for mgc, str or mag ------------------------*/
+      data_in = new DataInputStream (new BufferedInputStream(new FileInputStream (pdfFileName)));
+      logger.info("loadPdfs reading: " + pdfFileName);
+      /* read vector size for spectrum */
+    
+      numStream = 1;   // just one stream for mgc, str, mag. This is just to have only one 
+                       // type of pdf vector for all posible pdf's 
+      vsize = data_in.readInt();
+      //System.out.println("loadPdfs: vsize = " + vsize);
+      
+      if( vsize < 0 )
+         throw new Exception("loadPdfs: vector size of pdf must be positive."); 
+        
+        /* Now we need the number of pdf's for each state */
+      pdf = new double[numState][][][];
+      numPdf = new int[numState];
+      for(i=0; i< numState; i++){
+         numPdf[i] = data_in.readInt();
+         logger.info("loadPdfs: numPdf[state:"+ i + "]=" + numPdf[i]);
+         if( numPdf[i] < 0 )
+             throw new Exception("loadPdfs: #pdf at state " + i + " must be positive value.");
+           //System.out.println("nmceppdf[" + i + "] = " + nmceppdf[i]);
+           /* Now i know the size of mceppdf[#states][#leaves][vectorsize] */
+           /* so i can allocate memory for mceppdf[][][] */
+         pdf[i] = new double[numPdf[i]][numStream][2*vsize];         
       }
-    } else if( node instanceof LeafNode){
-       //System.out.println(" id=" + ((LeafNode)node).getUniqueLeafId()); 
-       if( ((LeafNode)node).getUniqueLeafId() == numId )
-         return node;
-    }
- 
-    return aux;
-     
-} /* method findNode */
+        
+        /* read  pdfs (mean, variance). (2*vsize because mean and diag variance */
+        /* are allocated in only one vector. */
+        for(i=0; i< numState; i++){
+          for( j=0; j<numPdf[i]; j++){        
+              for( k=0; k<(2*vsize); k++ ){
+                  pdf[i][j][0][k] = data_in.readFloat();  // [0] corresponds to stream, in this case just one.
+                  //System.out.println("pdf["+ i + "][" + j + "][0][" + k + "] =" + pdf[i][j][0][k]);
+              }
+          }
+        }
+        data_in.close (); 
+        data_in=null;
+
+      }      
+    } catch (Exception e) {
+       logger.debug("loadPdfs: " + e.getMessage());
+       throw new Exception("loadPdfs: " + e.getMessage());
+    } 
+    
+    return pdf;
+    
+} /* method loadPdfs */ 
+
+
 
     
 public static void main(String[] args) throws IOException, InterruptedException{
@@ -296,19 +467,17 @@ public static void main(String[] args) throws IOException, InterruptedException{
       
     CART[] mgcTree;
     int numStates = 5;
-    String fileName = "/project/mary/marcela/openmary/lib/voices/hsmm-slt/tree-lf0.inf";
+    String treefile = "/project/mary/marcela/openmary/lib/voices/hsmm-slt/tree-mgc.inf";
+    String pdffile = "/project/mary/marcela/openmary/lib/voices/hsmm-slt/mgc.pdf";
     
     HTSCARTReader htsReader = new HTSCARTReader(); 
     try {
-      mgcTree = htsReader.load(numStates, fileName, feaDef);
+      mgcTree = htsReader.load(numStates, treefile, pdffile, feaDef);
     } catch (Exception e) {
         System.out.println(e.getMessage()); 
     }
 
  }
-
-
-
 
     
 }
