@@ -70,10 +70,13 @@ public abstract class DecisionNode extends Node {
         this.featureDefinition = featureDefinition;
     }
     
-    //mch
+    /**
+     * Construct a new DecisionNode
+     * 
+     * @param numDaughters
+     *            the number of daughters
+     */
     public DecisionNode(int numDaughters, FeatureDefinition featureDefinition) {
-        //this.featureIndex = featureIndex;
-        //this.feature = featureDefinition.getFeatureName(featureIndex);
         daughters = new Node[numDaughters];
         isRoot = false;
         // for trace and getDecisionPath():
@@ -310,14 +313,26 @@ public abstract class DecisionNode extends Node {
             this.value = featureDefinition.getFeatureValueAsByte(feature, value);
         }
         
-        // mch creates an empty node with a unique id
+        /***
+         * Creates an empty BinaryByteDecisionNode, the feature and feature value of this
+         * node should be filled with setFeatureAndFeatureValue() function.
+         * @param uniqueId
+         *            unique index from tree HTS test file.
+         * @param featureDefinition
+         */
         public BinaryByteDecisionNode(int uniqueId, FeatureDefinition featureDefinition) {
             super(2, featureDefinition);
+            //System.out.println("adding decision node: " + uniqueId);
             this.uniqueDecisionNodeId = uniqueId;
         }
         
         
-        //mch
+        /***
+         * Fill the feature and feature value of an already created (empty) 
+         * BinaryByteDecisionNode.
+         * @param feature
+         * @param value
+         */
         public void setFeatureAndFeatureValue(String feature, String value) {
             this.feature = feature;
             this.featureIndex = featureDefinition.getFeatureIndex(feature);

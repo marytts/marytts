@@ -412,32 +412,56 @@ public abstract class LeafNode extends Node {
     public static class PdfLeafNode extends LeafNode
     {
         private int vectorSize;
-        private float[] mean;
-        private float[] variance;   // diagonal covariance
-        
-        // A unique index number is needed when creating a PdfLeafNode.
-        // this is because the HTS files contain the tree and pdf data in different
-        // files, first the tree indexes are read and afterwards the pdf's are added
-        // according to the unique indexes.
-        public PdfLeafNode(int id)
+        private double[] mean;       // mean vector.
+        private double[] variance;   // diagonal covariance.
+        private double voicedWeight; // only for lf0 tree.
+             
+        /**
+         * @param idx, a unique index number
+         * @param pdf, pdf[numStreams][2*vectorSize] 
+         */
+        public PdfLeafNode(int idx, double pdf[][]) throws Exception
         {
-          super();  
-          this.setUniqueLeafId(id); 
-        }
-        
-        public void setPdf(float[] mean, float[] variance)
-        {
-            if(mean.length == variance.length)
-               this.vectorSize = mean.length;
-            else throw new IllegalStateException("Mean and variance should be the same size.");
-                
-            this.mean = mean;
-            this.variance = variance;
+          super();
+          this.setUniqueLeafId(idx);
+          //System.out.println("adding leaf node: " + idx);
+          if(pdf != null) {
+          double val;
+          int i, j, vsize, nstream; 
+          nstream = pdf.length;
+          
+          if(nstream == 1) {  // This is the case for dur, mgc, str, mag, or joinModel.
+            vsize = (pdf[0].length)/2; 
+            vectorSize = vsize;
+            mean = new double[vsize];
+            for(i=0, j=0; j<vsize; i++,j++)
+              mean[i] = pdf[0][j];
+            variance = new double[vsize];
+            for(i=0, j=vsize; j<(2*vsize); i++,j++)
+              variance[i] = pdf[0][j];
+            
+          } else {           // this is the case for lf0
+            vectorSize = nstream;  
+            mean = new double[nstream];
+            variance = new double[nstream];
+            for(int stream=0; stream<nstream; stream++) {
+              mean[stream]     = pdf[stream][0];
+              variance[stream] = pdf[stream][1];
+              //vw  = lf0pdf[numStates][numPdfs][numStreams][2]; /* voiced weight */
+              //uvw = lf0pdf[numStates][numPdfs][numStreams][3]; /* unvoiced weight */
+              if(stream == 0)
+                voicedWeight =  pdf[stream][2]; 
+           }      
+          }
+          } else {
+              throw new Exception("PdfLeafNode: pdf vector is null for index=" + idx);  
+          }
+          
         }
              
         public int getDataLength() {return mean.length; }
-        public float[] getMean() { return mean; }
-        public float[] getVariance() { return variance; }
+        public double[] getMean() { return mean; }
+        public double[] getVariance() { return variance; }
 
        
         public int getVectorSize()
