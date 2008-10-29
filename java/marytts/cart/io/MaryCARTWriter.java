@@ -225,12 +225,14 @@ public class MaryCARTWriter{
             printLeafNodes(((FeatureVectorLeafNode) node), out, pw);
           else if( node instanceof FloatLeafNode ) 
               printLeafNodes(((FloatLeafNode) node), out, pw);
+          // need to have StringAndFloatLeafNode before IntAndFloatArrayLeafNode, because
+          // the former extends the latter
+          else if( node instanceof StringAndFloatLeafNode ) 
+              printLeafNodes(((StringAndFloatLeafNode) node), out, pw);
           else if( node instanceof IntAndFloatArrayLeafNode ) 
               printLeafNodes(((IntAndFloatArrayLeafNode) node), out, pw);
           else if( node instanceof IntArrayLeafNode ) 
               printLeafNodes(((IntArrayLeafNode) node), out, pw);
-          else if( node instanceof StringAndFloatLeafNode ) 
-              printLeafNodes(((StringAndFloatLeafNode) node), out, pw);
       }
    }
      

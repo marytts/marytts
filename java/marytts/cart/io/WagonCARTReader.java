@@ -193,7 +193,7 @@ public class WagonCARTReader {
      * @throws IOException
      *             if a problem occurs while loading
      */
-   //CHECK! do we need that String[] dummy???
+   // TODO: CHECK! do we need that String[] dummy???
     public Node load(String fileName, FeatureDefinition featDefinition, String[] dummy )
             throws IOException {
         cleadReader();

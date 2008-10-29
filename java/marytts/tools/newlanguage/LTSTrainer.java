@@ -284,66 +284,52 @@ public class LTSTrainer extends AlignerTrainer{
      * 
      * graphemechain\phonemechain\otherinformation
      * 
-     * Stress is optionally preserved, marking the firsr vowel of a stressed
+     * Stress is optionally preserved, marking the first vowel of a stressed
      * syllable with "1".
      * 
      * @param lexicon reader with lines of lexicon
+     * @param splitPattern a regular expression used for identifying the field separator in each line.
+     * @param convertToLowercase whether to convert all graphemes to lowercase
      * @param considerStress indicator if stress is preserved
      * @throws IOException
      */
-    public void readSampaLexicon(BufferedReader lexicon, boolean considerStress) throws IOException{
+    public void readLexicon(BufferedReader lexicon, String splitPattern, boolean convertToLowercase, boolean considerStress) throws IOException{
                 
         String line;
         
         while ((line = lexicon.readLine()) != null){
-            String[] lineParts = line.trim().split(Pattern.quote(" "));
-            // TODO: remove all non-standard symbols from input side, not only ' and -
-            String graphStr = lineParts[0].toLowerCase(loc).replaceAll("['-.]", "");
+            String[] lineParts = line.trim().split(splitPattern);
+            String graphStr = lineParts[0];
+            if (convertToLowercase) graphStr = graphStr.toLowerCase(loc);
+            graphStr = graphStr.replaceAll("['-.]", "");
 
             // remove all secondary stress markers
             String phonStr = lineParts[1].replaceAll(",", "");
-            
             String[] syllables = phonStr.split("-");
-            
-            
             List<String> separatedPhones = new ArrayList<String>();
             List<String> separatedGraphemes = new ArrayList<String>();
-                        
             String currPh;
-            
-            for (String syl : syllables){
-            
+            for (String syl : syllables) {
                 boolean stress = false;
-                
                 if (syl.startsWith("'")){
                     syl = syl.substring(1);
                     stress = true;
                 }
-                
-                for (Allophone ph : phSet.splitIntoAllophones(syl)){
+                for (Allophone ph : phSet.splitIntoAllophones(syl)) {
                     currPh = ph.name();
-                    
-                    if (stress && considerStress && ph.isVowel()){
-                        
+                    if (stress && considerStress && ph.isVowel()) {
                         currPh += "1";
                         stress = false;
                     }
-                    
                     separatedPhones.add(currPh);
-                }// ... for each phoneme
-                
+                }// ... for each allophone
             }
-
             
-            for ( int i = 0 ; i < graphStr.length() ; i++ ){
-                
+            for ( int i = 0 ; i < graphStr.length() ; i++ ) {
                 this.graphemeSet.add(graphStr.substring(i, i+1));
-                
                 separatedGraphemes.add(graphStr.substring(i, i+1));
             }
-            
             this.addAlreadySplit(separatedGraphemes, separatedPhones);
-            
         }
     }
     
@@ -362,7 +348,7 @@ public class LTSTrainer extends AlignerTrainer{
                         "/Users/benjaminroth/Desktop/mary/english/sampa-lexicon.txt"),"ISO-8859-1"));
         
         // read lexicon for training
-        tp.readSampaLexicon(lexReader, true);
+        tp.readLexicon(lexReader, "\\\\", true, true);
 
         // make some alignment iterations
         for ( int i = 0 ; i < 5 ; i++ ){

@@ -75,7 +75,7 @@ public class AlignerTrainer {
      * should be considered as belonging to the same symbol sets (alignment
      * between identical symbol is then cost-free)
      */
-    public AlignerTrainer(boolean inIsOutAlphabet){
+    public AlignerTrainer(boolean inIsOutAlphabet, boolean hasOptInfo){
         
         this.skipcost = this.defaultcost;
         this.aligncost = new HashMap<StringPair, Integer>();
@@ -85,13 +85,16 @@ public class AlignerTrainer {
         this.graphemeSet = new HashSet<String>();
 
         this.inIsOut = inIsOutAlphabet;
+        if (hasOptInfo){
+            this.optInfo = new ArrayList<String>();
+        }
     }
     
     /**
-     * New AlignerTrainer for pairs of different symbol sets
+     * New AlignerTrainer for pairs of different symbol sets with no optional info.
      */
     public AlignerTrainer(){
-        this(false);
+        this(false, false);
 
     }
     
@@ -111,12 +114,8 @@ public class AlignerTrainer {
      * eg. POS
      * @throws IOException
      */
-    public void readLexicon(BufferedReader lexicon, String splitSym, boolean hasOptInfo) throws IOException{
+    public void readLexicon(BufferedReader lexicon, String splitSym) throws IOException{
         
-        
-        if (hasOptInfo){
-            this.optInfo = new ArrayList<String>();
-        }
         
         String line;
         
@@ -125,7 +124,7 @@ public class AlignerTrainer {
             
             this.splitAndAdd(lineParts[0], lineParts[1]);
             
-            if (hasOptInfo)
+            if (this.optInfo != null)
                 this.optInfo.add(lineParts.length > 2 ? lineParts[2]:null);
             
         }
@@ -171,6 +170,18 @@ public class AlignerTrainer {
     public void addAlreadySplit(String[] inStr, String[] outStr){
         this.inSplit.add(inStr);
         this.outSplit.add(outStr);
+    }
+
+    public void addAlreadySplit(List<String> inStr, List<String> outStr, String optionalInfo){
+        this.inSplit.add(inStr.toArray(new String[]{}));
+        this.outSplit.add(outStr.toArray(new String[]{}));
+        this.optInfo.add(optionalInfo);
+    }
+    
+    public void addAlreadySplit(String[] inStr, String[] outStr, String optionalInfo){
+        this.inSplit.add(inStr);
+        this.outSplit.add(outStr);
+        this.optInfo.add(optionalInfo);
     }
 
      /**

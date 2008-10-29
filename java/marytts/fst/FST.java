@@ -149,7 +149,7 @@ public class FST
         int overallBits = in.readInt();
         int arcOffBits = in.readInt();
         
-        System.out.println("bits: " + overallBits + "-" + arcOffBits);
+        //System.out.println("bits: " + overallBits + "-" + arcOffBits);
         
         // todo: allow for more flexibility
         if (overallBits != 32 || arcOffBits != 20){

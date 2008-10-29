@@ -43,6 +43,7 @@ public class StringCART extends CART{
       // old: this.load(reader, aFeatDef);
       WagonCARTReader wagonReader = new WagonCARTReader(tf);
       this.setRootNode(wagonReader.load(reader, aFeatDef));
+      this.featDef = aFeatDef;
         
     }
     
