@@ -32,7 +32,9 @@ package marytts.client.http;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
+import java.net.URLDecoder;
 import java.util.concurrent.CountDownLatch;
 
 import marytts.util.string.StringUtils;
@@ -78,27 +80,45 @@ public class MaryHttpRequester
     private HttpParams params;
     private ConnectingIOReactor ioReactor;
     private BasicHttpProcessor httpproc;
+    private String httpRequestHeader; //This header is added before all HTTP requests
     
-    public MaryHttpRequester()
+    public MaryHttpRequester(String header)
     {
-       
+        setHttpRequestHeader(header);
     }
     
-    public String[] requestStringArray(String host, int port, String strRequest) throws Exception
+    public String getHttpRequestHeader()
+    {
+        return httpRequestHeader;
+    }
+    
+    public void setHttpRequestHeader(String newHeader)
+    {
+        httpRequestHeader = newHeader;
+    }
+    
+    public void fillWebBrowserHttpRequestHeader(String host, int port) throws IOException, InterruptedException
+    {
+        HttpResponse response = request(host, port, "MARY WEBBROWSERHTTPREQUESTHEADER");
+        
+        httpRequestHeader = MaryHttpClientUtils.toString(response).trim(); 
+    }
+    
+    public String[] requestStringArray(String host, int port, String strRequest) throws IOException, InterruptedException
     {
         HttpResponse response = request(host, port, strRequest);
         
         return MaryHttpClientUtils.toStringArray(response); 
     }
     
-    public String requestString(String host, int port, String strRequest) throws Exception
+    public String requestString(String host, int port, String strRequest) throws IOException, InterruptedException
     {
         HttpResponse response = request(host, port, strRequest);
         
         return MaryHttpClientUtils.toString(response);
     }
    
-    public InputStream requestInputStream(String host, int port, String strRequest) throws Exception
+    public InputStream requestInputStream(String host, int port, String strRequest) throws IOException, InterruptedException
     {
         HttpResponse response = request(host, port, strRequest);
        
@@ -107,21 +127,21 @@ public class MaryHttpRequester
         return is;
     }
     
-    public int[] requestIntArray(String host, int port, String strRequest) throws Exception
+    public int[] requestIntArray(String host, int port, String strRequest) throws IOException, InterruptedException
     {
         HttpResponse response = request(host, port, strRequest);
         
         return MaryHttpClientUtils.toIntArray(response);
     }
     
-    public double[] requestDoubleArray(String host, int port, String strRequest) throws Exception
+    public double[] requestDoubleArray(String host, int port, String strRequest) throws IOException, InterruptedException
     {
         HttpResponse response = request(host, port, strRequest);
         
         return MaryHttpClientUtils.toDoubleArray(response);
     }
     
-    public HttpResponse request(String host, int port, String strRequest) throws Exception
+    public HttpResponse request(String host, int port, String strRequest) throws IOException, InterruptedException
     {    
         params = new BasicHttpParams();
         params
@@ -147,7 +167,7 @@ public class MaryHttpRequester
         httpproc.addInterceptor(new RequestUserAgent());
         httpproc.addInterceptor(new RequestExpectContinue());
         
-        strRequest = preprocessRequestString(strRequest);
+        strRequest = StringUtils.urlEncode(strRequest);
         
         // We are going to use this object to synchronize between the 
         // I/O event and main threads
@@ -182,7 +202,7 @@ public class MaryHttpRequester
 
         ioReactor.connect(new InetSocketAddress(host, port), 
                           null,
-                          new HttpHost(host + ":" + String.valueOf(port) + "?" + strRequest),
+                          new HttpHost(host + ":" + String.valueOf(port) + "?" + httpRequestHeader + strRequest),
                           new MySessionRequestCallback(requestCount));
         
         // Block until all connections signal
@@ -192,15 +212,6 @@ public class MaryHttpRequester
         ioReactor.shutdown();
         
         return maryReqExeHandler.responseOut;
-    }
-    
-    public static String preprocessRequestString(String strRequest)
-    {
-        String strProcessed = StringUtils.replace(strRequest, " ", "%20");
-        strProcessed = StringUtils.replace(strProcessed, System.getProperty("line.separator"), "_HTTPREQUESTLINEBREAK_");
-        strProcessed = StringUtils.replace(strProcessed, "\n", "_HTTPREQUESTLINEBREAK_");
-        
-        return strProcessed;
     }
     
     static class MaryHttpRequestExecutionHandler implements HttpRequestExecutionHandler 
@@ -242,8 +253,8 @@ public class MaryHttpRequester
                 System.out.println("Sending request from client to server " + targetHost.toURI());
                 System.out.println("--------------");
                
-                //BasicRequestLine requestLine = new BasicRequestLine("GET", targetHost.toURI(), HttpVersion.HTTP_1_1);
-                BasicRequestLine requestLine = new BasicRequestLine("POST", targetHost.toURI(), HttpVersion.HTTP_1_1);
+                BasicRequestLine requestLine = new BasicRequestLine("GET", targetHost.toURI(), HttpVersion.HTTP_1_1);
+                //BasicRequestLine requestLine = new BasicRequestLine("POST", targetHost.toURI(), HttpVersion.HTTP_1_1);
                 
                 return new BasicHttpEntityEnclosingRequest(requestLine);
             } 

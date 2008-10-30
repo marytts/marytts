@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -884,6 +886,43 @@ public class StringUtils {
         return result.toString();
     }
 
+    public static String urlEncode(String strRequest)
+    {
+        //String encoded = StringUtils.replace(strRequest, " ", "%20");
+        
+        String encoded = strRequest;
+        
+        try {
+            encoded = URLEncoder.encode(encoded, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        //encoded = StringUtils.replace(encoded, System.getProperty("line.separator"), "_HTTPREQUESTLINEBREAK_");
+        //encoded = StringUtils.replace(encoded, "\n", "_HTTPREQUESTLINEBREAK_");
+        
+        return encoded;
+    }
+    
+    
+    public static String urlDecode(String strRequest)
+    {
+        //decoded = StringUtils.replace(strRequest, "%20", " ");  
+
+        String decoded = strRequest;
+        try {
+            decoded = URLDecoder.decode(decoded, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        //decoded = StringUtils.replace(decoded, "_HTTPREQUESTLINEBREAK_", System.getProperty("line.separator"));
+
+        return decoded;
+    }
+    
     public static void main(String[] args)
     {
         String[] items1 = readTextFile("D:\\items.txt");

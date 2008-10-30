@@ -166,7 +166,7 @@ public class MaryGUIHttpClient extends JPanel
     private Vector<MaryHttpClient.DataType> outputTypes = null;
     private boolean allowSave;
     private boolean streamMp3 = false;
-    private MaryHttpClient.Voice prevVoice = null;
+    private MaryHttpForm.Voice prevVoice = null;
 
     //Map of limited Domain Voices and their example Texts
     private Map limDomVoices = new HashMap();
@@ -178,8 +178,6 @@ public class MaryGUIHttpClient extends JPanel
     private GridBagConstraints gridC;
     
     static FocusTraversalPolicy maryGUITraversal;
-    
-    private String serverVersion;
 
     /**
      * Create a MaryGUIClient instance that connects to the server host
@@ -236,58 +234,16 @@ public class MaryGUIHttpClient extends JPanel
         init();
     }
     
-    public void getServerVersion()
-    {
-        String[] serverInfo = null;
-        try {
-            serverInfo = processor.getServerVersionInfo();
-        } catch (Exception e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        
-        if (serverInfo!=null)
-        {
-            int startIndex = 0;
-            int endIndex = serverInfo[0].length();
-            int dotIndex = serverInfo[0].indexOf('.');
-            if (dotIndex>-1)
-            {
-                int spaceIndex1 = serverInfo[0].lastIndexOf(' ', dotIndex);
-                if (spaceIndex1<0)
-                    spaceIndex1=-1;
-                int spaceIndex2 = serverInfo[0].indexOf(' ', dotIndex);
-                if (spaceIndex2<0)
-                    spaceIndex2=serverInfo[0].length();
-                
-                startIndex = spaceIndex1+1;
-                endIndex = spaceIndex2;
-            }
-            
-            serverVersion = serverInfo[0].substring(startIndex, endIndex);
-        }
-        else
-            serverVersion = "";
-    }
-    
-    public boolean isServerNotOlderThan(String currentServer, String serverVersionToCompare)
-    {
-        int tmp = currentServer.compareToIgnoreCase(serverVersionToCompare);
-        
-        if (tmp>=0)
-            return true;
-        else
-            return false;
-    }
-
     /**
      * Create an instance of the MaryHttpClient class which does the processing,
      * and initialise the GUI.
+     * @throws InterruptedException 
+     * @throws IOException 
      * @throws Exception 
      */
-    public void init() throws Exception {
-
-        getServerVersion();
+    public void init() throws IOException, InterruptedException 
+    {
+        processor.fillServerVersion();
         
         maryGUITraversal = new MaryGUIFocusTraversalPolicy();
         //if this is a normal gui
@@ -731,7 +687,15 @@ public class MaryGUIHttpClient extends JPanel
             bSaveOutput.setMnemonic('S');
             bSaveOutput.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    saveOutput();
+                    try {
+                        saveOutput();
+                    } catch (IOException e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    } catch (InterruptedException e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
                 }
             });
             savePanel.add( bSaveOutput );
@@ -1055,9 +1019,9 @@ public class MaryGUIHttpClient extends JPanel
     /* -------------------- Processing callers -------------------- */
     private File lastDirectory = null;
     private String lastExtension = null;
-    private void saveOutput()
+    private void saveOutput() throws IOException, InterruptedException
     {   
-        if (isServerNotOlderThan(serverVersion, "3.5.0"))
+        if (processor.isServerNotOlderThan("3.5.0"))
             saveOutputNew();
         else
             saveOutputOld();
