@@ -64,6 +64,7 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
+
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.features.FeatureDefinition;
@@ -71,10 +72,10 @@ import marytts.features.FeatureVector;
 import marytts.htsengine.HMMData;
 import marytts.htsengine.HMMVoice;
 import marytts.htsengine.HTSModel;
-import marytts.htsengine.HTSModelSet;
+//---import marytts.htsengine.HTSModelSet;
 import marytts.htsengine.HTSParameterGeneration;
-import marytts.htsengine.HTSTree;
-import marytts.htsengine.HTSTreeSet;
+//---import marytts.htsengine.HTSTree;
+import marytts.htsengine.CartTreeSet;
 import marytts.htsengine.HTSUttModel;
 import marytts.htsengine.HTSVocoder;
 import marytts.htsengine.PhoneTranslator;
@@ -216,12 +217,12 @@ public class HTSEngine extends InternalModule
      *  creates an scanner object and calls _ProcessUtt
      * @param LabFile
      */
-    public void processUttFromFile(String LabFile, HTSUttModel um, HMMData htsData){ 
+    public void processUttFromFile(String LabFile, HTSUttModel um, HMMData htsData) throws Exception { 
         Scanner s = null;
         try {    
             /* parse text in label file */
             s = new Scanner(new BufferedReader(new FileReader(LabFile)));
-            _processUtt(s,um,htsData,htsData.getTreeSet(),htsData.getModelSet());
+            _processUtt(s,um,htsData,htsData.getCartTreeSet());
               
         } catch (FileNotFoundException e) {
             System.err.println("FileNotFoundException: " + e.getMessage());
@@ -236,11 +237,11 @@ public class HTSEngine extends InternalModule
      * and calls _ProcessUtt
      * @param LabText
      */
-    public void processUtt(String LabText, HTSUttModel um, HMMData htsData) {
+    public void processUtt(String LabText, HTSUttModel um, HMMData htsData) throws Exception {
         Scanner s = null;
         try {
           s = new Scanner(LabText);
-         _processUtt(s, um, htsData, htsData.getTreeSet(),htsData.getModelSet());
+         _processUtt(s, um, htsData, htsData.getCartTreeSet());
         } finally {
             if (s != null)
               s.close();
@@ -255,7 +256,8 @@ public class HTSEngine extends InternalModule
      * It also estimates state duration from state duration model (Gaussian).
      * For each model in the vector, the mean and variance of the DUR, LF0, MCP, STR and MAG 
      * are searched in the ModelSet and copied in each triphone model.   */
-    private void _processUtt(Scanner s, HTSUttModel um, HMMData htsData, HTSTreeSet ts, HTSModelSet ms){     
+    private void _processUtt(Scanner s, HTSUttModel um, HMMData htsData, CartTreeSet cart)
+      throws Exception {     
         int i, mstate,frame;
         HTSModel m;                   /* current model, corresponds to a line in label file */
         String nextLine;
@@ -263,7 +265,7 @@ public class HTSEngine extends InternalModule
         double diffdurNew = 0.0;
         double mean = 0.0;
         double var = 0.0;
-        HTSTree auxTree;
+        //---      HTSTree auxTree;
         float fperiodmillisec = ((float)htsData.getFperiod() / (float)htsData.getRate()) * 1000;
         float fperiodsec = ((float)htsData.getFperiod() / (float)htsData.getRate());
         Integer dur;
@@ -288,8 +290,7 @@ public class HTSEngine extends InternalModule
             nextLine = s.nextLine(); 
           if (nextLine.trim().equals("")) break;
         }
-     
-        
+           
         /* parse byte values  */
         i=0;
         while (s.hasNext()) {
@@ -297,9 +298,10 @@ public class HTSEngine extends InternalModule
             //System.out.println("STR: " + nextLine);
             
             fv = feaDef.toFeatureVector(0, nextLine);
+                 
             //indexPdf = joinTree.searchJoinModellerTree(fv, def, joinTree.getTreeHead(0).getRoot(), false);
             
-            um.addUttModel(new HTSModel(ms));            
+            um.addUttModel(new HTSModel(cart));            
 
             m = um.getUttModel(i);
             /* this function also sets the phoneme name, the phoneme between - and + */
@@ -308,22 +310,14 @@ public class HTSEngine extends InternalModule
             if(!(s.hasNext()) )
               lastPh = true;
 
-            /* Estimate state duration from state duration model (Gaussian) 
-             * 1. find the index idx of the durpdf corresponding (or that best match in the tree) 
-             *    to the triphone+context features in nextLine. 
-             * NOTE 1: the indexes in the tree.inf file start in 1 ex. dur_s2_1, but here are stored 
-             * in durpdf[i][j] array which starts in i=0, so when finding this dur pdf, the idx should 
-             * be idx-1 !!!
-             * 2. Calculate duration using the pdf idx found in the tree, function: FindDurPDF */
-            auxTree = ts.getTreeHead(HMMData.DUR);
-            m.setDurPdf( ts.searchTreeGeneral(fv, feaDef, auxTree.getRoot(), false));
-            
-            
-            //System.out.println("dur->pdf=" + m.getDurPdf());
-            
+            // Estimate state duration from state duration model (Gaussian) 
+                       
             if (htsData.getLength() == 0.0 ) {
-                diffdurNew = ms.findDurPdf(m, firstPh, lastPh, htsData.getRho(), diffdurOld, htsData.getDurationScale());                
-                m.setTotalDurMillisec((int)(fperiodmillisec * m.getTotalDur()));                
+               // diffdurNew = ms.findDurPdf(m, firstPh, lastPh, htsData.getRho(), diffdurOld, htsData.getDurationScale());
+                diffdurNew = cart.searchDurInCartTree(m, fv, feaDef, firstPh, lastPh, htsData.getRho(), diffdurOld, htsData.getDurationScale());
+                
+                m.setTotalDurMillisec((int)(fperiodmillisec * m.getTotalDur()));    
+           
                 diffdurOld = diffdurNew;
                 um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());
                 durSec = um.getTotalFrame() * fperiodsec;
@@ -331,44 +325,28 @@ public class HTSEngine extends InternalModule
                 realisedDurations += durSec.toString() +  " " + numLab.toString() + " " + PhoneTranslator.replaceBackTrickyPhones(m.getPhoneName()) + "\n";
                 numLab++;
                 dur = m.getTotalDurMillisec();
-                um.concatRealisedAcoustParams(m.getPhoneName() + " " + dur.toString() + "\n"); 
+                um.concatRealisedAcoustParams(m.getPhoneName() + " " + dur.toString() + "\n");
+                //System.out.println("phoneme=" + PhoneTranslator.replaceBackTrickyPhones(m.getPhoneName()) + " dur=" + m.getTotalDur() +" durTotal=" + um.getTotalFrame());
             } /* else : when total length of generated speech is specified (not implemented yet) */
             
-            /* Find pdf for LF0 */               
-            for(auxTree=ts.getTreeHead(HMMData.LF0), mstate=0; auxTree != ts.getTreeTail(HMMData.LF0); auxTree=auxTree.getNext(), mstate++ ) {           
-                m.setLf0Pdf(mstate, ts.searchTreeGeneral(fv, feaDef,auxTree.getRoot(), false));
-                //System.out.println("lf0pdf[" + mstate + "]=" + m.getLf0Pdf(mstate));
-                ms.findLf0Pdf(mstate, m, htsData.getUV());
-            }
-
+            /* Find pdf for LF0 */ 
+            cart.searchLf0InCartTree(m, fv, feaDef, htsData.getUV());
+     
             /* Find pdf for MCP */
-            for(auxTree=ts.getTreeHead(HMMData.MCP), mstate=0; auxTree != ts.getTreeTail(HMMData.MCP); auxTree=auxTree.getNext(), mstate++ ) {           
-                m.setMcepPdf(mstate, ts.searchTreeGeneral(fv, feaDef, auxTree.getRoot(), false));
-                //System.out.println("mceppdf[" + mstate + "]=" + m.getMcepPdf(mstate));
-                ms.findMcpPdf(mstate, m);
-            }              
+            cart.searchMcpInCartTree(m, fv, feaDef);
 
             /* Find pdf for strengths */
-            /* If there is no STRs then auxTree=null=ts.getTreeTail so it will not try to find pdf for strengths */
-            for(auxTree=ts.getTreeHead(HMMData.STR), mstate=0; auxTree != ts.getTreeTail(HMMData.STR); auxTree=auxTree.getNext(), mstate++ ) {           
-                m.setStrPdf(mstate, ts.searchTreeGeneral(fv, feaDef, auxTree.getRoot(), false));
-                //System.out.println("strpdf[" + mstate + "]=" + m.getStrPdf(mstate));
-                ms.findStrPdf(mstate, m);                    
-            }
-
+            if(htsData.getTreeStrFile() != null)
+              cart.searchStrInCartTree(m, fv, feaDef);
+            
             /* Find pdf for Fourier magnitudes */
-            /* If there is no MAGs then auxTree=null=ts.getTreeTail so it will not try to find pdf for Fourier magnitudes */
-            for(auxTree=ts.getTreeHead(HMMData.MAG), mstate=0; auxTree != ts.getTreeTail(HMMData.MAG); auxTree=auxTree.getNext(), mstate++ ) {           
-                m.setMagPdf(mstate, ts.searchTreeGeneral(fv, feaDef, auxTree.getRoot(), false));
-                //System.out.println("magpdf[" + mstate + "]=" + m.getMagPdf(mstate));
-                ms.findMagPdf(mstate, m);
-            }
-
-            //System.out.println();
+            if(htsData.getTreeMagFile() != null)
+              cart.searchMagInCartTree(m, fv, feaDef);
+            
             /* increment number of models in utterance model */
             um.setNumModel(um.getNumModel()+1);
             /* update number of states */
-            um.setNumState(um.getNumState() + ms.getNumState());
+            um.setNumState(um.getNumState() + cart.getNumStates());
             i++;
             
             if(firstPh)
@@ -377,7 +355,7 @@ public class HTSEngine extends InternalModule
 
         for(i=0; i<um.getNumUttModel(); i++){
             m = um.getUttModel(i);                  
-            for(mstate=0; mstate<ms.getNumState(); mstate++)
+            for(mstate=0; mstate<cart.getNumStates(); mstate++)
                 for(frame=0; frame<m.getDur(mstate); frame++) 
                     if(m.getVoiced(mstate))
                         um.setLf0Frame(um.getLf0Frame() +1);
@@ -441,7 +419,10 @@ public class HTSEngine extends InternalModule
       AudioInputStream ais;
                
       /** Example of context features file */
-      String feaFile = htsData.getFeaFile();
+      //String feaFile = htsData.getFeaFile();
+      //String feaFile = "/project/mary/marcela/openmary/tmp/welcome.fea";
+      //String feaFile = "/project/mary/marcela/openmary/lib/voices/hsmm-slt/cmu_us_arctic_slt_a0001.pfeats.new";
+      String feaFile = "/project/mary/marcela/openmary/lib/voices/hsmm-slt/cmu_us_arctic_slt_a0001.pfeats";
       
       try {
           /* Process Mary context features file and creates UttModel um, a linked             
@@ -476,6 +457,7 @@ public class HTSEngine extends InternalModule
           player.start();  
           player.join();
           System.out.println("audioplayer finished...");
+          
      
       } catch (Exception e) {
           System.err.println("Exception: " + e.getMessage());

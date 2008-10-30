@@ -127,7 +127,8 @@ public class HTSParameterGeneration {
 	int state, lw, rw, k, n, i;
 	boolean nobound;
     HTSModel m;
-    HTSModelSet ms = htsData.getModelSet();
+    CartTreeSet ms = htsData.getCartTreeSet();
+ //---   HTSModelSet ms = htsData.getModelSet();
     
 	/* Initialisation of PStream objects */
   	/* Initialise Parameter generation using UttModel um and Modelset ms */
@@ -150,7 +151,7 @@ public class HTSParameterGeneration {
 	
 	for(i=0; i<um.getNumUttModel(); i++){
         m = um.getUttModel(i);          		
-        for(state=0; state<ms.getNumState(); state++)
+        for(state=0; state<ms.getNumStates(); state++)
       	 for(frame=0; frame<m.getDur(state); frame++) {
       		voiced[uttFrame] = m.getVoiced(state);
       		uttFrame++;
@@ -168,7 +169,7 @@ public class HTSParameterGeneration {
 	/* copy pdfs */
 	for(i=0; i<um.getNumUttModel(); i++){
       m = um.getUttModel(i);          		
-      for(state=0; state<ms.getNumState(); state++) {
+      for(state=0; state<ms.getNumStates(); state++) {
     	         
       	for(frame=0; frame<m.getDur(state); frame++) {
             
