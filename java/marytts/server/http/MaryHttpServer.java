@@ -32,7 +32,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
+import java.net.URLDecoder;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -60,6 +62,8 @@ import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.string.StringUtils;
 
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -69,6 +73,8 @@ import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
+import org.apache.http.message.BasicHttpEntityEnclosingRequest;
+import org.apache.http.message.BasicLineParser;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.protocol.BufferingHttpServiceHandler;
 import org.apache.http.nio.protocol.EventListener;
@@ -87,6 +93,7 @@ import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
+import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -203,7 +210,7 @@ public class MaryHttpServer {
     private static Logger logger;
     private int runningNumber = 1;
     //private Map<Integer,Object[]> clientMap;
-    public static final String WEB_BROWSER_CLIENT_REQUEST_HEADER = "WEB_BROWSER_CLIENT";
+    public static final String WEB_BROWSER_HTTP_REQUEST_HEADER = "MARY_WEB_BROWSER_CLIENT";
 
     public MaryHttpServer() {
         logger = Logger.getLogger("server");
@@ -288,9 +295,29 @@ public class MaryHttpServer {
             
             if (method.equals("GET") || method.equals("POST"))
             {   
-                    fullParameters = request.getRequestLine().getUri().toString();
-                    fullParameters = preprocess(fullParameters);
-                    buffReader = new BufferedReader(new StringReader(fullParameters));
+                fullParameters = request.getRequestLine().getUri().toString();
+                fullParameters = preprocess(fullParameters);
+                
+                if (fullParameters.length()<1 && method.equals("POST")) 
+                {
+                    String fullParameters2 = "";
+                    
+                    if (request instanceof HttpEntityEnclosingRequest)
+                    {
+                        fullParameters2 = EntityUtils.toString(((HttpEntityEnclosingRequest) request).getEntity());
+                        fullParameters2 = preprocess(fullParameters2);
+                    }
+                    else if (request instanceof BasicHttpEntityEnclosingRequest)
+                    {
+                        fullParameters2 = EntityUtils.toString(((BasicHttpEntityEnclosingRequest) request).getEntity());
+                        fullParameters2 = preprocess(fullParameters2);
+                    }
+                    
+                    if (fullParameters2.length()>0)
+                        fullParameters = fullParameters2;
+                }
+
+                buffReader = new BufferedReader(new StringReader(fullParameters));
             }
             else
             {
@@ -335,8 +362,8 @@ public class MaryHttpServer {
                 index=index2+1;
             
             preprocessedParameters = preprocessedParameters.substring(index);
-            preprocessedParameters = StringUtils.replace(preprocessedParameters, "%20", " ");
-            preprocessedParameters = StringUtils.replace(preprocessedParameters, "_HTTPREQUESTLINEBREAK_", System.getProperty("line.separator"));
+            
+            preprocessedParameters = StringUtils.urlDecode(preprocessedParameters);
             
             System.out.println("Preprocessed request: " + preprocessedParameters);
          
@@ -377,11 +404,13 @@ public class MaryHttpServer {
                 return;
             }
             
-            if (line.startsWith(WEB_BROWSER_CLIENT_REQUEST_HEADER))
+            //All web browser clients should send the following header in the beginning of their requests
+            if (line.startsWith(WEB_BROWSER_HTTP_REQUEST_HEADER))
             {
                 isWebFormClient = true;
-                line = line.substring(WEB_BROWSER_CLIENT_REQUEST_HEADER.length());
+                line = line.substring(WEB_BROWSER_HTTP_REQUEST_HEADER.length());
             }
+            //
             
             String outputLine = "";
             if (handleInfoRequest(line, response, isWebFormClient)) 
@@ -408,8 +437,22 @@ public class MaryHttpServer {
         private boolean handleInfoRequest(String inputLine, HttpResponse response, boolean isWebFormClient) throws IOException 
         {
             String output = "";
-            // Optional version information:
-            if (inputLine.startsWith("MARY VERSION")) 
+
+            if (inputLine.startsWith("MARY WEBBROWSERHTTPREQUESTHEADER")) 
+            {
+                logger.debug("InfoRequest " + inputLine);
+                // Write version information to client.
+                output += WEB_BROWSER_HTTP_REQUEST_HEADER;
+                output += System.getProperty("line.separator");
+                
+                // Empty line marks end of info:
+                output += System.getProperty("line.separator");
+                
+                MaryHttpServerUtils.toResponse(output, response);
+                
+                return true;
+            }
+            else if (inputLine.startsWith("MARY VERSION")) 
             {
                 logger.debug("InfoRequest " + inputLine);
                 // Write version information to client.

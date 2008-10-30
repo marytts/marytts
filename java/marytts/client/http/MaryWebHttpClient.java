@@ -29,11 +29,42 @@
 
 package marytts.client.http;
 
+import java.io.IOException;
+
 /**
  * @author oytun.turk
  *
- * This class implements dynamic web page creation 
+ * This class implements a web browser client
+ * It is different as compared to other Mary clients in the sense that 
+ * it is dynamically created by MaryHttpServer to send an appropriate html form 
+ * to a web browser that connect to a Mary server.
+ * This form is updated dynamically by user requests and server responses.
+ * 
  */
-public class MaryWebHttpClient {
+public class MaryWebHttpClient extends MaryHttpForm {
+    public MaryWebHttpClient(String serverHost, int serverPort) throws IOException, InterruptedException
+    {
+        super(serverHost, serverPort, "");
+        
+        httpRequester.fillWebBrowserHttpRequestHeader(serverHost, serverPort);
+        
+        initialise();
+    }
+    
+    public void initialise() throws IOException, InterruptedException
+    {
+        fillServerVersion();
+        fillDataTypes();
+        fillVoices();
+    }
 
+    public static void main(String[] args) throws IOException, InterruptedException
+    {
+        String serverHost = "localhost";
+        int serverPort = 59125;
+        
+        MaryWebHttpClient mw = new MaryWebHttpClient(serverHost, serverPort);
+        
+        
+    }
 }

@@ -64,48 +64,25 @@ import marytts.client.MaryGUIClient;
  * @see marytts.server.MaryServer Description of the MARY protocol
  */
 
-public class MaryHttpClient {
-    // Default values which can be overridden from the command line.
-    private final String DEFAULT_HOST = "cling.dfki.uni-sb.de";
-    private final int DEFAULT_PORT = 59125;
-    private String host;
-    private int port;
-    private String serverVersion = "unknown";
-    private boolean serverCanStream = false;
+public class MaryHttpClient extends MaryHttpForm {
+    
     private boolean doProfile = false;
     private boolean beQuiet = false;
-    private Vector<MaryHttpClient.Voice> allVoices = null;
-    private Map<Locale, Vector<MaryHttpClient.Voice>> voicesByLocaleMap = null;
-    private Vector<MaryHttpClient.DataType> allDataTypes = null;
-    private Vector<MaryHttpClient.DataType> inputDataTypes = null;
-    private Vector<MaryHttpClient.DataType> outputDataTypes = null;
-    private Map<String, String> serverExampleTexts = new HashMap<String, String>();
-    private Map<String, String> voiceExampleTexts = new HashMap<String, String>();
-    private String audioEffects;
-    private Map<String, String> audioEffectHelpTextsMap = new HashMap<String, String>();
-    private String[] audioFileFormatTypes = null;
-    private String[] serverVersionInfo = null;
 
-    private MaryHttpRequester maryHttpRequester;
-    
     /**
      * The simplest way to create a mary client. It will connect to the
      * MARY server running at DFKI. Only use this for testing purposes!
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    public MaryHttpClient() throws IOException
+    public MaryHttpClient() throws IOException, InterruptedException
     {
-        String serverHost = System.getProperty("server.host", DEFAULT_HOST);
-        int serverPort = 0;
-        String helperString = System.getProperty("server.port");
-        if (helperString != null)
-            serverPort = Integer.decode(helperString).intValue();
-        else
-            serverPort = DEFAULT_PORT;
+        super();
+        
         boolean profile = Boolean.getBoolean("mary.client.profile");
         boolean quiet = Boolean.getBoolean("mary.client.quiet");
-        initialise(serverHost, serverPort, profile, quiet);
+        
+        initialise(profile, quiet);
     }
 
     /**
@@ -123,12 +100,14 @@ public class MaryHttpClient {
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    public MaryHttpClient(String host, int port)
-    throws IOException
+    public MaryHttpClient(String host, int port) throws IOException, InterruptedException
     {
+        super(host, port);
+        
         boolean profile = Boolean.getBoolean("mary.client.profile");
         boolean quiet = Boolean.getBoolean("mary.client.quiet");
-        initialise(host, port, profile, quiet);
+        
+        initialise(profile, quiet);
     }
 
     /**
@@ -143,10 +122,11 @@ public class MaryHttpClient {
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    public MaryHttpClient(String host, int port, boolean profile, boolean quiet)
-    throws IOException
+    public MaryHttpClient(String host, int port, boolean profile, boolean quiet) throws IOException, InterruptedException
     {
-        initialise(host, port, profile, quiet);
+        super(host, port);
+        
+        initialise(profile, quiet);
     }
 
     /**
@@ -158,53 +138,42 @@ public class MaryHttpClient {
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    private void initialise(String serverHost, int serverPort, boolean profile, boolean quiet) throws IOException 
-    {
-        maryHttpRequester = new MaryHttpRequester();
-        
+    private void initialise(boolean profile, boolean quiet) throws IOException, InterruptedException
+    {  
         // This must work for applets too, so no system property queries here:
-        if (serverHost == null || serverPort == 0)
-            throw new IllegalArgumentException("Illegal server host or port");
-        this.host = serverHost;
-        this.port = serverPort;
         doProfile = profile;
         beQuiet = quiet;
         String[] info;
         if (!beQuiet) {
             System.err.println("Mary TTS client " + Version.specificationVersion() + " (impl. " + Version.implementationVersion() + ")");
         }
+        
         try {
-            info = getServerVersionInfo();
-        } catch (Exception e) {
-            e.printStackTrace();
+            fillServerVersion();
+        } catch (IOException e1) {
+            e1.printStackTrace();
             throw new IOException("MARY client cannot connect to MARY server at\n"+
-            serverHost+":"+serverPort+"\n"+
-            "Make sure that you have started the mary server\n"+
-            "or specify a different host or port using \n"+
+                    host+":"+port+"\n"+
+                    "Make sure that you have started the mary server\n"+
+                    "or specify a different host or port using \n"+
+            "maryclient -Dserver.host=my.host.com -Dserver.port=12345");
+        } catch (InterruptedException e2) {
+            e2.printStackTrace();
+            throw new InterruptedException("MARY client cannot connect to MARY server at\n"+
+                    host+":"+port+"\n"+
+                    "Make sure that you have started the mary server\n"+
+                    "or specify a different host or port using \n"+
             "maryclient -Dserver.host=my.host.com -Dserver.port=12345");
         }
-        // Version number is, on the first line, the first token that starts with a digit:
-        StringTokenizer st = new StringTokenizer(info[0]);
-        while (st.hasMoreTokens()) {
-            String t = st.nextToken();
-            if (t.matches("^[0-9].*")) {
-                this.serverVersion = t;
-                break;
-            }
-        }
-        if (serverVersion.equals("unknown")
-                || serverVersion.compareTo("3.0.1") < 0) {
-            serverCanStream = false;
-        } else {
-            serverCanStream = true;
-        }
-        if (!beQuiet) {
-            System.err.print("Connected to " + serverHost + ":" + serverPort + ", ");
-            for (int i=0; i<info.length; i++) {
-                System.err.println(info[i]);
+        
+        if (!beQuiet) 
+        {
+            System.err.print("Connected to " + host + ":" + port + ", ");
+            for (int i=0; i<serverVersionInfo.length; i++) {
+                System.err.println(serverVersionInfo[i]);
             }
             if (!serverCanStream) {
-                System.err.println("Server version " + serverVersion + " cannot stream audio, defaulting to non-streaming");
+                System.err.println("Server version " + serverVersionNo + " cannot stream audio, defaulting to non-streaming");
             }
         }
     }
@@ -355,9 +324,9 @@ public class MaryHttpClient {
     }
 
     private void _process(String input, String inputType, String outputType, String locale, String audioType, 
-            String defaultVoiceName, String defaultStyle, String defaultEffects, 
-            Object output, long timeout, boolean streamingAudio, AudioPlayerListener playerListener)
-        throws UnknownHostException, IOException, Exception
+                          String defaultVoiceName, String defaultStyle, String defaultEffects, 
+                          Object output, long timeout, boolean streamingAudio, AudioPlayerListener playerListener)
+                                                                           throws UnknownHostException, IOException, Exception
     {
         boolean isFreettsAudioPlayer = false;
         boolean isMaryAudioPlayer = false;
@@ -370,124 +339,10 @@ public class MaryHttpClient {
             throw new IllegalArgumentException("Expected OutputStream or AudioPlayer, got " + output.getClass().getName());
         }
         final long startTime = System.currentTimeMillis();
-        // Socket Client
-        /*
-        final Socket maryInfoSocket;
-        try {
-            maryInfoSocket = new Socket(host, port);
-        } catch (SocketException se) {
-            throw new RuntimeException("Cannot connect to " + host + ":" + port, se);
-        }
-        final PrintWriter toServerInfo = new PrintWriter(new OutputStreamWriter(maryInfoSocket.getOutputStream(), "UTF-8"), true);
-        final BufferedReader fromServerInfo = new BufferedReader(new InputStreamReader(maryInfoSocket.getInputStream(), "UTF-8"));
-        */
         
-        // Formulate Request to Server:
-        //System.err.println("Writing request to server.");
-        //String toServerInfo;
-        String toServer = "";
-        //toServerInfo.print("MARY IN=" + inputType + " OUT=" + outputType + " LOCALE="+ locale);
-        //toServerInfo = "MARY IN=" + inputType + " OUT=" + outputType + " LOCALE="+ locale;
-        toServer += "MARY IN=" + inputType + " OUT=" + outputType + " LOCALE="+ locale;
-        if (audioType != null) {
-            if (streamingAudio && serverCanStream) {
-                //toServerInfo.print(" AUDIO=STREAMING_"+audioType);
-                //toServerInfo += " AUDIO=STREAMING_"+audioType;
-                toServer += " AUDIO=STREAMING_"+audioType;
-            } else {
-                //toServerInfo.print(" AUDIO=" + audioType);
-                //toServerInfo += " AUDIO=" + audioType;
-                toServer += " AUDIO=" + audioType;
-            }
-        }
-        if (defaultVoiceName != null) {
-            //toServerInfo.print(" VOICE=" + defaultVoiceName);
-            //toServerInfo += " VOICE=" + defaultVoiceName;
-            toServer += " VOICE=" + defaultVoiceName;
-        }
-        
-        if (defaultStyle != "") {
-            //toServerInfo.print(" STYLE=" + defaultStyle);
-            //toServerInfo += " STYLE=" + defaultStyle;
-            toServer += " STYLE=" + defaultStyle;
-        }
-        
-        if (defaultEffects != "") {
-            //toServerInfo.print(" EFFECTS=" + defaultEffects);
-            //toServerInfo += " EFFECTS=" + defaultEffects;
-            toServer += " EFFECTS=" + defaultEffects;
-        }
-        //toServerInfo.println();
-        //toServerInfo += System.getProperty("line.separator");
-        toServer += System.getProperty("line.separator");
-        
-        //String[] fromServerInfo = maryHttpRequester.requestMultipleLines(host, port, toServerInfo);
-        
-        // Receive a request ID:
-        //System.err.println("Reading reply from server.");
-        //String helper = fromServerInfo.readLine();
-        
-        /*
-        int lineCount = 0;
-        String helper = fromServerInfo[lineCount++];
-        
-        //System.err.println("Read from Server: " + helper);
-        int id = -1;
-        try {
-            id = Integer.parseInt(helper);
-        } catch (NumberFormatException e) {
-            // Whatever we read from the server, it was not a number
-            StringBuffer message = new StringBuffer("Server replied:\n");
-            message.append(helper);
-            message.append("\n");
-            
-            //while ((helper = fromServerInfo.readLine()) != null) {
-            //    message.append(helper);
-            //    message.append("\n");
-            //}
-            
-            
-            for (int i=lineCount; i<fromServerInfo.length; i++)
-            {
-                helper = fromServerInfo[i];
-                message.append(helper);
-                message.append("\n");
-            }
-            
-            throw new IOException(message.toString());
-        }
-        */
-
-        //System.err.println("Read id " + id + " from server.");
-        //final Socket maryDataSocket = new Socket(host, port);
-        //System.err.println("Created second socket.");
-        //final PrintWriter toServerData = new PrintWriter(new OutputStreamWriter(maryDataSocket.getOutputStream(), "UTF-8"), true);
-        //toServerData.println(id);
-        //String toServerData = String.valueOf(id) + System.getProperty("line.separator");
-        //toServer += String.valueOf(id) + System.getProperty("line.separator");
-        
-        //System.err.println("Writing to server:");
-        //System.err.print(input);
-        //toServerData.println(input.trim());
-        //toServerData += input.trim() + System.getProperty("line.separator");
-        toServer += input.trim() + System.getProperty("line.separator");
-        //maryDataSocket.shutdownOutput();
-        
-        //final InputStream fromServerStream = maryHttpRequester.requestInputStream(host, port, toServerData);
-        final InputStream fromServerStream = maryHttpRequester.requestInputStream(host, port, toServer);
-        
-        //final InputStream fromServerStream = null;
-        //int[] xx = maryHttpRequester.requestIntArray(host, port, toServer);
-        //System.out.println(xx.toString());
-        
-        // Check for warnings from server:
-        //final WarningReader warningReader = new WarningReader(fromServerInfo);
-        //warningReader.start();
-        
-        // Read from Server and copy into OutputStream output:
-        // (as we only do low-level copying of bytes here,
-        //  we do not need to distinguish between text and audio)
-       // final InputStream fromServerStream = maryDataSocket.getInputStream();
+        final InputStream fromServerStream = requestInputStream(input, inputType, outputType, locale, audioType, 
+                                                                defaultVoiceName, defaultStyle, defaultEffects, 
+                                                                streamingAudio);
 
         // If timeout is > 0, create a timer. It will close the input stream,
         // thus causing an IOException in the reading code.
@@ -510,8 +365,6 @@ public class MaryHttpClient {
             };
             timer.schedule(timerTask, timeout);
         }
-
-
 
         if (isFreettsAudioPlayer) 
         {
@@ -674,717 +527,7 @@ public class MaryHttpClient {
             }
         }
     }
-
-    /** get the server host to which this client connects */
-    public String getHost() { return host; }
-    /** get the server port to which this client connects */
-    public int getPort() { return port; }
-
-    /**
-     * From an open server connection, read one chunk of info data. Writes the 
-     * infoCommand to the server, then reads from the server until an empty line
-     * or eof is read.
-     * @param toServer
-     * @param fromServer
-     * @param infoCommand the one-line request to send to the server
-     * @return a string representing the server response, lines being separated by a '\n' character.
-     * @throws IOException if communication with the server fails
-     */
-    private String getServerInfo(PrintWriter toServerInfo, BufferedReader fromServerInfo, String infoCommand)
-    throws IOException {
-        toServerInfo.println(infoCommand);
-        StringBuffer result = new StringBuffer();
-        String line = null;
-        // Read until either end of file or an empty line
-        while((line = fromServerInfo.readLine()) != null && !line.equals("")) {
-            result.append(line);
-            result.append("\n");
-        }
-        return result.toString();
-    }
-
-    /**
-     * From an open server connection, read one chunk of info data. Writes the 
-     * infoCommand to the server, then reads from the server until an empty line
-     * or eof is read.
-     * @param toServer
-     * @param fromServer
-     * @param infoCommand the one-line request to send to the server
-     * @return an array of Strings representing the server response, one string for one line
-     * @throws IOException if communication with the server fails
-     */
-    private String[] getServerInfoLines(PrintWriter toServerInfo, BufferedReader fromServerInfo, String infoCommand)
-    throws IOException {
-        toServerInfo.println(infoCommand);
-        Vector<String> result = new Vector<String>();
-        String line = null;
-        // Read until either end of file or an empty line
-        while((line = fromServerInfo.readLine()) != null && !line.equals("")) {
-            result.add(line);
-        }
-        return result.toArray(new String[0]);
-    }
-
-
-    /**
-     * Get the version info from the server. This is optional information
-     * which is not required for the normal operation of the client, but
-     * may help to avoid incompatibilities.
-     * @return a string array, each String representing one line of info
-     * without the trailing newline character.
-     * @throws IOException if communication with the server fails
-     * @throws UnknownHostException if the host could not be found
-     */
-    public String[] getServerVersionInfo() throws Exception
-    {
-        if (serverVersionInfo == null) 
-        {
-            /*
-            Socket marySocket = new Socket(host, port);
-            // Expect 3 lines of the kind
-            // Mary TTS server
-            // Specification version 1.9.1
-            // Implementation version 20030207
-            String info = getServerInfo(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
-                new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
-                "MARY VERSION");
-            if (info.length() == 0)
-                throw new IOException("Could not get version info from Mary server");
-            serverVersionInfo = info.split("\n");
-            marySocket.close();
-            */
-            
-            // Expect 3 lines of the kind
-            // Mary TTS server
-            // Specification version 1.9.1
-            // Implementation version 20030207
-            serverVersionInfo = maryHttpRequester.requestStringArray(host, port, "MARY VERSION");  
-        }
-        
-        return serverVersionInfo;
-    }
     
-    public String getServerVersionNo()
-    {
-        String serverVersionNo = "";
-        String[] serverInfo = null;
-        try {
-            serverInfo = getServerVersionInfo();
-        } catch (Exception e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        
-        if (serverInfo!=null)
-        {
-            int startIndex = 0;
-            int endIndex = serverInfo[0].length();
-            int dotIndex = serverInfo[0].indexOf('.');
-            if (dotIndex>-1)
-            {
-                int spaceIndex1 = serverInfo[0].lastIndexOf(' ', dotIndex);
-                if (spaceIndex1<0)
-                    spaceIndex1=-1;
-                int spaceIndex2 = serverInfo[0].indexOf(' ', dotIndex);
-                if (spaceIndex2<0)
-                    spaceIndex2=serverInfo[0].length();
-                
-                startIndex = spaceIndex1+1;
-                endIndex = spaceIndex2;
-            }
-            
-            serverVersionNo = serverInfo[0].substring(startIndex, endIndex);
-        }
-        else
-            serverVersionNo = "";
-        
-        return serverVersionNo;
-    }
-    
-    public boolean isServerNotOlderThan(String serverVersionToCompare)
-    {
-        String currentServer = getServerVersionNo();
-        int tmp = currentServer.compareToIgnoreCase(serverVersionToCompare);
-        
-        if (tmp>=0)
-            return true;
-        else
-            return false;
-    }
-
-    /**
-     * Obtain a list of all data types known to the server. If the information is not
-     * yet available, the server is queried. This is optional information
-     * which is not required for the normal operation of the client, but
-     * may help to avoid incompatibilities.
-     * @return a Vector of MaryHttpClient.DataType objects.
-     * @throws IOException if communication with the server fails
-     * @throws UnknownHostException if the host could not be found
-     */
-    public Vector<MaryHttpClient.DataType> getAllDataTypes() throws Exception
-    {
-        if (allDataTypes == null)
-            fillDataTypes();
-        
-        assert allDataTypes != null && allDataTypes.size() > 0;
-        
-        return allDataTypes;
-    }
-
-    /**
-     * Obtain a list of input data types known to the server. If the information is not
-     * yet available, the server is queried. This is optional information
-     * which is not required for the normal operation of the client, but
-     * may help to avoid incompatibilities.
-     * @return a Vector of MaryHttpClient.DataType objects.
-     * @throws IOException if communication with the server fails
-     * @throws UnknownHostException if the host could not be found
-     */
-    public Vector<MaryHttpClient.DataType> getInputDataTypes() throws Exception
-    {
-        if (inputDataTypes == null)
-            fillDataTypes();
-       
-        assert inputDataTypes != null && inputDataTypes.size() > 0;
-        
-        return inputDataTypes;
-    }
-
-    /**
-     * Obtain a list of output data types known to the server. If the information is not
-     * yet available, the server is queried. This is optional information
-     * which is not required for the normal operation of the client, but
-     * may help to avoid incompatibilities.
-     * @return a Vector of MaryHttpClient.DataType objects.
-     * @throws IOException if communication with the server fails
-     * @throws UnknownHostException if the host could not be found
-     */
-    public Vector<MaryHttpClient.DataType> getOutputDataTypes() throws Exception
-    {
-        if (outputDataTypes == null)
-            fillDataTypes();
-       
-        assert outputDataTypes != null && outputDataTypes.size() > 0;
-        
-        return outputDataTypes;
-    }
-
-    private void fillDataTypes() throws Exception 
-    {
-        allDataTypes = new Vector<MaryHttpClient.DataType>();
-        inputDataTypes = new Vector<MaryHttpClient.DataType>();
-        outputDataTypes = new Vector<MaryHttpClient.DataType>();
-        
-        //Socket marySocket = new Socket(host, port);
-        // Expect a variable number of lines of the kind
-        // RAWMARYXML INPUT OUTPUT
-        // TEXT_DE LOCALE=de INPUT
-        // AUDIO OUTPUT
-        String info;
-        /*
-        info = getServerInfo(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
-            new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
-            "MARY LIST DATATYPES");
-            */
-        info = maryHttpRequester.requestString(host, port, "MARY LIST DATATYPES");
-        
-        if (info.length() == 0)
-            throw new IOException("Could not get list of data types from Mary server");
-        String[] typeStrings = info.split("\n");
-        //marySocket.close();
-        for (int i=0; i<typeStrings.length; i++) 
-        {
-            StringTokenizer st = new StringTokenizer(typeStrings[i]);
-            if (!st.hasMoreTokens()) continue; // ignore this type
-            String name = st.nextToken();
-            boolean isInputType = false;
-            boolean isOutputType = false;
-            Locale locale = null;
-            while (st.hasMoreTokens()) 
-            {
-                String t = st.nextToken();
-                if (t.equals("INPUT")) {
-                    isInputType = true;
-                } else if (t.equals("OUTPUT")) {
-                    isOutputType = true;
-                }
-            }
-            DataType dt = new DataType(name, isInputType, isOutputType);
-            allDataTypes.add(dt);
-            if (dt.isInputType()) {
-                inputDataTypes.add(dt);
-            }
-            if (dt.isOutputType()) {
-                outputDataTypes.add(dt);
-            }
-        }
-    }
-
-    /**
-     * Provide a list of voices known to the server. If the information is not yet
-     * available, query the server for it. This is optional information
-     * which is not required for the normal operation of the client, but
-     * may help to avoid incompatibilities.
-     * @return a Vector of MaryHttpClient.Voice objects.
-     * @throws IOException if communication with the server fails
-     * @throws UnknownHostException if the host could not be found
-     */
-    public Vector<MaryHttpClient.Voice> getVoices() throws Exception
-    {
-        if (allVoices == null) {
-            fillVoices();
-        }
-        assert allVoices != null && allVoices.size() > 0;
-        return allVoices;
-    }
-    
-    /**
-     * Provide a list of voices known to the server for the given locale.
-     * If the information is not yet available, query the server for it.
-     * This is optional information
-     * which is not required for the normal operation of the client, but
-     * may help to avoid incompatibilities.
-     * @param locale the requested voice locale
-     * @return a Vector of MaryHttpClient.Voice objects, or null if no voices exist for
-     * that locale.
-     * @throws IOException if communication with the server fails
-     * @throws UnknownHostException if the host could not be found
-     */
-    public Vector<MaryHttpClient.Voice> getVoices(Locale locale) throws Exception
-    {
-        if (allVoices == null)
-            fillVoices();
-
-        return voicesByLocaleMap.get(locale);
-    }
-
-    /**
-     * Provide a list of general domain voices known to the server.
-     * If the information is not yet available, query the server for it.
-     * This is optional information
-     * which is not required for the normal operation of the client, but
-     * may help to avoid incompatibilities.
-     * @return a Vector of MaryHttpClient.Voice objects, or null if no such voices exist.
-     * @throws IOException if communication with the server fails
-     * @throws UnknownHostException if the host could not be found
-     */
-    public Vector<MaryHttpClient.Voice> getGeneralDomainVoices() throws Exception
-    {
-        Vector<MaryHttpClient.Voice> voices = getVoices();
-        Vector<MaryHttpClient.Voice> requestedVoices = new Vector<MaryHttpClient.Voice>();
-        
-        for (Voice v: voices) 
-        {
-            if (!v.isLimitedDomain())
-                requestedVoices.add(v);
-        }
-        
-        if (!requestedVoices.isEmpty())
-            return requestedVoices;
-        else
-            return null;
-    }
-
-    /**
-     * Provide a list of limited domain voices known to the server.
-     * If the information is not yet available, query the server for it.
-     * This is optional information
-     * which is not required for the normal operation of the client, but
-     * may help to avoid incompatibilities.
-     * @return a Vector of MaryHttpClient.Voice objects, or null if no such voices exist.
-     * @throws IOException if communication with the server fails
-     * @throws UnknownHostException if the host could not be found
-     */
-    public Vector<MaryHttpClient.Voice> getLimitedDomainVoices() throws Exception
-    {
-        Vector<MaryHttpClient.Voice> voices = getVoices();
-        Vector<MaryHttpClient.Voice> requestedVoices = new Vector<MaryHttpClient.Voice>();
-        
-        for (Voice v : voices) 
-        {
-            if (v.isLimitedDomain())
-                requestedVoices.add(v);
-        }
-        
-        if (!requestedVoices.isEmpty())
-            return requestedVoices;
-        else
-            return null;
-    }
-
-    /**
-     * Provide a list of general domain voices known to the server.
-     * If the information is not yet available, query the server for it.
-     * This is optional information
-     * which is not required for the normal operation of the client, but
-     * may help to avoid incompatibilities.
-     * @param locale the requested voice locale
-     * @return a Vector of MaryHttpClient.Voice objects, or null if no such voices exist.
-     * @throws IOException if communication with the server fails
-     * @throws UnknownHostException if the host could not be found
-     */
-    public Vector<MaryHttpClient.Voice> getGeneralDomainVoices(Locale locale) throws Exception
-    {
-        Vector<MaryHttpClient.Voice> voices = getVoices(locale);
-        Vector<MaryHttpClient.Voice> requestedVoices = new Vector<MaryHttpClient.Voice>();
-        
-        for (Voice v : voices) 
-        {
-            if (!v.isLimitedDomain())
-                requestedVoices.add(v);
-        }
-        
-        if (!requestedVoices.isEmpty())
-            return requestedVoices;
-        else
-            return null;
-    }
-
-    /**
-     * Provide a list of limited domain voices known to the server.
-     * If the information is not yet available, query the server for it.
-     * This is optional information
-     * which is not required for the normal operation of the client, but
-     * may help to avoid incompatibilities.
-     * @param locale the requested voice locale
-     * @return a Vector of MaryHttpClient.Voice objects, or null if no such voices exist.
-     * @throws IOException if communication with the server fails
-     * @throws UnknownHostException if the host could not be found
-     */
-    public Vector<MaryHttpClient.Voice> getLimitedDomainVoices(Locale locale) throws Exception
-    {
-        Vector<MaryHttpClient.Voice> voices = getVoices(locale);
-        Vector<MaryHttpClient.Voice> requestedVoices = new Vector<MaryHttpClient.Voice>();
-        for (Voice v : voices) 
-        {
-            if (v.isLimitedDomain())
-                requestedVoices.add(v);
-        }
-        
-        if (!requestedVoices.isEmpty())
-            return requestedVoices;
-        else
-            return null;
-    }
-
-    private void fillVoices() throws Exception
-    {
-        allVoices = new Vector<MaryHttpClient.Voice>();
-        voicesByLocaleMap = new HashMap<Locale,Vector<MaryHttpClient.Voice>>();
-        //Socket marySocket = new Socket(host, port);
-        // Expect a variable number of lines of the kind
-        // de7 de female
-        // us2 en male
-        // dfki-stadium-emo de male limited
-        String info;
-        /* 
-         info = getServerInfo(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
-            new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
-            "MARY LIST VOICES");
-            */
-        info = maryHttpRequester.requestString(host, port, "MARY LIST VOICES");
-        
-        if (info.length() == 0)
-            throw new IOException("Could not get voice list from Mary server");
-        String[] voiceStrings = info.split("\n");
-        //marySocket.close();
-        for (int i=0; i<voiceStrings.length; i++) {
-            StringTokenizer st = new StringTokenizer(voiceStrings[i]);
-            if (!st.hasMoreTokens()) continue; // ignore entry
-            String name = st.nextToken();
-            if (!st.hasMoreTokens()) continue; // ignore entry
-            String localeString = st.nextToken();
-            Locale locale = string2locale(localeString);
-            assert locale != null;
-            if (!st.hasMoreTokens()) continue; // ignore entry
-            String gender = st.nextToken();
-            
-            Voice voice = null;
-            if (isServerNotOlderThan("3.5.0"))
-            {
-                String synthesizerType;
-                if (!st.hasMoreTokens())
-                    synthesizerType = "non-specified";
-                else
-                    synthesizerType = st.nextToken();
-
-                if (!st.hasMoreTokens())
-                { 
-                    //assume domain is general
-                    voice = new Voice(name, locale, gender, "general");
-                }
-                else
-                { 
-                    //read in the domain
-                    String domain = st.nextToken();
-                    voice = new Voice(name, locale, gender, domain);
-                }
-
-                voice.setSynthesizerType(synthesizerType);
-            }
-            else
-            {
-                if (!st.hasMoreTokens())
-                { 
-                    //assume domain is general
-                    voice = new Voice(name, locale, gender, "general");
-                }
-                else
-                { 
-                    //read in the domain
-                    String domain = st.nextToken();
-                    voice = new Voice(name, locale, gender, domain);
-                }
-            }
-            
-            allVoices.add(voice);
-            Vector<MaryHttpClient.Voice> localeVoices = null;
-            if (voicesByLocaleMap.containsKey(locale)) {
-                localeVoices = voicesByLocaleMap.get(locale);
-            } else {
-                localeVoices = new Vector<MaryHttpClient.Voice>();
-                voicesByLocaleMap.put(locale, localeVoices);
-            }
-            localeVoices.add(voice);
-        }
-    }
-
-    /**
-     * Request the example text of a limited domain
-     * unit selection voice from the server
-     * @param voicename the voice
-     * @return the example text
-     * @throws IOException
-     * @throws UnknownHostException
-     */
-    public String getVoiceExampleText(String voicename) throws Exception 
-    {
-        if (!voiceExampleTexts.containsKey(voicename)) 
-        {
-            /*
-            Socket marySocket = new Socket(host, port);
-            String info = getServerInfo(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
-                    new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
-                    "MARY VOICE EXAMPLETEXT " + voicename);
-                    */
-            String info = maryHttpRequester.requestString(host, port, "MARY VOICE EXAMPLETEXT " + voicename);
-            if (info.length() == 0)
-                throw new IOException("Could not get example text from Mary server");
-
-            voiceExampleTexts.put(voicename, info.replaceAll("\n", System.getProperty("line.separator")));
-            //marySocket.close();
-        }
-
-        return voiceExampleTexts.get(voicename);
-    }
-    
-    /**
-     * Request an example text for a given data type from the server.
-     * @param dataType the string representation of the data type,
-     * e.g. "RAWMARYXML". This is optional information
-     * which is not required for the normal operation of the client, but
-     * may help to avoid incompatibilities.
-     * @return the example text, or null if none could be obtained.
-     * @throws IOException if communication with the server fails
-     * @throws UnknownHostException if the host could not be found
-     */
-    public String getServerExampleText(String dataType, String locale) throws Exception
-    {
-        if (!serverExampleTexts.containsKey(dataType+" "+locale)) 
-        {
-            /*
-            Socket marySocket = new Socket(host, port);
-            String info = getServerInfo(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
-                new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
-                "MARY EXAMPLETEXT " + dataType + " " + locale);
-                */
-            String info = maryHttpRequester.requestString(host, port, "MARY EXAMPLETEXT " + dataType + " " + locale);
-            
-            if (info.length() == 0)
-                throw new IOException("Could not get example text from Mary server");
-            serverExampleTexts.put(dataType+" "+locale, info.replaceAll("\n", System.getProperty("line.separator")));
-            
-            //marySocket.close();
-        }
-        
-        return serverExampleTexts.get(dataType+" "+locale);
-    }
-
-    /**
-     * Request the available audio effects for a voice from the server
-     * @param voicename the voice
-     * @return A string of available audio effects and default parameters, i.e. "FIRFilter,Robot(amount=50)"
-     * @throws IOException
-     * @throws UnknownHostException
-     */
-    public String getAudioEffects() throws Exception 
-    {
-        /*
-        Socket marySocket = new Socket(host, port);
-        String info = getServerInfo(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
-                new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
-                "MARY VOICE GETAUDIOEFFECTS");
-                */
-        String info = maryHttpRequester.requestString(host, port, "MARY VOICE GETAUDIOEFFECTS");
-        
-        if (info.length() == 0)
-            return "";
-
-        audioEffects = info;
-
-        //marySocket.close();
-
-        return audioEffects;
-    }
-    
-    public String getAudioEffectHelpTextLineBreak() throws Exception 
-    {
-        /*
-        Socket marySocket = new Socket(host, port);
-        String info = getServerInfo(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
-                new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
-                "MARY VOICE GETAUDIOEFFECTHELPTEXTLINEBREAK");
-                */
-        String info = maryHttpRequester.requestString(host, port, "MARY VOICE GETAUDIOEFFECTHELPTEXTLINEBREAK");
-        if (info.length() == 0)
-            return "";
-
-        //marySocket.close();
-
-        return info.trim();
-    }
-    
-    public String requestEffectParametersChange(String effectName, String strParamNew) throws Exception 
-    {
-        /*
-        Socket marySocket = new Socket(host, port);
-        String info = getServerInfo(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
-                new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
-                "MARY VOICE SETAUDIOEFFECTPARAM " + effectName + "_" + strParamNew);
-                */
-        String info = maryHttpRequester.requestString(host, port, "MARY VOICE SETAUDIOEFFECTPARAM " + effectName + "_" + strParamNew);
-        
-        if (info.length() == 0)
-            return "";
-        
-        //marySocket.close();
-        
-        return requestEffectParametersAsString(effectName);
-    }
-    
-    public String requestEffectParametersAsString(String effectName) throws Exception 
-    {
-        /*
-        Socket marySocket = new Socket(host, port);
-        String info = getServerInfo(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
-                new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
-                "MARY VOICE GETAUDIOEFFECTPARAM " + effectName);
-                */
-        
-        String info = maryHttpRequester.requestString(host, port, "MARY VOICE GETAUDIOEFFECTPARAM " + effectName);
-        
-        if (info.length() == 0)
-            return "";
-
-        //marySocket.close();
-
-        return info.replaceAll("\n", System.getProperty("line.separator"));
-    }
-
-    public String requestFullEffectAsString(String effectName) throws Exception 
-    {
-        /*
-        Socket marySocket = new Socket(host, port);
-        String info = getServerInfo(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
-                new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
-                "MARY VOICE GETFULLAUDIOEFFECT " + effectName);
-                */
-        
-        String info = maryHttpRequester.requestString(host, port, "MARY VOICE GETFULLAUDIOEFFECT " + effectName);
-        
-        if (info.length() == 0)
-            return "";
-
-        //marySocket.close();
-
-        return info.replaceAll("\n", System.getProperty("line.separator"));
-    }
-    
-    public String requestEffectHelpText(String effectName) throws Exception 
-    {
-        if (!audioEffectHelpTextsMap.containsKey(effectName))
-        {
-            /*
-            Socket marySocket = new Socket(host, port);
-            String info = getServerInfo(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
-                    new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
-                    "MARY VOICE GETAUDIOEFFECTHELPTEXT " + effectName);
-                    */
-            
-            String info = maryHttpRequester.requestString(host, port, "MARY VOICE GETAUDIOEFFECTHELPTEXT " + effectName);
-            
-            if (info.length() == 0)
-                return "";
-
-            audioEffectHelpTextsMap.put(effectName, info.replaceAll("\n", System.getProperty("line.separator")));
-            
-            //marySocket.close();
-        }
-        
-        return audioEffectHelpTextsMap.get(effectName);
-    }
-    
-    public boolean isHMMEffect(String effectName) throws Exception
-    {
-        /*
-        Socket marySocket = new Socket(host, port);
-        String info = getServerInfo(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
-                new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
-                "MARY VOICE ISHMMAUDIOEFFECT " + effectName);
-                */
-        
-        String info = maryHttpRequester.requestString(host, port, "MARY VOICE ISHMMAUDIOEFFECT " + effectName);
-        
-        //marySocket.close();
-        
-        if (info.length() == 0)
-            return false;
-
-        boolean bRet = false;
-        info = info.toLowerCase();
-        if (info.indexOf("yes")>-1)
-            bRet = true;
-        
-        return bRet;
-    }
-    
-    /**
-     * Get the audio file format types known by the server, one per line.
-     * Each line has the format: <code>extension name</code>
-     * @return
-     * @throws IOException
-     * @throws UnknownHostException
-     */
-    public String[] getAudioFileFormatTypes() throws Exception
-    {
-        if (audioFileFormatTypes == null) 
-        {
-            /*
-            Socket marySocket = new Socket(host, port);
-            
-            audioFileFormatTypes = getServerInfoLines(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
-                    new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
-                    "MARY LIST AUDIOFILEFORMATTYPES");
-                    */
-            
-            audioFileFormatTypes = maryHttpRequester.requestStringArray(host, port, "MARY LIST AUDIOFILEFORMATTYPES");
-            
-            //marySocket.close();
-        }
-        
-        return audioFileFormatTypes;
-    }
-
     public static void usage() 
     {
         System.err.println("usage:");
@@ -1412,7 +555,7 @@ public class MaryHttpClient {
         System.err.println("The output is written to standard output, so redirect or pipe as appropriate.");
     }
 
-    public static void main(String[] args) throws IOException 
+    public static void main(String[] args) throws IOException, InterruptedException
     {
         if (args.length > 0 && args[0].equals("-h")) 
         {
@@ -1464,95 +607,6 @@ public class MaryHttpClient {
             e.printStackTrace();
             System.exit(1);
         }
-    }
-
-    /**
-     * This helper method converts a string (e.g., "en_US") into a 
-     * proper Locale object.
-     * @param localeString a string representation of the locale
-     * @return a Locale object.
-     */
-    public static Locale string2locale(String localeString)
-    {
-        Locale locale = null;
-        StringTokenizer localeST = new StringTokenizer(localeString, "_");
-        String language = localeST.nextToken();
-        String country = "";
-        String variant = "";
-        if (localeST.hasMoreTokens()) {
-            country = localeST.nextToken();
-            if (localeST.hasMoreTokens()) {
-                variant = localeST.nextToken();
-            }
-         }
-        locale = new Locale(language, country, variant);
-        return locale;
-    }
-
-    /**
-     * An abstraction of server info about available voices.
-     * @author Marc Schr&ouml;der
-     *
-     *
-     */
-    public static class Voice
-    {
-        private String name;
-        private Locale locale;
-        private String gender;
-        private String domain;
-        private String synthesizerType;
-     
-        private boolean isLimitedDomain;
-        Voice(String name, Locale locale, String gender, String domain)
-        {
-            this.name = name;
-            this.locale = locale;
-            this.gender = gender;
-            this.domain = domain;
-            if (domain == null || domain.equals("general")){
-                isLimitedDomain = false;}
-            else {isLimitedDomain = true;}
-            
-            this.synthesizerType = "not-specified";
-        }
-        public Locale getLocale() { return locale; }
-        public String name() { return name; }
-        public String gender() { return gender; }
-        public String synthesizerType() {return synthesizerType;}
-        public void setSynthesizerType(String synthesizerTypeIn) {synthesizerType = synthesizerTypeIn;}
-        public String toString() { return name + " (" + locale.getDisplayLanguage() + ", " + gender
-            + (isLimitedDomain ? ", " + domain : "") +")";}
-        public boolean isLimitedDomain() { return isLimitedDomain; }
-        public boolean isHMMVoice() {
-            if (synthesizerType.compareToIgnoreCase("hmm")==0)
-                return true;
-            else
-                return false;
-        }
-    }
-    
-    /**
-     * An abstraction of server info about available data types.
-     * @author Marc Schr&ouml;der
-     *
-     *
-     */
-    public static class DataType
-    {
-        private String name;
-        private boolean isInputType;
-        private boolean isOutputType;
-        DataType(String name, boolean isInputType, boolean isOutputType) {
-            this.name = name;
-            this.isInputType = isInputType;
-            this.isOutputType = isOutputType;
-        }
-        public String name() { return name; }
-        public boolean isInputType() { return isInputType; }
-        public boolean isOutputType() { return isOutputType; }
-        public boolean isTextType() { return !name.equals("AUDIO"); }
-        public String toString() { return name; }
     }
 
     public class AudioPlayerWriter
