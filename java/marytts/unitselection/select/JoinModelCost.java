@@ -32,8 +32,10 @@ import java.io.IOException;
 
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-import marytts.htsengine.HTSModelSet;
-import marytts.htsengine.HTSTreeSet;
+import marytts.cart.CART;
+import marytts.cart.Node;
+import marytts.cart.LeafNode.PdfLeafNode;
+import marytts.cart.io.HTSCARTReader;
 import marytts.server.MaryProperties;
 import marytts.signalproc.analysis.distance.DistanceComputer;
 import marytts.unitselection.data.DiphoneUnit;
@@ -49,8 +51,7 @@ public class JoinModelCost implements JoinCostFunction
     /****************/
     private JoinCostFeatures jcf = null;
     
-    private HTSModelSet joinPdf = null;
-    private HTSTreeSet joinTree = null;
+    CART[] joinTree = null;  // an array of carts, one per HMM state.
     
     private float f0Weight;
     
@@ -105,21 +106,15 @@ public class JoinModelCost implements JoinCostFunction
         jcf = new JoinCostFeatures(joinFileName);
 
         assert featureDef != null : "Expected to have a feature definition, but it is null!";
-        /* Load PDFs*/
-        joinPdf = new HTSModelSet();
-        try {
-            joinPdf.loadJoinModelSet(joinPdfFileName);
-        } catch (Exception e) {
-            IOException ioe = new IOException("Cannot load join model pdfs from "+joinPdfFileName);
-            ioe.initCause(e);
-            throw ioe;
-        }
-        
+      
         /* Load Trees */
-        int numTrees = 1;  /* just JoinModeller will be loaded */
-        joinTree = new HTSTreeSet(numTrees);
+        HTSCARTReader htsReader = new HTSCARTReader();
+        int numStates = 1;  // just one state in the joinModeller
+        
         try {
-            joinTree.loadTreeSetGeneral(joinTreeFileName, 0, featureDef);
+            //joinTree.loadTreeSetGeneral(joinTreeFileName, 0, featureDef);
+            joinTree = htsReader.load(numStates, joinTreeFileName, joinPdfFileName, featureDef);
+            
         } catch (Exception e) {
             IOException ioe = new IOException("Cannot load join model trees from "+joinTreeFileName);
             ioe.initCause(e);
@@ -192,18 +187,18 @@ public class JoinModelCost implements JoinCostFunction
         }
         assert fv1 != null : "Target has no feature vector";
         //String modelName = contextTranslator.features2context(featureDef, fv1, featureList);
+       
+        int state = 0;  // just one state in the joinModeller
+        double[] mean;
+        double[] variance;
         
-        /* Given a context feature model name, find its join PDF mean and variance */
-        /* first, find an index in the tree and then find the mean and variance that corresponds to that index in joinPdf */
-        int indexPdf;
-        int vectorSize = joinPdf.getJoinVsize();
-        double[] mean = new double[vectorSize];
-        double[] variance = new double[vectorSize];
+        Node node = joinTree[state].interpretToNode(fv1, 1);
         
-        indexPdf = joinTree.searchTreeGeneral(fv1, featureDef, joinTree.getTreeHead(0).getRoot(), false);
+        assert node instanceof PdfLeafNode : "The node must be a PdfLeafNode.";
         
-        joinPdf.findJoinPdf(indexPdf, mean, variance);
-
+        mean = ((PdfLeafNode)node).getMean();
+        variance = ((PdfLeafNode)node).getVariance();
+        
         double distance = DistanceComputer.getNormalizedEuclideanDistance(diff, mean, variance);
         
         cost += distance;

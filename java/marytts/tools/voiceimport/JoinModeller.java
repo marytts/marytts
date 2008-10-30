@@ -49,11 +49,13 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.Vector;
 
+import marytts.cart.CART;
+import marytts.cart.Node;
+import marytts.cart.LeafNode.PdfLeafNode;
+import marytts.cart.io.HTSCARTReader;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.htsengine.HMMData;
-import marytts.htsengine.HTSModelSet;
-import marytts.htsengine.HTSTreeSet;
 import marytts.htsengine.PhoneTranslator;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.UnitFileReader;
@@ -470,16 +472,9 @@ public class JoinModeller extends VoiceImportComponent
             org.apache.log4j.BasicConfigurator.configure();
             
             /* These trees are for halphone features */
-            String joinPdfFile = "/project/mary/marcela/HMM-voices/DFKI_German_Poker/mary_files/joinModeller.pdf";
-            String joinTreeFile = "/project/mary/marcela/HMM-voices/DFKI_German_Poker/mary_files/tree-joinModeller.inf";
-            
-            /* Load PDFs*/
-            HTSModelSet joinPdf = new HTSModelSet();        
-            joinPdf.loadJoinModelSet(joinPdfFile);
-            
-            JoinModelCost jm = new JoinModelCost();
-            
-            
+            String joinPdfFile = "/project/mary/marcela/HMM-voices/DFKI_German_Poker/mary_files_old/joinModeller.pdf";
+            String joinTreeFile = "/project/mary/marcela/HMM-voices/DFKI_German_Poker/mary_files_old/tree-joinModeller.inf";
+  
             //String contextFile = "/project/mary/marcela/HMM-voices/DFKI_German_Poker/phonefeatures/m0001.pfeats";
             /*halphone example */
             String contextFile = "/project/mary/marcela/unitselection-halfphone.pfeats";
@@ -492,17 +487,25 @@ public class JoinModeller extends VoiceImportComponent
             context.close();
             //System.out.println(strContext);
             FeatureDefinition def = new FeatureDefinition(new BufferedReader(new StringReader(strContext)), false);
-            jm.setFeatureDefinition(def);
+  
+            CART[] joinTree = null;
+            HTSCARTReader htsReader = new HTSCARTReader();
+            int numStates = 1;  // just one state in the joinModeller
+            int vectorSize = 0;
             
-            int numTrees = 1;  /* just JoinModeller will be loaded */
-            HTSTreeSet joinTree = new HTSTreeSet(numTrees);            
-            joinTree.loadTreeSetGeneral(joinTreeFile, 0, def);
+            try {
+                joinTree = htsReader.load(numStates, joinTreeFile, joinPdfFile, def);
+                vectorSize = htsReader.getVectorSize();
+                
+            } catch (Exception e) {
+                IOException ioe = new IOException("Cannot load join model trees from "+joinTreeFile);
+                ioe.initCause(e);
+                throw ioe;
+            }
             
             
             /* Given a context feature model name, find its join PDF mean and variance */
             /* first, find an index in the tree and then find the mean and variance that corresponds to that index in joinPdf */
-            int indexPdf;
-            int vectorSize = joinPdf.getJoinVsize();
             double[] mean = new double[vectorSize];
             double[] variance = new double[vectorSize];
             
@@ -529,12 +532,12 @@ public class JoinModeller extends VoiceImportComponent
                 //System.out.println(feaLine);
             
             fv = def.toFeatureVector(0, feaLine);
-            indexPdf = joinTree.searchTreeGeneral(fv, def, joinTree.getTreeHead(0).getRoot(), false);
             
-            //--- old indexPdf = joinTree.searchTree(modelName, joinTree.getTreeHead(0).getRoot(), false);
+            Node node = joinTree[0].interpretToNode(fv, 1);
+            assert node instanceof PdfLeafNode : "The node must be a PdfLeafNode.";
             
-            System.out.println("model: " + feaLine + "\nindexPdf: " + indexPdf);
-            joinPdf.findJoinPdf(indexPdf, mean, variance);
+            mean = ((PdfLeafNode)node).getMean();
+            variance = ((PdfLeafNode)node).getVariance();
             
             System.out.print("mean: ");
             for(int i=0; i<vectorSize; i++)
