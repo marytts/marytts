@@ -47,8 +47,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import marytts.cart.StringCART;
+import marytts.cart.CART;
+import marytts.cart.LeafNode.LeafType;
+import marytts.cart.io.MaryCARTReader;
 import marytts.cart.io.MaryCARTWriter;
+import marytts.cart.io.WagonCARTReader;
 import marytts.cart.io.WagonCARTWriter;
 import marytts.features.FeatureDefinition;
 import marytts.fst.AlignerTrainer;
@@ -349,7 +352,7 @@ public class CMUDict2MaryFST
             
         }
         System.err.println(" - training decision tree...");
-        StringCART st = tp.trainTree(100);
+        CART st = tp.trainTree(100);
         System.err.println(" - saving...");
         // new MARY cart format:
         MaryCARTWriter mcw = new MaryCARTWriter();
@@ -372,8 +375,12 @@ public class CMUDict2MaryFST
         br = new BufferedReader(new InputStreamReader(new FileInputStream("lib/modules/en/us/lexicon/cmudict.lts.pfeats"), "UTF-8"));
         FeatureDefinition featureDef = new FeatureDefinition(br, false);
         br.close();
-        br = new BufferedReader(new InputStreamReader(new FileInputStream("lib/modules/en/us/lexicon/cmudict.lts.wagontree.txt"), "UTF-8"));
-        st = new StringCART(br, featureDef, featureDef.getFeatureIndex("target"));
+        //br = new BufferedReader(new InputStreamReader(new FileInputStream("lib/modules/en/us/lexicon/cmudict.lts.wagontree.txt"), "UTF-8"));
+        //WagonCARTReader wagonReader = new WagonCARTReader(LeafType.StringAndFloatLeafNode);
+        //st = new CART(wagonReader.load(br, featureDef), featureDef);
+        MaryCARTReader cartReader = new MaryCARTReader();
+        st = new CART(cartReader.load("lib/modules/en/us/lexicon/cmudict.lts.tree.binary", featureDef, null), featureDef);
+        
         TrainedLTS lts = new TrainedLTS(usSampa, Locale.US, st);
 
         System.err.println(" - looking up "+testGraphemes.size()+" test words...");

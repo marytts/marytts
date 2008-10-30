@@ -3,10 +3,10 @@ package weka.classifiers.trees.j48;
 import java.util.ArrayList;
 import java.util.List;
 
+import marytts.cart.CART;
 import marytts.cart.DecisionNode;
 import marytts.cart.LeafNode;
 import marytts.cart.Node;
-import marytts.cart.StringCART;
 import marytts.cart.StringPredictionTree;
 import marytts.features.FeatureDefinition;
 import weka.core.Instances;
@@ -62,9 +62,9 @@ public class TreeConverter{
      *  as they are used within MARY.
      * @param inst a container for storing WEKA instances. Also describing 
      *  possible attributes and values.
-     * @return an StringCART
+     * @return an CART with StringAndFloatLeafNode leaf nodes
      */
-    public static StringCART c45toStringCART(C45PruneableClassifierTree c45Tree, FeatureDefinition aFeatDef, Instances inst){
+    public static CART c45toStringCART(C45PruneableClassifierTree c45Tree, FeatureDefinition aFeatDef, Instances inst){
 
         if (! ( c45Tree.m_toSelectModel instanceof BinC45ModelSelection ) )
             throw new IllegalArgumentException("Can only convert binary trees.");
@@ -86,7 +86,7 @@ public class TreeConverter{
         Node rootNode = toStringTreeNode(c45Tree, null, -1, aFeatDef, inst, fid, targetVals);
         rootNode.setIsRoot(true);
         
-        return new StringCART(rootNode, aFeatDef,fid);
+        return new CART(rootNode, aFeatDef);
     }
 			
 	private static Node toStringPredictionTreeNode(C45PruneableClassifierTree c45Tree, Node aMother, int aNodeIndex, FeatureDefinition fd, Instances inst){
@@ -184,7 +184,7 @@ public class TreeConverter{
 	            
 	            // a return node is made and everything set
                 //System.err.println("creating StringAnfFloatLeafNode");
-	            returnNode = new LeafNode.StringAndFloatLeafNode(data, probs,fd,fid);
+	            returnNode = new LeafNode.StringAndFloatLeafNode(data, probs);
 	            returnNode.setMother(aMother);
 	            returnNode.setNodeIndex(aNodeIndex);
 	        } else {

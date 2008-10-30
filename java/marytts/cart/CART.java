@@ -31,6 +31,8 @@
  */
 package marytts.cart;
 
+import java.util.List;
+
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.unitselection.select.Target;
@@ -55,6 +57,15 @@ public class CART
     public CART() {
     }
 
+    /**
+     * Build a new cart with the given node as the root node
+     */
+    public CART(Node rootNode, FeatureDefinition featDef)
+    {
+        this.rootNode = rootNode;
+        this.featDef = featDef;
+    }
+    
     
     /**
      * Load the cart from the given file
@@ -77,10 +88,22 @@ public class CART
      * @return the Node
      */
     public Node interpretToNode(Target target, int minNumberOfData) {
+        return interpretToNode(target.getFeatureVector(), minNumberOfData);
+    }
+    
+    /**
+     * Passes the given item through this CART and returns the
+     * leaf Node, or the Node it stopped walking down.
+     *
+     * @param target the target to analyze
+     * @param minNumberOfData the minimum number of data requested.
+     * If this is 0, walk down the CART until the leaf level.
+     *
+     * @return the Node
+     */
+    public Node interpretToNode(FeatureVector featureVector, int minNumberOfData) {
         Node currentNode = rootNode;
         Node prevNode = null;
-
-        FeatureVector featureVector = target.getFeatureVector();
 
         // logger.debug("Starting cart at "+nodeIndex);
         while (currentNode.getNumberOfData() > minNumberOfData
@@ -171,6 +194,11 @@ public class CART
      */
     public void setRootNode(Node rNode) {
         rootNode = rNode;
+    }
+    
+    public FeatureDefinition getFeatureDefinition()
+    {
+        return featDef;
     }
     
     /**

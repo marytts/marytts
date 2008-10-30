@@ -46,6 +46,7 @@ import java.util.Map;
 import java.util.Set;
 
 import marytts.cart.CART;
+import marytts.cart.LeafNode.LeafType;
 import marytts.cart.io.WagonCARTReader;
 import marytts.cart.io.WagonCARTWriter;
 import marytts.features.FeatureDefinition;
@@ -92,7 +93,7 @@ public class FestivalCARTImporter {
                                         
                     // old: CART cart = new ClassificationTree(reader, featDef);
                     CART cart = new CART();
-                    WagonCARTReader wagonReader = new WagonCARTReader("ClassificationTree");
+                    WagonCARTReader wagonReader = new WagonCARTReader(LeafType.IntArrayLeafNode);
                     cart.setRootNode(wagonReader.load(reader, featDef));
                     
                     //store CART in map

@@ -38,6 +38,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import marytts.cart.CART;
+import marytts.cart.LeafNode.LeafType;
 import marytts.cart.io.WagonCARTReader;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
@@ -153,10 +154,11 @@ public class UnitSelectionVoiceBuilder
             CART cart = new CART();
             
             // old: cart.load(cartFile, targetFunction.getFeatureDefinition(),null);
-            String treeType = cartReaderClass.substring(cartReaderClass.lastIndexOf(".")+1);
+            //String treeType = cartReaderClass.substring(cartReaderClass.lastIndexOf(".")+1);
             //System.out.println("\ntreeType = " + treeType);
-            
-            WagonCARTReader wagonReader = new WagonCARTReader(treeType);
+            // Marc, 30.10.2008: hard-coding IntArrayLeafNode for now, this will be
+            // converted to MaryCARTReader anyway.
+            WagonCARTReader wagonReader = new WagonCARTReader(LeafType.IntArrayLeafNode);
             cart.setRootNode(wagonReader.load(cartFile, targetFunction.getFeatureDefinition(),null));
             
             logger.debug("...loading audio time line...");
@@ -208,7 +210,7 @@ public class UnitSelectionVoiceBuilder
 			
             // see if there are any voice-specific duration and f0 models to load
             CART durationCart = null;
-            WagonCARTReader wagonDurReader = new WagonCARTReader("RegressionTree");
+            WagonCARTReader wagonDurReader = new WagonCARTReader(LeafType.FloatLeafNode);
             
             FeatureDefinition durationCartFeatDef = null;
             String durationCartFile = MaryProperties.getFilename(header+".duration.cart");

@@ -34,6 +34,7 @@ import java.io.FileReader;
 import java.util.Locale;
 
 import marytts.cart.CART;
+import marytts.cart.LeafNode.LeafType;
 import marytts.cart.io.WagonCARTReader;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
@@ -109,7 +110,7 @@ public class CARTF0Modeller extends InternalModule
     public void startup() throws Exception
     {
         super.startup();
-        WagonCARTReader wagonReader = new WagonCARTReader("RegressionTree");
+        WagonCARTReader wagonReader = new WagonCARTReader(LeafType.FloatLeafNode);
         
         File fdFile = new File(MaryProperties.needFilename(propertyPrefix+"featuredefinition"));
         FeatureDefinition featureDefinition = new FeatureDefinition(new BufferedReader(new FileReader(fdFile)), true);

@@ -10,9 +10,13 @@ import java.util.Locale;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import marytts.cart.StringCART;
+import marytts.cart.CART;
+import marytts.cart.LeafNode;
+import marytts.cart.LeafNode.StringAndFloatLeafNode;
+import marytts.cart.io.WagonCARTReader;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
+import marytts.tools.newlanguage.LTSTrainer;
 
 import org.xml.sax.SAXException;
 
@@ -27,7 +31,9 @@ import org.xml.sax.SAXException;
  */
 public class TrainedLTS {
     
-    private StringCART tree;
+    private CART tree;
+    private FeatureDefinition featureDefinition;
+    private int indexPredictedFeature;
     private int context = 2;
     private AllophoneSet allophoneSet;
     Locale locale;
@@ -48,10 +54,12 @@ public class TrainedLTS {
         this.loadTree(treeDirName);
     }
     
-    public TrainedLTS(AllophoneSet aPhonSet, Locale aLocale, StringCART predictionTree) {
+    public TrainedLTS(AllophoneSet aPhonSet, Locale aLocale, CART predictionTree) {
         this.allophoneSet = aPhonSet;
         this.locale = aLocale;
         this.tree = predictionTree;
+        this.featureDefinition = tree.getFeatureDefinition();
+        this.indexPredictedFeature = featureDefinition.getFeatureIndex(LTSTrainer.PREDICTED_STRING_FEATURENAME);
     }
     
     /**
@@ -82,7 +90,8 @@ public class TrainedLTS {
         BufferedReader treeReader = new BufferedReader(
                 new InputStreamReader(
                 new FileInputStream(bigTreeName),"UTF-8"));
-        this.tree = new StringCART(treeReader,fd, fd.getFeatureIndex("target"));
+        WagonCARTReader wagonReader = new WagonCARTReader(LeafNode.LeafType.StringAndFloatLeafNode);
+        this.tree = new CART(wagonReader.load(treeReader, fd), fd);
         
     }
     
@@ -114,8 +123,9 @@ public class TrainedLTS {
 
             FeatureVector fv = new FeatureVector(byteFeatures, new short[]{}, new float[]{},0);
             
-                String prediction = this.tree.maxString(fv);
-                returnStr += prediction.substring(1, prediction.length() - 1);
+            StringAndFloatLeafNode leaf = (StringAndFloatLeafNode) tree.interpretToNode(fv, 0);
+            String prediction = leaf.mostProbableString(featureDefinition, indexPredictedFeature);
+            returnStr += prediction.substring(1, prediction.length() - 1);
         }
         
         return returnStr;        

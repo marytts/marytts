@@ -35,6 +35,7 @@ import java.util.Locale;
 
 import marytts.cart.CART;
 import marytts.cart.StringPredictionTree;
+import marytts.cart.LeafNode.LeafType;
 import marytts.cart.io.WagonCARTReader;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
@@ -118,7 +119,7 @@ public class CARTDurationModeller extends InternalModule
         
         //cart = new RegressionTree(new BufferedReader(new FileReader(cartFile)), featureDefinition);
         //CART cart = new CART();
-        WagonCARTReader wagonRegReader = new WagonCARTReader("RegressionTree");
+        WagonCARTReader wagonRegReader = new WagonCARTReader(LeafType.FloatLeafNode);
         cart.setRootNode(wagonRegReader.load(new BufferedReader(new FileReader(cartFile)), featureDefinition));
         
         if ( null != MaryProperties.getFilename(propertyPrefix+"pausetree")){

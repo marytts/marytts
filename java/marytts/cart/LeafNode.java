@@ -12,6 +12,7 @@ import marytts.features.FeatureVector;
  */
 public abstract class LeafNode extends Node {
 
+    public enum LeafType {FeatureVectorLeafNode, FloatLeafNode, IntAndFloatArrayLeafNode, IntArrayLeafNode, StringAndFloatLeafNode};
     // unique index used in MaryCART format
     protected int uniqueLeafId;
     
@@ -191,6 +192,26 @@ public abstract class LeafNode extends Node {
     	public float[] getFloatData(){
     		return floats;
     	}
+    	
+    	/**
+    	 * For the int-float pairs in this leaf, return the int value for which
+    	 * the associated float value is the highest one. If the float values
+    	 * are probabilities, this method returns the most probable int.
+    	 * @return
+    	 */
+    	public int mostProbableInt()
+    	{
+            int bestInd = 0;
+            float maxProb = 0f;
+            
+            for ( int i = 0 ; i < data.length ; i++ ){
+                if ( floats[i] > maxProb ){
+                    maxProb = floats[i];
+                    bestInd = data[i];
+                }
+            }
+            return bestInd;
+    	}
 
     	/**
          * Delete a candidate of the leaf by its given data/index
@@ -220,38 +241,32 @@ public abstract class LeafNode extends Node {
         
     }
     
-    public static class StringAndFloatLeafNode extends IntAndFloatArrayLeafNode{
+    public static class StringAndFloatLeafNode extends IntAndFloatArrayLeafNode
+    {
 
-        FeatureDefinition fd;
-        int tf;
-        public StringAndFloatLeafNode(int[] data, float[] floats, FeatureDefinition featDef, int targetFeature) {
+        public StringAndFloatLeafNode(int[] data, float[] floats) 
+        {
             super(data, floats);
-            this.fd = featDef;
-            this.tf = targetFeature;
         }
         
-        public int getTargetfeature(){return tf; }
-        public FeatureDefinition getFeatureDefinition(){return fd; }
-        
-  
-        public String maxString() {
-            int bestInd = 0;
-            float maxProb = 0f;
-            
-            for ( int i = 0 ; i < data.length ; i++ ){
-                if ( floats[i] > maxProb ){
-                    maxProb = floats[i];
-                    bestInd = data[i];
-                }
-            }
-            
-            // get the String representation
-            return this.fd.getFeatureValueAsString(tf, bestInd);
+        /**
+         * Return the most probable value in this leaf, translated into its 
+         * string representation using the featureIndex'th feature of the given 
+         * feature definition.
+         * @param featureDefinition
+         * @param featureIndex
+         * @return
+         */
+        public String mostProbableString(FeatureDefinition featureDefinition, int featureIndex)
+        {
+            int bestInd = mostProbableInt();
+            return featureDefinition.getFeatureValueAsString(featureIndex, bestInd);
         }
         
-        public String toString(){
-            if (data == null) return "int[null]";
-            return "int and floats["+data.length+"]";
+        public String toString()
+        {
+            if (data == null) return "string and floats[null]";
+            return "string and floats["+data.length+"]";
         }
         
     }
