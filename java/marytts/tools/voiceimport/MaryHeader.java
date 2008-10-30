@@ -49,8 +49,7 @@ public class MaryHeader
 { 
     /* Global constants */
     private final static int MAGIC = 0x4d415259; // "MARY"
-    private final static int VERSION = 1; /* TODO: this constant should be somehow automatically
-                                            updated by the build process */
+    private final static int VERSION = 40; // 4.0
     
     /* List of authorized file type identifier constants */
     public final static int UNKNOWN = 0;

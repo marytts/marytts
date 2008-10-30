@@ -12,7 +12,13 @@ import marytts.features.FeatureVector;
  */
 public abstract class LeafNode extends Node {
 
-    public enum LeafType {FeatureVectorLeafNode, FloatLeafNode, IntAndFloatArrayLeafNode, IntArrayLeafNode, StringAndFloatLeafNode};
+    public enum LeafType {
+        IntArrayLeafNode,
+        FloatLeafNode, 
+        IntAndFloatArrayLeafNode, 
+        StringAndFloatLeafNode,
+        FeatureVectorLeafNode, 
+        PdfLeafNode};
     // unique index used in MaryCART format
     protected int uniqueLeafId;
     
@@ -72,6 +78,13 @@ public abstract class LeafNode extends Node {
         return uniqueLeafId;
     }
     
+    /**
+     * Indicate whether the leaf node has no meaningful data.
+     * @return
+     */
+    public abstract boolean isEmpty();
+    
+    
 
     /**
      * Count all the data available at and below this node.
@@ -105,6 +118,11 @@ public abstract class LeafNode extends Node {
      */
     protected abstract void fillData(Object target, int pos, int len);
 
+    /**
+     * The type of this leaf node.
+     * @return
+     */
+    public abstract LeafType getLeafNodeType();
     
     
     
@@ -150,6 +168,15 @@ public abstract class LeafNode extends Node {
             return 0;
         }
 
+        public boolean isEmpty()
+        {
+            return data == null || data.length == 0;
+        }
+        
+        public LeafType getLeafNodeType()
+        {
+            return LeafType.IntArrayLeafNode;
+        }
         
         public String toString()
         {
@@ -179,6 +206,11 @@ public abstract class LeafNode extends Node {
     	public int getNumberOfData(){
     		if (data != null) return data.length;
     		return 0;
+    	}
+    	
+    	public boolean isEmpty()
+    	{
+    	    return data == null || data.length == 0;
     	}
     	
     	public Object getAllData(){
@@ -233,6 +265,11 @@ public abstract class LeafNode extends Node {
         	floats = newFloats;
         }
         
+        public LeafType getLeafNodeType()
+        {
+            return LeafType.IntAndFloatArrayLeafNode;
+        }
+
          
         public String toString(){
             if (data == null) return "int[null]";
@@ -269,13 +306,18 @@ public abstract class LeafNode extends Node {
             return "string and floats["+data.length+"]";
         }
         
+        public LeafType getLeafNodeType()
+        {
+            return LeafType.StringAndFloatLeafNode;
+        }
+
     }
 
     
     public static class FeatureVectorLeafNode extends LeafNode
     {
         private FeatureVector[] featureVectors;
-        private List featureVectorList;
+        private List<FeatureVector> featureVectorList;
         private boolean growable;
 
         /**
@@ -297,7 +339,7 @@ public abstract class LeafNode extends Node {
          */
         public FeatureVectorLeafNode(){
             super();
-            featureVectorList = new ArrayList();
+            featureVectorList = new ArrayList<FeatureVector>();
             featureVectors = null;
             growable = true;
         }
@@ -360,6 +402,17 @@ public abstract class LeafNode extends Node {
             if (featureVectors != null) return featureVectors.length;
             return 0;
         }
+        
+        public boolean isEmpty()
+        {
+            return featureVectors == null || featureVectors.length == 0;
+        }
+        
+        public LeafType getLeafNodeType()
+        {
+            return LeafType.FeatureVectorLeafNode;
+        }
+
        
         public String toString()
         {
@@ -408,7 +461,17 @@ public abstract class LeafNode extends Node {
         {
             return 1;
         }
+        
+        public boolean isEmpty()
+        {
+            return false;
+        }
  
+        public LeafType getLeafNodeType()
+        {
+            return LeafType.FloatLeafNode;
+        }
+
         public String toString()
         {
             if (data == null) return "mean=null, stddev=null";
@@ -499,7 +562,18 @@ public abstract class LeafNode extends Node {
         {
             return -1;
         }
+
+        public boolean isEmpty()
+        {
+            return false;
+        }
         
+        public LeafType getLeafNodeType()
+        {
+            return LeafType.PdfLeafNode;
+        }
+
+
         public String toString()
         {
             if (mean == null) return "mean=null, stddev=null";
