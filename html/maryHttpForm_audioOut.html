@@ -1,0 +1,107 @@
+<html>
+
+  <head>
+    <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>MARY Web Client</title>
+  </head>
+
+  <body>
+    <font STYLE="font-family: Verdana">
+    <table>
+      <tr>
+          <td><img src="favicon.ico"/></td>  
+          <td>        
+            <table>
+              <tr>
+                <td></td>
+              </tr>
+	      <tr>
+                <td><h1><font STYLE="color: #587D9D">MARY Web Client</font></h1></td>
+              </tr>
+              <tr>
+                <td></td>
+              </tr>
+	    </table>
+          </td>
+        </tr>
+    </table>
+
+    <form id="maryWebClient" action="http://localhost:59125" method="post">
+      <table>
+        
+        <tr>
+          <td></td>
+          <td>Input Type:
+              <select name="inputtype" size="1">
+              <option>TEXT</option>
+              <option>RAWMARYXML</option>
+              </select>
+          </td>
+          <td>Output Type:
+              <select name="outputtype" size="1">
+              <option>MBROLA</option>
+              <option>AUDIO</option>
+              </select>
+          </td>     
+
+        </tr>
+
+        <tr>
+          <td>Input Text:</td>
+          <td><textarea name="inputtext" rows="15" cols="40">Show input text here...</textarea>
+          </td> 
+
+          <td> 
+            <table>
+              <tr> <td> </td> <td>Effects</td> <td>Parameters</td></tr>
+              <tr> <td><input type="checkbox" name="volume"></td> <td>Volume</td> <td><textarea name="volume_inputtext" rows="1" cols="25">amount=1.0</textarea></td> <td><input type="button" name="volume_help" value="Help"></td> </tr>
+              <tr> <td><input type="checkbox" name="tractscaler"></td> <td>TractScaler</td> <td><textarea name="tractscaler_inputtext" rows="1" cols="25">amount=1.0</textarea></td> <td><input type="button" name="tractscaler_help" value="Help"></td> </tr>
+              <tr> <td><input type="checkbox" name="f0scale"></td> <td>F0Scale</td> <td><textarea name="f0scale_inputtext" rows="1" cols="25">amount=1.0</textarea></td> <td><input type="button" name="f0scale_help" value="Help"></td> </tr>
+              <tr> <td><input type="checkbox" name="f0add"></td> <td>F0Add</td> <td><textarea name="f0add_inputtext" rows="1" cols="25">amount=1.0</textarea></td> <td><input type="button" name="f0add_help" value="Help"></td> </tr>
+              <tr> <td><input type="checkbox" name="rate"></td> <td>Rate</td> <td><textarea name="rate_inputtext" rows="1" cols="25">amount=1.0</textarea></td> <td><input type="button" name="rate_help" value="Help"></td> </tr>
+              <tr> <td><input type="checkbox" name="robot"></td> <td>Robot</td> <td><textarea name="robot_inputtext" rows="1" cols="25">amount=1.0</textarea></td> <td><input type="button" name="robot_help" value="Help"></td> </tr>
+              </font>
+            </table>
+          </td>
+                 
+        </tr>
+
+        <tr>
+        <td>Example:</td>
+        <td><select name="exampletext" size="1">
+            <option>Welcome to the world of speech synthesis!</option>
+            <option>Welcome!</option>
+            </select>
+        </td>
+        </tr>
+        
+        <tr>
+        <td>Voice:</td>
+        <td><select name="voice" size="1">
+            <option>time-awb(English, male, limited)</option>
+            <option>hsmm-slt(English, female)</option>
+            </select>
+        </td>
+        </tr>
+        
+        <tr>
+        <td>Audio Format:</td>
+        <td><select name="audioformat" size="1">
+            <option>WAV</option>
+            <option>MP3</option>
+            <option>AIF</option>
+            </select>
+        </td>
+        </tr>
+     
+        <tr>
+          <td></td>
+          <td><input type="submit" value="SYNTHESIZE!"></td>
+        </tr>
+        
+      </table>
+      
+    </form>
+    </font>
+  </body>
+</html>
