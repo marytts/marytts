@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import marytts.cart.CART;
 import marytts.cart.DecisionNode;
 import marytts.cart.Node;
+import marytts.cart.LeafNode;
 import marytts.cart.LeafNode.PdfLeafNode;
 import marytts.cart.io.HTSCARTReader;
 import marytts.features.FeatureDefinition;
@@ -18,39 +19,53 @@ import marytts.features.FeatureVector;
 public class CartTreeSet {
     
     private Logger logger = Logger.getLogger("CartTreeSet");
-    private int numStates;
-    private CART[] durTree; // CART trees for duration <p>
-    private CART[] lf0Tree; // CART trees for log F0 <p>
-    private CART[] mcpTree; // CART trees for spectrum <p>
-    private CART[] strTree; // CART trees for strengths <p>
-    private CART[] magTree; // CART trees for Fourier magnitudes<p>
     
+    private CART[] durTree;   // CART trees for duration 
+    private CART[] lf0Tree;   // CART trees for log F0 
+    private CART[] mcpTree;   // CART trees for spectrum 
+    private CART[] strTree;   // CART trees for strengths 
+    private CART[] magTree;   // CART trees for Fourier magnitudes
     
+    private int numStates;            /* # of HMM states for individual HMM */
+    private int lf0Stream;            /* # of stream for log f0 modeling */
+    private int mcepVsize;            /* vector size for mcep modeling */
+    private int strVsize;             /* vector size for strengths modeling */
+    private int magVsize;             /* vector size for Fourier magnitudes modeling */
+   
     HTSCARTReader htsReader = new HTSCARTReader(); 
+    
+    public int getNumStates(){ return numStates; }
+    public int getLf0Stream(){ return lf0Stream; }
+    public int getMcepVsize(){ return mcepVsize; }
+    public int getStrVsize(){ return strVsize; }
+    public int getMagVsize(){ return magVsize; }
+    
     
     /** Loads all the CART trees */
     public void loadTreeSet(HMMData htsData, FeatureDefinition featureDef) throws Exception {
       try {
+             
+        /* DUR, LF0 and MCP are required as minimum for generating voice. 
+        * The duration tree has only one state.
+        * The size of the vector in duration is the number of states. */  
+        durTree = htsReader.load(1, htsData.getTreeDurFile(), htsData.getPdfDurFile(), featureDef);  
+        numStates = htsReader.getVectorSize();
         
-        /* The number of states is normally 5 but to be sure it can be read from the first
-         * int value of the pdf duration file. */
-        DataInputStream data_in = new DataInputStream (
-                                  new BufferedInputStream(
-                                  new FileInputStream(htsData.getPdfDurFile())));
-        numStates = data_in.readInt();
-        data_in.close (); 
-          
-        /* DUR, LF0 and MCP are required as minimum for generating voice */
-        /* the duration tree has only one state */
-        durTree = htsReader.load(1, htsData.getTreeDurFile(), htsData.getPdfDurFile(), featureDef);
-        lf0Tree = htsReader.load(numStates, htsData.getPdfLf0File(), htsData.getPdfLf0File(), featureDef);
+        lf0Tree = htsReader.load(numStates, htsData.getTreeLf0File(), htsData.getPdfLf0File(), featureDef);
+        lf0Stream = htsReader.getVectorSize();
+        
         mcpTree = htsReader.load(numStates, htsData.getTreeMcpFile(), htsData.getPdfMcpFile(), featureDef);
+        mcepVsize = htsReader.getVectorSize();
         
         /* STR and MAG are optional for generating mixed excitation */ 
-        if( htsData.getTreeStrFile() != null)
-          strTree = htsReader.load(numStates, htsData.getTreeStrFile(), htsData.getPdfStrFile(), featureDef);
-        if( htsData.getTreeMagFile() != null)
+        if( htsData.getTreeStrFile() != null){
+           strTree = htsReader.load(numStates, htsData.getTreeStrFile(), htsData.getPdfStrFile(), featureDef);
+           strVsize = htsReader.getVectorSize();
+        }
+        if( htsData.getTreeMagFile() != null){
           magTree = htsReader.load(numStates, htsData.getTreeMagFile(), htsData.getPdfMagFile(), featureDef);
+          magVsize = htsReader.getVectorSize();
+        }
         
       } catch (Exception e) {
         logger.debug("Exception: " + e.getMessage());
@@ -59,10 +74,7 @@ public class CartTreeSet {
       }
         
     }
-    
-    public int getNumStates(){ return numStates; }
-    
-    
+  
     /***
      * Searches fv in durTree CART[] set of trees, per state, and fill the information in the
      * HTSModel m.
@@ -80,15 +92,16 @@ public class CartTreeSet {
       double meanVector[], varVector[];
       Node node;
      
-      // With a fv then i can search in a cart tree, and the function returns a node 
-      //CHECK!!!
       // the duration tree has only one state
       node = durTree[0].interpretToNode(fv, 1);
-      assert ( node instanceof PdfLeafNode );
-        
-      meanVector = ((PdfLeafNode)node).getMean();
-      varVector = ((PdfLeafNode)node).getVariance();
+      
+      if ( node instanceof PdfLeafNode ) {       
+        meanVector = ((PdfLeafNode)node).getMean();
+        varVector = ((PdfLeafNode)node).getVariance();
+      } else 
+         throw new Exception("searchDurInCartTree: The node must be a PdfLeafNode");
      
+      
       dd = diffdur;
       // in duration the length of the vector is the number of states.
       for(s=0; s<numStates; s++){
@@ -114,6 +127,7 @@ public class CartTreeSet {
         dd = dd + ( data - (double)m.getDur(s) );       
       }
       return dd; 
+      
     }
     
     
@@ -131,13 +145,13 @@ public class CartTreeSet {
       double mean[], var[];
       Node node;
       for(s=0; s<numStates; s++) {
-        // with a fv then i can search in a cart tree, and the function returns a node 
-        //CHECK!!!
+          
         node = lf0Tree[s].interpretToNode(fv, 1);
-        assert ( node instanceof PdfLeafNode );
-        
-        mean = ((PdfLeafNode)node).getMean();
-        var = ((PdfLeafNode)node).getVariance();
+        if ( node instanceof PdfLeafNode ) {       
+          mean = ((PdfLeafNode)node).getMean();
+          var = ((PdfLeafNode)node).getVariance();
+        } else 
+            throw new Exception("searchLf0InCartTree: The node must be a PdfLeafNode");
         
         for(stream=0; stream<mean.length; stream++) {
           m.setLf0Mean(s, stream, mean[stream]);
@@ -151,10 +165,7 @@ public class CartTreeSet {
        }         
       }
     }
-    
-    
-    
-    
+      
     
     /***
      * Searches fv in mcpTree CART[] set of trees, per state, and fill the information in the
@@ -170,13 +181,12 @@ public class CartTreeSet {
       double mean[], var[];
       Node node;
       for(s=0; s<numStates; s++) {
-        // with a fv then i can search in a cart tree, and the function returns a node 
-        //CHECK!!!
         node = mcpTree[s].interpretToNode(fv, 1);
-        assert ( node instanceof PdfLeafNode );
-        
-        mean = ((PdfLeafNode)node).getMean();
-        var = ((PdfLeafNode)node).getVariance();
+        if ( node instanceof PdfLeafNode ) {       
+          mean = ((PdfLeafNode)node).getMean();
+          var = ((PdfLeafNode)node).getVariance();
+        } else
+            throw new Exception("searchMcpInCartTree: The node must be a PdfLeafNode");
         
         // make a copy of mean and variance in m
         for(i=0; i<mean.length; i++){
@@ -200,13 +210,12 @@ public class CartTreeSet {
       double mean[], var[];
       Node node;
       for(s=0; s<numStates; s++) {
-        // with a fv then i can search in a cart tree, and the function returns a node 
-        //CHECK!!!
         node = strTree[s].interpretToNode(fv, 1);
-        assert ( node instanceof PdfLeafNode );
-        
-        mean = ((PdfLeafNode)node).getMean();
-        var = ((PdfLeafNode)node).getVariance();
+        if ( node instanceof PdfLeafNode ) {       
+          mean = ((PdfLeafNode)node).getMean();
+          var = ((PdfLeafNode)node).getVariance();
+        } else
+            throw new Exception("searchStrInCartTree: The node must be a PdfLeafNode");
         
         // make a copy of mean and variance in m
         for(i=0; i<mean.length; i++){
@@ -230,13 +239,12 @@ public class CartTreeSet {
       double mean[], var[];
       Node node;
       for(s=0; s<numStates; s++) {
-        // with a fv then i can search in a cart tree, and the function returns a node 
-        //CHECK!!!
         node = magTree[s].interpretToNode(fv, 1);
-        assert ( node instanceof PdfLeafNode );
-        
-        mean = ((PdfLeafNode)node).getMean();
-        var = ((PdfLeafNode)node).getVariance();
+        if ( node instanceof PdfLeafNode ) {       
+          mean = ((PdfLeafNode)node).getMean();
+          var = ((PdfLeafNode)node).getVariance();
+        } else
+            throw new Exception("searchMagInCartTree: The node must be a PdfLeafNode");
         
         // make a copy of mean and variance in m
         for(i=0; i<mean.length; i++){

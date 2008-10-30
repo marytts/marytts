@@ -171,10 +171,10 @@ public class HTSModel {
   
   /* Constructor */
   /* Every Model is initialised with the information in ModelSet*/
-  public HTSModel(HTSModelSet ms){
+  public HTSModel(CartTreeSet ms){
 	int i, nstate;  
 	totalDur = 0;
-	nstate = ms.getNumState();
+	nstate = ms.getNumStates();
 	dur = new int[nstate];
 	lf0Pdf = new int[nstate];
 	lf0Mean = new double[nstate][];

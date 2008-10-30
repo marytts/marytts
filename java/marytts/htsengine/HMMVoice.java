@@ -135,12 +135,13 @@ public class HMMVoice extends Voice {
        }
 
        /* Load ModelSet ts */
-       logger.info("Loading Model Set:");
-       this.htsData.loadModelSet(); 
+       //---      logger.info("Loading Model Set:");
+       //---       this.htsData.loadModelSet(); 
        
        /* Load TreeSet ms*/
        logger.info("Loading Tree Set:");
-       this.htsData.loadTreeSet();  
+//     --       this.htsData.loadTreeSet(); 
+       this.htsData.loadCartTreeSet();
        
        /* Load GV ModelSet gv*/
        logger.info("Loading GV Model Set:");
