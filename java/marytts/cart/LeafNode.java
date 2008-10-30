@@ -540,7 +540,7 @@ public abstract class LeafNode extends Node {
         public int getDataLength() {return mean.length; }
         public double[] getMean() { return mean; }
         public double[] getVariance() { return variance; }
-
+        public double getVoicedWeight() { return voicedWeight; }
        
         public int getVectorSize()
         {
@@ -558,9 +558,10 @@ public abstract class LeafNode extends Node {
         }
         
         // not meaningful here.
+        // i need this value positive when searching ???
         public int getNumberOfData()
         {
-            return -1;
+            return 1;
         }
 
         public boolean isEmpty()
