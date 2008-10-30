@@ -465,9 +465,9 @@ public abstract class DecisionNode extends Node
             short val = featureVector.getShortFeature(featureIndex);
             Node returnNode;
             if (val == value) {
-                returnNode = daughters[0];
+                returnNode = daughters[0];  
             } else {
-                returnNode = daughters[1];
+                returnNode = daughters[1];  
             }
             if (TRACE) {
                 System.out.print(feature + ": " + featureDefinition.getFeatureValueAsString(featureIndex, val));
