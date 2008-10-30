@@ -37,7 +37,11 @@ import java.io.PrintWriter;
 
 import marytts.cart.CART;
 import marytts.cart.DecisionNode;
+import marytts.cart.LeafNode;
 import marytts.cart.Node;
+import marytts.cart.DecisionNode.BinaryByteDecisionNode;
+import marytts.cart.DecisionNode.BinaryFloatDecisionNode;
+import marytts.cart.DecisionNode.BinaryShortDecisionNode;
 import marytts.cart.LeafNode.FeatureVectorLeafNode;
 import marytts.cart.LeafNode.FloatLeafNode;
 import marytts.cart.LeafNode.IntAndFloatArrayLeafNode;
@@ -76,11 +80,8 @@ public class MaryCARTWriter{
         MaryHeader hdr = new MaryHeader(MaryHeader.CARTS);
         hdr.writeTo(out);
 
-        //write number of nodes
-        out.writeInt(cart.getNumNodes());
-        String name = "";
-        //dump name and CART
-        out.writeUTF(name);
+        // feature definition
+        cart.getFeatureDefinition().writeBinaryTo(out);
         
         //dump CART
         dumpBinary(cart.getRootNode(), out);
@@ -114,46 +115,39 @@ public class MaryCARTWriter{
     }
     
     
-    private String setUniqueNodeId(Node node, int id[]) throws IOException{
+    private void setUniqueNodeId(Node node, int id[]) throws IOException{
      
       int thisIdNode; 
       String leafstr = "";
       
       // if the node is decision node  
-      if(node.getNumberOfNodes() > 1) {  
-        id[0]++;
-        ((DecisionNode) node).setUniqueDecisionNodeId(id[0]);
-        String strNode = "";
-        ((DecisionNode) node).setDecNodeStr("");
-        //this.decNodeStr = "";
-        thisIdNode = id[0];
+      if(node.getNumberOfNodes() > 1) {
+          assert node instanceof DecisionNode;
+          DecisionNode decNode = (DecisionNode) node;
+          id[0]--;
+          decNode.setUniqueDecisionNodeId(id[0]);
+          String strNode = "";
+          //this.decNodeStr = "";
+          thisIdNode = id[0];
 
-        strNode = "-" + thisIdNode + " " + ((DecisionNode) node).getNodeDefinition() + " ";
- 
-        // add Ids to the daughters
-        for (int i = 0; i < ((DecisionNode) node).getNumberOfDaugthers(); i++) {            
-            strNode += setUniqueNodeId(((DecisionNode) node).getDaughter(i), id);
-        }
-        ((DecisionNode) node).setDecNodeStr(strNode);
-        return "-" + thisIdNode + " ";
+
+          // add Ids to the daughters
+          for (int i = 0; i < decNode.getNumberOfDaugthers(); i++) {            
+              setUniqueNodeId(decNode.getDaughter(i), id);
+          }
 
       } else {   // the node is a leaf node
-         
-         if( node instanceof FeatureVectorLeafNode ) 
-           leafstr = setUniqueNodeId(((FeatureVectorLeafNode) node), id);
-         else if( node instanceof FloatLeafNode ) 
-           leafstr = setUniqueNodeId(((FloatLeafNode) node), id);
-         else if( node instanceof IntAndFloatArrayLeafNode ) 
-           leafstr = setUniqueNodeId(((IntAndFloatArrayLeafNode) node), id);
-         else if( node instanceof IntArrayLeafNode ) 
-           leafstr = setUniqueNodeId(((IntArrayLeafNode) node), id);
-         else if( node instanceof StringAndFloatLeafNode ) 
-           leafstr = setUniqueNodeId(((StringAndFloatLeafNode) node), id);
-          
-        return leafstr;
-          
+          assert node instanceof LeafNode;
+          LeafNode leaf = (LeafNode) node;
+          if (leaf.isEmpty()) {
+              leaf.setUniqueLeafId(0);
+          } else {
+              id[1]++;  
+              leaf.setUniqueLeafId(id[1]);
+          }
+
       }
-        
+
     }
     
     
@@ -163,14 +157,16 @@ public class MaryCARTWriter{
             int id[] = new int[2];
             id[0] = 0;  // number of decision nodes
             id[1] = 0;  // number of leaf nodes           
-            // first add unique identificators to decision nodes and leaf nodes           
+            // first add unique identifiers to decision nodes and leaf nodes           
             setUniqueNodeId(rootNode, id);
             
-            // write the number of decision nodes and the number of leaves.
-            os.writeInt(id[0]);
-            os.writeInt(id[1]);
+            // write the number of decision nodes
+            os.writeInt(Math.abs(id[0]));
             // lines that start with a negative number are decision nodes
-            printDecisionNodes(rootNode, (DataOutputStream) os, null);
+            printDecisionNodes(rootNode, os, null);
+            
+            // write the number of leaves.
+            os.writeInt(id[1]);
             // lines that start with id are leaf nodes
             printLeafNodes(rootNode, (DataOutputStream) os, null);
             
@@ -185,270 +181,156 @@ public class MaryCARTWriter{
     
     
     
-   private void printDecisionNodes(Node node, DataOutputStream out, PrintWriter pw) throws IOException {
-        
-     // if the node is decision node  
-     if(node.getNumberOfNodes() > 1) {   
-        if (out != null) {
-            // dump to output stream
-            writeStringToOutput(((DecisionNode) node).getDecNodeStr(), out);
-        } else {
-            // dump to Standard out
-            // two open brackets + definition of node
-            // System.out.println(this.decNodeStr);
-        }
-        if (pw != null) {
-            // dump to print writer
-            pw.println(((DecisionNode) node).getDecNodeStr());
-        }
-        // add the daughters
-        for (int i = 0; i < ((DecisionNode) node).getNumberOfDaugthers(); i++) { 
-            if(((DecisionNode) node).getDaughter(i).getNumberOfNodes() > 1)
-              printDecisionNodes(((DecisionNode) node).getDaughter(i),out, pw);
-        }
-    }
+   private void printDecisionNodes(Node node, DataOutput out, PrintWriter pw)
+   throws IOException
+   {
+       if (!(node instanceof DecisionNode)) return; // nothing to do here
+
+       DecisionNode decNode = (DecisionNode) node;
+       int id = decNode.getUniqueDecisionNodeId();
+       String nodeDefinition = decNode.getNodeDefinition();
+       int featureIndex = decNode.getFeatureIndex();
+       DecisionNode.Type nodeType = decNode.getDecisionNodeType();
+       
+      if (out != null) {
+          // dump in binary form to output
+          out.writeInt(featureIndex);
+          out.writeInt(nodeType.ordinal());
+          // Now, questionValue, which depends on nodeType
+          switch (nodeType) {
+          case BinaryByteDecisionNode:
+              out.writeInt(((BinaryByteDecisionNode)decNode).getCriterionValueAsByte());
+              assert decNode.getNumberOfDaugthers() == 2;
+              break;
+          case BinaryShortDecisionNode:
+              out.writeInt(((BinaryShortDecisionNode)decNode).getCriterionValueAsShort());
+              assert decNode.getNumberOfDaugthers() == 2;
+              break;
+          case BinaryFloatDecisionNode:
+              out.writeFloat(((BinaryFloatDecisionNode)decNode).getCriterionValueAsFloat());
+              assert decNode.getNumberOfDaugthers() == 2;
+              break;
+          case ByteDecisionNode:
+          case ShortDecisionNode:
+              out.writeInt(decNode.getNumberOfDaugthers());
+          }
+
+          // The child nodes
+          for (int i=0, n=decNode.getNumberOfDaugthers(); i<n; i++) {
+              Node daughter = decNode.getDaughter(i);
+              if (daughter instanceof DecisionNode) {
+                  out.writeInt(((DecisionNode)daughter).getUniqueDecisionNodeId());
+              } else {
+                  assert daughter instanceof LeafNode;
+                  out.writeInt(((LeafNode)daughter).getUniqueLeafId());
+              }
+          }
+      }
+      if (pw != null) {
+          // dump to print writer
+          StringBuilder strNode = new StringBuilder(id + " " + nodeDefinition);
+          for (int i=0, n=decNode.getNumberOfDaugthers(); i<n; i++) {
+              strNode.append(" ");
+              Node daughter = decNode.getDaughter(i);
+              if (daughter instanceof DecisionNode) {
+                  strNode.append(((DecisionNode)daughter).getUniqueDecisionNodeId());
+              } else {
+                  assert daughter instanceof LeafNode;
+                  strNode.append("id").append(((LeafNode)daughter).getUniqueLeafId());
+              }
+          }
+          pw.println(strNode.toString());
+      }
+      // add the daughters
+      for (int i = 0; i < ((DecisionNode) node).getNumberOfDaugthers(); i++) { 
+          if(((DecisionNode) node).getDaughter(i).getNumberOfNodes() > 1)
+            printDecisionNodes(((DecisionNode) node).getDaughter(i),out, pw);
+      }
    }
      
      
    /** This function will print the leaf nodes only, but it goes through all the decision nodes. */
-   private void printLeafNodes(Node node, DataOutputStream out, PrintWriter pw) throws IOException {
+   private void printLeafNodes(Node node, DataOutput out, PrintWriter pw)
+   throws IOException
+   {
        // If the node does not have leaves then it just return.
        // I we are in a decision node then print the leaves of the daughters.
-      Node nextNode;
-      if(node.getNumberOfNodes() > 1) {   
-         for (int i = 0; i < ((DecisionNode) node).getNumberOfDaugthers(); i++) {
-           nextNode =  ((DecisionNode) node).getDaughter(i);
-           printLeafNodes(nextNode, out, pw);
-         }
-      } else {
-          if( node instanceof FeatureVectorLeafNode ) 
-            printLeafNodes(((FeatureVectorLeafNode) node), out, pw);
-          else if( node instanceof FloatLeafNode ) 
-              printLeafNodes(((FloatLeafNode) node), out, pw);
-          // need to have StringAndFloatLeafNode before IntAndFloatArrayLeafNode, because
-          // the former extends the latter
-          else if( node instanceof StringAndFloatLeafNode ) 
-              printLeafNodes(((StringAndFloatLeafNode) node), out, pw);
-          else if( node instanceof IntAndFloatArrayLeafNode ) 
-              printLeafNodes(((IntAndFloatArrayLeafNode) node), out, pw);
-          else if( node instanceof IntArrayLeafNode ) 
-              printLeafNodes(((IntArrayLeafNode) node), out, pw);
-      }
+       Node nextNode;
+       if(node.getNumberOfNodes() > 1) {
+           assert node instanceof DecisionNode;
+           DecisionNode decNode = (DecisionNode) node;
+           for (int i = 0; i < decNode.getNumberOfDaugthers(); i++) {
+               nextNode =  decNode.getDaughter(i);
+               printLeafNodes(nextNode, out, pw);
+           }
+       } else {
+           assert node instanceof LeafNode;
+           LeafNode leaf = (LeafNode) node;
+           if (leaf.getUniqueLeafId() == 0) // empty leaf, do not write
+               return;
+           if (out != null) {
+               // Leaf node type
+               out.writeInt(leaf.getLeafNodeType().ordinal());
+           }
+           if (pw != null) {
+               pw.print("id"+leaf.getUniqueLeafId()+" "+leaf.getLeafNodeType());
+           }
+           switch (leaf.getLeafNodeType()) {
+           case IntArrayLeafNode:
+               int data[] = ((IntArrayLeafNode)leaf).getIntData();
+               // Number of data points following:
+               if (out != null) out.writeInt(data.length);
+               if (pw != null) pw.print(" "+data.length);
+               // for each index, write the index
+               for (int i = 0; i < data.length; i++) {
+                   if (out != null) out.writeInt(data[i]);
+                   if (pw != null) pw.print(" "+data[i]);
+               }
+               break;
+           case FloatLeafNode:
+               float stddev = ((FloatLeafNode)leaf).getStDeviation();
+               float mean = ((FloatLeafNode)leaf).getMean();
+               if (out != null) {
+                   out.writeFloat(stddev);
+                   out.writeFloat(mean);
+               }
+               if (pw != null) {
+                   pw.print(" 1 "+stddev+" "+mean);
+               }
+               break;
+           case IntAndFloatArrayLeafNode:
+           case StringAndFloatLeafNode:
+               int data1[] = ((IntAndFloatArrayLeafNode)leaf).getIntData();
+               float floats[] = ((IntAndFloatArrayLeafNode)leaf).getFloatData();
+               // Number of data points following:
+               if (out != null) out.writeInt(data1.length);
+               if (pw != null) pw.print(" "+data1.length);
+               // for each index, write the index and then its float
+               for (int i = 0; i < data1.length; i++) {
+                   if (out != null) {
+                       out.writeInt(data1[i]);
+                       out.writeFloat(floats[i]);
+                   }
+                   if (pw != null) pw.print(" "+data1[i]+" "+floats[i]);
+               }
+               break;
+           case FeatureVectorLeafNode:
+               FeatureVector fv[] = ((FeatureVectorLeafNode)leaf).getFeatureVectors();
+               // Number of data points following:
+               if (out != null) out.writeInt(fv.length);
+               if (pw != null) pw.print(" "+fv.length);
+               // for each feature vector, write the index
+               for (int i = 0; i < fv.length; i++) {
+                   if (out != null) out.writeInt(fv[i].getUnitIndex());
+                   if (pw != null) pw.print(" "+fv[i].getUnitIndex());
+               }
+               break;
+           case PdfLeafNode:
+               throw new IllegalArgumentException("Writing of pdf leaf nodes not yet implemented");
+           }
+           if (pw != null) pw.println();
+       }
    }
      
    
-   private void printLeafNodes(FeatureVectorLeafNode node, DataOutputStream out, PrintWriter pw) throws IOException {
-       StringBuffer sb = new StringBuffer();
-       
-       if( node.getUniqueLeafId() != 0) {
-        FeatureVector fv[] = node.getFeatureVectors(); 
-      
-        sb.append("id" + node.getUniqueLeafId() + " FeatureVectorLeafNode " + fv.length + " ");
-      
-       //make sure that we have a feature vector array, this is done when calling getFeatureVectors().     
-       // for each index, write the index and then a pseudo float
-       for (int i = 0; i < fv.length; i++) {
-           sb.append(  fv[i].getUnitIndex() + " ");               
-       }
-       
-       // dump the whole stuff
-       if (out != null) {
-           // write to output stream
-           writeStringToOutput(sb.toString(), out);
-           
-       } else {
-           // write to Standard out
-           // System.out.println(sb.toString());
-       }
-       if (pw != null) {
-           // dump to printwriter
-           pw.println(sb.toString());
-       }
-       }
-   }
-   
-   public String setUniqueNodeId(FeatureVectorLeafNode node, int id[]) {     
-       
-       FeatureVector fv[] = node.getFeatureVectors(); 
-       if( fv.length > 0 ){
-         id[1]++;  
-         node.setUniqueLeafId(id[1]);
-         return  "id" + id[1] + " ";
-       }
-       else {
-         node.setUniqueLeafId(0);  // empty leaf
-         return  "0 ";
-       }          
-   }
-   
-   
-   private void printLeafNodes(FloatLeafNode node, DataOutputStream out, PrintWriter pw) throws IOException {
-       // this has not been tested!!!
-       String s = "id" + node.getUniqueLeafId() + " FloatLeafNode 1 "
-           + node.getStDeviation() // stddev
-           + " "
-           + node.getMean(); // mean
-           
-       // dump the whole stuff
-       if (out != null) {
-           // write to output stream
-           writeStringToOutput(s, out);
-           
-       } else {
-           // write to Standard out
-           // System.out.println(sb.toString());
-       }
-       if (pw != null) {
-           // dump to printwriter
-           pw.println(s);
-       }  
-   }
-    
-   private String setUniqueNodeId(FloatLeafNode node, int id[]) {      
-       if( node.getDataLength() > 0 ){
-           id[1]++;  
-           node.setUniqueLeafId(id[1]);
-           return  "id" + id[1] + " "; 
-         }
-         else {
-           node.setUniqueLeafId(0);  // empty leaf
-           return  "0 ";
-         }           
-   }
-  
-   
-   private void printLeafNodes(IntAndFloatArrayLeafNode node, DataOutputStream out, PrintWriter pw) throws IOException {
-       StringBuffer sb = new StringBuffer();
-       int data[] = node.getIntData();
-       float floats[] = node.getFloatData();
-       
-       if( node.getUniqueLeafId() != 0) {
-       sb.append("id" + node.getUniqueLeafId() + " IntAndFloatArrayLeafNode " + data.length + " ");
-           
-       // for each index, write the index and then its float
-       for (int i = 0; i < data.length; i++) {
-           sb.append(data[i] + " " + floats[i] + " ");
-       }
-       // dump the whole stuff
-       if (out != null) {
-           // write to output stream
-           writeStringToOutput(sb.toString(), out);
-           
-       } else {
-           // write to Standard out
-           // System.out.println(sb.toString());
-       }
-       if (pw != null) {
-           // dump to printwriter
-           pw.println(sb.toString());
-       }
-       }  
-   }
-   
-   private String setUniqueNodeId(IntAndFloatArrayLeafNode node, int id[]) {
-       if(node.getIntData().length > 0){
-           id[1]++;  
-           node.setUniqueLeafId(id[1]);
-           return  "id" + id[1] + " ";  
-       } else {
-           node.setUniqueLeafId(0);  // empty leaf
-           return  "0 ";
-       }
-   }
-   
-   private void printLeafNodes(IntArrayLeafNode node, DataOutputStream out, PrintWriter pw) throws IOException {
-       StringBuffer sb = new StringBuffer();
-       int data[] = node.getIntData();
-       
-       if( node.getUniqueLeafId() != 0) {          
-       sb.append("id" + node.getUniqueLeafId() + " IntArrayLeafNode " + data.length + " ");
-       
-       for (int i = 0; i < data.length; i++) {
-           sb.append(data[i] + " ");
-       }
-       
-       // dump the whole stuff
-       if (out != null) {
-           // write to output stream
-           writeStringToOutput(sb.toString(), out);
-           
-       } else {
-           // write to Standard out
-           // System.out.println(sb.toString());
-       }
-       if (pw != null) {
-           // dump to printwriter
-           pw.println(sb.toString());
-       }
-       }
-   }
-
-   private String setUniqueNodeId(IntArrayLeafNode node, int id[]){
-       if(node.getIntData().length > 0){              
-         id[1]++;  
-         node.setUniqueLeafId(id[1]);
-         return  "id" + id[1] + " ";
-       } else {
-         node.setUniqueLeafId(0);  // empty leaf
-         return  "0 ";
-       } 
-         
-   }
-   
-   
-   private void printLeafNodes(StringAndFloatLeafNode node, DataOutputStream out, PrintWriter pw) throws IOException {
-       
-       StringBuffer sb = new StringBuffer();
-       int data[] = node.getIntData();
-       float floats[] = node.getFloatData();
-       
-       if( node.getUniqueLeafId() != 0) {
-       sb.append("id" + node.getUniqueLeafId() + " StringAndFloatLeafNode " + data.length + " ");
-     
-       // for each index, write the index and then its float
-       for (int i = 0; i < data.length; i++) {
-           sb.append(data[i] + " " + floats[i] + " ");
-       }
-      
-       // dump the whole stuff
-       if (out != null) {
-           // write to output stream
-           writeStringToOutput(sb.toString(), out);
-           
-       } else {
-           // write to Standard out
-           // System.out.println(sb.toString());
-       }
-       if (pw != null) {
-           // dump to printwriter
-           pw.println(sb.toString());
-       }
-       }  
-   }
-   
-   private String setUniqueNodeId(StringAndFloatLeafNode node, int id[]){
-       if(node.getIntData().length > 0){
-           id[1]++;  
-           node.setUniqueLeafId(id[1]);
-           return  "id" + id[1] + " ";
-         } else {
-           node.setUniqueLeafId(0);  // empty leaf
-           return  "0 ";
-         } 
-   }
-   
-   /**
-    * Write the given String to the given data output (Replacement for
-    * writeUTF)
-    * 
-    * @param str
-    *            the String
-    * @param out
-    *            the data output
-    */
-   private static void writeStringToOutput(String str, DataOutput out)
-           throws IOException {
-       out.writeInt(str.length());
-       out.writeChars(str);
-   }
 }

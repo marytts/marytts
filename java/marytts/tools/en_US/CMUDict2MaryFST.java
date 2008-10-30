@@ -372,14 +372,14 @@ public class CMUDict2MaryFST
         pw.close();
         st = null;
         System.err.println(" - loading LTS rules...");
-        br = new BufferedReader(new InputStreamReader(new FileInputStream("lib/modules/en/us/lexicon/cmudict.lts.pfeats"), "UTF-8"));
-        FeatureDefinition featureDef = new FeatureDefinition(br, false);
-        br.close();
+        //br = new BufferedReader(new InputStreamReader(new FileInputStream("lib/modules/en/us/lexicon/cmudict.lts.pfeats"), "UTF-8"));
+        //FeatureDefinition featureDef = new FeatureDefinition(br, false);
+        //br.close();
         //br = new BufferedReader(new InputStreamReader(new FileInputStream("lib/modules/en/us/lexicon/cmudict.lts.wagontree.txt"), "UTF-8"));
         //WagonCARTReader wagonReader = new WagonCARTReader(LeafType.StringAndFloatLeafNode);
         //st = new CART(wagonReader.load(br, featureDef), featureDef);
         MaryCARTReader cartReader = new MaryCARTReader();
-        st = new CART(cartReader.load("lib/modules/en/us/lexicon/cmudict.lts.tree.binary", featureDef, null), featureDef);
+        st = cartReader.load("lib/modules/en/us/lexicon/cmudict.lts.tree.binary");
         
         TrainedLTS lts = new TrainedLTS(usSampa, Locale.US, st);
 

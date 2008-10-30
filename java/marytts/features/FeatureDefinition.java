@@ -258,20 +258,22 @@ public class FeatureDefinition
         // Section SHORTFEATURES
         numShortFeatures = input.readInt();
         if (numShortFeatures > 0) {
+            shortFeatureValues = new ShortStringTranslator[numShortFeatures];
             // resize weight array:
             float[] newWeights = new float[numByteFeatures+numShortFeatures];
             System.arraycopy(featureWeights, 0, newWeights, 0, numByteFeatures);
             featureWeights = newWeights;
-        }
-        for (int i=0; i<numShortFeatures; i++) {
-            featureWeights[numByteFeatures+i] = input.readFloat();
-            String featureName = input.readUTF();
-            featureNames.set(numByteFeatures+i, featureName);
-            short numberOfValues = input.readShort();
-            shortFeatureValues[i] = new ShortStringTranslator(numberOfValues);
-            for (short s=0; s<numberOfValues; s++) {
-                String value = input.readUTF();
-                shortFeatureValues[i].set(s, value);
+
+            for (int i=0; i<numShortFeatures; i++) {
+                featureWeights[numByteFeatures+i] = input.readFloat();
+                String featureName = input.readUTF();
+                featureNames.set(numByteFeatures+i, featureName);
+                short numberOfValues = input.readShort();
+                shortFeatureValues[i] = new ShortStringTranslator(numberOfValues);
+                for (short s=0; s<numberOfValues; s++) {
+                    String value = input.readUTF();
+                    shortFeatureValues[i].set(s, value);
+                }
             }
         }
         // Section CONTINUOUSFEATURES
@@ -303,7 +305,11 @@ public class FeatureDefinition
         // Section BYTEFEATURES
         out.writeInt(numByteFeatures);
         for (int i=0; i<numByteFeatures; i++) {
-            out.writeFloat(featureWeights[i]);
+            if (featureWeights != null) {
+                out.writeFloat(featureWeights[i]);
+            } else {
+                out.writeFloat(0);
+            }
             out.writeUTF(getFeatureName(i));
             byte numValues = (byte) getNumberOfValues(i);
             out.writeByte(numValues);
@@ -315,7 +321,11 @@ public class FeatureDefinition
         // Section SHORTFEATURES
         out.writeInt(numShortFeatures);
         for (int i=numByteFeatures; i<numByteFeatures+numShortFeatures; i++) {
-            out.writeFloat(featureWeights[i]);
+            if (featureWeights != null) {
+                out.writeFloat(featureWeights[i]);
+            } else {
+                out.writeFloat(0);
+            }
             out.writeUTF(getFeatureName(i));
             short numValues = (short) getNumberOfValues(i);
             out.writeShort(numValues);
@@ -328,8 +338,13 @@ public class FeatureDefinition
         out.writeInt(numContinuousFeatures);
         for (int i=numByteFeatures+numShortFeatures;
                 i<numByteFeatures+numShortFeatures+numContinuousFeatures; i++) {
-            out.writeFloat(featureWeights[i]);
-            out.writeUTF(floatWeightFuncts[i-numByteFeatures-numShortFeatures]);
+            if (featureWeights != null) {
+                out.writeFloat(featureWeights[i]);
+                out.writeUTF(floatWeightFuncts[i-numByteFeatures-numShortFeatures]);
+            } else {
+                out.writeFloat(0);
+                out.writeUTF("");
+            }
             out.writeUTF(getFeatureName(i));
         }
     }

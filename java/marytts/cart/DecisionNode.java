@@ -10,7 +10,9 @@ import marytts.features.FeatureVector;
  * A decision node that determines the next Node to go to in the CART. All
  * decision nodes inherit from this class
  */
-public abstract class DecisionNode extends Node {
+public abstract class DecisionNode extends Node
+{
+    public enum Type { BinaryByteDecisionNode, BinaryShortDecisionNode, BinaryFloatDecisionNode, ByteDecisionNode, ShortDecisionNode };
     protected boolean TRACE = false; 
     // for debugging:
     protected FeatureDefinition featureDefinition;
@@ -32,9 +34,6 @@ public abstract class DecisionNode extends Node {
     
     // unique index used in MaryCART format
     protected int uniqueDecisionNodeId;
-    
-    // string used when writing a tree in MaryCART format
-    protected String decNodeStr;
 
     /**
      * Construct a new DecisionNode
@@ -92,7 +91,17 @@ public abstract class DecisionNode extends Node {
     public String getFeatureName() {
         return feature;
     }
+    
+    public int getFeatureIndex()
+    {
+        return featureIndex;
+    }
 
+    public FeatureDefinition getFeatureDefinition()
+    {
+        return featureDefinition;
+    }
+    
     /**
      * Add a daughter to the node
      * 
@@ -268,13 +277,6 @@ public abstract class DecisionNode extends Node {
         return uniqueDecisionNodeId;
     }
     
-    public void setDecNodeStr(String str) {
-        this.decNodeStr = str;
-    }
-    public String getDecNodeStr() {
-        return this.decNodeStr;
-    }
-   
 
     /**
      * Gets the String that defines the decision done in the node
@@ -283,6 +285,12 @@ public abstract class DecisionNode extends Node {
      */
     public abstract String getNodeDefinition();
 
+    /**
+     * Get the decision node type
+     * @return
+     */
+    public abstract Type getDecisionNodeType();
+    
     /**
      * Select a daughter node according to the value in the given target
      * 
@@ -313,6 +321,12 @@ public abstract class DecisionNode extends Node {
             this.value = featureDefinition.getFeatureValueAsByte(feature, value);
         }
         
+        public BinaryByteDecisionNode(int featureIndex, byte value, FeatureDefinition featureDefinition)
+        {
+            super(featureIndex, 2, featureDefinition);
+            this.value = value;
+        }
+        
         /***
          * Creates an empty BinaryByteDecisionNode, the feature and feature value of this
          * node should be filled with setFeatureAndFeatureValue() function.
@@ -339,6 +353,15 @@ public abstract class DecisionNode extends Node {
             this.value = featureDefinition.getFeatureValueAsByte(feature, value);
         }
         
+        public byte getCriterionValueAsByte()
+        {
+            return value;
+        }
+        
+        public String getCriterionValueAsString()
+        {
+            return featureDefinition.getFeatureValueAsString(featureIndex, value);
+        }
         
         /**
          * Select a daughter node according to the value in the given target
@@ -385,6 +408,11 @@ public abstract class DecisionNode extends Node {
         public String getNodeDefinition() {
             return feature + " is " + featureDefinition.getFeatureValueAsString(featureIndex, value);
         }
+        
+        public Type getDecisionNodeType()
+        {
+            return Type.BinaryByteDecisionNode;
+        }
 
     }
 
@@ -408,6 +436,23 @@ public abstract class DecisionNode extends Node {
             super(feature, 2, featureDefinition);
             this.value = featureDefinition.getFeatureValueAsShort(feature, value);
         }
+        
+        public BinaryShortDecisionNode(int featureIndex, short value, FeatureDefinition featureDefinition)
+        {
+            super(featureIndex, 2, featureDefinition);
+            this.value = value;
+        }
+        
+        public short getCriterionValueAsShort()
+        {
+            return value;
+        }
+        
+        public String getCriterionValueAsString()
+        {
+            return featureDefinition.getFeatureValueAsString(featureIndex, value);
+        }
+        
 
         /**
          * Select a daughter node according to the value in the given target
@@ -454,6 +499,12 @@ public abstract class DecisionNode extends Node {
         public String getNodeDefinition() {
             return feature + " is " + featureDefinition.getFeatureValueAsString(featureIndex, value);
         }
+        
+        public Type getDecisionNodeType()
+        {
+            return Type.BinaryShortDecisionNode;
+        }
+
 
     }
 
@@ -474,6 +525,10 @@ public abstract class DecisionNode extends Node {
          * @param value
          *            the value to compare to
          */
+        public BinaryFloatDecisionNode(int featureIndex, float value, FeatureDefinition featureDefinition) {
+            this(featureDefinition.getFeatureName(featureIndex), value, featureDefinition);
+        }
+        
         public BinaryFloatDecisionNode(String feature, float value, FeatureDefinition featureDefinition) {
             super(feature, 2, featureDefinition);
             this.value = value;
@@ -485,6 +540,16 @@ public abstract class DecisionNode extends Node {
                 isByteFeature = false;
         }
 
+        public float getCriterionValueAsFloat()
+        {
+            return value;
+        }
+        
+        public String getCriterionValueAsString()
+        {
+            return String.valueOf(value);
+        }
+        
         /**
          * Select a daughter node according to the value in the given target
          * 
@@ -534,6 +599,12 @@ public abstract class DecisionNode extends Node {
         public String getNodeDefinition() {
             return feature + " < " + value;
         }
+        
+        public Type getDecisionNodeType()
+        {
+            return Type.BinaryFloatDecisionNode;
+        }
+
 
     }
 
@@ -599,6 +670,12 @@ public abstract class DecisionNode extends Node {
         public String getNodeDefinition() {
             return feature + " isByteOf " + daughters.length;
         }
+        
+        public Type getDecisionNodeType()
+        {
+            return Type.ByteDecisionNode;
+        }
+
 
     }
 
@@ -663,6 +740,11 @@ public abstract class DecisionNode extends Node {
          */
         public String getNodeDefinition() {
             return feature + " isShortOf " + daughters.length;
+        }
+
+        public Type getDecisionNodeType()
+        {
+            return Type.ShortDecisionNode;
         }
 
     }

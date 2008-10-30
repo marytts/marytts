@@ -1043,10 +1043,9 @@ public class CARTBuilder extends VoiceImportComponent {
         FeatureFileReader ffr = FeatureFileReader.getFeatureFileReader(halfPhonesFile);
         FeatureDefinition feaDef = ffr.getFeatureDefinition();
         
-        CART cart = new CART();
         String cartFile = path + "cart.mry.new";
         MaryCARTReader rm = new MaryCARTReader();
-        cart.setRootNode(rm.load(cartFile, feaDef, null));
+        CART cart = rm.load(cartFile);
         
         // loading a cart in WagonCART format
         //String cartFile = path + "cart.mry"; 
