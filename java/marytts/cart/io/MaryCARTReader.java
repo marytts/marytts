@@ -110,6 +110,12 @@ public class MaryCARTReader
         int numLine=0;
         addDecisionNode(raf, decNodeLines, numLine);
    
+        // Now count all data once, so that getNumberOfData()
+        // will return the correct figure.
+        if (rootNode instanceof DecisionNode)
+            ((DecisionNode)rootNode).countData();
+
+        
         // set the rootNode as the rootNode of cart
         
         return rootNode;
@@ -276,7 +282,8 @@ public class MaryCARTReader
                indices[i] = Integer.parseInt(tokenizer.nextToken());   
              nextLeafNode = new LeafNode.IntArrayLeafNode(indices);
 
-           } else if(typeLeafNode.contentEquals("IntAndFloatArrayLeafNode")){
+           } else if(typeLeafNode.contentEquals("IntAndFloatArrayLeafNode")
+                   || typeLeafNode.contentEquals("StringAndFloatLeafNode")){
           
              numIndices = Integer.parseInt(numData);
              indices = new int[numIndices];
@@ -291,7 +298,12 @@ public class MaryCARTReader
                 else
                   probs[i] = Float.parseFloat(probNum);
              }
-             nextLeafNode = new LeafNode.IntAndFloatArrayLeafNode(indices,probs);
+             if (typeLeafNode.contentEquals("IntAndFloatArrayLeafNode"))
+                 nextLeafNode = new LeafNode.IntAndFloatArrayLeafNode(indices,probs);
+             else if (typeLeafNode.contentEquals("StringAndFloatLeafNode"))
+                 nextLeafNode = new LeafNode.StringAndFloatLeafNode(indices, probs);
+             else
+                 throw new RuntimeException("should never get here");
             
           } else if(typeLeafNode.contentEquals("FloatLeafNode")){
             // this will not work, need to be implemented
@@ -299,11 +311,6 @@ public class MaryCARTReader
             nextLeafNode = new LeafNode.IntArrayLeafNode(indices);
             
           } else if(typeLeafNode.contentEquals("IntArrayLeafNode")){
-            // this will not work, need to be implemented
-            indices = new int[0];
-            nextLeafNode = new LeafNode.IntArrayLeafNode(indices);
-            
-          } else if(typeLeafNode.contentEquals("StringAndFloatLeafNode")){
             // this will not work, need to be implemented
             indices = new int[0];
             nextLeafNode = new LeafNode.IntArrayLeafNode(indices);

@@ -140,11 +140,8 @@ public class WagonCARTWriter {
         else if( node instanceof FloatLeafNode ) 
             toWagonFormat(((FloatLeafNode) node), out, extension, pw);
 
-        // need to have StringAndFloatLeafNode before IntAndFloatArrayLeafNode, because
-        // the former extends the latter
-        else if( node instanceof StringAndFloatLeafNode ) 
-            toWagonFormat(((StringAndFloatLeafNode) node), out, extension, pw);  
-
+        // As StringAndFloatLeafNode is just a convenience wrapper around IntAndFloatArrayLeafNode,
+        // there is no need to distinguish them in IO.
         else if( node instanceof IntAndFloatArrayLeafNode ) 
             toWagonFormat(((IntAndFloatArrayLeafNode) node), out, extension, pw);
         
@@ -371,48 +368,6 @@ public class WagonCARTWriter {
         // for each index, write the index and then a pseudo float
         for (int i = 0; i < data.length; i++) {
             sb.append("(" + data[i] + " 0)");
-            if (i + 1 != data.length) {
-                sb.append(" ");
-            }
-        }
-        // write the ending
-        sb.append(") 0))" + extension);
-        // dump the whole stuff
-        if (out != null) {
-            // write to output stream
-
-            writeStringToOutput(sb.toString(), out);
-        } else {
-            // write to Standard out
-            // System.out.println(sb.toString());
-        }
-        if (pw != null) {
-            // dump to printwriter
-            pw.println(sb.toString());
-        }
-    }
-       
-    /**
-     * Writes the Cart to the given DataOut in Wagon Format
-     * 
-     * @param out
-     *            the outputStream
-     * @param extension
-     *            the extension that is added to the last daughter
-     */
-    private void toWagonFormat(StringAndFloatLeafNode node, DataOutputStream out, String extension,
-            PrintWriter pw) throws IOException {
-        StringBuffer sb = new StringBuffer();
-        int data[] = node.getIntData();
-        float floats[] = node.getFloatData();
-        FeatureDefinition fd = node.getFeatureDefinition();
-        int tf = node.getTargetfeature();
-        
-        // open three brackets
-        sb.append("(((");
-        // for each index, write the index and then its float
-        for (int i = 0; i < data.length; i++) {
-            sb.append("(" + fd.getFeatureValueAsString(tf, data[i]) + " "+floats[i]+")");
             if (i + 1 != data.length) {
                 sb.append(" ");
             }

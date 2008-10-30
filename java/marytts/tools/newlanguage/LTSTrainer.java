@@ -22,7 +22,9 @@ import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import marytts.cart.StringCART;
+import marytts.cart.CART;
+import marytts.cart.DecisionNode;
+import marytts.cart.Node;
 import marytts.features.FeatureDefinition;
 import marytts.fst.AlignerTrainer;
 import marytts.fst.StringPair;
@@ -62,6 +64,7 @@ import weka.core.Instances;
  */
 
 public class LTSTrainer extends AlignerTrainer{
+    public static final String PREDICTED_STRING_FEATURENAME="predicted-string";
 
     AllophoneSet phSet;
     Locale loc;
@@ -77,7 +80,7 @@ public class LTSTrainer extends AlignerTrainer{
     }
     
     
-    public StringCART trainTree(int minLeaveData) throws IOException{
+    public CART trainTree(int minLeaveData) throws IOException{
         
         Map<String, List<String[]>> grapheme2align = new HashMap<String, List<String[]>>();
         for (String gr : this.graphemeSet){      
@@ -131,7 +134,7 @@ public class LTSTrainer extends AlignerTrainer{
         
         int centerGrapheme = fd.getFeatureIndex("att"+(context+1));
         
-        List<StringCART> stl = new ArrayList(fd.getNumberOfValues(centerGrapheme));
+        List<CART> stl = new ArrayList<CART>(fd.getNumberOfValues(centerGrapheme));
         
         for (String gr : fd.getPossibleValues(centerGrapheme)){
             
@@ -168,7 +171,7 @@ public class LTSTrainer extends AlignerTrainer{
             for (String phc : graphSpecPh){// todo: use either fd of phChains
                 targetVals.addElement(phc);
             }
-            attributeDeclarations.addElement(new Attribute("target", targetVals) );
+            attributeDeclarations.addElement(new Attribute(PREDICTED_STRING_FEATURENAME, targetVals) );
 
             // now, create the dataset adding the datapoints
             Instances data = new Instances(gr, attributeDeclarations, 0);
@@ -201,12 +204,16 @@ public class LTSTrainer extends AlignerTrainer{
                 throw new RuntimeException("couldn't train decisiontree using weka: " + e);
             }
             
-            StringCART wagonTree = TreeConverter.c45toStringCART(decisionTree, fd,data);
+            CART maryTree = TreeConverter.c45toStringCART(decisionTree, fd,data);
             
-            stl.add(wagonTree);
+            stl.add(maryTree);
        }
-                
-        StringCART bigTree = new StringCART(stl,centerGrapheme);
+
+        DecisionNode.ByteDecisionNode rootNode = new DecisionNode.ByteDecisionNode(centerGrapheme, stl.size(), fd);
+        for (CART st : stl) {
+            rootNode.addDaughter(st.getRootNode());
+        }
+        CART bigTree = new CART(rootNode, fd);
                         
         return bigTree;
     }
@@ -220,7 +227,7 @@ public class LTSTrainer extends AlignerTrainer{
      * @param saveTreePath
      * @throws IOException
      */
-    public void save(StringCART tree, String saveTreePath) throws IOException{
+    public void save(CART tree, String saveTreePath) throws IOException{
         FileOutputStream outFile = new FileOutputStream(saveTreePath + "/graph2phon.wagon");
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(outFile,"UTF-8"));
         bw.write(tree.toString());
@@ -263,7 +270,7 @@ public class LTSTrainer extends AlignerTrainer{
         fdString += "ShortValuedFeatureProcessors" + lineBreak;
         
         // add class features
-        fdString += "target";
+        fdString += PREDICTED_STRING_FEATURENAME;
         
         for (String ph :  phChains){
             fdString += " " + ph;
@@ -358,7 +365,7 @@ public class LTSTrainer extends AlignerTrainer{
         }
         
         
-        StringCART st = tp.trainTree(100);
+        CART st = tp.trainTree(100);
 
         tp.save(st, "/Users/benjaminroth/Desktop/mary/english/trees/");
      

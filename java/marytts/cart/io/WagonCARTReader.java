@@ -62,15 +62,15 @@ public class WagonCARTReader {
    private int openBrackets;
    
    // Since it is not known from the wagon file lines which kind of leaves 
-   // should be read, a treeType argument should be provided when creating 
-   // this class. The treeType will determine the leafType.
-   private int leafType;
+   // should be read, a leafType argument should be provided when creating 
+   // this class.
+   private LeafNode.LeafType leafType;
 
    // added because StringCART
    private int targetFeature;
    
    /**
-    * When creating a WagonCARTReader provide a tree type:
+    * When creating a WagonCARTReader provide a tree type
     * @param treeType 
     *         ClasificationTree, ExtendedClassificationTree, RegressionTree, or
     *         TopLevelTree.
@@ -81,28 +81,10 @@ public class WagonCARTReader {
     *   <p>TopLevelTree               --> FeatureVectorLeafNode
     *   <p>StringCART                 --> StringAndFloatLeafNode
     */
-   public WagonCARTReader(String treeType) {
-     if(treeType.contentEquals("ClassificationTree")  )
-       leafType = 1;
-     else if(treeType.contentEquals("ExtendedClassificationTree") )
-       leafType = 2;
-     else if(treeType.contentEquals("RegressionTree") )
-       leafType = 3;
-     else if(treeType.contentEquals("TopLeavelTree") )
-       leafType = 4;  
-     else
-       throw new IllegalArgumentException("Tree type: " + treeType + " not supported.");  
+   public WagonCARTReader(LeafNode.LeafType leafType) {
+       this.leafType = leafType;
    }
    
-   /**
-    * When creating a WagonCARTReader for StringCART provide a target feature:
-    * 
-    * @param targetFea target feature
-    */
-   public WagonCARTReader(int targetFea) {
-     leafType = 5;  // for StringCART --> StringAndFloatLeafNode
-     targetFeature = targetFea;  
-   }
    
    
    /**
@@ -116,16 +98,16 @@ public class WagonCARTReader {
     * @return a leaf node representing the line.
     */
    protected LeafNode createLeafNode(String line) {
-      if(leafType == 1)         
-        return(createIntArrayLeafNode(line));           // 1 for ClassificationTree
-      else if(leafType == 2)    
-        return(createIntAndFloatArrayLeafNode(line));   // 2 for ExtendedClassificationTree
-      else if(leafType == 3)    
-        return(createFloatLeafNode(line));              // 3 for RegressionTree
-      else if(leafType == 4)    
-        return(createFeatureVectorLeafNode(line));      // 4 for TopLeavelTree
-      else if(leafType == 5)
-        return(createStringAndFloatLeafNode(line));     // 5 for StringCART
+      if(leafType == LeafNode.LeafType.IntArrayLeafNode)         
+        return(createIntArrayLeafNode(line));
+      else if(leafType == LeafNode.LeafType.IntAndFloatArrayLeafNode)    
+        return(createIntAndFloatArrayLeafNode(line));
+      else if(leafType == LeafNode.LeafType.FloatLeafNode) 
+        return(createFloatLeafNode(line));
+      else if(leafType == LeafNode.LeafType.FeatureVectorLeafNode)
+        return(createFeatureVectorLeafNode(line));
+      else if(leafType == LeafNode.LeafType.StringAndFloatLeafNode)
+        return(createStringAndFloatLeafNode(line));
       else
         return null;
    }
@@ -550,7 +532,7 @@ public class WagonCARTReader {
      * @param featureVectors the feature vectors.
      */
     public void fillLeafs(Node root, FeatureVector[] featureVectors){
-      if(leafType == 4) {
+      if(leafType == LeafNode.LeafType.FeatureVectorLeafNode) {
         rootNode = root;  
         Node currentNode = rootNode;
         Node prevNode = null;
@@ -581,24 +563,28 @@ public class WagonCARTReader {
     
     
     protected LeafNode createStringAndFloatLeafNode(String line) {
-        // CHECK! if this works, is it necessary a different target feature for each 
-        // StringAndFloatLeafNode ??
-        int tf = this.targetFeature;  
-        
+        // Note: this code is identical to createIntAndFloatArrayLeafNode(),
+        // except for the last line.
         StringTokenizer tok = new StringTokenizer(line, " ");
         // read the indices from the tokenized String
         int numTokens = tok.countTokens();
         int index = 0;
+        // The data to be saved in the leaf node:
+        int[] indices;
+        // The floats to be saved in the leaf node:
+        float[] probs;
         
-        List<Integer> indexList = new ArrayList<Integer>();
-        List<Float> probList = new ArrayList<Float>();
-                
         //System.out.println("Line: "+line+", numTokens: "+numTokens);
         
         if (numTokens == 2) { // we do not have any indices
             // discard useless token
             tok.nextToken();
+            indices = new int[0];
+            probs = new float[0];
         } else {
+            indices = new int[(numTokens - 1) / 2];
+            // same length
+            probs = new float[indices.length];
             
             while (index * 2 < numTokens - 1){
                 String token = tok.nextToken();
@@ -608,56 +594,43 @@ public class WagonCARTReader {
                     token = token.substring(1);
                 }
                 //System.out.println("int-token: "+token);
-                indexList.add((int) this.featDef.getFeatureValueAsShort(tf, token));//getFeatureIndex(token));
+                indices[index] = Integer.parseInt(token);
                     
                 token = tok.nextToken();
                 int lastIndex = token.length() - 1;
                 if ((index*2) == (numTokens - 3)){
                     token = token.substring(0,lastIndex-1);
                     if (token.equals("inf")){
-                        probList.add(100000f);
+                        probs[index]=10000;
                         index++;
                         continue;
                     }
                     if (token.equals("nan")){
-                        probList.add(-1f);
+                        probs[index]=-1;
                         index++;
                         continue;
                     }
                 }else{
                     token = token.substring(0,lastIndex);
                     if (token.equals("inf")){
-                        probList.add(100000f);
+                        probs[index]=1000000;
                         index++;
                         continue;
                     }
                     if (token.equals("nan")){
-                        probList.add(-1f);
+                        probs[index]=-1;
                         index++;
                         continue;
                     }
                 }
                 //System.out.println("float-token: "+token);
-                probList.add(Float.parseFloat(token));
+                probs[index] = Float.parseFloat(token);
                 index++;    
             } // end while
        
         } // end if
         
-        assert(indexList.size() == probList.size());
-        
-        // The data to be saved in the leaf node:
-        int[] indices = new int[indexList.size()];
-        // The floats to be saved in the leaf node:
-        float[] probs = new float[probList.size()];
-        
-        
-        for (int i = 0 ; i < indexList.size(); i++){
-            indices[i] = indexList.get(i);
-            probs[i]   = probList.get(i);
-        }
-        
-        return new LeafNode.StringAndFloatLeafNode(indices,probs,this.featDef,tf);
+        return new LeafNode.StringAndFloatLeafNode(indices,probs);
     }
 
 }

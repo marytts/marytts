@@ -54,6 +54,7 @@ import marytts.cart.FeatureVectorCART;
 import marytts.cart.LeafNode;
 import marytts.cart.Node;
 import marytts.cart.LeafNode.FeatureVectorLeafNode;
+import marytts.cart.LeafNode.LeafType;
 import marytts.cart.io.MaryCARTReader;
 import marytts.cart.io.WagonCARTReader;
 import marytts.cart.io.WagonCARTWriter;
@@ -281,7 +282,7 @@ public class CARTBuilder extends VoiceImportComponent {
              
              // old: topLevelCART = new TopLevelTree(reader, featureDefinition);
              topLevelCART = new CART();
-             WagonCARTReader wagonReader = new WagonCARTReader("TopLeavelTree");
+             WagonCARTReader wagonReader = new WagonCARTReader(LeafType.FeatureVectorLeafNode);
              topLevelCART.setRootNode(wagonReader.load(reader, featureDefinition));
              
              System.out.println(" ... done!");
@@ -386,7 +387,7 @@ public class CARTBuilder extends VoiceImportComponent {
             System.out.println("Reading CART from "+filename+" ...");
             
             // create a wagon cart reader for this class of tree
-            WagonCARTReader wagonReader = new WagonCARTReader("ExtendedClasificationTree");
+            WagonCARTReader wagonReader = new WagonCARTReader(LeafType.IntAndFloatArrayLeafNode);
             
             //build and return CART
             // old: CART cart = new ExtendedClassificationTree();
@@ -957,7 +958,7 @@ public class CARTBuilder extends VoiceImportComponent {
                             new FileReader(cartFile));
                     // old CART newCART = new ExtendedClassificationTree(buf, featureDefinition);
                     CART newCART = new CART();
-                    WagonCARTReader wagonReader = new WagonCARTReader("ExtendedClassificationTree");
+                    WagonCARTReader wagonReader = new WagonCARTReader(LeafType.IntAndFloatArrayLeafNode);
                     newCART.setRootNode(wagonReader.load(buf, featureDefinition));
                     buf.close();
                     

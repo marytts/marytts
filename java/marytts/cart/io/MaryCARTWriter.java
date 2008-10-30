@@ -401,15 +401,13 @@ public class MaryCARTWriter{
        StringBuffer sb = new StringBuffer();
        int data[] = node.getIntData();
        float floats[] = node.getFloatData();
-       FeatureDefinition fd = node.getFeatureDefinition();
-       int tf = node.getTargetfeature();
        
        if( node.getUniqueLeafId() != 0) {
        sb.append("id" + node.getUniqueLeafId() + " StringAndFloatLeafNode " + data.length + " ");
      
        // for each index, write the index and then its float
        for (int i = 0; i < data.length; i++) {
-           sb.append(fd.getFeatureValueAsString(tf, data[i]) + " " + floats[i] + " ");
+           sb.append(data[i] + " " + floats[i] + " ");
        }
       
        // dump the whole stuff

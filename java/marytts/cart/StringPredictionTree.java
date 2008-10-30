@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.regex.Pattern;
 
 import marytts.cart.LeafNode.IntAndFloatArrayLeafNode;
+import marytts.cart.LeafNode.LeafType;
 import marytts.cart.io.WagonCARTReader;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
@@ -96,7 +97,7 @@ public class StringPredictionTree extends CART {
         // read the rest of the tree
         // old: this.load(reader, featDefinition);
         // CHECK!! this has not been tested, maybe it does not work!!!
-        WagonCARTReader wagonReader = new WagonCARTReader("ExtendedClassificationTree");
+        WagonCARTReader wagonReader = new WagonCARTReader(LeafType.IntAndFloatArrayLeafNode);
         this.setRootNode(wagonReader.load(reader, featDefinition));
         
     }
