@@ -29,10 +29,12 @@
 package marytts.cart.io;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -79,6 +81,21 @@ public class MaryCARTReader
         if (maryHeader.getType() != MaryHeader.CARTS) {
             throw new IOException("No CARTs file");
         }
+        
+        // Read properties
+        short propDataLength = raf.readShort();
+        Properties props;
+        if (propDataLength == 0) {
+            props = null;
+        } else {
+            byte[] propsData = new byte[propDataLength];
+            raf.readFully(propsData);
+            ByteArrayInputStream bais = new ByteArrayInputStream(propsData);
+            props = new Properties();
+            props.load(bais);
+            bais.close();
+        }
+        
         // Read the feature definition
         FeatureDefinition featureDefinition = new FeatureDefinition(raf);
 
@@ -206,7 +223,7 @@ public class MaryCARTReader
         }
 
         // set the rootNode as the rootNode of cart
-        return new CART(rootNode, featureDefinition);
+        return new CART(rootNode, featureDefinition, props);
     }
 
     

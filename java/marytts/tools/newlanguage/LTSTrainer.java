@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -25,6 +26,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import marytts.cart.CART;
 import marytts.cart.DecisionNode;
 import marytts.cart.Node;
+import marytts.cart.io.MaryCARTWriter;
 import marytts.features.FeatureDefinition;
 import marytts.fst.AlignerTrainer;
 import marytts.fst.StringPair;
@@ -63,20 +65,27 @@ import weka.core.Instances;
  *
  */
 
-public class LTSTrainer extends AlignerTrainer{
+public class LTSTrainer extends AlignerTrainer
+{
     public static final String PREDICTED_STRING_FEATURENAME="predicted-string";
 
-    AllophoneSet phSet;
-    Locale loc;
-
+    protected AllophoneSet phSet;
     
-    int context = 2;
+    protected int context = 2;
+    protected boolean convertToLowercase;
+    protected boolean considerStress;
     
-    public LTSTrainer(AllophoneSet aPhSet, Locale aLoc) {
+    /**
+     * Create a new LTSTrainer.
+     * @param aPhSet the allophone set to use.
+     * @param convertToLowercase whether to convert all graphemes to lowercase, using the locale of the allophone set.
+     * @param considerStress indicator if stress is preserved
+     */
+    public LTSTrainer(AllophoneSet aPhSet, boolean convertToLowercase, boolean considerStress) {
         super();
         this.phSet = aPhSet;
-        this.loc = aLoc;
-
+        this.convertToLowercase = convertToLowercase;
+        this.considerStress = considerStress;
     }
     
     
@@ -138,7 +147,7 @@ public class LTSTrainer extends AlignerTrainer{
         
         for (String gr : fd.getPossibleValues(centerGrapheme)){
             
-            System.out.println("Training decision tree for: " + gr);
+            logger.debug("      Training decision tree for: " + gr);
             
             FastVector attributeDeclarations = new FastVector();
             
@@ -213,7 +222,12 @@ public class LTSTrainer extends AlignerTrainer{
         for (CART st : stl) {
             rootNode.addDaughter(st.getRootNode());
         }
-        CART bigTree = new CART(rootNode, fd);
+
+        Properties props = new Properties();
+        props.setProperty("lowercase", String.valueOf(convertToLowercase));
+        props.setProperty("stress", String.valueOf(considerStress));
+        
+        CART bigTree = new CART(rootNode, fd, props);
                         
         return bigTree;
     }
@@ -227,20 +241,10 @@ public class LTSTrainer extends AlignerTrainer{
      * @param saveTreePath
      * @throws IOException
      */
-    public void save(CART tree, String saveTreePath) throws IOException{
-        FileOutputStream outFile = new FileOutputStream(saveTreePath + "/graph2phon.wagon");
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(outFile,"UTF-8"));
-        bw.write(tree.toString());
-        bw.close();
-
-        // also remember feature definition
-        FileOutputStream fdFile = new FileOutputStream(saveTreePath + "/graph2phon.pfeats");
-        PrintWriter pw = new PrintWriter(new OutputStreamWriter(fdFile,"UTF-8"));
-        
-        tree.getFeatureDefinition().writeTo(pw, false);
-        
-        pw.close();
-        fdFile.close();
+    public void save(CART tree, String saveTreefile) throws IOException{
+        FileOutputStream outFile = new FileOutputStream(saveTreefile);
+        MaryCARTWriter mcw = new MaryCARTWriter();
+        mcw.dumpMaryCART(tree, saveTreefile);
     }
     
     private FeatureDefinition graphemeFeatureDef(Set<String> phChains) throws IOException {
@@ -296,18 +300,16 @@ public class LTSTrainer extends AlignerTrainer{
      * 
      * @param lexicon reader with lines of lexicon
      * @param splitPattern a regular expression used for identifying the field separator in each line.
-     * @param convertToLowercase whether to convert all graphemes to lowercase
-     * @param considerStress indicator if stress is preserved
      * @throws IOException
      */
-    public void readLexicon(BufferedReader lexicon, String splitPattern, boolean convertToLowercase, boolean considerStress) throws IOException{
+    public void readLexicon(BufferedReader lexicon, String splitPattern) throws IOException{
                 
         String line;
         
         while ((line = lexicon.readLine()) != null){
             String[] lineParts = line.trim().split(splitPattern);
             String graphStr = lineParts[0];
-            if (convertToLowercase) graphStr = graphStr.toLowerCase(loc);
+            if (convertToLowercase) graphStr = graphStr.toLowerCase(phSet.getLocale());
             graphStr = graphStr.replaceAll("['-.]", "");
 
             // remove all secondary stress markers
@@ -347,7 +349,7 @@ public class LTSTrainer extends AlignerTrainer{
 
         
         // initialize trainer 
-        LTSTrainer tp = new LTSTrainer(AllophoneSet.getAllophoneSet(phFileLoc), Locale.ENGLISH);
+        LTSTrainer tp = new LTSTrainer(AllophoneSet.getAllophoneSet(phFileLoc), true, true);
 
         BufferedReader lexReader = new BufferedReader(
                 new InputStreamReader(
@@ -355,7 +357,7 @@ public class LTSTrainer extends AlignerTrainer{
                         "/Users/benjaminroth/Desktop/mary/english/sampa-lexicon.txt"),"ISO-8859-1"));
         
         // read lexicon for training
-        tp.readLexicon(lexReader, "\\\\", true, true);
+        tp.readLexicon(lexReader, "\\\\");
 
         // make some alignment iterations
         for ( int i = 0 ; i < 5 ; i++ ){

@@ -32,6 +32,7 @@
 package marytts.cart;
 
 import java.util.List;
+import java.util.Properties;
 
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
@@ -50,6 +51,7 @@ public class CART
     // knows the index numbers and types of the features used in DecisionNodes
     protected FeatureDefinition featDef;
 
+    protected Properties properties;
     /**
      * Build a new empty cart
      * 
@@ -59,13 +61,42 @@ public class CART
 
     /**
      * Build a new cart with the given node as the root node
+     * @param rootNode the root node of the CART
+     * @param featDef the feature definition used for interpreting the meaning of 
+     * decision node criteria.
      */
     public CART(Node rootNode, FeatureDefinition featDef)
     {
         this.rootNode = rootNode;
         this.featDef = featDef;
+        this.properties = null;
     }
     
+    /**
+     * Build a new cart with the given node as the root node
+     * @param rootNode the root node of the CART
+     * @param featDef the feature definition used for interpreting the meaning of 
+     * decision node criteria.
+     * @param properties a generic properties object, which can be used to encode
+     * information about the tree and the way the data in it should
+     * be represented.
+     */
+    public CART(Node rootNode, FeatureDefinition featDef, Properties properties)
+    {
+        this.rootNode = rootNode;
+        this.featDef = featDef;
+        this.properties = properties;
+    }
+    
+    /**
+     * Get the properties object associated with this tree, or null 
+     * if there is no such object.
+     * @return
+     */
+    public Properties getProperties()
+    {
+        return properties;
+    }
     
     /**
      * Load the cart from the given file

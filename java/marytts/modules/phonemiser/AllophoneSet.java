@@ -111,6 +111,11 @@ public class AllophoneSet
             throw new IllegalArgumentException("File "+filename+" does not contain a silence symbol");
     }
 
+    public Locale getLocale()
+    {
+        return locale;
+    }
+    
     public Syllabifier getSyllabifier()
     {
         return new Syllabifier(this);

@@ -29,11 +29,13 @@
 package marytts.cart.io;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Properties;
 
 import marytts.cart.CART;
 import marytts.cart.DecisionNode;
@@ -79,6 +81,17 @@ public class MaryCARTWriter{
         //create new CART-header and write it to output file     
         MaryHeader hdr = new MaryHeader(MaryHeader.CARTS);
         hdr.writeTo(out);
+        
+        Properties props = cart.getProperties();
+        if (props == null) {
+            out.writeShort(0);
+        } else {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            props.store(baos, null);
+            byte[] propData = baos.toByteArray();
+            out.writeShort(propData.length);
+            out.write(propData);
+        }
 
         // feature definition
         cart.getFeatureDefinition().writeBinaryTo(out);
