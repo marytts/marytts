@@ -90,7 +90,11 @@ public class CMUDict2MaryFST extends LexiconCreator
         super(AllophoneSet.getAllophoneSet("lib/modules/en/us/lexicon/allophones.en_US.xml"),
                 "lib/modules/en/us/lexicon/cmudictSampa.txt",
                 "lib/modules/en/us/lexicon/cmudict.fst",
-                "lib/modules/en/us/lexicon/cmudict.lts");
+                "lib/modules/en/us/lexicon/cmudict.lts",
+                true, // convert to lowercase
+                true, // predict stress
+                3 // number of characters to the left and to the right to use for prediction
+                );
     }
     
     @Override

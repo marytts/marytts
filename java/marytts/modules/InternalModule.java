@@ -100,6 +100,7 @@ public class InternalModule implements MaryModule
         this.inputType = inputType;
         this.outputType = outputType;
         this.locale = locale;
+        logger = Logger.getLogger(name());
         this.state = MODULE_OFFLINE;
     }
 
@@ -111,7 +112,6 @@ public class InternalModule implements MaryModule
     public int getState() { return state; }
     public void startup() throws Exception {
         assert state == MODULE_OFFLINE;
-        logger = Logger.getLogger(name());
         logger.info("Module started ("+inputType()+"->"+outputType()+", locale "+getLocale()+").");
 
         state = MODULE_RUNNING;

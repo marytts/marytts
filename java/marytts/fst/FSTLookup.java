@@ -92,7 +92,7 @@ public class FSTLookup
      */
     public String[] lookup(String word, boolean generate) {
         StringBuffer buffer2=new StringBuffer();
-        List results=new ArrayList();
+        List<String> results=new ArrayList<String>();
         
         lookup(word, 0, 0, generate, buffer2, results);
         
@@ -102,7 +102,7 @@ public class FSTLookup
     }
     
     private void lookup(String word, int offset1, int arc, boolean generate,
-                        StringBuffer buffer2, List results) {
+                        StringBuffer buffer2, List<String> results) {
         do {
             int label = fst.labels[arc];
             int offset2 = buffer2.length();

@@ -71,7 +71,7 @@ public class LTSTrainer extends AlignerTrainer
 
     protected AllophoneSet phSet;
     
-    protected int context = 2;
+    protected int context;
     protected boolean convertToLowercase;
     protected boolean considerStress;
     
@@ -81,15 +81,21 @@ public class LTSTrainer extends AlignerTrainer
      * @param convertToLowercase whether to convert all graphemes to lowercase, using the locale of the allophone set.
      * @param considerStress indicator if stress is preserved
      */
-    public LTSTrainer(AllophoneSet aPhSet, boolean convertToLowercase, boolean considerStress) {
+    public LTSTrainer(AllophoneSet aPhSet, boolean convertToLowercase, boolean considerStress, int context) {
         super();
         this.phSet = aPhSet;
         this.convertToLowercase = convertToLowercase;
         this.considerStress = considerStress;
+        this.context = context;
     }
     
-    
-    public CART trainTree(int minLeaveData) throws IOException{
+    /**
+     * Train the tree, using binary decision nodes. 
+     * @param minLeafData the minimum number of instances that have to occur in at least two subsets induced by split
+     * @return
+     * @throws IOException
+     */
+    public CART trainTree(int minLeafData) throws IOException{
         
         Map<String, List<String[]>> grapheme2align = new HashMap<String, List<String[]>>();
         for (String gr : this.graphemeSet){      
@@ -207,7 +213,7 @@ public class LTSTrainer extends AlignerTrainer
             //binary split selection with minimum x instances at the leaves, tree is pruned, confidenced value, subtree raising, cleanup
             C45PruneableClassifierTree decisionTree;
             try {
-                decisionTree = new C45PruneableClassifierTree(new BinC45ModelSelection(minLeaveData,data),true,0.25f,true,true);
+                decisionTree = new C45PruneableClassifierTree(new BinC45ModelSelection(minLeafData,data),true,0.25f,true,true);
                 decisionTree.buildClassifier(data);
             } catch (Exception e) {
                 throw new RuntimeException("couldn't train decisiontree using weka: " + e);
@@ -226,6 +232,7 @@ public class LTSTrainer extends AlignerTrainer
         Properties props = new Properties();
         props.setProperty("lowercase", String.valueOf(convertToLowercase));
         props.setProperty("stress", String.valueOf(considerStress));
+        props.setProperty("context", String.valueOf(context));
         
         CART bigTree = new CART(rootNode, fd, props);
                         
@@ -251,49 +258,41 @@ public class LTSTrainer extends AlignerTrainer
         
         String lineBreak = System.getProperty("line.separator");
         
-        String fdString = "ByteValuedFeatureProcessors" + lineBreak;
+        StringBuilder fdString = new StringBuilder("ByteValuedFeatureProcessors");
+        fdString.append(lineBreak);
         
         // add attribute features
         for (int att = 1; att <= context*2 + 1; att++){
-            fdString += "att" + att;
-            
-            for (String gr :  this.graphemeSet){
-                fdString += " " + gr;
+            fdString.append("att").append(att);
+
+            for (String gr :  this.graphemeSet) {
+                fdString.append(" ").append(gr);
             }
-            
-            // the attribute at position "context" is the identity of the grapheme:
-            // null is not possible for that
-            if (att != (context + 1)){
-                fdString +=" null";
-            }
-            fdString += lineBreak;
-            
+            fdString.append(lineBreak);
         }
-        
-        
-        fdString += "ShortValuedFeatureProcessors" + lineBreak;
+        fdString.append("ShortValuedFeatureProcessors").append(lineBreak);
         
         // add class features
-        fdString += PREDICTED_STRING_FEATURENAME;
+        fdString.append(PREDICTED_STRING_FEATURENAME);
         
         for (String ph :  phChains){
-            fdString += " " + ph;
+            fdString.append(" ").append(ph);
         }
         
-        fdString += lineBreak;
+        fdString.append(lineBreak);
         
-        fdString += "ContinuousFeatureProcessors" + lineBreak;
+        fdString.append("ContinuousFeatureProcessors").append(lineBreak);
         
-        BufferedReader featureReader = new BufferedReader(new StringReader(fdString));
+        BufferedReader featureReader = new BufferedReader(new StringReader(fdString.toString()));
         
         return new FeatureDefinition(featureReader,false);        
     }
     
     /**
      * 
-     * reads in a lexicon in "sampa" format, lines are of the kind:
+     * reads in a lexicon in text format, lines are of the kind:
      * 
-     * graphemechain\phonemechain\otherinformation
+     * graphemechain | phonemechain | otherinformation
      * 
      * Stress is optionally preserved, marking the first vowel of a stressed
      * syllable with "1".
@@ -340,6 +339,8 @@ public class LTSTrainer extends AlignerTrainer
             }
             this.addAlreadySplit(separatedGraphemes, separatedPhones);
         }
+        // Need one entry for the "null" grapheme, which maps to the empty string:
+        this.addAlreadySplit(new String[]{"null"}, new String[]{""});
     }
     
     public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException {
@@ -349,7 +350,7 @@ public class LTSTrainer extends AlignerTrainer
 
         
         // initialize trainer 
-        LTSTrainer tp = new LTSTrainer(AllophoneSet.getAllophoneSet(phFileLoc), true, true);
+        LTSTrainer tp = new LTSTrainer(AllophoneSet.getAllophoneSet(phFileLoc), true, true, 2);
 
         BufferedReader lexReader = new BufferedReader(
                 new InputStreamReader(

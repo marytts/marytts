@@ -151,6 +151,9 @@ public class FeatureVector
      */
     public byte getByteFeature(int index)
     {
+        if (index < 0 || index >= byteValuedDiscreteFeatures.length) {
+            throw new IndexOutOfBoundsException(index+" is not between 0 and "+byteValuedDiscreteFeatures.length);
+        }
         return byteValuedDiscreteFeatures[index];
     }
     
