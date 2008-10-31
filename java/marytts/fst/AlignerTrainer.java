@@ -87,6 +87,8 @@ public class AlignerTrainer {
         this.inSplit = new ArrayList<String[]>();
         this.outSplit = new ArrayList<String[]>();
         this.graphemeSet = new HashSet<String>();
+        // allow "null" as a dummy value for all phone features
+        this.graphemeSet.add("null");
 
         this.inIsOut = inIsOutAlphabet;
         if (hasOptInfo){
@@ -398,6 +400,8 @@ public class AlignerTrainer {
     
     private Set<String> collectInputSyms() {
         this.graphemeSet = new HashSet<String>();
+        // allow "null" as a dummy value for all phone features
+        this.graphemeSet.add("null");
         for (String[] is : this.inSplit){
             for (String sym : is){
                 this.graphemeSet.add(sym);

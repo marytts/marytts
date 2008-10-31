@@ -87,12 +87,15 @@ public class LexiconCreator
     protected String ltsFilename;
     protected boolean convertToLowercase;
     protected boolean predictStress;
+    protected int context;
     
     /**
      * Initialise a new lexicon creator.
      * Letter to sound rules built with this lexicon creator will convert graphemes to
      * lowercase before prediction, using the locale given in the allophone set;
-     * letter-to-sound rules will also predict stress.
+     * letter-to-sound rules will also predict stress;
+     * a context of 2 characters to the left and to the right of the current character will
+     * be used as predictive features.
      * @param allophoneSet this specifies the set of phonetic symbols that can be used in the lexicon, and
      * provides the locale of the lexicon
      * @param lexiconFilename where to find the plain-text lexicon
@@ -101,7 +104,7 @@ public class LexiconCreator
      */
     public LexiconCreator(AllophoneSet allophoneSet, String lexiconFilename, String fstFilename, String ltsFilename)
     {
-        this(allophoneSet, lexiconFilename, fstFilename, ltsFilename, true, true);
+        this(allophoneSet, lexiconFilename, fstFilename, ltsFilename, true, true, 2);
     }
     
     /**
@@ -114,9 +117,11 @@ public class LexiconCreator
      * @param convertToLowercase if true, Letter to sound rules built with this lexicon creator will convert graphemes to
      * lowercase before prediction, using the locale given in the allophone set.
      * @param predictStress if true, letter-to-sound rules will predict stress.
+     * @param context the number of characters to the left and to the right of the current character will
+     * be used as predictive features.
      */
     public LexiconCreator(AllophoneSet allophoneSet, String lexiconFilename, String fstFilename, String ltsFilename,
-            boolean convertToLowercase, boolean predictStress)
+            boolean convertToLowercase, boolean predictStress, int context)
     {
         this.allophoneSet = allophoneSet;
         this.lexiconFilename = lexiconFilename;
@@ -124,6 +129,7 @@ public class LexiconCreator
         this.ltsFilename = ltsFilename;
         this.convertToLowercase = convertToLowercase;
         this.predictStress = predictStress;
+        this.context = context;
         this.logger = Logger.getLogger("LexiconCreator");
     }
 
@@ -232,7 +238,7 @@ public class LexiconCreator
     {
         logger.info("Training letter-to-sound rules...");
         // initialize trainer 
-        LTSTrainer tp = new LTSTrainer(allophoneSet, convertToLowercase, predictStress);
+        LTSTrainer tp = new LTSTrainer(allophoneSet, convertToLowercase, predictStress, context);
         BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(lexiconFilename), "UTF-8"));
         
         logger.info(" - reading lexicon...");
@@ -247,7 +253,7 @@ public class LexiconCreator
             
         }
         logger.info(" - training decision tree...");
-        CART st = tp.trainTree(100);
+        CART st = tp.trainTree(10);
         logger.info(" - saving...");
         // new MARY cart format:
         MaryCARTWriter mcw = new MaryCARTWriter();

@@ -36,23 +36,23 @@ public class TrainedLTS {
     private CART tree;
     private FeatureDefinition featureDefinition;
     private int indexPredictedFeature;
-    private int context = 2;
+    private int context;
     private AllophoneSet allophoneSet;
     private boolean convertToLowercase;
     
     /**
      * 
-     * Initializes letter to sound system with a phoneSet. To actually be able 
-     * to predict something you have to load the decision trees.
+     * Initializes letter to sound system with a phoneSet, and load the decision
+     * tree from the given file.
      * 
      * @param aPhonSet phoneset used in syllabification
-     * @param aLocale locale used for lowercasing
+     * @param treeFilename
      * @throws IOException 
      * 
      */
-    public TrainedLTS(AllophoneSet aPhonSet, String treeDirName) throws IOException {
+    public TrainedLTS(AllophoneSet aPhonSet, String treeFilename) throws IOException {
         this.allophoneSet = aPhonSet;
-        this.loadTree(treeDirName);
+        this.loadTree(treeFilename);
     }
     
     public TrainedLTS(AllophoneSet aPhonSet, CART predictionTree) {
@@ -60,10 +60,10 @@ public class TrainedLTS {
         this.tree = predictionTree;
         this.featureDefinition = tree.getFeatureDefinition();
         this.indexPredictedFeature = featureDefinition.getFeatureIndex(LTSTrainer.PREDICTED_STRING_FEATURENAME);
-        this.convertToLowercase = false;
         Properties props = tree.getProperties();
-        if (props != null) convertToLowercase = Boolean.parseBoolean(props.getProperty("lowercase"));
-        System.out.println("convertToLowercase = "+convertToLowercase);
+        if (props == null) throw new IllegalArgumentException("Prediction tree does not contain properties");
+        convertToLowercase = Boolean.parseBoolean(props.getProperty("lowercase"));
+        context = Integer.parseInt(props.getProperty("context"));
     }
     
     /**
@@ -81,7 +81,9 @@ public class TrainedLTS {
         this.indexPredictedFeature = featureDefinition.getFeatureIndex(LTSTrainer.PREDICTED_STRING_FEATURENAME);
         this.convertToLowercase = false;
         Properties props = tree.getProperties();
-        if (props != null) convertToLowercase = Boolean.parseBoolean(props.getProperty("lowercase"));
+        if (props == null) throw new IllegalArgumentException("Prediction tree does not contain properties");
+        convertToLowercase = Boolean.parseBoolean(props.getProperty("lowercase"));
+        context = Integer.parseInt(props.getProperty("context"));
     }
     
     public String predictPronunciation(String graphemes)
