@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 
 /**
  * 
@@ -67,6 +69,8 @@ public class AlignerTrainer {
 
     protected Set<String> graphemeSet;
     
+    protected Logger logger;
+    
     private boolean inIsOut;
 
     /**
@@ -88,6 +92,7 @@ public class AlignerTrainer {
         if (hasOptInfo){
             this.optInfo = new ArrayList<String>();
         }
+        this.logger = Logger.getLogger(this.getClass());
     }
     
     /**
@@ -103,10 +108,10 @@ public class AlignerTrainer {
      * This reads a lexicon where input and output strings are separated by a
      * delimiter that can be specified (splitSym). Strings are taken as they are
      * no normalization (eg. stress/syllable symbol removal, lower-casing ...)
-     * is performed. In a third row additional info (eg. part of speech) can be
+     * is performed; if space characters are present in the output string, it is used as a 
+     * separator. In a third row additional info (eg. part of speech) can be
      * given.
-     * Strings are stored split into symbols. For the phonemic part this split
-     * can be done by using a phonemeset.
+     * Strings are stored split into symbols.
      * 
      * @param lexicon reader for lexicon
      * @param splitSym symbol to split columns of lexicon
@@ -135,7 +140,8 @@ public class AlignerTrainer {
     /**
      * This adds the input and output string in the most simple way: symbols
      * are simply the characters of the strings - no phonemisation/syllabification
-     * or whatsoever is performed. No PhonemeSet has to be specified for that.
+     * or whatsoever is performed. If outStr contains space characters, it is used as a separator
+     * for splitting.
      * 
      * @param inString
      * @param outString
@@ -143,20 +149,24 @@ public class AlignerTrainer {
     public void splitAndAdd(String inStr, String outStr){
         
         String[] inStrSplit = new String[inStr.length()];
-        
         for ( int i = 0 ; i < inStr.length() ; i++ ){
-            
-            this.graphemeSet.add(inStr.substring(i, i+1));
-
-            inStrSplit[i] = inStr.substring(i, i+1);
+            String c = inStr.substring(i, i+1);
+            this.graphemeSet.add(c);
+            inStrSplit[i] = c;
         }
-        
-        String[] outStrSplit = new String[outStr.length()];
-        
-        for ( int i = 0 ; i < outStr.length() ; i++ ){
-            outStrSplit[i] = outStr.substring(i, i+1);
+        String[] outStrSplit;
+        if (outStr.contains(" ")) {
+            outStrSplit = outStr.split(" ");
+            // preserve space between allophones:
+            for (int i=1, max=outStrSplit.length; i<max; i++) {
+                outStrSplit[i] = " "+outStrSplit[i];
+            }
+        } else { // split into individual characters
+            outStrSplit = new String[outStr.length()];
+            for ( int i = 0 ; i < outStr.length() ; i++ ){
+                outStrSplit[i] = outStr.substring(i, i+1);
+            }
         }
-        
         this.inSplit.add(inStrSplit);
         this.outSplit.add(outStrSplit);
         

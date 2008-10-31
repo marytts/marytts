@@ -7,12 +7,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Locale;
+import java.util.Properties;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import marytts.cart.CART;
 import marytts.cart.LeafNode;
 import marytts.cart.LeafNode.StringAndFloatLeafNode;
+import marytts.cart.io.MaryCARTReader;
 import marytts.cart.io.WagonCARTReader;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
@@ -36,7 +38,7 @@ public class TrainedLTS {
     private int indexPredictedFeature;
     private int context = 2;
     private AllophoneSet allophoneSet;
-    Locale locale;
+    private boolean convertToLowercase;
     
     /**
      * 
@@ -48,90 +50,78 @@ public class TrainedLTS {
      * @throws IOException 
      * 
      */
-    public TrainedLTS(AllophoneSet aPhonSet, Locale aLocale, String treeDirName) throws IOException {
+    public TrainedLTS(AllophoneSet aPhonSet, String treeDirName) throws IOException {
         this.allophoneSet = aPhonSet;
-        this.locale = aLocale;
         this.loadTree(treeDirName);
     }
     
-    public TrainedLTS(AllophoneSet aPhonSet, Locale aLocale, CART predictionTree) {
+    public TrainedLTS(AllophoneSet aPhonSet, CART predictionTree) {
         this.allophoneSet = aPhonSet;
-        this.locale = aLocale;
         this.tree = predictionTree;
         this.featureDefinition = tree.getFeatureDefinition();
         this.indexPredictedFeature = featureDefinition.getFeatureIndex(LTSTrainer.PREDICTED_STRING_FEATURENAME);
+        this.convertToLowercase = false;
+        Properties props = tree.getProperties();
+        if (props != null) convertToLowercase = Boolean.parseBoolean(props.getProperty("lowercase"));
+        System.out.println("convertToLowercase = "+convertToLowercase);
     }
     
     /**
      * 
-     * Convenience method to load tree from graph2phon.wagon and graph2phon.pfeats
-     * in a specified directory with UTF-8 encoding.
+     * Convenience method to load tree from file
      * 
-     * @param tree
-     * @param saveTreePath
+     * @param treeFilename
      * @throws IOException
      */
-    public void loadTree(String treeDirName) throws IOException {
-        
-        File treeDir = new File(treeDirName);
-        if (!treeDir.exists()) {
-            throw new FileNotFoundException("Configuration directory not found: "+ treeDir.getPath());
-        }
-        
-        String fdFileName = treeDir.getPath() + File.separator + "graph2phon.pfeats";
-        
-        
-        BufferedReader featureReader = new BufferedReader(
-                new InputStreamReader(
-                new FileInputStream(fdFileName),"UTF-8"));
-        FeatureDefinition fd = new FeatureDefinition(featureReader,false);
-                
-        String bigTreeName = treeDir.getPath() + File.separator + "graph2phon.wagon";
-        BufferedReader treeReader = new BufferedReader(
-                new InputStreamReader(
-                new FileInputStream(bigTreeName),"UTF-8"));
-        WagonCARTReader wagonReader = new WagonCARTReader(LeafNode.LeafType.StringAndFloatLeafNode);
-        this.tree = new CART(wagonReader.load(treeReader, fd), fd);
-        
+    public void loadTree(String treeFilename) throws IOException
+    {
+        MaryCARTReader cartReader = new MaryCARTReader();
+        this.tree = cartReader.load(treeFilename);
+        this.featureDefinition = tree.getFeatureDefinition();
+        this.indexPredictedFeature = featureDefinition.getFeatureIndex(LTSTrainer.PREDICTED_STRING_FEATURENAME);
+        this.convertToLowercase = false;
+        Properties props = tree.getProperties();
+        if (props != null) convertToLowercase = Boolean.parseBoolean(props.getProperty("lowercase"));
     }
     
-    public String predictPronunciation(String graphemes){
+    public String predictPronunciation(String graphemes)
+    {
+        if (convertToLowercase)
+            graphemes = graphemes.toLowerCase(allophoneSet.getLocale());
 
-        graphemes = graphemes.toLowerCase(locale);
-        
         String returnStr = "";
-        
+
         for (int i = 0 ; i < graphemes.length() ; i++){
-            
+
             byte[] byteFeatures = new byte[2*this.context + 1];
-            
+
             for (int fnr = 0; fnr < 2*this.context + 1; fnr++){
                 int pos = i - context + fnr;
-                
+
                 String grAtPos = (pos < 0 || pos >= graphemes.length())? 
                         "null":graphemes.substring(pos, pos+1);
-                
-        try {
-            byteFeatures[fnr] = this.tree.getFeatureDefinition().getFeatureValueAsByte(fnr, grAtPos);
-            // ... can also try to call explicit:
-            //features[fnr] = this.fd.getFeatureValueAsByte("att"+fnr, cg.substr(pos)
-        } catch (IllegalArgumentException iae) {
-            // Silently ignore unknown characters
-            byteFeatures[fnr] = this.tree.getFeatureDefinition().getFeatureValueAsByte(fnr, "null");
-        }
+
+                try {
+                    byteFeatures[fnr] = this.tree.getFeatureDefinition().getFeatureValueAsByte(fnr, grAtPos);
+                    // ... can also try to call explicit:
+                    //features[fnr] = this.fd.getFeatureValueAsByte("att"+fnr, cg.substr(pos)
+                } catch (IllegalArgumentException iae) {
+                    // Silently ignore unknown characters
+                    byteFeatures[fnr] = this.tree.getFeatureDefinition().getFeatureValueAsByte(fnr, "null");
+                }
             }
 
             FeatureVector fv = new FeatureVector(byteFeatures, new short[]{}, new float[]{},0);
-            
+
             StringAndFloatLeafNode leaf = (StringAndFloatLeafNode) tree.interpretToNode(fv, 0);
             String prediction = leaf.mostProbableString(featureDefinition, indexPredictedFeature);
             returnStr += prediction.substring(1, prediction.length() - 1);
         }
-        
+
         return returnStr;        
 
     }
-     
+
     /**
      * Phoneme chain is syllabified. After that, no white spaces are
      * included, stress is on syllable of first stress bearing vowal,
@@ -152,7 +142,7 @@ public class TrainedLTS {
         //String  phFileLoc = "/home/sathish/Work/blizzard2008/lts/phoneme-list-en_gb.xml";
         String  phFileLoc = "/Users/benjaminroth/Desktop/mary/english/phoneme-list-engba.xml";
         
-        TrainedLTS lts = new TrainedLTS(AllophoneSet.getAllophoneSet(phFileLoc), Locale.ENGLISH, "/Users/benjaminroth/Desktop/mary/english/trees/");
+        TrainedLTS lts = new TrainedLTS(AllophoneSet.getAllophoneSet(phFileLoc), "/Users/benjaminroth/Desktop/mary/english/cmudict.lts");
         
         System.out.println(lts.predictPronunciation("tuition"));
 
