@@ -124,9 +124,9 @@ public class HMMData {
 	private String treeMagFile;         /* Fourier magnitudes tree file */   
     private FeatureDefinition feaDef;   /* The feature definition is used for loading the tree using questions in MARY format */
     
-     /** TreeSet contains the tree-xxx.inf, xxx: dur, lf0, mcp, str and mag 
-     * these are all the trees trained for a particular voice. */
- //--   private HTSTreeSet ts = new HTSTreeSet(HTS_NUMMTYPE);
+     /** CartTreeSet contains the tree-xxx.inf, xxx: dur, lf0, mcp, str and mag 
+     * these are all the trees trained for a particular voice. 
+     * the Cart tree also contains the corresponding pdfs. */
     private CartTreeSet cart = new CartTreeSet();
 	
     /** HMM pdf model files and ModelSet object */
@@ -136,10 +136,6 @@ public class HMMData {
 	private String pdfStrFile;  /* Strengths Pdf file */
 	private String pdfMagFile;  /* Fourier magnitudes Pdf file */
     
-     /** ModelSet contains the .pdf's (means and variances) for dur, lf0, mcp, str and mag
-     * these are all the HMMs trained for a particular voice */   
-     //---   private HTSModelSet ms = new HTSModelSet();
-	
     /** GV pdf files*/
     /** Global variance file, it contains one global mean vector and one global diagonal covariance vector */
     private String pdfLf0GVFile; /* lf0 GV pdf file */  
@@ -242,10 +238,8 @@ public class HMMData {
           durationScale = 1.0; 
         
     }
-  
-//--    public HTSTreeSet getTreeSet() { return ts; }    
+      
     public CartTreeSet getCartTreeSet() { return cart; }  
-    //---   public HTSModelSet getModelSet() { return ms; }
     public GVModelSet getGVModelSet() { return gv; }
  
     public void setTreeDurFile(String str) { treeDurFile = str; } 
@@ -290,11 +284,9 @@ public class HMMData {
     public void setMixFiltersFile(String str) { mixFiltersFile = str; } 
     public void setNumFilters(int val){ numFilters = val; }
     public void setOrderFilters(int val){ orderFilters = val; }
-    
-//  --public void loadTreeSet() throws Exception { ts.loadTreeSet(this, feaDef); } 
+     
     public void loadCartTreeSet() throws Exception { cart.loadTreeSet(this, feaDef); } 
-    
-    //---    public void loadModelSet() throws Exception { ms.loadModelSet(this); }  
+      
     public void loadGVModelSet() throws Exception { gv.loadGVModelSet(this); } 
 	
 	/** Reads from configuration file all the data files in this class 
@@ -377,13 +369,9 @@ public class HMMData {
       
       try {
         /* Load TreeSet ts and ModelSet ms for current voice*/
-        logger.info("Loading Tree Set:");
-        setFeatureDefinition(feaFile); /* first set the feature definition with one example of context feature file */
-//      --       ts.loadTreeSet(this, feaDef); 
+        logger.info("Loading Tree Set in CARTs:");
+        setFeatureDefinition(feaFile); /* first set the feature definition with one example of context feature file */ 
         cart.loadTreeSet(this, feaDef); 
-       
-        //---        logger.info("Loading Model Set:");
-        //---     ms.loadModelSet(this);
         
         logger.info("Loading GV Model Set:");
         gv.loadGVModelSet(this);

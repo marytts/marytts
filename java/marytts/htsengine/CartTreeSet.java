@@ -88,7 +88,7 @@ public class CartTreeSet {
             boolean firstPh, boolean lastPh, double rho, double diffdur, double durscale) 
       throws Exception {     
       int s, i;
-      double data, mean, variance, dd;
+      double data, dd;
       double meanVector[], varVector[];
       Node node;
      
@@ -100,30 +100,24 @@ public class CartTreeSet {
         varVector = ((PdfLeafNode)node).getVariance();
       } else 
          throw new Exception("searchDurInCartTree: The node must be a PdfLeafNode");
-     
-      
+          
       dd = diffdur;
       // in duration the length of the vector is the number of states.
       for(s=0; s<numStates; s++){
-        mean = meanVector[s];
-        variance = varVector[s];
-        data = mean + rho * variance;
+        data = meanVector[s] + rho * varVector[s];
       
         /* check if the model is initial/final pause, if so reduce the length of the pause 
          * to 10% of the calculated value. */       
  //       if(m.getPhoneName().contentEquals("_") && (firstPh || lastPh ))
  //         data = data * 0.1;
         
-        data = data * durscale; 
-                  
+        data = data * durscale;                  
         m.setDur(s, (int)(data+dd+0.5));
         if(m.getDur(s) < 1 )
           m.setDur(s, 1);
         
-       // System.out.println("   state: " + s + " dur=" + m.getDur(s));
-               
-        m.setTotalDur(m.getTotalDur() + m.getDur(s));
-        
+       // System.out.println("   state: " + s + " dur=" + m.getDur(s));               
+        m.setTotalDur(m.getTotalDur() + m.getDur(s));      
         dd = dd + ( data - (double)m.getDur(s) );       
       }
       return dd; 
@@ -141,28 +135,20 @@ public class CartTreeSet {
      */
     public void searchLf0InCartTree(HTSModel m, FeatureVector fv, FeatureDefinition featureDef, double uvthresh) 
       throws Exception {     
-      int s, stream;
-      double mean[], var[];
+      int s;
       Node node;
-      for(s=0; s<numStates; s++) {
-          
+      for(s=0; s<numStates; s++) {          
         node = lf0Tree[s].interpretToNode(fv, 1);
         if ( node instanceof PdfLeafNode ) {       
-          mean = ((PdfLeafNode)node).getMean();
-          var = ((PdfLeafNode)node).getVariance();
+          m.setLf0Mean(s, ((PdfLeafNode)node).getMean());
+          m.setLf0Variance(s, ((PdfLeafNode)node).getVariance());
         } else 
-            throw new Exception("searchLf0InCartTree: The node must be a PdfLeafNode");
-        
-        for(stream=0; stream<mean.length; stream++) {
-          m.setLf0Mean(s, stream, mean[stream]);
-          m.setLf0Variance(s, stream, var[stream]);
-          if(stream == 0) {
-              if(((PdfLeafNode)node).getVoicedWeight() > uvthresh)
-                 m.setVoiced(s, true);
-              else
-                 m.setVoiced(s,false);
-          }
-       }         
+            throw new Exception("searchLf0InCartTree: The node must be a PdfLeafNode");       
+        // set voiced or unvoiced
+        if(((PdfLeafNode)node).getVoicedWeight() > uvthresh)
+            m.setVoiced(s, true);
+        else
+            m.setVoiced(s,false);       
       }
     }
       
@@ -177,22 +163,15 @@ public class CartTreeSet {
      */
     public void searchMcpInCartTree(HTSModel m, FeatureVector fv, FeatureDefinition featureDef) 
       throws Exception {     
-      int s, i;
-      double mean[], var[];
+      int s;
       Node node;
-      for(s=0; s<numStates; s++) {
-        node = mcpTree[s].interpretToNode(fv, 1);
+      for(s=0; s<numStates; s++) {         
+        node = mcpTree[s].interpretToNode(fv, 1);       
         if ( node instanceof PdfLeafNode ) {       
-          mean = ((PdfLeafNode)node).getMean();
-          var = ((PdfLeafNode)node).getVariance();
+          m.setMcepMean(s,((PdfLeafNode)node).getMean());
+          m.setMcepVariance(s, ((PdfLeafNode)node).getVariance());
         } else
             throw new Exception("searchMcpInCartTree: The node must be a PdfLeafNode");
-        
-        // make a copy of mean and variance in m
-        for(i=0; i<mean.length; i++){
-          m.setMcepMean(s, i, mean[i]);
-          m.setMcepVariance(s, i, var[i]);
-        }     
       }
     }
     
@@ -206,22 +185,15 @@ public class CartTreeSet {
      */
     public void searchStrInCartTree(HTSModel m, FeatureVector fv, FeatureDefinition featureDef) 
       throws Exception {     
-      int s, i;
-      double mean[], var[];
+      int s;
       Node node;
-      for(s=0; s<numStates; s++) {
+      for(s=0; s<numStates; s++) {      
         node = strTree[s].interpretToNode(fv, 1);
         if ( node instanceof PdfLeafNode ) {       
-          mean = ((PdfLeafNode)node).getMean();
-          var = ((PdfLeafNode)node).getVariance();
+          m.setStrMean(s, ((PdfLeafNode)node).getMean());
+          m.setStrVariance(s, ((PdfLeafNode)node).getVariance());
         } else
-            throw new Exception("searchStrInCartTree: The node must be a PdfLeafNode");
-        
-        // make a copy of mean and variance in m
-        for(i=0; i<mean.length; i++){
-          m.setStrMean(s, i, mean[i]);
-          m.setStrVariance(s, i, var[i]);
-        }     
+            throw new Exception("searchStrInCartTree: The node must be a PdfLeafNode");    
       }
     }
     
@@ -235,22 +207,15 @@ public class CartTreeSet {
      */
     public void searchMagInCartTree(HTSModel m, FeatureVector fv, FeatureDefinition featureDef) 
       throws Exception {     
-      int s, i;
-      double mean[], var[];
+      int s;
       Node node;
-      for(s=0; s<numStates; s++) {
+      for(s=0; s<numStates; s++) {        
         node = magTree[s].interpretToNode(fv, 1);
         if ( node instanceof PdfLeafNode ) {       
-          mean = ((PdfLeafNode)node).getMean();
-          var = ((PdfLeafNode)node).getVariance();
+          m.setMagMean(s, ((PdfLeafNode)node).getMean());
+          m.setMagVariance(s, ((PdfLeafNode)node).getVariance());
         } else
-            throw new Exception("searchMagInCartTree: The node must be a PdfLeafNode");
-        
-        // make a copy of mean and variance in m
-        for(i=0; i<mean.length; i++){
-          m.setMagMean(s, i, mean[i]);
-          m.setMagVariance(s, i, var[i]);
-        }     
+            throw new Exception("searchMagInCartTree: The node must be a PdfLeafNode");   
       }
     }
 

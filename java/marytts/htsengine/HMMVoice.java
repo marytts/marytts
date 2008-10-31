@@ -134,13 +134,8 @@ public class HMMVoice extends Voice {
          this.htsData.readMixedExcitationFiltersFile();
        }
 
-       /* Load ModelSet ts */
-       //---      logger.info("Loading Model Set:");
-       //---       this.htsData.loadModelSet(); 
-       
-       /* Load TreeSet ms*/
-       logger.info("Loading Tree Set:");
-//     --       this.htsData.loadTreeSet(); 
+       /* Load TreeSet in CARTs. */
+       logger.info("Loading Tree Set in CARTs:");
        this.htsData.loadCartTreeSet();
        
        /* Load GV ModelSet gv*/
