@@ -341,6 +341,8 @@ public class CoverageDefinition{
         wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");                        
         
         numSentences = wikiToDB.getNumberOfReliableSentences();
+        int idList[] = wikiToDB.getIdListOfType("reliable");
+        
         
         // here the String[] basenames is created with the fromFile field of
         // the dbselection DB
@@ -354,8 +356,12 @@ public class CoverageDefinition{
         int tenPercent = numSentences/10;
         
         
-        //loop over the feature vectors  
+        //loop over the feature vectors
+        int id;
         for (int index=0;index<numSentences;index++){
+            
+            id = idList[index];
+            
             if ((index % tenPercent) == 0 && index!=0){
                 int percentage = index/tenPercent;
                 System.out.print(" "+percentage+"0% ");
@@ -364,14 +370,14 @@ public class CoverageDefinition{
             //add them to the list of possible values   
             //System.out.println(basenames[index]);
      
-            String nextBasename = wikiToDB.getFileNameFromTable(index+1, "dbselection");
+            String nextBasename = wikiToDB.getFileNameFromTable(id, "dbselection");
             basenames[index] = nextBasename;
             byte[] vectorBuf;
             int numFeatVects;
             if (needToReadVectors){
              
               trueNumSentences--;
-              vectorBuf = wikiToDB.getFeatures(index+1);  // the indexes in the DB start in 1
+              vectorBuf = wikiToDB.getFeatures(id);  //
               numFeatVects = (vectorBuf.length)/4;   // mmmmmmm!!!
 
               if (holdVectorsInMemory){
@@ -394,7 +400,7 @@ public class CoverageDefinition{
             
 
             /* loop over the feature vectors of size[4] */
-            System.out.println("Analysing feature vectors of: " + nextBasename 
+            System.out.println("Analysing feature vectors of id=" + id + ": " + nextBasename 
                              + "  numFeatVects=" + numFeatVects);
             for (int i=0;i<numFeatVects;i++){
                 numTokens++;

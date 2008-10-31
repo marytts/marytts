@@ -99,8 +99,8 @@ public class DatabaseSelector{
      * @param args the command line args (see printUsage for details)
      */
     public static void main(String[] args)throws Exception{
-        //main2(args,null);
-        main1(args);
+        main2(args,null);
+       // main1(args);
     }
 
     

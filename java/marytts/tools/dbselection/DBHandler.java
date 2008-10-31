@@ -94,15 +94,18 @@ public class DBHandler {
     } 
   }
   
-  public void createDataBases() {
+  public void createDataBase() {
       String dbselection = "CREATE TABLE dbselection ( id INT NOT NULL AUTO_INCREMENT, " +
-                           "fromFile TEXT, sentence TEXT, features BLOB, primary key(id));";
-      String unreliable = "CREATE TABLE unreliable  ( id INT NOT NULL AUTO_INCREMENT, " +
-                           "fromFile TEXT, sentence TEXT, primary key(id));";
+                                                       "fromFile TEXT, " +
+                                                       "sentence TEXT, " +
+                                                       "features BLOB, " +
+                                                       "reliable BOOLEAN, " +
+                                                       "primary key(id));";
+   
       boolean dbExist = false;
       boolean unExist = false;
-      // if databases do not exist create them      
-      System.out.println("Checking if databases already exist.");
+      // if database does not exist create them      
+      System.out.println("Checking if the database already exist.");
       try {
           rs = st.executeQuery("SHOW TABLES;");
       } catch (Exception e) {
@@ -110,25 +113,17 @@ public class DBHandler {
       }
       
       try { 
-          while( rs.next() ) {
+          if( rs.next() ) {
             String str = rs.getString(1);
             if( str.contentEquals("dbselection") ){
                System.out.println("TABLE = " + str + " already exist.");
                dbExist = true;
-            } else if( str.contentEquals("unreliable") ) {
-                System.out.println("TABLE = " + str + " already exist.");
-                unExist = true;  
             }
           }
           if( !dbExist ) {
               boolean res = st.execute( dbselection );
               System.out.println("TABLE = dbselection succesfully created.");   
           }
-          if( !unExist ) {
-              boolean res = st.execute( unreliable );
-              System.out.println("TABLE = unreliable succesfully created.");
-          }
-          
       } catch (SQLException e) {
           e.printStackTrace();
       } 
@@ -138,25 +133,17 @@ public class DBHandler {
     currentTable = table;
   }
 
-  public void insertSentenceAndFeatures(String file, String sentence, String features){  
-    String dbInsert = "INSERT INTO " + "dbselection" 
-                    + " VALUES (null"   // id is auto_increment
-                    + ", \"" + file
-                    + "\", \"" + sentence 
-                    + "\", \"" + features 
-                    + "\")";
-    insertIntoTable(dbInsert);
-    
-  }
   
   public void insertSentenceAndFeatures(String file, String sentence, byte features[]){
     System.out.println("inserting in dbselection: file=" + file + " Num features=" + features.length + " sentence=" + sentence);
-    try {  
-      PreparedStatement ps = cn.prepareStatement("INSERT INTO dbselection VALUES (null, ?, ?, ?)");
+    try { 
+      // INSERT INTO dbselection VALUES (id, fromFile, sentence, features, realiable)
+      PreparedStatement ps = cn.prepareStatement("INSERT INTO dbselection VALUES (null, ?, ?, ?, ?)");
     
       ps.setString(1, file);
       ps.setString(2, sentence);
       ps.setBytes(3, features);
+      ps.setBoolean(4, true);
       ps.execute();
       
     } catch (SQLException e) {
@@ -164,40 +151,62 @@ public class DBHandler {
     }
   }
   
-  
-  public void insertUnreliableSentence(String file, String sentence){     
-      sentence = mysqlEscapeCharacters(sentence);
-      String dbInsert = "INSERT INTO " + "unreliable" 
-                      + " VALUES (null"  // id is autoincrement
-                      + ", \"" + file 
-                      + "\", \"" + sentence 
-                      + "\")";
-      insertIntoTable(dbInsert);
-    }
-  
-  private void insertIntoTable(String dbInsert){
-     System.out.println("inserting: " + dbInsert);
-      try {
-          int res = st.executeUpdate( dbInsert );
-      } catch (Exception e) {
-          e.printStackTrace();
+  public void insertUnreliableSentence(String file, String sentence){
+      System.out.println("inserting in dbselection: file=" + file + "reliable=false" + " sentence=" + sentence);
+      try { 
+        // INSERT INTO dbselection VALUES (id, fromFile, sentence, features, realiable)
+        PreparedStatement ps = cn.prepareStatement("INSERT INTO dbselection VALUES (null, ?, ?, ?, ?)");
+      
+        ps.setString(1, file);
+        ps.setString(2, sentence);
+        ps.setBytes(3, null);
+        ps.setBoolean(4, false);
+        ps.execute();
+        
+      } catch (SQLException e) {
+        e.printStackTrace();
       }
     }
-
+  
   public void closeDBConnection(){
     try {
         cn.close();    
     } catch (SQLException e) {
         e.printStackTrace();
-    }
-     
+    }  
   }
   
   
   public int getNumberOfReliableSentences() {
-      String dbQuery = "SELECT MAX(id) FROM dbselection";
+      String dbQuery = "SELECT count(sentence) FROM dbselection where reliable=true;";
       String str = queryTable(dbQuery);
       return Integer.parseInt(str);
+  }
+  
+  public int[] getIdListOfType(String type) {
+      int num, i, j;
+      int idSet[]=null;
+      
+      String str = queryTable("SELECT count(id) FROM dbselection where " + type + "=true;");
+      num = Integer.parseInt(str);
+      idSet = new int[num];
+      
+      try {
+          rs = st.executeQuery("SELECT id FROM dbselection where " + type + "=true;"); 
+      } catch (Exception e) {
+          e.printStackTrace();
+      }
+      try { 
+          i=0;
+          while( rs.next() ) {
+            idSet[i] = rs.getInt(1);
+            i++;
+          }
+      } catch (SQLException e) {
+          e.printStackTrace();
+      } 
+      
+      return idSet;
   }
   
   public String getFileNameFromTable(int id, String table) {
@@ -285,7 +294,9 @@ public class DBHandler {
       wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");
       wikiToDB.setDBTable("dbselection");
       
-      wikiToDB.createDataBases();
+      wikiToDB.createDataBase();
+      
+      wikiToDB.getIdListOfType("reliable");
       
       int num = wikiToDB.getNumberOfReliableSentences();
       
@@ -302,10 +313,11 @@ public class DBHandler {
       byte res[];
       
       res = wikiToDB.getFeatures(1);
-      
+     /*
       for(int i= 1; i<5; i++) {
         wikiToDB.insertSentenceAndFeatures("file1", "this is a ( )"+ i + " test", "long feature string "+i);
       }
+      */
       wikiToDB.closeDBConnection();
 
       //Get the URLs and send them to wget.

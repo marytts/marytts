@@ -137,7 +137,7 @@ public class FeatureMakerMaryServer{
          DBHandler wikiToDB = new DBHandler();
          wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123"); 
          // check if tables exist
-         wikiToDB.createDataBases();
+         wikiToDB.createDataBase();
         
 		
 		/* loop over the text files */
@@ -657,7 +657,9 @@ public class FeatureMakerMaryServer{
                         numUnreliableSentences++;
                         System.out.println("Inserting unreliable sentence:");
                         DBHandler wikiToDB = new DBHandler();
-                        wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");                        
+                        wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");   
+                        // Here the reason why is unreliable can be added to the DB.
+                        // for the moment there is just one field reliable=false in this case.
                         wikiToDB.insertUnreliableSentence(getShortFileName(sentenceIndex,filename),
                                                           sentence.toString());
                         wikiToDB.closeDBConnection();
