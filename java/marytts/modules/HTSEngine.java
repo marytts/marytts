@@ -72,9 +72,7 @@ import marytts.features.FeatureVector;
 import marytts.htsengine.HMMData;
 import marytts.htsengine.HMMVoice;
 import marytts.htsengine.HTSModel;
-//---import marytts.htsengine.HTSModelSet;
 import marytts.htsengine.HTSParameterGeneration;
-//---import marytts.htsengine.HTSTree;
 import marytts.htsengine.CartTreeSet;
 import marytts.htsengine.HTSUttModel;
 import marytts.htsengine.HTSVocoder;
@@ -265,7 +263,6 @@ public class HTSEngine extends InternalModule
         double diffdurNew = 0.0;
         double mean = 0.0;
         double var = 0.0;
-        //---      HTSTree auxTree;
         float fperiodmillisec = ((float)htsData.getFperiod() / (float)htsData.getRate()) * 1000;
         float fperiodsec = ((float)htsData.getFperiod() / (float)htsData.getRate());
         Integer dur;
@@ -278,9 +275,7 @@ public class HTSEngine extends InternalModule
         FeatureDefinition feaDef;
         feaDef = htsData.getFeatureDefinition();
         
-        //feaDef.writeTo(new PrintWriter(System.out, true), false);
-        
-        /* skip mary context features definition */
+       /* skip mary context features definition */
         while (s.hasNext()) {
           nextLine = s.nextLine(); 
           if (nextLine.trim().equals("")) break;
@@ -298,11 +293,7 @@ public class HTSEngine extends InternalModule
             //System.out.println("STR: " + nextLine);
             
             fv = feaDef.toFeatureVector(0, nextLine);
-                 
-            //indexPdf = joinTree.searchJoinModellerTree(fv, def, joinTree.getTreeHead(0).getRoot(), false);
-            
-            um.addUttModel(new HTSModel(cart));            
-
+            um.addUttModel(new HTSModel(cart.getNumStates()));            
             m = um.getUttModel(i);
             /* this function also sets the phoneme name, the phoneme between - and + */
             m.setName(fv.toString(), fv.getFeatureAsString(0, feaDef));  
@@ -310,14 +301,12 @@ public class HTSEngine extends InternalModule
             if(!(s.hasNext()) )
               lastPh = true;
 
-            // Estimate state duration from state duration model (Gaussian) 
-                       
+            // Estimate state duration from state duration model (Gaussian)                       
             if (htsData.getLength() == 0.0 ) {
-               // diffdurNew = ms.findDurPdf(m, firstPh, lastPh, htsData.getRho(), diffdurOld, htsData.getDurationScale());
-                diffdurNew = cart.searchDurInCartTree(m, fv, feaDef, firstPh, lastPh, htsData.getRho(), diffdurOld, htsData.getDurationScale());
+                diffdurNew = cart.searchDurInCartTree(m, fv, feaDef, firstPh, lastPh, 
+                             htsData.getRho(), diffdurOld, htsData.getDurationScale());
                 
-                m.setTotalDurMillisec((int)(fperiodmillisec * m.getTotalDur()));    
-           
+                m.setTotalDurMillisec((int)(fperiodmillisec * m.getTotalDur()));               
                 diffdurOld = diffdurNew;
                 um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());
                 durSec = um.getTotalFrame() * fperiodsec;
@@ -329,17 +318,17 @@ public class HTSEngine extends InternalModule
                 //System.out.println("phoneme=" + PhoneTranslator.replaceBackTrickyPhones(m.getPhoneName()) + " dur=" + m.getTotalDur() +" durTotal=" + um.getTotalFrame());
             } /* else : when total length of generated speech is specified (not implemented yet) */
             
-            /* Find pdf for LF0 */ 
+            /* Find pdf for LF0, this function sets the pdf for each state. */ 
             cart.searchLf0InCartTree(m, fv, feaDef, htsData.getUV());
      
-            /* Find pdf for MCP */
+            /* Find pdf for MCP, this function sets the pdf for each state.  */
             cart.searchMcpInCartTree(m, fv, feaDef);
 
-            /* Find pdf for strengths */
+            /* Find pdf for strengths, this function sets the pdf for each state.  */
             if(htsData.getTreeStrFile() != null)
               cart.searchStrInCartTree(m, fv, feaDef);
             
-            /* Find pdf for Fourier magnitudes */
+            /* Find pdf for Fourier magnitudes, this function sets the pdf for each state.  */
             if(htsData.getTreeMagFile() != null)
               cart.searchMagInCartTree(m, fv, feaDef);
             

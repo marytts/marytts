@@ -122,11 +122,19 @@ public class HTSModel {
   public double getLf0Mean(int i, int j){ return lf0Mean[i][j]; } 
   public void setLf0Variance(int i, int j, double val){ lf0Variance[i][j] = val; }
   public double getLf0Variance(int i, int j){ return lf0Variance[i][j]; } 
+  // set the vector per state
+  public void setLf0Mean(int i, double val[]){ lf0Mean[i] = val; }
+  public void setLf0Variance(int i, double val[]){ lf0Variance[i] = val; }
+  
   
   public void setMcepMean(int i, int j, double val){ mcepMean[i][j] = val; }
   public double getMcepMean(int i, int j){ return mcepMean[i][j]; } 
   public void setMcepVariance(int i, int j, double val){ mcepVariance[i][j] = val; }
   public double getMcepVariance(int i, int j){ return mcepVariance[i][j]; }
+  // set the vector per state
+  public void setMcepMean(int i, double val[]){ mcepMean[i] = val; }
+  public void setMcepVariance(int i, double val[]){ mcepVariance[i] = val; }
+  
   
   public void printMcepMean(){  
 	for(int i=0; i<mcepMean.length; i++) {
@@ -159,11 +167,17 @@ public class HTSModel {
   public double getStrMean(int i, int j){ return strMean[i][j]; } 
   public void setStrVariance(int i, int j, double val){ strVariance[i][j] = val; }
   public double getStrVariance(int i, int j){ return strVariance[i][j]; }
+  // set the vector per state
+  public void setStrMean(int i, double val[]){ strMean[i] = val; }
+  public void setStrVariance(int i, double val[]){ strVariance[i] = val; }
   
   public void setMagMean(int i, int j, double val){ magMean[i][j] = val; }
   public double getMagMean(int i, int j){ return magMean[i][j]; } 
   public void setMagVariance(int i, int j, double val){ magVariance[i][j] = val; }
   public double getMagVariance(int i, int j){ return magVariance[i][j]; }
+  // set the vector per state
+  public void setMagMean(int i, double val[]){ magMean[i] = val; }
+  public void setMagVariance(int i, double val[]){ magVariance[i] = val; }
   
   public void setVoiced(int i, boolean val){ voiced[i] = val; }
   public boolean getVoiced(int i){ return voiced[i]; }
@@ -171,10 +185,9 @@ public class HTSModel {
   
   /* Constructor */
   /* Every Model is initialised with the information in ModelSet*/
-  public HTSModel(CartTreeSet ms){
-	int i, nstate;  
+  public HTSModel(int nstate){
+	int i;  
 	totalDur = 0;
-	nstate = ms.getNumStates();
 	dur = new int[nstate];
 	lf0Pdf = new int[nstate];
 	lf0Mean = new double[nstate][];
@@ -192,20 +205,6 @@ public class HTSModel {
     magPdf = new int[nstate];
 	magMean = new double[nstate][];
     magVariance = new double[nstate][];
-    
-    for(i=0; i<nstate; i++ ){
-        lf0Mean[i] = new double[ms.getLf0Stream()];
-        lf0Variance[i] = new double[ms.getLf0Stream()];
-        
-        mcepMean[i] = new double[ms.getMcepVsize()];
-        mcepVariance[i] = new double[ms.getMcepVsize()];
-        
-        strMean[i] = new double[ms.getStrVsize()];
-        strVariance[i] = new double[ms.getStrVsize()];
-        
-        magMean[i] = new double[ms.getMagVsize()];
-        magVariance[i] = new double[ms.getMagVsize()];
-    }
     
   } /* method Model, initialise a Model object */
   
