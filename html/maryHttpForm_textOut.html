@@ -9,26 +9,36 @@
     <font STYLE="font-family: Verdana">
     <table>
       <tr>
-          <td><img src="favicon.ico"/></td>  
+          <td><img src="http://mary.dfki.de/favicon.ico"/></td>  
           <td>        
             <table>
               <tr>
                 <td></td>
               </tr>
-	      <tr>
-                <td><h1><font STYLE="color: #587D9D">MARY Web Client</font></h1></td>
+	          
+	          <tr>
+                <td><h1><font STYLE="color:#587D9D">MARY Web Client</font></h1></td>
               </tr>
+              
               <tr>
                 <td></td>
               </tr>
-	    </table>
+	        </table>
           </td>
         </tr>
     </table>
 
-    <form id="maryWebClient" action="http://localhost:59125" method="post">
-      <table>
-     
+    <table>
+      <form id="defaultSettingsLoader" action="http://localhost:59125" method="post">
+         <tr>
+           <td><input type="submit" value="Default" STYLE="font-size:11pt;"></td>
+           <td>Click to load default client settings from server</td>
+         </tr>
+      </form>
+    </table>
+      
+    <table>
+      <form id="maryWebClient" action="http://localhost:59125" method="post">
         <tr>
           <td></td>
           <td>Input Type:
@@ -44,46 +54,44 @@
               <option>AUDIO</option>
               </select>
           </td>     
-
         </tr>
 
         <tr>
           <td>Input Text:</td>
-          <td><textarea name="inputtext" rows="15" cols="40">Show input text here...</textarea>
+          <td><textarea name="inputtext" rows="15" cols="45">Show input text here...</textarea>
           </td> 
 
           <td>Output Text:</td>
-          <td><textarea name="outputtext" rows="15" cols="40">Show output text here...</textarea>
+          <td><textarea name="outputtext" rows="15" cols="45">Show output text here...</textarea>
           </td>
-                 
         </tr>
 
         <tr>
-        <td>Example:</td>
-        <td><select name="exampletext" size="1">
-            <option>Welcome to the world of speech synthesis!</option>
-            <option>Welcome!</option>
-            </select>
-        </td>
+          <td>Example:</td>
+          <td><select name="exampletext" size="1">
+                <option>Welcome to the world of speech synthesis!</option>
+                <option>Welcome!</option>
+              </select>
+          </td>
         </tr>
         
         <tr>
-        <td>Voice:</td>
-        <td><select name="voice" size="1">
-            <option>time-awb(English, male, limited)</option>
-            <option>hsmm-slt(English, female)</option>
-            </select>
-        </td>
+          <td>Voice:</td>
+          <td><select name="voice" size="1">
+                <option>time-awb(English, male, limited)</option>
+                <option>hsmm-slt(English, female)</option>
+              </select>
+          </td>
         </tr>
         
         <tr>
-          <td></td>
-          <td><input type="submit" value="PROCESS!"></td>
+          <td><input type="submit" value="PROCESS" STYLE="font-size:11pt; font-weight=bold;"></td>
+          <td>Click to send synthesis request to MARY server</td>
         </tr>
-
-      </table>
-
-    </form>
+      </form>
+      
+    </table>
+    
     </font>
   </body>
 </html>
