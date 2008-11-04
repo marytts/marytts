@@ -5,50 +5,60 @@
     <title>MARY Web Client</title>
   </head>
 
-  <body>
+  <body onload="initForm()">
     <font STYLE="font-family: Verdana">
     <table>
       <tr>
-          <td><img src="favicon.ico"/></td>  
+          <td><img src="http://mary.dfki.de/favicon.ico"/></td>  
           <td>        
             <table>
               <tr>
                 <td></td>
               </tr>
-	      <tr>
-                <td><h1><font STYLE="color: #587D9D">MARY Web Client</font></h1></td>
+	          
+	          <tr>
+                <td><h1><font STYLE="color:#587D9D">MARY Web Client</font></h1></td>
               </tr>
+              
               <tr>
                 <td></td>
               </tr>
-	    </table>
+	        </table>
           </td>
         </tr>
     </table>
 
-    <form id="maryWebClient" action="http://localhost:59125" method="post">
-      <table>
-        
+    <table>
+      <form id="defaultSettingsLoader" action="http://localhost:59125" method="post">
+         <tr>
+           <td><input type="submit" value="Default" STYLE="font-size:11pt;"></td>
+           <td>Click to load default client settings from server</td>
+         </tr>
+      </form>
+    </table>
+    
+    <table>
+      <form id="maryWebClient" action="http://localhost:59125" method="post">
+    
         <tr>
           <td></td>
           <td>Input Type:
               <select name="inputtype" size="1">
-              <option>TEXT</option>
-              <option>RAWMARYXML</option>
+                <option>TEXT</option>
+                <option>RAWMARYXML</option>
               </select>
           </td>
           <td>Output Type:
               <select name="outputtype" size="1">
-              <option>MBROLA</option>
-              <option>AUDIO</option>
+                <option>MBROLA</option>
+                <option>AUDIO</option>
               </select>
           </td>     
-
         </tr>
 
         <tr>
           <td>Input Text:</td>
-          <td><textarea name="inputtext" rows="15" cols="40">Show input text here...</textarea>
+          <td><textarea name="inputtext" rows="15" cols="45">Show input text here...</textarea>
           </td> 
 
           <td> 
@@ -63,45 +73,56 @@
               </font>
             </table>
           </td>
-                 
         </tr>
 
         <tr>
-        <td>Example:</td>
-        <td><select name="exampletext" size="1">
-            <option>Welcome to the world of speech synthesis!</option>
-            <option>Welcome!</option>
-            </select>
-        </td>
+          <td>Example:</td>
+          <td><select name="exampletext" size="1">
+                <option>Welcome to the world of speech synthesis!</option>
+                <option>Welcome!</option>
+              </select>
+          </td>
         </tr>
         
         <tr>
-        <td>Voice:</td>
-        <td><select name="voice" size="1">
-            <option>time-awb(English, male, limited)</option>
-            <option>hsmm-slt(English, female)</option>
-            </select>
-        </td>
+          <td>Voice:</td>
+          <td><select name="voice" size="1">
+                <option>time-awb(English, male, limited)</option>
+                <option>hsmm-slt(English, female)</option>
+              </select>
+          </td>
         </tr>
         
         <tr>
-        <td>Audio Format:</td>
-        <td><select name="audioformat" size="1">
-            <option>WAV</option>
-            <option>MP3</option>
-            <option>AIF</option>
-            </select>
-        </td>
+          <td>Format:</td>
+          <td><select name="format" size="1">
+                <option>WAV</option>
+                <option>MP3</option>
+                <option>AIF</option>
+              </select>
+          </td>
         </tr>
      
         <tr>
-          <td></td>
-          <td><input type="submit" value="SYNTHESIZE!"></td>
+          <td><input type="submit" value="SPEAK" STYLE="font-size:11pt; font-weight=bold;"></td>
+          <td>Click to send synthesis request to MARY server</td>
+          <td><input type="button" value="TEST" onclick="return initForm()"></td>
         </tr>
         
-      </table>
+        <script language="javascript">
+		function initForm() 
+		{
+       		maryWebClient.inputtype.selectedIndex = 0;
+       		maryWebClient.outputtype.selectedIndex = maryWebClient.outputtype.options.length-1;
+       		maryWebClient.format.selectedIndex = maryWebClient.format.options.length-1;
+    	} 
+    	</script>
       
-    </form>
+      </form>
+      
+    </table>
+    
     </font>
+
   </body>
 </html>
