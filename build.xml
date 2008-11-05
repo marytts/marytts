@@ -111,7 +111,7 @@ THIS SOFTWARE.
     <jar destfile="${dest}/mary-common.jar"
          basedir="${src}"
          includes="marytts/**/*.class
-                   marytts/util/normalise-maryxml.xsl
+                   marytts/util/dom/normalise-maryxml.xsl
                    marytts/modules/ssml-to-mary.xsl
                    marytts/modules/sable-to-mary.xsl
                    marytts/modules/apml-to-mary.xsl
