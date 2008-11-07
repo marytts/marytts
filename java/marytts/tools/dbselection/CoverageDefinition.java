@@ -338,7 +338,10 @@ public class CoverageDefinition{
 
         
         DBHandler wikiToDB = new DBHandler();
-        wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");                        
+        //wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");    
+        
+        wikiToDB.createDBConnection("penguin.dfki.uni-sb.de","MaryDBSelector","MaryDBSel_user","1iyhyvwq");
+        
         
         numSentences = wikiToDB.getNumberOfReliableSentences();
         int idList[] = wikiToDB.getIdListOfType("reliable");

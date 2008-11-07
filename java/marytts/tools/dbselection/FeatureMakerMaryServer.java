@@ -135,9 +135,10 @@ public class FeatureMakerMaryServer{
 		       
         /* Here the DB connection for reliable sentences is open */
          DBHandler wikiToDB = new DBHandler();
-         wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123"); 
+         wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");
+         //wikiToDB.createDBConnection("penguin.dfki.uni-sb.de","MaryDBSelector","MaryDBSel_admin","p4rpt3jr");
          // check if tables exist
-         wikiToDB.createDataBase();
+         wikiToDB.createDataBaseSelectionTable();
         
 		
 		/* loop over the text files */
