@@ -362,7 +362,7 @@ public class DBHandler {
         textBytes = queryTableByte(dbQuery); 
         try {
           text = new String(textBytes, "UTF8");
-          System.out.println("  TEXT: " + text);
+          //System.out.println("  TEXT: " + text);
         } catch (Exception e) {  // UnsupportedEncodedException
              e.printStackTrace();
         } 
@@ -484,9 +484,14 @@ public class DBHandler {
        //System.out.print("PAGE page_id[" + i + "]=" + pageId[i] + "  ");  
         text = wikiToDB.getTextFromPage(pageId[i]);
              
-        if(text!=null){
-          text = wikiCleaner.removeMarKup(text);  
-          System.out.println("\n\n***CLEANED PAGE page_id[" + i + "]=" + pageId[i] + " : " + text);  
+        if(text!=null){         
+          //System.out.println("numPagesUsed=" + numPagesUsed); 
+          //if(numPagesUsed==3)
+          //  text = wikiCleaner.removeMarKup(text, true);  
+          //else
+            text = wikiCleaner.removeMarKup(text, false); 
+         // if(numPagesUsed==43)
+          System.out.println("\n\n***CLEANED PAGE page_id[" + i + "]=" + pageId[i] + " :\n" + text);  
           numPagesUsed++;
         }
      
