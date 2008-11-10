@@ -1,5 +1,8 @@
 package marytts.tools.dbselection;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.Scanner;
 
 public class WikipediaMarkupCleaner {
@@ -20,10 +23,12 @@ public class WikipediaMarkupCleaner {
                    line.indexOf("==See also")>=0 || line.indexOf("== See also")>=0 ||
                    line.indexOf("==External links and sources")>=0 || line.indexOf("==External links")>=0 || line.indexOf("== External links")>=0 ||
                    line.indexOf("== External links and sources")>=0 ||
+                   line.indexOf("==Notes")>=0 || line.indexOf("== Notes")>=0 ||
+                   line.indexOf("==Sources")>=0 || line.indexOf("== Sources")>=0 ||
                    line.indexOf("==Foreign")>=0 || line.indexOf("== Foreign")>=0  ){
                    endOfText=true;
            } else {
-              
+             
              if( line.indexOf("<ref") >= 0)
                line = removeSectionRef(s, line);  // This is special because it can be <ref>, <ref, </ref> or />
             
@@ -57,10 +62,54 @@ public class WikipediaMarkupCleaner {
              if( line.indexOf("<table") >= 0)
                  line = removeSection(s, line, "<table", "</table>", debug);
              
+             if( line.indexOf("<div") >= 0)
+                 line = removeSection(s, line, "<div", "</div>", debug);
+             
+             if( line.indexOf("<nowiki") >= 0)
+                 line = removeSection(s, line, "<nowiki", "</nowiki>", debug);
+             
+             if( line.indexOf("<source") >= 0)
+                 line = removeSection(s, line, "<source", "</source>", debug);
+             
+             if( line.indexOf("<code") >= 0)
+                 line = removeSection(s, line, "<code", "</code>", debug);
+             
+             // check again if after adding lines there is not additional ref
+             if( line.indexOf("<ref") >= 0)
+                 line = removeSectionRef(s, line);  // This is special because it can be <ref>, <ref, </ref> or />
+              
+             
              // here filter bulleted and numbered short lines
              if( ( line.toString().startsWith("*") || 
                    line.toString().startsWith("#") ||
-                   line.toString().startsWith("|")) && line.length() < 200 )
+                   line.toString().startsWith(";") ||
+                   line.toString().startsWith(".") ||
+                   line.toString().startsWith(",") ||
+                   line.toString().startsWith("&") ||
+                   line.toString().startsWith("}") ||
+                   line.toString().startsWith("]") || 
+                   line.toString().startsWith("|") ||
+                   line.toString().startsWith("ca:") ||
+                   line.toString().startsWith("cs:") ||
+                   line.toString().startsWith("de:") ||
+                   line.toString().startsWith("es:") ||
+                   line.toString().startsWith("fr:") ||
+                   line.toString().startsWith("it:") ||
+                   line.toString().startsWith("hu:") ||
+                   line.toString().startsWith("ja:") ||
+                   line.toString().startsWith("no:") ||
+                   line.toString().startsWith("pt:") ||
+                   line.toString().startsWith("sl:") ||
+                   line.toString().startsWith("fi:") ||
+                   line.toString().startsWith("sv:") ||
+                   line.toString().startsWith("tr:") ||
+                   line.toString().startsWith("zh:") ||
+                   line.toString().startsWith("Category:") ||
+                   line.toString().startsWith("!style=") || line.toString().startsWith("!  style=") ||
+                   line.toString().startsWith("!align=") ||
+                   line.toString().startsWith("::<code") ||
+                   line.toString().endsWith("]]")
+                   ) && line.length() < 200 )
                line = new StringBuffer("");
              
              // Now if the line is not empy, remove:
@@ -81,6 +130,47 @@ public class WikipediaMarkupCleaner {
                line = new StringBuffer(line.toString().replaceAll("''", ""));
                
                line = processInternalAndExternalLinks(line, debug);
+               
+               
+               // Make final replacements:
+               // 
+               line = new StringBuffer(line.toString().replaceAll("<big>", ""));
+               line = new StringBuffer(line.toString().replaceAll("</big>", ""));
+               line = new StringBuffer(line.toString().replaceAll("<blockquote>", ""));
+               line = new StringBuffer(line.toString().replaceAll("</blockquote>", ""));
+               line = new StringBuffer(line.toString().replaceAll("<sup>", ""));
+               line = new StringBuffer(line.toString().replaceAll("</sup>", ""));
+               line = new StringBuffer(line.toString().replaceAll("<sub>", ""));
+               line = new StringBuffer(line.toString().replaceAll("</sub>", ""));
+               line = new StringBuffer(line.toString().replaceAll("<small>", ""));
+               line = new StringBuffer(line.toString().replaceAll("</small>", ""));
+               line = new StringBuffer(line.toString().replaceAll("<ul>", ""));
+               line = new StringBuffer(line.toString().replaceAll("</ul>", ""));
+               line = new StringBuffer(line.toString().replaceAll("<br>", ""));
+               line = new StringBuffer(line.toString().replaceAll("<br", ""));
+               line = new StringBuffer(line.toString().replaceAll("/>", ""));
+               line = new StringBuffer(line.toString().replaceAll("<center>", ""));
+               line = new StringBuffer(line.toString().replaceAll("</center>", ""));
+               line = new StringBuffer(line.toString().replaceAll("<li>", ""));
+               line = new StringBuffer(line.toString().replaceAll("</li>", ""));
+               line = new StringBuffer(line.toString().replaceAll("<dl>", ""));
+               line = new StringBuffer(line.toString().replaceAll("</dl>", ""));
+               line = new StringBuffer(line.toString().replaceAll("<dt>", ""));
+               line = new StringBuffer(line.toString().replaceAll("</dt>", ""));
+               line = new StringBuffer(line.toString().replaceAll("<dd>", ""));
+               line = new StringBuffer(line.toString().replaceAll("</dd>", ""));
+               
+               // finally sections and lists
+               line = new StringBuffer(line.toString().replaceAll("=====", ""));
+               line = new StringBuffer(line.toString().replaceAll("====", ""));
+               line = new StringBuffer(line.toString().replaceAll("===", ""));
+               line = new StringBuffer(line.toString().replaceAll("==", ""));
+               // bulleted list and numbered list
+               if( line.toString().startsWith("*") || line.toString().startsWith("#") )
+                  line.replace(0, 1, "");
+               if( line.toString().startsWith("**") || line.toString().startsWith(":*") ||
+                   line.toString().startsWith("##") || line.toString().startsWith("::") )
+                   line.replace(0, 2, "");
                  
                // finally concatenate the line  
                str.append(line);
@@ -112,14 +202,17 @@ public class WikipediaMarkupCleaner {
         StringBuffer line = new StringBuffer(lineIn);
         StringBuffer nextLine;
         
-        index1 = line.indexOf("<ref");
+        //index1 = line.indexOf("<ref");
+        
+        
+        while ( (index1 = line.indexOf("<ref")) >= 0 ) {  // in one line can be more than one reference
         numRef++;           
         if( (index2 = line.indexOf("</ref>", index1)) >= 0 )
           endTagLength = 6 + index2;
         else if( (index3 = line.indexOf("/>", index1)) >= 0 )
           endTagLength = 2 + index3;
           
-        if(index2 == -1 && index3 == -1) {// the the </ref> most be in the next lines, so get more lines until the </ref> is found
+        if(index2 == -1 && index3 == -1) {// the </ref> most be in the next lines, so get more lines until the </ref> is found
           while ( s.hasNext() && numRef!=0 ) {
              nextLine = new StringBuffer(s.nextLine());
              if( nextLine.indexOf("<ref") >= 0 )
@@ -155,6 +248,9 @@ public class WikipediaMarkupCleaner {
           //line.delete(index1, line.length());
           line = new StringBuffer("");
         } 
+        
+        }  // while this line contains iniTag-s
+        
         return line;  
         
     }
@@ -167,10 +263,10 @@ public class WikipediaMarkupCleaner {
         StringBuffer nextLine;
         
         if(debug)
-            System.out.println("LINE (BEFORE): " + line);
+            System.out.println("Removing tag: " + iniTag + "  LINE (BEFORE): " + line);
         
         
-        while ( (index1 = line.indexOf(iniTag)) >= 0 ) {
+        while ( (index1 = line.indexOf(iniTag)) >= 0 ) { // in one line can be more than one iniTag
             
         numRef++;           
         if( (index2 = line.indexOf(endTag, index1)) >= 0 )
@@ -182,8 +278,8 @@ public class WikipediaMarkupCleaner {
           while ( s.hasNext() && numRef!=0 ) {
              lastIniTag=0; 
              nextLine = new StringBuffer(s.nextLine());
-             if(debug)
-               System.out.println("  NEXTLINE: " + nextLine);
+             //if(debug)
+             //  System.out.println("  NEXTLINE: " + nextLine);
              
              while( (index1=nextLine.indexOf(iniTag, lastIniTag)) >= 0 ){
                numRef++;
@@ -199,8 +295,8 @@ public class WikipediaMarkupCleaner {
                endTagLength = endTag.length() + index2;
              }
              
-             if(debug)
-               System.out.println("LINE (numRef=" + numRef + "): " + line);
+             //if(debug)
+             //  System.out.println("LINE (numRef=" + numRef + "): " + line);
           } 
         } else  // the endTag was found
            numRef--;
@@ -211,8 +307,8 @@ public class WikipediaMarkupCleaner {
             if(debug){  
               System.out.print("iniTag: " + iniTag + "  index1=" + index1);
               System.out.print("  endTagLength=" + endTagLength);
-              //System.out.println("  line.length=" + line.length() + "  line: " + line);
-              System.out.println("  line.length=" + line.length());
+              System.out.println("  line.length=" + line.length() + "  line: " + line);
+              //System.out.println("  line.length=" + line.length());
             }
             line.delete(index1, endTagLength);           
           }
@@ -278,7 +374,7 @@ public class WikipediaMarkupCleaner {
        
        // External links: just the ones started with [http: and here I am deleting the whole reference
        // i am not keeping the text to display of this link.
-       while ( (index1 = line.indexOf("[http:")) >= 0 ) {
+       while ( (index1 = line.indexOf("[http:")) >= 0 || (index1 = line.indexOf("[https:")) >= 0) {
            //System.out.println("LINE(BEFORE): " + line); 
            if( (index2 = line.indexOf("]", index1)) >= 0 ) {
               line.delete(index1, index2+1);   
@@ -294,6 +390,56 @@ public class WikipediaMarkupCleaner {
        return line; 
        
      }
+    
+    
+    void processWikipediaSQLTables(String textFile, String pageFile, String revisionFile){
+        //Put sentences and features in the database.
+        DBHandler wikiToDB = new DBHandler();
+
+        wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");
+        
+        textFile = "/project/mary/marcela/anna_wikipedia/pages_xml_splits/text.txt";
+        pageFile = "/project/mary/marcela/anna_wikipedia/pages_xml_splits/page.txt";
+        revisionFile = "/project/mary/marcela/anna_wikipedia/pages_xml_splits/revision.txt";
+        
+        wikiToDB.createAndLoadWikipediaTables(textFile, pageFile, revisionFile);
+        
+        String pageId[];
+        pageId = wikiToDB.getPageIds();
+       
+        
+        String text;
+        String pwFile="/project/mary/marcela/anna_wikipedia/wiki-filter.txt";
+       // PrintWriter pw = new PrintWriter(new FileWriter(new File(pwFile)));
+        
+        int numPagesUsed=0;
+        for(int i=0; i<pageId.length; i++){
+           
+          //System.out.print("PAGE page_id[" + i + "]=" + pageId[i] + "  "); 
+          // first filter  
+          text = wikiToDB.getTextFromPage(pageId[i]);
+               
+          if(text!=null){         
+            System.out.println("numPagesUsed=" + numPagesUsed); 
+            //if(numPagesUsed==308)
+            //  text = wikiCleaner.removeMarKup(text, true);  
+            //else
+              text = removeMarKup(text, false); 
+            //if(numPagesUsed==308)
+            //  System.out.println("\n\nnumPagesUsed=" +numPagesUsed+ " CLEANED PAGE page_id[" + i + "]=" + pageId[i] + " :\n" + text);
+          //  pw.println("\n\nnumPagesUsed=" +numPagesUsed+ " CLEANED PAGE page_id[" + i + "]=" + pageId[i] + " :\n" + text);  
+            numPagesUsed++;
+          }
+       
+          //System.out.println("PAGE page_id[" + i + "]=" + pageId[i] + " : " + text);
+            
+        }
+        System.out.println("Number of PAGES USED=" + numPagesUsed);
+        
+      //  pw.close(); 
+        
+    }
+    
     
        
    }

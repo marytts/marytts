@@ -30,6 +30,9 @@
 package marytts.tools.dbselection;
 
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -134,7 +137,7 @@ public class DBHandler {
    * 
    * @param sourceFile is a text file.
    */
-  public void createTextTable(String sourceFile) {
+  public void createAndLoadWikipediaTables(String textFile, String pageFile, String revisionFile) {
       // wiki must be already created
       // String creteWiki = "CREATE DATABASE wiki;";
       String createTextTable = "CREATE TABLE `text` (" +
@@ -142,7 +145,40 @@ public class DBHandler {
               " old_text mediumblob NOT NULL," +
               " old_flags tinyblob NOT NULL," +
               " PRIMARY KEY old_id (old_id)" +
-              " ) MAX_ROWS=10000000 AVG_ROW_LENGTH=10240;";
+              " ) MAX_ROWS=250000 AVG_ROW_LENGTH=10240;";
+      
+      String createPageTable = "CREATE TABLE `page` (" +
+            "page_id int UNSIGNED NOT NULL AUTO_INCREMENT," +
+            "page_namespace int(11) NOT NULL," +
+            "page_title varchar(255) NOT NULL," +
+            "page_restrictions tinyblob NOT NULL," +
+            "page_counter bigint(20) unsigned NOT NULL," +
+            "page_is_redirect tinyint(3) unsigned NOT NULL," +
+            "page_is_new tinyint(3) unsigned NOT NULL," +
+            "page_random double unsigned NOT NULL," +
+            "page_touched binary(14) NOT NULL," +
+            "page_latest int(10) unsigned NOT NULL," +
+            "page_len int(10) unsigned NOT NULL," +
+            "PRIMARY KEY page_id (page_id)," +
+            "KEY page_namespace (page_namespace)," +
+            "KEY page_random (page_random)," +
+            "KEY page_len (page_len) ) MAX_ROWS=250000 AVG_ROW_LENGTH=10240; ";
+      
+      String createRevisionTable = "CREATE TABLE `revision` (" +
+            "rev_id int UNSIGNED NOT NULL AUTO_INCREMENT," +
+            "rev_page int(10) unsigned NOT NULL," +
+            "rev_text_id int(10) unsigned NOT NULL," +
+            "rev_comment tinyblob NOT NULL," +
+            "rev_user int(10) unsigned NOT NULL," +
+            "rev_user_text varchar(255) NOT NULL, " +
+            "rev_timestamp binary(14) NOT NULL, " +
+            "rev_minor_edit tinyint(3) unsigned NOT NULL," +
+            " rev_deleted tinyint(3) unsigned NOT NULL," +
+            "rev_len int(10) unsigned NULL," +
+            "rev_parent_id int(10) unsigned NULL," +
+            "KEY rev_user (rev_user),KEY rev_user_text (rev_user_text)," +
+            "KEY rev_timestamp (rev_timestamp)," +
+            "PRIMARY KEY rev_id (rev_id)) MAX_ROWS=250000 AVG_ROW_LENGTH=10240;";
       
       // If database does not exist create it, if it exists delete it and create an empty one.      
       System.out.println("Checking if the TABLE=text already exist.");
@@ -151,29 +187,59 @@ public class DBHandler {
       } catch (Exception e) {
           e.printStackTrace();
       }
-      boolean res=false;
+      boolean resText=false, resPage=false, resRevision=false;
       try { 
          
           while( rs.next() ) {
             String str = rs.getString(1);
-            if( str.contentEquals("text") ){
-               
-               res=true;          
-            }
+            if( str.contentEquals("text") )
+               resText=true;
+            else if( str.contentEquals("page") )
+               resPage=true;
+            else if( str.contentEquals("revision") )
+               resRevision=true;
+            
           } 
-          if(res==true){
+          if(resText==true){
             System.out.println("TABLE = text already exist deleting.");  
             boolean res0 = st.execute( "DROP TABLE text;" );  
           }
+          if(resPage==true){
+              System.out.println("TABLE = page already exist deleting.");  
+              boolean res0 = st.execute( "DROP TABLE page;" );  
+          }
+          if(resRevision==true){
+              System.out.println("TABLE = revision already exist deleting.");  
+              boolean res0 = st.execute( "DROP TABLE revision;" );  
+          }
           
-          System.out.println("Creating table:" + createTextTable);
-          boolean res1 = st.execute( createTextTable );
-          
-          System.out.println("Loading sql file: " + sourceFile);
-          System.out.println("SOURCE " + sourceFile + ";" );
+          boolean res1;
+          int res2;
+          // creating TABLE=text
+          System.out.println("\n\nCreating table:" + createTextTable);
+          res1 = st.execute( createTextTable );         
+          System.out.println("Loading sql file: " + textFile);
+          System.out.println("SOURCE " + textFile + ";" );
           //int res2 = st.executeUpdate("SOURCE " + sourceSqlFile + ";");  // This does not work, i do not know??
-          int res2 = st.executeUpdate("LOAD DATA LOCAL INFILE '" + sourceFile + "' into table text;");
-          System.out.println("TABLE = text succesfully created and loaded with: " + sourceFile);   
+          res2 = st.executeUpdate("LOAD DATA LOCAL INFILE '" + textFile + "' into table text;");
+          System.out.println("TABLE = text succesfully created.");   
+          
+          // creating TABLE=page
+          System.out.println("\n\nCreating table:" + createPageTable);
+          res1 = st.execute( createPageTable );         
+          System.out.println("Loading sql file: " + pageFile);
+          System.out.println("SOURCE " + pageFile + ";" );
+          res2 = st.executeUpdate("LOAD DATA LOCAL INFILE '" + pageFile + "' into table page;");
+          System.out.println("TABLE = page succesfully created.");  
+          
+          // creating TABLE=revision
+          System.out.println("\n\nCreating table:" + createRevisionTable);
+          res1 = st.execute( createRevisionTable );         
+          System.out.println("Loading sql file: " + revisionFile);
+          System.out.println("SOURCE " + revisionFile + ";" );
+          res2 = st.executeUpdate("LOAD DATA LOCAL INFILE '" + revisionFile + "' into table revision;");
+          System.out.println("TABLE = revision succesfully created." );   
+                 
           
       } catch (SQLException e) {
           e.printStackTrace();
@@ -206,11 +272,15 @@ public class DBHandler {
       return idSet;
   }
   
+  /***
+   * Get the ids from TABLE page
+   * @return String[] an array containing the ids, the size of this array normally will be 25000 (pages).
+   */
   public String[] getPageIds() {
       int num, i, j;
       String idSet[]=null;
       
-      String str = queryTable("SELECT count(page_id) FROM page;");  // normally this should be 25000
+      String str = queryTable("SELECT count(page_id) FROM page;");  // normally this should be 25000 ids
       num = Integer.parseInt(str);
       idSet = new String[num];
       
@@ -463,7 +533,11 @@ public class DBHandler {
     return str;  
   }
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception{
+      
+      WikipediaMarkupCleaner wikiCleaner = new WikipediaMarkupCleaner(); 
+      
+      wikiCleaner.processWikipediaSQLTables("", "", "");
       
       //Put sentences and features in the database.
       DBHandler wikiToDB = new DBHandler();
@@ -471,36 +545,7 @@ public class DBHandler {
       wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");
       wikiToDB.setDBTable("dbselection");
       
-      //String sql = "/project/mary/marcela/anna_wikipedia/pages_xml_splits/text.sql";
-      //wikiToDB.createTextTable(sql);
-      
-      String pageId[];
-      pageId = wikiToDB.getPageIds();
-     
-      WikipediaMarkupCleaner wikiCleaner = new WikipediaMarkupCleaner(); 
-      String text;
-      int numPagesUsed=0;
-      for(int i=0; i<pageId.length; i++){
-       //System.out.print("PAGE page_id[" + i + "]=" + pageId[i] + "  ");  
-        text = wikiToDB.getTextFromPage(pageId[i]);
-             
-        if(text!=null){         
-          //System.out.println("numPagesUsed=" + numPagesUsed); 
-          //if(numPagesUsed==3)
-          //  text = wikiCleaner.removeMarKup(text, true);  
-          //else
-            text = wikiCleaner.removeMarKup(text, false); 
-         // if(numPagesUsed==43)
-          System.out.println("\n\n***CLEANED PAGE page_id[" + i + "]=" + pageId[i] + " :\n" + text);  
-          numPagesUsed++;
-        }
-     
-        //System.out.println("PAGE page_id[" + i + "]=" + pageId[i] + " : " + text);
-          
-      }
-      System.out.println("Number of PAGES USED=" + numPagesUsed);
-      
-      
+ 
       wikiToDB.createDataBaseSelectionTable();
       
       wikiToDB.getIdListOfType("reliable");
