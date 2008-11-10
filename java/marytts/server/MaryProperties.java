@@ -78,7 +78,6 @@ public class MaryProperties
     private static Vector<String> synthClasses = new Vector<String>();
     private static Vector<String> audioEffectClasses = new Vector<String>();
     private static Vector<String> audioEffectNames = new Vector<String>();
-    private static Vector<String> audioEffectParams = new Vector<String>();
     private static Vector<String> audioEffectSampleParams = new Vector<String>();
     private static Vector<String> audioEffectHelpTexts = new Vector<String>();
     
@@ -109,8 +108,6 @@ public class MaryProperties
     public static Vector<String> effectClasses() { return audioEffectClasses; }
     /** Names of audio effects. */
     public static Vector<String> effectNames() { return audioEffectNames; }
-    /** Parameters of audio effects. */
-    public static Vector<String> effectParams() { return audioEffectParams; }
     /** Sample Parameters of audio effects. */
     public static Vector<String> effectSampleParams() { return audioEffectSampleParams; }
     /** Help text of audio effects. */
@@ -251,10 +248,8 @@ public class MaryProperties
                 
                 audioEffectName = ae.getName();
                 audioEffectNames.add(audioEffectName);
-                audioEffectParam = ae.getParamsAsString(false);
-                audioEffectParams.add(audioEffectParam);
                 audioEffectSampleParam = ae.getExampleParameters();
-                audioEffectSampleParams.add(audioEffectParam);
+                audioEffectSampleParams.add(audioEffectSampleParam);
                 audioEffectHelpText = ae.getHelpText();
                 audioEffectHelpTexts.add(audioEffectHelpText);
             }
@@ -633,7 +628,7 @@ public class MaryProperties
         if (value == null)
             return defaultValue;
         if (value.equals("auto")) {
-            return getBoolean("server");
+            return ((getProperty("server").compareTo("commandline")==0) ? false:true);
         } else {
             return getBoolean(property, defaultValue);
         }
@@ -748,7 +743,7 @@ public class MaryProperties
         if (value == null)
             throw new NoSuchPropertyException("Missing property `" + property + "' in configuration files");
         if (value.equals("auto")) {
-            return needBoolean("server");
+            return ((needProperty("server").compareTo("commandline")==0) ? false:true);
         } else {
             return needBoolean(property);
         }

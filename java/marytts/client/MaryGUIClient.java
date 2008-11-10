@@ -140,7 +140,7 @@ public class MaryGUIClient extends JPanel
     private JPanel showHidePanel;
     private JButton showHideEffects;
     private JList effectsList;
-    private MaryAudioEffectsBox effectsBox;
+    private AudioEffectsBoxGUI effectsBox;
     private String [] effectNames;
     private String [] exampleParams;
     private String [] helpTexts;
@@ -770,7 +770,7 @@ public class MaryGUIClient extends JPanel
             e.printStackTrace();
         }
 
-        effectsBox = new MaryAudioEffectsBox(availableAudioEffects, strLineBreak);
+        effectsBox = new AudioEffectsBoxGUI(availableAudioEffects, strLineBreak);
     }
     
     private void showHideEffectAction()
@@ -807,13 +807,13 @@ public class MaryGUIClient extends JPanel
         //Initialize the effects here (normally using info from the server)
         if (effectsBox != null)
         {     
-            if (effectsBox.hasEffects() && effectsBox.getTotalEffects()>0)
+            if (effectsBox.hasEffects() && effectsBox.getData().getTotalEffects()>0)
             {
                 MaryClient.Voice voice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
                 
-                for (int i=0; i<effectsBox.getTotalEffects(); i++)
+                for (int i=0; i<effectsBox.getData().getTotalEffects(); i++)
                 {
-                    String effectName = effectsBox.effectControls[i].getEffectName();
+                    String effectName = effectsBox.effectControls[i].getData().getEffectName();
                     
                     effectsBox.effectControls[i].setVisible(true);
                     //Do not display audio effects that are only available for the HMM voice
@@ -851,30 +851,13 @@ public class MaryGUIClient extends JPanel
             if (isButtonHide)
             {         
                 boolean bFirst = true;
-                for (int i=0; i<effectsBox.getTotalEffects(); i++)
+                for (int i=0; i<effectsBox.getData().getTotalEffects(); i++)
                 {
                     if (effectsBox.effectControls[i].chkEnabled.isSelected())
-                    {
-                        //Request from server to set the parameters of the ith effect as effectsBox.effectControls[i].txtParams.getText()
-                        MaryClient.Voice voice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
-                        String strTmp = "";
-                        try {
-                            strTmp = processor.requestEffectParametersChange(effectsBox.effectNames[i], effectsBox.effectControls[i].txtParams.getText());
-                        } catch (UnknownHostException e1) {
-                            // TODO Auto-generated catch block
-                            e1.printStackTrace();
-                        } catch (IOException e1) {
-                            // TODO Auto-generated catch block
-                            e1.printStackTrace();
-                        }
-                       
-                        //Update the text field after server sets the parameters of the ith effect since the text field input might contain invalid entries
-                        // This is done by simply requesting the current parameters of the ith effect from the server
-                        effectsBox.effectControls[i].txtParams.setText(strTmp);
-
+                    {   
                         strTmpParam = "";
                         try {
-                            strTmpParam = processor.requestFullEffectAsString(effectsBox.effectNames[i]);
+                            strTmpParam = processor.requestFullEffect(effectsBox.getData().getControlData(i).getEffectName(), effectsBox.effectControls[i].txtParams.getText().trim());
                         } catch (UnknownHostException e) {
                             // TODO Auto-generated catch block
                             e.printStackTrace();
@@ -886,7 +869,7 @@ public class MaryGUIClient extends JPanel
                         strTmpParam = strTmpParam.trim();
                         
                         if (!bFirst)
-                            strParams += effectsBox.chEffectSeparator + strTmpParam;
+                            strParams += effectsBox.getData().getEffectSeparator() + strTmpParam;
                         else
                         {
                             strParams += strTmpParam;
@@ -1603,5 +1586,4 @@ public class MaryGUIClient extends JPanel
             return cbInputType;
         }
     }
-
 }

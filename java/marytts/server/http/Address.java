@@ -27,44 +27,65 @@
  * THIS SOFTWARE.
  */
 
-package marytts.client.http;
-
-import java.io.IOException;
+package marytts.server.http;
 
 /**
  * @author oytun.turk
  *
- * This class implements a web browser client
- * It is different as compared to other Mary clients in the sense that 
- * it is dynamically created by MaryHttpServer to send an appropriate html form 
- * to a web browser that connect to a Mary server.
- * This form is updated dynamically by user requests and server responses.
- * 
  */
-public class MaryWebHttpClient extends MaryHttpForm {
-    public MaryWebHttpClient(String serverHost, int serverPort) throws IOException, InterruptedException
+public class Address {
+    public String host;
+    public int port;
+    public String fullAddress;
+    
+    public Address()
     {
-        super(serverHost, serverPort, "");
-        
-        httpRequester.fillWebBrowserHttpRequestHeader(serverHost, serverPort);
-        
-        initialise();
+        this("", "");
     }
     
-    public void initialise() throws IOException, InterruptedException
+    public Address(String hostIn, int portIn)
     {
-        fillServerVersion();
-        fillDataTypes();
-        fillVoices();
+        this(hostIn, String.valueOf(portIn));
     }
-
-    public static void main(String[] args) throws IOException, InterruptedException
+    
+    public Address(String hostIn, String portIn)
     {
-        String serverHost = "localhost";
-        int serverPort = 59125;
+        init(hostIn, portIn);
+    }
+    
+    public Address(String fullAddress)
+    {
+        String tmpAddress = fullAddress.trim();
+        int index = tmpAddress.lastIndexOf(':');
+
+        String hostIn = "";
+        String portIn = "";
+        if (index>0)
+        {
+            hostIn = tmpAddress.substring(0, index);
+            
+            if (index+1<tmpAddress.length())
+                portIn = tmpAddress.substring(index+1);
+        }
+        else
+            hostIn = tmpAddress;
         
-        MaryWebHttpClient mw = new MaryWebHttpClient(serverHost, serverPort);
+        init(hostIn, portIn);
+    }
+    
+    public void init(String hostIn, String portIn)
+    {
+        this.host = hostIn;
         
-        
+        if (portIn!="")
+        {
+            this.port = Integer.valueOf(portIn);
+            this.fullAddress = this.host + ":" + portIn;  
+        }
+        else //No port address specified, set fullAdrress equal to host address
+        {
+            this.port = Integer.MIN_VALUE;
+            this.fullAddress = this.host;
+        }
     }
 }

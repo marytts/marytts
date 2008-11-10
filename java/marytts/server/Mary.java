@@ -53,9 +53,13 @@ import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
 import marytts.modules.Synthesis;
 import marytts.modules.synthesis.Voice;
+import marytts.server.http.MaryHttpServer;
+import marytts.server.http.RequestHttp;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.MaryAudioUtils;
 
+import org.apache.http.ProtocolVersion;
+import org.apache.http.message.BasicHttpResponse;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Category;
 import org.apache.log4j.FileAppender;
@@ -129,7 +133,7 @@ public class Mary {
         // started.
         for (MaryModule m : ModuleRegistry.getAllModules()) {
             // Only start the modules here if in server mode: 
-            if ((MaryProperties.getBoolean("server") || m instanceof Synthesis) 
+            if (((MaryProperties.getProperty("server").compareTo("commandline")!=0) || m instanceof Synthesis) 
                     && m.getState() == MaryModule.MODULE_OFFLINE) {
                 try {
                     m.startup();
@@ -303,7 +307,7 @@ public class Mary {
         // (Will throw exceptions if problems are found)
         MaryProperties.readProperties();
 
-        if (MaryProperties.needBoolean("server")) {
+        if (MaryProperties.needProperty("server").compareTo("commandline")!=0) { //socket or http server mode
             System.err.print("MARY server " + Version.specificationVersion() + " starting...");
             startup();
             Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -312,7 +316,16 @@ public class Mary {
                 }
             });
             System.err.println(" started in " + (System.currentTimeMillis()-startTime)/1000. + " s");
-            new MaryServer().run();
+            
+            if (MaryProperties.needProperty("server").compareTo("socket")==0) //socket server mode
+                new MaryServer().run();
+            else if (MaryProperties.needProperty("server").compareTo("http")==0) //http server mode
+                new MaryHttpServer().run();
+            else
+            {
+                Exception e = new Exception();
+                logger.error("Unknown server mode!", e);
+            }
         } else { // command-line mode
             startup();
             String inputTypeName = MaryProperties.getProperty("input.type");
@@ -353,17 +366,34 @@ public class Mary {
                 }
                 audioFileFormat = new AudioFileFormat(audioType, audioFormat, AudioSystem.NOT_SPECIFIED);
             }
-            Request request = new Request(inputType, outputType, locale, voice, "", "", 1, audioFileFormat);
-     
-            InputStream is;
-            if (args.length == 0 || args[0].equals("-"))
-                is = System.in;
+            
+            Request request = null;
+            if (MaryProperties.getProperty("server").compareTo("socket")==0) //socket server mode
+                request = new Request(inputType, outputType, locale, voice, "", "", 1, audioFileFormat);
+            else if (MaryProperties.getProperty("server").compareTo("http")==0) //http server mode
+                request = new RequestHttp(inputType, outputType, locale, voice, "", "", 1, audioFileFormat);
+            
+            if (request!=null)
+            {
+                InputStream is;
+                if (args.length == 0 || args[0].equals("-"))
+                    is = System.in;
+                else
+                    is = new FileInputStream(args[0]);
+                request.readInputData(
+                        new InputStreamReader(is, "UTF-8"));
+                request.process();
+            }
             else
-                is = new FileInputStream(args[0]);
-            request.readInputData(
-                new InputStreamReader(is, "UTF-8"));
-            request.process();
-            request.writeOutputData(System.out);
+                logger.error("Request cannot be initiated!");
+            
+            if (MaryProperties.getProperty("server").compareTo("socket")==0) //socket server mode
+                request.writeOutputData(System.out);
+            else if (MaryProperties.getProperty("server").compareTo("http")==0) //http server mode
+            {
+                BasicHttpResponse response = new BasicHttpResponse(new ProtocolVersion("1.1", 0, 0), 0, voice.getLocale().toString());
+                ((RequestHttp)request).writeOutputData(response);
+            }
         }
         shutdown();
     }
