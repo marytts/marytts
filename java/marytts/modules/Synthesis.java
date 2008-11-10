@@ -241,7 +241,7 @@ public class Synthesis extends InternalModule
         (List<Element> tokensAndBoundaries, Voice voice, String currentStyle, String currentEffect, AudioFormat targetFormat)
     throws SynthesisException, UnsupportedAudioFileException
     {            
-        EffectsApplier ef = new EffectsApplier(MaryProperties.effectClasses(), MaryProperties.effectParams());
+        EffectsApplier ef = new EffectsApplier(MaryProperties.effectClasses(), MaryProperties.effectSampleParams());
 
         //HMM-only effects need to get their parameters prior to synthesis
         ef.setHMMEffectParameters(voice, currentEffect);

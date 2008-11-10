@@ -107,7 +107,7 @@ public class RequestHttpHandler extends Thread {
         // No stack trace on clientLogger
         
         try {
-            MaryHttpServerUtils.toResponse(message + "\n" + e.toString(), response);
+            MaryHttpServerUtils.toHttpResponse(message + "\n" + e.toString(), response);
         } catch (IOException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
@@ -127,7 +127,7 @@ public class RequestHttpHandler extends Thread {
         if (!(e instanceof TransformerException || e instanceof SAXParseException))
         {
             try {
-                MaryHttpServerUtils.toResponse(message + "\n" + MaryUtils.getThrowableAndCausesAsString(e), response);
+                MaryHttpServerUtils.toHttpResponse(message + "\n" + MaryUtils.getThrowableAndCausesAsString(e), response);
             } catch (IOException e1) {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
@@ -272,7 +272,7 @@ public class RequestHttpHandler extends Thread {
                 output.flush();
                 
                 //MaryHttpServerUtils.toResponse(request.getAudio(), response);
-                MaryHttpServerUtils.toResponse(output.toByteArray(), response);
+                MaryHttpServerUtils.toHttpResponse(output.toByteArray(), response);
                 
                 logger.info("Finished writing output");
                 

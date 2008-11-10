@@ -392,11 +392,11 @@ public class MaryServer {
                 outputWriter.println();
                 return true; 
             }
-            else if (inputLine.startsWith("MARY VOICE GETAUDIOEFFECTS"))
+            else if (inputLine.startsWith("MARY VOICE GETDEFAULTAUDIOEFFECTS"))
             { 
                 //the request is about the available audio effects
                 logger.debug("InfoRequest " + inputLine);
-
+                
                 // <EffectSeparator>charEffectSeparator</EffectSeparator>
                 // <Effect>
                 //   <Name>effect´s name</Name> 
@@ -420,7 +420,7 @@ public class MaryServer {
                 {
                     audioEffectClass += "<Effect>";
                     audioEffectClass += "<Name>" + MaryProperties.effectNames().elementAt(i) + "</Name>";
-                    audioEffectClass += "<Param>" + MaryProperties.effectParams().elementAt(i) + "</Param>";
+                    audioEffectClass += "<Param>" + MaryProperties.effectSampleParams().elementAt(i) + "</Param>";
                     audioEffectClass += "<SampleParam>" + MaryProperties.effectSampleParams().elementAt(i) + "</SampleParam>";
                     audioEffectClass += "<HelpText>" + MaryProperties.effectHelpTexts().elementAt(i) + "</HelpText>";
                     audioEffectClass += "</Effect>";
@@ -443,11 +443,11 @@ public class MaryServer {
                 return true;
 
             }
-            else if (inputLine.startsWith("MARY VOICE GETAUDIOEFFECTPARAM "))
+            else if (inputLine.startsWith("MARY VOICE GETAUDIOEFFECTDEFAULTPARAM "))
             {
                 for (int i=0; i<MaryProperties.effectNames().size(); i++)
                 {
-                    int tmpInd = inputLine.indexOf("MARY VOICE GETAUDIOEFFECTPARAM "+MaryProperties.effectNames().elementAt(i));
+                    int tmpInd = inputLine.indexOf("MARY VOICE GETAUDIOEFFECTDEFAULTPARAM "+MaryProperties.effectNames().elementAt(i));
                     if (tmpInd>-1)
                     {   
                         //the request is about the parameters of a specific audio effect
@@ -469,7 +469,7 @@ public class MaryServer {
                         
                         if (ae!=null)
                         {
-                            String audioEffectParams = MaryProperties.effectParams().elementAt(i);
+                            String audioEffectParams = ae.getExampleParameters();
                             outputWriter.println(audioEffectParams.trim());
                         }
                      
@@ -483,10 +483,30 @@ public class MaryServer {
             }
             else if (inputLine.startsWith("MARY VOICE GETFULLAUDIOEFFECT "))
             {
+                StringTokenizer tt = new StringTokenizer(inputLine);
+                tt.nextToken();
+                tt.nextToken();
+                tt.nextToken();
+                String effectName;
+                if (tt.hasMoreTokens())
+                    effectName = tt.nextToken();
+                else
+                {
+                    logger.error("Effect name missing in reuqest!");
+                    return false;
+                }
+                String currentEffectParams;
+                if (tt.hasMoreTokens())
+                    currentEffectParams = tt.nextToken();
+                else
+                {
+                    logger.error("Current effect parameters missing in reuqest!");
+                    return false;
+                }
+                
                 for (int i=0; i<MaryProperties.effectNames().size(); i++)
                 {
-                    int tmpInd = inputLine.indexOf("MARY VOICE GETFULLAUDIOEFFECT "+MaryProperties.effectNames().elementAt(i));
-                    if (tmpInd>-1)
+                    if (effectName.compareTo(MaryProperties.effectNames().elementAt(i))==0)
                     {   
                         //the request is about the parameters of a specific audio effect
                         logger.debug("InfoRequest " + inputLine);
@@ -504,10 +524,10 @@ public class MaryServer {
                             // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
-                        
+
                         if (ae!=null)
                         {
-                            ae.setParams(MaryProperties.effectParams().elementAt(i));
+                            ae.setParams(currentEffectParams);
                             String audioEffectFull = ae.getFullEffectAsString();
                             outputWriter.println(audioEffectFull.trim());
                         }
@@ -520,57 +540,8 @@ public class MaryServer {
                 
                 return false;
             }
-            else if (inputLine.startsWith("MARY VOICE SETAUDIOEFFECTPARAM "))
-            {
-                String effectName;
-                for (int i=0; i<MaryProperties.effectNames().size(); i++)
-                {
-                    effectName = MaryProperties.effectNames().elementAt(i);
-                    int tmpInd = inputLine.indexOf("MARY VOICE SETAUDIOEFFECTPARAM " + effectName);
-                    if (tmpInd>-1)
-                    {   
-                        //the request is about changing the parameters of a specific audio effect
-                        logger.debug("InfoRequest " + inputLine);
-                        
-                        int ind = inputLine.indexOf(effectName);
-                        String strTmp = inputLine.substring(ind, inputLine.length());
-                        int ind2 = strTmp.indexOf('_');
-                        String strParamNew = strTmp.substring(ind2+1, strTmp.length());
-
-                        BaseAudioEffect ae = null;
-                        try {
-                            ae = (BaseAudioEffect)Class.forName(MaryProperties.effectClasses().elementAt(i)).newInstance();
-                        } catch (InstantiationException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        } catch (IllegalAccessException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        } catch (ClassNotFoundException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                        
-                        if (ae!=null)
-                        {
-                            ae.setParams(strParamNew);
-                            String audioEffectParams = ae.getParamsAsString(false);
-                            MaryProperties.effectParams().set(i, audioEffectParams);
-                            outputWriter.println(audioEffectParams);
-                        }
-                     
-                        // upon failure, simply return nothing
-                        outputWriter.println();
-                        return true;
-                    }
-                }
-                
-                return false;
-            }
             else if (inputLine.startsWith("MARY VOICE GETAUDIOEFFECTHELPTEXT "))
             {
-                int zz = MaryProperties.effectClasses().size();
-                
                 for (int i=0; i<MaryProperties.effectNames().size(); i++)
                 {
                     int tmpInd = inputLine.indexOf("MARY VOICE GETAUDIOEFFECTHELPTEXT " + MaryProperties.effectNames().elementAt(i));

@@ -1119,72 +1119,71 @@ public class MaryClient {
      * @throws IOException
      * @throws UnknownHostException
      */
-    public String getAudioEffects() throws IOException, UnknownHostException {
+    public String getDefaultAudioEffects() throws IOException, UnknownHostException 
+    {
         Socket marySocket = new Socket(host, port);
+        String defaultAudioEffects = "";
         String info = getServerInfo(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
                 new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
-        "MARY VOICE GETAUDIOEFFECTS");
-        if (info.length() == 0)
-            return "";
-
-        audioEffects = info;
-
+                "MARY VOICE GETDEFAULTAUDIOEFFECTS");
+        
         marySocket.close();
+        
+        if (info.length()>0)
+            defaultAudioEffects = info;
 
+        return defaultAudioEffects;
+    }
+    
+    public String getAudioEffects() throws UnknownHostException, IOException
+    {
+        if (audioEffects==null)
+            audioEffects = getDefaultAudioEffects() ;
+        
         return audioEffects;
     }
     
-    public String getAudioEffectHelpTextLineBreak() throws IOException, UnknownHostException {
-        Socket marySocket = new Socket(host, port);
-        String info = getServerInfo(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
-                new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
-        "MARY VOICE GETAUDIOEFFECTHELPTEXTLINEBREAK");
-        if (info.length() == 0)
-            return "";
-
-        marySocket.close();
-
-        return info.trim();
-    }
-    
-    public String requestEffectParametersChange(String effectName, String strParamNew) 
-                                    throws IOException, UnknownHostException {
-        Socket marySocket = new Socket(host, port);
-        String info = getServerInfo(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
-                new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
-                "MARY VOICE SETAUDIOEFFECTPARAM " + effectName + "_" + strParamNew);
-        if (info.length() == 0)
-            return "";
-        
-        marySocket.close();
-        
-        return requestEffectParametersAsString(effectName);
-    }
-    
-    public String requestEffectParametersAsString(String effectName)
-    throws IOException, UnknownHostException {
-        Socket marySocket = new Socket(host, port);
-        String info = getServerInfo(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
-                new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
-                "MARY VOICE GETAUDIOEFFECTPARAM " + effectName);
-        if (info.length() == 0)
-            return "";
-
-        marySocket.close();
-
-        return info.replaceAll("\n", System.getProperty("line.separator"));
-    }
-
-    public String requestFullEffectAsString(String effectName) throws IOException, UnknownHostException 
+    public String getAudioEffectHelpTextLineBreak() throws IOException, UnknownHostException 
     {
         Socket marySocket = new Socket(host, port);
         String info = getServerInfo(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
                 new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
-                "MARY VOICE GETFULLAUDIOEFFECT " + effectName);
+                "MARY VOICE GETAUDIOEFFECTHELPTEXTLINEBREAK");
+        
+        marySocket.close();
+        
         if (info.length() == 0)
             return "";
 
+        return info.trim();
+    }
+    
+    public String requestDefaultEffectParameters(String effectName) throws IOException, UnknownHostException 
+    {
+        Socket marySocket = new Socket(host, port);
+        String info = getServerInfo(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
+                new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
+                "MARY VOICE GETAUDIOEFFECTDEFAULTPARAM " + effectName);
+        
         marySocket.close();
+        
+        if (info.length() == 0)
+            return "";
+
+        return info.replaceAll("\n", System.getProperty("line.separator"));
+    }
+
+    public String requestFullEffect(String effectName, String currentEffectParams) throws IOException, UnknownHostException 
+    {
+        Socket marySocket = new Socket(host, port);
+        String info = getServerInfo(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
+                new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
+                "MARY VOICE GETFULLAUDIOEFFECT " + effectName + " " + currentEffectParams);
+        
+        marySocket.close();
+        
+        if (info.length() == 0)
+            return "";
 
         return info.replaceAll("\n", System.getProperty("line.separator"));
     }
@@ -1197,11 +1196,13 @@ public class MaryClient {
             String info = getServerInfo(new PrintWriter(new OutputStreamWriter(marySocket.getOutputStream(), "UTF-8"), true),
                     new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8")),
                     "MARY VOICE GETAUDIOEFFECTHELPTEXT " + effectName);
+            
+            marySocket.close();
+            
             if (info.length() == 0)
                 return "";
 
             audioEffectHelpTextsMap.put(effectName, info.replaceAll("\n", System.getProperty("line.separator")));
-            marySocket.close();
         }
         
         return audioEffectHelpTextsMap.get(effectName);

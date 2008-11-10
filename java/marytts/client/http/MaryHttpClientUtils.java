@@ -32,6 +32,11 @@ package marytts.client.http;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
 
 import marytts.util.ConversionUtils;
 import marytts.util.string.StringUtils;
@@ -45,6 +50,9 @@ import org.apache.http.HttpResponse;
  */
 public class MaryHttpClientUtils 
 {    
+    public static final String EQUAL_SIGN = "EQUAL_SIGN_IN_HTTP";
+    public static final String AND_SIGN = "AND_SIGN_IN_HTTP";
+    
     public static InputStream toInputStream(HttpResponse response) throws IOException
     {
         InputStream is = null;
@@ -75,9 +83,10 @@ public class MaryHttpClientUtils
             return null;    
     }
     
+    /*
     public static String toString(HttpResponse response) throws IOException
     {
-        return ConversionUtils.toString(toByteArray(response));
+        return singleFormElementStringToString(ConversionUtils.toString(toByteArray(response)));
     }
     
     public static String[] toStringArray(HttpResponse response) throws IOException
@@ -85,6 +94,23 @@ public class MaryHttpClientUtils
         return StringUtils.toStringArray(toString(response));
     }
 
+    //Converts key=value to value
+    public static String singleFormElementStringToString(String singleFormElementString)
+    {
+        int equalIndex = singleFormElementString.indexOf("=");
+        if (equalIndex>=0)
+        {
+            if (equalIndex+1<singleFormElementString.length())
+                return singleFormElementString.substring(equalIndex+1);
+            else
+                return "";
+        }
+        else
+            return singleFormElementString;
+    }
+    */
+
+    //TO DO: These two functions may need updating since the server returns key=value pairs now
     public static double[] toDoubleArray(HttpResponse response) throws IOException
     {
         return ConversionUtils.toDoubleArray(toByteArray(response));
@@ -94,4 +120,76 @@ public class MaryHttpClientUtils
     {
         return ConversionUtils.toIntArray(toByteArray(response));
     }
+    //
+    
+    //Convert keyValuePairs to HTTP request string
+    public static String toHttpString(Map<String, String> keyValuePairs)
+    {
+        Set<String> keys = keyValuePairs.keySet();
+        String currentKey, currentValue;
+        String httpString = "";
+        for (Iterator<String> it = keys.iterator(); it.hasNext();)
+        {
+            currentKey = it.next();
+            currentValue = keyValuePairs.get(currentKey);
+            httpString += currentKey + "=" + currentValue;
+            if (it.hasNext())
+                httpString += "&";
+        }
+        
+        return StringUtils.urlEncode(httpString);
+    }
+    //
+    
+    public static Map<String, String> toKeyValuePairs(HttpResponse response, boolean performUrlDecode) throws IOException
+    {
+        return toKeyValuePairs(ConversionUtils.toString(toByteArray(response)), performUrlDecode);
+    }
+    
+    //Convert HTTP request string into key-value pairs
+    public static Map<String, String> toKeyValuePairs(String httpString, boolean performUrlDecode)
+    {
+        Map<String, String> keyValuePairs = null;
+        if (httpString!=null)
+        {
+            if (httpString.length()>0)
+            {
+                if (performUrlDecode)
+                    httpString = StringUtils.urlDecode(httpString);
+                
+                StringTokenizer st = new StringTokenizer(httpString);
+                String newToken = null;
+                String param, val;
+                int equalSignInd;
+                while (st.hasMoreTokens() && (newToken = st.nextToken("&"))!=null)
+                {   
+                    equalSignInd = newToken.indexOf("=");
+
+                    //Default values unless we have a param=value pair
+                    param = newToken;
+                    val = "";
+                    //
+
+                    //We have either a "param=value" pair, or "param=" only
+                    if (equalSignInd>-1)
+                    {
+                        param = newToken.substring(0, equalSignInd);
+
+                        if (equalSignInd+1<newToken.length()) //"param=val" pair
+                            val = newToken.substring(equalSignInd+1);
+                        else //"param=" only
+                            val = "";
+                    }
+
+                    if (keyValuePairs==null)
+                        keyValuePairs = new HashMap<String, String>();
+                    
+                    keyValuePairs.put(param, val);
+                }
+            }
+        }
+        
+        return keyValuePairs;
+    }
+    //
 }

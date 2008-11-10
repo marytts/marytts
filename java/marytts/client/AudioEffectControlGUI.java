@@ -54,53 +54,38 @@ import javax.swing.JTextField;
  * The text field contains the parameters of the effect
  * The button shows help information about the usage of the effect when clicked
  */
-public class MaryAudioEffectControl {
+public class AudioEffectControlGUI {
+    
+    private AudioEffectControlData data; //All data this control has about the audio effect 
     public JPanel mainPanel;
     public JCheckBox chkEnabled;
     public JTextField txtParams;
     public JButton btnHelp;
-    public String strHelpText;
-    public String strExampleParams;
-    public String strLineBreak;
+    
     private boolean isVisible; //This can be used for not showing a specific effect for specific voices
     public boolean isHelpWindowOpen;
     private JFrame helpWindow; //Window to show help context
     
     //Create a Mary audio effect with help text
-    public MaryAudioEffectControl(String strEffectNameIn, String strExampleParams, String strHelpTextIn, String lineBreak)
+    public AudioEffectControlGUI(AudioEffectControlData dataIn)
     { 
+        data = new AudioEffectControlData(dataIn);
+        
         mainPanel = new JPanel();
         chkEnabled = new JCheckBox();
         txtParams = new JTextField("Parameters");
         btnHelp = new JButton("?");
-        strLineBreak = lineBreak;
+
         isVisible = true;
         isHelpWindowOpen = false;
- 
-        init(strEffectNameIn, strExampleParams, strHelpTextIn);
+        
     }
+    
+    public void setVisible(boolean bShow) { isVisible = bShow; }
+    public boolean getVisible() { return isVisible; }
+    
+    public AudioEffectControlData getData() { return data; }
 
-    public void init(String strEffectNameIn, String strExampleParamsIn, String strHelpTextIn)
-    {
-        setEffectName(strEffectNameIn);
-        setExampleParams(strExampleParamsIn);
-        setHelpText(strHelpTextIn); 
-        setEffectParamsToExample();
-    }
-    
-    public void setVisible(boolean bShow)
-    {
-        if (bShow)
-            isVisible = true;
-        else
-            isVisible = false;
-    }
-    
-    public boolean isVisible()
-    {
-        return isVisible;
-    }
-    
     public void show()
     {
         mainPanel.removeAll();
@@ -119,11 +104,24 @@ public class MaryAudioEffectControl {
             c.gridy = 0;
             g.setConstraints(chkEnabled, c);
             chkEnabled.setPreferredSize(new Dimension(100,25));
+            chkEnabled.setText(data.getEffectName());
+            chkEnabled.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    data.setSelected(((JCheckBox)e.getSource()).isSelected());     
+                }
+            });
             mainPanel.add(chkEnabled);
-
+            
             c.gridx = 1;
             g.setConstraints(chkEnabled, c);
             txtParams.setPreferredSize(new Dimension(150,25));
+            txtParams.setText(data.getParams());
+            txtParams.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    if (e.getActionCommand().compareTo("oytun")==0)
+                        data.setParams(((JTextField)e.getSource()).getText());     
+                }
+            });
             mainPanel.add(txtParams);
 
             c.gridx = GridBagConstraints.RELATIVE;
@@ -137,10 +135,10 @@ public class MaryAudioEffectControl {
                     {
                         isHelpWindowOpen = true;
                         helpWindow = new JFrame("Help: " + chkEnabled.getText() + " Effect");
-                        JTextArea helpText = new JTextArea(parseLineBreaks(strHelpText));
-                        helpText.setEditable(false);
+                        JTextArea helpTextArea = new JTextArea(data.parseLineBreaks(data.getHelpText()));
+                        helpTextArea.setEditable(false);
 
-                        helpWindow.getContentPane().add(helpText, BorderLayout.WEST);
+                        helpWindow.getContentPane().add(helpTextArea, BorderLayout.WEST);
                         helpWindow.pack();
                         helpWindow.setLocation(btnHelp.getLocation().x, btnHelp.getLocation().y);
                         helpWindow.setVisible(true);
@@ -162,73 +160,5 @@ public class MaryAudioEffectControl {
         }
         
         mainPanel.validate();
-    }
-    
-    //Parse string according to line break string
-    public String parseLineBreaks(String strInput)
-    {
-        String strOut = "";
-        String strTmp;
-        
-        for (int i=0; i<strInput.length()-strLineBreak.length(); i++)
-        {
-            strTmp = strInput.substring(i, i+strLineBreak.length());
-            
-            if (strTmp.equals(strLineBreak)==false)
-                strOut += strInput.substring(i, i+1);
-            else
-            {
-                strOut += System.getProperty("line.separator");
-                i += strLineBreak.length()-1;
-            }
-        }
-        
-        strTmp = strInput.substring(strInput.length()-strLineBreak.length(), strInput.length());
-        if (strTmp.compareTo(strLineBreak)!=0)
-            strOut += strTmp;
-        else
-            strOut += System.getProperty("line.separator");
-        
-        return strOut;
-    }
-    
-    public boolean isSelected()
-    {
-        return chkEnabled.isSelected();
-    }
-    
-    public void setEffectName(String strEffectName)
-    {
-        chkEnabled.setText(strEffectName);
-    }
-    
-    public void setHelpText(String strHelpTextIn)
-    {
-        strHelpText = strHelpTextIn;
-    }
-    
-    public void setEffectParams(String strEffectParams)
-    {
-        txtParams.setText(strEffectParams);
-    }
-    
-    public void setEffectParamsToExample()
-    {
-        setEffectParams(strExampleParams);
-    }
-    
-    public void setExampleParams(String strExampleParamsIn)
-    {
-        strExampleParams = strExampleParamsIn;
-    }
-    
-    public String getEffectName()
-    {
-        return chkEnabled.getText();
-    }
-    
-    public String getEffectParam()
-    {
-        return txtParams.getText();
     }
 }

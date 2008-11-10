@@ -446,7 +446,7 @@ public class MaryData {
             AudioSystem.write(audio, audioFileFormat.getType(), output);
             output.flush();
             
-            MaryHttpServerUtils.toResponse(output.toByteArray(), response);   
+            MaryHttpServerUtils.toHttpResponse(output.toByteArray(), response);   
         }
     }
     

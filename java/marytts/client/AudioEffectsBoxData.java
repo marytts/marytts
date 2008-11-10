@@ -29,31 +29,17 @@
 
 package marytts.client;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-
 /**
  * @author oytun.turk
  *
  */
-public class MaryAudioEffectsBox {
-    public MaryAudioEffectControl [] effectControls;
+public class AudioEffectsBoxData {
+
+    private AudioEffectControlData[] effectControlsData;
+    private char chEffectSeparator;
+    private String helpTextLineBreak;
     
-    public JPanel mainPanel;
-    public JLabel effectsBoxLabel;
-    public JScrollPane scrollPane;
-    public JPanel effectControlsPanel;
-    
-    public String [] effectNames;
-    public String [] exampleParams;
-    public String [] helpTexts;
-    public char chEffectSeparator;
-    
-    //availableEffects is a one large string produced by the server in the following format:
+    //availableEffects is one large string produced by the server in the following format:
     // <EffectSeparator>charEffectSeparator</EffectSeparator>
     // <Effect>
     //   <Name>effect´s name</Name> 
@@ -71,44 +57,38 @@ public class MaryAudioEffectsBox {
     //   <SampleParam>example parameters string</SampleParam>
     //   <HelpText>help text string</HelpText>
     // </Effect>
-    public MaryAudioEffectsBox(String availableEffects, String lineBreak)
+    public AudioEffectsBoxData(String availableEffects, String lineBreak)
     {
-        if (availableEffects!=null || availableEffects!="")
-        {
-            int numEffects = parseAvailableEffects(availableEffects);
-
-            mainPanel = new JPanel();
-            effectsBoxLabel = new JLabel("Audio Effects:");
-            effectControlsPanel = new JPanel();
-
-            if (numEffects>0)
-            {
-                effectControls = new MaryAudioEffectControl[numEffects];
-
-                for (int i=0; i<effectControls.length; i++)
-                    effectControls[i] = new MaryAudioEffectControl(effectNames[i], exampleParams[i], helpTexts[i], lineBreak);
-            }
-            else
-                effectControls = null;
-        }
-        else
-            effectControls = null;
+        effectControlsData = null;
+        chEffectSeparator = ' ';
+        helpTextLineBreak = lineBreak;
+        
+        if (availableEffects!=null || availableEffects.length()>0)
+            parseAvailableEffects(availableEffects);
     }
+    
+    public AudioEffectControlData getControlData(int index)
+    {
+        if (effectControlsData!=null && index>=0 && index<effectControlsData.length)
+            return effectControlsData[index];
+        else
+            return null;
+    }
+    
+    public char getEffectSeparator() { return chEffectSeparator; }
     
     public boolean hasEffects()
     {
-        if (effectControls!=null)
+        if (effectControlsData!=null)
             return true;
         else
             return false;
     }
     
-    //Parse the XML-like full effect set string from the server
+  //Parse the XML-like full effect set string from the server
     protected int parseAvailableEffects(String availableEffects)
     {
-        effectNames = null;
-        exampleParams = null;
-        helpTexts = null;
+        effectControlsData = null;
         chEffectSeparator = ' ';
        
         int ind1, ind2, ind3, ind4;
@@ -200,9 +180,7 @@ public class MaryAudioEffectsBox {
         
         if (totalEffects>0)
         {
-            effectNames = new String[totalEffects];
-            exampleParams = new String[totalEffects];
-            helpTexts = new String[totalEffects];
+            effectControlsData = new AudioEffectControlData[totalEffects];
             
             currentIndex = 0;
             for (int i=0; i<totalEffects; i++)
@@ -234,9 +212,7 @@ public class MaryAudioEffectsBox {
                             {
                                 strHelpText = availableEffects.substring(ind3+helpTextStartTag.length(), ind4);
                                 
-                                effectNames[i] = strEffectName;
-                                exampleParams[i] = strExampleParams;
-                                helpTexts[i] = strHelpText;
+                                effectControlsData[i] = new AudioEffectControlData(strEffectName, strExampleParams, strHelpText, helpTextLineBreak);
                             }
                             else
                                 break;
@@ -255,81 +231,15 @@ public class MaryAudioEffectsBox {
                 else
                     break;
             }
-
         }
 
-        return totalEffects;
-    }
-    
-    public void show()
-    {  
-        mainPanel.removeAll();
-        mainPanel.validate();
-        
-        effectControlsPanel.removeAll();
-        effectControlsPanel.validate();
-        
-        GridBagLayout g = new GridBagLayout();
-        GridBagConstraints c = new GridBagConstraints();
-        mainPanel.setLayout(g);
-        
-        c.fill = GridBagConstraints.VERTICAL;
-        g.setConstraints(mainPanel, c);
-
-        c.gridx = 0;
-        c.gridy = 0;
-        c.ipadx = 200;
-        c.ipady = 20;
-        c.fill = GridBagConstraints.CENTER;
-        g.setConstraints(effectsBoxLabel, c);
-        mainPanel.add(effectsBoxLabel);
-        
-        c.gridx = 0;
-        c.gridy = 1;
-        c.ipadx = 0;
-        c.ipady = 0;
-        g.setConstraints(effectControlsPanel, c);
-        mainPanel.add(effectControlsPanel);
-        
-        if (effectControls!=null && effectControls.length>0)
-        {  
-            effectControlsPanel.setLayout(g);
-            
-            c.gridx = 0;
-            c.fill = GridBagConstraints.BOTH;
-            
-            int totalShown = 0;
-            for (int i=0; i<effectControls.length; i++)
-            {
-                if (effectControls[i].isVisible())
-                {
-                    c.gridy = totalShown;
-                    g.setConstraints(effectControls[i].mainPanel, c);                    
-                    effectControlsPanel.add(effectControls[i].mainPanel);
-                    effectControls[i].show();
-
-                    totalShown++;
-                }
-            }
-        }
-
-        //Add the scroll pane  
-        c.gridx = 0;
-        c.gridy = 1;
-        c.ipadx = 300;
-        c.ipady = 105;
-        scrollPane = new JScrollPane(effectControlsPanel);
-        scrollPane.setViewportView(effectControlsPanel);
-        g.setConstraints(scrollPane, c);
-        mainPanel.add(scrollPane);
-        effectControlsPanel.validate();
-        mainPanel.validate();
+        return getTotalEffects();
     }
     
     public int getTotalEffects()
     {
-        if (effectControls!=null)
-            return effectControls.length;
+        if (effectControlsData!=null)
+            return effectControlsData.length;
         else
             return 0;
     }

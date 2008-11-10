@@ -30,9 +30,12 @@
 package marytts.server.http;
 
 import java.io.IOException;
+import java.util.Map;
 
 import javax.sound.sampled.AudioInputStream;
 
+import marytts.client.http.MaryHtmlForm;
+import marytts.client.http.MaryHttpClientUtils;
 import marytts.util.ConversionUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
 
@@ -45,29 +48,34 @@ import org.apache.http.nio.entity.NByteArrayEntity;
  */
 public class MaryHttpServerUtils 
 {
-    public static void toResponse(AudioInputStream audio, HttpResponse response) throws IOException
+    public static void toHttpResponse(Map<String, String> keyValuePairs, HttpResponse response) throws IOException
+    {
+        toHttpResponse(MaryHttpClientUtils.toHttpString(keyValuePairs), response);
+    }
+    
+    public static void toHttpResponse(AudioInputStream audio, HttpResponse response) throws IOException
     {
         AudioDoubleDataSource signal = new AudioDoubleDataSource(audio);
 
-        toResponse(signal.getAllData(), response);
+        toHttpResponse(signal.getAllData(), response);
     }
     
-    public static void toResponse(double[] x, HttpResponse response) throws IOException
+    public static void toHttpResponse(double[] x, HttpResponse response) throws IOException
     {   
-        toResponse(ConversionUtils.toByteArray(x), response);
+        toHttpResponse(ConversionUtils.toByteArray(x), response);
     }
     
-    public static void toResponse(int[] x, HttpResponse response) throws IOException
+    public static void toHttpResponse(int[] x, HttpResponse response) throws IOException
     {   
-        toResponse(ConversionUtils.toByteArray(x), response);
+        toHttpResponse(ConversionUtils.toByteArray(x), response);
     }
     
-    public static void toResponse(String x, HttpResponse response) throws IOException
+    public static void toHttpResponse(String x, HttpResponse response) throws IOException
     {   
-        toResponse(ConversionUtils.toByteArray(x), response);
+        toHttpResponse(ConversionUtils.toByteArray(x), response);
     }
     
-    public static void toResponse(byte[] byteArray, HttpResponse response)
+    public static void toHttpResponse(byte[] byteArray, HttpResponse response)
     {
         NByteArrayEntity body = new NByteArrayEntity(byteArray);
         body.setContentType("text/html; charset=UTF-8");

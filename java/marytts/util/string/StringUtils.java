@@ -923,6 +923,21 @@ public class StringUtils {
         return decoded;
     }
     
+    /**
+     * Divides the example text of a voice into
+     * sentences in a vector
+     * @param text the example text
+     * @return vector of example sentences
+     */
+    public static Vector<String> processVoiceExampleText(String text)
+    {
+        StringTokenizer st = new StringTokenizer(text,"#");
+        Vector<String> sentences = new Vector<String>();
+        while (st.hasMoreTokens()){
+            sentences.add(st.nextToken());}
+        return sentences;
+    }
+    
     public static void main(String[] args)
     {
         String[] items1 = readTextFile("D:\\items.txt");

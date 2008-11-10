@@ -87,8 +87,9 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
-import marytts.client.MaryAudioEffectsBox;
+import marytts.client.AudioEffectsBoxGUI;
 import marytts.client.SimpleFileFilter;
+import marytts.server.http.Address;
 import marytts.util.MaryUtils;
 
 import org.incava.util.diff.Diff;
@@ -142,7 +143,7 @@ public class MaryGUIHttpClient extends JPanel
     private JPanel showHidePanel;
     private JButton showHideEffects;
     private JList effectsList;
-    private MaryAudioEffectsBox effectsBox;
+    private AudioEffectsBoxGUI effectsBox;
     private String [] effectNames;
     private String [] exampleParams;
     private String [] helpTexts;
@@ -161,18 +162,12 @@ public class MaryGUIHttpClient extends JPanel
     private MaryHttpClient processor;
 
     private marytts.util.data.audio.AudioPlayer audioPlayer = null;
-    private Vector<MaryHttpClient.Voice> availableVoices = null;
-    private Vector<MaryHttpClient.DataType> inputTypes = null;
-    private Vector<MaryHttpClient.DataType> outputTypes = null;
     private boolean allowSave;
     private boolean streamMp3 = false;
-    private MaryHttpForm.Voice prevVoice = null;
+    private MaryHtmlForm.Voice prevVoice = null;
 
     //Map of limited Domain Voices and their example Texts
-    private Map limDomVoices = new HashMap();
-    
-    //Map of voices and their audio effects
-    private Map voices = new HashMap();
+    private Map<String, Vector<String>> limDomVoices = new HashMap<String, Vector<String>>();
     
     private GridBagLayout gridBagLayout;
     private GridBagConstraints gridC;
@@ -214,13 +209,13 @@ public class MaryGUIHttpClient extends JPanel
      * @throws IOException
      * @throws UnknownHostException
      */
-    public MaryGUIHttpClient(String host, int port, JApplet applet) throws Exception
+    public MaryGUIHttpClient(Address hostAddress, JApplet applet) throws Exception
     {
         super();
         // First the MaryHttpClient processor class, because it may provide
         // information needed in the GUI creation.
         try {
-            processor = new MaryHttpClient(host, port, false, false);
+            processor = new MaryHttpClient(hostAddress, false, false);
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null,
@@ -276,11 +271,9 @@ public class MaryGUIHttpClient extends JPanel
         gridC.gridwidth = 1;
         JLabel inputTypeLabel = new JLabel( "Input Type: " );
         inputTypePanel.add(inputTypeLabel);
-        inputTypes = processor.getInputDataTypes();
-        outputTypes = processor.getOutputDataTypes();
-        assert inputTypes.size() > 0;
-        assert outputTypes.size() > 0;
-        cbInputType = new JComboBox( inputTypes );
+        assert processor.getInputDataTypes().size() > 0;
+        assert processor.getOutputDataTypes().size() > 0;
+        cbInputType = new JComboBox( processor.getInputDataTypes() );
         cbInputType.setName("Input Type");
         cbInputType.getAccessibleContext().setAccessibleName("Input Type selection");
         cbInputType.setToolTipText( "Specify the type of data contained " +
@@ -393,12 +386,11 @@ public class MaryGUIHttpClient extends JPanel
         });
         
         // For the limited domain voices, get example texts: 
-        availableVoices = processor.getVoices();
-        Iterator it = availableVoices.iterator();
+        Iterator it = processor.getVoices().iterator();
         while (it.hasNext()) {
             MaryHttpClient.Voice v = (MaryHttpClient.Voice) it.next();
             if (v.isLimitedDomain()){
-                String exampleText = processor.getVoiceExampleText(v.name());
+                String exampleText = processor.getVoiceExampleTextLimitedDomain(v.name());
                 limDomVoices.put(v.name(), processVoiceExampleText(exampleText));
             }
         }
@@ -728,7 +720,7 @@ public class MaryGUIHttpClient extends JPanel
             e.printStackTrace();
         }
 
-        effectsBox = new MaryAudioEffectsBox(availableAudioEffects, strLineBreak);
+        effectsBox = new AudioEffectsBoxGUI(availableAudioEffects, strLineBreak);
     }
     
     private void showHideEffectAction()
@@ -765,13 +757,13 @@ public class MaryGUIHttpClient extends JPanel
         //Initialize the effects here (normally using info from the server)
         if (effectsBox != null)
         {     
-            if (effectsBox.hasEffects() && effectsBox.getTotalEffects()>0)
+            if (effectsBox.hasEffects() && effectsBox.getData().getTotalEffects()>0)
             {
                 MaryHttpClient.Voice voice = (MaryHttpClient.Voice)cbDefaultVoice.getSelectedItem();
                 
-                for (int i=0; i<effectsBox.getTotalEffects(); i++)
+                for (int i=0; i<effectsBox.getData().getTotalEffects(); i++)
                 {
-                    String effectName = effectsBox.effectControls[i].getEffectName();
+                    String effectName = effectsBox.getData().getControlData(i).getEffectName();
                     
                     effectsBox.effectControls[i].setVisible(true);
                     //Do not display audio effects that are only available for the HMM voice
@@ -806,36 +798,27 @@ public class MaryGUIHttpClient extends JPanel
             if (isButtonHide)
             {         
                 boolean bFirst = true;
-                for (int i=0; i<effectsBox.getTotalEffects(); i++)
+                for (int i=0; i<effectsBox.getData().getTotalEffects(); i++)
                 {
                     if (effectsBox.effectControls[i].chkEnabled.isSelected())
-                    {
-                        //Request from server to set the parameters of the ith effect as effectsBox.effectControls[i].txtParams.getText()
-                        MaryHttpClient.Voice voice = (MaryHttpClient.Voice)cbDefaultVoice.getSelectedItem();
-                        String strTmp = "";
-                        try {
-                            strTmp = processor.requestEffectParametersChange(effectsBox.effectNames[i], effectsBox.effectControls[i].txtParams.getText());
-                        } catch (Exception e1) {
-                            // TODO Auto-generated catch block
-                            e1.printStackTrace();
-                        }
-                       
-                        //Update the text field after server sets the parameters of the ith effect since the text field input might contain invalid entries
-                        // This is done by simply requesting the current parameters of the ith effect from the server
-                        effectsBox.effectControls[i].txtParams.setText(strTmp);
-
+                    {  
                         strTmpParam = "";
                         try {
-                            strTmpParam = processor.requestFullEffectAsString(effectsBox.effectNames[i]);
-                        } catch (Exception e) {
+                            strTmpParam = processor.requestFullEffect(effectsBox.getData().getControlData(i).getEffectName(), effectsBox.effectControls[i].txtParams.getText().trim());
+                        } catch (IOException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        } catch (InterruptedException e) {
                             // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
+                        
+                        strTmpParam = effectsBox.getData().getControlData(i).getParams();
 
                         strTmpParam = strTmpParam.trim();
                         
                         if (!bFirst)
-                            strParams += effectsBox.chEffectSeparator + strTmpParam;
+                            strParams += effectsBox.getData().getEffectSeparator() + strTmpParam;
                         else
                         {
                             strParams += strTmpParam;
@@ -869,7 +852,7 @@ public class MaryGUIHttpClient extends JPanel
     {
         MaryHttpClient.Voice defaultVoice = (MaryHttpClient.Voice) cbDefaultVoice.getSelectedItem();
         if (!defaultVoice.isLimitedDomain()) return;
-        Vector sentences = (Vector)limDomVoices.get(defaultVoice.name());
+        Vector<String> sentences = (Vector<String>)limDomVoices.get(defaultVoice.name());
         assert sentences != null;
         cbVoiceExampleText.removeAllItems();
         for (int i = 0; i<sentences.size(); i++) {
@@ -923,15 +906,17 @@ public class MaryGUIHttpClient extends JPanel
     
     /**
      * Verify that the list of voices in cbDefaultVoices matches the language of the input format.
+     * @throws InterruptedException 
+     * @throws IOException 
      */
-    private void verifyDefaultVoices() 
+    private void verifyDefaultVoices() throws IOException, InterruptedException 
     {
         MaryHttpClient.DataType inputType = (MaryHttpClient.DataType)cbInputType.getSelectedItem();
         // Is the default voice still suitable for the input locale?
         MaryHttpClient.Voice defaultVoice = (MaryHttpClient.Voice)cbDefaultVoice.getSelectedItem();
         // Reset the list, just in case
         cbDefaultVoice.removeAllItems();
-        for (MaryHttpClient.Voice v : availableVoices) {
+        for (MaryHttpClient.Voice v : processor.getVoices()) {
             cbDefaultVoice.addItem(v);
         }
         if (defaultVoice != null) {
@@ -948,20 +933,20 @@ public class MaryGUIHttpClient extends JPanel
      * @param text the example text
      * @return vector of example sentences
      */
-    private Vector processVoiceExampleText(String text){
+    private Vector<String> processVoiceExampleText(String text){
         StringTokenizer st = new StringTokenizer(text,"#");
-        Vector sentences = new Vector();
+        Vector<String> sentences = new Vector<String>();
         while (st.hasMoreTokens()){
             sentences.add(st.nextToken());}
         return sentences;
     }
 
-    private void setOutputTypeItems()
+    private void setOutputTypeItems() throws IOException, InterruptedException
     {
         MaryHttpClient.DataType inputType = (MaryHttpClient.DataType) cbInputType.getSelectedItem();
         MaryHttpClient.DataType selectedItem = (MaryHttpClient.DataType) cbOutputType.getSelectedItem();
         cbOutputType.removeAllItems();
-        for (MaryHttpClient.DataType d : outputTypes) {
+        for (MaryHttpClient.DataType d : processor.getOutputDataTypes()) {
             cbOutputType.addItem(d);
         }
         cbOutputType.setSelectedItem(selectedItem);
@@ -1558,5 +1543,4 @@ public class MaryGUIHttpClient extends JPanel
             return cbInputType;
         }
     }
-
 }

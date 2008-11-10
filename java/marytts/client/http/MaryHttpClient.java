@@ -55,16 +55,17 @@ import javax.sound.sampled.AudioFormat.Encoding;
 
 import marytts.Version;
 import marytts.client.MaryGUIClient;
+import marytts.server.http.Address;
 
 /**
- * A socket client implementing the MARY protocol.
+ * An HTTP client implementing the MARY protocol.
  * It can be used as a command line client or from within java code.
  * @author Marc Schr&ouml;der, oytun.turk
  * @see MaryGUIClient A GUI interface to this client
  * @see marytts.server.MaryServer Description of the MARY protocol
  */
 
-public class MaryHttpClient extends MaryHttpForm {
+public class MaryHttpClient extends MaryHtmlForm {
     
     private boolean doProfile = false;
     private boolean beQuiet = false;
@@ -100,9 +101,9 @@ public class MaryHttpClient extends MaryHttpForm {
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    public MaryHttpClient(String host, int port) throws IOException, InterruptedException
+    public MaryHttpClient(Address serverAddress) throws IOException, InterruptedException
     {
-        super(host, port);
+        super(serverAddress);
         
         boolean profile = Boolean.getBoolean("mary.client.profile");
         boolean quiet = Boolean.getBoolean("mary.client.quiet");
@@ -122,9 +123,9 @@ public class MaryHttpClient extends MaryHttpForm {
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    public MaryHttpClient(String host, int port, boolean profile, boolean quiet) throws IOException, InterruptedException
+    public MaryHttpClient(Address serverAddress, boolean profile, boolean quiet) throws IOException, InterruptedException
     {
-        super(host, port);
+        super(serverAddress);
         
         initialise(profile, quiet);
     }
@@ -153,14 +154,14 @@ public class MaryHttpClient extends MaryHttpForm {
         } catch (IOException e1) {
             e1.printStackTrace();
             throw new IOException("MARY client cannot connect to MARY server at\n"+
-                    host+":"+port+"\n"+
+                    hostAddress.fullAddress+"\n"+
                     "Make sure that you have started the mary server\n"+
                     "or specify a different host or port using \n"+
             "maryclient -Dserver.host=my.host.com -Dserver.port=12345");
         } catch (InterruptedException e2) {
             e2.printStackTrace();
             throw new InterruptedException("MARY client cannot connect to MARY server at\n"+
-                    host+":"+port+"\n"+
+                    hostAddress.fullAddress+"\n"+
                     "Make sure that you have started the mary server\n"+
                     "or specify a different host or port using \n"+
             "maryclient -Dserver.host=my.host.com -Dserver.port=12345");
@@ -168,10 +169,9 @@ public class MaryHttpClient extends MaryHttpForm {
         
         if (!beQuiet) 
         {
-            System.err.print("Connected to " + host + ":" + port + ", ");
-            for (int i=0; i<serverVersionInfo.length; i++) {
-                System.err.println(serverVersionInfo[i]);
-            }
+            System.err.print("Connected to " + hostAddress.fullAddress + ", ");
+            System.err.println(serverVersionInfo);
+            
             if (!serverCanStream) {
                 System.err.println("Server version " + serverVersionNo + " cannot stream audio, defaulting to non-streaming");
             }
@@ -435,24 +435,24 @@ public class MaryHttpClient extends MaryHttpForm {
                             System.err.println("After "+(System.currentTimeMillis()-startTime)+" ms: Got at least the header");
                         in = new BufferedInputStream(in);
                         in.mark(1000);
-                         AudioInputStream fromServerAudio = AudioSystem.getAudioInputStream(in);
-                         if (fromServerAudio.getFrameLength() == 0) { // weird bug under Java 1.4
-                             //in.reset();
-                             fromServerAudio = new AudioInputStream(in, fromServerAudio.getFormat(), AudioSystem.NOT_SPECIFIED);
-                         }
-                         //System.out.println("Audio framelength: "+fromServerAudio.getFrameLength());
-                         //System.out.println("Audio frame size: "+fromServerAudio.getFormat().getFrameSize());
-                         //System.out.println("Audio format: "+fromServerAudio.getFormat());
-                         if (doProfile)
-                             System.err.println("After "+(System.currentTimeMillis()-startTime)+" ms: Audio available: "+in.available());
-                         AudioFormat audioFormat = fromServerAudio.getFormat();
-                         if (!audioFormat.getEncoding().equals(Encoding.PCM_SIGNED)) { // need conversion, e.g. for mp3
-                             audioFormat = new AudioFormat(fromServerAudio.getFormat().getSampleRate(), 16, 1, true, false);
-                             fromServerAudio = AudioSystem.getAudioInputStream(audioFormat, fromServerAudio);
-                         }
+                        AudioInputStream fromServerAudio = AudioSystem.getAudioInputStream(in);
+                        if (fromServerAudio.getFrameLength() == 0) { // weird bug under Java 1.4
+                            //in.reset();
+                            fromServerAudio = new AudioInputStream(in, fromServerAudio.getFormat(), AudioSystem.NOT_SPECIFIED);
+                        }
+                        //System.out.println("Audio framelength: "+fromServerAudio.getFrameLength());
+                        //System.out.println("Audio frame size: "+fromServerAudio.getFormat().getFrameSize());
+                        //System.out.println("Audio format: "+fromServerAudio.getFormat());
+                        if (doProfile)
+                            System.err.println("After "+(System.currentTimeMillis()-startTime)+" ms: Audio available: "+in.available());
+                        AudioFormat audioFormat = fromServerAudio.getFormat();
+                        if (!audioFormat.getEncoding().equals(Encoding.PCM_SIGNED)) { // need conversion, e.g. for mp3
+                            audioFormat = new AudioFormat(fromServerAudio.getFormat().getSampleRate(), 16, 1, true, false);
+                            fromServerAudio = AudioSystem.getAudioInputStream(audioFormat, fromServerAudio);
+                        }
                         player.setAudio(fromServerAudio);
                         player.run(); // not start(), i.e. execute in this thread
-                        
+
                         if (timer != null)
                             timer.cancel();
                         

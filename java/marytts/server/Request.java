@@ -85,26 +85,26 @@ import org.w3c.dom.traversal.TreeWalker;
  * (<code>writeOutputData</code>).
  */
 public class Request {
-    private MaryDataType inputType;
-    private MaryDataType outputType;
-    private AudioFileFormat audioFileFormat;
-    private AppendableSequenceAudioInputStream appendableAudioStream;
-    private Locale defaultLocale;
-    private Voice defaultVoice;
-    private String defaultStyle;
-    private String defaultEffects;
+    protected MaryDataType inputType;
+    protected MaryDataType outputType;
+    protected AudioFileFormat audioFileFormat;
+    protected AppendableSequenceAudioInputStream appendableAudioStream;
+    protected Locale defaultLocale;
+    protected Voice defaultVoice;
+    protected String defaultStyle;
+    protected String defaultEffects;
     
-    private int id;
-    private Logger logger;
-    private MaryData inputData;
-    private MaryData outputData;
-    private boolean streamAudio = false;;
-    private boolean abortRequested = false;
+    protected int id;
+    protected Logger logger;
+    protected MaryData inputData;
+    protected MaryData outputData;
+    protected boolean streamAudio = false;;
+    protected boolean abortRequested = false;
 
     // Keep track of timing info for each module
     // (map MaryModule onto Long)
-    private Set<MaryModule> usedModules;
-    private Map<MaryModule,Long> timingInfo;
+    protected Set<MaryModule> usedModules;
+    protected Map<MaryModule,Long> timingInfo;
 
     public Request(MaryDataType inputType, MaryDataType outputType, Locale defaultLocale,
                    Voice defaultVoice, String defaultEffects, String defaultStyle,
@@ -386,8 +386,8 @@ public class Request {
         for (Iterator it = neededModules.iterator(); it.hasNext() && !abortRequested;) {
             m = (MaryModule) it.next();
             if (m.getState() == MaryModule.MODULE_OFFLINE) {
-                // This should happen only in non-server mode:
-                assert MaryProperties.needBoolean("server") == false;
+                // This should happen only in command line mode:
+                assert MaryProperties.needProperty("server").compareTo("commandline") == 0;
                 logger.info("Starting module " + m.name());
                 m.startup();
                 assert m.getState() == MaryModule.MODULE_RUNNING; 
