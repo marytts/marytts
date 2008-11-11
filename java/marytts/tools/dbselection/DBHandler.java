@@ -216,19 +216,17 @@ public class DBHandler {
           boolean res1;
           int res2;
           // creating TABLE=text
-          System.out.println("\n\nCreating table:" + createTextTable);
+          System.out.println("\nCreating table:" + createTextTable);
           res1 = st.execute( createTextTable );         
           System.out.println("Loading sql file: " + textFile);
-          System.out.println("SOURCE " + textFile + ";" );
           //int res2 = st.executeUpdate("SOURCE " + sourceSqlFile + ";");  // This does not work, i do not know??
           res2 = st.executeUpdate("LOAD DATA LOCAL INFILE '" + textFile + "' into table text;");
           System.out.println("TABLE = text succesfully created.");   
           
           // creating TABLE=page
-          System.out.println("\n\nCreating table:" + createPageTable);
+          System.out.println("\nCreating table:" + createPageTable);
           res1 = st.execute( createPageTable );         
           System.out.println("Loading sql file: " + pageFile);
-          System.out.println("SOURCE " + pageFile + ";" );
           res2 = st.executeUpdate("LOAD DATA LOCAL INFILE '" + pageFile + "' into table page;");
           System.out.println("TABLE = page succesfully created.");  
           
@@ -397,7 +395,7 @@ public class DBHandler {
   // Firts filtering:
   // get first the page_title and check if it is not Image: or  Wikipedia:Votes_for_deletion/
   // maybe we can check also the length
-  public String getTextFromPage(String id) {
+  public String getTextFromPage(String id, int minPageLength) {
       String pageTitle, pageLen, dbQuery, textId, text=null;
       byte[] textBytes=null;
       int len;
@@ -409,9 +407,9 @@ public class DBHandler {
       pageLen = queryTable(dbQuery);
       len = Integer.parseInt(pageLen);
       
-      if(len < 20000 || pageTitle.contains("Image:") 
-                     || pageTitle.contains("Wikipedia:")
-                     || pageTitle.contains("List_of_")){
+      if(len < minPageLength || pageTitle.contains("Image:") 
+                             || pageTitle.contains("Wikipedia:")
+                             || pageTitle.contains("List_of_")){
         //System.out.println("PAGE NOT USED page title=" + pageTitle + " Len=" + len);       
         /*
         dbQuery = "select rev_text_id from revision where rev_page=" + id;
