@@ -92,7 +92,7 @@ public class MaryWebHttpClientHandler
         htmlPage += indenter(++numIndents, strIndent) + "<title>MARY Web Client</title>" + nextline;
         htmlPage += indenter(--numIndents, strIndent) + "</head>" + nextline;
         htmlPage += nextline;
-        htmlPage += indenter(numIndents, strIndent) + "<body onload=\"return initForm();\">" + nextline;
+        htmlPage += indenter(numIndents, strIndent) + "<body onload=\"initForm();\">" + nextline;
         htmlPage += indenter(++numIndents, strIndent) + "<font STYLE=\"font-family: Verdana\">" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "<table>" + nextline;
         htmlPage += indenter(++numIndents, strIndent) + "<tr>" + nextline;
@@ -129,7 +129,7 @@ public class MaryWebHttpClientHandler
         htmlPage += indenter(++numIndents, strIndent) + "<tr>" + nextline;
         htmlPage += indenter(++numIndents, strIndent) + "<td></td>" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "<td>Input Type:" + nextline;
-        htmlPage += indenter(++numIndents, strIndent) + "<select name=\"inputtype\" size=\"1\" onChange=\"return inputTypeChanged();\">" + nextline;
+        htmlPage += indenter(++numIndents, strIndent) + "<select name=\"INPUT_TYPE\" size=\"1\" onChange=\"return inputTypeChanged();\">" + nextline;
         
         //Fill input types
         for (i=0; i<htmlForm.inputDataTypes.size(); i++)
@@ -149,7 +149,7 @@ public class MaryWebHttpClientHandler
             htmlPage += indenter(numIndents, strIndent) + "<td></td>" + nextline;
         
         htmlPage += indenter(numIndents, strIndent) + "<td>Output Type:" + nextline;
-        htmlPage += indenter(++numIndents, strIndent) + "<select name=\"outputtype\" size=\"1\"  onChange=\"return outputTypeChanged();\">" + nextline;
+        htmlPage += indenter(++numIndents, strIndent) + "<select name=\"OUTPUT_TYPE\" size=\"1\"  onChange=\"return outputTypeChanged();\">" + nextline;
         
         //Fill output types
         for (i=0; i<htmlForm.outputDataTypes.size(); i++)
@@ -247,7 +247,7 @@ public class MaryWebHttpClientHandler
         
         htmlPage += indenter(numIndents, strIndent) + "<tr>" + nextline;
         htmlPage += indenter(++numIndents, strIndent) + "<td>Voice:</td>" + nextline;
-        htmlPage += indenter(numIndents, strIndent) + "<td><select name=\"voice\" size=\"1\" onChange=\"return doSubmit();\">" + nextline;
+        htmlPage += indenter(numIndents, strIndent) + "<td><select name=\"VOICE\" size=\"1\" onChange=\"return doSubmit();\">" + nextline;
 
         //Fill voices
         for (i=0; i<htmlForm.allVoices.size(); i++)
@@ -295,11 +295,20 @@ public class MaryWebHttpClientHandler
         htmlPage += indenter(numIndents, strIndent) + "<td>Click to send synthesis request to MARY server</td>" + nextline;
         htmlPage += indenter(--numIndents, strIndent) + "</tr>" + nextline;
         
-        //Add an invisible checkbox that is always checked to let server know this is a web browser client
+        //Invisible form fields for communication with server
+        //Tell server that this is a web browser client
         htmlPage += nextline;     
         htmlPage += indenter(numIndents, strIndent) + "<tr>" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "<td><input type=\"hidden\" name=\"iswebbrowserclient\" value=\"true\"></td>" + nextline;
         htmlPage += indenter(--numIndents, strIndent) + "</tr>" + nextline;
+        //
+        
+        //For requesting example texts depending on input/output type and voice
+        htmlPage += nextline;     
+        htmlPage += indenter(numIndents, strIndent) + "<tr>" + nextline;
+        htmlPage += indenter(numIndents, strIndent) + "<td><input type=\"hidden\" name=\"EXAMPLE_TEXT\" value=\"\"></td>" + nextline;
+        htmlPage += indenter(--numIndents, strIndent) + "</tr>" + nextline;
+        
         //
         
         //Java scripts here
@@ -310,9 +319,9 @@ public class MaryWebHttpClientHandler
         htmlPage += nextline;
         htmlPage += indenter(numIndents, strIndent) + "function initForm()" + nextline; 
         htmlPage += indenter(numIndents, strIndent) + "{" + nextline;
-        htmlPage += indenter(++numIndents, strIndent) + "maryWebClient.voice.selectedIndex = " + String.valueOf(htmlForm.voiceSelected) + ";" + nextline;
-        htmlPage += indenter(numIndents, strIndent) + "maryWebClient.inputtype.selectedIndex = " + String.valueOf(htmlForm.inputTypeSelected) + ";" + nextline;
-        htmlPage += indenter(numIndents, strIndent) + "maryWebClient.outputtype.selectedIndex = " + String.valueOf(htmlForm.outputTypeSelected) + ";" + nextline;
+        htmlPage += indenter(++numIndents, strIndent) + "maryWebClient.VOICE.selectedIndex = " + String.valueOf(htmlForm.voiceSelected) + ";" + nextline;
+        htmlPage += indenter(numIndents, strIndent) + "maryWebClient.INPUT_TYPE.selectedIndex = " + String.valueOf(htmlForm.inputTypeSelected) + ";" + nextline;
+        htmlPage += indenter(numIndents, strIndent) + "maryWebClient.OUTPUT_TYPE.selectedIndex = " + String.valueOf(htmlForm.outputTypeSelected) + ";" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "maryWebClient.audioformat.selectedIndex = " + String.valueOf(htmlForm.audioFormatSelected) + ";" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "maryWebClient.INPUT_TEXT.value = '" + formatStringForJavaScript(htmlForm.inputText) + "';" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "maryWebClient.OUTPUT_TEXT.value = '" + formatStringForJavaScript(htmlForm.outputText) + "';" + nextline;
@@ -341,7 +350,7 @@ public class MaryWebHttpClientHandler
         htmlPage += nextline;
         htmlPage += indenter(numIndents, strIndent) + "function inputTypeChanged()" + nextline; 
         htmlPage += indenter(numIndents, strIndent) + "{" + nextline;
-        htmlPage += indenter(++numIndents, strIndent) + "maryWebClient.INPUT_TEXT.value = '? '" + htmlForm.inputDataTypes.get(htmlForm.inputTypeSelected).name() + " " + htmlForm.allVoices.get(htmlForm.voiceSelected).getLocale().toString() + ";" + nextline;  
+        htmlPage += indenter(++numIndents, strIndent) + "maryWebClient.EXAMPLE_TEXT.value = '? ' + maryWebClient.INPUT_TYPE.value + ' ' + '" + htmlForm.allVoices.get(htmlForm.voiceSelected).getLocale() + "';" + nextline;  
         htmlPage += indenter(numIndents, strIndent) + "doSubmit();" + nextline;
         htmlPage += indenter(--numIndents, strIndent) + "};" + nextline;
         //
@@ -352,7 +361,7 @@ public class MaryWebHttpClientHandler
             htmlPage += nextline;
             htmlPage += indenter(numIndents, strIndent) + "function outputTypeChanged()" + nextline; 
             htmlPage += indenter(numIndents, strIndent) + "{" + nextline;
-            htmlPage += indenter(++numIndents, strIndent) + "maryWebClient.OUTPUT_TEXT.value = '? '" + htmlForm.outputDataTypes.get(htmlForm.outputTypeSelected).name() + " " + htmlForm.allVoices.get(htmlForm.voiceSelected).getLocale().toString() + ";" + nextline;  
+            htmlPage += indenter(++numIndents, strIndent) + "maryWebClient.EXAMPLE_TEXT.value = '? ' + maryWebClient.OUTPUT_TYPE.value + ' ' + '" + htmlForm.allVoices.get(htmlForm.voiceSelected).getLocale() + "';" + nextline; 
             htmlPage += indenter(numIndents, strIndent) + "doSubmit();" + nextline;
             htmlPage += indenter(--numIndents, strIndent) + "};" + nextline;
         }

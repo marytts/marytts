@@ -932,9 +932,16 @@ public class StringUtils {
     public static Vector<String> processVoiceExampleText(String text)
     {
         StringTokenizer st = new StringTokenizer(text,"#");
-        Vector<String> sentences = new Vector<String>();
-        while (st.hasMoreTokens()){
-            sentences.add(st.nextToken());}
+        Vector<String> sentences = null;
+        
+        while (st.hasMoreTokens())
+        {
+            if (sentences==null)
+                sentences = new Vector<String>();
+            
+            sentences.add(st.nextToken());
+        }
+        
         return sentences;
     }
     
