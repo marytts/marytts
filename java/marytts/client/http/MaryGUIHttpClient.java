@@ -813,8 +813,6 @@ public class MaryGUIHttpClient extends JPanel
                             e.printStackTrace();
                         }
                         
-                        strTmpParam = effectsBox.getData().getControlData(i).getParams();
-
                         strTmpParam = strTmpParam.trim();
                         
                         if (!bFirst)
