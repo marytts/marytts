@@ -477,8 +477,9 @@ public class MaryHtmlForm {
     }
     
     //Parse fullParamaters which is of the form key1=value1&key2=value2...
-    public void toSelections(Map<String, String> keyValuePairs, Vector<String> defaultVoiceExampleTexts) throws IOException, InterruptedException
+    public void toSelections(Map<String, String> keyValuePairsIn, Vector<String> defaultVoiceExampleTexts) throws IOException, InterruptedException
     {
+        keyValuePairs = keyValuePairsIn;
         if (keyValuePairs!=null)
         {
             int i;
