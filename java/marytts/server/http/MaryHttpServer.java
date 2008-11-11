@@ -433,21 +433,21 @@ public class MaryHttpServer {
             }
             
             if (!bProcessed)
-                bProcessed = handleRequests(keyValuePairs);
-            
-            if (bProcessed)
             {
-                //Generate response for GUI client
+                bProcessed = handleRequests(keyValuePairs);
+                
+                //Generate info response for GUI client
                 MaryHttpServerUtils.toHttpResponse(keyValuePairs, response);
                 //  
                 
-                //Generate response for web browser client
+                //Generate info response for web browser client
                 //MaryWebHttpClientHandler webHttpClient = new MaryWebHttpClientHandler();
                 //webHttpClient.toHttpResponse(htmlForm, response);
                 //
-
-                response.setStatusCode(HttpStatus.SC_OK);
             }
+            
+            if (bProcessed)
+                response.setStatusCode(HttpStatus.SC_OK);
             else
                 response.setStatusCode(HttpStatus.SC_BAD_REQUEST);
             

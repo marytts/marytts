@@ -436,6 +436,7 @@ public class MaryHttpClient extends MaryHtmlForm {
                         in = new BufferedInputStream(in);
                         in.mark(1000);
                         AudioInputStream fromServerAudio = AudioSystem.getAudioInputStream(in);
+                        
                         if (fromServerAudio.getFrameLength() == 0) { // weird bug under Java 1.4
                             //in.reset();
                             fromServerAudio = new AudioInputStream(in, fromServerAudio.getFormat(), AudioSystem.NOT_SPECIFIED);

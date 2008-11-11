@@ -210,7 +210,6 @@ public class RequestHttpHandler extends Thread {
             if (!streamingOutput) 
             {
                 try {
-                    //request.writeOutputData(dataSocket.getOutputStream());
                     request.writeOutputData(response);    
                 } catch (Exception e) {
                     String message = "Cannot write output, client seems to have disconnected.";
