@@ -71,7 +71,11 @@ public class MaryWebHttpClientHandler
     public static String formatStringForJavaScript(String strIn)
     {
         String strOut = StringUtils.replace(strIn.trim(), "'", "\\'");
+        strOut = StringUtils.replace(strOut, "\n", "\\n");
         strOut = StringUtils.replace(strOut, System.getProperty("line.separator"), "\\n");
+        strOut = StringUtils.replace(strOut, "\\r", "");
+        strOut = StringUtils.replace(strOut, "\\t", "");
+        strOut = StringUtils.replace(strOut, "\\0", "");
         
         return strOut;
     }
@@ -295,20 +299,14 @@ public class MaryWebHttpClientHandler
         htmlPage += indenter(numIndents, strIndent) + "<td>Click to send synthesis request to MARY server</td>" + nextline;
         htmlPage += indenter(--numIndents, strIndent) + "</tr>" + nextline;
         
-        //Invisible form fields for communication with server
-        //Tell server that this is a web browser client
+        //Invisible fields for communication with server
         htmlPage += nextline;     
         htmlPage += indenter(numIndents, strIndent) + "<tr>" + nextline;
+        //Tells server that this is a web browser client
         htmlPage += indenter(numIndents, strIndent) + "<td><input type=\"hidden\" name=\"iswebbrowserclient\" value=\"true\"></td>" + nextline;
-        htmlPage += indenter(--numIndents, strIndent) + "</tr>" + nextline;
-        //
-        
-        //For requesting example texts depending on input/output type and voice
-        htmlPage += nextline;     
-        htmlPage += indenter(numIndents, strIndent) + "<tr>" + nextline;
+        //Requests example texts depending on input/output type and voice
         htmlPage += indenter(numIndents, strIndent) + "<td><input type=\"hidden\" name=\"EXAMPLE_TEXT\" value=\"\"></td>" + nextline;
-        htmlPage += indenter(--numIndents, strIndent) + "</tr>" + nextline;
-        
+        htmlPage += indenter(--numIndents, strIndent) + "</tr>" + nextline;        
         //
         
         //Java scripts here
@@ -356,15 +354,11 @@ public class MaryWebHttpClientHandler
         //
 
         //Output type changed
-        if (htmlForm.isOutputText)
-        {
-            htmlPage += nextline;
-            htmlPage += indenter(numIndents, strIndent) + "function outputTypeChanged()" + nextline; 
-            htmlPage += indenter(numIndents, strIndent) + "{" + nextline;
-            htmlPage += indenter(++numIndents, strIndent) + "maryWebClient.EXAMPLE_TEXT.value = '? ' + maryWebClient.OUTPUT_TYPE.value + ' ' + '" + htmlForm.allVoices.get(htmlForm.voiceSelected).getLocale() + "';" + nextline; 
-            htmlPage += indenter(numIndents, strIndent) + "doSubmit();" + nextline;
-            htmlPage += indenter(--numIndents, strIndent) + "};" + nextline;
-        }
+        htmlPage += nextline;
+        htmlPage += indenter(numIndents, strIndent) + "function outputTypeChanged()" + nextline; 
+        htmlPage += indenter(numIndents, strIndent) + "{" + nextline;
+        htmlPage += indenter(numIndents, strIndent) + "doSubmit();" + nextline;
+        htmlPage += indenter(--numIndents, strIndent) + "};" + nextline;
         //
         
         //Default parameter loaders for audio effects
