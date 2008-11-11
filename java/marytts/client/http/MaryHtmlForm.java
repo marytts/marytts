@@ -66,19 +66,18 @@ public class MaryHtmlForm {
     
     public Vector<MaryHtmlForm.Voice> allVoices;
     public Map<Locale, Vector<MaryHtmlForm.Voice>> voicesByLocaleMap;
-    public Map<String, Vector<String>> limitedDomainVoices = new HashMap<String, Vector<String>>();
+    public Map<String, Vector<String>> limitedDomainVoices;
     public Vector<MaryHtmlForm.DataType> allDataTypes;
     public Vector<MaryHtmlForm.DataType> inputDataTypes;
     public Vector<MaryHtmlForm.DataType> outputDataTypes;
-    public Map<String, String> serverExampleTexts = new HashMap<String, String>();
+    public Map<String, String> serverExampleTexts;
     public String currentExampleText;
-    public Map<String, String> voiceExampleTextsLimitedDomain = new HashMap<String, String>();
-    public Map<String, String> voiceExampleTextsGeneralDomain = new HashMap<String, String>();
-    public Map<String, String> audioEffectHelpTextsMap = new HashMap<String, String>();
+    public Map<String, String> voiceExampleTextsLimitedDomain;
+    public Map<String, String> voiceExampleTextsGeneralDomain;
+    public Map<String, String> audioEffectHelpTextsMap;
     public String[] audioFileFormatTypes;
     public String inputText;
     public String outputText;
-    public boolean isWebBrowserClient;
     public boolean isOutputText;
     public int voiceSelected;
     public int inputTypeSelected;
@@ -88,7 +87,7 @@ public class MaryHtmlForm {
     public String audioEffects;
     public String audioEffectsHelpTextLineBreak;
     public AudioEffectsBoxData effectsBoxData;
-    public Map<String, String> keyValuePairs = new HashMap<String, String>();
+    public Map<String, String> keyValuePairs;
     public Vector<String> limitedDomainExampleTexts;
     
     protected MaryHttpRequester httpRequester;
@@ -104,12 +103,12 @@ public class MaryHtmlForm {
             serverPort = DEFAULT_PORT;
         
         Address serverAddress = new Address(serverHost, serverPort);
-        initialise(serverAddress, null, null, null, null, null, null, null);
+        initialiseFromParameterString(serverAddress, null, null, null, null, null, null, null, null);
     }
     
     public MaryHtmlForm(Address serverAddress) throws IOException, InterruptedException
     {
-        initialise(serverAddress, null, null, null, null, null, null, null);
+        initialiseFromParameterString(serverAddress, null, null, null, null, null, null, null, null);
     }
     
     public MaryHtmlForm(String fullParameters,
@@ -118,7 +117,8 @@ public class MaryHtmlForm {
                         String dataTypesIn,
                         String audioFileFormatTypesIn,
                         String audioEffectHelpTextLineBreakIn,
-                        String audioEffectsIn) throws IOException, InterruptedException
+                        String defaultAudioEffects,
+                        Vector<String> defaultVoiceExampleTexts) throws IOException, InterruptedException
     {
         String serverHost = System.getProperty("server.host", DEFAULT_HOST);
         int serverPort = 0;
@@ -130,7 +130,15 @@ public class MaryHtmlForm {
         
         Address serverAddress = new Address(serverHost, serverPort);
         
-        initialise(serverAddress, fullParameters, versionIn, voicesIn, dataTypesIn, audioFileFormatTypesIn, audioEffectHelpTextLineBreakIn, audioEffectsIn);
+        initialiseFromParameterString(serverAddress, 
+                   fullParameters, 
+                   versionIn, 
+                   voicesIn, 
+                   dataTypesIn, 
+                   audioFileFormatTypesIn, 
+                   audioEffectHelpTextLineBreakIn, 
+                   defaultAudioEffects,
+                   defaultVoiceExampleTexts);
     }
     
     public MaryHtmlForm(Address serverAddress,
@@ -140,45 +148,123 @@ public class MaryHtmlForm {
                         String dataTypesIn,
                         String audioFileFormatTypesIn,
                         String audioEffectHelpTextLineBreakIn,
-                        String audioEffectsIn) throws IOException, InterruptedException
+                        String defaultAudioEffects,
+                        Vector<String> defaultVoiceExampleTexts) throws IOException, InterruptedException
     {
-        initialise(serverAddress, fullParameters, versionIn, voicesIn, dataTypesIn, audioFileFormatTypesIn, audioEffectHelpTextLineBreakIn, audioEffectsIn);
+        initialiseFromParameterString(serverAddress, 
+                   fullParameters, 
+                   versionIn, 
+                   voicesIn, 
+                   dataTypesIn, 
+                   audioFileFormatTypesIn, 
+                   audioEffectHelpTextLineBreakIn, 
+                   defaultAudioEffects, 
+                   defaultVoiceExampleTexts);
     }
     
-    public MaryHtmlForm(Address serverAddress, 
-                        String httpRequestHeader, 
-                        String fullParameters,
-                        String versionIn,
-                        String voicesIn,
-                        String dataTypesIn,
-                        String audioFileFormatTypesIn,
-                        String audioEffectHelpTextLineBreakIn,
-                        String audioEffectsIn) throws IOException, InterruptedException
+    public MaryHtmlForm(Address serverAddress,
+            Map<String, String> keyValuePairsIn,
+            String versionIn,
+            String voicesIn,
+            String dataTypesIn,
+            String audioFileFormatTypesIn,
+            String audioEffectHelpTextLineBreakIn,
+            String defaultAudioEffects,
+            Vector<String> defaultVoiceExampleTexts) throws IOException, InterruptedException
     {
-        initialise(serverAddress, fullParameters, versionIn, voicesIn, dataTypesIn, audioFileFormatTypesIn, audioEffectHelpTextLineBreakIn, audioEffectsIn);
+        initialiseFromKeyValuePairs(serverAddress, 
+                keyValuePairsIn, 
+                versionIn, 
+                voicesIn, 
+                dataTypesIn, 
+                audioFileFormatTypesIn, 
+                audioEffectHelpTextLineBreakIn, 
+                defaultAudioEffects, 
+                defaultVoiceExampleTexts);
+    }
+   
+    public void init()
+    {
+        httpRequester = new MaryHttpRequester();
+        hostAddress = null;
+        String serverVersionInfo = null;
+        String serverVersionNo = "unknown";
+        boolean serverCanStream = false;
+        
+        allVoices = null;
+        voicesByLocaleMap = null;
+        limitedDomainVoices = new HashMap<String, Vector<String>>();
+        allDataTypes = null;
+        inputDataTypes = null;
+        outputDataTypes = null;
+        serverExampleTexts = new HashMap<String, String>();
+        currentExampleText = "";
+        voiceExampleTextsLimitedDomain = new HashMap<String, String>();
+        voiceExampleTextsGeneralDomain = new HashMap<String, String>();
+        audioEffectHelpTextsMap = new HashMap<String, String>();
+        audioFileFormatTypes = null;
+        inputText = "";
+        outputText = "";
+        isOutputText = false;
+        voiceSelected = 0;
+        inputTypeSelected = 0;
+        outputTypeSelected = 0;
+        audioFormatSelected = 0;
+        limitedDomainExampleTextSelected = 0;
+        audioEffects = "";
+        audioEffectsHelpTextLineBreak = "";
+        effectsBoxData = null;
+        keyValuePairs = new HashMap<String, String>();
+        limitedDomainExampleTexts = null;
     }
     
-    public void initialise(Address serverAddress, 
+    public void initialiseFromParameterString(Address serverAddress, 
                            String fullParameters,
                            String versionIn,
                            String voicesIn,
                            String dataTypesIn,
                            String audioFileFormatTypesIn,
                            String audioEffectHelpTextLineBreakIn,
-                           String audioEffectsIn) throws IOException, InterruptedException
+                           String defaultAudioEffects,
+                           Vector<String> defaultVoiceExampleTexts) throws IOException, InterruptedException
     {
+        init();
+        
         hostAddress = serverAddress;
-        httpRequester = new MaryHttpRequester();
         
         toServerVersionInfo(versionIn);
         toVoices(voicesIn);
         toDataTypes(dataTypesIn);
         toAudioFileFormatTypes(audioFileFormatTypesIn);
         toAudioEffectsHelpTextLineBreak(audioEffectHelpTextLineBreakIn);
-        toAudioEffects(audioEffectsIn);
-        toSelections(fullParameters);
+        toAudioEffects(defaultAudioEffects);
+        toSelections(fullParameters, defaultVoiceExampleTexts);
     }
 
+    public void initialiseFromKeyValuePairs(Address serverAddress, 
+            Map<String, String> keyValuePairsIn,
+            String versionIn,
+            String voicesIn,
+            String dataTypesIn,
+            String audioFileFormatTypesIn,
+            String audioEffectHelpTextLineBreakIn,
+            String defaultAudioEffects,
+            Vector<String> defaultVoiceExampleTexts) throws IOException, InterruptedException
+            {
+        
+        init();
+        hostAddress = serverAddress;
+
+
+        toServerVersionInfo(versionIn);
+        toVoices(voicesIn);
+        toDataTypes(dataTypesIn);
+        toAudioFileFormatTypes(audioFileFormatTypesIn);
+        toAudioEffectsHelpTextLineBreak(audioEffectHelpTextLineBreakIn);
+        toAudioEffects(defaultAudioEffects);
+        toSelections(keyValuePairsIn, defaultVoiceExampleTexts);
+    }
+    
     public void toServerVersionInfo(String info)
     {
         serverVersionInfo = info;
@@ -360,12 +446,8 @@ public class MaryHtmlForm {
             effectsBoxData = null;
     }
     
-    //Parse fullParamaters which is of the form key1=value1&key2=value2...
-    public void toSelections(String fullParameters) throws IOException, InterruptedException
-    {
-        int i;
-        String selected;
-        
+    public void toSelections(String fullParameters, Vector<String> defaultVoiceExampleTexts) throws IOException, InterruptedException
+    {        
         inputTypeSelected = 0;
         inputText = "";
         if (outputDataTypes!=null && outputDataTypes.size()>0)
@@ -378,7 +460,6 @@ public class MaryHtmlForm {
         audioFormatSelected = 0;
         voiceSelected = 0;
         limitedDomainExampleTextSelected = 0;
-        isWebBrowserClient = true;
         
         if (effectsBoxData==null)
         {
@@ -392,17 +473,19 @@ public class MaryHtmlForm {
 
         keyValuePairs = MaryHttpClientUtils.toKeyValuePairs(fullParameters, false);
         
+        toSelections(keyValuePairs, defaultVoiceExampleTexts);
+    }
+    
+    //Parse fullParamaters which is of the form key1=value1&key2=value2...
+    public void toSelections(Map<String, String> keyValuePairs, Vector<String> defaultVoiceExampleTexts) throws IOException, InterruptedException
+    {
         if (keyValuePairs!=null)
         {
-            //Detect web browser client
-            isWebBrowserClient = false;
-            selected = keyValuePairs.get("iswebbrowserclient");
-            if (selected!=null && selected.compareTo("true")==0)
-                isWebBrowserClient = true;
-            //
+            int i;
+            String selected;
             
             //Input type selected
-            selected = keyValuePairs.get("inputtype");
+            selected = keyValuePairs.get("INPUT_TYPE");
             if (selected!=null)
             {
                 for (i=0; i<inputDataTypes.size(); i++)
@@ -417,7 +500,7 @@ public class MaryHtmlForm {
             //
         
             //Output type selected
-            selected = keyValuePairs.get("outputtype");
+            selected = keyValuePairs.get("OUTPUT_TYPE");
             if (selected!=null)
             {
                 for (i=0; i<outputDataTypes.size(); i++)
@@ -436,17 +519,68 @@ public class MaryHtmlForm {
                     isOutputText = true;
             }
             //
+            
+            //Voice selected
+            selected = keyValuePairs.get("voice");
+            if (selected!=null)
+            {
+                for (i=0; i<allVoices.size(); i++)
+                {
+                    if (allVoices.get(i).name().compareTo(selected)==0)
+                    {
+                        voiceSelected = i;
+                        break;
+                    }
+                }
+            }
+            //
         
+            //Limited domain example texts
+            if (allVoices!=null && allVoices.size()>0)
+            {
+                if (allVoices.elementAt(voiceSelected).isLimitedDomain())
+                {
+                    if (defaultVoiceExampleTexts==null)
+                        limitedDomainExampleTexts = getVoiceExampleTextsLimitedDomain(allVoices.elementAt(voiceSelected).name());
+                    else
+                        limitedDomainExampleTexts = defaultVoiceExampleTexts;
+
+                    selected = keyValuePairs.get("exampletext");
+                    if (selected!=null)
+                    {
+                        for (i=0; i<limitedDomainExampleTexts.size(); i++)
+                        {
+                            if (limitedDomainExampleTexts.get(i).compareTo(selected)==0)
+                            {
+                                limitedDomainExampleTextSelected = i;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            //
+
             //Input text
-            selected = keyValuePairs.get("inputtext");
+            selected = keyValuePairs.get("INPUT_TEXT");
             if (selected!=null)
                 inputText = selected;
+            else
+            {
+                if (allVoices!=null && allVoices.size()>0 && inputDataTypes!=null && inputDataTypes.size()>0)
+                {
+                    if (allVoices.elementAt(voiceSelected).isLimitedDomain())
+                        inputText = limitedDomainExampleTexts.get(limitedDomainExampleTextSelected);
+                    else
+                        inputText = getServerExampleText(inputDataTypes.get(inputTypeSelected).name(), allVoices.elementAt(voiceSelected).getLocale().toString());
+                } 
+            }
             //
             
             //Output text if non-audio output
             if (isOutputText)
             {
-                selected = keyValuePairs.get("outputtext");
+                selected = keyValuePairs.get("OUTPUT_TEXT");
                 if (selected!=null)
                     outputText = selected;
             }
@@ -470,44 +604,7 @@ public class MaryHtmlForm {
             }
             //
         
-            //Voice selected
-            selected = keyValuePairs.get("voice");
-            if (selected!=null)
-            {
-                for (i=0; i<allVoices.size(); i++)
-                {
-                    if (allVoices.get(i).name().compareTo(selected)==0)
-                    {
-                        voiceSelected = i;
-                        break;
-                    }
-                }
-            }
-            //
-        
-            //Limited domain example texts
-            if (allVoices!=null && allVoices.size()>0)
-            {
-                if (allVoices.elementAt(voiceSelected).isLimitedDomain())
-                {
-                    limitedDomainExampleTexts = getVoiceExampleTextsLimitedDomain(allVoices.elementAt(voiceSelected).name());
-
-                    selected = keyValuePairs.get("exampletext");
-                    if (selected!=null)
-                    {
-                        for (i=0; i<limitedDomainExampleTexts.size(); i++)
-                        {
-                            if (limitedDomainExampleTexts.get(i).compareTo(selected)==0)
-                            {
-                                limitedDomainExampleTextSelected = i;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            //
-        
+            
             //Audio effects
             String currentEffectName;
             for (i=0; i<effectsBoxData.getTotalEffects(); i++)
@@ -531,20 +628,32 @@ public class MaryHtmlForm {
                 // 
             }
             //
-        }
-        
-        if (allVoices!=null && allVoices.size()>0 && inputDataTypes!=null && inputDataTypes.size()>0)
+        } 
+        else
         {
-            if (allVoices.elementAt(voiceSelected).isLimitedDomain())
+            //Limited domain example texts
+            if (allVoices!=null && allVoices.size()>0)
             {
-                limitedDomainExampleTexts = getVoiceExampleTextsLimitedDomain(allVoices.elementAt(voiceSelected).name());
-                inputText = limitedDomainExampleTexts.get(limitedDomainExampleTextSelected);
+                if (allVoices.elementAt(voiceSelected).isLimitedDomain())
+                {
+                    if (defaultVoiceExampleTexts==null)
+                        limitedDomainExampleTexts = getVoiceExampleTextsLimitedDomain(allVoices.elementAt(voiceSelected).name());
+                    else
+                        limitedDomainExampleTexts = defaultVoiceExampleTexts;
+                }
             }
-            else
+            //
+
+            //Input text
+            if (allVoices!=null && allVoices.size()>0 && inputDataTypes!=null && inputDataTypes.size()>0)
             {
-                inputText = getServerExampleText(inputDataTypes.get(inputTypeSelected).name(), allVoices.elementAt(voiceSelected).getLocale().toString());
-            }
-        }     
+                if (allVoices.elementAt(voiceSelected).isLimitedDomain())
+                    inputText = limitedDomainExampleTexts.get(limitedDomainExampleTextSelected);
+                else
+                    inputText = getServerExampleText(inputDataTypes.get(inputTypeSelected).name(), allVoices.elementAt(voiceSelected).getLocale().toString());
+            } 
+            //
+        }
     }
     
     public void fillServerVersion() throws IOException, InterruptedException
@@ -560,20 +669,20 @@ public class MaryHtmlForm {
     //This handles each request one by one
     public String getFromServer(String key, String params) throws IOException, InterruptedException
     {
+        if (keyValuePairs==null)
+            keyValuePairs = new HashMap<String, String>();
+
         Map<String, String> singleKeyValuePair = new HashMap<String, String>();
-        
+
         if (params==null || params.length()<1)
             singleKeyValuePair.put(key, "?");
         else 
             singleKeyValuePair.put(key, "? " + params);
-        
+
         singleKeyValuePair = httpRequester.request(hostAddress, singleKeyValuePair);
-        
-        if (keyValuePairs==null)
-            keyValuePairs = new HashMap<String, String>();
-        
+
         keyValuePairs.put(key, singleKeyValuePair.get(key));
-        
+
         return keyValuePairs.get(key);
     }
     

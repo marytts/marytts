@@ -42,6 +42,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.Vector;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -354,20 +355,6 @@ public class MaryHttpServer {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            
-            /*
-            try {
-            handleClientRequest(fullParameters, response, serverAddressAtClient);
-            } catch (Exception e)
-            {
-                logger.info("Error parsing request:", e);
-
-                String errorMessage = "";
-                errorMessage += "Error parsing request:" + System.getProperty("line.separator");
-                errorMessage += e.getMessage() + System.getProperty("line.separator");
-                MaryHttpServerUtils.toResponse(errorMessage, response);
-            }
-            */
         }
         
         private Address getServerAddressAtClient(String fullHeader)
@@ -421,74 +408,68 @@ public class MaryHttpServer {
             
             boolean bProcessed = false;
             
-            String tmp = keyValuePairs.get("SYNTHESIS_OUTPUT");
-            if (tmp!=null && tmp.compareTo("?")==0)
+            if (keyValuePairs==null) //A web browser client is asking for the default html page
             {
-                handleSynthesisRequest(keyValuePairs, response);
-            
-                //TO DO: How to send audio to web browser client?
+                MaryWebHttpClientHandler webHttpClient = new MaryWebHttpClientHandler();
                 
+                MaryHtmlForm htmlForm = new MaryHtmlForm(serverAddressAtClient,
+                                                         fullParameters,
+                                                         getMaryVersion(),
+                                                         getVoices(),
+                                                         getDataTypes(),
+                                                         getAudioFileFormatTypes(),
+                                                         getAudioEffectHelpTextLineBreak(),
+                                                         getDefaultAudioEffects(),
+                                                         getDefaultVoiceExampleTexts());
                 
-                bProcessed = true;
+                webHttpClient.toHttpResponse(htmlForm, response);
             }
-            
-            if (!bProcessed)
+            else
             {
-                bProcessed = handleRequests(keyValuePairs);
-                
-                //Generate info response for GUI client
-                MaryHttpServerUtils.toHttpResponse(keyValuePairs, response);
-                //  
-                
-                //Generate info response for web browser client
-                //MaryWebHttpClientHandler webHttpClient = new MaryWebHttpClientHandler();
-                //webHttpClient.toHttpResponse(htmlForm, response);
-                //
+                String tmp = keyValuePairs.get("SYNTHESIS_OUTPUT");
+                if (tmp!=null && tmp.compareTo("?")==0)
+                {
+                    handleSynthesisRequest(keyValuePairs, response);
+
+                    //TO DO: How to send audio to web browser client?
+
+
+                    bProcessed = true;
+                }
+
+                if (!bProcessed)
+                {
+                    bProcessed = handleRequests(keyValuePairs);
+
+                    if (keyValuePairs!=null)
+                    {
+                        String isWebBrowserClient = keyValuePairs.get("iswebbrowserclient");
+   
+                        if (isWebBrowserClient!=null && isWebBrowserClient.compareTo("true")==0) //Generate info response for web browser client
+                        {
+                            MaryWebHttpClientHandler webHttpClient = new MaryWebHttpClientHandler();
+                            MaryHtmlForm htmlForm = new MaryHtmlForm(serverAddressAtClient,
+                                    keyValuePairs,
+                                    getMaryVersion(),
+                                    getVoices(),
+                                    getDataTypes(),
+                                    getAudioFileFormatTypes(),
+                                    getAudioEffectHelpTextLineBreak(),
+                                    getDefaultAudioEffects(),
+                                    getDefaultVoiceExampleTexts());
+
+                            webHttpClient.toHttpResponse(htmlForm, response);
+                        }
+                        else //Generate info response for GUI client
+                            MaryHttpServerUtils.toHttpResponse(keyValuePairs, response); 
+                    }
+                }
             }
             
             if (bProcessed)
                 response.setStatusCode(HttpStatus.SC_OK);
             else
                 response.setStatusCode(HttpStatus.SC_BAD_REQUEST);
-            
-            //handleSynthesisRequest(line, buffReader, response);
-           
-            /*
-            else
-            {
-                //TO DO: These initializations should be moved into MaryWebHttpClientHandler
-                //Note that steps in which these are done are important!
-                MaryWebHttpClientHandler webHttpClient = new MaryWebHttpClientHandler(serverAddressAtClient);
-                webHttpClient.toServerVersionInfo(getMaryVersion());
-                webHttpClient.toVoices(getVoices());
-                webHttpClient.toDataTypes(getDataTypes());
-                webHttpClient.toAudioFileFormatTypes(getAudioFileFormatTypes());
-                webHttpClient.toAudioEffectsHelpTextLineBreak(getAudioEffectHelpTextLineBreak());
-                webHttpClient.toAudioEffects(getAudioEffects());
-                //
-                
-                if (line==null)
-                    selections.initSetIndices(webHttpClient.getOutputDataTypes().size(), webHttpClient.getAudioEffectsBox(), true);
-                else
-                    selections.autoSetIndices(webHttpClient);
-                
-                MaryHtmlForm.Voice defaultVoice = webHttpClient.getVoices().get(selections.voiceSelected);
-                if (!defaultVoice.isLimitedDomain())
-                {
-                    MaryHtmlForm.DataType inputType = (MaryHtmlForm.DataType) webHttpClient.getInputDataTypes().get(selections.inputTypeSelected);
-                    String info = getExampleText(inputType + " " + defaultVoice.getLocale()).replaceAll("\n", System.getProperty("line.separator"));
-                    
-                    webHttpClient.toExampleText(info);
-                    selections.inputText = MaryWebHttpClientHandler.formatStringForJavaScript(info);
-                }
-
-                response.setStatusCode(HttpStatus.SC_OK);
-
-                webHttpClient.fillResponseWithHtmlPage(response);
-
-                return;
-            }
-            */
         }
 
         //Tries to fill in requested information from the client
@@ -557,17 +538,17 @@ public class MaryHttpServer {
                 
                 return true;
             } 
-            else if (request.compareTo("EXAMPLE_TEXT")==0 || request.compareTo("INPUT_TEXT")==0 || request.compareTo("OUTPUT_TEXT")==0)
+            else if (request.compareTo("EXAMPLE_TEXT")==0)
             {
                 //Send an example text for a given data type
-                keyValuePairs.put(request, getExampleText(param));
+                keyValuePairs.put(request, getExampleText(param, keyValuePairs));
                 
                 return true;
-            } 
+            }
             else if (request.compareTo("VOICE_EXAMPLE_TEXT")==0) 
             { 
                 //The request is about the example text of a limited domain unit selection voice
-                keyValuePairs.put(request, getVoiceExampleText(param));
+                keyValuePairs.put(request, getVoiceExampleText(param, keyValuePairs));
                 
                 return true; 
             }
@@ -898,6 +879,25 @@ public class MaryHttpServer {
             
             return output;
         }
+        
+        private String getDefaultVoiceName()
+        {
+            String defaultVoiceName = "";
+            String allVoices = getVoices();
+            if (allVoices!=null && allVoices.length()>0)
+            {
+                StringTokenizer tt = new StringTokenizer(allVoices, System.getProperty("line.separator"));
+                if (tt.hasMoreTokens())
+                {
+                    defaultVoiceName = tt.nextToken();
+                    StringTokenizer tt2 = new StringTokenizer(defaultVoiceName, " ");
+                    if (tt2.hasMoreTokens())
+                        defaultVoiceName = tt2.nextToken();
+                }
+            }
+            
+            return defaultVoiceName;
+        }
 
         private String getAudioFileFormatTypes()
         {
@@ -910,6 +910,11 @@ public class MaryHttpServer {
         }
 
         private String getExampleText(String parameters)
+        {
+            return getExampleText(parameters, null);
+        }
+        
+        private String getExampleText(String parameters, Map<String, String> pairs)
         {
             String output = "";
             StringTokenizer st = new StringTokenizer(parameters);
@@ -924,6 +929,14 @@ public class MaryHttpServer {
                         String exampleText = type.exampleText(locale);
                         if (exampleText != null)
                             output += exampleText.trim() + System.getProperty("line.separator");
+
+                        if (pairs!=null)
+                        {
+                            if (type.isInputType())
+                                pairs.put("INPUT_TEXT", output);
+                            else
+                                pairs.put("OUTPUT_TEXT", output);
+                        }
                     }
                 } catch (Error err) {} // type doesn't exist
             }
@@ -931,8 +944,25 @@ public class MaryHttpServer {
             return output;
         }
 
-        //Send an example text for a given data type
-        private String getVoiceExampleText(String parameters)
+        private Vector<String> getDefaultVoiceExampleTexts()
+        {
+            String defaultVoiceName = getDefaultVoiceName();
+            Vector<String> defaultVoiceExampleTexts = null;
+            defaultVoiceExampleTexts = StringUtils.processVoiceExampleText(getVoiceExampleText(defaultVoiceName, null));
+            if (defaultVoiceExampleTexts==null) //Try for general domain
+            {
+                String str = getExampleText("TEXT" + " " + Voice.getVoice(defaultVoiceName).getLocale());
+                if (str!=null && str.length()>0)
+                {
+                    defaultVoiceExampleTexts = new Vector<String>();
+                    defaultVoiceExampleTexts.add(str);
+                }
+            }
+            
+            return defaultVoiceExampleTexts;
+        }
+        
+        private String getVoiceExampleText(String parameters, Map<String, String> pairs)
         {
             String output = "";
             StringTokenizer st = new StringTokenizer(parameters);
@@ -941,9 +971,15 @@ public class MaryHttpServer {
             {
                 String voiceName = st.nextToken();
                 Voice v = Voice.getVoice(voiceName);
-                if (v != null) {
-                    String text = ((marytts.unitselection.UnitSelectionVoice) v).getExampleText();
-                    output += text + System.getProperty("line.separator");
+                
+                if (v != null) 
+                {
+                    String text = "";
+                    if (v instanceof marytts.unitselection.UnitSelectionVoice)
+                        output += ((marytts.unitselection.UnitSelectionVoice)v).getExampleText();
+                    
+                    if (pairs!=null)
+                        pairs.put("INPUT_TEXT", output);
                 }
             }
 
