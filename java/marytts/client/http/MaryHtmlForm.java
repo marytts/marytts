@@ -87,10 +87,10 @@ public class MaryHtmlForm {
     public String audioEffects;
     public String audioEffectsHelpTextLineBreak;
     public AudioEffectsBoxData effectsBoxData;
-    public Map<String, String> keyValuePairs;
     public Vector<String> limitedDomainExampleTexts;
     
-    protected MaryHttpRequester httpRequester;
+    protected MaryHttpRequester httpRequester; //Sends and receives HTTP requests to/from server
+    public Map<String, String> keyValuePairs; //Key-Value pairs for communication with server
     
     public MaryHtmlForm() throws IOException, InterruptedException
     {
@@ -103,63 +103,24 @@ public class MaryHtmlForm {
             serverPort = DEFAULT_PORT;
         
         Address serverAddress = new Address(serverHost, serverPort);
-        initialiseFromParameterString(serverAddress, null, null, null, null, null, null, null, null);
+        init(serverAddress, null, null, null, null, null, null, null, null);
     }
     
     public MaryHtmlForm(Address serverAddress) throws IOException, InterruptedException
     {
-        initialiseFromParameterString(serverAddress, null, null, null, null, null, null, null, null);
-    }
-    
-    public MaryHtmlForm(String fullParameters,
-                        String versionIn,
-                        String voicesIn,
-                        String dataTypesIn,
-                        String audioFileFormatTypesIn,
-                        String audioEffectHelpTextLineBreakIn,
-                        String defaultAudioEffects,
-                        Vector<String> defaultVoiceExampleTexts) throws IOException, InterruptedException
-    {
-        String serverHost = System.getProperty("server.host", DEFAULT_HOST);
-        int serverPort = 0;
-        String helperString = System.getProperty("server.port");
-        if (helperString != null)
-            serverPort = Integer.decode(helperString).intValue();
-        else
-            serverPort = DEFAULT_PORT;
-        
-        Address serverAddress = new Address(serverHost, serverPort);
-        
-        initialiseFromParameterString(serverAddress, 
-                   fullParameters, 
-                   versionIn, 
-                   voicesIn, 
-                   dataTypesIn, 
-                   audioFileFormatTypesIn, 
-                   audioEffectHelpTextLineBreakIn, 
-                   defaultAudioEffects,
-                   defaultVoiceExampleTexts);
+        init(serverAddress, null, null, null, null, null, null, null, null);
     }
     
     public MaryHtmlForm(Address serverAddress,
-                        String fullParameters,
-                        String versionIn,
-                        String voicesIn,
-                        String dataTypesIn,
-                        String audioFileFormatTypesIn,
-                        String audioEffectHelpTextLineBreakIn,
-                        String defaultAudioEffects,
-                        Vector<String> defaultVoiceExampleTexts) throws IOException, InterruptedException
+            String versionIn,
+            String voicesIn,
+            String dataTypesIn,
+            String audioFileFormatTypesIn,
+            String audioEffectHelpTextLineBreakIn,
+            String defaultAudioEffects,
+            Vector<String> defaultVoiceExampleTexts) throws IOException, InterruptedException
     {
-        initialiseFromParameterString(serverAddress, 
-                   fullParameters, 
-                   versionIn, 
-                   voicesIn, 
-                   dataTypesIn, 
-                   audioFileFormatTypesIn, 
-                   audioEffectHelpTextLineBreakIn, 
-                   defaultAudioEffects, 
-                   defaultVoiceExampleTexts);
+        this(serverAddress, null, versionIn, voicesIn, dataTypesIn, audioFileFormatTypesIn, audioEffectHelpTextLineBreakIn, defaultAudioEffects, defaultVoiceExampleTexts);
     }
     
     public MaryHtmlForm(Address serverAddress,
@@ -172,7 +133,7 @@ public class MaryHtmlForm {
             String defaultAudioEffects,
             Vector<String> defaultVoiceExampleTexts) throws IOException, InterruptedException
     {
-        initialiseFromKeyValuePairs(serverAddress, 
+        init(serverAddress, 
                 keyValuePairsIn, 
                 versionIn, 
                 voicesIn, 
@@ -182,9 +143,17 @@ public class MaryHtmlForm {
                 defaultAudioEffects, 
                 defaultVoiceExampleTexts);
     }
-   
-    public void init()
-    {
+
+    public void init(Address serverAddress, 
+                     Map<String, String> keyValuePairsIn,
+                     String versionIn,
+                     String voicesIn,
+                     String dataTypesIn,
+                     String audioFileFormatTypesIn,
+                     String audioEffectHelpTextLineBreakIn,
+                     String defaultAudioEffects,
+                     Vector<String> defaultVoiceExampleTexts) throws IOException, InterruptedException
+   {
         httpRequester = new MaryHttpRequester();
         hostAddress = null;
         String serverVersionInfo = null;
@@ -216,45 +185,8 @@ public class MaryHtmlForm {
         effectsBoxData = null;
         keyValuePairs = new HashMap<String, String>();
         limitedDomainExampleTexts = null;
-    }
-    
-    public void initialiseFromParameterString(Address serverAddress, 
-                           String fullParameters,
-                           String versionIn,
-                           String voicesIn,
-                           String dataTypesIn,
-                           String audioFileFormatTypesIn,
-                           String audioEffectHelpTextLineBreakIn,
-                           String defaultAudioEffects,
-                           Vector<String> defaultVoiceExampleTexts) throws IOException, InterruptedException
-    {
-        init();
-        
-        hostAddress = serverAddress;
-        
-        toServerVersionInfo(versionIn);
-        toVoices(voicesIn);
-        toDataTypes(dataTypesIn);
-        toAudioFileFormatTypes(audioFileFormatTypesIn);
-        toAudioEffectsHelpTextLineBreak(audioEffectHelpTextLineBreakIn);
-        toAudioEffects(defaultAudioEffects);
-        toSelections(fullParameters, defaultVoiceExampleTexts);
-    }
 
-    public void initialiseFromKeyValuePairs(Address serverAddress, 
-            Map<String, String> keyValuePairsIn,
-            String versionIn,
-            String voicesIn,
-            String dataTypesIn,
-            String audioFileFormatTypesIn,
-            String audioEffectHelpTextLineBreakIn,
-            String defaultAudioEffects,
-            Vector<String> defaultVoiceExampleTexts) throws IOException, InterruptedException
-            {
-        
-        init();
         hostAddress = serverAddress;
-
 
         toServerVersionInfo(versionIn);
         toVoices(voicesIn);
