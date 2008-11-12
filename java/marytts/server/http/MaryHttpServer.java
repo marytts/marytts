@@ -422,7 +422,6 @@ public class MaryHttpServer {
                 MaryWebHttpClientHandler webHttpClient = new MaryWebHttpClientHandler();
                 
                 MaryHtmlForm htmlForm = new MaryHtmlForm(serverAddressAtClient,
-                                                         "",
                                                          getMaryVersion(),
                                                          getVoices(),
                                                          getDataTypes(),
