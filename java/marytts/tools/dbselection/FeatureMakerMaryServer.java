@@ -77,13 +77,16 @@ public class FeatureMakerMaryServer{
 	//buffer used for collecting words of a sentence
 	protected static StringBuffer sentence;
 	//stores result of credibility check for current sentence
-	protected static boolean usefulSentence;	
+	protected static boolean usefulSentence;
+    protected static boolean unknownWords;
+    protected static boolean strangeSymbols;
+    
 	//list of sentences of a chunk of text
 	protected static Map <Integer,String>index2sentences;    
 	//feature definition
 	protected static FeatureDefinition featDef;
 	//print writer for writing list of processed files
-	protected static PrintWriter doneOut;
+//	protected static PrintWriter doneOut;
 	//print writer for writing list of unreliable files
 	protected static PrintWriter unreliableLog;
 	//the list of files containing the text to be processed
@@ -101,6 +104,8 @@ public class FeatureMakerMaryServer{
 
     protected static int numSentences = 0;
     protected static int numUnreliableSentences = 0;
+    
+    protected static DBHandler wikiToDB = new DBHandler();
 	
 	public static void main(String[] args)throws Exception{
 		
@@ -131,92 +136,88 @@ public class FeatureMakerMaryServer{
 		/* start the Credibility Checker */
 	
 		/* read in the list of already processed files */
-		List alreadyDone = readInDoneFiles(doneFileName);
+		//List alreadyDone = readInDoneFiles(doneFileName);
 		       
         /* Here the DB connection for reliable sentences is open */
-         DBHandler wikiToDB = new DBHandler();
+         //DBHandler wikiToDB = new DBHandler();
          wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");
          //wikiToDB.createDBConnection("penguin.dfki.uni-sb.de","MaryDBSelector","MaryDBSel_admin","p4rpt3jr");
          // check if tables exist
          wikiToDB.createDataBaseSelectionTable();
         
+         // Get the set of id for unprocessed records in clean_text
+         String textId[];
+         textId = wikiToDB.getUnprocessedTextIds();
+         String text;
+         
 		
-		/* loop over the text files */
-		System.out.println("Looping over files...");
-		for (Iterator it = basenames.iterator();it.hasNext();){
-			String filename = (String) it.next();
-			//continue, if we already processed this sentence
-			if (alreadyDone.remove(filename)) continue;
-			
-			System.out.println(filename);
-			doneOut.println(filename);
-			//open the article file
-			BufferedReader fileIn =
-				new BufferedReader(
-						new InputStreamReader(
-								new FileInputStream(filename),"UTF-8"));
-			//store whole article in one buffer
-			StringBuffer fileBuf = new StringBuffer();
-			while((line= fileIn.readLine())!=null){   
-				if (line != ""){
-					fileBuf.append(line+"\n");
-				}
-			}
-			fileIn.close();
-            String text = fileBuf.toString();
-			if (text.equals("")
+		/* loop over the text records in clean_text table of wiki */
+        // once procesed the clean_text records are marked as processed=true, so here retrieve
+        // the next clean_text record untill all are processed.
+		System.out.println("Looping over clean_text records from wikipedia...");
+        
+		//for (Iterator it = basenames.iterator();it.hasNext();){
+        for(int i=0; i<textId.length; i++){
+          // get next unprocessed text  
+          System.out.println("Processing text id=" + textId[i]);
+          text = wikiToDB.getCleanText(textId[i]); 
+          
+	      if (text.equals("")
                     || text.equals("\n")) continue;
-			//process the article in a different thread
-			MaryCallerThread mct = new MaryCallerThread(text,filename);
-			mct.start();
+          
+		  //process the article in a different thread
+		  MaryCallerThread mct = new MaryCallerThread(text, textId[i]);
+		  mct.start();
 			
-			// allow the separate thread to process a limited time span
-			mct.join(timeOutAfter);
+	      // allow the separate thread to process a limited time span
+	      mct.join(timeOutAfter);
 			
-			// check if there was a timeout
-			if(!(mct.isFinished())){
+		  // check if there was a timeout
+		  if(!(mct.isFinished())){
 				// resolution was stopped due to time out
 				mct.interrupt();
 				mct.join();
-				System.out.println("Timeout when processing sentence in "+filename);
-				doneOut.println(filename);
+				System.out.println("Timeout when processing text id="+textId[i]);
+				
 				continue;
-			}
-			if (!mct.wasSuccessful()){
-				System.out.println("Could not process sentence in "+filename);
-				doneOut.println(filename);
+		  }
+		  if (!mct.wasSuccessful()){
+				System.out.println("Could not process text id="+textId[i]);
+				
 				continue;
-			}
-			mct = null;
+		  }
+		  mct = null;
 		
-			int index=0;
+		  int index=0;
 			
-            /* loop over the sentences */
-            byte feas[];  // for directly saving a vector of bytes as BLOB in mysql DB
-			for (Iterator it2=index2sentences.keySet().iterator();it2.hasNext();){
+          /* loop over the sentences */
+          int numSentencesInText=0;
+          byte feas[];  // for directly saving a vector of bytes as BLOB in mysql DB
+		  for (Iterator it2=index2sentences.keySet().iterator();it2.hasNext();){
 				Integer nextKey = (Integer) it2.next();
 				
 				String newSentence = (String) index2sentences.get(nextKey);
                 //System.out.println(sentence);
 				index = nextKey.intValue();
-				MaryData d = processSentence(newSentence,filename);
+				MaryData d = processSentence(newSentence,textId[i]);
 				if (d==null) continue;
                     
 				/* get the features of the sentence */  
 				feas = getFeatures(d);     
 	
                 /* Insert in the database the new sentence and its features. */
-                numSentences++;
-                wikiToDB.insertSentenceAndFeatures(getShortFileName(nextKey,filename),
-                                                   newSentence,feas);
+              
+                numSentencesInText++;
+                wikiToDB.insertSentence(newSentence,feas, true, false, false);
                      		
 			}//end of loop over sentences
+          numSentences += numSentencesInText;
+          System.out.println("Inserted " + numSentencesInText + " sentences from text id=" + textId[i] + " (Total reliable = "+ numSentences+")");
                          
 		} //end of loop over articles    
         
         wikiToDB.closeDBConnection();
         
-		doneOut.close();
 		System.out.println("Done");
 	}//end of main method
 	
@@ -457,40 +458,50 @@ public class FeatureMakerMaryServer{
 	/**
 	 * Phonemise the given document with 
 	 * the help of JPhonemiser
+     * 
+     * g2p_method
+     * "contains-unknown-words" or "contains-strange-symbols",
 	 * 
 	 * @param d
-	 * @return
+	 * @return 0 if the sentence is useful
+     *         1 if the sentence contains unknownWords
+     *         2 if the sentence contains strangeSymbols
 	 */
-	protected static boolean checkCredibility(Element t){
-		boolean newUsefulSentence = true;	
+	protected static int checkCredibility(Element t){
+        
+		//boolean newUsefulSentence = true;
+        int newUsefulSentence = 0;
+        
 		if (t.hasAttribute("ph")){
 			//we have a transcription
 			if (t.hasAttribute("g2p_method")) {
 				//check method of transcription
 				String method = t.getAttribute("g2p_method");
-				if (!method.equals("lexicon") &&
-						!method.equals("userdict")){
+				if (!method.equals("lexicon") && !method.equals("userdict")){
 					if (strictCredibility){
 						//method other than lexicon or userdict -> unreliable
-						newUsefulSentence = false;
+						//newUsefulSentence = false;
+                        newUsefulSentence = 1;
+                       
 					} else {
 						//lax credibility criterion
-						if (!method.equals("phonemiseDenglish") &&
-								!method.equals("compound")){
+						if (!method.equals("phonemiseDenglish") && !method.equals("compound")){
 							//method other than lexicon, userdict, phonemiseDenglish 
 							//or compound -> unreliable
-							newUsefulSentence = false;
+							//newUsefulSentence = false;
+                            newUsefulSentence = 1;
+                            
 						} //else method is phonemiseDenglish or compound -> credible						
 					}
 				}// else method is lexicon or userdict -> credible				
 			} //else no method -> preprocessed -> credible			
 		} else {      
 			//we dont have a transcription
-			if (t.hasAttribute("pos") &&
-					!t.getAttribute("pos").startsWith("$")){					
+			if (t.hasAttribute("pos") && !t.getAttribute("pos").startsWith("$")){					
 				//no transcription given -> unreliable	
-				newUsefulSentence = false;
-				
+				//newUsefulSentence = false;
+                newUsefulSentence = 2;
+                
 			} //else punctuation -> credible
 		} 
 		return newUsefulSentence;
@@ -569,7 +580,7 @@ public class FeatureMakerMaryServer{
 			} //end of while-loop over the feature vectors
               
             // create a byte vector with the reults
-            System.out.println("number of lines=" + numLines);
+            //System.out.println("number of lines=" + numLines);
             byte feasVector[] = new byte[(numLines*4)];
             
 			for (int n=0,i=0;i<featVects.length;i++){
@@ -612,7 +623,7 @@ public class FeatureMakerMaryServer{
 				doneIn.close();
 			} 
 			
-			doneOut = new PrintWriter(new FileWriter(doneDirsText,true),true);
+			//doneOut = new PrintWriter(new FileWriter(doneDirsText,true),true);
 			return doneList;
 		}
 		
@@ -624,13 +635,14 @@ public class FeatureMakerMaryServer{
 		 * @return true, if successful
 		 * @throws Exception
 		 */
-		protected static boolean splitIntoSentences(String text, String filename)throws Exception{
+		protected static boolean splitIntoSentences(String text, String id)throws Exception{
 			index2sentences = new TreeMap<Integer,String>();
 			Document doc = phonemiseText(text);
 			if (doc == null) return false;
 			NodeList sentences = doc.getElementsByTagName("s");   
 			
             int sentenceIndex = 1;
+            int unrelSentences=0;
 			for (int j=0;j<sentences.getLength();j++){
 				Node nextSentence = sentences.item(j);
 				//ignore all non-element children
@@ -639,6 +651,8 @@ public class FeatureMakerMaryServer{
 				//get the tokens
 				NodeList tokens = nextSentence.getChildNodes();
 				usefulSentence = true;
+                unknownWords = false;
+                strangeSymbols = false;
 				for (int k=0;k<tokens.getLength();k++){
 					Node nextToken = tokens.item(k);
 					//ignore all non-element children
@@ -651,21 +665,16 @@ public class FeatureMakerMaryServer{
 						index2sentences.put(new Integer(sentenceIndex),sentence.toString());  
 					} else {
 						//just print useless sentence to log file
-						System.out.println(filename+"; "+sentenceIndex+": "+sentence
-								+" : is unreliable");
+						//System.out.println(filename+"; "+sentenceIndex+": "+sentence
+						//		+" : is unreliable");
                         
-                       
-                        numUnreliableSentences++;
-                        System.out.println("Inserting unreliable sentence:");
-                        DBHandler wikiToDB = new DBHandler();
-                        wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");   
+                        unrelSentences++;
+                        
+                        //System.out.println("Inserting unreliable sentence:");
+                         
                         // Here the reason why is unreliable can be added to the DB.
                         // for the moment there is just one field reliable=false in this case.
-                        wikiToDB.insertUnreliableSentence(getShortFileName(sentenceIndex,filename),
-                                                          sentence.toString());
-                        wikiToDB.closeDBConnection();
-                        
-                        
+                        wikiToDB.insertSentence(sentence.toString(), null, usefulSentence, unknownWords, strangeSymbols);
 					}
 					sentenceIndex++;
 				} else {
@@ -673,6 +682,9 @@ public class FeatureMakerMaryServer{
 					//System.out.println("NULL SENTENCE!!!");
 				}
 			} 
+            numUnreliableSentences += unrelSentences;
+            System.out.println("Inserted " + unrelSentences + " sentences from text id=" + id + " (Total unreliable = " + numUnreliableSentences + ")");
+            
 			return true;
 		}
 		
@@ -718,13 +730,22 @@ public class FeatureMakerMaryServer{
 		 * Collect the tokens of a sentence
 		 * 
 		 * @param nextToken the Node to start from
+         * checkCredibility returns
+         *  0 if the sentence is useful
+         *  1 if the sentence contains unknownWords (so the sentence is not useful)
+         *  2 if the sentence contains strangeSymbols (so the sentence is not useful)
 		 */
 		protected static void collectTokens(Node nextToken){
+            int credibility = 0;  
 			String name = nextToken.getLocalName();
 			if (name.equals("t")){
-				if (!checkCredibility((Element) nextToken)){
+				if ( ( credibility = checkCredibility((Element) nextToken) ) > 0 ){
 					//memorize that we found unreliable sentence
 					usefulSentence = false;
+                    if(credibility == 1)
+                      unknownWords = true;
+                    else if(credibility == 2)
+                      strangeSymbols = true;  
 				}
 				if (sentence == null){
 					sentence = new StringBuffer();
@@ -813,7 +834,7 @@ public class FeatureMakerMaryServer{
 		static class MaryCallerThread extends Thread{
 			
 			protected String text;
-			protected String filename;
+			protected String textId;
 			protected boolean finished;
 			protected boolean successful;
 			
@@ -822,9 +843,9 @@ public class FeatureMakerMaryServer{
 			 * 
 			 * @param file the file to process
 			 */
-			public MaryCallerThread(String text, String filename){
+			public MaryCallerThread(String text, String id){
 				this.text = text;
-				this.filename = filename;
+                this.textId = id;
 				finished = false;
 				successful = false;
 				setName("mary caller");
@@ -835,7 +856,7 @@ public class FeatureMakerMaryServer{
 			 */
 			public void run(){
 				try{
-					successful = splitIntoSentences(text,filename);
+					successful = splitIntoSentences(text, textId);
 				}catch(Exception e){
 					e.printStackTrace();
 					throw new Error("Error processing text");

@@ -29,98 +29,153 @@ public class WikipediaMarkupCleaner {
                    line.indexOf("==Discussion")>=0  ){
                    endOfText=true;
            } else {
-               
-             if( line.indexOf("<noinclude") >= 0)
-                   line = removeSection(s, line, "<noinclude", "</noinclude>", debug);
+             // when emoving sections it might add more lines that might contain again more labes to remove
+             boolean clean = false;
+             while (!clean && line.length()>0 ){
+             clean = true;    
+             if( line.indexOf("<noinclude") >= 0){
+                line = removeSection(s, line, "<noinclude", "</noinclude>", debug);
+                clean = false;
+             }
              
-             if( line.indexOf("<includeonly") >= 0)
+             if( line.indexOf("<includeonly") >= 0){
                  line = removeSection(s, line, "<includeonly", "</includeonly>", debug);
+                 clean = false;
+             }
              
-             if( line.indexOf("<onlyinclude") >= 0)
-                 line = removeSection(s, line, "<includeonly", "</onlyinclude>", debug);
+             if( line.indexOf("<onlyinclude") >= 0){
+                 line = removeSection(s, line, "<onlyinclude", "</onlyinclude>", debug);
+                 clean = false;
+             }
              
-             if( line.indexOf("<TABLE") >= 0)
-                 line = removeSection(s, line, "<TABLE", "</TABLE>", debug);
-              
-             if( line.indexOf("{|") >= 0)  // this hould go before {{ because a table can contain {{ }}
-                 line = removeSectionTable(s, line, "{|", "|}", debug);  
-             
-             if( line.indexOf("<noinclude") >= 0)  // after table normally there is another noinclude
-                 line = removeSection(s, line, "<noinclude", "</noinclude>", debug);
-               
-             if( line.indexOf("<ref") >= 0)
-               line = removeSectionRef(s, line);  // This is special because it can be <ref>, <ref, </ref> or />
-             if( line.indexOf("<REF") >= 0)
-                 line = removeSection(s, line, "<REF", "</REF>", debug);
-             if( line.indexOf("<Ref") >= 0)
-                 line = removeSection(s, line, "<Ref", "</Ref>", debug);
-            
-             if( line.indexOf("{{start box}}") >= 0)
-                 line = removeSection(s, line, "{{start box}}", "{{end box}}", debug);
-             
-             if( line.indexOf("{{") >= 0)
-               line = removeSection(s, line, "{{", "}}", debug);  
-           
-             if( line.indexOf("<!--") >= 0)
-                 line = removeSection(s, line, "<!--", "-->", debug);
-             
-             if( line.indexOf("\\mathrel{|") >= 0)
-                 line = removeSection(s, line, "\\mathrel{|", "}", debug);
-                         
-             if( line.indexOf("<gallery") >= 0)  // gallery might contain several images
-                 line = removeSection(s, line, "<gallery", "</gallery>", debug);
-                   
-            if( line.indexOf("[[Image:") >= 0)
-                 line = removeSectionImage1(s, line, "[[Image:", "]]", debug);
-                        
-             if( line.indexOf("<math>") >= 0)
-                 line = removeSection(s, line, "<math>", "</math>", debug);
-             
-             if( line.indexOf("<timeline>") >= 0)
-                 line = removeSection(s, line, "<timeline>", "</timeline>", debug);
-             
-             if( line.indexOf("<table") >= 0)
+             if( line.indexOf("<table") >= 0){
                  line = removeSection(s, line, "<table", "</table>", debug);
+                 clean = false;
+             }
              
-             if( line.indexOf("<div") >= 0)
-                 line = removeSection(s, line, "<div", "</div>", debug);
-             
-             if( line.indexOf("<nowiki") >= 0)
-                 line = removeSection(s, line, "<nowiki", "</nowiki>", debug);
-             
-             if( line.indexOf("<source") >= 0)
-                 line = removeSection(s, line, "<source", "</source>", debug);
-             
-             if( line.indexOf("<code") >= 0)
-                 line = removeSection(s, line, "<code", "</code>", debug);
-             
-             if( line.indexOf("<imagemap") >= 0)
-                 line = removeSection(s, line, "<imagemap", "</imagemap>", debug);
-             
-             if( line.indexOf("<code") >= 0)
-                 line = removeSection(s, line, "<code", "</code>", debug);
-             
-             if( line.indexOf("<poem") >= 0)
-                 line = removeSection(s, line, "<poem", "</poem>", debug);
-                       
-             if( line.indexOf("<span") >= 0)
-                 line = removeSection(s, line, "<poem", "</span>", debug);
-             
-             if( line.indexOf("<h1") >= 0)
-                 line = removeSection(s, line, "<h1", "</h1>", debug);
-             
-             // check again if after adding lines there is not additional ref
-             if( line.indexOf("<ref") >= 0)
-                 line = removeSectionRef(s, line);  // This is special because it can be <ref>, <ref, </ref> or />
-             
-             if( line.indexOf("<includeonly") >= 0)
-                 line = removeSection(s, line, "<includeonly", "</includeonly>", debug);
-             
-             if( line.indexOf("<noinclude") >= 0)  // after table normally there is another noinclude
-                 line = removeSection(s, line, "<noinclude", "</noinclude>", debug);
+             if( line.indexOf("<TABLE") >= 0){
+                 line = removeSection(s, line, "<TABLE", "</TABLE>", debug);
+                 clean = false;
+             }
               
+             if( line.indexOf("{|") >= 0){  // this should go before {{ because a table can contain {{ }}
+                 line = removeSectionTable(s, line, "{|", "|}", debug);
+                 clean = false;
+             }
+             
+             if( line.indexOf("<noinclude") >= 0){  // after table normally there is another noinclude
+                 line = removeSection(s, line, "<noinclude", "</noinclude>", debug);
+                 clean = false;
+             }
+               
+             if( line.indexOf("<ref") >= 0){
+               line = removeSectionRef(s, line);  // This is special because it can be <ref>, <ref, </ref> or />
+               clean = false;
+             }
+             
+             if( line.indexOf("<REF") >= 0){
+                 line = removeSection(s, line, "<REF", "</REF>", debug);
+                 clean = false;
+             }
+             
+             if( line.indexOf("<Ref") >= 0){
+                 line = removeSection(s, line, "<Ref", "</Ref>", debug);
+                 clean = false;
+             }
+             if( line.indexOf("<reF") >= 0){
+                 line = removeSection(s, line, "<reF", "</reF>", debug);
+                 clean = false;
+             }
+            
+             if( line.indexOf("{{start box}}") >= 0){
+                 line = removeSection(s, line, "{{start box}}", "{{end box}}", debug);
+                 clean = false;
+             }
+             
+             if( line.indexOf("{{") >= 0){
+               line = removeSection(s, line, "{{", "}}", debug);
+               clean = false;
+             }
+           
+             if( line.indexOf("<!--") >= 0){
+                 line = removeSection(s, line, "<!--", "-->", debug);
+                 clean = false;
+             }
+             
+             if( line.indexOf("\\mathrel{|") >= 0){
+                 line = removeSection(s, line, "\\mathrel{|", "}", debug);
+                 clean = false;
+             }
+                         
+             if( line.indexOf("<gallery") >= 0){  // gallery might contain several images
+                 line = removeSection(s, line, "<gallery", "</gallery>", debug);
+                 clean = false;
+             }
+                   
+            if( line.indexOf("[[Image:") >= 0){
+                 line = removeSectionImage1(s, line, "[[Image:", "]]", debug);
+                 clean = false;
+            }
+                        
+             if( line.indexOf("<math>") >= 0){
+                 line = removeSection(s, line, "<math>", "</math>", debug);
+                 clean = false;
+             }
+             
+             if( line.indexOf("<timeline>") >= 0){
+                 line = removeSection(s, line, "<timeline>", "</timeline>", debug);
+                 clean = false;
+             }
+             
+             if( line.indexOf("<div") >= 0){
+                 line = removeSection(s, line, "<div", "</div>", debug);
+                 clean = false;
+             }
+             
+             if( line.indexOf("<nowiki") >= 0){
+                 line = removeSection(s, line, "<nowiki", "</nowiki>", debug);
+                 clean = false;
+             }
+             
+             if( line.indexOf("<source") >= 0){
+                 line = removeSection(s, line, "<source", "</source>", debug);
+                 clean = false;
+             }
+             
+             if( line.indexOf("<code") >= 0){
+                 line = removeSection(s, line, "<code", "</code>", debug);
+                 clean = false;
+             }
+             
+             if( line.indexOf("<imagemap") >= 0){
+                 line = removeSection(s, line, "<imagemap", "</imagemap>", debug);
+                 clean = false;
+             }
+             
+             if( line.indexOf("<poem") >= 0){
+                 line = removeSection(s, line, "<poem", "</poem>", debug);
+                 clean = false;
+             }
+                       
+             if( line.indexOf("<span") >= 0){
+                 line = removeSection(s, line, "<span", "</span>", debug);
+                 clean = false;
+             }
+             
+             if( line.indexOf("<h1") >= 0){
+                 line = removeSection(s, line, "<h1", "</h1>", debug);
+                 clean = false;
+             }
+            
+             if( line.indexOf("<pre") >= 0){
+                 line = removeSection(s, line, "<pre", "</pre>", debug);
+                 clean = false;
+             }
+             
+             } // while the line/text is not clean (or does not have tags to remove)
              
              // here filter bulleted and numbered short lines
+             if(line.length() > 0){
              if( ( line.toString().startsWith("*") || 
                    line.toString().startsWith("#") ||
                    line.toString().startsWith(";") ||
@@ -152,7 +207,7 @@ public class WikipediaMarkupCleaner {
                    line.toString().endsWith("]]")
                    ) && line.length() < 200 )
                line = new StringBuffer("");
-             
+             }
              // Now if the line is not empy, remove:
              //   '''''bold & italic'''''
              //   '''bold'''
@@ -192,8 +247,13 @@ public class WikipediaMarkupCleaner {
                line = new StringBuffer(line.toString().replaceAll("<br>", ""));
                line = new StringBuffer(line.toString().replaceAll("<br", ""));
                line = new StringBuffer(line.toString().replaceAll("/>", ""));
+               line = new StringBuffer(line.toString().replaceAll("<Center>", ""));
                line = new StringBuffer(line.toString().replaceAll("<center>", ""));
                line = new StringBuffer(line.toString().replaceAll("</center>", ""));
+               line = new StringBuffer(line.toString().replaceAll("<CENTER>", ""));
+               line = new StringBuffer(line.toString().replaceAll("</CENTER>", ""));
+               line = new StringBuffer(line.toString().replaceAll("<cite>", ""));
+               line = new StringBuffer(line.toString().replaceAll("</cite>", ""));
                line = new StringBuffer(line.toString().replaceAll("<li>", ""));
                line = new StringBuffer(line.toString().replaceAll("</li>", ""));
                line = new StringBuffer(line.toString().replaceAll("<dl>", ""));
@@ -210,6 +270,17 @@ public class WikipediaMarkupCleaner {
                line = new StringBuffer(line.toString().replaceAll("</u>", ""));
                line = new StringBuffer(line.toString().replaceAll("<tt>", ""));
                line = new StringBuffer(line.toString().replaceAll("</tt>", ""));
+               line = new StringBuffer(line.toString().replaceAll("<i>", ""));
+               line = new StringBuffer(line.toString().replaceAll("</i>", ""));
+               line = new StringBuffer(line.toString().replaceAll("<s>", ""));
+               line = new StringBuffer(line.toString().replaceAll("</s>", ""));
+               line = new StringBuffer(line.toString().replaceAll("<em>", ""));
+               line = new StringBuffer(line.toString().replaceAll("</em>", ""));
+               line = new StringBuffer(line.toString().replaceAll("</br>", ""));
+               line = new StringBuffer(line.toString().replaceAll("</div>", ""));
+               line = new StringBuffer(line.toString().replaceAll("</ref>", ""));
+               // i am not sure about this
+               line = new StringBuffer(line.toString().replaceAll("\"", ""));
                
                // finally sections and lists
                line = new StringBuffer(line.toString().replaceAll("=====", ""));
@@ -226,10 +297,19 @@ public class WikipediaMarkupCleaner {
                if( line.toString().startsWith("*") || line.toString().startsWith("#") )
                    line.replace(0, 1, "");
                  
-               
+               // remove this when the text is almost clean
                if( line.indexOf("<font") >= 0)
                    line = removeSection(s, line, "<font", ">", debug);
                line = new StringBuffer(line.toString().replaceAll("</font>", ""));
+               
+               if( line.indexOf("<blockquote") >= 0)
+                   line = removeSection(s, line, "<blockquote", ">", debug);
+               
+               if( line.indexOf("<ol") >= 0)
+                   line = removeSection(s, line, "<ol", ">", debug);
+               
+               if( line.indexOf("<http:") >= 0)
+                   line = removeSection(s, line, "<http:", ">", debug);
                
                // finally concatenate the line  
                str.append(line);
@@ -740,7 +820,7 @@ public class WikipediaMarkupCleaner {
      }
     
     
-    void processWikipediaSQLTables(String textFile, String pageFile, String revisionFile)throws Exception{
+    void processWikipediaSQLTablesDebug(String textFile, String pageFile, String revisionFile)throws Exception{
         //Put sentences and features in the database.
         DBHandler wikiToDB = new DBHandler();
 
@@ -753,8 +833,11 @@ public class WikipediaMarkupCleaner {
       //  wikiToDB.createAndLoadWikipediaTables(textFile, pageFile, revisionFile);
         
         String pageId[];
-        pageId = wikiToDB.getPageIds();
+        pageId = wikiToDB.getIds("page_id", "page");
+        
        
+        wikiToDB.createWikipediaCleanTextTable();
+        
         
         String text;
         String pwFile="/project/mary/marcela/anna_wikipedia/wiki-filter.txt";
@@ -767,13 +850,14 @@ public class WikipediaMarkupCleaner {
            
           //System.out.print("PAGE page_id[" + i + "]=" + pageId[i] + "  "); 
           // first filter  
-          text = wikiToDB.getTextFromPage(pageId[i], minPageLength);
+          text = wikiToDB.getTextFromWikiPage(pageId[i], minPageLength);
         
             //text = wikiToDB.getTextFromPage("18783089", minPageLength);
             //text = wikiToDB.getTextFromPage("18717261", minPageLength);
             //text = wikiToDB.getTextFromPage("18717338", minPageLength);
             //text = wikiToDB.getTextFromPage("18836159", minPageLength);
             //text = wikiToDB.getTextFromPage("18695129", minPageLength);
+            //text = wikiToDB.getTextFromPage("18937878", minPageLength);
             //System.out.println("text=" + text);
             
             if(text!=null){         
@@ -782,6 +866,11 @@ public class WikipediaMarkupCleaner {
             //  text = wikiCleaner.removeMarKup(text, true);  
             //else
               text = removeMarKup(text, false); 
+              
+            // if text is not empty we need to keep it in a table in wiki
+            if( !text.contentEquals("") )
+              wikiToDB.insertCleanText(text);  
+              
             //if(numPagesUsed==308)
             //  System.out.println("\n\nnumPagesUsed=" +numPagesUsed+ " CLEANED PAGE page_id[" + i + "]=" + pageId[i] + " :\n" + text);
             pw.println("\n\nnumPagesUsed=" +numPagesUsed+ " CLEANED PAGE page_id[" + i + "]=" + pageId[i] + " :\n" + text);  
@@ -799,5 +888,59 @@ public class WikipediaMarkupCleaner {
     }
     
     
+    void processWikipediaSQLTables(String textFile, String pageFile, String revisionFile)throws Exception{
+        //Put sentences and features in the database.
+        DBHandler wikiToDB = new DBHandler();
+
+        wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");
+        
+        
+        // This loading takes a while
+      //  wikiToDB.createAndLoadWikipediaTables(textFile, pageFile, revisionFile);
+        
+        String pageId[];
+        pageId = wikiToDB.getIds("page_id","page");
+             
+        wikiToDB.createWikipediaCleanTextTable();
+               
+        String text;
+        String pwFile="/project/mary/marcela/anna_wikipedia/wiki-filter.txt";
+        PrintWriter pw = new PrintWriter(new FileWriter(new File(pwFile)));
+        
+        int numPagesUsed=0;
+        int minPageLength=20000;  // minimum size of a wikipedia page, to be used in the first filtering of pages
+        for(int i=0; i<pageId.length; i++){
+          // first filter  
+          text = wikiToDB.getTextFromWikiPage(pageId[i], minPageLength);
+          
+          if(text!=null){         
+            System.out.println("numPagesUsed=" + numPagesUsed); 
+            text = removeMarKup(text, false); 
+              
+            // if text is not empty we need to keep it in a table in wiki
+            if( !text.contentEquals("") )
+              wikiToDB.insertCleanText(text);  
+              
+            pw.println("\n\nnumPagesUsed=" +numPagesUsed+ " CLEANED PAGE page_id[" + i + "]=" + pageId[i] + " :\n" + text);  
+            numPagesUsed++;
+          }
+        }
+        System.out.println("Number of PAGES USED=" + numPagesUsed);
+        
+        pw.close(); 
+        
+    }
+    
+    
+    public static void main(String[] args) throws Exception{
+        
+        WikipediaMarkupCleaner wikiCleaner = new WikipediaMarkupCleaner(); 
+        
+        String textFile = "/project/mary/marcela/anna_wikipedia/pages_xml_splits/text.txt";
+        String pageFile = "/project/mary/marcela/anna_wikipedia/pages_xml_splits/page.txt";
+        String revisionFile = "/project/mary/marcela/anna_wikipedia/pages_xml_splits/revision.txt";
+        
+        wikiCleaner.processWikipediaSQLTables(textFile, pageFile, revisionFile);
+    }
        
    }
